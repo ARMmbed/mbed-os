@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   Header file of CRC HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@
 /** @defgroup CRCEx_Input_Data_Inversion CRC Extended input data inversion modes
   * @{
   */
-#define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000)
+#define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000U)
 #define CRC_INPUTDATA_INVERSION_BYTE              ((uint32_t)CRC_CR_REV_IN_0)
 #define CRC_INPUTDATA_INVERSION_HALFWORD          ((uint32_t)CRC_CR_REV_IN_1)
 #define CRC_INPUTDATA_INVERSION_WORD              ((uint32_t)CRC_CR_REV_IN)
@@ -80,7 +80,7 @@
 /** @defgroup CRCEx_Output_Data_Inversion CRC Extended output data inversion modes
   * @{
   */
-#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000)
+#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000U)
 #define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)
 
 #define IS_CRC_OUTPUTDATA_INVERSION_MODE(__MODE__)    (((__MODE__) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \

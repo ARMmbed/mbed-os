@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   CRC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
@@ -204,6 +204,9 @@ HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
   
   /* Change CRC peripheral state */
   hcrc->State = HAL_CRC_STATE_BUSY;
+  
+  /* Reset IDR register content */
+  CLEAR_BIT(hcrc->Instance->IDR, CRC_IDR_IDR) ;
 
   /* DeInit the low level hardware */
   HAL_CRC_MspDeInit(hcrc);

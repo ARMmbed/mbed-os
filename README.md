@@ -67,7 +67,7 @@ STMicroelectronics:
 * [Nucleo-F302R8](https://developer.mbed.org/platforms/ST-Nucleo-F302R8/) (Cortex-M4F)
 * [Nucleo-F334R8](https://developer.mbed.org/platforms/ST-Nucleo-F334R8/) (Cortex-M4F)
 * [Nucleo-F401RE](https://developer.mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4F)
-* Nucleo-F410RB (Cortex-M4F)
+* [Nucleo-F410RB](https://developper.mbed.org/platforms/ST-Nucleo-F410RB/) (Cortex-M4F)
 * [Nucleo-F411RE](https://developer.mbed.org/platforms/ST-Nucleo-F411RE/) (Cortex-M4F)
 * [Nucleo-L476RG](https://developer.mbed.org/platforms/ST-Nucleo-L476RG/) (Cortex-M4F)
 * STM32F4XX (Cortex-M4F)

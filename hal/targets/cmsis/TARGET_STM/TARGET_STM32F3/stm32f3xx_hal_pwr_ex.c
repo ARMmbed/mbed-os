@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Extended PWR HAL module driver.
-  *
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
   *           + Extended Initialization and de-initialization functions
@@ -14,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -48,7 +47,7 @@
   * @{
   */
 
-/** @defgroup PWREx PWR Extended HAL module driver
+/** @defgroup PWREx PWREx
   * @brief    PWREx HAL module driver
   * @{
   */
@@ -93,34 +92,36 @@
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
           than the PVD threshold. This event is internally connected to the EXTI
           line16 and can generate an interrupt if enabled. This is done through
-          __HAL_PVD_EXTI_ENABLE_IT() macro
+          __HAL_PWR_PVD_EXTI_ENABLE_IT() macro
       (+) The PVD is stopped in Standby mode.
-      (+) Note: PVD is not available on STM32F3x8 Product Line
+      -@- PVD is not available on STM32F3x8 Product Line
 
 
     *** Voltage regulator ***
     =========================
+    [..]
       (+) The voltage regulator is always enabled after Reset. It works in three different
-          modes:
+          modes.
           In Run mode, the regulator supplies full power to the 1.8V domain (core, memories
           and digital peripherals).
           In Stop mode, the regulator supplies low power to the 1.8V domain, preserving
           contents of registers and SRAM.
           In Stop mode, the regulator is powered off. The contents of the registers and SRAM
           are lost except for the Standby circuitry and the Backup Domain.
-          Note: In the STM32F3x8xx devices, the voltage regulator is bypassed and the
+          Note: in the STM32F3x8xx devices, the voltage regulator is bypassed and the
           microcontroller must be powered from a nominal VDD = 1.8V +/-8% voltage.
 
 
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
           than the PVD threshold. This event is internally connected to the EXTI
           line16 and can generate an interrupt if enabled. This is done through
-          __HAL_PVD_EXTI_ENABLE_IT() macro
+          __HAL_PWR_PVD_EXTI_ENABLE_IT() macro
       (+) The PVD is stopped in Standby mode.
 
 
     *** SDADC power configuration ***
     ================================
+    [..]
       (+) On STM32F373xC/STM32F378xx devices, there are up to 
           3 SDADC instances that can be enabled/disabled.
 
@@ -143,7 +144,7 @@
   *         detection level.
   * @retval None
   */
-void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
+void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
 {
   /* Check the parameters */
   assert_param(IS_PWR_PVD_LEVEL(sConfigPVD->PVDLevel));
@@ -155,7 +156,7 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   /* Clear any previous config. Keep it clear if no event or IT mode is selected */
   __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
   __HAL_PWR_PVD_EXTI_DISABLE_IT();
-  __HAL_PWR_PVD_EXTI_CLEAR_EGDE_TRIGGER();
+  __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();
 
   /* Configure interrupt mode */
   if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
@@ -172,12 +173,12 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   /* Configure the edge */
   if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
-    __HAL_PWR_PVD_EXTI_SET_RISING_EDGE_TRIGGER();
+    __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();
   }
   
   if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
   {
-    __HAL_PWR_PVD_EXTI_SET_FALLING_EGDE_TRIGGER();
+    __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
   }
 }
 
@@ -187,7 +188,7 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   */
 void HAL_PWR_EnablePVD(void)
 {
-  *(__IO uint32_t *) CR_PVDE_BB = (uint32_t)ENABLE;
+  SET_BIT(PWR->CR, PWR_CR_PVDE);  
 }
 
 /**
@@ -196,7 +197,7 @@ void HAL_PWR_EnablePVD(void)
   */
 void HAL_PWR_DisablePVD(void)
 {
-  *(__IO uint32_t *) CR_PVDE_BB = (uint32_t)DISABLE;
+  CLEAR_BIT(PWR->CR, PWR_CR_PVDE);  
 }
 
 /**
@@ -242,13 +243,13 @@ __weak void HAL_PWR_PVDCallback(void)
   *   This parameter can be: PWR_SDADC_ANALOG1, PWR_SDADC_ANALOG2 or PWR_SDADC_ANALOG3.
   * @retval None
   */
-void HAL_PWREx_EnableSDADCAnalog(uint32_t Analogx)
+void HAL_PWREx_EnableSDADC(uint32_t Analogx)
 {
   /* Check the parameters */
   assert_param(IS_PWR_SDADC_ANALOG(Analogx));
 
   /* Enable PWR clock interface for SDADC use */
-  __PWR_CLK_ENABLE();
+  __HAL_RCC_PWR_CLK_ENABLE();
     
   PWR->CR |= Analogx;
 }
@@ -259,7 +260,7 @@ void HAL_PWREx_EnableSDADCAnalog(uint32_t Analogx)
   *   This parameter can be: PWR_SDADC_ANALOG1, PWR_SDADC_ANALOG2 or PWR_SDADC_ANALOG3.
   * @retval None
   */
-void HAL_PWREx_DisableSDADCAnalog(uint32_t Analogx)
+void HAL_PWREx_DisableSDADC(uint32_t Analogx)
 {
   /* Check the parameters */
   assert_param(IS_PWR_SDADC_ANALOG(Analogx));

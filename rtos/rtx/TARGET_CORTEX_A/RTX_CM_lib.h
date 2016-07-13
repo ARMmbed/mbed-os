@@ -395,18 +395,22 @@ void __iar_system_Mtxunlock(__iar_Rmtx *mutex)
  *---------------------------------------------------------------------------*/
 
 /* Main Thread definition */
-extern int main (void);
+extern void pre_main (void);
 #ifdef __MBED_CMSIS_RTOS_CA9
 uint32_t os_thread_def_stack_main [(4 * OS_MAINSTKSIZE) / sizeof(uint32_t)];
-osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE, os_thread_def_stack_main };
+osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE, os_thread_def_stack_main };
 #else
-osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE };
+osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE };
 #endif
 
 #if defined (__CC_ARM)
 
 #ifdef __MICROLIB
+
+int main(void);
 void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
+void $Super$$__cpp_initialize__aeabi_(void);
+
 #if __TARGET_ARCH_ARM
 #pragma push
 #pragma arm
@@ -420,66 +424,134 @@ void _main_init (void) {
 #if __TARGET_ARCH_ARM
 #pragma pop
 #endif
+
+void $Sub$$__cpp_initialize__aeabi_(void)  
+{  
+  // this should invoke C++ initializers prior _main_init, we keep this empty and  
+  // invoke them after _main_init (=starts RTX kernel)  
+}  
+
+void pre_main()  
+{  
+  $Super$$__cpp_initialize__aeabi_();  
+  main();  
+}
+
 #else
+
+void * armcc_heap_base;
+void * armcc_heap_top;
+
+__asm void pre_main (void)
+{
+  IMPORT  __rt_lib_init
+  IMPORT  main
+  IMPORT  armcc_heap_base
+  IMPORT  armcc_heap_top
+
+  LDR     R0,=armcc_heap_base
+  LDR     R1,=armcc_heap_top
+  LDR     R0,[R0]
+  LDR     R1,[R1]
+  /* Save link register (keep 8 byte alignment with dummy R4) */
+  PUSH    {R4, LR}
+  BL      __rt_lib_init
+  BL       main
+  /* Return to the thread destroy function.
+   */
+  POP     {R4, PC}
+  ALIGN
+}
+
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
-  IMPORT  __rt_lib_init
   IMPORT  os_thread_def_main
+  IMPORT  armcc_heap_base
+  IMPORT  armcc_heap_top
   IMPORT  osKernelInitialize
   IMPORT  osKernelStart
   IMPORT  osThreadCreate
-  IMPORT  exit
 
   BL      __user_setup_stackheap
-  MOV     R1,R2
-  BL      __rt_lib_init
+  LDR     R3,=armcc_heap_base
+  LDR     R4,=armcc_heap_top
+  STR     R0,[R3]
+  STR     R2,[R4]
   BL      osKernelInitialize
   LDR     R0,=os_thread_def_main
   MOVS    R1,#0
   BL      osThreadCreate
   BL      osKernelStart
-  BL      exit
+  /* osKernelStart should not return */
+  B       .
 
   ALIGN
 }
 #endif
 
 #elif defined (__GNUC__)
+extern void __libc_fini_array(void);
+extern void __libc_init_array (void);
+extern int main(int argc, char **argv);
+
+void pre_main(void) {
+    atexit(__libc_fini_array);
+    __libc_init_array();
+    main(0, NULL);
+}
 
 __attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
     ".syntax unified\n"
     ".arm\n"
-    "movs r0,#0\n"
-    "movs r1,#0\n"
-    "mov  r4,r0\n"
-    "mov  r5,r1\n"
-    "ldr  r0,= __libc_fini_array\n"
-    "bl   atexit\n"
-    "bl   __libc_init_array\n"
-    "mov  r0,r4\n"
-    "mov  r1,r5\n"
     "bl   osKernelInitialize\n"
     "ldr  r0,=os_thread_def_main\n"
     "movs r1,#0\n"
     "bl   osThreadCreate\n"
     "bl   osKernelStart\n"
-    "bl   exit\n"
+    /* osKernelStart should not return */ 
+    "B       .\n"
   );
 }
 
 #elif defined (__ICCARM__)
+extern void* __vector_core_a9;
+extern int  __low_level_init(void);
+extern void __iar_data_init3(void);
+extern __weak void __iar_init_core( void );
+extern __weak void __iar_init_vfp( void );
+extern void __iar_dynamic_initialization(void);
+extern void mbed_sdk_init(void);
+static uint8_t low_level_init_needed;
 
-extern void exit(int arg);
+void pre_main(void) {
+    if (low_level_init_needed) {
+        __iar_dynamic_initialization();
+    }
+    main();
+}
 
-void mbed_main(void) {
-  int a;
-
+#pragma required=__vector_core_a9
+void __iar_program_start( void )
+{
+  __iar_init_core();
+  __iar_init_vfp();
+  
+  uint8_t low_level_init_needed_local;
+  
+  low_level_init_needed_local = __low_level_init();
+  if (low_level_init_needed_local) {
+     __iar_data_init3();
+     mbed_sdk_init();
+   }
+  /* Store in a global variable after RAM has been initialized */
+  low_level_init_needed = low_level_init_needed_local;
   osKernelInitialize();
   osThreadCreate(&os_thread_def_main, NULL);
-  a = osKernelStart();
-  exit(a);
+  osKernelStart();
+  /* osKernelStart should not return */
+  while (1);
 }
 
 #endif

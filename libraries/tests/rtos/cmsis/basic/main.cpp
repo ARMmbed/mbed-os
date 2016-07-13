@@ -1,6 +1,10 @@
 #include "mbed.h"
 #include "cmsis_os.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
 

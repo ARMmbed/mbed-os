@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
-  * @brief   Header file of PCD HAL Extended module.
+  * @version V1.3.0
+  * @date    26-June-2015
+  * @brief   Header file of PCD HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -109,11 +109,10 @@
   */ 
 
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup PCDEx_Exported_Functions PCD Extended Exported Functions
+/** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
   * @{
   */
-/** @addtogroup PCDEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions 
- *  @brief    Initialization and Configuration functions
+/** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
   * @{
   */
 HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
@@ -121,7 +120,7 @@ HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
                                      uint16_t ep_kind,
                                      uint32_t pmaadress);
 
- __weak void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
+void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
 
 /**
   * @}

@@ -5,7 +5,7 @@
 # no error should be raised
 
 expected_results = {
-    "K64F": {
+    "test_target": {
         "desc": "test macro definitions",
         "expected_macros": ["APP1=10", "APP2", "LIB1_1=1","LIB1_2", "LIB2_1=5"]
     }

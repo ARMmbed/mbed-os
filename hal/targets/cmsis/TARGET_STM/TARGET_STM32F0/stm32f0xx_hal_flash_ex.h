@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of Flash HAL Extended module.
   ******************************************************************************
   * @attention
@@ -235,15 +235,15 @@ typedef struct
 
 #if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) \
  || defined(STM32F051x8) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F070x6) 
-#define OB_WRP_PAGES0TO31MASK          ((uint32_t)0x000000FF)
+#define OB_WRP_PAGES0TO31MASK          ((uint32_t)0x000000FFU)
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F038xx || STM32F058xx || STM32F070x6 */
 
 #if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)
-#define OB_WRP_PAGES32TO63MASK         ((uint32_t)0x0000FF00)
+#define OB_WRP_PAGES32TO63MASK         ((uint32_t)0x0000FF00U)
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 
 #if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F038xx)|| defined(STM32F070x6)
-#define OB_WRP_ALLPAGES                ((uint32_t)0x000000FF) /*!< Write protection of all pages */
+#define OB_WRP_ALLPAGES                ((uint32_t)0x000000FFU) /*!< Write protection of all pages */
 #endif /* STM32F030x6 || STM32F031x6 || STM32F042x6 || STM32F048xx || STM32F038xx || STM32F070x6 */
 
 #if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)

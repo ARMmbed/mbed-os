@@ -376,7 +376,12 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #define INITIAL_SP            (0x20003000UL)
 
 #elif defined(TARGET_K64F)
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+extern uint32_t __StackTop[];
+#define INITIAL_SP            (__StackTop)
+#else
 #define INITIAL_SP            (0x20030000UL)
+#endif
 
 #elif defined(TARGET_K22F)
 #define INITIAL_SP            (0x20010000UL)
@@ -483,6 +488,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F030R8)
 #define INITIAL_SP            (0x20002000UL)
 
+#elif defined(TARGET_STM32L432KC)
+#define INITIAL_SP            (0x2000C000UL)
+
 #elif defined(TARGET_STM32L476VG)
 #define INITIAL_SP            (0x20018000UL)
 
@@ -512,6 +520,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 
 #elif defined(TARGET_MCU_NRF52832)
 #define INITIAL_SP            (0x20010000UL)
+
+#elif (defined(TARGET_STM32F767ZI))
+#define INITIAL_SP            (0x20080000UL)
 
 #else
 #error "no target defined"
@@ -716,6 +727,8 @@ extern __weak void __iar_init_core( void );
 extern __weak void __iar_init_vfp( void );
 extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
+extern void mbed_main(void);
+extern int main(void);
 extern void exit(int arg);
 
 static uint8_t low_level_init_needed;
@@ -724,6 +737,7 @@ void pre_main(void) {
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+    mbed_main();
     main();
 }
 

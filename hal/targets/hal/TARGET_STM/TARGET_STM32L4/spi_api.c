@@ -85,9 +85,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
     }
+#if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
     }
+#endif
     if (obj->spi == SPI_3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
     }
@@ -129,11 +131,13 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI1_CLK_DISABLE();
     }
 
+#if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
         __HAL_RCC_SPI2_FORCE_RESET();
         __HAL_RCC_SPI2_RELEASE_RESET();
         __HAL_RCC_SPI2_CLK_DISABLE();
     }
+#endif
 
     if (obj->spi == SPI_3) {
         __HAL_RCC_SPI3_FORCE_RESET();
@@ -187,46 +191,48 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     init_spi(obj);
 }
 
+static const uint16_t baudrate_prescaler_table[] =	{SPI_BAUDRATEPRESCALER_2,
+                                                    SPI_BAUDRATEPRESCALER_4,
+                                                    SPI_BAUDRATEPRESCALER_8,
+                                                    SPI_BAUDRATEPRESCALER_16,
+                                                    SPI_BAUDRATEPRESCALER_32,
+                                                    SPI_BAUDRATEPRESCALER_64,
+                                                    SPI_BAUDRATEPRESCALER_128,
+                                                    SPI_BAUDRATEPRESCALER_256};
+
 void spi_frequency(spi_t *obj, int hz)
 {
-    // Values depend of PCLK1 and PCLK2: 80 MHz if MSI or HSI is used, 48 MHz if HSE is used
-    if (SystemCoreClock == 80000000) { // MSI or HSI
-        if (hz < 600000) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 313 kHz
-        } else if ((hz >= 600000) && (hz < 1000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 625 kHz
-        } else if ((hz >= 1000000) && (hz < 2000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 1.25 MHz (default)
-        } else if ((hz >= 2000000) && (hz < 5000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 2.5 MHz
-        } else if ((hz >= 5000000) && (hz < 10000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 5 MHz
-        } else if ((hz >= 10000000) && (hz < 20000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 10 MHz
-        } else if ((hz >= 20000000) && (hz < 40000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 20 MHz
-        } else { // >= 40000000
-            obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 40 MHz
-        }
-    } else { // 48 MHz - HSE
-        if (hz < 350000) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 188 kHz
-        } else if ((hz >= 350000) && (hz < 750000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 375 kHz
-        } else if ((hz >= 750000) && (hz < 1000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 750 kHz
-        } else if ((hz >= 1000000) && (hz < 3000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 1.5 MHz (default)
-        } else if ((hz >= 3000000) && (hz < 6000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 3 MHz
-        } else if ((hz >= 6000000) && (hz < 12000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 6 MHz
-        } else if ((hz >= 12000000) && (hz < 24000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 12 MHz
-        } else { // >= 24000000
-            obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 24 MHz
-        }
+	int spi_hz = 0;
+	uint8_t prescaler_rank = 0;
+
+	/* Get source clock depending on SPI instance */
+    switch ((int)obj->spi) {
+        case SPI_1:
+    			/* SPI_1. Source CLK is PCKL2 */
+    			spi_hz = HAL_RCC_GetPCLK2Freq();
+    			break;
+#if defined(SPI2_BASE)
+    		case SPI_2:
+#endif
+    		case SPI_3:
+    			/* SPI_2, SPI_3. Source CLK is PCKL1 */
+    			spi_hz = HAL_RCC_GetPCLK1Freq();
+    			break;
+    		default:
+    			error("SPI instance not set");
     }
+
+	/* Define pre-scaler in order to get highest available frequency below requested frequency */
+	while ((spi_hz > hz) && (prescaler_rank < sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0]))){
+		spi_hz = spi_hz / 2;
+		prescaler_rank++;
+	}
+
+	if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
+		obj->br_presc = baudrate_prescaler_table[prescaler_rank-1];
+	} else {
+		error("Couldn't setup requested SPI frequency");
+	}
 
     init_spi(obj);
 }

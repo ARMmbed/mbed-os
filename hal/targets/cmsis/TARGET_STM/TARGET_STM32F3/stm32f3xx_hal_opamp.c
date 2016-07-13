@@ -2,16 +2,14 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   OPAMP HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the operational amplifiers (OPAMP1,...OPAMP4) 
   *          peripheral: 
   *           + OPAMP Configuration
   *           + OPAMP calibration
-  *
   *          Thanks to
   *           + Initialization/de-initialization functions
   *           + I/O operation functions
@@ -27,17 +25,17 @@
        OPAMP3 and OPAMP4:
        
        (#) The OPAMP(s) provides several exclusive running modes.
-       (+) Standalone mode
-       (+) Programmable Gain Amplifier (PGA) mode (Resistor feedback output)
-       (+) Follower mode
+       (++) Standalone mode
+       (++) Programmable Gain Amplifier (PGA) mode (Resistor feedback output)
+       (++) Follower mode
 
        (#) The OPAMP(s) provide(s) calibration capabilities.  
-       (+) Calibration aims at correcting some offset for running mode.
-       (+) The OPAMP uses either factory calibration settings OR user defined 
+       (++) Calibration aims at correcting some offset for running mode.
+       (++) The OPAMP uses either factory calibration settings OR user defined 
            calibration (trimming) settings (i.e. trimming mode).
-       (+) The user defined settings can be figured out using self calibration 
+       (++) The user defined settings can be figured out using self calibration 
            handled by HAL_OPAMP_SelfCalibrate, HAL_OPAMPEx_SelfCalibrateAll
-       (+) HAL_OPAMP_SelfCalibrate:
+       (++) HAL_OPAMP_SelfCalibrate:
        (++) Runs automatically the calibration in 2 steps. 
             (90% of VDDA for NMOS transistors, 10% of VDDA for PMOS transistors).
             (As OPAMP is Rail-to-rail input/output, these 2 steps calibration is 
@@ -54,88 +52,58 @@
        
        (#) For any running mode, an additional Timer-controlled Mux (multiplexer) 
            mode can be set on top.
-       (+) Timer-controlled Mux mode allows Automatic switching between inverting
+       (++) Timer-controlled Mux mode allows Automatic switching between inverting
            and non-inverting input. 
-       (+) Hence on top of defaults (primary) inverting and non-inverting inputs,
+       (++) Hence on top of defaults (primary) inverting and non-inverting inputs,
            the user shall select secondary inverting and non inverting inputs.
-       (+) TIM1 CC6 provides the alternate switching tempo between defaults 
+       (++) TIM1 CC6 provides the alternate switching tempo between defaults 
            (primary) and secondary inputs. 
              
        (#) Running mode: Standalone mode 
-       (+) Gain is set externally (gain depends on external loads).
-       (+) Follower mode also possible externally by connecting the inverting input to
+       (++) Gain is set externally (gain depends on external loads).
+       (++) Follower mode also possible externally by connecting the inverting input to
            the output.
        
        (#) Running mode: Follower mode
-       (+) No Inverting Input is connected.
+       (++) No Inverting Input is connected.
        
        (#) Running mode: Programmable Gain Amplifier (PGA) mode 
            (Resistor feedback output)
-       (+) The OPAMP(s) output(s) can be internally connected to resistor feedback
+       (++) The OPAMP(s) output(s) can be internally connected to resistor feedback
            output.
-       (+) OPAMP gain is either 2, 4, 8 or 16.
+       (++) OPAMP gain is either 2, 4, 8 or 16.
         
-       (#) The OPAMPs non inverting input (both default and secondary) can be 
-           selected among the list shown by table below.
-       
-       (#) The OPAMPs non inverting input (both default and secondary) can be 
-           selected among the list shown by table below.
-       
-   [..] Table 1.  OPAMPs inverting/non-inverting inputs for the STM32F3 devices:
-     
-    +--------------------------------------------------------------+     
-    |                 |        | OPAMP1 | OPAMP2 | OPAMP3 | OPAMP4 |
-    |-----------------|--------|--------|--------|--------|--------|
-    |                 | No conn|   X    |   X    |   X    |   X    |
-    | Inverting Input | VM0    |  PC5   |  PC5   |  PB10  |  PB10  |
-    | (1)             | VM1    |  PA3   |  PA5   |  PB2   |  PD8   |
-    |-----------------|--------|--------|--------|--------|--------|
-    |                 | VP0    |  PA1   |  PA7   |  PB0   |  PB13  |
-    |  Non Inverting  | VP1    |  PA7   |  PD14  |  PB13  |  PD11  |
-    |    Input        | VP2    |  PA3   |  PB0   |  PA1   |  PA4   |
-    |                 | VP3    |  PA5   |  PB14  |  PA5   |  PB11  |
-    +--------------------------------------------------------------+  
-    (1): NA in follower mode.
-           
-   [..] Table 2.  OPAMPs outputs for the STM32F3 devices:
-
-    +--------------------------------------------------------------+     
-    |                 |        | OPAMP1 | OPAMP2 | OPAMP3 | OPAMP4 |
-    |-----------------|--------|--------|--------|--------|--------|
-    | Output          |        |  PA2   |  PA6   |  PB1   |  PB12  |
-    |-----------------|--------|--------|--------|--------|--------|
-
       
             ##### How to use this driver #####
 ================================================================================
   [..] 
-     
     *** Calibration ***
     ============================================
-      To run the opamp calibration self calibration:
+    [..]
+  To run the opamp calibration self calibration:
 
       (#) Start calibration using HAL_OPAMP_SelfCalibrate. 
            Store the calibration results.
 
     *** Running mode ***
     ============================================
-      
-      To use the opamp, perform the following steps:
+    [..]
+  To use the opamp, perform the following steps:
             
       (#) Fill in the HAL_OPAMP_MspInit() to
-      (+) Configure the opamp input AND output in analog mode using 
+      (++) Configure the opamp input AND output in analog mode using 
           HAL_GPIO_Init() to map the opamp output to the GPIO pin.
   
       (#) Configure the opamp using HAL_OPAMP_Init() function:
-      (+) Select the mode
-      (+) Select the inverting input
-      (+) Select the non-inverting input 
-      (+) Select if the Timer controlled Mux mode is enabled/disabled
-      (+) If the Timer controlled Mux mode is enabled, select the secondary inverting input
-      (+) If the Timer controlled Mux mode is enabled, Select the secondary non-inverting input 
-      (+) If PGA mode is enabled, Select if inverting input is connected.
-      (+) Select either factory or user defined trimming mode.
-      (+) If the user defined trimming mode is enabled, select PMOS & NMOS trimming values
+      (++) Select the mode
+      (++) Select the inverting input
+      (++) Select the non-inverting input 
+      (++) Select if the Timer controlled Mux mode is enabled/disabled
+      (++) If the Timer controlled Mux mode is enabled, select the secondary inverting input
+      (++) If the Timer controlled Mux mode is enabled, Select the secondary non-inverting input 
+      (++) If PGA mode is enabled, Select if inverting input is connected.
+      (++) Select either factory or user defined trimming mode.
+      (++) If the user defined trimming mode is enabled, select PMOS & NMOS trimming values
           (typ. settings returned by HAL_OPAMP_SelfCalibrate function).
       
       (#) Enable the opamp using HAL_OPAMP_Start() function.
@@ -143,22 +111,25 @@
       (#) Disable the opamp using HAL_OPAMP_Stop() function.
       
       (#) Lock the opamp in running mode using HAL_OPAMP_Lock() function. From then The configuration 
-          can only be modified after HW reset.
+          can  be modified 
+      (++) After HW reset 
+      (++) OR thanks to HAL_OPAMP_MspDeInit called (user defined) from HAL_OPAMP_DeInit.
 
     *** Running mode: change of configuration while OPAMP ON  ***
     ============================================
+    [..]
     To Re-configure OPAMP when OPAMP is ON (change on the fly)
       (#) If needed, Fill in the HAL_OPAMP_MspInit()
-      (+) This is the case for instance if you wish to use new OPAMP I/O
+      (++) This is the case for instance if you wish to use new OPAMP I/O
 
       (#) Configure the opamp using HAL_OPAMP_Init() function:
-      (+) As in configure case, selects first the parameters you wish to modify.
+      (++) As in configure case, selects first the parameters you wish to modify.
       
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -185,15 +156,42 @@
   ******************************************************************************  
   */
 
+/*
+  Additional Tables:
+    The OPAMPs non inverting input (both default and secondary) can be 
+    selected among the list shown by table below.
+       
+    The OPAMPs non inverting input (both default and secondary) can be 
+    selected among the list shown by table below.
+       
+    Table 1.  OPAMPs inverting/non-inverting inputs for the STM32F3 devices:
+    +--------------------------------------------------------------+     
+    |                 |        | OPAMP1 | OPAMP2 | OPAMP3 | OPAMP4 |
+    |-----------------|--------|--------|--------|--------|--------|
+    |                 | No conn|   X    |   X    |   X    |   X    |
+    | Inverting Input | VM0    |  PC5   |  PC5   |  PB10  |  PB10  |
+    | (1)             | VM1    |  PA3   |  PA5   |  PB2   |  PD8   |
+    |-----------------|--------|--------|--------|--------|--------|
+    |                 | VP0    |  PA1   |  PA7   |  PB0   |  PB13  |
+    |  Non Inverting  | VP1    |  PA7   |  PD14  |  PB13  |  PD11  |
+    |    Input        | VP2    |  PA3   |  PB0   |  PA1   |  PA4   |
+    |                 | VP3    |  PA5   |  PB14  |  PA5   |  PB11  |
+    +--------------------------------------------------------------+  
+    (1): NA in follower mode.
+           
+    Table 2.  OPAMPs outputs for the STM32F3 devices:
+    +--------------------------------------------------------------+     
+    |                 |        | OPAMP1 | OPAMP2 | OPAMP3 | OPAMP4 |
+    |-----------------|--------|--------|--------|--------|--------|
+    | Output          |        |  PA2   |  PA6   |  PB1   |  PB12  |
+    |-----------------|--------|--------|--------|--------|--------|
+
+*/
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
     
 /** @addtogroup STM32F3xx_HAL_Driver
-  * @{
-  */
-
-/** @defgroup OPAMP OPAMP HAL module driver
-  * @brief OPAMP HAL module driver
   * @{
   */
 
@@ -203,6 +201,11 @@
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
     defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+
+/** @defgroup OPAMP OPAMP
+  * @brief OPAMP HAL module driver
+  * @{
+  */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -229,7 +232,7 @@
  *
 @verbatim    
  ===============================================================================
-              ##### Initialization/de-initialization  functions #####
+              ##### Initialization and de-initialization  functions #####
  ===============================================================================
     [..]  This section provides functions allowing to:
  
@@ -252,7 +255,7 @@ HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
 
   /* Check the OPAMP handle allocation and lock status */
   /* Init not allowed if calibration is ongoing */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))
   {
     return HAL_ERROR;
@@ -296,8 +299,14 @@ HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
     }
  
     /* Init SYSCFG and the low level hardware to access opamp */
-    __SYSCFG_CLK_ENABLE();
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
     
+    if(hopamp->State == HAL_OPAMP_STATE_RESET)
+    {
+      /* Allocate lock resource and initialize it */
+      hopamp->Lock = HAL_UNLOCKED;
+    }
+
     /* Call MSP init function */
     HAL_OPAMP_MspInit(hopamp);
                                           
@@ -332,6 +341,7 @@ HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
                                         hopamp->Init.UserTrimming | \
                                         (hopamp->Init.TrimmingValueP << OPAMP_INPUT_NONINVERTING) | \
                                         (hopamp->Init.TrimmingValueN << OPAMP_INPUT_INVERTING));  
+
     }    
     else /* OPAMP_STANDALONE_MODE */
     {
@@ -374,10 +384,8 @@ HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the OPAMP handle allocation */
-  /* Check if OPAMP locked */
   /* DeInit not allowed if calibration is ongoing */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
-                      || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))
   {
     status = HAL_ERROR;
   }
@@ -390,11 +398,29 @@ HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
     WRITE_REG(hopamp->Instance->CSR, OPAMP_CSR_RESET_VALUE);
 
     /* DeInit the low level hardware: GPIO, CLOCK and NVIC */
+    /* When OPAMP is locked, unlocking can be achieved thanks to */ 
+    /* __HAL_RCC_SYSCFG_CLK_DISABLE() call within HAL_OPAMP_MspDeInit */
+    /* Note that __HAL_RCC_SYSCFG_CLK_DISABLE() also disables comparator */
     HAL_OPAMP_MspDeInit(hopamp);
 
-    /* Update the OPAMP state*/
-    hopamp->State = HAL_OPAMP_STATE_RESET;
+    if (OPAMP_CSR_RESET_VALUE == hopamp->Instance->CSR)
+    {
+      /* Update the OPAMP state */
+      hopamp->State = HAL_OPAMP_STATE_RESET;
+    }
+    else /* RESET STATE */ 
+    {
+      /* DeInit not complete */ 
+      /* It can be the case if OPAMP was formerly locked */ 
+      status = HAL_ERROR;
+
+      /* The OPAMP state is NOT updated */      
+    }
   }
+  
+  /* Process unlocked */
+  __HAL_UNLOCK(hopamp);
+  
   return status;
 }
 
@@ -405,6 +431,9 @@ HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
   */
 __weak void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hopamp);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_OPAMP_MspInit could be implemented in the user file
    */
@@ -419,6 +448,9 @@ __weak void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp)
   */
 __weak void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hopamp);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_OPAMP_MspDeInit could be implemented in the user file
    */
@@ -435,7 +467,7 @@ __weak void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp)
  *
 @verbatim   
  ===============================================================================
-                      ##### IO operation  functions #####
+                      ##### IO operation functions #####
  ===============================================================================  
     [..]
     This subsection provides a set of functions allowing to manage the OPAMP data 
@@ -457,7 +489,7 @@ HAL_StatusTypeDef HAL_OPAMP_Start(OPAMP_HandleTypeDef *hopamp)
   
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
                       
   {
     status = HAL_ERROR;
@@ -498,7 +530,7 @@ HAL_StatusTypeDef HAL_OPAMP_Stop(OPAMP_HandleTypeDef *hopamp)
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
   /* Check if OPAMP calibration ongoing */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))  
   {
     status = HAL_ERROR;
@@ -544,7 +576,7 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
   
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
   {
     status = HAL_ERROR;
   }
@@ -676,7 +708,7 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
       /* Disable the OPAMP */
       CLEAR_BIT (hopamp->Instance->CSR, OPAMP_CSR_OPAMPxEN);
       
-      /* Set normale operating mode  */
+      /* Set operating mode  */
       /* Non-inverting input connected to calibration reference voltage. */
       CLEAR_BIT(hopamp->Instance->CSR, OPAMP_CSR_FORCEVP);
             
@@ -739,7 +771,7 @@ HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp)
   /* Check if OPAMP locked */
   /* OPAMP can be locked when enabled and running in normal mode */ 
   /*   It is meaningless otherwise */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
                       || (hopamp->State == HAL_OPAMP_STATE_READY) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY)\
                       || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
@@ -783,13 +815,13 @@ HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp)
 
 /**
   * @brief  Return the OPAMP state
-  * @param  hopamp : OPAMP handle
+  * @param  hopamp: OPAMP handle
   * @retval HAL state
   */
 HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(OPAMP_HandleTypeDef *hopamp)
 {
   /* Check the OPAMP handle allocation */
-  if(hopamp == HAL_NULL)
+  if(hopamp == NULL)
   {
     return HAL_OPAMP_STATE_RESET;
   }
@@ -802,8 +834,8 @@ HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(OPAMP_HandleTypeDef *hopamp)
 
 /**
   * @brief  Return the OPAMP factory trimming value
-  * @param  hopamp : OPAMP handle
-  * @param  trimmingoffset : Trimming offset (P or N)
+  * @param  hopamp: OPAMP handle
+  * @param  trimmingoffset: Trimming offset (P or N)
   * @retval Trimming value (P or N): range: 0->31
   *         or OPAMP_FACTORYTRIMMING_DUMMY if trimming value is not available
  */
@@ -815,7 +847,7 @@ OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset (OPAMP_HandleTypeDef *hopamp,
   
   /* Check the OPAMP handle allocation */
   /* Value can be retrieved in HAL_OPAMP_STATE_READY state */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
                       || (hopamp->State == HAL_OPAMP_STATE_BUSY) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY)\
                       || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
@@ -872,6 +904,11 @@ OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset (OPAMP_HandleTypeDef *hopamp,
 /**
   * @}
   */
+
+/**
+  * @}
+  */
+
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
@@ -882,8 +919,6 @@ OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset (OPAMP_HandleTypeDef *hopamp,
   * @}
   */
 
-/**
-  * @}
-  */
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

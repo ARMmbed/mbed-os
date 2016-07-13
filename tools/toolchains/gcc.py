@@ -38,7 +38,7 @@ class GCC(mbedToolchain):
             ],
         'asm': ["-x", "assembler-with-cpp"],
         'c': ["-std=gnu99"],
-        'cxx': ["-std=gnu++98", "-fno-rtti"],
+        'cxx': ["-std=gnu++98", "-fno-rtti", "-Wvla"],
         'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main",
             "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r"],
     }
@@ -165,8 +165,15 @@ class GCC(mbedToolchain):
         dep_path = base + '.d'
         return ["-MD", "-MF", dep_path]
 
+    def get_config_option(self, config_header):
+        return ['-include', config_header]
+
     def get_compile_options(self, defines, includes):
-        return ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):

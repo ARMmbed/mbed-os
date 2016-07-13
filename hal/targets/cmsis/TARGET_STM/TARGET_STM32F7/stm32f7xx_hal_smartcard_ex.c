@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_smartcard_ex.c
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides extended firmware functions to manage the following 
@@ -25,7 +25,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -128,12 +128,12 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef 
   /* Process Locked */
   __HAL_LOCK(hsc);
 
-  hsc->State = HAL_SMARTCARD_STATE_BUSY;
+  hsc->gState = HAL_SMARTCARD_STATE_BUSY;
 
   /* Set the USART RTOEN bit */
   hsc->Instance->CR2 |= USART_CR2_RTOEN;
 
-  hsc->State = HAL_SMARTCARD_STATE_READY;
+  hsc->gState = HAL_SMARTCARD_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(hsc);
@@ -151,12 +151,12 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
   /* Process Locked */
   __HAL_LOCK(hsc);
 
-  hsc->State = HAL_SMARTCARD_STATE_BUSY;
+  hsc->gState = HAL_SMARTCARD_STATE_BUSY;
 
   /* Clear the USART RTOEN bit */
   hsc->Instance->CR2 &= ~(USART_CR2_RTOEN);
 
-  hsc->State = HAL_SMARTCARD_STATE_READY;
+  hsc->gState = HAL_SMARTCARD_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(hsc);

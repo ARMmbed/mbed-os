@@ -2,56 +2,25 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_crc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Extended CRC HAL module driver.
-  *    
-  *          This file provides firmware functions to manage the following 
-  *          functionalities of the CRC peripheral:
-  *           + Initialization/de-initialization functions
-  *           + I/O operation functions
-  *           + Peripheral Control functions 
-  *           + Peripheral State functions
+  *          This file provides firmware functions to manage the extended 
+  *          functionalities of the CRC peripheral.  
   *         
   @verbatim
 ================================================================================
-          ##### <Product specific features/integration> #####
-================================================================================
-           
-  [..] < This section can contain: 
-       (#) Description of the product specific implementation; all features
-           that is specific to this IP: separate clock for RTC/LCD/IWDG/ADC,
-           power domain (backup domain for the RTC)...   
-       (#) IP main features, only when needed and not mandatory for all IPs,
-           ex. for xWDG, GPIO, COMP...
-       >  
-       
-  [..] < You can add as much sections as needed.>
-  
-  [..] < You can add as much sections as needed.>
-                 
-   
             ##### How to use this driver #####
 ================================================================================
     [..]
-         (+) Enable CRC AHB clock using __CRC_CLK_ENABLE();
-         (+) Initialize CRC calculator
-             - specify generating polynomial (IP default or non-default one)
-             - specify initialization value (IP default or non-default one)
-             - specify input data format
-             - specify input or output data inversion mode if any
-         (+) Use HAL_CRC_Accumulate() function to compute the CRC value of the 
-             input data buffer starting with the previously computed CRC as 
-             initialization value
-         (+) Use HAL_CRC_Calculate() function to compute the CRC value of the 
-             input data buffer starting with the defined initialization value 
-             (default or non-default) to initiate CRC calculation
+         (+) Set user-defined generating polynomial thru HAL_CRCEx_Polynomial_Set()
+         (+) Configure Input or Output data inversion
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -85,7 +54,7 @@
   * @{
   */
 
-/** @defgroup CRCEx CRC Extended HAL module driver
+/** @defgroup CRCEx CRCEx 
   * @brief CRC Extended HAL module driver
   * @{
   */
@@ -103,19 +72,17 @@
   * @{
   */
 
-/** @defgroup CRCEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions
-  * @brief    Extended Initialization and Configuration functions.
+/** @defgroup CRCEx_Exported_Functions_Group1 CRC Extended Initialization and de-initialization functions
+  * @brief    CRC Extended Initialization and Configuration functions.
   *
 @verbatim    
  ===============================================================================
-            ##### Initialization/de-initialization functions #####
+            ##### Extended configuration functions #####
  ===============================================================================
     [..]  This section provides functions allowing to:
-      (+) Initialize the CRC according to the specified parameters 
-          in the CRC_InitTypeDef and create the associated handle
-      (+) DeInitialize the CRC peripheral
-      (+) Initialize the CRC MSP
-      (+) DeInitialize CRC MSP 
+      (+) Configure the generating polynomial
+      (+) Configure the input data inversion
+      (+) Configure the output data inversion
  
 @endverbatim
   * @{
@@ -123,13 +90,13 @@
 
 
 /**
-  * @brief  Initializes the CRC polynomial if different from default one.
+  * @brief  Initialize the CRC polynomial if different from default one.
   * @param  hcrc: CRC handle
-  * @param  Pol: CRC generating polynomial (7, 8, 16 or 32-bit long)
+  * @param  Pol: CRC generating polynomial (7, 8, 16 or 32-bit long).
   *         This parameter is written in normal representation, e.g.
-  *         for a polynomial of degree 7, X^7 + X^6 + X^5 + X^2 + 1 is written 0x65 
-  *         for a polynomial of degree 16, X^16 + X^12 + X^5 + 1 is written 0x1021     
-  * @param  PolyLength: CRC polynomial length 
+  *         @arg for a polynomial of degree 7, X^7 + X^6 + X^5 + X^2 + 1 is written 0x65 
+  *         @arg for a polynomial of degree 16, X^16 + X^12 + X^5 + 1 is written 0x1021     
+  * @param  PolyLength: CRC polynomial length. 
   *         This parameter can be one of the following values:
   *          @arg CRC_POLYLENGTH_7B: 7-bit long CRC (generating polynomial of degree 7)
   *          @arg CRC_POLYLENGTH_8B: 8-bit long CRC (generating polynomial of degree 8)
@@ -151,21 +118,32 @@ HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol
    * Look for MSB position: msb will contain the degree of
    *  the second to the largest polynomial member. E.g., for
    *  X^7 + X^6 + X^5 + X^2 + 1, msb = 6. */
-  while (((Pol & (0x1 << msb)) == 0) && (msb-- > 0));
+  while (((Pol & (1U << msb)) == 0) && (msb-- > 0)){}
 
   switch (PolyLength)
   {
     case CRC_POLYLENGTH_7B:
-      if (msb >= HAL_CRC_LENGTH_7B) return  HAL_ERROR;
+      if (msb >= HAL_CRC_LENGTH_7B) 
+      {
+        return  HAL_ERROR;
+      }
       break;
     case CRC_POLYLENGTH_8B:
-      if (msb >= HAL_CRC_LENGTH_8B) return  HAL_ERROR;
+      if (msb >= HAL_CRC_LENGTH_8B)
+      {
+        return  HAL_ERROR;
+      }      
       break;
     case CRC_POLYLENGTH_16B:
-      if (msb >= HAL_CRC_LENGTH_16B) return  HAL_ERROR;
+      if (msb >= HAL_CRC_LENGTH_16B)
+      {
+        return  HAL_ERROR;
+      }      
       break;
     case CRC_POLYLENGTH_32B:
       /* no polynomial definition vs. polynomial length issue possible */
+      break; 
+    default:
       break;                  
   }
 
@@ -182,7 +160,7 @@ HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol
 /**
   * @brief  Set the Reverse Input data mode.
   * @param  hcrc: CRC handle
-  * @param  InputReverseMode: Input Data inversion mode
+  * @param  InputReverseMode: Input Data inversion mode.
   *         This parameter can be one of the following values:
   *          @arg CRC_INPUTDATA_NOINVERSION: no change in bit order (default value)
   *          @arg CRC_INPUTDATA_INVERSION_BYTE: Byte-wise bit reversal
@@ -210,10 +188,10 @@ HAL_StatusTypeDef HAL_CRCEx_Input_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t
 /**
   * @brief  Set the Reverse Output data mode.
   * @param  hcrc: CRC handle
-  * @param  OutputReverseMode: Output Data inversion mode
+  * @param  OutputReverseMode: Output Data inversion mode.
   *         This parameter can be one of the following values:
-  *          @arg CRC_OUTPUTDATA_INVERSION_DISABLED: no CRC inversion (default value)
-  *          @arg CRC_OUTPUTDATA_INVERSION_ENABLED: bit-level inversion (e.g for a 8-bit CRC: 0xB5 becomes 0xAD)            
+  *          @arg CRC_OUTPUTDATA_INVERSION_DISABLE: no CRC inversion (default value)
+  *          @arg CRC_OUTPUTDATA_INVERSION_ENABLE: bit-level inversion (e.g. for a 8-bit CRC: 0xB5 becomes 0xAD)            
   * @retval HAL status
   */                                   
 HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t OutputReverseMode)

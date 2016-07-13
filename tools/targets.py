@@ -215,6 +215,7 @@ class Target:
         # Create also a list with only the names of the targets in the resolution order
         self.resolution_order_names = [t[0] for t in self.resolution_order]
 
+    @property
     def program_cycle_s(self):
         try:
             return self.__getattr__("program_cycle_s")

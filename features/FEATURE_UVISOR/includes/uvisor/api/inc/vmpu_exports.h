@@ -104,13 +104,24 @@
 
 #if defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1
 
+/** Round an address down to the closest 32-byte boundary.
+ * @param address[in]   The address to round.
+ */
+#define UVISOR_ROUND32_DOWN(address) ((address) & ~0x1FUL)
+
+/** Round an address up to the closest 32-byte boundary.
+ * @param address[in]   The address to round.
+ */
+#define UVISOR_ROUND32_UP(address) UVISOR_ROUND32_DOWN((address) + 31UL)
+
+
 #if defined(ARCH_MPU_ARMv7M)
 #define UVISOR_REGION_ROUND_DOWN(x) ((x) & ~((1UL << UVISOR_REGION_BITS(x)) - 1))
 #define UVISOR_REGION_ROUND_UP(x)   (1UL << UVISOR_REGION_BITS(x))
 #define UVISOR_STACK_SIZE_ROUND(x)  UVISOR_REGION_ROUND_UP(x)
 #elif defined(ARCH_MPU_KINETIS)
-#define UVISOR_REGION_ROUND_DOWN(x) ((x) & ~0x1FUL)
-#define UVISOR_REGION_ROUND_UP(x)   UVISOR_REGION_ROUND_DOWN((x) + 31UL)
+#define UVISOR_REGION_ROUND_DOWN(x) UVISOR_ROUND32_DOWN(x)
+#define UVISOR_REGION_ROUND_UP(x)   UVISOR_ROUND32_UP(x)
 #define UVISOR_STACK_SIZE_ROUND(x)  UVISOR_REGION_ROUND_UP((x) + (UVISOR_STACK_BAND_SIZE * 2))
 #else
 #error "Unknown MPU architecture. uvisor: Check your Makefile. uvisor-lib: Check if uVisor is supported"
@@ -157,6 +168,10 @@ typedef struct {
     uint32_t context_size;
     /* Contains user provided size of box heap without guards of buffers. */
     uint32_t heap_size;
+
+    /* Opaque-to-uVisor data that potentially contains uvisor-lib-specific or
+     * OS-specific per-box configuration */
+    const void * const lib_config;
 
     const char * box_namespace;
     const UvisorBoxAclItem * const acl_list;

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Extended OPAMP HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -15,7 +15,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -49,12 +49,18 @@
   * @{
   */
 
-/** @defgroup OPAMPEx OPAMP Extended HAL module driver
+#ifdef HAL_OPAMP_MODULE_ENABLED
+
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+
+/** @defgroup OPAMPEx OPAMPEx
   * @brief OPAMP Extended HAL module driver.
   * @{
   */
 
-#ifdef HAL_OPAMP_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -106,8 +112,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t delta;
 
-  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
+  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
   {
     status = HAL_ERROR;
   }
@@ -151,7 +157,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
     
       while (delta != 0)
       {
-        // Set candidate trimming */
+        /* Set candidate trimming */
         MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen1<<OPAMP_INPUT_INVERTING);
         MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen2<<OPAMP_INPUT_INVERTING);
               
@@ -211,7 +217,6 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
           MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen2<<OPAMP_INPUT_INVERTING);
         }
     
-    
       /* 2nd calibration - P */
       /* Select 10% VREF */
       MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_CALSEL, OPAMP_VREF_10VDDA);
@@ -225,7 +230,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       
       while (delta != 0)
       {
-        // Set candidate trimming */
+        /* Set candidate trimming */
         MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep1<<OPAMP_INPUT_NONINVERTING);
         MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep2<<OPAMP_INPUT_NONINVERTING);
                
@@ -259,7 +264,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       
       // Still need to check if righ calibration is current value or un step below
       // Indeed the first value that causes the OUTCAL bit to change from 1 to 0 
-      // Set candidate trimming */
+      /* Set candidate trimming */
       MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep1<<OPAMP_INPUT_NONINVERTING);
       MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep2<<OPAMP_INPUT_NONINVERTING);
 
@@ -292,7 +297,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       CLEAR_BIT (hopamp1->Instance->CSR, OPAMP_CSR_OPAMPxEN);
       CLEAR_BIT (hopamp2->Instance->CSR, OPAMP_CSR_OPAMPxEN);
 
-      /* Set normale operating mode back */
+      /* Set operating mode back */
       CLEAR_BIT(hopamp1->Instance->CSR, OPAMP_CSR_FORCEVP);
       CLEAR_BIT(hopamp2->Instance->CSR, OPAMP_CSR_FORCEVP);
       
@@ -318,7 +323,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       hopamp2->Init.UserTrimming = OPAMP_TRIMMING_USER;
       
       MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen1<<OPAMP_INPUT_INVERTING);
-			MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen2<<OPAMP_INPUT_INVERTING);
+      MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen2<<OPAMP_INPUT_INVERTING);
      
       MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep1<<OPAMP_INPUT_NONINVERTING);
       MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep2<<OPAMP_INPUT_NONINVERTING);      
@@ -368,10 +373,10 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t delta;
 
-  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp3 == HAL_NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp4 == HAL_NULL) || (hopamp4->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
+  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp3 == NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp4 == NULL) || (hopamp4->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
   {
     status = HAL_ERROR;
   }
@@ -612,14 +617,14 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       MODIFY_REG(hopamp3->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep3<<OPAMP_INPUT_NONINVERTING);
       MODIFY_REG(hopamp4->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep4<<OPAMP_INPUT_NONINVERTING);
 
-       /* OFFTRIMmax delay 2 ms as per datasheet (electrical characteristics */ 
-       /* Offset trim time: during calibration, minimum time needed between */
-       /* two steps to have 1 mV accuracy */
-       HAL_Delay(2);
+      /* OFFTRIMmax delay 2 ms as per datasheet (electrical characteristics */ 
+      /* Offset trim time: during calibration, minimum time needed between */
+      /* two steps to have 1 mV accuracy */
+      HAL_Delay(2);
       
       if ((hopamp1->Instance->CSR & OPAMP_CSR_OUTCAL) != RESET) 
       { 
-        /* OPAMP_CSR_OUTCAL is actually one value more */
+        /* Trimming value is actually one value more */
         trimmingvaluep1++;
         /* Set right trimming */
         MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep1<<OPAMP_INPUT_NONINVERTING);
@@ -627,7 +632,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
     
       if ((hopamp2->Instance->CSR & OPAMP_CSR_OUTCAL) != RESET) 
       { 
-        /* OPAMP_CSR_OUTCAL is actually one value more */
+        /* Trimming value is actually one value more */
         trimmingvaluep2++;
         /* Set right trimming */
         MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep2<<OPAMP_INPUT_NONINVERTING);
@@ -635,7 +640,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
       if ((hopamp3->Instance->CSR & OPAMP_CSR_OUTCAL) != RESET) 
       { 
-        /* OPAMP_CSR_OUTCAL is actually one value more */
+        /* Trimming value is actually one value more */
         trimmingvaluep3++;
         /* Set right trimming */
         MODIFY_REG(hopamp3->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep3<<OPAMP_INPUT_NONINVERTING);
@@ -643,7 +648,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
       if ((hopamp4->Instance->CSR & OPAMP_CSR_OUTCAL) != RESET) 
       { 
-        /* OPAMP_CSR_OUTCAL is actually one value more */
+        /* Trimming value is actually one value more */
         trimmingvaluep4++;
         /* Set right trimming */
         MODIFY_REG(hopamp4->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep4<<OPAMP_INPUT_NONINVERTING);
@@ -691,9 +696,9 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       hopamp4->Init.UserTrimming = OPAMP_TRIMMING_USER;
            
       MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen1<<OPAMP_INPUT_INVERTING);
-			MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen2<<OPAMP_INPUT_INVERTING);
+      MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen2<<OPAMP_INPUT_INVERTING);
       MODIFY_REG(hopamp3->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen3<<OPAMP_INPUT_INVERTING);
-			MODIFY_REG(hopamp4->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen4<<OPAMP_INPUT_INVERTING);
+      MODIFY_REG(hopamp4->Instance->CSR, OPAMP_CSR_TRIMOFFSETN, trimmingvaluen4<<OPAMP_INPUT_INVERTING);
      
       MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep1<<OPAMP_INPUT_NONINVERTING);
       MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_TRIMOFFSETP, trimmingvaluep2<<OPAMP_INPUT_NONINVERTING);      
@@ -722,10 +727,16 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   * @}
   */
 
-#endif /* HAL_OPAMP_MODULE_ENABLED */
 /**
   * @}
   */
+
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
+#endif /* HAL_OPAMP_MODULE_ENABLED */
 
 /**
   * @}

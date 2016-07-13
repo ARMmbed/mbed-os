@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of PWR HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -99,18 +99,14 @@ typedef struct
 /** @defgroup PWREx_PVD_detection_level PWR Extended PVD detection level
   * @{
   */
-#define PWR_PVDLEVEL_0                  PWR_CR_PLS_LEV0
-#define PWR_PVDLEVEL_1                  PWR_CR_PLS_LEV1
-#define PWR_PVDLEVEL_2                  PWR_CR_PLS_LEV2
-#define PWR_PVDLEVEL_3                  PWR_CR_PLS_LEV3
-#define PWR_PVDLEVEL_4                  PWR_CR_PLS_LEV4
-#define PWR_PVDLEVEL_5                  PWR_CR_PLS_LEV5
-#define PWR_PVDLEVEL_6                  PWR_CR_PLS_LEV6
-#define PWR_PVDLEVEL_7                  PWR_CR_PLS_LEV7
-#define IS_PWR_PVD_LEVEL(LEVEL) (((LEVEL) == PWR_PVDLEVEL_0) || ((LEVEL) == PWR_PVDLEVEL_1)|| \
-                                 ((LEVEL) == PWR_PVDLEVEL_2) || ((LEVEL) == PWR_PVDLEVEL_3)|| \
-                                 ((LEVEL) == PWR_PVDLEVEL_4) || ((LEVEL) == PWR_PVDLEVEL_5)|| \
-                                 ((LEVEL) == PWR_PVDLEVEL_6) || ((LEVEL) == PWR_PVDLEVEL_7))
+#define PWR_PVDLEVEL_0                  PWR_CR_PLS_LEV0    /*!< PVD threshold around 2.2 V */                                    
+#define PWR_PVDLEVEL_1                  PWR_CR_PLS_LEV1    /*!< PVD threshold around 2.3 V */                                    
+#define PWR_PVDLEVEL_2                  PWR_CR_PLS_LEV2    /*!< PVD threshold around 2.4 V */                                    
+#define PWR_PVDLEVEL_3                  PWR_CR_PLS_LEV3    /*!< PVD threshold around 2.5 V */                                    
+#define PWR_PVDLEVEL_4                  PWR_CR_PLS_LEV4    /*!< PVD threshold around 2.6 V */                                    
+#define PWR_PVDLEVEL_5                  PWR_CR_PLS_LEV5    /*!< PVD threshold around 2.7 V */                                    
+#define PWR_PVDLEVEL_6                  PWR_CR_PLS_LEV6    /*!< PVD threshold around 2.8 V */                                    
+#define PWR_PVDLEVEL_7                  PWR_CR_PLS_LEV7    /*!< PVD threshold around 2.9 V */
 /**
   * @}
   */
@@ -118,23 +114,18 @@ typedef struct
 /** @defgroup PWREx_PVD_Mode PWR Extended PVD Mode
   * @{
   */
-#define PWR_PVD_MODE_NORMAL                 ((uint32_t)0x00000000)   /*!< basic mode is used */
+#define PWR_PVD_MODE_NORMAL                 ((uint32_t)0x00000000)   /*!< Basic mode is used */
 #define PWR_PVD_MODE_IT_RISING              ((uint32_t)0x00010001)   /*!< External Interrupt Mode with Rising edge trigger detection */
 #define PWR_PVD_MODE_IT_FALLING             ((uint32_t)0x00010002)   /*!< External Interrupt Mode with Falling edge trigger detection */
 #define PWR_PVD_MODE_IT_RISING_FALLING      ((uint32_t)0x00010003)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
 #define PWR_PVD_MODE_EVENT_RISING           ((uint32_t)0x00020001)   /*!< Event Mode with Rising edge trigger detection */
 #define PWR_PVD_MODE_EVENT_FALLING          ((uint32_t)0x00020002)   /*!< Event Mode with Falling edge trigger detection */
 #define PWR_PVD_MODE_EVENT_RISING_FALLING   ((uint32_t)0x00020003)   /*!< Event Mode with Rising/Falling edge trigger detection */
-
-#define IS_PWR_PVD_MODE(MODE) (((MODE) == PWR_PVD_MODE_IT_RISING)|| ((MODE) == PWR_PVD_MODE_IT_FALLING) || \
-                              ((MODE) == PWR_PVD_MODE_IT_RISING_FALLING) || ((MODE) == PWR_PVD_MODE_EVENT_RISING) || \
-                              ((MODE) == PWR_PVD_MODE_EVENT_FALLING) || ((MODE) == PWR_PVD_MODE_EVENT_RISING_FALLING) || \
-                              ((MODE) == PWR_PVD_MODE_NORMAL))
 /**
   * @}
   */
 
-#define PWR_EXTI_LINE_PVD  ((uint32_t)0x00010000)  /*!< External interrupt line 16 Connected to the PVD EXTI Line */
+#define PWR_EXTI_LINE_PVD  EXTI_IMR_MR16  /*!< External interrupt line 16 Connected to the PVD EXTI Line */
 
 #endif /* STM32F302xE || STM32F303xE || */
        /* STM32F302xC || STM32F303xC || */
@@ -146,12 +137,9 @@ typedef struct
 /** @defgroup PWREx_SDADC_ANALOGx PWR Extended SDADC ANALOGx
   * @{
   */
-#define PWR_SDADC_ANALOG1              ((uint32_t)PWR_CR_SDADC1EN)
-#define PWR_SDADC_ANALOG2              ((uint32_t)PWR_CR_SDADC2EN)
-#define PWR_SDADC_ANALOG3              ((uint32_t)PWR_CR_SDADC3EN)
-#define IS_PWR_SDADC_ANALOG(SDADC) (((SDADC) == PWR_SDADC_ANALOG1) || \
-                                    ((SDADC) == PWR_SDADC_ANALOG2) || \
-                                    ((SDADC) == PWR_SDADC_ANALOG3))
+#define PWR_SDADC_ANALOG1              ((uint32_t)PWR_CR_SDADC1EN)   /*!< Enable SDADC1 */ 
+#define PWR_SDADC_ANALOG2              ((uint32_t)PWR_CR_SDADC2EN)   /*!< Enable SDADC2 */
+#define PWR_SDADC_ANALOG3              ((uint32_t)PWR_CR_SDADC3EN)   /*!< Enable SDADC3 */
 /**
   * @}
   */
@@ -203,23 +191,40 @@ typedef struct
 #define __HAL_PWR_PVD_EXTI_DISABLE_EVENT()  (EXTI->EMR &= ~(PWR_EXTI_LINE_PVD))
 
 /**
-  * @brief  PVD EXTI line configuration: clear falling edge trigger and set rising edge.
+  * @brief Disable the PVD Extended Interrupt Rising Trigger.
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_CLEAR_EGDE_TRIGGER()   EXTI->FTSR &= ~(PWR_EXTI_LINE_PVD); \
-                                                  EXTI->RTSR &= ~(PWR_EXTI_LINE_PVD)
+#define __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE()  CLEAR_BIT(EXTI->RTSR, PWR_EXTI_LINE_PVD)
+
+/**
+  * @brief Disable the PVD Extended Interrupt Falling Trigger.
+  * @retval None.
+  */
+#define __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, PWR_EXTI_LINE_PVD)
+
+/**
+  * @brief Disable the PVD Extended Interrupt Rising & Falling Trigger.
+  * @retval None
+  */
+#define __HAL_PWR_PVD_EXTI_DISABLE_RISING_FALLING_EDGE()  __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();
 
 /**
   * @brief  PVD EXTI line configuration: set falling edge trigger.
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_SET_FALLING_EGDE_TRIGGER()  EXTI->FTSR |= (PWR_EXTI_LINE_PVD)
+#define __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE()  EXTI->FTSR |= (PWR_EXTI_LINE_PVD)
 
 /**
   * @brief  PVD EXTI line configuration: set rising edge trigger.
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_SET_RISING_EDGE_TRIGGER()   EXTI->RTSR |= (PWR_EXTI_LINE_PVD)
+#define __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE()   EXTI->RTSR |= (PWR_EXTI_LINE_PVD)
+
+/**
+  * @brief  Enable the PVD Extended Interrupt Rising & Falling Trigger.
+  * @retval None
+  */
+#define __HAL_PWR_PVD_EXTI_ENABLE_RISING_FALLING_EDGE()   __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
 
 /**
   * @brief Check whether the specified PVD EXTI interrupt flag is set or not.
@@ -242,6 +247,42 @@ typedef struct
 /**
   * @}
   */
+  
+/* Private macros --------------------------------------------------------*/
+/** @addtogroup  PWREx_Private_Macros   PWR Extended Private Macros
+  * @{
+  */
+
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || \
+    defined(STM32F373xC)
+#define IS_PWR_PVD_LEVEL(LEVEL) (((LEVEL) == PWR_PVDLEVEL_0) || ((LEVEL) == PWR_PVDLEVEL_1)|| \
+                                 ((LEVEL) == PWR_PVDLEVEL_2) || ((LEVEL) == PWR_PVDLEVEL_3)|| \
+                                 ((LEVEL) == PWR_PVDLEVEL_4) || ((LEVEL) == PWR_PVDLEVEL_5)|| \
+                                 ((LEVEL) == PWR_PVDLEVEL_6) || ((LEVEL) == PWR_PVDLEVEL_7))
+
+#define IS_PWR_PVD_MODE(MODE) (((MODE) == PWR_PVD_MODE_IT_RISING)|| ((MODE) == PWR_PVD_MODE_IT_FALLING) || \
+                              ((MODE) == PWR_PVD_MODE_IT_RISING_FALLING) || ((MODE) == PWR_PVD_MODE_EVENT_RISING) || \
+                              ((MODE) == PWR_PVD_MODE_EVENT_FALLING) || ((MODE) == PWR_PVD_MODE_EVENT_RISING_FALLING) || \
+                              ((MODE) == PWR_PVD_MODE_NORMAL))
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC || STM32F303xC || */
+       /* STM32F303x8 || STM32F334x8 || */
+       /* STM32F301x8 || STM32F302x8 || */
+       /* STM32F373xC                   */
+
+#if defined(STM32F373xC) || defined(STM32F378xx)
+#define IS_PWR_SDADC_ANALOG(SDADC) (((SDADC) == PWR_SDADC_ANALOG1) || \
+                                    ((SDADC) == PWR_SDADC_ANALOG2) || \
+                                    ((SDADC) == PWR_SDADC_ANALOG3))
+#endif /* STM32F373xC || STM32F378xx */
+
+
+/**
+  * @}
+  */    
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -258,7 +299,7 @@ typedef struct
     defined(STM32F303x8) || defined(STM32F334x8) || \
     defined(STM32F301x8) || defined(STM32F302x8) || \
     defined(STM32F373xC)
-void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD);
+void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD);
 void HAL_PWR_EnablePVD(void);
 void HAL_PWR_DisablePVD(void);
 void HAL_PWR_PVD_IRQHandler(void);
@@ -270,8 +311,8 @@ void HAL_PWR_PVDCallback(void);
        /* STM32F373xC                   */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
-void HAL_PWREx_EnableSDADCAnalog(uint32_t Analogx);
-void HAL_PWREx_DisableSDADCAnalog(uint32_t Analogx);
+void HAL_PWREx_EnableSDADC(uint32_t Analogx);
+void HAL_PWREx_DisableSDADC(uint32_t Analogx);
 #endif /* STM32F373xC || STM32F378xx */
 
 /**

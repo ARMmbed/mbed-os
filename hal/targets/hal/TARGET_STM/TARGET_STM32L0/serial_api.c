@@ -53,15 +53,13 @@ static void init_uart(serial_t *obj)
 {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
-    if (obj->uart == LPUART_1) {
-        UartHandle.Init.BaudRate = obj->baudrate >> 1;
-    } else {
-        UartHandle.Init.BaudRate = obj->baudrate;
-    }
+    UartHandle.Init.BaudRate = obj->baudrate;
     UartHandle.Init.WordLength = obj->databits;
     UartHandle.Init.StopBits   = obj->stopbits;
     UartHandle.Init.Parity     = obj->parity;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    UartHandle.Init.OverSampling   = UART_OVERSAMPLING_16;
+    UartHandle.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_ENABLE;
 
     if (obj->pin_rx == NC) {
         UartHandle.Init.Mode = UART_MODE_TX;
@@ -93,23 +91,31 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Enable UART clock
 #if defined(USART1_BASE)
     if (obj->uart == UART_1) {
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
 #endif
 
     if (obj->uart == UART_2) {
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
         obj->index = 1;
     }
 
     if (obj->uart == LPUART_1) {
+        __HAL_RCC_LPUART1_FORCE_RESET();
+        __HAL_RCC_LPUART1_RELEASE_RESET();
         __HAL_RCC_LPUART1_CLK_ENABLE();
         obj->index = 2;
     }
 
 #if defined(USART4_BASE)
     if (obj->uart == UART_4) {
+        __HAL_RCC_USART4_FORCE_RESET();
+        __HAL_RCC_USART4_RELEASE_RESET();
         __HAL_RCC_USART4_CLK_ENABLE();
         obj->index = 3;
     }
@@ -117,6 +123,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
 #if defined(USART5_BASE)
     if (obj->uart == UART_5) {
+        __HAL_RCC_USART5_FORCE_RESET();
+        __HAL_RCC_USART5_RELEASE_RESET();
         __HAL_RCC_USART5_CLK_ENABLE();
         obj->index = 4;
     }

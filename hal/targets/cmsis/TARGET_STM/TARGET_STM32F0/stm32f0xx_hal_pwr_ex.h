@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
@@ -92,16 +92,16 @@ typedef struct
 /** @defgroup PWREx_WakeUp_Pins PWREx Wakeup Pins
   * @{
   */
-#if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
-#define PWR_WAKEUP_PIN1                     ((uint32_t)0x00)
-#define PWR_WAKEUP_PIN2                     ((uint32_t)0x01)
-#define PWR_WAKEUP_PIN3                     ((uint32_t)0x02)
-#define PWR_WAKEUP_PIN4                     ((uint32_t)0x03)
-#define PWR_WAKEUP_PIN5                     ((uint32_t)0x04)
-#define PWR_WAKEUP_PIN6                     ((uint32_t)0x05)
-#define PWR_WAKEUP_PIN7                     ((uint32_t)0x06)
-#define PWR_WAKEUP_PIN8                     ((uint32_t)0x07)
+#if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
+    defined (STM32F091xC) || defined (STM32F098xx)
+#define PWR_WAKEUP_PIN1                     ((uint32_t)PWR_CSR_EWUP1)
+#define PWR_WAKEUP_PIN2                     ((uint32_t)PWR_CSR_EWUP2)
+#define PWR_WAKEUP_PIN3                     ((uint32_t)PWR_CSR_EWUP3)
+#define PWR_WAKEUP_PIN4                     ((uint32_t)PWR_CSR_EWUP4)
+#define PWR_WAKEUP_PIN5                     ((uint32_t)PWR_CSR_EWUP5)
+#define PWR_WAKEUP_PIN6                     ((uint32_t)PWR_CSR_EWUP6)
+#define PWR_WAKEUP_PIN7                     ((uint32_t)PWR_CSR_EWUP7)
+#define PWR_WAKEUP_PIN8                     ((uint32_t)PWR_CSR_EWUP8)
 
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
                                 ((PIN) == PWR_WAKEUP_PIN2) || \
@@ -111,14 +111,45 @@ typedef struct
                                 ((PIN) == PWR_WAKEUP_PIN6) || \
                                 ((PIN) == PWR_WAKEUP_PIN7) || \
                                 ((PIN) == PWR_WAKEUP_PIN8))
-#else 
-#define PWR_WAKEUP_PIN1                     ((uint32_t)0x00)
-#define PWR_WAKEUP_PIN2                     ((uint32_t)0x01)
+
+#elif defined(STM32F030xC) || defined (STM32F070xB)
+#define PWR_WAKEUP_PIN1                     ((uint32_t)PWR_CSR_EWUP1)
+#define PWR_WAKEUP_PIN2                     ((uint32_t)PWR_CSR_EWUP2)
+#define PWR_WAKEUP_PIN4                     ((uint32_t)PWR_CSR_EWUP4)
+#define PWR_WAKEUP_PIN5                     ((uint32_t)PWR_CSR_EWUP5)
+#define PWR_WAKEUP_PIN6                     ((uint32_t)PWR_CSR_EWUP6)
+#define PWR_WAKEUP_PIN7                     ((uint32_t)PWR_CSR_EWUP7)
+
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
+                                ((PIN) == PWR_WAKEUP_PIN2) || \
+                                ((PIN) == PWR_WAKEUP_PIN4) || \
+                                ((PIN) == PWR_WAKEUP_PIN5) || \
+                                ((PIN) == PWR_WAKEUP_PIN6) || \
+                                ((PIN) == PWR_WAKEUP_PIN7))
+
+#elif defined(STM32F042x6) || defined (STM32F048xx)
+#define PWR_WAKEUP_PIN1                     ((uint32_t)PWR_CSR_EWUP1)
+#define PWR_WAKEUP_PIN2                     ((uint32_t)PWR_CSR_EWUP2)
+#define PWR_WAKEUP_PIN4                     ((uint32_t)PWR_CSR_EWUP4)
+#define PWR_WAKEUP_PIN6                     ((uint32_t)PWR_CSR_EWUP6)
+#define PWR_WAKEUP_PIN7                     ((uint32_t)PWR_CSR_EWUP7)
+
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
+                                ((PIN) == PWR_WAKEUP_PIN2) || \
+                                ((PIN) == PWR_WAKEUP_PIN4) || \
+                                ((PIN) == PWR_WAKEUP_PIN6) || \
+                                ((PIN) == PWR_WAKEUP_PIN7))
+
+#else
+#define PWR_WAKEUP_PIN1                     ((uint32_t)PWR_CSR_EWUP1)
+#define PWR_WAKEUP_PIN2                     ((uint32_t)PWR_CSR_EWUP2)
+
 
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
                                 ((PIN) == PWR_WAKEUP_PIN2))
-#endif /* defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || */
-       /* defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+
+#endif
+
 /**
   * @}
   */

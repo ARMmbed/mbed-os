@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f3xx_hal.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -55,6 +55,18 @@
   * @{
   */ 
 
+/* Private macros ------------------------------------------------------------*/
+/** @addtogroup HAL_Private_Macros
+  * @{
+  */
+#define IS_SYSCFG_FASTMODEPLUS(__PIN__) ((((__PIN__) & SYSCFG_FASTMODEPLUS_PB6)  == SYSCFG_FASTMODEPLUS_PB6)  || \
+                                         (((__PIN__) & SYSCFG_FASTMODEPLUS_PB7)  == SYSCFG_FASTMODEPLUS_PB7)  || \
+                                         (((__PIN__) & SYSCFG_FASTMODEPLUS_PB8)  == SYSCFG_FASTMODEPLUS_PB8)  || \
+                                         (((__PIN__) & SYSCFG_FASTMODEPLUS_PB9)  == SYSCFG_FASTMODEPLUS_PB9))
+/**
+  * @}
+  */
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup HAL_Exported_Constants HAL Exported Constants
@@ -76,7 +88,7 @@
   */
 
 #if defined(SYSCFG_CFGR1_DMA_RMP)
-/** @defgroup HAL_DMA_Remapping DMA Remapping
+/** @defgroup HAL_DMA_Remapping HAL DMA Remapping
   *        Elements values convention: 0xXXYYYYYY
   *           - YYYYYY  : Position in the register
   *           - XX  : Register index
@@ -135,7 +147,7 @@
 #endif /* SYSCFG_CFGR3_DMA_RMP */
 
 #if defined(SYSCFG_CFGR3_DMA_RMP)
-#define IS_HAL_REMAPDMA(RMP) ((((RMP) & HAL_REMAPDMA_ADC24_DMA2_CH34)         == HAL_REMAPDMA_ADC24_DMA2_CH34)         || \
+#define IS_DMA_REMAP(RMP) ((((RMP) & HAL_REMAPDMA_ADC24_DMA2_CH34)         == HAL_REMAPDMA_ADC24_DMA2_CH34)         || \
                               (((RMP) & HAL_REMAPDMA_TIM16_DMA1_CH6)          == HAL_REMAPDMA_TIM16_DMA1_CH6)          || \
                               (((RMP) & HAL_REMAPDMA_TIM17_DMA1_CH7)          == HAL_REMAPDMA_TIM17_DMA1_CH7)          || \
                               (((RMP) & HAL_REMAPDMA_TIM6_DAC1_CH1_DMA1_CH3)  == HAL_REMAPDMA_TIM6_DAC1_CH1_DMA1_CH3)  || \
@@ -157,7 +169,7 @@
                               (((RMP) & HAL_REMAPDMA_ADC2_DMA1_CH2)           == HAL_REMAPDMA_ADC2_DMA1_CH2)     || \
                               (((RMP) & HAL_REMAPDMA_ADC2_DMA1_CH4)           == HAL_REMAPDMA_ADC2_DMA1_CH4))
 #else
-#define IS_HAL_REMAPDMA(RMP) ((((RMP) & HAL_REMAPDMA_ADC24_DMA2_CH34)         == HAL_REMAPDMA_ADC24_DMA2_CH34)         || \
+#define IS_DMA_REMAP(RMP) ((((RMP) & HAL_REMAPDMA_ADC24_DMA2_CH34)         == HAL_REMAPDMA_ADC24_DMA2_CH34)         || \
                               (((RMP) & HAL_REMAPDMA_TIM16_DMA1_CH6)          == HAL_REMAPDMA_TIM16_DMA1_CH6)          || \
                               (((RMP) & HAL_REMAPDMA_TIM17_DMA1_CH7)          == HAL_REMAPDMA_TIM17_DMA1_CH7)          || \
                               (((RMP) & HAL_REMAPDMA_TIM6_DAC1_CH1_DMA1_CH3)  == HAL_REMAPDMA_TIM6_DAC1_CH1_DMA1_CH3)  || \
@@ -170,7 +182,7 @@
   */
 #endif /* SYSCFG_CFGR1_DMA_RMP */
 
-/** @defgroup HAL_Trigger_Remapping Trigger Remapping
+/** @defgroup HAL_Trigger_Remapping HAL Trigger Remapping
   *        Elements values convention: 0xXXYYYYYY
   *           - YYYYYY  : Position in the register
   *           - XX  : Register index
@@ -206,8 +218,50 @@
   * @}
   */
 
+#if defined (STM32F302xE)
+/** @defgroup HAL_ADC_Trigger_Remapping HAL ADC Trigger Remapping
+  * @{
+  */
+#define HAL_REMAPADCTRIGGER_ADC12_EXT2        SYSCFG_CFGR4_ADC12_EXT2_RMP   /*!< Input trigger of ADC12 regular channel EXT2
+                                                                                 0: No remap (TIM1_CC3)
+                                                                                 1: Remap (TIM20_TRGO) */
+#define HAL_REMAPADCTRIGGER_ADC12_EXT3        SYSCFG_CFGR4_ADC12_EXT3_RMP   /*!< Input trigger of ADC12 regular channel EXT3
+                                                                                 0: No remap (TIM2_CC2)
+                                                                                 1: Remap (TIM20_TRGO2) */
+#define HAL_REMAPADCTRIGGER_ADC12_EXT5        SYSCFG_CFGR4_ADC12_EXT5_RMP   /*!< Input trigger of ADC12 regular channel EXT5
+                                                                                 0: No remap (TIM4_CC4)
+                                                                                 1: Remap (TIM20_CC1) */
+#define HAL_REMAPADCTRIGGER_ADC12_EXT13       SYSCFG_CFGR4_ADC12_EXT13_RMP  /*!< Input trigger of ADC12 regular channel EXT13
+                                                                                 0: No remap (TIM6_TRGO)
+                                                                                 1: Remap (TIM20_CC2) */
+#define HAL_REMAPADCTRIGGER_ADC12_EXT15       SYSCFG_CFGR4_ADC12_EXT15_RMP  /*!< Input trigger of ADC12 regular channel EXT15
+                                                                                 0: No remap (TIM3_CC4)
+                                                                                 1: Remap (TIM20_CC3) */
+#define HAL_REMAPADCTRIGGER_ADC12_JEXT3       SYSCFG_CFGR4_ADC12_JEXT3_RMP  /*!< Input trigger of ADC12 injected channel JEXT3
+                                                                                 0: No remap (TIM2_CC1)
+                                                                                 1: Remap (TIM20_TRGO) */
+#define HAL_REMAPADCTRIGGER_ADC12_JEXT6       SYSCFG_CFGR4_ADC12_JEXT6_RMP  /*!< Input trigger of ADC12 injected channel JEXT6
+                                                                                 0: No remap (EXTI line 15)
+                                                                                 1: Remap (TIM20_TRGO2) */
+#define HAL_REMAPADCTRIGGER_ADC12_JEXT13      SYSCFG_CFGR4_ADC12_JEXT13_RMP  /*!< Input trigger of ADC12 injected channel JEXT13
+                                                                                 0: No remap (TIM3_CC1)
+                                                                                 1: Remap (TIM20_CC4) */
+
+#define IS_HAL_REMAPADCTRIGGER(RMP)  ((((RMP) & HAL_REMAPADCTRIGGER_ADC12_EXT2)   == HAL_REMAPADCTRIGGER_ADC12_EXT2)   || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_EXT3)   == HAL_REMAPADCTRIGGER_ADC12_EXT3)   || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_EXT5)   == HAL_REMAPADCTRIGGER_ADC12_EXT5)   || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_EXT13)  == HAL_REMAPADCTRIGGER_ADC12_EXT13)  || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_EXT15)  == HAL_REMAPADCTRIGGER_ADC12_EXT15)  || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_JEXT3)  == HAL_REMAPADCTRIGGER_ADC12_JEXT3)  || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_JEXT6)  == HAL_REMAPADCTRIGGER_ADC12_JEXT6)  || \
+                                      (((RMP) & HAL_REMAPADCTRIGGER_ADC12_JEXT13) == HAL_REMAPADCTRIGGER_ADC12_JEXT13))
+/**
+  * @}
+  */
+#endif /* STM32F302xE */
+
 #if defined (STM32F303xE) || defined (STM32F398xx)
-/** @defgroup HAL_ADC_Trigger_Remapping ADC Trigger Remapping
+/** @defgroup HAL_ADC_Trigger_Remapping HAL ADC Trigger Remapping
   * @{
   */
 #define HAL_REMAPADCTRIGGER_ADC12_EXT2        SYSCFG_CFGR4_ADC12_EXT2_RMP   /*!< Input trigger of ADC12 regular channel EXT2
@@ -272,80 +326,34 @@
   */
 #endif /* STM32F303xE || STM32F398xx */
 
-/** @defgroup HAL_FastModePlus_I2C I2C Fast Mode Plus
+/** @defgroup SYSCFG_FastModePlus_GPIO Fast-mode Plus on GPIO
   * @{
   */
-#if defined(SYSCFG_CFGR1_I2C1_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C1       ((uint32_t)SYSCFG_CFGR1_I2C1_FMP)  /*!< I2C1 fast mode Plus driving capability activation
-                                                                                   0: FM+ mode is not enabled on I2C1 pins selected through AF selection bits
-                                                                                   1: FM+ mode is enabled on I2C1 pins selected through AF selection bits */
-#endif /* SYSCFG_CFGR1_I2C1_FMP */
 
-#if defined(SYSCFG_CFGR1_I2C2_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C2       ((uint32_t)SYSCFG_CFGR1_I2C2_FMP)  /*!< I2C2 fast mode Plus driving capability activation
-                                                                                   0: FM+ mode is not enabled on I2C2 pins selected through AF selection bits
-                                                                                   1: FM+ mode is enabled on I2C2 pins selected through AF selection bits */
-#endif /* SYSCFG_CFGR1_I2C2_FMP */
-
-#if defined(SYSCFG_CFGR1_I2C3_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C3       ((uint32_t)SYSCFG_CFGR1_I2C3_FMP)  /*!< I2C3 fast mode Plus driving capability activation
-                                                                                   0: FM+ mode is not enabled on I2C3 pins selected through AF selection bits
-                                                                                   1: FM+ mode is enabled on I2C3 pins selected through AF selection bits */
-#endif /* SYSCFG_CFGR1_I2C3_FMP */
-
+/** @brief  Fast-mode Plus driving capability on a specific GPIO
+  */  
 #if defined(SYSCFG_CFGR1_I2C_PB6_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C_PB6    ((uint32_t)SYSCFG_CFGR1_I2C_PB6_FMP)  /*!< Fast Mode Plus (FM+) driving capability activation on the pad
-                                                                                      0: PB6 pin operates in standard mode
-                                                                                      1: I2C FM+ mode enabled on PB6 pin, and the Speed control is bypassed */
+#define SYSCFG_FASTMODEPLUS_PB6    ((uint32_t)SYSCFG_CFGR1_I2C_PB6_FMP)  /*!< Enable Fast-mode Plus on PB6  */
 #endif /* SYSCFG_CFGR1_I2C_PB6_FMP */
 
 #if defined(SYSCFG_CFGR1_I2C_PB7_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C_PB7    ((uint32_t)SYSCFG_CFGR1_I2C_PB7_FMP)  /*!< Fast Mode Plus (FM+) driving capability activation on the pad
-                                                                                      0: PB7 pin operates in standard mode
-                                                                                      1: I2C FM+ mode enabled on PB7 pin, and the Speed control is bypassed */
+#define SYSCFG_FASTMODEPLUS_PB7    ((uint32_t)SYSCFG_CFGR1_I2C_PB7_FMP)  /*!< Enable Fast-mode Plus on PB7  */
 #endif /* SYSCFG_CFGR1_I2C_PB7_FMP */
 
 #if defined(SYSCFG_CFGR1_I2C_PB8_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C_PB8    ((uint32_t)SYSCFG_CFGR1_I2C_PB8_FMP)  /*!< Fast Mode Plus (FM+) driving capability activation on the pad
-                                                                                      0: PB8 pin operates in standard mode
-                                                                                      1: I2C FM+ mode enabled on PB8 pin, and the Speed control is bypassed */
+#define SYSCFG_FASTMODEPLUS_PB8    ((uint32_t)SYSCFG_CFGR1_I2C_PB8_FMP)  /*!< Enable Fast-mode Plus on PB8  */
 #endif /* SYSCFG_CFGR1_I2C_PB8_FMP */
 
 #if defined(SYSCFG_CFGR1_I2C_PB9_FMP)
-#define HAL_SYSCFG_FASTMODEPLUS_I2C_PB9    ((uint32_t)SYSCFG_CFGR1_I2C_PB9_FMP)  /*!< Fast Mode Plus (FM+) driving capability activation on the pad
-                                                                                      0: PB9 pin operates in standard mode
-                                                                                      1: I2C FM+ mode enabled on PB9 pin, and the Speed control is bypassed */
+#define SYSCFG_FASTMODEPLUS_PB9    ((uint32_t)SYSCFG_CFGR1_I2C_PB9_FMP)  /*!< Enable Fast-mode Plus on PB9  */
 #endif /* SYSCFG_CFGR1_I2C_PB9_FMP */
-
-#if defined(SYSCFG_CFGR1_I2C1_FMP) && defined(SYSCFG_CFGR1_I2C2_FMP) && defined(SYSCFG_CFGR1_I2C3_FMP) 
-#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) ((((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C1)    == HAL_SYSCFG_FASTMODEPLUS_I2C1)    || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C2)    == HAL_SYSCFG_FASTMODEPLUS_I2C2)    || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C3)    == HAL_SYSCFG_FASTMODEPLUS_I2C3)    || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB9) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
-#elif defined(SYSCFG_CFGR1_I2C1_FMP) && defined(SYSCFG_CFGR1_I2C2_FMP)
-#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) ((((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C1)    == HAL_SYSCFG_FASTMODEPLUS_I2C1)    || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C2)    == HAL_SYSCFG_FASTMODEPLUS_I2C2)    || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB9) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
-#elif defined(SYSCFG_CFGR1_I2C1_FMP)
-#define IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG(CONFIG) ((((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C1)    == HAL_SYSCFG_FASTMODEPLUS_I2C1)    || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB6) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB7) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB8) || \
-                                                   (((CONFIG) & HAL_SYSCFG_FASTMODEPLUS_I2C_PB9) == HAL_SYSCFG_FASTMODEPLUS_I2C_PB9))
-#endif /* SYSCFG_CFGR1_I2C1_FMP && SYSCFG_CFGR1_I2C2_FMP && SYSCFG_CFGR3_I2C1_FMP */
 /**
   * @}
   */
 
 #if defined(SYSCFG_RCR_PAGE0)
 /* CCM-SRAM defined */
-/** @defgroup HAL_Page_Write_Protection CCM RAM page write protection
+/** @defgroup HAL_Page_Write_Protection HAL CCM RAM page write protection
   * @{
   */
 #define HAL_SYSCFG_WP_PAGE0                    (SYSCFG_RCR_PAGE0)  /*!< ICODE SRAM Write protection page 0 */
@@ -382,7 +390,7 @@
   */
 #endif /* SYSCFG_RCR_PAGE0 */
 
-/** @defgroup HAL_SYSCFG_Interrupts SYSCFG Interrupts
+/** @defgroup HAL_SYSCFG_Interrupts HAL SYSCFG Interrupts
   * @{
   */
 #define HAL_SYSCFG_IT_FPU_IOC                  (SYSCFG_CFGR1_FPU_IE_0)  /*!< Floating Point Unit Invalid operation Interrupt */
@@ -407,7 +415,7 @@
  * @}
  */ 
 
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
 /** @defgroup HAL_Exported_Macros HAL Exported Macros
   * @{
   */
@@ -416,48 +424,48 @@
   * @{
   */
 #if defined(DBGMCU_APB1_FZ_DBG_TIM2_STOP)
-#define __HAL_FREEZE_TIM2_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM2_STOP))
-#define __HAL_UNFREEZE_TIM2_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM2_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM2()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM2_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM2()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM2_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM2_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM3_STOP)
-#define __HAL_FREEZE_TIM3_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM3_STOP))
-#define __HAL_UNFREEZE_TIM3_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM3_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM3()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM3_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM3()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM3_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM3_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM4_STOP)
-#define __HAL_FREEZE_TIM4_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM4_STOP))
-#define __HAL_UNFREEZE_TIM4_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM4_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM4()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM4_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM4()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM4_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM4_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM5_STOP)
-#define __HAL_FREEZE_TIM5_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM5_STOP))
-#define __HAL_UNFREEZE_TIM5_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM5_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM5()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM5_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM5()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM5_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM5_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM6_STOP)
-#define __HAL_FREEZE_TIM6_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM6_STOP))
-#define __HAL_UNFREEZE_TIM6_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM6_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM6()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM6_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM6()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM6_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM6_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM7_STOP)
-#define __HAL_FREEZE_TIM7_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM7_STOP))
-#define __HAL_UNFREEZE_TIM7_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM7_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM7()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM7_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM7()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM7_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM7_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM12_STOP)
-#define __HAL_FREEZE_TIM12_DBGMCU()          (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM12_STOP))
-#define __HAL_UNFREEZE_TIM12_DBGMCU()        (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM12_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM12()          (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM12_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM12()        (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM12_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM12_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM13_STOP)
-#define __HAL_FREEZE_TIM13_DBGMCU()          (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM13_STOP))
-#define __HAL_UNFREEZE_TIM13_DBGMCU()        (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM13_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM13()          (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM13_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM13()        (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM13_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM13_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM14_STOP)
-#define __HAL_FREEZE_TIM14_DBGMCU()          (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM14_STOP))
-#define __HAL_UNFREEZE_TIM14_DBGMCU()        (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM14_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM14()          (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM14_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM14()        (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_TIM14_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_TIM14_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_TIM18_STOP)
@@ -466,33 +474,33 @@
 #endif /* DBGMCU_APB1_FZ_DBG_TIM14_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_RTC_STOP)
-#define __HAL_FREEZE_RTC_DBGMCU()            (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_RTC_STOP))
-#define __HAL_UNFREEZE_RTC_DBGMCU()          (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_RTC_STOP))
+#define __HAL_DBGMCU_FREEZE_RTC()            (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_RTC_STOP))
+#define __HAL_DBGMCU_UNFREEZE_RTC()          (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_RTC_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_RTC_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_WWDG_STOP)
-#define __HAL_FREEZE_WWDG_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_WWDG_STOP))
-#define __HAL_UNFREEZE_WWDG_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_WWDG_STOP))
+#define __HAL_DBGMCU_FREEZE_WWDG()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_WWDG_STOP))
+#define __HAL_DBGMCU_UNFREEZE_WWDG()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_WWDG_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_WWDG_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_IWDG_STOP)
-#define __HAL_FREEZE_IWDG_DBGMCU()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_IWDG_STOP))
-#define __HAL_UNFREEZE_IWDG_DBGMCU()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_IWDG_STOP))
+#define __HAL_DBGMCU_FREEZE_IWDG()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_IWDG_STOP))
+#define __HAL_DBGMCU_UNFREEZE_IWDG()         (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_IWDG_STOP))
 #endif /* DBGMCU_APB1_FZ_DBG_IWDG_STOP */
 
 #if defined(DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
-#define __HAL_FREEZE_I2C1_TIMEOUT_DBGMCU()   (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT))
-#define __HAL_UNFREEZE_I2C1_TIMEOUT_DBGMCU() (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT))
+#define __HAL_DBGMCU_FREEZE_I2C1_TIMEOUT()   (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT))
+#define __HAL_DBGMCU_UNFREEZE_I2C1_TIMEOUT() (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT))
 #endif /* DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT */
 
 #if defined(DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
-#define __HAL_FREEZE_I2C2_TIMEOUT_DBGMCU()   (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT))
-#define __HAL_UNFREEZE_I2C2_TIMEOUT_DBGMCU() (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT))
+#define __HAL_DBGMCU_FREEZE_I2C2_TIMEOUT()   (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT))
+#define __HAL_DBGMCU_UNFREEZE_I2C2_TIMEOUT() (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT))
 #endif /* DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT */
 
 #if defined(DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT)
-#define __HAL_FREEZE_I2C3_TIMEOUT_DBGMCU()   (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT))
-#define __HAL_UNFREEZE_I2C3_TIMEOUT_DBGMCU() (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT))
+#define __HAL_DBGMCU_FREEZE_I2C3_TIMEOUT()   (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT))
+#define __HAL_DBGMCU_UNFREEZE_I2C3_TIMEOUT() (DBGMCU->APB1FZ &= ~(DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT))
 #endif /* DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT */
 
 #if defined(DBGMCU_APB1_FZ_DBG_CAN_STOP)
@@ -507,28 +515,28 @@
   * @{
   */
 #if defined(DBGMCU_APB2_FZ_DBG_TIM1_STOP)
-#define __HAL_FREEZE_TIM1_DBGMCU()           (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM1_STOP))
-#define __HAL_UNFREEZE_TIM1_DBGMCU()           (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM1_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM1()           (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM1_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM1()           (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM1_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM1_STOP */
 
 #if defined(DBGMCU_APB2_FZ_DBG_TIM8_STOP)
-#define __HAL_FREEZE_TIM8_DBGMCU()           (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM8_STOP))
-#define __HAL_UNFREEZE_TIM8_DBGMCU()         (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM8_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM8()           (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM8_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM8()         (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM8_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM8_STOP */
 
 #if defined(DBGMCU_APB2_FZ_DBG_TIM15_STOP)
-#define __HAL_FREEZE_TIM15_DBGMCU()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM15_STOP))
-#define __HAL_UNFREEZE_TIM15_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM15_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM15()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM15_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM15()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM15_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM15_STOP */
 
 #if defined(DBGMCU_APB2_FZ_DBG_TIM16_STOP)
-#define __HAL_FREEZE_TIM16_DBGMCU()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM16_STOP))
-#define __HAL_UNFREEZE_TIM16_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM16_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM16()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM16_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM16()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM16_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM16_STOP */
 
 #if defined(DBGMCU_APB2_FZ_DBG_TIM17_STOP)
-#define __HAL_FREEZE_TIM17_DBGMCU()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM17_STOP))
-#define __HAL_UNFREEZE_TIM17_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM17_STOP))
+#define __HAL_DBGMCU_FREEZE_TIM17()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM17_STOP))
+#define __HAL_DBGMCU_UNFREEZE_TIM17()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM17_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM17_STOP */
 
 #if defined(DBGMCU_APB2_FZ_DBG_TIM19_STOP)
@@ -537,9 +545,14 @@
 #endif /* DBGMCU_APB2_FZ_DBG_TIM19_STOP */
 
 #if defined(DBGMCU_APB2_FZ_DBG_TIM20_STOP)
-#define __HAL_FREEZE_TIM20_DBGMCU()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM19_STOP))
-#define __HAL_UNFREEZE_TIM20_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM19_STOP))
+#define __HAL_FREEZE_TIM20_DBGMCU()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM20_STOP))
+#define __HAL_UNFREEZE_TIM20_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_TIM20_STOP))
 #endif /* DBGMCU_APB2_FZ_DBG_TIM20_STOP */
+
+#if defined(DBGMCU_APB2_FZ_DBG_HRTIM1_STOP)
+#define __HAL_FREEZE_HRTIM1_DBGMCU()          (DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_HRTIM1_STOP))
+#define __HAL_UNFREEZE_HRTIM1_DBGMCU()        (DBGMCU->APB2FZ &= ~(DBGMCU_APB2_FZ_DBG_HRTIM1_STOP))
+#endif /* DBGMCU_APB2_FZ_DBG_HRTIM1_STOP */
 /**
  * @}
  */
@@ -550,13 +563,13 @@
 #if defined(SYSCFG_CFGR1_MEM_MODE)
 /** @brief  Main Flash memory mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FLASH()        (SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE))
+#define __HAL_SYSCFG_REMAPMEMORY_FLASH()        (SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE))
 #endif /* SYSCFG_CFGR1_MEM_MODE */
 
 #if defined(SYSCFG_CFGR1_MEM_MODE_0)
 /** @brief  System Flash memory mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_SYSTEMFLASH()  do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
+#define __HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH()  do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
                                              SYSCFG->CFGR1 |= SYSCFG_CFGR1_MEM_MODE_0;  \
                                             }while(0)
 #endif /* SYSCFG_CFGR1_MEM_MODE_0 */
@@ -564,13 +577,13 @@
 #if defined(SYSCFG_CFGR1_MEM_MODE_0) && defined(SYSCFG_CFGR1_MEM_MODE_1)
 /** @brief  Embedded SRAM mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_SRAM()         do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
+#define __HAL_SYSCFG_REMAPMEMORY_SRAM()         do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
                                              SYSCFG->CFGR1 |= (SYSCFG_CFGR1_MEM_MODE_0 | SYSCFG_CFGR1_MEM_MODE_1); \
                                             }while(0)
 #endif /* SYSCFG_CFGR1_MEM_MODE_0 && SYSCFG_CFGR1_MEM_MODE_1 */
 
 #if defined(SYSCFG_CFGR1_MEM_MODE_2)
-#define __HAL_FMC_BANK()         do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
+#define __HAL_SYSCFG_FMC_BANK()         do {SYSCFG->CFGR1 &= ~(SYSCFG_CFGR1_MEM_MODE); \
                                      SYSCFG->CFGR1 |= (SYSCFG_CFGR1_MEM_MODE_2); \
                                     }while(0)
 #endif /* SYSCFG_CFGR1_MEM_MODE_2 */
@@ -621,12 +634,12 @@
 /** @brief  DMA remapping enable/disable macros
   * @param __DMA_REMAP__: This parameter can be a value of @ref HAL_DMA_Remapping
   */
-#define __HAL_REMAPDMA_CHANNEL_ENABLE(__DMA_REMAP__)   do {assert_param(IS_HAL_REMAPDMA((__DMA_REMAP__)));                  \
+#define __HAL_DMA_REMAP_CHANNEL_ENABLE(__DMA_REMAP__)   do {assert_param(IS_DMA_REMAP((__DMA_REMAP__)));                  \
                                                            (((__DMA_REMAP__) & HAL_REMAP_CFGR3_MASK) ?                      \
                                                              (SYSCFG->CFGR3 |= ((__DMA_REMAP__) & ~HAL_REMAP_CFGR3_MASK)) : \
                                                              (SYSCFG->CFGR1 |= (__DMA_REMAP__)));                           \
                                                          }while(0)
-#define __HAL_REMAPDMA_CHANNEL_DISABLE(__DMA_REMAP__)  do {assert_param(IS_HAL_REMAPDMA((__DMA_REMAP__)));                  \
+#define __HAL_DMA_REMAP_CHANNEL_DISABLE(__DMA_REMAP__)  do {assert_param(IS_DMA_REMAP((__DMA_REMAP__)));                  \
                                                            (((__DMA_REMAP__) & HAL_REMAP_CFGR3_MASK) ?                      \
                                                              (SYSCFG->CFGR3 &= (~(__DMA_REMAP__) | HAL_REMAP_CFGR3_MASK)) : \
                                                              (SYSCFG->CFGR1 &= ~(__DMA_REMAP__)));                          \
@@ -635,10 +648,10 @@
 /** @brief  DMA remapping enable/disable macros
   * @param __DMA_REMAP__: This parameter can be a value of @ref HAL_DMA_Remapping
   */
-#define __HAL_REMAPDMA_CHANNEL_ENABLE(__DMA_REMAP__)   do {assert_param(IS_HAL_REMAPDMA((__DMA_REMAP__)));                  \
+#define __HAL_DMA_REMAP_CHANNEL_ENABLE(__DMA_REMAP__)   do {assert_param(IS_DMA_REMAP((__DMA_REMAP__)));                  \
                                                            SYSCFG->CFGR1 |= (__DMA_REMAP__);                                \
                                                          }while(0)
-#define __HAL_REMAPDMA_CHANNEL_DISABLE(__DMA_REMAP__)  do {assert_param(IS_HAL_REMAPDMA((__DMA_REMAP__)));                  \
+#define __HAL_DMA_REMAP_CHANNEL_DISABLE(__DMA_REMAP__)  do {assert_param(IS_DMA_REMAP((__DMA_REMAP__)));                  \
                                                            SYSCFG->CFGR1 &= ~(__DMA_REMAP__);                               \
                                                          }while(0)
 #endif /* SYSCFG_CFGR3_DMA_RMP || SYSCFG_CFGR1_DMA_RMP */
@@ -646,18 +659,19 @@
  * @}
  */
  
-/** @defgroup I2C2_Fast_Mode_Plus_Enable I2C2 Fast Mode Plus Enable
+/** @defgroup FastModePlus_GPIO Fast-mode Plus on GPIO
   * @{
   */
-/** @brief  Fast mode Plus driving capability enable/disable macros
-  * @param __FASTMODEPLUS__: This parameter can be a value of @ref HAL_FastModePlus_I2C
+/** @brief  Fast-mode Plus driving capability enable/disable macros
+  * @param __FASTMODEPLUS__: This parameter can be a value of @ref SYSCFG_FastModePlus_GPIO values.
+  *                          That you can find above these macros.
   */
-#define __HAL_SYSCFG_FASTMODEPLUS_ENABLE(__FASTMODEPLUS__)  do {assert_param(IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG((__FASTMODEPLUS__))); \
-                                                                SYSCFG->CFGR1 |= (__FASTMODEPLUS__);                                 \
+#define __HAL_SYSCFG_FASTMODEPLUS_ENABLE(__FASTMODEPLUS__)  do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__)));\
+                                                                SET_BIT(SYSCFG->CFGR1, (__FASTMODEPLUS__));\
                                                                }while(0)
 
-#define __HAL_SYSCFG_FASTMODEPLUS_DISABLE(__FASTMODEPLUS__) do {assert_param(IS_HAL_SYSCFG_FASTMODEPLUS_CONFIG((__FASTMODEPLUS__))); \
-                                                                SYSCFG->CFGR1 &= ~(__FASTMODEPLUS__);                                \
+#define __HAL_SYSCFG_FASTMODEPLUS_DISABLE(__FASTMODEPLUS__) do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__)));\
+                                                                CLEAR_BIT(SYSCFG->CFGR1, (__FASTMODEPLUS__));\
                                                                }while(0)
 /**
  * @}
@@ -870,12 +884,12 @@ uint32_t HAL_GetTick(void);
 uint32_t HAL_GetHalVersion(void);
 uint32_t HAL_GetREVID(void);
 uint32_t HAL_GetDEVID(void);
-void     HAL_EnableDBGSleepMode(void);
-void     HAL_DisableDBGSleepMode(void);
-void     HAL_EnableDBGStopMode(void);
-void     HAL_DisableDBGStopMode(void);
-void     HAL_EnableDBGStandbyMode(void);
-void     HAL_DisableDBGStandbyMode(void);
+void     HAL_DBGMCU_EnableDBGSleepMode(void);
+void     HAL_DBGMCU_DisableDBGSleepMode(void);
+void     HAL_DBGMCU_EnableDBGStopMode(void);
+void     HAL_DBGMCU_DisableDBGStopMode(void);
+void     HAL_DBGMCU_EnableDBGStandbyMode(void);
+void     HAL_DBGMCU_DisableDBGStandbyMode(void);
 /**
  * @}
  */

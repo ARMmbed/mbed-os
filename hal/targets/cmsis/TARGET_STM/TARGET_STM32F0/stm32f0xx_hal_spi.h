@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
@@ -99,7 +99,7 @@ typedef struct
                                      This parameter can be a value of @ref SPI_CRC_Calculation */
 
   uint32_t CRCPolynomial;       /*!< Specifies the polynomial used for the CRC calculation.
-                                     This parameter must be a number between Min_Data = 0 and Max_Data = 65535 */
+                                     This parameter must be an odd number between Min_Data = 0 and Max_Data = 65535 */
 
   uint32_t CRCLength;           /*!< Specifies the CRC Length used for the CRC calculation.
                                      CRC Length is only used with Data8 and Data16, not other data size
@@ -132,37 +132,37 @@ typedef enum
   */
 typedef struct __SPI_HandleTypeDef
 {
-  SPI_TypeDef             *Instance;      /* SPI registers base address     */
+  SPI_TypeDef                *Instance;      /*!< SPI registers base address               */
 
-  SPI_InitTypeDef         Init;           /* SPI communication parameters   */
+  SPI_InitTypeDef            Init;           /*!< SPI communication parameters             */
 
-  uint8_t                 *pTxBuffPtr;    /* Pointer to SPI Tx transfer Buffer */
+  uint8_t                    *pTxBuffPtr;    /*!< Pointer to SPI Tx transfer Buffer        */
 
-  uint16_t                TxXferSize;     /* SPI Tx Transfer size */
+  uint16_t                   TxXferSize;     /*!< SPI Tx Transfer size                     */
 
-  uint16_t                TxXferCount;    /* SPI Tx Transfer Counter */
+  __IO uint16_t              TxXferCount;    /*!< SPI Tx Transfer Counter                  */
 
-  uint8_t                 *pRxBuffPtr;    /* Pointer to SPI Rx transfer Buffer */
+  uint8_t                    *pRxBuffPtr;    /*!< Pointer to SPI Rx transfer Buffer        */
 
-  uint16_t                RxXferSize;     /* SPI Rx Transfer size */
+  uint16_t                   RxXferSize;     /*!< SPI Rx Transfer size                     */
 
-  uint16_t                RxXferCount;    /* SPI Rx Transfer Counter */
+  __IO uint16_t              RxXferCount;    /*!< SPI Rx Transfer Counter                  */
 
-  uint32_t                CRCSize;        /* SPI CRC size used for the transfer */
+  uint32_t                   CRCSize;        /*!< SPI CRC size used for the transfer       */
 
-  void (*RxISR)(struct __SPI_HandleTypeDef *hspi); /* function pointer on Rx IRQ handler   */
+  void (*RxISR)(struct __SPI_HandleTypeDef *hspi); /*!< function pointer on Rx IRQ handler */
 
-  void (*TxISR)(struct __SPI_HandleTypeDef *hspi); /* function pointer on Tx IRQ handler   */
+  void (*TxISR)(struct __SPI_HandleTypeDef *hspi); /*!< function pointer on Tx IRQ handler */
 
-  DMA_HandleTypeDef       *hdmatx;        /* SPI Tx DMA Handle parameters   */
+  DMA_HandleTypeDef          *hdmatx;        /*!< SPI Tx DMA Handle parameters             */
 
-  DMA_HandleTypeDef       *hdmarx;        /* SPI Rx DMA Handle parameters   */
+  DMA_HandleTypeDef          *hdmarx;        /*!< SPI Rx DMA Handle parameters             */
 
-  HAL_LockTypeDef         Lock;           /* Locking object                 */
+  HAL_LockTypeDef            Lock;           /*!< Locking object                           */
 
-  __IO HAL_SPI_StateTypeDef    State;     /* SPI communication state        */
+  __IO HAL_SPI_StateTypeDef  State;          /*!< SPI communication state                  */
 
-  uint32_t                ErrorCode;      /* SPI Error code                 */
+  __IO uint32_t              ErrorCode;      /*!< SPI Error code                           */
 
 }SPI_HandleTypeDef;
 
@@ -197,8 +197,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_MODE_SLAVE                  ((uint32_t)0x00000000)
 #define SPI_MODE_MASTER                 (SPI_CR1_MSTR | SPI_CR1_SSI)
-#define IS_SPI_MODE(MODE) (((MODE) == SPI_MODE_SLAVE) || \
-                           ((MODE) == SPI_MODE_MASTER))
 /**
   * @}
   */
@@ -209,15 +207,6 @@ typedef struct __SPI_HandleTypeDef
 #define SPI_DIRECTION_2LINES            ((uint32_t)0x00000000)
 #define SPI_DIRECTION_2LINES_RXONLY     SPI_CR1_RXONLY
 #define SPI_DIRECTION_1LINE             SPI_CR1_BIDIMODE
-   
-#define IS_SPI_DIRECTION(MODE)   (((MODE) == SPI_DIRECTION_2LINES) || \
-                                  ((MODE) == SPI_DIRECTION_2LINES_RXONLY) ||\
-                                  ((MODE) == SPI_DIRECTION_1LINE))
-
-#define IS_SPI_DIRECTION_2LINES(MODE) ((MODE) == SPI_DIRECTION_2LINES)    
-
-#define IS_SPI_DIRECTION_2LINES_OR_1LINE(MODE) (((MODE) == SPI_DIRECTION_2LINES)|| \
-                                                 ((MODE) == SPI_DIRECTION_1LINE))
 /**
   * @}
   */
@@ -238,19 +227,6 @@ typedef struct __SPI_HandleTypeDef
 #define SPI_DATASIZE_14BIT              ((uint32_t)0x0D00) /*!< SPI Datasize = 14bits   */
 #define SPI_DATASIZE_15BIT              ((uint32_t)0x0E00) /*!< SPI Datasize = 15bits   */
 #define SPI_DATASIZE_16BIT              ((uint32_t)0x0F00) /*!< SPI Datasize = 16bits   */
-#define IS_SPI_DATASIZE(DATASIZE) (((DATASIZE) == SPI_DATASIZE_16BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_15BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_14BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_13BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_12BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_11BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_10BIT) || \
-                                   ((DATASIZE) == SPI_DATASIZE_9BIT)  || \
-                                   ((DATASIZE) == SPI_DATASIZE_8BIT)  || \
-                                   ((DATASIZE) == SPI_DATASIZE_7BIT)  || \
-                                   ((DATASIZE) == SPI_DATASIZE_6BIT)  || \
-                                   ((DATASIZE) == SPI_DATASIZE_5BIT)  || \
-                                   ((DATASIZE) == SPI_DATASIZE_4BIT))
 /**
   * @}
   */
@@ -260,8 +236,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_POLARITY_LOW                ((uint32_t)0x00000000) /*!< SPI polarity Low  */
 #define SPI_POLARITY_HIGH               SPI_CR1_CPOL           /*!< SPI polarity High */
-#define IS_SPI_CPOL(CPOL) (((CPOL) == SPI_POLARITY_LOW) || \
-                           ((CPOL) == SPI_POLARITY_HIGH))
 /**
   * @}
   */
@@ -271,8 +245,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_PHASE_1EDGE                 ((uint32_t)0x00000000) /*!< SPI Phase 1EDGE  */
 #define SPI_PHASE_2EDGE                 SPI_CR1_CPHA           /*!< SPI Phase 2EDGE  */
-#define IS_SPI_CPHA(CPHA) (((CPHA) == SPI_PHASE_1EDGE) || \
-                           ((CPHA) == SPI_PHASE_2EDGE))
 /**
   * @}
   */
@@ -283,9 +255,6 @@ typedef struct __SPI_HandleTypeDef
 #define SPI_NSS_SOFT                    SPI_CR1_SSM
 #define SPI_NSS_HARD_INPUT              ((uint32_t)0x00000000)
 #define SPI_NSS_HARD_OUTPUT             ((uint32_t)0x00040000)
-#define IS_SPI_NSS(NSS) (((NSS) == SPI_NSS_SOFT) || \
-                         ((NSS) == SPI_NSS_HARD_INPUT) || \
-                         ((NSS) == SPI_NSS_HARD_OUTPUT))
 /**
   * @}
   */
@@ -295,9 +264,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_NSS_PULSE_ENABLE            SPI_CR2_NSSP
 #define SPI_NSS_PULSE_DISABLE           ((uint32_t)0x00000000)
-   
-#define IS_SPI_NSSP(NSSP) (((NSSP) == SPI_NSS_PULSE_ENABLE) || \
-                           ((NSSP) == SPI_NSS_PULSE_DISABLE))                  
 /**
   * @}
   */
@@ -313,14 +279,6 @@ typedef struct __SPI_HandleTypeDef
 #define SPI_BAUDRATEPRESCALER_64        ((uint32_t)0x00000028)
 #define SPI_BAUDRATEPRESCALER_128       ((uint32_t)0x00000030)
 #define SPI_BAUDRATEPRESCALER_256       ((uint32_t)0x00000038)
-#define IS_SPI_BAUDRATE_PRESCALER(PRESCALER) (((PRESCALER) == SPI_BAUDRATEPRESCALER_2) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_4) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_8) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_16) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_32) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_64) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_128) || \
-                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_256))
 /**
   * @}
   */
@@ -330,8 +288,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_FIRSTBIT_MSB                ((uint32_t)0x00000000)
 #define SPI_FIRSTBIT_LSB                SPI_CR1_LSBFIRST
-#define IS_SPI_FIRST_BIT(BIT) (((BIT) == SPI_FIRSTBIT_MSB) || \
-                               ((BIT) == SPI_FIRSTBIT_LSB))
 /**
   * @}
   */
@@ -341,8 +297,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_TIMODE_DISABLE              ((uint32_t)0x00000000)
 #define SPI_TIMODE_ENABLE               SPI_CR2_FRF
-#define IS_SPI_TIMODE(MODE) (((MODE) == SPI_TIMODE_DISABLE) || \
-                             ((MODE) == SPI_TIMODE_ENABLE))
 /**
   * @}
   */
@@ -352,8 +306,6 @@ typedef struct __SPI_HandleTypeDef
   */
 #define SPI_CRCCALCULATION_DISABLE      ((uint32_t)0x00000000)
 #define SPI_CRCCALCULATION_ENABLE       SPI_CR1_CRCEN
-#define IS_SPI_CRC_CALCULATION(CALCULATION) (((CALCULATION) == SPI_CRCCALCULATION_DISABLE) || \
-                                             ((CALCULATION) == SPI_CRCCALCULATION_ENABLE))
 /**
   * @}
   */
@@ -368,9 +320,6 @@ typedef struct __SPI_HandleTypeDef
 #define SPI_CRC_LENGTH_DATASIZE         ((uint32_t)0x00000000)
 #define SPI_CRC_LENGTH_8BIT             ((uint32_t)0x00000001)
 #define SPI_CRC_LENGTH_16BIT            ((uint32_t)0x00000002)
-#define IS_SPI_CRC_LENGTH(LENGTH) (((LENGTH) == SPI_CRC_LENGTH_DATASIZE) ||\
-                                   ((LENGTH) == SPI_CRC_LENGTH_8BIT)  ||   \
-                                   ((LENGTH) == SPI_CRC_LENGTH_16BIT))
 /**
   * @}
   */
@@ -521,10 +470,10 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_MODFFLAG(__HANDLE__)        \
    do{                                              \
-     __IO uint32_t tmpreg;                          \
-     tmpreg = (__HANDLE__)->Instance->SR;           \
+     __IO uint32_t tmpreg_modf;                     \
+     tmpreg_modf = (__HANDLE__)->Instance->SR;      \
      (__HANDLE__)->Instance->CR1 &= (~SPI_CR1_SPE); \
-     UNUSED(tmpreg);                                \
+     UNUSED(tmpreg_modf);                           \
    } while(0)
 
 /** @brief  Clear the SPI OVR pending flag.
@@ -535,10 +484,10 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_OVRFLAG(__HANDLE__)         \
    do{                                              \
-     __IO uint32_t tmpreg;                          \
-     tmpreg = (__HANDLE__)->Instance->DR;           \
-     tmpreg = (__HANDLE__)->Instance->SR;           \
-     UNUSED(tmpreg);                                \
+     __IO uint32_t tmpreg_ovr;                      \
+     tmpreg_ovr = (__HANDLE__)->Instance->DR;       \
+     tmpreg_ovr = (__HANDLE__)->Instance->SR;       \
+     UNUSED(tmpreg_ovr);                            \
    } while(0)
 
 /** @brief  Clear the SPI FRE pending flag.
@@ -549,9 +498,9 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_FREFLAG(__HANDLE__)         \
    do{                                              \
-     __IO uint32_t tmpreg;                          \
-     tmpreg = (__HANDLE__)->Instance->SR;           \
-     UNUSED(tmpreg);                                \
+     __IO uint32_t tmpreg_fre;                      \
+     tmpreg_fre = (__HANDLE__)->Instance->SR;       \
+     UNUSED(tmpreg_fre);                            \
    } while(0)
 
 /** @brief  Enable the SPI peripheral.
@@ -599,8 +548,68 @@ typedef struct __SPI_HandleTypeDef
 #define SPI_RESET_CRC(__HANDLE__) do{(__HANDLE__)->Instance->CR1 &= (uint16_t)(~SPI_CR1_CRCEN);\
                                      (__HANDLE__)->Instance->CR1 |= SPI_CR1_CRCEN;}while(0)
 
+#define IS_SPI_MODE(MODE) (((MODE) == SPI_MODE_SLAVE) || \
+                           ((MODE) == SPI_MODE_MASTER))
 
-#define IS_SPI_CRC_POLYNOMIAL(POLYNOMIAL) (((POLYNOMIAL) >= 0x1) && ((POLYNOMIAL) <= 0xFFFF))
+#define IS_SPI_DIRECTION(MODE)   (((MODE) == SPI_DIRECTION_2LINES) || \
+                                  ((MODE) == SPI_DIRECTION_2LINES_RXONLY) ||\
+                                  ((MODE) == SPI_DIRECTION_1LINE))
+
+#define IS_SPI_DIRECTION_2LINES(MODE) ((MODE) == SPI_DIRECTION_2LINES)
+
+#define IS_SPI_DIRECTION_2LINES_OR_1LINE(MODE) (((MODE) == SPI_DIRECTION_2LINES)|| \
+                                                 ((MODE) == SPI_DIRECTION_1LINE))
+
+#define IS_SPI_DATASIZE(DATASIZE) (((DATASIZE) == SPI_DATASIZE_16BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_15BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_14BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_13BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_12BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_11BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_10BIT) || \
+                                   ((DATASIZE) == SPI_DATASIZE_9BIT)  || \
+                                   ((DATASIZE) == SPI_DATASIZE_8BIT)  || \
+                                   ((DATASIZE) == SPI_DATASIZE_7BIT)  || \
+                                   ((DATASIZE) == SPI_DATASIZE_6BIT)  || \
+                                   ((DATASIZE) == SPI_DATASIZE_5BIT)  || \
+                                   ((DATASIZE) == SPI_DATASIZE_4BIT))
+
+#define IS_SPI_CPOL(CPOL) (((CPOL) == SPI_POLARITY_LOW) || \
+                           ((CPOL) == SPI_POLARITY_HIGH))
+
+#define IS_SPI_CPHA(CPHA) (((CPHA) == SPI_PHASE_1EDGE) || \
+                           ((CPHA) == SPI_PHASE_2EDGE))
+
+#define IS_SPI_NSS(NSS) (((NSS) == SPI_NSS_SOFT) || \
+                         ((NSS) == SPI_NSS_HARD_INPUT) || \
+                         ((NSS) == SPI_NSS_HARD_OUTPUT))
+
+#define IS_SPI_NSSP(NSSP) (((NSSP) == SPI_NSS_PULSE_ENABLE) || \
+                           ((NSSP) == SPI_NSS_PULSE_DISABLE))
+
+#define IS_SPI_BAUDRATE_PRESCALER(PRESCALER) (((PRESCALER) == SPI_BAUDRATEPRESCALER_2) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_4) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_8) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_16) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_32) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_64) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_128) || \
+                                              ((PRESCALER) == SPI_BAUDRATEPRESCALER_256))
+
+#define IS_SPI_FIRST_BIT(BIT) (((BIT) == SPI_FIRSTBIT_MSB) || \
+                               ((BIT) == SPI_FIRSTBIT_LSB))
+
+#define IS_SPI_TIMODE(MODE) (((MODE) == SPI_TIMODE_DISABLE) || \
+                             ((MODE) == SPI_TIMODE_ENABLE))
+
+#define IS_SPI_CRC_CALCULATION(CALCULATION) (((CALCULATION) == SPI_CRCCALCULATION_DISABLE) || \
+                                             ((CALCULATION) == SPI_CRCCALCULATION_ENABLE))
+
+#define IS_SPI_CRC_LENGTH(LENGTH) (((LENGTH) == SPI_CRC_LENGTH_DATASIZE) ||\
+                                   ((LENGTH) == SPI_CRC_LENGTH_8BIT)  ||   \
+                                   ((LENGTH) == SPI_CRC_LENGTH_16BIT))
+
+#define IS_SPI_CRC_POLYNOMIAL(POLYNOMIAL) (((POLYNOMIAL) >= 0x1) && ((POLYNOMIAL) <= 0xFFFF) && (((POLYNOMIAL)&0x1) != 0))
 
 
 /**

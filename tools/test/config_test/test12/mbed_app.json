@@ -1,6 +1,14 @@
 {
+    "custom_targets": {
+        "test_target": {
+            "core": "Cortex-M0",
+            "extra_labels": [],
+            "features": [],
+            "default_build": "standard"
+        }
+    },
     "target_overrides": {
-        "K64F": {
+        "test_target": {
             "lib1.p1": "v_p1_lib1_app",
             "lib2.p1": "v_p1_lib2_app"
         }

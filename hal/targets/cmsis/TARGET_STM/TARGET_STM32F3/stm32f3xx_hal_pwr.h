@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup PWR PWR HAL Driver module
+/** @addtogroup PWR PWR
   * @{
   */ 
 
@@ -65,12 +65,12 @@
 /* --- CR Register ---*/
 #define CR_OFFSET                (PWR_OFFSET + 0x00)
 /* Alias word address of DBP bit */
-#define DBP_BitNumber            POSITION_VAL(PWR_CR_DBP)
-#define CR_DBP_BB                (PERIPH_BB_BASE + (CR_OFFSET * 32) + (DBP_BitNumber * 4))
+#define DBP_BIT_NUMBER            POSITION_VAL(PWR_CR_DBP)
+#define CR_DBP_BB                (PERIPH_BB_BASE + (CR_OFFSET * 32) + (DBP_BIT_NUMBER * 4))
 
 /* Alias word address of PVDE bit */
-#define PVDE_BitNumber           POSITION_VAL(PWR_CR_PVDE)
-#define CR_PVDE_BB               (PERIPH_BB_BASE + (CR_OFFSET * 32) + (PVDE_BitNumber * 4))
+#define PVDE_BIT_NUMBER           POSITION_VAL(PWR_CR_PVDE)
+#define CR_PVDE_BB               (PERIPH_BB_BASE + (CR_OFFSET * 32) + (PVDE_BIT_NUMBER * 4))
 
 /* --- CSR Register ---*/
 #define CSR_OFFSET               (PWR_OFFSET + 0x04)
@@ -97,12 +97,9 @@
   * @{
   */
 
-#define PWR_WAKEUP_PIN1                 ((uint32_t)0x00)
-#define PWR_WAKEUP_PIN2                 ((uint32_t)0x01)
-#define PWR_WAKEUP_PIN3                 ((uint32_t)0x02)
-#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
-                                ((PIN) == PWR_WAKEUP_PIN2) || \
-                                ((PIN) == PWR_WAKEUP_PIN3))
+#define PWR_WAKEUP_PIN1                 ((uint32_t)0x00)   /*!< Wakeup pin 1 */
+#define PWR_WAKEUP_PIN2                 ((uint32_t)0x01)   /*!< Wakeup pin 2 */
+#define PWR_WAKEUP_PIN3                 ((uint32_t)0x02)   /*!< Wakeup pin 3 */
 /**
   * @}
   */
@@ -110,11 +107,8 @@
 /** @defgroup PWR_Regulator_state_in_STOP_mode PWR Regulator state in STOP mode
   * @{
   */
-#define PWR_MAINREGULATOR_ON                        ((uint32_t)0x00000000)
-#define PWR_LOWPOWERREGULATOR_ON                    PWR_CR_LPDS
-
-#define IS_PWR_REGULATOR(REGULATOR) (((REGULATOR) == PWR_MAINREGULATOR_ON) || \
-                                     ((REGULATOR) == PWR_LOWPOWERREGULATOR_ON))
+#define PWR_MAINREGULATOR_ON         ((uint32_t)0x00000000) /*!< Voltage regulator on during STOP mode                */
+#define PWR_LOWPOWERREGULATOR_ON     PWR_CR_LPDS            /*!< Voltage regulator in low-power mode during STOP mode */
 /**
   * @}
   */
@@ -122,9 +116,8 @@
 /** @defgroup PWR_SLEEP_mode_entry PWR SLEEP mode entry
   * @{
   */
-#define PWR_SLEEPENTRY_WFI              ((uint8_t)0x01)
-#define PWR_SLEEPENTRY_WFE              ((uint8_t)0x02)
-#define IS_PWR_SLEEP_ENTRY(ENTRY) (((ENTRY) == PWR_SLEEPENTRY_WFI) || ((ENTRY) == PWR_SLEEPENTRY_WFE))
+#define PWR_SLEEPENTRY_WFI              ((uint8_t)0x01)   /*!< Wait For Interruption instruction to enter SLEEP mode */
+#define PWR_SLEEPENTRY_WFE              ((uint8_t)0x02)   /*!< Wait For Event instruction to enter SLEEP mode        */
 /**
   * @}
   */
@@ -132,9 +125,8 @@
 /** @defgroup PWR_STOP_mode_entry PWR STOP mode entry
   * @{
   */
-#define PWR_STOPENTRY_WFI               ((uint8_t)0x01)
-#define PWR_STOPENTRY_WFE               ((uint8_t)0x02)
-#define IS_PWR_STOP_ENTRY(ENTRY) (((ENTRY) == PWR_STOPENTRY_WFI) || ((ENTRY) == PWR_STOPENTRY_WFE))
+#define PWR_STOPENTRY_WFI               ((uint8_t)0x01)   /*!< Wait For Interruption instruction to enter STOP mode */
+#define PWR_STOPENTRY_WFE               ((uint8_t)0x02)   /*!< Wait For Event instruction to enter STOP mode        */
 /**
   * @}
   */
@@ -142,14 +134,10 @@
 /** @defgroup PWR_Flag PWR Flag
   * @{
   */
-#define PWR_FLAG_WU                     PWR_CSR_WUF
-#define PWR_FLAG_SB                     PWR_CSR_SBF
-#define PWR_FLAG_PVDO                   PWR_CSR_PVDO
-#define PWR_FLAG_VREFINTRDY             PWR_CSR_VREFINTRDYF
-#define IS_PWR_GET_FLAG(FLAG) (((FLAG) == PWR_FLAG_WU) || ((FLAG) == PWR_FLAG_SB) || \
-                               ((FLAG) == PWR_FLAG_PVDO) || ((FLAG) == PWR_FLAG_VREFINTRDY))
-
-
+#define PWR_FLAG_WU                     PWR_CSR_WUF             /*!< Wakeup event from wakeup pin or RTC alarm */
+#define PWR_FLAG_SB                     PWR_CSR_SBF             /*!< Standby flag                              */
+#define PWR_FLAG_PVDO                   PWR_CSR_PVDO            /*!< Power Voltage Detector output flag        */
+#define PWR_FLAG_VREFINTRDY             PWR_CSR_VREFINTRDYF     /*!< VREFINT reference voltage ready           */
 /**
   * @}
   */
@@ -194,6 +182,26 @@
 /**
   * @}
   */
+  
+/* Private macros --------------------------------------------------------*/
+/** @addtogroup  PWR_Private_Macros   PWR Private Macros
+  * @{
+  */
+
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
+                                ((PIN) == PWR_WAKEUP_PIN2) || \
+                                ((PIN) == PWR_WAKEUP_PIN3))
+                                
+#define IS_PWR_REGULATOR(REGULATOR) (((REGULATOR) == PWR_MAINREGULATOR_ON) || \
+                                     ((REGULATOR) == PWR_LOWPOWERREGULATOR_ON))
+                                     
+#define IS_PWR_SLEEP_ENTRY(ENTRY) (((ENTRY) == PWR_SLEEPENTRY_WFI) || ((ENTRY) == PWR_SLEEPENTRY_WFE))
+
+#define IS_PWR_STOP_ENTRY(ENTRY) (((ENTRY) == PWR_STOPENTRY_WFI) || ((ENTRY) == PWR_STOPENTRY_WFE))
+
+/**
+  * @}
+  */    
 
 /* Include PWR HAL Extended module */
 #include "stm32f3xx_hal_pwr_ex.h"
@@ -232,6 +240,10 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry);
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry);
 void HAL_PWR_EnterSTANDBYMode(void);
 
+void HAL_PWR_EnableSleepOnExit(void);
+void HAL_PWR_DisableSleepOnExit(void);
+void HAL_PWR_EnableSEVOnPend(void);
+void HAL_PWR_DisableSEVOnPend(void);
 /**
   * @}
   */

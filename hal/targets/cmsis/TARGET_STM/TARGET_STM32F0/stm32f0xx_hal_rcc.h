@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention
@@ -68,12 +68,13 @@
 #define RCC_LSE_TIMEOUT_VALUE      LSE_STARTUP_TIMEOUT
 #define CLOCKSWITCH_TIMEOUT_VALUE  ((uint32_t)5000)  /* 5 s    */
 #define HSE_TIMEOUT_VALUE          HSE_STARTUP_TIMEOUT
-#define HSI_TIMEOUT_VALUE         ((uint32_t)2)      /* 2 ms */
-#define LSI_TIMEOUT_VALUE         ((uint32_t)2)      /* 2 ms */
-#define PLL_TIMEOUT_VALUE         ((uint32_t)2)      /* 2 ms */
-#define HSI14_TIMEOUT_VALUE       ((uint32_t)2)      /* 2 ms */
-#define HSI48_TIMEOUT_VALUE       ((uint32_t)2)      /* 2 ms */
-
+#define HSI_TIMEOUT_VALUE         ((uint32_t)2)      /* 2 ms (minimum Tick + 1) */
+#define LSI_TIMEOUT_VALUE         ((uint32_t)2)      /* 2 ms (minimum Tick + 1) */
+#define PLL_TIMEOUT_VALUE         ((uint32_t)2)      /* 2 ms (minimum Tick + 1) */
+#define HSI14_TIMEOUT_VALUE       ((uint32_t)2)      /* 2 ms (minimum Tick + 1) */
+#if defined(RCC_HSI48_SUPPORT)
+#define HSI48_TIMEOUT_VALUE       ((uint32_t)2)      /* 2 ms (minimum Tick + 1) */
+#endif /* RCC_HSI48_SUPPORT */
 /**
   * @}
   */
@@ -108,10 +109,10 @@
 #define BDCR_REG_INDEX                   ((uint8_t)3)
 #define CSR_REG_INDEX                    ((uint8_t)4)
 
-/* Flags in the CFGR register */
-#define RCC_CFGR_PLLMUL_BITNUMBER         18
-#define RCC_CFGR_HPRE_BITNUMBER           4
-#define RCC_CFGR_PPRE_BITNUMBER           8
+/* Bits position in  in the CFGR register */
+#define RCC_CFGR_PLLMUL_BITNUMBER         18U
+#define RCC_CFGR_HPRE_BITNUMBER           4U
+#define RCC_CFGR_PPRE_BITNUMBER           8U
 /* Flags in the CFGR2 register */
 #define RCC_CFGR2_PREDIV_BITNUMBER        0
 /* Flags in the CR register */
@@ -225,7 +226,7 @@ typedef struct
 
 } RCC_PLLInitTypeDef;
    
-/** 
+/**
   * @brief  RCC Internal/External Oscillator (HSE, HSI, LSE and LSI) configuration structure definition  
   */
 typedef struct
@@ -235,49 +236,49 @@ typedef struct
 
   uint32_t HSEState;              /*!< The new state of the HSE.
                                        This parameter can be a value of @ref RCC_HSE_Config */
-                          
+
   uint32_t LSEState;              /*!< The new state of the LSE.
                                        This parameter can be a value of @ref RCC_LSE_Config */
-                                          
+
   uint32_t HSIState;              /*!< The new state of the HSI.
                                        This parameter can be a value of @ref RCC_HSI_Config */
 
   uint32_t HSICalibrationValue;   /*!< The HSI calibration trimming value (default is RCC_HSICALIBRATION_DEFAULT).
                                        This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x1F */
-                               
+
   uint32_t HSI14State;             /*!< The new state of the HSI14.
                                         This parameter can be a value of @ref RCC_HSI14_Config */
 
   uint32_t HSI14CalibrationValue;  /*!< The HSI14 calibration trimming value (default is RCC_HSI14CALIBRATION_DEFAULT).
                                         This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x1F */
 
-  uint32_t HSI48State;             /*!< The new state of the HSI48 (only applicable to STM32F07x, STM32F0x2 and STM32F09x devices).
-                                        This parameter can be a value of @ref RCCEx_HSI48_Config */
-
   uint32_t LSIState;              /*!< The new state of the LSI.
                                        This parameter can be a value of @ref RCC_LSI_Config */
+
+  uint32_t HSI48State;            /*!< The new state of the HSI48.
+                                       This parameter can be a value of @ref RCC_HSI48_Config */
 
   RCC_PLLInitTypeDef PLL;         /*!< PLL structure parameters */     
 
 } RCC_OscInitTypeDef;
 
-/** 
+/**
   * @brief  RCC System, AHB and APB busses clock configuration structure definition  
   */
 typedef struct
 {
   uint32_t ClockType;             /*!< The clock to be configured.
                                        This parameter can be a value of @ref RCC_System_Clock_Type */
-  
+
   uint32_t SYSCLKSource;          /*!< The clock source (SYSCLKS) used as system clock.
                                        This parameter can be a value of @ref RCC_System_Clock_Source */
 
   uint32_t AHBCLKDivider;         /*!< The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
                                        This parameter can be a value of @ref RCC_AHB_Clock_Source */
-  
+
   uint32_t APB1CLKDivider;        /*!< The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
                                        This parameter can be a value of @ref RCC_APB1_Clock_Source */
-  
+
 } RCC_ClkInitTypeDef;
 
 /**
@@ -308,6 +309,9 @@ typedef struct
 #define RCC_OSCILLATORTYPE_LSE             ((uint32_t)0x00000004)
 #define RCC_OSCILLATORTYPE_LSI             ((uint32_t)0x00000008)
 #define RCC_OSCILLATORTYPE_HSI14           ((uint32_t)0x00000010)
+#if defined(RCC_HSI48_SUPPORT)
+#define RCC_OSCILLATORTYPE_HSI48           ((uint32_t)0x00000020)
+#endif /* RCC_HSI48_SUPPORT */
 /**
   * @}
   */
@@ -336,8 +340,8 @@ typedef struct
 /** @defgroup RCC_HSI_Config HSI Config
   * @{
   */
-#define RCC_HSI_OFF                      ((uint32_t)0x00000000)   /*!< HSI clock deactivation */
-#define RCC_HSI_ON                       RCC_CR_HSION             /*!< HSI clock activation */
+#define RCC_HSI_OFF                      ((uint32_t)0x00000000)           /*!< HSI clock deactivation */
+#define RCC_HSI_ON                       RCC_CR_HSION                     /*!< HSI clock activation */
 
 #define RCC_HSICALIBRATION_DEFAULT       ((uint32_t)0x10)         /* Default HSI calibration trimming value */
 
@@ -366,6 +370,18 @@ typedef struct
 /**
   * @}
   */
+
+#if defined(RCC_HSI48_SUPPORT)
+/** @defgroup RCC_HSI48_Config HSI48 Config
+  * @{
+  */
+#define RCC_HSI48_OFF               ((uint8_t)0x00)
+#define RCC_HSI48_ON                ((uint8_t)0x01)
+
+/**
+  * @}
+  */
+#endif /* RCC_HSI48_SUPPORT */
 
 /** @defgroup RCC_PLL_Config PLL Config
   * @{
@@ -445,8 +461,8 @@ typedef struct
   * @{
   */
 #define RCC_RTCCLKSOURCE_NO_CLK          ((uint32_t)0x00000000)                 /*!< No clock */
-#define RCC_RTCCLKSOURCE_LSE             RCC_BDCR_RTCSEL_LSE                    /*!< LSE oscillator clock used as RTC clock */
-#define RCC_RTCCLKSOURCE_LSI             RCC_BDCR_RTCSEL_LSI                    /*!< LSI oscillator clock used as RTC clock */
+#define RCC_RTCCLKSOURCE_LSE             RCC_BDCR_RTCSEL_LSE                  /*!< LSE oscillator clock used as RTC clock */
+#define RCC_RTCCLKSOURCE_LSI             RCC_BDCR_RTCSEL_LSI                  /*!< LSI oscillator clock used as RTC clock */
 #define RCC_RTCCLKSOURCE_HSE_DIV32       RCC_BDCR_RTCSEL_HSE                    /*!< HSE oscillator clock divided by 32 used as RTC clock */
 /**
   * @}
@@ -587,7 +603,6 @@ typedef struct
 #if   defined(RCC_CSR_V18PWRRSTF)
 #define RCC_FLAG_V18PWRRST               ((uint8_t)((CSR_REG_INDEX << 5) | RCC_CSR_V18PWRRSTF_BitNumber))
 #endif
-#define RCC_FLAG_RMV                     ((uint8_t)((CSR_REG_INDEX << 5) | RCC_CSR_RMVF_BitNumber))
 #define RCC_FLAG_OBLRST                  ((uint8_t)((CSR_REG_INDEX << 5) | RCC_CSR_OBLRSTF_BitNumber))
 #define RCC_FLAG_PINRST                  ((uint8_t)((CSR_REG_INDEX << 5) | RCC_CSR_PINRSTF_BitNumber))      /*!< PIN reset flag */
 #define RCC_FLAG_PORRST                  ((uint8_t)((CSR_REG_INDEX << 5) | RCC_CSR_PORRSTF_BitNumber))      /*!< POR/PDR reset flag */
@@ -1028,7 +1043,7 @@ typedef struct
   *         PLL as system clock. In this case, you have to select another source
   *         of the system clock then change the HSE state (ex. disable it).
   * @note   The HSE is stopped by hardware when entering STOP and STANDBY modes.
-  * @note   This function reset the CSSON bit, so if the Clock security system(CSS)
+  * @note   This function reset the CSSON bit, so if the clock security system(CSS)
   *         was previously enabled you have to enable it again after calling this
   *         function.
   * @param  __STATE__ specifies the new state of the HSE.
@@ -1272,14 +1287,14 @@ typedef struct
 
 /**
   * @brief  Macro to configure the system clock source.
-  * @param  __RCC_SYSCLKSOURCE__ specifies the system clock source.
+  * @param  __SYSCLKSOURCE__ specifies the system clock source.
   *          This parameter can be one of the following values:
   *              @arg @ref RCC_SYSCLKSOURCE_HSI HSI oscillator is used as system clock source.
   *              @arg @ref RCC_SYSCLKSOURCE_HSE HSE oscillator is used as system clock source.
   *              @arg @ref RCC_SYSCLKSOURCE_PLLCLK PLL output is used as system clock source.
   */
-#define __HAL_RCC_SYSCLK_CONFIG(__RCC_SYSCLKSOURCE__) \
-                  MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, (__RCC_SYSCLKSOURCE__))
+#define __HAL_RCC_SYSCLK_CONFIG(__SYSCLKSOURCE__) \
+                  MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, (__SYSCLKSOURCE__))
 
 /** @brief  Macro to get the clock source used as system clock.
   * @retval The clock source used as system clock. The returned value can be one
@@ -1310,21 +1325,39 @@ typedef struct
   *            @arg @ref RCC_MCO1SOURCE_LSE          LSE selected as MCO clock
   *            @arg @ref RCC_MCO1SOURCE_HSI14        HSI14 selected as MCO clock
   @if STM32F042x6
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F048xx
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F071xB
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F072xB
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F078xx
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F091xC
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F098xx
-  *            @arg @ref RCC_MCO1SOURCE_HSI48        HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
+  @elseif STM32F030x6
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
+  @elseif STM32F030xC
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
+  @elseif STM32F031x6
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
+  @elseif STM32F038xx
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
+  @elseif STM32F070x6
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
+  @elseif STM32F070xB
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @endif
-  *            @arg @ref RCC_MCO1SOURCE_PLLCLK       PLLCLK selected as MCO clock
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK_DIV2  PLLCLK Divided by 2 selected as MCO clock
   * @param  __MCODIV__ specifies the MCO clock prescaler.
   *          This parameter can be one of the following values:

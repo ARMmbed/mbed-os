@@ -22,6 +22,7 @@
 
 #include <uvisor.h>
 #include "page_allocator.h"
+#include "page_allocator_faults.h"
 #include "mpu/vmpu_unpriv_access.h"
 #include "mpu/vmpu.h"
 #include "halt.h"
@@ -38,40 +39,31 @@
 
 #endif /* defined(UVISOR_PRESENT) && (UVISOR_PRESENT == 1) */
 
-/* We can only protect a small number of pages efficiently, so there should be
- * a relatively low limit to the number of pages.
- * By default a maximum of 16 pages are allowed. This can only be overridden
- * by the porting engineer for the current platform. */
-#ifndef UVISOR_PAGE_TABLE_MAX_COUNT
-#define UVISOR_PAGE_TABLE_MAX_COUNT ((uint32_t) 16)
-#endif
-/* The number of pages is decided by the page size. A small page size leads to
- * a lot of pages, however, number of pages is capped for efficiency.
- * Furthermore, when allocating large continous memory, a too small page size
- * will lead to allocation failures. This can only be overridden
- * by the porting engineer for the current platform. */
-#ifndef UVISOR_PAGE_SIZE_MINIMUM
-#define UVISOR_PAGE_SIZE_MINIMUM ((uint32_t) 1024)
-#endif
+#include "page_allocator_config.h"
 
-/* The page box_id is the box id which is 8-bit large. */
-typedef uint8_t page_owner_t;
 /* Maps the page to the owning box handle. */
-static page_owner_t g_page_owner_table[UVISOR_PAGE_TABLE_MAX_COUNT];
-/* Define a unused value for the page table. */
-#define UVISOR_PAGE_UNUSED ((page_owner_t) (-1))
-
+page_owner_t g_page_owner_table[UVISOR_PAGE_TABLE_MAX_COUNT];
 /* Contains the configured page size. */
-static uint32_t g_page_size;
+uint32_t g_page_size;
 /* Points to the beginning of the page heap. */
-static const void * g_page_heap_start;
+const void * g_page_heap_start;
 /* Points to the end of the page heap. */
-static const void * g_page_heap_end;
+const void * g_page_heap_end;
 /* Contains the number of free pages. */
-static uint8_t g_page_count_free;
+uint8_t g_page_count_free;
 /* Contains the total number of available pages. */
-static uint8_t g_page_count_total;
+uint8_t g_page_count_total;
 
+/* Helper function maps pointer to page id, or UVISOR_PAGE_UNUSED. */
+uint8_t page_allocator_get_page_from_address(uint32_t address)
+{
+    /* Range check the returned pointer. */
+    if (address < (uint32_t) g_page_heap_start || address >= (uint32_t) g_page_heap_end) {
+        return UVISOR_PAGE_UNUSED;
+    }
+    /* Compute the index for the pointer. */
+    return (address - (uint32_t) g_page_heap_start) / g_page_size;
+}
 
 void page_allocator_init(void * const heap_start, void * const heap_end, const uint32_t * const page_size)
 {
@@ -142,8 +134,9 @@ void page_allocator_init(void * const heap_start, void * const heap_end, const u
             (unsigned int) (g_page_size / 1024));
 
     uint32_t page = 0;
-    for (; page < g_page_count_total; page++) {
+    for (; page < UVISOR_PAGE_TABLE_MAX_COUNT; page++) {
         g_page_owner_table[page] = UVISOR_PAGE_UNUSED;
+        page_allocator_reset_faults(page);
     }
 }
 
@@ -187,6 +180,8 @@ int page_allocator_malloc(UvisorPageTable * const table)
         if (g_page_owner_table[page] == UVISOR_PAGE_UNUSED) {
             /* Marry this page to the box id. */
             g_page_owner_table[page] = box_id;
+            /* Reset the fault count for this page. */
+            page_allocator_reset_faults(page);
             /* Get the pointer to the page. */
             void * ptr = (void *) g_page_heap_start + page * g_page_size;
             /* Zero the entire page before handing it out. */
@@ -239,14 +234,14 @@ int page_allocator_free(const UvisorPageTable * const table)
     int table_size = page_count;
     for (; table_size > 0; page_table++, table_size--) {
         void * page = (void *) page_table_read((uint32_t) page_table);
+        /* Compute the index for the pointer. */
+        uint8_t page_index = page_allocator_get_page_from_address((uint32_t) page);
         /* Range check the returned pointer. */
-        if (page < g_page_heap_start || page >= g_page_heap_end) {
+        if (page_index == UVISOR_PAGE_UNUSED) {
             DPRINTF("uvisor_page_free: FAIL: Pointer 0x%08x does not belong to any page!\n\n", (unsigned int) page);
             UVISOR_PAGE_ALLOCATOR_MUTEX_RELEASE;
             return UVISOR_ERROR_PAGE_INVALID_PAGE_ORIGIN;
         }
-        /* Compute the index for the pointer. */
-        uint32_t page_index = (page - g_page_heap_start) / g_page_size;
         /* Check if the page belongs to the caller. */
         if (g_page_owner_table[page_index] == box_id) {
             g_page_owner_table[page_index] = UVISOR_PAGE_UNUSED;

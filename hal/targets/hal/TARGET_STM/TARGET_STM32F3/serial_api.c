@@ -85,33 +85,55 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     // Enable USART clock + switch to SystemClock
     if (obj->uart == UART_1) {
+        __USART1_FORCE_RESET();
+        __USART1_RELEASE_RESET();
         __USART1_CLK_ENABLE();
+#if defined(RCC_USART1CLKSOURCE_SYSCLK) 
         __HAL_RCC_USART1_CONFIG(RCC_USART1CLKSOURCE_SYSCLK);
+#endif
         obj->index = 0;
     }
+#if defined(USART2_BASE)
     if (obj->uart == UART_2) {
+        __USART2_FORCE_RESET();
+        __USART2_RELEASE_RESET();
         __USART2_CLK_ENABLE();
+#if defined(RCC_USART2CLKSOURCE_SYSCLK)
         __HAL_RCC_USART2_CONFIG(RCC_USART2CLKSOURCE_SYSCLK);
+#endif
         obj->index = 1;
     }
+#endif
 #if defined(USART3_BASE)
     if (obj->uart == UART_3) {
+        __USART3_FORCE_RESET();
+        __USART3_RELEASE_RESET();
         __USART3_CLK_ENABLE();
+#if defined(RCC_USART3CLKSOURCE_SYSCLK)
         __HAL_RCC_USART3_CONFIG(RCC_USART3CLKSOURCE_SYSCLK);
+#endif
         obj->index = 2;
     }
 #endif
 #if defined(UART4_BASE)
     if (obj->uart == UART_4) {
+        __UART4_FORCE_RESET();
+        __UART4_RELEASE_RESET();
         __UART4_CLK_ENABLE();
+#if defined(RCC_UART4CLKSOURCE_SYSCLK)
         __HAL_RCC_UART4_CONFIG(RCC_UART4CLKSOURCE_SYSCLK);
+#endif
         obj->index = 3;
     }
 #endif
 #if defined(UART5_BASE)
     if (obj->uart == UART_5) {
+        __HAL_RCC_UART5_FORCE_RESET();
+        __HAL_RCC_UART5_RELEASE_RESET();
         __UART5_CLK_ENABLE();
+#if defined(RCC_UART5CLKSOURCE_SYSCLK)
         __HAL_RCC_UART5_CONFIG(RCC_UART5CLKSOURCE_SYSCLK);
+#endif
         obj->index = 4;
     }
 #endif

@@ -2,41 +2,39 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   COMP HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
-  *           + Initialization/de-initialization functions
-  *           + I/O operation functions
-  *           + Peripheral Control functions 
+  *           + Initialization and de-initialization functions
+  *           + Start/Stop operation functions in polling mode.
+  *           + Start/Stop operation functions in interrupt mode.
+  *           + Peripheral Control functions
   *           + Peripheral State functions
   *         
   @verbatim
 ================================================================================
           ##### COMP Peripheral features #####
 ================================================================================
-           
-  [..]       
+
+  [..]
       The STM32F3xx device family integrates up to 7 analog comparators COMP1, COMP2...COMP7:
-      (#) The non inverting input and inverting input can be set to GPIO pins
-          as shown in table1. COMP Inputs below for STM32F303xB/STM32F303xC as example.
-          For other STM32F3xx devices please refer to the COMP peripheral section in corresponding 
+      (#) The non inverting input and inverting input can be set to GPIO pins.
+          For STM32F3xx devices please refer to the COMP peripheral section in corresponding 
           Reference Manual.
   
       (#) The COMP output is available using HAL_COMP_GetOutputLevel()
-          and can be set on GPIO pins. Refer to table 2. COMP Outputs below for STM32F303xB/STM32F303xC as example.
-          For other STM32F3xx devices please refer to the COMP peripheral section in corresponding 
+          and can be set on GPIO pins.
+          For STM32F3xx devices please refer to the COMP peripheral section in corresponding 
           Reference Manual.
   
-      (#) The COMP output can be redirected to embedded timers (TIM1, TIM2, TIM3...)
-          Refer to table 3. COMP Outputs redirection to embedded timers below for STM32F303xB/STM32F303xC as example.
-          For other STM32F3xx devices please refer to the COMP peripheral section in corresponding 
+      (#) The COMP output can be redirected to embedded timers (TIM1, TIM2, TIM3...).
+          For STM32F3xx devices please refer to the COMP peripheral section in corresponding 
           Reference Manual.
   
-      (#) The comparators COMP1 and COMP2, COMP3 and COMP4, COMP5 and COMP6 can be combined in window
-          mode and only COMP1, COMP3 and COMP5 non inverting input can be used as non-inverting input.
+      (#) Each couple of comparators COMP1 and COMP2, COMP3 and COMP4, COMP5 and COMP6 can be combined in window
+          mode and respectively COMP1, COMP3 and COMP5 non inverting input is used as common non-inverting input.
   
       (#) The seven comparators have interrupt capability with wake-up
           from Sleep and Stop modes (through the EXTI controller):
@@ -46,128 +44,11 @@
           (++) COMP4 is internally connected to EXTI Line 30
           (++) COMP5 is internally connected to EXTI Line 31
           (++) COMP6 is internally connected to EXTI Line 32
-          (++) COMP7 is internally connected to EXTI Line 33
+          (++) COMP7 is internally connected to EXTI Line 33.
+
           From the corresponding IRQ handler, the right interrupt source can be retrieved with the 
-          macro __HAL_COMP_EXTI_GET_FLAG(). Possible values are:
-          (++) COMP_EXTI_LINE_COMP1_EVENT
-          (++) COMP_EXTI_LINE_COMP2_EVENT
-          (++) COMP_EXTI_LINE_COMP3_EVENT
-          (++) COMP_EXTI_LINE_COMP4_EVENT
-          (++) COMP_EXTI_LINE_COMP5_EVENT
-          (++) COMP_EXTI_LINE_COMP6_EVENT
-          (++) COMP_EXTI_LINE_COMP7_EVENT
+          adequate macro __HAL_COMP_COMPx_EXTI_GET_FLAG().
 
-[..] Table 1. COMP Inputs for the STM32F303xB/STM32F303xC/STM32F303xE devices
- +------------------------------------------------------------------------------------------+     
- |                 |                | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
- |-----------------|----------------|---------------|---------------------------------------|
- |                 | 1/4 VREFINT    |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
- |                 | 1/2 VREFINT    |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
- |                 | 3/4 VREFINT    |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
- | Inverting Input | VREFINT        |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
- |                 | DAC1 OUT (PA4) |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
- |                 | DAC2 OUT (PA5) |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
- |                 | IO1            |  PA0  |  PA2  |  PD15 |  PE8  |  PD13 |  PD10 |  PC0  |
- |                 | IO2            |  ---  |  ---  |  PB12 |  PB2  |  PB10 |  PB15 |  ---  |
- |-----------------|----------------|-------|-------|-------|-------|-------|-------|-------|
- |  Non Inverting  | IO1            |  PA1  |  PA7  |  PB14 |  PB0  |  PD12 |  PD11 |  PA0  |
- |    Input        | IO2            |  ---  |  PA3  |  PD14 |  PE7  |  PB13 |  PB11 |  PC1  |
- +------------------------------------------------------------------------------------------+  
-  
- [..] Table 2. COMP Outputs for the STM32F303xB/STM32F303xC/STM32F303xE devices
- +-------------------------------------------------------+     
- | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
- |-------|-------|-------|-------|-------|-------|-------|
- |  PA0  |  PA2  |  PB1  |  PC8  |  PC7  |  PA10 |  PC2  |
- |  PF4  |  PA7  |  ---  |  PA8  |  PA9  |  PC6  |  ---  |
- |  PA6  |  PA12 |  ---  |  ---  |  ---  |  ---  |  ---  |
- |  PA11 |  PB9  |  ---  |  ---  |  ---  |  ---  |  ---  |
- |  PB8  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
- +-------------------------------------------------------+
-
- [..] Table 3. COMP Outputs redirection to embedded timers for the STM32F303xB/STM32F303xC devices
- +----------------------------------------------------------------------------------------------------------------------+     
- |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
- |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
- |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |
- |                |                |                |                |                |                |                |
- |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
- |                |                |                |                |                |                |                |
- |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |
- |                |                |                |                |                |                |                |
- |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
- |                |                |                |                |                |                |                |
- |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
- |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
- |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |
- |                |                |                |                |                |                |                |
- |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM1 OCREFCLR |  
- |                |                |                |                |                |                |                |
- |  TIM1 IC1      |  TIM1 IC1      |  TIM2 OCREFCLR |  TIM3 IC3      |  TIM2 IC1      |  TIM2 IC2      |  TIM8 OCREFCLR |
- |                |                |                |                |                |                |                |
- |  TIM2 IC4      |  TIM2 IC4      |  TIM3 IC2      |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM2 OCREFCLR |  TIM2 IC3      |
- |                |                |                |                |                |                |                |
- |  TIM2 OCREFCLR |  TIM2 OCREFCLR |  TIM4 IC1      |  TIM4 IC2      |  TIM4 IC3      |  TIM16 OCREFCLR|  TIM1 IC2      |
- |                |                |                |                |                |                |                |
- |  TIM3 IC1      |  TIM3 IC1      |  TIM15 IC1     |  TIM15 OCREFCLR|  TIM16 BKIN    |  TIM16 IC1     |  TIM17 OCREFCLR|          
- |                |                |                |                |                |                |                |
- |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM15 BKIN    |  TIM15 IC2     |  TIM17 IC1     |  TIM4 IC4      |  TIM17 BKIN    |
- +----------------------------------------------------------------------------------------------------------------------+
-
- [..] Table 4. COMP Outputs redirection to embedded timers for the STM32F303xE devices
- +----------------------------------------------------------------------------------------------------------------------+
- |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
- |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
- |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN (1) |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN (1) |
- |                |                |                |                |                |                |                |
- |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
- |                |                |                |                |                |                |                |
- |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN (1) |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN (1) |
- |                |                |                |                |                |                |                |
- |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
- |                |                |                |                |                |                |                |
- |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
- |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
- |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |
- |                |                |                |                |                |                |                |
- |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM1 OCREFCLR |  
- |                |                |                |                |                |                |                |
- |  TIM1 IC1      |  TIM1 IC1      |  TIM2 OCREFCLR |  TIM3 IC3      |  TIM2 IC1      |  TIM2 IC2      |  TIM8 OCREFCLR |
- |                |                |                |                |                |                |                |
- |  TIM2 IC4      |  TIM2 IC4      |  TIM3 IC2      |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM2 OCREFCLR |  TIM2 IC3      |
- |                |                |                |                |                |                |                |
- |  TIM2 OCREFCLR |  TIM2 OCREFCLR |  TIM4 IC1      |  TIM4 IC2      |  TIM4 IC3      |  TIM16 OCREFCLR|  TIM1 IC2      |
- |                |                |                |                |                |                |                |
- |  TIM3 IC1      |  TIM3 IC1      |  TIM15 IC1     |  TIM15 OCREFCLR|  TIM16 BKIN    |  TIM16 IC1     |  TIM17 OCREFCLR|          
- |                |                |                |                |                |                |                |
- |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM15 BKIN    |  TIM15 IC2     |  TIM17 IC1     |  TIM4 IC4      |  TIM17 BKIN    |
- |                |                |                |                |                |                |                |
- |  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN (1)|  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN (1)|
- |                |                |                |                |                |                |                |
- |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |
- |                |                |                |                |                |                |                |
- |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
- |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
- |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
- |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
- |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |
- |                |                |                |                |                |                |                |
- +----------------------------------------------------------------------------------------------------------------------+
- (1):This connection consists of connecting both GPIO and COMP output to TIM1/8/20 BRK input through an OR gate, instead
-     of connecting the GPIO to the TIM1/8/20 BRK input and the COMP output to the TIM1/8/20 BRK_ACTH input. The aim is to 
-     add a digital filter (3  bits) on the COMP output.
-
- [..] Table 5. COMP Outputs blanking sources for the STM32F303xB/STM32F303xC/STM32F303xE devices
- +----------------------------------------------------------------------------------------------------------------------+
- |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
- |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
- |  TIM1 OC5      |  TIM1 OC5      |  TIM1 OC5      |  TIM3 OC4      |  --------      |  TIM8 OC5      |  TIM1 OC5      |
- |                |                |                |                |                |                |                |
- |  TIM2 OC3      |  TIM2 OC3      |  --------      |  TIM8 OC5      |  TIM3 OC3      |  TIM2 OC4      |  TIM8 OC5      |
- |                |                |                |                |                |                |                |
- |  TIM3 OC3      |  TIM3 OC3      |  TIM2 OC4      |  TIM15 OC1     |  TIM8 OC5      |  TIM15 OC2     |  TIM15 OC2     |
- |                |                |                |                |                |                |                |
- +----------------------------------------------------------------------------------------------------------------------+
    
             ##### How to use this driver #####
 ================================================================================
@@ -180,28 +61,44 @@
       (++) Configure the comparator input in analog mode using HAL_GPIO_Init()
       (++) Configure the comparator output in alternate function mode using HAL_GPIO_Init() to map the comparator 
            output to the GPIO pin
-      (++) If required enable the COMP interrupt by configuring and enabling EXTI line in Interrupt mode and 
+      (++) If required enable the COMP interrupt (EXTI line Interrupt): by configuring and enabling EXTI line in Interrupt mode and 
            selecting the desired sensitivity level using HAL_GPIO_Init() function. After that enable the comparator
-           interrupt vector using HAL_NVIC_EnableIRQ() function.
+           interrupt vector using HAL_NVIC_SetPriority() and HAL_NVIC_EnableIRQ() functions.
   
       (#) Configure the comparator using HAL_COMP_Init() function:
-      (++) Select the inverting input
-      (++) Select the non-inverting input
+      (++) Select the inverting input (input minus)
+      (++) Select the non-inverting input (input plus)
       (++) Select the output polarity  
       (++) Select the output redirection
       (++) Select the hysteresis level
       (++) Select the power mode
       (++) Select the event/interrupt mode
-  
-      (#) Enable the comparator using HAL_COMP_Start() function or HAL_COMP_Start_IT() function for interrupt mode
+
+      -@@- HAL_COMP_Init() calls internally __HAL_RCC_SYSCFG_CLK_ENABLE() in order
+          to enable the comparator(s).
+
+      (#) On-the-fly reconfiguration of comparator(s) may be done by calling again HAL_COMP_Init(
+          function with new input parameter values; HAL_COMP_MspInit() function shall be adapted 
+          to support multi configurations.
+
+      (#) Enable the comparator using HAL_COMP_Start() or HAL_COMP_Start_IT() functions.
     
-      (#) Read the comparator output level with HAL_COMP_GetOutputLevel()
-    
+      (#) Use HAL_COMP_TriggerCallback() and/or HAL_COMP_GetOutputLevel() functions
+          to manage comparator outputs (events and output level).
+
+      (#) Disable the comparator using HAL_COMP_Stop() or HAL_COMP_Stop_IT() 
+          function.
+
+      (#) De-initialize the comparator using HAL_COMP_DeInit() function.
+
+      (#) For safety purposes comparator(s) can be locked using HAL_COMP_Lock() function.
+          Only a MCU reset can reset that protection.
+      
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -228,6 +125,123 @@
   ******************************************************************************  
   */
 
+/*
+  Additional Tables:
+
+    Table 1. COMP Inputs for the STM32F303xB/STM32F303xC/STM32F303xE devices
+    +------------------------------------------------------------------------------------------+     
+    |                 |                | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
+    |-----------------|----------------|---------------|---------------------------------------|
+    |                 | 1/4 VREFINT    |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
+    |                 | 1/2 VREFINT    |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
+    |                 | 3/4 VREFINT    |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
+    | Inverting Input | VREFINT        |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
+    |                 | DAC1 OUT (PA4) |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
+    |                 | DAC2 OUT (PA5) |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |  OK   |
+    |                 | IO1            |  PA0  |  PA2  |  PD15 |  PE8  |  PD13 |  PD10 |  PC0  |
+    |                 | IO2            |  ---  |  ---  |  PB12 |  PB2  |  PB10 |  PB15 |  ---  |
+    |-----------------|----------------|-------|-------|-------|-------|-------|-------|-------|
+    |  Non Inverting  | IO1            |  PA1  |  PA7  |  PB14 |  PB0  |  PD12 |  PD11 |  PA0  |
+    |    Input        | IO2            |  ---  |  PA3  |  PD14 |  PE7  |  PB13 |  PB11 |  PC1  |
+    +------------------------------------------------------------------------------------------+  
+
+    Table 2. COMP Outputs for the STM32F303xB/STM32F303xC/STM32F303xE devices
+    +-------------------------------------------------------+     
+    | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
+    |-------|-------|-------|-------|-------|-------|-------|
+    |  PA0  |  PA2  |  PB1  |  PC8  |  PC7  |  PA10 |  PC2  |
+    |  PF4  |  PA7  |  ---  |  PA8  |  PA9  |  PC6  |  ---  |
+    |  PA6  |  PA12 |  ---  |  ---  |  ---  |  ---  |  ---  |
+    |  PA11 |  PB9  |  ---  |  ---  |  ---  |  ---  |  ---  |
+    |  PB8  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+    +-------------------------------------------------------+
+
+    Table 3. COMP Outputs redirection to embedded timers for the STM32F303xB/STM32F303xC devices
+    +----------------------------------------------------------------------------------------------------------------------+     
+    |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
+    |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
+    |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |
+    |                |                |                |                |                |                |                |
+    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+    |                |                |                |                |                |                |                |
+    |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |
+    |                |                |                |                |                |                |                |
+    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
+    |                |                |                |                |                |                |                |
+    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+    |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+    |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |
+    |                |                |                |                |                |                |                |
+    |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM1 OCREFCLR |  
+    |                |                |                |                |                |                |                |
+    |  TIM1 IC1      |  TIM1 IC1      |  TIM2 OCREFCLR |  TIM3 IC3      |  TIM2 IC1      |  TIM2 IC2      |  TIM8 OCREFCLR |
+    |                |                |                |                |                |                |                |
+    |  TIM2 IC4      |  TIM2 IC4      |  TIM3 IC2      |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM2 OCREFCLR |  TIM2 IC3      |
+    |                |                |                |                |                |                |                |
+    |  TIM2 OCREFCLR |  TIM2 OCREFCLR |  TIM4 IC1      |  TIM4 IC2      |  TIM4 IC3      |  TIM16 OCREFCLR|  TIM1 IC2      |
+    |                |                |                |                |                |                |                |
+    |  TIM3 IC1      |  TIM3 IC1      |  TIM15 IC1     |  TIM15 OCREFCLR|  TIM16 BKIN    |  TIM16 IC1     |  TIM17 OCREFCLR|          
+    |                |                |                |                |                |                |                |
+    |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM15 BKIN    |  TIM15 IC2     |  TIM17 IC1     |  TIM4 IC4      |  TIM17 BKIN    |
+    +----------------------------------------------------------------------------------------------------------------------+
+
+    Table 4. COMP Outputs redirection to embedded timers for the STM32F303xE devices
+    +----------------------------------------------------------------------------------------------------------------------+
+    |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
+    |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
+    |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN (1) |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN (1) |
+    |                |                |                |                |                |                |                |
+    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+    |                |                |                |                |                |                |                |
+    |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN (1) |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN (1) |
+    |                |                |                |                |                |                |                |
+    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
+    |                |                |                |                |                |                |                |
+    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+    |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+    |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |
+    |                |                |                |                |                |                |                |
+    |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM1 OCREFCLR |  
+    |                |                |                |                |                |                |                |
+    |  TIM1 IC1      |  TIM1 IC1      |  TIM2 OCREFCLR |  TIM3 IC3      |  TIM2 IC1      |  TIM2 IC2      |  TIM8 OCREFCLR |
+    |                |                |                |                |                |                |                |
+    |  TIM2 IC4      |  TIM2 IC4      |  TIM3 IC2      |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM2 OCREFCLR |  TIM2 IC3      |
+    |                |                |                |                |                |                |                |
+    |  TIM2 OCREFCLR |  TIM2 OCREFCLR |  TIM4 IC1      |  TIM4 IC2      |  TIM4 IC3      |  TIM16 OCREFCLR|  TIM1 IC2      |
+    |                |                |                |                |                |                |                |
+    |  TIM3 IC1      |  TIM3 IC1      |  TIM15 IC1     |  TIM15 OCREFCLR|  TIM16 BKIN    |  TIM16 IC1     |  TIM17 OCREFCLR|          
+    |                |                |                |                |                |                |                |
+    |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM15 BKIN    |  TIM15 IC2     |  TIM17 IC1     |  TIM4 IC4      |  TIM17 BKIN    |
+    |                |                |                |                |                |                |                |
+    |  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN (1)|  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN (1)|
+    |                |                |                |                |                |                |                |
+    |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |
+    |                |                |                |                |                |                |                |
+    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+    |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
+    |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+    |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |
+    |                |                |                |                |                |                |                |
+    +----------------------------------------------------------------------------------------------------------------------+
+    (1):  This connection consists of connecting both GPIO and COMP output to TIM1/8/20 BRK input through an OR gate, instead
+          of connecting the GPIO to the TIM1/8/20 BRK input and the COMP output to the TIM1/8/20 BRK_ACTH input. The aim is to 
+          add a digital filter (3  bits) on the COMP output.
+
+    Table 5. COMP Outputs blanking sources for the STM32F303xB/STM32F303xC/STM32F303xE devices
+    +----------------------------------------------------------------------------------------------------------------------+
+    |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
+    |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
+    |  TIM1 OC5      |  TIM1 OC5      |  TIM1 OC5      |  TIM3 OC4      |  --------      |  TIM8 OC5      |  TIM1 OC5      |
+    |                |                |                |                |                |                |                |
+    |  TIM2 OC3      |  TIM2 OC3      |  --------      |  TIM8 OC5      |  TIM3 OC3      |  TIM2 OC4      |  TIM8 OC5      |
+    |                |                |                |                |                |                |                |
+    |  TIM3 OC3      |  TIM3 OC3      |  TIM2 OC4      |  TIM15 OC1     |  TIM8 OC5      |  TIM15 OC2     |  TIM15 OC2     |
+    |                |                |                |                |                |                |                |
+    +----------------------------------------------------------------------------------------------------------------------+
+
+*/
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
@@ -235,7 +249,7 @@
   * @{
   */
 
-/** @defgroup COMP COMP HAL module driver
+/** @defgroup COMP COMP
   * @brief COMP HAL module driver
   * @{
   */
@@ -244,6 +258,15 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup COMP_Private_Constants COMP Private Constants
+  * @{
+  */
+#define COMP_LOCK_DISABLE                      ((uint32_t)0x00000000)
+#define COMP_LOCK_ENABLE                       COMP_CSR_COMPxLOCK
+/**
+  * @}
+  */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -253,63 +276,73 @@
   * @{
   */
 
-/** @defgroup COMP_Exported_Functions_Group1 Initialization and de-initialization functions
- *  @brief    Initialization and Configuration functions 
+/** @defgroup COMP_Exported_Functions_Group1 Initialization/de-initialization functions 
+ *  @brief    Initialization and de-initialization functions. 
  *
 @verbatim    
  ===============================================================================
-              ##### Initialization/de-initialization functions #####
+              ##### Initialization and de-initialization functions #####
  ===============================================================================
-    [..]  This section provides functions to initialize and de-initialize comparators 
+    [..]  This section provides functions to initialize and de-initialize comparators.
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Initializes the COMP according to the specified
-  *         parameters in the COMP_InitTypeDef and create the associated handle.
-  * @note   If the selected comparator is locked, initialization can't be performed.
+  * @brief  Initialize the COMP peripheral according to the specified
+  *         parameters in the COMP_InitTypeDef and initialize the associated handle.
+  * @note   If the selected comparator is locked, initialization cannot be performed.
   *         To unlock the configuration, perform a system reset.
-  * @param  hcomp: COMP handle
+  * @param  hcomp  COMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
-{ 
+{
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
   else
   {
-    /* Check the parameter */
+    /* Check the parameters */
     assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
     assert_param(IS_COMP_INVERTINGINPUT(hcomp->Init.InvertingInput));
     assert_param(IS_COMP_NONINVERTINGINPUT(hcomp->Init.NonInvertingInput));
     assert_param(IS_COMP_NONINVERTINGINPUT_INSTANCE(hcomp->Instance, hcomp->Init.NonInvertingInput));
     assert_param(IS_COMP_OUTPUT(hcomp->Init.Output));
+    assert_param(IS_COMP_OUTPUT_INSTANCE(hcomp->Instance, hcomp->Init.Output));
     assert_param(IS_COMP_OUTPUTPOL(hcomp->Init.OutputPol));
-    assert_param(IS_COMP_HYSTERESIS(hcomp->Init.Hysteresis));  
+    assert_param(IS_COMP_HYSTERESIS(hcomp->Init.Hysteresis));
     assert_param(IS_COMP_MODE(hcomp->Init.Mode));
     assert_param(IS_COMP_BLANKINGSRCE(hcomp->Init.BlankingSrce)); 
     assert_param(IS_COMP_BLANKINGSRCE_INSTANCE(hcomp->Instance, hcomp->Init.BlankingSrce)); 
-    
-    if(hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLED)
+    assert_param(IS_COMP_TRIGGERMODE(hcomp->Init.TriggerMode));
+
+    if(hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLE)
     {
       assert_param(IS_COMP_WINDOWMODE_INSTANCE(hcomp->Instance));
+      assert_param(IS_COMP_WINDOWMODE(hcomp->Init.WindowMode));
     }
-  
+
+    /* Init SYSCFG and the low level hardware to access comparators */
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+    /* Init the low level hardware : SYSCFG to access comparators */
+    HAL_COMP_MspInit(hcomp);
+    
     if(hcomp->State == HAL_COMP_STATE_RESET)
     {
-      /* Init SYSCFG and the low level hardware to access comparators */
-      __SYSCFG_CLK_ENABLE();
-
-      HAL_COMP_MspInit(hcomp);
+      /* Allocate lock resource and initialize it */
+      hcomp->Lock = HAL_UNLOCKED;
     }
-  
+
+    /* Manage inverting input comparator inverting input connected to a GPIO  */
+    /* for STM32F302x, STM32F32xx, STM32F33x.                                 */
+    hcomp->Init.InvertingInput = COMP_INVERTINGINPUT_SELECTION(hcomp->Instance, hcomp->Init.InvertingInput);
+    
     /* Set COMP parameters */
     /*     Set COMPxINSEL bits according to hcomp->Init.InvertingInput value        */
     /*     Set COMPxNONINSEL bits according to hcomp->Init.NonInvertingInput value  */
@@ -321,20 +354,17 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
     COMP_INIT(hcomp);
 
     /* Initialize the COMP state*/
-    if(hcomp->State == HAL_COMP_STATE_RESET)
-    {
-      hcomp->State = HAL_COMP_STATE_READY;
-    }
+    hcomp->State = HAL_COMP_STATE_READY;
   }
   
   return status;
 }
 
 /**
-  * @brief  DeInitializes the COMP peripheral 
-  * @note   Deinitialization can't be performed if the COMP configuration is locked.
+  * @brief  DeInitialize the COMP peripheral.
+  * @note   If the selected comparator is locked, deinitialization cannot be performed.
   *         To unlock the configuration, perform a system reset.
-  * @param  hcomp: COMP handle
+  * @param  hcomp  COMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
@@ -342,7 +372,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -358,32 +388,41 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
     HAL_COMP_MspDeInit(hcomp);
 
     hcomp->State = HAL_COMP_STATE_RESET;
+    
+    /* Release Lock */
+    __HAL_UNLOCK(hcomp);
   }
   
   return status;
 }
 
 /**
-  * @brief  Initializes the COMP MSP.
-  * @param  hcomp: COMP handle
+  * @brief  Initialize the COMP MSP.
+  * @param  hcomp  COMP handle
   * @retval None
   */
 __weak void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_COMP_MspInit could be implemented in the user file
    */
 }
 
 /**
-  * @brief  DeInitializes COMP MSP.
-  * @param  hcomp: COMP handle
+  * @brief  DeInitialize the COMP MSP.
+  * @param  hcomp  COMP handle
   * @retval None
   */
 __weak void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_COMP_MspDeInit could be implenetd in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_COMP_MspDeInit could be implemented in the user file
    */
 }
 
@@ -391,32 +430,36 @@ __weak void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp)
   * @}
   */
 
-/** @defgroup COMP_Exported_Functions_Group2 Input and Output operation functions 
- *  @brief   Data transfers functions 
+/** @defgroup COMP_Exported_Functions_Group2 Start Stop operation functions 
+ *  @brief   Start-Stop operation functions. 
  *
 @verbatim   
  ===============================================================================
-                      ##### IO operation functions #####
+                      ##### Start Stop operation functions #####
  ===============================================================================  
-    [..]
-    This subsection provides a set of functions allowing to manage the COMP data 
-    transfers.
+    [..]  This section provides functions allowing to:
+      (+) Start a comparator without interrupt generation.
+      (+) Stop a comparator without interrupt generation.
+      (+) Start a comparator with interrupt generation.
+      (+) Stop a comparator with interrupt generation.
+      (+) Handle interrupts from a comparator with associated callback function.
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Start the comparator 
-  * @param  hcomp: COMP handle
+  * @brief  Start the comparator.
+  * @param  hcomp  COMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
-{ 
+{
   HAL_StatusTypeDef status = HAL_OK;
+  uint32_t extiline = 0;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -427,10 +470,43 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
 
     if(hcomp->State == HAL_COMP_STATE_READY)
     {
-      /* Enable the selected comparator */
-      COMP_START(hcomp);
+      /* Get the EXTI Line output configuration */
+      extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
 
-      hcomp->State = HAL_COMP_STATE_BUSY;      
+      /* Configure the event generation */
+      if((hcomp->Init.TriggerMode & (COMP_TRIGGERMODE_EVENT_RISING|COMP_TRIGGERMODE_EVENT_FALLING)) != RESET)
+      {
+        /* Configure the event trigger rising edge */
+        if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_EVENT_RISING) != RESET)
+        {
+          COMP_EXTI_RISING_ENABLE(extiline);
+        }
+        else
+        {
+          COMP_EXTI_RISING_DISABLE(extiline);
+        }
+
+        /* Configure the trigger falling edge */
+        if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_EVENT_FALLING) != RESET)
+        {
+          COMP_EXTI_FALLING_ENABLE(extiline);
+        }
+        else
+        {
+          COMP_EXTI_FALLING_DISABLE(extiline);
+        }
+
+        /* Enable EXTI event generation */
+        COMP_EXTI_ENABLE_EVENT(extiline);
+
+        /* Clear COMP EXTI pending bit */
+        COMP_EXTI_CLEAR_FLAG(extiline);
+      }
+
+      /* Enable the selected comparator */
+      __HAL_COMP_ENABLE(hcomp);
+
+      hcomp->State = HAL_COMP_STATE_BUSY;
     }
     else
     {
@@ -442,8 +518,8 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
 }
 
 /**
-  * @brief  Stop the comparator 
-  * @param  hcomp: COMP handle
+  * @brief  Stop the comparator.
+  * @param  hcomp  COMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
@@ -451,7 +527,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -462,8 +538,11 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
 
     if(hcomp->State == HAL_COMP_STATE_BUSY)
     {
+      /* Disable the EXTI Line event mode if any */
+      COMP_EXTI_DISABLE_EVENT(COMP_GET_EXTI_LINE(hcomp->Instance));
+
       /* Disable the selected comparator */
-      COMP_STOP(hcomp);
+      __HAL_COMP_DISABLE(hcomp);
 
       hcomp->State = HAL_COMP_STATE_READY;
     }
@@ -477,8 +556,8 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
 }
 
 /**
-  * @brief  Enables the interrupt and starts the comparator
-  * @param  hcomp: COMP handle
+  * @brief  Start the comparator in Interrupt mode.
+  * @param  hcomp  COMP handle
   * @retval HAL status.
   */
 HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp)
@@ -486,108 +565,8 @@ HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t extiline = 0;
   
-  /* Check the parameter */
-  assert_param(IS_COMP_TRIGGERMODE(hcomp->Init.TriggerMode));
-
-  status = HAL_COMP_Start(hcomp);
-  if(status == HAL_OK)
-  {
-    /* Check the Exti Line output configuration */
-    extiline = __HAL_COMP_GET_EXTI_LINE(hcomp->Instance);
-    /* Configure the rising edge */
-    if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_RISING) != RESET)
-    {
-      __HAL_COMP_EXTI_RISING_IT_ENABLE(extiline);
-    }
-    else
-    {
-      __HAL_COMP_EXTI_RISING_IT_DISABLE(extiline);
-    }
-    /* Configure the falling edge */
-    if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_FALLING) != RESET)
-    {
-      __HAL_COMP_EXTI_FALLING_IT_ENABLE(extiline);
-    }
-    else
-    {
-      __HAL_COMP_EXTI_FALLING_IT_DISABLE(extiline);
-    }
-    /* Enable Exti interrupt mode */
-    __HAL_COMP_EXTI_ENABLE_IT(extiline);
-    /* Clear COMP Exti pending bit */
-    __HAL_COMP_EXTI_CLEAR_FLAG(extiline);    
-  }
-
-  return status;
-}
-
-/**
-  * @brief  Disable the interrupt and Stop the comparator 
-  * @param  hcomp: COMP handle
-  * @retval HAL status
-  */
-HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp)
-{ 
-  HAL_StatusTypeDef status = HAL_OK;
-  
-  /* Disable the Exti Line interrupt mode */
-  __HAL_COMP_EXTI_DISABLE_IT(__HAL_COMP_GET_EXTI_LINE(hcomp->Instance));
-  
-  status = HAL_COMP_Stop(hcomp);
-  
-  return status;
-}
-
-/**
-  * @brief  Comparator IRQ Handler 
-  * @param  hcomp: COMP handle
-  * @retval HAL status
-  */
-void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
-{
-  uint32_t extiline = __HAL_COMP_GET_EXTI_LINE(hcomp->Instance);
-  
-  /* Check COMP Exti flag */
-  if(__HAL_COMP_EXTI_GET_FLAG(extiline) != RESET)
-  {
-    /* Clear COMP Exti pending bit */
-    __HAL_COMP_EXTI_CLEAR_FLAG(extiline);
-
-    /* COMP trigger user callback */
-    HAL_COMP_TriggerCallback(hcomp);    
-  }  
-}
-
-/**
-  * @}
-  */
-
-/** @defgroup COMP_Exported_Functions_Group3 Peripheral Control functions 
- *  @brief   management functions 
- *
-@verbatim   
- ===============================================================================
-                      ##### Peripheral Control functions #####
- ===============================================================================  
-    [..]
-    This subsection provides a set of functions allowing to control the COMP data 
-    transfers.
-
-@endverbatim
-  * @{
-  */
-
-/**
-  * @brief  Lock the selected comparator configuration. 
-  * @param  hcomp: COMP handle
-  * @retval HAL status
-  */
-HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -596,11 +575,168 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
     /* Check the parameter */
     assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
 
-    /* Set lock flag */
-    hcomp->State |= COMP_STATE_BIT_LOCK;
+    if(hcomp->State == HAL_COMP_STATE_READY)
+    {
+      /* Configure the EXTI event generation */
+      if((hcomp->Init.TriggerMode & (COMP_TRIGGERMODE_IT_RISING|COMP_TRIGGERMODE_IT_FALLING)) != RESET)
+      {
+        /* Get the EXTI Line output configuration */
+        extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
 
+        /* Configure the trigger rising edge */
+        if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_RISING) != RESET)
+        {
+          COMP_EXTI_RISING_ENABLE(extiline);
+        }
+        else
+        {
+          COMP_EXTI_RISING_DISABLE(extiline);
+        }
+        /* Configure the trigger falling edge */
+        if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_FALLING) != RESET)
+        {
+          COMP_EXTI_FALLING_ENABLE(extiline);
+        }
+        else
+        {
+          COMP_EXTI_FALLING_DISABLE(extiline);
+        }
+
+        /* Clear COMP EXTI pending bit if any */
+        COMP_EXTI_CLEAR_FLAG(extiline);
+
+        /* Enable EXTI interrupt mode */
+        COMP_EXTI_ENABLE_IT(extiline);
+
+        /* Enable the selected comparator */
+        __HAL_COMP_ENABLE(hcomp);
+
+        hcomp->State = HAL_COMP_STATE_BUSY;
+      }
+      else
+      {
+        status = HAL_ERROR;
+      }
+    }
+    else
+    {
+      status = HAL_ERROR;
+    }
+  }
+
+  return status;
+}
+
+/**
+  * @brief  Stop the comparator in Interrupt mode.
+  * @param  hcomp  COMP handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  
+  /* Disable the EXTI Line interrupt mode */
+  COMP_EXTI_DISABLE_IT(COMP_GET_EXTI_LINE(hcomp->Instance));
+  
+  status = HAL_COMP_Stop(hcomp);
+  
+  return status;
+}
+
+/**
+  * @brief  Comparator IRQ Handler.
+  * @param  hcomp  COMP handle
+  * @retval HAL status
+  */
+void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
+{
+  uint32_t extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
+  
+  /* Check COMP EXTI flag */
+  if(COMP_EXTI_GET_FLAG(extiline) != RESET)
+  {
+    /* Clear COMP EXTI pending bit */
+    COMP_EXTI_CLEAR_FLAG(extiline);
+  
+    /* COMP trigger user callback */
+    HAL_COMP_TriggerCallback(hcomp);
+  }
+}
+
+/**
+  * @brief  Comparator callback.
+  * @param  hcomp  COMP handle
+  * @retval None
+  */
+__weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_COMP_TriggerCallback should be implemented in the user file
+   */
+}
+
+/**
+  * @}
+  */
+
+/** @defgroup COMP_Exported_Functions_Group3 Peripheral Control functions 
+ *  @brief   Management functions.
+ *
+@verbatim   
+ ===============================================================================
+                      ##### Peripheral Control functions #####
+ ===============================================================================  
+    [..]
+    This subsection provides a set of functions allowing to control the comparators. 
+
+@endverbatim
+  * @{
+  */
+
+/**
+  * @brief  Lock the selected comparator configuration. 
+  * @note   A system reset is required to unlock the comparator configuration.
+  * @param  hcomp  COMP handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+
+  /* Check the COMP handle allocation and lock status */
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  {
+    status = HAL_ERROR;
+  }
+  else
+  {
+    /* Check the parameter */
+    assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
+
+    /* Set lock flag on state */
+    switch(hcomp->State)
+    {
+    case HAL_COMP_STATE_BUSY:
+      hcomp->State = HAL_COMP_STATE_BUSY_LOCKED;
+      break;
+    case HAL_COMP_STATE_READY:
+      hcomp->State = HAL_COMP_STATE_READY_LOCKED;
+      break;
+    default:
+      /* unexpected state */
+      status = HAL_ERROR;
+      break;
+    }
+  }
+  
+  if(status == HAL_OK)
+  {
     /* Set the lock bit corresponding to selected comparator */
-    COMP_LOCK(hcomp);
+    __HAL_COMP_LOCK(hcomp);
   }
   
   return status; 
@@ -619,8 +755,10 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   *             voltage than the inverting input
   *           - Comparator output is low when the non-inverting input is at a higher
   *             voltage than the inverting input
-  * @param  hcomp: COMP handle
-  * @retval Returns the selected comparator output level: COMP_OUTPUTLEVEL_LOW or COMP_OUTPUTLEVEL_HIGH.
+  * @param  hcomp  COMP handle
+  * @retval Returns the selected comparator output level: 
+  *         @arg @ref COMP_OUTPUTLEVEL_LOW
+  *         @arg @ref COMP_OUTPUTLEVEL_HIGH
   *       
   */
 uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
@@ -640,46 +778,32 @@ uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
 }
 
 /**
-  * @brief  Comparator callback.
-  * @param  hcomp: COMP handle
-  * @retval None
-  */
-__weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
-{
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_COMP_TriggerCallback should be implemented in the user file
-   */
-}
-
-
-/**
   * @}
   */
 
 /** @defgroup COMP_Exported_Functions_Group4 Peripheral State functions 
- *  @brief   Peripheral State functions 
+ *  @brief   Peripheral State functions. 
  *
 @verbatim   
  ===============================================================================
                       ##### Peripheral State functions #####
  ===============================================================================  
     [..]
-    This subsection permit to get in run-time the status of the peripheral 
-    and the data flow.
+    This subsection permits to get in run-time the status of the peripheral.
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Return the COMP state
-  * @param  hcomp : COMP handle
+  * @brief  Return the COMP handle state.
+  * @param  hcomp  COMP handle
   * @retval HAL state
   */
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
-  if(hcomp == HAL_NULL)
+  if(hcomp == NULL)
   {
     return HAL_COMP_STATE_RESET;
   }
@@ -687,6 +811,7 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
   /* Check the parameter */
   assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
 
+  /* Return COMP handle state */
   return hcomp->State;
 }
 /**

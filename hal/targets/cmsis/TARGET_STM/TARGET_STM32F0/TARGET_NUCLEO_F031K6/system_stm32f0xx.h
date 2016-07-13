@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f0xx.h
   * @author  MCD Application Team
-  * @version V2.2.3
-  * @date    29-January-2016
+  * @version V2.3.0
+  * @date    27-May-2016
   * @brief   CMSIS Cortex-M0 Device System Source File for STM32F0xx devices.  
   ******************************************************************************
   * @attention
@@ -73,8 +73,9 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-extern uint32_t SystemCoreClock;             /*!< System Clock Frequency (Core Clock) */
-extern const uint8_t AHBPrescTable[16]; /*!< AHB prescalers table values */
+extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
+extern const uint8_t AHBPrescTable[16];   /*!< AHB prescalers table values */
+extern const uint8_t APBPrescTable[8];    /*!< APB prescalers table values */
 
 /**
   * @}

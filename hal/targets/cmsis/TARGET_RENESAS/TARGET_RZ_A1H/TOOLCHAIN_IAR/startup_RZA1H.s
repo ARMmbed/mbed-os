@@ -29,8 +29,8 @@
 
         SECTION .intvec:CODE:NOROOT(2)
 
-        PUBLIC  __vector
-        PUBLIC  __iar_program_start
+        PUBLIC  __vector_core_a9
+        PUBLIC  __RST_Handler
         PUBLIC  Undefined_Handler
         EXTERN  SWI_Handler
         PUBLIC  Prefetch_Handler
@@ -52,7 +52,7 @@
 __iar_init$$done:               ; The vector table is not needed
                                 ; until after copy initialization is done
 
-__vector:                       ; Make this a DATA label, so that stack usage
+__vector_core_a9:               ; Make this a DATA label, so that stack usage
                                 ; analysis doesn't consider it an uncalled fun
 
         ARM
@@ -71,7 +71,7 @@ __vector:                       ; Make this a DATA label, so that stack usage
 
         DATA
 
-Reset_Addr:     DCD   __iar_program_start
+Reset_Addr:     DCD   __RST_Handler
 Undefined_Addr: DCD   Undefined_Handler
 SWI_Addr:       DCD   SWI_Handler
 Prefetch_Addr:  DCD   Prefetch_Handler
@@ -94,15 +94,15 @@ FIQ_Addr:       DCD   FIQ_Handler
         EXTERN  create_translation_table
         EXTERN  SystemInit
         EXTERN  InitMemorySubsystem
-        EXTERN  __cmain
-        REQUIRE __vector
+        EXTERN  __iar_program_start
+        REQUIRE __vector_core_a9
         EXTWEAK __iar_init_core
         EXTWEAK __iar_init_vfp
 
 
         ARM
 
-__iar_program_start:
+__RST_Handler:
 ?cstartup:
 
 
@@ -138,7 +138,7 @@ goToSleep:
   
   
 ;; Set Vector Base Address Register (VBAR) to point to this application's vector table
-    ldr     r0, =__vector
+    ldr     r0, =__vector_core_a9
     mcr     p15, 0, r0, c12, c0, 0
     
     
@@ -256,8 +256,8 @@ goToSleep:
 
 ;;; Continue to __cmain for C-level initialization.
 
-          FUNCALL __iar_program_start, __cmain
-        B       __cmain
+          FUNCALL __RST_Handler, __iar_program_start
+        B       __iar_program_start
 
 
     ldr     r0, sf_boot     ;@ dummy to keep boot loader area

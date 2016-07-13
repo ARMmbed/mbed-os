@@ -16,7 +16,7 @@ limitations under the License.
 """
 
 from tools.build_api import get_config
-from tools.config import ConfigException
+from tools.config import ConfigException, Config
 import os, sys
 
 # Compare the output of config against a dictionary of known good results
@@ -28,7 +28,7 @@ def compare_config(cfg, expected):
     except KeyError:
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
-        if k != "desc" and k != "expected_macros" and not k in cfg:
+        if k not in ["desc", "expected_macros", "expected_features"] + cfg.keys():
             return "Expected key '%s' was not found in configuration data" % k
     return ""
 
@@ -43,7 +43,8 @@ def test_tree(full_name, name):
         sys.stdout.flush()
         err_msg = None
         try:
-            cfg, macros = get_config(full_name, target, "GCC_ARM")
+            cfg, macros, features = get_config(full_name, target, "GCC_ARM")
+            macros = Config.config_macros_to_macros(macros)
         except ConfigException as e:
             err_msg = e.message
         if err_msg:
@@ -63,23 +64,33 @@ def test_tree(full_name, name):
                 failed += 1
         else:
             res = compare_config(cfg, expected)
+            expected_macros = expected.get("expected_macros", None)
+            expected_features = expected.get("expected_features", None)
+
             if res:
                 print "FAILED!"
                 sys.stdout.write("    " + res + "\n")
                 failed += 1
-            else:
-                expected_macros = expected.get("expected_macros", None)
-                if expected_macros is not None:
-                    if sorted(expected_macros) != sorted(macros):
-                        print "FAILED!"
-                        sys.stderr.write("    List of macros doesn't match\n")
-                        sys.stderr.write("    Expected: '%s'\n" % ",".join(sorted(expected_macros)))
-                        sys.stderr.write("    Got: '%s'\n" % ",".join(sorted(expected_macros)))
-                        failed += 1
-                    else:
-                        print "OK"
+            elif expected_macros is not None:
+                if sorted(expected_macros) != sorted(macros):
+                    print "FAILED!"
+                    sys.stderr.write("    List of macros doesn't match\n")
+                    sys.stderr.write("    Expected: '%s'\n" % ",".join(sorted(expected_macros)))
+                    sys.stderr.write("    Got: '%s'\n" % ",".join(sorted(expected_macros)))
+                    failed += 1
                 else:
                     print "OK"
+            elif expected_features is not None:
+                if sorted(expected_features) != sorted(features):
+                    print "FAILED!"
+                    sys.stderr.write("    List of features doesn't match\n")
+                    sys.stderr.write("    Expected: '%s'\n" % ",".join(sorted(expected_features)))
+                    sys.stderr.write("    Got: '%s'\n" % ",".join(sorted(expected_features)))
+                    failed += 1
+                else:
+                    print "OK"
+            else:
+                print "OK"
     sys.path.remove(full_name)
     return failed
 

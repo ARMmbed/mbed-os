@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of DAC HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,17 +50,17 @@
   * @{
   */
 
-/** @addtogroup DACEx DAC Extended HAL module driver
+/** @addtogroup DACEx
   * @{
   */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup DACEx_Exported_Constants DAC Extended Exported Constants
+/** @defgroup DACEx_Exported_Constants DACEx Exported Constants
   * @{
   */
 
-/** @defgroup DACEx_trigger_selection DAC Extended trigger selection
+/** @defgroup DACEx_trigger_selection DACEx trigger selection
   * @{
   */
 
@@ -230,7 +230,7 @@
   * @}
   */
 
-/** @defgroup DACEx_Channel_selection DAC Extended Channel selection
+/** @defgroup DACEx_Channel_selection DACEx Channel selection
   * @{
   */
  
@@ -238,10 +238,7 @@
     defined(STM32F302xC) || \
     defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 #define DAC_CHANNEL_1                      ((uint32_t)0x00000000)               /*!< DAC Channel 1 */
-/* Aliases for compatibility */
-#define DAC1_CHANNEL_1                     DAC_CHANNEL_1                        /*!< DAC1 Channel 1 */
 
-#define IS_DAC_CHANNEL(CHANNEL) ((CHANNEL) == DAC_CHANNEL_1)            
 #endif  /* STM32F302xE                               || */
         /* STM32F302xC                               || */
         /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
@@ -251,12 +248,7 @@
     defined(STM32F303xC) || defined(STM32F358xx)
 #define DAC_CHANNEL_1                     ((uint32_t)0x00000000)       /*!< DAC Channel 1 */
 #define DAC_CHANNEL_2                     ((uint32_t)0x00000010)       /*!< DAC Channel 2 */
-/* Aliases for compatibility */
-#define DAC1_CHANNEL_1                    DAC_CHANNEL_1                /*!< DAC1 Channel 1 */
-#define DAC1_CHANNEL_2                    DAC_CHANNEL_2                /*!< DAC1 Channel 2 */
 
-#define IS_DAC_CHANNEL(CHANNEL) (((CHANNEL) == DAC_CHANNEL_1) || \
-                                 ((CHANNEL) == DAC_CHANNEL_2))
 #endif /* STM32F303xE || STM32F398xx || */
        /* STM32F303xC || STM32F358xx    */
    
@@ -266,13 +258,6 @@
 #define DAC_CHANNEL_1                     ((uint32_t)0x00000000)       /*!< DAC Channel 1 */
 #define DAC_CHANNEL_2                     ((uint32_t)0x00000010)       /*!< DAC Channel 2 */
 
-/* Aliases for compatibility */
-#define DAC1_CHANNEL_1                     DAC_CHANNEL_1               /*!< DAC1 Channel 1 */
-#define DAC1_CHANNEL_2                     DAC_CHANNEL_2               /*!< DAC1 Channel 2 */
-#define DAC2_CHANNEL_1                     DAC_CHANNEL_1               /*!< DAC2 Channel 1 */
-
-#define IS_DAC_CHANNEL(CHANNEL) (((CHANNEL) == DAC_CHANNEL_1) || \
-                                 ((CHANNEL) == DAC_CHANNEL_2))
 #endif /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
        /* STM32F373xC || STM32F378xx                   */
    
@@ -284,20 +269,76 @@
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
-/** @addtogroup DACEx_Exported_Functions DAC Extended Exported Functions
+/* Private macro -------------------------------------------------------------*/
+
+/** @defgroup DACEx_Private_Macros DACEx Private Macros
   * @{
   */
-/* Extended features functions ***********************************************/
-uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac);
-HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t alignment, uint32_t data1, uint32_t data2);
-HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t channel, uint32_t Amplitude);
-HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t channel, uint32_t Amplitude);
 
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+
+#define IS_DAC_CHANNEL(CHANNEL) ((CHANNEL) == DAC_CHANNEL_1)            
+#endif  /* STM32F302xE                               || */
+        /* STM32F302xC                               || */
+        /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
+
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+
+#define IS_DAC_CHANNEL(CHANNEL) (((CHANNEL) == DAC_CHANNEL_1) || \
+                                 ((CHANNEL) == DAC_CHANNEL_2))
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
+
+#if defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
+
+#define IS_DAC_CHANNEL(CHANNEL) (((CHANNEL) == DAC_CHANNEL_1) || \
+                                 ((CHANNEL) == DAC_CHANNEL_2))
+#endif /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F373xC || STM32F378xx  */
+
+
+
+/**
+  * @}
+  */
+
+/* Exported functions --------------------------------------------------------*/  
+
+/** @addtogroup DACEx_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup DACEx_Exported_Functions_Group2
+ * @{
+ */    
+/* IO operation functions *****************************************************/
+
+uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac);
+HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2);
+HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Amplitude);
+HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Amplitude);
+
+#if  defined(STM32F303xE) || defined(STM32F398xx)                         || \
+     defined(STM32F303xC) || defined(STM32F358xx)                         || \
+     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+     defined(STM32F373xC) || defined(STM32F378xx)
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac);
 void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac);
 void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef *hdac);
 void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac);
+#endif /* STM32F303xE || STM32F398xx                || */
+       /* STM32F303xC || STM32F358xx                || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F373xC || STM32F378xx                   */
+
+/**
+  * @}
+  */
 
 /**
   * @}

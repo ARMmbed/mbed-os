@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os.h"
 #include "Callback.h"
+#include "toolchain.h"
 
 namespace rtos {
 
@@ -48,7 +49,16 @@ public:
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+      @deprecated
+        Thread-spawning constructors hide errors and may lead to complex
+        program state when a thread is declared.
+
+        The explicit Thread::start member function should be used to spawn
+        a thread.
     */
+    MBED_DEPRECATED(
+        "Thread-spawning constructors hide errors and may lead to complex "
+        "program state when a thread is declared")
     Thread(mbed::Callback<void()> task,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -63,8 +73,17 @@ public:
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+      @deprecated
+        Thread-spawning constructors hide errors and may lead to complex
+        program state when a thread is declared.
+
+        The explicit Thread::start member function should be used to spawn
+        a thread.
     */
     template <typename T>
+    MBED_DEPRECATED(
+        "Thread-spawning constructors hide errors and may lead to complex "
+        "program state when a thread is declared")
     Thread(T *obj, void (T::*method)(),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -80,8 +99,17 @@ public:
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+      @deprecated
+        Thread-spawning constructors hide errors and may lead to complex
+        program state when a thread is declared.
+
+        The explicit Thread::start member function should be used to spawn
+        a thread.
     */
     template <typename T>
+    MBED_DEPRECATED(
+        "Thread-spawning constructors hide errors and may lead to complex "
+        "program state when a thread is declared")
     Thread(T *obj, void (*method)(T *),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -97,7 +125,16 @@ public:
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+      @deprecated
+        Thread-spawning constructors hide errors and may lead to complex
+        program state when a thread is declared.
+
+        The explicit Thread::start member function should be used to spawn
+        a thread.
     */
+    MBED_DEPRECATED(
+        "Thread-spawning constructors hide errors and may lead to complex "
+        "program state when a thread is declared")
     Thread(void (*task)(void const *argument), void *argument=NULL,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
