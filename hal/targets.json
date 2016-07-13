@@ -709,7 +709,7 @@
         "progen": {"target": "nucleo-f207zg"},
         "detect_code": ["0835"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "default_build": "small"
+        "release": true
     },
     "NUCLEO_F302R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
