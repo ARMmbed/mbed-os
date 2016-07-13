@@ -406,7 +406,10 @@ class MemapParser(object):
                 td_size_px = 4 * int(section_size)
                 #print td_size_px, module_size[section], total_section_size
                 color = self.html_section_color_map.get(section, "Silver")
-                td_str += "<td valign='top' bgcolor='%s' width='%dpx' height='55px' title='Section %s %d Bytes'></td>\n"% (color,
+                td_str += """
+                <td valign='top' bgcolor='%s' width='%dpx' height='55px' title='Section %s %d Bytes'>
+                </td>
+                """% (color,
                     td_size_px,
                     section,
                     module_size[section])
