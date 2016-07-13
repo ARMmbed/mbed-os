@@ -219,7 +219,7 @@ class mbedToolchain:
         "Cortex-M7" : ["__CORTEX_M7", "ARM_MATH_CM7", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-A9" : ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT", "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
     }
-    
+
     CORTEX_FPU_SYMBOLS = {
         "single" : ["__FPU_PRESENT=1"],
         "double" : ["__FPU_PRESENT=1"],
@@ -926,6 +926,10 @@ class mbedToolchain:
         # Write output to file in CSV format for the CI
         map_csv = splitext(map)[0] + "_map.csv"
         memap.generate_output('csv-ci', map_csv)
+
+        # Write output to file in HTML format for humans
+        map_htm = splitext(map)[0] + "_map.html"
+        memap.generate_output('html', map_htm)
 
         # Here we return memory statistics structure (constructed after
         # call to generate_output) which contains raw data in bytes
