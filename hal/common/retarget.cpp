@@ -72,7 +72,7 @@ extern const char __stderr_name[] = "/stderr";
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileHandle *filehandles[OPEN_MAX];
-static PlatformMutex filehandle_mutex;
+static PlatformMutexStatic filehandle_mutex;
 
 FileHandle::~FileHandle() {
     filehandle_mutex.lock();

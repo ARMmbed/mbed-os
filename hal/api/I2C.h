@@ -181,7 +181,7 @@ protected:
     i2c_t _i2c;
     static I2C  *_owner;
     int         _hz;
-    static PlatformMutex _mutex;
+    static PlatformMutexStatic _mutex;
 };
 
 } // namespace mbed
