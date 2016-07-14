@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #ifndef YOTTA_CFG_MBED_TRACE
-#define YOTTA_CFG_MBED_TRACE
+#define YOTTA_CFG_MBED_TRACE 1
 #define YOTTA_CFG_MBED_TRACE_FEA_IPV6 1
 #endif
 
