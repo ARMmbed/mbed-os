@@ -231,52 +231,54 @@ if __name__ == '__main__':
         for toolchain in toolchains:
             for target in targets:
                 tt_id = "%s::%s" % (toolchain, target)
-                try:
-                    mcu = TARGET_MAP[target]
-                    if options.source_dir:
-                        lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
-                                                    options=options.options,
-                                                    extra_verbose=options.extra_verbose_notify,
-                                                    notify=notify,
-                                                    verbose=options.verbose,
-                                                    silent=options.silent,
-                                                    jobs=options.jobs,
-                                                    clean=options.clean,
-                                                    archive=(not options.no_archive),
-                                                    macros=options.macros,
-                                                    name=options.artifact_name)
-                    else:
-                        lib_build_res = build_mbed_libs(mcu, toolchain,
-                                                    options=options.options,
-                                                    extra_verbose=options.extra_verbose_notify,
-                                                    notify=notify,
-                                                    verbose=options.verbose,
-                                                    silent=options.silent,
-                                                    jobs=options.jobs,
-                                                    clean=options.clean,
-                                                    macros=options.macros)
+                if toolchain not in TARGET_MAP[target].supported_toolchains:
+                    # Log this later
+                    print "%s skipped: toolchain not supported" % tt_id
+                    skipped.append(tt_id)
+                else:
+                    try:
+                        mcu = TARGET_MAP[target]
+                        if options.source_dir:
+                            lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
+                                                        options=options.options,
+                                                        extra_verbose=options.extra_verbose_notify,
+                                                        verbose=options.verbose,
+                                                        silent=options.silent,
+                                                        jobs=options.jobs,
+                                                        clean=options.clean,
+                                                        archive=(not options.no_archive),
+                                                        macros=options.macros,
+                                                        name=options.artifact_name)
+                        else:
+                            lib_build_res = build_mbed_libs(mcu, toolchain,
+                                                        options=options.options,
+                                                        extra_verbose=options.extra_verbose_notify,
+                                                        verbose=options.verbose,
+                                                        silent=options.silent,
+                                                        jobs=options.jobs,
+                                                        clean=options.clean,
+                                                        macros=options.macros)
 
-                    for lib_id in libraries:
-                        build_lib(lib_id, mcu, toolchain,
-                                  options=options.options,
-                                  extra_verbose=options.extra_verbose_notify,
-                                  notify=notify,
-                                  verbose=options.verbose,
-                                  silent=options.silent,
-                                  clean=options.clean,
-                                  macros=options.macros,
-                                  jobs=options.jobs)
-                    if lib_build_res:
-                        successes.append(tt_id)
-                    else:
-                        skipped.append(tt_id)
-                except Exception, e:
-                    if options.verbose:
-                        import traceback
-                        traceback.print_exc(file=sys.stdout)
-                        sys.exit(1)
-                    failures.append(tt_id)
-                    print e
+                        for lib_id in libraries:
+                            build_lib(lib_id, mcu, toolchain,
+                                    options=options.options,
+                                    extra_verbose=options.extra_verbose_notify,
+                                    verbose=options.verbose,
+                                    silent=options.silent,
+                                    clean=options.clean,
+                                    macros=options.macros,
+                                    jobs=options.jobs)
+                        if lib_build_res:
+                            successes.append(tt_id)
+                        else:
+                            skipped.append(tt_id)
+                    except Exception, e:
+                        if options.verbose:
+                            import traceback
+                            traceback.print_exc(file=sys.stdout)
+                            sys.exit(1)
+                        failures.append(tt_id)
+                        print e
 
     # Write summary of the builds
     print
