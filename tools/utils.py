@@ -227,6 +227,17 @@ argparse_lowercase_type = argparse_type(str.lower, False)
 argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
 argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
 
+def argcomplete_list(lst):
+    def complete(prefix, parsed_args, **kwargs):
+        return filter(lambda x: x.lower().startswith(prefix.lower()), lst)
+    return complete
+
+def argcomplete_many(fn):
+    def complete(prefix, parsed_args, **kwargs):
+        params = prefix.split(",")
+        return [",".join(params[:-1] + [x]) for x in fn(params[-1], parsed_args, **kwargs)]
+    return complete
+
 def argparse_force_type(case):
     def middle(list, type_name):
         # validate that an argument passed in (as string) is a member of the list of possible

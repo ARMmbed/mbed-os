@@ -36,6 +36,8 @@ from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from utils import argcomplete_list
+from argcomplete import autocomplete
 
 if __name__ == '__main__':
     try:
@@ -72,7 +74,7 @@ if __name__ == '__main__':
         format_help = "Change the format in which tests are listed. Choices include: %s. Default: %s" % (", ".join(format_choices), format_default_choice)
         parser.add_argument("-f", "--format", dest="format",
                             type=argparse_lowercase_type(format_choices, "format"),
-                            default=format_default_choice, help=format_help)
+                            default=format_default_choice, help=format_help).completer = argcomplete_list(format_choices)
         
         parser.add_argument("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
                           default=None, help="Continue trying to build all tests if a build failure occurs")
@@ -93,6 +95,7 @@ if __name__ == '__main__':
                           default=False,
                           help="Verbose diagnostic output")
 
+        autocomplete(parser, validator=lambda x,y:True)
         options = parser.parse_args()
 
         # Filter tests by path if specified

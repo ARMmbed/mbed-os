@@ -48,6 +48,7 @@ from utils import argparse_many
 from argparse import ArgumentTypeError
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from argcomplete import autocomplete
 
 if __name__ == '__main__':
     # Parse Options
@@ -181,6 +182,7 @@ if __name__ == '__main__':
                       type=argparse_filestring_type,
                       default=None, help="use the specified linker script")
 
+    autocomplete(parser, validator=lambda x,y:True)
     options = parser.parse_args()
 
     # Only prints matrix of supported toolchains
