@@ -35,7 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
+#ifdef NORDIC_BOOTLOADER_SETTINGS // avoid from unwanted commpilation
 
 #include "bootloader_settings.h"
 #include <stdint.h>
@@ -88,3 +88,5 @@ void bootloader_util_settings_get(const bootloader_settings_t ** pp_bootloader_s
 
     *pp_bootloader_settings = p_bootloader_settings;
 }
+
+#endif // NORDIC_BOOTLOADER
