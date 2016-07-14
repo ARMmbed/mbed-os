@@ -32,14 +32,12 @@ if __name__ == '__main__':
     parser.add_argument("-m", "--mcu",
                       metavar="MCU",
                       default='LPC1768',
-                      required=True,
                       type=argparse_many(argparse_force_uppercase_type(targetnames, "MCU")),
                       help="generate project for the given MCU (%s)"% ', '.join(targetnames))
 
     parser.add_argument("-i",
                       dest="ide",
                       default='uvision',
-                      required=True,
                       type=argparse_force_lowercase_type(toolchainlist, "toolchain"),
                       help="The target IDE: %s"% str(toolchainlist))
 
