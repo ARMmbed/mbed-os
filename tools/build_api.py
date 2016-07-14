@@ -396,6 +396,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
+        return True
 
     except Exception, e:
         if report != None:
@@ -540,6 +541,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
+        return True
 
     except Exception, e:
         if report != None:
