@@ -435,7 +435,7 @@ class Config:
     #          (as returned by get_config_data())
     @staticmethod
     def config_to_header(config, fname = None):
-        params, macros = config[0], config[1]
+        params, macros = (config[0], config[1]) if config else ({}, {})
         Config._check_required_parameters(params)
         header_data =  "// Automatically generated configuration file.\n"
         header_data += "// DO NOT EDIT, content will be overwritten.\n\n"

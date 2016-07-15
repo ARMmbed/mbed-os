@@ -647,7 +647,11 @@ class mbedToolchain:
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
 
-        inc_paths = resources.inc_dirs
+        # Create the configuration header and append its path to the include list
+        # "create_config_header" needs to know the build directory
+        self.build_dir = build_path
+        config_file_location = self.create_config_header()
+        inc_paths = resources.inc_dirs + [dirname(config_file_location)]
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
         # De-duplicate include paths
@@ -656,8 +660,6 @@ class mbedToolchain:
         inc_paths = sorted(set(inc_paths))
         # Unique id of all include paths
         self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
-        # Where to store response files
-        self.build_dir = build_path
 
         objects = []
         queue = []
@@ -944,18 +946,30 @@ class mbedToolchain:
     def set_config_data(self, config_data):
         self.config_data = config_data
 
-    # Return the location of the config header. This function will create the config
-    # header first if needed. The header will be written in a file called "mbed_conf.h"
-    # located in the project's build directory.
-    # If config headers are not used (self.config_header_content is None), the function
-    # returns None
-    def get_config_header(self):
-        if self.config_data is None:
-            return None
-        config_file = join(self.build_dir, self.MBED_CONFIG_FILE_NAME)
-        if not exists(config_file):
+    # Creates the configuration header if needed:
+    # - if there is no configuration data, an empty (no config data) "mbed_config.h" is created
+    # - if there is configuration data and "mbed_config.h" does not exist, it is created.
+    # - if there is configuration data similar to the previous configuration data,
+    #   "mbed_config.h" is left untouched
+    # - if there is new configuration data, "mbed_config.h" is overriden
+    # basedir: the base directory for "mbed_config.h" (defaults to self.build.dir if not specified)
+    # The function returns the location of "mbed_config.h"
+    def create_config_header(self, basedir = None):
+        config_file = join(basedir or self.build_dir, self.MBED_CONFIG_FILE_NAME)
+        # If the file exists, read its current content in prev_data
+        if exists(config_file):
+            with open(config_file, "rt") as f:
+                prev_data = f.read()
+        else:
+            prev_data = None
+        # Get the current configuration data
+        crt_data = Config.config_to_header(self.config_data)
+        # Create the config file if it contains different data or if it doesn't exist
+        # (both conditions are covered by 'prev_data != crt_data', since crt_data can
+        # never be None).
+        if prev_data != crt_data:
             with open(config_file, "wt") as f:
-                f.write(Config.config_to_header(self.config_data))
+                f.write(crt_data)
         return config_file
 
     # Return the list of macros geenrated by the build system

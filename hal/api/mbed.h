@@ -18,6 +18,9 @@
 
 #define MBED_LIBRARY_VERSION 121
 
+// Include the configuration data as early as possible
+#include "mbed_config.h"
+
 #include "toolchain.h"
 #include "platform.h"
 

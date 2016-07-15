@@ -31,8 +31,6 @@ class IntermediateFile(Exporter):
     # we support all GCC targets (is handled on IDE side)
     TARGETS = gccTargets
 
-    MBED_CONFIG_HEADER_SUPPORTED = True
-
     FILE_TYPES = {
         'headers': 'h',
         'c_sources': 'c',

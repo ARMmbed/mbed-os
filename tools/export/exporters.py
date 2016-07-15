@@ -36,7 +36,6 @@ class Exporter(object):
         self.extra_symbols = extra_symbols
         self.config_macros = []
         self.sources_relative = sources_relative
-        self.config_header = None
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -49,9 +48,6 @@ class Exporter(object):
     def progen_flags(self):
         if not hasattr(self, "_progen_flag_cache") :
             self._progen_flag_cache = dict([(key + "_flags", value) for key,value in self.flags.iteritems()])
-            if self.config_header:
-                self._progen_flag_cache['c_flags'] += self.toolchain.get_config_option(self.config_header)
-                self._progen_flag_cache['cxx_flags'] += self.toolchain.get_config_option(self.config_header)
         return self._progen_flag_cache
 
     def __scan_and_copy(self, src_path, trg_path):
@@ -166,20 +162,14 @@ class Exporter(object):
             # use the prj_dir (source, not destination)
             resources = self.toolchain.scan_resources(prj_paths[0])
             for path in prj_paths[1:]:
-                resources.add(toolchain.scan_resources(path))
+                resources.add(self.toolchain.scan_resources(path))
 
         # Loads the resources into the config system which might expand/modify resources based on config data
         self.resources = config.load_resources(resources)
 
+        # Generate configuration header
+        config.get_config_data_header(join(trg_path, self.toolchain.MBED_CONFIG_FILE_NAME))
 
-        if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED :
-            # Add the configuration file to the target directory
-            self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
-            config.get_config_data_header(join(trg_path, self.config_header))
-            self.config_macros = []
-        else :
-            # And add the configuration macros to the toolchain
-            self.config_macros = config.get_config_data_macros()
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
