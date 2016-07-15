@@ -18,7 +18,7 @@ LR_IROM1 0x1C000 0x0064000  {
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM1 0x20002080 0x0000DF80  {
+  RW_IRAM1 0x20002EF8 0x0000D108  {
    .ANY (+RW +ZI)
   }
 }
