@@ -206,6 +206,9 @@ def build_project(src_path, build_path, target, toolchain_name,
             if exists(build_path):
                 rmtree(build_path)
         mkdir(build_path)
+        if not exists(join(build_path, ".mbedignore")):
+            with open(join(build_path, ".mbedignore"), "w+") as fd:
+                fd.write("*")
 
         # We need to add if necessary additional include directories
         if inc_dirs:
@@ -365,6 +368,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
             mkdir(tmp_path)
         else:
             tmp_path = build_path
+        if not exists(join(build_path, ".mbedignore")):
+            with open(join(build_path, ".mbedignore"), "w+") as fd:
+                fd.write("*")
 
         # Load resources into the config system which might expand/modify resources based on config data
         resources = config.load_resources(resources)
@@ -525,7 +531,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path, resources=resource)
 
-        dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+        dependencies_include_dir.extend(sum([r.inc_dirs for r in resources], []))
 
         # Compile Sources
         objects = []
@@ -624,7 +630,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         HAL_SRC = join(MBED_TARGETS_PATH, "hal")
         hal_implementation = toolchain.scan_resources(HAL_SRC)
         toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, resources=hal_implementation)
-        incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
+        incdirs = hal_implementation.inc_dirs + resources.inc_dirs
         objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
         # Common Sources
@@ -802,13 +808,15 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
 
     # Copy files before analysis
     toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, resources=hal_implementation)
-    incdirs = toolchain.scan_resources(BUILD_TARGET)
+    incdirs = toolchain.scan_resources(MBED_API).headers +\
+              toolchain.scan_resources(MBED_HAL).headres +\
+              hal_implementation.headers
 
-    target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
+    target_includes = ["-I%s" % i for i in incdirs]
     target_includes.append("-I%s"% str(BUILD_TARGET))
     target_includes.append("-I%s"% str(HAL_SRC))
-    target_c_sources = " ".join(incdirs.c_sources)
-    target_cpp_sources = " ".join(incdirs.cpp_sources)
+    target_c_sources = " ".join(hal_implementation.c_sources)
+    target_cpp_sources = " ".join(hal_implementation.cpp_sources)
     target_macros = ["-D%s"% s for s in toolchain.get_symbols() + toolchain.macros]
 
     # Common Sources
@@ -910,7 +918,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
         c_sources += " ".join(resource.c_sources) + " "
         cpp_sources += " ".join(resource.cpp_sources) + " "
 
-    dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+    dependencies_include_dir.extend(sum([r.inc_dirs for r in resources], []))
 
     includes = map(str.strip, includes)
     macros = map(str.strip, macros)
