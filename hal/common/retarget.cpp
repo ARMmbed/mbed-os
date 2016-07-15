@@ -548,7 +548,6 @@ extern "C" int __wrap_main(void) {
 // code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
 // Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
 extern "C" void __iar_argc_argv() {
-    mbed_sdk_init();
     mbed_main();
 }
 #endif
