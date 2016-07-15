@@ -374,7 +374,6 @@ uint32_t os_tick_val(void) {
         return clock_cycles_by_tick - ((current_counter - next_tick_cc_value) % clock_cycles_by_tick);
     }
 
-    //return 0;
 }
 
 #endif // defined(TARGET_MCU_NRF51822)
