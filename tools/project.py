@@ -5,19 +5,16 @@ sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
 from argparse import ArgumentParser
-from os import path
 
-from tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
-from tools.paths import MBED_BASE, MBED_LIBRARIES
-from tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
-from tools.utils import args_error, mkdir
-from tools.tests import TESTS, Test, TEST_MAP
+from tools.paths import EXPORT_DIR
+from tools.export import EXPORTERS, mcu_ide_matrix
+from tools.utils import args_error
+from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_NAMES
-from tools.libraries import LIBRARIES
-from utils import argparse_lowercase_type, argparse_uppercase_type, argparse_filestring_type, argparse_many
+from utils import argparse_filestring_type, argparse_many
 from utils import argparse_force_lowercase_type, argparse_force_uppercase_type
-
+from project_api import setup_project, perform_export, print_results, get_test_from_name
 
 
 if __name__ == '__main__':
@@ -126,77 +123,68 @@ if __name__ == '__main__':
         if exists(EXPORT_DIR):
             rmtree(EXPORT_DIR)
 
+
+    # Target
+    if options.mcu is None :
+        args_error(parser, "[ERROR] You should specify an MCU")
+    mcus = options.mcu
+
+    # IDE
+    if options.ide is None:
+        args_error(parser, "[ERROR] You should specify an IDE")
+    ide = options.ide
+
+    # Program Number or name
+    p, n, src= options.program, options.program_name, options.source_dir
+
+    if src is None:
+        if p is not None and n is not None:
+            args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
+        if n:
+            p = get_test_from_name(n)
+            if p is None:
+                args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+
+        if p is None or (p < 0) or (p > (len(TESTS) - 1)):
+            message = "[ERROR] You have to specify one of the following tests:\n"
+            message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+            args_error(parser, message)
+
+
     # Export results
     successes = []
     failures = []
-    zip = True
-    clean = True
+
+    # source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
+    zip = src is None
+    clean = src is None
 
     # source_dir = use relative paths, otherwise sources are copied
     sources_relative = True if options.source_dir else False
+    for mcu in mcus.split(','):
 
-    for mcu in options.mcu:
-        # Program Number or name
-        p, src, ide = options.program, options.source_dir, options.ide
+        lib_symbols = []
+        if options.macros:
+            lib_symbols += options.macros
+        project_dir, project_name, project_temp = setup_project(mcu, ide, p, src,
+                                                                options.macros,
+                                                                options.build)
 
-        if src:
-            # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
-            project_dir = options.source_dir
-            project_name = TESTS[p] if p else "Unnamed_project"
-            project_temp = path.join(options.source_dir[0], 'projectfiles', '%s_%s' % (ide, mcu))
-            mkdir(project_temp)
-            lib_symbols = []
-            if options.macros:
-                lib_symbols += options.macros
-            zip = False   # don't create zip
-            clean = False # don't cleanup because we use the actual source tree to generate IDE files
-        else:
-            test = Test(p)
+        tmp_path, report = perform_export(project_dir, project_name, ide, mcu,
+                                          project_temp, clean, zip, lib_symbols,
+                                          sources_relative)
 
-            # Some libraries have extra macros (called by exporter symbols) to we need to pass
-            # them to maintain compilation macros integrity between compiled library and
-            # header files we might use with it
-            lib_symbols = []
-            if options.macros:
-                lib_symbols += options.macros
-            for lib in LIBRARIES:
-                if lib['build_dir'] in test.dependencies:
-                    lib_macros = lib.get('macros', None)
-                    if lib_macros is not None:
-                        lib_symbols.extend(lib_macros)
 
-            if not options.build:
-                # Substitute the library builds with the sources
-                # TODO: Substitute also the other library build paths
-                if MBED_LIBRARIES in test.dependencies:
-                    test.dependencies.remove(MBED_LIBRARIES)
-                    test.dependencies.append(MBED_BASE)
-
-            # Build the project with the same directory structure of the mbed online IDE
-            project_name = test.id
-            project_dir = [join(EXPORT_WORKSPACE, project_name)]
-            project_temp = EXPORT_TMP
-            setup_user_prj(project_dir[0], test.source_dir, test.dependencies)
-
-        # Export to selected toolchain
-        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
         if report['success']:
             if not zip:
                 zip_path = join(project_temp, project_name)
             else:
                 zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
                 move(tmp_path, zip_path)
+
             successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
         else:
             failures.append("%s::%s\t%s"% (mcu, ide, report['errormsg']))
 
     # Prints export results
-    print
-    if len(successes) > 0:
-        print "Successful exports:"
-        for success in successes:
-            print "  * %s"% success
-    if len(failures) > 0:
-        print "Failed exports:"
-        for failure in failures:
-            print "  * %s"% failure
+    print_results(successes, failures)
