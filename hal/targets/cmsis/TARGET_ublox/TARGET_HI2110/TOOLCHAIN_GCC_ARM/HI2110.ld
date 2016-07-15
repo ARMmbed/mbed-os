@@ -206,7 +206,10 @@ SECTIONS
     } > SRAM
 
     PROVIDE(__heap_start = ADDR(.heap));
-    
+    PROVIDE(__heap_size = SIZEOF(.heap));
+    PROVIDE(__mbed_sbrk_start = ADDR(.heap));
+    PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
+        
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */
