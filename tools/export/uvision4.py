@@ -36,16 +36,19 @@ class Uvision4(Exporter):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
-    # backward compatibility with our scripts
-    TARGETS = []
-    for target in TARGET_NAMES:
-        try:
-            if (ProGenDef('uvision').is_supported(str(TARGET_MAP[target])) or
-                ProGenDef('uvision').is_supported(TARGET_MAP[target].progen['target'])):
-                TARGETS.append(target)
-        except AttributeError:
-            # target is not supported yet
-            continue
+    @property
+    def TARGETS(self):
+        if not hasattr(self, "_targets_supported"):
+            self._targets_supported = []
+            for target in TARGET_NAMES:
+                try:
+                    if (ProGenDef('uvision').is_supported(str(TARGET_MAP[target])) or
+                        ProGenDef('uvision').is_supported(TARGET_MAP[target].progen['target'])):
+                        self._targets_supported.append(target)
+                except AttributeError:
+                    # target is not supported yet
+                    continue
+        return self._targets_supported
 
     def get_toolchain(self):
         return TARGET_MAP[self.target].default_toolchain
