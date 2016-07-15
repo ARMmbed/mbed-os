@@ -21,7 +21,7 @@ import yaml
 
 from tools.utils import mkdir
 from tools.export import uvision4, uvision5, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32, e2studio
-from tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
+from tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException, FailedBuildException
 from tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
 from project_generator_definitions.definitions import ProGenDef
@@ -58,7 +58,8 @@ def online_build_url_resolver(url):
 
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
-           tempdir=None, clean=True, extra_symbols=None, make_zip=True, sources_relative=False, build_url_resolver=online_build_url_resolver):
+           tempdir=None, pgen_build = False, clean=True, extra_symbols=None, make_zip=True, sources_relative=False,
+           build_url_resolver=online_build_url_resolver, progen_build=False):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
@@ -68,8 +69,8 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 
     use_progen = False
     supported = True
-    report = {'success': False, 'errormsg':''}
-    
+    report = {'success': False, 'errormsg':'', 'skip': False}
+
     if ide is None or ide == "zip":
         # Simple ZIP exporter
         try:
@@ -83,6 +84,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     else:
         if ide not in EXPORTERS:
             report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
+            report['skip'] = True
         else:
             Exporter = EXPORTERS[ide]
             target = EXPORT_MAP.get(target, target)
@@ -91,11 +93,12 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
                     use_progen = True
             except AttributeError:
                 pass
+
+            if target not in Exporter.TARGETS or Exporter.TOOLCHAIN not in TARGET_MAP[target].supported_toolchains:
+                supported = False
+
             if use_progen:
                 if not ProGenDef(ide).is_supported(TARGET_MAP[target].progen['target']):
-                    supported = False
-            else:
-                if target not in Exporter.TARGETS:
                     supported = False
 
             if supported:
@@ -103,12 +106,22 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
                 try:
                     exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols, sources_relative=sources_relative)
                     exporter.scan_and_copy_resources(project_path, tempdir, sources_relative)
-                    exporter.generate()
-                    report['success'] = True
+                    if progen_build:
+                        #try to build with pgen ide builders
+                        try:
+                            exporter.generate(progen_build=True)
+                            report['success'] = True
+                        except FailedBuildException, f:
+                            report['errormsg'] = "Build Failed"
+                    else:
+                        exporter.generate()
+                        report['success'] = True
                 except OldLibrariesException, e:
                     report['errormsg'] = ERROR_MESSAGE_NOT_EXPORT_LIBS
+
             else:
                 report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
+                report['skip'] = True
 
     zip_path = None
     if report['success']:

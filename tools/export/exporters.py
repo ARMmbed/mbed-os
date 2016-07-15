@@ -21,6 +21,8 @@ from tools.config import Config
 
 class OldLibrariesException(Exception): pass
 
+class FailedBuildException(Exception) : pass
+
 class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
@@ -107,7 +109,7 @@ class Exporter(object):
         }
         return project_data
 
-    def progen_gen_file(self, tool_name, project_data):
+    def progen_gen_file(self, tool_name, project_data, progen_build=False):
         """ Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
@@ -115,6 +117,11 @@ class Exporter(object):
         # thinks it is not dict but a file, and adds them to workspace.
         project.project['common']['include_paths'] = self.resources.inc_dirs
         project.generate(tool_name, copied=not self.sources_relative)
+        if progen_build:
+            print("Project exported, building...")
+            result = project.build(tool_name)
+            if result == -1:
+                raise FailedBuildException("Build Failed")
 
     def __scan_all(self, path):
         resources = []
