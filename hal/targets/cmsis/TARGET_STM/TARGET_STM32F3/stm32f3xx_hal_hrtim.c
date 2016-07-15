@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_hrtim.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Resolution Timer (HRTIM) peripheral:
@@ -1258,6 +1258,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCChannelConfig(HRTIM_HandleTypeDef * hhrtim,
       CompareUnit = HRTIM_COMPAREUNIT_2;
     }
     break;
+  default:
+    break;
   }
   
   CompareCfg.CompareValue = pSimpleOCChannelCfg->Pulse;
@@ -1317,6 +1319,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCChannelConfig(HRTIM_HandleTypeDef * hhrtim,
       }
       OutputCfg.SetSource = HRTIM_OUTPUTSET_NONE;
     }
+    break;
+  default:
     break;
   }
   
@@ -1822,6 +1826,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMChannelConfig(HRTIM_HandleTypeDef * hhrtim,
       CompareUnit = HRTIM_COMPAREUNIT_2;
     }
     break;
+  default:
+    break;
   }
   
   CompareCfg.CompareValue = pSimplePWMChannelCfg->Pulse;
@@ -2030,6 +2036,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStart_IT(HRTIM_HandleTypeDef * hhrtim,
       __HAL_HRTIM_TIMER_ENABLE_IT(hhrtim, TimerIdx, HRTIM_TIM_IT_CMP2);
     }
     break;
+  default:
+    break;
   }
   
   /* Enable the timer counter */
@@ -2103,6 +2111,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStop_IT(HRTIM_HandleTypeDef * hhrtim,
     {
       __HAL_HRTIM_TIMER_DISABLE_IT(hhrtim, TimerIdx, HRTIM_TIM_IT_CMP2);
     }
+    break;
+  default:
     break;
   }
   
@@ -2213,6 +2223,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStart_DMA(HRTIM_HandleTypeDef * hhrtim,
       __HAL_HRTIM_TIMER_ENABLE_DMA(hhrtim, TimerIdx, HRTIM_TIM_DMA_CMP2);      
     }
     break;
+  default:
+    break;
   }
    
   /* Enable the timer counter */
@@ -2294,6 +2306,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStop_DMA(HRTIM_HandleTypeDef * hhrtim,
     {
       __HAL_HRTIM_TIMER_DISABLE_DMA(hhrtim, TimerIdx, HRTIM_TIM_DMA_CMP2);
     }
+    break;
+  default:
     break;
   }
   
@@ -2452,6 +2466,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStart(HRTIM_HandleTypeDef * hhrtim,
       hhrtim->Instance->sTimerxRegs[TimerIdx].CPT2xCR = hhrtim->TimerParam[TimerIdx].CaptureTrigger2;
     }
     break;
+  default:
+    break;
   }
   
   /* Enable the timer counter */
@@ -2506,6 +2522,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStop(HRTIM_HandleTypeDef * hhrtim,
     {
       hhrtim->Instance->sTimerxRegs[TimerIdx].CPT2xCR = HRTIM_CAPTURETRIGGER_NONE;
     }
+    break;
+  default:
     break;
   }
   
@@ -2573,6 +2591,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStart_IT(HRTIM_HandleTypeDef * hhrtim,
       __HAL_HRTIM_TIMER_ENABLE_IT(hhrtim, TimerIdx, HRTIM_TIM_IT_CPT2);
     }
     break;
+  default:
+    break;
   }
   
   /* Enable the timer counter */
@@ -2634,6 +2654,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStop_IT(HRTIM_HandleTypeDef * hhrtim,
       /* Disable the capture unit 2 interrupt */
       __HAL_HRTIM_TIMER_DISABLE_IT(hhrtim, TimerIdx, HRTIM_TIM_IT_CPT2);
     }
+    break;
+  default:
     break;
   }
   
@@ -2722,7 +2744,9 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStart_DMA(HRTIM_HandleTypeDef * hhrtim,
       __HAL_HRTIM_TIMER_ENABLE_DMA(hhrtim, TimerIdx, HRTIM_TIM_DMA_CPT2);      
     }
     break;
-  }
+   default:
+    break;
+ }
   
   /* Enable the timer counter */
   __HAL_HRTIM_ENABLE(hhrtim, TimerIdxToTimerId[TimerIdx]);
@@ -2792,6 +2816,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStop_DMA(HRTIM_HandleTypeDef * hhrtim,
       /* Disable the capture unit 2 DMA request */
       __HAL_HRTIM_TIMER_DISABLE_DMA(hhrtim, TimerIdx, HRTIM_TIM_DMA_CPT2);
     }
+    break;
+  default:
     break;
   }
   
@@ -2923,6 +2949,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOnePulseChannelConfig(HRTIM_HandleTypeDef * hh
     {
       CompareUnit = HRTIM_COMPAREUNIT_2;
     }
+    break;
+  default:
     break;
   }
   
@@ -3143,6 +3171,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOnePulseStart_IT(HRTIM_HandleTypeDef * hhrtim,
       __HAL_HRTIM_TIMER_ENABLE_IT(hhrtim, TimerIdx, HRTIM_TIM_IT_CMP2);
     }
     break;
+  default:
+    break;
   }
   
   /* Enable the timer counter */
@@ -3216,6 +3246,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOnePulseStop_IT(HRTIM_HandleTypeDef * hhrtim,
     {
       __HAL_HRTIM_TIMER_DISABLE_IT(hhrtim, TimerIdx, HRTIM_TIM_IT_CMP2);
     }
+    break;
+  default:
     break;
   }
   
@@ -3709,6 +3741,8 @@ HAL_StatusTypeDef HAL_HRTIM_ADCTriggerConfig(HRTIM_HandleTypeDef * hhrtim,
       hhrtim->Instance->sCommonRegs.ADC4R = pADCTriggerCfg->Trigger;
     }
     break;
+  default:
+    break;
   }
   
   /* Update the HRTIM registers */
@@ -3995,6 +4029,8 @@ HAL_StatusTypeDef HAL_HRTIM_TimerEventFilteringConfig(HRTIM_HandleTypeDef * hhrt
       hhrtim->Instance->sTimerxRegs[TimerIdx].EEFxR2 = hrtim_eefr;
     }
     break;
+  default:
+    break;
   }
   
   hhrtim->State = HAL_HRTIM_STATE_READY;
@@ -4218,6 +4254,8 @@ HAL_StatusTypeDef HAL_HRTIM_BurstDMAConfig(HRTIM_HandleTypeDef * hhrtim,
       hhrtim->Instance->sCommonRegs.BDMUPR = RegistersToUpdate;
     }
     break;
+  default:
+    break;
   }
   
   hhrtim->State = HAL_HRTIM_STATE_READY;
@@ -4298,6 +4336,8 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformCompareConfig(HRTIM_HandleTypeDef * hhrtim,
         hhrtim->Instance->sMasterRegs.MCMP4R = pCompareCfg->CompareValue;
         }
         break;
+    default:
+      break;
     }
   }
   else
@@ -4372,6 +4412,8 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformCompareConfig(HRTIM_HandleTypeDef * hhrtim,
         }
       }
       break;
+    default:
+      break;
     }
   }
   hhrtim->State = HAL_HRTIM_STATE_READY;
@@ -4430,6 +4472,8 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformCaptureConfig(HRTIM_HandleTypeDef * hhrtim,
     {
       hhrtim->Instance->sTimerxRegs[TimerIdx].CPT2xCR = pCaptureCfg->Trigger;
     }
+    break;
+  default:
     break;
   }
   
@@ -4593,6 +4637,8 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformSetOutputLevel(HRTIM_HandleTypeDef * hhrtim,
         hhrtim->Instance->sTimerxRegs[TimerIdx].RSTx2R |= HRTIM_RST2R_SRT;
       }
     }
+    break;
+  default:
     break;
   }
   
@@ -5175,6 +5221,8 @@ HAL_StatusTypeDef HAL_HRTIM_SoftwareCapture(HRTIM_HandleTypeDef * hhrtim,
       hhrtim->Instance->sTimerxRegs[TimerIdx].CPT2xCR |= HRTIM_CPT2CR_SWCPT;
     }
     break;
+  default:
+    break;
   }
   
   hhrtim->State = HAL_HRTIM_STATE_READY;
@@ -5492,6 +5540,8 @@ uint32_t HAL_HRTIM_GetCapturedValue(HRTIM_HandleTypeDef * hhrtim,
       captured_value = hhrtim->Instance->sTimerxRegs[TimerIdx].CPT2xR;
     }
     break;
+  default:
+    break;
   }
   
   return captured_value; 
@@ -5566,6 +5616,8 @@ uint32_t HAL_HRTIM_WaveformGetOutputLevel(HRTIM_HandleTypeDef * hhrtim,
         output_level = HRTIM_OUTPUTLEVEL_INACTIVE;
       }
     }
+    break;
+  default:
     break;
   }
   
@@ -5658,6 +5710,8 @@ uint32_t HAL_HRTIM_WaveformGetOutputState(HRTIM_HandleTypeDef * hhrtim,
     {
       output_bit = HRTIM_OENR_TE2OEN;
     }
+    break;
+  default:
     break;
   }
   
@@ -5755,6 +5809,8 @@ uint32_t HAL_HRTIM_GetDelayedProtectionStatus(HRTIM_HandleTypeDef * hhrtim,
         delayed_protection_status = HRTIM_OUTPUTLEVEL_INACTIVE;
       }
     }
+    break;
+  default:
     break;
   }
   
@@ -6702,6 +6758,8 @@ static void  HRTIM_TimingUnitWaveform_Config(HRTIM_HandleTypeDef * hhrtim,
       hrtim_bmcr |= ( pTimerCfg->BurstMode << 5);
     }
     break;
+  default:
+    break;
   }
 
   /* Update the HRTIM registers */
@@ -6750,6 +6808,8 @@ static void  HRTIM_CompareUnitConfig(HRTIM_HandleTypeDef * hhrtim,
         hhrtim->Instance->sMasterRegs.MCMP4R = pCompareCfg->CompareValue;
       }
       break;
+    default:
+      break;
     }
   }
   else
@@ -6776,6 +6836,8 @@ static void  HRTIM_CompareUnitConfig(HRTIM_HandleTypeDef * hhrtim,
       {
         hhrtim->Instance->sTimerxRegs[TimerIdx].CMP4xR = pCompareCfg->CompareValue;
       }
+      break;
+    default:
       break;
     }    
   }
@@ -6848,6 +6910,8 @@ static void HRTIM_CaptureUnitConfig(HRTIM_HandleTypeDef * hhrtim,
       CaptureTrigger = HRTIM_CAPTURETRIGGER_EEV_10;
     }
     break;
+  default:
+    break;
   }
   
   switch (CaptureUnit)
@@ -6861,6 +6925,8 @@ static void HRTIM_CaptureUnitConfig(HRTIM_HandleTypeDef * hhrtim,
     {
       hhrtim->TimerParam[TimerIdx].CaptureTrigger2 = CaptureTrigger;
     }
+    break;
+  default:
     break;
   }
 }
@@ -6913,6 +6979,8 @@ static void  HRTIM_OutputConfig(HRTIM_HandleTypeDef * hhrtim,
 
       shift = 16;
     }
+    break;
+  default:
     break;
   }
   
@@ -7176,6 +7244,8 @@ static void HRTIM_TIM_ResetConfig(HRTIM_HandleTypeDef * hhrtim,
       hhrtim->Instance->sTimerxRegs[TimerIdx].RSTxR = HRTIM_TIMRESETTRIGGER_EEV_10;
     }
     break;
+  default:
+    break;
   }
 }
 
@@ -7267,6 +7337,8 @@ static uint32_t HRTIM_GetITFromOCMode(HRTIM_HandleTypeDef * hhrtim,
         interrupt = HRTIM_TIM_IT_RST2;
       }
     }
+    break;
+  default:
     break;
   }
   
@@ -7362,6 +7434,8 @@ static uint32_t HRTIM_GetDMAFromOCMode(HRTIM_HandleTypeDef * hhrtim,
       }
     }
     break;
+  default:
+    break;
   }
   
   return dma_request;
@@ -7403,6 +7477,8 @@ static DMA_HandleTypeDef * HRTIM_GetDMAHandleFromTimerIdx(HRTIM_HandleTypeDef * 
     {
       hdma = hhrtim->hdmaTimerE;
     }
+    break;
+  default:
     break;
   }
   
@@ -7482,6 +7558,8 @@ static void HRTIM_ForceRegistersUpdate(HRTIM_HandleTypeDef * hhrtim,
     {
       hhrtim->Instance->sCommonRegs.CR2 |= HRTIM_CR2_TESWU;
     }
+    break;
+  default:
     break;
   }
 }

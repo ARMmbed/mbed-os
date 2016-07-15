@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   SPI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Serial Peripheral Interface (SPI) peripheral:
@@ -2295,7 +2295,9 @@ static void SPI_2linesTxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   {
     if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      hspi->Instance->CR1 |= SPI_CR1_CRCNEXT;
+      SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
+      __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
+      return;
     }
     /* Disable TXE interrupt */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
@@ -2375,7 +2377,9 @@ static void SPI_2linesTxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
   {
     if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      hspi->Instance->CR1 |= SPI_CR1_CRCNEXT;
+      SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
+      __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
+      return;
     }
     /* Disable TXE interrupt */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);

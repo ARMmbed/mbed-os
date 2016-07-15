@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -254,35 +254,31 @@ void HAL_PWR_DisableBkUpAccess(void)
 /**
   * @brief Enables the WakeUp PINx functionality.
   * @param WakeUpPinx: Specifies the Power Wake-Up pin to enable.
-  *         This parameter can be one of the following values:
-  *           @arg PWR_WAKEUP_PIN1, PWR_WAKEUP_PIN2, PWR_WAKEUP_PIN3
+  *         This parameter can be value of :
+  *           @ref PWREx_WakeUp_Pins
   * @retval None
   */
 void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
 {
-  __IO uint32_t tmp = 0;
-  
   /* Check the parameters */
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
-  tmp = CSR_EWUP1_BB + (WakeUpPinx << 2);
-  *(__IO uint32_t *) (tmp) = (uint32_t)ENABLE;
+  /* Enable the EWUPx pin */
+  SET_BIT(PWR->CSR, WakeUpPinx);
 }
 
 /**
   * @brief Disables the WakeUp PINx functionality.
   * @param WakeUpPinx: Specifies the Power Wake-Up pin to disable.
-  *         This parameter can be one of the following values:
-  *           @arg PWR_WAKEUP_PIN1, PWR_WAKEUP_PIN2, PWR_WAKEUP_PIN3
+  *         This parameter can be values of :
+  *           @ref PWREx_WakeUp_Pins
   * @retval None
   */
 void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
 {
-  __IO uint32_t tmp = 0;
-  
   /* Check the parameters */
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
-  tmp = CSR_EWUP1_BB + (WakeUpPinx << 2);
-  *(__IO uint32_t *) (tmp) = (uint32_t)DISABLE;
+  /* Disable the EWUPx pin */
+  CLEAR_BIT(PWR->CSR, WakeUpPinx);
 }
 
 /**

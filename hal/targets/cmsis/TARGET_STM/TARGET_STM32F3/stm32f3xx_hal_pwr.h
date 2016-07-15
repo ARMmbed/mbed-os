@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -56,39 +56,6 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup PWR_Alias_Exported_Constants PWR Alias Exported Constants
-  * @{
-  */ 
-/* ------------- PWR registers bit address in the alias region ---------------*/
-#define PWR_OFFSET               (PWR_BASE - PERIPH_BASE)
-
-/* --- CR Register ---*/
-#define CR_OFFSET                (PWR_OFFSET + 0x00)
-/* Alias word address of DBP bit */
-#define DBP_BIT_NUMBER            POSITION_VAL(PWR_CR_DBP)
-#define CR_DBP_BB                (PERIPH_BB_BASE + (CR_OFFSET * 32) + (DBP_BIT_NUMBER * 4))
-
-/* Alias word address of PVDE bit */
-#define PVDE_BIT_NUMBER           POSITION_VAL(PWR_CR_PVDE)
-#define CR_PVDE_BB               (PERIPH_BB_BASE + (CR_OFFSET * 32) + (PVDE_BIT_NUMBER * 4))
-
-/* --- CSR Register ---*/
-#define CSR_OFFSET               (PWR_OFFSET + 0x04)
-/* Alias word address of EWUP1 bit */
-#define EWUP1_BitNumber          POSITION_VAL(PWR_CSR_EWUP1)
-#define CSR_EWUP1_BB             (PERIPH_BB_BASE + (CSR_OFFSET * 32) + (EWUP1_BitNumber * 4))
-
-/* Alias word address of EWUP2 bit */
-#define EWUP2_BitNumber          POSITION_VAL(PWR_CSR_EWUP2)
-#define CSR_EWUP2_BB             (PERIPH_BB_BASE + (CSR_OFFSET * 32) + (EWUP2_BitNumber * 4))
-
-/* Alias word address of EWUP3 bit */
-#define EWUP3_BitNumber          POSITION_VAL(PWR_CSR_EWUP3)
-#define CSR_EWUP3_BB             (PERIPH_BB_BASE + (CSR_OFFSET * 32) + (EWUP3_BitNumber * 4))
-/**
-  * @}
-  */
-
 /** @defgroup PWR_Exported_Constants PWR Exported Constants
   * @{
   */ 
@@ -97,9 +64,9 @@
   * @{
   */
 
-#define PWR_WAKEUP_PIN1                 ((uint32_t)0x00)   /*!< Wakeup pin 1 */
-#define PWR_WAKEUP_PIN2                 ((uint32_t)0x01)   /*!< Wakeup pin 2 */
-#define PWR_WAKEUP_PIN3                 ((uint32_t)0x02)   /*!< Wakeup pin 3 */
+#define PWR_WAKEUP_PIN1                 ((uint32_t)PWR_CSR_EWUP1)   /*!< Wakeup pin 1 */
+#define PWR_WAKEUP_PIN2                 ((uint32_t)PWR_CSR_EWUP2)   /*!< Wakeup pin 2 */
+#define PWR_WAKEUP_PIN3                 ((uint32_t)PWR_CSR_EWUP3)   /*!< Wakeup pin 3 */
 /**
   * @}
   */
