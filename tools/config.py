@@ -35,11 +35,11 @@ class ConfigParameter:
     def __init__(self, name, data, unit_name, unit_kind):
         self.name = self.get_full_name(name, unit_name, unit_kind, allow_prefix = False)
         self.defined_by = self.get_display_name(unit_name, unit_kind)
-        self.set_by = self.defined_by
+        self.set_value(data.get("value", None), unit_name, unit_kind)
         self.help_text = data.get("help", None)
-        self.value = data.get("value", None)
         self.required = data.get("required", False)
         self.macro_name = data.get("macro_name", "MBED_CONF_%s" % self.sanitize(self.name.upper()))
+        self.config_errors = []
 
     # Return the full (prefixed) name of a parameter.
     # If the parameter already has a prefix, check if it is valid
@@ -92,13 +92,14 @@ class ConfigParameter:
     def sanitize(name):
         return name.replace('.', '_').replace('-', '_')
 
-    # Sets a value for this parameter, remember the place where it was set
+    # Sets a value for this parameter, remember the place where it was set.
+    # If the value is a boolean, it is converted to 1 (for True) or to 0 (for False).
     # value: the value of the parameter
     # unit_name: the unit (target/library/application) that defines this parameter
     # unit_ kind: the kind of the unit ("target", "library" or "application")
     # label: the name of the label in the 'target_config_overrides' section (optional)
     def set_value(self, value, unit_name, unit_kind, label = None):
-        self.value = value
+        self.value = int(value) if isinstance(value, bool) else value
         self.set_by = self.get_display_name(unit_name, unit_kind, label)
 
     # Return the string representation of this configuration parameter
@@ -131,8 +132,10 @@ class ConfigMacro:
             if len(tmp) != 2:
                 raise ValueError("Invalid macro definition '%s' in '%s'" % (name, self.defined_by))
             self.macro_name = tmp[0]
+            self.macro_value = tmp[1]
         else:
             self.macro_name = name
+            self.macro_value = None
 
 # 'Config' implements the mbed configuration mechanism
 class Config:
@@ -146,6 +149,11 @@ class Config:
         "library": set(["name", "config", "target_overrides", "macros", "__config_path"]),
         "application": set(["config", "custom_targets", "target_overrides", "macros", "__config_path"])
     }
+
+    # Allowed features in configurations
+    __allowed_features = [
+        "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6"
+    ]
 
     # The initialization arguments for Config are:
     #     target: the name of the mbed target used for this configuration instance
@@ -176,7 +184,9 @@ class Config:
         self.processed_configs = {}
         self.target = target if isinstance(target, str) else target.name
         self.target_labels = Target.get_target(self.target).get_labels()
-        self.target_instance = Target.get_target(self.target)
+        self.added_features = set()
+        self.removed_features = set()
+        self.removed_unecessary_features = False
 
     # Add one or more configuration files
     def add_config_files(self, flist):
@@ -212,44 +222,59 @@ class Config:
             params[full_name] = ConfigParameter(name, v if isinstance(v, dict) else {"value": v}, unit_name, unit_kind)
         return params
 
+    # Add features to the available features
+    def remove_features(self, features):
+        for feature in features:
+            if feature in self.added_features:
+                raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
+
+        self.removed_features |= set(features)
+
+    # Remove features from the available features
+    def add_features(self, features):
+        for feature in features:
+            if (feature in self.removed_features
+                or (self.removed_unecessary_features and feature not in self.added_features)):
+                raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
+
+        self.added_features |= set(features)
+
     # Helper function: process "config_parameters" and "target_config_overrides" in a given dictionary
     # data: the configuration data of the library/appliation
     # params: storage for the discovered configuration parameters
     # unit_name: the unit (library/application) that defines this parameter
     # unit_kind: the kind of the unit ("library" or "application")
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
+        self.config_errors = []
         self._process_config_parameters(data.get("config", {}), params, unit_name, unit_kind)
         for label, overrides in data.get("target_overrides", {}).items():
             # If the label is defined by the target or it has the special value "*", process the overrides
             if (label == '*') or (label in self.target_labels):
-                # Parse out cumulative attributes
-                for attr in Target._Target__cumulative_attributes:
-                    attrs = getattr(self.target_instance, attr)
+                # Parse out features
+                if 'target.features' in overrides:
+                    features = overrides['target.features']
+                    self.remove_features(self.added_features - set(features))
+                    self.add_features(features)
+                    self.removed_unecessary_features = True
+                    del overrides['target.features']
 
-                    if attr in overrides:
-                        del attrs[:]
-                        attrs.extend(overrides[attr])
-                        del overrides[attr]
+                if 'target.features_add' in overrides:
+                    self.add_features(overrides['target.features_add'])
+                    del overrides['target.features_add']
 
-                    if attr+'_add' in overrides:
-                        attrs.extend(overrides[attr+'_add'])
-                        del overrides[attr+'_add']
-
-                    if attr+'_remove' in overrides:
-                        for a in overrides[attr+'_remove']:
-                            attrs.remove(a)
-                        del overrides[attr+'_remove']
-
-                    setattr(self.target_instance, attr, attrs)
+                if 'target.features_remove' in overrides:
+                    self.remove_features(overrides['target.features_remove'])
+                    del overrides['target.features_remove']
 
                 # Consider the others as overrides
                 for name, v in overrides.items():
                     # Get the full name of the parameter
                     full_name = ConfigParameter.get_full_name(name, unit_name, unit_kind, label)
-                    # If an attempt is made to override a parameter that isn't defined, raise an error
-                    if not full_name in params:
-                        raise ConfigException("Attempt to override undefined parameter '%s' in '%s'" % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label)))
-                    params[full_name].set_value(v, unit_name, unit_kind, label)
+                    if full_name in params:
+                        params[full_name].set_value(v, unit_name, unit_kind, label)
+                    else:
+                        self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'"
+                            % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label))))
         return params
 
     # Read and interpret configuration data defined by targets
@@ -320,16 +345,17 @@ class Config:
 
     # Return the configuration data in two parts:
     #   - params: a dictionary with (name, ConfigParam) entries
-    #   - macros: the list of macros defined with "macros" in libraries and in the application
+    #   - macros: the list of macros defined with "macros" in libraries and in the application (as ConfigMacro instances)
     def get_config_data(self):
         all_params = self.get_target_config_data()
         lib_params, macros = self.get_lib_config_data()
         all_params.update(lib_params)
         self.get_app_config_data(all_params, macros)
-        return all_params, [m.name for m in macros.values()]
+        return all_params, macros
 
     # Helper: verify if there are any required parameters without a value in 'params'
-    def _check_required_parameters(self, params):
+    @staticmethod
+    def _check_required_parameters(params):
         for p in params.values():
             if p.required and (p.value is None):
                 raise ConfigException("Required parameter '%s' defined by '%s' doesn't have a value" % (p.name, p.defined_by))
@@ -340,8 +366,113 @@ class Config:
     def parameters_to_macros(params):
         return ['%s=%s' % (m.macro_name, m.value) for m in params.values() if m.value is not None]
 
+    # Return the macro definitions generated for a dictionary of ConfigMacros (as returned by get_config_data)
+    # params: a dictionary of (name, ConfigMacro instance) mappings
+    @staticmethod
+    def config_macros_to_macros(macros):
+        return [m.name for m in macros.values()]
+
+    # Return the configuration data converted to a list of C macros
+    # config - configuration data as (ConfigParam instances, ConfigMacro instances) tuple
+    #          (as returned by get_config_data())
+    @staticmethod
+    def config_to_macros(config):
+        params, macros = config[0], config[1]
+        Config._check_required_parameters(params)
+        return Config.config_macros_to_macros(macros) + Config.parameters_to_macros(params)
+
     # Return the configuration data converted to a list of C macros
     def get_config_data_macros(self):
-        params, macros = self.get_config_data()
+        return self.config_to_macros(self.get_config_data())
+
+    # Returns any features in the configuration data
+    def get_features(self):
+        params, _ = self.get_config_data()
         self._check_required_parameters(params)
-        return macros + self.parameters_to_macros(params)
+        features = ((set(Target.get_target(self.target).features)
+            | self.added_features) - self.removed_features)
+
+        for feature in features:
+            if feature not in self.__allowed_features:
+                raise ConfigException("Feature '%s' is not a supported features" % feature)
+
+        return features
+
+    # Validate configuration settings. This either returns True or raises an exception
+    def validate_config(self):
+        if self.config_errors:
+            raise self.config_errors[0]
+        return True
+
+
+    # Loads configuration data from resources. Also expands resources based on defined features settings
+    def load_resources(self, resources):
+        # Update configuration files until added features creates no changes
+        prev_features = set()
+        while True:
+            # Add/update the configuration with any .json files found while scanning
+            self.add_config_files(resources.json_files)
+
+            # Add features while we find new ones
+            features = self.get_features()
+            if features == prev_features:
+                break
+
+            for feature in features:
+                if feature in resources.features:
+                    resources.add(resources.features[feature])
+
+            prev_features = features
+        self.validate_config()
+
+        return resources
+
+    # Return the configuration data converted to the content of a C header file,
+    # meant to be included to a C/C++ file. The content is returned as a string.
+    # If 'fname' is given, the content is also written to the file called "fname".
+    # WARNING: if 'fname' names an existing file, that file will be overwritten!
+    # config - configuration data as (ConfigParam instances, ConfigMacro instances) tuple
+    #          (as returned by get_config_data())
+    @staticmethod
+    def config_to_header(config, fname = None):
+        params, macros = config[0], config[1]
+        Config._check_required_parameters(params)
+        header_data =  "// Automatically generated configuration file.\n"
+        header_data += "// DO NOT EDIT, content will be overwritten.\n\n"
+        header_data += "#ifndef __MBED_CONFIG_DATA__\n"
+        header_data += "#define __MBED_CONFIG_DATA__\n\n"
+        # Compute maximum length of macro names for proper alignment
+        max_param_macro_name_len = max([len(m.macro_name) for m in params.values() if m.value is not None]) if params else 0
+        max_direct_macro_name_len = max([len(m.macro_name) for m in macros.values()]) if macros else 0
+        max_macro_name_len = max(max_param_macro_name_len, max_direct_macro_name_len)
+        # Compute maximum length of macro values for proper alignment
+        max_param_macro_val_len = max([len(str(m.value)) for m in params.values() if m.value is not None]) if params else 0
+        max_direct_macro_val_len = max([len(m.macro_value or "") for m in macros.values()]) if macros else 0
+        max_macro_val_len = max(max_param_macro_val_len, max_direct_macro_val_len)
+        # Generate config parameters first
+        if params:
+            header_data += "// Configuration parameters\n"
+            for m in params.values():
+                if m.value is not None:
+                    header_data += "#define {0:<{1}} {2!s:<{3}} // set by {4}\n".format(m.macro_name, max_macro_name_len, m.value, max_macro_val_len, m.set_by)
+        # Then macros
+        if macros:
+            header_data += "// Macros\n"
+            for m in macros.values():
+                if m.macro_value:
+                    header_data += "#define {0:<{1}} {2!s:<{3}} // defined by {4}\n".format(m.macro_name, max_macro_name_len, m.macro_value, max_macro_val_len, m.defined_by)
+                else:
+                    header_data += "#define {0:<{1}} // defined by {2}\n".format(m.macro_name, max_macro_name_len + max_macro_val_len + 1, m.defined_by)
+        header_data += "\n#endif\n"
+        # If fname is given, write "header_data" to it
+        if fname:
+            with open(fname, "wt") as f:
+                f.write(header_data)
+        return header_data
+
+    # Return the configuration data converted to the content of a C header file,
+    # meant to be included to a C/C++ file. The content is returned as a string.
+    # If 'fname' is given, the content is also written to the file called "fname".
+    # WARNING: if 'fname' names an existing file, that file will be overwritten!
+    def get_config_data_header(self, fname = None):
+        return self.config_to_header(self.get_config_data(), fname)

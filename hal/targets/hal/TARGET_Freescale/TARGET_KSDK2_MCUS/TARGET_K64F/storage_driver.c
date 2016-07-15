@@ -156,7 +156,7 @@ const uint8_t         *currentOperatingData;
 #define OPTIMAL_PROGRAM_UNIT              (1024UL)
 #define PROGRAM_PHRASE_SIZEOF_INLINE_DATA (8)
 #define SIZEOF_DOUBLE_PHRASE              (FSL_FEATURE_FLASH_PFLASH_SECTION_CMD_ADDRESS_ALIGMENT)
-#else
+#else /* ifdef USING_KSDK2 */
 #define ERASE_UNIT                        (4096)
 #define BLOCK1_START_ADDR                 (0x80000UL)
 #define BLOCK1_SIZE                       (0x80000UL)
@@ -221,31 +221,31 @@ static const ARM_STORAGE_CAPABILITIES caps = {
     /* Enable chip-erase functionality if we own all of block-1. */
     #if ((!defined (YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR) || (YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR == BLOCK1_START_ADDR)) && \
          (!defined (YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE)       || (YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE == BLOCK1_SIZE)))
-    .erase_all  = 1,    /**< Supports EraseChip operation. */
+    .erase_all        = 1,    /**< Supports EraseChip operation. */
     #else
-    .erase_all  = 0,    /**< Supports EraseChip operation. */
+    .erase_all        = 0,    /**< Supports EraseChip operation. */
     #endif
 };
 
 static const ARM_STORAGE_INFO info = {
-    .total_storage    = 512 * 1024, /**< Total available storage, in units of octets. */
+    .total_storage        = BLOCK1_SIZE, /**< Total available storage, in units of octets. By default, BLOCK0 is reserved to hold program code. */
 
     .program_unit         = PROGRAM_UNIT,
     .optimal_program_unit = OPTIMAL_PROGRAM_UNIT,
 
-    .program_cycles   = ARM_STORAGE_PROGRAM_CYCLES_INFINITE, /**< A measure of endurance for reprogramming.
-                                                              *   Use ARM_STOR_PROGRAM_CYCLES_INFINITE for infinite or unknown endurance. */
+    .program_cycles       = ARM_STORAGE_PROGRAM_CYCLES_INFINITE, /**< A measure of endurance for reprogramming.
+                                                                  *   Use ARM_STOR_PROGRAM_CYCLES_INFINITE for infinite or unknown endurance. */
 
-    .erased_value     = 0x1,  /**< Contents of erased memory (1 to indicate erased octets with state 0xFF). */
-    .memory_mapped   = 1,
+    .erased_value         = 0x1,  /**< Contents of erased memory (1 to indicate erased octets with state 0xFF). */
+    .memory_mapped        = 1,
 
-    .programmability = ARM_STORAGE_PROGRAMMABILITY_ERASABLE, /**< A value of type enum ARM_STOR_PROGRAMMABILITY. */
-    .retention_level = ARM_RETENTION_NVM,
-    .security = {
-        .acls                = 0, /**< against internal software attacks using ACLs. */
-        .rollback_protection = 0, /**< roll-back protection. */
-        .tamper_proof        = 0, /**< tamper-proof memory (will be deleted on tamper-attempts using board level or chip level sensors). */
-        .internal_flash      = 1, /**< Internal flash. */
+    .programmability      = ARM_STORAGE_PROGRAMMABILITY_ERASABLE, /**< A value of type enum ARM_STOR_PROGRAMMABILITY. */
+    .retention_level      = ARM_RETENTION_NVM,
+    .security             = {
+        .acls                 = 0, /**< against internal software attacks using ACLs. */
+        .rollback_protection  = 0, /**< roll-back protection. */
+        .tamper_proof         = 0, /**< tamper-proof memory (will be deleted on tamper-attempts using board level or chip level sensors). */
+        .internal_flash       = 1, /**< Internal flash. */
 
         .software_attacks     = 0,
         .board_level_attacks  = 0,
@@ -253,7 +253,6 @@ static const ARM_STORAGE_INFO info = {
         .side_channel_attacks = 0,
     }
 };
-
 
 /**
  * This is the command code written into the first FCCOB register, FCCOB0.
@@ -288,9 +287,9 @@ static inline bool failedWithAccessError(void)
 
     /* checking access error */
     return registerValue & FTFx_FSTAT_ACCERR_MASK;
-#else
+#else /* ifdef USING_KSDK2 */
     return BR_FTFE_FSTAT_ACCERR(FTFE);
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline bool failedWithProtectionError()
@@ -301,9 +300,9 @@ static inline bool failedWithProtectionError()
 
     /* checking protection error */
     return registerValue & FTFx_FSTAT_FPVIOL_MASK;
-#else
+#else /* ifdef USING_KSDK2 */
     return BR_FTFE_FSTAT_FPVIOL(FTFE);
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline bool failedWithRunTimeError()
@@ -314,9 +313,9 @@ static inline bool failedWithRunTimeError()
 
     /* checking MGSTAT0 non-correctable error */
     return registerValue & FTFx_FSTAT_MGSTAT0_MASK;
-#else
+#else /* ifdef USING_KSDK2 */
     return BR_FTFE_FSTAT_MGSTAT0(FTFE);
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline void clearAccessError(void)
@@ -415,7 +414,7 @@ static inline void setupAddressInCCOB123(uint64_t addr)
     BW_FTFE_FCCOB2_CCOBn((uintptr_t)FTFE, (addr >>  8) & 0xFFUL); /* bits [15:8]  of the address. */
     BW_FTFE_FCCOB3_CCOBn((uintptr_t)FTFE, (addr >>  0) & 0xFFUL); /* bits [7:0]   of the address. */
 }
-#endif
+#endif /* ifndef USING_KSDK2 */
 
 static inline void setupEraseSector(uint64_t addr)
 {
@@ -446,7 +445,7 @@ static inline void setup8ByteWrite(uint64_t addr, const void *data)
     /* Program 8 bytes of data into FCCOB(4..11)_CCOBn */
     kFCCOBx[1] = ((const uint32_t *)data)[0];
     kFCCOBx[2] = ((const uint32_t *)data)[1];
-#else
+#else /* ifdef USING_KSDK2 */
     BW_FTFE_FCCOB0_CCOBn((uintptr_t)FTFE, PGM8);
     setupAddressInCCOB123(addr);
 
@@ -458,7 +457,7 @@ static inline void setup8ByteWrite(uint64_t addr, const void *data)
     BW_FTFE_FCCOB9_CCOBn((uintptr_t)FTFE, ((const uint8_t *)data)[6]); /* byte 6 of program value. */
     BW_FTFE_FCCOBA_CCOBn((uintptr_t)FTFE, ((const uint8_t *)data)[5]); /* byte 5 of program value. */
     BW_FTFE_FCCOBB_CCOBn((uintptr_t)FTFE, ((const uint8_t *)data)[4]); /* byte 4 of program value. */
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline void setupProgramSection(uint64_t addr, const void *data, size_t cnt)
@@ -469,7 +468,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
 
     kFCCOBx[0] = BYTES_JOIN_TO_WORD_1_3(PGMSEC, addr);
     kFCCOBx[1] = BYTES_JOIN_TO_WORD_2_2(cnt >> 4, 0xFFFFU);
-#else
+#else /* ifdef USING_KSDK2 */
     static const uintptr_t FlexRAMBase = 0x14000000;
     memcpy((void *)FlexRAMBase, (const uint8_t *)data, cnt);
 
@@ -478,7 +477,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
 
     BW_FTFE_FCCOB4_CCOBn((uintptr_t)FTFE, ((((uint32_t)(cnt >> 4)) & (0x0000FF00)) >> 8)); /* number of 128-bits to program [15:8] */
     BW_FTFE_FCCOB5_CCOBn((uintptr_t)FTFE,  (((uint32_t)(cnt >> 4)) & (0x000000FF)));       /* number of 128-bits to program  [7:0] */
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 /**
@@ -760,7 +759,7 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
     if (rc != kStatus_FLASH_Success) {
         return ARM_DRIVER_ERROR;
     }
-#endif
+#endif /* ifdef USING_KSDK2 */
 
     if (controllerCurrentlyBusy()) {
         /* The user cannot initiate any further FTFE commands until notified that the
@@ -944,7 +943,7 @@ static int32_t eraseAll(void)
 static ARM_STORAGE_STATUS getStatus(void)
 {
     ARM_STORAGE_STATUS status = {
-        .busy = 0,
+        .busy  = 0,
         .error = 0,
     };
 
@@ -972,7 +971,7 @@ static uint32_t resolveAddress(uint64_t addr) {
     return (uint32_t)addr;
 }
 
-int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP)
+int32_t nextBlock(const ARM_STORAGE_BLOCK *prevP, ARM_STORAGE_BLOCK *nextP)
 {
     if (prevP == NULL) {
         /* fetching the first block (instead of next) */
@@ -983,7 +982,7 @@ int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP)
     }
 
     static const size_t NUM_SEGMENTS = sizeof(blockTable) / sizeof(ARM_STORAGE_BLOCK);
-    for (size_t index = 0; index < (NUM_SEGMENTS - 1); index++) {
+    for (size_t index = 0; (NUM_SEGMENTS > 1) && (index < (NUM_SEGMENTS - 1)); index++) {
         if ((blockTable[index].addr == prevP->addr) && (blockTable[index].size == prevP->size)) {
             if (nextP) {
                 memcpy(nextP, &blockTable[index + 1], sizeof(ARM_STORAGE_BLOCK));
@@ -1021,20 +1020,20 @@ int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP)
 }
 
 ARM_DRIVER_STORAGE ARM_Driver_Storage_(0) = {
-    .GetVersion         = getVersion,
-    .GetCapabilities    = getCapabilities,
-    .Initialize         = initialize,
-    .Uninitialize       = uninitialize,
-    .PowerControl       = powerControl,
-    .ReadData           = readData,
-    .ProgramData        = programData,
-    .Erase              = erase,
-    .EraseAll           = eraseAll,
-    .GetStatus          = getStatus,
-    .GetInfo            = getInfo,
-    .ResolveAddress     = resolveAddress,
-    .GetNextBlock       = nextBlock,
-    .GetBlock           = getBlock
+    .GetVersion      = getVersion,
+    .GetCapabilities = getCapabilities,
+    .Initialize      = initialize,
+    .Uninitialize    = uninitialize,
+    .PowerControl    = powerControl,
+    .ReadData        = readData,
+    .ProgramData     = programData,
+    .Erase           = erase,
+    .EraseAll        = eraseAll,
+    .GetStatus       = getStatus,
+    .GetInfo         = getInfo,
+    .ResolveAddress  = resolveAddress,
+    .GetNextBlock    = nextBlock,
+    .GetBlock        = getBlock
 };
 
 #endif /* #if DEVICE_STORAGE */

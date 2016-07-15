@@ -2,7 +2,7 @@
 # pylint: disable=too-many-arguments, too-many-locals, too-many-branches, too-many-lines, line-too-long, too-many-nested-blocks, too-many-public-methods, too-many-instance-attributes
 # pylint: disable=invalid-name, missing-docstring
 
-# Memory Map File Analyser for ARM mbed OS
+# Memory Map File Analyser for ARM mbed
 
 import sys
 import os
@@ -317,7 +317,7 @@ class MemapParser(object):
         if test_rex:
             search_path = test_rex.group(1) + toolchain + '/mbed-os/'
         else:
-            # It looks this is not an mbed OS project
+            # It looks this is not an mbed project
             # object-to-module mapping cannot be generated
             print "Warning: specified toolchain doesn't match with path to the memory map file."
             return
@@ -369,6 +369,9 @@ class MemapParser(object):
         table = PrettyTable(columns)
         table.align["Module"] = "l"
 
+        for i in list(self.print_sections):
+            table.align[i] = 'r'
+
         subtotal = dict()
         for k in self.sections:
             subtotal[k] = 0
@@ -399,9 +402,9 @@ class MemapParser(object):
         if export_format == 'json':
             json_obj.append({\
                   'summary':{\
-                  'static_ram':(subtotal['.data']+subtotal['.bss']),\
-                  'heap':(subtotal['.heap']),\
-                  'stack':(subtotal['.stack']),\
+                  'total_static_ram':(subtotal['.data']+subtotal['.bss']),\
+                  'allocated_heap':(subtotal['.heap']),\
+                  'allocated_stack':(subtotal['.stack']),\
                   'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),\
                   'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),}})
 
@@ -419,14 +422,20 @@ class MemapParser(object):
                     csv_module_section += [i+k]
                     csv_sizes += [self.modules[i][k]]
 
-            csv_module_section += ['static_ram']
+            csv_module_section += ['total_static_ram']
             csv_sizes += [subtotal['.data']+subtotal['.bss']]
 
-            csv_module_section += ['heap']
-            csv_sizes += [subtotal['.heap']]
+            csv_module_section += ['allocated_heap']
+            if subtotal['.heap'] == 0:
+                csv_sizes += ['unknown']
+            else:
+                csv_sizes += [subtotal['.heap']]
 
-            csv_module_section += ['stack']
-            csv_sizes += [subtotal['.stack']]
+            csv_module_section += ['allocated_stack']
+            if subtotal['.stack'] == 0:
+                csv_sizes += ['unknown']
+            else:
+                csv_sizes += [subtotal['.stack']]
 
             csv_module_section += ['total_ram']
             csv_sizes += [subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']]
@@ -440,11 +449,20 @@ class MemapParser(object):
         else: # default format is 'table'
             file_desc.write(table.get_string())
             file_desc.write('\n')
-            file_desc.write("Static RAM memory (data + bss): %s\n" % (str(subtotal['.data']+subtotal['.bss'])))
-            file_desc.write("Heap: %s\n" % str(subtotal['.heap']))
-            file_desc.write("Stack: %s\n" % str(subtotal['.stack']))
-            file_desc.write("Total RAM memory (data + bss + heap + stack): %s\n" % (str(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack'])))
-            file_desc.write("Total Flash memory (text + data + misc): %s\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
+
+            if subtotal['.heap'] == 0:
+                file_desc.write("Allocated Heap: unknown\n")
+            else:
+                file_desc.write("Allocated Heap: %s bytes\n" % str(subtotal['.heap']))
+
+            if subtotal['.stack'] == 0:
+                file_desc.write("Allocated Stack: unknown\n")
+            else:
+                file_desc.write("Allocated Stack: %s bytes\n" % str(subtotal['.stack']))
+
+            file_desc.write("Total Static RAM memory (data + bss): %s bytes\n" % (str(subtotal['.data']+subtotal['.bss'])))
+            file_desc.write("Total RAM memory (data + bss + heap + stack): %s bytes\n" % (str(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack'])))
+            file_desc.write("Total Flash memory (text + data + misc): %s bytes\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
 
         if file_desc is not sys.stdout:
             file_desc.close()
@@ -479,10 +497,10 @@ class MemapParser(object):
 
 def main():
 
-    version = '0.3.10'
+    version = '0.3.11'
 
     # Parser handling
-    parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed OS\nversion %s" % version)
+    parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed\nversion %s" % version)
 
     parser.add_argument('file', help='memory map file')
 

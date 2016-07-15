@@ -25,7 +25,7 @@ class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
 
-    def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None):
+    def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None, sources_relative=True):
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
@@ -35,6 +35,8 @@ class Exporter(object):
         self.jinja_environment = Environment(loader=jinja_loader)
         self.extra_symbols = extra_symbols
         self.config_macros = []
+        self.sources_relative = sources_relative
+        self.config_header = None
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -47,6 +49,9 @@ class Exporter(object):
     def progen_flags(self):
         if not hasattr(self, "_progen_flag_cache") :
             self._progen_flag_cache = dict([(key + "_flags", value) for key,value in self.flags.iteritems()])
+            if self.config_header:
+                self._progen_flag_cache['c_flags'] += self.toolchain.get_config_option(self.config_header)
+                self._progen_flag_cache['cxx_flags'] += self.toolchain.get_config_option(self.config_header)
         return self._progen_flag_cache
 
     def __scan_and_copy(self, src_path, trg_path):
@@ -57,7 +62,7 @@ class Exporter(object):
             'lib_builds', 'lib_refs', 'repo_files', 'hex_files', 'bin_files']:
             r = getattr(resources, r_type)
             if r:
-                self.toolchain.copy_files(r, trg_path, rel_path=src_path)
+                self.toolchain.copy_files(r, trg_path, resources=resources)
         return resources
 
     @staticmethod
@@ -109,7 +114,7 @@ class Exporter(object):
         # TODO: Fix this, the inc_dirs are not valid (our scripts copy files), therefore progen
         # thinks it is not dict but a file, and adds them to workspace.
         project.project['common']['include_paths'] = self.resources.inc_dirs
-        project.generate(tool_name, copied=True)
+        project.generate(tool_name, copied=not self.sources_relative)
 
     def __scan_all(self, path):
         resources = []
@@ -129,7 +134,7 @@ class Exporter(object):
         # Copy only the file for the required target and toolchain
         lib_builds = []
         # Create the configuration object
-        cfg = Config(self.target, prj_paths)
+        config = Config(self.target, prj_paths)
         for src in ['lib', 'src']:
             resources = reduce(add, [self.__scan_and_copy(join(path, src), trg_path) for path in prj_paths])
             lib_builds.extend(resources.lib_builds)
@@ -155,15 +160,26 @@ class Exporter(object):
 
         if not relative:
             # Final scan of the actual exported resources
-            self.resources = self.toolchain.scan_resources(trg_path)
-            self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
+            resources = self.toolchain.scan_resources(trg_path)
+            resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
         else:
             # use the prj_dir (source, not destination)
-            self.resources = reduce(add, [self.toolchain.scan_resources(path) for path in prj_paths])
-        # Add all JSON files discovered during scanning to the configuration object
-        cfg.add_config_files(self.resources.json_files)
-        # Get data from the configuration system
-        self.config_macros = cfg.get_config_data_macros()
+            resources = self.toolchain.scan_resources(prj_paths[0])
+            for path in prj_paths[1:]:
+                resources.add(toolchain.scan_resources(path))
+
+        # Loads the resources into the config system which might expand/modify resources based on config data
+        self.resources = config.load_resources(resources)
+
+
+        if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED :
+            # Add the configuration file to the target directory
+            self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
+            config.get_config_data_header(join(trg_path, self.config_header))
+            self.config_macros = []
+        else :
+            # And add the configuration macros to the toolchain
+            self.config_macros = config.get_config_data_macros()
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:

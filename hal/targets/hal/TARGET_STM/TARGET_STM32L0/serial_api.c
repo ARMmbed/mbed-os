@@ -93,23 +93,31 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Enable UART clock
 #if defined(USART1_BASE)
     if (obj->uart == UART_1) {
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
 #endif
 
     if (obj->uart == UART_2) {
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
         obj->index = 1;
     }
 
     if (obj->uart == LPUART_1) {
+        __HAL_RCC_LPUART1_FORCE_RESET();
+        __HAL_RCC_LPUART1_RELEASE_RESET();
         __HAL_RCC_LPUART1_CLK_ENABLE();
         obj->index = 2;
     }
 
 #if defined(USART4_BASE)
     if (obj->uart == UART_4) {
+        __HAL_RCC_USART4_FORCE_RESET();
+        __HAL_RCC_USART4_RELEASE_RESET();
         __HAL_RCC_USART4_CLK_ENABLE();
         obj->index = 3;
     }
@@ -117,6 +125,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
 #if defined(USART5_BASE)
     if (obj->uart == UART_5) {
+        __HAL_RCC_USART5_FORCE_RESET();
+        __HAL_RCC_USART5_RELEASE_RESET();
         __HAL_RCC_USART5_CLK_ENABLE();
         obj->index = 4;
     }

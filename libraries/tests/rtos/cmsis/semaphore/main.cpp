@@ -1,6 +1,10 @@
 #include "mbed.h"
 #include "cmsis_os.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 osSemaphoreId two_slots;
 osSemaphoreDef(two_slots);
 

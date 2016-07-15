@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,10 +60,7 @@ struct analogin_s {
     uint8_t channel;
 };
 
-struct dac_s {
-    DACName dac;
-    uint8_t channel;
-};
+
 
 struct serial_s {
     UARTName uart;
@@ -102,6 +99,11 @@ struct pwmout_s {
     uint32_t pulse;
     uint8_t channel;
     uint8_t inverted;
+};
+
+struct can_s {
+    CANName can;
+    int index;
 };
 
 #include "gpio_object.h"

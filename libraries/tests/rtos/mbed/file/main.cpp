@@ -3,6 +3,10 @@
 #include "test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 DigitalOut led2(LED2);
 
 #define SIZE 100

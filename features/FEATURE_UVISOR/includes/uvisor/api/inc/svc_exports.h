@@ -116,6 +116,7 @@
 /* SVC immediate values for hardcoded table (call from unprivileged) */
 #define UVISOR_SVC_ID_UNVIC_OUT        UVISOR_SVC_FIXED_TABLE(0, 0)
 #define UVISOR_SVC_ID_REGISTER_GATEWAY UVISOR_SVC_FIXED_TABLE(3, 0)
+#define UVISOR_SVC_ID_BOX_MAIN_NEXT    UVISOR_SVC_FIXED_TABLE(5, 0)
 
 /* SVC immediate values for hardcoded table (call from privileged) */
 #define UVISOR_SVC_ID_UNVIC_IN         UVISOR_SVC_FIXED_TABLE(0, 0)

@@ -90,7 +90,11 @@ SECTIONS
   } > m_flash_config
 
   /* The program code and other data goes into internal flash */
-  .text :
+  /* Note: The uVisor expects this section at a fixed location, as specified by
+   * the porting process configuration parameter: FLASH_OFFSET. */
+  __UVISOR_TEXT_OFFSET = 0x410;
+  __UVISOR_TEXT_START = ORIGIN(m_interrupts) + __UVISOR_TEXT_OFFSET;
+  .text __UVISOR_TEXT_START :
   {
     /* uVisor code and data */
     . = ALIGN(4);
@@ -200,7 +204,7 @@ SECTIONS
   __UVISOR_BSS_START = ORIGIN(m_data) + __UVISOR_SRAM_OFFSET;
   ASSERT(__interrupts_ram_end__ <= __UVISOR_BSS_START,
          "The ISR relocation region overlaps with the uVisor BSS section.")
-  .uvisor.bss (NOLOAD):
+  .uvisor.bss __UVISOR_BSS_START (NOLOAD):
   {
     . = ALIGN(32);
     __uvisor_bss_start = .;
