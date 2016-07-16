@@ -57,7 +57,7 @@ class Uvision5(Exporter):
     def get_toolchain(self):
         return TARGET_MAP[self.target].default_toolchain
 
-    def generate(self):
+    def generate(self, progen_build=False):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
         tool_specific = {}
@@ -102,4 +102,7 @@ class Uvision5(Exporter):
                 project_data['common']['macros'].pop(i)
             i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
-        self.progen_gen_file('uvision5', project_data)
+        if progen_build:
+            self.progen_gen_file('uvision5', project_data, True)
+        else:
+            self.progen_gen_file('uvision5', project_data)
