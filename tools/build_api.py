@@ -77,28 +77,13 @@ def add_result_to_report(report, result):
     result_wrap = { 0: result }
     report[target][toolchain][id_name].append(result_wrap)
 
-def get_config(src_path, target, toolchain_name):
-    # Convert src_path to a list if needed
-    src_paths = [src_path] if type(src_path) != ListType else src_path
-    # We need to remove all paths which are repeated to avoid
-    # multiple compilations and linking with the same objects
-    src_paths = [src_paths[0]] + list(set(src_paths[1:]))
+def get_config(src_paths, target, toolchain_name):
+    # Convert src_paths to a list if needed
+    if type(src_paths) != ListType:
+        src_paths = [src_paths]
 
-    # Create configuration object
-    config = Config(target, src_paths)
-
-    # If the 'target' argument is a string, convert it to a target instance
-    if isinstance(target, basestring):
-        try:
-            target = TARGET_MAP[target]
-        except KeyError:
-            raise KeyError("Target '%s' not found" % target)
-
-    # Toolchain instance
-    try:
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options=None, notify=None, macros=None, silent=True, extra_verbose=False)
-    except KeyError as e:
-        raise KeyError("Toolchain %s not supported" % toolchain_name)
+    # Pass all params to the unified prepare_resources()
+    toolchain = prepare_toolchain(src_paths, target, toolchain_name)
 
     # Scan src_path for config files
     resources = toolchain.scan_resources(src_paths[0])
@@ -109,10 +94,10 @@ def get_config(src_path, target, toolchain_name):
     prev_features = set()
     while True:
         # Update the configuration with any .json files found while scanning
-        config.add_config_files(resources.json_files)
+        toolchain.config.add_config_files(resources.json_files)
 
         # Add features while we find new ones
-        features = config.get_features()
+        features = toolchain.config.get_features()
         if features == prev_features:
             break
 
@@ -121,29 +106,27 @@ def get_config(src_path, target, toolchain_name):
                 resources += resources.features[feature]
 
         prev_features = features
-    config.validate_config()
+    toolchain.config.validate_config()
 
-    cfg, macros = config.get_config_data()
-    features = config.get_features()
+    cfg, macros = toolchain.config.get_config_data()
+    features = toolchain.config.get_features()
     return cfg, macros, features
 
-def build_project(src_path, build_path, target, toolchain_name,
-        libraries_paths=None, options=None, linker_script=None,
-        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
-        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None,
-        extra_verbose=False, config=None):
-    """ This function builds project. Project can be for example one test / UT
+def prepare_toolchain(src_paths, target, toolchain_name,
+        macros=None, options=None, clean=False, jobs=1,
+        notify=None, silent=False, verbose=False, extra_verbose=False, config=None):
+    """ Prepares resource related objects - toolchain, target, config
+    src_paths: the paths to source directories
+    target: ['LPC1768', 'LPC11U24', 'LPC2368']
+    toolchain_name: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
+    clean: Rebuild everything if True
+    notify: Notify function for logs
+    verbose: Write the actual tools command lines if True
     """
-
-    # Convert src_path to a list if needed
-    src_paths = [src_path] if type(src_path) != ListType else src_path
 
     # We need to remove all paths which are repeated to avoid
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
-    first_src_path = src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd()
-    abs_path = abspath(first_src_path)
-    project_name = basename(normpath(abs_path))
 
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths)
@@ -161,64 +144,97 @@ def build_project(src_path, build_path, target, toolchain_name,
     except KeyError as e:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
 
-    toolchain.VERBOSE = verbose
+    toolchain.config = config
     toolchain.jobs = jobs
     toolchain.build_all = clean
+    toolchain.VERBOSE = verbose
 
+    return toolchain
+
+def scan_resources(src_paths, toolchain, dependencies_paths=None, inc_dirs=None):
+    """ Scan resources using initialized toolcain
+    src_paths: the paths to source directories
+    toolchain: valid toolchain object
+    dependencies_paths: dependency paths that we should scan for include dirs
+    inc_dirs: additional include directories which should be added to thescanner resources
+    """
+
+    # Scan src_path
+    resources = toolchain.scan_resources(src_paths[0])
+    for path in src_paths[1:]:
+        resources.add(toolchain.scan_resources(path))
+
+    # Scan dependency paths for include dirs
+    if dependencies_paths is not None:
+        for path in dependencies_paths:
+            lib_resources = toolchain.scan_resources(path)
+            resources.inc_dirs.extend(lib_resources.inc_dirs)
+
+    # Add additional include directories if passed
+    if inc_dirs:
+        if type(inc_dirs) == ListType:
+            resources.inc_dirs.extend(inc_dirs)
+        else:
+            resources.inc_dirs.append(inc_dirs)
+
+    # Load resources into the config system which might expand/modify resources based on config data
+    resources = toolchain.config.load_resources(resources)
+
+    # Set the toolchain's configuration data
+    toolchain.set_config_data(toolchain.config.get_config_data())
+
+    return resources
+
+def build_project(src_paths, build_path, target, toolchain_name,
+        libraries_paths=None, options=None, linker_script=None,
+        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
+        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None,
+        extra_verbose=False, config=None):
+    """ This function builds project. Project can be for example one test / UT
+    """
+
+    # Convert src_path to a list if needed
+    if type(src_paths) != ListType:
+        src_paths = [src_paths]
+    # Extend src_paths wiht libraries_paths
+    if libraries_paths is not None:
+        src_paths.extend(libraries_paths)
+
+    # Build Directory
+    if clean:
+        if exists(build_path):
+            rmtree(build_path)
+    mkdir(build_path)
+
+    # Pass all params to the unified prepare_toolchain()
+    toolchain = prepare_toolchain(src_paths, target, toolchain_name,
+        macros=macros, options=options, clean=clean, jobs=jobs,
+        notify=notify, silent=silent, verbose=verbose, extra_verbose=extra_verbose, config=config)
+
+    # The first path will give the name to the library
     if name is None:
-        # We will use default project name based on project folder name
-        name = project_name
-        toolchain.info("Building project %s (%s, %s)" % (project_name, target.name, toolchain_name))
-    else:
-        # User used custom global project name to have the same name for the
-        toolchain.info("Building project %s to %s (%s, %s)" % (project_name, name, target.name, toolchain_name))
+        name = basename(normpath(abspath(src_paths[0])))
+    toolchain.info("Building project %s (%s, %s)" % (name, toolchain.target.name, toolchain_name))
 
-
+    # Initialize reporting
     if report != None:
         start = time()
-
         # If project_id is specified, use that over the default name
         id_name = project_id.upper() if project_id else name.upper()
         description = project_description if project_description else name
-        vendor_label = target.extra_labels[0]
-        cur_result = None
-        prep_report(report, target.name, toolchain_name, id_name)
-        cur_result = create_result(target.name, toolchain_name, id_name, description)
-
+        vendor_label = toolchain.target.extra_labels[0]
+        prep_report(report, toolchain.target.name, toolchain_name, id_name)
+        cur_result = create_result(toolchain.target.name, toolchain_name, id_name, description)
         if properties != None:
-            prep_properties(properties, target.name, toolchain_name, vendor_label)
+            prep_properties(properties, toolchain.target.name, toolchain_name, vendor_label)
 
     try:
-        # Scan src_path and libraries_paths for resources
-        resources = toolchain.scan_resources(src_paths[0])
-        for path in src_paths[1:]:
-            resources.add(toolchain.scan_resources(path))
-        if libraries_paths is not None:
-            src_paths.extend(libraries_paths)
-            for path in libraries_paths:
-                resources.add(toolchain.scan_resources(path))
+        # Call unified scan_resources
+        resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
+        # Change linker script if specified
         if linker_script is not None:
             resources.linker_script = linker_script
-
-        # Build Directory
-        if clean:
-            if exists(build_path):
-                rmtree(build_path)
-        mkdir(build_path)
-
-        # We need to add if necessary additional include directories
-        if inc_dirs:
-            if type(inc_dirs) == ListType:
-                resources.inc_dirs.extend(inc_dirs)
-            else:
-                resources.inc_dirs.append(inc_dirs)
-
-        # Load resources into the config system which might expand/modify resources based on config data
-        resources = config.load_resources(resources)
-
-        # Set the toolchain's configuration data
-        toolchain.set_config_data(config.get_config_data())
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
@@ -260,117 +276,67 @@ def build_project(src_path, build_path, target, toolchain_name,
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False, archive=True,
-         notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None,
+         notify=None, verbose=False, macros=None, inc_dirs=None,
          jobs=1, silent=False, report=None, properties=None, extra_verbose=False,
          project_id=None):
-    """ src_path: the path of the source directory
+    """ Prepares resource related objects - toolchain, target, config
+    src_paths: the paths to source directories
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
-    toolchain: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
-    library_paths: List of paths to additional libraries
+    toolchain_name: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
     clean: Rebuild everything if True
     notify: Notify function for logs
     verbose: Write the actual tools command lines if True
     inc_dirs: additional include directories which should be included in build
-    inc_dirs_ext: additional include directories which should be copied to library directory
     """
+
+    # Convert src_path to a list if needed
     if type(src_paths) != ListType:
         src_paths = [src_paths]
 
+    # Build path
+    if archive:
+        # Use temp path when building archive
+        tmp_path = join(build_path, '.temp')
+        mkdir(tmp_path)
+    else:
+        tmp_path = build_path
+
+    # Pass all params to the unified prepare_toolchain()
+    toolchain = prepare_toolchain(src_paths, target, toolchain_name,
+        macros=macros, options=options, clean=clean, jobs=jobs,
+        notify=notify, silent=silent, verbose=verbose, extra_verbose=extra_verbose)
+
     # The first path will give the name to the library
-    project_name = basename(src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd())
     if name is None:
-        # We will use default project name based on project folder name
-        name = project_name
+        name = basename(normpath(abspath(src_paths[0])))
+    toolchain.info("Building library %s (%s, %s)" % (name, toolchain.target.name, toolchain_name))
 
-    # If the configuration object was not yet created, create it now
-    config = Config(target, src_paths)
-
-    # If the 'target' argument is a string, convert it to a target instance
-    if isinstance(target, basestring):
-        try:
-            target = TARGET_MAP[target]
-        except KeyError:
-            raise KeyError("Target '%s' not found" % target)
-
+    # Initialize reporting
     if report != None:
         start = time()
-
         # If project_id is specified, use that over the default name
         id_name = project_id.upper() if project_id else name.upper()
         description = name
-        vendor_label = target.extra_labels[0]
-        cur_result = None
-        prep_report(report, target.name, toolchain_name, id_name)
-        cur_result = create_result(target.name, toolchain_name, id_name, description)
-
+        vendor_label = toolchain.target.extra_labels[0]
+        prep_report(report, toolchain.target.name, toolchain_name, id_name)
+        cur_result = create_result(toolchain.target.name, toolchain_name, id_name, description)
         if properties != None:
-            prep_properties(properties, target.name, toolchain_name, vendor_label)
+            prep_properties(properties, toolchain.target.name, toolchain_name, vendor_label)
 
     for src_path in src_paths:
         if not exists(src_path):
             error_msg = "The library source folder does not exist: %s", src_path
-
             if report != None:
                 cur_result["output"] = error_msg
                 cur_result["result"] = "FAIL"
                 add_result_to_report(report, cur_result)
-
             raise Exception(error_msg)
 
     try:
-        # Toolchain instance
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent, extra_verbose=extra_verbose)
-        toolchain.VERBOSE = verbose
-        toolchain.jobs = jobs
-        toolchain.build_all = clean
+        # Call unified scan_resources
+        resources = scan_resources(src_paths, toolchain, dependencies_paths=dependencies_paths, inc_dirs=inc_dirs)
 
-        toolchain.info("Building library %s (%s, %s)" % (name, target.name, toolchain_name))
-
-        # Scan Resources
-        resources = None
-        for path in src_paths:
-            # Scan resources
-            resource = toolchain.scan_resources(path)
-
-            # Extend resources collection
-            if not resources:
-                resources = resource
-            else:
-                resources.add(resource)
-
-        # We need to add if necessary additional include directories
-        if inc_dirs:
-            if type(inc_dirs) == ListType:
-                resources.inc_dirs.extend(inc_dirs)
-            else:
-                resources.inc_dirs.append(inc_dirs)
-
-        # Add extra include directories / files which are required by library
-        # This files usually are not in the same directory as source files so
-        # previous scan will not include them
-        if inc_dirs_ext is not None:
-            for inc_ext in inc_dirs_ext:
-                resources.add(toolchain.scan_resources(inc_ext))
-
-        # Dependencies Include Paths
-        if dependencies_paths is not None:
-            for path in dependencies_paths:
-                lib_resources = toolchain.scan_resources(path)
-                resources.inc_dirs.extend(lib_resources.inc_dirs)
-
-        if archive:
-            # Use temp path when building archive
-            tmp_path = join(build_path, '.temp')
-            mkdir(tmp_path)
-        else:
-            tmp_path = build_path
-
-        # Load resources into the config system which might expand/modify resources based on config data
-        resources = config.load_resources(resources)
-
-        # Set the toolchain's configuration data
-        toolchain.set_config_data(config.get_config_data())
 
         # Copy headers, objects and static libraries - all files needed for static lib
         toolchain.copy_files(resources.headers, build_path, resources=resources)
