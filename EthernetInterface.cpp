@@ -17,6 +17,7 @@
 #include "mbed.h"
 #include "EthernetInterface.h"
 #include "NetworkStack.h"
+#include "SingletonPtr.h"
 
 #include "eth_arch.h"
 #include "lwip/opt.h"
@@ -29,7 +30,7 @@
 
 
 /* Predeclared LWIPStack class */
-static class LWIPStack : public NetworkStack
+class LWIPStack : public NetworkStack
 {
     virtual const char *get_ip_address();
     virtual int socket_open(void **handle, nsapi_protocol_t proto);
@@ -44,7 +45,9 @@ static class LWIPStack : public NetworkStack
     virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
     virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
     virtual void socket_attach(void *handle, void (*callback)(void *), void *data);
-} lwip_stack;
+};
+
+static SingletonPtr<LWIPStack> lwip_stack;
 
 
 /* Static arena of sockets */
@@ -108,26 +111,26 @@ static struct netif lwip_netif;
 static char lwip_ip_addr[NSAPI_IP_SIZE] = "\0";
 static char lwip_mac_addr[NSAPI_MAC_SIZE] = "\0";
 
-static Semaphore lwip_tcpip_inited(0);
+static SingletonPtr<Semaphore> lwip_tcpip_inited;
 static void lwip_tcpip_init_irq(void *)
 {
-    lwip_tcpip_inited.release();
+    lwip_tcpip_inited->release();
 }
 
-static Semaphore lwip_netif_linked(0);
+static SingletonPtr<Semaphore> lwip_netif_linked;
 static void lwip_netif_link_irq(struct netif *lwip_netif)
 {
     if (netif_is_link_up(lwip_netif)) {
-        lwip_netif_linked.release();
+        lwip_netif_linked->release();
     }
 }
 
-static Semaphore lwip_netif_up(0);
+static SingletonPtr<Semaphore> lwip_netif_up;
 static void lwip_netif_status_irq(struct netif *lwip_netif)
 {
     if (netif_is_up(lwip_netif)) {
         strcpy(lwip_ip_addr, inet_ntoa(lwip_netif->ip_addr));
-        lwip_netif_up.release();
+        lwip_netif_up->release();
     }
 }
 
@@ -166,7 +169,7 @@ static int lwip_init()
     lwip_set_mac_address();
 
     tcpip_init(lwip_tcpip_init_irq, NULL);
-    lwip_tcpip_inited.wait();
+    lwip_tcpip_inited->wait();
 
     memset(&lwip_netif, 0, sizeof lwip_netif);
     netif_add(&lwip_netif, 0, 0, 0, NULL, eth_arch_enetif_init, tcpip_input);
@@ -184,7 +187,7 @@ static int lwip_init()
 
     // Wait for an IP Address
     // -1: error, 0: timeout
-    if (lwip_netif_up.wait(15000) <= 0) {
+    if (lwip_netif_up->wait(15000) <= 0) {
         return NSAPI_ERROR_DHCP_FAILURE;
     }
 
@@ -457,5 +460,5 @@ const char *EthernetInterface::get_mac_address()
 
 NetworkStack *EthernetInterface::get_stack()
 {
-    return &lwip_stack;
+    return lwip_stack.get();
 }
