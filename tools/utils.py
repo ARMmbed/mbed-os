@@ -83,6 +83,22 @@ def find_cmd_abspath(cmd):
             return abspath
 
 
+def directory_in_path(directory, path):
+    """ Returns True if `directory` is found within `path`.
+        Ex. directory_in_path("dir", "/is/dir/in/here") returns True
+        Ex. directory_in_path("dir", "/is/my_dir/in/here") returns False
+    """
+    head, tail = split(path)
+    
+    while tail:
+        if tail == directory:
+            return True
+        else:
+            head, tail = split(head)
+    
+    return False
+
+
 def mkdir(path):
     if not exists(path):
         makedirs(path)
@@ -138,6 +154,23 @@ def split_path(path):
     base, file = split(path)
     name, ext = splitext(file)
     return base, name, ext
+
+
+def is_test_directory(path):
+    """Given a path, return true if it is a test case directory.
+    Directory must follow this pattern: TESTS/testgroup/testcase. This
+    would return True."""
+    tests_path = 'TESTS'
+    if directory_in_path(tests_path, path):
+        head, test_case_directory = split(path)
+        if test_case_directory != tests_path and test_case_directory != "host_tests":
+            head, test_group_directory = split(head)
+            if test_group_directory != tests_path and test_case_directory != "host_tests":
+                head, candidate_tests_path = split(head)
+                if candidate_tests_path == tests_path:
+                    return True
+    
+    return False
 
 
 def args_error(parser, message):

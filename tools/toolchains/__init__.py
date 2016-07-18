@@ -28,7 +28,7 @@ from copy import deepcopy
 from tools.config import Config
 
 from multiprocessing import Pool, cpu_count
-from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
+from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, directory_in_path, is_test_directory
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
 from tools.memap import MemapParser
@@ -94,6 +94,10 @@ class Resources:
 
         # Features
         self.features = {}
+        
+        # Tests
+        self.test_directories = []
+        
 
     def __add__(self, resources):
         if resources is None:
@@ -496,7 +500,7 @@ class mbedToolchain:
             for d in copy(dirs):
                 dir_path = join(root, d)
                 # Add internal repo folders/files. This is needed for exporters
-                if d == '.hg':
+                if d == '.hg' and not directory_in_path('TESTS', relpath(root, path)):
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
 
@@ -506,10 +510,11 @@ class mbedToolchain:
                     # Ignore toolchain that do not match the current TOOLCHAIN
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     # Ignore .mbedignore files
-                    self.is_ignored(join(dir_path,"")) or
-                    # Ignore TESTS dir
-                    (d == 'TESTS')):
+                    self.is_ignored(join(dir_path,""))):
                         dirs.remove(d)
+                elif is_test_directory(relpath(dir_path, path)):
+                    resources.test_directories.append(dir_path)
+                    dirs.remove(d)
                 elif d.startswith('FEATURE_'):
                     # Recursively scan features but ignore them in the current scan.
                     # These are dynamically added by the config system if the conditions are matched
@@ -525,9 +530,10 @@ class mbedToolchain:
             # Add root to include paths
             resources.inc_dirs.append(root)
 
-            for file in files:
-                file_path = join(root, file)
-                self._add_file(file_path, resources, base_path)
+            if not directory_in_path('TESTS', relpath(root, path)):
+                for file in files:
+                    file_path = join(root, file)
+                    self._add_file(file_path, resources, base_path)
 
     # A helper function for both scan_resources and _add_dir. _add_file adds one file
     # (*file_path*) to the resources object based on the file type.

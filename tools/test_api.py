@@ -58,8 +58,7 @@ from tools.build_api import create_result
 from tools.build_api import add_result_to_report
 from tools.build_api import scan_for_source_paths
 from tools.libraries import LIBRARIES, LIBRARY_MAP
-from tools.toolchains import TOOLCHAIN_BIN_PATH
-from tools.toolchains import TOOLCHAINS
+from tools.toolchains import TOOLCHAINS, TOOLCHAIN_BIN_PATH, TOOLCHAIN_CLASSES
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.utils import argparse_filestring_type
 from tools.utils import argparse_uppercase_type
@@ -1987,33 +1986,19 @@ def test_path_to_name(path):
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir):
+def find_tests(base_dir, target, toolchain, options):
     """Given any directory, walk through the subdirectories and find all tests"""
 
-    def find_test_in_directory(directory, tests_path):
-        """Given a 'TESTS' directory, return a dictionary of test names and test paths.
-        The formate of the dictionary is {"test-name": "./path/to/test"}"""
-        test = None
-        if tests_path in directory:
-            head, test_case_directory = os.path.split(directory)
-            if test_case_directory != tests_path and test_case_directory != "host_tests":
-                head, test_group_directory = os.path.split(head)
-                if test_group_directory != tests_path and test_case_directory != "host_tests":
-                    test = {
-                        "name": test_path_to_name(directory),
-                        "path": directory
-                    }
+    # If the 'target' argument is a string, convert it to a target instance
+    target = TARGET_MAP[target]
+    toolchain = TOOLCHAIN_CLASSES[toolchain](target)
+    resources = toolchain.scan_resources(base_dir)
 
-        return test
-
-    tests_path = 'TESTS'
     tests = {}
-    dirs = scan_for_source_paths(base_dir)
 
-    for directory in dirs:
-        test = find_test_in_directory(directory, tests_path)
-        if test:
-            tests[test['name']] = test['path']
+    for directory in resources.test_directories:
+        test_name = test_path_to_name(directory)
+        tests[test_name] = directory
 
     return tests
 
