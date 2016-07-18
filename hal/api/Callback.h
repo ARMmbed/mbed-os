@@ -80,7 +80,7 @@ public:
      */
     template <typename T>
     void attach(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
-        _obj = static_cast<void*>(obj);
+        _obj = (void*)obj;
         memcpy(&_func, &func, sizeof func);
         _thunk = &Callback::_boundthunk<T>;
     }
@@ -221,7 +221,7 @@ public:
      */
     template <typename T>
     void attach(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
-        _obj = static_cast<void*>(obj);
+        _obj = (void*)obj;
         memcpy(&_func, &func, sizeof func);
         _thunk = &Callback::_boundthunk<T>;
     }
@@ -362,7 +362,7 @@ public:
      */
     template <typename T>
     void attach(T *obj, R (*func)(T*, A0, A1, A2)) {
-        _obj = static_cast<void*>(obj);
+        _obj = (void*)obj;
         memcpy(&_func, &func, sizeof func);
         _thunk = &Callback::_boundthunk<T>;
     }
@@ -503,7 +503,7 @@ public:
      */
     template <typename T>
     void attach(T *obj, R (*func)(T*, A0, A1)) {
-        _obj = static_cast<void*>(obj);
+        _obj = (void*)obj;
         memcpy(&_func, &func, sizeof func);
         _thunk = &Callback::_boundthunk<T>;
     }
@@ -644,7 +644,7 @@ public:
      */
     template <typename T>
     void attach(T *obj, R (*func)(T*, A0)) {
-        _obj = static_cast<void*>(obj);
+        _obj = (void*)obj;
         memcpy(&_func, &func, sizeof func);
         _thunk = &Callback::_boundthunk<T>;
     }
@@ -785,7 +785,7 @@ public:
      */
     template <typename T>
     void attach(T *obj, R (*func)(T*)) {
-        _obj = static_cast<void*>(obj);
+        _obj = (void*)obj;
         memcpy(&_func, &func, sizeof func);
         _thunk = &Callback::_boundthunk<T>;
     }
