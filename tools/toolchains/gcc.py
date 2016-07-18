@@ -87,7 +87,7 @@ class GCC(mbedToolchain):
             self.flags["common"].append("-g")
             self.flags["common"].append("-O0")
         else:
-            self.flags["common"].append("-O2")
+            self.flags["common"].append("-Os")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
