@@ -36,10 +36,6 @@ class Uvision5(Exporter):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
-    # backward compatibility with our scripts
-    def __init__(self):
-        self._targets = []
-
     @ExporterTargetsProperty
     def TARGETS(cls):
         if not hasattr(cls, "_targets_supported"):
