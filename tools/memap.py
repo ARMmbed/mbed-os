@@ -436,16 +436,16 @@ class MemapParser(object):
                     csv_module_section += [i+k]
                     csv_sizes += [self.modules[i][k]]
 
-            csv_module_section += ['total_static_ram']
+            csv_module_section += ['static_ram']
             csv_sizes += [subtotal['.data']+subtotal['.bss']]
 
-            csv_module_section += ['allocated_heap']
+            csv_module_section += ['heap']
             if subtotal['.heap'] == 0:
                 csv_sizes += ['unknown']
             else:
                 csv_sizes += [subtotal['.heap']]
 
-            csv_module_section += ['allocated_stack']
+            csv_module_section += ['stack']
             if subtotal['.stack'] == 0:
                 csv_sizes += ['unknown']
             else:
