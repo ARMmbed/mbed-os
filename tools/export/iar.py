@@ -18,7 +18,7 @@ import re
 import os
 from project_generator_definitions.definitions import ProGenDef
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, ExporterTargetsProperty
 from tools.targets import TARGET_MAP, TARGET_NAMES
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
@@ -35,19 +35,19 @@ class IAREmbeddedWorkbench(Exporter):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
-    @property
-    def TARGETS(self):
-        if not hasattr(self, "_targets_supported"):
-            self._targets_supported = []
+    @ExporterTargetsProperty
+    def TARGETS(cls):
+        if not hasattr(cls, "_targets_supported"):
+            cls._targets_supported = []
             for target in TARGET_NAMES:
                 try:
                     if (ProGenDef('iar').is_supported(str(TARGET_MAP[target])) or
                         ProGenDef('iar').is_supported(TARGET_MAP[target].progen['target'])):
-                        self._targets_supported.append(target)
+                        cls._targets_supported.append(target)
                 except AttributeError:
                     # target is not supported yet
                     continue
-        return self._targets_supported
+        return cls._targets_supported
 
     def generate(self, progen_build=False):
         """ Generates the project files """

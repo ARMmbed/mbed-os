@@ -23,6 +23,14 @@ class OldLibrariesException(Exception): pass
 
 class FailedBuildException(Exception) : pass
 
+# Exporter descriptor for TARGETS
+# TARGETS as class attribute for backward compatibility (allows: if in Exporter.TARGETS)
+class ExporterTargetsProperty(object):
+    def __init__(self, func):
+        self.func = func
+    def __get__(self, inst, cls):
+        return self.func(cls)
+
 class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False

@@ -17,7 +17,7 @@ limitations under the License.
 from os.path import basename, join, dirname
 from project_generator_definitions.definitions import ProGenDef
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, ExporterTargetsProperty
 from tools.targets import TARGET_MAP, TARGET_NAMES
 from tools.settings import ARM_INC
 
@@ -40,19 +40,19 @@ class Uvision5(Exporter):
     def __init__(self):
         self._targets = []
 
-    @property
-    def TARGETS(self):
-        if not hasattr(self, "_targets_supported"):
-            self._targets_supported = []
+    @ExporterTargetsProperty
+    def TARGETS(cls):
+        if not hasattr(cls, "_targets_supported"):
+            cls._targets_supported = []
             for target in TARGET_NAMES:
                 try:
                     if (ProGenDef('uvision5').is_supported(str(TARGET_MAP[target])) or
                         ProGenDef('uvision5').is_supported(TARGET_MAP[target].progen['target'])):
-                        self._targets_supported.append(target)
+                        cls._targets_supported.append(target)
                 except AttributeError:
                     # target is not supported yet
                     continue
-        return self._targets_supported
+        return cls._targets_supported
 
     def get_toolchain(self):
         return TARGET_MAP[self.target].default_toolchain
