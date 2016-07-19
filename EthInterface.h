@@ -17,7 +17,8 @@
 #ifndef ETH_INTERFACE_H
 #define ETH_INTERFACE_H
 
-#include "NetworkInterface.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
+
 
 /** EthInterface class
  *
@@ -44,5 +45,6 @@ public:
      */
     virtual const char *get_mac_address() = 0;
 };
+
 
 #endif

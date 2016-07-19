@@ -17,11 +17,12 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-#include "Socket.h"
-#include "TCPSocket.h"
-#include "NetworkInterface.h"
-#include "NetworkStack.h"
-#include "Semaphore.h"
+#include "NetworkSocketAPI/Socket.h"
+#include "NetworkSocketAPI/TCPSocket.h"
+#include "NetworkSocketAPI/NetworkStack.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
+#include "rtos/Semaphore.h"
+
 
 /** TCP socket server
   */
@@ -107,5 +108,6 @@ protected:
     volatile unsigned _pending;
     rtos::Semaphore _accept_sem;
 };
+
 
 #endif

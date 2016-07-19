@@ -17,51 +17,7 @@
 #ifndef SOCKET_ADDRESS_H
 #define SOCKET_ADDRESS_H
 
-#include <stdint.h>
-
-
-/** Maximum size of IP address representation
- */
-#define NSAPI_IP_SIZE NSAPI_IPv6_SIZE
-
-/** Maximum number of bytes for IP address
- */
-#define NSAPI_IP_BYTES NSAPI_IPv6_BYTES
-
-/** Maximum size of MAC address representation
- */
-#define NSAPI_MAC_SIZE 18
-
-/** Maximum number of bytes for MAC address
- */
-#define NSAPI_MAC_BYTES 6
-
-/** Enum of IP address versions
- *
- *  The IP version specifies the type of an IP address.
- *
- *  @enum nsapi_version_t
- */
-enum nsapi_version_t {
-    NSAPI_IPv4, /*!< Address is IPv4 */
-    NSAPI_IPv6, /*!< Address is IPv6 */
-};
-
-/** Size of IPv4 representation
- */
-#define NSAPI_IPv4_SIZE 16
-
-/** Number of bytes in IPv4 address
- */
-#define NSAPI_IPv4_BYTES 4
-
-/** Size of IPv6 representation
- */
-#define NSAPI_IPv6_SIZE 40
-
-/** Number of bytes in IPv6 address
- */
-#define NSAPI_IPv6_BYTES 16
+#include "nsapi_types.h"
 
 // Predeclared classes
 class NetworkStack;
@@ -177,5 +133,6 @@ private:
     nsapi_version_t _ip_version;
     uint16_t _port;
 };
+
 
 #endif

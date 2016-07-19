@@ -17,8 +17,8 @@
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
-#include "mbed.h"
-#include "SocketAddress.h"
+#include "NetworkSocketAPI/NetworkStack.h"
+
 
 class NetworkInterface {
 public:
@@ -37,5 +37,6 @@ protected:
     friend class SocketAddress;
     virtual NetworkStack * get_stack(void) = 0;
 };
+
 
 #endif

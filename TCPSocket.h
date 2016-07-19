@@ -17,10 +17,11 @@
 #ifndef TCPSOCKET_H
 #define TCPSOCKET_H
 
-#include "Socket.h"
-#include "NetworkInterface.h"
-#include "NetworkStack.h"
-#include "Semaphore.h"
+#include "NetworkSocketAPI/Socket.h"
+#include "NetworkSocketAPI/NetworkStack.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
+#include "rtos/Semaphore.h"
+
 
 /** TCP socket connection
  */
@@ -138,5 +139,6 @@ protected:
     bool _write_in_progress;
     friend class TCPServer;
 };
+
 
 #endif

@@ -17,7 +17,8 @@
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
-#include "NetworkInterface.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
+
 
 /** Enum of WiFi encryption types
  *
@@ -64,5 +65,6 @@ public:
      */
     virtual const char *get_mac_address() = 0;
 };
+
 
 #endif

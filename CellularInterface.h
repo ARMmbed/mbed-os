@@ -17,13 +17,14 @@
 #ifndef CELLULAR_INTERFACE_H
 #define CELLULAR_INTERFACE_H
  
-#include "NetworkStack.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
  
+
 /** CellularInterface class
  *
  *  Common interface that is shared between ethernet hardware
  */
-class CellularInterface
+class CellularInterface : public NetworkInterface
 {
 public:
     /** Start the interface
@@ -47,5 +48,6 @@ public:
      */
     virtual const char *get_mac_address() = 0;
 };
+
  
 #endif

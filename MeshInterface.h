@@ -17,7 +17,8 @@
 #ifndef MESH_INTERFACE_H
 #define MESH_INTERFACE_H
 
-#include "NetworkInterface.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
+
 
 /** MeshInterface class
  *
@@ -44,5 +45,6 @@ public:
      */
     virtual const char *get_mac_address() = 0;
 };
+
 
 #endif

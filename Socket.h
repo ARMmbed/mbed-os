@@ -17,9 +17,15 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "SocketAddress.h"
-#include "NetworkStack.h"
-#include "Mutex.h"
+#include "NetworkSocketAPI/SocketAddress.h"
+#include "NetworkSocketAPI/NetworkStack.h"
+#include "rtos/Mutex.h"
+#include "Callback.h"
+
+#ifndef NSAPI_NO_INCLUDE_MBED
+#include "mbed.h" // needed for backwards compatability
+#endif
+
 
 /** Abstract socket class
  */
@@ -147,7 +153,7 @@ public:
      *
      *  @param func     Function to call on state change
      */
-    void attach(Callback<void()> func);
+    void attach(mbed::Callback<void()> func);
 
     /** Register a callback on state change of the socket
      *
@@ -163,7 +169,7 @@ public:
      */
     template <typename T, typename M>
     void attach(T *obj, M method) {
-        attach(Callback<void()>(obj, method));
+        attach(mbed::Callback<void()>(obj, method));
     }
 
 protected:
@@ -174,9 +180,10 @@ protected:
     NetworkStack *_iface;
     void *_socket;
     uint32_t _timeout;
-    Callback<void()> _event;
-    Callback<void()> _callback;
+    mbed::Callback<void()> _event;
+    mbed::Callback<void()> _callback;
     rtos::Mutex _lock;
 };
+
 
 #endif
