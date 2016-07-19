@@ -38,9 +38,9 @@
 
 #ifndef __NRF5X_LF_CLK_HELPER_H_
     
-#ifndef MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC
-    #define MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC (NRF_LF_SRC_XTAL)
-    #warning Non of LF clk src configurartion! Sett to LF Xtal.
+#ifndef MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC
+    #define MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC (NRF_LF_SRC_XTAL)
+    #warning No configuration for LF clock source. Xtal source will be used as a default configuration.
 #endif
 
 
@@ -49,11 +49,11 @@
 #define NRF_LF_SRC_SYNTH 3 
 #define NRF_LF_SRC_RC    4
 
-#if MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_SYNTH
+#if MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_SYNTH
     #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_Synth)
-#elif MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_XTAL
+#elif MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_XTAL
     #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_Xtal)
-#elif MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_RC
+#elif MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_RC
     #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_RC)
 #else
     #error Bad LFCLK configuration. Declare proper source through mbed configuration.
