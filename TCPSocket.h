@@ -132,10 +132,10 @@ public:
 protected:
     virtual void event();
     volatile unsigned _pending;
-    rtos::Mutex _read_lock;
     rtos::Semaphore _read_sem;
-    rtos::Mutex _write_lock;
     rtos::Semaphore _write_sem;
+    bool _read_in_progress;
+    bool _write_in_progress;
     friend class TCPServer;
 };
 

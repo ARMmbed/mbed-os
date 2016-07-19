@@ -16,21 +16,25 @@
 
 #include "TCPSocket.h"
 #include "Timer.h"
+#include "mbed_assert.h"
 
 TCPSocket::TCPSocket()
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0),
+      _read_in_progress(false), _write_in_progress(false)
 {
 }
 
 TCPSocket::TCPSocket(NetworkStack *iface)
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0),
+      _read_in_progress(false), _write_in_progress(false)
 {
     // TCPSocket::open is thread safe
     open(iface);
 }
 
 TCPSocket::TCPSocket(NetworkInterface *iface)
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0),
+      _read_in_progress(false), _write_in_progress(false)
 {
     // TCPSocket::open is thread safe
     open(iface->get_stack());
@@ -82,10 +86,12 @@ int TCPSocket::connect(const char *host, uint16_t port)
 
 int TCPSocket::send(const void *data, unsigned size)
 {
-    if (osOK != _write_lock.lock(_timeout)) {
-        return NSAPI_ERROR_WOULD_BLOCK;
-    }
     _lock.lock();
+    // If this assert is hit then there are two threads
+    // performing a send at the same time which is undefined
+    // behavior
+    MBED_ASSERT(!_write_in_progress);
+    _write_in_progress = true;
 
     int ret;
     while (true) {
@@ -116,17 +122,19 @@ int TCPSocket::send(const void *data, unsigned size)
         }
     }
 
+    _write_in_progress = false;
     _lock.unlock();
-    _write_lock.unlock();
     return ret;
 }
 
 int TCPSocket::recv(void *data, unsigned size)
 {
-    if (osOK != _read_lock.lock(_timeout)) {
-        return NSAPI_ERROR_WOULD_BLOCK;
-    }
     _lock.lock();
+    // If this assert is hit then there are two threads
+    // performing a recv at the same time which is undefined
+    // behavior
+    MBED_ASSERT(!_read_in_progress);
+    _read_in_progress = true;
 
     int ret;
     while (true) {
@@ -157,8 +165,8 @@ int TCPSocket::recv(void *data, unsigned size)
         }
     }
 
+    _read_in_progress = false;
     _lock.unlock();
-    _read_lock.unlock();
     return ret;
 }
 

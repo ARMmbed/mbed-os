@@ -16,20 +16,24 @@
 
 #include "UDPSocket.h"
 #include "Timer.h"
+#include "mbed_assert.h"
 
 UDPSocket::UDPSocket()
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0),
+      _read_in_progress(false), _write_in_progress(false)
 {
 }
 
 UDPSocket::UDPSocket(NetworkStack *iface)
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0),
+      _read_in_progress(false), _write_in_progress(false)
 {
     open(iface);
 }
 
 UDPSocket::UDPSocket(NetworkInterface *iface)
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0),
+      _read_in_progress(false), _write_in_progress(false)
 {
     open(iface->get_stack());
 }
@@ -64,10 +68,12 @@ int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigne
 
 int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned size)
 {
-    if (osOK != _write_lock.lock(_timeout)) {
-        return NSAPI_ERROR_WOULD_BLOCK;
-    }
     _lock.lock();
+    // If this assert is hit then there are two threads
+    // performing a send at the same time which is undefined
+    // behavior
+    MBED_ASSERT(!_write_in_progress);
+    _write_in_progress = true;
 
     int ret;
     while (true) {
@@ -98,17 +104,19 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
         }
     }
 
+    _write_in_progress = false;
     _lock.unlock();
-    _write_lock.unlock();
     return ret;
 }
 
 int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
 {
-    if (osOK != _read_lock.lock(_timeout)) {
-        return NSAPI_ERROR_WOULD_BLOCK;
-    }
     _lock.lock();
+    // If this assert is hit then there are two threads
+    // performing a recv at the same time which is undefined
+    // behavior
+    MBED_ASSERT(!_read_in_progress);
+    _read_in_progress = true;
 
     int ret;
     while (true) {
@@ -139,8 +147,8 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
         }
     }
 
+    _read_in_progress = false;
     _lock.unlock();
-    _read_lock.unlock();
     return ret;
 }
 
