@@ -188,8 +188,14 @@ LEGACY_TOOLCHAIN_NAMES = {
 
 
 class mbedToolchain:
+    # Verbose logging
     VERBOSE = True
+
+    # Compile C files as CPP
     COMPILE_C_AS_CPP = False
+
+    # Response files for compiling, includes, linking and archiving.
+    # Not needed on posix systems where the typical arg limit is 2 megabytes
     RESPONSE_FILES = True
 
     CORTEX_SYMBOLS = {
@@ -242,8 +248,6 @@ class mbedToolchain:
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
 
-        self.CHROOT = None
-
         # Ignore patterns from .mbedignore files
         self.ignore_patterns = []
 
@@ -285,12 +289,20 @@ class mbedToolchain:
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
-            
+
+        # Stats cache is used to reduce the amount of IO requests to stat
+        # header files during dependency change. See need_update()
         self.stat_cache = {}
 
+        # Used by the mbed Online Build System to build in chrooted environment
+        self.CHROOT = None
+
+        # Call post __init__() hooks before the ARM/GCC_ARM/IAR toolchain __init__() takes over
         self.init()
 
-    # This allows post __init__() hooks. Do not use
+    # Used for post __init__() hooks
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def init(self):
         return True
 
@@ -340,6 +352,8 @@ class mbedToolchain:
         elif event['type'] == 'progress':
             self.print_notify(event) # standard handle
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def notify(self, event):
         """ Little closure for notify functions
         """
@@ -392,6 +406,8 @@ class mbedToolchain:
             }
         return self.labels
 
+
+    # Determine whether a source file needs updating/compiling
     def need_update(self, target, dependencies):
         if self.build_all:
             return True
@@ -601,6 +617,8 @@ class mbedToolchain:
                 mkdir(dirname(target))
                 copyfile(source, target)
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
 
@@ -610,6 +628,8 @@ class mbedToolchain:
             mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
+    # Generate response file for all includes.
+    # ARM, GCC, IAR cross compatible
     def get_inc_file(self, includes):
         include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
         if not exists(include_file):
@@ -625,6 +645,8 @@ class mbedToolchain:
                 f.write(string)
         return include_file
 
+    # Generate response file for all objects when linking.
+    # ARM, GCC, IAR cross compatible
     def get_link_file(self, cmd):
         link_file = join(self.build_dir, ".link_files.txt")
         with open(link_file, "wb") as f:
@@ -639,6 +661,8 @@ class mbedToolchain:
             f.write(string)
         return link_file
  
+    # Generate response file for all objects when archiving.
+    # ARM, GCC, IAR cross compatible
     def get_arch_file(self, objects):
         archive_file = join(self.build_dir, ".archive_files.txt")
         with open(archive_file, "wb") as f:
@@ -649,6 +673,8 @@ class mbedToolchain:
             f.write(string)
         return archive_file
 
+    # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
@@ -699,6 +725,7 @@ class mbedToolchain:
         else:
             return self.compile_seq(queue, objects)
 
+    # Compile source files queue in sequential order
     def compile_seq(self, queue, objects):
         for item in queue:
             result = compile_worker(item)
@@ -715,6 +742,7 @@ class mbedToolchain:
             objects.append(result['object'])
         return objects
 
+    # Compile source files queue in parallel by creating pool of worker threads
     def compile_queue(self, queue, objects):
         jobs_count = int(self.jobs if self.jobs else cpu_count() * CPU_COEF)
         p = Pool(processes=jobs_count)
@@ -764,6 +792,7 @@ class mbedToolchain:
 
         return objects
 
+    # Determine the compile command based on type of source file
     def compile_command(self, source, object, includes):
         # Check dependencies
         _, ext = splitext(source)
@@ -858,6 +887,8 @@ class mbedToolchain:
 
         return bin, needed_update
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def default_cmd(self, command):
         _stdout, _stderr, _rc = run_cmd(command, work_dir=getcwd(), chroot=self.CHROOT)
         self.debug("Return: %s"% _rc)
@@ -876,6 +907,8 @@ class mbedToolchain:
     def info(self, message):
         self.notify({'type': 'info', 'message': message})
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def debug(self, message):
         if self.VERBOSE:
             if type(message) is ListType:
@@ -883,11 +916,15 @@ class mbedToolchain:
             message = "[DEBUG] " + message
             self.notify({'type': 'debug', 'message': message})
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def cc_info(self, info=None):
         if info is not None:
             info['type'] = 'cc'
             self.notify(info)
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def cc_verbose(self, message, file=""):
         self.debug(message)
 
@@ -903,6 +940,8 @@ class mbedToolchain:
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
 
+    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
+    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def mem_stats(self, map):
         """! Creates parser object
         @param map Path to linker map file to parse and decode
@@ -956,7 +995,6 @@ class mbedToolchain:
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
         return Config.config_to_macros(self.config_data) if self.config_data else []
-
 
 from tools.settings import ARM_PATH
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH

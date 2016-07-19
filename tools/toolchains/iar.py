@@ -123,6 +123,7 @@ class IAR(mbedToolchain):
                     'toolchain_name': self.name
                 }
             elif msg is not None:
+                # Determine the warning/error column by calculating the ^ position
                 match = IAR.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
