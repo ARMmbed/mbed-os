@@ -180,7 +180,7 @@ void us_ticker_init(void) {
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period        = 0xFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 �s tick
+    TimMasterHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
     TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     HAL_TIM_Base_Init(&TimMasterHandle);

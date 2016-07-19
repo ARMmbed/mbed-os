@@ -41,24 +41,28 @@ void us_ticker_irq_handler(void);
 
 void timer_irq_handler(void) {
     // Channel 1 for mbed timeout
-    if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_CC1) == SET) {
-        __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-        us_ticker_irq_handler();
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
+            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+            us_ticker_irq_handler();
+        }
     }
 
     // Channel 2 for HAL tick
-    if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_CC2) == SET) {
-        __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC2);
-        uint32_t val = __HAL_TIM_GetCounter(&TimMasterHandle);
-        if ((val - PreviousVal) >= HAL_TICK_DELAY) {
-            // Increment HAL variable
-            HAL_IncTick();
-            // Prepare next interrupt
-            __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
-            PreviousVal = val;
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC2) == SET) {
+        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC2) == SET) {
+            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC2);
+            uint32_t val = __HAL_TIM_GetCounter(&TimMasterHandle);
+            if ((val - PreviousVal) >= HAL_TICK_DELAY) {
+                // Increment HAL variable
+                HAL_IncTick();
+                // Prepare next interrupt
+                __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
+                PreviousVal = val;
 #if 0 // For DEBUG only
-            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
+                HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
 #endif
+            }
         }
     }
 }
@@ -75,7 +79,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period            = 0xFFFFFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 1000000) - 1; // 1 us tick
 	  TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     TimMasterHandle.Init.RepetitionCounter = 0;
