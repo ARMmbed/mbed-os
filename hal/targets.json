@@ -1103,7 +1103,7 @@
         "detect_code": ["1070"],
         "post_binary_hook": {
             "function": "MCU_NRF51Code.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM"]
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "program_cycle_s": 6,
         "default_build": "small",
@@ -1718,7 +1718,7 @@
         ],
         "post_binary_hook": {
             "function": "MCU_NRF51Code.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM"]
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "MERGE_BOOTLOADER": false,
         "features": ["BLE"]

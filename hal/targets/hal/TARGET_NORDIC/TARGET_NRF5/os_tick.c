@@ -142,6 +142,35 @@ __attribute__((naked)) void COMMON_RTC_IRQ_HANDLER(void)
     );
 }
 
+#elif defined (__ICCARM__)//IAR
+void common_rtc_irq_handler(void);
+
+__stackless __task void COMMON_RTC_IRQ_HANDLER(void)
+{
+    uint32_t temp;
+    
+    __asm volatile(
+    "   ldr  %[temp], [%[reg2check]] \n"
+    "   cmp  %[temp], #0             \n"
+    "   beq  1f                      \n"
+    "   bl.w OS_Tick_Handler            \n"
+    "1:                             \n"
+    "   push {r3, lr}\n"
+    "   blx %[rtc_irq] \n"
+    "   pop {r3, pc}\n"
+    
+    : /* Outputs */
+    [temp] "=&r"(temp)
+    : /* Inputs */
+    [reg2check] "r"(0x40011144),
+    [rtc_irq] "r"(common_rtc_irq_handler)
+    : /* Clobbers */
+    "cc"
+    );
+    (void)temp;
+}
+
+
 #else
 
 #error Compiler not supported.
@@ -345,7 +374,6 @@ uint32_t os_tick_val(void) {
         return clock_cycles_by_tick - ((current_counter - next_tick_cc_value) % clock_cycles_by_tick);
     }
 
-    return 0;
 }
 
 #endif // defined(TARGET_MCU_NRF51822)

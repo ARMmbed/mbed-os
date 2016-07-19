@@ -175,7 +175,12 @@ typedef struct
 {
     uint32_t flags;       /**< @brief Flags that describe the database attributes. */
     uint16_t len;         /**< @brief Size of the attribute array. */
+
+#ifdef __ICCARM__ //IAR dosen't support "flexible array member" in c++ compilation
+    uint8_t  data[1];      /**< @brief Array to hold the database attributes. */
+#else
     uint8_t  data[];      /**< @brief Array to hold the database attributes. */
+#endif
 } pm_peer_data_local_gatt_db_t;
 
 
