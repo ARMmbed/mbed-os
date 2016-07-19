@@ -18,9 +18,7 @@ import re
 from os import remove
 from os.path import join, exists, dirname, splitext, exists
 
-from tools.toolchains import mbedToolchain
-from tools.settings import IAR_PATH
-from tools.settings import GOANNA_PATH
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 
 class IAR(mbedToolchain):
@@ -29,6 +27,7 @@ class IAR(mbedToolchain):
     STD_LIB_NAME = "%s.a"
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
+    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
     DEFAULT_FLAGS = {
         'common': [
@@ -66,12 +65,12 @@ class IAR(mbedToolchain):
         if target.core == "Cortex-M4F":
           c_flags_cmd = [
               "--cpu", "Cortex-M4F",
-              "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
+              "--thumb", "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h")
           ]
         else:
           c_flags_cmd = [
               "--cpu", cpuchoice,
-              "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
+              "--thumb", "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h")
           ]
         # custom c++ cmd flags
         cxx_flags_cmd = [
@@ -90,16 +89,12 @@ class IAR(mbedToolchain):
         else:
             c_flags_cmd.append("-Oh")
 
-        IAR_BIN = join(IAR_PATH, "bin")
+        IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
         self.asm  = [join(IAR_BIN, "iasmarm")] + asm_flags_cmd + self.flags["asm"]
-        if not "analyze" in self.options:
-            self.cc   = [main_cc]
-            self.cppc = [main_cc]
-        else:
-            self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
-            self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
+        self.cc   = [main_cc]
+        self.cppc = [main_cc]
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
         self.ld   = join(IAR_BIN, "ilinkarm")
@@ -107,29 +102,35 @@ class IAR(mbedToolchain):
         self.elf2bin = join(IAR_BIN, "ielftool")
 
     def parse_dependencies(self, dep_path):
-        return [path.strip() for path in open(dep_path).readlines()
+        return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
 
     def parse_output(self, output):
+        msg = None
         for line in output.splitlines():
             match = IAR.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
-                self.cc_info(
-                    match.group('severity').lower(),
-                    match.group('file'),
-                    match.group('line'),
-                    match.group('message'),
-                    target_name=self.target.name,
-                    toolchain_name=self.name
-                )
-            match = self.goanna_parse_line(line)
-            if match is not None:
-                self.cc_info(
-                    match.group('severity').lower(),
-                    match.group('file'),
-                    match.group('line'),
-                    match.group('message')
-                )
+                if msg is not None:
+                    self.cc_info(msg)
+                msg = {
+                    'severity': match.group('severity').lower(),
+                    'file': match.group('file'),
+                    'line': match.group('line'),
+                    'col': 0,
+                    'message': match.group('message'),
+                    'text': '',
+                    'target_name': self.target.name,
+                    'toolchain_name': self.name
+                }
+            elif msg is not None:
+                # Determine the warning/error column by calculating the ^ position
+                match = IAR.INDEX_PATTERN.match(line)
+                if match is not None:
+                    msg['col'] = len(match.group('col'))
+                    self.cc_info(msg)
+                    msg = None
+                else:
+                    msg['text'] += line+"\n"
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -144,7 +145,12 @@ class IAR(mbedToolchain):
         return ['--preinclude=' + config_header]
 
     def get_compile_options(self, defines, includes, for_asm=False):
-        opts = ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines]
+        if self.RESPONSE_FILES:
+            opts += ['-f', self.get_inc_file(includes)]
+        else:
+            opts += ["-I%s" % i for i in includes]
+
         config_header = self.get_config_header()
         if for_asm:
             # The assembler doesn't support '--preinclude', so we need to add
@@ -201,34 +207,27 @@ class IAR(mbedToolchain):
         # Call cmdline hook
         cmd = self.hook.get_cmdline_linker(cmd)
 
-        # Split link command to linker executable + response file
-        link_files = join(dirname(output), ".link_files.txt")
-        with open(link_files, "wb") as f:
+        if self.RESPONSE_FILES:
+            # Split link command to linker executable + response file
             cmd_linker = cmd[0]
-            cmd_list = []
-            for c in cmd[1:]:
-                if c:
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
-            string = " ".join(cmd_list).replace("\\", "/")
-            f.write(string)
+            link_files = self.get_link_file(cmd[1:])
+            cmd = [cmd_linker, '-f', link_files]
 
         # Exec command
-        self.default_cmd([cmd_linker, '-f', link_files])
+        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.default_cmd(cmd)
 
     @hook_tool
     def archive(self, objects, lib_path):
-        archive_files = join(dirname(lib_path), ".archive_files.txt")
-        with open(archive_files, "wb") as f:
-            o_list = []
-            for o in objects:
-                o_list.append('"%s"' % o)                    
-            string = " ".join(o_list).replace("\\", "/")
-            f.write(string)
+        if self.RESPONSE_FILES:
+            param = ['-f', self.get_arch_file(objects)]
+        else:
+            param = objects
 
         if exists(lib_path):
             remove(lib_path)
 
-        self.default_cmd([self.ar, lib_path, '-f', archive_files])
+        self.default_cmd([self.ar, lib_path] + param)
 
     @hook_tool
     def binary(self, resources, elf, bin):
@@ -239,4 +238,5 @@ class IAR(mbedToolchain):
         cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
+        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)

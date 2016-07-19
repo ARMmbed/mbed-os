@@ -17,8 +17,7 @@ limitations under the License.
 import re
 from os.path import join, dirname, splitext, basename, exists
 
-from tools.toolchains import mbedToolchain
-from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB, GOANNA_PATH
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import mkdir
 import copy
@@ -29,13 +28,14 @@ class ARM(mbedToolchain):
 
     STD_LIB_NAME = "%s.ar"
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error): (?P<message>.+)')
+    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
 
     DEFAULT_FLAGS = {
         'common': ["-c", "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars", "-I \""+ARM_INC+"\""],
+            "--brief_diagnostics", "--restrict", "--multibyte_chars"],
         'asm': [],
         'c': ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         'cxx': ["--cpp", "--no_rtti", "--no_vla"],
@@ -56,6 +56,9 @@ class ARM(mbedToolchain):
         else:
             cpu = target.core
 
+        ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
+        ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
+        
         main_cc = join(ARM_BIN, "armcc")
 
         self.flags['common'] += ["--cpu=%s" % cpu]
@@ -68,13 +71,9 @@ class ARM(mbedToolchain):
         else:
             self.flags['c'].append("-O3")
 
-        self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
-        if not "analyze" in self.options:
-            self.cc = [main_cc] + self.flags['common'] + self.flags['c']
-            self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
-        else:
-            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + self.flags['common'] + self.flags['c'] 
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
+        self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + ["-I \""+ARM_INC+"\""]
+        self.cc = [main_cc] + self.flags['common'] + self.flags['c'] + ["-I \""+ARM_INC+"\""]
+        self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx'] + ["-I \""+ARM_INC+"\""]
 
         self.ld = [join(ARM_BIN, "armlink")]
         self.sys_libs = []
@@ -87,40 +86,55 @@ class ARM(mbedToolchain):
         for line in open(dep_path).readlines():
             match = ARM.DEP_PATTERN.match(line)
             if match is not None:
-                dependencies.append(match.group('file'))
+                #we need to append chroot, because when the .d files are generated the compiler is chrooted
+                dependencies.append((self.CHROOT if self.CHROOT else '') + match.group('file'))
         return dependencies
-
+        
     def parse_output(self, output):
+        msg = None
         for line in output.splitlines():
             match = ARM.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
-                self.cc_info(
-                    match.group('severity').lower(),
-                    match.group('file'),
-                    match.group('line'),
-                    match.group('message'),
-                    target_name=self.target.name,
-                    toolchain_name=self.name
-                )
-            match = self.goanna_parse_line(line)
-            if match is not None:
-                self.cc_info(
-                    match.group('severity').lower(),
-                    match.group('file'),
-                    match.group('line'),
-                    match.group('message')
-                )
+                if msg is not None:
+                    self.cc_info(msg)
+                msg = {
+                    'severity': match.group('severity').lower(),
+                    'file': match.group('file'),
+                    'line': match.group('line'),
+                    'col': match.group('column') if match.group('column') else 0,
+                    'message': match.group('message'),
+                    'text': '',
+                    'target_name': self.target.name,
+                    'toolchain_name': self.name
+                }
+            elif msg is not None:
+                # Determine the warning/error column by calculating the ^ position
+                match = ARM.INDEX_PATTERN.match(line)
+                if match is not None:
+                    msg['col'] = len(match.group('col'))
+                    self.cc_info(msg)
+                    msg = None
+                else:
+                    msg['text'] += line+"\n"
+        
+        if msg is not None:
+            self.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
         dep_path = base + '.d'
         return ["--depend", dep_path]
 
-    def get_config_option(self, config_header) :
+    def get_config_option(self, config_header):
         return ['--preinclude=' + config_header]
 
     def get_compile_options(self, defines, includes):        
-        opts = ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines]
+        if self.RESPONSE_FILES:
+            opts += ['--via', self.get_inc_file(includes)]
+        else:
+            opts += ["-I%s" % i for i in includes]
+
         config_header = self.get_config_header()
         if config_header is not None:
             opts = opts + self.get_config_option(config_header)
@@ -183,32 +197,25 @@ class ARM(mbedToolchain):
         # Call cmdline hook
         cmd = self.hook.get_cmdline_linker(cmd)
 
-        # Split link command to linker executable + response file
-        link_files = join(dirname(output), ".link_files.txt")
-        with open(link_files, "wb") as f:
+        if self.RESPONSE_FILES:
+            # Split link command to linker executable + response file
             cmd_linker = cmd[0]
-            cmd_list = []
-            for c in cmd[1:]:
-                if c:
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
-            string = " ".join(cmd_list).replace("\\", "/")
-            f.write(string)
+            link_files = self.get_link_file(cmd[1:])
+            cmd = [cmd_linker, '--via', link_files]
 
         # Exec command
-        self.default_cmd([cmd_linker, '--via', link_files])
+        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.default_cmd(cmd)
 
     @hook_tool
     def archive(self, objects, lib_path):
-        archive_files = join(dirname(lib_path), ".archive_files.txt")
-        with open(archive_files, "wb") as f:
-            o_list = []
-            for o in objects:
-                o_list.append('"%s"' % o)                    
-            string = " ".join(o_list).replace("\\", "/")
-            f.write(string)
+        if self.RESPONSE_FILES:
+            param = ['--via', self.get_arch_file(objects)]
+        else:
+            param = objects
 
         # Exec command
-        self.default_cmd([self.ar, '-r', lib_path, '--via', archive_files])
+        self.default_cmd([self.ar, '-r', lib_path] + param)
 
     @hook_tool
     def binary(self, resources, elf, bin):
@@ -219,6 +226,7 @@ class ARM(mbedToolchain):
         cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
+        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
 
@@ -227,7 +235,7 @@ class ARM_STD(ARM):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         # Run-time values
-        self.ld.extend(["--libpath \"%s\"" % ARM_LIB])
+        self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
 
 
 class ARM_MICRO(ARM):
@@ -260,13 +268,13 @@ class ARM_MICRO(ARM):
             self.ld   += ["--noscanlib"]
 
             # System Libraries
-            self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
+            self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "microlib", lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
 
             if target.core == "Cortex-M3":
-                self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
+                self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "cpplib", lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
 
             elif target.core in ["Cortex-M0", "Cortex-M0+"]:
-                self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
+                self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "cpplib", lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
         else:
             # Run-time values
-            self.ld.extend(["--libpath \"%s\"" % ARM_LIB])
+            self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])

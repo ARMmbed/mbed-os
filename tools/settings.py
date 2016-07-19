@@ -81,17 +81,6 @@ for _n in _ENV_PATHS:
 
 
 ##############################################################################
-# ARM Compiler Paths
-##############################################################################
-
-ARM_BIN = join(ARM_PATH, "bin")
-ARM_INC = join(ARM_PATH, "include")
-ARM_LIB = join(ARM_PATH, "lib")
-ARM_CPPLIB = join(ARM_LIB, "cpplib")
-MY_ARM_CLIB = join(ARM_LIB, "lib", "microlib")
-
-
-##############################################################################
 # Test System Settings
 ##############################################################################
 SERVER_PORT = 59432

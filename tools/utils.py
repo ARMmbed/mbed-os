@@ -25,6 +25,28 @@ from os.path import isdir, join, exists, split, relpath, splitext
 from subprocess import Popen, PIPE, STDOUT, call
 import json
 from collections import OrderedDict
+import logging
+
+def compile_worker(job):
+    results = []
+    for command in job['commands']:
+        try:
+            _, _stderr, _rc = run_cmd(command, work_dir=job['work_dir'], chroot=job['chroot'])
+        except KeyboardInterrupt as e:
+            raise ToolException
+
+        results.append({
+            'code': _rc,
+            'output': _stderr,
+            'command': command
+        })
+
+    return {
+        'source': job['source'],
+        'object': job['object'],
+        'commands': job['commands'],
+        'results': results
+    }
 
 def cmd(l, check=True, verbose=False, shell=False, cwd=None):
     text = l if shell else ' '.join(l)
@@ -35,10 +57,21 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
         raise Exception('ERROR %d: "%s"' % (rc, text))
 
 
-def run_cmd(command, wd=None, redirect=False):
-    assert is_cmd_valid(command[0])
+def run_cmd(command, work_dir=None, chroot=None, redirect=False):
+    if chroot:
+        # Conventions managed by the web team for the mbed.org build system
+        chroot_cmd = [
+            '/usr/sbin/chroot', '--userspec=33:33', chroot
+        ]
+        for c in command:
+            chroot_cmd += [c.replace(chroot, '')]
+
+        logging.debug("Running command %s"%' '.join(chroot_cmd))
+        command = chroot_cmd
+        work_dir = None
+
     try:
-        p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
+        p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=work_dir)
         _stdout, _stderr = p.communicate()
     except OSError as e:
         print "[OS ERROR] Command: "+(' '.join(command))
