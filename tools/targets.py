@@ -61,6 +61,9 @@ class Target:
     # need to be computed differently than regular attributes
     __cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
 
+    # List of targets that were added dynamically using "add_py_targets" (see below)
+    __py_targets = set()
+
     # Location of the 'targets.json' file
     __targets_json_location = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
 

@@ -19,7 +19,6 @@ from project_generator_definitions.definitions import ProGenDef
 
 from tools.export.exporters import Exporter, ExporterTargetsProperty
 from tools.targets import TARGET_MAP, TARGET_NAMES
-from tools.settings import ARM_INC
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
 # define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
@@ -79,8 +78,6 @@ class Uvision4(Exporter):
         project_data['tool_specific']['uvision']['misc']['c_flags'] = list(set(self.progen_flags['common_flags'] + self.progen_flags['c_flags'] + self.progen_flags['cxx_flags']))
         # not compatible with c99 flag set in the template
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
-        # ARM_INC is by default as system inclusion, not required for exported project
-        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("-I \""+ARM_INC+"\"")
         # cpp is not required as it's implicit for cpp files
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--cpp")
         # we want no-vla for only cxx, but it's also applied for C in IDE, thus we remove it

@@ -58,7 +58,7 @@ from tools.build_api import create_result
 from tools.build_api import add_result_to_report
 from tools.build_api import scan_for_source_paths
 from tools.libraries import LIBRARIES, LIBRARY_MAP
-from tools.toolchains import TOOLCHAIN_BIN_PATH
+from tools.toolchains import TOOLCHAIN_PATHS
 from tools.toolchains import TOOLCHAINS
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.utils import argparse_filestring_type
@@ -1343,8 +1343,8 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
                 if conflict:
                     cell_val += '*'
                 # Check for conflicts: toolchain vs toolchain path
-                if toolchain in TOOLCHAIN_BIN_PATH:
-                    toolchain_path = TOOLCHAIN_BIN_PATH[toolchain]
+                if toolchain in TOOLCHAIN_PATHS:
+                    toolchain_path = TOOLCHAIN_PATHS[toolchain]
                     if not os.path.isdir(toolchain_path):
                         conflict_path = True
                         if toolchain not in toolchain_path_conflicts:
@@ -1368,8 +1368,8 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
         for toolchain in toolchain_path_conflicts:
         # Let's check toolchain configuration
-            if toolchain in TOOLCHAIN_BIN_PATH:
-                toolchain_path = TOOLCHAIN_BIN_PATH[toolchain]
+            if toolchain in TOOLCHAIN_PATHS:
+                toolchain_path = TOOLCHAIN_PATHS[toolchain]
                 if not os.path.isdir(toolchain_path):
                     result += "\t# Toolchain %s path not found: %s\n"% (toolchain, toolchain_path)
     return result
