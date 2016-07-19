@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the CORTEX:
@@ -22,30 +22,8 @@
     This section provides functions allowing to configure the NVIC interrupts (IRQ).
     The Cortex-M4 exceptions are managed by CMSIS functions.
 
-    (#) Configure the NVIC Priority Grouping using HAL_NVIC_SetPriorityGrouping()
-        function according to the following table.
+    (#) Configure the NVIC Priority Grouping using HAL_NVIC_SetPriorityGrouping() function
 
-     @brief  CORTEX_NVIC_Priority_Table
-     The table below gives the allowed values of the pre-emption priority and subpriority according
-     to the Priority Grouping configuration performed by HAL_NVIC_SetPriorityGrouping() function
-       ==========================================================================================================================
-         NVIC_PriorityGroup   | NVIC_IRQChannelPreemptionPriority | NVIC_IRQChannelSubPriority  |       Description
-       ==========================================================================================================================
-        NVIC_PRIORITYGROUP_0  |                0                  |            0-15             | 0 bits for pre-emption priority
-                              |                                   |                             | 4 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------
-        NVIC_PRIORITYGROUP_1  |                0-1                |            0-7              | 1 bits for pre-emption priority
-                              |                                   |                             | 3 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------
-        NVIC_PRIORITYGROUP_2  |                0-3                |            0-3              | 2 bits for pre-emption priority
-                              |                                   |                             | 2 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------
-        NVIC_PRIORITYGROUP_3  |                0-7                |            0-1              | 3 bits for pre-emption priority
-                              |                                   |                             | 1 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------
-        NVIC_PRIORITYGROUP_4  |                0-15               |            0                | 4 bits for pre-emption priority
-                              |                                   |                             | 0 bits for subpriority
-       ==========================================================================================================================
      (#)  Configure the priority of the selected IRQ Channels using HAL_NVIC_SetPriority()
 
      (#)  Enable the selected IRQ Channels using HAL_NVIC_EnableIRQ()
@@ -119,6 +97,31 @@
   *
   ******************************************************************************  
   */
+
+/*
+  Additional Tables: CORTEX_NVIC_Priority_Table
+     The table below gives the allowed values of the pre-emption priority and subpriority according
+     to the Priority Grouping configuration performed by HAL_NVIC_SetPriorityGrouping() function
+       ==========================================================================================================================
+         NVIC_PriorityGroup   | NVIC_IRQChannelPreemptionPriority | NVIC_IRQChannelSubPriority  |       Description
+       ==========================================================================================================================
+        NVIC_PRIORITYGROUP_0  |                0                  |            0-15             | 0 bits for pre-emption priority
+                              |                                   |                             | 4 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------
+        NVIC_PRIORITYGROUP_1  |                0-1                |            0-7              | 1 bits for pre-emption priority
+                              |                                   |                             | 3 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------
+        NVIC_PRIORITYGROUP_2  |                0-3                |            0-3              | 2 bits for pre-emption priority
+                              |                                   |                             | 2 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------
+        NVIC_PRIORITYGROUP_3  |                0-7                |            0-1              | 3 bits for pre-emption priority
+                              |                                   |                             | 1 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------
+        NVIC_PRIORITYGROUP_4  |                0-15               |            0                | 4 bits for pre-emption priority
+                              |                                   |                             | 0 bits for subpriority
+       ==========================================================================================================================
+
+*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"

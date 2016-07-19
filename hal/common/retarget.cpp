@@ -98,6 +98,9 @@ static void init_serial() {
 #if DEVICE_SERIAL
     if (stdio_uart_inited) return;
     serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+#if MBED_CONF_CORE_STDIO_BAUD_RATE
+    serial_baud(&stdio_uart, MBED_CONF_CORE_STDIO_BAUD_RATE);
+#endif
 #endif
 }
 
@@ -545,7 +548,6 @@ extern "C" int __wrap_main(void) {
 // code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
 // Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
 extern "C" void __iar_argc_argv() {
-    mbed_sdk_init();
     mbed_main();
 }
 #endif

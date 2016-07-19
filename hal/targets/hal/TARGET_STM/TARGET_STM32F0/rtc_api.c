@@ -56,7 +56,7 @@ static void rtc_configure_time_and_date()
     mDate.WeekDay = 1;
     mDate.Month = 1;
     mDate.Date = 1;
-    mDate.Year = 1970;
+    mDate.Year = 2;
     if (HAL_RTC_SetDate(&RtcHandle, &mDate, RTC_FORMAT_BIN) != HAL_OK) {
         error("Date set failed\n");
     }
@@ -64,7 +64,7 @@ static void rtc_configure_time_and_date()
     mTime.Hours = 0;
     mTime.Minutes = 0;
     mTime.Seconds = 0;
-    mTime.TimeFormat = RTC_HOURFORMAT12_AM;
+    mTime.TimeFormat = RTC_HOURFORMAT_24;
     mTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     mTime.StoreOperation = RTC_STOREOPERATION_RESET;
     if (HAL_RTC_SetTime(&RtcHandle, &mTime, RTC_FORMAT_BIN) != HAL_OK) {
@@ -243,12 +243,7 @@ time_t rtc_read(void) {
     timeinfo.tm_wday = dateStruct.WeekDay;
     timeinfo.tm_mon  = dateStruct.Month - 1;
     timeinfo.tm_mday = dateStruct.Date;
-#if DEVICE_LOWPOWERTIMER
-    //We need to add 52 to get the 1970 year
-    timeinfo.tm_year = dateStruct.Year + 52;
-#else
-    timeinfo.tm_year = dateStruct.Year + 100;
-#endif
+    timeinfo.tm_year = dateStruct.Year + 68;
     timeinfo.tm_hour = timeStruct.Hours;
     timeinfo.tm_min  = timeStruct.Minutes;
     timeinfo.tm_sec  = timeStruct.Seconds;
@@ -273,11 +268,11 @@ void rtc_write(time_t t) {
     dateStruct.WeekDay        = timeinfo->tm_wday;
     dateStruct.Month          = timeinfo->tm_mon + 1;
     dateStruct.Date           = timeinfo->tm_mday;
-    dateStruct.Year           = timeinfo->tm_year - 100;
+    dateStruct.Year           = timeinfo->tm_year - 68;
     timeStruct.Hours          = timeinfo->tm_hour;
     timeStruct.Minutes        = timeinfo->tm_min;
     timeStruct.Seconds        = timeinfo->tm_sec;
-    timeStruct.TimeFormat     = RTC_HOURFORMAT12_PM;
+    timeStruct.TimeFormat     = RTC_HOURFORMAT_24;
     timeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     timeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
 
@@ -295,7 +290,7 @@ void rtc_set_alarm(struct tm *ti, uint32_t subsecs)
     mAlarm.AlarmTime.Minutes = ti->tm_min;
     mAlarm.AlarmTime.Seconds = ti->tm_sec;
     mAlarm.AlarmTime.SubSeconds = subsecs;
-    mAlarm.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
+    mAlarm.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     mAlarm.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;
     mAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
     mAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;

@@ -17,6 +17,8 @@ limitations under the License.
 import sys
 import inspect
 import os
+import argparse
+import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext
@@ -194,5 +196,81 @@ def dict_to_ascii(input):
 # Read a JSON file and return its Python representation, transforming all the strings from Unicode
 # to ASCII. The order of keys in the JSON file is preserved.
 def json_file_to_dict(fname):
-    with open(fname, "rt") as f:
-        return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+    try:
+        with open(fname, "rt") as f:
+            return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+    except (ValueError, IOError):
+        sys.stderr.write("Error parsing '%s':\n" % fname)
+        raise
+
+# Wowza, double closure
+def argparse_type(casedness, prefer_hyphen=False) :
+    def middle(list, type_name):
+        # validate that an argument passed in (as string) is a member of the list of possible
+        # arguments. Offer a suggestion if the case of the string, or the hyphens/underscores
+        # do not match the expected style of the argument.
+        def parse_type(string):
+            if prefer_hyphen: newstring = casedness(string).replace("_","-")
+            else:             newstring = casedness(string).replace("-","_")
+            if string in list:
+                return string
+            elif string not in list and newstring in list:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Did you mean {2}?".format(string, type_name, newstring))
+            else:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Supported {1}s are:\n{2}".format(string, type_name, columnate(list)))
+        return parse_type
+    return middle
+
+# short cuts for the argparse_type versions
+argparse_uppercase_type = argparse_type(str.upper, False)
+argparse_lowercase_type = argparse_type(str.lower, False)
+argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
+argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
+
+def argparse_force_type(case):
+    def middle(list, type_name):
+        # validate that an argument passed in (as string) is a member of the list of possible
+        # arguments after converting it's case. Offer a suggestion if the hyphens/underscores
+        # do not match the expected style of the argument.
+        def parse_type(string):
+            for option in list:
+                if case(string) == case(option):
+                    return option
+            raise argparse.ArgumentTypeError("{0} is not a supported {1}. Supported {1}s are:\n{2}".format(string, type_name, columnate(list)))
+        return parse_type
+    return middle
+
+# these two types convert the case of their arguments _before_ validation
+argparse_force_uppercase_type = argparse_force_type(str.upper)
+argparse_force_lowercase_type = argparse_force_type(str.lower)
+
+# An argument parser combinator that takes in an argument parser and creates a new parser that
+# accepts a comma separated list of the same thing.
+def argparse_many(fn):
+    def wrap(string):
+        return [fn(s) for s in string.split(",")]
+    return wrap
+
+# An argument parser that verifies that a string passed in corresponds to a file
+def argparse_filestring_type(string) :
+    if exists(string) :
+        return string
+    else :
+        raise argparse.ArgumentTypeError("{0}"" does not exist in the filesystem.".format(string))
+
+# render a list of strings as a in a bunch of columns
+def columnate(strings, seperator=", ", chars=80):
+    col_width = max(len(s) for s in strings)
+    total_width = col_width + len(seperator)
+    columns = math.floor(chars / total_width)
+    output = ""
+    for i, s in zip(range(len(strings)), strings):
+        append = s
+        if i != len(strings) - 1:
+            append += seperator
+        if i % columns == columns - 1:
+            append += "\n"
+        else:
+            append = append.ljust(total_width)
+        output += append
+    return output

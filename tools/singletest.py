@@ -100,7 +100,7 @@ if __name__ == '__main__':
     parser.description = """This script allows you to run mbed defined test cases for particular MCU(s) and corresponding toolchain(s)."""
     parser.epilog = """Example: singletest.py -i test_spec.json -M muts_all.json"""
 
-    (opts, args) = parser.parse_args()
+    opts = parser.parse_args()
 
     # Print scrip version
     if opts.version:
@@ -154,10 +154,10 @@ if __name__ == '__main__':
                                     mut['disk'])
 
         # Set up parameters for test specification filter function (we need to set toolchains per target here)
-        use_default_toolchain = 'default' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else True
-        use_supported_toolchains = 'all' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else False
+        use_default_toolchain = 'default' in opts.toolchains_filter if opts.toolchains_filter is not None else True
+        use_supported_toolchains = 'all' in opts.toolchains_filter if opts.toolchains_filter is not None else False
         toolchain_filter = opts.toolchains_filter
-        platform_name_filter = opts.general_filter_regex.split(',') if opts.general_filter_regex is not None else opts.general_filter_regex
+        platform_name_filter = opts.general_filter_regex if opts.general_filter_regex is not None else opts.general_filter_regex
         # Test specification with information about each target and associated toolchain
         test_spec = get_autodetected_TEST_SPEC(MUTs.values(),
                                                use_default_toolchain=use_default_toolchain,
@@ -230,6 +230,7 @@ if __name__ == '__main__':
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,
                                    _opts_report_build_file_name=opts.report_build_file_name,
+                                   _opts_report_text_file_name=opts.report_text_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,

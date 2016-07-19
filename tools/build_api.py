@@ -176,7 +176,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
     if report != None:
         start = time()
-        
+
         # If project_id is specified, use that over the default name
         id_name = project_id.upper() if project_id else name.upper()
         description = project_description if project_description else name
@@ -232,6 +232,7 @@ def build_project(src_path, build_path, target, toolchain_name,
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
             cur_result["result"] = "OK"
+            cur_result["memory_usage"] = toolchain.map_outputs
 
             add_result_to_report(report, cur_result)
 
@@ -294,7 +295,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     if report != None:
         start = time()
-        
+
         # If project_id is specified, use that over the default name
         id_name = project_id.upper() if project_id else name.upper()
         description = name
@@ -377,7 +378,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.copy_files(resources.libraries, build_path, resources=resources)
         if resources.linker_script:
             toolchain.copy_files(resources.linker_script, build_path, resources=resources)
-            
+
         if resource.hex_files:
             toolchain.copy_files(resources.hex_files, build_path, resources=resources)
 
@@ -395,16 +396,17 @@ def build_library(src_paths, build_path, target, toolchain_name,
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
+        return True
 
     except Exception, e:
         if report != None:
             end = time()
-            
+
             if isinstance(e, ToolException):
                 cur_result["result"] = "FAIL"
             elif isinstance(e, NotSupportedException):
                 cur_result["result"] = "NOT_SUPPORTED"
-            
+
             cur_result["elapsed_time"] = end - start
 
             toolchain_output = toolchain.get_output()
@@ -428,7 +430,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
     if not lib.is_supported(target, toolchain_name):
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
         return False
-    
+
     # We need to combine macros from parameter list with macros from library definition
     MACROS = lib.macros if lib.macros else []
     if macros:
@@ -441,7 +443,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
     dependencies_paths = lib.dependencies
     inc_dirs = lib.inc_dirs
     inc_dirs_ext = lib.inc_dirs_ext
-    
+
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -522,7 +524,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
         # Copy Headers
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path, resources=resource)
-            
+
         dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
 
         # Compile Sources
@@ -539,6 +541,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
+        return True
 
     except Exception, e:
         if report != None:
@@ -716,7 +719,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
                 perm_counter += 1
             else:
                 text = "-"
-            
+
             row.append(text)
         pt.add_row(row)
 
@@ -942,6 +945,49 @@ def print_build_results(result_list, build_name):
         result += "\n"
     return result
 
+def print_build_memory_usage_results(report):
+    """ Generate result table with memory usage values for build results
+        Agregates (puts together) reports obtained from self.get_memory_summary()
+        @param report Report generated during build procedure. See
+    """
+    from prettytable import PrettyTable
+    columns_text = ['name', 'target', 'toolchain']
+    columns_int = ['static_ram', 'stack', 'heap', 'total_ram', 'total_flash']
+    table = PrettyTable(columns_text + columns_int)
+
+    for col in columns_text:
+        table.align[col] = 'l'
+
+    for col in columns_int:
+        table.align[col] = 'r'
+
+    for target in report:
+        for toolchain in report[target]:
+            for name in report[target][toolchain]:
+                for dlist in report[target][toolchain][name]:
+                    for dlistelem in dlist:
+                        # Get 'memory_usage' record and build table with statistics
+                        record = dlist[dlistelem]
+                        if 'memory_usage' in record and record['memory_usage']:
+                            # Note that summary should be in the last record of
+                            # 'memory_usage' section. This is why we are grabbing
+                            # last "[-1]" record.
+                            row = [
+                                record['description'],
+                                record['target_name'],
+                                record['toolchain_name'],
+                                record['memory_usage'][-1]['summary']['static_ram'],
+                                record['memory_usage'][-1]['summary']['stack'],
+                                record['memory_usage'][-1]['summary']['heap'],
+                                record['memory_usage'][-1]['summary']['total_ram'],
+                                record['memory_usage'][-1]['summary']['total_flash'],
+                            ]
+                            table.add_row(row)
+
+    result = "Memory map breakdown for built projects (values in Bytes):\n"
+    result += table.get_string(sortby='name')
+    return result
+
 def write_build_report(build_report, template_filename, filename):
     build_report_failing = []
     build_report_passing = []
@@ -963,14 +1009,14 @@ def write_build_report(build_report, template_filename, filename):
 def scan_for_source_paths(path, exclude_paths=None):
     ignorepatterns = []
     paths = []
-    
+
     def is_ignored(file_path):
         for pattern in ignorepatterns:
             if fnmatch.fnmatch(file_path, pattern):
                 return True
         return False
-    
-    
+
+
     """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
     When topdown is True, the caller can modify the dirnames list in-place
     (perhaps using del or slice assignment), and walk() will only recurse into

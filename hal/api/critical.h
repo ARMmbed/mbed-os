@@ -19,6 +19,8 @@
 #define __MBED_UTIL_CRITICAL_H__
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +49,7 @@ bool core_util_are_interrupts_enabled(void);
   *    section) will be preserved on exit from the section.
   * 4) This implementation will currently only work on code running in privileged mode.
   */
-void core_util_critical_section_enter();
+void core_util_critical_section_enter(void);
 
 /** Mark the end of a critical section
   *
@@ -60,7 +62,7 @@ void core_util_critical_section_enter();
   *    section) will be preserved on exit from the section.
   * 4) This implementation will currently only work on code running in privileged mode.
   */
-void core_util_critical_section_exit();
+void core_util_critical_section_exit(void);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
@@ -106,7 +108,7 @@ void core_util_critical_section_exit();
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -159,7 +161,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -212,7 +214,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -222,12 +224,57 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
 bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue);
 
 /**
- * Atomic increment.
- * @param  valuePtr Target memory location being incremented.
- * @param  delta    The amount being incremented.
- * @return          The new incremented value.
+ * Atomic compare and set. It compares the contents of a memory location to a
+ * given value and, only if they are the same, modifies the contents of that
+ * memory location to a given new value. This is done as a single atomic
+ * operation. The atomicity guarantees that the new value is calculated based on
+ * up-to-date information; if the value had been updated by another thread in
+ * the meantime, the write would fail due to a mismatched expectedCurrentValue.
+ *
+ * Refer to https://en.wikipedia.org/wiki/Compare-and-set [which may redirect
+ * you to the article on compare-and swap].
+ *
+ * @param  ptr                  The target memory location.
+ * @param[in,out] expectedCurrentValue A pointer to some location holding the
+ *                              expected current value of the data being set atomically.
+ *                              The computed 'desiredValue' should be a function of this current value.
+ *                              @Note: This is an in-out parameter. In the
+ *                              failure case of atomic_cas (where the
+ *                              destination isn't set), the pointee of expectedCurrentValue is
+ *                              updated with the current value.
+ * @param[in] desiredValue      The new value computed based on '*expectedCurrentValue'.
+ *
+ * @return                      true if the memory location was atomically
+ *                              updated with the desired value (after verifying
+ *                              that it contained the expectedCurrentValue),
+ *                              false otherwise. In the failure case,
+ *                              exepctedCurrentValue is updated with the new
+ *                              value of the target memory location.
+ *
+ * pseudocode:
+ * function cas(p : pointer to int, old : pointer to int, new : int) returns bool {
+ *     if *p != *old {
+ *         *old = *p
+ *         return false
+ *     }
+ *     *p = new
+ *     return true
+ * }
+ *
+ * @Note: In the failure case (where the destination isn't set), the value
+ * pointed to by expectedCurrentValue is still updated with the current value.
+ * This property helps writing concise code for the following incr:
+ *
+ * function incr(p : pointer to int, a : int) returns int {
+ *     done = false
+ *     value = *p // This fetch operation need not be atomic.
+ *     while not done {
+ *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
+ *     }
+ *     return value + a
+ * }
  */
-uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta);
+bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue);
 
 /**
  * Atomic increment.
@@ -235,7 +282,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta);
+uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta);
 
 /**
  * Atomic increment.
@@ -243,7 +290,26 @@ uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta);
+uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta);
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented.
+ * @return          The new incremented value.
+ */
+uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta);
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented in bytes.
+ * @return          The new incremented value.
+ *
+ * @note The type of the pointer argument is not taken into account
+ *       and the pointer is incremented by bytes.
+ */
+void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta);
 
 /**
  * Atomic decrement.
@@ -251,7 +317,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta);
+uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta);
 
 /**
  * Atomic decrement.
@@ -259,7 +325,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta);
+uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta);
 
 /**
  * Atomic decrement.
@@ -267,7 +333,18 @@ uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta);
+uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta);
+
+/**
+ * Atomic decrement.
+ * @param  valuePtr Target memory location being decremented.
+ * @param  delta    The amount being decremented in bytes.
+ * @return          The new decremented value.
+ *
+ * @note The type of the pointer argument is not taken into account
+ *       and the pointer is decremented by bytes
+ */
+void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta);
 
 #ifdef __cplusplus
 } // extern "C"

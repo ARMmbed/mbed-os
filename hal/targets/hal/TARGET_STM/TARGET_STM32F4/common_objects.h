@@ -1,6 +1,4 @@
-/* mbed Microcontroller Library - stackheap
- * Setup a fixed single stack/heap memory model, 
- * between the top of the RW/ZI region and the stackpointer
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
@@ -26,31 +24,36 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#ifndef MBED_COMMON_OBJECTS_H
+#define MBED_COMMON_OBJECTS_H
+
+#include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
-#include <rt_misc.h>
-#include <stdint.h>
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t prescaler;
+    uint32_t period;
+    uint32_t pulse;
+    uint8_t channel;
+    uint8_t inverted;
+};
 
-extern char Image$$RW_IRAM1$$ZI$$Limit[];
-
-extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
-    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
-    uint32_t sp_limit = __current_sp();
-
-    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
-
-    struct __initial_stackheap r;
-    r.heap_base = zi_limit;
-    r.heap_limit = sp_limit;
-    return r;
-}
+#include "gpio_object.h"
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
+
+#endif
+
