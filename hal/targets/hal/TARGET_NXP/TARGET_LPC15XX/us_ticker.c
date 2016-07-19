@@ -61,12 +61,11 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // Set SCT3 match register 0 (critical section)
-    int wasMasked = __disable_irq();
+    __disable_irq();
     LPC_SCT3->CTRL |= (1 << 2);
     LPC_SCT3->MATCH0 = (uint32_t)timestamp;
     LPC_SCT3->CTRL &= ~(1 << 2);
-    if (!wasMasked)
-        __enable_irq();
+    __enable_irq();
 
     // Enable interrupt on SCT3 event 0
     LPC_SCT3->EVEN = (1 << 0);
