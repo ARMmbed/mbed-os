@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include "nrf.h"
 #include "system_nrf51.h"
+#include "nrf5x_lf_clk_helper.h"
 
 /*lint ++flb "Enter library region" */
 
@@ -103,32 +104,8 @@ void SystemInit(void)
         }
         *(uint32_t volatile *)0x4006EC14 = 0xC0;
     }
-
     
-    #define NRF_LF_SRC_XTAL  2 
-    #define NRF_LF_SRC_SYNTH 3 
-    #define NRF_LF_SRC_RC    4
-    
-        //MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC
-    #if MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_SYNTH
-        #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_Synth)
-        #warning synhetic clock
-    #elif MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_XTAL
-        #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_Xtal)
-        #warning crystal clock
-    #elif MBED_CONF_APP_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_RC // and undefined
-        #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_RC)
-        #warning RC clock
-    #else
-        #error Bad LFCLK configuration. Declare proper source through mbed configuration.
-    #endif
-    
-    #undef NRF_LF_SRC_XTAL
-    #undef NRF_LF_SRC_SYNTH
-    #undef NRF_LF_SRC_RC
-    
-    // Start the external 32khz crystal oscillator.
-    //NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
+    // Start the LF oscilator according to the mbed configuration (over the nrf5x_lf_clk_helper.h file)
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_TO_USE << CLOCK_LFCLKSRC_SRC_Pos);
     NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
     NRF_CLOCK->TASKS_LFCLKSTART     = 1;
