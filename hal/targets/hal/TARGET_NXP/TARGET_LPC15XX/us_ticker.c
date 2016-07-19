@@ -17,33 +17,36 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-#define US_TICKER_TIMER_IRQn     RIT_IRQn
+#define US_TICKER_TIMER_IRQn     SCT3_IRQn
 
 int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
-    if (us_ticker_inited) return;
+    if (us_ticker_inited)
+        return;
+
     us_ticker_inited = 1;
-    
-    // Enable the RIT clock
-    LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 1);
-    
-    // Clear peripheral reset the RIT
-    LPC_SYSCON->PRESETCTRL1 |= (1 << 1);
-    LPC_SYSCON->PRESETCTRL1 &= ~(1 << 1);
-    
-    LPC_RIT->MASK = 0;
-    LPC_RIT->MASK_H = 0;
-    
-    LPC_RIT->COUNTER = 0;
-    LPC_RIT->COUNTER_H = 0;
 
-    LPC_RIT->COMPVAL = 0xffffffff;
-    LPC_RIT->COMPVAL_H = 0x0000ffff;
+    // Enable the SCT3 clock
+    LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 5);
 
-    // Timer enable, enable for debug
-    LPC_RIT->CTRL = 0xC;
-    
+    // Clear peripheral reset the SCT3
+    LPC_SYSCON->PRESETCTRL1 |= (1 << 5);
+    LPC_SYSCON->PRESETCTRL1 &= ~(1 << 5);
+
+    // Configure SCT3 as a 1MHz 32-bit counter with no auto limiting or match reload
+    char sctClkDiv = ((SystemCoreClock + 1000000 - 1) / 1000000) - 1;
+    LPC_SCT3->CONFIG = (1 << 7) | (1 << 0);
+    LPC_SCT3->CTRL = (sctClkDiv << 5) | (1 << 3) | (1 << 2);
+
+    // Configure SCT3 event 0 to fire on match register 0
+    LPC_SCT3->EV0_STATE = (1 << 0);
+    LPC_SCT3->EV0_CTRL = (0x1 << 12);
+
+    // Start SCT3
+    LPC_SCT3->CTRL &= ~(1 << 2);
+
+    // Set SCT3 interrupt vector
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
@@ -51,23 +54,30 @@ void us_ticker_init(void) {
 uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
-    
-    uint64_t temp;
-    temp = LPC_RIT->COUNTER | ((uint64_t)LPC_RIT->COUNTER_H << 32);
-    temp /= (SystemCoreClock/1000000);
-    return (uint32_t)temp;
+
+    // Return SCT3 count value
+    return LPC_SCT3->COUNT;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-	uint64_t temp = ((uint64_t)timestamp * (SystemCoreClock/1000000));
-    LPC_RIT->COMPVAL = (temp & 0xFFFFFFFFL);
-    LPC_RIT->COMPVAL_H = ((temp >> 32)& 0x0000FFFFL);
+    // Set SCT3 match register 0 (critical section)
+    int wasMasked = __disable_irq();
+    LPC_SCT3->CTRL |= (1 << 2);
+    LPC_SCT3->MATCH0 = (uint32_t)timestamp;
+    LPC_SCT3->CTRL &= ~(1 << 2);
+    if (!wasMasked)
+        __enable_irq();
+
+    // Enable interrupt on SCT3 event 0
+    LPC_SCT3->EVEN = (1 << 0);
 }
 
 void us_ticker_disable_interrupt(void) {
-    LPC_RIT->CTRL |= (1 << 3);
+    // Disable interrupt on SCT3 event 0
+    LPC_SCT3->EVEN = 0;
 }
 
 void us_ticker_clear_interrupt(void) {
-    LPC_RIT->CTRL |= (1 << 0);
+    // Clear SCT3 event 0 interrupt flag
+    LPC_SCT3->EVFLAG = (1 << 0);
 }
