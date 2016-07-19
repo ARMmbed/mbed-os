@@ -22,7 +22,10 @@ CORE_LABELS = {
     "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1"],
     "Cortex-M3" : ["M3", "CORTEX_M", "LIKE_CORTEX_M3"],
     "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
+    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
     "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
+    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
+    "Cortex-M7FD" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
     "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9"]
 }
 

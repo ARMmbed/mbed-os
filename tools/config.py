@@ -182,7 +182,7 @@ class Config:
         self.lib_config_data = {}
         # Make sure that each config is processed only once
         self.processed_configs = {}
-        self.target = target if isinstance(target, str) else target.name
+        self.target = target if isinstance(target, basestring) else target.name
         self.target_labels = Target.get_target(self.target).get_labels()
         self.added_features = set()
         self.removed_features = set()

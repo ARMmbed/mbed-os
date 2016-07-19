@@ -88,7 +88,7 @@ def get_config(src_path, target, toolchain_name):
     config = Config(target, src_paths)
 
     # If the 'target' argument is a string, convert it to a target instance
-    if isinstance(target, str):
+    if isinstance(target, basestring):
         try:
             target = TARGET_MAP[target]
         except KeyError:
@@ -149,7 +149,7 @@ def build_project(src_path, build_path, target, toolchain_name,
     config = config or Config(target, src_paths)
 
     # If the 'target' argument is a string, convert it to a target instance
-    if isinstance(target, str):
+    if isinstance(target, basestring):
         try:
             target = TARGET_MAP[target]
         except KeyError:
@@ -287,7 +287,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     config = Config(target, src_paths)
 
     # If the 'target' argument is a string, convert it to a target instance
-    if isinstance(target, str):
+    if isinstance(target, basestring):
         try:
             target = TARGET_MAP[target]
         except KeyError:
