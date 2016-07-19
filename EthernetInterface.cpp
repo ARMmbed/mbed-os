@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "EthernetInterface.h"
-#include "NetworkStack.h"
+#include "mbed.h"
 #include "SingletonPtr.h"
 
 #include "eth_arch.h"

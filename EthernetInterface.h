@@ -17,12 +17,13 @@
 #ifndef ETHERNET_INTERFACE_H
 #define ETHERNET_INTERFACE_H
 
-#include "EthInterface.h"
+#include "nsapi.h"
 #include "rtos.h"
 #include "lwip/netif.h"
 
 // Forward declaration
 class NetworkStack;
+
 
 /** EthernetInterface class
  *  Implementation of the NetworkStack for LWIP
@@ -59,5 +60,6 @@ protected:
      */
     virtual NetworkStack * get_stack(void);
 };
+
 
 #endif
