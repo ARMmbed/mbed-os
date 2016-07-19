@@ -33,20 +33,14 @@
 
 #include "cmsis.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
 
-void sleep(void)
-{
-    TimMasterHandle.Instance = TIM21;
-
-    // Disable HAL tick interrupt
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
-
+void sleep(void) {
+    // Stop HAL systick
+    HAL_SuspendTick();
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
+    // Restart HAL systick
+    HAL_ResumeTick();
 }
 
 void deepsleep(void)
