@@ -33,6 +33,7 @@
 #define __CC_H__ 
 
 #include <stdint.h>
+#include <stddef.h> /* for size_t */
 
 /* Types based on stdint.h */
 typedef uint8_t            u8_t; 
