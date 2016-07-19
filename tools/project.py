@@ -136,8 +136,8 @@ if __name__ == '__main__':
         p, src, ide = options.program, options.source_dir, options.ide
         project_dir, project_name, project_temp = setup_project(mcu, ide, p, src, options.build)
 
-        zip = src is []  # create zip when no src_dir provided
-        clean = src is []  # don't clean when source is provided, use acrual source tree for IDE files
+        zip = not bool(src)  # create zip when no src_dir provided
+        clean = not bool(src)  # don't clean when source is provided, use acrual source tree for IDE files
 
         # Export to selected toolchain
         lib_symbols = get_lib_symbols(options.macros, src, p)
