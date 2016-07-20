@@ -1359,7 +1359,7 @@
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "public": false,
         "MERGE_SOFT_DEVICE": true,
         "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
@@ -1403,7 +1403,7 @@
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
-        "supported_toolchains": ["GCC_ARM"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,
