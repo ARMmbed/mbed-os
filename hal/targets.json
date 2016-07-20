@@ -1075,366 +1075,6 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
     },
-    "MCU_NRF51": {
-        "inherits": ["Target"],
-        "core": "Cortex-M0",
-        "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
-        "macros": [
-            "NRF51",
-            "TARGET_NRF51822",
-            "BLE_STACK_SUPPORT_REQD",
-            "SOFTDEVICE_PRESENT",
-            "S130"
-        ],
-        "MERGE_BOOTLOADER": false,
-        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822", "NRF5"],
-        "OUTPUT_EXT": "hex",
-        "is_disk_virtual": true,
-        "supported_toolchains": ["ARM", "GCC_ARM"],
-        "public": false,
-        "MERGE_SOFT_DEVICE": true,
-        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
-            {
-                "boot": "",
-                "name": "s130_nrf51_2.0.0_softdevice.hex",
-                "offset": 110592
-            }
-        ],
-        "detect_code": ["1070"],
-        "post_binary_hook": {
-            "function": "MCU_NRF51Code.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
-        },
-        "program_cycle_s": 6,
-        "default_build": "small",
-        "features": ["BLE"],
-        "config":{
-            "lf_clock_src": {
-                "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
-            }
-        }
-    },
-    "MCU_NRF51_16K_BASE": {
-        "inherits": ["MCU_NRF51"],
-        "extra_labels_add": ["MCU_NORDIC_16K", "MCU_NRF51_16K"],
-        "macros_add": ["TARGET_MCU_NORDIC_16K", "TARGET_MCU_NRF51_16K"],
-        "public": false
-    },
-    "MCU_NRF51_16K_BOOT_BASE": {
-        "inherits": ["MCU_NRF51_16K_BASE"],
-        "MERGE_BOOTLOADER": true,
-        "extra_labels_add": ["MCU_NRF51_16K_BOOT"],
-        "macros_add": ["TARGET_MCU_NRF51_16K_BOOT", "TARGET_OTA_ENABLED"],
-        "public": false
-    },
-    "MCU_NRF51_16K_OTA_BASE": {
-        "inherits": ["MCU_NRF51_16K_BASE"],
-        "public": false,
-        "extra_labels_add": ["MCU_NRF51_16K_OTA"],
-        "macros_add": ["TARGET_MCU_NRF51_16K_OTA", "TARGET_OTA_ENABLED"],
-        "MERGE_SOFT_DEVICE": false
-    },
-    "MCU_NRF51_16K": {
-        "inherits": ["MCU_NRF51_16K_BASE"],
-        "extra_labels_add": ["MCU_NRF51_16K_S130"],
-        "macros_add": ["TARGET_MCU_NRF51_16K_S130"],
-        "public": false
-    },
-    "MCU_NRF51_S110": {
-        "extra_labels_add": ["MCU_NRF51_16K_S110"],
-        "macros_add": ["TARGET_MCU_NRF51_16K_S110"],
-        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
-            {
-                "name": "s110_nrf51822_8.0.0_softdevice.hex",
-                "boot": "s110_nrf51822_8.0.0_bootloader.hex",
-                "offset": 98304
-            },
-            {
-                "name": "s110_nrf51822_7.1.0_softdevice.hex",
-                "boot": "s110_nrf51822_7.1.0_bootloader.hex",
-                "offset": 90112
-            }
-        ],
-        "public": false
-    },
-    "MCU_NRF51_16K_S110": {
-        "inherits": ["MCU_NRF51_S110", "MCU_NRF51_16K_BASE"],
-        "public": false
-    },
-    "MCU_NRF51_16K_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT_BASE"],
-        "extra_labels_add": ["MCU_NRF51_16K_S130"],
-        "macros_add": ["TARGET_MCU_NRF51_16K_S130"],
-        "public": false
-    },
-    "MCU_NRF51_16K_BOOT_S110": {
-        "inherits": ["MCU_NRF51_S110", "MCU_NRF51_16K_BOOT_BASE"],
-        "public": false
-    },
-    "MCU_NRF51_16K_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA_BASE"],
-        "extra_labels_add": ["MCU_NRF51_16K_S130"],
-        "macros_add": ["TARGET_MCU_NRF51_16K_S130"],
-        "public": false
-    },
-    "MCU_NRF51_16K_OTA_S110": {
-        "inherits": ["MCU_NRF51_S110", "MCU_NRF51_16K_OTA_BASE"],
-        "public": false
-    },
-    "MCU_NRF51_32K": {
-        "inherits": ["MCU_NRF51"],
-        "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
-        "macros_add": ["TARGET_MCU_NORDIC_32K", "TARGET_MCU_NRF51_32K"],
-        "public": false
-    },
-    "MCU_NRF51_32K_BOOT": {
-        "inherits": ["MCU_NRF51_32K"],
-        "MERGE_BOOTLOADER": true,
-        "extra_labels_add": ["MCU_NRF51_32K_BOOT"],
-        "macros_add": ["TARGET_MCU_NRF51_32K_BOOT", "TARGET_OTA_ENABLED"],
-        "public": false
-    },
-    "MCU_NRF51_32K_OTA": {
-        "inherits": ["MCU_NRF51_32K"],
-        "public": false,
-        "extra_labels_add": ["MCU_NRF51_32K_OTA"],
-        "macros_add": ["TARGET_MCU_NRF51_32K_OTA", "TARGET_OTA_ENABLED"],
-        "MERGE_SOFT_DEVICE": false
-    },
-    "NRF51822": {
-        "inherits": ["MCU_NRF51_16K"],
-        "progen": {"target": "mkit"},
-        "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "NRF51822_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "NRF51822_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "ARCH_BLE": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K"],
-        "progen": {"target": "arch-ble"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "ARCH_BLE_BOOT": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["ARCH_BLE"],
-        "macros_add": ["TARGET_ARCH_BLE"]
-    },
-    "ARCH_BLE_OTA": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["ARCH_BLE"],
-        "macros_add": ["TARGET_ARCH_BLE"]
-    },
-    "ARCH_LINK": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K"],
-        "extra_labels_add": ["ARCH_BLE"],
-        "macros_add": ["TARGET_ARCH_BLE"]
-    },
-    "ARCH_LINK_BOOT": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["ARCH_BLE", "ARCH_LINK"],
-        "macros_add": ["TARGET_ARCH_BLE", "TARGET_ARCH_LINK"]
-    },
-    "ARCH_LINK_OTA": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["ARCH_BLE", "ARCH_LINK"],
-        "macros_add": ["TARGET_ARCH_BLE", "TARGET_ARCH_LINK"]
-    },
-    "SEEED_TINY_BLE": {
-        "inherits": ["MCU_NRF51_16K"],
-        "progen": {"target": "seed-tinyble"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "SEEED_TINY_BLE_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["SEEED_TINY_BLE"],
-        "macros_add": ["TARGET_SEEED_TINY_BLE"]
-    },
-    "SEEED_TINY_BLE_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["SEEED_TINY_BLE"],
-        "macros_add": ["TARGET_SEEED_TINY_BLE"]
-    },
-    "HRM1017": {
-        "inherits": ["MCU_NRF51_16K"],
-        "progen": {"target": "hrm1017"},
-        "macros_add": ["TARGET_NRF_LFCLK_RC"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "HRM1017_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["HRM1017"],
-        "macros_add": ["TARGET_HRM1017", "TARGET_NRF_LFCLK_RC"]
-    },
-    "HRM1017_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["HRM1017"],
-        "macros_add": ["TARGET_HRM1017", "TARGET_NRF_LFCLK_RC"]
-    },
-    "RBLAB_NRF51822": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K"],
-        "progen": {"target": "rblab-nrf51822"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "RBLAB_NRF51822_BOOT": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["RBLAB_NRF51822"],
-        "macros_add": ["TARGET_RBLAB_NRF51822"]
-    },
-    "RBLAB_NRF51822_OTA": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["RBLAB_NRF51822"],
-        "macros_add": ["TARGET_RBLAB_NRF51822"]
-    },
-    "RBLAB_BLENANO": {
-        "inherits": ["MCU_NRF51_16K"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "RBLAB_BLENANO_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["RBLAB_BLENANO"],
-        "macros_add": ["TARGET_RBLAB_BLENANO"]
-    },
-    "RBLAB_BLENANO_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["RBLAB_BLENANO"],
-        "macros_add": ["TARGET_RBLAB_BLENANO"]
-    },
-    "NRF51822_Y5_MBUG": {
-        "inherits": ["MCU_NRF51_16K"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "WALLBOT_BLE": {
-        "inherits": ["MCU_NRF51_16K"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "WALLBOT_BLE_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["WALLBOT_BLE"],
-        "macros_add": ["TARGET_WALLBOT_BLE"]
-    },
-    "WALLBOT_BLE_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["WALLBOT_BLE"],
-        "macros_add": ["TARGET_WALLBOT_BLE"]
-    },
-    "DELTA_DFCM_NNN40": {
-        "inherits": ["MCU_NRF51_32K"],
-        "program_cycle_s": 10,
-        "progen": {"target": "dfcm-nnn40"},
-        "macros_add": ["TARGET_NRF_LFCLK_RC"],
-        "device_has": ["ANALOGIN", "DEBUG_AWARENESS", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "DELTA_DFCM_NNN40_BOOT": {
-        "inherits": ["MCU_NRF51_32K_BOOT"],
-        "program_cycle_s": 10,
-        "extra_labels_add": ["DELTA_DFCM_NNN40"],
-        "macros_add": ["TARGET_DELTA_DFCM_NNN40", "TARGET_NRF_LFCLK_RC"]
-    },
-    "DELTA_DFCM_NNN40_OTA": {
-        "inherits": ["MCU_NRF51_32K_OTA"],
-        "program_cycle_s": 10,
-        "extra_labels_add": ["DELTA_DFCM_NNN40"],
-        "macros_add": ["TARGET_DELTA_DFCM_NNN40", "TARGET_NRF_LFCLK_RC"]
-    },
-    "NRF51_DK": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_32K"],
-        "progen": {"target": "nrf51-dk"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"]
-    },
-    "NRF51_DK_BOOT": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_32K_BOOT"],
-        "extra_labels_add": ["NRF51_DK"],
-        "macros_add": ["TARGET_NRF51_DK"]
-    },
-    "NRF51_DK_OTA": {
-        "supported_form_factors": ["ARDUINO"],
-        "inherits": ["MCU_NRF51_32K_OTA"],
-        "extra_labels_add": ["NRF51_DK"],
-        "macros_add": ["TARGET_NRF51_DK"]
-    },
-    "NRF51_DONGLE": {
-        "inherits": ["MCU_NRF51_32K"],
-        "progen": {"target": "nrf51-dongle"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "NRF51_DONGLE_BOOT": {
-        "inherits": ["MCU_NRF51_32K_BOOT"],
-        "extra_labels_add": ["NRF51_DONGLE"],
-        "macros_add": ["TARGET_NRF51_DONGLE"]
-    },
-    "NRF51_DONGLE_OTA": {
-        "inherits": ["MCU_NRF51_32K_OTA"],
-        "extra_labels_add": ["NRF51_DONGLE"],
-        "macros_add": ["TARGET_NRF51_DONGLE"]
-    },
-    "NRF51_MICROBIT": {
-        "inherits": ["MCU_NRF51_16K_S110"],
-        "macros_add": ["TARGET_NRF_LFCLK_RC"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "NRF51_MICROBIT_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT_S110"],
-        "extra_labels_add": ["NRF51_MICROBIT"],
-        "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"]
-    },
-    "NRF51_MICROBIT_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA_S110"],
-        "extra_labels_add": ["NRF51_MICROBIT"],
-        "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"]
-    },
-    "NRF51_MICROBIT_B": {
-        "inherits": ["MCU_NRF51_16K"],
-        "extra_labels_add": ["NRF51_MICROBIT"],
-        "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"]
-    },
-    "NRF51_MICROBIT_B_BOOT": {
-        "inherits": ["MCU_NRF51_16K_BOOT"],
-        "extra_labels_add": ["NRF51_MICROBIT"],
-        "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"]
-    },
-    "NRF51_MICROBIT_B_OTA": {
-        "inherits": ["MCU_NRF51_16K_OTA"],
-        "extra_labels_add": ["NRF51_MICROBIT"],
-        "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"]
-    },
-    "TY51822R3": {
-        "inherits": ["MCU_NRF51_32K"],
-        "macros_add": ["TARGET_NRF_32MHZ_XTAL"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
-    },
-    "TY51822R3_BOOT": {
-        "inherits": ["MCU_NRF51_32K_BOOT"],
-        "extra_labels_add": ["TY51822R3"],
-        "macros_add": ["TARGET_TY51822R3", "TARGET_NRF_32MHZ_XTAL"]
-    },
-    "TY51822R3_OTA": {
-        "inherits": ["MCU_NRF51_32K_OTA"],
-        "extra_labels_add": ["NRF51_DK"],
-        "macros_add": ["TARGET_TY51822R3", "TARGET_NRF_32MHZ_XTAL"]
-    },
     "ARM_MPS2_Target": {
         "inherits": ["Target"],
         "public": false,
@@ -1702,6 +1342,59 @@
         "progen_target": "samg55j19",
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "default_build": "standard"
+    },
+    "MCU_NRF51_UNIFIED": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
+        "macros": [
+            "NRF51",
+            "TARGET_NRF51822",
+            "BLE_STACK_SUPPORT_REQD",
+            "SOFTDEVICE_PRESENT",
+            "S130",
+            "TARGET_MCU_NRF51822"
+        ],
+        "MERGE_BOOTLOADER": false,
+        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5"],
+        "OUTPUT_EXT": "hex",
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "public": false,
+        "MERGE_SOFT_DEVICE": true,
+        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
+            {
+                "boot": "",
+                "name": "s130_nrf51_2.0.0_softdevice.hex",
+                "offset": 110592
+            }
+        ],
+        "detect_code": ["1070"],
+        "post_binary_hook": {
+            "function": "MCU_NRF51Code.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+        },
+        "program_cycle_s": 6,
+        "default_build": "small",
+        "features": ["BLE"],
+        "config":{
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            }
+        }
+    },
+    "MCU_NRF51_32K_UNIFIED": {
+        "inherits": ["MCU_NRF51_UNIFIED"],
+        "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
+        "macros_add": ["TARGET_MCU_NORDIC_32K", "TARGET_MCU_NRF51_32K"],
+        "public": false
+    },
+    "NRF51_DK": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "progen": {"target": "nrf51-dk"},
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"]
     },
     "MCU_NRF52": {
         "inherits": ["Target"],
