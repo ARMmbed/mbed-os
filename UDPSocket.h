@@ -40,14 +40,12 @@ public:
      *
      *  @param stack    Network stack as target for socket
      */
-    UDPSocket(NetworkStack *stack);
-
-    template <typename IF>
-    UDPSocket(IF *iface)
+    template <typename S>
+    UDPSocket(S *stack)
         : _pending(0), _read_sem(0), _write_sem(0),
           _read_in_progress(false), _write_in_progress(false)
     {
-        open(iface->get_stack());
+        open(stack);
     }
 
     /** Destroy a socket
@@ -55,22 +53,6 @@ public:
      *  Closes socket if the socket is still open
      */
     virtual ~UDPSocket();
-
-    /** Opens a socket
-     *
-     *  Creates a network socket on the network stack of the given
-     *  network interface. Not needed if stack is passed to the
-     *  socket's constructor.
-     *
-     *  @param stack    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int open(NetworkStack *stack);
-
-    template <typename IF>
-    int open(IF *iface) {
-        return open(iface->get_stack());
-    }
 
     /** Send a packet over a UDP socket
      *
@@ -126,6 +108,7 @@ public:
     int recvfrom(SocketAddress *address, void *data, unsigned size);
 
 protected:
+    virtual nsapi_protocol_t get_proto();
     virtual void event();
 
     volatile unsigned _pending;

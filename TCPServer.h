@@ -56,22 +56,6 @@ public:
      */
     virtual ~TCPServer();
 
-    /** Opens a socket
-     *
-     *  Creates a network socket on the network stack of the given
-     *  network interface. Not needed if stack is passed to the
-     *  socket's constructor.
-     *
-     *  @param stack    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int open(NetworkStack *stack);
-
-    template <typename IF>
-    int open(IF *iface) {
-        return open(iface->get_stack());
-    }
-
     /** Listen for connections on a TCP socket
      *
      *  Marks the socket as a passive socket that can be used to accept
@@ -97,7 +81,9 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     int accept(TCPSocket *connection);
+
 protected:
+    virtual nsapi_protocol_t get_proto();
     virtual void event();
 
     volatile unsigned _pending;

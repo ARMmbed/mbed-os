@@ -24,20 +24,14 @@ TCPSocket::TCPSocket()
 {
 }
 
-TCPSocket::TCPSocket(NetworkStack *stack)
-    : _pending(0)
-{
-    open(stack);
-}
-
 TCPSocket::~TCPSocket()
 {
     close();
 }
 
-int TCPSocket::open(NetworkStack *stack)
+nsapi_protocol_t TCPSocket::get_proto()
 {
-    return Socket::open(stack, NSAPI_TCP);
+    return NSAPI_TCP;
 }
 
 int TCPSocket::connect(const SocketAddress &address)

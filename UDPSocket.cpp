@@ -24,21 +24,14 @@ UDPSocket::UDPSocket()
 {
 }
 
-UDPSocket::UDPSocket(NetworkStack *stack)
-    : _pending(0), _read_sem(0), _write_sem(0),
-      _read_in_progress(false), _write_in_progress(false)
-{
-    open(stack);
-}
-
 UDPSocket::~UDPSocket()
 {
     close();
 }
 
-int UDPSocket::open(NetworkStack *stack)
+nsapi_protocol_t UDPSocket::get_proto()
 {
-    return Socket::open(stack, NSAPI_UDP);
+    return NSAPI_UDP;
 }
 
 int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigned size)

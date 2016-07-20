@@ -23,7 +23,7 @@ Socket::Socket()
 {
 }
 
-int Socket::open(NetworkStack *stack, nsapi_protocol_t proto)
+int Socket::open(NetworkStack *stack)
 {
     _lock.lock();
 
@@ -34,7 +34,7 @@ int Socket::open(NetworkStack *stack, nsapi_protocol_t proto)
     _stack = stack;
 
     nsapi_socket_t socket;
-    int err = _stack->socket_open(&socket, proto);
+    int err = _stack->socket_open(&socket, get_proto());
     if (err) {
         _lock.unlock();
         return err;

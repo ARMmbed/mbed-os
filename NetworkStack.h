@@ -19,6 +19,7 @@
 
 #include "nsapi_types.h"
 #include "NetworkSocketAPI/SocketAddress.h"
+#include "NetworkSocketAPI/NetworkInterface.h"
 
 
 /** NetworkStack class
@@ -280,10 +281,20 @@ protected:
 
 /** Convert a raw nsapi_stack_t object into a C++ NetworkStack object
  *
- *  @param stack    Reference to a raw nsapi_stack_t object
+ *  @param stack    Reference to an object that can be converted to a stack
+ *                  - A raw nsapi_stack_t object
+ *                  - A reference to a network stack
+ *                  - A reference to a network interface
  *  @return         Reference to the underlying network stack
  */
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack);
+NetworkStack *nsapi_create_stack(NetworkStack *stack);
+
+template <typename IF>
+NetworkStack *nsapi_create_stack(IF *iface)
+{
+    return nsapi_create_stack(static_cast<NetworkInterface *>(iface)->get_stack());
+}
 
 
 #endif

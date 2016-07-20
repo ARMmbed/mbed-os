@@ -143,11 +143,6 @@ static void ipv6_to_address(char *addr, const uint8_t *bytes)
 }
 
 
-SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
-{
-    _SocketAddress(iface, host, port);
-}
-
 SocketAddress::SocketAddress(nsapi_addr_t addr, uint16_t port)
 {
     _ip_address[0] = '\0';

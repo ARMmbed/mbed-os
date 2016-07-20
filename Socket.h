@@ -46,11 +46,11 @@ public:
      *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkStack *stack) = 0;
+    int open(NetworkStack *stack);
 
-    template <typename IF>
-    int open(IF *iface) {
-        return open(iface->get_stack());
+    template <typename S>
+    int open(S *stack) {
+        return open(nsapi_create_stack(stack));
     }
     
     /** Close the socket
@@ -180,7 +180,7 @@ public:
 
 protected:
     Socket();
-    int open(NetworkStack *stack, nsapi_protocol_t proto);
+    virtual nsapi_protocol_t get_proto() = 0;
     virtual void event() = 0;
 
     NetworkStack *_stack;

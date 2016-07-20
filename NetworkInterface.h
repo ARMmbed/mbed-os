@@ -17,7 +17,8 @@
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
-#include "NetworkSocketAPI/NetworkStack.h"
+// Predeclared class
+class NetworkStack;
 
 
 /** NetworkInterface class
@@ -41,6 +42,8 @@ protected:
     friend class TCPSocket;
     friend class TCPServer;
     friend class SocketAddress;
+    template <typename IF>
+    friend NetworkStack *nsapi_create_stack(IF *iface);
 
     /** Provide access to the NetworkStack object
      *

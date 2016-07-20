@@ -249,3 +249,9 @@ NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
     MBED_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper));
     return new (stack->_stack_buffer) NetworkStackWrapper;
 }
+
+NetworkStack *nsapi_create_stack(NetworkStack *stack)
+{
+    return stack;
+}
+

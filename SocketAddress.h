@@ -38,16 +38,14 @@ public:
      *
      *  On failure, the IP address and port will be set to zero
      *
-     *  @param iface    Network interface to use for DNS resolution
+     *  @param stack    Network stack to use for DNS resolution
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port
      */
-    SocketAddress(NetworkStack *iface, const char *host, uint16_t port = 0);
-
-    template <typename IF>
-    SocketAddress(IF *iface, const char *host, uint16_t port = 0)
+    template <typename S>
+    SocketAddress(S *stack, const char *host, uint16_t port = 0)
     {
-        _SocketAddress(iface->get_stack(), host, port);
+        _SocketAddress(nsapi_create_stack(stack), host, port);
     }
 
     /** Create a SocketAddress from a raw IP address and port

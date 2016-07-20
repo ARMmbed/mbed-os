@@ -22,20 +22,14 @@ TCPServer::TCPServer()
 {
 }
 
-TCPServer::TCPServer(NetworkStack *stack)
-    : _pending(0), _accept_sem(0)
-{
-    open(stack);
-}
-
 TCPServer::~TCPServer()
 {
     close();
 }
 
-int TCPServer::open(NetworkStack *stack)
+nsapi_protocol_t TCPServer::get_proto()
 {
-    return Socket::open(stack, NSAPI_TCP);
+    return NSAPI_TCP;
 }
 
 int TCPServer::listen(int backlog)
