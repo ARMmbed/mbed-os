@@ -20,22 +20,33 @@
 #include "NetworkSocketAPI/NetworkStack.h"
 
 
+/** NetworkInterface class
+ *
+ *  Common interface that is shared between network devices
+ */
 class NetworkInterface {
 public:
     virtual ~NetworkInterface() {};
-    NetworkInterface() {}
 
-    /** Get the internally stored IP address
-    /return     IP address of the interface or null if not yet connected
-    */
+    /** Get the local IP address
+     *
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if not yet connected
+     */
     virtual const char *get_ip_address() = 0;
+
 protected:
     friend class Socket;
     friend class UDPSocket;
     friend class TCPSocket;
     friend class TCPServer;
     friend class SocketAddress;
-    virtual NetworkStack * get_stack(void) = 0;
+
+    /** Provide access to the NetworkStack object
+     *
+     *  @return The underlying NetworkStack object
+     */
+    virtual NetworkStack *get_stack() = 0;
 };
 
 
