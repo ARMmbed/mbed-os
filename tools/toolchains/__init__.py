@@ -17,7 +17,7 @@ limitations under the License.
 
 import re
 import sys
-from os import stat, walk, getcwd, sep
+from os import stat, walk, getcwd, sep, remove
 from copy import copy
 from time import time, sleep
 from types import ListType
@@ -234,6 +234,12 @@ class mbedToolchain:
 
         # This will hold the configuration data (as returned by Config.get_config_data())
         self.config_data = None
+
+        # This will hold the location of the configuration file or None if there's no configuration available
+        self.config_file = None
+
+        # Call guard for "get_config_data" (see the comments of get_config_data for details)
+        self.config_processed = False
 
         # Non-incremental compile
         self.build_all = False
@@ -700,6 +706,9 @@ class mbedToolchain:
         work_dir = getcwd()
         self.prev_dir = None
 
+        # Generate configuration header (this will update self.build_all if needed)
+        self.get_config_header()
+
         # Sort compile queue for consistency
         files_to_compile.sort()
         for source in files_to_compile:
@@ -978,19 +987,53 @@ class mbedToolchain:
     def set_config_data(self, config_data):
         self.config_data = config_data
 
-    # Return the location of the config header. This function will create the config
-    # header first if needed. The header will be written in a file called "mbed_conf.h"
-    # located in the project's build directory.
-    # If config headers are not used (self.config_header_content is None), the function
-    # returns None
+    # Creates the configuration header if needed:
+    # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).
+    # - if there is configuration data and "mbed_config.h" does not exist, it is created.
+    # - if there is configuration data similar to the previous configuration data,
+    #   "mbed_config.h" is left untouched.
+    # - if there is new configuration data, "mbed_config.h" is overriden.
+    # The function needs to be called exactly once for the lifetime of this toolchain instance.
+    # The "config_processed" variable (below) ensures this behaviour.
+    # The function returns the location of the configuration file, or None if there is no
+    # configuration data available (and thus no configuration file)
     def get_config_header(self):
-        if self.config_data is None:
-            return None
-        config_file = join(self.build_dir, self.MBED_CONFIG_FILE_NAME)
-        if not exists(config_file):
-            with open(config_file, "wt") as f:
-                f.write(Config.config_to_header(self.config_data))
-        return config_file
+        if self.config_processed: # this function was already called, return its result
+            return self.config_file
+        # The config file is located in the build directory
+        self.config_file = join(self.build_dir, self.MBED_CONFIG_FILE_NAME)
+        # If the file exists, read its current content in prev_data
+        if exists(self.config_file):
+            with open(self.config_file, "rt") as f:
+                prev_data = f.read()
+        else:
+            prev_data = None
+        # Get the current configuration data
+        crt_data = Config.config_to_header(self.config_data) if self.config_data else None
+        # "changed" indicates if a configuration change was detected
+        changed = False
+        if prev_data is not None: # a previous mbed_config.h exists
+            if crt_data is None: # no configuration data, so "mbed_config.h" needs to be removed
+                remove(self.config_file)
+                self.config_file = None # this means "config file not present"
+                changed = True
+            elif crt_data != prev_data: # different content of config file
+                with open(self.config_file, "wt") as f:
+                    f.write(crt_data)
+                changed = True
+        else: # a previous mbed_config.h does not exist
+            if crt_data is not None: # there's configuration data available
+                with open(self.config_file, "wt") as f:
+                    f.write(crt_data)
+                changed = True
+            else:
+                self.config_file = None # this means "config file not present"
+        # If there was a change in configuration, rebuild everything
+        self.build_all = changed
+        # Make sure that this function will only return the location of the configuration
+        # file for subsequent calls, without trying to manipulate its content in any way.
+        self.config_processed = True
+        return self.config_file
 
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
