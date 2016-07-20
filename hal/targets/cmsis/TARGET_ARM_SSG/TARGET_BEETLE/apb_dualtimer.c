@@ -228,6 +228,7 @@ void DualTimer_SetInterrupt_1(uint32_t timer, uint32_t time_us,
             timerenable_t mode)
 {
     uint32_t dualtimerControl = 0;
+    uint32_t load_time_us = 0;
     /* Verify if the Timer is enabled */
     if (DualTimer_isEnabled(timer) == 1) {
         /* Disable Timer */
@@ -237,9 +238,15 @@ void DualTimer_SetInterrupt_1(uint32_t timer, uint32_t time_us,
         (DualTimers[timer].dualtimer1)->TimerControl =
                                 CMSDK_DUALTIMER_CTRL_INTEN_Msk
                                 | dualtimerControl;
+
+        /* Check time us condition */
+        if(time_us == DUALTIMER_DEFAULT_RELOAD)
+            load_time_us = DUALTIMER_MAX_VALUE;
+        else
+            load_time_us = time_us * DUALTIMER_TICKS_US;
+
         /* Reload Value */
-        DualTimers[timer].dualtimer1Reload = (time_us)
-                                * DUALTIMER_TICKS_US;
+        DualTimers[timer].dualtimer1Reload = load_time_us;
         (DualTimers[timer].dualtimer1)->TimerLoad =
                                 DualTimers[timer].dualtimer1Reload;
         /* Enable Counter */
@@ -260,6 +267,7 @@ void DualTimer_SetInterrupt_2(uint32_t timer, uint32_t time_us,
             timerenable_t mode)
 {
     uint32_t dualtimerControl = 0;
+    uint32_t load_time_us = 0;
     /* Verify if the Timer is enabled */
     if (DualTimer_isEnabled(timer) == 1) {
         /* Disable Timer */
@@ -269,9 +277,15 @@ void DualTimer_SetInterrupt_2(uint32_t timer, uint32_t time_us,
         (DualTimers[timer].dualtimer2)->TimerControl =
                                 CMSDK_DUALTIMER_CTRL_INTEN_Msk
                                 | dualtimerControl;
+
+        /* Check time us condition */
+        if(time_us == DUALTIMER_DEFAULT_RELOAD)
+            load_time_us = DUALTIMER_MAX_VALUE;
+        else
+            load_time_us = time_us * DUALTIMER_TICKS_US;
+
         /* Reload Value */
-        DualTimers[timer].dualtimer2Reload = (time_us)
-                                * DUALTIMER_TICKS_US;
+        DualTimers[timer].dualtimer2Reload = load_time_us;
         (DualTimers[timer].dualtimer2)->TimerLoad =
                                 DualTimers[timer].dualtimer2Reload;
         /* Enable Counter */
@@ -355,6 +369,25 @@ uint32_t DualTimer_GetTicksUS(uint32_t timer)
     /* Verify if the Timer is enabled */
     if (DualTimer_isEnabled(timer) == 1) {
         return DUALTIMER_TICKS_US;
+    }
+    return 0;
+}
+
+/*
+ * DualTimer_GetReloadValue(): returns the load value of the selected
+ * singletimer.
+ * timer: timer associated with the Ticks per us
+ * singletimer: selected singletimer
+ * @return: reload value of the selected singletimer - 0 if timer is disabled
+ */
+uint32_t DualTimer_GetReloadValue(uint32_t timer, uint32_t singletimer)
+{
+    /* Verify if the Timer is enabled */
+    if (DualTimer_isEnabled(timer) == 1) {
+        if (singletimer == SINGLETIMER1)
+            return DualTimers[timer].dualtimer1Reload / DUALTIMER_TICKS_US;
+        else
+            return DualTimers[timer].dualtimer2Reload / DUALTIMER_TICKS_US;
     }
     return 0;
 }
