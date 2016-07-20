@@ -14,33 +14,28 @@
  * limitations under the License.
  */
 
-#include "EthernetInterface.h"
-#include "lwip_stack.h"
+#ifndef LWIP_STACK_H
+#define LWIP_STACK_H
+
+#include "nsapi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-/* Interface implementation */
-int EthernetInterface::connect()
-{
-    return lwip_bringup();
+// Access to lwip through the nsapi
+int lwip_bringup(void);
+void lwip_bringdown(void);
+
+extern nsapi_stack_t lwip_stack;
+
+const char *lwip_get_mac_address(void);
+const char *lwip_get_ip_address(void);
+
+
+#ifdef __cplusplus
 }
+#endif
 
-int EthernetInterface::disconnect()
-{
-    lwip_bringdown();
-    return 0;
-}
-
-const char *EthernetInterface::get_ip_address()
-{
-    return lwip_get_ip_address();
-}
-
-const char *EthernetInterface::get_mac_address()
-{
-    return lwip_get_mac_address();
-}
-
-NetworkStack *EthernetInterface::get_stack()
-{
-    return nsapi_create_stack(&lwip_stack);
-}
+#endif

@@ -52,13 +52,11 @@ public:
     virtual const char *get_mac_address();
 
 protected:
-    NetworkStack* _stack;
-
-    /*  Return the underlying network stack for this interface
+    /** Provide access to the underlying stack
      *
-     *  @return         The stack running the interface
+     *  @return The underlying network stack 
      */
-    virtual NetworkStack * get_stack(void);
+    virtual NetworkStack *get_stack();
 };
 
 
