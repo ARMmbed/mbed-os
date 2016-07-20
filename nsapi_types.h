@@ -104,6 +104,11 @@ typedef struct nsapi_addr {
 } nsapi_addr_t;
 
 
+/** Opaque handle for network sockets
+ */
+typedef void *nsapi_socket_t;
+
+
 /** Enum of socket protocols
  *
  *  The socket protocol specifies a particular protocol to

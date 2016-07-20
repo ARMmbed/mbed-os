@@ -178,7 +178,7 @@ protected:
     virtual void event() = 0;
 
     NetworkStack *_iface;
-    void *_socket;
+    nsapi_socket_t _socket;
     uint32_t _timeout;
     mbed::Callback<void()> _event;
     mbed::Callback<void()> _callback;
