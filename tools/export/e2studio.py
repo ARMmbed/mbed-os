@@ -33,7 +33,7 @@ class E2Studio(Exporter):
             libraries.append(l[3:])
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'linker_script': self.resources.linker_script,
             
@@ -44,4 +44,4 @@ class E2Studio(Exporter):
         self.gen_file('e2studio_%s_project.tmpl' % self.target.lower(), ctx, '.project')
         self.gen_file('e2studio_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
         self.gen_file('e2studio_%s_gdbinit.tmpl' % self.target.lower(), ctx, '.gdbinit')
-        self.gen_file('e2studio_launch.tmpl', ctx, '%s OpenOCD.launch' % self.program_name)
+        self.gen_file('e2studio_launch.tmpl', ctx, '%s OpenOCD.launch' % self.project_name)
