@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os.h"
 #include "Callback.h"
+#include "toolchain.h"
 
 namespace rtos {
 
