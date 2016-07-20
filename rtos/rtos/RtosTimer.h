@@ -40,6 +40,17 @@ public:
     /** Create timer.
       @param   func      function to be executed by this timer.
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+      @param   argument  argument to the timer call back function. (default: NULL)
+      @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
+     */
+    MBED_DEPRECATED("Replaced with RtosTimer(Callback<void()>, os_timer_type)")
+    RtosTimer(void (*func)(void const *argument), os_timer_type type=osTimerPeriodic, void *argument=NULL) {
+        constructor(mbed::Callback<void()>(argument, (void (*)(void *))func), type);
+    }
+    
+    /** Create timer.
+      @param   func      function to be executed by this timer.
+      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
     */
     RtosTimer(mbed::Callback<void()> func, os_timer_type type=osTimerPeriodic) {
         constructor(func, type);
