@@ -32,18 +32,18 @@
 class LWIPStack : public NetworkStack
 {
     virtual const char *get_ip_address();
-    virtual int socket_open(void **handle, nsapi_protocol_t proto);
-    virtual int socket_close(void *handle);
-    virtual int socket_bind(void *handle, const SocketAddress &address);
-    virtual int socket_listen(void *handle, int backlog);
-    virtual int socket_connect(void *handle, const SocketAddress &address);
-    virtual int socket_accept(void **handle, void *server);
-    virtual int socket_send(void *handle, const void *data, unsigned size);
-    virtual int socket_recv(void *handle, void *data, unsigned size);
-    virtual int socket_sendto(void *handle, const SocketAddress &address, const void *data, unsigned size);
-    virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
-    virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
-    virtual void socket_attach(void *handle, void (*callback)(void *), void *data);
+    virtual int socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto);
+    virtual int socket_close(nsapi_socket_t handle);
+    virtual int socket_bind(nsapi_socket_t handle, const SocketAddress &address);
+    virtual int socket_listen(nsapi_socket_t handle, int backlog);
+    virtual int socket_connect(nsapi_socket_t handle, const SocketAddress &address);
+    virtual int socket_accept(nsapi_socket_t *handle, nsapi_socket_t server);
+    virtual int socket_send(nsapi_socket_t handle, const void *data, unsigned size);
+    virtual int socket_recv(nsapi_socket_t handle, void *data, unsigned size);
+    virtual int socket_sendto(nsapi_socket_t handle, const SocketAddress &address, const void *data, unsigned size);
+    virtual int socket_recvfrom(nsapi_socket_t handle, SocketAddress *address, void *buffer, unsigned size);
+    virtual int setsockopt(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen);
+    virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data);
 };
 
 static SingletonPtr<LWIPStack> lwip_stack;
@@ -232,7 +232,7 @@ const char *LWIPStack::get_ip_address() {
     return lwip_get_ip_address();
 }
 
-int LWIPStack::socket_open(void **handle, nsapi_protocol_t proto)
+int LWIPStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     struct lwip_socket *s = lwip_arena_alloc();
     if (!s) {
@@ -253,7 +253,7 @@ int LWIPStack::socket_open(void **handle, nsapi_protocol_t proto)
     return 0;
 }
 
-int LWIPStack::socket_close(void *handle)
+int LWIPStack::socket_close(nsapi_socket_t handle)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -263,7 +263,7 @@ int LWIPStack::socket_close(void *handle)
 }
 
 
-int LWIPStack::socket_bind(void *handle, const SocketAddress &addr)
+int LWIPStack::socket_bind(nsapi_socket_t handle, const SocketAddress &addr)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -274,7 +274,7 @@ int LWIPStack::socket_bind(void *handle, const SocketAddress &addr)
     return lwip_err_remap(err);
 }
 
-int LWIPStack::socket_listen(void *handle, int backlog)
+int LWIPStack::socket_listen(nsapi_socket_t handle, int backlog)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -282,7 +282,7 @@ int LWIPStack::socket_listen(void *handle, int backlog)
     return lwip_err_remap(err);
 }
 
-int LWIPStack::socket_connect(void *handle, const SocketAddress &addr)
+int LWIPStack::socket_connect(nsapi_socket_t handle, const SocketAddress &addr)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -296,7 +296,7 @@ int LWIPStack::socket_connect(void *handle, const SocketAddress &addr)
     return lwip_err_remap(err);
 }
 
-int LWIPStack::socket_accept(void **handle, void *server)
+int LWIPStack::socket_accept(nsapi_socket_t *handle, nsapi_socket_t server)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(server);
     struct lwip_socket *ns = lwip_arena_alloc();
@@ -311,7 +311,7 @@ int LWIPStack::socket_accept(void **handle, void *server)
     return 0;
 }
 
-int LWIPStack::socket_send(void *handle, const void *data, unsigned size)
+int LWIPStack::socket_send(nsapi_socket_t handle, const void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -323,7 +323,7 @@ int LWIPStack::socket_send(void *handle, const void *data, unsigned size)
     return size;
 }
 
-int LWIPStack::socket_recv(void *handle, void *data, unsigned size)
+int LWIPStack::socket_recv(nsapi_socket_t handle, void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -348,7 +348,7 @@ int LWIPStack::socket_recv(void *handle, void *data, unsigned size)
     return recv;
 }
 
-int LWIPStack::socket_sendto(void *handle, const SocketAddress &addr, const void *data, unsigned size)
+int LWIPStack::socket_sendto(nsapi_socket_t handle, const SocketAddress &addr, const void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -371,7 +371,7 @@ int LWIPStack::socket_sendto(void *handle, const SocketAddress &addr, const void
     return size;
 }
 
-int LWIPStack::socket_recvfrom(void *handle, SocketAddress *addr, void *data, unsigned size)
+int LWIPStack::socket_recvfrom(nsapi_socket_t handle, SocketAddress *addr, void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -393,7 +393,7 @@ int LWIPStack::socket_recvfrom(void *handle, SocketAddress *addr, void *data, un
     return recv;
 }
 
-int LWIPStack::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen) {
+int LWIPStack::setsockopt(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen) {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
     switch (optname) {
@@ -426,7 +426,7 @@ int LWIPStack::setsockopt(void *handle, int level, int optname, const void *optv
     }
 }
 
-void LWIPStack::socket_attach(void *handle, void (*callback)(void *), void *data)
+void LWIPStack::socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
