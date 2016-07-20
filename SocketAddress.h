@@ -37,25 +37,18 @@ public:
      *  hostname is an IP address, no network transactions will be performed.
      *
      *  On failure, the IP address and port will be set to zero
-     *  
-     *  @param iface    Network stack to use for DNS resolution
-     *  @param host     Hostname to resolve
-     *  @param port     Optional 16-bit port
-     */
-    SocketAddress(NetworkStack *iface, const char *host, uint16_t port = 0);
-
-    /** Create a SocketAddress from a hostname and port
-     *
-     *  The hostname may be either a domain name or an IP address. If the
-     *  hostname is an IP address, no network transactions will be performed.
-     *
-     *  On failure, the IP address and port will be set to zero
      *
      *  @param iface    Network interface to use for DNS resolution
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port
      */
-    SocketAddress(NetworkInterface *iface, const char *host, uint16_t port = 0);
+    SocketAddress(NetworkStack *iface, const char *host, uint16_t port = 0);
+
+    template <typename IF>
+    SocketAddress(IF *iface, const char *host, uint16_t port = 0)
+    {
+        _SocketAddress(iface->get_stack(), host, port);
+    }
 
     /** Create a SocketAddress from a raw IP address and port
      *

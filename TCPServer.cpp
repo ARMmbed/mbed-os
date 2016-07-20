@@ -22,16 +22,10 @@ TCPServer::TCPServer()
 {
 }
 
-TCPServer::TCPServer(NetworkStack *iface)
+TCPServer::TCPServer(NetworkStack *stack)
     : _pending(0), _accept_sem(0)
 {
-    open(iface);
-}
-
-TCPServer::TCPServer(NetworkInterface *iface)
-    : _pending(0), _accept_sem(0)
-{
-    open(iface->get_stack());
+    open(stack);
 }
 
 TCPServer::~TCPServer()
@@ -39,23 +33,20 @@ TCPServer::~TCPServer()
     close();
 }
 
-int TCPServer::open(NetworkStack *iface)
+int TCPServer::open(NetworkStack *stack)
 {
-    return Socket::open(iface, NSAPI_TCP);
-}
-
-int TCPServer::open(NetworkInterface *iface)
-{
-    return TCPServer::open(iface->get_stack());
+    return Socket::open(stack, NSAPI_TCP);
 }
 
 int TCPServer::listen(int backlog)
 {
     _lock.lock();
+    int ret;
 
-    int ret = NSAPI_ERROR_NO_SOCKET;
-    if (_socket) {
-        ret = _iface->socket_listen(_socket, backlog);
+    if (!_socket) {
+        ret = NSAPI_ERROR_NO_SOCKET;
+    } else {
+        ret = _stack->socket_listen(_socket, backlog);
     }
 
     _lock.unlock();
@@ -65,17 +56,18 @@ int TCPServer::listen(int backlog)
 int TCPServer::accept(TCPSocket *connection)
 {
     _lock.lock();
+    int ret;
 
-    int ret = NSAPI_ERROR_NO_SOCKET;
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
             break;
-        }
+        } 
 
         _pending = 0;
         void *socket;
-        ret = _iface->socket_accept(&socket, _socket);
+        ret = _stack->socket_accept(&socket, _socket);
+
         if (0 == ret) {
             connection->_lock.lock();
 
@@ -83,10 +75,10 @@ int TCPServer::accept(TCPSocket *connection)
                 connection->close();
             }
 
-            connection->_iface = _iface;
+            connection->_stack = _stack;
             connection->_socket = socket;
             connection->_event = Callback<void()>(connection, &TCPSocket::event);
-            _iface->socket_attach(socket, &Callback<void()>::thunk, &connection->_event);
+            _stack->socket_attach(socket, &Callback<void()>::thunk, &connection->_event);
 
             connection->_lock.unlock();
             break;

@@ -148,11 +148,6 @@ SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t por
     _SocketAddress(iface, host, port);
 }
 
-SocketAddress::SocketAddress(NetworkInterface *iface, const char *host, uint16_t port)
-{
-    _SocketAddress(iface->get_stack(), host, port);
-}
-
 SocketAddress::SocketAddress(nsapi_addr_t addr, uint16_t port)
 {
     _ip_address[0] = '\0';

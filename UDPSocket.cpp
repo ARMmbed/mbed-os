@@ -24,18 +24,11 @@ UDPSocket::UDPSocket()
 {
 }
 
-UDPSocket::UDPSocket(NetworkStack *iface)
+UDPSocket::UDPSocket(NetworkStack *stack)
     : _pending(0), _read_sem(0), _write_sem(0),
       _read_in_progress(false), _write_in_progress(false)
 {
-    open(iface);
-}
-
-UDPSocket::UDPSocket(NetworkInterface *iface)
-    : _pending(0), _read_sem(0), _write_sem(0),
-      _read_in_progress(false), _write_in_progress(false)
-{
-    open(iface->get_stack());
+    open(stack);
 }
 
 UDPSocket::~UDPSocket()
@@ -43,39 +36,33 @@ UDPSocket::~UDPSocket()
     close();
 }
 
-int UDPSocket::open(NetworkStack *iface)
+int UDPSocket::open(NetworkStack *stack)
 {
-    return Socket::open(iface, NSAPI_UDP);
-}
-
-int UDPSocket::open(NetworkInterface *iface)
-{
-    return UDPSocket::open(iface->get_stack());
+    return Socket::open(stack, NSAPI_UDP);
 }
 
 int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigned size)
 {
-    SocketAddress addr(_iface, host, port);
-    if (!addr) {
+    SocketAddress address(_stack, host, port);
+    if (!address) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
 
     // sendto is thread safe
-    int ret = sendto(addr, data, size);
-
-    return ret;
+    return sendto(address, data, size);
 }
 
 int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned size)
 {
     _lock.lock();
+    int ret;
+
     // If this assert is hit then there are two threads
     // performing a send at the same time which is undefined
     // behavior
     MBED_ASSERT(!_write_in_progress);
     _write_in_progress = true;
 
-    int ret;
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -83,7 +70,7 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
         }
 
         _pending = 0;
-        int sent = _iface->socket_sendto(_socket, address, data, size);
+        int sent = _stack->socket_sendto(_socket, address, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             ret = sent;
             break;
@@ -112,13 +99,14 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
 int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
 {
     _lock.lock();
+    int ret;
+
     // If this assert is hit then there are two threads
     // performing a recv at the same time which is undefined
     // behavior
     MBED_ASSERT(!_read_in_progress);
     _read_in_progress = true;
 
-    int ret;
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -126,7 +114,7 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
         }
 
         _pending = 0;
-        int recv = _iface->socket_recvfrom(_socket, address, buffer, size);
+        int recv = _stack->socket_recvfrom(_socket, address, buffer, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
             break;

@@ -39,13 +39,19 @@ public:
 
     /** Opens a socket
      *
-     *  Creates a network socket on the specified network stack.
-     *  Not needed if stack is passed to the socket's constructor.
+     *  Creates a network socket on the network stack of the given
+     *  network interface. Not needed if stack is passed to the
+     *  socket's constructor.
      *
-     *  @param iface    Network stack as target for socket
+     *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkStack *iface) = 0;
+    virtual int open(NetworkStack *stack) = 0;
+
+    template <typename IF>
+    int open(IF *iface) {
+        return open(iface->get_stack());
+    }
     
     /** Close the socket
      *
@@ -174,10 +180,10 @@ public:
 
 protected:
     Socket();
-    int open(NetworkStack *iface, nsapi_protocol_t proto);
+    int open(NetworkStack *stack, nsapi_protocol_t proto);
     virtual void event() = 0;
 
-    NetworkStack *_iface;
+    NetworkStack *_stack;
     nsapi_socket_t _socket;
     uint32_t _timeout;
     mbed::Callback<void()> _event;

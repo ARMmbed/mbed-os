@@ -24,20 +24,10 @@ TCPSocket::TCPSocket()
 {
 }
 
-TCPSocket::TCPSocket(NetworkStack *iface)
-    : _pending(0), _read_sem(0), _write_sem(0),
-      _read_in_progress(false), _write_in_progress(false)
+TCPSocket::TCPSocket(NetworkStack *stack)
+    : _pending(0)
 {
-    // TCPSocket::open is thread safe
-    open(iface);
-}
-
-TCPSocket::TCPSocket(NetworkInterface *iface)
-    : _pending(0), _read_sem(0), _write_sem(0),
-      _read_in_progress(false), _write_in_progress(false)
-{
-    // TCPSocket::open is thread safe
-    open(iface->get_stack());
+    open(stack);
 }
 
 TCPSocket::~TCPSocket()
@@ -45,25 +35,20 @@ TCPSocket::~TCPSocket()
     close();
 }
 
-int TCPSocket::open(NetworkStack *iface)
+int TCPSocket::open(NetworkStack *stack)
 {
-    // Socket::open is thread safe
-    return Socket::open(iface, NSAPI_TCP);
+    return Socket::open(stack, NSAPI_TCP);
 }
 
-int TCPSocket::open(NetworkInterface *iface)
-{
-    // Socket::open is thread safe
-    return TCPSocket::open(iface->get_stack());
-}
-
-int TCPSocket::connect(const SocketAddress &addr)
+int TCPSocket::connect(const SocketAddress &address)
 {
     _lock.lock();
+    int ret;
 
-    int ret = NSAPI_ERROR_NO_SOCKET;
-    if (_socket) {
-        ret = _iface->socket_connect(_socket, addr);
+    if (!_socket) {
+        ret = NSAPI_ERROR_NO_SOCKET;
+    } else {
+        ret = _stack->socket_connect(_socket, address);
     }
 
     _lock.unlock();
@@ -72,28 +57,26 @@ int TCPSocket::connect(const SocketAddress &addr)
 
 int TCPSocket::connect(const char *host, uint16_t port)
 {
-    _lock.lock();
-
-    SocketAddress addr(_iface, host, port);
-    int ret = NSAPI_ERROR_DNS_FAILURE;
-    if (addr) {
-        ret = connect(addr);
+    SocketAddress address(_stack, host, port);
+    if (!address) {
+        return NSAPI_ERROR_DNS_FAILURE;
     }
 
-    _lock.unlock();
-    return ret;
+    // connect is thread safe
+    return connect(address);
 }
 
 int TCPSocket::send(const void *data, unsigned size)
 {
     _lock.lock();
+    int ret;
+
     // If this assert is hit then there are two threads
     // performing a send at the same time which is undefined
     // behavior
     MBED_ASSERT(!_write_in_progress);
     _write_in_progress = true;
 
-    int ret;
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -101,7 +84,7 @@ int TCPSocket::send(const void *data, unsigned size)
         }
 
         _pending = 0;
-        int sent = _iface->socket_send(_socket, data, size);
+        int sent = _stack->socket_send(_socket, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             ret = sent;
             break;
@@ -130,13 +113,14 @@ int TCPSocket::send(const void *data, unsigned size)
 int TCPSocket::recv(void *data, unsigned size)
 {
     _lock.lock();
+    int ret;
+
     // If this assert is hit then there are two threads
     // performing a recv at the same time which is undefined
     // behavior
     MBED_ASSERT(!_read_in_progress);
     _read_in_progress = true;
 
-    int ret;
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -144,7 +128,7 @@ int TCPSocket::recv(void *data, unsigned size)
         }
 
         _pending = 0;
-        int recv = _iface->socket_recv(_socket, data, size);
+        int recv = _stack->socket_recv(_socket, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
             break;

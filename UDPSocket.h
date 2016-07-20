@@ -33,38 +33,28 @@ public:
      */
     UDPSocket();
 
-    /** Destroy a socket
-     *
-     *  Closes socket if the socket is still open
-     */
-    virtual ~UDPSocket();
-
-    /** Create a socket on a network stack
-     *
-     *  Creates and opens a socket on the specified network stack.
-     *
-     *  @param iface    Network stack as target for socket
-     */
-    UDPSocket(NetworkStack *iface);
-
     /** Create a socket on a network interface
      *
      *  Creates and opens a socket on the network stack of the given
      *  network interface.
      *
-     *  @param iface    Network interface as target for socket
+     *  @param stack    Network stack as target for socket
      */
-    UDPSocket(NetworkInterface *iface);
+    UDPSocket(NetworkStack *stack);
 
-    /** Opens a socket
+    template <typename IF>
+    UDPSocket(IF *iface)
+        : _pending(0), _read_sem(0), _write_sem(0),
+          _read_in_progress(false), _write_in_progress(false)
+    {
+        open(iface->get_stack());
+    }
+
+    /** Destroy a socket
      *
-     *  Creates a network socket on the specified network stack.
-     *  Not needed if stack is passed to the socket's constructor.
-     *
-     *  @param iface    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
+     *  Closes socket if the socket is still open
      */
-    virtual int open(NetworkStack *iface);
+    virtual ~UDPSocket();
 
     /** Opens a socket
      *
@@ -72,10 +62,15 @@ public:
      *  network interface. Not needed if stack is passed to the
      *  socket's constructor.
      *
-     *  @param iface    Network interface as target for socket
+     *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface);
+    virtual int open(NetworkStack *stack);
+
+    template <typename IF>
+    int open(IF *iface) {
+        return open(iface->get_stack());
+    }
 
     /** Send a packet over a UDP socket
      *
@@ -129,8 +124,10 @@ public:
      *                  code on failure
      */
     int recvfrom(SocketAddress *address, void *data, unsigned size);
+
 protected:
     virtual void event();
+
     volatile unsigned _pending;
     rtos::Semaphore _read_sem;
     rtos::Semaphore _write_sem;

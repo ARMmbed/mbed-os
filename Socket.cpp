@@ -17,24 +17,24 @@
 #include "Socket.h"
 
 Socket::Socket()
-    : _iface(0)
+    : _stack(0)
     , _socket(0)
     , _timeout(osWaitForever)
 {
 }
 
-int Socket::open(NetworkStack *iface, nsapi_protocol_t proto)
+int Socket::open(NetworkStack *stack, nsapi_protocol_t proto)
 {
     _lock.lock();
 
-    if (_iface != NULL) {
+    if (_stack != NULL || stack == NULL) {
         _lock.unlock();
         return NSAPI_ERROR_PARAMETER;
     }
-    _iface = iface;
+    _stack = stack;
 
-    void *socket;
-    int err = _iface->socket_open(&socket, proto);
+    nsapi_socket_t socket;
+    int err = _stack->socket_open(&socket, proto);
     if (err) {
         _lock.unlock();
         return err;
@@ -42,10 +42,9 @@ int Socket::open(NetworkStack *iface, nsapi_protocol_t proto)
 
     _socket = socket;
     _event.attach(this, &Socket::event);
-    _iface->socket_attach(_socket, Callback<void()>::thunk, &_event);
+    _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
 
     _lock.unlock();
-
     return 0;
 }
 
@@ -55,11 +54,10 @@ int Socket::close()
 
     int ret = 0;
     if (_socket) {
-        _iface->socket_attach(_socket, 0, 0);
-
-        void * socket = _socket;
+        _stack->socket_attach(_socket, 0, 0);
+        nsapi_socket_t socket = _socket;
         _socket = 0;
-        ret = _iface->socket_close(socket);
+        ret = _stack->socket_close(socket);
     }
 
     // Wakeup anything in a blocking operation
@@ -87,10 +85,12 @@ int Socket::bind(const char *address, uint16_t port)
 int Socket::bind(const SocketAddress &address)
 {
     _lock.lock();
+    int ret;
 
-    int ret = NSAPI_ERROR_NO_SOCKET;
-    if (_socket) {
-        ret = _iface->socket_bind(_socket, address);
+    if (!_socket) {
+        ret = NSAPI_ERROR_NO_SOCKET;
+    } else {
+        ret = _stack->socket_bind(_socket, address);
     }
 
     _lock.unlock();
@@ -119,10 +119,12 @@ void Socket::set_timeout(int timeout)
 int Socket::setsockopt(int level, int optname, const void *optval, unsigned optlen)
 {
     _lock.lock();
+    int ret;
 
-    int ret = NSAPI_ERROR_NO_SOCKET;
-    if (_socket) {
-        ret = _iface->setsockopt(_socket, level, optname, optval, optlen);
+    if (!_socket) {
+        ret = NSAPI_ERROR_NO_SOCKET;
+    } else {
+        ret = _stack->setsockopt(_socket, level, optname, optval, optlen);
     }
 
     _lock.unlock();
@@ -132,10 +134,12 @@ int Socket::setsockopt(int level, int optname, const void *optval, unsigned optl
 int Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 {
     _lock.lock();
+    int ret;
 
-    int ret = NSAPI_ERROR_NO_SOCKET;
-    if (_socket) {
-        ret = _iface->getsockopt(_socket, level, optname, optval, optlen);
+    if (!_socket) {
+        ret = NSAPI_ERROR_NO_SOCKET;
+    } else {
+        ret = _stack->getsockopt(_socket, level, optname, optval, optlen);
     }
 
     _lock.unlock();

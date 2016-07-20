@@ -33,38 +33,28 @@ public:
      */
     TCPSocket();
 
-    /** Destroy a socket
-     *
-     *  Closes socket if the socket is still open
-     */
-    virtual ~TCPSocket();
-
-    /** Create a socket on a network stack
-     *
-     *  Creates and opens a socket on the specified network stack.
-     *
-     *  @param iface    Network stack as target for socket
-     */
-    TCPSocket(NetworkStack *iface);
-
     /** Create a socket on a network interface
      *
      *  Creates and opens a socket on the network stack of the given
      *  network interface.
      *
-     *  @param iface    Network interface as target for socket
+     *  @param stack    Network stack as target for socket
      */
-    TCPSocket(NetworkInterface *iface);
+    TCPSocket(NetworkStack *stack);
 
-    /** Opens a socket
+    template <typename IF>
+    TCPSocket(IF *iface)
+        : _pending(0), _read_sem(0), _write_sem(0),
+          _read_in_progress(false), _write_in_progress(false)
+    {
+        open(iface->get_stack());
+    }
+
+    /** Destroy a socket
      *
-     *  Creates a network socket on the specified network stack.
-     *  Not needed if stack is passed to the socket's constructor.
-     *
-     *  @param iface    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
+     *  Closes socket if the socket is still open
      */
-    virtual int open(NetworkStack *iface);
+    virtual ~TCPSocket();
 
     /** Opens a socket
      *
@@ -72,10 +62,15 @@ public:
      *  network interface. Not needed if stack is passed to the
      *  socket's constructor.
      *
-     *  @param iface    Network interface as target for socket
+     *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface);
+    virtual int open(NetworkStack *stack);
+
+    template <typename IF>
+    int open(IF *iface) {
+        return open(iface->get_stack());
+    }
 
     /** Connects TCP socket to a remote host
      *
@@ -131,13 +126,15 @@ public:
     int recv(void *data, unsigned size);
 
 protected:
+    friend class TCPServer;
+
     virtual void event();
+
     volatile unsigned _pending;
     rtos::Semaphore _read_sem;
     rtos::Semaphore _write_sem;
     bool _read_in_progress;
     bool _write_in_progress;
-    friend class TCPServer;
 };
 
 

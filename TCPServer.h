@@ -34,49 +34,43 @@ public:
      */
     TCPServer();
 
+    /** Create a socket on a network interface
+     *
+     *  Creates and opens a socket on the network stack of the given
+     *  network interface.
+     *
+     *  @param stack    Network stack as target for socket
+     */
+    TCPServer(NetworkStack *stack);
+
+    template <typename IF>
+    TCPServer(IF *iface)
+        : _pending(0), _accept_sem(0)
+    {
+        open(iface->get_stack());
+    }
+
     /** Destroy a socket
      *
      *  Closes socket if the socket is still open
      */
     virtual ~TCPServer();
 
-    /** Create a socket on a network stack
-     *
-     *  Creates and opens a socket on the specified network stack.
-     *
-     *  @param iface    Network stack as target for socket
-     */
-    TCPServer(NetworkStack *iface);
-
-    /** Create a socket on a network interface
-     *
-     *  Creates and opens a socket on the network stack of the given
-     *  network interface.
-     *
-     *  @param iface    Network interface as target for socket
-     */
-    TCPServer(NetworkInterface *iface);
-
-    /** Opens a socket
-     *
-     *  Creates a network socket on the specified network stack.
-     *  Not needed if stack is passed to the socket's constructor.
-     *
-     *  @param iface    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int open(NetworkStack *iface);
-    
     /** Opens a socket
      *
      *  Creates a network socket on the network stack of the given
      *  network interface. Not needed if stack is passed to the
      *  socket's constructor.
      *
-     *  @param iface    Network interface as target for socket
+     *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface);
+    virtual int open(NetworkStack *stack);
+
+    template <typename IF>
+    int open(IF *iface) {
+        return open(iface->get_stack());
+    }
 
     /** Listen for connections on a TCP socket
      *
@@ -105,6 +99,7 @@ public:
     int accept(TCPSocket *connection);
 protected:
     virtual void event();
+
     volatile unsigned _pending;
     rtos::Semaphore _accept_sem;
 };
