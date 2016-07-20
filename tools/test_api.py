@@ -2044,7 +2044,7 @@ def norm_relative_path(path, start):
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
         macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False):
+        continue_on_build_fail=False, config=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2081,7 +2081,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      name=test_name,
                                      report=report,
                                      properties=properties,
-                                     verbose=verbose)
+                                     verbose=verbose,
+                                     config=config)
 
         except Exception, e:
             if not isinstance(e, NotSupportedException):

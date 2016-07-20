@@ -36,10 +36,27 @@ from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from argparse import ArgumentParser
+from tools.config import Config
 
 if __name__ == '__main__':
     try:
-        # Parse Options
+        # Options parsing is done in two steps:
+        # - step 1: parse only --source
+        # - step 2: parse the rest of the options
+        # This needs to happen because the configuration system can add new custom targets.
+        # The configuration system needs the list of source directories (given by --source) to look for
+        # mbed_app.json (where new targets can be defined).
+        # After the configuration is created, the list of targets is automatically updated if needed and
+        # the parsing can continue with a complete list of targets.
+        # Step 1: parse only --source
+        parser = ArgumentParser()
+        parser.add_argument("--source", dest="source_dir",
+                          type=argparse_filestring_type,
+                            default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
+        prev_options, rest = parser.parse_known_args()
+        config = Config(top_level_dirs = prev_options.source_dir)
+        # Step 2: parse the rest of the options
         parser = get_default_options_parser()
         
         parser.add_argument("-D",
@@ -53,9 +70,6 @@ if __name__ == '__main__':
                           default=0,
                           help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
-        parser.add_argument("--source", dest="source_dir",
-                          type=argparse_filestring_type,
-                            default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
 
         parser.add_argument("--build", dest="build_dir",
                           default=None, help="The build (output) directory")
@@ -93,7 +107,7 @@ if __name__ == '__main__':
                           default=False,
                           help="Verbose diagnostic output")
 
-        options = parser.parse_args()
+        options = parser.parse_args(rest)
 
         # Filter tests by path if specified
         if options.paths:
@@ -144,7 +158,7 @@ if __name__ == '__main__':
                 print "[ERROR] You must specify a build path"
                 sys.exit(1)
 
-            base_source_paths = options.source_dir
+            base_source_paths = prev_options.source_dir
 
             # Default base source path is the current directory
             if not base_source_paths:
@@ -152,6 +166,7 @@ if __name__ == '__main__':
             
             
             target = options.mcu[0]
+            config.set_target(target)
             
             build_report = {}
             build_properties = {}
@@ -169,7 +184,8 @@ if __name__ == '__main__':
                                                 macros=options.macros,
                                                 verbose=options.verbose,
                                                 notify=notify,
-                                                archive=False)
+                                                archive=False,
+                                                config=config)
 
                 library_build_success = True
             except ToolException, e:
@@ -195,7 +211,8 @@ if __name__ == '__main__':
                         verbose=options.verbose,
                         notify=notify,
                         jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail)
+                        continue_on_build_fail=options.continue_on_build_fail,
+                        config=config)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:

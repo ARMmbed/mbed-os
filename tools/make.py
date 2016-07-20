@@ -45,12 +45,27 @@ from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
-from argparse import ArgumentTypeError
+from argparse import ArgumentTypeError, ArgumentParser
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from tools.config import Config
 
 if __name__ == '__main__':
-    # Parse Options
+    # Options parsing is done in two steps:
+    # - step 1: parse only --source
+    # - step 2: parse the rest of the options
+    # This needs to happen because the configuration system can add new custom targets.
+    # The configuration system needs the list of source directories (given by --source) to look for
+    # mbed_app.json (where new targets can be defined).
+    # After the configuration is created, the list of targets is automatically updated if needed and
+    # the parsing can continue with a complete list of targets.
+    # Step 1: parse only --source
+    parser = ArgumentParser()
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
+                       default=None, help="The source (input) directory", action="append")
+    prev_options, rest = parser.parse_known_args()
+    config = Config(top_level_dirs = prev_options.source_dir)
+    # Step 2: parse the rest of the options
     parser = get_default_options_parser()
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-p",
@@ -108,8 +123,6 @@ if __name__ == '__main__':
                       default=None, help="Required peripherals")
     parser.add_argument("--dep", dest="dependencies",
                       default=None, help="Dependencies")
-    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
-                       default=None, help="The source (input) directory", action="append")
     parser.add_argument("--duration", type=int, dest="duration",
                       default=None, help="Duration of the test")
     parser.add_argument("--build", dest="build_dir",
@@ -181,7 +194,7 @@ if __name__ == '__main__':
                       type=argparse_filestring_type,
                       default=None, help="use the specified linker script")
 
-    options = parser.parse_args()
+    options = parser.parse_args(rest)
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
@@ -194,7 +207,7 @@ if __name__ == '__main__':
         sys.exit()
 
     # force program to "0" if a source dir is specified
-    if options.source_dir is not None:
+    if prev_options.source_dir is not None:
         p = 0
     else:
     # Program Number or name
@@ -208,6 +221,7 @@ if __name__ == '__main__':
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")
     mcu = options.mcu[0]
+    config.set_target(mcu)
 
     # Toolchain
     if options.tool is None:
@@ -251,9 +265,9 @@ if __name__ == '__main__':
         if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
 
         build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
-        if options.source_dir is not None:
-            test.source_dir = options.source_dir
-            build_dir = options.source_dir
+        if prev_options.source_dir is not None:
+            test.source_dir = prev_options.source_dir
+            build_dir = prev_options.source_dir
 
         if options.build_dir is not None:
             build_dir = options.build_dir
@@ -267,7 +281,8 @@ if __name__ == '__main__':
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
-                                     name=options.artifact_name)
+                                     name=options.artifact_name,
+                                     config=config)
             print 'Image: %s'% bin_file
 
             if options.disk:
