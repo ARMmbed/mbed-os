@@ -148,6 +148,296 @@ typedef enum nsapi_option {
 } nsapi_option_t;
 
 
+/** nsapi_stack structure
+ *
+ *  Stack structure representing a specific instance of a stack.
+ */
+typedef struct nsapi_stack {
+    /** Network stack operation table
+     *
+     *  Provides access to the underlying api of the stack. This is not
+     *  flattened into the nsapi_stack to allow allocation in read-only
+     *  memory.
+     */
+    const struct nsapi_stack_api *stack_api;
+
+    /** Opaque handle for network stacks
+     */
+    void *stack;
+
+    // Internal nsapi buffer
+    unsigned _stack_buffer[16];
+} nsapi_stack_t;
+
+/** nsapi_stack_api structure
+ *
+ *  Common api structure for network stack operations. A network stack
+ *  can provide a nsapi_stack_api structure filled out with the
+ *  appropriate implementation.
+ *
+ *  Unsupported operations can be left as null pointers.
+ */
+typedef struct nsapi_stack_api
+{
+    /** Get the local IP address
+     *
+     *  @param stack    Stack handle
+     *  @return         Local IP Address or null address if not connected
+     */
+    nsapi_addr_t (*get_ip_address)(nsapi_stack_t *stack);
+
+    /** Translates a hostname to an IP address
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *  
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack. 
+     *
+     *  @param stack    Stack handle
+     *  @param addr     Destination for the host IP address
+     *  @param host     Hostname to resolve
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*gethostbyname)(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host);
+
+    /*  Set stack-specific stack options
+     *
+     *  The setstackopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the stack is unmodified.
+     *
+     *  @param stack    Stack handle
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*setstackopt)(nsapi_stack_t *stack, int level, int optname, const void *optval, unsigned optlen);
+
+    /*  Get stack-specific stack options
+     *
+     *  The getstackopt allow an application to retrieve stack-specific hints
+     *  from the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *
+     *  @param stack    Stack handle
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Destination for option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative error code on failure
+     */    
+    int (*getstackopt)(nsapi_stack_t *stack, int level, int optname, void *optval, unsigned *optlen);
+
+    /** Opens a socket
+     *
+     *  Creates a network socket and stores it in the specified handle.
+     *  The handle must be passed to following calls on the socket.
+     *
+     *  A stack may have a finite number of sockets, in this case
+     *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
+     *
+     *  @param stack    Stack context
+     *  @param socket   Destination for the handle to a newly created socket
+     *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*socket_open)(nsapi_stack_t *stack, nsapi_socket_t *socket, nsapi_protocol_t proto);
+
+    /** Close the socket
+     *
+     *  Closes any open connection and deallocates any memory associated
+     *  with the socket.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*socket_close)(nsapi_stack_t *stack, nsapi_socket_t socket);
+
+    /** Bind a specific address to a socket
+     *
+     *  Binding a socket specifies the address and port on which to recieve
+     *  data. If the IP address is zeroed, only the port is bound.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param addr     Local address to bind, may be null
+     *  @param port     Local port to bind
+     *  @return         0 on success, negative error code on failure.
+     */
+    int (*socket_bind)(nsapi_stack_t *stack, nsapi_socket_t socket, nsapi_addr_t addr, uint16_t port);
+
+    /** Listen for connections on a TCP socket
+     *
+     *  Marks the socket as a passive socket that can be used to accept
+     *  incoming connections.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param backlog  Number of pending connections that can be queued
+     *                  simultaneously
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*socket_listen)(nsapi_stack_t *stack, nsapi_socket_t socket, int backlog);
+
+    /** Connects TCP socket to a remote host
+     *
+     *  Initiates a connection to a remote server specified by the
+     *  indicated address.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param addr     The address of the remote host
+     *  @param port     The port of the remote host
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*socket_connect)(nsapi_stack_t *stack, nsapi_socket_t socket, nsapi_addr_t addr, uint16_t port);
+
+    /** Accepts a connection on a TCP socket
+     *
+     *  The server socket must be bound and set to listen for connections.
+     *  On a new connection, creates a network socket and stores it in the
+     *  specified handle. The handle must be passed to following calls on
+     *  the socket.
+     *
+     *  A stack may have a finite number of sockets, in this case
+     *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
+     *
+     *  This call is non-blocking. If accept would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Destination for a handle to the newly created sockey
+     *  @param server   Socket handle to server to accept from
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*socket_accept)(nsapi_stack_t *stack, nsapi_socket_t *socket, nsapi_socket_t server);
+
+    /** Send data over a TCP socket
+     *
+     *  The socket must be connected to a remote host. Returns the number of
+     *  bytes sent from the buffer.
+     *
+     *  This call is non-blocking. If send would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
+    int (*socket_send)(nsapi_stack_t *stack, nsapi_socket_t socket, const void *data, unsigned size);
+
+    /** Receive data over a TCP socket
+     *
+     *  The socket must be connected to a remote host. Returns the number of
+     *  bytes received into the buffer.
+     *
+     *  This call is non-blocking. If recv would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
+     */
+    int (*socket_recv)(nsapi_stack_t *stack, nsapi_socket_t socket, void *data, unsigned size);
+
+    /** Send a packet over a UDP socket
+     *
+     *  Sends data to the specified address. Returns the number of bytes
+     *  sent from the buffer.
+     *
+     *  This call is non-blocking. If sendto would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param addr     The address of the remote host
+     *  @param port     The port of the remote host
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
+    int (*socket_sendto)(nsapi_stack_t *stack, nsapi_socket_t socket, nsapi_addr_t addr, uint16_t port, const void *data, unsigned size);
+
+    /** Receive a packet over a UDP socket
+     *
+     *  Receives data and stores the source address in address if address
+     *  is not NULL. Returns the number of bytes received into the buffer.
+     *
+     *  This call is non-blocking. If recvfrom would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param addr     Destination for the address of the remote host
+     *  @param port     Destination for the port of the remote host
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
+     */
+    int (*socket_recvfrom)(nsapi_stack_t *stack, nsapi_socket_t socket, nsapi_addr_t *addr, uint16_t *port, void *buffer, unsigned size);
+
+    /** Register a callback on state change of the socket
+     *
+     *  The specified callback will be called on state changes such as when
+     *  the socket can recv/send/accept successfully and on when an error
+     *  occurs. The callback may also be called spuriously without reason.
+     *
+     *  The callback may be called in an interrupt context and should not
+     *  perform expensive operations such as recv/send calls.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param callback Function to call on state change
+     *  @param data     Argument to pass to callback
+     */
+    void (*socket_attach)(nsapi_stack_t *stack, nsapi_socket_t socket, void (*callback)(void *), void *data);
+
+    /*  Set stack-specific socket options
+     *
+     *  The setsockopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative error code on failure
+     */    
+    int (*setsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level, int optname, const void *optval, unsigned optlen);
+
+    /*  Get stack-specific socket options
+     *
+     *  The getstackopt allow an application to retrieve stack-specific hints
+     *  from the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *
+     *  @param stack    Stack handle
+     *  @param socket   Socket handle
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Destination for option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative error code on failure
+     */    
+    int (*getsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level, int optname, void *optval, unsigned *optlen);
+} nsapi_stack_api_t;
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -278,4 +278,12 @@ protected:
 };
 
 
+/** Convert a raw nsapi_stack_t object into a C++ NetworkStack object
+ *
+ *  @param stack    Reference to a raw nsapi_stack_t object
+ *  @return         Reference to the underlying network stack
+ */
+NetworkStack *nsapi_create_stack(nsapi_stack_t *stack);
+
+
 #endif
