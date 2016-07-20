@@ -65,7 +65,7 @@ class Sw4STM32(Exporter):
     TARGETS = BOARDS.keys()
 
     def __gen_dir(self, dirname):
-        settings = join(self.inputDir, dirname)
+        settings = join(self.export_dir, dirname)
         mkdir(settings)
 
     def __generate_uid(self):
@@ -78,7 +78,7 @@ class Sw4STM32(Exporter):
             libraries.append(l[3:])
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'linker_script': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,

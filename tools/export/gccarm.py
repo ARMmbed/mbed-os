@@ -135,8 +135,6 @@ class GccArm(Exporter):
 
     def generate(self):
         # "make" wants Unix paths
-        if self.sources_relative:
-            self.resources.relative_to(self.prj_paths[0])
         self.resources.win_to_unix()
 
         to_be_compiled = []
@@ -152,19 +150,19 @@ class GccArm(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
-        build_dir = abspath(join(self.inputDir, ".build"))
+        build_dir = abspath(join(self.export_dir, ".build"))
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'to_be_compiled': to_be_compiled,
             'object_files': self.resources.objects,
             'include_paths': self.resources.inc_dirs,
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols(),
+            'symbols': self.toolchain.get_symbols(),
             'cpu_flags': self.toolchain.cpu,
-            'vpath': [relpath(s, build_dir) for s in self.prj_paths] if self.sources_relative else [".."],
-            'hex_files': self.resources.hex_files
+            'hex_files': self.resources.hex_files,
+            'vpath': [".."]
         }
 
         for key in ['include_paths', 'library_paths', 'linker_script', 'hex_files']:
@@ -174,7 +172,7 @@ class GccArm(Exporter):
                 ctx[key] = ctx['vpath'][0] + "/" + ctx[key]
         if "../." not in ctx["include_paths"]:
             ctx["include_paths"] += ['../.']
-        ctx.update(self.progen_flags)
+        ctx.update(self.flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
 
     def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):

@@ -35,7 +35,7 @@ class KDS(Exporter):
             libraries.append(l[3:])
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'linker_script': self.resources.linker_script,
             'object_files': self.resources.objects,
@@ -44,4 +44,4 @@ class KDS(Exporter):
         }
         self.gen_file('kds_%s_project.tmpl' % self.target.lower(), ctx, '.project')
         self.gen_file('kds_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
-        self.gen_file('kds_launch.tmpl', ctx, '%s.launch' % self.program_name)
+        self.gen_file('kds_launch.tmpl', ctx, '%s.launch' % self.project_name)

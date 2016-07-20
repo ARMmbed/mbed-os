@@ -60,7 +60,7 @@ class IntermediateFile(Exporter):
             self.resources.linker_script = ''
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'target': self.target,
             'toolchain': self.toolchain.name,
             'source_files': source_files,
@@ -77,4 +77,4 @@ class IntermediateFile(Exporter):
         }
 
         # EmBlocks intermediate file template
-        self.gen_file('emblocks.eix.tmpl', ctx, '%s.eix' % self.program_name)
+        self.gen_file('emblocks.eix.tmpl', ctx, '%s.eix' % self.project_name)
