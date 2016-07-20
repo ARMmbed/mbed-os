@@ -89,6 +89,20 @@ typedef enum nsapi_version {
     NSAPI_IPv6, /*!< Address is IPv6 */
 } nsapi_version_t;
 
+/** IP address structure for passing IP addresses by value
+ */
+typedef struct nsapi_addr {
+    /** IP version
+     *  NSAPI_IPv4 or NSAPI_IPv6
+     */
+    nsapi_version_t version;
+
+    /** IP address
+     *  The raw bytes of the IP address stored in big-endian format
+     */
+    uint8_t bytes[NSAPI_IP_BYTES];
+} nsapi_addr_t;
+
 
 /** Enum of socket protocols
  *
