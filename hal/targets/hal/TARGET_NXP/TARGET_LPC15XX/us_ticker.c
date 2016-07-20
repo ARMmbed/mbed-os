@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "critical.h"
 
 #define US_TICKER_TIMER_IRQn     SCT3_IRQn
 
@@ -61,11 +62,11 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // Set SCT3 match register 0 (critical section)
-    __disable_irq();
+    core_util_critical_section_enter();
     LPC_SCT3->CTRL |= (1 << 2);
     LPC_SCT3->MATCH0 = (uint32_t)timestamp;
     LPC_SCT3->CTRL &= ~(1 << 2);
-    __enable_irq();
+    core_util_critical_section_exit();
 
     // Enable interrupt on SCT3 event 0
     LPC_SCT3->EVEN = (1 << 0);
