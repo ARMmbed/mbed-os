@@ -1253,7 +1253,7 @@ def test_known(string):
 def test_name_known(string):
     if string not in TEST_MAP.keys() and \
        (getattr(ps, "test_alias", None) is None or \
-        ps.test_alias.get(test_id, "") not in TEST_MAP.keys()):
+        ps.test_alias.get(string, "") not in TEST_MAP.keys()):
         raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(string, columnate([t['id'] for t in TESTS])))
 
     return TEST_MAP[string].n

@@ -54,7 +54,7 @@ class DS5_5(Exporter):
                 })
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,

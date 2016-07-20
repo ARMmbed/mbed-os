@@ -99,7 +99,7 @@ class CoIDE(Exporter):
             self.resources.linker_script = ''
             
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'source_files': source_files,
             'header_files': header_files,
             'include_paths': self.resources.inc_dirs,
@@ -112,4 +112,4 @@ class CoIDE(Exporter):
         target = self.target.lower()
 
         # Project file
-        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.program_name)
+        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.project_name)
