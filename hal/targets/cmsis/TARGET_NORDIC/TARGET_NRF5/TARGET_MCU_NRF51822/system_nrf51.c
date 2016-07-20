@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include "nrf.h"
 #include "system_nrf51.h"
+#include "nrf5x_lf_clk_helper.h"
 
 /*lint ++flb "Enter library region" */
 
@@ -103,9 +104,9 @@ void SystemInit(void)
         }
         *(uint32_t volatile *)0x4006EC14 = 0xC0;
     }
-
-    // Start the external 32khz crystal oscillator.
-    NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
+    
+    // Start the LF oscilator according to the mbed configuration (over the nrf5x_lf_clk_helper.h file)
+    NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_TO_USE << CLOCK_LFCLKSRC_SRC_Pos);
     NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
     NRF_CLOCK->TASKS_LFCLKSTART     = 1;
 

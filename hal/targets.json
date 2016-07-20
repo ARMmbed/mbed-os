@@ -1107,7 +1107,13 @@
         },
         "program_cycle_s": 6,
         "default_build": "small",
-        "features": ["BLE"]
+        "features": ["BLE"],
+        "config":{
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            }
+        }
     },
     "MCU_NRF51_16K_BASE": {
         "inherits": ["MCU_NRF51"],
@@ -1721,7 +1727,13 @@
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "MERGE_BOOTLOADER": false,
-        "features": ["BLE"]
+        "features": ["BLE"],
+        "config":{
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            }
+        }
     },
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
