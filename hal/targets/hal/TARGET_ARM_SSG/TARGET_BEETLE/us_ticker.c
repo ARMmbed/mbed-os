@@ -23,11 +23,19 @@ static uint32_t us_ticker_reload = 0x0; /* Max Value */
 /* us ticker initialized */
 static uint32_t us_ticker_inited = 0;
 /* us ticker overflow */
-static uint32_t us_ticker_overflow = 0;
+static uint32_t us_ticker_overflow_delta = 0;
+/* us ticker overflow limit */
+static uint32_t us_ticker_overflow_limit = 0;
 
 void __us_ticker_irq_handler(void) {
     Timer_ClearInterrupt(TIMER1);
-    us_ticker_overflow++;
+    /*
+     * For each overflow event adds the timer max represented value to
+     * the delta. This allows the us_ticker to keep track of the elapsed
+     * time:
+     * elapsed_time = (num_overflow * overflow_limit) + current_time
+     */
+    us_ticker_overflow_delta += us_ticker_overflow_limit;
 }
 
 void us_ticker_init(void) {
@@ -57,6 +65,18 @@ void us_ticker_init(void) {
     us_ticker_irqn1 = Timer_GetIRQn(TIMER1);
     NVIC_SetVector((IRQn_Type)us_ticker_irqn1, (uint32_t)__us_ticker_irq_handler);
     NVIC_EnableIRQ((IRQn_Type)us_ticker_irqn1);
+
+    /* Timer set interrupt on TIMER1 */
+    Timer_SetInterrupt(TIMER1, TIMER_DEFAULT_RELOAD);
+
+    /*
+     * Set us_ticker Overflow limit. The us_ticker overflow limit is required
+     * to calculated the return value of the us_ticker read function in us
+     * on 32bit.
+     * A 32bit us value cannot be represented directly in the Timer Load
+     * register if it is greater than (0xFFFFFFFF ticks)/TIMER_DIVIDER_US.
+     */
+    us_ticker_overflow_limit = Timer_GetReloadValue(TIMER1);
 }
 
 uint32_t us_ticker_read() {
@@ -64,7 +84,9 @@ uint32_t us_ticker_read() {
 
     if (!us_ticker_inited)
         us_ticker_init();
-    return_value = Timer_Read(TIMER1);
+
+    return_value = us_ticker_overflow_delta + Timer_Read(TIMER1);
+
     return return_value;
 }
 
