@@ -146,7 +146,7 @@ class ConfigCumulativeOverride:
         self.strict = strict
 
     # Add attr to the cumulative override
-    def remove_cumulative_override(self, overrides):
+    def remove_cumulative_overrides(self, overrides):
         for override in overrides:
             if override in self.additions:
                 raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name, override))
@@ -163,12 +163,13 @@ class ConfigCumulativeOverride:
 
     # Enable strict set of cumulative overrides for the specified attr
     def strict_cumulative_overrides(self, overrides):
-        self.remove_cumulative_override(self.additions - set(overrides))
-        self.add_cumulative_override(overrides)
+        self.remove_cumulative_overrides(self.additions - set(overrides))
+        self.add_cumulative_overrides(overrides)
         self.strict = True
 
-    def get_cumulative_overrides(self, target):
-        return set(getattr(target, self.name)) | self.additions - self.removals
+    def update_target(self, target):
+        setattr(target, self.name, list(
+                set(getattr(target, self.name, [])) | self.additions - self.removals))
 
 
 # 'Config' implements the mbed configuration mechanism
@@ -290,6 +291,10 @@ class Config:
                     else:
                         self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'"
                             % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label))))
+
+        for cumulatives in self.cumulative_overrides.itervalues():
+            cumulatives.update_target(Target.get_target(self.target))
+
         return params
 
     # Read and interpret configuration data defined by targets
@@ -400,20 +405,12 @@ class Config:
     def get_config_data_macros(self):
         return self.config_to_macros(self.get_config_data())
 
-    # Returns any cumulative overrides in the configuration data
-    def get_cumulative_overrides(self, attr):
-        if attr not in self.cumulative_overrides:
-            return None
-
-        params, _ = self.get_config_data()
-        self._check_required_parameters(params)
-
-        return self.cumulative_overrides[attr].get_cumulative_overrides(
-                Target.get_target(self.target))
-
     # Returns any features in the configuration data
     def get_features(self):
-        features = self.get_cumulative_overrides('features')
+        params, _ = self.get_config_data()
+        self._check_required_parameters(params)
+        self.cumulative_overrides['features'].update_target(Target.get_target(self.target))
+        features = Target.get_target(self.target).features
 
         for feature in features:
             if feature not in self.__allowed_features:
