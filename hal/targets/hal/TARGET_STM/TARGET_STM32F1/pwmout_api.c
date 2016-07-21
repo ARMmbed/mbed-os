@@ -42,10 +42,13 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
+    MBED_ASSERT(obj->pwm != (PWMName)NC);
 
-    if (obj->pwm == (PWMName)NC) {
-        error("PWM error: pinout mapping failed.");
-    }
+    // Get the functions (timer channel, (non)inverted) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_PWM);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel = STM_PIN_CHANNEL(function);
+    obj->inverted = STM_PIN_INVERTED(function);
 
     // Enable TIM clock
     if (obj->pwm == PWM_1) __TIM1_CLK_ENABLE();
@@ -94,70 +97,28 @@ void pwmout_write(pwmout_t* obj, float value)
     sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
-    switch (obj->pin) {
-
-        // Channels 1
-        case PA_6:
-        case PA_8:
-        case PA_15:
-        case PB_4:
-        case PC_6:
+    switch (obj->channel) {
+        case 1:
             channel = TIM_CHANNEL_1;
             break;
-
-        // Channels 1N
-        case PB_13:
-            channel = TIM_CHANNEL_1;
-            complementary_channel = 1;
-            break;
-
-        // Channels 2
-        case PA_1:
-        case PA_7:
-        case PA_9:
-        case PB_3:
-        case PB_5:
-        case PC_7:
+        case 2:
             channel = TIM_CHANNEL_2;
             break;
-
-        // Channels 2N
-        case PB_14:
-            channel = TIM_CHANNEL_2;
-            complementary_channel = 1;
-            break;
-
-        // Channels 3
-        case PA_2:
-        case PA_10:
-        case PB_0:
-        case PB_10:
-        case PC_8:
+        case 3:
             channel = TIM_CHANNEL_3;
             break;
-
-        // Channels 3N
-        case PB_15:
-            channel = TIM_CHANNEL_3;
-            complementary_channel = 1;
-            break;
-
-        // Channels 4
-        case PA_3:
-        case PA_11:
-        case PB_1:
-        case PB_11:
-        case PC_9:
+        case 4:
             channel = TIM_CHANNEL_4;
             break;
-
         default:
             return;
     }
 
-    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel);
+    if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
+        error("Cannot initialize PWM\n");
+    }
 
-    if (complementary_channel) {
+    if (obj->inverted) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);
     } else {
         HAL_TIM_PWM_Start(&TimHandle, channel);
