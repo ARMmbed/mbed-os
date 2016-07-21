@@ -1487,7 +1487,7 @@
         "extra_labels_add": ["DELTA_DFCM_NNN40"],
         "macros_add": ["TARGET_DELTA_DFCM_NNN40", "TARGET_NRF_LFCLK_RC"]
     },
-    "NRF51_DK": {
+    "NRF51_DK_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dk"},
@@ -1867,6 +1867,118 @@
         "progen_target": "samg55j19",
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "default_build": "standard"
+    },
+    "MCU_NRF51_UNIFIED": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
+        "macros": [
+            "NRF51",
+            "TARGET_NRF51822",
+            "BLE_STACK_SUPPORT_REQD",
+            "SOFTDEVICE_PRESENT",
+            "S130",
+            "TARGET_MCU_NRF51822"
+        ],
+        "MERGE_BOOTLOADER": false,
+        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5"],
+        "OUTPUT_EXT": "hex",
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "public": false,
+        "MERGE_SOFT_DEVICE": true,
+        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
+            {
+                "boot": "",
+                "name": "s130_nrf51_2.0.0_softdevice.hex",
+                "offset": 110592
+            }
+        ],
+        "detect_code": ["1070"],
+        "post_binary_hook": {
+            "function": "MCU_NRF51Code.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+        },
+        "program_cycle_s": 6,
+        "default_build": "small",
+        "features": ["BLE"],
+        "config":{
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            }
+        }
+    },
+    "MCU_NRF51_32K_UNIFIED": {
+        "inherits": ["MCU_NRF51_UNIFIED"],
+        "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
+        "macros_add": ["TARGET_MCU_NORDIC_32K", "TARGET_MCU_NRF51_32K"],
+        "public": false
+    },
+    "NRF51_DK": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "progen": {"target": "nrf51-dk"},
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"]
+    },
+    "MCU_NRF52": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132"],
+        "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5"],
+        "OUTPUT_EXT": "hex",
+        "is_disk_virtual": true,
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "public": false,
+        "detect_code": ["1101"],
+        "program_cycle_s": 6,
+        "MERGE_SOFT_DEVICE": true,
+        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
+            {
+                "boot": "",
+                "name": "s132_nrf52_2.0.0_softdevice.hex",
+                "offset": 114688
+            }
+        ],
+        "post_binary_hook": {
+            "function": "MCU_NRF51Code.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+        },
+        "MERGE_BOOTLOADER": false,
+        "features": ["BLE"],
+        "config":{
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            }
+        }
+    },
+    "NRF52_DK": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF52"],
+        "progen": {"target": "nrf52-dk"},
+        "macros_add": [
+            "BOARD_PCA10040",
+            "NRF52_PAN_12",
+            "NRF52_PAN_15",
+            "NRF52_PAN_58",
+            "NRF52_PAN_55",
+            "NRF52_PAN_54",
+            "NRF52_PAN_31",
+            "NRF52_PAN_30",
+            "NRF52_PAN_51",
+            "NRF52_PAN_36",
+            "NRF52_PAN_53",
+            "S132",
+            "CONFIG_GPIO_AS_PINRESET",
+            "BLE_STACK_SUPPORT_REQD",
+            "SWI_DISABLE0",
+            "NRF52_PAN_20",
+            "NRF52_PAN_64",
+            "NRF52_PAN_62",
+            "NRF52_PAN_63"
+        ],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"]
     },
     "BLUEPILL_F103C8": {
         "core": "Cortex-M3",
