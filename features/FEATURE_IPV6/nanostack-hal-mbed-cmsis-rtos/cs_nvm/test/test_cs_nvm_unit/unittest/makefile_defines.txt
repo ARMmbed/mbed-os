@@ -1,0 +1,19 @@
+#--- Inputs ----#
+CPPUTEST_HOME = /usr
+CPPUTEST_USE_EXTENSIONS = Y
+CPPUTEST_USE_VPATH = Y
+CPPUTEST_USE_GCOV = Y
+CPP_PLATFORM = gcc
+INCLUDE_DIRS =\
+  .\
+  ../stubs\
+  ../../../../..\
+  ../../../../../../../core/configuration-store/\
+  ../../../../../../../core/flash-abstraction/\
+  ../../../../../../nanostack-libservice/mbed-client-libservice/\
+  ../../../../../../sal-stack-nanostack-eventloop/nanostack-event-loop/\
+  /usr/include\
+  $(CPPUTEST_HOME)/include\
+
+CPPUTESTFLAGS = -D__thumb2__ -w
+CPPUTEST_CFLAGS += -std=gnu99
