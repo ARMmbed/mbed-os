@@ -57,6 +57,7 @@ struct port_s {
 struct analogin_s {
     ADCName adc;
     PinName pin;
+    uint32_t channel;
 };
 
 struct serial_s {
