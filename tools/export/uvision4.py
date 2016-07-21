@@ -39,10 +39,11 @@ class Uvision4(Exporter):
     def TARGETS(cls):
         if not hasattr(cls, "_targets_supported"):
             cls._targets_supported = []
+            progendef = ProGenDef('uvision')
             for target in TARGET_NAMES:
                 try:
-                    if (ProGenDef('uvision').is_supported(str(TARGET_MAP[target])) or
-                        ProGenDef('uvision').is_supported(TARGET_MAP[target].progen['target'])):
+                    if (progendef.is_supported(str(TARGET_MAP[target])) or
+                        progendef.is_supported(TARGET_MAP[target].progen['target'])):
                         cls._targets_supported.append(target)
                 except AttributeError:
                     # target is not supported yet

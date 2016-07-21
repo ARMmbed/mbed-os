@@ -39,10 +39,11 @@ class IAREmbeddedWorkbench(Exporter):
     def TARGETS(cls):
         if not hasattr(cls, "_targets_supported"):
             cls._targets_supported = []
+            progendef = ProGenDef('iar')
             for target in TARGET_NAMES:
                 try:
-                    if (ProGenDef('iar').is_supported(str(TARGET_MAP[target])) or
-                        ProGenDef('iar').is_supported(TARGET_MAP[target].progen['target'])):
+                    if (progendef.is_supported(str(TARGET_MAP[target])) or
+                        progendef.is_supported(TARGET_MAP[target].progen['target'])):
                         cls._targets_supported.append(target)
                 except AttributeError:
                     # target is not supported yet
