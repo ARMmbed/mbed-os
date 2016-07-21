@@ -46,19 +46,19 @@ In order to override this configuration use targed_override section in configura
 ```
 
 "lf_clock_rc_calib_timer_interval" - Calibration timer interval in 250 ms. It is equivalent to nrf_clock_lf_cfg_t::rc_ctiv.
-This item generate macro MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL.
-By default such configuration is sett to 16.
+This item generates macro MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL.
+By default, such configuration is set to 16.
 
 "lf_clock_rc_calib_mode_config" - This value configures how often the RC oscillator will be calibrated, in number of calibration intervals.
 It is equivalent to nrf_clock_lf_cfg_t::rc_temp_ctiv.
 For further information, see the documentation for the [API of a SoftDevice 13x version 2.0.0](http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.s132.api.v2.0.0/structnrf__clock__lf__cfg__t.html)
-This item generate macro MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG.
-By default such configuration is sett to 1.
+This item generates macro MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG.
+By default, such configuration is set to 1.
 
-2b. Advnced configuration of the LFCLK XTAL oscillator:
+2b. Advanced configuration of the LFCLK XTAL oscillator:
 
 Accuracy of the clock source can be set. In order to do so macro MBED_CONF_NORDIC_LF_CLOCK_XTAL_ACCURACY should been provided (e.g. in mbed_app.json).
-By default such configuration is sett to NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM.
+By default such configuration is set to NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM.
 For further information, see the documentation for the [API of a SoftDevice 13x version 2.0.0](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.s132.api.v2.0.0%2Fgroup___n_r_f___s_d_m___d_e_f_i_n_e_s.html)
 
 ```json
@@ -78,7 +78,7 @@ For further information, see the documentation for the [API of a SoftDevice 13x 
 2c. Advance configuration of the LFCLK Synthesized from HFCLK:
 
 Accuracy of the clock source can be set. In order to do so macro MBED_CONF_NORDIC_LF_CLOCK_SYNTH_ACCURACY should been provided (e.g. in mbed_app.json).
-By default such configuration is sett to NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM.
+By default, such configuration is set to NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM.
 For further information, see the documentation for the [API of a SoftDevice 13x version 2.0.0](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.s132.api.v2.0.0%2Fgroup___n_r_f___s_d_m___d_e_f_i_n_e_s.html)
 
 ```json
