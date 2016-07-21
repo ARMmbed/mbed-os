@@ -40,6 +40,7 @@ class Sw4STM32(Exporter):
         'NUCLEO_F072RB':    {'name': 'NUCLEO-F072RB',           'mcuId': 'STM32F072RBTx'},
         'NUCLEO_F091RC':    {'name': 'NUCLEO-F091RC',           'mcuId': 'STM32F091RCTx'},
         'NUCLEO_F103RB':    {'name': 'NUCLEO-F103RB',           'mcuId': 'STM32F103RBTx'},
+        'NUCLEO_F207ZG':    {'name': 'NUCLEO-F207ZG',           'mcuId': 'STM32F207ZGTx'},
         'NUCLEO_F302R8':    {'name': 'NUCLEO-F302R8',           'mcuId': 'STM32F302R8Tx'},
         'NUCLEO_F303RE':    {'name': 'NUCLEO-F303RE',           'mcuId': 'STM32F303RETx'},
         'NUCLEO_F334R8':    {'name': 'NUCLEO-F334R8',           'mcuId': 'STM32F334R8Tx'},
