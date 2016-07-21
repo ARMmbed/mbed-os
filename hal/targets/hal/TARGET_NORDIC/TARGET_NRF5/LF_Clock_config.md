@@ -10,10 +10,10 @@ LF clock source configuration is used for MCU startup initialization and the BLE
 1. Clock source
 
 Default clock source is XTAL oscillator. It is defined at the target level configuration.
-There are three options that can be configured as the clock source:
-    - NRF_LF_SRC_XTAL
-    - NRF_LF_SRC_RC
-    - NRF_LF_SRC_SYNTH
+There are three options that can be configured as the clock source:  
+    - NRF_LF_SRC_XTAL  
+    - NRF_LF_SRC_RC  
+    - NRF_LF_SRC_SYNTH  
 
 In order to override this configuration use targed_override section in configuration file (e.g mbed_app.json)
 
@@ -32,11 +32,11 @@ In order to override this configuration use targed_override section in configura
 ```json
 {
     "config": {
-        "lf_clock_rc_calib_timer_interval" {
+        "lf_clock_rc_calib_timer_interval": {
             "value": 16,
             "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL"
         },
-        "lf_clock_rc_calib_mode_config" {
+        "lf_clock_rc_calib_mode_config": {
             "value": 1,
             "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG"
         }
