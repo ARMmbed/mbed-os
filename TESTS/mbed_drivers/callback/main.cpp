@@ -48,6 +48,48 @@ T bound_func1(Thing<T> *t, T a0) { return t->t | a0; }
 template <typename T>
 T bound_func0(Thing<T> *t) { return t->t; }
 
+// const bound functions
+template <typename T>
+T const_func5(const Thing<T> *t, T a0, T a1, T a2, T a3, T a4) { return t->t | a0 | a1 | a2 | a3 | a4; }
+template <typename T>
+T const_func4(const Thing<T> *t, T a0, T a1, T a2, T a3) { return t->t | a0 | a1 | a2 | a3; }
+template <typename T>
+T const_func3(const Thing<T> *t, T a0, T a1, T a2) { return t->t | a0 | a1 | a2; }
+template <typename T>
+T const_func2(const Thing<T> *t, T a0, T a1) { return t->t | a0 | a1; }
+template <typename T>
+T const_func1(const Thing<T> *t, T a0) { return t->t | a0; }
+template <typename T>
+T const_func0(const Thing<T> *t) { return t->t; }
+
+// volatile bound functions
+template <typename T>
+T volatile_func5(volatile Thing<T> *t, T a0, T a1, T a2, T a3, T a4) { return t->t | a0 | a1 | a2 | a3 | a4; }
+template <typename T>
+T volatile_func4(volatile Thing<T> *t, T a0, T a1, T a2, T a3) { return t->t | a0 | a1 | a2 | a3; }
+template <typename T>
+T volatile_func3(volatile Thing<T> *t, T a0, T a1, T a2) { return t->t | a0 | a1 | a2; }
+template <typename T>
+T volatile_func2(volatile Thing<T> *t, T a0, T a1) { return t->t | a0 | a1; }
+template <typename T>
+T volatile_func1(volatile Thing<T> *t, T a0) { return t->t | a0; }
+template <typename T>
+T volatile_func0(volatile Thing<T> *t) { return t->t; }
+
+// const volatil bound functions
+template <typename T>
+T const_volatile_func5(const volatile Thing<T> *t, T a0, T a1, T a2, T a3, T a4) { return t->t | a0 | a1 | a2 | a3 | a4; }
+template <typename T>
+T const_volatile_func4(const volatile Thing<T> *t, T a0, T a1, T a2, T a3) { return t->t | a0 | a1 | a2 | a3; }
+template <typename T>
+T const_volatile_func3(const volatile Thing<T> *t, T a0, T a1, T a2) { return t->t | a0 | a1 | a2; }
+template <typename T>
+T const_volatile_func2(const volatile Thing<T> *t, T a0, T a1) { return t->t | a0 | a1; }
+template <typename T>
+T const_volatile_func1(const volatile Thing<T> *t, T a0) { return t->t | a0; }
+template <typename T>
+T const_volatile_func0(const volatile Thing<T> *t) { return t->t; }
+
 
 // function call and result verification
 template <typename T>
@@ -133,6 +175,9 @@ void test_dispatch5() {
     Verifier<T>::verify5(static_func5<T>);
     Verifier<T>::verify5(&thing, &Thing<T>::member_func5);
     Verifier<T>::verify5(&thing, &bound_func5<T>);
+    Verifier<T>::verify5((const Thing<T>*)&thing, &const_func5<T>);
+    Verifier<T>::verify5((volatile Thing<T>*)&thing, &volatile_func5<T>);
+    Verifier<T>::verify5((const volatile Thing<T>*)&thing, &const_volatile_func5<T>);
 
     Callback<T(T,T,T,T,T)> callback(static_func5);
     Verifier<T>::verify5(callback);
@@ -147,6 +192,9 @@ void test_dispatch4() {
     Verifier<T>::verify4(static_func4<T>);
     Verifier<T>::verify4(&thing, &Thing<T>::member_func4);
     Verifier<T>::verify4(&thing, &bound_func4<T>);
+    Verifier<T>::verify4((const Thing<T>*)&thing, &const_func4<T>);
+    Verifier<T>::verify4((volatile Thing<T>*)&thing, &volatile_func4<T>);
+    Verifier<T>::verify4((const volatile Thing<T>*)&thing, &const_volatile_func4<T>);
 
     Callback<T(T,T,T,T)> callback(static_func4);
     Verifier<T>::verify4(callback);
@@ -161,6 +209,9 @@ void test_dispatch3() {
     Verifier<T>::verify3(static_func3<T>);
     Verifier<T>::verify3(&thing, &Thing<T>::member_func3);
     Verifier<T>::verify3(&thing, &bound_func3<T>);
+    Verifier<T>::verify3((const Thing<T>*)&thing, &const_func3<T>);
+    Verifier<T>::verify3((volatile Thing<T>*)&thing, &volatile_func3<T>);
+    Verifier<T>::verify3((const volatile Thing<T>*)&thing, &const_volatile_func3<T>);
 
     Callback<T(T,T,T)> callback(static_func3);
     Verifier<T>::verify3(callback);
@@ -175,6 +226,9 @@ void test_dispatch2() {
     Verifier<T>::verify2(static_func2<T>);
     Verifier<T>::verify2(&thing, &Thing<T>::member_func2);
     Verifier<T>::verify2(&thing, &bound_func2<T>);
+    Verifier<T>::verify2((const Thing<T>*)&thing, &const_func2<T>);
+    Verifier<T>::verify2((volatile Thing<T>*)&thing, &volatile_func2<T>);
+    Verifier<T>::verify2((const volatile Thing<T>*)&thing, &const_volatile_func2<T>);
 
     Callback<T(T,T)> callback(static_func2);
     Verifier<T>::verify2(callback);
@@ -189,6 +243,9 @@ void test_dispatch1() {
     Verifier<T>::verify1(static_func1<T>);
     Verifier<T>::verify1(&thing, &Thing<T>::member_func1);
     Verifier<T>::verify1(&thing, &bound_func1<T>);
+    Verifier<T>::verify1((const Thing<T>*)&thing, &const_func1<T>);
+    Verifier<T>::verify1((volatile Thing<T>*)&thing, &volatile_func1<T>);
+    Verifier<T>::verify1((const volatile Thing<T>*)&thing, &const_volatile_func1<T>);
 
     Callback<T(T)> callback(static_func1);
     Verifier<T>::verify1(callback);
@@ -203,6 +260,9 @@ void test_dispatch0() {
     Verifier<T>::verify0(static_func0<T>);
     Verifier<T>::verify0(&thing, &Thing<T>::member_func0);
     Verifier<T>::verify0(&thing, &bound_func0<T>);
+    Verifier<T>::verify0((const Thing<T>*)&thing, &const_func0<T>);
+    Verifier<T>::verify0((volatile Thing<T>*)&thing, &volatile_func0<T>);
+    Verifier<T>::verify0((const volatile Thing<T>*)&thing, &const_volatile_func0<T>);
 
     Callback<T()> callback(static_func0);
     Verifier<T>::verify0(callback);
