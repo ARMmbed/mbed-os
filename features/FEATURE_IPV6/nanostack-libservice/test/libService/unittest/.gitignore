@@ -1,0 +1,8 @@
+coverages/*
+*/gcov/*
+results/*
+*.xml
+*/*_unit_tests
+*/*_unit_tests.txt
+*/lib
+*/objs

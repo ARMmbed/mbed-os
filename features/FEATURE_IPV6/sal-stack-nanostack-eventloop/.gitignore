@@ -1,0 +1,6 @@
+*.a
+output/*
+build
+yotta_modules
+yotta_targets
+*.lib

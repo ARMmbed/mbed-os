@@ -1,0 +1,9 @@
+{
+    "name": "nanostack-hal",
+    "config": {
+        "nvm_cfstore": {
+            "help": "Use cfstore as a NVM storage. Else RAM simulation will be used",
+            "value": false
+        }
+    }
+}

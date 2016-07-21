@@ -1,0 +1,6 @@
+Dependencies for sal-stack-nanostack library are:
+ * mbed-client-c > 0.1.6
+ * nanostack-libservice > 3.0.0
+ * sal-stack-nanostack-eventloop > 0.0.8
+ * nanostack-randlib > 0.0.4
+
