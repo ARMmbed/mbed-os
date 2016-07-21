@@ -40,15 +40,20 @@ from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
+from tools.targets import TARGET_NAMES
+from tools.targets import Target
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
+from utils import argparse_force_uppercase_type
+from utils import run_type_after_parse
 from argparse import ArgumentTypeError
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from tools.config import Config
 
 if __name__ == '__main__':
     # Parse Options
@@ -196,6 +201,9 @@ if __name__ == '__main__':
 
     # force program to "0" if a source dir is specified
     if options.source_dir is not None:
+        config = Config.add_target_config(options.source_dir)
+        if "custom_targets" in config:
+            Target.add_py_targets(config["custom_targets"])
         p = 0
     else:
     # Program Number or name
@@ -206,9 +214,13 @@ if __name__ == '__main__':
         p = [p]
 
     # Target
-    if options.mcu is None :
+    # Get target list
+    if options.mcu:
+        mcu = run_type_after_parse(
+            argparse_force_uppercase_type(sorted(TARGET_NAMES), "MCU"),
+            parser, options.mcu, "-m")
+    else:
         args_error(parser, "[ERROR] You should specify an MCU")
-    mcu = options.mcu[0]
 
     # Toolchain
     if options.tool is None:

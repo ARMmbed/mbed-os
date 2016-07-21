@@ -29,7 +29,7 @@ sys.path.insert(0, ROOT)
 
 from tools.toolchains import TOOLCHAINS
 from tools.toolchains import mbedToolchain
-from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.targets import TARGET_NAMES, TARGET_MAP, Target
 from tools.options import get_default_options_parser
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
@@ -37,8 +37,12 @@ from tools.build_api import static_analysis_scan, static_analysis_scan_lib, stat
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from utils import argparse_filestring_type
+from utils import argparse_force_uppercase_type
+from utils import argparse_many
+from utils import run_type_after_parse
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from utils import argparse_filestring_type, argparse_dir_not_parent
+from tools.config import Config
 
 if __name__ == '__main__':
     start = time()
@@ -156,13 +160,23 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
 
+    if options.source_dir:
+        config = Config.add_target_config(options.source_dir)
+        if "custom_targets" in config:
+            Target.add_py_targets(config["custom_targets"])
+
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
         print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         exit(0)
 
     # Get target list
-    targets = options.mcu if options.mcu else TARGET_NAMES
+    if options.mcu:
+        targets = run_type_after_parse(
+            argparse_many(argparse_force_uppercase_type(sorted(TARGET_NAMES), "MCU")),
+            parser, options.mcu, "-m")
+    else:
+        targets = TARGET_NAMES
 
     # Get toolchains list
     toolchains = options.tool if options.tool else TOOLCHAINS

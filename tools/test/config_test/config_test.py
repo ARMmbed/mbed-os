@@ -46,6 +46,9 @@ def test_tree(full_name, name):
         try:
             # Use 'set_targets_json_location' to remove the previous custom targets from the target list
             set_targets_json_location(Target._Target__targets_json_location)
+            config = Config.add_target_config([full_name])
+            if "custom_targets" in config:
+                Target.add_py_targets(config["custom_targets"])
             cfg, macros, features = get_config(full_name, target, "GCC_ARM")
             macros = Config.config_macros_to_macros(macros)
         except ConfigException as e:

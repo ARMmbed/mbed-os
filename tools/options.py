@@ -29,8 +29,7 @@ def get_default_options_parser(add_clean=True, add_options=True):
 
     parser.add_argument("-m", "--mcu",
                       help="build for the given MCU (%s)" % ', '.join(targetnames),
-                      metavar="MCU",
-                      type=argparse_many(argparse_force_uppercase_type(targetnames, "MCU")))
+                      metavar="MCU")
 
     parser.add_argument("-t", "--tool",
                       help="build using the given TOOLCHAIN (%s)" % ', '.join(toolchainlist),

@@ -31,12 +31,18 @@ from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage_results
 from tools.targets import TARGET_MAP
+from tools.targets import TARGET_NAMES
+from tools.targets import Target
 from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from utils import argparse_dir_not_parent
+from utils import argparse_force_uppercase_type
+from utils import run_type_after_parse
+from utils import args_error
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from tools.config import Config
 
 if __name__ == '__main__':
     try:
@@ -96,6 +102,11 @@ if __name__ == '__main__':
 
         options = parser.parse_args()
 
+        if options.source_dir:
+            config = Config.add_target_config(options.source_dir)
+            if "custom_targets" in config:
+                Target.add_py_targets(config["custom_targets"])
+
         # Filter tests by path if specified
         if options.paths:
             all_paths = options.paths
@@ -152,7 +163,13 @@ if __name__ == '__main__':
                 base_source_paths = ['.']
             
             
-            target = options.mcu[0]
+            # Get target list
+            if options.mcu:
+                target = run_type_after_parse(
+                    argparse_force_uppercase_type(sorted(TARGET_NAMES), "MCU"),
+                    parser, options.mcu, "-m")
+            else:
+                args_error(parser, "[ERROR] You should specify an MCU")
             
             build_report = {}
             build_properties = {}

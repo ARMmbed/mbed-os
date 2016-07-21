@@ -291,6 +291,15 @@ def argparse_filestring_type(string) :
     else :
         raise argparse.ArgumentTypeError("{0}"" does not exist in the filesystem.".format(string))
 
+def run_type_after_parse(type_fn, parser, args, switch):
+    try:
+        if not isinstance(args, list):
+            return type_fn(args)
+        else:
+            return sum([type_fn(arg) for arg in args], [])
+    except argparse.ArgumentTypeError as e:
+        parser.error("argument {}: {}".format(switch, str(e)))
+
 # render a list of strings as a in a bunch of columns
 def columnate(strings, seperator=", ", chars=80):
     col_width = max(len(s) for s in strings)
