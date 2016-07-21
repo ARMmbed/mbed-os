@@ -81,6 +81,34 @@ class ARM(mbedToolchain):
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
 
+        # Use latest gcc nanolib
+        if "big-build" in self.options:
+            use_microlib = False
+        elif "small-build" in self.options:
+            use_microlib = True
+        elif target.default_build == "standard":
+            use_microlib = False
+        elif target.default_build == "small":
+            use_microlib = True
+        else:
+            use_microlib = False
+
+        if use_microlib:
+            # Extend flags
+            self.flags['common'] += ["-D__MICROLIB, -DMBED_RTOS_SINGLE_THREAD"]
+            self.flags['c'] += ["--library_type=microlib"]
+            self.flags['ld'] += ["--library_type=microlib"]
+
+            # Run-time values
+            self.asm  += ["-D__MICROLIB"]
+            self.cc   += ["-D__MICROLIB", "--library_type=microlib"]
+            self.cppc += ["-D__MICROLIB", "--library_type=microlib"]
+            self.ld   += ["--library_type=microlib"]
+
+            # Only allow a single thread
+            self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
+            self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines():
