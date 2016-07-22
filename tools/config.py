@@ -223,6 +223,9 @@ class Config:
         self.cumulative_overrides = { key: ConfigCumulativeOverride(key) 
                                       for key in Target._Target__cumulative_attributes }
 
+        self._process_config_and_overrides(self.app_config_data, {}, "app", "application")
+        self.target_labels = Target.get_target(self.target).get_labels()
+
     # Add one or more configuration files
     def add_config_files(self, flist):
         for f in flist:
@@ -268,6 +271,12 @@ class Config:
         for label, overrides in data.get("target_overrides", {}).items():
             # If the label is defined by the target or it has the special value "*", process the overrides
             if (label == '*') or (label in self.target_labels):
+                # Check for invalid cumulative overrides in libraries
+                if (unit_kind == 'library' and 
+                    any(attr.startswith('target.extra_labels') for attr in overrides.iterkeys())):
+                    raise ConfigException("Target override '%s' in '%s' is only allowed at the application level"
+                        % ("target.extra_labels", ConfigParameter.get_display_name(unit_name, unit_kind, label)))
+
                 # Parse out cumulative overrides
                 for attr, cumulatives in self.cumulative_overrides.iteritems():
                     if 'target.'+attr in overrides:
