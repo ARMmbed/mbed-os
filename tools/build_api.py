@@ -345,7 +345,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         if resources.linker_script:
             toolchain.copy_files(resources.linker_script, build_path, resources=resources)
 
-        if resource.hex_files:
+        if resources.hex_files:
             toolchain.copy_files(resources.hex_files, build_path, resources=resources)
 
         # Compile Sources
