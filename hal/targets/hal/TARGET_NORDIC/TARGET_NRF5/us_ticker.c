@@ -217,3 +217,5 @@ void us_ticker_clear_interrupt(void)
 {
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, US_TICKER_EVENT);
 }
+
+#include "os_tick.inc"
