@@ -77,7 +77,7 @@ class GCC(mbedToolchain):
             common_flags.append("-g")
             common_flags.append("-O0")
         else:
-            common_flags.append("-Os")
+            common_flags.append("-O3")
             common_flags.append("-DNDEBUG")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
