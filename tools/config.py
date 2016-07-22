@@ -149,7 +149,7 @@ class ConfigCumulativeOverride:
     def remove_cumulative_overrides(self, overrides):
         for override in overrides:
             if override in self.additions:
-                raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name, override))
+                raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name[:-1], override))
 
         self.removals |= set(overrides)
 
@@ -157,7 +157,7 @@ class ConfigCumulativeOverride:
     def add_cumulative_overrides(self, overrides):
         for override in overrides:
             if (override in self.removals or (self.strict and override not in self.additions)):
-                raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name, override))
+                raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name[:-1], override))
 
         self.additions |= set(overrides)
 

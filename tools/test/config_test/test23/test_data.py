@@ -3,6 +3,6 @@
 expected_results = {
     "K64F": {
         "desc": "test feature collisions",
-        "exception_msg": "Configuration conflict. Feature IPV4 both added and removed." 
+        "exception_msg": "Configuration conflict. The feature IPV4 both added and removed." 
     }
 }
