@@ -137,6 +137,41 @@ class ConfigMacro:
             self.macro_name = name
             self.macro_value = None
 
+# Representation of overrides for cumulative attributes
+class ConfigCumulativeOverride:
+    def __init__(self, name, additions=set(), removals=set(), strict=False):
+        self.name = name
+        self.additions = set(additions)
+        self.removals = set(removals)
+        self.strict = strict
+
+    # Add attr to the cumulative override
+    def remove_cumulative_overrides(self, overrides):
+        for override in overrides:
+            if override in self.additions:
+                raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name[:-1], override))
+
+        self.removals |= set(overrides)
+
+    # Remove attr from the cumulative overrides
+    def add_cumulative_overrides(self, overrides):
+        for override in overrides:
+            if (override in self.removals or (self.strict and override not in self.additions)):
+                raise ConfigException("Configuration conflict. The %s %s both added and removed." % (self.name[:-1], override))
+
+        self.additions |= set(overrides)
+
+    # Enable strict set of cumulative overrides for the specified attr
+    def strict_cumulative_overrides(self, overrides):
+        self.remove_cumulative_overrides(self.additions - set(overrides))
+        self.add_cumulative_overrides(overrides)
+        self.strict = True
+
+    def update_target(self, target):
+        setattr(target, self.name, list(
+                set(getattr(target, self.name, [])) | self.additions - self.removals))
+
+
 # 'Config' implements the mbed configuration mechanism
 class Config:
     # Libraries and applications have different names for their configuration files
@@ -184,9 +219,12 @@ class Config:
         self.processed_configs = {}
         self.target = target if isinstance(target, basestring) else target.name
         self.target_labels = Target.get_target(self.target).get_labels()
-        self.added_features = set()
-        self.removed_features = set()
-        self.removed_unecessary_features = False
+
+        self.cumulative_overrides = { key: ConfigCumulativeOverride(key) 
+                                      for key in Target._Target__cumulative_attributes }
+
+        self._process_config_and_overrides(self.app_config_data, {}, "app", "application")
+        self.target_labels = Target.get_target(self.target).get_labels()
 
     # Add one or more configuration files
     def add_config_files(self, flist):
@@ -222,23 +260,6 @@ class Config:
             params[full_name] = ConfigParameter(name, v if isinstance(v, dict) else {"value": v}, unit_name, unit_kind)
         return params
 
-    # Add features to the available features
-    def remove_features(self, features):
-        for feature in features:
-            if feature in self.added_features:
-                raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
-
-        self.removed_features |= set(features)
-
-    # Remove features from the available features
-    def add_features(self, features):
-        for feature in features:
-            if (feature in self.removed_features
-                or (self.removed_unecessary_features and feature not in self.added_features)):
-                raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
-
-        self.added_features |= set(features)
-
     # Helper function: process "config_parameters" and "target_config_overrides" in a given dictionary
     # data: the configuration data of the library/appliation
     # params: storage for the discovered configuration parameters
@@ -250,21 +271,25 @@ class Config:
         for label, overrides in data.get("target_overrides", {}).items():
             # If the label is defined by the target or it has the special value "*", process the overrides
             if (label == '*') or (label in self.target_labels):
-                # Parse out features
-                if 'target.features' in overrides:
-                    features = overrides['target.features']
-                    self.remove_features(self.added_features - set(features))
-                    self.add_features(features)
-                    self.removed_unecessary_features = True
-                    del overrides['target.features']
+                # Check for invalid cumulative overrides in libraries
+                if (unit_kind == 'library' and 
+                    any(attr.startswith('target.extra_labels') for attr in overrides.iterkeys())):
+                    raise ConfigException("Target override '%s' in '%s' is only allowed at the application level"
+                        % ("target.extra_labels", ConfigParameter.get_display_name(unit_name, unit_kind, label)))
 
-                if 'target.features_add' in overrides:
-                    self.add_features(overrides['target.features_add'])
-                    del overrides['target.features_add']
+                # Parse out cumulative overrides
+                for attr, cumulatives in self.cumulative_overrides.iteritems():
+                    if 'target.'+attr in overrides:
+                        cumulatives.strict_cumulative_overrides(overrides['target.'+attr])
+                        del overrides['target.'+attr]
 
-                if 'target.features_remove' in overrides:
-                    self.remove_features(overrides['target.features_remove'])
-                    del overrides['target.features_remove']
+                    if 'target.'+attr+'_add' in overrides:
+                        cumulatives.add_cumulative_overrides(overrides['target.'+attr+'_add'])
+                        del overrides['target.'+attr+'_add']
+
+                    if 'target.'+attr+'_remove' in overrides:
+                        cumulatives.remove_cumulative_overrides(overrides['target.'+attr+'_remove'])
+                        del overrides['target.'+attr+'_remove']
 
                 # Consider the others as overrides
                 for name, v in overrides.items():
@@ -275,6 +300,10 @@ class Config:
                     else:
                         self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'"
                             % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label))))
+
+        for cumulatives in self.cumulative_overrides.itervalues():
+            cumulatives.update_target(Target.get_target(self.target))
+
         return params
 
     # Read and interpret configuration data defined by targets
@@ -389,8 +418,8 @@ class Config:
     def get_features(self):
         params, _ = self.get_config_data()
         self._check_required_parameters(params)
-        features = ((set(Target.get_target(self.target).features)
-            | self.added_features) - self.removed_features)
+        self.cumulative_overrides['features'].update_target(Target.get_target(self.target))
+        features = Target.get_target(self.target).features
 
         for feature in features:
             if feature not in self.__allowed_features:
