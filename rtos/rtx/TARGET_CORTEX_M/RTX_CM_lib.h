@@ -532,14 +532,38 @@ extern uint32_t __StackTop[];
 #elif (defined(TARGET_STM32F767ZI))
 #define INITIAL_SP            (0x20080000UL)
 
+#elif defined(TARGET_NUMAKER_PFM_NUC472)
+#   if defined(__CC_ARM)
+extern uint32_t          	    Image$$ARM_LIB_STACK$$ZI$$Limit[];
+extern uint32_t          	    Image$$ARM_LIB_STACK$$ZI$$Base[];
+#define INITIAL_SP              ((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Limit)
+#define FINAL_SP                ((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Base)
+#   elif defined(__GNUC__)
+extern uint32_t	                __StackTop[];
+extern uint32_t	                __StackLimit[];
+#define INITIAL_SP              ((uint32_t) __StackTop)
+#define FINAL_SP                ((uint32_t) __StackLimit)
+#   elif defined(__ICCARM__)
+#pragma section="CSTACK"
+#define INITIAL_SP              ((uint32_t) __section_end("CSTACK"))
+#define FINAL_SP                ((uint32_t) __section_begin("CSTACK"))
+#   else
+#error "no toolchain defined"
+#   endif
+
 #else
 #error "no target defined"
 
 #endif
 
 #ifdef __CC_ARM
+#if defined(TARGET_NUMAKER_PFM_NUC472)
+extern uint32_t          Image$$ARM_LIB_HEAP$$Base[];
+#define HEAP_START      ((uint32_t) Image$$ARM_LIB_HEAP$$Base)
+#else
 extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
+#endif
 #elif defined(__GNUC__)
 extern uint32_t          __end__[];
 #define HEAP_START      (__end__)
@@ -549,6 +573,12 @@ extern uint32_t          __end__[];
 #endif
 
 void set_main_stack(void) {
+#if defined(TARGET_NUMAKER_PFM_NUC472)
+    // Scheduler stack: OS_MAINSTKSIZE words
+    // Main thread stack: Reserved stack size - OS_MAINSTKSIZE words
+    os_thread_def_main.stack_pointer = (uint32_t *) FINAL_SP;
+    os_thread_def_main.stacksize = (uint32_t) INITIAL_SP - (uint32_t) FINAL_SP - OS_MAINSTKSIZE * 4;
+#else
     uint32_t interrupt_stack_size = ((uint32_t)OS_MAINSTKSIZE * 4);
 #if defined(__ICCARM__)
 	/* For IAR heap is defined  .icf file */
@@ -567,6 +597,7 @@ void set_main_stack(void) {
 
     // Leave OS_MAINSTKSIZE words for the scheduler and interrupts
     os_thread_def_main.stacksize = main_stack_size;
+#endif
 }
 
 #if defined (__CC_ARM)

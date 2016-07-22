@@ -1951,5 +1951,15 @@
         "inherits": ["Target"],
         "progen": {"target": "bluepill-f103c8"},
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+    },
+    "NUMAKER_PFM_NUC472": {
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "extra_labels": ["NUVOTON", "NUC472", "NUMAKER_PFM_NUC472"],
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "inherits": ["Target"],
+        "progen": {"target": "numaker-pfm-nuc472"},
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"]
     }
 }
