@@ -262,7 +262,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False, archive=True,
          notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None,
          jobs=1, silent=False, report=None, properties=None, extra_verbose=False,
-         project_id=None):
+         project_id=None, config=None):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -284,7 +284,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         name = project_name
 
     # If the configuration object was not yet created, create it now
-    config = Config(target, src_paths)
+    config = config or Config(target, src_paths)
 
     # If the 'target' argument is a string, convert it to a target instance
     if isinstance(target, basestring):

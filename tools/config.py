@@ -163,7 +163,7 @@ class Config:
     # If it does, it'll update the list of targets if need.
     # If found more than once, an exception is raised
     # top_level_dirs can be None (in this case, mbed_app_config.json will not be searched)
-    def __init__(self, target, top_level_dirs = []):
+    def __init__(self, target = None, top_level_dirs = []):
         app_config_location = None
         for s in (top_level_dirs or []):
             full_path = os.path.join(s, self.__mbed_app_config_name)
@@ -182,11 +182,16 @@ class Config:
         self.lib_config_data = {}
         # Make sure that each config is processed only once
         self.processed_configs = {}
-        self.target = target if isinstance(target, basestring) else target.name
-        self.target_labels = Target.get_target(self.target).get_labels()
+        self.set_target(target)
         self.added_features = set()
         self.removed_features = set()
         self.removed_unecessary_features = False
+
+    # Set the target used by the config system
+    def set_target(self, target):
+        if target is not None:
+            self.target = target if isinstance(target, basestring) else target.name
+            self.target_labels = Target.get_target(self.target).get_labels()
 
     # Add one or more configuration files
     def add_config_files(self, flist):
