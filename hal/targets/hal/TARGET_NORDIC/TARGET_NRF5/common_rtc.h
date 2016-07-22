@@ -24,7 +24,7 @@
 // Instance 0 is reserved for SoftDevice.
 // Instance 1 is used as a common one for us_ticker, lp_ticker and (in case
 // of NRF51) as an alternative tick source for RTOS.
-// ["os_tick.c" uses hard coded addresses of the 'NRF_RTC1->EVENT_COMPARE[1]'
+// ["us_ticker.c" uses hard coded addresses of the 'NRF_RTC1->EVENT_COMPARE[1]'
 //  register in inline assembly implementations of COMMON_RTC_IRQ_HANDLER,
 //  please remember to update those in case of doing changes here]
 #define COMMON_RTC_INSTANCE     NRF_RTC1
