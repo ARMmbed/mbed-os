@@ -2,13 +2,13 @@
 
 This guide will help you get started with uVisor on mbed OS by walking you through creating a sample application for the NXP FRDM-K64F board.
 
-The uVisor provides sandboxed environments and resources protection for applications built for ARM Cortex-M3 and Cortex-M4 devices. Here we will show you how to enable the uVisor and configure a secure box to get hold of some exclusive resources (memory, peripherals, interrupts). For more information on the uVisor design philosophy, please check out our the uVisor [introductory document](../README.md).
+The uVisor provides sandboxed environments and resources protection for applications built for ARM Cortex-M3 and Cortex-M4 devices. Here we will show you how to enable the uVisor and configure a secure box to get hold of some exclusive resources (memory, peripherals, interrupts). For more information on the uVisor design philosophy, please check out our the uVisor [introductory document](../../README.md).
 
 ## Overview
 
 To get a basic `blinky` application running on mbed OS with uVisor enabled, you will need the following:
 
-* A platform and a toolchain supported by uVisor on mbed OS. You can verify this on [the official list](../README.md#supported-platforms). Please note that uVisor might support some platform internally, but not on mbed OS. Generally this means that the porting process has only been partially completed. If you want to port your platform to uVisor and enable it on mbed OS, please follow the [uVisor porting guide](PORTING.md).
+* A platform and a toolchain supported by uVisor on mbed OS. You can verify this on [the official list](../../README.md#supported-platforms). Please note that uVisor might support some platform internally, but not on mbed OS. Generally this means that the porting process has only been partially completed. If you want to port your platform to uVisor and enable it on mbed OS, please follow the [uVisor Porting Guide for mbed OS](../core/PORTING.md).
 * git. It will be used to download the mbed codebase.
 * The mbed command-line tools, mbed-cli. You can run `pip install mbed-cli` to install them.
 
@@ -292,7 +292,7 @@ A few things to note in the code above:
 
 Compile the application again, re-flash the device, and press the reset button. The device LED should be blinking as in the previous case.
 
-If you don't see the LED blinking, it means that the application halted somewhere, probably because uVisor captured a fault. You can setup the uVisor debug messages to see if there is any problem. Follow the [Debugging uVisor](DEBUGGING.md) document for a step-by-step guide.
+If you don't see the LED blinking, it means that the application halted somewhere, probably because uVisor captured a fault. You can setup the uVisor debug messages to see if there is any problem. Follow the [Debugging uVisor on mbed OS](DEBUGGING.md) document for a step-by-step guide.
 
 If the LED is blinking, it means that the app is running fine. If you now press the `SW2` button on the NXP FRDM-K64F board, the `private_timer_button_on_press` function will be executed, printing the values in the timer buffer. You can observe these values by opening a serial port connection to the device, with a baud rate of 9600. When the print is completed, you should see the LED blinking again.
 
@@ -313,8 +313,8 @@ In this guide we showed you how to:
 
 You can now modify the example or create a new one to protect your resources into a secure box. You might find the following resources useful:
 
-* [The uVisor API documentation](API.md)
-* [Debugging uVisor](DEBUGGING.md)
+* [uVisor API documentation](API.md)
+* [Debugging uVisor on mbed OS](DEBUGGING.md)
 
 If you found any bug or inconsistency in this guide, please [raise an issue](https://github.com/ARMmbed/uvisor/issues/new).
 
@@ -354,7 +354,7 @@ NVIC_EnableIRQ(MY_IRQ);
 
 > **Note**: In this model a call to `NVIC_SetVector` must always happen before an IRQ state is changed. In platforms that don't relocate the interrupt vector table such a call might be originally absent and must be added to work with uVisor.
 
-For more information on the uVisor APIs, checkout the [uVisor APIs documentation](API.md).
+For more information on the uVisor APIs, checkout the [uVisor API documentation](API.md) document.
 
 ### The *main box* ACLs
 
@@ -371,13 +371,13 @@ static const UvisorBoxAclItem g_main_box_acls[] = {
 }
 ```
 
-You now need to compile your application using uVisor in debug mode. This operation requires some more advanced steps, which are described in detail in the [Debugging uVisor](DEBUGGING.md) document. The main idea is that you compile the application in debug mode:
+You now need to compile your application using uVisor in debug mode. This operation requires some more advanced steps, which are described in detail in the [Debugging uVisor on mbed OS](DEBUGGING.md) document. The main idea is that you compile the application in debug mode:
 
 ```bash
 $ mbed compile -m K64F_SECURE -t GCC_ARM -o "debug-info"
 ```
 
-and then use a GDB-compatible interface to flash the device, enable semihosting, and access the uVisor debug messages. Please read the [Debugging uVisor](DEBUGGING.md) document for the detailed instructions.
+and then use a GDB-compatible interface to flash the device, enable semihosting, and access the uVisor debug messages. Please read the [Debugging uVisor on mbed OS](DEBUGGING.md) document for the detailed instructions.
 
 Once the uVisor debug messages are enabled, you will see you application fail. The failure is due to the first missing ACL being hit by the main box code. The message will look like:
 
