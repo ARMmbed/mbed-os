@@ -591,7 +591,7 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
             return ARM_DRIVER_ERROR_PARAMETER;
         }
         if (failedWithRunTimeError()) {
-            return ARM_DRIVER_ERROR; /* unspecified runtime error. */
+            return ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE;
         }
 
         /* signal synchronous completion. */
@@ -638,7 +638,7 @@ static void ftfe_ccie_irq_handler(void)
     }
     if (failedWithRunTimeError()) {
         if (context->commandCompletionCallback) {
-            context->commandCompletionCallback(ARM_DRIVER_ERROR, context->currentCommand);
+            context->commandCompletionCallback(ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE, context->currentCommand);
         }
         return;
     }
