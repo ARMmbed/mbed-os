@@ -169,16 +169,16 @@ struct mtd_k64f_data {
 static const ARM_STORAGE_BLOCK blockTable[] = {
     {
         /**< This is the start address of the flash block. */
-#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_START_ADDR
-        .addr       = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_START_ADDR,
+#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR
+        .addr       = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR,
 #else
         .addr       = BLOCK1_START_ADDR,
 #endif
 
         /**< This is the size of the flash block, in units of bytes.
          *   Together with addr, it describes a range [addr, addr+size). */
-#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_SIZE
-        .size       = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_SIZE,
+#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE
+        .size       = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE,
 #else
         .size       = BLOCK1_SIZE,
 #endif
@@ -200,7 +200,7 @@ static const ARM_DRIVER_VERSION version = {
 };
 
 
-#if (!defined(DEVICE_STORAGE_CONFIG_HARDWARE_MTD_ASYNC_OPS) || DEVICE_STORAGE_CONFIG_HARDWARE_MTD_ASYNC_OPS)
+#if (!defined(DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_ASYNC_OPS) || DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_ASYNC_OPS)
 #define ASYNC_OPS 1
 #else
 #define ASYNC_OPS 0
@@ -219,8 +219,8 @@ static const ARM_STORAGE_CAPABILITIES caps = {
     .asynchronous_ops = ASYNC_OPS,
 
     /* Enable chip-erase functionality if we own all of block-1. */
-    #if ((!defined (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_START_ADDR) || (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_START_ADDR == BLOCK1_START_ADDR)) && \
-         (!defined (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_SIZE)       || (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_SIZE == BLOCK1_SIZE)))
+    #if ((!defined (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR) || (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR == BLOCK1_START_ADDR)) && \
+         (!defined (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE)       || (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE == BLOCK1_SIZE)))
     .erase_all        = 1,    /**< Supports EraseChip operation. */
     #else
     .erase_all        = 0,    /**< Supports EraseChip operation. */
@@ -228,8 +228,8 @@ static const ARM_STORAGE_CAPABILITIES caps = {
 };
 
 static const ARM_STORAGE_INFO info = {
-#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_SIZE
-    .total_storage        = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_SIZE, /**< Total available storage, in units of octets. */
+#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE
+    .total_storage        = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE, /**< Total available storage, in units of octets. */
 #else
     .total_storage        = BLOCK1_SIZE, /**< Total available storage, in units of octets. By default, BLOCK0 is reserved to hold program code. */
 #endif
