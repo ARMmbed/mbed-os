@@ -34,6 +34,7 @@ from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
+from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
 
@@ -57,7 +58,7 @@ if __name__ == '__main__':
                           type=argparse_filestring_type,
                             default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
 
-        parser.add_argument("--build", dest="build_dir",
+        parser.add_argument("--build", dest="build_dir", type=argparse_dir_not_parent(ROOT),
                           default=None, help="The build (output) directory")
 
         parser.add_argument("-l", "--list", action="store_true", dest="list",

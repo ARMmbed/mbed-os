@@ -45,6 +45,7 @@ from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
+from utils import argparse_dir_not_parent
 from argparse import ArgumentTypeError
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
@@ -112,7 +113,7 @@ if __name__ == '__main__':
                        default=None, help="The source (input) directory", action="append")
     parser.add_argument("--duration", type=int, dest="duration",
                       default=None, help="Duration of the test")
-    parser.add_argument("--build", dest="build_dir",
+    parser.add_argument("--build", dest="build_dir", type=argparse_dir_not_parent(ROOT),
                       default=None, help="The build (output) directory")
     parser.add_argument("-N", "--artifact-name", dest="artifact_name",
                       default=None, help="The built project's name")

@@ -38,6 +38,7 @@ from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from utils import argparse_filestring_type
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
+from utils import argparse_filestring_type, argparse_dir_not_parent
 
 if __name__ == '__main__':
     start = time()
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
                         default=None, help="The source (input) directory", action="append")
 
-    parser.add_argument("--build", dest="build_dir",
+    parser.add_argument("--build", dest="build_dir", type=argparse_dir_not_parent(ROOT),
                       default=None, help="The build (output) directory")
 
     parser.add_argument("--no-archive", dest="no_archive", action="store_true",

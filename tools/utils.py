@@ -21,7 +21,7 @@ import argparse
 import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
-from os.path import isdir, join, exists, split, relpath, splitext
+from os.path import isdir, join, exists, split, relpath, splitext, abspath, commonprefix
 from subprocess import Popen, PIPE, STDOUT, call
 import json
 from collections import OrderedDict
@@ -307,3 +307,14 @@ def columnate(strings, seperator=", ", chars=80):
             append = append.ljust(total_width)
         output += append
     return output
+
+# fail if argument provided is a parent of the specified directory
+def argparse_dir_not_parent(other):
+    def parse_type(not_parent):
+        abs_other = abspath(other)
+        abs_not_parent = abspath(not_parent)
+        if abs_not_parent == commonprefix([abs_not_parent, abs_other]):
+            raise argparse.ArgumentTypeError("{0} may not be a parent directory of {1}".format(not_parent, other))
+        else:
+            return not_parent
+    return parse_type
