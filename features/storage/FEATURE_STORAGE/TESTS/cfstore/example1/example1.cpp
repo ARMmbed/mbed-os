@@ -273,7 +273,7 @@ static int32_t cfstore_test_startup(void)
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 
     int32_t ret = ARM_DRIVER_ERROR;
-    FlashJournal_t jrnl;
+    static FlashJournal_t jrnl;
     extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
     const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
 
