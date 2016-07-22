@@ -262,6 +262,7 @@ static const ARM_STORAGE_INFO info = {
  * This is the command code written into the first FCCOB register, FCCOB0.
  */
 enum FlashCommandOps {
+    RD1SEC = (uint8_t)0x01, /* read 1s section */
     PGM8   = (uint8_t)0x07, /* program phrase */
     ERSBLK = (uint8_t)0x08, /* erase block */
     ERSSCR = (uint8_t)0x09, /* erase flash sector */
@@ -433,6 +434,34 @@ static inline void setupAddressInCCOB123(uint64_t addr)
 }
 #endif /* ifndef USING_KSDK2 */
 
+static inline void setupRead1sSection(uint64_t addr, size_t cnt)
+{
+#ifdef USING_KSDK2
+    kFCCOBx[0] = BYTES_JOIN_TO_WORD_1_3(RD1SEC, addr);
+    kFCCOBx[1] = BYTES_JOIN_TO_WORD_2_1_1(cnt >> 4, 0 /* normal read level */, 0);
+#else
+    BW_FTFE_FCCOB0_CCOBn((uintptr_t)FTFE, RD1SEC);
+    setupAddressInCCOB123(addr);
+    BW_FTFE_FCCOB4_CCOBn((uintptr_t)FTFE, ((cnt >> 4) >> 8) & 0xFFUL); /* bits [15:8] of cnt in units of 128-bits. */
+    BW_FTFE_FCCOB5_CCOBn((uintptr_t)FTFE, ((cnt >> 4) >> 0) & 0xFFUL); /* bits  [7:0] of cnt in units of 128-bits. */
+    BW_FTFE_FCCOB6_CCOBn((uintptr_t)FTFE, 0); /* use normal read level for 1s. */
+#endif
+}
+
+static inline bool currentCommandByteIsRD1SEC(void)
+{
+#ifdef USING_KSDK2
+    return ((kFCCOBx[0] >> 24) == RD1SEC);
+#else
+    return (BR_FTFE_FCCOB0_CCOBn((uintptr_t)FTFE) == RD1SEC);
+#endif
+}
+
+static inline bool currentCommandSetupIsAnEraseCheck(const struct mtd_k64f_data *context)
+{
+    return ((context->currentCommand == ARM_STORAGE_OPERATION_ERASE) && currentCommandByteIsRD1SEC());
+}
+
 static inline void setupEraseSector(uint64_t addr)
 {
 #ifdef USING_KSDK2
@@ -547,6 +576,25 @@ static inline void setupNextProgramData(struct mtd_k64f_data *context)
     }
 }
 
+/* Setup a command to determine if erase is needed for the range
+ * [context->currentOperatingStorageAddress, context->currentOperatingStorageAddress + ERASE_UNIT).
+ * If any byte within the range isn't 0xFF, this command results in a run-time
+ * error.
+ *
+ * Upon launch, if any byte within the given range isn't 0xFF then this command
+ * will terminate in a run-time error.
+ */
+static inline void setupNextEraseCheck(const struct mtd_k64f_data *context)
+{
+    setupRead1sSection(context->currentOperatingStorageAddress, ERASE_UNIT); /* setup check for erased */
+}
+
+static inline void progressEraseContextByEraseUnit(struct mtd_k64f_data *context)
+{
+    context->amountLeftToOperate            -= ERASE_UNIT;
+    context->currentOperatingStorageAddress += ERASE_UNIT;
+}
+
 /**
  * Advance the state machine for erase. This function is called only if
  * amountLeftToOperate is non-zero.
@@ -554,9 +602,7 @@ static inline void setupNextProgramData(struct mtd_k64f_data *context)
 static inline void setupNextErase(struct mtd_k64f_data *context)
 {
     setupEraseSector(context->currentOperatingStorageAddress); /* Program FCCOB to load the required command parameters. */
-
-    context->amountLeftToOperate            -= ERASE_UNIT;
-    context->currentOperatingStorageAddress += ERASE_UNIT;
+    progressEraseContextByEraseUnit(context);
 }
 
 static int32_t executeCommand(struct mtd_k64f_data *context)
@@ -591,7 +637,10 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
             return ARM_DRIVER_ERROR_PARAMETER;
         }
         if (failedWithRunTimeError()) {
-            return ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE;
+            /* filter away run-time errors which may legitimately arise from an erase-check operation. */
+            if (!currentCommandSetupIsAnEraseCheck(context)) {
+                return ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE;
+            }
         }
 
         /* signal synchronous completion. */
@@ -607,11 +656,22 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
                 break;
 
             case ARM_STORAGE_OPERATION_ERASE:
+                if (currentCommandSetupIsAnEraseCheck(context)) {
+                    if (failedWithRunTimeError()) {
+                        /* a run-time failure from an erase-check indicates at an erase operation is necessary */
+                        setupNextErase(context);
+                        /* continue on to the next iteration of the parent loop */
+                        break;
+                    } else {
+                        /* erase can be skipped since this sector is already erased. */
+                        progressEraseContextByEraseUnit(context);
+                    }
+                }
                 if (context->amountLeftToOperate == 0) {
                     return context->sizeofCurrentOperation;
                 }
 
-                setupNextErase(context); /* start the successive erase operation */
+                setupNextEraseCheck(context); /* start the erase check on the successive erase sector */
                 /* continue on to the next iteration of the parent loop */
                 break;
 
@@ -653,10 +713,13 @@ static void ftfe_ccie_irq_handler(void)
         return;
     }
     if (failedWithRunTimeError()) {
-        if (context->commandCompletionCallback) {
-            context->commandCompletionCallback(ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE, context->currentCommand);
+        /* filter away run-time errors which may legitimately arise from an erase-check operation. */
+        if (!currentCommandSetupIsAnEraseCheck(context)) {
+            if (context->commandCompletionCallback) {
+                context->commandCompletionCallback(ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE, context->currentCommand);
+            }
+            return;
         }
-        return;
     }
 
     switch (context->currentCommand) {
@@ -674,6 +737,17 @@ static void ftfe_ccie_irq_handler(void)
             break;
 
         case ARM_STORAGE_OPERATION_ERASE:
+            if (currentCommandSetupIsAnEraseCheck(context)) {
+                if (failedWithRunTimeError()) {
+                    /* a run-time failure from an erase-check indicates at an erase operation is necessary */
+                    setupNextErase(context);
+                    launchCommandFromIRQ(context);
+                    break;
+                } else {
+                    /* erase can be skipped since this sector is already erased. */
+                    progressEraseContextByEraseUnit(context);
+                }
+            }
             if (context->amountLeftToOperate == 0) {
                 if (context->commandCompletionCallback) {
                     context->commandCompletionCallback(context->sizeofCurrentOperation, ARM_STORAGE_OPERATION_ERASE);
@@ -681,7 +755,7 @@ static void ftfe_ccie_irq_handler(void)
                 return;
             }
 
-            setupNextErase(context);
+            setupNextEraseCheck(context); /* start the erase check on the successive erase sector */
             launchCommandFromIRQ(context);
             break;
 
@@ -915,7 +989,7 @@ static int32_t erase(uint64_t addr, uint32_t size)
     context->amountLeftToOperate            = size;
 
     clearErrorStatusBits();
-    setupNextErase(context);
+    setupNextEraseCheck(context);
     return executeCommand(context);
 }
 
