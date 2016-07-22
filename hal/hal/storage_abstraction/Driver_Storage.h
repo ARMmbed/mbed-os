@@ -18,6 +18,8 @@
 #ifndef __DRIVER_STORAGE_H
 #define __DRIVER_STORAGE_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
