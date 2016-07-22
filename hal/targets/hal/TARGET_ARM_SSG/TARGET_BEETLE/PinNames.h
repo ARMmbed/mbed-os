@@ -127,6 +127,15 @@ typedef enum {
     SENSOR_SCL = 507,
 
     // Emulated LEDS
+    /*
+     * Beetle board is built to optimize power consumption therefore does not
+     * provide on-board LEDs. The configuration below is provided only for
+     * compatibility purposes with MBED test suite.
+     * The LEDs [1:4] are emulated and trapped in our GPIO driver.
+     * For more details on how to use a Led on an external PIN via GPIO
+     * configuration please refer to the connected community page below:
+     * https://community.arm.com/docs/DOC-11713
+     */
     LED1 = 1001,
     LED2 = 1002,
     LED3 = 1003,
