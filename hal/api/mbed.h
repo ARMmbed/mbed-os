@@ -18,6 +18,10 @@
 
 #define MBED_LIBRARY_VERSION 122
 
+#if MBED_CONF_RTOS_PRESENT
+#include "rtos/rtos.h"
+#endif
+
 #include "toolchain.h"
 #include "platform.h"
 
