@@ -25,8 +25,10 @@
 static uint32_t lp_ticker_initialized = 0;
 /* lp_ticker reload value */
 static uint32_t lp_ticker_reload = 0x0; /* Max Value */
-/* Store Overflow Count */
-static uint32_t lp_ticker_overflows_count = 0;
+/* Store Overflow Delta */
+static uint32_t lp_ticker_overflows_delta = 0;
+/* lp_ticker Overflow limit */
+static uint32_t lp_ticker_overflow_limit = 0;
 
 #if DEVICE_LOWPOWERTIMER
 /**
@@ -36,7 +38,13 @@ void __lp_ticker_irq_handler(void)
 {
     if (DualTimer_GetIRQInfo(DUALTIMER0) == SINGLETIMER2) {
         DualTimer_ClearInterrupt(DUALTIMER0);
-        lp_ticker_overflows_count++;
+        /*
+         * For each overflow event adds the timer max represented value to
+         * the delta. This allows the lp_ticker to keep track of the elapsed
+         * time:
+         * elapsed_time = (num_overflow * overflow_limit) + current_time
+         */
+        lp_ticker_overflows_delta += lp_ticker_overflow_limit;
     } else {
         lp_ticker_irq_handler();
     }
@@ -67,6 +75,20 @@ void lp_ticker_init(void)
     NVIC_SetVector((IRQn_Type)lp_ticker_irqn,
                 (uint32_t)__lp_ticker_irq_handler);
     NVIC_EnableIRQ((IRQn_Type)lp_ticker_irqn);
+
+    /* DualTimer set interrupt on SINGLETIMER2 */
+    DualTimer_SetInterrupt_2(DUALTIMER0, DUALTIMER_DEFAULT_RELOAD,
+                DUALTIMER_COUNT_32 | DUALTIMER_PERIODIC);
+
+    /*
+     * Set lp_ticker Overflow limit. The lp_ticker overflow limit is required
+     * to calculated the return value of the lp_ticker read function in us
+     * on 32bit.
+     * A 32bit us value cannot be represented directly in the Dual Timer Load
+     * register if it is greater than (0xFFFFFFFF ticks)/DUALTIMER_DIVIDER_US.
+     */
+    lp_ticker_overflow_limit = DualTimer_GetReloadValue(DUALTIMER0,
+                SINGLETIMER2);
 }
 
 /**
@@ -82,7 +104,7 @@ uint32_t lp_ticker_read(void)
         lp_ticker_init();
 
     /* Read Timer Value */
-    microseconds = DualTimer_Read_2(DUALTIMER0);
+    microseconds = lp_ticker_overflows_delta + DualTimer_Read_2(DUALTIMER0);
 
     return microseconds;
 }
