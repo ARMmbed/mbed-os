@@ -146,7 +146,6 @@ extern volatile uint32_t *const kFCCOBx;
 #define SIZEOF_DOUBLE_PHRASE              (16)
 #endif /* #ifdef USING_KSDK2 */
 
-
 /*
  * forward declarations
  */
@@ -369,6 +368,8 @@ static inline void clearErrorStatusBits()
     }
 }
 
+/* The following functions are only needed if using interrupt-driven operation. */
+#if ASYNC_OPS
 static inline void enableCommandCompletionInterrupt(void)
 {
 #ifdef USING_KSDK2
@@ -409,6 +410,23 @@ static inline void launchCommand(void)
     BW_FTFE_FSTAT_CCIF(FTFE, 1);
 #endif
 }
+
+#else /* #if !ASYNC_OPS */
+
+static void launchCommandAndWaitForCompletion()
+{
+    // It contains the inlined equivalent of the following code snippet:
+    //     launchCommand();
+    //     while (controllerCurrentlyBusy()) {
+    //         /* Spin waiting for the command execution to complete. */
+    //     }
+
+    FTFx->FSTAT = FTFx_FSTAT_CCIF_MASK; /* launchcommand() */
+    while ((FTFx->FSTAT & FTFx_FSTAT_CCIF_MASK) == 0) {
+        /* Spin waiting for the command execution to complete. */
+    }
+}
+#endif /* #if !ASYNC_OPS */
 
 #ifndef USING_KSDK2
 static inline void setupAddressInCCOB123(uint64_t addr)
@@ -547,17 +565,14 @@ static inline void setupNextErase(struct mtd_k64f_data *context)
 
 static int32_t executeCommand(struct mtd_k64f_data *context)
 {
+#if ASYNC_OPS
+    /* Asynchronous operation */
+    (void)context; /* avoid compiler warning about un-used variables */
     launchCommand();
 
     /* At this point, The FTFE reads the command code and performs a series of
      * parameter checks and protection checks, if applicable, which are unique
      * to each command. */
-
-#if ASYNC_OPS
-    /* Asynchronous operation */
-
-    (void)context; /* avoid compiler warning about un-used variables */
-
     /* Spin waiting for the command execution to begin. */
     while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
     if (failedWithAccessError() || failedWithProtectionError()) {
@@ -572,8 +587,7 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
     /* Synchronous operation. */
 
     while (1) {
-        /* Spin waiting for the command execution to complete.  */
-        while (controllerCurrentlyBusy());
+        launchCommandAndWaitForCompletion();
 
         /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
@@ -593,7 +607,6 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
 
                 /* start the successive program operation */
                 setupNextProgramData(context);
-                launchCommand();
                 /* continue on to the next iteration of the parent loop */
                 break;
 
@@ -603,7 +616,6 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
                 }
 
                 setupNextErase(context); /* start the successive erase operation */
-                launchCommand();
                 /* continue on to the next iteration of the parent loop */
                 break;
 
@@ -831,7 +843,7 @@ static int32_t readData(uint64_t addr, void *data, uint32_t size)
         return ARM_DRIVER_ERROR_PARAMETER; /* illegal address range */
     }
 
-	context->currentCommand = ARM_STORAGE_OPERATION_READ_DATA;
+    context->currentCommand = ARM_STORAGE_OPERATION_READ_DATA;
     memcpy(data, (const void *)(uintptr_t)addr, size);
     return size; /* signal synchronous completion. */
 }
