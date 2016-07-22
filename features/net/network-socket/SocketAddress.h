@@ -53,7 +53,7 @@ public:
      *  @param addr     Raw IP address
      *  @param port     Optional 16-bit port
      */
-    SocketAddress(nsapi_addr_t addr = (nsapi_addr_t){}, uint16_t port = 0);
+    SocketAddress(nsapi_addr_t addr = nsapi_addr_t(), uint16_t port = 0);
 
     /** Create a SocketAddress from an IP address and port
      *

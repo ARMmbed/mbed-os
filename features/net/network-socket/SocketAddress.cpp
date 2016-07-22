@@ -182,7 +182,7 @@ void SocketAddress::set_ip_address(const char *addr)
         _addr.version = NSAPI_IPv6;
         ipv6_from_address(_addr.bytes, addr);
     } else {
-        _addr = (nsapi_addr_t){};
+        _addr = nsapi_addr_t();
     }
 }
 
@@ -275,7 +275,7 @@ void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16
         // DNS lookup
         int err = iface->gethostbyname(this, host);
         if (err) {
-            _addr = (nsapi_addr_t){};
+            _addr = nsapi_addr_t();
             _port = 0;
         }
     }
