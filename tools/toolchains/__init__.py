@@ -235,6 +235,9 @@ class mbedToolchain:
         # Labels generated from toolchain and target rules/features (used for selective build)
         self.labels = None
 
+        # This will hold the initialized config object
+        self.config = None
+
         # This will hold the configuration data (as returned by Config.get_config_data())
         self.config_data = None
 
