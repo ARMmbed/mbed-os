@@ -17,8 +17,6 @@
 
 #if DEVICE_STORAGE
 
-#include <string.h>
-
 #include "Driver_Storage.h"
 #include "cmsis_nvic.h"
 #include "MK64F12.h"
@@ -30,8 +28,10 @@
 #ifndef USING_KSDK2
 #include "device/MK64F12/MK64F12_ftfe.h"
 #else
-#include "drivers/fsl_flash.h"
+#include "fsl_flash.h"
 #endif
+
+#include <string.h>
 
 #ifdef USING_KSDK2
 /*!
