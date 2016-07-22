@@ -623,6 +623,22 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
 }
 
 #if ASYNC_OPS
+static inline void launchCommandFromIRQ(const struct mtd_k64f_data *context)
+{
+    launchCommand();
+
+    while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
+    if (failedWithAccessError() || failedWithProtectionError()) {
+        clearErrorStatusBits();
+        if (context->commandCompletionCallback) {
+            context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, context->currentCommand);
+        }
+        return;
+    }
+
+    enableCommandCompletionInterrupt();
+}
+
 static void ftfe_ccie_irq_handler(void)
 {
     disbleCommandCompletionInterrupt();
@@ -654,18 +670,7 @@ static void ftfe_ccie_irq_handler(void)
 
             /* start the successive program operation */
             setupNextProgramData(context);
-            launchCommand();
-
-            while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
-            if (failedWithAccessError() || failedWithProtectionError()) {
-                clearErrorStatusBits();
-                if (context->commandCompletionCallback) {
-                    context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, ARM_STORAGE_OPERATION_PROGRAM_DATA);
-                }
-                return;
-            }
-
-            enableCommandCompletionInterrupt();
+            launchCommandFromIRQ(context);
             break;
 
         case ARM_STORAGE_OPERATION_ERASE:
@@ -677,18 +682,7 @@ static void ftfe_ccie_irq_handler(void)
             }
 
             setupNextErase(context);
-            launchCommand();
-
-            while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
-            if (failedWithAccessError() || failedWithProtectionError()) {
-                clearErrorStatusBits();
-                if (context->commandCompletionCallback) {
-                    context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, ARM_STORAGE_OPERATION_ERASE);
-                }
-                return;
-            }
-
-            enableCommandCompletionInterrupt();
+            launchCommandFromIRQ(context);
             break;
 
         default:
