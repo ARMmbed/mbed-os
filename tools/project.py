@@ -134,14 +134,19 @@ if __name__ == '__main__':
     for mcu in options.mcu:
         # Program Number or name
         p, src, ide = options.program, options.source_dir, options.ide
-        project_dir, project_name, project_temp = setup_project(mcu, ide, p, src, options.build)
+        try:
+            project_dir, project_name, project_temp = setup_project(mcu, ide, p, src, options.build)
+            zip = not bool(src) # create zip when no src_dir provided
+            clean = not bool(src) # don't clean when source is provided, use acrual source tree for IDE files
 
-        zip = not bool(src)  # create zip when no src_dir provided
-        clean = not bool(src)  # don't clean when source is provided, use acrual source tree for IDE files
-
-        # Export to selected toolchain
-        lib_symbols = get_lib_symbols(options.macros, src, p)
-        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
+            # Export to selected toolchain
+            lib_symbols = get_lib_symbols(options.macros, src, p)
+            tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
+        except OSError as e:
+            if e.errno == 2:
+                report = dict(success=False, errormsg="Library path '%s' does not exist. Ensure that the library is built." % (e.filename))
+            else:
+                report = dict(success=False, errormsg="An OS error occured: errno #{}".format(e.errno))
         if report['success']:
             if not zip:
                 zip_path = join(project_temp, project_name)
