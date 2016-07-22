@@ -58,9 +58,8 @@ if __name__ == '__main__':
 
     parser.add_argument("-b",
                       dest="build",
-                      action="store_true",
                       default=False,
-                        type=argparse_dir_not_parent(ROOT),
+                      type=argparse_dir_not_parent(ROOT),
                       help="use the mbed library build, instead of the sources")
 
     group.add_argument("-L", "--list-tests",
