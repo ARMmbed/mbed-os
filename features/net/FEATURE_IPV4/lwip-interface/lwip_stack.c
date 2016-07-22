@@ -17,6 +17,8 @@
 #include "nsapi.h"
 #include "mbed_interface.h"
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "eth_arch.h"
 #include "lwip/opt.h"
