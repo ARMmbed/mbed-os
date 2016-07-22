@@ -76,7 +76,7 @@ rsync:
 	rsync -a --delete $(UVISOR_API)/rtx/src/ $(TARGET_LIB_SRC)/rtx
 	#
 	# Copying the documentation...
-	cp $(UVISOR_DIR)/docs/QUICKSTART.md $(TARGET_PREFIX)/README.md
+	cp $(UVISOR_DIR)/docs/api/QUICKSTART.md $(TARGET_PREFIX)/README.md
 	#
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)
