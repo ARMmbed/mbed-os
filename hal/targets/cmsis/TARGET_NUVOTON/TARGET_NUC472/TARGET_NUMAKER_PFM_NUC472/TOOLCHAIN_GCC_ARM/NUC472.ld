@@ -235,7 +235,8 @@ SECTIONS
          * Place large .bss* sections into external SRAM if internal SRAM is insufficient.
          * Such memory arrangement requires initializing .bss.extern section to zero in startup file. Check startup fiile in cmsis-core-* for support or not.
          */
-        /* E.g.: ym/sal-stack-lwip/source/sal-stack-lwip.a(.bss*) */
+        *lwip_*.o(.bss*)
+        *lwip_*.o(COMMON)
         __bss_extern_end__ = .;
     } > RAM_EXTERN
     
