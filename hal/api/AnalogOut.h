@@ -99,7 +99,6 @@ public:
         return ret;
     }
 
-#ifdef MBED_OPERATORS
     /** An operator shorthand for write()
      */
     AnalogOut& operator= (float percent) {
@@ -120,7 +119,6 @@ public:
         // Underlying read call is thread safe
         return read();
     }
-#endif
 
     virtual ~AnalogOut() {
         // Do nothing

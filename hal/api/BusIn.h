@@ -71,7 +71,6 @@ public:
         return _nc_mask;
     }
 
-#ifdef MBED_OPERATORS
     /** A shorthand for read()
      */
     operator int();
@@ -79,7 +78,6 @@ public:
     /** Access to particular bit in random-iterator fashion
      */
     DigitalIn & operator[] (int index);
-#endif
 
 protected:
     DigitalIn* _pin[16];

@@ -16,8 +16,6 @@
 #ifndef MBED_PLATFORM_H
 #define MBED_PLATFORM_H
 
-#define MBED_OPERATORS    1
-
 #include "device.h"
 #include "PinNames.h"
 #include "PeripheralNames.h"

@@ -103,7 +103,6 @@ void BusInOut::mode(PinMode pull) {
     unlock();
 }
 
-#ifdef MBED_OPERATORS
 BusInOut& BusInOut::operator= (int v) {
     // Underlying write is thread safe
     write(v);
@@ -127,7 +126,6 @@ BusInOut::operator int() {
     // Underlying read is thread safe
     return read();
 }
-#endif
 
 void BusInOut::lock() {
     _mutex.lock();

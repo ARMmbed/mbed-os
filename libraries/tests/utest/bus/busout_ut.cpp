@@ -40,7 +40,6 @@ TEST(BusOut_dummy, dummy)
 {
 }
 
-#ifdef MBED_OPERATORS
 TEST_GROUP(BusOut_digitalout_write)
 {
 };
@@ -84,4 +83,3 @@ TEST(BusOut_digitalout_write, led_1_nc_2_nc_nc_3)
     CHECK(bus_data[2].read() == 0);
     CHECK(bus_data[5].read() == 0);
 }
-#endif
