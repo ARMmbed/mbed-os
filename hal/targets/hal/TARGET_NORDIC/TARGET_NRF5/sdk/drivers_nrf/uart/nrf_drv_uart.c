@@ -765,7 +765,8 @@ __STATIC_INLINE void uart_irq_handler()
         }
     }
 
-    if (nrf_uart_event_check(NRF_UART0, NRF_UART_EVENT_TXDRDY))
+    if (nrf_uart_int_enable_check(NRF_UART0, NRF_UART_INT_MASK_TXDRDY) &&
+        nrf_uart_event_check(NRF_UART0, NRF_UART_EVENT_TXDRDY))
     {
         if (m_cb.tx_counter < (uint16_t) m_cb.tx_buffer_length)
         {
