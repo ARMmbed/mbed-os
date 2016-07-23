@@ -29,6 +29,21 @@
 #define UVISOR_EXTERN extern
 #endif/*__CPP__*/
 
+/** Extern C block macros
+ *
+ * Use these macros to disable name mangling in C++. Use these macros instead
+ * of UVISOR_EXTERN when you also need to initialize the object. C++ compilers
+ * warn when initializing an object declared as `extern`. Use of these macros
+ * enables the defining of global non-name-mangled symbols in C++ without
+ * affecting C code (which doesn't ever name mangle).  */
+#ifdef  __cplusplus
+#define UVISOR_EXTERN_C_BEGIN extern "C" {
+#define UVISOR_EXTERN_C_END }
+#else
+#define UVISOR_EXTERN_C_BEGIN
+#define UVISOR_EXTERN_C_END
+#endif
+
 /* asm keyword */
 #ifndef asm
 #define asm __asm__
@@ -36,12 +51,14 @@
 
 /* Shared compiler attributes */
 #if defined(__ICCARM__)
+#define UVISOR_ALIGN(x)    __align(x)
 #define UVISOR_FORCEINLINE inline
 #define UVISOR_PACKED      __packed
 #define UVISOR_WEAK        __weak
 #define UVISOR_NORETURN    __noreturn
 #define UVISOR_RAMFUNC     __ramfunc
 #else
+#define UVISOR_ALIGN(x)    __attribute__((aligned(x)))
 #define UVISOR_FORCEINLINE inline __attribute__((always_inline))
 #define UVISOR_PACKED      __attribute__((packed))
 #define UVISOR_WEAK        __attribute__((weak))
@@ -51,6 +68,15 @@
 
 /* array count macro */
 #define UVISOR_ARRAY_COUNT(x) (sizeof(x)/sizeof(x[0]))
+
+/** Static Assertion Macro
+ *
+ * This macro works from both inside and outside function scope.
+ *
+ * FIXME This is currently not implemented. This issue is tracked at
+ * https://github.com/ARMmbed/uvisor/issues/288
+ */
+#define UVISOR_STATIC_ASSERT(cond, msg)
 
 /* convert macro argument to string */
 /* note: this needs one level of indirection, accomplished with the helper macro

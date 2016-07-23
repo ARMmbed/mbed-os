@@ -33,7 +33,7 @@ TARGET_LIB_INC:=$(TARGET_PREFIX)includes/uvisor-lib
 
 # uVisor source directory - hidden from mbed via TARGET_IGNORE
 UVISOR_GIT_URL:=https://github.com/ARMmbed/uvisor
-UVISOR_GIT_BRANCH:=dev
+UVISOR_GIT_BRANCH:=master
 UVISOR_DIR:=TARGET_IGNORE/uvisor
 UVISOR_API:=$(UVISOR_DIR)/api
 UVISOR_GIT_CFG=$(UVISOR_DIR)/.git/config
@@ -76,7 +76,7 @@ rsync:
 	rsync -a --delete $(UVISOR_API)/rtx/src/ $(TARGET_LIB_SRC)/rtx
 	#
 	# Copying the documentation...
-	cp $(UVISOR_DIR)/docs/QUICKSTART.md $(TARGET_PREFIX)/README.md
+	cp $(UVISOR_DIR)/docs/api/QUICKSTART.md $(TARGET_PREFIX)/README.md
 	#
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)
