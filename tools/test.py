@@ -31,7 +31,7 @@ from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage_results
 from tools.targets import TARGET_MAP
-from tools.utils import mkdir, ToolException, NotSupportedException
+from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from utils import argparse_dir_not_parent
@@ -105,12 +105,19 @@ if __name__ == '__main__':
         all_tests = {}
         tests = {}
 
-        target = options.mcu[0]
+        # Target
+        if options.mcu is None :
+            args_error(parser, "[ERROR] You should specify an MCU")
+        mcu = options.mcu[0]
+
+        # Toolchain
+        if options.tool is None:
+            args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
         toolchain = options.tool[0]
 
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path, target, toolchain, options.options))
+            all_tests.update(find_tests(path, mcu, toolchain, options.options))
 
         # Filter tests by name if specified
         if options.names:
@@ -160,7 +167,7 @@ if __name__ == '__main__':
             library_build_success = False
             try:
                 # Build sources
-                build_library(base_source_paths, options.build_dir, target, toolchain,
+                build_library(base_source_paths, options.build_dir, mcu, toolchain,
                                                 options=options.options,
                                                 jobs=options.jobs,
                                                 clean=options.clean,
@@ -187,7 +194,7 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
-                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, toolchain,
+                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
                         options=options.options,
                         clean=options.clean,
                         report=build_report,
