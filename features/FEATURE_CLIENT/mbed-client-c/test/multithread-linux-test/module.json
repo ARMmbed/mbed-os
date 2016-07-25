@@ -1,0 +1,13 @@
+{
+  "name": "multithread-linux-test",
+  "version": "1.0.0",
+  "description": "Example application how to use mbed-client-c library",
+  "private": true,
+  "keywords": [],
+  "author": "Antti Yli-Tokola <antti.yli-tokola@arm.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mbed-client-c": "^2.0.0"
+  },
+  "bin": "./"
+}
