@@ -274,6 +274,7 @@ void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16
     } else {
         // DNS lookup
         int err = iface->gethostbyname(this, host);
+        _port = port;
         if (err) {
             _addr = nsapi_addr_t();
             _port = 0;
