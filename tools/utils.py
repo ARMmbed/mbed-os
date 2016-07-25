@@ -21,7 +21,7 @@ import argparse
 import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
-from os.path import isdir, join, exists, split, relpath, splitext, abspath, commonprefix
+from os.path import isdir, join, exists, split, relpath, splitext, abspath, commonprefix, normpath
 from subprocess import Popen, PIPE, STDOUT, call
 import json
 from collections import OrderedDict
@@ -171,6 +171,23 @@ def split_path(path):
     base, file = split(path)
     name, ext = splitext(file)
     return base, name, ext
+
+
+def get_path_depth(path):
+    """ Given a path, return the number of directory levels present.
+        This roughly translates to the number of path separators (os.sep) + 1.
+        Ex. Given "path/to/dir", this would return 3
+        Special cases: "." and "/" return 0
+    """
+    normalized_path = normpath(path)
+    path_depth = 0
+    head, tail = split(normalized_path)
+
+    while(tail and tail != '.'):
+        path_depth += 1
+        head, tail = split(head)
+
+    return path_depth
 
 
 def args_error(parser, message):

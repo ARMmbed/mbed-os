@@ -31,10 +31,11 @@ import ctypes
 from types import ListType
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
+from copy import copy
 
 from time import sleep, time
 from Queue import Queue, Empty
-from os.path import join, exists, basename
+from os.path import join, exists, basename, relpath
 from threading import Thread, Lock
 from subprocess import Popen, PIPE
 
@@ -56,7 +57,8 @@ from tools.build_api import prep_report
 from tools.build_api import prep_properties
 from tools.build_api import create_result
 from tools.build_api import add_result_to_report
-from tools.build_api import scan_for_source_paths
+from tools.build_api import prepare_toolchain
+from tools.build_api import scan_resources
 from tools.libraries import LIBRARIES, LIBRARY_MAP
 from tools.toolchains import TOOLCHAIN_PATHS
 from tools.toolchains import TOOLCHAINS
@@ -65,6 +67,7 @@ from tools.utils import argparse_filestring_type
 from tools.utils import argparse_uppercase_type
 from tools.utils import argparse_lowercase_type
 from tools.utils import argparse_many
+from tools.utils import get_path_depth
 
 import tools.host_tests.host_tests_plugins as host_tests_plugins
 
@@ -1987,33 +1990,46 @@ def test_path_to_name(path):
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir):
-    """Given any directory, walk through the subdirectories and find all tests"""
+def find_tests(base_dir, target_name, toolchain_name, options=None):
+    """ Finds all tests in a directory recursively
+    base_dir: path to the directory to scan for tests (ex. 'path/to/project')
+    target_name: name of the target to use for scanning (ex. 'K64F')
+    toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
+    options: Compile options to pass to the toolchain (ex. ['debug-info'])
+    """
 
-    def find_test_in_directory(directory, tests_path):
-        """Given a 'TESTS' directory, return a dictionary of test names and test paths.
-        The formate of the dictionary is {"test-name": "./path/to/test"}"""
-        test = None
-        if tests_path in directory:
-            head, test_case_directory = os.path.split(directory)
-            if test_case_directory != tests_path and test_case_directory != "host_tests":
-                head, test_group_directory = os.path.split(head)
-                if test_group_directory != tests_path and test_case_directory != "host_tests":
-                    test = {
-                        "name": test_path_to_name(directory),
-                        "path": directory
-                    }
-
-        return test
-
-    tests_path = 'TESTS'
     tests = {}
-    dirs = scan_for_source_paths(base_dir)
 
+    # Prepare the toolchain
+    toolchain = prepare_toolchain(base_dir, target_name, toolchain_name, options=options, silent=True)
+
+    # Scan the directory for paths to probe for 'TESTS' folders
+    base_resources = scan_resources(base_dir, toolchain)
+
+    dirs = base_resources.inc_dirs
     for directory in dirs:
-        test = find_test_in_directory(directory, tests_path)
-        if test:
-            tests[test['name']] = test['path']
+        subdirs = os.listdir(directory)
+
+        # If the directory contains a subdirectory called 'TESTS', scan it for test cases
+        if 'TESTS' in subdirs:
+            walk_base_dir = join(directory, 'TESTS')
+            test_resources = toolchain.scan_resources(walk_base_dir, base_path=base_dir)
+
+            # Loop through all subdirectories
+            for d in test_resources.inc_dirs:
+
+                # If the test case folder is not called 'host_tests' and it is
+                # located two folders down from the main 'TESTS' folder (ex. TESTS/testgroup/testcase)
+                # then add it to the tests
+                path_depth = get_path_depth(relpath(d, walk_base_dir))
+                if path_depth == 2:
+                    test_group_directory_path, test_case_directory = os.path.split(d)
+                    test_group_directory = os.path.basename(test_group_directory_path)
+                    
+                    # Check to make sure discoverd folder is not in a host test directory
+                    if test_case_directory != 'host_tests' and test_group_directory != 'host_tests':
+                        test_name = test_path_to_name(d)
+                        tests[test_name] = d
 
     return tests
 
