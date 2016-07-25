@@ -33,6 +33,10 @@ SerialBase::SerialBase(PinName tx, PinName rx) :
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
 
+SerialBase::~SerialBase() {
+    serial_free(&_serial);
+}
+
 void SerialBase::baud(int baudrate) {
     lock();
     serial_baud(&_serial, baudrate);
