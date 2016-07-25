@@ -6,6 +6,9 @@
 #include "SynchronizedIntegral.h"
 #include "LockGuard.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
 
 using namespace utest::v1;
 

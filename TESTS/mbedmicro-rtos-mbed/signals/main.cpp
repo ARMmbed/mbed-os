@@ -2,6 +2,10 @@
 #include "greentea-client/test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define SIGNAL_SET_VALUE    0x01
 const int SIGNALS_TO_EMIT = 100;
 const int SIGNAL_HANDLE_DELEY = 25;

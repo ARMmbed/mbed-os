@@ -2,6 +2,10 @@
 #include "greentea-client/test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 typedef struct {
     float    voltage;   /* AD result of measured voltage */
     float    current;   /* AD result of measured current */

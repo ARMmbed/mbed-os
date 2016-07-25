@@ -2,6 +2,10 @@
 #include "greentea-client/test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define THREAD_DELAY     75
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100

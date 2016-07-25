@@ -2,6 +2,10 @@
 #include "mbed.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 DigitalOut led1(LED1);
 
   

@@ -2,6 +2,10 @@
 #include "greentea-client/test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 /*
  * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
  * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
