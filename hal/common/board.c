@@ -85,6 +85,8 @@ void mbed_error_vfprintf(const char * format, va_list arg) {
         for (int i = 0; i < size; i++) {
             serial_putc(&stdio_uart, buffer[i]);
         }
+        serial_putc(&stdio_uart, '\r');
+        serial_putc(&stdio_uart, '\n');
     }
     core_util_critical_section_exit();
 #endif
