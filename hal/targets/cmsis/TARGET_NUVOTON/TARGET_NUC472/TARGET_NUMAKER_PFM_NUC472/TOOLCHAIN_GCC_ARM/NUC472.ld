@@ -237,7 +237,7 @@ SECTIONS
          */
         *lwip_*.o(.bss*)
         *lwip_*.o(COMMON)
-        __bss_extern_end__ = .;
+       __bss_extern_end__ = .;
     } > RAM_EXTERN
     
     .bss (NOLOAD):
