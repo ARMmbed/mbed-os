@@ -1,0 +1,19 @@
+{
+  "name": "mbed-client-mbedtls",
+  "version": "3.0.3",
+  "description": "Mbedtls specific implementation, which can be used by mbed client",
+  "keywords": [
+    "mbed-client-mbedtls"
+  ],
+  "author": "Antti Kauppila",
+  "repository": {
+    "url": "git@github.com:ARMmbed/mbed-client-mbedtls.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/ARMmbed/mbed-client-mbedtls",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mbedtls": "^2.0.0"
+  },
+  "targetDependencies": {}
+}

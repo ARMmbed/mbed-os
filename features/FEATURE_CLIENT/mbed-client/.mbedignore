@@ -1,0 +1,4 @@
+config/*
+docs/*
+doxygen/*
+test/*
