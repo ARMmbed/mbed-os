@@ -22,7 +22,6 @@
 #elif defined(TARGET_MCU_NRF51822)
 #define STACK_SIZE 512
 #else
-#else
 #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
