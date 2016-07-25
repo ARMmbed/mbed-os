@@ -178,10 +178,19 @@ void UART_IRQ_HANDLER(void)
 
     #if DEVICE_SERIAL_ASYNCH
         if (UART_CB.tx_active) {
-            nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
-
-            nrf_uart_txd_set(UART_INSTANCE, UART_CB.tx_buffer[UART_CB.tx_pos]);
-            if (++UART_CB.tx_pos >= UART_CB.tx_length) {
+            if (++UART_CB.tx_pos <= UART_CB.tx_length) {
+                // When there is still something to send, clear the TXDRDY event
+                // and put next byte to transmitter.
+                nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
+                nrf_uart_txd_set(UART_INSTANCE,
+                    UART_CB.tx_buffer[UART_CB.tx_pos]);
+            }
+            else {
+                // When the TXDRDY event is set after the last byte to be sent
+                // has been passed to the transmitter, the job is done and TX
+                // complete can be indicated.
+                // Don't clear the TXDRDY event, it needs to remain set for the
+                // 'serial_writable' function to work properly.
                 end_asynch_tx();
 
                 UART_CB.events_occured |= SERIAL_EVENT_TX_COMPLETE;
@@ -229,27 +238,29 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         (tx == NC) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)tx;
     UART_CB.pselrxd =
         (rx == NC) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)rx;
+    if (UART_CB.pseltxd != NRF_UART_PSEL_DISCONNECTED) {
+        nrf_gpio_pin_set(UART_CB.pseltxd);
+        nrf_gpio_cfg_output(UART_CB.pseltxd);
+    }
+    if (UART_CB.pselrxd != NRF_UART_PSEL_DISCONNECTED) {
+        nrf_gpio_cfg_input(UART_CB.pselrxd, NRF_GPIO_PIN_NOPULL);
+    }
+
+    // UART pins must only be configured when the peripheral is disabled.
+    nrf_uart_disable(UART_INSTANCE);
+
     if (UART_CB.initialized) {
         // Reconfigure RX/TX pins only.
-        nrf_uart_txrx_pins_set(UART_INSTANCE,
-            UART_CB.pseltxd, UART_CB.pselrxd);
+        nrf_uart_txrx_pins_set(UART_INSTANCE, UART_CB.pseltxd, UART_CB.pselrxd);
+        nrf_uart_enable(UART_INSTANCE);
     }
     else {
-        if (UART_CB.pseltxd != NRF_UART_PSEL_DISCONNECTED) {
-            nrf_gpio_pin_set(UART_CB.pseltxd);
-            nrf_gpio_cfg_output(UART_CB.pseltxd);
-        }
-        if (UART_CB.pselrxd != NRF_UART_PSEL_DISCONNECTED) {
-            nrf_gpio_cfg_input(UART_CB.pselrxd, NRF_GPIO_PIN_NOPULL);
-        }
-
         UART_CB.baudrate = UART_DEFAULT_BAUDRATE;
         UART_CB.parity   = UART_DEFAULT_PARITY;
         UART_CB.hwfc     = UART_DEFAULT_HWFC;
         UART_CB.pselcts  = UART_DEFAULT_CTS;
         UART_CB.pselrts  = UART_DEFAULT_RTS;
 
-        nrf_uart_enable(UART_INSTANCE);
         nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_RXDRDY);
         nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
         nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STARTRX);
@@ -273,19 +284,23 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         // Perform it with disconnected TX pin, so nothing actually comes out
         // of the device.
         nrf_uart_txrx_pins_disconnect(UART_INSTANCE);
+        nrf_uart_hwfc_pins_disconnect(UART_INSTANCE);
+        nrf_uart_enable(UART_INSTANCE);
         nrf_uart_txd_set(UART_INSTANCE, 0);
         while (!nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_TXDRDY)) {
         }
+        nrf_uart_disable(UART_INSTANCE);
 
         // Now everything is prepared to set the default configuration and
         // connect the peripheral to actual pins.
+        nrf_uart_txrx_pins_set(UART_INSTANCE, UART_CB.pseltxd, UART_CB.pselrxd);
         nrf_uart_baudrate_set(UART_INSTANCE, UART_CB.baudrate);
         nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
         if (UART_CB.hwfc == NRF_UART_HWFC_ENABLED) {
             serial_set_flow_control(obj, FlowControlRTSCTS,
                 UART_CB.pselrts, UART_CB.pselcts);
         }
-        nrf_uart_txrx_pins_set(UART_INSTANCE, UART_CB.pseltxd, UART_CB.pselrxd);
+        nrf_uart_enable(UART_INSTANCE);
 
         UART_CB.initialized = true;
     }
@@ -469,6 +484,9 @@ void serial_putc(serial_t *obj, int c)
 
     nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
     nrf_uart_txd_set(UART_INSTANCE, (uint8_t)c);
+    // Wait until sending is completed.
+    while (!nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_TXDRDY)) {
+    }
 }
 
 int serial_readable(serial_t *obj)
@@ -527,7 +545,9 @@ void serial_set_flow_control(serial_t *obj, FlowControl type,
     if (UART_CB.pselcts != NRF_UART_PSEL_DISCONNECTED) {
         nrf_gpio_cfg_input(UART_CB.pselcts, NRF_GPIO_PIN_NOPULL);
     }
+    nrf_uart_disable(UART_INSTANCE);
     nrf_uart_hwfc_pins_set(UART_INSTANCE, UART_CB.pselrts, UART_CB.pselcts);
+    nrf_uart_enable(UART_INSTANCE);
 }
 
 void serial_clear(serial_t *obj) {
