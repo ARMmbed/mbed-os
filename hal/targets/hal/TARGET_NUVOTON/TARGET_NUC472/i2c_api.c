@@ -31,12 +31,12 @@
 #if NU_I2C_DEBUG
 struct i2c_s MY_I2C;
 struct i2c_s MY_I2C_2;
-char MY_STATUS[64];
-int MY_STATUS_POS = 0;
-uint32_t MY_TIMEOUT;
-uint32_t MY_ELAPSED;
-uint32_t MY_T1;
-uint32_t MY_T2;
+char MY_I2C_STATUS[64];
+int MY_I2C_STATUS_POS = 0;
+uint32_t MY_I2C_TIMEOUT;
+uint32_t MY_I2C_ELAPSED;
+uint32_t MY_I2C_T1;
+uint32_t MY_I2C_T2;
 #endif
 
 struct nu_i2c_var {
@@ -163,12 +163,12 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 int i2c_start(i2c_t *obj)
 {
-    return i2c_do_trsn(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk, 1) ? 0 : I2C_ERROR_BUS_BUSY;
+    return i2c_do_trsn(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk, 1);
 }
 
 int i2c_stop(i2c_t *obj)
 {
-    return i2c_do_trsn(obj, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk, 1) ? 0 : I2C_ERROR_BUS_BUSY;
+    return i2c_do_trsn(obj, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk, 1);
 }
 
 void i2c_frequency(i2c_t *obj, int hz)
@@ -362,10 +362,10 @@ int i2c_allow_powerdown(void)
     while (modinit_mask) {
         int i2c_idx = nu_ctz(modinit_mask);
         const struct nu_modinit_s *modinit = i2c_modinit_tab + i2c_idx;
-        if (modinit->modname != NC) {
-            I2C_T *i2c_base = (I2C_T *) NU_MODBASE(modinit->modname);
+        struct nu_i2c_var *var = (struct nu_i2c_var *) modinit->var;
+        if (var->obj) {
             // Disallow entering power-down mode if I2C transfer is enabled.
-            if (i2c_base->CTL & I2C_CTL_INTEN_Msk) {
+            if (i2c_active(var->obj)) {
                 return 0;
             }
         }
@@ -435,21 +435,21 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
 #endif
     }
     else {
-#if 0
-        // Avoid duplicate Start/Stop.
+#if 1
+        // NOTE: Avoid duplicate Start/Stop. Otherwise, we may meet strange error.
         uint32_t status = I2C_GET_STATUS(i2c_base);
         
         switch (status) {
         case 0x08:  // Start
         case 0x10:  // Master Repeat Start
-            if (status & I2C_CTL_STA_Msk) {
+            if (i2c_ctl & I2C_CTL_STA_Msk) {
                 return 0;
             }
             else {
                 break;
             }
         case 0xF8:  // Bus Released
-            if (status & (I2C_CTL_STA_Msk | I2C_CTL_STO_Msk) == I2C_CTL_STO_Msk) {
+            if (i2c_ctl & (I2C_CTL_STA_Msk | I2C_CTL_STO_Msk) == I2C_CTL_STO_Msk) {
                 return 0;
             }
             else {
@@ -469,7 +469,7 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
 
     i2c_enable_int(obj);
     
-    return err ? 0 : 1;
+    return err;
 }
 
 static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uint32_t timeout)
@@ -488,10 +488,10 @@ static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uin
         elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + 0xFFFFFFFF - t1 + 1);
         if (elapsed >= timeout) {
 #if NU_I2C_DEBUG
-            MY_T1 = t1;
-            MY_T2 = t2;
-            MY_ELAPSED = elapsed;
-            MY_TIMEOUT = timeout;
+            MY_I2C_T1 = t1;
+            MY_I2C_T2 = t2;
+            MY_I2C_ELAPSED = elapsed;
+            MY_I2C_TIMEOUT = timeout;
             MY_I2C_2 = obj->i2c;
             while (1);
 #endif
@@ -536,10 +536,10 @@ static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
         if (elapsed >= timeout) {   // Transfer idle
 #if NU_I2C_DEBUG
             MY_I2C = obj->i2c;
-            MY_T1 = t1;
-            MY_T2 = t2;
-            MY_ELAPSED = elapsed;
-            MY_TIMEOUT = timeout;
+            MY_I2C_T1 = t1;
+            MY_I2C_T2 = t2;
+            MY_I2C_ELAPSED = elapsed;
+            MY_I2C_TIMEOUT = timeout;
             MY_I2C_2 = obj->i2c;
             while (1);
 #endif
@@ -631,12 +631,12 @@ static void i2c_irq(i2c_t *obj)
     
     status = I2C_GET_STATUS(i2c_base);
 #if NU_I2C_DEBUG
-    if (MY_STATUS_POS < (sizeof (MY_STATUS) / sizeof (MY_STATUS[0]))) {
-        MY_STATUS[MY_STATUS_POS ++] = status;
+    if (MY_I2C_STATUS_POS < (sizeof (MY_I2C_STATUS) / sizeof (MY_I2C_STATUS[0]))) {
+        MY_I2C_STATUS[MY_I2C_STATUS_POS ++] = status;
     }
     else {
-        memset(MY_STATUS, 0x00, sizeof (MY_STATUS));
-        MY_STATUS_POS = 0;
+        memset(MY_I2C_STATUS, 0x00, sizeof (MY_I2C_STATUS));
+        MY_I2C_STATUS_POS = 0;
     }
 #endif
     
@@ -657,16 +657,8 @@ static void i2c_irq(i2c_t *obj)
                         i2c_disable_int(obj);
                         break;
                     }
-                    
-                    // NOTE: Error on the sequence below. Also on other inbetween transfers.
-                    //       Cause is unknown. Replace Repeat Start or Stop/Start with Stop for workaround.
-                    //       (1) Send wrt addr
-                    //       (2) Send data
-                    //       (3) Repeat Start
-                    //       (4) Send rd addr
-                    //       (5) Read data failed. Get Master Transmit Address ACK after Send rd addr.
-                    // Go Master Stop.
-                    i2c_fsm_reset(obj, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
+                    // Go Master Repeat Start
+                    i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
                 }
             }
             else {
@@ -675,8 +667,8 @@ static void i2c_irq(i2c_t *obj)
             break;
         case 0x30:  // Master Transmit Data NACK
         case 0x20:  // Master Transmit Address NACK
-            // Go Master Stop.
-            i2c_fsm_reset(obj, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
+            // Go Master Repeat Start
+            i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
             break;
         case 0x38:  // Master Arbitration Lost
             i2c_fsm_reset(obj, I2C_CTL_SI_Msk | I2C_CTL_AA_Msk);
@@ -684,7 +676,8 @@ static void i2c_irq(i2c_t *obj)
         
         case 0x48:  // Master Receive Address NACK
             // Go Master Stop.
-            i2c_fsm_reset(obj, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
+            // Go Master Repeat Start
+            i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
             break;
         case 0x40:  // Master Receive Address ACK
         case 0x50:  // Master Receive Data ACK
@@ -702,8 +695,8 @@ static void i2c_irq(i2c_t *obj)
                             while (1);
                         }
 #endif
-                        // Go Master Stop.
-                        i2c_fsm_reset(obj, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
+                        // Go Master Repeat Start
+                        i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
                     }
                     else {
                         uint32_t i2c_ctl = I2C_CTL_SI_Msk | I2C_CTL_AA_Msk;
@@ -875,8 +868,8 @@ static void i2c_fsm_reset(i2c_t *obj, uint32_t i2c_ctl)
 
 void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    // NOTE: NUC472 I2C only supports 7-bit slave address.
-    MBED_ASSERT((address & 0xFFFFFF80) == 0);
+    // NOTE: NUC472 I2C only supports 7-bit slave address. The mbed I2C address passed in is shifted left by 1 bit (7-bit addr << 1).
+    MBED_ASSERT((address & 0xFFFFFF00) == 0);
     
     // NOTE: First transmit and then receive.
     
@@ -913,7 +906,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
             else {
                 event = I2C_EVENT_TRANSFER_COMPLETE;
                 if (obj->i2c.stop) {
-                    i2c_stop(obj);
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
                 }
             }
             break;
@@ -927,12 +920,12 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
                 I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_SI_Msk);
             }
             else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
-                i2c_start(obj);
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
             }
             else {
                 event = I2C_EVENT_TRANSFER_COMPLETE;
                 if (obj->i2c.stop) {
-                    i2c_stop(obj);
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
                 }
             }
             break;
@@ -940,14 +933,23 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
         case 0x20:  // Master Transmit Address NACK
             event = I2C_EVENT_ERROR_NO_SLAVE;
             if (obj->i2c.stop) {
-                i2c_stop(obj);
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
             }
             break;
             
         case 0x30:  // Master Transmit Data NACK
-            event = I2C_EVENT_TRANSFER_EARLY_NACK;
-            if (obj->i2c.stop) {
-                i2c_stop(obj);
+            if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
+                event = I2C_EVENT_TRANSFER_EARLY_NACK;
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
+            }
+            else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+            }
+            else {
+                event = I2C_EVENT_TRANSFER_COMPLETE;
+                if (obj->i2c.stop) {
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
+                }
             }
             break;
                 
@@ -968,7 +970,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
         case 0x48:  // Master Receive Address NACK    
             event = I2C_EVENT_ERROR_NO_SLAVE;
             if (obj->i2c.stop) {
-                i2c_stop(obj);
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
             }
             break;
             
@@ -988,7 +990,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
         default:
             event = I2C_EVENT_ERROR;
             if (obj->i2c.stop) {
-                i2c_stop(obj);
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_STO_Msk | I2C_CTL_SI_Msk);
             }
     }
     
@@ -1000,9 +1002,15 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
 }
 
 uint8_t i2c_active(i2c_t *obj)
-{   
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
-    return !! (i2c_base->CTL & I2C_CTL_INTEN_Msk);
+{
+    const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
+    MBED_ASSERT(modinit != NULL);
+    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    
+    // Vector will be changed for async transfer. Use it to judge if async transfer is on-going.
+    uint32_t vec = NVIC_GetVector(modinit->irq_n);
+    struct nu_i2c_var *var = (struct nu_i2c_var *) modinit->var;
+    return (vec && vec != var->vec);
 }
 
 void i2c_abort_asynch(i2c_t *obj)
