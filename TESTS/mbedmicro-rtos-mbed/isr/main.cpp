@@ -2,6 +2,10 @@
 #include "greentea-client/test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define QUEUE_SIZE              5
 #define THREAD_DELAY            250
 #define QUEUE_PUT_ISR_VALUE     128
