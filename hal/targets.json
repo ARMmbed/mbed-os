@@ -772,6 +772,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "progen": {"target": "nucleo-f410rb"},
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "detect_code": ["0740"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"]
@@ -808,7 +809,8 @@
         "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"]
     },
@@ -854,6 +856,7 @@
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "progen": {
             "target": "nucleo-f746zg",
             "iar": {
@@ -872,6 +875,7 @@
         "extra_labels": ["STM", "STM32F7", "STM32F767", "STM32F767ZI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "progen": {"target": "nucleo-f767zi"},
         "detect_code": ["0818"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
@@ -1037,6 +1041,7 @@
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
         "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI"],
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "disco-f429zi"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
@@ -1049,6 +1054,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F469", "STM32F469NI"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "progen": {"target": "disco-f469ni"},
         "detect_code": ["0788"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
@@ -1070,6 +1076,7 @@
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746NG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "progen": {"target": "disco-f746ng"},
         "detect_code": ["0815"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
