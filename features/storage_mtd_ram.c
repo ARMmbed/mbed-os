@@ -124,7 +124,7 @@ static const ARM_STORAGE_INFO info = {
     memory_mapped        : 1,
 
     programmability      : ARM_STORAGE_PROGRAMMABILITY_ERASABLE, /**< A value of type enum ARM_STOR_PROGRAMMABILITY. */
-    retention_level      : ARM_RETENTION_NVM,
+    retention_level      : ARM_RETENTION_WHILE_DEVICE_ACTIVE,
 
     reserved             : 0,
 
