@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_STORAGE_RAM
+#if STORAGE_RAM
 
 #include "Driver_Storage.h"
 
@@ -372,4 +372,4 @@ ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_RAM = {
     .GetBlock           = getBlock
 };
 
-#endif /* #if DEVICE_STORAGE_RAM */
+#endif /* #if STORAGE_RAM */
