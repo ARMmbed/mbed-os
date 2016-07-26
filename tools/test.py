@@ -26,6 +26,14 @@ import fnmatch
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.utils import install_from_pip
+with open(os.path.join(ROOT, "requirements.txt")) as reqs:
+    for req in reqs:
+        install_from_pip(req)
+
+import site
+reload(site)
+
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
 from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library

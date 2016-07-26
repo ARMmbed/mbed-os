@@ -318,3 +318,15 @@ def argparse_dir_not_parent(other):
         else:
             return not_parent
     return parse_type
+
+def install_from_pip(package):
+    import pkg_resources
+    try:
+        pkg_resources.working_set.require(package)
+    except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
+        import pip
+        try:
+            pip.main(['install', '--user', '-q', package])
+        except IOError as exc:
+            if exc.errno == 13:
+                print "please retry with sudo"
