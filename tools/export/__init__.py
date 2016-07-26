@@ -1,7 +1,7 @@
 """The generic interface for all exporters.
 """
 # mbed SDK
-# Copyright (c) 2011-2013 ARM Limited
+# Copyright (c) 2011-2016 ARM Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

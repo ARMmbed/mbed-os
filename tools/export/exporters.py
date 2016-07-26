@@ -58,9 +58,9 @@ class Exporter(object):
         export_dir    - the directory of the exported project files
         project_name  - the name of the project
         toolchain     - an instance of class toolchain
-        extra_symbols - a list of extra macros for the toolchain
 
         Keyword arguments:
+        extra_symbols - a list of extra macros for the toolchain
         resources     - an instance of class Resources
         """
         self.export_dir = export_dir
