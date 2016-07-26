@@ -27,13 +27,6 @@
 static int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP);
 static int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP);
 
-/*
- * Global state for the driver.
- */
-ARM_Storage_Callback_t  commandCompletionCallback;
-static bool             initialized = false;
-ARM_POWER_STATE         powerState  = ARM_POWER_OFF;
-
 #ifdef STORAGE_CONFIG_HARDWARE_MTD_RAM_ERASE_UNIT
 #define ERASE_UNIT           (STORAGE_CONFIG_HARDWARE_MTD_RAM_ERASE_UNIT)
 #else
@@ -209,42 +202,21 @@ static ARM_STORAGE_CAPABILITIES getCapabilities(void)
 
 static int32_t initialize(ARM_Storage_Callback_t callback)
 {
-    if (initialized) {
-        commandCompletionCallback = callback;
-
-        return 1; /* synchronous completion. */
-    }
-
-    commandCompletionCallback = callback;
-
-    initialized = true;
-
     return 1; /* synchronous completion. */
 }
 
 static int32_t uninitialize(void)
 {
-    if (!initialized) {
-        return ARM_DRIVER_ERROR;
-    }
-
-    commandCompletionCallback = NULL;
-    initialized               = false;
     return 1; /* synchronous completion. */
 }
 
 static int32_t powerControl(ARM_POWER_STATE state)
 {
-    powerState = state;
     return 1; /* signal synchronous completion. */
 }
 
 static int32_t readData(uint64_t addr, void *data, uint32_t size)
 {
-    if (!initialized) {
-        return ARM_DRIVER_ERROR; /* illegal */
-    }
-
     /* Argument validation. */
     if ((data == NULL) || (size == 0)) {
         return ARM_DRIVER_ERROR_PARAMETER; /* illegal */
@@ -259,10 +231,6 @@ static int32_t readData(uint64_t addr, void *data, uint32_t size)
 
 static int32_t programData(uint64_t addr, const void *data, uint32_t size)
 {
-    if (!initialized) {
-        return (int32_t)ARM_DRIVER_ERROR; /* illegal */
-    }
-
     /* argument validation */
     if ((data == NULL) || (size == 0)) {
         return ARM_DRIVER_ERROR_PARAMETER; /* illegal */
@@ -286,9 +254,6 @@ static int32_t programData(uint64_t addr, const void *data, uint32_t size)
 
 static int32_t erase(uint64_t addr, uint32_t size)
 {
-    if (!initialized) {
-        return (int32_t)ARM_DRIVER_ERROR; /* illegal */
-    }
     /* argument validation */
     if (size == 0) {
         return ARM_DRIVER_ERROR_PARAMETER;
@@ -312,10 +277,6 @@ static int32_t erase(uint64_t addr, uint32_t size)
 
 static int32_t eraseAll(void)
 {
-    if (!initialized) {
-        return (int32_t)ARM_DRIVER_ERROR; /* illegal */
-    }
-
     /* unless we are managing all of storage, we shouldn't allow chip-erase. */
     if (!caps.erase_all) {
         return ARM_DRIVER_ERROR_UNSUPPORTED;
@@ -331,11 +292,6 @@ static ARM_STORAGE_STATUS getStatus(void)
         .busy  = 0,
         .error = 0,
     };
-
-    if (!initialized) {
-        status.error = 1;
-        return status;
-    }
 
     return status;
 }
