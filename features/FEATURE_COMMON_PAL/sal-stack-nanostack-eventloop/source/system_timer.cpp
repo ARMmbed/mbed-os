@@ -22,7 +22,7 @@
 #include "eventOS_event.h"
 #include "eventOS_event_timer.h"
 #include "minar/minar.h"
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "core-util/FunctionPointer.h"
 #include "core-util/Event.h"
 

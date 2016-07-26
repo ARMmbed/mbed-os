@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "mbed-mesh-api/Mesh6LoWPAN_ND.h"
 #include "include/nd_tasklet.h"
 

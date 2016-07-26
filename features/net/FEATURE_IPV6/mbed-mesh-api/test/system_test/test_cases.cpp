@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "mbed-mesh-api/Mesh6LoWPAN_ND.h"
 #include "mbed-mesh-api/MeshThread.h"
 #include "mbed-mesh-api/MeshInterfaceFactory.h"

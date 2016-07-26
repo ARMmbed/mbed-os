@@ -17,7 +17,7 @@
  * Abstract networking interface.
  */
 
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "mbed-mesh-api/AbstractNetworkInterface.h"
 
 AbstractNetworkInterface::~AbstractNetworkInterface()

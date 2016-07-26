@@ -17,7 +17,7 @@
 #ifndef __INCLUDE_CALLBACK_HANDLER_H__
 #define __INCLUDE_CALLBACK_HANDLER_H__
 
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "mbed-mesh-api/AbstractMesh.h"
 
 extern AbstractMesh  *__abstract_mesh_interface;

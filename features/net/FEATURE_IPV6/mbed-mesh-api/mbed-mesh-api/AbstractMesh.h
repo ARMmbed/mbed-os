@@ -18,7 +18,7 @@
 #define __ABSTRACTMESH_H__
 
 #include "AbstractNetworkInterface.h"
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #ifdef YOTTA_CFG
 #include "core-util/FunctionPointer.h"
 

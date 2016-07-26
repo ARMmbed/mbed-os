@@ -17,7 +17,7 @@
 /*
  * Mesh networking interface.
  */
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "mbed-mesh-api/Mesh6LoWPAN_ND.h"
 #include "mbed-mesh-api/MeshThread.h"
 #include "include/callback_handler.h"

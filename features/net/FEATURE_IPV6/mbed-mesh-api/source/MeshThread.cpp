@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "mbed-drivers/mbed.h"
+#include "mbed.h"
 #include "mbed-mesh-api/MeshThread.h"
 #include "include/thread_tasklet.h"
 #include "include/callback_handler.h"
