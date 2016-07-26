@@ -190,6 +190,25 @@ class Config:
         "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6", "COMMON_PAL"
     ]
 
+    @staticmethod
+    def add_target_config(top_level_dirs):
+        app_config_location = None
+        for s in (top_level_dirs or []):
+            full_path = os.path.join(s, Config.__mbed_app_config_name)
+            if os.path.isfile(full_path):
+                if app_config_location is not None:
+                    raise ConfigException("Duplicate '%s' file in '%s' and '%s'" % (Config.__mbed_app_config_name, app_config_location, full_path))
+                else:
+                    app_config_location = full_path
+        app_config_data = json_file_to_dict(app_config_location) if app_config_location else {}
+        # Check the keys in the application configuration data
+        unknown_keys = set(app_config_data.keys()) - Config.__allowed_keys["application"]
+        if unknown_keys:
+            raise ConfigException("Unknown key(s) '%s' in %s" % (",".join(unknown_keys), Config.__mbed_app_config_name))
+        # Update the list of targets with the ones defined in the application config, if applicable
+        return app_config_data
+
+
     # The initialization arguments for Config are:
     #     target: the name of the mbed target used for this configuration instance
     #     top_level_dirs: a list of top level source directories (where mbed_abb_config.json could be found)
@@ -199,21 +218,7 @@ class Config:
     # If found more than once, an exception is raised
     # top_level_dirs can be None (in this case, mbed_app_config.json will not be searched)
     def __init__(self, target, top_level_dirs = []):
-        app_config_location = None
-        for s in (top_level_dirs or []):
-            full_path = os.path.join(s, self.__mbed_app_config_name)
-            if os.path.isfile(full_path):
-                if app_config_location is not None:
-                    raise ConfigException("Duplicate '%s' file in '%s' and '%s'" % (self.__mbed_app_config_name, app_config_location, full_path))
-                else:
-                    app_config_location = full_path
-        self.app_config_data = json_file_to_dict(app_config_location) if app_config_location else {}
-        # Check the keys in the application configuration data
-        unknown_keys = set(self.app_config_data.keys()) - self.__allowed_keys["application"]
-        if unknown_keys:
-            raise ConfigException("Unknown key(s) '%s' in %s" % (",".join(unknown_keys), self.__mbed_app_config_name))
-        # Update the list of targets with the ones defined in the application config, if applicable
-        Target.add_py_targets(self.app_config_data.get("custom_targets", {}))
+        self.app_config_data = Config.add_target_config(top_level_dirs)
         self.lib_config_data = {}
         # Make sure that each config is processed only once
         self.processed_configs = {}

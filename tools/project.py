@@ -11,10 +11,12 @@ from tools.paths import EXPORT_DIR
 from tools.export import export, EXPORTERS, mcu_ide_matrix
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known
-from tools.targets import TARGET_NAMES
+from tools.targets import TARGET_NAMES, Target
 from tools.libraries import LIBRARIES
 from utils import argparse_filestring_type, argparse_many
 from utils import argparse_force_lowercase_type, argparse_force_uppercase_type, argparse_dir_not_parent
+from utils import run_type_after_parse
+from tools.config import Config
 from project_api import setup_project, perform_export, print_results, get_lib_symbols
 
 
@@ -31,7 +33,6 @@ if __name__ == '__main__':
     parser.add_argument("-m", "--mcu",
                       metavar="MCU",
                       default='LPC1768',
-                      type=argparse_many(argparse_force_uppercase_type(targetnames, "MCU")),
                       help="generate project for the given MCU (%s)"% ', '.join(targetnames))
 
     parser.add_argument("-i",
@@ -99,6 +100,11 @@ if __name__ == '__main__':
         print '\n'.join(map(str, sorted(TEST_MAP.values())))
         sys.exit()
 
+    if options.source_dir:
+        config = Config.add_target_config(options.source_dir)
+        if "custom_targets" in config:
+            Target.add_py_targets(config["custom_targets"])
+
     # Only prints matrix of supported IDEs
     if options.supported_ides:
         print mcu_ide_matrix()
@@ -120,6 +126,11 @@ if __name__ == '__main__':
             raise
         exit(0)
 
+    if options.mcu:
+        mcus = run_type_after_parse(
+            argparse_many(argparse_force_uppercase_type(sorted(TARGET_NAMES), "MCU")),
+            parser, options.mcu, "-m")
+
     # Clean Export Directory
     if options.clean:
         if exists(EXPORT_DIR):
@@ -132,7 +143,7 @@ if __name__ == '__main__':
     # source_dir = use relative paths, otherwise sources are copied
     sources_relative = True if options.source_dir else False
 
-    for mcu in options.mcu:
+    for mcu in mcus:
         # Program Number or name
         p, src, ide = options.program, options.source_dir, options.ide
         try:

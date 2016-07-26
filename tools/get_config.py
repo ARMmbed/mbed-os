@@ -27,8 +27,12 @@ sys.path.insert(0, ROOT)
 from tools.utils import args_error
 from tools.options import get_default_options_parser
 from tools.build_api import get_config
+from tools.targets import TARGET_NAMES 
+from tools.targets import Target
 from config import Config
 from utils import argparse_filestring_type
+from utils import argparse_force_uppercase_type
+from utils import run_type_after_parse
 try:
     import tools.private_settings as ps
 except:
@@ -46,10 +50,18 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
 
+    if options.source_dir:
+        config = Config.add_target_config(options.source_dir)
+        if "custom_targets" in config:
+            Target.add_py_targets(config["custom_targets"])
+
     # Target
-    if options.mcu is None :
+    if options.mcu:
+        target = run_type_after_parse(
+            argparse_force_uppercase_type(sorted(TARGET_NAMES), "MCU"),
+            parser, options.mcu, "-m")
+    else:
         args_error(parser, "[ERROR] You should specify an MCU")
-    target = options.mcu[0]
 
     # Toolchain
     if options.tool is None:
