@@ -18,7 +18,6 @@
 #if STORAGE_RAM
 
 #include "Driver_Storage.h"
-
 #include <string.h>
 
 /*
