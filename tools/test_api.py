@@ -2072,13 +2072,17 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
         bin_file = None
+        test_case_folder_name = os.path.basename(test_path)
+        
+        
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
                                      options=options,
                                      jobs=jobs,
                                      clean=clean,
                                      macros=macros,
-                                     name=test_name,
+                                     name=test_case_folder_name,
+                                     project_id=test_name,
                                      report=report,
                                      properties=properties,
                                      verbose=verbose)
