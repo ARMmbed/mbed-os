@@ -23,11 +23,11 @@ from copy import copy
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, basename, abspath, normpath
-from os import getcwd, walk
+from os import getcwd, walk, linesep
 from time import time
 import fnmatch
 
-from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException
+from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException, InvalidReleaseTargetException
 from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
@@ -111,6 +111,79 @@ def get_config(src_paths, target, toolchain_name):
     cfg, macros = toolchain.config.get_config_data()
     features = toolchain.config.get_features()
     return cfg, macros, features
+
+def is_official_target(target_name, version):
+    """ Returns True, None if a target is part of the official release for the
+    given version. Return False, 'reason' if a target is not part of the
+    official release for the given version.
+    
+    target_name: name if the target (ex. 'K64F')
+    version: string of the version (ex. '2' or '5')
+    """
+    
+    result = True
+    reason = None
+    target = TARGET_MAP[target_name]
+    
+    if hasattr(target, 'release') and version in target.release:
+        if version == '2':
+            # For version 2, either ARM or uARM toolchain support is required
+            required_toolchains = set(['ARM', 'uARM'])
+            
+            if not len(required_toolchains.intersection(set(target.supported_toolchains))) > 0:
+                result = False           
+                reason = ("Target '%s' must support " % target.name) + \
+                    ("one of the folowing toolchains to be included in the mbed 2.0 ") + \
+                    (("official release: %s" + linesep) % ", ".join(required_toolchains)) + \
+                    ("Currently it is only configured to support the ") + \
+                    ("following toolchains: %s" % ", ".join(target.supported_toolchains))
+                    
+        elif version == '5':
+            # For version 5, ARM, GCC_ARM, and IAR toolchain support is required
+            required_toolchains = set(['ARM', 'GCC_ARM', 'IAR'])
+            required_toolchains_sorted = list(required_toolchains)
+            required_toolchains_sorted.sort()
+            supported_toolchains = set(target.supported_toolchains)
+            supported_toolchains_sorted = list(supported_toolchains)
+            supported_toolchains_sorted.sort()
+            
+            if not required_toolchains.issubset(supported_toolchains):
+                result = False
+                reason = ("Target '%s' must support " % target.name) + \
+                    ("ALL of the folowing toolchains to be included in the mbed OS 5.0 ") + \
+                    (("official release: %s" + linesep) % ", ".join(required_toolchains_sorted)) + \
+                    ("Currently it is only configured to support the ") + \
+                    ("following toolchains: %s" % ", ".join(supported_toolchains_sorted))
+    else:
+        result = False
+        if not hasattr(target, 'release'):
+            reason = "Target '%s' does not have the 'release' key set" % target.name
+        elif not version in target.release:
+            reason = "Target '%s' does not contain the version '%s' in its 'release' key" % (target.name, version)
+    
+    return result, reason
+
+
+def get_mbed_official_release(version):
+    MBED_OFFICIAL_RELEASE = (
+        tuple(
+            tuple(
+                [
+                    TARGET_MAP[target].name,
+                    tuple(TARGET_MAP[target].supported_toolchains)
+                ]
+            ) for target in TARGET_NAMES if (hasattr(TARGET_MAP[target], 'release') and version in TARGET_MAP[target].release)
+        )
+    )
+    
+    for target in MBED_OFFICIAL_RELEASE:
+        is_official, reason = is_official_target(target[0], version)
+        
+        if not is_official:
+            raise InvalidReleaseTargetException(reason)
+            
+    return MBED_OFFICIAL_RELEASE
+
 
 def prepare_toolchain(src_paths, target, toolchain_name,
         macros=None, options=None, clean=False, jobs=1,

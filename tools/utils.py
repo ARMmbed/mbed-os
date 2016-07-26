@@ -167,6 +167,9 @@ class ToolException(Exception):
 class NotSupportedException(Exception):
     pass
 
+class InvalidReleaseTargetException(Exception):
+    pass
+
 def split_path(path):
     base, file = split(path)
     name, ext = splitext(file)
