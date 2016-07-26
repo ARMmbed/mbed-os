@@ -1,0 +1,23 @@
+#--- Inputs ----#
+CPPUTEST_HOME = /usr
+CPPUTEST_USE_EXTENSIONS = Y
+CPPUTEST_USE_VPATH = Y
+CPPUTEST_USE_GCOV = Y
+CPP_PLATFORM = gcc
+INCLUDE_DIRS =\
+  .\
+  ../common\
+  ../stubs\
+  ../../../..\
+  ../../../../source\
+  ../../../../nsdl-c\
+  ../../../../yotta_modules/nanostack-libservice/mbed-client-libservice\
+  ../../../../yotta_modules/mbed-trace\
+  ../../../../../libService/libService\
+  ../../../../source/libCoap/src/include\
+  ../../../../source/libNsdl/src/include\
+  /usr/include\
+  $(CPPUTEST_HOME)/include\
+
+CPPUTESTFLAGS = -D__thumb2__ -w
+CPPUTEST_CFLAGS += -std=gnu99
