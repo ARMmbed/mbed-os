@@ -1951,7 +1951,8 @@
                 "value": "NRF_LF_SRC_XTAL",
                 "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
             }
-        }
+        },
+        "default_build": "small"
     },
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
