@@ -24,7 +24,6 @@
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
-//#include "uvisor-lib/uvisor-lib.h"
 
 #if DEVICE_SPI_ASYNCH
 #include "dma_api.h"

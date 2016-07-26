@@ -19,6 +19,7 @@
 #include "mbed_assert.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
+#include "critical.h"
 
 #define US_PER_TICK             1
 
@@ -119,8 +120,7 @@ uint32_t us_ticker_read()
         // NOTE: As TIMER_CNT = TIMER_CMP and counter_major has increased by one, TIMER_CNT doesn't change to 0 for one tick time.
         // NOTE: As TIMER_CNT = TIMER_CMP or TIMER_CNT = 0, counter_major (ISR) may not sync with TIMER_CNT. So skip and fetch stable one at the cost of 1 clock delay on this read.
         do {
-            uint32_t _state = __get_PRIMASK();
-            __disable_irq();
+            core_util_critical_section_enter();
             
             // NOTE: Order of reading minor_us/carry here is significant.
             minor_us = TIMER_GetCounter(timer0_base) * US_PER_TMR0HIRES_CLK;
@@ -133,7 +133,7 @@ uint32_t us_ticker_read()
                 major_minor_us = (counter_major + carry) * US_PER_TMR0HIRES_INT + minor_us;
             }
             
-            __set_PRIMASK(_state);
+            core_util_critical_section_exit();
         }
         while (minor_us == 0 || minor_us == US_PER_TMR0HIRES_INT);
         
@@ -171,8 +171,7 @@ void us_ticker_prepare_sleep(struct sleep_s *obj)
         obj->powerdown = ! cd_hires_tmr_armed;
     }
     
-    uint32_t _state = __get_PRIMASK();
-    __disable_irq();
+    core_util_critical_section_enter();
     
     if (obj->powerdown) {
         // NOTE: On entering power-down mode, HIRC/HXT will be disabled in normal mode, but not in ICE mode. This may cause confusion in development.
@@ -180,13 +179,12 @@ void us_ticker_prepare_sleep(struct sleep_s *obj)
         CLK_DisableModuleClock(timer0hires_modinit.clkidx);
     }
     
-     __set_PRIMASK(_state);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_wakeup_from_sleep(struct sleep_s *obj)
 {
-    uint32_t _state = __get_PRIMASK();
-    __disable_irq();
+    core_util_critical_section_enter();
     
     if (obj->powerdown) {
         // Calculate power-down compensation
@@ -195,7 +193,7 @@ void us_ticker_wakeup_from_sleep(struct sleep_s *obj)
         CLK_EnableModuleClock(timer0hires_modinit.clkidx);
     }
     
-    __set_PRIMASK(_state);
+    core_util_critical_section_exit();
 }
 
 static void tmr0_vec(void)

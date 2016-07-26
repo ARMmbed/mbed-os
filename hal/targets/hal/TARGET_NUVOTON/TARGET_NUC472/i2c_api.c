@@ -24,7 +24,7 @@
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
-//#include "uvisor-lib/uvisor-lib.h"
+#include "critical.h"
 
 #define NU_I2C_DEBUG    0
 
@@ -309,14 +309,13 @@ static void i2c_enable_int(i2c_t *obj)
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     
-    uint32_t _state = __get_PRIMASK();
-    __disable_irq();
+    core_util_critical_section_enter();
     
     // Enable I2C interrupt
     NVIC_EnableIRQ(modinit->irq_n);
     obj->i2c.inten = 1;
     
-    __set_PRIMASK(_state);
+    core_util_critical_section_exit();
 }
 
 static void i2c_disable_int(i2c_t *obj)
@@ -324,14 +323,13 @@ static void i2c_disable_int(i2c_t *obj)
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     
-    uint32_t _state = __get_PRIMASK();
-    __disable_irq();
+    core_util_critical_section_enter();
     
     // Disable I2C interrupt
     NVIC_DisableIRQ(modinit->irq_n);
     obj->i2c.inten = 0;
     
-    __set_PRIMASK(_state);
+    core_util_critical_section_exit();
 }
 
 static int i2c_set_int(i2c_t *obj, int inten)
@@ -339,12 +337,11 @@ static int i2c_set_int(i2c_t *obj, int inten)
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     int inten_back;
     
-    uint32_t _state = __get_PRIMASK();
-    __disable_irq();
+    core_util_critical_section_enter();
     
     inten_back = obj->i2c.inten;
     
-    __set_PRIMASK(_state);
+    core_util_critical_section_exit();
     
     if (inten) {
         i2c_enable_int(obj);

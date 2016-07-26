@@ -21,7 +21,7 @@
 #include "sleep_api.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
-//#include "uvisor-lib/uvisor-lib.h"
+#include "critical.h"
 
 // lp_ticker tick = us = timestamp
 // clock of timer peripheral = ms
@@ -118,8 +118,7 @@ timestamp_t lp_ticker_read()
         // NOTE: As TIMER_CNT = TIMER_CMP and counter_major has increased by one, TIMER_CNT doesn't change to 0 for one tick time.
         // NOTE: As TIMER_CNT = TIMER_CMP or TIMER_CNT = 0, counter_major (ISR) may not sync with TIMER_CNT. So skip and fetch stable one at the cost of 1 clock delay on this read.
         do {
-            uint32_t _state = __get_PRIMASK();
-            __disable_irq();
+            core_util_critical_section_enter();
         
             // NOTE: Order of reading minor_us/carry here is significant.
             minor_ms = TIMER_GetCounter(timer2_base) * MS_PER_TMR2_CLK;
@@ -132,7 +131,7 @@ timestamp_t lp_ticker_read()
                 major_minor_ms = (counter_major + carry) * MS_PER_TMR2_INT + minor_ms;
             }
             
-            __set_PRIMASK(_state);
+            core_util_critical_section_exit();
         }
         while (minor_ms == 0 || minor_ms == MS_PER_TMR2_INT);
 

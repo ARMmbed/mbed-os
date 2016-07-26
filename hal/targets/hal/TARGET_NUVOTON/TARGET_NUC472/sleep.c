@@ -17,7 +17,6 @@
 #include "sleep_api.h"
 #include "serial_api.h"
 #include "lp_ticker_api.h"
-//#include "uvisor-lib/uvisor-lib.h"
 
 #if DEVICE_SLEEP
 
@@ -89,23 +88,13 @@ static void mbed_enter_sleep(struct sleep_s *obj)
 
     if (obj->powerdown) {   // Power-down mode (HIRC/HXT disabled, LIRC/LXT enabled)
         SYS_UnlockReg();
-#if YOTTA_CFG_UVISOR_PRESENT == 1
-        uvisor_write32(&SCB->SCR, uvisor_read32(&(SCB->SCR)) | SCB_SCR_SLEEPDEEP_Msk);
-        CLK->PWRCTL |= (CLK_PWRCTL_PDEN_Msk | CLK_PWRCTL_PDWKDLY_Msk);
-        __WFI();
-#else
         CLK_PowerDown();
-#endif
         SYS_LockReg();
     }
     else {  // CPU halt mode (HIRC/HXT enabled, LIRC/LXT enabled)
         // NOTE: NUC472's CLK_Idle() will also disable HIRC/HXT.
         SYS_UnlockReg();
-#if YOTTA_CFG_UVISOR_PRESENT == 1
-        uvisor_write32(&SCB->SCR, uvisor_read32(&(SCB->SCR)) & ~SCB_SCR_SLEEPDEEP_Msk);
-#else
         SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-#endif
         CLK->PWRCTL &= ~CLK_PWRCTL_PDEN_Msk;
         __WFI();
         SYS_LockReg();

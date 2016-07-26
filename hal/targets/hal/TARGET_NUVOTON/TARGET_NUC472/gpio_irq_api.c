@@ -22,7 +22,6 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
-//#include "uvisor-lib/uvisor-lib.h"
 #include "nu_bitutil.h"
 
 #define NU_MAX_PIN_PER_PORT     16
