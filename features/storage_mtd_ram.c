@@ -120,7 +120,7 @@ static const ARM_STORAGE_INFO info = {
 
     program_cycles       : ARM_STORAGE_PROGRAM_CYCLES_INFINITE, /**< A measure of endurance for reprogramming.
                                                                  *   Use ARM_STOR_PROGRAM_CYCLES_INFINITE for infinite or unknown endurance. */
-    erased_value         : 0x1,  /**< Contents of erased memory (1 to indicate erased octets with state 0xFF). */
+    erased_value         : 0x0,  /**< Contents of erased memory (0 to indicate erased octets with state 0x00). */
     memory_mapped        : 1,
 
     programmability      : ARM_STORAGE_PROGRAMMABILITY_ERASABLE, /**< A value of type enum ARM_STOR_PROGRAMMABILITY. */
@@ -271,7 +271,7 @@ static int32_t erase(uint64_t addr, uint32_t size)
         return ARM_STORAGE_ERROR_NOT_ERASABLE;
     }
 
-    memset(&MEMORY[addr], 0xFF, size);
+    memset(&MEMORY[addr], 0x0, size);
     return size;
 }
 
@@ -282,7 +282,7 @@ static int32_t eraseAll(void)
         return ARM_DRIVER_ERROR_UNSUPPORTED;
     }
 
-    memset(&MEMORY[STORAGE_START_ADDR], 0xFF, STORAGE_SIZE);
+    memset(&MEMORY[STORAGE_START_ADDR], 0x0, STORAGE_SIZE);
     return 1;
 }
 
