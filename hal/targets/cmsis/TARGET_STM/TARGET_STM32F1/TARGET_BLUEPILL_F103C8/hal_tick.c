@@ -138,16 +138,14 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     return HAL_OK;
 }
 
-void HAL_SuspendTick(void)
-{
+void HAL_SuspendTick(void) {
     TimMasterHandle.Instance = TIM_MST;
 
     // Disable HAL tick and us_ticker update interrupts (used for 32 bit counter)
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
-void HAL_ResumeTick(void)
-{
+void HAL_ResumeTick(void) {
     TimMasterHandle.Instance = TIM_MST;
 
 	// Enable HAL tick and us_ticker update interrupts (used for 32 bit counter)
