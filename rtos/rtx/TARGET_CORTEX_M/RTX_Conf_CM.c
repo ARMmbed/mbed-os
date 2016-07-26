@@ -186,7 +186,7 @@
 #  elif  defined(TARGET_STM32F100RB) || defined(TARGET_BEETLE)
 #    define OS_CLOCK       24000000
 
-#  elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_K64F) || defined(TARGET_K22F)
+#  elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_K64F)
 #    define OS_CLOCK       120000000
 
 #  elif defined(TARGET_LPC4330)
@@ -246,7 +246,7 @@
 #elif defined(TARGET_STM32F070RB)
 #    define OS_CLOCK       48000000
 
-#elif defined(TARGET_STM32L432KC) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG)
+#elif defined(TARGET_STM32L432KC) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_K22F)
 #    define OS_CLOCK       80000000
 
 #elif defined(TARGET_STM32F469NI)
