@@ -30,15 +30,15 @@ keep { section .intvec };
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
 place in ROM_region   { readonly };
 place in RAM_region   { readwrite,
-                        block CSTACK,
-                        block HEAP };
-                        
+                        block HEAP,
+                        block CSTACK };
+
 /*This is used for mbed applications build inside the Embedded workbench
 Applications build with the python scritps use a hex merge so need to merge it
 inside the linker. The linker can only use binary files so the hex merge is not possible
 through the linker. That is why a binary is used instead of a hex image for the embedded project.
 */
-if(isdefinedsymbol(SOFT_DEVICE_BIN)) 
+if(isdefinedsymbol(SOFT_DEVICE_BIN))
 {
   place at address mem:__code_start_soft_device__ { section .noinit_softdevice };
 }
