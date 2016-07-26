@@ -109,7 +109,7 @@ static const ARM_DRIVER_VERSION version = {
 
 static const ARM_STORAGE_CAPABILITIES caps = {
     asynchronous_ops : 0,
-    erase_all        : 0,    /**< Supports EraseChip operation. */
+    erase_all        : 1,    /**< Supports EraseChip operation. */
 };
 
 static const ARM_STORAGE_INFO info = {
