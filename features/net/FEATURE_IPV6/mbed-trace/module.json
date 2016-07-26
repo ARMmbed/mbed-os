@@ -1,0 +1,38 @@
+{
+  "name": "mbed-trace",
+  "version": "1.2.1",
+  "description": "Trace library for mbed devices",
+  "keywords": [
+    "trace",
+    "debug",
+    "library",
+    "client",
+    "mbedOS",
+    "mbed"
+  ],
+  "author": "Jussi Vatjus-Anttila",
+  "repository": {
+    "url": "https://github.com/ARMmbed/mbed-trace.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/ARMmbed/mbed-trace",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "testTargetDependencies": {
+    "x86-linux-native": {
+      "cpputest": "ARMmbed/cpputest",
+      "nanostack-libservice": "^3.6.0"
+    },
+    "x86-windows-native": {
+      "cpputest": "ARMmbed/cpputest",
+      "nanostack-libservice": "^3.6.0"
+    }
+  },
+  "dependencies": {
+    "nanostack-libservice": "^3.6.0"
+  }
+}
