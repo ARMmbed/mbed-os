@@ -132,7 +132,7 @@ static const ARM_STORAGE_INFO info = {
         acls                 : 0, /**< against internal software attacks using ACLs. */
         rollback_protection  : 0, /**< roll-back protection. */
         tamper_proof         : 0, /**< tamper-proof memory (will be deleted on tamper-attempts using board level or chip level sensors). */
-        internal_flash       : 1, /**< Internal flash. */
+        internal_flash       : 0, /**< Internal flash. */
         reserved1            : 0,
 
         software_attacks     : 0,
