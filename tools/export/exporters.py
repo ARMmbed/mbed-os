@@ -9,6 +9,7 @@ from jinja2.environment import Environment
 
 from tools.targets import TARGET_MAP
 from project_generator.project import Project, ProjectTemplateInternal
+from project_generator.tools_supported import ToolsSupported
 from project_generator.settings import ProjectSettings
 from project_generator_definitions.definitions import ProGenDef
 
@@ -72,7 +73,7 @@ class Exporter(object):
         self.resources = resources
         self.symbols = self.toolchain.get_symbols()
         self.generated_files = []
-        self.project = None
+        self.builder_files_dict = {}
 
         # Add extra symbols and config file symbols to the Exporter's list of
         # symbols.
@@ -184,10 +185,9 @@ class Exporter(object):
         if not self.check_supported(self.NAME):
             raise TargetNotSupportedException("Target not supported")
         settings = ProjectSettings()
-        self.project = Project(self.project_name, [project_data], settings)
-        self.project.project['export'] = project_data.copy()
-        self.project.generate(self.NAME, copied=False, fill=False)
-        for  middle in self.project.generated_files.values():
+        exporter = ToolsSupported().get_tool(self.NAME)
+        self.builder_files_dict = {self.NAME:exporter(project_data, settings).export_project()}
+        for  middle in self.builder_files_dict.values():
             for field, thing in middle.iteritems():
                 if field == "files":
                     for filename in thing.values():
@@ -198,7 +198,8 @@ class Exporter(object):
         print("Project {} exported, building for {}...".format(
             self.project_name, self.NAME))
         sys.stdout.flush()
-        result = self.project.build(self.NAME)
+        builder = ToolsSupported().get_tool(self.NAME)
+        result = builder(self.builder_files_dict[self.NAME], ProjectSettings()).build_project()
         if result == -1:
             raise FailedBuildException("Build Failed")
 
