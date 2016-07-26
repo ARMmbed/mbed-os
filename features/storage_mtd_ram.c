@@ -304,7 +304,7 @@ static int32_t getInfo(ARM_STORAGE_INFO *infoP)
 }
 
 static uint32_t resolveAddress(uint64_t addr) {
-    return (uint32_t)addr;
+    return (uint32_t)&MEMORY[addr];
 }
 
 int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP)
