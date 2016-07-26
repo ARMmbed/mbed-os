@@ -60,12 +60,14 @@ if __name__ == '__main__':
     # After the configuration is created, the list of targets is automatically updated if needed and
     # the parsing can continue with a complete list of targets.
     # Step 1: parse only --source
-    parser = ArgumentParser()
+    parser = ArgumentParser(add_help = False)
     parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
                        default=None, help="The source (input) directory", action="append")
     prev_options, rest = parser.parse_known_args()
     config = Config(top_level_dirs = prev_options.source_dir)
     # Step 2: parse the rest of the options
+    # We still add "--source" option to the arguments to give users a complete help text,
+    # but we don't use its value anymore
     parser = get_default_options_parser()
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-p",
@@ -123,6 +125,8 @@ if __name__ == '__main__':
                       default=None, help="Required peripherals")
     parser.add_argument("--dep", dest="dependencies",
                       default=None, help="Dependencies")
+    parser.add_argument("--source", dest="source_dir_not_used", type=argparse_filestring_type,
+                       default=None, help="The source (input) directory", action="append")
     parser.add_argument("--duration", type=int, dest="duration",
                       default=None, help="Duration of the test")
     parser.add_argument("--build", dest="build_dir",
