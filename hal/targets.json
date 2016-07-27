@@ -572,7 +572,7 @@
         "progen": {"target": "frdm-k64f"},
         "detect_code": ["0240"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE"],
-        "features": ["IPV4"],
+        "features": ["IPV4", "STORAGE"],
         "release": true
     },
     "MTS_GAMBIT": {
