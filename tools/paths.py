@@ -24,7 +24,7 @@ from settings import ROOT, BUILD_DIR
 BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 
 # Embedded Libraries Sources
-LIB_DIR = join(ROOT, "libraries")
+LIB_DIR = join(ROOT, "features", "unsupported")
 
 TOOLS = join(ROOT, "tools")
 TOOLS_DATA = join(TOOLS, "data")
