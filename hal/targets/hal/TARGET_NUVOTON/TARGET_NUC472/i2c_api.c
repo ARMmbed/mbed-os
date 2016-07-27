@@ -1007,7 +1007,7 @@ uint8_t i2c_active(i2c_t *obj)
     // Vector will be changed for async transfer. Use it to judge if async transfer is on-going.
     uint32_t vec = NVIC_GetVector(modinit->irq_n);
     struct nu_i2c_var *var = (struct nu_i2c_var *) modinit->var;
-    return (vec && vec != var->vec);
+    return (vec && vec != (uint32_t) var->vec);
 }
 
 void i2c_abort_asynch(i2c_t *obj)
