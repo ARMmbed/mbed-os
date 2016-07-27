@@ -4,7 +4,7 @@
 #ifndef MBED_SPIHALFDUPLEX_H
 #define MBED_SPIHALFDUPLEX_H
 
-#include "platform.h"
+#include "mbed_platform.h"
 
 #if DEVICE_SPI
 

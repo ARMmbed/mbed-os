@@ -16,7 +16,7 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
-#include "platform.h"
+#include "mbed_platform.h"
 #include "parse_pins.h"
 
 namespace mbed {

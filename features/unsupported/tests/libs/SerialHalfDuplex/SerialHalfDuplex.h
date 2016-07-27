@@ -4,7 +4,7 @@
 #ifndef MBED_SERIALHALFDUPLEX_H
 #define MBED_SERIALHALFDUPLEX_H
 
-#include "platform.h"
+#include "mbed_platform.h"
 
 #if DEVICE_SERIAL
 

@@ -20,8 +20,8 @@
 
 
 // Common codebase
-#include "platform.h"
-#include "drivers.h"
+#include "mbed_platform.h"
+#include "mbed_drivers.h"
 
 // RTOS
 #if MBED_CONF_RTOS_PRESENT
