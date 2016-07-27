@@ -65,7 +65,7 @@ class Target:
     __py_targets = set()
 
     # Default location of the 'targets.json' file
-    __targets_json_location_default = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
+    __targets_json_location_default = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'targets', 'targets.json')
 
     # Current/new location of the 'targets.json' file
     __targets_json_location = None
