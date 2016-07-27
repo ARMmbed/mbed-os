@@ -16,7 +16,7 @@
 #ifndef MBED_SERIALBASE_H
 #define MBED_SERIALBASE_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_SERIAL
 

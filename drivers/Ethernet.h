@@ -16,7 +16,7 @@
 #ifndef MBED_ETHERNET_H
 #define MBED_ETHERNET_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_ETHERNET
 

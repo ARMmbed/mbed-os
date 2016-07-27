@@ -16,7 +16,7 @@
 #ifndef MBED_LOCALFILESYSTEM_H
 #define MBED_LOCALFILESYSTEM_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_LOCALFILESYSTEM
 

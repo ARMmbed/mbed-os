@@ -16,7 +16,7 @@
 #ifndef MBED_ANALOGOUT_H
 #define MBED_ANALOGOUT_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_ANALOGOUT
 

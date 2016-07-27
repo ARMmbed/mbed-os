@@ -16,7 +16,7 @@
 #ifndef MBED_DIGITALINOUT_H
 #define MBED_DIGITALINOUT_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #include "gpio_api.h"
 #include "critical.h"

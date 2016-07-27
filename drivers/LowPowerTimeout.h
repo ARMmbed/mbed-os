@@ -16,7 +16,7 @@
 #ifndef MBED_LOWPOWERTIMEOUT_H
 #define MBED_LOWPOWERTIMEOUT_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_LOWPOWERTIMER
 

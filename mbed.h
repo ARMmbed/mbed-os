@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015 ARM Limited
+ * Copyright (c) 2006-2013 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_LOWPOWERTICKER_H
-#define MBED_LOWPOWERTICKER_H
+#ifndef MBED_H
+#define MBED_H
 
-#include "PlatformMutex.h"
-#include "Ticker.h"
+#define MBED_LIBRARY_VERSION 122
 
-#if DEVICE_LOWPOWERTIMER
 
-#include "lp_ticker_api.h"
+// Common codebase
+#include "platform/platform.h"
+#include "drivers/drivers.h"
 
-namespace mbed {
-
-/** Low Power Ticker
- *
- * @Note Synchronization level: Interrupt safe
- */
-class LowPowerTicker : public Ticker {
-
-public:
-    LowPowerTicker() : Ticker(get_lp_ticker_data()) {
-    }
-
-    virtual ~LowPowerTicker() {
-    }
-};
-
-} // namespace mbed
-
+// RTOS
+#if MBED_CONF_RTOS_PRESENT
+#include "rtos/rtos.h"
 #endif
+
+// Network-socket API
+#if MBED_CONF_NSAPI_PRESENT
+#include "network-socket/nsapi.h"
+#endif
+
+using namespace std;
+using namespace mbed;
+
 
 #endif

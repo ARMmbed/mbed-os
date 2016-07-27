@@ -16,7 +16,7 @@
 #ifndef MBED_FILESYSTEMLIKE_H
 #define MBED_FILESYSTEMLIKE_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #include "FileBase.h"
 #include "FileHandle.h"

@@ -40,7 +40,7 @@ typedef long off_t;
 #    include <sys/syslimits.h>
 #endif
 
-#include "platform.h"
+#include "PlatformMutex.h"
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
 

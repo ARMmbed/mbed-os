@@ -16,7 +16,7 @@
 #ifndef MBED_TRANSACTION_H
 #define MBED_TRANSACTION_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 #include "FunctionPointer.h"
 
 namespace mbed {

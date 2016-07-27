@@ -16,7 +16,7 @@
 #ifndef MBED_INTERRUPTIN_H
 #define MBED_INTERRUPTIN_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_INTERRUPTIN
 

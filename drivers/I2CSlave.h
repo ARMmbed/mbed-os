@@ -16,7 +16,7 @@
 #ifndef MBED_I2C_SLAVE_H
 #define MBED_I2C_SLAVE_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_I2CSLAVE
 

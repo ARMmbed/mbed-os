@@ -16,7 +16,7 @@
 #ifndef MBED_PWMOUT_H
 #define MBED_PWMOUT_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_PWMOUT
 #include "pwmout_api.h"

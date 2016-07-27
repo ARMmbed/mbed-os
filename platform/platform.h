@@ -16,13 +16,36 @@
 #ifndef MBED_PLATFORM_H
 #define MBED_PLATFORM_H
 
+
+// Toolchain definitions
+#include "toolchain.h"
+
+// Core hardware definitions
 #include "device.h"
 #include "PinNames.h"
 #include "PeripheralNames.h"
 
+// Useful C libraries
+#include <math.h>
+#include <time.h>
 #include <cstddef>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
+// mbed Debug libraries
+#include "mbed_error.h"
+#include "mbed_interface.h"
+#include "mbed_assert.h"
+
+// mbed Non-hardware components
+#include "Callback.h"
+#include "FunctionPointer.h"
+#include "PlatformMutex.h"
+#include "SingletonPtr.h"
+
+using namespace mbed;
+using namespace std;
+
 
 #endif

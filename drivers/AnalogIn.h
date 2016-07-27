@@ -16,7 +16,7 @@
 #ifndef MBED_ANALOGIN_H
 #define MBED_ANALOGIN_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_ANALOGIN
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "platform.h"
+#include "PlatformMutex.h"
 #include "FileHandle.h"
 #include "FileSystemLike.h"
 #include "FilePath.h"

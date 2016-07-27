@@ -16,7 +16,7 @@
 #ifndef MBED_CAN_H
 #define MBED_CAN_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_CAN
 

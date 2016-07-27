@@ -16,7 +16,7 @@
 #ifndef MBED_PORTOUT_H
 #define MBED_PORTOUT_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_PORTOUT
 

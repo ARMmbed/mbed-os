@@ -16,7 +16,7 @@
 #ifndef MBED_BUSIN_H
 #define MBED_BUSIN_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 #include "DigitalIn.h"
 #include "PlatformMutex.h"
 

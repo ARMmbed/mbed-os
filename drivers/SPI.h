@@ -16,7 +16,7 @@
 #ifndef MBED_SPI_H
 #define MBED_SPI_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_SPI
 

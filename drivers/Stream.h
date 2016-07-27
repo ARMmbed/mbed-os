@@ -16,7 +16,7 @@
 #ifndef MBED_STREAM_H
 #define MBED_STREAM_H
 
-#include "platform.h"
+#include "PlatformMutex.h"
 #include "FileLike.h"
 #include <cstdarg>
 
