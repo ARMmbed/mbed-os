@@ -33,7 +33,7 @@ from tools.targets import TARGET_MAP, TARGET_NAMES
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.test_api import SingleTestRunner
 from tools.test_api import singletest_in_cli_mode
-from tools.paths import TEST_DIR, MBED_LIBRARIES
+from tools.paths import TEST_DIR, MBED_LIBRARIES, MBED_TARGETS_PATH
 from tools.tests import TEST_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = get_mbed_official_release('2')
@@ -169,7 +169,7 @@ if __name__ == '__main__':
                     print str(e)
 
     # copy targets.json file as part of the release
-    copy(join(dirname(abspath(__file__)), '..', 'hal', 'targets.json'), MBED_LIBRARIES)
+    copy(join(MBED_TARGETS_PATH, 'targets.json'), MBED_LIBRARIES)
 
     # Write summary of the builds
     if options.report_build_file_name:
