@@ -8,7 +8,7 @@ from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 
 from tools.targets import TARGET_MAP
-from project_generator.project import Project, ProjectTemplateInternal
+from project_generator.tools import tool
 from project_generator.tools_supported import ToolsSupported
 from project_generator.settings import ProjectSettings
 from project_generator_definitions.definitions import ProGenDef
@@ -149,7 +149,7 @@ class Exporter(object):
         # we want to add this to our include dirs
         config_dir = os.path.dirname(config_header) if config_header else []
 
-        project_data = ProjectTemplateInternal._get_project_template()
+        project_data = tool.get_tool_template()
 
         project_data['target'] = TARGET_MAP[self.target].progen['target']
         project_data['source_paths'] = self.get_source_paths()
