@@ -31,6 +31,8 @@ TOOLS_DATA = join(TOOLS, "data")
 TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
 # mbed libraries
+MBED_HEADER = join(ROOT, "mbed.h")
+
 MBED_DRIVERS = join(ROOT, "drivers")
 MBED_PLATFORM = join(ROOT, "platform")
 MBED_HAL = join(ROOT, "hal")

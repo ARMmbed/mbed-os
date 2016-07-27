@@ -28,7 +28,7 @@ from time import time
 import fnmatch
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException, InvalidReleaseTargetException
-from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE
+from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_HEADER, MBED_CONFIG_FILE
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
@@ -714,7 +714,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
         # Common Headers
-        toolchain.copy_files(['mbed.h'], MBED_LIBRARIES)
+        toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
         toolchain.copy_files(toolchain.scan_resources(MBED_DRIVERS).headers, MBED_LIBRARIES)
         toolchain.copy_files(toolchain.scan_resources(MBED_PLATFORM).headers, MBED_LIBRARIES)
         toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
@@ -943,7 +943,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     toolchain.info("Static analysis for %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
     # Common Headers
-    toolchain.copy_files(['mbed.h'], MBED_LIBRARIES)
+    toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
     toolchain.copy_files(toolchain.scan_resources(MBED_DRIVERS).headers, MBED_LIBRARIES)
     toolchain.copy_files(toolchain.scan_resources(MBED_PLATFORM).headers, MBED_LIBRARIES)
     toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
