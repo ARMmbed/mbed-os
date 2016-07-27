@@ -237,34 +237,58 @@ For `myapp` above:
 
 # Using configuration data in the code
 
-When compiling, the configuration system will automatically generate macro definitions for the configuration parameters and all the macros defined in libraries and the application in their `macros` keys. These definitions will be appended to the compiler's command line. When compiling `myapp` for target `Base`, the following extra macros will be generated (not necessarily in this order):
+When compiling, the configuration system will automatically generate macro definitions for the configuration parameters and all the macros defined in libraries and the application in their `macros` keys. These definitions will be written in a file named `mbed_config.h` located in the build directory. When compiling `myapp` for target `Base`, the `mbed_config.h` file will look like this (note that the order of the definitions might be different):
 
 ```
--DMBED_CONF_MYAPP_WELCOME_STRING="Hello!"
--DMBED_SERIAL_UART_SPEED=9600
--DMBED_CONF_TARGET_STACK_SIZE=128
--DINTERNAL_GPTMR_PERIOD=100
--DMBED_CONF_MYLIB_BUFFER_SIZE=1024
--DMBED_CONF_MYLIB_QUEUE_SIZE=10
--DMYMOD_MACRO1
--DMYMOD_MACRO2="TEST"
+// Automatically generated configuration file.
+// DO NOT EDIT, content will be overwritten.
+
+#ifndef __MBED_CONFIG_DATA__
+#define __MBED_CONFIG_DATA__
+
+// Configuration parameters
+#define MBED_CONF_MYAPP_WELCOME_STRING "Hello!" // set by application
+#define MBED_SERIAL_UART_SPEED         9600     // set by application[Base]
+#define MBED_CONF_TARGET_STACK_SIZE    128      // set by target
+#define INTERNAL_GPTMR_PERIOD          100      // set by application[*]
+#define MBED_CONF_MYLIB_BUFFER_SIZE    1024     // set by library:mylib
+#define MBED_CONF_MYLIB_QUEUE_SIZE     10       // set by library:mylib
+// Macros
+#define MYMOD_MACRO1                            // defined by library:mylib
+#define MYMOD_MACRO2                   "TEST"   // defined by library:mylib
+
+#endif
 ```
 
-When compiling for `Derived`, the following extra macros will be generated:
+When compiling for `Derived`, `mbed_config.h` will look like this:
+
 
 ```
--DMBED_CONF_MYAPP_WELCOME_STRING="Hello!"
--DMBED_SERIAL_UART_SPEED=2400
--DMBED_CONF_TARGET_STACK_SIZE=256
--DMBED_CONF_TARGET_MY_OWN_CONFIG=0
--DINTERNAL_GPTMR_PERIOD=100
--DMBED_CONF_MYLIB_BUFFER_SIZE=128
--DMBED_CONF_MYLIB_QUEUE_SIZE=20
--DMYMOD_MACRO1
--DMYMOD_MACRO2="TEST"
+// Automatically generated configuration file.
+// DO NOT EDIT, content will be overwritten.
+
+#ifndef __MBED_CONFIG_DATA__
+#define __MBED_CONFIG_DATA__
+
+// Configuration parameters
+#define MBED_CONF_MYAPP_WELCOME_STRING "Hello!" // set by application
+#define MBED_SERIAL_UART_SPEED         2400     // set by application[*]
+#define MBED_CONF_TARGET_STACK_SIZE    256      // set by target
+#define MBED_CONF_TARGET_MY_OWN_CONFIG 0        // set by target
+#define INTERNAL_GPTMR_PERIOD          100      // set by application[*]
+#define MBED_CONF_MYLIB_BUFFER_SIZE    128      // set by library:mylib[NXP]
+#define MBED_CONF_MYLIB_QUEUE_SIZE     20       // set by library:mylib[NXP]
+// Macros
+#define MYMOD_MACRO1                            // defined by library:mylib
+#define MYMOD_MACRO2                   "TEST"   // defined by library:mylib
+
+#endif
 ```
 
 Note that a macro definition will *not* be generated for a parameter that doesn't have a value.
 
 The names of the macros for the configuration parameter (unless explicitly specified by `macro_name`) are prefixed by **MBED_CONF_**, followed by the full (prefixed) name of the parameter, capitalized and converted to a valid C macro name (if needed).
 
+`mbed_config.h` will be included automatically by the toolchain in all compiled sources, so you'll have access to the configuration data without having to include `mbed_config.h` manually.
+
+*Do not edit mbed_config.h manually*. It will be overwritten the next time you compile or export your project and all your changes will be lost.
