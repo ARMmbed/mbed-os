@@ -1434,7 +1434,7 @@
         "progen": {"target": "dfcm-nnn40"},
         "macros_add": ["TARGET_NRF_LFCLK_RC"],
         "device_has": ["ANALOGIN", "DEBUG_AWARENESS", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "DELTA_DFCM_NNN40_BOOT": {
         "inherits": ["MCU_NRF51_32K_BOOT"],
@@ -1470,7 +1470,7 @@
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dongle"},
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "NRF51_DONGLE_BOOT": {
         "inherits": ["MCU_NRF51_32K_BOOT"],
@@ -1519,7 +1519,7 @@
         "inherits": ["MCU_NRF51_32K"],
         "macros_add": ["TARGET_NRF_32MHZ_XTAL"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "TY51822R3_BOOT": {
         "inherits": ["MCU_NRF51_32K_BOOT"],
