@@ -27,6 +27,14 @@ from os.path import join, abspath, dirname, isfile, isdir
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.utils import install_from_pip
+with open(join(ROOT, "requirements.txt")) as reqs:
+    for req in reqs:
+        install_from_pip(req)
+
+import site
+reload(site)
+
 from tools.utils import args_error
 from tools.paths import BUILD_DIR
 from tools.paths import RTOS_LIBRARIES
@@ -49,6 +57,7 @@ from utils import argparse_dir_not_parent
 from argparse import ArgumentTypeError
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+
 
 if __name__ == '__main__':
     # Parse Options
