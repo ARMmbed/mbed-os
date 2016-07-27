@@ -127,7 +127,7 @@ def is_official_target(target_name, version):
     reason = None
     target = TARGET_MAP[target_name]
     
-    if hasattr(target, 'release') and version in target.release:
+    if hasattr(target, 'release_versions') and version in target.release_versions:
         if version == '2':
             # For version 2, either ARM or uARM toolchain support is required
             required_toolchains = set(['ARM', 'uARM'])
@@ -163,10 +163,10 @@ def is_official_target(target_name, version):
 
     else:
         result = False
-        if not hasattr(target, 'release'):
-            reason = "Target '%s' does not have the 'release' key set" % target.name
-        elif not version in target.release:
-            reason = "Target '%s' does not contain the version '%s' in its 'release' key" % (target.name, version)
+        if not hasattr(target, 'release_versions'):
+            reason = "Target '%s' does not have the 'release_versions' key set" % target.name
+        elif not version in target.release_versions:
+            reason = "Target '%s' does not contain the version '%s' in its 'release_versions' key" % (target.name, version)
     
     return result, reason
 
@@ -200,7 +200,7 @@ def get_mbed_official_release(version):
                     TARGET_MAP[target].name,
                     tuple(transform_release_toolchains(TARGET_MAP[target].supported_toolchains, version))
                 ]
-            ) for target in TARGET_NAMES if (hasattr(TARGET_MAP[target], 'release') and version in TARGET_MAP[target].release)
+            ) for target in TARGET_NAMES if (hasattr(TARGET_MAP[target], 'release_versions') and version in TARGET_MAP[target].release_versions)
         )
     )
     
