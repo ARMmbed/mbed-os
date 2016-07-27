@@ -666,12 +666,10 @@ bool M2MNsdlInterface::process_received_data(uint8_t *data,
                                              sn_nsdl_addr_s *address)
 {
     tr_debug("M2MNsdlInterface::process_received_data( data size %d)", data_size);
-    __mutex_claim();
     return (0 == sn_nsdl_process_coap(_nsdl_handle,
                                       data,
                                       data_size,
                                       address)) ? true : false;
-    __mutex_release();
 }
 
 void M2MNsdlInterface::stop_timers()
@@ -692,9 +690,7 @@ void M2MNsdlInterface::stop_timers()
 void M2MNsdlInterface::timer_expired(M2MTimerObserver::Type type)
 {
     if(M2MTimerObserver::NsdlExecution == type) {
-        __mutex_claim();
         sn_nsdl_exec(_nsdl_handle, _counter_for_nsdl);
-        __mutex_release();
         _counter_for_nsdl++;
     } else if(M2MTimerObserver::Registration == type) {
         tr_debug("M2MNsdlInterface::timer_expired - M2MTimerObserver::Registration - Send update registration");
