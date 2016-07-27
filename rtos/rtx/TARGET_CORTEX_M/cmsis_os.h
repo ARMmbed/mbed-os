@@ -83,10 +83,10 @@
 /* If os timers macro is set to 0, there's no timer thread created, therefore
  * main thread has tid 0x01  
  */
-#if (OS_TIMERS != 0)
-#define MAIN_THREAD_ID 0x02
-#else
+#if defined(OS_TIMERS) && (OS_TIMERS == 0)
 #define MAIN_THREAD_ID 0x01
+#else
+#define MAIN_THREAD_ID 0x02
 #endif
 #endif
 
