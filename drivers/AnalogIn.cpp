@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
-
 #include "AnalogIn.h"
+#include "SingletonPtr.h"
 
 #if DEVICE_ANALOGIN
 
