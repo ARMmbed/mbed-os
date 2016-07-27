@@ -28,6 +28,7 @@ sys.path.insert(0, ROOT)
 
 from tools.build_api import build_mbed_libs
 from tools.build_api import write_build_report
+from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP, TARGET_NAMES
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.test_api import SingleTestRunner
@@ -35,10 +36,7 @@ from tools.test_api import singletest_in_cli_mode
 from tools.paths import TEST_DIR, MBED_LIBRARIES
 from tools.tests import TEST_MAP
 
-OFFICIAL_MBED_LIBRARY_BUILD = (
-    tuple(tuple([TARGET_MAP[target].name, tuple(TARGET_MAP[target].supported_toolchains)]) for target in TARGET_NAMES if TARGET_MAP[target].release)
-)
-
+OFFICIAL_MBED_LIBRARY_BUILD = get_mbed_official_release('2')
 
 if __name__ == '__main__':
     parser = OptionParser()
