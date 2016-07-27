@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// This implementation of the wait functions will be compiled only
+// if the RTOS is not present.
+#ifndef MBED_CONF_RTOS_PRESENT
+
 #include "wait_api.h"
 #include "us_ticker_api.h"
 
@@ -28,3 +33,6 @@ void wait_us(int us) {
     uint32_t start = us_ticker_read();
     while ((us_ticker_read() - start) < (uint32_t)us);
 }
+
+#endif // #ifndef MBED_CONF_RTOS_PRESENT
+
