@@ -36,6 +36,8 @@ from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from tools.config import Config
 
+RELEASE_VERSIONS = ['2', '5']
+
 def prep_report(report, target_name, toolchain_name, id_name):
     # Setup report keys
     if not target_name in report:
@@ -116,9 +118,9 @@ def is_official_target(target_name, version):
     """ Returns True, None if a target is part of the official release for the
     given version. Return False, 'reason' if a target is not part of the
     official release for the given version.
-    
-    target_name: name if the target (ex. 'K64F')
-    version: string of the version (ex. '2' or '5')
+
+    target_name: Name if the target (ex. 'K64F')
+    version: The release version string. Should be a string contained within RELEASE_VERSIONS
     """
     
     result = True
@@ -154,6 +156,11 @@ def is_official_target(target_name, version):
                     (("official release: %s" + linesep) % ", ".join(required_toolchains_sorted)) + \
                     ("Currently it is only configured to support the ") + \
                     ("following toolchains: %s" % ", ".join(supported_toolchains_sorted))
+        else:
+            result = False
+            reason = ("Target '%s' has set an invalid release version of '%s'" % version) + \
+                ("Please choose from the following release versions: %s" + ', '.join(RELEASE_VERSIONS))
+
     else:
         result = False
         if not hasattr(target, 'release'):
@@ -163,14 +170,35 @@ def is_official_target(target_name, version):
     
     return result, reason
 
+def transform_release_toolchains(toolchains, version):
+    """ Given a list of toolchains and a release version, return a list of
+    only the supported toolchains for that release
+
+    toolchains: The list of toolchains
+    version: The release version string. Should be a string contained within RELEASE_VERSIONS
+    """
+    toolchains_set = set(toolchains)
+
+    if version == '5':
+        return ['ARM', 'GCC_ARM', 'IAR']
+    else:
+        return toolchains
+
 
 def get_mbed_official_release(version):
+    """ Given a release version string, return a tuple that contains a target
+    and the supported toolchains for that release.
+    Ex. Given '2', return (('LPC1768', ('ARM', 'GCC_ARM')), ('K64F', ('ARM', 'GCC_ARM')), ...)
+
+    version: The version string. Should be a string contained within RELEASE_VERSIONS
+    """
+
     MBED_OFFICIAL_RELEASE = (
         tuple(
             tuple(
                 [
                     TARGET_MAP[target].name,
-                    tuple(TARGET_MAP[target].supported_toolchains)
+                    tuple(transform_release_toolchains(TARGET_MAP[target].supported_toolchains, version))
                 ]
             ) for target in TARGET_NAMES if (hasattr(TARGET_MAP[target], 'release') and version in TARGET_MAP[target].release)
         )
@@ -719,24 +747,57 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         raise e
 
 
-def get_unique_supported_toolchains():
-    """ Get list of all unique toolchains supported by targets """
+def get_unique_supported_toolchains(release_targets=None):
+    """ Get list of all unique toolchains supported by targets
+    If release_targets is not specified, then it queries all known targets
+    release_targets: tuple structure returned from get_mbed_official_release()
+    """
     unique_supported_toolchains = []
-    for target in TARGET_NAMES:
-        for toolchain in TARGET_MAP[target].supported_toolchains:
-            if toolchain not in unique_supported_toolchains:
-                unique_supported_toolchains.append(toolchain)
+
+    if not release_targets:
+        for target in TARGET_NAMES:
+            for toolchain in TARGET_MAP[target].supported_toolchains:
+                if toolchain not in unique_supported_toolchains:
+                    unique_supported_toolchains.append(toolchain)
+    else:
+        for target in release_targets:
+            for toolchain in target[1]:
+                if toolchain not in unique_supported_toolchains:
+                    unique_supported_toolchains.append(toolchain)
+
     return unique_supported_toolchains
 
 
-def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
+def mcu_toolchain_matrix(verbose_html=False, platform_filter=None, release_version='5'):
     """  Shows target map using prettytable """
-    unique_supported_toolchains = get_unique_supported_toolchains()
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
 
+    if isinstance(release_version, basestring):
+        # Force release_version to lowercase if it is a string
+        release_version = release_version.lower()
+    else:
+        # Otherwise default to printing all known targets and toolchains
+        release_version = 'all'
+
+
+    version_release_targets = {}
+    version_release_target_names = {}
+
+    for version in RELEASE_VERSIONS:
+        version_release_targets[version] = get_mbed_official_release(version)
+        version_release_target_names[version] = [x[0] for x in version_release_targets[version]]
+
+    if release_version in RELEASE_VERSIONS:
+        release_targets = version_release_targets[release_version]
+    else:
+        release_targets = None
+
+    unique_supported_toolchains = get_unique_supported_toolchains(release_targets)
+    prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
+
     # All tests status table print
-    columns = ["Target"] + unique_supported_toolchains
-    pt = PrettyTable(["Target"] + unique_supported_toolchains)
+    columns = prepend_columns + unique_supported_toolchains
+    pt = PrettyTable(columns)
     # Align table
     for col in columns:
         pt.align[col] = "c"
@@ -744,7 +805,15 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
 
     perm_counter = 0
     target_counter = 0
-    for target in sorted(TARGET_NAMES):
+
+    target_names = []
+
+    if release_targets:
+        target_names = [x[0] for x in release_targets]
+    else:
+        target_names = TARGET_NAMES
+
+    for target in sorted(target_names):
         if platform_filter is not None:
             # FIlter out platforms using regex
             if re.search(platform_filter, target) is None:
@@ -752,6 +821,14 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
         target_counter += 1
 
         row = [target]  # First column is platform name
+
+        for version in RELEASE_VERSIONS:
+            if target in version_release_target_names[version]:
+                text = "Supported"
+            else:
+                text = "-"
+            row.append(text)
+
         for unique_toolchain in unique_supported_toolchains:
             if unique_toolchain in TARGET_MAP[target].supported_toolchains:
                 text = "Supported"
