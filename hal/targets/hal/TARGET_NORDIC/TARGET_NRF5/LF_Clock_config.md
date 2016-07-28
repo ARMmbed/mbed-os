@@ -1,15 +1,16 @@
 
-## LF Clock configuration using mbed configuration system
+# LF Clock configuration using mbed configuration system
 
-In order to provide the configuration for a low frequency (LF) clock, add a description of the LF clock inside a *.json file, for example in mbed_json.json.
+In order to provide the configuration for a low frequency (LF) clock, add a description of the LF clock inside a mbed configuration JSON file.
+For example at application level the description might be added in a mbed_app.json file and on target level the description might be added in the hal/target.json file.
 LF clock source configuration is used for MCU startup initialization and the BLE SoftDevice LF clock configuration (if BLE libraries is used). Advanced configurations are used only for the BLE SoftDevice LF clock configuration.
 
 
-### Usage:
+## Usage:
 
 1. Clock source
 
-Default clock source is XTAL oscillator. It is defined at the target level configuration.
+Default clock source is XTAL oscillator. It is defined at the target level configuration as the target.lf_clock_src key.
 There are three options that can be configured as the clock source:  
     - NRF_LF_SRC_XTAL  
     - NRF_LF_SRC_RC  
