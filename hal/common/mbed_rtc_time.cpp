@@ -19,6 +19,10 @@
 #include "critical.h"
 #include "rtc_time.h"
 #include "us_ticker_api.h"
+#include "SingletonPtr.h"
+#include "PlatformMutex.h"
+
+static SingletonPtr<PlatformMutex> _mutex;
 
 #if DEVICE_RTC
 static void (*_rtc_init)(void) = rtc_init;
@@ -42,7 +46,7 @@ time_t time(time_t *timer)
 #endif
 
 {
-    core_util_critical_section_enter();
+    _mutex->lock();
     if (_rtc_isenabled != NULL) {
         if (!(_rtc_isenabled())) {
             set_time(0);
@@ -57,36 +61,36 @@ time_t time(time_t *timer)
     if (timer != NULL) {
         *timer = t;
     }
-    core_util_critical_section_exit();
+    _mutex->unlock();
     return t;
 }
 
 void set_time(time_t t) {
-    core_util_critical_section_enter();
+    _mutex->lock();
     if (_rtc_init != NULL) {
         _rtc_init();
     }
     if (_rtc_write != NULL) {
         _rtc_write(t);
     }
-    core_util_critical_section_exit();
+    _mutex->unlock();
 }
 
 clock_t clock() {
-    core_util_critical_section_enter();
+    _mutex->lock();
     clock_t t = us_ticker_read();
     t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
-    core_util_critical_section_exit();
+    _mutex->unlock();
     return t;
 }
 
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void)) {
-    core_util_critical_section_enter();
+    _mutex->lock();
     _rtc_read = read_rtc;
     _rtc_write = write_rtc;
     _rtc_init = init_rtc;
     _rtc_isenabled = isenabled_rtc;
-    core_util_critical_section_exit();
+    _mutex->unlock();
 }
 
 
