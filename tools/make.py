@@ -27,6 +27,10 @@ from os.path import join, abspath, dirname, isfile, isdir
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.utils import check_and_install_packages
+check_and_install_packages()
+
+
 from tools.utils import args_error
 from tools.paths import BUILD_DIR
 from tools.paths import RTOS_LIBRARIES
