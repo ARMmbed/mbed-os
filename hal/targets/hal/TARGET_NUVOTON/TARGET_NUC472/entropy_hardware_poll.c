@@ -53,8 +53,7 @@ static void rng_get( int32_t *p32ConversionData)
     PRNG_ENABLE_INT();
 	
 //	PRNG_Open(PRNG_KEY_SIZE_64, 0, 0);
-	PRNG_Open(PRNG_KEY_SIZE_256, 0, 0);
-	
+    PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());	
     PRNG_Start();
     while (!g_PRNG_done);
 
