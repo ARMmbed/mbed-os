@@ -17,6 +17,7 @@
 #define MBED_BUSOUT_H
 
 #include "DigitalOut.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

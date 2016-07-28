@@ -23,6 +23,7 @@
 #include "can_api.h"
 #include "can_helper.h"
 #include "Callback.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

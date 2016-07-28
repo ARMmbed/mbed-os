@@ -42,6 +42,7 @@ typedef long off_t;
 
 #include "platform.h"
 #include "SingletonPtr.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

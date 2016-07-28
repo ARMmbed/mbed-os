@@ -18,6 +18,7 @@
 
 #include "platform.h"
 #include "DigitalIn.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

@@ -26,7 +26,7 @@
 #include "FileHandle.h"
 #include "ff.h"
 #include <stdint.h>
-#include "platform.h"
+#include "PlatformMutex.h"
 
 using namespace mbed;
 
