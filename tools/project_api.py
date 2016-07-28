@@ -233,7 +233,10 @@ def export_project(src_paths, export_path, target, ide,
                                              target, name, toolchain, ide,
                                              macros=macros)
     if zip_proj:
-        zip_export(join(export_path, zip_proj), name, temp, files)
+        if isinstance(zip_proj, basestring):
+            zip_export(join(export_path, zip_proj), name, temp, files)
+        else:
+            zip_export(zip_proj, name, temp, files)
 
     return exporter
 
