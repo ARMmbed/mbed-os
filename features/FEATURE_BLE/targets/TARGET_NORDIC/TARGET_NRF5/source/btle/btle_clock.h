@@ -72,6 +72,9 @@
 #define DEFAULT_LFCLK_CONF_RC_CTIV 16     // Check temperature every 16 * 250ms.
 #define DEFAULT_LFCLK_CONF_RC_TEMP_CTIV 1 // Only calibrate if temperature has changed.
 
+#define NRF_LF_SRC_XTAL  2 
+#define NRF_LF_SRC_SYNTH 3 
+#define NRF_LF_SRC_RC    4
 
 #if MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_RC
     #define LFCLK_CONF_SOURCE       NRF_CLOCK_LF_SRC_RC
