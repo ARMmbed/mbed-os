@@ -62,6 +62,7 @@ class Exporter(object):
             if self.config_header:
                 self._progen_flag_cache['c_flags'] += self.toolchain.get_config_option(self.config_header)
                 self._progen_flag_cache['cxx_flags'] += self.toolchain.get_config_option(self.config_header)
+                self._progen_flag_cache['asm_flags'] += self.toolchain.get_config_option(self.config_header)
         return self._progen_flag_cache
 
     def __scan_and_copy(self, src_path, trg_path):
