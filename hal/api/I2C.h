@@ -22,6 +22,7 @@
 
 #include "i2c_api.h"
 #include "SingletonPtr.h"
+#include "PlatformMutex.h"
 
 #if DEVICE_I2C_ASYNCH
 #include "CThunk.h"

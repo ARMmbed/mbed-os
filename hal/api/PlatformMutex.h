@@ -13,16 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PLATFORM_H
-#define MBED_PLATFORM_H
+#ifndef PLATFORM_MUTEX_H
+#define PLATFORM_MUTEX_H
 
-#include "device.h"
-#include "PinNames.h"
-#include "PeripheralNames.h"
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "Mutex.h"
+typedef rtos::Mutex PlatformMutex;
+#else
+/** A stub mutex for when an RTOS is not present
+*/
+class PlatformMutex {
+public:
+    PlatformMutex() {
+        // Stub
 
-#include <cstddef>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
+    }
+    ~PlatformMutex() {
+        // Stub
+    }
+
+    void lock() {
+        // Do nothing
+    }
+
+    void unlock() {
+        // Do nothing
+    }
+};
+
+#endif
 
 #endif

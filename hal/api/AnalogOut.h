@@ -21,6 +21,7 @@
 #if DEVICE_ANALOGOUT
 
 #include "analogout_api.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

@@ -22,6 +22,7 @@
 #include "semihost_api.h"
 #include "mbed_interface.h"
 #include "SingletonPtr.h"
+#include "PlatformMutex.h"
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif

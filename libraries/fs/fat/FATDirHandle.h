@@ -23,7 +23,7 @@
 #define MBED_FATDIRHANDLE_H
 
 #include "DirHandle.h"
-#include "platform.h"
+#include "PlatformMutex.h"
 
 using namespace mbed;
 

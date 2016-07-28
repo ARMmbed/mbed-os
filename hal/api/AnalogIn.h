@@ -22,6 +22,7 @@
 
 #include "analogin_api.h"
 #include "SingletonPtr.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

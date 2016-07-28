@@ -20,6 +20,7 @@
 
 #if DEVICE_SPI
 
+#include "PlatformMutex.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI_ASYNCH

@@ -22,6 +22,7 @@
 
 #include "Stream.h"
 #include "SerialBase.h"
+#include "PlatformMutex.h"
 #include "serial_api.h"
 
 namespace mbed {
