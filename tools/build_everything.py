@@ -146,8 +146,12 @@ if __name__ == '__main__':
         base_source_paths = options.source_dir
         if not base_source_paths:
             base_source_paths = ['.']
-        
-        all_tests = find_tests(base_source_paths[0])
+       
+        all_tests = {}
+        for platform in platforms:
+            for toolchain in toolchains:
+                platform_toolchain_tests = find_tests(base_source_paths[0], platform, toolchain)
+                all_tests.update(platform_toolchain_tests)
         
         start = time()    
         build_report = {}
