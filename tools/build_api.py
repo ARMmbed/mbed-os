@@ -156,6 +156,14 @@ def is_official_target(target_name, version):
                     (("official release: %s" + linesep) % ", ".join(required_toolchains_sorted)) + \
                     ("Currently it is only configured to support the ") + \
                     ("following toolchains: %s" % ", ".join(supported_toolchains_sorted))
+
+            elif not target.default_build == 'standard':
+                result = False
+                reason = ("Target '%s' must set the 'default_build' " % target.name) + \
+                    ("to 'standard' to be included in the mbed OS 5.0 ") + \
+                    ("official release." + linesep) + \
+                    ("Currently it is set to '%s'" % target.default_build)
+
         else:
             result = False
             reason = ("Target '%s' has set an invalid release version of '%s'" % version) + \
