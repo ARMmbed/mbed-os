@@ -40,9 +40,7 @@ typedef long off_t;
 #    include <sys/syslimits.h>
 #endif
 
-#include "PlatformMutex.h"
-#include "SingletonPtr.h"
-#include "PlatformMutex.h"
+#include "mbed_platform.h"
 
 namespace mbed {
 

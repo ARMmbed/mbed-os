@@ -17,6 +17,7 @@
 #define SINGLETONPTR_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include <new>
 #include "mbed_assert.h"
 #ifdef MBED_CONF_RTOS_PRESENT
