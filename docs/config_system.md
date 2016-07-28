@@ -201,6 +201,28 @@ Other than this, `target_overrides` works exactly like it does for libraries. Ke
 
 It is an error for the application configuration to override configuration parameters that were not defined.
 
+## Overriding cumulative target attributes
+
+Target configurations contain a set of cumulative attributes that can be manipulated in the application configuration. These attributes can be overriden as a normal configuration parameter, or manipulated with the special `attribute_add` and `attribute_remove` meta-attributes.
+
+Cumulative attributes:
+- features: List of features which will be compiled into the resulting binary and available at runtime. Determines the FEATURE directories included during compilation. These are also emitted as FEATURE macros.
+- device_has: List of hardware components available on the target. These are emitted as DEVICE_HAS macros.
+- extra_labels: List of target labels which determine the TARGET directories included during compilation. These are also emitted as TARGET macros.
+- macros: List of target-specific macros that are defined during compilation.
+
+For example, an application may want to remove features with extra space or runtime cost. This `mbed_app.json` will disable the IPV4 network stack. Attempting to use this network stack will result in a compilation error:
+
+```
+{
+    "target_overrides": {
+        "K64F": {
+            "target.features_remove": ["IPV4"]
+        }
+    }
+}
+```
+
 ## Custom targets
 
 Application configuration can optionally define application-specific targets. These are mbed targets that are needed just to compile this specific application, so it doesn't make sense to add them to the list of official mbed targets; on the contrary, since they're part of `mbed_app.json`, they're versioned together with the application and only known by the application. Application-specific targets are defined with the key `custom_targets` in the `mbed_app.json` file and have the same syntax as a regular target definition, for example:
