@@ -169,7 +169,8 @@ class ConfigCumulativeOverride:
 
     def update_target(self, target):
         setattr(target, self.name, list(
-                set(getattr(target, self.name, [])) | self.additions - self.removals))
+                (set(getattr(target, self.name, [])) | self.additions) - self.removals))
+
 
 
 # 'Config' implements the mbed configuration mechanism
