@@ -24,7 +24,7 @@
 #elif (defined(TARGET_EFM32GG_STK3700)) && !defined(TOOLCHAIN_ARM_MICRO)
 #define STACK_SIZE 1536
 #elif defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
-#define STACK_SIZE 512
+#define STACK_SIZE 768
 #else
 #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
