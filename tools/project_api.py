@@ -45,15 +45,18 @@ def subtract_basepath(resources, export_path):
       generated project files
     """
     keys = ['s_sources', 'c_sources', 'cpp_sources', 'hex_files',
-            'objects', 'libraries', 'inc_dirs', 'headers', 'linker_script']
+            'objects', 'libraries', 'inc_dirs', 'headers', 'linker_script',
+            'lib_dirs']
     for key in keys:
         vals = getattr(resources, key)
+        if type(vals) is set:
+            vals = list(vals)
         if type(vals) is list:
             new_vals = []
             for val in vals:
                 new_vals.append(rewrite_basepath(val, resources, export_path))
             setattr(resources, key, new_vals)
-        else:
+        elif vals:
             setattr(resources, key, rewrite_basepath(vals, resources,
                                                      export_path))
 
@@ -150,9 +153,11 @@ def zip_export(file_name, prefix, resources, project_files):
             resources.libraries + resources.hex_files + \
             [resources.linker_script] + resources.bin_files \
             + resources.objects + resources.json_files:
-            zip_file.write(source,
-                      join(prefix, relpath(source,
-                                           resources.file_basepath[source])))
+            if source:
+                zip_file.write(source,
+                               join(prefix,
+                                    relpath(source,
+                                            resources.file_basepath[source])))
 
 
 def export_project(src_paths, export_path, target, ide,
