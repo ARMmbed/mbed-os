@@ -1,0 +1,17 @@
+{
+    "custom_targets": {
+        "test_target": {
+            "core": "Cortex-M0",
+            "extra_labels": [],
+            "features": [],
+            "default_build": "standard"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["UVISOR"],
+            "target.extra_labels_add": ["UVISOR_SUPPORTED"]
+        }
+    }
+}
+
