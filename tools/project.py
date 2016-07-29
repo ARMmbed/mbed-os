@@ -3,14 +3,6 @@ from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from tools.utils import install_from_pip
-with open(join(ROOT, "requirements.txt")) as reqs:
-    for req in reqs:
-        install_from_pip(req)
-
-import site
-reload(site)
-
 from shutil import move, rmtree
 from argparse import ArgumentParser
 from os import path

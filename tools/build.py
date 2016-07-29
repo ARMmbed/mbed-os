@@ -26,13 +26,6 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from tools.utils import install_from_pip
-with open(join(ROOT, "requirements.txt")) as reqs:
-    for req in reqs:
-        install_from_pip(req)
-
-import site
-reload(site)
 
 from tools.toolchains import TOOLCHAINS
 from tools.toolchains import mbedToolchain
