@@ -220,7 +220,7 @@
         "detect_code": ["1168"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI"],
         "default_build": "small",
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "LPC1347": {
         "inherits": ["LPCTarget"],
@@ -1118,7 +1118,7 @@
         "detect_code": ["4100"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small",
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "DISCO_F401VC": {
         "inherits": ["Target"],
