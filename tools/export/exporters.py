@@ -197,6 +197,7 @@ class Exporter(object):
             self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
             config.get_config_data_header(join(trg_path, self.config_header))
             self.config_macros = []
+            self.resources.inc_dirs.append(".")
         else:
             # And add the configuration macros to the toolchain
             self.config_macros = config.get_config_data_macros()
