@@ -21,7 +21,7 @@ import yaml
 
 from tools.export import uvision4, uvision5, codered, gccarm, ds5_5, iar
 from tools.export import emblocks, coide, kds, simplicityv3, atmelstudio
-from tools.export import sw4stm32, e2studio
+from tools.export import sw4stm32, e2studio, zip
 from tools.export.exporters import OldLibrariesException, FailedBuildException
 from tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
