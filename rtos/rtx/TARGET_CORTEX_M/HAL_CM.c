@@ -90,32 +90,6 @@ void rt_init_stack (P_TCB p_TCB, FUNCP task_body) {
   /* Task entry point. */
   p_TCB->ptask = task_body;
 
-
-#ifdef __MBED_CMSIS_RTOS_CM
-  /* Set a magic word for checking of stack overflow.
-   For the main thread (ID: MAIN_THREAD_ID) the stack is in a memory area shared with the
-   heap, therefore the last word of the stack is a moving target.
-   We want to do stack/heap collision detection instead.
-   Similar applies to stack filling for the magic pattern.
-  */
-  if (p_TCB->task_id != MAIN_THREAD_ID) {
-    p_TCB->stack[0] = MAGIC_WORD;
-
-    /* Initialize stack with magic pattern. */
-    if (os_stackinfo & 0x10000000U) {
-      if (size > (16U+1U)) {
-        for (i = ((size - 16U)/2U) - 1U; i; i--) {
-          stk -= 2U;
-          stk[1] = MAGIC_PATTERN;
-          stk[0] = MAGIC_PATTERN;
-        }
-        if (--stk > p_TCB->stack) {
-          *stk = MAGIC_PATTERN;
-        }
-      }
-    }
-  }
-#else
   /* Initialize stack with magic pattern. */
   if (os_stackinfo & 0x10000000U) {
     if (size > (16U+1U)) {
@@ -132,7 +106,6 @@ void rt_init_stack (P_TCB p_TCB, FUNCP task_body) {
 
   /* Set a magic word for checking of stack overflow. */
   p_TCB->stack[0] = MAGIC_WORD;
-#endif
 }
 
 
