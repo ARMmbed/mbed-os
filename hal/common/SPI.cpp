@@ -57,6 +57,7 @@ void SPI::frequency(int hz) {
 }
 
 SPI* SPI::_owner = NULL;
+SingletonPtr<PlatformMutex> SPI::_mutex;
 
 // ignore the fact there are multiple physical spis, and always update if it wasnt us last
 void SPI::aquire() {
@@ -78,11 +79,11 @@ int SPI::write(int value) {
 }
 
 void SPI::lock() {
-    _mutex.lock();
+    _mutex->lock();
 }
 
 void SPI::unlock() {
-    _mutex.unlock();
+    _mutex->unlock();
 }
 
 #if DEVICE_SPI_ASYNCH
