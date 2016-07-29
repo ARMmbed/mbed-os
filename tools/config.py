@@ -444,7 +444,7 @@ class Config:
             self.add_config_files(resources.json_files)
 
             # Add features while we find new ones
-            features = self.get_features()
+            features = set(self.get_features())
             if features == prev_features:
                 break
 
