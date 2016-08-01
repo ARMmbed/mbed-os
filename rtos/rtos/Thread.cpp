@@ -68,7 +68,7 @@ osStatus Thread::start(Callback<void()> task) {
     }
 
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    _thread_def.pthread = (void (*)(const void *))Callback<void()>::thunk;
+    _thread_def.pthread = Thread::_thunk;
     if (_thread_def.stack_pointer == NULL) {
         _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
         if (_thread_def.stack_pointer == NULL)
@@ -81,7 +81,7 @@ osStatus Thread::start(Callback<void()> task) {
     }
 #endif
     _task = task;
-    _tid = osThreadCreate(&_thread_def, &_task);
+    _tid = osThreadCreate(&_thread_def, this);
     if (_tid == NULL) {
         if (_dynamic_stack) delete[] (_thread_def.stack_pointer);
         return osErrorResource;
@@ -94,17 +94,13 @@ osStatus Thread::terminate() {
 }
 
 osStatus Thread::join() {
-    while (true) {
-        uint8_t state = get_state();
-        if (state == Thread::Inactive || state == osErrorParameter) {
-            return osOK;
-        }
-
-        osStatus status = yield();
-        if (status != osOK) {
-            return status;
-        }
+    int32_t ret = _join_sem.wait();
+    if (ret < 0) {
+        return osErrorOS;
     }
+    // Release sem so any other threads joining this thread wake up
+    _join_sem.release();
+    return osOK;
 }
 
 osStatus Thread::set_priority(osPriority priority) {
@@ -224,6 +220,13 @@ Thread::~Thread() {
         delete[] (_thread_def.stack_pointer);
     }
 #endif
+}
+
+void Thread::_thunk(const void * thread_ptr)
+{
+    Thread *t = (Thread*)thread_ptr;
+    t->_task();
+    t->_join_sem.release();
 }
 
 }
