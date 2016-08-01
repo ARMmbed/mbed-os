@@ -20,9 +20,10 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 #include "cmsis.h"
 #include "NUC472_442.h"
-
+#include "us_ticker_api.h"
 
 /*
  * Get Random number generator.
@@ -37,10 +38,12 @@ void CRYPTO_IRQHandler()
     }
 } 
 
-static void rng_get( int32_t *p32ConversionData)
+static void rng_get(unsigned char *pConversionData)
 {
-    int32_t  i32ConversionData;
-	uint32_t    au32PrngData[8];
+	uint32_t *p32ConversionData;
+
+	p32ConversionData = (uint32_t *)pConversionData;
+	
     /* Unlock protected registers */
     SYS_UnlockReg();	
     /* Enable IP clock */
@@ -53,19 +56,19 @@ static void rng_get( int32_t *p32ConversionData)
     PRNG_ENABLE_INT();
 	
 //	PRNG_Open(PRNG_KEY_SIZE_64, 0, 0);
-    PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());	
+	PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());
     PRNG_Start();
     while (!g_PRNG_done);
 
 
     PRNG_Read(p32ConversionData);
 
-//	printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *p32ConversionData, *(p32ConversionData+1), *(p32ConversionData+2), *(p32ConversionData+3));
+//    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *p32ConversionData, *(p32ConversionData+1), *(p32ConversionData+2), *(p32ConversionData+3));
 //    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *(p32ConversionData+4), *(p32ConversionData+5), *(p32ConversionData+6), *(p32ConversionData+7));
 
     PRNG_DISABLE_INT();
     NVIC_DisableIRQ(CRPT_IRQn);
-    CLK_DisableModuleClock(CRPT_MODULE);
+//    CLK_DisableModuleClock(CRPT_MODULE);
 		
 }
 
