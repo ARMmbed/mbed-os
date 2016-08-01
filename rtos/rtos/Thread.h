@@ -26,6 +26,8 @@
 #include "cmsis_os.h"
 #include "Callback.h"
 #include "toolchain.h"
+#include "Semaphore.h"
+#include "Mutex.h"
 
 namespace rtos {
 
@@ -205,6 +207,9 @@ public:
         WaitingSemaphore,   /**< Waiting for a semaphore event to occur */
         WaitingMailbox,     /**< Waiting for a mailbox event to occur */
         WaitingMutex,       /**< Waiting for a mutex event to occur */
+
+        /* Not in sync with RTX below here */
+        Deleted,            /**< The task has been deleted */
     };
 
     /** State of this Thread
@@ -275,11 +280,14 @@ private:
                      osPriority priority=osPriorityNormal,
                      uint32_t stack_size=DEFAULT_STACK_SIZE,
                      unsigned char *stack_pointer=NULL);
+    static void _thunk(const void * thread_ptr);
 
     mbed::Callback<void()> _task;
     osThreadId _tid;
     osThreadDef_t _thread_def;
     bool _dynamic_stack;
+    Semaphore _join_sem;
+    Mutex _mutex;
 };
 
 }
