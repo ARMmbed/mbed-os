@@ -21,7 +21,7 @@ namespace {
 
 void prep_buffer(char *tx_buffer, size_t tx_size) {
     for (size_t i=0; i<tx_size; ++i) {
-        tx_buffer[i] = (rand() % ASCII_MAX) + ' ' + 1;
+        tx_buffer[i] = (rand() % 10) + '0';
     }
 }
 
