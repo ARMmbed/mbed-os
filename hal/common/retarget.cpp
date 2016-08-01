@@ -23,6 +23,8 @@
 #include "mbed_interface.h"
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
+#include "mbed_error.h"
+#include <stdlib.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -724,3 +726,34 @@ extern "C" void __env_unlock( struct _reent *_r )
 #endif
 
 } // namespace mbed
+
+void *operator new(std::size_t count)
+{
+    void *buffer = malloc(count);
+    if (NULL == buffer) {
+        error("Operator new out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new[](std::size_t count)
+{
+    void *buffer = malloc(count);
+    if (NULL == buffer) {
+        error("Operator new[] out of memory\r\n");
+    }
+    return buffer;
+}
+
+void operator delete(void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}
+void operator delete[](void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}
