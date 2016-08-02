@@ -89,13 +89,13 @@ all: $(PROJECT).bin $(PROJECT).hex size
 
 .asm.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
+	$(CC) $(CPU) -c $(ASM_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 .s.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
+	$(CC) $(CPU) -c $(ASM_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 .S.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
+	$(CC) $(CPU) -c $(ASM_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 
 .c.o:
 	+@$(call MAKEDIR,$(dir $@))
