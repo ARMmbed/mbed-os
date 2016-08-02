@@ -1,0 +1,1 @@
+#error "No binary build of IPV6/6LoWPAN/Thread stack avaiable for this platform currently."
