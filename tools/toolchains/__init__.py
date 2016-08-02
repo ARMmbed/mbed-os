@@ -794,6 +794,9 @@ class mbedToolchain:
                             ])
                         objects.append(result['object'])
                     except ToolException, err:
+                        if p._taskqueue.queue:
+                            p._taskqueue.queue.clear()
+                            sleep(0.5)
                         p.terminate()
                         p.join()
                         raise ToolException(err)
