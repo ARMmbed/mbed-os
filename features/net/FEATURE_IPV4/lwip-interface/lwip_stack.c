@@ -144,33 +144,32 @@ const char *lwip_get_ip_address(void)
 int lwip_bringup(void)
 {
     // Check if we've already connected
-    if (lwip_get_mac_address()) {
-        return 0;
+    if (!lwip_get_mac_address()) {
+        // Set up network
+        lwip_set_mac_address();
+
+        sys_sem_new(&lwip_tcpip_inited, 0);
+        sys_sem_new(&lwip_netif_linked, 0);
+        sys_sem_new(&lwip_netif_up, 0);
+
+        tcpip_init(lwip_tcpip_init_irq, NULL);
+        sys_arch_sem_wait(&lwip_tcpip_inited, 0);
+
+        memset(&lwip_netif, 0, sizeof lwip_netif);
+        netif_add(&lwip_netif, 0, 0, 0, NULL, eth_arch_enetif_init, tcpip_input);
+        netif_set_default(&lwip_netif);
+
+        netif_set_link_callback  (&lwip_netif, lwip_netif_link_irq);
+        netif_set_status_callback(&lwip_netif, lwip_netif_status_irq);
+
+        eth_arch_enable_interrupts();
     }
-
-    // Set up network
-    lwip_set_mac_address();
-
-    sys_sem_new(&lwip_tcpip_inited, 0);
-    sys_sem_new(&lwip_netif_linked, 0);
-    sys_sem_new(&lwip_netif_up, 0);
-
-    tcpip_init(lwip_tcpip_init_irq, NULL);
-    sys_arch_sem_wait(&lwip_tcpip_inited, 0);
-
-    memset(&lwip_netif, 0, sizeof lwip_netif);
-    netif_add(&lwip_netif, 0, 0, 0, NULL, eth_arch_enetif_init, tcpip_input);
-    netif_set_default(&lwip_netif);
-
-    netif_set_link_callback  (&lwip_netif, lwip_netif_link_irq);
-    netif_set_status_callback(&lwip_netif, lwip_netif_status_irq);
-
-    // Connect to network
-    eth_arch_enable_interrupts();
-    dhcp_start(&lwip_netif);
 
     // Zero out socket set
     lwip_arena_init();
+
+    // Connect to the network
+    dhcp_start(&lwip_netif);
 
     // Wait for an IP Address
     u32_t ret = sys_arch_sem_wait(&lwip_netif_up, 15000);
@@ -183,12 +182,10 @@ int lwip_bringup(void)
 
 void lwip_bringdown(void)
 {
+    // Disconnect from the network
     dhcp_release(&lwip_netif);
     dhcp_stop(&lwip_netif);
-
-    eth_arch_disable_interrupts();
     lwip_ip_addr[0] = '\0';
-    lwip_mac_addr[0] = '\0';
 }
 
 
