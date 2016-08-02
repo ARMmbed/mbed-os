@@ -64,19 +64,22 @@ class Target:
     # List of targets that were added dynamically using "add_py_targets" (see below)
     __py_targets = set()
 
-    # Location of the 'targets.json' file
-    __targets_json_location = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
+    # Default location of the 'targets.json' file
+    __targets_json_location_default = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
+
+    # Current/new location of the 'targets.json' file
+    __targets_json_location = None
 
     # Load the description of JSON target data
     @staticmethod
     @cached
     def get_json_target_data():
-        return json_file_to_dict(Target.__targets_json_location)
+        return json_file_to_dict(Target.__targets_json_location or Target.__targets_json_location_default)
 
     # Set the location of the targets.json file
     @staticmethod
-    def set_targets_json_location(location):
-        Target.__targets_json_location = location
+    def set_targets_json_location(location=None):
+        Target.__targets_json_location = location or Target.__targets_json_location_default
         # Invalidate caches, since the location of the JSON file changed
         caches.clear()
 
@@ -410,7 +413,7 @@ def get_target_detect_codes():
     return result
 
 # Sets the location of the JSON file that contains the targets
-def set_targets_json_location(location):
+def set_targets_json_location(location=None):
     # First instruct Target about the new location
     Target.set_targets_json_location(location)
     # Then re-initialize TARGETS, TARGET_MAP and TARGET_NAMES
