@@ -14,5 +14,5 @@ SREC_CAT = srec_cat
 
 {% block additional_targets %}
 merge:
-	$(SREC_CAT) $(SOFTDEVICE) -intel $(PROJECT).hex -intel -o combined.hex -intel --line-length=44
+	$(SREC_CAT) $(SOFTDEVICE) -intel $(PROJECT).hex -intel -o $(PROJECT)-combined.hex -intel --line-length=44
 {% endblock %}
