@@ -191,11 +191,10 @@ class Exporter(object):
 
         # Loads the resources into the config system which might expand/modify resources based on config data
         self.resources = config.load_resources(resources)
-
         if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED :
             # Add the configuration file to the target directory
             self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
-            config.get_config_data_header(join(trg_path, self.config_header))
+            config.get_config_data_header(self.toolchain.get_symbols(), join(trg_path, self.config_header))
             self.config_macros = []
             self.resources.inc_dirs.append(".")
         else:
@@ -215,7 +214,10 @@ class Exporter(object):
         """ This function returns symbols which must be exported.
             Please add / overwrite symbols in each exporter separately
         """
-        symbols = self.toolchain.get_symbols() + self.config_macros
+        symbols = self.config_macros
+        if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and not(self.MBED_CONFIG_HEADER_SUPPORTED):
+            symbols.extend(self.toolchain.get_symbols())
+
         # We have extra symbols from e.g. libraries, we want to have them also added to export
         if add_extra_symbols:
             if self.extra_symbols is not None:
