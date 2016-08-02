@@ -411,6 +411,12 @@ def build_library(src_paths, build_path, target, toolchain_name,
     else:
         tmp_path = build_path
 
+    # Clean the build directory
+    if clean:
+        if exists(tmp_path):
+            rmtree(tmp_path)
+    mkdir(tmp_path)
+
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(src_paths, target, toolchain_name,
         macros=macros, options=options, clean=clean, jobs=jobs,
