@@ -1651,6 +1651,7 @@
         },
         "program_cycle_s": 2,
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["IPV4"],
         "default_build": "standard"
     },
     "MAXWSNENV": {
