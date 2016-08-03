@@ -78,7 +78,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         AdcHandle.Init.NbrOfConversion       = 1;
         AdcHandle.Init.DiscontinuousConvMode = DISABLE;
         AdcHandle.Init.NbrOfDiscConversion   = 0;
-        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+        AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
         HAL_ADC_Init(&AdcHandle);
     }
 }
