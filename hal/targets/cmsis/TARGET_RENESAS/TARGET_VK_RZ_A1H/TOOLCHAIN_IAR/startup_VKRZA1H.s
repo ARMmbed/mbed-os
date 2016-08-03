@@ -30,7 +30,7 @@
         SECTION .intvec:CODE:NOROOT(2)
 
         PUBLIC  __vector
-        PUBLIC  __iar_program_start
+        PUBWEAK __iar_program_start
         PUBLIC  Undefined_Handler
         EXTERN  SWI_Handler
         PUBLIC  Prefetch_Handler
