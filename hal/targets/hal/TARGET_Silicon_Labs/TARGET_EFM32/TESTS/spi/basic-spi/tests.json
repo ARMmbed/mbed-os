@@ -1,0 +1,120 @@
+{
+    "tests": {
+        "9-bit frames with 32-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "9-bit frames with 32-bit data, 1 MHz, DMA (short)", 
+            "summary": "9-bit frames with 32-bit data, 1 MHz, DMA (short)"
+        }, 
+        "Dummy case": {
+            "unique_name": "Dummy case", 
+            "summary": "Dummy case"
+        }, 
+        "5-bit frames with 8-bit data, 1 MHz, DMA (long)": {
+            "unique_name": "5-bit frames with 8-bit data, 1 MHz, DMA (long)", 
+            "summary": "5-bit frames with 8-bit data, 1 MHz, DMA (long)"
+        }, 
+        "5-bit frames with 16-bit data, 1 MHz (short)": {
+            "unique_name": "5-bit frames with 16-bit data, 1 MHz (short)", 
+            "summary": "5-bit frames with 16-bit data, 1 MHz (short)"
+        }, 
+        "9-bit frames with 16-bit data, 1 MHz (long)": {
+            "unique_name": "9-bit frames with 16-bit data, 1 MHz (long)", 
+            "summary": "9-bit frames with 16-bit data, 1 MHz (long)"
+        }, 
+        "9-bit frames with 16-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "9-bit frames with 16-bit data, 1 MHz, DMA (short)", 
+            "summary": "9-bit frames with 16-bit data, 1 MHz, DMA (short)"
+        }, 
+        "9-bit frames with 32-bit data, 1 MHz (short)": {
+            "unique_name": "9-bit frames with 32-bit data, 1 MHz (short)", 
+            "summary": "9-bit frames with 32-bit data, 1 MHz (short)"
+        }, 
+        "5-bit frames with 8-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "5-bit frames with 8-bit data, 1 MHz, DMA (short)", 
+            "summary": "5-bit frames with 8-bit data, 1 MHz, DMA (short)"
+        }, 
+        "16-bit frames with 16-bit data, 1 MHz (long)": {
+            "unique_name": "16-bit frames with 16-bit data, 1 MHz (long)", 
+            "summary": "16-bit frames with 16-bit data, 1 MHz (long)"
+        }, 
+        "8-bit frames with 8-bit data, 1 MHz, DMA (long)": {
+            "unique_name": "8-bit frames with 8-bit data, 1 MHz, DMA (long)", 
+            "summary": "8-bit frames with 8-bit data, 1 MHz, DMA (long)"
+        }, 
+        "8-bit frames with 16-bit data, 1 MHz (long)": {
+            "unique_name": "8-bit frames with 16-bit data, 1 MHz (long)", 
+            "summary": "8-bit frames with 16-bit data, 1 MHz (long)"
+        }, 
+        "16-bit frames with 32-bit data, 1 MHz (short)": {
+            "unique_name": "16-bit frames with 32-bit data, 1 MHz (short)", 
+            "summary": "16-bit frames with 32-bit data, 1 MHz (short)"
+        }, 
+        "5-bit frames with 8-bit data, 1 MHz (long)": {
+            "unique_name": "5-bit frames with 8-bit data, 1 MHz (long)", 
+            "summary": "5-bit frames with 8-bit data, 1 MHz (long)"
+        }, 
+        "8-bit frames with 8-bit data, 1 MHz (long)": {
+            "unique_name": "8-bit frames with 8-bit data, 1 MHz (long)", 
+            "summary": "8-bit frames with 8-bit data, 1 MHz (long)"
+        }, 
+        "16-bit frames with 32-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "16-bit frames with 32-bit data, 1 MHz, DMA (short)", 
+            "summary": "16-bit frames with 32-bit data, 1 MHz, DMA (short)"
+        }, 
+        "5-bit frames with 16-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "5-bit frames with 16-bit data, 1 MHz, DMA (short)", 
+            "summary": "5-bit frames with 16-bit data, 1 MHz, DMA (short)"
+        }, 
+        "5-bit frames with 16-bit data, 1 MHz (long)": {
+            "unique_name": "5-bit frames with 16-bit data, 1 MHz (long)", 
+            "summary": "5-bit frames with 16-bit data, 1 MHz (long)"
+        }, 
+        "8-bit frames with 16-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "8-bit frames with 16-bit data, 1 MHz, DMA (short)", 
+            "summary": "8-bit frames with 16-bit data, 1 MHz, DMA (short)"
+        }, 
+        "9-bit frames with 16-bit data, 1 MHz, DMA (long)": {
+            "unique_name": "9-bit frames with 16-bit data, 1 MHz, DMA (long)", 
+            "summary": "9-bit frames with 16-bit data, 1 MHz, DMA (long)"
+        }, 
+        "8-bit frames with 8-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "8-bit frames with 8-bit data, 1 MHz, DMA (short)", 
+            "summary": "8-bit frames with 8-bit data, 1 MHz, DMA (short)"
+        }, 
+        "16-bit frames with 16-bit data, 1 MHz (short)": {
+            "unique_name": "16-bit frames with 16-bit data, 1 MHz (short)", 
+            "summary": "16-bit frames with 16-bit data, 1 MHz (short)"
+        }, 
+        "8-bit frames with 16-bit data, 1 MHz (short)": {
+            "unique_name": "8-bit frames with 16-bit data, 1 MHz (short)", 
+            "summary": "8-bit frames with 16-bit data, 1 MHz (short)"
+        }, 
+        "8-bit frames with 16-bit data, 1 MHz, DMA (long)": {
+            "unique_name": "8-bit frames with 16-bit data, 1 MHz, DMA (long)", 
+            "summary": "8-bit frames with 16-bit data, 1 MHz, DMA (long)"
+        }, 
+        "5-bit frames with 8-bit data, 1 MHz (short)": {
+            "unique_name": "5-bit frames with 8-bit data, 1 MHz (short)", 
+            "summary": "5-bit frames with 8-bit data, 1 MHz (short)"
+        }, 
+        "5-bit frames with 16-bit data, 1 MHz, DMA (long)": {
+            "unique_name": "5-bit frames with 16-bit data, 1 MHz, DMA (long)", 
+            "summary": "5-bit frames with 16-bit data, 1 MHz, DMA (long)"
+        }, 
+        "16-bit frames with 16-bit data, 1 MHz, DMA (short)": {
+            "unique_name": "16-bit frames with 16-bit data, 1 MHz, DMA (short)", 
+            "summary": "16-bit frames with 16-bit data, 1 MHz, DMA (short)"
+        }, 
+        "16-bit frames with 16-bit data, 1 MHz, DMA (long)": {
+            "unique_name": "16-bit frames with 16-bit data, 1 MHz, DMA (long)", 
+            "summary": "16-bit frames with 16-bit data, 1 MHz, DMA (long)"
+        }, 
+        "8-bit frames with 8-bit data, 1 MHz (short)": {
+            "unique_name": "8-bit frames with 8-bit data, 1 MHz (short)", 
+            "summary": "8-bit frames with 8-bit data, 1 MHz (short)"
+        }, 
+        "9-bit frames with 16-bit data, 1 MHz (short)": {
+            "unique_name": "9-bit frames with 16-bit data, 1 MHz (short)", 
+            "summary": "9-bit frames with 16-bit data, 1 MHz (short)"
+        }
+    }
+}
