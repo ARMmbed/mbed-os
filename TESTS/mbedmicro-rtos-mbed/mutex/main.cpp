@@ -86,6 +86,7 @@ void test_thread(void const *args) {
 
 int main() {
     GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_TESTCASE_START("Mutex");
 
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
@@ -105,6 +106,7 @@ int main() {
     }
 
     fflush(stdout);
+    GREENTEA_TESTCASE_FINISHED("Mutex", 1, 0);
     GREENTEA_TESTSUITE_RESULT(!mutex_defect);
     return 0;
 }

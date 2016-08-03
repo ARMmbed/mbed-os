@@ -77,6 +77,7 @@ void test_thread(void const *delay) {
 
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_TESTCASE_START("semaphore");
 
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
@@ -95,6 +96,7 @@ int main (void) {
     }
 
     fflush(stdout);
+    GREENTEA_TESTCASE_FINISHED("semaphore", 1, 0);
     GREENTEA_TESTSUITE_RESULT(!sem_defect);
     return 0;
 }

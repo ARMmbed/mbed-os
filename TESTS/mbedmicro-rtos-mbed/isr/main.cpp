@@ -51,6 +51,7 @@ void queue_thread(void const *argument) {
 
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_TESTCASE_START("ISR");
 
     Thread thread(queue_thread, NULL, osPriorityNormal, STACK_SIZE);
     Ticker ticker;
@@ -75,6 +76,7 @@ int main (void) {
         }
     }
 
+    GREENTEA_TESTCASE_FINISHED("ISR", 1, 0);
     GREENTEA_TESTSUITE_RESULT(result);
     return 0;
 }

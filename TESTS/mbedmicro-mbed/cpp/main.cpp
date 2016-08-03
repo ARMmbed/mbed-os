@@ -55,6 +55,7 @@ Heap::destroy
 *******************/
 int main (void) {
     GREENTEA_SETUP(10, "default_auto");
+    GREENTEA_TESTCASE_START("cpp");
 
     bool result = true;
     for (;;)
@@ -79,5 +80,6 @@ int main (void) {
         break;
     }
 
+    GREENTEA_TESTCASE_FINISHED("cpp", 1, 0);
     GREENTEA_TESTSUITE_RESULT(result);
 }

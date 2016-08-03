@@ -45,6 +45,7 @@ void led_thread(void const *argument) {
 
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_TESTCASE_START("signals");
 
     Thread thread(led_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = false;
@@ -60,6 +61,7 @@ int main (void) {
             break;
         }
     }
+    GREENTEA_TESTCASE_FINISHED("signals", 1, 0);
     GREENTEA_TESTSUITE_RESULT(result);
     return 0;
 }

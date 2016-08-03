@@ -23,6 +23,7 @@ void blink(void const *n) {
 
 int main(void) {
     GREENTEA_SETUP(15, "wait_us_auto");
+    GREENTEA_TESTCASE_START("Timer");
 
     RtosTimer led_1_timer(blink, osTimerPeriodic, (void *)0);
     RtosTimer led_2_timer(blink, osTimerPeriodic, (void *)1);
@@ -34,5 +35,6 @@ int main(void) {
     led_3_timer.start(50);
     led_4_timer.start(25);
 
-    Thread::wait(osWaitForever);
+    Thread::wait(1000 * 10);
+    GREENTEA_TESTCASE_FINISHED("Timer", 1, 0);
 }

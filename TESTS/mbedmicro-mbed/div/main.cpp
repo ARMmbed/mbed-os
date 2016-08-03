@@ -18,6 +18,7 @@ const char *result_str(bool result) {
 
 int main() {
     GREENTEA_SETUP(5, "default_auto");
+    GREENTEA_TESTCASE_START("div");
 
     bool result = true;
 
@@ -37,5 +38,6 @@ int main() {
         printf("64bit: 0x17FFFFFFE8: expected 0x%lX got 0x%lX ... %s\r\n", values.first, test_ret, result_str(test_res));
     }
 
+    GREENTEA_TESTCASE_FINISHED("div", 1, 0);
     GREENTEA_TESTSUITE_RESULT(result);
 }

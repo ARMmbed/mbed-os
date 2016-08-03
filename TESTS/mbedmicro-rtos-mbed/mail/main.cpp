@@ -57,6 +57,7 @@ void send_thread (void const *argument) {
 
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_TESTCASE_START("mail");
 
     Thread thread(send_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
@@ -83,6 +84,7 @@ int main (void) {
             }
         }
     }
+    GREENTEA_TESTCASE_FINISHED("mail", 1, 0);
     GREENTEA_TESTSUITE_RESULT(result);
     return 0;
 }

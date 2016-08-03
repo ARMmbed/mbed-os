@@ -43,11 +43,10 @@ void led2_thread(void const *argument) {
 
 int main() {
     GREENTEA_SETUP(15, "wait_us_auto");
+    GREENTEA_TESTCASE_START("basic");
 
     Thread thread(led2_thread, NULL, osPriorityNormal, STACK_SIZE);
 
-    while (true) {
-        led1 = !led1;
-        Thread::wait(500);
-    }
+    Thread::wait(1000 * 10);
+    GREENTEA_TESTCASE_FINISHED("basic", 1, 0);
 }
