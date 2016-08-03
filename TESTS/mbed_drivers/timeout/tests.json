@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "Timers: toggle on/off": {
+            "unique_name": "Timers: toggle on/off", 
+            "summary": "Timers: toggle on/off"
+        }
+    }
+}

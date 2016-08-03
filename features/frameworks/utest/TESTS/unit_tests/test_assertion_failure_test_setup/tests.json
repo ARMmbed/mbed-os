@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "dummy test": {
+            "unique_name": "dummy test", 
+            "summary": "dummy test"
+        }
+    }
+}

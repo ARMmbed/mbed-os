@@ -1,0 +1,16 @@
+{
+    "tests": {
+        "Case 2": {
+            "unique_name": "Case 2", 
+            "summary": "Case 2"
+        }, 
+        "Case 3": {
+            "unique_name": "Case 3", 
+            "summary": "Case 3"
+        }, 
+        "Case 1": {
+            "unique_name": "Case 1", 
+            "summary": "Case 1"
+        }
+    }
+}

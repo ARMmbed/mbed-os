@@ -1,0 +1,20 @@
+{
+    "tests": {
+        "Testing combinations of same group": {
+            "unique_name": "Testing combinations of same group", 
+            "summary": "Testing combinations of same group"
+        }, 
+        "Testing constants": {
+            "unique_name": "Testing constants", 
+            "summary": "Testing constants"
+        }, 
+        "Testing combinations of different group": {
+            "unique_name": "Testing combinations of different group", 
+            "summary": "Testing combinations of different group"
+        }, 
+        "Testing constructors": {
+            "unique_name": "Testing constructors", 
+            "summary": "Testing constructors"
+        }
+    }
+}

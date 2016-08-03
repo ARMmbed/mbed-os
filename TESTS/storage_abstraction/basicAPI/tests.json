@@ -1,0 +1,72 @@
+{
+    "tests": {
+        "erase with invalid parameters": {
+            "unique_name": "erase with invalid parameters", 
+            "summary": "erase with invalid parameters"
+        }, 
+        "program data with multiple program units": {
+            "unique_name": "program data with multiple program units", 
+            "summary": "program data with multiple program units"
+        }, 
+        "program data using optimal_program_unit": {
+            "unique_name": "program data using optimal_program_unit", 
+            "summary": "program data using optimal_program_unit"
+        }, 
+        "erase single unit": {
+            "unique_name": "erase single unit", 
+            "summary": "erase single unit"
+        }, 
+        "get capabilities": {
+            "unique_name": "get capabilities", 
+            "summary": "get capabilities"
+        }, 
+        "power control": {
+            "unique_name": "power control", 
+            "summary": "power control"
+        }, 
+        "erase eight units": {
+            "unique_name": "erase eight units", 
+            "summary": "erase eight units"
+        }, 
+        "erase all": {
+            "unique_name": "erase all", 
+            "summary": "erase all"
+        }, 
+        "uninitialize": {
+            "unique_name": "uninitialize", 
+            "summary": "uninitialize"
+        }, 
+        "get info": {
+            "unique_name": "get info", 
+            "summary": "get info"
+        }, 
+        "get version": {
+            "unique_name": "get version", 
+            "summary": "get version"
+        }, 
+        "read data": {
+            "unique_name": "read data", 
+            "summary": "read data"
+        }, 
+        "program data using program_unit": {
+            "unique_name": "program data using program_unit", 
+            "summary": "program data using program_unit"
+        }, 
+        "program data with invalid parameters": {
+            "unique_name": "program data with invalid parameters", 
+            "summary": "program data with invalid parameters"
+        }, 
+        "initialize": {
+            "unique_name": "initialize", 
+            "summary": "initialize"
+        }, 
+        "erase two units": {
+            "unique_name": "erase two units", 
+            "summary": "erase two units"
+        }, 
+        "erase four units": {
+            "unique_name": "erase four units", 
+            "summary": "erase four units"
+        }
+    }
+}

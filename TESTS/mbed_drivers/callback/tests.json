@@ -1,0 +1,84 @@
+{
+    "tests": {
+        "Testing FunctionPointerArg1 compatibility": {
+            "unique_name": "Testing FunctionPointerArg1 compatibility", 
+            "summary": "Testing FunctionPointerArg1 compatibility"
+        }, 
+        "Testing callbacks with 5 ints": {
+            "unique_name": "Testing callbacks with 5 ints", 
+            "summary": "Testing callbacks with 5 ints"
+        }, 
+        "Testing callbacks with 0 uchars": {
+            "unique_name": "Testing callbacks with 0 uchars", 
+            "summary": "Testing callbacks with 0 uchars"
+        }, 
+        "Testing callbacks with 1 ints": {
+            "unique_name": "Testing callbacks with 1 ints", 
+            "summary": "Testing callbacks with 1 ints"
+        }, 
+        "Testing callbacks with 5 uint64s": {
+            "unique_name": "Testing callbacks with 5 uint64s", 
+            "summary": "Testing callbacks with 5 uint64s"
+        }, 
+        "Testing FunctionPointer compatibility": {
+            "unique_name": "Testing FunctionPointer compatibility", 
+            "summary": "Testing FunctionPointer compatibility"
+        }, 
+        "Testing callbacks with 2 uchars": {
+            "unique_name": "Testing callbacks with 2 uchars", 
+            "summary": "Testing callbacks with 2 uchars"
+        }, 
+        "Testing callbacks with 3 ints": {
+            "unique_name": "Testing callbacks with 3 ints", 
+            "summary": "Testing callbacks with 3 ints"
+        }, 
+        "Testing callbacks with 2 uint64s": {
+            "unique_name": "Testing callbacks with 2 uint64s", 
+            "summary": "Testing callbacks with 2 uint64s"
+        }, 
+        "Testing callbacks with 1 uchars": {
+            "unique_name": "Testing callbacks with 1 uchars", 
+            "summary": "Testing callbacks with 1 uchars"
+        }, 
+        "Testing callbacks with 0 ints": {
+            "unique_name": "Testing callbacks with 0 ints", 
+            "summary": "Testing callbacks with 0 ints"
+        }, 
+        "Testing callbacks with 1 uint64s": {
+            "unique_name": "Testing callbacks with 1 uint64s", 
+            "summary": "Testing callbacks with 1 uint64s"
+        }, 
+        "Testing callbacks with 3 uchars": {
+            "unique_name": "Testing callbacks with 3 uchars", 
+            "summary": "Testing callbacks with 3 uchars"
+        }, 
+        "Testing callbacks with 4 uint64s": {
+            "unique_name": "Testing callbacks with 4 uint64s", 
+            "summary": "Testing callbacks with 4 uint64s"
+        }, 
+        "Testing callbacks with 2 ints": {
+            "unique_name": "Testing callbacks with 2 ints", 
+            "summary": "Testing callbacks with 2 ints"
+        }, 
+        "Testing callbacks with 3 uint64s": {
+            "unique_name": "Testing callbacks with 3 uint64s", 
+            "summary": "Testing callbacks with 3 uint64s"
+        }, 
+        "Testing callbacks with 4 uchars": {
+            "unique_name": "Testing callbacks with 4 uchars", 
+            "summary": "Testing callbacks with 4 uchars"
+        }, 
+        "Testing callbacks with 5 uchars": {
+            "unique_name": "Testing callbacks with 5 uchars", 
+            "summary": "Testing callbacks with 5 uchars"
+        }, 
+        "Testing callbacks with 0 uint64s": {
+            "unique_name": "Testing callbacks with 0 uint64s", 
+            "summary": "Testing callbacks with 0 uint64s"
+        }, 
+        "Testing callbacks with 4 ints": {
+            "unique_name": "Testing callbacks with 4 ints", 
+            "summary": "Testing callbacks with 4 ints"
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "tests": {
+        "Control: NoRepeat": {
+            "unique_name": "Control: NoRepeat", 
+            "summary": "Control: NoRepeat"
+        }, 
+        "Control: RepeatHandler": {
+            "unique_name": "Control: RepeatHandler", 
+            "summary": "Control: RepeatHandler"
+        }, 
+        "Control: RepeatAll": {
+            "unique_name": "Control: RepeatAll", 
+            "summary": "Control: RepeatAll"
+        }, 
+        "Control: CaseNext": {
+            "unique_name": "Control: CaseNext", 
+            "summary": "Control: CaseNext"
+        }
+    }
+}

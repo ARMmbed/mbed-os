@@ -1,0 +1,20 @@
+{
+    "tests": {
+        "Blinky": {
+            "unique_name": "Blinky", 
+            "summary": "Blinky"
+        }, 
+        "C++ stack": {
+            "unique_name": "C++ stack", 
+            "summary": "C++ stack"
+        }, 
+        "C++ heap": {
+            "unique_name": "C++ heap", 
+            "summary": "C++ heap"
+        }, 
+        "Basic": {
+            "unique_name": "Basic", 
+            "summary": "Basic"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "tests": {
+        "Echo server: x16": {
+            "unique_name": "Echo server: x16", 
+            "summary": "Echo server: x16"
+        }, 
+        "Echo server: x64": {
+            "unique_name": "Echo server: x64", 
+            "summary": "Echo server: x64"
+        }, 
+        "Echo server: x32": {
+            "unique_name": "Echo server: x32", 
+            "summary": "Echo server: x32"
+        }
+    }
+}

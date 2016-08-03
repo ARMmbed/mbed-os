@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "RTC strftime": {
+            "unique_name": "RTC strftime", 
+            "summary": "RTC strftime"
+        }
+    }
+}

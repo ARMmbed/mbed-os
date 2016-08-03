@@ -1,0 +1,16 @@
+{
+    "tests": {
+        "Teardown handler returns CONTINUE": {
+            "unique_name": "Teardown handler returns CONTINUE", 
+            "summary": "Teardown handler returns CONTINUE"
+        }, 
+        "Teardown handler returns ABORT but is IGNORED": {
+            "unique_name": "Teardown handler returns ABORT but is IGNORED", 
+            "summary": "Teardown handler returns ABORT but is IGNORED"
+        }, 
+        "Teardown handler returns ABORT": {
+            "unique_name": "Teardown handler returns ABORT", 
+            "summary": "Teardown handler returns ABORT"
+        }
+    }
+}

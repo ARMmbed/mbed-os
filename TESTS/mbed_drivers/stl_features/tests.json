@@ -1,0 +1,20 @@
+{
+    "tests": {
+        "STL std::sort abs": {
+            "unique_name": "STL std::sort abs", 
+            "summary": "STL std::sort abs"
+        }, 
+        "STL std::equal": {
+            "unique_name": "STL std::equal", 
+            "summary": "STL std::equal"
+        }, 
+        "STL std::transform": {
+            "unique_name": "STL std::transform", 
+            "summary": "STL std::transform"
+        }, 
+        "STL std::sort greater": {
+            "unique_name": "STL std::sort greater", 
+            "summary": "STL std::sort greater"
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "tests": {
+        "Testing NORETURN attribute": {
+            "unique_name": "Testing NORETURN attribute", 
+            "summary": "Testing NORETURN attribute"
+        }, 
+        "Testing UNUSED attribute": {
+            "unique_name": "Testing UNUSED attribute", 
+            "summary": "Testing UNUSED attribute"
+        }, 
+        "Testing PACKED attribute": {
+            "unique_name": "Testing PACKED attribute", 
+            "summary": "Testing PACKED attribute"
+        }, 
+        "Testing UNREACHABLE attribute": {
+            "unique_name": "Testing UNREACHABLE attribute", 
+            "summary": "Testing UNREACHABLE attribute"
+        }, 
+        "Testing WEAK attribute": {
+            "unique_name": "Testing WEAK attribute", 
+            "summary": "Testing WEAK attribute"
+        }, 
+        "Testing PURE attribute": {
+            "unique_name": "Testing PURE attribute", 
+            "summary": "Testing PURE attribute"
+        }, 
+        "Testing FORCEINLINE attribute": {
+            "unique_name": "Testing FORCEINLINE attribute", 
+            "summary": "Testing FORCEINLINE attribute"
+        }, 
+        "Testing DEPRECATED attribute": {
+            "unique_name": "Testing DEPRECATED attribute", 
+            "summary": "Testing DEPRECATED attribute"
+        }, 
+        "Testing ALIGN attribute": {
+            "unique_name": "Testing ALIGN attribute", 
+            "summary": "Testing ALIGN attribute"
+        }
+    }
+}

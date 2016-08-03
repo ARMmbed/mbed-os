@@ -109,14 +109,6 @@ void GREENTEA_TESTCASE_START(const char *test_case_name) {
     greentea_send_kv(GREENTEA_TEST_ENV_TESTCASE_START, test_case_name);
 }
 
-/** \brief Notify host side that test case finished
- *  \details test_case_name Test case name
- *  \details result Test case result (0 -OK, non zero...)
- */
-void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed) {
-    greentea_send_kv(GREENTEA_TEST_ENV_TESTCASE_FINISH, test_case_name, passes, failed);
-}
-
 /**
  *****************************************************************************
  *  Auxilary functions and key-value protocol support

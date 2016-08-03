@@ -1,0 +1,28 @@
+{
+    "tests": {
+        "Validate: Attributed Validation: Cancel Repeat": {
+            "unique_name": "Validate: Attributed Validation: Cancel Repeat", 
+            "summary": "Validate: Attributed Validation: Cancel Repeat"
+        }, 
+        "Validate: Premature Validation": {
+            "unique_name": "Validate: Premature Validation", 
+            "summary": "Validate: Premature Validation"
+        }, 
+        "Validate: Multiple Premature Validation": {
+            "unique_name": "Validate: Multiple Premature Validation", 
+            "summary": "Validate: Multiple Premature Validation"
+        }, 
+        "Validate: Simple Validation": {
+            "unique_name": "Validate: Simple Validation", 
+            "summary": "Validate: Simple Validation"
+        }, 
+        "Validate: Multiple Validation": {
+            "unique_name": "Validate: Multiple Validation", 
+            "summary": "Validate: Multiple Validation"
+        }, 
+        "Validate: Attributed Validation: Enable Repeat Handler": {
+            "unique_name": "Validate: Attributed Validation: Enable Repeat Handler", 
+            "summary": "Validate: Attributed Validation: Enable Repeat Handler"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "tests": {
+        "Timers: 1x ticker": {
+            "unique_name": "Timers: 1x ticker", 
+            "summary": "Timers: 1x ticker"
+        }, 
+        "Timers: 2x tickers": {
+            "unique_name": "Timers: 2x tickers", 
+            "summary": "Timers: 2x tickers"
+        }, 
+        "Timers: 2x callbacks": {
+            "unique_name": "Timers: 2x callbacks", 
+            "summary": "Timers: 2x callbacks"
+        }
+    }
+}

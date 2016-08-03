@@ -1,0 +1,36 @@
+{
+    "tests": {
+        "Minimal Scheduler: Case 8": {
+            "unique_name": "Minimal Scheduler: Case 8", 
+            "summary": "Minimal Scheduler: Case 8"
+        }, 
+        "Minimal Scheduler: Case 1": {
+            "unique_name": "Minimal Scheduler: Case 1", 
+            "summary": "Minimal Scheduler: Case 1"
+        }, 
+        "Minimal Scheduler: Case 3": {
+            "unique_name": "Minimal Scheduler: Case 3", 
+            "summary": "Minimal Scheduler: Case 3"
+        }, 
+        "Minimal Scheduler: Case 2": {
+            "unique_name": "Minimal Scheduler: Case 2", 
+            "summary": "Minimal Scheduler: Case 2"
+        }, 
+        "Minimal Scheduler: Case 5": {
+            "unique_name": "Minimal Scheduler: Case 5", 
+            "summary": "Minimal Scheduler: Case 5"
+        }, 
+        "Minimal Scheduler: Case 4": {
+            "unique_name": "Minimal Scheduler: Case 4", 
+            "summary": "Minimal Scheduler: Case 4"
+        }, 
+        "Minimal Scheduler: Case 7": {
+            "unique_name": "Minimal Scheduler: Case 7", 
+            "summary": "Minimal Scheduler: Case 7"
+        }, 
+        "Minimal Scheduler: Case 6": {
+            "unique_name": "Minimal Scheduler: Case 6", 
+            "summary": "Minimal Scheduler: Case 6"
+        }
+    }
+}

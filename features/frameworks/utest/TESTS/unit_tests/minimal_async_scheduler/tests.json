@@ -1,0 +1,20 @@
+{
+    "tests": {
+        "Minimal Scheduler: Case 1": {
+            "unique_name": "Minimal Scheduler: Case 1", 
+            "summary": "Minimal Scheduler: Case 1"
+        }, 
+        "Minimal Scheduler: Case 3": {
+            "unique_name": "Minimal Scheduler: Case 3", 
+            "summary": "Minimal Scheduler: Case 3"
+        }, 
+        "Minimal Scheduler: Case 2": {
+            "unique_name": "Minimal Scheduler: Case 2", 
+            "summary": "Minimal Scheduler: Case 2"
+        }, 
+        "Minimal Scheduler: Async Case 4 (Failure)": {
+            "unique_name": "Minimal Scheduler: Async Case 4 (Failure)", 
+            "summary": "Minimal Scheduler: Async Case 4 (Failure)"
+        }
+    }
+}

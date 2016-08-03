@@ -1,0 +1,12 @@
+{
+    "tests": {
+        "dummy test": {
+            "unique_name": "dummy test", 
+            "summary": "dummy test"
+        }, 
+        "dummy test 2": {
+            "unique_name": "dummy test 2", 
+            "summary": "dummy test 2"
+        }
+    }
+}

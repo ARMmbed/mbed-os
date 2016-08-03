@@ -1,0 +1,32 @@
+{
+    "tests": {
+        "Control: Timeout (Failure)": {
+            "unique_name": "Control: Timeout (Failure)", 
+            "summary": "Control: Timeout (Failure)"
+        }, 
+        "Control: CaseNext": {
+            "unique_name": "Control: CaseNext", 
+            "summary": "Control: CaseNext"
+        }, 
+        "Control: NoTimeout": {
+            "unique_name": "Control: NoTimeout", 
+            "summary": "Control: NoTimeout"
+        }, 
+        "Control: Await": {
+            "unique_name": "Control: Await", 
+            "summary": "Control: Await"
+        }, 
+        "Control: Timeout (Success)": {
+            "unique_name": "Control: Timeout (Success)", 
+            "summary": "Control: Timeout (Success)"
+        }, 
+        "Control: RepeatHandlerOnTimeout": {
+            "unique_name": "Control: RepeatHandlerOnTimeout", 
+            "summary": "Control: RepeatHandlerOnTimeout"
+        }, 
+        "Control: RepeatAllOnTimeout": {
+            "unique_name": "Control: RepeatAllOnTimeout", 
+            "summary": "Control: RepeatAllOnTimeout"
+        }
+    }
+}

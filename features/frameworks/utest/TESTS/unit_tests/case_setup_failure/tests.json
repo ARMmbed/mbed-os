@@ -1,0 +1,16 @@
+{
+    "tests": {
+        "Setup handler returns IGNORE": {
+            "unique_name": "Setup handler returns IGNORE", 
+            "summary": "Setup handler returns IGNORE"
+        }, 
+        "Setup handler returns CONTINUE": {
+            "unique_name": "Setup handler returns CONTINUE", 
+            "summary": "Setup handler returns CONTINUE"
+        }, 
+        "Setup handler returns ABORT": {
+            "unique_name": "Setup handler returns ABORT", 
+            "summary": "Setup handler returns ABORT"
+        }
+    }
+}

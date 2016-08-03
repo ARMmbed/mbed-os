@@ -1,0 +1,12 @@
+{
+    "tests": {
+        "Simple Test": {
+            "unique_name": "Simple Test", 
+            "summary": "Simple Test"
+        }, 
+        "Repeating Test": {
+            "unique_name": "Repeating Test", 
+            "summary": "Repeating Test"
+        }
+    }
+}

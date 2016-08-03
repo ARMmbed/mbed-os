@@ -1,0 +1,12 @@
+{
+    "tests": {
+        "EXAMPLE2_test_00": {
+            "unique_name": "EXAMPLE2_test_00", 
+            "summary": "EXAMPLE2_test_00"
+        }, 
+        "EXAMPLE2_test_01": {
+            "unique_name": "EXAMPLE2_test_01", 
+            "summary": "EXAMPLE2_test_01"
+        }
+    }
+}

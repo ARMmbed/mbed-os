@@ -1,0 +1,16 @@
+{
+    "tests": {
+        "CLOSE_test_01_end": {
+            "unique_name": "CLOSE_test_01_end", 
+            "summary": "CLOSE_test_01_end"
+        }, 
+        "CLOSE_test_01_start": {
+            "unique_name": "CLOSE_test_01_start", 
+            "summary": "CLOSE_test_01_start"
+        }, 
+        "CLOSE_test_00": {
+            "unique_name": "CLOSE_test_00", 
+            "summary": "CLOSE_test_00"
+        }
+    }
+}

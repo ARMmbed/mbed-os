@@ -1,0 +1,64 @@
+{
+    "tests": {
+        "Testing parallel threads with wait": {
+            "unique_name": "Testing parallel threads with wait", 
+            "summary": "Testing parallel threads with wait"
+        }, 
+        "Testing single thread with wait": {
+            "unique_name": "Testing single thread with wait", 
+            "summary": "Testing single thread with wait"
+        }, 
+        "Testing serial threads with yield": {
+            "unique_name": "Testing serial threads with yield", 
+            "summary": "Testing serial threads with yield"
+        }, 
+        "Testing single thread with yield": {
+            "unique_name": "Testing single thread with yield", 
+            "summary": "Testing single thread with yield"
+        }, 
+        "Testing serial threads with wait": {
+            "unique_name": "Testing serial threads with wait", 
+            "summary": "Testing serial threads with wait"
+        }, 
+        "Testing single thread": {
+            "unique_name": "Testing single thread", 
+            "summary": "Testing single thread"
+        }, 
+        "Testing parallel threads with child": {
+            "unique_name": "Testing parallel threads with child", 
+            "summary": "Testing parallel threads with child"
+        }, 
+        "Testing serial threads with murder": {
+            "unique_name": "Testing serial threads with murder", 
+            "summary": "Testing serial threads with murder"
+        }, 
+        "Testing parallel threads with yield": {
+            "unique_name": "Testing parallel threads with yield", 
+            "summary": "Testing parallel threads with yield"
+        }, 
+        "Testing single thread with child": {
+            "unique_name": "Testing single thread with child", 
+            "summary": "Testing single thread with child"
+        }, 
+        "Testing serial threads": {
+            "unique_name": "Testing serial threads", 
+            "summary": "Testing serial threads"
+        }, 
+        "Testing serial threads with child": {
+            "unique_name": "Testing serial threads with child", 
+            "summary": "Testing serial threads with child"
+        }, 
+        "Testing single thread with murder": {
+            "unique_name": "Testing single thread with murder", 
+            "summary": "Testing single thread with murder"
+        }, 
+        "Testing parallel threads with murder": {
+            "unique_name": "Testing parallel threads with murder", 
+            "summary": "Testing parallel threads with murder"
+        }, 
+        "Testing parallel threads": {
+            "unique_name": "Testing parallel threads", 
+            "summary": "Testing parallel threads"
+        }
+    }
+}

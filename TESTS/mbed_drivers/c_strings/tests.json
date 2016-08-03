@@ -1,0 +1,36 @@
+{
+    "tests": {
+        "C strings: strpbrk": {
+            "unique_name": "C strings: strpbrk", 
+            "summary": "C strings: strpbrk"
+        }, 
+        "C strings: %g %g float formatting": {
+            "unique_name": "C strings: %g %g float formatting", 
+            "summary": "C strings: %g %g float formatting"
+        }, 
+        "C strings: %f %f float formatting": {
+            "unique_name": "C strings: %f %f float formatting", 
+            "summary": "C strings: %f %f float formatting"
+        }, 
+        "C strings: %u %d integer formatting": {
+            "unique_name": "C strings: %u %d integer formatting", 
+            "summary": "C strings: %u %d integer formatting"
+        }, 
+        "C strings: strtok": {
+            "unique_name": "C strings: strtok", 
+            "summary": "C strings: strtok"
+        }, 
+        "C strings: %i %d integer formatting": {
+            "unique_name": "C strings: %i %d integer formatting", 
+            "summary": "C strings: %i %d integer formatting"
+        }, 
+        "C strings: %e %E float formatting": {
+            "unique_name": "C strings: %e %E float formatting", 
+            "summary": "C strings: %e %E float formatting"
+        }, 
+        "C strings: %x %E integer formatting": {
+            "unique_name": "C strings: %x %E integer formatting", 
+            "summary": "C strings: %x %E integer formatting"
+        }
+    }
+}
