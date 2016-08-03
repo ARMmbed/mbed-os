@@ -72,7 +72,10 @@ enum ENDPOINT_TYPE {
 #define  OR_CONTROL_CLE                 0x00000010
 #define  OR_CONTROL_BLE                 0x00000020
 #define  OR_CONTROL_HCFS                0x000000C0
+#define  OR_CONTROL_HC_RSET             0x00000000
+#define  OR_CONTROL_HC_RES              0x00000040
 #define  OR_CONTROL_HC_OPER             0x00000080
+#define  OR_CONTROL_HC_SUSP             0x000000C0
 // ----------------- HcCommandStatus Register -----------------
 #define  OR_CMD_STATUS_HCR              0x00000001
 #define  OR_CMD_STATUS_CLF              0x00000002
