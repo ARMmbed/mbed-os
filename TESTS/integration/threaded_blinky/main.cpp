@@ -21,9 +21,12 @@ void led1_thread(void const *args) {
  
 int main() {
     GREENTEA_SETUP(20, "wait_us_auto");
+    GREENTEA_TESTCASE_START("Threaded blinky");
     
     Thread thread(led1_thread);
     
+    Thread::wait(1000 * 10);
+    GREENTEA_TESTCASE_FINISHED("Threaded blinky", 1, 0);
     while (true) {
     }
 }
