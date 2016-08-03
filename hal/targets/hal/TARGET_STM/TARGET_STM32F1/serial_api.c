@@ -34,6 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include <string.h>
 #include "PeripheralPins.h"
 
@@ -67,7 +68,12 @@ static void init_uart(serial_t *obj)
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
-    HAL_UART_Init(&UartHandle);
+        // Fix because HAL_RCC_GetHCLKFreq() don't update anymore SystemCoreClock
+    SystemCoreClockUpdate();
+
+    if (HAL_UART_Init(&UartHandle) != HAL_OK) {
+        error("Cannot initialize UART\n");
+    }
 
 }
 
