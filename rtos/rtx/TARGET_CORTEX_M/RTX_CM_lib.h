@@ -420,7 +420,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #define INITIAL_SP            (0x20003000UL)
 
 #elif defined(TARGET_K64F)
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+#if defined(__GNUC__) && !defined(__CC_ARM)     /* GCC */
 extern uint32_t __StackTop[];
 #define INITIAL_SP            (__StackTop)
 #else
