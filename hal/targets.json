@@ -1939,7 +1939,8 @@
             "NRF52_PAN_63"
         ],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "public": true
     },
     "BLUEPILL_F103C8": {
         "core": "Cortex-M3",
