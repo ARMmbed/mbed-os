@@ -102,6 +102,7 @@ osStatus Thread::terminate() {
     _mutex.lock();
 
     ret = osThreadTerminate(_tid);
+    _tid = (osThreadId)NULL;
 
     _mutex.unlock();
     return ret;
