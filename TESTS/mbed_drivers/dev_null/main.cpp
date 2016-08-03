@@ -17,6 +17,8 @@
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 
+#define TEST_NAME "/dev/null test"
+
 class DevNull : public Stream {
 public:
     DevNull(const char *name = NULL) : Stream(name) {}
@@ -34,6 +36,7 @@ DevNull null("null");
 
 int main() {
     GREENTEA_SETUP(2, "dev_null_auto");
+    GREENTEA_TESTCASE_START(TEST_NAME);
 
     printf("MBED: before re-routing stdout to /null\n");   // This shouldn't appear
     greentea_send_kv("to_stdout", "re-routing stdout to /null");
@@ -44,8 +47,6 @@ int main() {
         printf("{{to_null;printf redirected to /null}}\n");
         printf("MBED: this printf is already redirected to /null\n");
     }
-
-    while(1) {
-      // Success is determined by the host test at this point, so busy wait
-    }
+    GREENTEA_TESTCASE_FINISHED(TEST_NAME, 1, 0);
+    GREENTEA_TESTSUITE_RESULT(1);
 }
