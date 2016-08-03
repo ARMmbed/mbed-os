@@ -26,6 +26,7 @@
 #include "cmsis_os.h"
 #include "Callback.h"
 #include "toolchain.h"
+#include "Semaphore.h"
 
 namespace rtos {
 
@@ -275,11 +276,13 @@ private:
                      osPriority priority=osPriorityNormal,
                      uint32_t stack_size=DEFAULT_STACK_SIZE,
                      unsigned char *stack_pointer=NULL);
+    static void _thunk(const void * thread_ptr);
 
     mbed::Callback<void()> _task;
     osThreadId _tid;
     osThreadDef_t _thread_def;
     bool _dynamic_stack;
+    Semaphore _join_sem;
 };
 
 }
