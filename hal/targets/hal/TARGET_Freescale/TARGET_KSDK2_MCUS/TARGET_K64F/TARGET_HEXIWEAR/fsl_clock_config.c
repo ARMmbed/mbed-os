@@ -106,7 +106,7 @@ const clock_config_t g_defaultClockConfigRun = {
 
             .pll0Config =
                 {
-                    .enableMode = 0U, .prdiv = 0x13U, .vdiv = 0x18U,
+                    .enableMode = 0U, .prdiv = 0x3U, .vdiv = 0x10U,
                 },
         },
     .simConfig =
