@@ -3,6 +3,9 @@ from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.utils import check_and_install_packages
+check_and_install_packages()
+
 from shutil import move, rmtree
 from argparse import ArgumentParser
 from os import path

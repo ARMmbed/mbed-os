@@ -24,6 +24,9 @@ from os import _exit
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.utils import check_and_install_packages
+check_and_install_packages()
+
 from tools.utils import args_error
 from tools.options import get_default_options_parser
 from tools.build_api import get_config

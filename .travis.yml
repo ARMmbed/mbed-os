@@ -11,9 +11,12 @@ before_install:
   - sudo apt-get install -qq gcc-arm-none-eabi --force-yes
   # Print versions we use
   - arm-none-eabi-gcc --version
+  - virtualenv --no-site-packages venv
+  - source venv/bin/activate
   - python --version
 install:
-  - sudo pip install colorama
-  - sudo pip install prettytable
-  - sudo pip install jinja2
-  - sudo pip install pytest
+  - pip install colorama
+  - pip install prettytable
+  - pip install jinja2
+  - pip install pytest
+  - pip install virtualenv

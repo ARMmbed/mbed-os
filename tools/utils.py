@@ -21,7 +21,7 @@ import argparse
 import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
-from os.path import isdir, join, exists, split, relpath, splitext, abspath, commonprefix, normpath
+from os.path import isdir, join, exists, split, relpath, splitext, abspath, commonprefix, normpath, dirname
 from subprocess import Popen, PIPE, STDOUT, call
 import json
 from collections import OrderedDict
@@ -338,3 +338,51 @@ def argparse_dir_not_parent(other):
         else:
             return not_parent
     return parse_type
+
+def package_installed(package):
+    """Check if a package is accessible from the current process
+
+    Positional arguments:
+    package - the package requirement to check
+    """
+    import pkg_resources
+    try:
+        pkg_resources.working_set.require(package)
+        return True
+    except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
+        return False
+
+def install_from_pip(packages):
+    """Install a list of packages from pip
+
+    Positional arguments:
+    packages - the list of package requirements
+    """
+    import pip
+    import io
+    print("The tools need the following packages that are not installed:\n{}".format(
+        columnate(packages)))
+    user_resp = raw_input("Would you like to install them now? (y/N)")
+    if user_resp != "y" and user_resp != "yes":
+        print("Please install the listed packages manually to run the tools")
+        exit(3)
+    for package in packages:
+        print("Installing {}".format(package))
+        temp = sys.stdout
+        sys.stdout = io.BytesIO()
+        ret = pip.main(['install', '-q', package])
+        sys.stdout.close()
+        sys.stdout = temp
+        if ret:
+            print("Automatic installation of {} failed.".format(package))
+            print("Please retry with elevated permissions.")
+            exit(3)
+
+def check_and_install_packages():
+    root = abspath(join(dirname(__file__), ".."))
+    packages_to_install = [pack.strip() for pack in open(join(root, "requirements.txt"))
+                           if not package_installed(pack)]
+    if packages_to_install:
+        install_from_pip(packages_to_install)
+        import site
+        reload(site)

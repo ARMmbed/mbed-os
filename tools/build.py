@@ -26,6 +26,9 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.utils import check_and_install_packages
+check_and_install_packages()
+
 
 from tools.toolchains import TOOLCHAINS
 from tools.toolchains import mbedToolchain
