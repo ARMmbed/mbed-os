@@ -21,9 +21,6 @@
 // entry point for nsapi types
 #include "nsapi_types.h"
 
-// disable bug-compatible mbed inclusion
-#define NSAPI_NO_INCLUDE_MBED
-
 #ifdef __cplusplus
 
 // entry point for C++ api
