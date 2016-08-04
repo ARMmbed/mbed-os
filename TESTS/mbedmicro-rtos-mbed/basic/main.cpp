@@ -49,4 +49,5 @@ int main() {
 
     Thread::wait(1000 * 10);
     GREENTEA_TESTCASE_FINISHED("basic", 1, 0);
+    GREENTEA_TESTSUITE_RESULT(1);
 }

@@ -27,6 +27,5 @@ int main() {
     
     Thread::wait(1000 * 10);
     GREENTEA_TESTCASE_FINISHED("Threaded blinky", 1, 0);
-    while (true) {
-    }
+    GREENTEA_TESTSUITE_RESULT(1);
 }

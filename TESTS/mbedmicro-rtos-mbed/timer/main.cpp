@@ -37,4 +37,5 @@ int main(void) {
 
     Thread::wait(1000 * 10);
     GREENTEA_TESTCASE_FINISHED("Timer", 1, 0);
+    GREENTEA_TESTSUITE_RESULT(1);
 }
