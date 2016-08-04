@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "mail": {
+            "unique_name": "mail", 
+            "summary": "mail"
+        }
+    }
+}

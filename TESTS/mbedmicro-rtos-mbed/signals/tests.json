@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "signals": {
+            "unique_name": "signals", 
+            "summary": "signals"
+        }
+    }
+}

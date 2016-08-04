@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "/dev/null test": {
+            "unique_name": "/dev/null test", 
+            "summary": "/dev/null test"
+        }
+    }
+}

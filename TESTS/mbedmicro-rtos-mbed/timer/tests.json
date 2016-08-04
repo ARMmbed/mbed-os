@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "Timer": {
+            "unique_name": "Timer", 
+            "summary": "Timer"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "Threaded blinky": {
+            "unique_name": "Threaded blinky", 
+            "summary": "Threaded blinky"
+        }
+    }
+}

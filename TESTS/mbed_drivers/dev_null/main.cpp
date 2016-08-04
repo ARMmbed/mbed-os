@@ -36,7 +36,7 @@ DevNull null("null");
 
 int main() {
     GREENTEA_SETUP(2, "dev_null_auto");
-    GREENTEA_TESTCASE_START(TEST_NAME);
+    GREENTEA_TESTCASE_START("/dev/null test");
 
     printf("MBED: before re-routing stdout to /null\n");   // This shouldn't appear
     greentea_send_kv("to_stdout", "re-routing stdout to /null");

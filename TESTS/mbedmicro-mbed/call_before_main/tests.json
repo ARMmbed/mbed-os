@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "Call before main": {
+            "unique_name": "Call before main", 
+            "summary": "Call before main"
+        }
+    }
+}

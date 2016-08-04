@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "queue": {
+            "unique_name": "queue", 
+            "summary": "queue"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "tests": {
+        "semaphore": {
+            "unique_name": "semaphore", 
+            "summary": "semaphore"
+        }
+    }
+}
