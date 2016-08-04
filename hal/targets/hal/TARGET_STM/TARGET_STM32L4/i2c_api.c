@@ -116,21 +116,59 @@ void i2c_frequency(i2c_t *obj, int hz)
     // wait before init
     timeout = LONG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
 
-    // Common settings: I2C clock = 32 MHz, Analog filter = ON, Digital filter coefficient = 0
-    switch (hz) {
-        case 100000:
-            I2cHandle.Init.Timing = 0x20602938; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-            break;
-        case 400000:
-            I2cHandle.Init.Timing = 0x00B0122A; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
-            break;
-        case 1000000:
-            I2cHandle.Init.Timing = 0x0030040E; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
-            break;
-        default:
-            break;
+    if (SystemCoreClock == 80000000) {
+        // Common settings: I2C clock = 80 MHz, Analog filter = ON, Digital filter coefficient = 0
+        switch (hz) {
+            case 100000:
+                I2cHandle.Init.Timing = 0x30C14E6B; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+                break;
+            case 400000:
+                I2cHandle.Init.Timing = 0x10D1143A; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+                break;
+            case 1000000:
+                I2cHandle.Init.Timing = 0x00810E27; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+                break;
+            default:
+                break;
+        }
+    } else if (SystemCoreClock == 48000000) {
+        // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
+        switch (hz) {
+            case 100000:
+                I2cHandle.Init.Timing = 0x20A03E55; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+                break;
+            case 400000:
+                I2cHandle.Init.Timing = 0x10800C21; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+                break;
+            case 1000000:
+                I2cHandle.Init.Timing = 0x00500816; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+                break;
+            default:
+                break;
+        }
     }
+    
+    // Enable the Fast Mode Plus capability
+    if (hz == 1000000) {
+        if (obj->i2c == I2C_1) {
+            __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C1);
+        }
+#if defined(I2C2_BASE)
+        if (obj->i2c == I2C_2) {
+            __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C2);
+        }
+#endif
+#if defined(I2C3_BASE)
+        if (obj->i2c == I2C_3) {
+            __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C3);
+        }
+#endif
+    }
+
 
     // I2C configuration
     I2cHandle.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
