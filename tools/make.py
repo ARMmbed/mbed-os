@@ -207,12 +207,12 @@ if __name__ == '__main__':
 
     # Target
     if options.mcu is None :
-        args_error(parser, "[ERROR] You should specify an MCU")
+        args_error(parser, "argument -m/--mcu is required")
     mcu = options.mcu[0]
 
     # Toolchain
     if options.tool is None:
-        args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
+        args_error(parser, "argument -t/--toolchain is required")
     toolchain = options.tool[0]
 
     if options.color:
