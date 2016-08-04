@@ -151,12 +151,7 @@ class IAR(mbedToolchain):
         else:
             opts += ["-I%s" % i for i in includes]
 
-        config_header = self.get_config_header()
-        if for_asm:
-            # The assembler doesn't support '--preinclude', so we need to add
-            # the macros directly
-            opts = opts + ['-D%s' % d for d in self.get_config_macros()]
-        else:
+        if not for_asm:
             config_header = self.get_config_header()
             if config_header is not None:
                 opts = opts + self.get_config_option(config_header)
@@ -165,7 +160,7 @@ class IAR(mbedToolchain):
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes, for_asm=True) + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)

@@ -230,7 +230,8 @@ class mbedToolchain:
         self.macros = macros or []
 
         # Macros generated from toolchain and target rules/features
-        self.symbols = None
+        self.asm_symbols = None
+        self.cxx_symbols = None
 
         # Labels generated from toolchain and target rules/features (used for selective build)
         self.labels = None
@@ -372,36 +373,50 @@ class mbedToolchain:
         event['toolchain'] = self
         return self.notify_fun(event, self.silent)
 
-    def get_symbols(self):
-        if self.symbols is None:
-            # Target and Toolchain symbols
-            labels = self.get_labels()
-            self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
-            self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
+    def get_symbols(self, for_asm=False):
+        if for_asm:
+            if self.asm_symbols is None:
+                self.asm_symbols = []
 
-            # Cortex CPU symbols
-            if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
-                self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+                # Cortex CPU symbols
+                if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
+                    self.asm_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
 
-            # Symbols defined by the on-line build.system
-            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, 'TARGET_LIKE_MBED', '__MBED__=1'])
-            if MBED_ORG_USER:
-                self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
+                # Add target's symbols
+                self.asm_symbols += self.target.macros
+                # Add extra symbols passed via 'macros' parameter
+                self.asm_symbols += self.macros
+            return list(set(self.asm_symbols))  # Return only unique symbols
+        else:
+            if self.cxx_symbols is None:
+                # Target and Toolchain symbols
+                labels = self.get_labels()
+                self.cxx_symbols = ["TARGET_%s" % t for t in labels['TARGET']]
+                self.cxx_symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
-            # Add target's symbols
-            self.symbols += self.target.macros
-            # Add target's hardware
-            self.symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
-            # Add target's features
-            self.symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
-            # Add extra symbols passed via 'macros' parameter
-            self.symbols += self.macros
+                # Cortex CPU symbols
+                if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
+                    self.cxx_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
 
-            # Form factor variables
-            if hasattr(self.target, 'supported_form_factors'):
-                self.symbols.extend(["TARGET_FF_%s" % t for t in self.target.supported_form_factors])
+                # Symbols defined by the on-line build.system
+                self.cxx_symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, 'TARGET_LIKE_MBED', '__MBED__=1'])
+                if MBED_ORG_USER:
+                    self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
-        return list(set(self.symbols))  # Return only unique symbols
+                # Add target's symbols
+                self.cxx_symbols += self.target.macros
+                # Add target's hardware
+                self.cxx_symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+                # Add target's features
+                self.cxx_symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
+                # Add extra symbols passed via 'macros' parameter
+                self.cxx_symbols += self.macros
+
+                # Form factor variables
+                if hasattr(self.target, 'supported_form_factors'):
+                    self.cxx_symbols.extend(["TARGET_FF_%s" % t for t in self.target.supported_form_factors])
+
+            return list(set(self.cxx_symbols))  # Return only unique symbols
 
     # Extend the internal list of macros
     def add_macros(self, new_macros):
