@@ -22,13 +22,6 @@
 
 #define GPIO_PIN_COUNT 31
 
-typedef enum {
-    GPIO_NOT_USED = 0,
-    GPIO_USED     = 1,
-    GPIO_USED_IRQ = 2,
-    GPIO_USED_IRQ_DISABLED = 3
-} gpio_usage_t;
-
 typedef struct {
     bool         used_as_gpio : 1;
     PinDirection direction    : 1;
@@ -100,13 +93,13 @@ static void gpio_apply_config(uint8_t pin)
             nrf_drv_gpiote_in_uninit(pin);
         }
     }
-    
+
     if (m_gpio_cfg[pin].used_as_gpio || m_gpio_cfg[pin].used_as_irq) {
         if ((m_gpio_cfg[pin].direction == PIN_INPUT)
             || (m_gpio_cfg[pin].used_as_irq)) {
             //Configure as input.
             nrf_drv_gpiote_in_config_t cfg;
-            
+
             cfg.hi_accuracy = false;
             cfg.is_watcher = false;
             cfg.sense = NRF_GPIOTE_POLARITY_TOGGLE;
@@ -116,7 +109,7 @@ static void gpio_apply_config(uint8_t pin)
                 if ((m_gpio_irq_enabled & (1 << pin))
                     && (m_gpio_cfg[pin].irq_rise || m_gpio_cfg[pin].irq_fall))
                 {
-                    nrf_drv_gpiote_in_event_enable(pin, false);
+                    nrf_drv_gpiote_in_event_enable(pin, true);
                 }
             }
             else {
@@ -198,30 +191,25 @@ void gpio_irq_free(gpio_irq_t *obj)
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    bool event_enabled_before = false;
-    if ((m_gpio_irq_enabled & (1 << obj->ch))
-        && (m_gpio_cfg[obj->ch].irq_rise || m_gpio_cfg[obj->ch].irq_fall)) {
-        event_enabled_before = true;
-    }
+    gpio_cfg_t* cfg = &m_gpio_cfg[obj->ch];
+    bool irq_enabled_before =
+        (m_gpio_irq_enabled & (1 << obj->ch)) &&
+        (cfg->irq_rise || cfg->irq_fall);
 
     if (event == IRQ_RISE) {
-        m_gpio_cfg[obj->ch].irq_rise = enable ? true : false;
+        cfg->irq_rise = enable ? true : false;
     }
     else if (event == IRQ_FALL) {
-        m_gpio_cfg[obj->ch].irq_fall = enable ? true : false;
+        cfg->irq_fall = enable ? true : false;
     }
 
-    bool event_enabled_after = false;
-    if ((m_gpio_irq_enabled & (1 << obj->ch))
-        && (m_gpio_cfg[obj->ch].irq_rise || m_gpio_cfg[obj->ch].irq_fall)) {
-        event_enabled_after = true;
-    }
+    bool irq_enabled_after = cfg->irq_rise || cfg->irq_fall;
 
-    if (event_enabled_before != event_enabled_after) {
-        if (event_enabled_after) {
-            nrf_drv_gpiote_in_event_enable(obj->ch,false);
+    if (irq_enabled_before != irq_enabled_after) {
+        if (irq_enabled_after) {
+            gpio_irq_enable(obj);
         } else {
-            nrf_drv_gpiote_in_event_disable(obj->ch);
+            gpio_irq_disable(obj);
         }
     }
 }
@@ -239,7 +227,5 @@ void gpio_irq_enable(gpio_irq_t *obj)
 void gpio_irq_disable(gpio_irq_t *obj)
 {
     m_gpio_irq_enabled &= ~(1 << obj->ch);
-    if (m_gpio_cfg[obj->ch].irq_rise || m_gpio_cfg[obj->ch].irq_fall) {
-        nrf_drv_gpiote_in_event_enable(obj->ch, false);
-    }
+    nrf_drv_gpiote_in_event_disable(obj->ch);
 }
