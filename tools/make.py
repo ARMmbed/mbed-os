@@ -212,8 +212,14 @@ if __name__ == '__main__':
 
     # Toolchain
     if options.tool is None:
-        args_error(parser, "argument -t/--toolchain is required")
+        args_error(parser, "argument -t/--tool is required")
     toolchain = options.tool[0]
+
+    if (options.program is None) and (not options.source_dir):
+        args_error(parser, "one of -p, -n, or --source is required")
+
+    if options.source_dir and not options.build_dir:
+        args_error(parser, "argument --build is required when argument --source is provided")
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it

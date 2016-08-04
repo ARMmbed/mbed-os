@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
         # Toolchain
         if options.tool is None:
-            args_error(parser, "argument -t/--toolchain is required")
+            args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
 
         # Find all tests in the relevant paths
@@ -152,8 +152,7 @@ if __name__ == '__main__':
         else:
             # Build all tests
             if not options.build_dir:
-                print "[ERROR] You must specify a build path"
-                sys.exit(1)
+                args_error(parser, "argument --build is required")
 
             base_source_paths = options.source_dir
 

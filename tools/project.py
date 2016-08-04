@@ -13,7 +13,7 @@ from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_NAMES
 from tools.libraries import LIBRARIES
-from utils import argparse_filestring_type, argparse_many
+from utils import argparse_filestring_type, argparse_many, args_error
 from utils import argparse_force_lowercase_type, argparse_force_uppercase_type, argparse_dir_not_parent
 from project_api import setup_project, perform_export, print_results, get_lib_symbols
 
@@ -131,6 +131,16 @@ if __name__ == '__main__':
 
     # source_dir = use relative paths, otherwise sources are copied
     sources_relative = True if options.source_dir else False
+    # Target
+    if not options.mcu:
+        args_error(parser, "argument -m/--mcu is required")
+
+    # Toolchain
+    if not options.ide:
+        args_error(parser, "argument -i is required")
+
+    if (options.program is None) and (not options.source_dir):
+        args_error(parser, "one of -p, -n, or --source is required")
 
     for mcu in options.mcu:
         # Program Number or name
