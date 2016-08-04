@@ -504,5 +504,9 @@ class Config:
     # meant to be included to a C/C++ file. The content is returned as a string.
     # If 'fname' is given, the content is also written to the file called "fname".
     # WARNING: if 'fname' names an existing file, that file will be overwritten!
-    def get_config_data_header(self, fname = None):
-        return self.config_to_header(self.get_config_data(), fname)
+    def get_config_data_header(self, toolchain_macros=None, fname=None):
+        config_data = self.get_config_data()
+        if toolchain_macros:
+            macro_map = {symbol: ConfigMacro(symbol, "target", "library") for symbol in toolchain_macros}
+            config_data[1].update(macro_map)
+        return self.config_to_header(config_data, fname)
