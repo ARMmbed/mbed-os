@@ -170,22 +170,23 @@ class GCC(mbedToolchain):
     def get_config_option(self, config_header):
         return ['-include', config_header]
 
-    def get_compile_options(self, defines, includes):
+    def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
         if self.RESPONSE_FILES:
             opts += ['@%s' % self.get_inc_file(includes)]
         else:
             opts += ["-I%s" % i for i in includes]
 
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
+        if not for_asm:
+            config_header = self.get_config_header()
+            if config_header is not None:
+                opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
