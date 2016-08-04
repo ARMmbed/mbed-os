@@ -68,7 +68,7 @@ static void init_uart(serial_t *obj)
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
-        // Fix because HAL_RCC_GetHCLKFreq() don't update anymore SystemCoreClock
+    // Fix because HAL_RCC_GetHCLKFreq() don't update anymore SystemCoreClock
     SystemCoreClockUpdate();
 
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
