@@ -73,10 +73,12 @@ class Uvision5(Exporter):
 
         # get flags from toolchain and apply
         project_data['tool_specific']['uvision5']['misc'] = {}
-        # asm flags only, common are not valid within uvision project, they are armcc specific
-        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = list(set(self.progen_flags['asm_flags']))
+
+        # need to make this a string got progen. Only adds preprocessor when "macros" set
+        asm_flag_string = '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' + ",".join(list(set(self.progen_flags['asm_flags'])))
+        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = [asm_flag_string]
         # cxx flags included, as uvision have them all in one tab
-        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(self.progen_flags['common_flags'] + self.progen_flags['c_flags'] + self.progen_flags['cxx_flags']))
+        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(['-D__ASSERT_MSG']+self.progen_flags['common_flags'] + self.progen_flags['c_flags'] + self.progen_flags['cxx_flags']))
         # not compatible with c99 flag set in the template
         project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("--c99")
         # cpp is not required as it's implicit for cpp files
@@ -85,17 +87,6 @@ class Uvision5(Exporter):
         project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("--no_vla")
         project_data['tool_specific']['uvision5']['misc']['ld_flags'] = self.progen_flags['ld_flags']
 
-        i = 0
-        for macro in project_data['common']['macros']:
-            # armasm does not like floating numbers in macros, timestamp to int
-            if macro.startswith('MBED_BUILD_TIMESTAMP'):
-                timestamp = macro[len('MBED_BUILD_TIMESTAMP='):]
-                project_data['common']['macros'][i] = 'MBED_BUILD_TIMESTAMP=' + str(int(float(timestamp)))
-            # armasm does not even accept MACRO=string
-            if macro.startswith('MBED_USERNAME'):
-                project_data['common']['macros'].pop(i)
-            i += 1
-        project_data['common']['macros'].append('__ASSERT_MSG')
         project_data['common']['build_dir'] = project_data['common']['build_dir'] + '\\' + 'uvision5'
         if progen_build:
             self.progen_gen_file('uvision5', project_data, True)
