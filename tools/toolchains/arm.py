@@ -128,16 +128,17 @@ class ARM(mbedToolchain):
     def get_config_option(self, config_header):
         return ['--preinclude=' + config_header]
 
-    def get_compile_options(self, defines, includes):        
+    def get_compile_options(self, defines, includes, for_asm=False):        
         opts = ['-D%s' % d for d in defines]
         if self.RESPONSE_FILES:
             opts += ['--via', self.get_inc_file(includes)]
         else:
             opts += ["-I%s" % i for i in includes]
 
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
+        if not for_asm:
+            config_header = self.get_config_header()
+            if config_header is not None:
+                opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
@@ -148,7 +149,7 @@ class ARM(mbedToolchain):
         tempfile = join(dir, basename(object) + '.E.s')
         
         # Build preprocess assemble command
-        cmd_pre = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-E", "-o", tempfile, source]
+        cmd_pre = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-E", "-o", tempfile, source]
 
         # Build main assemble command
         cmd = self.asm + ["-o", object, tempfile]

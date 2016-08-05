@@ -43,7 +43,7 @@ class Exporter(object):
         self.build_url_resolver = build_url_resolver
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
-        self.extra_symbols = extra_symbols
+        self.extra_symbols = extra_symbols if extra_symbols else []
         self.config_macros = []
         self.sources_relative = sources_relative
         self.config_header = None
@@ -59,6 +59,11 @@ class Exporter(object):
     def progen_flags(self):
         if not hasattr(self, "_progen_flag_cache") :
             self._progen_flag_cache = dict([(key + "_flags", value) for key,value in self.flags.iteritems()])
+            asm_defines = ["-D"+symbol for symbol in self.toolchain.get_symbols(True)]
+            c_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols()]
+            self._progen_flag_cache['asm_flags'] += asm_defines
+            self._progen_flag_cache['c_flags'] += c_defines
+            self._progen_flag_cache['cxx_flags'] += c_defines
             if self.config_header:
                 self._progen_flag_cache['c_flags'] += self.toolchain.get_config_option(self.config_header)
                 self._progen_flag_cache['cxx_flags'] += self.toolchain.get_config_option(self.config_header)
@@ -214,11 +219,16 @@ class Exporter(object):
         """ This function returns symbols which must be exported.
             Please add / overwrite symbols in each exporter separately
         """
-        symbols = self.toolchain.get_symbols() + self.config_macros
+
         # We have extra symbols from e.g. libraries, we want to have them also added to export
-        if add_extra_symbols:
-            if self.extra_symbols is not None:
-                symbols.extend(self.extra_symbols)
+        extra = self.extra_symbols if add_extra_symbols else []
+        if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED:
+            # If the config header is supported, we will preinclude it and do not not
+            # need the macros as preprocessor flags
+            return extra
+
+        symbols = self.toolchain.get_symbols(True) + self.toolchain.get_symbols() \
+                  + self.config_macros + extra
         return symbols
 
 def zip_working_directory_and_clean_up(tempdirectory=None, destination=None, program_name=None, clean=True):
