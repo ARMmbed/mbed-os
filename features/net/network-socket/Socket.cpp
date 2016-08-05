@@ -15,6 +15,7 @@
  */
 
 #include "Socket.h"
+#include "mbed.h"
 
 Socket::Socket()
     : _stack(0)

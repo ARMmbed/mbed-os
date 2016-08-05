@@ -15,7 +15,7 @@
  */
 
 #include "TCPServer.h"
-#include "Timer.h"
+#include "mbed.h"
 
 TCPServer::TCPServer()
     : _pending(0), _accept_sem(0)

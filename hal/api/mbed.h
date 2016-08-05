@@ -22,6 +22,10 @@
 #include "rtos/rtos.h"
 #endif
 
+#if MBED_CONF_NSAPI_PRESENT
+#include "network-socket/nsapi.h"
+#endif
+
 #include "toolchain.h"
 #include "platform.h"
 

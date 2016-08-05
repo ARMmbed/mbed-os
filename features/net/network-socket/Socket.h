@@ -22,10 +22,6 @@
 #include "rtos/Mutex.h"
 #include "Callback.h"
 
-#ifndef NSAPI_NO_INCLUDE_MBED
-#include "mbed.h" // needed for backwards compatability
-#endif
-
 
 /** Abstract socket class
  */
