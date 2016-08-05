@@ -29,8 +29,8 @@
 
         SECTION .intvec:CODE:NOROOT(2)
 
-        PUBLIC  __vector
-        PUBLIC  __iar_program_start
+        PUBLIC  __vector_core_a9
+        PUBWEAK __iar_program_start
         PUBLIC  Undefined_Handler
         EXTERN  SWI_Handler
         PUBLIC  Prefetch_Handler
@@ -52,7 +52,7 @@
 __iar_init$$done:               ; The vector table is not needed
                                 ; until after copy initialization is done
 
-__vector:                       ; Make this a DATA label, so that stack usage
+__vector_core_a9:               ; Make this a DATA label, so that stack usage
                                 ; analysis doesn't consider it an uncalled fun
 
         ARM
@@ -95,7 +95,7 @@ FIQ_Addr:       DCD   FIQ_Handler
         EXTERN  SystemInit
         EXTERN  InitMemorySubsystem
         EXTERN  __cmain
-        REQUIRE __vector
+        REQUIRE __vector_core_a9
         EXTWEAK __iar_init_core
         EXTWEAK __iar_init_vfp
 
@@ -138,7 +138,7 @@ goToSleep:
   
   
 ;; Set Vector Base Address Register (VBAR) to point to this application's vector table
-    ldr     r0, =__vector
+    ldr     r0, =__vector_core_a9
     mcr     p15, 0, r0, c12, c0, 0
     
     
