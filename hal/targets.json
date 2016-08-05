@@ -786,6 +786,7 @@
         "release_versions": ["2"]
     },
     "NUCLEO_F429ZI": {
+        "supported_form_factors": ["ARDUINO"],
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
