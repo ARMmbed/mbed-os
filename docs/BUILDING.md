@@ -444,7 +444,7 @@ Build successes:
 ```
 * We can print all 'programs' (test cases) ```make.py``` can build for us:
 ```
-$ python make.py
+$ python make.py -L
 .
 [  0] MBED_A1: Basic
 [  1] MBED_A2: Semihost file system
