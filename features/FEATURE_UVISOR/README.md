@@ -129,15 +129,14 @@ In the code above we specified 3 elements:
 1. Main box Access Control Lists (ACLs). Since with uVisor enabled everything runs in unprivileged mode, we need to make sure that peripherals that are accessed by the OS and the main box are allowed. These peripherals are specified using a list like the one in the snippet above. For the purpose of this example we provide you the list of all the ACLs that we know you will need. For other platforms or other applications you need to determine those ACLs following a process that is described in a [section](#the-main-box-acls) below.
 1. App-specific uVisor configurations: `UVISOR_SET_MODE_ACL`. This macro sets the uVisor mode (enabled) and associates the list of ACLs we just created with the main box.
 
-Before compiling, we need to add a custom target that inherits all the features of the original `K64F` target, and enables the uVisor feature. To do so, add the file `~/code/uvisor-example/mbed_app.json` with the following content:
+Before compiling, we need to override the original `K64F` target to enable the uVisor feature. To do so, add the file `~/code/uvisor-example/mbed_app.json` with the following content:
 
 ```JSON
 {
-    "custom_targets": {
-        "K64F_SECURE": {
-            "inherits": ["K64F"],
-            "extra_labels_add":["K64F", "UVISOR_SUPPORTED"],
-            "features_add": ["UVISOR"]
+    "target_overrides": {
+        "K64F": {
+            "target.features_add": ["UVISOR"],
+            "target.extra_labels_add": ["UVISOR_SUPPORTED"]
         }
     }
 }
@@ -147,16 +146,16 @@ Before compiling, we need to add a custom target that inherits all the features 
 
 **Checkpoint**
 
-Compile the application again, but this time targeting `K64F_SECURE`:
+Compile the application again. This time the `K64F` target will include the new features and labels we provided in `mbed_app.json`;
 
 ```bash
-$ mbed compile -m K64F_SECURE -t GCC_ARM
+$ mbed compile -m K64F -t GCC_ARM
 ```
 
 The binary will be located at:
 
 ```bash
-~/code/uvisor-example/.build/K64F_SECURE/GCC_ARM/uvisor-example.bin
+~/code/uvisor-example/.build/K64F/GCC_ARM/uvisor-example.bin
 ```
 
 Re-flash the device and press the reset button. The device LED should be blinking as in the previous case.
@@ -290,7 +289,13 @@ A few things to note in the code above:
 
 **Checkpoint**
 
-Compile the application again, re-flash the device, and press the reset button. The device LED should be blinking as in the previous case.
+Compile the application again:
+
+```bash
+$ mbed compile -m K64F -t GCC_ARM
+```
+
+Re-flash the device, and press the reset button. The device LED should be blinking as in the previous case.
 
 If you don't see the LED blinking, it means that the application halted somewhere, probably because uVisor captured a fault. You can setup the uVisor debug messages to see if there is any problem. Follow the [Debugging uVisor on mbed OS](DEBUGGING.md) document for a step-by-step guide.
 
@@ -374,7 +379,7 @@ static const UvisorBoxAclItem g_main_box_acls[] = {
 You now need to compile your application using uVisor in debug mode. This operation requires some more advanced steps, which are described in detail in the [Debugging uVisor on mbed OS](DEBUGGING.md) document. The main idea is that you compile the application in debug mode:
 
 ```bash
-$ mbed compile -m K64F_SECURE -t GCC_ARM -o "debug-info"
+$ mbed compile -m K64F -t GCC_ARM -o "debug-info"
 ```
 
 and then use a GDB-compatible interface to flash the device, enable semihosting, and access the uVisor debug messages. Please read the [Debugging uVisor on mbed OS](DEBUGGING.md) document for the detailed instructions.
