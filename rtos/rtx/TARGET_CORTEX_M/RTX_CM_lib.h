@@ -522,9 +522,11 @@ extern uint32_t __StackTop[];
 
 #elif defined(TARGET_MCU_NORDIC_32K)
 #define INITIAL_SP            (0x20008000UL)
+#define MAIN_STACK_SIZE       ((uint32_t)DEFAULT_STACK_SIZE)
 
 #elif defined(TARGET_MCU_NORDIC_16K)
 #define INITIAL_SP            (0x20004000UL)
+#define MAIN_STACK_SIZE       ((uint32_t)DEFAULT_STACK_SIZE)
 
 #elif defined(TARGET_MCU_NRF52832)
 #define INITIAL_SP            (0x20010000UL)
