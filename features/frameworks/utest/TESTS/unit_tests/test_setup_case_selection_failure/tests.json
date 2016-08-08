@@ -1,11 +1,11 @@
 {
     "tests": {
-        "dummy test": {
-            "unique_name": "dummy test", 
+        "SETUP_CASE_SELECTION: dummy test": {
+            "unique_name": "SETUP_CASE_SELECTION: dummy test", 
             "summary": "dummy test"
         }, 
-        "dummy test 2": {
-            "unique_name": "dummy test 2", 
+        "SETUP_CASE_SELECTION: dummy test 2": {
+            "unique_name": "SETUP_CASE_SELECTION: dummy test 2", 
             "summary": "dummy test 2"
         }
     }

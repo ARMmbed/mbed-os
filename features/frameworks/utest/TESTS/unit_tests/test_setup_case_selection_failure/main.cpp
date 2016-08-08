@@ -28,8 +28,8 @@ void never_call_case()
 }
 Case cases[] =
 {
-    Case("dummy test", never_call_case),
-    Case("dummy test 2", never_call_case)
+    Case("SETUP_CASE_SELECTION: dummy test", never_call_case),
+    Case("SETUP_CASE_SELECTION: dummy test 2", never_call_case)
 };
 
 // this setup handler fails since it sends
