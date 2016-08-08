@@ -35,8 +35,8 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases) {
 
 // Specify all your test cases here
 Case cases[] = {
-    Case("Simple Test", test_simple),
-    Case("Repeating Test", test_repeats_setup, test_repeats)
+    Case("BASIC_TEST: Simple Test", test_simple),
+    Case("BASIC_TEST: Repeating Test", test_repeats_setup, test_repeats)
 };
 
 // Declare your test specification with a custom setup handler

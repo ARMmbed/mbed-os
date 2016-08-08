@@ -816,14 +816,14 @@ status_t default_setup(const size_t)
 
 // Specify all your test cases here
 Case cases[] = {
-    Case("initialize",                                  test_initialize),
+    Case("FLASH_JOURNAL: initialize",                                  test_initialize),
     Case("reset and initialize1",                       test_resetAndInitialize),
 
     Case("log small item without commit",               test_logSmallWithoutCommit),
     Case("reset and initialize2",                       test_resetAndInitialize),
 
     Case("commit without logs",                         test_commitWithoutLogs),
-    Case("initialize",                                  test_initialize),
+    Case("FLASH_JOURNAL: initialize",                                  test_initialize),
 
     /* log small item, and reinitialize */
     Case("log small item and commit1",                  test_logSmallAndCommit<0xAA>),

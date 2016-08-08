@@ -216,13 +216,13 @@ control_t next_case(const size_t call_count)
 
 // Cases --------------------------------------------------------------------------------------------------------------
 Case cases[] = {
-    Case("Control: Timeout (Failure)", timeout_failure_case, timeout_failure_case_teardown, timeout_failure_case_failure_handler),
-    Case("Control: Timeout (Success)", timeout_success_case, timeout_success_case_failure_handler),
-    Case("Control: Await", await_case),
-    Case("Control: RepeatAllOnTimeout", repeat_all_on_timeout_case_setup, repeat_all_on_timeout_case, repeat_all_on_timeout_case_teardown),
-    Case("Control: RepeatHandlerOnTimeout", repeat_handler_on_timeout_case_setup, repeat_handler_on_timeout_case, repeat_handler_on_timeout_case_teardown),
-    Case("Control: NoTimeout", no_timeout_case),
-    Case("Control: CaseNext", next_case)
+    Case("Case Control Async: Timeout (Failure)", timeout_failure_case, timeout_failure_case_teardown, timeout_failure_case_failure_handler),
+    Case("Case Control Async: Timeout (Success)", timeout_success_case, timeout_success_case_failure_handler),
+    Case("Case Control Async: Await", await_case),
+    Case("Case Control Async: RepeatAllOnTimeout", repeat_all_on_timeout_case_setup, repeat_all_on_timeout_case, repeat_all_on_timeout_case_teardown),
+    Case("Case Control Async: RepeatHandlerOnTimeout", repeat_handler_on_timeout_case_setup, repeat_handler_on_timeout_case, repeat_handler_on_timeout_case_teardown),
+    Case("Case Control Async: NoTimeout", no_timeout_case),
+    Case("Case Control Async: CaseNext", next_case)
 };
 
 // Specification: Setup & Teardown ------------------------------------------------------------------------------------

@@ -96,10 +96,10 @@ control_t next_handler_case(const size_t call_count)
 }
 
 Case cases[] = {
-    Case("Control: RepeatAll", repeat_all_case_setup, repeat_all_case, repeat_all_case_teardown),
-    Case("Control: RepeatHandler", repeat_handler_case_setup, repeat_handler_case, repeat_handler_case_teardown),
-    Case("Control: NoRepeat", no_repeat_handler_case),
-    Case("Control: CaseNext", next_handler_case)
+    Case("Case Control Repeat: RepeatAll", repeat_all_case_setup, repeat_all_case, repeat_all_case_teardown),
+    Case("Case Control Repeat: RepeatHandler", repeat_handler_case_setup, repeat_handler_case, repeat_handler_case_teardown),
+    Case("Case Control Repeat: NoRepeat", no_repeat_handler_case),
+    Case("Case Control Repeat: CaseNext", next_handler_case)
 };
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)

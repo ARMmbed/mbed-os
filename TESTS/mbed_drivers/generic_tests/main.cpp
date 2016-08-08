@@ -101,7 +101,7 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 
 // Generic test cases
 Case cases[] = {
-    Case("Basic", test_case_basic, greentea_failure_handler),
+    Case("mbed_drivers: Basic", test_case_basic, greentea_failure_handler),
     Case("Blinky", test_case_blinky, greentea_failure_handler),
     Case("C++ stack", test_case_cpp_stack, greentea_failure_handler),
     Case("C++ heap", test_case_cpp_heap, greentea_failure_handler)

@@ -31,8 +31,8 @@ control_t test_repeats(const size_t call_count) {
 
 // Specify all your test cases here
 Case cases[] = {
-    Case("Simple Test", test_simple),
-    Case("Repeating Test", test_repeats_setup, test_repeats)
+    Case("BASIC_TEST_DEFAULT: Simple Test", test_simple),
+    Case("BASIC_TEST_DEFAULT: Repeating Test", test_repeats_setup, test_repeats)
 };
 
 // Declare your test specification. If no custom setup handler is provided then

@@ -130,10 +130,10 @@ utest::v1::status_t test_case_async_failure(const Case *const source, const fail
 
 // Cases --------------------------------------------------------------------------------------------------------------
 Case cases[] = {
-    Case("Minimal Scheduler: Case 1", test_case),
-    Case("Minimal Scheduler: Case 2", test_case),
-    Case("Minimal Scheduler: Case 3", test_case),
-    Case("Minimal Scheduler: Async Case 4 (Failure)", test_case_async, test_case_async_failure)
+    Case("Minimal Async Scheduler: Case 1", test_case),
+    Case("Minimal Async Scheduler: Case 2", test_case),
+    Case("Minimal Async Scheduler: Case 3", test_case),
+    Case("Minimal Async Scheduler: Async Case 4 (Failure)", test_case_async, test_case_async_failure)
 };
 
 // Specification: Setup & Teardown ------------------------------------------------------------------------------------
