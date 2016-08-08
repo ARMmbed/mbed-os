@@ -89,8 +89,15 @@ public:
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
      */
-    template<typename T, typename M>
-    void rise(T *obj, M method) {
+    template<typename T>
+    void rise(T *obj, void (T::*method)()) {
+        core_util_critical_section_enter();
+        rise(Callback<void()>(obj, method));
+        core_util_critical_section_exit();
+    }
+
+    template<typename T>
+    void rise(T *obj, void (*method)(T*)) {
         core_util_critical_section_enter();
         rise(Callback<void()>(obj, method));
         core_util_critical_section_exit();
@@ -107,8 +114,15 @@ public:
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
      */
-    template<typename T, typename M>
-    void fall(T *obj, M method) {
+    template<typename T>
+    void fall(T *obj, void (T::*method)()) {
+        core_util_critical_section_enter();
+        fall(Callback<void()>(obj, method));
+        core_util_critical_section_exit();
+    }
+
+    template<typename T>
+    void fall(T *obj, void (*method)(T*)) {
         core_util_critical_section_enter();
         fall(Callback<void()>(obj, method));
         core_util_critical_section_exit();

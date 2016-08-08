@@ -156,8 +156,13 @@ public:
       @param   method         function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
     */
-    template <typename T, typename M>
-    osStatus start(T *obj, M method) {
+    template <typename T>
+    osStatus start(T *obj, void (T::*method)()) {
+        return start(mbed::Callback<void()>(obj, method));
+    }
+
+    template <typename T>
+    osStatus start(T *obj, void (*method)(T*)) {
         return start(mbed::Callback<void()>(obj, method));
     }
 

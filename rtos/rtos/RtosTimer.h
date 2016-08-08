@@ -62,8 +62,13 @@ public:
       @param   method    member function to be executed by this timer.
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
     */
-    template <typename T, typename M>
-    RtosTimer(T *obj, M method, os_timer_type type=osTimerPeriodic) {
+    template <typename T>
+    RtosTimer(T *obj, void (T::*method)(), os_timer_type type=osTimerPeriodic) {
+        constructor(mbed::Callback<void()>(obj, method), type);
+    }
+
+    template <typename T>
+    RtosTimer(T *obj, void (*method)(T*), os_timer_type type=osTimerPeriodic) {
         constructor(mbed::Callback<void()>(obj, method), type);
     }
 
