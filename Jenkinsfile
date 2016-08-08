@@ -58,7 +58,7 @@ def morpheusBuildStep(target, compilerLabel, toolchain) {
       dir("mbed-os") {
         checkout scm
         execute ("git log -1 --no-merges --pretty=format:'%H'" > GIT_REVISION)
-        env.GIT_REVISION = readFile "GIT_REVISION"
+        env.GIT_REVISION = readFile ("GIT_REVISION")
         execute ("mbed deploy --protocol ssh")
         execute ("mbed test --compile -m ${target} -t ${toolchain} -c")
       }
