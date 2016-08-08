@@ -31,16 +31,8 @@ void wait_ms(int ms) {
     wait_us(ms * 1000);
 }
 
-// Wait for the given number of microseconds using a hardware timer
-// in a busy wait loop
-static void wait_us_busy(int us) {
-    if (us > 0) {
-        uint32_t start = us_ticker_read();
-        while ((us_ticker_read() - start) < (uint32_t)us);
-    }
-}
-
 void wait_us(int us) {
+    uint32_t start = us_ticker_read();
     // Use the RTOS to wait for millisecond delays if possible
     int ms = us / 1000;
     if ((ms > 0) && core_util_are_interrupts_enabled()) {
@@ -49,7 +41,9 @@ void wait_us(int us) {
     }
     // Use busy waiting for sub-millisecond delays, or for the whole
     // interval if interrupts are not enabled
-    wait_us_busy(us);
+    if (us > 0) {
+        while((us_ticker_read() - start) < (uint32_t)us);
+    }
 }
 
 #endif // #if MBED_CONF_RTOS_PRESENT
