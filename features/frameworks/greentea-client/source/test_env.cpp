@@ -56,6 +56,7 @@ static void greentea_notify_timeout(const int);
 static void greentea_notify_hosttest(const char *);
 static void greentea_notify_completion(const int);
 static void greentea_notify_version();
+static void greentea_write_string(const char *str);
 
 /**
  * Rawserial object used to provide direct, raw serial communications
@@ -80,6 +81,7 @@ void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         if (strcmp(_key, GREENTEA_TEST_ENV_SYNC) == 0) {
             // Found correct __sunc message
+            greentea_write_string("mbedmbedmbedmbedmbedmbedmbedmbedmbedmbed\n");
             greentea_send_kv(_key, _value);
             break;
         }
