@@ -68,12 +68,12 @@ class IntermediateFile(Exporter):
             'script_file': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
             'libraries': libraries,
-            'symbols': self.get_symbols(),
+            'symbols': self.toolchain.get_symbols(),
             'object_files': self.resources.objects,
             'sys_libs': self.toolchain.sys_libs,
-            'cc_org': self.flags['common'] + self.flags['c'],
-            'ld_org': self.flags['common'] + self.flags['ld'],
-            'cppc_org': self.flags['common'] + self.flags['cxx']
+            'cc_org': self.flags['common_flags'] + self.flags['c_flags'],
+            'ld_org': self.flags['common_flags'] + self.flags['ld_flags'],
+            'cppc_org': self.flags['common_flags'] + self.flags['cxx_flags']
         }
 
         # EmBlocks intermediate file template
