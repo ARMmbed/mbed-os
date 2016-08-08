@@ -1,20 +1,20 @@
 {
     "tests": {
-        "Control: NoRepeat": {
-            "unique_name": "Control: NoRepeat", 
-            "summary": "Control: NoRepeat"
+        "Case Control Repeat: CaseNext": {
+            "unique_name": "Case Control Repeat: CaseNext", 
+            "summary": "Case Control Repeat: CaseNext"
         }, 
-        "Control: RepeatHandler": {
-            "unique_name": "Control: RepeatHandler", 
-            "summary": "Control: RepeatHandler"
+        "Case Control Repeat: NoRepeat": {
+            "unique_name": "Case Control Repeat: NoRepeat", 
+            "summary": "Case Control Repeat: NoRepeat"
         }, 
-        "Control: RepeatAll": {
-            "unique_name": "Control: RepeatAll", 
-            "summary": "Control: RepeatAll"
+        "Case Control Repeat: RepeatAll": {
+            "unique_name": "Case Control Repeat: RepeatAll", 
+            "summary": "Case Control Repeat: RepeatAll"
         }, 
-        "Control: CaseNext": {
-            "unique_name": "Control: CaseNext", 
-            "summary": "Control: CaseNext"
+        "Case Control Repeat: RepeatHandler": {
+            "unique_name": "Case Control Repeat: RepeatHandler", 
+            "summary": "Case Control Repeat: RepeatHandler"
         }
     }
 }

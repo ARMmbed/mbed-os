@@ -24,6 +24,10 @@
             "unique_name": "failed small write followed by padded write", 
             "summary": "failed small write followed by padded write"
         }, 
+        "FLASH_JOURNAL: initialize": {
+            "unique_name": "FLASH_JOURNAL: initialize", 
+            "summary": "FLASH_JOURNAL: initialize"
+        }, 
         "initialize after small log and commit5": {
             "unique_name": "initialize after small log and commit5", 
             "summary": "initialize after small log and commit5"
@@ -112,9 +116,9 @@
             "unique_name": "log small item and commit4", 
             "summary": "log small item and commit4"
         }, 
-        "log small item and commit5": {
-            "unique_name": "log small item and commit5", 
-            "summary": "log small item and commit5"
+        "log large item and commit1": {
+            "unique_name": "log large item and commit1", 
+            "summary": "log large item and commit1"
         }, 
         "log large item and commit2": {
             "unique_name": "log large item and commit2", 
@@ -123,10 +127,6 @@
         "log large item and commit3": {
             "unique_name": "log large item and commit3", 
             "summary": "log large item and commit3"
-        }, 
-        "initialize": {
-            "unique_name": "initialize", 
-            "summary": "initialize"
         }, 
         "log large item and commit5": {
             "unique_name": "log large item and commit5", 
@@ -164,9 +164,9 @@
             "unique_name": "read large item in small, odd-sized chunks1", 
             "summary": "read large item in small, odd-sized chunks1"
         }, 
-        "log large item and commit1": {
-            "unique_name": "log large item and commit1", 
-            "summary": "log large item and commit1"
+        "log small item and commit5": {
+            "unique_name": "log small item and commit5", 
+            "summary": "log small item and commit5"
         }
     }
 }

@@ -8,13 +8,13 @@
             "unique_name": "C++ stack", 
             "summary": "C++ stack"
         }, 
+        "mbed_drivers: Basic": {
+            "unique_name": "mbed_drivers: Basic", 
+            "summary": "mbed_drivers: Basic"
+        }, 
         "C++ heap": {
             "unique_name": "C++ heap", 
             "summary": "C++ heap"
-        }, 
-        "Basic": {
-            "unique_name": "Basic", 
-            "summary": "Basic"
         }
     }
 }

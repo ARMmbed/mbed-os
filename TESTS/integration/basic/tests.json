@@ -1,8 +1,8 @@
 {
     "tests": {
-        "Basic": {
-            "unique_name": "Basic", 
-            "summary": "Basic"
+        "Integration: Basic": {
+            "unique_name": "Integration: Basic", 
+            "summary": "Integration: Basic"
         }
     }
 }

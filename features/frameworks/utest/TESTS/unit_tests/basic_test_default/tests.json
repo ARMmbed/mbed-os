@@ -1,12 +1,12 @@
 {
     "tests": {
-        "Simple Test": {
-            "unique_name": "Simple Test", 
-            "summary": "Simple Test"
+        "BASIC_TEST_DEFAULT: Repeating Test": {
+            "unique_name": "BASIC_TEST_DEFAULT: Repeating Test", 
+            "summary": "BASIC_TEST_DEFAULT: Repeating Test"
         }, 
-        "Repeating Test": {
-            "unique_name": "Repeating Test", 
-            "summary": "Repeating Test"
+        "BASIC_TEST_DEFAULT: Simple Test": {
+            "unique_name": "BASIC_TEST_DEFAULT: Simple Test", 
+            "summary": "BASIC_TEST_DEFAULT: Simple Test"
         }
     }
 }

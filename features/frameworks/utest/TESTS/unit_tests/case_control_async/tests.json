@@ -1,32 +1,32 @@
 {
     "tests": {
-        "Control: Timeout (Failure)": {
-            "unique_name": "Control: Timeout (Failure)", 
-            "summary": "Control: Timeout (Failure)"
+        "Case Control Async: Timeout (Success)": {
+            "unique_name": "Case Control Async: Timeout (Success)", 
+            "summary": "Case Control Async: Timeout (Success)"
         }, 
-        "Control: CaseNext": {
-            "unique_name": "Control: CaseNext", 
-            "summary": "Control: CaseNext"
+        "Case Control Async: CaseNext": {
+            "unique_name": "Case Control Async: CaseNext", 
+            "summary": "Case Control Async: CaseNext"
         }, 
-        "Control: NoTimeout": {
-            "unique_name": "Control: NoTimeout", 
-            "summary": "Control: NoTimeout"
+        "Case Control Async: NoTimeout": {
+            "unique_name": "Case Control Async: NoTimeout", 
+            "summary": "Case Control Async: NoTimeout"
         }, 
-        "Control: Await": {
-            "unique_name": "Control: Await", 
-            "summary": "Control: Await"
+        "Case Control Async: RepeatHandlerOnTimeout": {
+            "unique_name": "Case Control Async: RepeatHandlerOnTimeout", 
+            "summary": "Case Control Async: RepeatHandlerOnTimeout"
         }, 
-        "Control: Timeout (Success)": {
-            "unique_name": "Control: Timeout (Success)", 
-            "summary": "Control: Timeout (Success)"
+        "Case Control Async: Await": {
+            "unique_name": "Case Control Async: Await", 
+            "summary": "Case Control Async: Await"
         }, 
-        "Control: RepeatHandlerOnTimeout": {
-            "unique_name": "Control: RepeatHandlerOnTimeout", 
-            "summary": "Control: RepeatHandlerOnTimeout"
+        "Case Control Async: RepeatAllOnTimeout": {
+            "unique_name": "Case Control Async: RepeatAllOnTimeout", 
+            "summary": "Case Control Async: RepeatAllOnTimeout"
         }, 
-        "Control: RepeatAllOnTimeout": {
-            "unique_name": "Control: RepeatAllOnTimeout", 
-            "summary": "Control: RepeatAllOnTimeout"
+        "Case Control Async: Timeout (Failure)": {
+            "unique_name": "Case Control Async: Timeout (Failure)", 
+            "summary": "Case Control Async: Timeout (Failure)"
         }
     }
 }

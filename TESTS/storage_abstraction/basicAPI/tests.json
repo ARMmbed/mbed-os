@@ -8,10 +8,6 @@
             "unique_name": "program data with multiple program units", 
             "summary": "program data with multiple program units"
         }, 
-        "program data using optimal_program_unit": {
-            "unique_name": "program data using optimal_program_unit", 
-            "summary": "program data using optimal_program_unit"
-        }, 
         "erase single unit": {
             "unique_name": "erase single unit", 
             "summary": "erase single unit"
@@ -32,9 +28,9 @@
             "unique_name": "erase all", 
             "summary": "erase all"
         }, 
-        "uninitialize": {
-            "unique_name": "uninitialize", 
-            "summary": "uninitialize"
+        "erase four units": {
+            "unique_name": "erase four units", 
+            "summary": "erase four units"
         }, 
         "get info": {
             "unique_name": "get info", 
@@ -56,17 +52,21 @@
             "unique_name": "program data with invalid parameters", 
             "summary": "program data with invalid parameters"
         }, 
-        "initialize": {
-            "unique_name": "initialize", 
-            "summary": "initialize"
-        }, 
         "erase two units": {
             "unique_name": "erase two units", 
             "summary": "erase two units"
         }, 
-        "erase four units": {
-            "unique_name": "erase four units", 
-            "summary": "erase four units"
+        "program data using optimal_program_unit": {
+            "unique_name": "program data using optimal_program_unit", 
+            "summary": "program data using optimal_program_unit"
+        }, 
+        "BasicAPI: uninitialize": {
+            "unique_name": "BasicAPI: uninitialize", 
+            "summary": "BasicAPI: uninitialize"
+        }, 
+        "BasicAPI: initialize": {
+            "unique_name": "BasicAPI: initialize", 
+            "summary": "BasicAPI: initialize"
         }
     }
 }
