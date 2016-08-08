@@ -39,7 +39,7 @@ class E2Studio(Exporter):
             
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.get_symbols()
+            'symbols': self.toolchain.get_symbols()
         }
         self.gen_file('e2studio_%s_project.tmpl' % self.target.lower(), ctx, '.project')
         self.gen_file('e2studio_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
