@@ -80,7 +80,7 @@ static void SPI_RxDMACallback(dma_handle_t *handle, void *userData);
  ******************************************************************************/
 
 /* Dummy data used to send */
-const uint8_t s_dummyData = SPI_DUMMYDATA;
+static const uint8_t s_dummyData = SPI_DUMMYDATA;
 
 /*******************************************************************************
 * Code
@@ -168,7 +168,7 @@ void SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
     handle->bytesPerFrame = 1U;
 #endif /* FSL_FEATURE_SPI_16BIT_TRANSFERS */
 
-#if defined(FSL_FEATURE_SPI_FIFO_SIZE) && (FSL_FEATURE_SPI_FIFO_SIZE > 1)
+#if defined(FSL_FEATURE_SPI_HAS_FIFO) && (FSL_FEATURE_SPI_HAS_FIFO)
     /* If using DMA, disable FIFO, as the FIFO may cause data loss if the data size is not integer
        times of 2bytes. As SPI cannot set watermark to 0, only can set to 1/2 FIFO size or 3/4 FIFO
        size. */
@@ -177,7 +177,7 @@ void SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
         base->C3 &= ~SPI_C3_FIFOMODE_MASK;
     }
 
-#endif /* FSL_FEATURE_SPI_FIFO_SIZE */
+#endif /* FSL_FEATURE_SPI_HAS_FIFO */
 
     /* Set the non-change attribute for Tx DMA transfer, to improve efficiency */
     config.destAddr = SPI_GetDataRegisterAddress(base);
@@ -225,6 +225,10 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     {
         return kStatus_InvalidArgument;
     }
+
+    /* Disable SPI and then enable it, this is used to clear S register*/
+    SPI_Enable(base, false);
+    SPI_Enable(base, true);
 
     /* Configure tx transfer DMA */
     config.destAddr = SPI_GetDataRegisterAddress(base);
