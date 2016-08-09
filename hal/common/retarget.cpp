@@ -23,6 +23,8 @@
 #include "mbed_interface.h"
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
+#include "mbed_error.h"
+#include <stdlib.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -67,6 +69,10 @@ extern const char __stdin_name[]  = "/stdin";
 extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
 #endif
+
+// Heap limits - only used if set
+unsigned char *mbed_heap_start = 0;
+uint32_t mbed_heap_size = 0;
 
 /* newlib has the filehandle field in the FILE struct as a short, so
  * we can't just return a Filehandle* from _open and instead have to
@@ -581,7 +587,17 @@ extern "C" caddr_t _sbrk(int incr) {
 }
 #else
 extern "C" caddr_t _sbrk(int incr) {
-    static unsigned char* heap = (unsigned char*)&__end__;
+    static bool init_done = false;
+    static unsigned char *heap = 0;
+    if (!init_done) {
+        // If heap limits are set then use them
+        if (mbed_heap_size) {
+            heap = mbed_heap_start;
+        } else {
+            heap = (unsigned char*)&__end__;
+        }
+        init_done = true;
+    }
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
 
@@ -592,6 +608,12 @@ extern "C" caddr_t _sbrk(int incr) {
 #else
     if (new_heap >= (unsigned char*)__get_MSP()) {
 #endif
+        errno = ENOMEM;
+        return (caddr_t)-1;
+    }
+
+    // Additional heap checking if set
+    if (mbed_heap_size && (new_heap >= mbed_heap_start + mbed_heap_size)) {
         errno = ENOMEM;
         return (caddr_t)-1;
     }
@@ -714,3 +736,34 @@ extern "C" void __env_unlock( struct _reent *_r )
 #endif
 
 } // namespace mbed
+
+void *operator new(std::size_t count)
+{
+    void *buffer = malloc(count);
+    if (NULL == buffer) {
+        error("Operator new out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new[](std::size_t count)
+{
+    void *buffer = malloc(count);
+    if (NULL == buffer) {
+        error("Operator new[] out of memory\r\n");
+    }
+    return buffer;
+}
+
+void operator delete(void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}
+void operator delete[](void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}

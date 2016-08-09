@@ -381,11 +381,14 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #define INITIAL_SP            (0x20003000UL)
 
 #elif defined(TARGET_K64F)
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+#if defined(__GNUC__) && !defined(__CC_ARM)     /* GCC */
 extern uint32_t __StackTop[];
 #define INITIAL_SP            (__StackTop)
 #else
 #define INITIAL_SP            (0x20030000UL)
+#endif
+#if defined(__CC_ARM) || defined(__GNUC__)
+#define ISR_STACK_SIZE        (0x1000)
 #endif
 
 #elif defined(TARGET_K22F)
@@ -522,9 +525,11 @@ extern uint32_t __StackTop[];
 
 #elif defined(TARGET_MCU_NORDIC_32K)
 #define INITIAL_SP            (0x20008000UL)
+#define MAIN_STACK_SIZE       ((uint32_t)DEFAULT_STACK_SIZE)
 
 #elif defined(TARGET_MCU_NORDIC_16K)
 #define INITIAL_SP            (0x20004000UL)
+#define MAIN_STACK_SIZE       ((uint32_t)DEFAULT_STACK_SIZE)
 
 #elif defined(TARGET_MCU_NRF52832)
 #define INITIAL_SP            (0x20010000UL)
@@ -534,19 +539,25 @@ extern uint32_t __StackTop[];
 
 #elif defined(TARGET_NUMAKER_PFM_NUC472)
 #   if defined(__CC_ARM)
-extern uint32_t          	    Image$$ARM_LIB_STACK$$ZI$$Limit[];
-extern uint32_t          	    Image$$ARM_LIB_STACK$$ZI$$Base[];
-#define INITIAL_SP              ((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Limit)
-#define FINAL_SP                ((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Base)
+extern uint32_t                 Image$$ARM_LIB_HEAP$$Base[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$Length[];
+extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
+#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$Base)
+#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$Length)
+#define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
+#define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
 #   elif defined(__GNUC__)
 extern uint32_t	                __StackTop[];
 extern uint32_t	                __StackLimit[];
-#define INITIAL_SP              ((uint32_t) __StackTop)
-#define FINAL_SP                ((uint32_t) __StackLimit)
+extern uint32_t                 __end__[];
+extern uint32_t                 __HeapLimit[];
+#define HEAP_START              ((unsigned char*)__end__)
+#define HEAP_SIZE               ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
+#define ISR_STACK_START         ((unsigned char*)__StackLimit)
+#define ISR_STACK_SIZE          ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
 #   elif defined(__ICCARM__)
-#pragma section="CSTACK"
-#define INITIAL_SP              ((uint32_t) __section_end("CSTACK"))
-#define FINAL_SP                ((uint32_t) __section_begin("CSTACK"))
+/* No region declarations needed */
 #   else
 #error "no toolchain defined"
 #   endif
@@ -556,48 +567,106 @@ extern uint32_t	                __StackLimit[];
 
 #endif
 
-#ifdef __CC_ARM
-#if defined(TARGET_NUMAKER_PFM_NUC472)
-extern uint32_t          Image$$ARM_LIB_HEAP$$Base[];
-#define HEAP_START      ((uint32_t) Image$$ARM_LIB_HEAP$$Base)
-#else
-extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
-#define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
-#endif
-#elif defined(__GNUC__)
-extern uint32_t          __end__[];
-#define HEAP_START      (__end__)
-#elif defined(__ICCARM__)
-#pragma section="HEAP"
-#define HEAP_END  (void *)__section_end("HEAP")
+extern unsigned char *mbed_heap_start;
+extern uint32_t mbed_heap_size;
+
+unsigned char *mbed_stack_isr_start = 0;
+uint32_t mbed_stack_isr_size = 0;
+
+unsigned char *mbed_stack_main_start = 0;
+uint32_t mbed_stack_main_size = 0;
+
+/* Define heap region if it has not been defined already */
+#if !defined(HEAP_START)
+    #if defined(__ICCARM__)
+        #pragma section="HEAP"
+        #define HEAP_START ((unsigned char*)__section_begin("HEAP"))
+        #define HEAP_SIZE ((uint32_t)__section_size("HEAP"))
+    #elif defined(__CC_ARM)
+        extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
+        #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
+        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+    #elif defined(__GNUC__)
+        extern uint32_t         __end__[];
+        #define HEAP_START      ((unsigned char*)__end__)
+        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+    #endif
 #endif
 
-void set_main_stack(void) {
-#if defined(TARGET_NUMAKER_PFM_NUC472)
-    // Scheduler stack: OS_MAINSTKSIZE words
-    // Main thread stack: Reserved stack size - OS_MAINSTKSIZE words
-    os_thread_def_main.stack_pointer = (uint32_t *) FINAL_SP;
-    os_thread_def_main.stacksize = (uint32_t) INITIAL_SP - (uint32_t) FINAL_SP - OS_MAINSTKSIZE * 4;
-#else
-    uint32_t interrupt_stack_size = ((uint32_t)OS_MAINSTKSIZE * 4);
+/* Interrupt stack always defined for IAR
+ * Main thread defined here
+ */
 #if defined(__ICCARM__)
-	/* For IAR heap is defined  .icf file */
-	uint32_t main_stack_size = ((uint32_t)INITIAL_SP - (uint32_t)HEAP_END) - interrupt_stack_size;
+    #if !defined(MAIN_STACK_SIZE)
+        #define MAIN_STACK_SIZE ((uint32_t)DEFAULT_STACK_SIZE * 2)
+    #endif
+    #pragma section="CSTACK"
+    #define ISR_STACK_START     ((unsigned char*)__section_begin("CSTACK"))
+    #define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
+    static uint32_t thread_stack_main[MAIN_STACK_SIZE / sizeof(uint32_t)];
+    #define MAIN_STACK_START    ((unsigned char*)thread_stack_main)
+#endif
+
+/* Define stack sizes if they haven't been set already */
+#if !defined(ISR_STACK_SIZE)
+    #define ISR_STACK_SIZE ((uint32_t)OS_MAINSTKSIZE * 4)
+#endif
+#if !defined(MAIN_STACK_SIZE)
+    #define MAIN_STACK_SIZE ((uint32_t)DEFAULT_STACK_SIZE * 2)
+#endif
+
+/* Make sure IAR values are set */
+#if defined(__ICCARM__) && \
+        (!defined(ISR_STACK_START) || !defined(MAIN_STACK_START))
+#error "Main and interrupt stacks must be explicitly defined for IAR"
+#endif
+
+/*
+ * set_stack_heap purpose is to set the following variables:
+ * -mbed_heap_start
+ * -mbed_heap_size
+ * -mbed_stack_isr_start
+ * -mbed_stack_isr_size
+ * -mbed_stack_main_start
+ * -mbed_stack_main_size
+ *
+ * Along with setting up os_thread_def_main
+ */
+void set_stack_heap(void) {
+
+    unsigned char *free_start = HEAP_START;
+    uint32_t free_size = HEAP_SIZE;
+
+#ifdef ISR_STACK_START
+    /* Interrupt stack explicitly specified */
+    mbed_stack_isr_size = ISR_STACK_SIZE;
+    mbed_stack_isr_start = ISR_STACK_START;
 #else
-	/* For ARM , uARM, or GCC_ARM , heap can grow and reach main stack */
-    uint32_t heap_plus_stack_size = ((uint32_t)INITIAL_SP - (uint32_t)HEAP_START) - interrupt_stack_size;
-    // Main thread's stack is 1/4 of the heap
-    uint32_t main_stack_size = heap_plus_stack_size/4;
+    /* Interrupt stack -  reserve space at the end of the free block */
+    mbed_stack_isr_size = ISR_STACK_SIZE;
+    mbed_stack_isr_start = free_start + free_size - mbed_stack_isr_size;
+    free_size -= mbed_stack_isr_size;
 #endif
-    // The main thread must be 4 byte aligned
-    uint32_t main_stack_start = ((uint32_t)INITIAL_SP - interrupt_stack_size - main_stack_size) & ~0x7;
 
-    // That is the bottom of the main stack block: no collision detection
-    os_thread_def_main.stack_pointer = (uint32_t*)main_stack_start;
-
-    // Leave OS_MAINSTKSIZE words for the scheduler and interrupts
-    os_thread_def_main.stacksize = main_stack_size;
+#ifdef MAIN_STACK_START
+    /* Main stack explicitly specified */
+    mbed_stack_main_start = MAIN_STACK_START;
+    mbed_stack_main_size = MAIN_STACK_SIZE;
+#else
+    /* Main thread -  reserve space at the start of the free block */
+    mbed_stack_main_start = (unsigned char*)(((intptr_t)free_start + 0x7) & ~0x7); // 8 byte aligned
+    mbed_stack_main_size = MAIN_STACK_SIZE;
+    free_size = (uint32_t)((free_start + free_size) - (mbed_stack_main_start + mbed_stack_main_size));
+    free_start = mbed_stack_main_start + mbed_stack_main_size;
 #endif
+
+    /* Heap - everything else */
+    mbed_heap_size = free_size;
+    mbed_heap_start = free_start;
+
+    /* Setup main thread */
+    os_thread_def_main.stack_pointer = (uint32_t*)mbed_stack_main_start;
+    os_thread_def_main.stacksize = mbed_stack_main_size;
 }
 
 #if defined (__CC_ARM)
@@ -611,7 +680,7 @@ void $Super$$__cpp_initialize__aeabi_(void);
 void _main_init (void) {
   osKernelInitialize();
 #ifdef __MBED_CMSIS_RTOS_CM
-  set_main_stack();
+  set_stack_heap();
 #endif
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
@@ -633,15 +702,12 @@ void pre_main()
 
 #else
 
-void * armcc_heap_base;
-void * armcc_heap_top;
-
 int main(void);
 
 void pre_main (void)
 {
     singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
-    __rt_lib_init((unsigned)armcc_heap_base, (unsigned)armcc_heap_top);
+    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
     main();
 }
 
@@ -656,12 +722,10 @@ void pre_main (void)
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
-  IMPORT  armcc_heap_base
-  IMPORT  armcc_heap_top
   IMPORT  os_thread_def_main
   IMPORT  osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
-  IMPORT  set_main_stack
+  IMPORT  set_stack_heap
 #endif
   IMPORT  osKernelStart
   IMPORT  osThreadCreate
@@ -675,13 +739,12 @@ __asm void __rt_entry (void) {
    * ARM Compiler ARM C and C++ Libraries and Floating-Point Support User Guide
    */
   BL      __user_setup_stackheap
-  LDR     R3,=armcc_heap_base
-  LDR     R4,=armcc_heap_top
-  STR     R0,[R3]
-  STR     R2,[R4]
+  /* Ignore return value of __user_setup_stackheap since
+   * this will be setup by set_stack_heap
+   */
   BL      osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
-  BL      set_main_stack
+  BL      set_stack_heap
 #endif
   LDR     R0,=os_thread_def_main
   MOVS    R1,#0
@@ -719,7 +782,7 @@ __attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
     "bl   osKernelInitialize\n"
 #ifdef __MBED_CMSIS_RTOS_CM
-    "bl   set_main_stack\n"
+    "bl   set_stack_heap\n"
 #endif
     "ldr  r0,=os_thread_def_main\n"
     "movs r1,#0\n"
@@ -796,7 +859,7 @@ void __iar_program_start( void )
 #endif
   osKernelInitialize();
 #ifdef __MBED_CMSIS_RTOS_CM
-  set_main_stack();
+  set_stack_heap();
 #endif
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
