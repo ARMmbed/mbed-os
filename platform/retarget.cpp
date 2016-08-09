@@ -573,7 +573,7 @@ extern "C" int errno;
 register unsigned char * stack_ptr __asm ("sp");
 
 // Dynamic memory allocation related syscall.
-#if defined(TARGET_NUMAKER_PFM_NUC472)
+#if defined(TARGET_NUMAKER_PFM_NUC472) || defined(TARGET_NUMAKER_PFM_M453)
 // Overwrite _sbrk() to support two region model.
 extern "C" void *__wrap__sbrk(int incr);
 extern "C" caddr_t _sbrk(int incr) {
