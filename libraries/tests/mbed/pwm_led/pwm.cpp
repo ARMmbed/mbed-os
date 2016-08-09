@@ -1,6 +1,6 @@
 #include "mbed.h"
 
-#if defined(TARGET_K64F)
+#if defined(TARGET_K64F) || defined(TARGET_K66F)
 #define TEST_LED D9
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
@@ -35,7 +35,7 @@
 
 #elif defined(TARGET_SAMG55J19)
 #define TEST_LED PA01 /*LED in board doesnt have PWM functionality*/
-      
+
 #else
   #error [NOT_SUPPORTED] This test is not supported on this target
 #endif

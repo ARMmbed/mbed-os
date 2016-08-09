@@ -430,6 +430,9 @@ extern uint32_t __StackTop[];
 #define ISR_STACK_SIZE        (0x1000)
 #endif
 
+#elif defined(TARGET_K66F)
+#define INITIAL_SP            (0x20030000UL)
+
 #elif defined(TARGET_K22F)
 #define INITIAL_SP            (0x20010000UL)
 
