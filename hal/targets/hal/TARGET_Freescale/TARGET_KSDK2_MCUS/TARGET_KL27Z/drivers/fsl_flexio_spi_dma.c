@@ -77,7 +77,7 @@ static void FLEXIO_SPI_DMAConfig(FLEXIO_SPI_Type *base,
  ******************************************************************************/
 
 /* Dummy data used to send */
-const uint16_t s_dummyData = FLEXIO_SPI_DUMMYDATA;
+static const uint16_t s_dummyData = FLEXIO_SPI_DUMMYDATA;
 
 /*< @brief user configurable flexio spi handle count. */
 #define FLEXIO_SPI_HANDLE_COUNT 2
