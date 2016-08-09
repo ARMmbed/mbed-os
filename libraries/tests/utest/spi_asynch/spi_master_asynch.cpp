@@ -34,7 +34,7 @@
 #define TEST_BYTE_RX TEST_BYTE3
 #define TEST_BYTE_TX_BASE TEST_BYTE5
 
-#if defined(TARGET_K64F)
+#if defined(TARGET_K64F) || defined(TARGET_K66F)
 #define TEST_MOSI_PIN PTD2
 #define TEST_MISO_PIN PTD3
 #define TEST_SCLK_PIN PTD1

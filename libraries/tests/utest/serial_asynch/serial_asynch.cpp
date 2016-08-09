@@ -28,6 +28,10 @@
 #define TEST_SERIAL_ONE_TX_PIN PTC17 // uart3
 #define TEST_SERIAL_TWO_RX_PIN PTD2  // uart2
 
+#elif defined(TARGET_K66F)
+#define TEST_SERIAL_ONE_TX_PIN PTD3 // uart2
+#define TEST_SERIAL_TWO_RX_PIN PTC16  // uart3
+
 #elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
 #define TEST_SERIAL_ONE_TX_PIN PD0   // usart1
 #define TEST_SERIAL_TWO_RX_PIN PC3   // usart2
