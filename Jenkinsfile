@@ -1,12 +1,12 @@
 // List of targets to compile
-def morpheusTargets = [
+def targets = [
   //"LPC1768",
   //"NUCLEO_F401RE",
   //"NRF51822",
   "K64F"
   ]
 
-// Map morpheus toolchains to compiler labels on Jenkins
+// Map toolchains to compiler labels on Jenkins
 def toolchains = [
   //ARM: "armcc",
   //IAR: "iar_arm",
@@ -17,14 +17,14 @@ def toolchains = [
 def stepsForParallel = [:]
 
 // Jenkins pipeline does not support map.each, we need to use oldschool for loop
-for (int i = 0; i < morpheusTargets.size(); i++) {
+for (int i = 0; i < targets.size(); i++) {
   for(int j = 0; j < toolchains.size(); j++) {
-    def target = morpheusTargets.get(i)
+    def target = targets.get(i)
     def toolchain = toolchains.keySet().asList().get(j)
     def compilerLabel = toolchains.get(toolchain)
 
     def stepName = "${target} ${toolchain}"
-    stepsForParallel[stepName] = morpheusBuildStep(target, compilerLabel, toolchain)
+    stepsForParallel[stepName] = buildStep(target, compilerLabel, toolchain)
   }
 }
 
@@ -42,6 +42,8 @@ build job: 'ARMmbed/mbed-client-testapp/master', parameters: [[$class: 'StringPa
 build job: 'ARMmbed/mbed-client-cliapp/master', parameters: [[$class: 'StringParameterValue', name: 'mbed_os_revision', value: "${env.GIT_REVISION}"]]
 }, failFast: true
 
+/* End of execution, internal functions below */
+
 def execute(cmd) {
     if (isUnix()) {
         sh "${cmd}"
@@ -50,8 +52,8 @@ def execute(cmd) {
     }
 }
 
-//Create morpheus build steps for parallel execution
-def morpheusBuildStep(target, compilerLabel, toolchain) {
+//Create build steps for parallel execution
+def buildStep(target, compilerLabel, toolchain) {
   return {
     node ("${compilerLabel}") {
       deleteDir()
