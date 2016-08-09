@@ -26,26 +26,34 @@
  *  @param stack    Network stack as target for DNS query
  *  @param addr     Destination for the host address
  *  @param host     Hostname to resolve
+ *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
  *  @return         0 on success, negative error code on failure
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 NSAPI_C_LINKAGE
-int nsapi_dns_query(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host);
+int nsapi_dns_query(nsapi_stack_t *stack, nsapi_addr_t *addr,
+        const char *host, nsapi_version_t version);
 
 #ifdef __cplusplus
-int nsapi_dns_query(NetworkStack *stack, nsapi_addr_t *addr, const char *host);
-int nsapi_dns_query(NetworkStack *stack, SocketAddress *addr, const char *host);
+int nsapi_dns_query(nsapi_stack_t *stack, nsapi_addr_t *addr,
+        const char *host);
+int nsapi_dns_query(NetworkStack *stack, nsapi_addr_t *addr,
+        const char *host, nsapi_version_t version = NSAPI_IPv4);
+int nsapi_dns_query(NetworkStack *stack, SocketAddress *addr,
+        const char *host, nsapi_version_t version = NSAPI_IPv4);
 
 template <typename S>
-int nsapi_dns_query(S *stack, nsapi_addr_t *addr, const char *host)
+int nsapi_dns_query(S *stack, nsapi_addr_t *addr,
+        const char *host, nsapi_version_t version = NSAPI_IPv4)
 {
-    return nsapi_dns_query(nsapi_create_stack(stack), addr, host);
+    return nsapi_dns_query(nsapi_create_stack(stack), addr, host, version);
 }
 
 template <typename S>
-int nsapi_dns_query(S *stack, SocketAddress *addr, const char *host)
+int nsapi_dns_query(S *stack, SocketAddress *addr,
+        const char *host, nsapi_version_t version = NSAPI_IPv4)
 {
-    return nsapi_dns_query(nsapi_create_stack(stack), addr, host);
+    return nsapi_dns_query(nsapi_create_stack(stack), addr, host, version);
 }
 #endif
 
@@ -56,26 +64,42 @@ int nsapi_dns_query(S *stack, SocketAddress *addr, const char *host)
  *  @param addr       Array for the host addresses
  *  @param addr_count Number of addresses allocated in the array
  *  @param host       Hostname to resolve
+ *  @param version    IP version to resolve (defaults to NSAPI_IPv4)
  *  @return           Number of addresses found on success, negative error code on failure
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 NSAPI_C_LINKAGE
-int nsapi_dns_query_multiple(nsapi_stack_t *stack, nsapi_addr_t *addr, unsigned addr_count, const char *host);
+int nsapi_dns_query_multiple(nsapi_stack_t *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version);
 
 #ifdef __cplusplus
-int nsapi_dns_query_multiple(NetworkStack *stack, nsapi_addr_t *addr, unsigned addr_count, const char *host);
-int nsapi_dns_query_multiple(NetworkStack *stack, SocketAddress *addr, unsigned addr_count, const char *host);
+int nsapi_dns_query_multiple(nsapi_stack_t *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host);
+int nsapi_dns_query_multiple(NetworkStack *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version = NSAPI_IPv4);
+int nsapi_dns_query_multiple(NetworkStack *stack,
+        SocketAddress *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version = NSAPI_IPv4);
 
 template <typename S>
-int nsapi_dns_query_multiple(S *stack, nsapi_addr_t *addr, unsigned addr_count, const char *host)
+int nsapi_dns_query_multiple(S *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version = NSAPI_IPv4)
 {
-    return nsapi_dns_query_multiple(nsapi_create_stack(stack), addr, addr_count, host);
+    return nsapi_dns_query_multiple(nsapi_create_stack(stack),
+                addr, addr_count, host, version);
 }
 
 template <typename S>
-int nsapi_dns_query_multiple(S *stack, SocketAddress *addr, unsigned addr_count, const char *host)
+int nsapi_dns_query_multiple(S *stack,
+        SocketAddress *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version = NSAPI_IPv4)
 {
-    return nsapi_dns_query_multiple(nsapi_create_stack(stack), addr, addr_count, host);
+    return nsapi_dns_query_multiple(nsapi_create_stack(stack),
+                addr, addr_count, host, version);
 }
 #endif
 
