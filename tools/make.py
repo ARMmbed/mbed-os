@@ -21,7 +21,7 @@ TEST BUILD & RUN
 import sys
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname, isfile, isdir
+from os.path import join, abspath, dirname, isfile, isdir, exists
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -47,7 +47,7 @@ from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
 from argparse import ArgumentTypeError
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
@@ -214,6 +214,12 @@ if __name__ == '__main__':
     if options.tool is None:
         args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
     toolchain = options.tool[0]
+
+    # Check toolchain path
+    if not exists(TOOLCHAIN_PATHS[toolchain]):
+        print('[ERROR] Toolchain path does not exist for %s.\n'
+              'Current value: %s'%(toolchain, TOOLCHAIN_PATHS[toolchain]))
+        sys.exit()
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it
