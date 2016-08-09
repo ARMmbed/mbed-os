@@ -426,6 +426,9 @@ extern uint32_t __StackTop[];
 #else
 #define INITIAL_SP            (0x20030000UL)
 #endif
+#if defined(__CC_ARM) || defined(__GNUC__)
+#define ISR_STACK_SIZE        (0x1000)
+#endif
 
 #elif defined(TARGET_K22F)
 #define INITIAL_SP            (0x20010000UL)
