@@ -65,7 +65,7 @@ static uint16_t dns_scan_word(const uint8_t **p)
 }
 
 
-static void dns_append_question(uint8_t **p, const char *host)
+static void dns_append_question(uint8_t **p, const char *host, nsapi_version_t version)
 {
     // fill the header
     dns_append_word(p, 1);      // id      = 1
@@ -85,8 +85,12 @@ static void dns_append_question(uint8_t **p, const char *host)
     dns_append_byte(p, 0);
 
     // fill out question footer
-    dns_append_word(p, 1); // qtype  = 1
-    dns_append_word(p, 1); // qclass = 1
+    if (version == NSAPI_IPv4) {
+        dns_append_word(p, 1);  // qtype  = ipv4
+    } else {
+        dns_append_word(p, 28); // qtype  = ipv6
+    }
+    dns_append_word(p, 1);      // qclass = 1
 }
 
 static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned addr_count)
@@ -144,26 +148,37 @@ static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned add
         *p += 4;                              // ttl
         uint16_t rdlength = dns_scan_word(p); // rdlength
 
-        // verify response is an A record
-        if (!(rtype == 1 && rclass == 1 && rdlength == NSAPI_IPv4_BYTES)) {
+        if (rtype == 1 && rclass == 1 && rdlength == NSAPI_IPv4_BYTES) {
+            // accept A record
+            addr->version = NSAPI_IPv4;
+            for (int i = 0; i < NSAPI_IPv4_BYTES; i++) {
+                addr->bytes[i] = dns_scan_byte(p);
+            }
+
+            addr += 1;
+            count += 1;
+        } else if (rtype == 28 && rclass == 1 && rdlength == NSAPI_IPv6_BYTES) {
+            // accept AAAA record
+            addr->version = NSAPI_IPv6;
+            for (int i = 0; i < NSAPI_IPv6_BYTES; i++) {
+                addr->bytes[i] = dns_scan_byte(p);
+            }
+
+            addr += 1;
+            count += 1;
+        } else {
+            // skip unrecognized records
             *p += rdlength;
-            continue;
         }
-
-        addr->version = NSAPI_IPv4;
-        for (int i = 0; i < NSAPI_IPv4_BYTES; i++) {
-            addr->bytes[i] = dns_scan_byte(p);
-        }
-
-        addr += 1;
-        count += 1;
     }
 
     return count;
 }
 
 // core query function
-int nsapi_dns_query_multiple(NetworkStack *stack, nsapi_addr_t *addr, unsigned addr_count, const char *host)
+int nsapi_dns_query_multiple(NetworkStack *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version)
 {
     // check for valid host name
     int host_len = host ? strlen(host) : 0;
@@ -192,7 +207,7 @@ int nsapi_dns_query_multiple(NetworkStack *stack, nsapi_addr_t *addr, unsigned a
     for (unsigned i = 0; i < DNS_SERVERS_LENGTH; i++) {
         // send the question
         uint8_t *p = packet;
-        dns_append_question(&p, host);
+        dns_append_question(&p, host, version);
 
         err = socket.sendto(SocketAddress(DNS_SERVERS[i], 53), packet, DNS_BUFFER_SIZE);
         if (err == NSAPI_ERROR_WOULD_BLOCK) {
@@ -234,15 +249,28 @@ int nsapi_dns_query_multiple(NetworkStack *stack, nsapi_addr_t *addr, unsigned a
 
 // convenience functions for other forms of queries
 NSAPI_C_LINKAGE
-int nsapi_dns_query_multiple(nsapi_stack_t *stack, nsapi_addr_t *addr, unsigned addr_count, const char *host)
+int nsapi_dns_query_multiple(nsapi_stack_t *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host, nsapi_version_t version)
 {
-    return nsapi_dns_query_multiple(nsapi_create_stack(stack), addr, addr_count, host);
+    NetworkStack *nstack = nsapi_create_stack(stack);
+    return nsapi_dns_query_multiple(nstack, addr, addr_count, host, version);
 }
 
-int nsapi_dns_query_multiple(NetworkStack *stack, SocketAddress *addresses, unsigned addr_count, const char *host)
+int nsapi_dns_query_multiple(nsapi_stack_t *stack,
+        nsapi_addr_t *addr, unsigned addr_count,
+        const char *host)
+{
+    NetworkStack *nstack = nsapi_create_stack(stack);
+    return nsapi_dns_query_multiple(nstack, addr, addr_count, host, NSAPI_IPv4);
+}
+
+int nsapi_dns_query_multiple(NetworkStack *stack,
+        SocketAddress *addresses, unsigned addr_count,
+        const char *host, nsapi_version_t version)
 {
     nsapi_addr_t *addrs = new nsapi_addr_t[addr_count];
-    int result = nsapi_dns_query_multiple(stack, addrs, addr_count, host);
+    int result = nsapi_dns_query_multiple(stack, addrs, addr_count, host, version);
 
     if (result > 0) {
         for (int i = 0; i < result; i++) {
@@ -255,22 +283,34 @@ int nsapi_dns_query_multiple(NetworkStack *stack, SocketAddress *addresses, unsi
 }
 
 NSAPI_C_LINKAGE
-int nsapi_dns_query(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host)
+int nsapi_dns_query(nsapi_stack_t *stack,
+        nsapi_addr_t *addr, const char *host, nsapi_version_t version)
 {
-    int result = nsapi_dns_query_multiple(nsapi_create_stack(stack), addr, 1, host);
+    NetworkStack *nstack = nsapi_create_stack(stack);
+    int result = nsapi_dns_query_multiple(nstack, addr, 1, host, version);
     return (result > 0) ? 0 : result;
 }
 
-int nsapi_dns_query(NetworkStack *stack, nsapi_addr_t *addr, const char *host)
+int nsapi_dns_query(nsapi_stack_t *stack,
+        nsapi_addr_t *addr, const char *host)
 {
-    int result = nsapi_dns_query_multiple(stack, addr, 1, host);
+    NetworkStack *nstack = nsapi_create_stack(stack);
+    int result = nsapi_dns_query_multiple(nstack, addr, 1, host, NSAPI_IPv4);
     return (result > 0) ? 0 : result;
 }
 
-int nsapi_dns_query(NetworkStack *stack, SocketAddress *address, const char *host)
+int nsapi_dns_query(NetworkStack *stack,
+        nsapi_addr_t *addr, const char *host, nsapi_version_t version)
+{
+    int result = nsapi_dns_query_multiple(stack, addr, 1, host, version);
+    return (result > 0) ? 0 : result;
+}
+
+int nsapi_dns_query(NetworkStack *stack,
+        SocketAddress *address, const char *host, nsapi_version_t version)
 {
     nsapi_addr_t addr;
-    int result = nsapi_dns_query_multiple(stack, &addr, 1, host);
+    int result = nsapi_dns_query_multiple(stack, &addr, 1, host, version);
     address->set_addr(addr);
     return (result > 0) ? 0 : result;
 }
