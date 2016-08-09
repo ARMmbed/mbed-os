@@ -104,6 +104,9 @@ osStatus Thread::terminate() {
     ret = osThreadTerminate(_tid);
     _tid = (osThreadId)NULL;
 
+    // Wake threads joining the terminated thread
+    _join_sem.release();
+
     _mutex.unlock();
     return ret;
 }
