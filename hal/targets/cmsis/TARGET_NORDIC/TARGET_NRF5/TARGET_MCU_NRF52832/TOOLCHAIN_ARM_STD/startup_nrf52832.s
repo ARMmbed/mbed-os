@@ -25,7 +25,7 @@
 ;   POSSIBILITY OF SUCH DAMAGE.
 ;   ---------------------------------------------------------------------------*/
 
-__initial_sp	EQU     0x20008000
+__initial_sp	EQU     0x20010000
 
                 PRESERVE8
                 THUMB
