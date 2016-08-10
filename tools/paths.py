@@ -40,6 +40,8 @@ MBED_TARGETS_PATH = join(MBED_BASE, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 
+MBED_CONFIG_FILE = join(ROOT, "mbed_lib.json")
+
 # Tests
 TEST_DIR = join(LIB_DIR, "tests")
 HOST_TESTS = join(ROOT, "tools", "host_tests")
