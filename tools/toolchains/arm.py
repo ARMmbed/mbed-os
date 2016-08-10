@@ -15,12 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname, splitext, basename, exists
+from os.path import join, dirname, splitext, basename
+from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import mkdir
-import copy
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -55,6 +55,11 @@ class ARM(mbedToolchain):
             cpu = "Cortex-M7.fp.sp"
         else:
             cpu = target.core
+
+        if not TOOLCHAIN_PATHS['ARM']:
+            exe = find_executable('armcc')
+            if exe:
+                TOOLCHAIN_PATHS['ARM'] = dirname(dirname(exe))
 
         ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
         ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
