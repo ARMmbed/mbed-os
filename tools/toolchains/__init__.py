@@ -188,6 +188,23 @@ LEGACY_TOOLCHAIN_NAMES = {
 }
 
 
+def check_toolchain_path(function):
+    """Check if the path to toolchain is valid. Exit if not.
+    Use this function as a decorator.  Causes a system exit if the path does
+    not exist. Execute the function as normal if the path does exist.
+
+    Positional arguments:
+    function -- the function to decorate
+    """
+    def perform_check(self, *args, **kwargs):
+        if not exists(self.toolchain_path):
+            print('[ERROR] Toolchain path does not exist for %s.\n'
+                  'Current value: %s' % (self.name, self.toolchain_path))
+            sys.exit()
+        return function(self, *args, **kwargs)
+    return perform_check
+
+
 class mbedToolchain:
     # Verbose logging
     VERBOSE = True
@@ -702,6 +719,7 @@ class mbedToolchain:
 
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
+    @check_toolchain_path
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
@@ -900,6 +918,7 @@ class mbedToolchain:
             else:
                 raise ToolException(_stderr)
 
+    @check_toolchain_path
     def build_library(self, objects, dir, name):
         needed_update = False
         lib = self.STD_LIB_NAME % name
@@ -911,6 +930,7 @@ class mbedToolchain:
 
         return needed_update
 
+    @check_toolchain_path
     def link_program(self, r, tmp_path, name):
         needed_update = False
         ext = 'bin'

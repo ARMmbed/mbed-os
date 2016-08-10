@@ -81,6 +81,8 @@ class ARM(mbedToolchain):
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
 
+        self.toolchain_path = TOOLCHAIN_PATHS['ARM']
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines():
