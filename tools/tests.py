@@ -328,6 +328,18 @@ TESTS = [
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC"]
     },
     {
+        "id": "MBED_A28", "description": "CAN loopback test",
+        "source_dir": join(TEST_DIR, "mbed", "can_loopback"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "duration": 20,
+        "mcu": ["B96B_F446VE",
+                "NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F207ZG",
+        "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
+        "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
+        "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC"]
+    },
+    {
         "id": "MBED_BLINKY", "description": "Blinky",
         "source_dir": join(TEST_DIR, "mbed", "blinky"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
