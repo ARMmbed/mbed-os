@@ -17,6 +17,7 @@ limitations under the License.
 import re
 from os import remove
 from os.path import join, exists, dirname, splitext, exists
+from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -50,6 +51,12 @@ class IAR(mbedToolchain):
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
+
+        if not TOOLCHAIN_PATHS['IAR']:
+            exe =  find_executable('iccarm')
+            if exe:
+                TOOLCHAIN_PATHS['IAR'] = dirname(dirname(exe))
+
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
         # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
