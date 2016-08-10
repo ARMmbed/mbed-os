@@ -46,6 +46,9 @@ class IAR(mbedToolchain):
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+
+        self.check_toolchain_path("IAR")
+
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
         else:
