@@ -198,9 +198,9 @@ def check_toolchain_path(function):
     """
     def perform_check(self, *args, **kwargs):
         if not exists(self.toolchain_path):
-            print('[ERROR] Toolchain path does not exist for %s.\n'
+            print('[ERROR] Toolchain path for %s does not exist.\n'
                   'Current value: %s' % (self.name, self.toolchain_path))
-            sys.exit()
+            sys.exit(-1)
         return function(self, *args, **kwargs)
     return perform_check
 
