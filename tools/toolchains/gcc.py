@@ -16,6 +16,7 @@ limitations under the License.
 """
 import re
 from os.path import join, basename, splitext, dirname, exists
+from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -110,7 +111,10 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
-        self.toolchain_path = tool_path
+        if tool_path:
+            self.toolchain_path = main_cc
+        else:
+            self.toolchain_path = find_executable("arm-none-eabi-gcc") or ''
 
     def parse_dependencies(self, dep_path):
         dependencies = []
