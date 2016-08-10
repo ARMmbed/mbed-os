@@ -474,7 +474,7 @@ static void register_next_tick() {
     uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 
     // If an overflow occur, set the next tick in COUNTER + delta clock cycles
-    if (is_in_wrapped_range(previous_tick_cc_value, new_compare_value, current_counter) == false) {
+    if (is_in_wrapped_range(previous_tick_cc_value, new_compare_value, current_counter + 1) == false) {
         new_compare_value = current_counter + delta;
     }
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, new_compare_value);
