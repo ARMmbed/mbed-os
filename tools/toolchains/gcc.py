@@ -48,6 +48,8 @@ class GCC(mbedToolchain):
             self.flags["common"].append("-DMBED_RTOS_SINGLE_THREAD")
             self.flags["ld"].append("--specs=nano.specs")
 
+        self.cpu = []
+
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0plus"
         elif target.core == "Cortex-M4F":
@@ -56,10 +58,14 @@ class GCC(mbedToolchain):
             cpu = "cortex-m7"
         elif target.core == "Cortex-M7FD":
             cpu = "cortex-m7"
+        elif target.core == "Cortex-M33":
+            cpu = None
         else:
             cpu = target.core.lower()
 
-        self.cpu = ["-mcpu=%s" % cpu]
+        if cpu:
+            self.cpu.append("-mcpu=%s" % cpu)
+
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
 
@@ -81,6 +87,10 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfpu=vfpv3")
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
+
+        if target.core == "Cortex-M33":
+            self.cpu.append("-march=armv8-m.main")
+            self.cpu.append("-mcmse")
 
         self.flags["common"] += self.cpu
 

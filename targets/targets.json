@@ -1930,6 +1930,15 @@
         "device_has": ["AACI", "ANALOGIN", "CLCD", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"],
         "release_versions": ["2"]
     },
+    "ARM_MPS2_ARMv8MML": {
+        "inherits": ["ARM_MPS2_Target"],
+        "core": "Cortex-M33",
+        "supported_toolchains": ["GCC_ARM"],
+        "extra_labels": ["ARM_SSG", "MPS2", "MPS2_ARMv8MML"],
+        "macros": ["CMSDK_ARMv8MML"],
+        "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL"],
+        "release_versions": ["5"]
+    },
     "ARM_IOTSS_Target": {
         "inherits": ["Target"],
         "public": false,
