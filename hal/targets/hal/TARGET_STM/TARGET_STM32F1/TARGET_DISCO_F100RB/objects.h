@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ struct port_s {
 struct analogin_s {
     ADCName adc;
     PinName pin;
+    uint8_t channel;
 };
 
 struct serial_s {
