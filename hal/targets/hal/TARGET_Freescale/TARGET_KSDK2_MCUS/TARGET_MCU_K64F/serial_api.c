@@ -280,7 +280,7 @@ void serial_break_clear(serial_t *obj) {
     uart_addrs[obj->index]->C2 &= ~UART_C2_SBK_MASK;
 }
 
-#if DEVICE_HAS_SERIAL_FC
+#if DEVICE_SERIAL_FC
 
 /*
  * Only hardware flow control is implemented in this API.
