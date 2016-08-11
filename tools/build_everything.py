@@ -147,7 +147,6 @@ if __name__ == '__main__':
         if not base_source_paths:
             base_source_paths = ['.']
         
-        all_tests = find_tests(base_source_paths[0])
         
         start = time()    
         build_report = {}
@@ -180,6 +179,7 @@ if __name__ == '__main__':
                     
                 if options.continue_on_build_fail or library_build_success:
                     # Build all the tests
+                    all_tests = find_tests(base_source_paths[0], target_name, toolchain_name)
                     test_build_success, test_build = build_tests(all_tests, [build_directory], build_directory, target, target_toolchain,
                             clean=options.clean,
                             report=build_report,
