@@ -311,6 +311,7 @@ void USBHALHost::UsbIrqhandler()
         uint32_t ints_roothub = USBH->HcRhStatus;
         uint32_t ints_port1 = USBH->HcRhPortStatus[0];
         
+        // Port1: ConnectStatusChange
         if (ints_port1 & OR_RH_PORT_CSC) {
             if (ints_roothub & OR_RH_STATUS_DRWE) {
                 // When DRWE is on, Connect Status Change means a remote wakeup event.
@@ -343,10 +344,13 @@ void USBHALHost::UsbIrqhandler()
             }
             USBH->HcRhPortStatus[0] = OR_RH_PORT_CSC;
         }
-        
-        // Reset completed
+        // Port1: Reset completed
         if (ints_port1 & OR_RH_PORT_PRSC) {
             USBH->HcRhPortStatus[0] = OR_RH_PORT_PRSC;
+        }
+        // Port1: PortEnableStatusChange
+        if (ints_port1 & OR_RH_PORT_PESC) {
+            USBH->HcRhPortStatus[0] = OR_RH_PORT_PESC;
         }
         
         USBH->HcInterruptStatus = OR_INTR_STATUS_RHSC;
