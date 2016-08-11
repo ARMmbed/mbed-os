@@ -240,6 +240,9 @@ class Config:
             # Read the library configuration and add a "__full_config_path" attribute to it
             cfg = json_file_to_dict(f)
             cfg["__config_path"] = full_path
+
+            if "name" not in cfg:
+                raise ConfigException("Library configured at %s has no name field." % full_path)
             # If there's already a configuration for a module with the same name, exit with error
             if self.lib_config_data.has_key(cfg["name"]):
                 raise ConfigException("Library name '%s' is not unique (defined in '%s' and '%s')" % (cfg["name"], full_path, self.lib_config_data[cfg["name"]]["__config_path"]))
