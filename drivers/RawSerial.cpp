@@ -23,7 +23,7 @@
 
 namespace mbed {
 
-RawSerial::RawSerial(PinName tx, PinName rx) : SerialBase(tx, rx) {
+RawSerial::RawSerial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud) {
     // No lock needed in the constructor
 }
 

@@ -23,12 +23,12 @@ namespace mbed {
 
 static void donothing() {};
 
-SerialBase::SerialBase(PinName tx, PinName rx) :
+SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #if DEVICE_SERIAL_ASYNCH
                                                  _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
                                                  _rx_usage(DMA_USAGE_NEVER),
 #endif
-                                                _serial(), _baud(9600) {
+                                                _serial(), _baud(baud) {
     // No lock needed in the constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
@@ -36,6 +36,7 @@ SerialBase::SerialBase(PinName tx, PinName rx) :
     }
 
     serial_init(&_serial, tx, rx);
+    serial_baud(&_serial, _baud);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
 

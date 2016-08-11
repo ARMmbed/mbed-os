@@ -14,6 +14,11 @@
         "stdio-flush-at-exit": {
             "help": "Enable or disable the flush of standard I/O's at exit.",
             "value": true
+        },
+
+        "default-serial-baud-rate": {
+            "help": "Default baud rate for a Serial or RawSerial instance (if not specified in the constructor)",
+            "value": 9600
         }
     },
     "target_overrides": {
