@@ -28,7 +28,7 @@ from time import time
 import fnmatch
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException, InvalidReleaseTargetException
-from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
+from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON, MBED_CONFIG_FILE
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
@@ -673,6 +673,12 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         toolchain.VERBOSE = verbose
         toolchain.jobs = jobs
         toolchain.build_all = clean
+
+        # Take into account the library configuration (MBED_CONFIG_FILE)
+        config = Config(target)
+        toolchain.config = config
+        config.add_config_files([MBED_CONFIG_FILE])
+        toolchain.set_config_data(toolchain.config.get_config_data())
 
         # Source and Build Paths
         BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
