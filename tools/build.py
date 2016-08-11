@@ -229,6 +229,8 @@ if __name__ == '__main__':
                     print e
     else:
         # Build
+        extra_flags = {'cflags': options.cflags, 'asmflags': options.asmflags,
+                       'ldflags': options.ldflags}
         for toolchain in toolchains:
             for target in targets:
                 tt_id = "%s::%s" % (toolchain, target)
@@ -249,7 +251,8 @@ if __name__ == '__main__':
                                                         clean=options.clean,
                                                         archive=(not options.no_archive),
                                                         macros=options.macros,
-                                                        name=options.artifact_name)
+                                                        name=options.artifact_name,
+                                                        extra_flags=extra_flags)
                         else:
                             lib_build_res = build_mbed_libs(mcu, toolchain,
                                                         options=options.options,

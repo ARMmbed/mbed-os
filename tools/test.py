@@ -166,19 +166,22 @@ if __name__ == '__main__':
 
             library_build_success = False
             try:
+                extra_flags = {'cflags': options.cflags, 'asmflags': options.asmflags,
+                            'ldflags': options.ldflags}
                 # Build sources
                 build_library(base_source_paths, options.build_dir, mcu, toolchain,
-                                                options=options.options,
-                                                jobs=options.jobs,
-                                                clean=options.clean,
-                                                report=build_report,
-                                                properties=build_properties,
-                                                name="mbed-build",
-                                                macros=options.macros,
-                                                verbose=options.verbose,
-                                                notify=notify,
-                                                archive=False,
-                                                remove_config_header_file=True)
+                              options=options.options,
+                              jobs=options.jobs,
+                              clean=options.clean,
+                              report=build_report,
+                              properties=build_properties,
+                              name="mbed-build",
+                              macros=options.macros,
+                              verbose=options.verbose,
+                              notify=notify,
+                              archive=False,
+                              extra_flags=extra_flags,
+                              remove_config_header_file=True)
 
                 library_build_success = True
             except ToolException, e:
@@ -195,16 +198,21 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
-                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
-                        options=options.options,
-                        clean=options.clean,
-                        report=build_report,
-                        properties=build_properties,
-                        macros=options.macros,
-                        verbose=options.verbose,
-                        notify=notify,
-                        jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail)
+                extra_flags = {'cflags': options.cflags,
+                               'asmflags': options.asmflags,
+                               'ldflags': options.ldflags}
+                test_build_success, test_build = build_tests(
+                    tests, [options.build_dir], options.build_dir, mcu, toolchain,
+                    options=options.options,
+                    clean=options.clean,
+                    report=build_report,
+                    properties=build_properties,
+                    macros=options.macros,
+                    verbose=options.verbose,
+                    notify=notify,
+                    jobs=options.jobs,
+                    continue_on_build_fail=options.continue_on_build_fail,
+                    extra_flags=extra_flags)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:

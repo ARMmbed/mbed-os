@@ -260,6 +260,8 @@ if __name__ == '__main__':
             build_dir = options.build_dir
 
         try:
+            extra_flags = {'cflags': options.cflags, 'asmflags': options.asmflags,
+                           'ldflags': options.ldflags}
             bin_file = build_project(test.source_dir, build_dir, mcu, toolchain, test.dependencies, options.options,
                                      linker_script=options.linker_script,
                                      clean=options.clean,
@@ -268,7 +270,8 @@ if __name__ == '__main__':
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
-                                     name=options.artifact_name)
+                                     name=options.artifact_name,
+                                     extra_flags=extra_flags)
             print 'Image: %s'% bin_file
 
             if options.disk:
