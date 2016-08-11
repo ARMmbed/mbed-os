@@ -574,6 +574,11 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
 
         toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
+        # Take into account the library configuration (MBED_CONFIG_FILE)
+        config = Config(target)
+        toolchain.config = config
+        config.add_config_files([MBED_CONFIG_FILE])
+
         # Scan Resources
         resources = []
         for src_path in src_paths:
@@ -595,6 +600,11 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
 
         if inc_dirs:
             dependencies_include_dir.extend(inc_dirs)
+
+        # Add other discovered configuration data to the configuration object
+        for r in resources:
+            config.load_resources(r)
+        toolchain.set_config_data(toolchain.config.get_config_data())
 
         # Create the desired build directory structure
         bin_path = join(build_path, toolchain.obj_path)
