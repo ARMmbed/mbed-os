@@ -159,7 +159,7 @@ protected:
         return _stack_api()->socket_connect(_stack(), socket, address.get_addr(), address.get_port());
     }
 
-    virtual int socket_accept(nsapi_socket_t *socket, nsapi_socket_t server, SocketAddress *address)
+    virtual int socket_accept(nsapi_socket_t server, nsapi_socket_t *socket, SocketAddress *address)
     {
         if (!_stack_api()->socket_accept) {
             return NSAPI_ERROR_UNSUPPORTED;
