@@ -1619,8 +1619,8 @@
             }
         },
         "device_has": ["ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI"],
-	"features": ["BLE"],
-        "release_versions": ["2"]
+        "features": ["BLE"],
+        "release_versions": ["2", "5"]
     },
     "RZ_A1H": {
         "supported_form_factors": ["ARDUINO"],
@@ -1958,7 +1958,7 @@
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
         "extra_labels": ["NUVOTON", "NUC472", "NUMAKER_PFM_NUC472"],
-		"macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],		
+		"macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
