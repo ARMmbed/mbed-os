@@ -28,6 +28,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
+#include "lwip/ip.h"
 
 
 /* Static arena of sockets */
@@ -413,6 +414,18 @@ static int lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t handle, int leve
             }
 
             s->conn->pcb.tcp->keep_intvl = *(int*)optval;
+            return 0;
+
+        case NSAPI_REUSEADDR:
+            if (optlen != sizeof(int)) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            if (*(int *)optval) {
+                s->conn->pcb.tcp->so_options |= SOF_REUSEADDR;
+            } else {
+                s->conn->pcb.tcp->so_options &= ~SOF_REUSEADDR;
+            }
             return 0;
 
         default:

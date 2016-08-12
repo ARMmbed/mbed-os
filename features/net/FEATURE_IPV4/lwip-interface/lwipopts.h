@@ -67,6 +67,8 @@
 #define LWIP_DHCP                   1
 #define LWIP_DNS                    1
 
+#define SO_REUSE                    1
+
 // Support Multicast
 #include "stdlib.h"
 #define LWIP_IGMP                   1
