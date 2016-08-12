@@ -30,12 +30,14 @@ class ConfigParameter(object):
     """This class keeps information about a single configuration parameter"""
 
     def __init__(self, name, data, unit_name, unit_kind):
-        """
-        name: the name of the configuration parameter
-        data: the data associated with the configuration parameter
-        unit_name: the unit (target/library/application) that defines this
-                   parameter
-        unit_ kind: the kind of the unit ("target", "library" or "application")
+        """Construct a ConfigParameter
+
+        Positional arguments:
+        name - the name of the configuration parameter
+        data - the data associated with the configuration parameter
+        unit_name - the unit (target/library/application) that defines this
+                    parameter
+        unit_ kind - the kind of the unit ("target", "library" or "application")
         """
         self.name = self.get_full_name(name, unit_name, unit_kind,
                                        allow_prefix=False)
@@ -53,14 +55,16 @@ class ConfigParameter(object):
         """Return the full (prefixed) name of a parameter. If the parameter
         already has a prefix, check if it is valid
 
-        name: the simple (unqualified) name of the parameter
-        unit_name: the unit (target/library/application) that defines this
-                   parameter
-        unit_kind: the kind of the unit ("target", "library" or "application")
-        label: the name of the label in the 'target_config_overrides' section
-               (optional)
-        allow_prefix: True to allow the original name to have a prefix, False
-                      otherwise
+        Positional arguments:
+        name - the simple (unqualified) name of the parameter
+        unit_name - the unit (target/library/application) that defines this
+                    parameter
+        unit_kind - the kind of the unit ("target", "library" or "application")
+
+        Keyword arguments:
+        label - the name of the label in the 'target_config_overrides' section
+        allow_prefix - True to allow the original name to have a prefix, False
+                       otherwise
         """
         if name.find('.') == -1: # the name is not prefixed
             if unit_kind == "target":
@@ -97,11 +101,13 @@ class ConfigParameter(object):
         """Return the name displayed for a unit when interrogating the origin
         and the last set place of a parameter
 
-        unit_name: the unit (target/library/application) that defines this
-                   parameter
-        unit_kind: the kind of the unit ("target", "library" or "application")
-        label: the name of the label in the 'target_config_overrides' section
-               (optional)
+        Positional arguments:
+        unit_name - the unit (target/library/application) that defines this
+                    parameter
+        unit_kind - the kind of the unit ("target", "library" or "application")
+
+        Keyword arguments:
+        label - the name of the label in the 'target_config_overrides' section
         """
         if unit_kind == "target":
             return "target:" + unit_name
@@ -112,28 +118,37 @@ class ConfigParameter(object):
 
     @staticmethod
     def sanitize(name):
-        """ "Sanitize" a name so that it is a valid C macro name Currently it
-        simply replaces '.' and '-' with '_' name: the un-sanitized name.
+        """ "Sanitize" a name so that it is a valid C macro name. Currently it
+        simply replaces '.' and '-' with '_'.
+
+        Positional arguments:
+        name - the name to make into a valid C macro
         """
         return name.replace('.', '_').replace('-', '_')
 
     def set_value(self, value, unit_name, unit_kind, label=None):
         """ Sets a value for this parameter, remember the place where it was
-        set.  If the value is a boolean, it is converted to 1 (for True) or
+        set.  If the value is a Boolean, it is converted to 1 (for True) or
         to 0 (for False).
 
-        value: the value of the parameter
-        unit_name: the unit (target/library/application) that defines this
+        Positional arguments:
+        value - the value of the parameter
+        unit_name - the unit (target/library/application) that defines this
                    parameter
-        unit_ kind: the kind of the unit ("target", "library" or "application")
-        label: the name of the label in the 'target_config_overrides' section
+        unit_kind - the kind of the unit ("target", "library" or "application")
+
+        Keyword arguments:
+        label - the name of the label in the 'target_config_overrides' section
                (optional)
         """
         self.value = int(value) if isinstance(value, bool) else value
         self.set_by = self.get_display_name(unit_name, unit_kind, label)
 
     def __str__(self):
-        """Return the string representation of this configuration parameter"""
+        """Return the string representation of this configuration parameter
+
+        Arguments: None
+        """
         if self.value is not None:
             return '%s = %s (macro name: "%s")' % \
                 (self.name, self.value, self.macro_name)
@@ -141,8 +156,10 @@ class ConfigParameter(object):
             return '%s has no value' % self.name
 
     def get_verbose_description(self):
-        """Return a verbose description of this configuration paramater as a
+        """Return a verbose description of this configuration parameter as a
         string
+
+        Arguments: None
         """
         desc = "Name: %s%s\n" % \
                (self.name, " (required parameter)" if self.required else "")
@@ -160,6 +177,13 @@ class ConfigMacro(object):
     without a value (MACRO) and with a value (MACRO=VALUE)
     """
     def __init__(self, name, unit_name, unit_kind):
+        """Construct a ConfigMacro object
+
+        Positional arguments:
+        name - the macro's name
+        unit_name - the location where the macro was defined
+        unit_kind - the type of macro this is
+        """
         self.name = name
         self.defined_by = ConfigParameter.get_display_name(unit_name, unit_kind)
         if name.find("=") != -1:
@@ -176,6 +200,17 @@ class ConfigMacro(object):
 class ConfigCumulativeOverride(object):
     """Representation of overrides for cumulative attributes"""
     def __init__(self, name, additions=None, removals=None, strict=False):
+        """Construct a ConfigCumulativeOverride object
+
+        Positional arguments:
+        name - the name of the config file this came from ?
+
+        Keyword arguments:
+        additions - macros to add to the overrides
+        removals - macros to remove from the overrides
+        strict - Boolean indicating that attempting to remove from an override
+                 that does not exist should error
+        """
         self.name = name
         if additions:
             self.additions = set(additions)
@@ -188,7 +223,12 @@ class ConfigCumulativeOverride(object):
         self.strict = strict
 
     def remove_cumulative_overrides(self, overrides):
-        """Add attr to the cumulative override"""
+        """Extend the list of override removals.
+
+        Positional arguments:
+        overrides - a list of names that, when the override is evaluated, will
+                    be removed
+        """
         for override in overrides:
             if override in self.additions:
                 raise ConfigException(
@@ -198,7 +238,12 @@ class ConfigCumulativeOverride(object):
         self.removals |= set(overrides)
 
     def add_cumulative_overrides(self, overrides):
-        """Remove attr from the cumulative overrides"""
+        """Extend the list of override additions.
+
+        Positional arguments:
+        overrides - a list of a names that, when the override is evaluated, will
+                    be added to the list
+        """
         for override in overrides:
             if override in self.removals or \
                (self.strict and override not in self.additions):
@@ -209,7 +254,12 @@ class ConfigCumulativeOverride(object):
         self.additions |= set(overrides)
 
     def strict_cumulative_overrides(self, overrides):
-        """Enable strict set of cumulative overrides for the specified attr"""
+        """Remove all overrides that are not the specified ones
+
+        Positional arguments:
+        overrides - a list of names that will replace the entire attribute when
+                    this override is evaluated.
+        """
         self.remove_cumulative_overrides(self.additions - set(overrides))
         self.add_cumulative_overrides(overrides)
         self.strict = True
@@ -222,13 +272,15 @@ class ConfigCumulativeOverride(object):
 
 
 def _process_config_parameters(data, params, unit_name, unit_kind):
-    """Process a "config_parameters" section in either a target, a library
-    or the application
+    """Process a "config_parameters" section in either a target, a library,
+    or the application.
 
-    data: a dictionary with the configuration parameters
-    params: storage for the discovered configuration parameters
-    unit_name: the unit (target/library/application) that defines this parameter
-    unit_kind: the kind of the unit ("target", "library" or "application")
+    Positional arguments:
+    data - a dictionary with the configuration parameters
+    params - storage for the discovered configuration parameters
+    unit_name - the unit (target/library/application) that defines this
+                parameter
+    unit_kind - the kind of the unit ("target", "library" or "application")
     """
     for name, val in data.items():
         full_name = ConfigParameter.get_full_name(name, unit_name, unit_kind)
@@ -248,13 +300,14 @@ def _process_config_parameters(data, params, unit_name, unit_kind):
 
 
 def _process_macros(mlist, macros, unit_name, unit_kind):
-    """Process a macro definition, checking for incompatible duplicate
-    definitions
+    """Process a macro definition and check for incompatible duplicate
+    definitions.
 
-    mlist: list of macro names to process
-    macros: dictionary with currently discovered macros
-    unit_name: the unit (library/application) that defines this macro
-    unit_kind: the kind of the unit ("library" or "application")
+    Positional arguments:
+    mlist - list of macro names to process
+    macros - dictionary with currently discovered macros
+    unit_name - the unit (library/application) that defines this macro
+    unit_kind - the kind of the unit ("library" or "application")
     """
     for mname in mlist:
         macro = ConfigMacro(mname, unit_name, unit_kind)
@@ -296,20 +349,22 @@ class Config(object):
     ]
 
     def __init__(self, target, top_level_dirs=None):
-        """
-        The initialization arguments for Config are:
-            target: the name of the mbed target used for this configuration
-                    instance
-            top_level_dirs: a list of top level source directories (where
-                            mbed_abb_config.json could be found)
-        __init__ will look for the application configuration file in
-        top_level_dirs.
-        If found once, it'll parse it and check if it has a custom_targets
-        function.
-        If it does, it'll update the list of targets if need.
-        If found more than once, an exception is raised
-        top_level_dirs can be None (in this case, mbed_app_config.json will not
-        be searched)
+        """Construct a mbed configuration
+
+        Positional arguments:
+        target - the name of the mbed target used for this configuration
+                 instance
+
+        Keyword argumets:
+        top_level_dirs - a list of top level source directories (where
+                         mbed_abb_config.json could be found)
+
+        NOTE: Construction of a Config object will look for the application
+        configuration file in top_level_dirs. If found once, it'll parse it and
+        check if it has a custom_targets function. If it does, it'll update the
+        list of targets as needed. If more than one config file is found, an
+        exception is raised. top_level_dirs may be None (in this case,
+        the constructor will not search for a configuration file)
         """
         app_config_location = None
         for directory in top_level_dirs or []:
@@ -349,7 +404,11 @@ class Config(object):
         self.config_errors = None
 
     def add_config_files(self, flist):
-        """Add one or more configuration files"""
+        """Add configuration files
+
+        Positional arguments:
+        flist - a list of files to add to this configuration
+        """
         for config_file in flist:
             if not config_file.endswith(self.__mbed_lib_config_name):
                 continue
@@ -377,13 +436,14 @@ class Config(object):
 
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
-        """Process "config_parameters" and "target_config_overrides" in a given
-        dictionary
+        """Process "config_parameters" and "target_config_overrides" into a
+        given dictionary
 
-        data: the configuration data of the library/appliation
-        params: storage for the discovered configuration parameters
-        unit_name: the unit (library/application) that defines this parameter
-        unit_kind: the kind of the unit ("library" or "application")
+        Positional arguments:
+        data - the configuration data of the library/appliation
+        params - storage for the discovered configuration parameters
+        unit_name - the unit (library/application) that defines this parameter
+        unit_kind - the kind of the unit ("library" or "application")
         """
         self.config_errors = []
         _process_config_parameters(data.get("config", {}), params, unit_name,
@@ -447,13 +507,15 @@ class Config(object):
 
         We consider the resolution order for our target and sort it by level
         reversed, so that we first look at the top level target (the parent),
-        then its direct children, then the children's children and so on,
+        then its direct children, then the children of those children and so on,
         until we reach self.target
         TODO: this might not work so well in some multiple inheritance scenarios
         At each step, look at two keys of the target data:
           - config_parameters: used to define new configuration parameters
           - config_overrides: used to override already defined configuration
                               parameters
+
+        Arguments: None
         """
         params, json_data = {}, Target.get_json_target_data()
         resolution_order = [e[0] for e
@@ -486,9 +548,11 @@ class Config(object):
         return params
 
     def get_lib_config_data(self):
-        """ Read and interpret configuration data defined by libs It is assumed
-        that "add_config_files" above was already called and the library
+        """ Read and interpret configuration data defined by libraries. It is
+        assumed that "add_config_files" above was already called and the library
         configuration data exists in self.lib_config_data
+
+        Arguments: None
         """
         all_params, macros = {}, {}
         for lib_name, lib_data in self.lib_config_data.items():
@@ -504,13 +568,14 @@ class Config(object):
         return all_params, macros
 
     def get_app_config_data(self, params, macros):
-        """ Read and interpret the configuration data defined by the target The
+        """ Read and interpret the configuration data defined by the target. The
         target can override any configuration parameter, as well as define its
-        own configuration data
+        own configuration data.
 
-        params: the dictionary with configuration parameters found so far (in
-                the target and in libraries)
-        macros: the list of macros defined in the configuration
+        Positional arguments.
+        params - the dictionary with configuration parameters found so far (in
+                 the target and in libraries)
+        macros - the list of macros defined in the configuration
         """
         app_cfg = self.app_config_data
         # The application can have a "config_parameters" and a
@@ -522,10 +587,12 @@ class Config(object):
                         "application")
 
     def get_config_data(self):
-        """ Return the configuration data in two parts:
-          - params: a dictionary with (name, ConfigParam) entries
-          - macros: the list of macros defined with "macros" in libraries and
-                    in the application (as ConfigMacro instances)
+        """ Return the configuration data in two parts: (params, macros)
+        params - a dictionary with mapping a name to a ConfigParam
+        macros - the list of macros defined with "macros" in libraries and in
+                 the application (as ConfigMacro instances)
+
+        Arguments: None
         """
         all_params = self.get_target_config_data()
         lib_params, macros = self.get_lib_config_data()
@@ -535,8 +602,13 @@ class Config(object):
 
     @staticmethod
     def _check_required_parameters(params):
-        """verify if there are any required parameters without a value in
-        'params'
+        """Check that there are no required parameters without a value
+
+        Positional arguments:
+        params - the list of parameters to check
+
+        NOTE: This function does not return. Instead, it throws a
+        ConfigException when any of the required parameters are missing values
         """
         for param in params.values():
             if param.required and (param.value is None):
@@ -546,10 +618,13 @@ class Config(object):
 
     @staticmethod
     def parameters_to_macros(params):
-        """ Return the macro definitions generated for a dictionary of
-        configuration parameters
+        """ Encode the configuration parameters as C macro definitions.
 
-        params: a dictionary of (name, ConfigParameters instance) mappings
+        Positional arguments:
+        params - a dictionary mapping a name to a ConfigParameter
+
+        Return: a list of strings that encode the configuration parameters as
+        C pre-processor macros
         """
         return ['%s=%s' % (m.macro_name, m.value) for m in params.values()
                 if m.value is not None]
@@ -557,16 +632,20 @@ class Config(object):
     @staticmethod
     def config_macros_to_macros(macros):
         """ Return the macro definitions generated for a dictionary of
-        ConfigMacros (as returned by get_config_data)
+        ConfigMacros (as returned by get_config_data).
 
-        params: a dictionary of (name, ConfigMacro instance) mappings
+        Positional arguments:
+        params - a dictionary mapping a name to a ConfigMacro instance
+
+        Return: a list of strings that are the C pre-processor macros
         """
         return [m.name for m in macros.values()]
 
     @staticmethod
     def config_to_macros(config):
-        """ Return the configuration data converted to a list of C macros
+        """Convert the configuration data to a list of C macros
 
+        Positional arguments:
         config - configuration data as (ConfigParam instances, ConfigMacro
                  instances) tuple (as returned by get_config_data())
         """
@@ -576,12 +655,16 @@ class Config(object):
             Config.parameters_to_macros(params)
 
     def get_config_data_macros(self):
-        """ Return the configuration data converted to a list of C macros
+        """ Convert a Config object to a list of C macros
+
+        Arguments: None
         """
         return self.config_to_macros(self.get_config_data())
 
     def get_features(self):
-        """ Returns any features in the configuration data
+        """ Extract any features from the configuration data
+
+        Arguments: None
         """
         params, _ = self.get_config_data()
         self._check_required_parameters(params)
@@ -599,6 +682,8 @@ class Config(object):
     def validate_config(self):
         """ Validate configuration settings. This either returns True or
         raises an exception
+
+        Arguments: None
         """
         if self.config_errors:
             raise self.config_errors[0]
@@ -606,8 +691,11 @@ class Config(object):
 
 
     def load_resources(self, resources):
-        """ Loads configuration data from resources. Also expands resources
-        based on defined features settings
+        """ Load configuration data from a Resources instance and expand it
+        based on defined features.
+
+        Positional arguments:
+        resources - the resources object to load from and expand
         """
         # Update configuration files until added features creates no changes
         prev_features = set()
@@ -632,15 +720,18 @@ class Config(object):
 
     @staticmethod
     def config_to_header(config, fname=None):
-        """ Return the configuration data converted to the content of a C header
-        file, meant to be included to a C/C++ file. The content is returned as a
-        string. If 'fname' is given, the content is also written to the file
-        called "fname".
-        WARNING: if 'fname' names an existing file, that file will be
-        overwritten!
+        """ Convert the configuration data to the content of a C header file,
+        meant to be included to a C/C++ file. The content is returned as a
+        string.
 
+        Positional arguments:
         config - configuration data as (ConfigParam instances, ConfigMacro
                  instances) tuple (as returned by get_config_data())
+
+        Keyword arguments:
+        fname -  also write the content is to the file called "fname".
+                 WARNING: if 'fname' names an existing file, it will be
+                 overwritten!
         """
         params, macros = config[0], config[1]
         Config._check_required_parameters(params)
@@ -699,12 +790,12 @@ class Config(object):
         return header_data
 
     def get_config_data_header(self, fname=None):
-        """ Return the configuration data converted to the content of a C
-        header file, meant to be included to a C/C++ file. The content is
-        returned as a string. If 'fname' is given, the content is also written
-        to the file called "fname".
+        """ Convert a Config instance to the content of a C header file, meant
+        to be included to a C/C++ file. The content is returned as a string.
 
-        WARNING: if 'fname' names an existing file, that file will be
-                 overwritten!
+        Keyword arguments:
+        fname - also write the content to the file called "fname".
+                WARNING: if 'fname' names an existing file, it will be
+                overwritten!
         """
         return self.config_to_header(self.get_config_data(), fname)
