@@ -59,7 +59,7 @@ def cached(func):
 class Target:
     # Cumulative attributes can have values appended to them, so they
     # need to be computed differently than regular attributes
-    __cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
+    cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
 
     # List of targets that were added dynamically using "add_py_targets" (see below)
     __py_targets = set()
