@@ -60,7 +60,7 @@ int TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 
         _pending = 0;
         void *socket;
-        ret = _stack->socket_accept(&socket, _socket, address);
+        ret = _stack->socket_accept(_socket, &socket, address);
 
         if (0 == ret) {
             connection->_lock.lock();
