@@ -396,7 +396,7 @@ class Config(object):
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in
-                                     Target._Target__cumulative_attributes}
+                                     Target.cumulative_attributes}
 
         self._process_config_and_overrides(self.app_config_data, {}, "app",
                                            "application")
