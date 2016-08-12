@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   TIM HAL module driver
   *          This file provides firmware functions to manage the following
   *          functionalities of the Timer (TIM) peripheral:
@@ -1112,7 +1112,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 /**
   * @brief  Starts the PWM signal generation in interrupt mode.
   * @param  htim : TIM handle
-  * @param  Channel : TIM Channel to be disabled
+  * @param  Channel : TIM Channel to be enabled
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -2829,7 +2829,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
   *         parameters in the TIM_OC_InitTypeDef.
   * @param  htim: TIM Output Compare handle
   * @param  sConfig: TIM Output Compare configuration structure
-  * @param  Channel : TIM Channels to be enabled
+  * @param  Channel : TIM Channels to configure
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -2992,9 +2992,9 @@ HAL_StatusTypeDef HAL_TIM_IC_ConfigChannel(TIM_HandleTypeDef *htim, TIM_IC_InitT
 /**
   * @brief  Initializes the TIM PWM  channels according to the specified
   *         parameters in the TIM_OC_InitTypeDef.
-  * @param  htim: TIM handle
+  * @param  htim: TIM PWM handle
   * @param  sConfig: TIM PWM configuration structure
-  * @param  Channel : TIM Channels to be enabled
+  * @param  Channel : TIM Channels to be configured
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
