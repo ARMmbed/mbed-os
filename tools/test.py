@@ -29,7 +29,7 @@ sys.path.insert(0, ROOT)
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
 from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
-from tools.build_api import print_build_memory_usage_results
+from tools.build_api import print_build_memory_usage
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
@@ -230,7 +230,7 @@ if __name__ == '__main__':
             # Print memory map summary on screen
             if build_report:
                 print
-                print print_build_memory_usage_results(build_report)
+                print print_build_memory_usage(build_report)
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
             status = print_report_exporter.report(build_report)
