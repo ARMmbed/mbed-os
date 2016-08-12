@@ -19,10 +19,8 @@
 #ifndef UTEST_SERIAL_H
 #define UTEST_SERIAL_H
 
-#include "mbed.h"
+#include "greentea-client/greentea_serial.h"
 
-extern RawSerial utest_serial;
-
-#define utest_printf(...) utest_serial.printf(__VA_ARGS__)
+#define utest_printf(...) greentea_serial->printf(__VA_ARGS__)
 
 #endif // UTEST_SERIAL_H
