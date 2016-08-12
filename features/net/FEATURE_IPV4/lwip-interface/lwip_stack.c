@@ -292,7 +292,7 @@ static int lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket_t handle, nsap
     return lwip_err_remap(err);
 }
 
-static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_socket_t server)
+static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi_socket_t *handle, nsapi_addr_t *addr, uint16_t *port)
 {
     struct lwip_socket *s = (struct lwip_socket *)server;
     struct lwip_socket *ns = lwip_arena_alloc();
@@ -304,6 +304,10 @@ static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t *handle, nsap
     }
 
     *(struct lwip_socket **)handle = ns;
+
+    (void) netconn_peer(ns->conn, (ip_addr_t *)addr->bytes, port);
+    addr->version = NSAPI_IPv4;
+
     return 0;
 }
 
