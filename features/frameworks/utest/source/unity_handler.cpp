@@ -19,7 +19,7 @@
 #include "utest/utest_harness.h"
 #include "utest/utest_stack_trace.h"
 #include "utest/unity_handler.h"
-#include "utest/utest_serial.h"
+#include "greentea-client/greentea_serial.h"
 
 void utest_unity_assert_failure(void)
 {
@@ -35,7 +35,7 @@ void utest_unity_ignore_failure(void)
 
 void utest_safe_putc(int chr)
 {
-    utest_serial.putc(chr);
+    greentea_serial->putc(chr);
 }    
 
 

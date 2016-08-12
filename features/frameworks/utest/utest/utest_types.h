@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "utest/utest_shim.h"
+#include "SingletonPtr.h"
 
 namespace utest {
 namespace v1 {
