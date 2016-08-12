@@ -77,7 +77,7 @@ def get_default_options_parser(add_clean=True, add_options=True):
                                                                  'debug-info',
                                                                  'analyze',
 								 'small-build',
-								 'big-build'],
+								 'standard-build'],
                                                                 "build option"))
 
     return parser
