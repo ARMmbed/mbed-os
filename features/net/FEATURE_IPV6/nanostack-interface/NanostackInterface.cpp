@@ -846,7 +846,7 @@ int NanostackInterface::socket_connect(void *handle, const SocketAddress &addr)
     return ret;
 }
 
-int NanostackInterface::socket_accept(void **handle, void *server)
+int NanostackInterface::socket_accept(void *server, void **handle, SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
