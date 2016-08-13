@@ -1,4 +1,4 @@
-#if defined(TARGET_NUCLEO_F746ZG)
+#if defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_NUCLEO_F767ZI)
 #include "stm32f7xx_hal.h"
 #include "lwip/opt.h"
 
