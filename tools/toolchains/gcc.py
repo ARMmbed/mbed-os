@@ -40,7 +40,7 @@ class GCC(mbedToolchain):
         'c': ["-std=gnu99"],
         'cxx': ["-std=gnu++98", "-fno-rtti", "-Wvla"],
         'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main",
-            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r"],
+            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_calloc_r"],
     }
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
