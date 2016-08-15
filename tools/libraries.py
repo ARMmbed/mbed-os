@@ -14,8 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from tools.paths import *
-from tools.data.support import *
+from tools.paths import MBED_RTX, RTOS_LIBRARIES, MBED_LIBRARIES, MBED_RPC,\
+    RTOS_ABSTRACTION, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
+    USB_HOST_LIBRARIES, FAT_FS, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
+    SD_FS, FS_LIBRARY, ETH_SOURCES, LWIP_SOURCES, ETH_LIBRARY, UBLOX_SOURCES,\
+    UBLOX_LIBRARY, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, CPPUTEST_SRC,\
+    CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR, CPPUTEST_LIBRARY,\
+    CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC,\
+    CPPUTEST_INC_EXT
+from tools.data.support import DEFAULT_SUPPORT
 from tools.tests import TEST_MBED_LIB
 
 
@@ -84,7 +91,8 @@ LIBRARIES = [
 
     {
         "id": "ublox",
-        "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, LWIP_SOURCES],
+        "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES,
+                       LWIP_SOURCES],
         "build_dir": UBLOX_LIBRARY,
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
     },
@@ -92,12 +100,15 @@ LIBRARIES = [
     # Unit Testing library
     {
         "id": "cpputest",
-        "source_dir": [CPPUTEST_SRC, CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR],
+        "source_dir": [CPPUTEST_SRC, CPPUTEST_PLATFORM_SRC,
+                       CPPUTEST_TESTRUNNER_SCR],
         "build_dir": CPPUTEST_LIBRARY,
         "dependencies": [MBED_LIBRARIES],
-        'inc_dirs': [CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC, TEST_MBED_LIB],
+        'inc_dirs': [CPPUTEST_INC, CPPUTEST_PLATFORM_INC,
+                     CPPUTEST_TESTRUNNER_INC, TEST_MBED_LIB],
         'inc_dirs_ext': [CPPUTEST_INC_EXT],
-        'macros': ["CPPUTEST_USE_MEM_LEAK_DETECTION=0", "CPPUTEST_USE_STD_CPP_LIB=0", "CPPUTEST=1"],
+        'macros': ["CPPUTEST_USE_MEM_LEAK_DETECTION=0",
+                   "CPPUTEST_USE_STD_CPP_LIB=0", "CPPUTEST=1"],
     },
 ]
 
@@ -105,19 +116,30 @@ LIBRARIES = [
 LIBRARY_MAP = dict([(library['id'], library) for library in LIBRARIES])
 
 
-class Library:
-    DEFAULTS = {
-        "supported": DEFAULT_SUPPORT,
-        'dependencies': None,
-        'inc_dirs': None,       # Include dirs required by library build
-        'inc_dirs_ext': None,   # Include dirs required by others to use with this library
-        'macros': None,         # Additional macros you want to define when building library
-    }
+class Library(object):
+    """A library representation that allows for querying of support"""
     def __init__(self, lib_id):
-        self.__dict__.update(Library.DEFAULTS)
-        self.__dict__.update(LIBRARY_MAP[lib_id])
+        lib = LIBRARY_MAP[lib_id]
+        self.supported = lib.get("supported", DEFAULT_SUPPORT)
+        self.dependencies = lib.get("dependencies", None)
+        # Include dirs required by library build
+        self.inc_dirs = lib.get("inc_dirs", None)
+        # Include dirs required by others to use with this library
+        self.inc_dirs_ext = lib.get("inc_dirs_ext", None)
+        # Additional macros you want to define when building library
+        self.macros = lib.get("macros", None)
+
+        self.source_dir = lib["source_dir"]
+        self.build_dir = lib["build_dir"]
 
     def is_supported(self, target, toolchain):
+        """Check if a target toolchain combination is supported
+
+        Positional arguments:
+        target - the MCU or board
+        toolchain - the compiler
+        """
         if not hasattr(self, 'supported'):
             return True
-        return (target.name in self.supported) and (toolchain in self.supported[target.name])
+        return (target.name in self.supported) and \
+            (toolchain in self.supported[target.name])
