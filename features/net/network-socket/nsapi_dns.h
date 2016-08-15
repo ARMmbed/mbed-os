@@ -37,17 +37,8 @@ int nsapi_dns_query(nsapi_stack_t *stack, nsapi_addr_t *addr,
 #ifdef __cplusplus
 int nsapi_dns_query(nsapi_stack_t *stack, nsapi_addr_t *addr,
         const char *host);
-int nsapi_dns_query(NetworkStack *stack, nsapi_addr_t *addr,
-        const char *host, nsapi_version_t version = NSAPI_IPv4);
 int nsapi_dns_query(NetworkStack *stack, SocketAddress *addr,
         const char *host, nsapi_version_t version = NSAPI_IPv4);
-
-template <typename S>
-int nsapi_dns_query(S *stack, nsapi_addr_t *addr,
-        const char *host, nsapi_version_t version = NSAPI_IPv4)
-{
-    return nsapi_dns_query(nsapi_create_stack(stack), addr, host, version);
-}
 
 template <typename S>
 int nsapi_dns_query(S *stack, SocketAddress *addr,
@@ -78,20 +69,8 @@ int nsapi_dns_query_multiple(nsapi_stack_t *stack,
         nsapi_addr_t *addr, unsigned addr_count,
         const char *host);
 int nsapi_dns_query_multiple(NetworkStack *stack,
-        nsapi_addr_t *addr, unsigned addr_count,
-        const char *host, nsapi_version_t version = NSAPI_IPv4);
-int nsapi_dns_query_multiple(NetworkStack *stack,
         SocketAddress *addr, unsigned addr_count,
         const char *host, nsapi_version_t version = NSAPI_IPv4);
-
-template <typename S>
-int nsapi_dns_query_multiple(S *stack,
-        nsapi_addr_t *addr, unsigned addr_count,
-        const char *host, nsapi_version_t version = NSAPI_IPv4)
-{
-    return nsapi_dns_query_multiple(nsapi_create_stack(stack),
-                addr, addr_count, host, version);
-}
 
 template <typename S>
 int nsapi_dns_query_multiple(S *stack,

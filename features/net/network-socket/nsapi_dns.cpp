@@ -176,7 +176,7 @@ static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned add
 }
 
 // core query function
-int nsapi_dns_query_multiple(NetworkStack *stack,
+static int nsapi_dns_query_multiple(NetworkStack *stack,
         nsapi_addr_t *addr, unsigned addr_count,
         const char *host, nsapi_version_t version)
 {
@@ -296,13 +296,6 @@ int nsapi_dns_query(nsapi_stack_t *stack,
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
     int result = nsapi_dns_query_multiple(nstack, addr, 1, host, NSAPI_IPv4);
-    return (result > 0) ? 0 : result;
-}
-
-int nsapi_dns_query(NetworkStack *stack,
-        nsapi_addr_t *addr, const char *host, nsapi_version_t version)
-{
-    int result = nsapi_dns_query_multiple(stack, addr, 1, host, version);
     return (result > 0) ? 0 : result;
 }
 
