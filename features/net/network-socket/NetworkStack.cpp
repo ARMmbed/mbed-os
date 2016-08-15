@@ -24,14 +24,7 @@
 // Default NetworkStack operations
 int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
 {
-    nsapi_addr_t addr;
-    int err = nsapi_dns_query(this, &addr, name);
-    if (err) {
-        return err;
-    }
-
-    address->set_addr(addr);
-    return 0;
+    return nsapi_dns_query(this, address, name);
 }
 
 int NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
