@@ -1608,7 +1608,7 @@
     "ARM_BEETLE_SOC": {
         "inherits": ["ARM_IOTSS_Target"],
         "core": "Cortex-M3",
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "extra_labels": ["ARM_SSG", "BEETLE"],
         "macros": ["CMSDK_BEETLE", "WSF_MS_PER_TICK=20", "WSF_TOKEN_ENABLED=FALSE", "WSF_TRACE_ENABLED=TRUE", "WSF_ASSERT_ENABLED=FALSE", "WSF_PRINTF_MAX_LEN=128", "ASIC", "CONFIG_HOST_REV=0x20", "CONFIG_ALLOW_DEEP_SLEEP=FALSE", "HCI_VS_TARGET", "CONFIG_ALLOW_SETTING_WRITE=TRUE", "WSF_MAX_HANDLERS=20", "NO_LEDS"],
@@ -1619,8 +1619,8 @@
             }
         },
         "device_has": ["ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI"],
-	"features": ["BLE"],
-        "release_versions": ["2"]
+        "features": ["BLE"],
+        "release_versions": ["2", "5"]
     },
     "RZ_A1H": {
         "supported_form_factors": ["ARDUINO"],
@@ -1958,7 +1958,7 @@
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
         "extra_labels": ["NUVOTON", "NUC472", "NUMAKER_PFM_NUC472"],
-		"macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],		
+		"macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
