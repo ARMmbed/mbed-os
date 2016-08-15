@@ -1517,11 +1517,13 @@
         "extra_labels_add": ["NRF51_MICROBIT"],
         "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"]
     },
+
     "TY51822R3": {
-        "inherits": ["MCU_NRF51_32K"],
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "macros_add": ["TARGET_NRF_32MHZ_XTAL"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
-        "release_versions": ["2"]
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "detect_code": ["1019"],
+        "release_versions": ["2", "5"]
     },
     "TY51822R3_BOOT": {
         "inherits": ["MCU_NRF51_32K_BOOT"],
