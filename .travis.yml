@@ -3,6 +3,7 @@ python:
 
 script:
   - PYTHONPATH=. python tools/test/config_test/config_test.py
+  - python tools/test/pylint.py
   - py.test tools/test/toolchains/api.py
   - python tools/build_travis.py
 before_install:
@@ -17,3 +18,4 @@ install:
   - sudo pip install prettytable
   - sudo pip install jinja2
   - sudo pip install pytest
+  - sudo pip install pylint
