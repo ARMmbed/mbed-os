@@ -20,11 +20,12 @@
 #include <stdlib.h>
 
 
+// DNS options
 #define DNS_BUFFER_SIZE 256 
 #define DNS_TIMEOUT 5000
+#define DNS_SERVERS_SIZE 5
 
-#define DNS_SERVERS_LENGTH (sizeof DNS_SERVERS / sizeof DNS_SERVERS[0])
-const nsapi_addr_t DNS_SERVERS[] = {
+nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
     {NSAPI_IPv4, {8, 8, 8, 8}},
     {NSAPI_IPv4, {209, 244, 0, 3}},
     {NSAPI_IPv4, {84, 200, 69, 80}},
@@ -33,6 +34,29 @@ const nsapi_addr_t DNS_SERVERS[] = {
 };
 
 
+// DNS server configuration
+NSAPI_C_LINKAGE
+int nsapi_dns_add_server(nsapi_addr_t addr)
+{
+    memmove(&dns_servers[1], &dns_servers[0],
+            (DNS_SERVERS_SIZE-1)*sizeof(nsapi_addr_t));
+
+    dns_servers[0] = addr;
+    return 0;
+}
+
+int nsapi_dns_add_server(const SocketAddress &address)
+{
+    return nsapi_dns_add_server(address.get_addr());
+}
+
+int nsapi_dns_add_server(const char *address)
+{
+    return nsapi_dns_add_server(SocketAddress(address));
+}
+
+
+// DNS packet parsing
 static void dns_append_byte(uint8_t **p, uint8_t byte)
 {
     *(*p)++ = byte;
@@ -204,12 +228,12 @@ static int nsapi_dns_query_multiple(NetworkStack *stack,
     int result = NSAPI_ERROR_DNS_FAILURE;
 
     // check against each dns server
-    for (unsigned i = 0; i < DNS_SERVERS_LENGTH; i++) {
+    for (unsigned i = 0; i < DNS_SERVERS_SIZE; i++) {
         // send the question
         uint8_t *p = packet;
         dns_append_question(&p, host, version);
 
-        err = socket.sendto(SocketAddress(DNS_SERVERS[i], 53), packet, DNS_BUFFER_SIZE);
+        err = socket.sendto(SocketAddress(dns_servers[i], 53), packet, DNS_BUFFER_SIZE);
         if (err == NSAPI_ERROR_WOULD_BLOCK) {
             continue;
         } else if (err < 0) {
