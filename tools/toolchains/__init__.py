@@ -1035,7 +1035,7 @@ class mbedToolchain:
         # Here we return memory statistics structure (constructed after
         # call to generate_output) which contains raw data in bytes
         # about sections + summary
-        return memap.get_memory_summary()
+        return memap.mem_summary
 
     # Set the configuration data
     def set_config_data(self, config_data):
