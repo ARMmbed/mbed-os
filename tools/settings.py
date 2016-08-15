@@ -51,6 +51,10 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+CLI_COLOR_MAP = {
+    "warning": "yellow",
+    "error"  : "red"
+}
 
 ##############################################################################
 # User Settings (file)
@@ -74,17 +78,6 @@ for _n in _ENV_PATHS:
             globals()[_n] = getenv('MBED_'+_n)
         else:
             print "WARNING: MBED_%s set as environment variable but doesn't exist" % _n
-
-
-##############################################################################
-# ARM Compiler Paths
-##############################################################################
-
-ARM_BIN = join(ARM_PATH, "bin")
-ARM_INC = join(ARM_PATH, "include")
-ARM_LIB = join(ARM_PATH, "lib")
-ARM_CPPLIB = join(ARM_LIB, "cpplib")
-MY_ARM_CLIB = join(ARM_LIB, "lib", "microlib")
 
 
 ##############################################################################

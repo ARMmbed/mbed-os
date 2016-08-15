@@ -22,7 +22,7 @@ from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 sys.path.append(abspath(join(dirname(__file__), "../../../")))
-from tools.test_api import get_autodetected_MUTS_list
+import tools.test_api
 
 class HostTestPluginCopyMethod_Smart(HostTestPluginBase):
 
@@ -74,7 +74,7 @@ class HostTestPluginCopyMethod_Smart(HostTestPluginBase):
 
                 for i in range(0, 60):
                     print('Looking for %s with MBEDLS' % target_mcu)
-                    muts_list = get_autodetected_MUTS_list(platform_name_filter=platform_name_filter)
+                    muts_list = tools.test_api.get_autodetected_MUTS_list(platform_name_filter=platform_name_filter)
 
                     if 1 in muts_list:
                         mut = muts_list[1]

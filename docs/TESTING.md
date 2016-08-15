@@ -28,13 +28,13 @@ Note: This configuration file must be in [JSON format](http://www.w3schools.com/
 Note: Unfortunately JSON format is not allowing you to have comments inside JSON code.
 
 Let’s see some example and let's try to configure small "test farm" with three devices connected to your host computer. In this example no peripherals (like SD card or EEPROM) are connected to our Mbed boards. We will use three platforms in this example:
-* [NXP LPC1768](https://mbed.org/platforms/mbed-LPC1768) board. 
-* \[Freescale KL25Z](https://mbed.org/platforms/KL25Z) board and 
-* [STMicro Nucleo F103RB](https://mbed.org/platforms/ST-Nucleo-F103RB) board. 
+* [NXP LPC1768](https://mbed.org/platforms/mbed-LPC1768) board.
+* \[Freescale KL25Z](https://mbed.org/platforms/KL25Z) board and
+* [STMicro Nucleo F103RB](https://mbed.org/platforms/ST-Nucleo-F103RB) board.
 After connecting boards to our host machine (PC) we can check which serial ports and disks they occupy. For our example let's assume that:
-* ```LPC1768``` serial port is on ```COM4``` and disk drive is ```J:```. 
-* ```KL25Z``` serial port is on ```COM39``` and disk drive is ```E:```. 
-* ```NUCLEO_F103RB``` serial port is on ```COM11``` and disk drive is ```I:```. 
+* ```LPC1768``` serial port is on ```COM4``` and disk drive is ```J:```.
+* ```KL25Z``` serial port is on ```COM39``` and disk drive is ```E:```.
+* ```NUCLEO_F103RB``` serial port is on ```COM11``` and disk drive is ```I:```.
 If you are working under Linux your port and disk could look like /dev/ttyACM5 and /media/usb5.
 
 This information is needed to create ```muts_all.json``` configuration file. You can create it in ```mbed/tools/``` directory:
@@ -50,13 +50,13 @@ Its name will be passed to ```singletest.py``` script after ```-M``` (MUTs speci
         "disk":"J:\\",
         "peripherals": []
     },
- 
+
     "2" : {"mcu": "KL25Z",
         "port":"COM39",
         "disk":"E:\\",
         "peripherals": []
     },
- 
+
     "3" : {"mcu": "NUCLEO_F103RB",
         "port":"COM11",
         "disk":"I:\\",
@@ -65,7 +65,7 @@ Its name will be passed to ```singletest.py``` script after ```-M``` (MUTs speci
 }
 ```
 
-Note: We will leave field ```peripherals``` empty for the sake of this example. We will explain it later. All you need to do now is to properly fill fields ```mcu```, ```port``` and ```disk```. 
+Note: We will leave field ```peripherals``` empty for the sake of this example. We will explain it later. All you need to do now is to properly fill fields ```mcu```, ```port``` and ```disk```.
 
 Note: Please make sure files muts_all.json and test_spec.json are in tools/ directory. We will assume in this example they are.
 Where to find ```mcu``` names? You can use option ```-S``` of ```build.py``` script (in ```mbed/tools/``` directory) to check all supported off-line MCUs names.
@@ -104,7 +104,7 @@ muts_all.json:
            "port" : "COM77",
            "disk" : "G:\\",
            "peripherals" : ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]},
- 
+
     "2" : {"mcu" : "KL25Z",
            "port" : "COM89",
            "disk" : "F:\\",
@@ -112,7 +112,7 @@ muts_all.json:
            "copy_method" : "copy",
            "reset_type" : "default",
            "reset_tout" : "2"},
- 
+
     "3" : {"mcu" : "LPC11U24",
            "port" : "COM76",
            "disk" : "E:\\",
@@ -123,10 +123,10 @@ Please note that for MUT no. 2 few extra parameters were defined: ```copy_method
 
 * ```copy_method``` - STRING - tells test suite which binary copy method should be used.
 You may notice that ```singletest.py``` command line help contains description about:
- * Option ```-c``` (in MUTs file called ```copy_method```) with available copy methods supported by test suite plugin system. 
+ * Option ```-c``` (in MUTs file called ```copy_method```) with available copy methods supported by test suite plugin system.
  * Option ```-r``` (in MUTs file called reset_type) with available reset methods supported by test suite plugin system.
 * ```reset_type``` - STRING - some boards may require special reset handling, for example vendor specific command must be executed to reset device.
-* ```reset_tout``` - INTEGER - extra timeout just after device is reseted. May be used to wait for few seconds so device may finish booting, flashing data internally etc. 
+* ```reset_tout``` - INTEGER - extra timeout just after device is reseted. May be used to wait for few seconds so device may finish booting, flashing data internally etc.
 
 Part of help listing for singletest.py:
 ```
@@ -208,11 +208,11 @@ Having multiple configuration files allows you to manage your test scenarios in 
 
 * Set up all platforms and toolchains used during testing.
 * Define (using script's ```-n``` switch) which tests you want to run during testing.
-* Just run regression (all tests). Regression is default setting for test script. 
+* Just run regression (all tests). Regression is default setting for test script.
 
 You can also force ```singletest.py``` script to:
 * Run only peripherals' tests (switch ```-P```) or
-* Just skip peripherals' tests (switch ```-C```). 
+* Just skip peripherals' tests (switch ```-C```).
 * Build mbed SDK, libraries and corresponding tests with multiple cores, just use ```-j X``` option where ```X``` is number of cores you want to use for compilation.
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json -j 8
@@ -225,8 +225,8 @@ $ python singletest.py -i test_spec.json -M muts_all.json -j 8 -O
 * Execute each test case multiple times with ```--global-loops X``` option, where ```X``` number of repeats. Additionally use option ```-W``` to continue repeating test cases execution only if they continue to fail.
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json --global-loops 3 -W
-``` 
-* Option ```--loops``` can be used to overwrite global loop count and redefine loop count for particular tests. Define test loops as ```TEST_ID=X``` where ```X``` is integer and separate loops count definitions by comma if necessary. E.g. ```TEST_1=5,TEST_2=20,TEST_3=2```. 
+```
+* Option ```--loops``` can be used to overwrite global loop count and redefine loop count for particular tests. Define test loops as ```TEST_ID=X``` where ```X``` is integer and separate loops count definitions by comma if necessary. E.g. ```TEST_1=5,TEST_2=20,TEST_3=2```.
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json RTOS_1=10,RTOS_2=5
 ```
@@ -234,7 +234,7 @@ This will execute test ```RTOS_1``` ten (10) times and test ```RTOS_2``` five (5
 * Force non default copy method. Note that mbed platforms can be flashed with just binary drag&drop. We simply copy file onto mbed's disk and interface chip flashes target MCU with given binary. Force non standard (Python specific) copy method by using option ```-c COPY_METHOD``` where ```COPY_METHOD``` can be shell, command line copy command like: ```cp```, ```copy````, ```xcopy``` etc. Make sure those commands are available from command line!
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json -c cp
-``` 
+```
 * Run only selected tests. You can select which tests should be executed when you run test suite. Use ```-n``` switch to define tests by their ids you want to execute. Use comma to separate test ids:
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json -n RTOS_1,RTOS_2,RTOS_3,MBED_10,MBED_16,MBED_11
@@ -319,12 +319,12 @@ This example will show you how to configure single device, run general tests or 
 2. We will also connect EEPROM ```24LC256``` to SDA, SCL pins of our Nucleo board and define 24LC256 peripheral to make sure our test suite will run all available tests for ```24LC256```.
 
 Let's configure our one MUT and set uARM as the only compiler we will use to compiler Mbed SDK and tests.
-We also need to create two configuration files ```muts_all.json``` and ```test_spec.json``` to pass our small testbed configuration to test script. 
+We also need to create two configuration files ```muts_all.json``` and ```test_spec.json``` to pass our small testbed configuration to test script.
 
 muts_all.json:
 ```json
 {
-    "1" : { 
+    "1" : {
             "mcu": "NUCLEO_F334R8",
             "port":"COM46",
             "disk":"E:\\",
@@ -332,7 +332,7 @@ muts_all.json:
     }
 }
 ```
-Note: By defining ```"peripherals": ["24LC256"]``` we are passing to test suite information that this particular board has EEPROM 24LC256 connected to our board. 
+Note: By defining ```"peripherals": ["24LC256"]``` we are passing to test suite information that this particular board has EEPROM 24LC256 connected to our board.
 
 test_spec.json:
 ```json
@@ -342,7 +342,7 @@ test_spec.json:
      }
 }
 ```
-Note: 
+Note:
 * Please make sure device is connected before we will start running tests.
 * Please make sure files ```muts_all.json``` and ```test_spec.json``` are in ```mbed/tools/``` directory.
 Now you can call test suite and execute tests:
@@ -409,7 +409,7 @@ Execute above command to:
  * Force to loop test RTOS_1 to execute 3 times.
  * Force to loop test RTOS_2 to execute 4 times.
  * Force to loop test RTOS_3 to execute 5 times.
- * Force to loop test MBED_11 to execute 5 times. 
+ * Force to loop test MBED_11 to execute 5 times.
 
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json -n RTOS_1,RTOS_2,RTOS_3,MBED_10,MBED_16,MBED_11 --shuffle --global-loops 3 --loops RTOS_1=3,RTOS_2=4,RTOS_3=5,MBED_11=5
@@ -421,15 +421,15 @@ $ python singletest.py -i test_spec.json -M muts_all.json -n RTOS_1,RTOS_2,RTOS_
 
 Mbed SDK test suite supports writing tests using CppUTest. All you need to do it to provide CppUTest sources and includes with Mbed SDK port. This is already done for you so all you need to do it to get proper sources in your project directory.
 CppUTest’s core design principles are:
-* Simple in design and simple in use. 
-* Portable to old and new platforms. 
+* Simple in design and simple in use.
+* Portable to old and new platforms.
 * Build with Test-driven Development in mind.
 
 ## From where you can get more help about CppUTest library and unit testing
 •	You can read [CppUTest manual](http://cpputest.github.io/manual.html)
-* [CppUTest forum](https://groups.google.com/forum/?fromgroups#!forum/cpputest) 
+* [CppUTest forum](https://groups.google.com/forum/?fromgroups#!forum/cpputest)
 * [CppUTest on GitHub](https://github.com/cpputest/cpputest)
-* Finally, if you think unit testing is new concept for you, you can have a grasp of it on Wikipedia pages about [unit testing](http://en.wikipedia.org/wiki/Unit_testing) and continue from there. 
+* Finally, if you think unit testing is new concept for you, you can have a grasp of it on Wikipedia pages about [unit testing](http://en.wikipedia.org/wiki/Unit_testing) and continue from there.
 
 ## How to add CppUTest to your current Mbed SDK installation
 
@@ -494,7 +494,7 @@ $ hg clone https://mbed.org/users/rgrover1/code/cpputest/
 
 After above three steps you should have proper directory structure. All you need to do now is to configure your ```mbed_settings.py``` in ```mbed``` directory. Please refer to mbed SDK build script documentation for details.
 
-## CppUTest with mbed port 
+## CppUTest with mbed port
 To make sure you actualy have CppUTest library with mbed SDK port you can go to CppUTest ```armcc``` platform directory:
 ```
 $ cd c:/Projects/Project/cpputest/src/Platforms/armcc/
@@ -505,7 +505,7 @@ You should find part of code responsible for porting console on default serial p
 ```c++
 #include "Serial.h"
 using namespace mbed;
- 
+
 int PlatformSpecificPutchar(int c)
 {
     /* Please modify this block for test results to be reported as
@@ -514,7 +514,7 @@ int PlatformSpecificPutchar(int c)
 #define NEED_TEST_REPORT_AS_CONSOLE_OUTPUT 1
 #if NEED_TEST_REPORT_AS_CONSOLE_OUTPUT
     extern Serial console;
- 
+
     #define NEED_LINE_FEED_IN_ADDITION_TO_NEWLINE 1
     #if NEED_LINE_FEED_IN_ADDITION_TO_NEWLINE
     /* CppUTest emits \n line terminators in its reports; some terminals
@@ -523,7 +523,7 @@ int PlatformSpecificPutchar(int c)
         console.putc('\r');
     }
     #endif /* #if NEED_LINE_FEED_IN_ADDITION_TO_NEWLINE */
- 
+
     return (console.putc(c));
 #else /* NEED_TEST_REPORT_AS_CONSOLE_OUTPUT */
     return (0);
@@ -596,7 +596,7 @@ All tests defined in test suite are described in ```mbed/tools/tests.py``` file.
 Note: In dependency section we've added library ```CPPUTEST_LIBRARY``` which is pointing build script to CppUTest library with mbed port. This is a must for unit tests to be compiled with CppUTest library.
 
 ### Tests are now divided into two types:
-#### 'Hello world' tests 
+#### 'Hello world' tests
 First type of test cases we call 'hello world' tests. They do not dependent on CppUTest library and are monolithic programs usually composed of one main function. You can find this tests in below example directories:
 
 * ```mbed/libraries/tests/mbed/```
@@ -606,7 +606,7 @@ First type of test cases we call 'hello world' tests. They do not dependent on C
 
 Usually ‘hello world’ test cases are using ```test_env.cpp``` and ```test_env.h``` files which implement simple test framework used to communicate with host test and help test framework instrument your tests.
 
-Below you can see listing of ```test_env.h``` file which contains simple macro definitions used to communicate (via serial port printouts) between test case (on hardware) and host test script (on host computer). 
+Below you can see listing of ```test_env.h``` file which contains simple macro definitions used to communicate (via serial port printouts) between test case (on hardware) and host test script (on host computer).
 Each use case should print on console basic information like:
 * Default test case timeout.
 * Which host test should be used to supervise test case execution.
@@ -717,53 +717,6 @@ TEST(BusOut_mask, led_1_nc_2_nc_nc_3)
     BusOut bus_data(LED1, NC, LED2, NC, NC, LED3);
     CHECK_EQUAL(0x25, bus_data.mask());
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef MBED_OPERATORS
-TEST_GROUP(BusOut_digitalout_write)
-{
-};
-
-TEST(BusOut_digitalout_write, led_nc)
-{
-    BusOut bus_data(NC);
-    CHECK_EQUAL(false, bus_data[0].is_connected())
-}
-
-TEST(BusOut_digitalout_write, led_1_2_3)
-{
-    BusOut bus_data(LED1, LED2, LED3);
-    bus_data[0].write(1);
-    bus_data[1].write(1);
-    bus_data[2].write(1);
-    CHECK(bus_data[0].read());
-    CHECK(bus_data[1].read());
-    CHECK(bus_data[2].read());
-}
-
-TEST(BusOut_digitalout_write, led_1_2_3_nc_nc)
-{
-    BusOut bus_data(LED1, LED2, LED3, NC, NC);
-    bus_data[0].write(0);
-    bus_data[1].write(0);
-    bus_data[2].write(0);
-    CHECK(bus_data[0].read() == 0);
-    CHECK(bus_data[1].read() == 0);
-    CHECK(bus_data[2].read() == 0);
-}
-
-TEST(BusOut_digitalout_write, led_1_nc_2_nc_nc_3)
-{
-    BusOut bus_data(LED1, NC, LED2, NC, NC, LED3);
-    bus_data[0].write(1);
-    bus_data[2].write(0);
-    bus_data[5].write(0);
-    CHECK(bus_data[0].read());
-    CHECK(bus_data[2].read() == 0);
-    CHECK(bus_data[5].read() == 0);
-}
-#endif
 ```
 
 ## Example
@@ -789,7 +742,7 @@ Bellow snippet shows how to modify 'automated' flag so test suite will consider 
     # 1. test runner - main function with call to CommandLineTestRunner::RunAllTests(ac, av)
     # 2. Serial console object to print test result on serial port console
     #
- 
+
     # Unit testing with cpputest library
     {
         "id": "UT_1", "description": "Basic",

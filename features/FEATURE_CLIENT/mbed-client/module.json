@@ -1,0 +1,23 @@
+{
+  "name": "mbed-client",
+  "version": "1.13.2",
+  "description": "mbed Client C++ API",
+  "keywords": [],
+  "author": "Yogesh Pande <yogesh.pande@arm.com>",
+  "homepage": "https://github.com/ARMmbed/mbed-client",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mbed-client-c": "^2.0.0",
+    "mbed-trace": ">=0.2.0,<2.0.0"
+  },
+  "targetDependencies": {
+    "arm": {
+      "mbed-client-mbed-os": "^3.0.0",
+      "mbed-client-mbedtls": "^3.0.0"
+    },
+    "linux": {
+      "mbed-client-linux": "^3.0.0",
+      "mbed-client-mbedtls": "^3.0.0"
+    }
+  }
+}

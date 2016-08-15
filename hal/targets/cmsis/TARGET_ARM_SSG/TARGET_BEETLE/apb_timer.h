@@ -26,6 +26,9 @@ extern "C" {
 #define TIMER0  0
 #define TIMER1  1
 
+/* Default reload */
+#define TIMER_DEFAULT_RELOAD    0xFFFFFFFF
+
 /*
  * Timer_Initialize(): Initializes an hardware timer
  * timer: timer to be Initialized
@@ -91,6 +94,14 @@ uint32_t Timer_GetIRQn(uint32_t timer);
  * @return: Ticks per us - 0 if the timer is disables
  */
 uint32_t Timer_GetTicksUS(uint32_t timer);
+
+/*
+ * Timer_GetReloadValue(): returns the load value of the selected
+ * timer.
+ * timer: timer associated with the Ticks per us
+ * @return: reload value of the selected singletimer
+ */
+uint32_t Timer_GetReloadValue(uint32_t timer);
 
 #ifdef __cplusplus
 }

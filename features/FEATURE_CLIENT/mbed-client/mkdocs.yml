@@ -1,0 +1,17 @@
+site_name: ARM mbed Client Guide
+theme: readthedocs
+use directory_urls: false
+pages:
+- ['index.md','ARM mbed Client Guide']
+- ['Introduction.md','Introduction to mbed Client']
+- ['client_reg_dereg.md','Features','Client Registration']
+- ['dev_man_serv_enable.md','Features','Device Management and Service Enablement']
+- ['info_reporting.md','Features','Information Reporting']
+- ['data_types.md','Data types']
+- ['Howto.md','Quick start guide for using mbed Client API']
+- ['porting-guide.md','Porting mbed Client']
+- ['further-reading.md','mbed Device Connector service']
+
+
+
+

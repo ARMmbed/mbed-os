@@ -40,6 +40,7 @@ AnalogOut out(D12); //D12 is P0_12, the DAC output pin
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F446RE) || \
+      defined(TARGET_NUCLEO_F446ZE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
@@ -49,6 +50,10 @@ AnalogOut out(A2);
 #elif defined(TARGET_NUCLEO_F746ZG)
 AnalogIn in(A0);
 AnalogOut out(PA_4);
+
+#elif defined(TARGET_NUCLEO_F207ZG)
+AnalogIn in(A0);
+AnalogOut out(D13);
 
 #elif defined(TARGET_ARCH_MAX)
 AnalogIn in(PA_0);

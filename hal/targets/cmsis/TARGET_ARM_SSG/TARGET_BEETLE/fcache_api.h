@@ -60,18 +60,18 @@ extern "C" {
 #define FCACHE_MAN_INV_ERR  (1 << 1)    /* Manual Invalidation error status */
 
     /* Macros */
-#define readl(reg) *(volatile unsigned int *)reg
-#define writel(reg, val)  *(unsigned int *)reg = val;
+#define FCache_Readl(reg) *(volatile unsigned int *)reg
+#define FCache_Writel(reg, val)  *(volatile unsigned int *)reg = val;
 
 /* Functions */
 
 /*
- * FCache_Initialize: flash cache initialize funtion
+ * FCache_DriverInitialize: flash cache driver initialize funtion
  */
-void FCache_Initialize(void);
+void FCache_DriverInitialize(void);
 
 /*
- * FCache_Enable: Enables the flash cache
+ * FCache_Enable: Enables the flash cache mode
  * mode: supported modes:
  * 0 - auto-power auto-invalidate
  * 1 - manual-power, manual-invalidate
@@ -79,7 +79,7 @@ void FCache_Initialize(void);
 void FCache_Enable(int mode);
 
 /*
- * FCache_Disable: Disables the cache
+ * FCache_Disable: Disables the flash cache mode previously enabled
  */
 void FCache_Disable(void);
 

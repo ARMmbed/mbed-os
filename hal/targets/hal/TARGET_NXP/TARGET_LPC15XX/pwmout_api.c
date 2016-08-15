@@ -27,7 +27,7 @@ static LPC_SCT0_Type *SCTs[4] = {
 };
 
 // bit flags for used SCTs
-static unsigned char sct_used = 0;
+static unsigned char sct_used = (1 << 3);
 static int get_available_sct(void) {
     int i;
     for (i=0; i<4; i++) {

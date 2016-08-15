@@ -53,15 +53,13 @@ static void init_uart(serial_t *obj)
 {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
-    if (obj->uart == LPUART_1) {
-        UartHandle.Init.BaudRate = obj->baudrate >> 1;
-    } else {
-        UartHandle.Init.BaudRate = obj->baudrate;
-    }
+    UartHandle.Init.BaudRate = obj->baudrate;
     UartHandle.Init.WordLength = obj->databits;
     UartHandle.Init.StopBits   = obj->stopbits;
     UartHandle.Init.Parity     = obj->parity;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    UartHandle.Init.OverSampling   = UART_OVERSAMPLING_16;
+    UartHandle.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_ENABLE;
 
     if (obj->pin_rx == NC) {
         UartHandle.Init.Mode = UART_MODE_TX;

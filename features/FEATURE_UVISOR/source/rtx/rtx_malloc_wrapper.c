@@ -111,7 +111,8 @@ static void * memory(void * ptr, size_t size, int heap, int operation)
         return NULL;
     }
     /* Check if we need to aquire the mutex. */
-    int mutexed = (is_kernel_initialized() && (heap == HEAP_PROCESS));
+    int mutexed = is_kernel_initialized() &&
+                  ((heap == HEAP_PROCESS) || __uvisor_ps->index.box_heap == __uvisor_ps->index.active_heap);
     void * allocator = (heap == HEAP_PROCESS) ?
                        (__uvisor_ps->index.box_heap) :
                        (__uvisor_ps->index.active_heap);

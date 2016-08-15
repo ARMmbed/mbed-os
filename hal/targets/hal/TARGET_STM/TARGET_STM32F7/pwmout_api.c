@@ -69,6 +69,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->pin = pin;
     obj->period = 0;
     obj->pulse = 0;
+    obj->prescaler = 1;
 
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
@@ -96,7 +97,7 @@ void pwmout_write(pwmout_t* obj, float value)
 
     // Configure channels
     sConfig.OCMode       = TIM_OCMODE_PWM1;
-    sConfig.Pulse        = obj->pulse;
+    sConfig.Pulse        = obj->pulse / obj->prescaler;
     sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
@@ -192,12 +193,31 @@ void pwmout_period_us(pwmout_t* obj, int us)
             return;
     }
 
-    TimHandle.Init.Period        = us - 1;
+   /* To make it simple, we use to possible prescaler values which lead to:
+     * pwm unit = 1us, period/pulse can be from 1us to 65535us
+     * or
+     * pwm unit = 500us, period/pulse can be from 500us to ~32.76sec
+     * Be careful that all the channels of a PWM shares the same prescaler
+     */
+    if (us >  0xFFFF) {
+        obj->prescaler = 500;
+    } else {
+        obj->prescaler = 1;
+    }
+
     // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
     if (APBxCLKDivider == RCC_HCLK_DIV1)
-      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 µs tick
+      TimHandle.Init.Prescaler   = (uint16_t)(((PclkFreq) / 1000000) * obj->prescaler) - 1; // 1 us tick
     else
-      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 µs tick
+      TimHandle.Init.Prescaler   = (uint16_t)(((PclkFreq * 2) / 1000000) * obj->prescaler) - 1; // 1 us tick
+
+    if (TimHandle.Init.Prescaler > 0xFFFF)
+        error("PWM: out of range prescaler");
+
+    TimHandle.Init.Period        = (us - 1) / obj->prescaler;
+    if (TimHandle.Init.Period > 0xFFFF)
+        error("PWM: out of range period");
+
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
 
@@ -205,11 +225,11 @@ void pwmout_period_us(pwmout_t* obj, int us)
         error("Cannot initialize PWM\n");
     }
 
-    // Set duty cycle again
-    pwmout_write(obj, dc);
-
     // Save for future use
     obj->period = us;
+
+    // Set duty cycle again
+    pwmout_write(obj, dc);
 
     __HAL_TIM_ENABLE(&TimHandle);
 }

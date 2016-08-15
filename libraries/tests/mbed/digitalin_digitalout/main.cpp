@@ -25,7 +25,9 @@ DigitalIn in(PG_9);
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_F429ZI) || \
       defined(TARGET_NUCLEO_F446RE) || \
+      defined(TARGET_NUCLEO_F446ZE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)

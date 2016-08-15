@@ -95,15 +95,7 @@ struct i2c_s {
     I2CName  i2c;
 };
 
-struct pwmout_s {
-    PWMName pwm;
-    PinName pin;
-    uint32_t period;
-    uint32_t pulse;
-    uint32_t channel;
-    uint32_t inverted;
-};
-
+#include "common_objects.h"
 #include "gpio_object.h"
 
 #ifdef __cplusplus

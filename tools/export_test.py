@@ -37,7 +37,7 @@ def setup_test_user_prj():
         print 'Test user project already generated...'
         return
 
-    setup_user_prj(USER_PRJ, join(TEST_DIR, "rtos", "mbed", "basic"), [join(LIB_DIR, "rtos"), join(LIB_DIR, "tests", "mbed", "env")])
+    setup_user_prj(USER_PRJ, join(TEST_DIR, "rtos", "mbed", "basic"), [join(ROOT, "rtos"), join(LIB_DIR, "tests", "mbed", "env")])
 
     # FAKE BUILD URL
     open(join(USER_SRC, "mbed.bld"), 'w').write("http://mbed.org/users/mbed_official/code/mbed/builds/976df7c37ad5\n")
@@ -107,6 +107,7 @@ if __name__ == '__main__':
             ('coide', 'NUCLEO_F410RB'),
             ('coide', 'NUCLEO_F411RE'),
             ('coide', 'DISCO_F429ZI'),
+            ('coide', 'NUCLEO_F429ZI'),
             #('coide', 'DISCO_F469NI'), removed because template not available
             ('coide', 'NUCLEO_F334R8'),
             ('coide', 'MTS_MDOT_F405RG'),
@@ -141,12 +142,15 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_F401RE'),
             ('uvision', 'NUCLEO_F410RB'),
             ('uvision', 'NUCLEO_F411RE'),
+            ('uvision', 'NUCLEO_F429ZI'),
             ('uvision', 'NUCLEO_F446RE'),
+            ('uvision', 'NUCLEO_F446ZE'),
             ('uvision', 'NUCLEO_L011K4'),
             ('uvision', 'NUCLEO_L031K6'),
             ('uvision', 'NUCLEO_L053R8'),
             ('uvision', 'NUCLEO_L073RZ'),
             ('uvision', 'NUCLEO_L152RE'),
+            ('uvision', 'NUCLEO_L432KC'),
             ('uvision', 'NUCLEO_L476RG'),
             ('uvision', 'MTS_MDOT_F405RG'),
             ('uvision', 'MAXWSNENV'),
@@ -207,12 +211,15 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F401RE'),
             ('gcc_arm', 'NUCLEO_F410RB'),
             ('gcc_arm', 'NUCLEO_F411RE'),
+            ('gcc_arm', 'NUCLEO_F429ZI'),
             ('gcc_arm', 'NUCLEO_F446RE'),
+            ('gcc_arm', 'NUCLEO_F446ZE'),
             ('gcc_arm', 'ELMO_F411RE'),
             ('gcc_arm', 'DISCO_F469NI'),
             ('gcc_arm', 'NUCLEO_F334R8'),
             ('gcc_arm', 'NUCLEO_L011K4'),
             ('gcc_arm', 'NUCLEO_L031K6'),
+            ('gcc_arm', 'NUCLEO_L432KC'),
             ('gcc_arm', 'MAX32600MBED'),
             ('gcc_arm', 'MTS_MDOT_F405RG'),
             ('gcc_arm', 'MTS_MDOT_F411RE'),
@@ -259,12 +266,15 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_F401RE'),
             ('iar', 'NUCLEO_F410RB'),
             ('iar', 'NUCLEO_F411RE'),
+            ('iar', 'NUCLEO_F429ZI'),
             ('iar', 'NUCLEO_F446RE'),
+            ('iar', 'NUCLEO_F446ZE'),
             ('iar', 'NUCLEO_L011K4'),
             ('iar', 'NUCLEO_L031K6'),
             ('iar', 'NUCLEO_L053R8'),
             ('iar', 'NUCLEO_L073RZ'),
             ('iar', 'NUCLEO_L152RE'),
+            ('iar', 'NUCLEO_L432KC'),
             ('iar', 'NUCLEO_L476RG'),
             ('iar', 'DISCO_L053C8'),
             ('iar', 'DISCO_F334C8'),
@@ -305,18 +315,20 @@ if __name__ == '__main__':
             ('sw4stm32', 'NUCLEO_F401RE'),
             ('sw4stm32', 'NUCLEO_F410RB'),
             ('sw4stm32', 'NUCLEO_F411RE'),
+            ('sw4stm32', 'NUCLEO_F429ZI'),
             ('sw4stm32', 'NUCLEO_F446RE'),
+            ('sw4stm32', 'NUCLEO_F446ZE'),
             ('sw4stm32', 'NUCLEO_L011K4'),
-            ('sw4stm32', 'NUCLEO_L031K6'),
             ('sw4stm32', 'NUCLEO_L053R8'),
             ('sw4stm32', 'NUCLEO_L073RZ'),
             ('sw4stm32', 'NUCLEO_L152RE'),
+            ('sw4stm32', 'NUCLEO_L432KC'),
             ('sw4stm32', 'NUCLEO_L476RG'),
             ('sw4stm32', 'NUCLEO_F031K6'),
             ('sw4stm32', 'NUCLEO_F042K6'),
             ('sw4stm32', 'NUCLEO_F303K8'),
             ('sw4stm32', 'NUCLEO_F410RB'),
-            
+
             ('e2studio', 'RZ_A1H'),
             # Removed following item to avoid script error
             #(None, None),

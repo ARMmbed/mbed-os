@@ -21,6 +21,7 @@
 #if DEVICE_LOCALFILESYSTEM
 
 #include "FileSystemLike.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 

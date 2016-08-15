@@ -37,7 +37,7 @@
 #include "em_gpio.h"
 #include "em_timer.h"
 
-static int pwm_prescaler_div;
+static uint32_t pwm_prescaler_div;
 
 float   pwmout_calculate_duty(uint32_t width_cycles, uint32_t period_cycles);
 void    pwmout_write_channel(uint32_t channel, float value);
@@ -132,7 +132,7 @@ bool pwmout_all_inactive(void) {
         return true;
     }
 #else
-    if(PWM_TIMER->ROUTE == PWM_ROUTE) {
+    if(PWM_TIMER->ROUTE & (TIMER_ROUTE_CC0PEN | TIMER_ROUTE_CC1PEN | TIMER_ROUTE_CC2PEN)) {
         return true;
     }
 #endif
@@ -211,7 +211,11 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 #else
     // On P1, the route location is statically defined for the entire timer.
     PWM_TIMER->ROUTE &= ~_TIMER_ROUTE_LOCATION_MASK;
-    PWM_TIMER->ROUTE |= PWM_ROUTE;
+if(pwmout_all_inactive()) {
+        PWM_TIMER->ROUTE |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT;
+    } else {
+        MBED_ASSERT((pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT) == (PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK));
+    }
 #endif
 
     // Set default 20ms frequency and 0ms pulse width
@@ -281,7 +285,7 @@ void pwmout_period(pwmout_t *obj, float seconds)
     // This gives us max resolution for a given period
 
     //The value of the top register if prescaler is set to 0
-    int cycles = REFERENCE_FREQUENCY * seconds;
+    uint32_t cycles = (uint32_t)REFERENCE_FREQUENCY * seconds;
     pwm_prescaler_div = 0;
 
     //The top register is only 16 bits, so we keep dividing till we are below 0xFFFF

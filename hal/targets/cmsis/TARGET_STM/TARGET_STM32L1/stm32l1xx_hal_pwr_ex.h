@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
@@ -108,7 +108,7 @@ void HAL_PWREx_DisableFastWakeUp(void);
 void HAL_PWREx_EnableUltraLowPower(void);
 void HAL_PWREx_DisableUltraLowPower(void);
 void HAL_PWREx_EnableLowPowerRunMode(void);
-void HAL_PWREx_DisableLowPowerRunMode(void);
+HAL_StatusTypeDef HAL_PWREx_DisableLowPowerRunMode(void);
 
 /**
   * @}

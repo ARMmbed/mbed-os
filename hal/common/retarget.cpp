@@ -21,6 +21,10 @@
 #include "toolchain.h"
 #include "semihost_api.h"
 #include "mbed_interface.h"
+#include "SingletonPtr.h"
+#include "PlatformMutex.h"
+#include "mbed_error.h"
+#include <stdlib.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -66,23 +70,27 @@ extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
 #endif
 
+// Heap limits - only used if set
+unsigned char *mbed_heap_start = 0;
+uint32_t mbed_heap_size = 0;
+
 /* newlib has the filehandle field in the FILE struct as a short, so
  * we can't just return a Filehandle* from _open and instead have to
  * put it in a filehandles array and return the index into that array
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileHandle *filehandles[OPEN_MAX];
-static PlatformMutex filehandle_mutex;
+static SingletonPtr<PlatformMutex> filehandle_mutex;
 
 FileHandle::~FileHandle() {
-    filehandle_mutex.lock();
+    filehandle_mutex->lock();
     /* Remove all open filehandles for this */
     for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == this) {
             filehandles[fh_i] = NULL;
         }
     }
-    filehandle_mutex.unlock();
+    filehandle_mutex->unlock();
 }
 
 #if DEVICE_SERIAL
@@ -98,6 +106,9 @@ static void init_serial() {
 #if DEVICE_SERIAL
     if (stdio_uart_inited) return;
     serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+#if MBED_CONF_CORE_STDIO_BAUD_RATE
+    serial_baud(&stdio_uart, MBED_CONF_CORE_STDIO_BAUD_RATE);
+#endif
 #endif
 }
 
@@ -159,17 +170,17 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #endif
 
     // find the first empty slot in filehandles
-    filehandle_mutex.lock();
+    filehandle_mutex->lock();
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == NULL) break;
     }
     if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
-        filehandle_mutex.unlock();
+        filehandle_mutex->unlock();
         return -1;
     }
     filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
-    filehandle_mutex.unlock();
+    filehandle_mutex->unlock();
 
     FileHandle *res;
 
@@ -545,7 +556,6 @@ extern "C" int __wrap_main(void) {
 // code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
 // Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
 extern "C" void __iar_argc_argv() {
-    mbed_sdk_init();
     mbed_main();
 }
 #endif
@@ -569,6 +579,13 @@ extern "C" int errno;
 register unsigned char * stack_ptr __asm ("sp");
 
 // Dynamic memory allocation related syscall.
+#if defined(TARGET_NUMAKER_PFM_NUC472)
+// Overwrite _sbrk() to support two region model.
+extern "C" void *__wrap__sbrk(int incr);
+extern "C" caddr_t _sbrk(int incr) {
+    return (caddr_t) __wrap__sbrk(incr);
+}
+#else
 extern "C" caddr_t _sbrk(int incr) {
     static unsigned char* heap = (unsigned char*)&__end__;
     unsigned char*        prev_heap = heap;
@@ -585,11 +602,17 @@ extern "C" caddr_t _sbrk(int incr) {
         return (caddr_t)-1;
     }
 
+    // Additional heap checking if set
+    if (mbed_heap_size && (new_heap >= mbed_heap_start + mbed_heap_size)) {
+        errno = ENOMEM;
+        return (caddr_t)-1;
+    }
+
     heap = new_heap;
     return (caddr_t) prev_heap;
 }
 #endif
-
+#endif
 
 #if defined TOOLCHAIN_GCC_ARM
 extern "C" void _exit(int return_code) {
@@ -703,3 +726,34 @@ extern "C" void __env_unlock( struct _reent *_r )
 #endif
 
 } // namespace mbed
+
+void *operator new(std::size_t count)
+{
+    void *buffer = malloc(count);
+    if (NULL == buffer) {
+        error("Operator new out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new[](std::size_t count)
+{
+    void *buffer = malloc(count);
+    if (NULL == buffer) {
+        error("Operator new[] out of memory\r\n");
+    }
+    return buffer;
+}
+
+void operator delete(void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}
+void operator delete[](void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}

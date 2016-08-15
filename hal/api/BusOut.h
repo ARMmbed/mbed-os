@@ -17,6 +17,7 @@
 #define MBED_BUSOUT_H
 
 #include "DigitalOut.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 
@@ -69,7 +70,6 @@ public:
         return _nc_mask;
     }
 
-#ifdef MBED_OPERATORS
     /** A shorthand for write()
      */
     BusOut& operator= (int v);
@@ -82,7 +82,6 @@ public:
     /** A shorthand for read()
      */
     operator int();
-#endif
 
 protected:
     virtual void lock();

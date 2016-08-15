@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   Header file of USART HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@
   * @{
   */
 #define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M_1)
-#define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
+#define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
 /**
   * @}

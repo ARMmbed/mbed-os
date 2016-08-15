@@ -47,6 +47,11 @@
  #undef  __USE_EXCLUSIVE_ACCESS
 #endif
 
+/* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
+#ifdef __USE_EXCLUSIVE_ACCESS
+#pragma diag_suppress 3731
+#endif
+
 #ifndef __CMSIS_GENERIC
 #define __DMB() do {\
                    __schedule_barrier();\
@@ -255,7 +260,11 @@ __inline static void rt_svc_init (void) {
   if (prigroup >= sh) {
     sh = prigroup + 1U;
   }
+
+/* Only change the SVCall priority if uVisor is not present. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
   NVIC_SYS_PRI2 = ((0xFEFFFFFFU << sh) & 0xFF000000U) | (NVIC_SYS_PRI2 & 0x00FFFFFFU);
+#endif /* !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)) */
 #endif
 }
 

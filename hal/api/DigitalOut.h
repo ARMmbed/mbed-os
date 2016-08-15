@@ -95,7 +95,6 @@ public:
         return gpio_is_connected(&gpio);
     }
 
-#ifdef MBED_OPERATORS
     /** A shorthand for write()
      */
     DigitalOut& operator= (int value) {
@@ -117,7 +116,6 @@ public:
         // Underlying call is thread safe
         return read();
     }
-#endif
 
 protected:
     gpio_t gpio;

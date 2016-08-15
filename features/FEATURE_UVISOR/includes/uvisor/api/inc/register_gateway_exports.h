@@ -47,7 +47,7 @@ typedef struct {
     uint32_t mask;
     uint16_t operation;
     uint16_t bxlr;
-} UVISOR_PACKED __attribute__((aligned(4))) TRegisterGateway;
+} UVISOR_PACKED UVISOR_ALIGN(4) TRegisterGateway;
 
 /** Register gateway operation - Masks
  * @internal

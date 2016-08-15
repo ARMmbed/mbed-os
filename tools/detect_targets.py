@@ -42,24 +42,24 @@ if __name__ == '__main__':
         # Parse Options
         parser = get_default_options_parser()
 
-        parser.add_option("-S", "--supported-toolchains",
+        parser.add_argument("-S", "--supported-toolchains",
                           action="store_true",
                           dest="supported_toolchains",
                           default=False,
                           help="Displays supported matrix of targets and toolchains")
 
-        parser.add_option('-f', '--filter',
+        parser.add_argument('-f', '--filter',
                           dest='general_filter_regex',
                           default=None,
                           help='Filter targets')
 
-        parser.add_option("-v", "--verbose",
+        parser.add_argument("-v", "--verbose",
                           action="store_true",
                           dest="verbose",
                           default=False,
                           help="Verbose diagnostic output")
 
-        (options, args) = parser.parse_args()
+        options = parser.parse_args()
 
         # Only prints matrix of supported toolchains
         if options.supported_toolchains:

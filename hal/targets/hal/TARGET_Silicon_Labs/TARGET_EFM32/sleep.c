@@ -28,7 +28,7 @@
 #include "sleepmodes.h"
 #include "cmsis.h"
 #include "em_emu.h"
-#include "em_int.h"
+#include "critical.h"
 
 uint32_t sleep_block_counter[NUM_SLEEP_MODES] = {0};
 
@@ -80,9 +80,9 @@ void deepsleep(void)
  */
 void blockSleepMode(sleepstate_enum minimumMode)
 {
-    INT_Disable();
+    core_util_critical_section_enter();
     sleep_block_counter[minimumMode]++;
-    INT_Enable();
+    core_util_critical_section_exit();
 }
 
 /** Unblock the microcontroller from sleeping below a certain mode
@@ -94,11 +94,11 @@ void blockSleepMode(sleepstate_enum minimumMode)
  */
 void unblockSleepMode(sleepstate_enum minimumMode)
 {
-    INT_Disable();
+    core_util_critical_section_enter();
     if(sleep_block_counter[minimumMode] > 0) {
         sleep_block_counter[minimumMode]--;
     }
-    INT_Enable();
+    core_util_critical_section_exit();
 }
 
 #endif

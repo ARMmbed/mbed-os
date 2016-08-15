@@ -16,6 +16,7 @@ limitations under the License.
 """
 
 from tools.build_api import get_config
+from tools.targets import set_targets_json_location, Target
 from tools.config import ConfigException, Config
 import os, sys
 
@@ -43,6 +44,8 @@ def test_tree(full_name, name):
         sys.stdout.flush()
         err_msg = None
         try:
+            # Use 'set_targets_json_location' to remove the previous custom targets from the target list
+            set_targets_json_location(Target._Target__targets_json_location)
             cfg, macros, features = get_config(full_name, target, "GCC_ARM")
             macros = Config.config_macros_to_macros(macros)
         except ConfigException as e:

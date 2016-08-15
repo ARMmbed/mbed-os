@@ -46,6 +46,11 @@
  #undef  __USE_EXCLUSIVE_ACCESS
 #endif
 
+/* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
+#ifdef __USE_EXCLUSIVE_ACCESS
+#pragma diag_suppress 3731
+#endif
+
 #elif defined (__GNUC__)        /* GNU Compiler */
 
 #undef  __USE_EXCLUSIVE_ACCESS

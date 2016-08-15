@@ -65,6 +65,29 @@ void SystemPowerSuspend(power_mode_t mode);
  */
 void SystemPowerResume(power_mode_t mode);
 
+/*
+ * Definitions for storing static configuration data in Beetle
+ * This is not strictly persistent data as it will get wiped out on chip erase.
+ *
+ * There are only read functions provided.
+ * No Write function to prevent accidental writes resulting in
+ * the system being non responsive.
+ * Use the Flash manual before trying to write anything in the last 4k.
+ */
+#define SYSTEM_CORE_CONFIG_DATA_SIZE (0x200) /* 512 bytes*/
+
+typedef struct {
+    uint32_t BD_ADDR[2];
+
+    /*rest reserved*/
+    uint32_t reserved[SYSTEM_CORE_CONFIG_DATA_SIZE - 2];
+} SystemCoreConfigData;
+
+/*
+ * __System_Config_GetBDAddr(): Address for the BLE device on the air.
+ */
+void __System_Config_GetBDAddr(uint8_t *addr, uint8_t len);
+
 #ifdef __cplusplus
 }
 #endif

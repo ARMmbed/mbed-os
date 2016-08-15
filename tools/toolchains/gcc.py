@@ -17,9 +17,7 @@ limitations under the License.
 import re
 from os.path import join, basename, splitext, dirname, exists
 
-from tools.toolchains import mbedToolchain
-from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
-from tools.settings import GOANNA_PATH
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 
 class GCC(mbedToolchain):
@@ -28,6 +26,7 @@ class GCC(mbedToolchain):
 
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
+    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
     DEFAULT_FLAGS = {
         'common': ["-c", "-Wall", "-Wextra",
@@ -52,6 +51,8 @@ class GCC(mbedToolchain):
             cpu = "cortex-m4"
         elif target.core == "Cortex-M7F":
             cpu = "cortex-m7"
+        elif target.core == "Cortex-M7FD":
+            cpu = "cortex-m7"
         else:
             cpu = target.core.lower()
 
@@ -59,12 +60,18 @@ class GCC(mbedToolchain):
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
 
+        # FPU handling, M7 possibly to have double FPU
         if target.core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
         elif target.core == "Cortex-M7F":
+            self.cpu.append("-mfpu=fpv5-sp-d16")
+            self.cpu.append("-mfloat-abi=softfp")
+        elif target.core == "Cortex-M7FD":
             self.cpu.append("-mfpu=fpv5-d16")
             self.cpu.append("-mfloat-abi=softfp")
+
+
 
         if target.core == "Cortex-A9":
             self.cpu.append("-mthumb-interwork")
@@ -86,17 +93,13 @@ class GCC(mbedToolchain):
             self.flags["common"].append("-g")
             self.flags["common"].append("-O0")
         else:
-            self.flags["common"].append("-O2")
+            self.flags["common"].append("-Os")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
         self.asm = [main_cc] + self.flags['asm'] + self.flags["common"]
-        if not "analyze" in self.options:
-            self.cc  = [main_cc]
-            self.cppc =[main_cppc]
-        else:
-            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT]
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'),  "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT]
+        self.cc  = [main_cc]
+        self.cppc =[main_cppc]
         self.cc += self.flags['c'] + self.flags['common']
         self.cppc += self.flags['cxx'] + self.flags['common']
 
@@ -123,9 +126,9 @@ class GCC(mbedToolchain):
                 # back later to a space char)
                 file = file.replace('\\ ', '\a')
                 if file.find(" ") == -1:
-                    dependencies.append(file.replace('\a', ' '))
+                    dependencies.append((self.CHROOT if self.CHROOT else '') + file.replace('\a', ' '))
                 else:
-                    dependencies = dependencies + [f.replace('\a', ' ') for f in file.split(" ")]
+                    dependencies = dependencies + [(self.CHROOT if self.CHROOT else '') + f.replace('\a', ' ') for f in file.split(" ")]
         return dependencies
 
     def is_not_supported_error(self, output):
@@ -133,32 +136,31 @@ class GCC(mbedToolchain):
 
     def parse_output(self, output):
         # The warning/error notification is multiline
-        WHERE, WHAT = 0, 1
-        state, file, message = WHERE, None, None
+        msg = None
         for line in output.splitlines():
-            match = self.goanna_parse_line(line)
-            if match is not None:
-                self.cc_info(
-                    match.group('severity').lower(),
-                    match.group('file'),
-                    match.group('line'),
-                    match.group('message'),
-                    target_name=self.target.name,
-                    toolchain_name=self.name
-                )
-                continue
-
-
             match = GCC.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
-                self.cc_info(
-                    match.group('severity').lower(),
-                    match.group('file'),
-                    match.group('line'),
-                    match.group('message'),
-                    target_name=self.target.name,
-                    toolchain_name=self.name
-                )
+                if msg is not None:
+                    self.cc_info(msg)
+                msg = {
+                    'severity': match.group('severity').lower(),
+                    'file': match.group('file'),
+                    'line': match.group('line'),
+                    'col': 0,
+                    'message': match.group('message'),
+                    'text': '',
+                    'target_name': self.target.name,
+                    'toolchain_name': self.name
+                }
+            elif msg is not None:
+                # Determine the warning/error column by calculating the ^ position
+                match = GCC.INDEX_PATTERN.match(line)
+                if match is not None:
+                    msg['col'] = len(match.group('col'))
+                    self.cc_info(msg)
+                    msg = None
+                else:
+                    msg['text'] += line+"\n"
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -168,17 +170,23 @@ class GCC(mbedToolchain):
     def get_config_option(self, config_header):
         return ['-include', config_header]
 
-    def get_compile_options(self, defines, includes):
-        opts = ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
+    def get_compile_options(self, defines, includes, for_asm=False):
+        opts = ['-D%s' % d for d in defines]
+        if self.RESPONSE_FILES:
+            opts += ['@%s' % self.get_inc_file(includes)]
+        else:
+            opts += ["-I%s" % i for i in includes]
+
+        if not for_asm:
+            config_header = self.get_config_header()
+            if config_header is not None:
+                opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
@@ -227,32 +235,25 @@ class GCC(mbedToolchain):
         # Call cmdline hook
         cmd = self.hook.get_cmdline_linker(cmd)
 
-        # Split link command to linker executable + response file
-        link_files = join(dirname(output), ".link_files.txt")
-        with open(link_files, "wb") as f:
+        if self.RESPONSE_FILES:
+            # Split link command to linker executable + response file
             cmd_linker = cmd[0]
-            cmd_list = []
-            for c in cmd[1:]:
-                if c:
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)
-            string = " ".join(cmd_list).replace("\\", "/")
-            f.write(string)
+            link_files = self.get_link_file(cmd[1:])
+            cmd = [cmd_linker, "@%s" % link_files]
 
         # Exec command
-        self.default_cmd([cmd_linker, "@%s" % link_files])
+        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.default_cmd(cmd)
 
     @hook_tool
     def archive(self, objects, lib_path):
-        archive_files = join(dirname(lib_path), ".archive_files.txt")
-        with open(archive_files, "wb") as f:
-            o_list = []
-            for o in objects:
-                o_list.append('"%s"' % o)
-            string = " ".join(o_list).replace("\\", "/")
-            f.write(string)
+        if self.RESPONSE_FILES:
+            param = ["@%s" % self.get_arch_file(objects)]
+        else:
+            param = objects
 
         # Exec command
-        self.default_cmd([self.ar, 'rcs', lib_path, "@%s" % archive_files])
+        self.default_cmd([self.ar, 'rcs', lib_path] + param)
 
     @hook_tool
     def binary(self, resources, elf, bin):
@@ -263,12 +264,13 @@ class GCC(mbedToolchain):
         cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
+        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
 
 class GCC_ARM(GCC):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        GCC.__init__(self, target, options, notify, macros, silent, GCC_ARM_PATH, extra_verbose=extra_verbose)
+        GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose)
 
         # Use latest gcc nanolib
         if "big-build" in self.options:
@@ -284,20 +286,16 @@ class GCC_ARM(GCC):
 
         if use_nano:
             self.ld.append("--specs=nano.specs")
+            self.flags['ld'].append("--specs=nano.specs")
             self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
             self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
-
-        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368", "ARM_BEETLE_SOC"]:
-            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
-        elif target.name in ["RZ_A1H", "VK_RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
-            self.ld.extend(["-u_printf_float", "-u_scanf_float"])
-
+            self.macros.extend(["MBED_RTOS_SINGLE_THREAD"])
         self.sys_libs.append("nosys")
 
 
 class GCC_CR(GCC):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        GCC.__init__(self, target, options, notify, macros, silent, GCC_CR_PATH, extra_verbose=extra_verbose)
+        GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_CR'], extra_verbose=extra_verbose)
 
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",

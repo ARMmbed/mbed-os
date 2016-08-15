@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
@@ -833,9 +833,9 @@ typedef struct
                                    ((MODE) == TIM_ENCODERMODE_TI2) || \
                                    ((MODE) == TIM_ENCODERMODE_TI12))
 
-#define IS_TIM_DMA_SOURCE(SOURCE) ((((SOURCE) & 0xFFFF80FF) == 0x00000000) && ((SOURCE) != 0x00000000))
+#define IS_TIM_DMA_SOURCE(SOURCE) ((((SOURCE) & 0xFFFF80FFU) == 0x00000000U) && ((SOURCE) != 0x00000000U))
 
-#define IS_TIM_EVENT_SOURCE(SOURCE) ((((SOURCE) & 0xFFFFFF00) == 0x00000000) && ((SOURCE) != 0x00000000))
+#define IS_TIM_EVENT_SOURCE(SOURCE) ((((SOURCE) & 0xFFFFFF00U) == 0x00000000U) && ((SOURCE) != 0x00000000U))
 
 #define IS_TIM_CLOCKSOURCE(CLOCK) (((CLOCK) == TIM_CLOCKSOURCE_INTERNAL) || \
                                    ((CLOCK) == TIM_CLOCKSOURCE_ETRMODE2) || \

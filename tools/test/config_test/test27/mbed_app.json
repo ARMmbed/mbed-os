@@ -1,0 +1,11 @@
+{
+    "custom_targets": {
+        "test_target": {
+            "core": "Cortex-M0",
+            "extra_labels": [],
+            "features": ["IPV4"],
+            "default_build": "standard"
+        }
+    }
+}
+

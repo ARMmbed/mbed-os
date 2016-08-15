@@ -20,7 +20,9 @@
 
 #if DEVICE_SPI
 
+#include "PlatformMutex.h"
 #include "spi_api.h"
+#include "SingletonPtr.h"
 
 #if DEVICE_SPI_ASYNCH
 #include "CThunk.h"
@@ -246,7 +248,7 @@ protected:
 
     void aquire(void);
     static SPI *_owner;
-    PlatformMutex _mutex;
+    static SingletonPtr<PlatformMutex> _mutex;
     int _bits;
     int _mode;
     int _hz;

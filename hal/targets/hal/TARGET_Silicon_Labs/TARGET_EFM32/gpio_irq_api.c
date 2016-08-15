@@ -96,8 +96,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // Init pins
     gpio_irq_preinit(obj, pin);
     // Initialize GPIO interrupt dispatcher
+    NVIC_SetVector(GPIO_ODD_IRQn, (uint32_t)GPIO_ODD_IRQHandler);
     NVIC_ClearPendingIRQ(GPIO_ODD_IRQn);
     NVIC_EnableIRQ(GPIO_ODD_IRQn);
+    NVIC_SetVector(GPIO_EVEN_IRQn, (uint32_t)GPIO_EVEN_IRQHandler);
     NVIC_ClearPendingIRQ(GPIO_EVEN_IRQn);
     NVIC_EnableIRQ(GPIO_EVEN_IRQn);
 

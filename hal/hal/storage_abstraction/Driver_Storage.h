@@ -18,6 +18,8 @@
 #ifndef __DRIVER_STORAGE_H
 #define __DRIVER_STORAGE_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -40,6 +42,7 @@ extern "C" {
 #define ARM_STORAGE_ERROR_NOT_ERASABLE      (ARM_DRIVER_ERROR_SPECIFIC - 1) ///< Part (or all) of the range provided to Erase() isn't erasable.
 #define ARM_STORAGE_ERROR_NOT_PROGRAMMABLE  (ARM_DRIVER_ERROR_SPECIFIC - 2) ///< Part (or all) of the range provided to ProgramData() isn't programmable.
 #define ARM_STORAGE_ERROR_PROTECTED         (ARM_DRIVER_ERROR_SPECIFIC - 3) ///< Part (or all) of the range to Erase() or ProgramData() is protected.
+#define ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE (ARM_DRIVER_ERROR_SPECIFIC - 4) ///< Runtime or sanity-check failure.
 
 /**
  * \brief Attributes of the storage range within a storage block.

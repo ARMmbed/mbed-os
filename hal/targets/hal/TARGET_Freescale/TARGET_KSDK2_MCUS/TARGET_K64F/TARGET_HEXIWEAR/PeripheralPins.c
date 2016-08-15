@@ -87,6 +87,14 @@ const PinMap PinMap_UART_RX[] = {
     {NC  ,  NC    , 0}
 };
 
+const PinMap PinMap_UART_CTS[] = {
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_UART_RTS[] = {
+    {NC   , NC    , 0}
+};
+
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
     {PTB21, SPI_2, 2},

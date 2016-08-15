@@ -73,7 +73,7 @@
 #define uvisor_read(box_name, shared, addr, op, msk) \
     ({ \
         /* Instanstiate the gateway. This gets resolved at link-time. */ \
-        __attribute__((aligned(4))) static TRegisterGateway const register_gateway = { \
+        UVISOR_ALIGN(4) static TRegisterGateway const register_gateway = { \
             .svc_opcode = UVISOR_SVC_OPCODE(UVISOR_SVC_ID_REGISTER_GATEWAY), \
             .branch     = BRANCH_OPCODE(__UVISOR_OFFSETOF(TRegisterGateway, branch), \
                                         __UVISOR_OFFSETOF(TRegisterGateway, bxlr)), \
@@ -119,7 +119,7 @@
 #define uvisor_write(box_name, shared, addr, val, op, msk) \
     { \
         /* Instanstiate the gateway. This gets resolved at link-time. */ \
-        __attribute__((aligned(4))) static TRegisterGateway const register_gateway = { \
+        UVISOR_ALIGN(4) static TRegisterGateway const register_gateway = { \
             .svc_opcode = UVISOR_SVC_OPCODE(UVISOR_SVC_ID_REGISTER_GATEWAY), \
             .branch     = BRANCH_OPCODE(__UVISOR_OFFSETOF(TRegisterGateway, branch), \
                                         __UVISOR_OFFSETOF(TRegisterGateway, bxlr)), \

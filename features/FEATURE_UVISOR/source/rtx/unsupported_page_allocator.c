@@ -33,6 +33,7 @@
 #define HALT_ERROR(id, ...) {}
 #define UVISOR_PAGE_ALLOCATOR_MUTEX_AQUIRE  page_allocator_mutex_aquire()
 #define UVISOR_PAGE_ALLOCATOR_MUTEX_RELEASE osMutexRelease(g_page_allocator_mutex_id)
+#define page_allocator_reset_faults(...) {}
 
 /* Forward declaration of the page allocator API. */
 int page_allocator_malloc(UvisorPageTable * const table);

@@ -17,12 +17,36 @@ limitations under the License.
 import sys
 import inspect
 import os
+import argparse
+import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
-from os.path import isdir, join, exists, split, relpath, splitext
+from os.path import isdir, join, exists, split, relpath, splitext, abspath, commonprefix, normpath
 from subprocess import Popen, PIPE, STDOUT, call
 import json
 from collections import OrderedDict
+import logging
+
+def compile_worker(job):
+    results = []
+    for command in job['commands']:
+        try:
+            _, _stderr, _rc = run_cmd(command, work_dir=job['work_dir'], chroot=job['chroot'])
+        except KeyboardInterrupt as e:
+            raise ToolException
+
+        results.append({
+            'code': _rc,
+            'output': _stderr,
+            'command': command
+        })
+
+    return {
+        'source': job['source'],
+        'object': job['object'],
+        'commands': job['commands'],
+        'results': results
+    }
 
 def cmd(l, check=True, verbose=False, shell=False, cwd=None):
     text = l if shell else ' '.join(l)
@@ -33,10 +57,21 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
         raise Exception('ERROR %d: "%s"' % (rc, text))
 
 
-def run_cmd(command, wd=None, redirect=False):
-    assert is_cmd_valid(command[0])
+def run_cmd(command, work_dir=None, chroot=None, redirect=False):
+    if chroot:
+        # Conventions managed by the web team for the mbed.org build system
+        chroot_cmd = [
+            '/usr/sbin/chroot', '--userspec=33:33', chroot
+        ]
+        for c in command:
+            chroot_cmd += [c.replace(chroot, '')]
+
+        logging.debug("Running command %s"%' '.join(chroot_cmd))
+        command = chroot_cmd
+        work_dir = None
+
     try:
-        p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
+        p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=work_dir)
         _stdout, _stderr = p.communicate()
     except OSError as e:
         print "[OS ERROR] Command: "+(' '.join(command))
@@ -132,10 +167,30 @@ class ToolException(Exception):
 class NotSupportedException(Exception):
     pass
 
+class InvalidReleaseTargetException(Exception):
+    pass
+
 def split_path(path):
     base, file = split(path)
     name, ext = splitext(file)
     return base, name, ext
+
+
+def get_path_depth(path):
+    """ Given a path, return the number of directory levels present.
+        This roughly translates to the number of path separators (os.sep) + 1.
+        Ex. Given "path/to/dir", this would return 3
+        Special cases: "." and "/" return 0
+    """
+    normalized_path = normpath(path)
+    path_depth = 0
+    head, tail = split(normalized_path)
+
+    while(tail and tail != '.'):
+        path_depth += 1
+        head, tail = split(head)
+
+    return path_depth
 
 
 def args_error(parser, message):
@@ -194,5 +249,92 @@ def dict_to_ascii(input):
 # Read a JSON file and return its Python representation, transforming all the strings from Unicode
 # to ASCII. The order of keys in the JSON file is preserved.
 def json_file_to_dict(fname):
-    with open(fname, "rt") as f:
-        return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+    try:
+        with open(fname, "rt") as f:
+            return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+    except (ValueError, IOError):
+        sys.stderr.write("Error parsing '%s':\n" % fname)
+        raise
+
+# Wowza, double closure
+def argparse_type(casedness, prefer_hyphen=False) :
+    def middle(list, type_name):
+        # validate that an argument passed in (as string) is a member of the list of possible
+        # arguments. Offer a suggestion if the case of the string, or the hyphens/underscores
+        # do not match the expected style of the argument.
+        def parse_type(string):
+            if prefer_hyphen: newstring = casedness(string).replace("_","-")
+            else:             newstring = casedness(string).replace("-","_")
+            if string in list:
+                return string
+            elif string not in list and newstring in list:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Did you mean {2}?".format(string, type_name, newstring))
+            else:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Supported {1}s are:\n{2}".format(string, type_name, columnate(list)))
+        return parse_type
+    return middle
+
+# short cuts for the argparse_type versions
+argparse_uppercase_type = argparse_type(str.upper, False)
+argparse_lowercase_type = argparse_type(str.lower, False)
+argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
+argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
+
+def argparse_force_type(case):
+    def middle(list, type_name):
+        # validate that an argument passed in (as string) is a member of the list of possible
+        # arguments after converting it's case. Offer a suggestion if the hyphens/underscores
+        # do not match the expected style of the argument.
+        def parse_type(string):
+            for option in list:
+                if case(string) == case(option):
+                    return option
+            raise argparse.ArgumentTypeError("{0} is not a supported {1}. Supported {1}s are:\n{2}".format(string, type_name, columnate(list)))
+        return parse_type
+    return middle
+
+# these two types convert the case of their arguments _before_ validation
+argparse_force_uppercase_type = argparse_force_type(str.upper)
+argparse_force_lowercase_type = argparse_force_type(str.lower)
+
+# An argument parser combinator that takes in an argument parser and creates a new parser that
+# accepts a comma separated list of the same thing.
+def argparse_many(fn):
+    def wrap(string):
+        return [fn(s) for s in string.split(",")]
+    return wrap
+
+# An argument parser that verifies that a string passed in corresponds to a file
+def argparse_filestring_type(string) :
+    if exists(string) :
+        return string
+    else :
+        raise argparse.ArgumentTypeError("{0}"" does not exist in the filesystem.".format(string))
+
+# render a list of strings as a in a bunch of columns
+def columnate(strings, seperator=", ", chars=80):
+    col_width = max(len(s) for s in strings)
+    total_width = col_width + len(seperator)
+    columns = math.floor(chars / total_width)
+    output = ""
+    for i, s in zip(range(len(strings)), strings):
+        append = s
+        if i != len(strings) - 1:
+            append += seperator
+        if i % columns == columns - 1:
+            append += "\n"
+        else:
+            append = append.ljust(total_width)
+        output += append
+    return output
+
+# fail if argument provided is a parent of the specified directory
+def argparse_dir_not_parent(other):
+    def parse_type(not_parent):
+        abs_other = abspath(other)
+        abs_not_parent = abspath(not_parent)
+        if abs_not_parent == commonprefix([abs_not_parent, abs_other]):
+            raise argparse.ArgumentTypeError("{0} may not be a parent directory of {1}".format(not_parent, other))
+        else:
+            return not_parent
+    return parse_type

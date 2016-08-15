@@ -1,0 +1,7 @@
+.yotta.json
+coverage/
+lcov/
+yotta_modules/
+yotta_targets/
+upload.tar.gz
+build/

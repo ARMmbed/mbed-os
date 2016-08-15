@@ -1,0 +1,2 @@
+The binary files (cordio.0.0.1.ar and cordio_platform.0.0.1.ar) in this directory are licensed under the
+Permissive Binary License1.0 (PBL-1.0) as can be found in: LICENSE-permissive-binary-license-1.0.txt

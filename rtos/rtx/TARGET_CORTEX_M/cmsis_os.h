@@ -72,6 +72,16 @@
 #    define WORDS_STACK_SIZE   128
 #endif
 
+#ifdef __MBED_CMSIS_RTOS_CM
+
+/* Single thread - disable timers and set task count to one */
+#if defined(MBED_RTOS_SINGLE_THREAD)
+#define OS_TASKCNT  1
+#define OS_TIMERS   0
+#endif
+
+#endif
+
 #define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
 
 #define osCMSIS           0x10002U     ///< CMSIS-RTOS API version (main [31:16] .sub [15:0])

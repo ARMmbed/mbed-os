@@ -515,16 +515,7 @@ static void register_next_tick() {
  */
 int os_tick_init (void)
 {
-    NRF_CLOCK->LFCLKSRC            = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
-    NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
-    NRF_CLOCK->TASKS_LFCLKSTART    = 1;
-
-    while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
-        // wait for the low frequency clock start
-    }
-
-    NRF_RTC1->PRESCALER = 0; /* for no pre-scaling. */
-
+    // their is no need to start the LF clock, it is already started by SystemInit.
     NVIC_SetPriority(RTC1_IRQn, RTC1_IRQ_PRI);
     NVIC_ClearPendingIRQ(RTC1_IRQn);
     NVIC_EnableIRQ(RTC1_IRQn);

@@ -122,7 +122,7 @@ def ignore_path(name, reg_exps):
 class MbedRepository:
     @staticmethod
     def run_and_print(command, cwd):
-        stdout, _, _ = run_cmd(command, wd=cwd, redirect=True)
+        stdout, _, _ = run_cmd(command, work_dir=cwd, redirect=True)
         print(stdout)
 
     def __init__(self, name, team = None):
@@ -147,7 +147,7 @@ class MbedRepository:
     def publish(self):
         # The maintainer has to evaluate the changes first and explicitly accept them
         self.run_and_print(['hg', 'addremove'], cwd=self.path)
-        stdout, _, _ = run_cmd(['hg', 'status'], wd=self.path)
+        stdout, _, _ = run_cmd(['hg', 'status'], work_dir=self.path)
         if stdout == '':
             print "No changes"
             return False

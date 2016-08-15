@@ -70,6 +70,12 @@ SECTIONS
          . = ALIGN(4);
     } > VECTORS
 
+    .cordio :
+    {
+        *CORDIO_RO_2.1.o
+        *TRIM_2.1.o
+    } > FLASH
+
     .text :
     {
         *(.text*)

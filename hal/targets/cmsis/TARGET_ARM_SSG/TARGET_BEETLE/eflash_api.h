@@ -62,8 +62,8 @@ extern "C" {
 #define EFLASH_REVISION 0xF0    /* Revision number */
 
     /* Macros */
-#define readl(reg) *(volatile unsigned int *)reg
-#define writel(reg, val)  *(unsigned int *)reg = val;
+#define EFlash_Readl(reg) *(volatile unsigned int *)reg
+#define EFlash_Writel(reg, val)  *(volatile unsigned int *)reg = val;
 
     /* peripheral and component ID values */
 #define FLS_PID4  0x14
@@ -80,8 +80,12 @@ extern "C" {
 #define FLS_CID3  0xB1
 
 /* Functions */
-/* EFlash_Initialize: eFlash Initialize function */
-void EFlash_Initialize(void);
+/* EFlash_DriverInitialize: eFlash Driver Initialize function */
+void EFlash_DriverInitialize(void);
+
+/* EFlash_ClockConfig: eFlash Clock Configuration */
+void EFlash_ClockConfig(void);
+
 /*
  * EFlash_Erase: Erases flash banks
  * Mode:

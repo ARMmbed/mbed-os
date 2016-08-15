@@ -18,7 +18,7 @@ import re
 import os
 from project_generator_definitions.definitions import ProGenDef
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, ExporterTargetsProperty
 from tools.targets import TARGET_MAP, TARGET_NAMES
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
@@ -35,18 +35,22 @@ class IAREmbeddedWorkbench(Exporter):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
-    # backward compatibility with our scripts
-    TARGETS = []
-    for target in TARGET_NAMES:
-        try:
-            if (ProGenDef('iar').is_supported(str(TARGET_MAP[target])) or
-                ProGenDef('iar').is_supported(TARGET_MAP[target].progen['target'])):
-                TARGETS.append(target)
-        except AttributeError:
-            # target is not supported yet
-            continue
+    @ExporterTargetsProperty
+    def TARGETS(cls):
+        if not hasattr(cls, "_targets_supported"):
+            cls._targets_supported = []
+            progendef = ProGenDef('iar')
+            for target in TARGET_NAMES:
+                try:
+                    if (progendef.is_supported(str(TARGET_MAP[target])) or
+                        progendef.is_supported(TARGET_MAP[target].progen['target'])):
+                        cls._targets_supported.append(target)
+                except AttributeError:
+                    # target is not supported yet
+                    continue
+        return cls._targets_supported
 
-    def generate(self):
+    def generate(self, progen_build=False):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
         tool_specific = {}
@@ -75,7 +79,10 @@ class IAREmbeddedWorkbench(Exporter):
         # VLA is enabled via template IccAllowVLA
         project_data['tool_specific']['iar']['misc']['c_flags'].remove("--vla")
         project_data['common']['build_dir'] = os.path.join(project_data['common']['build_dir'], 'iar_arm')
-        self.progen_gen_file('iar_arm', project_data)
+        if progen_build:
+            self.progen_gen_file('iar_arm', project_data, True)
+        else:
+            self.progen_gen_file('iar_arm', project_data)
 
 # Currently not used, we should reuse folder_name to create virtual folders
 class IarFolder():

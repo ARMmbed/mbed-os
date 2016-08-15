@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -56,14 +56,14 @@
 /* Exported types ------------------------------------------------------------*/
 typedef enum  
 {
-  PCD_LPM_L0_ACTIVE = 0x00, /* on */
-  PCD_LPM_L1_ACTIVE = 0x01, /* LPM L1 sleep */
+  PCD_LPM_L0_ACTIVE = 0x00U, /* on */
+  PCD_LPM_L1_ACTIVE = 0x01U, /* LPM L1 sleep */
 }PCD_LPM_MsgTypeDef;
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup PCDEx_Exported_Functions PCD Extended Exported Functions
+/** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
   * @{
   */
 /** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions

@@ -20,7 +20,7 @@
 namespace mbed {
 
 I2C *I2C::_owner = NULL;
-PlatformMutex I2C::_mutex;
+SingletonPtr<PlatformMutex> I2C::_mutex;
 
 I2C::I2C(PinName sda, PinName scl) :
 #if DEVICE_I2C_ASYNCH
@@ -113,11 +113,11 @@ void I2C::stop(void) {
 }
 
 void I2C::lock() {
-    _mutex.lock();
+    _mutex->lock();
 }
 
 void I2C::unlock() {
-    _mutex.unlock();
+    _mutex->unlock();
 }
 
 #if DEVICE_I2C_ASYNCH

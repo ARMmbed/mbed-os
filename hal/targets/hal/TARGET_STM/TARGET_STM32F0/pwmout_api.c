@@ -41,10 +41,13 @@ static TIM_HandleTypeDef TimHandle;
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
+    MBED_ASSERT(obj->pwm != (PWMName)NC);
 
-    if (obj->pwm == (PWMName)NC) {
-        error("PWM error: pinout mapping failed.");
-    }
+    // Get the functions (timer channel, (non)inverted) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_PWM);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel = STM_PIN_CHANNEL(function);
+    obj->inverted = STM_PIN_INVERTED(function);
 
     // Enable TIM clock
 #if defined(TIM1_BASE)
@@ -75,6 +78,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->pin = pin;
     obj->period = 0;
     obj->pulse = 0;
+    obj->prescaler = 1;
 
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
@@ -87,7 +91,6 @@ void pwmout_free(pwmout_t* obj) {
 void pwmout_write(pwmout_t* obj, float value) {
     TIM_OC_InitTypeDef sConfig;
     int channel = 0;
-    int complementary_channel = 0;
 
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
 
@@ -101,138 +104,35 @@ void pwmout_write(pwmout_t* obj, float value) {
 
     // Configure channels
     sConfig.OCMode       = TIM_OCMODE_PWM1;
-    sConfig.Pulse        = obj->pulse;
+    sConfig.Pulse        = obj->pulse / obj->prescaler;
     sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
     sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
-#if defined (TARGET_STM32F031K6) || defined (TARGET_STM32F042K6)
-    switch (obj->pin) {
-        // Channels 1
-        case PA_4:
-        case PA_6:
-        case PA_8:
-        case PB_4:
+    switch (obj->channel) {
+        case 1:
             channel = TIM_CHANNEL_1;
             break;
-        // Channels 1N
-        case PB_6:
-        case PB_7:
-            channel = TIM_CHANNEL_1;
-            complementary_channel = 1;
-            break;
-        // Channels 2
-        case PA_7:
-        case PA_9:
-        case PB_5:
+        case 2:
             channel = TIM_CHANNEL_2;
             break;
-        // Channels 3
-        case PA_10:
-        case PB_0:
+        case 3:
             channel = TIM_CHANNEL_3;
             break;
-        // Channels 4
-        case PA_11:
-        case PB_1:
-            channel = TIM_CHANNEL_4;
-            break;
-        default:
-            return;
-    }
-#elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
-    switch (obj->pin) {
-        // Channels 1
-        case PA_4:
-        case PA_6:
-        case PB_1:
-        case PB_4:
-        case PB_8:
-        case PB_9:
-        case PB_14:
-        case PC_6:
-            channel = TIM_CHANNEL_1;
-            break;
-        // Channels 1N
-        case PB_6:
-        case PB_7:
-            channel = TIM_CHANNEL_1;
-            complementary_channel = 1;
-            break;
-        // Channels 2
-        case PA_7:
-        case PB_5:
-        case PB_15:
-        case PC_7:
-            channel = TIM_CHANNEL_2;
-            break;
-        // Channels 3
-        case PB_0:
-        case PC_8:
-            channel = TIM_CHANNEL_3;
-            break;
-        // Channels 4
-        case PC_9:
+        case 4:
             channel = TIM_CHANNEL_4;
             break;
         default:
             return;
     }
 
-#else
-    switch (obj->pin) {
-        // Channels 1
-        case PA_2:
-        case PA_4:
-        case PA_6:
-        case PA_7:
-        case PA_8:
-        case PB_1:
-        case PB_4:
-        case PB_8:
-        case PB_9:
-        case PB_14:
-        case PC_6:
-            channel = TIM_CHANNEL_1;
-            break;
-        // Channels 1N
-        case PA_1:
-        case PB_6:
-        case PB_7:
-        case PB_13:
-            channel = TIM_CHANNEL_1;
-            complementary_channel = 1;
-            break;
-        // Channels 2
-        case PA_3:
-        case PA_9:
-        case PB_5:
-        case PB_15:
-        case PC_7:
-            channel = TIM_CHANNEL_2;
-            break;
-        // Channels 3
-        case PA_10:
-        case PB_0:
-        case PC_8:
-            channel = TIM_CHANNEL_3;
-            break;
-        // Channels 4
-        case PA_11:
-        case PC_9:
-            channel = TIM_CHANNEL_4;
-            break;
-        default:
-            return;
+    if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
+        error("Cannot initialize PWM\n");
     }
 
-#endif
-
-    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel);
-
-    if (complementary_channel) {
+    if (obj->inverted) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);
     } else {
         HAL_TIM_PWM_Start(&TimHandle, channel);
@@ -265,17 +165,38 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     // Update the SystemCoreClock variable
     SystemCoreClockUpdate();
 
-    TimHandle.Init.Period        = us - 1;
-    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    /* To make it simple, we use to possible prescaler values which lead to:
+     * pwm unit = 1us, period/pulse can be from 1us to 65535us
+     * or
+     * pwm unit = 500us, period/pulse can be from 500us to ~32.76sec
+     * Be careful that all the channels of a PWM shares the same prescaler
+     */
+    if (us >  0xFFFF) {
+        obj->prescaler = 500;
+    } else {
+        obj->prescaler = 1;
+    }
+    TimHandle.Init.Prescaler     = ((SystemCoreClock / 1000000) * obj->prescaler) - 1;
+
+    if (TimHandle.Init.Prescaler > 0xFFFF)
+        error("PWM: out of range prescaler");
+
+    TimHandle.Init.Period        = (us - 1) / obj->prescaler;
+    if (TimHandle.Init.Period > 0xFFFF)
+        error("PWM: out of range period");
+
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
-    HAL_TIM_PWM_Init(&TimHandle);
 
-    // Set duty cycle again
-    pwmout_write(obj, dc);
+    if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK) {
+        error("Cannot initialize PWM");
+    }
 
     // Save for future use
     obj->period = us;
+
+    // Set duty cycle again
+    pwmout_write(obj, dc);
 
     __HAL_TIM_ENABLE(&TimHandle);
 }

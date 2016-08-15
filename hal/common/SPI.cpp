@@ -36,8 +36,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     // No lock needed in the constructor
 
     spi_init(&_spi, mosi, miso, sclk, ssel);
-    spi_format(&_spi, _bits, _mode, 0);
-    spi_frequency(&_spi, _hz);
+    aquire();
 }
 
 void SPI::format(int bits, int mode) {
@@ -58,6 +57,7 @@ void SPI::frequency(int hz) {
 }
 
 SPI* SPI::_owner = NULL;
+SingletonPtr<PlatformMutex> SPI::_mutex;
 
 // ignore the fact there are multiple physical spis, and always update if it wasnt us last
 void SPI::aquire() {
@@ -79,11 +79,11 @@ int SPI::write(int value) {
 }
 
 void SPI::lock() {
-    _mutex.lock();
+    _mutex->lock();
 }
 
 void SPI::unlock() {
-    _mutex.unlock();
+    _mutex->unlock();
 }
 
 #if DEVICE_SPI_ASYNCH

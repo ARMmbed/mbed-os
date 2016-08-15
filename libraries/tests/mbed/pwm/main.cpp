@@ -107,7 +107,7 @@ int main() {
     printf("Initialize PWM on pin PD_13 with duty cycle: %.2f\n", pwm_2.read());
 
     notify_completion(result == value ? true : false);
-#elif defined(TARGET_DISCO_F429ZI)
+#elif defined(TARGET_DISCO_F429ZI) || defined(TARGET_NUCLEO_F429ZI)
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);

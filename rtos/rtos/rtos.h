@@ -32,4 +32,13 @@
 
 using namespace rtos;
 
+/* Get mbed lib version number, as RTOS depends on mbed lib features
+   like mbed_error, Callback and others.
+*/
+#include "mbed.h"
+
+#if (MBED_LIBRARY_VERSION < 122)
+#error "This version of RTOS requires mbed library version > 121"
+#endif
+
 #endif

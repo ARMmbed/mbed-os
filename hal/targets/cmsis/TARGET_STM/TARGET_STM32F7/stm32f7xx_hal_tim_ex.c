@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer extension peripheral:
@@ -72,7 +72,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -1640,7 +1640,6 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_DMA(TIM_HandleTypeDef *htim, 
   *            @arg TIM_CHANNEL_4: TIM Channel 4 selected 
   *            @arg TIM_CHANNEL_5: TIM Channel 5 selected 
   *            @arg TIM_CHANNEL_6: TIM Channel 6 selected 
-  *            @arg TIM_CHANNEL_ALL: all output channels supported by the timer instance selected
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim, TIM_OC_InitTypeDef* sConfig, uint32_t Channel)
@@ -1741,7 +1740,6 @@ HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim, TIM_OC_InitT
   *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
   *            @arg TIM_CHANNEL_5: TIM Channel 5 selected 
   *            @arg TIM_CHANNEL_6: TIM Channel 6 selected 
-  *            @arg TIM_CHANNEL_ALL: all PWM channels supported by the timer instance selected
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim, 
@@ -1906,6 +1904,9 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
   {
     case TIM_CLEARINPUTSOURCE_NONE:
     {
+      /* Get the TIMx SMCR register value */
+      tmpsmcr = htim->Instance->SMCR;
+      
       /* Clear the OCREF clear selection bit */
       tmpsmcr &= ~TIM_SMCR_OCCS;
       
@@ -2162,6 +2163,92 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
   
   return HAL_OK;
 }
+#if defined (STM32F765xx) || defined(STM32F767xx) || defined(STM32F769xx) || defined(STM32F777xx) || defined(STM32F779xx)
+/**
+  * @brief  Configures the break input source.
+  * @param  htim: TIM handle.
+  * @param  BreakInput: Break input to configure
+  *          This parameter can be one of the following values:
+  *            @arg TIM_BREAKINPUT_BRK: Timer break input
+  *            @arg TIM_BREAKINPUT_BRK2: Timer break 2 input
+  * @param  sBreakInputConfig: Break input source configuration
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
+                                             uint32_t BreakInput,
+                                             TIMEx_BreakInputConfigTypeDef *sBreakInputConfig)
+
+{
+  uint32_t tmporx = 0;
+  uint32_t bkin_enable_mask = 0;
+  uint32_t bkin_enable_bitpos = 0;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_BREAK_INSTANCE(htim->Instance));
+  assert_param(IS_TIM_BREAKINPUT(BreakInput));
+  assert_param(IS_TIM_BREAKINPUTSOURCE(sBreakInputConfig->Source));
+  assert_param(IS_TIM_BREAKINPUTSOURCE_STATE(sBreakInputConfig->Enable));
+
+  /* Check input state */
+  __HAL_LOCK(htim);
+  
+  switch(sBreakInputConfig->Source)
+  {
+  case TIM_BREAKINPUTSOURCE_BKIN:
+    {
+      bkin_enable_mask = TIM1_AF1_BKINE;
+      bkin_enable_bitpos = 0;
+    }
+    break;
+  
+  case TIM_BREAKINPUTSOURCE_DFSDM1:
+    {
+      bkin_enable_mask = TIM1_AF1_BKDF1BKE;
+      bkin_enable_bitpos = 8;
+    }
+    break;    
+
+  default:
+    break;
+  }
+  
+  switch(BreakInput)
+  {
+    case TIM_BREAKINPUT_BRK:
+      {
+        /* Get the TIMx_AF1 register value */
+        tmporx = htim->Instance->AF1;
+        
+        /* Enable the break input */
+        tmporx &= ~bkin_enable_mask;
+        tmporx |= (sBreakInputConfig->Enable << bkin_enable_bitpos) & bkin_enable_mask;
+        
+        /* Set TIMx_AF1 */
+        htim->Instance->AF1 = tmporx;        
+      }
+        break;
+    case TIM_BREAKINPUT_BRK2:
+      {
+        /* Get the TIMx_AF2 register value */
+        tmporx = htim->Instance->AF2;
+        
+        /* Enable the break input */
+        tmporx &= ~bkin_enable_mask;
+        tmporx |= (sBreakInputConfig->Enable << bkin_enable_bitpos) & bkin_enable_mask;
+        
+        /* Set TIMx_AF2 */
+        htim->Instance->AF2 = tmporx;        
+      }
+      break;    
+  default:
+    break;
+  }
+  
+  __HAL_UNLOCK(htim);
+
+  return HAL_OK;
+}
+#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
 /**
   * @brief  Configures the TIM2, TIM5 and TIM11 Remapping input capabilities.

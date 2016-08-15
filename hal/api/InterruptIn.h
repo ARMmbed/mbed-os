@@ -65,11 +65,18 @@ public:
     InterruptIn(PinName pin);
     virtual ~InterruptIn();
 
-     int read();
-#ifdef MBED_OPERATORS
+    /** Read the input, represented as 0 or 1 (int)
+     *
+     *  @returns
+     *    An integer representing the state of the input pin,
+     *    0 for logical 0, 1 for logical 1
+     */
+    int read();
+
+    /** An operator shorthand for read()
+     */
     operator int();
 
-#endif
 
     /** Attach a function to call when a rising edge occurs on the input
      *

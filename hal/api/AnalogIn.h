@@ -21,6 +21,8 @@
 #if DEVICE_ANALOGIN
 
 #include "analogin_api.h"
+#include "SingletonPtr.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 
@@ -83,7 +85,6 @@ public:
         return ret;
     }
 
-#ifdef MBED_OPERATORS
     /** An operator shorthand for read()
      *
      * The float() operator can be used as a shorthand for read() to simplify common code sequences
@@ -101,7 +102,6 @@ public:
         // Underlying call is thread safe
         return read();
     }
-#endif
 
     virtual ~AnalogIn() {
         // Do nothing
@@ -110,15 +110,15 @@ public:
 protected:
 
     virtual void lock() {
-        _mutex.lock();
+        _mutex->lock();
     }
 
     virtual void unlock() {
-        _mutex.unlock();
+        _mutex->unlock();
     }
 
     analogin_t _adc;
-    static PlatformMutex _mutex;
+    static SingletonPtr<PlatformMutex> _mutex;
 };
 
 } // namespace mbed

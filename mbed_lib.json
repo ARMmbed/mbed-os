@@ -4,6 +4,11 @@
         "stdio-convert-newlines": {
             "help": "Enable conversion to standard newlines on stdin/stdout",
             "value": false
+        },
+
+        "stdio-baud-rate": {
+            "help": "Baud rate for stdio",
+            "value": 9600
         }
     }
 }

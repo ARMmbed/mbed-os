@@ -23,7 +23,7 @@
 #define MBED_FATFILEHANDLE_H
 
 #include "FileHandle.h"
-#include "platform.h"
+#include "PlatformMutex.h"
 
 using namespace mbed;
 

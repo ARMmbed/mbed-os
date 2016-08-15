@@ -81,7 +81,6 @@ void BusIn::unlock() {
     _mutex.unlock();
 }
 
-#ifdef MBED_OPERATORS
 BusIn::operator int() {
     // Underlying read is thread safe
     return read();
@@ -93,7 +92,5 @@ DigitalIn& BusIn::operator[] (int index) {
     MBED_ASSERT(_pin[index]);
     return *_pin[index];
 }
-
-#endif
 
 } // namespace mbed

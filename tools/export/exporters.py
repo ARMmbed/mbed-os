@@ -21,6 +21,16 @@ from tools.config import Config
 
 class OldLibrariesException(Exception): pass
 
+class FailedBuildException(Exception) : pass
+
+# Exporter descriptor for TARGETS
+# TARGETS as class attribute for backward compatibility (allows: if in Exporter.TARGETS)
+class ExporterTargetsProperty(object):
+    def __init__(self, func):
+        self.func = func
+    def __get__(self, inst, cls):
+        return self.func(cls)
+
 class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
@@ -33,7 +43,7 @@ class Exporter(object):
         self.build_url_resolver = build_url_resolver
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
-        self.extra_symbols = extra_symbols
+        self.extra_symbols = extra_symbols if extra_symbols else []
         self.config_macros = []
         self.sources_relative = sources_relative
         self.config_header = None
@@ -49,6 +59,11 @@ class Exporter(object):
     def progen_flags(self):
         if not hasattr(self, "_progen_flag_cache") :
             self._progen_flag_cache = dict([(key + "_flags", value) for key,value in self.flags.iteritems()])
+            asm_defines = ["-D"+symbol for symbol in self.toolchain.get_symbols(True)]
+            c_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols()]
+            self._progen_flag_cache['asm_flags'] += asm_defines
+            self._progen_flag_cache['c_flags'] += c_defines
+            self._progen_flag_cache['cxx_flags'] += c_defines
             if self.config_header:
                 self._progen_flag_cache['c_flags'] += self.toolchain.get_config_option(self.config_header)
                 self._progen_flag_cache['cxx_flags'] += self.toolchain.get_config_option(self.config_header)
@@ -59,7 +74,7 @@ class Exporter(object):
 
         for r_type in ['headers', 's_sources', 'c_sources', 'cpp_sources',
             'objects', 'libraries', 'linker_script',
-            'lib_builds', 'lib_refs', 'repo_files', 'hex_files', 'bin_files']:
+            'lib_builds', 'lib_refs', 'hex_files', 'bin_files']:
             r = getattr(resources, r_type)
             if r:
                 self.toolchain.copy_files(r, trg_path, resources=resources)
@@ -107,14 +122,19 @@ class Exporter(object):
         }
         return project_data
 
-    def progen_gen_file(self, tool_name, project_data):
-        """" Generate project using ProGen Project API """
+    def progen_gen_file(self, tool_name, project_data, progen_build=False):
+        """ Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
         # TODO: Fix this, the inc_dirs are not valid (our scripts copy files), therefore progen
         # thinks it is not dict but a file, and adds them to workspace.
         project.project['common']['include_paths'] = self.resources.inc_dirs
         project.generate(tool_name, copied=not self.sources_relative)
+        if progen_build:
+            print("Project exported, building...")
+            result = project.build(tool_name)
+            if result == -1:
+                raise FailedBuildException("Build Failed")
 
     def __scan_all(self, path):
         resources = []
@@ -134,16 +154,21 @@ class Exporter(object):
         # Copy only the file for the required target and toolchain
         lib_builds = []
         # Create the configuration object
+        if isinstance(prj_paths, basestring):
+            prj_paths = [prj_paths]
         config = Config(self.target, prj_paths)
         for src in ['lib', 'src']:
-            resources = reduce(add, [self.__scan_and_copy(join(path, src), trg_path) for path in prj_paths])
+            resources = self.__scan_and_copy(join(prj_paths[0], src), trg_path)
+            for path in prj_paths[1:]:
+                resources.add(self.__scan_and_copy(join(path, src), trg_path))
+
             lib_builds.extend(resources.lib_builds)
 
             # The repository files
-            for repo_dir in resources.repo_dirs:
-                repo_files = self.__scan_all(repo_dir)
-                for path in proj_paths :
-                    self.toolchain.copy_files(repo_files, trg_path, rel_path=join(path, src))
+            #for repo_dir in resources.repo_dirs:
+            #    repo_files = self.__scan_all(repo_dir)
+            #    for path in prj_paths:
+            #        self.toolchain.copy_files(repo_files, trg_path, rel_path=join(path, src))
 
         # The libraries builds
         for bld in lib_builds:
@@ -171,19 +196,15 @@ class Exporter(object):
         # Loads the resources into the config system which might expand/modify resources based on config data
         self.resources = config.load_resources(resources)
 
-
         if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED :
             # Add the configuration file to the target directory
             self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
             config.get_config_data_header(join(trg_path, self.config_header))
             self.config_macros = []
-        else :
+            self.resources.inc_dirs.append(".")
+        else:
             # And add the configuration macros to the toolchain
             self.config_macros = config.get_config_data_macros()
-        # Check the existence of a binary build of the mbed library for the desired target
-        # This prevents exporting the mbed libraries from source
-        # if not self.toolchain.mbed_libs:
-        #    raise OldLibrariesException()
 
     def gen_file(self, template_file, data, target_file):
         template_path = join(Exporter.TEMPLATE_DIR, template_file)
@@ -198,11 +219,16 @@ class Exporter(object):
         """ This function returns symbols which must be exported.
             Please add / overwrite symbols in each exporter separately
         """
-        symbols = self.toolchain.get_symbols() + self.config_macros
+
         # We have extra symbols from e.g. libraries, we want to have them also added to export
-        if add_extra_symbols:
-            if self.extra_symbols is not None:
-                symbols.extend(self.extra_symbols)
+        extra = self.extra_symbols if add_extra_symbols else []
+        if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED:
+            # If the config header is supported, we will preinclude it and do not not
+            # need the macros as preprocessor flags
+            return extra
+
+        symbols = self.toolchain.get_symbols(True) + self.toolchain.get_symbols() \
+                  + self.config_macros + extra
         return symbols
 
 def zip_working_directory_and_clean_up(tempdirectory=None, destination=None, program_name=None, clean=True):

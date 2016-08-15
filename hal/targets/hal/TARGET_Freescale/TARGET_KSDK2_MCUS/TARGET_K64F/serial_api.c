@@ -98,6 +98,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         temp |= (UART_C1_PE_MASK | UART_C1_M_MASK);
         if (parity == ParityOdd) {
             temp |= UART_C1_PT_MASK;
+        } else if (parity == ParityEven) {
+            // PT=0 so nothing more to do  
         } else {
             // Hardware does not support forced parity
             MBED_ASSERT(0);
@@ -276,6 +278,39 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
     uart_addrs[obj->index]->C2 &= ~UART_C2_SBK_MASK;
+}
+
+/*
+ * Only hardware flow control is implemented in this API.
+ */
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    switch(type) {
+        case FlowControlRTS:
+            pinmap_pinout(rxflow, PinMap_UART_RTS);
+            uart_addrs[obj->index]->MODEM &= ~UART_MODEM_TXCTSE_MASK;
+            uart_addrs[obj->index]->MODEM |= UART_MODEM_RXRTSE_MASK;
+            break;
+
+        case FlowControlCTS:
+            pinmap_pinout(txflow, PinMap_UART_CTS);
+            uart_addrs[obj->index]->MODEM &= ~UART_MODEM_RXRTSE_MASK;
+            uart_addrs[obj->index]->MODEM |= UART_MODEM_TXCTSE_MASK;
+            break;
+
+        case FlowControlRTSCTS:
+            pinmap_pinout(rxflow, PinMap_UART_RTS);
+            pinmap_pinout(txflow, PinMap_UART_CTS);
+            uart_addrs[obj->index]->MODEM |= UART_MODEM_TXCTSE_MASK | UART_MODEM_RXRTSE_MASK;
+            break;
+
+        case FlowControlNone:
+            uart_addrs[obj->index]->MODEM &= ~(UART_MODEM_TXCTSE_MASK | UART_MODEM_RXRTSE_MASK);
+            break;
+
+        default:
+            break;
+    }
 }
 
 #endif

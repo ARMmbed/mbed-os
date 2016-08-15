@@ -50,6 +50,9 @@ typedef uint8_t timerenable_t;
 #define DUALTIMER_ONESHOT_MASK  (3)
 #define DUALTIMER_ONESHOT       (1 << DUALTIMER_ONESHOT_MASK)
 
+/* Default reload */
+#define DUALTIMER_DEFAULT_RELOAD    0xFFFFFFFF
+
 /*
  * DualTimer_Enable(): Enables a hardware timer
  * timer: timer to be enabled
@@ -135,6 +138,15 @@ uint32_t DualTimer_GetIRQInfo(uint32_t dualtimer);
  * @return: Ticks per us - 0 if the timer is disables
  */
 uint32_t DualTimer_GetTicksUS(uint32_t timer);
+
+/*
+ * DualTimer_GetReloadValue(): returns the load value of the selected
+ * singletimer.
+ * timer: timer associated with the Ticks per us
+ * singletimer: selected singletimer
+ * @return: reload value of the selected singletimer
+ */
+uint32_t DualTimer_GetReloadValue(uint32_t timer, uint32_t singletimer);
 
 #ifdef __cplusplus
 }

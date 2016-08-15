@@ -15,7 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from exporters import Exporter
-from os.path import splitext, basename
+from os.path import splitext, basename, relpath, join, abspath
+from os import curdir, getcwd
 
 
 class GccArm(Exporter):
@@ -68,7 +69,9 @@ class GccArm(Exporter):
         'NUCLEO_F401RE',
         'NUCLEO_F410RB',
         'NUCLEO_F411RE',
+        'NUCLEO_F429ZI',
         'NUCLEO_F446RE',
+        'NUCLEO_F446ZE',
         'B96B_F446VE',
         'ARCH_MAX',
         'NUCLEO_F030R8',
@@ -78,16 +81,19 @@ class GccArm(Exporter):
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
+        'NUCLEO_F207ZG',
         'NUCLEO_F302R8',
         'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'NUCLEO_F746ZG',
+        'NUCLEO_F767ZI',
         'DISCO_L053C8',
         'NUCLEO_L011K4',
         'NUCLEO_L031K6',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
+        'NUCLEO_L432KC',
         'NUCLEO_L476RG',
         'DISCO_F334C8',
         'MAX32600MBED',
@@ -118,6 +124,7 @@ class GccArm(Exporter):
         'SAMG55J19',
         'ARM_BEETLE_SOC',
         'ELMO_F411RE',
+        'BLUEPILL_F103C8',
     ]
 
     DOT_IN_RELATIVE_PATH = True
@@ -126,6 +133,8 @@ class GccArm(Exporter):
 
     def generate(self):
         # "make" wants Unix paths
+        if self.sources_relative:
+            self.resources.relative_to(self.prj_paths[0])
         self.resources.win_to_unix()
 
         to_be_compiled = []
@@ -141,6 +150,7 @@ class GccArm(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
+        build_dir = abspath(join(self.inputDir, ".build"))
         ctx = {
             'name': self.program_name,
             'to_be_compiled': to_be_compiled,
@@ -150,7 +160,21 @@ class GccArm(Exporter):
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
             'symbols': self.get_symbols(),
-            'cpu_flags': self.toolchain.cpu
+            'cpu_flags': self.toolchain.cpu,
+            'vpath': [relpath(s, build_dir) for s in self.prj_paths] if self.sources_relative else [".."],
+            'hex_files': self.resources.hex_files
         }
+
+        for key in ['include_paths', 'library_paths', 'linker_script', 'hex_files']:
+            if isinstance(ctx[key], list):
+                ctx[key] = [ctx['vpath'][0] + "/" + t for t in ctx[key]]
+            else:
+                ctx[key] = ctx['vpath'][0] + "/" + ctx[key]
+        if "../." not in ctx["include_paths"]:
+            ctx["include_paths"] += ['../.']
         ctx.update(self.progen_flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
+
+    def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
+        self.prj_paths = prj_paths
+        Exporter.scan_and_copy_resources(self, prj_paths, trg_path, relative)

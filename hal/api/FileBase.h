@@ -41,6 +41,8 @@ typedef long off_t;
 #endif
 
 #include "platform.h"
+#include "SingletonPtr.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 
@@ -65,7 +67,7 @@ public:
     /* disallow copy constructor and assignment operators */
 private:
     static FileBase *_head;
-    static PlatformMutex _mutex;
+    static SingletonPtr<PlatformMutex> _mutex;
 
     FileBase   *_next;
     const char * const _name;

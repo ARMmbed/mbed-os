@@ -1,8 +1,8 @@
 ;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32l151xc.s
 ;* Author             : MCD Application Team
-;* Version            : V2.1.3
-;* Date               : 04-March-2016
+;* Version            : V2.2.0
+;* Date               : 01-July-2016
 ;* Description        : STM32L151XC Devices vector for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP

@@ -71,7 +71,8 @@ void RTC_IRQHandler(void)
 
 uint32_t rtc_get_32bit(void)
 {
-    return (RTC_CounterGet() + (time_extend << RTC_NUM_BITS));
+    uint32_t pending = (RTC_IntGet() & RTC_IF_OF) ? 1 : 0;
+    return (RTC_CounterGet() + ((time_extend + pending) << RTC_NUM_BITS));
 }
 
 uint64_t rtc_get_full(void)
@@ -104,8 +105,8 @@ void rtc_init_real(uint32_t flags)
 
         /* Enable Interrupt from RTC */
         RTC_IntEnable(RTC_IEN_OF);
-        NVIC_EnableIRQ(RTC_IRQn);
         NVIC_SetVector(RTC_IRQn, (uint32_t)RTC_IRQHandler);
+        NVIC_EnableIRQ(RTC_IRQn);
 
         /* Initialize */
         RTC_Init(&init);
@@ -198,8 +199,8 @@ void rtc_init_real(uint32_t flags)
 
         /* Enable Interrupt from RTC */
         RTCC_IntEnable(RTCC_IEN_OF);
-        NVIC_EnableIRQ(RTCC_IRQn);
         NVIC_SetVector(RTCC_IRQn, (uint32_t)RTCC_IRQHandler);
+        NVIC_EnableIRQ(RTCC_IRQn);
 
         /* Initialize */
         RTCC_Init(&init);

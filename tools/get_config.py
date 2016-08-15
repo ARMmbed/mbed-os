@@ -28,6 +28,7 @@ from tools.utils import args_error
 from tools.options import get_default_options_parser
 from tools.build_api import get_config
 from config import Config
+from utils import argparse_filestring_type
 try:
     import tools.private_settings as ps
 except:
@@ -36,28 +37,24 @@ except:
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_clean=False, add_options=False)
-    parser.add_option("--source", dest="source_dir",
-                      default=None, help="The source (input) directory", action="append")
-    parser.add_option("--prefix", dest="prefix", action="append",
-                      default=None, help="Restrict listing to parameters that have this prefix")
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
+                        default=[], help="The source (input) directory", action="append")
+    parser.add_argument("--prefix", dest="prefix", action="append",
+                      default=[], help="Restrict listing to parameters that have this prefix")
+    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
 
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
-    for path in options.source_dir :
-        if not isdir(path) :
-            args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
-                       format(path))
     # Target
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")
-    target = options.mcu
+    target = options.mcu[0]
 
     # Toolchain
     if options.tool is None:
         args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
-    toolchain = options.tool
+    toolchain = options.tool[0]
 
     options.prefix = options.prefix or [""]
 

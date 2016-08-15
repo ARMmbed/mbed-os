@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_RTC
+
 #include "rtc_api.h"
 #include "PeripheralPins.h"
 #include "clk_freqs.h"
@@ -112,3 +115,5 @@ void rtc_write(time_t t) {
     // re-enable counter
     RTC->SR |= RTC_SR_TCE_MASK;
 }
+
+#endif

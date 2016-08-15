@@ -54,9 +54,6 @@ void analogin_init(analogin_t *obj, PinName pin) {
     ADC16_Init(adc_addrs[instance], &adc16_config);
     ADC16_EnableHardwareTrigger(adc_addrs[instance], false);
     ADC16_SetHardwareAverage(adc_addrs[instance], kADC16_HardwareAverageCount4);
-    ADC16_SetChannelMuxMode(adc_addrs[instance],
-        obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kADC16_ChannelMuxB : kADC16_ChannelMuxA);
-
     pinmap_pinout(pin, PinMap_ADC);
 }
 
@@ -70,6 +67,9 @@ uint16_t analogin_read_u16(analogin_t *obj) {
 #if defined(FSL_FEATURE_ADC16_HAS_DIFF_MODE) && FSL_FEATURE_ADC16_HAS_DIFF_MODE
     adc16_channel_config.enableDifferentialConversion = false;
 #endif
+
+    ADC16_SetChannelMuxMode(adc_addrs[instance],
+        obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kADC16_ChannelMuxB : kADC16_ChannelMuxA);
 
     /*
      * When in software trigger mode, each conversion would be launched once calling the "ADC16_ChannelConfigure()"

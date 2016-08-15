@@ -18,12 +18,14 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
 from tools.utils import construct_enum, mkdir
+from prettytable import PrettyTable
 import os
 
 ResultExporterType = construct_enum(HTML='Html_Exporter',
                                     JUNIT='JUnit_Exporter',
                                     JUNIT_OPER='JUnit_Exporter_Interoperability',
                                     BUILD='Build_Exporter',
+                                    TEXT='Text_Exporter',
                                     PRINT='Print_Exporter')
 
 
@@ -88,6 +90,8 @@ class ReportExporter():
         elif self.result_exporter_type == ResultExporterType.PRINT:
             # JUNIT exporter for interoperability test
             return self.exporter_print(test_summary_ext, print_log_for_failures=print_log_for_failures)
+        elif self.result_exporter_type == ResultExporterType.TEXT:
+            return self.exporter_text(test_summary_ext)
         return None
 
     def report_to_file(self, test_summary_ext, file_name, test_suite_properties=None):
@@ -352,3 +356,59 @@ class ReportExporter():
             return False
         else:
             return True
+
+    def exporter_text(self, test_result_ext):
+        """ Prints well-formed summary with results (SQL table like)
+            table shows target x test results matrix across
+        """
+        success_code = 0    # Success code that can be leter returned to
+        # Pretty table package is used to print results
+        pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
+                          "Elapsed Time", "Timeout"])
+        pt.align["Result"] = "l" # Left align
+        pt.align["Target"] = "l" # Left align
+        pt.align["Toolchain"] = "l" # Left align
+        pt.align["Test ID"] = "l" # Left align
+        pt.align["Test Description"] = "l" # Left align
+        pt.padding_width = 1 # One space between column edges and contents (default)
+
+        result_dict = {"OK" : 0,
+                       "FAIL" : 0,
+                       "ERROR" : 0,
+                       "UNDEF" : 0,
+                       "IOERR_COPY" : 0,
+                       "IOERR_DISK" : 0,
+                       "IOERR_SERIAL" : 0,
+                       "TIMEOUT" : 0,
+                       "NO_IMAGE" : 0,
+                       "MBED_ASSERT" : 0,
+                       "BUILD_FAILED" : 0,
+                       "NOT_SUPPORTED" : 0
+        }
+        unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
+        targets = sorted(test_result_ext.keys())
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
+            for toolchain in toolchains:
+                test_cases = []
+                tests = sorted(test_result_ext[target][toolchain].keys())
+                for test in tests:
+                    test_results = test_result_ext[target][toolchain][test]
+                    for test_res in test_results:
+                        test_ids = sorted(test_res.keys())
+                        for test_no in test_ids:
+                            test_result = test_res[test_no]
+                            result_dict[test_result['result']] += 1
+                            pt.add_row([test_result['result'],
+                                        test_result['target_name'],
+                                        test_result['toolchain_name'],
+                                        test_result['id'],
+                                        test_result['description'],
+                                        test_result['elapsed_time'],
+                                        test_result['duration']])
+        result = pt.get_string()
+        result += "\n"
+
+        # Print result count
+        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+        return result

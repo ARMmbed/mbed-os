@@ -16,7 +16,15 @@
 #ifndef MBED_H
 #define MBED_H
 
-#define MBED_LIBRARY_VERSION 121
+#define MBED_LIBRARY_VERSION 122
+
+#if MBED_CONF_RTOS_PRESENT
+#include "rtos/rtos.h"
+#endif
+
+#if MBED_CONF_NSAPI_PRESENT
+#include "network-socket/nsapi.h"
+#endif
 
 #include "toolchain.h"
 #include "platform.h"

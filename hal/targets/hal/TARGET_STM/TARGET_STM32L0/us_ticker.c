@@ -35,7 +35,6 @@
 
 static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;
-static bool us_ticker_stabilized = false;
 
 volatile uint16_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
@@ -64,32 +63,24 @@ uint32_t us_ticker_read()
 
     if (!us_ticker_inited) us_ticker_init();
 
-    // There's a situation where the first tick still may overflow and to avoid
-    // it we need to check if our ticker has stabilized and due to that we need
-    // to return only the lower part of your 32 bit software timer.
-    if (us_ticker_stabilized) {
-        do {
-            // For some reason on L0xx series we need to read and clear the 
-            // overflow flag which give extra time to propelry handle possible
-            // hiccup after ~60s
-            if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
-                __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
-            }
-            cntH_old = SlaveCounter;
-            if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
-             cntH_old += 1;
-            }
-            cntL = TIM_MST->CNT;
- 
-            cntH = SlaveCounter;
-            if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
-                cntH += 1;
-            }
-        } while(cntH_old != cntH);
-    } else {
-        us_ticker_stabilized = true;
-        return (uint32_t) TIM_MST->CNT;
-    } 
+    do {
+        // For some reason on L0xx series we need to read and clear the 
+        // overflow flag which give extra time to propelry handle possible
+        // hiccup after ~60s
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
+            __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
+        }
+        cntH_old = SlaveCounter;
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+         cntH_old += 1;
+        }
+        cntL = TIM_MST->CNT;
+
+        cntH = SlaveCounter;
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+            cntH += 1;
+        }
+    } while(cntH_old != cntH);
     
     // Glue the upper and lower part together to get a 32 bit timer
     return (uint32_t)(cntH << 16 | cntL);

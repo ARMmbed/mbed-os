@@ -33,6 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #if   defined (__CC_ARM)
+#include <rt_misc.h>
 #pragma O3
 #define __USED __attribute__((used))
 #elif defined (__GNUC__)
@@ -223,6 +224,10 @@ osMessageQId osMessageQId_osTimerMessageQ;
 uint32_t       os_tmr = 0;
 uint32_t const *m_tmr = NULL;
 uint16_t const mp_tmr_size = 0;
+
+/* singleton mutex */
+osMutexId singleton_mutex_id;
+osMutexDef(singleton_mutex);
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
  /* A memory space for arm standard library. */
@@ -433,6 +438,7 @@ void $Sub$$__cpp_initialize__aeabi_(void)
 
 void pre_main()  
 {  
+  singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
   $Super$$__cpp_initialize__aeabi_();  
   main();  
 }
@@ -442,25 +448,13 @@ void pre_main()
 void * armcc_heap_base;
 void * armcc_heap_top;
 
-__asm void pre_main (void)
-{
-  IMPORT  __rt_lib_init
-  IMPORT  main
-  IMPORT  armcc_heap_base
-  IMPORT  armcc_heap_top
+int main(void);
 
-  LDR     R0,=armcc_heap_base
-  LDR     R1,=armcc_heap_top
-  LDR     R0,[R0]
-  LDR     R1,[R1]
-  /* Save link register (keep 8 byte alignment with dummy R4) */
-  PUSH    {R4, LR}
-  BL      __rt_lib_init
-  BL       main
-  /* Return to the thread destroy function.
-   */
-  POP     {R4, PC}
-  ALIGN
+void pre_main (void)
+{
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
+    __rt_lib_init((unsigned)armcc_heap_base, (unsigned)armcc_heap_top);
+    main();
 }
 
 __asm void __rt_entry (void) {
@@ -496,6 +490,7 @@ extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
 void pre_main(void) {
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     atexit(__libc_fini_array);
     __libc_init_array();
     main(0, NULL);
@@ -523,12 +518,16 @@ extern __weak void __iar_init_core( void );
 extern __weak void __iar_init_vfp( void );
 extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
+extern void mbed_main(void);
+extern int main(void);
 static uint8_t low_level_init_needed;
 
 void pre_main(void) {
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+    mbed_main();
     main();
 }
 

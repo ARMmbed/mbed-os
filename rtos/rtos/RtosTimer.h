@@ -24,6 +24,8 @@
 
 #include <stdint.h>
 #include "cmsis_os.h"
+#include "Callback.h"
+#include "toolchain.h"
 
 namespace rtos {
 
@@ -36,21 +38,41 @@ namespace rtos {
 */
 class RtosTimer {
 public:
-    /** Create and Start timer.
-      @param   task      name of the timer call back function.
+    /** Create timer.
+      @param   func      function to be executed by this timer.
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
       @param   argument  argument to the timer call back function. (default: NULL)
+      @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
+     */
+    MBED_DEPRECATED("Replaced with RtosTimer(Callback<void()>, os_timer_type)")
+    RtosTimer(void (*func)(void const *argument), os_timer_type type=osTimerPeriodic, void *argument=NULL) {
+        constructor(mbed::Callback<void()>(argument, (void (*)(void *))func), type);
+    }
+    
+    /** Create timer.
+      @param   func      function to be executed by this timer.
+      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
     */
-    RtosTimer(void (*task)(void const *argument),
-          os_timer_type type=osTimerPeriodic,
-          void *argument=NULL);
+    RtosTimer(mbed::Callback<void()> func, os_timer_type type=osTimerPeriodic) {
+        constructor(func, type);
+    }
+    
+    /** Create timer.
+      @param   obj       pointer to the object to call the member function on.
+      @param   method    member function to be executed by this timer.
+      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+    */
+    template <typename T, typename M>
+    RtosTimer(T *obj, M method, os_timer_type type=osTimerPeriodic) {
+        constructor(mbed::Callback<void()>(obj, method), type);
+    }
 
     /** Stop the timer.
       @return  status code that indicates the execution status of the function.
     */
     osStatus stop(void);
 
-    /** start a timer.
+    /** Start the timer.
       @param   millisec  time delay value of the timer.
       @return  status code that indicates the execution status of the function.
     */
@@ -59,6 +81,11 @@ public:
     ~RtosTimer();
 
 private:
+    // Required to share definitions without
+    // delegated constructors
+    void constructor(mbed::Callback<void()> func, os_timer_type type);
+    
+    mbed::Callback<void()> _function;
     osTimerId _timer_id;
     osTimerDef_t _timer;
 #if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)

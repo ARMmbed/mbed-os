@@ -89,12 +89,10 @@ void InterruptIn::disable_irq() {
     core_util_critical_section_exit();
 }
 
-#ifdef MBED_OPERATORS
 InterruptIn::operator int() {
     // Underlying call is atomic
     return read();
 }
-#endif
 
 } // namespace mbed
 

@@ -149,7 +149,6 @@ public:
         core_util_critical_section_exit();
     }
 
-#ifdef MBED_OPERATORS
     /** A operator shorthand for write()
      */
     PwmOut& operator= (float value) {
@@ -170,7 +169,6 @@ public:
         // Underlying call is thread safe
         return read();
     }
-#endif
 
 protected:
     pwmout_t _pwm;

@@ -36,6 +36,7 @@
 #include "pinmap.h"
 #include <string.h>
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 
 #define UART_NUM (5)
 
@@ -69,8 +70,12 @@ static void init_uart(serial_t *obj)
     // Disable the reception overrun detection
     UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
     UartHandle.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
-
-    HAL_UART_Init(&UartHandle);
+    /* uAMR & ARM: Call to UART init is done between reset of pre-initialized variables */
+    /* and before HAL Init. SystemCoreClock init required here */
+    SystemCoreClockUpdate();
+    if (HAL_UART_Init(&UartHandle) != HAL_OK) {
+        error("Cannot initialize UART\n");
+    }
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -88,7 +93,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __USART1_FORCE_RESET();
         __USART1_RELEASE_RESET();
         __USART1_CLK_ENABLE();
+#if defined(RCC_USART1CLKSOURCE_SYSCLK) 
         __HAL_RCC_USART1_CONFIG(RCC_USART1CLKSOURCE_SYSCLK);
+#endif
         obj->index = 0;
     }
 #if defined(USART2_BASE)
@@ -96,7 +103,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __USART2_FORCE_RESET();
         __USART2_RELEASE_RESET();
         __USART2_CLK_ENABLE();
+#if defined(RCC_USART2CLKSOURCE_SYSCLK)
         __HAL_RCC_USART2_CONFIG(RCC_USART2CLKSOURCE_SYSCLK);
+#endif
         obj->index = 1;
     }
 #endif
@@ -105,7 +114,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __USART3_FORCE_RESET();
         __USART3_RELEASE_RESET();
         __USART3_CLK_ENABLE();
+#if defined(RCC_USART3CLKSOURCE_SYSCLK)
         __HAL_RCC_USART3_CONFIG(RCC_USART3CLKSOURCE_SYSCLK);
+#endif
         obj->index = 2;
     }
 #endif
@@ -114,7 +125,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __UART4_FORCE_RESET();
         __UART4_RELEASE_RESET();
         __UART4_CLK_ENABLE();
+#if defined(RCC_UART4CLKSOURCE_SYSCLK)
         __HAL_RCC_UART4_CONFIG(RCC_UART4CLKSOURCE_SYSCLK);
+#endif
         obj->index = 3;
     }
 #endif
@@ -123,7 +136,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART5_FORCE_RESET();
         __HAL_RCC_UART5_RELEASE_RESET();
         __UART5_CLK_ENABLE();
+#if defined(RCC_UART5CLKSOURCE_SYSCLK)
         __HAL_RCC_UART5_CONFIG(RCC_UART5CLKSOURCE_SYSCLK);
+#endif
         obj->index = 4;
     }
 #endif

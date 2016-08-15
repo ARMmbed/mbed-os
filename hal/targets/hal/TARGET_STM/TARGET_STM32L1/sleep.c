@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "sleep_api.h"
+#include "hal_tick.h"
 
 #if DEVICE_SLEEP
 
@@ -35,18 +36,15 @@
 
 static TIM_HandleTypeDef TimMasterHandle;
 
-void sleep(void)
-{
-    // Disable HAL tick interrupt
-    TimMasterHandle.Instance = TIM5;
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
-
+void sleep(void) {
+    // Stop HAL systick
+    HAL_SuspendTick();
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    // Restart HAL systick
+    HAL_ResumeTick();
 }
+
 
 void deepsleep(void)
 {
@@ -54,9 +52,8 @@ void deepsleep(void)
     int8_t STOPEntry = PWR_STOPENTRY_WFI;
 #endif
 
-    // Disable HAL tick interrupt
-    TimMasterHandle.Instance = TIM5;
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    // Stop HAL systick
+    TimMasterHandle.Instance = TIM_MST;
 
 #if defined(TARGET_MOTE_L152RC)
     /* Select the regulator state in Stop mode: Set PDDS and LPSDSR bit according to PWR_Regulator value */
@@ -91,8 +88,8 @@ void deepsleep(void)
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
 
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    // Restart HAL systick
+    HAL_ResumeTick();
 }
 
 #endif

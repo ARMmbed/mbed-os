@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_comp_ex.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of COMP HAL Extension module.
   ******************************************************************************
   * @attention
@@ -71,7 +71,7 @@
 #define COMP_NONINVERTINGINPUT_PB7      RI_IOSWITCH_GR6_4       /*!< I/O pin PB7 connection to COMP2 non-inverting input */
 
 /* Non-inverting inputs specific to COMP1 */
-#define COMP_NONINVERTINGINPUT_NONE     ((uint32_t)0x00000000)  /*!< In case of window mode: No I/O pin connection to COMP1 non-inverting input. Instead, connection to COMP2 non-inverting input. */
+#define COMP_NONINVERTINGINPUT_NONE     (0x00000000U)           /*!< In case of window mode: No I/O pin connection to COMP1 non-inverting input. Instead, connection to COMP2 non-inverting input. */
 #define COMP_NONINVERTINGINPUT_PA0      RI_IOSWITCH_CH0         /*!< I/O pin PA0 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA1      RI_IOSWITCH_CH1         /*!< I/O pin PA1 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA2      RI_IOSWITCH_CH2         /*!< I/O pin PA2 connection to COMP1 non-inverting input */
@@ -117,7 +117,7 @@
 #define COMP_NONINVERTINGINPUT_PB7      RI_IOSWITCH_GR6_4       /*!< I/O pin PB7 connection to COMP2 non-inverting input */
 
 /* Non-inverting inputs specific to COMP1 */
-#define COMP_NONINVERTINGINPUT_NONE     ((uint32_t)0x00000000)  /*!< In case of window mode: No I/O pin connection to COMP1 non-inverting input. Instead, connection to COMP2 non-inverting input. */
+#define COMP_NONINVERTINGINPUT_NONE     (0x00000000U)  /*!< In case of window mode: No I/O pin connection to COMP1 non-inverting input. Instead, connection to COMP2 non-inverting input. */
 #define COMP_NONINVERTINGINPUT_PA0      RI_IOSWITCH_CH0         /*!< I/O pin PA0 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA1      RI_IOSWITCH_CH1         /*!< I/O pin PA1 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA2      RI_IOSWITCH_CH2         /*!< I/O pin PA2 connection to COMP1 non-inverting input */
@@ -153,7 +153,7 @@
 #define COMP_NONINVERTINGINPUT_PB5      RI_IOSWITCH_GR6_2       /*!< I/O pin PB5 connection to COMP2 non-inverting input */
 
 /* Non-inverting inputs specific to COMP1 */
-#define COMP_NONINVERTINGINPUT_NONE     ((uint32_t)0x00000000)  /*!< In case of window mode: No I/O pin connection to COMP1 non-inverting input. Instead, connection to COMP2 non-inverting input. */
+#define COMP_NONINVERTINGINPUT_NONE     (0x00000000U)  /*!< In case of window mode: No I/O pin connection to COMP1 non-inverting input. Instead, connection to COMP2 non-inverting input. */
 #define COMP_NONINVERTINGINPUT_PA0      RI_IOSWITCH_CH0         /*!< I/O pin PA0 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA1      RI_IOSWITCH_CH1         /*!< I/O pin PA1 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA2      RI_IOSWITCH_CH2         /*!< I/O pin PA2 connection to COMP1 non-inverting input */

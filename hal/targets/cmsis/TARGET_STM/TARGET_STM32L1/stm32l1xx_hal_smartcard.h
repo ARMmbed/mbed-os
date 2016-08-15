@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   This file contains all the functions prototypes for the SMARTCARD 
   *          firmware library.
   ******************************************************************************

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -859,7 +859,7 @@ HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef* hadc)
     
     /* Clear regular group conversion flag and overrun flag */
     /* (To ensure of no unknown state from potential previous ADC operations) */
-    __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC);
+    __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC | ADC_FLAG_OVR);
     
     /* Enable conversion of regular group.                                    */
     /* If software start has been selected, conversion starts immediately.    */
@@ -1145,7 +1145,7 @@ HAL_StatusTypeDef HAL_ADC_Start_IT(ADC_HandleTypeDef* hadc)
     
     /* Clear regular group conversion flag and overrun flag */
     /* (To ensure of no unknown state from potential previous ADC operations) */
-    __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC);
+    __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC | ADC_FLAG_OVR);
     
     /* Enable end of conversion interrupt for regular group */
     __HAL_ADC_ENABLE_IT(hadc, (ADC_IT_EOC | ADC_IT_OVR));
@@ -1280,7 +1280,7 @@ HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, ui
     
     /* Clear regular group conversion flag and overrun flag */
     /* (To ensure of no unknown state from potential previous ADC operations) */
-    __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC);
+    __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC | ADC_FLAG_OVR);
 
     /* Enable ADC overrun interrupt */
     __HAL_ADC_ENABLE_IT(hadc, ADC_IT_OVR);
@@ -1588,7 +1588,13 @@ __weak void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
 
 /**
   * @brief  ADC error callback in non blocking mode
-  *        (ADC conversion with interruption or transfer by DMA)
+  *         (ADC conversion with interruption or transfer by DMA)
+  * @note   In case of error due to overrun when using ADC with DMA transfer 
+  *         (HAL ADC handle paramater "ErrorCode" to state "HAL_ADC_ERROR_OVR"):
+  *         - Reinitialize the DMA using function "HAL_ADC_Stop_DMA()".
+  *         - If needed, restart a new ADC conversion using function
+  *           "HAL_ADC_Start_DMA()"
+  *           (this function is also clearing overrun flag)
   * @param  hadc: ADC handle
   * @retval None
   */

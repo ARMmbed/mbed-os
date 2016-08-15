@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ struct port_s {
 struct analogin_s {
     ADCName adc;
     PinName pin;
+    uint8_t channel;
 };
 
 struct serial_s {
@@ -89,18 +90,12 @@ struct i2c_s {
     uint32_t slave;
 };
 
-struct pwmout_s {
-    PWMName pwm;
-    PinName pin;
-    uint32_t period;
-    uint32_t pulse;
-};
-
 struct can_s {
     CANName can;
     int index;
 };
 
+#include "common_objects.h"
 #include "gpio_object.h"
 
 #ifdef __cplusplus

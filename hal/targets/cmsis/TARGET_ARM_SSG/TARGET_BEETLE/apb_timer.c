@@ -165,14 +165,22 @@ uint32_t Timer_Read(uint32_t timer)
  */
 void Timer_SetInterrupt(uint32_t timer, uint32_t time_us)
 {
+    uint32_t load_time_us = 0;
     /* Verify if the Timer is enabled */
     if (Timer_isEnabled(timer) == 1) {
         /* Disable Timer */
         Timer_Disable(timer);
         /* Enable Interrupt */
         (Timers[timer].timerN)->CTRL = CMSDK_TIMER_CTRL_IRQEN_Msk;
+
+        /* Check time us condition */
+        if(time_us == TIMER_DEFAULT_RELOAD)
+            load_time_us = TIMER_MAX_VALUE;
+        else
+            load_time_us = time_us * TIMER_TICKS_US;
+
         /* Initialize Timer Value */
-        Timers[timer].timerReload = (time_us) * TIMER_TICKS_US;
+        Timers[timer].timerReload = load_time_us;
         (Timers[timer].timerN)->RELOAD = Timers[timer].timerReload;
         (Timers[timer].timerN)->VALUE = Timers[timer].timerReload;
         /* Enable Counter */
@@ -231,6 +239,24 @@ uint32_t Timer_GetTicksUS(uint32_t timer)
     /* Verify if the Timer is enabled */
     if (Timer_isEnabled(timer) == 1) {
         return TIMER_TICKS_US;
+    }
+    return 0;
+}
+
+/*
+ * Timer_GetReloadValue(): returns the load value of the selected
+ * timer.
+ * timer: timer associated with the Ticks per us
+ * @return: reload value of the selected singletimer
+ */
+uint32_t Timer_GetReloadValue(uint32_t timer)
+{
+    /* Verify if the Timer is enabled */
+    if (Timer_isEnabled(timer) == 1) {
+        if (timer == TIMER1)
+            return Timers[timer].timerReload / TIMER_TICKS_US;
+        else
+            return Timers[timer].timerReload / TIMER_TICKS_US;
     }
     return 0;
 }

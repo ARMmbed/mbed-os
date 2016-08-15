@@ -73,7 +73,6 @@ int BusOut::read() {
     return v;
 }
 
-#ifdef MBED_OPERATORS
 BusOut& BusOut::operator= (int v) {
     // Underlying write is thread safe
     write(v);
@@ -97,7 +96,6 @@ BusOut::operator int() {
     // Underlying read is thread safe
     return read();
 }
-#endif
 
 void BusOut::lock() {
     _mutex.lock();
