@@ -24,19 +24,19 @@ from settings import ROOT, BUILD_DIR
 BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 
 # Embedded Libraries Sources
-LIB_DIR = join(ROOT, "libraries")
+LIB_DIR = join(ROOT, "features", "unsupported")
 
 TOOLS = join(ROOT, "tools")
 TOOLS_DATA = join(TOOLS, "data")
 TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
 # mbed libraries
-MBED_BASE = join(ROOT, "hal")
+MBED_HEADER = join(ROOT, "mbed.h")
 
-MBED_API = join(MBED_BASE, "api")
-MBED_COMMON = join(MBED_BASE, "common")
-MBED_HAL = join(MBED_BASE, "hal")
-MBED_TARGETS_PATH = join(MBED_BASE, "targets")
+MBED_DRIVERS = join(ROOT, "drivers")
+MBED_PLATFORM = join(ROOT, "platform")
+MBED_HAL = join(ROOT, "hal")
+MBED_TARGETS_PATH = join(ROOT, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 

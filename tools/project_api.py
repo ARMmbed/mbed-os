@@ -4,7 +4,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.paths import EXPORT_WORKSPACE, EXPORT_TMP
-from tools.paths import MBED_BASE, MBED_LIBRARIES
+from tools.paths import MBED_DRIVERS, MBED_PLATFORM, MBED_LIBRARIES
 from tools.export import export, setup_user_prj
 from tools.utils import mkdir
 from tools.tests import Test, TEST_MAP, TESTS
@@ -74,7 +74,8 @@ def setup_project(mcu, ide, program=None, source_dir=None, build=None):
             # TODO: Substitute also the other library build paths
             if MBED_LIBRARIES in test.dependencies:
                 test.dependencies.remove(MBED_LIBRARIES)
-                test.dependencies.append(MBED_BASE)
+                test.dependencies.append(MBED_DRIVERS)
+                test.dependencies.append(MBED_PLATFORM)
 
         # Build the project with the same directory structure of the mbed online IDE
         project_name = test.id

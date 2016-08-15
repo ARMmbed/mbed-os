@@ -21,7 +21,8 @@
  */
 #include "Thread.h"
 
-#include "mbed.h"
+#include "Callback.h"
+#include "mbed_error.h"
 #include "rtos_idle.h"
 
 // rt_tid2ptcb is an internal function which we exposed to get TCB for thread id
@@ -44,7 +45,7 @@ void Thread::constructor(osPriority priority,
 #endif
 }
 
-void Thread::constructor(Callback<void()> task,
+void Thread::constructor(mbed::Callback<void()> task,
         osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
     constructor(priority, stack_size, stack_pointer);
 
@@ -62,7 +63,7 @@ void Thread::constructor(Callback<void()> task,
     }
 }
 
-osStatus Thread::start(Callback<void()> task) {
+osStatus Thread::start(mbed::Callback<void()> task) {
     _mutex.lock();
 
     if (_tid != 0) {
