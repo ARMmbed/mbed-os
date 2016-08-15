@@ -110,7 +110,7 @@ class Target(object):
         parent's parent at level 2 and so on)
         """
         # the resolution order can't contain duplicate target names
-        if not target_name in [l[0] for l in order]:
+        if target_name not in [l[0] for l in order]:
             order.append((target_name, level))
         parents = self.get_json_target_data()[target_name].get("inherits", [])
         for par in parents:
@@ -149,17 +149,17 @@ class Target(object):
                 break
         else:
             raise AttributeError("Attribute '%s' not found in target '%s'"
-                                    % (attrname, self.name))
+                                 % (attrname, self.name))
         # Get the starting value of the attribute
         starting_value = (tdata[self.resolution_order[def_idx][0]][attrname]
-                            or [])[:]
+                          or [])[:]
         # Traverse the resolution list in high inheritance to low
         # inheritance level, left to right order to figure out all the
         # other classes that change the definition by adding or removing
         # elements
         for idx in xrange(self.resolution_order[def_idx][1] - 1, -1, -1):
             same_level_targets = [tar[0] for tar in self.resolution_order
-                                    if tar[1] == idx]
+                                  if tar[1] == idx]
             for tar in same_level_targets:
                 data = tdata[tar]
                 # Do we have anything to add ?
@@ -186,10 +186,10 @@ class Target(object):
                         else:
                             name_def_map[crtv] = crtv
                     for element in data[attrname + "_remove"]:
-                        if not element in name_def_map:
+                        if element not in name_def_map:
                             raise ValueError(
                                 ("Unable to remove '%s' in '%s.%s' since "
-                                    % (element, self.name, attrname)) +
+                                 % (element, self.name, attrname)) +
                                 "it doesn't exist")
                         starting_value.remove(name_def_map[element])
         return starting_value
@@ -277,7 +277,7 @@ class Target(object):
         labels = [self.name] + CORE_LABELS[self.core] + self.extra_labels
         # Automatically define UVISOR_UNSUPPORTED if the target doesn't
         # specifically define UVISOR_SUPPORTED
-        if not "UVISOR_SUPPORTED" in labels:
+        if "UVISOR_SUPPORTED" not in labels:
             labels.append("UVISOR_UNSUPPORTED")
         return labels
 
@@ -357,7 +357,8 @@ class LPC4088Code(object):
         outbin.write(data)
         outbin.write('\xFF' * (512*1024 - len(data)))
         partf.close()
-        # Read and append the second part (external flash) in chunks of fixed size
+        # Read and append the second part (external flash) in chunks of fixed
+        # size
         chunksize = 128 * 1024
         partf = open(os.path.join(binf, "ER_IROM2"), "rb")
         while True:
@@ -389,7 +390,7 @@ class TEENSY3_1Code(object):
 class MTSCode(object):
     """Generic MTS code"""
     @staticmethod
-    def _combine_bins_helper(target_name, t_self, resources, elf, binf):
+    def _combine_bins_helper(target_name, binf):
         """combine bins with the bootloader for a particular target"""
         loader = os.path.join(TOOLS_BOOTLOADERS, target_name, "bootloader.bin")
         target = binf + ".tmp"
@@ -418,19 +419,17 @@ class MTSCode(object):
     @staticmethod
     def combine_bins_mts_dot(t_self, resources, elf, binf):
         """A hook for the MTS MDOT"""
-        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", t_self, resources, elf,
-                                     binf)
+        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", binf)
 
     @staticmethod
     def combine_bins_mts_dragonfly(t_self, resources, elf, binf):
         """A hoof for the MTS Dragonfly"""
-        MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", t_self, resources,
-                                     elf, binf)
+        MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
 
 class MCU_NRF51Code(object):
     """NRF51 Hooks"""
     @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
+    def binary_hook(t_self, resources, _, binf):
         """Hook that merges the soft device with the bin file"""
         # Scan to find the actual paths of soft device
         sdf = None
@@ -519,9 +518,9 @@ def set_targets_json_location(location=None):
     # re-initialization does not create new variables, it keeps the old ones
     # instead. This ensures compatibility with code that does
     # "from tools.targets import TARGET_NAMES"
-    TARGETS[:] = [Target.get_target(name) for name, value
+    TARGETS[:] = [Target.get_target(target) for target, obj
                   in Target.get_json_target_data().items()
-                  if value.get("public", True)]
+                  if obj.get("public", True)]
     TARGET_MAP.clear()
     TARGET_MAP.update(dict([(target.name, target) for target in TARGETS]))
     TARGET_NAMES[:] = TARGET_MAP.keys()
