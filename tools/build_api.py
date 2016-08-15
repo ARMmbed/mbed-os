@@ -38,7 +38,14 @@ from tools.config import Config
 RELEASE_VERSIONS = ['2', '5']
 
 def prep_report(report, target_name, toolchain_name, id_name):
-    """Setup report keys"""
+    """Setup report keys
+
+    Positional arguments:
+    report - the report to fill
+    target_name - the target being used
+    toolchain_name - the toolchain being used
+    id_name - the name of the executable or library being built
+    """
     if not target_name in report:
         report[target_name] = {}
 
@@ -49,7 +56,14 @@ def prep_report(report, target_name, toolchain_name, id_name):
         report[target_name][toolchain_name][id_name] = []
 
 def prep_properties(properties, target_name, toolchain_name, vendor_label):
-    """Setup test properties"""
+    """Setup test properties
+
+    Positional arguments:
+    properties - the dict to fill
+    target_name - the target the test is targeting
+    toolchain_name - the toolchain that will compile the test
+    vendor_label - the vendor
+    """
     if not target_name in properties:
         properties[target_name] = {}
 
@@ -61,7 +75,14 @@ def prep_properties(properties, target_name, toolchain_name, vendor_label):
     properties[target_name][toolchain_name]["toolchain"] = toolchain_name
 
 def create_result(target_name, toolchain_name, id_name, description):
-    """Create the result dictionary"""
+    """Create a result dictionary
+
+    Positional arguments:
+    target_name - the target being built for
+    toolchain_name - the toolchain doing the building
+    id_name - the name of the executable or library being built
+    description - a human readable description of what's going on
+    """
     cur_result = {}
     cur_result["target_name"] = target_name
     cur_result["toolchain_name"] = toolchain_name
@@ -73,7 +94,12 @@ def create_result(target_name, toolchain_name, id_name, description):
     return cur_result
 
 def add_result_to_report(report, result):
-    """Add a single result to a report dictionary"""
+    """Add a single result to a report dictionary
+
+    Positional arguments:
+    report - the report to append to
+    result - the result to append
+    """
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
@@ -81,7 +107,13 @@ def add_result_to_report(report, result):
     report[target][toolchain][id_name].append(result_wrap)
 
 def get_config(src_paths, target, toolchain_name):
-    """Get the configuration object for a target-toolchain combination"""
+    """Get the configuration object for a target-toolchain combination
+
+    Positional arguments:
+    src_paths - paths to scan for the configuration files
+    target - the device we are building for
+    toolchain_name - the string that identifies the build tools
+    """
     # Convert src_paths to a list if needed
     if type(src_paths) != ListType:
         src_paths = [src_paths]
@@ -121,9 +153,10 @@ def is_official_target(target_name, version):
     given version. Return False, 'reason' if a target is not part of the
     official release for the given version.
 
-    target_name: Name if the target (ex. 'K64F')
-    version: The release version string. Should be a string contained within
-             RELEASE_VERSIONS
+    Positional arguments:
+    target_name - Name if the target (ex. 'K64F')
+    version - The release version string. Should be a string contained within
+              RELEASE_VERSIONS
     """
 
     result = True
@@ -196,9 +229,10 @@ def transform_release_toolchains(toolchains, version):
     """ Given a list of toolchains and a release version, return a list of
     only the supported toolchains for that release
 
-    toolchains: The list of toolchains
-    version: The release version string. Should be a string contained within
-             RELEASE_VERSIONS
+    Positional arguments:
+    toolchains - The list of toolchains
+    version - The release version string. Should be a string contained within
+              RELEASE_VERSIONS
     """
     if version == '5':
         return ['ARM', 'GCC_ARM', 'IAR']
@@ -212,8 +246,9 @@ def get_mbed_official_release(version):
     Ex. Given '2', return (('LPC1768', ('ARM', 'GCC_ARM')),
                            ('K64F', ('ARM', 'GCC_ARM')), ...)
 
-    version: The version string. Should be a string contained within
-             RELEASE_VERSIONS
+    Positional arguments:
+    version - The version string. Should be a string contained within
+              RELEASE_VERSIONS
     """
 
     mbed_official_release = (
@@ -244,12 +279,22 @@ def prepare_toolchain(src_paths, target, toolchain_name,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None):
     """ Prepares resource related objects - toolchain, target, config
-    src_paths: the paths to source directories
-    target: ['LPC1768', 'LPC11U24', 'LPC2368']
-    toolchain_name: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
-    clean: Rebuild everything if True
-    notify: Notify function for logs
-    verbose: Write the actual tools command lines if True
+
+    Positional arguments:
+    src_paths - the paths to source directories
+    target - ['LPC1768', 'LPC11U24', 'LPC2368', etc.]
+    toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
+
+    Keyword arguments:
+    macros - additional macros
+    options - general compiler options like debug-symbols or small-build
+    clean - Rebuild everything if True
+    jobs - how many compilers we can run at once
+    notify - Notify function for logs
+    silent - suppress printing of progress indicators
+    verbose - Write the actual tools command lines used if True
+    extra_verbose - even more output!
+    config - a Config object to use instead of creating one
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -284,11 +329,13 @@ def prepare_toolchain(src_paths, target, toolchain_name,
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
                    inc_dirs=None):
     """ Scan resources using initialized toolcain
-    src_paths: the paths to source directories
-    toolchain: valid toolchain object
-    dependencies_paths: dependency paths that we should scan for include dirs
-    inc_dirs: additional include directories which should be added to
-              the scanner resources
+
+    Positional arguments
+    src_paths - the paths to source directories
+    toolchain - valid toolchain object
+    dependencies_paths - dependency paths that we should scan for include dirs
+    inc_dirs - additional include directories which should be added to
+               the scanner resources
     """
 
     # Scan src_path
@@ -324,7 +371,33 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None):
-    """ This function builds project. Project can be for example one test / UT
+    """ Build a project. A project may be a test or a user program.
+
+    Positional arguments:
+    src_paths - a path or list of paths that contain all files needed to build
+                the project
+    build_path - the directory where all of the object files will be placed
+    target - the MCU or board that the project will compile for
+    toolchain_name - the name of the build tools
+
+    Keyword arguments:
+    libraries_paths - The location of libraries to include when linking
+    options - general compiler options like debug-symbols or small-build
+    linker_script - the file that drives the linker to do it's job
+    clean - Rebuild everything if True
+    notify - Notify function for logs
+    verbose - Write the actual tools command lines used if True
+    name - the name of the project
+    macros - additional macros
+    inc_dirs - additional directories where include files may be found
+    jobs - how many compilers we can run at once
+    silent - suppress printing of progress indicators
+    report - a dict where a result may be appended
+    properties - UUUUHHHHH beats me
+    project_id - the name put in the report
+    project_description - the human-readable version of what this thing does
+    extra_verbose - even more output!
+    config - a Config object to use instead of creating one
     """
 
     # Convert src_path to a list if needed
@@ -417,15 +490,31 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, verbose=False, macros=None,
                   inc_dirs=None, jobs=1, silent=False, report=None,
                   properties=None, extra_verbose=False, project_id=None):
-    """ Prepares resource related objects - toolchain, target, config
-    src_paths: the paths to source directories
-    build_path: the path of the build directory
-    target: ['LPC1768', 'LPC11U24', 'LPC2368']
-    toolchain_name: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
-    clean: Rebuild everything if True
-    notify: Notify function for logs
-    verbose: Write the actual tools command lines if True
-    inc_dirs: additional include directories which should be included in build
+    """ Build a library
+
+    Positional arguments:
+    src_paths - a path or list of paths that contain all files needed to build
+                the library
+    build_path - the directory where all of the object files will be placed
+    target - the MCU or board that the project will compile for
+    toolchain_name - the name of the build tools
+
+    Keyword arguments:
+    dependencies_paths - The location of libraries to include when linking
+    options - general compiler options like debug-symbols or small-build
+    name - the name of the library
+    clean - Rebuild everything if True
+    archive - whether the library will create an archive file
+    notify - Notify function for logs
+    verbose - Write the actual tools command lines used if True
+    macros - additional macros
+    inc_dirs - additional directories where include files may be found
+    jobs - how many compilers we can run at once
+    silent - suppress printing of progress indicators
+    report - a dict where a result may be appended
+    properties - UUUUHHHHH beats me
+    extra_verbose - even more output!
+    project_id - the name that goes in the report
     """
 
     # Convert src_path to a list if needed
@@ -548,8 +637,22 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
               report=None, properties=None, extra_verbose=False):
     """ Legacy method for building mbed libraries
 
-    Function builds library in proper directory using all dependencies and
-    macros defined by user.
+    Positional arguments:
+    lib_id - the library's unique identifier
+    target - the MCU or board that the project will compile for
+    toolchain_name - the name of the build tools
+
+    Keyword arguments:
+    options - general compiler options like debug-symbols or small-build
+    clean - Rebuild everything if True
+    verbose - Write the actual tools command lines used if True
+    macros - additional macros
+    notify - Notify function for logs
+    jobs - how many compilers we can run at once
+    silent - suppress printing of progress indicators
+    report - a dict where a result may be appended
+    properties - UUUUHHHHH beats me
+    extra_verbose - even more output!
     """
     lib = Library(lib_id)
     if not lib.is_supported(target, toolchain_name):
@@ -699,6 +802,22 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
                     report=None, properties=None, extra_verbose=False):
     """ Function returns True is library was built and false if building was
     skipped
+
+    Positional arguments:
+    target - the MCU or board that the project will compile for
+    toolchain_name - the name of the build tools
+
+    Keyword arguments:
+    options - general compiler options like debug-symbols or small-build
+    verbose - Write the actual tools command lines used if True
+    clean - Rebuild everything if True
+    macros - additional macros
+    notify - Notify function for logs
+    jobs - how many compilers we can run at once
+    silent - suppress printing of progress indicators
+    report - a dict where a result may be appended
+    properties - UUUUHHHHH beats me
+    extra_verbose - even more output!
     """
 
     if report != None:
@@ -846,8 +965,11 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
 
 def get_unique_supported_toolchains(release_targets=None):
     """ Get list of all unique toolchains supported by targets
-    If release_targets is not specified, then it queries all known targets
-    release_targets: tuple structure returned from get_mbed_official_release()
+
+    Keyword arguments:
+    release_targets - tuple structure returned from get_mbed_official_release().
+                      If release_targets is not specified, then it queries all
+                      known targets
     """
     unique_supported_toolchains = []
 
@@ -867,7 +989,13 @@ def get_unique_supported_toolchains(release_targets=None):
 
 def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
                          release_version='5'):
-    """  Shows target map using prettytable """
+    """  Shows target map using prettytable
+
+    Keyword arguments:
+    verbose_html - emit html instead of a simple table
+    platform_filter - remove results that match the string
+    release_version - get the matrix for this major version number
+    """
     # Only use it in this function so building works without extra modules
     from prettytable import PrettyTable
 
@@ -951,7 +1079,11 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
 
 
 def get_target_supported_toolchains(target):
-    """ Returns target supported toolchains list """
+    """ Returns target supported toolchains list
+
+    Positional arguments:
+    target - the target to get the supported toolchains of
+    """
     return TARGET_MAP[target].supported_toolchains if target in TARGET_MAP \
         else None
 
@@ -960,7 +1092,23 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
                          cppcheck_msg_format, options=None, verbose=False,
                          clean=False, macros=None, notify=None, jobs=1,
                          extra_verbose=False):
-    """Perform static analysis on a target and toolchain combination"""
+    """Perform static analysis on a target and toolchain combination
+
+    Positional arguments:
+    target - the target to fake the build for
+    toolchain_name - pretend you would compile with this toolchain
+    cppcheck_cmd - the command used to do static analysis
+    cppcheck_msg_format - the format of the check messages
+
+    Keyword arguments:
+    options - things like debug-symbols, or small-build, etc.
+    verbose - more printing!
+    clean - start from a clean slate
+    macros - extra macros to compile with
+    notify - the notification event handling function
+    jobs - number of commands to run at once
+    extra_verbose - even moar printing
+    """
     # Toolchain
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options,
                                                   macros=macros, notify=notify,
@@ -1110,8 +1258,26 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
                                  name=None, clean=False, notify=None,
                                  verbose=False, macros=None, jobs=1,
                                  extra_verbose=False):
-    """ Function scans library (or just some set of sources/headers) for
-    statically detectable defects
+    """ Function scans library for statically detectable defects
+
+    Positional arguments:
+    src_paths - the list of library paths to scan
+    build_path - the location directory of result files
+    target - the target to fake the build for
+    toolchain_name - pretend you would compile with this toolchain
+    cppcheck_cmd - the command used to do static analysis
+    cppcheck_msg_format - the format of the check messages
+
+    Keyword arguments:
+    dependencies_paths - the paths to sources that this library depends on
+    options - things like debug-symbols, or small-build, etc.
+    name - the name of this library
+    clean - start from a clean slate
+    notify - the notification event handling function
+    verbose - more printing!
+    macros - extra macros to compile with
+    jobs - number of commands to run at once
+    extra_verbose - even moar printing
     """
     if type(src_paths) != ListType:
         src_paths = [src_paths]
@@ -1195,7 +1361,12 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
 
 
 def print_build_results(result_list, build_name):
-    """ Generate result string for build results """
+    """ Generate result string for build results
+
+    Positional arguments:
+    result_list - the list of results to print
+    build_name - the name of the build we are printing result for
+    """
     result = ""
     if len(result_list) > 0:
         result += build_name + "\n"
@@ -1206,7 +1377,9 @@ def print_build_results(result_list, build_name):
 def print_build_memory_usage(report):
     """ Generate result table with memory usage values for build results
     Aggregates (puts together) reports obtained from self.get_memory_summary()
-    @param report Report generated during build procedure. See
+
+    Positional arguments:
+    report - Report generated during build procedure.
     """
     from prettytable import PrettyTable
     columns_text = ['name', 'target', 'toolchain']
@@ -1251,7 +1424,14 @@ def print_build_memory_usage(report):
     return result
 
 def write_build_report(build_report, template_filename, filename):
-    """write a build report to disk using a template file"""
+    """Write a build report to disk using a template file
+
+    Positional arguments:
+    build_report - a report generated by the build system
+    template_filename - a file that contains the template for the style of build
+                        report
+    filename - the location on disk to write the file to
+    """
     build_report_failing = []
     build_report_passing = []
 
