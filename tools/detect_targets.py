@@ -14,17 +14,12 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-
-TEST BUILD & RUN
 """
 import sys
 import os
-import json
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
-
 
 from tools.options import get_default_options_parser
 
@@ -37,54 +32,61 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.test_api import get_autodetected_MUTS_list
 
 
-if __name__ == '__main__':
+def main():
+    """Entry Point"""
     try:
         # Parse Options
         parser = get_default_options_parser()
 
         parser.add_argument("-S", "--supported-toolchains",
-                          action="store_true",
-                          dest="supported_toolchains",
-                          default=False,
-                          help="Displays supported matrix of targets and toolchains")
+                            action="store_true",
+                            dest="supported_toolchains",
+                            default=False,
+                            help="Displays supported matrix of"
+                            " targets and toolchains")
 
         parser.add_argument('-f', '--filter',
-                          dest='general_filter_regex',
-                          default=None,
-                          help='Filter targets')
+                            dest='general_filter_regex',
+                            default=None,
+                            help='Filter targets')
 
         parser.add_argument("-v", "--verbose",
-                          action="store_true",
-                          dest="verbose",
-                          default=False,
-                          help="Verbose diagnostic output")
+                            action="store_true",
+                            dest="verbose",
+                            default=False,
+                            help="Verbose diagnostic output")
 
         options = parser.parse_args()
 
         # Only prints matrix of supported toolchains
         if options.supported_toolchains:
-            print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+            print mcu_toolchain_matrix(
+                platform_filter=options.general_filter_regex)
             exit(0)
 
         # If auto_detect attribute is present, we assume other auto-detection
         # parameters like 'toolchains_filter' are also set.
-        MUTs = get_autodetected_MUTS_list()
+        muts = get_autodetected_MUTS_list()
 
         count = 0
-        for mut in MUTs.values():
+        for mut in muts.values():
             print ""
-            print "[mbed] Detected %s, port %s, mounted %s" % (mut['mcu'], mut['port'], mut['disk'])
+            print "[mbed] Detected %s, port %s, mounted %s" % \
+                (mut['mcu'], mut['port'], mut['disk'])
             print "[mbed] Supported toolchains for %s" % mut['mcu']
             print mcu_toolchain_matrix(platform_filter=r'^'+mut['mcu']+'$')
             count += 1
-        
+
         if count == 0:
             print "[mbed] No mbed targets where detected on your system."
 
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt:
         print "\n[CTRL+c] exit"
-    except Exception,e:
+    except Exception as exc:
         import traceback
         traceback.print_exc(file=sys.stdout)
-        print "[ERROR] %s" % str(e)
+        print "[ERROR] %s" % str(exc)
         sys.exit(1)
+
+if __name__ == '__main__':
+    main()
