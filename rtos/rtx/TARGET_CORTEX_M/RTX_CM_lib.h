@@ -603,6 +603,9 @@ extern uint32_t                 __HeapLimit[];
 #error "no toolchain defined"
 #   endif
 
+#elif defined(TARGET_NCS36510)
+#define INITIAL_SP            (0x40000000UL)
+
 #else
 #error "no target defined"
 
