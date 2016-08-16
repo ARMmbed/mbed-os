@@ -101,7 +101,7 @@ struct dac_s {
     int index;
     uint16_t out;
     mxc_dac_regs_t *dac;
-    mxc_dac_fifo_t * dac_fifo;
+    mxc_dac_fifo_regs_t * dac_fifo;
 };
 
 typedef struct {
