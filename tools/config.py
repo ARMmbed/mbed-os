@@ -188,7 +188,7 @@ class Config:
 
     # Allowed features in configurations
     __allowed_features = [
-        "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6", "COMMON_PAL", "STORAGE"
+        "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6", "COMMON_PAL", "STORAGE", "UBLOX_ODIN_W2_DRIVERS"
     ]
 
     # The initialization arguments for Config are:
