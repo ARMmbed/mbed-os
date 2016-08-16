@@ -227,5 +227,4 @@ SECTIONS
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     __StackLimit = __StackTop - SIZEOF(.stack);
     PROVIDE(__stack = __StackTop);
-
 }
