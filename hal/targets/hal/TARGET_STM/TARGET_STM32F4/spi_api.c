@@ -67,23 +67,9 @@ static void init_spi(spi_t *obj)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    handle->Instance = SPI_INST(obj);
     __HAL_SPI_DISABLE(handle);
 
     DEBUG_PRINTF("init_spi: instance=0x%8X\r\n", (int)handle->Instance);
-
-    handle->Init.Mode              = spiobj->mode;
-    handle->Init.BaudRatePrescaler = spiobj->br_presc;
-    handle->Init.Direction         = SPI_DIRECTION_2LINES;
-    handle->Init.CLKPhase          = spiobj->cpha;
-    handle->Init.CLKPolarity       = spiobj->cpol;
-    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLED;
-    handle->Init.CRCPolynomial     = 7;
-    handle->Init.DataSize          = (spiobj->bits == 16) ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
-    handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    handle->Init.NSS               = spiobj->nss;
-    handle->Init.TIMode            = SPI_TIMODE_DISABLED;
-
     if (HAL_SPI_Init(handle) != HAL_OK) {
         error("Cannot initialize SPI");
     }
@@ -94,6 +80,7 @@ static void init_spi(spi_t *obj)
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     // Determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -150,25 +137,28 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
-
-    // Save default values
-    spiobj->bits = 8;
-    spiobj->mode = SPI_MODE_MASTER;
-
-    spiobj->cpol = SPI_POLARITY_LOW;
-    spiobj->cpha = SPI_PHASE_1EDGE;
-    spiobj->br_presc = SPI_BAUDRATEPRESCALER_256;
-
     spiobj->pin_miso = miso;
     spiobj->pin_mosi = mosi;
     spiobj->pin_sclk = sclk;
     spiobj->pin_ssel = ssel;
-
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
     } else {
-        spiobj->nss = SPI_NSS_SOFT;
+        handle->Init.NSS = SPI_NSS_SOFT;
     }
+
+    /* Fill default value */
+    handle->Instance = SPI_INST(obj);
+    handle->Init.Mode              = SPI_MODE_MASTER;
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+    handle->Init.Direction         = SPI_DIRECTION_2LINES;
+    handle->Init.CLKPhase          = SPI_PHASE_1EDGE;
+    handle->Init.CLKPolarity       = SPI_POLARITY_LOW;
+    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLED;
+    handle->Init.CRCPolynomial     = 7;
+    handle->Init.DataSize          = SPI_DATASIZE_8BIT;
+    handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    handle->Init.TIMode            = SPI_TIMODE_DISABLED;
 
     init_spi(obj);
 }
@@ -231,7 +221,7 @@ void spi_free(spi_t *obj)
     pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(spiobj->pin_sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    if (spiobj->nss != SPI_NSS_SOFT) {
+    if (handle->Init.NSS != SPI_NSS_SOFT) {
         pin_function(spiobj->pin_ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     }
 }
@@ -239,36 +229,37 @@ void spi_free(spi_t *obj)
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     DEBUG_PRINTF("spi_format, bits:%d, mode:%d, slave?:%d\r\n", bits, mode, slave);
 
     // Save new values
-    spiobj->bits = bits;
+    handle->Init.DataSize          = (bits == 16) ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
 
     switch (mode) {
         case 0:
-            spiobj->cpol = SPI_POLARITY_LOW;
-            spiobj->cpha = SPI_PHASE_1EDGE;
+            handle->Init.CLKPolarity = SPI_POLARITY_LOW;
+            handle->Init.CLKPhase = SPI_PHASE_1EDGE;
             break;
         case 1:
-            spiobj->cpol = SPI_POLARITY_LOW;
-            spiobj->cpha = SPI_PHASE_2EDGE;
+            handle->Init.CLKPolarity = SPI_POLARITY_LOW;
+            handle->Init.CLKPhase = SPI_PHASE_2EDGE;
             break;
         case 2:
-            spiobj->cpol = SPI_POLARITY_HIGH;
-            spiobj->cpha = SPI_PHASE_1EDGE;
+            handle->Init.CLKPolarity = SPI_POLARITY_HIGH;
+            handle->Init.CLKPhase = SPI_PHASE_1EDGE;
             break;
         default:
-            spiobj->cpol = SPI_POLARITY_HIGH;
-            spiobj->cpha = SPI_PHASE_2EDGE;
+            handle->Init.CLKPolarity = SPI_POLARITY_HIGH;
+            handle->Init.CLKPhase = SPI_PHASE_2EDGE;
             break;
     }
 
-    if (spiobj->nss != SPI_NSS_SOFT) {
-        spiobj->nss = (slave) ? SPI_NSS_HARD_INPUT : SPI_NSS_HARD_OUTPUT;
+    if (handle->Init.NSS != SPI_NSS_SOFT) {
+        handle->Init.NSS = (slave) ? SPI_NSS_HARD_INPUT : SPI_NSS_HARD_OUTPUT;
     }
 
-    spiobj->mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
+    handle->Init.Mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
 
     init_spi(obj);
 }
@@ -285,6 +276,7 @@ static const uint16_t baudrate_prescaler_table[] =	{SPI_BAUDRATEPRESCALER_2,
 void spi_frequency(spi_t *obj, int hz)
 {
     struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
 	int spi_hz = 0;
 	uint8_t prescaler_rank = 0;
 
@@ -323,7 +315,7 @@ void spi_frequency(spi_t *obj, int hz)
 	}
 
 	if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
-		spiobj->br_presc = baudrate_prescaler_table[prescaler_rank-1];
+		handle->Init.BaudRatePrescaler = baudrate_prescaler_table[prescaler_rank-1];
 	} else {
 		error("Couldn't setup requested SPI frequency");
 	}
