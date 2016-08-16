@@ -17,11 +17,10 @@ limitations under the License.
 
 import re
 import tempfile
-
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, basename, abspath, normpath
-from os import linesep
+from os import linesep, remove
 from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
@@ -489,7 +488,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   dependencies_paths=None, options=None, name=None, clean=False,
                   archive=True, notify=None, verbose=False, macros=None,
                   inc_dirs=None, jobs=1, silent=False, report=None,
-                  properties=None, extra_verbose=False, project_id=None):
+                  properties=None, extra_verbose=False, project_id=None,
+                  remove_config_header_file=False):
     """ Build a library
 
     Positional arguments:
@@ -515,6 +515,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     properties - UUUUHHHHH beats me
     extra_verbose - even more output!
     project_id - the name that goes in the report
+    remove_config_header_file - delete config header file when done building
     """
 
     # Convert src_path to a list if needed
@@ -582,6 +583,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.copy_files(resources.objects, build_path, resources=resources)
         toolchain.copy_files(resources.libraries, build_path,
                              resources=resources)
+        toolchain.copy_files(resources.json_files, build_path,
+                             resources=resources)
         if resources.linker_script:
             toolchain.copy_files(resources.linker_script, build_path,
                                  resources=resources)
@@ -597,6 +600,11 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         if archive:
             toolchain.build_library(objects, build_path, name)
+
+        if remove_config_header_file:
+            config_header_path = toolchain.get_config_header()
+            if config_header_path:
+                remove(config_header_path)
 
         if report != None:
             end = time()
