@@ -1,9 +1,8 @@
-"""A test that all code scores above an 8.5 in pylint"""
+"""A test that all code scores above a 9.25 in pylint"""
 
 import subprocess
 import re
 import os.path
-import sys
 
 SCORE_REGEXP = re.compile(
     r'^Your\ code\ has\ been\ rated\ at\ (\-?[0-9\.]+)/10')
@@ -41,9 +40,9 @@ if __name__ == "__main__":
     for python_module in FILES:
         _, stdout, stderr = execute_pylint(os.path.join(TOOLS_ROOT,
                                                         python_module))
-        if parse_score(stdout) < 8.5:
+        score = parse_score(stdout)
+        if score < 9.25:
             print(stdout)
-            sys.exit(1)
 
 
 
