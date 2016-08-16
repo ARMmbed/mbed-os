@@ -702,6 +702,7 @@
         "progen": {"target": "nucleo-f207zg"},
         "detect_code": ["0835"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["IPV4"],
         "release_versions": ["2"]
     },
     "NUCLEO_F302R8": {
@@ -810,6 +811,7 @@
         "progen": {"target": "nucleo-f429zi"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "detect_code": ["0796"],
+        "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_F446RE": {
@@ -875,6 +877,7 @@
         "progen": {"target": "nucleo-f767zi"},
         "detect_code": ["0818"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_L011K4": {
@@ -1073,6 +1076,7 @@
         "progen": {"target": "disco-f746ng"},
         "detect_code": ["0815"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
     "DISCO_L476VG": {
