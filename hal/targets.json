@@ -2018,5 +2018,16 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
+    },    
+    "NCS36510": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "extra_labels": ["ONSEMI"],
+        "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
+        "macros": ["REVD", "CM3", "CPU_NCS36510", "TARGET_NCS36510"],
+        "progen": {"target": "ncs36510"},
+        "progen_target": "ncs36510",
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI"]
     }
 }
