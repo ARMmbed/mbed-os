@@ -138,7 +138,7 @@ class GCC(mbedToolchain):
         # The warning/error notification is multiline
         msg = None
         for line in output.splitlines():
-            match = GCC.DIAGNOSTIC_PATTERN.match(line)
+            match = GCC.DIAGNOSTIC_PATTERN.search(line)
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
