@@ -37,7 +37,7 @@ GCC_ARM_PATH = ""
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
-IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.3/arm"
+IAR_PATH = "C:\\tools_w32\IAR7.7\\arm"
 
 # Goanna static analyser. Please overload it in mbed_settings.py
 GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"

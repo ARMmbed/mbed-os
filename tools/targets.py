@@ -485,6 +485,13 @@ class MCU_NRF51Code(object):
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
             binh.tofile(fileout, format='hex')
 
+class NCS36510TargetCode:
+    @staticmethod
+    def ncs36510_addfib(t_self, resources, elf, binf):
+        from tools.add_fib import add_fib_at_start
+        print("binf ", binf)
+        add_fib_at_start(binf[:-4])
+
 ################################################################################
 
 # Instantiate all public targets
