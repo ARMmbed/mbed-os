@@ -39,7 +39,6 @@ CORE_LABELS = {
     "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9"]
 }
 
-################################################################################
 # Generic Target class that reads and interprets the data in targets.json
 
 class HookError(Exception):
@@ -491,7 +490,6 @@ class NCS36510TargetCode:
         from tools.add_fib import add_fib_at_start
         print("binf ", binf)
         add_fib_at_start(binf[:-4])
-
 ################################################################################
 
 # Instantiate all public targets
