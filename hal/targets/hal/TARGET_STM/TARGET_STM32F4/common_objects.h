@@ -49,6 +49,25 @@ struct pwmout_s {
     uint8_t inverted;
 };
 
+struct serial_s {
+    UARTName uart;
+    int index;
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity;
+    PinName pin_tx;
+    PinName pin_rx;
+#if DEVICE_SERIAL_ASYNCH
+    uint32_t events;
+#endif
+#if DEVICE_SERIAL_FC
+    uint32_t hw_flow_ctl;
+    PinName pin_rts;
+    PinName pin_cts;
+#endif
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
