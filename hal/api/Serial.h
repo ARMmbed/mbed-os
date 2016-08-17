@@ -74,6 +74,13 @@ protected:
     PlatformMutex _mutex;
 };
 
+/** Get the stdio Serial object, which is lazy instantiated. There's only 
+ *  one stdio object that should be used within an application.
+ *
+ *  @returns stdio object 
+ */
+Serial& get_stdio_serial();
+
 } // namespace mbed
 
 #endif
