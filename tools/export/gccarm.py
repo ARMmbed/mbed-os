@@ -14,9 +14,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os.path import splitext, basename, relpath, join, abspath, dirname
+from os.path import splitext, basename, relpath, join, abspath, dirname,\
+    exists
 from os import curdir, getcwd
 from tools.export.exporters import Exporter
+from jinja2.exceptions import TemplateNotFound
 
 
 class GccArm(Exporter):
@@ -177,4 +179,7 @@ class GccArm(Exporter):
         if "../." not in ctx["include_paths"]:
             ctx["include_paths"] += ['../.']
         ctx.update(self.flags)
-        self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
+        try:
+            self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
+        except TemplateNotFound:
+            self.gen_file('gcc_arm_common.tmpl', ctx, 'Makefile')
