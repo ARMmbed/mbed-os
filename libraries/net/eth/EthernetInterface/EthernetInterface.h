@@ -16,11 +16,11 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
 #ifndef ETHERNETINTERFACE_H_
 #define ETHERNETINTERFACE_H_
 
-#if !defined(TARGET_LPC1768) && !defined(TARGET_LPC4088) && !defined(TARGET_LPC4088_DM) && !defined(TARGET_K64F) && !defined(TARGET_RZ_A1H) && !defined(TARGET_VK_RZ_A1H) && !defined(TARGET_STM32F4)
+#if !defined(TARGET_LPC1768) && !defined(TARGET_LPC4088) && !defined(TARGET_LPC4088_DM) && !defined(TARGET_K64F) && !defined(TARGET_K66F) && !defined(TARGET_RZ_A1H) && !defined(TARGET_VK_RZ_A1H) && !defined(TARGET_STM32F4)
 #error The Ethernet Interface library is not supported on this target
 #endif
 
@@ -53,18 +53,18 @@ public:
   * \return 0 on success, a negative number on failure
   */
   static int connect(unsigned int timeout_ms=15000);
-  
+
   /** Disconnect
   * Bring the interface down
   * \return 0 on success, a negative number on failure
   */
   static int disconnect();
-  
+
   /** Get the MAC address of your Ethernet interface
    * \return a pointer to a string containing the MAC address
    */
   static char* getMACAddress();
-  
+
   /** Get the IP address of your Ethernet interface
    * \return a pointer to a string containing the IP address
    */

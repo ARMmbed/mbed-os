@@ -17,6 +17,15 @@
 #define P2_2    (1 << 3)
 #define PORT_2  PortC
 
+#elif defined(TARGET_K66F)
+#define P1_1    (1 << 3)
+#define P1_2    (1 << 4)
+#define PORT_1  PortC
+
+#define P2_1    (1 << 5)
+#define P2_2    (1 << 2)
+#define PORT_2  PortC
+
 #elif defined(TARGET_LPC11U24)
 #define P1_1    (1 <<  9) // p0.9
 #define P1_2    (1 <<  8) // p0.8
