@@ -1,0 +1,18 @@
+{% extends "gcc_arm_common.tmpl" %}
+
+{% block target_all %}
+all: $(PROJECT).bin $(PROJECT)-combined.hex size
+{% endblock %}
+
+{% block additional_variables %}
+SOFTDEVICE = {% for f in hex_files %}{{f}} {% endfor %}
+{% endblock %}
+
+{% block additional_executables %}
+SREC_CAT = srec_cat
+{% endblock %}
+
+{% block additional_targets %}
+$(PROJECT)-combined.hex: $(PROJECT).hex
+	$(SREC_CAT) $(SOFTDEVICE) -intel $(PROJECT).hex -intel -o $(PROJECT)-combined.hex -intel --line-length=44
+{% endblock %}
