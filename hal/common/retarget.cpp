@@ -102,17 +102,23 @@ static char stdio_out_prev;
 
 namespace mbed {
 
+static SingletonPtr<PlatformMutex> mutex_stdio_serial;
+
 Serial& get_stdio_serial()
 {
-    static bool stdio_uart_inited = false;
-    static Serial stdio_serial(STDIO_UART_TX, STDIO_UART_RX);
-    if (!stdio_uart_inited) {
+   static bool stdio_inited = false;
+   static unsigned stdio_uart[(sizeof(Serial) + sizeof(unsigned) - 1) / sizeof(unsigned)];
+
+    if (!stdio_inited) {
+        mutex_stdio_serial->lock();
+        new (stdio_uart) Serial(STDIO_UART_TX, STDIO_UART_RX);
+        mutex_stdio_serial->unlock();
 #if MBED_CONF_CORE_STDIO_BAUD_RATE
-        stdio_serial.baud(MBED_CONF_CORE_STDIO_BAUD_RATE);
+       reinterpret_cast<Serial*>(stdio_uart)->baud(MBED_CONF_CORE_STDIO_BAUD_RATE);
 #endif
-        stdio_uart_inited = true;
-    }
-    return stdio_serial;
+       stdio_inited = true;
+   }
+   return reinterpret_cast<Serial&>(stdio_uart);
 }
 
 } // namespace mbed
