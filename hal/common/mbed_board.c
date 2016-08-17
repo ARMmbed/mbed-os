@@ -21,11 +21,6 @@
 #include "critical.h"
 #include "serial_api.h"
 
-#if DEVICE_SERIAL
-extern int stdio_uart_inited;
-extern serial_t stdio_uart;
-#endif
-
 WEAK void mbed_die(void) {
 #if !defined (NRF51_H) && !defined(TARGET_EFM32)
     core_util_critical_section_enter();
@@ -79,11 +74,8 @@ void mbed_error_vfprintf(const char * format, va_list arg) {
     char buffer[128];
     int size = vsprintf(buffer, format, arg);
     if (size > 0) {
-        if (!stdio_uart_inited) {
-        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
-        }
         for (int i = 0; i < size; i++) {
-            serial_putc(&stdio_uart, buffer[i]);
+            putc(buffer[i], stdout);
         }
     }
     core_util_critical_section_exit();

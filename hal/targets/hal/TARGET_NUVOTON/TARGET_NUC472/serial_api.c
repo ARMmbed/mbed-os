@@ -151,8 +151,6 @@ static struct nu_uart_var uart5_var = {
 };
 
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
 static uint32_t uart_modinit_mask = 0;
 
 static const struct nu_modinit_s uart_modinit_tab[] = {
@@ -219,13 +217,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->serial.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
 #endif
 
-    // For stdio management
-    if (obj == &stdio_uart) {
-        stdio_uart_inited = 1;
-        /* NOTE: Not required anymore because stdio_uart will be manually initialized in mbed-drivers/source/retarget.cpp from mbed beta */
-        //memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-    
     // Mark this module to be inited.
     int i = modinit - uart_modinit_tab;
     uart_modinit_mask |= 1 << i;

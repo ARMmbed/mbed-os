@@ -45,9 +45,6 @@ static UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 #if DEVICE_SERIAL_ASYNCH
     #define SERIAL_S(obj) (&((obj)->serial))
 #else
@@ -195,12 +192,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj_s->pin_rx = rx;
 
     init_uart(obj);
-
-    // For stdio management
-    if (obj_s->uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 void serial_free(serial_t *obj)

@@ -35,9 +35,6 @@
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 static inline uint32_t serial_get_src_clock(serial_t *obj) {
   uint32_t mux, srcclk;
 
@@ -108,11 +105,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (rx != NC) pin_mode(rx, PullUp);
 
     obj->uart->CTRL |= (LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
-
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 void serial_free(serial_t *obj) {

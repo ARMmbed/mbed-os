@@ -68,10 +68,6 @@ static uart_irq_handler irq_handler;
 /* Keep track of incoming DMA IRQ's */
 static bool serial_dma_irq_fired[DMACTRL_CH_CNT] = { false };
 
-/* Serial interface on USBTX/USBRX retargets stdio */
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 static void uart_irq(UARTName, SerialIrq);
 static uint8_t serial_get_index(serial_t *obj);
 static void serial_enable(serial_t *obj, uint8_t enable);
@@ -600,12 +596,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         obj->serial.periph.leuart->CTRL |= LEUART_CTRL_RXDMAWU | LEUART_CTRL_TXDMAWU;
     } else {
         obj->serial.periph.uart->IFC = USART_IFC_TXC;
-    }
-
-    /* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
-    if(uart_for_stdio) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
 
     serial_enable_pins(obj, true);

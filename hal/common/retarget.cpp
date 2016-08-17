@@ -24,6 +24,7 @@
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
 #include "mbed_error.h"
+#include "Serial.h"
 #include <stdlib.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
@@ -94,23 +95,35 @@ FileHandle::~FileHandle() {
 }
 
 #if DEVICE_SERIAL
-extern int stdio_uart_inited;
-extern serial_t stdio_uart;
 #if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
 static char stdio_in_prev;
 static char stdio_out_prev;
 #endif
-#endif
 
-static void init_serial() {
-#if DEVICE_SERIAL
-    if (stdio_uart_inited) return;
-    serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+namespace mbed {
+
+static SingletonPtr<PlatformMutex> mutex_stdio_serial;
+
+Serial& get_stdio_serial()
+{
+   static bool stdio_inited = false;
+   static unsigned stdio_uart[(sizeof(Serial) + sizeof(unsigned) - 1) / sizeof(unsigned)];
+
+    if (!stdio_inited) {
+        mutex_stdio_serial->lock();
+        new (stdio_uart) Serial(STDIO_UART_TX, STDIO_UART_RX);
+        mutex_stdio_serial->unlock();
 #if MBED_CONF_CORE_STDIO_BAUD_RATE
-    serial_baud(&stdio_uart, MBED_CONF_CORE_STDIO_BAUD_RATE);
+       reinterpret_cast<Serial*>(stdio_uart)->baud(MBED_CONF_CORE_STDIO_BAUD_RATE);
 #endif
-#endif
+       stdio_inited = true;
+   }
+   return reinterpret_cast<Serial&>(stdio_uart);
 }
+
+} // namespace mbed
+
+#endif
 
 static inline int openmode_to_posix(int openmode) {
     int posix = openmode;
@@ -158,13 +171,13 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
      */
     if (std::strcmp(name, __stdin_name) == 0) {
-        init_serial();
+        get_stdio_serial();
         return 0;
     } else if (std::strcmp(name, __stdout_name) == 0) {
-        init_serial();
+        get_stdio_serial();
         return 1;
     } else if (std::strcmp(name, __stderr_name) == 0) {
-        init_serial();
+        get_stdio_serial();
         return 2;
     }
     #endif
@@ -240,18 +253,17 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
     int n; // n is the number of bytes written
     if (fh < 3) {
 #if DEVICE_SERIAL
-        if (!stdio_uart_inited) init_serial();
 #if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
         for (unsigned int i = 0; i < length; i++) {
             if (buffer[i] == '\n' && stdio_out_prev != '\r') {
-                 serial_putc(&stdio_uart, '\r');
+                 get_stdio_serial().putc('\r');
             }
-            serial_putc(&stdio_uart, buffer[i]);
+            get_stdio_serial().putc(buffer[i]);
             stdio_out_prev = buffer[i];
         }
 #else
         for (unsigned int i = 0; i < length; i++) {
-            serial_putc(&stdio_uart, buffer[i]);
+            get_stdio_serial().putc(buffer[i]);
         }
 #endif
 #endif
@@ -278,10 +290,9 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
     if (fh < 3) {
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
-        if (!stdio_uart_inited) init_serial();
 #if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
         while (true) {
-            char c = serial_getc(&stdio_uart);
+            char c = get_stdio_serial().getc();
             if ((c == '\r' && stdio_in_prev != '\n') ||
                 (c == '\n' && stdio_in_prev != '\r')) {
                 stdio_in_prev = c;
@@ -299,7 +310,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
             }
         }
 #else
-        *buffer = serial_getc(&stdio_uart);
+        *buffer = get_stdio_serial().getc();
 #endif
 #endif
         n = 1;

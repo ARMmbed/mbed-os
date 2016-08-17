@@ -120,9 +120,6 @@ static const PinMap PinMap_UART_RTS[] = {
 static const struct st_scif *SCIF[] = SCIF_ADDRESS_LIST;
 static uart_irq_handler irq_handler;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 struct serial_global_data_s {
     uint32_t serial_irq_id;
     gpio_t sw_rts, sw_cts;
@@ -296,13 +293,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     /* ---- Serial control register (SCSCR) setting ---- */
     /* Setting the TE and RE bits enables the TxD and RxD pins to be used. */
     obj->serial.uart->SCSCR = 0x0070;
-
-    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
-
-    if (is_stdio_uart) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 void serial_free(serial_t *obj) {
