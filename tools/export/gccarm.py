@@ -58,6 +58,7 @@ class GccArm(Exporter):
         'ARCH_PRO',
         'NRF51822',
         'HRM1017',
+        'TY51822R3',
         'RBLAB_NRF51822',
         'RBLAB_BLENANO',
         'LPC2368',
