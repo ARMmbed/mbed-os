@@ -49,10 +49,6 @@
                      MXC_F_UART_INTFL_RX_PARITY_ERROR | \
                      MXC_F_UART_INTFL_RX_OVERRUN)
 
-// Variables for managing the stdio UART
-int stdio_uart_inited;
-serial_t stdio_uart;
-
 // Variables for interrupt driven
 static uart_irq_handler irq_handler;
 static uint32_t serial_irq_ids[UART_NUM];
@@ -88,12 +84,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Configure to default settings
     serial_baud(obj, DEFAULT_BAUD);
     serial_format(obj, 8, ParityNone, 1);
-
-    // Manage stdio UART
-    if(uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 //******************************************************************************

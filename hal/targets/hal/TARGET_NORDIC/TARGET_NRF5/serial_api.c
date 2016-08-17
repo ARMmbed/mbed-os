@@ -62,10 +62,6 @@
 #define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
 #define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
 
-// Required by "retarget.cpp".
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 typedef struct {
     bool                initialized;
     uint32_t            irq_context;
@@ -304,14 +300,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
         UART_CB.initialized = true;
     }
-
-    if (tx == STDIO_UART_TX && rx == STDIO_UART_RX) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-    else {
-        stdio_uart_inited = 0;
-    }
 }
 
 void serial_free(serial_t *obj)
@@ -325,10 +313,6 @@ void serial_free(serial_t *obj)
                                             NRF_UART_INT_MASK_ERROR);
         nrf_drv_common_irq_disable(UART_IRQn);
         UART_CB.initialized = false;
-
-        // There is only one UART instance, thus at this point the stdio UART
-        // can no longer be initialized.
-        stdio_uart_inited = 0;
     }
 }
 

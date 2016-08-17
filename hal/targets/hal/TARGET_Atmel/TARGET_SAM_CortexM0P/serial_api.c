@@ -52,9 +52,6 @@ void uart5_irq(void);
 static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 extern uint8_t g_sys_init;
 
 static inline void usart_syncing(serial_t *obj)
@@ -329,10 +326,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         }
     }
 
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 

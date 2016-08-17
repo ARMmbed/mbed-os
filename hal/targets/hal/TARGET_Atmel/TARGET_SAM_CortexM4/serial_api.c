@@ -48,10 +48,6 @@ static void uart5_irq(void);
 static void uart6_irq(void);
 static void uart7_irq(void);
 
-
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 extern uint8_t g_sys_init;
 
 static int get_usart_clock_id(UARTName peripheral)
@@ -191,11 +187,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
     if(rx != NC) {
     usart_enable_rx((Usart*)uart);
-    }
-
-    if(uart == STDIO_UART) {
-    stdio_uart_inited = 1;
-    memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
 }
 

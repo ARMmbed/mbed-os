@@ -46,9 +46,6 @@ static uart_irq_handler irq_handler;
 
 UART_HandleTypeDef UartHandle;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 static void init_uart(serial_t *obj)
 {
 
@@ -127,12 +124,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->pin_rx = rx;
 
     init_uart(obj);
-
-    // For stdio management
-    if (obj->uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 void serial_free(serial_t *obj)

@@ -53,9 +53,6 @@
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // determine the UART to use
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
@@ -104,11 +101,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 
     obj->uart->C2 |= (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
-
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 void serial_free(serial_t *obj) {

@@ -92,9 +92,6 @@ static DMA_HandleTypeDef DmaTxHandle[UART_NUM];
 static DMA_HandleTypeDef DmaRxHandle[UART_NUM];
 static UART_HandleTypeDef UartHandle[UART_NUM];
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 #if DEVICE_SERIAL_ASYNCH
 #define SERIAL_OBJ(X) (obj->serial.X)
 #else
@@ -314,14 +311,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     SERIAL_OBJ(pin_rx) = rx;
 
     init_uart(obj, instance);
-
-#ifndef YOTTA_CFG_MBED_OS
-    // For stdio management
-    if ((int)(UartHandle[SERIAL_OBJ(index)].Instance) == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-#endif
 
     DEBUG_PRINTF("UART%u: Init\n", obj->serial.module + 1);
 }

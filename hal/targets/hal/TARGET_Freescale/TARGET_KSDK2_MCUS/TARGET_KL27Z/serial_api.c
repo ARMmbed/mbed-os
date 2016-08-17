@@ -37,9 +37,6 @@ static LPUART_Type *const uart_addrs[] = LPUART_BASE_PTRS;
 /* Array of LPUART bus clock frequencies */
 static clock_name_t const uart_clocks[] = LPUART_CLOCK_FREQS;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
@@ -75,11 +72,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (rx != NC) {
         LPUART_EnableRx(uart_addrs[obj->index], true);
         pin_mode(rx, PullUp);
-    }
-
-    if (obj->index == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
 }
 

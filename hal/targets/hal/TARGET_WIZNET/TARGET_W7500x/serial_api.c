@@ -50,9 +50,6 @@ static UART_TypeDef *UART;
 
 UART_InitTypeDef UART_InitStructure;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
 static void init_uart(serial_t *obj)
 {
     if(obj->index == 2)        // For UART2, It is simple UART.
@@ -143,11 +140,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     init_uart(obj);
 
-    // For stdio management
-    if (obj->uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 }
 
 void serial_free(serial_t *obj)

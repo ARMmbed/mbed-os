@@ -50,10 +50,6 @@ static const int acceptedSpeeds[18][2] = {
     {1000000, UART_BAUDRATE_BAUDRATE_Baud1M}
 };
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
-
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart = UART_0;
     obj->uart = (NRF_UART_Type *)uart;
@@ -96,11 +92,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
     if (rx != NC) {
         pin_mode(rx, PullUp);
-    }
-
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
 }
 
