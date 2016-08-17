@@ -509,7 +509,7 @@ extern "C" void software_init_hook(void)
         mbed_die();
     }
 #endif/* FEATURE_UVISOR */
-
+    mbed_sdk_init();
     software_init_hook_rtos();
 }
 #endif
@@ -540,7 +540,6 @@ extern "C" void _platform_post_stackheap_init (void) {
 extern "C" int __real_main(void);
 
 extern "C" int __wrap_main(void) {
-    mbed_sdk_init();
     mbed_main();
     return __real_main();
 }
