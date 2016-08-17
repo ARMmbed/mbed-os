@@ -277,9 +277,9 @@ class GCC_ARM(GCC):
             use_nano = False
         elif "small-lib" in self.options:
             use_nano = True
-        elif target.default_build == "standard":
+        elif target.default_lib == "std":
             use_nano = False
-        elif target.default_build == "small":
+        elif target.default_lib == "small":
             use_nano = True
         else:
             use_nano = False

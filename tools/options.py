@@ -76,8 +76,8 @@ def get_default_options_parser(add_clean=True, add_options=True):
                             type=argparse_lowercase_hyphen_type(['save-asm',
                                                                  'debug-info',
                                                                  'analyze',
-								 'small-lib',
-								 'std-lib'],
+                                                                 'small-lib',
+                                                                 'std-lib'],
                                                                 "build option"))
 
     return parser
