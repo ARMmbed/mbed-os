@@ -234,7 +234,7 @@
  *  @code
  *  #include "toolchain.h"
  *
- *  MBED_DEPRECATED_SINCE("v5.1", "don't foo any more, bar instead")
+ *  MBED_DEPRECATED_SINCE("mbed-os-5.1", "don't foo any more, bar instead")
  *  void foo(int arg);
  *  @endcode
  */
