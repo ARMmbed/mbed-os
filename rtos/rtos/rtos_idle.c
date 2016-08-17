@@ -22,13 +22,50 @@
 
 #include "rtos_idle.h"
 
+#if DEVICE_LOWPOWERTIMER && DEVICE_SLEEP
+#include "ticker_api.h"
+#include "critical.h"
+#include "lp_ticker_api.h"
+#include "cmsis_os.h"
+#include "sleep_api.h"
+
+static ticker_event_t delay_event;
+static volatile bool sleep_ended;
+extern uint32_t os_clockrate;
+
+void sleep_handler(uint32_t id)
+{
+    sleep_ended = true;
+}
+#endif /* DEVICE_LOWPOWERTIMER && DEVICE_SLEEP */
+
 static void default_idle_hook(void)
 {
+#if DEVICE_LOWPOWERTIMER && DEVICE_SLEEP
+    const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
+    uint32_t delay_ticks = os_suspend();
+    uint32_t delay_us;
+    sleep_ended = false;
+
+    ticker_set_handler(lp_ticker_data, sleep_handler);
+
+    ticker_remove_event(lp_ticker_data, &delay_event);
+    delay_us = lp_ticker_read() + delay_ticks * os_clockrate;
+    ticker_insert_event(lp_ticker_data, &delay_event, delay_us, (uint32_t)&delay_event);
+
+    while(!sleep_ended) {
+        sleep();
+    }
+
+    os_resume(delay_ticks);
+
+#else /* DEVICE_LOWPOWERTIMER && DEVICE_SLEEP */
     /* Sleep: ideally, we should put the chip to sleep.
      Unfortunately, this usually requires disconnecting the interface chip (debugger).
      This can be done, but it would break the local file system.
     */
     // sleep();
+#endif /* DEVICE_LOWPOWERTIMER && DEVICE_SLEEP */
 }
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
