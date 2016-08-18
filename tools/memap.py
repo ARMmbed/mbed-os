@@ -419,13 +419,6 @@ class MemapParser(object):
         for i in sorted(self.modules):
 
             row = []
-            row.append(i)
-
-            for k in self.sections:
-                subtotal[k] += self.modules[i][k]
-
-            for k in self.print_sections:
-                row.append(self.modules[i][k])
 
             json_obj.append({
                 "module":i,
@@ -530,6 +523,16 @@ class MemapParser(object):
         for i in list(self.print_sections):
             table.align[i] = 'r'
 
+        for i in sorted(self.modules):
+            row = [i]
+
+            for k in self.sections:
+                subtotal[k] += self.modules[i][k]
+
+            for k in self.print_sections:
+                row.append(self.modules[i][k])
+
+            table.add_row(row)
 
         subtotal_row = ['Subtotals']
         for k in self.print_sections:
