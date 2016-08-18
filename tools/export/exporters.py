@@ -71,17 +71,8 @@ class Exporter(object):
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
         self.resources = resources
-        self.symbols = self.toolchain.get_symbols()
         self.generated_files = []
         self.builder_files_dict = {}
-
-        # Add extra symbols and config file symbols to the Exporter's list of
-        # symbols.
-        config_macros = self.toolchain.config.get_config_data_macros()
-        if config_macros:
-            self.symbols.extend(config_macros)
-        if extra_symbols:
-            self.symbols.extend(extra_symbols)
 
     def get_toolchain(self):
         """A helper getter function that we should probably eliminate"""
@@ -98,8 +89,6 @@ class Exporter(object):
         common_flags - common options
         """
         config_header = self.toolchain.get_config_header()
-        config_header = relpath(config_header,
-                                self.resources.file_basepath[config_header])
         flags = {key + "_flags": value for key, value
                  in self.toolchain.flags.iteritems()}
         asm_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols(True)]
@@ -108,6 +97,8 @@ class Exporter(object):
         flags['c_flags'] += c_defines
         flags['cxx_flags'] += c_defines
         if config_header:
+            config_header = relpath(config_header,
+                                    self.resources.file_basepath[config_header])
             flags['c_flags'] += self.toolchain.get_config_option(config_header)
             flags['cxx_flags'] += self.toolchain.get_config_option(
                 config_header)
@@ -162,7 +153,7 @@ class Exporter(object):
         project_data['source_files_lib'] = grouped(self.resources.libraries)
         project_data['output_dir']['path'] = self.export_dir
         project_data['linker_file'] = self.resources.linker_script
-        project_data['macros'] = self.symbols
+        project_data['macros'] = []
         project_data['build_dir'] = 'build'
         project_data['template'] = None
         project_data['name'] = self.project_name
