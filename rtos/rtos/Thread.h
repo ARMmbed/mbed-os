@@ -90,7 +90,7 @@ public:
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::Callback<void()>(obj, method),
+        constructor(mbed::callback(obj, method),
                     priority, stack_size, stack_pointer);
     }
 
@@ -116,7 +116,7 @@ public:
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::Callback<void()>(obj, method),
+        constructor(mbed::callback(obj, method),
                     priority, stack_size, stack_pointer);
     }
 
@@ -141,7 +141,7 @@ public:
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::Callback<void()>(argument, (void (*)(void *))task),
+        constructor(mbed::callback(argument, (void (*)(void *))task),
                     priority, stack_size, stack_pointer);
     }
 
@@ -155,10 +155,16 @@ public:
       @param   obj            argument to task
       @param   method         function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
+      @deprecated
+          The start function does not support cv-qualifiers. Replaced by
+          start(callback(obj, method)).
     */
     template <typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The start function does not support cv-qualifiers. Replaced by "
+        "start(callback(obj, method)).")
     osStatus start(T *obj, M method) {
-        return start(mbed::Callback<void()>(obj, method));
+        return start(mbed::callback(obj, method));
     }
 
     /** Wait for thread to terminate

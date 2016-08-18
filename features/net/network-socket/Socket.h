@@ -21,6 +21,7 @@
 #include "network-socket/NetworkStack.h"
 #include "rtos/Mutex.h"
 #include "Callback.h"
+#include "toolchain.h"
 
 
 /** Abstract socket class
@@ -168,10 +169,17 @@ public:
      *
      *  @param obj      Pointer to object to call method on
      *  @param method   Method to call on state change
+     *
+     *  @deprecated
+     *      The attach function does not support cv-qualifiers. Replaced by
+     *      attach(callback(obj, method)).
      */
     template <typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach function does not support cv-qualifiers. Replaced by "
+        "attach(callback(obj, method)).")
     void attach(T *obj, M method) {
-        attach(mbed::Callback<void()>(obj, method));
+        attach(mbed::callback(obj, method));
     }
 
 protected:
