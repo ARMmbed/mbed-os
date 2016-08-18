@@ -774,14 +774,15 @@ class Config(object):
                 if macro.macro_value:
                     header_data += ("#define {0:<{1}} {2!s:<{3}}" +
                                     " // defined by {4}\n")\
-                        .format(m.macro_name, max_macro_name_len, m.macro_value,
-                                max_macro_val_len, m.defined_by)
+                        .format(macro.macro_name, max_macro_name_len,
+                                macro.macro_value, max_macro_val_len,
+                                macro.defined_by)
                 else:
                     header_data += ("#define {0:<{1}}" +
                                     " // defined by {2}\n")\
-                        .format(m.macro_name,
+                        .format(macro.macro_name,
                                 max_macro_name_len + max_macro_val_len + 1,
-                                m.defined_by)
+                                macro.defined_by)
         header_data += "\n#endif\n"
         # If fname is given, write "header_data" to it
         if fname:
