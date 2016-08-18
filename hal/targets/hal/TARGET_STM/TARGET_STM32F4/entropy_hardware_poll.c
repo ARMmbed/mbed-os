@@ -19,11 +19,10 @@
  */
 
 
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
-    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F469xx) ||\
-    defined(STM32F479xx)
-
+#if defined(TARGET_STM32F405xx) || defined(TARGET_STM32F415xx) || defined(TARGET_STM32F407xx) || defined(TARGET_STM32F417xx) ||\
+    defined(TARGET_STM32F427xx) || defined(TARGET_STM32F437xx) || defined(TARGET_STM32F429xx) || defined(TARGET_STM32F439xx) ||\
+    defined(TARGET_STM32F410Tx) || defined(TARGET_STM32F410Cx) || defined(TARGET_STM32F410Rx) || defined(TARGET_STM32F469xx) ||\
+    defined(TARGET_STM32F479xx)
 #include <stdlib.h>
 #include "cmsis.h"
 
