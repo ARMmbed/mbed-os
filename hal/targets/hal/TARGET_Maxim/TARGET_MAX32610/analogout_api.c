@@ -47,7 +47,7 @@ void analogout_init(dac_t *obj, PinName pin)
 
     // Set the object pointer
     obj->dac = ((mxc_dac_regs_t*)MXC_DAC_GET_DAC((pin & 0x3)));
-    obj->dac_fifo = ((mxc_dac_fifo_t*)MXC_DAC_GET_FIFO((pin & 0x3)));
+    obj->dac_fifo = ((mxc_dac_fifo_regs_t*)MXC_DAC_GET_FIFO((pin & 0x3)));
     obj->index = (pin & 0x3);
 
     // Set the ADC clock to the system clock frequency
@@ -142,7 +142,7 @@ void analogout_init(dac_t *obj, PinName pin)
         (MXC_E_AFE_REF_VOLT_SEL_1500 << MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL_POS)));
 
     // Disable interpolation
-    obj->dac->ctrl0 &= MXC_F_DAC_CTRL0_INTERP_MODE;
+    obj->dac->ctrl0 &= ~MXC_F_DAC_CTRL0_INTERP_MODE;
 }
 
 //******************************************************************************

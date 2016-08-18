@@ -459,12 +459,12 @@ typedef struct {
 #define MXC_S_GPIO_OUT_MODE_PIN7_FAST_HIGH_Z                                    ((uint32_t)(MXC_V_GPIO_OUT_MODE_FAST_HIGH_Z             << MXC_F_GPIO_OUT_MODE_PIN7_POS))
 #define MXC_S_GPIO_OUT_MODE_PIN7_FAST_DRIVE                                     ((uint32_t)(MXC_V_GPIO_OUT_MODE_FAST_DRIVE              << MXC_F_GPIO_OUT_MODE_PIN7_POS))
 
-#define MXC_V_GPIO_INT_MODE_DISABLED                                            ((uint32_t)(0x00000000UL))
+#define MXC_V_GPIO_INT_MODE_DISABLE                                             ((uint32_t)(0x00000000UL))
 #define MXC_V_GPIO_INT_MODE_FALLING_EDGE                                        ((uint32_t)(0x00000001UL))
 #define MXC_V_GPIO_INT_MODE_RISING_EDGE                                         ((uint32_t)(0x00000002UL))
-#define MXC_V_GPIO_INT_MODE_BOTH_EDGES                                          ((uint32_t)(0x00000003UL))
-#define MXC_V_GPIO_INT_MODE_LOW_LEVEL                                           ((uint32_t)(0x00000004UL))
-#define MXC_V_GPIO_INT_MODE_HIGH_LEVEL                                          ((uint32_t)(0x00000005UL))
+#define MXC_V_GPIO_INT_MODE_ANY_EDGE                                            ((uint32_t)(0x00000003UL))
+#define MXC_V_GPIO_INT_MODE_LOW_LVL                                             ((uint32_t)(0x00000004UL))
+#define MXC_V_GPIO_INT_MODE_HIGH_LVL                                            ((uint32_t)(0x00000005UL))
 
 #ifdef __cplusplus
 }
