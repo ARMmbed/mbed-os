@@ -66,6 +66,7 @@
 
 #define LWIP_DHCP                   1
 #define LWIP_DNS                    1
+#define LWIP_SOCKET                 0
 
 #define SO_REUSE                    1
 
