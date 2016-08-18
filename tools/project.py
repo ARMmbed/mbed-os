@@ -8,7 +8,7 @@ sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
 from argparse import ArgumentParser
-from os.path import normpath
+from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_BASE, MBED_LIBRARIES
 from tools.export import EXPORTERS, mcu_ide_matrix
@@ -39,11 +39,11 @@ def setup_project(ide, target, program=None, source_dir=None, build=None):
     if source_dir:
         # --source is used to generate IDE files to toolchain directly
         # in the source tree and doesn't generate zip file
-        project_dir = source_dir[0]
+        project_dir = join(source_dir[0],'projectfiles',ide+"_"+target)
         if program:
             project_name = TESTS[program]
         else:
-            project_name = basename(normpath(source_dir[0]))
+            project_name = basename(normpath(realpath(source_dir[0])))
         src_paths = source_dir
         lib_paths = None
     else:
