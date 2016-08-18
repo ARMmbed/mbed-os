@@ -214,7 +214,6 @@ def export_project(src_paths, export_path, target, ide,
                                   jobs=jobs, notify=notify, silent=silent,
                                   verbose=verbose, extra_verbose=extra_verbose,
                                   config=config)
-
     # The first path will give the name to the library
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
@@ -229,6 +228,8 @@ def export_project(src_paths, export_path, target, ide,
 
     if zip_proj:
         subtract_basepath(resources, export_path)
+    else:
+        resources.relative_to(export_path)
 
     # Change linker script if specified
     if linker_script is not None:
