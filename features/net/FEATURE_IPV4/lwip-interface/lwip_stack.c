@@ -304,6 +304,7 @@ static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi
         return lwip_err_remap(err);
     }
 
+    netconn_set_recvtimeout(ns->conn, 1);
     *(struct lwip_socket **)handle = ns;
 
     (void) netconn_peer(ns->conn, (ip_addr_t *)addr->bytes, port);
