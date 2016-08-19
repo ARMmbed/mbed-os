@@ -62,15 +62,6 @@
 #define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
 #define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
 
-#ifndef MBED_CONF_NORDIC_NRF_SERIAL_FC
-    #define MBED_CONF_NORDIC_NRF_SERIAL_FC (WITH_FC)
-    #warning No configuration for serial flow control. Serial will be used as a default, with flow control.
-#endif
-
-#define WITH_FC    2
-#define WITHOUT_FC 3
-
-
 // Required by "retarget.cpp".
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -266,16 +257,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     else {
         UART_CB.baudrate = UART_DEFAULT_BAUDRATE;
         UART_CB.parity   = UART_DEFAULT_PARITY;
-
-    #if MBED_CONF_NORDIC_NRF_SERIAL_FC == WITH_FC
         UART_CB.hwfc     = UART_DEFAULT_HWFC;
         UART_CB.pselcts  = UART_DEFAULT_CTS;
         UART_CB.pselrts  = UART_DEFAULT_RTS;
-    #elif MBED_CONF_NORDIC_NRF_SERIAL_FC == WITHOUT_FC
-        // Not init UART with HWFC.
-    #else
-        #error Bad flow control configuration. Declare proper source through mbed configuration.
-    #endif
 
         nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_RXDRDY);
         nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
@@ -654,8 +638,5 @@ void serial_rx_abort_asynch(serial_t *obj)
 }
 
 #endif // DEVICE_SERIAL_ASYNCH
-
-#undef WITH_FC
-#undef WITHOUT_FC
 
 #endif // DEVICE_SERIAL

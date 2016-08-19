@@ -1538,9 +1538,6 @@
         "macros_add": ["TARGET_NRF_32MHZ_XTAL"],
         "progen": {"target": "ty51822r3"},
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "overrides": {
-            "serial_fc": "WITHOUT_FC"
-        },
         "detect_code": ["1019"],
         "release_versions": ["2", "5"]
     },
@@ -1890,11 +1887,6 @@
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
                 "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
-            },
-            "serial_fc": {
-                "help": "Choose serial with flow control or without",
-                "value": "WITH_FC",
-                "macro_name": "MBED_CONF_NORDIC_NRF_SERIAL_FC"
             }
         }
     },
