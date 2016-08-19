@@ -1,5 +1,4 @@
-#if defined(TARGET_NUCLEO_F746ZG)
-#include "stm32f7xx_hal.h"
+#include "stm32f2xx_hal.h"
 #include "lwip/opt.h"
 
 #include "lwip/timers.h"
@@ -9,151 +8,42 @@
 #include "cmsis_os.h"
 #include "mbed_interface.h"
 
-/** @defgroup lwipstm32f7xx_emac_DRIVER	stm32f7 EMAC driver for LWIP
- * @ingroup lwip_emac
- *
- * @{
- */
-
 #define RECV_TASK_PRI           (osPriorityHigh)
 #define PHY_TASK_PRI            (osPriorityLow)
 #define PHY_TASK_WAIT           (200)
-/* LAN8742A PHY Address*/
-#define LAN8742A_PHY_ADDRESS            0x00
-
-
-#if defined ( __CC_ARM   )
-ETH_DMADescTypeDef  DMARxDscrTab[ETH_RXBUFNB] __attribute__((at(0x20002000)));/* Ethernet Rx MA Descriptor */
-
-ETH_DMADescTypeDef  DMATxDscrTab[ETH_TXBUFNB] __attribute__((at(0x200020A0)));/* Ethernet Tx DMA Descriptor */
-
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __attribute__((at(0x20002140))); /* Ethernet Receive Buffer */
-
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __attribute__((at(0x20004480))); /* Ethernet Transmit Buffer */
-
-#elif defined ( __ICCARM__ ) /*!< IAR Compiler */
-  #pragma data_alignment=4 
-
-#pragma location=0x20002000
-__no_init ETH_DMADescTypeDef  DMARxDscrTab[ETH_RXBUFNB];/* Ethernet Rx MA Descriptor */
-
-#pragma location=0x200020A0
-__no_init ETH_DMADescTypeDef  DMATxDscrTab[ETH_TXBUFNB];/* Ethernet Tx DMA Descriptor */
-
-#pragma location=0x20002140
-__no_init uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
-
-#pragma location=0x20004480
-__no_init uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
-
-#elif defined ( __GNUC__ ) /*!< GNU Compiler */
-
-ETH_DMADescTypeDef  DMARxDscrTab[ETH_RXBUFNB] __attribute__((section(".RxDecripSection")));/* Ethernet Rx MA Descriptor */
-
-ETH_DMADescTypeDef  DMATxDscrTab[ETH_TXBUFNB] __attribute__((section(".TxDescripSection")));/* Ethernet Tx DMA Descriptor */
-
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __attribute__((section(".RxarraySection"))); /* Ethernet Receive Buffer */
-
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __attribute__((section(".TxarraySection"))); /* Ethernet Transmit Buffer */
-
-#endif
+#define ETH_ARCH_PHY_ADDRESS    (0x00)
 
 ETH_HandleTypeDef EthHandle;
+
+#if defined (__ICCARM__)   /*!< IAR Compiler */
+  #pragma data_alignment=4
+#endif
+__ALIGN_BEGIN ETH_DMADescTypeDef DMARxDscrTab[ETH_RXBUFNB] __ALIGN_END; /* Ethernet Rx DMA Descriptor */
+
+#if defined (__ICCARM__)   /*!< IAR Compiler */
+  #pragma data_alignment=4
+#endif
+__ALIGN_BEGIN ETH_DMADescTypeDef DMATxDscrTab[ETH_TXBUFNB] __ALIGN_END; /* Ethernet Tx DMA Descriptor */
+
+#if defined (__ICCARM__)   /*!< IAR Compiler */
+  #pragma data_alignment=4 
+#endif
+__ALIGN_BEGIN uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __ALIGN_END; /* Ethernet Receive Buffer */
+
+#if defined (__ICCARM__)   /*!< IAR Compiler */
+  #pragma data_alignment=4
+#endif
+__ALIGN_BEGIN uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __ALIGN_END; /* Ethernet Transmit Buffer */
 
 static sys_sem_t rx_ready_sem;    /* receive ready semaphore */
 static sys_mutex_t tx_lock_mutex;
 
 /* function */
-static void stm32f7_rx_task(void *arg);
-static void stm32f7_phy_task(void *arg);
-static err_t stm32f7_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
-static err_t stm32f7_low_level_output(struct netif *netif, struct pbuf *p);
-
-/**
- * Override HAL Eth Init function
- */
-void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-    if (heth->Instance == ETH) {
-
-        /* Enable GPIOs clocks */
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-        __HAL_RCC_GPIOG_CLK_ENABLE();
-
-        /** ETH GPIO Configuration
-          RMII_REF_CLK ----------------------> PA1
-          RMII_MDIO -------------------------> PA2
-          RMII_MDC --------------------------> PC1
-          RMII_MII_CRS_DV -------------------> PA7
-          RMII_MII_RXD0 ---------------------> PC4
-          RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PG2
-          RMII_MII_TX_EN --------------------> PG11
-          RMII_MII_TXD0 ---------------------> PG13
-          RMII_MII_TXD1 ---------------------> PB13
-         */
-        /* Configure PA1, PA2 and PA7 */
-        GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-        GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStructure.Pull = GPIO_NOPULL; 
-        GPIO_InitStructure.Alternate = GPIO_AF11_ETH;
-        GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-        /* Configure PB13 */
-        GPIO_InitStructure.Pin = GPIO_PIN_13;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-        /* Configure PC1, PC4 and PC5 */
-        GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-        /* Configure PG2, PG11 and PG13 */
-        GPIO_InitStructure.Pin =  GPIO_PIN_2 | GPIO_PIN_11 | GPIO_PIN_13;
-        HAL_GPIO_Init(GPIOG, &GPIO_InitStructure);
-
-        /* Enable the Ethernet global Interrupt */
-        HAL_NVIC_SetPriority(ETH_IRQn, 0x7, 0);
-        HAL_NVIC_EnableIRQ(ETH_IRQn);
-        
-        /* Enable ETHERNET clock  */
-        __HAL_RCC_ETH_CLK_ENABLE();
-    }
-}
-
-/**
- * Override HAL Eth DeInit function
- */
-void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
-{
-    if (heth->Instance == ETH) {
-        /* Peripheral clock disable */
-        __HAL_RCC_ETH_CLK_DISABLE();
-
-        /** ETH GPIO Configuration
-          RMII_REF_CLK ----------------------> PA1
-          RMII_MDIO -------------------------> PA2
-          RMII_MDC --------------------------> PC1
-          RMII_MII_CRS_DV -------------------> PA7
-          RMII_MII_RXD0 ---------------------> PC4
-          RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PG2
-          RMII_MII_TX_EN --------------------> PG11
-          RMII_MII_TXD0 ---------------------> PG13
-          RMII_MII_TXD1 ---------------------> PB13
-         */
-        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7);
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_13);
-        HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5);
-        HAL_GPIO_DeInit(GPIOG, GPIO_PIN_2 | GPIO_PIN_11 | GPIO_PIN_13);
-
-        /* Disable the Ethernet global Interrupt */
-        NVIC_DisableIRQ(ETH_IRQn);
-    }
-}
+static void _eth_arch_rx_task(void *arg);
+static void _eth_arch_phy_task(void *arg);
+static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
+static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p);
+static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
 
 /**
  * Ethernet Rx Transfer completed callback
@@ -187,8 +77,8 @@ void ETH_IRQHandler(void)
  * @param netif the already initialized lwip network interface structure
  *        for this ethernetif
  */
-static void stm32f7_low_level_init(struct netif *netif)
-{
+static void _eth_arch_low_level_init(struct netif *netif)
+{  
     uint32_t regvalue = 0;
     HAL_StatusTypeDef hal_eth_init_status;
 
@@ -198,7 +88,7 @@ static void stm32f7_low_level_init(struct netif *netif)
     EthHandle.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
     EthHandle.Init.Speed = ETH_SPEED_100M;
     EthHandle.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
-    EthHandle.Init.PhyAddress = LAN8742A_PHY_ADDRESS;
+    EthHandle.Init.PhyAddress = ETH_ARCH_PHY_ADDRESS;
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
     MACAddr[0] = MBED_MAC_ADDR_0;
     MACAddr[1] = MBED_MAC_ADDR_1;
@@ -207,14 +97,13 @@ static void stm32f7_low_level_init(struct netif *netif)
     MACAddr[4] = MBED_MAC_ADDR_4;
     MACAddr[5] = MBED_MAC_ADDR_5;
 #else
-	mbed_mac_address((char *)MACAddr);
+    mbed_mac_address((char *)MACAddr);
 #endif
     EthHandle.Init.MACAddr = &MACAddr[0];
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
     hal_eth_init_status = HAL_ETH_Init(&EthHandle);
-
 
     /* Initialize Tx Descriptors list: Chain Mode */
     HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
@@ -279,7 +168,7 @@ static void stm32f7_low_level_init(struct netif *netif)
  *       dropped because of memory failure (except for the TCP timers).
  */
 
-static err_t stm32f7_low_level_output(struct netif *netif, struct pbuf *p)
+static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p)
 {
     err_t errval;
     struct pbuf *q;
@@ -365,7 +254,7 @@ error:
  * @return a pbuf filled with the received packet (including MAC header)
  *         NULL on memory error
  */
-static struct pbuf * stm32f7_low_level_input(struct netif *netif)
+static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
 {
     struct pbuf *p = NULL;
     struct pbuf *q;
@@ -444,14 +333,14 @@ static struct pbuf * stm32f7_low_level_input(struct netif *netif)
  *
  * \param[in] netif the lwip network interface structure
  */
-static void stm32f7_rx_task(void *arg)
+static void _eth_arch_rx_task(void *arg)
 {
     struct netif   *netif = (struct netif*)arg;
     struct pbuf    *p;
 
     while (1) {
         sys_arch_sem_wait(&rx_ready_sem, 0);
-        p = stm32f7_low_level_input(netif);
+        p = _eth_arch_low_level_input(netif);
         if (p != NULL) {
             if (netif->input(p, netif) != ERR_OK) {
                 pbuf_free(p);
@@ -466,7 +355,7 @@ static void stm32f7_rx_task(void *arg)
  *
  * \param[in] netif the lwip network interface structure
  */
-static void stm32f7_phy_task(void *arg)
+static void _eth_arch_phy_task(void *arg)
 {
     struct netif   *netif = (struct netif*)arg;
     uint32_t phy_status = 0;
@@ -479,10 +368,8 @@ static void stm32f7_phy_task(void *arg)
             } else if (!(status & PHY_LINK_STATUS) && (phy_status & PHY_LINK_STATUS)) {
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1);
             }
-            
             phy_status = status;
         }
-        
         osDelay(PHY_TASK_WAIT);
     }
 }
@@ -496,13 +383,12 @@ static void stm32f7_phy_task(void *arg)
  * \param[in] ipaddr IP address
  * \return ERR_OK or error code
  */
-static err_t stm32f7_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
+static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
 {
     /* Only send packet is link is up */
     if (netif->flags & NETIF_FLAG_LINK_UP) {
         return etharp_output(netif, q, ipaddr);
     }
-
     return ERR_CONN;
 }
 
@@ -530,14 +416,14 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
-    netif->hostname = "lwipstm32f7";
+    netif->hostname = "lwipstm32";
 #endif /* LWIP_NETIF_HOSTNAME */
 
     netif->name[0] = 'e';
     netif->name[1] = 'n';
 
-    netif->output = stm32f7_etharp_output;
-    netif->linkoutput = stm32f7_low_level_output;
+    netif->output = _eth_arch_netif_output;
+    netif->linkoutput = _eth_arch_low_level_output;
 
     /* semaphore */
     sys_sem_new(&rx_ready_sem, 0);
@@ -545,11 +431,11 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
-    sys_thread_new("stm32f7_recv_task", stm32f7_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("stm32f7_phy_task", stm32f7_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("_eth_arch_rx_task", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("_eth_arch_phy_task", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
     
     /* initialize the hardware */
-    stm32f7_low_level_init(netif);
+    _eth_arch_low_level_init(netif);
     
     return ERR_OK;
 }
@@ -564,10 +450,3 @@ void eth_arch_disable_interrupts(void)
 {
     NVIC_DisableIRQ(ETH_IRQn);
 }
-
-/**
- * @}
- */
-#endif //defined (TARGET_NUCLEO_F746ZG)
-
-/* --------------------------------- End Of File ------------------------------ */
