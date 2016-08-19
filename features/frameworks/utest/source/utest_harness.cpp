@@ -167,11 +167,12 @@ void Harness::raise_failure(const failure_reason_t reason)
     if (test_cases == NULL) return;
 
     utest::v1::status_t fail_status = STATUS_ABORT;
+    if (handlers.test_failure) handlers.test_failure(failure_t(reason, location));
+    if (handlers.case_failure) fail_status = handlers.case_failure(case_current, failure_t(reason, location));
+
     {
         UTEST_ENTER_CRITICAL_SECTION;
 
-        if (handlers.test_failure) handlers.test_failure(failure_t(reason, location));
-        if (handlers.case_failure) fail_status = handlers.case_failure(case_current, failure_t(reason, location));
         if (fail_status != STATUS_IGNORE) case_failed++;
 
         if ((fail_status == STATUS_ABORT) && case_timeout_handle)
