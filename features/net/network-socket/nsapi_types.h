@@ -310,11 +310,13 @@ typedef struct nsapi_stack_api
      *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
      *
      *  @param stack    Stack handle
-     *  @param socket   Destination for a handle to the newly created sockey
      *  @param server   Socket handle to server to accept from
+     *  @param socket   Destination for a handle to the newly created socket
+     *  @param addr     Destination for the address of the remote host
+     *  @param port     Destination for the port of the remote host
      *  @return         0 on success, negative error code on failure
      */
-    int (*socket_accept)(nsapi_stack_t *stack, nsapi_socket_t *socket, nsapi_socket_t server);
+    int (*socket_accept)(nsapi_stack_t *stack, nsapi_socket_t server, nsapi_socket_t *socket, nsapi_addr_t *addr, uint16_t *port);
 
     /** Send data over a TCP socket
      *
