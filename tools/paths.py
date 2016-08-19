@@ -18,7 +18,7 @@ from os.path import join
 from os import getenv
 
 # Conventions about the directory structure
-from settings import ROOT, BUILD_DIR
+from tools.settings import ROOT, BUILD_DIR
 
 # Allow overriding some of the build parameters using environment variables
 BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
@@ -39,6 +39,8 @@ MBED_HAL = join(MBED_BASE, "hal")
 MBED_TARGETS_PATH = join(MBED_BASE, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
+
+MBED_CONFIG_FILE = join(ROOT, "mbed_lib.json")
 
 # Tests
 TEST_DIR = join(LIB_DIR, "tests")
@@ -102,8 +104,10 @@ CPPUTEST_SRC = join(CPPUTEST_DIR, "cpputest", "src", "CppUTest")
 CPPUTEST_INC = join(CPPUTEST_DIR, "cpputest", "include")
 CPPUTEST_INC_EXT = join(CPPUTEST_DIR, "cpputest", "include", "CppUTest")
 # Platform dependant code is here (for armcc compiler)
-CPPUTEST_PLATFORM_SRC = join(CPPUTEST_DIR, "cpputest", "src", "Platforms", "armcc")
-CPPUTEST_PLATFORM_INC = join(CPPUTEST_DIR, "cpputest", "include", "Platforms", "armcc")
+CPPUTEST_PLATFORM_SRC = join(CPPUTEST_DIR, "cpputest", "src", "Platforms",
+                             "armcc")
+CPPUTEST_PLATFORM_INC = join(CPPUTEST_DIR, "cpputest", "include", "Platforms",
+                             "armcc")
 # Function 'main' used to run all compiled UTs
 CPPUTEST_TESTRUNNER_SCR = join(TEST_DIR, "utest", "testrunner")
 CPPUTEST_TESTRUNNER_INC = join(TEST_DIR, "utest", "testrunner")

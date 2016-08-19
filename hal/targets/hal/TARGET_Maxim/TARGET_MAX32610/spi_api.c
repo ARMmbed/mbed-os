@@ -141,7 +141,7 @@ void spi_frequency(spi_t *obj, int hz)
 }
 
 //******************************************************************************
-int  spi_master_write(spi_t *obj, int value)
+int spi_master_write(spi_t *obj, int value)
 {
     int bits = spi_bits;
     if(spi_bits == 32) {
@@ -180,7 +180,7 @@ int  spi_master_write(spi_t *obj, int value)
 }
 
 //******************************************************************************
-int  spi_busy(spi_t *obj)
+int spi_busy(spi_t *obj)
 {
     return !(obj->spi->intfl & MXC_F_SPI_INTFL_TX_READY);
 }

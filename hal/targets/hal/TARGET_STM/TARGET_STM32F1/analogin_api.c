@@ -46,6 +46,11 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
+    
+    // Get the functions (adc channel) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_ADC);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel = STM_PIN_CHANNEL(function);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_ADC);
@@ -78,7 +83,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         AdcHandle.Init.NbrOfConversion       = 1;
         AdcHandle.Init.DiscontinuousConvMode = DISABLE;
         AdcHandle.Init.NbrOfDiscConversion   = 0;
-        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+        AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
         HAL_ADC_Init(&AdcHandle);
     }
 }
@@ -93,53 +98,53 @@ static inline uint16_t adc_read(analogin_t *obj)
     sConfig.Rank         = 1;
     sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
 
-    switch (obj->pin) {
-        case PA_0:
+    switch (obj->channel) {
+        case 0:
             sConfig.Channel = ADC_CHANNEL_0;
             break;
-        case PA_1:
+        case 1:
             sConfig.Channel = ADC_CHANNEL_1;
             break;
-        case PA_2:
+        case 2:
             sConfig.Channel = ADC_CHANNEL_2;
             break;
-        case PA_3:
+        case 3:
             sConfig.Channel = ADC_CHANNEL_3;
             break;
-        case PA_4:
+        case 4:
             sConfig.Channel = ADC_CHANNEL_4;
             break;
-        case PA_5:
+        case 5:
             sConfig.Channel = ADC_CHANNEL_5;
             break;
-        case PA_6:
+        case 6:
             sConfig.Channel = ADC_CHANNEL_6;
             break;
-        case PA_7:
+        case 7:
             sConfig.Channel = ADC_CHANNEL_7;
             break;
-        case PB_0:
+        case 8:
             sConfig.Channel = ADC_CHANNEL_8;
             break;
-        case PB_1:
+        case 9:
             sConfig.Channel = ADC_CHANNEL_9;
             break;
-        case PC_0:
+        case 10:
             sConfig.Channel = ADC_CHANNEL_10;
             break;
-        case PC_1:
+        case 11:
             sConfig.Channel = ADC_CHANNEL_11;
             break;
-        case PC_2:
+        case 12:
             sConfig.Channel = ADC_CHANNEL_12;
             break;
-        case PC_3:
+        case 13:
             sConfig.Channel = ADC_CHANNEL_13;
             break;
-        case PC_4:
+        case 14:
             sConfig.Channel = ADC_CHANNEL_14;
             break;
-        case PC_5:
+        case 15:
             sConfig.Channel = ADC_CHANNEL_15;
             break;
         default:

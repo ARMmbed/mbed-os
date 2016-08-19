@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,22 +43,27 @@ static DAC_HandleTypeDef DacHandle;
 void analogout_init(dac_t *obj, PinName pin) {
     DAC_ChannelConfTypeDef sConfig;
 
-    DacHandle.Instance = DAC;
-
-    // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
+    // Get the peripheral name from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
+
+    // Get the pin function and assign the used channel to the object
+    uint32_t function = pinmap_function(pin, PinMap_DAC);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel = STM_PIN_CHANNEL(function);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    // Save the channel for future use
+    // Save the pin for future use
     obj->pin = pin;
 
     // Enable DAC clock
     __DAC1_CLK_ENABLE();
 
     // Configure DAC
+    DacHandle.Instance = (DAC_TypeDef *)(obj->dac);
+
     sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
 
@@ -82,22 +87,28 @@ void analogout_free(dac_t *obj) {
 }
 
 static inline void dac_write(dac_t *obj, int value) {
-    if (obj->pin == PA_4) {
+    if (obj->channel == 1) {
         HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (value & DAC_RANGE));
         HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
-    } else if (obj->pin == PA_5) {
+    }
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == 2) {
         HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, (value & DAC_RANGE));
         HAL_DAC_Start(&DacHandle, DAC_CHANNEL_2);
     }
+#endif
 }
 
 static inline int dac_read(dac_t *obj) {
-    if (obj->pin == PA_4) {
+    if (obj->channel == 1) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
-    } else if (obj->pin == PA_5) {
+    }
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == 2) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
-    return 0;	/* Just silented warning */
+#endif
+    return 0;
 }
 
 void analogout_write(dac_t *obj, float value) {

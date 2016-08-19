@@ -58,7 +58,7 @@ public:
         The explicit Thread::start member function should be used to spawn
         a thread.
     */
-    MBED_DEPRECATED(
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors and may lead to complex "
         "program state when a thread is declared")
     Thread(mbed::Callback<void()> task,
@@ -83,7 +83,7 @@ public:
         a thread.
     */
     template <typename T>
-    MBED_DEPRECATED(
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors and may lead to complex "
         "program state when a thread is declared")
     Thread(T *obj, void (T::*method)(),
@@ -109,7 +109,7 @@ public:
         a thread.
     */
     template <typename T>
-    MBED_DEPRECATED(
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors and may lead to complex "
         "program state when a thread is declared")
     Thread(T *obj, void (*method)(T *),
@@ -134,7 +134,7 @@ public:
         The explicit Thread::start member function should be used to spawn
         a thread.
     */
-    MBED_DEPRECATED(
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors and may lead to complex "
         "program state when a thread is declared")
     Thread(void (*task)(void const *argument), void *argument=NULL,

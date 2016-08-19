@@ -305,7 +305,6 @@ typedef struct {
 #define MXC_F_USB_SETUP1_BYTE7_POS              24
 #define MXC_F_USB_SETUP1_BYTE7                  ((uint32_t)(0x000000FFUL << MXC_F_USB_SETUP1_BYTE7_POS))
 
-
 #define MXC_F_USB_EP0_EP_DIR_POS                0
 #define MXC_F_USB_EP0_EP_DIR                    ((uint32_t)(0x00000003UL << MXC_F_USB_EP0_EP_DIR_POS))
 #define MXC_F_USB_EP0_EP_BUF2_POS               3
@@ -441,6 +440,34 @@ typedef struct {
 #define MXC_F_USB_EP7_EP_ST_STALL               ((uint32_t)(0x00000001UL << MXC_F_USB_EP7_EP_ST_STALL_POS))
 #define MXC_F_USB_EP7_EP_ST_ACK_POS             10
 #define MXC_F_USB_EP7_EP_ST_ACK                 ((uint32_t)(0x00000001UL << MXC_F_USB_EP7_EP_ST_ACK_POS))
+
+#define MXC_F_USB_EP_DIR_POS                    (0)
+#define MXC_F_USB_EP_DIR                        ((uint32_t)(0x00000003UL << MXC_F_USB_EP_DIR_POS))
+
+#define MXC_V_USB_EP_DIR_DISABLE                ((uint32_t)0x00000000UL)
+#define MXC_V_USB_EP_DIR_OUT                    ((uint32_t)0x00000001UL)
+#define MXC_V_USB_EP_DIR_IN                     ((uint32_t)0x00000002UL)
+#define MXC_V_USB_EP_DIR_CONTROL                ((uint32_t)0x00000003UL)
+
+#define MXC_S_USB_EP_DIR_DISABLE                (MXC_V_USB_EP_DIR_DISABLE << MXC_F_USB_EP_DIR_POS)
+#define MXC_S_USB_EP_DIR_OUT                    (MXC_V_USB_EP_DIR_OUT << MXC_F_USB_EP_DIR_POS)
+#define MXC_S_USB_EP_DIR_IN                     (MXC_V_USB_EP_DIR_IN << MXC_F_USB_EP_DIR_POS)
+#define MXC_S_USB_EP_DIR_CONTROL                (MXC_V_USB_EP_DIR_CONTROL << MXC_F_USB_EP_DIR_POS)
+
+#define MXC_F_USB_EP_BUF2_POS                   (3)
+#define MXC_F_USB_EP_BUF2                       ((uint32_t)(0x00000001UL << MXC_F_USB_EP_BUF2_POS))
+#define MXC_F_USB_EP_INTEN_POS                  (4)
+#define MXC_F_USB_EP_INT_EN                     ((uint32_t)(0x00000001UL << MXC_F_USB_EP_INTEN_POS))
+#define MXC_F_USB_EP_NAK_EN_POS                 (5)
+#define MXC_F_USB_EP_NAK_EN                     ((uint32_t)(0x00000001UL << MXC_F_USB_EP_NAK_EN_POS))
+#define MXC_F_USB_EP_DT_POS                     (6)
+#define MXC_F_USB_EP_DT                         ((uint32_t)(0x00000001UL << MXC_F_USB_EP_DT_POS))
+#define MXC_F_USB_EP_STALL_POS                  (8)
+#define MXC_F_USB_EP_STALL                      ((uint32_t)(0x00000001UL << MXC_F_USB_EP_STALL_POS))
+#define MXC_F_USB_EP_ST_STALL_POS               (9)
+#define MXC_F_USB_EP_ST_STALL                   ((uint32_t)(0x00000001UL << MXC_F_USB_EP_ST_STALL_POS))
+#define MXC_F_USB_EP_ST_ACK_POS                 (10)
+#define MXC_F_USB_EP_ST_ACK                     ((uint32_t)(0x00000001UL << MXC_F_USB_EP_ST_ACK_POS))
 
 #ifdef __cplusplus
 }
