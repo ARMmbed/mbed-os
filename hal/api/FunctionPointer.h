@@ -43,6 +43,18 @@ public:
     R (*get_function())(A1) {
         return *reinterpret_cast<R (**)(A1)>(this);
     }
+
+    R call(A1 a1) const {
+        if (!Callback<R(A1)>::operator bool()) {
+            return (R)0;
+        }
+
+        return Callback<R(A1)>::call(a1);
+    }
+
+    R operator()(A1 a1) const {
+        return Callback<R(A1)>::call(a1);
+    }
 };
 
 template <typename R>
@@ -61,6 +73,18 @@ public:
 
     R (*get_function())() {
         return *reinterpret_cast<R (**)()>(this);
+    }
+
+    R call() const {
+        if (!Callback<R()>::operator bool()) {
+            return (R)0;
+        }
+
+        return Callback<R()>::call();
+    }
+
+    R operator()() const {
+        return Callback<R()>::call();
     }
 };
 

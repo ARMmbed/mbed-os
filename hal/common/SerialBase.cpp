@@ -21,6 +21,8 @@
 
 namespace mbed {
 
+static void donothing() {};
+
 SerialBase::SerialBase(PinName tx, PinName rx) :
 #if DEVICE_SERIAL_ASYNCH
                                                  _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
@@ -28,6 +30,10 @@ SerialBase::SerialBase(PinName tx, PinName rx) :
 #endif
                                                 _serial(), _baud(9600) {
     // No lock needed in the constructor
+
+    for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+        _irq[i].attach(donothing);
+    }
 
     serial_init(&_serial, tx, rx);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
@@ -69,6 +75,7 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
         _irq[type].attach(func);
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
+        _irq[type].attach(donothing);
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
     core_util_critical_section_exit();
