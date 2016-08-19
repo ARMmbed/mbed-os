@@ -21,8 +21,15 @@
 
 namespace mbed {
 
+static void donothing() {}
+
 CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
     // No lock needed in constructor
+
+    for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+        _irq[i].attach(donothing);
+    }
+
     can_init(&_can, rd, td);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
@@ -100,6 +107,7 @@ void CAN::attach(Callback<void()> func, IrqType type) {
         _irq[(CanIrqType)type].attach(func);
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
+        _irq[(CanIrqType)type].attach(donothing);
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
     unlock();
