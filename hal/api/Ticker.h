@@ -80,8 +80,13 @@ public:
      *  @param method pointer to the member function to be called
      *  @param t the time between calls in seconds
      */
-    template<typename T, typename M>
-    void attach(T *obj, M method, float t) {
+    template<typename T>
+    void attach(T *obj, void (T::*method)(), float t) {
+        attach(Callback<void()>(obj, method), t);
+    }
+
+    template<typename T>
+    void attach(T *obj, void (*method)(T*), float t) {
         attach(Callback<void()>(obj, method), t);
     }
 
@@ -101,8 +106,13 @@ public:
      *  @param mptr pointer to the member function to be called
      *  @param t the time between calls in micro-seconds
      */
-    template<typename T, typename M>
-    void attach_us(T *obj, M method, timestamp_t t) {
+    template<typename T>
+    void attach_us(T *obj, void (T::*method)(), float t) {
+        attach_us(Callback<void()>(obj, method), t);
+    }
+
+    template<typename T>
+    void attach_us(T *obj, void (*method)(T*), float t) {
         attach_us(Callback<void()>(obj, method), t);
     }
 

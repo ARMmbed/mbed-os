@@ -169,8 +169,13 @@ public:
      *  @param obj      Pointer to object to call method on
      *  @param method   Method to call on state change
      */
-    template <typename T, typename M>
-    void attach(T *obj, M method) {
+    template <typename T>
+    void attach(T *obj, void (T::*method)()) {
+        attach(mbed::Callback<void()>(obj, method));
+    }
+
+    template <typename T>
+    void attach(T *obj, void (*method)(T*)) {
         attach(mbed::Callback<void()>(obj, method));
     }
 

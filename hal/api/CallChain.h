@@ -88,8 +88,13 @@ public:
      *  @returns
      *  The function object created for 'obj' and 'method'
      */
-    template<typename T, typename M>
-    pFunctionPointer_t add(T *obj, M method) {
+    template <typename T>
+    pFunctionPointer_t add(T *obj, void (T::*method)()) {
+        return add(Callback<void()>(obj, method));
+    }
+
+    template <typename T>
+    pFunctionPointer_t add(T *obj, void (*method)(T*)) {
         return add(Callback<void()>(obj, method));
     }
 
@@ -110,8 +115,13 @@ public:
      *  @returns
      *  The function object created for 'tptr' and 'mptr'
      */
-    template<typename T, typename M>
-    pFunctionPointer_t add_front(T *obj, M method) {
+    template <typename T>
+    pFunctionPointer_t add_front(T *obj, void (T::*method)()) {
+        return add_front(Callback<void()>(obj, method));
+    }
+
+    template <typename T>
+    pFunctionPointer_t add_front(T *obj, void (*method)(T*)) {
         return add_front(Callback<void()>(obj, method));
     }
 
