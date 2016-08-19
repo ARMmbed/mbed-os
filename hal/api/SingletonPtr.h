@@ -76,7 +76,9 @@ struct SingletonPtr {
     T* get() {
         if (NULL == _ptr) {
             singleton_lock();
-            _ptr = new (_data) T;
+            if (NULL == _ptr) {
+                _ptr = new (_data) T();
+            }
             singleton_unlock();
         }
         // _ptr was not zero initialized or was
