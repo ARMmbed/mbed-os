@@ -1106,6 +1106,17 @@
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
+    "DISCO_F769NI": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7FD",
+        "extra_labels": ["STM", "STM32F7", "STM32F769", "STM32F769NI"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "default_toolchain": "ARM",
+        "progen": {"target": "disco-f769ni"},
+        "detect_code": ["0817"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2"]
+    },
     "DISCO_L476VG": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
