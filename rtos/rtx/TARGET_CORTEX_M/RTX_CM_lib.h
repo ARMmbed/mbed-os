@@ -574,6 +574,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif (defined(TARGET_STM32F767ZI))
 #define INITIAL_SP            (0x20080000UL)
 
+#elif (defined(TARGET_STM32F769NI))
+#define INITIAL_SP            (0x20080000UL)
+
 #elif defined(TARGET_NUMAKER_PFM_NUC472)
 #   if defined(__CC_ARM)
 extern uint32_t                 Image$$ARM_LIB_HEAP$$Base[];
