@@ -18,12 +18,11 @@ from os.path import splitext, basename, relpath, join, abspath, dirname,\
     exists
 from os import curdir, getcwd
 from tools.export.exporters import Exporter
+from tools.utils import NotSupportedException
 from jinja2.exceptions import TemplateNotFound
 
 
-class GccArm(Exporter):
-    NAME = 'GccArm'
-    TOOLCHAIN = 'GCC_ARM'
+class Makefile(Exporter):
 
     TARGETS = [
         'LPC1768',
@@ -164,11 +163,17 @@ class GccArm(Exporter):
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
             'symbols': self.toolchain.get_symbols(),
-            'cpu_flags': self.toolchain.cpu,
             'hex_files': self.resources.hex_files,
             'vpath': (["../../.."]
                       if basename(dirname(dirname(self.export_dir))) == "projectfiles"
-                      else [".."])
+                      else [".."]),
+            'cc_cmd': " ".join(self.toolchain.cc),
+            'cppc_cmd': " ".join(self.toolchain.cppc),
+            'asm_cmd': " ".join(self.toolchain.asm),
+            'ld_cmd': " ".join(self.toolchain.ld),
+            'elf2bin_cmd': self.toolchain.elf2bin,
+            'link_script_ext': self.toolchain.LINKER_EXT,
+            'link_script_option': self.LINK_SCRIPT_OPTION,
         }
 
         for key in ['include_paths', 'library_paths', 'linker_script', 'hex_files']:
@@ -178,8 +183,40 @@ class GccArm(Exporter):
                 ctx[key] = ctx['vpath'][0] + "/" + ctx[key]
         if "../." not in ctx["include_paths"]:
             ctx["include_paths"] += ['../.']
+        ctx["include_paths"] = list(set(ctx["include_paths"]))
+        for key in ['include_paths', 'library_paths', 'hex_files', 'to_be_compiled', 'symbols']:
+            ctx[key] = sorted(ctx[key])
         ctx.update(self.flags)
-        try:
-            self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
-        except TemplateNotFound:
-            self.gen_file('gcc_arm_common.tmpl', ctx, 'Makefile')
+
+        for templatefile in \
+            ['makefile/%s_%s.tmpl' % (self.NAME.lower(),
+                                      self.target.lower())] + \
+            ['makefile/%s_%s.tmpl' % (self.NAME.lower(),
+                                      label.lower()) for label
+             in self.toolchain.target.extra_labels] +\
+            ['makefile/%s.tmpl' % self.NAME.lower()]:
+            try:
+                self.gen_file(templatefile, ctx, 'Makefile')
+                break
+            except TemplateNotFound:
+                pass
+        else:
+            raise NotSupportedException("This make tool is in development")
+
+
+class GccArm_Exporter(Makefile):
+    NAME = 'Make-GCC-ARM'
+    TOOLCHAIN = "GCC_ARM"
+    LINK_SCRIPT_OPTION = "-T"
+
+
+class Armc5_Exporter(Makefile):
+    NAME = 'Make-ARMc5'
+    TOOLCHAIN = "ARM"
+    LINK_SCRIPT_OPTION = "--scatter"
+
+
+class IAR_Exporter(Makefile):
+    NAME = 'Make-IAR'
+    TOOLCHAIN = "IAR"
+    LINK_SCRIPT_OPTION = "--config"
