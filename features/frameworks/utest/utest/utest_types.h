@@ -89,6 +89,12 @@ namespace v1 {
         failure_t(location_t location) : reason(REASON_NONE), location(location) {}
         failure_t(failure_reason_t reason, location_t location) : reason(reason), location(location) {}
 
+        /// Copy constructor
+        failure_t(const failure_t &obj){
+            reason = obj.reason;
+            location = obj.location;
+        }
+
         /// @returns a copy of the failure with the reason ignored.
         failure_t ignored() const {
             return failure_t(failure_reason_t(reason | REASON_IGNORE), location);
