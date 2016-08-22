@@ -14,9 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
-from os.path import splitext, basename, relpath, join, abspath
+from os.path import splitext, basename, relpath, join, abspath, dirname
 from os import curdir, getcwd
+from tools.export.exporters import Exporter
 
 
 class GccArm(Exporter):
@@ -150,7 +150,6 @@ class GccArm(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
-        build_dir = abspath(join(self.export_dir, ".build"))
         ctx = {
             'name': self.project_name,
             'to_be_compiled': to_be_compiled,
@@ -162,7 +161,9 @@ class GccArm(Exporter):
             'symbols': self.toolchain.get_symbols(),
             'cpu_flags': self.toolchain.cpu,
             'hex_files': self.resources.hex_files,
-            'vpath': [".."]
+            'vpath': (["../../.."]
+                      if basename(dirname(dirname(self.export_dir))) == "projectfiles"
+                      else [".."])
         }
 
         for key in ['include_paths', 'library_paths', 'linker_script', 'hex_files']:
@@ -174,7 +175,3 @@ class GccArm(Exporter):
             ctx["include_paths"] += ['../.']
         ctx.update(self.flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
-
-    def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
-        self.prj_paths = prj_paths
-        Exporter.scan_and_copy_resources(self, prj_paths, trg_path, relative)
