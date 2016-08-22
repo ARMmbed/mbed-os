@@ -37,7 +37,6 @@
  * @{
  */
 
-/*! @file*/
 
 /******************************************************************************
  * Definitions
@@ -87,10 +86,8 @@
     (((uint32_t)((uint32_t)(rtr) << 31) | (uint32_t)((uint32_t)(ide) << 30)) | \
      (FLEXCAN_ID_EXT(id) << 1)) /*!< Extend Rx FIFO Mask helper macro Type A helper macro. */
 #define FLEXCAN_RX_FIFO_EXT_MASK_TYPE_B_HIGH(id, rtr, ide)                        \
-    (                                                                             \
-        ((uint32_t)((uint32_t)(rtr) << 31) | (uint32_t)((uint32_t)(ide) << 30)) | \
-        ((FLEXCAN_ID_EXT(id) & 0x1FFF8000)                                        \
-         << 1)) /*!< Extend Rx FIFO Mask helper macro Type B upper part helper macro. */
+    (((uint32_t)((uint32_t)(rtr) << 31) | (uint32_t)((uint32_t)(ide) << 30)) | \
+     ((FLEXCAN_ID_EXT(id) & 0x1FFF8000) << 1)) /*!< Extend Rx FIFO Mask helper macro Type B upper part helper macro. */
 #define FLEXCAN_RX_FIFO_EXT_MASK_TYPE_B_LOW(id, rtr, ide)                      \
     (((uint32_t)((uint32_t)(rtr) << 15) | (uint32_t)((uint32_t)(ide) << 14)) | \
      ((FLEXCAN_ID_EXT(id) & 0x1FFF8000) >>                                     \
@@ -296,13 +293,13 @@ typedef struct _flexcan_frame
         uint32_t length : 4;     /*!< CAN frame payload length in bytes(Range: 0~8). */
         uint32_t type : 1;       /*!< CAN Frame Type(DATA or REMOTE). */
         uint32_t format : 1;     /*!< CAN Frame Identifier(STD or EXT format). */
-        uint32_t reserve1 : 1;   /*!< Reserved for placeholder. */
+        uint32_t : 1;            /*!< Reserved. */
         uint32_t idhit : 9;      /*!< CAN Rx FIFO filter hit id(This value is only used in Rx FIFO receive mode). */
     };
     struct
     {
         uint32_t id : 29; /*!< CAN Frame Identifier, should be set using FLEXCAN_ID_EXT() or FLEXCAN_ID_STD() macro. */
-        uint32_t reserve2 : 3; /*!< Reserved for place holder. */
+        uint32_t : 3;     /*!< Reserved. */
     };
     union
     {
@@ -366,7 +363,7 @@ typedef struct _flexcan_rx_mb_config
     flexcan_frame_type_t type;     /*!< CAN Frame Type(Data or Remote). */
 } flexcan_rx_mb_config_t;
 
-/*! @brief FlexCAN Rx FIFO configure structure. */
+/*! @brief FlexCAN Rx FIFO configuration structure. */
 typedef struct _flexcan_rx_fifo_config
 {
     uint32_t *idFilterTable;                    /*!< Pointer to FlexCAN Rx FIFO identifier filter table. */
@@ -437,7 +434,7 @@ extern "C" {
  * to call the FLEXCAN_Init function by passing in these parameters:
  *  @code
  *   flexcan_config_t flexcanConfig;
- *   flexcanConfig.clkSrc            = KFLEXCAN_ClkSrcOsc;
+ *   flexcanConfig.clkSrc            = kFLEXCAN_ClkSrcOsc;
  *   flexcanConfig.baudRate          = 125000U;
  *   flexcanConfig.maxMbNum          = 16;
  *   flexcanConfig.enableLoopBack    = false;
@@ -466,7 +463,7 @@ void FLEXCAN_Deinit(CAN_Type *base);
 /*!
  * @brief Get the default configuration structure.
  *
- * This function initializes the FlexCAN configure structure to default value. The default
+ * This function initializes the FlexCAN configuration structure to default value. The default
  * value are:
  *   flexcanConfig->clkSrc            = KFLEXCAN_ClkSrcOsc;
  *   flexcanConfig->baudRate          = 125000U;
@@ -512,7 +509,7 @@ void FLEXCAN_SetTimingConfig(CAN_Type *base, const flexcan_timing_config_t *conf
  * @param base FlexCAN peripheral base address.
  * @param mask Rx Message Buffer Global Mask value.
  */
-void FlEXCAN_SetRxMbGlobalMask(CAN_Type *base, uint32_t mask);
+void FLEXCAN_SetRxMbGlobalMask(CAN_Type *base, uint32_t mask);
 
 /*!
  * @brief Sets the FlexCAN receive FIFO global mask.
@@ -522,7 +519,7 @@ void FlEXCAN_SetRxMbGlobalMask(CAN_Type *base, uint32_t mask);
  * @param base FlexCAN peripheral base address.
  * @param mask Rx Fifo Global Mask value.
  */
-void FlEXCAN_SetRxFifoGlobalMask(CAN_Type *base, uint32_t mask);
+void FLEXCAN_SetRxFifoGlobalMask(CAN_Type *base, uint32_t mask);
 
 /*!
  * @brief Sets the FlexCAN receive individual mask.
@@ -538,7 +535,7 @@ void FlEXCAN_SetRxFifoGlobalMask(CAN_Type *base, uint32_t mask);
  * @param maskIdx The Index of individual Mask.
  * @param mask Rx Individual Mask value.
  */
-void FlEXCAN_SetRxIndividualMask(CAN_Type *base, uint8_t maskIdx, uint32_t mask);
+void FLEXCAN_SetRxIndividualMask(CAN_Type *base, uint8_t maskIdx, uint32_t mask);
 
 /*!
  * @brief Configures a FlexCAN transmit message buffer.
@@ -580,7 +577,7 @@ void FLEXCAN_SetRxMbConfig(CAN_Type *base, uint8_t mbIdx, const flexcan_rx_mb_co
  *               - true: Enable Rx FIFO.
  *               - false: Disable Rx FIFO.
  */
-void FlEXCAN_SetRxFifoConfig(CAN_Type *base, const flexcan_rx_fifo_config_t *config, bool enable);
+void FLEXCAN_SetRxFifoConfig(CAN_Type *base, const flexcan_rx_fifo_config_t *config, bool enable);
 
 /* @} */
 
@@ -629,7 +626,7 @@ static inline void FLEXCAN_ClearStatusFlags(CAN_Type *base, uint32_t mask)
  * @param txErrBuf Buffer to store Tx Error Counter value.
  * @param rxErrBuf Buffer to store Rx Error Counter value.
  */
-static inline void FlEXCAN_GetBusErrCount(CAN_Type *base, uint8_t *txErrBuf, uint8_t *rxErrBuf)
+static inline void FLEXCAN_GetBusErrCount(CAN_Type *base, uint8_t *txErrBuf, uint8_t *rxErrBuf)
 {
     if (txErrBuf)
     {
@@ -890,7 +887,7 @@ status_t FLEXCAN_ReadRxMb(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *rxFram
  * @retval kStatus_Success - Read Message from Rx FIFO successfully.
  * @retval kStatus_Fail    - Rx FIFO is not enabled.
  */
-status_t FlEXCAN_ReadRxFifo(CAN_Type *base, flexcan_frame_t *rxFrame);
+status_t FLEXCAN_ReadRxFifo(CAN_Type *base, flexcan_frame_t *rxFrame);
 
 /* @} */
 
@@ -910,7 +907,7 @@ status_t FlEXCAN_ReadRxFifo(CAN_Type *base, flexcan_frame_t *rxFrame);
  * @retval kStatus_Success - Write Tx Message Buffer Successfully.
  * @retval kStatus_Fail    - Tx Message Buffer is currently in use.
  */
-status_t FlEXCAN_TransferSendBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *txFrame);
+status_t FLEXCAN_TransferSendBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *txFrame);
 
 /*!
  * @brief Performs a polling receive transaction on the CAN bus.
@@ -924,7 +921,7 @@ status_t FlEXCAN_TransferSendBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_fra
  * @retval kStatus_FLEXCAN_RxOverflow - Rx Message Buffer is already overflowed and has been read successfully.
  * @retval kStatus_Fail               - Rx Message Buffer is empty.
  */
-status_t FlEXCAN_TransferReceiveBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *rxFrame);
+status_t FLEXCAN_TransferReceiveBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *rxFrame);
 
 /*!
  * @brief Performs a polling receive transaction from Rx FIFO on the CAN bus.
@@ -936,7 +933,7 @@ status_t FlEXCAN_TransferReceiveBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_
  * @retval kStatus_Success - Read Message from Rx FIFO successfully.
  * @retval kStatus_Fail    - Rx FIFO is not enabled.
  */
-status_t FlEXCAN_TransferReceiveFifoBlocking(CAN_Type *base, flexcan_frame_t *rxFrame);
+status_t FLEXCAN_TransferReceiveFifoBlocking(CAN_Type *base, flexcan_frame_t *rxFrame);
 
 /*!
  * @brief Initializes the FlexCAN handle.
