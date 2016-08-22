@@ -99,6 +99,7 @@ void rtc_init(void)
 #endif
 
 #if DEVICE_RTC_LSI
+    if (rtc_inited) return;
     rtc_inited = 1;
 #endif
 
