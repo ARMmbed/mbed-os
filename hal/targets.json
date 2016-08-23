@@ -888,7 +888,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M0+",
         "extra_labels": ["STM", "STM32L0", "STM32L011K4"],
-        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "supported_toolchains": ["uARM"],
         "default_toolchain": "uARM",
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0780"],

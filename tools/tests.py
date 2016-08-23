@@ -357,6 +357,7 @@ TESTS = [
         "id": "MBED_BUSOUT", "description": "BusOut",
         "source_dir": join(TEST_DIR, "mbed", "bus_out"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "exclude_mcu": ["NUCLEO_L011K4"],
         "automated": True,
         "duration": 15,
     },
@@ -517,6 +518,7 @@ TESTS = [
                         "NRF51_MICROBIT", "NRF51_MICROBIT_B", "NRF51_MICROBIT_BOOT",
                         "NRF51_MICROBIT_B_BOOT", "NRF51_MICROBIT_B_OTA", "NRF51_MICROBIT_OTA",
                         "HRM1017", "HRM1017_BOOT", "HRM1701_OTA",
+                        "NUCLEO_L011K4",
                         "TY51822R3", "TY51822R3_BOOT", "TY51822R3_OTA",
                         "NRF15_DONGLE", "NRF15_DONGLE_BOOT", "NRF15_DONGLE_OTA",
                         "ARCH_BLE", "ARCH_BLE_BOOT", "ARCH_BLE_OTA",
@@ -667,12 +669,14 @@ TESTS = [
         "id": "MBED_37", "description": "Serial NC RX",
         "source_dir": join(TEST_DIR, "mbed", "serial_nc_rx"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "exclude_mcu": ["NUCLEO_L011K4"],
         "automated": True
     },
     {
         "id": "MBED_38", "description": "Serial NC TX",
         "source_dir": join(TEST_DIR, "mbed", "serial_nc_tx"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "exclude_mcu": ["NUCLEO_L011K4"],
         "automated": True
     },
     {
@@ -1081,6 +1085,7 @@ TESTS = [
         "id": "EXAMPLE_1", "description": "/dev/null",
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "exclude_mcu": ["NUCLEO_L011K4"],
         "automated": True,
         #"host_test" : "dev_null_auto",
     },
