@@ -374,7 +374,11 @@ int32_t cfstore_test_delete_all(void)
             CFSTORE_ERRLOG("%s:Error: failed to delete key_name=%s, len=%d\r\n", __func__, key_name, (int) len);
             return ret;
         }
-        CFSTORE_HANDLE_SWAP(prev, next);
+        ret = drv->Close(next);
+        if(ret < ARM_DRIVER_OK){
+            CFSTORE_ERRLOG("%s:Error: failed to close key_name=%s, len=%d\r\n", __func__, key_name, (int) len);
+            return ret;
+        }
     }
     if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
         /* as expected, no more keys have been found by the Find()*/
