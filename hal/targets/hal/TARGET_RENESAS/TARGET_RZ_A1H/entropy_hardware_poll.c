@@ -15,49 +15,31 @@
  */
 
 #include <stdlib.h>
-#include "mbed.h"
+#include "us_ticker_api.h"
 
-Timer t;
-static bool initialized = false;
-
-extern "C" {
-    
-int mbedtls_hardware_poll( void *data,
-                    unsigned char *output, size_t len, size_t *olen )
+int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
 {
-    #warning "Please update this function based on the security implementation on your platform"
-    
+    /* "Please update this function based on the security implementation on your platform" */
+
     uint32_t i;
-    
+
     *olen = 0;
-    
-    if(!initialized)
-    {
-        t.start();
-        initialized = true;
+
+    if (len == 0) {
+        return (0);
     }
-    
-    if (len == 0)
-    {
-        return( 0 );
-    }
-    
-    srand(t.read_us());
-    
-    for( i = 0; i < len; i++ )
-    {
+
+    srand(us_ticker_read());
+
+    for (i = 0; i < len; i++) {
         output[i] = rand() & 0xff;
-        
-        if( (i & 0x7)==0x07 )
-        {
-            srand(t.read_us());
+
+        if ((i & 0x7) == 0x07) {
+            srand(us_ticker_read());
         }
     }
-    
-    *olen = len;
-    
-    return( 0 );
-}
 
+    *olen = len;
+
+    return (0);
 }
-    
