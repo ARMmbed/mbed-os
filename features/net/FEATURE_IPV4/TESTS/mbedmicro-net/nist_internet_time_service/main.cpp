@@ -42,7 +42,7 @@ int main() {
         int ret_send = sock.sendto(nist, (void*)ntp_send_values, sizeof(ntp_send_values));
         printf("UDP: Sent %d Bytes to NTP server \n", ret_send);
 
-        const int n = sock.recvfrom(&nist, (void*)ntp_recv_values, sizeof(ntp_recv_values));
+        const int n = sock.recvfrom(NULL, (void*)ntp_recv_values, sizeof(ntp_recv_values));
 
         printf("UDP: Recved from NTP server %d Bytes \n", n);
 
