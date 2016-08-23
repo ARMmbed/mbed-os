@@ -47,6 +47,7 @@ typedef struct {
 } alloc_info_t;
 
 static SingletonPtr<PlatformMutex> malloc_stats_mutex;
+static SingletonPtr<PlatformMutex> mem_trace_mutex;
 static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0};
 
 void mbed_stats_heap_get(mbed_stats_heap_t *stats)
@@ -98,7 +99,9 @@ extern "C" void * __wrap__malloc_r(struct _reent * r, size_t size) {
     ptr = __real__malloc_r(r, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_malloc(ptr, size, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
 }
@@ -136,7 +139,9 @@ extern "C" void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) 
     new_ptr = __real__realloc_r(r, ptr, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_realloc(new_ptr, ptr, size, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return new_ptr;
 }
@@ -156,7 +161,9 @@ extern "C" void __wrap__free_r(struct _reent * r, void * ptr) {
     __real__free_r(r, ptr);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_free(ptr, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }
 
@@ -173,7 +180,9 @@ extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size)
     ptr = __real__calloc_r(r, nmemb, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_calloc(ptr, nmemb, size, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
 }
@@ -218,7 +227,9 @@ extern "C" void* $Sub$$malloc(size_t size) {
     ptr = $Super$$malloc(size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_malloc(ptr, size, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
 }
@@ -248,7 +259,9 @@ extern "C" void* $Sub$$realloc(void *ptr, size_t size) {
         free(ptr);
     }
 #else // #ifdef MBED_HEAP_STATS_ENABLED
+    mem_trace_mutex->lock();
     new_ptr = $Super$$realloc(ptr, size);
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_realloc(new_ptr, ptr, size, MBED_CALLER_ADDR());
@@ -268,7 +281,9 @@ extern "C" void *$Sub$$calloc(size_t nmemb, size_t size) {
     ptr = $Super$$calloc(nmemb, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_calloc(ptr, nmemb, size, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
 }
@@ -288,7 +303,9 @@ extern "C" void $Sub$$free(void *ptr) {
     $Super$$free(ptr);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
+    mem_trace_mutex->lock();
     mbed_mem_trace_free(ptr, MBED_CALLER_ADDR());
+    mem_trace_mutex->unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }
 
