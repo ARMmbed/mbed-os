@@ -310,8 +310,6 @@ int8_t M2MConnectionHandlerPimpl::connection_tasklet_handler()
 
 void M2MConnectionHandlerPimpl::socket_event()
 {
-    tr_debug("M2MConnectionHandlerPimpl::socket_event()");
-
     TaskIdentifier* task = (TaskIdentifier*)malloc(sizeof(TaskIdentifier));
     if (!task) {
     	_observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR, true);
