@@ -40,9 +40,9 @@ class Makefile(Exporter):
         self.resources.win_to_unix()
 
         to_be_compiled = [splitext(src)[0] + ".o" for src in
-                          self.resources['s_sources'] +
-                          self.resources['c_sources'] +
-                          self.resources['cpp_sources']]
+                          self.resources.s_sources +
+                          self.resources.c_sources +
+                          self.resources.cpp_sources]
 
         libraries = [splitext(lib)[0][3:] for lib in self.resources.libraries]
 
@@ -54,7 +54,6 @@ class Makefile(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols(),
             'hex_files': self.resources.hex_files,
             'vpath': (["../../.."]
                       if (basename(dirname(dirname(self.export_dir)))
@@ -78,7 +77,7 @@ class Makefile(Exporter):
         if "../." not in ctx["include_paths"]:
             ctx["include_paths"] += ['../.']
         for key in ['include_paths', 'library_paths', 'hex_files',
-                    'to_be_compiled', 'symbols']:
+                    'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
         ctx.update(self.flags)
 

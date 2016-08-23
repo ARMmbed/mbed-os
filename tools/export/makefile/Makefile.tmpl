@@ -42,8 +42,6 @@ VPATH = {{vpath|join(" ")}}
 
 PROJECT := {{name}}
 
-{% for sym in symbols %}CC_SYMBOLS += -D{{sym}}
-{% endfor %}
 
 # Project settings
 ###############################################################################
@@ -74,6 +72,13 @@ SREC_CAT = srec_cat
 {%- endif %}
 {%- block additional_executables -%}{%- endblock %}
 
+{% for flag in c_flags %}C_FLAGS += {{flag}}
+{% endfor %}
+{% for flag in cxx_flags %}CXX_FLAGS += {{flag}}
+{% endfor %}
+{% for flag in asm_flags %}ASM_FLAGS += {{flag}}
+{% endfor %}
+
 LD_FLAGS :={%- block ld_flags -%} {{ld_flags|join(" ")}} {% endblock %}
 {% block sys_libs -%}{%- endblock %}
 
@@ -91,21 +96,21 @@ all: $(PROJECT).bin $(PROJECT).hex size
 
 .asm.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(AS) -c $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
+	$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 .s.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(AS) -c $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
+	$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 .S.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(AS) -c $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
+	$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
 .c.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CC) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
+	$(CC) $(C_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CPP) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
+	$(CPP) $(CXX_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
 {% block target_project_elf %}
 $(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(LINKER_SCRIPT)
