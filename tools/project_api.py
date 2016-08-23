@@ -12,6 +12,7 @@ import zipfile
 from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
 from tools.export import EXPORTERS
+from tools.toolchains import Resources
 
 
 def get_exporter_toolchain(ide):
@@ -49,13 +50,16 @@ def subtract_basepath(resources, export_path):
             'lib_dirs']
     for key in keys:
         vals = getattr(resources, key)
-        if type(vals) is set:
+        if isinstance(vals, set):
             vals = list(vals)
-        if type(vals) is list:
+        if isinstance(vals, list):
             new_vals = []
             for val in vals:
                 new_vals.append(rewrite_basepath(val, resources, export_path))
-            setattr(resources, key, new_vals)
+            if isinstance(getattr(resources, key), set):
+                setattr(resources, key, set(new_vals))
+            else:
+                setattr(resources, key, new_vals)
         elif vals:
             setattr(resources, key, rewrite_basepath(vals, resources,
                                                      export_path))
@@ -85,7 +89,7 @@ def prepare_project(src_paths, export_path, target, ide,
     _, toolchain_name = get_exporter_toolchain(ide)
 
     # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, export_path, target,
+    toolchain = prepare_toolchain(src_paths, target,
                                   toolchain_name, macros=macros,
                                   options=options, clean=clean, jobs=jobs,
                                   notify=notify, silent=silent, verbose=verbose,
@@ -111,7 +115,7 @@ def prepare_project(src_paths, export_path, target, ide,
 
 
 def generate_project_files(resources, export_path, target, name, toolchain, ide,
-                   macros=None):
+                           macros=None):
     """Generate the project files for a project
 
     Positional arguments:
@@ -148,16 +152,16 @@ def zip_export(file_name, prefix, resources, project_files):
     with zipfile.ZipFile(file_name, "w") as zip_file:
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for source in resources.headers + resources.s_sources + \
-            resources.c_sources + resources.cpp_sources + \
-            resources.libraries + resources.hex_files + \
-            [resources.linker_script] + resources.bin_files \
-            + resources.objects + resources.json_files:
-            if source:
-                zip_file.write(source,
-                               join(prefix,
-                                    relpath(source,
-                                            resources.file_basepath[source])))
+        for loc, res in resources.iteritems():
+            for source in \
+                res.headers + res.s_sources + res.c_sources + res.cpp_sources +\
+                res.libraries + res.hex_files + [res.linker_script] +\
+                res.bin_files + res.objects + res.json_files:
+                if source:
+                    zip_file.write(source,
+                                   join(prefix, loc,
+                                        relpath(source,
+                                                res.file_basepath[source])))
 
 
 def export_project(src_paths, export_path, target, ide,
@@ -194,11 +198,19 @@ def export_project(src_paths, export_path, target, ide,
     """
 
     # Convert src_path to a list if needed
-    if type(src_paths) != type([]):
-        src_paths = [src_paths]
-    # Extend src_paths wiht libraries_paths
+    if isinstance(src_paths, dict):
+        paths = sum(src_paths.values(), [])
+    elif isinstance(src_paths, list):
+        paths = src_paths[:]
+    else:
+        paths = [src_paths]
+
+    # Extend src_paths wit libraries_paths
     if libraries_paths is not None:
-        src_paths.extend(libraries_paths)
+        paths.extend(libraries_paths)
+
+    if not isinstance(src_paths, dict):
+        src_paths = {"": paths}
 
     # Export Directory
     if exists(export_path) and clean:
@@ -209,7 +221,7 @@ def export_project(src_paths, export_path, target, ide,
     _, toolchain_name = get_exporter_toolchain(ide)
 
     # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, target, toolchain_name,
+    toolchain = prepare_toolchain(paths, target, toolchain_name,
                                   macros=macros, options=options, clean=clean,
                                   jobs=jobs, notify=notify, silent=silent,
                                   verbose=verbose, extra_verbose=extra_verbose,
@@ -219,17 +231,23 @@ def export_project(src_paths, export_path, target, ide,
         name = basename(normpath(abspath(src_paths[0])))
 
     # Call unified scan_resources
-    resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
+    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs)
+                     for loc, path in src_paths.iteritems()}
+    resources = Resources()
     toolchain.build_dir = export_path
     config_header = toolchain.get_config_header()
     resources.headers.append(config_header)
     resources.file_basepath[config_header] = dirname(config_header)
-    temp = copy.deepcopy(resources)
 
     if zip_proj:
         subtract_basepath(resources, export_path)
+        for loc, res in resource_dict.iteritems():
+            temp = copy.deepcopy(res)
+            subtract_basepath(temp, join(export_path, loc))
+            resources.add(temp)
     else:
-        resources.relative_to(export_path)
+        for _, res in resource_dict.iteritems():
+            resources.add(res)
 
     # Change linker script if specified
     if linker_script is not None:
@@ -240,9 +258,9 @@ def export_project(src_paths, export_path, target, ide,
                                              macros=macros)
     if zip_proj:
         if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, temp, files)
+            zip_export(join(export_path, zip_proj), name, resource_dict, files)
         else:
-            zip_export(zip_proj, name, temp, files)
+            zip_export(zip_proj, name, resource_dict, files)
 
     return exporter
 
