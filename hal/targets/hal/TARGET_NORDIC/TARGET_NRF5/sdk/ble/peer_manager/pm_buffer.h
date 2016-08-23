@@ -60,10 +60,13 @@
 #define PM_BUFFER_INIT(p_buffer, n_blocks, block_size, err_code)    \
 do                                                                  \
 {                                                                   \
-    static uint8_t buffer_memory[(n_blocks) * (block_size)];        \
+    static union {                                                  \
+        uint8_t  u8[(n_blocks) * (block_size)];                     \
+        uint32_t u32[1]; /*force allign to uint32_t*/               \
+    } buffer_memory;                                                \
     static uint8_t mutex_memory[MUTEX_STORAGE_SIZE(n_blocks)];      \
     err_code = pm_buffer_init((p_buffer),                           \
-                               buffer_memory,                       \
+                               buffer_memory.u8,                    \
                               (n_blocks) * (block_size),            \
                                mutex_memory,                        \
                                MUTEX_STORAGE_SIZE(n_blocks),        \
