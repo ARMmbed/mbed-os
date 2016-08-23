@@ -603,6 +603,7 @@ void M2MInterfaceImpl::state_bootstrap_address_resolved( EventData *data)
     }
     address.port = event->_port;
     address.addr_ptr = (uint8_t*)event->_address->_address;
+    address.addr_len = event->_address->_length;
     _connection_handler->start_listening_for_data();
 
     // Include domain id to be part of endpoint name
@@ -816,6 +817,7 @@ void M2MInterfaceImpl::state_coap_data_received( EventData *data)
         }
         address.port = event->_address->_port;
         address.addr_ptr = (uint8_t*)event->_address->_address;
+        address.addr_len = event->_address->_length;
 
         // Process received data
         internal_event(STATE_PROCESSING_COAP_DATA);

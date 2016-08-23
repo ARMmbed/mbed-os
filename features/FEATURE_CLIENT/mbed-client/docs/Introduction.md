@@ -64,7 +64,7 @@ _interface->set_random_number_callback(&get_random_number);
 
 mbed Client provides an API to add your own entropy source into the underlying SSL library. There is a default entropy source provided by mbed Client. It uses PRNG seeded with RTC for the security but some platforms do not have RTC, and for some, this level of security may not be strong enough. 
 
-Now, an application can pass its own entropy source to mbed Client as function pointer callback through an API, `set_entropy_callback(entropy_cb callback)`.
+Now, an application can pass its own entropy source to mbed Client as function pointer callback through an API  `set_entropy_callback(entropy_cb callback)`.
 
 Here is an example on how you can use it from an application:
 
@@ -101,7 +101,18 @@ The maximum single UDP message size that mbed Client can receive is 1152 bytes. 
 
 For transferring larger amounts of data, the Blockwise feature must be deployed. When using this feature, mbed Client can handle messages up to 64KB. This feature is disabled by default.
 
-To enable the Blockwise feature, you need to create a `config.json` file in the application level. 
+For mbed OS, to enable Blockwise feature , create a `mbed_app.json` file in the application level and overwrite Blockwise value as described below:
+
+*Example:*
+```
+"target_overrides": {
+        "*": {
+            "mbed-client.sn-coap-max-blockwise-payload-size": 1024
+        }
+
+```
+
+For yotta based builds, to enable the Blockwise feature, you need to create a `config.json` file in the application level. 
 
 *Example:*
 ```
@@ -115,9 +126,19 @@ Acceptable values for the `coap_max_blockwise_payload_size` flag are:
 
 ### CoAP message deduplication
 
-Message duplication is disabled by default. More information about deduplication in the [CoAP specification](https://tools.ietf.org/html/rfc7252#page-24).
+By default, message deduplication is disabled. More information about deduplication in the [CoAP specification](https://tools.ietf.org/html/rfc7252#page-24).
 
-To enable message deduplication, you need to create a `config.json` file in the application level.
+For mbed OS, to enable message deduplication, create a `mbed_app.json` file in the application level and overwrite the deduplication value as described below:
+
+*Example:*
+```
+"target_overrides": {
+        "*": {
+            "mbed-client.sn-coap-duplication-max-msgs-count": 1
+        }
+
+```
+For yotta based builds, to enable message deduplication, you need to create a `config.json` file in the application level.
 
 *Example:*
 ```
@@ -126,6 +147,53 @@ To enable message deduplication, you need to create a `config.json` file in the 
 }
 ```
 Recommended values for the `coap_duplication_max_msgs_count` flag are 0 to 6. Value 0 means that the feature is not used. It is not recommended to use higher value than 6, because it increases the memory consumption.
+
+### Reconnectivity
+
+Apart from standard CoAP features, mbed Client also handles reconnectivity logic on behalf of applications, thereby aiming to provide seamless connectivity experience and recovery from temporary network hiccups or service side disruptions.
+
+The reconnection logic handles the following:
+
+ - Reconnection towards mDS; establishing the network connection and re-registration to mDS.
+ - CoAP message resending logic. More information about resending in [CoAP specification](https://tools.ietf.org/html/rfc7252#section-4.8).
+
+There are two parameters in the reconnection logic, both configurable by the application:
+
+ - Reconnection Retry
+ - Reconnection Time Interval (in seconds)
+
+mbed Client tries to establish a successful connection to the server by incrementing the reconnection trials every time there is a failed connection attempt. 
+
+The logic of the `Reconnection Timeout` is `Reconnection Retry count * Reconnection Time Interval` , where `Reconnection Retry count` is incremented by 1 with every failed reconnection attempt.
+
+mbed Client continues to attempt a reconnection until `Reconnection Retry count` reaches the defined value (either by the application or the default value set in Client).
+
+If mbed Client still cannot establish a connection and the set `Reconnection Retry count` is reached, it returns an error through a callback with an appropriate error code defining the reason for failed connection.
+
+There are a few exceptions to the reconnection logic though. If mbed Client sends registration data that is rejected by the server, the client returns an error and does not attempt a reconnection as the server has rejected the data from the client. A typical example of such case would be passing a non-matching endpoint name or domain name against the client certificates.
+
+Applications can define their own parameters for the reconnection logic.
+
+For mbed OS, to overwrite the reconnection retry count and reconnection time interval, create a `mbed_app.json` file in the application level and overwrite the values as described below:
+
+*Example:*
+```
+"target_overrides": {
+        "*": {
+            "mbed-client.reconnection-count": 3,
+            "mbed-client.reconnection-interval": 5,
+        }
+
+```
+For yotta  based builds, to overwrite the reconnection retry count and reconnection time interval, you need to create a `config.json` file in the application level.
+
+*Example:*
+```
+{
+"reconnection_count": 3,
+"reconnection_interval": 5
+}
+```
 
 ## How to use the API
 More information on how to use the API effectively to create and configure Objects, Object Instances and Resources, can be found [here](Howto.md).
