@@ -42,11 +42,12 @@ int main() {
         int ret_send = sock.sendto(nist, (void*)ntp_send_values, sizeof(ntp_send_values));
         printf("UDP: Sent %d Bytes to NTP server \n", ret_send);
 
-        const int n = sock.recvfrom(NULL, (void*)ntp_recv_values, sizeof(ntp_recv_values));
+        SocketAddress source;
+        const int n = sock.recvfrom(&source, (void*)ntp_recv_values, sizeof(ntp_recv_values));
 
         printf("UDP: Recved from NTP server %d Bytes \n", n);
 
-        if (n > 0) {
+        if (n > 0 && strcmp(source.get_ip_address(), nist.get_ip_address()) == 0) {
             result = true;
 
             printf("UDP: Values returned by NTP server: \n");
