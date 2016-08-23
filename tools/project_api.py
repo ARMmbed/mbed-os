@@ -256,6 +256,7 @@ def export_project(src_paths, export_path, target, ide,
     files, exporter = generate_project_files(resources, export_path,
                                              target, name, toolchain, ide,
                                              macros=macros)
+    files.append(config_header)
     if zip_proj:
         if isinstance(zip_proj, basestring):
             zip_export(join(export_path, zip_proj), name, resource_dict, files)

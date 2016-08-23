@@ -42,6 +42,7 @@ EXPORTERS = {
     'atmelstudio' : atmelstudio.AtmelStudio,
     'sw4stm32'    : sw4stm32.Sw4STM32,
     'e2studio' : e2studio.E2Studio,
+    'zip' : zip.ZIP,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """

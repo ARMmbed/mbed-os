@@ -80,9 +80,9 @@ class Uvision4(Exporter):
         project_data['misc']['asm_flags'] = [asm_flag_string]
         # cxx flags included, as uvision have them all in one tab
         project_data['misc']['c_flags'] = list(set(['-D__ASSERT_MSG']
-                                                   + self.progen_flags['common_flags']
-                                                   + self.progen_flags['c_flags']
-                                                   + self.progen_flags['cxx_flags']))
+                                                   + self.flags['common_flags']
+                                                   + self.flags['c_flags']
+                                                   + self.flags['cxx_flags']))
         # not compatible with c99 flag set in the template
         project_data['misc']['c_flags'].remove("--c99")
         # cpp is not required as it's implicit for cpp files
