@@ -30,7 +30,15 @@
 
 #define TRACE_GROUP "mClt"
 
+#ifdef MBED_CONF_MBED_CLIENT_EVENT_LOOP_SIZE
+#define MBED_CLIENT_EVENT_LOOP_SIZE MBED_CONF_MBED_CLIENT_EVENT_LOOP_SIZE
+#else
+#define MBED_CLIENT_EVENT_LOOP_SIZE 1024
+#endif
+
 int8_t M2MConnectionHandlerPimpl::_tasklet_id = -1;
+
+static MemoryPool<M2MConnectionHandlerPimpl::TaskIdentifier, MBED_CLIENT_EVENT_LOOP_SIZE/64> memory_pool;
 
 extern "C" void connection_tasklet_event_handler(arm_event_s *event)
 {
@@ -73,7 +81,7 @@ extern "C" void connection_tasklet_event_handler(arm_event_s *event)
             break;
     }
     if (task_id) {
-        free(task_id);
+        memory_pool.free(task_id);
     }
 }
 
@@ -148,7 +156,7 @@ bool M2MConnectionHandlerPimpl::resolve_server_address(const String& server_addr
     _server_port = server_port;
     _server_type = server_type;
     _server_address = server_address;
-    TaskIdentifier* task = (TaskIdentifier*)malloc(sizeof(TaskIdentifier));
+    TaskIdentifier* task = memory_pool.alloc();
     if (!task) {
         return false;
     }
@@ -255,7 +263,7 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
         return false;
     }
 
-    TaskIdentifier* task = (TaskIdentifier*)malloc(sizeof(TaskIdentifier));
+    TaskIdentifier* task = memory_pool.alloc();
     if (!task) {
         free(buffer);
         return false;
@@ -317,9 +325,7 @@ int8_t M2MConnectionHandlerPimpl::connection_tasklet_handler()
 
 void M2MConnectionHandlerPimpl::socket_event()
 {
-    tr_debug("M2MConnectionHandlerPimpl::socket_event()");
-
-    TaskIdentifier* task = (TaskIdentifier*)malloc(sizeof(TaskIdentifier));
+    TaskIdentifier* task = memory_pool.alloc();
     if (!task) {
     	_observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR, true);
         return;
