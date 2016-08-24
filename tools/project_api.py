@@ -2,7 +2,7 @@
 import sys
 from os.path import join, abspath, dirname, exists
 from os.path import basename, relpath, normpath
-from os import makedirs
+from os import makedirs, walk
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 import copy
@@ -104,16 +104,28 @@ def zip_export(file_name, prefix, resources, project_files):
     with zipfile.ZipFile(file_name, "w") as zip_file:
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for loc, res in resources.iteritems():
-            for source in \
-                res.headers + res.s_sources + res.c_sources + res.cpp_sources +\
-                res.libraries + res.hex_files + [res.linker_script] +\
-                res.bin_files + res.objects + res.json_files:
-                if source:
-                    zip_file.write(source,
-                                   join(prefix, loc,
-                                        relpath(source,
-                                                res.file_basepath[source])))
+        for loc, resource in resources.iteritems():
+            print resource.features
+            for res in [resource] + resource.features.values():
+                extras = []
+                for directory in res.repo_dirs:
+                    for root, _, files in walk(directory):
+                        for repo_file in files:
+                            source = join(root, repo_file)
+                            extras.append(source)
+                            res.file_basepath[source] = res.base_path
+                for source in \
+                    res.headers + res.s_sources + res.c_sources +\
+                    res.cpp_sources + res.libraries + res.hex_files + \
+                    [res.linker_script] + res.bin_files + res.objects + \
+                    res.json_files + res.lib_refs + res.lib_builds + \
+                    res.repo_files + extras:
+                    if source:
+                        zip_file.write(
+                            source,
+                            join(prefix, loc,
+                                 relpath(source, res.file_basepath[source])))
+
 
 
 def export_project(src_paths, export_path, target, ide,
