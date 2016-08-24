@@ -616,6 +616,7 @@
         "progen": {"target": "nucleo-f030r8"},
         "detect_code": ["0725"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_build": "small",
         "release_versions": ["2"]
     },
     "NUCLEO_F031K6": {
@@ -924,6 +925,7 @@
         "progen": {"target": "nucleo-l053r8"},
         "detect_code": ["0715"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_build": "small",
         "release_versions": ["2"]
     },
     "NUCLEO_L073RZ": {
@@ -1075,6 +1077,7 @@
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "progen": {"target": "disco-l053c8"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_build": "small",
         "release_versions": ["2"]
     },
     "DISCO_F746NG": {
