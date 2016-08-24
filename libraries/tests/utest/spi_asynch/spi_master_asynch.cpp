@@ -64,6 +64,18 @@
 #define TEST_SCLK_PIN P10_12
 #define TEST_CS_PIN   P10_13
 
+#elif defined(TARGET_FF_ARDUINO)
+#define TEST_MOSI_PIN D11
+#define TEST_MISO_PIN D12
+#define TEST_SCLK_PIN D13
+#define TEST_CS_PIN   D10
+
+#elif defined(TARGET_DISCO_F429ZI)
+#define TEST_MOSI_PIN PC_12
+#define TEST_MISO_PIN PC_11
+#define TEST_SCLK_PIN PC_10
+#define TEST_CS_PIN   PA_15
+
 #else
 #error Target not supported
 #endif
@@ -152,7 +164,7 @@ TEST(SPI_Master_Asynchronous, short_tx_0_rx)
 {
     int rc;
     // Write a buffer of Short Transfer length.
-    rc = obj->transfer( tx_buf,SHORT_XFR,NULL,0, callback, -1);
+    rc = obj->transfer( (const uint8_t *) tx_buf, SHORT_XFR,  (uint8_t *) NULL, 0, callback, 255);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -171,7 +183,7 @@ TEST(SPI_Master_Asynchronous, short_tx_0_rx_nn)
 {
     int rc;
     // Write a buffer of Short Transfer length.
-    rc = obj->transfer( tx_buf,SHORT_XFR,rx_buf,0,callback, -1);
+    rc = obj->transfer( (const uint8_t *)tx_buf,SHORT_XFR,(uint8_t *) rx_buf, 0,callback, -1);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -189,7 +201,7 @@ TEST(SPI_Master_Asynchronous, 0_tx_short_rx)
 {
     int rc;
     // Read a buffer of Short Transfer length.
-    rc = obj->transfer( NULL,0,rx_buf,SHORT_XFR,callback, -1);
+    rc = obj->transfer( (const uint8_t *)NULL,0,(uint8_t *) rx_buf,SHORT_XFR,callback, -1);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
