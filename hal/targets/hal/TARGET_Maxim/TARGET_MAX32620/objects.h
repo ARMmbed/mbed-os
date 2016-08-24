@@ -88,16 +88,15 @@ struct spi_s {
     uint32_t width; // SPI data width (number of data lines to use)
     PinName sclk;   // PinName saved to use in Quad SPI pin mapping table
 #if DEVICE_SPI_ASYNCH
-	// Async transaction state
-    uint8_t             deass;      // De-assert slave select at the end of the transaction
-    const uint8_t       *tx_data;   // TX buffer
-    uint8_t             *rx_data;   // RX buffer
-    unsigned            len;        // Number of bytes to send
-    unsigned            read_num;   // Number of bytes read
-    unsigned            write_num;  // Number of bytes written
-	void                (*callback)(); // Callback for asynchronous request
-	unsigned            head_rem;   // Remaining count for current header
-	uint32_t            event;      // Callback response events
+    // Async transaction state
+    const uint8_t   *tx_data;       // TX buffer
+    uint8_t         *rx_data;       // RX buffer
+    unsigned        len;            // Number of bytes to send
+    unsigned        read_num;       // Number of bytes read
+    unsigned        write_num;      // Number of bytes written
+    void            (*callback)();  // Callback for asynchronous request
+    unsigned        head_rem;       // Remaining count for current header
+    uint32_t        event;          // Callback response events
 #endif
 };
 
