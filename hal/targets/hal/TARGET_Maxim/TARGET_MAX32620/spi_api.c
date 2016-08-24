@@ -318,7 +318,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
             req->head_rem -= bytes_read;
         }
 
-        // Figure out how many byte we have left to read
+        // Figure out how many bytes we have left to read
         if (req->head_rem > 0) {
             remain = req->head_rem;
         } else {
@@ -358,7 +358,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
             // Send a 32 byte header
             if (remain == SPI_MAX_BYTE_LEN) {
 
-                header |= (MXC_S_SPI_FIFO_UNIT_BYTES | (req->deass << MXC_F_SPI_FIFO_DASS_POS));
+                header |= (MXC_S_SPI_FIFO_UNIT_BYTES | MXC_F_SPI_FIFO_DASS);
 
                 // Save the number of bytes we need to write to the FIFO
                 bytes = SPI_MAX_BYTE_LEN;
@@ -377,8 +377,8 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
                 }
 
                 // Check if this is the last header we will send
-                if((remain - bytes) == 0) {
-                    header |= (req->deass << MXC_F_SPI_FIFO_DASS_POS);
+                if ((remain - bytes) == 0) {
+                    header |= MXC_F_SPI_FIFO_DASS;
                 }
             }   
 
@@ -388,9 +388,8 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
             req->head_rem = bytes;
 
         } else {
-            // Send final header with the number of bytes remaining and if
-            // we want to de-assert the SS at the end of the transaction
-            header |= (MXC_S_SPI_FIFO_UNIT_BYTES | (remain << MXC_F_SPI_FIFO_SIZE_POS) | (req->deass << MXC_F_SPI_FIFO_DASS_POS));
+            // Send final header with the number of bytes remaining and de-assert the SS at the end of the transaction
+            header |= (MXC_S_SPI_FIFO_UNIT_BYTES | (remain << MXC_F_SPI_FIFO_SIZE_POS) | MXC_F_SPI_FIFO_DASS);
             fifo->trans_16[0] = header;
             req->head_rem = remain;
         }
@@ -472,7 +471,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     state[obj->spi.index] = &obj->spi;
     
     // Initialize request info
-    obj->spi.deass = 1;
     obj->spi.tx_data = tx;
     obj->spi.rx_data = rx;
     obj->spi.len = tx_length;
@@ -517,7 +515,7 @@ uint8_t spi_active(spi_t *obj)
     mxc_spi_regs_t *spim = obj->spi.spi;
 
     // Check to see if there are any ongoing transactions
-    if((state[obj->spi.index] == NULL) &&
+    if ((state[obj->spi.index] == NULL) &&
         !(spim->fifo_ctrl & MXC_F_SPI_FIFO_CTRL_TX_FIFO_USED)) {
         return 0;
     }
