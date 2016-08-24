@@ -35,11 +35,8 @@
 #include "analogin_api.h"
 #include "clkman_regs.h"
 #include "pwrman_regs.h"
+#include "trim_regs.h"
 #include "PeripheralPins.h"
-
-#define UNTRIM
-#define MXC_BASE_FTR_TRIM_REG11 0x4000102C 
-#define MXC_BASE_FTR_TRIM_REG12 0x40001030 
 
 #define PGA_TRK_CNT     0x1F
 #define ADC_ACT_CNT     0x1
@@ -47,7 +44,7 @@
 #define ADC_ACQ_CNT     0x1
 #define ADC_SLP_CNT     0x1
 
-#define ADC_FULL_SCALE  		0x3FF
+#define ADC_FULL_SCALE          0x3FF
 #define ADC_EXTERNAL_LAST_INPUT 3
 
 // Only allow initialization once
@@ -57,44 +54,45 @@ static int initialized = 0;
 void analogin_init(analogin_t *obj, PinName pin)
 {
     // Make sure pin is an analog pin we can use for ADC
-	MBED_ASSERT((ADCName)pinmap_peripheral(pin, PinMap_ADC) != (ADCName)NC);
+    MBED_ASSERT((ADCName)pinmap_peripheral(pin, PinMap_ADC) != (ADCName)NC);
 
     // Set the object pointer
     obj->adc = MXC_ADC;
     obj->adc_pin = pin;
 
-	if (initialized == 0) {
-		// Enable AFE power
-		MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_AFE_POWERED;
+    if (initialized == 0) {
+        // Enable AFE power
+        MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_AFE_POWERED;
 
-		// Enable the clock
-		MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_ADC_CLOCK_ENABLE;
+        // Enable the clock
+        MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_ADC_CLOCK_ENABLE;
 
-		// Enable clock gate
-		MXC_CLKMAN->clk_gate_ctrl2 |= MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER;
+        // Enable clock gate
+        MXC_CLKMAN->clk_gate_ctrl2 |= MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER;
 
-		// Enable interface clock
-		obj->adc->ctrl |= MXC_F_ADC_CTRL_ADC_CLK_EN;
+        // Enable interface clock
+        obj->adc->ctrl |= MXC_F_ADC_CTRL_ADC_CLK_EN;
 
-#ifdef UNTRIM
-		*(volatile uint32_t *) MXC_BASE_FTR_TRIM_REG11 = 0x02000200;
-		*(volatile uint32_t *) MXC_BASE_FTR_TRIM_REG12 = 0x02000200;
-#endif
+        if ((MXC_TRIM->reg11_adc_trim0 == 0xFFFFFFFF) && (MXC_TRIM->reg12_adc_trim1 == 0xFFFFFFFF)) {
+            // Set default trim for untrimmed parts.
+            MXC_TRIM->reg11_adc_trim0 = 0x02000200;
+            MXC_TRIM->reg12_adc_trim1 = 0x02000200;
+        }
 
-		// Clear ADC ready interrupt (wite 1 to clr)
-		obj->adc->intr = (obj->adc->intr & 0xFFFF) | MXC_F_ADC_INTR_ADC_REF_READY_IF;
+        // Clear ADC ready interrupt (wite 1 to clr)
+        obj->adc->intr = (obj->adc->intr & 0xFFFF) | MXC_F_ADC_INTR_ADC_REF_READY_IF;
 
-		// Using internal reference of 1.20V
+        // Using internal reference of 1.20V
 
-		// Enable ADC power bypass the buffer
-		obj->adc->ctrl |= (MXC_F_ADC_CTRL_ADC_PU | MXC_F_ADC_CTRL_ADC_REFBUF_PU |
-						MXC_F_ADC_CTRL_ADC_CHGPUMP_PU |	MXC_F_ADC_CTRL_BUF_BYPASS);
+        // Enable ADC power bypass the buffer
+        obj->adc->ctrl |= (MXC_F_ADC_CTRL_ADC_PU | MXC_F_ADC_CTRL_ADC_REFBUF_PU |
+                        MXC_F_ADC_CTRL_ADC_CHGPUMP_PU | MXC_F_ADC_CTRL_BUF_BYPASS);
 
-		// Wait for ADC ready
-		while ( !(obj->adc->intr & MXC_F_ADC_INTR_ADC_REF_READY_IF) );
+        // Wait for ADC ready
+        while (!(obj->adc->intr & MXC_F_ADC_INTR_ADC_REF_READY_IF));
 
-		initialized = 1;
-	}
+        initialized = 1;
+    }
 }
 
 //******************************************************************************
@@ -111,36 +109,37 @@ uint16_t analogin_read_u16(analogin_t *obj)
     uint32_t adc_input = PINNAME_TO_PIN(obj->adc_pin);
 
     // Select the channel
-	obj->adc->ctrl &= ~MXC_F_ADC_CTRL_ADC_CHSEL;
-	obj->adc->ctrl |= (adc_input << MXC_F_ADC_CTRL_ADC_CHSEL_POS) & MXC_F_ADC_CTRL_ADC_CHSEL;
+    obj->adc->ctrl &= ~MXC_F_ADC_CTRL_ADC_CHSEL;
+    obj->adc->ctrl |= (adc_input << MXC_F_ADC_CTRL_ADC_CHSEL_POS) & MXC_F_ADC_CTRL_ADC_CHSEL;
 
-	// We want unity gain, to get full 0-Vref range
-	// So, both ref and adc input scale should be enabled
-	obj->adc->ctrl |= MXC_F_ADC_CTRL_ADC_SCALE | MXC_F_ADC_CTRL_ADC_REFSCL;
+    // We want unity gain, to get full 0-Vref range
+    // So, both ref and adc input scale should be enabled
+    obj->adc->ctrl |= MXC_F_ADC_CTRL_ADC_SCALE | MXC_F_ADC_CTRL_ADC_REFSCL;
 
-	// Not using internal buffer, disable anyway
-	obj->adc->ctrl &= ~MXC_F_ADC_CTRL_BUF_PU;
-	obj->adc->ctrl |= MXC_F_ADC_CTRL_BUF_BYPASS;
+    // Not using internal buffer, disable anyway
+    obj->adc->ctrl &= ~MXC_F_ADC_CTRL_BUF_PU;
+    obj->adc->ctrl |= MXC_F_ADC_CTRL_BUF_BYPASS;
 
-	// Normal LSB justified data alignment
+    // Normal LSB justified data alignment
 
-	// Not using limits
+    // Not using limits
 
     // Clear ADC done flag (wite 1 to clr)
     obj->adc->intr = (obj->adc->intr & 0xFFFF) | MXC_F_ADC_INTR_ADC_DONE_IF;
 
-	// Start the conversion
-	obj->adc->ctrl |= MXC_F_ADC_CTRL_CPU_ADC_START;
+    // Start the conversion
+    obj->adc->ctrl |= MXC_F_ADC_CTRL_CPU_ADC_START;
 
-	// Wait for ADC done
-	while ( !(obj->adc->intr & MXC_F_ADC_INTR_ADC_DONE_IF) );
+    // Wait for ADC done
+    while (!(obj->adc->intr & MXC_F_ADC_INTR_ADC_DONE_IF));
 
     // Get sample from the fifo
-    uint16_t sample = (uint16_t)(obj->adc->data & 0xFFFF);
+    uint16_t sample = obj->adc->data;
 
-	// Check for overflow, hardware will report overflow as 0
-	if ( (obj->adc->status & MXC_F_ADC_STATUS_ADC_OVERFLOW) == MXC_F_ADC_STATUS_ADC_OVERFLOW )
-		sample = (uint16_t)ADC_FULL_SCALE;
+    // Check for overflow, hardware will report overflow as 0
+    if (obj->adc->status & MXC_F_ADC_STATUS_ADC_OVERFLOW) {
+        sample = (uint16_t)ADC_FULL_SCALE;
+    }
 
     return sample;
 }
