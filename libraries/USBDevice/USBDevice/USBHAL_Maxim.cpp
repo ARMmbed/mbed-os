@@ -99,7 +99,7 @@ USBHAL::USBHAL(void)
 
     // reset the device
     MXC_USB->cn = 0;
-    MXC_USB->cn = 1;
+    MXC_USB->cn = MXC_F_USB_CN_USB_EN;
     MXC_USB->dev_inten = 0;
     MXC_USB->dev_cn = 0;
     MXC_USB->dev_cn = MXC_F_USB_DEV_CN_URST;
@@ -128,6 +128,9 @@ USBHAL::USBHAL(void)
 
     // set the descriptor location
     MXC_USB->ep_base = (uint32_t)&ep_buffer_descriptor;
+
+    // enable VBUS interrupts
+    MXC_USB->dev_inten = MXC_F_USB_DEV_INTEN_NO_VBUS | MXC_F_USB_DEV_INTEN_VBUS;
 
     // attach IRQ handler and enable interrupts
     instance = this;
