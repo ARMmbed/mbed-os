@@ -1,5 +1,5 @@
 /*
- * K64F ARM GCC linker script file
+ * NCS36510 ARM GCC linker script file
  */
 
 MEMORY
@@ -223,9 +223,9 @@ SECTIONS
         . += 0x800 - (. - __StackLimit);
     } > RAM
 
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ADDR(.stack) + SIZEOF(.stack);
-    __StackLimit = ADDR(.stack);
+    /* Set stack top to end of RAM */
+    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    __StackLimit = __StackTop - SIZEOF(.stack);
     PROVIDE(__stack = __StackTop);
+
 }
