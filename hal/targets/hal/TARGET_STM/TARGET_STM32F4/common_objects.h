@@ -68,6 +68,20 @@ struct serial_s {
 #endif
 };
 
+struct spi_s {
+    SPIName spi;
+    uint32_t bits;
+    uint32_t cpol;
+    uint32_t cpha;
+    uint32_t mode;
+    uint32_t nss;
+    uint32_t br_presc;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
