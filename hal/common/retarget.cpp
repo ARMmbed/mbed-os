@@ -500,8 +500,10 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
-#ifndef  FEATURE_UVISOR
 extern "C" {
+
+/* uVisor wraps malloc_r, realloc_r and free_r, but not calloc_r! */
+#ifndef  FEATURE_UVISOR
 
 extern "C" void __malloc_lock( struct _reent *_r );
 extern "C" void __malloc_unlock( struct _reent *_r );
@@ -586,6 +588,9 @@ void __wrap__free_r(struct _reent * r, void * ptr) {
     malloc_stats_mutex->unlock();
 #endif
 }
+
+#endif/* FEATURE_UVISOR */
+
 void* __wrap__calloc_r(struct _reent * r, size_t num, size_t size) {
 #if !defined(MBED_HEAP_STATS_ENABLED ) || !MBED_HEAP_STATS_ENABLED
     extern void* __real__calloc_r(struct _reent * r, size_t num, size_t size);
@@ -603,7 +608,6 @@ void* __wrap__calloc_r(struct _reent * r, size_t num, size_t size) {
 #endif
 }
 }
-#endif/* FEATURE_UVISOR */
 
 extern "C" WEAK void software_init_hook_rtos(void)
 {
