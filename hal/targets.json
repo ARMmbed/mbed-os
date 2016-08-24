@@ -1902,6 +1902,11 @@
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
                 "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            },
+            "uart_hwfc": {
+                "help": "Value: 1 for enable, 0 for disable",
+                "value": 1,
+                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
             }
         }
     },
@@ -1947,6 +1952,11 @@
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
                 "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            },
+            "uart_hwfc": {
+                "help": "Value: 1 for enable, 0 for disable",
+                "value": 1,
+                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
             }
         }
     },

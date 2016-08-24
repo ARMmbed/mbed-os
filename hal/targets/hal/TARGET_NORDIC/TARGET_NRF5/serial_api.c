@@ -58,7 +58,19 @@
 
 #define UART_DEFAULT_BAUDRATE   UART0_CONFIG_BAUDRATE
 #define UART_DEFAULT_PARITY     UART0_CONFIG_PARITY
-#define UART_DEFAULT_HWFC       UART0_CONFIG_HWFC
+
+// expected the macro from mbed configuration system
+#ifndef MBED_CONF_NORDIC_UART_HWFC
+    #define MBED_CONF_NORDIC_UART_HWFC 1
+    #warning None of UART flow control configuration (expected macro MBED_CONF_NORDIC_UART_HWFC). The RTSCTS flow control is used by default .
+#endif
+
+#if MBED_CONF_NORDIC_UART_HWFC == 1
+    #define UART_DEFAULT_HWFC       UART0_CONFIG_HWFC
+#else
+    #define UART_DEFAULT_HWFC  NRF_UART_HWFC_DISABLED
+#endif
+
 #define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
 #define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
 
