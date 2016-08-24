@@ -24,7 +24,7 @@ def get_exporter_toolchain(ide):
     return EXPORTERS[ide], EXPORTERS[ide].TOOLCHAIN
 
 
-def rewrite_basepath(file_name, resources, export_path):
+def rewrite_basepath(file_name, resources, export_path, loc):
     """ Replace the basepath of filename with export_path
 
     Positional arguments:
@@ -32,12 +32,12 @@ def rewrite_basepath(file_name, resources, export_path):
     resources - the resources object that the file came from
     export_path - the final destination of the file after export
     """
-    new_f = relpath(file_name, resources.file_basepath[file_name])
+    new_f = join(loc, relpath(file_name, resources.file_basepath[file_name]))
     resources.file_basepath[join(export_path, new_f)] = export_path
     return new_f
 
 
-def subtract_basepath(resources, export_path):
+def subtract_basepath(resources, export_path, loc=""):
     """ Rewrite all of the basepaths with the export_path
 
     Positional arguments:
@@ -55,63 +55,15 @@ def subtract_basepath(resources, export_path):
         if isinstance(vals, list):
             new_vals = []
             for val in vals:
-                new_vals.append(rewrite_basepath(val, resources, export_path))
+                new_vals.append(rewrite_basepath(val, resources, export_path,
+                                                 loc))
             if isinstance(getattr(resources, key), set):
                 setattr(resources, key, set(new_vals))
             else:
                 setattr(resources, key, new_vals)
         elif vals:
             setattr(resources, key, rewrite_basepath(vals, resources,
-                                                     export_path))
-
-
-def prepare_project(src_paths, export_path, target, ide,
-                    libraries_paths=None, options=None, linker_script=None,
-                    clean=False, notify=None, verbose=False, name=None,
-                    inc_dirs=None, jobs=1, silent=False, extra_verbose=False,
-                    config=None, macros=None):
-    """ This function normalizes the
-    """
-
-    # Convert src_path to a list if needed
-    if type(src_paths) != type([]):
-        src_paths = [src_paths]
-    # Extend src_paths wiht libraries_paths
-    if libraries_paths is not None:
-        src_paths.extend(libraries_paths)
-
-    # Export Directory
-    if exists(export_path) and clean:
-        rmtree(export_path)
-    if not exists(export_path):
-        makedirs(export_path)
-
-    _, toolchain_name = get_exporter_toolchain(ide)
-
-    # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, target,
-                                  toolchain_name, macros=macros,
-                                  options=options, clean=clean, jobs=jobs,
-                                  notify=notify, silent=silent, verbose=verbose,
-                                  extra_verbose=extra_verbose, config=config)
-
-
-    # The first path will give the name to the library
-    if name is None:
-        name = basename(normpath(abspath(src_paths[0])))
-
-    # Call unified scan_resources
-    resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
-    toolchain.build_dir = export_path
-    config_header = toolchain.get_config_header()
-    resources.headers.append(config_header)
-    resources.file_basepath[config_header] = dirname(config_header)
-
-    # Change linker script if specified
-    if linker_script is not None:
-        resources.linker_script = linker_script
-
-    return resources, toolchain
+                                                     export_path, loc))
 
 
 def generate_project_files(resources, export_path, target, name, toolchain, ide,
@@ -243,7 +195,7 @@ def export_project(src_paths, export_path, target, ide,
         subtract_basepath(resources, export_path)
         for loc, res in resource_dict.iteritems():
             temp = copy.deepcopy(res)
-            subtract_basepath(temp, join(export_path, loc))
+            subtract_basepath(temp, export_path, loc)
             resources.add(temp)
     else:
         for _, res in resource_dict.iteritems():
