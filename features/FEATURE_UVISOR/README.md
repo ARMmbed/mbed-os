@@ -138,9 +138,15 @@ Before compiling, we need to override the original `K64F` target to enable the u
             "target.features_add": ["UVISOR"],
             "target.extra_labels_add": ["UVISOR_SUPPORTED"]
         }
-    }
+    },
+    "macros": [
+      "FEATURE_UVISOR",
+      "TARGET_UVISOR_SUPPORTED"
+    ]
 }
 ```
+
+The macros `FEATURE_UVISOR` and `TARGET_UVISOR_SUPPORTED` in the configuration file above are automatically defined for C and C++ files, but not for assembly files. Since the uVisor relies on those symbols in some assembly code, we need to define them manually.
 
 ---
 
