@@ -1,12 +1,12 @@
-   514	Milosch Meriac
-   439	Alessandro Angelino
-    28	Niklas Hauser
-    22	Jaeden Amero
+   552	Milosch Meriac
+   457	Alessandro Angelino
+    40	Jaeden Amero
+    31	Niklas Hauser
      3	Hugo Vincent
      3	JaredCJR
      3	Jim Huang
      2	tonyyanxuan
-     1	Nathan Chong
-     1	Irit Arkin
-     1	ccli8
      1	Aksel Skauge Mellbye
+     1	Irit Arkin
+     1	Nathan Chong
+     1	ccli8
