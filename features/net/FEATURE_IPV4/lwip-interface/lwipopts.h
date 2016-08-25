@@ -54,12 +54,24 @@
 // 32-bit alignment
 #define MEM_ALIGNMENT               4
 
+#ifndef PBUF_POOL_SIZE
 #define PBUF_POOL_SIZE              5
+#endif
+#ifndef MEMP_NUM_TCP_PCB_LISTEN
 #define MEMP_NUM_TCP_PCB_LISTEN     4
+#endif
+#ifndef MEMP_NUM_TCP_PCB
 #define MEMP_NUM_TCP_PCB            4
+#endif
+#ifndef MEMP_NUM_UDP_PCB
 #define MEMP_NUM_UDP_PCB            4
+#endif
+#ifndef MEMP_NUM_PBUF
 #define MEMP_NUM_PBUF               8
+#endif
+#ifndef MEMP_NUM_NETBUF
 #define MEMP_NUM_NETBUF             8
+#endif
 
 #define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0
@@ -119,8 +131,12 @@
 
 /* MSS should match the hardware packet size */
 #define TCP_MSS                     1460
+#ifndef TCP_SND_BUF
 #define TCP_SND_BUF                 (2 * TCP_MSS)
+#endif
+#ifndef TCP_WND
 #define TCP_WND                     (2 * TCP_MSS)
+#endif
 #define TCP_SND_QUEUELEN            (2 * TCP_SND_BUF/TCP_MSS)
 
 // Broadcast
