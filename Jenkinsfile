@@ -19,7 +19,7 @@ def parallelSteps = mbed.createParalleSteps("mbed-os", targets, toolchains)
 
 // Run build steps parallel, map as paramater
 stage "build all targets"
-mbed.generalCompile(parallelSteps)
+mbed.compile(parallelSteps)
 
 // Run testapps, mbed-os commit hash or master as parameter
 stage "run mbed-os testapps"
