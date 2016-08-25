@@ -19,9 +19,10 @@
 #include "mbed_assert.h"
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
+#include "crypto-misc.h"
 
 static int crypto_inited = 0;
-static int crypto_sha_hw_avail = 1;
+static int crypto_sha_avail = 1;
 
 void crypto_init(void)
 {
@@ -42,10 +43,10 @@ void crypto_zeroize(void *v, size_t n)
     }
 }
 
-int crypto_sha_hw_acquire(void)
+int crypto_sha_acquire(void)
 {
-    if (crypto_sha_hw_avail) {
-        crypto_sha_hw_avail = 0;
+    if (crypto_sha_avail) {
+        crypto_sha_avail = 0;
         return 1;
     }
     else {
@@ -54,9 +55,9 @@ int crypto_sha_hw_acquire(void)
     
 }
 
-void crypto_sha_hw_release(void)
+void crypto_sha_release(void)
 {
-    if (! crypto_sha_hw_avail) {
-        crypto_sha_hw_avail = 1;
+    if (! crypto_sha_avail) {
+        crypto_sha_avail = 1;
     }
 }

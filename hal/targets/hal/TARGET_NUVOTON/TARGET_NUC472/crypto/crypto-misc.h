@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CRYPTO_H
-#define MBED_CRYPTO_H
-
-#include "cmsis.h"
+#ifndef MBED_CRYPTO_MISC_H
+#define MBED_CRYPTO_MISC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,8 +23,8 @@ extern "C" {
 
 void crypto_init(void);
 void crypto_zeroize(void *v, size_t n);
-int crypto_sha_hw_acquire(void);
-void crypto_sha_hw_release(void);
+int crypto_sha_acquire(void);
+void crypto_sha_release(void);
 
 #ifdef __cplusplus
 }

@@ -24,11 +24,11 @@
 #if defined(MBEDTLS_SHA1_ALT)
 
 #include "sha1_alt.h"
-#include "crypto.h"
+#include "crypto-misc.h"
 
 void mbedtls_sha1_init(mbedtls_sha1_context *ctx)
 {
-    if (crypto_sha_hw_acquire()) {
+    if (crypto_sha_acquire()) {
         ctx->mbedtls_sha1_init = mbedtls_sha1_hw_init;
         ctx->mbedtls_sha1_free = mbedtls_sha1_hw_free;
         ctx->mbedtls_sha1_clone = mbedtls_sha1_hw_clone;
@@ -59,7 +59,7 @@ void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
     ctx->mbedtls_sha1_free(ctx);
     
     if (ctx->mbedtls_sha1_init == mbedtls_sha1_hw_init) {
-        crypto_sha_hw_release();
+        crypto_sha_release();
     }
 }
 
