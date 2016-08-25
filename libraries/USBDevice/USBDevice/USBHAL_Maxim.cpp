@@ -212,10 +212,10 @@ static ep_buffer_t *get_desc(uint8_t endpoint)
 void USBHAL::EP0setup(uint8_t *buffer)
 {
     // Setup packet is fixed at 8 bytes
-	// Setup registers cannot be read in byte mode
+    // Setup registers cannot be read in byte mode
     uint32_t *ptr32 = (uint32_t*)buffer;
-	ptr32[0] = (uint32_t)MXC_USB->setup0;
-	ptr32[1] = (uint32_t)MXC_USB->setup1;
+    ptr32[0] = (uint32_t)MXC_USB->setup0;
+    ptr32[1] = (uint32_t)MXC_USB->setup1;
 }
 
 void USBHAL::EP0read(void)
