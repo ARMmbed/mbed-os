@@ -21,6 +21,7 @@
 #include "nu_bitutil.h"
 
 static int crypto_inited = 0;
+static int crypto_sha_hw_avail = 1;
 
 void crypto_init(void)
 {
@@ -38,5 +39,24 @@ void crypto_zeroize(void *v, size_t n)
     volatile unsigned char *p = (unsigned char*) v;
     while (n--) {
         *p++ = 0;
+    }
+}
+
+int crypto_sha_hw_acquire(void)
+{
+    if (crypto_sha_hw_avail) {
+        crypto_sha_hw_avail = 0;
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    
+}
+
+void crypto_sha_hw_release(void)
+{
+    if (! crypto_sha_hw_avail) {
+        crypto_sha_hw_avail = 1;
     }
 }

@@ -25,6 +25,8 @@ extern "C" {
 
 void crypto_init(void);
 void crypto_zeroize(void *v, size_t n);
+int crypto_sha_hw_acquire(void);
+void crypto_sha_hw_release(void);
 
 #ifdef __cplusplus
 }
