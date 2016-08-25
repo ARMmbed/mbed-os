@@ -4,7 +4,7 @@
             "core": "Cortex-M0",
             "extra_labels": [],
             "features": [],
-            "default_build": "standard"
+            "default_lib": "std"
         }
     },
     "target_overrides": {
@@ -13,4 +13,3 @@
         }
     }
 }
-

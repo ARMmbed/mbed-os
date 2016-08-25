@@ -273,13 +273,13 @@ class GCC_ARM(GCC):
         GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose)
 
         # Use latest gcc nanolib
-        if "big-build" in self.options:
+        if "std-lib" in self.options:
             use_nano = False
-        elif "small-build" in self.options:
+        elif "small-lib" in self.options:
             use_nano = True
-        elif target.default_build == "standard":
+        elif target.default_lib == "std":
             use_nano = False
-        elif target.default_build == "small":
+        elif target.default_lib == "small":
             use_nano = True
         else:
             use_nano = False
