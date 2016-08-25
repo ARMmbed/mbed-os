@@ -789,6 +789,7 @@ static osMutexId malloc_mutex_id;
 osMutexDef(env_mutex);
 static osMutexId env_mutex_id;
 
+extern int atexit(void (*func)(void));
 extern void __libc_fini_array(void);
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
