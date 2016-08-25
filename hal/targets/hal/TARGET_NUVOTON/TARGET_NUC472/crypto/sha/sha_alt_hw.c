@@ -38,7 +38,7 @@
 
 #include "nu_bitutil.h"
 #include "mbed_assert.h"
-#include "crypto.h"
+#include "crypto-misc.h"
 
 #include <string.h>
 

@@ -26,7 +26,7 @@
 #include <string.h>
 #include "mbedtls/des.h"
 #include "des_alt.h"
-#include "crypto.h"
+#include "crypto-misc.h"
 #include "nu_bitutil.h"
 #include "toolchain.h"
 
