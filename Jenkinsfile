@@ -13,57 +13,14 @@ def toolchains = [
   GCC_ARM: "arm-none-eabi-gcc"
   ]
 
-// Initial maps for parallel build steps
-def stepsForParallel = [:]
+// Create a map of predefined build steps 
+stage "generate build steps for parallel execution"
+def parallelSteps = mbed.createParalleSteps("mbed-os", targets, toolchains)
 
-// Jenkins pipeline does not support map.each, we need to use oldschool for loop
-for (int i = 0; i < targets.size(); i++) {
-  for(int j = 0; j < toolchains.size(); j++) {
-    def target = targets.get(i)
-    def toolchain = toolchains.keySet().asList().get(j)
-    def compilerLabel = toolchains.get(toolchain)
+// Run build steps parallel, map as paramater
+stage "build all targets"
+mbed.generalCompile(parallelSteps)
 
-    def stepName = "${target} ${toolchain}"
-    stepsForParallel[stepName] = buildStep(target, compilerLabel, toolchain)
-  }
-}
-
-/* Jenkins does not allow stages inside parallel execution,
-* https://issues.jenkins-ci.org/browse/JENKINS-26107 will solve this by adding labeled blocks
-*/
-stage "build mbed-os targets"
-// Actually run the steps in parallel - parallel takes a map as an argument, hence the above.
-parallel stepsForParallel
-
-stage "build testapps"
-parallel testapp: {
-build job: 'ARMmbed/mbed-client-testapp/master', parameters: [[$class: 'StringParameterValue', name: 'mbed_os_revision', value: "${env.GIT_REVISION}"]]
-}, cliapp: {
-build job: 'ARMmbed/mbed-client-cliapp/master', parameters: [[$class: 'StringParameterValue', name: 'mbed_os_revision', value: "${env.GIT_REVISION}"]]
-}, failFast: true
-
-/* End of execution, internal functions below */
-
-def execute(cmd) {
-    if (isUnix()) {
-        sh "${cmd}"
-    } else {
-        bat "${cmd}"
-    }
-}
-
-//Create build steps for parallel execution
-def buildStep(target, compilerLabel, toolchain) {
-  return {
-    node ("${compilerLabel}") {
-      deleteDir()
-      dir("mbed-os") {
-        checkout scm
-        execute ("git log -1 --no-merges --pretty=format:'%H' > GIT_REVISION")
-        env.GIT_REVISION = readFile ("GIT_REVISION")
-        execute ("mbed deploy --protocol ssh")
-        execute ("mbed test --compile -m ${target} -t ${toolchain} -c")
-      }
-    }
-  }
-}
+// Run testapps, mbed-os commit hash or master as parameter
+stage "run mbed-os testapps"
+mbed.runTestApps("${env.GIT_REVISION}")
