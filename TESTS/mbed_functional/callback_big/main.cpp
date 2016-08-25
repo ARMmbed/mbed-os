@@ -328,22 +328,6 @@ void test_dispatch5() {
     Verifier<T>::verify5((void*)&cb, &Callback<T(T, T, T, T, T)>::thunk);
 }
 
-template <typename T>
-void test_fparg1() {
-    Thing<T> thing;
-    FunctionPointerArg1<T,T> fp(static_func1<T>);
-    Verifier<T>::verify1(fp);
-    Verifier<T>::verify1(fp.get_function());
-}
-
-template <typename T>
-void test_fparg0() {
-    Thing<T> thing;
-    FunctionPointerArg1<T,void> fp(static_func0<T>);
-    Verifier<T>::verify0(fp);
-    Verifier<T>::verify0(fp.get_function());
-}
-
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -352,29 +336,12 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 }
 
 Case cases[] = {
-    Case("Testing callbacks with 0 ints", test_dispatch0<int>),
-    Case("Testing callbacks with 1 ints", test_dispatch1<int>),
-    Case("Testing callbacks with 2 ints", test_dispatch2<int>),
-    Case("Testing callbacks with 3 ints", test_dispatch3<int>),
-    Case("Testing callbacks with 4 ints", test_dispatch4<int>),
-    Case("Testing callbacks with 5 ints", test_dispatch5<int>),
-
-    Case("Testing callbacks with 0 uchars", test_dispatch0<unsigned char>),
-    Case("Testing callbacks with 1 uchars", test_dispatch1<unsigned char>),
-    Case("Testing callbacks with 2 uchars", test_dispatch2<unsigned char>),
-    Case("Testing callbacks with 3 uchars", test_dispatch3<unsigned char>),
-    Case("Testing callbacks with 4 uchars", test_dispatch4<unsigned char>),
-    Case("Testing callbacks with 5 uchars", test_dispatch5<unsigned char>),
-
     Case("Testing callbacks with 0 uint64s", test_dispatch0<uint64_t>),
     Case("Testing callbacks with 1 uint64s", test_dispatch1<uint64_t>),
     Case("Testing callbacks with 2 uint64s", test_dispatch2<uint64_t>),
     Case("Testing callbacks with 3 uint64s", test_dispatch3<uint64_t>),
     Case("Testing callbacks with 4 uint64s", test_dispatch4<uint64_t>),
     Case("Testing callbacks with 5 uint64s", test_dispatch5<uint64_t>),
-
-    Case("Testing FunctionPointerArg1 compatibility", test_fparg1<int>),
-    Case("Testing FunctionPointer compatibility", test_fparg0<int>),
 };
 
 Specification specification(test_setup, cases);
