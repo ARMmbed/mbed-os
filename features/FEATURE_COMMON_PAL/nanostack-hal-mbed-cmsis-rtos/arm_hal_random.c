@@ -16,9 +16,6 @@
 #include "ns_types.h"
 #include "arm_hal_random.h"
 
-#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
-#include "driverRFPhy.h"
-#endif
 #include "mbedtls/entropy_poll.h"
 
 void arm_random_module_init(void)
@@ -32,14 +29,6 @@ uint32_t arm_random_seed_get(void)
     /* Grab a seed from a function we provide for mbedtls */
     size_t len;
     mbedtls_hardware_poll(NULL, (uint8_t *) &result, sizeof result, &len);
-#endif
-#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
-    uint8_t mac[8];
-    rf_read_mac_address(mac);
-    for (int i = 0; i <= 7; i++) {
-        result ^= (uint32_t) mac[i] << ((i % 4) * 8);
-    }
-    result ^= rf_read_random();
 #endif
     return result;
 }
