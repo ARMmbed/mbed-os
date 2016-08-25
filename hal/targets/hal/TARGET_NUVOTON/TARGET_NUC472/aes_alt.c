@@ -52,6 +52,7 @@
 #endif /* MBEDTLS_SELF_TEST */
 
 #include "NUC472_442.h"
+#include "toolchain.h"
 
 //static int aes_init_done = 0;
 
@@ -72,15 +73,8 @@ static uint32_t au32MyAESIV[4] = {
 
 extern volatile int  g_AES_done;
 
-#ifdef __ICCARM__
-#pragma data_alignment=4
-uint8_t au8OutputData[16];
-#pragma data_alignment=4
-uint8_t au8InputData[16];
-#else
-__align(4) uint8_t au8OutputData[16];
-__align(4) uint8_t au8InputData[16];
-#endif
+uint8_t au8OutputData[16] MBED_ALIGN(4);
+uint8_t au8InputData[16] MBED_ALIGN(4);
 
 static void dumpHex(uint8_t au8Data[], int len)
 {
