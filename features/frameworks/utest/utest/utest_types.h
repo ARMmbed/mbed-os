@@ -128,6 +128,13 @@ namespace v1 {
     struct base_control_t {
         repeat_t repeat;
         uint32_t timeout;
+
+        repeat_t inline get_repeat() const {
+            return repeat;
+        }
+        uint32_t inline get_timeout() const {
+            return timeout;
+        }
     };
 
     /** Control class for specifying test case attributes
@@ -171,7 +178,7 @@ namespace v1 {
         control_t(uint32_t timeout_ms) :
             base_control_t(make_base_control_t(REPEAT_UNDECLR, timeout_ms)) {}
 
-        control_t(base_control_t other) :
+        control_t(const base_control_t& other) :
             base_control_t(other) {}
 
         friend control_t operator+(const control_t& lhs, const control_t& rhs) {
@@ -218,6 +225,21 @@ namespace v1 {
 
         friend class Harness;
     };
+
+    /// @see operator+ in control_t
+    inline control_t operator+(const base_control_t& lhs, const base_control_t& rhs) {
+        return control_t(lhs) + control_t(rhs);
+    }
+
+    /// @see operator+ in control_t
+    inline control_t operator+(const base_control_t& lhs, const control_t& rhs) {
+        return control_t(lhs) + rhs;
+    }
+
+    /// @see operator+ in control_t
+    inline control_t operator+(const control_t& lhs, const base_control_t& rhs) {
+        return lhs + control_t(rhs);
+    }
 
     /// does not repeat this test case and immediately moves on to the next one without timeout
     extern const  base_control_t CaseNext;
