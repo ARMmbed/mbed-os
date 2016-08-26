@@ -39,6 +39,7 @@ CORE_LABELS = {
     "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9"]
 }
 
+################################################################################
 # Generic Target class that reads and interprets the data in targets.json
 
 class HookError(Exception):
