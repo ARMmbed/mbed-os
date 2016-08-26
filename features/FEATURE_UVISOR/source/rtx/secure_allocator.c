@@ -32,10 +32,6 @@
 /* offsetof is a gcc built-in function, this is the manual implementation */
 #define OFFSETOF(type, member) ((uint32_t) (&(((type *)(0))->member)))
 
-/* Declare this variable here, so the tier-2 allocator _always_ uses the
- * page size that the tier-1 allocator expects! */
-const uint32_t __uvisor_page_size = UVISOR_PAGE_SIZE;
-
 /* Internal structure currently only contains the page table. */
 typedef struct {
     UvisorPageTable table;
@@ -71,10 +67,11 @@ SecureAllocator secure_allocator_create_with_pages(
     size_t size,
     size_t maximum_malloc_size)
 {
+    const uint32_t page_size = uvisor_get_page_size();
     /* The rt_Memory allocator puts one MEMP structure at both the
      * beginning and end of the memory pool. */
     const size_t block_overhead = 2 * sizeof(MEMP);
-    const size_t page_size_with_overhead = UVISOR_PAGE_SIZE + block_overhead;
+    const size_t page_size_with_overhead = page_size + block_overhead;
     /* Calculate the integer part of required the page count. */
     size_t page_count = size / page_size_with_overhead;
     /* Add another page if the remainder is not zero. */
@@ -84,7 +81,7 @@ SecureAllocator secure_allocator_create_with_pages(
     DPRINTF("secure_allocator_create_with_pages: Requesting %u pages for at least %uB\n", page_count, size);
 
     /* Compute the maximum allocation within our blocks. */
-    size_t maximum_allocation_size = UVISOR_PAGE_SIZE - block_overhead;
+    size_t maximum_allocation_size = page_size - block_overhead;
     /* If the required maximum allocation is larger than we can provide, abort. */
     if (maximum_malloc_size > maximum_allocation_size) {
         DPRINTF("secure_allocator_create_with_pages: Maximum allocation request %uB is larger then available %uB\n\n", maximum_malloc_size, maximum_allocation_size);
@@ -104,7 +101,7 @@ SecureAllocator secure_allocator_create_with_pages(
     }
 
     /* Prepare the page table. */
-    allocator->table.page_size = UVISOR_PAGE_SIZE;
+    allocator->table.page_size = page_size;
     allocator->table.page_count = page_count;
     /* Get me some pages. */
     if (uvisor_page_malloc((UvisorPageTable *) &(allocator->table))) {
@@ -116,7 +113,7 @@ SecureAllocator secure_allocator_create_with_pages(
     /* Initialize a MEMP structure in all pages. */
     for(size_t ii = 0; ii < page_count; ii++) {
         /* Add each page as a pool. */
-        rt_init_mem(allocator->table.page_origins[ii], UVISOR_PAGE_SIZE);
+        rt_init_mem(allocator->table.page_origins[ii], page_size);
         DPRINTF("secure_allocator_create_with_pages: Created MEMP allocator %p with offset %d\n", allocator->table.page_origins[ii], 0);
     }
     DPRINTF("\n");

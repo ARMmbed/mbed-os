@@ -18,6 +18,7 @@
 #define __UVISOR_API_BOX_CONFIG_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/page_allocator_exports.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -52,6 +53,14 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
     }; \
     \
     extern const __attribute__((section(".keep.uvisor.cfgtbl_ptr_first"), aligned(4))) void * const main_cfg_ptr = &main_cfg;
+
+/* Creates a global page heap with at least `minimum_number_of_pages` each of size `page_size` in bytes.
+ * The total page heap size is at least `minimum_number_of_pages * page_size`. */
+#define UVISOR_SET_PAGE_HEAP(page_size, minimum_number_of_pages) \
+    const uint32_t __uvisor_page_size = (page_size); \
+    uint8_t __attribute__((section(".keep.uvisor.page_heap"))) \
+        main_page_heap_reserved[ (page_size) * (minimum_number_of_pages) ]
+
 
 /* this macro selects an overloaded macro (variable number of arguments) */
 #define __UVISOR_BOX_MACRO(_1, _2, _3, _4, NAME, ...) NAME

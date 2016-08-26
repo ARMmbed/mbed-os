@@ -25,8 +25,8 @@
  * a relatively low limit to the number of pages.
  * By default a maximum of 16 pages are allowed. This can only be overwritten
  * by the porting engineer for the current platform. */
-#ifndef UVISOR_PAGE_TABLE_MAX_COUNT
-#define UVISOR_PAGE_TABLE_MAX_COUNT ((uint32_t) 16)
+#ifndef UVISOR_PAGE_MAX_COUNT
+#define UVISOR_PAGE_MAX_COUNT (16UL)
 #endif
 /* The number of pages is decided by the page size. A small page size leads to
  * a lot of pages, however, number of pages is capped for efficiency.
@@ -34,12 +34,49 @@
  * will lead to allocation failures. This can only be overwritten
  * by the porting engineer for the current platform. */
 #ifndef UVISOR_PAGE_SIZE_MINIMUM
-#define UVISOR_PAGE_SIZE_MINIMUM ((uint32_t) 1024)
+#define UVISOR_PAGE_SIZE_MINIMUM (1024UL)
 #endif
+
+/* Defines the number of uint32_t page owner masks in the owner map. */
+#define UVISOR_PAGE_MAP_COUNT ((UVISOR_PAGE_MAX_COUNT + 31) / 32)
 
 /* The page box_id is the box id which is 8-bit large. */
 typedef uint8_t page_owner_t;
 /* Define a unused value for the page table. */
 #define UVISOR_PAGE_UNUSED ((page_owner_t) (-1))
+/* Contains the total number of available pages. */
+extern uint8_t g_page_count_total;
+
+/** Sets the page bit in the page map array.
+ * @param map   an array of `uint32_t` containing the page map
+ * @param page  the index of the page to be set
+ */
+static inline void page_allocator_map_set(uint32_t * const map, uint8_t page)
+{
+    page += UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    map[page / 32] |= (1UL << (page % 32));
+}
+
+/** Clears the page bit in the page map array.
+ * @param map   an array of `uint32_t` containing the page map
+ * @param page  the index of the page to be set
+ */
+static inline void page_allocator_map_clear(uint32_t * const map, uint8_t page)
+{
+    page += UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    map[page / 32] &= ~(1UL << (page % 32));
+}
+
+/** Check if the page bit is set int the page map array.
+ * @param map   an array of `uint32_t` containing the page map
+ * @param page  the index of the page to be set
+ * @retval 0    if page bit is not set
+ * @retval 1    if page bit is set
+ */
+static inline int page_allocator_map_get(const uint32_t * const map, uint8_t page)
+{
+    page += UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    return (map[page / 32] >> (page % 32)) & 0x1;
+}
 
 #endif /* __PAGE_ALLOCATOR_CONFIG_H__ */
