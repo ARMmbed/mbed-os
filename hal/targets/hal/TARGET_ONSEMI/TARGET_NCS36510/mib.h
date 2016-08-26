@@ -119,12 +119,12 @@
 
 /** A structure defining the format of the system revision parameter. */
 typedef struct mib_systemRevision {
-	uint8_t hardwareRevision;
-	uint8_t patchLevel;
-	uint8_t bugFix;
-	uint8_t featureSet;
-	uint8_t generation;
-	uint8_t release;
+    uint8_t hardwareRevision;
+    uint8_t patchLevel;
+    uint8_t bugFix;
+    uint8_t featureSet;
+    uint8_t generation;
+    uint8_t release;
 } mib_systemRevision_t, *mib_systemRevision_pt;
 
 /** The system revision. */

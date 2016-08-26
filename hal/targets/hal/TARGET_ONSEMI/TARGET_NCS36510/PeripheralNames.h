@@ -26,8 +26,8 @@
 
 #include "cmsis.h"
 
-#include "memory_map.h"  //I think this is needed because enums are using base adresses
-#include "PinNames.h"   //this needed?
+#include "memory_map.h"  /* This is needed because enums use base adresses */
+#include "PinNames.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,8 +56,8 @@ typedef enum {
 } I2CName;
 
 typedef enum {
-	PWM_0 = (int)PWMREG_BASE,
-}PWMName;
+    PWM_0 = (int)PWMREG_BASE,
+} PWMName;
 
 #ifdef __cplusplus
 }

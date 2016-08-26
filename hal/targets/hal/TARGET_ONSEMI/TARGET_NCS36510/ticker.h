@@ -3,9 +3,9 @@
  * @file ticker.h
  * @brief Microcontroller uSec ticker
  * @internal
- * @author Radhika 
- * $Rev: 
- * $Date: 
+ * @author ON Semiconductor.
+ * $Rev:
+ * $Date:
  ******************************************************************************
  * @copyright (c) 2012 ON Semiconductor. All rights reserved.
  * ON Semiconductor is supplying this software for use with ON Semiconductor
@@ -18,9 +18,9 @@
  * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  * @endinternal
  *
- * 
+ *
  */
- 
+
 #ifndef TICKER_H_
 #define TICKER_H_
 
@@ -41,12 +41,12 @@
 #define configCPU_CLOCK_HZ			( ( unsigned long ) (CPU_CLOCK_ROOT_HZ/CPU_CLOCK_DIV) )
 #define configTICK_RATE_HZ			( ( unsigned long ) 1000000 ) // 1uSec ticker rate
 
-   
+
 /* Lowest priority */
 
 #define configKERNEL_INTERRUPT_PRIORITY 		( 0xFF )
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	        ( 0x8F )   
-   
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	        ( 0x8F )
+
 #define configSYSTICK_CLOCK_HZ configCPU_CLOCK_HZ
 
 /* Constants required to manipulate the core.  Registers first... */
@@ -54,7 +54,7 @@
 #define portNVIC_SYSTICK_LOAD_REG			( * ( ( volatile unsigned long * ) 0xe000e014 ) )
 #define portNVIC_SYSTICK_CURRENT_VALUE_REG	        ( * ( ( volatile unsigned long * ) 0xe000e018 ) )
 #define portNVIC_INT_CTRL_REG				( * ( ( volatile unsigned long * ) 0xe000ed04 ) )
-#define portNVIC_SYSPRI2_REG				( * ( ( volatile unsigned long * ) 0xe000ed20 ) )   
+#define portNVIC_SYSPRI2_REG				( * ( ( volatile unsigned long * ) 0xe000ed20 ) )
 
 /* ...then bits in the registers. */
 #define portNVIC_SYSTICK_CLK_BIT			( 1UL << 2UL )
@@ -65,12 +65,12 @@
 /* Orion has 4 interrupt priority bits
  */
 #define portNVIC_SYSTICK_PRI		        ( ( ( unsigned long ) configKERNEL_INTERRUPT_PRIORITY ) << 24 )
-   
+
 /* API definitions */
 void fSysTickInit(void);
 
 void fSysTickHandler(void);
-   
+
 uint32_t fSysTickRead(void);
 
 void fSysTickEnableInterrupt (void);

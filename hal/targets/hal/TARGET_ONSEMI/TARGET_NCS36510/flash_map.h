@@ -33,46 +33,46 @@
 
 /** Flash Control HW Structure Overlay */
 typedef struct {
-	union {
-		struct {
-			__I uint32_t FLASH_A_BUSY:1;		/**< Busy A */
-			__I uint32_t FLASH_B_BUSY:1;		/**< Busy B */
-			__I uint32_t FLASH_A_UNLOCK:1;	/**< Unlock A */
-			__I uint32_t FLASH_B_UNLOCK:1;	/**< Unlock B */
-			__I uint32_t FLASH_ERROR:3;		/**< 000 – No Error, 111 – Attempt to access an array while it is busy powering up, 001 – Attempt to erase bootloader in the field, 010 – Attempt to access array during erase, 100 – Attempt to access array during write */
-		} BITS;
-		__I uint32_t WORD;
-	} STATUS;
-	union {
-		struct {
-			__IO uint32_t FLASHB_PD:1;
-			__IO uint32_t FLASHA_PD:1;
-			__IO uint32_t REMAP:1;
-			__IO uint32_t WR_INT_EN:1;
-			__IO uint32_t ERASE_INT_EN:1;
-			__IO uint32_t ERROR_INT_EN:1;
-			__IO uint32_t WRITE_BLOCK:1;
-		} BITS;
-		__IO uint32_t WORD;
-	} CONTROL;
-	union {
-		struct {
-			__IO uint32_t PAGEERASE:1;   /**< Erase a single page */
-			__IO uint32_t MASSERASE:1;   /**< MASS Erase */
-		} BITS;
-		__IO uint32_t WORD;
-	} COMMAND;
-	__IO uint32_t ADDR;
-	__IO uint32_t UNLOCK1;
-	__IO uint32_t UNLOCKA;
-	__IO uint32_t UNLOCKB;
-	union {
-		struct {
-			__I uint32_t INT_PEND:1; // Interrupt pending
-			__I uint32_t INT_TYPE:3; // Interrupt type
-		} BITS;
-		__I uint32_t WORD;
-	} INT_STATUS;
+    union {
+        struct {
+            __I uint32_t FLASH_A_BUSY:1;		/**< Busy A */
+            __I uint32_t FLASH_B_BUSY:1;		/**< Busy B */
+            __I uint32_t FLASH_A_UNLOCK:1;	/**< Unlock A */
+            __I uint32_t FLASH_B_UNLOCK:1;	/**< Unlock B */
+            __I uint32_t FLASH_ERROR:3;		/**< 000 – No Error, 111 – Attempt to access an array while it is busy powering up, 001 – Attempt to erase bootloader in the field, 010 – Attempt to access array during erase, 100 – Attempt to access array during write */
+        } BITS;
+        __I uint32_t WORD;
+    } STATUS;
+    union {
+        struct {
+            __IO uint32_t FLASHB_PD:1;
+            __IO uint32_t FLASHA_PD:1;
+            __IO uint32_t REMAP:1;
+            __IO uint32_t WR_INT_EN:1;
+            __IO uint32_t ERASE_INT_EN:1;
+            __IO uint32_t ERROR_INT_EN:1;
+            __IO uint32_t WRITE_BLOCK:1;
+        } BITS;
+        __IO uint32_t WORD;
+    } CONTROL;
+    union {
+        struct {
+            __IO uint32_t PAGEERASE:1;   /**< Erase a single page */
+            __IO uint32_t MASSERASE:1;   /**< MASS Erase */
+        } BITS;
+        __IO uint32_t WORD;
+    } COMMAND;
+    __IO uint32_t ADDR;
+    __IO uint32_t UNLOCK1;
+    __IO uint32_t UNLOCKA;
+    __IO uint32_t UNLOCKB;
+    union {
+        struct {
+            __I uint32_t INT_PEND:1; // Interrupt pending
+            __I uint32_t INT_TYPE:3; // Interrupt type
+        } BITS;
+        __I uint32_t WORD;
+    } INT_STATUS;
 } FlashReg_t, *FlashReg_pt;
 
 #endif /* FLASH_MAP_H_ */

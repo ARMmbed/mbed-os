@@ -43,24 +43,24 @@ extern "C" {
 
 /** Timer HW Structure Overlay */
 typedef struct {
-	__IO uint32_t LOAD; /**< 16bit counter (re-)load value */
-	__I uint32_t VALUE; /**< 16bit current counter value */
-	union {
-		struct {
-			__IO uint32_t PAD0 :2; 		/**< Always reads 0 */
-			__IO uint32_t PRESCALE :3; 	/**< 0:no division, 1..7: divide by 16, 256, 2, 8, 32, 128, 1024*/
-			__IO uint32_t PAD1 :1;		/**< Always reads 0 */
-			__IO uint32_t MODE :1; 		/**< 0:free-run, 1:periodic */
-			__IO uint32_t ENABLE :1; 	/**< 0: disable, 1:enable */
-			__I  uint32_t INT :1; 		/**< interrupt status */
-		} BITS;
-		__IO uint32_t WORD;
-	} CONTROL;
-	__O uint32_t CLEAR; 	/**< Write any value to clear the interrupt */
+    __IO uint32_t LOAD; /**< 16bit counter (re-)load value */
+    __I uint32_t VALUE; /**< 16bit current counter value */
+    union {
+        struct {
+            __IO uint32_t PAD0 :2; 		/**< Always reads 0 */
+            __IO uint32_t PRESCALE :3; 	/**< 0:no division, 1..7: divide by 16, 256, 2, 8, 32, 128, 1024*/
+            __IO uint32_t PAD1 :1;		/**< Always reads 0 */
+            __IO uint32_t MODE :1; 		/**< 0:free-run, 1:periodic */
+            __IO uint32_t ENABLE :1; 	/**< 0: disable, 1:enable */
+            __I  uint32_t INT :1; 		/**< interrupt status */
+        } BITS;
+        __IO uint32_t WORD;
+    } CONTROL;
+    __O uint32_t CLEAR; 	/**< Write any value to clear the interrupt */
 } TimerReg_t, *TimerReg_pt;
 
 #ifdef __cplusplus
 }
-#endif	
+#endif
 
 #endif /* TIMER_MAP_H_ */

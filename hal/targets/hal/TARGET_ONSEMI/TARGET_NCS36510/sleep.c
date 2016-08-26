@@ -40,73 +40,73 @@
 
 void sleep(void)
 {
-	/** Unset SLEEPDEEP (SCR) and COMA to select sleep mode */
-	SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-	PMUREG->CONTROL.BITS.ENCOMA = DISABLE;
+    /** Unset SLEEPDEEP (SCR) and COMA to select sleep mode */
+    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+    PMUREG->CONTROL.BITS.ENCOMA = DISABLE;
 
-	/* Enter into sleep mode */
-	__ISB();
-	__WFI();
+    /* Enter into sleep mode */
+    __ISB();
+    __WFI();
 }
 
 void deepsleep(void)
 {
-	/** Set SLEEPDEEP (SCR) and unset COMA to select deep sleep mode */
-	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-	PMUREG->CONTROL.BITS.ENCOMA = DISABLE;
+    /** Set SLEEPDEEP (SCR) and unset COMA to select deep sleep mode */
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    PMUREG->CONTROL.BITS.ENCOMA = DISABLE;
 
-	/** Enter into deep sleep mode */
-	__ISB();
-	__WFI();
+    /** Enter into deep sleep mode */
+    __ISB();
+    __WFI();
 
-	/** Wait for the external 32MHz to be power-ed up & running
-	 * Re-power down the 32MHz internal osc
-	 */
-	while (!CLOCKREG->CSR.BITS.XTAL32M);
-	PMUREG->CONTROL.BITS.INT32M = 1;
+    /** Wait for the external 32MHz to be power-ed up & running
+     * Re-power down the 32MHz internal osc
+     */
+    while (!CLOCKREG->CSR.BITS.XTAL32M);
+    PMUREG->CONTROL.BITS.INT32M = 1;
 }
 
 void coma(void)
 {
-	/** Set SLEEPDEEP (SCR) and set COMA to select coma mode */
-	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-	PMUREG->CONTROL.BITS.ENCOMA = ENABLE;
+    /** Set SLEEPDEEP (SCR) and set COMA to select coma mode */
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    PMUREG->CONTROL.BITS.ENCOMA = ENABLE;
 
-	/* TODO Wait till MAC is idle */
-	//		while((MACHWREG->SEQUENCER == MACHW_SEQ_TX) || (MACHWREG->SEQUENCER == MACHW_SEQ_ED) || (MACHWREG->SEQUENCER == MACHW_SEQ_CCA));
+    /* TODO Wait till MAC is idle */
+    //		while((MACHWREG->SEQUENCER == MACHW_SEQ_TX) || (MACHWREG->SEQUENCER == MACHW_SEQ_ED) || (MACHWREG->SEQUENCER == MACHW_SEQ_CCA));
 
-	/* TODO Back up MAC_LUT *
-	uint8_t MAC_LUT_BackUp[MAC_LUT_SIZE];
-	fMacBackupFrameStoreLUT(MAC_LUT_BackUp); */
+    /* TODO Back up MAC_LUT *
+    uint8_t MAC_LUT_BackUp[MAC_LUT_SIZE];
+    fMacBackupFrameStoreLUT(MAC_LUT_BackUp); */
 
-	/* Disable UART 1 & 2 FIFO during coma*/
-	UART1REG->FCR.WORD &= ~(FCR_FIFO_ENABLE);
-	UART2REG->FCR.WORD &= ~(FCR_FIFO_ENABLE);
+    /* Disable UART 1 & 2 FIFO during coma*/
+    UART1REG->FCR.WORD &= ~(FCR_FIFO_ENABLE);
+    UART2REG->FCR.WORD &= ~(FCR_FIFO_ENABLE);
 
-	/** Enter into coma mode */
-	__ISB();
-	__WFI();
+    /** Enter into coma mode */
+    __ISB();
+    __WFI();
 
-	/** Wait for the external 32MHz to be power-ed up & running
-	 * Re-power down the 32MHz internal osc
-	 */
-	while (!CLOCKREG->CSR.BITS.XTAL32M);
-	PMUREG->CONTROL.BITS.INT32M = 1;
+    /** Wait for the external 32MHz to be power-ed up & running
+     * Re-power down the 32MHz internal osc
+     */
+    while (!CLOCKREG->CSR.BITS.XTAL32M);
+    PMUREG->CONTROL.BITS.INT32M = 1;
 
-	/** Trim the oscillators */
-	if ((TRIMREG->TRIM_32K_EXT & 0xFFFF0000) != 0xFFFF0000) {
-		CLOCKREG->TRIM_32K_EXT = TRIMREG->TRIM_32K_EXT;
-	}
-	if ((TRIMREG->TRIM_32M_EXT & 0xFFFF0000) != 0xFFFF0000) {
-		CLOCKREG->TRIM_32M_EXT = TRIMREG->TRIM_32M_EXT;
-	}
+    /** Trim the oscillators */
+    if ((TRIMREG->TRIM_32K_EXT & 0xFFFF0000) != 0xFFFF0000) {
+        CLOCKREG->TRIM_32K_EXT = TRIMREG->TRIM_32K_EXT;
+    }
+    if ((TRIMREG->TRIM_32M_EXT & 0xFFFF0000) != 0xFFFF0000) {
+        CLOCKREG->TRIM_32M_EXT = TRIMREG->TRIM_32M_EXT;
+    }
 
-	/* Enable UART 1 & 2 FIFO */
-	UART1REG->FCR.WORD |= FCR_FIFO_ENABLE;
-	UART2REG->FCR.WORD |= FCR_FIFO_ENABLE;
+    /* Enable UART 1 & 2 FIFO */
+    UART1REG->FCR.WORD |= FCR_FIFO_ENABLE;
+    UART2REG->FCR.WORD |= FCR_FIFO_ENABLE;
 
-	/* TODO Restore MAC_LUT *
-	fMacRestoreFrameStoreLUT(MAC_LUT_BackUp);  */
+    /* TODO Restore MAC_LUT *
+    fMacRestoreFrameStoreLUT(MAC_LUT_BackUp);  */
 }
 
 #endif /* DEVICE_SLEEP */

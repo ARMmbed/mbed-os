@@ -3,7 +3,7 @@
  * @file macros.h
  * @brief      Implements some handy macros
  * @internal
- * @author     : Industrial ASSP Application Team
+ * @author     : ON Semiconductor.
  * $Rev: 2076 $
  * $Date: 2013-07-10 18:26:10 +0530 (Wed, 10 Jul 2013) $
  *******************************************************************************
