@@ -34,7 +34,7 @@ int main() {
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(dev_null);
     MBED_HOSTTEST_DESCRIPTION(CAN Loopback);
-    MBED_HOSTTEST_START("MBED_A27");
+    MBED_HOSTTEST_START("MBED_A28");
 
 #if !defined(TARGET_VK_RZ_A1H)
     can1.mode(CAN::Reset);
