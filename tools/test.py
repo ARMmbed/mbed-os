@@ -177,7 +177,8 @@ if __name__ == '__main__':
                                                 macros=options.macros,
                                                 verbose=options.verbose,
                                                 notify=notify,
-                                                archive=False)
+                                                archive=False,
+                                                remove_config_header_file=True)
 
                 library_build_success = True
             except ToolException, e:
