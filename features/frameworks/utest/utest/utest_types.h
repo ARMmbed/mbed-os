@@ -120,6 +120,16 @@ namespace v1 {
     /// Stringifies a status.
     const char* stringify(utest::v1::status_t status);
 
+    /** POD version of the class control_t.
+     * It is used to instantiate const control_t objects as PODs
+     * and prevent them to be included in the final binary.
+     * @note: control_pod_t can be converted to control_t by copy construction.
+     */
+    struct base_control_t {
+        repeat_t repeat;
+        uint32_t timeout;
+    };
+
     /** Control class for specifying test case attributes
      *
      * This class encapsulated control information about test cases which, when returned from
@@ -148,18 +158,21 @@ namespace v1 {
      *
      * In the future, more control information may be added transparently and backwards compatible.
      */
-    struct control_t
+    struct control_t : private base_control_t
     {
-        control_t() : repeat(REPEAT_UNDECLR), timeout(TIMEOUT_UNDECLR) {}
+        control_t() : base_control_t(make_base_control_t(REPEAT_UNDECLR, TIMEOUT_UNDECLR)) {}
 
         control_t(repeat_t repeat, uint32_t timeout_ms) :
-            repeat(repeat), timeout(timeout_ms) {}
+            base_control_t(make_base_control_t(repeat, timeout_ms)) {}
 
         control_t(repeat_t repeat) :
-            repeat(repeat), timeout(TIMEOUT_UNDECLR) {}
+            base_control_t(make_base_control_t(repeat, TIMEOUT_UNDECLR)) {}
 
         control_t(uint32_t timeout_ms) :
-            repeat(REPEAT_UNDECLR), timeout(timeout_ms) {}
+            base_control_t(make_base_control_t(REPEAT_UNDECLR, timeout_ms)) {}
+
+        control_t(base_control_t other) : 
+            base_control_t(other) {}
 
         control_t
         inline operator+(const control_t& rhs) const {
@@ -196,25 +209,31 @@ namespace v1 {
         }
 
     private:
-        repeat_t repeat;
-        uint32_t timeout;
+        static base_control_t make_base_control_t(repeat_t repeat, uint32_t timeout) { 
+            base_control_t result = { 
+                repeat,
+                timeout
+            };
+            return result;
+        }
+
         friend class Harness;
     };
 
     /// does not repeat this test case and immediately moves on to the next one without timeout
-    extern const  control_t CaseNext;
+    extern const  base_control_t CaseNext;
 
     /// does not repeat this test case, moves on to the next one
-    extern const  control_t CaseNoRepeat;
+    extern const  base_control_t CaseNoRepeat;
     /// repeats the test case handler with calling teardown and setup handlers
-    extern const  control_t CaseRepeatAll;
+    extern const  base_control_t CaseRepeatAll;
     /// repeats only the test case handler without calling teardown and setup handlers
-    extern const  control_t CaseRepeatHandler;
+    extern const  base_control_t CaseRepeatHandler;
 
     /// No timeout, immediately moves on to the next case, but allows repeats
-    extern const  control_t CaseNoTimeout;
+    extern const  base_control_t CaseNoTimeout;
     /// Awaits until the callback is validated and never times out. Use with caution!
-    extern const  control_t CaseAwait;
+    extern const  base_control_t CaseAwait;
     /// Alias class for asynchronous timeout control in milliseconds
     inline control_t CaseTimeout(uint32_t ms) { return ms; }
 
@@ -342,10 +361,10 @@ namespace v1 {
 
     // deprecations
     __deprecated_message("Use CaseRepeatAll instead.")
-    extern const control_t CaseRepeat;
+    extern const base_control_t CaseRepeat;
 
     __deprecated_message("Use CaseRepeatHandler instead.")
-    extern const control_t CaseRepeatHandlerOnly;
+    extern const base_control_t CaseRepeatHandlerOnly;
 
     __deprecated_message("Use REASON_NONE instead.")          const failure_reason_t FAILURE_NONE       = REASON_NONE;
     __deprecated_message("Use REASON_UNKNOWN instead.")       const failure_reason_t FAILURE_UNKNOWN    = REASON_UNKNOWN;
