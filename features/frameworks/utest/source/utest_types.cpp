@@ -116,18 +116,20 @@ const char* utest::v1::stringify(utest::v1::status_t status)
 }
 
 
-const utest::v1::control_t utest::v1::CaseNext(REPEAT_NONE, TIMEOUT_NONE);
+const utest::v1::base_control_t utest::v1::CaseNext = { REPEAT_NONE, TIMEOUT_NONE };
 
-const utest::v1::control_t utest::v1::CaseNoRepeat(REPEAT_NONE);
+const utest::v1::base_control_t utest::v1::CaseNoRepeat = { REPEAT_NONE, TIMEOUT_UNDECLR };
 
-const utest::v1::control_t utest::v1::CaseRepeatAll(REPEAT_ALL);
+const utest::v1::base_control_t utest::v1::CaseRepeatAll = { REPEAT_ALL, TIMEOUT_UNDECLR };
 
-const utest::v1::control_t utest::v1::CaseRepeatHandler(REPEAT_HANDLER);
+const utest::v1::base_control_t utest::v1::CaseRepeatHandler = { REPEAT_HANDLER, TIMEOUT_UNDECLR };
 
-const utest::v1::control_t utest::v1::CaseNoTimeout(TIMEOUT_NONE);
+const utest::v1::base_control_t utest::v1::CaseNoTimeout = { REPEAT_UNDECLR, TIMEOUT_NONE };
 
-const utest::v1::control_t utest::v1::CaseAwait(TIMEOUT_FOREVER);
+const utest::v1::base_control_t utest::v1::CaseAwait = { REPEAT_UNDECLR, TIMEOUT_FOREVER };
 
-const utest::v1::control_t utest::v1::CaseRepeat(CaseRepeatAll);
+// equal to CaeReapeatAll
+const utest::v1::base_control_t utest::v1::CaseRepeat = { REPEAT_ALL, TIMEOUT_UNDECLR };
 
-const utest::v1::control_t utest::v1::CaseRepeatHandlerOnly(CaseRepeatHandler);
+// equal to CaseRepeatHandler
+const utest::v1::base_control_t utest::v1::CaseRepeatHandlerOnly = { REPEAT_HANDLER, TIMEOUT_UNDECLR };
