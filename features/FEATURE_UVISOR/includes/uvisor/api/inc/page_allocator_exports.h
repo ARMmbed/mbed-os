@@ -30,27 +30,9 @@
 #define UVISOR_ERROR_PAGE_INVALID_PAGE_OWNER    (UVISOR_ERROR_CLASS_PAGE + 5)
 #define UVISOR_ERROR_PAGE_INVALID_PAGE_COUNT    (UVISOR_ERROR_CLASS_PAGE + 6)
 
-
-/* Must be a power of 2 for MPU alignment in ARMv7-M with ARM MPU.
- * Must be multiple of 32 for K64F MPU. */
-#ifndef UVISOR_PAGE_SIZE
-#define UVISOR_PAGE_SIZE ((uint32_t) 16 * 1024)
-#endif
-
-/* Return the rounded up number of pages required to hold `size`. */
-#define UVISOR_PAGES_FOR_SIZE(size) ((size + UVISOR_PAGE_SIZE - 1) / UVISOR_PAGE_SIZE)
-
-/* Create a page table with `count` many entries. */
-#define UVISOR_PAGE_TABLE(count) \
-    struct { \
-        uint32_t page_size; \
-        uint32_t page_count; \
-        void * page_origins[count]; \
-    }
-
-/* Create a page table with enough pages to hold `size`. */
-#define UVISOR_PAGE_TABLE_FOR_SIZE(size) UVISOR_PAGE_TABLE(UVISOR_PAGES_FOR_SIZE(size))
-
+/* Contains the uVisor page size.
+ * @warning Do not read directly, instead use `uvisor_get_page_size()` accessor! */
+UVISOR_EXTERN const uint32_t __uvisor_page_size;
 
 typedef struct {
     uint32_t page_size;     /* The page size in bytes. Must be multiple of `UVISOR_PAGE_SIZE`! */
