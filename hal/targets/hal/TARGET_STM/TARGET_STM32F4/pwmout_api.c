@@ -296,7 +296,6 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
     float value = (float)us / (float)obj->period;
-    printf("pwmout_pulsewidth_us: period=%d, us=%d, dc=%d%%\r\n", obj->period, us, (int) (value*100));
     pwmout_write(obj, value);
 }
 
