@@ -197,7 +197,7 @@ def check_toolchain_path(function):
     function -- the function to decorate
     """
     def perform_check(self, *args, **kwargs):
-        if not exists(self.toolchain_path):
+        if not exists(self.toolchain_path) and not exists(self.toolchain_path+'.exe'):
             error_string = 'Could not find executable for %s.\n Currently ' \
                            'set search path: %s'% (self.name, self.toolchain_path)
             raise Exception(error_string)
