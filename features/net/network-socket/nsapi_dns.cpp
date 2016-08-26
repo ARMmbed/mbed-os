@@ -35,24 +35,13 @@ nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
 
 
 // DNS server configuration
-NSAPI_C_LINKAGE
-int nsapi_dns_add_server(nsapi_addr_t addr)
+extern "C" int nsapi_dns_add_server(nsapi_addr_t addr)
 {
     memmove(&dns_servers[1], &dns_servers[0],
             (DNS_SERVERS_SIZE-1)*sizeof(nsapi_addr_t));
 
     dns_servers[0] = addr;
     return 0;
-}
-
-int nsapi_dns_add_server(const SocketAddress &address)
-{
-    return nsapi_dns_add_server(address.get_addr());
-}
-
-int nsapi_dns_add_server(const char *address)
-{
-    return nsapi_dns_add_server(SocketAddress(address));
 }
 
 
@@ -272,21 +261,12 @@ static int nsapi_dns_query_multiple(NetworkStack *stack,
 }
 
 // convenience functions for other forms of queries
-NSAPI_C_LINKAGE
-int nsapi_dns_query_multiple(nsapi_stack_t *stack,
+extern "C" int nsapi_dns_query_multiple(nsapi_stack_t *stack,
         nsapi_addr_t *addr, unsigned addr_count,
         const char *host, nsapi_version_t version)
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
     return nsapi_dns_query_multiple(nstack, addr, addr_count, host, version);
-}
-
-int nsapi_dns_query_multiple(nsapi_stack_t *stack,
-        nsapi_addr_t *addr, unsigned addr_count,
-        const char *host)
-{
-    NetworkStack *nstack = nsapi_create_stack(stack);
-    return nsapi_dns_query_multiple(nstack, addr, addr_count, host, NSAPI_IPv4);
 }
 
 int nsapi_dns_query_multiple(NetworkStack *stack,
@@ -306,20 +286,11 @@ int nsapi_dns_query_multiple(NetworkStack *stack,
     return result;
 }
 
-NSAPI_C_LINKAGE
-int nsapi_dns_query(nsapi_stack_t *stack,
+extern "C" int nsapi_dns_query(nsapi_stack_t *stack,
         nsapi_addr_t *addr, const char *host, nsapi_version_t version)
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
     int result = nsapi_dns_query_multiple(nstack, addr, 1, host, version);
-    return (result > 0) ? 0 : result;
-}
-
-int nsapi_dns_query(nsapi_stack_t *stack,
-        nsapi_addr_t *addr, const char *host)
-{
-    NetworkStack *nstack = nsapi_create_stack(stack);
-    int result = nsapi_dns_query_multiple(nstack, addr, 1, host, NSAPI_IPv4);
     return (result > 0) ? 0 : result;
 }
 

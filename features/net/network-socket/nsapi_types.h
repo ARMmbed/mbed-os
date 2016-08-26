@@ -148,18 +148,6 @@ typedef enum nsapi_option {
 } nsapi_option_t;
 
 
-/*  C linkage definition
- *
- *  Attribute garuntees emitted function has C linkage.
- *  Available in both C and C++
- */
-#ifdef __cplusplus
-#define NSAPI_C_LINKAGE extern "C"
-#else
-#define NSAPI_C_LINKAGE
-#endif
-
-
 /** nsapi_stack structure
  *
  *  Stack structure representing a specific instance of a stack.
