@@ -207,14 +207,6 @@ namespace v1 {
             return timeout;
         }
 
-        operator base_control_t() const {
-            base_control_t result = { 
-                repeat,
-                timeout
-            };
-            return result;
-        }
-
     private:
         static base_control_t make_base_control_t(repeat_t repeat, uint32_t timeout) {
             base_control_t result = {
