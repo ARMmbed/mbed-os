@@ -96,25 +96,33 @@ all: $(PROJECT).bin $(PROJECT).hex size
 
 .asm.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	+@echo "Assemble: $(notdir $<)"
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+
 .s.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	+@echo "Assemble: $(notdir $<)"
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+
 .S.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	+@echo "Assemble: $(notdir $<)"
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
 .c.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CC) $(C_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	+@echo "Compile: $(notdir $<)"
+	@$(CC) $(C_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
 	+@$(call MAKEDIR,$(dir $@))
-	$(CPP) $(CXX_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	+@echo "Compile: $(notdir $<)"
+	@$(CPP) $(CXX_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
 {% block target_project_elf %}
 $(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(LINKER_SCRIPT)
-	$(LD) $(LD_FLAGS) {{link_script_option}} $(filter %{{link_script_ext}}, $^) $(LIBRARY_PATHS) --output $@ $(filter %.o, $^) $(LIBRARIES) $(LD_SYS_LIBS)
+	+@echo "link: $(notdir $@)"
+	@$(LD) $(LD_FLAGS) {{link_script_option}} $(filter %{{link_script_ext}}, $^) $(LIBRARY_PATHS) --output $@ $(filter %.o, $^) $(LIBRARIES) $(LD_SYS_LIBS)
 {% endblock %}
 
 $(PROJECT).bin: $(PROJECT).elf
