@@ -421,12 +421,8 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #define INITIAL_SP            (0x20003000UL)
 
 #elif defined(TARGET_K64F)
-#if defined(__GNUC__) && !defined(__CC_ARM)     /* GCC */
-extern uint32_t __StackTop[];
-#define INITIAL_SP            (__StackTop)
-#else
 #define INITIAL_SP            (0x20030000UL)
-#endif
+
 #if defined(__CC_ARM) || defined(__GNUC__)
 #define ISR_STACK_SIZE        (0x1000)
 #endif
