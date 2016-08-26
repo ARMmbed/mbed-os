@@ -46,7 +46,7 @@
 #define RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS		2
 #define RTC_CONTROL_SEC_CNT_INT_BIT_POS			3
 
-#define RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS	9	
+#define RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS	9
 #define RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS		10
 
 /* FUnction pointer for call back */
@@ -135,7 +135,7 @@ void fRtcHandler(void);
 
 /**
  * @details
- * Is RTC enabled? 
+ * Is RTC enabled?
  *
  * @param None
  * @return RTC status

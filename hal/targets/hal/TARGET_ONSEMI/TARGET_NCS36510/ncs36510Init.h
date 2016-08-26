@@ -3,8 +3,8 @@
 * @file ncs36510_init.h
 * @brief Initialization of Orion SoC
 * @internal
-* @author Radhika R, ON Semiconductors
-* $Rev: 
+* @author ON Semiconductor.
+* $Rev:
 * $Date: $
 ******************************************************************************
 * @copyright (c) 2012 ON Semiconductor. All rights reserved.

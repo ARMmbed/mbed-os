@@ -57,13 +57,15 @@ extern void fSysTickHandler(void);
 *************************************************************************************************/
 
 /** Not implemented exception, exception handler */
-void NotImplemented_Handler(void){
-    while (1){};
+void NotImplemented_Handler(void)
+{
+    while (1) {};
 }
 
 /** Hardware fault interrupt handler */
-void HardFault_Handler(void) {
-    while (1){};
+void HardFault_Handler(void)
+{
+    while (1) {};
 }
 
 /*************************************************************************************************
@@ -71,55 +73,54 @@ void HardFault_Handler(void) {
 *  Functions                                                                                     *
 *                                                                                                *
 *************************************************************************************************/
-/** Call the MacHw IRQ handler */
-
-/* commented out - implemented in network stack
-void fIrqMacHwHandler() {
-    NotImplemented_Handler();
-}
-*/
+/** MacHw IRQ handler implemented in the RF driver stack */
 
 /** Call the Timer0 IRQ handler */
-void fIrqTim0Handler() {
+void fIrqTim0Handler()
+{
     us_timer_isr();
 }
 
 /** Call the Timer1 IRQ handler */
-void fIrqTim1Handler() {
+void fIrqTim1Handler()
+{
     us_ticker_isr();
 }
 
 /** Call the Timer2 IRQ handler */
-void fIrqTim2Handler() {
+void fIrqTim2Handler()
+{
     NotImplemented_Handler();
 }
 
 /** Call the Gpio IRQ handler */
-void fIrqGpioHandler() {
-#if DEVICE_INTERRUPTIN
-	fGpioHandler();
-#endif
+void fIrqGpioHandler()
+{
+    fGpioHandler();
 }
 
 /** Call the Spi IRQ handler */
-void fIrqSpiHandler() {
+void fIrqSpiHandler()
+{
     NotImplemented_Handler();
 }
 
 /** Call the Uart 1 IRQ handler */
-void fIrqUart1Handler(void) {
-   	Uart1_Irq();
+void fIrqUart1Handler(void)
+{
+    Uart1_Irq();
 }
 
 /** Call the Uart 2 IRQ handler */
-void fIrqUart2Handler(void) {
-   	Uart2_Irq();
+void fIrqUart2Handler(void)
+{
+    Uart2_Irq();
 }
 
 /** Call the RTC IRQ handler */
 void fIrqRtcHandler(void)
 {
-	fRtcHandler();
+    fRtcHandler();
 }
 
 /** Call the I2C IRQ handler */

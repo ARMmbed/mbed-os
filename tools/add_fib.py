@@ -1,33 +1,24 @@
-#!/usr/bin/env python
+"""
+@copyright (c) 2012 ON Semiconductor. All rights reserved.
+ON Semiconductor is supplying this software for use with ON Semiconductor
+processor based microcontrollers only.
+THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+ON SEMICONDUCTOR SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL,
+INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+"""
 
-# CMSIS-DAP Interface Firmware
-# Copyright (c) 2009-2013 ARM Limited
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 from __future__ import absolute_import
 from __future__ import print_function
 
-import argparse
 import itertools
 import binascii
 import intelhex
-import os
 
 FIB_BASE = 0x2000
 FLASH_BASE = 0x3000
-FW_REV = 0x01000100  #todo: determine if revision can be passed from yotta
-
+FW_REV = 0x01000100
 def ranges(i):
     for _, b in itertools.groupby(enumerate(i), lambda x_y: x_y[1] - x_y[0]):
         b = list(b)
@@ -35,31 +26,9 @@ def ranges(i):
 
 
 def add_fib_at_start(arginput):
-    #parser = argparse.ArgumentParser(description='Firmware Information Block generation script')
-    #parser.add_argument("input", type=str, help="bin file to read from.")
-
-    #args = parser.parse_args()
-    #input_file = args.input + "_orig.bin"
-    #output_file = args.input #use same name, does not include extension
-    #file_name_hex = args.input + ".hex"
-    #file_name_bin = args.input + ".bin"
-
-    print("inputfile", arginput)
     input_file = arginput + ".bin"
-    output_file = arginput #use same name, does not include extension
     file_name_hex = arginput + "_fib.hex"
     file_name_bin = arginput + ".bin"
-    print("inputfile", input_file)
-    print("output_file", output_file)
-    print("file_name_hex", file_name_hex)
-    print("file_name_bin", file_name_bin)
-
-
-    # Import intelhex if avaialable, otherwise fail
-    try:
-        from intelhex import IntelHex
-    except:
-        return fail('error: You do not have \'intelhex\' installed. Please run \'pip install intelhex\' then retry.')
 
     # Read in hex file
     input_hex_file = intelhex.IntelHex()
@@ -81,7 +50,8 @@ def add_fib_at_start(arginput):
         start = min(min(start_end_pairs))
         end = max(max(start_end_pairs))
 
-    assert start >= FLASH_BASE, ("Error - start 0x%x less than begining of user flash area" %start)
+    assert start >= FLASH_BASE, ("Error - start 0x%x less than begining of user\
+	flash area" %start)
     # Compute checksum over the range (don't include data at location of crc)
     size = end - start + 1
     data = input_hex_file.tobinarray(start=start, size=size)
@@ -91,11 +61,12 @@ def add_fib_at_start(arginput):
 
     checksum = (start + size + crc32 + fw_rev) & 0xFFFFFFFF
 
-    print("Writing FIB: base 0x%08X, size 0x%08X, crc32 0x%08X, fw rev 0x%08X, checksum 0x%08X" % (start, size, crc32, fw_rev, checksum))
+    print("Writing FIB: base 0x%08X, size 0x%08X, crc32 0x%08X, fw rev 0x%08X,\
+	checksum 0x%08X" % (start, size, crc32, fw_rev, checksum))
 
-#expected initial values used by daplink to validate that it is a valid bin file
-#added as dummy values in this file because the fib area preceeds the application area
-#the bootloader will ignore these dummy values
+#expected initial values used by daplink to validate that it is a valid bin
+#file added as dummy values in this file because the fib area preceeds the
+#application area the bootloader will ignore these dummy values
 #  00 is stack pointer (RAM address)
 #  04 is Reset vector  (FLASH address)
 #  08 NMI_Handler      (FLASH address)
@@ -109,7 +80,8 @@ def add_fib_at_start(arginput):
 
 #expected fib structure
 #typedef struct fib{
-	#uint32_t base;		/**< Base offset of firmware, indicating what flash the firmware is in. (will never be 0x11111111) */
+	#uint32_t base;		/**< Base offset of firmware, indicating what flash the
+	#                        firmware is in. (will never be 0x11111111) */
 	#uint32_t size;		/**< Size of the firmware */
 	#uint32_t crc;		/**< CRC32 for firmware correctness check */
 	#uint32_t rev;		/**< Revision number */
@@ -175,7 +147,7 @@ def add_fib_at_start(arginput):
 
     #pad the rest of the file
     for i in range(fib_start + dummy_fib_size + fib_size, user_code_start):
-        output_hex_file[i] =  0xFF
+        output_hex_file[i] = 0xFF
 
     #merge two hex files
     output_hex_file.merge(input_hex_file, overlap='error')
@@ -183,3 +155,4 @@ def add_fib_at_start(arginput):
     # Write out file(s)
     output_hex_file.tofile(file_name_hex, 'hex')
     output_hex_file.tofile(file_name_bin, 'bin')
+	

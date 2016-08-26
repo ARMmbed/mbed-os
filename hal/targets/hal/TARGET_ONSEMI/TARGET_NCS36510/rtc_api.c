@@ -23,7 +23,7 @@
 */
 #include "rtc_api.h"
 #if DEVICE_RTC
-#include "device.h"  
+#include "device.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
@@ -39,7 +39,7 @@ static IRQn_Type Irq;
 
 void rtc_init(void)
 {
-	fRtcInit();
+    fRtcInit();
 }
 
 /* See rtc_apc.h for description */
@@ -51,19 +51,19 @@ void rtc_free(void)
 /* See rtc_apc.h for description */
 int rtc_isenabled(void)
 {
-	return(fIsRtcEnabled());
+    return(fIsRtcEnabled());
 }
 
 /* See rtc_apc.h for description */
 time_t rtc_read(void)
 {
-	return (uint32_t)(fRtcRead() & 0xFFFFFFFF); /* TODO Truncating 64 bit value to 32 bit */
+    return (uint32_t)(fRtcRead() & 0xFFFFFFFF); /* TODO Truncating 64 bit value to 32 bit */
 }
 
 /* See rtc_apc.h for description */
 void rtc_write(time_t t)
 {
-	fRtcWrite(t);
+    fRtcWrite(t);
 }
 
 #endif /* DEVICE_RTC */

@@ -39,10 +39,10 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
- #ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
-	
+
 //#include "driver.h"
 #include "us_ticker_api.h"
 #include "clock.h"
@@ -64,15 +64,15 @@ extern "C" {
 /* Options defines */
 // TODO (MIV): put this in an enumerated value
 typedef enum {
-	CLK_DIVIDER_1		=	0,
- 	CLK_DIVIDER_2		=	3,
- 	CLK_DIVIDER_8		=	4,
- 	CLK_DIVIDER_16		=	1,
- 	CLK_DIVIDER_32		=	5,
- 	CLK_DIVIDER_128		=	6,
- 	CLK_DIVIDER_256		=	2,
- 	CLK_DIVIDER_1024	=	7
-}ClockDivider;
+    CLK_DIVIDER_1		=	0,
+    CLK_DIVIDER_2		=	3,
+    CLK_DIVIDER_8		=	4,
+    CLK_DIVIDER_16		=	1,
+    CLK_DIVIDER_32		=	5,
+    CLK_DIVIDER_128		=	6,
+    CLK_DIVIDER_256		=	2,
+    CLK_DIVIDER_1024	=	7
+} ClockDivider;
 
 #define TIME_MODE_FREE_RUNNING	0x0
 #define TIME_MODE_PERIODIC		0x1
@@ -81,14 +81,14 @@ typedef  void (*timer_irq_handlers_t)(void) ;
 
 /** Options to be passed when opening a timer device instance.*/
 typedef struct timer_options {
-	TimerReg_pt membase;	/**< Memory base for the device's registers. */
-	uint8_t irq;		/**< IRQ number of the IRQ associated to the device. */
-	boolean mode;		/**< Timer mode:
+    TimerReg_pt membase;	/**< Memory base for the device's registers. */
+    uint8_t irq;		/**< IRQ number of the IRQ associated to the device. */
+    boolean mode;		/**< Timer mode:
 	 	 	 	 	 	 	 * - 0 = Free Run mode (no interrupt generation)
 	 	 	 	 	 	 	 * <b> # timer duration = (65535 + 1) * prescaler  * peripheral clock (PCLK) period </b>
 	 	 	 	 	 	 	 * - 1 = Periodic mode (interrupt generation)
 	 	 	 	 	 	 	 * <b> # timer duration = (load  + 1) * prescaler  * peripheral clock (PCLK) period </b> */
-	uint8_t prescale;	/**< Timer prescaler: from 1 to 1024.
+    uint8_t prescale;	/**< Timer prescaler: from 1 to 1024.
 	 	 	 	 	 	 	 * - CLK_DIVIDER_1 = clock not divided
 	 	 	 	 	 	 	 * - CLK_DIVIDER_2 = clock is divided by 2
 	 	 	 	 	 	 	 * - CLK_DIVIDER_8 = clock is divided by 8
@@ -97,8 +97,8 @@ typedef struct timer_options {
 	 	 	 	 	 	 	 * - CLK_DIVIDER_128 = clock is divided by 128
 	 	 	 	 	 	 	 * - CLK_DIVIDER_256 = clock is divided by 256
 	 	 	 	 	 	 	 * - CLK_DIVIDER_1024 = clock is divided by 1024 */
-	uint16_t load;		/**< Timer load: from 0 to 65535. */
-	timer_irq_handlers_t handler; /**< Timer handler or call-back */
+    uint16_t load;		/**< Timer load: from 0 to 65535. */
+    timer_irq_handlers_t handler; /**< Timer handler or call-back */
 } timer_options_t, *timer_options_pt;
 
 /** Interrupt handler for timer devices; to be called from an actual ISR.
@@ -111,6 +111,6 @@ extern void us_ticker_isr(void);
 
 #ifdef __cplusplus
 }
-#endif	
+#endif
 
 #endif /* TIMER_H_ */

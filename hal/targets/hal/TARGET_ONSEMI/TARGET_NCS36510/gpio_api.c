@@ -4,7 +4,7 @@
  * @brief Implementation of a GPIO driver
  * @internal
  * @author ON Semiconductor
- * $Rev: 
+ * $Rev:
  * $Date: 2015-11-04 $
  ******************************************************************************
  * @copyright (c) 2012 ON Semiconductor. All rights reserved.
@@ -33,7 +33,7 @@
  * <p>
  * Each GPIO line can be independently programmed as an input or an output. Separate Set
  * and Clear registers are provided since it is likely that different software tasks may be
- * servicing different I/O signals. Inputs are synchronized to the system clock 
+ * servicing different I/O signals. Inputs are synchronized to the system clock
  * through a pair of flip-flops.  Each input can be programmed
  * to cause an interrupt to be generated.  The interrupt can be programmed to be level-sensitive
  * or edge-sensitive and the level (high or low) or edge (rising, falling or either) that causes
@@ -59,7 +59,7 @@
 #include "gpio.h"
 
 /* Include from the mbed-hal layer */
-#include "gpio_api.h" 
+#include "gpio_api.h"
 #include "pinmap.h"
 
 
@@ -70,17 +70,16 @@
  **/
 uint32_t gpio_set(PinName pin)
 {
-  if (pin != NC)
-  {
-    	/* Configure to GPIO using pin function API*/
+    if (pin != NC) {
+        /* Configure to GPIO using pin function API*/
         pin_function(pin, CONFIGURE_AS_GPIO);
-      
+
         return ((uint32_t) 0x1 << pin);
-        
-  } 
-  
-  return(0x00000000);
-  
+
+    }
+
+    return(0x00000000);
+
 }
 
 /** Initialize the GPIO pin
@@ -90,31 +89,31 @@ uint32_t gpio_set(PinName pin)
  */
 void gpio_init(gpio_t *obj, PinName pin)
 {
-  /* Initialize the GPIO membase */
-  obj->GPIOMEMBASE = GPIOREG;
-  
-  /* Initialize the pin to be GPIO */
-  obj->gpioPin = pin;
-  obj->gpioMask = gpio_set(pin);  
-  
-  /* Enable the GPIO clock */
-  CLOCK_ENABLE(CLOCK_GPIO);  
-  
-  /* Set the drive strength of the pin to 1 by default */
-  /** - Get PAD IO register address for the PAD number */
-  PadReg_t *PadRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
+    /* Initialize the GPIO membase */
+    obj->GPIOMEMBASE = GPIOREG;
 
-  /* - Disable the GPIO clock */
-  CLOCK_DISABLE(CLOCK_GPIO);
+    /* Initialize the pin to be GPIO */
+    obj->gpioPin = pin;
+    obj->gpioMask = gpio_set(pin);
 
-  /** - Enable the clock for PAD peripheral device */
-  CLOCK_ENABLE(CLOCK_PAD);
-  
-  /** - Set drive type, pulltype & drive strength */
-  PadRegOffset->PADIO0.BITS.POWER = 1;
-  
-  /** - Disable the clock for PAD peripheral device */
-  CLOCK_DISABLE(CLOCK_PAD); 
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
+
+    /* Set the drive strength of the pin to 1 by default */
+    /** - Get PAD IO register address for the PAD number */
+    PadReg_t *PadRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
+
+    /* - Disable the GPIO clock */
+    CLOCK_DISABLE(CLOCK_GPIO);
+
+    /** - Enable the clock for PAD peripheral device */
+    CLOCK_ENABLE(CLOCK_PAD);
+
+    /** - Set drive type, pulltype & drive strength */
+    PadRegOffset->PADIO0.BITS.POWER = 1;
+
+    /** - Disable the clock for PAD peripheral device */
+    CLOCK_DISABLE(CLOCK_PAD);
 }
 
 /** Set the input pin mode
@@ -124,10 +123,10 @@ void gpio_init(gpio_t *obj, PinName pin)
  */
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-  uint32_t pin = obj->gpioPin;
-  
-  /* Set the mode for the pin */
-  pin_mode((PinName)pin, mode);
+    uint32_t pin = obj->gpioPin;
+
+    /* Set the mode for the pin */
+    pin_mode((PinName)pin, mode);
 }
 
 /** Set the pin direction
@@ -137,17 +136,17 @@ void gpio_mode(gpio_t *obj, PinMode mode)
  */
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
-  /* Enable the GPIO clock */
-  CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-  if (direction == PIN_INPUT) {
-    obj->GPIOMEMBASE->W_IN = obj->gpioMask;
-  } else if (direction == PIN_OUTPUT) {
-    obj->GPIOMEMBASE->W_OUT = obj->gpioMask;
-  }
+    if (direction == PIN_INPUT) {
+        obj->GPIOMEMBASE->W_IN = obj->gpioMask;
+    } else if (direction == PIN_OUTPUT) {
+        obj->GPIOMEMBASE->W_OUT = obj->gpioMask;
+    }
 
-  /* - Disable the GPIO clock */
-  CLOCK_DISABLE(CLOCK_GPIO);
+    /* - Disable the GPIO clock */
+    CLOCK_DISABLE(CLOCK_GPIO);
 }
 
 /** Set the output value
@@ -157,21 +156,18 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
  */
 void gpio_write(gpio_t *obj, int value)
 {
-  /* Enable the GPIO clock */
-  CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-  /* Set the GPIO based on value */
-  if (value)
-  {
-    obj->GPIOMEMBASE->R_STATE_W_SET = obj->gpioMask;
-  }
-  else
-  {
-    obj->GPIOMEMBASE->R_IRQ_W_CLEAR = obj->gpioMask;
-  }
+    /* Set the GPIO based on value */
+    if (value) {
+        obj->GPIOMEMBASE->R_STATE_W_SET = obj->gpioMask;
+    } else {
+        obj->GPIOMEMBASE->R_IRQ_W_CLEAR = obj->gpioMask;
+    }
 
-  /* - Disable the GPIO clock */
-  CLOCK_DISABLE(CLOCK_GPIO);
+    /* - Disable the GPIO clock */
+    CLOCK_DISABLE(CLOCK_GPIO);
 }
 
 /** Read the input value
@@ -181,15 +177,15 @@ void gpio_write(gpio_t *obj, int value)
  */
 int gpio_read(gpio_t *obj)
 {
-  int ret;
+    int ret;
 
-  /* Enable the GPIO clock */
-  CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-  ret = (obj->GPIOMEMBASE->R_STATE_W_SET & obj->gpioMask) ? 1: 0;
+    ret = (obj->GPIOMEMBASE->R_STATE_W_SET & obj->gpioMask) ? 1: 0;
 
-  /* - Disable the GPIO clock */
-  CLOCK_DISABLE(CLOCK_GPIO);
+    /* - Disable the GPIO clock */
+    CLOCK_DISABLE(CLOCK_GPIO);
 
-  return ret;
+    return ret;
 }

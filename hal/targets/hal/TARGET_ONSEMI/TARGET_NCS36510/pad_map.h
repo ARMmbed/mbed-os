@@ -86,150 +86,150 @@
  * push/pull control and output drive type.
  */
 typedef struct {
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO0;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO1;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO2;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO3;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO4;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO5;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO6;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO7;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO8;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO9;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO10;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO11;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO12;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO13;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO14;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO15;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO16;
-	union {
-		struct {
-			__IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
-			__IO uint32_t POWER :3; /**< Output Drive Strength*/
-			__IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
-		} BITS;
-		__IO uint32_t WORD;
-	} PADIO17;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO0;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO1;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO2;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO3;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO4;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO5;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO6;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO7;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO8;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO9;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO10;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO11;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO12;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO13;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO14;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO15;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO16;
+    union {
+        struct {
+            __IO uint32_t PULL :2; /**< 00 – Pull-down active, 01 – No pull active, 10 – No pull active, 11 – Pull-up active*/
+            __IO uint32_t POWER :3; /**< Output Drive Strength*/
+            __IO uint32_t TYPE :1; /**< Output Type: 0 – Push/Pull, 1 – Open Drain*/
+        } BITS;
+        __IO uint32_t WORD;
+    } PADIO17;
 } PadReg_t, *PadReg_pt;
 
 #endif /* PAD_MAP_H_ */

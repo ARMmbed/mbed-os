@@ -48,88 +48,81 @@
  */
 void analogin_init(analogin_t *obj, PinName pin)
 {
-	CLOCK_ENABLE(CLOCK_ADC);	
+    CLOCK_ENABLE(CLOCK_ADC);
     ADCName adc;
     uint8_t adc_pin = 0;
 
-	adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-	    MBED_ASSERT(adc != (ADCName)NC);
+    adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT(adc != (ADCName)NC);
 
-	obj->adcReg = (AdcReg_pt)adc;
-	obj->pin = pin;
-	obj->pinFlag = 1;
+    obj->adcReg = (AdcReg_pt)adc;
+    obj->pin = pin;
+    obj->pinFlag = 1;
 
-	switch (pin)
-	{
-	case A0:
-		adc_pin=0;
-		break;
-	case A1:
-		adc_pin = 1;
-		break;
-	case A2:
-		adc_pin = 2;
-		break;
-	case A3:
-		adc_pin = 3;
-		break;
-	default:
-		break;
-	}
+    switch (pin) {
+        case A0:
+            adc_pin=0;
+            break;
+        case A1:
+            adc_pin = 1;
+            break;
+        case A2:
+            adc_pin = 2;
+            break;
+        case A3:
+            adc_pin = 3;
+            break;
+        default:
+            break;
+    }
 
-	/* If no config parameters are passed on; assume default value */
-	if (obj->adcConf == Null)
-	{
-		/* Single sample, absolute conversion, scale = 1 */
-		obj->adcReg->CONTROL.WORD = ((0 << ADC_CONTROL_MODE_BIT_POS) |
-						(1 << ADC_CONTROL_MEASTYPE_BIT_POS) |
-						(1 << ADC_CONTROL_INPUTSCALE_BIT_POS) |
-						(((uint8_t)adc_pin) << ADC_CONTROL_MEAS_CH_BIT_POS));
+    /* If no config parameters are passed on; assume default value */
+    if (obj->adcConf == Null) {
+        /* Single sample, absolute conversion, scale = 1 */
+        obj->adcReg->CONTROL.WORD = ((0 << ADC_CONTROL_MODE_BIT_POS) |
+                                     (1 << ADC_CONTROL_MEASTYPE_BIT_POS) |
+                                     (1 << ADC_CONTROL_INPUTSCALE_BIT_POS) |
+                                     (((uint8_t)adc_pin) << ADC_CONTROL_MEAS_CH_BIT_POS));
 
-		/* Prescaler enabled; set to 7 */
-		obj->adcReg->PRESCALE.WORD = ((True << ADC_PRESCALE_EN_BIT_POS) |
-					(7 << ADC_PRESCALE_VAL_BIT_POS)); /* ADC clock = 32MHz/(Prescale + 1) */
+        /* Prescaler enabled; set to 7 */
+        obj->adcReg->PRESCALE.WORD = ((True << ADC_PRESCALE_EN_BIT_POS) |
+                                      (7 << ADC_PRESCALE_VAL_BIT_POS)); /* ADC clock = 32MHz/(Prescale + 1) */
 
-		obj->adcReg->DELAY.WORD = ((0x34 << ADC_DELAY_SAMPLE_RATE_BIT_POS) | /** 25 uS Sets the sample rate in units of PCLKperiod *  (Prescale + 1). */
-					(0x05 << ADC_DELAY_WARMUP_BIT_POS) | /** 12.5 uS Sets the measure time in units of PCLKperiod * (Prescale + 1). */
-					(0x1A << ADC_DELAY_SAMPLE_TIME_BIT_POS)); /** 2.5 uS Sets the warm-up time in units of PCLKperiod * (Prescale + 1). */
+        obj->adcReg->DELAY.WORD = ((0x34 << ADC_DELAY_SAMPLE_RATE_BIT_POS) | /** 25 uS Sets the sample rate in units of PCLKperiod *  (Prescale + 1). */
+                                   (0x05 << ADC_DELAY_WARMUP_BIT_POS) | /** 12.5 uS Sets the measure time in units of PCLKperiod * (Prescale + 1). */
+                                   (0x1A << ADC_DELAY_SAMPLE_TIME_BIT_POS)); /** 2.5 uS Sets the warm-up time in units of PCLKperiod * (Prescale + 1). */
 
-		obj->adcReg->IR = 0; /** No interrupt generated */
-	}
-	else
-	{
-		obj->adcConf->convCh = adc_pin;
+        obj->adcReg->IR = 0; /** No interrupt generated */
+    } else {
+        obj->adcConf->convCh = adc_pin;
 
-		/* ADC register settings */
-		if((obj->adcConf->measurementType) == ADC_RELATIVE_MEAS)
-		{
-			obj->adcReg->CONTROL.WORD = ((obj->adcConf->mode << ADC_CONTROL_MODE_BIT_POS) |
-					(obj->adcConf->measurementType << ADC_CONTROL_MEASTYPE_BIT_POS) |
-					(obj->adcConf->inputScale << ADC_CONTROL_INPUTSCALE_BIT_POS) |
-					(obj->adcConf->convCh << ADC_CONTROL_MEAS_CH_BIT_POS) |
-					(obj->adcConf->referenceCh << ADC_CONTROL_REF_CH_BIT_POS));
-		}
-		else
-		{
-			obj->adcReg->CONTROL.WORD = ((obj->adcConf->mode << ADC_CONTROL_MODE_BIT_POS) |
-					(obj->adcConf->measurementType << ADC_CONTROL_MEASTYPE_BIT_POS) |
-					(obj->adcConf->inputScale << ADC_CONTROL_INPUTSCALE_BIT_POS) |
-					(obj->adcConf->convCh << ADC_CONTROL_MEAS_CH_BIT_POS));
-		}
+        /* ADC register settings */
+        if((obj->adcConf->measurementType) == ADC_RELATIVE_MEAS) {
+            obj->adcReg->CONTROL.WORD = ((obj->adcConf->mode << ADC_CONTROL_MODE_BIT_POS) |
+                                         (obj->adcConf->measurementType << ADC_CONTROL_MEASTYPE_BIT_POS) |
+                                         (obj->adcConf->inputScale << ADC_CONTROL_INPUTSCALE_BIT_POS) |
+                                         (obj->adcConf->convCh << ADC_CONTROL_MEAS_CH_BIT_POS) |
+                                         (obj->adcConf->referenceCh << ADC_CONTROL_REF_CH_BIT_POS));
+        } else {
+            obj->adcReg->CONTROL.WORD = ((obj->adcConf->mode << ADC_CONTROL_MODE_BIT_POS) |
+                                         (obj->adcConf->measurementType << ADC_CONTROL_MEASTYPE_BIT_POS) |
+                                         (obj->adcConf->inputScale << ADC_CONTROL_INPUTSCALE_BIT_POS) |
+                                         (obj->adcConf->convCh << ADC_CONTROL_MEAS_CH_BIT_POS));
+        }
 
-		obj->adcReg->PRESCALE.WORD = ((True << ADC_PRESCALE_EN_BIT_POS) |
-				(obj->adcConf->PrescaleVal << ADC_PRESCALE_VAL_BIT_POS)); /* ADC clock = 32MHz/(Prescale + 1) */
+        obj->adcReg->PRESCALE.WORD = ((True << ADC_PRESCALE_EN_BIT_POS) |
+                                      (obj->adcConf->PrescaleVal << ADC_PRESCALE_VAL_BIT_POS)); /* ADC clock = 32MHz/(Prescale + 1) */
 
-		obj->adcReg->DELAY.WORD = ((obj->adcConf->samplingRate << ADC_DELAY_SAMPLE_RATE_BIT_POS) | /** 25 uS Sets the sample rate in units of PCLKperiod *  (Prescale + 1). */
-				(obj->adcConf->WarmUpTime << ADC_DELAY_WARMUP_BIT_POS) | /** 12.5 uS Sets the measure time in units of PCLKperiod * (Prescale + 1). */
-				(obj->adcConf->samplingTime << ADC_DELAY_SAMPLE_TIME_BIT_POS)); /** 2.5 uS Sets the warm-up time in units of PCLKperiod * (Prescale + 1). */
+        obj->adcReg->DELAY.WORD = ((obj->adcConf->samplingRate << ADC_DELAY_SAMPLE_RATE_BIT_POS) | /** 25 uS Sets the sample rate in units of PCLKperiod *  (Prescale + 1). */
+                                   (obj->adcConf->WarmUpTime << ADC_DELAY_WARMUP_BIT_POS) | /** 12.5 uS Sets the measure time in units of PCLKperiod * (Prescale + 1). */
+                                   (obj->adcConf->samplingTime << ADC_DELAY_SAMPLE_TIME_BIT_POS)); /** 2.5 uS Sets the warm-up time in units of PCLKperiod * (Prescale + 1). */
 
-		obj->adcReg->IR = obj->adcConf->interruptConfig; /**  Interrupt setting */
-	}
+        obj->adcReg->IR = obj->adcConf->interruptConfig; /**  Interrupt setting */
+    }
 
-	/* Enable interrupt */
-	NVIC_ClearPendingIRQ(Adc_IRQn);
-	NVIC_EnableIRQ(Adc_IRQn);
+    /* Enable interrupt */
+    NVIC_ClearPendingIRQ(Adc_IRQn);
+    NVIC_EnableIRQ(Adc_IRQn);
 }
 
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -152,53 +145,41 @@ float analogin_read(analogin_t *obj)
  */
 uint16_t analogin_read_u16(analogin_t *obj)
 {
-	uint16_t adcData = 0;
-	uint8_t adc_pin = 0;
+    uint16_t adcData = 0;
+    uint8_t adc_pin = 0;
 
-	CLOCK_ENABLE(CLOCK_ADC);
+    CLOCK_ENABLE(CLOCK_ADC);
 
-	if (obj->pinFlag)
-	{
-		switch (obj->pin)
-			{
-			case A0:
-				adc_pin=0;
-				break;
-			case A1:
-				adc_pin = 1;
-				break;
-			case A2:
-				adc_pin = 2;
-				break;
-			case A3:
-				adc_pin = 3;
-				break;
-			default:
-				break;
-			}
+    if (obj->pinFlag) {
+        switch (obj->pin) {
+            case A0:
+                adc_pin=0;
+                break;
+            case A1:
+                adc_pin = 1;
+                break;
+            case A2:
+                adc_pin = 2;
+                break;
+            case A3:
+                adc_pin = 3;
+                break;
+            default:
+                break;
+        }
 
-		/* Re initialize the pin configured for ADC read */
-		obj->adcReg->CONTROL.BITS.CONV_CH = adc_pin;
-	}
+        /* Re initialize the pin configured for ADC read */
+        obj->adcReg->CONTROL.BITS.CONV_CH = adc_pin;
+    }
 
-	obj->adcReg->CONTROL.BITS.START_CONV=1;    /* Start The Conversion */
+    obj->adcReg->CONTROL.BITS.START_CONV=1;    /* Start The Conversion */
 
-	while((uint32_t)(obj->adcReg->STATUS)!=(uint32_t)1)
-	{}
-	adcData =(uint16_t)(obj->adcReg->DATA);
-	CLOCK_DISABLE(CLOCK_ADC);
+    while((uint32_t)(obj->adcReg->STATUS)!=(uint32_t)1) {
+    }
+    adcData =(uint16_t)(obj->adcReg->DATA);
+    CLOCK_DISABLE(CLOCK_ADC);
 
-	return(adcData);
-}
-
-/*ADC handler function */
-void fAdcHandler(void)
-{
-	uint16_t adcData = 0;
-	AdcReg_pt adcReg = (AdcReg_pt)ADC_0;
-	adcReg->IR = True;
-	NVIC_ClearPendingIRQ(Adc_IRQn);
-	adcData =(uint16_t)(adcReg->DATA);
+    return(adcData);
 }
 
 #endif // DEVICE_ANALOGIN

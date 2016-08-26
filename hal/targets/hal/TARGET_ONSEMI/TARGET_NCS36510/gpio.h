@@ -39,7 +39,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	
+
 #include "memory_map.h"
 #include "gpio_map.h"
 #include "pad_map.h"
@@ -47,13 +47,13 @@ extern "C" {
 #include "clock.h"
 #include "pad.h"
 
-   
+
 /** output configuration push/pull */
 #define PAD_OUTCFG_PUSHPULL	                (uint8_t)0x00
-   
+
 /** output configuration open drain */
-#define PAD_OOUTCFG_OPENDRAIN                   (uint8_t)0x01   
-   
+#define PAD_OOUTCFG_OPENDRAIN                   (uint8_t)0x01
+
 /** no pull up nor pull down */
 #define PAD_PULL_NONE	                        (uint8_t)0x01
 

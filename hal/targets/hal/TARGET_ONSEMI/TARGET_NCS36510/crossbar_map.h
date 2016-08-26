@@ -42,24 +42,24 @@
 
 /* Crossbar Control HW Structure Overlay */
 typedef struct {
-	__IO uint32_t DIOCTRL0; /**< Switch IO0 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL1; /**< Switch IO1 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL2; /**< Switch IO2 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL3; /**< Switch IO3 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL4; /**< Switch IO4 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL5; /**< Switch IO5 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL6; /**< Switch IO6 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL7; /**< Switch IO7 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL8; /**< Switch IO8 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL9; /**< Switch IO9 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL10; /**< Switch IO10 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL11; /**< Switch IO11 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL12; /**< Switch IO12 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL13; /**< Switch IO13 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL14; /**< Switch IO14 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL15; /**< Switch IO15 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL16; /**< Switch IO16 to GPIO(default) or peripheral device */
-	__IO uint32_t DIOCTRL17; /**< Switch IO17 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL0; /**< Switch IO0 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL1; /**< Switch IO1 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL2; /**< Switch IO2 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL3; /**< Switch IO3 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL4; /**< Switch IO4 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL5; /**< Switch IO5 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL6; /**< Switch IO6 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL7; /**< Switch IO7 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL8; /**< Switch IO8 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL9; /**< Switch IO9 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL10; /**< Switch IO10 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL11; /**< Switch IO11 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL12; /**< Switch IO12 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL13; /**< Switch IO13 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL14; /**< Switch IO14 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL15; /**< Switch IO15 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL16; /**< Switch IO16 to GPIO(default) or peripheral device */
+    __IO uint32_t DIOCTRL17; /**< Switch IO17 to GPIO(default) or peripheral device */
 } CrossbReg_t, *CrossbReg_pt;
 
 #endif /* CROSSB_MAP_H_ */

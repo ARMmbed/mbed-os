@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-	/* Miscellaneous I/O and control operations codes */
+/* Miscellaneous I/O and control operations codes */
 #define SPI_IPC7207_IOCTL_GET_SLAVE_SELECT	(0x1) /**< <b>Ioctl request code</b>: Reading slaveSelect register */
 #define SPI_IPC7207_IOCTL_SET_SLAVE_SELECT	(0x2) /**< <b>Ioctl request code</b>: Setting slaveSelect register */
 #define SPI_IPC7207_IOCTL_FLUSH				(0x3) /**< <b>Ioctl request code</b>: Flushin FIFOs and serial shift registers */

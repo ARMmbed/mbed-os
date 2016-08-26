@@ -41,39 +41,39 @@
 
 /** A character driver structure. */
 typedef struct char_driver {
-	/** The parent generic driver. */
-	driver_t driver;
+    /** The parent generic driver. */
+    driver_t driver;
 
-	/** Blocking read into a buffer.
-	 * @param device The device to read from.
-	 * @param buf The buffer to read into.
-	 * @param len The number of bytes to read.
-	 */
-	uint8_t (*read_b)(device_pt device, uint8_t *const buf, uint32_t len);
+    /** Blocking read into a buffer.
+     * @param device The device to read from.
+     * @param buf The buffer to read into.
+     * @param len The number of bytes to read.
+     */
+    uint8_t (*read_b)(device_pt device, uint8_t *const buf, uint32_t len);
 
-	/** Non-blocking read into a buffer.
-	 * @param device The device to read from.
-	 * @param buf The buffer to read into.
-	 * @param len The maximum number of bytes to read; typically the size of the buffer.
-	 * @return The number of bytes actually read.
-	 */
-	uint32_t (*read_nb)(device_pt device, uint8_t *const buf, uint32_t len);
+    /** Non-blocking read into a buffer.
+     * @param device The device to read from.
+     * @param buf The buffer to read into.
+     * @param len The maximum number of bytes to read; typically the size of the buffer.
+     * @return The number of bytes actually read.
+     */
+    uint32_t (*read_nb)(device_pt device, uint8_t *const buf, uint32_t len);
 
-	/** Blocking write from a buffer.
-	 * @param device The device to write to.
-	 * @param buf The buffer to read from.
-	 * @param len The number of bytes to write; typically the size of the buffer.
-	 * @return success or error message
-	 */
-	uint8_t (*write_b)(device_pt device, const uint8_t *buf, uint32_t len);
+    /** Blocking write from a buffer.
+     * @param device The device to write to.
+     * @param buf The buffer to read from.
+     * @param len The number of bytes to write; typically the size of the buffer.
+     * @return success or error message
+     */
+    uint8_t (*write_b)(device_pt device, const uint8_t *buf, uint32_t len);
 
-	/** Non-blocking write from a buffer.
-	 * @param device The device to write to.
-	 * @param buf The buffer to read from.
-	 * @param len The number of bytes to write; typically the size of the buffer.
-	 * @return success or error message
-	 */
-	uint8_t (*write_nb)(device_pt device, const uint8_t *buf, uint32_t len);
+    /** Non-blocking write from a buffer.
+     * @param device The device to write to.
+     * @param buf The buffer to read from.
+     * @param len The number of bytes to write; typically the size of the buffer.
+     * @return success or error message
+     */
+    uint8_t (*write_nb)(device_pt device, const uint8_t *buf, uint32_t len);
 } char_driver_t, *char_driver_pt;
 
 #endif /* CHAR_DRIVER_H_ */

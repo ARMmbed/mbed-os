@@ -59,86 +59,83 @@ static inline void uart_irq(uint8_t status, uint32_t index);
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
-	uint16_t clockDivisor;
+    uint16_t clockDivisor;
 
-	CrossbReg_t *CbRegOffSet;
-	PadReg_t *PadRegOffset;
+    CrossbReg_t *CbRegOffSet;
+    PadReg_t *PadRegOffset;
 
-	//find which peripheral is associated with the rx and tx pins
-	uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
-	uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
-	//check if the peripherals for each pin are the same or not
-	//returns the enum associated with the peripheral
-	//in the case of this target, the enum is the base address of the peripheral
-	obj->UARTREG = (Uart16C550Reg_pt) pinmap_merge(uart_tx, uart_rx);
-	MBED_ASSERT(obj->UARTREG != (Uart16C550Reg_pt) NC);
+    //find which peripheral is associated with the rx and tx pins
+    uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
+    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
+    //check if the peripherals for each pin are the same or not
+    //returns the enum associated with the peripheral
+    //in the case of this target, the enum is the base address of the peripheral
+    obj->UARTREG = (Uart16C550Reg_pt) pinmap_merge(uart_tx, uart_rx);
+    MBED_ASSERT(obj->UARTREG != (Uart16C550Reg_pt) NC);
 
-	pinmap_pinout(tx, PinMap_UART_TX);
-	pinmap_pinout(rx, PinMap_UART_RX);
+    pinmap_pinout(tx, PinMap_UART_TX);
+    pinmap_pinout(rx, PinMap_UART_RX);
 
-  /*TODO: Mac Lobdell - we should recommend using the instance method and not using base addresses as index */
+    /*TODO: Mac Lobdell - we should recommend using the instance method and not using base addresses as index */
 
-	if (obj->UARTREG == (Uart16C550Reg_pt)STDIO_UART) {
-			stdio_uart_inited = 1;
-			memcpy(&stdio_uart, obj, sizeof(serial_t));
-	}
- /*TODO: determine if pullups are needed/recommended */
-/*	if (tx != NC) {
-			pin_mode(tx, PullUp);
-  }
-	if (rx != NC) {
-			pin_mode(rx, PullUp);
-	}
-*/
-	/* Configure IOs to UART using cross bar, pad and GPIO settings */
+    if (obj->UARTREG == (Uart16C550Reg_pt)STDIO_UART) {
+        stdio_uart_inited = 1;
+        memcpy(&stdio_uart, obj, sizeof(serial_t));
+    }
+    /*TODO: determine if pullups are needed/recommended */
+    /*	if (tx != NC) {
+    			pin_mode(tx, PullUp);
+      }
+    	if (rx != NC) {
+    			pin_mode(rx, PullUp);
+    	}
+    */
+    /* Configure IOs to UART using cross bar, pad and GPIO settings */
 
-	if(obj->UARTREG == UART2REG)
-	{/* UART 2 */
-		CLOCK_ENABLE(CLOCK_UART2);
-		Irq = Uart2_IRQn;
-	}
-	else if(obj->UARTREG == UART1REG)
-	{ /* UART 1  */
-		CLOCK_ENABLE(CLOCK_UART1);
+    if(obj->UARTREG == UART2REG) {
+        /* UART 2 */
+        CLOCK_ENABLE(CLOCK_UART2);
+        Irq = Uart2_IRQn;
+    } else if(obj->UARTREG == UART1REG) {
+        /* UART 1  */
+        CLOCK_ENABLE(CLOCK_UART1);
 
-		Irq = Uart1_IRQn;
-	}
-	else
-	{
-		MBED_ASSERT(False);
-	}
+        Irq = Uart1_IRQn;
+    } else {
+        MBED_ASSERT(False);
+    }
 
-	CLOCK_ENABLE(CLOCK_GPIO);
-	CLOCK_ENABLE(CLOCK_CROSSB);
-	CLOCK_ENABLE(CLOCK_PAD);
+    CLOCK_ENABLE(CLOCK_GPIO);
+    CLOCK_ENABLE(CLOCK_CROSSB);
+    CLOCK_ENABLE(CLOCK_PAD);
 
-	/*TODO: determine if tx and rx are used correctly in this case - this depends on the pin enum matching the position in the crossbar*/
+    /*TODO: determine if tx and rx are used correctly in this case - this depends on the pin enum matching the position in the crossbar*/
 
-	/* Configure tx pin as UART */
-	CbRegOffSet = (CrossbReg_t*)(CROSSBREG_BASE + (tx * CROSS_REG_ADRS_BYTE_SIZE));
-	CbRegOffSet->DIOCTRL0 = CONFIGURE_AS_UART; /* tx pin as UART */
+    /* Configure tx pin as UART */
+    CbRegOffSet = (CrossbReg_t*)(CROSSBREG_BASE + (tx * CROSS_REG_ADRS_BYTE_SIZE));
+    CbRegOffSet->DIOCTRL0 = CONFIGURE_AS_UART; /* tx pin as UART */
 
-	/* Configure rx pin as UART */
-	CbRegOffSet = (CrossbReg_t*)(CROSSBREG_BASE + (rx * CROSS_REG_ADRS_BYTE_SIZE));
-	CbRegOffSet->DIOCTRL0 = CONFIGURE_AS_UART; /* rx pin as UART */
+    /* Configure rx pin as UART */
+    CbRegOffSet = (CrossbReg_t*)(CROSSBREG_BASE + (rx * CROSS_REG_ADRS_BYTE_SIZE));
+    CbRegOffSet->DIOCTRL0 = CONFIGURE_AS_UART; /* rx pin as UART */
 
-	/** - Set pad parameters, output drive strength, pull piece control, output drive type */
-	PadRegOffset = (PadReg_t*)(PADREG_BASE + (tx * PAD_REG_ADRS_BYTE_SIZE));
-	PadRegOffset->PADIO0.WORD = PAD_UART_TX; /* Pad setting for UART Tx */
+    /** - Set pad parameters, output drive strength, pull piece control, output drive type */
+    PadRegOffset = (PadReg_t*)(PADREG_BASE + (tx * PAD_REG_ADRS_BYTE_SIZE));
+    PadRegOffset->PADIO0.WORD = PAD_UART_TX; /* Pad setting for UART Tx */
 
-	PadRegOffset = (PadReg_t*)(PADREG_BASE + (rx * PAD_REG_ADRS_BYTE_SIZE));
-	PadRegOffset->PADIO0.WORD = PAD_UART_RX;  /* Pad settings for UART Rx */
+    PadRegOffset = (PadReg_t*)(PADREG_BASE + (rx * PAD_REG_ADRS_BYTE_SIZE));
+    PadRegOffset->PADIO0.WORD = PAD_UART_RX;  /* Pad settings for UART Rx */
 
-	GPIOREG->W_OUT	|= (True << tx); /* tx as OUT direction */
-	GPIOREG->W_IN 	|= (True << rx); /* rx as IN directon */
+    GPIOREG->W_OUT	|= (True << tx); /* tx as OUT direction */
+    GPIOREG->W_IN 	|= (True << rx); /* rx as IN directon */
 
-	CLOCK_DISABLE(CLOCK_PAD);
+    CLOCK_DISABLE(CLOCK_PAD);
     CLOCK_DISABLE(CLOCK_CROSSB);
-	CLOCK_DISABLE(CLOCK_GPIO);
+    CLOCK_DISABLE(CLOCK_GPIO);
 
     /* Set the divisor value.  To do so, LCR[7] needs to be set to 1 in order to access the divisor registers.
      * The right-shift of 4 is a division of 16, representing the oversampling rate. */
-	clockDivisor = (fClockGetPeriphClockfrequency() / UART_DEFAULT_BAUD) >> 4;
+    clockDivisor = (fClockGetPeriphClockfrequency() / UART_DEFAULT_BAUD) >> 4;
     obj->UARTREG->LCR.WORD = 0x80;
     obj->UARTREG->DLL = clockDivisor & 0xFF;
     obj->UARTREG->DLM = clockDivisor >> 8;
@@ -156,11 +153,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
      *   flow control state. */
     obj->UARTREG->SCR = obj->UARTREG->MSR.WORD;
 
-	if((int)obj->UARTREG == STDIO_UART)
-	{
-		stdio_uart_inited = 1;
-     	memcpy(&stdio_uart, obj, sizeof(serial_t));
-	}
+    if((int)obj->UARTREG == STDIO_UART) {
+        stdio_uart_inited = 1;
+        memcpy(&stdio_uart, obj, sizeof(serial_t));
+    }
 
     NVIC_ClearPendingIRQ(Irq);
 
@@ -180,14 +176,14 @@ void serial_free(serial_t *obj)
 
 void serial_baud(serial_t *obj, int baudrate)
 {
-	/* Set the divisor value.  To do so, LCR[7] needs to be set to 1 in order to access the divisor registers.
+    /* Set the divisor value.  To do so, LCR[7] needs to be set to 1 in order to access the divisor registers.
      * The right-shift of 4 is a division of 16, representing the oversampling rate. */
     uint16_t clockDivisor = (fClockGetPeriphClockfrequency() / baudrate) >> 4;
 
-	obj->UARTREG->LCR.BITS.DLAB = True;
-	obj->UARTREG->DLL = clockDivisor & 0xFF;
-	obj->UARTREG->DLM = clockDivisor >> 8;
-	obj->UARTREG->LCR.BITS.DLAB = False;
+    obj->UARTREG->LCR.BITS.DLAB = True;
+    obj->UARTREG->DLL = clockDivisor & 0xFF;
+    obj->UARTREG->DLM = clockDivisor >> 8;
+    obj->UARTREG->LCR.BITS.DLAB = False;
 }
 
 /*
@@ -197,30 +193,24 @@ DataLen 00 – 5 bits; 01 – 6 bits; 10 – 7 bits; 11 – 8 bits
 */
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
-	if(data_bits >= 5 && data_bits <= 8 && parity <= 7 && stop_bits >= 1 && stop_bits <= 2)
-	{
-		if(parity == (SerialParity)0)
-		{
-			parity  = (SerialParity)0;
-		}
-		else
-		{
-			parity = (SerialParity)(parity + parity - 1) ;
-		}
+    if(data_bits >= 5 && data_bits <= 8 && parity <= 7 && stop_bits >= 1 && stop_bits <= 2) {
+        if(parity == (SerialParity)0) {
+            parity  = (SerialParity)0;
+        } else {
+            parity = (SerialParity)(parity + parity - 1) ;
+        }
 
-		obj->UARTREG->LCR.WORD |= ((((data_bits - 5) << UART_LCR_DATALEN_BIT_POS) |
-							  	  (parity << UART_LCR_PARITY_BIT_POS) |
-							  	  ((stop_bits - 1) << UART_LCR_STPBIT_BIT_POS)) & 0x3F);
-	}
-	else
-	{
-		MBED_ASSERT(False);
-	}
+        obj->UARTREG->LCR.WORD |= ((((data_bits - 5) << UART_LCR_DATALEN_BIT_POS) |
+                                    (parity << UART_LCR_PARITY_BIT_POS) |
+                                    ((stop_bits - 1) << UART_LCR_STPBIT_BIT_POS)) & 0x3F);
+    } else {
+        MBED_ASSERT(False);
+    }
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
-	irq_handler = handler;
+    irq_handler = handler;
     serial_irq_ids[obj->index] = id;
 }
 
@@ -229,166 +219,151 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 *******************************************************/
 void Uart1_Irq()
 {
-	uint8_t active_irq = (uint8_t)(UART1REG->LSR.WORD) & 0xFF;
-	uint8_t irq_mask = 0;
+    uint8_t active_irq = (uint8_t)(UART1REG->LSR.WORD) & 0xFF;
+    uint8_t irq_mask = 0;
 
-	if(UART1REG->IER.WORD & UART_IER_TX_EMPTY_MASK){  /*check if TX interrupt is enabled*/
-		irq_mask |= active_irq & UART_LSR_TX_EMPTY_MASK;
-	}
+    if(UART1REG->IER.WORD & UART_IER_TX_EMPTY_MASK) { /*check if TX interrupt is enabled*/
+        irq_mask |= active_irq & UART_LSR_TX_EMPTY_MASK;
+    }
 
-	if(UART1REG->IER.WORD & UART_IER_RX_DATA_READY_MASK){  /*check if RX interrupt is enabled*/
-		irq_mask |= active_irq & UART_LSR_RX_DATA_READY_MASK;
-	}
+    if(UART1REG->IER.WORD & UART_IER_RX_DATA_READY_MASK) { /*check if RX interrupt is enabled*/
+        irq_mask |= active_irq & UART_LSR_RX_DATA_READY_MASK;
+    }
 
-	//uart_irq((uint8_t)(UART1REG->LSR.WORD & 0xFF), 0);
-	uart_irq(active_irq & irq_mask, 0);
+    //uart_irq((uint8_t)(UART1REG->LSR.WORD & 0xFF), 0);
+    uart_irq(active_irq & irq_mask, 0);
 }
 
 void Uart2_Irq()
 {
-	uint8_t active_irq = (uint8_t)(UART2REG->LSR.WORD) & 0xFF;
-	uint8_t irq_mask = 0;
+    uint8_t active_irq = (uint8_t)(UART2REG->LSR.WORD) & 0xFF;
+    uint8_t irq_mask = 0;
 
-	if(UART2REG->IER.WORD & UART_IER_TX_EMPTY_MASK){  /*check if TX interrupt is enabled*/
-		irq_mask |= active_irq & UART_LSR_TX_EMPTY_MASK;
-	}
+    if(UART2REG->IER.WORD & UART_IER_TX_EMPTY_MASK) { /*check if TX interrupt is enabled*/
+        irq_mask |= active_irq & UART_LSR_TX_EMPTY_MASK;
+    }
 
-	if(UART2REG->IER.WORD & UART_IER_RX_DATA_READY_MASK){  /*check if RX interrupt is enabled*/
-		irq_mask |= active_irq & UART_LSR_RX_DATA_READY_MASK;
-	}
+    if(UART2REG->IER.WORD & UART_IER_RX_DATA_READY_MASK) { /*check if RX interrupt is enabled*/
+        irq_mask |= active_irq & UART_LSR_RX_DATA_READY_MASK;
+    }
 
-	//uart_irq((uint8_t)(UART2REG->LSR.WORD & 0xFF), 1);
-	uart_irq(active_irq & irq_mask, 1);
+    //uart_irq((uint8_t)(UART2REG->LSR.WORD & 0xFF), 1);
+    uart_irq(active_irq & irq_mask, 1);
 
 }
 
 static inline void uart_irq(uint8_t status, uint32_t index)
 {
-    if (serial_irq_ids[index] != 0)
-	{
-        if (status & UART_LSR_TX_EMPTY_MASK)
-		{
+    if (serial_irq_ids[index] != 0) {
+        if (status & UART_LSR_TX_EMPTY_MASK) {
             irq_handler(serial_irq_ids[index], TxIrq);
-		}
-        if (status & UART_LSR_RX_DATA_READY_MASK)
-		{
-			irq_handler(serial_irq_ids[index], RxIrq);
-		}
+        }
+        if (status & UART_LSR_RX_DATA_READY_MASK) {
+            irq_handler(serial_irq_ids[index], RxIrq);
+        }
     }
 }
 /******************************************************/
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-	IRQn_Type irq_n = (IRQn_Type)0;
-	uint32_t Vector = 0;
+    IRQn_Type irq_n = (IRQn_Type)0;
+    uint32_t Vector = 0;
 
-	/* Check UART number & assign irq handler */
-	if(obj->UARTREG == UART1REG)
-	{/* UART 2 */
-		Vector = (uint32_t)&Uart1_Irq;
-		irq_n = Uart1_IRQn;
-	}
-	else if(obj->UARTREG == UART2REG)
-	{/* UART 1 */
-		Vector = (uint32_t)&Uart2_Irq;
-		irq_n = Uart2_IRQn;
-	}
-	else
-	{
-		MBED_ASSERT(False);
-	}
+    /* Check UART number & assign irq handler */
+    if(obj->UARTREG == UART1REG) {
+        /* UART 2 */
+        Vector = (uint32_t)&Uart1_Irq;
+        irq_n = Uart1_IRQn;
+    } else if(obj->UARTREG == UART2REG) {
+        /* UART 1 */
+        Vector = (uint32_t)&Uart2_Irq;
+        irq_n = Uart2_IRQn;
+    } else {
+        MBED_ASSERT(False);
+    }
 
-	/* Check IRQ type & enable/disable accordingly */
-	if(enable)
-	{/* Enable */
-		if(irq == RxIrq)
-		{/* Rx IRQ */
-			obj->UARTREG->FCR.BITS.RX_FIFO_TRIG = 0x0;
-			obj->UARTREG->IER.BITS.RX_DATA_INT = True;
-		}
-		else if(irq == TxIrq)
-		{/* Tx IRQ */
-			obj->UARTREG->IER.BITS.TX_HOLD_INT = True;
-		}
-		else
-		{
-			MBED_ASSERT(False);
-		}
-		NVIC_SetVector(irq_n, Vector);
-		NVIC_EnableIRQ(irq_n);
-	}
-	else
-	{/* Disable */
-		NVIC_DisableIRQ(irq_n);
-		if(irq == RxIrq)
-		{/* Rx IRQ */
-			obj->UARTREG->IER.BITS.RX_DATA_INT = False;
-		}
-		else if(irq == TxIrq)
-		{/* Tx IRQ */
+    /* Check IRQ type & enable/disable accordingly */
+    if(enable) {
+        /* Enable */
+        if(irq == RxIrq) {
+            /* Rx IRQ */
+            obj->UARTREG->FCR.BITS.RX_FIFO_TRIG = 0x0;
+            obj->UARTREG->IER.BITS.RX_DATA_INT = True;
+        } else if(irq == TxIrq) {
+            /* Tx IRQ */
+            obj->UARTREG->IER.BITS.TX_HOLD_INT = True;
+        } else {
+            MBED_ASSERT(False);
+        }
+        NVIC_SetVector(irq_n, Vector);
+        NVIC_EnableIRQ(irq_n);
+    } else {
+        /* Disable */
+        NVIC_DisableIRQ(irq_n);
+        if(irq == RxIrq) {
+            /* Rx IRQ */
+            obj->UARTREG->IER.BITS.RX_DATA_INT = False;
+        } else if(irq == TxIrq) {
+            /* Tx IRQ */
 
-			obj->UARTREG->IER.BITS.TX_HOLD_INT = False;
-		}
-		else
-		{
-			MBED_ASSERT(False);
-		}
-	}
+            obj->UARTREG->IER.BITS.TX_HOLD_INT = False;
+        } else {
+            MBED_ASSERT(False);
+        }
+    }
 }
 
 int serial_getc(serial_t *obj)
 {
-	uint8_t c;
+    uint8_t c;
 
-	while(!obj->UARTREG->LSR.BITS.READY); 	/* Wait for received data is ready */
-	c = obj->UARTREG->RBR & 0xFF; 			/* Get received character */
-	return c;
+    while(!obj->UARTREG->LSR.BITS.READY); 	/* Wait for received data is ready */
+    c = obj->UARTREG->RBR & 0xFF; 			/* Get received character */
+    return c;
 }
 
 void serial_putc(serial_t *obj, int c)
 {
 
-		while(!obj->UARTREG->LSR.BITS.TX_HOLD_EMPTY);/* Wait till THR is empty */
-		obj->UARTREG->THR = c; /* Transmit byte */
+    while(!obj->UARTREG->LSR.BITS.TX_HOLD_EMPTY);/* Wait till THR is empty */
+    obj->UARTREG->THR = c; /* Transmit byte */
 
 }
 
 int serial_readable(serial_t *obj)
 {
-	return obj->UARTREG->LSR.BITS.READY;
+    return obj->UARTREG->LSR.BITS.READY;
 }
 
 int serial_writable(serial_t *obj)
 {
-	return obj->UARTREG->LSR.BITS.TX_HOLD_EMPTY;
+    return obj->UARTREG->LSR.BITS.TX_HOLD_EMPTY;
 }
 
 void serial_clear(serial_t *obj)
 {
-	/* Reset TX & RX FIFO */
-	obj->UARTREG->FCR.WORD |= ((True << UART_FCS_TX_FIFO_RST_BIT_POS) |
-							  (True << UART_FCS_RX_FIFO_RST_BIT_POS));
+    /* Reset TX & RX FIFO */
+    obj->UARTREG->FCR.WORD |= ((True << UART_FCS_TX_FIFO_RST_BIT_POS) |
+                               (True << UART_FCS_RX_FIFO_RST_BIT_POS));
 }
 
 void serial_break_set(serial_t *obj)
 {
-	obj->UARTREG->LCR.BITS.BREAK = True;
+    obj->UARTREG->LCR.BITS.BREAK = True;
 }
 
 void serial_break_clear(serial_t *obj)
 {
-	obj->UARTREG->LCR.BITS.BREAK = False;
+    obj->UARTREG->LCR.BITS.BREAK = False;
 }
 
 void serial_pinout_tx(PinName tx)
 {
-	/* COnfigure PinNo to drive strength of 1, Push pull and pull none */
-	fPadIOCtrl(tx, 1, 0, 1);
+    /* COnfigure PinNo to drive strength of 1, Push pull and pull none */
+    fPadIOCtrl(tx, 1, 0, 1);
 }
 
-#ifdef TOOLCHAIN_ARM
-/* Dummy function in order to get ARMCC compilation */
 /** Configure the serial for the flow control. It sets flow control in the hardware
  *  if a serial peripheral supports it, otherwise software emulation is used.
  *
@@ -399,8 +374,7 @@ void serial_pinout_tx(PinName tx)
  */
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
-	//TODO: Dummy serial function
+    /* TODO: This is an empty implementation for now.*/
 }
-#endif /* TOOLCHAIN_ARM */
 
 #endif /* DEVICE_SERIAL  */

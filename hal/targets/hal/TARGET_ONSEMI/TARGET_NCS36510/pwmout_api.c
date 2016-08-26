@@ -1,19 +1,23 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+/**
+ ******************************************************************************
+ * @file pwmout_api.c
+ * @brief Implementation of a PWM driver
+ * @internal
+ * @author ON Semiconductor
+ * $Rev:
+ * $Date:
+ ******************************************************************************
+ * @copyright (c) 2012 ON Semiconductor. All rights reserved.
+ * ON Semiconductor is supplying this software for use with ON Semiconductor
+ * processor based microcontrollers only.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+ * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+ * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+ * ON SEMICONDUCTOR SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL,
+ * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ * @endinternal
+*/
 #include "pwmout_api.h"
 #include "PeripheralPins.h"
 #include "mbed_assert.h"
@@ -33,27 +37,27 @@
  */
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
-	/* Get the base address of the PWM register using the pinmap functions ; pwmout_s struct contains base address only */
+    /* Get the base address of the PWM register using the pinmap functions ; pwmout_s struct contains base address only */
     PWMName pwm;
 
-	pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
+    pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
 
-	pinmap_pinout(pin, PinMap_PWM);
+    pinmap_pinout(pin, PinMap_PWM);
 
-	obj->pwmReg = (PwmReg_pt)pwm;
-	MBED_ASSERT(obj->pwmReg != 0x00000000);
+    obj->pwmReg = (PwmReg_pt)pwm;
+    MBED_ASSERT(obj->pwmReg != 0x00000000);
 
-	CLOCK_ENABLE(CLOCK_PWM);
+    CLOCK_ENABLE(CLOCK_PWM);
 
-	/* Configuration parameters of duty cycle 0x4000B000, and prescaler 0x4000B00C, shall be set to default values */
-	/* Duty cycle shall be 50% and prescaler shall be disabled by default */
-	obj->pwmReg->DUTYCYCLE = 0x80;
+    /* Configuration parameters of duty cycle 0x4000B000, and prescaler 0x4000B00C, shall be set to default values */
+    /* Duty cycle shall be 50% and prescaler shall be disabled by default */
+    obj->pwmReg->DUTYCYCLE = 0x80;
 
-	/* Write the PWM output enable register 0x4000B004, to 1 */
-	obj->pwmReg->PWM_ENABLE.WORD = 0x1;
+    /* Write the PWM output enable register 0x4000B004, to 1 */
+    obj->pwmReg->PWM_ENABLE.WORD = 0x1;
 
-	obj->pwmReg->PRESCALE_DISABLE = 0x1;
+    obj->pwmReg->PRESCALE_DISABLE = 0x1;
 
 }
 
@@ -63,8 +67,8 @@ void pwmout_init(pwmout_t *obj, PinName pin)
  */
 void pwmout_free(pwmout_t *obj)
 {
-	/* Write the PWM output disable register 0x4000B008, to 1 */ 
-	obj->pwmReg->PWM_DISABLE = 0x1;
+    /* Write the PWM output disable register 0x4000B008, to 1 */
+    obj->pwmReg->PWM_DISABLE = 0x1;
 }
 
 /** Set the output duty-cycle in range <0.0f, 1.0f>
@@ -75,20 +79,15 @@ void pwmout_free(pwmout_t *obj)
  */
 void pwmout_write(pwmout_t *obj, float percent)
 {
-	if (percent == 0.0)
-	{
-		obj->pwmReg->DUTYCYCLE = 0x00;
-	}
-	else if (percent == 1.0)
-	{
-		obj->pwmReg->DUTYCYCLE = 0xFF;
-	}
-	else
-	{
-		/* Write the duty cycle config register 0x4000B000, with the value passed on */
-		/* ((percent * 255) + 1) is the duty cycle. Plus 1 is for accounting for round off errors; like a ceil function */
-		obj->pwmReg->DUTYCYCLE = (uint8_t)((percent * 255) + 1);
-	}
+    if (percent == 0.0) {
+        obj->pwmReg->DUTYCYCLE = 0x00;
+    } else if (percent == 1.0) {
+        obj->pwmReg->DUTYCYCLE = 0xFF;
+    } else {
+        /* Write the duty cycle config register 0x4000B000, with the value passed on */
+        /* ((percent * 255) + 1) is the duty cycle. Plus 1 is for accounting for round off errors; like a ceil function */
+        obj->pwmReg->DUTYCYCLE = (uint8_t)((percent * 255) + 1);
+    }
 }
 
 /** Read the current float-point output duty-cycle
@@ -98,15 +97,15 @@ void pwmout_write(pwmout_t *obj, float percent)
  */
 float pwmout_read(pwmout_t *obj)
 {
-	float retVal = 0.0;
-	float dc = 0.0;
+    float retVal = 0.0;
+    float dc = 0.0;
 
-	/* Read out the value of duty cycle register 0x4000B000 and return as a percent */
-	/* Read value / 255 is the percent returned */
-	dc = obj->pwmReg->DUTYCYCLE;
-	retVal = dc/ (float)255;
+    /* Read out the value of duty cycle register 0x4000B000 and return as a percent */
+    /* Read value / 255 is the percent returned */
+    dc = obj->pwmReg->DUTYCYCLE;
+    retVal = dc/ (float)255;
 
-	return(retVal);
+    return(retVal);
 }
 
 /** Set the PWM period specified in seconds, keeping the duty cycle the same
@@ -117,8 +116,8 @@ float pwmout_read(pwmout_t *obj)
  */
 void pwmout_period(pwmout_t *obj, float seconds)
 {
-	/* Cannot be configured, prescaler is either 256 or 4096 */
-	return;
+    /* Cannot be configured, prescaler is either 256 or 4096 */
+    return;
 }
 
 /** Set the PWM period specified in miliseconds, keeping the duty cycle the same
@@ -128,8 +127,8 @@ void pwmout_period(pwmout_t *obj, float seconds)
  */
 void pwmout_period_ms(pwmout_t *obj, int ms)
 {
-	/* Cannot be configured, prescaler is either 256 or 4096 */
-	return;
+    /* Cannot be configured, prescaler is either 256 or 4096 */
+    return;
 }
 
 /** Set the PWM period specified in microseconds, keeping the duty cycle the same
@@ -139,8 +138,8 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
  */
 void pwmout_period_us(pwmout_t *obj, int us)
 {
-	/* Cannot be configured, prescaler is either 256 or 4096 */
-	return;
+    /* Cannot be configured, prescaler is either 256 or 4096 */
+    return;
 }
 
 /** Set the PWM pulsewidth specified in seconds, keeping the period the same.
@@ -150,10 +149,10 @@ void pwmout_period_us(pwmout_t *obj, int us)
  */
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-	/* Pulse width can never be in seconds since the period 
-	* itself is limited to either 8uSec or 128uSec 
-	*/
-	return;
+    /* Pulse width can never be in seconds since the period
+    * itself is limited to either 8uSec or 128uSec
+    */
+    return;
 }
 
 /** Set the PWM pulsewidth specified in miliseconds, keeping the period the same.
@@ -164,10 +163,10 @@ void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
 
-	/* Pulse width can never be in seconds since the period 
-	* itself is limited to either 8uSec or 128uSec 
-	*/
-	return;
+    /* Pulse width can never be in seconds since the period
+    * itself is limited to either 8uSec or 128uSec
+    */
+    return;
 }
 
 /** Set the PWM pulsewidth specified in microseconds, keeping the period the same.
@@ -177,32 +176,26 @@ void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
  */
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-	int pulseWidth = 0;
+    int pulseWidth = 0;
 
-	/* Check if the uSec value is greater than 128uSec, if so reject */
-	if (us > 128)
-	{
-		return;
-	}
-	/* If pulsewidth is less than 128uSec, set the prescaler to 4096 
-	 * by enabling prescale register 0x4000B00C to 1 */
-	obj->pwmReg->PRESCALE_ENABLE.WORD = 0x1;
+    /* Check if the uSec value is greater than 128uSec, if so reject */
+    if (us > 128) {
+        return;
+    }
+    /* If pulsewidth is less than 128uSec, set the prescaler to 4096
+     * by enabling prescale register 0x4000B00C to 1 */
+    obj->pwmReg->PRESCALE_ENABLE.WORD = 0x1;
 
-	/* Calculate the duty cycle based on the width of the pulse */
-	/* ((255 * us) / 128) + 1 = duty cycle */
-	pulseWidth = (int)((float)(255 * us)/(float)128) + 1;
-	if (us == 0)
-	{
-		obj->pwmReg->DUTYCYCLE = 0x0;
-	}
-	else if (us == 128)
-	{
-		obj->pwmReg->DUTYCYCLE = 0xFF;
-	}
-	else
-	{
-		obj->pwmReg->DUTYCYCLE = (uint8_t)pulseWidth;
-	}
+    /* Calculate the duty cycle based on the width of the pulse */
+    /* ((255 * us) / 128) + 1 = duty cycle */
+    pulseWidth = (int)((float)(255 * us)/(float)128) + 1;
+    if (us == 0) {
+        obj->pwmReg->DUTYCYCLE = 0x0;
+    } else if (us == 128) {
+        obj->pwmReg->DUTYCYCLE = 0xFF;
+    } else {
+        obj->pwmReg->DUTYCYCLE = (uint8_t)pulseWidth;
+    }
 }
 
 /**@}*/
