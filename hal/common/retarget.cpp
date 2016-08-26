@@ -752,7 +752,7 @@ extern "C" void __iar_argc_argv() {
 // Provide implementation of _sbrk (low-level dynamic memory allocation
 // routine) for GCC_ARM which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
-#if defined(TOOLCHAIN_GCC_ARM)
+#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" int __end__;
 
@@ -803,7 +803,7 @@ extern "C" caddr_t _sbrk(int incr) {
 #endif
 #endif
 
-#if defined TOOLCHAIN_GCC_ARM
+#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
 extern "C" void _exit(int return_code) {
 #else
 namespace std {
@@ -827,7 +827,7 @@ extern "C" void exit(int return_code) {
     while (1);
 }
 
-#if !defined(TOOLCHAIN_GCC_ARM)
+#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CR)
 } //namespace std
 #endif
 
