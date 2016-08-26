@@ -240,6 +240,29 @@
  */
 #define MBED_DEPRECATED_SINCE(D, M) MBED_DEPRECATED(M " [since " D "]")
 
+/** MBED_CALLER_ADDR()
+ * Returns the caller of the current function.
+ *
+ * @note
+ * This macro is only implemented for GCC and ARMCC.
+ *
+ * @code
+ * #include "toolchain.h"
+ *
+ * printf("This function was called from %p", MBED_CALLER_ADDR());
+ * @endcode
+ *
+ * @return Address of the calling function
+ */
+#ifndef MBED_CALLER_ADDR
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+#define MBED_CALLER_ADDR() __builtin_extract_return_addr(__builtin_return_address(0))
+#elif defined(__CC_ARM)
+#define MBED_CALLER_ADDR() __builtin_return_address(0)
+#else
+#define MBED_CALLER_ADDR() (NULL)
+#endif
+#endif
 
 // FILEHANDLE declaration
 #if defined(TOOLCHAIN_ARM)
