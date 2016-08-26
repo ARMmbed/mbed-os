@@ -24,7 +24,9 @@
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
 #include "mbed_error.h"
+#include "mbed_stats.h"
 #include <stdlib.h>
+#include <string.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -477,27 +479,135 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 
 #endif
 
+/* Size must be a multiple of 8 to keep alignment */
+typedef struct {
+    uint32_t size;
+    uint32_t pad;
+} alloc_info_t;
+
+static SingletonPtr<PlatformMutex> malloc_stats_mutex;
+static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0};
+
+void mbed_stats_heap_get(mbed_stats_heap_t *stats)
+{
+    malloc_stats_mutex->lock();
+    memcpy(stats, &heap_stats, sizeof(mbed_stats_heap_t));
+    malloc_stats_mutex->unlock();
+}
+
 #if defined(TOOLCHAIN_GCC)
 #ifdef   FEATURE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
-#ifndef  FEATURE_UVISOR
 extern "C" {
+
+/* uVisor wraps malloc_r, realloc_r and free_r, but not calloc_r! */
+#ifndef  FEATURE_UVISOR
+
+extern "C" void __malloc_lock( struct _reent *_r );
+extern "C" void __malloc_unlock( struct _reent *_r );
+
 void * __wrap__malloc_r(struct _reent * r, size_t size) {
     extern void * __real__malloc_r(struct _reent * r, size_t size);
+#if !defined(MBED_HEAP_STATS_ENABLED ) || !MBED_HEAP_STATS_ENABLED
     return __real__malloc_r(r, size);
+#else
+
+    malloc_stats_mutex->lock();
+    alloc_info_t *alloc_info = (alloc_info_t*)__real__malloc_r(r, size + sizeof(alloc_info_t));
+    void *ptr = NULL;
+    if (alloc_info != NULL) {
+        alloc_info->size = size;
+        ptr = (void*)(alloc_info + 1);
+        heap_stats.current_size += size;
+        heap_stats.total_size += size;
+        heap_stats.alloc_cnt += 1;
+        if (heap_stats.current_size > heap_stats.max_size) {
+            heap_stats.max_size = heap_stats.current_size;
+        }
+    } else {
+        heap_stats.alloc_fail_cnt += 1;
+    }
+    malloc_stats_mutex->unlock();
+
+    return ptr;
+#endif
 }
 void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
+#if !defined(MBED_HEAP_STATS_ENABLED ) || !MBED_HEAP_STATS_ENABLED
     extern void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
     return __real__realloc_r(r, ptr, size);
+#else
+
+    // Implement realloc_r with malloc and free.
+    // The function realloc_r can't be used here directly since
+    // it can call into __wrap__malloc_r (returns ptr + 4) or
+    // resize memory directly (returns ptr + 0).
+
+    // Note - no lock needed since malloc and free are thread safe
+
+    // Get old size
+    uint32_t old_size = 0;
+    if (ptr != NULL) {
+        alloc_info_t *alloc_info = ((alloc_info_t*)ptr) - 1;
+        old_size = alloc_info->size;
+    }
+
+    // Allocate space
+    void *new_ptr = NULL;
+    if (size != 0) {
+        new_ptr = malloc(size);
+    }
+
+    // If the new buffer has been allocated copy the data to it
+    // and free the old buffer
+    if (new_ptr != NULL) {
+        uint32_t copy_size = (old_size < size) ? old_size : size;
+        memcpy(new_ptr, (void*)ptr, copy_size);
+        free(ptr);
+    }
+
+    return new_ptr;
+#endif
 }
 void __wrap__free_r(struct _reent * r, void * ptr) {
     extern void __real__free_r(struct _reent * r, void * ptr);
+#if !defined(MBED_HEAP_STATS_ENABLED ) || !MBED_HEAP_STATS_ENABLED
     __real__free_r(r, ptr);
+#else
+
+    malloc_stats_mutex->lock();
+    alloc_info_t *alloc_info = NULL;
+    if (ptr != NULL) {
+        alloc_info = ((alloc_info_t*)ptr) - 1;
+        heap_stats.current_size -= alloc_info->size;
+        heap_stats.alloc_cnt -= 1;
+    }
+    __real__free_r(r, (void*)alloc_info);
+    malloc_stats_mutex->unlock();
+#endif
 }
-}
+
 #endif/* FEATURE_UVISOR */
+
+void* __wrap__calloc_r(struct _reent * r, size_t num, size_t size) {
+#if !defined(MBED_HEAP_STATS_ENABLED ) || !MBED_HEAP_STATS_ENABLED
+    extern void* __real__calloc_r(struct _reent * r, size_t num, size_t size);
+    return __real__calloc_r(r, num, size);
+#else
+
+    // Note - no lock needed since malloc is thread safe
+
+    void *ptr = malloc(num * size);
+    if (ptr != NULL) {
+        memset(ptr, 0, num * size);
+    }
+
+    return ptr;
+#endif
+}
+}
 
 extern "C" WEAK void software_init_hook_rtos(void)
 {
@@ -518,6 +628,85 @@ extern "C" void software_init_hook(void)
     software_init_hook_rtos();
 }
 #endif
+
+#if defined(TOOLCHAIN_ARM) && (defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED )
+
+extern "C" void *$Super$$malloc(size_t size);
+extern "C" void *$Super$$realloc(void * ptr, size_t size);
+extern "C" void $Super$$free(void * ptr);
+
+extern "C" void *$Sub$$malloc(size_t size)
+{
+    malloc_stats_mutex->lock();
+    alloc_info_t *alloc_info = (alloc_info_t*)$Super$$malloc(size + sizeof(alloc_info_t));
+    void *ptr = NULL;
+    if (alloc_info != NULL) {
+        alloc_info->size = size;
+        ptr = (void*)(alloc_info + 1);
+        heap_stats.current_size += size;
+        heap_stats.total_size += size;
+        heap_stats.alloc_cnt += 1;
+        if (heap_stats.current_size > heap_stats.max_size) {
+            heap_stats.max_size = heap_stats.current_size;
+        }
+    } else {
+        heap_stats.alloc_fail_cnt += 1;
+    }
+    malloc_stats_mutex->unlock();
+
+    return ptr;
+}
+
+extern "C" void *$Sub$$realloc(void * ptr, size_t size)
+{
+    // Note - no lock needed since malloc and free are thread safe
+
+    // Get old size
+    uint32_t old_size = 0;
+    if (ptr != NULL) {
+        alloc_info_t *alloc_info = ((alloc_info_t*)ptr) - 1;
+        old_size = alloc_info->size;
+    }
+
+    // Allocate space
+    void *new_ptr = NULL;
+    if (size != 0) {
+        new_ptr = malloc(size);
+    }
+
+    // If the new buffer has been allocated copy the data to it
+    // and free the old buffer
+    if (new_ptr != NULL) {
+        uint32_t copy_size = (old_size < size) ? old_size : size;
+        memcpy(new_ptr, (void*)ptr, copy_size);
+        free(ptr);
+    }
+
+    return new_ptr;
+}
+extern "C" void $Sub$$free(void * ptr)
+{
+    malloc_stats_mutex->lock();
+    alloc_info_t *alloc_info = NULL;
+    if (ptr != NULL) {
+        alloc_info = ((alloc_info_t*)ptr) - 1;
+        heap_stats.current_size -= alloc_info->size;
+        heap_stats.alloc_cnt -= 1;
+    }
+    $Super$$free((void*)alloc_info);
+    malloc_stats_mutex->unlock();
+}
+extern "C" void *$Sub$$calloc(size_t num, size_t size)
+{
+    // Note - no lock needed since malloc is thread safe
+    void *ptr = malloc(num * size);
+    if (ptr != NULL) {
+        memset(ptr, 0, num * size);
+    }
+    return ptr;
+}
+
+#endif /* defined(TOOLCHAIN_ARM) && (defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED ) */
 
 // ****************************************************************************
 // mbed_main is a function that is called before main()
@@ -684,6 +873,8 @@ char* mbed_gets(char*s, int size, FILE *_file){
 #endif
 }
 
+} // namespace mbed
+
 #if defined (__ICCARM__)
 // Stub out locks when an rtos is not present
 extern "C" WEAK void __iar_system_Mtxinit(__iar_Rmtx *mutex) {}
@@ -724,8 +915,6 @@ extern "C" void __env_unlock( struct _reent *_r )
     __rtos_env_unlock(_r);
 }
 #endif
-
-} // namespace mbed
 
 void *operator new(std::size_t count)
 {

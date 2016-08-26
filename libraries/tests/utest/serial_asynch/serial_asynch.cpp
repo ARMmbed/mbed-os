@@ -28,6 +28,10 @@
 #define TEST_SERIAL_ONE_TX_PIN PTC17 // uart3
 #define TEST_SERIAL_TWO_RX_PIN PTD2  // uart2
 
+#elif defined(TARGET_K66F)
+#define TEST_SERIAL_ONE_TX_PIN PTD3 // uart2
+#define TEST_SERIAL_TWO_RX_PIN PTC16  // uart3
+
 #elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
 #define TEST_SERIAL_ONE_TX_PIN PD0   // usart1
 #define TEST_SERIAL_TWO_RX_PIN PC3   // usart2
@@ -43,9 +47,56 @@
 #define TEST_SERIAL_ONE_TX_PIN D1   // UART2
 #define TEST_SERIAL_TWO_RX_PIN D4   // UART5
 
+#elif defined(TARGET_DISCO_F334C8)
+#define TEST_SERIAL_ONE_TX_PIN PB_10   // UART3
+#define TEST_SERIAL_TWO_RX_PIN PA_10   // UART1
+
+#elif defined(TARGET_NUCLEO_F302R8)
+#define TEST_SERIAL_ONE_TX_PIN PB_10   // UART3
+#define TEST_SERIAL_TWO_RX_PIN PA_10   // UART1
+
+#elif defined(TARGET_NUCLEO_F303RE)
+#define TEST_SERIAL_ONE_TX_PIN PB_10   // UART3
+#define TEST_SERIAL_TWO_RX_PIN PA_10   // UART1
+
+#elif defined(TARGET_NUCLEO_F334R8)
+#define TEST_SERIAL_ONE_TX_PIN PB_10   // UART3
+#define TEST_SERIAL_TWO_RX_PIN PA_10   // UART1
+
+#elif defined(TARGET_DISCO_F429ZI)
+#define TEST_SERIAL_ONE_TX_PIN PD_5   // UART2
+#define TEST_SERIAL_TWO_RX_PIN PG_9   // UART6
+
+#elif defined(TARGET_NUCLEO_F401RE)
+#define TEST_SERIAL_ONE_TX_PIN PB_6  // UART1
+#define TEST_SERIAL_TWO_RX_PIN PC_7  // UART6
+
+#elif defined(TARGET_NUCLEO_F411RE)
+#define TEST_SERIAL_ONE_TX_PIN PB_6  // UART1
+#define TEST_SERIAL_TWO_RX_PIN PC_7  // UART6
+
+#elif defined(TARGET_NUCLEO_F446RE)
+#define TEST_SERIAL_ONE_TX_PIN PB_6  // UART1
+#define TEST_SERIAL_TWO_RX_PIN PC_7  // UART6
+
+#elif defined(TARGET_NUCLEO_F410RB)
+#define TEST_SERIAL_ONE_TX_PIN PB_6  // UART1
+#define TEST_SERIAL_TWO_RX_PIN PC_7  // UART6
+
+#elif defined(TARGET_NUCLEO_F429ZI)
+#define TEST_SERIAL_ONE_TX_PIN PE_8  // UART7
+#define TEST_SERIAL_TWO_RX_PIN PG_9  // UART6
+
+#elif defined(TARGET_NUCLEO_F446ZE)
+#define TEST_SERIAL_ONE_TX_PIN PB_6  // UART1
+#define TEST_SERIAL_TWO_RX_PIN PG_9  // UART6
+
+#elif defined(TARGET_NUCLEO_L476RG)
+#define TEST_SERIAL_ONE_TX_PIN PB_10   // UART3
+#define TEST_SERIAL_TWO_RX_PIN PA_10   // UART1
 #elif defined(TARGET_RZ_A1H)
-#define TEST_SERIAL_ONE_TX_PIN P8_14   // UART4
-#define TEST_SERIAL_TWO_RX_PIN P8_11   // UART5
+#define TEST_SERIAL_ONE_TX_PIN P8_14  // UART4
+#define TEST_SERIAL_TWO_RX_PIN P8_11  // UART5
 
 #else
 
@@ -234,7 +285,7 @@ TEST(Serial_Asynchronous, char_matching_success)
 
     CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
     CHECK_EQUAL(SERIAL_EVENT_RX_CHARACTER_MATCH, rx_event_flag);
-
+    
     cmpnbufc(TEST_BYTE_RX, rx_buf, 5, sizeof(rx_buf), __FILE__, __LINE__);
 }
 

@@ -4,8 +4,7 @@
             "core": "Cortex-M0",
             "extra_labels": [],
             "features": ["IPV4"],
-            "default_build": "standard"
+            "default_lib": "std"
         }
     }
 }
-

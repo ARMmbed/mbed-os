@@ -25,6 +25,7 @@
 static const PinMap PinMap_SPI_SCLK[] = {
     {P10_12, SPI_0, 4},
     {P4_4  , SPI_1, 2},
+    {P6_4  , SPI_1, 7},
     {P11_12, SPI_1, 2},
     {P8_3  , SPI_2, 3},
     {P5_0  , SPI_3, 8},
@@ -34,6 +35,7 @@ static const PinMap PinMap_SPI_SCLK[] = {
 static const PinMap PinMap_SPI_SSEL[] = {
     {P10_13, SPI_0, 4},
     {P4_5  , SPI_1, 2},
+    {P6_5  , SPI_1, 7},
     {P11_13, SPI_1, 2},
     {P8_4  , SPI_2, 3},
     {P5_1  , SPI_3, 8},
@@ -43,6 +45,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
 static const PinMap PinMap_SPI_MOSI[] = {
     {P10_14, SPI_0, 4},
     {P4_6  , SPI_1, 2},
+    {P6_6  , SPI_1, 7},
     {P11_14, SPI_1, 2},
     {P8_5  , SPI_2, 3},
     {P5_2  , SPI_3, 8},
@@ -52,6 +55,7 @@ static const PinMap PinMap_SPI_MOSI[] = {
 static const PinMap PinMap_SPI_MISO[] = {
     {P10_15, SPI_0, 4},
     {P4_7  , SPI_1, 2},
+    {P6_7  , SPI_1, 7},
     {P11_15, SPI_1, 2},
     {P8_6  , SPI_2, 3},
     {P5_3  , SPI_3, 8},

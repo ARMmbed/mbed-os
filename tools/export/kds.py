@@ -24,6 +24,7 @@ class KDS(Exporter):
 
     TARGETS = [
         'K64F',
+        'HEXIWEAR',
         'K22F',
     ]
 

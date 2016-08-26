@@ -10,7 +10,7 @@ SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
 #elif defined(TARGET_KL46Z)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 
-#elif defined(TARGET_K64F)
+#elif defined(TARGET_K64F) || defined(TARGET_K66F)
 SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, "sd");
 
 #elif defined(TARGET_K22F)
@@ -52,7 +52,7 @@ SDFileSystem sd(D11, D12, D13, D10, "sd");
 
 #elif defined(TARGET_LPC11U37H_401)
 SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
-    
+
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif

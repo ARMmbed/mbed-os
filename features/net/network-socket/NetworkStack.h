@@ -160,11 +160,12 @@ protected:
      *  This call is non-blocking. If accept would block,
      *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
      *
-     *  @param handle   Destination for a handle to the newly created sockey
      *  @param server   Socket handle to server to accept from
+     *  @param handle   Destination for a handle to the newly created socket
+     *  @param address  Destination for the remote address or NULL
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_accept(nsapi_socket_t *handle, nsapi_socket_t server) = 0;
+    virtual int socket_accept(nsapi_socket_t server, nsapi_socket_t *handle, SocketAddress *address=0) = 0;
 
     /** Send data over a TCP socket
      *

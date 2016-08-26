@@ -44,7 +44,8 @@ public:
       @param   argument  argument to the timer call back function. (default: NULL)
       @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
      */
-    MBED_DEPRECATED("Replaced with RtosTimer(Callback<void()>, os_timer_type)")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
     RtosTimer(void (*func)(void const *argument), os_timer_type type=osTimerPeriodic, void *argument=NULL) {
         constructor(mbed::Callback<void()>(argument, (void (*)(void *))func), type);
     }

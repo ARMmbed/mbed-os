@@ -29,12 +29,14 @@ namespace mbed {
 template <typename R, typename A1>
 class FunctionPointerArg1 : public Callback<R(A1)> {
 public:
-    MBED_DEPRECATED("FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
     FunctionPointerArg1(R (*function)(A1) = 0)
         : Callback<R(A1)>(function) {}
 
     template<typename T>
-    MBED_DEPRECATED("FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
     FunctionPointerArg1(T *object, R (T::*member)(A1))
         : Callback<R(A1)>(object, member) {}
 
@@ -46,12 +48,14 @@ public:
 template <typename R>
 class FunctionPointerArg1<R, void> : public Callback<R()> {
 public:
-    MBED_DEPRECATED("FunctionPointer has been replaced by Callback<void()>")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "FunctionPointer has been replaced by Callback<void()>")
     FunctionPointerArg1(R (*function)() = 0)
         : Callback<R()>(function) {}
 
     template<typename T>
-    MBED_DEPRECATED("FunctionPointer has been replaced by Callback<void()>")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "FunctionPointer has been replaced by Callback<void()>")
     FunctionPointerArg1(T *object, R (T::*member)())
         : Callback<R()>(object, member) {}
 

@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include "i2c_api.h"
 #include "cmsis.h"
@@ -228,17 +228,19 @@ int i2c_byte_write(i2c_t *obj, int data)
     obj->i2c->trans |= MXC_F_I2CM_TRANS_TX_START;
 
     // Wait for the FIFO to be empty
-    while(!(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_FIFO_EMPTY)) {}
+    while (!(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_FIFO_EMPTY));
 
-    if(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_NACKED) {
-        return 1;
+    if (obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_NACKED) {
+        i2c_reset(obj);
+        return 0;
     }
 
-    if(obj->i2c->intfl & (MXC_F_I2CM_INTFL_TX_TIMEOUT | MXC_F_I2CM_INTFL_TX_LOST_ARBITR)) {
+    if (obj->i2c->intfl & (MXC_F_I2CM_INTFL_TX_TIMEOUT | MXC_F_I2CM_INTFL_TX_LOST_ARBITR)) {
+        i2c_reset(obj);
         return 2;
     }
-    
-    return 0;
+
+    return 1;
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
@@ -256,6 +258,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     }
 
     if ((err = write_tx_fifo(obj, fifo_value)) != 0) {
+        i2c_reset(obj);
         return err;
     }
 
@@ -264,7 +267,8 @@ int i2c_byte_read(i2c_t *obj, int last)
     int timeout = MXC_I2CM_RX_TIMEOUT;
     while (!(obj->i2c->intfl & MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY) &&
             (!(obj->i2c->bb & MXC_F_I2CM_BB_RX_FIFO_CNT))) {
-        if ((--timeout < 0) || !(obj->i2c->trans & MXC_F_I2CM_TRANS_TX_IN_PROGRESS)) {
+        if ((--timeout < 0) || (obj->i2c->trans & (MXC_F_I2CM_TRANS_TX_TIMEOUT |
+            MXC_F_I2CM_TRANS_TX_LOST_ARBITR | MXC_F_I2CM_TRANS_TX_NACKED))) {
             break;
         }
     }
@@ -273,6 +277,8 @@ int i2c_byte_read(i2c_t *obj, int last)
         obj->i2c->intfl = MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY;
         return *obj->rxfifo;
     }
+
+    i2c_reset(obj);
 
     return -1;
 }
@@ -291,6 +297,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     // write the address to the fifo
     if ((err = write_tx_fifo(obj, (MXC_S_I2CM_TRANS_TAG_START | address))) != 0) { // start + addr (write)
+        i2c_reset(obj);
         return err;
     }
     obj->start_pending = 0;
@@ -319,12 +326,14 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         obj->stop_pending = 1;
         int timeout = MXC_I2CM_TX_TIMEOUT;
         // Wait for TX fifo to be empty
-        while(!(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_FIFO_EMPTY) && timeout--) {}
+        while (!(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_FIFO_EMPTY) && timeout--);
     }
 
     if (retval == 0) {
         return length;
     }
+
+    i2c_reset(obj);
 
     return retval;
 }
@@ -379,7 +388,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     while (i < length) {
         while (!(obj->i2c->intfl & MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY) &&
                 (!(obj->i2c->bb & MXC_F_I2CM_BB_RX_FIFO_CNT))) {
-            if ((--timeout < 0) || !(obj->i2c->trans & MXC_F_I2CM_TRANS_TX_IN_PROGRESS)) {
+            if ((--timeout < 0) || (obj->i2c->trans & (MXC_F_I2CM_TRANS_TX_TIMEOUT |
+                MXC_F_I2CM_TRANS_TX_LOST_ARBITR | MXC_F_I2CM_TRANS_TX_NACKED))) {
                 retval = -3;
                 goto read_done;
             }
@@ -411,6 +421,8 @@ read_done:
     if (retval == 0) {
         return length;
     }
+
+    i2c_reset(obj);
 
     return retval;
 }

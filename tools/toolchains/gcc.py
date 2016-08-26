@@ -39,7 +39,7 @@ class GCC(mbedToolchain):
         'c': ["-std=gnu99"],
         'cxx': ["-std=gnu++98", "-fno-rtti", "-Wvla"],
         'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main",
-            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r"],
+            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_calloc_r"],
     }
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
@@ -138,7 +138,7 @@ class GCC(mbedToolchain):
         # The warning/error notification is multiline
         msg = None
         for line in output.splitlines():
-            match = GCC.DIAGNOSTIC_PATTERN.match(line)
+            match = GCC.DIAGNOSTIC_PATTERN.search(line)
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
@@ -273,13 +273,13 @@ class GCC_ARM(GCC):
         GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose)
 
         # Use latest gcc nanolib
-        if "big-build" in self.options:
+        if "std-lib" in self.options:
             use_nano = False
-        elif "small-build" in self.options:
+        elif "small-lib" in self.options:
             use_nano = True
-        elif target.default_build == "standard":
+        elif target.default_lib == "std":
             use_nano = False
-        elif target.default_build == "small":
+        elif target.default_lib == "small":
             use_nano = True
         else:
             use_nano = False

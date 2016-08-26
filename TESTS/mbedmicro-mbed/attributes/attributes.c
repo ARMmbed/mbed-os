@@ -137,7 +137,17 @@ int testDeprecatedUsed() {
     return 0;
 }
 
+MBED_DEPRECATED_SINCE("mbed-os-3.14", "this message should not be displayed")
+void testDeprecatedSinceUnused();
+void testDeprecatedSinceUnused() { }
+
+MBED_DEPRECATED_SINCE("mbed-os-3.14", "this message should be displayed")
+int testDeprecatedSinceUsed();
+int testDeprecatedSinceUsed() {
+    return 0;
+}
+
 int testDeprecated() {
-    return testDeprecatedUsed();
+    return testDeprecatedUsed() + testDeprecatedSinceUsed();
 }
 

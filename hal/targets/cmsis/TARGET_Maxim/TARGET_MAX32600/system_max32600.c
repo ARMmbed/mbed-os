@@ -130,9 +130,9 @@ void Trim_RO(void)
     MXC_ADCCFG->ro_cal1 = (MXC_ADCCFG->ro_cal1 & ~MXC_F_ADC_RO_CAL1_TRM_INIT) |
                           ((trim << MXC_F_ADC_RO_CAL1_TRM_INIT_POS) & MXC_F_ADC_RO_CAL1_TRM_INIT);
     MXC_ADCCFG->ro_cal0 = (MXC_ADCCFG->ro_cal0 & ~MXC_F_ADC_RO_CAL0_TRM_MU) | (0x04 << MXC_F_ADC_RO_CAL0_TRM_MU_POS);
-    BITBAND_SetBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS);
-    BITBAND_SetBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS);
-    BITBAND_SetBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS);
+    MXC_SETBIT(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS);
+    MXC_SETBIT(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS);
+    MXC_SETBIT(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS);
 
     SysTick->LOAD = 1635;   /* about 50ms, based on a 32KHz systick clock */
     SysTick->VAL = 0;
@@ -142,7 +142,7 @@ void Trim_RO(void)
     SysTick->CTRL = 0;
 
     trim = (MXC_ADCCFG->ro_cal0 & MXC_F_ADC_RO_CAL0_RO_TRM) >> (MXC_F_ADC_RO_CAL0_RO_TRM_POS + 2);
-    BITBAND_ClrBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS);
+    MXC_CLRBIT(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS);
     MXC_PWRSEQ->reg5 = (MXC_PWRSEQ->reg5 & ~MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF) |
                        ((trim << MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF_POS) & MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF);
 

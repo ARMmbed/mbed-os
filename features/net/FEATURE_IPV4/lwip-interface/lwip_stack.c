@@ -28,6 +28,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
+#include "lwip/ip.h"
 
 
 /* Static arena of sockets */
@@ -292,7 +293,7 @@ static int lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket_t handle, nsap
     return lwip_err_remap(err);
 }
 
-static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_socket_t server)
+static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi_socket_t *handle, nsapi_addr_t *addr, uint16_t *port)
 {
     struct lwip_socket *s = (struct lwip_socket *)server;
     struct lwip_socket *ns = lwip_arena_alloc();
@@ -303,7 +304,12 @@ static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t *handle, nsap
         return lwip_err_remap(err);
     }
 
+    netconn_set_recvtimeout(ns->conn, 1);
     *(struct lwip_socket **)handle = ns;
+
+    (void) netconn_peer(ns->conn, (ip_addr_t *)addr->bytes, port);
+    addr->version = NSAPI_IPv4;
+
     return 0;
 }
 
@@ -413,6 +419,18 @@ static int lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t handle, int leve
             }
 
             s->conn->pcb.tcp->keep_intvl = *(int*)optval;
+            return 0;
+
+        case NSAPI_REUSEADDR:
+            if (optlen != sizeof(int)) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            if (*(int *)optval) {
+                s->conn->pcb.tcp->so_options |= SOF_REUSEADDR;
+            } else {
+                s->conn->pcb.tcp->so_options &= ~SOF_REUSEADDR;
+            }
             return 0;
 
         default:
