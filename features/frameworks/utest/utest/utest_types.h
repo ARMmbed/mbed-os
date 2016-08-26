@@ -171,14 +171,13 @@ namespace v1 {
         control_t(uint32_t timeout_ms) :
             base_control_t(make_base_control_t(REPEAT_UNDECLR, timeout_ms)) {}
 
-        control_t(base_control_t other) : 
+        control_t(base_control_t other) :
             base_control_t(other) {}
 
-        control_t
-        inline operator+(const control_t& rhs) const {
+        friend control_t operator+(const control_t& lhs, const control_t& rhs) {
             control_t result(
-                repeat_t(this->repeat | rhs.repeat),
-                (rhs.timeout == TIMEOUT_NONE) ? rhs.timeout : this->timeout);
+                repeat_t(lhs.repeat | rhs.repeat),
+                (rhs.timeout == TIMEOUT_NONE) ? rhs.timeout : lhs.timeout);
 
             if (result.timeout != TIMEOUT_NONE && result.timeout > rhs.timeout) {
                 result.timeout = rhs.timeout;
@@ -208,9 +207,17 @@ namespace v1 {
             return timeout;
         }
 
-    private:
-        static base_control_t make_base_control_t(repeat_t repeat, uint32_t timeout) { 
+        operator base_control_t() const {
             base_control_t result = { 
+                repeat,
+                timeout
+            };
+            return result;
+        }
+
+    private:
+        static base_control_t make_base_control_t(repeat_t repeat, uint32_t timeout) {
+            base_control_t result = {
                 repeat,
                 timeout
             };
