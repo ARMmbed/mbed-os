@@ -15,7 +15,7 @@
  */
 
 #include "NetworkStack.h"
-#include "DnsQuery.h"
+#include "nsapi_dns.h"
 #include "mbed.h"
 #include "stddef.h"
 #include <new>
@@ -24,14 +24,7 @@
 // Default NetworkStack operations
 int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
 {
-    char buffer[NSAPI_IP_SIZE];
-    int err = dnsQuery(this, name, buffer);
-    if (err) {
-        return err;
-    }
-
-    address->set_ip_address(buffer);
-    return 0;
+    return nsapi_dns_query(this, address, name);
 }
 
 int NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
