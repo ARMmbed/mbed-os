@@ -145,6 +145,11 @@ const char *lwip_get_ip_address(void)
 int lwip_bringup(void)
 {
     // Check if we've already connected
+    if (lwip_get_ip_address()) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    // Check if we've already brought up lwip
     if (!lwip_get_mac_address()) {
         // Set up network
         lwip_set_mac_address();
@@ -181,12 +186,19 @@ int lwip_bringup(void)
     return 0;
 }
 
-void lwip_bringdown(void)
+int lwip_bringdown(void)
 {
+    // Check if we've connected
+    if (!lwip_get_ip_address()) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     // Disconnect from the network
     dhcp_release(&lwip_netif);
     dhcp_stop(&lwip_netif);
     lwip_ip_addr[0] = '\0';
+
+    return 0;
 }
 
 
@@ -231,6 +243,12 @@ static nsapi_addr_t lwip_get_addr(nsapi_stack_t *stack)
 
 static int lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
+    // check if network is connected
+    if (!lwip_get_ip_address()) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    // allocate a socket
     struct lwip_socket *s = lwip_arena_alloc();
     if (!s) {
         return NSAPI_ERROR_NO_SOCKET;
