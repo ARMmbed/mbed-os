@@ -524,7 +524,7 @@ extern uint32_t __StackTop[];
 #elif (defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG))
 #define INITIAL_SP            (0x20050000UL)
 
-#elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
+#elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_MAX32620)
 #define INITIAL_SP            (0x20008000UL)
 
 #elif defined(TARGET_TEENSY3_1)

@@ -155,6 +155,7 @@ if __name__ == '__main__':
             ('uvision', 'MTS_MDOT_F405RG'),
             ('uvision', 'MAXWSNENV'),
             ('uvision', 'MAX32600MBED'),
+            ('uvision', 'MAX32620HSP'),
             ('uvision', 'DISCO_F051R8'),
             ('uvision', 'DISCO_F103RB'),
             ('uvision', 'DISCO_F303VC'),
@@ -226,6 +227,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'RZ_A1H'),
             ('gcc_arm', 'MAXWSNENV'),
             ('gcc_arm', 'MAX32600MBED'),
+            ('gcc_arm', 'MAX32620HSP'),
             ('gcc_arm', 'ARCH_BLE'),
             ('gcc_arm', 'ARCH_MAX'),
             ('gcc_arm', 'ARCH_PRO'),
@@ -287,6 +289,7 @@ if __name__ == '__main__':
             ('iar', 'MTS_MDOT_F411RE'),
             ('iar', 'MAXWSNENV'),
             ('iar', 'MAX32600MBED'),
+            ('iar', 'MAX32620HSP'),
             ('iar', 'MOTE_L152RC'),
             ('iar', 'RZ_A1H'),
 

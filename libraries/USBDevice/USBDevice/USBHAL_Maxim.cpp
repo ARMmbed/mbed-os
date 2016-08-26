@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2015 Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -58,7 +58,7 @@ typedef struct {
     ep_buffer_t ep[MXC_USB_NUM_EP - 1];
 } ep_buffer_descriptor_t;
 
-// Static storage for endpoint buffer descriptor table. Must be 512 byte alligned for DMA.
+// Static storage for endpoint buffer descriptor table. Must be 512 byte aligned for DMA.
 #ifdef __IAR_SYSTEMS_ICC__
 #pragma data_alignment = 512
 #else
@@ -66,7 +66,7 @@ __attribute__ ((aligned (512)))
 #endif
 ep_buffer_descriptor_t ep_buffer_descriptor;
 
-// static storage for temporary data buffers. Must be 32 byte alligned.
+// static storage for temporary data buffers. Must be 32 byte aligned.
 #ifdef __IAR_SYSTEMS_ICC__
 #pragma data_alignment = 4
 #else
@@ -74,7 +74,7 @@ __attribute__ ((aligned (4)))
 #endif
 static uint8_t aligned_buffer[NUMBER_OF_LOGICAL_ENDPOINTS][MXC_USB_MAX_PACKET];
 
-// contorl packet state
+// control packet state
 static enum {
     CTRL_NONE = 0,
     CTRL_SETUP,
@@ -86,15 +86,20 @@ USBHAL::USBHAL(void)
 {
     NVIC_DisableIRQ(USB_IRQn);
 
+#if defined(TARGET_MAX32600)
     // The PLL must be enabled for USB
     MBED_ASSERT(MXC_CLKMAN->clk_config & MXC_F_CLKMAN_CLK_CONFIG_PLL_ENABLE);
 
     // Enable the USB clock
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_USB_GATE_N;
+#elif defined(TARGET_MAX32620)
+    // Enable the USB clock
+    MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_USB_CLOCK_ENABLE;
+#endif
 
     // reset the device
     MXC_USB->cn = 0;
-    MXC_USB->cn = 1;
+    MXC_USB->cn = MXC_F_USB_CN_USB_EN;
     MXC_USB->dev_inten = 0;
     MXC_USB->dev_cn = 0;
     MXC_USB->dev_cn = MXC_F_USB_DEV_CN_URST;
@@ -123,6 +128,9 @@ USBHAL::USBHAL(void)
 
     // set the descriptor location
     MXC_USB->ep_base = (uint32_t)&ep_buffer_descriptor;
+
+    // enable VBUS interrupts
+    MXC_USB->dev_inten = MXC_F_USB_DEV_INTEN_NO_VBUS | MXC_F_USB_DEV_INTEN_VBUS;
 
     // attach IRQ handler and enable interrupts
     instance = this;
@@ -203,7 +211,11 @@ static ep_buffer_t *get_desc(uint8_t endpoint)
 
 void USBHAL::EP0setup(uint8_t *buffer)
 {
-    memcpy(buffer, (void*)&MXC_USB->setup0, 8); // setup packet is fixed at 8 bytes
+    // Setup packet is fixed at 8 bytes
+    // Setup registers cannot be read in byte mode
+    uint32_t *ptr32 = (uint32_t*)buffer;
+    ptr32[0] = (uint32_t)MXC_USB->setup0;
+    ptr32[1] = (uint32_t)MXC_USB->setup1;
 }
 
 void USBHAL::EP0read(void)
