@@ -36,7 +36,7 @@ namespace
 
     const Case *case_current = NULL;
     size_t case_index = 0;
-    control_t case_control = control_t(REPEAT_SETUP_TEARDOWN);
+    base_control_t case_control =  { REPEAT_SETUP_TEARDOWN, TIMEOUT_UNDECLR };
     size_t case_repeat_count = 1;
 
     void *case_timeout_handle = NULL;
