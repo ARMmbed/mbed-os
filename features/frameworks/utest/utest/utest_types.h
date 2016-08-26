@@ -202,19 +202,19 @@ namespace v1 {
     };
 
     /// does not repeat this test case and immediately moves on to the next one without timeout
-    const  control_t CaseNext(REPEAT_NONE, TIMEOUT_NONE);
+    extern const  control_t CaseNext;
 
     /// does not repeat this test case, moves on to the next one
-    const  control_t CaseNoRepeat(REPEAT_NONE);
+    extern const  control_t CaseNoRepeat;
     /// repeats the test case handler with calling teardown and setup handlers
-    const  control_t CaseRepeatAll(REPEAT_ALL);
+    extern const  control_t CaseRepeatAll;
     /// repeats only the test case handler without calling teardown and setup handlers
-    const  control_t CaseRepeatHandler(REPEAT_HANDLER);
+    extern const  control_t CaseRepeatHandler;
 
     /// No timeout, immediately moves on to the next case, but allows repeats
-    const  control_t CaseNoTimeout(TIMEOUT_NONE);
+    extern const  control_t CaseNoTimeout;
     /// Awaits until the callback is validated and never times out. Use with caution!
-    const  control_t CaseAwait(TIMEOUT_FOREVER);
+    extern const  control_t CaseAwait;
     /// Alias class for asynchronous timeout control in milliseconds
     inline control_t CaseTimeout(uint32_t ms) { return ms; }
 
@@ -341,8 +341,11 @@ namespace v1 {
 
 
     // deprecations
-    __deprecated_message("Use CaseRepeatAll instead.")     const control_t CaseRepeat            = CaseRepeatAll;
-    __deprecated_message("Use CaseRepeatHandler instead.") const control_t CaseRepeatHandlerOnly = CaseRepeatHandler;
+    __deprecated_message("Use CaseRepeatAll instead.")
+    extern const control_t CaseRepeat;
+
+    __deprecated_message("Use CaseRepeatHandler instead.")
+    extern const control_t CaseRepeatHandlerOnly;
 
     __deprecated_message("Use REASON_NONE instead.")          const failure_reason_t FAILURE_NONE       = REASON_NONE;
     __deprecated_message("Use REASON_UNKNOWN instead.")       const failure_reason_t FAILURE_UNKNOWN    = REASON_UNKNOWN;
