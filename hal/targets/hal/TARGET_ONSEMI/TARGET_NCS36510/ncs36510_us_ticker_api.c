@@ -36,9 +36,9 @@ static volatile uint32_t msb_counter = 0;
 
 void us_ticker_init(void)
 {
-  if (!us_ticker_inited) {
-		us_timer_init();
-	}
+    if (!us_ticker_inited) {
+        us_timer_init();
+    }
 }
 
 /*******************************************************************************
@@ -55,75 +55,73 @@ void us_ticker_init(void)
 /* Timer 0 for free running time */
 extern void us_timer_isr(void)
 {
-	TIM0REG->CLEAR = 0;
-	msb_counter++;
+    TIM0REG->CLEAR = 0;
+    msb_counter++;
 }
 
 /* Initializing TIMER 0(TImer) and TIMER 1(Ticker) */
 static void us_timer_init(void)
 {
-	/* Enable the timer0 periphery clock */
-	CLOCK_ENABLE(CLOCK_TIMER0);
-	/* Enable the timer0 periphery clock */
-	CLOCK_ENABLE(CLOCK_TIMER1);
+    /* Enable the timer0 periphery clock */
+    CLOCK_ENABLE(CLOCK_TIMER0);
+    /* Enable the timer0 periphery clock */
+    CLOCK_ENABLE(CLOCK_TIMER1);
 
-	/* Timer init */
-	/* load timer value */
-	TIM0REG->LOAD = 0xFFFF;
+    /* Timer init */
+    /* load timer value */
+    TIM0REG->LOAD = 0xFFFF;
 
-	/* set timer prescale 32 (1 us), mode & enable */
-	TIM0REG->CONTROL.WORD = ((CLK_DIVIDER_32		<< TIMER_PRESCALE_BIT_POS) |
-							  (TIME_MODE_PERIODIC	<< TIMER_MODE_BIT_POS) |
-							  (TIMER_ENABLE_BIT 	<< TIMER_ENABLE_BIT_POS));
+    /* set timer prescale 32 (1 us), mode & enable */
+    TIM0REG->CONTROL.WORD = ((CLK_DIVIDER_32		<< TIMER_PRESCALE_BIT_POS) |
+                             (TIME_MODE_PERIODIC	<< TIMER_MODE_BIT_POS) |
+                             (TIMER_ENABLE_BIT 	<< TIMER_ENABLE_BIT_POS));
 
-	/* Ticker init */
-	/* load timer value */
-	TIM1REG->LOAD = 0xFFFF;
+    /* Ticker init */
+    /* load timer value */
+    TIM1REG->LOAD = 0xFFFF;
 
-	/* set timer prescale 32 (1 us), mode & enable */
-	TIM1REG->CONTROL.WORD = ((CLK_DIVIDER_32		<< TIMER_PRESCALE_BIT_POS) |
-							 (TIME_MODE_PERIODIC	<< TIMER_MODE_BIT_POS));
+    /* set timer prescale 32 (1 us), mode & enable */
+    TIM1REG->CONTROL.WORD = ((CLK_DIVIDER_32		<< TIMER_PRESCALE_BIT_POS) |
+                             (TIME_MODE_PERIODIC	<< TIMER_MODE_BIT_POS));
 
-	/* Register & enable interrupt associated with the timer */
-	NVIC_SetVector(Tim0_IRQn,(uint32_t)us_timer_isr);
-	NVIC_SetVector(Tim1_IRQn,(uint32_t)us_ticker_isr);
+    /* Register & enable interrupt associated with the timer */
+    NVIC_SetVector(Tim0_IRQn,(uint32_t)us_timer_isr);
+    NVIC_SetVector(Tim1_IRQn,(uint32_t)us_ticker_isr);
 
-	/* Clear pending irqs */
-	NVIC_ClearPendingIRQ(Tim0_IRQn);
-	NVIC_ClearPendingIRQ(Tim1_IRQn);
+    /* Clear pending irqs */
+    NVIC_ClearPendingIRQ(Tim0_IRQn);
+    NVIC_ClearPendingIRQ(Tim1_IRQn);
 
-	/* Setup NVIC for timer */
-	NVIC_EnableIRQ(Tim0_IRQn);
-	NVIC_EnableIRQ(Tim1_IRQn);
+    /* Setup NVIC for timer */
+    NVIC_EnableIRQ(Tim0_IRQn);
+    NVIC_EnableIRQ(Tim1_IRQn);
 
-  us_ticker_inited = 1;
+    us_ticker_inited = 1;
 }
 
 /* Reads 32 bit timer's current value (16 bit s/w timer | 16 bit h/w timer) */
 uint32_t us_ticker_read()
 {
-	uint32_t retval, tim0cval;
+    uint32_t retval, tim0cval;
 
-  if (!us_ticker_inited) 
-  {
-    us_timer_init();
-  }
+    if (!us_ticker_inited) {
+        us_timer_init();
+    }
 
-	/* Get the current tick from the hw and sw timers */
-	tim0cval = TIM0REG->VALUE; 		/* read current time */
-	retval = (0xFFFF - tim0cval);	/* subtract down count */
+    /* Get the current tick from the hw and sw timers */
+    tim0cval = TIM0REG->VALUE; 		/* read current time */
+    retval = (0xFFFF - tim0cval);	/* subtract down count */
 
-	NVIC_DisableIRQ(Tim0_IRQn);
-	if (TIM0REG->CONTROL.BITS.INT)
-	{
-		TIM0REG->CLEAR = 0;
-		msb_counter++;
-		tim0cval = TIM0REG->VALUE;	/* read current time again after interrupt */
-		retval = (0xFFFF - tim0cval); 
-	}
-	retval |= msb_counter << 16;	/* add software bits */
-	NVIC_EnableIRQ(Tim0_IRQn);
-	return retval;
+    NVIC_DisableIRQ(Tim0_IRQn);
+    if (TIM0REG->CONTROL.BITS.INT) {
+        TIM0REG->CLEAR = 0;
+        msb_counter++;
+        tim0cval = TIM0REG->VALUE;	/* read current time again after interrupt */
+        retval = (0xFFFF - tim0cval);
+    }
+    retval |= msb_counter << 16;	/* add software bits */
+    NVIC_EnableIRQ(Tim0_IRQn);
+    return retval;
 }
 
 /*******************************************************************************
@@ -138,67 +136,63 @@ uint32_t us_ticker_read()
 /* TImer 1 disbale interrupt */
 void us_ticker_disable_interrupt(void)
 {
-	/* Disable the TIMER1 interrupt */
-	TIM1REG->CONTROL.BITS.ENABLE = 0x0;
+    /* Disable the TIMER1 interrupt */
+    TIM1REG->CONTROL.BITS.ENABLE = 0x0;
 }
 
 /* TImer 1 clear interrupt */
 void us_ticker_clear_interrupt(void)
 {
-	/* Clear the Ticker (TIMER1) interrupt */
-	TIM1REG->CLEAR = 0;
+    /* Clear the Ticker (TIMER1) interrupt */
+    TIM1REG->CLEAR = 0;
 }
 
 /* Setting TImer 1 (ticker) */
 inline static void ticker_set(uint32_t count)
 {
-	/* Disable TIMER1, load the new value, and re-enable */
-	TIM1REG->CONTROL.BITS.ENABLE = 0;
-	TIM1REG->LOAD = count;
-	TIM1REG->CONTROL.BITS.ENABLE = 1;
+    /* Disable TIMER1, load the new value, and re-enable */
+    TIM1REG->CONTROL.BITS.ENABLE = 0;
+    TIM1REG->LOAD = count;
+    TIM1REG->CONTROL.BITS.ENABLE = 1;
 }
 
 /* TImer 1 - ticker ISR */
 extern void us_ticker_isr(void)
 {
-	/* Clear IRQ flag */
-	TIM1REG->CLEAR = 0;
+    /* Clear IRQ flag */
+    TIM1REG->CLEAR = 0;
 
-	/* If this is a longer timer it will take multiple full hw counter cycles */
-	if (us_ticker_int_counter > 0)
-	{
-		ticker_set(0xFFFF);
-		us_ticker_int_counter--;
-	}
-	else
-	{
-		TIM1REG->CONTROL.BITS.ENABLE = False;
-		us_ticker_irq_handler();
-	}
+    /* If this is a longer timer it will take multiple full hw counter cycles */
+    if (us_ticker_int_counter > 0) {
+        ticker_set(0xFFFF);
+        us_ticker_int_counter--;
+    } else {
+        TIM1REG->CONTROL.BITS.ENABLE = False;
+        us_ticker_irq_handler();
+    }
 }
 
 /* Set timer 1 ticker interrupt */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-	int32_t delta = (uint32_t)timestamp - us_ticker_read();
+    int32_t delta = (uint32_t)timestamp - us_ticker_read();
 
-	if (delta <= 0)
-	{
-		/* This event was in the past */
-		//us_ticker_irq_handler();
+    if (delta <= 0) {
+        /* This event was in the past */
+        //us_ticker_irq_handler();
         // This event was in the past.
         // Set the interrupt as pending, but don't process it here.
         // This prevents a recurive loop under heavy load
         // which can lead to a stack overflow.
         NVIC_SetPendingIRQ(Tim1_IRQn);
 
-		return;
-	}
+        return;
+    }
 
-	/* Calculate how much delta falls outside the 16-bit counter range. */
-	/* You will have to perform a full timer overflow for each bit above */
-	/* that range. */
-	us_ticker_int_counter = (uint32_t)(delta >> 16);
+    /* Calculate how much delta falls outside the 16-bit counter range. */
+    /* You will have to perform a full timer overflow for each bit above */
+    /* that range. */
+    us_ticker_int_counter = (uint32_t)(delta >> 16);
 
-	ticker_set(delta);
+    ticker_set(delta);
 }

@@ -40,22 +40,22 @@
 
 /** Type listing the supported kinds of flow control. */
 typedef enum {
-	/** No flow control */
-	none,
-	/** use hardware CTS (External CPU indicates it is ok for the modem to transmit)
-	 * and RTS (modem requests to sent to external CPU) flow control.
-	 */
-	rtscts,
-	/** use hardware CTS/RTS flow control, but CTS is no response to RTS,
-	 * RTS and CTS are used to indicate intent to transmit.
-	 */
-	rtscts_e
+    /** No flow control */
+    none,
+    /** use hardware CTS (External CPU indicates it is ok for the modem to transmit)
+     * and RTS (modem requests to sent to external CPU) flow control.
+     */
+    rtscts,
+    /** use hardware CTS/RTS flow control, but CTS is no response to RTS,
+     * RTS and CTS are used to indicate intent to transmit.
+     */
+    rtscts_e
 } flow_control_t;
 
 /** A set of options to be passed when creating a uart device instance. */
 typedef struct uart_options {
-	uint32_t baudrate; /**< The expected baud rate. */
-	flow_control_t control;/**< Defines type of flow control, none or rtscts */
+    uint32_t baudrate; /**< The expected baud rate. */
+    flow_control_t control;/**< Defines type of flow control, none or rtscts */
 } uart_options_t, *uart_options_pt;
 
 #endif /* UART_H_ */

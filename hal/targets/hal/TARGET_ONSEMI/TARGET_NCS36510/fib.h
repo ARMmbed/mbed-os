@@ -34,10 +34,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-typedef struct {  
-  unsigned int fwbase_address;
-  mib_systemRevision_t fw_version;  
-}fibtable_t; 
+typedef struct {
+    unsigned int fwbase_address;
+    mib_systemRevision_t fw_version;
+} fibtable_t;
 
 
 #endif

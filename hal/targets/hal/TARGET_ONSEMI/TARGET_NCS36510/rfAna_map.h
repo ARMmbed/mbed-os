@@ -45,60 +45,60 @@
 
 /** rfAna register map (control part) */
 typedef struct {
-	union {
-	    struct {
-	      __IO uint32_t FRACT_WORD:24;
-	      __IO uint32_t INT_WORD:8;
-	    } BITS;
-	    __IO uint32_t WORD;
-	} TX_LO_CONTROL;
-	union {
-		struct {
-		  __IO uint32_t FRACT_WORD:24;
-		  __IO uint32_t INT_WORD:8;
-		} BITS;
-		__IO uint32_t WORD;
-	} RX_LO_CONTROL;
-	union {
-		struct {
-		  __IO uint32_t PLL_RESET_TIME:10;
-		  __I uint32_t RESERVED:6;
-		  __IO uint32_t PLL_LOCK_TIME:10;
-		} BITS;
-		__IO uint32_t WORD;
-	} PLL_TIMING;
-	union {
-		struct {
-		  __IO uint32_t LNA_GAIN_MODE:1;
-		  __IO uint32_t ADC_DITHER_MODE:1;
-		} BITS;
-		__IO uint32_t WORD;
-	} RX_CONTROL;
-	__IO uint32_t TX_POWER;
-	__I uint32_t RECEIVER_GAIN;
+    union {
+        struct {
+            __IO uint32_t FRACT_WORD:24;
+            __IO uint32_t INT_WORD:8;
+        } BITS;
+        __IO uint32_t WORD;
+    } TX_LO_CONTROL;
+    union {
+        struct {
+            __IO uint32_t FRACT_WORD:24;
+            __IO uint32_t INT_WORD:8;
+        } BITS;
+        __IO uint32_t WORD;
+    } RX_LO_CONTROL;
+    union {
+        struct {
+            __IO uint32_t PLL_RESET_TIME:10;
+            __I uint32_t RESERVED:6;
+            __IO uint32_t PLL_LOCK_TIME:10;
+        } BITS;
+        __IO uint32_t WORD;
+    } PLL_TIMING;
+    union {
+        struct {
+            __IO uint32_t LNA_GAIN_MODE:1;
+            __IO uint32_t ADC_DITHER_MODE:1;
+        } BITS;
+        __IO uint32_t WORD;
+    } RX_CONTROL;
+    __IO uint32_t TX_POWER;
+    __I uint32_t RECEIVER_GAIN;
 } RfAnaReg_t, *RfAnaReg_pt;
 
 /** rfAna register map (trimming part) */
 typedef struct {
-	__IO uint32_t PMU_TRIM;
-	__IO uint32_t RESERVED;
-	__IO uint32_t RX_CHAIN_TRIM;
-	union {
-	    struct {
-	      __I uint32_t BIAS_VCO_TRIM:4;
-	      __I uint32_t MODULATION_TRIM:4;
-	      __IO uint32_t TX_VCO_TRIM:4;
-	      __IO uint32_t RX_VCO_TRIM:4;
-	      __I uint32_t DIV_TRIM:3;
-	      __I uint32_t REG_TRIM:2;
-	      __I uint32_t LFR_TRIM:3;
-	      __I uint32_t PAD0:4;
-	      __I uint32_t CHARGE_PUMP_RANGE:4;
-	    } BITS;
-	    __IO uint32_t WORD;
-	} PLL_TRIM;
-	__IO uint32_t PLL_VCO_TAP_LOCATION;
-	__IO uint32_t TX_CHAIN_TRIM;
+    __IO uint32_t PMU_TRIM;
+    __IO uint32_t RESERVED;
+    __IO uint32_t RX_CHAIN_TRIM;
+    union {
+        struct {
+            __I uint32_t BIAS_VCO_TRIM:4;
+            __I uint32_t MODULATION_TRIM:4;
+            __IO uint32_t TX_VCO_TRIM:4;
+            __IO uint32_t RX_VCO_TRIM:4;
+            __I uint32_t DIV_TRIM:3;
+            __I uint32_t REG_TRIM:2;
+            __I uint32_t LFR_TRIM:3;
+            __I uint32_t PAD0:4;
+            __I uint32_t CHARGE_PUMP_RANGE:4;
+        } BITS;
+        __IO uint32_t WORD;
+    } PLL_TRIM;
+    __IO uint32_t PLL_VCO_TAP_LOCATION;
+    __IO uint32_t TX_CHAIN_TRIM;
 #ifdef REVC
     __IO uint32_t RX_VCO_TRIM_LUT2;             /** 0x40019098 */
     __IO uint32_t RX_VCO_TRIM_LUT1;             /** 0x4001909C */

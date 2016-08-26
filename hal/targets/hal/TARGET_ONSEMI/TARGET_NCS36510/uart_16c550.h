@@ -48,9 +48,9 @@
 
 /** A set of options to be passed when opening a 16C550 UART device. */
 typedef struct uart_16c550_options {
-	uart_options_t uartOptions; /**< The generic UART options. */
-	Uart16C550Reg_pt membase; /**< The memory base for the device's registers. */
-	uint8_t irq; /**< The IRQ number of the IRQ associated to the device. */
+    uart_options_t uartOptions; /**< The generic UART options. */
+    Uart16C550Reg_pt membase; /**< The memory base for the device's registers. */
+    uint8_t irq; /**< The IRQ number of the IRQ associated to the device. */
 } uart_16c550_options_t, *uart_16c550_options_pt;
 
 #define UART_NUM		2

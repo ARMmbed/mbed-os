@@ -32,57 +32,7 @@
 
 void mbed_enter_sleep(sleep_t *obj)
 {
-#if 0
-
-#if 1 /* TODO Temporary code will be removed once mbed OS paases this details */
-	obj->timeToSleep = False;
-	obj->SleepType 	 = SLEEP_TYPE_DEEPSLEEP;
-#endif
-
-	CLOCK_ENABLE(CLOCK_PMU);
-
-	/* Select sleep mode */
-    if(obj->timeToSleep == False)
-	{/* Use SleepType to select sleep mode*/
-		if(obj->SleepType == SLEEP_TYPE_SLEEP)
-		{
-			sleep();
-		}
-		else if(obj->SleepType == SLEEP_TYPE_DEEPSLEEP)
-		{
-			deepsleep();
-		}
-		else if(obj->SleepType == SLEEP_TYPE_COMA)
-		{
-			coma();
-		}
-		else
-		{
-			/* Do nothing */
-		}
-	}
-	else
-	{/* Select sleep mode using TimetoSleep */
-		if((obj->timeToSleep >= SLEEP_DURATION_SLEEP_MIN) && (obj->timeToSleep <= SLEEP_DURATION_SLEEP_MAX))
-		{
-			sleep();
-		}
-		else if((obj->timeToSleep > SLEEP_DURATION_SLEEP_MAX) && (obj->timeToSleep <= SLEEP_DURATION_DEEPSLEEP_MAX))
-		{
-			deepsleep();
-		}
-		else if((obj->timeToSleep > SLEEP_DURATION_DEEPSLEEP_MAX) && (obj->timeToSleep <= SLEEP_DURATION_COMA_MAX))
-		{
-			coma();
-		}
-		else
-		{
-			/* Do nothing */
-		}
-	}
-
-    CLOCK_DISABLE(CLOCK_PMU);
-#endif
+    /* Empty implementation, this will be implemented for mbed5.0 */
 }
 
 void mbed_exit_sleep(sleep_t *obj)

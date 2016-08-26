@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-  /*todo: determine how function argument is used */
-   
+/*todo: determine how function argument is used */
+
 #include "PeripheralPins.h"
 
 /************ADC***************/
@@ -32,20 +32,20 @@ const PinMap PinMap_I2C_SDA[] = {
     {GPIO3,  I2C_0, 5},
     {GPIO4,  I2C_0, 5},
     {GPIO10, I2C_0, 5},
-	{GPIO12, I2C_0, 5},
+    {GPIO12, I2C_0, 5},
     {GPIO15, I2C_1, 5},
     {GPIO16, I2C_1, 5},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-  {GPIO2,  I2C_0, 5},
-  {GPIO5,  I2C_0, 5},  
-  {GPIO11, I2C_0, 5},
-  {GPIO13, I2C_0, 5},
-  {GPIO14, I2C_1, 5},
-  {GPIO17, I2C_1, 5},
-  {NC   , NC   , 0}
+    {GPIO2,  I2C_0, 5},
+    {GPIO5,  I2C_0, 5},
+    {GPIO11, I2C_0, 5},
+    {GPIO13, I2C_0, 5},
+    {GPIO14, I2C_1, 5},
+    {GPIO17, I2C_1, 5},
+    {NC   , NC   , 0}
 };
 
 /************UART***************/
@@ -63,40 +63,44 @@ const PinMap PinMap_UART_RX[] = {
 
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
-  /*todo: other pins are possible, need to add */
+    /*todo: other pins are possible, need to add */
     {SPI1_SCLK_2, SPI_0, 6},
     {SPI1_SCLK_3, SPI_0, 6},
-	{SPI2_SCLK,   SPI_1, 6},
-    {NC, 		  NC,    0}};
+    {SPI2_SCLK,   SPI_1, 6},
+    {NC, 		  NC,    0}
+};
 
 const PinMap PinMap_SPI_MOSI[] = {
-  /*todo: other pins are possible, need to add */
+    /*todo: other pins are possible, need to add */
     {SPI1_SDATAO_2, SPI_0, 6},
-	{SPI1_SDATAO_3, SPI_0, 6},
+    {SPI1_SDATAO_3, SPI_0, 6},
     {SPI2_SDATAO, 	SPI_1, 6},
-    {NC, 			NC,    0}};
+    {NC, 			NC,    0}
+};
 
 const PinMap PinMap_SPI_MISO[] = {
-  /*todo: other pins are possible, need to add */
-	{SPI1_SDATAI_2, SPI_0, 6},
+    /*todo: other pins are possible, need to add */
+    {SPI1_SDATAI_2, SPI_0, 6},
     {SPI1_SDATAI_3, SPI_0, 6},
     {SPI2_SDATAI, 	SPI_1, 6},
-    {NC, 			NC,    0}};
+    {NC, 			NC,    0}
+};
 
 const PinMap PinMap_SPI_SSEL[] = {
-  	/*todo: other pins are possible, need to add */
-	/* TODO what about SSNO */
+    /*todo: other pins are possible, need to add */
+    /* TODO what about SSNO */
     {SPI1_SSNI_2, SPI_0, 6},
-	{SPI2_SSNI,   SPI_1, 6},
-    {NC, 		  NC,    0}};
+    {SPI2_SSNI,   SPI_1, 6},
+    {NC, 		  NC,    0}
+};
 
 
 const PinMap PinMap_PWM[] = {
 
     {GPIO6 , PWM_0 , 4},
-	{GPIO7 , PWM_0 , 4},
-	{GPIO9 , PWM_0 , 4},
-	{GPIO12 , PWM_0 , 4},
-	{GPIO13 , PWM_0 , 4},
+    {GPIO7 , PWM_0 , 4},
+    {GPIO9 , PWM_0 , 4},
+    {GPIO12 , PWM_0 , 4},
+    {GPIO13 , PWM_0 , 4},
     {NC   , NC    , 0}
 };

@@ -4,7 +4,7 @@
  * @brief Implementation of a GPIO irq handlers
  * @internal
  * @author ON Semiconductor
- * $Rev: 
+ * $Rev:
  * $Date: 2015-11-04 $
  ******************************************************************************
  * @copyright (c) 2012 ON Semiconductor. All rights reserved.
@@ -33,7 +33,7 @@
  * <p>
  * Each GPIO line can be independently programmed as an input or an output. Separate Set
  * and Clear registers are provided since it is likely that different software tasks may be
- * servicing different I/O signals. Inputs are synchronized to the system clock 
+ * servicing different I/O signals. Inputs are synchronized to the system clock
  * through a pair of flip-flops.  Each input can be programmed
  * to cause an interrupt to be generated.  The interrupt can be programmed to be level-sensitive
  * or edge-sensitive and the level (high or low) or edge (rising, falling or either) that causes
@@ -63,7 +63,7 @@
 /* Include files from the mbed-hal layer */
 #include "gpio_irq_api.h"
 
-#include "device.h"  
+#include "device.h"
 
 #if DEVICE_INTERRUPTIN
 
@@ -78,45 +78,43 @@ static uint32_t gpioIds[NUMBER_OF_GPIO] = {0};
  */
 void fGpioHandler(void)
 {
-  uint8_t index;
-  uint32_t active_interrupts = 0;
-  gpio_irq_event event;
-  GpioReg_pt gpioBase;
+    uint8_t index;
+    uint32_t active_interrupts = 0;
+    gpio_irq_event event;
+    GpioReg_pt gpioBase;
 
-  /* Enable the GPIO clock */
-  CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-  gpioBase = GPIOREG;
+    gpioBase = GPIOREG;
 
-  /** - Store all active interrupts */
-  active_interrupts = gpioBase->R_IRQ_W_CLEAR;
+    /** - Store all active interrupts */
+    active_interrupts = gpioBase->R_IRQ_W_CLEAR;
 
-  for (index=0; index < NUMBER_OF_GPIO; index++)
-  {
+    for (index=0; index < NUMBER_OF_GPIO; index++) {
 
-    /* Check the pin for which IRQ is raised */
-    if ((active_interrupts >> index) & 0x01)
-    {
-      /* Check if it is edge triggered and clear the interrupt */
-      if ((gpioBase->IRQ_EDGE >> index) &  0x01){
-        if ((gpioBase->IRQ_POLARITY_SET >> index) &0x01)  {
-          /* Edge triggered high */
-          event = IRQ_RISE;
-        } else if ((gpioBase->IRQ_POLARITY_CLEAR >> index) &0x01) {
-          /* Edge triggered low */
-          event = IRQ_FALL;
-        } else {
-          /* Edge none */
-          event = IRQ_NONE;
+        /* Check the pin for which IRQ is raised */
+        if ((active_interrupts >> index) & 0x01) {
+            /* Check if it is edge triggered and clear the interrupt */
+            if ((gpioBase->IRQ_EDGE >> index) &  0x01) {
+                if ((gpioBase->IRQ_POLARITY_SET >> index) &0x01)  {
+                    /* Edge triggered high */
+                    event = IRQ_RISE;
+                } else if ((gpioBase->IRQ_POLARITY_CLEAR >> index) &0x01) {
+                    /* Edge triggered low */
+                    event = IRQ_FALL;
+                } else {
+                    /* Edge none */
+                    event = IRQ_NONE;
+                }
+            }
+            gpioBase->IRQ_CLEAR |= (0x1 << index);
+
+            /* Call the handler registered to the pin */
+            irq_handler(gpioIds[index], event);
         }
-      }
-      gpioBase->IRQ_CLEAR |= (0x1 << index);
 
-      /* Call the handler registered to the pin */
-      irq_handler(gpioIds[index], event);
     }
-
-  }
 }
 
 /** Initialize the GPIO IRQ pin
@@ -129,44 +127,43 @@ void fGpioHandler(void)
  */
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
-  /* If Pin is not connected; then return -1 */
-  if (pin == NC)
-  {
-    return(-1);
-  }
+    /* If Pin is not connected; then return -1 */
+    if (pin == NC) {
+        return(-1);
+    }
 
-  /* Store the pin for which handler is registered */
-  obj->pin = pin;
-  obj->pinMask = (0x1 << pin);
-  
-  /* Store the ID, this is required by registered handler function */
-  gpioIds[pin] = id;
+    /* Store the pin for which handler is registered */
+    obj->pin = pin;
+    obj->pinMask = (0x1 << pin);
 
-  /* Enable the GPIO clock */
-  CLOCK_ENABLE(CLOCK_GPIO);
+    /* Store the ID, this is required by registered handler function */
+    gpioIds[pin] = id;
 
-  /* Initialize the GPIO membase */
-  obj->GPIOMEMBASE = GPIOREG;
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-  /* Set default values for the pin interrupt */
-  /* TODO: Only one DIO line is configured using this function; overrides other DIO line setting
-   * If mbed layer wants to call this function repeatedly for setting multiple DIO lines as input
-   * then change this setting to  obj->GPIOMEMBASE->W_IN |= obj->pinMask. All parameter setting needs to change from = to |=
-   */
-  obj->GPIOMEMBASE->W_IN = obj->pinMask;
-  obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
-  obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
-  obj->GPIOMEMBASE->IRQ_POLARITY_SET = (obj->pinMask);
-  obj->GPIOMEMBASE->ANYEDGE_SET = IO_NONE;
+    /* Initialize the GPIO membase */
+    obj->GPIOMEMBASE = GPIOREG;
 
-  /* Register the handler for this pin */
-  irq_handler = handler;
+    /* Set default values for the pin interrupt */
+    /* TODO: Only one DIO line is configured using this function; overrides other DIO line setting
+     * If mbed layer wants to call this function repeatedly for setting multiple DIO lines as input
+     * then change this setting to  obj->GPIOMEMBASE->W_IN |= obj->pinMask. All parameter setting needs to change from = to |=
+     */
+    obj->GPIOMEMBASE->W_IN = obj->pinMask;
+    obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
+    obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
+    obj->GPIOMEMBASE->IRQ_POLARITY_SET = (obj->pinMask);
+    obj->GPIOMEMBASE->ANYEDGE_SET = IO_NONE;
 
-  /* Enable interruption associated with the gpio */
-  NVIC_ClearPendingIRQ(Gpio_IRQn);
-  NVIC_EnableIRQ(Gpio_IRQn);
+    /* Register the handler for this pin */
+    irq_handler = handler;
 
-  return(0);
+    /* Enable interruption associated with the gpio */
+    NVIC_ClearPendingIRQ(Gpio_IRQn);
+    NVIC_EnableIRQ(Gpio_IRQn);
+
+    return(0);
 }
 
 /** Release the GPIO IRQ PIN
@@ -175,11 +172,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
  */
 void gpio_irq_free(gpio_irq_t *obj)
 {
-	/* Enable the GPIO clock */
-	CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-	obj->GPIOMEMBASE->W_IN = (IO_ALL ^ (obj->pinMask));
-	gpioIds[obj->pin] = 0;
+    obj->GPIOMEMBASE->W_IN = (IO_ALL ^ (obj->pinMask));
+    gpioIds[obj->pin] = 0;
 }
 
 /** Enable/disable pin IRQ event
@@ -191,47 +188,40 @@ void gpio_irq_free(gpio_irq_t *obj)
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
 
-	/* Enable the GPIO clock */
-	CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-	switch(event)
-	{
-	  case IRQ_RISE:
-		obj->GPIOMEMBASE->IRQ_EDGE = (obj->pinMask);
-		obj->GPIOMEMBASE->IRQ_LEVEL = (IO_ALL ^ (obj->pinMask));
-		/* Enable is an integer; hence checking for 1 or 0*/
-		if (enable == 1)
-		{
-		  /* Enable rising edge */
-		  obj->GPIOMEMBASE->IRQ_POLARITY_SET = (obj->pinMask);
-		}
-		else if (enable == 0)
-		{
-		  /* Disable rising edge */
-		  obj->GPIOMEMBASE->IRQ_POLARITY_SET = (IO_ALL ^ (obj->pinMask));
-		}
-		break;
+    switch(event) {
+        case IRQ_RISE:
+            obj->GPIOMEMBASE->IRQ_EDGE = (obj->pinMask);
+            obj->GPIOMEMBASE->IRQ_LEVEL = (IO_ALL ^ (obj->pinMask));
+            /* Enable is an integer; hence checking for 1 or 0*/
+            if (enable == 1) {
+                /* Enable rising edge */
+                obj->GPIOMEMBASE->IRQ_POLARITY_SET = (obj->pinMask);
+            } else if (enable == 0) {
+                /* Disable rising edge */
+                obj->GPIOMEMBASE->IRQ_POLARITY_SET = (IO_ALL ^ (obj->pinMask));
+            }
+            break;
 
-	  case IRQ_FALL:
-		obj->GPIOMEMBASE->IRQ_EDGE = (obj->pinMask);
-		obj->GPIOMEMBASE->IRQ_LEVEL = (IO_ALL ^ (obj->pinMask));
-		/* Enable is an integer; hence checking for 1 or 0*/
-		if (enable == 1)
-		{
-		  /* Enable falling edge */
-		  obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = (obj->pinMask);
-		}
-		else if (enable == 0)
-		{
-		  /* Disable falling edge */
-		  obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = (IO_ALL ^ (obj->pinMask));
-		}
-		break;
+        case IRQ_FALL:
+            obj->GPIOMEMBASE->IRQ_EDGE = (obj->pinMask);
+            obj->GPIOMEMBASE->IRQ_LEVEL = (IO_ALL ^ (obj->pinMask));
+            /* Enable is an integer; hence checking for 1 or 0*/
+            if (enable == 1) {
+                /* Enable falling edge */
+                obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = (obj->pinMask);
+            } else if (enable == 0) {
+                /* Disable falling edge */
+                obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = (IO_ALL ^ (obj->pinMask));
+            }
+            break;
 
-	  default:
-		/* No event is set */
-		break;
-	}
+        default:
+            /* No event is set */
+            break;
+    }
 
 }
 
@@ -242,10 +232,10 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
  */
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-	/* Enable the GPIO clock */
-	CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-	obj->GPIOMEMBASE->IRQ_ENABLE_SET = (obj->pinMask);
+    obj->GPIOMEMBASE->IRQ_ENABLE_SET = (obj->pinMask);
 }
 
 /** Disable GPIO IRQ
@@ -255,10 +245,10 @@ void gpio_irq_enable(gpio_irq_t *obj)
  */
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-	/* Enable the GPIO clock */
-	CLOCK_ENABLE(CLOCK_GPIO);
+    /* Enable the GPIO clock */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
-	obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = (obj->pinMask);
+    obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = (obj->pinMask);
 }
 
 #endif //DEVICE_INTERRUPTIN

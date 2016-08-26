@@ -23,63 +23,62 @@
 
 void pin_function(PinName pin, int function)
 {
-	/** - Enable the clock for PAD peripheral device */
-	CLOCK_ENABLE(CLOCK_CROSSB);
+    /** - Enable the clock for PAD peripheral device */
+    CLOCK_ENABLE(CLOCK_CROSSB);
 
-	/* Note: GPIO 0,1,2,3 are used for UART 1, GPIO 8,9 are used for UART 2 */
-	CrossbReg_pt crossBar = (CrossbReg_t *)(CROSSBREG_BASE + (pin * CROSS_REG_ADRS_BYTE_SIZE));
-	crossBar->DIOCTRL0 = function;
+    /* Note: GPIO 0,1,2,3 are used for UART 1, GPIO 8,9 are used for UART 2 */
+    CrossbReg_pt crossBar = (CrossbReg_t *)(CROSSBREG_BASE + (pin * CROSS_REG_ADRS_BYTE_SIZE));
+    crossBar->DIOCTRL0 = function;
 
     /** - Disable the clock for PAD peripheral device */
-    CLOCK_DISABLE(CLOCK_CROSSB); 
+    CLOCK_DISABLE(CLOCK_CROSSB);
 }
 
 void pin_mode(PinName pin, PinMode mode)
 {
     /** - Get PAD IO register address for the PAD number */
-  PadReg_t *padRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
-   
-  /** - Enable the clock for PAD peripheral device */
-  CLOCK_ENABLE(CLOCK_PAD);
+    PadReg_t *padRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
 
-  switch (mode)
-  {
-    case PushPullPullDown:
-      padRegOffset->PADIO0.BITS.TYPE = PAD_OUTCFG_PUSHPULL;
-      padRegOffset->PADIO0.BITS.PULL = PAD_PULL_DOWN;
-      break;
+    /** - Enable the clock for PAD peripheral device */
+    CLOCK_ENABLE(CLOCK_PAD);
 
-    case PushPullNoPull:
-      padRegOffset->PADIO0.BITS.TYPE = PAD_OUTCFG_PUSHPULL;
-      padRegOffset->PADIO0.BITS.PULL = PAD_PULL_NONE;
-      break;
+    switch (mode) {
+        case PushPullPullDown:
+            padRegOffset->PADIO0.BITS.TYPE = PAD_OUTCFG_PUSHPULL;
+            padRegOffset->PADIO0.BITS.PULL = PAD_PULL_DOWN;
+            break;
 
-    case PushPullPullUp:
-      padRegOffset->PADIO0.BITS.TYPE = PAD_OUTCFG_PUSHPULL;
-      padRegOffset->PADIO0.BITS.PULL = PAD_PULL_UP;
-      break;    
+        case PushPullNoPull:
+            padRegOffset->PADIO0.BITS.TYPE = PAD_OUTCFG_PUSHPULL;
+            padRegOffset->PADIO0.BITS.PULL = PAD_PULL_NONE;
+            break;
 
-    case OpenDrainPullDown:
-      padRegOffset->PADIO0.BITS.TYPE = PAD_OOUTCFG_OPENDRAIN;
-      padRegOffset->PADIO0.BITS.PULL = PAD_PULL_DOWN;      
-      break;
+        case PushPullPullUp:
+            padRegOffset->PADIO0.BITS.TYPE = PAD_OUTCFG_PUSHPULL;
+            padRegOffset->PADIO0.BITS.PULL = PAD_PULL_UP;
+            break;
 
-    case OpenDrainNoPull:
-      padRegOffset->PADIO0.BITS.TYPE = PAD_OOUTCFG_OPENDRAIN;
-      padRegOffset->PADIO0.BITS.PULL = PAD_PULL_NONE;         
-      break;
+        case OpenDrainPullDown:
+            padRegOffset->PADIO0.BITS.TYPE = PAD_OOUTCFG_OPENDRAIN;
+            padRegOffset->PADIO0.BITS.PULL = PAD_PULL_DOWN;
+            break;
 
-    case OpenDrainPullUp:
-      padRegOffset->PADIO0.BITS.TYPE = PAD_OOUTCFG_OPENDRAIN;
-      padRegOffset->PADIO0.BITS.PULL = PAD_PULL_UP;         
-      break;
+        case OpenDrainNoPull:
+            padRegOffset->PADIO0.BITS.TYPE = PAD_OOUTCFG_OPENDRAIN;
+            padRegOffset->PADIO0.BITS.PULL = PAD_PULL_NONE;
+            break;
 
-    default:
-        break;        
-        
-  }
-  
-  /** - Disable the clock for PAD peripheral device */
-  CLOCK_DISABLE(CLOCK_PAD); 
+        case OpenDrainPullUp:
+            padRegOffset->PADIO0.BITS.TYPE = PAD_OOUTCFG_OPENDRAIN;
+            padRegOffset->PADIO0.BITS.PULL = PAD_PULL_UP;
+            break;
+
+        default:
+            break;
+
+    }
+
+    /** - Disable the clock for PAD peripheral device */
+    CLOCK_DISABLE(CLOCK_PAD);
 
 }

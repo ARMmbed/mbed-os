@@ -2032,6 +2032,7 @@
         "progen": {"target": "ncs36510"},
         "progen_target": "ncs36510",
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI"]
+        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI"],
+        "release_versions": ["2", "5"]
     }
 }

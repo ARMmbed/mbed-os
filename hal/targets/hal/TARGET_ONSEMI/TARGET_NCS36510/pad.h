@@ -49,8 +49,8 @@
 
 
 #define CROSS_REG_ADRS_BYTE_SIZE                4
-   
-#define PAD_REG_ADRS_BYTE_SIZE                  4   
+
+#define PAD_REG_ADRS_BYTE_SIZE                  4
 
 
 /*************************************************************************************************
@@ -60,18 +60,18 @@
 *************************************************************************************************/
 
 /**
-* @brief 
-* Configures the PAD IO for desired behavior 
+* @brief
+* Configures the PAD IO for desired behavior
 */
 extern void fPadInit();
 
 /**
-* @brief 
+* @brief
 * Set ouptput drive strength, output drive type & pull type for PAD IO
 *
 * @param PadNum Pad number
 * @param OutputDriveStrength Ouput drive strength. Ref Table: O/p drive strength
-* @param OutputDriveType Push/pull: 0; opern dran: 1 
+* @param OutputDriveType Push/pull: 0; opern dran: 1
 * @param PullType Pull down active: 0; no pull active:1 or 2; pull up active: 3
 *
 * @return true for success; false for invalid parameters

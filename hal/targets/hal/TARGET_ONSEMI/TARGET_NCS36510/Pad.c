@@ -67,7 +67,7 @@
 *************************************************************************************************/
 
 /** Find description at pad.h */
-void fPadInit() 
+void fPadInit()
 {
     /** - Enable the clock for PAD peripheral device */
     CLOCK_ENABLE(CLOCK_PAD);
@@ -86,12 +86,12 @@ void fPadInit()
     PADREG->PADIO10.WORD = PAD_UNUSED_PD_L0_PP;
     PADREG->PADIO11.WORD = PAD_INPUT_PD_L1_PP;       /* SWO */
     PADREG->PADIO12.WORD = PAD_INPUT_PD_L1_PP;       /* SWCLK */
-    PADREG->PADIO13.WORD = PAD_INPUT_PD_L1_PP;       /* SWDIO */	
-	PADREG->PADIO14.WORD = PAD_INPUT_PD_L1_PP;      
+    PADREG->PADIO13.WORD = PAD_INPUT_PD_L1_PP;       /* SWDIO */
+    PADREG->PADIO14.WORD = PAD_INPUT_PD_L1_PP;
     PADREG->PADIO15.WORD = PAD_UNUSED_PD_L0_PP;
-    PADREG->PADIO16.WORD = PAD_UNUSED_PD_L0_PP;     
-    PADREG->PADIO17.WORD = PAD_UNUSED_PD_L0_PP;         
-    
+    PADREG->PADIO16.WORD = PAD_UNUSED_PD_L0_PP;
+    PADREG->PADIO17.WORD = PAD_UNUSED_PD_L0_PP;
+
     /** - Disable the clock for PAD peripheral device */
     CLOCK_DISABLE(CLOCK_PAD);
 
@@ -101,41 +101,40 @@ void fPadInit()
 boolean fPadIOCtrl(uint8_t PadNum, uint8_t OutputDriveStrength, uint8_t OutputDriveType, uint8_t PullType)
 {
     PadReg_t *PadRegOffset;
-/** \verbatim
-	Table: O/p drive strength
-	
-		Drive strength	3.3V (min/typ/max)	1V (min/typ/max) 
-		000  	 		1/1.4/2.1 mA		0.043/0.07/0.11 mA
-		001  	 		2/2.7/4.1 mA		0.086/0.15/0.215 mA
-		010  	 		4.1/5.3/7.8 mA		0.188/0.3/0.4 mA
-		011  	 		8.1/10.4/15 8 mA	0.4/0.6/0.81 mA
-		100  	 		20.8/26/37 mA*		1/1.6/2.2 mA
-		101  	 		40.5/50/70 mA*	    2/3/4.3 mA
-		11x  	 		57/73/102 mA*   	3/4.6/6.2 mA
+    /** \verbatim
+    	Table: O/p drive strength
 
-	*Values are only accessible when CDBGPWRUPREQ is high.  This limits the maximum output current in functional mode. \endverbatim */
+    		Drive strength	3.3V (min/typ/max)	1V (min/typ/max)
+    		000  	 		1/1.4/2.1 mA		0.043/0.07/0.11 mA
+    		001  	 		2/2.7/4.1 mA		0.086/0.15/0.215 mA
+    		010  	 		4.1/5.3/7.8 mA		0.188/0.3/0.4 mA
+    		011  	 		8.1/10.4/15 8 mA	0.4/0.6/0.81 mA
+    		100  	 		20.8/26/37 mA*		1/1.6/2.2 mA
+    		101  	 		40.5/50/70 mA*	    2/3/4.3 mA
+    		11x  	 		57/73/102 mA*   	3/4.6/6.2 mA
+
+    	*Values are only accessible when CDBGPWRUPREQ is high.  This limits the maximum output current in functional mode. \endverbatim */
 
 
-         if((PadNum  <= PAD_NUM_OF_IO) && 
-		   (OutputDriveStrength <= PAD_OP_DRIVE_STRGTH_MAX) &&
-			   (OutputDriveType <= PAD_OP_DRIVE_TYPE_MAX) && (PullType <= PAD_OP_PULL_TYPE_MAX))
-        {
-            /** - Get PAD IO register address for the PAD number */
-            PadRegOffset = (PadReg_t*)(PADREG_BASE + (PadNum * PAD_REG_ADRS_BYTE_SIZE));
+    if((PadNum  <= PAD_NUM_OF_IO) &&
+            (OutputDriveStrength <= PAD_OP_DRIVE_STRGTH_MAX) &&
+            (OutputDriveType <= PAD_OP_DRIVE_TYPE_MAX) && (PullType <= PAD_OP_PULL_TYPE_MAX)) {
+        /** - Get PAD IO register address for the PAD number */
+        PadRegOffset = (PadReg_t*)(PADREG_BASE + (PadNum * PAD_REG_ADRS_BYTE_SIZE));
 
-            /** - Enable the clock for PAD peripheral device */
-            CLOCK_ENABLE(CLOCK_PAD);
+        /** - Enable the clock for PAD peripheral device */
+        CLOCK_ENABLE(CLOCK_PAD);
 
-            /** - Set drive type, pulltype & drive strength */
-            PadRegOffset->PADIO0.WORD = (uint32_t)((PullType << PAD_OP_PULL_TYPE_BIT_POS) |
-												  (OutputDriveStrength << PAD_OP_DRIVE_STRGTH_BIT_POS) |
-												  (OutputDriveType << PAD_OP_DRIVE_TYPE_BIT_POS));
+        /** - Set drive type, pulltype & drive strength */
+        PadRegOffset->PADIO0.WORD = (uint32_t)((PullType << PAD_OP_PULL_TYPE_BIT_POS) |
+                                               (OutputDriveStrength << PAD_OP_DRIVE_STRGTH_BIT_POS) |
+                                               (OutputDriveType << PAD_OP_DRIVE_TYPE_BIT_POS));
 
-            /** - Disable the clock for PAD peripheral device */
-            CLOCK_DISABLE(CLOCK_PAD); 
-            return True;
-        }
-        /* Invalid parameter/s */
-        return False;  
+        /** - Disable the clock for PAD peripheral device */
+        CLOCK_DISABLE(CLOCK_PAD);
+        return True;
+    }
+    /* Invalid parameter/s */
+    return False;
 }
 #endif /* REVD */

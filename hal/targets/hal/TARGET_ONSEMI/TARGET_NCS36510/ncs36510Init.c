@@ -3,7 +3,7 @@
 * @file ncs36510_init.c
 * @brief Initialization of Orion SoC
 * @internal
-* @author Radhika R, ON Semiconductors
+* @author ON Semiconductor
 * $Rev:
 * $Date: $
 ******************************************************************************
@@ -37,137 +37,139 @@ void fPmuInit(void);
  * This function copies trim codes from specific flash location
  * where they are stored to proper hw registers.
  */
-boolean fTrim() {
+boolean fTrim()
+{
 
-	/**- Check if trim values are present */
-	/**- If Trim data is present.  Only trim if valid trim values are present. */
-	/**- Copy trims in registers */
-	if (TRIMREG->REVISION_CODE != 0xFFFFFFFF) {
+    /**- Check if trim values are present */
+    /**- If Trim data is present.  Only trim if valid trim values are present. */
+    /**- Copy trims in registers */
+    if (TRIMREG->REVISION_CODE != 0xFFFFFFFF) {
 
-		/**- board specific clock trims may only be done when present, writing all 1's is not good */
-		if ((TRIMREG->TRIM_32K_EXT & 0xFFFF0000) != 0xFFFF0000) {
-			CLOCKREG->TRIM_32K_EXT = TRIMREG->TRIM_32K_EXT;
-		}
+        /**- board specific clock trims may only be done when present, writing all 1's is not good */
+        if ((TRIMREG->TRIM_32K_EXT & 0xFFFF0000) != 0xFFFF0000) {
+            CLOCKREG->TRIM_32K_EXT = TRIMREG->TRIM_32K_EXT;
+        }
 
-		if ((TRIMREG->TRIM_32M_EXT & 0xFFFF0000) != 0xFFFF0000) {
-			CLOCKREG->TRIM_32M_EXT = TRIMREG->TRIM_32M_EXT;
-		}
+        if ((TRIMREG->TRIM_32M_EXT & 0xFFFF0000) != 0xFFFF0000) {
+            CLOCKREG->TRIM_32M_EXT = TRIMREG->TRIM_32M_EXT;
+        }
 
-		MACHWREG->TX_LENGTH.BITS.TX_PRE_CHIPS = TRIMREG->TX_PRE_CHIPS;
+        MACHWREG->TX_LENGTH.BITS.TX_PRE_CHIPS = TRIMREG->TX_PRE_CHIPS;
 
-		RFANATRIMREG->TX_CHAIN_TRIM = TRIMREG->TX_CHAIN_TRIM;
-		RFANATRIMREG->PLL_VCO_TAP_LOCATION = TRIMREG->PLL_VCO_TAP_LOCATION;
-		RFANATRIMREG->PLL_TRIM.WORD = TRIMREG->PLL_TRIM;
+        RFANATRIMREG->TX_CHAIN_TRIM = TRIMREG->TX_CHAIN_TRIM;
+        RFANATRIMREG->PLL_VCO_TAP_LOCATION = TRIMREG->PLL_VCO_TAP_LOCATION;
+        RFANATRIMREG->PLL_TRIM.WORD = TRIMREG->PLL_TRIM;
 
-		/**- board specific RSSI trims may only be done when present, writing all 1's is not good */
-		if ((TRIMREG->RSSI_OFFSET & 0xFFFF0000) != 0xFFFF0000) {
-			DMDREG->DMD_CONTROL2.BITS.RSSI_OFFSET = TRIMREG->RSSI_OFFSET;
-		}
+        /**- board specific RSSI trims may only be done when present, writing all 1's is not good */
+        if ((TRIMREG->RSSI_OFFSET & 0xFFFF0000) != 0xFFFF0000) {
+            DMDREG->DMD_CONTROL2.BITS.RSSI_OFFSET = TRIMREG->RSSI_OFFSET;
+        }
 
-		RFANATRIMREG->RX_CHAIN_TRIM = TRIMREG->RX_CHAIN_TRIM;
-		RFANATRIMREG->PMU_TRIM = TRIMREG->PMU_TRIM;
-		RANDREG->WR_SEED_RD_RAND = TRIMREG->WR_SEED_RD_RAND;
+        RFANATRIMREG->RX_CHAIN_TRIM = TRIMREG->RX_CHAIN_TRIM;
+        RFANATRIMREG->PMU_TRIM = TRIMREG->PMU_TRIM;
+        RANDREG->WR_SEED_RD_RAND = TRIMREG->WR_SEED_RD_RAND;
 
-                /** REVD boards are trimmed (in flash) with rx vco trims specific for high side injection,
-		 * */
-		RFANATRIMREG->RX_VCO_TRIM_LUT1 = TRIMREG->RX_VCO_LUT1.WORD;;
-		RFANATRIMREG->RX_VCO_TRIM_LUT2 = TRIMREG->RX_VCO_LUT2.WORD;;
+        /** REVD boards are trimmed (in flash) with rx vco trims specific for high side injection,
+        * */
+        RFANATRIMREG->RX_VCO_TRIM_LUT1 = TRIMREG->RX_VCO_LUT1.WORD;;
+        RFANATRIMREG->RX_VCO_TRIM_LUT2 = TRIMREG->RX_VCO_LUT2.WORD;;
 
-		RFANATRIMREG->TX_VCO_TRIM_LUT1 = TRIMREG->TX_VCO_LUT1.WORD;;
-		RFANATRIMREG->TX_VCO_TRIM_LUT2 = TRIMREG->TX_VCO_LUT2.WORD;;
+        RFANATRIMREG->TX_VCO_TRIM_LUT1 = TRIMREG->TX_VCO_LUT1.WORD;;
+        RFANATRIMREG->TX_VCO_TRIM_LUT2 = TRIMREG->TX_VCO_LUT2.WORD;;
 
 
-		return True;
-	} else {
-		/**- If no trim values are present, update the global status variable. */
-		return False;
-	}
+        return True;
+    } else {
+        /**- If no trim values are present, update the global status variable. */
+        return False;
+    }
 }
 
 /* See clock.h for documentation. */
-void fClockInit() {
+void fClockInit()
+{
 
-	/** Enable external 32MHz oscillator */
-	CLOCKREG->CCR.BITS.OSC_SEL = 1;
+    /** Enable external 32MHz oscillator */
+    CLOCKREG->CCR.BITS.OSC_SEL = 1;
 
-	/** - Wait external 32MHz oscillator to be ready */
-        while(CLOCKREG->CSR.BITS.XTAL32M != 1){}  /* If you get stuck here, something is wrong with board or trim values */
+    /** - Wait external 32MHz oscillator to be ready */
+    while(CLOCKREG->CSR.BITS.XTAL32M != 1) {} /* If you get stuck here, something is wrong with board or trim values */
 
-	/** Internal 32MHz calibration \n *//** - Enable internal 32MHz clock */
-	PMUREG->CONTROL.BITS.INT32M = 0;
+    /** Internal 32MHz calibration \n *//** - Enable internal 32MHz clock */
+    PMUREG->CONTROL.BITS.INT32M = 0;
 
-	/** - Wait 5 uSec for clock to stabilize */
-	volatile uint8_t Timer;
-	for(Timer = 0;Timer < 10;Timer++);
+    /** - Wait 5 uSec for clock to stabilize */
+    volatile uint8_t Timer;
+    for(Timer = 0; Timer < 10; Timer++);
 
-	 /** - Enable calibration */
-	CLOCKREG->CCR.BITS.CAL32M = True;
+    /** - Enable calibration */
+    CLOCKREG->CCR.BITS.CAL32M = True;
 
-	/** - Wait calibration to be completed */
-	while(CLOCKREG->CSR.BITS.CAL32MDONE == False); /* If you stuck here, issue with internal 32M calibration */
+    /** - Wait calibration to be completed */
+    while(CLOCKREG->CSR.BITS.CAL32MDONE == False); /* If you stuck here, issue with internal 32M calibration */
 
-	/** - Check calibration status */
-	while(CLOCKREG->CSR.BITS.CAL32MFAIL == True); /* If you stuck here, issue with internal 32M calibration */
+    /** - Check calibration status */
+    while(CLOCKREG->CSR.BITS.CAL32MFAIL == True); /* If you stuck here, issue with internal 32M calibration */
 
-	/** - Power down internal 32MHz osc */
-	PMUREG->CONTROL.BITS.INT32M = 1;
+    /** - Power down internal 32MHz osc */
+    PMUREG->CONTROL.BITS.INT32M = 1;
 
-	/** Internal 32KHz calibration \n */ /** - Enable internal 32KHz clock */
-	PMUREG->CONTROL.BITS.INT32K = 0;
+    /** Internal 32KHz calibration \n */ /** - Enable internal 32KHz clock */
+    PMUREG->CONTROL.BITS.INT32K = 0;
 
-	/** - Wait 5 uSec for clock to stabilize */
-	for(Timer = 0;Timer < 10;Timer++);
+    /** - Wait 5 uSec for clock to stabilize */
+    for(Timer = 0; Timer < 10; Timer++);
 
-	/** - Enable calibration */
-	CLOCKREG->CCR.BITS.CAL32K = True;
+    /** - Enable calibration */
+    CLOCKREG->CCR.BITS.CAL32K = True;
 
-	/** - Wait calibration to be completed */
-	while(CLOCKREG->CSR.BITS.DONE32K == False); /* If you stuck here, issue with internal 32K calibration */
+    /** - Wait calibration to be completed */
+    while(CLOCKREG->CSR.BITS.DONE32K == False); /* If you stuck here, issue with internal 32K calibration */
 
-	/** - Check calibration status */
-	while(CLOCKREG->CSR.BITS.CAL32K == True); /* If you stuck here, issue with internal 32M calibration */
+    /** - Check calibration status */
+    while(CLOCKREG->CSR.BITS.CAL32K == True); /* If you stuck here, issue with internal 32M calibration */
 
-	/** - Power down external 32KHz osc */
-	PMUREG->CONTROL.BITS.EXT32K = 1;
+    /** - Power down external 32KHz osc */
+    PMUREG->CONTROL.BITS.EXT32K = 1;
 
-	/** Disable all peripheral clocks by default */
-	CLOCKREG->PDIS.WORD = 0xFFFFFFFF;
+    /** Disable all peripheral clocks by default */
+    CLOCKREG->PDIS.WORD = 0xFFFFFFFF;
 
-	/** Set core frequency */
-	CLOCKREG->FDIV = CPU_CLOCK_DIV - 1;
+    /** Set core frequency */
+    CLOCKREG->FDIV = CPU_CLOCK_DIV - 1;
 }
 
 /* Initializes PMU module */
 void fPmuInit()
 {
-	/** Enable the clock for PMU peripheral device */
-	CLOCK_ENABLE(CLOCK_PMU);
+    /** Enable the clock for PMU peripheral device */
+    CLOCK_ENABLE(CLOCK_PMU);
 
-	/** Unset wakeup on pending (only enabled irq can wakeup) */
-	SCB->SCR &= ~SCB_SCR_SEVONPEND_Msk;
+    /** Unset wakeup on pending (only enabled irq can wakeup) */
+    SCB->SCR &= ~SCB_SCR_SEVONPEND_Msk;
 
-	/** Unset auto sleep when returning from wakeup irq */
-	SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
+    /** Unset auto sleep when returning from wakeup irq */
+    SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
 
-	/** Set regulator timings */
-	PMUREG->FVDD_TSETTLE 	= 160;
-	PMUREG->FVDD_TSTARTUP 	= 400;
+    /** Set regulator timings */
+    PMUREG->FVDD_TSETTLE 	= 160;
+    PMUREG->FVDD_TSTARTUP 	= 400;
 
-	/** Keep SRAMA & SRAMB powered in coma mode */
-	PMUREG->CONTROL.BITS.SRAMA = False;
-	PMUREG->CONTROL.BITS.SRAMB = False;
+    /** Keep SRAMA & SRAMB powered in coma mode */
+    PMUREG->CONTROL.BITS.SRAMA = False;
+    PMUREG->CONTROL.BITS.SRAMB = False;
 
-	PMUREG->CONTROL.BITS.N1V1 = True;	/* Enable ACTIVE mode switching regulator */
-	PMUREG->CONTROL.BITS.C1V1 = True;	/* Enable COMA mode switching regulator */
+    PMUREG->CONTROL.BITS.N1V1 = True;	/* Enable ACTIVE mode switching regulator */
+    PMUREG->CONTROL.BITS.C1V1 = True;	/* Enable COMA mode switching regulator */
 
-	/** Disable the clock for PMU peripheral device, all settings are done */
-	CLOCK_DISABLE(CLOCK_PMU);
+    /** Disable the clock for PMU peripheral device, all settings are done */
+    CLOCK_DISABLE(CLOCK_PMU);
 }
 
 /* See clock.h for documentation. */
 uint32_t fClockGetPeriphClockfrequency()
 {
-	return (CPU_CLOCK_ROOT_HZ / CPU_CLOCK_DIV);
+    return (CPU_CLOCK_ROOT_HZ / CPU_CLOCK_DIV);
 }
 
 
@@ -177,7 +179,8 @@ uint32_t fClockGetPeriphClockfrequency()
 * This function initializes hardware at application start up prior
 * to other initializations or OS operations.
 */
-static void fHwInit(void) {
+static void fHwInit(void)
+{
 
     /* Trim register settings */
     fTrim();
@@ -257,7 +260,7 @@ void fNcs36510Init(void)
 
     /**- Clear all pending SV and systick */
     SCB->ICSR = (uint32_t)0x0A000000;
-  	SCB->VTOR = (uint32_t) (&__Vectors);
+    SCB->VTOR = (uint32_t) (&__Vectors);
 
     /**- Initialize hardware */
     fHwInit();

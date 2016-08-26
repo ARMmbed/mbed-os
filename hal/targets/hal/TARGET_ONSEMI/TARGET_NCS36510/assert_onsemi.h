@@ -37,7 +37,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	
+
 #ifdef DEBUG
 
 /** Executes when an assertion condition evaluates to false.

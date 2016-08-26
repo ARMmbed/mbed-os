@@ -44,49 +44,44 @@ extern "C" {
 #define ADC_CONTROL_REF_CH_BIT_POS		12
 #define ADC_PRESCALE_VAL_BIT_POS		0
 #define ADC_PRESCALE_EN_BIT_POS			8
-#define ADC_DELAY_SAMPLE_RATE_BIT_POS	0	
+#define ADC_DELAY_SAMPLE_RATE_BIT_POS	0
 #define ADC_DELAY_WARMUP_BIT_POS		16
 #define ADC_DELAY_SAMPLE_TIME_BIT_POS	24
 
-typedef enum 
-{
-	ADC_CHANNEL0 = 0,
-	ADC_CHANNEL1,
-	ADC_CHANNEL2,
-	ADC_CHANNEL3, 
-	ADC_TEMPSENSR = 6, 
-	ADC_BATTERY
-}Type_RefCh_ConvCh;
+typedef enum {
+    ADC_CHANNEL0 = 0,
+    ADC_CHANNEL1,
+    ADC_CHANNEL2,
+    ADC_CHANNEL3,
+    ADC_TEMPSENSR = 6,
+    ADC_BATTERY
+} Type_RefCh_ConvCh;
 
-typedef enum 
-{
-	ADC_RELATIVE_MEAS = 0,
-	ADC_ABSOLUTE_MEAS
-}Type_Meastype;
+typedef enum {
+    ADC_RELATIVE_MEAS = 0,
+    ADC_ABSOLUTE_MEAS
+} Type_Meastype;
 
-typedef enum 
-{
-	ADC_SINGLE_SAMPLE = 0,
-	ADC_CONTINUOUS_SAMPLE
-}Type_Mode;
+typedef enum {
+    ADC_SINGLE_SAMPLE = 0,
+    ADC_CONTINUOUS_SAMPLE
+} Type_Mode;
 
-typedef enum 
-{
-	ADC_INT_DISABLE = 0,
-	ADC_INT_ENABLE
-}Type_Intrpt;
+typedef enum {
+    ADC_INT_DISABLE = 0,
+    ADC_INT_ENABLE
+} Type_Intrpt;
 
-typedef enum 
-{
-	ADC_IP_SCALE_1_0 = 0,
-	ADC_IP_SCALE_0_6923,
-	ADC_IP_SCALE_0_5294,
-	ADC_IP_SCALE_0_4286,
-	ADC_IP_SCALE_0_3600,
-	ADC_IP_SCALE_0_3103,
-	ADC_IP_SCALE_0_2728,
-	ADC_IP_SCALE_0_2432
-}Ip_Scale_Type;
+typedef enum {
+    ADC_IP_SCALE_1_0 = 0,
+    ADC_IP_SCALE_0_6923,
+    ADC_IP_SCALE_0_5294,
+    ADC_IP_SCALE_0_4286,
+    ADC_IP_SCALE_0_3600,
+    ADC_IP_SCALE_0_3103,
+    ADC_IP_SCALE_0_2728,
+    ADC_IP_SCALE_0_2432
+} Ip_Scale_Type;
 
 void fAdcHandler(void);
 
