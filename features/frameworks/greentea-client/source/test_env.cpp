@@ -62,7 +62,7 @@ static void greentea_notify_version();
  * between the target and the host.
  */
 RawSerial& greentea_serial() { 
-    RawSerial serial(USBTX, USBRX);
+    static RawSerial serial(USBTX, USBRX);
     return serial;
 }
 
