@@ -115,14 +115,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint32_t index) {
+static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint32_t error, uint32_t index) {
     UART_Type *base = uart_addrs[index];
 
     /* If RX overrun. */
-    if (UART_S1_OR_MASK & base->S1)
+    if (error)
     {
         /* Read base->D, otherwise the RX does not work. */
         (void)base->D;
+
+        irq_handler(serial_irq_ids[index], ErIrq);
     }
 
     if (serial_irq_ids[index] != 0) {
@@ -136,32 +138,44 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
 
 void uart0_irq() {
     uint32_t status_flags = UART0->S1;
-    uart_irq((status_flags & kUART_TxDataRegEmptyFlag), (status_flags & kUART_RxDataRegFullFlag), 0);
+    uart_irq((status_flags & kUART_TxDataRegEmptyFlag),
+             (status_flags & kUART_RxDataRegFullFlag),
+             (status_flags & kUART_RxOverrunFlag), 0);
 }
 
 void uart1_irq() {
     uint32_t status_flags = UART1->S1;
-    uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 1);
+    uart_irq((status_flags & UART_S1_TDRE_MASK),
+             (status_flags & UART_S1_RDRF_MASK),
+             (status_flags & UART_S1_OR_MASK), 1);
 }
 
 void uart2_irq() {
     uint32_t status_flags = UART2->S1;
-    uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 2);
+    uart_irq((status_flags & UART_S1_TDRE_MASK),
+             (status_flags & UART_S1_RDRF_MASK),
+             (status_flags & UART_S1_OR_MASK), 2);
 }
 
 void uart3_irq() {
     uint32_t status_flags = UART3->S1;
-    uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 3);
+    uart_irq((status_flags & UART_S1_TDRE_MASK),
+             (status_flags & UART_S1_RDRF_MASK),
+             (status_flags & UART_S1_OR_MASK), 3);
 }
 
 void uart4_irq() {
     uint32_t status_flags = UART4->S1;
-    uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 4);
+    uart_irq((status_flags & UART_S1_TDRE_MASK),
+             (status_flags & UART_S1_RDRF_MASK),
+             (status_flags & UART_S1_OR_MASK), 4);
 }
 
 void uart5_irq() {
     uint32_t status_flags = UART5->S1;
-    uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 5);
+    uart_irq((status_flags & UART_S1_TDRE_MASK),
+             (status_flags & UART_S1_RDRF_MASK),
+             (status_flags & UART_S1_OR_MASK), 5);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
@@ -212,23 +226,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 
     } else { // disable
         int all_disabled = 0;
-        SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         switch (irq) {
             case RxIrq:
                 UART_DisableInterrupts(uart_addrs[obj->index], kUART_RxDataRegFullInterruptEnable);
+                all_disabled = ((UART_GetEnabledInterrupts(uart_addrs[obj->index]) & kUART_TxDataRegEmptyInterruptEnable) == 0);
                 break;
             case TxIrq:
                 UART_DisableInterrupts(uart_addrs[obj->index], kUART_TxDataRegEmptyInterruptEnable);
-                break;
-            default:
-                break;
-        }
-        switch (other_irq) {
-            case RxIrq:
                 all_disabled = ((UART_GetEnabledInterrupts(uart_addrs[obj->index]) & kUART_RxDataRegFullInterruptEnable) == 0);
-                break;
-            case TxIrq:
-                all_disabled = ((UART_GetEnabledInterrupts(uart_addrs[obj->index]) & kUART_TxDataRegEmptyInterruptEnable) == 0);
                 break;
             default:
                 break;
