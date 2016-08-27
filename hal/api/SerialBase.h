@@ -56,6 +56,7 @@ public:
     enum IrqType {
         RxIrq = 0,
         TxIrq,
+        ErIrq,
 
         IrqCnt
     };
