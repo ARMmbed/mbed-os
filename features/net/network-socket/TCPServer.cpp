@@ -76,16 +76,19 @@ int TCPServer::accept(TCPSocket *connection)
 
             connection->_lock.unlock();
             break;
-        }
-
-        if (NSAPI_ERROR_WOULD_BLOCK == ret) {
+        } else if (NSAPI_ERROR_WOULD_BLOCK != ret) {
+            break;
+        } else {
             int32_t count;
 
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
             _lock.unlock();
             count = _accept_sem.wait(_timeout);
             _lock.lock();
 
             if (count < 1) {
+                // Semaphore wait timed out so break out and return
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
