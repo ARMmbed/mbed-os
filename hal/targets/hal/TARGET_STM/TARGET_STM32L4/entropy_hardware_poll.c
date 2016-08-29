@@ -48,6 +48,12 @@ int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t
 {
     int ret;
     ((void) data);
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+
+    /*Select PLLQ output as RNG clock source */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
+    PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_PLL;
+    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
     /* RNG Peripheral clock enable */
     __HAL_RCC_RNG_CLK_ENABLE();
@@ -72,7 +78,6 @@ int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t
     HAL_RNG_DeInit(&RngHandle);
     /* RNG Peripheral clock disable - assume we're the only users of RNG  */
     __HAL_RCC_RNG_CLK_DISABLE();
-
 
     return( ret );
 }
