@@ -44,6 +44,7 @@ typedef struct
     uint32_t channel;
     uint32_t swapType;
     uint32_t *iv;
+		unsigned char prv_iv[16];
 #if 1	
     uint32_t buf[8]; 
 /* For comparsion with software AES for correctness */ 

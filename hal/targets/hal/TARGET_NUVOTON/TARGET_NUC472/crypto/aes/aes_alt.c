@@ -250,7 +250,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 		}else{
 		  pIn = input;
     }
-		if( ((uint32_t)output) & 0x03 )
+		if( (((uint32_t)output) & 0x03) || (dataSize%4))   // HW CFB output byte count must be multiple of word
 		{		
 			pOut = au8OutputData;
 		} else {
@@ -385,51 +385,77 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
  */
 int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
                        int mode,
-                       size_t length,
+                       size_t len,
                        size_t *iv_off,
                        unsigned char iv[16],
                        const unsigned char *input,
                        unsigned char *output )
 {
- 
-    size_t n = *iv_off;
+		size_t n = *iv_off;
     unsigned char temp[16];
+   	int length=len;
+	  int blockChainLen;
+		int remLen=0;
    	int ivLen;
 	
 		mbedtls_trace("=== %s \r\n", __FUNCTION__);
 		
-		// Over reserved Max DMA buffer size
-		if( length > MAX_DMA_CHAIN_SIZE ) 
-						return __aes_crypt_over_dma_size_cfb128(ctx, mode, length, iv_off, iv, input, output);
-	
-		ctx->opMode = AES_MODE_CFB;
-		swapInitVector(iv); // iv SWAP
-	
-		ctx->iv = (uint32_t *)iv;	
-    if( mode == MBEDTLS_AES_DECRYPT )
-    {
-				n= length%16;
-				ivLen = (( n > 0) ? n : 16);
-				memcpy(temp, input+length-ivLen, ivLen);
-	      ctx->encDec = 0;
-	      __nvt_aes_crypt(ctx, input, output, length);
-				memcpy(iv,temp,ivLen);
-    }
-    else
-    {
-				n= length%16;
-				ivLen = (( n > 0) ? n : 16);
-				ctx->encDec = 1;
-	      __nvt_aes_crypt(ctx, input, output, length);			
-				memcpy(iv, output+length-ivLen, ivLen);			
-    }
+	// proceed: start with partial block by ECB mode first
+	  if( n !=0 ) {
+				__nvt_aes_crypt_partial_block_cfb128(ctx, mode, 16 - n , iv_off, iv, input, output);
+				input += (16 - n);
+				output += (16 - n);
+				length -= (16 - n);
+		}
 		
-    *iv_off = n;
+		// For address or byte count non-word alignment, go through reserved DMA buffer.
+		if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) || (length%4) )  
+		{	
+			  blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
+    } else {
+			  blockChainLen = length;
+    }						
+		
+		// proceed: start with block alignment
+		while( length > 0 )
+		{
 
-    return( 0 );
+				ctx->opMode = AES_MODE_CFB;
+
+				swapInitVector(iv); // iv SWAP
+	
+				ctx->iv = (uint32_t *)iv;
+				remLen = blockChainLen%16;
+				ivLen = (( remLen > 0) ? remLen: 16 );
+	
+				if( mode == MBEDTLS_AES_DECRYPT )
+				{
+						memcpy(temp, input+blockChainLen - ivLen, ivLen);
+						if(blockChainLen >= 16) memcpy(ctx->prv_iv, input+blockChainLen-remLen-16 , 16);
+						ctx->encDec = 0;
+						__nvt_aes_crypt(ctx, input, output, blockChainLen);
+						memcpy(iv,temp, ivLen);
+				}
+				else
+				{
+						ctx->encDec = 1;
+						__nvt_aes_crypt(ctx, input, output, blockChainLen);					
+						if(blockChainLen >= 16) memcpy(ctx->prv_iv, output+blockChainLen-remLen-16 , 16);
+						memcpy(iv,output+blockChainLen-ivLen,ivLen);
+				}
+				length -= blockChainLen;
+        input  += blockChainLen;
+        output += blockChainLen;
+			  if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;		// For last remainder block chain							
+		}
+		
+    *iv_off = remLen;
+
+    return( 0 );		
 }
 
-static int __aes_crypt_over_dma_size_cfb128( mbedtls_aes_context *ctx,
+/* Support partial block encryption/decryption */
+static int __nvt_aes_crypt_partial_block_cfb128( mbedtls_aes_context *ctx,
                        int mode,
                        size_t length,
                        size_t *iv_off,
@@ -439,15 +465,21 @@ static int __aes_crypt_over_dma_size_cfb128( mbedtls_aes_context *ctx,
 {
     int c;
     size_t n = *iv_off;
-
+		unsigned char iv_tmp[16];
 		mbedtls_trace("=== %s \r\n", __FUNCTION__);
     if( mode == MBEDTLS_AES_DECRYPT )
     {
         while( length-- )
         {
-            if( n == 0 )
+            if( n == 0)
                 mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
-
+						else if( ctx->opMode == AES_MODE_CFB)		// For previous cryption is CFB mode 
+						{
+							memcpy(iv_tmp, iv, n);
+							mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
+							memcpy(iv, iv_tmp, n);
+						}
+						
             c = *input++;
             *output++ = (unsigned char)( c ^ iv[n] );
             iv[n] = (unsigned char) c;
@@ -461,7 +493,13 @@ static int __aes_crypt_over_dma_size_cfb128( mbedtls_aes_context *ctx,
         {
             if( n == 0 )
                 mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
-
+						else if( ctx->opMode == AES_MODE_CFB)	// For previous cryption is CFB mode
+						{
+							memcpy(iv_tmp, iv, n);
+							mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
+							memcpy(iv, iv_tmp, n);
+						}
+						
             iv[n] = *output++ = (unsigned char)( iv[n] ^ *input++ );
 
             n = ( n + 1 ) & 0x0F;
