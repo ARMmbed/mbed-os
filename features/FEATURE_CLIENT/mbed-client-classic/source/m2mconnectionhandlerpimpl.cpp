@@ -27,6 +27,7 @@
 #include "eventOS_scheduler.h"
 
 #include "mbed-trace/mbed_trace.h"
+#include "mbed.h"
 
 #define TRACE_GROUP "mClt"
 
