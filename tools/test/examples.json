@@ -1,0 +1,8 @@
+{
+    "https://developer.mbed.org/teams/mbed/code/mbed_blinky" : ["K64F"],
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon" : ["NRF51_DK"],
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate" : ["NRF51_DK"],
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal" :["K64F"],
+    "https://github.com/ARMmbed/mbed-os-example-client" : ["K64F"],
+    "https://github.com/ARMmbed/mbed-os-example-sockets" : ["K64F", "VK_RZ_A1H", "LPC1768"]
+}
