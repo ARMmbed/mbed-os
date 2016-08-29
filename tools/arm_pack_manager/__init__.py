@@ -151,7 +151,7 @@ class Cache () :
         if not self.urls :
             try : root_data = self.pdsc_from_cache(RootPackURL)
             except IOError : root_data = self.cache_and_parse(RootPackURL)
-            self.urls = [join(pdsc.get('url'), pdsc.get('name')) for pdsc in root_data.find_all("pdsc")]
+            self.urls = ["/".join([pdsc.get('url'), pdsc.get('name')]) for pdsc in root_data.find_all("pdsc")]
         return self.urls
 
     def _extract_dict(self, device, filename, pack) :
@@ -240,7 +240,6 @@ class Cache () :
                     mydict.append((dev['name'], dev.mounteddevice['dname']))
                 except (KeyError, TypeError, IndexError) as e:
                     pass
-            print mydict
             self._aliases.update(dict(mydict))
         except (AttributeError, TypeError) as e :
             pass
