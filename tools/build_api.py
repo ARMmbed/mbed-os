@@ -198,12 +198,12 @@ def is_official_target(target_name, version):
                     ("following toolchains: %s" %
                      ", ".join(supported_toolchains_sorted))
 
-            elif not target.default_lib == 'std':
+            elif not target.default_build == 'standard':
                 result = False
                 reason = ("Target '%s' must set the " % target.name) + \
-                    ("'default_lib' to 'std' to be included in the ") + \
+                    ("'default_build' to 'standard' to be included in the ") + \
                     ("mbed OS 5.0 official release." + linesep) + \
-                    ("Currently it is set to '%s'" % target.default_lib)
+                    ("Currently it is set to '%s'" % target.default_build)
 
         else:
             result = False

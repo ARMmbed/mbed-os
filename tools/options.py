@@ -75,9 +75,7 @@ def get_default_options_parser(add_clean=True, add_options=True):
                                   'run Goanna static code analyzer")'),
                             type=argparse_lowercase_hyphen_type(['save-asm',
                                                                  'debug-info',
-                                                                 'analyze',
-                                                                 'small-lib',
-                                                                 'std-lib'],
+                                                                 'analyze'],
                                                                 "build option"))
 
     return parser
