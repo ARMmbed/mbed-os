@@ -278,6 +278,11 @@ static int lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_a
         return NSAPI_ERROR_PARAMETER;
     }
 
+    if ((s->conn->type == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
+        (s->conn->type == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     err_t err = netconn_bind(s->conn, (ip_addr_t *)addr.bytes, port);
     return lwip_err_remap(err);
 }
