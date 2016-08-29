@@ -887,7 +887,7 @@
         },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
@@ -900,7 +900,7 @@
         "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "progen": {"target": "nucleo-f767zi"},
         "detect_code": ["0818"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
@@ -1107,7 +1107,7 @@
         "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
         "progen": {"target": "disco-f746ng"},
         "detect_code": ["0815"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
     },
@@ -1119,7 +1119,7 @@
         "default_toolchain": "ARM",
         "progen": {"target": "disco-f769ni"},
         "detect_code": ["0817"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["IPV4"],
         "release_versions": ["2"]
     },
