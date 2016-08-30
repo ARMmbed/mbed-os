@@ -21,17 +21,27 @@
 using namespace utest::v1;
 
 DigitalOut led(LED1);
+Timer timer;
+volatile bool print_tick = false;
+const int ONE_SECOND_US = 1000000;
+const int total_ticks = 10;
 
 void test_case_ticker() {
-    for (int i=0; i < 10; ++i) {
-        // 10 secs...
-        for (int j = 0; j < 1000; ++j) {
-            // 1000 * 1000us = 1 sec
-            wait_us(1000);
-        }
-        led = !led; // Blink
+    int before_print_us;
+    int after_print_us;
+    int wait_time_us = ONE_SECOND_US;
+    
+    timer.start();
+    for (int i = 0; i <= total_ticks; ++i) {
+        wait_us(wait_time_us);
+        before_print_us = timer.read();
         greentea_send_kv("tick", i);
+        after_print_us = timer.read();
+        
+        // This won't be 100% exact, but it should be pretty close
+        wait_time_us =  ONE_SECOND_US - (after_print_us - before_print_us);
     }
+    timer.stop();
 }
 
 // Test cases
@@ -40,7 +50,7 @@ Case cases[] = {
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(20, "wait_us_auto");
+    GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
