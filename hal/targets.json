@@ -532,7 +532,7 @@
         "core": "Cortex-M0+",
         "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM"],
         "macros": ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"],
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "supported_form_factors": ["ARDUINO"],
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
