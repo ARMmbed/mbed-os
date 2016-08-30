@@ -67,7 +67,8 @@ typedef enum {
 
 typedef enum {
     RxIrq,
-    TxIrq
+    TxIrq,
+    ErIrq
 } SerialIrq;
 
 typedef enum {
