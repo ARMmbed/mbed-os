@@ -43,6 +43,9 @@
 #define OS_TIMERS   0
 #endif
 
+// Include per-target RTX config file
+#include "mbed_rtx.h"
+
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 //
 // <h>Thread Configuration
@@ -122,11 +125,7 @@
 //   <i> Defines the timer clock value.
 //   <i> Default: 12000000  (12MHz)
 #ifndef OS_CLOCK
-#  if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
- #define OS_CLOCK       12000000
-#  else
-#    error "no target defined"
-#  endif
+ #error "no target defined"
 #endif
 
 //   <o>Timer tick value [us] <1-1000000>

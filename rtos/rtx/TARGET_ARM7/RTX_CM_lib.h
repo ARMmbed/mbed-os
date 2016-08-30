@@ -198,15 +198,8 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 extern void pre_main (void);
 osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 0, NULL};
 
-// This define should be probably moved to the CMSIS layer
-
-#if defined(TARGET_LPC2460)
-extern unsigned char     __usr_stack_top__[];
-#define INITIAL_SP            (__usr_stack_top__)
-
-#else
-#error "no target defined"
-
+#ifndef INITIAL_SP
+ #error "no target defined"
 #endif
 
 #ifdef __CC_ARM
