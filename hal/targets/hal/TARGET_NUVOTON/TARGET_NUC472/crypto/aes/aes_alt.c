@@ -409,10 +409,12 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
 		}
 		
 		// For address or byte count non-word alignment, go through reserved DMA buffer.
-		if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) || (length%4) )  
+		if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) )  // Must reserved DMA buffer for each block
 		{	
 			  blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
-    } else {
+		} else if(length%4) {																						// Need reserved DMA buffer once for last chain
+				blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  (length - length%16) : length );
+    } else {																												// Not need reserved DMA buffer
 			  blockChainLen = length;
     }						
 		
