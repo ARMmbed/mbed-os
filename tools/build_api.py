@@ -318,9 +318,10 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
 
-    if extra_flags and 'cflags' in extra_flags:
-        toolchain.hook.hook_cmdline_compiler(
-            lambda name, flags: flags + extra_flags['cflags'])
+    if extra_flags  and 'cflags' in extra_flags:
+        toolchain.cc.extend(extra_flags['cflags'])
+    if extra_flags  and 'cxxflags' in extra_flags:
+        toolchain.cppc.extend(extra_flags['cxxflags'])
     if extra_flags and 'ldflags' in extra_flags:
         toolchain.hook.hook_cmdline_linker(
             lambda name, flags: flags + extra_flags['ldflags'])
@@ -550,7 +551,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, target, toolchain_name, macros=macros, options=options,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, extra_flags=None)
+        extra_verbose=extra_verbose, extra_flags=extra_flags)
 
     # The first path will give the name to the library
     if name is None:

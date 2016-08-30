@@ -167,7 +167,8 @@ if __name__ == '__main__':
             library_build_success = False
             try:
                 extra_flags = {'cflags': options.cflags, 'asmflags': options.asmflags,
-                            'ldflags': options.ldflags}
+                               'ldflags': options.ldflags,
+                               'cxxflags': options.cxxflags}
                 # Build sources
                 build_library(base_source_paths, options.build_dir, mcu, toolchain,
                               options=options.options,
@@ -200,7 +201,8 @@ if __name__ == '__main__':
                 # Build all the tests
                 extra_flags = {'cflags': options.cflags,
                                'asmflags': options.asmflags,
-                               'ldflags': options.ldflags}
+                               'ldflags': options.ldflags,
+                               'cxxflags': options.cxxflags}
                 test_build_success, test_build = build_tests(
                     tests, [options.build_dir], options.build_dir, mcu, toolchain,
                     options=options.options,

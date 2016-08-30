@@ -230,7 +230,7 @@ if __name__ == '__main__':
     else:
         # Build
         extra_flags = {'cflags': options.cflags, 'asmflags': options.asmflags,
-                       'ldflags': options.ldflags}
+                       'ldflags': options.ldflags, 'cxxflags': options.cxxflags}
         for toolchain in toolchains:
             for target in targets:
                 tt_id = "%s::%s" % (toolchain, target)

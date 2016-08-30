@@ -261,7 +261,7 @@ if __name__ == '__main__':
 
         try:
             extra_flags = {'cflags': options.cflags, 'asmflags': options.asmflags,
-                           'ldflags': options.ldflags}
+                           'ldflags': options.ldflags, 'cxxflags': options.cxxflags}
             bin_file = build_project(test.source_dir, build_dir, mcu, toolchain, test.dependencies, options.options,
                                      linker_script=options.linker_script,
                                      clean=options.clean,

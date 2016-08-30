@@ -57,6 +57,10 @@ def get_default_options_parser(add_clean=True, add_options=True):
     parser.add_argument("--cflags", default=[], action="append",
                         help="Extra flags to provide to the C compiler")
 
+    parser.add_argument("--cxxflags", default=[], dest="cxxflags",
+                        action="append",
+                        help="Extra flags to provide to the C++ compiler")
+
     parser.add_argument("--asmflags", default=[], action="append",
                         help="Extra flags to provide to the assembler")
 
