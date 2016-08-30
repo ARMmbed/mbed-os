@@ -56,7 +56,9 @@ public:
 
     enum IrqType {
         RxIrq = 0,
-        TxIrq
+        TxIrq,
+
+        IrqCnt
     };
 
     enum Flow {
@@ -244,7 +246,7 @@ protected:
 #endif
 
     serial_t         _serial;
-    Callback<void()> _irq[2];
+    Callback<void()> _irq[IrqCnt];
     int              _baud;
 
 };
