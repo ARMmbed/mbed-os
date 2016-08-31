@@ -576,12 +576,12 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 
 #elif defined(TARGET_NUMAKER_PFM_NUC472)
 #   if defined(__CC_ARM)
-extern uint32_t                 Image$$ARM_LIB_HEAP$$Base[];
-extern uint32_t                 Image$$ARM_LIB_HEAP$$Length[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$Base)
-#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$Length)
+#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$ZI$$Base)
+#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
 #define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
 #define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
 #   elif defined(__GNUC__)
