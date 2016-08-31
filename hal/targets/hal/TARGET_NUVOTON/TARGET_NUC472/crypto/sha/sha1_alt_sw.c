@@ -65,32 +65,30 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 }
 #endif
 
-void mbedtls_sha1_sw_init( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_sw_init( mbedtls_sha1_sw_context *ctx )
 {
-    memset( &ctx->sw_ctx, 0, sizeof( ctx->sw_ctx ) );
+    memset( ctx, 0, sizeof( mbedtls_sha1_sw_context ) );
 }
 
-void mbedtls_sha1_sw_free( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_sw_free( mbedtls_sha1_sw_context *ctx )
 {
     if( ctx == NULL )
         return;
 
-    mbedtls_zeroize( &ctx->sw_ctx, sizeof( ctx->sw_ctx ) );
+    mbedtls_zeroize( ctx, sizeof( mbedtls_sha1_sw_context ) );
 }
 
-void mbedtls_sha1_sw_clone( mbedtls_sha1_context *dst,
-                         const mbedtls_sha1_context *src )
+void mbedtls_sha1_sw_clone( mbedtls_sha1_sw_context *dst,
+                         const mbedtls_sha1_sw_context *src )
 {
-    dst->sw_ctx = src->sw_ctx;
+    *dst = *src;
 }
 
 /*
  * SHA-1 context setup
  */
-void mbedtls_sha1_sw_starts( mbedtls_sha1_context *ctx_ )
+void mbedtls_sha1_sw_starts( mbedtls_sha1_sw_context *ctx )
 {
-    mbedtls_sha1_sw_context *ctx = &ctx_->sw_ctx;
-    
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
@@ -101,10 +99,8 @@ void mbedtls_sha1_sw_starts( mbedtls_sha1_context *ctx_ )
     ctx->state[4] = 0xC3D2E1F0;
 }
 
-void mbedtls_sha1_sw_process( mbedtls_sha1_context *ctx_, const unsigned char data[64] )
+void mbedtls_sha1_sw_process( mbedtls_sha1_sw_context *ctx, const unsigned char data[64] )
 {
-    mbedtls_sha1_sw_context *ctx = &ctx_->sw_ctx;
-    
     uint32_t temp, W[16], A, B, C, D, E;
 
     GET_UINT32_BE( W[ 0], data,  0 );
@@ -262,10 +258,8 @@ void mbedtls_sha1_sw_process( mbedtls_sha1_context *ctx_, const unsigned char da
 /*
  * SHA-1 process buffer
  */
-void mbedtls_sha1_sw_update( mbedtls_sha1_context *ctx_, const unsigned char *input, size_t ilen )
+void mbedtls_sha1_sw_update( mbedtls_sha1_sw_context *ctx, const unsigned char *input, size_t ilen )
 {
-    mbedtls_sha1_sw_context *ctx = &ctx_->sw_ctx;
-    
     size_t fill;
     uint32_t left;
 
@@ -284,7 +278,7 @@ void mbedtls_sha1_sw_update( mbedtls_sha1_context *ctx_, const unsigned char *in
     if( left && ilen >= fill )
     {
         memcpy( (void *) (ctx->buffer + left), input, fill );
-        mbedtls_sha1_sw_process( ctx_, ctx->buffer );
+        mbedtls_sha1_sw_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
         left = 0;
@@ -292,7 +286,7 @@ void mbedtls_sha1_sw_update( mbedtls_sha1_context *ctx_, const unsigned char *in
 
     while( ilen >= 64 )
     {
-        mbedtls_sha1_sw_process( ctx_, input );
+        mbedtls_sha1_sw_process( ctx, input );
         input += 64;
         ilen  -= 64;
     }
@@ -312,10 +306,8 @@ static const unsigned char sha1_padding[64] =
 /*
  * SHA-1 final digest
  */
-void mbedtls_sha1_sw_finish( mbedtls_sha1_context *ctx_, unsigned char output[20] )
+void mbedtls_sha1_sw_finish( mbedtls_sha1_sw_context *ctx, unsigned char output[20] )
 {
-    mbedtls_sha1_sw_context *ctx = &ctx_->sw_ctx;
-    
     uint32_t last, padn;
     uint32_t high, low;
     unsigned char msglen[8];
@@ -330,8 +322,8 @@ void mbedtls_sha1_sw_finish( mbedtls_sha1_context *ctx_, unsigned char output[20
     last = ctx->total[0] & 0x3F;
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
-    mbedtls_sha1_sw_update( ctx_, sha1_padding, padn );
-    mbedtls_sha1_sw_update( ctx_, msglen, 8 );
+    mbedtls_sha1_sw_update( ctx, sha1_padding, padn );
+    mbedtls_sha1_sw_update( ctx, msglen, 8 );
 
     PUT_UINT32_BE( ctx->state[0], output,  0 );
     PUT_UINT32_BE( ctx->state[1], output,  4 );

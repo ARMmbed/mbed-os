@@ -25,29 +25,19 @@
 
 #include "sha256_alt.h"
 #include "crypto-misc.h"
+#include "nu_bitutil.h"
+#include "string.h"
 
 void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
 {
     if (crypto_sha_acquire()) {
-        ctx->mbedtls_sha256_init = mbedtls_sha256_hw_init;
-        ctx->mbedtls_sha256_free = mbedtls_sha256_hw_free;
-        ctx->mbedtls_sha256_clone = mbedtls_sha256_hw_clone;
-        ctx->mbedtls_sha256_starts = mbedtls_sha256_hw_starts;
-        ctx->mbedtls_sha256_update = mbedtls_sha256_hw_update;
-        ctx->mbedtls_sha256_finish = mbedtls_sha256_hw_finish;
-        ctx->mbedtls_sha256_process = mbedtls_sha256_hw_process;
+        ctx->ishw = 1;
+        mbedtls_sha256_hw_init(&ctx->hw_ctx);
     }
     else {
-        ctx->mbedtls_sha256_init = mbedtls_sha256_sw_init;
-        ctx->mbedtls_sha256_free = mbedtls_sha256_sw_free;
-        ctx->mbedtls_sha256_clone = mbedtls_sha256_sw_clone;
-        ctx->mbedtls_sha256_starts = mbedtls_sha256_sw_starts;
-        ctx->mbedtls_sha256_update = mbedtls_sha256_sw_update;
-        ctx->mbedtls_sha256_finish = mbedtls_sha256_sw_finish;
-        ctx->mbedtls_sha256_process = mbedtls_sha256_sw_process;
+        ctx->ishw = 0;
+        mbedtls_sha256_sw_init(&ctx->sw_ctx);
     }
-    
-    ctx->mbedtls_sha256_init(ctx);
 }
 
 void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
@@ -56,17 +46,45 @@ void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
         return;
     }
 
-    ctx->mbedtls_sha256_free(ctx);
-    
-    if (ctx->mbedtls_sha256_init == mbedtls_sha256_hw_init) {
+    if (ctx->ishw) {
+        mbedtls_sha256_hw_free(&ctx->hw_ctx);
         crypto_sha_release();
+    }
+    else {
+        mbedtls_sha256_sw_free(&ctx->sw_ctx);
     }
 }
 
 void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
                         const mbedtls_sha256_context *src)
 {
-    *dst = *src;
+    if (src->ishw) {
+        // Clone S/W ctx from H/W ctx
+        dst->ishw = 0;
+        dst->sw_ctx.total[0] = src->hw_ctx.total;
+        dst->sw_ctx.total[1] = 0;
+        {
+            unsigned char output[32];
+            crypto_sha_getinternstate(output, sizeof (output));
+            dst->sw_ctx.state[0] = nu_get32_be(output);
+            dst->sw_ctx.state[1] = nu_get32_be(output + 4);
+            dst->sw_ctx.state[2] = nu_get32_be(output + 8);
+            dst->sw_ctx.state[3] = nu_get32_be(output + 12);
+            dst->sw_ctx.state[4] = nu_get32_be(output + 16);
+            dst->sw_ctx.state[5] = nu_get32_be(output + 20);
+            dst->sw_ctx.state[6] = nu_get32_be(output + 24);
+            dst->sw_ctx.state[7] = nu_get32_be(output + 28);
+        }
+        memcpy(dst->sw_ctx.buffer, src->hw_ctx.buffer, src->hw_ctx.buffer_left);
+        dst->sw_ctx.is224 = src->hw_ctx.is224;
+        if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {
+            mbedtls_sha256_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
+        }
+    }
+    else {
+        // Clone S/W ctx from S/W ctx
+        dst->sw_ctx = src->sw_ctx;
+    }
 }
 
 /*
@@ -74,9 +92,12 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
  */
 void mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
 {   
-    ctx->mbedtls_sha256_starts(ctx, is224);
-    
-    return;
+    if (ctx->ishw) {
+        mbedtls_sha256_hw_starts(&ctx->hw_ctx, is224);
+    }
+    else {
+        mbedtls_sha256_sw_starts(&ctx->sw_ctx, is224);
+    }
 }
 
 /*
@@ -84,20 +105,35 @@ void mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
  */
 void mbedtls_sha256_update(mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen)
 {
-    ctx->mbedtls_sha256_update(ctx, input, ilen);
+    if (ctx->ishw) {
+        mbedtls_sha256_hw_update(&ctx->hw_ctx, input, ilen);
+    }
+    else {
+        mbedtls_sha256_sw_update(&ctx->sw_ctx, input, ilen);
+    }
 }
 
 /*
  * SHA-256 final digest
  */
-void mbedtls_sha256_finish(mbedtls_sha256_context *ctx, unsigned char output[20])
+void mbedtls_sha256_finish(mbedtls_sha256_context *ctx, unsigned char output[32])
 {
-    ctx->mbedtls_sha256_finish(ctx, output);
+    if (ctx->ishw) {
+        mbedtls_sha256_hw_finish(&ctx->hw_ctx, output);
+    }
+    else {
+        mbedtls_sha256_sw_finish(&ctx->sw_ctx, output);
+    }
 }
 
 void mbedtls_sha256_process(mbedtls_sha256_context *ctx, const unsigned char data[64])
 {
-    ctx->mbedtls_sha256_process(ctx, data);
+    if (ctx->ishw) {
+        mbedtls_sha256_hw_process(&ctx->hw_ctx, data);
+    }
+    else {
+        mbedtls_sha256_sw_process(&ctx->sw_ctx, data);
+    }
 }
 
 #endif /* MBEDTLS_SHA256_ALT */

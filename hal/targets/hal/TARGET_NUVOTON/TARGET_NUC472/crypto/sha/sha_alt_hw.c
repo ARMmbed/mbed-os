@@ -42,59 +42,79 @@
 
 #include <string.h>
 
-static void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen);
-static void crypto_sha_getinternstate(unsigned char output[], size_t olen);
-static void crypto_sha_lastword(crypto_sha_context *ctx, int islast);
+void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen);
+void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input, size_t ilen, int islast);
+void crypto_sha_getinternstate(unsigned char output[], size_t olen);
 
 #endif /* MBEDTLS_SHA1_ALT || MBEDTLS_SHA256_ALT || MBEDTLS_SHA512_ALT */
 
 #if defined(MBEDTLS_SHA1_ALT)
 
-void mbedtls_sha1_hw_init(mbedtls_sha1_context *ctx)
+void mbedtls_sha1_hw_init(crypto_sha_context *ctx)
 {
     crypto_init();
-    memset(&ctx->hw_ctx, 0, sizeof(ctx->hw_ctx));
+    memset(ctx, 0, sizeof(crypto_sha_context));
 }
 
-void mbedtls_sha1_hw_free(mbedtls_sha1_context *ctx)
+void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
 {
     if (ctx == NULL) {
         return;
     }
 
-    crypto_zeroize(&ctx->hw_ctx, sizeof(ctx->hw_ctx));
+    crypto_zeroize(ctx, sizeof(crypto_sha_context));
 }
 
-void mbedtls_sha1_hw_clone(mbedtls_sha1_context *dst,
-                        const mbedtls_sha1_context *src)
+void mbedtls_sha1_hw_clone(crypto_sha_context *dst,
+                        const crypto_sha_context *src)
 {
-    dst->hw_ctx = src->hw_ctx;
+    *dst = *src;
 }
 
-void mbedtls_sha1_hw_starts(mbedtls_sha1_context *ctx)
+void mbedtls_sha1_hw_starts(crypto_sha_context *ctx)
 {
-    ctx->hw_ctx.total = 0;
-    ctx->hw_ctx.lastword_size = 0;
-    ctx->hw_ctx.blocksize = 64;
-    ctx->hw_ctx.blocksize_mask = 0x3F;
+    // NOTE: mbedtls may call mbedtls_shaXXX_starts multiple times and then call the ending mbedtls_shaXXX_finish. Guard from it.
+    CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
+    
+    ctx->total = 0;
+    ctx->buffer_left = 0;
+    ctx->blocksize = 64;
+    ctx->blocksize_mask = 0x3F;
 
     SHA_Open(SHA_MODE_SHA1, SHA_NO_SWAP);
+    
+    // Ensure we have correct initial inernal states in SHA_DGST registers even though SHA H/W is not actually started.
+    CRPT->SHA_CTL |= CRPT_SHA_CTL_START_Msk;
     
     return;
 }
 
-void mbedtls_sha1_hw_update(mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen)
+void mbedtls_sha1_hw_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen)
 {
-    crypto_sha_update(&ctx->hw_ctx, input, ilen);
+    crypto_sha_update(ctx, input, ilen);
 }
 
-void mbedtls_sha1_hw_finish(mbedtls_sha1_context *ctx, unsigned char output[20])
+void mbedtls_sha1_hw_finish(crypto_sha_context *ctx, unsigned char output[20])
 {
-    crypto_sha_lastword(&ctx->hw_ctx, 1);
-    crypto_sha_getinternstate(output, 20);
+    // H/W SHA cannot handle zero data well. Fall back to S/W SHA.
+    if (ctx->total) {
+        crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
+        ctx->buffer_left = 0;
+        crypto_sha_getinternstate(output, 20);
+    
+        CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
+    }
+    else {
+        mbedtls_sha1_sw_context ctx_sw;
+    
+        mbedtls_sha1_sw_init(&ctx_sw);
+        mbedtls_sha1_sw_starts(&ctx_sw);
+        mbedtls_sha1_sw_finish(&ctx_sw, output);
+        mbedtls_sha1_sw_free(&ctx_sw);
+    }
 }
 
-void mbedtls_sha1_hw_process(mbedtls_sha1_context *ctx, const unsigned char data[64])
+void mbedtls_sha1_hw_process(crypto_sha_context *ctx, const unsigned char data[64])
 {
     mbedtls_sha1_hw_update(ctx, data, 64);
 }
@@ -103,52 +123,72 @@ void mbedtls_sha1_hw_process(mbedtls_sha1_context *ctx, const unsigned char data
 
 #if defined(MBEDTLS_SHA256_ALT)
 
-void mbedtls_sha256_hw_init(mbedtls_sha256_context *ctx)
+void mbedtls_sha256_hw_init(crypto_sha_context *ctx)
 {
     crypto_init();
-    memset(&ctx->hw_ctx, 0, sizeof(ctx->hw_ctx));
+    memset(ctx, 0, sizeof(crypto_sha_context));
 }
 
-void mbedtls_sha256_hw_free(mbedtls_sha256_context *ctx)
+void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
 {
     if (ctx == NULL) {
         return;
     }
 
-    crypto_zeroize(&ctx->hw_ctx, sizeof(ctx->hw_ctx));
+    crypto_zeroize(ctx, sizeof(crypto_sha_context));
 }
 
-void mbedtls_sha256_hw_clone(mbedtls_sha256_context *dst,
-                        const mbedtls_sha256_context *src)
+void mbedtls_sha256_hw_clone(crypto_sha_context *dst,
+                        const crypto_sha_context *src)
 {
-    dst->hw_ctx = src->hw_ctx;
+    *dst = *src;
 }
 
-void mbedtls_sha256_hw_starts( mbedtls_sha256_context *ctx, int is224)
+void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
 {
-    ctx->hw_ctx.total = 0;
-    ctx->hw_ctx.lastword_size = 0;
-    ctx->hw_ctx.blocksize = 64;
-    ctx->hw_ctx.blocksize_mask = 0x3F;
-    ctx->hw_ctx.is224 = is224;
+    // NOTE: mbedtls may call mbedtls_shaXXX_starts multiple times and then call the ending mbedtls_shaXXX_finish. Guard from it.
+    CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
+     
+    ctx->total = 0;
+    ctx->buffer_left = 0;
+    ctx->blocksize = 64;
+    ctx->blocksize_mask = 0x3F;
+    ctx->is224 = is224;
 
     SHA_Open(is224 ? SHA_MODE_SHA224 : SHA_MODE_SHA256, SHA_NO_SWAP);
+    
+    // Ensure we have correct initial inernal states in SHA_DGST registers even though SHA H/W is not actually started.
+    CRPT->SHA_CTL |= CRPT_SHA_CTL_START_Msk;
     
     return;
 }
 
-void mbedtls_sha256_hw_update(mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen)
+void mbedtls_sha256_hw_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen)
 {
-    crypto_sha_update(&ctx->hw_ctx, input, ilen);
+    crypto_sha_update(ctx, input, ilen);
 }
 
-void mbedtls_sha256_hw_finish(mbedtls_sha256_context *ctx, unsigned char output[32])
+void mbedtls_sha256_hw_finish(crypto_sha_context *ctx, unsigned char output[32])
 {
-    crypto_sha_lastword(&ctx->hw_ctx, 1);
-    crypto_sha_getinternstate(output, ctx->hw_ctx.is224 ? 28 : 32);
+    // H/W SHA cannot handle zero data well. Fall back to S/W SHA.
+    if (ctx->total) {
+        crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
+        ctx->buffer_left = 0;
+        crypto_sha_getinternstate(output, ctx->is224 ? 28 : 32);
+    
+        CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
+    }
+    else {
+        mbedtls_sha256_sw_context ctx_sw;
+    
+        mbedtls_sha256_sw_init(&ctx_sw);
+        mbedtls_sha256_sw_starts(&ctx_sw, ctx->is224);
+        mbedtls_sha256_sw_finish(&ctx_sw, output);
+        mbedtls_sha256_sw_free(&ctx_sw);
+    }
 }
 
-void mbedtls_sha256_hw_process(mbedtls_sha256_context *ctx, const unsigned char data[64])
+void mbedtls_sha256_hw_process(crypto_sha_context *ctx, const unsigned char data[64])
 {
     mbedtls_sha256_hw_update(ctx, data, 64);
 }
@@ -163,18 +203,54 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
         return;
     }
     
-    crypto_sha_lastword(ctx, 0);
+    size_t fill = ctx->blocksize - ctx->buffer_left;
 
     ctx->total += (uint32_t) ilen;
 
-    const unsigned char *in_pos = input;
-    uint32_t rmn = ilen;
+    if (ctx->buffer_left && ilen >= fill) {
+        memcpy((void *) (ctx->buffer + ctx->buffer_left), input, fill);
+        input += fill;
+        ilen  -= fill;
+        ctx->buffer_left += fill;
+        if (ilen) {
+            crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 0);
+            ctx->buffer_left = 0;
+        }
+    }
+    
+    while (ilen > ctx->blocksize) {
+        crypto_sha_update_nobuf(ctx, input, ctx->blocksize, 0);
+        input += ctx->blocksize;
+        ilen  -= ctx->blocksize;
+    }
+
+    if (ilen > 0) {
+        memcpy((void *) (ctx->buffer + ctx->buffer_left), input, ilen);
+        ctx->buffer_left += ilen;
+    }
+}
+
+void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input, size_t ilen, int islast)
+{
+    unsigned char *in_pos = input;
+    int rmn = ilen;
     uint32_t sha_ctl_start = (CRPT->SHA_CTL & ~(CRPT_SHA_CTL_DMALAST_Msk | CRPT_SHA_CTL_DMAEN_Msk)) | CRPT_SHA_CTL_START_Msk;
     
-    while (rmn > 4) {
+    while (rmn > 0) {
         CRPT->SHA_CTL = sha_ctl_start;
         
         uint32_t data = nu_get32_be(in_pos);
+        if (islast && rmn <= 4) {
+            uint32_t lastblock_size = ctx->total & ctx->blocksize_mask;
+            if (lastblock_size == 0) {
+                lastblock_size = ctx->blocksize;
+            }
+            CRPT->SHA_DMACNT = lastblock_size;
+            CRPT->SHA_CTL = sha_ctl_start | CRPT_SHA_CTL_DMALAST_Msk;
+        }
+        else {
+            CRPT->SHA_CTL = sha_ctl_start;
+        }
         while (! (CRPT->SHA_STS & CRPT_SHA_STS_DATINREQ_Msk));
         CRPT->SHA_DATIN = data;
         
@@ -182,12 +258,9 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
         rmn -= 4;
     }
     
-    MBED_ASSERT(rmn > 0 && rmn <= 4);
-    unsigned char lastword_buf[4];
-    memcpy(lastword_buf, in_pos, rmn);
-    memset(lastword_buf + rmn, 0x00, 4 - rmn);
-    ctx->lastword = nu_get32_be(lastword_buf);
-    ctx->lastword_size = rmn;
+    if (islast) {
+        while (CRPT->SHA_STS & CRPT_SHA_STS_BUSY_Msk);
+    }
 }
 
 void crypto_sha_getinternstate(unsigned char output[], size_t olen)
@@ -201,33 +274,6 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen)
         nu_set32_be(out_pos, val);
         out_pos += 4;
         rmn -= 4;
-    }
-}
-
-void crypto_sha_lastword(crypto_sha_context *ctx, int islast)
-{
-    uint32_t sha_ctl_start = (CRPT->SHA_CTL & ~(CRPT_SHA_CTL_DMALAST_Msk | CRPT_SHA_CTL_DMAEN_Msk)) | CRPT_SHA_CTL_START_Msk;
-    
-    if (ctx->lastword_size) {
-        if (islast) {
-            uint32_t lastblock_size = ctx->total & ctx->blocksize_mask;
-            if (lastblock_size == 0) {
-                lastblock_size = ctx->blocksize;
-            }
-            CRPT->SHA_DMACNT = lastblock_size;
-            CRPT->SHA_CTL = sha_ctl_start | CRPT_SHA_CTL_DMALAST_Msk;
-        }
-        else {
-            CRPT->SHA_CTL = sha_ctl_start;
-        }
-        while (! (CRPT->SHA_STS & CRPT_SHA_STS_DATINREQ_Msk));
-        CRPT->SHA_DATIN = ctx->lastword;
-        
-        if (islast) {
-            while (CRPT->SHA_STS & CRPT_SHA_STS_BUSY_Msk);
-        }
-        
-        ctx->lastword_size = 0;
     }
 }
 

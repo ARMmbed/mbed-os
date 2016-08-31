@@ -37,8 +37,8 @@ extern "C" {
 typedef struct
 {
     uint32_t total;                 /*!< number of bytes processed  */
-    uint32_t lastword;              /*!< last word unprocessed */
-    uint16_t lastword_size;         /*!< number of bytes of last word unprocessed */
+    unsigned char buffer[128];      /*!< data block being processed. Max of SHA-1/SHA-256/SHA-512 */
+    uint16_t buffer_left;
     uint16_t blocksize;             /*!< block size */
     uint32_t blocksize_mask;        /*!< block size mask */
     
@@ -46,34 +46,34 @@ typedef struct
 }
 crypto_sha_context;
 
+void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen);
+void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input, size_t ilen, int islast);
+void crypto_sha_getinternstate(unsigned char output[], size_t olen);
+
 #if defined(MBEDTLS_SHA1_ALT)
 
-struct mbedtls_sha1_context_s;
-
-void mbedtls_sha1_hw_init( struct mbedtls_sha1_context_s *ctx );
-void mbedtls_sha1_hw_free( struct mbedtls_sha1_context_s *ctx );
-void mbedtls_sha1_hw_clone( struct mbedtls_sha1_context_s *dst,
-                         const struct mbedtls_sha1_context_s *src );
-void mbedtls_sha1_hw_starts( struct mbedtls_sha1_context_s *ctx );
-void mbedtls_sha1_hw_update( struct mbedtls_sha1_context_s *ctx, const unsigned char *input, size_t ilen );
-void mbedtls_sha1_hw_finish( struct mbedtls_sha1_context_s *ctx, unsigned char output[20] );
-void mbedtls_sha1_hw_process( struct mbedtls_sha1_context_s *ctx, const unsigned char data[64] );
+void mbedtls_sha1_hw_init( crypto_sha_context *ctx );
+void mbedtls_sha1_hw_free( crypto_sha_context *ctx );
+void mbedtls_sha1_hw_clone( crypto_sha_context *dst,
+                         const crypto_sha_context *src );
+void mbedtls_sha1_hw_starts( crypto_sha_context *ctx );
+void mbedtls_sha1_hw_update( crypto_sha_context *ctx, const unsigned char *input, size_t ilen );
+void mbedtls_sha1_hw_finish( crypto_sha_context *ctx, unsigned char output[20] );
+void mbedtls_sha1_hw_process( crypto_sha_context *ctx, const unsigned char data[64] );
 
 #endif /* MBEDTLS_SHA1_ALT */
 
 #if defined(MBEDTLS_SHA256_ALT)
 
-struct mbedtls_sha256_context_s;
-
-void mbedtls_sha256_hw_init( struct mbedtls_sha256_context_s *ctx );
-void mbedtls_sha256_hw_free( struct mbedtls_sha256_context_s *ctx );
-void mbedtls_sha256_hw_clone( struct mbedtls_sha256_context_s *dst,
-                           const struct mbedtls_sha256_context_s *src );
-void mbedtls_sha256_hw_starts( struct mbedtls_sha256_context_s *ctx, int is224 );
-void mbedtls_sha256_hw_update( struct mbedtls_sha256_context_s *ctx, const unsigned char *input,
+void mbedtls_sha256_hw_init( crypto_sha_context *ctx );
+void mbedtls_sha256_hw_free( crypto_sha_context *ctx );
+void mbedtls_sha256_hw_clone( crypto_sha_context *dst,
+                           const crypto_sha_context *src );
+void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224 );
+void mbedtls_sha256_hw_update( crypto_sha_context *ctx, const unsigned char *input,
                     size_t ilen );
-void mbedtls_sha256_hw_finish( struct mbedtls_sha256_context_s *ctx, unsigned char output[32] );
-void mbedtls_sha256_hw_process( struct mbedtls_sha256_context_s *ctx, const unsigned char data[64] );
+void mbedtls_sha256_hw_finish( crypto_sha_context *ctx, unsigned char output[32] );
+void mbedtls_sha256_hw_process( crypto_sha_context *ctx, const unsigned char data[64] );
 
 #endif /* MBEDTLS_SHA256_ALT */
 
