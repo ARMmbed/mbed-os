@@ -1297,7 +1297,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
           
           /* Process Unlocked */
           __HAL_UNLOCK(hi2c);
-          
+
           return HAL_TIMEOUT; 
         }
       }
@@ -1321,7 +1321,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
     hi2c->Devaddress = DevAddress;
 
     Prev_State = hi2c->PreviousState;
-    
+
     /* Generate Start */    
     if((Prev_State == I2C_STATE_MASTER_BUSY_RX) || (Prev_State == I2C_STATE_NONE))
     {
@@ -3689,7 +3689,7 @@ static HAL_StatusTypeDef I2C_MasterTransmit_TXE(I2C_HandleTypeDef *hi2c)
       
       /* Generate Stop */
       hi2c->Instance->CR1 |= I2C_CR1_STOP;
-      
+
       hi2c->PreviousState = I2C_STATE_NONE;
       hi2c->State = HAL_I2C_STATE_READY;
       
@@ -3840,6 +3840,7 @@ static HAL_StatusTypeDef I2C_MasterTransmit_BTF(I2C_HandleTypeDef *hi2c)
   */
 static HAL_StatusTypeDef I2C_MasterReceive_RXNE(I2C_HandleTypeDef *hi2c)
 {
+
   if(hi2c->State == HAL_I2C_STATE_BUSY_RX)
   {
     uint32_t tmp = 0U;
@@ -3853,34 +3854,24 @@ static HAL_StatusTypeDef I2C_MasterReceive_RXNE(I2C_HandleTypeDef *hi2c)
     }
     else if((tmp == 2U) || (tmp == 3U))
     {
-      if(hi2c->XferOptions != I2C_NEXT_FRAME)
-      {
-        /* Disable Acknowledge */
-        hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
-        
-        /* Enable Pos */
-        hi2c->Instance->CR1 |= I2C_CR1_POS;
-      }
-      else
-      {
-        /* Enable Acknowledge */
-        hi2c->Instance->CR1 |= I2C_CR1_ACK;
-      }
+      /* Disable Acknowledge */
+      hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
+
+      /* Enable Pos */
+      hi2c->Instance->CR1 |= I2C_CR1_POS;
       
       /* Disable BUF interrupt */
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
     }
     else
     {
-      if(hi2c->XferOptions != I2C_NEXT_FRAME)
+      /* Disable Acknowledge */
+      hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
+
+      if(hi2c->XferOptions == I2C_NEXT_FRAME)
       {
-        /* Disable Acknowledge */
-        hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
-      }
-      else
-      {
-        /* Enable Acknowledge */
-        hi2c->Instance->CR1 |= I2C_CR1_ACK;
+        /* Enable Pos */
+        hi2c->Instance->CR1 |= I2C_CR1_POS;
       }
 
       /* Disable EVT, BUF and ERR interrupt */
@@ -3938,15 +3929,13 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
     /* Prepare next transfer or stop current transfer */
     if((CurrentXferOptions != I2C_FIRST_AND_LAST_FRAME) && (CurrentXferOptions != I2C_LAST_FRAME) && (CurrentXferOptions != I2C_NO_OPTION_FRAME))
     {
-      if(CurrentXferOptions != I2C_NEXT_FRAME)
+      /* Disable Acknowledge */
+      hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
+
+      if((CurrentXferOptions == I2C_NEXT_FRAME) || (CurrentXferOptions == I2C_FIRST_FRAME))
       {
-        /* Disable Acknowledge */
-        hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
-      }
-      else
-      {
-        /* Enable Acknowledge */
-        hi2c->Instance->CR1 |= I2C_CR1_ACK;
+        /* Generate Start */
+        hi2c->Instance->CR1 |= I2C_CR1_START;
       }
       tmp = (uint32_t)(hi2c->State) & I2C_STATE_MSK;
       hi2c->PreviousState = tmp | (uint32_t)(hi2c->Mode);
