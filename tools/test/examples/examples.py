@@ -52,20 +52,33 @@ def target_cross_toolchain(allowed_toolchains,
                 yield target, toolchain
 
 
-
 def main():
     """Entry point"""
     parser = ArgumentParser()
-    parser.add_argument(
+    subparsers = parser.add_subparsers()
+    import_cmd = subparsers.add_parser("import")
+    import_cmd.set_defaults(fn=do_import)
+    compile_cmd = subparsers.add_parser("compile")
+    compile_cmd.set_defaults(fn=do_compile)
+    compile_cmd.add_argument(
         "toolchains", nargs="*", default=SUPPORTED_TOOLCHAINS,
         type=argparse_force_uppercase_type(SUPPORTED_TOOLCHAINS,
                                            "toolchain"))
     args = parser.parse_args()
+    args.fn(args)
 
+
+def do_import(_):
+    """Do the import step of this process"""
+    for example, _ in EXAMPLES.iteritems():
+        subprocess.call(["mbed-cli", "import", example])
+
+
+def do_compile(args):
+    """Do the compile step"""
     failures = []
     sucesses = []
     for example, requirements in EXAMPLES.iteritems():
-        subprocess.call(["mbed-cli", "import", example])
         os.chdir(basename(example))
         for target, toolchain in target_cross_toolchain(args.toolchains,
                                                         **requirements):
