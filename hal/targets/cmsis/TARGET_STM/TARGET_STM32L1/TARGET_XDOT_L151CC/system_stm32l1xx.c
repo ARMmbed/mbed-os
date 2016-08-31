@@ -23,9 +23,9 @@
   * This file configures the system clock as follows:
   *-----------------------------------------------------------------------------
   * System clock source                | 1- PLL_HSE_EXTC         | 3- PLL_HSI
-  *                                    | (external 16 MHz clock) | (internal 16 MHz)
+  *                                    | (external 24 MHz clock) | (internal 16 MHz)
   *                                    | 2- PLL_HSE_XTAL         |
-  *                                    | (external 16 MHz xtal)  |
+  *                                    | (external 24 MHz xtal)  |
   *-----------------------------------------------------------------------------
   * SYSCLK(MHz)                        | 32                     | 32
   *-----------------------------------------------------------------------------
@@ -81,6 +81,7 @@
 
 #include "stm32l1xx.h"
 #include "hal_tick.h"
+#include "stdio.h"
 
 /**
   * @}
@@ -98,7 +99,7 @@
   * @{
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)16000000) /*!< Default value of the External oscillator in Hz.
+  #define HSE_VALUE    ((uint32_t)24000000) /*!< Default value of the External oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
 #endif /* HSE_VALUE */
 
@@ -529,18 +530,18 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
   if (bypass == 0)
   {
-    RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 16 MHz xtal on OSC_IN/OSC_OUT */
+    RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 24 MHz xtal on OSC_IN/OSC_OUT */
   }
   else
   {
-    RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 16 MHz clock on OSC_IN */
+    RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 24 MHz clock on OSC_IN */
   }
   RCC_OscInitStruct.HSIState            = RCC_HSI_OFF;
-  // SYSCLK = 32 MHz ((16 MHz * 6) / 3)
-  // USBCLK = 48 MHz ((16 MHz * 6) / 2) --> USB OK
+  // SYSCLK = 32 MHz ((24 MHz * 4) / 3)
+  // USBCLK = 48 MHz ((24 MHz * 4) / 2) --> USB OK
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
   RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV3;
 
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -616,6 +617,15 @@ uint8_t SetSysClock_PLL_HSI(void)
   //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
   
   return 1; // OK
+}
+
+/******************************************************************************/
+/*            Hard Fault Handler                                              */
+/******************************************************************************/
+void HardFault_Handler(void)
+{
+  printf("Hard Fault\n");
+  NVIC_SystemReset();
 }
 
 /**

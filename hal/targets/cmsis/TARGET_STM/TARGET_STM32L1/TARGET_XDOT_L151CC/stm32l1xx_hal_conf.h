@@ -89,7 +89,7 @@
   *        (when HSE is used as system clock source, directly or through the PLL).  
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)16000000) /*!< NZ32-SC151 has a 16MHz External crystal */
+  #define HSE_VALUE    ((uint32_t)24000000) /*!< XDOT-L151CC has a 24MHz External crystal */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
