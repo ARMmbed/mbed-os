@@ -1990,18 +1990,20 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir, target_name, toolchain_name, options=None):
+def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
     target_name: name of the target to use for scanning (ex. 'K64F')
     toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
     options: Compile options to pass to the toolchain (ex. ['debug-info'])
+    app_config - location of a chosen mbed_app.json file
     """
 
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options, silent=True)
+    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options,
+                                  silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
     base_resources = scan_resources([base_dir], toolchain)
@@ -2060,7 +2062,7 @@ def norm_relative_path(path, start):
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
         macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False):
+        continue_on_build_fail=False, app_config=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2101,7 +2103,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      project_id=test_name,
                                      report=report,
                                      properties=properties,
-                                     verbose=verbose)
+                                     verbose=verbose,
+                                     app_config=app_config)
 
         except Exception, e:
             if not isinstance(e, NotSupportedException):
