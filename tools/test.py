@@ -94,6 +94,10 @@ if __name__ == '__main__':
                           default=False,
                           help="Verbose diagnostic output")
 
+        parser.add_argument("--app-config", default=None, dest="app_config",
+                            type=argparse_filestring_type,
+                            help="Path of an app configuration file (Default is to look for 'mbed_app.json')")
+
         options = parser.parse_args()
 
         # Filter tests by path if specified
@@ -117,7 +121,8 @@ if __name__ == '__main__':
 
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path, mcu, toolchain, options.options))
+            all_tests.update(find_tests(path, mcu, toolchain, options.options,
+                                        app_config=options.app_config))
 
         # Filter tests by name if specified
         if options.names:
@@ -177,7 +182,8 @@ if __name__ == '__main__':
                                                 verbose=options.verbose,
                                                 notify=notify,
                                                 archive=False,
-                                                remove_config_header_file=True)
+                                                remove_config_header_file=True,
+                                                app_config=options.app_config)
 
                 library_build_success = True
             except ToolException, e:
@@ -203,7 +209,8 @@ if __name__ == '__main__':
                         verbose=options.verbose,
                         notify=notify,
                         jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail)
+                        continue_on_build_fail=options.continue_on_build_fail,
+                        app_config=options.app_config)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
