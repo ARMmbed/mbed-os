@@ -86,6 +86,9 @@ void core_util_critical_section_exit(void)
 
 #if EXCLUSIVE_ACCESS
 
+/* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
+#pragma diag_suppress 3731
+
 bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {
     uint8_t currentValue = __LDREXB((volatile uint8_t*)ptr);
