@@ -24,11 +24,6 @@
  *     has to compensate for this.
  */
 
-/* TODO: there is a bug in here somewhere around counter wrapping
- * as, if you leave a us_ticker running at, say, 100 useconds for 10 seconds,
- * gaps show up in the ticks.
- */
-
 #include "us_ticker_api.h"
 
 #include "reg_map_apps.h"
@@ -220,7 +215,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     /* The TIMER0 clock source is greater than 1 MHz, so
      * work out how many times we have to go around
-     * and what the remainder is. */
+     * and what the remainder is */
     g_timer_extra_loops_required = (uint32_t) timeDelta / USECONDS_PER_FULL_TIMER0_RUN;
     timeDelta -= g_timer_extra_loops_required * USECONDS_PER_FULL_TIMER0_RUN;
 
@@ -246,10 +241,20 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_disable_interrupt(void)
 {
-    NVIC_DisableIRQ(Timer_IRQn);
+    /* Can't actually disable the interrupt here
+     * as we need it to manage the timer overflow,
+     * instead switch off the user interrupt part */
+    g_user_interrupt = false;
+    g_timer_extra_loops_required = 0;
+    g_us_overflow_increment = 0;
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    NVIC_ClearPendingIRQ(Timer_IRQn);
+    /* As above, can't clear the interrupt as it
+     * may just be an overflow interrupt, instead
+     * clear the variables */
+    g_user_interrupt = false;
+    g_timer_extra_loops_required = 0;
+    g_us_overflow_increment = 0;
 }
