@@ -270,7 +270,7 @@ typedef enum {
     D4          = PJ_0,
     D5          = PC_8,
     D6          = PF_7,
-    D7          = PI_3,
+    D7          = PJ_3,
     D8          = PJ_4,
     D9          = PH_6,
     D10         = PA_11,
