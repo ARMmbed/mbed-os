@@ -12,7 +12,7 @@ Note: This is just a template, so feel free to use/remove the unnecessary things
 K64F|??
 
 **toolchain:**
-gcc|armcc|IAR
+GCC_ARM|ARM|IAR
 
 **toolchain version:**
 

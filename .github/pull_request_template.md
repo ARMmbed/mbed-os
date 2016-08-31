@@ -1,6 +1,9 @@
 Notes:
-* Pull requests will not be accepted until the submitter has agreed to the contributer agreement.
+* Pull requests will not be accepted until the submitter has agreed to the [contributer agreement](https://github.com/ARMmbed/mbed-os/blob/master/CONTRIBUTING.md).
 * This is just a template, so feel free to use/remove the unnecessary things
+
+## Description
+A few sentences describing the overall goals of the pull request's commits.
 
 
 ## Status
@@ -11,10 +14,6 @@ Notes:
 If this PR changes any APIs or behaviors, give a short description of what "API users" should do when this PR is merged.
 
 YES | NO
-
-
-## Description
-A few sentences describing the overall goals of the pull request's commits.
 
 
 ## Related PRs
