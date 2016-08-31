@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ *******************************************************************************
+ * Copyright (c) 2016, MultiTech Systems
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ * 3. Neither the name of MultiTech nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -24,22 +25,40 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
+
+#ifndef __XDOT_EEPROM_H__
+#define __XDOT_EEPROM_H__
+
 #include "cmsis.h"
-#if defined(TARGET_XDOT_L151CC)
-#include "xdot_low_power.h"
-#endif /* TARGET_XDOT_L151CC */
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#if defined(TARGET_XDOT_L151CC)
-    if (PWR->CSR & PWR_CSR_SBF) {
-        // return the WAKE pin normal configuration
-        xdot_disable_standby_wake_pin();
-    }
-#endif /* TARGET_XDOT_L151CC */
+/* xdot_eeprom_write_buf
+ * attempts to write size bytes from buf to addr
+ * implements read-before-write because writes are expensive
+ * uses most efficient write possible (byte, half-word, or word write) based on alignment
+ *  and number of bytes that need to be written
+ * buf must be non-null and size bytes or larger
+ * valid addresses are 0x0000 - 0x1FFF
+ * returns 0 if all data was successfully written otherwise -1
+ */
+int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size);
+
+/* xdot_eeprom_read_buf
+ * attempts to read size bytes into buf starting at addr
+ * buf must be non-null and size bytes or larger
+ * valid addresses are 0x0000 - 0x1FFF
+ * returns 0 if all data was successfully read otherwise -1
+ */
+int xdot_eeprom_read_buf(uint32_t addr, uint8_t* buf, uint32_t size);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* __XDOT_EEPROM_H__ */
+

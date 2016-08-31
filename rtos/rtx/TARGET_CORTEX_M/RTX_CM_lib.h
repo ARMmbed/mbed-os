@@ -356,6 +356,8 @@ extern void pre_main (void);
     defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8) ||\
     defined(TARGET_STM32F103RB)
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
+#elif defined(TARGET_XDOT_L151CC)
+static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 6 / sizeof(uint32_t)];
 #else
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 2 / sizeof(uint32_t)];
 #endif

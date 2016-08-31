@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * CMSIS-style functionality to support dynamic vectors
+ *******************************************************************************
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,22 +26,30 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-#include "cmsis.h"
-#if defined(TARGET_XDOT_L151CC)
-#include "xdot_low_power.h"
-#endif /* TARGET_XDOT_L151CC */
+ *******************************************************************************
+ */ 
+#include "cmsis_nvic.h"
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-#if defined(TARGET_XDOT_L151CC)
-    if (PWR->CSR & PWR_CSR_SBF) {
-        // return the WAKE pin normal configuration
-        xdot_disable_standby_wake_pin();
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    uint32_t i;
+
+    // Copy and switch to dynamic vectors if the first time called
+    if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
+        uint32_t *old_vectors = vectors;
+        vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+        for (i=0; i<NVIC_NUM_VECTORS; i++) {
+            vectors[i] = old_vectors[i];
+        }
+        SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
     }
-#endif /* TARGET_XDOT_L151CC */
+    vectors[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
+}
+
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    uint32_t *vectors = (uint32_t*)SCB->VTOR;
+    return vectors[IRQn + NVIC_USER_IRQ_OFFSET];
 }
