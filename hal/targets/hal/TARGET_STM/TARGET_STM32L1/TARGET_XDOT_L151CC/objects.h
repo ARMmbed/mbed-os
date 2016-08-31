@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ *******************************************************************************
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,22 +25,69 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
+
 #include "cmsis.h"
-#if defined(TARGET_XDOT_L151CC)
-#include "xdot_low_power.h"
-#endif /* TARGET_XDOT_L151CC */
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#if defined(TARGET_XDOT_L151CC)
-    if (PWR->CSR & PWR_CSR_SBF) {
-        // return the WAKE pin normal configuration
-        xdot_disable_standby_wake_pin();
-    }
-#endif /* TARGET_XDOT_L151CC */
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
+    PinName pin;
+};
+
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
+
+struct analogin_s {
+    ADCName adc;
+    PinName pin;
+};
+
+struct dac_s {
+    DACName dac;
+    PinName pin;
+};
+
+struct spi_s {
+    SPIName spi;
+    uint32_t bits;
+    uint32_t cpol;
+    uint32_t cpha;
+    uint32_t mode;
+    uint32_t nss;
+    uint32_t br_presc;
+    PinName  pin_miso;
+    PinName  pin_mosi;
+    PinName  pin_sclk;
+    PinName  pin_ssel;
+};
+
+struct i2c_s {
+    I2CName  i2c;
+    uint32_t slave;
+};
+
+#include "common_objects.h"
+#include "gpio_object.h"
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

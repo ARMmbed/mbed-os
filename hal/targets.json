@@ -1179,6 +1179,16 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"]
     },
+    "XDOT_L151CC": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32L1", "STM32L151CC"],
+        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "progen": {"target": "xdot-l151cc"},
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_lib": "std"
+    },
     "MOTE_L152RC": {
         "inherits": ["Target"],
         "core": "Cortex-M3",

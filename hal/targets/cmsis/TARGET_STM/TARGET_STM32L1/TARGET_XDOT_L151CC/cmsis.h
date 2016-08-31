@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * A generic CMSIS include header
+ *******************************************************************************
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,22 +26,13 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
-#include "cmsis.h"
-#if defined(TARGET_XDOT_L151CC)
-#include "xdot_low_power.h"
-#endif /* TARGET_XDOT_L151CC */
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
+#ifndef MBED_CMSIS_H
+#define MBED_CMSIS_H
 
-#if defined(TARGET_XDOT_L151CC)
-    if (PWR->CSR & PWR_CSR_SBF) {
-        // return the WAKE pin normal configuration
-        xdot_disable_standby_wake_pin();
-    }
-#endif /* TARGET_XDOT_L151CC */
-}
+#include "stm32l1xx.h"
+#include "cmsis_nvic.h"
+
+#endif
