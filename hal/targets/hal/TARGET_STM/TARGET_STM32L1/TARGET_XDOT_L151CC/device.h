@@ -33,12 +33,7 @@
 #define MBED_DEVICE_H
 
 
-//MODTRONIX BEGIN - mbed Defines //////////////////////////////////////////////
-//Provide place for adding mbed defines. Alternative to adding them in IDE project properties.
-//Add project defines here, or add them to your toolchain compiler preprocessor
 
-
-//MODTRONIX END ///////////////////////////////////////////////////////////////
 
 
 

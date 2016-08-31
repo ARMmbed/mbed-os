@@ -50,22 +50,9 @@ typedef enum {
     UART_3 = (int)USART3_BASE
 } UARTName;
 
-#if (MX_DEFAULT_SERIAL_PINS == 0)
-    //Use B10/B11 as default serial port
-    #define STDIO_UART_TX  PB_10
-    #define STDIO_UART_RX  PB_11
-    #define STDIO_UART     UART_3
-#elif (MX_DEFAULT_SERIAL_PINS == 1)
-    //Use A2/A3 as default serial port
     #define STDIO_UART_TX  PA_2
     #define STDIO_UART_RX  PA_3
     #define STDIO_UART     UART_2
-#else
-    //Use A2/A3 as default serial port
-    #define STDIO_UART_TX  PA_2
-    #define STDIO_UART_RX  PA_3
-    #define STDIO_UART     UART_2
-#endif
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,

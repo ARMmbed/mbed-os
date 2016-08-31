@@ -26,10 +26,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "cmsis.h"
+#if defined(TARGET_XDOT_L151CC)
+#include "xdot_low_power.h"
+#endif /* TARGET_XDOT_L151CC */
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
 {
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
+
+#if defined(TARGET_XDOT_L151CC)
+    if (PWR->CSR & PWR_CSR_SBF) {
+        // return the WAKE pin normal configuration
+        xdot_disable_standby_wake_pin();
+    }
+#endif /* TARGET_XDOT_L151CC */
 }

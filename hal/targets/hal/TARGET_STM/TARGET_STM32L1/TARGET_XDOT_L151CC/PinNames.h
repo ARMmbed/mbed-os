@@ -122,40 +122,68 @@ typedef enum {
     PH_0  = 0x70,
     PH_1  = 0x71,
 
-    // Generic signals namings
-    LED1        = PB_2,
-    LED2        = PB_2,
-    LED3        = PB_2,
-    LED4        = PB_2,
-    USER_BUTTON = PC_3,
+    // GPIOs
+    GPIO0           = PA_4,     // analog out capable, analog in capable
+    GPIO1           = PA_5,     // analog out capable, analog in capable
+    GPIO2           = PB_0,     // analog in capable, pwm capable
+    GPIO3           = PB_2,
 
-#if (MX_DEFAULT_SERIAL_PINS == 0)
-    //Use B10/B11 as default serial port
-    SERIAL_TX   = PB_10,
-    SERIAL_RX   = PB_11,
-    USBTX       = PB_10,
-    USBRX       = PB_11,
-#elif (MX_DEFAULT_SERIAL_PINS == 1)
-    //Use A2/A3 as default serial port
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
-#else
-    //Use A2/A3 as default serial port
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
-#endif
+    // LEDs
+    LED1            = GPIO0,
+    LED2            = GPIO0,
+    LED3            = GPIO0,
+    LED4            = GPIO0,
 
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PB_15,
-    SPI_MISO    = PB_14,
-    SPI_SCK     = PB_13,
-    SPI_CS      = PA_1,
-    PWM_OUT     = PC_7,
+    // Wake Pin
+    WAKE            = PA_0,
+
+    // UART
+    UART1_TX        = PA_9,
+    UART1_RX        = PA_10,
+    UART1_CTS       = PA_11,
+    UART1_RTS       = PA_12,
+
+    UART2_TX        = PA_2,
+    UART2_RX        = PA_3,
+
+    USBTX           = UART2_TX,
+    USBRX           = UART2_RX,
+
+    // SPI
+    SPI2_MOSI       = PB_15,
+    SPI2_MISO       = PB_14,
+    SPI2_SCK        = PB_13,
+    SPI2_NSS        = PB_12,
+
+    SPI_MOSI        = SPI2_MOSI,
+    SPI_MISO        = SPI2_MISO,
+    SPI_SCK         = SPI2_SCK,
+    SPI_NSS         = SPI2_NSS,
+
+    // I2C
+    I2C1_SCL        = PB_8,
+    I2C1_SDA        = PB_9,
+
+    I2C_SCL         = I2C1_SCL,
+    I2C_SDA         = I2C1_SDA,
+    
+    // LoRa
+    LORA_RESET      = PA_1,
+    LORA_MOSI       = PB_5,
+    LORA_MISO       = PB_4,
+    LORA_SCK        = PB_3,
+    LORA_NSS        = PA_15,
+    LORA_DIO0       = PA_6,
+    LORA_DIO1       = PA_7,
+    LORA_DIO2       = PA_8,
+    LORA_DIO3       = PB_6,
+    LORA_DIO4       = PB_7,
+
+    // Secure Element
+    SE_RESET        = PC_13,
+    SE_CTRL         = PB_1,
+    SE_IO           = PB_10,
+    SE_CLK          = PB_11,
 
     // Not connected
     NC = (int)0xFFFFFFFF
