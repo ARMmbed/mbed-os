@@ -31,7 +31,8 @@ def print_stuff(name, lst):
 SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
 
 
-def target_cross_toolchain(required_features, allowed_toolchains):
+def target_cross_toolchain(allowed_toolchains,
+                           features=[], targets=TARGET_MAP.keys()):
     """Generate pairs of target and toolchains
 
     Args:
@@ -42,8 +43,9 @@ def target_cross_toolchain(required_features, allowed_toolchains):
     for target, toolchains in get_mbed_official_release("5"):
         for toolchain in toolchains:
             if (toolchain in allowed_toolchains and
+                target in targets and
                 all(feature in TARGET_MAP[target].features
-                    for feature in required_features)):
+                    for feature in features)):
                 yield target, toolchain
 
 
@@ -59,11 +61,11 @@ def main():
 
     failures = []
     sucesses = []
-    for example, build_features in EXAMPLES.iteritems():
+    for example, requirements in EXAMPLES.iteritems():
         subprocess.call(["mbed-cli", "import", example])
         os.chdir(basename(example))
-        for target, toolchain in target_cross_toolchain(build_features,
-                                                        args.toolchains):
+        for target, toolchain in target_cross_toolchain(args.toolchains,
+                                                        **requirements):
             proc = subprocess.Popen(["mbed-cli", "compile", "-t",
                                      toolchain, "-m", target])
             proc.wait()
