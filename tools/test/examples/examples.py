@@ -36,9 +36,12 @@ def target_cross_toolchain(allowed_toolchains,
     """Generate pairs of target and toolchains
 
     Args:
-    required_features - the features that must be in the features array of a
-                        target
     allowed_toolchains - a list of all possible toolchains
+
+    Kwargs:
+    features - the features that must be in the features array of a
+               target
+    targets - a list of available targets
     """
     for target, toolchains in get_mbed_official_release("5"):
         for toolchain in toolchains:
@@ -66,8 +69,8 @@ def main():
         os.chdir(basename(example))
         for target, toolchain in target_cross_toolchain(args.toolchains,
                                                         **requirements):
-            proc = subprocess.Popen(["mbed-cli", "compile", "-t",
-                                     toolchain, "-m", target])
+            proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
+                                     "-m", target, "--silent"])
             proc.wait()
             example_name = "{} {} {}".format(basename(example), target,
                                              toolchain)
