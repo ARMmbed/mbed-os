@@ -40,18 +40,9 @@ struct mbedtls_sha1_context_s;
  */
 typedef struct mbedtls_sha1_context_s
 {
-    union {
-        crypto_sha_context hw_ctx;
-        mbedtls_sha1_sw_context sw_ctx;
-    };
-    
-    void (*mbedtls_sha1_init)(struct mbedtls_sha1_context_s *ctx);
-    void (*mbedtls_sha1_free)(struct mbedtls_sha1_context_s *ctx);
-    void (*mbedtls_sha1_clone)(struct mbedtls_sha1_context_s *dst, const struct mbedtls_sha1_context_s *src);
-    void (*mbedtls_sha1_starts)(struct mbedtls_sha1_context_s *ctx);
-    void (*mbedtls_sha1_update)(struct mbedtls_sha1_context_s *ctx, const unsigned char *input, size_t ilen);
-    void (*mbedtls_sha1_finish)(struct mbedtls_sha1_context_s *ctx, unsigned char output[20]);
-    void (*mbedtls_sha1_process)(struct mbedtls_sha1_context_s *ctx, const unsigned char data[64]);
+    int ishw;
+    crypto_sha_context hw_ctx;
+    mbedtls_sha1_sw_context sw_ctx;
 }
 mbedtls_sha1_context;
 

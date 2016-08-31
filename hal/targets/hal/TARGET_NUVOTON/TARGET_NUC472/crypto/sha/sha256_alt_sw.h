@@ -39,8 +39,6 @@
 extern "C" {
 #endif
 
-struct mbedtls_sha256_context_s;
-
 /**
  * \brief          SHA-256 context structure
  */
@@ -58,14 +56,14 @@ mbedtls_sha256_sw_context;
  *
  * \param ctx      SHA-256 context to be initialized
  */
-void mbedtls_sha256_sw_init( struct mbedtls_sha256_context_s *ctx );
+void mbedtls_sha256_sw_init( mbedtls_sha256_sw_context *ctx );
 
 /**
  * \brief          Clear SHA-256 context
  *
  * \param ctx      SHA-256 context to be cleared
  */
-void mbedtls_sha256_sw_free( struct mbedtls_sha256_context_s *ctx );
+void mbedtls_sha256_sw_free( mbedtls_sha256_sw_context *ctx );
 
 /**
  * \brief          Clone (the state of) a SHA-256 context
@@ -73,8 +71,8 @@ void mbedtls_sha256_sw_free( struct mbedtls_sha256_context_s *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_sha256_sw_clone( struct mbedtls_sha256_context_s *dst,
-                           const struct mbedtls_sha256_context_s *src );
+void mbedtls_sha256_sw_clone( mbedtls_sha256_sw_context *dst,
+                           const mbedtls_sha256_sw_context *src );
 
 /**
  * \brief          SHA-256 context setup
@@ -82,7 +80,7 @@ void mbedtls_sha256_sw_clone( struct mbedtls_sha256_context_s *dst,
  * \param ctx      context to be initialized
  * \param is224    0 = use SHA256, 1 = use SHA224
  */
-void mbedtls_sha256_sw_starts( struct mbedtls_sha256_context_s *ctx, int is224 );
+void mbedtls_sha256_sw_starts( mbedtls_sha256_sw_context *ctx, int is224 );
 
 /**
  * \brief          SHA-256 process buffer
@@ -91,7 +89,7 @@ void mbedtls_sha256_sw_starts( struct mbedtls_sha256_context_s *ctx, int is224 )
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_sha256_sw_update( struct mbedtls_sha256_context_s *ctx, const unsigned char *input,
+void mbedtls_sha256_sw_update( mbedtls_sha256_sw_context *ctx, const unsigned char *input,
                     size_t ilen );
 
 /**
@@ -100,10 +98,10 @@ void mbedtls_sha256_sw_update( struct mbedtls_sha256_context_s *ctx, const unsig
  * \param ctx      SHA-256 context
  * \param output   SHA-224/256 checksum result
  */
-void mbedtls_sha256_sw_finish( struct mbedtls_sha256_context_s *ctx, unsigned char output[32] );
+void mbedtls_sha256_sw_finish( mbedtls_sha256_sw_context *ctx, unsigned char output[32] );
 
 /* Internal use */
-void mbedtls_sha256_sw_process( struct mbedtls_sha256_context_s *ctx, const unsigned char data[64] );
+void mbedtls_sha256_sw_process( mbedtls_sha256_sw_context *ctx, const unsigned char data[64] );
 
 #ifdef __cplusplus
 }

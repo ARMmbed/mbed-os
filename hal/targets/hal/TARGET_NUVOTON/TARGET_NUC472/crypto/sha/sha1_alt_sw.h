@@ -39,8 +39,6 @@
 extern "C" {
 #endif
 
-struct mbedtls_sha1_context_s;
-
 /**
  * \brief          SHA-1 context structure
  */
@@ -57,14 +55,14 @@ mbedtls_sha1_sw_context;
  *
  * \param ctx      SHA-1 context to be initialized
  */
-void mbedtls_sha1_sw_init( struct mbedtls_sha1_context_s *ctx );
+void mbedtls_sha1_sw_init( mbedtls_sha1_sw_context *ctx );
 
 /**
  * \brief          Clear SHA-1 context
  *
  * \param ctx      SHA-1 context to be cleared
  */
-void mbedtls_sha1_sw_free( struct mbedtls_sha1_context_s *ctx );
+void mbedtls_sha1_sw_free( mbedtls_sha1_sw_context *ctx );
 
 /**
  * \brief          Clone (the state of) a SHA-1 context
@@ -72,15 +70,15 @@ void mbedtls_sha1_sw_free( struct mbedtls_sha1_context_s *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_sha1_sw_clone( struct mbedtls_sha1_context_s *dst,
-                         const struct mbedtls_sha1_context_s *src );
+void mbedtls_sha1_sw_clone( mbedtls_sha1_sw_context *dst,
+                         const mbedtls_sha1_sw_context *src );
 
 /**
  * \brief          SHA-1 context setup
  *
  * \param ctx      context to be initialized
  */
-void mbedtls_sha1_sw_starts( struct mbedtls_sha1_context_s *ctx );
+void mbedtls_sha1_sw_starts( mbedtls_sha1_sw_context *ctx );
 
 /**
  * \brief          SHA-1 process buffer
@@ -89,7 +87,7 @@ void mbedtls_sha1_sw_starts( struct mbedtls_sha1_context_s *ctx );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_sha1_sw_update( struct mbedtls_sha1_context_s *ctx, const unsigned char *input, size_t ilen );
+void mbedtls_sha1_sw_update( mbedtls_sha1_sw_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          SHA-1 final digest
@@ -97,10 +95,10 @@ void mbedtls_sha1_sw_update( struct mbedtls_sha1_context_s *ctx, const unsigned 
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
  */
-void mbedtls_sha1_sw_finish( struct mbedtls_sha1_context_s *ctx, unsigned char output[20] );
+void mbedtls_sha1_sw_finish( mbedtls_sha1_sw_context *ctx, unsigned char output[20] );
 
 /* Internal use */
-void mbedtls_sha1_sw_process( struct mbedtls_sha1_context_s *ctx, const unsigned char data[64] );
+void mbedtls_sha1_sw_process( mbedtls_sha1_sw_context *ctx, const unsigned char data[64] );
 
 #ifdef __cplusplus
 }

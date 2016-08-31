@@ -25,29 +25,19 @@
 
 #include "sha1_alt.h"
 #include "crypto-misc.h"
+#include "nu_bitutil.h"
+#include "string.h"
 
 void mbedtls_sha1_init(mbedtls_sha1_context *ctx)
 {
     if (crypto_sha_acquire()) {
-        ctx->mbedtls_sha1_init = mbedtls_sha1_hw_init;
-        ctx->mbedtls_sha1_free = mbedtls_sha1_hw_free;
-        ctx->mbedtls_sha1_clone = mbedtls_sha1_hw_clone;
-        ctx->mbedtls_sha1_starts = mbedtls_sha1_hw_starts;
-        ctx->mbedtls_sha1_update = mbedtls_sha1_hw_update;
-        ctx->mbedtls_sha1_finish = mbedtls_sha1_hw_finish;
-        ctx->mbedtls_sha1_process = mbedtls_sha1_hw_process;
+        ctx->ishw = 1;
+        mbedtls_sha1_hw_init(&ctx->hw_ctx);
     }
     else {
-        ctx->mbedtls_sha1_init = mbedtls_sha1_sw_init;
-        ctx->mbedtls_sha1_free = mbedtls_sha1_sw_free;
-        ctx->mbedtls_sha1_clone = mbedtls_sha1_sw_clone;
-        ctx->mbedtls_sha1_starts = mbedtls_sha1_sw_starts;
-        ctx->mbedtls_sha1_update = mbedtls_sha1_sw_update;
-        ctx->mbedtls_sha1_finish = mbedtls_sha1_sw_finish;
-        ctx->mbedtls_sha1_process = mbedtls_sha1_sw_process;
+        ctx->ishw = 0;
+        mbedtls_sha1_sw_init(&ctx->sw_ctx);
     }
-    
-    ctx->mbedtls_sha1_init(ctx);
 }
 
 void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
@@ -56,17 +46,41 @@ void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
         return;
     }
 
-    ctx->mbedtls_sha1_free(ctx);
-    
-    if (ctx->mbedtls_sha1_init == mbedtls_sha1_hw_init) {
+    if (ctx->ishw) {
+        mbedtls_sha1_hw_free(&ctx->hw_ctx);
         crypto_sha_release();
+    }
+    else {
+        mbedtls_sha1_sw_free(&ctx->sw_ctx);
     }
 }
 
 void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
                         const mbedtls_sha1_context *src)
 {
-    *dst = *src;
+    if (src->ishw) {
+        // Clone S/W ctx from H/W ctx
+        dst->ishw = 0;
+        dst->sw_ctx.total[0] = src->hw_ctx.total;
+        dst->sw_ctx.total[1] = 0;
+        {
+            unsigned char output[20];
+            crypto_sha_getinternstate(output, sizeof (output));
+            dst->sw_ctx.state[0] = nu_get32_be(output);
+            dst->sw_ctx.state[1] = nu_get32_be(output + 4);
+            dst->sw_ctx.state[2] = nu_get32_be(output + 8);
+            dst->sw_ctx.state[3] = nu_get32_be(output + 12);
+            dst->sw_ctx.state[4] = nu_get32_be(output + 16);
+        }
+        memcpy(dst->sw_ctx.buffer, src->hw_ctx.buffer, src->hw_ctx.buffer_left);
+        if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {
+            mbedtls_sha1_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
+        }
+    }
+    else {
+        // Clone S/W ctx from S/W ctx
+        dst->sw_ctx = src->sw_ctx;
+    }
 }
 
 /*
@@ -74,9 +88,12 @@ void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
  */
 void mbedtls_sha1_starts(mbedtls_sha1_context *ctx)
 {
-    ctx->mbedtls_sha1_starts(ctx);
-    
-    return;
+    if (ctx->ishw) {
+        mbedtls_sha1_hw_starts(&ctx->hw_ctx);
+    }
+    else {
+        mbedtls_sha1_sw_starts(&ctx->sw_ctx);
+    }
 }
 
 /*
@@ -84,7 +101,12 @@ void mbedtls_sha1_starts(mbedtls_sha1_context *ctx)
  */
 void mbedtls_sha1_update(mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen)
 {
-    ctx->mbedtls_sha1_update(ctx, input, ilen);
+    if (ctx->ishw) {
+        mbedtls_sha1_hw_update(&ctx->hw_ctx, input, ilen);
+    }
+    else {
+        mbedtls_sha1_sw_update(&ctx->sw_ctx, input, ilen);
+    }
 }
 
 /*
@@ -92,12 +114,22 @@ void mbedtls_sha1_update(mbedtls_sha1_context *ctx, const unsigned char *input, 
  */
 void mbedtls_sha1_finish(mbedtls_sha1_context *ctx, unsigned char output[20])
 {
-    ctx->mbedtls_sha1_finish(ctx, output);
+    if (ctx->ishw) {
+        mbedtls_sha1_hw_finish(&ctx->hw_ctx, output);
+    }
+    else {
+        mbedtls_sha1_sw_finish(&ctx->sw_ctx, output);
+    }
 }
 
 void mbedtls_sha1_process(mbedtls_sha1_context *ctx, const unsigned char data[64])
 {
-    ctx->mbedtls_sha1_process(ctx, data);
+    if (ctx->ishw) {
+        mbedtls_sha1_hw_process(&ctx->hw_ctx, data);
+    }
+    else {
+        mbedtls_sha1_sw_process(&ctx->sw_ctx, data);
+    }
 }
 
 #endif /* MBEDTLS_SHA1_ALT */

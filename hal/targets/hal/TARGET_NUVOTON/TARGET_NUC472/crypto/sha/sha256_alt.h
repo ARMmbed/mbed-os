@@ -40,18 +40,9 @@ struct mbedtls_sha256_context_s;
  */
 typedef struct mbedtls_sha256_context_s
 {
-    union {
-        crypto_sha_context hw_ctx;
-        mbedtls_sha256_sw_context sw_ctx;
-    };
-    
-    void (*mbedtls_sha256_init)(struct mbedtls_sha256_context_s *ctx);
-    void (*mbedtls_sha256_free)(struct mbedtls_sha256_context_s *ctx);
-    void (*mbedtls_sha256_clone)(struct mbedtls_sha256_context_s *dst, const struct mbedtls_sha256_context_s *src);
-    void (*mbedtls_sha256_starts)(struct mbedtls_sha256_context_s *ctx, int is224);
-    void (*mbedtls_sha256_update)(struct mbedtls_sha256_context_s *ctx, const unsigned char *input, size_t ilen);
-    void (*mbedtls_sha256_finish)(struct mbedtls_sha256_context_s *ctx, unsigned char output[20]);
-    void (*mbedtls_sha256_process)(struct mbedtls_sha256_context_s *ctx, const unsigned char data[64]);
+    int ishw;
+    crypto_sha_context hw_ctx;
+    mbedtls_sha256_sw_context sw_ctx;
 }
 mbedtls_sha256_context;
 
