@@ -41,13 +41,11 @@ public:
      *
      *  @param stack    Network stack as target for socket
      */
-    TCPServer(NetworkStack *stack);
-
-    template <typename IF>
-    TCPServer(IF *iface)
+    template <typename S>
+    TCPServer(S *stack)
         : _pending(0), _accept_sem(0)
     {
-        open(iface->get_stack());
+        open(stack);
     }
 
     /** Destroy a socket
