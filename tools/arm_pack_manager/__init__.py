@@ -151,7 +151,9 @@ class Cache () :
         if not self.urls :
             try : root_data = self.pdsc_from_cache(RootPackURL)
             except IOError : root_data = self.cache_and_parse(RootPackURL)
-            self.urls = ["/".join([pdsc.get('url'), pdsc.get('name')]) for pdsc in root_data.find_all("pdsc")]
+            self.urls = ["/".join([pdsc.get('url').strip("/"),
+                                   pdsc.get('name').strip("/")])
+                         for pdsc in root_data.find_all("pdsc")]
         return self.urls
 
     def _extract_dict(self, device, filename, pack) :
@@ -163,8 +165,8 @@ class Cache () :
         try: to_ret["algorithm"] = dict(name=device.algorithm["name"].replace('\\','/'),
                                        start=device.algorithm["start"],
                                        size=device.algorithm["size"],
-                                       RAMstart=device.algorithm["ramstart"],
-                                       RAMsize=device.algorithm["ramsize"])
+                                       RAMstart=device.algorithm.get("ramstart",None),
+                                       RAMsize=device.algorithm.get("ramsize",None))
 
 
         except (KeyError, TypeError, IndexError) as e : pass
@@ -219,13 +221,52 @@ class Cache () :
         if not to_ret["compile"]:
             del to_ret["compile"]
 
+        to_ret['debug-interface'] = []
+
         return to_ret
+
+    def _apply_device_debug(self, device, debug):
+        if device:
+            self._index[device].setdefault('debug-interface', [])
+            if "JTAG" not in debug and \
+               debug not in self._index[device]['debug-interface']:
+                self._index[device]['debug-interface'].append(debug)
+
+    def _apply_group_debug(self, key, search_val, pdsc, debug):
+        for fam in pdsc.findAll(key, {'d'+key: search_val}):
+            for dev in fam.findAll("device"):
+                self._apply_device_debug(dev("dname"), debug)
+
+    def _update_debug(self, d):
+        try:
+            pdsc = self.pdsc_from_cache(d)
+            for dev in pdsc("board"):
+                try:
+                    debug = dev.debuginterface['adapter']
+                except:
+                    try:
+                        odbg = dev.find("feature",{"type":"ODbg"})
+                        debug = odbg["name"]
+                    except:
+                        continue
+                for device in dev("compatibledevice") + dev("mounteddevice"):
+                    self._apply_group_debug("family",
+                                            device.get("dfamily",None),
+                                            pdsc, debug)
+                    self._apply_group_debug("subfamily",
+                                            device.get("dsubfamily", None),
+                                            pdsc, debug)
+                    self._apply_device_debug(device.get("dname", None), debug)
+        except (KeyError, TypeError, IndexError) as e:
+            stderr.write("[ ERROR ] file {}\n".format(d))
+            print(e)
 
     def _generate_index_helper(self, d) :
         try :
             pack = self.pdsc_to_pack(d)
             self._index.update(dict([(dev['dname'], self._extract_dict(dev, d, pack)) for dev in
                                     (self.pdsc_from_cache(d)("device"))]))
+            self._update_debug(d)
         except AttributeError as e :
             stderr.write("[ ERROR ] file {}\n".format(d))
             print(e)
