@@ -42,6 +42,10 @@ I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 #define TEST_SDA_PIN PA10
 #define TEST_SCL_PIN PA09
 I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
+#elif defined(TARGET_NUCLEO_F411RE)
+#define TEST_SDA_PIN PB_9
+#define TEST_SCL_PIN PB_8
+I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN); // I2C_1 (Arduino: D14/D15)
 #else
 I2C i2c(p28, p27);
 #endif
