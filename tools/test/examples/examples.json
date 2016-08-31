@@ -1,5 +1,5 @@
 {
-    "https://developer.mbed.org/teams/mbed/code/mbed_blinky" : {},
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-blinky" : {},
     "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon" :
     {"features": ["BLE"]},
     "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate" :
