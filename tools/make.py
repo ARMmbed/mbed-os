@@ -52,7 +52,7 @@ from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     # Parse Options
-    parser = get_default_options_parser()
+    parser = get_default_options_parser(add_app_config=True)
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-p",
                       type=argparse_many(test_known),
@@ -274,7 +274,8 @@ if __name__ == '__main__':
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
-                                     name=options.artifact_name)
+                                     name=options.artifact_name,
+                                     app_config=options.app_config)
             print 'Image: %s'% bin_file
 
             if options.disk:

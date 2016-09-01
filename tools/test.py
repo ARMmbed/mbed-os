@@ -41,7 +41,7 @@ from tools.settings import CLI_COLOR_MAP
 if __name__ == '__main__':
     try:
         # Parse Options
-        parser = get_default_options_parser()
+        parser = get_default_options_parser(add_app_config=True)
         
         parser.add_argument("-D",
                           action="append",
@@ -93,10 +93,6 @@ if __name__ == '__main__':
                           dest="verbose",
                           default=False,
                           help="Verbose diagnostic output")
-
-        parser.add_argument("--app-config", default=None, dest="app_config",
-                            type=argparse_filestring_type,
-                            help="Path of an app configuration file (Default is to look for 'mbed_app.json')")
 
         options = parser.parse_args()
 
