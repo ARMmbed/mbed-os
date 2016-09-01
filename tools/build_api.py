@@ -303,14 +303,8 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
 
     # If the configuration object was not yet created, create it now
-    config = config or Config(target, src_paths, app_config=app_config)
-
-    # If the 'target' argument is a string, convert it to a target instance
-    if isinstance(target, basestring):
-        try:
-            target = TARGET_MAP[target]
-        except KeyError:
-            raise KeyError("Target '%s' not found" % target)
+    config = config or Config(target, src_paths)
+    target = config.target
 
     # Toolchain instance
     try:
