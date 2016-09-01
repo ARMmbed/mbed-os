@@ -65,13 +65,14 @@ def main():
         type=argparse_force_uppercase_type(SUPPORTED_TOOLCHAINS,
                                            "toolchain"))
     args = parser.parse_args()
-    args.fn(args)
+    return args.fn(args)
 
 
 def do_import(_):
     """Do the import step of this process"""
     for example, _ in EXAMPLES.iteritems():
         subprocess.call(["mbed-cli", "import", example])
+    return 0
 
 
 def do_compile(args):
