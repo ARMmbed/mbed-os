@@ -27,19 +27,20 @@ const int ONE_SECOND_US = 1000000;
 const int total_ticks = 10;
 
 void test_case_ticker() {
-    int before_print_us;
+    int start_time;
     int after_print_us;
     int wait_time_us = ONE_SECOND_US;
     
     timer.start();
-    for (int i = 0; i <= total_ticks; ++i) {
+    start_time = timer.read();
+    int i = 0;
+    while (i <= total_ticks) {
         wait_us(wait_time_us);
-        before_print_us = timer.read();
         greentea_send_kv("tick", i);
         after_print_us = timer.read();
         
-        // This won't be 100% exact, but it should be pretty close
-        wait_time_us =  ONE_SECOND_US - (after_print_us - before_print_us);
+        // This won't be 100% exact, but it should be very close
+        wait_time_us =  after_print_us - start_time - ((++i) * ONE_SECOND_US);
     }
     timer.stop();
 }
