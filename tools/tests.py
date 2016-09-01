@@ -87,6 +87,7 @@ Wiring:
 
   * i2c_loop:
       * LPC1768: (p28 <-> p9), (p27 <-> p10)
+      * NUCLEO_F411RE: (PB_9 <-> PB_3), (PB_8 <-> PB_10)
 
   * i2c_eeprom:
       * LPC1*: (SDA=p28 , SCL=p27)
@@ -264,7 +265,7 @@ TESTS = [
         "id": "MBED_A20", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "mcu": ["LPC1768", "RZ_A1H"],
+        "mcu": ["LPC1768", "RZ_A1H", "NUCLEO_F411RE"],
         "peripherals": ["i2c_loop"]
     },
     {

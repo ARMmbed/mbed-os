@@ -213,8 +213,19 @@ inline int i2c_start(i2c_t *obj) {
 
 inline int i2c_stop(i2c_t *obj) {
 
+    int timeout;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+
+    //Wait Byte transfer finished before sending stop
+    timeout = FLAG_TIMEOUT;
+    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
+    }
 
     // Generate the STOP condition
     i2c->CR1 |= I2C_CR1_STOP;
@@ -350,14 +361,20 @@ int i2c_byte_write(i2c_t *obj, int data) {
 
     handle->Instance->DR = (uint8_t)data;
 
-    // Wait until the byte is transmitted
+    // Wait until the byte (might be the adress) is transmitted
     timeout = FLAG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXE) == RESET) &&
-            (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET)) {
+            (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET) &&
+             (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET)) {
         if ((timeout--) == 0) {
             return 0;
         }
     }
+
+     if (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) != RESET)
+     {
+         __HAL_I2C_CLEAR_ADDRFLAG(handle);
+     }
 
     return 1;
 }

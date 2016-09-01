@@ -16,6 +16,10 @@
 //   pull-up resistors on both lines
 // ********************************************************
 
+#if defined(TARGET_NUCLEO_F411RE)
+I2C master(PB_9, PB_8); // I2C_1 (Arduino: D14/D15)
+I2CSlave slave(PB_3, PB_10); // I2C_2 (Arduino: D3/D6)
+#endif
 
 int main()
 {
