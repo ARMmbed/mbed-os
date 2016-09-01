@@ -20,38 +20,18 @@
 
 using namespace utest::v1;
 
-Timeout timer;
+Timeout timeout;
 DigitalOut led(LED1);
 volatile int ticker_count = 0;
 volatile bool print_tick = false;
 static const int total_ticks = 10;
-
-namespace {
-    const int MS_INTERVALS = 1000;
-}
+const int ONE_SECOND_US = 1000000;
 
 void send_kv_tick() {
     if (ticker_count <= total_ticks) {
+        timeout.attach_us(send_kv_tick, ONE_SECOND_US);
         print_tick = true;
     }
-}
-
-void toggleOff(void);
-
-void toggleOn(void) {
-    static int toggle_counter = 0;
-    timer.attach_us(toggleOff, 500);
-    
-    if (toggle_counter == MS_INTERVALS) {
-        send_kv_tick();
-        toggle_counter = 0;
-    } else {
-        toggle_counter++;
-    }
-}
-
-void toggleOff(void) {
-    timer.attach_us(toggleOn, 500);
 }
 
 void wait_and_print() {
@@ -65,7 +45,7 @@ void wait_and_print() {
 }
 
 void test_case_ticker() {
-    toggleOn();
+    timeout.attach_us(send_kv_tick, ONE_SECOND_US);
     wait_and_print();
 }
 
