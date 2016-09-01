@@ -144,6 +144,11 @@ Reset_Handler:
     strlt   r0, [r2], #4
     blt    .LC0
 
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+    ldr r0, =uvisor_init
+    blx r0
+#endif /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
+
     ldr    r0, =_start
     bx    r0
 
