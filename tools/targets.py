@@ -266,16 +266,9 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         in 'new_targets'. It is an error to add a target with a name that
         already exists.
         """
-        crt_data = Target.get_json_target_data()
         for target_key, target_value in new_targets.items():
-            if crt_data.has_key(target_key):
-                raise Exception(
-                    "Attempt to add target '%s' that already exists"
-                    % target_key)
-            # Add target data to the internal target dictionary
-            crt_data[target_key] = target_value
             # Create the new target and add it to the relevant data structures
-            new_target = Target(target_key)
+            new_target = generate_py_target(new_targets, target_key)
             TARGETS.append(new_target)
             TARGET_MAP[target_key] = new_target
             TARGET_NAMES.append(target_key)
