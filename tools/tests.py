@@ -1165,6 +1165,11 @@ TESTS = [
         "automated": True,
         #"host_test" : "detect_auto",
     },
+	{
+        "id": "I2C_MASTER_SLAVE_ASYNCH", "description": "i2c_master_slave_asynch",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+    },
 
 ]
 
