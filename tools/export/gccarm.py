@@ -99,6 +99,7 @@ class GccArm(Exporter):
         'DISCO_F334C8',
         'MAX32600MBED',
         'MAXWSNENV',
+        'MAX32620HSP',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'NUCLEO_L152RE',

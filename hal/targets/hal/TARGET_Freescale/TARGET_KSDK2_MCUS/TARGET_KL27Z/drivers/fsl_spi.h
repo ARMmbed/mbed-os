@@ -37,7 +37,6 @@
  * @{
  */
 
-/*! @file */
 
 /*******************************************************************************
  * Definitions
@@ -45,12 +44,14 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief SPI driver version 2.0.0. */
-#define FSL_SPI_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*! @brief SPI driver version 2.0.1. */
+#define FSL_SPI_DRIVER_VERSION (MAKE_VERSION(2, 0, 1))
 /*@}*/
 
+#ifndef SPI_DUMMYDATA
 /*! @brief SPI dummy transfer data, the data is sent while txBuff is NULL. */
 #define SPI_DUMMYDATA (0xFFU)
+#endif
 
 /*! @brief Return status for the SPI driver.*/
 enum _spi_status
@@ -130,10 +131,10 @@ enum _spi_flags
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
     kSPI_RxFifoNearFullFlag = SPI_S_RNFULLF_MASK,  /*!< Rx FIFO near full */
     kSPI_TxFifoNearEmptyFlag = SPI_S_TNEAREF_MASK, /*!< Tx FIFO near empty */
-    kSPI_RxFifoFullFlag = SPI_S_TXFULLF_MASK,      /*!< Rx FIFO full */
-    kSPI_TxFifoEmptyFlag = SPI_S_RFIFOEF_MASK,     /*!< Tx FIFO empty */
+    kSPI_TxFifoFullFlag = SPI_S_TXFULLF_MASK,      /*!< Tx FIFO full */
+    kSPI_RxFifoEmptyFlag = SPI_S_RFIFOEF_MASK,     /*!< Rx FIFO empty */
     kSPI_TxFifoError = SPI_CI_TXFERR_MASK << 8U,   /*!< Tx FIFO error */
-    kSPI_RxFifoError = SPI_CI_RXFERR_MASK << 8U,   /*!< Rx FIFO Overflow */
+    kSPI_RxFifoError = SPI_CI_RXFERR_MASK << 8U,   /*!< Rx FIFO error */
     kSPI_TxOverflow = SPI_CI_TXFOF_MASK << 8U,     /*!< Tx FIFO Overflow */
     kSPI_RxOverflow = SPI_CI_RXFOF_MASK << 8U      /*!< Rx FIFO Overflow */
 #endif                                             /* FSL_FEATURE_SPI_HAS_FIFO */
@@ -347,7 +348,7 @@ void SPI_Deinit(SPI_Type *base);
  * @param base SPI base pointer
  * @param enable pass true to enable module, false to disable module
  */
-static inline void SPI_Enable(I2C_Type *base, bool enable)
+static inline void SPI_Enable(SPI_Type *base, bool enable)
 {
     if (enable)
     {
@@ -581,8 +582,10 @@ status_t SPI_MasterTransferBlocking(SPI_Type *base, spi_transfer_t *xfer);
  *
  * @note The API immediately returns after transfer initialization is finished.
  * Call SPI_GetStatusIRQ() to get the transfer status.
- * @note If using the SPI with FIFO for the interrupt transfer, the transfer size is the integer times of the watermark. Otherwise,
- * the last data may be lost because it cannot generate an interrupt request. Users can also call the functional API to get the last
+ * @note If using the SPI with FIFO for the interrupt transfer, the transfer size is the integer times of the watermark.
+ * Otherwise,
+ * the last data may be lost because it cannot generate an interrupt request. Users can also call the functional API to
+ * get the last
  * received data.
  *
  * @param base SPI peripheral base address.
@@ -632,21 +635,20 @@ void SPI_MasterTransferHandleIRQ(SPI_Type *base, spi_master_handle_t *handle);
  * @param callback Callback function.
  * @param userData User data.
  */
-static inline void SPI_SlaveTransferCreateHandle(SPI_Type *base,
+void SPI_SlaveTransferCreateHandle(SPI_Type *base,
                                                  spi_slave_handle_t *handle,
                                                  spi_slave_callback_t callback,
-                                                 void *userData)
-{
-    SPI_MasterTransferCreateHandle(base, handle, callback, userData);
-}
+                                   void *userData);
 
 /*!
  * @brief Performs a non-blocking SPI slave interrupt transfer.
  *
  * @note The API returns immediately after the transfer initialization is finished.
  * Call SPI_GetStatusIRQ() to get the transfer status.
- * @note If using the SPI with FIFO for the interrupt transfer, the transfer size is the integer times the watermark. Otherwise,
- * the last data may be lost because it cannot generate an interrupt request. Call the functional API to get the last several
+ * @note If using the SPI with FIFO for the interrupt transfer, the transfer size is the integer times the watermark.
+ * Otherwise,
+ * the last data may be lost because it cannot generate an interrupt request. Call the functional API to get the last
+ * several
  * receive data.
  *
  * @param base SPI peripheral base address.
@@ -692,10 +694,7 @@ static inline void SPI_SlaveTransferAbort(SPI_Type *base, spi_slave_handle_t *ha
  * @param base SPI peripheral base address.
  * @param handle pointer to spi_slave_handle_t structure which stores the transfer state
  */
-static inline void SPI_SlaveTransferHandleIRQ(SPI_Type *base, spi_slave_handle_t *handle)
-{
-    SPI_MasterTransferHandleIRQ(base, handle);
-}
+void SPI_SlaveTransferHandleIRQ(SPI_Type *base, spi_slave_handle_t *handle);
 
 /*! @} */
 

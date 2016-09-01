@@ -28,6 +28,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
+#include "lwip/ip.h"
 
 
 /* Static arena of sockets */
@@ -216,7 +217,7 @@ static int lwip_err_remap(err_t err) {
 
 
 /* LWIP network stack implementation */
-static nsapi_addr_t lwip_get_addr(nsapi_stack_t *stack)
+static nsapi_addr_t lwip_getaddr(nsapi_stack_t *stack)
 {
     if (!lwip_get_ip_address()) {
         return (nsapi_addr_t){0};
@@ -226,6 +227,17 @@ static nsapi_addr_t lwip_get_addr(nsapi_stack_t *stack)
     addr.version = NSAPI_IPv4;
     inet_aton(lwip_get_ip_address(), (ip_addr_t *)addr.bytes);
     return addr;
+}
+
+static int lwip_gethostbyname(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host)
+{
+    err_t err = netconn_gethostbyname(host, (ip_addr_t *)addr->bytes);
+    if (err != ERR_OK) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+
+    addr->version = NSAPI_IPv4;
+    return 0;
 }
 
 static int lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_protocol_t proto)
@@ -303,6 +315,7 @@ static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t *handle, nsap
         return lwip_err_remap(err);
     }
 
+    netconn_set_recvtimeout(ns->conn, 1);
     *(struct lwip_socket **)handle = ns;
     return 0;
 }
@@ -415,6 +428,18 @@ static int lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t handle, int leve
             s->conn->pcb.tcp->keep_intvl = *(int*)optval;
             return 0;
 
+        case NSAPI_REUSEADDR:
+            if (optlen != sizeof(int)) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            if (*(int *)optval) {
+                s->conn->pcb.tcp->so_options |= SOF_REUSEADDR;
+            } else {
+                s->conn->pcb.tcp->so_options &= ~SOF_REUSEADDR;
+            }
+            return 0;
+
         default:
             return NSAPI_ERROR_UNSUPPORTED;
     }
@@ -431,7 +456,8 @@ static void lwip_socket_attach(nsapi_stack_t *stack, nsapi_socket_t handle, void
 
 /* LWIP network stack */
 const nsapi_stack_api_t lwip_stack_api = {
-    .get_ip_address     = lwip_get_addr,
+    .get_ip_address     = lwip_getaddr,
+    .gethostbyname      = lwip_gethostbyname,
     .socket_open        = lwip_socket_open,
     .socket_close       = lwip_socket_close,
     .socket_bind        = lwip_socket_bind,

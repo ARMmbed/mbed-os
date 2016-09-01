@@ -16,6 +16,7 @@ limitations under the License.
 """
 import re
 from os.path import join, basename, splitext, dirname, exists
+from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -110,6 +111,11 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
+        if tool_path:
+            self.toolchain_path = main_cc
+        else:
+            self.toolchain_path = find_executable("arm-none-eabi-gcc") or ''
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         buff = open(dep_path).readlines()
@@ -138,7 +144,7 @@ class GCC(mbedToolchain):
         # The warning/error notification is multiline
         msg = None
         for line in output.splitlines():
-            match = GCC.DIAGNOSTIC_PATTERN.match(line)
+            match = GCC.DIAGNOSTIC_PATTERN.search(line)
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)

@@ -113,6 +113,7 @@ build_list = (
 
     { "target": "MAXWSNENV",    "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "MAX32620HSP",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
     { "target": "RZ_A1H", "toolchains": "GCC_ARM", "libs": ["fat"] },
 

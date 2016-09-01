@@ -63,6 +63,7 @@ public:
     }
 
     Ticker(const ticker_data_t *data) : TimerEvent(data) {
+        data->interface->init();
     }
 
     /** Attach a function to be called by the Ticker, specifiying the interval in seconds

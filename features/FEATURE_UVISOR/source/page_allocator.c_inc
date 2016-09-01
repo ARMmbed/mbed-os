@@ -41,8 +41,10 @@
 
 #include "page_allocator_config.h"
 
-/* Maps the page to the owning box handle. */
-page_owner_t g_page_owner_table[UVISOR_PAGE_TABLE_MAX_COUNT];
+/* Contains the page usage mapped by owner. */
+uint32_t g_page_owner_map[UVISOR_MAX_BOXES][UVISOR_PAGE_MAP_COUNT];
+/* Contains total page usage. */
+uint32_t g_page_usage_map[UVISOR_PAGE_MAP_COUNT];
 /* Contains the configured page size. */
 uint32_t g_page_size;
 /* Points to the beginning of the page heap. */
@@ -119,12 +121,16 @@ void page_allocator_init(void * const heap_start, void * const heap_end, const u
         g_page_count_total = ((uint32_t) heap_end - start) / g_page_size;
     }
     /* Clamp page count to table size. */
-    if (g_page_count_total > UVISOR_PAGE_TABLE_MAX_COUNT) {
-        g_page_count_total = UVISOR_PAGE_TABLE_MAX_COUNT;
+    if (g_page_count_total > UVISOR_PAGE_MAX_COUNT) {
+        DPRINTF("uvisor_page_init: Clamping available page count from %u to %u!\n", g_page_count_total, UVISOR_PAGE_MAX_COUNT);
+        /* Move the heap start address forward so that the last clamped page is located nearest to the heap end. */
+        g_page_heap_start += (g_page_count_total - UVISOR_PAGE_MAX_COUNT) * g_page_size;
+        /* Clamp the page count. */
+        g_page_count_total = UVISOR_PAGE_MAX_COUNT;
     }
     g_page_count_free = g_page_count_total;
     /* Remember the end of the heap. */
-    g_page_heap_end = g_page_heap_start + g_page_count_free * g_page_size;
+    g_page_heap_end = g_page_heap_start + g_page_count_total * g_page_size;
 
     DPRINTF("uvisor_page_init:\n.page_heap start 0x%08x\n.page_heap end   0x%08x\n.page_heap available %ukB split into %u pages of %ukB\n\n",
             (unsigned int) g_page_heap_start,
@@ -133,11 +139,9 @@ void page_allocator_init(void * const heap_start, void * const heap_end, const u
             (unsigned int) g_page_count_total,
             (unsigned int) (g_page_size / 1024));
 
-    uint32_t page = 0;
-    for (; page < UVISOR_PAGE_TABLE_MAX_COUNT; page++) {
-        g_page_owner_table[page] = UVISOR_PAGE_UNUSED;
-        page_allocator_reset_faults(page);
-    }
+    /* Force a reset of owner and usage page maps. */
+    memset(g_page_owner_map, 0, sizeof(g_page_owner_map));
+    memset(g_page_usage_map, 0, sizeof(g_page_usage_map));
 }
 
 int page_allocator_malloc(UvisorPageTable * const table)
@@ -176,10 +180,20 @@ int page_allocator_malloc(UvisorPageTable * const table)
     /* Iterate through the page table and find the empty pages. */
     uint32_t page = 0;
     for (; (page < g_page_count_total) && pages_required; page++) {
-        /* If the page is unused, it's entry is UVISOR_PAGE_UNUSED (not NULL!). */
-        if (g_page_owner_table[page] == UVISOR_PAGE_UNUSED) {
-            /* Marry this page to the box id. */
-            g_page_owner_table[page] = box_id;
+        /* If the page is unused, map_get returns zero. */
+        if (!page_allocator_map_get(g_page_usage_map, page)) {
+            /* Remember this page as used. */
+            page_allocator_map_set(g_page_usage_map, page);
+            /* Pages of box 0 are accessible to all other boxes! */
+            if (box_id == 0) {
+                uint32_t ii = 0;
+                for (; ii < UVISOR_MAX_BOXES; ii++) {
+                    page_allocator_map_set(g_page_owner_map[ii], page);
+                }
+            } else {
+                /* Otherwise, remember ownership only for active box. */
+                page_allocator_map_set(g_page_owner_map[box_id], page);
+            }
             /* Reset the fault count for this page. */
             page_allocator_reset_faults(page);
             /* Get the pointer to the page. */
@@ -243,14 +257,25 @@ int page_allocator_free(const UvisorPageTable * const table)
             return UVISOR_ERROR_PAGE_INVALID_PAGE_ORIGIN;
         }
         /* Check if the page belongs to the caller. */
-        if (g_page_owner_table[page_index] == box_id) {
-            g_page_owner_table[page_index] = UVISOR_PAGE_UNUSED;
+        if (page_allocator_map_get(g_page_owner_map[box_id], page_index)) {
+            /* Clear the owner and usage page maps for this page. */
+            page_allocator_map_clear(g_page_usage_map, page_index);
+            /* If the page was owned by box 0, we need to remove it from all other boxes! */
+            if (box_id == 0) {
+                uint32_t ii = 0;
+                for (; ii < UVISOR_MAX_BOXES; ii++) {
+                    page_allocator_map_clear(g_page_owner_map[ii], page_index);
+                }
+            } else {
+                /* Otherwise, only remove for the active box. */
+                page_allocator_map_clear(g_page_owner_map[box_id], page_index);
+            }
             g_page_count_free++;
             DPRINTF("uvisor_page_free: Freeing page at index %u\n", page_index);
         }
         else {
             /* Abort if the page doesn't belong to the caller. */
-            if (g_page_owner_table[page_index] == UVISOR_PAGE_UNUSED) {
+            if (!page_allocator_map_get(g_page_usage_map, page_index)) {
                 DPRINTF("uvisor_page_free: FAIL: Page %u is not allocated!\n\n", page_index);
             } else {
                 DPRINTF("uvisor_page_free: FAIL: Page %u is not owned by box %u!\n\n", page_index, box_id);

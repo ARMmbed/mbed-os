@@ -67,7 +67,7 @@ The Client API allows setting values to Resources, an array of Resource Instance
 
 The **Write** operation is used to overwrite the value of a Resource, an array of Resource Instances or multiple Resources from an Object Instance. 
 
-Whenever there is a valid `PUT` operation for any of the resources, the application will receive a callback:
+Whenever there is a valid `PUT` operation for any of the resources, the application will receive a callback: 
 
 ```
 void value_updated(M2MBase *base, M2MBase::BaseType type) 
@@ -118,6 +118,34 @@ void value_updated(M2MBase *base, M2MBase::BaseType type) {
             }
         }
     }
+```
+By default, callbacks are handled in the `value_updated()` function but the application can also define a callback function for an individual resource.
+
+Check the code snippet below for usage.
+
+```
+static void value_updated_global(const char *name) {
+    if(name) {
+        ...
+    }
+}
+
+void M2MLWClient::value_updated_function(const char* name) {
+    if (name) {
+        ...
+    }
+}
+
+M2MResource* res = inst->create_dynamic_resource("D", "ResourceTest", true);
+char buffer[20];
+int size = sprintf(buffer,"%d",_value);
+res->set_operation(M2MBase::GET_PUT_POST_DELETE_ALLOWED);
+res->set_value((const uint8_t*)buffer, (const uint32_t)size);
+res->set_value_updated_function(value_updated_callback(this,&MbedClient::value_updated_function));
+/* Overloaded function can be used If callback function is not in class scope. 
+res2->set_value_updated_function(value_updated_callback2(&value_updated_global));
+*/
+
 ```
 
 ## The Write Attributes operation
@@ -182,7 +210,7 @@ if(_object) {
                        (const uint32_t)size);
         res->set_execute_function(execute_callback(this,&M2MLWClient::execute_function));
         /* Overloaded function can be used If callback function is not in class scope. 
-        res->set_execute_function(&execute_function_2);
+        res->set_execute_function(execute_callback_2(&execute_function_2));
         */
 ```
 
