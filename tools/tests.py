@@ -87,7 +87,13 @@ Wiring:
 
   * i2c_loop:
       * LPC1768: (p28 <-> p9), (p27 <-> p10)
+      * NUCLEO_F401RE: (PB_9 <-> PB_3), (PB_8 <-> PB_10)
+      * NUCLEO_F410RB: (PB_9 <-> PB_3), (PB_8 <-> PB_10)
       * NUCLEO_F411RE: (PB_9 <-> PB_3), (PB_8 <-> PB_10)
+      * NUCLEO_F446RE: (PB_9 <-> PB_3), (PB_8 <-> PB_10)
+      * NUCLEO_F429ZI: (PB_9 <-> PB_11), (PB_8 <-> PB_10)
+      * NUCLEO_F446ZE: (PB_9 <-> PB_11), (PB_8 <-> PB_10)
+      * DISCO_F429ZI: (PB_9 <-> PB_11), (PB_8 <-> PB_10)
 
   * i2c_eeprom:
       * LPC1*: (SDA=p28 , SCL=p27)
@@ -265,7 +271,7 @@ TESTS = [
         "id": "MBED_A20", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "mcu": ["LPC1768", "RZ_A1H", "NUCLEO_F411RE"],
+        "mcu": ["LPC1768", "RZ_A1H", "NUCLEO_F411RE", "NUCLEO_F446RE", "NUCLEO_F429ZI", "DISCO_F429ZI", "NUCLEO_F446ZE",  "NUCLEO_F410RB", "NUCLEO_F401RE"],
         "peripherals": ["i2c_loop"]
     },
     {
@@ -341,6 +347,14 @@ TESTS = [
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
         "DISCO_F769NI"]
+    },
+	{
+        "id": "MBED_A29", "description": "i2c_master_slave_asynch",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "mcu": ["NUCLEO_F411RE", "NUCLEO_F446RE", "NUCLEO_F429ZI", "DISCO_F429ZI", "NUCLEO_F446ZE",  "NUCLEO_F410RB", "NUCLEO_F401RE"],
+        "automated": True,
+        "peripherals": ["i2c_loop"]
     },
     {
         "id": "MBED_BLINKY", "description": "Blinky",
@@ -1165,11 +1179,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         #"host_test" : "detect_auto",
-    },
-	{
-        "id": "I2C_MASTER_SLAVE_ASYNCH", "description": "i2c_master_slave_asynch",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave_asynch"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
 
 ]
