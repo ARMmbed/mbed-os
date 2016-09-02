@@ -2,19 +2,19 @@ Note: This is just a template, so feel free to use/remove the unnecessary things
 
 ### Description
 - Type: Bug | Enhancement | Question
-- Related Issue: `#abc`
+- Related issue: `#abc`
 - Priority: Blocker | Major | Minor
 
 ---------------------------------------------------------------
 ## Bug
 
-**target**
+**Target**
 K64F|??
 
-**toolchain:**
+**Toolchain:**
 GCC_ARM|ARM|IAR
 
-**toolchain version:**
+**Toolchain version:**
 
 **mbed-cli version:** 
 (`mbed --version`)
@@ -22,18 +22,18 @@ GCC_ARM|ARM|IAR
 **meed-os sha:**
 (`git log -n1 --oneline`)
 
-**Daplink version:**
+**DAPLink version:**
 
-**Expected Behavior**
+**Expected behavior**
 
-**Actual Behavior**
+**Actual behavior**
 
-**Steps to Reproduce**
+**Steps to reproduce**
 
 ----------------------------------------------------------------
 ## Enhancement
 
-**Reason to enhance/problem with existing solution**
+**Reason to enhance or problem with existing solution**
 
 **Suggested enhancement**
 
