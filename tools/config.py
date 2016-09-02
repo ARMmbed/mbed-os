@@ -345,7 +345,7 @@ class Config(object):
 
     # Allowed features in configurations
     __allowed_features = [
-        "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6", "COMMON_PAL", "STORAGE", "UBLOX_ODIN_W2_DRIVERS"
+        "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6", "COMMON_PAL", "STORAGE"
     ]
 
     def __init__(self, target, top_level_dirs=None):
