@@ -480,10 +480,9 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 #endif
 
 #if defined(TOOLCHAIN_GCC)
-/* uVisor wraps malloc_r, realloc_r and free_r, but not calloc_r! */
-#ifndef  FEATURE_UVISOR
 
-
+#ifdef  FEATURE_UVISOR
+#include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
 
