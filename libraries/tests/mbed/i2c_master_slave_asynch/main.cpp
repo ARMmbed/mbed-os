@@ -11,14 +11,15 @@
 // the same chip, one configured as master, the other as
 // slave.
 //
-// Wiring:
-//   D14 <-> D3
-//   D15 <-> D6
+// Wiring: cf below
 // ********************************************************
 
-#if defined(TARGET_NUCLEO_F411RE)
+#if defined (TARGET_NUCLEO_F411RE) || defined (TARGET_NUCLEO_F446RE) || defined (TARGET_NUCLEO_F410RB)  || defined (TARGET_NUCLEO_F401RE)
 I2C master(PB_9, PB_8); // I2C_1 (Arduino: D14/D15)
 I2CSlave slave(PB_3, PB_10); // I2C_2 (Arduino: D3/D6)
+#elif defined (TARGET_NUCLEO_F429ZI) || defined (TARGET_DISCO_F429ZI) || defined (TARGET_NUCLEO_F446ZE)
+I2C master(PB_9, PB_8); // I2C_1 (Arduino: D14/D15)
+I2CSlave slave(PB_11, PB_10); // I2C_2 
 #endif
 
 volatile int why;
