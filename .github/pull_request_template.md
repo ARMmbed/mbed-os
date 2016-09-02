@@ -11,7 +11,7 @@ A few sentences describing the overall goals of the pull request's commits.
 
 
 ## Migrations
-If this PR changes any APIs or behaviors, give a short description of what "API users" should do when this PR is merged.
+If this PR changes any APIs or behaviors, give a short description of what *API users* should do when this PR is merged.
 
 YES | NO
 
@@ -30,10 +30,10 @@ other_pr_master | [link]()
 - [ ] Documentation
 
 
-## Deploy Notes
+## Deploy notes
 Notes regarding the deployment of the contained body of work. These should note any
 required changes in the build environment, tools, compilers, etc.
 
 
-## Steps to Test or Reproduce
+## Steps to test or reproduce
 Outline the steps to test or reproduce the PR here.
