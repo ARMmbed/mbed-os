@@ -67,15 +67,15 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
-// TODO: memory tracing doesn't work with uVisor enabled.
-#if !defined(FEATURE_UVISOR)
-
 extern "C" {
     void * __real__malloc_r(struct _reent * r, size_t size);
     void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
     void __real__free_r(struct _reent * r, void * ptr);
     void* __real__calloc_r(struct _reent * r, size_t nmemb, size_t size);
 }
+
+// TODO: memory tracing doesn't work with uVisor enabled.
+#if !defined(FEATURE_UVISOR)
 
 extern "C" void * __wrap__malloc_r(struct _reent * r, size_t size) {
     void *ptr = NULL;
@@ -167,6 +167,8 @@ extern "C" void __wrap__free_r(struct _reent * r, void * ptr) {
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }
 
+#endif // if !defined(FEATURE_UVISOR)
+
 extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size) {
     void *ptr = NULL;
 #ifdef MBED_HEAP_STATS_ENABLED
@@ -187,7 +189,6 @@ extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size)
     return ptr;
 }
 
-#endif // if !defined(FEATURE_UVISOR)
 
 /******************************************************************************/
 /* ARMCC memory allocation wrappers                                           */
