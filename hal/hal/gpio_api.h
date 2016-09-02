@@ -18,7 +18,6 @@
 
 #include <stdint.h>
 #include "device.h"
-#include "gpio_object.h"
 
 #ifdef __cplusplus
 extern "C" {
