@@ -23,7 +23,7 @@ GDB:=$(PREFIX)gdb
 OBJDUMP:=$(PREFIX)objdump
 
 # Translate between uVisor namespace and mbed namespace
-TARGET_TRANSLATION:=MCU_K64F.kinetis EFM32.efm32 STM32F4.stm32 ARM_BEETLE_SOC.beetle
+TARGET_TRANSLATION:=MCU_K64F.kinetis EFM32.efm32 STM32F4.stm32 ARM_BEETLE_SOC.beetle ARM_MPS2_ARMv8MML.armv8mml
 TARGET_PREFIX:=../
 TARGET_SUPPORTED:=$(TARGET_PREFIX)targets/TARGET_UVISOR_SUPPORTED
 TARGET_UNSUPPORTED:=$(TARGET_PREFIX)targets/TARGET_UVISOR_UNSUPPORTED
@@ -95,7 +95,7 @@ TARGET_M%: rsync
 	mkdir $(foreach file,$(TARGET_LIBS_FIND),$(dir $(file))$@)
 	$(foreach file,$(TARGET_LIBS_FIND),mv $(file) $(dir $(file))$@/lib$(notdir $(file));)
 
-publish: TARGET_M3 TARGET_M4
+publish: TARGET_M33 TARGET_M3 TARGET_M4
 	#
 	# Rename release directorires to TARGET_RELEASE filters...
 	$(foreach dir, $(TARGET_LIST_RELEASE),mv $(dir) $(dir $(dir))TARGET_RELEASE;)
