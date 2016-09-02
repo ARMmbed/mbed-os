@@ -89,8 +89,14 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period            = 0xFFFFFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 1000000) - 1; // 1 us tick
-	  TimMasterHandle.Init.ClockDivision     = 0;
+  
+    // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
+    if (RCC_ClkInitStruct.APB1CLKDivider == RCC_HCLK_DIV1)
+      TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
+    else
+      TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick  
+  
+    TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     TimMasterHandle.Init.RepetitionCounter = 0;
     HAL_TIM_OC_Init(&TimMasterHandle);
