@@ -69,8 +69,8 @@ class ProgenBuildTest(object):
                    created project files
         """
         log = ''
-        if tool == 'uvision' or tool == 'uvision5':
-            log = path.join(project_dir, "build", "build_log.txt")
+        if tool == 'uvision' or tool == 'uvision4':
+            log = os.path.join(project_dir,"build","build_log.txt")
         elif tool == 'iar':
             log = path.join(project_dir, 'build_log.txt')
         try:
@@ -129,7 +129,7 @@ class ProgenBuildTest(object):
 
 def main():
     """Entry point"""
-    toolchainlist = ["iar", "uvision", "uvision5"]
+    toolchainlist = ["iar", "uvision", "uvision4"]
     default_tests = [test_name_known("MBED_BLINKY")]
     targetnames = TARGET_NAMES
     targetnames.sort()
