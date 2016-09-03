@@ -55,6 +55,9 @@ class Uvision4(Exporter):
 
     def generate(self):
         """ Generates the project files """
+
+        print "WARNING: exporting to uVision4 is deprecated and will be removed in a future version"
+
         project_data = self.progen_get_project_data()
         tool_specific = {}
         # Expand tool specific settings by uvision specific settings which are required

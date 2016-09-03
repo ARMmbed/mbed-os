@@ -28,8 +28,8 @@ from tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 from project_generator_definitions.definitions import ProGenDef
 
 EXPORTERS = {
-    'uvision': uvision4.Uvision4,
-    'uvision4': uvision4.Uvision4,
+    'uvision': uvision5.Uvision5,
+    'uvision4': uvision4.Uvision4, # deprecated - to be removed in future version
     'uvision5': uvision5.Uvision5,
     'lpcxpresso': codered.CodeRed,
     'gcc_arm': gccarm.GccArm,
