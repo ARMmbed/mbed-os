@@ -53,8 +53,8 @@ ENTRY(Reset_Handler)
 __ram_vector_table__ = 1;
 
 /* Heap 1/4 of ram and stack 1/8 */
-__stack_size__ = 0x8000;
-__heap_size__ = 0x10000;
+__stack_size__ = 0x7000;
+__heap_size__ = 0x09000;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
