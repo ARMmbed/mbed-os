@@ -232,23 +232,49 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
 
 void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input, size_t ilen, int islast)
 {
-    unsigned char *in_pos = input;
+    // Accept only:
+    // 1. Last block which may be incomplete
+    // 2. Non-last block which is complete
+    MBED_ASSERT(islast || ilen == ctx->blocksize);
+    
+    const unsigned char *in_pos = input;
     int rmn = ilen;
     uint32_t sha_ctl_start = (CRPT->SHA_CTL & ~(CRPT_SHA_CTL_DMALAST_Msk | CRPT_SHA_CTL_DMAEN_Msk)) | CRPT_SHA_CTL_START_Msk;
+    uint32_t sha_opmode = (CRPT->SHA_CTL & CRPT_SHA_CTL_OPMODE_Msk) >> CRPT_SHA_CTL_OPMODE_Pos;
+    uint32_t DGST0_old, DGST1_old, DGST2_old, DGST3_old, DGST4_old, DGST5_old, DGST6_old, DGST7_old;
     
     while (rmn > 0) {
         CRPT->SHA_CTL = sha_ctl_start;
         
         uint32_t data = nu_get32_be(in_pos);
-        if (islast && rmn <= 4) {
-            uint32_t lastblock_size = ctx->total & ctx->blocksize_mask;
-            if (lastblock_size == 0) {
-                lastblock_size = ctx->blocksize;
+        if (rmn <= 4) { // Last word of a (in)complete block
+            if (islast) {
+                uint32_t lastblock_size = ctx->total & ctx->blocksize_mask;
+                if (lastblock_size == 0) {
+                    lastblock_size = ctx->blocksize;
+                }
+                CRPT->SHA_DMACNT = lastblock_size;
+                CRPT->SHA_CTL = sha_ctl_start | CRPT_SHA_CTL_DMALAST_Msk;
             }
-            CRPT->SHA_DMACNT = lastblock_size;
-            CRPT->SHA_CTL = sha_ctl_start | CRPT_SHA_CTL_DMALAST_Msk;
+            else {
+                switch (sha_opmode) {
+                    case SHA_MODE_SHA256:
+                        DGST7_old = CRPT->SHA_DGST7;
+                    case SHA_MODE_SHA224:
+                        DGST5_old = CRPT->SHA_DGST5;
+                        DGST6_old = CRPT->SHA_DGST6;
+                    case SHA_MODE_SHA1:
+                        DGST0_old = CRPT->SHA_DGST0;
+                        DGST1_old = CRPT->SHA_DGST1;
+                        DGST2_old = CRPT->SHA_DGST2;
+                        DGST3_old = CRPT->SHA_DGST3;
+                        DGST4_old = CRPT->SHA_DGST4;
+                }
+
+                CRPT->SHA_CTL = sha_ctl_start;
+            }
         }
-        else {
+        else {  // Non-last word of a complete block
             CRPT->SHA_CTL = sha_ctl_start;
         }
         while (! (CRPT->SHA_STS & CRPT_SHA_STS_DATINREQ_Msk));
@@ -258,8 +284,33 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
         rmn -= 4;
     }
     
-    if (islast) {
+    if (islast) {   // Finish of last block
         while (CRPT->SHA_STS & CRPT_SHA_STS_BUSY_Msk);
+    }
+    else {  // Finish of non-last block
+        // No H/W flag to indicate finish of non-last block process.
+        // Values of SHA_DGSTx registers will change as last word of the block is input, so use it for judgement.
+        int isfinish = 0;
+        while (! isfinish) {
+            switch (sha_opmode) {
+                case SHA_MODE_SHA256:
+                    if (DGST7_old != CRPT->SHA_DGST7) {
+                        isfinish = 1;
+                        break;
+                    }
+                case SHA_MODE_SHA224:
+                    if (DGST5_old != CRPT->SHA_DGST5 || DGST6_old != CRPT->SHA_DGST6) {
+                        isfinish = 1;
+                        break;
+                    }
+                case SHA_MODE_SHA1:
+                    if (DGST0_old != CRPT->SHA_DGST0 || DGST1_old != CRPT->SHA_DGST1 || DGST2_old != CRPT->SHA_DGST2 ||
+                        DGST3_old != CRPT->SHA_DGST3 || DGST4_old != CRPT->SHA_DGST4) {
+                        isfinish = 1;
+                        break;
+                    }
+            }
+        }
     }
 }
 
