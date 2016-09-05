@@ -88,7 +88,11 @@
 #if defined(TARGET_XDOT_L151CC)
 #define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE/2)
 #else
+#if defined (MBED_CFG_DEBUG_OPTIONS_COVERAGE)
+#define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4*16)
+#else
 #define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
+#endif
 #endif
 
 #define osCMSIS           0x10002U     ///< CMSIS-RTOS API version (main [31:16] .sub [15:0])
