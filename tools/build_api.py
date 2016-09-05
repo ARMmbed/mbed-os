@@ -280,7 +280,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None,
                       app_config=None, build_profile=None,
-                      coverage_filter=None):
+                      coverage_filter=[]):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -371,7 +371,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None,
-                  app_config=None, build_profile=None, coverage_filter=None):
+                  app_config=None, build_profile=None, coverage_filter=[]):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:

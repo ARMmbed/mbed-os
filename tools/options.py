@@ -82,7 +82,7 @@ def get_default_options_parser(add_clean=True, add_options=True,
         parser.add_argument("--app-config", default=None, dest="app_config",
                             type=argparse_filestring_type,
                             help="Path of an app configuration file (Default is to look for 'mbed_app.json')")
-    parser.add_argument("--coverage-filter", default=None, dest="coverage_filter",
+    parser.add_argument("--coverage-filter", default=[], action="append", dest="coverage_filter",
                         help="Enable coverage on path that contains filter expression.")
 
     return parser

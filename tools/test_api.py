@@ -2115,7 +2115,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, verbose=False, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
-                build_profile=None, coverage_filter=None):
+                build_profile=None, coverage_filter=[]):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 

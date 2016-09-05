@@ -20,6 +20,7 @@ from os.path import join, basename, splitext
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 
+
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
     LIBRARY_EXT = '.a'
@@ -34,7 +35,7 @@ class GCC(mbedToolchain):
 
     def __init__(self, target,  notify=None, macros=None,
                  silent=False, tool_path="", extra_verbose=False,
-                 build_profile=None, coverage_filter=None):
+                 build_profile=None, coverage_filter=[]):
         mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
@@ -89,6 +90,10 @@ class GCC(mbedToolchain):
             self.macros.append(self.COVERAGE_MACRO)
 
         self.flags["common"] += self.cpu
+
+        if self.coverage_filter:
+            self.flags["common"].append("-g")
+            self.flags["common"].append("-O0")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -185,7 +190,7 @@ class GCC(mbedToolchain):
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        if self.coverage_filter and re.search(self.coverage_filter, source):
+        if self.check_if_coverage_enabled(source):
             cmd = self.asm + self.COVERAGE_COMPILE_FLAGS + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
         else:
             cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
@@ -199,7 +204,7 @@ class GCC(mbedToolchain):
     @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
-        if self.coverage_filter and re.search(self.coverage_filter, source):
+        if self.check_if_coverage_enabled(source):
             cmd = cc + self.COVERAGE_COMPILE_FLAGS + self.get_compile_options(self.get_symbols(), includes)
         else:
             cmd = cc + self.get_compile_options(self.get_symbols(), includes)
@@ -276,6 +281,18 @@ class GCC(mbedToolchain):
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
+    def check_if_coverage_enabled(self, src_path):
+        """
+        Checks if coverage is enabled on the source path.
+
+        :param src_path:
+        :return:
+        """
+        for exp in self.coverage_filter:
+            if re.search(exp, src_path):
+                return True
+        return False
+
 
 class GCC_ARM(GCC):
     @staticmethod
@@ -286,7 +303,7 @@ class GCC_ARM(GCC):
         return mbedToolchain.generic_check_executable("GCC_ARM", 'arm-none-eabi-gcc', 1)
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None, coverage_filter=None):
+                 silent=False, extra_verbose=False, build_profile=None, coverage_filter=[]):
         GCC.__init__(self, target, notify, macros, silent,
                      TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose,
                      build_profile=build_profile, coverage_filter=coverage_filter)
