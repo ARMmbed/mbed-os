@@ -242,7 +242,7 @@ static int32_t cfstore_fsm_state_set(cfstore_fsm_t* fsm, cfstore_fsm_state_t new
 static int32_t cfstore_get_key_name_ex(cfstore_area_hkvt_t *hkvt, char* key_name, uint8_t *key_name_len);
 
 
-/* Walking Area HKVT's While Inserted a New HKVT:
+/* Walking Area HKVT's While Inserting   a New HKVT:
  * Implementation Note 1 [NOTE1]
  *
  * The implementation must address the following problem:
@@ -259,11 +259,6 @@ static int32_t cfstore_get_key_name_ex(cfstore_area_hkvt_t *hkvt, char* key_name
  * - The Find() walk is terminated when the hkvt header pointer is found to
  *   point to cfstore_ctx_g.area_0_tail i.e. when this arises then the
  *   iterator knows its come to the end of the hkvt's in the area.
- * - When inserting a new KV, the last operation to be performed is to
- *   update cfstore_ctx_g.area_0_tail to point to the new tail. This
- *   operation also reveals the new KV to other operations including
- *   the Find(). All the header, key, value and tail data for the
- *   HKVT must be setup correctly before the tail pointer is updated.
  *
  * Memory Management (todo: future support)
  * Implementation Note 2 [NOTE2]
@@ -336,8 +331,9 @@ static int32_t cfstore_get_key_name_ex(cfstore_area_hkvt_t *hkvt, char* key_name
  *          to facilitate reading/writing to flash.
  *          - accessed in app & intr context; hence needs CS protection.
  *
- * @param   area_0_end
- *          pointer to end area_0 of area_0 memblock (last memory address).
+ * @param   area_0_len
+ *          length of the area used for storing KVs, including padding to
+ *          round to nearest program unit
  *
  * @param   rw_area0_lock
  *          lock used to make CS re-entrant e.g. only 1 flush operation can be
@@ -372,6 +368,7 @@ typedef struct cfstore_ctx_t
     ARM_POWER_STATE power_state;
     uint8_t *area_0_head;
     uint8_t *area_0_tail;
+    size_t area_0_len;
     cfstore_fsm_t fsm;
     int32_t status;
 
@@ -440,11 +437,11 @@ typedef struct cfstore_flash_journal_error_code_node
 /*
  * Globals
  */
-#ifndef STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
+#ifndef CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
 static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = 1, .uvisor_support_enabled = 0 };
 #else
-static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS, .uvisor_support_enabled = 0 };
-#endif /* STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS */
+static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS, .uvisor_support_enabled = 0 };
+#endif /* CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS */
 
 static const ARM_DRIVER_VERSION cfstore_driver_version_g = { .api = ARM_CFSTORE_API_VERSION, .drv = ARM_CFSTORE_DRV_VERSION };
 
@@ -573,16 +570,6 @@ static void cfstore_client_notify_data_init(cfstore_client_notify_data_t* data, 
  * cfstore_ctx_t methods
  */
 
-/* @brief   helper function to reset cfstore_ctx_g state when out of memory is received from malloc */
-static void cfstore_ctx_reset(cfstore_ctx_t* ctx)
-{
-    CFSTORE_ASSERT(ctx!= NULL);
-    CFSTORE_INIT_LIST_HEAD(&ctx->file_list);
-    ctx->area_0_head = NULL;
-    ctx->area_0_tail = NULL;
-    return;
-}
-
 /* @brief   helper function to report whether the initialisation flag has been set in the cfstore_ctx_g */
 static bool cfstore_ctx_is_initialised(cfstore_ctx_t* ctx)
 {
@@ -602,8 +589,15 @@ static inline cfstore_ctx_t* cfstore_ctx_get(void)
 #endif
 }
 
-/* @brief   helper function to compute the size of the sram area in bytes */
-static ARM_CFSTORE_SIZE cfstore_ctx_get_area_len(void)
+/** @brief   helper function to compute the total size of the KVs stored in the
+ *           sram area in bytes.
+ *
+ * Note:
+ *  - sram_area_size =  cfstore_ctx_get_kv_total_len() + padding
+ *  - padding rounds up cfstore_ctx_get_kv_total_len() to
+ *    be a multiple of flash program_unit size.
+ */
+static ARM_CFSTORE_SIZE cfstore_ctx_get_kv_total_len(void)
 {
     ARM_CFSTORE_SIZE size = 0;
     cfstore_ctx_t* ctx = cfstore_ctx_get();
@@ -732,7 +726,7 @@ void *cfstore_realloc(void *ptr, ARM_CFSTORE_SIZE size)
 #endif /* CFSTORE_YOTTA_CFG_CFSTORE_SRAM_ADDR */
 
 
-#ifdef TARGET_LIKE_X86_LINUX_NATIVE
+#ifdef CFSTORE_TARGET_LIKE_X86_LINUX_NATIVE
 static inline void cfstore_critical_section_init(CFSTORE_LOCK* lock){ *lock = 0; }
 static inline void cfstore_critical_section_lock(CFSTORE_LOCK* lock, const char* tag){ (void) tag; __sync_fetch_and_add(lock, 1); }
 static inline void cfstore_critical_section_unlock(CFSTORE_LOCK* lock, const char* tag){(void) tag;  __sync_fetch_and_sub(lock, 1); }
@@ -818,14 +812,14 @@ static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_inc(cfstore_area_hkvt_t* hkv
     return ret;
 }
 
-#endif /* TARGET_LIKE_X86_LINUX_NATIVE */
+#endif /* CFSTORE_TARGET_LIKE_X86_LINUX_NATIVE */
 
 
 /*
  * security/permissions helper functions
  */
-#ifdef noCFG_CFSTORE_UVISOR
 
+#ifdef YOTTA_CFG_CFSTORE_UVISOR
 /**
  * @brief   check that a client (cfstore-uvisor client box) is the "owner" of the
  *          KV. Owner means the client that can create or created the KV. This is
@@ -921,7 +915,7 @@ static int32_t cfstore_is_client_kv_owner(const char* key_name, int32_t* cfstore
 {
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
 /*
-    #ifdef YOTTA_CFG_CFSTORE_UVISOR
+#ifdef YOTTA_CFG_CFSTORE_UVISOR
     return cfstore_uvisor_is_client_kv_owner(key_name, cfstore_uvisor_box_id);
 #else
     return ARM_DRIVER_OK;
@@ -956,7 +950,7 @@ static bool cfstore_is_kv_client_deletable(cfstore_file_t* file)
     return true;
 }
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR_to_debug
+#ifdef YOTTA_CFG_CFSTORE_UVISOR
 /* @brief   helper function to determine whether this cfstore-uvisor client box can read a given KV */
 static bool cfstore_is_kv_client_readable(cfstore_area_hkvt_t* hkvt)
 {
@@ -1038,7 +1032,7 @@ static bool cfstore_is_kv_client_executable(cfstore_area_hkvt_t* hkvt)
     }
     return bret;
 }
-#endif  // YOTTA_CFG_CFSTORE_UVISOR_to_debug
+#endif  /* YOTTA_CFG_CFSTORE_UVISOR */
 
 /* @brief   helper function to determine whether this client can read a given KV */
 static bool cfstore_is_kv_client_readable(cfstore_area_hkvt_t* hkvt)
@@ -1306,7 +1300,29 @@ static int32_t cfstore_get_next_hkvt(cfstore_area_hkvt_t* prev, cfstore_area_hkv
 
 static CFSTORE_INLINE void cfstore_hkvt_dump(cfstore_area_hkvt_t* hkvt, const char* tag);
 
-/* set the tail pointer */
+/** @brief  Set the context tail pointer area_0_tail to point to the end of the
+ *          last KV in the memory area.
+ *
+ * This function walks hkvt entries in the KV area to find the memory
+ * address after the end of the last KV, and then sets the area tail pointer
+ * area_0_tail to that address. The function therefore relies on the
+ * head, key, value, tail fields being correct.
+ *
+ * Notes:
+ * - This function should only be called after the memory area is loaded from
+ *   flash and the area_0_tail pointer needs setting. The only way to do this
+ *   (at the present time) is to walk the list of KVs, which is what this function
+ *   does. The only other place the code sets area_0_tail is cfstore_realloc_ex(),
+ *   and this state of affairs shouldnt change i.e. its unnecessary for
+ *   other functions to change area_0_tail.
+ * - When loading the area_0 image from falsh, cfstore_realloc_ex() is used
+ *   to allocate the memory with ctx->expected_blob_size as the size. Thus
+ *   area_0_tail will be initially set to
+ *     area_0_tail = area_0_head + expected_blob_size       (1)
+ *   and thereby may include padding used to align the area size to a
+ *   flash program unit boundary. cfstore_flash_set_tail() is used to
+ *   set area_0_tail correctly.
+ */
 static int32_t cfstore_flash_set_tail(void)
 {
     int32_t ret = ARM_DRIVER_ERROR;
@@ -1315,20 +1331,31 @@ static int32_t cfstore_flash_set_tail(void)
     uint8_t* tail = NULL;
     cfstore_area_hkvt_t hkvt;
 
-    /* walk the area to find the last KV */
     CFSTORE_FENTRYLOG("%s:entered: \n", __func__);
     CFSTORE_ASSERT(ctx != NULL);
     cfstore_hkvt_init(&hkvt);
+
+    /* Check for cases where the tail pointer is already set correctly
+     * e.g. where the area is of zero length */
+    if(cfstore_ctx_get_kv_total_len() == 0) {
+        /* tail pointer already set correctly */
+        return ARM_DRIVER_OK;
+    }
     ptr = ctx->area_0_head;
-    /* ctx->area_0_tail has been set to the end of the sram area allocated, but this is now refined so
-     * as to point to the end of the last KV */
     tail = ctx->area_0_tail;
-    while(ptr < tail) {
+    while(ptr <= tail) {
+        CFSTORE_FENTRYLOG("%s:ptr=%p, tail=%p: \n", __func__, ptr, tail);
         hkvt = cfstore_get_hkvt_from_head_ptr(ptr);
+        if(cfstore_hkvt_is_valid(&hkvt, tail) == false) {
+            CFSTORE_ERRLOG("%s:Error:found invalid hkvt entry in area\n", __func__);
+            break;
+        }
         cfstore_hkvt_dump(&hkvt, __func__);
-        /* when the length between the hkvt.tail and tail (set to the end of the area including padding)
+        /* when the length between the hkvt.tail and tail
          * is less than the minimum KV length then we have found the last KV, and can set the
-         * area_0_tail correctly to the end of the last KV */
+         * area_0_tail correctly to the end of the last KV. This works OK for the present support
+         * (where flash_program_unit ~ sizeof(cfstore_area_header_t)) but may need
+         * revisiting where flash_program_unit > sizeof(cfstore_area_header_t) */
         if((uint32_t)(tail - hkvt.tail) < sizeof(cfstore_area_header_t)){
             /* ptr is last KV in area as there isn't space for another header  */
             ctx->area_0_tail = hkvt.tail;
@@ -1339,6 +1366,116 @@ static int32_t cfstore_flash_set_tail(void)
     }
     return ret;
 }
+
+
+/** @brief  Function to realloc the SRAM area used to store KVs.
+ *
+ * This function consolidates the code needed to:
+ * - realloc the memory
+ * - when the start of the SRAM area moves, update data structures
+ *   which point into SRAM area (e.g. open files cfstore_file_t head pointers).
+ *
+ * The function assumes:
+ * - the cfstore_file_t::head pointers are valid i.e. point to the
+ *   correct locations in the KV area for each file.
+ *
+ * @param   size
+ * total KV size in bytes storage required. Note this does not include
+ * padding to round up to the nearest multiple of flash program unit
+ * as this is computed and added in this function.
+ *
+ * @param   allocated_size
+ * total size in bytes that was allocated (value returned to caller).
+ * This may be larger than the requested size due to rounding to align with a
+ * flash program unit boundary.
+ */
+static int32_t cfstore_realloc_ex(ARM_CFSTORE_SIZE size, uint64_t *allocated_size)
+{
+    uint8_t* ptr = NULL;
+    int32_t ret = ARM_DRIVER_ERROR;
+    int32_t len_diff = 0;
+    cfstore_ctx_t* ctx = cfstore_ctx_get();
+    cfstore_file_t* file;
+    cfstore_list_node_t* node;
+    cfstore_list_node_t* file_list = &ctx->file_list;
+    ARM_CFSTORE_SIZE total_kv_size = size;
+
+    /* Switch on the size of the sram area to create:
+     * - if size > 0 (but may be shrinking) then use REALLOC.
+     * - if size == 0 then the area is being deleted so free the memory
+     * Note:
+     * - realloc can return NULL when the last KV is deleted
+     * - It also appears that realloc can return non-zero ptr when size = 0.
+     *   Hence for this case free() is used.
+     */
+    CFSTORE_FENTRYLOG("%s:entered:\n", __func__);
+    CFSTORE_TP(CFSTORE_TP_MEM, "%s:cfstore_ctx_g.area_0_head=%p, cfstore_ctx_g.area_0_tail=%p, cfstore_ctx_g.area_0_len=%d, size=%d, \n", __func__, ctx->area_0_head, ctx->area_0_tail, (int) ctx->area_0_len, (int) size);
+
+    if(size > 0)
+    {
+        /* In the general case (size % program_unit > 0). The new area_0 size is
+         * aligned to a flash program_unit boundary to facilitate r/w to flash
+         * and so the memory realloc size is calculated to align, as follows */
+        if(size % cfstore_ctx_get_program_unit(ctx) > 0){
+            size += (cfstore_ctx_get_program_unit(ctx) - (size % cfstore_ctx_get_program_unit(ctx)));
+        }
+
+        ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, size);
+        if(ptr == NULL){
+            CFSTORE_ERRLOG("%s:Error: unable to allocate memory (size=%d)\n", __func__, (int) size);
+            /* realloc() has failed to allocate the required memory object. If previously
+             * allocation has been made, the old memory object remains allocated. On error, the client
+             * is expected to clean up including making a call to Uninitialize() which will free the
+             * old memory object.
+             */
+            return ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY;
+        }
+        /* check realloc() hasn't move area in memory from cfstore_ctx_g.area_0_head */
+        if(ptr != ctx->area_0_head){
+            /* realloc() has moved the area in memory */
+            CFSTORE_TP(CFSTORE_TP_MEM, "%s: realloc() has moved memory area and area_0_head ptr must change. old cfstore_ctx_g.area_0_head=%p, new head ptr=%p)\n", __func__, ctx->area_0_head, ptr);
+
+            /* now have to walk the file list updating head pointers to point into the realloc-ed
+             * To begin with, leave the relative position of the file pointers unaltered */
+            node = file_list->next;
+            while(node != file_list){
+                file = (cfstore_file_t*) node;
+                file->head = (uint8_t *) (file->head - ctx->area_0_head);
+                file->head = (uint8_t *) ((int32_t) file->head + (int32_t) ptr);
+                node = node->next;
+            }
+            ctx->area_0_head = ptr;
+        }
+
+        /* If the area is growing then zero the new space at the end of the area */
+        len_diff = size - (int32_t) ctx->area_0_len;
+        if(len_diff > 0) {
+            memset(ptr + ctx->area_0_len, 0, len_diff);
+        }
+        /* Set area_0_tail to be the memory address after the end of the last KV in the memory area.
+         * This is the only place that area_0_tail should be changed, apart from cfstore_flash_set_tail()
+         * which is only called when attributes are loaded from flash.
+         */
+        ctx->area_0_len = size;
+        ctx->area_0_tail = ptr + total_kv_size;
+        if(allocated_size != NULL) {
+            *allocated_size = size;
+        }
+    }
+    else
+    {
+        /* size = 0 so delete the memory */
+        CFSTORE_FREE((void*) ctx->area_0_head);
+        ctx->area_0_head = NULL;
+        ctx->area_0_tail = NULL;
+        ctx->area_0_len = 0;
+    }
+    CFSTORE_TP(CFSTORE_TP_MEM, "%s:cfstore_ctx_g.area_0_head=%p, cfstore_ctx_g.area_0_tail=%p\n", __func__, ctx->area_0_head, ctx->area_0_tail);
+    ret = ARM_DRIVER_OK;
+    return ret;
+
+}
+
 
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 
@@ -1464,7 +1601,6 @@ static int32_t cfstore_fsm_init_on_entry(void* context)
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
 
     ret = FlashJournal_initialize(&ctx->jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, cfstore_flash_journal_callback);
-    CFSTORE_FENTRYLOG("%s:here\n", __func__);
     CFSTORE_TP(CFSTORE_TP_FSM, "%s:FlashJournal_initialize ret=%d\n", __func__, (int) ret);
     if(ret < ARM_DRIVER_OK){
         CFSTORE_ERRLOG("%s:Error: failed to initialize flash journaling layer (ret=%d)\n", __func__, (int) ret);
@@ -1520,7 +1656,6 @@ static int32_t cfstore_fsm_initing(void* context)
  */
 static int32_t cfstore_fsm_read_on_entry(void* context)
 {
-    uint8_t* ptr = NULL;
     int32_t ret = 0;
     FlashJournal_Status_t status = JOURNAL_STATUS_ERROR;
     cfstore_ctx_t* ctx = (cfstore_ctx_t*) context;
@@ -1535,31 +1670,17 @@ static int32_t cfstore_fsm_read_on_entry(void* context)
         cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_ready, ctx);
         ret = ARM_CFSTORE_DRIVER_ERROR_INTERNAL;
         goto out;
-
     }
     if(ctx->info.sizeofJournaledBlob > 0)
     {
-        /* setup the expected blob size for writing
-         * This is a multiple of program unit so the write doesnt fail due to unaligned log */
+        /* setup the expected blob size for writing */
         ctx->expected_blob_size = ctx->info.sizeofJournaledBlob;
-        if(ctx->expected_blob_size % ctx->info.program_unit > 0){
-            ctx->expected_blob_size += (ctx->info.program_unit - (ctx->info.sizeofJournaledBlob % ctx->info.program_unit));
-        }
-        /* grow the area by the size of the stored blob */
-        ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, ctx->expected_blob_size);
-        if(ptr == NULL){
-            CFSTORE_ERRLOG("%s:Error: unable to allocate memory (size=%lu)\n", __func__, (long unsigned int) ctx->info.sizeofJournaledBlob);
-            cfstore_ctx_reset(ctx);
-            ret = ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY;
+        ret = cfstore_realloc_ex(ctx->expected_blob_size, &ctx->expected_blob_size);
+        if(ret < ARM_DRIVER_OK){
+            CFSTORE_ERRLOG("%s:Error: cfstore_realloc_ex() failed (ret=%d)\n", __func__, (int) ret);
             /* move to ready state. cfstore client is expected to Uninitialize() before further calls */
             cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_ready, ctx);
             goto out;
-        }
-        memset(ptr, 0, ctx->expected_blob_size);
-        if(ptr != ctx->area_0_head){
-            CFSTORE_TP(CFSTORE_TP_FSM, "%s:cfstore_ctx_g.area_0_head pointer changed (cfstore_ctx_g.area_0_head=%p, ptr=%p)\n", __func__, ctx->area_0_head, ptr);
-            ctx->area_0_head = ptr;
-            ctx->area_0_tail = ctx->area_0_head + ctx->info.sizeofJournaledBlob;
         }
         ret = FlashJournal_read(&ctx->jrnl, (void*) ctx->area_0_head, ctx->info.sizeofJournaledBlob);
         if(ret < ARM_DRIVER_OK){
@@ -1692,7 +1813,7 @@ int32_t cfstore_fsm_log_on_entry(void* context)
         return cfstore_flash_map_error(status);
     }
     /* compute the expected_blob_size = area_size plus the padding at the end of the area to align with program_unit*/
-    ctx->expected_blob_size = cfstore_ctx_get_area_len();
+    ctx->expected_blob_size = cfstore_ctx_get_kv_total_len();
     if(ctx->expected_blob_size % info.program_unit > 0){
         ctx->expected_blob_size += (info.program_unit - (ctx->expected_blob_size % info.program_unit));
     }
@@ -2111,82 +2232,86 @@ static int32_t cfstore_flash_flush(cfstore_ctx_t* ctx)
 
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
-/** @brief  internal delete helper function.
- *  @note   must be called within critical section.
- */
-static int32_t cfstore_delete_ex(cfstore_area_hkvt_t* hkvt)
+
+/** @brief  After a cfstore KV area memmove() operation, update the file pointers
+ *          to reflect the new location in memory of KVs.
+ *
+ * @param   head
+ * the position at which size_diff bytes have been inserted/deleted
+ *
+ * @param   size_diff
+ * Change in size (size difference) of the KV memory area.
+ *  - size_diff > 0 => increase in area, |size_diff| bytes have been inserted at head,
+ *    and the previously following KVs shifted up to higher memory addresses
+ *  - size_diff < 0 => decrease in area, |size_diff| bytes have been removed at head,
+ *    and the previously following KVs shifted down to lower memory addresses
+ * */
+static int32_t cfstore_file_update(uint8_t* head, int32_t size_diff)
 {
-    uint8_t* ptr = NULL;
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_SIZE kv_size = 0;
-    ARM_CFSTORE_SIZE area_size = 0;
-    ARM_CFSTORE_SIZE realloc_size = 0;      /* size aligned to flash program_unit size */
     cfstore_ctx_t* ctx = cfstore_ctx_get();
     cfstore_file_t* file;
     cfstore_list_node_t* node;
     cfstore_list_node_t* file_list = &ctx->file_list;
 
     CFSTORE_FENTRYLOG("%s:entered:(ctx->area_0_head=%p, ctx->area_0_tail=%p)\n", __func__, ctx->area_0_head, ctx->area_0_tail);
+
+    /* walk the file list updating head pointers for the KVs that remain*/
+    node = file_list->next;
+    while(node != file_list){
+        /* Any KV positioned later in the area than the deleted KV will require file head pointers updating.
+         * If file's head pointer is beyond the deleted KV tail then the file->head needs to be updated
+         * to reflect the memove
+         */
+        file = (cfstore_file_t*) node;
+        if(file->head >= head){
+            /* sign of sign_diff used to move file->head up/down in memory*/
+            file->head += size_diff;
+        }
+        node = node->next;
+    }
+    return ARM_DRIVER_OK;
+}
+
+
+static int32_t cfstore_delete_ex(cfstore_area_hkvt_t* hkvt)
+{
+    int32_t ret = ARM_DRIVER_ERROR;
+    ARM_CFSTORE_SIZE kv_size = 0;
+    ARM_CFSTORE_SIZE kv_total_size = 0;
+    ARM_CFSTORE_SIZE realloc_size = 0;      /* size aligned to flash program_unit size */
+    cfstore_ctx_t* ctx = cfstore_ctx_get();
+
+    CFSTORE_FENTRYLOG("%s:entered:(ctx->area_0_head=%p, ctx->area_0_tail=%p)\n", __func__, ctx->area_0_head, ctx->area_0_tail);
     kv_size  = cfstore_hkvt_get_size(hkvt);
-    area_size = cfstore_ctx_get_area_len();
+    kv_total_size = cfstore_ctx_get_kv_total_len();
+
+    /* Note the following:
+     *  1. memmove() above shifts the position of the KVs falling after the deleted KV to be at
+     *     lower memory addresses. The code (A) updates the cfstore_file_t::head pointers for these KVs
+     *     so they point to the new locations.
+     *  2. The operation at 1. above has to happen before the realloc because realloc() can move the
+     *     start of heap block to a new location, in which case all cfstore_file_t::head pointers
+     *     need to be updated. cfstore_realloc() can only do this starting from a set of correct
+     *     cfstore_file_t::head pointers i.e. after 1. has been completed.
+     */
     memmove(hkvt->head, hkvt->tail, ctx->area_0_tail - hkvt->tail);
     /* zero the deleted KV memory */
     memset(ctx->area_0_tail-kv_size, 0, kv_size);
 
-    /* In the general case the new ((area_size - kv_size) % program_unit > 0). The new area_size is
-     * aligned to a program_unit boundary to facilitate r/w to flash and so the memory realloc size
-     * is calculated to align, as follows */
-    /* setup the reallocation memory size. */
-    realloc_size = area_size - kv_size;
-    if(realloc_size % cfstore_ctx_get_program_unit(ctx) > 0){
-        realloc_size += (cfstore_ctx_get_program_unit(ctx) - (realloc_size % cfstore_ctx_get_program_unit(ctx)));
+    /* The KV area has shrunk so a negative size_diff should be indicated to cfstore_file_update(). */
+    ret = cfstore_file_update(hkvt->head, -1 * kv_size);
+    if(ret < ARM_DRIVER_OK){
+        CFSTORE_ERRLOG("%s:Error:file update failed\n", __func__);
+        goto out0;
     }
-    /* realloc() can return non-zero ptr for size = 0 when the last KV is deleted */
-    if(realloc_size > 0)
-    {
-        ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, realloc_size);
-        /* realloc can return NULL when the last KV is deleted.
-         * It also appears that realloc can return non-zero ptr even when realloc_size = 0 */
-        if(ptr == NULL){
-            CFSTORE_ERRLOG("%s:Error:realloc failed\n", __func__);
-            cfstore_ctx_reset(ctx);
-            return ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY;
-        }
-        /* check realloc() hasnt move area in memory from cfstore_ctx_g.area_0_head */
-        if(ptr != ctx->area_0_head){
-            CFSTORE_TP(CFSTORE_TP_DELETE, "%s: cfstore_ctx_g.area_0_head pointer changed (cfstore_ctx_g.area_0_head=%p, cfstore_ctx_g.area_0_tail=%p)\n", __func__, ctx->area_0_head, ptr);
-            /* realloc() has moved the area in memory */
-            ctx->area_0_head = ptr;
-        }
-        /* set tail to be the end of the new area, which will be updated by cfstore_flash_set_tail */
-        ctx->area_0_tail = ptr + area_size - kv_size;
-        ret = cfstore_flash_set_tail();
-        if(ret < ARM_DRIVER_OK){
-            CFSTORE_ERRLOG("%s:Error: cfstore_flash_set_tail() failed (ret=%d)\n", __func__, (int) ret);
-            goto out0;
-        }
 
-        /* now have to walk the file list updating head pointers for the KVs that remain*/
-        node = file_list->next;
-        while(node != file_list){
-            /* Any KV positioned later in the area than the deleted KV will require file head pointers updating.
-             * If file's head pointer is beyond the deleted KV tail then the file->head needs to be updated
-             * to reflect the memove */
-            file = (cfstore_file_t*) node;
-            if(file->head >= hkvt->head){
-                file->head -= kv_size;
-            }
-            node = node->next;
-        }
+    /* setup the reallocation memory size. */
+    realloc_size = kv_total_size - kv_size;
+    ret = cfstore_realloc_ex(realloc_size, NULL);
+    if(ret < ARM_DRIVER_OK){
+        CFSTORE_ERRLOG("%s:Error:realloc failed\n", __func__);
+        goto out0;
     }
-    else
-    {
-        /* realloc_size = 0 */
-        CFSTORE_FREE((void*) ctx->area_0_head);
-        ctx->area_0_head = NULL;
-        ctx->area_0_tail = NULL;
-    }
-    ret = ARM_DRIVER_OK;
 out0:
     return ret;
 }
@@ -2238,7 +2363,7 @@ static int32_t cfstore_file_destroy(cfstore_file_t* file)
         CFSTORE_ASSERT(cfstore_hkvt_is_valid(&hkvt, cfstore_ctx_get()->area_0_tail) == true);
         ret = ARM_DRIVER_OK;
         cfstore_hkvt_refcount_dec(&hkvt, &refcount);
-        CFSTORE_TP(CFSTORE_TP_FILE, "%s:refcount =%d\n", __func__, (int)refcount);
+        CFSTORE_TP(CFSTORE_TP_FILE, "%s:refcount =%d file->head=%p\n", __func__, (int)refcount, file->head);
         if(refcount == 0){
             /* check for delete */
             CFSTORE_TP(CFSTORE_TP_FILE, "%s:checking delete flag\n", __func__);
@@ -2693,7 +2818,7 @@ static int32_t cfstore_get_value_len(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_SIZE *
         goto out0;
     }
     /* getting a value len doesnt change the sram area so this can happen independently of
-     * an oustanding async operation. its unnecessary to check the fsm state */
+     * an outstanding async operation. its unnecessary to check the fsm state */
     ret = cfstore_validate_handle(hkey);
     if(ret < ARM_DRIVER_OK){
         CFSTORE_ERRLOG("%s:Error: invalid handle.\n", __func__);
@@ -2724,8 +2849,8 @@ out0:
 /* @brief   debug trace a struct cfstore_area_hkvt_t, providing values for key field. */
 static CFSTORE_INLINE void cfstore_hkvt_dump(cfstore_area_hkvt_t* hkvt, const char* tag)
 {
-/* #define noSymbol */
-#ifdef noSymbol
+/* #define CFSTORE_HKVT_DUMP_ON */
+#ifdef CFSTORE_HKVT_DUMP_ON
     char kname[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     char value[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     uint32_t klen = 0;
@@ -2757,7 +2882,7 @@ static CFSTORE_INLINE void cfstore_hkvt_dump(cfstore_area_hkvt_t* hkvt, const ch
     (void) hkvt;
     (void) tag;
 
-#endif /*  noSymbol */
+#endif /*  CFSTORE_HKVT_DUMP_ON */
 }
 
 static CFSTORE_INLINE void cfstore_flags_dump(ARM_CFSTORE_FMODE flag, const char* tag)
@@ -2779,7 +2904,8 @@ static CFSTORE_INLINE void cfstore_flags_dump(ARM_CFSTORE_FMODE flag, const char
 
 static CFSTORE_INLINE void cfstore_file_dump(cfstore_file_t* file, const char* tag)
 {
-#ifdef noSymbol
+/*#define CFSTORE_FILE_DUMP_ON */
+#ifdef CFSTORE_FILE_DUMP_ON
     cfstore_area_hkvt_t hkvt;
 
     CFSTORE_TP(CFSTORE_TP_VERBOSE3, "%s:*** Dumping File Contents : Start ***\n", tag);
@@ -2794,7 +2920,7 @@ static CFSTORE_INLINE void cfstore_file_dump(cfstore_file_t* file, const char* t
     (void) file;
     (void) tag;
 
-#endif /*  noSymbol */
+#endif /*  CFSTORE_FILE_DUMP_ON */
 }
 
 /* dump sram contents of cfstore in a useful manner for debugging */
@@ -3056,7 +3182,8 @@ static int32_t cfstore_find(const char* key_name_query, const ARM_CFSTORE_HANDLE
             ret = ARM_CFSTORE_DRIVER_ERROR_INVALID_HANDLE;
             goto out1;
         }
-    } else if(!cfstore_file_is_empty(previous)){
+    } else if(previous != NULL && !cfstore_file_is_empty(previous)){
+        CFSTORE_TP(CFSTORE_TP_FIND, "%s:Invalid previous hkey buffer.\n", __func__);
         ret = ARM_CFSTORE_DRIVER_ERROR_INVALID_HANDLE_BUF;
         goto out1;
     }
@@ -3123,8 +3250,10 @@ out1:
  * @note rw_lock must be held by the caller of this function rw_area0_lock */
 static int32_t cfstore_recreate(const char* key_name, ARM_CFSTORE_SIZE value_len, ARM_CFSTORE_HANDLE hkey, cfstore_area_hkvt_t* hkvt)
 {
-    uint8_t* ptr = NULL;
+    uint8_t* old_area_0_head = NULL;
     int32_t kv_size_diff = 0;
+    int32_t ret = ARM_DRIVER_ERROR;
+    size_t memmove_len = 0;
     ARM_CFSTORE_SIZE area_size = 0;
     ARM_CFSTORE_FMODE flags;
     cfstore_ctx_t* ctx = cfstore_ctx_get();
@@ -3141,48 +3270,51 @@ static int32_t cfstore_recreate(const char* key_name, ARM_CFSTORE_SIZE value_len
         return ARM_DRIVER_OK;
     }
 
+    /* grow the area by the size of the new KV */
+    area_size = cfstore_ctx_get_kv_total_len();
+    /* store the area_0_head, and move length for later updating hkvt if realloc moves KV area */
+    old_area_0_head = ctx->area_0_head;
+    memmove_len = ctx->area_0_tail - hkvt->tail;
+
     CFSTORE_TP(CFSTORE_TP_CREATE, "%s:cfstore_ctx_g.area_0_head=%p, cfstore_ctx_g.area_0_tail=%p\n", __func__, ctx->area_0_head, ctx->area_0_tail);
     CFSTORE_TP(CFSTORE_TP_CREATE, "%s:sizeof(header)=%d, sizeof(key)=%d, sizeof(value)=%d, kv_size_diff=%d, area_size=%d\n", __func__, (int) sizeof(cfstore_area_header_t),  (int)(strlen(key_name)), (int)value_len, (int) kv_size_diff, (int) area_size);
-
-    /* grow the area by the size of the new KV */
-    area_size = cfstore_ctx_get_area_len();
     if (kv_size_diff < 0){
         /* value blob size shrinking => do memmove() before realloc() which will free memory */
-        memmove(hkvt->tail + kv_size_diff, hkvt->tail, ctx->area_0_tail - hkvt->tail);
-        //todo: wip: do we have to update file pointers for KVs after the one thats changed size?
+        memmove(hkvt->tail + kv_size_diff, hkvt->tail, memmove_len);
+        ret = cfstore_file_update(hkvt->head, kv_size_diff);
+        if(ret < ARM_DRIVER_OK){
+            CFSTORE_ERRLOG("%s:Error:file update failed\n", __func__);
+            goto out0;
+        }
     }
-    ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, area_size + kv_size_diff);
-    if(ptr == NULL){
-        CFSTORE_ERRLOG("%s:realloc failed for key_name=%s\n", __func__, key_name);
-        cfstore_ctx_reset(ctx);
-        return ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY;
+
+    ret = cfstore_realloc_ex(area_size + kv_size_diff, NULL);
+    if(ret < ARM_DRIVER_OK){
+        CFSTORE_ERRLOG("%s:Error:file realloc failed\n", __func__);
+        goto out0;
     }
-    if(ptr != ctx->area_0_head){
-        CFSTORE_TP(CFSTORE_TP_CREATE, "%s:cfstore_ctx_g.area_0_head pointer changed (cfstore_ctx_g.area_0_head=%p, cfstore_ctx_g.area_0_tail=%p)\n", __func__, ctx->area_0_head, ptr);
-        /* This covers the cases where CFSTORE_REALLOC() has moved the area in memory
-         * As realloc() has caused the memory to move, hkvt needs re-initialising */
-        hkvt->head += ptr - ctx->area_0_head;
-        hkvt->key += ptr - ctx->area_0_head;
-        hkvt->value +=  ptr - ctx->area_0_head;
-        hkvt->tail += ptr - ctx->area_0_head;
-        /* Set head and tail to old relative position in new area */
-        ctx->area_0_head = ptr;
-        ctx->area_0_tail = ctx->area_0_head + area_size;
-        //todo: wip: do we have to update file pointers for KVs after the memory has moved?
+    if(old_area_0_head != ctx->area_0_head){
+        /* As realloc() has caused the memory to move, hkvt needs re-initialising */
+        hkvt->head += ctx->area_0_head - old_area_0_head;
+        hkvt->key += ctx->area_0_head - old_area_0_head;
+        hkvt->value +=  ctx->area_0_head - old_area_0_head;
+        hkvt->tail += ctx->area_0_head - old_area_0_head;
     }
 
     if(kv_size_diff > 0) {
         /* value blob size growing requires memmove() after realloc() */
-        memset(ctx->area_0_tail, 0, kv_size_diff);
-        memmove(hkvt->tail+kv_size_diff, hkvt->tail, ctx->area_0_tail - hkvt->tail);
-        //todo: wip: do we have to update file pointers for KVs after the one thats changed size?
+        memmove(hkvt->tail+kv_size_diff, hkvt->tail, memmove_len);
+        ret = cfstore_file_update(hkvt->head, kv_size_diff);
+        if(ret < ARM_DRIVER_OK){
+            CFSTORE_ERRLOG("%s:Error:file update failed\n", __func__);
+            goto out0;
+        }
     }
     /* hkvt->head, hkvt->key and hkvt->value remain unchanged but hkvt->tail has moved. Update it.*/
     hkvt->tail = hkvt->tail + kv_size_diff;
 
     /* set the new value length in the header */
     cfstore_hkvt_set_value_len(hkvt, value_len);
-    ctx->area_0_tail = ctx->area_0_head + area_size + kv_size_diff;
     cfstore_file_create(hkvt, flags, hkey, &ctx->file_list);
     ctx->area_dirty_flag = true;
 
@@ -3190,7 +3322,9 @@ static int32_t cfstore_recreate(const char* key_name, ARM_CFSTORE_SIZE value_len
     cfstore_hkvt_dump(hkvt, __func__);
     cfstore_dump_contents(__func__);
 #endif
-    return ARM_DRIVER_OK;
+    ret = ARM_DRIVER_OK;
+out0:
+    return ret;
 }
 
 
@@ -3198,7 +3332,6 @@ static int32_t cfstore_recreate(const char* key_name, ARM_CFSTORE_SIZE value_len
 static int32_t cfstore_create(const char* key_name, ARM_CFSTORE_SIZE value_len, const ARM_CFSTORE_KEYDESC* kdesc, ARM_CFSTORE_HANDLE hkey)
 {
     bool b_acl_default = false;
-    uint8_t* ptr = NULL;
     int32_t ret = ARM_DRIVER_ERROR;
     int32_t cfstore_uvisor_box_id = 0;
     ARM_CFSTORE_SIZE area_size = 0;
@@ -3288,39 +3421,14 @@ static int32_t cfstore_create(const char* key_name, ARM_CFSTORE_SIZE value_len, 
      * In the general case the new ((area_size + kv_size) % program_unit > 0). The new area_size is
      * aligned to a program_unit boundary to facilitate r/w to flash and so the memory realloc size
      * is calculated to align, as follows */
-    area_size = cfstore_ctx_get_area_len();
-    // moved to flash_init() and program_unit stored in ctx
-    /*
-    status = FlashJournal_getInfo(&ctx->jrnl, &info);
-    if(status < JOURNAL_STATUS_OK){
-        CFSTORE_TP(CFSTORE_TP_CREATE, "%s:Error: failed get journal info (status=%d)\n", __func__, (int) status);
-        ret = cfstore_flash_map_error(status);
-        goto out1;
-    }
-    */
+    area_size = cfstore_ctx_get_kv_total_len();
     /* setup the reallocation memory size. */
     realloc_size = area_size + kv_size;
-    if(realloc_size % cfstore_ctx_get_program_unit(ctx) > 0){
-        realloc_size += (cfstore_ctx_get_program_unit(ctx) - (realloc_size % cfstore_ctx_get_program_unit(ctx)));
-    }
-    ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, realloc_size);
-    if(ptr == NULL){
-        CFSTORE_ERRLOG("%s:realloc failed for key_name=%s\n", __func__, key_name);
-        cfstore_ctx_reset(ctx);
-        ret = ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY;
+    ret = cfstore_realloc_ex(realloc_size, NULL);
+    if(ret < ARM_DRIVER_OK){
+        CFSTORE_ERRLOG("%s:Error:file realloc failed\n", __func__);
         goto out1;
     }
-    if(ptr != ctx->area_0_head){
-        CFSTORE_TP(CFSTORE_TP_CREATE, "%s:cfstore_ctx_g.area_0_head pointer changed (cfstore_ctx_g.area_0_head=%p, cfstore_ctx_g.area_0_tail=%p)\n", __func__, ctx->area_0_head, ptr);
-        /* this covers the following cases:
-         * - this is the first KV insertion in the area, which is special as both area head/tail pointers need setting.
-         * - realloc() has move the area in memory */
-        ctx->area_0_head = ptr;
-        ctx->area_0_tail = ctx->area_0_head + area_size;
-    }
-
-    /* check realloc() hasnt move area in memory from cfstore_ctx_g.area_0_head*/
-    CFSTORE_TP(CFSTORE_TP_CREATE, "%s:cfstore_ctx_g.area_0_head=%p, ptr=%p\n", __func__, ctx->area_0_head, ptr);
 
     /* determine if should adopt a default behavior for acl permission setting */
     if(cfstore_acl_is_default(kdesc->acl)){
@@ -3329,8 +3437,8 @@ static int32_t cfstore_create(const char* key_name, ARM_CFSTORE_SIZE value_len, 
         b_acl_default = true;
     }
     /* set the header up, then copy key_name into header */
-    memset(ctx->area_0_tail, 0, kv_size);
-    hdr = (cfstore_area_header_t*) ctx->area_0_tail;
+    hdr = (cfstore_area_header_t*) (ctx->area_0_head + area_size);
+    CFSTORE_FENTRYLOG("%s:hdr=%p\n", __func__, hdr);
     hdr->klength = (uint8_t) strlen(key_name);
     hdr->vlength = value_len;
     hdr->perm_owner_read = b_acl_default ? true : kdesc->acl.perm_owner_read;
@@ -3340,8 +3448,6 @@ static int32_t cfstore_create(const char* key_name, ARM_CFSTORE_SIZE value_len, 
     hdr->perm_other_write = kdesc->acl.perm_other_write;
     hdr->perm_other_execute = kdesc->acl.perm_other_execute;
     strncpy((char*)hdr + sizeof(cfstore_area_header_t), key_name, strlen(key_name));
-    /* Updating the area_0_tail pointer reveals the inserted KV to other operations. See [NOTE1] for details.*/
-    ctx->area_0_tail = ctx->area_0_head + area_size + kv_size;
     hkvt = cfstore_get_hkvt_from_head_ptr((uint8_t*) hdr);
     if(cfstore_flags_is_default(kdesc->flags)){
         /* set as read-only by default default */
@@ -3817,6 +3923,9 @@ static int32_t cfstore_uninitialise(void)
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_STORAGE_CAPABILITIES caps;
     cfstore_ctx_t* ctx = cfstore_ctx_get();
+    cfstore_file_t* file;
+    cfstore_list_node_t* node;
+    cfstore_list_node_t* file_list = &ctx->file_list;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     memset(&caps, 0, sizeof(caps));
@@ -3834,7 +3943,7 @@ static int32_t cfstore_uninitialise(void)
     }
     if(ctx->init_ref_count > 0) {
         ctx->init_ref_count--;
-        CFSTORE_TP(CFSTORE_TP_INIT, "%s:Debug: decemented init_ref_count (%d).\n", __func__, (int) ctx->init_ref_count);
+        CFSTORE_TP(CFSTORE_TP_INIT, "%s:Debug: decremented init_ref_count (%d).\n", __func__, (int) ctx->init_ref_count);
     }
     if(ctx->init_ref_count == 0)
     {
@@ -3842,10 +3951,14 @@ static int32_t cfstore_uninitialise(void)
         /* check file list is empty and if not, free the items */
         if(ctx->file_list.next != ctx->file_list.prev)
         {
-            /* list is not empty. walk the list and free the entries */
-            // todo: wip: free items on the file list
+            /* list is not empty. walk the list and close the files, cleaning up state */
+            node = file_list->next;
+            while(node != file_list){
+                file = (cfstore_file_t*) node;
+                cfstore_close((ARM_CFSTORE_HANDLE) file);
+                node = node->next;
+            }
         }
-
         ret = cfstore_flash_deinit();
         if(ret < ARM_DRIVER_OK){
             CFSTORE_ERRLOG("%s:Error: failed to uninitialise flash journal layer.\n", __func__);
@@ -4121,3 +4234,4 @@ ARM_CFSTORE_DRIVER cfstore_driver =
 };
 
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
+

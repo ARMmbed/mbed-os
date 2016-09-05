@@ -28,6 +28,7 @@
   }while(0);
 
 #define noCFSTORE_DEBUG
+//#define CFSTORE_DEBUG
 #ifdef CFSTORE_DEBUG
 
 extern uint32_t cfstore_optDebug_g;
