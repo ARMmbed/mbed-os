@@ -830,8 +830,8 @@
         "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
-        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT", "DEVICE_RTC_LSI=1"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "macros": ["MBEDTLS_ENTROPY_HARDWARE_ALT"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "detect_code": ["0796"],
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
