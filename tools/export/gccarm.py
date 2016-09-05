@@ -108,6 +108,7 @@ class GccArm(Exporter):
         'NRF51_DK',
         'NRF51_DONGLE',
         'NRF51_MICROBIT',
+        'MTM_MTCONNECT04S',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
         'DELTA_DFCM_NNN40',
