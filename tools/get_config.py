@@ -37,7 +37,7 @@ except:
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_clean=False, add_options=False)
-    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type, required=True,
                         default=[], help="The source (input) directory", action="append")
     parser.add_argument("--prefix", dest="prefix", action="append",
                       default=[], help="Restrict listing to parameters that have this prefix")
@@ -48,12 +48,12 @@ if __name__ == '__main__':
 
     # Target
     if options.mcu is None :
-        args_error(parser, "[ERROR] You should specify an MCU")
+        args_error(parser, "argument -m/--mcu is required")
     target = options.mcu[0]
 
     # Toolchain
     if options.tool is None:
-        args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
+        args_error(parser, "argument -t/--toolchain is required")
     toolchain = options.tool[0]
 
     options.prefix = options.prefix or [""]
