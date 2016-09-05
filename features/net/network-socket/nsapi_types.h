@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 
-/** Enum of standardized error codes 
+/** Enum of standardized error codes
  *
  *  Valid error codes have negative values and may
  *  be returned by any network operation.
@@ -32,6 +32,7 @@ extern "C" {
  *  @enum nsapi_error_t
  */
 typedef enum nsapi_error {
+    NSAPI_ERROR_OK            =  0,        /*!< no error */
     NSAPI_ERROR_WOULD_BLOCK   = -3001,     /*!< no data is not available but call is non-blocking */
     NSAPI_ERROR_UNSUPPORTED   = -3002,     /*!< unsupported functionality */
     NSAPI_ERROR_PARAMETER     = -3003,     /*!< invalid configuration */
@@ -41,10 +42,36 @@ typedef enum nsapi_error {
     NSAPI_ERROR_NO_MEMORY     = -3007,     /*!< memory resource not available */
     NSAPI_ERROR_DNS_FAILURE   = -3008,     /*!< DNS failed to complete successfully */
     NSAPI_ERROR_DHCP_FAILURE  = -3009,     /*!< DHCP failed to complete successfully */
-    NSAPI_ERROR_AUTH_FAILURE  = -3010,     /*!< connection to access point faield */
-    NSAPI_ERROR_DEVICE_ERROR  = -3011,     /*!< failure interfacing with the network procesor */
+    NSAPI_ERROR_AUTH_FAILURE  = -3010,     /*!< connection to access point failed */
+    NSAPI_ERROR_DEVICE_ERROR  = -3011,     /*!< failure interfacing with the network processor */
+    NSAPI_ERROR_TIMEOUT       = -3012,     /*!< operation timed out */
+    NSAPI_ERROR_BAD_SSID      = -3013,     /*!< ssid not found */
 } nsapi_error_t;
 
+/** Enum of encryption types
+ *
+ *  The security type specifies a particular security to use when
+ *  connected to a WiFi network
+ */
+typedef enum nsapi_security {
+    NSAPI_SECURITY_NONE         = 0x0,      /*!< open access point */
+    NSAPI_SECURITY_WEP          = 0x1,      /*!< phrase conforms to WEP */
+    NSAPI_SECURITY_WPA          = 0x2,      /*!< phrase conforms to WPA */
+    NSAPI_SECURITY_WPA2         = 0x3,      /*!< phrase conforms to WPA2 */
+    NSAPI_SECURITY_WPA_WPA2     = 0x4,      /*!< phrase conforms to WPA/WPA2 */
+    NSAPI_SECURITY_UNSSUPPORTED = 0xFF,     /*!< unknown/unsupported security in scan results */
+} nsapi_security_t;
+
+/** Enum of interface states
+ *
+ * List of all possible states a WiFi network interface can be in
+ */
+typedef enum nsapi_if_state {
+    NSAPI_IF_STATE_NOT_CONNECTED = 0x0,
+    NSAPI_IF_STATE_CONNECTING    = 0x01,
+    NSAPI_IF_STATE_CONNECTED     = 0x02,
+    NSAPI_IF_STATE_ERROR         = 0xFF
+} nsapi_if_state_t;
 
 /** Maximum size of IP address representation
  */

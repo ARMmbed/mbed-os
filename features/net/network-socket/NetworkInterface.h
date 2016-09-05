@@ -36,6 +36,12 @@ public:
      */
     virtual const char *get_ip_address() = 0;
 
+    /** Get the local MAC address
+     *
+     *  @return         Null-terminated representation of the local MAC address
+     */
+    virtual const char *get_mac_address() = 0;
+
 protected:
     friend class Socket;
     friend class UDPSocket;
