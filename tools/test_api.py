@@ -1978,12 +1978,12 @@ def get_default_test_options_parser():
                         help='Prints script version and exits')
     return parser
 
-def test_path_to_name(path):
+def test_path_to_name(path, base):
     """Change all slashes in a path into hyphens
     This creates a unique cross-platform test name based on the path
     This can eventually be overriden by a to-be-determined meta-data mechanism"""
     name_parts = []
-    head, tail = os.path.split(path)
+    head, tail = os.path.split(relpath(path,base))
     while (tail and tail != "."):
         name_parts.insert(0, tail)
         head, tail = os.path.split(head)
@@ -2028,7 +2028,7 @@ def find_tests(base_dir, target_name, toolchain_name, options=None):
                     
                     # Check to make sure discoverd folder is not in a host test directory
                     if test_case_directory != 'host_tests' and test_group_directory != 'host_tests':
-                        test_name = test_path_to_name(d)
+                        test_name = test_path_to_name(d, base_dir)
                         tests[test_name] = d
 
     return tests
