@@ -29,7 +29,11 @@
  */
 #include <stddef.h>
 #include "cmsis.h"
+
 #include "gpio_irq_api.h"
+
+#if DEVICE_INTERRUPTIN
+
 #include "pinmap.h"
 #include "mbed_error.h"
 
@@ -330,3 +334,5 @@ void gpio_irq_disable(gpio_irq_t *obj)
     NVIC_DisableIRQ(obj->irq_n);
     obj->event = EDGE_NONE;
 }
+
+#endif  // DEVICE_INTERRUPTIN
