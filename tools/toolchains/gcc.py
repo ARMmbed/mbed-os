@@ -29,8 +29,7 @@ class GCC(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
-    COVERAGE_COMPILE_FLAGS = ["-fprofile-arcs", "-ftest-coverage", "-fprofile-dir=."]
-    COVERAGE_LINK_FLAGS = ["-fprofile-arcs", "-ftest-coverage", "-fprofile-dir=."]
+    COVERAGE_FLAGS = ["-fprofile-arcs", "-ftest-coverage"]
     COVERAGE_MACRO = 'MBED_CFG_DEBUG_OPTIONS_COVERAGE'
 
     def __init__(self, target,  notify=None, macros=None,
@@ -191,7 +190,7 @@ class GCC(mbedToolchain):
     def assemble(self, source, object, includes):
         # Build assemble command
         if self.check_if_coverage_enabled(source):
-            cmd = self.asm + self.COVERAGE_COMPILE_FLAGS + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
+            cmd = self.asm + self.COVERAGE_FLAGS + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
         else:
             cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
@@ -205,7 +204,7 @@ class GCC(mbedToolchain):
     def compile(self, cc, source, object, includes):
         # Build compile command
         if self.check_if_coverage_enabled(source):
-            cmd = cc + self.COVERAGE_COMPILE_FLAGS + self.get_compile_options(self.get_symbols(), includes)
+            cmd = cc + self.COVERAGE_FLAGS + self.get_compile_options(self.get_symbols(), includes)
         else:
             cmd = cc + self.get_compile_options(self.get_symbols(), includes)
 
@@ -236,7 +235,7 @@ class GCC(mbedToolchain):
         map_file = splitext(output)[0] + ".map"
 
         if self.coverage_filter:
-            cmd = self.ld + self.COVERAGE_LINK_FLAGS + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+            cmd = self.ld + self.COVERAGE_FLAGS + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         else:
             cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         if mem_map:
