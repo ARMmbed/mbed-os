@@ -24,6 +24,7 @@
 #include "USBHost.h"
 #include "Stream.h"
 #include "MtxCircBuffer.h"
+#include "Callback.h"
 
 /**
  * A class to communicate a USB virtual serial port
@@ -137,8 +138,8 @@ private:
 
     void rxHandler();
     void txHandler();
-    FunctionPointer rx;
-    FunctionPointer tx;
+    Callback<void()> rx;
+    Callback<void()> tx;
 
     uint8_t serial_intf;
 };
