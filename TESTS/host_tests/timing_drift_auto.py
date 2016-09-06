@@ -88,7 +88,7 @@ class TimingDriftTest(BaseHostTest):
                                                    self.average_drift_max))
         
 
-        if self.total_drift > self.total_drift_max:
+        if abs(self.total_drift) > self.total_drift_max:
             if print_stats:
                 self.log("FAIL: Total drift exceeded max total drift")
             self.__result = False

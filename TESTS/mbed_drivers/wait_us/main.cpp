@@ -18,31 +18,25 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 
+/**
+  NOTE: This test will have a bit of inherent drift due to it being
+  single-threaded, so having a drift that is non-zero should be ok. However,
+  it should still be well under the limit.
+**/
+
+
 using namespace utest::v1;
 
 DigitalOut led(LED1);
-Timer timer;
 volatile bool print_tick = false;
 const int ONE_SECOND_US = 1000000;
 const int total_ticks = 10;
 
-void test_case_ticker() {
-    int start_time;
-    int after_print_us;
-    int wait_time_us = ONE_SECOND_US;
-    
-    timer.start();
-    start_time = timer.read();
-    int i = 0;
-    while (i <= total_ticks) {
-        wait_us(wait_time_us);
+void test_case_ticker() {  
+    for (int i = 0; i <= total_ticks; i++) {
+        wait_us(ONE_SECOND_US);
         greentea_send_kv("tick", i);
-        after_print_us = timer.read();
-        
-        // This won't be 100% exact, but it should be very close
-        wait_time_us =  after_print_us - start_time - ((++i) * ONE_SECOND_US);
     }
-    timer.stop();
 }
 
 // Test cases
