@@ -2147,6 +2147,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         bin_file = None
         test_case_folder_name = os.path.basename(test_path)
         
+<<<<<<< 205a97083e8ff9c0fdf55d0221675efacf6e0a88
         args = (src_path, test_build_path, target, toolchain_name)
         kwargs = {
             'jobs': jobs,
@@ -2160,7 +2161,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'app_config': app_config,
             'build_profile': build_profile,
             'silent': True,
-            'coverage_filter': coverage_filter
+            # Coverage requires main(). So if enabled on any module, enable it on test as well.
+            'coverage_filter': ".*" if coverage_filter else [])
         }
         
         results.append(p.apply_async(build_test_worker, args, kwargs))
