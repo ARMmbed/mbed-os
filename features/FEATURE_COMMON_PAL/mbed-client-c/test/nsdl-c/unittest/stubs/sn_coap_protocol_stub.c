@@ -105,5 +105,8 @@ coap_send_msg_s *sn_coap_protocol_allocate_mem_for_msg(struct coap_s *handle, sn
     return sn_coap_protocol_stub.expectedSendMsg;
 }
 
+void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload)
+{
+}
 
 

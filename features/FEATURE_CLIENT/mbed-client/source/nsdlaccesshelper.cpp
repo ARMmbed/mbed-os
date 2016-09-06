@@ -34,9 +34,7 @@ uint8_t __nsdl_c_callback(struct nsdl_s *nsdl_handle,
         status = interface->resource_callback(nsdl_handle,received_coap_ptr,
                                                      address, nsdl_capab);
         // Payload freeing must be done in app level if blockwise message
-        if (received_coap_ptr &&
-                received_coap_ptr->options_list_ptr &&
-                received_coap_ptr->options_list_ptr->block1_len > 0) {
+        if (received_coap_ptr->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED) {
             free(received_coap_ptr->payload_ptr);
             received_coap_ptr->payload_ptr = NULL;
         }

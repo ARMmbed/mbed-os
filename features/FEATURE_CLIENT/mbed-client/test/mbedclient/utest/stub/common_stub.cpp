@@ -199,7 +199,7 @@ int8_t sn_nsdl_update_resource(struct nsdl_s *, sn_nsdl_resource_info_s *)
     return common_stub::int_value;
 }
 
-int8_t set_NSP_address(struct nsdl_s *, uint8_t *, uint16_t, sn_nsdl_addr_type_e)
+int8_t set_NSP_address_2(struct nsdl_s *, uint8_t *, uint8_t, uint16_t, sn_nsdl_addr_type_e)
 {
     return common_stub::int_value;
 }

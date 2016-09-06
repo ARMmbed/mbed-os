@@ -22,6 +22,7 @@
 #include "m2mreporthandler_stub.h"
 #include "common_stub.h"
 #include "m2mtlvdeserializer_stub.h"
+#include "m2mblockmessage_stub.h"
 static bool cb_visited = false;
 static void callback_function(void *args)
 {
@@ -33,8 +34,15 @@ public:
     void execute_function(void */*argument*/) {
         visited = true;
     }
-
+    void block_message_received(M2MBlockMessage */*argument*/) {
+        block_received = true;
+    }
+    void block_message_requested(const String& /*resource*/, uint8_t *&/*data*/, uint32_t &/*len*/) {
+        block_requested = true;
+    }
     bool visited;
+    bool block_received;
+    bool block_requested;
 };
 
 class TestReportObserver :  public M2MReportObserver{
@@ -93,7 +101,7 @@ public:
 
 Test_M2MResourceInstance::Test_M2MResourceInstance()
 {
-    callback = new Callback();    
+    callback = new Callback();
     handler = new Handler();
     resource_instance = new M2MResourceInstance("name",
                                                 "resource_type",
@@ -106,7 +114,7 @@ Test_M2MResourceInstance::~Test_M2MResourceInstance()
 {
     delete resource_instance;
     delete handler;
-    delete callback;    
+    delete callback;
 }
 
 void Test_M2MResourceInstance::test_copy_constructor()
@@ -211,7 +219,7 @@ void Test_M2MResourceInstance::test_execute()
     MyTest test;
     void *args = NULL;
 
-    resource_instance->set_execute_function(execute_callback(&test,&MyTest::execute_function));    
+    resource_instance->set_execute_function(execute_callback(&test,&MyTest::execute_function));
     resource_instance->execute(args);
 
     cb_visited = false;
@@ -264,7 +272,7 @@ void Test_M2MResourceInstance::test_set_value()
     resource_instance->_value = (u_int8_t*)malloc(sizeof(value)+1);
     memset(resource_instance->_value,0,sizeof(value)+1);
     memcpy(resource_instance->_value,value,sizeof(value));
-    resource_instance->_value_length = sizeof(value);    
+    resource_instance->_value_length = sizeof(value);
     TestReportObserver obs;
     m2mbase_stub::report = new M2MReportHandler(obs);
 
@@ -324,7 +332,7 @@ void Test_M2MResourceInstance::test_clear_value()
     u_int8_t value[] = {"value"};
     resource_instance->_value = (u_int8_t*)malloc(sizeof(u_int8_t));
 
-    m2mbase_stub::observe = handler;    
+    m2mbase_stub::observe = handler;
     TestReportObserver obs;
     m2mbase_stub::report = new M2MReportHandler(obs);
 
@@ -406,6 +414,33 @@ void Test_M2MResourceInstance::test_handle_get_request()
 
     CHECK(resource_instance->handle_get_request(NULL,coap_header,handler) != NULL);
 
+    if(coap_header->content_type_ptr) {
+        free(coap_header->content_type_ptr);
+        coap_header->content_type_ptr = NULL;
+    }
+
+    if(common_stub::coap_header->content_type_ptr) {
+        free(common_stub::coap_header->content_type_ptr);
+        common_stub::coap_header->content_type_ptr = NULL;
+    }
+    if(common_stub::coap_header->options_list_ptr->max_age_ptr) {
+        free(common_stub::coap_header->options_list_ptr->max_age_ptr);
+        common_stub::coap_header->options_list_ptr->max_age_ptr = NULL;
+    }
+    if(common_stub::coap_header->options_list_ptr) {
+        free(common_stub::coap_header->options_list_ptr);
+        common_stub::coap_header->options_list_ptr = NULL;
+    }
+    MyTest test;
+    test.block_requested = false;
+    resource_instance->set_incoming_block_message_callback(
+                incoming_block_message_callback(&test, &MyTest::block_message_received));
+    resource_instance->set_outgoing_block_message_callback(
+        outgoing_block_message_callback(&test,&MyTest::block_message_requested));
+    m2mblockmessage_stub::is_block_message = true;
+    CHECK(resource_instance->handle_get_request(NULL,coap_header,handler) != NULL);
+    CHECK(test.block_requested == true);
+    m2mblockmessage_stub::is_block_message = false;
     if(coap_header->content_type_ptr) {
         free(coap_header->content_type_ptr);
         coap_header->content_type_ptr = NULL;
@@ -740,6 +775,49 @@ void Test_M2MResourceInstance::test_handle_put_request()
 
     coap_response = resource_instance->handle_put_request(NULL,NULL,handler,execute_value_updated);
 
+    CHECK( coap_response != NULL);
+    if(coap_response) {
+        if(coap_response->content_type_ptr) {
+            free(coap_response->content_type_ptr);
+            coap_response->content_type_ptr = NULL;
+        }
+    }
+
+    MyTest test;
+    test.block_received = false;
+    m2mbase_stub::operation = M2MBase::PUT_ALLOWED;
+    m2mblockmessage_stub::is_block_message = true;
+    m2mblockmessage_stub::is_last_block = false;
+    resource_instance->set_incoming_block_message_callback(
+                incoming_block_message_callback(&test, &MyTest::block_message_received));
+    coap_response = resource_instance->handle_put_request(NULL,coap_header,handler,execute_value_updated);
+    CHECK(test.block_received == true);
+    CHECK( coap_response != NULL);
+    if(coap_response) {
+        if(coap_response->content_type_ptr) {
+            free(coap_response->content_type_ptr);
+            coap_response->content_type_ptr = NULL;
+        }
+    }
+
+    test.block_received = false;
+    m2mblockmessage_stub::is_block_message = true;
+    m2mblockmessage_stub::is_last_block = true;
+    coap_response = resource_instance->handle_put_request(NULL,coap_header,handler,execute_value_updated);
+    CHECK(test.block_received == true);
+    CHECK( coap_response != NULL);
+    if(coap_response) {
+        if(coap_response->content_type_ptr) {
+            free(coap_response->content_type_ptr);
+            coap_response->content_type_ptr = NULL;
+        }
+    }
+
+    test.block_received = false;
+    m2mblockmessage_stub::is_block_message = false;
+    m2mblockmessage_stub::is_last_block = false;
+    coap_response = resource_instance->handle_put_request(NULL,coap_header,handler,execute_value_updated);
+    CHECK(test.block_received == false);
     CHECK( coap_response != NULL);
     if(coap_response) {
         if(coap_response->content_type_ptr) {

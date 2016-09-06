@@ -20,7 +20,7 @@ uint8_t* m2mresource_stub::delayed_token;
 uint8_t m2mresource_stub::delayed_token_len;
 bool m2mresource_stub::bool_value;
 
-// The statically initialized list must be bigh enough to cater 
+// The statically initialized list must be bigh enough to cater
 // for all the tests, or the utest framework will complain for memory leak.
 M2MResourceInstanceList m2mresource_stub::list(12);
 
@@ -156,7 +156,7 @@ sn_coap_hdr_s* M2MResource::handle_put_request(nsdl_s *,
 sn_coap_hdr_s* M2MResource::handle_post_request(nsdl_s *,
                                                sn_coap_hdr_s *,
                                                M2MObservationHandler *,
-                                               bool &)
+                                               bool &, sn_nsdl_addr_s *)
 {
     return m2mresource_stub::header;
 }

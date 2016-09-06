@@ -201,6 +201,8 @@ typedef struct sn_nsdl_resource_info_ {
 
     uint8_t                         publish_uri;
 
+    uint8_t                         external_memory_block;
+
 } sn_nsdl_resource_info_s;
 
 /**
@@ -554,6 +556,17 @@ extern int8_t sn_nsdl_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *a
  * \return  -1  Failed to indicate that internal address pointer is not allocated (call nsdl_init() first).
  */
 extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint16_t port, sn_nsdl_addr_type_e address_type);
+
+/**
+ * \fn extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
+ *
+ * \brief This function is used to set the mbed Device Server address given by an application.
+ *
+ * \param   *handle Pointer to nsdl-library handle
+ * \return  0   Success
+ * \return  -1  Failed to indicate that internal address pointer is not allocated (call nsdl_init() first).
+ */
+extern int8_t set_NSP_address_2(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
 
 /**
  * \fn extern int8_t sn_nsdl_destroy(struct nsdl_s *handle);

@@ -29,8 +29,11 @@ public:
  *  This class is the base class for mbed Client Resources. All defined
  *  LWM2M resource models can be created based on it.
  */
+class M2MBlockMessage;
 typedef FP1<void,void*> execute_callback;
 typedef void(*execute_callback_2) (void *arguments);
+typedef FP1<void, M2MBlockMessage *> incoming_block_message_callback;
+typedef FP3<void, const String &, uint8_t *&, uint32_t &> outgoing_block_message_callback;
 
 class M2MResourceCallback;
 
@@ -222,7 +225,7 @@ public:
      * \return sn_coap_hdr_s The message that needs to be sent to the server.
      */
     virtual sn_coap_hdr_s* handle_put_request(nsdl_s *nsdl,
-                                              sn_coap_hdr_s *received_coap_header,                                                                                            
+                                              sn_coap_hdr_s *received_coap_header,
                                               M2MObservationHandler *observation_handler,
                                               bool &execute_value_updated);
 
@@ -237,6 +240,28 @@ public:
      * \return Object name.
     */
     const String& object_name() const;
+
+    /**
+     * @brief Sets the function that is executed when this
+     * object receives block-wise message.
+     * @param callback The function pointer that is called.
+     */
+    virtual void set_incoming_block_message_callback(incoming_block_message_callback callback);
+
+    /**
+     * @brief Sets the function that is executed when this
+     * object receives a GET request.
+     * This is called if resource values is stored in application side.
+     * NOTE! Due to limitation in mbed-client-c library GET request can only contain data size up to 65KB.
+     * @param callback The function pointer that is called.
+     */
+    virtual void set_outgoing_block_message_callback(outgoing_block_message_callback callback);
+
+    /**
+     * \brief Returns the block message object.
+     * \return Block message.
+    */
+    virtual M2MBlockMessage* block_message() const;
 
 protected:
 
@@ -261,9 +286,11 @@ private:
     M2MResourceCallback                     *_resource_callback; // Not owned
     String                                  _object_name;
     FP1<void, void*>                        *_function_pointer;
-
     uint16_t                                _object_instance_id;
     ResourceType                            _resource_type;
+    incoming_block_message_callback         _incoming_block_message_cb;
+    outgoing_block_message_callback         _outgoing_block_message_cb;
+    M2MBlockMessage                         *_block_message_data;
 
     friend class Test_M2MResourceInstance;
     friend class Test_M2MResource;

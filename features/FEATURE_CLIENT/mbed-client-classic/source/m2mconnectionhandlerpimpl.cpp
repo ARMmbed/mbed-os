@@ -44,11 +44,21 @@ static MemoryPool<M2MConnectionHandlerPimpl::TaskIdentifier, MBED_CLIENT_EVENT_L
 extern "C" void connection_tasklet_event_handler(arm_event_s *event)
 {
     tr_debug("M2MConnectionHandlerPimpl::connection_tasklet_event_handler");
-    M2MConnectionHandlerPimpl::TaskIdentifier *task_id = (M2MConnectionHandlerPimpl::TaskIdentifier*)event->data_ptr;
-    M2MConnectionHandlerPimpl* pimpl = (M2MConnectionHandlerPimpl*)task_id->pimpl;
+    M2MConnectionHandlerPimpl* pimpl = NULL;
+    M2MConnectionHandlerPimpl::TaskIdentifier *task_id = NULL;
+
+    if (event->event_type == M2MConnectionHandlerPimpl::ESocketSend) {
+        task_id = (M2MConnectionHandlerPimpl::TaskIdentifier*)event->data_ptr;
+        pimpl = (M2MConnectionHandlerPimpl*)(task_id->pimpl);
+    }
+    else {
+    	pimpl = (M2MConnectionHandlerPimpl*)event->data_ptr;
+    }
+
     if(pimpl) {
         eventOS_scheduler_set_active_tasklet(pimpl->connection_tasklet_handler());
     }
+
     switch (event->event_type) {
         case M2MConnectionHandlerPimpl::ESocketIdle:
             tr_debug("Connection Tasklet Generated");
@@ -71,7 +81,7 @@ extern "C" void connection_tasklet_event_handler(arm_event_s *event)
             break;
         case M2MConnectionHandlerPimpl::ESocketSend:
             tr_debug("connection_tasklet_event_handler - ESocketSend");
-            if(pimpl) {
+            if(pimpl && task_id) {
                 pimpl->send_socket_data((uint8_t*)task_id->data_ptr,(uint16_t)event->event_data);
                 if (task_id->data_ptr) {
                     free(task_id->data_ptr);
@@ -81,6 +91,8 @@ extern "C" void connection_tasklet_event_handler(arm_event_s *event)
         default:
             break;
     }
+
+    // Free the task identifier if we had it
     if (task_id) {
         memory_pool.free(task_id);
     }
@@ -157,17 +169,12 @@ bool M2MConnectionHandlerPimpl::resolve_server_address(const String& server_addr
     _server_port = server_port;
     _server_type = server_type;
     _server_address = server_address;
-    TaskIdentifier* task = memory_pool.alloc();
-    if (!task) {
-        return false;
-    }
-    task->pimpl = this;
 
     arm_event_s event;
     event.receiver = M2MConnectionHandlerPimpl::_tasklet_id;
     event.sender = 0;
     event.event_type = ESocketDnsHandler;
-    event.data_ptr = task;
+    event.data_ptr = this;
     event.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
     return eventOS_event_send(&event) == 0 ? true : false;
 }
@@ -280,7 +287,14 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
     event.event_data = data_len;
     event.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
 
-    return eventOS_event_send(&event) == 0 ? true : false;
+    if (eventOS_event_send(&event) == 0) {
+    	return true;
+    }
+
+    // Event push failed, free task identifier and buffer
+    free(buffer);
+    memory_pool.free(task);
+    return false;
 }
 
 void M2MConnectionHandlerPimpl::send_socket_data(uint8_t *data,
@@ -326,23 +340,13 @@ int8_t M2MConnectionHandlerPimpl::connection_tasklet_handler()
 
 void M2MConnectionHandlerPimpl::socket_event()
 {
-    TaskIdentifier* task = memory_pool.alloc();
-    if (!task) {
-    	_observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR, true);
-        return;
-    }
-    task->pimpl = this;
-
     arm_event_s event;
     event.receiver = M2MConnectionHandlerPimpl::_tasklet_id;
     event.sender = 0;
     event.event_type = ESocketReadytoRead;
-    event.data_ptr = task;
+    event.data_ptr = this;
     event.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
-    int8_t error = eventOS_event_send(&event);
-    if(error != 0) {
-    	_observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR, true);
-    }
+    eventOS_event_send(&event);
 }
 
 bool M2MConnectionHandlerPimpl::start_listening_for_data()
