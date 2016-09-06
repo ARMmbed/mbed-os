@@ -162,11 +162,6 @@ extern "C" WEAK void mbed_sdk_init(void) {
 }
 
 extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
-#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    if (coverage_report) {
-        printf ("_open called!\n");
-    }
-#endif
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
@@ -192,9 +187,8 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     }
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
     else if(coverage_report) {
-        //init_serial();
-        printf ("Calling greentea_notify_coverage_end()\n");
-        //greentea_notify_coverage_start(name);
+        init_serial();
+        greentea_notify_coverage_start(name);
         return gcov_fd;
     }
 #endif
@@ -294,9 +288,8 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 #endif
         n = length;
-    }
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    else if (coverage_report && fh == gcov_fd){
+    } else if (coverage_report && fh == gcov_fd){
         for (unsigned int i = 0; i < length; i++) {
             if (0 == buffer[i]){
                 printf(".");
@@ -305,9 +298,8 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
             }
         }
         n = length;
-    }
 #endif
-    else {
+    } else {
         FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
@@ -354,13 +346,11 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
 #endif
         n = 1;
-    }
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    else if (coverage_report && fh == gcov_fd){
+    } else if (coverage_report && fh == gcov_fd){
         n = 0;
-    }
 #endif
-    else {
+    } else {
         FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 

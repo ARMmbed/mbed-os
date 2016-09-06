@@ -24,10 +24,6 @@
 #include "greentea-client/greentea_metrics.h"
 
 
-#ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
-extern "C" void __gcov_init(void);
-extern bool coverage_report;
-#endif
 /**
  *   Generic test suite transport protocol keys
  */
@@ -90,10 +86,6 @@ void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
     greentea_notify_version();
     greentea_notify_timeout(timeout);
     greentea_notify_hosttest(host_test_name);
-#ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    //coverage_report = true;
-    //__gcov_init();
-#endif
 }
 
 /** \brief Notify host (__exit message) side that test suite execution was complete
@@ -137,9 +129,6 @@ void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, c
  */
 #ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
 extern "C" void __gcov_flush(void);
-extern "C" void __gcov_init(void);
-extern "C" void gcov_exit(void);
-extern "C" int gcov_close(void);
 extern bool coverage_report;
 
 /**
@@ -159,7 +148,6 @@ extern bool coverage_report;
  *
  */
 void greentea_notify_coverage_start(const char *path) {
-    printf("Starting coverage\n");
     printf("{{%s;%s;", GREENTEA_TEST_ENV_LCOV_START, path);
 }
 
@@ -464,10 +452,8 @@ static void greentea_notify_hosttest(const char *host_test_name) {
 static void greentea_notify_completion(const int result) {
     const char *val = result ? GREENTEA_TEST_ENV_SUCCESS : GREENTEA_TEST_ENV_FAILURE;
 #ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    greentea_write_string("Calling __gcov_flush()\n");
     coverage_report = true;
-    //__gcov_flush();
-    gcov_exit();
+    __gcov_flush();
     coverage_report = false;
 #endif
     greentea_metrics_report();
