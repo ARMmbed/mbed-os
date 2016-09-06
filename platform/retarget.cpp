@@ -73,11 +73,18 @@ extern const char __stderr_name[] = "/stderr";
 #endif
 
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+/* Coverage sync flag used between greentea_client\source\test_env.cpp:greentea_notify_completion()
+ * and _open() to indicate that file is being open by gcov.
+ */
 bool coverage_report = false;
+
+/* Special file descriptor for gcov report. It helps in special handling of gcov report file, that
+ * is printing data on serial console rather than writing on file system.
+ */
 const int gcov_fd = 'g' + ((int)'c' << 8);
 
-void greentea_notify_coverage_start(const char *path);
-void greentea_notify_coverage_end(void);
+extern void greentea_notify_coverage_start(const char *path);
+extern void greentea_notify_coverage_end(void);
 #endif
 
 // Heap limits - only used if set
@@ -188,6 +195,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
     else if(coverage_report) {
         init_serial();
+        // Encapsulate coverage data in greentea key,value pair.
         greentea_notify_coverage_start(name);
         return gcov_fd;
     }
@@ -252,6 +260,7 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh) {
         return 0;
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
     else if (coverage_report && gcov_fd == fh) {
+        // Close greentea key,value encapsulation
         greentea_notify_coverage_end();
         return 0;
     }

@@ -84,6 +84,11 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
+        # Coverage is turned On if coverage_filter is not empty. This means all sources are compiled with coverage
+        # macro and application is linked with coverage flags.
+        # Only source files that match regex from coverage_filter list are compiled with coverage flags. Since turning
+        # On code coverage on all sources increases static data size it overlaps with stack allocation and causes linker
+        # error.
         self.coverage_filter = coverage_filter
         if self.coverage_filter:
             self.macros.append(self.COVERAGE_MACRO)

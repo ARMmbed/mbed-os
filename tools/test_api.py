@@ -2119,6 +2119,9 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
+    Keyword arguments:
+        coverage_filter - list of regex to filter source files for enabling coverage
+
     Returns a tuple of the build result (True or False) followed by the test
     build data structure"""
 

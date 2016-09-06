@@ -299,6 +299,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    coverage_filter - list of regex to filter source files for enabling coverage
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -400,6 +401,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    coverage_filter - list of regex to filter source files for enabling coverage
     """
 
     # Convert src_path to a list if needed
@@ -540,6 +542,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     properties - UUUUHHHHH beats me
     extra_verbose - even more output!
     project_id - the name that goes in the report
+    coverage_filter - list of regex to filter source files for enabling coverage
     remove_config_header_file - delete config header file when done building
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler

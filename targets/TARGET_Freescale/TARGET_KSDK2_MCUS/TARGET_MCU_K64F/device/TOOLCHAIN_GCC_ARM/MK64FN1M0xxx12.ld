@@ -52,7 +52,9 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-/* Heap 1/4 of ram and stack 1/8 */
+/* Heap 1/4 of ram and stack 1/8. 0x1000 is reduced from both heap
+ * and stack to accomodate static data introduced by GCOV.
+ */
 __stack_size__ = 0x7000;
 __heap_size__ = 0x09000;
 
