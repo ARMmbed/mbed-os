@@ -499,9 +499,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F429ZI) || defined(TARGET_UBLOX_C029)
 #define INITIAL_SP            (0x20030000UL)
 
-#elif defined(TARGET_STM32F072RB)
-#define INITIAL_SP            (0x20004000UL)
-
 #elif defined(TARGET_STM32F091RC)
 #define INITIAL_SP            (0x20008000UL)
 
@@ -532,8 +529,8 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32F446ZE)
 #define INITIAL_SP            (0x20020000UL)
 
-#elif defined(TARGET_STM32F070RB)
-#define INITIAL_SP            (0x20002000UL)
+#elif defined(TARGET_STM32F072RB) || defined(TARGET_STM32F070RB)
+#define INITIAL_SP            (0x20004000UL)
 
 #elif defined(TARGET_STM32L432KC)
 #define INITIAL_SP            (0x2000C000UL)
