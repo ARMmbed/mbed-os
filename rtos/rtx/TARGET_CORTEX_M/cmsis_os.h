@@ -89,7 +89,7 @@
 #define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE/2)
 #else
 #if defined (MBED_CFG_DEBUG_OPTIONS_COVERAGE)
-#define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4*16)
+#define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4*8)
 #else
 #define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
 #endif
