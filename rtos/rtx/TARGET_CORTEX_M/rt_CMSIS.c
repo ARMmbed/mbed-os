@@ -637,6 +637,7 @@ SVC_1_1(svcThreadTerminate,   osStatus,         osThreadId,                  RET
 SVC_0_1(svcThreadYield,       osStatus,                                      RET_osStatus)
 SVC_2_1(svcThreadSetPriority, osStatus,         osThreadId,      osPriority, RET_osStatus)
 SVC_1_1(svcThreadGetPriority, osPriority,       osThreadId,                  RET_osPriority)
+SVC_2_3(svcThreadGetInfo,    os_InRegs osEvent, osThreadId,    osThreadInfo, RET_osEvent)
 
 // Thread Service Calls
 
@@ -796,6 +797,67 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
   return (osPriority)(ptcb->prio - 1 + osPriorityIdle); 
 }
 
+/// Get info from an active thread
+os_InRegs osEvent_type svcThreadGetInfo (osThreadId thread_id, osThreadInfo info) {
+  P_TCB ptcb;
+  osEvent ret;
+  ret.status = osOK;
+
+  ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
+  if (ptcb == NULL) {
+    ret.status = osErrorValue;
+    return osEvent_ret_status;
+  }
+
+  if (osThreadInfoStackSize == info) {
+    uint32_t size;
+    size = ptcb->priv_stack;
+    if (0 == size) {
+      // This is an OS task - always a fixed size
+      size = os_stackinfo & 0x3FFFF;
+    }
+    ret.value.v = size;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoStackMax == info) {
+    uint32_t i;
+    uint32_t *stack_ptr;
+    uint32_t stack_size;
+    if (!(os_stackinfo & (1 << 28))) {
+      // Stack init must be turned on for max stack usage
+      ret.status = osErrorResource;
+      return osEvent_ret_status;
+    }
+    stack_ptr = (uint32_t*)ptcb->stack;
+    stack_size = ptcb->priv_stack;
+    if (0 == stack_size) {
+      // This is an OS task - always a fixed size
+      stack_size = os_stackinfo & 0x3FFFF;
+    }
+    for (i = 1; i <stack_size / 4; i++) {
+      if (stack_ptr[i] != MAGIC_PATTERN) {
+        break;
+      }
+    }
+    ret.value.v = stack_size - i * 4;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoEntry == info) {
+    ret.value.p = (void*)ptcb->ptask;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoArg == info) {
+    ret.value.p = (void*)ptcb->argv;
+    return osEvent_ret_value;
+  }
+
+  // Unsupported option so return error
+  ret.status = osErrorParameter;
+  return osEvent_ret_status;
+}
 
 // Thread Public API
 
@@ -889,6 +951,17 @@ uint8_t osThreadGetState (osThreadId thread_id) {
   return ptcb->state;
 }
 #endif
+
+/// Get the requested info from the specified active thread
+os_InRegs osEvent osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
+  osEvent ret;
+
+  if (__get_IPSR() != 0U) {                     // Not allowed in ISR
+    ret.status = osErrorISR;
+    return ret;
+  }
+  return __svcThreadGetInfo(thread_id, info);
+}
 
 osThreadEnumId osThreadsEnumStart() {
   static uint32_t thread_enum_index;

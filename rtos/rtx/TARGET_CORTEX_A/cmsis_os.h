@@ -224,6 +224,16 @@ typedef enum  {
   osTimerPeriodic         =     1        ///< repeating timer
 } os_timer_type;
 
+typedef enum {
+  osThreadInfoState,
+  osThreadInfoStackSize,
+  osThreadInfoStackMax,
+  osThreadInfoEntry,
+  osThreadInfoArg,
+
+  osThreadInfo_reserved   =  0x7FFFFFFF  ///< prevent from enum down-size compiler optimization.
+} osThreadInfo;
+
 /// Entry point of a thread.
 /// \note MUST REMAIN UNCHANGED: \b os_pthread shall be consistent in every CMSIS-RTOS.
 typedef void (*os_pthread) (void const *argument);
@@ -450,6 +460,13 @@ osPriority osThreadGetPriority (osThreadId thread_id);
 /// Get current thread state.
 uint8_t osThreadGetState (osThreadId thread_id);
 #endif
+
+/// Get into from an active thread.
+/// \param[in]     thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId.
+/// \param[in]     info          information to read.
+/// \return current state of the thread function.
+/// \return requested info that includes the status code.
+os_InRegs osEvent osThreadGetInfo(osThreadId thread_id, osThreadInfo info);
 
 //  ==== Generic Wait Functions ====
 

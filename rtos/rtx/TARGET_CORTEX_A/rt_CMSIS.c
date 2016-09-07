@@ -713,6 +713,7 @@ SVC_1_1(svcThreadTerminate,   osStatus,         osThreadId,                  RET
 SVC_0_1(svcThreadYield,       osStatus,                                      RET_osStatus)
 SVC_2_1(svcThreadSetPriority, osStatus,         osThreadId,      osPriority, RET_osStatus)
 SVC_1_1(svcThreadGetPriority, osPriority,       osThreadId,                  RET_osPriority)
+SVC_2_3(svcThreadGetInfo,    os_InRegs osEvent, osThreadId,    osThreadInfo, RET_osEvent)
 
 // Thread Service Calls
 
@@ -851,6 +852,80 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
   return (osPriority)(ptcb->prio - 1 + osPriorityIdle);
 }
 
+/// Get info from an active thread
+os_InRegs osEvent_type svcThreadGetInfo (osThreadId thread_id, osThreadInfo info) {
+  P_TCB ptcb;
+  osEvent ret;
+  ret.status = osOK;
+
+  ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
+  if (ptcb == NULL) {
+    ret.status = osErrorValue;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
+    return osEvent_ret_status;
+#endif
+  }
+
+  if (osThreadInfoStackSize == info) {
+    uint32_t size;
+    size = ptcb->priv_stack;
+    if (0 == size) {
+      // This is an OS task - always a fixed size
+      size = os_stackinfo & 0x3FFFF;
+    }
+    ret.value.v = size;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_value;
+    return;
+#else
+    return osEvent_ret_value;
+#endif
+  }
+
+  if (osThreadInfoStackMax == info) {
+    // Cortex-A RTX does not have stack init so
+    // the maximum stack usage cannot be obtained.
+    ret.status = osErrorResource;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
+    return osEvent_ret_status;
+#endif
+  }
+
+  if (osThreadInfoEntry == info) {
+    ret.value.p = (void*)ptcb->ptask;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_value;
+    return;
+#else
+    return osEvent_ret_value;
+#endif
+  }
+
+  if (osThreadInfoArg == info) {
+    ret.value.p = (void*)ptcb->argv;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_value;
+    return;
+#else
+    return osEvent_ret_value;
+#endif
+  }
+
+  // Unsupported option so return error
+  ret.status = osErrorParameter;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
+    return osEvent_ret_status;
+#endif
+}
 
 // Thread Public API
 
@@ -929,6 +1004,16 @@ uint8_t osThreadGetState (osThreadId thread_id) {
   return ptcb->state;
 }
 #endif
+
+/// Get the requested info from the specified active thread
+os_InRegs osEvent osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
+  osEvent ret;
+  if (__exceptional_mode()) {
+    ret.status = osErrorISR;
+    return ret;                                 // Not allowed in ISR
+  }
+  return __svcThreadGetInfo(thread_id, info);
+}
 
 osThreadEnumId osThreadsEnumStart() {
   static uint32_t thread_enum_index;
