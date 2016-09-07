@@ -312,10 +312,16 @@ def prepare_toolchain(src_paths, target, toolchain_name,
 
     # Toolchain instance
     try:
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, notify, macros, silent,
-            extra_verbose=extra_verbose, build_profile=build_profile,
-            coverage_filter=coverage_filter)
+        if toolchain_name == "GCC_ARM":
+            toolchain = TOOLCHAIN_CLASSES[toolchain_name](
+                target, options, notify, macros, silent,
+                extra_verbose=extra_verbose, build_profile=build_profile,
+                coverage_filter=coverage_filter)
+        else:
+            toolchain = TOOLCHAIN_CLASSES[toolchain_name](
+                target, options, notify, macros, silent,
+                extra_verbose=extra_verbose, build_profile=build_profile,
+                coverage_filter=coverage_filter)
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
 
