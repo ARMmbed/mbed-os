@@ -30,6 +30,15 @@
 
 extern "C" P_TCB rt_tid2ptcb(osThreadId thread_id);
 
+
+static void (*terminate_hook)(osThreadId id) = 0;
+extern "C" void thread_terminate_hook(osThreadId id)
+{
+    if (terminate_hook != (void (*)(osThreadId))NULL) {
+        terminate_hook(id);
+    }
+}
+
 namespace rtos {
 
 void Thread::constructor(osPriority priority,
@@ -334,6 +343,10 @@ osThreadId Thread::gettid() {
 
 void Thread::attach_idle_hook(void (*fptr)(void)) {
     rtos_attach_idle_hook(fptr);
+}
+
+void Thread::attach_terminate_hook(void (*fptr)(osThreadId id)) {
+    terminate_hook = fptr;
 }
 
 Thread::~Thread() {

@@ -392,9 +392,10 @@ extern       osThreadId      osThreadId_osTimerThread;
 extern const osMessageQDef_t os_messageQ_def_osTimerMessageQ;
 extern       osMessageQId    osMessageQId_osTimerMessageQ;
 
-// Thread creation and destruction mutex
+// Thread creation and destruction
 osMutexDef(osThreadMutex);
 osMutexId osMutexId_osThreadMutex;
+void sysThreadTerminate(osThreadId id);
 
 // ==== Helper Functions ====
 
@@ -897,6 +898,7 @@ osStatus osThreadTerminate (osThreadId thread_id) {
     return osErrorISR;                          // Not allowed in ISR
   }
   osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  sysThreadTerminate(thread_id);
   // Thread mutex must be held when a thread is created or terminated
   status = __svcThreadTerminate(thread_id);
   osMutexRelease(osMutexId_osThreadMutex);
@@ -930,11 +932,14 @@ osPriority osThreadGetPriority (osThreadId thread_id) {
 /// INTERNAL - Not Public
 /// Auto Terminate Thread on exit (used implicitly when thread exists)
 __NO_RETURN void osThreadExit (void) {
+  osThreadId id;
   // Thread mutex must be held when a thread is created or terminated
   // Note - the mutex will be released automatically by the os when
   //        the thread is terminated
   osMutexWait(osMutexId_osThreadMutex, osWaitForever);
-  __svcThreadTerminate(__svcThreadGetId());
+  id = __svcThreadGetId();
+  sysThreadTerminate(id);
+  __svcThreadTerminate(id);
   for (;;);                                     // Should never come here
 }
 
