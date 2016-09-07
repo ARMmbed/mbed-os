@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>Debug</name>
+    <name>{{name}}</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -12,25 +12,25 @@
       <name>General</name>
       <archiveVersion>3</archiveVersion>
       <data>
-        <version>22</version>
+        <version>21</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
+          <state>$PROJ_DIR$\.build\iar_arm\Exe</state>
           <name>ExePath</name>
-          <state>Debug\Exe</state>
         </option>
         <option>
+          <state>$PROJ_DIR$\.build\iar_arm\Obj</state>
           <name>ObjPath</name>
-          <state>Debug\Obj</state>
         </option>
         <option>
+          <state>$PROJ_DIR$\.build\iar_arm\List</state>
           <name>ListPath</name>
-          <state>Debug\List</state>
         </option>
         <option>
           <name>Variant</name>
-          <version>20</version>
-          <state>35</state>
+          <version>19</version>
+          <state>37</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -60,8 +60,8 @@
         </option>
         <option>
           <name>FPU</name>
-          <version>2</version>
-          <state>0</state>
+          <version>3</version>
+          <state>3</state>
         </option>
         <option>
           <name>OGCoreOrChip</name>
@@ -83,11 +83,11 @@
         </option>
         <option>
           <name>OGProductVersion</name>
-          <state>7.10.1.6733</state>
+          <state>5.10.0.159</state>
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>7.10.1.6733</state>
+          <state>6.30.6.53380</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>MKL25Z128xxx4	Freescale MKL25Z128xxx4</state>
+          <state>R7S721001	Renesas R7S721001</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -137,13 +137,13 @@
         </option>
         <option>
           <name>GFPUCoreSlave</name>
-          <version>20</version>
-          <state>35</state>
+          <version>19</version>
+          <state>37</state>
         </option>
         <option>
           <name>GBECoreSlave</name>
-          <version>20</version>
-          <state>35</state>
+          <version>19</version>
+          <state>37</state>
         </option>
         <option>
           <name>OGUseCmsis</name>
@@ -153,48 +153,19 @@
           <name>OGUseCmsisDspLib</name>
           <state>0</state>
         </option>
-        <option>
-          <name>GRuntimeLibThreads</name>
-          <state>0</state>
-        </option>
       </data>
     </settings>
     <settings>
       <name>ICCARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>30</version>
+        <version>28</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
           <name>CCDefines</name>
           
-            <state>TARGET_FF_ARDUINO</state>
-          
-            <state>TARGET_KLXX</state>
-          
-            <state>TARGET_KL25Z</state>
-          
-            <state>TARGET_CORTEX_M</state>
-          
-            <state>TARGET_LIKE_MBED</state>
-          
-            <state>TARGET_M0P</state>
-          
-            <state>TARGET_Freescale</state>
-          
-            <state>__MBED__=1</state>
-          
-            <state>__CORTEX_M0PLUS</state>
-          
-            <state>TOOLCHAIN_IAR</state>
-          
-            <state>MBED_BUILD_TIMESTAMP=1456248884.8</state>
-          
-            <state>TARGET_LIKE_CORTEX_M0</state>
-          
-            <state>ARM_MATH_CM0PLUS</state>
-          
+            <state></state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -255,7 +226,7 @@
         <option>
           <name>CCAllowList</name>
           <version>1</version>
-          <state>11111110</state>
+          <state>1111111</state>
         </option>
         <option>
           <name>CCDebugInfo</name>
@@ -271,11 +242,13 @@
         </option>
         <option>
           <name>IExtraOptionsCheck</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IExtraOptions</name>
-          <state></state>
+          {% for flag in c_flags %}
+		  <state>{{flag}}</state>
+		  {% endfor %}
         </option>
         <option>
           <name>CCLangConformance</name>
@@ -323,23 +296,9 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-        
-          <state>$PROJ_DIR$\.</state>
-        
-          <state>$PROJ_DIR$\env</state>
-        
-          <state>$PROJ_DIR$\mbed</state>
-        
-          <state>$PROJ_DIR$\mbed\TARGET_KL25Z</state>
-        
-          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale</state>
-        
-          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale\TARGET_KLXX</state>
-        
-          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale\TARGET_KLXX\TARGET_KL25Z</state>
-        
-          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TOOLCHAIN_IAR</state>
-        
+          {% for file in include_paths %}
+          <state>{{file}}</state>
+          {% endfor %}
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -351,7 +310,7 @@
         </option>
         <option>
           <name>IInterwork2</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IProcessorMode2</name>
@@ -432,26 +391,13 @@
           <name>IccFloatSemantics</name>
           <state>0</state>
         </option>
-        <option>
-          <name>CCOptimizationNoSizeConstraints</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCNoLiteralPool</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCOptStrategySlave</name>
-          <version>0</version>
-          <state>0</state>
-        </option>
       </data>
     </settings>
     <settings>
       <name>AARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>9</version>
+        <version>8</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -605,11 +551,9 @@
         </option>
         <option>
           <name>AExtraOptionsV2</name>
-          <state></state>
-        </option>
-        <option>
-          <name>AsmNoLiteralPool</name>
-          <state>0</state>
+          {% for flag in asm_flags %}
+          <state>{{flag}}</state>
+          {% endfor %}
         </option>
       </data>
     </settings>
@@ -631,7 +575,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>MBED_12.bin</state>
+          <state>MBED_10.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -668,9 +612,13 @@
       <name>ILINK</name>
       <archiveVersion>0</archiveVersion>
       <data>
-        <version>16</version>
+        <version>14</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
+        <option>
+          <name>IlinkOutputFile</name>
+          <state>cpp.out</state>
+        </option>
         <option>
           <name>IlinkLibIOConfig</name>
           <state>1</state>
@@ -682,10 +630,6 @@
         <option>
           <name>IlinkInputFileSlave</name>
           <state>0</state>
-        </option>
-        <option>
-          <name>IlinkOutputFile</name>
-          <state>cpp.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>
@@ -749,7 +693,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TOOLCHAIN_IAR\MKL25Z4.icf</state>
+          <state>{{linker_script}}</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -785,7 +729,9 @@
         </option>
         <option>
           <name>IlinkExtraOptions</name>
-          <state>--skip_dynamic_initialization</state>
+          {% for flag in ld_flags %}
+          <state>{{flag}}</state>
+          {% endfor %}
         </option>
         <option>
           <name>IlinkLowLevelInterfaceSlave</name>
@@ -797,7 +743,7 @@
         </option>
         <option>
           <name>IlinkAdditionalLibs</name>
-          <state></state>        
+          <state></state>
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
@@ -834,6 +780,10 @@
         </option>
         <option>
           <name>CrcAlign</name>
+          <state>1</state>
+        </option>
+        <option>
+          <name>CrcAlgo</name>
           <state>1</state>
         </option>
         <option>
@@ -938,20 +888,6 @@
           <name>IlinkStackCallGraphFile</name>
           <state></state>
         </option>
-        <option>
-          <name>CrcAlgorithm</name>
-          <version>0</version>
-          <state>1</state>
-        </option>
-        <option>
-          <name>CrcUnitSize</name>
-          <version>0</version>
-          <state>0</state>
-        </option>
-        <option>
-          <name>IlinkThreadsSlave</name>
-          <state>1</state>
-        </option>
       </data>
     </settings>
     <settings>
@@ -981,15 +917,16 @@
       <data/>
     </settings>
   </configuration>
-  <file>
-<name>$PROJ_DIR$/main.cpp</name>
-</file>
-<group>
-<name>env</name>
-<file>
-<name>$PROJ_DIR$/env\test_env.cpp</name>
-</file>
-</group>
-
+  {% for group in groups %}
+    <group>
+      <name>{{group.name}}</name>
+	    {% for file in group.files %}
+        <file>
+          <name>{{file}}</name>
+        </file>
+	    {% endfor %}
+    </group>
+	{% endfor %}
+    <fileVersion>2</fileVersion>
 </project>
 
