@@ -564,6 +564,7 @@ class mbedToolchain:
 
             # Add root to include paths
             resources.inc_dirs.append(root)
+            resources.file_basepath[root] = base_path
 
             for file in files:
                 file_path = join(root, file)

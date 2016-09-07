@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -326,7 +326,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     return toolchain
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
-                   inc_dirs=None):
+                   inc_dirs=None, base_path=None):
     """ Scan resources using initialized toolcain
 
     Positional arguments
@@ -338,9 +338,9 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     """
 
     # Scan src_path
-    resources = toolchain.scan_resources(src_paths[0])
+    resources = toolchain.scan_resources(src_paths[0], base_path=base_path)
     for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path))
+        resources.add(toolchain.scan_resources(path, base_path=base_path))
 
     # Scan dependency paths for include dirs
     if dependencies_paths is not None:
