@@ -347,11 +347,12 @@ sn_coap_hdr_s* M2MObject::handle_put_request(nsdl_s *nsdl,
 sn_coap_hdr_s* M2MObject::handle_post_request(nsdl_s *nsdl,
                                               sn_coap_hdr_s *received_coap_header,
                                               M2MObservationHandler *observation_handler,
-                                              bool &execute_value_updated)
+                                              bool &execute_value_updated,
+                                              sn_nsdl_addr_s *)
 {
-    tr_debug("M2MObject::handle_post_request()");    
+    tr_debug("M2MObject::handle_post_request()");
     sn_coap_msg_code_e msg_code = COAP_MSG_CODE_RESPONSE_CHANGED; // 2.04
-    // process the POST if we have registered a callback for it    
+    // process the POST if we have registered a callback for it
     sn_coap_hdr_s *coap_response = sn_nsdl_build_response(nsdl,
                                       received_coap_header,
                                       msg_code);
@@ -470,7 +471,7 @@ sn_coap_hdr_s* M2MObject::handle_post_request(nsdl_s *nsdl,
                                     case M2MTLVDeserializer::NotFound:
                                         msg_code = COAP_MSG_CODE_RESPONSE_NOT_FOUND;
                                         break;
-                                }                                
+                                }
                             }
                         } else {
                             tr_debug("M2MObject::handle_post_request() - COAP_MSG_CODE_RESPONSE_BAD_REQUEST");

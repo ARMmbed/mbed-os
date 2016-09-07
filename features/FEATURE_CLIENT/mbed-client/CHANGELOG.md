@@ -1,7 +1,7 @@
 # Change Log
 
-## [v1.15.0](https://github.com/ARMmbed/mbed-client/releases/tag/v1.15.0) (06-Sep-2016)
-[Full Changelog](https://github.com/ARMmbed/mbed-client/compare/v1.13.4...v1.15.0)
+## [v1.15.1](https://github.com/ARMmbed/mbed-client/releases/tag/v1.15.1) (07-Sep-2016)
+[Full Changelog](https://github.com/ARMmbed/mbed-client/compare/v1.13.4...v1.15.1)
 
 ** New feature **
 
@@ -12,6 +12,27 @@
 - IOTCLT-1001 - mDS does not sent RST anymore for Client after DELETE /subscriptions
 
 **Merged pull requests:**
+
+commit ae89da57afcafb68d02e1e591db0bc2c9b03d5bd (HEAD, tag: v1.15.1, origin/master, origin/HEAD, master)
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Sep 7 17:58:16 2016 +0300
+
+    version v1.15.1
+
+commit 7bf71c457443b7806137d128da66b4c3c5f0333a
+Merge: ce709e0 6d07835
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Sep 7 17:55:51 2016 +0300
+
+    Merge pull request #280 from ARMmbed/post_req_fix
+    
+    Fix post request handling in object and object instance level
+
+commit 6d078357fb5fc16f7328d11dc98c2290091f2199
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Sep 7 14:42:57 2016 +0300
+
+    Fix post request handling in object and object instance level
 
 commit ce709e08039407ee69ce1f638543652261742439 (HEAD, tag: v1.15.0, origin/master, origin/HEAD, master)
 Author: Teemu Takaluoma <teemu.takaluoma@arm.com>

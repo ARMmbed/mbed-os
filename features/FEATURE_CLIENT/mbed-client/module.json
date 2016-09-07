@@ -1,6 +1,6 @@
 {
   "name": "mbed-client",
-  "version": "1.15.0",
+  "version": "1.15.1",
   "description": "mbed Client C++ API",
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
