@@ -2110,5 +2110,23 @@
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI"],
         "release_versions": ["2", "5"]
-    }
+    },
+    "HI2110": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM"],
+        "extra_labels": ["ublox"],
+        "macros": ["TARGET_PROCESSOR_FAMILY_BOUDICA", "BOUDICA_SARA"],
+        "device_has": ["INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "STDIO_MESSAGES"],
+        "default_lib": "small"
+   },
+    "SARA_NBIOT": {
+        "inherits": ["HI2110"],
+        "extra_labels": ["ublox", "HI2110"]
+    },
+    "SARA_NBIOT_EVK": {
+        "inherits": ["SARA_NBIOT"],
+        "extra_labels": ["ublox", "HI2110", "SARA_NBIOT"]
+   }
 }
