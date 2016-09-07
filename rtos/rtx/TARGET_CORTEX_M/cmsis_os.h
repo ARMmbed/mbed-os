@@ -99,6 +99,7 @@
 #define osFeature_Semaphore    65535   ///< Maximum count for \ref osSemaphoreCreate function
 #define osFeature_Wait         0       ///< osWait not available
 #define osFeature_SysTick      1       ///< osKernelSysTick functions available
+#define osFeature_ThreadEnum   1       ///< Thread enumeration available
 
 #if defined (__CC_ARM)
 #define os_InRegs __value_in_regs      // Compiler specific: force struct in registers
@@ -188,6 +189,8 @@ typedef struct os_messageQ_cb *osMessageQId;
 /// Mail ID identifies the mail queue (pointer to a mail queue control block).
 typedef struct os_mailQ_cb *osMailQId;
 
+/// Thread enumeration ID identifies the enumeration (pointer to a thread enumeration control block).
+typedef uint32_t *osThreadEnumId;
 
 /// Thread Definition structure contains startup information of a thread.
 typedef struct os_thread_def  {
@@ -678,6 +681,26 @@ os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec);
 osStatus osMailFree (osMailQId queue_id, void *mail);
 
 #endif  // Mail Queues available
+
+
+//  ==== Thread Enumeration Functions ====
+
+#if (defined (osFeature_ThreadEnum)  &&  (osFeature_ThreadEnum != 0))     // Thread enumeration available
+
+/// Start a thread enumeration.
+/// \return an enumeration ID or NULL on error.
+osThreadEnumId osThreadsEnumStart(void);
+
+/// Get the next task ID in the enumeration.
+/// \return a thread ID or NULL on if the end of the enumeration has been reached.
+osThreadId osThreadEnumNext(osThreadEnumId enum_id);
+
+/// Free the enumeration structure.
+/// \param[in]     enum_id       pointer to the enumeration ID that was obtained with \ref osThreadsEnumStart.
+/// \return status code that indicates the execution status of the function.
+osStatus osThreadEnumFree(osThreadEnumId enum_id);
+
+#endif  // Thread Enumeration available
 
 
 //  ==== RTX Extensions ====
