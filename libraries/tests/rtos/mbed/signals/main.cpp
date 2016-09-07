@@ -27,6 +27,8 @@
     #define STACK_SIZE 1536
 #elif defined(TARGET_MCU_NRF51822)
     #define STACK_SIZE 768
+#elif (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
