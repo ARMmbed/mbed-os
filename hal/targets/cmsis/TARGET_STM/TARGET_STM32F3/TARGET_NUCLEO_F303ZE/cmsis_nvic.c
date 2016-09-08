@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +27,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#ifndef MBED_PORTNAMES_H
-#define MBED_PORTNAMES_H
+ */ 
+#include "cmsis_nvic.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-typedef enum {
-    PortA = 0,
-    PortB = 1,
-    PortC = 2,
-    PortD = 3,
-    PortE = 4,
-    PortF = 5,
-    PortG = 6,
-    PortH = 7
-} PortName;
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    uint32_t i;
 
-#ifdef __cplusplus
+    // Copy and switch to dynamic vectors if the first time called
+    if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
+        uint32_t *old_vectors = vectors;
+        vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+        for (i=0; i<NVIC_NUM_VECTORS; i++) {
+            vectors[i] = old_vectors[i];
+        }
+        SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+    }
+    vectors[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
-#endif
-#endif
+
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    uint32_t *vectors = (uint32_t*)SCB->VTOR;
+    return vectors[IRQn + NVIC_USER_IRQ_OFFSET];
+}

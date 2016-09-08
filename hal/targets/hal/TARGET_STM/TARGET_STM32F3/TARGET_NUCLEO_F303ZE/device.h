@@ -1,3 +1,5 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
@@ -27,25 +29,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PORTNAMES_H
-#define MBED_PORTNAMES_H
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-typedef enum {
-    PortA = 0,
-    PortB = 1,
-    PortC = 2,
-    PortD = 3,
-    PortE = 4,
-    PortF = 5,
-    PortG = 6,
-    PortH = 7
-} PortName;
 
-#ifdef __cplusplus
-}
-#endif
+
+
+
+
+
+
+
+
+//=======================================
+
+#define DEVICE_ID_LENGTH       24
+
+
+
+
+#include "objects.h"
+
 #endif

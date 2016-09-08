@@ -96,6 +96,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 #endif
 
+#if defined(SPI4_BASE)
+    if (obj->spi == SPI_3) {
+        __SPI4_CLK_ENABLE();
+    }
+#endif
+
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -149,6 +155,14 @@ void spi_free(spi_t *obj)
         __SPI3_FORCE_RESET();
         __SPI3_RELEASE_RESET();
         __SPI3_CLK_DISABLE();
+    }
+#endif
+
+#if defined(SPI4_BASE)
+    if (obj->spi == SPI_4) {
+        __SPI4_FORCE_RESET();
+        __SPI4_RELEASE_RESET();
+        __SPI4_CLK_DISABLE();
     }
 #endif
 
@@ -223,6 +237,9 @@ void spi_frequency(spi_t *obj, int hz)
 #endif
 #if defined SPI3_BASE
 		case SPI_3:
+#endif
+#if defined SPI4_BASE
+		case SPI_4:
 #endif
 			/* SPI_2 and SPI_3. Source CLK is PCKL1 */
 			spi_hz = HAL_RCC_GetPCLK1Freq();

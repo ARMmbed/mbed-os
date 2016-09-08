@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * A generic CMSIS include header
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,25 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PORTNAMES_H
-#define MBED_PORTNAMES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef MBED_CMSIS_H
+#define MBED_CMSIS_H
 
-typedef enum {
-    PortA = 0,
-    PortB = 1,
-    PortC = 2,
-    PortD = 3,
-    PortE = 4,
-    PortF = 5,
-    PortG = 6,
-    PortH = 7
-} PortName;
+#include "stm32f3xx.h"
+#include "cmsis_nvic.h"
 
-#ifdef __cplusplus
-}
-#endif
 #endif

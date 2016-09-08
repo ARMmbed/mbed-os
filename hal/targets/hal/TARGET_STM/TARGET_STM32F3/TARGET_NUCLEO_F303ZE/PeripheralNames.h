@@ -27,25 +27,71 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PORTNAMES_H
-#define MBED_PORTNAMES_H
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
+
+#include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    PortA = 0,
-    PortB = 1,
-    PortC = 2,
-    PortD = 3,
-    PortE = 4,
-    PortF = 5,
-    PortG = 6,
-    PortH = 7
-} PortName;
+    ADC_1 = (int)ADC1_BASE,
+    ADC_2 = (int)ADC2_BASE,
+    ADC_3 = (int)ADC3_BASE,
+    ADC_4 = (int)ADC4_BASE
+} ADCName;
+
+typedef enum {
+    DAC_1 = (int)DAC_BASE
+} DACName;
+
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE,
+    UART_3 = (int)USART3_BASE,
+    UART_4 = (int)UART4_BASE,
+    UART_5 = (int)UART5_BASE
+} UARTName;
+
+#define STDIO_UART_TX  SERIAL_TX
+#define STDIO_UART_RX  SERIAL_RX
+#define STDIO_UART     UART_3
+
+
+typedef enum {
+    SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE,
+    SPI_3 = (int)SPI3_BASE,
+	SPI_4 = (int)SPI4_BASE
+
+} SPIName;
+
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE,
+    I2C_3 = (int)I2C3_BASE
+} I2CName;
+
+typedef enum {
+    PWM_1  = (int)TIM1_BASE,
+    PWM_2  = (int)TIM2_BASE,
+    PWM_3  = (int)TIM3_BASE,
+    PWM_4  = (int)TIM4_BASE,
+    PWM_8  = (int)TIM8_BASE,
+    PWM_15 = (int)TIM15_BASE,
+    PWM_16 = (int)TIM16_BASE,
+    PWM_17 = (int)TIM17_BASE,
+	PWM_20 = (int)TIM20_BASE
+} PWMName;
+
+typedef enum {
+    CAN_1 = (int)CAN_BASE
+} CANName;
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif
