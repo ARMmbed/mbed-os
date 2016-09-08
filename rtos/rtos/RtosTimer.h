@@ -47,7 +47,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
     RtosTimer(void (*func)(void const *argument), os_timer_type type=osTimerPeriodic, void *argument=NULL) {
-        constructor(mbed::Callback<void()>(argument, (void (*)(void *))func), type);
+        constructor(mbed::callback(argument, (void (*)(void *))func), type);
     }
     
     /** Create timer.
@@ -62,10 +62,16 @@ public:
       @param   obj       pointer to the object to call the member function on.
       @param   method    member function to be executed by this timer.
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+      @deprecated
+          The RtosTimer constructor does not support cv-qualifiers. Replaced by
+          RtosTimer(callback(obj, method), os_timer_type).
     */
     template <typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The RtosTimer constructor does not support cv-qualifiers. Replaced by "
+        "RtosTimer(callback(obj, method), os_timer_type).")
     RtosTimer(T *obj, M method, os_timer_type type=osTimerPeriodic) {
-        constructor(mbed::Callback<void()>(obj, method), type);
+        constructor(mbed::callback(obj, method), type);
     }
 
     /** Stop the timer.
