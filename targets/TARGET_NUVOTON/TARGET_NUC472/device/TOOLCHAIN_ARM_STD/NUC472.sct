@@ -23,6 +23,8 @@ LR_IROM1 0x00000000 {
   ; Too large to place into internal SRAM. So place into external SRAM instead.
   ER_XRAM1 0x60000000 {
     *lwip_* (+ZI)
+    aes.o (+ZI)
+    mesh_system.o (+ZI)
   }
   
   ; Extern SRAM for HEAP
