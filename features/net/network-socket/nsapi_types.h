@@ -201,6 +201,13 @@ typedef struct nsapi_stack_api
      */
     int (*gethostbyname)(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host);
 
+    /** Add a domain name server to list of servers to query
+     *
+     *  @param addr     Destination for the host address
+     *  @return         0 on success, negative error code on failure
+     */
+    int (*add_dns_server)(nsapi_stack_t *stack, nsapi_addr_t addr);
+
     /*  Set stack-specific stack options
      *
      *  The setstackopt allow an application to pass stack-specific hints

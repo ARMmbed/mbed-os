@@ -27,6 +27,16 @@ int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
     return nsapi_dns_query(this, address, name);
 }
 
+int NetworkStack::gethostbyname(SocketAddress *address, const char *name, nsapi_version_t version)
+{
+    return nsapi_dns_query(this, address, name, version);
+}
+
+int NetworkStack::add_dns_server(const SocketAddress &address)
+{
+    return nsapi_dns_add_server(address);
+}
+
 int NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -86,6 +96,15 @@ public:
         int err = _stack_api()->gethostbyname(_stack(), &addr, name);
         address->set_addr(addr);
         return err;
+    }
+
+    virtual int add_dns_server(const SocketAddress &address)
+    {
+        if (!_stack_api()->add_dns_server) {
+            return NetworkStack::add_dns_server(address);
+        }
+
+        return _stack_api()->add_dns_server(_stack(), address.get_addr());
     }
 
     virtual int setstackopt(int level, int optname, const void *optval, unsigned optlen)

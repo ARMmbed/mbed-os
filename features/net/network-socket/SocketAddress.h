@@ -41,8 +41,14 @@ public:
      *  @param stack    Network stack to use for DNS resolution
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port
+     *  @deprecated
+     *      Constructors hide possible errors. Replaced by
+     *      NetworkInterface::gethostbyname.
      */
     template <typename S>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1.3",
+        "Constructors hide possible errors. Replaced by "
+        "NetworkInterface::gethostbyname.")
     SocketAddress(S *stack, const char *host, uint16_t port = 0)
     {
         _SocketAddress(nsapi_create_stack(stack), host, port);

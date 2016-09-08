@@ -15,9 +15,11 @@
  */
 
 #include "network-socket/NetworkInterface.h"
+#include "network-socket/NetworkStack.h"
 #include <string.h>
 
 
+// Default network-interface state
 const char *NetworkInterface::get_mac_address()
 {
     return 0;
@@ -50,5 +52,21 @@ int NetworkInterface::set_dhcp(bool dhcp)
     } else {
         return 0;
     }
+}
+
+// DNS operations go through the underlying stack by default
+int NetworkInterface::gethostbyname(SocketAddress *address, const char *name)
+{
+    return get_stack()->gethostbyname(address, name);
+}
+
+int NetworkInterface::gethostbyname(SocketAddress *address, const char *name, nsapi_version_t version)
+{
+    return get_stack()->gethostbyname(address, name, version);
+}
+
+int NetworkInterface::add_dns_server(const SocketAddress &address)
+{
+    return get_stack()->add_dns_server(address);
 }
 
