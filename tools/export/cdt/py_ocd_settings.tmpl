@@ -11,6 +11,8 @@
 <stringAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.firstResetType" value="init"/>
 <stringAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbClientOtherCommands" value="set mem inaccessible-by-default off"/>
 <stringAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbClientOtherOptions" value=""/>
+<stringAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbServerBoardId" value=""/>
+<intAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbServerBusSpeed" value="1000000"/>
 <stringAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbServerConnectionAddress" value=""/>
 <booleanAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbServerEnableSemihosting" value="true"/>
 <stringAttribute key="ilg.gnuarmeclipse.debug.gdbjtag.pyocd.gdbServerExecutable" value="${pyocd_path}/${pyocd_executable}"/>
@@ -32,8 +34,8 @@
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageOffset" value=""/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.ipAddress" value="localhost"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDevice" value="GNU ARM PyOCD"/>
-<booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImage" value="true"/>
-<booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadSymbols" value="true"/>
+<booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImage" value="{{load_exe}}"/>
+<booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadSymbols" value="false"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.pcRegister" value=""/>
 <intAttribute key="org.eclipse.cdt.debug.gdbjtag.core.portNumber" value="3333"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setPcRegister" value="false"/>
@@ -55,7 +57,7 @@
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="{{elf_location}}"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="{{name}}"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1710152939"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/{{name}}"/>
 </listAttribute>

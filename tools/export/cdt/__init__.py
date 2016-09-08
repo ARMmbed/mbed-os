@@ -18,7 +18,8 @@ class Eclipse(Makefile):
             'c_symbols': self.toolchain.get_symbols(),
             'asm_symbols': self.toolchain.get_symbols(True),
             'target': self.target,
-            'include_paths': self.resources.inc_dirs
+            'include_paths': self.resources.inc_dirs,
+            'load_exe': str(self.LOAD_EXE).lower()
         }
 
         if not exists(join(self.export_dir,'eclipse-extras')):
@@ -38,10 +39,13 @@ class Eclipse(Makefile):
                       proj)
 
 
-class EclipseGcc(Eclipse, GccArm): pass
+class EclipseGcc(Eclipse, GccArm):
+    LOAD_EXE = True
 
-class EclipseArmc5(Eclipse, Armc5): pass
+class EclipseArmc5(Eclipse, Armc5):
+    LOAD_EXE = False
 
-class EclipseIAR(Eclipse, IAR): pass
+class EclipseIAR(Eclipse, IAR):
+    LOAD_EXE = True
 
 
