@@ -176,6 +176,19 @@ def export_project(src_paths, export_path, target, ide,
         paths = [src_paths]
 
     # Extend src_paths wit libraries_paths
+
+
+
+
+
+
+
+
+
+
+
+
+
     if libraries_paths is not None:
         paths.extend(libraries_paths)
 
