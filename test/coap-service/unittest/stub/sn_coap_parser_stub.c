@@ -34,15 +34,7 @@ void sn_coap_parser_release_allocated_coap_msg_mem(struct coap_s *handle, sn_coa
             free(freed_coap_msg_ptr->token_ptr);
         }
 
-        if (freed_coap_msg_ptr->content_type_ptr != NULL) {
-            free(freed_coap_msg_ptr->content_type_ptr);
-        }
-
         if (freed_coap_msg_ptr->options_list_ptr != NULL) {
-            if (freed_coap_msg_ptr->options_list_ptr->max_age_ptr != NULL) {
-                free(freed_coap_msg_ptr->options_list_ptr->max_age_ptr);
-            }
-
             if (freed_coap_msg_ptr->options_list_ptr->proxy_uri_ptr != NULL) {
                 free(freed_coap_msg_ptr->options_list_ptr->proxy_uri_ptr);
             }
@@ -59,31 +51,12 @@ void sn_coap_parser_release_allocated_coap_msg_mem(struct coap_s *handle, sn_coa
                 free(freed_coap_msg_ptr->options_list_ptr->location_path_ptr);
             }
 
-            if (freed_coap_msg_ptr->options_list_ptr->uri_port_ptr != NULL) {
-                free(freed_coap_msg_ptr->options_list_ptr->uri_port_ptr);
-            }
-
             if (freed_coap_msg_ptr->options_list_ptr->location_query_ptr != NULL) {
                 free(freed_coap_msg_ptr->options_list_ptr->location_query_ptr);
             }
 
-            if (freed_coap_msg_ptr->options_list_ptr->observe_ptr != NULL) {
-                free(freed_coap_msg_ptr->options_list_ptr->observe_ptr);
-            }
-
             if (freed_coap_msg_ptr->options_list_ptr->uri_query_ptr != NULL) {
                 free(freed_coap_msg_ptr->options_list_ptr->uri_query_ptr);
-            }
-
-            if (freed_coap_msg_ptr->options_list_ptr->block2_ptr != NULL) {
-                free(freed_coap_msg_ptr->options_list_ptr->block2_ptr);
-            }
-
-            if (freed_coap_msg_ptr->options_list_ptr->block1_ptr != NULL) {
-                free(freed_coap_msg_ptr->options_list_ptr->block1_ptr);
-            }
-            if (freed_coap_msg_ptr->options_list_ptr->accept_ptr != NULL) {
-                free(freed_coap_msg_ptr->options_list_ptr->accept_ptr);
             }
 
             free(freed_coap_msg_ptr->options_list_ptr);
