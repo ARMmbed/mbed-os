@@ -45,8 +45,8 @@ static void us_ticker_arm_cd(void);
 static int us_ticker_inited = 0;
 static volatile uint32_t counter_major = 0;
 static volatile uint32_t pd_comp_us = 0;    // Power-down compenstaion for normal counter
-static volatile int cd_major_minor_us = 0;
-static volatile int cd_minor_us = 0;
+static volatile uint32_t cd_major_minor_us = 0;
+static volatile uint32_t cd_minor_us = 0;
 static volatile int cd_hires_tmr_armed = 0; // Flag of armed or not of hi-res timer for CD counter
 
 // NOTE: PCLK is set up in mbed_sdk_init(), invocation of which must be before C++ global object constructor. See init_api.c for details.
@@ -116,7 +116,7 @@ uint32_t us_ticker_read()
         
     do {
         uint32_t major_minor_us;
-        uint32_t minor_us; 
+        uint32_t minor_us;
 
         // NOTE: As TIMER_CNT = TIMER_CMP and counter_major has increased by one, TIMER_CNT doesn't change to 0 for one tick time.
         // NOTE: As TIMER_CNT = TIMER_CMP or TIMER_CNT = 0, counter_major (ISR) may not sync with TIMER_CNT. So skip and fetch stable one at the cost of 1 clock delay on this read.
@@ -157,12 +157,21 @@ void us_ticker_clear_interrupt(void)
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer1lores_modinit.modname));
+    cd_hires_tmr_armed = 0;
     
     int delta = (int) (timestamp - us_ticker_read());
-    // NOTE: If this event was in the past, arm an interrupt to be triggered immediately.
-    cd_major_minor_us = delta * US_PER_TICK;
-    
-    us_ticker_arm_cd();
+    if (delta > 0) {
+        cd_major_minor_us = delta * US_PER_TICK;
+        us_ticker_arm_cd();
+    }
+    else {
+        cd_major_minor_us = cd_minor_us = 0;
+        /**
+         * This event was in the past. Set the interrupt as pending, but don't process it here.
+         * This prevents a recurive loop under heavy load which can lead to a stack overflow.
+         */  
+        NVIC_SetPendingIRQ(timer1lores_modinit.irq_n);
+    }
 }
 
 void us_ticker_prepare_sleep(struct sleep_s *obj)
@@ -206,9 +215,9 @@ static void tmr0_vec(void)
 static void tmr1_vec(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(timer1lores_modinit.modname));
-    cd_major_minor_us -= cd_minor_us;
+    cd_major_minor_us = (cd_major_minor_us > cd_minor_us) ? (cd_major_minor_us - cd_minor_us) : 0;
     cd_hires_tmr_armed = 0;
-    if (cd_major_minor_us <= 0) {
+    if (cd_major_minor_us == 0) {
         // NOTE: us_ticker_set_interrupt() may get called in us_ticker_irq_handler();
         us_ticker_irq_handler();
     }

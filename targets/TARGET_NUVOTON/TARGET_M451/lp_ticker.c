@@ -38,8 +38,8 @@ static void lp_ticker_arm_cd(void);
 
 static int lp_ticker_inited = 0;
 static volatile uint32_t counter_major = 0;
-static volatile int cd_major_minor_clks = 0;
-static volatile int cd_minor_clks = 0;
+static volatile uint32_t cd_major_minor_clks = 0;
+static volatile uint32_t cd_minor_clks = 0;
 static volatile uint32_t wakeup_tick = (uint32_t) -1;
 
 // NOTE: To wake the system from power down mode, timer clock source must be ether LXT or LIRC.
@@ -148,10 +148,18 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     
     int delta = (timestamp > now) ? (timestamp - now) : (uint32_t) ((uint64_t) timestamp + 0xFFFFFFFFu - now);
-    // NOTE: If this event was in the past, arm an interrupt to be triggered immediately.
-    cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
-    
-    lp_ticker_arm_cd();
+    if (delta > 0) {
+        cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
+        lp_ticker_arm_cd();
+    }
+    else {
+        cd_major_minor_clks = cd_minor_clks = 0;
+        /**
+         * This event was in the past. Set the interrupt as pending, but don't process it here.
+         * This prevents a recurive loop under heavy load which can lead to a stack overflow.
+         */  
+        NVIC_SetPendingIRQ(timer3_modinit.irq_n);
+    }
 }
 
 void lp_ticker_disable_interrupt(void)
@@ -175,8 +183,8 @@ static void tmr3_vec(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-    cd_major_minor_clks -= cd_minor_clks;
-    if (cd_major_minor_clks <= 0) {
+    cd_major_minor_clks = (cd_major_minor_clks > cd_minor_clks) ? (cd_major_minor_clks - cd_minor_clks) : 0;
+    if (cd_major_minor_clks == 0) {
         // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
         lp_ticker_irq_handler();
     }
