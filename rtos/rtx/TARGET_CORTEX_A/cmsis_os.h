@@ -149,7 +149,11 @@ used throughout the whole project.
 #    define WORDS_STACK_SIZE   128
 #endif
 
-#define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
+#ifndef MBED_CONF_RTOS_DEFAULT_STACK_SIZE
+#define MBED_CONF_RTOS_DEFAULT_STACK_SIZE (WORDS_STACK_SIZE*4)
+#endif
+
+#define DEFAULT_STACK_SIZE         MBED_CONF_RTOS_DEFAULT_STACK_SIZE
 
 /// \note MUST REMAIN UNCHANGED: \b osFeature_xxx shall be consistent in every CMSIS-RTOS.
 #define osFeature_MainThread   1       ///< main thread      1=main can be thread, 0=not available

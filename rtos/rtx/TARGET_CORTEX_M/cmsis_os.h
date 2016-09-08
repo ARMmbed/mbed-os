@@ -82,7 +82,11 @@
 
 #endif
 
-#define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
+#ifndef MBED_CONF_RTOS_DEFAULT_STACK_SIZE
+#define MBED_CONF_RTOS_DEFAULT_STACK_SIZE (WORDS_STACK_SIZE*4)
+#endif
+ 
+#define DEFAULT_STACK_SIZE         MBED_CONF_RTOS_DEFAULT_STACK_SIZE
 
 #define osCMSIS           0x10002U     ///< CMSIS-RTOS API version (main [31:16] .sub [15:0])
 

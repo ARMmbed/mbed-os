@@ -1,6 +1,7 @@
 {
     "name": "rtos",
     "config": {
-        "present": 1
+        "present": 1,
+        "default_stack_size": "(WORDS_STACK_SIZE*4)"
     }
 }
