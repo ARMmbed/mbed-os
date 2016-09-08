@@ -31,7 +31,7 @@ other_pr_master | [link]()
 
 
 ## Deploy notes
-Notes regarding the deployment of the contained body of work. These should note any
+Notes regarding the deployment of this PR. These should note any
 required changes in the build environment, tools, compilers, etc.
 
 
