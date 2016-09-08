@@ -17,6 +17,8 @@
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
+#include "network-socket/nsapi_types.h"
+
 // Predeclared class
 class NetworkStack;
 
@@ -29,12 +31,73 @@ class NetworkInterface {
 public:
     virtual ~NetworkInterface() {};
 
+    /** Get the local MAC address
+     *
+     *  Provided MAC address is intended for info or debug purposes and
+     *  may not be provided if the underlying network interface does not
+     *  provide a MAC address
+     *  
+     *  @return         Null-terminated representation of the local MAC address
+     *                  or null if no MAC address is available
+     */
+    virtual const char *get_mac_address();
+
     /** Get the local IP address
      *
      *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
+     *                  or null if no IP address has been recieved
      */
-    virtual const char *get_ip_address() = 0;
+    virtual const char *get_ip_address();
+
+    /** Get the local network mask
+     *
+     *  @return         Null-terminated representation of the local network mask 
+     *                  or null if no network mask has been recieved
+     */
+    virtual const char *get_netmask();
+
+    /** Get the local gateway
+     *
+     *  @return         Null-terminated representation of the local gateway
+     *                  or null if no network mask has been recieved
+     */
+    virtual const char *get_gateway();
+
+    /** Set a static IP address
+     *
+     *  Configures this network interface to use a static IP address.
+     *  Implicitly disables DHCP, which can be enabled in set_dhcp.
+     *  Requires that the network is disconnected.
+     *
+     *  @param address  Null-terminated representation of the local IP address
+     *  @param netmask  Null-terminated representation of the local network mask
+     *  @param gateway  Null-terminated representation of the local gateway
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int set_network(const char *ip_address, const char *netmask, const char *gateway);
+
+    /** Enable or disable DHCP on the network
+     *
+     *  Enables DHCP on connecting the network. Defaults to enabled unless
+     *  a static IP address has been assigned. Requires that the network is
+     *  disconnected.
+     *
+     *  @param dhcp     True to enable DHCP
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int set_dhcp(bool dhcp);
+
+    /** Start the interface
+     *
+     *  @return     0 on success, negative error code on failure
+     */
+    virtual int connect() = 0;
+
+    /** Stop the interface
+     *
+     *  @return     0 on success, negative error code on failure
+     */
+    virtual int disconnect() = 0;
 
 protected:
     friend class Socket;

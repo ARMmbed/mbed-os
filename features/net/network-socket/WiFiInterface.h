@@ -41,6 +41,20 @@ enum nsapi_security_t {
 class WiFiInterface: public NetworkInterface
 {
 public:
+    /** WiFiInterface lifetime
+     */
+    WiFiInterface();
+    virtual ~WiFiInterface();
+
+    /** Set the WiFi network credentials
+     *
+     *  @param ssid     Name of the network to connect to
+     *  @param pass     Security passphrase to connect to the network
+     *  @param security Type of encryption for connection
+     *                  (defaults to NSAPI_SECURITY_NONE)
+     */
+    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
+
     /** Start the interface
      *
      *  Attempts to connect to a WiFi network. If passphrase is invalid,
@@ -53,17 +67,25 @@ public:
      */
     virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
 
+    /** Start the interface
+     *
+     *  Attempts to connect to a WiFi network. Requires ssid and passphrase to be set.
+     *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int connect();
+
     /** Stop the interface
      *
      *  @return          0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
 
-    /** Get the local MAC address
-     *
-     *  @return         Null-terminated representation of the local MAC address
-     */
-    virtual const char *get_mac_address() = 0;
+private:
+    char *_ssid;
+    char *_pass;
+    nsapi_security_t _security;
 };
 
 

@@ -26,24 +26,6 @@
  */
 class MeshInterface : public NetworkInterface
 {
-public:
-    /** Start the interface
-     *
-     *  @return     0 on success, negative on failure
-     */
-    virtual int connect() = 0;
-
-    /** Stop the interface
-     *
-     *  @return     0 on success, negative on failure
-     */
-    virtual int disconnect() = 0;
-
-    /** Get the local MAC address
-     *
-     *  @return         Null-terminated representation of the local MAC address
-     */
-    virtual const char *get_mac_address() = 0;
 };
 
 
