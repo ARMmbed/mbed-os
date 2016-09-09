@@ -14,10 +14,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os, tempfile
-from os.path import join, exists, basename
-from shutil import copytree, rmtree, copy
-import yaml
 
 from tools.export import codered, ds5_5, iar, makefile
 from tools.export import emblocks, coide, kds, simplicityv3, atmelstudio
