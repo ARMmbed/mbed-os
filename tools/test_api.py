@@ -2001,10 +2001,10 @@ def find_tests(base_dir, target_name, toolchain_name, options=None):
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain(base_dir, target_name, toolchain_name, options=options, silent=True)
+    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options, silent=True)
 
     # Scan the directory for paths to probe for 'TESTS' folders
-    base_resources = scan_resources(base_dir, toolchain)
+    base_resources = scan_resources([base_dir], toolchain)
 
     dirs = base_resources.inc_dirs
     for directory in dirs:
