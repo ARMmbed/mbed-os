@@ -26,4 +26,4 @@ def testApps = [
   ]
 
 // buildTestApps accepts array of test application names and a mbed-os commit hash as parameters
-mbed.buildTestApps(testapps, "${env.GIT_REVISION}")
+mbed.buildTestApps(testApps, "${env.GIT_REVISION}")
