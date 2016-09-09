@@ -49,7 +49,7 @@
 
 // Only allow initialization once
 static int initialized = 0;
- 
+
 //******************************************************************************
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -86,7 +86,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
         // Enable ADC power bypass the buffer
         obj->adc->ctrl |= (MXC_F_ADC_CTRL_ADC_PU | MXC_F_ADC_CTRL_ADC_REFBUF_PU |
-                        MXC_F_ADC_CTRL_ADC_CHGPUMP_PU | MXC_F_ADC_CTRL_BUF_BYPASS);
+                           MXC_F_ADC_CTRL_ADC_CHGPUMP_PU | MXC_F_ADC_CTRL_BUF_BYPASS);
 
         // Wait for ADC ready
         while (!(obj->adc->intr & MXC_F_ADC_INTR_ADC_REF_READY_IF));

@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "port_api.h"
 #include "pinmap.h"
 #include "gpio_api.h"
@@ -50,7 +50,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     obj->reg_in  = &MXC_GPIO->in_val[port];
 
     /* Ensure that the GPIO clock is enabled */
-	MXC_CLKMAN->sys_clk_ctrl_6_gpio = MXC_S_CLKMAN_CLK_SCALE_DIV_1;
+    MXC_CLKMAN->sys_clk_ctrl_6_gpio = MXC_S_CLKMAN_CLK_SCALE_DIV_1;
 
     uint32_t i;
     // The function is set per pin: reuse gpio logic

@@ -92,7 +92,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // To support the most common baud rates, 9600 and 115200, we need to
     // scale down the uart input clock.
     if (!(MXC_CLKMAN->sys_clk_ctrl_8_uart & MXC_F_CLKMAN_SYS_CLK_CTRL_8_UART_UART_CLK_SCALE)) {
-         
+
         switch (SystemCoreClock) {
             case RO_FREQ:
                 MXC_CLKMAN->sys_clk_ctrl_8_uart = MXC_S_CLKMAN_CLK_SCALE_DIV_4;
@@ -134,7 +134,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-    
+
     // Enable UART
     obj->uart->ctrl |= MXC_F_UART_CTRL_UART_EN;
 }
@@ -311,7 +311,7 @@ void serial_putc(serial_t *obj, int c)
 {
     // Wait for TXFIFO to not be full
     while ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
-                >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
+            >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
             >= MXC_UART_FIFO_DEPTH );
 
     // Must clear before every write to the buffer to know that the fifo
@@ -330,8 +330,8 @@ int serial_readable(serial_t *obj)
 int serial_writable(serial_t *obj)
 {
     return ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) 
-                >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
-                < MXC_UART_FIFO_DEPTH );
+             >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
+             < MXC_UART_FIFO_DEPTH );
 }
 
 //******************************************************************************
@@ -348,7 +348,7 @@ void serial_break_set(serial_t *obj)
 {
     // Make sure that nothing is being sent
     while ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
-                >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS) > 0);
+            >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS) > 0);
     while (!(obj->uart->intfl & MXC_F_UART_INTFL_TX_DONE));
 
     // Configure the GPIO to output 0

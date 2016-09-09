@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "cmsis_nvic.h"
 
 #if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_ARM_STD)

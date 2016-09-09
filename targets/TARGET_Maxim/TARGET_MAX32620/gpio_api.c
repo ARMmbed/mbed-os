@@ -85,11 +85,10 @@ void pin_dir(PinName name, PinDirection direction)
     if (direction == PIN_INPUT) {
         /* Set requested output mode */
         MXC_GPIO->out_mode[port] = (MXC_GPIO->out_mode[port] & ~(0xF << (4 * pin))) | (MXC_V_GPIO_OUT_MODE_HIGH_Z_WEAK_PULLUP << (4 * pin));
-        
+
         /* Enable default input weak pull-up by setting corresponding output */
         MXC_GPIO->out_val[port] |= 1 << pin;
-    }
-    else {
+    } else {
         /* Set requested output mode */
         MXC_GPIO->out_mode[port] = (MXC_GPIO->out_mode[port] & ~(0xF << (4 * pin))) | (MXC_V_GPIO_OUT_MODE_NORMAL << (4 * pin));
     }
@@ -97,5 +96,5 @@ void pin_dir(PinName name, PinDirection direction)
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
-   pin_dir(obj->name, direction);
+    pin_dir(obj->name, direction);
 }

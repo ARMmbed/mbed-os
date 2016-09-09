@@ -79,7 +79,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->pwm = (mxc_pt_regs_t*)pwm.peripheral;
 
     // Initialize object period and pulse width
-    obj->period = -1; 
+    obj->period = -1;
     obj->pulse_width = -1;
 
     // Disable the output
@@ -114,7 +114,7 @@ static void pwmout_update(pwmout_t* obj)
 {
     // Calculate and set the divider ratio
     int div = (obj->period * (SystemCoreClock/1000000))/32;
-    if (div < 2){
+    if (div < 2) {
         div = 2;
     }
     MXC_SET_FIELD(&obj->pwm->rate_length, MXC_F_PT_RATE_LENGTH_RATE_CONTROL, div);
@@ -142,7 +142,7 @@ void pwmout_write(pwmout_t* obj, float percent)
 float pwmout_read(pwmout_t* obj)
 {
     // Check for when pulsewidth or period equals 0
-    if ((obj->pulse_width == 0) || (obj->period == 0)){
+    if ((obj->pulse_width == 0) || (obj->period == 0)) {
         return 0;
     }
 

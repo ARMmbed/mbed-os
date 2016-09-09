@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_PORTNAMES_H
 #define MBED_PORTNAMES_H
 

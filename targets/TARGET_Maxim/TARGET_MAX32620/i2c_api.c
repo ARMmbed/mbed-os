@@ -60,42 +60,42 @@ typedef enum {
 static const uint32_t clk_div_table[2][8] = {
     /* MXC_E_I2CM_SPEED_100KHZ */
     {
-		/* 0: 12MHz */ ((6 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(17 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(72 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-		/* 1: 24MHz */ ((12 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(38 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(144 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-		/* 2:       */ 0, /* not supported */
-		/* 3: 48MHz */ ((24 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(80 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(288 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-		/* 4:       */ 0, /* not supported */
-		/* 5:       */ 0, /* not supported */
-		/* 6:       */ 0, /* not supported */
-		/* 7: 96MHz */ ((48 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(164 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(576 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-	},
-	/* MXC_E_I2CM_SPEED_400KHZ */
-	{
-		/* 0: 12MHz */ ((2 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(1 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(18 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-		/* 1: 24MHz */ ((3 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(5 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(36 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-		/* 2:       */ 0, /* not supported */
-		/* 3: 48MHz */ ((6 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(15 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(72 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-		/* 4:       */ 0, /* not supported */
-		/* 5:       */ 0, /* not supported */
-		/* 6:       */ 0, /* not supported */
-		/* 7: 96MHz */ ((12 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
-				(33 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
-				(144 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
-	},
+        /* 0: 12MHz */ ((6 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (17 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (72 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+        /* 1: 24MHz */ ((12 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (38 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (144 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+        /* 2:       */ 0, /* not supported */
+        /* 3: 48MHz */ ((24 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (80 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (288 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+        /* 4:       */ 0, /* not supported */
+        /* 5:       */ 0, /* not supported */
+        /* 6:       */ 0, /* not supported */
+        /* 7: 96MHz */ ((48 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (164 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (576 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+    },
+    /* MXC_E_I2CM_SPEED_400KHZ */
+    {
+        /* 0: 12MHz */ ((2 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (1 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (18 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+        /* 1: 24MHz */ ((3 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (5 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (36 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+        /* 2:       */ 0, /* not supported */
+        /* 3: 48MHz */ ((6 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (15 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (72 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+        /* 4:       */ 0, /* not supported */
+        /* 5:       */ 0, /* not supported */
+        /* 6:       */ 0, /* not supported */
+        /* 7: 96MHz */ ((12 << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS) |
+                        (33 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS) |
+                        (144 << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS)),
+    },
 };
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
@@ -109,7 +109,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     obj->i2c = i2c;
     obj->fifos = (mxc_i2cm_fifo_regs_t*)MXC_I2CM_GET_BASE_FIFO(MXC_I2CM_GET_IDX(i2c));
     obj->start_pending = 0;
-	obj->stop_pending = 0;
+    obj->stop_pending = 0;
 
     // configure the pins
     pinmap_pinout(sda, PinMap_I2C_SDA);
@@ -135,10 +135,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 void i2c_frequency(i2c_t *obj, int hz)
 {
     // compute clock array index
-	// (96Mhz/12M) -1 = 7
-	// (48Mhz/12M) -1 = 3
-	// (24Mhz/12M) -1 = 1
-	// (12Mhz/12M) -1 = 0
+    // (96Mhz/12M) -1 = 7
+    // (48Mhz/12M) -1 = 3
+    // (24Mhz/12M) -1 = 1
+    // (12Mhz/12M) -1 = 0
     int clki = (SystemCoreClock / 12000000) - 1;
 
     // get clock divider settings from lookup table
@@ -318,7 +318,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     }
 
     if (stop) {
-		obj->stop_pending = 0;
+        obj->stop_pending = 0;
         if ((err = write_tx_fifo(obj, MXC_S_I2CM_TRANS_TAG_STOP)) != 0) { // stop condition
             retval = (retval ? retval : err);
         }

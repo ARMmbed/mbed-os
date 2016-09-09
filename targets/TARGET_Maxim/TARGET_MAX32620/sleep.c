@@ -86,8 +86,7 @@ static void usb_sleep(void)
         MXC_USB->dev_cn = 0;
         MXC_USB->cn = 0;
         restore_usb = 1;   // USB should be restored upon wakeup
-    }
-    else {
+    } else {
         restore_usb = 0;
     }
 }
@@ -124,7 +123,7 @@ void deepsleep(void)
 
     // Wait for all STDIO characters to be sent. The UART clock will stop.
     while ((stdio_uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) ||
-           !(stdio_uart->intfl & MXC_F_UART_INTFL_TX_DONE));
+            !(stdio_uart->intfl & MXC_F_UART_INTFL_TX_DONE));
 
     __disable_irq();
 
@@ -187,8 +186,7 @@ void deepsleep(void)
         __SEV();
         __WFE();
         __WFI();
-    }
-    else {
+    } else {
         // Note: ARM deep-sleep requires a specific sequence to clear event latches,
         //  otherwise the CPU will not enter sleep.
         __SEV();
