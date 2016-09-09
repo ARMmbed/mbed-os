@@ -15,10 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
+import sys
+
 # Implementation of mbed configuration mechanism
 from tools.utils import json_file_to_dict
 from tools.targets import Target
-import os
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -376,8 +378,12 @@ class Config(object):
                                              app_config_location, full_path))
                 else:
                     app_config_location = full_path
-        self.app_config_data = json_file_to_dict(app_config_location) \
-                               if app_config_location else {}
+        try:
+            self.app_config_data = json_file_to_dict(app_config_location) \
+                                   if app_config_location else {}
+        except ValueError as exc:
+            sys.stderr.write(str(exc) + "\n")
+            self.app_config_data = {}
         # Check the keys in the application configuration data
         unknown_keys = set(self.app_config_data.keys()) - \
                        self.__allowed_keys["application"]
@@ -419,7 +425,12 @@ class Config(object):
             self.processed_configs[full_path] = True
             # Read the library configuration and add a "__full_config_path"
             # attribute to it
-            cfg = json_file_to_dict(config_file)
+            try:
+                cfg = json_file_to_dict(config_file)
+            except ValueError as exc:
+                sys.stderr.write(str(exc) + "\n")
+                continue
+
             cfg["__config_path"] = full_path
 
             if "name" not in cfg:
