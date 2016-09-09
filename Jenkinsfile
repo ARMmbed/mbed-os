@@ -8,7 +8,7 @@ def targets = [
 
 // Map toolchains to compiler labels on Jenkins
 def toolchains = [
-  //ARM: "armcc",
+  ARM: "armcc",
   //IAR: "iar_arm",
   GCC_ARM: "arm-none-eabi-gcc"
   ]
