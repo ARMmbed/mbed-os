@@ -221,6 +221,7 @@ typedef enum {
     LED2        = PB_7,
     LED3        = PB_14,
     LED4        = LED1,
+    LED_RED     = LED3,
     USER_BUTTON = PC_13,
     SERIAL_TX   = PD_8, // Virtual Com Port
     SERIAL_RX   = PD_9, // Virtual Com Port

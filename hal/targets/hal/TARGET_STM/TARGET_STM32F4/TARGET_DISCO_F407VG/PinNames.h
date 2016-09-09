@@ -229,6 +229,7 @@ typedef enum {
     LED4        = PD_12,
     LED5        = PD_14,
     LED6        = PD_15,
+    LED_RED     = LED1,
     USER_BUTTON = PA_0,
     SERIAL_TX   = PA_2,	/* USART2 */
     SERIAL_RX   = PA_3,

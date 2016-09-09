@@ -2,7 +2,7 @@
 // Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,9 @@
  */
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
-#define DEVICE_RTC_LSI 1
-
-
-
 
 //=======================================
-
 #define DEVICE_ID_LENGTH       24
-
-
-
 
 #include "objects.h"
 
