@@ -37,9 +37,9 @@
 #include "rtc_api_hal.h"
 
 static uint8_t lp_ticker_inited = 0;
-static uint8_t lp_ticker_reconf_presc = 0;
 
-void lp_ticker_init() {
+void lp_ticker_init(void)
+{
     if (lp_ticker_inited) return;
     lp_ticker_inited = 1;
 
@@ -47,48 +47,37 @@ void lp_ticker_init() {
     rtc_set_irq_handler((uint32_t) lp_ticker_irq_handler);
 }
 
-uint32_t lp_ticker_read() {
-    uint32_t sub_secs, milis;
+uint32_t lp_ticker_read(void)
+{
+    uint32_t usecs;
     time_t time;
 
     lp_ticker_init();
 
+    do {
     time = rtc_read();
-    sub_secs = rtc_read_subseconds();
-    milis = 1000 - (sub_secs * 1000 / rtc_ticker_get_synch_presc());
+      usecs = rtc_read_subseconds();
+    } while (time != rtc_read());
 
-    return (time * 1000000) + (milis * 1000);
+    return (time * 1000000) + usecs;
 }
 
-void lp_ticker_set_interrupt(timestamp_t timestamp) {
-    uint32_t sub_secs, delta, milis;
-    time_t secs;
-    struct tm *timeinfo;
+void lp_ticker_set_interrupt(timestamp_t timestamp)
+{
+    uint32_t delta;
 
-    // Reconfigure RTC prescalers whenever the timestamp is below 30ms
-    if (!lp_ticker_reconf_presc && timestamp < 30000) {
-        rtc_reconfigure_prescalers();
-        lp_ticker_reconf_presc = 1;
+    delta = timestamp - lp_ticker_read();
+    rtc_set_wake_up_timer(delta);
     }
 
-    milis = (timestamp % 1000000) / 1000;
-
-    secs = rtc_read();
-    delta = ((timestamp / 1000000) - secs);
-
-    secs += delta;
-    sub_secs = (rtc_ticker_get_synch_presc() * (1000 - milis)) / 1000;
-    timeinfo = localtime(&secs);
-
-    rtc_set_alarm(timeinfo, sub_secs);
+void lp_ticker_disable_interrupt(void)
+{
+    rtc_deactivate_wake_up_timer();
 }
 
-void lp_ticker_disable_interrupt() {
-    lp_ticker_reconf_presc = 0;
-    rtc_ticker_disable_irq();
-}
+void lp_ticker_clear_interrupt(void)
+{
 
-void lp_ticker_clear_interrupt() {
 }
 
 #endif
