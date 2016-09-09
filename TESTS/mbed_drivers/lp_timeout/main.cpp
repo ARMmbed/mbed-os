@@ -43,11 +43,15 @@ void lp_timeout_1s_deepsleep(void)
 {
     complete = false;
 
-    timestamp_t start = us_ticker_read();
+    /* 
+     * We use here lp_ticker_read() instead of us_ticker_read() for start and 
+     * end because the microseconds timer might be disable during deepsleep.
+     */
+    timestamp_t start = lp_ticker_read();
     lpt.attach(&cb_done, 1);
     deepsleep();
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    timestamp_t end = lp_ticker_read();
 
     /* It takes longer to wake up from deep sleep */
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);

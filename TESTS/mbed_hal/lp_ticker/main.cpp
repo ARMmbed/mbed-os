@@ -69,11 +69,15 @@ void lp_ticker_1s_deepsleep()
     ticker_remove_event(lp_ticker_data, &delay_event);
     delay_ts = lp_ticker_read() + 1000000;
 
-    timestamp_t start = us_ticker_read();
+    /* 
+     * We use here lp_ticker_read() instead of us_ticker_read() for start and 
+     * end because the microseconds timer might be disable during deepsleep.
+     */
+    timestamp_t start = lp_ticker_read();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     deepsleep();
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    timestamp_t end = lp_ticker_read();
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
     TEST_ASSERT_TRUE(complete);
