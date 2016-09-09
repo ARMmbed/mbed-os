@@ -19,9 +19,32 @@
 
 
 /* Interface implementation */
+EthernetInterface::EthernetInterface()
+    : _dhcp(false), _ip_address(), _netmask(), _gateway()
+{
+}
+
+int EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+{
+    _dhcp = false;
+    strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
+    strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
+    strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
+    return 0;
+}
+
+int EthernetInterface::set_dhcp(bool dhcp)
+{
+    _dhcp = dhcp;
+    return 0;
+}
+
 int EthernetInterface::connect()
 {
-    return lwip_bringup();
+    return lwip_bringup(_dhcp,
+            _ip_address[0] ? _ip_address : 0,
+            _netmask[0] ? _netmask : 0,
+            _gateway[0] ? _gateway : 0);
 }
 
 int EthernetInterface::disconnect()
@@ -29,14 +52,24 @@ int EthernetInterface::disconnect()
     return lwip_bringdown();
 }
 
+const char *EthernetInterface::get_mac_address()
+{
+    return lwip_get_mac_address();
+}
+
 const char *EthernetInterface::get_ip_address()
 {
     return lwip_get_ip_address();
 }
 
-const char *EthernetInterface::get_mac_address()
+const char *EthernetInterface::get_netmask()
 {
-    return lwip_get_mac_address();
+    return lwip_get_netmask();
+}
+
+const char *EthernetInterface::get_gateway()
+{
+    return lwip_get_gateway();
 }
 
 NetworkStack *EthernetInterface::get_stack()
