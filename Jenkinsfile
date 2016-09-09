@@ -14,13 +14,16 @@ def toolchains = [
   ]
 
 // Create a map of predefined build steps 
-stage "generate build steps for parallel execution"
 def parallelSteps = mbed.createParalleSteps("mbed-os", targets, toolchains)
 
 // Run build steps parallel, map as paramater
-stage "build all targets"
 mbed.compile(parallelSteps)
 
 // Run testapps, mbed-os commit hash or master as parameter
-stage "run mbed-os testapps"
-mbed.runTestApps("${env.GIT_REVISION}")
+
+def testApps = [
+  "mbed-os-cliapp"
+  ]
+
+// buildTestApps accepts array of test application names and a mbed-os commit hash as parameters
+mbed.buildTestApps(testapps, "${env.GIT_REVISION}")
