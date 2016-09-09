@@ -2,10 +2,11 @@
 import os
 import sys
 import logging
-from os.path import join, dirname, relpath
+from os.path import join, dirname, relpath, basename, realpath
 from itertools import groupby
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
+import copy
 
 from tools.targets import TARGET_MAP
 from project_generator.tools import tool
@@ -73,10 +74,19 @@ class Exporter(object):
         self.resources = resources
         self.generated_files = [join(self.TEMPLATE_DIR,"GettingStarted.html")]
         self.builder_files_dict = {}
+        self.add_config()
 
     def get_toolchain(self):
         """A helper getter function that we should probably eliminate"""
         return self.TOOLCHAIN
+
+    def add_config(self):
+        """Add the containgin directory of mbed_config.h to include dirs"""
+        config = self.toolchain.get_config_header()
+        if config:
+            self.resources.inc_dirs.append(
+                dirname(relpath(config,
+                                self.resources.file_basepath[config])))
 
     @property
     def flags(self):
@@ -89,7 +99,7 @@ class Exporter(object):
         common_flags - common options
         """
         config_header = self.toolchain.get_config_header()
-        flags = {key + "_flags": value for key, value
+        flags = {key + "_flags": copy.deepcopy(value) for key, value
                  in self.toolchain.flags.iteritems()}
         asm_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols(True)]
         c_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols()]
@@ -217,3 +227,23 @@ class Exporter(object):
         logging.debug("Generating: %s", target_path)
         open(target_path, "w").write(target_text)
         self.generated_files += [target_path]
+
+    def make_key(self, src):
+        """From a source file, extract group name
+        Positional Arguments:
+        src - the src's location
+        """
+        key = basename(dirname(src))
+        if key == ".":
+            key = basename(realpath(self.export_dir))
+        return key
+
+    def group_project_files(self, sources):
+        """Group the source files by their encompassing directory
+        Positional Arguments:
+        sources - array of sourc locations
+
+        Returns a dictionary of {group name: list of source locations}
+        """
+        data = sorted(sources, key=self.make_key)
+        return {k: list(g) for k,g in groupby(data, self.make_key)}
