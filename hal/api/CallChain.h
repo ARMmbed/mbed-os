@@ -91,14 +91,14 @@ public:
      *
      *  @deprecated
      *  The add function does not support cv-qualifiers. Replaced by
-     *  add(callback(obj, method)).
+     *  add(mbed::callback(obj, method)).
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The add function does not support cv-qualifiers. Replaced by "
-        "add(callback(obj, method)).")
+        "add(mbed::callback(obj, method)).")
     pFunctionPointer_t add(T *obj, M method) {
-        return add(callback(obj, method));
+        return add(mbed::callback(obj, method));
     }
 
     /** Add a function at the beginning of the chain
@@ -120,14 +120,14 @@ public:
      *
      *  @deprecated
      *  The add_front function does not support cv-qualifiers. Replaced by
-     *  add_front(callback(obj, method)).
+     *  add_front(mbed::callback(obj, method)).
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The add_front function does not support cv-qualifiers. Replaced by "
-        "add_front(callback(obj, method)).")
+        "add_front(mbed::callback(obj, method)).")
     pFunctionPointer_t add_front(T *obj, M method) {
-        return add_front(callback(obj, method));
+        return add_front(mbed::callback(obj, method));
     }
 
     /** Get the number of functions in the chain

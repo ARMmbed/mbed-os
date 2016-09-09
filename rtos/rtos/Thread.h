@@ -108,12 +108,12 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
+        Thread-spawning constructors hide errors. Replaced by thread.start(mbed::callback(argument, task)).
 
         @code
         Thread thread(priority, stack_size, stack_pointer);
 
-        osStatus status = thread.start(callback(argument, task));
+        osStatus status = thread.start(mbed::callback(argument, task));
         if (status != osOK) {
             error("oh no!");
         }
@@ -122,7 +122,7 @@ public:
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(argument, task)).")
+        "Replaced by thread.start(mbed::callback(argument, task)).")
     Thread(T *argument, void (T::*task)(),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -139,12 +139,12 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
+        Thread-spawning constructors hide errors. Replaced by thread.start(mbed::callback(argument, task)).
 
         @code
         Thread thread(priority, stack_size, stack_pointer);
 
-        osStatus status = thread.start(callback(argument, task));
+        osStatus status = thread.start(mbed::callback(argument, task));
         if (status != osOK) {
             error("oh no!");
         }
@@ -153,7 +153,7 @@ public:
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(argument, task)).")
+        "Replaced by thread.start(mbed::callback(argument, task)).")
     Thread(T *argument, void (*task)(T *),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -170,12 +170,12 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
+        Thread-spawning constructors hide errors. Replaced by thread.start(mbed::callback(argument, task)).
 
         @code
         Thread thread(priority, stack_size, stack_pointer);
 
-        osStatus status = thread.start(callback(argument, task));
+        osStatus status = thread.start(mbed::callback(argument, task));
         if (status != osOK) {
             error("oh no!");
         }
@@ -183,7 +183,7 @@ public:
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(argument, task)).")
+        "Replaced by thread.start(mbed::callback(argument, task)).")
     Thread(void (*task)(void const *argument), void *argument=NULL,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -203,12 +203,12 @@ public:
       @param   method         function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
       @deprecated
-          The start function does not support cv-qualifiers. Replaced by start(callback(obj, method)).
+          The start function does not support cv-qualifiers. Replaced by start(mbed::callback(obj, method)).
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The start function does not support cv-qualifiers. "
-        "Replaced by thread.start(callback(obj, method)).")
+        "Replaced by thread.start(mbed::callback(obj, method)).")
     osStatus start(T *obj, M method) {
         return start(mbed::callback(obj, method));
     }

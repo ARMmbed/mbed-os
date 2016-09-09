@@ -106,14 +106,14 @@ public:
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      *  @deprecated
      *      The attach function does not support cv-qualifiers. Replaced by
-     *      attach(callback(obj, method), type).
+     *      attach(mbed::callback(obj, method), type).
      */
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method), type).")
+        "attach(mbed::callback(obj, method), type).")
     void attach(T *obj, void (T::*method)(), IrqType type=RxIrq) {
-        attach(callback(obj, method), type);
+        attach(mbed::callback(obj, method), type);
     }
 
     /** Attach a member function to call whenever a serial interrupt is generated
@@ -123,14 +123,14 @@ public:
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      *  @deprecated
      *      The attach function does not support cv-qualifiers. Replaced by
-     *      attach(callback(obj, method), type).
+     *      attach(mbed::callback(obj, method), type).
      */
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method), type).")
+        "attach(mbed::callback(obj, method), type).")
     void attach(T *obj, void (*method)(T*), IrqType type=RxIrq) {
-        attach(callback(obj, method), type);
+        attach(mbed::callback(obj, method), type);
     }
 
     /** Generate a break condition on the serial line

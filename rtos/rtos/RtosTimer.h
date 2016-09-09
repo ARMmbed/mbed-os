@@ -64,12 +64,12 @@ public:
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
       @deprecated
           The RtosTimer constructor does not support cv-qualifiers. Replaced by
-          RtosTimer(callback(obj, method), os_timer_type).
+          RtosTimer(mbed::callback(obj, method), os_timer_type).
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The RtosTimer constructor does not support cv-qualifiers. Replaced by "
-        "RtosTimer(callback(obj, method), os_timer_type).")
+        "RtosTimer(mbed::callback(obj, method), os_timer_type).")
     RtosTimer(T *obj, M method, os_timer_type type=osTimerPeriodic) {
         constructor(mbed::callback(obj, method), type);
     }
