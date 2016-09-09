@@ -58,7 +58,7 @@ uint32_t SystemCoreClock = RO_FREQ;
 void SystemCoreClockUpdate(void)
 {
     switch ((MXC_CLKMAN->clk_ctrl & MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT) >> MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_POS) {
-             
+
         case MXC_V_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_96MHZ_RO_DIV_2:
         default:
             SystemCoreClock = RO_FREQ / 2;
@@ -187,11 +187,11 @@ void SystemInit(void)
     // Clear all unused wakeup sources
     // Beware! Do not change any flag not mentioned here, as they will gate important power sequencer signals
     MXC_PWRSEQ->msk_flags &= ~(MXC_F_PWRSEQ_MSK_FLAGS_PWR_USB_PLUG_WAKEUP |
-			       MXC_F_PWRSEQ_MSK_FLAGS_PWR_USB_REMOVE_WAKEUP);
+                               MXC_F_PWRSEQ_MSK_FLAGS_PWR_USB_REMOVE_WAKEUP);
 
     // RTC sources are inverted, so a 1 will disable them
     MXC_PWRSEQ->msk_flags |= (MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR1 |
-			      MXC_F_PWRSEQ_MSK_FLAGS_RTC_PRESCALE_CMP);
+                              MXC_F_PWRSEQ_MSK_FLAGS_RTC_PRESCALE_CMP);
 
     /* Enable RTOS Mode: Enable 32kHz clock synchronizer to SysTick external clock input */
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;
@@ -206,7 +206,7 @@ void SystemInit(void)
     SCB->CPACR |= SCB_CPACR_CP10_Msk | SCB_CPACR_CP11_Msk;
     __DSB();
     __ISB();
-#endif  
+#endif
 
     // Trim ring oscillator
     Trim_ROAtomic();

@@ -233,7 +233,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-   /* disable interrupt */
+    /* disable interrupt */
     MXC_GPIO->inten[obj->port] &= ~(1 << obj->pin);
     MXC_GPIO->int_mode[obj->port] &= ~(MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin*4));
     objs[obj->port][obj->pin] = NULL;

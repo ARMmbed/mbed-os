@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "objects.h"
