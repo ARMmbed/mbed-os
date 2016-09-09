@@ -250,27 +250,15 @@ int serial_getc(serial_t *obj)
     while(obj->uart->status & MXC_F_UART_STATUS_RX_FIFO_EMPTY) {}
     c = obj->uart->tx_rx_fifo & 0xFF;
 
-    // Echo characters for stdio
-    if (obj->uart == (mxc_uart_regs_t*)STDIO_UART) {
-        obj->uart->tx_rx_fifo = c;
-    }
-    
     return c;
 }
 
 //******************************************************************************
 void serial_putc(serial_t *obj, int c)
 {
-    // Append a carriage return for stdio
-    if ((c == (int)'\n') && (obj->uart == (mxc_uart_regs_t*)STDIO_UART)) {
-        while(obj->uart->status & MXC_F_UART_STATUS_TX_FIFO_FULL) {}
-        obj->uart->tx_rx_fifo = '\r';
-    }
-
     // Wait for TXFIFO to not be full
     while(obj->uart->status & MXC_F_UART_STATUS_TX_FIFO_FULL) {}
     obj->uart->tx_rx_fifo = c;
-
 }
 
 //******************************************************************************
