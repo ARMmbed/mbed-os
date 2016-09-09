@@ -50,7 +50,7 @@
 #elif defined(TARGET_MAX32620)
 
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
+#define INITIAL_SP              (0x20040000UL)
 #endif
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              14
