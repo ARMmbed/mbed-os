@@ -121,8 +121,8 @@ class Exporter(object):
         def make_key(src):
             """turn a source file into it's group name"""
             key = os.path.basename(os.path.dirname(src))
-            if not key:
-                key = os.path.basename(os.path.normpath(self.export_dir))
+            if not key or relpath(key, self.export_dir) == '.':
+                key = self.project_name
             return key
 
         def grouped(sources):
