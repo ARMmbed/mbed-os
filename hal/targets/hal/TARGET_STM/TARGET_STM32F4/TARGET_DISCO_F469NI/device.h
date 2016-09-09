@@ -42,6 +42,8 @@
 
 
 
+#define DEVICE_LOWPOWERTIMER    1
+
 //=======================================
 
 #define DEVICE_ID_LENGTH       24
