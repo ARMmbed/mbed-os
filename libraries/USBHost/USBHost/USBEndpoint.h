@@ -17,7 +17,7 @@
 #ifndef USBENDPOINT_H
 #define USBENDPOINT_H
 
-#include "FunctionPointer.h"
+#include "Callback.h"
 #include "USBHostTypes.h"
 #include "rtos.h"
 
@@ -153,7 +153,7 @@ private:
     int transferred;
     uint8_t * buf_start;
 
-    FunctionPointer rx;
+    Callback<void()> rx;
 
     USBEndpoint* nextEp;
 
