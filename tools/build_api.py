@@ -276,7 +276,7 @@ def get_mbed_official_release(version):
 def prepare_toolchain(src_paths, target, toolchain_name,
                       macros=None, options=None, clean=False, jobs=1,
                       notify=None, silent=False, verbose=False,
-                      extra_verbose=False, config=None):
+                      extra_verbose=False, config=None, extra_flags=None):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -317,6 +317,17 @@ def prepare_toolchain(src_paths, target, toolchain_name,
             extra_verbose=extra_verbose)
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
+
+    if extra_flags  and 'cflags' in extra_flags:
+        toolchain.cc.extend(extra_flags['cflags'])
+    if extra_flags  and 'cxxflags' in extra_flags:
+        toolchain.cppc.extend(extra_flags['cxxflags'])
+    if extra_flags and 'ldflags' in extra_flags:
+        toolchain.hook.hook_cmdline_linker(
+            lambda name, flags: flags + extra_flags['ldflags'])
+    if extra_flags and 'asmflags' in extra_flags:
+        toolchain.hook.hook_cmdline_assembler(
+            lambda name, flags: flags + extra_flags['asmflags'])
 
     toolchain.config = config
     toolchain.jobs = jobs
@@ -369,7 +380,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   clean=False, notify=None, verbose=False, name=None,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
-                  project_description=None, extra_verbose=False, config=None):
+                  project_description=None, extra_verbose=False, config=None,
+                  extra_flags=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -415,7 +427,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, target, toolchain_name, macros=macros, options=options,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, config=config)
+        extra_verbose=extra_verbose, config=config, extra_flags=extra_flags)
 
     # The first path will give the name to the library
     if name is None:
@@ -489,7 +501,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, verbose=False, macros=None,
                   inc_dirs=None, jobs=1, silent=False, report=None,
                   properties=None, extra_verbose=False, project_id=None,
-                  remove_config_header_file=False):
+                  remove_config_header_file=False, extra_flags=None):
     """ Build a library
 
     Positional arguments:
@@ -539,7 +551,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, target, toolchain_name, macros=macros, options=options,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose)
+        extra_verbose=extra_verbose, extra_flags=extra_flags)
 
     # The first path will give the name to the library
     if name is None:
@@ -807,7 +819,8 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
 # library
 def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
                     clean=False, macros=None, notify=None, jobs=1, silent=False,
-                    report=None, properties=None, extra_verbose=False):
+                    report=None, properties=None, extra_verbose=False,
+                    extra_flags=None):
     """ Function returns True is library was built and false if building was
     skipped
 
