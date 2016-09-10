@@ -75,14 +75,14 @@ static control_t cfstore_close_test_00(const size_t call_count)
  *
  * The is a basic test case which does the following:
  * - 01. create a key with handle hkey1
- * - 02. write data of hkey
+ * - 02. write data of hkey1
  * - 03. opens KV with 2nd handle, hkey2
  * - 04. read data with hkey2 and make sure its the same as that written with hkey1
  * - 05. write new data with hkey2
  * - 06. delete hkey2
  * - 07. close hkey2
  * - 08. read hkey1 and make sure the data is the newly written data i.e. the key hasnt
- *     been deleted yet
+ *       been deleted yet
  * - 09. try to open KV and make sure unable to do so, as KV is deleting
  * - 10. close hkey1
  * - 11. try to open KV and make sure unable to do so because its now been deleted
