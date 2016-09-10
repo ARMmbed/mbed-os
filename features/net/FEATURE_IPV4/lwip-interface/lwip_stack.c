@@ -313,6 +313,9 @@ static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi
 {
     struct lwip_socket *s = (struct lwip_socket *)server;
     struct lwip_socket *ns = lwip_arena_alloc();
+    if (!ns) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
 
     err_t err = netconn_accept(s->conn, &ns->conn);
     if (err != ERR_OK) {
