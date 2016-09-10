@@ -77,7 +77,74 @@
 #include "Callback.h"
 #include "FunctionPointer.h"
 
-using namespace mbed;
+// expansion of the std namespace
 using namespace std;
+
+// explicit expansion of mbed classes
+using mbed::DigitalIn;
+using mbed::DigitalOut;
+using mbed::DigitalInOut;
+using mbed::BusIn;
+using mbed::BusOut;
+using mbed::BusInOut;
+#if DEVICE_PORTIN
+using mbed::PortIn;
+#endif
+#if DEVICE_PORTINOUT
+using mbed::PortInOut;
+#endif
+#if DEVICE_PORTOUT
+using mbed::PortOut;
+#endif
+#if DEVICE_ANALOGIN
+using mbed::AnalogIn;
+#endif
+#if DEVICE_ANALOGOUT
+using mbed::AnalogOut;
+#endif
+#if DEVICE_PWMOUT
+using mbed::PwmOut;
+#endif
+#if DEVICE_SERIAL
+using mbed::SerialBase;
+using mbed::Serial;
+using mbed::RawSerial;
+#endif
+#if DEVICE_SPI
+using mbed::SPI;
+#endif
+#if DEVICE_SPISLAVE
+using mbed::SPISlave;
+#endif
+#if DEVICE_I2C
+using mbed::I2C;
+#endif
+#if DEVICE_I2CSLAVE
+using mbed::I2CSlave;
+#endif
+#if DEVICE_ETHERNET
+using mbed::Ethernet;
+#endif
+#if DEVICE_CAN
+using mbed::CAN;
+#endif
+using mbed::Timer;
+using mbed::Ticker;
+using mbed::Timeout;
+#if DEVICE_LOWPOWERTIMER
+using mbed::LowPowerTimeout;
+using mbed::LowPowerTicker;
+using mbed::LowPowerTimer;
+#endif
+#if DEVICE_LOCALFILESYSTEM
+using mbed::LocalFileSystem;
+#endif
+#if DEVICE_INTERRUPTIN
+using mbed::InterruptIn;
+#endif
+using mbed::Stream;
+using mbed::Callback;
+using mbed::FunctionPointer;
+
 
 #endif
