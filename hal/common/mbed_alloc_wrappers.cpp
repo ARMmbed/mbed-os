@@ -47,7 +47,9 @@ typedef struct {
 } alloc_info_t;
 
 static SingletonPtr<PlatformMutex> malloc_stats_mutex;
+#ifdef MBED_MEM_TRACING_ENABLED
 static SingletonPtr<PlatformMutex> mem_trace_mutex;
+#endif // #ifdef MBED_MEM_TRACING_ENABLED
 static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0};
 
 void mbed_stats_heap_get(mbed_stats_heap_t *stats)
