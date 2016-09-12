@@ -119,11 +119,11 @@ class Exporter(object):
             source_files.extend(getattr(self.resources, key))
         return list(set([os.path.dirname(src) for src in source_files]))
 
-    def check_supported(self, ide):
+    def check_supported(self):
         """Indicated if this combination of IDE and MCU is supported"""
         if self.target not in self.TARGETS or \
            self.TOOLCHAIN not in TARGET_MAP[self.target].supported_toolchains:
-            return False
+            raise TargetNotSupportedException()
         return True
 
     def gen_file(self, template_file, data, target_file):
