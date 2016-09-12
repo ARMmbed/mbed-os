@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,6 @@ typedef enum {
     ADC_3 = (int)ADC3_BASE
 } ADCName;
 
-typedef enum {
-    DAC_0 = 0,
-    DAC_1
-} DACName;
 
 typedef enum {
     UART_1 = (int)USART1_BASE,
@@ -58,9 +54,9 @@ typedef enum {
     UART_8 = (int)UART8_BASE
 } UARTName;
 
-#define STDIO_UART_TX  PD_8
-#define STDIO_UART_RX  PD_9
-#define STDIO_UART     UART_3
+#define STDIO_UART_TX  PA_9
+#define STDIO_UART_RX  PA_10
+#define STDIO_UART     UART_1
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
@@ -91,6 +87,11 @@ typedef enum {
     PWM_13 = (int)TIM13_BASE,
     PWM_14 = (int)TIM14_BASE
 } PWMName;
+
+typedef enum {
+    CAN_1 = (int)CAN1_BASE,
+    CAN_2 = (int)CAN2_BASE
+} CANName;
 
 #ifdef __cplusplus
 }
