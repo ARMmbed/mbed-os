@@ -83,10 +83,7 @@ osStatus Thread::start(Callback<void()> task) {
     _thread_def.pthread = Thread::_thunk;
     if (_thread_def.stack_pointer == NULL) {
         _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
-        if (_thread_def.stack_pointer == NULL) {
-            _mutex.unlock();
-            return osErrorNoMemory;
-        }
+        MBED_ASSERT(_thread_def.stack_pointer != NULL);
     }
 
     //Fill the stack with a magic word for maximum usage checking
@@ -97,8 +94,12 @@ osStatus Thread::start(Callback<void()> task) {
     _task = task;
     _tid = osThreadCreate(&_thread_def, this);
     if (_tid == NULL) {
-        if (_dynamic_stack) delete[] (_thread_def.stack_pointer);
+        if (_dynamic_stack) {
+            delete[] (_thread_def.stack_pointer);
+            _thread_def.stack_pointer = (uint32_t*)NULL;
+        }
         _mutex.unlock();
+        _join_sem.release();
         return osErrorResource;
     }
 
@@ -355,6 +356,7 @@ Thread::~Thread() {
 #ifdef __MBED_CMSIS_RTOS_CM
     if (_dynamic_stack) {
         delete[] (_thread_def.stack_pointer);
+        _thread_def.stack_pointer = (uint32_t*)NULL;
     }
 #endif
 }
