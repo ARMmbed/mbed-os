@@ -1040,11 +1040,7 @@
         "extra_labels": ["STM", "STM32F3", "STM32F303", "STM32F303VC"],
         "macros": ["DEVICE_RTC_LSI=1"],
         "supported_toolchains": ["GCC_ARM"],
-<<<<<<< 1a501c3bb8be167bb9cf38e5742dd60c191c4e04
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
-=======
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
->>>>>>> STM32F3xx - Enable SERIAL_FC in targets.json
     },
     "DISCO_F334C8": {
         "inherits": ["Target"],
@@ -1055,13 +1051,9 @@
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "progen": {"target": "disco-f334c8"},
         "detect_code": ["0810"],
-<<<<<<< 1a501c3bb8be167bb9cf38e5742dd60c191c4e04
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-=======
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
->>>>>>> STM32F3xx - Enable SERIAL_FC in targets.json
         "default_lib": "small",
-	"release_versions": ["2"]
+        "release_versions": ["2"]
     },
     "DISCO_F407VG": {
         "inherits": ["Target"],
