@@ -46,7 +46,7 @@ typedef enum {
     ADC1_5,
     ADC1_6,
     ADC1_7,
-    ADC_pin0_0,        // inlcude adc only pin channels
+    ADC_pin0_0,
     ADC_pin0_1,
     ADC_pin0_2,
     ADC_pin0_3,

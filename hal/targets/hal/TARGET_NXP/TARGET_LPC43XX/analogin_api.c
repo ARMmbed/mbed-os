@@ -70,32 +70,27 @@ void analogin_init(analogin_t *obj, PinName pin) {
     MBED_ASSERT(obj->adc != (LPC_ADC_T *)NC);
     
     // Set ADC number
-    if(name < ADC1_0)
-    {
+    if(name < ADC1_0) {
         obj->num = 0;
-    } else if(name < ADC_pin0_0 && name > ADC0_6)
-    {
+    } else if(name < ADC_pin0_0 && name > ADC0_6) {
         obj->num = 1;
-    } else if(name < ADC_pin1_1 && name > ADC1_7)
-    {
+    } else if(name < ADC_pin1_1 && name > ADC1_7) {
         obj->num = 0;
-    } else if(name > ADC_pin0_7)
-    {
+    } else if(name > ADC_pin0_7) {
         obj->num = 1;
     }
 
-    // Set ADC register, number and channel
+    //ADC register and channel
     obj->ch = name % (ADC0_7 + 1);
     obj->adc = (LPC_ADC_T *) (obj->num > 0) ? LPC_ADC1 : LPC_ADC0;
 
     // Reset pin function to GPIO if it is a GPIO pin. for adc only pins it is not necessary
-    if(name < ADC_pin0_0)
-    {
-        gpio_set(pin);
-        // Select ADC on analog function select register in SCU
-        LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
+    if(name < ADC_pin0_0) {
+    	gpio_set(pin);
+    	// Select ADC on analog function select register in SCU
+    	LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
     } else {
-        LPC_SCU->ENAIO[obj->num] &= ~(1 << obj->ch);
+    	LPC_SCU->ENAIO[obj->num] &= ~(1 << obj->ch);
     }
     
     // Calculate minimum clock divider

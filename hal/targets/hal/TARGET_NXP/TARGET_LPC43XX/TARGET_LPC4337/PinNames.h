@@ -506,7 +506,6 @@ typedef enum {
     LED4 = LED_RED,
 
     // Analog Only pins
-
     adc0_0 = MBED_PIN(NO_PORT, 0, NO_GPIO, 0),
     adc0_1 = MBED_PIN(NO_PORT, 1, NO_GPIO, 0),
     adc0_2 = MBED_PIN(NO_PORT, 2, NO_GPIO, 0),

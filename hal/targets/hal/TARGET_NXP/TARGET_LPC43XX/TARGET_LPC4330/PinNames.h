@@ -666,6 +666,7 @@ typedef enum {
                       // (*)  if DAC0 is configured, ADC4 is not available
                       // (**) ADC5 requires JP2 mod
 
+    // Analog Only Pins
     adc0_0 = MBED_PIN(NO_PORT, 0, NO_GPIO, 0),
     adc0_1 = MBED_PIN(NO_PORT, 1, NO_GPIO, 0),
     adc0_2 = MBED_PIN(NO_PORT, 2, NO_GPIO, 0),
