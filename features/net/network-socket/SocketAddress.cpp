@@ -258,6 +258,25 @@ SocketAddress::operator bool() const
     return false;
 }
 
+bool operator==(const SocketAddress &a, const SocketAddress &b)
+{
+    int count = 0;
+    if (a._addr.version == NSAPI_IPv4 && b._addr.version == NSAPI_IPv4) {
+        count = NSAPI_IPv4_BYTES;
+    } else if (a._addr.version == NSAPI_IPv6 && b._addr.version == NSAPI_IPv6) {
+        count = NSAPI_IPv6_BYTES;
+    } else {
+        return false;
+    }
+
+    return (memcmp(a._addr.bytes, b._addr.bytes, count) == 0);
+}
+
+bool operator!=(const SocketAddress &a, const SocketAddress &b)
+{
+    return !(a == b);
+}
+
 void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
 {
     _ip_address[0] = '\0';
