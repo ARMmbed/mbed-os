@@ -45,17 +45,21 @@ class IAR(mbedToolchain):
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
 
+    @staticmethod
+    def check_executable():
+        if not TOOLCHAIN_PATHS["IAR"] or not exists(TOOLCHAIN_PATHS['IAR']):
+            exe = find_executable('iccarm')
+            if not exe:
+                return False
+            TOOLCHAIN_PATHS['IAR'] = dirname(dirname(exe))
+        return True
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
-
-        if not TOOLCHAIN_PATHS['IAR']:
-            exe =  find_executable('iccarm')
-            if exe:
-                TOOLCHAIN_PATHS['IAR'] = dirname(dirname(exe))
 
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
@@ -107,8 +111,6 @@ class IAR(mbedToolchain):
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
-
-        self.toolchain_path = TOOLCHAIN_PATHS['IAR']
 
     def parse_dependencies(self, dep_path):
         return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()

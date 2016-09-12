@@ -35,7 +35,7 @@ from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from utils import argparse_dir_not_parent
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
@@ -114,6 +114,13 @@ if __name__ == '__main__':
         if options.tool is None:
             args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
+
+        if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+            if TOOLCHAIN_PATHS[toolchain] == '':
+                TOOLCHAIN_PATHS[toolchain] = "No path set"
+            args_error(parser, "Could not find executable for %s.\n"
+                               "Currently set search path: %s"
+                       % (toolchain, TOOLCHAIN_PATHS[toolchain]))
 
         # Find all tests in the relevant paths
         for path in all_paths:
@@ -196,6 +203,7 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
+
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
                         options=options.options,
                         clean=options.clean,
