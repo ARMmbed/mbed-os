@@ -158,9 +158,11 @@ static inline uint16_t adc_read(analogin_t *obj) {
         case 17:
             sConfig.Channel = ADC_CHANNEL_17;
             break;
+#ifdef ADC_CHANNEL_18
         case 18:
             sConfig.Channel = ADC_CHANNEL_18;
             break;
+#endif
         default:
             return 0;
     }
