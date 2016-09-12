@@ -176,12 +176,12 @@ typedef enum {
     LORA_DIO0       = PA_6,
     LORA_DIO1       = PA_7,
     LORA_DIO2       = PA_8,
-    LORA_DIO3       = PB_6,
-    LORA_DIO4       = PB_7,
+    LORA_DIO3       = PB_1,
+    LORA_DIO4       = PC_13,
 
     // Secure Element
-    SE_RESET        = PC_13,
-    SE_CTRL         = PB_1,
+    SE_RESET        = PB_7,
+    SE_CTRL         = PB_6,
     SE_IO           = PB_10,
     SE_CLK          = PB_11,
 
