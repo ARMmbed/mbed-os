@@ -55,8 +55,8 @@ extern const PinMap PinMap_PWM[];
 
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
-extern const PinMap_UART_RTS[];
-extern const PinMap_UART_CTS[];
+extern const PinMap PinMap_UART_RTS[];
+extern const PinMap PinMap_UART_CTS[];
 
 //*** SPI ***
 
