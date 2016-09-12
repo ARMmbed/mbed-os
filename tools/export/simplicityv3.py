@@ -175,6 +175,7 @@ class SimplicityV3(Exporter):
         ## Strip main folder from include paths because ssproj is not capable of handling it
         if '.' in ctx['include_paths']:
             ctx['include_paths'].remove('.')
+            ctx['include_root'] = True
 
         '''
         Suppress print statements
