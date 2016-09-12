@@ -20,7 +20,8 @@ def parallelSteps = mbed.createParalleSteps("mbed-os", targets, toolchains)
 mbed.compile(parallelSteps)
 
 def testApps = [
-  "mbed-os-cliapp"
+  "mbed-os-cliapp",
+  "mbed-client-testapp"
   ]
 
 // buildTestApps accepts array of test application names and a mbed-os commit hash as parameters
