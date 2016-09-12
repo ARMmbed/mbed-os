@@ -611,7 +611,10 @@ class mbedToolchain:
         elif ext == '.bld':
             resources.lib_builds.append(file_path)
 
-        elif file == '.hgignore':
+        elif basename(file_path) == '.hgignore':
+            resources.repo_files.append(file_path)
+
+        elif basename(file_path) == '.gitignore':
             resources.repo_files.append(file_path)
 
         elif ext == '.hex':
