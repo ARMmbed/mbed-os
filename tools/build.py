@@ -27,7 +27,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 
-from tools.toolchains import TOOLCHAINS
+from tools.toolchains import TOOLCHAINS, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.toolchains import mbedToolchain
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
@@ -161,6 +161,7 @@ if __name__ == '__main__':
         print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         exit(0)
 
+
     # Get target list
     targets = options.mcu if options.mcu else TARGET_NAMES
 
@@ -212,6 +213,12 @@ if __name__ == '__main__':
     # CPPCHECK code validation
     if options.cppcheck_validation:
         for toolchain in toolchains:
+            if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+                if TOOLCHAIN_PATHS[toolchain] == '':
+                    TOOLCHAIN_PATHS[toolchain] = "No path set"
+                args_error(parser, "Could not find executable for %s.\n"
+                                   "Currently set search path: %s"
+                           % (toolchain, TOOLCHAIN_PATHS[toolchain]))
             for target in targets:
                 try:
                     mcu = TARGET_MAP[target]

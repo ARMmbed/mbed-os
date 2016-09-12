@@ -21,7 +21,8 @@ TEST BUILD & RUN
 import sys
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname, isfile, isdir
+from os.path import join, abspath, dirname, exists
+from distutils.spawn import find_executable
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -46,8 +47,7 @@ from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
-from argparse import ArgumentTypeError
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
@@ -231,6 +231,13 @@ if __name__ == '__main__':
         notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
     else:
         notify = None
+
+    if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+        if TOOLCHAIN_PATHS[toolchain] == '':
+            TOOLCHAIN_PATHS[toolchain] = "No path set"
+        args_error(parser, "Could not find executable for %s.\n"
+                           "Currently set search path: %s"
+                           %(toolchain,TOOLCHAIN_PATHS[toolchain]))
 
     # Test
     for test_no in p:
