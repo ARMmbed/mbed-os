@@ -202,7 +202,7 @@ void test_dispatch0() {
     Verifier<T>::verify0((const Thing<T>*)&thing, &const_func0<T>);
     Verifier<T>::verify0((volatile Thing<T>*)&thing, &volatile_func0<T>);
     Verifier<T>::verify0((const volatile Thing<T>*)&thing, &const_volatile_func0<T>);
-    Verifier<T>::verify0(callback(static_func0<T>));
+    Verifier<T>::verify0(mbed_callback(static_func0<T>));
 
     Callback<T()> cb(static_func0);
     Verifier<T>::verify0(cb);
@@ -225,7 +225,7 @@ void test_dispatch1() {
     Verifier<T>::verify1((const Thing<T>*)&thing, &const_func1<T>);
     Verifier<T>::verify1((volatile Thing<T>*)&thing, &volatile_func1<T>);
     Verifier<T>::verify1((const volatile Thing<T>*)&thing, &const_volatile_func1<T>);
-    Verifier<T>::verify1(callback(static_func1<T>));
+    Verifier<T>::verify1(mbed_callback(static_func1<T>));
 
     Callback<T(T)> cb(static_func1);
     Verifier<T>::verify1(cb);
@@ -248,7 +248,7 @@ void test_dispatch2() {
     Verifier<T>::verify2((const Thing<T>*)&thing, &const_func2<T>);
     Verifier<T>::verify2((volatile Thing<T>*)&thing, &volatile_func2<T>);
     Verifier<T>::verify2((const volatile Thing<T>*)&thing, &const_volatile_func2<T>);
-    Verifier<T>::verify2(callback(static_func2<T>));
+    Verifier<T>::verify2(mbed_callback(static_func2<T>));
 
     Callback<T(T, T)> cb(static_func2);
     Verifier<T>::verify2(cb);
@@ -271,7 +271,7 @@ void test_dispatch3() {
     Verifier<T>::verify3((const Thing<T>*)&thing, &const_func3<T>);
     Verifier<T>::verify3((volatile Thing<T>*)&thing, &volatile_func3<T>);
     Verifier<T>::verify3((const volatile Thing<T>*)&thing, &const_volatile_func3<T>);
-    Verifier<T>::verify3(callback(static_func3<T>));
+    Verifier<T>::verify3(mbed_callback(static_func3<T>));
 
     Callback<T(T, T, T)> cb(static_func3);
     Verifier<T>::verify3(cb);
@@ -294,7 +294,7 @@ void test_dispatch4() {
     Verifier<T>::verify4((const Thing<T>*)&thing, &const_func4<T>);
     Verifier<T>::verify4((volatile Thing<T>*)&thing, &volatile_func4<T>);
     Verifier<T>::verify4((const volatile Thing<T>*)&thing, &const_volatile_func4<T>);
-    Verifier<T>::verify4(callback(static_func4<T>));
+    Verifier<T>::verify4(mbed_callback(static_func4<T>));
 
     Callback<T(T, T, T, T)> cb(static_func4);
     Verifier<T>::verify4(cb);
@@ -317,7 +317,7 @@ void test_dispatch5() {
     Verifier<T>::verify5((const Thing<T>*)&thing, &const_func5<T>);
     Verifier<T>::verify5((volatile Thing<T>*)&thing, &volatile_func5<T>);
     Verifier<T>::verify5((const volatile Thing<T>*)&thing, &const_volatile_func5<T>);
-    Verifier<T>::verify5(callback(static_func5<T>));
+    Verifier<T>::verify5(mbed_callback(static_func5<T>));
 
     Callback<T(T, T, T, T, T)> cb(static_func5);
     Verifier<T>::verify5(cb);

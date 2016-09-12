@@ -83,14 +83,14 @@ public:
      *  @param t the time between calls in seconds
      *  @deprecated
      *      The attach function does not support cv-qualifiers. Replaced by
-     *      attach(callback(obj, method), t).
+     *      attach(mbed_callback(obj, method), t).
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method), t).")
+        "attach(mbed_callback(obj, method), t).")
     void attach(T *obj, M method, float t) {
-        attach(callback(obj, method), t);
+        attach(mbed_callback(obj, method), t);
     }
 
     /** Attach a function to be called by the Ticker, specifiying the interval in micro-seconds
@@ -110,12 +110,12 @@ public:
      *  @param t the time between calls in micro-seconds
      *  @deprecated
      *      The attach_us function does not support cv-qualifiers. Replaced by
-     *      attach_us(callback(obj, method), t).
+     *      attach_us(mbed_callback(obj, method), t).
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The attach_us function does not support cv-qualifiers. Replaced by "
-        "attach_us(callback(obj, method), t).")
+        "attach_us(mbed_callback(obj, method), t).")
     void attach_us(T *obj, M method, timestamp_t t) {
         attach_us(Callback<void()>(obj, method), t);
     }
