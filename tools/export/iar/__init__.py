@@ -120,11 +120,11 @@ class IAR(Exporter):
             iar_exe = "IarBuild.exe"
         else:
             iar_exe = join('C:', sep,
-                          'Program Files  (x86)', 'IAR Systems',
+                          'Program Files (x86)', 'IAR Systems',
                           'Embedded Workbench 7.5', 'common', 'bin',
                           'IarBuild.exe')
             if not exists(iar_exe):
-                raise Exception("UV4.exe not found. Add to path.")
+                raise Exception("IarBuild.exe not found. Add to path.")
 
         cmd = [iar_exe, proj_file, '-build', self.project_name]
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)

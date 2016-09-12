@@ -86,6 +86,7 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     exporter_cls, _ = get_exporter_toolchain(ide)
     exporter = exporter_cls(target, export_path, name, toolchain,
                             extra_symbols=macros, resources=resources)
+    exporter.check_supported()
     exporter.generate()
     files = exporter.generated_files
     return files, exporter
