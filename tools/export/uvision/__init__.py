@@ -6,8 +6,7 @@ from collections import namedtuple
 from distutils.spawn import find_executable
 import subprocess
 
-from ArmPackManager import Cache
-
+from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, FailedBuildException
 from tools.export.cmsis import DeviceCMSIS
@@ -19,8 +18,8 @@ class DeviceUvision(DeviceCMSIS):
     """Uvision Device class, inherits CMSIS Device class
 
     Encapsulates information necessary for uvision project targets"""
-    def __init__(self, target, use_generic_cpu=False):
-        DeviceCMSIS.__init__(self, target, use_generic_cpu)
+    def __init__(self, target):
+        DeviceCMSIS.__init__(self, target)
         dev_format = "$$Device:{0}${1}"
         self.svd = ''
         if self.debug_svd:

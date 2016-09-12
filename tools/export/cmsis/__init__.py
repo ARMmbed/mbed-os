@@ -1,18 +1,15 @@
 import os
-from os.path import sep
+from os.path import sep, join, exists
 from itertools import groupby
 from xml.etree.ElementTree import Element, tostring
-from xml.dom.minidom import parseString
 import ntpath
 import re
 
-from ArmPackManager import Cache
+from xdg.BaseDirectory import save_data_path
 
+from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, TargetNotSupportedException
-
-cache_d = False
-
 
 class fileCMSIS():
     """CMSIS file class.
@@ -34,9 +31,10 @@ class DeviceCMSIS():
     """CMSIS Device class
 
     Encapsulates target information retrieved by arm-pack-manager"""
-    def __init__(self, target, use_generic_cpu=False):
+    def __init__(self, target):
         cache = Cache(True, False)
-        if cache_d:
+        data_path = join(save_data_path('arm-pack-manager'), "index.json")
+        if not exists(data_path):
             cache.cache_descriptors()
 
         t = TARGET_MAP[target]
