@@ -155,6 +155,9 @@ class Uvision(Exporter):
                 raise Exception("UV4.exe not found. Add to path.")
         cmd = [uv_exe, '-r', '-j0', '-o', join(self.export_dir,'build_log.txt'), join(self.export_dir,self.project_name+".uvprojx")]
         ret_code = subprocess.call(cmd)
+        with open(join(self.export_dir, 'build_log.txt'), 'r') as build_log:
+            print "\n".join(build_log.readlines())
+
         if ret_code != success and ret_code != warn:
             # Seems like something went wrong.
             raise FailedBuildException("Project: %s build failed with the status: %s" % (
