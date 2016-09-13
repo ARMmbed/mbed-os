@@ -520,6 +520,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_MAX32620)
 #define INITIAL_SP            (0x20008000UL)
 
+#elif defined(TARGET_MAX32625)
+#define INITIAL_SP            (0x20028000UL)
+
 #elif defined(TARGET_TEENSY3_1)
 #define INITIAL_SP            (0x20008000UL)
 
