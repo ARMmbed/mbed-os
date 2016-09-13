@@ -1262,7 +1262,8 @@
             "toolchains": ["ARM_STD", "GCC_ARM"]
         },
         "program_cycle_s": 6,
-        "features": ["BLE"]
+        "features": ["BLE"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
     "MCU_NRF51_16K_BASE": {
         "inherits": ["MCU_NRF51"],
@@ -1357,26 +1358,22 @@
         "progen": {"target": "mkit"},
         "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
         "macros_add": ["TARGET_NRF51822_MKIT"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "NRF51822_BOOT": {
         "inherits": ["MCU_NRF51_16K_BOOT"],
         "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+        "macros_add": ["TARGET_NRF51822_MKIT"]
     },
     "NRF51822_OTA": {
         "inherits": ["MCU_NRF51_16K_OTA"],
         "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+        "macros_add": ["TARGET_NRF51822_MKIT"]
     },
     "ARCH_BLE": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_16K"],
         "progen": {"target": "arch-ble"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "ARCH_BLE_BOOT": {
@@ -1412,7 +1409,6 @@
     "SEEED_TINY_BLE": {
         "inherits": ["MCU_NRF51_16K"],
         "progen": {"target": "seed-tinyble"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "SEEED_TINY_BLE_BOOT": {
@@ -1429,7 +1425,6 @@
         "inherits": ["MCU_NRF51_16K"],
         "progen": {"target": "hrm1017"},
         "macros_add": ["TARGET_NRF_LFCLK_RC"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "HRM1017_BOOT": {
@@ -1446,7 +1441,6 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_16K"],
         "progen": {"target": "rblab-nrf51822"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "RBLAB_NRF51822_BOOT": {
@@ -1463,7 +1457,6 @@
     },
     "RBLAB_BLENANO": {
         "inherits": ["MCU_NRF51_16K"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "RBLAB_BLENANO_BOOT": {
@@ -1477,12 +1470,10 @@
         "macros_add": ["TARGET_RBLAB_BLENANO"]
     },
     "NRF51822_Y5_MBUG": {
-        "inherits": ["MCU_NRF51_16K"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+        "inherits": ["MCU_NRF51_16K"]
     },
     "WALLBOT_BLE": {
         "inherits": ["MCU_NRF51_16K"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "WALLBOT_BLE_BOOT": {
@@ -1518,8 +1509,7 @@
     "NRF51_DK_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
-        "progen": {"target": "nrf51-dk"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+        "progen": {"target": "nrf51-dk"}
     },
     "NRF51_DK_BOOT": {
         "supported_form_factors": ["ARDUINO"],
@@ -1536,7 +1526,6 @@
     "NRF51_DONGLE": {
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dongle"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "NRF51_DONGLE_BOOT": {
@@ -1552,7 +1541,6 @@
     "NRF51_MICROBIT": {
         "inherits": ["MCU_NRF51_16K_S110"],
         "macros_add": ["TARGET_NRF_LFCLK_RC"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "NRF51_MICROBIT_BOOT": {
@@ -1569,7 +1557,6 @@
         "inherits": ["MCU_NRF51_16K"],
         "extra_labels_add": ["NRF51_MICROBIT"],
         "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "NRF51_MICROBIT_B_BOOT": {
@@ -1585,7 +1572,6 @@
     "MTM_MTCONNECT04S": {
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "mtm-mtconnect04s"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["2"]
     },
     "MTM_MTCONNECT04S_BOOT": {
@@ -1969,7 +1955,8 @@
                 "value": 1,
                 "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
             }
-        }
+        },
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
     "MCU_NRF51_32K_UNIFIED": {
         "inherits": ["MCU_NRF51_UNIFIED"],
