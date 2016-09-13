@@ -6,7 +6,7 @@ from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from subprocess import Popen
+from subprocess import check_call, CalledProcessError
 from shutil import move, rmtree
 from argparse import ArgumentParser
 from os.path import normpath, realpath
@@ -200,7 +200,12 @@ def main():
 
     # Clean Export Directory
     if options.clean:
-        Popen(["git", "clean", "-fe", "mbed-os"]).wait()
+        try:
+            check_call(["git", "clean", "-fe", "mbed-os"])
+        except CalledProcessError:
+            print "Warning: your directory was not cleaned because it was not"\
+                " recognized as a git repo or you do not have git installed in"\
+                " your path."
 
     for mcu in options.mcu:
         zip_proj = not bool(options.source_dir)
