@@ -88,13 +88,13 @@ struct i2c_s {
     I2C_HandleTypeDef handle;
     IRQn_Type event_i2cIRQ;
     IRQn_Type error_i2cIRQ;
-    uint32_t slave;
+    uint8_t slave;
 #if DEVICE_I2C_ASYNCH
-    uint32_t event;
     uint32_t address;
-    uint32_t stop;
-    uint32_t available_events;
-    uint32_t XferOperation;
+    uint8_t event;
+    uint8_t stop;
+    uint8_t available_events;
+    uint8_t XferOperation;
 #endif
 };
 
