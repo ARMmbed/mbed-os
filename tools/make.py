@@ -21,8 +21,7 @@ TEST BUILD & RUN
 import sys
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname, exists
-from distutils.spawn import find_executable
+from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))

@@ -15,8 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname, splitext, basename, exists
-from distutils.spawn import find_executable
+from os.path import join, dirname, splitext, basename
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -47,12 +46,7 @@ class ARM(mbedToolchain):
         """Returns True if the executable (armcc) location specified by the
          user exists OR the executable can be found on the PATH.
          Returns False otherwise."""
-        if not TOOLCHAIN_PATHS["ARM"] or not exists(TOOLCHAIN_PATHS['ARM']):
-            exe = find_executable('armcc')
-            if not exe:
-                return False
-            TOOLCHAIN_PATHS['ARM'] = dirname(dirname(exe))
-        return True
+        return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
