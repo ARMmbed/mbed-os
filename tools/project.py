@@ -6,6 +6,7 @@ from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from subprocess import check_call, CalledProcessError
 from shutil import move, rmtree
 from argparse import ArgumentParser
 from os.path import normpath, realpath
@@ -63,7 +64,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None):
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           clean=False, zip_proj=False, options=None):
+           zip_proj=False, options=None):
     """Do an export of a project.
 
     Positional arguments:
@@ -75,7 +76,6 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     src - directory or directories that contain the source to export
     macros - extra macros to add to the project
     project_id - the name of the project
-    clean - start from a clean state before exporting
     zip_proj - create a zip file or not
     """
     project_dir, name, src, lib = setup_project(ide, target, program=project_id,
@@ -83,8 +83,8 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     zip_name = name+".zip" if zip_proj else None
 
-    export_project(src, project_dir, target, ide, clean=clean, name=name,
-                   macros=macros, libraries_paths=lib, zip_proj=zip_name, options=options)
+    export_project(src, project_dir, target, ide, name=name, macros=macros,
+                   libraries_paths=lib, zip_proj=zip_name, options=options)
 
 
 def main():
@@ -200,8 +200,12 @@ def main():
 
     # Clean Export Directory
     if options.clean:
-        if exists(EXPORT_DIR):
-            rmtree(EXPORT_DIR)
+        try:
+            check_call(["git", "clean", "-fe", "mbed-os"])
+        except CalledProcessError:
+            print "Warning: your directory was not cleaned because it was not"\
+                " recognized as a git repo or you do not have git installed in"\
+                " your path."
 
     for mcu in options.mcu:
         zip_proj = not bool(options.source_dir)
@@ -219,8 +223,8 @@ def main():
         # Export to selected toolchain
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
-           project_id=options.program, clean=options.clean,
-           zip_proj=zip_proj, options=options.opts)
+           project_id=options.program, zip_proj=zip_proj,
+           options=options.opts)
 
 
 if __name__ == "__main__":
