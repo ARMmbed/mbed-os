@@ -65,6 +65,14 @@
     #warning None of UART flow control configuration (expected macro MBED_CONF_NORDIC_UART_HWFC). The RTSCTS flow control is used by default .
 #endif
 
+#if defined(RBLAB_BLENANO2) || defined(RBLAB_BLEND2)
+
+#define UART_DEFAULT_HWFC       NRF_UART_HWFC_DISABLED
+#define UART_DEFAULT_CTS        CTS_PIN_NUMBER
+#define UART_DEFAULT_RTS        RTS_PIN_NUMBER
+
+#else   
+    
 #if MBED_CONF_NORDIC_UART_HWFC == 1
     #define UART_DEFAULT_HWFC       UART0_CONFIG_HWFC
 #else
@@ -73,6 +81,8 @@
 
 #define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
 #define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
+
+#endif
 
 // Required by "retarget.cpp".
 int stdio_uart_inited = 0;
