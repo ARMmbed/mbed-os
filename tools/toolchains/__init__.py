@@ -1131,6 +1131,13 @@ class mbedToolchain:
         return exists(subdir) or exists(subdir +'.exe')
 
     @abstractmethod
+    def check_executable(self):
+        """Returns True if the executable (armcc) location specified by the
+         user exists OR the executable can be found on the PATH.
+         Returns False otherwise."""
+        raise NotImplemented
+
+    @abstractmethod
     def get_config_option(self, config_header):
         """Generate the compiler option that forces the inclusion of the configuration
         header file.
