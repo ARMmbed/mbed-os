@@ -16,8 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, exists, dirname, splitext, exists
-from distutils.spawn import find_executable
+from os.path import join, splitext
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -50,12 +49,7 @@ class IAR(mbedToolchain):
         """Returns True if the executable (arm-none-eabi-gcc) location
         specified by the user exists OR the executable can be found on the PATH.
         Returns False otherwise."""
-        if not TOOLCHAIN_PATHS["IAR"] or not exists(TOOLCHAIN_PATHS['IAR']):
-            exe = find_executable('iccarm')
-            if not exe:
-                return False
-            TOOLCHAIN_PATHS['IAR'] = dirname(dirname(exe))
-        return True
+        return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
