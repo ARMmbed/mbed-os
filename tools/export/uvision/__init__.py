@@ -156,7 +156,7 @@ class Uvision(Exporter):
         cmd = [uv_exe, '-r', '-j0', '-o', join(self.export_dir,'build_log.txt'), join(self.export_dir,self.project_name+".uvprojx")]
         ret_code = subprocess.call(cmd)
         with open(join(self.export_dir, 'build_log.txt'), 'r') as build_log:
-            print "\n".join(build_log.readlines())
+            print build_log.read()
 
         if ret_code != success and ret_code != warn:
             # Seems like something went wrong.
