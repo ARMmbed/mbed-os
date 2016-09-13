@@ -466,7 +466,7 @@ uint8_t osThreadGetState (osThreadId thread_id);
 /// \param[in]     info          information to read.
 /// \return current state of the thread function.
 /// \return requested info that includes the status code.
-os_InRegs osEvent osThreadGetInfo(osThreadId thread_id, osThreadInfo info);
+os_InRegs osEvent _osThreadGetInfo(osThreadId thread_id, osThreadInfo info);
 
 //  ==== Generic Wait Functions ====
 
@@ -849,16 +849,16 @@ osStatus osMailFree (osMailQId queue_id, void *mail);
 
 /// Start a thread enumeration.
 /// \return an enumeration ID or NULL on error.
-osThreadEnumId osThreadsEnumStart(void);
+osThreadEnumId _osThreadsEnumStart(void);
 
 /// Get the next task ID in the enumeration.
 /// \return a thread ID or NULL on if the end of the enumeration has been reached.
-osThreadId osThreadEnumNext(osThreadEnumId enum_id);
+osThreadId _osThreadEnumNext(osThreadEnumId enum_id);
 
 /// Free the enumeration structure.
-/// \param[in]     enum_id       pointer to the enumeration ID that was obtained with \ref osThreadsEnumStart.
+/// \param[in]     enum_id       pointer to the enumeration ID that was obtained with \ref _osThreadsEnumStart.
 /// \return status code that indicates the execution status of the function.
-osStatus osThreadEnumFree(osThreadEnumId enum_id);
+osStatus _osThreadEnumFree(osThreadEnumId enum_id);
 
 #endif  // Thread Enumeration available
 

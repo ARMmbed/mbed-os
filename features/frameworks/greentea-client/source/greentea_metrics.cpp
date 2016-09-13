@@ -81,9 +81,9 @@ MBED_UNUSED static void send_stack_info()
     }
 
     // Print info for all other threads
-    osThreadEnumId enum_id = osThreadsEnumStart();
+    osThreadEnumId enum_id = _osThreadsEnumStart();
     while (true) {
-        osThreadId thread_id = osThreadEnumNext(enum_id);
+        osThreadId thread_id = _osThreadEnumNext(enum_id);
         if (NULL == thread_id) {
             // End of enumeration
             break;
@@ -91,7 +91,7 @@ MBED_UNUSED static void send_stack_info()
         enqeue_thread_info(thread_id);
         deque_and_print_thread_info();
     }
-    osThreadEnumFree(enum_id);
+    _osThreadEnumFree(enum_id);
 
     mutex->unlock();
 }
@@ -115,22 +115,22 @@ static void enqeue_thread_info(osThreadId id)
 {
     osEvent info;
     thread_info_t thread_info = {};
-    info = osThreadGetInfo(id, osThreadInfoEntry);
+    info = _osThreadGetInfo(id, osThreadInfoEntry);
     if (info.status != osOK) {
         return;
     }
     thread_info.entry = (uint32_t)info.value.p;
-    info = osThreadGetInfo(id, osThreadInfoArg);
+    info = _osThreadGetInfo(id, osThreadInfoArg);
     if (info.status != osOK) {
         return;
     }
     thread_info.arg = (uint32_t)info.value.p;
-    info = osThreadGetInfo(id, osThreadInfoStackSize);
+    info = _osThreadGetInfo(id, osThreadInfoStackSize);
     if (info.status != osOK) {
         return;
     }
     thread_info.stack_size = (uint32_t)info.value.v;
-    info = osThreadGetInfo(id, osThreadInfoStackMax);
+    info = _osThreadGetInfo(id, osThreadInfoStackMax);
     if (info.status != osOK) {
         return;
     }

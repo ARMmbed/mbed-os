@@ -1011,7 +1011,7 @@ uint8_t osThreadGetState (osThreadId thread_id) {
 #endif
 
 /// Get the requested info from the specified active thread
-os_InRegs osEvent osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
+os_InRegs osEvent _osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
   osEvent ret;
   if (__exceptional_mode()) {
     ret.status = osErrorISR;
@@ -1020,14 +1020,14 @@ os_InRegs osEvent osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
   return __svcThreadGetInfo(thread_id, info);
 }
 
-osThreadEnumId osThreadsEnumStart() {
+osThreadEnumId _osThreadsEnumStart() {
   static uint32_t thread_enum_index;
   osMutexWait(osMutexId_osThreadMutex, osWaitForever);
   thread_enum_index = 0;
   return &thread_enum_index;
 }
 
-osThreadId osThreadEnumNext(osThreadEnumId enum_id) {
+osThreadId _osThreadEnumNext(osThreadEnumId enum_id) {
   uint32_t i;
   osThreadId id = NULL;
   uint32_t *index = (uint32_t*)enum_id;
@@ -1045,7 +1045,7 @@ osThreadId osThreadEnumNext(osThreadEnumId enum_id) {
   return id;
 }
 
-osStatus osThreadEnumFree(osThreadEnumId enum_id) {
+osStatus _osThreadEnumFree(osThreadEnumId enum_id) {
   uint32_t *index = (uint32_t*)enum_id;
   *index = 0;
   osMutexRelease(osMutexId_osThreadMutex);
