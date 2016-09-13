@@ -6,6 +6,7 @@ from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from subprocess import Popen
 from shutil import move, rmtree
 from argparse import ArgumentParser
 from os.path import normpath, realpath
@@ -199,8 +200,7 @@ def main():
 
     # Clean Export Directory
     if options.clean:
-        if exists(EXPORT_DIR):
-            rmtree(EXPORT_DIR)
+        Popen(["git", "clean", "-fe", "mbed-os"]).wait()
 
     for mcu in options.mcu:
         zip_proj = not bool(options.source_dir)
