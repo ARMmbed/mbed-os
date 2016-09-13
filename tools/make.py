@@ -233,11 +233,10 @@ if __name__ == '__main__':
         notify = None
 
     if not TOOLCHAIN_CLASSES[toolchain].check_executable():
-        if TOOLCHAIN_PATHS[toolchain] == '':
-            TOOLCHAIN_PATHS[toolchain] = "No path set"
+        search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
         args_error(parser, "Could not find executable for %s.\n"
                            "Currently set search path: %s"
-                           %(toolchain,TOOLCHAIN_PATHS[toolchain]))
+                           %(toolchain,search_path))
 
     # Test
     for test_no in p:

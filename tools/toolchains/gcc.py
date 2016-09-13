@@ -272,6 +272,9 @@ class GCC(mbedToolchain):
 class GCC_ARM(GCC):
     @staticmethod
     def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
         if not TOOLCHAIN_PATHS["GCC_ARM"] or not exists(TOOLCHAIN_PATHS['GCC_ARM']):
             exe = find_executable('arm-none-eabi-gcc')
             if not exe:
@@ -306,6 +309,9 @@ class GCC_ARM(GCC):
 class GCC_CR(GCC):
     @staticmethod
     def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
         if not TOOLCHAIN_PATHS["GCC_CR"] or not exists(TOOLCHAIN_PATHS['GCC_CR']):
             exe = find_executable('arm-none-eabi-gcc')
             if not exe:

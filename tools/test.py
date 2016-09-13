@@ -116,11 +116,10 @@ if __name__ == '__main__':
         toolchain = options.tool[0]
 
         if not TOOLCHAIN_CLASSES[toolchain].check_executable():
-            if TOOLCHAIN_PATHS[toolchain] == '':
-                TOOLCHAIN_PATHS[toolchain] = "No path set"
+            search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
             args_error(parser, "Could not find executable for %s.\n"
                                "Currently set search path: %s"
-                       % (toolchain, TOOLCHAIN_PATHS[toolchain]))
+                       % (toolchain, search_path))
 
         # Find all tests in the relevant paths
         for path in all_paths:

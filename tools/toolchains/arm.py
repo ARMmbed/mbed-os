@@ -44,6 +44,9 @@ class ARM(mbedToolchain):
 
     @staticmethod
     def check_executable():
+        """Returns True if the executable (armcc) location specified by the
+         user exists OR the executable can be found on the PATH.
+         Returns False otherwise."""
         if not TOOLCHAIN_PATHS["ARM"] or not exists(TOOLCHAIN_PATHS['ARM']):
             exe = find_executable('armcc')
             if not exe:
