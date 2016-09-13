@@ -47,6 +47,9 @@ class IAR(mbedToolchain):
 
     @staticmethod
     def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
         if not TOOLCHAIN_PATHS["IAR"] or not exists(TOOLCHAIN_PATHS['IAR']):
             exe = find_executable('iccarm')
             if not exe:
