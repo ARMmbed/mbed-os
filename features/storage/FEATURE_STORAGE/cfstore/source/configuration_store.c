@@ -31,6 +31,7 @@
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#include "cfstore_svm.h"
 #include "flash_journal_strategy_sequential.h"
 #include "flash_journal.h"
 #include "Driver_Common.h"
@@ -45,8 +46,10 @@
 
 #ifdef CFSTORE_DEBUG
 uint32_t cfstore_optDebug_g = 1;
-uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE; /*CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY */
-uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY; */
+//todo: restore uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE; /*CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY */
+//uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY; */
+uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY;
+uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY;
 #endif
 
 
@@ -54,9 +57,11 @@ uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE
  * Externs
  */
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
-extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
-ARM_DRIVER_STORAGE *cfstore_storage_drv = &ARM_Driver_Storage_(0);
+extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
+ARM_DRIVER_STORAGE *cfstore_storage_drv = &ARM_Driver_Storage_MTD_K64F;
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
+struct _ARM_DRIVER_STORAGE cfstore_journal_mtd;
 
 /*
  * Defines
@@ -69,7 +74,10 @@ ARM_DRIVER_STORAGE *cfstore_storage_drv = &ARM_Driver_Storage_(0);
  *  valid sizes of areas should always be greater than the size of the header, and therefore
  *  greater than this value, which is defined as smaller than the header size
  *
- *  ARM_DRIVER_OK_DONE
+ * CFSTORE_FLASH_NUMSLOTS
+ *  number of flash journal slots
+ *
+ * ARM_DRIVER_OK_DONE
  *   value that indicates an operation has been done i.e. a value > 0
  */
 #define CFSTORE_KEY_NAME_CHARS_ACCEPTABLE           "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ{}.-_@"
@@ -79,6 +87,7 @@ ARM_DRIVER_STORAGE *cfstore_storage_drv = &ARM_Driver_Storage_(0);
 #define CFSTORE_FILE_CREATE_MODE_DEFAULT            (ARM_CFSTORE_FMODE)0
 #define CFSTORE_FLASH_STACK_BUF_SIZE 	            64
 #define CFSTORE_FLASH_AREA_SIZE_MIN                 (sizeof(cfstore_area_header_t) - 1)
+#define CFSTORE_FLASH_NUMSLOTS                      4
 #define cfstore_fsm_null                            NULL
 #define CFSTORE_SENTINEL                            0x7fffffff
 #define CFSTORE_CALLBACK_RET_CODE_DEFAULT           0x1
@@ -169,6 +178,7 @@ typedef enum cfstore_fsm_state_t {
     cfstore_fsm_state_committing,
     cfstore_fsm_state_resetting,
     cfstore_fsm_state_ready,        /* ready for next flash journal command to arise */
+    cfstore_fsm_state_formatting,   /* flash formatting in progress */
     cfstore_fsm_state_max
 } cfstore_fsm_state_t;
 
@@ -180,6 +190,7 @@ typedef enum cfstore_fsm_event_t {
     cfstore_fsm_event_commit_req,
     cfstore_fsm_event_commit_done,
     cfstore_fsm_event_reset_done,
+    cfstore_fsm_event_format_done,
     cfstore_fsm_event_max,
 } cfstore_fsm_event_t;
 
@@ -198,6 +209,7 @@ typedef struct cfstore_fsm_t
 /* strings used for debug trace */
 static const char* cfstore_flash_opcode_str[] =
 {
+    "FLASH_JOURNAL_OPCODE_FORMAT",
     "FLASH_JOURNAL_OPCODE_INITIALIZE",
     "FLASH_JOURNAL_OPCODE_GET_INFO",
     "FLASH_JOURNAL_OPCODE_READ_BLOB",
@@ -215,6 +227,7 @@ static const char* cfstore_flash_state_str[] =
     "committing",
     "resetting",
     "ready",
+    "formatting",
     "unknown"
 };
 
@@ -226,6 +239,7 @@ static const char* cfstore_flash_event_str[] =
     "commit_req",
     "commit_done",
     "reset_done",
+    "format_done",
     "unknown"
 };
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
@@ -727,7 +741,6 @@ void *cfstore_realloc(void *ptr, ARM_CFSTORE_SIZE size)
 
 
 #ifdef CFSTORE_TARGET_LIKE_X86_LINUX_NATIVE
-static inline void cfstore_critical_section_init(CFSTORE_LOCK* lock){ *lock = 0; }
 static inline void cfstore_critical_section_lock(CFSTORE_LOCK* lock, const char* tag){ (void) tag; __sync_fetch_and_add(lock, 1); }
 static inline void cfstore_critical_section_unlock(CFSTORE_LOCK* lock, const char* tag){(void) tag;  __sync_fetch_and_sub(lock, 1); }
 
@@ -764,7 +777,6 @@ static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_inc(cfstore_area_hkvt_t* hkv
  * Platform Specific Function Implementations
  */
 
-static inline void cfstore_critical_section_init(CFSTORE_LOCK* lock){ *lock = 0; }
 static inline void cfstore_critical_section_unlock(CFSTORE_LOCK* lock, const char* tag)
 {
     (void) lock;
@@ -1540,6 +1552,9 @@ static void cfstore_flash_journal_callback(int32_t status, FlashJournal_OpCode_t
     CFSTORE_FENTRYLOG("%s:entered: status=%d, cmd_code=%d (%s)\n", __func__, (int) status, (int) cmd_code, cfstore_flash_opcode_str[cmd_code]);
     switch(cmd_code)
     {
+    case FLASH_JOURNAL_OPCODE_FORMAT:
+        ctx->fsm.event = cfstore_fsm_event_format_done;
+        break;
     case FLASH_JOURNAL_OPCODE_INITIALIZE:
         ctx->fsm.event = cfstore_fsm_event_init_done;
         break;
@@ -1595,14 +1610,30 @@ static int32_t cfstore_fsm_stop_on_entry(void* context)
 static int32_t cfstore_fsm_init_on_entry(void* context)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
     cfstore_ctx_t* ctx = (cfstore_ctx_t*) context;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
 
-    ret = FlashJournal_initialize(&ctx->jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, cfstore_flash_journal_callback);
+    ret = cfstore_svm_init(&cfstore_journal_mtd);
+    if(ret < ARM_DRIVER_OK){
+        CFSTORE_DBGLOG("%s:Error: Unable to initialize storage volume manager\n", __func__);
+        cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_formatting, ctx);
+        return ARM_DRIVER_OK;
+    }
+
+    ret = FlashJournal_initialize(&ctx->jrnl, (ARM_DRIVER_STORAGE *) &cfstore_journal_mtd, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, cfstore_flash_journal_callback);
     CFSTORE_TP(CFSTORE_TP_FSM, "%s:FlashJournal_initialize ret=%d\n", __func__, (int) ret);
     if(ret < ARM_DRIVER_OK){
+        if(ret == JOURNAL_STATUS_NOT_FORMATTED) {
+            CFSTORE_DBGLOG("%s:Error: flash not formatted\n", __func__);
+            cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_formatting, ctx);
+            return ARM_DRIVER_OK;
+        }
+        if(ret == JOURNAL_STATUS_METADATA_ERROR) {
+            CFSTORE_ERRLOG("%s:Error: flash meta-data (CRC) error detected when initializing flash. Reformatting flash.\n", __func__);
+            cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_formatting, ctx);
+            return ARM_DRIVER_OK;
+        }
         CFSTORE_ERRLOG("%s:Error: failed to initialize flash journaling layer (ret=%d)\n", __func__, (int) ret);
         cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_stopped, ctx);
     }
@@ -1993,18 +2024,64 @@ static int32_t cfstore_fsm_ready_on_commit_req(void* context)
 /* int32_t cfstore_fsm_ready_on_exit(void* context){ (void) context;} */
 
 
+/** @brief  fsm handler when entering the formatting state
+ */
+static int32_t cfstore_fsm_format_on_entry(void* context)
+{
+    int32_t ret = ARM_DRIVER_ERROR;
+    cfstore_ctx_t* ctx = (cfstore_ctx_t*) context;
+
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+
+    ret = flashJournalStrategySequential_format((ARM_DRIVER_STORAGE *) &cfstore_journal_mtd, CFSTORE_FLASH_NUMSLOTS, cfstore_flash_journal_callback);
+    CFSTORE_TP(CFSTORE_TP_FSM, "%s:flashJournalStrategySequential_format ret=%d\n", __func__, (int) ret);
+    if(ret < ARM_DRIVER_OK){
+        CFSTORE_ERRLOG("%s:Error: failed to format flash (ret=%d)\n", __func__, (int) ret);
+        cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_stopped, ctx);
+    }
+    else if(ret > 0){
+        /* operation completed synchronously*/
+        cfstore_flash_journal_callback(ret, FLASH_JOURNAL_OPCODE_FORMAT);
+    }
+    return ret;
+}
+
+/** @brief  fsm handler when in formatting state
+ */
+int32_t cfstore_fsm_formatting(void* context)
+{
+    int32_t ret = ARM_DRIVER_OK;
+    cfstore_ctx_t* ctx = (cfstore_ctx_t*) context;
+
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    CFSTORE_ASSERT(ctx->fsm.state == cfstore_fsm_state_formatting);
+    CFSTORE_ASSERT(ctx->cmd_code == FLASH_JOURNAL_OPCODE_FORMAT);
+
+    /* only change state if status > 0*/
+    if(ctx->status > 0){
+        ret = cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_initing, ctx);
+    } else if(ctx->status < 0) {
+        CFSTORE_ERRLOG("%s:Error: failed to format flash (ret=%d)\n", __func__, (int) ctx->status);
+        cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_stopped, ctx);
+    }
+    return ret;
+}
+
+/* int32_t cfstore_fsm_format_on_exit(void* context){ (void) context;} */
+
 
 /* handler functions while in state */
 static cfstore_fsm_handler cfstore_flash_fsm[cfstore_fsm_state_max][cfstore_fsm_event_max] =
 {
-/* state\event:   init_done               read_done             log_done              commit_req                            commit_done               reset_done */
-/* stopped    */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null          },
-/* init       */  {cfstore_fsm_initing,   cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null          },
-/* reading    */  {cfstore_fsm_null,      cfstore_fsm_reading,  cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null          },
-/* logging    */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_logging,  cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null          },
-/* committing */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_committing,   cfstore_fsm_null          },
-/* resetting  */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null          },
-/* ready      */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_ready_on_commit_req,      cfstore_fsm_null,         cfstore_fsm_null          },
+/* state\event:   init_done               read_done             log_done              commit_req                            commit_done               reset_done                format_done, */
+/* stopped    */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_null        },
+/* init       */  {cfstore_fsm_initing,   cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_null        },
+/* reading    */  {cfstore_fsm_null,      cfstore_fsm_reading,  cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_null        },
+/* logging    */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_logging,  cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_null        },
+/* committing */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_committing,   cfstore_fsm_null,     cfstore_fsm_null        },
+/* resetting  */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_null        },
+/* ready      */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_ready_on_commit_req,      cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_null        },
+/* formatting */  {cfstore_fsm_null,      cfstore_fsm_null,     cfstore_fsm_null,     cfstore_fsm_null,                     cfstore_fsm_null,         cfstore_fsm_null,     cfstore_fsm_formatting  },
 };
 
 /* handler functions for entering the state*/
@@ -2016,7 +2093,8 @@ cfstore_fsm_handler cfstore_fsm_on_entry[cfstore_fsm_state_max] =
     cfstore_fsm_log_on_entry,
     cfstore_fsm_commit_on_entry,
     cfstore_fsm_null,               /* cfstore_fsm_reset_on_entry */
-    cfstore_fsm_null                /* cfstore_fsm_ready_on_entry */
+    cfstore_fsm_null,               /* cfstore_fsm_ready_on_entry */
+    cfstore_fsm_format_on_entry     /* cfstore_fsm_format_on_entry */
 };
 
 /* handler functions for exiting state, currently none used */
@@ -2028,7 +2106,8 @@ cfstore_fsm_handler cfstore_fsm_on_exit[cfstore_fsm_state_max] =
     cfstore_fsm_log_on_exit,
     cfstore_fsm_commit_on_exit,
     cfstore_fsm_null,             /* cfstore_fsm_reset_on_exit */
-    cfstore_fsm_null              /* cfstore_fsm_ready_on_exit */
+    cfstore_fsm_null,             /* cfstore_fsm_ready_on_exit */
+    cfstore_fsm_null              /* cfstore_fsm_format_on_exit */
 };
 
 
@@ -2425,8 +2504,8 @@ static bool cfstore_file_is_empty(ARM_CFSTORE_HANDLE hkey)
 /* @brief  See definition in configuration_store.h for description. */
 ARM_CFSTORE_CAPABILITIES cfstore_get_capabilities(void)
 {
-    /* getting capabilities doesnt change the sram area so this can happen independently of
-     * an oustanding async operation. its unnecessary to check the fsm state */
+    /* getting capabilities doesn't change the sram area so this can happen independently of
+     * an outstanding async operation. its unnecessary to check the fsm state */
     return cfstore_caps_g;
 }
 
@@ -3866,9 +3945,7 @@ static int32_t cfstore_initialise(ARM_CFSTORE_CALLBACK callback, void* client_co
         ctx->init_ref_count++;
         /* initially there is no memory allocated for the area */
         CFSTORE_INIT_LIST_HEAD(&ctx->file_list);
-        /* This is not required here are the lock is statically initialised to 0
-         *  cfstore_critical_section_init(&ctx->rw_area0_lock);
-         */
+        /* ctx->rw_area0_lock initialisation is not required here as the lock is statically initialised to 0 */
         ctx->area_0_head = NULL;
         ctx->area_0_tail = NULL;
 

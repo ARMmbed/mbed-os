@@ -279,7 +279,7 @@ control_t cfstore_add_del_test_04(const size_t call_count)
     return CaseNext;
 }
 
-/** @brief  Delete and attribute after an internal realloc of the cfstore memory area
+/** @brief  Delete an attribute after an internal realloc of the cfstore memory area
  *
  * This test case goes through the following steps:
  * 1. Creates attribute att_1 of size x, and write some data. This causes an internal
