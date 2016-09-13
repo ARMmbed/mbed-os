@@ -433,7 +433,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     NVIC_EnableIRQ(irq_n);
 
     // enable the right hal transfer
-    static uint16_t sink;
+    //static uint16_t sink;
     int rc = 0;
     switch(transfer_type) {
         case SPI_TRANSFER_TYPE_TXRX:
@@ -442,9 +442,9 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
         case SPI_TRANSFER_TYPE_TX:
             // TODO: we do not use `HAL_SPI_Transmit_IT`, since it has some unknown bug
             // and makes the HAL keep some state and then that fails successive transfers
-            // rc = HAL_SPI_Transmit_IT(handle, (uint8_t*)tx, words);
-            rc = HAL_SPI_TransmitReceive_IT(handle, (uint8_t*)tx, (uint8_t*)&sink, 1);
-            length = is16bit ? 2 : 1;
+            rc = HAL_SPI_Transmit_IT(handle, (uint8_t*)tx, words);
+            //rc = HAL_SPI_TransmitReceive_IT(handle, (uint8_t*)tx, (uint8_t*)&sink, 1);
+            //length = is16bit ? 2 : 1;
             break;
         case SPI_TRANSFER_TYPE_RX:
             // the receive function also "transmits" the receive buffer so in order
@@ -503,8 +503,13 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
     // enable the right hal transfer
     if (use_tx && use_rx) {
-        // transfer with the min(tx, rx), then later either transmit _or_ receive the remainder
+        // we cannot manage different rx / tx sizes, let's use smaller one
         size_t size = (tx_length < rx_length)? tx_length : rx_length;
+        if(tx_length != rx_length) {
+            DEBUG_PRINTF("SPI: Full duplex transfer only 1 size: %d\n", size);
+            obj->tx_buff.length = size;
+            obj->rx_buff.length = size;
+        }
         spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TXRX, tx, rx, size);
     } else if (use_tx) {
         spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TX, tx, NULL, tx_length);
@@ -524,25 +529,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
     HAL_SPI_IRQHandler(handle);
 
     if (HAL_SPI_GetState(handle) == HAL_SPI_STATE_READY) {
-        // adjust buffer positions
-        size_t tx_size = (handle->TxXferSize - handle->TxXferCount);
-        size_t rx_size = (handle->RxXferSize - handle->RxXferCount);
-        // 16 bit transfers need to be doubled to get bytes
-        if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
-            tx_size *= 2;
-            rx_size *= 2;
-        }
-        // adjust buffer positions
-        if (obj->spi.transfer_type != SPI_TRANSFER_TYPE_RX) {
-            obj->tx_buff.pos += tx_size;
-        }
-        if (obj->spi.transfer_type != SPI_TRANSFER_TYPE_TX) {
-            obj->rx_buff.pos += rx_size;
-        }
-
-        if (handle->TxXferCount > 0) {DEBUG_PRINTF("SPI: TxXferCount: %u\n", handle->TxXferCount);}
-        if (handle->RxXferCount > 0) {DEBUG_PRINTF("SPI: RxXferCount: %u\n", handle->RxXferCount);}
-
+        // When HAL SPI is back to READY state, check if there was an error
         int error = HAL_SPI_GetError(handle);
         if(error != HAL_SPI_ERROR_NONE) {
             // something went wrong and the transfer has definitely completed
@@ -553,27 +540,9 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
                 event |= SPI_EVENT_RX_OVERFLOW;
             }
         } else {
-            // figure out if we need to transfer more data:
-            if (obj->tx_buff.pos < obj->tx_buff.length) {
-                //DEBUG_PRINTF("t%u ", obj->tx_buff.pos);
-                // we need to transfer more data
-                spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TX,
-                    obj->tx_buff.buffer + obj->tx_buff.pos,     // offset the initial buffer by the position
-                    NULL,                                       // there is no receive buffer
-                    obj->tx_buff.length - obj->tx_buff.pos);    // transfer the remaining bytes only
-            } else if (obj->rx_buff.pos < obj->rx_buff.length) {
-                //DEBUG_PRINTF("r%u ", obj->rx_buff.pos);
-                // we need to receive more data
-                spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_RX,
-                    NULL,                                       // there is no transmit buffer
-                    obj->rx_buff.buffer + obj->rx_buff.pos,     // offset the initial buffer by the position
-                    obj->rx_buff.length - obj->rx_buff.pos);    // transfer one byte at a time, until we received everything
-            } else {
-                // everything is ok, nothing else needs to be transferred
-                event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
-                DEBUG_PRINTF("SPI: Done: %u, %u\n", obj->tx_buff.pos, obj->rx_buff.pos);
-            }
-        }
+            // else we're done
+            event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+       }
     }
 
     if (event) DEBUG_PRINTF("SPI: Event: 0x%x\n", event);
