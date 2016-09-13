@@ -1211,6 +1211,7 @@
         "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["IPV4"],
         "release_versions": ["5"]
     },
     "NZ32_SC151": {
