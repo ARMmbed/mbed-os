@@ -122,8 +122,7 @@ class IAR(Exporter):
         num_errors = 0
         #Parse the output for printing and errors
         for line in p.stdout.readlines():
-            print line
-            sys.stdout.flush()
+            sys.stdout.write(line)
             error_re = '\s*Total number of errors:\s*(\d+)\s*'
             m = re.match(error_re, line)
             if m is not None:
