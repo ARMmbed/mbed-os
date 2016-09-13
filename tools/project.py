@@ -11,6 +11,7 @@ from argparse import ArgumentParser
 from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES, MBED_TARGETS_PATH
+from tools.settings import BUILD_DIR
 from tools.export import EXPORTERS, mcu_ide_matrix
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
@@ -66,8 +67,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           clean=False, zip_proj=False, build_profile=None, export_path=None,
-           silent=False):
+           zip_proj=False, build_profile=None, export_path=None, silent=False):
     """Do an export of a project.
 
     Positional arguments:
@@ -89,9 +89,9 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     zip_name = name+".zip" if zip_proj else None
 
-    return export_project(src, project_dir, target, ide, clean=clean, name=name,
-                   macros=macros, libraries_paths=lib, zip_proj=zip_name,
-                   build_profile=build_profile, silent=silent)
+    return export_project(src, project_dir, target, ide, name=name,
+                          macros=macros, libraries_paths=lib, zip_proj=zip_name,
+                          build_profile=build_profile, silent=silent)
 
 
 def main():
@@ -238,10 +238,12 @@ def main():
     if options.mcu not in exporter.TARGETS:
         args_error(parser, "%s not supported by %s"%(options.mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name)
+    if options.clean:
+        rmtree(BUILD_DIR)
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
-           project_id=options.program, clean=options.clean,
-           zip_proj=zip_proj, build_profile=profile)
+           project_id=options.program, zip_proj=zip_proj,
+           build_profile=profile)
 
 
 if __name__ == "__main__":
