@@ -341,7 +341,13 @@ class mbedToolchain:
 
         elif event['type'] == 'progress':
             if not silent:
-                msg = '%s: %s' % (event['action'].title(), basename(event['file']))
+                if 'percent' in event:
+                    msg = '{} [{:>5.1f}%]: {}'.format(event['action'].title(),
+                                                      event['percent'],
+                                                      basename(event['file']))
+                else:
+                    msg = '{}: {}'.format(event['action'].title(),
+                                          basename(event['file']))
 
         if msg:
             print msg
