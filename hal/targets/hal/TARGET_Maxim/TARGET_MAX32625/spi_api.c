@@ -64,24 +64,24 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi = (mxc_spim_regs_t *)spi;
 
     // Merge pin function requests for use with CMSIS init func
-    uint32_t io_req;
+    ioman_req_t io_req;
     pin_function_t *pin_func;
     pin_func = (pin_function_t *)pinmap_find_function(mosi, PinMap_SPI_MOSI);
-    io_req  = pin_func->req_val;
+    io_req.value  = pin_func->req_val;
     pin_func = (pin_function_t *)pinmap_find_function(miso, PinMap_SPI_MISO);
-    io_req |= pin_func->req_val;
+    io_req.value |= pin_func->req_val;
     pin_func = (pin_function_t *)pinmap_find_function(sclk, PinMap_SPI_SCLK);
-    io_req |= pin_func->req_val;
+    io_req.value |= pin_func->req_val;
     if ((SPIName)spi_ssel != (SPIName)NC) {
         pin_func = (pin_function_t *)pinmap_find_function(ssel, PinMap_SPI_SSEL);
-        io_req |= pin_func->req_val;
+        io_req.value |= pin_func->req_val;
     }
 
     // Using req and ack pointers of last pin function lookup
     sys_cfg_spim_t sys_cfg;
     sys_cfg.io_cfg.req_reg = pin_func->reg_req;
     sys_cfg.io_cfg.ack_reg = pin_func->reg_ack;
-    sys_cfg.io_cfg.req_val = (ioman_req_t)io_req;
+    sys_cfg.io_cfg.req_val = io_req;
     sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
 
     // Defaults

@@ -56,17 +56,17 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     obj->start_pending = 0;
 
     // Merge pin function requests for use with CMSIS init func
-    uint32_t io_req;
+    ioman_req_t io_req;
     pin_function_t *pin_func;
     pin_func = (pin_function_t *)pinmap_find_function(sda, PinMap_I2C_SDA);
-    io_req  = pin_func->req_val;
+    io_req.value  = pin_func->req_val;
     pin_func = (pin_function_t *)pinmap_find_function(scl, PinMap_I2C_SCL);
-    io_req |= pin_func->req_val;
+    io_req.value |= pin_func->req_val;
 
     sys_cfg_i2cm_t sys_cfg;
     sys_cfg.io_cfg.req_reg = pin_func->reg_req;
     sys_cfg.io_cfg.ack_reg = pin_func->reg_ack;
-    sys_cfg.io_cfg.req_val = (ioman_req_t)io_req;
+    sys_cfg.io_cfg.req_val = io_req;
     sys_cfg.clk_scale = CLKMAN_SCALE_DIV_1;
 
     I2CM_Init(obj->i2c, &sys_cfg, I2CM_SPEED_400KHZ);
