@@ -63,7 +63,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None):
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           clean=False, zip_proj=False, options=None):
+           zip_proj=False, options=None):
     """Do an export of a project.
 
     Positional arguments:
@@ -75,7 +75,6 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     src - directory or directories that contain the source to export
     macros - extra macros to add to the project
     project_id - the name of the project
-    clean - start from a clean state before exporting
     zip_proj - create a zip file or not
     """
     project_dir, name, src, lib = setup_project(ide, target, program=project_id,
@@ -83,8 +82,8 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     zip_name = name+".zip" if zip_proj else None
 
-    export_project(src, project_dir, target, ide, clean=clean, name=name,
-                   macros=macros, libraries_paths=lib, zip_proj=zip_name, options=options)
+    export_project(src, project_dir, target, ide, name=name, macros=macros,
+                   libraries_paths=lib, zip_proj=zip_name, options=options)
 
 
 def main():
@@ -219,8 +218,8 @@ def main():
         # Export to selected toolchain
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
-           project_id=options.program, clean=options.clean,
-           zip_proj=zip_proj, options=options.opts)
+           project_id=options.program, zip_proj=zip_proj,
+           options=options.opts)
 
 
 if __name__ == "__main__":
