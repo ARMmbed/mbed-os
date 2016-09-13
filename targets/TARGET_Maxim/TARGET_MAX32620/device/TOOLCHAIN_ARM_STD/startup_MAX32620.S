@@ -58,7 +58,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     DebugMon_Handler          ; Debug Monitor Handler
                 DCD     0                         ; Reserved
                 DCD     DefaultIRQ_Handler        ; PendSV Handler
-                DCD     SysTick_IRQHandler        ; SysTick Handler
+                DCD     SysTick_Handler           ; SysTick Handler
 
                 ; Maxim 32620 Externals interrupts
                 DCD CLKMAN_IRQHandler         /* 16:01 CLKMAN */ 
@@ -149,9 +149,9 @@ DebugMon_Handler        PROC
                         B       DebugMon_Handler
                         ENDP
 
-SysTick_IRQHandler      PROC
-                        EXPORT SysTick_IRQHandler               [WEAK]             
-                        B       SysTick_IRQHandler
+SysTick_Handler         PROC
+                        EXPORT SysTick_Handler                  [WEAK]             
+                        B       SysTick_Handler
                         ENDP
 
 Default_Handler PROC

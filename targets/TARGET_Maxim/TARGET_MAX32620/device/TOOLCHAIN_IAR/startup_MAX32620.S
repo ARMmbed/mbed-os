@@ -58,7 +58,7 @@ __vector_table  DCD     sfe(CSTACK)               /* Top of Stack */
                 DCD     DebugMon_Handler          /* Debug Monitor Handler */
                 DCD     0                         /* Reserved */
                 DCD     DefaultIRQ_Handler        /* PendSV Handler */
-                DCD     SysTick_IRQHandler        /* SysTick Handler */
+                DCD     SysTick_Handler           /* SysTick Handler */
 
                 /* Maxim 32620 NVIC Index */
                 DCD CLKMAN_IRQHandler         /* 16:01 CLKMAN */ 
@@ -147,10 +147,10 @@ DefaultIRQ_Handler
 DebugMon_Handler
                 B       DebugMon_Handler
 
-                PUBWEAK SysTick_IRQHandler
+                PUBWEAK SysTick_Handler
                 SECTION .text:CODE:REORDER:NOROOT(1)
-SysTick_IRQHandler
-                B       SysTick_IRQHandler
+SysTick_Handler
+                B       SysTick_Handler
       
 			PUBWEAK CLKMAN_IRQHandler
 			SECTION .text:CODE:REORDER:NOROOT(1)
