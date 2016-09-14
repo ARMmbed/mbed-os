@@ -350,7 +350,7 @@ void serial_baud(serial_t *obj, int baudrate)
     // directly) to make it possible to set special baud rates like 56000
     // or 31250.
 
-    uint32_t const acceptedSpeeds[][2] = {
+    static uint32_t const acceptedSpeeds[][2] = {
         { 1200,    UART_BAUDRATE_BAUDRATE_Baud1200   },
         { 2400,    UART_BAUDRATE_BAUDRATE_Baud2400   },
         { 4800,    UART_BAUDRATE_BAUDRATE_Baud4800   },
