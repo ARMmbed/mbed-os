@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "storage_abstraction/Driver_Storage.h"
+#include "Driver_Storage.h"
 #include "cmsis_nvic.h"
 #include "MK64F12.h"
 
