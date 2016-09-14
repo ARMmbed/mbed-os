@@ -223,24 +223,6 @@ For example, an application may want to remove features with extra space or runt
 }
 ```
 
-## Custom targets
-
-Application configuration can optionally define application-specific targets. These are mbed targets that are needed just to compile this specific application, so it doesn't make sense to add them to the list of official mbed targets; on the contrary, since they're part of `mbed_app.json`, they're versioned together with the application and only known by the application. Application-specific targets are defined with the key `custom_targets` in the `mbed_app.json` file and have the same syntax as a regular target definition, for example:
-
-
-```
-{
-    "custom_targets": {
-       "k64f_myapp": {
-           "inherits": ["K64F"],
-           "extra_labels_add": ["CUSTOM_K64F_LIB"]
-       }
-    }
-}
-```
-
-This will define a new target named `k64f_myapp` that inherits from the `K64F` mbed target, but with an extra label defined, which will change the way the build system looks for sources in the tree.
-
 # Configuration data precedence
 
 The order in which the various bits of configurations are considered is this:

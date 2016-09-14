@@ -66,10 +66,6 @@ class Target(object):
     # need to be computed differently than regular attributes
     cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
 
-    # List of targets that were added dynamically using "add_py_targets" (see
-    # below)
-    __py_targets = set()
-
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
@@ -225,26 +221,6 @@ class Target(object):
         result = self.__getattr_helper(attrname)
         self.__dict__[attrname] = result
         return result
-
-    @staticmethod
-    def add_py_targets(new_targets):
-        """Add one or more new target(s) represented as a Python dictionary
-        in 'new_targets'. It is an error to add a target with a name that
-        already exists.
-        """
-        crt_data = Target.get_json_target_data()
-        for target_key, target_value in new_targets.items():
-            if crt_data.has_key(target_key):
-                raise Exception(
-                    "Attempt to add target '%s' that already exists"
-                    % target_key)
-            # Add target data to the internal target dictionary
-            crt_data[target_key] = target_value
-            # Create the new target and add it to the relevant data structures
-            new_target = Target(target_key)
-            TARGETS.append(new_target)
-            TARGET_MAP[target_key] = new_target
-            TARGET_NAMES.append(target_key)
 
     @staticmethod
     @cached

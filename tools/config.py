@@ -341,7 +341,7 @@ class Config(object):
     __allowed_keys = {
         "library": set(["name", "config", "target_overrides", "macros",
                         "__config_path"]),
-        "application": set(["config", "custom_targets", "target_overrides",
+        "application": set(["config", "target_overrides",
                             "macros", "__config_path"])
     }
 
@@ -363,11 +363,9 @@ class Config(object):
         app_config - location of a chosen mbed_app.json file
 
         NOTE: Construction of a Config object will look for the application
-        configuration file in top_level_dirs. If found once, it'll parse it and
-        check if it has a custom_targets function. If it does, it'll update the
-        list of targets as needed. If more than one config file is found, an
-        exception is raised. top_level_dirs may be None (in this case,
-        the constructor will not search for a configuration file)
+        configuration file in top_level_dirs. If found once, it'll parse it.
+        top_level_dirs may be None (in this case, the constructor will not
+        search for a configuration file).
         """
         app_config_location = app_config
         if app_config_location is None:
@@ -396,7 +394,6 @@ class Config(object):
                                    self.__mbed_app_config_name))
         # Update the list of targets with the ones defined in the application
         # config, if applicable
-        Target.add_py_targets(self.app_config_data.get("custom_targets", {}))
         self.lib_config_data = {}
         # Make sure that each config is processed only once
         self.processed_configs = {}
