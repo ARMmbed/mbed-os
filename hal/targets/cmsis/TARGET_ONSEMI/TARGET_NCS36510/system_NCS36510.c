@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * @file     system_ARMCM3.c
+ * @file     system_NCS36510.c
  * @brief    CMSIS Cortex-M3 Device System Source File
  *           for CM3 Device Series
  * @version  V1.05

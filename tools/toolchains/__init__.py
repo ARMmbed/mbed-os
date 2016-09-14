@@ -954,6 +954,7 @@ class mbedToolchain:
         bin = join(tmp_path, filename)
         map = join(tmp_path, name + '.map')
 
+        r.objects = sorted(set(r.objects))
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
             self.progress("link", name)

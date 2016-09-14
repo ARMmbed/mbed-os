@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(function != (uint32_t)NC);
     obj->channel = STM_PIN_CHANNEL(function);
 
-    // Configure GPIO
-    pinmap_pinout(pin, PinMap_ADC);
+    // Configure GPIO excepted for internal channels (Temperature, Vref, Vbat)
+    if ((obj->channel != 16) && (obj->channel != 17) && (obj->channel != 18)) {
+        pinmap_pinout(pin, PinMap_ADC);
+    }
 
     // Save pin number for the read function
     obj->pin = pin;
@@ -101,6 +103,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     AdcHandle.Init.NbrOfConversion       = 1;
     AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = DISABLE;
+
     if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
         error("Cannot initialize ADC\n");
     }
@@ -114,7 +117,7 @@ static inline uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
     sConfig.Offset       = 0;
 
     switch (obj->channel) {
@@ -165,6 +168,15 @@ static inline uint16_t adc_read(analogin_t *obj)
             break;
         case 15:
             sConfig.Channel = ADC_CHANNEL_15;
+            break;
+        case 16:
+            sConfig.Channel = ADC_CHANNEL_16;
+            break;
+        case 17:
+            sConfig.Channel = ADC_CHANNEL_17;
+            break;
+        case 18:
+            sConfig.Channel = ADC_CHANNEL_18;
             break;
         default:
             return 0;

@@ -114,3 +114,22 @@ const char* utest::v1::stringify(utest::v1::status_t status)
     }
     return "Unknown Status";
 }
+
+
+const utest::v1::base_control_t utest::v1::CaseNext = { REPEAT_NONE, TIMEOUT_NONE };
+
+const utest::v1::base_control_t utest::v1::CaseNoRepeat = { REPEAT_NONE, TIMEOUT_UNDECLR };
+
+const utest::v1::base_control_t utest::v1::CaseRepeatAll = { REPEAT_ALL, TIMEOUT_UNDECLR };
+
+const utest::v1::base_control_t utest::v1::CaseRepeatHandler = { REPEAT_HANDLER, TIMEOUT_UNDECLR };
+
+const utest::v1::base_control_t utest::v1::CaseNoTimeout = { REPEAT_UNDECLR, TIMEOUT_NONE };
+
+const utest::v1::base_control_t utest::v1::CaseAwait = { REPEAT_UNDECLR, TIMEOUT_FOREVER };
+
+// equal to CaeReapeatAll
+const utest::v1::base_control_t utest::v1::CaseRepeat = { REPEAT_ALL, TIMEOUT_UNDECLR };
+
+// equal to CaseRepeatHandler
+const utest::v1::base_control_t utest::v1::CaseRepeatHandlerOnly = { REPEAT_HANDLER, TIMEOUT_UNDECLR };

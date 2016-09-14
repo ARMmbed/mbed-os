@@ -712,6 +712,43 @@ extern "C" void __env_unlock( struct _reent *_r )
 {
     __rtos_env_unlock(_r);
 }
+
+#define CXA_GUARD_INIT_DONE             (1 << 0)
+#define CXA_GUARD_INIT_IN_PROGRESS      (1 << 1)
+#define CXA_GUARD_MASK                  (CXA_GUARD_INIT_DONE | CXA_GUARD_INIT_IN_PROGRESS)
+
+extern "C" int __cxa_guard_acquire(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+        return 0;
+    }
+    singleton_lock();
+    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+        singleton_unlock();
+        return 0;
+    }
+    MBED_ASSERT(0 == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = *guard_object | CXA_GUARD_INIT_IN_PROGRESS;
+    return 1;
+}
+
+extern "C" void __cxa_guard_release(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = (*guard_object & ~CXA_GUARD_MASK) | CXA_GUARD_INIT_DONE;
+    singleton_unlock();
+}
+
+extern "C" void __cxa_guard_abort(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = *guard_object & ~CXA_GUARD_INIT_IN_PROGRESS;
+    singleton_unlock();
+}
+
 #endif
 
 void *operator new(std::size_t count)

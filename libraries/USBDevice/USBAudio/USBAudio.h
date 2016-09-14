@@ -25,7 +25,7 @@
 #include "USBDevice_Types.h"
 
 #include "USBDevice.h"
-
+#include "Callback.h"
 
 /**
 * USBAudio example
@@ -275,7 +275,7 @@ private:
     volatile uint8_t * buf_stream_out;
 
     // callback to update volume
-    FunctionPointer updateVol;
+    Callback<void()> updateVol;
 
     // boolean showing that the SOF handler has been called. Useful for readNB.
     volatile bool SOF_handler;

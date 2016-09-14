@@ -499,9 +499,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F429ZI)
 #define INITIAL_SP            (0x20030000UL)
 
-#elif defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
-#define INITIAL_SP            (0x20002000UL)
-
 #elif defined(TARGET_STM32F072RB)
 #define INITIAL_SP            (0x20004000UL)
 
@@ -535,7 +532,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32F446ZE)
 #define INITIAL_SP            (0x20020000UL)
 
-#elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F030R8)
+#elif defined(TARGET_STM32F070RB)
 #define INITIAL_SP            (0x20002000UL)
 
 #elif defined(TARGET_STM32L432KC)
@@ -574,14 +571,17 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif (defined(TARGET_STM32F767ZI))
 #define INITIAL_SP            (0x20080000UL)
 
+#elif (defined(TARGET_STM32F769NI))
+#define INITIAL_SP            (0x20080000UL)
+
 #elif defined(TARGET_NUMAKER_PFM_NUC472)
 #   if defined(__CC_ARM)
-extern uint32_t                 Image$$ARM_LIB_HEAP$$Base[];
-extern uint32_t                 Image$$ARM_LIB_HEAP$$Length[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$Base)
-#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$Length)
+#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$ZI$$Base)
+#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
 #define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
 #define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
 #   elif defined(__GNUC__)

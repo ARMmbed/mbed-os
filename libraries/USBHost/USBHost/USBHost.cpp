@@ -247,11 +247,7 @@ void USBHost::usb_process() {
     }
 }
 
-/* static */void USBHost::usb_process_static(void const * arg) {
-    ((USBHost *)arg)->usb_process();
-}
-
-USBHost::USBHost() : usbThread(USBHost::usb_process_static, (void *)this, osPriorityNormal, USB_THREAD_STACK)
+USBHost::USBHost() : usbThread(osPriorityNormal, USB_THREAD_STACK)
 {
     headControlEndpoint = NULL;
     headBulkEndpoint = NULL;
@@ -279,6 +275,8 @@ USBHost::USBHost() : usbThread(USBHost::usb_process_static, (void *)this, osPrio
         hub_in_use[i] = false;
     }
 #endif
+
+    usbThread.start(this, &USBHost::usb_process);
 }
 
 USBHost::Lock::Lock(USBHost* pHost) : m_pHost(pHost)
