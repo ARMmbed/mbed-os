@@ -75,6 +75,8 @@ extern const char* GREENTEA_TEST_ENV_LCOV_START;
  */
 void GREENTEA_SETUP(const int, const char *);
 void GREENTEA_TESTSUITE_RESULT(const int);
+void GREENTEA_TESTCASE_START(const char *test_case_name);
+void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed);
 
 /**
  *  Test suite result related notification API
