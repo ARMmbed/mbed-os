@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2014 ARM Limited
+Copyright (c) 2014-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ class CoIDE(Exporter):
         'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
+        'NUCLEO_F303ZE',
         'NUCLEO_F401RE',
         'NUCLEO_F410RB',
         'NUCLEO_F411RE',
@@ -98,7 +99,7 @@ class CoIDE(Exporter):
             self.resources.linker_script = ''
             
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'source_files': source_files,
             'header_files': header_files,
             'include_paths': self.resources.inc_dirs,
@@ -106,9 +107,9 @@ class CoIDE(Exporter):
             'library_paths': self.resources.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.get_symbols()
+            'symbols': self.toolchain.get_symbols()
         }
         target = self.target.lower()
 
         # Project file
-        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.program_name)
+        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.project_name)

@@ -511,7 +511,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F401VC)
 #define INITIAL_SP            (0x20010000UL)
 
-#elif defined(TARGET_STM32F303RE)
+#elif defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303ZE)
 #define INITIAL_SP            (0x20010000UL)
 
 #elif defined(TARGET_STM32F303K8)
@@ -574,14 +574,17 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif (defined(TARGET_STM32F767ZI))
 #define INITIAL_SP            (0x20080000UL)
 
+#elif (defined(TARGET_STM32F769NI))
+#define INITIAL_SP            (0x20080000UL)
+
 #elif defined(TARGET_NUMAKER_PFM_NUC472)
 #   if defined(__CC_ARM)
-extern uint32_t                 Image$$ARM_LIB_HEAP$$Base[];
-extern uint32_t                 Image$$ARM_LIB_HEAP$$Length[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$Base)
-#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$Length)
+#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$ZI$$Base)
+#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
 #define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
 #define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
 #   elif defined(__GNUC__)

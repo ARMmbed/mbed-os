@@ -135,7 +135,7 @@ control_t test_initialize(const size_t call_count)
     TEST_ASSERT(rc >= ARM_DRIVER_OK);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? (CaseTimeout(200) + CaseRepeatAll) : CaseNext;
+        return (call_count < REPEAT_INSTANCES) ? (CaseTimeout(200) + CaseRepeatAll) : (control_t) CaseNext;
     }
 
     TEST_ASSERT(rc == 1);

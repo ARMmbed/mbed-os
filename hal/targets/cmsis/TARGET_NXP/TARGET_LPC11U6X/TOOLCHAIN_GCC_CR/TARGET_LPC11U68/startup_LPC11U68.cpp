@@ -137,7 +137,8 @@ AFTER_VECTORS void bss_init(unsigned int start, unsigned int len) {
 
 
 /* Reset entry point*/
-extern "C" void software_init_hook(void) __attribute__((weak));
+extern "C" void software_init_hook(void);
+extern "C" void pre_main(void) __attribute__((weak));
 
 AFTER_VECTORS void ResetISR(void) {
     unsigned int LoadAddr, ExeAddr, SectionLen;
@@ -169,9 +170,10 @@ AFTER_VECTORS void ResetISR(void) {
 
     
     SystemInit();
-    if (software_init_hook) 
-        software_init_hook(); 
-    else {
+    if (pre_main)  { // give control to the RTOS
+        software_init_hook();  // this will also call __libc_init_array
+    }
+    else {           // for BareMetal (non-RTOS) build
         __libc_init_array();
         main();
     }

@@ -34,6 +34,7 @@ const handlers_t utest::v1::verbose_continue_handlers = {
     verbose_case_failure_handler
 };
 
+const handlers_t& utest::v1::default_handlers = greentea_abort_handlers;
 
 // --- SPECIAL HANDLERS ---
 static void test_failure_handler(const failure_t failure) {

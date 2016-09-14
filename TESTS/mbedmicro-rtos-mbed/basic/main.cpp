@@ -29,25 +29,31 @@
 #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
-DigitalOut led1(LED1);
-DigitalOut led2(LED2);
+#define SIGNAL_PRINT_TICK 0x01
 
-void led2_thread(void const *argument) {
-    static int count = 0;
-    while (true) {
-        led2 = !led2;
-        Thread::wait(1000);
-        greentea_send_kv("tick", count++);
+DigitalOut led1(LED1);
+
+const int total_ticks = 10;
+
+void print_tick_thread() {
+    for (int i = 0; i <= total_ticks; i++) {
+      Thread::signal_wait(SIGNAL_PRINT_TICK);
+      greentea_send_kv("tick", i);
+      led1 = !led1;
     }
 }
 
 int main() {
-    GREENTEA_SETUP(15, "wait_us_auto");
-
-    Thread thread(led2_thread, NULL, osPriorityNormal, STACK_SIZE);
-
-    while (true) {
-        led1 = !led1;
-        Thread::wait(500);
+    GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
+    
+    Thread tick_thread(osPriorityNormal, STACK_SIZE);
+    tick_thread.start(print_tick_thread);
+    
+    for (int i = 0; i <= total_ticks; i++) {
+        Thread::wait(1000);
+        tick_thread.signal_set(SIGNAL_PRINT_TICK);
     }
+    
+    tick_thread.join();
+    GREENTEA_TESTSUITE_RESULT(1);
 }

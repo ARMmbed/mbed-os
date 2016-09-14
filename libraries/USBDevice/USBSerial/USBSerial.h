@@ -22,7 +22,7 @@
 #include "USBCDC.h"
 #include "Stream.h"
 #include "CircBuffer.h"
-
+#include "Callback.h"
 
 /**
 * USBSerial example
@@ -153,7 +153,7 @@ protected:
     }
 
 private:
-    FunctionPointer rx;
+    Callback<void()> rx;
     CircBuffer<uint8_t,128> buf;
     void (*settingsChangedCallback)(int baud, int bits, int parity, int stop);
 };

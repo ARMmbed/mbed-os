@@ -1978,33 +1978,35 @@ def get_default_test_options_parser():
                         help='Prints script version and exits')
     return parser
 
-def test_path_to_name(path):
+def test_path_to_name(path, base):
     """Change all slashes in a path into hyphens
     This creates a unique cross-platform test name based on the path
     This can eventually be overriden by a to-be-determined meta-data mechanism"""
     name_parts = []
-    head, tail = os.path.split(path)
+    head, tail = os.path.split(relpath(path,base))
     while (tail and tail != "."):
         name_parts.insert(0, tail)
         head, tail = os.path.split(head)
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir, target_name, toolchain_name, options=None):
+def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
     target_name: name of the target to use for scanning (ex. 'K64F')
     toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
     options: Compile options to pass to the toolchain (ex. ['debug-info'])
+    app_config - location of a chosen mbed_app.json file
     """
 
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain(base_dir, target_name, toolchain_name, options=options, silent=True)
+    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options,
+                                  silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
-    base_resources = scan_resources(base_dir, toolchain)
+    base_resources = scan_resources([base_dir], toolchain)
 
     dirs = base_resources.inc_dirs
     for directory in dirs:
@@ -2028,7 +2030,7 @@ def find_tests(base_dir, target_name, toolchain_name, options=None):
                     
                     # Check to make sure discoverd folder is not in a host test directory
                     if test_case_directory != 'host_tests' and test_group_directory != 'host_tests':
-                        test_name = test_path_to_name(d)
+                        test_name = test_path_to_name(d, base_dir)
                         tests[test_name] = d
 
     return tests
@@ -2060,7 +2062,7 @@ def norm_relative_path(path, start):
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
         macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False):
+        continue_on_build_fail=False, app_config=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2101,7 +2103,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      project_id=test_name,
                                      report=report,
                                      properties=properties,
-                                     verbose=verbose)
+                                     verbose=verbose,
+                                     app_config=app_config)
 
         except Exception, e:
             if not isinstance(e, NotSupportedException):

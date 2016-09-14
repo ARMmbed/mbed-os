@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2015 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class IAREmbeddedWorkbench(Exporter):
     Exporter class for IAR Systems. This class uses project generator.
     """
     # These 2 are currently for exporters backward compatiblity
-    NAME = 'IAR'
+    NAME = 'iar_arm'
     TOOLCHAIN = 'IAR'
     # PROGEN_ACTIVE contains information for exporter scripts that this is using progen
     PROGEN_ACTIVE = True
@@ -50,39 +50,23 @@ class IAREmbeddedWorkbench(Exporter):
                     continue
         return cls._targets_supported
 
-    def generate(self, progen_build=False):
+    def generate(self):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
-        tool_specific = {}
-        # Expand tool specific settings by IAR specific settings which are required
         try:
             if TARGET_MAP[self.target].progen['iar']['template']:
-                tool_specific['iar'] = TARGET_MAP[self.target].progen['iar']
+                project_data['template']=TARGET_MAP[self.target].progen['iar']['template']
         except KeyError:
             # use default template
             # by the mbed projects
-            tool_specific['iar'] = {
-                    # We currently don't use misc, template sets those for us
-                    # 'misc': {
-                    #     'cxx_flags': ['--no_rtti', '--no_exceptions'],
-                    #     'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
-                    #     'ld_flags': ['--skip_dynamic_initialization'],
-                    # },
-                    'template': [os.path.join(os.path.dirname(__file__),  'iar_template.ewp.tmpl')],
-            }
+            project_data['template']=[os.path.join(os.path.dirname(__file__), 'iar_template.ewp.tmpl')]
 
-        project_data['tool_specific'] = {}
-        project_data['tool_specific'].setdefault("iar", {})
-        project_data['tool_specific']['iar'].setdefault("misc", {})
-        project_data['tool_specific']['iar'].update(tool_specific['iar'])
-        project_data['tool_specific']['iar']['misc'].update(self.progen_flags)
+        project_data['misc'] = self.flags
         # VLA is enabled via template IccAllowVLA
-        project_data['tool_specific']['iar']['misc']['c_flags'].remove("--vla")
-        project_data['common']['build_dir'] = os.path.join(project_data['common']['build_dir'], 'iar_arm')
-        if progen_build:
-            self.progen_gen_file('iar_arm', project_data, True)
-        else:
-            self.progen_gen_file('iar_arm', project_data)
+        project_data['misc']['c_flags'].remove("--vla")
+        project_data['misc']['asm_flags'] = list(set(project_data['misc']['asm_flags']))
+        project_data['build_dir'] = os.path.join(project_data['build_dir'], 'iar_arm')
+        self.progen_gen_file(project_data)
 
 # Currently not used, we should reuse folder_name to create virtual folders
 class IarFolder():

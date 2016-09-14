@@ -38,7 +38,6 @@
  * @{
  */
 
-/*! @file */
 
 /*******************************************************************************
  * Definitions
@@ -46,7 +45,7 @@
 
 /*! @name Driver version */
 /*@{*/
-#define FSL_SAI_DRIVER_VERSION (MAKE_VERSION(2, 1, 0)) /*!< Version 2.1.0 */
+#define FSL_SAI_DRIVER_VERSION (MAKE_VERSION(2, 1, 1)) /*!< Version 2.1.1 */
 /*@}*/
 
 /*! @brief SAI return status*/
@@ -168,7 +167,7 @@ typedef enum _sai_fifo_packing
 } sai_fifo_packing_t;
 #endif /* FSL_FEATURE_SAI_HAS_FIFO_PACKING */
 
-/*! @brief SAI user configure structure */
+/*! @brief SAI user configuration structure */
 typedef struct _sai_config
 {
     sai_protocol_t protocol;  /*!< Audio bus protocol in SAI */
@@ -276,7 +275,7 @@ extern "C" {
  * because the clock is not enabled.
  *
  * @param base SAI base pointer
- * @param config SAI configure structure.
+ * @param config SAI configuration structure.
 */
 void SAI_TxInit(I2S_Type *base, const sai_config_t *config);
 
@@ -292,7 +291,7 @@ void SAI_TxInit(I2S_Type *base, const sai_config_t *config);
  * because the clock is not enabled.
  *
  * @param base SAI base pointer
- * @param config SAI configure structure.
+ * @param config SAI configuration structure.
  */
 void SAI_RxInit(I2S_Type *base, const sai_config_t *config);
 
