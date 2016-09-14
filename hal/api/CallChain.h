@@ -17,6 +17,7 @@
 #define MBED_CALLCHAIN_H
 
 #include "Callback.h"
+#include "toolchain.h"
 #include <string.h>
 
 namespace mbed {
@@ -87,10 +88,17 @@ public:
      *
      *  @returns
      *  The function object created for 'obj' and 'method'
+     *
+     *  @deprecated
+     *  The add function does not support cv-qualifiers. Replaced by
+     *  add(callback(obj, method)).
      */
     template<typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The add function does not support cv-qualifiers. Replaced by "
+        "add(callback(obj, method)).")
     pFunctionPointer_t add(T *obj, M method) {
-        return add(Callback<void()>(obj, method));
+        return add(callback(obj, method));
     }
 
     /** Add a function at the beginning of the chain
@@ -109,10 +117,17 @@ public:
      *
      *  @returns
      *  The function object created for 'tptr' and 'mptr'
+     *
+     *  @deprecated
+     *  The add_front function does not support cv-qualifiers. Replaced by
+     *  add_front(callback(obj, method)).
      */
     template<typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The add_front function does not support cv-qualifiers. Replaced by "
+        "add_front(callback(obj, method)).")
     pFunctionPointer_t add_front(T *obj, M method) {
-        return add_front(Callback<void()>(obj, method));
+        return add_front(callback(obj, method));
     }
 
     /** Get the number of functions in the chain

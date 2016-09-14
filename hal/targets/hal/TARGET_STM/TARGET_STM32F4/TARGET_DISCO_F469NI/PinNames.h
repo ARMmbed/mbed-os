@@ -37,13 +37,13 @@ extern "C" {
 #endif
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
-#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
-#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
+#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 16) | ((CHANNEL & 0x1F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
-#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
-#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x1F)
+#define STM_PIN_INVERTED(X) (((X) >> 16) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -154,7 +154,6 @@ typedef enum {
     PE_14 = 0x4E,
     PE_15 = 0x4F,
 
-
     PF_0  = 0x50,
     PF_1  = 0x51,
     PF_2  = 0x52,
@@ -171,7 +170,6 @@ typedef enum {
     PF_13 = 0x5D,
     PF_14 = 0x5E,
     PF_15 = 0x5F,
-
 
     PG_0  = 0x60,
     PG_1  = 0x61,
@@ -190,7 +188,6 @@ typedef enum {
     PG_14 = 0x6E,
     PG_15 = 0x6F,
 
-
     PH_0  = 0x70,
     PH_1  = 0x71,
     PH_2  = 0x72,
@@ -207,7 +204,6 @@ typedef enum {
     PH_13 = 0x7D,
     PH_14 = 0x7E,
     PH_15 = 0x7F,
-
 
     PI_0  = 0x80,
     PI_1  = 0x81,
@@ -226,7 +222,6 @@ typedef enum {
     PI_14 = 0x8E,
     PI_15 = 0x8F,
 
-
     PJ_0  = 0x90,
     PJ_1  = 0x91,
     PJ_2  = 0x92,
@@ -244,6 +239,10 @@ typedef enum {
     PK_6  = 0xA6,
     PK_7  = 0xA7,
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
 
     // Arduino connector namings
     A0          = PB_1,
@@ -276,6 +275,7 @@ typedef enum {
     LED3        = PD_5,
     LED4        = PK_3,
     LED7        = PD_3,
+    LED_RED     = LED1,
     USER_BUTTON = PA_0,
     SERIAL_TX   = PB_10,
     SERIAL_RX   = PB_11,

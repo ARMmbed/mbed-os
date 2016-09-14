@@ -303,29 +303,12 @@ int serial_getc(serial_t *obj)
 
     c = *obj->fifo->rx_8;
 
-    // Echo characters for stdio
-    if (obj->uart == (mxc_uart_regs_t*)STDIO_UART) {
-        *obj->fifo->tx_8 = (uint8_t)c;
-    }
-
     return c;
 }
 
 //******************************************************************************
 void serial_putc(serial_t *obj, int c)
 {
-    // Append a carriage return for stdio
-    if ((c == (int)'\n') && (obj->uart == (mxc_uart_regs_t*)STDIO_UART)) {
-        while ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
-                >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
-                >= MXC_UART_FIFO_DEPTH );
-
-        // Must clear before every write to the buffer to know that the fifo
-        // is empty when the TX DONE bit is set
-        obj->uart->intfl = MXC_F_UART_INTFL_TX_DONE;
-        *obj->fifo->tx_8 = (uint8_t)'\r';
-    }
-
     // Wait for TXFIFO to not be full
     while ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
                 >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)

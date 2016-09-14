@@ -51,6 +51,7 @@ using namespace utest::v1;
 #else
 #define CFSTORE_CREATE_GREENTEA_TIMEOUT_S     60
 #endif
+#define CFSTORE_CREATE_MALLOC_SIZE            1024
 
 static char cfstore_create_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
 
@@ -272,15 +273,14 @@ static control_t cfstore_create_test_00(const size_t call_count)
 }
 
 
-/** @brief
+/** @brief  Test case to change the value blob size of pre-existing key.
  *
- * Test case to change the value blob size of pre-existing key.
  * The test does the following:
  * - creates a cfstore with ~10 entries.
- * - for a mid-cfstore entry, grow the value blob size
+ * - for a mid-cfstore entry, double the value blob size.
  * - check all the cfstore entries can be read correctly and their
  *   data agrees with the data supplied upon creation.
- * - grow the mid-entry value blob size to be ~double the initial size.
+ * - shrink the mid-entry value blob size to be ~half the initial size.
  * - check all the cfstore entries can be read correctly and their
  *   data agrees with the data supplied upon creation.
  *
@@ -501,14 +501,13 @@ control_t cfstore_create_test_04_end(const size_t call_count)
     return CaseNext;
 }
 
-/**@brief
+
+/**
+ * @brief   Support function for test cases 05
  *
- * Test to create ~500 kvs. The amount of data store in the cfstore is as follows:
- * - total = (220*500)+(256/64)*500*501/2 500*8 = 8236000 = 8.236M
- *
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ * Create enough KV's to consume the whole of available memory
  */
-control_t cfstore_create_test_05_end(const size_t call_count)
+int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_stored_ex)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     uint32_t i = 0;
@@ -523,7 +522,10 @@ control_t cfstore_create_test_05_end(const size_t call_count)
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
+
+    /* Initialize() */
+    cfstore_utest_default_start(call_count);
+
     value_buf = (char*) malloc(max_value_buf_size);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: out of memory.\n", __func__);
     TEST_ASSERT_MESSAGE(value_buf != NULL, cfstore_create_utest_msg_g);
@@ -549,6 +551,48 @@ control_t cfstore_create_test_05_end(const size_t call_count)
     free(value_buf);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+    if(bytes_stored_ex){
+        *bytes_stored_ex = bytes_stored;
+    }
+    return ret;
+}
+
+
+/**
+ * @brief   Test case to check cfstore recovers from out of memory
+ *          errors without leaking memory
+ *
+ * This test case does the following:
+ * 1. Start loop.
+ * 2. Initializes CFSTORE.
+ * 3. Creates as many KVs as required to run out of memory. The number of bytes B
+ *    allocated before running out of memory is recorded.
+ * 4. For loop i, check that B_i =  B_i-1 for i>0 i.e. that no memory has been leaked
+ * 5. Uninitialize(), which should clean up any cfstore internal state including
+ *    freeing the internal memeory area.
+ * 6. Repeat from step 1 N times.
+ */
+control_t cfstore_create_test_05(const size_t call_count)
+{
+    uint32_t i = 0;
+    int32_t ret = ARM_DRIVER_ERROR;
+    uint32_t bytes_stored = 0;
+    uint32_t bytes_stored_prev = 0;
+    const uint32_t max_loops = 50;
+
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    for(i = 0; i < max_loops; i++) {
+        ret = cfstore_create_test_05_core(call_count, &bytes_stored);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: cfstore_create_test_05_core() failed (ret = %d.\n", __func__, (int) ret);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+
+        if(i > 1) {
+            CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: memory leak: stored %d bytes on loop %d, but %d bytes on loop %d .\n", __func__, (int) bytes_stored, (int) i, (int) bytes_stored_prev, (int) i-1);
+            TEST_ASSERT_MESSAGE(bytes_stored == bytes_stored_prev, cfstore_create_utest_msg_g);
+
+        }
+        bytes_stored_prev = bytes_stored;
+    }
     return CaseNext;
 }
 
@@ -580,9 +624,8 @@ cfstore_create_key_name_validate_t cfstore_create_test_06_data[] = {
 /// @endcond
 
 
-/**@brief
- *
- * Test whether a key name can be created or not.
+/**
+ * @brief   Test whether a key name can be created or not.
  *
  * @param	key_name
  * 			name of the key to create in the store
@@ -663,6 +706,109 @@ control_t cfstore_create_test_06_end(const size_t call_count)
     return CaseNext;
 }
 
+
+/** @brief  Test case to change the value blob size of pre-existing
+ *          key in a way that causes the memory area to realloc-ed,
+ *
+ * The test is a modified version of cfstore_create_test_01_end which
+ *  - creates KVs,
+ *  - mallocs a memory object on the heap
+ *  - increases the size of one of the existing KVs, causing the
+ *    internal memory area to be realloc-ed.
+ *
+ * In detail, the test does the following:
+ * 1. creates a cfstore with ~10 entries. This causes the configuration
+ *    store to realloc() heap memory for KV storage.
+ * 2. mallocs a memory object on heap.
+ * 3. for a mid-cfstore entry, double the value blob size. This will cause the
+ *    cfstore memory area to be realloced.
+ * 4. check all the cfstore entries can be read correctly and their
+ *    data agrees with the data supplied upon creation.
+ * 5. shrink the mid-entry value blob size to be ~half the initial size.
+ *    check all the cfstore entries can be read correctly and their
+ *    data agrees with the data supplied upon creation.
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t cfstore_create_test_07_end(const size_t call_count)
+{
+    int32_t ret = ARM_DRIVER_ERROR;
+    void *test_buf1 = NULL;
+    ARM_CFSTORE_FMODE flags;
+    cfstore_kv_data_t* node = NULL;
+    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+    memset(&flags, 0, sizeof(flags));
+
+    /* step 1 */
+    ret = cfstore_test_create_table(cfstore_create_test_01_data_step_01);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to add cfstore_create_test_01_data_head (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+
+    /* step 2 */
+    test_buf1 = malloc(CFSTORE_CREATE_MALLOC_SIZE);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to allocate memory (test_buf1=%p)\n", __func__, test_buf1);
+    TEST_ASSERT_MESSAGE(test_buf1 != NULL, cfstore_create_utest_msg_g);
+
+    /* step 3. find cfstore_create_test_01_data[0] and grow the KV MID_ENTRY_01 to MID_ENTRY_02 */
+    ret = cfstore_create_test_KV_change(&cfstore_create_test_01_data[0], &cfstore_create_test_01_data[1]);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to increase size of KV (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+
+    /* step 4. Now check that the KVs are all present and correct */
+    node = cfstore_create_test_01_data_step_02;
+    while(node->key_name != NULL)
+    {
+        ret = cfstore_test_check_node_correct(node);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:node (key_name=\"%s\", value=\"%s\") not correct in cfstore\n", __func__, node->key_name, node->value);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+        node++;
+    }
+    /* revert CFSTORE_LOG for more trace */
+    CFSTORE_DBGLOG("KV successfully increased in size and other KVs remained unchanged.%s", "\n");
+
+    /* Shrink the KV from KV MID_ENTRY_02 to MID_ENTRY_03 */
+    ret = cfstore_create_test_KV_change(&cfstore_create_test_01_data[1], &cfstore_create_test_01_data[2]);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to decrease size of KV (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+
+    /* Step 5. Now check that the KVs are all present and correct */
+    node = cfstore_create_test_01_data_step_03;
+    while(node->key_name != NULL)
+    {
+        ret = cfstore_test_check_node_correct(node);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:node (key_name=\"%s\", value=\"%s\") not correct in cfstore\n", __func__, node->key_name, node->value);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+        node++;
+    }
+    /* revert CFSTORE_LOG for more trace */
+    CFSTORE_DBGLOG("KV successfully decreased in size and other KVs remained unchanged.%s", "\n");
+
+    /* Delete the KV */
+    ret = cfstore_test_delete(cfstore_create_test_01_data[2].key_name);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:failed to delete node(key_name=\"%s\")\n", __func__, node->key_name);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+
+    /* Now check that the KVs are all present and correct */
+    node = cfstore_create_test_01_data_step_04;
+    while(node->key_name != NULL)
+    {
+        ret = cfstore_test_check_node_correct(node);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:node (key_name=\"%s\", value=\"%s\") not correct in cfstore\n", __func__, node->key_name, node->value);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+        node++;
+    }
+
+    free(test_buf1);
+    ret = drv->Uninitialize();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+    return CaseNext;
+}
+
+
 /// @cond CFSTORE_DOXYGEN_DISABLE
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -682,10 +828,11 @@ Case cases[] = {
         Case("CREATE_test_03_end", cfstore_create_test_03_end),
         Case("CREATE_test_04_start", cfstore_utest_default_start),
         Case("CREATE_test_04_end", cfstore_create_test_04_end),
-        Case("CREATE_test_05_start", cfstore_utest_default_start),
-        Case("CREATE_test_05_end", cfstore_create_test_05_end),
+        Case("CREATE_test_05", cfstore_create_test_05),
         Case("CREATE_test_06_start", cfstore_utest_default_start),
         Case("CREATE_test_06_end", cfstore_create_test_06_end),
+        Case("CREATE_test_07_start", cfstore_utest_default_start),
+        Case("CREATE_test_07_end", cfstore_create_test_07_end),
 };
 
 

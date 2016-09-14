@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class Uvision4(Exporter):
     Exporter class for uvision. This class uses project generator.
     """
     # These 2 are currently for exporters backward compatiblity
-    NAME = 'uVision4'
+    NAME = 'uvision'
     TOOLCHAIN = 'ARM'
     # PROGEN_ACTIVE contains information for exporter scripts that this is using progen
     PROGEN_ACTIVE = True
@@ -53,7 +53,7 @@ class Uvision4(Exporter):
     def get_toolchain(self):
         return TARGET_MAP[self.target].default_toolchain
 
-    def generate(self, progen_build=False):
+    def generate(self):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
         tool_specific = {}
@@ -72,25 +72,24 @@ class Uvision4(Exporter):
         project_data['tool_specific'].update(tool_specific)
 
         # get flags from toolchain and apply
-        project_data['tool_specific']['uvision']['misc'] = {}
+        project_data['misc'] = {}
         # need to make this a string for progen. Only adds preprocessor when "macros" set
         asm_flag_string = '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' + ",".join(
-            list(set(self.progen_flags['asm_flags'])))
-        project_data['tool_specific']['uvision']['misc']['asm_flags'] = [asm_flag_string]
+            list(set(self.flags['asm_flags'])))
+        # asm flags only, common are not valid within uvision project, they are armcc specific
+        project_data['misc']['asm_flags'] = [asm_flag_string]
         # cxx flags included, as uvision have them all in one tab
-        project_data['tool_specific']['uvision']['misc']['c_flags'] = list(set(
-            ['-D__ASSERT_MSG'] + self.progen_flags['common_flags'] + self.progen_flags['c_flags'] + self.progen_flags[
-                'cxx_flags']))
+        project_data['misc']['c_flags'] = list(set(['-D__ASSERT_MSG']
+                                                   + self.flags['common_flags']
+                                                   + self.flags['c_flags']
+                                                   + self.flags['cxx_flags']))
         # not compatible with c99 flag set in the template
-        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
+        project_data['misc']['c_flags'].remove("--c99")
         # cpp is not required as it's implicit for cpp files
-        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--cpp")
+        project_data['misc']['c_flags'].remove("--cpp")
         # we want no-vla for only cxx, but it's also applied for C in IDE, thus we remove it
-        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--no_vla")
-        project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.progen_flags['ld_flags']
+        project_data['misc']['c_flags'].remove("--no_vla")
+        project_data['misc']['ld_flags'] = self.flags['ld_flags']
 
-        project_data['common']['build_dir'] = project_data['common']['build_dir'] + '\\' + 'uvision4'
-        if progen_build:
-            self.progen_gen_file('uvision', project_data, True)
-        else:
-            self.progen_gen_file('uvision', project_data)
+        project_data['build_dir'] = project_data['build_dir'] + '\\' + 'uvision4'
+        self.progen_gen_file(project_data)

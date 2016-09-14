@@ -19,11 +19,17 @@
 
 namespace mbed {
 
+static void donothing() {}
+
 InterruptIn::InterruptIn(PinName pin) : gpio(),
                                         gpio_irq(),
                                         _rise(),
                                         _fall() {
     // No lock needed in the constructor
+
+    _rise.attach(donothing);
+    _fall.attach(donothing);
+
     gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
     gpio_init_in(&gpio, pin);
 }
@@ -50,7 +56,7 @@ void InterruptIn::rise(Callback<void()> func) {
         _rise.attach(func);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
     } else {
-        _rise.attach(NULL);
+        _rise.attach(donothing);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
     }
     core_util_critical_section_exit();
@@ -62,7 +68,7 @@ void InterruptIn::fall(Callback<void()> func) {
         _fall.attach(func);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
     } else {
-        _fall.attach(NULL);
+        _fall.attach(donothing);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
     }
     core_util_critical_section_exit();

@@ -66,7 +66,7 @@ static volatile utest_v1_harness_callback_t minimal_callback;
 static volatile utest_v1_harness_callback_t ticker_callback;
 
 // Timeout object used to control the scheduling of test case callbacks
-Timeout utest_timeout_object;
+SingletonPtr<Timeout> utest_timeout_object;
 
 static void ticker_handler()
 {
@@ -77,7 +77,9 @@ static void ticker_handler()
 static int32_t utest_us_ticker_init()
 {
     UTEST_LOG_FUNCTION();
-    // Ticker scheduler does not require any initialisation so return immediately
+    // initialize the Timeout object to makes sure it is not initialized in 
+    // interrupt context.
+    utest_timeout_object.get();
     return 0;
 }
 static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, timestamp_t delay_ms)
@@ -88,7 +90,7 @@ static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, ti
     if (delay_ms) {
         ticker_callback = callback;
         // fire the interrupt in 1000us * delay_ms
-        utest_timeout_object.attach_us(ticker_handler, delay_us);
+        utest_timeout_object->attach_us(ticker_handler, delay_us);
         
     } 
     else {
@@ -102,7 +104,7 @@ static int32_t utest_us_ticker_cancel(void *handle)
 {
     UTEST_LOG_FUNCTION();
     (void) handle;
-    utest_timeout_object.detach();
+    utest_timeout_object->detach();
     return 0;
 }
 static int32_t utest_us_ticker_run()

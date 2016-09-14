@@ -1,0 +1,12 @@
+{
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-blinky" : {},
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon" :
+    {"features": ["BLE"]},
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate" :
+    {"features": ["BLE"]},
+    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal" :
+    {"features": ["IPV6"]},
+    "https://github.com/ARMmbed/mbed-os-example-client" : {"features": ["IPV6"]},
+    "https://github.com/ARMmbed/mbed-os-example-sockets" : {"features": ["IPV6"]},
+    "https://github.com/ARMmbed/mbed-os-example-uvisor" : {"targets": ["K64F"]}
+}

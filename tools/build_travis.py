@@ -36,7 +36,7 @@ build_list = (
     { "target": "LPC11U24_301",      "toolchains": "GCC_ARM", "libs": ["fat"] },
 
     { "target": "B96B_F446VE",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
-    { "target": "NUCLEO_L053R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_L053R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_L152RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F030R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F031K6",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
@@ -49,6 +49,7 @@ build_list = (
     { "target": "NUCLEO_F302R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F303K8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F303RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_F303ZE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F334R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F410RB",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
@@ -80,6 +81,7 @@ build_list = (
     { "target": "DISCO_F429ZI",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F469NI",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F746NG",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "DISCO_F769NI",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 
     { "target": "LPC1114",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_401",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },

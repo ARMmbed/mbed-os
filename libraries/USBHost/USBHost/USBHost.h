@@ -278,7 +278,6 @@ private:
 
     Thread usbThread;
     void usb_process();
-    static void usb_process_static(void const * arg);
     Mail<message_t, 10> mail_usb_event;
     Mutex usb_mutex;
     Mutex td_mutex;

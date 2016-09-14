@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
-from os.path import splitext, basename, relpath, join, abspath
+from os.path import splitext, basename, relpath, join, abspath, dirname
 from os import curdir, getcwd
+from tools.export.exporters import Exporter
 
 
 class GccArm(Exporter):
@@ -53,6 +53,7 @@ class GccArm(Exporter):
         'DISCO_F469NI',
         'DISCO_F303VC',
         'DISCO_F746NG',
+        'DISCO_F769NI',
         'DISCO_L476VG',
         'UBLOX_C027',
         'ARCH_PRO',
@@ -87,6 +88,7 @@ class GccArm(Exporter):
         'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
+        'NUCLEO_F303ZE',
         'NUCLEO_F746ZG',
         'NUCLEO_F767ZI',
         'DISCO_L053C8',
@@ -106,6 +108,7 @@ class GccArm(Exporter):
         'NRF51_DK',
         'NRF51_DONGLE',
         'NRF51_MICROBIT',
+        'MTM_MTCONNECT04S',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
         'DELTA_DFCM_NNN40',
@@ -135,8 +138,6 @@ class GccArm(Exporter):
 
     def generate(self):
         # "make" wants Unix paths
-        if self.sources_relative:
-            self.resources.relative_to(self.prj_paths[0])
         self.resources.win_to_unix()
 
         to_be_compiled = []
@@ -152,19 +153,20 @@ class GccArm(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
-        build_dir = abspath(join(self.inputDir, ".build"))
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'to_be_compiled': to_be_compiled,
             'object_files': self.resources.objects,
             'include_paths': self.resources.inc_dirs,
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols(),
+            'symbols': self.toolchain.get_symbols(),
             'cpu_flags': self.toolchain.cpu,
-            'vpath': [relpath(s, build_dir) for s in self.prj_paths] if self.sources_relative else [".."],
-            'hex_files': self.resources.hex_files
+            'hex_files': self.resources.hex_files,
+            'vpath': (["../../.."]
+                      if basename(dirname(dirname(self.export_dir))) == "projectfiles"
+                      else [".."])
         }
 
         for key in ['include_paths', 'library_paths', 'linker_script', 'hex_files']:
@@ -174,9 +176,5 @@ class GccArm(Exporter):
                 ctx[key] = ctx['vpath'][0] + "/" + ctx[key]
         if "../." not in ctx["include_paths"]:
             ctx["include_paths"] += ['../.']
-        ctx.update(self.progen_flags)
+        ctx.update(self.flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
-
-    def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
-        self.prj_paths = prj_paths
-        Exporter.scan_and_copy_resources(self, prj_paths, trg_path, relative)

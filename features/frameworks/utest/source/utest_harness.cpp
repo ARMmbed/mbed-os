@@ -36,7 +36,7 @@ namespace
 
     const Case *case_current = NULL;
     size_t case_index = 0;
-    control_t case_control = control_t(REPEAT_SETUP_TEARDOWN);
+    base_control_t case_control =  { REPEAT_SETUP_TEARDOWN, TIMEOUT_UNDECLR };
     size_t case_repeat_count = 1;
 
     void *case_timeout_handle = NULL;
@@ -47,8 +47,13 @@ namespace
     size_t case_failed = 0;
     size_t case_failed_before = 0;
 
-    handlers_t defaults = default_handlers;
-    handlers_t handlers = defaults;
+    struct DefaultHandlers : public handlers_t { 
+        DefaultHandlers() : handlers_t(default_handlers) { }
+        DefaultHandlers(const handlers_t& other) : handlers_t(other) { }
+    };
+
+    SingletonPtr<DefaultHandlers> defaults;
+    SingletonPtr<DefaultHandlers> handlers;
 
     location_t location = LOCATION_UNKNOWN;
 
@@ -110,10 +115,10 @@ bool Harness::run(const Specification& specification)
         return false;
     test_cases  = specification.cases;
     test_length = specification.length;
-    defaults    = specification.defaults;
-    handlers.test_setup    = defaults.get_handler(specification.setup_handler);
-    handlers.test_teardown = defaults.get_handler(specification.teardown_handler);
-    handlers.test_failure  = defaults.get_handler(specification.failure_handler);
+    *defaults.get()    = specification.defaults;
+    handlers->test_setup    = defaults->get_handler(specification.setup_handler);
+    handlers->test_teardown = defaults->get_handler(specification.teardown_handler);
+    handlers->test_failure  = defaults->get_handler(specification.failure_handler);
 
     test_index_of_case = 0;
     test_passed = 0;
@@ -127,16 +132,16 @@ bool Harness::run(const Specification& specification)
     int setup_status = 0;
     failure_t failure(REASON_NONE, location);
 
-    if (handlers.test_setup) {
-        setup_status = handlers.test_setup(test_length);
+    if (handlers->test_setup) {
+        setup_status = handlers->test_setup(test_length);
         if (setup_status == STATUS_CONTINUE) setup_status = 0;
         else if (setup_status < STATUS_CONTINUE)     failure.reason = REASON_TEST_SETUP;
         else if (setup_status > signed(test_length)) failure.reason = REASON_CASE_INDEX;
     }
 
     if (failure.reason != REASON_NONE) {
-        if (handlers.test_failure) handlers.test_failure(failure);
-        if (handlers.test_teardown) handlers.test_teardown(0, 0, failure);
+        if (handlers->test_failure) handlers->test_failure(failure);
+        if (handlers->test_teardown) handlers->test_teardown(0, 0, failure);
         test_cases = NULL;
         exit(1);
         return true;
@@ -150,8 +155,8 @@ bool Harness::run(const Specification& specification)
     scheduler.post(run_next_case, 0);
     if (scheduler.run() != 0) {
         failure.reason = REASON_SCHEDULER;
-        if (handlers.test_failure) handlers.test_failure(failure);
-        if (handlers.test_teardown) handlers.test_teardown(0, 0, failure);
+        if (handlers->test_failure) handlers->test_failure(failure);
+        if (handlers->test_teardown) handlers->test_teardown(0, 0, failure);
         test_cases = NULL;
         exit(1);
         return true;
@@ -167,8 +172,8 @@ void Harness::raise_failure(const failure_reason_t reason)
     if (test_cases == NULL) return;
 
     utest::v1::status_t fail_status = STATUS_ABORT;
-    if (handlers.test_failure) handlers.test_failure(failure_t(reason, location));
-    if (handlers.case_failure) fail_status = handlers.case_failure(case_current, failure_t(reason, location));
+    if (handlers->test_failure) handlers->test_failure(failure_t(reason, location));
+    if (handlers->case_failure) fail_status = handlers->case_failure(case_current, failure_t(reason, location));
 
     {
         UTEST_ENTER_CRITICAL_SECTION;
@@ -184,25 +189,25 @@ void Harness::raise_failure(const failure_reason_t reason)
     }
 
     if (fail_status == STATUS_ABORT || reason & REASON_CASE_SETUP) {
-        if (handlers.case_teardown && location != LOCATION_CASE_TEARDOWN) {
+        if (handlers->case_teardown && location != LOCATION_CASE_TEARDOWN) {
             location_t fail_loc(location);
             location = LOCATION_CASE_TEARDOWN;
 
-            utest::v1::status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, failure_t(reason, fail_loc));
+            utest::v1::status_t teardown_status = handlers->case_teardown(case_current, case_passed, case_failed, failure_t(reason, fail_loc));
             if (teardown_status < STATUS_CONTINUE) raise_failure(REASON_CASE_TEARDOWN);
             else if (teardown_status > signed(test_length)) raise_failure(REASON_CASE_INDEX);
             else if (teardown_status >= 0) case_index = teardown_status - 1;
 
             // Restore case failure location once we have dealt with case teardown
             location = fail_loc;
-            handlers.case_teardown = NULL;
+            handlers->case_teardown = NULL;
         }
     }
     if (fail_status == STATUS_ABORT) {
         test_failed++;
         failure_t fail(reason, location);
         location = LOCATION_TEST_TEARDOWN;
-        if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, fail);
+        if (handlers->test_teardown) handlers->test_teardown(test_passed, test_failed, fail);
         exit(test_failed);
         die();
     }
@@ -218,8 +223,8 @@ void Harness::schedule_next_case()
     if (case_control.repeat & REPEAT_SETUP_TEARDOWN || !(case_control.repeat & (REPEAT_ON_TIMEOUT | REPEAT_ON_VALIDATE))) {
         location = LOCATION_CASE_TEARDOWN;
 
-        if (handlers.case_teardown) {
-            utest::v1::status_t status = handlers.case_teardown(case_current, case_passed, case_failed,
+        if (handlers->case_teardown) {
+            utest::v1::status_t status = handlers->case_teardown(case_current, case_passed, case_failed,
                                                      case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
             if (status < STATUS_CONTINUE)          raise_failure(REASON_CASE_TEARDOWN);
             else if (status > signed(test_length)) raise_failure(REASON_CASE_INDEX);
@@ -298,9 +303,9 @@ void Harness::run_next_case()
     UTEST_LOG_FUNCTION();
     if(case_current < (test_cases + test_length))
     {
-        handlers.case_setup    = defaults.get_handler(case_current->setup_handler);
-        handlers.case_teardown = defaults.get_handler(case_current->teardown_handler);
-        handlers.case_failure  = defaults.get_handler(case_current->failure_handler);
+        handlers->case_setup    = defaults->get_handler(case_current->setup_handler);
+        handlers->case_teardown = defaults->get_handler(case_current->teardown_handler);
+        handlers->case_failure  = defaults->get_handler(case_current->failure_handler);
 
         if (case_current->is_empty()) {
             location = LOCATION_UNKNOWN;
@@ -321,7 +326,7 @@ void Harness::run_next_case()
 
         if (setup_repeat & REPEAT_SETUP_TEARDOWN) {
             location = LOCATION_CASE_SETUP;
-            if (handlers.case_setup && (handlers.case_setup(case_current, test_index_of_case) != STATUS_CONTINUE)) {
+            if (handlers->case_setup && (handlers->case_setup(case_current, test_index_of_case) != STATUS_CONTINUE)) {
                 raise_failure(REASON_CASE_SETUP);
                 schedule_next_case();
                 return;
@@ -361,9 +366,9 @@ void Harness::run_next_case()
             UTEST_LEAVE_CRITICAL_SECTION;
         }
     }
-    else if (handlers.test_teardown) {
+    else if (handlers->test_teardown) {
         location = LOCATION_TEST_TEARDOWN;
-        handlers.test_teardown(test_passed, test_failed, test_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
+        handlers->test_teardown(test_passed, test_failed, test_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
         test_cases = NULL;
         exit(test_failed);
     } else {

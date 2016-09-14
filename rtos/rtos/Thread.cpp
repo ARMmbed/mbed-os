@@ -101,11 +101,14 @@ osStatus Thread::terminate() {
     osStatus ret;
     _mutex.lock();
 
-    ret = osThreadTerminate(_tid);
+    // Set the Thread's tid to NULL and
+    // release the semaphore before terminating
+    // since this thread could be terminating itself
+    osThreadId local_id = _tid;
+    _join_sem.release();
     _tid = (osThreadId)NULL;
 
-    // Wake threads joining the terminated thread
-    _join_sem.release();
+    ret = osThreadTerminate(local_id);
 
     _mutex.unlock();
     return ret;
@@ -116,6 +119,14 @@ osStatus Thread::join() {
     if (ret < 0) {
         return osErrorOS;
     }
+
+    // The semaphore has been released so this thread is being
+    // terminated or has been terminated. Once the mutex has
+    // been locked it is ensured that the thread is deleted.
+    _mutex.lock();
+    MBED_ASSERT(NULL == _tid);
+    _mutex.unlock();
+
     // Release sem so any other threads joining this thread wake up
     _join_sem.release();
     return osOK;

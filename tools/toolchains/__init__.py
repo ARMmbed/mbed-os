@@ -564,6 +564,7 @@ class mbedToolchain:
 
             # Add root to include paths
             resources.inc_dirs.append(root)
+            resources.file_basepath[root] = base_path
 
             for file in files:
                 file_path = join(root, file)
@@ -953,6 +954,7 @@ class mbedToolchain:
         bin = join(tmp_path, filename)
         map = join(tmp_path, name + '.map')
 
+        r.objects = sorted(set(r.objects))
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
             self.progress("link", name)
