@@ -352,7 +352,7 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 extern void pre_main (void);
 
 #if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832) || defined (TARGET_STM32F334R8) ||\
-    defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8)
+    defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8) || defined (TARGET_HI2110)
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
 #else
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 2 / sizeof(uint32_t)];
@@ -601,6 +601,9 @@ extern uint32_t                 __HeapLimit[];
 
 #elif defined(TARGET_NCS36510)
 #define INITIAL_SP            (0x40000000UL)
+
+#elif defined(TARGET_HI2110)
+#define INITIAL_SP            (0x01000000UL + 0x04000 - 256)
 
 #else
 #error "no target defined"
