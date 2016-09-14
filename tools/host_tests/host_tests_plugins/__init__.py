@@ -21,6 +21,7 @@ import host_test_registry
 import module_copy_mbed
 import module_copy_shell
 import module_copy_silabs
+import module_copy_ublox
 
 try:
     import module_copy_smart
@@ -34,6 +35,7 @@ import module_copy_mps2
 import module_reset_mbed
 import module_reset_silabs
 import module_reset_mps2
+import module_reset_ublox
 
 
 # Plugin registry instance
@@ -57,6 +59,8 @@ HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mps2.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_silabs.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_silabs.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_ublox.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_ublox.load_plugin())
 
 # TODO: extend plugin loading to files with name module_*.py loaded ad-hoc
 
