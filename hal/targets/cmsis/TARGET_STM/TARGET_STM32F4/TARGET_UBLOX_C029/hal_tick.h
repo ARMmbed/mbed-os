@@ -51,6 +51,8 @@
 
 #define HAL_TICK_DELAY (1000) // 1 ms
 
+void HAL_SuspendTick(void);
+
 #ifdef __cplusplus
 }
 #endif
