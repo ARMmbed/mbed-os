@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * CMSIS-style functionality to support dynamic vectors
+ *******************************************************************************
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,22 +26,30 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ *******************************************************************************
+ */ 
+
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
+
+// STM32L151CC
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 57 vectors = 228 bytes from 0x40 to 0x123
+// Total: 73 vectors = 292 bytes (0x124) to be reserved in RAM
+#define NVIC_NUM_VECTORS      73
+#define NVIC_USER_IRQ_OFFSET  16
+
 #include "cmsis.h"
-#if defined(TARGET_XDOT_L151CC)
-#include "xdot_low_power.h"
-#endif /* TARGET_XDOT_L151CC */
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#if defined(TARGET_XDOT_L151CC)
-    if (PWR->CSR & PWR_CSR_SBF) {
-        // return the WAKE pin normal configuration
-        xdot_disable_standby_wake_pin();
-    }
-#endif /* TARGET_XDOT_L151CC */
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

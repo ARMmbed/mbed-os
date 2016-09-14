@@ -2,5 +2,10 @@
     "name": "nsapi",
     "config": {
         "present": 1
+    },
+    "target_overrides": {
+        "XDOT_L151CC": {
+            "present": 0
+        }
     }
 }
