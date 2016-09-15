@@ -143,8 +143,39 @@ TEST(libCoap_protocol, sn_coap_protocol_set_retransmission_buffer)
 //{
 //    sn_coap_protocol_clear_retransmission_buffer();
 //}
-
 #include <stdio.h>
+
+TEST(libCoap_protocol, sn_coap_protocol_delete_retransmission)
+{
+#if ENABLE_RESENDINGS
+    retCounter = 6;
+    sn_nsdl_addr_s dst_addr_ptr;
+    sn_coap_hdr_s src_coap_msg_ptr;
+    uint8_t temp_addr[4] = {0};
+    uint8_t dst_packet_data_ptr[4] = {0x40, 0x00, 0x00, 0x63};
+
+    memset(&dst_addr_ptr, 0, sizeof(sn_nsdl_addr_s));
+    memset(&src_coap_msg_ptr, 0, sizeof(sn_coap_hdr_s));
+
+    dst_addr_ptr.addr_ptr = temp_addr;
+    dst_addr_ptr.addr_len = 4;
+    dst_addr_ptr.type = SN_NSDL_ADDRESS_TYPE_IPV4;
+
+    struct coap_s * handle = sn_coap_protocol_init(myMalloc, myFree, null_tx_cb, NULL);
+
+    CHECK( -1 == sn_coap_protocol_delete_retransmission(NULL, 0));
+
+    CHECK( -2 == sn_coap_protocol_delete_retransmission(handle, 0));
+
+    sn_coap_builder_stub.expectedInt16 = 4;
+
+    CHECK( 0 < sn_coap_protocol_build(handle, &dst_addr_ptr, dst_packet_data_ptr, &src_coap_msg_ptr, NULL));
+
+    CHECK( 0 == sn_coap_protocol_delete_retransmission(handle, 99));
+
+    sn_coap_protocol_destroy(handle);
+#endif
+}
 
 TEST(libCoap_protocol, sn_coap_protocol_build)
 {
@@ -2290,6 +2321,79 @@ TEST(libCoap_protocol, sn_coap_protocol_exec2)
 
     sn_coap_builder_stub.expectedInt16 = 0;
     retCounter = 0;
+    sn_coap_protocol_destroy(handle);
+}
+
+TEST(libCoap_protocol, sn_coap_protocol_block_remove)
+{
+    sn_coap_protocol_block_remove(0,0,0,0);
+    retCounter = 9;
+    sn_nsdl_addr_s* addr = (sn_nsdl_addr_s*)malloc(sizeof(sn_nsdl_addr_s));
+    memset(addr, 0, sizeof(sn_nsdl_addr_s));
+    addr->addr_ptr = (uint8_t*)malloc(5);
+    memset(addr->addr_ptr,'a',5);
+    addr->addr_len = 5;
+    struct coap_s * handle = sn_coap_protocol_init(myMalloc, myFree, null_tx_cb, NULL);
+    uint8_t *packet_data_ptr = (uint8_t*)malloc(5);
+    memset(packet_data_ptr,'x',5);
+    uint16_t packet_data_len = 5;
+    sn_coap_parser_stub.expectedHeader = NULL;
+    sn_coap_parser_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    memset(sn_coap_parser_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
+    sn_coap_parser_stub.expectedHeader->msg_type = COAP_MSG_TYPE_ACKNOWLEDGEMENT;
+    sn_coap_parser_stub.expectedHeader->msg_id = 13;
+
+    sn_coap_options_list_s* list = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
+    memset(list, 0, sizeof(sn_coap_options_list_s));
+    sn_coap_parser_stub.expectedHeader->options_list_ptr = list;
+    sn_coap_parser_stub.expectedHeader->options_list_ptr->block1_ptr = (uint8_t*)malloc(1);
+    sn_coap_parser_stub.expectedHeader->options_list_ptr->block1_len = 1;
+    sn_coap_parser_stub.expectedHeader->options_list_ptr->block1_ptr[0] = 0x08;
+    sn_coap_parser_stub.expectedHeader->msg_type = COAP_MSG_TYPE_CONFIRMABLE;
+    sn_coap_parser_stub.expectedHeader->msg_code = COAP_MSG_CODE_REQUEST_PUT;
+    uint8_t* payload = (uint8_t*)malloc(17);
+    sn_coap_parser_stub.expectedHeader->payload_ptr = packet_data_ptr;
+    sn_coap_parser_stub.expectedHeader->payload_len = packet_data_len;
+    sn_coap_builder_stub.expectedUint16 = 1;
+
+    // Success
+    retCounter = 9;
+    sn_coap_protocol_parse(handle, addr, packet_data_len, packet_data_ptr, NULL);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 1);
+    sn_coap_protocol_block_remove(handle,addr,packet_data_len,packet_data_ptr);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 0);
+
+    // Ports does not match
+    retCounter = 18;
+    sn_coap_parser_stub.expectedHeader->msg_id = 14;
+    addr->port = 5600;
+    sn_coap_protocol_parse(handle, addr, packet_data_len, packet_data_ptr, NULL);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 1);
+    addr->port = 5601;
+    sn_coap_protocol_block_remove(handle,addr,packet_data_len,packet_data_ptr);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 1);
+
+    // Addresses does not match
+    retCounter = 18;
+    sn_coap_parser_stub.expectedHeader->msg_id = 15;
+    sn_coap_protocol_parse(handle, addr, packet_data_len, packet_data_ptr, NULL);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 2);
+    addr->addr_ptr[0] = 'x';
+    sn_coap_protocol_block_remove(handle,addr,packet_data_len,packet_data_ptr);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 2);
+
+    // Payload length does not match
+    addr->addr_ptr[0] = 'a';
+    sn_coap_protocol_block_remove(handle,addr,packet_data_len+1,packet_data_ptr);
+    CHECK(ns_list_count(&handle->linked_list_blockwise_received_payloads) == 2);
+
+    free(sn_coap_parser_stub.expectedHeader->options_list_ptr->block1_ptr);
+    free(sn_coap_parser_stub.expectedHeader->options_list_ptr);
+    free(sn_coap_parser_stub.expectedHeader);
+    free(addr->addr_ptr);
+    free(addr);
+    free(payload);
+    free(packet_data_ptr);
     sn_coap_protocol_destroy(handle);
 }
 

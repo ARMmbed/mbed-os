@@ -20,7 +20,7 @@ bool m2mobjectinstance_stub::bool_value;
 M2MResource* m2mobjectinstance_stub::resource;
 M2MResource* m2mobjectinstance_stub::create_resource;
 
-// The statically initialized list must be bigh enough to cater 
+// The statically initialized list must be bigh enough to cater
 // for all the tests, or the utest framework will complain for memory leak.
 M2MResourceList m2mobjectinstance_stub::resource_list(12);
 
@@ -162,7 +162,8 @@ sn_coap_hdr_s* M2MObjectInstance::handle_put_request(nsdl_s *,
 sn_coap_hdr_s* M2MObjectInstance::handle_post_request(nsdl_s *,
                                    sn_coap_hdr_s *,
                                    M2MObservationHandler *,
-                                   bool &execute)
+                                   bool &execute,
+                                   sn_nsdl_addr_s *)
 {
     execute = m2mobjectinstance_stub::bool_value;
     return m2mobjectinstance_stub::header;

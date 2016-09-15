@@ -182,12 +182,14 @@ void Test_M2MNsdlInterface::test_create_nsdl_list_structure()
     m2mbase_stub::string_value = name;
     m2mbase_stub::mode_value = M2MBase::Static;
 
+
     CHECK(nsdl->create_nsdl_list_structure(list)== true);
 
     m2mresource_stub::bool_value = true;
     m2mbase_stub::mode_value = M2MBase::Dynamic;
 
     m2mresource_stub::list.push_back(res_instance);
+    m2mresourceinstance_stub::base_type = M2MBase::Resource;
 
     CHECK(nsdl->create_nsdl_list_structure(list)== true);
 
@@ -234,10 +236,10 @@ void Test_M2MNsdlInterface::test_create_bootstrap_resource()
 void Test_M2MNsdlInterface::test_send_register_message()
 {
     common_stub::uint_value = 12;
-    CHECK(nsdl->send_register_message(NULL,100,SN_NSDL_ADDRESS_TYPE_IPV6) == true);
+    CHECK(nsdl->send_register_message(NULL,4,100,SN_NSDL_ADDRESS_TYPE_IPV6) == true);
 
     common_stub::uint_value = 0;
-    CHECK(nsdl->send_register_message(NULL,100,SN_NSDL_ADDRESS_TYPE_IPV6) == false);
+    CHECK(nsdl->send_register_message(NULL,4,100,SN_NSDL_ADDRESS_TYPE_IPV6) == false);
 }
 
 void Test_M2MNsdlInterface::test_send_update_registration()
@@ -899,7 +901,7 @@ void Test_M2MNsdlInterface::test_resource_callback()
 
     common_stub::int_value = 0;
 
-    coap_header->msg_code = COAP_MSG_CODE_REQUEST_GET;
+    common_stub::coap_header->msg_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
 
     CHECK(nsdl->resource_callback(NULL,coap_header,address,SN_NSDL_PROTOCOL_HTTP) ==0);
 
@@ -980,7 +982,7 @@ void Test_M2MNsdlInterface::test_resource_callback_put()
 
     common_stub::coap_header = (sn_coap_hdr_ *)malloc(sizeof(sn_coap_hdr_));
     memset(common_stub::coap_header,0,sizeof(sn_coap_hdr_));
-
+    common_stub::coap_header->msg_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
     CHECK(nsdl->resource_callback(NULL,coap_header,address,SN_NSDL_PROTOCOL_HTTP) ==0);
 
     m2mobject_stub::base_type = M2MBase::Resource;
@@ -1074,7 +1076,7 @@ void Test_M2MNsdlInterface::test_resource_callback_post()
 
     common_stub::coap_header = (sn_coap_hdr_ *)malloc(sizeof(sn_coap_hdr_));
     memset(common_stub::coap_header,0,sizeof(sn_coap_hdr_));
-
+    common_stub::coap_header->msg_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
     CHECK(nsdl->resource_callback(NULL,coap_header,address,SN_NSDL_PROTOCOL_HTTP) ==0);
 
     m2mobject_stub::base_type = M2MBase::Resource;
@@ -1141,7 +1143,7 @@ void Test_M2MNsdlInterface::test_resource_callback_delete()
     coap_header->uri_path_len = sizeof(value);
 
     coap_header->msg_code = COAP_MSG_CODE_REQUEST_DELETE;
-
+    common_stub::coap_header->msg_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
     common_stub::int_value = 0;
 
     CHECK(nsdl->resource_callback(NULL,coap_header,address,SN_NSDL_PROTOCOL_HTTP) ==0);

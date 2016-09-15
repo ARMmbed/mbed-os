@@ -135,8 +135,17 @@ bool M2MResource::send_delayed_post_response()
 
 void M2MResource::get_delayed_token(uint8_t *&token, uint8_t &token_length)
 {
-    token = _delayed_token;
-    token_length = _delayed_token_len;
+    token_length = 0;
+    if(token) {
+        free(token);
+        token = NULL;
+    }
+    if(_delayed_token && _delayed_token_len > 0) {
+        token = alloc_copy(_delayed_token, _delayed_token_len);
+        if(token) {
+            token_length = _delayed_token_len;
+        }
+    }
 }
 
 bool M2MResource::remove_resource_instance(uint16_t inst_id)
@@ -512,7 +521,8 @@ sn_coap_hdr_s* M2MResource::handle_put_request(nsdl_s *nsdl,
 sn_coap_hdr_s* M2MResource::handle_post_request(nsdl_s *nsdl,
                                                 sn_coap_hdr_s *received_coap_header,
                                                 M2MObservationHandler */*observation_handler*/,
-                                                bool &/*execute_value_updated*/)
+                                                bool &/*execute_value_updated*/,
+                                                sn_nsdl_addr_s *address)
 {
     tr_debug("M2MResource::handle_post_request()");
     sn_coap_msg_code_e msg_code = COAP_MSG_CODE_RESPONSE_CHANGED; // 2.04
@@ -549,25 +559,27 @@ sn_coap_hdr_s* M2MResource::handle_post_request(nsdl_s *nsdl,
             }
             if(COAP_MSG_CODE_RESPONSE_CHANGED == msg_code) {
                 tr_debug("M2MResource::handle_post_request - Execute resource function");
-                execute(exec_params);
                 if(_delayed_response) {
+                    msg_code = COAP_MSG_CODE_EMPTY;
                     coap_response->msg_type = COAP_MSG_TYPE_ACKNOWLEDGEMENT;
-                    coap_response->msg_code = COAP_MSG_CODE_EMPTY;
+                    coap_response->msg_code = msg_code;
                     coap_response->msg_id = received_coap_header->msg_id;
                     if(received_coap_header->token_len) {
                         free(_delayed_token);
+                        _delayed_token = NULL;
                         _delayed_token_len = 0;
-
                         _delayed_token = alloc_copy(received_coap_header->token_ptr, received_coap_header->token_len);
                         if(_delayed_token) {
                             _delayed_token_len = received_coap_header->token_len;
                         }
+                        sn_nsdl_send_coap_message(nsdl, address, coap_response);
                     }
                 } else {
                     uint32_t length = 0;
                     get_value(coap_response->payload_ptr, length);
                     coap_response->payload_len = length;
                 }
+                execute(exec_params);
             }
             delete exec_params;
         } else { // if ((object->operation() & SN_GRS_POST_ALLOWED) != 0)

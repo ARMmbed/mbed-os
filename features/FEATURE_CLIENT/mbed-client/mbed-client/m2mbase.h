@@ -27,6 +27,9 @@ struct sn_coap_hdr_;
 typedef sn_coap_hdr_ sn_coap_hdr_s;
 struct nsdl_s;
 
+struct sn_nsdl_addr_;
+typedef sn_nsdl_addr_ sn_nsdl_addr_s;
+
 typedef FP1<void, const char*> value_updated_callback;
 typedef void(*value_updated_callback2) (const char* object_name);
 class M2MObservationHandler;
@@ -37,9 +40,6 @@ class M2MReportHandler;
  *  This class is the base class based on which all LWM2M object models
  *  can be created. This serves base class for Object, ObjectInstances and Resources.
  */
-
-
-
 class M2MBase : public M2MReportObserver {
 
 public:
@@ -340,7 +340,8 @@ public:
     virtual sn_coap_hdr_s* handle_post_request(nsdl_s *nsdl,
                                                sn_coap_hdr_s *received_coap_header,
                                                M2MObservationHandler *observation_handler,
-                                               bool &execute_value_updated);
+                                               bool &execute_value_updated,
+                                               sn_nsdl_addr_s *address = NULL);
 
     /**
      * \brief Sets whether this resource will be published to server or not.

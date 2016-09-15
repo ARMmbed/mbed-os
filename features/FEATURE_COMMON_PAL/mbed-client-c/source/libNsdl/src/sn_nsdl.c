@@ -482,7 +482,7 @@ int8_t sn_nsdl_set_endpoint_location(struct nsdl_s *handle, uint8_t *location_pt
     if(!handle || !location_ptr || (location_len == 0)) {
         return -1;
     }
-    
+
     handle->sn_nsdl_free(handle->ep_information_ptr->location_ptr);
     handle->ep_information_ptr->location_ptr = handle->sn_nsdl_alloc(location_len);
     memcpy(handle->ep_information_ptr->location_ptr, location_ptr, location_len);
@@ -875,7 +875,7 @@ int8_t sn_nsdl_process_coap(struct nsdl_s *handle, uint8_t *packet_ptr, uint16_t
 {
     sn_coap_hdr_s           *coap_packet_ptr    = NULL;
     sn_coap_hdr_s           *coap_response_ptr  = NULL;
-
+    sn_nsdl_resource_info_s *resource = NULL;
     /* Check parameters */
     if (handle == NULL) {
         return SN_NSDL_FAILURE;
@@ -888,9 +888,24 @@ int8_t sn_nsdl_process_coap(struct nsdl_s *handle, uint8_t *packet_ptr, uint16_t
     if (coap_packet_ptr == (sn_coap_hdr_s *)NULL) {
         return SN_NSDL_FAILURE;
     }
-
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    // Pass block to application if external_memory_block is set
+    if(coap_packet_ptr->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVING) {
+        resource = sn_nsdl_get_resource(handle, coap_packet_ptr->uri_path_len, coap_packet_ptr->uri_path_ptr);
+        if(resource && resource->external_memory_block) {
+            sn_coap_protocol_block_remove(handle->grs->coap,
+                                          src_ptr,
+                                          coap_packet_ptr->payload_len,
+                                          coap_packet_ptr->payload_ptr);
+        } else {
+            resource = NULL;
+        }
+    }
+#endif
     /* Check, if coap itself sends response, or block receiving is ongoing... */
-    if (coap_packet_ptr->coap_status != COAP_STATUS_OK && coap_packet_ptr->coap_status != COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED) {
+    if (coap_packet_ptr->coap_status != COAP_STATUS_OK &&
+            coap_packet_ptr->coap_status != COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED &&coap_packet_ptr &&
+            !resource) {
         sn_coap_parser_release_allocated_coap_msg_mem(handle->grs->coap, coap_packet_ptr);
         return SN_NSDL_SUCCESS;
     }
@@ -1848,6 +1863,33 @@ int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint16_t por
         memcpy(handle->nsp_address_ptr->omalw_address_ptr->addr_ptr, NSP_address, handle->nsp_address_ptr->omalw_address_ptr->addr_len);
         handle->nsp_address_ptr->omalw_address_ptr->port = port;
     }
+    return SN_NSDL_SUCCESS;
+}
+
+extern int8_t set_NSP_address_2(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type)
+{
+    /* Check parameters and source pointers */
+    if (!handle || !handle->nsp_address_ptr || !handle->nsp_address_ptr->omalw_address_ptr || !NSP_address) {
+        return SN_NSDL_FAILURE;
+    }
+
+    handle->nsp_address_ptr->omalw_address_ptr->type = address_type;
+    handle->nsp_address_ptr->omalw_server_security = SEC_NOT_SET;
+
+    if (handle->nsp_address_ptr->omalw_address_ptr->addr_ptr) {
+        handle->sn_nsdl_free(handle->nsp_address_ptr->omalw_address_ptr->addr_ptr);
+    }
+
+    handle->nsp_address_ptr->omalw_address_ptr->addr_len = address_length;
+
+    handle->nsp_address_ptr->omalw_address_ptr->addr_ptr = handle->sn_nsdl_alloc(handle->nsp_address_ptr->omalw_address_ptr->addr_len);
+    if (!handle->nsp_address_ptr->omalw_address_ptr->addr_ptr) {
+        return SN_NSDL_FAILURE;
+    }
+
+    memcpy(handle->nsp_address_ptr->omalw_address_ptr->addr_ptr, NSP_address, handle->nsp_address_ptr->omalw_address_ptr->addr_len);
+    handle->nsp_address_ptr->omalw_address_ptr->port = port;
+
     return SN_NSDL_SUCCESS;
 }
 

@@ -76,7 +76,6 @@ M2MNsdlInterface::M2MNsdlInterface(M2MNsdlObserver &observer)
     _nsdl_handle = sn_nsdl_init(&(__nsdl_c_send_to_server), &(__nsdl_c_received_from_server),
                  &(__nsdl_c_memory_alloc), &(__nsdl_c_memory_free));
 
-
     _server = new M2MServer();
     initialize();
 }
@@ -270,6 +269,7 @@ bool M2MNsdlInterface::create_bootstrap_resource(sn_nsdl_addr_s *address, const 
 }
 
 bool M2MNsdlInterface::send_register_message(uint8_t* address,
+                                             uint8_t address_length,
                                              const uint16_t port,
                                              sn_nsdl_addr_type_e address_type)
 {
@@ -279,7 +279,7 @@ bool M2MNsdlInterface::send_register_message(uint8_t* address,
                                        M2MTimerObserver::NsdlExecution,
                                        false);
     bool success = false;
-    if(set_NSP_address(_nsdl_handle,address, port, address_type) == 0) {
+    if(set_NSP_address_2(_nsdl_handle, address, address_length, port, address_type) == 0) {
         if(!_register_ongoing) {
             _register_ongoing = true;
             success = sn_nsdl_register_endpoint(_nsdl_handle,_endpoint) != 0;
@@ -565,6 +565,7 @@ uint8_t M2MNsdlInterface::received_from_server_callback(struct nsdl_s * nsdl_han
     return value;
 }
 
+
 uint8_t M2MNsdlInterface::resource_callback(struct nsdl_s */*nsdl_handle*/,
                                             sn_coap_hdr_s *received_coap_header,
                                             sn_nsdl_addr_s *address,
@@ -590,7 +591,11 @@ uint8_t M2MNsdlInterface::resource_callback(struct nsdl_s */*nsdl_handle*/,
             if(base->base_type() == M2MBase::ResourceInstance) {
                 msg_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
             } else {
-                coap_response = base->handle_post_request(_nsdl_handle, received_coap_header,this, execute_value_updated);
+                coap_response = base->handle_post_request(_nsdl_handle,
+                                                          received_coap_header,
+                                                          this,
+                                                          execute_value_updated,
+                                                          address);
             }
         } else if(COAP_MSG_CODE_REQUEST_DELETE == received_coap_header->msg_code) {
             // Delete the object instance
@@ -644,20 +649,24 @@ uint8_t M2MNsdlInterface::resource_callback(struct nsdl_s */*nsdl_handle*/,
                                                    received_coap_header,
                                                    msg_code);
     }
+    if(coap_response &&
+            coap_response->coap_status != COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVING &&
+            coap_response->msg_code != COAP_MSG_CODE_EMPTY) {
 
-    if(coap_response) {
         tr_debug("M2MNsdlInterface::resource_callback() - send CoAP response");
         (sn_nsdl_send_coap_message(_nsdl_handle, address, coap_response) == 0) ? result = 0 : result = 1;
         if(coap_response->payload_ptr) {
             free(coap_response->payload_ptr);
             coap_response->payload_ptr = NULL;
         }
-        sn_nsdl_release_allocated_coap_msg_mem(_nsdl_handle, coap_response);
     }
-    if (execute_value_updated) {
+    sn_nsdl_release_allocated_coap_msg_mem(_nsdl_handle, coap_response);
+
+    if (execute_value_updated &&
+            coap_response &&
+            coap_response->coap_status != COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVING) {
         value_updated(base,base->uri_path());
     }
-
     return result;
 }
 
@@ -984,9 +993,15 @@ bool M2MNsdlInterface::create_nsdl_resource(M2MBase *base, const String &name, b
             }
 
             if(M2MBase::Dynamic == base->mode()){
-              // Dynamic resource is updated
-               _resource->mode = SN_GRS_DYNAMIC;
-               _resource->sn_grs_dyn_res_callback = __nsdl_c_callback;
+                // Dynamic resource is updated
+                _resource->mode = SN_GRS_DYNAMIC;
+                _resource->sn_grs_dyn_res_callback = __nsdl_c_callback;
+                if(M2MBase::Resource == base->base_type()) {
+                    M2MResource *res = (M2MResource*)base;
+                    if (res) {
+                        _resource->external_memory_block = (res->block_message()) ? 1 : 0;
+                    }
+                }
             }
 
             if( _resource->path != NULL ){

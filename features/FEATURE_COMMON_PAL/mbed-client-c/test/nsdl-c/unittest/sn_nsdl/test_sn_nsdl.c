@@ -2613,6 +2613,55 @@ bool test_sn_nsdl_process_coap()
     if( SN_NSDL_SUCCESS != sn_nsdl_process_coap(handle, NULL, 0, addr) ){
         return false;
     }
+
+    sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
+    memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
+    sn_coap_protocol_stub.expectedHeader->coap_status = 3;
+    sn_coap_protocol_stub.expectedHeader->msg_code = 0;
+    sn_coap_protocol_stub.expectedHeader->content_type_len = 1;
+    sn_coap_protocol_stub.expectedHeader->content_type_ptr = (uint8_t*)malloc(1);
+    *sn_coap_protocol_stub.expectedHeader->content_type_ptr = 97;
+    sn_coap_protocol_stub.expectedHeader->uri_path_ptr = (uint8_t*)malloc(1);
+    sn_coap_protocol_stub.expectedHeader->uri_path_ptr[0] = '0';
+    sn_coap_protocol_stub.expectedHeader->uri_path_len = 1;
+
+    payload_ptr[0] = '/';
+    payload_ptr[1] = '/';
+    payload_ptr[2] = ':';
+    payload_ptr[3] = ':';
+    sn_coap_protocol_stub.expectedHeader->payload_len = 4;
+    sn_coap_protocol_stub.expectedHeader->payload_ptr = payload_ptr;
+
+    if( SN_NSDL_SUCCESS != sn_nsdl_process_coap(handle, NULL, 0, addr) ){
+        return false;
+    }
+
+    sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
+    memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
+    sn_coap_protocol_stub.expectedHeader->coap_status = 3;
+    sn_coap_protocol_stub.expectedHeader->msg_code = 0;
+    sn_coap_protocol_stub.expectedHeader->content_type_len = 1;
+    sn_coap_protocol_stub.expectedHeader->content_type_ptr = (uint8_t*)malloc(1);
+    *sn_coap_protocol_stub.expectedHeader->content_type_ptr = 97;
+    sn_coap_protocol_stub.expectedHeader->uri_path_ptr = (uint8_t*)malloc(1);
+    sn_coap_protocol_stub.expectedHeader->uri_path_ptr[0] = '0';
+    sn_coap_protocol_stub.expectedHeader->uri_path_len = 1;
+
+    payload_ptr[0] = '/';
+    payload_ptr[1] = '/';
+    payload_ptr[2] = ':';
+    payload_ptr[3] = ':';
+    sn_coap_protocol_stub.expectedHeader->payload_len = 4;
+    sn_coap_protocol_stub.expectedHeader->payload_ptr = payload_ptr;
+
+    sn_grs_stub.expectedInfo = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
+    memset( sn_grs_stub.expectedInfo, 0, sizeof(sn_nsdl_resource_info_s));
+    sn_grs_stub.expectedInfo->external_memory_block = 1;
+    if( SN_NSDL_SUCCESS != sn_nsdl_process_coap(handle, NULL, 0, addr) ){
+        return false;
+    }
+    free(sn_grs_stub.expectedInfo);
+    sn_grs_stub.expectedInfo = NULL;
     free(sn_grs_stub.expectedGrs->coap);
     free(payload_ptr);
     free(addr);

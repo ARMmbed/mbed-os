@@ -188,6 +188,30 @@ extern int8_t sn_coap_protocol_set_retransmission_buffer(struct coap_s *handle,
  */
 extern void sn_coap_protocol_clear_retransmission_buffer(struct coap_s *handle);
 
+/**
+ * \fn sn_coap_protocol_block_remove
+ *
+ * \brief Remove saved block data. Can be used to remove the data from RAM to enable storing it to other place.
+ *
+ * \param handle Pointer to CoAP library handle
+ * \param source_address Addres from where the block has been received.
+ * \param payload_length Length of the coap payload of the block.
+ * \param payload Coap payload of the block.
+ *
+ */
+extern void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload);
+
+/**
+ * \fn void sn_coap_protocol_delete_retransmission(struct coap_s *handle)
+ *
+ * \param *handle Pointer to CoAP library handle
+ * \msg_id message ID to be removed
+ * \return returns 0 when success, -1 for invalid parameter, -2 if message was not found
+ *
+ * \brief If re-transmissions are enabled, this function removes message from retransmission buffer.
+ */
+extern int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t msg_id);
+
 #endif /* SN_COAP_PROTOCOL_H_ */
 
 #ifdef __cplusplus

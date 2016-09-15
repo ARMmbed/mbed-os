@@ -148,7 +148,7 @@ M2MResourceInstance* M2MObjectInstance::create_static_resource_instance(const St
         return instance;
     }
     M2MResource *res = resource(resource_name);
-    if(!res) {        
+    if(!res) {
         res = new M2MResource(*this,resource_name, resource_type, type,
                               value, value_length, M2MBase::instance_id(),
                               M2MBase::name(), true);
@@ -187,7 +187,7 @@ M2MResourceInstance* M2MObjectInstance::create_dynamic_resource_instance(const S
                               false, M2MBase::instance_id(), M2MBase::name(), true);
         _resource_list.push_back(res);
         res->set_register_uri(false);
-        res->set_operation(M2MBase::GET_ALLOWED);        
+        res->set_operation(M2MBase::GET_ALLOWED);
     }
     if(res->supports_multiple_instances() && (res->resource_instance(instance_id) == NULL)) {
         instance = new M2MResourceInstance(resource_name, resource_type, type, *this,
@@ -372,7 +372,7 @@ sn_coap_hdr_s* M2MObjectInstance::handle_get_request(nsdl_s *nsdl,
                                                            received_coap_header,
                                                            msg_code);
     uint8_t * data = NULL;
-    uint32_t  data_length = 0;    
+    uint32_t  data_length = 0;
     if(received_coap_header) {
         // process the GET if we have registered a callback for it
         if ((operation() & SN_GRS_GET_ALLOWED) != 0) {
@@ -477,7 +477,7 @@ sn_coap_hdr_s* M2MObjectInstance::handle_get_request(nsdl_s *nsdl,
             tr_error("M2MObjectInstance::handle_get_request - Return COAP_MSG_CODE_RESPONSE_METHOD_NOT_ALLOWED");
             // Operation is not allowed.
             msg_code = COAP_MSG_CODE_RESPONSE_METHOD_NOT_ALLOWED;
-        }        
+        }
     } else {
         msg_code = COAP_MSG_CODE_RESPONSE_METHOD_NOT_ALLOWED;
     }
@@ -584,7 +584,8 @@ sn_coap_hdr_s* M2MObjectInstance::handle_put_request(nsdl_s *nsdl,
 sn_coap_hdr_s* M2MObjectInstance::handle_post_request(nsdl_s *nsdl,
                                                       sn_coap_hdr_s *received_coap_header,
                                                       M2MObservationHandler *observation_handler,
-                                                      bool &execute_value_updated)
+                                                      bool &execute_value_updated,
+                                                      sn_nsdl_addr_s *)
 {
     tr_debug("M2MObjectInstance::handle_post_request()");
     sn_coap_msg_code_e msg_code = COAP_MSG_CODE_RESPONSE_CHANGED; // 2.04
@@ -631,7 +632,7 @@ sn_coap_hdr_s* M2MObjectInstance::handle_post_request(nsdl_s *nsdl,
                         case M2MTLVDeserializer::None:
                             if(observation_handler) {
                                 execute_value_updated = true;
-                            }                            
+                            }
                             coap_response->options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
                             if (coap_response->options_list_ptr) {
                                 memset(coap_response->options_list_ptr, 0, sizeof(sn_coap_options_list_s));

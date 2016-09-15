@@ -157,7 +157,7 @@ void Test_M2MResource::test_handle_observation_attribute()
     TestReportObserver obs;
     m2mbase_stub::report = new M2MReportHandler(obs);
 
-    m2mbase_stub::bool_value = true;    
+    m2mbase_stub::bool_value = true;
     CHECK(false == resource->handle_observation_attribute(d));
 
     resource->_resource_type = M2MResourceInstance::INTEGER;
@@ -694,7 +694,7 @@ void Test_M2MResource::test_handle_put_request()
 }
 
 void Test_M2MResource::test_handle_post_request()
-{    
+{
     uint8_t value[] = {"name"};
     bool execute_value_updated = false;
     sn_coap_hdr_s *coap_header = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -733,7 +733,7 @@ void Test_M2MResource::test_handle_post_request()
     *coap_header->token_ptr = 1;
     coap_header->token_len = 1;
 
-    m2mbase_stub::bool_value = false;    
+    m2mbase_stub::bool_value = false;
     m2mresourceinstance_stub::string_value = name;
 
     CHECK(resource->handle_post_request(NULL,coap_header,handler,execute_value_updated) != NULL);
@@ -804,6 +804,15 @@ void Test_M2MResource::test_get_delayed_token()
     memcpy(resource->_delayed_token,value,1);
     resource->get_delayed_token(token,token_len);
     CHECK(token != NULL);
+    free(token);
+
+    token = NULL;
+    token = (uint8_t*)malloc(1);
+    token_len = 1;
+    resource->get_delayed_token(token,token_len);
+    CHECK(token != NULL);
+    free(token);
+
 }
 
 void Test_M2MResource::test_delayed_response()

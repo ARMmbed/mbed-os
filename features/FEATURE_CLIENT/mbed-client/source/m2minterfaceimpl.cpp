@@ -594,12 +594,10 @@ void M2MInterfaceImpl::state_bootstrap_address_resolved( EventData *data)
     if(M2MInterface::LwIP_IPv4 == stack) {
         tr_debug("M2MInterfaceImpl::state_bootstrap_address_resolved : IPv4 address");
         address.type = SN_NSDL_ADDRESS_TYPE_IPV4;
-        address.addr_len = 4;
     } else if((M2MInterface::LwIP_IPv6 == stack) ||
               (M2MInterface::Nanostack_IPv6 == stack)) {
         tr_debug("M2MInterfaceImpl::state_bootstrap_address_resolved : IPv6 address");
         address.type = SN_NSDL_ADDRESS_TYPE_IPV6;
-        address.addr_len = 16;
     }
     address.port = event->_port;
     address.addr_ptr = (uint8_t*)event->_address->_address;
@@ -732,7 +730,8 @@ void M2MInterfaceImpl::state_register_address_resolved( EventData *data)
             address_type = SN_NSDL_ADDRESS_TYPE_IPV6;
         }
         _connection_handler->start_listening_for_data();
-        if(_nsdl_interface->send_register_message((uint8_t*)event->_address->_address,event->_port, address_type)) {
+        if(_nsdl_interface->send_register_message((uint8_t*)event->_address->_address,event->_address->_length,
+                                                  event->_port, address_type)) {
             internal_event(STATE_REGISTER_RESOURCE_CREATED);
         } else {
             // If resource creation fails then inform error to application

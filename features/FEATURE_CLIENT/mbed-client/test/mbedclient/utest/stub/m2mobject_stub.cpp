@@ -19,7 +19,7 @@ u_int16_t m2mobject_stub::int_value;
 bool m2mobject_stub::bool_value;
 M2MObjectInstance* m2mobject_stub::inst;
 
-// The statically initialized object list must be bigh enough to cater 
+// The statically initialized object list must be bigh enough to cater
 // for all the tests, or the utest framework will complain for memory leak.
 M2MObjectInstanceList m2mobject_stub::instance_list(12);
 
@@ -114,7 +114,8 @@ sn_coap_hdr_s* M2MObject::handle_put_request(nsdl_s *,
 sn_coap_hdr_s* M2MObject::handle_post_request(nsdl_s *,
                                    sn_coap_hdr_s *,
                                    M2MObservationHandler *,
-                                   bool &)
+                                   bool &,
+                                   sn_nsdl_addr_s *)
 {
     return m2mobject_stub::header;
 }

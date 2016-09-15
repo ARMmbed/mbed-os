@@ -327,6 +327,27 @@ void sn_coap_protocol_clear_retransmission_buffer(struct coap_s *handle)
 #endif
 }
 
+int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t msg_id)
+{
+#if ENABLE_RESENDINGS /* If Message resending is not used at all, this part of code will not be compiled */
+    if (handle == NULL) {
+        return -1;
+    }
+    ns_list_foreach_safe(coap_send_msg_s, tmp, &handle->linked_list_resent_msgs) {
+        if (tmp->send_msg_ptr && tmp->send_msg_ptr->packet_ptr ) {
+            uint16_t temp_msg_id = (tmp->send_msg_ptr->packet_ptr[2] << 8);
+            temp_msg_id += (uint16_t)tmp->send_msg_ptr->packet_ptr[3];
+            if(temp_msg_id == msg_id){
+                ns_list_remove(&handle->linked_list_resent_msgs, tmp);
+                --handle->count_resent_msgs;
+                sn_coap_protocol_release_allocated_send_msg_mem(handle, tmp);
+                return 0;
+            }
+        }
+    }
+#endif
+    return -2;
+}
 
 int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_ptr,
                                uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *src_coap_msg_ptr, void *param)
@@ -1508,8 +1529,38 @@ static uint16_t sn_coap_count_linked_list_size(const coap_send_msg_list_t *linke
 
 #endif
 
-#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not used at all, this part of code will not be compiled */
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload)
+{
+    if(!handle || !source_address || !payload){
+        return;
+    }
 
+    /* Loop all stored blockwise payloads in Linked list */
+    ns_list_foreach(coap_blockwise_payload_s, stored_payload_info_ptr, &handle->linked_list_blockwise_received_payloads) {
+        /* If payload's Source address is not the same than is searched */
+        if (memcmp(source_address->addr_ptr, stored_payload_info_ptr->addr_ptr, source_address->addr_len)) {
+            continue;
+        }
+
+        /* If payload's Source address port is not the same than is searched */
+        if (stored_payload_info_ptr->port != source_address->port) {
+            continue;
+        }
+
+        /* Check the payload */
+        if(payload_length != stored_payload_info_ptr->payload_len){
+            continue;
+        }
+
+        if(!memcmp(stored_payload_info_ptr->payload_ptr, payload, stored_payload_info_ptr->payload_len))
+        {
+            /* Everything matches, remove and return. */
+            sn_coap_protocol_linked_list_blockwise_payload_remove(handle, stored_payload_info_ptr);
+            return;
+        }
+    }
+}
 /**************************************************************************//**
  * \fn static int8_t sn_coap_handle_blockwise_message(void)
  *
@@ -1709,13 +1760,26 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                     }
 
                 tr_debug("sn_coap_handle_blockwise_message - block1 received - incoming size: [%d]", total_message_size);
-                if (total_message_size > UINT16_MAX) {
+                uint32_t max_size = SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE;
+                if (total_message_size > max_size) {
+                    // Include maximum size that stack can handle into response
                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
-                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_ptr = handle->sn_coap_protocol_malloc(2);
+                    uint8_t size = 0;
+                    if(max_size < 0xFF) {
+                        size = 1;
+                    } else if(max_size < 0xFFFF) {
+                        size = 2;
+                    } else if(max_size < 0xFFFFFF) {
+                        size = 3;
+                    } else if(max_size < 0xFFFFFFFF) {
+                        size = 4;
+                    }
+                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_ptr = handle->sn_coap_protocol_malloc(size);
                     if (src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_ptr) {
-                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_ptr[0] = 0xff;
-                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_ptr[1] = 0xff;
-                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_len = 2;
+                        for (int i = 0; i < size; i++) {
+                            src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_ptr[i] = (max_size >> ((size - i - 1) * 8));
+                        }
+                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1_len = size;
                     }
                 } else if (received_coap_msg_ptr->msg_code == COAP_MSG_CODE_REQUEST_GET) {
                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_CONTENT;

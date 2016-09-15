@@ -71,6 +71,7 @@ bool M2MNsdlInterface::create_bootstrap_resource(sn_nsdl_addr_s *, const String&
 }
 
 bool M2MNsdlInterface::send_register_message(uint8_t*,
+                                             uint8_t,
                                              const uint16_t,
                                              sn_nsdl_addr_type_e)
 {
