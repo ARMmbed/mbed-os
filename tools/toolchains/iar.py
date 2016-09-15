@@ -29,6 +29,9 @@ class IAR(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
+    # ANY changes to these default flags is backwards incompatible and require
+    # an update to the mbed-sdk-tools and website that introduces a profile
+    # for the previous version of these flags
     DEFAULT_FLAGS = {
         'common': [
             "--no_wrap_diagnostics",
