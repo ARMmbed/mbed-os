@@ -521,6 +521,53 @@ bool test_sn_grs_create_resource()
     return true;
 }
 
+bool test_sn_grs_put_resource()
+{
+    if( SN_NSDL_FAILURE != sn_grs_put_resource(NULL, NULL) ){
+        return false;
+    }
+
+    struct grs_s* handle = (struct grs_s*)malloc(sizeof(struct grs_s));
+    memset(handle, 0, sizeof(struct grs_s));
+    handle->sn_grs_alloc = myMalloc;
+    handle->sn_grs_free = myFree;
+
+    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
+    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
+    res->pathlen = 1;
+
+    if( SN_GRS_INVALID_PATH != sn_grs_put_resource(handle, res) ){
+        return false;
+    }
+
+    uint8_t pa[2] = "a\0";
+    res->path = &pa;
+    uint8_t re[2] = "a\0";
+    res->resource = &re;
+    res->resourcelen = 1;
+    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
+    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
+
+    uint8_t rt[2];
+    res->resource_parameters_ptr->resource_type_ptr = &rt;
+
+    uint8_t ifp[2];
+    res->resource_parameters_ptr->interface_description_ptr = &ifp;
+
+    if( SN_NSDL_SUCCESS != sn_grs_put_resource(handle, res) ){
+        return false;
+    }
+
+    if( SN_GRS_RESOURCE_ALREADY_EXISTS != sn_grs_put_resource(handle, res) ){
+        return false;
+    }
+
+
+    sn_grs_destroy(handle);
+
+    return true;
+}
+
 bool test_sn_grs_process_coap()
 {
     if( SN_NSDL_FAILURE != sn_grs_process_coap(NULL, NULL, NULL) ){
@@ -571,7 +618,7 @@ bool test_sn_grs_process_coap()
     hdr->payload_ptr = (uint8_t*)malloc(2);
 
     retCounter = 1;
-    if( SN_NSDL_FAILURE != sn_grs_process_coap(handle, hdr, addr) ){
+    if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
     }
 
@@ -729,9 +776,7 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = COAP_CT_TEXT_PLAIN;
 
     if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
@@ -783,9 +828,7 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
 
     if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
@@ -887,9 +930,8 @@ bool test_sn_grs_process_coap()
 //    hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
 //    hdr->payload_ptr = (uint8_t*)malloc(2);
 //    hdr->payload_len = 2;
-//    hdr->content_type_ptr = (uint8_t*)malloc(1);
-//    hdr->content_type_ptr[0] = 1;
-//    hdr->content_type_len = 1;
+//    hdr->content_format = 1;
+//
 
 //    if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
 //        return false;
@@ -908,9 +950,7 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
 
     if( SN_NSDL_FAILURE != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
@@ -927,9 +967,8 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
+
     hdr->token_ptr = (uint8_t*)malloc(1);
     hdr->token_len = 1;
 
@@ -964,9 +1003,8 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
+
     hdr->token_ptr = (uint8_t*)malloc(1);
     hdr->token_len = 1;
 
@@ -986,14 +1024,13 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
+
     hdr->token_ptr = (uint8_t*)malloc(1);
     hdr->token_len = 1;
 
-    retCounter = 2;
-    if( SN_NSDL_FAILURE != sn_grs_process_coap(handle, hdr, addr) ){
+    retCounter = 3;
+    if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
     }
 
@@ -1011,13 +1048,11 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
     hdr->token_ptr = (uint8_t*)malloc(1);
     hdr->token_len = 1;
 
-    retCounter = 3;
+    retCounter = 2;
     if( SN_NSDL_FAILURE != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
     }
@@ -1033,9 +1068,8 @@ bool test_sn_grs_process_coap()
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
     hdr->payload_len = 2;
-    hdr->content_type_ptr = (uint8_t*)malloc(1);
-    hdr->content_type_ptr[0] = 1;
-    hdr->content_type_len = 1;
+    hdr->content_format = 1;
+
     hdr->token_ptr = (uint8_t*)malloc(1);
     hdr->token_len = 1;
 
@@ -1082,7 +1116,7 @@ bool test_sn_grs_send_coap_message()
     }
 
     retCounter = 1;
-    sn_coap_protocol_stub.expectedInt16 = -1;    
+    sn_coap_protocol_stub.expectedInt16 = -1;
     if( SN_NSDL_FAILURE != sn_grs_send_coap_message(handle, NULL, NULL) ){
         return false;
     }

@@ -344,6 +344,33 @@ extern int8_t sn_grs_create_resource(struct grs_s *handle, sn_nsdl_resource_info
     return SN_GRS_LIST_ADDING_FAILURE;
 }
 
+int8_t sn_grs_put_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res)
+{
+    if (!res || !handle) {
+        return SN_NSDL_FAILURE;
+    }
+
+    /* Check path validity */
+    if (!res->pathlen || !res->path) {
+        return SN_GRS_INVALID_PATH;
+    }
+
+    /* Check if resource already exists */
+    if (sn_grs_search_resource(handle, res->pathlen, res->path, SN_GRS_SEARCH_METHOD) != (sn_nsdl_resource_info_s *)NULL) {
+        return SN_GRS_RESOURCE_ALREADY_EXISTS;
+    }
+
+    if (res->resource_parameters_ptr) {
+        res->resource_parameters_ptr->registered = SN_NDSL_RESOURCE_NOT_REGISTERED;
+    }
+
+    res->is_put = true;
+
+    ns_list_add_to_start(&handle->resource_root_list, res);
+    ++handle->resource_root_count;
+
+    return SN_NSDL_SUCCESS;
+}
 
 
 /**
@@ -435,9 +462,9 @@ extern int8_t sn_grs_process_coap(struct nsdl_s *nsdl_handle, sn_coap_hdr_s *coa
                                 }
                                 memcpy(resource_temp_ptr->resource, coap_packet_ptr->payload_ptr, resource_temp_ptr->resourcelen);
                             }
-                            if (coap_packet_ptr->content_type_ptr) {
+                            if (coap_packet_ptr->content_format != COAP_CT_NONE) {
                                 if (resource_temp_ptr->resource_parameters_ptr) {
-                                    resource_temp_ptr->resource_parameters_ptr->coap_content_type = *coap_packet_ptr->content_type_ptr;
+                                    resource_temp_ptr->resource_parameters_ptr->coap_content_type = coap_packet_ptr->content_format;
                                 }
                             }
                             status = COAP_MSG_CODE_RESPONSE_CHANGED;
@@ -458,9 +485,9 @@ extern int8_t sn_grs_process_coap(struct nsdl_s *nsdl_handle, sn_coap_hdr_s *coa
                                 }
                                 memcpy(resource_temp_ptr->resource, coap_packet_ptr->payload_ptr, resource_temp_ptr->resourcelen);
                             }
-                            if (coap_packet_ptr->content_type_ptr) {
+                            if (coap_packet_ptr->content_format != COAP_CT_NONE) {
                                 if (resource_temp_ptr->resource_parameters_ptr) {
-                                    resource_temp_ptr->resource_parameters_ptr->coap_content_type = *coap_packet_ptr->content_type_ptr;
+                                    resource_temp_ptr->resource_parameters_ptr->coap_content_type = coap_packet_ptr->content_format;
                                 }
                             }
                             status = COAP_MSG_CODE_RESPONSE_CHANGED;
@@ -565,21 +592,9 @@ extern int8_t sn_grs_process_coap(struct nsdl_s *nsdl_handle, sn_coap_hdr_s *coa
         if (status == COAP_MSG_CODE_RESPONSE_CONTENT) {
             /* Add content type if other than default */
             if (resource_temp_ptr->resource_parameters_ptr) {
+                /* XXXX Why "if != 0"? 0 means text/plain, and is not the default for CoAP - this prevents setting text/plain? */
                 if (resource_temp_ptr->resource_parameters_ptr->coap_content_type != 0) {
-                    response_message_hdr_ptr->content_type_len = 1;
-                    response_message_hdr_ptr->content_type_ptr = handle->sn_grs_alloc(response_message_hdr_ptr->content_type_len);
-                    if (!response_message_hdr_ptr->content_type_ptr) {
-                        sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, response_message_hdr_ptr);
-
-                        if (coap_packet_ptr->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED && coap_packet_ptr->payload_ptr) {
-                            handle->sn_grs_free(coap_packet_ptr->payload_ptr);
-                            coap_packet_ptr->payload_ptr = 0;
-                        }
-
-                        sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_packet_ptr);
-                        return SN_NSDL_FAILURE;
-                    }
-                    memcpy(response_message_hdr_ptr->content_type_ptr, &resource_temp_ptr->resource_parameters_ptr->coap_content_type, response_message_hdr_ptr->content_type_len);
+                    response_message_hdr_ptr->content_format = (sn_coap_content_format_e) resource_temp_ptr->resource_parameters_ptr->coap_content_type;
                 }
             }
 
@@ -606,11 +621,7 @@ extern int8_t sn_grs_process_coap(struct nsdl_s *nsdl_handle, sn_coap_hdr_s *coa
             // Not a mandatory parameter, no need to return in case of memory allocation fails.
             if (static_get_request) {
                 if (sn_coap_parser_alloc_options(handle->coap, response_message_hdr_ptr)) {
-                    response_message_hdr_ptr->options_list_ptr->max_age_ptr = handle->sn_grs_alloc(1);
-                    if (response_message_hdr_ptr->options_list_ptr->max_age_ptr) {
-                        response_message_hdr_ptr->options_list_ptr->max_age_ptr[0] = 0;
-                        response_message_hdr_ptr->options_list_ptr->max_age_len = 1;
-                    }
+                    response_message_hdr_ptr->options_list_ptr->max_age = 0;
                 }
             }
         }
@@ -644,6 +655,13 @@ extern int8_t sn_grs_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *ad
     if( !handle ){
         return SN_NSDL_FAILURE;
     }
+
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not used at all, this part of code will not be compiled */
+    ret_val = prepare_blockwise_message(handle->grs->coap, coap_hdr_ptr);
+    if( 0 != ret_val ) {
+        return SN_NSDL_FAILURE;
+    }
+#endif
 
     /* Calculate message length */
     message_len = sn_coap_builder_calc_needed_packet_data_size_2(coap_hdr_ptr, handle->grs->coap->sn_coap_block_data_size);
@@ -697,19 +715,7 @@ static int8_t sn_grs_core_request(struct nsdl_s *handle, sn_nsdl_addr_s *src_add
     response_message_hdr_ptr->msg_code = COAP_MSG_CODE_RESPONSE_CONTENT;
     response_message_hdr_ptr->msg_type = COAP_MSG_TYPE_ACKNOWLEDGEMENT;
     response_message_hdr_ptr->msg_id = coap_packet_ptr->msg_id;
-    response_message_hdr_ptr->content_type_len = 1;
-    response_message_hdr_ptr->content_type_ptr = handle->grs->sn_grs_alloc(1);
-    if (!response_message_hdr_ptr->content_type_ptr) {
-        if (coap_packet_ptr->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED && coap_packet_ptr->payload_ptr) {
-            handle->grs->sn_grs_free(coap_packet_ptr->payload_ptr);
-            coap_packet_ptr->payload_ptr = 0;
-        }
-        sn_coap_parser_release_allocated_coap_msg_mem(handle->grs->coap, coap_packet_ptr);
-        handle->grs->sn_grs_free(response_message_hdr_ptr);
-        return SN_NSDL_FAILURE;
-    }
-
-    *response_message_hdr_ptr->content_type_ptr = wellknown_content_format;
+    response_message_hdr_ptr->content_format = wellknown_content_format;
 
     sn_nsdl_build_registration_body(handle, response_message_hdr_ptr, 0);
 
@@ -827,6 +833,7 @@ static int8_t sn_grs_add_resource_to_list(struct grs_s *handle, sn_nsdl_resource
     resource_copy_ptr->sn_grs_dyn_res_callback = resource_ptr->sn_grs_dyn_res_callback;
     resource_copy_ptr->access = resource_ptr->access;
     resource_copy_ptr->publish_uri = resource_ptr->publish_uri;
+    resource_copy_ptr->external_memory_block = resource_ptr->external_memory_block;
 
     /* Remove '/' - chars from the beginning and from the end */
 
@@ -868,12 +875,9 @@ static int8_t sn_grs_add_resource_to_list(struct grs_s *handle, sn_nsdl_resource
 
         memset(resource_copy_ptr->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
 
-
         resource_copy_ptr->resource_parameters_ptr->resource_type_len = resource_ptr->resource_parameters_ptr->resource_type_len;
 
-        resource_copy_ptr->resource_parameters_ptr->interface_description_len = resource_ptr->resource_parameters_ptr->interface_description_len;
-
-        resource_copy_ptr->resource_parameters_ptr->mime_content_type = resource_ptr->resource_parameters_ptr->mime_content_type;
+//        resource_copy_ptr->resource_parameters_ptr->mime_content_type = resource_ptr->resource_parameters_ptr->mime_content_type;
 
         resource_copy_ptr->resource_parameters_ptr->observable = resource_ptr->resource_parameters_ptr->observable;
 
@@ -885,6 +889,8 @@ static int8_t sn_grs_add_resource_to_list(struct grs_s *handle, sn_nsdl_resource
             }
             memcpy(resource_copy_ptr->resource_parameters_ptr->resource_type_ptr, resource_ptr->resource_parameters_ptr->resource_type_ptr, resource_ptr->resource_parameters_ptr->resource_type_len);
         }
+
+        resource_copy_ptr->resource_parameters_ptr->interface_description_len = resource_ptr->resource_parameters_ptr->interface_description_len;
 
         if (resource_ptr->resource_parameters_ptr->interface_description_ptr) {
             resource_copy_ptr->resource_parameters_ptr->interface_description_ptr = handle->sn_grs_alloc(resource_ptr->resource_parameters_ptr->interface_description_len);
@@ -968,14 +974,16 @@ static int8_t sn_grs_resource_info_free(struct grs_s *handle, sn_nsdl_resource_i
 {
     if (resource_ptr) {
         if (resource_ptr->resource_parameters_ptr) {
-            if (resource_ptr->resource_parameters_ptr->interface_description_ptr) {
-                handle->sn_grs_free(resource_ptr->resource_parameters_ptr->interface_description_ptr);
-                resource_ptr->resource_parameters_ptr->interface_description_ptr = 0;
-            }
+            if (!resource_ptr->is_put) {
+                if (resource_ptr->resource_parameters_ptr->interface_description_ptr) {
+                    handle->sn_grs_free(resource_ptr->resource_parameters_ptr->interface_description_ptr);
+                    resource_ptr->resource_parameters_ptr->interface_description_ptr = 0;
+                }
 
-            if (resource_ptr->resource_parameters_ptr->resource_type_ptr) {
-                handle->sn_grs_free(resource_ptr->resource_parameters_ptr->resource_type_ptr);
-                resource_ptr->resource_parameters_ptr->resource_type_ptr = 0;
+                if (resource_ptr->resource_parameters_ptr->resource_type_ptr) {
+                    handle->sn_grs_free(resource_ptr->resource_parameters_ptr->resource_type_ptr);
+                    resource_ptr->resource_parameters_ptr->resource_type_ptr = 0;
+                }
             }
 
             /* Todo: aobs not supported ATM - needs fixing */
@@ -991,13 +999,15 @@ static int8_t sn_grs_resource_info_free(struct grs_s *handle, sn_nsdl_resource_i
             resource_ptr->resource_parameters_ptr = 0;
         }
 
-        if (resource_ptr->path) {
-            handle->sn_grs_free(resource_ptr->path);
-            resource_ptr->path = 0;
-        }
-        if (resource_ptr->resource) {
-            handle->sn_grs_free(resource_ptr->resource);
-            resource_ptr->resource = 0;
+        if (!resource_ptr->is_put) {
+            if (resource_ptr->path) {
+                handle->sn_grs_free(resource_ptr->path);
+                resource_ptr->path = 0;
+            }
+            if (resource_ptr->resource) {
+                handle->sn_grs_free(resource_ptr->resource);
+                resource_ptr->resource = 0;
+            }
         }
         handle->sn_grs_free(resource_ptr);
 

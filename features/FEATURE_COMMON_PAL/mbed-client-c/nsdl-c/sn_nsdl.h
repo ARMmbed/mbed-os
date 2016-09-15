@@ -71,28 +71,23 @@ typedef enum sn_nsdl_addr_type_ {
  * \brief Address structure of Packet data
  */
 typedef struct sn_nsdl_addr_ {
-    sn_nsdl_addr_type_e     type;
-
     uint8_t                 addr_len;
-    uint8_t                *addr_ptr;
-
+    sn_nsdl_addr_type_e     type;
     uint16_t                port;
-
+    uint8_t                 *addr_ptr;
 } sn_nsdl_addr_s;
 
 /**
  * \brief Used for creating manually registration message with sn_coap_register()
  */
 typedef struct registration_info_ {
-    uint8_t *endpoint_ptr;          /**< Endpoint name */
     uint8_t endpoint_len;
-
-    uint8_t *endpoint_type_ptr;     /**< Endpoint type */
     uint8_t endpoint_type_len;
-
-    uint8_t *links_ptr;             /**< Resource registration string */
     uint16_t links_len;
 
+    uint8_t *endpoint_ptr;          /**< Endpoint name */
+    uint8_t *endpoint_type_ptr;     /**< Endpoint type */
+    uint8_t *links_ptr;             /**< Resource registration string */
 } registration_info_t;
 
 #endif /* SN_NSDL_H_ */
