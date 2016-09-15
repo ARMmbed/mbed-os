@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include "coap_message_handler.h"
 
 typedef struct {

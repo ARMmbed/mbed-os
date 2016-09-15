@@ -39,7 +39,7 @@ int resp_recv(int8_t service_id, uint16_t msg_id, sn_coap_hdr_s *response_ptr){
 
 int16_t process_cb(int8_t a, sn_coap_hdr_s *b, coap_transaction_t *c)
 {
-
+    return retValue;
 }
 
 bool test_coap_message_handler_init()
@@ -140,11 +140,12 @@ bool test_coap_message_handler_coap_msg_process()
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 1;
-    retValue = -1;
+    retValue = 0;
     if( 0 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, NULL, 0, process_cb))
         return false;
 
     nsdynmemlib_stub.returnCounter = 1;
+    retValue = -1;
     if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, NULL, 0, process_cb))
         return false;
 
@@ -265,13 +266,13 @@ bool test_coap_message_handler_response_send()
 
     sn_coap_builder_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
     memset(sn_coap_builder_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
-    nsdynmemlib_stub.returnCounter = 1;
+    nsdynmemlib_stub.returnCounter = 0;
     if( -1 != coap_message_handler_response_send(handle, 2, 0, header, 1,3,NULL, 0))
         return false;
 
     sn_coap_builder_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
     memset(sn_coap_builder_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
-    nsdynmemlib_stub.returnCounter = 2;
+    nsdynmemlib_stub.returnCounter = 1;
     if( 0 != coap_message_handler_response_send(handle, 2, 0, header, 1,3,NULL, 0))
         return false;
 
