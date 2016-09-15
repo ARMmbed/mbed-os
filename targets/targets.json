@@ -523,6 +523,19 @@
         "release_versions": ["2", "5"],
         "device_name": "MKL43Z256xxx4"
     },
+    "KL82Z": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M0+",
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM"],
+        "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED"],
+        "is_disk_virtual": true,
+        "inherits": ["Target"],
+        "progen": {"target": "frdm-kl82z"},
+        "detect_code": ["0218"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"]
+    },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
