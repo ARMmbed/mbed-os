@@ -52,7 +52,8 @@
 #include <lwip/stats.h>
 #include <lwip/snmp.h>
 #include "netif/etharp.h"
-#include "netif/ppp_oe.h"
+#include "lwip/ethip6.h"
+#include "netif/ppp/pppoe.h"
 #include "nuc472_eth.h"
 #include "string.h"
 
@@ -129,7 +130,6 @@ void mbed_mac_address(char *mac)
 
 }
 
-
 /**
  * In this function, the hardware should be initialized.
  * Called from ethernetif_init().
@@ -142,7 +142,7 @@ low_level_init(struct netif *netif)
 {
 
     /* set MAC hardware address length */
-    netif->hwaddr_len = ETHARP_HWADDR_LEN;
+    netif->hwaddr_len = ETH_HWADDR_LEN;
 
   /* set MAC hardware address */
 #if 1  // set MAC HW address
@@ -175,8 +175,19 @@ low_level_init(struct netif *netif)
 #ifdef LWIP_IGMP
     netif->flags |= NETIF_FLAG_IGMP;
 #endif
+#if LWIP_IPV6_MLD
+    netif->flags |= NETIF_FLAG_MLD6;
+#endif
     // TODO: enable clock & configure GPIO function
     ETH_init(netif->hwaddr);
+
+#if LWIP_IGMP
+    EMAC_ENABLE_RECV_BCASTPKT();
+#endif
+
+#if LWIP_IPV6_MLD
+    EMAC_ENABLE_RECV_MCASTPKT();
+#endif
 }
 
 /**
@@ -335,32 +346,11 @@ ethernetif_input(u16_t len, u8_t *buf, u32_t s, u32_t ns)
 void
 ethernetif_loopback_input(struct pbuf *p)           // TODO: make sure packet not drop in input()
 {
-    struct eth_hdr *ethhdr;
-
-    /* points to packet payload, which starts with an Ethernet header */
-    ethhdr = p->payload;
-
-    switch (htons(ethhdr->type)) {
-    /* IP or ARP packet? */
-    case ETHTYPE_IP:
-    case ETHTYPE_ARP:
-#if PPPOE_SUPPORT
-    /* PPPoE packet? */
-    case ETHTYPE_PPPOEDISC:
-    case ETHTYPE_PPPOE:
-#endif /* PPPOE_SUPPORT */
-        /* full packet send to tcpip_thread to process */
-        if (_netif->input(p, _netif)!=ERR_OK) {
-            LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-            pbuf_free(p);
-            p = NULL;
-        }
-        break;
-
-    default:
+    /* pass all packets to ethernet_input, which decides what packets it supports */
+    if (netif->input(p, netif) != ERR_OK) {
+        LWIP_DEBUGF(NETIF_DEBUG, ("k64f_enetif_input: input error\n"));
+        /* Free buffer */
         pbuf_free(p);
-        p = NULL;
-        break;
     }
 }
 
@@ -415,7 +405,12 @@ err_t
      * You can instead declare your own function an call etharp_output()
      * from it if you have to do some checks before sending (e.g. if link
      * is available...) */
+#if LWIP_IPV4
     netif->output = etharp_output;
+#endif
+#if LWIP_IPV6
+    netif->output_ip6 = ethip6_output;
+#endif
     netif->linkoutput = low_level_output;
 
     ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
