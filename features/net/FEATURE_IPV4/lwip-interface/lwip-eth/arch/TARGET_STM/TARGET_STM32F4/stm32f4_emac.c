@@ -133,22 +133,6 @@ static void _eth_arch_low_level_init(struct netif *netif)
     /* Enable MAC and DMA transmission and reception */
     HAL_ETH_Start(&EthHandle);
 
-    /**** Configure PHY to generate an interrupt when Eth Link state changes ****/
-    /* Read Register Configuration */
-    HAL_ETH_ReadPHYRegister(&EthHandle, PHY_MICR, &regvalue);
-
-    regvalue |= (PHY_MICR_INT_EN | PHY_MICR_INT_OE);
-
-    /* Enable Interrupts */
-    HAL_ETH_WritePHYRegister(&EthHandle, PHY_MICR, regvalue);
-
-    /* Read Register Configuration */
-    HAL_ETH_ReadPHYRegister(&EthHandle, PHY_MISR, &regvalue);
-
-    regvalue |= PHY_MISR_LINK_INT_EN;
-
-    /* Enable Interrupt on change of link status */
-    HAL_ETH_WritePHYRegister(&EthHandle, PHY_MISR, regvalue);
 #endif
 }
 
@@ -362,10 +346,10 @@ static void _eth_arch_phy_task(void *arg)
     
     while (1) {
         uint32_t status;
-        if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_SR, &status) == HAL_OK) {
-            if ((status & PHY_LINK_STATUS) && !(phy_status & PHY_LINK_STATUS)) {
+        if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
+            if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1);
-            } else if (!(status & PHY_LINK_STATUS) && (phy_status & PHY_LINK_STATUS)) {
+            } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1);
             }
             phy_status = status;
