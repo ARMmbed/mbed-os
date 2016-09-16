@@ -182,6 +182,14 @@ typedef enum {
     USBTX = PD_5,
     USBRX = PD_6,
 
+    I2C_SCL     = PB_8,
+    I2C_SDA     = PB_9,
+    SPI_MOSI    = PA_7,
+    SPI_MISO    = PA_6,
+    SPI_SCK     = PA_5,
+    SPI_CS      = PA_4,
+    PWM_OUT     = PB_3,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
