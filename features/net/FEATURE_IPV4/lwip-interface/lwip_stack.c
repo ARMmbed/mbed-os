@@ -91,9 +91,128 @@ static void lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t 
 static struct netif lwip_netif;
 static bool lwip_dhcp = false;
 static char lwip_mac_address[NSAPI_MAC_SIZE] = "\0";
-static char lwip_ip_address[NSAPI_IPv4_SIZE] = "\0";
-static char lwip_netmask[NSAPI_IPv4_SIZE] = "\0";
-static char lwip_gateway[NSAPI_IPv4_SIZE] = "\0";
+
+static bool all_zeros(const uint8_t *p, int len)
+{
+    for (int i = 0; i < len; i++) {
+        if (p[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
+{
+#if LWIP_IPV6
+    if (in->version == NSAPI_IPv6) {
+         IP_SET_TYPE(out, IPADDR_TYPE_V6);
+         MEMCPY(ip_2_ip6(out), in->bytes, sizeof(ip6_addr_t));
+         return true;
+    }
+#if !LWIP_IPV4
+    /* For bind() and other purposes, need to accept "null" of other type */
+    /* (People use IPv4 0.0.0.0 as a general null) */
+    if (in->version == NSAPI_IPv4 && all_zeros(in->bytes, 4)) {
+        ip_addr_set_zero_ip6(out);
+        return true;
+    }
+#endif
+#endif
+
+#if LWIP_IPV4
+    if (in->version == NSAPI_IPv4) {
+         IP_SET_TYPE(out, IPADDR_TYPE_V4);
+         MEMCPY(ip_2_ip4(out), in->bytes, sizeof(ip4_addr_t));
+         return true;
+    }
+#if !LWIP_IPV6
+    /* For symmetry with above, accept IPv6 :: as a general null */
+    if (in->version == NSAPI_IPv6 && all_zeros(in->bytes, 16)) {
+        ip_addr_set_zero_ip4(out);
+        return true;
+    }
+#endif
+#endif
+
+    return false;
+}
+
+static bool convert_lwip_addr_to_mbed(nsapi_addr_t *out, const ip_addr_t *in)
+{
+#if LWIP_IPV6
+    if (IP_IS_V6(in)) {
+        out->version = NSAPI_IPv6;
+        MEMCPY(out->bytes, ip_2_ip6(in), sizeof(ip6_addr_t));
+        return true;
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(in)) {
+        out->version = NSAPI_IPv4;
+        MEMCPY(out->bytes, ip_2_ip4(in), sizeof(ip4_addr_t));
+        return true;
+    }
+#endif
+    return false;
+}
+
+static const ip_addr_t *lwip_get_ipv4_addr(const struct netif *netif)
+{
+#if LWIP_IPV4
+    if (!netif_is_up(netif)) {
+        return NULL;
+    }
+
+    if (!ip4_addr_isany(netif_ip4_addr(netif))) {
+        return netif_ip_addr4(netif);
+    }
+#endif
+
+    return NULL;
+}
+
+static const ip_addr_t *lwip_get_ipv6_addr(const struct netif *netif)
+{
+#if LWIP_IPV6
+    if (!netif_is_up(netif)) {
+        return NULL;
+    }
+
+    for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+        if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
+                !ip6_addr_islinklocal(netif_ip6_addr(netif, i))) {
+            return netif_ip_addr6(netif, i);
+        }
+    }
+#endif
+
+    return NULL;
+
+}
+
+const ip_addr_t *lwip_get_ip_addr(bool any_addr, const struct netif *netif)
+{
+    const ip_addr_t *pref_ip_addr;
+    const ip_addr_t *npref_ip_addr;
+
+#if IP_VERSION_PREF == PREF_IPV4
+    pref_ip_addr = lwip_get_ipv4_addr(netif);
+    npref_ip_addr = lwip_get_ipv6_addr(netif);
+#else
+    pref_ip_addr = lwip_get_ipv6_addr(netif);
+    npref_ip_addr = lwip_get_ipv4_addr(netif);
+#endif
+
+    if (pref_ip_addr) {
+        return pref_ip_addr;
+    } else if (npref_ip_addr && any_addr) {
+        return npref_ip_addr;
+    }
+
+    return NULL;
+}
 
 static sys_sem_t lwip_tcpip_inited;
 static void lwip_tcpip_init_irq(void *eh)
@@ -109,14 +228,21 @@ static void lwip_netif_link_irq(struct netif *lwip_netif)
     }
 }
 
-static sys_sem_t lwip_netif_up;
+static sys_sem_t lwip_netif_has_addr;
 static void lwip_netif_status_irq(struct netif *lwip_netif)
 {
-    if (netif_is_up(lwip_netif)) {
-        strcpy(lwip_ip_address, inet_ntoa(lwip_netif->ip_addr));
-        strcpy(lwip_netmask, inet_ntoa(lwip_netif->netmask));
-        strcpy(lwip_gateway, inet_ntoa(lwip_netif->gw));
-        sys_sem_signal(&lwip_netif_up);
+    static bool any_addr = true;
+
+    // Indicates that has address
+    if (any_addr == true && lwip_get_ip_addr(true, lwip_netif)) {
+        sys_sem_signal(&lwip_netif_has_addr);
+        any_addr = false;
+        return;
+    }
+
+    // Indicates that has preferred address
+    if (lwip_get_ip_addr(false, lwip_netif)) {
+        sys_sem_signal(&lwip_netif_has_addr);
     }
 }
 
@@ -141,21 +267,52 @@ const char *lwip_get_mac_address(void)
     return lwip_mac_address[0] ? lwip_mac_address : 0;
 }
 
-const char *lwip_get_ip_address(void)
+char *lwip_get_ip_address(char *buf, int buflen)
 {
-    return lwip_ip_address[0] ? lwip_ip_address : 0;
+    const ip_addr_t *addr = lwip_get_ip_addr(true, &lwip_netif);
+    if (!addr) {
+        return NULL;
+    }
+#if LWIP_IPV6
+    if (IP_IS_V6(addr)) {
+        return ip6addr_ntoa_r(ip_2_ip6(addr), buf, buflen);
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(addr)) {
+        return ip4addr_ntoa_r(ip_2_ip4(addr), buf, buflen);
+    }
+#endif
+    return NULL;
 }
 
-const char *lwip_get_netmask(void)
+const char *lwip_get_netmask(char *buf, int buflen)
 {
-    return lwip_netmask[0] ? lwip_netmask : 0;
+#if LWIP_IPV4
+    const ip4_addr_t *addr = netif_ip4_netmask(&lwip_netif);
+    if (!ip4_addr_isany(addr)) {
+        return inet_ntoa_r(addr, buf, buflen);
+    } else {
+        return NULL;
+    }
+#else
+    return NULL;
+#endif
 }
 
-const char *lwip_get_gateway(void)
+char *lwip_get_gateway(char *buf, int buflen)
 {
-    return lwip_gateway[0] ? lwip_gateway : 0;
+#if LWIP_IPV4
+    const ip4_addr_t *addr = netif_ip4_gw(&lwip_netif);
+    if (!ip4_addr_isany(addr)) {
+        return inet_ntoa_r(addr, buf, buflen);
+    } else {
+        return NULL;
+    }
+#else
+    return NULL;
+#endif
 }
-
 
 int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
@@ -171,14 +328,19 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 
         sys_sem_new(&lwip_tcpip_inited, 0);
         sys_sem_new(&lwip_netif_linked, 0);
-        sys_sem_new(&lwip_netif_up, 0);
+        sys_sem_new(&lwip_netif_has_addr, 0);
 
         tcpip_init(lwip_tcpip_init_irq, NULL);
         sys_arch_sem_wait(&lwip_tcpip_inited, 0);
 
         memset(&lwip_netif, 0, sizeof lwip_netif);
-
-        netif_add(&lwip_netif, 0, 0, 0, NULL, eth_arch_enetif_init, tcpip_input);
+        if (!netif_add(&lwip_netif,
+#if LWIP_IPV4
+                0, 0, 0,
+#endif
+                NULL, eth_arch_enetif_init, tcpip_input)) {
+            return -1;
+        }
         netif_set_default(&lwip_netif);
 
         netif_set_link_callback  (&lwip_netif, lwip_netif_link_irq);
@@ -212,11 +374,57 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
         netif_set_up(&lwip_netif);
     }
 
-    // Wait for an IP Address
-    u32_t ret = sys_arch_sem_wait(&lwip_netif_up, 15000);
-    if (ret == SYS_ARCH_TIMEOUT) {
-        return NSAPI_ERROR_DHCP_FAILURE;
+#if LWIP_IPV6
+    netif_create_ip6_linklocal_address(&lwip_netif, 1/*from MAC*/);
+#if LWIP_IPV6_MLD
+  /*
+   * For hardware/netifs that implement MAC filtering.
+   * All-nodes link-local is handled by default, so we must let the hardware know
+   * to allow multicast packets in.
+   * Should set mld_mac_filter previously. */
+  if (lwip_netif.mld_mac_filter != NULL) {
+    ip6_addr_t ip6_allnodes_ll;
+    ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
+    lwip_netif.mld_mac_filter(&lwip_netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
+  }
+#endif /* LWIP_IPV6_MLD */
+
+#if LWIP_IPV6_AUTOCONFIG
+    /* IPv6 address autoconfiguration not enabled by default */
+  lwip_netif.ip6_autoconfig_enabled = 1;
+#endif /* LWIP_IPV6_AUTOCONFIG */
+
+#endif
+
+    u32_t ret;
+
+    if (!netif_is_link_up(&lwip_netif)) {
+        ret = sys_arch_sem_wait(&lwip_netif_linked, 15000);
+
+        if (ret == SYS_ARCH_TIMEOUT) {
+            return NSAPI_ERROR_NO_CONNECTION;
+        }
     }
+
+    netif_set_up(&lwip_netif);
+
+    // If doesn't have address
+    if (!lwip_get_ip_addr(true, &lwip_netif)) {
+        //ret = sys_arch_sem_wait(&lwip_netif_has_addr, 15000);
+        ret = sys_arch_sem_wait(&lwip_netif_has_addr, 30000);
+
+        if (ret == SYS_ARCH_TIMEOUT) {
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+    }
+
+#if ADDR_TIMEOUT
+    // If address is not for preferred stack waits a while to see
+    // if preferred stack address is acquired
+    if (!lwip_get_ip_addr(false, &lwip_netif)) {
+        ret = sys_arch_sem_wait(&lwip_netif_has_addr, ADDR_TIMEOUT * 1000);
+    }
+#endif
 
     return 0;
 }
@@ -228,18 +436,16 @@ int lwip_bringdown(void)
         return NSAPI_ERROR_PARAMETER;
     }
 
+#if LWIP_IPV4
     // Disconnect from the network
     if (lwip_dhcp) {
         dhcp_release(&lwip_netif);
         dhcp_stop(&lwip_netif);
         lwip_dhcp = false;
-
-        lwip_ip_address[0] = '\0';
-        lwip_netmask[0] = '\0';
-        lwip_gateway[0] = '\0';
     } else {
         netif_set_down(&lwip_netif);
     }
+#endif
 
     return 0;
 }
@@ -271,7 +477,6 @@ static int lwip_err_remap(err_t err) {
     }
 }
 
-
 /* LWIP network stack implementation */
 static int lwip_gethostbyname(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr)
 {
@@ -297,9 +502,25 @@ static int lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    s->conn = netconn_new_with_callback(
-            proto == NSAPI_TCP ? NETCONN_TCP : NETCONN_UDP,
-            lwip_socket_callback);
+    u8_t lwip_proto = proto == NSAPI_TCP ? NETCONN_TCP : NETCONN_UDP;
+
+#if LWIP_IPV6 && LWIP_IPV4
+    ip_addr_t *ip_addr;
+    ip_addr = lwip_get_ip_addr(true, &lwip_netif);
+
+    if (IP_IS_V6(ip_addr)) {
+        // Enable IPv6 (or dual-stack). LWIP dual-stack support is
+        // currently incomplete as of 2.0.0rc2 - eg we will only be able
+        // to do a UDP sendto to an address matching the type selected
+        // here. Matching "get_ip_addr" and DNS logic, use v4 if
+        // available.
+        lwip_proto |= NETCONN_TYPE_IPV6;
+    }
+#elif LWIP_IPV6
+    lwip_proto |= NETCONN_TYPE_IPV6;
+#endif
+
+    s->conn = netconn_new_with_callback(lwip_proto, lwip_socket_callback);
 
     if (!s->conn) {
         lwip_arena_dealloc(s);
@@ -320,20 +541,21 @@ static int lwip_socket_close(nsapi_stack_t *stack, nsapi_socket_t handle)
     return lwip_err_remap(err);
 }
 
-
 static int lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_addr_t addr, uint16_t port)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-    if (addr.version != NSAPI_IPv4) {
-        return NSAPI_ERROR_PARAMETER;
-    }
+    ip_addr_t ip_addr;
 
     if ((s->conn->type == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
         (s->conn->type == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
-    err_t err = netconn_bind(s->conn, (ip_addr_t *)addr.bytes, port);
+    if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    err_t err = netconn_bind(s->conn, &ip_addr, port);
     return lwip_err_remap(err);
 }
 
@@ -348,12 +570,14 @@ static int lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_t handle, int b
 static int lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_addr_t addr, uint16_t port)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-    if (addr.version != NSAPI_IPv4) {
+    ip_addr_t ip_addr;
+
+    if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
     netconn_set_nonblocking(s->conn, false);
-    err_t err = netconn_connect(s->conn, (ip_addr_t *)addr.bytes, port);
+    err_t err = netconn_connect(s->conn, &ip_addr, port);
     netconn_set_nonblocking(s->conn, true);
 
     return lwip_err_remap(err);
@@ -421,7 +645,9 @@ static int lwip_socket_recv(nsapi_stack_t *stack, nsapi_socket_t handle, void *d
 static int lwip_socket_sendto(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_addr_t addr, uint16_t port, const void *data, unsigned size)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-    if (addr.version != NSAPI_IPv4) {
+    ip_addr_t ip_addr;
+
+    if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -429,10 +655,10 @@ static int lwip_socket_sendto(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi
     err_t err = netbuf_ref(buf, data, (u16_t)size);
     if (err != ERR_OK) {
         netbuf_free(buf);
-        return lwip_err_remap(err);;
+        return lwip_err_remap(err);
     }
 
-    err = netconn_sendto(s->conn, buf, (ip_addr_t *)addr.bytes, port);
+    err = netconn_sendto(s->conn, buf, &ip_addr, port);
     netbuf_delete(buf);
     if (err != ERR_OK) {
         return lwip_err_remap(err);
@@ -444,15 +670,14 @@ static int lwip_socket_sendto(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi
 static int lwip_socket_recvfrom(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_addr_t *addr, uint16_t *port, void *data, unsigned size)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-
     struct netbuf *buf;
+
     err_t err = netconn_recv(s->conn, &buf);
     if (err != ERR_OK) {
         return lwip_err_remap(err);
     }
 
-    addr->version = NSAPI_IPv4;
-    memcpy(addr->bytes, netbuf_fromaddr(buf), sizeof addr->bytes);
+    convert_lwip_addr_to_mbed(addr, netbuf_fromaddr(buf));
     *port = netbuf_fromport(buf);
 
     u16_t recv = netbuf_copy(buf, data, (u16_t)size);
@@ -514,7 +739,6 @@ static void lwip_socket_attach(nsapi_stack_t *stack, nsapi_socket_t handle, void
     s->cb = callback;
     s->data = data;
 }
-
 
 /* LWIP network stack */
 const nsapi_stack_api_t lwip_stack_api = {
