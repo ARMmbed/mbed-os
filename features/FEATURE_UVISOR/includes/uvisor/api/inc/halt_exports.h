@@ -31,4 +31,18 @@ typedef enum {
     USER_NOT_ALLOWED = 1,
 } THaltUserError;
 
+typedef enum {
+    HALT_NO_ERROR = 0,
+    PERMISSION_DENIED = 1,
+    SANITY_CHECK_FAILED,
+    NOT_IMPLEMENTED,
+    NOT_ALLOWED,
+    FAULT_MEMMANAGE,
+    FAULT_BUS,
+    FAULT_USAGE,
+    FAULT_HARD,
+    FAULT_DEBUG,
+    __THALTERROR_MAX /* always keep as the last element of the enum */
+} THaltError;
+
 #endif /* __UVISOR_API_HALT_EXPORTS_H__ */

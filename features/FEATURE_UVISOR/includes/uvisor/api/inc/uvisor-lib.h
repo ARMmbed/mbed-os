@@ -59,7 +59,7 @@ UVISOR_EXTERN int uvisor_lib_init(void);
 #include "api/inc/register_gateway_exports.h"
 #include "api/inc/rpc_gateway_exports.h"
 #include "api/inc/svc_exports.h"
-#include "api/inc/priv_sys_irq_hook_exports.h"
+#include "api/inc/priv_sys_hook_exports.h"
 #include "api/inc/unvic_exports.h"
 #include "api/inc/uvisor_exports.h"
 #include "api/inc/vmpu_exports.h"
