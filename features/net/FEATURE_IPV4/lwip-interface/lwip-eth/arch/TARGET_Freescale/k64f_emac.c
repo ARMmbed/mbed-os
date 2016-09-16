@@ -6,8 +6,9 @@
 #include "lwip/stats.h"
 #include "lwip/snmp.h"
 #include "lwip/tcpip.h"
+#include "lwip/ethip6.h"
 #include "netif/etharp.h"
-#include "netif/ppp_oe.h"
+#include "netif/ppp/pppoe.h"
 
 #include "eth_arch.h"
 #include "sys_arch.h"
@@ -236,7 +237,7 @@ static err_t low_level_init(struct netif *netif)
 
 
 /**
- * This function is the ethernet packet send function. It calls
+ * This function is the ipv4 ethernet packet send function. It calls
  * etharp_output after checking link status.
  *
  * \param[in] netif the lwip network interface structure for this enetif
@@ -244,14 +245,106 @@ static err_t low_level_init(struct netif *netif)
  * \param[in] ipaddr IP address
  * \return ERR_OK or error code
  */
-err_t k64f_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
+#if LWIP_IPV4
+err_t k64f_etharp_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr)
 {
   /* Only send packet is link is up */
-  if (netif->flags & NETIF_FLAG_LINK_UP)
+  if (netif->flags & NETIF_FLAG_LINK_UP) {
     return etharp_output(netif, q, ipaddr);
+  }
 
   return ERR_CONN;
 }
+#endif
+
+/**
+ * This function is the ipv6 ethernet packet send function. It calls
+ * ethip6_output after checking link status.
+ *
+ * \param[in] netif the lwip network interface structure for this enetif
+ * \param[in] q Pointer to pbug to send
+ * \param[in] ipaddr IP address
+ * \return ERR_OK or error code
+ */
+#if LWIP_IPV6
+err_t k64f_etharp_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_addr_t *ipaddr)
+{
+  /* Only send packet is link is up */
+  if (netif->flags & NETIF_FLAG_LINK_UP) {
+    return ethip6_output(netif, q, ipaddr);
+  }
+
+  return ERR_CONN;
+}
+#endif
+
+#if LWIP_IGMP
+/**
+ * IPv4 address filtering setup.
+ *
+ * \param[in] netif the lwip network interface structure for this enetif
+ * \param[in] group IPv4 group to modify
+ * \param[in] action
+ * \return ERR_OK or error code
+ */
+err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action)
+{
+    switch (action) {
+        case NETIF_ADD_MAC_FILTER:
+        {
+            uint32_t group23 = ntohl(group->addr) & 0x007FFFFF;
+            uint8_t addr[6];
+            addr[0] = LL_IP4_MULTICAST_ADDR_0;
+            addr[1] = LL_IP4_MULTICAST_ADDR_1;
+            addr[2] = LL_IP4_MULTICAST_ADDR_2;
+            addr[3] = group23 >> 16;
+            addr[4] = group23 >> 8;
+            addr[5] = group23;
+            ENET_AddMulticastGroup(ENET, addr);
+            return ERR_OK;
+        }
+        case NETIF_DEL_MAC_FILTER:
+            /* As we don't reference count, silently ignore delete requests */
+            return ERR_OK;
+        default:
+            return ERR_ARG;
+    }
+}
+#endif
+
+#if LWIP_IPV6_MLD
+/**
+ * IPv6 address filtering setup.
+ *
+ * \param[in] netif the lwip network interface structure for this enetif
+ * \param[in] group IPv6 group to modify
+ * \param[in] action
+ * \return ERR_OK or error code
+ */
+err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action)
+{
+    switch (action) {
+        case NETIF_ADD_MAC_FILTER:
+        {
+            uint32_t group32 = ntohl(group->addr[3]);
+            uint8_t addr[6];
+            addr[0] = LL_IP6_MULTICAST_ADDR_0;
+            addr[1] = LL_IP6_MULTICAST_ADDR_1;
+            addr[2] = group32 >> 24;
+            addr[3] = group32 >> 16;
+            addr[4] = group32 >> 8;
+            addr[5] = group32;
+            ENET_AddMulticastGroup(ENET, addr);
+            return ERR_OK;
+        }
+        case NETIF_DEL_MAC_FILTER:
+            /* As we don't reference count, silently ignore delete requests */
+            return ERR_OK;
+        default:
+            return ERR_ARG;
+    }
+}
+#endif
 
 /** \brief  Allocates a pbuf and returns the data from the incoming packet.
  *
@@ -322,7 +415,7 @@ static struct pbuf *k64f_low_level_input(struct netif *netif, int idx)
 
     update_read_buffer(rx_buff[idx]->payload);
     LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-      ("k64f_low_level_input: Packet received: %p, size %d (index=%d)\n",
+      ("k64f_low_level_input: Packet received: %p, size %"PRIu32" (index=%d)\n",
       p, length, idx));
 
     /* Save size */
@@ -344,7 +437,6 @@ static struct pbuf *k64f_low_level_input(struct netif *netif, int idx)
  */
 void k64f_enetif_input(struct netif *netif, int idx)
 {
-  struct eth_hdr *ethhdr;
   struct pbuf *p;
 
   /* move received packet into a new pbuf */
@@ -352,28 +444,11 @@ void k64f_enetif_input(struct netif *netif, int idx)
   if (p == NULL)
     return;
 
-  /* points to packet payload, which starts with an Ethernet header */
-  ethhdr = (struct eth_hdr*)p->payload;
-
-  switch (htons(ethhdr->type)) {
-    case ETHTYPE_IP:
-    case ETHTYPE_ARP:
-#if PPPOE_SUPPORT
-    case ETHTYPE_PPPOEDISC:
-    case ETHTYPE_PPPOE:
-#endif /* PPPOE_SUPPORT */
-      /* full packet send to tcpip_thread to process */
-      if (netif->input(p, netif) != ERR_OK) {
-        LWIP_DEBUGF(NETIF_DEBUG, ("k64f_enetif_input: IP input error\n"));
-        /* Free buffer */
-        pbuf_free(p);
-      }
-      break;
-
-    default:
-      /* Return buffer */
+  /* pass all packets to ethernet_input, which decides what packets it supports */
+  if (netif->input(p, netif) != ERR_OK) {
+      LWIP_DEBUGF(NETIF_DEBUG, ("k64f_enetif_input: input error\n"));
+      /* Free buffer */
       pbuf_free(p);
-      break;
   }
 }
 
@@ -431,7 +506,6 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   struct pbuf *q;
   struct pbuf *temp_pbuf;
   uint8_t *psend = NULL, *dst;
-
 
   temp_pbuf = pbuf_alloc(PBUF_RAW, p->tot_len + ENET_BUFF_ALIGNMENT, PBUF_RAM);
   if (NULL == temp_pbuf)
@@ -569,14 +643,16 @@ err_t eth_arch_enetif_init(struct netif *netif)
 #else
   mbed_mac_address((char *)netif->hwaddr);
 #endif
-  netif->hwaddr_len = ETHARP_HWADDR_LEN;
+
+  /* Ethernet address length */
+  netif->hwaddr_len = ETH_HWADDR_LEN;
 
   /* maximum transfer unit */
   netif->mtu = 1500;
 
   /* device capabilities */
   // TODOETH: check if the flags are correct below
-  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET | NETIF_FLAG_IGMP;
+  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
 
   /* Initialize the hardware */
   netif->state = &k64f_enetdata;
@@ -592,7 +668,23 @@ err_t eth_arch_enetif_init(struct netif *netif)
   netif->name[0] = 'e';
   netif->name[1] = 'n';
 
-  netif->output = k64f_etharp_output;
+#if LWIP_IPV4
+  netif->output = k64f_etharp_output_ipv4;
+#if LWIP_IGMP
+  netif->igmp_mac_filter = igmp_mac_filter;
+  netif->flags |= NETIF_FLAG_IGMP;
+#endif
+#endif
+#if LWIP_IPV6
+  netif->output_ip6 = k64f_etharp_output_ipv6;
+#if LWIP_IPV6_MLD
+  netif->mld_mac_filter = mld_mac_filter;
+  netif->flags |= NETIF_FLAG_MLD6;
+#else
+  // Would need to enable all multicasts here - no API in fsl_enet to do that
+  #error "IPv6 multicasts won't be received if LWIP_IPV6_MLD is disabled, breaking the system"
+#endif
+#endif
   netif->linkoutput = k64f_low_level_output;
 
   /* CMSIS-RTOS, start tasks */
@@ -610,7 +702,12 @@ err_t eth_arch_enetif_init(struct netif *netif)
   /* Packet receive task */
   err = sys_sem_new(&k64f_enetdata.RxReadySem, 0);
   LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
+
+#ifdef LWIP_DEBUG
+  sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY);
+#else
   sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+#endif
 
   /* Transmit cleanup task */
   err = sys_sem_new(&k64f_enetdata.TxCleanSem, 0);
