@@ -85,6 +85,7 @@ typedef struct OS_TCB {
 
   /* Task entry point used for uVision debugger                              */
   FUNCP  ptask;                   /* Task entry address                      */
+  void   *argv;                   /* Task argument                           */
 } *P_TCB;
 #define TCB_TID          3        /* 'task id' offset                        */
 #define TCB_STACKF      37        /* 'stack_frame' offset                    */

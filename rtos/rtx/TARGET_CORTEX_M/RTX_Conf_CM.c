@@ -136,7 +136,11 @@
 //   <i> Initialize thread stack with watermark pattern for analyzing stack usage (current/maximum) in System and Thread Viewer.
 //   <i> Enabling this option increases significantly the execution time of osThreadCreate.
 #ifndef OS_STKINIT
-#define OS_STKINIT      0
+  #if (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
+   #define OS_STKINIT   1
+  #else
+   #define OS_STKINIT   0
+  #endif
 #endif
 
 //   <o>Processor mode for thread execution
@@ -403,6 +407,15 @@ void sysThreadError(osStatus status) {
         osThreadId err_task = svcThreadGetId();
         error("CMSIS-RTOS error status: 0x%08X, task ID: 0x%08X\n", status, err_task);
     }
+}
+
+/*----------------------------------------------------------------------------
+ *      RTX Hooks
+ *---------------------------------------------------------------------------*/
+extern void thread_terminate_hook(osThreadId id);
+
+void sysThreadTerminate(osThreadId id) {
+    thread_terminate_hook(id);
 }
 
 /*----------------------------------------------------------------------------

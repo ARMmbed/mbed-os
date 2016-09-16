@@ -320,6 +320,11 @@ public:
     */
     static void attach_idle_hook(void (*fptr)(void));
 
+    /** Attach a function to be called when a task is killed
+      @param   fptr  pointer to the function to be called
+    */
+    static void attach_terminate_hook(void (*fptr)(osThreadId id));
+
     virtual ~Thread();
 
 private:

@@ -320,6 +320,14 @@ void os_error (uint32_t err_code) {
   for (;;);
 }
 
+/*----------------------------------------------------------------------------
+ *      RTX Hooks
+ *---------------------------------------------------------------------------*/
+extern void thread_terminate_hook(osThreadId id);
+
+void sysThreadTerminate(osThreadId id) {
+    thread_terminate_hook(id);
+}
 
 /*----------------------------------------------------------------------------
  *      RTX Configuration Functions
