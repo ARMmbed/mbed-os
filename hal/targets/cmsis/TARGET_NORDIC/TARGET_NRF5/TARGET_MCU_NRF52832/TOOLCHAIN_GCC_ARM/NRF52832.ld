@@ -126,6 +126,11 @@ SECTIONS
         KEEP(*(.fini_array))
         PROVIDE_HIDDEN (__fini_array_end = .);
 
+        . = ALIGN(4);
+        PROVIDE(__start_fs_data = .);
+        KEEP(*(.fs_data))
+        PROVIDE(__stop_fs_data = .);
+        
         *(.jcr)
         . = ALIGN(4);
         /* All data end */
@@ -134,13 +139,6 @@ SECTIONS
     } > RAM
 
     __edata = .;
-
-    .fs_data :
-    {
-      PROVIDE(__start_fs_data = .);
-      KEEP(*(.fs_data))
-      PROVIDE(__stop_fs_data = .);
-    } > RAM
 
     .bss :
     {
