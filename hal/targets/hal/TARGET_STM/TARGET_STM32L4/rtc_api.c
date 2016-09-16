@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "rtc_api.h"
+#include "rtc_api_hal.h"
 
 #if DEVICE_RTC
 
@@ -39,11 +40,29 @@ static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
 
+#if DEVICE_RTC_LSI
+    #define RTC_CLOCK LSI_VALUE
+#else
+    #define RTC_CLOCK LSE_VALUE
+#endif
+
+#if DEVICE_LOWPOWERTIMER
+    #define RTC_ASYNCH_PREDIV ((RTC_CLOCK - 1) / 0x8000)
+    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
+#else
+    #define RTC_ASYNCH_PREDIV (0x007F)
+    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)    
+#endif
+
+#if DEVICE_LOWPOWERTIMER
+    static void (*irq_handler)(void);
+    static void RTC_IRQHandler(void);
+#endif
+
 void rtc_init(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-    uint32_t rtc_freq = 0;
 
 #if DEVICE_RTC_LSI
     if (rtc_inited) return;
@@ -63,7 +82,6 @@ void rtc_init(void)
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
         PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-        rtc_freq = LSE_VALUE;
     } else {
         error("Cannot initialize RTC with LSE\n");
     }
@@ -92,8 +110,6 @@ void rtc_init(void)
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("Cannot initialize RTC with LSI\n");
     }
-    // This value is LSI typical value (see device datasheet)
-    rtc_freq = 32000;
 #endif
 
     // Check if RTC is already initialized
@@ -103,8 +119,8 @@ void rtc_init(void)
     __HAL_RCC_RTC_ENABLE();
 
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-    RtcHandle.Init.AsynchPrediv   = 127;
-    RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
+    RtcHandle.Init.AsynchPrediv   = RTC_ASYNCH_PREDIV;
+    RtcHandle.Init.SynchPrediv    = RTC_SYNCH_PREDIV;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
@@ -112,6 +128,20 @@ void rtc_init(void)
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
         error("Cannot initialize RTC\n");
     }
+
+#if DEVICE_LOWPOWERTIMER
+#if DEVICE_RTC_LSI
+    rtc_write(0);
+#else
+    if (!rtc_isenabled()) {
+        rtc_write(0);
+    }
+#endif
+    NVIC_ClearPendingIRQ(RTC_WKUP_IRQn);
+    NVIC_DisableIRQ(RTC_WKUP_IRQn);
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    NVIC_EnableIRQ(RTC_WKUP_IRQn);
+#endif
 }
 
 void rtc_free(void)
@@ -230,5 +260,51 @@ void rtc_write(time_t t)
     HAL_RTC_SetDate(&RtcHandle, &dateStruct, RTC_FORMAT_BIN);
     HAL_RTC_SetTime(&RtcHandle, &timeStruct, RTC_FORMAT_BIN);
 }
+
+#if DEVICE_LOWPOWERTIMER
+
+static void RTC_IRQHandler(void)
+{
+    HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
+}
+
+void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
+{
+    if (irq_handler) {
+        // Fire the user callback
+        irq_handler();
+    }
+}
+
+void rtc_set_irq_handler(uint32_t handler)
+{
+    irq_handler = (void (*)(void))handler;
+}
+
+uint32_t rtc_read_subseconds(void)
+{
+    return 1000000.f * ((double)(RTC_SYNCH_PREDIV - RTC->SSR) / (RTC_SYNCH_PREDIV + 1));
+}
+
+void rtc_set_wake_up_timer(uint32_t delta)
+{
+    uint32_t wake_up_counter = delta / (2000000 / RTC_CLOCK);
+  
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, wake_up_counter,
+                                    RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK) {
+        error("Set wake up timer failed\n");
+    }
+}
+
+void rtc_deactivate_wake_up_timer(void)
+{
+    HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
+}
+
+void rtc_synchronize(void)
+{
+    HAL_RTC_WaitForSynchro(&RtcHandle);
+}
+#endif // DEVICE_LOWPOWERTIMER
 
 #endif
