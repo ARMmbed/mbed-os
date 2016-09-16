@@ -7,6 +7,7 @@
 
 #include "NetworkStack.h"
 #include "MeshInterface.h"
+#include "NanostackRfPhy.h"
 
 #include "mbed-mesh-api/Mesh6LoWPAN_ND.h"
 #include "mbed-mesh-api/MeshThread.h"
@@ -220,6 +221,15 @@ private:
 class MeshInterfaceNanostack : public MeshInterface {
 public:
 
+    /** Attach phy and initialize the mesh
+     *
+     *  Initializes a mesh interface on the given phy. Not needed if
+     *  the phy is passed to the mesh's constructor.
+     *
+     *  @return     0 on success, negative on failure
+     */
+    virtual int initialize(NanostackRfPhy *phy);
+
     /** Start the interface
      *
      *  @return     0 on success, negative on failure
@@ -243,12 +253,14 @@ public:
     virtual const char *get_mac_address();
 
 protected:
-    MeshInterfaceNanostack() : connect_semaphore(0) { }
+    MeshInterfaceNanostack();
+    MeshInterfaceNanostack(NanostackRfPhy *phy);
     int register_rf();
     int actual_connect();
     virtual NetworkStack * get_stack(void);
 
     void mesh_network_handler(mesh_connection_status_t status);
+    NanostackRfPhy *phy;
     AbstractMesh *mesh_api;
     int8_t rf_device_id;
     uint8_t eui64[8];
@@ -259,6 +271,22 @@ protected:
 
 class LoWPANNDInterface : public MeshInterfaceNanostack {
 public:
+
+    /** Create an uninitialized LoWPANNDInterface
+     *
+     *  Must initialize to initialize the mesh on a phy.
+     */
+    LoWPANNDInterface() : MeshInterfaceNanostack() {
+
+    }
+
+    /** Create an initialized MeshInterface
+     *
+     */
+    LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
+
+    }
+
     int connect();
 protected:
     Mesh6LoWPAN_ND *get_mesh_api() const { return static_cast<Mesh6LoWPAN_ND *>(mesh_api); }
@@ -268,6 +296,22 @@ private:
 
 class ThreadInterface : public MeshInterfaceNanostack {
 public:
+
+    /** Create an uninitialized LoWPANNDInterface
+     *
+     *  Must initialize to initialize the mesh on a phy.
+     */
+    ThreadInterface() : MeshInterfaceNanostack() {
+
+    }
+
+    /** Create an initialized MeshInterface
+     *
+     */
+    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
+
+    }
+
     int connect();
 protected:
     MeshThread *get_mesh_api() const { return static_cast<MeshThread *>(mesh_api); }

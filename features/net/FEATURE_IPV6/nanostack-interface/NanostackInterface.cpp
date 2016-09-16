@@ -27,7 +27,6 @@
 
 #include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
-#include "driverRFPhy.h"
 #include "net_interface.h"
 #include "ip6string.h"
 // Uncomment to enable trace
@@ -453,6 +452,28 @@ void NanostackSocket::event_connnect_closed(socket_callback_t *sock_cb)
     close();
 }
 
+MeshInterfaceNanostack::MeshInterfaceNanostack()
+    : phy(NULL), mesh_api(NULL), rf_device_id(-1), eui64(),
+      ip_addr_str(), mac_addr_str(), connect_semaphore(0)
+{
+    // Nothing to do
+}
+
+MeshInterfaceNanostack::MeshInterfaceNanostack(NanostackRfPhy *phy)
+    : phy(phy), mesh_api(NULL), rf_device_id(-1), connect_semaphore(0)
+{
+    // Nothing to do
+}
+
+int MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
+{
+    if (this->phy != NULL) {
+        error("Phy already set");
+    }
+    this->phy = phy;
+    return 0;
+}
+
 void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t status)
 {
     nanostack_lock();
@@ -468,13 +489,13 @@ int MeshInterfaceNanostack::register_rf()
 {
     nanostack_lock();
 
-    rf_device_id = rf_device_register();
+    rf_device_id = phy->rf_register();
     if (rf_device_id < 0) {
         nanostack_unlock();
         return -1;
     }
     // Read mac address after registering the device.
-    rf_read_mac_address(eui64);
+    phy->get_mac_address(eui64);
     sprintf(mac_addr_str, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", eui64[0], eui64[1], eui64[2], eui64[3], eui64[4], eui64[5], eui64[6], eui64[7]);
 
     nanostack_unlock();
