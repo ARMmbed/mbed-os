@@ -1,15 +1,16 @@
 #include <string.h>
 #include "stm32f4xx_hal.h"
+#include "toolchain.h"
 
 #define C029_OTP_START_ADDRESS           (0x1FFF7800U)
 #define C029_OTP_END_ADDRESS             (C029_OTP_START_ADDRESS + (16*32))
 #define C029_MAC_ETHERNET_ID             (3)
 
-typedef struct C029_OTP_Header {
+typedef MBED_PACKED(struct) C029_OTP_Header {
     uint8_t id;
     uint8_t len;
     uint8_t data[];
-} __attribute__((__packed__)) C029_OTP_Header;
+} C029_OTP_Header;
 
 static int _macRetrieved = 0;
 static char _macAddr[6] = { 0x02, 0x02, 0xF7, 0xF0, 0x00, 0x00 };
