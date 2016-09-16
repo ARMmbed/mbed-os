@@ -27,6 +27,7 @@ from inspect import getmro
 from copy import deepcopy
 from tools.config import Config
 from abc import ABCMeta, abstractmethod
+from distutils.spawn import find_executable
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, compile_worker
@@ -186,23 +187,6 @@ LEGACY_TOOLCHAIN_NAMES = {
     'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR',
     'IAR': 'IAR',
 }
-
-
-def check_toolchain_path(function):
-    """Check if the path to toolchain is valid. Exit if not.
-    Use this function as a decorator.  Causes a system exit if the path does
-    not exist. Execute the function as normal if the path does exist.
-
-    Positional arguments:
-    function -- the function to decorate
-    """
-    def perform_check(self, *args, **kwargs):
-        if not exists(self.toolchain_path) and not exists(self.toolchain_path+'.exe'):
-            error_string = 'Could not find executable for %s.\n Currently ' \
-                           'set search path: %s'% (self.name, self.toolchain_path)
-            raise Exception(error_string)
-        return function(self, *args, **kwargs)
-    return perform_check
 
 
 class mbedToolchain:
@@ -723,7 +707,6 @@ class mbedToolchain:
 
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    @check_toolchain_path
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
@@ -922,7 +905,6 @@ class mbedToolchain:
             else:
                 raise ToolException(_stderr)
 
-    @check_toolchain_path
     def build_library(self, objects, dir, name):
         needed_update = False
         lib = self.STD_LIB_NAME % name
@@ -934,7 +916,6 @@ class mbedToolchain:
 
         return needed_update
 
-    @check_toolchain_path
     def link_program(self, r, tmp_path, name):
         needed_update = False
         ext = 'bin'
@@ -1113,6 +1094,51 @@ class mbedToolchain:
         # file for subsequent calls, without trying to manipulate its content in any way.
         self.config_processed = True
         return self.config_file
+
+    @staticmethod
+    def generic_check_executable(tool_key, executable_name, levels_up,
+                                 nested_dir=None):
+        """
+        Positional args:
+        tool_key: the key to index TOOLCHAIN_PATHS
+        executable_name: the toolchain's named executable (ex. armcc)
+        levels_up: each toolchain joins the toolchain_path, some
+        variable directories (bin, include), and the executable name,
+        so the TOOLCHAIN_PATH value must be appropriately distanced
+
+        Keyword args:
+        nested_dir: the directory within TOOLCHAIN_PATHS where the executable
+          is found (ex: 'bin' for ARM\bin\armcc (necessary to check for path
+          that will be used by toolchain's compile)
+
+        Returns True if the executable location specified by the user
+        exists and is valid OR the executable can be found on the PATH.
+        Returns False otherwise.
+        """
+        # Search PATH if user did not specify a path or specified path doesn't
+        # exist.
+        if not TOOLCHAIN_PATHS[tool_key] or not exists(TOOLCHAIN_PATHS[tool_key]):
+            exe = find_executable(executable_name)
+            if not exe:
+                return False
+            for level in range(levels_up):
+                # move up the specified number of directories
+                exe = dirname(exe)
+            TOOLCHAIN_PATHS[tool_key] = exe
+        if nested_dir:
+            subdir = join(TOOLCHAIN_PATHS[tool_key], nested_dir,
+                          executable_name)
+        else:
+            subdir = join(TOOLCHAIN_PATHS[tool_key],executable_name)
+        # User could have specified a path that exists but does not contain exe
+        return exists(subdir) or exists(subdir +'.exe')
+
+    @abstractmethod
+    def check_executable(self):
+        """Returns True if the executable (armcc) location specified by the
+         user exists OR the executable can be found on the PATH.
+         Returns False otherwise."""
+        raise NotImplemented
 
     @abstractmethod
     def get_config_option(self, config_header):
