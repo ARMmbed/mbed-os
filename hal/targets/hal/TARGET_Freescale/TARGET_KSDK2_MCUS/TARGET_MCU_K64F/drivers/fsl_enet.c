@@ -1064,11 +1064,11 @@ void ENET_AddMulticastGroup(ENET_Type *base, uint8_t *address)
     /* Enable a multicast group address. */
     if (!((crc >> 0x1FU) & 1U))
     {
-        base->GALR = 1U << ((crc >> 0x1AU) & 0x1FU);
+        base->GALR |= 1U << ((crc >> 0x1AU) & 0x1FU);
     }
     else
     {
-        base->GAUR = 1U << ((crc >> 0x1AU) & 0x1FU);
+        base->GAUR |= 1U << ((crc >> 0x1AU) & 0x1FU);
     }
 }
 
