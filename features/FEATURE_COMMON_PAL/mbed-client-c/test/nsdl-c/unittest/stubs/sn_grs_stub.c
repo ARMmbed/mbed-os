@@ -135,6 +135,14 @@ extern int8_t sn_grs_create_resource(struct grs_s *handle, sn_nsdl_resource_info
     return sn_grs_stub.expectedInt8;
 }
 
+int8_t sn_grs_put_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res)
+{
+    if( sn_grs_stub.int8SuccessCounter > 0 ){
+        sn_grs_stub.int8SuccessCounter--;
+        return SN_NSDL_SUCCESS;
+    }
+    return sn_grs_stub.expectedInt8;
+}
 
 extern int8_t sn_grs_process_coap(struct nsdl_s *nsdl_handle, sn_coap_hdr_s *coap_packet_ptr, sn_nsdl_addr_s *src_addr_ptr)
 {

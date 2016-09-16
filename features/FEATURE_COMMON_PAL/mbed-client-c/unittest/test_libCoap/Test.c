@@ -36,6 +36,7 @@ static uint8_t address[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x
 
 /* CoAP parameters to be used */
 static uint8_t option_short[3] = {0x61, 0x62, 0x63};
+static uint32_t option_short_value = 0x616263;
 static uint8_t option_path[5] = {0x62, 0x63, 0x2f, 0x61, 0x62};
 static uint8_t option_30[30];
 static uint8_t option_300[300];
@@ -288,8 +289,7 @@ void test_libcoap_builder_message_with_multiple_options(void)
     coap_header.uri_path_len = sizeof(option_path);
     coap_header.uri_path_ptr = option_path;
 
-    coap_header.options_list_ptr->max_age_len = sizeof(option_short);
-    coap_header.options_list_ptr->max_age_ptr = option_short;
+    coap_header.options_list_ptr->max_age = option_short_value;
 
     coap_header.token_len = sizeof(option_short);
     coap_header.token_ptr = option_short;
@@ -409,8 +409,7 @@ void test_libcoap_parser_parse_message_with_multiple_options(void)
     TEST_ASSERT_EQUAL(sizeof(option_path), coap_header_ptr->uri_path_len);
     TEST_ASSERT_EQUAL_INT8_ARRAY(option_path, coap_header_ptr->uri_path_ptr, sizeof(option_path));
 
-    TEST_ASSERT_EQUAL(sizeof(option_short), coap_header_ptr->options_list_ptr->max_age_len);
-    TEST_ASSERT_EQUAL_INT8_ARRAY(option_short, coap_header_ptr->options_list_ptr->max_age_ptr, sizeof(option_short));
+    TEST_ASSERT_EQUAL(option_short_value, coap_header_ptr->options_list_ptr->max_age);
 
     TEST_ASSERT_EQUAL(sizeof(option_short), coap_header_ptr->token_len);
     TEST_ASSERT_EQUAL_INT8_ARRAY(option_short, coap_header_ptr->token_ptr, sizeof(option_short));

@@ -75,6 +75,7 @@ static uint8_t response_changed[4] = {0x60, 0x44, 0x12, 0x34};
 static uint8_t response_created[4] = {0x60, 0x41, 0x12, 0x34};
 static uint8_t response_deleted[4] = {0x60, 0x42, 0x12, 0x34};
 
+#define NSP_ADDRESS_LEN 4
 #define NSP_PORT 5683
 
 #define NSP_REGISTRATION_MESSAGE_LEN 72
@@ -337,6 +338,30 @@ void test_libnsdl_set_nsp_address(void)
 
     /* OK case */
     ret_val = set_NSP_address(handle, address, NSP_PORT, SN_NSDL_ADDRESS_TYPE_IPV4);
+    TEST_ASSERT_EQUAL(0, ret_val);
+}
+
+/**
+ * \fn test_libnsdl_set_nsp_address_2(void)
+ *
+ * \brief Sets NSP address to nsdl-library
+ *
+ *  Negative test cases:
+ *  - call function with null parameter
+ */
+void test_libnsdl_set_nsp_address_2(void)
+{
+    int8_t ret_val = 0;
+
+    /* with null pointer */
+    ret_val = set_NSP_address_2(handle, NULL, NSP_ADDRESS_LEN, NSP_PORT, SN_NSDL_ADDRESS_TYPE_IPV4);
+    TEST_ASSERT_EQUAL(-1, ret_val);
+
+    ret_val = set_NSP_address_2(NULL, address, NSP_ADDRESS_LEN, NSP_PORT, SN_NSDL_ADDRESS_TYPE_IPV4);
+    TEST_ASSERT_EQUAL(-1, ret_val);
+
+    /* OK case */
+    ret_val = set_NSP_address_2(handle, address, NSP_ADDRESS_LEN, NSP_PORT, SN_NSDL_ADDRESS_TYPE_IPV4);
     TEST_ASSERT_EQUAL(0, ret_val);
 }
 

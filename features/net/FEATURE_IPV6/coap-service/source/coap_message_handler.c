@@ -294,7 +294,6 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     data_len = sn_coap_builder_calc_needed_packet_data_size(&request);
     data_ptr = own_alloc(data_len);
     if(data_len > 0 && !data_ptr){
-        own_free(request.content_type_ptr);
         transaction_delete(transaction_ptr);
         return 0;
     }
@@ -303,7 +302,6 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     handle->sn_coap_tx_callback(data_ptr, data_len, &dst_addr, transaction_ptr);
 
     // Free allocated data
-    own_free(request.content_type_ptr);
     own_free(data_ptr);
     if(request_response_cb == NULL){
         //No response expected
@@ -373,26 +371,19 @@ int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t current_ti
 
 static void coap_service_build_content_format(sn_coap_hdr_s *header, sn_coap_content_format_e format)
 {
-    if (format == COAP_CT_NONE) {
-        return;
-    }
+    header->content_format = format;
 
-    /* Always alloc - CoAP library needs a non-NULL pointer to trigger writing
-     * of a zero-length option, and it will free the pointer later.
-     */
-    header->content_type_ptr = own_alloc(2);
-    if (!header->content_type_ptr) {
-        return;
-    }
-
-    if (format == 0) { /* text/plain */
-        header->content_type_len = 0;
-    } else if (format <= 0xff) {
-        header->content_type_ptr[0] = format;
-        header->content_type_len = 1;
-    } else {
-        header->content_type_ptr[0] = format >> 8;
-        header->content_type_ptr[1] = format & 0xff;
-        header->content_type_len = 2;
-    }
+//    if (format == COAP_CT_NONE) {
+//        return;
+//    }
+//    if (format == 0) { /* text/plain */
+//        header->content_type_len = 0;
+//    } else if (format <= 0xff) {
+//        header->content_type_ptr[0] = format;
+//        header->content_type_len = 1;
+//    } else {
+//        header->content_type_ptr[0] = format >> 8;
+//        header->content_type_ptr[1] = format & 0xff;
+//        header->content_type_len = 2;
+//    }
 }

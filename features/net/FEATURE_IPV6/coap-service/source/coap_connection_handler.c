@@ -226,6 +226,11 @@ static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephem
             ns_dyn_mem_free(this);
             return NULL;
         }
+
+        socket_setsockopt(this->listen_socket, SOCKET_IPPROTO_IPV6, SOCKET_LINK_LAYER_SECURITY, &(const int8_t) {
+            bypassSec ? 0 : 1
+        }, sizeof(int8_t));
+
         // XXX API for this? May want to get clever to do recommended first query = 1 hop, retries = whole PAN
         socket_setsockopt(this->listen_socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, &(const int16_t) {
             16
