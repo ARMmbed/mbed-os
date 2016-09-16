@@ -137,6 +137,18 @@ public:
      */
     operator bool() const;
 
+    /** Compare two addresses for equality
+     *
+     *  @return         True if both addresses are equal
+     */
+    friend bool operator==(const SocketAddress &a, const SocketAddress &b);
+
+    /** Compare two addresses for equality
+     *
+     *  @return         True if both addresses are not equal
+     */
+    friend bool operator!=(const SocketAddress &a, const SocketAddress &b);
+
 private:
     void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port);
 
