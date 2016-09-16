@@ -37,8 +37,10 @@ void k64f_init_eth_hardware(void)
 {
     port_pin_config_t configENET = {0};
 
-    /* Disable MPU. */
+#ifndef FEATURE_UVISOR
+    /* Disable MPU only when uVisor is not around. */
     MPU->CESR &= ~MPU_CESR_VLD_MASK;
+#endif/*FEATURE_UVISOR*/
 
     CLOCK_EnableClock(kCLOCK_PortC);
     CLOCK_EnableClock(kCLOCK_PortB);
