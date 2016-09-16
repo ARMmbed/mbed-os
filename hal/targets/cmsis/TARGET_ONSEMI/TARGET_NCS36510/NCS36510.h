@@ -1,6 +1,6 @@
 /**************************************************************************/
 /**
- * @file     ARMCM3.h
+ * @file     NCS36510.h
  * @brief    CMSIS Cortex-M3 Core Peripheral Access Layer Header File
  *           for CM3 Device Series
  * @version  V1.05

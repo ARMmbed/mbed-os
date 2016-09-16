@@ -24,7 +24,9 @@
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
 #include "mbed_error.h"
+#include "mbed_stats.h"
 #include <stdlib.h>
+#include <string.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -478,26 +480,11 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 #endif
 
 #if defined(TOOLCHAIN_GCC)
-#ifdef   FEATURE_UVISOR
+
+#ifdef  FEATURE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
-#ifndef  FEATURE_UVISOR
-extern "C" {
-void * __wrap__malloc_r(struct _reent * r, size_t size) {
-    extern void * __real__malloc_r(struct _reent * r, size_t size);
-    return __real__malloc_r(r, size);
-}
-void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
-    extern void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
-    return __real__realloc_r(r, ptr, size);
-}
-void __wrap__free_r(struct _reent * r, void * ptr) {
-    extern void __real__free_r(struct _reent * r, void * ptr);
-    __real__free_r(r, ptr);
-}
-}
-#endif/* FEATURE_UVISOR */
 
 extern "C" WEAK void software_init_hook_rtos(void)
 {
@@ -684,6 +671,8 @@ char* mbed_gets(char*s, int size, FILE *_file){
 #endif
 }
 
+} // namespace mbed
+
 #if defined (__ICCARM__)
 // Stub out locks when an rtos is not present
 extern "C" WEAK void __iar_system_Mtxinit(__iar_Rmtx *mutex) {}
@@ -723,9 +712,44 @@ extern "C" void __env_unlock( struct _reent *_r )
 {
     __rtos_env_unlock(_r);
 }
-#endif
 
-} // namespace mbed
+#define CXA_GUARD_INIT_DONE             (1 << 0)
+#define CXA_GUARD_INIT_IN_PROGRESS      (1 << 1)
+#define CXA_GUARD_MASK                  (CXA_GUARD_INIT_DONE | CXA_GUARD_INIT_IN_PROGRESS)
+
+extern "C" int __cxa_guard_acquire(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+        return 0;
+    }
+    singleton_lock();
+    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+        singleton_unlock();
+        return 0;
+    }
+    MBED_ASSERT(0 == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = *guard_object | CXA_GUARD_INIT_IN_PROGRESS;
+    return 1;
+}
+
+extern "C" void __cxa_guard_release(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = (*guard_object & ~CXA_GUARD_MASK) | CXA_GUARD_INIT_DONE;
+    singleton_unlock();
+}
+
+extern "C" void __cxa_guard_abort(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = *guard_object & ~CXA_GUARD_INIT_IN_PROGRESS;
+    singleton_unlock();
+}
+
+#endif
 
 void *operator new(std::size_t count)
 {

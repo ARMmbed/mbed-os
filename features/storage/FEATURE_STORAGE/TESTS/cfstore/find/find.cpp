@@ -428,6 +428,77 @@ control_t cfstore_find_test_06_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: find_count=%d doesnt match the number of entries in match table = %d.\n", __func__, (int) find_count, (int) (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1);
     TEST_ASSERT_MESSAGE(find_count == (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1, cfstore_find_utest_msg_g);
 
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: expected ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, but ret = %d.\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, cfstore_find_utest_msg_g);
+
+    ret = drv->Uninitialize();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+    return CaseNext;
+}
+
+/**
+ * @brief   test case to check Find() with previous NULL pointer works
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t cfstore_find_test_07_end(const size_t call_count)
+{
+    const char* key_name_query = "0123456789abcdef0123456.y*";
+    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    int32_t ret = ARM_DRIVER_ERROR;
+    int32_t find_count = 0;
+    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_HANDLE_INIT(next);
+    cfstore_kv_data_t* node = NULL;
+
+    ret = cfstore_test_create_table(cfstore_find_test_06_data);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to add cfstore_find_test_06_data table data (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+
+    while(true)
+    {
+
+        ret = drv->Find(key_name_query, NULL, next);
+        if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
+            /* no more attributes found matching search criteria.*/
+           break;
+        }
+
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Find() failed(ret=%d).\n", __func__, (int) ret);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+
+        len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+        ret = drv->GetKeyName(next, key_name, &len);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to get key name for next (ret=%d).\n", __func__, (int) ret);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+
+        CFSTORE_LOG("%s:Found entry key_name=%s\n", __func__, key_name);
+        node = cfstore_find_test_06_data_match_results;
+        while(node->key_name != NULL){
+            if(strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0){
+                find_count++;
+                break;
+            }
+            node++;
+        }
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to find match in match table for %s.\n", __func__, key_name);
+        TEST_ASSERT_MESSAGE(node->key_name != NULL, cfstore_find_utest_msg_g);
+
+        /* delete the KV so it wont be found when queried is repeated*/
+        ret = drv->Delete(next);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Delete() on next handled failed(ret=%d).\n", __func__, (int) ret);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+
+        ret = drv->Close(next);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Close() on next handled failed(ret=%d).\n", __func__, (int) ret);
+        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+    }
+
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: find_count=%d doesnt match the number of entries in match table = %d.\n", __func__, (int) find_count, (int) (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1);
+    TEST_ASSERT_MESSAGE(find_count == (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1, cfstore_find_utest_msg_g);
+
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: expected ret == ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, but ret = %d.\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, cfstore_find_utest_msg_g);
 
@@ -458,6 +529,8 @@ Case cases[] = {
         Case("FIND_test_05_end", cfstore_find_test_05_end),
         Case("FIND_test_06_start", cfstore_utest_default_start),
         Case("FIND_test_06_end", cfstore_find_test_06_end),
+        Case("FIND_test_07_start", cfstore_utest_default_start),
+        Case("FIND_test_07_end", cfstore_find_test_07_end),
 };
 
 

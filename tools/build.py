@@ -36,7 +36,7 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
-from utils import argparse_filestring_type
+from utils import argparse_filestring_type, args_error
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from utils import argparse_filestring_type, argparse_dir_not_parent
 
@@ -166,6 +166,9 @@ if __name__ == '__main__':
 
     # Get toolchains list
     toolchains = options.tool if options.tool else TOOLCHAINS
+
+    if options.source_dir and not options.build_dir:
+        args_error(parser, "argument --build is required by argument --source")
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it

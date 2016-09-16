@@ -585,8 +585,19 @@ static void cfstore_flush_fsm_state_set(cfstore_fsm_t* fsm, cfstore_flush_fsm_st
 static control_t cfstore_flush_test_02_k64f(void)
 {
     cfstore_flush_ctx_t* ctx = cfstore_flush_ctx_get();
+    ARM_CFSTORE_CAPABILITIES caps;
+    const ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
 
     CFSTORE_FENTRYLOG("%s:entered: \r\n", __func__);
+    memset(&caps, 0, sizeof(caps));
+    caps = drv->GetCapabilities();
+    if(caps.asynchronous_ops == false){
+        /* This is a async mode only test. If this test is not built for sync mode, then skip testing return true
+         * This means the test will conveniently pass when run in CI as part of async mode testing */
+        CFSTORE_LOG("*** Skipping test as binary built for flash journal sync mode, and this test is async-only%s", "\n");
+        return CaseNext;
+    }
+
     cfstore_flush_ctx_init(ctx);
     cfstore_flush_fsm_state_set(&ctx->fsm, cfstore_flush_fsm_state_initializing, ctx);
     return CaseTimeout(CFSTORE_FLUSH_GREENTEA_TIMEOUT_S*1000);

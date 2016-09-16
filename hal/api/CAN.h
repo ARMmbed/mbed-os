@@ -203,7 +203,9 @@ public:
         EpIrq,
         AlIrq,
         BeIrq,
-        IdIrq
+        IdIrq,
+
+        IrqCnt
     };
 
     /** Attach a function to call whenever a CAN frame received interrupt is
@@ -246,7 +248,7 @@ protected:
     virtual void lock();
     virtual void unlock();
     can_t               _can;
-    Callback<void()>    _irq[9];
+    Callback<void()>    _irq[IrqCnt];
     PlatformMutex       _mutex;
 };
 

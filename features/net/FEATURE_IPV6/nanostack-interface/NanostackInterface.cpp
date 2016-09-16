@@ -368,6 +368,7 @@ void NanostackSocket::data_free_all(void)
     // No mode requirement
 
     NanostackBuffer *buffer = rxBufChain;
+    rxBufChain = NULL;
     while (buffer != NULL) {
         NanostackBuffer *next_buffer = buffer->next;
         FREE(buffer);

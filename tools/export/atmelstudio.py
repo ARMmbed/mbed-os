@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2015 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class AtmelStudio(Exporter):
 
         ctx = {
             'target': self.target,
-            'name': self.program_name,
+            'name': self.project_name,
             'source_files': source_files,
             'source_folders': source_folders,
             'object_files': self.resources.objects,
@@ -69,11 +69,11 @@ class AtmelStudio(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols(),
+            'symbols': self.toolchain.get_symbols(),
             'solution_uuid': solution_uuid.upper(),
             'project_uuid': project_uuid.upper()
         }
-        ctx.update(self.progen_flags)
+        ctx.update(self.flags)
         target = self.target.lower()
-        self.gen_file('atmelstudio6_2.atsln.tmpl', ctx, '%s.atsln' % self.program_name)
-        self.gen_file('atmelstudio6_2.cppproj.tmpl', ctx, '%s.cppproj' % self.program_name)
+        self.gen_file('atmelstudio6_2.atsln.tmpl', ctx, '%s.atsln' % self.project_name)
+        self.gen_file('atmelstudio6_2.cppproj.tmpl', ctx, '%s.cppproj' % self.project_name)
