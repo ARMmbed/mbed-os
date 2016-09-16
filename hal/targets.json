@@ -1832,7 +1832,7 @@
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "default_lib": "small",
         "forced_reset_timeout": 2,
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "EFM32PG_STK3401": {
         "inherits": ["Target"],
