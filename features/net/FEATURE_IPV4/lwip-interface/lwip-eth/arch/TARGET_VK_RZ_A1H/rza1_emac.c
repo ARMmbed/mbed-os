@@ -1,6 +1,7 @@
 #include "lwip/opt.h"
 #include "lwip/tcpip.h"
 #include "netif/etharp.h"
+#include "lwip/ethip6.h"
 #include "mbed_interface.h"
 #include "ethernet_api.h"
 #include "ethernetext_api.h"
@@ -15,13 +16,17 @@ static sys_sem_t recv_ready_sem;    /* receive ready semaphore */
 /* function */
 static void rza1_recv_task(void *arg);
 static void rza1_phy_task(void *arg);
-static err_t rza1_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
+#if LWIP_IPV4
+static err_t rza1_etharp_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr);
+#endif
+#if LWIP_IPV6
+static err_t rza1_etharp_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_addr_t *ipaddr);
+#endif
 static err_t rza1_low_level_output(struct netif *netif, struct pbuf *p);
 static void rza1_recv_callback(void);
 
 static void rza1_recv_task(void *arg) {
     struct netif   *netif = (struct netif*)arg;
-    struct eth_hdr *ethhdr;
     u16_t          recv_size;
     struct pbuf    *p;
     int            cnt;
@@ -34,24 +39,10 @@ static void rza1_recv_task(void *arg) {
                 p = pbuf_alloc(PBUF_RAW, recv_size, PBUF_RAM);
                 if (p != NULL) {
                     (void)ethernet_read((char *)p->payload, p->len);
-                    ethhdr = p->payload;
-                    switch (htons(ethhdr->type)) {
-                        case ETHTYPE_IP:
-                        case ETHTYPE_ARP:
-#if PPPOE_SUPPORT
-                        case ETHTYPE_PPPOEDISC:
-                        case ETHTYPE_PPPOE:
-#endif /* PPPOE_SUPPORT */
-                            /* full packet send to tcpip_thread to process */
-                            if (netif->input(p, netif) != ERR_OK) {
-                                /* Free buffer */
-                                pbuf_free(p);
-                            }
-                            break;
-                        default:
-                            /* Return buffer */
-                            pbuf_free(p);
-                            break;
+                    /* full packet send to tcpip_thread to process */
+                    if (netif->input(p, netif) != ERR_OK) {
+                        /* Free buffer */
+                        pbuf_free(p);
                     }
                 }
             } else {
@@ -94,7 +85,8 @@ static void rza1_phy_task(void *arg) {
     }
 }
 
-static err_t rza1_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr) {
+#if LWIP_IPV4
+static err_t rza1_etharp_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr) {
     /* Only send packet is link is up */
     if (netif->flags & NETIF_FLAG_LINK_UP) {
         return etharp_output(netif, q, ipaddr);
@@ -102,6 +94,18 @@ static err_t rza1_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *
 
     return ERR_CONN;
 }
+#endif
+
+#if LWIP_IPV6
+static err_t rza1_etharp_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_addr_t *ipaddr) {
+    /* Only send packet is link is up */
+    if (netif->flags & NETIF_FLAG_LINK_UP) {
+        return ethip6_output(netif, q, ipaddr);
+    }
+
+    return ERR_CONN;
+}
+#endif
 
 static err_t rza1_low_level_output(struct netif *netif, struct pbuf *p) {
     struct pbuf *q;
@@ -150,13 +154,19 @@ err_t eth_arch_enetif_init(struct netif *netif)
 #else
     mbed_mac_address((char *)netif->hwaddr);
 #endif
-    netif->hwaddr_len = ETHARP_HWADDR_LEN;
+    netif->hwaddr_len = ETH_HWADDR_LEN;
 
     /* maximum transfer unit */
     netif->mtu = 1500;
 
     /* device capabilities */
-    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET | NETIF_FLAG_IGMP;
+    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
+#ifdef LWIP_IGMP
+    netif->flags |= NETIF_FLAG_IGMP;
+#endif
+#if LWIP_IPV6_MLD
+    netif->flags |= NETIF_FLAG_MLD6;
+#endif
 
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
@@ -166,7 +176,13 @@ err_t eth_arch_enetif_init(struct netif *netif)
     netif->name[0] = 'e';
     netif->name[1] = 'n';
 
-    netif->output     = rza1_etharp_output;
+#if LWIP_IPV4
+    netif->output = rza1_etharp_output_ipv4;
+#endif
+#if LWIP_IPV6
+  netif->output_ip6 = rza1_etharp_output_ipv6;
+#endif
+
     netif->linkoutput = rza1_low_level_output;
 
     /* Initialize the hardware */
