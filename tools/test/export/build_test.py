@@ -70,7 +70,7 @@ class ProgenBuildTest(object):
         """
         log = ''
         if tool == 'uvision' or tool == 'uvision4':
-            log = path.join(project_dir,"build","build_log.txt")
+            log = path.join(project_dir, "build", "build_log.txt")
         elif tool == 'iar':
             log = path.join(project_dir, 'build_log.txt')
         try:
