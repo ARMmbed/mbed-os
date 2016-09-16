@@ -1,4 +1,37 @@
+#include <string.h>
 #include "stm32f4xx_hal.h"
+
+#define C029_OTP_START_ADDRESS           (0x1FFF7800U)
+#define C029_OTP_END_ADDRESS             (C029_OTP_START_ADDRESS + (16*32))
+#define C029_MAC_ETHERNET_ID             (3)
+
+typedef struct C029_OTP_Header {
+    uint8_t id;
+    uint8_t len;
+    uint8_t data[];
+} __attribute__((__packed__)) C029_OTP_Header;
+
+static int _macRetrieved = 0;
+static char _macAddr[6] = { 0x02, 0x02, 0xF7, 0xF0, 0x00, 0x00 };
+
+static C029_OTP_Header *increment(C029_OTP_Header *pTemp)
+{
+    uint8_t len = 0;
+    uint8_t id = 0;
+    uint8_t *p = (uint8_t*)pTemp;
+
+    memcpy((void*)&id, (void*)pTemp, 1);
+
+    if (id == 0xFF){
+        p++;
+    }
+    else {
+        p++;
+        memcpy((void*)&len, (void*)p++, 1);
+        p += len;
+    }
+    return (C029_OTP_Header*)p;
+}
 
 /**
  * Override HAL Eth Init function
@@ -83,4 +116,27 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
         /* Disable the Ethernet global Interrupt */
         NVIC_DisableIRQ(ETH_IRQn);
     }
+}
+
+void mbed_mac_address(char *mac)
+{
+    C029_OTP_Header *pFound = NULL;
+    C029_OTP_Header *pTemp = (C029_OTP_Header*)C029_OTP_START_ADDRESS;
+    C029_OTP_Header temp;
+
+    if (_macRetrieved == 0) {
+        while ((pTemp >= (C029_OTP_Header*)C029_OTP_START_ADDRESS) && (pTemp < (C029_OTP_Header*)C029_OTP_END_ADDRESS)){
+            memcpy((void*)&temp, (void*)pTemp, sizeof(temp));
+            if (temp.id == C029_MAC_ETHERNET_ID){
+                pFound = pTemp;
+                break;
+            }
+            pTemp = increment(pTemp);
+        }
+        if (pFound != NULL) {
+            memcpy(_macAddr, pFound->data, 6);
+            _macRetrieved = 1;
+        }
+    }
+    memcpy(mac, _macAddr, 6);
 }
