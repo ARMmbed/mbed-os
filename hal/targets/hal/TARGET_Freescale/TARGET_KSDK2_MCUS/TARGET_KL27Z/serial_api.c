@@ -103,6 +103,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         temp |= (LPUART_CTRL_PE_MASK | LPUART_CTRL_M_MASK);
         if (parity == ParityOdd) {
             temp |= LPUART_CTRL_PT_MASK;
+        } else if (parity == ParityEven) {
+            // PT=0 so nothing more to do
         } else {
             // Hardware does not support forced parity
             MBED_ASSERT(0);
