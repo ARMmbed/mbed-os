@@ -16,7 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, splitext
+from os.path import join, splitext, exists
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
