@@ -206,11 +206,12 @@ int lwip_bringdown(void)
 static int lwip_err_remap(err_t err) {
     switch (err) {
         case ERR_OK:
+        case ERR_CLSD:
+        case ERR_RST:
             return 0;
         case ERR_MEM:
             return NSAPI_ERROR_NO_MEMORY;
         case ERR_CONN:
-        case ERR_CLSD:
             return NSAPI_ERROR_NO_CONNECTION;
         case ERR_TIMEOUT:
         case ERR_RTE:
@@ -371,7 +372,7 @@ static int lwip_socket_recv(nsapi_stack_t *stack, nsapi_socket_t handle, void *d
         s->offset = 0;
 
         if (err != ERR_OK) {
-            return (err == ERR_CLSD) ? 0 : lwip_err_remap(err);
+            return lwip_err_remap(err);
         }
     }
 
