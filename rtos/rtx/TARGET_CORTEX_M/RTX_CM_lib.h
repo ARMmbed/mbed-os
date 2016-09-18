@@ -460,7 +460,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_DISCO_F303VC)
 #define INITIAL_SP            (0x2000A000UL)
 
-#elif defined(TARGET_STM32F407) || defined(TARGET_F407VG)
+#elif defined(TARGET_STM32F407) || defined(TARGET_STM32F407VG)
 #define INITIAL_SP            (0x20020000UL)
 
 #elif defined(TARGET_STM32F401RE)
