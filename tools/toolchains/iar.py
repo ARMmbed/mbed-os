@@ -41,7 +41,7 @@ class IAR(mbedToolchain):
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
         'asm': [],
         'c': ["--vla"],
-        'cxx': ["--guard_calls"],
+        'cxx': ["--guard_calls", "--no_static_destruction"],
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
 
