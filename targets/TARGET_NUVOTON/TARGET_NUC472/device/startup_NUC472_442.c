@@ -11,6 +11,14 @@
 
 #include "NUC472_442.h"
 
+/* Suppress warning messages */
+#if defined(__CC_ARM)
+// Suppress warning message: extended constant initialiser used
+#pragma diag_suppress 1296
+#elif defined(__ICCARM__)
+#elif defined(__GNUC__)
+#endif
+
 /* Macro Definitions */
 #if defined(__CC_ARM)
 #define WEAK            __attribute__ ((weak))
@@ -238,12 +246,12 @@ const uint32_t __vector_handlers[] = {
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
 #if defined(__CC_ARM)
-    &Image$$ARM_LIB_STACK$$ZI$$Limit,
+    (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
     //(uint32_t) __sfe("CSTACK"),
     (uint32_t) &CSTACK$$Limit,
 #elif defined(__GNUC__)
-    &__StackTop,
+    (uint32_t) &__StackTop,
 #endif
 
     (uint32_t) Reset_Handler,           // Reset Handler
