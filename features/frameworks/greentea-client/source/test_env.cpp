@@ -58,6 +58,7 @@ static void greentea_notify_timeout(const int);
 static void greentea_notify_hosttest(const char *);
 static void greentea_notify_completion(const int);
 static void greentea_notify_version();
+static void greentea_write_string(const char *str);
 
 /** \brief Handshake with host and send setup data (timeout and host test name)
  *  \details This function will send preamble to master.
@@ -74,6 +75,7 @@ void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
 	char _value[48] = {0};
 	while (1) {
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        greentea_write_string("mbedmbedmbedmbedmbedmbedmbedmbed\r\n");
         if (strcmp(_key, GREENTEA_TEST_ENV_SYNC) == 0) {
             // Found correct __sunc message
             greentea_send_kv(_key, _value);
@@ -209,6 +211,7 @@ inline void greentea_write_postamble()
 {
     greentea_serial->putc('}');
     greentea_serial->putc('}');
+    greentea_serial->putc('\r');
     greentea_serial->putc('\n');
 }
 
