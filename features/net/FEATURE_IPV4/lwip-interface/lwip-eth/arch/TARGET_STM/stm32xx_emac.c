@@ -131,23 +131,6 @@ static void _eth_arch_low_level_init(struct netif *netif)
 
     /* Enable MAC and DMA transmission and reception */
     HAL_ETH_Start(&EthHandle);
-
-    /**** Configure PHY to generate an interrupt when Eth Link state changes ****/
-    /* Read Register Configuration */
-    HAL_ETH_ReadPHYRegister(&EthHandle, PHY_MICR, &regvalue);
-
-    regvalue |= (PHY_MICR_INT_EN | PHY_MICR_INT_OE);
-
-    /* Enable Interrupts */
-    HAL_ETH_WritePHYRegister(&EthHandle, PHY_MICR, regvalue);
-
-    /* Read Register Configuration */
-    HAL_ETH_ReadPHYRegister(&EthHandle, PHY_MISR, &regvalue);
-
-    regvalue |= PHY_MISR_LINK_INT_EN;
-
-    /* Enable Interrupt on change of link status */
-    HAL_ETH_WritePHYRegister(&EthHandle, PHY_MISR, regvalue);
 #endif
 }
 
