@@ -15,9 +15,11 @@
 extern uint32_t __mbed_sbrk_start;
 extern uint32_t __mbed_krbs_start;
 
-// NOTE: The implementation of _sbrk (in common/retarget.cpp) for GCC_ARM requires one-region model for heap and stack, which doesn't
-//       meet the layout of e.g. Nu-mbed-NUC472 board where heap is located on external SRAM. 
-//       Because the symbol is not weak and cannot be overwritten, wrap calls to it by hooking command line linker with '-Wl,--wrap,_sbrk'.
+/**
+ * The default implementation of _sbrk() (in common/retarget.cpp) for GCC_ARM requires one-region model (heap and stack share one region), which doesn't
+ * fit two-region model (heap and stack are two distinct regions), for example, NUMAKER-PFM-NUC472 locates heap on external SRAM. Define __wrap__sbrk() to
+ * override the default _sbrk(). It is expected to get called through gcc hooking mechanism ('-Wl,--wrap,_sbrk') or in _sbrk().
+ */
 void *__wrap__sbrk(int incr)
 {
     static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
