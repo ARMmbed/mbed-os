@@ -7,6 +7,8 @@
 #include "lwip/snmp.h"
 #include "lwip/tcpip.h"
 #include "lwip/ethip6.h"
+#include "lwip/igmp.h"
+#include "lwip/mld6.h"
 #include "netif/etharp.h"
 #include "netif/ppp/pppoe.h"
 
@@ -287,10 +289,10 @@ err_t k64f_etharp_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_add
  * \param[in] action
  * \return ERR_OK or error code
  */
-err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action)
+err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t action)
 {
     switch (action) {
-        case NETIF_ADD_MAC_FILTER:
+        case IGMP_ADD_MAC_FILTER:
         {
             uint32_t group23 = ntohl(group->addr) & 0x007FFFFF;
             uint8_t addr[6];
@@ -303,7 +305,7 @@ err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_m
             ENET_AddMulticastGroup(ENET, addr);
             return ERR_OK;
         }
-        case NETIF_DEL_MAC_FILTER:
+        case IGMP_DEL_MAC_FILTER:
             /* As we don't reference count, silently ignore delete requests */
             return ERR_OK;
         default:
@@ -321,10 +323,10 @@ err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_m
  * \param[in] action
  * \return ERR_OK or error code
  */
-err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action)
+err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, u8_t action)
 {
     switch (action) {
-        case NETIF_ADD_MAC_FILTER:
+        case MLD6_ADD_MAC_FILTER:
         {
             uint32_t group32 = ntohl(group->addr[3]);
             uint8_t addr[6];
@@ -337,7 +339,7 @@ err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_ma
             ENET_AddMulticastGroup(ENET, addr);
             return ERR_OK;
         }
-        case NETIF_DEL_MAC_FILTER:
+        case MLD6_DEL_MAC_FILTER:
             /* As we don't reference count, silently ignore delete requests */
             return ERR_OK;
         default:
