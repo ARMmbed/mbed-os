@@ -20,6 +20,8 @@
 
 #include "lwip/opt.h"
 
+extern u8_t lwip_ram_heap[];
+
 #if NO_SYS == 0
 #include "cmsis_os.h"
 

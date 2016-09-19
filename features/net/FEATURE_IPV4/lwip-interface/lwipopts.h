@@ -103,6 +103,8 @@
 // 32-bit alignment
 #define MEM_ALIGNMENT               4
 
+#define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
+
 #define PBUF_POOL_SIZE              5
 #define MEMP_NUM_TCP_PCB_LISTEN     4
 #define MEMP_NUM_TCP_PCB            4
