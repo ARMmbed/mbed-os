@@ -24,6 +24,7 @@
 #include "cmsis.h"
 #include "NUC472_442.h"
 #include "us_ticker_api.h"
+#include "rng_api.h"
 
 /*
  * Get Random number generator.
@@ -43,73 +44,56 @@ static void rng_get(unsigned char *pConversionData)
 	uint32_t *p32ConversionData;
 
 	p32ConversionData = (uint32_t *)pConversionData;
-	
-    /* Unlock protected registers */
-    SYS_UnlockReg();	
-    /* Enable IP clock */
-    CLK_EnableModuleClock(CRPT_MODULE);
-	
-    /* Lock protected registers */
-    SYS_LockReg();	
-	
-    NVIC_EnableIRQ(CRPT_IRQn);
-    PRNG_ENABLE_INT();
-	
+
 //	PRNG_Open(PRNG_KEY_SIZE_64, 0, 0);
 	PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());
     PRNG_Start();
     while (!g_PRNG_done);
 
-
     PRNG_Read(p32ConversionData);
 
 //    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *p32ConversionData, *(p32ConversionData+1), *(p32ConversionData+2), *(p32ConversionData+3));
 //    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *(p32ConversionData+4), *(p32ConversionData+5), *(p32ConversionData+6), *(p32ConversionData+7));
-
-    PRNG_DISABLE_INT();
-    NVIC_DisableIRQ(CRPT_IRQn);
-//    CLK_DisableModuleClock(CRPT_MODULE);
-		
 }
 
-
-/*
- * Get len bytes of entropy from the hardware RNG.
- */
- 
-int mbedtls_hardware_poll( void *data,
-                    unsigned char *output, size_t len, size_t *olen )
+void rng_init(rng_t *obj)
 {
-#if 0
-    unsigned long timer = us_ticker_read();
-    ((void) data);
-    *olen = 0;
- 
-    if( len < sizeof(unsigned long) )
-        return( 0 );
- 
-    memcpy( output, &timer, sizeof(unsigned long) );
-    *olen = sizeof(unsigned long);
-#else
-	*olen = 0;
-    if( len < 32 )
-	{
-		unsigned char tmpBuff[32];		
-		rng_get(tmpBuff);
-		memcpy( output, &tmpBuff, len );
-		*olen = len;
-        return( 0 );
-	}	
-	for( int i = 0; i < (len/32) ; i++)
-	{
-		rng_get(output);
-		*olen += 32;
-//		printf("Output result of len[%d][%d]: 0x%08x 0x%08x\n\r", len, *olen, *((int32_t *)output), *(((int32_t *)output)+1));
-		output += 32;
-	}
-#endif
-	
-    return( 0 );
+    /* Unlock protected registers */
+    SYS_UnlockReg();    
+    /* Enable IP clock */
+    CLK_EnableModuleClock(CRPT_MODULE);
+    
+    /* Lock protected registers */
+    SYS_LockReg();
+    
+    NVIC_EnableIRQ(CRPT_IRQn);
+    PRNG_ENABLE_INT();
+}
+
+void rng_free(rng_t *obj)
+{
+    PRNG_DISABLE_INT();
+    NVIC_DisableIRQ(CRPT_IRQn);
+    //CLK_DisableModuleClock(CRPT_MODULE);
+}
+
+int rng_get_numbers(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+{
+    *output_length = 0;
+    if (length < 32) {
+        unsigned char tmpBuff[32];
+        rng_get(tmpBuff);
+        memcpy( output, &tmpBuff, length );
+        *output_length = length;
+    } else {
+        for ( int i = 0; i < (length/32); i++) {
+            rng_get(output);
+            *output_length += 32;
+            output += 32;
+        }
+    }
+
+    return 0;
 }
  
 

@@ -124,6 +124,10 @@ struct sleep_s {
     int powerdown;
 };
 
+struct rng_s {
+
+};
+
 #ifdef __cplusplus
 }
 #endif
