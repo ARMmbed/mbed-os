@@ -75,8 +75,8 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync);
 #define NU_I2C_TIMEOUT_STOP         500000
 static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uint32_t timeout);
 static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout);
-static int i2c_is_stat_int(i2c_t *obj);
-static int i2c_is_stop_det(i2c_t *obj);
+//static int i2c_is_stat_int(i2c_t *obj);
+//static int i2c_is_stop_det(i2c_t *obj);
 static int i2c_is_trsn_done(i2c_t *obj);
 static int i2c_is_tran_started(i2c_t *obj);
 static int i2c_addr2data(int address, int read);
@@ -97,6 +97,8 @@ static void i2c_rollback_vector_interrupt(i2c_t *obj);
 
 #define TRANCTRL_STARTED        (1)
 #define TRANCTRL_NAKLASTDATA    (1 << 1)
+
+uint32_t us_ticker_read(void);
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
@@ -161,8 +163,6 @@ void i2c_frequency(i2c_t *obj, int hz)
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
-    int i;
-
     if (i2c_start(obj)) {
         i2c_stop(obj);
         return I2C_ERROR_BUS_BUSY;
@@ -186,8 +186,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
-    int i;
-
     if (i2c_start(obj)) {
         i2c_stop(obj);
         return I2C_ERROR_BUS_BUSY;
@@ -289,7 +287,6 @@ static int i2c_addr2bspaddr(int address)
 
 static void i2c_enable_int(i2c_t *obj)
 {
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     
     core_util_critical_section_enter();
@@ -303,7 +300,6 @@ static void i2c_enable_int(i2c_t *obj)
 
 static void i2c_disable_int(i2c_t *obj)
 {
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     
     core_util_critical_section_enter();
@@ -317,7 +313,6 @@ static void i2c_disable_int(i2c_t *obj)
 
 static int i2c_set_int(i2c_t *obj, int inten)
 {
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     int inten_back;
     
     core_util_critical_section_enter();
@@ -357,8 +352,6 @@ int i2c_allow_powerdown(void)
 
 static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastdata)
 {
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
-    int err = 0;
     int tran_len = 0;
     
     i2c_disable_int(obj);
@@ -369,7 +362,6 @@ static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastd
     i2c_enable_int(obj);
     
     if (i2c_poll_tran_heatbeat_timeout(obj, NU_I2C_TIMEOUT_STAT_INT)) {
-        err = I2C_ERROR_BUS_BUSY;
 #if NU_I2C_DEBUG
         MY_I2C_2 = obj->i2c;
         while (1);
@@ -485,7 +477,6 @@ static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uin
 static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
 {
     uint32_t t1, t2, elapsed = 0;
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     int tran_started;
     char *tran_pos = NULL;
     char *tran_pos2 = NULL;
@@ -529,6 +520,8 @@ static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
     
     return (elapsed >= timeout);
 }
+
+#if 0
 static int i2c_is_stat_int(i2c_t *obj)
 {
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
@@ -542,6 +535,7 @@ static int i2c_is_stop_det(i2c_t *obj)
 
     return ! (i2c_base->CTL & I2C_CTL_STO_Msk);
 }
+#endif
 
 static int i2c_is_trsn_done(i2c_t *obj)
 {
@@ -560,7 +554,6 @@ static int i2c_is_trsn_done(i2c_t *obj)
 
 static int i2c_is_tran_started(i2c_t *obj)
 {
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     int started;
     int inten_back;
     
@@ -589,7 +582,6 @@ static void i2c_irq(i2c_t *obj)
 {
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     uint32_t status;
-    int data_recv = 0;
     
     if (I2C_GET_TIMEOUT_FLAG(i2c_base)) {
         I2C_ClearTimeoutFlag(i2c_base);
