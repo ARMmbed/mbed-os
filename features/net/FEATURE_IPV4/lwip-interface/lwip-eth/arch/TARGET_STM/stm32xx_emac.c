@@ -448,3 +448,31 @@ void eth_arch_disable_interrupts(void)
 {
     NVIC_DisableIRQ(ETH_IRQn);
 }
+
+/** This returns a unique 6-byte MAC address, based on the device UID
+*  This function overrides hal/common/mbed_interface.c function
+*  @param mac A 6-byte array to write the MAC address
+*/
+void mbed_mac_address(char *mac) {
+    unsigned char ST_mac_addr[3] = {0x00, 0x80, 0xe1}; // default STMicro mac address
+
+    // Read unic id
+#if defined (TARGET_STM32F2)
+    uint32_t word0 = *(uint32_t *)0x1FFF7A10;
+#elif defined (TARGET_STM32F4)
+    uint32_t word0 = *(uint32_t *)0x1FFF7A10;
+#elif defined (TARGET_STM32F7)
+    uint32_t word0 = *(uint32_t *)0x1FF0F420;
+#else
+    #error MAC address can not be derived from target unique Id
+#endif
+
+    mac[0] = ST_mac_addr[0];
+    mac[1] = ST_mac_addr[1];
+    mac[2] = ST_mac_addr[2];
+    mac[3] = (word0 & 0x00ff0000) >> 16;
+    mac[4] = (word0 & 0x0000ff00) >> 8;
+    mac[5] = (word0 & 0x000000ff);
+
+    return;
+}
