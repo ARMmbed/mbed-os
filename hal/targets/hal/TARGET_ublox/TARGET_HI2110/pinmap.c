@@ -98,11 +98,9 @@ void pin_function(PinName pin, int function)
     /* Power the pin */
 #ifdef TARGET_SARA_NBIOT
     /* On Sara NBIoT, GPIO pin 19 has to be high to power GPIO pins 0 to 10 */
-    if ((pin >= p0) && (pin <= p10))
-    {
+    if ((pin >= p0) && (pin <= p10)) {
         /* Grab pin 19 as a GPIO if we don't have it already */
-        if (get_owner(p19) != 0x03)
-        {
+        if (get_owner(p19) != 0x03) {
             pio_func_reg = func_reg (p19);
             *pio_func_reg = (*pio_func_reg & ~(clr_mask(p19))) | set_mask(p19, 1); /* 1 == PIN_FUNCTION_GPIO */
 
@@ -125,8 +123,7 @@ void pin_mode(PinName pin, PinMode mode)
 {
     MBED_ASSERT(pin != (PinName)NC);
 
-    switch (mode)
-    {
+    switch (mode) {
         case PullUp:
         {
             MBED_ASSERT(false);  /* Not currently supported on Boudica */

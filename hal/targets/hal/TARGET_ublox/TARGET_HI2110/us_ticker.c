@@ -105,23 +105,18 @@ static inline uint32_t divide_by_48(uint32_t x)
 /* Timer0 handler */
 void IRQ1_TMR0_Handler(void)
 {
-    if (g_initialised)
-    {
+    if (g_initialised) {
         /* Increment the overflow count and set the increment
          * value for next time */
         g_us_overflow += g_us_overflow_increment;
         g_us_overflow_increment = USECONDS_PER_FULL_TIMER0_RUN;
 
         /* Now handle the user interrupt case */
-        if (g_user_interrupt)
-        {
-            if (g_timer_extra_loops_done < g_timer_extra_loops_required)
-            {
+        if (g_user_interrupt) {
+            if (g_timer_extra_loops_done < g_timer_extra_loops_required) {
                 /* Let the timer go round again */
                 g_timer_extra_loops_done++;
-            }
-            else
-            {
+            } else {
                 /* We've done with looping around for a user interrupt */
                 g_user_interrupt = false;
 
@@ -140,8 +135,7 @@ void IRQ1_TMR0_Handler(void)
 
 void us_ticker_init(void)
 {
-    if (!g_initialised)
-    {
+    if (!g_initialised) {
         /* Reset the globals */
         g_timer_extra_loops_done = 0;
         g_timer_extra_loops_required = 0;
@@ -166,8 +160,7 @@ uint32_t us_ticker_read()
     uint32_t timeValue;
 
     /* This can be called before initialisation has been performed */
-    if (!g_initialised)
-    {
+    if (!g_initialised) {
         us_ticker_init();
     }
 
@@ -202,8 +195,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     /* Establish how far we're being asked to move */
     timeDelta = (int32_t) ((uint32_t) timestamp - us_ticker_read());
 
-    if (timeDelta <= 0)
-    {
+    if (timeDelta <= 0) {
         /* Make delta positive if it's not, it will expire pretty quickly */
         /* Note: can't just call us_ticker_irq_handler() directly as we
          * may already be in it and will overflow the stack */

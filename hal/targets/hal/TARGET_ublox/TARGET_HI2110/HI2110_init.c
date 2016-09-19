@@ -54,8 +54,7 @@ static CORES get_owner(PIN pin)
      */
     value = 0x03 & (*pio_owner_reg >> pio_owner_shift);
 
-    switch (value)
-    {
+    switch (value) {
         case 0:
         {
             owner = CORES_NONE;
@@ -99,8 +98,7 @@ void HI2110_init(void)
      * at the array.
      * Any items marked as 1 or 2 belong to the security or protocol
      * cores.  Otherwise they are up for grabs. */
-    for (uint8_t x = 0; x < 20; x++)
-    {
+    for (uint8_t x = 0; x < 20; x++) {
         owner[x] = get_owner(x);
     }
 }

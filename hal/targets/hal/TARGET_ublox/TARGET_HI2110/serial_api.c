@@ -76,8 +76,7 @@
  * ----------------------------------------------------------------*/
 
 /* Enum to identify the interrupt to the UART handler */
-typedef enum
-{
+typedef enum {
     IRQ_UART_ID_0_AND_LP,
     IRQ_UART_ID_1,
     NUM_IRQ_IDS
@@ -115,8 +114,7 @@ static void init_config(serial_t *obj)
 {
     uint32_t x;
 
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             pin_function(obj->rx_pin, PIN_FUNCTION_LP_UART);
@@ -211,8 +209,7 @@ static void deinit_config(serial_t *obj)
     /* Disable everything */
     obj->reg_base->UARTCR = 0;
 
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             CLKEN_REG_BITCLR = UARTLP_CTRL | UART0_CTRL;
@@ -290,8 +287,7 @@ static void set_baud(serial_t *obj, uint32_t baud_rate)
 /* Set the NVIC bits */
 static void irq_enable(serial_t *obj)
 {
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             NVIC_EnableIRQ(UART0_IRQn);
@@ -319,8 +315,7 @@ static void irq_enable(serial_t *obj)
 /* Unset the NVIC bits */
 static void irq_disable(serial_t *obj)
 {
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             NVIC_DisableIRQ(UART0_IRQn);
@@ -351,10 +346,8 @@ void IRQ7_UART0_Handler()
     uint32_t id = serial_irq_ids[IRQ_UART_ID_0_AND_LP];
 
     /* Check Rx and Rx Timeout bit */
-    if (UART0_REG.UARTMIS & ((1 << 4) | (1 << 6)))
-    {
-        if (id != 0)
-        {
+    if (UART0_REG.UARTMIS & ((1 << 4) | (1 << 6))) {
+        if (id != 0) {
             irq_handler(id, RxIrq);
             /* Reading the character clears the interrupt,
              * no way to protect against another arriving
@@ -362,10 +355,8 @@ void IRQ7_UART0_Handler()
         }
     }
     /* Check Tx bit */
-    if (UART0_REG.UARTMIS & (1 << 5))
-    {
-        if (id != 0)
-        {
+    if (UART0_REG.UARTMIS & (1 << 5)) {
+        if (id != 0) {
             irq_handler(id, TxIrq);
         }
         /* Not sure what clears the interrupt so clear it explicitly */
@@ -379,10 +370,8 @@ void IRQ8_UART1_Handler()
     uint32_t id = serial_irq_ids[IRQ_UART_ID_1];
 
     /* Check Rx and Rx Timeout bit */
-    if (UART1_REG.UARTMIS & ((1 << 4) | (1 << 6)))
-    {
-        if (id != 0)
-        {
+    if (UART1_REG.UARTMIS & ((1 << 4) | (1 << 6))) {
+        if (id != 0) {
             irq_handler(id, RxIrq);
         }
         /* Reading the character clears the interrupt,
@@ -390,10 +379,8 @@ void IRQ8_UART1_Handler()
          * while processing one */
     }
     /* Check Tx bit */
-    if (UART1_REG.UARTMIS & (1 << 5))
-    {
-        if (id != 0)
-        {
+    if (UART1_REG.UARTMIS & (1 << 5)) {
+        if (id != 0) {
             irq_handler(id, TxIrq);
         }
         /* Not sure what clears the interrupt so clear it explicitly */
@@ -406,20 +393,16 @@ void IRQ16_LPUART_Handler()
 {
     uint32_t id = serial_irq_ids[IRQ_UART_ID_0_AND_LP];
 
-    if (id != 0)
-    {
+    if (id != 0) {
         irq_handler(id, RxIrq);
 
         /* Another character might have arrived while
          * we are processing the last, so
          * check status bits 8 to 10 again and pend
          * interrupt if there's something there */
-        if (((LP_UART_STATUS >> 8) & 0x07) != 0)
-        {
+        if (((LP_UART_STATUS >> 8) & 0x07) != 0) {
             NVIC_SetPendingIRQ(LPUART_IRQn);
-        }
-        else
-        {
+        } else {
             LP_UART_CTRL |= 1 << 27; /* Clear the interrupt */
         }
     }
@@ -451,18 +434,14 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
      * that here if the Tx pin is UART1_TX. */
 
     /* Wait for the clock to be stable */
-    while ((clock < CLK_FREQ_LOWTARGET) || (clock > CLK_FREQ_HIGHTARGET))
-    {
+    while ((clock < CLK_FREQ_LOWTARGET) || (clock > CLK_FREQ_HIGHTARGET)) {
         clock = CLK_FREQ_DIG_CLKS;
     }
 
-    if (tx == UART1_TX)
-    {
+    if (tx == UART1_TX) {
         /* Use UART1 for Rx and Tx */
         obj->config = SERIAL_CONFIG_UART1_RX_UART1_TX;
-    }
-    else
-    {
+    } else {
         /* Use LP_UART for Rx, UART0 for Tx */
         obj->config = SERIAL_CONFIG_UARTLP_RX_UART0_TX;
     }
@@ -477,8 +456,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     serial_baud(obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
 
-    if (tx == UART0_TX)
-    {
+    if (tx == UART0_TX) {
         /* The UART0 pins are the stdio pins */
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(stdio_uart));
@@ -487,8 +465,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
 void serial_free(serial_t *obj)
 {
-    if (obj->tx_pin == UART0_TX)
-    {
+    if (obj->tx_pin == UART0_TX) {
         stdio_uart_inited = 0;
     }
 
@@ -508,8 +485,7 @@ void serial_baud(serial_t *obj, int baudrate)
     irq_setting_t irq_rx_setting = obj->irq_rx_setting;
     irq_setting_t irq_tx_setting = obj->irq_tx_setting;
 
-    if ((obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) && (baudrate != 9600))
-    {
+    if ((obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) && (baudrate != 9600)) {
         /* If we were on LP UART but the baud rate is not 9600 then
          * switch to the standard UART (as the LP UART can't go any higher
          * because it's clocked from 32 kHz) */
@@ -517,9 +493,7 @@ void serial_baud(serial_t *obj, int baudrate)
         obj->config = SERIAL_CONFIG_UART0_RX_UART0_TX;
         init_config(obj);
         switch_port_config = true;
-    }
-    else if ((obj->config == SERIAL_CONFIG_UART0_RX_UART0_TX) && (baudrate == 9600))
-    {
+    } else if ((obj->config == SERIAL_CONFIG_UART0_RX_UART0_TX) && (baudrate == 9600)) {
         /* If we were on UART0 but the baud rate is 9600 then switch to the
          * LP UART for receive */
         deinit_config(obj);
@@ -531,29 +505,24 @@ void serial_baud(serial_t *obj, int baudrate)
     /* Disable UART while writing to control registers */
     obj->reg_base->UARTCR &= ~(1 << 0);
 
-    if (switch_port_config)
-    {
+    if (switch_port_config) {
         /* If the port was switched, switch the port configuration also */
-        if (format_set)
-        {
+        if (format_set) {
             /* This serial port has been previously set up so switch the
              * settings across to this new configuration */
             serial_format(obj, data_bits, parity, stop_bits);
         }
-        if (irq_rx_setting != IRQ_NOT_SET)
-        {
+        if (irq_rx_setting != IRQ_NOT_SET) {
             /* Do the same for Rx interrupts, if they were set */
             serial_irq_set(obj, RxIrq, (irq_rx_setting == IRQ_ON));
         }
-        if (irq_tx_setting != IRQ_NOT_SET)
-        {
+        if (irq_tx_setting != IRQ_NOT_SET) {
             /* Do the same for Tx interrupts, if they were set */
             serial_irq_set(obj, TxIrq, (irq_tx_setting == IRQ_ON));
         }
     }
 
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             /* Set LP UART to 9600 (numerator 75 (0x4B), denominator 256 (00 == 256)) */
@@ -591,8 +560,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     /* The LP UART is different to UARTs 0 and 1 so deal with it
      * explicitly when required */
-    if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX)
-    {
+    if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) {
         lp_also = true;
     }
 
@@ -601,28 +569,23 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     /* Set data bits (bits 5 and 6 of the UART0/1 register, bits 18 and 19 of the LP UART register) */
     obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H & ~(0x03 << 5)) | (REGISTER_DATA_BITS(data_bits) << 5);
-    if (lp_also)
-    {
+    if (lp_also) {
         LP_UART_CTRL = (LP_UART_CTRL & ~(0x03 << 18)) | (REGISTER_DATA_BITS(data_bits) << 18);
     }
     obj->format.data_bits = (uint8_t) data_bits;
 
     /* Set stop bits (bit 7 of the UART0/1 register) (there is no such setting for the LP UART) */
-    if (stop_bits == NUM_UART_STOP_BITS_1)
-    {
+    if (stop_bits == NUM_UART_STOP_BITS_1) {
         /* Clear 2-stop-bits bit */
         obj->reg_base->UARTLCR_H &= ~(1 << 7);
-    }
-    else
-    {
+    } else {
         /* Set 2-stop-bits bit */
         obj->reg_base->UARTLCR_H |= 1 << 7;
     }
     obj->format.stop_bits = (uint8_t) stop_bits;
 
     /* Set parity */
-    switch (parity)
-    {
+    switch (parity) {
         case ParityNone:
         {
             /* Disable parity */
@@ -682,18 +645,15 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     bool lp_also = false;
 
-    if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX)
-    {
+    if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) {
         lp_also = true;
     }
 
     /* Disable UART while writing to control registers */
     obj->reg_base->UARTCR &= ~(1 << 0);
 
-    if (enable)
-    {
-        switch (irq)
-        {
+    if (enable) {
+        switch (irq) {
             case RxIrq:
             {
                 /* Bit 4 for Rx and bit 6 for Rx Timeout */
@@ -721,11 +681,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             }
             break;
         }
-    }
-    else
-    {
-        switch (irq)
-        {
+    } else {
+        switch (irq) {
             case RxIrq:
             {
                 /* Bit 4  for Rx and bit 6 for Rx Timeout */
@@ -752,8 +709,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             break;
         }
 
-        if ((obj->irq_rx_setting == IRQ_OFF) && (obj->irq_tx_setting == IRQ_OFF))
-        {
+        if ((obj->irq_rx_setting == IRQ_OFF) && (obj->irq_tx_setting == IRQ_OFF)) {
             irq_disable(obj);
         }
     }
@@ -774,8 +730,7 @@ int serial_getc(serial_t *obj)
     while (!serial_readable(obj)) {}
 
     /* Read the data */
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             data = (uint8_t) LP_UART_DATA;
@@ -810,8 +765,7 @@ int serial_readable(serial_t *obj)
 {
     bool readable = false;
 
-    switch (obj->config)
-    {
+    switch (obj->config) {
         case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
         {
             /* Check the status register, bits 8 to 10 indicate

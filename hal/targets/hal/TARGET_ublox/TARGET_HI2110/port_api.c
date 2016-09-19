@@ -44,10 +44,8 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     obj->reg_drv = &GPIO_DRIVE;
 
     /* Claim the pins */
-    for (uint8_t x = 0; x < NUM_PINS; x++)
-    {
-        if (mask & (1ul << x))
-        {
+    for (uint8_t x = 0; x < NUM_PINS; x++) {
+        if (mask & (1ul << x)) {
             pin_function(x, PIN_FUNCTION_GPIO);
         }
     }
@@ -58,8 +56,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 
 void port_mode(port_t *obj, PinMode mode)
 {
-    switch (mode)
-    {
+    switch (mode) {
         case PullUp:
         {
             MBED_ASSERT(false);  /* Not currently supported on Boudica */
@@ -82,8 +79,7 @@ void port_mode(port_t *obj, PinMode mode)
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-    switch (dir)
-    {
+    switch (dir) {
         case PIN_INPUT:
         {
             *(obj->reg_dir) &= ~(obj->mask);

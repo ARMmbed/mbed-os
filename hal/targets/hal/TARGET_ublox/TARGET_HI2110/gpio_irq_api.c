@@ -52,23 +52,16 @@ static bool initialised = false;
 
 void IRQ5_GPIO_Handler()
 {
-    if (initialised)
-    {
-        for (uint8_t i = 0; i < sizeof (channel_ids) / sizeof (channel_ids[0]); i++)
-        {
+    if (initialised) {
+        for (uint8_t i = 0; i < sizeof (channel_ids) / sizeof (channel_ids[0]); i++) {
             uint8_t id = channel_ids[i];
             uint32_t mask = 1 << id;
     
-            if (id != 0)
-            {
-                if (GPIO_IRQ | mask)
-                {
-                    if (GPIO_INT_RISE | mask)
-                    {
+            if (id != 0) {
+                if (GPIO_IRQ | mask) {
+                    if (GPIO_INT_RISE | mask) {
                         irq_handler(id, IRQ_RISE);
-                    }
-                    else if (GPIO_INT_FALL | mask)
-                    {
+                    } else if (GPIO_INT_FALL | mask) {
                         irq_handler(id, IRQ_FALL);
                     }
                 }
@@ -90,14 +83,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 {
     bool return_value = -1;
 
-    if (initialised)
-    {
+    if (initialised) {
         return_value = 0;
-    }
-    else
-    {
-        if (pin != NC)
-        {
+    } else {
+        if (pin != NC) {
             MBED_ASSERT (pin < NUM_PINS);
 
             irq_handler      = handler;
@@ -131,25 +120,18 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     uint32_t mask = 1 << obj->ch;
 
-    if (enable)
-    {
-        if (event == IRQ_RISE)
-        {
+    if (enable) {
+        if (event == IRQ_RISE) {
             GPIO_INT_RISE_BITSET |= mask;
-        }
-        else if (event == IRQ_FALL)
-        {
+        } else if (event == IRQ_FALL) {
             GPIO_INT_FALL_BITSET |= mask;
         }
     }
     else
     {
-        if (event == IRQ_RISE)
-        {
+        if (event == IRQ_RISE) {
             GPIO_INT_RISE_BITSET &= ~mask;
-        }
-        else if (event == IRQ_FALL)
-        {
+        } else if (event == IRQ_FALL) {
             GPIO_INT_FALL_BITSET &= ~mask;
         }
     }

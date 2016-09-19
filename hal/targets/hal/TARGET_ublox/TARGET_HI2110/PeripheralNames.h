@@ -26,16 +26,14 @@ extern "C" {
 #define STDIO_UART_TX     UART0_TX
 #define STDIO_UART_RX     UART0_RX
 
-typedef enum
-{
+typedef enum {
     SERIAL_CONFIG_UARTLP_RX_UART0_TX,
     SERIAL_CONFIG_UART0_RX_UART0_TX,
     SERIAL_CONFIG_UART1_RX_UART1_TX,
     MAX_NUM_SERIAL_CONFIGS
 } SerialConfig;
 
-typedef enum
-{
+typedef enum {
     PIN_FUNCTION_UNCLAIMED = 0,
     PIN_FUNCTION_GPIO = 1,
     PIN_FUNCTION_PWM0 = 2,

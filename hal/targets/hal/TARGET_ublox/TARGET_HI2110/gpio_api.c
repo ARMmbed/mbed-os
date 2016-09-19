@@ -39,8 +39,7 @@
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    if (pin == (PinName)NC)
-    {
+    if (pin == (PinName)NC) {
         return;
     }
     
@@ -67,8 +66,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
 
-    switch (direction)
-    {
+    switch (direction) {
         case PIN_INPUT:
         {
             *(obj->reg_dir) &= ~(obj->mask);

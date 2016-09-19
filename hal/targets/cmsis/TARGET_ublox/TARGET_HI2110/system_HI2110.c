@@ -47,8 +47,7 @@ void SystemInit(void)
     uint32_t x = __get_xPSR();
 
     /* Check for interrupt context and reboot needed. */
-    if (x & 0x3f)
-    {
+    if (x & 0x3f) {
         /* Processor is in an interrupt context, reset the core by triggering
          * the reset vector using the SYSRESETREQ bit in the AIRCR register */
         x =  SCB->AIRCR;
@@ -77,14 +76,11 @@ void SystemInit(void)
 
 void SystemAllowSleep(bool sleepAllowed)
 {
-    if (sleepAllowed)
-    {
+    if (sleepAllowed) {
         /* Set deep sleep, though not on exit */
         SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
         SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
-    }
-    else
-    {
+    } else {
         /* Unset deep sleep */
         SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
     }

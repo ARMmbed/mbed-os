@@ -27,15 +27,13 @@
 extern "C" {
 #endif
 
-typedef enum
-{
+typedef enum {
     IRQ_NOT_SET,
     IRQ_ON,
     IRQ_OFF
 } irq_setting_t;
 
-struct port_s
-{
+struct port_s {
     __IO uint32_t *reg_dir;
     __IO uint32_t *reg_out;
     __IO uint32_t *reg_val;
@@ -44,14 +42,12 @@ struct port_s
     uint32_t mask;
 };
 
-struct gpio_irq_s
-{
+struct gpio_irq_s {
     /* Don't bother with having a port number here as there's only one */
     uint32_t ch;   /* Corresponds to the interrupt pin */
 };
 
-struct serial_s
-{
+struct serial_s {
     SerialConfig config;
     PinName rx_pin;
     PinName tx_pin;
@@ -68,8 +64,7 @@ struct serial_s
     irq_setting_t irq_tx_setting;
 };
 
-struct sleep_s
-{
+struct sleep_s {
 };
 
 #include "gpio_object.h"

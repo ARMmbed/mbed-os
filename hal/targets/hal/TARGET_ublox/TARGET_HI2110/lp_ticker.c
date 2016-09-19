@@ -116,8 +116,7 @@ static inline uint32_t ticksToUSeconds(uint32_t x)
      * probably too much */
     uint64_t result = ((((uint64_t) x) * 1000000) >> 15);
 
-    if (result > 0xFFFFFFFF)
-    {
+    if (result > 0xFFFFFFFF) {
         result = 0xFFFFFFFF;
     }
 
@@ -178,10 +177,8 @@ void IRQ0_RTC_Handler(void)
 {
     /* Have seen this interrupt occurring before initialisation, so guard
      * against that */
-    if (g_initialised)
-    {
-        if (g_user_interrupt_pending)
-        {
+    if (g_initialised) {
+        if (g_user_interrupt_pending) {
             /* If there was a user interrupt pending, set it now */
             set_interrupt_to_user_value();
 
@@ -193,11 +190,8 @@ void IRQ0_RTC_Handler(void)
             g_overflow_count++;
             g_last_32bit_overflow_value = g_next_32bit_overflow_value;
             INCREMENT_MOD(g_next_32bit_overflow_value, MODULO_32BIT);
-        }
-        else
-        {
-            if (g_user_interrupt_set)
-            {
+        } else {
+            if (g_user_interrupt_set) {
                 /* It's a user interrupt, so wake from sleep but don't
                  * increment the overflow count as this is not an
                  * overflow interrupt */
@@ -205,9 +199,7 @@ void IRQ0_RTC_Handler(void)
                 /* Reset the user interrupt flag and call mbed */
                 g_user_interrupt_set = false;
                 lp_ticker_irq_handler();
-            }
-            else
-            {
+            } else {
                 /* Increment the count as this was a 32-bit overflow
                  * interrupt rather than a user interrupt */
                 g_overflow_count++;
@@ -231,8 +223,7 @@ void IRQ0_RTC_Handler(void)
 /* This will be called once at start of day to get the RTC running */
 void lp_ticker_init(void)
 {
-    if (!g_initialised)
-    {
+    if (!g_initialised) {
         /* Reset the overflow count and the flags */
         g_overflow_count = 0;
         g_user_interrupt_pending = false;
@@ -263,8 +254,7 @@ uint32_t lp_ticker_read(void)
     core_util_critical_section_enter();
 
     /* Just in case this is called before initialisation has been performed */
-    if (!g_initialised)
-    {
+    if (!g_initialised) {
         lp_ticker_init();
     }
 
@@ -292,8 +282,7 @@ void lp_ticker_set_interrupt(timestamp_t time)
     g_user_interrupt_set = false;
 
     /* Handle time slipping into the past */
-    if (timeOffset > 0xEFFFFFFF)
-    {
+    if (timeOffset > 0xEFFFFFFF) {
         timeOffset = 100;
     }
 
@@ -308,25 +297,18 @@ void lp_ticker_set_interrupt(timestamp_t time)
      * of 'time' would occur after the overflow point,
      * put the change of compare-value off until afterwards. */
     /* TODO: this needs proper testing. */
-    if (g_next_32bit_overflow_value > g_next_compare_value)
-    {
+    if (g_next_32bit_overflow_value > g_next_compare_value) {
         /* The easy case, no overlap */
-    }
-    else
-    {
+    } else {
         /* Could be because g_next_compare_value has wrapped (around the
          * 48-bit limit of the RTC) */
-        if (g_next_32bit_overflow_value - g_next_compare_value >= MODULO_32BIT)
-        {
+        if (g_next_32bit_overflow_value - g_next_compare_value >= MODULO_32BIT) {
             /* The wrap case, we're OK */
-        }
-        else
-        {
+        } else {
             /* There is an overlap, apply the value later */
             g_user_interrupt_pending = true;
 
-            if (g_next_32bit_overflow_value == g_next_compare_value)
-            {
+            if (g_next_32bit_overflow_value == g_next_compare_value) {
                 /* If they are on top of each other, bump this
                  * one forward to avoid losing the interrupt */
                 INCREMENT_MOD(g_next_compare_value, 2);
@@ -334,8 +316,7 @@ void lp_ticker_set_interrupt(timestamp_t time)
         }
     }
 
-    if (!g_user_interrupt_pending)
-    {
+    if (!g_user_interrupt_pending) {
         /* Make the change immediately */
         set_interrupt_to_user_value();
     }
