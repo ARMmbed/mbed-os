@@ -48,6 +48,7 @@ u8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
 
 extern void ethernetif_input(u16_t len, u8_t *buf, u32_t s, u32_t ns);
 extern void ethernetif_loopback_input(struct pbuf *p);
+extern void ack_emac_rx_isr(void);
 
 // PTP source clock is 84MHz (Real chip using PLL). Each tick is 11.90ns
 // Assume we want to set each tick to 100ns.
@@ -256,7 +257,6 @@ unsigned int m_status;
 
 void EMAC_RX_IRQHandler(void)
 {
-    unsigned int cur_entry, status;
 
     m_status = EMAC->INTSTS & 0xFFFF;
     EMAC->INTSTS = m_status;
