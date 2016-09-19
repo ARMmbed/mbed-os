@@ -31,6 +31,18 @@ if __name__ == "__main__":
     from tools.targets import TARGET_MAP
     toolchain = GCC_ARM(TARGET_MAP["Super_Target"])
     resources = toolchain.scan_resources(".")
+    for src in resources.headers:
+        with open(src) as fd:
+            contents = fd.read()
+        with open(src, "w+") as fd:
+            fd.write("/** \\addtogroup feature_mbed_os */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(contents))
+    for name, res in resources.features.iteritems():
+        for src in res.headers:
+            with open(src) as fd:
+                contents = fd.read()
+            with open(src, "w+") as fd:
+                fd.write("/** \\addtogroup feature_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(name.lower(),contents))
+
     generate_documentation(sum(map(lambda x:x.headers, resources.features.values()), resources.headers),
                            join(dirname(dirname(__file__)), "mbed-docs"))
     print resources
