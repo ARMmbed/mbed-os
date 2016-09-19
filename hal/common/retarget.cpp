@@ -629,6 +629,31 @@ extern "C" void exit(int return_code) {
 } //namespace std
 #endif
 
+#if defined(TOOLCHAIN_ARM)
+
+// This series of function disable the registration of global destructors
+// in a dynamic table which will be called when the application exit.
+// In mbed, program never exit properly, it dies.
+// More informations about this topic for ARMCC here:
+// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/6449.html
+extern "C" {
+int __aeabi_atexit(void *object, void (*dtor)(void* /*this*/), void *handle) {
+    return 1;
+}
+
+int __cxa_atexit(void (*dtor)(void* /*this*/), void *object, void *handle) {
+    return 1;
+}
+
+void __cxa_finalize(void *handle) {
+}
+
+} // end of extern "C"
+
+
+#endif
+
+
 
 namespace mbed {
 
