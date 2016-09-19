@@ -49,19 +49,59 @@ enum {
     word_write
 };
 
-int xdot_eeprom_write_byte(uint32_t addr, uint8_t data);
+static int xdot_eeprom_write_byte(uint32_t addr, uint8_t data) {
+    if (addr > XDOT_EEPROM_SIZE - 1) {
+        return -1;
+    }
 
-int xdot_eeprom_write_hword(uint32_t addr, uint16_t data);
+    if (HAL_FLASHEx_DATAEEPROM_Program(TYPEPROGRAMDATA_BYTE, XDOT_EEPROM_START + addr, (uint32_t)data) != HAL_OK) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
 
-int xdot_eeprom_write_word(uint32_t addr, uint32_t data);
+static int xdot_eeprom_write_hword(uint32_t addr, uint16_t data) {
+    if (addr > XDOT_EEPROM_SIZE - 2) {
+        return -1;
+    }
 
-int xdot_eeprom_read_byte(uint32_t addr, uint8_t* data);
+    if (HAL_FLASHEx_DATAEEPROM_Program(TYPEPROGRAMDATA_HALFWORD, XDOT_EEPROM_START + addr, (uint32_t)data) != HAL_OK) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+static int xdot_eeprom_write_word(uint32_t addr, uint32_t data) {
+    if (addr > XDOT_EEPROM_SIZE - 4) {
+        return -1;
+    }
+
+    if (HAL_FLASHEx_DATAEEPROM_Program(TYPEPROGRAMDATA_WORD, XDOT_EEPROM_START + addr, (uint32_t)data) != HAL_OK) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+static int xdot_eeprom_read_byte(uint32_t addr, uint8_t* data) {
+    if (addr > XDOT_EEPROM_SIZE - 1) {
+        return -1;
+    }
+
+    *data = (*((uint8_t*)(XDOT_EEPROM_START + addr)));
+
+    return 0;
+}
+
 
 int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
     uint32_t bytes_written = 0;
 
-    if (addr + size > XDOT_EEPROM_SIZE)
+    if (addr + size > XDOT_EEPROM_SIZE) {
         return -1;
+    }
 
     HAL_FLASHEx_DATAEEPROM_Unlock();
 
@@ -222,8 +262,9 @@ int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
 }
 
 int xdot_eeprom_read_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
-    if (addr + size > XDOT_EEPROM_SIZE)
+    if (addr + size > XDOT_EEPROM_SIZE) {
         return -1;
+    }
 
     HAL_FLASHEx_DATAEEPROM_Unlock();
 
@@ -239,41 +280,3 @@ int xdot_eeprom_read_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
     return 0;
 }
 
-int xdot_eeprom_write_byte(uint32_t addr, uint8_t data) {
-    if (addr > XDOT_EEPROM_SIZE - 1)
-        return -1;
-
-    if (HAL_FLASHEx_DATAEEPROM_Program(TYPEPROGRAMDATA_BYTE, XDOT_EEPROM_START + addr, (uint32_t)data) != HAL_OK)
-        return -1;
-    else
-        return 0;
-}
-
-int xdot_eeprom_write_hword(uint32_t addr, uint16_t data) {
-    if (addr > XDOT_EEPROM_SIZE - 2)
-        return -1;
-
-    if (HAL_FLASHEx_DATAEEPROM_Program(TYPEPROGRAMDATA_HALFWORD, XDOT_EEPROM_START + addr, (uint32_t)data) != HAL_OK)
-        return -1;
-    else
-        return 0;
-}
-
-int xdot_eeprom_write_word(uint32_t addr, uint32_t data) {
-    if (addr > XDOT_EEPROM_SIZE - 4)
-        return -1;
-
-    if (HAL_FLASHEx_DATAEEPROM_Program(TYPEPROGRAMDATA_WORD, XDOT_EEPROM_START + addr, (uint32_t)data) != HAL_OK)
-        return -1;
-    else
-        return 0;
-}
-
-int xdot_eeprom_read_byte(uint32_t addr, uint8_t* data) {
-    if (addr > XDOT_EEPROM_SIZE - 1)
-        return -1;
-
-    *data = (*((uint8_t*)(XDOT_EEPROM_START + addr)));
-
-    return 0;
-}

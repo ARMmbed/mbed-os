@@ -31,10 +31,10 @@
 #include "xdot_low_power.h"
 #include "stdio.h"
 
-uint32_t portA[6];
-uint32_t portB[6];
-uint32_t portC[6];
-uint32_t portH[6];
+static uint32_t portA[6];
+static uint32_t portB[6];
+static uint32_t portC[6];
+static uint32_t portH[6];
 
 void xdot_disable_systick_int() {
     SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
@@ -118,12 +118,15 @@ void xdot_enter_stop_mode() {
     HAL_PWREx_EnableFastWakeUp();
 
     // disable HSI, MSI, and LSI if they are running
-    if (RCC->CR & RCC_CR_HSION)
+    if (RCC->CR & RCC_CR_HSION) {
         RCC->CR &= ~RCC_CR_HSION;
-    if (RCC->CR & RCC_CR_MSION)
+    }
+    if (RCC->CR & RCC_CR_MSION) {
         RCC->CR &= ~RCC_CR_MSION;
-    if (RCC->CSR & RCC_CSR_LSION)
+    }
+    if (RCC->CSR & RCC_CSR_LSION) {
         RCC->CSR &= ~RCC_CSR_LSION;
+    }
 
     // configure USBTX & USBRX, LORA SPI, LORA_DIO, LORA_RESET, Secure Element, crystal pins, and SWD pins to analog nopull
     // the application must do the same with WAKE, GPIO*, UART1_*, I2C_*, and SPI_*
