@@ -798,7 +798,6 @@ void pre_main(void) {
     singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     malloc_mutex_id = osMutexCreate(osMutex(malloc_mutex));
     env_mutex_id = osMutexCreate(osMutex(env_mutex));
-    atexit(__libc_fini_array);
     __libc_init_array();
     main(0, NULL);
 }
