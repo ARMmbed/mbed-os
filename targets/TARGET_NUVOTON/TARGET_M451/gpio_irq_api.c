@@ -52,6 +52,24 @@ static struct nu_gpio_irq_var gpio_irq_var_arr[] = {
 
 #define NU_MAX_PORT     (sizeof (gpio_irq_var_arr) / sizeof (gpio_irq_var_arr[0]))
 
+#ifdef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE
+#define M451_GPIO_IRQ_DEBOUNCE_ENABLE MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE
+#else
+#define M451_GPIO_IRQ_DEBOUNCE_ENABLE 0
+#endif
+
+#ifdef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE
+#define M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE
+#else
+#define M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE GPIO_DBCTL_DBCLKSRC_LIRC
+#endif
+
+#ifdef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE
+#define M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE
+#else
+#define M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE GPIO_DBCTL_DBCLKSEL_16
+#endif
+
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
     if (pin == NC) {
@@ -68,14 +86,19 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->irq_handler = (uint32_t) handler;
     obj->irq_id = id;
 
+    GPIO_T *gpio_base = NU_PORT_BASE(port_index);
     //gpio_set(pin);
     
+#if M451_GPIO_IRQ_DEBOUNCE_ENABLE
     // Configure de-bounce clock source and sampling cycle time
-    GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_16);
+    GPIO_SET_DEBOUNCE_TIME(M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
+    GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
+#else
+    GPIO_DISABLE_DEBOUNCE(gpio_base, 1 << pin_index);
+#endif
     
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     
-    MBED_ASSERT(pin_index < NU_MAX_PIN_PER_PORT);
     var->obj_arr[pin_index] = obj;
     
     // NOTE: InterruptIn requires IRQ enabled by default.
@@ -106,7 +129,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     switch (event) {
         case IRQ_RISE:
             if (enable) {
-                GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
                 GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_RISING);
             }
             else {
@@ -116,7 +138,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         
         case IRQ_FALL:
             if (enable) {
-                GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
                 GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_FALLING);
             }
             else {
