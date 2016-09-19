@@ -90,6 +90,10 @@ struct can_s {
     int index;
 };
 
+struct rng_s {
+    RNG_HandleTypeDef handle;
+};
+
 #include "common_objects.h"
 #include "gpio_object.h"
 
