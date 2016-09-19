@@ -235,7 +235,7 @@ typedef enum {
     USBRX       = SERIAL_RX,
     I2C_SCL     = D15,
     I2C_SDA     = D14,
-    SPI_MOSI    = D11,
+    SPI_MOSI    = PB_5, // Conflict between D11 and RMII RX Data Valid (PA7)
     SPI_MISO    = D12,
     SPI_SCK     = D13,
     SPI_CS      = D10,
