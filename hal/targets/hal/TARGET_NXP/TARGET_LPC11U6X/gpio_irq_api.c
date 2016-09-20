@@ -59,7 +59,7 @@ void gpio_irq6(void) {handle_interrupt_in(6);}
 void gpio_irq7(void) {handle_interrupt_in(7);}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
-    // PINT only supprt PIO0_*, PIO1_* and from PIO2_0 to PIO0_7 interrupt
+    // PINT only supprt PIO0_*, PIO1_* and from PIO2_0 to PIO2_7 interrupt
     if (pin >= P2_8) return -1;
     
     irq_handler = handler;
@@ -79,7 +79,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     /* Enable AHB clock to the PIN, GPIO and IOCON domain. */
     LPC_SYSCON->SYSAHBCLKCTRL |= ((1 << 19) | (1 << 16) | (1 << 7));
     
-    LPC_SYSCON->PINTSEL[obj->ch] = ((((pin >> PORT_SHIFT) & 0x3) * 24) + ((pin >> PIN_SHIFT) & 0x1F));
+    /* Gets offset value for each port */
+    uint32_t offset;
+    switch ((pin >> PORT_SHIFT) & 0x3) {
+        case 0: offset = 0;  break; // PIO0[23:0]
+        case 1: offset = 24; break; // PIO1[31:0]
+        case 2: offset = 56; break; // PIO2[7:0]
+    }
+    /* Set the INTPIN number : offset + pin_number */
+    LPC_SYSCON->PINTSEL[obj->ch] = (offset + ((pin >> PIN_SHIFT) & 0x1F));
     
     // Interrupt Wake-Up Enable
     LPC_SYSCON->STARTERP0 |= (1 << obj->ch);
