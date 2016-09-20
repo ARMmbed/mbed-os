@@ -237,6 +237,7 @@ SECTIONS
          */
         *lwip_*.o(.bss*)
         *lwip_*.o(COMMON)
+        *mesh_system.o(.bss*)
        __bss_extern_end__ = .;
     } > RAM_EXTERN
     
