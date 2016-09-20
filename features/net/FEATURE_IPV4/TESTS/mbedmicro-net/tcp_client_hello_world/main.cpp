@@ -67,16 +67,14 @@ int main() {
         TEST_ASSERT_TRUE(found_200_ok);
         TEST_ASSERT_TRUE(found_hello);
 
-        result = true;
-        if (!found_200_ok) result = false;
-        if (!found_hello) result = false;
+        if (found_200_ok && found_hello) result = true;
 
         printf("HTTP: Received %d chars from server\r\n", ret);
         printf("HTTP: Received 200 OK status ... %s\r\n", found_200_ok ? "[OK]" : "[FAIL]");
         printf("HTTP: Received '%s' status ... %s\r\n", HTTP_HELLO_STR, found_hello ? "[OK]" : "[FAIL]");
         printf("HTTP: Received message:\r\n");
         printf("%s", buffer);
-		    sock.close();
+        sock.close();
     }
     else {
         printf("HTTP: ERROR\r\n");
