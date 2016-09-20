@@ -531,10 +531,10 @@
         "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
-        "progen": {"target": "frdm-kl82z"},
         "detect_code": ["0218"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "device_name": "MKL82Z128xxx7"
     },
     "KW24D": {
         "supported_form_factors": ["ARDUINO"],
@@ -544,10 +544,10 @@
         "is_disk_virtual": true,
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "progen": {"target": "frdm-kw24d"},
         "detect_code": ["0250"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "device_name": "MKW24D512xxx5"
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
@@ -599,6 +599,19 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name" : "MK66FN2M0xxx18"
+    },
+    "K82F": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["0217"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"],
+        "device_name" : "MK66FN256xxx15"
     },
     "NUCLEO_F030R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
