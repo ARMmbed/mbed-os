@@ -17,153 +17,219 @@ limitations under the License.
 """
 
 import sys
-from os import path, remove, rename
-import shutil
-ROOT = path.abspath(path.join(path.dirname(__file__), "..", "..", ".."))
+from os import remove, rename
+from os.path import join, dirname, exists, abspath
+ROOT = abspath(join(dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, ROOT)
 import argparse
+from argparse import ArgumentTypeError
+import sys
+from shutil import rmtree
+from collections import namedtuple
+from copy import copy
 
-from tools.export import EXPORTERS
-from tools.targets import TARGET_NAMES
+
+from tools.paths import EXPORT_DIR
 from tools.tests import TESTS
-from tools.project import setup_project
-from tools.project_api import print_results, export_project
-from tools.tests import test_name_known, Test
+from tools.build_api import get_mbed_official_release, RELEASE_VERSIONS
+from tools.test_api import find_tests
+from tools.project import export
+from Queue import Queue
+from threading import Thread, Lock
+from tools.project_api import print_results
+from tools.tests import test_name_known, test_known, Test
 from tools.export.exporters import FailedBuildException, \
                                    TargetNotSupportedException
 from tools.utils import argparse_force_lowercase_type, \
-                        argparse_force_uppercase_type, argparse_many
+                        argparse_many, columnate, args_error
+
+print_lock = Lock()
+
+def do_queue(Class, function, interable) :
+    q = Queue()
+    threads = [Class(q, function) for each in range(20)]
+    for thing in interable :
+        q.put(thing)
+    for each in threads :
+        each.setDaemon(True)
+        each.start()
+    q.join()
 
 
-class ProgenBuildTest(object):
+class Reader (Thread) :
+    def __init__(self, queue, func) :
+        Thread.__init__(self)
+        self.queue = queue
+        self.func = func
+
+    def start(self) :
+        sys.stdout.flush()
+        while not self.queue.empty() :
+            test = self.queue.get()
+            self.func(test)
+            self.queue.task_done()
+
+
+class ExportBuildTest(object):
     """Object to encapsulate logic for progen build testing"""
-    def __init__(self, desired_ides, mcus, tests):
+    def __init__(self, tests):
         """
         Initialize an instance of class ProgenBuildTest
         Args:
-            desired_ides: the IDEs you wish to make/build project files for
-            mcus: the mcus to specify in project files
-            tests: the test projects to make/build project files from
+            tests: array of TestCase instances
         """
-        self.ides = desired_ides
-        self.mcus = mcus
-        self.tests = tests
-
-    @property
-    def mcu_ide_pairs(self):
-        """Yields tuples of valid mcu, ide combinations"""
-        for mcu in self.mcus:
-            for ide in self.ides:
-                if mcu in EXPORTERS[ide].TARGETS:
-                    yield mcu, ide
+        self.total = len(tests)
+        self.counter = 0
+        self.successes = []
+        self.failures = []
+        self.skips = []
+        self.tests = [ExportBuildTest.test_case(test) for test in tests]
+        self.build_queue = Queue()
 
     @staticmethod
-    def handle_log_files(project_dir, tool, name):
-        """
-        Renames/moves log files
-        Args:
-            project_dir: the directory that contains project files
-            tool: the ide that created the project files
-            name: the name of the project
-            clean: a boolean value determining whether to remove the
-                   created project files
-        """
-        log = ''
-        if tool == 'uvision' or tool == 'uvision4':
-            log = path.join(project_dir, "build", "build_log.txt")
-        elif tool == 'iar':
-            log = path.join(project_dir, 'build_log.txt')
+    def test_case(case):
+        TestCase = namedtuple('TestCase', case.keys())
+        return TestCase(**case)
+
+    def handle_log(self,log):
         try:
             with open(log, 'r') as in_log:
                 print in_log.read()
-            log_name = path.join(path.dirname(project_dir), name + "_log.txt")
-
-            # check if a log already exists for this platform+test+ide
-            if path.exists(log_name):
+                sys.stdout.flush()
+            log_name = join(EXPORT_DIR, dirname(log) + "_log.txt")
+            if exists(log_name):
                 # delete it if so
                 remove(log_name)
             rename(log, log_name)
         except IOError:
             pass
 
-    def generate_and_build(self, clean=False):
+    def batch_tests(self, clean=False):
+        """Performs all exports of self.tests
+        Peroform_exports will fill self.build_queue.
+        This function will empty self.build_queue and call the test's
+        IDE's build function."""
+        do_queue(Reader, self.perform_exports, self.tests)
+        self.counter = 0
+        self.total = self.build_queue.qsize()
+        while not self.build_queue.empty():
+            build = self.build_queue.get()
+            self.counter +=1
+            exporter = build[0]
+            test_case = build[1]
+            self.display_counter("Building test case  %s::%s\t%s"
+                                 % (test_case.mcu,
+                                    test_case.ide,
+                                    test_case.name))
+            try:
+                exporter.progen_build()
+            except FailedBuildException:
+                self.failures.append("%s::%s\t%s" % (test_case.mcu,
+                                                     test_case.ide,
+                                                     test_case.name))
+            else:
+                self.successes.append("%s::%s\t%s" % (test_case.mcu,
+                                                      test_case.ide,
+                                                      test_case.name))
+            self.handle_log(exporter.generated_files[-1])
+            if clean:
+                rmtree(exporter.export_dir)
+
+    def display_counter (self, message) :
+        with print_lock:
+            sys.stdout.write("{}/{} {}".format(self.counter, self.total,
+                                               message) +"\n")
+            sys.stdout.flush()
+
+    def perform_exports(self, test_case):
         """
-        Generate the project file and build the project
+        Generate the project file for test_case and fill self.build_queue
         Args:
-            clean: a boolean value determining whether to remove the
-                   created project files
-
-        Returns:
-            successes: a list of strings that contain the mcu, ide, test
-                       properties of a successful build test
-            skips: a list of strings that contain the mcu, ide, test properties
-                   of a skipped test (if the ide does not support mcu)
-            failures: a list of strings that contain the mcu, ide, test
-                       properties of a failed build test
-
+            test_case: object of type TestCase
         """
-        successes = []
-        failures = []
-        skips = []
-        for mcu, ide in self.mcu_ide_pairs:
-            for test in self.tests:
-                export_location, name, src, lib = setup_project(ide, mcu,
-                                                                program=test)
-                test_name = Test(test).id
-                try:
-                    exporter = export_project(src, export_location, mcu, ide,
-                                              clean=clean, name=name,
-                                              libraries_paths=lib)
-                    exporter.progen_build()
-                    successes.append("%s::%s\t%s" % (mcu, ide, test_name))
-                except FailedBuildException:
-                    failures.append("%s::%s\t%s" % (mcu, ide, test_name))
-                except TargetNotSupportedException:
-                    skips.append("%s::%s\t%s" % (mcu, ide, test_name))
+        sys.stdout.flush()
+        self.counter += 1
+        name_str = ('%s_%s_%s') % (test_case.mcu, test_case.ide, test_case.name)
+        self.display_counter("Exporting test case  %s::%s\t%s" % (test_case.mcu,
+                                                                  test_case.ide,
+                                                                  test_case.name))
 
-                ProgenBuildTest.handle_log_files(export_location, ide, name)
-                if clean:
-                    shutil.rmtree(export_location, ignore_errors=True)
-        return successes, failures, skips
+        try:
+            exporter = export(test_case.mcu, test_case.ide,
+                              project_id=test_case.id, zip_proj=None,
+                              clean=True, src=test_case.src,
+                              export_path=join(EXPORT_DIR,name_str),
+                              silent=True)
+            exporter.generated_files.append(join(EXPORT_DIR,name_str,test_case.log))
+            self.build_queue.put((exporter,test_case))
+        except TargetNotSupportedException:
+            self.skips.append("%s::%s\t%s" % (test_case.mcu, test_case.ide,
+                                              test_case.name))
+            # Check if the specified name is in all_os_tests
+
+
+def check_valid_mbed_os(test):
+    """Check if the specified name is in all_os_tests
+    args:
+        test: string name to index all_os_tests
+    returns: tuple of test_name and source location of test,
+        as given by find_tests"""
+    all_os_tests = find_tests(ROOT, "K64F", "ARM")
+    if test in all_os_tests.keys():
+        return (test, all_os_tests[test])
+    else:
+        supported = columnate([t for t in all_os_tests.keys()])
+        raise ArgumentTypeError("Program with name '{0}' not found. "
+                                "Supported tests are: \n{1}".format(test,supported))
+def check_version(version):
+    """Check if the specified version is valid
+    args:
+        version: integer versio of mbed
+    returns:
+        version if it is valid"""
+    if version not in RELEASE_VERSIONS:
+        raise ArgumentTypeError("Choose from versions : %s"%", ".join(RELEASE_VERSIONS))
+    return version
 
 
 def main():
     """Entry point"""
-    toolchainlist = ["iar", "uvision", "uvision4"]
-    default_tests = [test_name_known("MBED_BLINKY")]
-    targetnames = TARGET_NAMES
-    targetnames.sort()
+
+    ide_list = ["iar", "uvision", "uvision4"]
+
+    default_v2 = [test_name_known("MBED_BLINKY")]
+    default_v5 = [check_valid_mbed_os('tests-mbedmicro-rtos-mbed-basic')]
 
     parser = argparse.ArgumentParser(description=
                                      "Test progen builders. Leave any flag off"
                                      " to run with all possible options.")
     parser.add_argument("-i",
                         dest="ides",
-                        default=toolchainlist,
+                        default=ide_list,
                         type=argparse_many(argparse_force_lowercase_type(
-                            toolchainlist, "toolchain")),
-                        help="The target IDE: %s"% str(toolchainlist))
+                            ide_list, "toolchain")),
+                        help="The target IDE: %s"% str(ide_list))
 
-    parser.add_argument(
-        "-p",
-        type=argparse_many(test_name_known),
-        dest="programs",
-        help="The index of the desired test program: [0-%d]" % (len(TESTS) - 1),
-        default=default_tests)
+    parser.add_argument( "-p",
+                        type=argparse_many(test_known),
+                        dest="programs",
+                        help="The index of the desired test program: [0-%d]"
+                             % (len(TESTS) - 1))
 
     parser.add_argument("-n",
                         type=argparse_many(test_name_known),
                         dest="programs",
-                        help="The name of the desired test program",
-                        default=default_tests)
+                        help="The name of the desired test program")
 
-    parser.add_argument(
-        "-m", "--mcu",
-        metavar="MCU",
-        default='LPC1768',
-        nargs="+",
-        type=argparse_force_uppercase_type(targetnames, "MCU"),
-        help="generate project for the given MCU (%s)" % ', '.join(targetnames))
+    parser.add_argument("-m", "--mcu",
+                        help=("Generate projects for the given MCUs"),
+                        metavar="MCU",
+                        type=argparse_many(str.upper))
+
+    parser.add_argument("-os-tests",
+                        type=argparse_many(check_valid_mbed_os),
+                        dest="os_tests",
+                        help="Mbed-os tests")
 
     parser.add_argument("-c", "--clean",
                         dest="clean",
@@ -171,11 +237,46 @@ def main():
                         help="clean up the exported project files",
                         default=False)
 
+    parser.add_argument("--release",
+                        dest="release",
+                        type=check_version,
+                        help="Which version of mbed to test",
+                        default=RELEASE_VERSIONS[-1])
+
     options = parser.parse_args()
-    test = ProgenBuildTest(options.ides, options.mcu, options.programs)
-    successes, failures, skips = test.generate_and_build(clean=options.clean)
-    print_results(successes, failures, skips)
-    sys.exit(len(failures))
+    # targets in chosen release
+    targetnames = [target[0] for target in
+                   get_mbed_official_release(options.release)]
+    # all targets in release are default
+    test_targets = options.mcu or targetnames
+    if not all([t in targetnames for t in test_targets]):
+        args_error(parser, "Only specify targets in release %s:\n%s"
+                   %(options.release, columnate(targetnames)))
+
+    v2_tests, v5_tests = [],[]
+    if options.release == '5':
+        v5_tests = options.os_tests or default_v5
+    elif options.release == '2':
+        v2_tests = options.programs or default_v2
+
+    tests = []
+    default_test = {key:None for key in ['ide', 'mcu', 'name', 'id', 'src', 'log']}
+    for mcu in test_targets:
+        for ide in options.ides:
+            log = "build_log.txt" if ide == 'iar' \
+                else join('build', 'build_log.txt')
+            # add each test case to the tests array
+            default_test.update({'mcu': mcu, 'ide': ide, 'log':log})
+            for test in v2_tests:
+                default_test.update({'name':TESTS[test]["id"], 'id':test})
+                tests.append(copy(default_test))
+            for test in v5_tests:
+                default_test.update({'name':test[0],'src':[test[1],ROOT]})
+                tests.append(copy(default_test))
+    test = ExportBuildTest(tests)
+    test.batch_tests(clean=options.clean)
+    print_results(test.successes, test.failures, test.skips)
+    sys.exit(len(test.failures))
 
 if __name__ == "__main__":
     main()
