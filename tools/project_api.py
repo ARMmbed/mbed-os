@@ -1,7 +1,7 @@
 """ The new way of doing exports """
 import sys
 from os.path import join, abspath, dirname, exists
-from os.path import basename, relpath, normpath
+from os.path import basename, relpath, normpath, splitext
 from os import makedirs, walk
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -125,6 +125,12 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
                             source,
                             join(prefix, loc,
                                  relpath(source, res.file_basepath[source])))
+                for source in res.lib_builds:
+                    target_dir, _ = splitext(source)
+                    dest = join(prefix, loc,
+                                relpath(target_dir, res.file_basepath[source]),
+                                ".bld", "bldrc")
+                    zip_file.write(source, dest)
 
 
 
