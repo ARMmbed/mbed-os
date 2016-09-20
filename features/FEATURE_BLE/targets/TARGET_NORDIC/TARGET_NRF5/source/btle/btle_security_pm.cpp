@@ -31,6 +31,7 @@ static bool                      initialized = false;
 
 static void pm_handler(pm_evt_t const *p_event);
 static bool _enc_in_progress = false; // helper flag for distinguish between state of link connected and link connected in progres of encryption establishing.
+volatile static uint32_t async_ret_code; // busy loop support variable for asyncronous API.
 
 // default security parameters. Avoid "holes" between member assigments in order to compile by gcc++11.
 static ble_gap_sec_params_t securityParameters = {
@@ -140,7 +141,19 @@ btle_purgeAllBondingState(void)
 {
     ret_code_t rc;
     
-    rc = pm_peers_delete();
+    async_ret_code = NRF_ERROR_BUSY;
+    
+    rc = pm_peers_delete(); // it is asynhronous API
+    
+    if (rc == NRF_SUCCESS)
+    {
+        // waiting for respond from pm_handler
+        while (async_ret_code == NRF_ERROR_BUSY) {
+            // busy-loop
+        }
+        
+        rc = async_ret_code;
+    }
 
     switch (rc) {
         case NRF_SUCCESS:
@@ -342,7 +355,15 @@ void pm_handler(pm_evt_t const *p_event)
             break;
             
         case PM_EVT_PEER_DATA_UPDATE_FAILED:
-        	break;
+            break;
+            
+        case PM_EVT_PEERS_DELETE_SUCCEEDED:
+            async_ret_code = NRF_SUCCESS;        // respond SUCCESS to the busy-loop in f. btle_purgeAllBondingState
+            break;
+        
+        case PM_EVT_PEERS_DELETE_FAILED:
+            async_ret_code = NRF_ERROR_INTERNAL; // respond FAILURE to the busy-loop in f. btle_purgeAllBondingState
+            break;
 
         case PM_EVT_STORAGE_FULL:
             // Run garbage collection on the flash.
