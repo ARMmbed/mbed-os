@@ -75,8 +75,7 @@ int main() {
         printf("HTTP: Received message:\r\n");
         printf("%s", buffer);
         sock.close();
-    }
-    else {
+    } else {
         printf("HTTP: ERROR\r\n");
     }
 
