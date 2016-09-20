@@ -333,7 +333,7 @@ TESTS = [
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
-        "DISCO_F769NI"]
+        "DISCO_F769NI", "NUCLEO_F767ZI"]
     },
     {
         "id": "MBED_A28", "description": "CAN loopback test",
@@ -346,7 +346,7 @@ TESTS = [
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F446RE","NUCLEO_F446ZE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
-        "DISCO_F769NI"]
+        "DISCO_F769NI", "NUCLEO_F767ZI"]
     },
 	{
         "id": "MBED_A29", "description": "i2c_master_slave_asynch",
