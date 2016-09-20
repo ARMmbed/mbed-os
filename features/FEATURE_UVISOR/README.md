@@ -93,14 +93,15 @@ To enable the uVisor on the app, just add the following lines at the beginning o
 #include "rtos.h"
 #include "uvisor-lib/uvisor-lib.h"
 
-/* Register privleged system IRQ hooks.
+/* Register privleged system hooks.
  * This is a system-wide configuration and it is independent from the app, but
  * for the moment it needs to be specified in the app. This will change in a
  * later version: The configuration will be provided by the OS. */
 extern "C" void SVC_Handler(void);
 extern "C" void PendSV_Handler(void);
 extern "C" void SysTick_Handler(void);
-UVISOR_SET_PRIV_SYS_IRQ_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler);
+extern "C" uint32_t rt_suspend(void);
+UVISOR_SET_PRIV_SYS_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler, rt_suspend);
 
 /* Main box Access Control Lists (ACLs). */
 /* Note: These are specific to the NXP FRDM-K64F board. See the section below
@@ -125,7 +126,7 @@ UVISOR_SET_MODE_ACL(UVISOR_ENABLED, g_main_box_acls);
 
 In the code above we specified 3 elements:
 
-1. System-wide uVisor configurations: `UVISOR_SET_PRIV_SYS_IRQ_HOOKS`. Application authors currently need to specify the privileged system IRQ hooks at the application level with this macro, but in the future the operating system will register the privileged system IRQ hooks on its own.
+1. System-wide uVisor configurations: `UVISOR_SET_PRIV_SYS_HOOKS`. Application authors currently need to specify the privileged system hooks at the application level with this macro, but in the future the operating system will register the privileged system hooks on its own.
 1. Main box Access Control Lists (ACLs). Since with uVisor enabled everything runs in unprivileged mode, we need to make sure that peripherals that are accessed by the OS and the main box are allowed. These peripherals are specified using a list like the one in the snippet above. For the purpose of this example we provide you the list of all the ACLs that we know you will need. For other platforms or other applications you need to determine those ACLs following a process that is described in a [section](#the-main-box-acls) below.
 1. App-specific uVisor configurations: `UVISOR_SET_MODE_ACL`. This macro sets the uVisor mode (enabled) and associates the list of ACLs we just created with the main box.
 
