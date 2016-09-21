@@ -56,6 +56,13 @@ void rng_free(rng_t *obj);
  */
 int rng_get_numbers(rng_t *obj, uint8_t *output, size_t length, size_t *output_length);
 
+/** Set an external entropy value
+ *
+ * @param obj The RNG object
+ * @param seed_value Entropy value to be set
+ */
+void rng_set_seed(rng_t *obj, uint32_t seed_value);
+
 /**@}*/
 
 #ifdef __cplusplus
