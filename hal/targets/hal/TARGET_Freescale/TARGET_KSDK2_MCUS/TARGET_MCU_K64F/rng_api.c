@@ -56,7 +56,7 @@ static void rng_get_byte(unsigned char *byte)
     }
 }
 
-int rng_get_numbers(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     size_t i;
     int ret;

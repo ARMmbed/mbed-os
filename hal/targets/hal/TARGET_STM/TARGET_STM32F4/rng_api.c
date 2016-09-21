@@ -55,7 +55,7 @@ void rng_free(rng_t *obj)
     __HAL_RCC_RNG_CLK_DISABLE();
 }
 
-int rng_get_numbers(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     int ret;
 

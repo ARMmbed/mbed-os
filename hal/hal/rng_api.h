@@ -54,7 +54,7 @@ void rng_free(rng_t *obj);
  * @param output_length The length of generated data
  * @return 0 success, -1 fail
  */
-int rng_get_numbers(rng_t *obj, uint8_t *output, size_t length, size_t *output_length);
+int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length);
 
 /** Set an external entropy value
  *

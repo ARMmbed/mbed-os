@@ -77,7 +77,7 @@ void rng_free(rng_t *obj)
     //CLK_DisableModuleClock(CRPT_MODULE);
 }
 
-int rng_get_numbers(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     *output_length = 0;
     if (length < 32) {

@@ -21,7 +21,7 @@
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
     rng_t rng_obj;
     rng_init(&rng_obj);
-    int ret = rng_get_numbers(&rng_obj, output, len, olen);
+    int ret = rng_get_bytes(&rng_obj, output, len, olen);
     rng_free(&rng_obj);
     return ret;
 }
