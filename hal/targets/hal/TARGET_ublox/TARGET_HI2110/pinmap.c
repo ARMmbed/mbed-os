@@ -24,11 +24,10 @@
  * compilation below.
  */
 
+#include "stdbool.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "pinmap.h"
-
-#include "reg_map_apps.h"
 
 /* ----------------------------------------------------------------
  * MACROS

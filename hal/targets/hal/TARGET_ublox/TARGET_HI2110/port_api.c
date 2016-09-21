@@ -20,9 +20,6 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 
-#include "platform_core.h"
-#include "reg_map_apps.h"
-
 PinName port_pin(PortName port, int pin_n)
 {
     MBED_ASSERT (port < PortMaxNumber);

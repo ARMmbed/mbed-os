@@ -21,7 +21,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-#include "boudica_common_peripherals.h"
+#include "stdbool.h"
 
 #ifdef __cplusplus
 extern "C" {

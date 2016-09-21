@@ -1,7 +1,117 @@
-/******************************************************************************
- * @brief    Register map for the boudica Apps core
- * Copyright (c) 2015 NEUL LIMITED
-******************************************************************************/
+/* mbed Microcontroller Library
+ * Copyright (c) 2016 u-blox
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef HI2110_H
+#define HI2110_H
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
+/******************************************************************************/
+/*                Processor and Core Peripherals                              */
+/******************************************************************************/
+
+/*
+ * ==========================================================================
+ * ---------- Interrupt Number Definition -----------------------------------
+ * ==========================================================================
+ */
+
+typedef enum IRQn
+{
+/******  Cortex-M0 Processor Exceptions Numbers ***************************************************/
+  Thread_mode                   = -16,      /*!<  0 Thread mode                                   */
+  NonMaskableInt_IRQn           = -14,      /*!<  2 Non Maskable Interrupt                        */
+  HardFault_IRQn                = -13,      /*!<  3 Hard Fault Interrupt                          */
+  SVCall_IRQn                   = -5,       /*!< 11 SV Call Interrupt                             */
+  PendSV_IRQn                   = -2,       /*!< 14 Pend SV Interrupt                             */
+  SysTick_IRQn                  = -1,       /*!< 15 System Tick Interrupt                         */
+
+/******  Device Specific Interrupt Numbers ********************************************************/
+  RTC_IRQn                      = 0,        /*!< RTC Interrupt                                    */
+  Timer_IRQn                    = 1,        /*!< Timer Interrupt                                  */
+  Security_IRQn                 = 2,        /*!< From Security Interrupt                          */
+  Protocol_IRQn                 = 3,        /*!< From Protocol Interrupt                          */
+  Apps_IRQn                     = 4,        /*!< Core Self Interrupt                              */
+  GPIO_IRQn                     = 5,        /*!< GPIO Interrupt                                   */
+  DMA_IRQn                      = 6,        /*!< DMA Interrupt                                    */
+  UART0_IRQn                    = 7,        /*!< UART0 Interrupt                                  */
+  UART1_IRQn                    = 8,        /*!< UART1 Interrupt                                  */
+  SSP0_IRQn                     = 9,        /*!< SPI0 Interrupt                                   */
+  SSP1_IRQn                     = 10,       /*!< SPI1 Interrupt                                   */
+  PWM0_Inner_IRQn               = 11,       /*!< PW0 Inner Interrupt                              */
+  PWM0_Outer_IRQn               = 12,       /*!< PW0 Outer Interrupt                              */
+  PWM1_Inner_IRQn               = 13,       /*!< PW1 Inner Interrupt                              */
+  PWM1_Outer_IRQn               = 14,       /*!< PW1 Outer Interrupt                              */
+  I2C_IRQn                      = 15,       /*!< I2C Interrupt                                    */
+  LPUART_IRQn                   = 16,       /*!< Low Power UART Interrupt                         */
+  CAP_IRQn                      = 17,       /*!< CAP Interrupt                                    */
+  COMP_IRQn                     = 18,       /*!< COMP Interrupt                                   */
+  EDGE_IRQn                     = 19,       /*!< EDGE Interrupt                                   */
+  Pulse_SWD_IRQn                = 23,       /*!< SWD Pulse Interrupt                              */
+
+} IRQn_Type;
+
+/*
+ * ==========================================================================
+ * ----------- Processor and Core Peripheral Section ------------------------
+ * ==========================================================================
+ */
+
+/* Configuration of the Cortex-M# Processor and Core Peripherals */
+#define __CM0_REV                 0x0000    /*!< Core Revision r2p1                               */
+#define __NVIC_PRIO_BITS          2         /*!< Number of Bits used for Priority Levels          */
+#define __Vendor_SysTickConfig    0         /*!< Set to 1 if different SysTick Config is used     */
+#define __MPU_PRESENT             0         /*!< MPU present or not                               */
+#define __FPU_PRESENT             0         /*!< FPU present or not                               */
+
+#include <core_cm0.h>                       /* Cortex-M# processor and core peripherals */
+
+/******************************************************************************/
+/*                Device Specific Peripheral registers structures             */
+/******************************************************************************/
+
+/* UART */
+typedef struct {
+    uint32_t UARTDR;
+    uint32_t UARTRSR;
+    uint32_t res0;
+    uint32_t res1;
+    uint32_t res2;
+    uint32_t res3;
+    uint32_t UARTFR;
+    uint32_t res4;
+    uint32_t UARTILPR;
+    uint32_t UARTIBRD; // Integer baud divider
+    uint32_t UARTFBRD; // Fractional Baud divider
+    uint32_t UARTLCR_H;
+    uint32_t UARTCR;
+    uint32_t UARTIFLS;
+    uint32_t UARTIMSC;
+    uint32_t UARTRIS;
+    uint32_t UARTMIS;
+    uint32_t UARTICR;
+    uint32_t UARTDMACR;
+} uart_ctrl_t;
+
+/******************************************************************************/
+/*                         Peripheral memory map                              */
+/******************************************************************************/
+
 #define RTC_IRQ_TIME_LSBS (*(volatile unsigned long *)(0x40002000))
 #define RTC_IRQ_TIME_LSBS_BITSET (*(volatile unsigned long *)(0x40002400))
 #define RTC_IRQ_TIME_LSBS_BITCLR (*(volatile unsigned long *)(0x40002800))
@@ -244,97 +354,6 @@
 #define RESET_REG_BITSET (*(volatile unsigned long *)(0x40002524))
 #define RESET_REG_BITCLR (*(volatile unsigned long *)(0x40002924))
 #define RESET_REG_BITTOG (*(volatile unsigned long *)(0x40002D24))
-
-/*typedef struct {
-   uint32 RTC_IRQ_TIME_LSBS;
-   uint32 RTC_IRQ_TIME_MSBS;
-   uint32 RTC_IRQ_CLR;
-   uint32 TIMER0_LOAD;
-   uint32 TIMER0_CTRL;
-   uint32 TIMER0_TIME;
-   uint32 ARM_IRQ_REG;
-   uint32 PIO_FUNC0;
-   uint32 PIO_FUNC1;
-   uint32 PIO_FUNC2;
-   uint32 PIO_FUNC3;
-   uint32 PIO_FUNC4;
-   uint32 GPIO_DIR;
-   uint32 GPIO_OUT;
-   uint32 GPIO_DRIVE;
-   uint32 GPIO_PULLEN;
-   uint32 GPIO_INT_RISE;
-   uint32 GPIO_INT_FALL;
-   uint32 GPIO_INT_HIGH;
-   uint32 GPIO_INT_LOW;
-   uint32 GPIO_INT_CLR;
-   uint32 GPIO_VALUE;
-   uint32 GPIO_IRQ;
-   uint32 WDT_INTERVAL;
-   uint32 WDT_CTRL;
-   uint32 WDT_TIME;
-   uint32 PWM0_CTRL;
-   uint32 PWM0_COUNT;
-   uint32 PWM1_CTRL;
-   uint32 PWM1_COUNT;
-   uint32 PWM_STATUS;
-   uint32 CLKEN_REG;
-   uint32 I2C_INTERRUPT_STATUS;
-   uint32 I2C_INTERRUPT_CLEAR;
-   uint32 I2C_INTERRUPT_ENABLE;
-   uint32 I2C_MODE;
-   uint32 I2C_TX_DATA;
-   uint32 I2C_TX_RD_WRB;
-   uint32 I2C_TX_NO_BYTES;
-   uint32 I2C_RX_NO_BYTES;
-   uint32 I2C_RX_NO_BYTES_MASTER;
-   uint32 I2C_GO;
-   uint32 I2C_RX_EARLY_THRESHOLD;
-   uint32 I2C_RX_AUTO_NAG_BYTE_CNT;
-   uint32 I2C_HALF_TIME;
-   uint32 I2C_ADDRESS;
-   uint32 I2C_ADDR_TYPE;
-   uint32 I2C_SOFT_RESET;
-   uint32 I2C_SLAVE_RWB;
-   uint32 I2C_MASTER_SM;
-   uint32 I2C_SLAVE_SM;
-   uint32 I2C_SLAVE_ENABLE;
-   uint32 I2C_MASTER_SEND_RESTART;
-   uint32 DMA_MUX;
-   uint32 DMA_CTRL_STAT;
-   uint32 COMP_CTRL;
-   uint32 COMP_STAT;
-   uint32 LP_UART_CTRL;
-   uint32 LP_UART_STATUS;
-   uint32 CAP_FILT_CONF;
-   uint32 CAP_IRQ_CONF;
-   uint32 CAP_STATUS;
-   uint32 CORE_ENABLE_SWD_ACCESS_APPS;
-   uint32 APPS_DEBUGGER_TO_CORE_DATA;
-   uint32 APPS_CORE_TO_DEBUGGER_DATA;
-   uint32 APPS_DEBUG_DATA_TO_CORE_AVAILABLE;
-   uint32 APPS_DEBUG_DATA_TO_CORE_ACCEPTED;
-   uint32 APPS_CORE_DATA_TO_DEBUGGER_AVAILABLE;
-   uint32 APPS_CORE_DATA_TO_DEBUGGER_ACCEPTED;
-   uint32 SWD_REQUEST;
-   uint32 EDGE_CTRL0;
-   uint32 EDGE_CTRL1;
-   uint32 EDGE_COUNT;
-   uint32 RESET_REG;
-   uint32 empty0;
-   uint32 empty1;
-   uint32 empty2;
-   uint32 RESET_CAUSE;
-   uint32 empty3;
-   uint32 empty4;
-   uint32 empty5;
-   uint32 I2C_RX_DATA;
-   uint32 empty6;
-   uint32 empty7;
-   uint32 empty8;
-   uint32 LP_UART_DATA;
-} apps_regs_t;*/
-
-// man_regs register definitions
 #define DIGITAL_VERSION (*(volatile unsigned long *)(0x40000000))
 #define CLK_FREQ_DAC (*(volatile unsigned long *)(0x40000004))
 #define CLK_FREQ_SET (*(volatile unsigned long *)(0x40000008))
@@ -458,47 +477,16 @@
 #define SWD_PIN_CFG_BITCLR (*(volatile unsigned long *)(0x400008A0))
 #define SWD_PIN_CFG_BITTOG (*(volatile unsigned long *)(0x40000CA0))
 
-/*typedef struct {
-   uint32 DIGITAL_VERSION;
-   uint32 CLK_FREQ_DAC;
-   uint32 CLK_FREQ_SET;
-   uint32 CLK_FREQ_NREFCLKS;
-   uint32 CLK_FREQ_REF_SEL;
-   uint32 CLK_FREQ_DIG_CLKS;
-   uint32 CLK_FREQ_HIGHTARGET;
-   uint32 CLK_FREQ_LOWTARGET;
-   uint32 CLK_FREQ_LP_BACKOFF;
-   uint32 CLK_FREQ_ENABLE;
-   uint32 CLK_GATE_SYS;
-   uint32 CLK_GATE_MODEM;
-   uint32 CLK_GATE_RADIO;
-   uint32 CLK_GATE_DEBUG;
-   uint32 CLK_GATE_RBIST;
-   uint32 LPC_CTRL;
-   uint32 LPC_TEST;
-   uint32 FPGA_FLASH_WR;
-   uint32 FPGA_FLASH_RD;
-   uint32 PMU_CTRL;
-   uint32 APP_CTRL0;
-   uint32 APP_CTRL1;
-   uint32 APP_CTRL2;
-   uint32 APP_CTRL3;
-   uint32 PMU_STAT;
-   uint32 PMUBIST_ADC_CONF;
-   uint32 PMUBIST_ADC_DATA;
-   uint32 STATUS;
-   uint32 LPC_STATUS;
-   uint32 LPC_PDTIMER;
-   uint32 PIO_OWNER0;
-   uint32 PIO_OWNER1;
-   uint32 RTC_TIME_LSBS;
-   uint32 RTC_TIME_MSBS;
-   uint32 DEBUG_SEL;
-   uint32 FLASH_STATUS;
-   uint32 CHIP_WDT_INTERVAL;
-   uint32 CHIP_WDT_CTRL;
-   uint32 CHIP_WDT_TIME;
-   uint32 CHIP_RESET;
-   uint32 SWD_PIN_CFG;
-} man_regs_t;*/
+/******************************************************************************/
+/*                         Peripheral declaration                             */
+/******************************************************************************/
 
+/* UART Defines */
+#define UART0_BASE 0x50003000
+#define UART1_BASE 0x50004000
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* HI2110_H */

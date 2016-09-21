@@ -17,10 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "mbed_assert.h"
-
-#include "reg_map_apps.h"
-#include "platform_core.h"
-#include "HI2110_init.h"
+#include "cmsis.h"
+#include "hi2110_init.h"
 
 /* ----------------------------------------------------------------
  * MACROS
@@ -30,59 +28,26 @@
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
 
-static CORES get_owner(PIN pin);
+static uint8_t get_owner(uint8_t pin);
 
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
 
-/* Determine which core owns a given pin */
-static CORES get_owner(PIN pin)
+/* Determine which core owns a given pin
+ * 0: None
+ * 1: security core
+ * 2: protocol core
+ * 3: apps core */
+static uint8_t get_owner(uint8_t pin)
 {
     uint8_t value;
-    CORES owner = CORES_NONE;
     uint8_t pio_owner_shift = (pin & 0x0F) << 1;
     volatile unsigned long * pio_owner_reg = (&PIO_OWNER0 + (pin >> 4));
 
-
-    /* 2 bits indicate the owner:
-     *
-     * 0: None
-     * 1: security core
-     * 2: protocol core
-     * 3: apps core
-     */
     value = 0x03 & (*pio_owner_reg >> pio_owner_shift);
 
-    switch (value) {
-        case 0:
-        {
-            owner = CORES_NONE;
-        }
-        break;
-        case 1:
-        {
-            owner = CORES_SECURITY_CORE;
-        }
-        break;
-        case 2:
-        {
-            owner = CORES_PROTOCOL_CORE;
-        }
-        break;
-        case 3:
-        {
-            owner = CORES_APPS_CORE;
-        }
-        break;
-        default:
-        {
-            MBED_ASSERT(false);
-        }
-        break;
-    }
-
-    return owner;
+    return value;
 }
 
 /* ----------------------------------------------------------------
@@ -91,7 +56,7 @@ static CORES get_owner(PIN pin)
 
 void HI2110_init(void)
 {
-    __attribute__ ((unused)) CORES owner[20];
+    __attribute__ ((unused)) uint8_t owner[20];
     
     /* This purely for diagnostics to see who owns which PIO pin.
      * Put a break-point at the end of this function and take a look

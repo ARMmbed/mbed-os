@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-#include "HI2110_init.h"
+#include "hi2110_init.h"
 
 /* ----------------------------------------------------------------
  * MACROS

@@ -18,7 +18,7 @@
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 
-#include "boudica_apps.h"
+#include "hi2110.h"
 #include "cmsis_nvic.h"
 
 /**  Reference clock in Hz */

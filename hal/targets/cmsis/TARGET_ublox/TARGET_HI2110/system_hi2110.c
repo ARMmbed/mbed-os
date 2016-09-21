@@ -17,10 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "boudica_apps.h"
-#include "system_HI2110.h"
-#include "reg_map_apps.h"
-
+#include "system_hi2110.h"
 #include "cmsis.h"
 
 /*lint ++flb "Enter library region" */
