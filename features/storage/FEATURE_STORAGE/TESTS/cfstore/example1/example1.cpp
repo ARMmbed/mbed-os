@@ -234,7 +234,6 @@ typedef enum cfstore_ex_state_t {
     CFSTORE_EX_STATE_UNINIT_DONE
 } cfstore_ex_state_t;
 
-
 typedef struct cfstore_example1_ctx_t
 {
     ARM_CFSTORE_CAPABILITIES caps;
@@ -263,7 +262,87 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx);
 /// @endcond
 
 
-/* @brief   test startup code to reset flash
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+
+#define CFSTORE_FLASH_START_FORMAT (FLASH_JOURNAL_OPCODE_RESET + 0x00010000)
+
+typedef enum cfstore_ex_flash_state_t {
+    CFSTORE_EX_FLASH_STATE_STARTING = 1,
+    CFSTORE_EX_FLASH_STATE_FORMATTING,
+    CFSTORE_EX_FLASH_STATE_INITIALIZING,
+    CFSTORE_EX_FLASH_STATE_RESETTING,
+    CFSTORE_EX_FLASH_STATE_READY,
+} cfstore_ex_flash_state_t;
+
+typedef struct cfstore_example1_flash_ctx_t
+{
+    volatile cfstore_ex_flash_state_t state;
+} cfstore_example1_flash_ctx_t;
+
+static cfstore_example1_flash_ctx_t cfstore_example1_flash_ctx_g;
+
+
+static void cfstore_ex_flash_journal_callback(int32_t status, FlashJournal_OpCode_t cmd_code)
+{
+    static FlashJournal_t jrnl;
+    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
+    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
+
+
+    if(cmd_code == (FlashJournal_OpCode_t) CFSTORE_FLASH_START_FORMAT) {
+        CFSTORE_EX1_LOG("FORMATTING%s", "\n");
+        status = flashJournalStrategySequential_format(drv, 4, cfstore_ex_flash_journal_callback);
+        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
+        if(status == 0) {
+            /* async completion pending */
+            return;
+        }
+        /* status > 0 implies  operation completed synchronously
+         * intentional fall through */
+    }
+
+    switch(cmd_code)
+    {
+    case FLASH_JOURNAL_OPCODE_FORMAT:
+        /* format done */
+        CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
+        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_INITIALIZING;
+
+        CFSTORE_EX1_LOG("FLASH INITIALIZING%s", "\n");
+        status = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
+        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
+        if(status == 0) {
+            /* async completion pending */
+            break;
+        }
+        /* status > 0 implies  operation completed synchronously
+         * intentional fall through */
+    case FLASH_JOURNAL_OPCODE_INITIALIZE:
+        /* initialize done */
+        CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
+        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_RESETTING;
+
+        CFSTORE_EX1_LOG("FLASH RESETTING%s", "\n");
+        status = FlashJournal_reset(&jrnl);
+        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (status=%d)\r\n", __func__, (int) status);
+        /* intentional fall through */
+    case FLASH_JOURNAL_OPCODE_RESET:
+        /* reset done */
+        CFSTORE_EX1_LOG("FLASH RESET DONE%s", "\n");
+        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_READY;
+        break;
+
+    default:
+        CFSTORE_EX1_LOG("%s:Error: notification of unsupported cmd_code event (status=%d, cmd_code=%d)\n", __func__, (int) status, (int) cmd_code);
+        return;
+    }
+    return;
+}
+#endif  /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
+
+
+/* @brief   test startup code to reset flash for testing purposes.
  */
 static int32_t cfstore_test_startup(void)
 {
@@ -272,16 +351,13 @@ static int32_t cfstore_test_startup(void)
 
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 
-    int32_t ret = ARM_DRIVER_ERROR;
-    static FlashJournal_t jrnl;
-    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
-    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+    memset(&cfstore_example1_flash_ctx_g, 0, sizeof(cfstore_example1_flash_ctx_g));
+    cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_STARTING;
+    cfstore_ex_flash_journal_callback(JOURNAL_STATUS_OK, (FlashJournal_OpCode_t) CFSTORE_FLASH_START_FORMAT);
+    while(cfstore_example1_flash_ctx_g.state != CFSTORE_EX_FLASH_STATE_READY) {
+        /* spin */
+    }
 
-    ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
-    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (ret=%d)\r\n", __func__, (int) ret);
-
-    ret = FlashJournal_reset(&jrnl);
-    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (ret=%d)\r\n", __func__, (int) ret);
 #endif /*  CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
     return ARM_DRIVER_OK;

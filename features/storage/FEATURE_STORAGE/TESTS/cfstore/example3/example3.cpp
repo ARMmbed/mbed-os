@@ -268,7 +268,7 @@ static control_t cfstore_example3_app_start(const size_t call_count)
     ctx->hkey_prev = ctx->hkey_prev_buf;
     ctx->caps = cfstore_drv->GetCapabilities();
     CFSTORE_EX1_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, ctx->caps.asynchronous_ops);
-    if(ctx->caps.asynchronous_ops == true){
+    if(ctx->caps.asynchronous_ops == 1){
     	/* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
     	 * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_EX1_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");

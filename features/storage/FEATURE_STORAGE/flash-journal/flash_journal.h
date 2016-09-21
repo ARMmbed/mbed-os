@@ -23,7 +23,6 @@ extern "C" {
 #endif // __cplusplus
 
 #include "storage_abstraction/Driver_Storage.h"
-#include <stdint.h>
 
 /**
  * General return codes. All Flash-Journal APIs return an int32_t to allow for
@@ -44,6 +43,9 @@ typedef enum _FlashJournal_Status
     JOURNAL_STATUS_NOT_INITIALIZED   =  -9, ///< journal not initialized
     JOURNAL_STATUS_EMPTY             = -10, ///< There is no further data to read
     JOURNAL_STATUS_SMALL_LOG_REQUEST = -11, ///< log request is smaller than the program_unit of the underlying MTD block.
+    JOURNAL_STATUS_NOT_FORMATTED     = -12, ///< need to call xxx_format() before using the journal.
+    JOURNAL_STATUS_METADATA_ERROR    = -13, ///< sanity checks for the journal metadata failed.
+    JOURNAL_STATUS_STORAGE_RUNTIME_OR_INTEGRITY_FAILURE = -14, ///< validation or run-time errors arising from the badkend media.
 } FlashJournal_Status_t;
 
 /**
@@ -51,6 +53,7 @@ typedef enum _FlashJournal_Status
  * completing commands. Refer to \ref ARM_Flash_Callback_t.
  */
 typedef enum _FlashJournal_OpCode {
+    FLASH_JOURNAL_OPCODE_FORMAT,
     FLASH_JOURNAL_OPCODE_INITIALIZE,
     FLASH_JOURNAL_OPCODE_GET_INFO,
     FLASH_JOURNAL_OPCODE_READ_BLOB,
@@ -76,6 +79,29 @@ typedef struct _FlashJournal_Info {
                                    ///<   the requested amount).
 } FlashJournal_Info_t;
 
+
+static const uint32_t FLASH_JOURNAL_HEADER_MAGIC   = 0xA00AEE1DUL;
+static const uint32_t FLASH_JOURNAL_HEADER_VERSION = 1;
+
+/**
+ * Meta-data placed at the head of a Journal. The actual header would be an
+ * extension of this generic header, and would depend on the implementation
+ * strategy. Initialization algorithms can expect to find this generic header at
+ * the start of every Journal.
+ */
+typedef struct _FlashJournalHeader {
+    uint32_t magic;         /** Journal-header specific magic code */
+    uint32_t version;       /** Revision number for this generic journal header. */
+    uint64_t totalSize;     /** Total space (in bytes) occupied by the journal, including the header.
+                             *    Both 'mtdOffset' and 'mtdOffset + totalSize' should
+                             *    lie on erase boundaries. */
+    uint32_t sizeofHeader;  /** The size of the journal header; this is expected to be larger than this generic header. */
+    uint32_t journalOffset; /** Offset from the start of the journal header to the actual logged journal. */
+    uint32_t checksum;      /** CRC32 over the entire flash-journal-header, including the implementation
+                             *    specific extension (i.e. over 'sizeofHeader' bytes). The value of the
+                             *    field is taken to be 0 for the purpose of computing the checksum. */
+} FlashJournalHeader_t;
+
 /**
  * This is the type of the command completion callback handler for the
  * asynchronous flash-journal APIs: initialize(), read(), log(), commit() and
@@ -95,8 +121,7 @@ typedef struct _FlashJournal_Info {
 typedef void (*FlashJournal_Callback_t)(int32_t status, FlashJournal_OpCode_t cmd_code);
 
 /* forward declarations. */
-typedef struct _FlashJournal_t FlashJournal_t;
-typedef struct _FlashJournal_Ops_t FlashJournal_Ops_t;
+struct FlashJournal_t;
 
 /**
  * @ref FlashJournal_t is an abstraction implemented by a table of generic
@@ -111,44 +136,53 @@ typedef struct _FlashJournal_Ops_t FlashJournal_Ops_t;
  * strategy-specific metadata. The value of this MAX_SIZE may need to be
  * increased if some future journal-strategy needs more metadata.
  */
-#define FLASH_JOURNAL_HANDLE_MAX_SIZE 140
+#define FLASH_JOURNAL_HANDLE_MAX_SIZE 160
 
 /**
  * This is the set of operations offered by the flash-journal abstraction. A set
  * of implementations for these operations defines a logging strategy.
  */
-typedef struct _FlashJournal_Ops_t {
+
+typedef struct FlashJournal_Ops_t {
     /**
      * \brief Initialize the flash journal. Refer to @ref FlashJournal_initialize.
      */
-    int32_t               (*initialize)(FlashJournal_t *journal, ARM_DRIVER_STORAGE *mtd, const FlashJournal_Ops_t *ops, FlashJournal_Callback_t callback);
+    int32_t               (*initialize)(struct FlashJournal_t           *journal,
+                                        ARM_DRIVER_STORAGE       *mtd,
+                                        const struct FlashJournal_Ops_t *ops,
+                                        FlashJournal_Callback_t   callback);
 
     /**
      * \brief fetch journal metadata. Refer to @ref FlashJournal_getInfo.
      */
-    FlashJournal_Status_t (*getInfo)   (FlashJournal_t *journal, FlashJournal_Info_t *info);
+    FlashJournal_Status_t (*getInfo)   (struct FlashJournal_t *journal, FlashJournal_Info_t *info);
 
     /**
      * @brief Read from the most recently logged blob. Refer to @ref FlashJournal_read.
      */
-    int32_t               (*read)      (FlashJournal_t *journal, void *buffer, size_t size);
+    int32_t               (*read)      (struct FlashJournal_t *journal, void *buffer, size_t size);
+
+    /**
+     * @brief Read from the most recently logged blob from a particular offset. Refer to @ref FlashJournal_readFrom.
+     */
+    int32_t               (*readFrom)  (struct FlashJournal_t *journal, size_t offset, void *buffer, size_t size);
 
     /**
      * @brief Start logging a new blob or append to the one currently being logged. Refer to @ref FlashJournal_log.
      */
-    int32_t               (*log)       (FlashJournal_t *journal, const void *blob, size_t size);
+    int32_t               (*log)       (struct FlashJournal_t *journal, const void *blob, size_t size);
 
     /**
      * @brief commit a blob accumulated through a non-empty sequence of
      *     previously successful log() operations. Refer to @ref FlashJournal_commit.
      */
-    int32_t               (*commit)    (FlashJournal_t *journal);
+    int32_t               (*commit)    (struct FlashJournal_t *journal);
 
     /**
      * @brief Reset the journal. This has the effect of erasing all valid blobs.
      *     Refer to @ref FlashJournal_reset.
      */
-    int32_t               (*reset)     (FlashJournal_t *journal);
+    int32_t               (*reset)     (struct FlashJournal_t *journal);
 } FlashJournal_Ops_t;
 
 /**
@@ -167,7 +201,7 @@ typedef struct _FlashJournal_Ops_t {
  * @note: there is a risk of overallocation in case an implementation doesn't
  * need FLASH_JOURNAL_HANDLE_MAX_SIZE bytes, but the impact should be small.
  */
-typedef struct _FlashJournal_t {
+typedef struct FlashJournal_t {
     FlashJournal_Ops_t       ops;
 
     union {
@@ -224,7 +258,7 @@ typedef struct _FlashJournal_t {
  *     JOURNAL_STATUS_OK before the actual completion of the operation (or
  *     with an appropriate error code in case of failure). When the
  *     operation is completed the command callback is invoked with
- *     JOURNAL_STATUS_OK passed in as the 'status' parameter of the
+ *     1 passed in as the 'status' parameter of the
  *     callback. In case of errors, the completion callback is invoked with
  *     an error status.
  *   - When the operation is executed by the journal in a blocking (i.e.
@@ -233,6 +267,11 @@ typedef struct _FlashJournal_t {
  *     this case, the function returns 1 to signal successful synchronous
  *     completion or an appropriate error code, and no further
  *     invocation of the completion callback should be expected at a later time.
+ *
+ * @note The user must call an appropriate xxx_format() to format underlying
+ *     storage before initializing it for use. If Initialize() is called on
+ *     unformatted storage, an error value of JOURNAL_STATUS_NOT_FORMATTED will be
+ *     returned.
  *
  * Here's a code snippet to suggest how this API might be used by callers:
  * \code
@@ -375,6 +414,88 @@ static inline FlashJournal_Status_t FlashJournal_getInfo(FlashJournal_t *journal
 static inline int32_t FlashJournal_read(FlashJournal_t *journal, void *blob, size_t n)
 {
     return journal->ops.read(journal, blob, n);
+}
+
+/**
+ * @brief Read from the most recently logged blob at a given offset. A front-end
+ *     for @ref FlashJournal_Ops_t::readFrom().
+ *
+ * @details Read off a chunk of the logged blob from a given offset. The journal
+ *     maintains a read-pointer internally to allow reads to continue where the
+ *     previous one left off. This call effectively sets the read-counter before
+ *     fetching data. Subsequent reads continue sequentially from where the
+ *     readFrom() left off.
+ *
+ * @note: If the given offset stands at (or is beyond) the end of the previously
+ *     logged blob, readFrom() returns the error JOURNAL_STATUS_EMPTY (or passes
+ *     that value as the status of a completion callback) and resets the read-
+ *     pointer to allow re-reading the blob from the start.
+ *
+ * @param  [in] journal
+ *                A previously initialized journal.
+ *
+ * @param  [in] offset
+ *                The logical offset (within the blob) at which to read data from.
+ *
+ * @param [out] buffer
+ *                The destination of the read operation. The memory is owned
+ *                by the caller and should remain valid for the lifetime
+ *                of this operation.
+ *
+ * @param  [in] size
+ *                The maximum amount of data which can be read in this
+ *                operation. The memory pointed to by 'buffer' should be as
+ *                large as this amount.
+ *
+ * @return
+ *    The function executes in the following ways:
+ *   - When the operation is asynchronous--i.e. when the underlying MTD's
+ *     ARM_STOR_CAPABILITIES::asynchronous_ops is set to 1--and the operation
+ *     executed by the journal in a non-blocking (i.e. asynchronous) manner,
+ *     control returns to the caller with JOURNAL_STATUS_OK before the actual
+ *     completion of the operation (or with an appropriate error code in case of
+ *     failure). When the operation completes, the command callback is
+ *     invoked with the number of successfully transferred bytes passed in as
+ *     the 'status' parameter of the callback. If any error is encountered
+ *     after the launch of an asynchronous operation, the completion callback
+ *     is invoked with an error status.
+ *   - When the operation is executed by the journal in a blocking (i.e.
+ *     synchronous) manner, control returns to the caller only upon the
+ *     actual completion of the operation, or the discovery of a failure
+ *     condition. In synchronous mode, the function returns the number
+ *     of data items read or an appropriate error code.
+ *
+ * @note If the underlying MTD's ARM_STORAGE_CAPABILITIES::asynchronous_ops
+ *     is set then this operation may execute asynchronously. In the case of
+ *     asynchronous operation, the invocation returns early (with
+ *     JOURNAL_STATUS_OK) and results in a completion callback later.
+ *
+ * @note If the underlying MTD's ARM_STORAGE_CAPABILITIES::asynchronous_ops
+ *     is set, the journal is not required to operate asynchronously. A Read
+ *     operation can be finished synchronously in spite of
+ *     ARM_STORAGE_CAPABILITIES::asynchronous_ops being set, returning the
+ *     number of data items read to indicate successful completion, or an
+ *     appropriate error code. In this case no further invocation of a
+ *     completion callback should be expected at a later time.
+ *
+ * Here's a code snippet to suggest how this API might be used by callers:
+ * \code
+ *     ASSERT(JOURNAL_STATUS_OK == 0); // this is a precondition; it doesn't need to be put in code
+ *     int32_t returnValue = FlashJournal_readFrom(&journal, offset, buffer, size);
+ *     if (returnValue < JOURNAL_STATUS_OK) {
+ *         // handle error
+ *     } else if (returnValue == JOURNAL_STATUS_OK) {
+ *         ASSERT(MTD->GetCapabilities().asynchronous_ops == 1);
+ *         // handle early return from asynchronous execution
+ *     } else {
+ *         ASSERT(returnValue == size);
+ *         // handle synchronous completion
+ *     }
+ * \endcode
+ */
+static inline int32_t FlashJournal_readFrom(struct FlashJournal_t *journal, size_t offset, void *blob, size_t n)
+{
+    return journal->ops.readFrom(journal, offset, blob, n);
 }
 
 /**
