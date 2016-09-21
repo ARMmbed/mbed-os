@@ -1,8 +1,8 @@
 #include "lwip/opt.h"
 
-#include "lwip/timers.h"
 #include "netif/etharp.h"
 #include "lwip/tcpip.h"
+#include "lwip/ethip6.h"
 #include <string.h>
 #include "cmsis_os.h"
 #include "mbed_interface.h"
@@ -40,7 +40,14 @@ static sys_mutex_t tx_lock_mutex;
 /* function */
 static void _eth_arch_rx_task(void *arg);
 static void _eth_arch_phy_task(void *arg);
-static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
+
+#if LWIP_IPV4
+static err_t _eth_arch_netif_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr);
+#endif
+#if LWIP_IPV6
+static err_t _eth_arch_netif_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_addr_t *ipaddr);
+#endif
+
 static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p);
 static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
 
@@ -112,7 +119,7 @@ static void _eth_arch_low_level_init(struct netif *netif)
 
  #if LWIP_ARP || LWIP_ETHERNET
     /* set MAC hardware address length */
-    netif->hwaddr_len = ETHARP_HWADDR_LEN;
+    netif->hwaddr_len = ETH_HWADDR_LEN;
 
     /* set MAC hardware address */
     netif->hwaddr[0] = EthHandle.Init.MACAddr[0];
@@ -356,7 +363,7 @@ static void _eth_arch_phy_task(void *arg)
 }
 
 /**
- * This function is the ethernet packet send function. It calls
+ * This function is the ethernet IPv4 packet send function. It calls
  * etharp_output after checking link status.
  *
  * \param[in] netif the lwip network interface structure for this lpc_enetif
@@ -364,7 +371,8 @@ static void _eth_arch_phy_task(void *arg)
  * \param[in] ipaddr IP address
  * \return ERR_OK or error code
  */
-static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
+#if LWIP_IPV4
+static err_t _eth_arch_netif_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr)
 {
     /* Only send packet is link is up */
     if (netif->flags & NETIF_FLAG_LINK_UP) {
@@ -372,6 +380,27 @@ static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr
     }
     return ERR_CONN;
 }
+#endif
+
+/**
+ * This function is the ethernet packet send function. It calls
+ * etharp_output after checking link status.
+ *
+ * \param[in] netif the lwip network IPv6 interface structure for this lpc_enetif
+ * \param[in] q Pointer to pbug to send
+ * \param[in] ipaddr IP address
+ * \return ERR_OK or error code
+ */
+#if LWIP_IPV6
+static err_t _eth_arch_netif_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_addr_t *ipaddr)
+{
+    /* Only send packet is link is up */
+    if (netif->flags & NETIF_FLAG_LINK_UP) {
+        return ethip6_output(netif, q, ipaddr);
+    }
+    return ERR_CONN;
+}
+#endif
 
 /**
  * Should be called at the beginning of the program to set up the
@@ -387,13 +416,13 @@ static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr
 err_t eth_arch_enetif_init(struct netif *netif)
 {
     /* set MAC hardware address */
-    netif->hwaddr_len = ETHARP_HWADDR_LEN;
+    netif->hwaddr_len = ETH_HWADDR_LEN;
 
     /* maximum transfer unit */
     netif->mtu = 1500;
 
     /* device capabilities */
-    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET | NETIF_FLAG_IGMP;
+    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
 
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
@@ -403,7 +432,15 @@ err_t eth_arch_enetif_init(struct netif *netif)
     netif->name[0] = 'e';
     netif->name[1] = 'n';
 
-    netif->output = _eth_arch_netif_output;
+#if LWIP_IPV4
+    netif->output = _eth_arch_netif_output_ipv4;
+    netif->flags |= NETIF_FLAG_IGMP;
+#endif
+#if LWIP_IPV6
+    netif->output_ip6 = _eth_arch_netif_output_ipv6;
+    netif->flags |= NETIF_FLAG_MLD6;
+#endif
+
     netif->linkoutput = _eth_arch_low_level_output;
 
     /* semaphore */
