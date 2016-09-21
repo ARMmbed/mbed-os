@@ -9,16 +9,23 @@ import sys
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, FailedBuildException
 import json
+from tools.export.cmsis import DeviceCMSIS
+
 class IAR(Exporter):
     NAME = 'iar'
     TOOLCHAIN = 'IAR'
 
+    #iar_definitions.json location
     def_loc = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', '..',
         'tools','export', 'iar', 'iar_definitions.json')
 
+    #create a dictionary of the definitions
     with open(def_loc, 'r') as f:
         IAR_DEFS = json.load(f)
+
+    #supported targets have a device name and corresponding definition in
+    #iar_definitions.json
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if hasattr(obj, 'device_name') and
                obj.device_name in IAR_DEFS.keys()]
@@ -52,6 +59,7 @@ class IAR(Exporter):
         return groups
 
     def iar_device(self):
+        """Retrieve info from iar_definitions.json"""
         device_name =  TARGET_MAP[self.target].device_name
         device_info = self.IAR_DEFS[device_name]
         iar_defaults ={
@@ -67,9 +75,11 @@ class IAR(Exporter):
         return IARdevice(**iar_defaults)
 
     def format_file(self, file):
+        """Make IAR compatible path"""
         return join('$PROJ_DIR$',file)
 
     def format_src(self, srcs):
+        """Group source files"""
         grouped = self.group_project_files(srcs)
         for group, files in grouped.items():
             grouped[group] = [self.format_file(src) for src in files]
@@ -79,8 +89,7 @@ class IAR(Exporter):
         return self.SPECIAL_TEMPLATES.get(self.target.lower(), 'iar/ewp.tmpl')
 
     def generate(self):
-        """Generate the .ww and .ewp files"""
-
+        """Generate the .eww, .ewd, and .ewp files"""
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
@@ -95,11 +104,13 @@ class IAR(Exporter):
             'linker_script': self.format_file(self.resources.linker_script),
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
-            'ewp': sep+self.project_name + ".ewp"
+            'ewp': sep+self.project_name + ".ewp",
+            'debugger': DeviceCMSIS(self.target).debug_interface.replace('-','').upper()
         }
         ctx.update(flags)
 
         self.gen_file('iar/eww.tmpl', ctx, self.project_name+".eww")
+        self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
         self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
 
     def build(self):
