@@ -55,22 +55,21 @@ class DeviceCMSIS():
         self.pack_url, self.pack_id = ntpath.split(self.url)
         self.dname = cpu_name
         self.dfpu = target_info['processor']['fpu']
-        self.dvendor = target_info['vendor']
+        self.debug_interface, self.dvendor = self.vendor_debug(target_info['vendor'])
         self.dendian = target_info['processor'].get('endianness','Little-endian')
-        self.debug_interface = self.find_debug()
         self.debug_svd = target_info.get('debug', '')
         self.compile_header = target_info['compile']['header']
 
-    def find_debug(self):
+    def vendor_debug(self, vendor):
+        reg = "([\w\s]+):?\d*?"
+        m = re.search(reg, vendor)
+        vendor_match = m.group(1) if m else None
         debug_map ={
             'STMicroelectronics':'ST-Link',
             'Silicon Labs':'J-LINK',
             'Nuvoton':'NULink'
         }
-        reg = "([\w\s]+):?\d*?"
-        m = re.search(reg, self.dvendor)
-        vendor_match = m.group(1) if m else None
-        return debug_map.get(vendor_match, "CMSIS-DAP")
+        return debug_map.get(vendor_match, "CMSIS-DAP"), vendor_match
 
     def cpu_cmsis(self):
         #Cortex-M4F => ARMCM4_FP, Cortex-M0+ => ARMCM0P
