@@ -37,7 +37,7 @@ nsapi_protocol_t UDPSocket::get_proto()
 int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigned size)
 {
     SocketAddress address;
-    int err = _stack->gethostbyname(&address, host);
+    int err = _stack->gethostbyname(host, &address);
     if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }

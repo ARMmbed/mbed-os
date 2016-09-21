@@ -199,7 +199,7 @@ typedef struct nsapi_stack_api
      *  @param host     Hostname to resolve
      *  @return         0 on success, negative error code on failure
      */
-    int (*gethostbyname)(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host);
+    int (*gethostbyname)(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr);
 
     /** Add a domain name server to list of servers to query
      *

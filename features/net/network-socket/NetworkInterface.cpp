@@ -55,14 +55,14 @@ int NetworkInterface::set_dhcp(bool dhcp)
 }
 
 // DNS operations go through the underlying stack by default
-int NetworkInterface::gethostbyname(SocketAddress *address, const char *name)
+int NetworkInterface::gethostbyname(const char *name, SocketAddress *address)
 {
-    return get_stack()->gethostbyname(address, name);
+    return get_stack()->gethostbyname(name, address);
 }
 
-int NetworkInterface::gethostbyname(SocketAddress *address, const char *name, nsapi_version_t version)
+int NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
-    return get_stack()->gethostbyname(address, name, version);
+    return get_stack()->gethostbyname(name, address, version);
 }
 
 int NetworkInterface::add_dns_server(const SocketAddress &address)

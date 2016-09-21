@@ -22,14 +22,14 @@
 
 
 // Default NetworkStack operations
-int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
+int NetworkStack::gethostbyname(const char *name, SocketAddress *address)
 {
-    return nsapi_dns_query(this, address, name);
+    return nsapi_dns_query(this, name, address);
 }
 
-int NetworkStack::gethostbyname(SocketAddress *address, const char *name, nsapi_version_t version)
+int NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
-    return nsapi_dns_query(this, address, name, version);
+    return nsapi_dns_query(this, name, address, version);
 }
 
 int NetworkStack::add_dns_server(const SocketAddress &address)
@@ -86,14 +86,14 @@ public:
         return address->get_ip_address();
     }
 
-    virtual int gethostbyname(SocketAddress *address, const char *name)
+    virtual int gethostbyname(const char *name, SocketAddress *address)
     {
         if (!_stack_api()->gethostbyname) {
-            return NetworkStack::gethostbyname(address, name);
+            return NetworkStack::gethostbyname(name, address);
         }
 
         nsapi_addr_t addr = {NSAPI_IPv4, 0};
-        int err = _stack_api()->gethostbyname(_stack(), &addr, name);
+        int err = _stack_api()->gethostbyname(_stack(), name, &addr);
         address->set_addr(addr);
         return err;
     }

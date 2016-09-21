@@ -52,7 +52,7 @@ int TCPSocket::connect(const SocketAddress &address)
 int TCPSocket::connect(const char *host, uint16_t port)
 {
     SocketAddress address;
-    int err = _stack->gethostbyname(&address, host);
+    int err = _stack->gethostbyname(host, &address);
     if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
