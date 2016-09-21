@@ -43,6 +43,8 @@ static struct lwip_socket {
     void *data;
 } lwip_arena[MEMP_NUM_NETCONN];
 
+static bool lwip_connected = false;
+
 static void lwip_arena_init(void)
 {
     memset(lwip_arena, 0, sizeof lwip_arena);
@@ -260,7 +262,6 @@ static void lwip_set_mac_address(void)
 #endif
 }
 
-
 /* LWIP interface implementation */
 const char *lwip_get_mac_address(void)
 {
@@ -317,7 +318,7 @@ char *lwip_get_gateway(char *buf, int buflen)
 int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
     // Check if we've already connected
-    if (lwip_get_ip_address()) {
+    if (lwip_connected) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -416,6 +417,7 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
         if (ret == SYS_ARCH_TIMEOUT) {
             return NSAPI_ERROR_DHCP_FAILURE;
         }
+        lwip_connected = true;
     }
 
 #if ADDR_TIMEOUT
@@ -432,7 +434,7 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 int lwip_bringdown(void)
 {
     // Check if we've connected
-    if (!lwip_get_ip_address()) {
+    if (!lwip_connected) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -447,6 +449,8 @@ int lwip_bringdown(void)
     }
 #endif
 
+    lwip_connected = false;
+    // TO DO - actually remove addresses from stack, and shut down properly
     return 0;
 }
 
@@ -492,7 +496,7 @@ static int lwip_gethostbyname(nsapi_stack_t *stack, const char *host, nsapi_addr
 static int lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     // check if network is connected
-    if (!lwip_get_ip_address()) {
+    if (!lwip_connected) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
