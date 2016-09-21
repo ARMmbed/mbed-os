@@ -41,19 +41,15 @@ void CRYPTO_IRQHandler()
 
 static void rng_get(unsigned char *pConversionData)
 {
-	uint32_t *p32ConversionData;
+    uint32_t *p32ConversionData;
 
-	p32ConversionData = (uint32_t *)pConversionData;
+    p32ConversionData = (uint32_t *)pConversionData;
 
-//	PRNG_Open(PRNG_KEY_SIZE_64, 0, 0);
-	PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());
+    PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());
     PRNG_Start();
     while (!g_PRNG_done);
 
     PRNG_Read(p32ConversionData);
-
-//    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *p32ConversionData, *(p32ConversionData+1), *(p32ConversionData+2), *(p32ConversionData+3));
-//    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *(p32ConversionData+4), *(p32ConversionData+5), *(p32ConversionData+6), *(p32ConversionData+7));
 }
 
 void rng_init(rng_t *obj)
@@ -76,7 +72,6 @@ void rng_free(rng_t *obj)
     (void)obj;
     PRNG_DISABLE_INT();
     NVIC_DisableIRQ(CRPT_IRQn);
-    //CLK_DisableModuleClock(CRPT_MODULE);
 }
 
 int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
@@ -87,10 +82,10 @@ int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_len
     if (length < 32) {
         unsigned char tmpBuff[32];
         rng_get(tmpBuff);
-        memcpy( output, &tmpBuff, length );
+        memcpy(output, &tmpBuff, length);
         *output_length = length;
     } else {
-        for ( int i = 0; i < (length/32); i++) {
+        for (int i = 0; i < (length/32); i++) {
             rng_get(output);
             *output_length += 32;
             output += 32;
