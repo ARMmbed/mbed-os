@@ -48,8 +48,18 @@ void deepsleep(void)
     // Stop HAL systick
     HAL_SuspendTick();
 
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+    // Request to enter STOP mode 1 with regulator in low power mode
+    if (__HAL_RCC_PWR_IS_CLK_ENABLED()) {
+        HAL_PWREx_EnableLowPowerRunMode();
+        HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+        HAL_PWREx_DisableLowPowerRunMode();
+    } else {
+        __HAL_RCC_PWR_CLK_ENABLE();
+        HAL_PWREx_EnableLowPowerRunMode();
+        HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+        HAL_PWREx_DisableLowPowerRunMode();
+        __HAL_RCC_PWR_CLK_DISABLE();
+    }
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
