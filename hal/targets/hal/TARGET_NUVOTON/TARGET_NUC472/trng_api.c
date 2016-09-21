@@ -24,7 +24,7 @@
 #include "cmsis.h"
 #include "NUC472_442.h"
 #include "us_ticker_api.h"
-#include "rng_api.h"
+#include "trng_api.h"
 
 /*
  * Get Random number generator.
@@ -39,7 +39,7 @@ void CRYPTO_IRQHandler()
     }
 } 
 
-static void rng_get(unsigned char *pConversionData)
+static void trng_get(unsigned char *pConversionData)
 {
     uint32_t *p32ConversionData;
 
@@ -52,7 +52,7 @@ static void rng_get(unsigned char *pConversionData)
     PRNG_Read(p32ConversionData);
 }
 
-void rng_init(rng_t *obj)
+void trng_init(trng_t *obj)
 {
     (void)obj;
     /* Unlock protected registers */
@@ -67,26 +67,26 @@ void rng_init(rng_t *obj)
     PRNG_ENABLE_INT();
 }
 
-void rng_free(rng_t *obj)
+void trng_free(trng_t *obj)
 {
     (void)obj;
     PRNG_DISABLE_INT();
     NVIC_DisableIRQ(CRPT_IRQn);
 }
 
-int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     (void)obj;
 
     *output_length = 0;
     if (length < 32) {
         unsigned char tmpBuff[32];
-        rng_get(tmpBuff);
+        trng_get(tmpBuff);
         memcpy(output, &tmpBuff, length);
         *output_length = length;
     } else {
         for (int i = 0; i < (length/32); i++) {
-            rng_get(output);
+            trng_get(output);
             *output_length += 32;
             output += 32;
         }

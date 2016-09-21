@@ -61,7 +61,7 @@ struct dac_s {
     DACName dac;
 };
 
-struct rng_s {
+struct trng_s {
 
 };
 

@@ -1,5 +1,5 @@
 /*
- *  Hardware entropy collector for the STM32F4 family
+ *  Hardware entropy collector for the STM32F7 family
  *
  *  Copyright (C) 2006-2016, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
@@ -19,24 +19,20 @@
  */
 
 
-#if defined(TARGET_STM32F405xx) || defined(TARGET_STM32F415xx) || defined(TARGET_STM32F407xx) || defined(TARGET_STM32F417xx) ||\
-    defined(TARGET_STM32F427xx) || defined(TARGET_STM32F437xx) || defined(TARGET_STM32F429xx) || defined(TARGET_STM32F439xx) ||\
-    defined(TARGET_STM32F410Tx) || defined(TARGET_STM32F410Cx) || defined(TARGET_STM32F410Rx) || defined(TARGET_STM32F469xx) ||\
-    defined(TARGET_STM32F479xx)
 #include <stdlib.h>
 #include "cmsis.h"
-#include "rng_api.h"
+#include "trng_api.h"
 
-/** rng_get_byte
+/** trng_get_byte
  *  @brief Get one byte of entropy from the RNG, assuming it is up and running.
  *  @param pointer to the hardware generated random byte.
  */
-static void rng_get_byte(rng_t *obj, unsigned char *byte )
+static void trng_get_byte(trng_t *obj, unsigned char *byte )
 {
     *byte = (unsigned char)HAL_RNG_GetRandomNumber(&obj->handle);
 }
 
-void rng_init(rng_t *obj)
+void trng_init(trng_t *obj)
 {
     /* RNG Peripheral clock enable */
     __HAL_RCC_RNG_CLK_ENABLE();
@@ -47,7 +43,7 @@ void rng_init(rng_t *obj)
 
 }
 
-void rng_free(rng_t *obj)
+void trng_free(trng_t *obj)
 {
     /*Disable the RNG peripheral */
     HAL_RNG_DeInit(&obj->handle);
@@ -55,13 +51,13 @@ void rng_free(rng_t *obj)
     __HAL_RCC_RNG_CLK_DISABLE();
 }
 
-int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     int ret;
 
     /* Get Random byte */
     for( uint32_t i = 0; i < length; i++ ){
-        rng_get_byte(obj, output + i );
+        trng_get_byte(obj, output + i );
     }
 
     *output_length = length;
@@ -74,6 +70,4 @@ int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_len
 
     return( ret );
 }
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F410xx || STM32F469xx || STM32F479xx */
 

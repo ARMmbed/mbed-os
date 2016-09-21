@@ -90,7 +90,7 @@ struct can_s {
     int index;
 };
 
-struct rng_s {
+struct trng_s {
     RNG_HandleTypeDef handle;
 };
 

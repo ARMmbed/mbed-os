@@ -13,55 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_RNG_API_H
-#define MBED_RNG_API_H
+#ifndef MBED_TRNG_API_H
+#define MBED_TRNG_API_H
 
 #include <stddef.h>
 #include "device.h"
 
-#if DEVICE_RNG
+#if DEVICE_TRNG
 
-/** RNG HAL structure. rng_s is declared in the target's HAL
+/** TRNG HAL structure. trng_s is declared in the target's HAL
  */
-typedef struct rng_s rng_t;
+typedef struct trng_s trng_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * \defgroup hal_rng RNG hal functions
+ * \defgroup hal_trng TRNG hal functions
  * @{
  */
 
-/** Initialize the RNG peripheral
+/** Initialize the TRNG peripheral
  *
- * @param obj The RNG object
+ * @param obj The TRNG object
  */
-void rng_init(rng_t *obj);
+void trng_init(trng_t *obj);
 
-/** Deinitialize the RNG peripheral
+/** Deinitialize the TRNG peripheral
  *
- * @param obj The RNG object
+ * @param obj The TRNG object
  */
-void rng_free(rng_t *obj);
+void trng_free(trng_t *obj);
 
-/** Get random data from RNG peripheral
+/** Get random data from TRNG peripheral
  *
- * @param obj The RNG object
+ * @param obj The TRNG object
  * @param output The pointer to an output array
  * @param length The length of output data
  * @param output_length The length of generated data
  * @return 0 success, -1 fail
  */
-int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length);
+int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length);
 
 /** Set an external entropy value
  *
- * @param obj The RNG object
+ * @param obj The TRNG object
  * @param seed_value Entropy value to be set
  */
-void rng_set_seed(rng_t *obj, uint32_t seed_value);
+void trng_set_seed(trng_t *obj, uint32_t seed_value);
 
 /**@}*/
 

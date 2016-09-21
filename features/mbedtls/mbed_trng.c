@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "hal/rng_api.h"
+#include "hal/trng_api.h"
 
-#if defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && defined(DEVICE_RNG)
+#if defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && defined(DEVICE_TRNG)
 
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
-    rng_t rng_obj;
-    rng_init(&rng_obj);
-    int ret = rng_get_bytes(&rng_obj, output, len, olen);
-    rng_free(&rng_obj);
+    trng_t trng_obj;
+    trng_init(&trng_obj);
+    int ret = trng_get_bytes(&trng_obj, output, len, olen);
+    trng_free(&trng_obj);
     return ret;
 }
 

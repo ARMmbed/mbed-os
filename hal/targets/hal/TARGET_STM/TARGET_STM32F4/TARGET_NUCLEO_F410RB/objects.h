@@ -65,7 +65,7 @@ struct dac_s {
     uint8_t channel;
 };
 
-struct rng_s {
+struct trng_s {
     RNG_HandleTypeDef handle;
 };
 

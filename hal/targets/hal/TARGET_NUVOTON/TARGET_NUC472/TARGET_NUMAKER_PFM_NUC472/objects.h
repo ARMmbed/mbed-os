@@ -124,7 +124,7 @@ struct sleep_s {
     int powerdown;
 };
 
-struct rng_s {
+struct trng_s {
 
 };
 
