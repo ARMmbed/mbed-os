@@ -58,6 +58,7 @@ static void rng_get(unsigned char *pConversionData)
 
 void rng_init(rng_t *obj)
 {
+    (void)obj;
     /* Unlock protected registers */
     SYS_UnlockReg();    
     /* Enable IP clock */
@@ -72,6 +73,7 @@ void rng_init(rng_t *obj)
 
 void rng_free(rng_t *obj)
 {
+    (void)obj;
     PRNG_DISABLE_INT();
     NVIC_DisableIRQ(CRPT_IRQn);
     //CLK_DisableModuleClock(CRPT_MODULE);
@@ -79,6 +81,8 @@ void rng_free(rng_t *obj)
 
 int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
+    (void)obj;
+
     *output_length = 0;
     if (length < 32) {
         unsigned char tmpBuff[32];

@@ -30,6 +30,7 @@
 
 void rng_init(rng_t *obj)
 {
+    (void)obj;
     CLOCK_EnableClock(kCLOCK_Rnga0);
     CLOCK_DisableClock(kCLOCK_Rnga0);
     CLOCK_EnableClock(kCLOCK_Rnga0);
@@ -37,6 +38,7 @@ void rng_init(rng_t *obj)
 
 void rng_free(rng_t *obj)
 {
+    (void)obj;
     CLOCK_DisableClock(kCLOCK_Rnga0);
 }
 
@@ -58,6 +60,7 @@ static void rng_get_byte(unsigned char *byte)
 
 int rng_get_bytes(rng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
+    (void)obj;
     size_t i;
     int ret;
 
