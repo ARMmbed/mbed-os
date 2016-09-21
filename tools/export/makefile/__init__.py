@@ -59,15 +59,15 @@ class Makefile(Exporter):
                       if (basename(dirname(dirname(self.export_dir)))
                           == "projectfiles")
                       else [".."]),
-            'cc_cmd': " ".join(["\"" + part + "\"" for part
+            'cc_cmd': " ".join(["\'" + part + "\'" for part
                                 in self.toolchain.cc]),
-            'cppc_cmd': " ".join(["\"" + part + "\"" for part
+            'cppc_cmd': " ".join(["\'" + part + "\'" for part
                                   in self.toolchain.cppc]),
-            'asm_cmd': " ".join(["\"" + part + "\"" for part
+            'asm_cmd': " ".join(["\'" + part + "\'" for part
                                  in self.toolchain.asm]),
-            'ld_cmd': " ".join(["\"" + part + "\"" for part
+            'ld_cmd': " ".join(["\'" + part + "\'" for part
                                 in self.toolchain.ld]),
-            'elf2bin_cmd': self.toolchain.elf2bin,
+            'elf2bin_cmd': "\'" + self.toolchain.elf2bin + "\'",
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
         }
