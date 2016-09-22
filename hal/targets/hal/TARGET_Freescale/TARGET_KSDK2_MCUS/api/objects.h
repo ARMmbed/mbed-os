@@ -62,7 +62,7 @@ struct dac_s {
 };
 
 struct trng_s {
-
+    uint8_t dummy;
 };
 
 #include "gpio_object.h"
