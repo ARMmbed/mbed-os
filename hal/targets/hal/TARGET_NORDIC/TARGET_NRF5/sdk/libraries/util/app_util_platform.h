@@ -111,10 +111,6 @@ typedef enum
 #define EXTERNAL_INT_VECTOR_OFFSET 16
 /**@endcond */
 
-#ifndef PACKED
-    #define PACKED(TYPE) __packed TYPE
-#endif
-
 void app_util_critical_region_enter (uint8_t *p_nested);
 void app_util_critical_region_exit (uint8_t nested);
 
