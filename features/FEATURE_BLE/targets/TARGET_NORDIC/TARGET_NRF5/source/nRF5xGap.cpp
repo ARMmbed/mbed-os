@@ -96,7 +96,7 @@ ble_error_t nRF5xGap::setAdvertisingData(const GapAdvertisingData &advData, cons
     //}
 
     /* Send advertising data! */
-    ASSERT(ERROR_NONE ==
+    ASSERT_TRUE(ERROR_NONE ==
            sd_ble_gap_adv_data_set(advData.getPayload(),
                                    advData.getPayloadLen(),
                                    scanResponse.getPayload(),
@@ -105,7 +105,7 @@ ble_error_t nRF5xGap::setAdvertisingData(const GapAdvertisingData &advData, cons
 
     /* Make sure the GAP Service appearance value is aligned with the
      *appearance from GapAdvertisingData */
-    ASSERT(ERROR_NONE == sd_ble_gap_appearance_set(advData.getAppearance()),
+    ASSERT_TRUE(ERROR_NONE == sd_ble_gap_appearance_set(advData.getAppearance()),
            BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     /* ToDo: Perform some checks on the payload, for example the Scan Response can't */
@@ -273,7 +273,7 @@ ble_error_t nRF5xGap::stopScan(void) {
 ble_error_t nRF5xGap::stopAdvertising(void)
 {
     /* Stop Advertising */
-    ASSERT(ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_TRUE(ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     state.advertising = 0;
 
