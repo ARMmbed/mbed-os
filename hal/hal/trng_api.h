@@ -50,7 +50,7 @@ void trng_free(trng_t *obj);
  *
  * @param obj The TRNG object
  * @param output The pointer to an output array
- * @param length The length of output data
+ * @param length The size of output data, to avoid buffer overwrite
  * @param output_length The length of generated data
  * @return 0 success, -1 fail
  */
