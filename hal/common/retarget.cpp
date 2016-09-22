@@ -629,6 +629,64 @@ extern "C" void exit(int return_code) {
 } //namespace std
 #endif
 
+#if defined(TOOLCHAIN_ARM) || defined(TOOLCHAIN_GCC)
+
+// This series of function disable the registration of global destructors
+// in a dynamic table which will be called when the application exit.
+// In mbed, program never exit properly, it dies.
+// More informations about this topic for ARMCC here:
+// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/6449.html
+extern "C" {
+int __aeabi_atexit(void *object, void (*dtor)(void* /*this*/), void *handle) {
+    return 1;
+}
+
+int __cxa_atexit(void (*dtor)(void* /*this*/), void *object, void *handle) {
+    return 1;
+}
+
+void __cxa_finalize(void *handle) {
+}
+
+} // end of extern "C"
+
+#endif
+
+
+#if defined(TOOLCHAIN_GCC)
+
+/*
+ * Depending on how newlib is  configured, it is often not enough to define
+ * __aeabi_atexit, __cxa_atexit and __cxa_finalize in order to override the
+ * behavior regarding the registration of handlers with atexit.
+ *
+ * To overcome this limitation, exit and atexit are overriden here.
+ */
+extern "C"{
+
+/**
+ * @brief Retarget of exit for GCC.
+ * @details Unlike the standard version, this function doesn't call any function
+ * registered with atexit before calling _exit.
+ */
+void __wrap_exit(int return_code) {
+    _exit(return_code);
+}
+
+/**
+ * @brief Retarget atexit from GCC.
+ * @details This function will always fail and never register any handler to be
+ * called at exit.
+ */
+int __wrap_atexit(void (*func)()) {
+    return 1;
+}
+
+}
+
+#endif
+
+
 
 namespace mbed {
 
