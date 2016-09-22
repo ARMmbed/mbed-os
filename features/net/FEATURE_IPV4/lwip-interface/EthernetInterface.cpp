@@ -22,6 +22,7 @@
 EthernetInterface::EthernetInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
+    return lwip_bringup(NULL);
 }
 
 int EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
