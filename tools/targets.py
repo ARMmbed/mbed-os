@@ -21,9 +21,14 @@ import struct
 import shutil
 import inspect
 import sys
+from collections import namedtuple
 from tools.patch import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict
+
+__all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
+           "HookError", "generate_py_target", "Target",
+           "CUMULATIVE_ATTRIBUTES", "get_resolution_order"]
 
 CORE_LABELS = {
     "ARM7TDMI-S": ["ARM7", "LIKE_CORTEX_ARM7"],
@@ -60,11 +65,58 @@ def cached(func):
         return CACHES[(func.__name__, args)]
     return wrapper
 
-class Target(object):
+
+# Cumulative attributes can have values appended to them, so they
+# need to be computed differently than regular attributes
+CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features']
+
+
+def get_resolution_order(json_data, target_name, order, level=0):
+    """ Return the order in which target descriptions are searched for
+    attributes. This mimics the Python 2.2 method resolution order, which
+    is what the old targets.py module used. For more details, check
+    http://makina-corpus.com/blog/metier/2014/python-tutorial-understanding-python-mro-class-search-path
+    The resolution order contains (name, level) tuples, where "name" is the
+    name of the class and "level" is the level in the inheritance hierarchy
+    (the target itself is at level 0, its first parent at level 1, its
+    parent's parent at level 2 and so on)
+    """
+    # the resolution order can't contain duplicate target names
+    if target_name not in [l[0] for l in order]:
+        order.append((target_name, level))
+    parents = json_data[target_name].get("inherits", [])
+    for par in parents:
+        order = get_resolution_order(json_data, par, order, level + 1)
+    return order
+
+
+def target(name, json_data):
+    """Construct a target object"""
+    resolution_order = get_resolution_order(json_data, name, [])
+    resolution_order_names = [tgt for tgt, _ in resolution_order]
+    return Target(name=name,
+                  json_data={key: value for key, value in json_data.items()
+                             if key in resolution_order_names},
+                  resolution_order=resolution_order,
+                  resolution_order_names=resolution_order_names)
+
+def generate_py_target(new_targets, name):
+    """Add one or more new target(s) represented as a Python dictionary
+    in 'new_targets'. It is an error to add a target with a name that
+    already exists.
+    """
+    base_targets = Target.get_json_target_data()
+    for new_target in new_targets.keys():
+        if new_target in base_targets:
+            raise Exception("Attempt to add target '%s' that already exists"
+                            % new_target)
+    total_data = {}
+    total_data.update(new_targets)
+    total_data.update(base_targets)
+    return target(name, total_data)
+
+class Target(namedtuple("Target", "name json_data resolution_order resolution_order_names")):
     """An object to represent a Target (MCU/Board)"""
-    # Cumulative attributes can have values appended to them, so they
-    # need to be computed differently than regular attributes
-    cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
 
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
@@ -95,24 +147,6 @@ class Target(object):
         return dict([(m[0], m[1]) for m in
                      inspect.getmembers(sys.modules[__name__])])
 
-    def __get_resolution_order(self, target_name, order, level=0):
-        """ Return the order in which target descriptions are searched for
-        attributes. This mimics the Python 2.2 method resolution order, which
-        is what the old targets.py module used. For more details, check
-        http://makina-corpus.com/blog/metier/2014/python-tutorial-understanding-python-mro-class-search-path
-        The resolution order contains (name, level) tuples, where "name" is the
-        name of the class and "level" is the level in the inheritance hierarchy
-        (the target itself is at level 0, its first parent at level 1, its
-        parent's parent at level 2 and so on)
-        """
-        # the resolution order can't contain duplicate target names
-        if target_name not in [l[0] for l in order]:
-            order.append((target_name, level))
-        parents = self.get_json_target_data()[target_name].get("inherits", [])
-        for par in parents:
-            order = self.__get_resolution_order(par, order, level + 1)
-        return order
-
     @staticmethod
     def __add_paths_to_progen(data):
         """Modify the exporter specification ("progen") by changing all
@@ -133,14 +167,14 @@ class Target(object):
         """Look for the attribute in the class and its parents, as defined by
         the resolution order
         """
-        tdata = self.get_json_target_data()
+        tdata = self.json_data
         # For a cumulative attribute, figure out when it was defined the
         # last time (in attribute resolution order) then follow the "_add"
         # and "_remove" data fields
-        for idx, target in enumerate(self.resolution_order):
+        for idx, tgt in enumerate(self.resolution_order):
             # the attribute was defined at this level in the resolution
             # order
-            if attrname in tdata[target[0]]:
+            if attrname in tdata[tgt[0]]:
                 def_idx = idx
                 break
         else:
@@ -192,13 +226,13 @@ class Target(object):
 
     def __getattr_helper(self, attrname):
         """Compute the value of a given target attribute"""
-        if attrname in self.cumulative_attributes:
+        if attrname in CUMULATIVE_ATTRIBUTES:
             return self.__getattr_cumulative(attrname)
         else:
-            tdata = self.get_json_target_data()
+            tdata = self.json_data
             starting_value = None
-            for target in self.resolution_order:
-                data = tdata[target[0]]
+            for tgt in self.resolution_order:
+                data = tdata[tgt[0]]
                 if data.has_key(attrname):
                     starting_value = data[attrname]
                     break
@@ -226,17 +260,8 @@ class Target(object):
     @cached
     def get_target(target_name):
         """ Return the target instance starting from the target name """
-        return Target(target_name)
+        return target(target_name, Target.get_json_target_data())
 
-    def __init__(self, target_name):
-        self.name = target_name
-
-        # Compute resolution order once (it will be used later in __getattr__)
-        self.resolution_order = self.__get_resolution_order(self.name, [])
-        # Create also a list with only the names of the targets in the
-        # resolution order
-        self.resolution_order_names = [target[0] for target
-                                       in self.resolution_order]
 
     @property
     def program_cycle_s(self):
@@ -248,7 +273,8 @@ class Target(object):
         except AttributeError:
             return 4 if self.is_disk_virtual else 1.5
 
-    def get_labels(self):
+    @property
+    def labels(self):
         """Get all possible labels for this target"""
         labels = [self.name] + CORE_LABELS[self.core] + self.extra_labels
         # Automatically define UVISOR_UNSUPPORTED if the target doesn't
@@ -487,9 +513,9 @@ def get_target_detect_codes():
     """ Returns dictionary mapping detect_code -> platform_name
     """
     result = {}
-    for target in TARGETS:
-        for detect_code in target.detect_code:
-            result[detect_code] = target.name
+    for tgt in TARGETS:
+        for detect_code in tgt.detect_code:
+            result[detect_code] = tgt.name
     return result
 
 def set_targets_json_location(location=None):
@@ -500,9 +526,9 @@ def set_targets_json_location(location=None):
     # re-initialization does not create new variables, it keeps the old ones
     # instead. This ensures compatibility with code that does
     # "from tools.targets import TARGET_NAMES"
-    TARGETS[:] = [Target.get_target(target) for target, obj
+    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
                   in Target.get_json_target_data().items()
                   if obj.get("public", True)]
     TARGET_MAP.clear()
-    TARGET_MAP.update(dict([(target.name, target) for target in TARGETS]))
+    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
     TARGET_NAMES[:] = TARGET_MAP.keys()
