@@ -18,6 +18,7 @@
  *
  */
 
+#if defined(DEVICE_TRNG)
 
 #if defined(TARGET_STM32F405xx) || defined(TARGET_STM32F415xx) || defined(TARGET_STM32F407xx) || defined(TARGET_STM32F417xx) ||\
     defined(TARGET_STM32F427xx) || defined(TARGET_STM32F437xx) || defined(TARGET_STM32F429xx) || defined(TARGET_STM32F439xx) ||\
@@ -78,3 +79,4 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
           STM32F429xx || STM32F439xx || STM32F410xx || STM32F469xx || STM32F479xx */
 
+#endif

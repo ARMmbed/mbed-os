@@ -18,6 +18,7 @@
  *
  */
 
+#if defined(DEVICE_TRNG)
 
 #include <stdlib.h>
 #include "cmsis.h"
@@ -71,3 +72,4 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     return( ret );
 }
 
+#endif

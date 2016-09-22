@@ -18,6 +18,7 @@
  *
  */
 
+#if DEVICE_TRNG
 
 #include <stdlib.h>
 #include <string.h>
@@ -95,5 +96,5 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     return 0;
 }
  
-
+#endif
 
