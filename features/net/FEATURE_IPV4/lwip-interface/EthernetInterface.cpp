@@ -50,7 +50,8 @@ int EthernetInterface::connect()
 
 int EthernetInterface::disconnect()
 {
-    return lwip_bringdown();
+    lwip_bringdown();
+    return 0;
 }
 
 const char *EthernetInterface::get_mac_address()
