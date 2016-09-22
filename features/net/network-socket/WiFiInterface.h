@@ -20,6 +20,7 @@
 #include <string.h>
 #include "Callback.h"
 #include "network-socket/NetworkInterface.h"
+#include "nsapi.h"
 
 /** WiFiInterface class
  *
