@@ -20,6 +20,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define CLASS_IN 1
+
+#define RR_A 1
+#define RR_AAAA 28
 
 // DNS options
 #define DNS_BUFFER_SIZE 512
@@ -33,7 +37,6 @@ nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
     {NSAPI_IPv4, {8, 26, 56, 26}},
     {NSAPI_IPv4, {208, 67, 222, 222}},
 };
-
 
 // DNS server configuration
 extern "C" int nsapi_dns_add_server(nsapi_addr_t addr)
@@ -100,11 +103,11 @@ static void dns_append_question(uint8_t **p, const char *host, nsapi_version_t v
 
     // fill out question footer
     if (version == NSAPI_IPv4) {
-        dns_append_word(p, 1);  // qtype  = ipv4
+        dns_append_word(p, RR_A);       // qtype  = ipv4
     } else {
-        dns_append_word(p, 28); // qtype  = ipv6
+        dns_append_word(p, RR_AAAA);    // qtype  = ipv6
     }
-    dns_append_word(p, 1);      // qclass = 1
+    dns_append_word(p, CLASS_IN);
 }
 
 static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned addr_count)
@@ -162,7 +165,7 @@ static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned add
         *p += 4;                              // ttl
         uint16_t rdlength = dns_scan_word(p); // rdlength
 
-        if (rtype == 1 && rclass == 1 && rdlength == NSAPI_IPv4_BYTES) {
+        if (rtype == RR_A && rclass == CLASS_IN && rdlength == NSAPI_IPv4_BYTES) {
             // accept A record
             addr->version = NSAPI_IPv4;
             for (int i = 0; i < NSAPI_IPv4_BYTES; i++) {
@@ -171,7 +174,7 @@ static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned add
 
             addr += 1;
             count += 1;
-        } else if (rtype == 28 && rclass == 1 && rdlength == NSAPI_IPv6_BYTES) {
+        } else if (rtype == RR_AAAA && rclass == CLASS_IN && rdlength == NSAPI_IPv6_BYTES) {
             // accept AAAA record
             addr->version = NSAPI_IPv6;
             for (int i = 0; i < NSAPI_IPv6_BYTES; i++) {
@@ -219,8 +222,8 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
     // check against each dns server
     for (unsigned i = 0; i < DNS_SERVERS_SIZE; i++) {
         // send the question
-        uint8_t *p = packet;
-        dns_append_question(&p, host, version);
+        uint8_t *question = packet;
+        dns_append_question(&question, host, version);
 
         err = socket.sendto(SocketAddress(dns_servers[i], 53), packet, DNS_BUFFER_SIZE);
         if (err == NSAPI_ERROR_WOULD_BLOCK) {
@@ -239,12 +242,9 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
             break;
         }
 
-        p = packet;
-        int found = dns_scan_response((const uint8_t **)&p, addr, addr_count);
-        if (found) {
-            result = found;
-            break;
-        }
+        const uint8_t *response = packet;
+        dns_scan_response(&response, addr, addr_count);
+        break;
     }
 
     // clean up packet

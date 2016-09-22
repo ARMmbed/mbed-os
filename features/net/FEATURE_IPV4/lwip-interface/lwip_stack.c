@@ -29,7 +29,9 @@
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
-
+#include "lwip/mld6.h"
+#include "lwip/dns.h"
+#include "lwip/udp.h"
 
 /* Static arena of sockets */
 static struct lwip_socket {
@@ -94,6 +96,7 @@ static struct netif lwip_netif;
 static bool lwip_dhcp = false;
 static char lwip_mac_address[NSAPI_MAC_SIZE] = "\0";
 
+#if !LWIP_IPV4 || !LWIP_IPV6
 static bool all_zeros(const uint8_t *p, int len)
 {
     for (int i = 0; i < len; i++) {
@@ -104,6 +107,7 @@ static bool all_zeros(const uint8_t *p, int len)
 
     return true;
 }
+#endif
 
 static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 {
@@ -196,8 +200,8 @@ static const ip_addr_t *lwip_get_ipv6_addr(const struct netif *netif)
 
 const ip_addr_t *lwip_get_ip_addr(bool any_addr, const struct netif *netif)
 {
-    const ip_addr_t *pref_ip_addr;
-    const ip_addr_t *npref_ip_addr;
+    const ip_addr_t *pref_ip_addr = 0;
+    const ip_addr_t *npref_ip_addr = 0;
 
 #if IP_VERSION_PREF == PREF_IPV4
     pref_ip_addr = lwip_get_ipv4_addr(netif);
@@ -215,6 +219,37 @@ const ip_addr_t *lwip_get_ip_addr(bool any_addr, const struct netif *netif)
 
     return NULL;
 }
+
+#if LWIP_IPV6
+void add_dns_addr(struct netif *lwip_netif)
+{
+    const ip_addr_t *ip_addr = lwip_get_ip_addr(true, lwip_netif);
+    if (ip_addr) {
+        if (IP_IS_V6(ip_addr)) {
+            const ip_addr_t *dns_ip_addr;
+            bool dns_addr_exists = false;
+
+            for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
+                dns_ip_addr = dns_getserver(numdns);
+                if (!ip_addr_isany(dns_ip_addr)) {
+                   dns_addr_exists = true;
+                   break;
+                }
+            }
+
+            if (!dns_addr_exists) {
+                /* 2001:4860:4860::8888 google */
+                ip_addr_t ipv6_dns_addr = IPADDR6_INIT(
+                        PP_HTONL(0x20014860UL),
+                        PP_HTONL(0x48600000UL),
+                        PP_HTONL(0x00000000UL),
+                        PP_HTONL(0x00008888UL));
+                dns_setserver(0, &ipv6_dns_addr);
+            }
+        }
+    }
+}
+#endif
 
 static sys_sem_t lwip_tcpip_inited;
 static void lwip_tcpip_init_irq(void *eh)
@@ -353,28 +388,6 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
     // Zero out socket set
     lwip_arena_init();
 
-    // Connect to the network
-    lwip_dhcp = dhcp;
-    if (lwip_dhcp) {
-        err_t err = dhcp_start(&lwip_netif);
-        if (err) {
-            return NSAPI_ERROR_DHCP_FAILURE;
-        }
-    } else {
-        ip_addr_t ip_addr;
-        ip_addr_t netmask_addr;
-        ip_addr_t gw_addr;
-
-        if (!inet_aton(ip, &ip_addr) ||
-            !inet_aton(netmask, &netmask_addr) ||
-            !inet_aton(gw, &gw_addr)) {
-            return NSAPI_ERROR_PARAMETER;
-        }
-
-        netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
-        netif_set_up(&lwip_netif);
-    }
-
 #if LWIP_IPV6
     netif_create_ip6_linklocal_address(&lwip_netif, 1/*from MAC*/);
 #if LWIP_IPV6_MLD
@@ -386,7 +399,7 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
   if (lwip_netif.mld_mac_filter != NULL) {
     ip6_addr_t ip6_allnodes_ll;
     ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
-    lwip_netif.mld_mac_filter(&lwip_netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
+    lwip_netif.mld_mac_filter(&lwip_netif, &ip6_allnodes_ll, MLD6_ADD_MAC_FILTER);
   }
 #endif /* LWIP_IPV6_MLD */
 
@@ -407,13 +420,40 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
         }
     }
 
+#if LWIP_IPV4
+    if (!dhcp) {
+        ip4_addr_t ip_addr;
+        ip4_addr_t netmask_addr;
+        ip4_addr_t gw_addr;
+
+        if (!inet_aton(ip, &ip_addr) ||
+            !inet_aton(netmask, &netmask_addr) ||
+            !inet_aton(gw, &gw_addr)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+
+        netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
+    }
+#endif
+
     netif_set_up(&lwip_netif);
+
+#if LWIP_IPV4
+    // Connect to the network
+    lwip_dhcp = dhcp;
+
+    if (lwip_dhcp) {
+        err_t err = dhcp_start(&lwip_netif);
+        if (err) {
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+    }
+#endif
 
     // If doesn't have address
     if (!lwip_get_ip_addr(true, &lwip_netif)) {
         //ret = sys_arch_sem_wait(&lwip_netif_has_addr, 15000);
         ret = sys_arch_sem_wait(&lwip_netif_has_addr, 30000);
-
         if (ret == SYS_ARCH_TIMEOUT) {
             return NSAPI_ERROR_DHCP_FAILURE;
         }
@@ -426,6 +466,10 @@ int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
     if (!lwip_get_ip_addr(false, &lwip_netif)) {
         ret = sys_arch_sem_wait(&lwip_netif_has_addr, ADDR_TIMEOUT * 1000);
     }
+#endif
+
+#if LWIP_IPV6
+    add_dns_addr(&lwip_netif);
 #endif
 
     return 0;
@@ -453,7 +497,6 @@ int lwip_bringdown(void)
     // TO DO - actually remove addresses from stack, and shut down properly
     return 0;
 }
-
 
 /* LWIP error remapping */
 static int lwip_err_remap(err_t err) {
@@ -484,12 +527,27 @@ static int lwip_err_remap(err_t err) {
 /* LWIP network stack implementation */
 static int lwip_gethostbyname(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr)
 {
-    err_t err = netconn_gethostbyname(host, (ip_addr_t *)addr->bytes);
+    ip_addr_t lwip_addr;
+
+#if LWIP_IPV4 && LWIP_IPV6
+    u8_t addr_type;
+    const ip_addr_t *ip_addr;
+    ip_addr = lwip_get_ip_addr(true, &lwip_netif);
+    if (IP_IS_V6(ip_addr)) {
+        addr_type = NETCONN_DNS_IPV6;
+    } else {
+        addr_type = NETCONN_DNS_IPV4;
+    }
+    err_t err = netconn_gethostbyname_addrtype(host, &lwip_addr, addr_type);
+#else
+    err_t err = netconn_gethostbyname(host, &lwip_addr);
+#endif
     if (err != ERR_OK) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
 
-    addr->version = NSAPI_IPv4;
+    convert_lwip_addr_to_mbed(addr, &lwip_addr);
+
     return 0;
 }
 
@@ -509,7 +567,7 @@ static int lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_
     u8_t lwip_proto = proto == NSAPI_TCP ? NETCONN_TCP : NETCONN_UDP;
 
 #if LWIP_IPV6 && LWIP_IPV4
-    ip_addr_t *ip_addr;
+    const ip_addr_t *ip_addr;
     ip_addr = lwip_get_ip_addr(true, &lwip_netif);
 
     if (IP_IS_V6(ip_addr)) {
