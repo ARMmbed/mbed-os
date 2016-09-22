@@ -56,13 +56,6 @@ void trng_free(trng_t *obj);
  */
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length);
 
-/** Set an external entropy value
- *
- * @param obj The TRNG object
- * @param seed_value Entropy value to be set
- */
-void trng_set_seed(trng_t *obj, uint32_t seed_value);
-
 /**@}*/
 
 #ifdef __cplusplus
