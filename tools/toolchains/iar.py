@@ -43,7 +43,7 @@ class IAR(mbedToolchain):
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
         'asm': [],
         'c': ["--vla"],
-        'cxx': ["--guard_calls", "--no_static_destruction"],
+        'cxx': ["--guard_calls"],
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
 
@@ -61,53 +61,37 @@ class IAR(mbedToolchain):
         else:
             cpuchoice = target.core
 
-        # flags_cmd are used only by our scripts, the project files have them already defined,
-        # using this flags results in the errors (duplication)
-        # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
-        if target.core == "Cortex-M4F":
-          asm_flags_cmd = [
-              "--cpu", "Cortex-M4F"
-          ]
-        else:
-          asm_flags_cmd = [
-              "--cpu", cpuchoice
-          ]
-        # custom c flags
-        if target.core == "Cortex-M4F":
-          c_flags_cmd = [
-              "--cpu", "Cortex-M4F",
-              "--thumb", "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h")
-          ]
-        else:
-          c_flags_cmd = [
-              "--cpu", cpuchoice,
-              "--thumb", "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h")
-          ]
-        # custom c++ cmd flags
-        cxx_flags_cmd = [
-            "--c++", "--no_rtti", "--no_exceptions"
-        ]
+        #  extra flags are used only by our scripts, the exported IAR project files
+        #  have them defined in XML, and are not allowed as option flags
+
+        extra_asm_flags = ["--cpu", cpuchoice]
+
+        common_flags = self.flags["common"] + ["--cpu", cpuchoice,
+                  "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h"),
+                  "--thumb"]
+        extra_cxx_flags = ["--no_rtti", "--no_exceptions", "--c++",  "--no_static_destruction"]
+
+        #  asm accepts --fpu FPU, not like c/c++ --fpu=Core
         if target.core == "Cortex-M7FD":
-            asm_flags_cmd += ["--fpu", "VFPv5"]
-            c_flags_cmd.append("--fpu=VFPv5")
+            extra_asm_flags += ["--fpu", "VFPv5"]
+            common_flags.append("--fpu=VFPv5")
         elif target.core == "Cortex-M7F":
-            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
-            c_flags_cmd.append("--fpu=VFPv5_sp")
+            extra_asm_flags += ["--fpu", "VFPv5_sp"]
+            common_flags.append("--fpu=VFPv5_sp")
 
         if "debug-info" in self.options:
-            c_flags_cmd.append("-r")
-            c_flags_cmd.append("-On")
+            common_flags.extend(["-r","-On"])
         else:
-            c_flags_cmd.append("-Oh")
+            common_flags.append("-Oh")
 
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
-        self.asm  = [join(IAR_BIN, "iasmarm")] + asm_flags_cmd + self.flags["asm"]
+        self.asm  = [join(IAR_BIN, "iasmarm")] + extra_asm_flags + self.flags["asm"]
         self.cc   = [main_cc]
         self.cppc = [main_cc]
-        self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
-        self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
+        self.cc += common_flags + self.flags["c"]
+        self.cppc += common_flags + extra_cxx_flags + self.flags["cxx"]
         self.ld   = [join(IAR_BIN, "ilinkarm")]
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
