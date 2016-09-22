@@ -1531,7 +1531,7 @@
         "extra_labels_add": ["NRF51_DK"],
         "macros_add": ["TARGET_NRF51_DK"]
     },
-    "NRF51_DONGLE": {
+    "NRF51_DONGLE_LEGACY": {
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dongle"},
         "release_versions": ["2"]
@@ -1977,6 +1977,12 @@
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "progen": {"target": "nrf51-dk"},
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "release_versions": ["2", "5"]
+    },
+    "NRF51_DONGLE": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "progen": {"target": "nrf51-dongle"},
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],        
         "release_versions": ["2", "5"]
     },
     "MCU_NRF52": {
