@@ -1,5 +1,5 @@
-/* LWIP implementation of NetworkInterfaceAPI
- * Copyright (c) 2015 ARM Limited
+/* LWIPIPStackInterface
+ * Copyright (c) 2015 - 2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef LWIP_STACK_H
-#define LWIP_STACK_H
+#include "IPStackInterface.h"
+#include "lwip_stack.h"
 
-#include "nsapi.h"
-#include "emac_api.h"
+/** LWIP specific implementation of IPStackInterface */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-// Access to lwip through the nsapi
-int lwip_bringup(emac_interface_t *emac);
-void lwip_bringdown(void);
-
-extern nsapi_stack_t lwip_stack;
-
-const char *lwip_get_mac_address(void);
-const char *lwip_get_ip_address(void);
-
-
-#ifdef __cplusplus
+void IPStackInterface::bringup(emac_interface_t *emac)
+{
+    lwip_bringup(emac);
 }
-#endif
 
-#endif
+void IPStackInterface::bringdown()
+{
+    lwip_bringdown();
+}
+
+const char * IPStackInterface::get_mac_address()
+{
+    return lwip_get_mac_address();
+}
+
+const char * IPStackInterface::get_ip_address()
+{
+    return lwip_get_ip_address();
+}
