@@ -169,7 +169,7 @@ static void record_purge_disconnected()
                                    m_bcs.valid_conn_handles,
                                  (~m_bcs.flags.connected_flags) & (m_bcs.flags.valid_flags));
 
-    for (int i = 0; i < disconnected_list.len; i++)
+    for (uint32_t i = 0; i < disconnected_list.len; i++)
     {
         record_invalidate(disconnected_list.flag_keys[i]);
     }
