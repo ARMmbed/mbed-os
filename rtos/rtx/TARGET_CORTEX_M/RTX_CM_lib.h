@@ -352,6 +352,7 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 extern void pre_main (void);
 
 #if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832) || defined (TARGET_STM32F334R8) ||\
+    defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || \
     defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8)
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
 #else
@@ -499,9 +500,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F429ZI) || defined(TARGET_UBLOX_C029)
 #define INITIAL_SP            (0x20030000UL)
 
-#elif defined(TARGET_STM32F072RB)
-#define INITIAL_SP            (0x20004000UL)
-
 #elif defined(TARGET_STM32F091RC)
 #define INITIAL_SP            (0x20008000UL)
 
@@ -532,8 +530,8 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32F446ZE)
 #define INITIAL_SP            (0x20020000UL)
 
-#elif defined(TARGET_STM32F070RB)
-#define INITIAL_SP            (0x20002000UL)
+#elif defined(TARGET_STM32F072RB) || defined(TARGET_STM32F070RB)
+#define INITIAL_SP            (0x20004000UL)
 
 #elif defined(TARGET_STM32L432KC)
 #define INITIAL_SP            (0x2000C000UL)
