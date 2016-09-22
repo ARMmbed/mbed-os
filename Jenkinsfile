@@ -14,6 +14,9 @@ def toolchains = [
   GCC_ARM: "arm-none-eabi-gcc"
   ]
 
+// mbed.getCurrentBranch returns either local branch name or reference to pull request
+def currentBranch = mbed.getCurrentBranch()
+
 // Create a map of predefined build steps 
 def parallelSteps = mbed.createParalleSteps("mbed-os", targets, toolchains)
 
@@ -25,5 +28,5 @@ def testApps = [
   "mbed-client-testapp"
   ]
 
-// buildTestApps accepts array of test application names and a mbed-os commit hash as parameters
-mbed.buildTestApps(testApps, "${env.GIT_REVISION}")
+// buildTestApps accepts array of test application names and a mbed-os branch or PR reference as parameters
+mbed.buildTestApps(testApps, "${currentBranch}")
