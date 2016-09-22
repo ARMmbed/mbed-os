@@ -33,7 +33,7 @@ int main() {
 
     greentea_send_kv("target_ip", eth.get_ip_address());
 
-    bool result = true;
+    bool result = false;
 
     char recv_key[] = "host_port";
     char ipbuf[60] = {0};
@@ -66,6 +66,8 @@ int main() {
             result = false;
             break;
         }
+
+        result = true;
     }
 
     sock.close();
