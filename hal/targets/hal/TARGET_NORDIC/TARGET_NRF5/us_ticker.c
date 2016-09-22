@@ -284,7 +284,7 @@ US_TICKER_HANDLER
     push {r3, lr}
     bl common_rtc_irq_handler
     pop {r3, pc}
-    nop /* padding */
+    ; ALIGN ;
 }
 
 #elif defined (__GNUC__)        /* GNU Compiler */
