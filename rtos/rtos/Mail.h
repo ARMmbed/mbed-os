@@ -29,30 +29,14 @@
 
 namespace rtos {
 
-/** The Mail class allow to control, send, receive, or wait for mail.
- A mail is a memory block that is send to a thread or interrupt service routine.
-  @tparam  T         data type of a single message element.
-  @tparam  queue_sz  maximum number of messages in queue.
+/** GenericMail is an internal class which implements the actual Mail interface for both
+ *  Mail object and DynamicMail objects.
+ *
+ *  @tparam  T         data type of a single message element.
 */
-template<typename T, uint32_t queue_sz>
-class Mail {
+template<typename T>
+class GenericMail {
 public:
-    /** Create and Initialise Mail queue. */
-    Mail() {
-    #ifdef CMSIS_OS_RTX
-        memset(_mail_q, 0, sizeof(_mail_q));
-        _mail_p[0] = _mail_q;
-
-        memset(_mail_m, 0, sizeof(_mail_m));
-        _mail_p[1] = _mail_m;
-
-        _mail_def.pool = _mail_p;
-        _mail_def.queue_sz = queue_sz;
-        _mail_def.item_sz = sizeof(T);
-    #endif
-        _mail_id = osMailCreate(&_mail_def, NULL);
-    }
-
     /** Allocate a memory block of type T
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0).
       @return  pointer to memory block that can be filled with mail or NULL in case error.
@@ -93,17 +77,82 @@ public:
         return osMailFree(_mail_id, (void*)mptr);
     }
 
-private:
+protected:
     osMailQId    _mail_id;
     osMailQDef_t _mail_def;
+
+#ifdef CMSIS_OS_RTX
+    void        *_mail_p[2];
+#endif
+
+    GenericMail(uint32_t queue_sz, uint32_t *mail_q, uint32_t *mail_m) {
+    #ifdef CMSIS_OS_RTX
+        memset(mail_q, 0, (4+queue_sz)*sizeof(uint32_t));
+        _mail_p[0] = mail_q;
+
+        memset(mail_m, 0, (3+((sizeof(T)+3)/4)*(queue_sz))*sizeof(uint32_t));
+        _mail_p[1] = mail_m;
+
+        _mail_def.pool = _mail_p;
+        _mail_def.queue_sz = queue_sz;
+        _mail_def.item_sz = sizeof(T);
+    #endif
+        _mail_id = osMailCreate(&_mail_def, NULL);
+    }
+};
+
+/** A mail is a memory block that is send to a thread or interrupt service routine.
+ *  This implementation of Mail doesn't allocate memory dynamically.
+ *
+ *  @tparam  T         data type of a single message element.
+ *  @tparam  queue_sz  maximum number of messages in queue.
+*/
+template<typename T, uint32_t queue_sz>
+class Mail: public GenericMail<T> {
+public:
+    /** Create and Initialise Mail queue. */
+#ifdef CMSIS_OS_RTX
+    Mail(): GenericMail<T>(queue_sz, _mail_q, _mail_m) {}
+#else
+    Mail(): GenericMail<T>(queue_sz, NULL, NULL) {}
+#endif
+
+private:
 #ifdef CMSIS_OS_RTX
     uint32_t     _mail_q[4+(queue_sz)];
     uint32_t     _mail_m[3+((sizeof(T)+3)/4)*(queue_sz)];
-    void        *_mail_p[2];
 #endif
 };
 
-}
+/** A mail is a memory block that is send to a thread or interrupt service routine.
+ *  This implementation of Mail allocates memory dynamically.
+ *
+ *  @tparam  T         data type of a single message element.
+*/
+template <typename T>
+class DynamicMail: public GenericMail<T> {
+public:
+    /** Create and Initialise Mail queue.
+     *
+     *  @param queue_sz Maximum number of messages in queue
+     */
+#ifdef CMSIS_OS_RTX
+    DynamicMail(uint32_t queue_sz): GenericMail<T>(queue_sz, new uint32_t[4+queue_sz], new uint32_t[3+((sizeof(T)+3)/4)*(queue_sz)]) {}
+#else
+    DynamicMail(uint32_t queue_sz): GenericMail<T>(queue_sz, NULL, NULL) {}
+#endif
+
+    ~DynamicMail() {
+        if (this->_mail_p[0] != NULL) {
+            delete[] (uint32_t*)(this->_mail_p[0]);
+        }
+        if (this->_mail_p[1] != NULL) {
+            delete[] (uint32_t*)(this->_mail_p[1]);
+        }
+    }
+};
+
+} // namespace mbed
 
 #endif
 

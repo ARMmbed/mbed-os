@@ -43,22 +43,21 @@ typedef struct {
 Mail<mail_t, QUEUE_SIZE> mail_box;
 
 void send_thread (void const *argument) {
-    static uint32_t i = 10;
+    uint32_t i = 10;
+    GenericMail<mail_t> *p_mail = (GenericMail<mail_t>*)argument;
+
     while (true) {
         i++; // fake data update
-        mail_t *mail = mail_box.alloc();
+        mail_t *mail = p_mail->alloc();
         mail->voltage = CREATE_VOLTAGE(i);
         mail->current = CREATE_CURRENT(i);
         mail->counter = i;
-        mail_box.put(mail);
+        p_mail->put(mail);
         Thread::wait(QUEUE_PUT_DELAY);
     }
 }
 
-int main (void) {
-    GREENTEA_SETUP(20, "default_auto");
-
-    Thread thread(send_thread, NULL, osPriorityNormal, STACK_SIZE);
+bool test_once(GenericMail<mail_t>& mail_box) {
     bool result = true;
     int result_counter = 0;
 
@@ -82,6 +81,31 @@ int main (void) {
                 break;
             }
         }
+    }
+    return result;
+}
+
+int main (void) {
+    GREENTEA_SETUP(20, "default_auto");
+
+    Thread thread(osPriorityNormal, STACK_SIZE);
+
+    printf("Testing Mail\r\n");
+    thread.start(callback(&mail_box, send_thread));
+    bool result = test_once(mail_box);
+    thread.terminate();
+    if (!result) {
+        printf("Mail tests failed!\r\n");
+        GREENTEA_TESTSUITE_RESULT(false);
+        return 0;
+    }
+
+    printf("Testing DynamicMail\r\n");
+    DynamicMail<mail_t> dyn_mail(QUEUE_SIZE);
+    thread.start(callback(&dyn_mail, send_thread));
+    result = test_once(dyn_mail);
+    if (!result) {
+        printf("DynamicMail tests failed!\r\n");
     }
     GREENTEA_TESTSUITE_RESULT(result);
     return 0;
