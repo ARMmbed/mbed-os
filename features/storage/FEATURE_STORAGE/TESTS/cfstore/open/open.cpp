@@ -69,8 +69,8 @@ UVISOR_BOX_CONFIG(cfstore_open_box1, UVISOR_BOX_STACK_SIZE);
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_open_test_01_kv_data[] = {
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "missing"},
-        { NULL, NULL},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "missing"},
+    { NULL, NULL},
 };
 
 
@@ -153,7 +153,7 @@ control_t cfstore_open_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: read value data (%s) != KV value data (key_name=\"%s\", value=\"%s\")\n", __func__, read_buf, node->key_name, node->value);
     TEST_ASSERT_MESSAGE(strncmp(read_buf, node->value, strlen(node->value)) == 0, cfstore_open_utest_msg_g);
 
-    if(read_buf){
+    if (read_buf) {
         free(read_buf);
     }
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Close() call failed.\n", __func__);
@@ -166,8 +166,8 @@ control_t cfstore_open_test_01_end(const size_t call_count)
 }
 
 static cfstore_kv_data_t cfstore_open_test_02_data[] = {
-        CFSTORE_INIT_1_TABLE_MID_NODE,
-        { NULL, NULL},
+    CFSTORE_INIT_1_TABLE_MID_NODE,
+    { NULL, NULL},
 };
 
 /**
@@ -344,23 +344,22 @@ typedef struct cfstore_open_kv_name_ascii_node {
 static const uint32_t cfstore_open_kv_name_ascii_table_code_sentinel_g = 256;
 
 /*@brief    table recording ascii character codes permitted in kv names */
-static cfstore_open_kv_name_ascii_node cfstore_open_kv_name_ascii_table[] =
-{
-        {0, false},         /* codes 0-44 not allowed */
-        {45, true},         /* codes 45-46 == [-.] allowed */
-        {47, false},        /* code 47 not allowed */
-        {48, true},         /* codes 48-57 not allowed */
-        {58, false},        /* codes 46-64 not allowed */
-        {64, true},         /* codes 64-91 allowed [@A-Z] */
-        {91, false},        /* code 91-96 not allowed */
-        {95, true},         /* code 95 allowed '_' */
-        {96, false},        /* codes 96 not allowed */
-        {97, true},         /* codes 65-90 allowed [A-Z] and {*/
-        {123, false},       /* codes 123 '}' not allowed on its own*/
-        {124, false},       /* codes 124 not allowed */
-        {125, false},       /* code 125 '}' not allowed on its own*/
-        {126, false},       /* codes 126-255 not allowed */
-        {cfstore_open_kv_name_ascii_table_code_sentinel_g, false},       /* sentinel */
+static cfstore_open_kv_name_ascii_node cfstore_open_kv_name_ascii_table[] = {
+    {0, false},         /* codes 0-44 not allowed */
+    {45, true},         /* codes 45-46 == [-.] allowed */
+    {47, false},        /* code 47 not allowed */
+    {48, true},         /* codes 48-57 not allowed */
+    {58, false},        /* codes 46-64 not allowed */
+    {64, true},         /* codes 64-91 allowed [@A-Z] */
+    {91, false},        /* code 91-96 not allowed */
+    {95, true},         /* code 95 allowed '_' */
+    {96, false},        /* codes 96 not allowed */
+    {97, true},         /* codes 65-90 allowed [A-Z] and {*/
+    {123, false},       /* codes 123 '}' not allowed on its own*/
+    {124, false},       /* codes 124 not allowed */
+    {125, false},       /* code 125 '}' not allowed on its own*/
+    {126, false},       /* codes 126-255 not allowed */
+    {cfstore_open_kv_name_ascii_table_code_sentinel_g, false},       /* sentinel */
 };
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
@@ -404,14 +403,11 @@ control_t cfstore_open_test_05_end(const size_t call_count)
 
     /* create bad keyname strings with invalid character code at start of keyname */
     node = cfstore_open_kv_name_ascii_table;
-    while(node->code !=  cfstore_open_kv_name_ascii_table_code_sentinel_g)
-    {
+    while (node->code !=  cfstore_open_kv_name_ascii_table_code_sentinel_g) {
         /* loop over range */
-        for(j = node->code; j < (node+1)->code; j++)
-        {
+        for(j = node->code; j < (node+1)->code; j++) {
             /* set the start, mid, last character of the name to the test char code */
-            for(pos = (uint32_t) cfstore_open_kv_name_pos_start; pos < (uint32_t) cfstore_open_kv_name_pos_max; pos++)
-            {
+            for(pos = (uint32_t) cfstore_open_kv_name_pos_start; pos < (uint32_t) cfstore_open_kv_name_pos_max; pos++) {
                 name_len = CFSTORE_KEY_NAME_MAX_LENGTH;
                 memset(kv_name, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
                 memset(&kdesc, 0, sizeof(kdesc));
@@ -424,69 +420,64 @@ control_t cfstore_open_test_05_end(const size_t call_count)
                 TEST_ASSERT_MESSAGE(strlen(kv_name) == name_len, cfstore_open_utest_msg_g);
 
                 /* overwrite a char at the pos start, mid, end of the kv_name with an ascii char code (both illegal and legal)*/
-                switch(pos)
-                {
-                case cfstore_open_kv_name_pos_start:
-                    kv_name[0] = (char) j;
-                    break;
-                case cfstore_open_kv_name_pos_mid:
-                    /* create bad keyname strings with invalid character code in the middle of keyname */
-                    kv_name[name_len/2] = (char) j;
-                    break;
-                case cfstore_open_kv_name_pos_end:
-                    /* create bad keyname strings with invalid character code at end of keyname */
-                    kv_name[name_len-1] = (char) j;
-                    break;
-                default:
-                    CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected value of pos (pos=%d).\n", __func__, (int) pos);
-                    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
-                    break;
+                switch (pos) {
+                    case cfstore_open_kv_name_pos_start:
+                        kv_name[0] = (char) j;
+                        break;
+                    case cfstore_open_kv_name_pos_mid:
+                        /* create bad keyname strings with invalid character code in the middle of keyname */
+                        kv_name[name_len/2] = (char) j;
+                        break;
+                    case cfstore_open_kv_name_pos_end:
+                        /* create bad keyname strings with invalid character code at end of keyname */
+                        kv_name[name_len-1] = (char) j;
+                        break;
+                    default:
+                        CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected value of pos (pos=%d).\n", __func__, (int) pos);
+                        TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
+                        break;
                 }
 
 #ifdef CFSTORE_DEBUG
                 /* processing only required when debug trace enabled */
-                switch(pos)
-                {
-                case cfstore_open_kv_name_pos_start:
-                    pos_str = "start";
-                    break;
-                case cfstore_open_kv_name_pos_mid:
-                    pos_str = "middle";
-                    break;
-                case cfstore_open_kv_name_pos_end:
-                    pos_str = "end";
-                    break;
-                default:
-                    break;
+                switch (pos) {
+                    case cfstore_open_kv_name_pos_start:
+                        pos_str = "start";
+                        break;
+                    case cfstore_open_kv_name_pos_mid:
+                        pos_str = "middle";
+                        break;
+                    case cfstore_open_kv_name_pos_end:
+                        pos_str = "end";
+                        break;
+                    default:
+                        break;
                 }
 #endif
                 ret = cfstore_test_create(kv_name, kv_name, &name_len, &kdesc);
 
                 /* special cases */
-                switch(j)
-                {
-                case 0 :
-				case 46 :
-                    switch(pos)
-                    {
-                    /* for code = 0 (null terminator). permitted at mid and end of string */
-                    /* for code = 46 ('.'). permitted at mid and end of string but not at start */
-                    case cfstore_open_kv_name_pos_start:
-                        f_allowed = false;
+                switch (j) {
+                    case 0 :
+                    case 46 :
+                        switch (pos) {
+                            /* for code = 0 (null terminator). permitted at mid and end of string */
+                            /* for code = 46 ('.'). permitted at mid and end of string but not at start */
+                            case cfstore_open_kv_name_pos_start:
+                                f_allowed = false;
+                                break;
+                            case cfstore_open_kv_name_pos_mid:
+                            case cfstore_open_kv_name_pos_end:
+                            default:
+                                f_allowed = true;
+                                break;
+                        }
                         break;
-                    case cfstore_open_kv_name_pos_mid:
-                    case cfstore_open_kv_name_pos_end:
                     default:
-                        f_allowed = true;
+                        f_allowed = node->f_allowed;
                         break;
-                    }
-                    break;
-				default:
-					f_allowed = node->f_allowed;
-					break;
                 }
-                if(f_allowed == true)
-                {
+                if (f_allowed == true) {
                     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store when kv_name contains valid characters (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
                     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
                     /* revert CFSTORE_LOG for more trace */
@@ -496,9 +487,8 @@ control_t cfstore_open_test_05_end(const size_t call_count)
                     ret = cfstore_test_delete(kv_name);
                     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete KV previously created (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
                     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
-                }
-                else
-                {   /*node->f_allowed == false => not allowed to create kv name with ascii code */
+                } else {
+                    /*node->f_allowed == false => not allowed to create kv name with ascii code */
                     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: created KV in store when kv_name contains an invalid character (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
                     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_open_utest_msg_g);
                     /* revert CFSTORE_LOG for more trace */
@@ -546,8 +536,7 @@ control_t cfstore_open_test_06_end(const size_t call_count)
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
 
     /* generate a kv name of illegal chars*/
-    for(i = 0; i < name_len; i++)
-    {
+    for(i = 0; i < name_len; i++) {
         pos = rand() % (buf_data_max+1);
         kv_name[i] = cfstore_open_ascii_illegal_buf_g[pos];
     }
@@ -591,7 +580,7 @@ control_t cfstore_open_test_07_end(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK , cfstore_open_utest_msg_g);
 
     /* pepper the illegal chars across the string*/
-    for(i++; i < buf_data_max; i++){
+    for(i++; i < buf_data_max; i++) {
         kv_name[rand() % (name_len+1)] = cfstore_open_ascii_illegal_buf_g[i];
     }
     ret = cfstore_test_create(kv_name, kv_name, &name_len, &kdesc);
@@ -603,6 +592,25 @@ control_t cfstore_open_test_07_end(const size_t call_count)
     return CaseNext;
 }
 
+/** @brief  test to make sure that the same KV can be opened more than once.
+ *          - KV is opened for rw N times.
+ *          - the KV is then deleted using the last hkey.
+ *          - test checks the KV is still available for operations i.e. is not
+ *            deleted until the handle is closed. The KV is then deleted by the
+ *            implementation
+ *          - the test then checks the key no longer exists.
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t cfstore_open_test_08_end(const size_t call_count)
+{
+    (void) call_count;
+    /*todo: implement test */
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
+    TEST_ASSERT_MESSAGE(true, cfstore_open_utest_msg_g);
+    return CaseNext;
+}
+
 /// @cond CFSTORE_DOXYGEN_DISABLE
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -611,23 +619,23 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("OPEN_test_00", cfstore_open_test_00),
-        Case("OPEN_test_01_start", cfstore_utest_default_start),
-        Case("OPEN_test_01_end", cfstore_open_test_01_end),
-        Case("OPEN_test_02_start", cfstore_utest_default_start),
-        Case("OPEN_test_02_end", cfstore_open_test_02_end),
-        Case("OPEN_test_03_start", cfstore_utest_default_start),
-        Case("OPEN_test_03_end", cfstore_open_test_03_end),
-        Case("OPEN_test_04_start", cfstore_utest_default_start),
-        Case("OPEN_test_04_end", cfstore_open_test_04_end),
-        Case("OPEN_test_05_start", cfstore_utest_default_start),
-        Case("OPEN_test_05_end", cfstore_open_test_05_end),
-        Case("OPEN_test_06_start", cfstore_utest_default_start),
-        Case("OPEN_test_06_end", cfstore_open_test_06_end),
-        Case("OPEN_test_07_start", cfstore_utest_default_start),
-        Case("OPEN_test_07_end", cfstore_open_test_07_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("OPEN_test_00", cfstore_open_test_00),
+    Case("OPEN_test_01_start", cfstore_utest_default_start),
+    Case("OPEN_test_01_end", cfstore_open_test_01_end),
+    Case("OPEN_test_02_start", cfstore_utest_default_start),
+    Case("OPEN_test_02_end", cfstore_open_test_02_end),
+    Case("OPEN_test_03_start", cfstore_utest_default_start),
+    Case("OPEN_test_03_end", cfstore_open_test_03_end),
+    Case("OPEN_test_04_start", cfstore_utest_default_start),
+    Case("OPEN_test_04_end", cfstore_open_test_04_end),
+    Case("OPEN_test_05_start", cfstore_utest_default_start),
+    Case("OPEN_test_05_end", cfstore_open_test_05_end),
+    Case("OPEN_test_06_start", cfstore_utest_default_start),
+    Case("OPEN_test_06_end", cfstore_open_test_06_end),
+    Case("OPEN_test_07_start", cfstore_utest_default_start),
+    Case("OPEN_test_07_end", cfstore_open_test_07_end),
 };
 
 

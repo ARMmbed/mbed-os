@@ -93,16 +93,15 @@ extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_flush_test_01_kv_data[] = {
-        { CFSTORE_TEST_DATA_KEYNAME, CFSTORE_TEST_DATA_VALUE_INIT},
-        { NULL, NULL},
+    { CFSTORE_TEST_DATA_KEYNAME, CFSTORE_TEST_DATA_VALUE_INIT},
+    { NULL, NULL},
 };
 
 
 /* @brief   key value header structure defining key_name length, value length
  * @note
  * 8 bytes long */
-typedef struct cfstore_area_header_t
-{
+typedef struct cfstore_area_header_t {
     uint32_t vlength;
     uint8_t klength;
     uint8_t perm_owner_read : 1;
@@ -142,15 +141,15 @@ typedef struct cfstore_flash_data_blob_t {
 /* print key name string from area where key_name is not null terminated*/
 static void cfstore_dump_key_name(uint8_t* keyname, uint8_t len, const char* tag)
 {
-     char blob_data[CFSTORE_KEY_NAME_MAX_LENGTH];
+    char blob_data[CFSTORE_KEY_NAME_MAX_LENGTH];
 
-     (void) tag;
-     assert(keyname != NULL);
-     assert(tag != NULL);
-     assert(len > 0);
-     memcpy(blob_data, keyname, len);
-     blob_data[len] = '\0';
-     CFSTORE_DBGLOG("%s:keyname=%s\r\n", tag, blob_data);
+    (void) tag;
+    assert(keyname != NULL);
+    assert(tag != NULL);
+    assert(len > 0);
+    memcpy(blob_data, keyname, len);
+    blob_data[len] = '\0';
+    CFSTORE_DBGLOG("%s:keyname=%s\n", tag, blob_data);
 }
 
 /* @brief  test fsm states and events */
@@ -173,14 +172,12 @@ typedef enum cfstore_flash_fsm_event_t {
 
 typedef void (*cfstore_flash_fsm_handler)(void* ctx);
 
-typedef struct cfstore_fsm_t
-{
+typedef struct cfstore_fsm_t {
     cfstore_flash_fsm_state_t state;
     cfstore_flash_fsm_event_t event;
 } cfstore_fsm_t;
 
-typedef struct cfstore_flash_ctx_t
-{
+typedef struct cfstore_flash_ctx_t {
     uint8_t* area_0_head;
     uint8_t* area_0_tail;
     FlashJournal_t jrnl;
@@ -195,8 +192,7 @@ typedef struct cfstore_flash_ctx_t
  * Globals
  */
 static cfstore_flash_ctx_t cfstore_flash_ctx_g;
-static const char* cfstore_flash_opcode_str[] =
-{
+static const char* cfstore_flash_opcode_str[] = {
     "FLASH_JOURNAL_OPCODE_INITIALIZE",
     "FLASH_JOURNAL_OPCODE_GET_INFO",
     "FLASH_JOURNAL_OPCODE_READ_BLOB",
@@ -206,8 +202,7 @@ static const char* cfstore_flash_opcode_str[] =
 };
 
 #ifdef CFSTORE_DEBUG
-static const char* cfstore_flash_state_str[] =
-{
+static const char* cfstore_flash_state_str[] = {
     "initializing",
     "reading",
     "writing",
@@ -215,8 +210,7 @@ static const char* cfstore_flash_state_str[] =
     "unknown"
 };
 
-static const char* cfstore_flash_event_str[] =
-{
+static const char* cfstore_flash_event_str[] = {
     "init_done",
     "read_done",
     "write_done",
@@ -247,27 +241,26 @@ void cfstore_flash_test_01_callback(int32_t status, FlashJournal_OpCode_t cmd_co
 {
     cfstore_flash_ctx_t* ctx = cfstore_flash_ctx_get();
 
-    CFSTORE_FENTRYLOG("%s:entered: status=%d, cmd_code=%d (%s)\r\n", __func__, (int) status, (int) cmd_code, cfstore_flash_opcode_str[cmd_code]);
-    switch(cmd_code)
-    {
-    case FLASH_JOURNAL_OPCODE_INITIALIZE:
-        ctx->fsm.event = cfstore_flash_fsm_event_init_done;
-        break;
-    case FLASH_JOURNAL_OPCODE_READ_BLOB:
-        ctx->fsm.event = cfstore_flash_fsm_event_read_done;
-        break;
-    case FLASH_JOURNAL_OPCODE_LOG_BLOB:
-        ctx->fsm.event = cfstore_flash_fsm_event_write_done;
-        break;
-    case FLASH_JOURNAL_OPCODE_COMMIT:
-        ctx->fsm.event = cfstore_flash_fsm_event_commit_done;
-        break;
-    case FLASH_JOURNAL_OPCODE_GET_INFO:
-    case FLASH_JOURNAL_OPCODE_RESET:
-    default:
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: received asynchronous notification for opcode=%d (%s) when api call should have been synchronous", __func__, cmd_code, cmd_code <= FLASH_JOURNAL_OPCODE_RESET ? cfstore_flash_opcode_str[cmd_code] : "unknown");
-        TEST_ASSERT_MESSAGE(false, cfstore_flash_utest_msg_g)
-        return;
+    CFSTORE_FENTRYLOG("%s:entered: status=%d, cmd_code=%d (%s)\n", __func__, (int) status, (int) cmd_code, cfstore_flash_opcode_str[cmd_code]);
+    switch (cmd_code) {
+        case FLASH_JOURNAL_OPCODE_INITIALIZE:
+            ctx->fsm.event = cfstore_flash_fsm_event_init_done;
+            break;
+        case FLASH_JOURNAL_OPCODE_READ_BLOB:
+            ctx->fsm.event = cfstore_flash_fsm_event_read_done;
+            break;
+        case FLASH_JOURNAL_OPCODE_LOG_BLOB:
+            ctx->fsm.event = cfstore_flash_fsm_event_write_done;
+            break;
+        case FLASH_JOURNAL_OPCODE_COMMIT:
+            ctx->fsm.event = cfstore_flash_fsm_event_commit_done;
+            break;
+        case FLASH_JOURNAL_OPCODE_GET_INFO:
+        case FLASH_JOURNAL_OPCODE_RESET:
+        default:
+            CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: received asynchronous notification for opcode=%d (%s) when api call should have been synchronous", __func__, cmd_code, cmd_code <= FLASH_JOURNAL_OPCODE_RESET ? cfstore_flash_opcode_str[cmd_code] : "unknown");
+            TEST_ASSERT_MESSAGE(false, cfstore_flash_utest_msg_g)
+            return;
     }
     ctx->status = status;
     ctx->cmd_code = cmd_code;
@@ -286,15 +279,15 @@ static void cfstore_flash_fsm_init_on_entry(void* context)
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
     /* check that the mtd is in synchronous mode */
-    CFSTORE_FENTRYLOG("%s:entered: \r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered: \n", __func__);
     memset(&info, 0, sizeof(info));
 
     /* FlashJournal_initialize() is potentially asynchronous */
     status = (FlashJournal_Status_t) FlashJournal_initialize(&ctx->jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, cfstore_flash_test_01_callback);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to initialize flash journaling layer (status=%d)\r\n", __func__, status);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to initialize flash journaling layer (status=%d)\n", __func__, status);
     TEST_ASSERT_MESSAGE(status >= JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
     /* if status > 0, expect async callback, otherwise initialisation has been completed */
-    if(status > 0) {
+    if (status > 0) {
         cfstore_flash_test_01_callback(status, FLASH_JOURNAL_OPCODE_INITIALIZE);
     }
     return;
@@ -305,15 +298,15 @@ static void cfstore_flash_fsm_initializing(void* context)
 {
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in initializing state (fsm->state=%d)\r\n", __func__, __func__, (int) ctx->fsm.state);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in initializing state (fsm->state=%d)\n", __func__, __func__, (int) ctx->fsm.state);
     TEST_ASSERT_MESSAGE(ctx->fsm.state == cfstore_flash_fsm_state_initializing, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\r\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_INITIALIZE);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_INITIALIZE);
     TEST_ASSERT_MESSAGE(ctx->cmd_code == FLASH_JOURNAL_OPCODE_INITIALIZE, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\r\n", __func__, (int) ctx->status);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\n", __func__, (int) ctx->status);
     TEST_ASSERT_MESSAGE(ctx->status >= JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
     /* only change state if status > 0*/
-    if(ctx->status > 0){
+    if (ctx->status > 0) {
         cfstore_fsm_state_set(&ctx->fsm, cfstore_flash_fsm_state_reading, ctx);
     }
 }
@@ -332,42 +325,41 @@ static void cfstore_flash_fsm_read_on_entry(void* context)
     FlashJournal_Status_t status = JOURNAL_STATUS_ERROR;
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     CFSTORE_ASSERT(ctx != NULL);
     /* drv->GetInfo() is synchronous */
     status = FlashJournal_getInfo(&ctx->jrnl, &info);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed get journal info (status=%d)\r\n", __func__, (int) status);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed get journal info (status=%d)\n", __func__, (int) status);
     TEST_ASSERT_MESSAGE(status == JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
-    CFSTORE_DBGLOG("%s:FlashJournal_getInfo() done. info.sizeofJournaledBlob=%lu\r\n", __func__, (long unsigned int) info.sizeofJournaledBlob);
+    CFSTORE_DBGLOG("%s:FlashJournal_getInfo() done. info.sizeofJournaledBlob=%lu\n", __func__, (long unsigned int) info.sizeofJournaledBlob);
 
-    if(info.sizeofJournaledBlob > 0)
-    {
+    if (info.sizeofJournaledBlob > 0) {
         /* setup the expected blob size for writing
          * This is a multiple of program unit so the write doesnt fail due to unaligned log */
         ctx->expected_blob_size = sizeof(cfstore_flash_data_blob_t);
-        if(ctx->expected_blob_size % CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE > 0){
+        if (ctx->expected_blob_size % CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE > 0) {
             ctx->expected_blob_size += (CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE - (sizeof(cfstore_flash_data_blob_t) % CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE));
         }
         /* test that a blob size is the expected size for flash data that has been written before */
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error:  info.sizeofJournaledBlob does not match expect size. expected_blob_size (%lu) != info.sizeofJournaledBlob (%lu)\r\n", __func__, (unsigned long int) ctx->expected_blob_size, (unsigned long int) info.sizeofJournaledBlob);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error:  info.sizeofJournaledBlob does not match expect size. expected_blob_size (%lu) != info.sizeofJournaledBlob (%lu)\n", __func__, (unsigned long int) ctx->expected_blob_size, (unsigned long int) info.sizeofJournaledBlob);
         TEST_ASSERT_EQUAL_INT64_MESSAGE(ctx->expected_blob_size, info.sizeofJournaledBlob, cfstore_flash_utest_msg_g);
 
         /* grow the area by the size of the stored blob */
         ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, ctx->expected_blob_size);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:realloc failed flash blob (size=%d)\r\n", __func__, (int)info.sizeofJournaledBlob);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:realloc failed flash blob (size=%d)\n", __func__, (int)info.sizeofJournaledBlob);
         TEST_ASSERT_MESSAGE(ptr != NULL, cfstore_flash_utest_msg_g);
         memset(ptr, 0, ctx->expected_blob_size);
-        if(ptr != ctx->area_0_head){
-            CFSTORE_DBGLOG("%s:cfstore_ctx_g.area_0_head pointer changed (cfstore_ctx_g.area_0_head=%p, ptr=%p)\r\n", __func__, ctx->area_0_head, ptr);
+        if (ptr != ctx->area_0_head) {
+            CFSTORE_DBGLOG("%s:cfstore_ctx_g.area_0_head pointer changed (cfstore_ctx_g.area_0_head=%p, ptr=%p)\n", __func__, ctx->area_0_head, ptr);
             ctx->area_0_head = ptr;
             ctx->area_0_tail = ctx->area_0_head + info.sizeofJournaledBlob;
         }
         ret = FlashJournal_read(&ctx->jrnl, (void*) ctx->area_0_head, info.sizeofJournaledBlob);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to read flash journal (ret=%d. info.sizeofJournaledBlob=%d)\r\n", __func__, (int) ret, (int) info.sizeofJournaledBlob);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to read flash journal (ret=%d. info.sizeofJournaledBlob=%d)\n", __func__, (int) ret, (int) info.sizeofJournaledBlob);
         TEST_ASSERT_MESSAGE(ret >= JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
-        if(ret > 0){
+        if (ret > 0) {
             /* read has completed synchronously*/
-            CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to read all data from flash journal (expected size=%lu, read=%d)\r\n", __func__, (unsigned long int)info.sizeofJournaledBlob, (int) ret);
+            CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to read all data from flash journal (expected size=%lu, read=%d)\n", __func__, (unsigned long int)info.sizeofJournaledBlob, (int) ret);
             TEST_ASSERT_EQUAL_INT32_MESSAGE( (int32_t) info.sizeofJournaledBlob, ret, cfstore_flash_utest_msg_g);
             cfstore_flash_test_01_callback(ret, FLASH_JOURNAL_OPCODE_READ_BLOB);
         }
@@ -388,24 +380,21 @@ void cfstore_flash_fsm_reading(void* context)
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
     cfstore_flash_data_blob_t *blob = NULL;
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in reading state (fsm->state=%d)\r\n", __func__, __func__, (int) ctx->fsm.state);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in reading state (fsm->state=%d)\n", __func__, __func__, (int) ctx->fsm.state);
     TEST_ASSERT_MESSAGE(ctx->fsm.state == cfstore_flash_fsm_state_reading, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\r\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_READ_BLOB);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_READ_BLOB);
     TEST_ASSERT_MESSAGE(ctx->cmd_code == FLASH_JOURNAL_OPCODE_READ_BLOB, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\r\n", __func__, (int) ctx->status);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\n", __func__, (int) ctx->status);
     TEST_ASSERT_MESSAGE(ctx->status >= JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
 
-    if(ctx->status > 0)
-    {
-        if(ctx->status > (int32_t) CFSTORE_FLASH_AREA_SIZE_MIN)
-        {
+    if (ctx->status > 0) {
+        if (ctx->status > (int32_t) CFSTORE_FLASH_AREA_SIZE_MIN) {
             /* check the correct amount of data was read, which is the status code */
-            CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to read all data from flash journal (expected size=%lu, read=%d)\r\n", __func__, (unsigned long int) ctx->expected_blob_size, (int) ctx->status);
+            CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to read all data from flash journal (expected size=%lu, read=%d)\n", __func__, (unsigned long int) ctx->expected_blob_size, (int) ctx->status);
             /* ctx->status contains the status of the read that was completed */
             TEST_ASSERT_EQUAL_INT64_MESSAGE(ctx->expected_blob_size, (int32_t) ctx->status, cfstore_flash_utest_msg_g);
-            if(ctx->area_0_head != NULL)
-            {
+            if (ctx->area_0_head != NULL) {
                 /* check the key_name read from flash is correct */
                 blob = (cfstore_flash_data_blob_t*) ctx->area_0_head;
                 cfstore_dump_key_name(blob->data, CFSTORE_TEST_DATA_KEYNAME_SIZE, __func__);
@@ -428,17 +417,16 @@ void cfstore_flash_fsm_write_on_entry(void* context)
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
     cfstore_flash_data_blob_t *blob = NULL;
 
-    CFSTORE_FENTRYLOG("%s:entered:\r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered:\n", __func__);
     /* allocate memory for data if not already done so */
-    if(ctx->area_0_head == NULL)
-    {
+    if (ctx->area_0_head == NULL) {
         /* This is a multiple of program unit so the write doesnt fail due to unaligned log */
         ctx->expected_blob_size = sizeof(cfstore_flash_data_blob_t);
-        if(ctx->expected_blob_size % CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE > 0){
+        if (ctx->expected_blob_size % CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE > 0) {
             ctx->expected_blob_size += (CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE - (sizeof(cfstore_flash_data_blob_t) % CFSTORE_FLASH_K64F_CURRENT_PROGRAM_UNIT_SIZE));
         }
         ctx->area_0_head = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, ctx->expected_blob_size);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to allocate memory for context\r\n", __func__);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to allocate memory for context\n", __func__);
         TEST_ASSERT_MESSAGE(ctx->area_0_head != NULL, cfstore_flash_utest_msg_g);
         ctx->area_0_tail = ctx->area_0_head + ctx->expected_blob_size;
         memset(ctx->area_0_head, 0, ctx->expected_blob_size);
@@ -452,13 +440,12 @@ void cfstore_flash_fsm_write_on_entry(void* context)
         memcpy((void*) blob->data, (const void*) cfstore_flush_test_01_kv_data->key_name, strlen(cfstore_flush_test_01_kv_data->key_name));
         memcpy((void*) &blob->data[CFSTORE_TEST_DATA_KEYNAME_SIZE], (const void*) cfstore_flush_test_01_kv_data->value, strlen(cfstore_flush_test_01_kv_data->value));
     }
-    if(ctx->area_0_head != NULL)
-    {
+    if (ctx->area_0_head != NULL) {
         /* data has been read */
         /* check the key_name read from flash is correct */
         blob = (cfstore_flash_data_blob_t*) ctx->area_0_head;
         value = (uint8_t) blob->data[CFSTORE_TEST_DATA_KEYNAME_SIZE];
-        CFSTORE_DBGLOG("INFO: value read from flash = %u\r\n", value);
+        CFSTORE_DBGLOG("INFO: value read from flash = %u\n", value);
         /* update the value */
         value++;
         memcpy((void*) &blob->data[CFSTORE_TEST_DATA_KEYNAME_SIZE], (const void*) &value, sizeof(uint8_t));
@@ -468,11 +455,11 @@ void cfstore_flash_fsm_write_on_entry(void* context)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: ret = JOURNAL_STATUS_SMALL_LOG_REQUEST, bailing out.", __func__);
     TEST_ASSERT_MESSAGE(ret != (int32_t) JOURNAL_STATUS_SMALL_LOG_REQUEST, cfstore_flash_utest_msg_g);
 
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform log operation to flash journal (ret=%d)\r\n", __func__, (int) ret);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform log operation to flash journal (ret=%d)\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, cfstore_flash_utest_msg_g);
-    if(ret > 0){
+    if (ret > 0) {
         /* write has completed synchronously*/
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to write all data from flash journal (expected size=%lu, read=%d)\r\n", __func__, (unsigned long int) ctx->expected_blob_size, (int) ret);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to write all data from flash journal (expected size=%lu, read=%d)\n", __func__, (unsigned long int) ctx->expected_blob_size, (int) ret);
         TEST_ASSERT_EQUAL_INT32_MESSAGE(ret, (int32_t) ctx->expected_blob_size, cfstore_flash_utest_msg_g);
         cfstore_flash_test_01_callback(ret, FLASH_JOURNAL_OPCODE_LOG_BLOB);
     }
@@ -484,17 +471,17 @@ void cfstore_flash_fsm_writing(void* context)
 {
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered:\r\n", __func__);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in writing state (fsm->state=%d)\r\n", __func__, __func__, (int) ctx->fsm.state);
+    CFSTORE_FENTRYLOG("%s:entered:\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in writing state (fsm->state=%d)\n", __func__, __func__, (int) ctx->fsm.state);
     TEST_ASSERT_MESSAGE(ctx->fsm.state == cfstore_flash_fsm_state_writing, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\r\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_LOG_BLOB);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_LOG_BLOB);
     TEST_ASSERT_MESSAGE(ctx->cmd_code == FLASH_JOURNAL_OPCODE_LOG_BLOB, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\r\n", __func__, (int) ctx->status);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\n", __func__, (int) ctx->status);
     TEST_ASSERT_MESSAGE(ctx->status >= JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
 
-    if(ctx->status > 0){
+    if (ctx->status > 0) {
         /* check the correct amount of data was written */
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to write all data from flash journal (expected size=%lu, read=%d)\r\n", __func__, (unsigned long int) ctx->expected_blob_size, (int) ctx->status);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: unable to write all data from flash journal (expected size=%lu, read=%d)\n", __func__, (unsigned long int) ctx->expected_blob_size, (int) ctx->status);
         TEST_ASSERT_EQUAL_INT64_MESSAGE(ctx->expected_blob_size, ctx->status, cfstore_flash_utest_msg_g);
         cfstore_fsm_state_set(&ctx->fsm, cfstore_flash_fsm_state_committing, ctx);
     }
@@ -509,12 +496,12 @@ void cfstore_flash_fsm_commit_on_entry(void* context)
     int32_t ret = 0;
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered:\r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered:\n", __func__);
     ret = FlashJournal_commit(&ctx->jrnl);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform commit operation to flash journal (ret=%d)\r\n", __func__, (int) ret);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform commit operation to flash journal (ret=%d)\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= (int32_t) JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
     /* for flash-journal-strategy-sequential version >0.4.0, commit() return no longer reports size of commit block */
-    if(ret > 0){
+    if (ret > 0) {
         Harness::validate_callback();
     }
     /* wait for async completion handler*/
@@ -527,12 +514,12 @@ void cfstore_flash_fsm_committing(void* context)
 {
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in committing state (fsm->state=%d)\r\n", __func__, __func__, (int) ctx->fsm.state);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: entered handler(%s) but not in committing state (fsm->state=%d)\n", __func__, __func__, (int) ctx->fsm.state);
     TEST_ASSERT_MESSAGE(ctx->fsm.state == cfstore_flash_fsm_state_committing, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\r\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_COMMIT);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: cmd_code code (%d) is not as expected (%d)\n", __func__, ctx->cmd_code, FLASH_JOURNAL_OPCODE_COMMIT);
     TEST_ASSERT_MESSAGE(ctx->cmd_code == FLASH_JOURNAL_OPCODE_COMMIT, cfstore_flash_utest_msg_g);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\r\n", __func__, (int) ctx->status);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: status=%d\n", __func__, (int) ctx->status);
     TEST_ASSERT_MESSAGE(ctx->status >= JOURNAL_STATUS_OK, cfstore_flash_utest_msg_g);
 
     /* check the correct amount of data was written */
@@ -545,31 +532,29 @@ void cfstore_flash_fsm_commit_on_exit(void* context)
 {
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     /* test done. clean up*/
-    if(ctx->area_0_head){
+    if (ctx->area_0_head) {
         CFSTORE_FREE(ctx->area_0_head);
         ctx->area_0_head = NULL;
     }
     Harness::validate_callback();
- }
+}
 
 #define cfstore_flash_fsm_null  NULL
 
 /* handler functions while in state */
-static cfstore_flash_fsm_handler cfstore_flash_fsm[cfstore_flash_fsm_state_max][cfstore_flash_fsm_event_max] =
-{
-/* state\event:     init_done                           read_done                   write_done                  commit_done */
-/* initialising */  {cfstore_flash_fsm_initializing,    cfstore_flash_fsm_null,     cfstore_flash_fsm_null,     cfstore_flash_fsm_null          },
-/* reading      */  {cfstore_flash_fsm_null,            cfstore_flash_fsm_reading,  cfstore_flash_fsm_null,     cfstore_flash_fsm_null          },
-/* writing      */  {cfstore_flash_fsm_null,            cfstore_flash_fsm_null,     cfstore_flash_fsm_writing,  cfstore_flash_fsm_null          },
-/* committing   */  {cfstore_flash_fsm_null,            cfstore_flash_fsm_null,     cfstore_flash_fsm_null,     cfstore_flash_fsm_committing    },
+static cfstore_flash_fsm_handler cfstore_flash_fsm[cfstore_flash_fsm_state_max][cfstore_flash_fsm_event_max] = {
+    /* state\event:     init_done                           read_done                   write_done                  commit_done */
+    /* initialising */  {cfstore_flash_fsm_initializing,    cfstore_flash_fsm_null,     cfstore_flash_fsm_null,     cfstore_flash_fsm_null          },
+    /* reading      */  {cfstore_flash_fsm_null,            cfstore_flash_fsm_reading,  cfstore_flash_fsm_null,     cfstore_flash_fsm_null          },
+    /* writing      */  {cfstore_flash_fsm_null,            cfstore_flash_fsm_null,     cfstore_flash_fsm_writing,  cfstore_flash_fsm_null          },
+    /* committing   */  {cfstore_flash_fsm_null,            cfstore_flash_fsm_null,     cfstore_flash_fsm_null,     cfstore_flash_fsm_committing    },
 };
 
 
 /* handler functions for entering the state*/
-cfstore_flash_fsm_handler cfstore_flash_fsm_on_entry[cfstore_flash_fsm_state_max] =
-{
+cfstore_flash_fsm_handler cfstore_flash_fsm_on_entry[cfstore_flash_fsm_state_max] = {
     cfstore_flash_fsm_init_on_entry,
     cfstore_flash_fsm_read_on_entry,
     cfstore_flash_fsm_write_on_entry,
@@ -577,8 +562,7 @@ cfstore_flash_fsm_handler cfstore_flash_fsm_on_entry[cfstore_flash_fsm_state_max
 };
 
 /* handler functions for exiting state, currently none used */
-cfstore_flash_fsm_handler cfstore_flash_fsm_on_exit[cfstore_flash_fsm_state_max] =
-{
+cfstore_flash_fsm_handler cfstore_flash_fsm_on_exit[cfstore_flash_fsm_state_max] = {
     NULL, NULL, NULL, NULL,
 };
 
@@ -588,11 +572,11 @@ static void cfstore_fsm_state_handle_event(cfstore_fsm_t* fsm, cfstore_flash_fsm
 {
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;
 
-    CFSTORE_FENTRYLOG("%s:entered: fsm=%p, event=%d (%s), ctx=%p\r\n", __func__, fsm, (int) event, cfstore_flash_event_str[event], ctx);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: invalid event (%d)\r\n", __func__, (int) event);
+    CFSTORE_FENTRYLOG("%s:entered: fsm=%p, event=%d (%s), ctx=%p\n", __func__, fsm, (int) event, cfstore_flash_event_str[event], ctx);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_FLASH_UTEST_MSG_BUF_SIZE, "%s:Error: invalid event (%d)\n", __func__, (int) event);
     TEST_ASSERT_MESSAGE(event < cfstore_flash_fsm_event_max, cfstore_flash_utest_msg_g);
     fsm->event = event;
-    if(cfstore_flash_fsm[fsm->state][fsm->event] != NULL){
+    if (cfstore_flash_fsm[fsm->state][fsm->event] != NULL) {
         cfstore_flash_fsm[fsm->state][fsm->event](ctx);
     }
 
@@ -608,21 +592,21 @@ static void cfstore_fsm_state_handle_event(cfstore_fsm_t* fsm, cfstore_flash_fsm
 /* @brief   function to move to new fsm state, calling state exit function for old state and entry function for new state */
 static void cfstore_fsm_state_set(cfstore_fsm_t* fsm, cfstore_flash_fsm_state_t new_state, void* ctx)
 {
-    CFSTORE_FENTRYLOG("%s:entered: fsm=%p, new_state=%d, ctx=%p\r\n", __func__, fsm, (int) new_state, ctx);
-    CFSTORE_DBGLOG("%s:FSM:REQ RX:%s:%s\r\n", __func__, cfstore_flash_state_str[fsm->state], cfstore_flash_state_str[new_state]);
+    CFSTORE_FENTRYLOG("%s:entered: fsm=%p, new_state=%d, ctx=%p\n", __func__, fsm, (int) new_state, ctx);
+    CFSTORE_DBGLOG("%s:FSM:REQ RX:%s:%s\n", __func__, cfstore_flash_state_str[fsm->state], cfstore_flash_state_str[new_state]);
     TEST_ASSERT_MESSAGE(fsm != NULL, "fsm is not a valid pointer");
     TEST_ASSERT_MESSAGE(new_state < cfstore_flash_fsm_state_max, "new_state is not a valid state");
     TEST_ASSERT_MESSAGE(ctx != NULL, "ctx is not a valid pointer");
     TEST_ASSERT_MESSAGE(fsm->state < cfstore_flash_fsm_state_max, "fsm->state is not a valid state");
 
-    if(cfstore_flash_fsm_on_exit[fsm->state] != NULL){
+    if (cfstore_flash_fsm_on_exit[fsm->state] != NULL) {
         cfstore_flash_fsm_on_exit[fsm->state](ctx);
     }
     fsm->state = new_state;
-    if(cfstore_flash_fsm_on_entry[new_state] != NULL){
+    if (cfstore_flash_fsm_on_entry[new_state] != NULL) {
         cfstore_flash_fsm_on_entry[new_state](ctx);
     }
-    CFSTORE_DBGLOG("%s:FSM:REQ DONE:\r\n", __func__);
+    CFSTORE_DBGLOG("%s:FSM:REQ DONE:\n", __func__);
     return;
 }
 
@@ -631,7 +615,7 @@ static void cfstore_flash_ctx_init(cfstore_flash_ctx_t* ctx)
 {
     TEST_ASSERT_MESSAGE(ctx != NULL, "ctx is NULL");
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     memset(&cfstore_flash_ctx_g, 0, sizeof(cfstore_flash_ctx_g));
 }
 
@@ -641,7 +625,7 @@ static control_t cfstore_flash_journal_async_test_01(void)
 {
     cfstore_flash_ctx_t* ctx = cfstore_flash_ctx_get();
 
-    CFSTORE_FENTRYLOG("%s:entered: \r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered: \n", __func__);
     cfstore_flash_mtd_async_ops_g = CFSTORE_FLASH_MTD_ASYNC_OPS_ON;
     cfstore_flash_ctx_init(ctx);
     cfstore_fsm_state_set(&ctx->fsm, cfstore_flash_fsm_state_initializing, ctx);
@@ -672,9 +656,9 @@ static control_t cfstore_flash_test_00(const size_t call_count)
 /// @cond CFSTORE_DOXYGEN_DISABLE
 /* Specify all your test cases here */
 Case cases[] = {
-        Case("flash_journal_async_test_00", cfstore_flash_test_00),
+    Case("flash_journal_async_test_00", cfstore_flash_test_00),
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
-        Case("flash_journal_async_test_01", cfstore_flash_journal_async_test_01),
+    Case("flash_journal_async_test_01", cfstore_flash_journal_async_test_01),
 #endif
 };
 

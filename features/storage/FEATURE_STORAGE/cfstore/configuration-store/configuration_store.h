@@ -875,6 +875,7 @@ typedef struct _ARM_DRIVER_CFSTORE
 
 extern ARM_CFSTORE_DRIVER cfstore_driver;
 
+
 #ifdef __cplusplus
 }
 #endif

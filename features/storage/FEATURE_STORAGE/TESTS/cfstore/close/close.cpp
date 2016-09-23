@@ -52,9 +52,9 @@ UVISOR_BOX_CONFIG(cfstore_close_box1, UVISOR_BOX_STACK_SIZE);
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_close_test_01_kv_data[] = {
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "first_data_"},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "second_data"},
-        { NULL, NULL},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "first_data_"},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "second_data"},
+    { NULL, NULL},
 };
 
 
@@ -231,11 +231,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("CLOSE_test_00", cfstore_close_test_00),
-        Case("CLOSE_test_01_start", cfstore_utest_default_start),
-        Case("CLOSE_test_01_end", cfstore_close_test_01_end)
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("CLOSE_test_00", cfstore_close_test_00),
+    Case("CLOSE_test_01_start", cfstore_utest_default_start),
+    Case("CLOSE_test_01_end", cfstore_close_test_01_end)
 };
 
 

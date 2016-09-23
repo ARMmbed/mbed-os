@@ -33,25 +33,24 @@ void cfstore_utest_default_callback(int32_t status, ARM_CFSTORE_OPCODE cmd_code,
     (void) handle;
 
     CFSTORE_FENTRYLOG("%s:entered: status=%d, cmd_code=%d (%s) handle=%p\n", __func__, (int) status, (int) cmd_code, cfstore_test_opcode_str[cmd_code], handle);
-    switch(cmd_code)
-    {
-    case CFSTORE_OPCODE_INITIALIZE:
-    case CFSTORE_OPCODE_FLUSH:
-    case CFSTORE_OPCODE_UNINITIALIZE:
-    case CFSTORE_OPCODE_CLOSE:
-    case CFSTORE_OPCODE_CREATE:
-    case CFSTORE_OPCODE_DELETE:
-    case CFSTORE_OPCODE_FIND:
-    case CFSTORE_OPCODE_GET_KEY_NAME:
-    case CFSTORE_OPCODE_GET_STATUS:
-    case CFSTORE_OPCODE_GET_VALUE_LEN:
-    case CFSTORE_OPCODE_OPEN:
-    case CFSTORE_OPCODE_POWER_CONTROL:
-    case CFSTORE_OPCODE_READ:
-    case CFSTORE_OPCODE_RSEEK:
-    case CFSTORE_OPCODE_WRITE:
-    default:
-        CFSTORE_DBGLOG("%s:debug: received asynchronous notification for opcode=%d (%s)", __func__, cmd_code, cmd_code < CFSTORE_OPCODE_MAX ? cfstore_test_opcode_str[cmd_code] : "unknown");
+    switch(cmd_code) {
+        case CFSTORE_OPCODE_INITIALIZE:
+        case CFSTORE_OPCODE_FLUSH:
+        case CFSTORE_OPCODE_UNINITIALIZE:
+        case CFSTORE_OPCODE_CLOSE:
+        case CFSTORE_OPCODE_CREATE:
+        case CFSTORE_OPCODE_DELETE:
+        case CFSTORE_OPCODE_FIND:
+        case CFSTORE_OPCODE_GET_KEY_NAME:
+        case CFSTORE_OPCODE_GET_STATUS:
+        case CFSTORE_OPCODE_GET_VALUE_LEN:
+        case CFSTORE_OPCODE_OPEN:
+        case CFSTORE_OPCODE_POWER_CONTROL:
+        case CFSTORE_OPCODE_READ:
+        case CFSTORE_OPCODE_RSEEK:
+        case CFSTORE_OPCODE_WRITE:
+        default:
+            CFSTORE_DBGLOG("%s:debug: received asynchronous notification for opcode=%d (%s)", __func__, cmd_code, cmd_code < CFSTORE_OPCODE_MAX ? cfstore_test_opcode_str[cmd_code] : "unknown");
     }
     CFSTORE_DBGLOG("%s:about to validate callback\n", __func__);
     Harness::validate_callback();
