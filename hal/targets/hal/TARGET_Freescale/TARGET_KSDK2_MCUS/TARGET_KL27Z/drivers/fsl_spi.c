@@ -40,6 +40,9 @@ enum _spi_transfer_states_t
     kSPI_Busy        /*!< SPI is busy tranferring data. */
 };
 
+/*! @brief Typedef for spi master interrupt handler. spi master and slave handle is the same. */
+typedef void (*spi_isr_t)(SPI_Type *base, spi_master_handle_t *spiHandle);
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -92,14 +95,17 @@ static void SPI_ReceiveTransfer(SPI_Type *base, spi_master_handle_t *handle);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-/* SPI internal handle pointer array */
+/*! @brief SPI internal handle pointer array */
 static spi_master_handle_t *s_spiHandle[FSL_FEATURE_SOC_SPI_COUNT];
-/* Base pointer array */
+/*! @brief Base pointer array */
 static SPI_Type *const s_spiBases[] = SPI_BASE_PTRS;
-/* IRQ name array */
+/*! @brief IRQ name array */
 static const IRQn_Type s_spiIRQ[] = SPI_IRQS;
-/* Clock array name */
+/*! @brief Clock array name */
 static const clock_ip_name_t s_spiClock[] = SPI_CLOCKS;
+
+/*! @brief Pointer to master IRQ handler for each instance. */
+static spi_isr_t s_spiIsr;
 
 /*******************************************************************************
  * Code
@@ -202,36 +208,64 @@ static void SPI_ReadNonBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
 static void SPI_SendTransfer(SPI_Type *base, spi_master_handle_t *handle)
 {
     uint8_t bytes = MIN((handle->watermark * 2U), handle->txRemainingBytes);
-    uint8_t val = 1U;
 
     /* Read S register and ensure SPTEF is 1, otherwise the write would be ignored. */
     if (handle->watermark == 1U)
     {
-        val = (base->S & SPI_S_SPTEF_MASK);
         if (bytes != 0U)
         {
             bytes = handle->bytePerFrame;
         }
+
+        /* Send data */
+        if (base->C1 & SPI_C1_MSTR_MASK)
+        {
+            /* As a master, only write once */
+            if (base->S & SPI_S_SPTEF_MASK)
+            {
+                SPI_WriteNonBlocking(base, handle->txData, bytes);
+                /* Update handle information */
+                if (handle->txData)
+                {
+                    handle->txData += bytes;
+                }
+                handle->txRemainingBytes -= bytes;
+            }
     }
-#if defined(FSL_FEATURE_SPI_HAS_FIFO) && (FSL_FEATURE_SPI_HAS_FIFO)
     else
     {
-        val = (base->S & SPI_S_TNEAREF_MASK);
+            /* As a slave, send data until SPTEF cleared */
+            while ((base->S & SPI_S_SPTEF_MASK) && (handle->txRemainingBytes > 0))
+            {
+                SPI_WriteNonBlocking(base, handle->txData, bytes);
+
+                /* Update handle information */
+                if (handle->txData)
+                {
+                    handle->txData += bytes;
+                }
+                handle->txRemainingBytes -= bytes;
+            }
+        }
+    }
+
+#if defined(FSL_FEATURE_SPI_HAS_FIFO) && (FSL_FEATURE_SPI_HAS_FIFO)
+    /* If use FIFO */
+    else
+    {
+        if (base->S & SPI_S_TNEAREF_MASK)
+        {
+            SPI_WriteNonBlocking(base, handle->txData, bytes);
+
+            /* Update handle information */
+            if (handle->txData)
+            {
+                handle->txData += bytes;
+            }
+            handle->txRemainingBytes -= bytes;
+        }
     }
 #endif
-
-    /* Write data */
-    if (val)
-    {
-        SPI_WriteNonBlocking(base, handle->txData, bytes);
-
-        /* Update handle information */
-        if (handle->txData)
-        {
-            handle->txData += bytes;
-        }
-        handle->txRemainingBytes -= bytes;
-    }
 }
 
 static void SPI_ReceiveTransfer(SPI_Type *base, spi_master_handle_t *handle)
@@ -286,6 +320,8 @@ void SPI_MasterGetDefaultConfig(spi_master_config_t *config)
 
 void SPI_MasterInit(SPI_Type *base, const spi_master_config_t *config, uint32_t srcClock_Hz)
 {
+    assert(config && srcClock_Hz);
+
     /* Open clock gate for SPI and open interrupt */
     CLOCK_EnableClock(s_spiClock[SPI_GetInstance(base)]);
 
@@ -345,6 +381,8 @@ void SPI_SlaveGetDefaultConfig(spi_slave_config_t *config)
 
 void SPI_SlaveInit(SPI_Type *base, const spi_slave_config_t *config)
 {
+    assert(config);
+
     /* Open clock gate for SPI and open interrupt */
     CLOCK_EnableClock(s_spiClock[SPI_GetInstance(base)]);
 
@@ -536,6 +574,12 @@ void SPI_MasterSetBaudRate(SPI_Type *base, uint32_t baudRate_Bps, uint32_t srcCl
 void SPI_WriteBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
 {
     uint32_t i = 0;
+    uint8_t bytesPerFrame = 1U;
+
+#if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && FSL_FEATURE_SPI_16BIT_TRANSFERS
+    /* Check if 16 bits or 8 bits */
+    bytesPerFrame = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
+#endif
 
     while (i < size)
     {
@@ -543,14 +587,11 @@ void SPI_WriteBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
         {
         }
 
-        /* Send data */
-        SPI_WriteNonBlocking(base, buffer, size);
+        /* Send a frame of data */
+        SPI_WriteNonBlocking(base, buffer, bytesPerFrame);
 
-        /* Wait the data to be sent */
-        while ((base->S & SPI_S_SPTEF_MASK) == 0)
-        {
-        }
-        i++;
+        i += bytesPerFrame;
+        buffer += bytesPerFrame;
     }
 }
 
@@ -668,6 +709,7 @@ void SPI_MasterTransferCreateHandle(SPI_Type *base,
     s_spiHandle[instance] = handle;
     handle->callback = callback;
     handle->userData = userData;
+    s_spiIsr = SPI_MasterTransferHandleIRQ;
 
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
     uint8_t txSize = 0U;
@@ -836,15 +878,45 @@ void SPI_MasterTransferHandleIRQ(SPI_Type *base, spi_master_handle_t *handle)
     }
 }
 
-static void SPI_TransferCommonIRQHandler(SPI_Type *base, void *handle)
+void SPI_SlaveTransferCreateHandle(SPI_Type *base,
+                                   spi_slave_handle_t *handle,
+                                   spi_slave_callback_t callback,
+                                   void *userData)
 {
-    if (base->C1 & SPI_C1_MSTR_MASK)
+    assert(handle);
+
+    /* Slave create handle share same logic with master create handle, the only difference
+    is the Isr pointer. */
+    SPI_MasterTransferCreateHandle(base, handle, callback, userData);
+    s_spiIsr = SPI_SlaveTransferHandleIRQ;
+}
+
+void SPI_SlaveTransferHandleIRQ(SPI_Type *base, spi_slave_handle_t *handle)
+{
+    assert(handle);
+
+    /* Do data send first in case of data missing. */
+    if (handle->txRemainingBytes)
     {
-        SPI_MasterTransferHandleIRQ(base, (spi_master_handle_t *)handle);
+        SPI_SendTransfer(base, handle);
     }
-    else
+
+    /* If needs to receive data, do a receive */
+    if (handle->rxRemainingBytes)
     {
-        SPI_SlaveTransferHandleIRQ(base, (spi_slave_handle_t *)handle);
+        SPI_ReceiveTransfer(base, handle);
+    }
+
+    /* All the transfer finished */
+    if ((handle->txRemainingBytes == 0) && (handle->rxRemainingBytes == 0))
+    {
+        /* Complete the transfer */
+        SPI_SlaveTransferAbort(base, handle);
+
+        if (handle->callback)
+        {
+            (handle->callback)(base, handle, kStatus_SPI_Idle, handle->userData);
+        }
     }
 }
 
@@ -852,7 +924,7 @@ static void SPI_TransferCommonIRQHandler(SPI_Type *base, void *handle)
 void SPI0_DriverIRQHandler(void)
 {
     assert(s_spiHandle[0]);
-    SPI_TransferCommonIRQHandler(SPI0, s_spiHandle[0]);
+    s_spiIsr(SPI0, s_spiHandle[0]);
 }
 #endif
 
@@ -860,7 +932,7 @@ void SPI0_DriverIRQHandler(void)
 void SPI1_DriverIRQHandler(void)
 {
     assert(s_spiHandle[1]);
-    SPI_TransferCommonIRQHandler(SPI1, s_spiHandle[1]);
+    s_spiIsr(SPI1, s_spiHandle[1]);
 }
 #endif
 
@@ -868,6 +940,6 @@ void SPI1_DriverIRQHandler(void)
 void SPI2_DriverIRQHandler(void)
 {
     assert(s_spiHandle[2]);
-    SPI_TransferCommonIRQHandler(SPI0, s_spiHandle[2]);
+    s_spiIsr(SPI0, s_spiHandle[2]);
 }
 #endif

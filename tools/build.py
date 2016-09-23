@@ -27,7 +27,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 
-from tools.toolchains import TOOLCHAINS
+from tools.toolchains import TOOLCHAINS, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.toolchains import mbedToolchain
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
@@ -36,7 +36,7 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
-from utils import argparse_filestring_type
+from utils import argparse_filestring_type, args_error
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from utils import argparse_filestring_type, argparse_dir_not_parent
 
@@ -161,11 +161,15 @@ if __name__ == '__main__':
         print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         exit(0)
 
+
     # Get target list
     targets = options.mcu if options.mcu else TARGET_NAMES
 
     # Get toolchains list
     toolchains = options.tool if options.tool else TOOLCHAINS
+
+    if options.source_dir and not options.build_dir:
+        args_error(parser, "argument --build is required by argument --source")
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it
@@ -209,6 +213,11 @@ if __name__ == '__main__':
     # CPPCHECK code validation
     if options.cppcheck_validation:
         for toolchain in toolchains:
+            if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+                search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+                args_error(parser, "Could not find executable for %s.\n"
+                                   "Currently set search path: %s"
+                           % (toolchain, search_path))
             for target in targets:
                 try:
                     mcu = TARGET_MAP[target]

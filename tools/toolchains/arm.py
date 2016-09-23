@@ -15,12 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname, splitext, basename, exists
+from os.path import join, dirname, splitext, basename
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import mkdir
-import copy
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -32,6 +31,9 @@ class ARM(mbedToolchain):
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
 
+    # ANY changes to these default flags is backwards incompatible and require
+    # an update to the mbed-sdk-tools and website that introduces a profile
+    # for the previous version of these flags
     DEFAULT_FLAGS = {
         'common': ["-c", "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
@@ -41,6 +43,13 @@ class ARM(mbedToolchain):
         'cxx': ["--cpp", "--no_rtti", "--no_vla"],
         'ld': [],
     }
+
+    @staticmethod
+    def check_executable():
+        """Returns True if the executable (armcc) location specified by the
+         user exists OR the executable can be found on the PATH.
+         Returns False otherwise."""
+        return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)

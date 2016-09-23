@@ -227,6 +227,16 @@ SECTIONS
     __uvisor_bss_end = .;
   } > m_data
 
+  /* Heap space for the page allocator */
+  .page_heap (NOLOAD) :
+  {
+    . = ALIGN(32);
+    __uvisor_page_start = .;
+    KEEP(*(.keep.uvisor.page_heap))
+    . = ALIGN(32);
+    __uvisor_page_end = .;
+  } > m_data_2
+
   __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
   __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
 
@@ -325,21 +335,6 @@ SECTIONS
     __uvisor_heap_end = .;
   } > m_data_2
 
-  .stack :
-  {
-    . = ALIGN(8);
-    . += STACK_SIZE;
-    __StackTop = .;
-  } > m_data_2
-
-  /* Heap space for the page allocator */
-  .page_heap (NOLOAD) :
-  {
-    __uvisor_page_start = .;
-    . = ORIGIN(m_data_2) + LENGTH(m_data_2) - 4;
-    __uvisor_page_end = .;
-  } > m_data_2
-
   m_usb_bdt USB_RAM_START (NOLOAD) :
   {
     *(m_usb_bdt)
@@ -352,6 +347,7 @@ SECTIONS
   }
 
   /* Initializes stack on the end of block */
+  __StackTop = ORIGIN(m_data_2) + LENGTH(m_data_2);
   __StackLimit = __StackTop - STACK_SIZE;
   PROVIDE(__stack = __StackTop);
 
@@ -365,4 +361,3 @@ SECTIONS
   __uvisor_sram_start = ORIGIN(m_data);
   __uvisor_sram_end = ORIGIN(m_data_2) + LENGTH(m_data_2);
 }
-

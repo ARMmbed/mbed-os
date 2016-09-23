@@ -8,7 +8,7 @@
   #error [NOT_SUPPORTED] AnalogOut not supported
 #endif
 
-#if defined(TARGET_K64F) | defined (TARGET_K22F)
+#if defined(TARGET_K64F) || defined(TARGET_K66F) || defined (TARGET_K22F)
 AnalogIn in(A0);
 AnalogOut out(DAC0_OUT);
 
@@ -63,6 +63,10 @@ AnalogOut out(PA_4);
       defined(TARGET_DISCO_F469NI)
 AnalogIn in(PC_5);
 AnalogOut out(PA_4);
+
+#elif defined(TARGET_NUCLEO_F303ZE)
+AnalogIn in(PC_5);
+AnalogOut out(PA_5);
 
 #elif defined(TARGET_DISCO_F429ZI)
 AnalogIn in(PC_3);

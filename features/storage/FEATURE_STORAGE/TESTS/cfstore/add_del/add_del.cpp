@@ -45,6 +45,8 @@
 
 using namespace utest::v1;
 
+#define CFSTORE_ADD_DEL_MALLOC_SIZE            1024
+
 static char cfstore_add_del_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
 
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
@@ -277,11 +279,104 @@ control_t cfstore_add_del_test_04(const size_t call_count)
     return CaseNext;
 }
 
+/** @brief  Delete an attribute after an internal realloc of the cfstore memory area
+ *
+ * This test case goes through the following steps:
+ * 1. Creates attribute att_1 of size x, and write some data. This causes an internal
+ *    cfstore realloc to allocate heap memory for the attribute.
+ * 2. Allocates some memory on the heap. Typically, this will be immediately after the
+ *    memory used by cfstore for the KV area. This means that if any cfstore reallocs are
+ *    made to increase size the memory area will have to move.
+ * 3. Creates attribute att_2 of size y. This causes an internal cfstore realloc to move
+ *    the KV memory area to a new location.
+ * 4. Delete att_1. This causes an internal realloc to shrink the area and tests that the
+ *    internal data structures that contain pointers to different parts of the KV area
+ *    are updated correctly.
+ * 5. Allocates some memory on the heap. If the heap has been corrupted, this will likely trigger
+ *    a crash
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t cfstore_add_del_test_05_end(const size_t call_count)
+{
+    char data[] = "some test data";
+    char filename[] = "file1";
+    char filename2[] = "file2";
+    int32_t ret = ARM_DRIVER_ERROR;
+    void *test_buf1 = NULL;
+    void *test_buf2 = NULL;
+    ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
+    ARM_CFSTORE_KEYDESC keyDesc1;
+    ARM_CFSTORE_HANDLE_INIT(hkey1);
+    ARM_CFSTORE_KEYDESC keyDesc2;
+    ARM_CFSTORE_HANDLE_INIT(hkey2);
+    ARM_CFSTORE_SIZE count = sizeof(data);
+
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* step 1 */
+    memset(&keyDesc1, 0, sizeof(keyDesc1));
+    keyDesc1.drl = ARM_RETENTION_NVM;
+    keyDesc1.flags.read = true;
+    keyDesc1.flags.write = true;
+    ret = cfstoreDriver->Create(filename, 1024, &keyDesc1, hkey1);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create attribute 1 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+
+    /* Write data to file */
+    ret = cfstoreDriver->Write(hkey1, (const char *)data, &count);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write to attribute 1 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+
+    /* step 2 */
+    test_buf1 = malloc(CFSTORE_ADD_DEL_MALLOC_SIZE);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to allocate memory (test_buf1=%p)\n", __func__, test_buf1);
+    TEST_ASSERT_MESSAGE(test_buf1 != NULL, cfstore_add_del_utest_msg_g);
+
+    /* step 3 */
+    memset(&keyDesc2, 0, sizeof(keyDesc2));
+    keyDesc2.drl = ARM_RETENTION_NVM;
+    keyDesc2.flags.read = true;
+    keyDesc2.flags.write = true;
+    ret = cfstoreDriver->Create(filename2, 1024, &keyDesc2, hkey2);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create attribute 2 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+
+    /* Write data to file */
+    count = sizeof(data);
+    ret = cfstoreDriver->Write(hkey2, (const char *)data, &count);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write to attribute 2 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+
+    /* step 4 */
+    ret = cfstoreDriver->Delete(hkey1);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete to attribute 1 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+
+    ret = cfstoreDriver->Close(hkey1);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close to attribute 1 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+
+    /* step 5 */
+    test_buf2 = malloc(CFSTORE_ADD_DEL_MALLOC_SIZE);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to allocate memory (test_buf2=%p)\n", __func__, test_buf2);
+    TEST_ASSERT_MESSAGE(test_buf2 != NULL, cfstore_add_del_utest_msg_g);
+
+    /* clean up */
+    ret = cfstoreDriver->Close(hkey2);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close to attribute 2 (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
+    free(test_buf2);
+    free(test_buf1);
+
+    return CaseNext;
+}
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(100, "default_auto");
+    GREENTEA_SETUP(300, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
@@ -296,6 +391,8 @@ Case cases[] = {
         Case("ADD_DEL_test_03_start", cfstore_utest_default_start),
         Case("ADD_DEL_test_03_end", cfstore_add_del_test_03_end),
         Case("ADD_DEL_test_04", cfstore_add_del_test_04),
+        Case("ADD_DEL_test_05_start", cfstore_utest_default_start),
+        Case("ADD_DEL_test_05_end", cfstore_add_del_test_05_end),
 };
 
 

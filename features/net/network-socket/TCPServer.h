@@ -41,13 +41,11 @@ public:
      *
      *  @param stack    Network stack as target for socket
      */
-    TCPServer(NetworkStack *stack);
-
-    template <typename IF>
-    TCPServer(IF *iface)
+    template <typename S>
+    TCPServer(S *stack)
         : _pending(0), _accept_sem(0)
     {
-        open(iface->get_stack());
+        open(stack);
     }
 
     /** Destroy a socket
@@ -78,9 +76,10 @@ public:
      *  immediately.
      *
      *  @param socket   TCPSocket instance that will handle the incoming connection.
+     *  @param address  Destination for the remote address or NULL
      *  @return         0 on success, negative error code on failure
      */
-    int accept(TCPSocket *connection);
+    int accept(TCPSocket *connection, SocketAddress *address = NULL);
 
 protected:
     virtual nsapi_protocol_t get_proto();

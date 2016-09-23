@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,12 +54,12 @@ class DS5_5(Exporter):
                 })
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
             'source_files': source_files,
-            'symbols': self.get_symbols()
+            'symbols': self.toolchain.get_symbols()
         }
         target = self.target.lower()
 

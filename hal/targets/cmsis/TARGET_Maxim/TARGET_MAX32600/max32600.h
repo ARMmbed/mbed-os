@@ -656,10 +656,10 @@ typedef enum {
 
 /*******************************************************************************/
 
-#define BITBAND(reg, bit)        ((0xf0000000 & (uint32_t)(reg)) + 0x2000000 + (((uint32_t)(reg) & 0x0fffffff) << 5) + ((bit) << 2))
-#define BITBAND_ClrBit(reg, bit) *(volatile uint32_t *)BITBAND(reg, bit) = 0
-#define BITBAND_SetBit(reg, bit) *(volatile uint32_t *)BITBAND(reg, bit) = 1
-#define BITBAND_GetBit(reg, bit) (*(volatile uint32_t *)BITBAND(reg, bit))
+#define BITBAND(reg, bit)      ((0xf0000000 & (uint32_t)(reg)) + 0x2000000 + (((uint32_t)(reg) & 0x0fffffff) << 5) + ((bit) << 2))
+#define MXC_CLRBIT(reg, bit)   (*(volatile uint32_t *)BITBAND(reg, bit) = 0)
+#define MXC_SETBIT(reg, bit)   (*(volatile uint32_t *)BITBAND(reg, bit) = 1)
+#define MXC_GETBIT(reg, bit)   (*(volatile uint32_t *)BITBAND(reg, bit))
 
 /*******************************************************************************/
 

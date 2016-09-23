@@ -32,8 +32,8 @@
 
 using namespace utest::v1;
 
-extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
-ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
+ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
 
 /* temporary buffer to hold data for testing. */
 static const unsigned BUFFER_SIZE = 16384;
@@ -112,6 +112,7 @@ void test_getInfo()
 
     TEST_ASSERT_EQUAL(0, info.security.reserved1);
     TEST_ASSERT_EQUAL(0, info.security.reserved2);
+    TEST_ASSERT((info.program_cycles == ARM_STORAGE_PROGRAM_CYCLES_INFINITE) || (info.program_cycles > 0));
     TEST_ASSERT(info.total_storage > 0);
 }
 
@@ -135,7 +136,7 @@ control_t test_initialize(const size_t call_count)
     TEST_ASSERT(rc >= ARM_DRIVER_OK);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? (CaseTimeout(200) + CaseRepeatAll) : CaseNext;
+        return (call_count < REPEAT_INSTANCES) ? (CaseTimeout(200) + CaseRepeatAll) : (control_t) CaseNext;
     }
 
     TEST_ASSERT(rc == 1);
@@ -373,7 +374,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
         return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
     } else {
         TEST_ASSERT_EQUAL(firstBlock.attributes.erase_unit, rc);
-        verifyBytePattern(addr, firstBlock.attributes.erase_unit, (uint8_t)0xFF);
+        verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
 
         static const uint32_t BYTE_PATTERN = 0xAA551122;
         size_t sizeofData = info.program_unit;
@@ -495,7 +496,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
         return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
     } else {
         TEST_ASSERT_EQUAL(firstBlock.attributes.erase_unit, rc);
-        verifyBytePattern(addr, firstBlock.attributes.erase_unit, (uint8_t)0xFF);
+        verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
 
         static const uint8_t BYTE_PATTERN = 0xAA;
         size_t sizeofData = info.optimal_program_unit;
@@ -579,10 +580,12 @@ void eraseCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
     const uint64_t addr = firstBlock.addr + eraseIteration * ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit;
     ++eraseIteration;
 
-#ifndef __CC_ARM
-    printf("testing erased sector at addr %lu\n", (uint32_t)addr);
-#endif
-    verifyBytePattern(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, (uint8_t)0xFF);
+    ARM_STORAGE_INFO info;
+    int32_t rc = drv->GetInfo(&info);
+    TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
+
+    //printf("testing erased sector at addr %lu", (uint32_t)addr);
+    verifyBytePattern(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
 
     Harness::validate_callback();
 }
@@ -627,6 +630,10 @@ control_t test_erase(const size_t call_count)
         return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
     } else {
         TEST_ASSERT_EQUAL(ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, rc);
+
+        ARM_STORAGE_INFO info;
+        rc = drv->GetInfo(&info);
+        TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
         /* test that the actual sector has been erased */
         printf("testing erased sector at addr %lu\n", (uint32_t)addr);
@@ -708,8 +715,12 @@ control_t test_eraseAll(const size_t call_count)
         unsigned index = 0;
         static const unsigned MAX_VERIFY_ITERATIONS = 5;
         while ((index < MAX_VERIFY_ITERATIONS) && (addr < (firstBlock.addr + firstBlock.size))) {
-            printf("testing erased chip at addr %lu\n", (uint32_t)addr);
-            verifyBytePattern(addr, firstBlock.attributes.erase_unit, (uint8_t)0xFF);
+            //printf("testing erased chip at addr %lu", (uint32_t)addr);
+            ARM_STORAGE_INFO info;
+            rc = drv->GetInfo(&info);
+            TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
+
+            verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
 
             index++;
             addr += firstBlock.attributes.erase_unit;

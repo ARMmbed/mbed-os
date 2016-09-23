@@ -20,6 +20,8 @@
 #include <string.h>
 #include "mbed.h"
 #include "greentea-client/test_env.h"
+#include "greentea-client/greentea_serial.h"
+#include "greentea-client/greentea_metrics.h"
 
 
 /**
@@ -56,13 +58,7 @@ static void greentea_notify_timeout(const int);
 static void greentea_notify_hosttest(const char *);
 static void greentea_notify_completion(const int);
 static void greentea_notify_version();
-
-/**
- * Rawserial object used to provide direct, raw serial communications
- * between the target and the host.
- */
-RawSerial greentea_serial(USBTX, USBRX); 
-
+static void greentea_write_string(const char *str);
 
 /** \brief Handshake with host and send setup data (timeout and host test name)
  *  \details This function will send preamble to master.
@@ -71,6 +67,7 @@ RawSerial greentea_serial(USBTX, USBRX);
  *           This function is blocking.
  */
 void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
+    greentea_metrics_setup();
     // Key-value protocol handshake function. Waits for {{__sync;...}} message
     // Sync preamble: "{{__sync;0dad4a9d-59a3-4aec-810d-d5fb09d852c1}}"
     // Example value of sync_uuid == "0dad4a9d-59a3-4aec-810d-d5fb09d852c1"
@@ -78,6 +75,7 @@ void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
 	char _value[48] = {0};
 	while (1) {
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        greentea_write_string("mbedmbedmbedmbedmbedmbedmbedmbed\r\n");
         if (strcmp(_key, GREENTEA_TEST_ENV_SYNC) == 0) {
             // Found correct __sunc message
             greentea_send_kv(_key, _value);
@@ -193,8 +191,8 @@ void greentea_notify_coverage_end() {
  */
 inline void greentea_write_preamble()
 {
-    greentea_serial.putc('{');
-    greentea_serial.putc('{');
+    greentea_serial->putc('{');
+    greentea_serial->putc('{');
 }
  
 /**
@@ -211,9 +209,10 @@ inline void greentea_write_preamble()
  */
 inline void greentea_write_postamble()
 {
-    greentea_serial.putc('}');
-    greentea_serial.putc('}');
-    greentea_serial.putc('\n');
+    greentea_serial->putc('}');
+    greentea_serial->putc('}');
+    greentea_serial->putc('\r');
+    greentea_serial->putc('\n');
 }
 
 /**
@@ -229,7 +228,7 @@ inline void greentea_write_postamble()
 inline void greentea_write_string(const char *str)
 {
     while (*str != '\0') {
-        greentea_serial.putc(*str);
+        greentea_serial->putc(*str);
         str ++;
     }
 }
@@ -255,7 +254,7 @@ inline void greentea_write_int(const int val)
     unsigned int i = 0;
     sprintf(intval, "%d", val);
     while (intval[i] != '\0') {
-        greentea_serial.putc(intval[i]);
+        greentea_serial->putc(intval[i]);
         i++;
     }
 }
@@ -275,7 +274,7 @@ void greentea_send_kv(const char *key, const char *val) {
     if (key && val) {
         greentea_write_preamble();
         greentea_write_string(key);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_string(val);
         greentea_write_postamble();
     }
@@ -298,7 +297,7 @@ void greentea_send_kv(const char *key, const int val) {
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_int(val);
         greentea_write_postamble();
     }
@@ -322,9 +321,9 @@ void greentea_send_kv(const char *key, const char *val, const int result) {
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_string(val);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_int(result);
         greentea_write_postamble();
 
@@ -355,11 +354,11 @@ void greentea_send_kv(const char *key, const char *val, const int passes, const 
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_string(val);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_int(passes);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_int(failures);
         greentea_write_postamble();
     }
@@ -388,9 +387,9 @@ void greentea_send_kv(const char *key, const int passes, const int failures) {
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_int(passes);
-        greentea_serial.putc(';');
+        greentea_serial->putc(';');
         greentea_write_int(failures);
         greentea_write_postamble();
     }
@@ -457,6 +456,7 @@ static void greentea_notify_completion(const int result) {
     __gcov_flush();
     coverage_report = false;
 #endif
+    greentea_metrics_report();
     greentea_send_kv(GREENTEA_TEST_ENV_END, val);
     greentea_send_kv(GREENTEA_TEST_ENV_EXIT, 0);
 }

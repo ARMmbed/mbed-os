@@ -329,6 +329,7 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
+extern int atexit(void (*func)(void));
 extern void __libc_fini_array(void);
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);

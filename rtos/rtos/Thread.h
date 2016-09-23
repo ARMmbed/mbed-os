@@ -31,7 +31,34 @@
 
 namespace rtos {
 
-/** The Thread class allow defining, creating, and controlling thread functions in the system. */
+/** The Thread class allow defining, creating, and controlling thread functions in the system.
+ *
+ *  Example:
+ *  @code
+ *  #include "mbed.h"
+ *  #include "rtos.h"
+ *
+ *  Thread thread;
+ *  DigitalOut led1(LED1);
+ *  volatile bool running = true;
+ *
+ *  // Blink function toggles the led in a long running loop
+ *  void blink(DigitalOut *led) {
+ *      while (running) {
+ *          *led = !*led;
+ *          Thread::wait(1000);
+ *      }
+ *  }
+ *
+ *  // Spawns a thread to run blink for 5 seconds
+ *  int main() {
+ *      thread.start(led1, blink);
+ *      Thread::wait(5000);
+ *      running = false;
+ *      thread.join();
+ *  }
+ *  @endcode
+ */
 class Thread {
 public:
     /** Allocate a new thread without starting execution
@@ -52,15 +79,20 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors and may lead to complex
-        program state when a thread is declared.
+        Thread-spawning constructors hide errors. Replaced by thread.start(task).
 
-        The explicit Thread::start member function should be used to spawn
-        a thread.
+        @code
+        Thread thread(priority, stack_size, stack_pointer);
+
+        osStatus status = thread.start(task);
+        if (status != osOK) {
+            error("oh no!");
+        }
+        @endcode
     */
-    MBED_DEPRECATED(
-        "Thread-spawning constructors hide errors and may lead to complex "
-        "program state when a thread is declared")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Thread-spawning constructors hide errors. "
+        "Replaced by thread.start(task).")
     Thread(mbed::Callback<void()> task,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
@@ -76,21 +108,26 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors and may lead to complex
-        program state when a thread is declared.
+        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
 
-        The explicit Thread::start member function should be used to spawn
-        a thread.
+        @code
+        Thread thread(priority, stack_size, stack_pointer);
+
+        osStatus status = thread.start(callback(argument, task));
+        if (status != osOK) {
+            error("oh no!");
+        }
+        @endcode
     */
     template <typename T>
-    MBED_DEPRECATED(
-        "Thread-spawning constructors hide errors and may lead to complex "
-        "program state when a thread is declared")
-    Thread(T *obj, void (T::*method)(),
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Thread-spawning constructors hide errors. "
+        "Replaced by thread.start(callback(argument, task)).")
+    Thread(T *argument, void (T::*task)(),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::Callback<void()>(obj, method),
+        constructor(mbed::callback(argument, task),
                     priority, stack_size, stack_pointer);
     }
 
@@ -102,21 +139,26 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors and may lead to complex
-        program state when a thread is declared.
+        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
 
-        The explicit Thread::start member function should be used to spawn
-        a thread.
+        @code
+        Thread thread(priority, stack_size, stack_pointer);
+
+        osStatus status = thread.start(callback(argument, task));
+        if (status != osOK) {
+            error("oh no!");
+        }
+        @endcode
     */
     template <typename T>
-    MBED_DEPRECATED(
-        "Thread-spawning constructors hide errors and may lead to complex "
-        "program state when a thread is declared")
-    Thread(T *obj, void (*method)(T *),
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Thread-spawning constructors hide errors. "
+        "Replaced by thread.start(callback(argument, task)).")
+    Thread(T *argument, void (*task)(T *),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::Callback<void()>(obj, method),
+        constructor(mbed::callback(argument, task),
                     priority, stack_size, stack_pointer);
     }
 
@@ -128,20 +170,25 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors and may lead to complex
-        program state when a thread is declared.
+        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
 
-        The explicit Thread::start member function should be used to spawn
-        a thread.
+        @code
+        Thread thread(priority, stack_size, stack_pointer);
+
+        osStatus status = thread.start(callback(argument, task));
+        if (status != osOK) {
+            error("oh no!");
+        }
+        @endcode
     */
-    MBED_DEPRECATED(
-        "Thread-spawning constructors hide errors and may lead to complex "
-        "program state when a thread is declared")
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Thread-spawning constructors hide errors. "
+        "Replaced by thread.start(callback(argument, task)).")
     Thread(void (*task)(void const *argument), void *argument=NULL,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::Callback<void()>(argument, (void (*)(void *))task),
+        constructor(mbed::callback(argument, (void (*)(void *))task),
                     priority, stack_size, stack_pointer);
     }
 
@@ -155,10 +202,15 @@ public:
       @param   obj            argument to task
       @param   method         function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
+      @deprecated
+          The start function does not support cv-qualifiers. Replaced by start(callback(obj, method)).
     */
     template <typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The start function does not support cv-qualifiers. "
+        "Replaced by thread.start(callback(obj, method)).")
     osStatus start(T *obj, M method) {
-        return start(mbed::Callback<void()>(obj, method));
+        return start(mbed::callback(obj, method));
     }
 
     /** Wait for thread to terminate
@@ -267,6 +319,11 @@ public:
       @param   fptr  pointer to the function to be called
     */
     static void attach_idle_hook(void (*fptr)(void));
+
+    /** Attach a function to be called when a task is killed
+      @param   fptr  pointer to the function to be called
+    */
+    static void attach_terminate_hook(void (*fptr)(osThreadId id));
 
     virtual ~Thread();
 

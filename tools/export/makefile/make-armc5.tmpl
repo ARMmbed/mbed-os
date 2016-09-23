@@ -1,0 +1,9 @@
+{% extends "makefile/Makefile.tmpl" %}
+
+{% block elf2bin %}
+	$(ELF2BIN) --bin --output $@ $< 
+{%- endblock %}
+
+{% block elf2hex %}
+	$(ELF2BIN) --i32 --output $@ $< 
+{%- endblock %}

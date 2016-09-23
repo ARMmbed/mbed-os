@@ -58,6 +58,8 @@ bool test_sn_nsdl_send_coap_message();
 
 bool test_sn_nsdl_create_resource();
 
+bool test_sn_nsdl_put_resource();
+
 bool test_sn_nsdl_delete_resource();
 
 bool test_sn_nsdl_get_first_resource();

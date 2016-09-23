@@ -44,6 +44,7 @@ class Sw4STM32(Exporter):
         'NUCLEO_F302R8':    {'name': 'NUCLEO-F302R8',           'mcuId': 'STM32F302R8Tx'},
         'NUCLEO_F303RE':    {'name': 'NUCLEO-F303RE',           'mcuId': 'STM32F303RETx'},
         'NUCLEO_F334R8':    {'name': 'NUCLEO-F334R8',           'mcuId': 'STM32F334R8Tx'},
+        'NUCLEO_F303ZE':    {'name': 'NUCLEO-F303ZE',           'mcuId': 'STM32F303ZETx'},
         'NUCLEO_F401RE':    {'name': 'NUCLEO-F401RE',           'mcuId': 'STM32F401RETx'},
         'NUCLEO_F429ZI':    {'name': 'NUCLEO-F429ZI',           'mcuId': 'STM32F429ZITx'},
         'NUCLEO_F411RE':    {'name': 'NUCLEO-F411RE',           'mcuId': 'STM32F411RETx'},
@@ -65,7 +66,7 @@ class Sw4STM32(Exporter):
     TARGETS = BOARDS.keys()
 
     def __gen_dir(self, dirname):
-        settings = join(self.inputDir, dirname)
+        settings = join(self.export_dir, dirname)
         mkdir(settings)
 
     def __generate_uid(self):
@@ -78,13 +79,13 @@ class Sw4STM32(Exporter):
             libraries.append(l[3:])
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'linker_script': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.get_symbols(),
+            'symbols': self.toolchain.get_symbols(),
             'board_name': self.BOARDS[self.target.upper()]['name'],
             'mcu_name': self.BOARDS[self.target.upper()]['mcuId'],
             'debug_config_uid': self.__generate_uid(),

@@ -33,6 +33,8 @@ class ZIP(Exporter):
         's_sources':'2'
     }
 
+    TOOLCHAIN = 'ARM'
+
     def get_toolchain(self):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'
 

@@ -392,6 +392,10 @@ extern       osThreadId      osThreadId_osTimerThread;
 extern const osMessageQDef_t os_messageQ_def_osTimerMessageQ;
 extern       osMessageQId    osMessageQId_osTimerMessageQ;
 
+// Thread creation and destruction
+osMutexDef(osThreadMutex);
+osMutexId osMutexId_osThreadMutex;
+void sysThreadTerminate(osThreadId id);
 
 // ==== Helper Functions ====
 
@@ -490,6 +494,8 @@ osStatus svcKernelInitialize (void) {
     // Create OS Timers resources (Message Queue & Thread)
     osMessageQId_osTimerMessageQ = svcMessageCreate (&os_messageQ_def_osTimerMessageQ, NULL);
     osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL, NULL);
+    // Initialize thread mutex
+    osMutexId_osThreadMutex = osMutexCreate(osMutex(osThreadMutex));
   }
 
   sysThreadError(osOK);
@@ -632,6 +638,7 @@ SVC_1_1(svcThreadTerminate,   osStatus,         osThreadId,                  RET
 SVC_0_1(svcThreadYield,       osStatus,                                      RET_osStatus)
 SVC_2_1(svcThreadSetPriority, osStatus,         osThreadId,      osPriority, RET_osStatus)
 SVC_1_1(svcThreadGetPriority, osPriority,       osThreadId,                  RET_osPriority)
+SVC_2_3(svcThreadGetInfo,    os_InRegs osEvent, osThreadId,    osThreadInfo, RET_osEvent)
 
 // Thread Service Calls
 
@@ -791,6 +798,67 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
   return (osPriority)(ptcb->prio - 1 + osPriorityIdle); 
 }
 
+/// Get info from an active thread
+os_InRegs osEvent_type svcThreadGetInfo (osThreadId thread_id, osThreadInfo info) {
+  P_TCB ptcb;
+  osEvent ret;
+  ret.status = osOK;
+
+  ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
+  if (ptcb == NULL) {
+    ret.status = osErrorValue;
+    return osEvent_ret_status;
+  }
+
+  if (osThreadInfoStackSize == info) {
+    uint32_t size;
+    size = ptcb->priv_stack;
+    if (0 == size) {
+      // This is an OS task - always a fixed size
+      size = os_stackinfo & 0x3FFFF;
+    }
+    ret.value.v = size;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoStackMax == info) {
+    uint32_t i;
+    uint32_t *stack_ptr;
+    uint32_t stack_size;
+    if (!(os_stackinfo & (1 << 28))) {
+      // Stack init must be turned on for max stack usage
+      ret.status = osErrorResource;
+      return osEvent_ret_status;
+    }
+    stack_ptr = (uint32_t*)ptcb->stack;
+    stack_size = ptcb->priv_stack;
+    if (0 == stack_size) {
+      // This is an OS task - always a fixed size
+      stack_size = os_stackinfo & 0x3FFFF;
+    }
+    for (i = 1; i <stack_size / 4; i++) {
+      if (stack_ptr[i] != MAGIC_PATTERN) {
+        break;
+      }
+    }
+    ret.value.v = stack_size - i * 4;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoEntry == info) {
+    ret.value.p = (void*)ptcb->ptask;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoArg == info) {
+    ret.value.p = (void*)ptcb->argv;
+    return osEvent_ret_value;
+  }
+
+  // Unsupported option so return error
+  ret.status = osErrorParameter;
+  return osEvent_ret_status;
+}
 
 // Thread Public API
 
@@ -806,7 +874,12 @@ osThreadId osThreadContextCreate (const osThreadDef_t *thread_def, void *argumen
     // Privileged and not running
     return   svcThreadCreate(thread_def, argument, context);
   } else {
-    return __svcThreadCreate(thread_def, argument, context);
+    osThreadId id;
+    osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+    // Thread mutex must be held when a thread is created or terminated
+    id = __svcThreadCreate(thread_def, argument, context);
+    osMutexRelease(osMutexId_osThreadMutex);
+    return id;
   }
 }
 
@@ -820,10 +893,16 @@ osThreadId osThreadGetId (void) {
 
 /// Terminate execution of a thread and remove it from ActiveThreads
 osStatus osThreadTerminate (osThreadId thread_id) {
+  osStatus status;
   if (__get_IPSR() != 0U) { 
     return osErrorISR;                          // Not allowed in ISR
   }
-  return __svcThreadTerminate(thread_id);
+  osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  sysThreadTerminate(thread_id);
+  // Thread mutex must be held when a thread is created or terminated
+  status = __svcThreadTerminate(thread_id);
+  osMutexRelease(osMutexId_osThreadMutex);
+  return status;
 }
 
 /// Pass control to next thread that is in state READY
@@ -852,8 +931,15 @@ osPriority osThreadGetPriority (osThreadId thread_id) {
 
 /// INTERNAL - Not Public
 /// Auto Terminate Thread on exit (used implicitly when thread exists)
-__NO_RETURN void osThreadExit (void) { 
-  __svcThreadTerminate(__svcThreadGetId()); 
+__NO_RETURN void osThreadExit (void) {
+  osThreadId id;
+  // Thread mutex must be held when a thread is created or terminated
+  // Note - the mutex will be released automatically by the os when
+  //        the thread is terminated
+  osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  id = __svcThreadGetId();
+  sysThreadTerminate(id);
+  __svcThreadTerminate(id);
   for (;;);                                     // Should never come here
 }
 
@@ -870,6 +956,49 @@ uint8_t osThreadGetState (osThreadId thread_id) {
   return ptcb->state;
 }
 #endif
+
+/// Get the requested info from the specified active thread
+os_InRegs osEvent _osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
+  osEvent ret;
+
+  if (__get_IPSR() != 0U) {                     // Not allowed in ISR
+    ret.status = osErrorISR;
+    return ret;
+  }
+  return __svcThreadGetInfo(thread_id, info);
+}
+
+osThreadEnumId _osThreadsEnumStart() {
+  static uint32_t thread_enum_index;
+  osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  thread_enum_index = 0;
+  return &thread_enum_index;
+}
+
+osThreadId _osThreadEnumNext(osThreadEnumId enum_id) {
+  uint32_t i;
+  osThreadId id = NULL;
+  uint32_t *index = (uint32_t*)enum_id;
+  for (i = *index; i < os_maxtaskrun; i++) {
+    if (os_active_TCB[i] != NULL) {
+      id = (osThreadId)os_active_TCB[i];
+      break;
+    }
+  }
+  if (i == os_maxtaskrun) {
+    // Include the idle task at the end of the enumeration
+    id = &os_idle_TCB;
+  }
+  *index = i + 1;
+  return id;
+}
+
+osStatus _osThreadEnumFree(osThreadEnumId enum_id) {
+  uint32_t *index = (uint32_t*)enum_id;
+  *index = 0;
+  osMutexRelease(osMutexId_osThreadMutex);
+  return osOK;
+}
 
 // ==== Generic Wait Functions ====
 

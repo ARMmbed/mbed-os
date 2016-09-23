@@ -103,7 +103,7 @@ typedef struct {
         __IO uint8_t output_8;                  /*  0x0000   Write to push values to DAC output FIFO            */
         __IO uint16_t output_16;                /*  0x0000   Write to push values to DAC output FIFO            */
     };
-} mxc_dac_fifo_t;
+} mxc_dac_fifo_regs_t;
 
 /*
    Register offsets for module DAC12.

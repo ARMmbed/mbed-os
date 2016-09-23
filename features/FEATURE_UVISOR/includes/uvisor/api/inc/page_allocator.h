@@ -34,4 +34,7 @@ UVISOR_EXTERN int uvisor_page_malloc(UvisorPageTable * const table);
  */
 UVISOR_EXTERN int uvisor_page_free(const UvisorPageTable * const table);
 
+/* @returns the active page size for one page. */
+UVISOR_EXTERN uint32_t uvisor_get_page_size(void);
+
 #endif /* __UVISOR_API_PAGE_ALLOCATOR_H__ */

@@ -113,7 +113,8 @@ extern unsigned int __data_section_table;
 extern unsigned int __data_section_table_end;
 extern unsigned int __bss_section_table_end;
 
-extern "C" void software_init_hook(void) __attribute__((weak));
+extern "C" void software_init_hook(void);
+extern "C" void pre_main(void) __attribute__((weak));
 
 AFTER_VECTORS void ResetISR(void) {
     unsigned int LoadAddr, ExeAddr, SectionLen;
@@ -136,9 +137,10 @@ AFTER_VECTORS void ResetISR(void) {
     }
     
     SystemInit();
-    if (software_init_hook) // give control to the RTOS
+    if (pre_main) { // give control to the RTOS
         software_init_hook(); // this will also call __libc_init_array
-    else {
+    }
+    else {          // for BareMetal (non-RTOS) build
         __libc_init_array();
         main();
     }
@@ -151,14 +153,6 @@ AFTER_VECTORS void SVC_Handler      (void) {while(1){}}
 AFTER_VECTORS void PendSV_Handler   (void) {while(1){}}
 AFTER_VECTORS void SysTick_Handler  (void) {while(1){}}
 AFTER_VECTORS void IntDefaultHandler(void) {while(1){}}
-
-#include <stdlib.h>
-
-void *operator new  (size_t size) {return malloc(size);}
-void *operator new[](size_t size) {return malloc(size);}
-
-void operator delete  (void *p) {free(p);}
-void operator delete[](void *p) {free(p);}
 
 int __aeabi_atexit(void *object, void (*destructor)(void *), void *dso_handle) {
     return 0;

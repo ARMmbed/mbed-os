@@ -252,15 +252,15 @@ void  ETH_halt(void)
     EMAC->CTL &= ~(EMAC_CTL_RXON_Msk | EMAC_CTL_TXON_Msk);
 }
 
-
+unsigned int m_status;
 
 void EMAC_RX_IRQHandler(void)
 {
     unsigned int cur_entry, status;
 
-    status = EMAC->INTSTS & 0xFFFF;
-    EMAC->INTSTS = status;
-    if (status & EMAC_INTSTS_RXBEIF_Msk) {
+    m_status = EMAC->INTSTS & 0xFFFF;
+    EMAC->INTSTS = m_status;
+    if (m_status & EMAC_INTSTS_RXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
 		printf("RX descriptor corrupted \r\n");
 		//return;
@@ -275,7 +275,7 @@ void EMAC_RX_Action(void)
 
         cur_entry = EMAC->CRXDSA;
 
-        if ((cur_entry == (u32_t)cur_rx_desc_ptr) && (!(status & EMAC_INTSTS_RDUIF_Msk)))  // cur_entry may equal to cur_rx_desc_ptr if RDU occures
+        if ((cur_entry == (u32_t)cur_rx_desc_ptr) && (!(m_status & EMAC_INTSTS_RDUIF_Msk)))  // cur_entry may equal to cur_rx_desc_ptr if RDU occures
             break;
         status = cur_rx_desc_ptr->status1;
 

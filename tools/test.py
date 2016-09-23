@@ -29,19 +29,19 @@ sys.path.insert(0, ROOT)
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
 from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
-from tools.build_api import print_build_memory_usage_results
+from tools.build_api import print_build_memory_usage
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from utils import argparse_dir_not_parent
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     try:
         # Parse Options
-        parser = get_default_options_parser()
+        parser = get_default_options_parser(add_app_config=True)
         
         parser.add_argument("-D",
                           action="append",
@@ -107,17 +107,24 @@ if __name__ == '__main__':
 
         # Target
         if options.mcu is None :
-            args_error(parser, "[ERROR] You should specify an MCU")
+            args_error(parser, "argument -m/--mcu is required")
         mcu = options.mcu[0]
 
         # Toolchain
         if options.tool is None:
-            args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
+            args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
+
+        if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+            search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+            args_error(parser, "Could not find executable for %s.\n"
+                               "Currently set search path: %s"
+                       % (toolchain, search_path))
 
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path, mcu, toolchain, options.options))
+            all_tests.update(find_tests(path, mcu, toolchain, options.options,
+                                        app_config=options.app_config))
 
         # Filter tests by name if specified
         if options.names:
@@ -152,8 +159,7 @@ if __name__ == '__main__':
         else:
             # Build all tests
             if not options.build_dir:
-                print "[ERROR] You must specify a build path"
-                sys.exit(1)
+                args_error(parser, "argument --build is required")
 
             base_source_paths = options.source_dir
 
@@ -177,7 +183,9 @@ if __name__ == '__main__':
                                                 macros=options.macros,
                                                 verbose=options.verbose,
                                                 notify=notify,
-                                                archive=False)
+                                                archive=False,
+                                                remove_config_header_file=True,
+                                                app_config=options.app_config)
 
                 library_build_success = True
             except ToolException, e:
@@ -194,6 +202,7 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
+
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
                         options=options.options,
                         clean=options.clean,
@@ -203,7 +212,8 @@ if __name__ == '__main__':
                         verbose=options.verbose,
                         notify=notify,
                         jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail)
+                        continue_on_build_fail=options.continue_on_build_fail,
+                        app_config=options.app_config)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
@@ -230,7 +240,7 @@ if __name__ == '__main__':
             # Print memory map summary on screen
             if build_report:
                 print
-                print print_build_memory_usage_results(build_report)
+                print print_build_memory_usage(build_report)
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
             status = print_report_exporter.report(build_report)

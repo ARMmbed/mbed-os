@@ -32,12 +32,13 @@
 #define __CTHUNK_H__
 
 #define CTHUNK_ADDRESS 1
+#define CTHUNK_VARIABLES volatile uint32_t code[2]
 
-#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__thumb2__)) && ! defined(__CORTEX_A9)
-#define CTHUNK_VARIABLES volatile uint32_t code[1]
+#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7) || defined(__CORTEX_A9))
 /**
-* CTHUNK disassembly for Cortex-M3/M4 (thumb2):
-* * ldm.w pc,{r0,r1,r2,pc}
+* CTHUNK disassembly for Cortex-M3/M4/M7/A9 (thumb2):
+* * adr  r0, #4
+* * ldm  r0, {r0, r1, r2, pc}
 *
 * This instruction loads the arguments for the static thunking function to r0-r2, and
 * branches to that function by loading its address into PC.
@@ -45,23 +46,21 @@
 * This is safe for both regular calling and interrupt calling, since it only touches scratch registers
 * which should be saved by the caller, and are automatically saved as part of the IRQ context switch.
 */
-#define CTHUNK_ASSIGMENT m_thunk.code[0] = 0x8007E89F
-
-#elif defined(__CORTEX_M0PLUS) || defined(__CORTEX_M0) || defined(__CORTEX_A9)
-/*
-* CTHUNK disassembly for Cortex M0 (thumb):
-* * push {r0,r1,r2,r3,r4,lr} save touched registers and return address
-* * movs r4,#4 set up address to load arguments from (immediately following this code block) (1)
-* * add r4,pc set up address to load arguments from (immediately following this code block) (2)
-* * ldm r4!,{r0,r1,r2,r3} load arguments for static thunk function
-* * blx r3 call static thunk function
-* * pop {r0,r1,r2,r3,r4,pc} restore scratch registers and return from function
-*/
-#define CTHUNK_VARIABLES volatile uint32_t code[3]
 #define CTHUNK_ASSIGMENT do {                              \
-                             m_thunk.code[0] = 0x2404B51F; \
-                             m_thunk.code[1] = 0xCC0F447C; \
-                             m_thunk.code[2] = 0xBD1F4798; \
+                             m_thunk.code[0] = 0xE890A001; \
+                             m_thunk.code[1] = 0x00008007; \
+                         } while (0)
+
+#elif (defined(__CORTEX_M0PLUS) || defined(__CORTEX_M0))
+/*
+* CTHUNK disassembly for Cortex M0/M0+ (thumb):
+* * adr  r0, #4
+* * ldm  r0, {r0, r1, r2, r3}
+* * bx   r3
+*/
+#define CTHUNK_ASSIGMENT do {                              \
+                             m_thunk.code[0] = 0xC80FA001; \
+                             m_thunk.code[1] = 0x00004718; \
                          } while (0)
 
 #else
@@ -225,6 +224,13 @@ class CThunk
                 __ca9u_inv_tlb_all();
                 __v7_inv_btac();
             }
+#endif
+#if defined(__CORTEX_M7)
+            /* Data cache clean and invalid */
+            SCB_CleanInvalidateDCache();
+
+            /* Instruction cache invalid */
+            SCB_InvalidateICache();
 #endif
             __ISB();
             __DSB();

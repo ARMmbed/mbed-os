@@ -16,7 +16,7 @@ static osThreadId timer_thread_id;
 static Timer timer;
 static Timeout timeout;
 static uint32_t due;
-static void (*callback)(void);
+static void (*arm_hal_callback)(void);
 
 static void timer_thread(const void *)
 {
@@ -25,7 +25,7 @@ static void timer_thread(const void *)
         // !!! We don't do our own enter/exit critical - we rely on callback
         // doing it (ns_timer_interrupt_handler does)
         //platform_enter_critical();
-        callback();
+        arm_hal_callback();
         //platform_exit_critical();
     }
 }
@@ -47,7 +47,7 @@ void platform_timer_disable(void)
 // Not called while running, fortunately
 void platform_timer_set_cb(void (*new_fp)(void))
 {
-    callback = new_fp;
+    arm_hal_callback = new_fp;
 }
 
 static void timer_callback(void)

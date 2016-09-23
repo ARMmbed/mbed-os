@@ -23,11 +23,22 @@ extern "C" {
 #endif // __cplusplus
 
 #include "flash-journal/flash_journal.h"
-#include "flash-journal-strategy-sequential/config.h"
+
+static inline uint32_t roundUp_uint32(uint32_t N, uint32_t BOUNDARY) {
+    return ((((N) + (BOUNDARY) - 1) / (BOUNDARY)) * (BOUNDARY));
+}
+static inline uint32_t roundDown_uint32(uint32_t N, uint32_t BOUNDARY) {
+    return (((N) / (BOUNDARY)) * (BOUNDARY));
+}
+
+#define LCM_OF_ALL_ERASE_UNITS 4096 /* Assume an LCM of erase_units for now. This will be generalized later. */
 
 static const uint32_t SEQUENTIAL_FLASH_JOURNAL_INVALD_NEXT_SEQUENCE_NUMBER = 0xFFFFFFFFUL;
-static const uint32_t SEQUENTIAL_FLASH_JOURNAL_VERSION = 1;
-static const uint32_t SEQUENTIAL_FLASH_JOURNAL_MAGIC   = 0xCE02102AUL;
+static const uint32_t SEQUENTIAL_FLASH_JOURNAL_MAGIC                       = 0xCE02102AUL;
+static const uint32_t SEQUENTIAL_FLASH_JOURNAL_VERSION                     = 1;
+static const uint32_t SEQUENTIAL_FLASH_JOURNAL_HEADER_MAGIC                = 0xCEA00AEEUL;
+static const uint32_t SEQUENTIAL_FLASH_JOURNAL_HEADER_VERSION              = 1;
+
 
 typedef enum {
     SEQUENTIAL_JOURNAL_STATE_NOT_INITIALIZED,
@@ -40,6 +51,20 @@ typedef enum {
     SEQUENTIAL_JOURNAL_STATE_LOGGING_TAIL,
     SEQUENTIAL_JOURNAL_STATE_READING,
 } SequentialFlashJournalState_t;
+
+/**
+ * Meta-data placed at the head of a Journal. The actual header would be an
+ * extension of this generic header, and would depend on the implementation
+ * strategy. Initialization algorithms can expect to find this generic header at
+ * the start of every Journal.
+ */
+typedef struct _SequentialFlashJournalHeader {
+    FlashJournalHeader_t genericHeader; /** Generic meta-data placed at the head of a Journal; common to all journal types. */
+    uint32_t             magic;         /** Sequential journal header specific magic code. */
+    uint32_t             version;       /** Revision number for this sequential journal header. */
+    uint32_t             numSlots;      /** Maximum number of logged blobs; i.e. maximum number of versions of the journaled payload. */
+    uint32_t             sizeofSlot;    /** Slot size. Each slot holds a header, blob-payload, and a tail. */
+} SequentialFlashJournalHeader_t;
 
 /**
  * Meta-data placed at the head of a sequential-log entry.
@@ -62,9 +87,12 @@ typedef struct _SequentialFlashJournalLogHead {
  *     a partially written log-entry-tail won't be accepted as valid.
  */
 typedef struct _SequentialFlashJournalLogTail {
-    uint64_t sizeofBlob; /**< the size of the payload in this blob. */
+    uint32_t sizeofBlob; /**< the size of the payload in this blob. */
     uint32_t magic;
     uint32_t sequenceNumber;
+    uint32_t crc32;      /**< This field contains the CRC of the header, body (only including logged data),
+                          *   and the tail. The 'CRC32' field is assumed to hold 0x0 for the purpose of
+                          *   computing the CRC */
 } SequentialFlashJournalLogTail_t;
 
 #define SEQUENTIAL_JOURNAL_VALID_TAIL(TAIL_PTR) ((TAIL_PTR)->magic == SEQUENTIAL_FLASH_JOURNAL_MAGIC)
@@ -76,7 +104,9 @@ typedef struct _SequentialFlashJournal_t {
     ARM_DRIVER_STORAGE            *mtd;                /**< The underlying Memory-Technology-Device. */
     ARM_STORAGE_CAPABILITIES       mtdCapabilities;    /**< the return from mtd->GetCapabilities(); held for quick reference. */
     uint64_t                       mtdStartOffset;     /**< the start of the address range maintained by the underlying MTD. */
-    uint32_t                       sequentialSkip;     /**< size of the log stride. */
+    uint32_t                       firstSlotOffset;  /** Offset from the start of the journal header to the actual logged journal. */
+    uint32_t                       numSlots;           /** Maximum number of logged blobs; i.e. maximum number of versions of the journaled payload. */
+    uint32_t                       sizeofSlot;         /**< size of the log stride. */
     uint32_t                       nextSequenceNumber; /**< the next valid sequence number to be used when logging the next blob. */
     uint32_t                       currentBlobIndex;   /**< index of the most recently written blob. */
     SequentialFlashJournalState_t  state;              /**< state of the journal. SEQUENTIAL_JOURNAL_STATE_INITIALIZED being the default. */
@@ -90,12 +120,9 @@ typedef struct _SequentialFlashJournal_t {
         /** state relevant to initialization. */
         struct {
             uint64_t currentOffset;
-            union {
-                SequentialFlashJournalLogHead_t head;
-                struct {
-                    uint32_t                        headSequenceNumber;
-                    SequentialFlashJournalLogTail_t tail;
-                };
+            struct {
+                uint32_t                        headSequenceNumber;
+                SequentialFlashJournalLogTail_t tail;
             };
         } initScan;
 
@@ -105,11 +132,11 @@ typedef struct _SequentialFlashJournal_t {
             size_t         sizeofBlob;
             union {
                 struct {
-                    uint64_t eraseOffset;
+                    uint64_t mtdEraseOffset;
                 };
                 struct {
-                    uint64_t       offset;          /**< the current offset at which data is being written. */
-                    uint64_t       tailOffset;      /**< offset at which the SequentialFlashJournalLogTail_t will be logged for this log-entry. */
+                    uint64_t       mtdOffset;       /**< the current Storage offset at which data will be written. */
+                    uint64_t       mtdTailOffset;   /**< Storage offset at which the SequentialFlashJournalLogTail_t will be logged for this log-entry. */
                     const uint8_t *dataBeingLogged; /**< temporary pointer aimed at the next data to be logged. */
                     size_t         amountLeftToLog;
                     union {
@@ -124,10 +151,10 @@ typedef struct _SequentialFlashJournal_t {
         struct {
             const uint8_t *blob;               /**< the original buffer holding source data. */
             size_t         sizeofBlob;
-            uint64_t       offset;             /**< the current offset at which data is being written. */
+            uint64_t       mtdOffset;          /**< the current Storage offset from which data is being read. */
             uint8_t       *dataBeingRead;      /**< temporary pointer aimed at the next data to be read-into. */
             size_t         amountLeftToRead;
-            size_t         totalDataRead;      /**< the total data that has been read off the blob so far. */
+            size_t         logicalOffset;      /**< the logical offset within the blob at which the next read will occur. */
         } read;
     };
 } SequentialFlashJournal_t;
@@ -138,6 +165,8 @@ typedef struct _SequentialFlashJournal_t {
  * Sequential Strategy to reuse that space for a SequentialFlashJournal_t.
  */
 typedef char AssertSequentialJournalSizeLessThanOrEqualToGenericJournal[sizeof(SequentialFlashJournal_t)<=sizeof(FlashJournal_t)?1:-1];
+
+#define SLOT_ADDRESS(JOURNAL, INDEX) ((JOURNAL)->mtdStartOffset + (JOURNAL)->firstSlotOffset + ((INDEX) * (JOURNAL)->sizeofSlot))
 
 #ifdef __cplusplus
 }

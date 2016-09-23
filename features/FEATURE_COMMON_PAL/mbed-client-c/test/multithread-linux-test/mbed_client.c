@@ -235,7 +235,7 @@ int16_t receive_msg(thread_data_struct_s *data_item, uint8_t *buf)
 /* Function needed for libCoap protocol. */
 uint8_t tx_function(struct nsdl_s *handle, sn_nsdl_capab_e protocol,
                     uint8_t *data, uint16_t len, sn_nsdl_addr_s *address)
-{    
+{
     /* Set NSP address and port */
     thread_data_struct_s *data_item = NULL;
     ns_list_foreach(thread_data_struct_s, item, &data_list) {
@@ -249,7 +249,7 @@ uint8_t tx_function(struct nsdl_s *handle, sn_nsdl_capab_e protocol,
         printf("TX function - thread id: %d\n", data_item->thread_id);
         ns_list_remove(&data_list, data_item);
         data_item->sa_dst.sin_family = AF_INET;
-        data_item->sa_dst.sin_port = htons(address->port);        
+        data_item->sa_dst.sin_port = htons(address->port);
         memcpy(&data_item->sa_dst.sin_addr, address->addr_ptr, address->addr_len);
         ns_list_add_to_end(&data_list, data_item);
 
@@ -315,12 +315,12 @@ static void ctrl_c_handle_function()
         }
     }
     if(reg_location)
-        own_free(reg_location);    
+        own_free(reg_location);
     exit(1);
 }
 
 void coap_exec_poll_function(int thread_id)
-{    
+{
     uint8_t i = 0;
     sn_coap_hdr_s coap_header;
 
@@ -385,11 +385,11 @@ void coap_exec_poll_function(int thread_id)
 /* This is callback for other DYNAMIC resources */
 uint8_t general_resource_cb(struct nsdl_s *handle, sn_coap_hdr_s *received_coap_ptr,
                             sn_nsdl_addr_s *address, sn_nsdl_capab_e protocol)
-{    
+{
     sn_coap_hdr_s *coap_res_ptr = 0;
     thread_data_struct_s *data_item = NULL;
     ns_list_foreach(thread_data_struct_s, item, &data_list) {
-        if (item->handle == handle) {            
+        if (item->handle == handle) {
             data_item = item;
             break;
         }
@@ -401,8 +401,7 @@ uint8_t general_resource_cb(struct nsdl_s *handle, sn_coap_hdr_s *received_coap_
     if (received_coap_ptr->msg_code == COAP_MSG_CODE_REQUEST_GET) {
         printf("\nGeneral callback - thread id: %d\n", data_item->thread_id);
         coap_res_ptr = sn_nsdl_build_response(data_item->handle, received_coap_ptr, COAP_MSG_CODE_RESPONSE_CONTENT);
-        coap_res_ptr->content_type_ptr = &text_plain;
-        coap_res_ptr->content_type_len = sizeof(text_plain);
+        coap_res_ptr->accept = COAP_CT_TEXT_PLAIN;
 
         /* Temperature resource */
         /* This makes delayed response, first ack and after that real value */
@@ -466,7 +465,7 @@ void send_ack(struct nsdl_s *handle, sn_coap_hdr_s *received_coap_ptr, sn_nsdl_a
     uint8_t *message_ptr;
     thread_data_struct_s *data_item = NULL;
     ns_list_foreach(thread_data_struct_s, item, &data_list) {
-        if (item->handle == handle) {            
+        if (item->handle == handle) {
             data_item = item;
             break;
         }

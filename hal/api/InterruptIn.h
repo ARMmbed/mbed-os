@@ -24,6 +24,7 @@
 #include "gpio_irq_api.h"
 #include "Callback.h"
 #include "critical.h"
+#include "toolchain.h"
 
 namespace mbed {
 
@@ -88,11 +89,17 @@ public:
      *
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
+     *  @deprecated
+     *      The rise function does not support cv-qualifiers. Replaced by
+     *      rise(callback(obj, method)).
      */
     template<typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The rise function does not support cv-qualifiers. Replaced by "
+        "rise(callback(obj, method)).")
     void rise(T *obj, M method) {
         core_util_critical_section_enter();
-        rise(Callback<void()>(obj, method));
+        rise(callback(obj, method));
         core_util_critical_section_exit();
     }
 
@@ -106,11 +113,17 @@ public:
      *
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
+     *  @deprecated
+     *      The rise function does not support cv-qualifiers. Replaced by
+     *      rise(callback(obj, method)).
      */
     template<typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The fall function does not support cv-qualifiers. Replaced by "
+        "fall(callback(obj, method)).")
     void fall(T *obj, M method) {
         core_util_critical_section_enter();
-        fall(Callback<void()>(obj, method));
+        fall(callback(obj, method));
         core_util_critical_section_exit();
     }
 

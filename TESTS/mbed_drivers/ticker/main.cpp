@@ -21,6 +21,7 @@
 using namespace utest::v1;
 
 static const int ONE_SECOND_MS = 1000;
+static const int total_ticks = 10;
 
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
@@ -28,25 +29,23 @@ DigitalOut led2(LED2);
 Ticker *ticker1;
 Ticker *ticker2;
 
+volatile int ticker_count = 0;
+volatile bool print_tick = false;
+
 void send_kv_tick() {
-    static int count = 0;
-    if (count < 10) {
-        greentea_send_kv("tick", count);
-    } else if (count == 10) {
-        count = 0;
-        Harness::validate_callback();
+    if (ticker_count <= total_ticks) {
+        print_tick = true;
     }
-    count++;
 }
 
 void ticker_callback_0(void) {
-    static int ticker_count = 0;
-    if (ticker_count >= ONE_SECOND_MS) {
+    static int fast_ticker_count = 0;
+    if (fast_ticker_count >= ONE_SECOND_MS) {
         send_kv_tick();
-        ticker_count = 0;
+        fast_ticker_count = 0;
         led1 = !led1;
     }
-    ticker_count++;
+    fast_ticker_count++;
 }
 
 void ticker_callback_1(void) {
@@ -78,26 +77,38 @@ void ticker_callback_2_switch_to_1(void) {
     ticker_callback_2();
 }
 
-utest::v1::control_t test_case_1x_ticker() {
-    led1 = 0;
-    led2 = 0;
-    ticker1->attach_us(ticker_callback_0, ONE_SECOND_MS);
-    return CaseTimeout(15 * ONE_SECOND_MS);
+void wait_and_print() {
+    while(ticker_count <= total_ticks) {
+        if (print_tick) {
+            print_tick = false;
+            greentea_send_kv("tick", ticker_count++);
+        }
+    }
 }
 
-control_t test_case_2x_ticker() {
+void test_case_1x_ticker() {
     led1 = 0;
     led2 = 0;
+    ticker_count = 0;
+    ticker1->attach_us(ticker_callback_0, ONE_SECOND_MS);
+    wait_and_print();
+}
+
+void test_case_2x_ticker() {
+    led1 = 0;
+    led2 = 0;
+    ticker_count = 0;
     ticker1->attach(&ticker_callback_1, 1.0);
     ticker2->attach(&ticker_callback_2_led, 2.0);
-    return CaseTimeout(15 * ONE_SECOND_MS);
+    wait_and_print();
 }
 
-utest::v1::control_t test_case_2x_callbacks() {
+void test_case_2x_callbacks() {
     led1 = 0;
     led2 = 0;
+    ticker_count = 0;
     ticker1->attach(ticker_callback_1_switch_to_2, 1.0);
-    return CaseTimeout(15 * ONE_SECOND_MS);
+    wait_and_print();
 }
 
 utest::v1::status_t one_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case) {
@@ -130,7 +141,7 @@ Case cases[] = {
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(60, "wait_us_auto");
+    GREENTEA_SETUP((total_ticks + 5) * 3, "timing_drift_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 

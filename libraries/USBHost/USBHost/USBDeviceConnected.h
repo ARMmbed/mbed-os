@@ -21,6 +21,7 @@
 #include "USBEndpoint.h"
 #include "USBHostConf.h"
 #include "rtos.h"
+#include "Callback.h"
 
 class USBHostHub;
 
@@ -31,7 +32,7 @@ typedef struct {
     uint8_t intf_subclass;
     uint8_t intf_protocol;
     USBEndpoint * ep[MAX_ENDPOINT_PER_INTERFACE];
-    FunctionPointer detach;
+    Callback<void()> detach;
     char name[10];
 } INTERFACE;
 

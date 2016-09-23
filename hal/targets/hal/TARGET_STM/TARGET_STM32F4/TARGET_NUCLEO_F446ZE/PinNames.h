@@ -37,13 +37,13 @@ extern "C" {
 #endif
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
-#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
-#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
+#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 16) | ((CHANNEL & 0x1F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
-#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
-#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x1F)
+#define STM_PIN_INVERTED(X) (((X) >> 16) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -192,6 +192,11 @@ typedef enum {
     PH_1  = 0x71,
     PH_2  = 0x72,
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     // Arduino connector namings
     A0          = PA_3,
     A1          = PC_0,
@@ -221,6 +226,7 @@ typedef enum {
     LED2        = PB_7,
     LED3        = PB_14,
     LED4        = LED1,
+    LED_RED     = LED3,
     USER_BUTTON = PC_13,
     SERIAL_TX   = PD_8, // Virtual Com Port
     SERIAL_RX   = PD_9, // Virtual Com Port

@@ -71,6 +71,11 @@ TEST(sn_grs, test_sn_grs_create_resource)
     CHECK(test_sn_grs_create_resource());
 }
 
+TEST(sn_grs, test_sn_grs_put_resource)
+{
+    CHECK(test_sn_grs_put_resource());
+}
+
 TEST(sn_grs, test_sn_grs_delete_resource)
 {
     CHECK(test_sn_grs_delete_resource());

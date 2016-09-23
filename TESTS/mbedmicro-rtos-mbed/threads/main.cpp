@@ -17,6 +17,8 @@
  */
 #if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
     #define STACK_SIZE 512
+#elif (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
+    #define STACK_SIZE 512
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
@@ -59,6 +61,12 @@ void increment_with_murder(counter_t* counter) {
     (*counter)++;
 }
 
+void self_terminate(Thread *self) {
+    self->terminate();
+    // Code should not get here
+    TEST_ASSERT(0);
+}
+
 // Tests that spawn tasks in different configurations
 template <void (*F)(counter_t *)>
 void test_single_thread() {
@@ -97,6 +105,13 @@ void test_serial_threads() {
     TEST_ASSERT_EQUAL(counter, N);
 }
 
+void test_self_terminate() {
+    Thread *thread = new Thread(osPriorityNormal, STACK_SIZE);
+    thread->start(thread, self_terminate);
+    thread->join();
+    delete thread;
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases) {
     GREENTEA_SETUP(40, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
@@ -123,6 +138,8 @@ Case cases[] = {
     Case("Testing single thread with murder", test_single_thread<increment_with_murder>),
     Case("Testing parallel threads with murder", test_parallel_threads<3, increment_with_murder>),
     Case("Testing serial threads with murder", test_serial_threads<10, increment_with_murder>),
+
+    Case("Testing thread self terminate", test_self_terminate),
 };
 
 Specification specification(test_setup, cases);

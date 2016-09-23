@@ -24,7 +24,9 @@
 #include "SingletonPtr.h"
 #include "PlatformMutex.h"
 #include "mbed_error.h"
+#include "mbed_stats.h"
 #include <stdlib.h>
+#include <string.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -478,26 +480,11 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 #endif
 
 #if defined(TOOLCHAIN_GCC)
-#ifdef   FEATURE_UVISOR
+
+#ifdef  FEATURE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
-#ifndef  FEATURE_UVISOR
-extern "C" {
-void * __wrap__malloc_r(struct _reent * r, size_t size) {
-    extern void * __real__malloc_r(struct _reent * r, size_t size);
-    return __real__malloc_r(r, size);
-}
-void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
-    extern void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
-    return __real__realloc_r(r, ptr, size);
-}
-void __wrap__free_r(struct _reent * r, void * ptr) {
-    extern void __real__free_r(struct _reent * r, void * ptr);
-    __real__free_r(r, ptr);
-}
-}
-#endif/* FEATURE_UVISOR */
 
 extern "C" WEAK void software_init_hook_rtos(void)
 {
@@ -563,7 +550,7 @@ extern "C" void __iar_argc_argv() {
 // Provide implementation of _sbrk (low-level dynamic memory allocation
 // routine) for GCC_ARM which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
-#if defined(TOOLCHAIN_GCC_ARM)
+#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" int __end__;
 
@@ -614,7 +601,7 @@ extern "C" caddr_t _sbrk(int incr) {
 #endif
 #endif
 
-#if defined TOOLCHAIN_GCC_ARM
+#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
 extern "C" void _exit(int return_code) {
 #else
 namespace std {
@@ -638,9 +625,67 @@ extern "C" void exit(int return_code) {
     while (1);
 }
 
-#if !defined(TOOLCHAIN_GCC_ARM)
+#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CR)
 } //namespace std
 #endif
+
+#if defined(TOOLCHAIN_ARM) || defined(TOOLCHAIN_GCC)
+
+// This series of function disable the registration of global destructors
+// in a dynamic table which will be called when the application exit.
+// In mbed, program never exit properly, it dies.
+// More informations about this topic for ARMCC here:
+// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/6449.html
+extern "C" {
+int __aeabi_atexit(void *object, void (*dtor)(void* /*this*/), void *handle) {
+    return 1;
+}
+
+int __cxa_atexit(void (*dtor)(void* /*this*/), void *object, void *handle) {
+    return 1;
+}
+
+void __cxa_finalize(void *handle) {
+}
+
+} // end of extern "C"
+
+#endif
+
+
+#if defined(TOOLCHAIN_GCC)
+
+/*
+ * Depending on how newlib is  configured, it is often not enough to define
+ * __aeabi_atexit, __cxa_atexit and __cxa_finalize in order to override the
+ * behavior regarding the registration of handlers with atexit.
+ *
+ * To overcome this limitation, exit and atexit are overriden here.
+ */
+extern "C"{
+
+/**
+ * @brief Retarget of exit for GCC.
+ * @details Unlike the standard version, this function doesn't call any function
+ * registered with atexit before calling _exit.
+ */
+void __wrap_exit(int return_code) {
+    _exit(return_code);
+}
+
+/**
+ * @brief Retarget atexit from GCC.
+ * @details This function will always fail and never register any handler to be
+ * called at exit.
+ */
+int __wrap_atexit(void (*func)()) {
+    return 1;
+}
+
+}
+
+#endif
+
 
 
 namespace mbed {
@@ -684,6 +729,8 @@ char* mbed_gets(char*s, int size, FILE *_file){
 #endif
 }
 
+} // namespace mbed
+
 #if defined (__ICCARM__)
 // Stub out locks when an rtos is not present
 extern "C" WEAK void __iar_system_Mtxinit(__iar_Rmtx *mutex) {}
@@ -723,9 +770,44 @@ extern "C" void __env_unlock( struct _reent *_r )
 {
     __rtos_env_unlock(_r);
 }
-#endif
 
-} // namespace mbed
+#define CXA_GUARD_INIT_DONE             (1 << 0)
+#define CXA_GUARD_INIT_IN_PROGRESS      (1 << 1)
+#define CXA_GUARD_MASK                  (CXA_GUARD_INIT_DONE | CXA_GUARD_INIT_IN_PROGRESS)
+
+extern "C" int __cxa_guard_acquire(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+        return 0;
+    }
+    singleton_lock();
+    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+        singleton_unlock();
+        return 0;
+    }
+    MBED_ASSERT(0 == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = *guard_object | CXA_GUARD_INIT_IN_PROGRESS;
+    return 1;
+}
+
+extern "C" void __cxa_guard_release(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = (*guard_object & ~CXA_GUARD_MASK) | CXA_GUARD_INIT_DONE;
+    singleton_unlock();
+}
+
+extern "C" void __cxa_guard_abort(int *guard_object_p)
+{
+    uint8_t *guard_object = (uint8_t *)guard_object_p;
+    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
+    *guard_object = *guard_object & ~CXA_GUARD_INIT_IN_PROGRESS;
+    singleton_unlock();
+}
+
+#endif
 
 void *operator new(std::size_t count)
 {

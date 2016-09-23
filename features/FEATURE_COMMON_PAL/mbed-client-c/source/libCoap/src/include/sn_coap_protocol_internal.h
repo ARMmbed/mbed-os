@@ -31,6 +31,7 @@
 extern "C" {
 #endif
 
+struct sn_coap_hdr_;
 
 /* * * * * * * * * * * */
 /* * * * DEFINES * * * */
@@ -98,18 +99,25 @@ extern "C" {
 #define SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED      10 /**< Maximum time in seconds of data (messages and payload) to be stored for blockwising */
 #endif
 
+#ifdef YOTTA_CFG_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE
+#define SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE YOTTA_CFG_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE
+#elif defined MBED_CONF_MBED_CLIENT_SN_COAP_MAX_INCOMING_MESSAGE_SIZE
+#define SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE MBED_CONF_MBED_CLIENT_SN_COAP_MAX_INCOMING_MESSAGE_SIZE
+#endif
+
+#ifndef SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE
+#define SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE UINT16_MAX
+#endif
+
+/* * For Option handling * */
+#define COAP_OPTION_MAX_AGE_DEFAULT                 60 /**< Default value of Max-Age if option not present */
+#define COAP_OPTION_URI_PORT_NONE                   (-1) /**< Internal value to represent no Uri-Port option */
+#define COAP_OPTION_BLOCK_NONE                      (-1) /**< Internal value to represent no Block1/2 option */
 
 
-/* * * * * * * * * * * * * * */
-/* * * * ENUMERATIONS  * * * */
-/* * * * * * * * * * * * * * */
-
-/* * * * * * * * * * * * * */
-/* * * * STRUCTURES  * * * */
-/* * * * * * * * * * * * * */
-
-
-
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not used at all, this part of code will not be compiled */
+int8_t prepare_blockwise_message(struct coap_s *handle, struct sn_coap_hdr_ *coap_hdr_ptr);
+#endif
 
 /* Structure which is stored to Linked list for message sending purposes */
 typedef struct coap_send_msg_ {

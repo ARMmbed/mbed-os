@@ -207,7 +207,7 @@
  *  Mark a function declaration as deprecated, if it used then a warning will be
  *  issued by the compiler possibly including the provided message. Note that not
  *  all compilers are able to display the message.
- *  
+ *
  *  @code
  *  #include "toolchain.h"
  *  
@@ -225,6 +225,44 @@
 #endif
 #endif
 
+/** MBED_DEPRECATED_SINCE("version", "message string")
+ *  Mark a function declaration as deprecated, noting that the declaration was
+ *  deprecated on the specified version. If the function is used then a warning
+ *  will be issued by the compiler possibly including the provided message.
+ *  Note that not all compilers are able to display this message.
+ *
+ *  @code
+ *  #include "toolchain.h"
+ *
+ *  MBED_DEPRECATED_SINCE("mbed-os-5.1", "don't foo any more, bar instead")
+ *  void foo(int arg);
+ *  @endcode
+ */
+#define MBED_DEPRECATED_SINCE(D, M) MBED_DEPRECATED(M " [since " D "]")
+
+/** MBED_CALLER_ADDR()
+ * Returns the caller of the current function.
+ *
+ * @note
+ * This macro is only implemented for GCC and ARMCC.
+ *
+ * @code
+ * #include "toolchain.h"
+ *
+ * printf("This function was called from %p", MBED_CALLER_ADDR());
+ * @endcode
+ *
+ * @return Address of the calling function
+ */
+#ifndef MBED_CALLER_ADDR
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+#define MBED_CALLER_ADDR() __builtin_extract_return_addr(__builtin_return_address(0))
+#elif defined(__CC_ARM)
+#define MBED_CALLER_ADDR() __builtin_return_address(0)
+#else
+#define MBED_CALLER_ADDR() (NULL)
+#endif
+#endif
 
 // FILEHANDLE declaration
 #if defined(TOOLCHAIN_ARM)

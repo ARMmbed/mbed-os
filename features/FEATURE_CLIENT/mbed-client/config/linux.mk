@@ -1,2 +1,0 @@
-FLAGS += \
-	TARGET_LIKE_LINUX

@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2014 ARM Limited
+Copyright (c) 2014-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ class IntermediateFile(Exporter):
             self.resources.linker_script = ''
 
         ctx = {
-            'name': self.program_name,
+            'name': self.project_name,
             'target': self.target,
             'toolchain': self.toolchain.name,
             'source_files': source_files,
@@ -68,13 +68,13 @@ class IntermediateFile(Exporter):
             'script_file': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
             'libraries': libraries,
-            'symbols': self.get_symbols(),
+            'symbols': self.toolchain.get_symbols(),
             'object_files': self.resources.objects,
             'sys_libs': self.toolchain.sys_libs,
-            'cc_org': self.flags['common'] + self.flags['c'],
-            'ld_org': self.flags['common'] + self.flags['ld'],
-            'cppc_org': self.flags['common'] + self.flags['cxx']
+            'cc_org': self.flags['common_flags'] + self.flags['c_flags'],
+            'ld_org': self.flags['common_flags'] + self.flags['ld_flags'],
+            'cppc_org': self.flags['common_flags'] + self.flags['cxx_flags']
         }
 
         # EmBlocks intermediate file template
-        self.gen_file('emblocks.eix.tmpl', ctx, '%s.eix' % self.program_name)
+        self.gen_file('emblocks.eix.tmpl', ctx, '%s.eix' % self.project_name)

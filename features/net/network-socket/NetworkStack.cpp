@@ -15,7 +15,7 @@
  */
 
 #include "NetworkStack.h"
-#include "DnsQuery.h"
+#include "nsapi_dns.h"
 #include "mbed.h"
 #include "stddef.h"
 #include <new>
@@ -24,14 +24,7 @@
 // Default NetworkStack operations
 int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
 {
-    char buffer[NSAPI_IP_SIZE];
-    int err = dnsQuery(this, name, buffer);
-    if (err) {
-        return err;
-    }
-
-    address->set_ip_address(buffer);
-    return 0;
+    return nsapi_dns_query(this, address, name);
 }
 
 int NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
@@ -159,13 +152,23 @@ protected:
         return _stack_api()->socket_connect(_stack(), socket, address.get_addr(), address.get_port());
     }
 
-    virtual int socket_accept(nsapi_socket_t *socket, nsapi_socket_t server)
+    virtual int socket_accept(nsapi_socket_t server, nsapi_socket_t *socket, SocketAddress *address)
     {
         if (!_stack_api()->socket_accept) {
             return NSAPI_ERROR_UNSUPPORTED;
         }
 
-        return _stack_api()->socket_accept(_stack(), socket, server);
+        nsapi_addr_t addr = {NSAPI_IPv4, 0};
+        uint16_t port = 0;
+
+        int err = _stack_api()->socket_accept(_stack(), server, socket, &addr, &port);
+
+        if (address) {
+            address->set_addr(addr);
+            address->set_port(port);
+        }
+
+        return err;
     }
 
     virtual int socket_send(nsapi_socket_t socket, const void *data, unsigned size)

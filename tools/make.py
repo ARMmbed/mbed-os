@@ -21,7 +21,7 @@ TEST BUILD & RUN
 import sys
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname, isfile, isdir
+from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -46,13 +46,12 @@ from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
-from argparse import ArgumentTypeError
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     # Parse Options
-    parser = get_default_options_parser()
+    parser = get_default_options_parser(add_app_config=True)
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-p",
                       type=argparse_many(test_known),
@@ -207,13 +206,19 @@ if __name__ == '__main__':
 
     # Target
     if options.mcu is None :
-        args_error(parser, "[ERROR] You should specify an MCU")
+        args_error(parser, "argument -m/--mcu is required")
     mcu = options.mcu[0]
 
     # Toolchain
     if options.tool is None:
-        args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
+        args_error(parser, "argument -t/--tool is required")
     toolchain = options.tool[0]
+
+    if (options.program is None) and (not options.source_dir):
+        args_error(parser, "one of -p, -n, or --source is required")
+
+    if options.source_dir and not options.build_dir:
+        args_error(parser, "argument --build is required when argument --source is provided")
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it
@@ -225,6 +230,12 @@ if __name__ == '__main__':
         notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
     else:
         notify = None
+
+    if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+        search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+        args_error(parser, "Could not find executable for %s.\n"
+                           "Currently set search path: %s"
+                           %(toolchain,search_path))
 
     # Test
     for test_no in p:
@@ -268,7 +279,8 @@ if __name__ == '__main__':
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
-                                     name=options.artifact_name)
+                                     name=options.artifact_name,
+                                     app_config=options.app_config)
             print 'Image: %s'% bin_file
 
             if options.disk:
