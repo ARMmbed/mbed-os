@@ -262,7 +262,7 @@ static int32_t cfstore_os_initialise(ARM_CFSTORE_CALLBACK client_callback, void*
     cfstore_os_ctx_t *ctx = cfstore_ctx_get();
 
     cfstore_os_mutex_lock(&ctx->lock);
-    ctx->client_callback = client_context;
+    ctx->client_callback = client_callback;
     ctx->client_context = client_context;
     CFSTORE_DBGLOG("%s: before Initialize()\n", __func__);
     ret = cfstore_driver.Initialize(cfstore_os_callback, ctx);
