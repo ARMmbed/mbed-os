@@ -82,9 +82,12 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     /* Gets offset value for each port */
     uint32_t offset;
     switch ((pin >> PORT_SHIFT) & 0x3) {
-        case 0: offset = 0;  break; // PIO0[23:0]
-        case 1: offset = 24; break; // PIO1[31:0]
-        case 2: offset = 56; break; // PIO2[7:0]
+        case 0: offset = 0; // PIO0[23:0]
+                break;
+        case 1: offset = 24; // PIO1[31:0]
+                break;
+        case 2: offset = 56; // PIO2[7:0]
+                break;
     }
     /* Set the INTPIN number : offset + pin_number */
     LPC_SYSCON->PINTSEL[obj->ch] = (offset + ((pin >> PIN_SHIFT) & 0x1F));
@@ -96,14 +99,22 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     
     void (*channels_irq)(void) = NULL;
     switch (obj->ch) {
-        case 0: channels_irq = &gpio_irq0; break;
-        case 1: channels_irq = &gpio_irq1; break;
-        case 2: channels_irq = &gpio_irq2; break;
-        case 3: channels_irq = &gpio_irq3; break;
-        case 4: channels_irq = &gpio_irq4; break;
-        case 5: channels_irq = &gpio_irq5; break;
-        case 6: channels_irq = &gpio_irq6; break;
-        case 7: channels_irq = &gpio_irq7; break;
+        case 0: channels_irq = &gpio_irq0;
+                break;
+        case 1: channels_irq = &gpio_irq1;
+                break;
+        case 2: channels_irq = &gpio_irq2;
+                break;
+        case 3: channels_irq = &gpio_irq3;
+                break;
+        case 4: channels_irq = &gpio_irq4;
+                break;
+        case 5: channels_irq = &gpio_irq5;
+                break;
+        case 6: channels_irq = &gpio_irq6;
+                break;
+        case 7: channels_irq = &gpio_irq7;
+                break;
     }
     NVIC_SetVector((IRQn_Type)(PININT_IRQ + obj->ch), (uint32_t)channels_irq);
     NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ + obj->ch));
