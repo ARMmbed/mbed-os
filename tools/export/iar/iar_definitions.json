@@ -5,9 +5,6 @@
     "LPC11U24FBD48/401": {
         "OGChipSelectEditMenu": "LPC11U24FBD64_401\tNXP LPC11U24FBD64_401"
     },
-    "STM32L432KC": {
-        "OGChipSelectEditMenu": "STM32L432KC\tST STM32L432KC"
-    },
     "STM32F334R8": {
         "OGChipSelectEditMenu": "STM32F334x8\tST STM32F334x8"
     },
@@ -34,12 +31,6 @@
     },
     "STM32F070RB": {
         "OGChipSelectEditMenu": "STM32F070RB\tST STM32F070RB"
-    },
-    "STM32F767ZI": {
-        "OGChipSelectEditMenu": "STM32F767ZI\tST STM32F767ZI",
-        "CoreVariant": 41,
-        "GFPUCoreSlave2": 41,
-        "GBECoreSlave": 35
     },
     "MK64FN1M0xxx12": {
         "OGChipSelectEditMenu": "MK64FN1M0xxx12\tFreescale MK64FN1M0xxx12"
@@ -78,7 +69,7 @@
         "OGChipSelectEditMenu": "STM32F446RE\tST STM32F446RE"
     },
     "STM32L073RZ": {
-        "OGChipSelectEditMenu": "STM32L073xz\tST STM32L073xz"
+        "OGChipSelectEditMenu": "STM32L073RZ\tST STM32L073RZ"
     },
     "stm32ff746zg": {
         "OGChipSelectEditMenu": "STM32F746ZG\tST STM32F746ZG",
@@ -88,9 +79,6 @@
     },
     "MKL43Z256xxx4": {
         "OGChipSelectEditMenu": "MKL43Z256xxx4\tFreescale MKL43Z256xxx4"
-    },
-    "STM32F410RB": {
-        "OGChipSelectEditMenu": "STM32F410x\tST STM32F410x"
     },
     "LPC812M101JDH20": {
         "OGChipSelectEditMenu": "LPC812M101\tNXP LPC812M101"
@@ -107,20 +95,11 @@
     "STM32L031K6": {
         "OGChipSelectEditMenu": "STM32L031x6\tST STM32L031x6"
     },
-    "STM32F469NI": {
-        "OGChipSelectEditMenu": "STM32F469NI\tST STM32F469NI"
-    },
     "EFM32HG322F64": {
         "OGChipSelectEditMenu": "EFM32HG322F64\tSiliconLaboratories EFM32HG322F64"
     },
     "MK20DX256xxx7": {
         "OGChipSelectEditMenu": "MK20DX256xxx7\tFreescale MK20DX256xxx7"
-    },
-    "EFM32PG1B100F256GM32": {
-        "OGChipSelectEditMenu": "EFM32PG1B200F256GM48\tSiliconLaboratories EFM32PG1B200F256GM48",
-        "CoreVariant": 39,
-        "GFPUCoreSlave2": 39,
-        "GBECoreSlave": 39
     },
     "STM32F446ZE": {
         "OGChipSelectEditMenu": "STM32F446ZE\tST STM32F446ZE"
