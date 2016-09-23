@@ -671,13 +671,14 @@ static int lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi
 static int lwip_socket_send(nsapi_stack_t *stack, nsapi_socket_t handle, const void *data, unsigned size)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
+    size_t bytes_written = 0;
 
-    err_t err = netconn_write(s->conn, data, size, NETCONN_COPY);
+    err_t err = netconn_write_partly(s->conn, data, size, NETCONN_COPY, &bytes_written);
     if (err != ERR_OK) {
         return lwip_err_remap(err);
     }
 
-    return size;
+    return (int)bytes_written;
 }
 
 static int lwip_socket_recv(nsapi_stack_t *stack, nsapi_socket_t handle, void *data, unsigned size)
