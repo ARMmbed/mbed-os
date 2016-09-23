@@ -21,7 +21,11 @@
 /* Interface implementation */
 int EthernetInterface::connect()
 {
+#if DEVICE_EMAC
     return lwip_bringup(NULL);
+#else /* DEVICE_EMAC */
+    return lwip_bringup();
+#endif /* DEVICE_EMAC */
 }
 
 int EthernetInterface::disconnect()

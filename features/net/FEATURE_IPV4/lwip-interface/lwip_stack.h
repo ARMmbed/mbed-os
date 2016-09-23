@@ -26,7 +26,12 @@ extern "C" {
 
 
 // Access to lwip through the nsapi
+#if DEVICE_EMAC
 int lwip_bringup(emac_interface_t *emac);
+#else /* DEVICE_EMAC */
+int lwip_bringup(void);
+#endif /* DEVICE_EMAC */
+
 void lwip_bringdown(void);
 
 extern nsapi_stack_t lwip_stack;

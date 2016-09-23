@@ -16,6 +16,10 @@
 #ifndef MBED_EMAC_STACK_MEM_H
 #define MBED_EMAC_STACK_MEM_H
 
+#include "platform.h"
+
+#if DEVICE_EMAC
+
 #include <stdint.h>
 
 /**
@@ -91,5 +95,7 @@ emac_stack_mem_t *emac_stack_mem_chain_dequeue(emac_stack_t* stack, emac_stack_m
  * @return       Chain length
  */
 uint32_t emac_stack_mem_chain_len(emac_stack_t* stack, emac_stack_mem_chain_t *chain);
+
+#endif /* DEVICE_EMAC */
 
 #endif /* EMAC_MBED_STACK_MEM_h */
