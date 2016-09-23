@@ -17,6 +17,7 @@
 #ifndef __UVISOR_API_INTERRUPTS_H__
 #define __UVISOR_API_INTERRUPTS_H__
 
+#include "api/inc/unvic_exports.h"
 #include "api/inc/uvisor_exports.h"
 #include <stdint.h>
 
@@ -59,5 +60,11 @@ UVISOR_EXTERN void vIRQ_DisableAll(void);
  * to 0, to make sure that nested disabling of IRQs is still effective. See
  * ::vIRQ_DisableAll for more information. */
 UVISOR_EXTERN void vIRQ_EnableAll(void);
+
+/** Reset the device.
+ * @warning Currently only the debug box can reset the device.
+ * @param reason[in]    Reason for rebooting. Currently not used.
+ */
+UVISOR_EXTERN void vIRQ_SystemReset(TResetReason reason);
 
 #endif /* __UVISOR_API_INTERRUPTS_H__ */

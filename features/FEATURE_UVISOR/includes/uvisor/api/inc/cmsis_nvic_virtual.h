@@ -18,6 +18,7 @@
 #define __UVISOR_API_NVIC_VIRTUAL_H__
 
 #include "api/inc/interrupts.h"
+#include "api/inc/unvic_exports.h"
 
 #define NVIC_SetPriorityGrouping    __NVIC_SetPriorityGrouping
 #define NVIC_GetPriorityGrouping    __NVIC_GetPriorityGrouping
@@ -29,5 +30,6 @@
 #define NVIC_GetActive              __NVIC_GetActive
 #define NVIC_SetPriority            vIRQ_SetPriority
 #define NVIC_GetPriority            vIRQ_GetPriority
+#define NVIC_SystemReset()          vIRQ_SystemReset(RESET_REASON_NO_REASON)
 
 #endif /* __UVISOR_API_NVIC_VIRTUAL_H__ */
