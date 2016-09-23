@@ -750,15 +750,14 @@
     "NUCLEO_F303ZE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
-        "fpu": "single",
-        "default_toolchain": "uARM",
+        "default_toolchain": "ARM",
         "extra_labels": ["STM", "STM32F3", "STM32F303ZE"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
         "progen": {"target": "nucleo-f303ze"},
-        "detect_code": ["0745"],
+        "detect_code": ["0747"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "NUCLEO_F334R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
