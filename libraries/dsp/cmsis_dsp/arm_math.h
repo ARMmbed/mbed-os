@@ -5754,7 +5754,7 @@ void arm_rfft_fast_f32(
       *pOut = __sqrtf(in);
 #elif (__FPU_USED == 1) && (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
       *pOut = __builtin_sqrtf(in);
-#elif (__FPU_USED == 1) && defined(__GNUC__)
+#elif (__FPU_USED == 1) && defined(__GNUC__) || defined(__clang__)
       *pOut = __builtin_sqrtf(in);
 #elif (__FPU_USED == 1) && defined ( __ICCARM__ ) && (__VER__ >= 6040000)
       __ASM("VSQRT.F32 %0,%1" : "=t"(*pOut) : "t"(in));
@@ -7094,7 +7094,7 @@ void arm_rfft_fast_f32(
   #define IAR_ONLY_LOW_OPTIMIZATION_ENTER
   #define IAR_ONLY_LOW_OPTIMIZATION_EXIT
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
   #define LOW_OPTIMIZATION_ENTER __attribute__(( optimize("-O1") ))
   #define LOW_OPTIMIZATION_EXIT
   #define IAR_ONLY_LOW_OPTIMIZATION_ENTER

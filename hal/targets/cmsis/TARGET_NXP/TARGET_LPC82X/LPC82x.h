@@ -111,7 +111,7 @@ typedef enum {
   #pragma anon_unions
 #elif defined(__ICCARM__)
   #pragma language=extended
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
   /* anonymous unions are enabled by default */
 #elif defined(__TMS470__)
 /* anonymous unions are enabled by default */
@@ -1218,7 +1218,7 @@ typedef struct {                                    /*!< (@ 0xA0004000) PIN_INT 
   #pragma pop
 #elif defined(__ICCARM__)
   /* leave anonymous unions enabled */
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
   /* anonymous unions are enabled by default */
 #elif defined(__TMS470__)
   /* anonymous unions are enabled by default */

@@ -35,8 +35,8 @@ class ARMC6(mbedToolchain):
     DEFAULT_FLAGS = {
         'common': ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-g"],
         'asm': [],
-        'c': ["-D__ASSERT_MSG"],
-        'cxx': [],
+        'c': ["-std=gnu99", "-D__ASSERT_MSG"],
+        'cxx': ["-std=gnu++98"],
         'ld': [],
     }
 

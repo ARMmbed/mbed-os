@@ -51,7 +51,7 @@ extern "C" {
  * @{
  ******************************************************************************/
 
-#if !defined(__GNUC__)
+#if !defined(__GNUC__) || defined(__clang__)
 
 /** Macro for getting minimum value. */
 #define EFM32_MIN(a, b)    ((a) < (b) ? (a) : (b))
@@ -73,7 +73,7 @@ extern "C" {
 #define EFM32_ALIGN(X) _Pragma( STRINGIZE( data_alignment=X ) )
 #endif
 
-#else // !defined(__GNUC__)
+#else // !defined(__GNUC__) || defined(__clang__)
 
 /** Macro for getting minimum value. No sideeffects, a and b are evaluated once only. */
 #define EFM32_MIN(a, b)    ({ __typeof__(a) _a = (a); __typeof__(b) _b = (b); _a < _b ? _a : _b; })
@@ -102,7 +102,7 @@ extern "C" {
  */
 #define EFM32_ALIGN(X)
 
-#endif // !defined(__GNUC__)
+#endif // !defined(__GNUC__) || defined(__clang__)
 
 /***************************************************************************//**
  * @brief

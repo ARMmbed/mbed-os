@@ -7265,7 +7265,7 @@ void arm_rfft_fast_f32(
 //Exit low optimization region - place directly after end of function definition
   #define IAR_ONLY_LOW_OPTIMIZATION_EXIT
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
  //SMMLA
   #define multAcc_32x32_keep32_R(a, x, y) \
   a += (q31_t) (((q63_t) x * y) >> 32)

@@ -32,7 +32,7 @@
 
 #include "wsf_types.h"
 
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
 #define PRINTF_ATTRIBUTE(a, b) __attribute__((format(printf, a, b)))
 #else
 #define PRINTF_ATTRIBUTE(a, b)

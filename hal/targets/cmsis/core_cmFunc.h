@@ -320,7 +320,7 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
 #endif /* (__CORTEX_M == 0x04) || (__CORTEX_M == 0x07) */
 
 
-#elif defined ( __GNUC__ ) /*------------------ GNU Compiler ---------------------*/
+#elif defined ( __GNUC__ ) || defined ( __clang__ ) /*------------------ GNU Compiler ---------------------*/
 /* GNU gcc specific functions */
 
 /** \brief  Enable IRQ Interrupts

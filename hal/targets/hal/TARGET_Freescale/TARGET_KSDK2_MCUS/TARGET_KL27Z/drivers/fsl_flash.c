@@ -2095,7 +2095,7 @@ static void copy_flash_cache_clear_command(uint8_t *flashCacheClearCommand)
  *
  * This function is used to perform the cache clear to the flash.
  */
-#if (defined(__GNUC__))
+#if (defined(__GNUC__) || defined(__clang__))
 /* #pragma GCC push_options */
 /* #pragma GCC optimize("O0") */
 void __attribute__((optimize("O0"))) flash_cache_clear(flash_config_t *config)
@@ -2173,7 +2173,7 @@ void flash_cache_clear(flash_config_t *config)
 #if (defined(__CC_ARM))
 #pragma pop
 #endif
-#if (defined(__GNUC__))
+#if (defined(__GNUC__) || defined(__clang__))
 /* #pragma GCC pop_options */
 #endif
 

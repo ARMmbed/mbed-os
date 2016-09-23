@@ -60,7 +60,7 @@
                 } while (0)
 #endif
 
-#elif defined (__GNUC__)        /* GNU Compiler */
+#elif defined (__GNUC__) || defined (__clang__)        /* GNU Compiler */
 
 #undef  __USE_EXCLUSIVE_ACCESS
 

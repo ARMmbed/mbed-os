@@ -59,7 +59,7 @@ typedef uintptr_t          mem_ptr_t;
 /* Use LWIP error codes */
 #define LWIP_PROVIDE_ERRNO
 
-#if defined(__arm__) && defined(__ARMCC_VERSION) 
+#if defined(__CC_ARM)
     /* Keil uVision4 tools */
     #define PACK_STRUCT_BEGIN __packed
     #define PACK_STRUCT_STRUCT

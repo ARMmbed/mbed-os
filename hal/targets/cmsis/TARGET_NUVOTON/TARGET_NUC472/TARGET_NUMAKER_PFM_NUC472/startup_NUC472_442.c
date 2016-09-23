@@ -28,7 +28,7 @@ _Pragma(_STRINGIFY(_WEAK_ALIAS_FUNC(FUN, FUN_ALIAS)))
 #define _WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) weak __WEAK_ALIAS_FUNC(FUN, FUN_ALIAS)
 #define __WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) FUN##=##FUN_ALIAS
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #define WEAK            __attribute__ ((weak))
 #define ALIAS(f)        __attribute__ ((weak, alias(#f)))
 
@@ -44,7 +44,7 @@ extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
 void __iar_program_start(void);
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 extern uint32_t __StackTop;
 extern uint32_t __etext;
 extern uint32_t __data_start__;
@@ -231,7 +231,7 @@ const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
 extern uint32_t CSTACK$$Limit;
 const uint32_t __vector_table[] @ ".intvec" = {
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 __attribute__ ((section(".vector_table")))
 const uint32_t __vector_handlers[] = {
 #endif
@@ -242,7 +242,7 @@ const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
     //(uint32_t) __sfe("CSTACK"),
     (uint32_t) &CSTACK$$Limit,
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
     &__StackTop,
 #endif
 
@@ -437,7 +437,7 @@ void Reset_Handler(void)
 #elif defined(__ICCARM__)
     __iar_program_start();
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
     uint32_t *src_ind = (uint32_t *) &__etext;
     uint32_t *dst_ind = (uint32_t *) &__data_start__;
     uint32_t *dst_end = (uint32_t *) &__data_end__;

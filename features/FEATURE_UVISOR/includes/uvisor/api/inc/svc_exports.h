@@ -132,7 +132,7 @@
 /* note: the macro is implicitly overloaded to allow 0 to 4 32bits arguments */
 #if defined(__CC_ARM)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define UVISOR_SVC(id, metadata, ...) \
     ({ \
@@ -160,6 +160,6 @@
         res; \
     })
 
-#endif /* defined(__CC_ARM) || defined(__GNUC__) */
+#endif /* defined(__CC_ARM) || defined(__GNUC__) || defined(__clang__) */
 
 #endif /* __UVISOR_API_SVC_EXPORTS_H__ */

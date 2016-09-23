@@ -48,7 +48,7 @@ enum
  * @param[in]   EXPR   Constant expression to be verified.
  */
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #define STATIC_ASSERT(EXPR) typedef char __attribute__((unused)) static_assert_failed[(EXPR) ? 1 : -1]
 #elif defined(__ICCARM__)
 #define STATIC_ASSERT(EXPR) extern char static_assert_failed[(EXPR) ? 1 : -1] 

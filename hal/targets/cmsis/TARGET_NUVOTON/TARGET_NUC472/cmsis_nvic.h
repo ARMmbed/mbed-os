@@ -28,7 +28,7 @@
 #elif defined(__ICCARM__)
 #   pragma section = "IRAMVEC"
 #   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) __section_begin("IRAMVEC"))
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #   define NVIC_RAM_VECTOR_ADDRESS  &__start_vector_table__
 #endif
 

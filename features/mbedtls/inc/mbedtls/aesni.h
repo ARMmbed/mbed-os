@@ -28,7 +28,7 @@
 #define MBEDTLS_AESNI_AES      0x02000000u
 #define MBEDTLS_AESNI_CLMUL    0x00000002u
 
-#if defined(MBEDTLS_HAVE_ASM) && defined(__GNUC__) &&  \
+#if defined(MBEDTLS_HAVE_ASM) && defined(__GNUC__) || defined(__clang__) &&  \
     ( defined(__amd64__) || defined(__x86_64__) )   &&  \
     ! defined(MBEDTLS_HAVE_X86_64)
 #define MBEDTLS_HAVE_X86_64

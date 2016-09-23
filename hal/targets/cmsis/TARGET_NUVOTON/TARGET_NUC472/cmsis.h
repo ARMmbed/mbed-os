@@ -26,7 +26,7 @@
 extern uint32_t Image$$ER_IRAMVEC$$ZI$$Base;
 #elif defined(__ICCARM__)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 extern uint32_t __start_vector_table__;
 #endif
 

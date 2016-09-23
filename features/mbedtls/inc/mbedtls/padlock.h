@@ -35,7 +35,7 @@
 #endif
 
 /* Some versions of ASan result in errors about not enough registers */
-#if defined(MBEDTLS_HAVE_ASM) && defined(__GNUC__) && defined(__i386__) && \
+#if defined(MBEDTLS_HAVE_ASM) && defined(__GNUC__) || defined(__clang__) && defined(__i386__) && \
     !defined(MBEDTLS_HAVE_ASAN)
 
 #ifndef MBEDTLS_HAVE_X86

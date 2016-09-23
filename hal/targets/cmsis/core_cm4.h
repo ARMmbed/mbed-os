@@ -81,7 +81,7 @@
   #define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */
   #define __STATIC_INLINE  static __inline
 
-#elif defined ( __GNUC__ )
+#elif defined ( __GNUC__ ) || defined ( __clang__ )
   #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
   #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
   #define __STATIC_INLINE  static inline
@@ -123,7 +123,7 @@
     #define __FPU_USED         0
   #endif
 
-#elif defined ( __GNUC__ )
+#elif defined ( __GNUC__ ) || defined ( __clang__ )
   #if defined (__VFP_FP__) && !defined(__SOFTFP__)
     #if (__FPU_PRESENT == 1)
       #define __FPU_USED       1

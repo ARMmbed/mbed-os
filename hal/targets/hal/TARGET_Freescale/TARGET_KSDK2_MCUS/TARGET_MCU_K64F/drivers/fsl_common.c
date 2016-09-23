@@ -43,7 +43,7 @@ void __aeabi_assert(const char *failedExpr, const char *file, int line)
         __asm("bkpt #0");
     }
 }
-#elif(defined(__GNUC__))
+#elif(defined(__GNUC__) || defined(__clang__))
 void __assert_func(const char *file, int line, const char *func, const char *failedExpr)
 {
     PRINTF("ASSERT ERROR \" %s \": file \"%s\" Line \"%d\" function name \"%s\" \n", failedExpr, file, line, func);
@@ -70,7 +70,7 @@ void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
     extern uint32_t __RAM_VECTOR_TABLE_SIZE[];
     extern uint32_t __VECTOR_TABLE[];
     extern uint32_t __VECTOR_RAM[];
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
     extern uint32_t __VECTOR_TABLE[];
     extern uint32_t __VECTOR_RAM[];
     extern uint32_t __RAM_VECTOR_TABLE_SIZE_BYTES[];

@@ -314,7 +314,7 @@ typedef enum _dma_request_source
 #elif defined(__CWCC__)
   #pragma push
   #pragma cpp_extensions on
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
   /* anonymous unions are enabled by default */
 #elif defined(__IAR_SYSTEMS_ICC__)
   #pragma language=extended
@@ -7978,7 +7978,7 @@ typedef struct {
   #pragma pop
 #elif defined(__CWCC__)
   #pragma pop
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
   /* leave anonymous unions enabled */
 #elif defined(__IAR_SYSTEMS_ICC__)
   #pragma language=default

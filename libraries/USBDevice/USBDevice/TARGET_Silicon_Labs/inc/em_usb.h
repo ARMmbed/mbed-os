@@ -239,7 +239,7 @@ extern "C" {
 #define PORT_FULL_SPEED                   1     /**< Full speed return value for USBH_GetPortSpeed(). */
 #define PORT_LOW_SPEED                    2     /**< Low speed return value for USBH_GetPortSpeed().  */
 
-#if defined( __GNUC__  )                  /* GCC compilers */
+#if defined( __GNUC__  ) || defined( __clang__  ) || defined( __clang__  )                  /* GCC compilers */
 #if defined( __CHAR16_TYPE__ )
 typedef __CHAR16_TYPE__ char16_t;
 #else
@@ -306,7 +306,7 @@ EFM32_PACK_END()
  *  is a multiple of WORD size.
  *  @n Example: @n UBUF( rxBuffer, 37 );  =>  uint8_t rxBuffer[ 40 ];
  */
-#if !defined(__GNUC__)
+#if !defined(__GNUC__) || defined(__clang__)
 #define        UBUF( x, y ) EFM32_ALIGN( 4 )        uint8_t x[((y)+3)&~3]
 #define STATIC_UBUF( x, y ) EFM32_ALIGN( 4 ) static uint8_t x[((y)+3)&~3]
 #else

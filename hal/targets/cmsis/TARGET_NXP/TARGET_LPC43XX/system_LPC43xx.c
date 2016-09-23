@@ -144,7 +144,7 @@ void SystemInit(void)
     extern void *__isr_vector;
 
     SCB->VTOR = (unsigned int) &__isr_vector;
-#else /* defined(__GNUC__) and others */
+#else /* defined(__GNUC__) || defined(__clang__) and others */
     extern void *g_pfnVectors;
 
     SCB->VTOR = (unsigned int) &g_pfnVectors;

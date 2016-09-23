@@ -68,7 +68,7 @@ extern "C" {
 #elif defined(__IAR_SYSTEMS_ICC__)
   //#pragma push // FIXME not usable for IAR
   #pragma language=extended
-#else /* defined(__GNUC__) and others */
+#else /* defined(__GNUC__) || defined(__clang__) and others */
   /* Assume anonymous unions are enabled by default */
 #endif
 
@@ -2039,7 +2039,7 @@ typedef struct {                        /* SGPIO Structure        */
   #pragma pop
 #elif defined(__IAR_SYSTEMS_ICC__)
   //#pragma pop // FIXME not usable for IAR
-#else /* defined(__GNUC__) and others */
+#else /* defined(__GNUC__) || defined(__clang__) and others */
   /* Leave anonymous unions enabled */
 #endif
 

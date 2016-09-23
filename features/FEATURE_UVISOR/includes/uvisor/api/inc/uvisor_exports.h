@@ -164,7 +164,7 @@
 
 /* TODO/FIXME */
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define __UVISOR_ASM_MEMORY_ACCESS_R(opcode, type, ...) \
     ({ \
@@ -188,6 +188,6 @@
         : UVISOR_MACRO_GCC_ASM_INPUT(__VA_ARGS__) \
     );
 
-#endif /* defined(__CC_ARM) || defined(__GNUC__) */
+#endif /* defined(__CC_ARM) || defined(__GNUC__) || defined(__clang__) */
 
 #endif /* __UVISOR_API_UVISOR_EXPORTS_H__ */

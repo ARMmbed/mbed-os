@@ -79,7 +79,7 @@
 		ioport_disable_pin(pin);\
 	} while (0)
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 void board_init(void) WEAK __attribute__((alias("system_board_init")));
 #elif defined(__ICCARM__)
 void board_init(void);

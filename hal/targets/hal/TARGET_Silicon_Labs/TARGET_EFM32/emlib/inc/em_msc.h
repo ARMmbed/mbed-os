@@ -425,10 +425,10 @@ __STATIC_INLINE void MSC_BusStrategy(mscBusStrategy_Typedef mode)
 #elif defined(__ICCARM__)
 #define MSC_FUNC_PREFIX   __ramfunc
 #define MSC_FUNC_POSTFIX
-#elif defined(__GNUC__) && defined(__CROSSWORKS_ARM)
+#elif defined(__GNUC__) || defined(__clang__) && defined(__CROSSWORKS_ARM)
 #define MSC_FUNC_PREFIX
 #define MSC_FUNC_POSTFIX  __attribute__ ((section(".fast")))
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #define MSC_FUNC_PREFIX
 #define MSC_FUNC_POSTFIX  __attribute__ ((section(".ram")))
 #endif

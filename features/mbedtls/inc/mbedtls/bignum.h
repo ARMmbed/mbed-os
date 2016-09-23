@@ -113,7 +113,7 @@
   typedef uint64_t mbedtls_mpi_uint;
 #else
   #if ( ! defined(MBEDTLS_HAVE_INT32) &&               \
-        defined(__GNUC__) && (                          \
+        defined(__GNUC__) || defined(__clang__) && (                          \
         defined(__amd64__) || defined(__x86_64__)    || \
         defined(__ppc64__) || defined(__powerpc64__) || \
         defined(__ia64__)  || defined(__alpha__)     || \

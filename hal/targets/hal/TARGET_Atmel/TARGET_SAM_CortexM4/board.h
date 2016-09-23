@@ -383,7 +383,7 @@ extern "C" {
 #endif
 
 
-#if (defined(__GNUC__) && defined(__AVR32__)) || (defined(__ICCAVR32__) || defined(__AAVR32__))
+#if (defined(__GNUC__) || defined(__clang__) && defined(__AVR32__)) || (defined(__ICCAVR32__) || defined(__AAVR32__))
 #ifdef __AVR32_ABI_COMPILER__ // Automatically defined when compiling for AVR32, not when assembling.
 
 /*! \brief This function initializes the board target resources

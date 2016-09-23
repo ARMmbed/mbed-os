@@ -57,7 +57,7 @@
 #endif
 
 #if defined(MBEDTLS_DEPRECATED_WARNING) && \
-    !defined(__GNUC__) && !defined(__clang__)
+    !defined(__GNUC__) || defined(__clang__) && !defined(__clang__)
 #error "MBEDTLS_DEPRECATED_WARNING only works with GCC and Clang"
 #endif
 

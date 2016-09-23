@@ -46,7 +46,7 @@
 #endif
 
 /* armcc5 --gnu defines __GNUC__ but doesn't support GNU's extended asm */
-#if defined(__GNUC__) && \
+#if defined(__GNUC__) || defined(__clang__) && \
     ( !defined(__ARMCC_VERSION) || __ARMCC_VERSION >= 6000000 )
 #if defined(__i386__)
 
@@ -568,7 +568,7 @@
  * So, only use the optimized assembly below for optimized build, which avoids
  * the build error and is pretty reasonable anyway.
  */
-#if defined(__GNUC__) && !defined(__OPTIMIZE__)
+#if defined(__GNUC__) || defined(__clang__) && !defined(__OPTIMIZE__)
 #define MULADDC_CANNOT_USE_R7
 #endif
 

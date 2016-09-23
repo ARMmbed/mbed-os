@@ -37,7 +37,7 @@
 #include <rt_misc.h>
 #pragma O3
 #define __USED __attribute__((used))
-#elif defined (__GNUC__)
+#elif defined (__GNUC__) || defined (__clang__)
 #pragma GCC optimize ("O3")
 #define __USED __attribute__((used))
 #elif defined (__ICCARM__)
@@ -424,7 +424,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_K64F)
 #define INITIAL_SP            (0x20030000UL)
 
-#if defined(__CC_ARM) || defined(__GNUC__)
+#if defined(__CC_ARM) || defined(__GNUC__) || defined(__clang__)
 #define ISR_STACK_SIZE        (0x1000)
 #endif
 
@@ -582,7 +582,7 @@ extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
 #define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
 #define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
 #define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
-#   elif defined(__GNUC__)
+#   elif defined(__GNUC__) || defined(__clang__)
 extern uint32_t	                __StackTop[];
 extern uint32_t	                __StackLimit[];
 extern uint32_t                 __end__[];
@@ -649,7 +649,7 @@ uint32_t mbed_stack_isr_size = 0;
         extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
         #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
         #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
-    #elif defined(__GNUC__)
+    #elif defined(__GNUC__) || defined(__clang__)
         extern uint32_t         __end__[];
         #define HEAP_START      ((unsigned char*)__end__)
         #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))

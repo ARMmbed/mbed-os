@@ -106,7 +106,7 @@ void InitMemorySubsystem(void) {
 }
 #pragma pop
 
-#elif defined(__GNUC__) 
+#elif defined(__GNUC__) || defined(__clang__) 
 
 void InitMemorySubsystem(void) { 
  
@@ -449,7 +449,7 @@ __asm void FPUEnable(void) {
 }
 #pragma pop
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 void FPUEnable(void) {
     __asm__ (
         ".ARM;"

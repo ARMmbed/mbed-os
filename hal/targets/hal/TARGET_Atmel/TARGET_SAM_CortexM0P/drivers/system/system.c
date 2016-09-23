@@ -59,7 +59,7 @@ void _system_dummy_init(void)
 }
 
 #if !defined(__DOXYGEN__)
-#  if defined(__GNUC__)
+#  if defined(__GNUC__) || defined(__clang__)
 void system_clock_init(void) WEAK __attribute__((alias("_system_dummy_init")));
 void system_board_init(void) WEAK __attribute__((alias("_system_dummy_init")));
 void _system_events_init(void) WEAK __attribute__((alias("_system_dummy_init")));

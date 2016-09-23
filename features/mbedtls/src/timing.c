@@ -89,7 +89,7 @@ unsigned long mbedtls_timing_hardclock( void )
 
 /* some versions of mingw-64 have 32-bit longs even on x84_64 */
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&  \
-    defined(__GNUC__) && ( defined(__i386__) || (                       \
+    defined(__GNUC__) || defined(__clang__) && ( defined(__i386__) || (                       \
     ( defined(__amd64__) || defined( __x86_64__) ) && __SIZEOF_LONG__ == 4 ) )
 
 #define HAVE_HARDCLOCK
@@ -104,7 +104,7 @@ unsigned long mbedtls_timing_hardclock( void )
           __GNUC__ && __i386__ */
 
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&  \
-    defined(__GNUC__) && ( defined(__amd64__) || defined(__x86_64__) )
+    defined(__GNUC__) || defined(__clang__) && ( defined(__amd64__) || defined(__x86_64__) )
 
 #define HAVE_HARDCLOCK
 
@@ -118,7 +118,7 @@ unsigned long mbedtls_timing_hardclock( void )
           __GNUC__ && ( __amd64__ || __x86_64__ ) */
 
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&  \
-    defined(__GNUC__) && ( defined(__powerpc__) || defined(__ppc__) )
+    defined(__GNUC__) || defined(__clang__) && ( defined(__powerpc__) || defined(__ppc__) )
 
 #define HAVE_HARDCLOCK
 
@@ -140,7 +140,7 @@ unsigned long mbedtls_timing_hardclock( void )
           __GNUC__ && ( __powerpc__ || __ppc__ ) */
 
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&  \
-    defined(__GNUC__) && defined(__sparc64__)
+    defined(__GNUC__) || defined(__clang__) && defined(__sparc64__)
 
 #if defined(__OpenBSD__)
 #warning OpenBSD does not allow access to tick register using software version instead
@@ -158,7 +158,7 @@ unsigned long mbedtls_timing_hardclock( void )
           __GNUC__ && __sparc64__ */
 
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&  \
-    defined(__GNUC__) && defined(__sparc__) && !defined(__sparc64__)
+    defined(__GNUC__) || defined(__clang__) && defined(__sparc__) && !defined(__sparc64__)
 
 #define HAVE_HARDCLOCK
 
@@ -173,7 +173,7 @@ unsigned long mbedtls_timing_hardclock( void )
           __GNUC__ && __sparc__ && !__sparc64__ */
 
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&      \
-    defined(__GNUC__) && defined(__alpha__)
+    defined(__GNUC__) || defined(__clang__) && defined(__alpha__)
 
 #define HAVE_HARDCLOCK
 
@@ -187,7 +187,7 @@ unsigned long mbedtls_timing_hardclock( void )
           __GNUC__ && __alpha__ */
 
 #if !defined(HAVE_HARDCLOCK) && defined(MBEDTLS_HAVE_ASM) &&      \
-    defined(__GNUC__) && defined(__ia64__)
+    defined(__GNUC__) || defined(__clang__) && defined(__ia64__)
 
 #define HAVE_HARDCLOCK
 

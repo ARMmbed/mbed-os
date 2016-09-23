@@ -18,7 +18,7 @@
 #include "analogin_api.h"
 
 // NOTE: Ensurce mbed_sdk_init() will get called before C++ global object constructor.
-#if defined(__CC_ARM) || defined(__GNUC__)
+#if defined(__CC_ARM) || defined(__GNUC__) || defined(__clang__)
 void mbed_sdk_init_forced(void) __attribute__((constructor(101)));
 #elif defined(__ICCARM__)
     // FIXME: How to achieve it in IAR?

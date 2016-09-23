@@ -212,7 +212,7 @@ extern unsigned char     __usr_stack_top__[];
 #ifdef __CC_ARM
 extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 extern unsigned char     __end__[];
 #define HEAP_START      (__end__)
 #elif defined(__ICCARM__)

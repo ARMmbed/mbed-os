@@ -969,14 +969,14 @@ typedef double                  F64;  //!< 64-bit floating-point number.
 
 #if defined(__ICCARM__)
 #define SHORTENUM           __packed
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #define SHORTENUM           __attribute__((packed))
 #endif
 
 /* No operation */
 #if defined(__ICCARM__)
 #define nop()               __no_operation()
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #define nop()               (__NOP())
 #endif
 

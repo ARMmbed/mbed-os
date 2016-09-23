@@ -395,7 +395,7 @@ __attribute__((section(".rrx_text"))) __STATIC_INLINE __ASM uint32_t __RRX(uint3
 #endif /* (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300) */
 
 
-#elif defined ( __GNUC__ ) /*------------------ GNU Compiler ---------------------*/
+#elif defined ( __GNUC__ ) || defined ( __clang__ ) /*------------------ GNU Compiler ---------------------*/
 /* GNU gcc specific functions */
 
 /* Define macros for porting to both thumb1 and thumb2.

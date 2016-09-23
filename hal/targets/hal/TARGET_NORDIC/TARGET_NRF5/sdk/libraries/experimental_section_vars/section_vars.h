@@ -68,7 +68,7 @@
 // Not required by this compiler.
 #define NRF_SECTION_VARS_REGISTER_SECTION(section_name)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 // Not required by this compiler.
 #define NRF_SECTION_VARS_REGISTER_SECTION(section_name)
@@ -92,7 +92,7 @@
 
 #define NRF_SECTION_VARS_START_SYMBOL(section_name)         section_name ## $$Base
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_START_SYMBOL(section_name)         __start_ ## section_name
 
@@ -113,7 +113,7 @@
 
 #define NRF_SECTION_VARS_END_SYMBOL(section_name)           section_name ## $$Limit
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_END_SYMBOL(section_name)           __stop_ ## section_name
 
@@ -135,7 +135,7 @@
 #define NRF_SECTION_VARS_LENGTH(section_name) \
     ((uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name) - (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name))
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
  #define NRF_SECTION_VARS_LENGTH(section_name) \
     ((uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name) - (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name))
@@ -156,7 +156,7 @@
 
 #define NRF_SECTION_VARS_START_ADDR(section_name)       (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_START_ADDR(section_name)       (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name)
 
@@ -175,7 +175,7 @@
 
 #define NRF_SECTION_VARS_END_ADDR(section_name)         (uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_END_ADDR(section_name)         (uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name)
 
@@ -199,7 +199,7 @@
     extern type_name * NRF_SECTION_VARS_START_SYMBOL(section_name); \
     extern void      * NRF_SECTION_VARS_END_SYMBOL(section_name)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_REGISTER_SYMBOLS(type_name, section_name)  \
     extern type_name * NRF_SECTION_VARS_START_SYMBOL(section_name); \
@@ -234,7 +234,7 @@
 #define NRF_SECTION_VARS_ADD(section_name, type_def) \
     static type_def __attribute__ ((section(#section_name))) __attribute__((used))
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_ADD(section_name, type_def) \
     static type_def __attribute__ ((section("."#section_name))) __attribute__((used))
@@ -264,7 +264,7 @@
 #define NRF_SECTION_VARS_GET(i, type_name, section_name) \
     (type_name*)(NRF_SECTION_VARS_START_ADDR(section_name) + i * sizeof(type_name))
       
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 
 #define NRF_SECTION_VARS_GET(i, type_name, section_name) \
     (type_name*)(NRF_SECTION_VARS_START_ADDR(section_name) + i * sizeof(type_name))
