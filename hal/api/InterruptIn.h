@@ -22,7 +22,7 @@
 
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
-#include "Callback.h"
+#include "Event.h"
 #include "critical.h"
 #include "toolchain.h"
 
@@ -83,7 +83,7 @@ public:
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
-    void rise(Callback<void()> func);
+    void rise(const Event& func);
 
     /** Attach a member function to call when a rising edge occurs on the input
      *
@@ -107,7 +107,7 @@ public:
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
-    void fall(Callback<void()> func);
+    void fall(const Event& func);
 
     /** Attach a member function to call when a falling edge occurs on the input
      *
@@ -149,8 +149,8 @@ protected:
     gpio_t gpio;
     gpio_irq_t gpio_irq;
 
-    Callback<void()> _rise;
-    Callback<void()> _fall;
+    Event _rise;
+    Event _fall;
 };
 
 } // namespace mbed

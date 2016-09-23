@@ -101,7 +101,7 @@ int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle
     return ret;
 }
 
-void CAN::attach(Callback<void()> func, IrqType type) {
+void CAN::attach(const Event& func, IrqType type) {
     lock();
     if (func) {
         _irq[(CanIrqType)type].attach(func);
