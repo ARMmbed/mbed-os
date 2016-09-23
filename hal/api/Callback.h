@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed_assert.h"
+#include "toolchain.h"
 
 namespace mbed {
 
@@ -38,118 +39,218 @@ template <typename R>
 class Callback<R()> {
 public:
     /** Create a Callback with a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     Callback(R (*func)() = 0) {
         attach(func);
     }
 
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(T *obj, R (T::*method)()) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const T *obj, R (T::*method)() const) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(volatile T *obj, R (T::*method)() volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const volatile T *obj, R (T::*method)() const volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(void*), void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const void*), const void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(volatile void*), volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const volatile void*), const volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(T*), T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const T*), const T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(volatile T*), volatile T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const volatile T*), const volatile T *arg) {
+        attach(func, arg);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(T *obj, R (T::*func)()) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const T *obj, R (T::*func)() const) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*func)() volatile) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*func)() const volatile) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Attach a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     void attach(R (*func)()) {
         struct local {
@@ -166,7 +267,7 @@ public:
     }
 
     /** Attach a Callback
-     *  @param func The Callback to attach
+     *  @param func     The Callback to attach
      */
     void attach(const Callback<R()> &func) {
         memset(&_func, 0, sizeof _func);
@@ -175,10 +276,242 @@ public:
         _thunk = func._thunk;
     }
 
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(T *obj, R (T::*method)()) {
+        struct local {
+            static R _thunk(void *obj, const void *method) {
+                return (((T*)obj)->*
+                        (*static_cast<R (T::*const *)()>(method)))(
+                        );
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const T *obj, R (T::*method)() const) {
+        struct local {
+            static R _thunk(void *obj, const void *method) {
+                return (((const T*)obj)->*
+                        (*static_cast<R (T::*const *)() const>(method)))(
+                        );
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(volatile T *obj, R (T::*method)() volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method) {
+                return (((volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)() volatile>(method)))(
+                        );
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const volatile T *obj, R (T::*method)() const volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method) {
+                return (((const volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)() const volatile>(method)))(
+                        );
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(void*), void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(void*)>(func))(
+                        (void*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const void*), const void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(const void*)>(func))(
+                        (const void*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(volatile void*), volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(volatile void*)>(func))(
+                        (volatile void*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const volatile void*), const volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(const volatile void*)>(func))(
+                        (const volatile void*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(T*), T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(T*)>(func))(
+                        (T*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const T*), const T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(const T*)>(func))(
+                        (const T*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(volatile T*), volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(volatile T*)>(func))(
+                        (volatile T*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const volatile T*), const volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func) {
+                return (*static_cast<R (*const *)(const volatile T*)>(func))(
+                        (const volatile T*)arg);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -196,7 +529,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -214,7 +551,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -232,7 +573,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -250,8 +595,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -269,8 +618,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -288,8 +641,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
@@ -307,93 +664,17 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*)) {
         struct local {
             static R _thunk(void *obj, const void *func) {
                 return (*static_cast<R (*const *)(const volatile T*)>(func))(
                         (const volatile T*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(T *obj, R (T::*func)()) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)()>(func)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const T *obj, R (T::*func)() const) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)() const>(func)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*func)() volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)() volatile>(func)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*func)() const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)() const volatile>(func)))(
-                        );
             }
         };
 
@@ -467,118 +748,218 @@ template <typename R, typename A0>
 class Callback<R(A0)> {
 public:
     /** Create a Callback with a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     Callback(R (*func)(A0) = 0) {
         attach(func);
     }
 
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(T *obj, R (T::*method)(A0)) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const T *obj, R (T::*method)(A0) const) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(volatile T *obj, R (T::*method)(A0) volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const volatile T *obj, R (T::*method)(A0) const volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(void*, A0), void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const void*, A0), const void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(volatile void*, A0), volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const volatile void*, A0), const volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(T*, A0), T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const T*, A0), const T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(volatile T*, A0), volatile T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const volatile T*, A0), const volatile T *arg) {
+        attach(func, arg);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(T *obj, R (T::*func)(A0)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const T *obj, R (T::*func)(A0) const) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*func)(A0) volatile) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*func)(A0) const volatile) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Attach a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     void attach(R (*func)(A0)) {
         struct local {
@@ -595,7 +976,7 @@ public:
     }
 
     /** Attach a Callback
-     *  @param func The Callback to attach
+     *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0)> &func) {
         memset(&_func, 0, sizeof _func);
@@ -604,10 +985,242 @@ public:
         _thunk = func._thunk;
     }
 
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(T *obj, R (T::*method)(A0)) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0) {
+                return (((T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0)>(method)))(
+                        a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const T *obj, R (T::*method)(A0) const) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0) {
+                return (((const T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0) const>(method)))(
+                        a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(volatile T *obj, R (T::*method)(A0) volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0) {
+                return (((volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0) volatile>(method)))(
+                        a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const volatile T *obj, R (T::*method)(A0) const volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0) {
+                return (((const volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0) const volatile>(method)))(
+                        a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(void*, A0), void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(void*, A0)>(func))(
+                        (void*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const void*, A0), const void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(const void*, A0)>(func))(
+                        (const void*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(volatile void*, A0), volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(volatile void*, A0)>(func))(
+                        (volatile void*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const volatile void*, A0), const volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(const volatile void*, A0)>(func))(
+                        (const volatile void*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(T*, A0), T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(T*, A0)>(func))(
+                        (T*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const T*, A0), const T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(const T*, A0)>(func))(
+                        (const T*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(volatile T*, A0), volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(volatile T*, A0)>(func))(
+                        (volatile T*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const volatile T*, A0), const volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0) {
+                return (*static_cast<R (*const *)(const volatile T*, A0)>(func))(
+                        (const volatile T*)arg, a0);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -625,7 +1238,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -643,7 +1260,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -661,7 +1282,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -679,8 +1304,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -698,8 +1327,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -717,8 +1350,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
@@ -736,93 +1373,17 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0) {
                 return (*static_cast<R (*const *)(const volatile T*, A0)>(func))(
                         (const volatile T*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(T *obj, R (T::*func)(A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0)>(func)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const T *obj, R (T::*func)(A0) const) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0) const>(func)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*func)(A0) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0) volatile>(func)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*func)(A0) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0) const volatile>(func)))(
-                        a0);
             }
         };
 
@@ -896,118 +1457,218 @@ template <typename R, typename A0, typename A1>
 class Callback<R(A0, A1)> {
 public:
     /** Create a Callback with a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1) = 0) {
         attach(func);
     }
 
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(T *obj, R (T::*method)(A0, A1)) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const T *obj, R (T::*method)(A0, A1) const) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(volatile T *obj, R (T::*method)(A0, A1) volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const volatile T *obj, R (T::*method)(A0, A1) const volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(void*, A0, A1), void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const void*, A0, A1), const void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(volatile void*, A0, A1), volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const volatile void*, A0, A1), const volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(T*, A0, A1), T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const T*, A0, A1), const T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(volatile T*, A0, A1), volatile T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
+        attach(func, arg);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(T *obj, R (T::*func)(A0, A1)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const T *obj, R (T::*func)(A0, A1) const) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*func)(A0, A1) volatile) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*func)(A0, A1) const volatile) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Attach a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1)) {
         struct local {
@@ -1024,7 +1685,7 @@ public:
     }
 
     /** Attach a Callback
-     *  @param func The Callback to attach
+     *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1)> &func) {
         memset(&_func, 0, sizeof _func);
@@ -1033,10 +1694,242 @@ public:
         _thunk = func._thunk;
     }
 
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(T *obj, R (T::*method)(A0, A1)) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
+                return (((T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1)>(method)))(
+                        a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const T *obj, R (T::*method)(A0, A1) const) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
+                return (((const T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1) const>(method)))(
+                        a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(volatile T *obj, R (T::*method)(A0, A1) volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
+                return (((volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1) volatile>(method)))(
+                        a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const volatile T *obj, R (T::*method)(A0, A1) const volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
+                return (((const volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1) const volatile>(method)))(
+                        a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(void*, A0, A1), void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(void*, A0, A1)>(func))(
+                        (void*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const void*, A0, A1), const void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(const void*, A0, A1)>(func))(
+                        (const void*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(volatile void*, A0, A1), volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(volatile void*, A0, A1)>(func))(
+                        (volatile void*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const volatile void*, A0, A1), const volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(const volatile void*, A0, A1)>(func))(
+                        (const volatile void*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(T*, A0, A1), T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(T*, A0, A1)>(func))(
+                        (T*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const T*, A0, A1), const T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(const T*, A0, A1)>(func))(
+                        (const T*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(volatile T*, A0, A1), volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(volatile T*, A0, A1)>(func))(
+                        (volatile T*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
+                return (*static_cast<R (*const *)(const volatile T*, A0, A1)>(func))(
+                        (const volatile T*)arg, a0, a1);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1054,7 +1947,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1072,7 +1969,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1090,7 +1991,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1108,8 +2013,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1127,8 +2036,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1146,8 +2059,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
@@ -1165,93 +2082,17 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
                 return (*static_cast<R (*const *)(const volatile T*, A0, A1)>(func))(
                         (const volatile T*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(T *obj, R (T::*func)(A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1)>(func)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const T *obj, R (T::*func)(A0, A1) const) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1) const>(func)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*func)(A0, A1) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1) volatile>(func)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*func)(A0, A1) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1) const volatile>(func)))(
-                        a0, a1);
             }
         };
 
@@ -1325,118 +2166,218 @@ template <typename R, typename A0, typename A1, typename A2>
 class Callback<R(A0, A1, A2)> {
 public:
     /** Create a Callback with a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1, A2) = 0) {
         attach(func);
     }
 
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(T *obj, R (T::*method)(A0, A1, A2)) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const T *obj, R (T::*method)(A0, A1, A2) const) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(volatile T *obj, R (T::*method)(A0, A1, A2) volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const volatile T *obj, R (T::*method)(A0, A1, A2) const volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(void*, A0, A1, A2), void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const void*, A0, A1, A2), const void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(volatile void*, A0, A1, A2), volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const volatile void*, A0, A1, A2), const volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(T*, A0, A1, A2), T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const T*, A0, A1, A2), const T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(volatile T*, A0, A1, A2), volatile T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
+        attach(func, arg);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(T *obj, R (T::*func)(A0, A1, A2)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const T *obj, R (T::*func)(A0, A1, A2) const) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*func)(A0, A1, A2) volatile) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*func)(A0, A1, A2) const volatile) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Attach a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1, A2)) {
         struct local {
@@ -1453,7 +2394,7 @@ public:
     }
 
     /** Attach a Callback
-     *  @param func The Callback to attach
+     *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1, A2)> &func) {
         memset(&_func, 0, sizeof _func);
@@ -1462,10 +2403,242 @@ public:
         _thunk = func._thunk;
     }
 
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(T *obj, R (T::*method)(A0, A1, A2)) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
+                return (((T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2)>(method)))(
+                        a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const T *obj, R (T::*method)(A0, A1, A2) const) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
+                return (((const T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2) const>(method)))(
+                        a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(volatile T *obj, R (T::*method)(A0, A1, A2) volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
+                return (((volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2) volatile>(method)))(
+                        a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const volatile T *obj, R (T::*method)(A0, A1, A2) const volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
+                return (((const volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2) const volatile>(method)))(
+                        a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(void*, A0, A1, A2), void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(void*, A0, A1, A2)>(func))(
+                        (void*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const void*, A0, A1, A2), const void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(const void*, A0, A1, A2)>(func))(
+                        (const void*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(volatile void*, A0, A1, A2), volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2)>(func))(
+                        (volatile void*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const volatile void*, A0, A1, A2), const volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2)>(func))(
+                        (const volatile void*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(T*, A0, A1, A2), T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(T*, A0, A1, A2)>(func))(
+                        (T*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const T*, A0, A1, A2), const T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(const T*, A0, A1, A2)>(func))(
+                        (const T*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(volatile T*, A0, A1, A2), volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2)>(func))(
+                        (volatile T*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
+                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2)>(func))(
+                        (const volatile T*)arg, a0, a1, a2);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1483,7 +2656,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1501,7 +2678,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1519,7 +2700,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1537,8 +2722,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1556,8 +2745,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1575,8 +2768,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
@@ -1594,93 +2791,17 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
                 return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2)>(func))(
                         (const volatile T*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(T *obj, R (T::*func)(A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2)>(func)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const T *obj, R (T::*func)(A0, A1, A2) const) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2) const>(func)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*func)(A0, A1, A2) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2) volatile>(func)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*func)(A0, A1, A2) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2) const volatile>(func)))(
-                        a0, a1, a2);
             }
         };
 
@@ -1754,118 +2875,218 @@ template <typename R, typename A0, typename A1, typename A2, typename A3>
 class Callback<R(A0, A1, A2, A3)> {
 public:
     /** Create a Callback with a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1, A2, A3) = 0) {
         attach(func);
     }
 
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(T *obj, R (T::*method)(A0, A1, A2, A3)) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const T *obj, R (T::*method)(A0, A1, A2, A3) const) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(volatile T *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const volatile T *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(void*, A0, A1, A2, A3), void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const void*, A0, A1, A2, A3), const void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(volatile void*, A0, A1, A2, A3), volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const volatile void*, A0, A1, A2, A3), const volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(T*, A0, A1, A2, A3), T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const T*, A0, A1, A2, A3), const T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(volatile T*, A0, A1, A2, A3), volatile T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
+        attach(func, arg);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(T *obj, R (T::*func)(A0, A1, A2, A3)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const T *obj, R (T::*func)(A0, A1, A2, A3) const) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*func)(A0, A1, A2, A3) volatile) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*func)(A0, A1, A2, A3) const volatile) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Attach a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1, A2, A3)) {
         struct local {
@@ -1882,7 +3103,7 @@ public:
     }
 
     /** Attach a Callback
-     *  @param func The Callback to attach
+     *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1, A2, A3)> &func) {
         memset(&_func, 0, sizeof _func);
@@ -1891,10 +3112,242 @@ public:
         _thunk = func._thunk;
     }
 
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(T *obj, R (T::*method)(A0, A1, A2, A3)) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (((T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3)>(method)))(
+                        a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const T *obj, R (T::*method)(A0, A1, A2, A3) const) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (((const T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) const>(method)))(
+                        a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(volatile T *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (((volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) volatile>(method)))(
+                        a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const volatile T *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (((const volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) const volatile>(method)))(
+                        a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(void*, A0, A1, A2, A3), void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(void*, A0, A1, A2, A3)>(func))(
+                        (void*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const void*, A0, A1, A2, A3), const void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(const void*, A0, A1, A2, A3)>(func))(
+                        (const void*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(volatile void*, A0, A1, A2, A3), volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2, A3)>(func))(
+                        (volatile void*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const volatile void*, A0, A1, A2, A3), const volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2, A3)>(func))(
+                        (const volatile void*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(T*, A0, A1, A2, A3), T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(T*, A0, A1, A2, A3)>(func))(
+                        (T*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const T*, A0, A1, A2, A3), const T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(const T*, A0, A1, A2, A3)>(func))(
+                        (const T*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(volatile T*, A0, A1, A2, A3), volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2, A3)>(func))(
+                        (volatile T*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3)>(func))(
+                        (const volatile T*)arg, a0, a1, a2, a3);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -1912,7 +3365,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -1930,7 +3387,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -1948,7 +3409,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -1966,8 +3431,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -1985,8 +3454,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -2004,8 +3477,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -2023,93 +3500,17 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
                 return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3)>(func))(
                         (const volatile T*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(T *obj, R (T::*func)(A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3)>(func)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const T *obj, R (T::*func)(A0, A1, A2, A3) const) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) const>(func)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*func)(A0, A1, A2, A3) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) volatile>(func)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*func)(A0, A1, A2, A3) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) const volatile>(func)))(
-                        a0, a1, a2, a3);
             }
         };
 
@@ -2183,118 +3584,218 @@ template <typename R, typename A0, typename A1, typename A2, typename A3, typena
 class Callback<R(A0, A1, A2, A3, A4)> {
 public:
     /** Create a Callback with a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1, A2, A3, A4) = 0) {
         attach(func);
     }
 
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(T *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const T *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    Callback(const volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
+        attach(obj, method);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(void*, A0, A1, A2, A3, A4), void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const void*, A0, A1, A2, A3, A4), const void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(volatile void*, A0, A1, A2, A3, A4), volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    Callback(R (*func)(const volatile void*, A0, A1, A2, A3, A4), const volatile void *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(T*, A0, A1, A2, A3, A4), T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const T*, A0, A1, A2, A3, A4), const T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(volatile T*, A0, A1, A2, A3, A4), volatile T *arg) {
+        attach(func, arg);
+    }
+
+    /** Create a Callback with a static function and bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function 
+     */
+    template<typename T>
+    Callback(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
+        attach(func, arg);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to Callback(func, arg)
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3, A4)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(T *obj, R (T::*func)(A0, A1, A2, A3, A4)) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const T *obj, R (T::*func)(A0, A1, A2, A3, A4) const) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) volatile) {
-        attach(obj, func);
-    }
-
-    /** Create a Callback with a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) const volatile) {
-        attach(obj, func);
+        attach(func, obj);
     }
 
     /** Attach a static function
-     *  @param func Static function to attach
+     *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1, A2, A3, A4)) {
         struct local {
@@ -2311,7 +3812,7 @@ public:
     }
 
     /** Attach a Callback
-     *  @param func The Callback to attach
+     *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1, A2, A3, A4)> &func) {
         memset(&_func, 0, sizeof _func);
@@ -2320,10 +3821,242 @@ public:
         _thunk = func._thunk;
     }
 
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(T *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (((T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4)>(method)))(
+                        a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const T *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (((const T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) const>(method)))(
+                        a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (((volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) volatile>(method)))(
+                        a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a member function
+     *  @param obj      Pointer to object to invoke member function on
+     *  @param method   Member function to attach
+     */
+    template<typename T>
+    void attach(const volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
+        struct local {
+            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (((const volatile T*)obj)->*
+                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) const volatile>(method)))(
+                        a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &obj, sizeof obj);
+        _obj = (void*)obj;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(void*, A0, A1, A2, A3, A4), void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(void*, A0, A1, A2, A3, A4)>(func))(
+                        (void*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const void*, A0, A1, A2, A3, A4), const void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(const void*, A0, A1, A2, A3, A4)>(func))(
+                        (const void*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(volatile void*, A0, A1, A2, A3, A4), volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2, A3, A4)>(func))(
+                        (volatile void*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    void attach(R (*func)(const volatile void*, A0, A1, A2, A3, A4), const volatile void *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2, A3, A4)>(func))(
+                        (const volatile void*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(T*, A0, A1, A2, A3, A4), T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(T*, A0, A1, A2, A3, A4)>(func))(
+                        (T*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const T*, A0, A1, A2, A3, A4), const T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(const T*, A0, A1, A2, A3, A4)>(func))(
+                        (const T*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(volatile T*, A0, A1, A2, A3, A4), volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2, A3, A4)>(func))(
+                        (volatile T*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
+    /** Attach a static function with a bound pointer
+     *  @param func     Static function to attach
+     *  @param arg      Pointer argument to function
+     */
+    template <typename T>
+    void attach(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
+        struct local {
+            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3, A4)>(func))(
+                        (const volatile T*)arg, a0, a1, a2, a3, a4);
+            }
+        };
+
+        memset(&_func, 0, sizeof _func);
+        memcpy(&_func, &func, sizeof func);
+        _obj = (void*)arg;
+        _thunk = &local::_thunk;
+    }
+
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2341,7 +4074,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2359,7 +4096,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2377,7 +4118,11 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2395,8 +4140,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2414,8 +4163,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2433,8 +4186,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -2452,93 +4209,17 @@ public:
     /** Attach a static function with a bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
+     *  @deprecated
+     *      Arguments to callback have been reordered to attach(func, arg)
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3, A4)) {
         struct local {
             static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
                 return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3, A4)>(func))(
                         (const volatile T*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(T *obj, R (T::*func)(A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4)>(func)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const T *obj, R (T::*func)(A0, A1, A2, A3, A4) const) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) const>(func)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) volatile>(func)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
-    }
-
-    /** Attach a member function
-     *  @param obj  Pointer to object to invoke member function on
-     *  @param func Member function to attach
-     */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) const volatile>(func)))(
-                        a0, a1, a2, a3, a4);
             }
         };
 
@@ -2610,8 +4291,8 @@ typedef Callback<void(int)> event_callback_t;
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R>
 Callback<R()> callback(R (*func)() = 0) {
@@ -2620,8 +4301,8 @@ Callback<R()> callback(R (*func)() = 0) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R>
 Callback<R()> callback(const Callback<R()> &func) {
@@ -2630,97 +4311,9 @@ Callback<R()> callback(const Callback<R()> &func) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R>
-Callback<R()> callback(void *obj, R (*func)(void*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R>
-Callback<R()> callback(const void *obj, R (*func)(const void*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R>
-Callback<R()> callback(volatile void *obj, R (*func)(volatile void*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R>
-Callback<R()> callback(const volatile void *obj, R (*func)(const volatile void*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R>
-Callback<R()> callback(T *obj, R (*func)(T*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R>
-Callback<R()> callback(const T *obj, R (*func)(const T*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R>
-Callback<R()> callback(volatile T *obj, R (*func)(volatile T*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R>
-Callback<R()> callback(const volatile T *obj, R (*func)(const volatile T*)) {
-    return Callback<R()>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R>
 Callback<R()> callback(T *obj, R (T::*func)()) {
@@ -2729,9 +4322,9 @@ Callback<R()> callback(T *obj, R (T::*func)()) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R>
 Callback<R()> callback(const T *obj, R (T::*func)() const) {
@@ -2740,9 +4333,9 @@ Callback<R()> callback(const T *obj, R (T::*func)() const) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R>
 Callback<R()> callback(volatile T *obj, R (T::*func)() volatile) {
@@ -2751,20 +4344,228 @@ Callback<R()> callback(volatile T *obj, R (T::*func)() volatile) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R>
 Callback<R()> callback(const volatile T *obj, R (T::*func)() const volatile) {
     return Callback<R()>(obj, func);
 }
 
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R>
+Callback<R()> callback(R (*func)(void*), void *arg) {
+    return Callback<R()>(func, arg);
+}
 
 /** Create a callback class with type infered from the arguments
  *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R>
+Callback<R()> callback(R (*func)(const void*), const void *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R>
+Callback<R()> callback(R (*func)(volatile void*), volatile void *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R>
+Callback<R()> callback(R (*func)(const volatile void*), const volatile void *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R>
+Callback<R()> callback(R (*func)(T*), T *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R>
+Callback<R()> callback(R (*func)(const T*), const T *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R>
+Callback<R()> callback(R (*func)(volatile T*), volatile T *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R>
+Callback<R()> callback(R (*func)(const volatile T*), const volatile T *arg) {
+    return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
  *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(void *obj, R (*func)(void*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(const void *obj, R (*func)(const void*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(volatile void *obj, R (*func)(volatile void*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(const volatile void *obj, R (*func)(const volatile void*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(T *obj, R (*func)(T*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(const T *obj, R (*func)(const T*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(volatile T *obj, R (*func)(volatile T*)) {
+    return Callback<R()>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R()> callback(const volatile T *obj, R (*func)(const volatile T*)) {
+    return Callback<R()>(func, obj);
+}
+
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0>
 Callback<R(A0)> callback(R (*func)(A0) = 0) {
@@ -2773,8 +4574,8 @@ Callback<R(A0)> callback(R (*func)(A0) = 0) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0>
 Callback<R(A0)> callback(const Callback<R(A0)> &func) {
@@ -2783,97 +4584,9 @@ Callback<R(A0)> callback(const Callback<R(A0)> &func) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0>
-Callback<R(A0)> callback(void *obj, R (*func)(void*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0>
-Callback<R(A0)> callback(const void *obj, R (*func)(const void*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0>
-Callback<R(A0)> callback(volatile void *obj, R (*func)(volatile void*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0>
-Callback<R(A0)> callback(const volatile void *obj, R (*func)(const volatile void*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0>
-Callback<R(A0)> callback(T *obj, R (*func)(T*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0>
-Callback<R(A0)> callback(const T *obj, R (*func)(const T*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0>
-Callback<R(A0)> callback(volatile T *obj, R (*func)(volatile T*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0>
-Callback<R(A0)> callback(const volatile T *obj, R (*func)(const volatile T*, A0)) {
-    return Callback<R(A0)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0>
 Callback<R(A0)> callback(T *obj, R (T::*func)(A0)) {
@@ -2882,9 +4595,9 @@ Callback<R(A0)> callback(T *obj, R (T::*func)(A0)) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0>
 Callback<R(A0)> callback(const T *obj, R (T::*func)(A0) const) {
@@ -2893,9 +4606,9 @@ Callback<R(A0)> callback(const T *obj, R (T::*func)(A0) const) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0>
 Callback<R(A0)> callback(volatile T *obj, R (T::*func)(A0) volatile) {
@@ -2904,20 +4617,228 @@ Callback<R(A0)> callback(volatile T *obj, R (T::*func)(A0) volatile) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0>
 Callback<R(A0)> callback(const volatile T *obj, R (T::*func)(A0) const volatile) {
     return Callback<R(A0)>(obj, func);
 }
 
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(void*, A0), void *arg) {
+    return Callback<R(A0)>(func, arg);
+}
 
 /** Create a callback class with type infered from the arguments
  *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(const void*, A0), const void *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(volatile void*, A0), volatile void *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(const volatile void*, A0), const volatile void *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(T*, A0), T *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(const T*, A0), const T *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(volatile T*, A0), volatile T *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0>
+Callback<R(A0)> callback(R (*func)(const volatile T*, A0), const volatile T *arg) {
+    return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
  *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(void *obj, R (*func)(void*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(const void *obj, R (*func)(const void*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(volatile void *obj, R (*func)(volatile void*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(const volatile void *obj, R (*func)(const volatile void*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(T *obj, R (*func)(T*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(const T *obj, R (*func)(const T*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(volatile T *obj, R (*func)(volatile T*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0)> callback(const volatile T *obj, R (*func)(const volatile T*, A0)) {
+    return Callback<R(A0)>(func, obj);
+}
+
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(R (*func)(A0, A1) = 0) {
@@ -2926,8 +4847,8 @@ Callback<R(A0, A1)> callback(R (*func)(A0, A1) = 0) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(const Callback<R(A0, A1)> &func) {
@@ -2936,97 +4857,9 @@ Callback<R(A0, A1)> callback(const Callback<R(A0, A1)> &func) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(void *obj, R (*func)(void*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const void *obj, R (*func)(const void*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(T *obj, R (*func)(T*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const T *obj, R (*func)(const T*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(T *obj, R (T::*func)(A0, A1)) {
@@ -3035,9 +4868,9 @@ Callback<R(A0, A1)> callback(T *obj, R (T::*func)(A0, A1)) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(const T *obj, R (T::*func)(A0, A1) const) {
@@ -3046,9 +4879,9 @@ Callback<R(A0, A1)> callback(const T *obj, R (T::*func)(A0, A1) const) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(volatile T *obj, R (T::*func)(A0, A1) volatile) {
@@ -3057,20 +4890,228 @@ Callback<R(A0, A1)> callback(volatile T *obj, R (T::*func)(A0, A1) volatile) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(const volatile T *obj, R (T::*func)(A0, A1) const volatile) {
     return Callback<R(A0, A1)>(obj, func);
 }
 
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(void*, A0, A1), void *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
 
 /** Create a callback class with type infered from the arguments
  *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(const void*, A0, A1), const void *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(volatile void*, A0, A1), volatile void *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(const volatile void*, A0, A1), const volatile void *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(T*, A0, A1), T *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(const T*, A0, A1), const T *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(volatile T*, A0, A1), volatile T *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
+    return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
  *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(void *obj, R (*func)(void*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(const void *obj, R (*func)(const void*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(T *obj, R (*func)(T*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(const T *obj, R (*func)(const T*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1)) {
+    return Callback<R(A0, A1)>(func, obj);
+}
+
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(R (*func)(A0, A1, A2) = 0) {
@@ -3079,8 +5120,8 @@ Callback<R(A0, A1, A2)> callback(R (*func)(A0, A1, A2) = 0) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(const Callback<R(A0, A1, A2)> &func) {
@@ -3089,97 +5130,9 @@ Callback<R(A0, A1, A2)> callback(const Callback<R(A0, A1, A2)> &func) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(void *obj, R (*func)(void*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const void *obj, R (*func)(const void*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(T *obj, R (*func)(T*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const T *obj, R (*func)(const T*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(T *obj, R (T::*func)(A0, A1, A2)) {
@@ -3188,9 +5141,9 @@ Callback<R(A0, A1, A2)> callback(T *obj, R (T::*func)(A0, A1, A2)) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(const T *obj, R (T::*func)(A0, A1, A2) const) {
@@ -3199,9 +5152,9 @@ Callback<R(A0, A1, A2)> callback(const T *obj, R (T::*func)(A0, A1, A2) const) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(volatile T *obj, R (T::*func)(A0, A1, A2) volatile) {
@@ -3210,20 +5163,228 @@ Callback<R(A0, A1, A2)> callback(volatile T *obj, R (T::*func)(A0, A1, A2) volat
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(const volatile T *obj, R (T::*func)(A0, A1, A2) const volatile) {
     return Callback<R(A0, A1, A2)>(obj, func);
 }
 
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(void*, A0, A1, A2), void *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
 
 /** Create a callback class with type infered from the arguments
  *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(const void*, A0, A1, A2), const void *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(volatile void*, A0, A1, A2), volatile void *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(const volatile void*, A0, A1, A2), const volatile void *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(T*, A0, A1, A2), T *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(const T*, A0, A1, A2), const T *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(volatile T*, A0, A1, A2), volatile T *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
+    return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
  *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(void *obj, R (*func)(void*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(const void *obj, R (*func)(const void*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(T *obj, R (*func)(T*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(const T *obj, R (*func)(const T*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(func, obj);
+}
+
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(R (*func)(A0, A1, A2, A3) = 0) {
@@ -3232,8 +5393,8 @@ Callback<R(A0, A1, A2, A3)> callback(R (*func)(A0, A1, A2, A3) = 0) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(const Callback<R(A0, A1, A2, A3)> &func) {
@@ -3242,97 +5403,9 @@ Callback<R(A0, A1, A2, A3)> callback(const Callback<R(A0, A1, A2, A3)> &func) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(void *obj, R (*func)(void*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(T *obj, R (T::*func)(A0, A1, A2, A3)) {
@@ -3341,9 +5414,9 @@ Callback<R(A0, A1, A2, A3)> callback(T *obj, R (T::*func)(A0, A1, A2, A3)) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(const T *obj, R (T::*func)(A0, A1, A2, A3) const) {
@@ -3352,9 +5425,9 @@ Callback<R(A0, A1, A2, A3)> callback(const T *obj, R (T::*func)(A0, A1, A2, A3) 
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(volatile T *obj, R (T::*func)(A0, A1, A2, A3) volatile) {
@@ -3363,20 +5436,228 @@ Callback<R(A0, A1, A2, A3)> callback(volatile T *obj, R (T::*func)(A0, A1, A2, A
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(const volatile T *obj, R (T::*func)(A0, A1, A2, A3) const volatile) {
     return Callback<R(A0, A1, A2, A3)>(obj, func);
 }
 
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(void*, A0, A1, A2, A3), void *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
 
 /** Create a callback class with type infered from the arguments
  *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(const void*, A0, A1, A2, A3), const void *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(volatile void*, A0, A1, A2, A3), volatile void *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(const volatile void*, A0, A1, A2, A3), const volatile void *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(T*, A0, A1, A2, A3), T *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(const T*, A0, A1, A2, A3), const T *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(volatile T*, A0, A1, A2, A3), volatile T *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
+    return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
  *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(void *obj, R (*func)(void*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(func, obj);
+}
+
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(A0, A1, A2, A3, A4) = 0) {
@@ -3385,8 +5666,8 @@ Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(A0, A1, A2, A3, A4) = 0) {
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param func     Static function to attach
+ *  @return         Callback with infered type
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(const Callback<R(A0, A1, A2, A3, A4)> &func) {
@@ -3395,97 +5676,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const Callback<R(A0, A1, A2, A3, A4)> &
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(void *obj, R (*func)(void*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
- */
-template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
-}
-
-/** Create a callback class with type infered from the arguments
- *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(T *obj, R (T::*func)(A0, A1, A2, A3, A4)) {
@@ -3494,9 +5687,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(T *obj, R (T::*func)(A0, A1, A2, A3, A4
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(const T *obj, R (T::*func)(A0, A1, A2, A3, A4) const) {
@@ -3505,9 +5698,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const T *obj, R (T::*func)(A0, A1, A2, 
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) volatile) {
@@ -3516,13 +5709,221 @@ Callback<R(A0, A1, A2, A3, A4)> callback(volatile T *obj, R (T::*func)(A0, A1, A
 
 /** Create a callback class with type infered from the arguments
  *
- *  @param obj  Optional pointer to object to bind to function
- *  @param func Static function to attach
- *  @return     Callback with infered type
+ *  @param obj      Optional pointer to object to bind to function
+ *  @param method   Member function to attach
+ *  @return         Callback with infered type
  */
 template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(const volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) const volatile) {
     return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(void*, A0, A1, A2, A3, A4), void *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const void*, A0, A1, A2, A3, A4), const void *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(volatile void*, A0, A1, A2, A3, A4), volatile void *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const volatile void*, A0, A1, A2, A3, A4), const volatile void *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(T*, A0, A1, A2, A3, A4), T *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const T*, A0, A1, A2, A3, A4), const T *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(volatile T*, A0, A1, A2, A3, A4), volatile T *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param func     Static function to attach
+ *  @param arg      Pointer argument to function
+ *  @return         Callback with infered type
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(void *obj, R (*func)(void*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
+}
+
+/** Create a callback class with type infered from the arguments
+ *
+ *  @param obj  Optional pointer to object to bind to function
+ *  @param func Static function to attach
+ *  @return     Callback with infered type
+ *  @deprecated
+ *      Arguments to callback have been reordered to callback(func, arg)
+ */
+template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+MBED_DEPRECATED_SINCE("mbed-os-5.1",
+    "Arguments to callback have been reordered to callback(func, arg)")
+Callback<R(A0, A1, A2, A3, A4)> callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(func, obj);
 }
 
 

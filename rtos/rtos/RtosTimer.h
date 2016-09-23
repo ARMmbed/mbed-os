@@ -47,7 +47,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
     RtosTimer(void (*func)(void const *argument), os_timer_type type=osTimerPeriodic, void *argument=NULL) {
-        constructor(mbed::callback(argument, (void (*)(void *))func), type);
+        constructor(mbed::callback((void (*)(void *))func, argument), type);
     }
     
     /** Create timer.
