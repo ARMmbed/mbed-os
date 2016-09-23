@@ -23,6 +23,7 @@ from tools.targets import TARGET_NAMES
 
 EXPORTERS = {
     'uvision5': uvision.Uvision,
+    'uvision': uvision.Uvision,
     'lpcxpresso': codered.CodeRed,
     'gcc_arm': makefile.GccArm,
     'make_gcc_arm': makefile.GccArm,
