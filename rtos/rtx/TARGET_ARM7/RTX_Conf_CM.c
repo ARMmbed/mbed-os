@@ -39,6 +39,9 @@
  *      RTX User configuration part BEGIN
  *---------------------------------------------------------------------------*/
 
+// Include per-target RTX config file
+#include "mbed_rtx.h"
+
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 //
 // <h>Thread Configuration
@@ -49,20 +52,12 @@
 //       counting "main", but not counting "osTimerThread"
 //   <i> Default: 6
 #ifndef OS_TASKCNT
-#  if  defined(TARGET_LPC2368) || defined(TARGET_LPC2460)
-#    define OS_TASKCNT         14
-#  else
-#    error "no target defined"
-#  endif
+ #error "no target defined"
 #endif
 
 //   <o>Scheduler (+ interrupts) stack size [bytes] <64-4096:8><#/4>
 #ifndef OS_SCHEDULERSTKSIZE
-#  if  defined(TARGET_LPC2368)  ||  defined(TARGET_LPC2460)
-#      define OS_SCHEDULERSTKSIZE    (136*2)
-#  else
-#    error "no target defined"
-#  endif
+ #error "no target defined"
 #endif
 
 //   <o>Idle stack size [bytes] <64-4096:8><#/4>
@@ -101,15 +96,7 @@
 //   <i> Defines the timer clock value.
 //   <i> Default: 6000000  (6MHz)
 #ifndef OS_CLOCK
-#  if defined(TARGET_LPC2368)
-#    define OS_CLOCK       96000000
-
-#  elif defined(TARGET_LPC2460)
-#    define OS_CLOCK       72000000
-
-#  else
-#    error "no target defined"
-#  endif
+ #error "no target defined"
 #endif
 
 //   <o>Timer tick value [us] <1-1000000>

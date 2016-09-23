@@ -1146,7 +1146,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["STM", "STM32F4", "STM32F405RG"],
         "is_disk_virtual": true,
-        "macros": ["HSE_VALUE=26000000", "OS_CLOCK=48000000", "TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["HSE_VALUE=26000000", "TRANSACTION_QUEUE_SIZE_SPI=2"],
         "progen": {"target": "mts-mdot-f405rg"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2"]
@@ -1156,7 +1156,7 @@
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["STM", "STM32F4", "STM32F411RE"],
-        "macros": ["HSE_VALUE=26000000", "OS_CLOCK=96000000", "USE_PLL_HSE_EXTC=0", "VECT_TAB_OFFSET=0x00010000","TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["HSE_VALUE=26000000", "USE_PLL_HSE_EXTC=0", "VECT_TAB_OFFSET=0x00010000","TRANSACTION_QUEUE_SIZE_SPI=2"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dot",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO"]
