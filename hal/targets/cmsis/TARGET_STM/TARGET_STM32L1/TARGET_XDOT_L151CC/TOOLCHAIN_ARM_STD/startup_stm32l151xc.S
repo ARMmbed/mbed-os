@@ -48,7 +48,7 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-__initial_sp    EQU     0x2008000 ; Top of RAM (32 KB)
+__initial_sp    EQU     0x20008000 ; Top of RAM (32 KB)
 
                 PRESERVE8
                 THUMB
