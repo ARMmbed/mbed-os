@@ -24,11 +24,25 @@
 // Default NetworkStack operations
 int NetworkStack::gethostbyname(const char *name, SocketAddress *address)
 {
+    // check for simple ip addresses
+    if (address->set_ip_address(name)) {
+        return 0;
+    }
+
     return nsapi_dns_query(this, name, address);
 }
 
 int NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
+    // check for simple ip addresses
+    if (address->set_ip_address(name)) {
+        if (address->get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        return 0;
+    }
+
     return nsapi_dns_query(this, name, address, version);
 }
 

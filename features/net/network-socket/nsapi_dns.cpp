@@ -199,17 +199,6 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
         return NSAPI_ERROR_PARAMETER;
     }
 
-    // check for simple ip addresses
-    SocketAddress address;
-    if (address.set_ip_address(host)) {
-        if (address.get_ip_version() != version) {
-            return NSAPI_ERROR_DNS_FAILURE;
-        }
-
-        *addr = address.get_addr();
-        return 0;
-    }
-
     // create a udp socket
     UDPSocket socket;
     int err = socket.open(stack);
