@@ -769,8 +769,7 @@ class MemapParser(object):
                 # Common to all toolchains: first search for objects in BUILD
                 self.list_dir_obj(os.path.abspath(mapfile))
 
-                if toolchain == "ARM" or toolchain == "ARM_STD" or\
-                  toolchain == "ARM_MICRO":
+                if toolchain in ("ARM", "ARM_STD", "ARM_MICRO", "ARMC6"):
                     self.parse_map_file_armcc(file_input)
                 elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
                     self.parse_map_file_gcc(file_input)

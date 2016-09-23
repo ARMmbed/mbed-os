@@ -302,11 +302,13 @@ LEGACY_IGNORE_DIRS = set([
     'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
     'ARM', 'uARM', 'IAR',
     'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
+    'ARMC6'
 ])
 LEGACY_TOOLCHAIN_NAMES = {
     'ARM_STD':'ARM', 'ARM_MICRO': 'uARM',
     'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR',
     'IAR': 'IAR',
+    'ARMC6': 'ARMC6',
 }
 
 
@@ -1531,24 +1533,24 @@ class mbedToolchain:
         to_ret.update(self.config.report)
         return to_ret
 
-from tools.settings import ARM_PATH
-from tools.settings import GCC_ARM_PATH
-from tools.settings import IAR_PATH
+from tools.settings import ARM_PATH, ARMC6_PATH, GCC_ARM_PATH, IAR_PATH
 
 TOOLCHAIN_PATHS = {
     'ARM': ARM_PATH,
     'uARM': ARM_PATH,
+    'ARMC6': ARMC6_PATH,
     'GCC_ARM': GCC_ARM_PATH,
     'IAR': IAR_PATH
 }
 
-from tools.toolchains.arm import ARM_STD, ARM_MICRO
+from tools.toolchains.arm import ARM_STD, ARM_MICRO, ARMC6
 from tools.toolchains.gcc import GCC_ARM
 from tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD,
     'uARM': ARM_MICRO,
+    'ARMC6': ARMC6,
     'GCC_ARM': GCC_ARM,
     'IAR': IAR
 }
