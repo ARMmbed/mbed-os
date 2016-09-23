@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "platform.h"
+
+#if DEVICE_EMAC
+
 #include "IPStackInterface.h"
 #include "lwip_stack.h"
 
@@ -39,3 +43,5 @@ const char * IPStackInterface::get_ip_address()
 {
     return lwip_get_ip_address(_ip_address, sizeof(_ip_address));
 }
+
+#endif /* DEVICE_EMAC */

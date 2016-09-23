@@ -17,6 +17,10 @@
 #ifndef IP_STACK_INTERFACE_H
 #define IP_STACK_INTERFACE_H
 
+#include "platform.h"
+
+#if DEVICE_EMAC
+
 #include "emac_api.h"
 
 /**
@@ -55,5 +59,7 @@ public:
 private:
     char _ip_address[16]; //IPv4
 };
+
+#endif /* DEVICE_EMAC */
 
 #endif /* IP_STACK_INTERFACE_H */
