@@ -51,8 +51,11 @@ class ARM(mbedToolchain):
          Returns False otherwise."""
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, options=None, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent,
+                               extra_verbose=extra_verbose,
+                               build_profile=build_profile)
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -241,8 +244,10 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, options=None, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        ARM.__init__(self, target, options, notify, macros, silent,
+                     extra_verbose=extra_verbose, build_profile=build_profile)
 
         # Run-time values
         self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
@@ -251,8 +256,10 @@ class ARM_STD(ARM):
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, options=None, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        ARM.__init__(self, target, options, notify, macros, silent,
+                     extra_verbose=extra_verbose, build_profile=build_profile)
 
         # Extend flags
         self.flags['common'].extend(["-D__MICROLIB"])

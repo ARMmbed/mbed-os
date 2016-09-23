@@ -54,8 +54,11 @@ class IAR(mbedToolchain):
         Returns False otherwise."""
         return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, options=None, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent,
+                               extra_verbose=extra_verbose,
+                               build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
         else:

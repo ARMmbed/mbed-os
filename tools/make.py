@@ -19,6 +19,7 @@ limitations under the License.
 TEST BUILD & RUN
 """
 import sys
+import json
 from time import sleep
 from shutil import copy
 from os.path import join, abspath, dirname
@@ -180,6 +181,9 @@ if __name__ == '__main__':
     parser.add_argument("-l", "--linker", dest="linker_script",
                       type=argparse_filestring_type,
                       default=None, help="use the specified linker script")
+    parser.add_argument("--profile", dest="profile",
+                        type=argparse_filestring_type,
+                        default=None)
 
     options = parser.parse_args()
 
@@ -219,6 +223,17 @@ if __name__ == '__main__':
 
     if options.source_dir and not options.build_dir:
         args_error(parser, "argument --build is required when argument --source is provided")
+
+    if options.profile:
+        contents = json.load(open(options.profile))
+        try:
+            profile = contents[toolchain]
+        except KeyError:
+            args_error(parser, ("argument --profile: toolchain {} is not"
+                                " supported by profile {}").format(toolchain,
+                                                                   options.profile))
+    else:
+        profile = None
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it
@@ -280,7 +295,8 @@ if __name__ == '__main__':
                                      macros=options.macros,
                                      jobs=options.jobs,
                                      name=options.artifact_name,
-                                     app_config=options.app_config)
+                                     app_config=options.app_config,
+                                     build_profile=profile)
             print 'Image: %s'% bin_file
 
             if options.disk:

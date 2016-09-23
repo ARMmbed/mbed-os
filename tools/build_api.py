@@ -277,7 +277,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
                       macros=None, options=None, clean=False, jobs=1,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None,
-                      app_config=None):
+                      app_config=None, build_profile=None):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -310,7 +310,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     try:
         toolchain = TOOLCHAIN_CLASSES[toolchain_name](
             target, options, notify, macros, silent,
-            extra_verbose=extra_verbose)
+            extra_verbose=extra_verbose, build_profile=build_profile)
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
 
@@ -366,7 +366,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None,
-                  app_config=None):
+                  app_config=None, build_profile=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -413,7 +413,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, target, toolchain_name, macros=macros, options=options,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, config=config, app_config=app_config)
+        extra_verbose=extra_verbose, config=config, app_config=app_config,
+        build_profile=build_profile)
 
     # The first path will give the name to the library
     if name is None:

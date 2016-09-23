@@ -217,7 +217,7 @@ class mbedToolchain:
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False, build_profile=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -225,7 +225,7 @@ class mbedToolchain:
         self.hook = hooks.Hook(target, self)
 
         # Toolchain flags
-        self.flags = deepcopy(self.DEFAULT_FLAGS)
+        self.flags = deepcopy(build_profile or self.DEFAULT_FLAGS)
 
         # User-defined macros
         self.macros = macros or []
