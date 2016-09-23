@@ -97,7 +97,10 @@ class IAR(Exporter):
         flags['c_flags'] = list(set(flags['common_flags']
                                     + flags['c_flags']
                                     + flags['cxx_flags']))
-        flags['c_flags'].remove('--vla')
+        if '--vla' in flags['c_flags']:
+            flags['c_flags'].remove('--vla')
+        if '--no_static_destruction' in flags['c_flags']:
+            flags['c_flags'].remove('--no_static_destruction')
         ctx = {
             'name': self.project_name,
             'groups': self.iar_groups(self.format_src(srcs)),
