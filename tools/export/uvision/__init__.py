@@ -122,14 +122,15 @@ class Uvision(Exporter):
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
-
         ctx = {
             'name': self.project_name,
             'project_files': self.format_src(srcs),
             'linker_script':self.resources.linker_script,
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
-            'device': DeviceUvision(self.target)
+            'device': DeviceUvision(self.target),
         }
+        # Turn on FPU optimizations if the core has an FPU
+        ctx['fpu_setting'] = 1 if 'f' not in ctx['device'].core.lower() else 2
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
 
