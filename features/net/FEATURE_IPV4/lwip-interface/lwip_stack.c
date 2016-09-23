@@ -143,7 +143,11 @@ const char *lwip_get_ip_address(void)
     return lwip_ip_addr[0] ? lwip_ip_addr : 0;
 }
 
+#if DEVICE_EMAC
 int lwip_bringup(emac_interface_t *emac)
+#else /* DEVICE_EMAC */
+int lwip_bringup(void)
+#endif /* DEVICE_EMAC */
 {
     // Check if we've already connected
     if (!lwip_get_mac_address()) {

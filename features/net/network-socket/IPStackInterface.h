@@ -17,6 +17,10 @@
 #ifndef IP_STACK_INTERFACE_H
 #define IP_STACK_INTERFACE_H
 
+#include "platform.h"
+
+#if DEVICE_EMAC
+
 #include "emac_api.h"
 
 /**
@@ -53,5 +57,7 @@ public:
      */
     virtual const char *get_ip_address();
 };
+
+#endif /* DEVICE_EMAC */
 
 #endif /* IP_STACK_INTERFACE_H */
