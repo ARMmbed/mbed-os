@@ -30,6 +30,7 @@
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
 
+#include "emac_api.h"
 
 /* Static arena of sockets */
 static struct lwip_socket {
@@ -142,7 +143,7 @@ const char *lwip_get_ip_address(void)
     return lwip_ip_addr[0] ? lwip_ip_addr : 0;
 }
 
-int lwip_bringup(void)
+int lwip_bringup(emac_interface_t *emac)
 {
     // Check if we've already connected
     if (!lwip_get_mac_address()) {
@@ -157,7 +158,11 @@ int lwip_bringup(void)
         sys_arch_sem_wait(&lwip_tcpip_inited, 0);
 
         memset(&lwip_netif, 0, sizeof lwip_netif);
+#if DEVICE_EMAC
+        netif_add(&lwip_netif, 0, 0, 0, emac, emac_lwip_if_init, tcpip_input);
+#else /* DEVICE_EMAC */
         netif_add(&lwip_netif, 0, 0, 0, NULL, eth_arch_enetif_init, tcpip_input);
+#endif /* DEVICE_EMAC */
         netif_set_default(&lwip_netif);
 
         netif_set_link_callback  (&lwip_netif, lwip_netif_link_irq);

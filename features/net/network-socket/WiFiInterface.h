@@ -29,7 +29,7 @@ typedef struct wifi_ap {
 } wifi_ap_t;
 
 typedef void (*wifi_ap_scan_cb_t)(wifi_ap_t *ap, void *data);
-typedef void (*wifi_connect_cb_t)(nsapi_error_t res, void *data);
+typedef void (*wifi_connect_cb_t)(nsapi_error_t res, wifi_ap_t *ap, void *data);
 
 /** WiFiInterface class
  *
@@ -44,30 +44,34 @@ public:
      *
      *  @param ssid      Name of the network to connect to
      *  @param pass      Security passphrase to connect to the network
-     *  @param security  Type of encryption for connection
-     *  @param timeout   Timeout in milliseconds; 0 for no timeout
+     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @param timeout   Timeout in milliseconds; 0 for no timeout (Default: 0)
      *  @return          0 on success, or error code on failure
      */
     virtual nsapi_error_t connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
-                                  unsigned timeout = 0) = 0;
+                                  uint8_t channel = 0, unsigned timeout = 0) = 0;
 
     /** Start the interface
      *
      *  Attempts to connect to a WiFi network asynchronously, the call will return straight away. If the @a cb was NULL
      *  you'll need to query @a get_state until it's in NSAPI_IF_STATE_CONNECTED state, otherwise the @a cb will be
-     *  called with connection results.
+     *  called with connection results, connected AP details and user data.
      *
      *  Note: @a ssid and @a pass must be kept until the connection is made, that is the callback has been called or the
      *        state changed to @a NSAPI_IF_STATE_CONNECTED as they are passed by value.
      *
      *  @param ssid      Name of the network to connect to
      *  @param pass      Security passphrase to connect to the network
-     *  @param security  Type of encryption for connection
-     *  @param cb        Function to be called when the connect finishes
-     *  @param data      Arbitrary user data to pass to @a cb function
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
+     *  @param cb        Function to be called when the connect finishes (Default: NULL)
+     *  @param data      Arbitrary user data to pass to @a cb function (Default: NULL)
+     *  @param timeout   Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
     virtual void connect_async(const char *ssid, const char *pass,nsapi_security_t security = NSAPI_SECURITY_NONE,
-                               wifi_connect_cb_t cb = NULL, void *data = NULL) = 0;
+                               uint8_t channel = 0, wifi_connect_cb_t cb = NULL, void *data = NULL,
+                               unsigned timeout = 0) = 0;
 
     /** Stop the interface
      *
@@ -77,7 +81,7 @@ public:
 
     /** Get the local MAC address
      *
-     *  @return         Null-terminated representation of the local MAC address
+     *  @return         Null-terminated representation of the local MAC address in "00:11:22:33:44:55" form
      */
     virtual const char *get_mac_address() = 0;
 
@@ -99,7 +103,7 @@ public:
      *
      * @param  ap       Pointer to allocated array to store discovered AP
      * @param  count    Size of allocated @a res array, or 0 to only count available AP
-     * @param  timeout  Timeout in milliseconds; 0 for no timeout
+     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *                  see @a nsapi_error
      */
@@ -112,9 +116,10 @@ public:
      * will be always called at least once.
      *
      * @param  cb    Function to be called for every discovered network
-     * @param  data  A user handle that will be passed to @a cb along with the AP data
+     * @param  data  User handle that will be passed to @a cb along with the AP data (Default: NULL)
+     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
-    virtual void scan_async(wifi_ap_scan_cb_t cb, void *data = NULL) = 0;
+    virtual void scan_async(wifi_ap_scan_cb_t cb, void *data = NULL, unsigned timeout = 0) = 0;
 };
 
 #endif

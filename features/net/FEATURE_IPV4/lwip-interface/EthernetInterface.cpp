@@ -21,7 +21,7 @@
 /* Interface implementation */
 int EthernetInterface::connect()
 {
-    return lwip_bringup();
+    return lwip_bringup(NULL);
 }
 
 int EthernetInterface::disconnect()
