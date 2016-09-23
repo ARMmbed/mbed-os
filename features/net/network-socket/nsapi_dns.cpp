@@ -22,7 +22,7 @@
 
 
 // DNS options
-#define DNS_BUFFER_SIZE 256 
+#define DNS_BUFFER_SIZE 256
 #define DNS_TIMEOUT 5000
 #define DNS_SERVERS_SIZE 5
 
@@ -45,111 +45,6 @@ extern "C" int nsapi_dns_add_server(nsapi_addr_t addr)
     return 0;
 }
 
-// IP parsing
-static bool dns_parse_ipv4(const char *host, nsapi_addr_t *addr)
-{
-    int i = 0;
-
-    // Check each digit for [0-9.]
-    for (; host[i]; i++) {
-        if (!(host[i] >= '0' && host[i] <= '9') && host[i] != '.') {
-            return false;
-        }
-    }
-
-    // Ending with '.' garuntees host
-    if (i > 0 && host[i-1] == '.') {
-        return false;
-    }
-
-    // Build up the ip address
-    addr->version = NSAPI_IPv4;
-    i = 0;
-
-    for (int count = 0; count < NSAPI_IPv4_BYTES; count++) {
-        int scanned = sscanf(&host[i], "%hhu", &addr->bytes[count]);
-        if (scanned < 1) {
-            return true;
-        }
-
-        for (; host[i] != '.'; i++) {
-            if (!host[i]) {
-                return true;
-            }
-        }
-
-        i++;
-    }
-
-    return true;
-}
-
-static int dns_parse_ipv6_chunk(const char *chunk, uint16_t *shorts) {
-    int count = 0;
-    int i = 0;
-
-    for (; count < NSAPI_IPv6_BYTES/2; count++) {
-        int scanned = sscanf(&chunk[i], "%hx", &shorts[count]);
-        if (scanned < 1) {
-            return count;
-        }
-
-        for (; chunk[i] != ':'; i++) {
-            if (!chunk[i]) {
-                return count+1;
-            }
-        }
-
-        i++;
-    }
-
-    return count;
-}
-
-static bool dns_parse_ipv6(const char *host, nsapi_addr_t *addr)
-{
-    // Check each digit for [0-9a-fA-F:]
-    for (int i = 0; host[i]; i++) {
-        if (!(host[i] >= '0' && host[i] <= '9') &&
-            !(host[i] >= 'a' && host[i] <= 'f') &&
-            !(host[i] >= 'A' && host[i] <= 'F') &&
-            host[i] != ':') {
-            return false;
-        }
-    }
-
-    // Build up address
-    addr->version = NSAPI_IPv6;
-
-    // Start with zeroed address
-    uint16_t shorts[NSAPI_IPv6_BYTES/2];
-    memset(shorts, 0, sizeof shorts);
-
-    int suffix = 0;
-
-    // Find double colons and scan suffix
-    for (int i = 0; host[i]; i++) {
-        if (host[i] == ':' && host[i+1] == ':') {
-            suffix = dns_parse_ipv6_chunk(&host[i+2], shorts);
-            break;
-        }
-    }
-
-    // Move suffix to end
-    memmove(&shorts[NSAPI_IPv6_BYTES/2-suffix], &shorts[0],
-            suffix*sizeof(uint16_t));
-
-    // Scan prefix
-    dns_parse_ipv6_chunk(&host[0], shorts);
-
-    // Flip bytes
-    for (int i = 0; i < NSAPI_IPv6_BYTES/2; i++) {
-        addr->bytes[2*i+0] = (uint8_t)(shorts[i] >> 8);
-        addr->bytes[2*i+1] = (uint8_t)(shorts[i] >> 0);
-    }
-
-    return true;
-}
 
 // DNS packet parsing
 static void dns_append_byte(uint8_t **p, uint8_t byte)
@@ -305,14 +200,14 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
     }
 
     // check for simple ip addresses
-    if (version == NSAPI_IPv4) {
-        if (dns_parse_ipv4(host, addr)) {
-            return 0;
+    SocketAddress address;
+    if (address.set_ip_address(host)) {
+        if (address.get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
         }
-    } else if (version == NSAPI_IPv6) {
-        if (dns_parse_ipv6(host, addr)) {
-            return 0;
-        }
+
+        *addr = address.get_addr();
+        return 0;
     }
 
     // create a udp socket

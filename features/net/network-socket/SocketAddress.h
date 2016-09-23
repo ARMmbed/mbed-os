@@ -85,8 +85,10 @@ public:
     /** Set the IP address
      *
      *  @param addr     Null-terminated represention of the IP address
+     *  @return         True if address is a valid representation of an IP address,
+     *                  otherwise False and SocketAddress is set to null
      */
-    void set_ip_address(const char *addr);
+    bool set_ip_address(const char *addr);
 
     /** Set the raw IP bytes and IP version
      *
