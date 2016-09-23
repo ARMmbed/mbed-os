@@ -22,7 +22,7 @@
 
 
 // DNS options
-#define DNS_BUFFER_SIZE 256
+#define DNS_BUFFER_SIZE 512
 #define DNS_TIMEOUT 5000
 #define DNS_SERVERS_SIZE 5
 
