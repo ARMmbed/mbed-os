@@ -30,6 +30,9 @@ BUILD_DIR = abspath(join(ROOT, ".build"))
 # ARM Compiler 5
 ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
 
+# ARM Compiler 6
+ARMC6_PATH = ""
+
 # GCC ARM
 GCC_ARM_PATH = ""
 
