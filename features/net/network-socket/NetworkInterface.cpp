@@ -1,4 +1,4 @@
-/* EthInterface
+/* Socket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,41 @@
  * limitations under the License.
  */
 
-#ifndef ETH_INTERFACE_H
-#define ETH_INTERFACE_H
-
 #include "network-socket/NetworkInterface.h"
+#include <string.h>
 
 
-/** EthInterface class
- *
- *  Common interface that is shared between ethernet hardware.
- */
-class EthInterface : public NetworkInterface
+const char *NetworkInterface::get_mac_address()
 {
-};
+    return 0;
+}
 
+const char *NetworkInterface::get_ip_address()
+{
+    return 0;
+}
 
-#endif
+const char *NetworkInterface::get_netmask()
+{
+    return 0;
+}
+
+const char *NetworkInterface::get_gateway()
+{
+    return 0;
+}
+
+int NetworkInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int NetworkInterface::set_dhcp(bool dhcp)
+{
+    if (!dhcp) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    } else {
+        return 0;
+    }
+}
+

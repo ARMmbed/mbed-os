@@ -89,9 +89,11 @@ static void lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t 
 
 /* TCP/IP and Network Interface Initialisation */
 static struct netif lwip_netif;
-
-static char lwip_ip_addr[NSAPI_IP_SIZE] = "\0";
-static char lwip_mac_addr[NSAPI_MAC_SIZE] = "\0";
+static bool lwip_dhcp = false;
+static char lwip_mac_address[NSAPI_MAC_SIZE] = "\0";
+static char lwip_ip_address[NSAPI_IPv4_SIZE] = "\0";
+static char lwip_netmask[NSAPI_IPv4_SIZE] = "\0";
+static char lwip_gateway[NSAPI_IPv4_SIZE] = "\0";
 
 static sys_sem_t lwip_tcpip_inited;
 static void lwip_tcpip_init_irq(void *eh)
@@ -111,7 +113,9 @@ static sys_sem_t lwip_netif_up;
 static void lwip_netif_status_irq(struct netif *lwip_netif)
 {
     if (netif_is_up(lwip_netif)) {
-        strcpy(lwip_ip_addr, inet_ntoa(lwip_netif->ip_addr));
+        strcpy(lwip_ip_address, inet_ntoa(lwip_netif->ip_addr));
+        strcpy(lwip_netmask, inet_ntoa(lwip_netif->netmask));
+        strcpy(lwip_gateway, inet_ntoa(lwip_netif->gw));
         sys_sem_signal(&lwip_netif_up);
     }
 }
@@ -119,13 +123,13 @@ static void lwip_netif_status_irq(struct netif *lwip_netif)
 static void lwip_set_mac_address(void)
 {
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
-    snprintf(lwip_mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
+    snprintf(lwip_mac_address, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
             MBED_MAC_ADDR_0, MBED_MAC_ADDR_1, MBED_MAC_ADDR_2,
             MBED_MAC_ADDR_3, MBED_MAC_ADDR_4, MBED_MAC_ADDR_5);
 #else
     char mac[6];
     mbed_mac_address(mac);
-    snprintf(lwip_mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
+    snprintf(lwip_mac_address, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
 }
@@ -134,15 +138,26 @@ static void lwip_set_mac_address(void)
 /* LWIP interface implementation */
 const char *lwip_get_mac_address(void)
 {
-    return lwip_mac_addr[0] ? lwip_mac_addr : 0;
+    return lwip_mac_address[0] ? lwip_mac_address : 0;
 }
 
 const char *lwip_get_ip_address(void)
 {
-    return lwip_ip_addr[0] ? lwip_ip_addr : 0;
+    return lwip_ip_address[0] ? lwip_ip_address : 0;
 }
 
-int lwip_bringup(void)
+const char *lwip_get_netmask(void)
+{
+    return lwip_netmask[0] ? lwip_netmask : 0;
+}
+
+const char *lwip_get_gateway(void)
+{
+    return lwip_gateway[0] ? lwip_gateway : 0;
+}
+
+
+int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
     // Check if we've already connected
     if (lwip_get_ip_address()) {
@@ -162,6 +177,7 @@ int lwip_bringup(void)
         sys_arch_sem_wait(&lwip_tcpip_inited, 0);
 
         memset(&lwip_netif, 0, sizeof lwip_netif);
+
         netif_add(&lwip_netif, 0, 0, 0, NULL, eth_arch_enetif_init, tcpip_input);
         netif_set_default(&lwip_netif);
 
@@ -175,7 +191,26 @@ int lwip_bringup(void)
     lwip_arena_init();
 
     // Connect to the network
-    dhcp_start(&lwip_netif);
+    lwip_dhcp = dhcp;
+    if (lwip_dhcp) {
+        err_t err = dhcp_start(&lwip_netif);
+        if (err) {
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+    } else {
+        ip_addr_t ip_addr;
+        ip_addr_t netmask_addr;
+        ip_addr_t gw_addr;
+
+        if (!inet_aton(ip, &ip_addr) ||
+            !inet_aton(netmask, &netmask_addr) ||
+            !inet_aton(gw, &gw_addr)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+
+        netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
+        netif_set_up(&lwip_netif);
+    }
 
     // Wait for an IP Address
     u32_t ret = sys_arch_sem_wait(&lwip_netif_up, 15000);
@@ -194,9 +229,17 @@ int lwip_bringdown(void)
     }
 
     // Disconnect from the network
-    dhcp_release(&lwip_netif);
-    dhcp_stop(&lwip_netif);
-    lwip_ip_addr[0] = '\0';
+    if (lwip_dhcp) {
+        dhcp_release(&lwip_netif);
+        dhcp_stop(&lwip_netif);
+        lwip_dhcp = false;
+
+        lwip_ip_address[0] = '\0';
+        lwip_netmask[0] = '\0';
+        lwip_gateway[0] = '\0';
+    } else {
+        netif_set_down(&lwip_netif);
+    }
 
     return 0;
 }
@@ -230,18 +273,6 @@ static int lwip_err_remap(err_t err) {
 
 
 /* LWIP network stack implementation */
-static nsapi_addr_t lwip_getaddr(nsapi_stack_t *stack)
-{
-    if (!lwip_get_ip_address()) {
-        return (nsapi_addr_t){0};
-    }
-
-    nsapi_addr_t addr;
-    addr.version = NSAPI_IPv4;
-    inet_aton(lwip_get_ip_address(), (ip_addr_t *)addr.bytes);
-    return addr;
-}
-
 static int lwip_gethostbyname(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host)
 {
     err_t err = netconn_gethostbyname(host, (ip_addr_t *)addr->bytes);
@@ -487,7 +518,6 @@ static void lwip_socket_attach(nsapi_stack_t *stack, nsapi_socket_t handle, void
 
 /* LWIP network stack */
 const nsapi_stack_api_t lwip_stack_api = {
-    .get_ip_address     = lwip_getaddr,
     .gethostbyname      = lwip_gethostbyname,
     .socket_open        = lwip_socket_open,
     .socket_close       = lwip_socket_close,

@@ -25,13 +25,15 @@ extern "C" {
 
 
 // Access to lwip through the nsapi
-int lwip_bringup(void);
+int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
 int lwip_bringdown(void);
-
-extern nsapi_stack_t lwip_stack;
 
 const char *lwip_get_mac_address(void);
 const char *lwip_get_ip_address(void);
+const char *lwip_get_netmask(void);
+const char *lwip_get_gateway(void);
+
+extern nsapi_stack_t lwip_stack;
 
 
 #ifdef __cplusplus
