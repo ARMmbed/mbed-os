@@ -30,9 +30,23 @@
 #include "ble/GapEvents.h"
 #include "nRF5xn.h"
 
+#ifdef S110
+    #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
+#elif defined(S130) || defined(S132)
+    #define IS_LEGACY_DEVICE_MANAGER_ENABLED 0
+#endif
+
 extern "C" {
-#include "pstorage.h"
-#include "device_manager.h"
+#if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
+    #include "pstorage.h"
+    #include "device_manager.h"
+#else
+    #include "fstorage.h"
+    #include "fds.h"
+    #include "peer_manager.h"
+    #include "ble_conn_state.h"
+#endif
+
 #include "softdevice_handler.h"
 #include "ble_stack_handler_types.h"
 }
@@ -70,7 +84,12 @@ static void btle_handler(ble_evt_t *p_ble_evt);
 
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
+#if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
     pstorage_sys_event_handler(sys_evt);
+#else
+    // Forward Softdevice events to the fstorage module
+    fs_sys_event_handler(sys_evt);
+#endif
 }
 
 /**
@@ -160,7 +179,16 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     ble_conn_params_on_ble_evt(p_ble_evt);
 #endif
 
+#if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
     dm_ble_evt_handler(p_ble_evt);
+#else
+    // Forward BLE events to the Connection State module.
+    // This must be called before any event handler that uses this module.
+    ble_conn_state_on_ble_evt(p_ble_evt);
+
+    // Forward BLE events to the Peer Manager
+    pm_on_ble_evt(p_ble_evt);
+#endif
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
     bleGattcEventHandler(p_ble_evt);
