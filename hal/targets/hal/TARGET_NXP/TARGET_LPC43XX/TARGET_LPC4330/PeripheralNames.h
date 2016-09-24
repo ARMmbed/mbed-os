@@ -45,7 +45,23 @@ typedef enum {
     ADC1_4,
     ADC1_5,
     ADC1_6,
-    ADC1_7
+    ADC1_7,
+    ADC_pin0_0,
+    ADC_pin0_1,
+    ADC_pin0_2,
+    ADC_pin0_3,
+    ADC_pin0_4,
+    ADC_pin0_5,
+    ADC_pin0_6,
+    ADC_pin0_7,
+    ADC_pin1_0,
+    ADC_pin1_1,
+    ADC_pin1_2,
+    ADC_pin1_3,
+    ADC_pin1_4,
+    ADC_pin1_5,
+    ADC_pin1_6,
+    ADC_pin1_7
 } ADCName;
 
 typedef enum {
