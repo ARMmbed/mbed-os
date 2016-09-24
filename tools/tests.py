@@ -1207,7 +1207,7 @@ class Test:
         #'mcu': None,
         'description': None,
         'dependencies': None,
-        'duration': 10,
+        'duration': 20,
         'host_test': 'host_test',
         'automated': False,
         'peripherals': None,
