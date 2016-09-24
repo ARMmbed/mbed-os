@@ -543,6 +543,11 @@ static __inline char __get_mode(void) {
 }
 
 static __inline char __exceptional_mode(void) {
+    // Interrupts disabled
+    if (__get_CPSR() & 0x80) {
+        return 1;
+    }
+
     switch(__get_mode()) {
         case MODE_USR:
         case MODE_SYS:
