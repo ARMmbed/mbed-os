@@ -24,9 +24,11 @@
 #endif
 
 WEAK void error(const char* format, ...) {
+#ifndef NDEBUG
     va_list arg;
     va_start(arg, format);
     mbed_error_vfprintf(format, arg);
     va_end(arg);
+#endif
     exit(1);
 }
