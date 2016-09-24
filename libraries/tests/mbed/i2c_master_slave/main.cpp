@@ -8,14 +8,24 @@
 // ********************************************************
 // This tests data transfer between two I2C interfaces on
 // the same chip, one configured as master, the other as
-// slave. Works on the LPC1768 mbed.
+// slave. Works on:
 //
-// Wiring:
+// *LPC1768 mbed
 //   p28 <-> p9
 //   p27 <-> p10
 //   pull-up resistors on both lines
+// *STM32F4 boards
+//   cf below for wiring
+//
 // ********************************************************
 
+#if defined(TARGET_NUCLEO_F411RE) || defined (TARGET_NUCLEO_F446RE) || defined (TARGET_NUCLEO_F410RB) || defined (TARGET_NUCLEO_F401RE)
+I2C master(PB_9, PB_8); // I2C_1 (Arduino: D14/D15)
+I2CSlave slave(PB_3, PB_10); // I2C_2 (Arduino: D3/D6)
+#elif defined (TARGET_NUCLEO_F429ZI) || defined (TARGET_DISCO_F429ZI) || defined (TARGET_NUCLEO_F446ZE)
+I2C master(PB_9, PB_8); // I2C_1 (Arduino: D14/D15)
+I2CSlave slave(PB_11, PB_10); // I2C_2
+#endif
 
 int main()
 {
