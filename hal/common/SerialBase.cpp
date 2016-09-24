@@ -31,7 +31,7 @@ SerialBase::SerialBase(PinName tx, PinName rx) :
                                                 _serial(), _baud(9600) {
     // No lock needed in the constructor
 
-    for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
         _irq[i].attach(donothing);
     }
 
