@@ -1,5 +1,131 @@
 # Change Log
 
+## [v3.0.2](https://github.com/ARMmbed/mbed-client-c/releases/tag/v3.0.2) (24-Sep-2016)
+[Full Changelog](https://github.com/ARMmbed/mbed-client-c/compare/v3.0.1...v3.0.2)
+
+**New feature**
+
+- Make resending flags configurable through Yotta and mbed-cli build systems
+- Introducing Configuration management through Config file
+
+**Closed issues:**
+
+- IOTCLT-882 - Confirmable messages sending
+
+**Merged pull requests:**
+
+commit 58f712b9f684bede1905ce35a1a39ebb257c049c (HEAD, tag: v3.0.2, origin/master, origin/HEAD, master)
+Author: Yogesh Pande <Yogesh.Pande@arm.com>
+Date:   Sat Sep 24 15:04:36 2016 +0300
+
+    version v3.0.2
+
+commit 39d5e98025f3d8067cea85c4a06470e0e9374812
+Merge: cf4c119 31d6566
+Author: Yogesh Pande <yogpan01@users.noreply.github.com>
+Date:   Sat Sep 24 14:51:30 2016 +0300
+
+    Merge pull request #79 from ARMmbed/config-mechanism
+    
+    Introducing Configuration management through Config file
+
+commit 31d6566dddfe449e87819244027b847f53f53a96 (origin/config-mechanism)
+Author: Yogesh Pande <Yogesh.Pande@arm.com>
+Date:   Sat Sep 24 12:53:47 2016 +0300
+
+    Fixing valgrind with unit tests
+
+commit a95a90a31e8f6123d14df84688b4e2e2f32e5507
+Author: Yogesh Pande <Yogesh.Pande@arm.com>
+Date:   Sat Sep 24 12:00:44 2016 +0300
+
+    Fixing valgrind memory leaks for unit tests
+
+commit 248fc713a4303cb1f724d10f4aa6d68933bb5aed
+Author: Yogesh Pande <Yogesh.Pande@arm.com>
+Date:   Sat Sep 24 11:32:01 2016 +0300
+
+    Fix for failing unit tests
+
+commit cec0980b4ccff9708cd0130fea936a69839739b8
+Merge: cf09b2b cf4c119
+Author: Yogesh Pande <yogpan01@users.noreply.github.com>
+Date:   Thu Sep 22 18:02:39 2016 +0300
+
+    Merge branch 'master' into config-mechanism
+
+commit cf4c1196520d64bf863b39efefc663ee60e58c61
+Merge: 330a16b f5f15cc
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Thu Sep 22 12:55:33 2016 +0300
+
+    Merge pull request #80 from ARMmbed/revert-77-duplication
+    
+    Revert "Enable message duplication by default"
+
+commit f5f15ccce5fd719aa8d7de14a583d02fd0fd05b9 (origin/revert-77-duplication)
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Thu Sep 22 12:30:50 2016 +0300
+
+    Revert "Enable message duplication by default"
+
+commit cf09b2b6233bf897a17bdb0102962947df87f4ae
+Author: Yogesh Pande <Yogesh.Pande@arm.com>
+Date:   Thu Sep 22 09:57:41 2016 +0300
+
+    Fixed comments from PR#79
+    
+    This commit includes
+     - Fixing comments from PR-79
+
+commit 8fd7cc258168047c29aca27a659de448f45e0e6f
+Author: Yogesh Pande <Yogesh.Pande@arm.com>
+Date:   Wed Sep 21 20:42:28 2016 +0300
+
+    Introducing Configuration management through Config file
+    
+    This commit includes
+     - Support for configuring various build time parameters throuh user supplied config file
+      that can be passed at compile time through Makefile system which will work for
+      non mbed-OS and non yotta build system as well.
+
+commit 330a16bbfc5dc597015c7bdd935b603282d7064e
+Merge: b7d909e e268081
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Sep 21 12:05:29 2016 +0300
+
+    Merge pull request #78 from ARMmbed/resend_flags
+    
+    Make resend flags configurable through Yotta and mbed-cli build sy…
+
+commit e268081bae1fa1db3b5b64dfb77d5b7a5bfed748
+Merge: dc16b29 b7d909e
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Sep 21 12:02:32 2016 +0300
+
+    Merge branch 'master' into resend_flags
+
+commit b7d909eca1c2259453dbe9c094b8a0c53d638fea
+Merge: 7f0eaea ad3b468
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Sep 21 12:02:15 2016 +0300
+
+    Merge pull request #77 from ARMmbed/duplication
+    
+    Enable message duplication by default
+
+commit dc16b299ab9ff4bd1eaa9d3ec120fa58180820c4
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Mon Sep 19 14:35:31 2016 +0300
+
+    Make resending flags configurable through Yotta and mbed-cli build systems
+
+commit ad3b46881bb61dfc2510d13d373bcd1faad114f4
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Fri Sep 16 08:58:38 2016 +0300
+
+    Enable message duplication by default
+
 ## [v3.0.1](https://github.com/ARMmbed/mbed-client-c/releases/tag/v3.0.1) (15-Sep-2016)
 [Full Changelog](https://github.com/ARMmbed/mbed-client-c/compare/mbed-os-5.0-rc1...v3.0.1)
 
