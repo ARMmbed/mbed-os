@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@
  */
 #include "rtc_api.h"
 #include "rtc_api_hal.h"
-#include "stm32f0xx.h"
-#include "stm32f0xx_hal_rtc_ex.h"
 
 #if DEVICE_RTC
 
@@ -42,60 +40,27 @@ static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
 
+#if DEVICE_RTC_LSI
+    #define RTC_CLOCK LSI_VALUE
+#else
+    #define RTC_CLOCK LSE_VALUE
+#endif
+
 #if DEVICE_LOWPOWERTIMER
-static uint32_t m_synch_prediv = RTC_SYNCH_PREDIV;
-static uint32_t m_asynch_prediv = RTC_ASYNCH_PREDIV;
+    #define RTC_ASYNCH_PREDIV ((RTC_CLOCK - 1) / 0x8000)
+    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
+#else
+    #define RTC_ASYNCH_PREDIV (0x007F)
+    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)    
+#endif
 
-static void (*irq_handler)(void);
-
-static void rtc_configure_time_and_date()
-{
-    RTC_TimeTypeDef mTime;
-    RTC_DateTypeDef mDate;
-
-    mDate.WeekDay = 1;
-    mDate.Month = 1;
-    mDate.Date = 1;
-    mDate.Year = 2;
-    if (HAL_RTC_SetDate(&RtcHandle, &mDate, RTC_FORMAT_BIN) != HAL_OK) {
-        error("Date set failed\n");
-    }
-
-    mTime.Hours = 0;
-    mTime.Minutes = 0;
-    mTime.Seconds = 0;
-    mTime.TimeFormat = RTC_HOURFORMAT_24;
-    mTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    mTime.StoreOperation = RTC_STOREOPERATION_RESET;
-    if (HAL_RTC_SetTime(&RtcHandle, &mTime, RTC_FORMAT_BIN) != HAL_OK) {
-        error("Time set failed\n");
-    }
-}
-
-void RTC_IRQHandler()
-{
-    HAL_RTC_AlarmIRQHandler(&RtcHandle);
-}
-
-void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
-{
-    if (irq_handler)
-    {
-        // Fire the user callback
-        irq_handler();
-    }
-}
-
-void rtc_set_irq_handler(uint32_t handler)
-{
-    irq_handler = (void (*)(void)) handler;
-}
-
+#if DEVICE_LOWPOWERTIMER
+    static void (*irq_handler)(void);
+    static void RTC_IRQHandler(void);
 #endif
 
 void rtc_init(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct;
-    uint32_t rtc_freq = 0;
 
 #if DEVICE_RTC_LSI
     if (rtc_inited) return;
@@ -113,7 +78,6 @@ void rtc_init(void) {
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) { // Check if LSE has started correctly
         // Connect LSE to RTC
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-        rtc_freq = LSE_VALUE;
     } else {
 	    error("Cannot initialize RTC with LSE\n");
     }
@@ -128,32 +92,24 @@ void rtc_init(void) {
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 	
-	// Enable LSI clock
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-	RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-	RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		error("Cannot initialize RTC with LSI\n");
-	}
-	// Connect LSI to RTC
-	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-	// This value is LSI typical value. To be measured precisely using a timer input capture for example.
-	rtc_freq = LSI_VALUE;
+    // Enable LSI clock
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        error("Cannot initialize RTC with LSI\n");
+    }
+    // Connect LSI to RTC
+    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
 #endif
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
 
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-#if !DEVICE_LOWPOWERTIMER
-    RtcHandle.Init.AsynchPrediv   = 127;
-    RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
-#else
-    RtcHandle.Init.AsynchPrediv   = m_asynch_prediv;
-    RtcHandle.Init.SynchPrediv    = m_synch_prediv;
-#endif
-
+    RtcHandle.Init.AsynchPrediv   = RTC_ASYNCH_PREDIV;
+    RtcHandle.Init.SynchPrediv    = RTC_SYNCH_PREDIV;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
@@ -163,9 +119,17 @@ void rtc_init(void) {
     }
 
 #if DEVICE_LOWPOWERTIMER
-    rtc_configure_time_and_date();
-    NVIC_SetVector(RTC_IRQn, (uint32_t)&RTC_IRQHandler);
-    HAL_NVIC_EnableIRQ(RTC_IRQn);
+#if DEVICE_RTC_LSI
+    rtc_write(0);
+#else
+    if (!rtc_isenabled()) {
+        rtc_write(0);
+    }
+#endif
+    NVIC_ClearPendingIRQ(RTC_IRQn);
+    NVIC_DisableIRQ(RTC_IRQn);
+    NVIC_SetVector(RTC_IRQn, (uint32_t)RTC_IRQHandler);
+    NVIC_EnableIRQ(RTC_IRQn);
 #endif
 }
 
@@ -203,9 +167,9 @@ int rtc_isenabled(void) {
   return rtc_inited;
 #else
   if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
-    return 1;
+      return 1;
   } else {
-    return 0;
+      return 0;
   }
 #endif
 }
@@ -282,46 +246,48 @@ void rtc_write(time_t t) {
 }
 
 #if DEVICE_LOWPOWERTIMER
-void rtc_set_alarm(struct tm *ti, uint32_t subsecs)
+
+static void RTC_IRQHandler(void)
 {
-    RTC_AlarmTypeDef mAlarm;
+    HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
+}
 
-    mAlarm.AlarmTime.Hours = ti->tm_hour;
-    mAlarm.AlarmTime.Minutes = ti->tm_min;
-    mAlarm.AlarmTime.Seconds = ti->tm_sec;
-    mAlarm.AlarmTime.SubSeconds = subsecs;
-    mAlarm.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
-    mAlarm.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;
-    mAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
-    mAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
-    mAlarm.AlarmDateWeekDay = 1;
-    mAlarm.Alarm = RTC_ALARM_A;
-
-    if (HAL_RTC_SetAlarm_IT(&RtcHandle, &mAlarm, RTC_FORMAT_BIN) != HAL_OK) {
-        error("Set Alarm failed\n");
+void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
+{
+    if (irq_handler) {
+        // Fire the user callback
+        irq_handler();
     }
 }
 
-void rtc_reconfigure_prescalers()
+void rtc_set_irq_handler(uint32_t handler)
 {
-    m_synch_prediv = 0x3FF;
-    m_asynch_prediv = 0x1F;
-    rtc_init();
+    irq_handler = (void (*)(void))handler;
 }
 
-uint32_t rtc_ticker_get_synch_presc()
+uint32_t rtc_read_subseconds(void)
 {
-    return m_synch_prediv;
+    return 1000000.f * ((double)(RTC_SYNCH_PREDIV - RTC->SSR) / (RTC_SYNCH_PREDIV + 1));
 }
 
-uint32_t rtc_read_subseconds()
+void rtc_set_wake_up_timer(uint32_t delta)
 {
-    return RTC->SSR;
+    uint32_t wake_up_counter = delta / (2000000 / RTC_CLOCK);
+  
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, wake_up_counter,
+                                    RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK) {
+        error("Set wake up timer failed\n");
+    }
 }
 
-void rtc_ticker_disable_irq()
+void rtc_deactivate_wake_up_timer(void)
 {
-    HAL_RTC_DeactivateAlarm(&RtcHandle, RTC_ALARM_A);
+    HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
+}
+
+void rtc_synchronize(void)
+{
+    HAL_RTC_WaitForSynchro(&RtcHandle);
 }
 #endif // DEVICE_LOWPOWERTIMER
 

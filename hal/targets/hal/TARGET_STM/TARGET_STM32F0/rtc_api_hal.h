@@ -41,18 +41,36 @@ extern "C" {
  * Extend rtc_api.h
  */
 
-// Prescaler values for LSE clock
-#define RTC_ASYNCH_PREDIV   0x7F
-#define RTC_SYNCH_PREDIV    0x00FF
-
+/** Set the given function as handler of wakeup timer event.
+ *
+ * @param handler    The function to set as handler
+ */
 void rtc_set_irq_handler(uint32_t handler);
 
-void rtc_ticker_disable_irq();
-uint32_t rtc_ticker_get_synch_presc();
+/** Read the subsecond register.
+ *
+ * @return The remaining time as microseconds (0-999999)
+ */
+uint32_t rtc_read_subseconds(void);
 
-void rtc_set_alarm(struct tm *ti, uint32_t subsecs);
-uint32_t rtc_read_subseconds();
-void rtc_reconfigure_prescalers();
+/** Program a wake up timer event in delta microseconds.
+ *
+ * @param delta    The time to wait
+ */
+void rtc_set_wake_up_timer(uint32_t delta);
+
+/** Disable the wake up timer event.
+ *
+ * The wake up timer use auto reload, you have to deactivate it manually.
+ */
+void rtc_deactivate_wake_up_timer(void);
+
+/** Synchronise the RTC shadow registers.
+ *
+ * Must be called after a deepsleep.
+ */
+void rtc_synchronize(void);
+
 
 #ifdef __cplusplus
 }
