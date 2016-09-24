@@ -51,7 +51,7 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     60
+#define OS_TCB_SIZE     64
 #define OS_TMR_SIZE     8
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
