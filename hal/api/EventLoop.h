@@ -91,12 +91,14 @@ public:
     bool start();
 
     /** Stops the event queue thread
+     *  @returns true if the thread stop operation was succesful, false otherwise.
      */
-    void stop();
+    bool stop();
 
 private:
     DynamicMail<queue_event_t> _queue;
     Thread _thread;
+    volatile bool _stop_request;
 
     void dispatch(void);
 };
