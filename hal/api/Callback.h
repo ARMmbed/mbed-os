@@ -291,7 +291,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -311,7 +311,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -331,7 +331,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -351,7 +351,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1000,7 +1000,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1020,7 +1020,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1040,7 +1040,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1060,7 +1060,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1709,7 +1709,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1729,7 +1729,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1749,7 +1749,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -1769,7 +1769,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -2418,7 +2418,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -2438,7 +2438,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -2458,7 +2458,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -2478,7 +2478,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3127,7 +3127,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3147,7 +3147,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3167,7 +3167,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3187,7 +3187,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3836,7 +3836,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3856,7 +3856,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3876,7 +3876,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
@@ -3896,7 +3896,7 @@ public:
         };
 
         memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
+        memcpy(&_func, &method, sizeof method);
         _obj = (void*)obj;
         _thunk = &local::_thunk;
     }
