@@ -574,7 +574,6 @@ int greentea_parse_kv(char *out_key,
             break;
         }
     }
-    return 0;
 }
 
 /**
