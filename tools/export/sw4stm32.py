@@ -24,7 +24,7 @@ class Sw4STM32(Exporter):
     NAME = 'Sw4STM32'
     TOOLCHAIN = 'GCC_ARM'
 
-    # fp_hardware = no | fpv4-sp-d16
+    # fp_hardware = no | fpv4-sp-d16 | fpv5-d16
     # fp_abi = soft | softfp | hard
     BOARDS = {
         'B96B_F446VE':      {'name': 'B96B-F446VE',           'mcuId': 'STM32F446VETx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
@@ -36,7 +36,7 @@ class Sw4STM32(Exporter):
         'DISCO_F429ZI':     {'name': 'STM32F429I-DISCO',      'mcuId': 'STM32F429ZITx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
         'DISCO_F469NI':     {'name': 'DISCO-F469NI',          'mcuId': 'STM32F469NIHx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
         'DISCO_F746NG':     {'name': 'STM32F746G-DISCO',      'mcuId': 'STM32F746NGHx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
-        'DISCO_F769NI':     {'name': 'DISCO-F769NI',          'mcuId': 'STM32F769NIHx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
+        'DISCO_F769NI':     {'name': 'DISCO-F769NI',          'mcuId': 'STM32F769NIHx', 'fp_hardware': 'fpv5-d16',      'fp_abi': 'softfp'},
         'DISCO_L053C8':     {'name': 'STM32L0538DISCOVERY',   'mcuId': 'STM32L053C8Tx', 'fp_hardware': 'no',            'fp_abi': 'soft'  },
         'DISCO_L476VG':     {'name': 'STM32L476G-DISCO',      'mcuId': 'STM32L476VGTx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
         'NUCLEO_F030R8':    {'name': 'NUCLEO-F030R8',         'mcuId': 'STM32F030R8Tx', 'fp_hardware': 'no',            'fp_abi': 'soft'  },
@@ -59,7 +59,7 @@ class Sw4STM32(Exporter):
         'NUCLEO_F446RE':    {'name': 'NUCLEO-F446RE',         'mcuId': 'STM32F446RETx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
         'NUCLEO_F446ZE':    {'name': 'NUCLEO-F446ZE',         'mcuId': 'STM32F446ZETx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
         'NUCLEO_F746ZG':    {'name': 'NUCLEO-F746ZG',         'mcuId': 'STM32F746ZGTx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
-        'NUCLEO_F767ZI':    {'name': 'NUCLEO-F767ZI',         'mcuId': 'STM32F767ZITx', 'fp_hardware': 'fpv4-sp-d16',   'fp_abi': 'softfp'},
+        'NUCLEO_F767ZI':    {'name': 'NUCLEO-F767ZI',         'mcuId': 'STM32F767ZITx', 'fp_hardware': 'fpv5-d16',      'fp_abi': 'softfp'},
         'NUCLEO_L011K4':    {'name': 'NUCLEO-L011K4',         'mcuId': 'STM32L011K4Tx', 'fp_hardware': 'no',            'fp_abi': 'soft'  },
         'NUCLEO_L031K6':    {'name': 'NUCLEO-L031K6',         'mcuId': 'STM32L031K6Tx', 'fp_hardware': 'no',            'fp_abi': 'soft'  },
         'NUCLEO_L053R8':    {'name': 'NUCLEO-L053R8',         'mcuId': 'STM32L053R8Tx', 'fp_hardware': 'no',            'fp_abi': 'soft'  },
