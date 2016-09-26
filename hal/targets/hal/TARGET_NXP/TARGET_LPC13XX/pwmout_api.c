@@ -69,7 +69,7 @@ static LPC_CTxxBx_Type *Timers[4] = {
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    MBED_ASSERT(pwm != (uint32_t)NC);
+    MBED_ASSERT(pwm != (PWMName)NC);
 
     obj->pwm = pwm;
     
