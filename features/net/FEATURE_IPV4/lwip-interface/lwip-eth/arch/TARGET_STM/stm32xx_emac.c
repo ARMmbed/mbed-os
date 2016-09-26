@@ -43,6 +43,8 @@ static void _eth_arch_phy_task(void *arg);
 static err_t _eth_arch_netif_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
 static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p);
 static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
+__weak uint8_t mbed_otp_mac_address(char *mac);
+void mbed_default_mac_address(char *mac);
 
 /**
  * Ethernet Rx Transfer completed callback
