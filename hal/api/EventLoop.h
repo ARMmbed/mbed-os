@@ -86,8 +86,9 @@ public:
     bool post(const queue_event_t& evt);
 
     /** Starts the event queue thread
+     *  @returns true if the thread start operation was succesful, false otherwise.
      */
-    void start();
+    bool start();
 
     /** Stops the event queue thread
      */

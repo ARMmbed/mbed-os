@@ -26,8 +26,8 @@ EventLoop::EventLoop(uint32_t size, osPriority priority, uint32_t stack_size, un
     _queue(size),_thread(priority, stack_size, stack_pointer) {
 }
 
-void EventLoop::start() {
-    _thread.start(callback(this, &EventLoop::dispatch));
+bool EventLoop::start() {
+    return _thread.start(callback(this, &EventLoop::dispatch)) == osOK;
 }
 
 void EventLoop::stop() {
