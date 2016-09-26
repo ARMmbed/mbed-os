@@ -130,7 +130,8 @@ class Uvision(Exporter):
             'device': DeviceUvision(self.target),
         }
         # Turn on FPU optimizations if the core has an FPU
-        ctx['fpu_setting'] = 1 if 'f' not in ctx['device'].core.lower() else 2
+        ctx['fpu_setting'] = 1 if 'f' not in ctx['device'].core.lower() \
+                                  or 'd' in ctx['device'].core.lower() else 2
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
 
