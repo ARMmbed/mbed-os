@@ -1,0 +1,17 @@
+{
+    "GCC_ARM": {
+        "common": ["-c", "-Wall", "-Wextra",
+                   "-Wno-unused-parameter", "-Wno-missing-field-initializers",
+                   "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
+                   "-ffunction-sections", "-fdata-sections", "-funsigned-char",
+                   "-MMD", "-fno-delete-null-pointer-checks",
+                   "-fomit-frame-pointer", "-Os", "-DMBED_RTOS_SINGLE_THREAD"],
+        "asm": ["-x", "assembler-with-cpp"],
+        "c": ["-std=gnu99"],
+        "cxx": ["-std=gnu++98", "-fno-rtti", "-Wvla"],
+        "ld": ["-Wl,--gc-sections", "-Wl,--wrap,main", "-Wl,--wrap,_malloc_r",
+               "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r",
+               "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit",
+               "--specs=nano.specs"]
+    }
+}
