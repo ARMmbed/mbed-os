@@ -1535,6 +1535,7 @@
     "NRF51_DONGLE_LEGACY": {
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dongle"},
+        "extra_labels_add": ["NRF51_DONGLE"],
         "release_versions": ["2"]
     },
     "NRF51_DONGLE_BOOT": {
