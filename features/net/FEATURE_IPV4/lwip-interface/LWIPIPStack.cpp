@@ -34,6 +34,16 @@ void IPStackInterface::bringdown()
     lwip_bringdown();
 }
 
+int IPStackInterface::start_dhcp(uint timeout)
+{
+    return lwip_start_dhcp(timeout);
+}
+
+int IPStackINterface::start_static_ip(const char *ip, const char *netmask, const char *gw)
+{
+    return lwip_start_static_ip();
+}
+
 const char * IPStackInterface::get_mac_address()
 {
     return lwip_get_mac_address();

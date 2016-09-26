@@ -403,7 +403,7 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
     }
 
     // Zero out socket set
-    lwip_arena_init();
+    lwip_arena_init(15000);
 
 #if LWIP_IPV6
     netif_create_ip6_linklocal_address(&lwip_netif, 1/*from MAC*/);
@@ -510,10 +510,6 @@ int lwip_bringdown(void)
     }
 #endif
 
-    lwip_connected = false;
-    // TO DO - actually remove addresses from stack, and shut down properly
-    return 0;
-}
 
 /* LWIP error remapping */
 static int lwip_err_remap(err_t err) {

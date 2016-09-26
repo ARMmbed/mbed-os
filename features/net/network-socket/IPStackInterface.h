@@ -44,6 +44,24 @@ public:
     virtual void bringdown();
 
     /**
+     * Sends the dhcp request
+     *
+     * @param timeout Request timeout in ms
+     * @return NSAPI_ERROR_OK in case of success, error code otherwise
+     */
+    virtual int start_dhcp(uint timeout = 15000);
+
+    /**
+     * Starts the interface with static IP
+     *
+     * @param  ip      Static IP to use (in XYZ.XYZ.XYZ.XYZ format)
+     * @param  netmask Network mask to use (in XYZ.XYZ.XYZ.XYZ format)
+     * @param  gw      Gateway IP address (in XYZ.XYZ.XYZ.XYZ format)
+     * @return         NSAPI_ERROR_OK in case of success, error code otherwise
+     */
+    virtual int start_static_ip(const char *ip, const char *netmask, const char *gw);
+
+    /**
      * Returns  MAC address
      *
      * @return MAC address in "00:11:22:33:44:55" form
