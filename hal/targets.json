@@ -1517,6 +1517,7 @@
     "NRF51_DK_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
+        "extra_labels_add": ["NRF51_DK"],
         "progen": {"target": "nrf51-dk"}
     },
     "NRF51_DK_BOOT": {
