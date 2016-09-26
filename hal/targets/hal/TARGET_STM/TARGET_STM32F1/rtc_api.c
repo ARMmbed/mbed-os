@@ -46,7 +46,7 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
-#if !DEVICE_RTC_LSI
+#if !RTC_LSI
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -94,7 +94,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-#if DEVICE_RTC_LSI
+#if RTC_LSI
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
