@@ -144,7 +144,6 @@ bool Harness::run(const Specification& specification)
         if (handlers->test_teardown) handlers->test_teardown(0, 0, failure);
         test_cases = NULL;
         exit(1);
-        return true;
     }
 
     notify_testcases();
@@ -159,7 +158,6 @@ bool Harness::run(const Specification& specification)
         if (handlers->test_teardown) handlers->test_teardown(0, 0, failure);
         test_cases = NULL;
         exit(1);
-        return true;
     }
     return true;
 }
