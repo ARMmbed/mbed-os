@@ -66,8 +66,6 @@ static LPC_CTxxBx_Type *Timers[4] = {
     LPC_CT32B0, LPC_CT32B1
 };
 
-static unsigned int pwm_clock_mhz;
-
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
@@ -91,7 +89,12 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     /* Reset Functionality on MR3 controlling the PWM period */
     timer->MCR = 1 << 10;
     
-    pwm_clock_mhz = SystemCoreClock / 1000000;
+    if (timer == LPC_CT16B0 || timer == LPC_CT16B1) {
+    /* Set 16-bit timer prescaler to avoid timer expire for default 20ms
+       This can be also modified by user application, but the prescaler value
+       might be trade-off to timer accuracy */
+        timer->PR = 30;
+    }
     
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
@@ -116,7 +119,14 @@ void pwmout_write(pwmout_t* obj, float value) {
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
     uint32_t t_off = timer->MR3 - (uint32_t)((float)(timer->MR3) * value);
     
+    // to avoid spike pulse when duty is 0%
+    if (value == 0) {
+        t_off++;
+    }
+    
+    timer->TCR = TCR_RESET;
     timer->MR[tid.mr] = t_off;
+    timer->TCR = TCR_CNT_EN;
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -124,6 +134,9 @@ float pwmout_read(pwmout_t* obj) {
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
     
     float v = (float)(timer->MR3 - timer->MR[tid.mr]) / (float)(timer->MR3);
+    if (timer->MR[tid.mr] > timer->MR3) {
+        v = 0.0f;
+    }
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
@@ -138,11 +151,11 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     int i = 0;
-    uint32_t period_ticks = pwm_clock_mhz * us;
     
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
     uint32_t old_period_ticks = timer->MR3;
+    uint32_t period_ticks = (SystemCoreClock / 1000000 * us) / (timer->PR + 1);
     
     timer->TCR = TCR_RESET;
     timer->MR3 = period_ticks;
@@ -166,9 +179,9 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    uint32_t t_on = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000);
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
+    uint32_t t_on = (uint32_t)((((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000) / (timer->PR + 1));
     
     timer->TCR = TCR_RESET;
     if (t_on > timer->MR3) {
