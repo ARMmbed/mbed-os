@@ -30,10 +30,20 @@
 #include <string.h>
 #include <inttypes.h>
 
+#define ERASE_CASE_TIMEOUT (1000)
+
 using namespace utest::v1;
 
+#if defined(TARGET_K64F)
 extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
 ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
+#elif defined(TARGET_STM)
+extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_STM32;
+ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_STM32;
+#else
+extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
+ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+#endif
 
 /* temporary buffer to hold data for testing. */
 static const unsigned BUFFER_SIZE = 16384;
@@ -282,7 +292,7 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
     TEST_ASSERT(status >= 0);
     static unsigned programIteration = 0;
 
-    static const uint32_t BYTE_PATTERN = 0xAA551122;
+    static const uint8_t BYTE_PATTERN = 0xAA;
     ARM_STORAGE_BLOCK firstBlock;
     drv->GetNextBlock(NULL, &firstBlock); /* get first block */
     TEST_ASSERT(ARM_STORAGE_VALID_BLOCK(&firstBlock));
@@ -301,9 +311,8 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
 
         size_t sizeofData = info.program_unit;
         TEST_ASSERT(BUFFER_SIZE >= sizeofData);
-        TEST_ASSERT((sizeofData % sizeof(uint32_t)) == 0);
-        for (size_t index = 0; index < sizeofData / sizeof(uint32_t); index++) {
-            ((uint32_t *)buffer)[index] = BYTE_PATTERN;
+        for (size_t index = 0; index < sizeofData; index++) {
+            ((uint8_t *)buffer)[index] = BYTE_PATTERN;
         }
 
         status = drv->ProgramData(addr, buffer, sizeofData);
@@ -371,17 +380,16 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
     TEST_ASSERT(rc >= 0);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(ERASE_CASE_TIMEOUT) + CaseRepeatAll: CaseTimeout(ERASE_CASE_TIMEOUT);
     } else {
         TEST_ASSERT_EQUAL(firstBlock.attributes.erase_unit, rc);
         verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
 
-        static const uint32_t BYTE_PATTERN = 0xAA551122;
+        static const uint8_t BYTE_PATTERN = 0xAA;
         size_t sizeofData = info.program_unit;
         TEST_ASSERT(BUFFER_SIZE >= sizeofData);
-        TEST_ASSERT((sizeofData % sizeof(uint32_t)) == 0);
-        for (size_t index = 0; index < sizeofData / sizeof(uint32_t); index++) {
-            ((uint32_t *)buffer)[index] = BYTE_PATTERN;
+        for (size_t index = 0; index < sizeofData; index++) {
+            ((uint8_t *)buffer)[index] = BYTE_PATTERN;
         }
 
         /* program the sector at addr */
@@ -493,7 +501,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
     TEST_ASSERT(rc >= 0);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(ERASE_CASE_TIMEOUT) + CaseRepeatAll: CaseTimeout(ERASE_CASE_TIMEOUT);
     } else {
         TEST_ASSERT_EQUAL(firstBlock.attributes.erase_unit, rc);
         verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
@@ -627,7 +635,7 @@ control_t test_erase(const size_t call_count)
     int32_t rc = drv->Erase(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(ERASE_CASE_TIMEOUT) + CaseRepeatAll: CaseTimeout(ERASE_CASE_TIMEOUT);
     } else {
         TEST_ASSERT_EQUAL(ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, rc);
 
@@ -911,7 +919,7 @@ control_t test_programDataWithMultipleProgramUnits(const size_t call_count)
             TEST_ASSERT(rc >= 0);
             if (rc == ARM_DRIVER_OK) {
                 TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-                return CaseTimeout(500);
+                return CaseTimeout(1000);
             } else {
                 TEST_ASSERT_EQUAL((N_UNITS * info.program_unit), rc);
 
