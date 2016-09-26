@@ -177,9 +177,9 @@ public:
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method)).")
+        "attach(mbed_callback(obj, method)).")
     void attach(T *obj, M method) {
-        attach(mbed::callback(obj, method));
+        attach(mbed::mbed_callback(obj, method));
     }
 
 protected:
