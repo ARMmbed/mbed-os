@@ -108,12 +108,12 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
+        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
 
         @code
         Thread thread(priority, stack_size, stack_pointer);
 
-        osStatus status = thread.start(callback(argument, task));
+        osStatus status = thread.start(callback(task, argument));
         if (status != osOK) {
             error("oh no!");
         }
@@ -122,12 +122,12 @@ public:
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(argument, task)).")
+        "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (T::*task)(),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::callback(argument, task),
+        constructor(mbed::callback(task, argument),
                     priority, stack_size, stack_pointer);
     }
 
@@ -139,12 +139,12 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
+        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
 
         @code
         Thread thread(priority, stack_size, stack_pointer);
 
-        osStatus status = thread.start(callback(argument, task));
+        osStatus status = thread.start(callback(task, argument));
         if (status != osOK) {
             error("oh no!");
         }
@@ -153,12 +153,12 @@ public:
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(argument, task)).")
+        "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (*task)(T *),
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::callback(argument, task),
+        constructor(mbed::callback(task, argument),
                     priority, stack_size, stack_pointer);
     }
 
@@ -170,12 +170,12 @@ public:
       @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
       @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(argument, task)).
+        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
 
         @code
         Thread thread(priority, stack_size, stack_pointer);
 
-        osStatus status = thread.start(callback(argument, task));
+        osStatus status = thread.start(callback(task, argument));
         if (status != osOK) {
             error("oh no!");
         }
@@ -183,12 +183,12 @@ public:
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(argument, task)).")
+        "Replaced by thread.start(callback(task, argument)).")
     Thread(void (*task)(void const *argument), void *argument=NULL,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL) {
-        constructor(mbed::callback(argument, (void (*)(void *))task),
+        constructor(mbed::callback((void (*)(void *))task, argument),
                     priority, stack_size, stack_pointer);
     }
 
