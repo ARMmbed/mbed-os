@@ -18,6 +18,7 @@
 #define NETWORK_INTERFACE_H
 
 #include "network-socket/nsapi_types.h"
+#include "network-socket/SocketAddress.h"
 
 // Predeclared class
 class NetworkStack;
@@ -98,6 +99,42 @@ public:
      *  @return     0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
+
+    /** Translates a hostname to an IP address
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
+     *  @param address  Destination for the host SocketAddress
+     *  @param host     Hostname to resolve
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int gethostbyname(const char *host, SocketAddress *address);
+
+    /** Translates a hostname to an IP address with specific version
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
+     *  @param address  Destination for the host SocketAddress
+     *  @param host     Hostname to resolve
+     *  @param version  IP version of address to resolve
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version);
+
+    /** Add a domain name server to list of servers to query
+     *
+     *  @param addr     Destination for the host address
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int add_dns_server(const SocketAddress &address);
 
 protected:
     friend class Socket;

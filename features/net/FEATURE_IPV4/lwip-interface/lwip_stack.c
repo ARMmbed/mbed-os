@@ -273,7 +273,7 @@ static int lwip_err_remap(err_t err) {
 
 
 /* LWIP network stack implementation */
-static int lwip_gethostbyname(nsapi_stack_t *stack, nsapi_addr_t *addr, const char *host)
+static int lwip_gethostbyname(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr)
 {
     err_t err = netconn_gethostbyname(host, (ip_addr_t *)addr->bytes);
     if (err != ERR_OK) {

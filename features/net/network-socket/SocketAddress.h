@@ -41,8 +41,14 @@ public:
      *  @param stack    Network stack to use for DNS resolution
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port
+     *  @deprecated
+     *      Constructors hide possible errors. Replaced by
+     *      NetworkInterface::gethostbyname.
      */
     template <typename S>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1.3",
+        "Constructors hide possible errors. Replaced by "
+        "NetworkInterface::gethostbyname.")
     SocketAddress(S *stack, const char *host, uint16_t port = 0)
     {
         _SocketAddress(nsapi_create_stack(stack), host, port);
@@ -79,8 +85,10 @@ public:
     /** Set the IP address
      *
      *  @param addr     Null-terminated represention of the IP address
+     *  @return         True if address is a valid representation of an IP address,
+     *                  otherwise False and SocketAddress is set to null
      */
-    void set_ip_address(const char *addr);
+    bool set_ip_address(const char *addr);
 
     /** Set the raw IP bytes and IP version
      *

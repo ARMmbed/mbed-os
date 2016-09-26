@@ -18,10 +18,11 @@
 #include "network-socket/UDPSocket.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 // DNS options
-#define DNS_BUFFER_SIZE 256 
+#define DNS_BUFFER_SIZE 512
 #define DNS_TIMEOUT 5000
 #define DNS_SERVERS_SIZE 5
 
@@ -189,9 +190,8 @@ static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned add
 }
 
 // core query function
-static int nsapi_dns_query_multiple(NetworkStack *stack,
-        nsapi_addr_t *addr, unsigned addr_count,
-        const char *host, nsapi_version_t version)
+static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
+        nsapi_addr_t *addr, unsigned addr_count, nsapi_version_t version)
 {
     // check for valid host name
     int host_len = host ? strlen(host) : 0;
@@ -261,20 +261,18 @@ static int nsapi_dns_query_multiple(NetworkStack *stack,
 }
 
 // convenience functions for other forms of queries
-extern "C" int nsapi_dns_query_multiple(nsapi_stack_t *stack,
-        nsapi_addr_t *addr, unsigned addr_count,
-        const char *host, nsapi_version_t version)
+extern "C" int nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
+        nsapi_addr_t *addr, unsigned addr_count, nsapi_version_t version)
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
-    return nsapi_dns_query_multiple(nstack, addr, addr_count, host, version);
+    return nsapi_dns_query_multiple(nstack, host, addr, addr_count, version);
 }
 
-int nsapi_dns_query_multiple(NetworkStack *stack,
-        SocketAddress *addresses, unsigned addr_count,
-        const char *host, nsapi_version_t version)
+int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
+        SocketAddress *addresses, unsigned addr_count, nsapi_version_t version)
 {
     nsapi_addr_t *addrs = new nsapi_addr_t[addr_count];
-    int result = nsapi_dns_query_multiple(stack, addrs, addr_count, host, version);
+    int result = nsapi_dns_query_multiple(stack, host, addrs, addr_count, version);
 
     if (result > 0) {
         for (int i = 0; i < result; i++) {
@@ -286,19 +284,19 @@ int nsapi_dns_query_multiple(NetworkStack *stack,
     return result;
 }
 
-extern "C" int nsapi_dns_query(nsapi_stack_t *stack,
-        nsapi_addr_t *addr, const char *host, nsapi_version_t version)
+extern "C" int nsapi_dns_query(nsapi_stack_t *stack, const char *host,
+        nsapi_addr_t *addr, nsapi_version_t version)
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
-    int result = nsapi_dns_query_multiple(nstack, addr, 1, host, version);
+    int result = nsapi_dns_query_multiple(nstack, host, addr, 1, version);
     return (result > 0) ? 0 : result;
 }
 
-int nsapi_dns_query(NetworkStack *stack,
-        SocketAddress *address, const char *host, nsapi_version_t version)
+int nsapi_dns_query(NetworkStack *stack, const char *host,
+        SocketAddress *address, nsapi_version_t version)
 {
     nsapi_addr_t addr;
-    int result = nsapi_dns_query_multiple(stack, &addr, 1, host, version);
+    int result = nsapi_dns_query_multiple(stack, host, &addr, 1, version);
     address->set_addr(addr);
     return (result > 0) ? 0 : result;
 }

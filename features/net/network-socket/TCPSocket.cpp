@@ -51,10 +51,13 @@ int TCPSocket::connect(const SocketAddress &address)
 
 int TCPSocket::connect(const char *host, uint16_t port)
 {
-    SocketAddress address(_stack, host, port);
-    if (!address) {
+    SocketAddress address;
+    int err = _stack->gethostbyname(host, &address);
+    if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
+
+    address.set_port(port);
 
     // connect is thread safe
     return connect(address);

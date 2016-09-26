@@ -43,6 +43,8 @@ static bool ipv4_is_valid(const char *addr)
 static bool ipv6_is_valid(const char *addr)
 {
     // Check each digit for [0-9a-fA-F:]
+    // Must also have at least 2 colons
+    int colons = 0;
     for (int i = 0; addr[i]; i++) {
         if (!(addr[i] >= '0' && addr[i] <= '9') &&
             !(addr[i] >= 'a' && addr[i] <= 'f') &&
@@ -50,9 +52,12 @@ static bool ipv6_is_valid(const char *addr)
             addr[i] != ':') {
             return false;
         }
+        if (addr[i] == ':') {
+            colons++;
+        }
     }
 
-    return true;
+    return colons >= 2;
 }
 
 static void ipv4_from_address(uint8_t *bytes, const char *addr)
@@ -171,18 +176,21 @@ SocketAddress::SocketAddress(const SocketAddress &addr)
     set_port(addr.get_port());
 }
 
-void SocketAddress::set_ip_address(const char *addr)
+bool SocketAddress::set_ip_address(const char *addr)
 {
     _ip_address[0] = '\0';
 
     if (addr && ipv4_is_valid(addr)) {
         _addr.version = NSAPI_IPv4;
         ipv4_from_address(_addr.bytes, addr);
+        return true;
     } else if (addr && ipv6_is_valid(addr)) {
         _addr.version = NSAPI_IPv6;
         ipv6_from_address(_addr.bytes, addr);
+        return true;
     } else {
         _addr = nsapi_addr_t();
+        return false;
     }
 }
 
@@ -292,7 +300,7 @@ void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16
         _port = port;
     } else {
         // DNS lookup
-        int err = iface->gethostbyname(this, host);
+        int err = iface->gethostbyname(host, this);
         _port = port;
         if (err) {
             _addr = nsapi_addr_t();
