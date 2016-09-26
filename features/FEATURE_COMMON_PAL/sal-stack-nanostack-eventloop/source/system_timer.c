@@ -17,19 +17,11 @@
 #include "ns_list.h"
 #include "timer_sys.h"
 #include "platform/arm_hal_interrupt.h"
+#include "platform/arm_hal_timer.h"
 #include "ns_timer.h"
 #include "nsdynmemLIB.h"
 #include "eventOS_event.h"
-#include "eventOS_event_timer.h"
-#include "minar/minar.h"
-#include "mbed.h"
-#include "core-util/FunctionPointer.h"
-#include "core-util/Event.h"
-
-using minar::Scheduler;
-using minar::milliseconds;
-using minar::callback_handle_t;
-using namespace mbed::util;
+#include "eventOS_callback_timer.h"
 
 #ifndef ST_MAX
 #define ST_MAX 6
@@ -44,17 +36,53 @@ typedef struct sys_timer_struct_s {
     ns_list_link_t link;
 } sys_timer_struct_s;
 
+#define TIMER_SLOTS_PER_MS          20
 #define TIMER_SYS_TICK_PERIOD       10 // milliseconds
 
 static uint32_t run_time_tick_ticks = 0;
 static NS_LIST_DEFINE(system_timer_free, sys_timer_struct_s, link);
 static NS_LIST_DEFINE(system_timer_list, sys_timer_struct_s, link);
-static callback_handle_t sys_timer_handle;
 
 
 static sys_timer_struct_s *sys_timer_dynamically_allocate(void);
+static void timer_sys_interrupt(void);
 
+#ifndef NS_EVENTLOOP_USE_TICK_TIMER
+static int8_t platform_tick_timer_start(uint32_t period_ms);
+/* Implement platform tick timer using eventOS timer */
+// platform tick timer callback function
+static void (*tick_timer_callback)(void);
+static int8_t tick_timer_id = -1;	// eventOS timer id for tick timer
 
+// EventOS timer callback function
+static void tick_timer_eventOS_callback(int8_t timer_id, uint16_t slots)
+{
+    // Not interested in timer id or slots
+    (void)slots;
+    // Call the tick timer callback
+    if (tick_timer_callback != NULL && timer_id == tick_timer_id) {
+        platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
+        tick_timer_callback();
+    }
+}
+
+static int8_t platform_tick_timer_register(void (*tick_timer_cb)(void))
+{
+    tick_timer_callback = tick_timer_cb;
+    tick_timer_id = eventOS_callback_timer_register(tick_timer_eventOS_callback);
+    return tick_timer_id;
+}
+
+static int8_t platform_tick_timer_start(uint32_t period_ms)
+{
+    return eventOS_callback_timer_start(tick_timer_id, TIMER_SLOTS_PER_MS * period_ms);
+}
+
+static int8_t platform_tick_timer_stop(void)
+{
+    return eventOS_callback_timer_stop(tick_timer_id);
+}
+#endif // !NS_EVENTLOOP_USE_TICK_TIMER
 
 /*
  * Initializes timers and starts system timer
@@ -81,8 +109,8 @@ void timer_sys_init(void)
         }
     }
 
-    Event e = FunctionPointer1<void, uint32_t>(system_timer_tick_update).bind(1);
-    sys_timer_handle = Scheduler::postCallback(e).period(milliseconds(TIMER_SYS_TICK_PERIOD)).getHandle();
+    platform_tick_timer_register(timer_sys_interrupt);
+    platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
 }
 
 
@@ -90,10 +118,7 @@ void timer_sys_init(void)
 /*-------------------SYSTEM TIMER FUNCTIONS--------------------------*/
 void timer_sys_disable(void)
 {
-    if (sys_timer_handle != NULL) {
-        Scheduler::cancelCallback(sys_timer_handle);
-        sys_timer_handle = NULL;
-    }
+    platform_tick_timer_stop();
 }
 
 /*
@@ -101,14 +126,15 @@ void timer_sys_disable(void)
  */
 int8_t timer_sys_wakeup(void)
 {
-    // postCallback should never fail in MINAR
-    // TODO: check if that's true
-    if (NULL == sys_timer_handle) {
-        Event e = FunctionPointer1<void, uint32_t>(system_timer_tick_update).bind(1);
-        sys_timer_handle = Scheduler::postCallback(e).tolerance(minar::milliseconds(TIMER_SYS_TICK_PERIOD/10)).period(milliseconds(TIMER_SYS_TICK_PERIOD)).getHandle();
-    }
-    return 0;
+    return platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
 }
+
+
+static void timer_sys_interrupt(void)
+{
+    system_timer_tick_update(1);
+}
+
 
 
 /* * * * * * * * * */
@@ -213,14 +239,15 @@ void system_timer_tick_update(uint32_t ticks)
     run_time_tick_ticks += ticks;
     ns_list_foreach_safe(sys_timer_struct_s, cur, &system_timer_list) {
         if (cur->timer_sys_launch_time <= ticks) {
-            arm_event_s event;
-            event.receiver = cur->timer_sys_launch_receiver;
-            event.sender = 0; /**< Event sender Tasklet ID */
-            event.data_ptr = NULL;
-            event.event_type = cur->timer_event_type;
-            event.event_id = cur->timer_sys_launch_message;
-            event.event_data = 0;
-            event.priority = ARM_LIB_MED_PRIORITY_EVENT;
+            arm_event_s event = {
+                .receiver = cur->timer_sys_launch_receiver,
+                .sender = 0, /**< Event sender Tasklet ID */
+                .data_ptr = NULL,
+                .event_type = cur->timer_event_type,
+                .event_id = cur->timer_sys_launch_message,
+                .event_data = 0,
+                .priority = ARM_LIB_MED_PRIORITY_EVENT,
+            };
             eventOS_event_send(&event);
             ns_list_remove(&system_timer_list, cur);
             ns_list_add_to_start(&system_timer_free, cur);

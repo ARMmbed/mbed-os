@@ -26,6 +26,7 @@
 
 #include "ns_list.h"
 #include "sn_coap_header_internal.h"
+#include "sn_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,8 +42,27 @@ struct sn_coap_hdr_;
 #define ENABLE_RESENDINGS                               1   /**< Enable / Disable resending from library in building */
 
 #define SN_COAP_RESENDING_MAX_COUNT                     3   /**< Default number of re-sendings  */
+
+#ifdef YOTTA_CFG_COAP_RESENDING_QUEUE_SIZE_MSGS
+#define SN_COAP_RESENDING_QUEUE_SIZE_MSGS YOTTA_CFG_COAP_RESENDING_QUEUE_SIZE_MSGS
+#elif defined MBED_CONF_MBED_CLIENT_SN_COAP_RESENDING_QUEUE_SIZE_MSGS
+#define SN_COAP_RESENDING_QUEUE_SIZE_MSGS MBED_CONF_MBED_CLIENT_SN_COAP_RESENDING_QUEUE_SIZE_MSGS
+#endif
+
+#ifndef SN_COAP_RESENDING_QUEUE_SIZE_MSGS
 #define SN_COAP_RESENDING_QUEUE_SIZE_MSGS               2   /**< Default re-sending queue size - defines how many messages can be stored. Setting this to 0 disables feature */
+#endif
+
+#ifdef YOTTA_CFG_COAP_RESENDING_QUEUE_SIZE_BYTES
+#define SN_COAP_RESENDING_QUEUE_SIZE_BYTES YOTTA_CFG_COAP_RESENDING_QUEUE_SIZE_BYTES
+#elif defined MBED_CONF_MBED_CLIENT_SN_COAP_RESENDING_QUEUE_SIZE_BYTES
+#define SN_COAP_RESENDING_QUEUE_SIZE_BYTES MBED_CONF_MBED_CLIENT_SN_COAP_RESENDING_QUEUE_SIZE_BYTES
+#endif
+
+#ifndef SN_COAP_RESENDING_QUEUE_SIZE_BYTES
 #define SN_COAP_RESENDING_QUEUE_SIZE_BYTES              0   /**< Default re-sending queue size - defines size of the re-sending buffer. Setting this to 0 disables feature */
+#endif
+
 #define DEFAULT_RESPONSE_TIMEOUT                        10  /**< Default re-sending timeout as seconds */
 
 /* These parameters sets maximum values application can set with API */
@@ -81,7 +101,6 @@ struct sn_coap_hdr_;
 
 /* Init value for the maximum payload size to be sent and received at one blockwise message                         */
 /* Setting of this value to 0 will disable this feature, and also reduce use of ROM memory                          */
-/* Note: Current Coap implementation supports Blockwise transfers specification version draft-ietf-core-block-03    */
 /* Note: This define is common for both received and sent Blockwise messages                                        */
 
 #ifdef YOTTA_CFG_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
