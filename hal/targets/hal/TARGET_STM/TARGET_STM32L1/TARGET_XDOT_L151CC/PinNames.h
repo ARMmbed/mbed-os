@@ -137,6 +137,10 @@ typedef enum {
     // Wake Pin
     WAKE            = PA_0,
 
+    // SWD Pins
+    SWDIO           = PA_13,
+    SWCLK           = PA_14,
+
     // UART
     UART1_TX        = PA_9,
     UART1_RX        = PA_10,
@@ -148,6 +152,11 @@ typedef enum {
 
     USBTX           = UART2_TX,
     USBRX           = UART2_RX,
+
+    UART_TX         = UART1_TX,
+    UART_RX         = UART1_RX,
+    UART_CTS        = UART1_CTS,
+    UART_RTS        = UART1_RTS,
 
     // SPI
     SPI2_MOSI       = PB_15,
