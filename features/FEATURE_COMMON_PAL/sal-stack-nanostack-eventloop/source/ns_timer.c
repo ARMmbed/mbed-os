@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_timer.h"
@@ -21,6 +22,7 @@
 #include "platform/arm_hal_timer.h"
 #include "nsdynmemLIB.h"
 
+#ifndef NS_EXCLUDE_HIGHRES_TIMER
 typedef enum ns_timer_state_e {
     NS_TIMER_ACTIVE = 0,        // Will run on the next HAL interrupt
     NS_TIMER_HOLD,              // Will run on a later HAL interrupt
@@ -53,17 +55,17 @@ static uint8_t ns_timer_state = 0;
 
 static void ns_timer_interrupt_handler(void);
 static ns_timer_struct *ns_timer_get_pointer_to_timer_struct(int8_t timer_id);
-
-int8_t ns_timer_init(void)
-{
-    /*Set interrupt handler in HAL driver*/
-    platform_timer_set_cb(ns_timer_interrupt_handler);
-    return 0;
-}
+static bool ns_timer_initialized = 0;
 
 int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, uint16_t))
 {
     int8_t retval = -1;
+
+    if (!ns_timer_initialized) {
+        /*Set interrupt handler in HAL driver*/
+        platform_timer_set_cb(ns_timer_interrupt_handler);
+        ns_timer_initialized = 1;
+    }
 
     /*Find first free timer ID in timer list*/
     /*(Note use of uint8_t to avoid overflow if we reach 0x7F)*/
@@ -374,6 +376,8 @@ int8_t eventOS_callback_timer_stop(int8_t ns_timer_id)
                 if (current_timer->timer_state == NS_TIMER_HOLD) {
                     if (current_timer->remaining_slots == first_timer->remaining_slots) {
                         current_timer->timer_state = NS_TIMER_ACTIVE;
+                    } else {
+                        current_timer->remaining_slots -= first_timer->remaining_slots;
                     }
                 }
             }
@@ -385,3 +389,4 @@ exit:
 
     return retval;
 }
+#endif // NS_EXCLUDE_HIGHRES_TIMER

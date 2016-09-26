@@ -29,6 +29,7 @@
  */
 #include "sleep_api.h"
 #include "hal_tick.h"
+#include "rtc_api_hal.h"
 
 #if DEVICE_SLEEP
 
@@ -90,6 +91,10 @@ void deepsleep(void)
 
     // Restart HAL systick
     HAL_ResumeTick();
+
+#if DEVICE_LOWPOWERTIMER
+    rtc_synchronize();
+#endif
 }
 
 #endif

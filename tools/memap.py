@@ -342,28 +342,23 @@ class MemapParser(object):
                 else:
                     self.module_add(name, size, section)
 
-    def search_objects(self, path, toolchain):
-        """ Check whether the specified map file matches with the toolchain.
-        Searches for object files and creates mapping: object --> module
+    def search_objects(self, path):
+        """ Searches for object files and creates mapping: object --> module
 
         Positional arguments:
         path - the path to an object file
-        toolchain - the toolchain used to build the object file
         """
 
         path = path.replace('\\', '/')
 
         # check location of map file
-        rex = r'^(.+\/)' + re.escape(toolchain) + r'\/(.+\.map)$'
+        rex = r'^(.+)' + r'\/(.+\.map)$'
         test_rex = re.match(rex, path)
 
         if test_rex:
-            search_path = test_rex.group(1) + toolchain + '/mbed-os/'
+            search_path = test_rex.group(1) + '/mbed-os/'
         else:
-            # It looks this is not an mbed project
-            # object-to-module mapping cannot be generated
-            print "Warning: specified toolchain doesn't match with"\
-                " path to the memory map file."
+            print "Warning: this doesn't look like an mbed project"
             return
 
         for root, _, obj_files in os.walk(search_path):
@@ -580,12 +575,12 @@ class MemapParser(object):
             with open(mapfile, 'r') as file_input:
                 if toolchain == "ARM" or toolchain == "ARM_STD" or\
                    toolchain == "ARM_MICRO":
-                    self.search_objects(os.path.abspath(mapfile), "ARM")
+                    self.search_objects(os.path.abspath(mapfile))
                     self.parse_map_file_armcc(file_input)
                 elif toolchain == "GCC_ARM":
                     self.parse_map_file_gcc(file_input)
                 elif toolchain == "IAR":
-                    self.search_objects(os.path.abspath(mapfile), toolchain)
+                    self.search_objects(os.path.abspath(mapfile))
                     self.parse_map_file_iar(file_input)
                 else:
                     result = False
@@ -597,7 +592,7 @@ class MemapParser(object):
 def main():
     """Entry Point"""
 
-    version = '0.3.11'
+    version = '0.3.12'
 
     # Parser handling
     parser = argparse.ArgumentParser(

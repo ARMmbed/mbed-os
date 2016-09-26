@@ -2450,6 +2450,7 @@ static void SPI_TxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
       SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
     }
 #endif /* USE_SPI_CRC */
+    __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE));
     SPI_CloseTx_ISR(hspi);
   }
 }
@@ -2476,6 +2477,7 @@ static void SPI_TxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
       SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
     }
 #endif /* USE_SPI_CRC */
+    __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE));
     SPI_CloseTx_ISR(hspi);
   }
 }

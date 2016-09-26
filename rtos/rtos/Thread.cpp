@@ -30,6 +30,15 @@
 
 extern "C" P_TCB rt_tid2ptcb(osThreadId thread_id);
 
+
+static void (*terminate_hook)(osThreadId id) = 0;
+extern "C" void thread_terminate_hook(osThreadId id)
+{
+    if (terminate_hook != (void (*)(osThreadId))NULL) {
+        terminate_hook(id);
+    }
+}
+
 namespace rtos {
 
 void Thread::constructor(osPriority priority,
@@ -74,10 +83,7 @@ osStatus Thread::start(Callback<void()> task) {
     _thread_def.pthread = Thread::_thunk;
     if (_thread_def.stack_pointer == NULL) {
         _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
-        if (_thread_def.stack_pointer == NULL) {
-            _mutex.unlock();
-            return osErrorNoMemory;
-        }
+        MBED_ASSERT(_thread_def.stack_pointer != NULL);
     }
 
     //Fill the stack with a magic word for maximum usage checking
@@ -88,8 +94,12 @@ osStatus Thread::start(Callback<void()> task) {
     _task = task;
     _tid = osThreadCreate(&_thread_def, this);
     if (_tid == NULL) {
-        if (_dynamic_stack) delete[] (_thread_def.stack_pointer);
+        if (_dynamic_stack) {
+            delete[] (_thread_def.stack_pointer);
+            _thread_def.stack_pointer = (uint32_t*)NULL;
+        }
         _mutex.unlock();
+        _join_sem.release();
         return osErrorResource;
     }
 
@@ -336,12 +346,17 @@ void Thread::attach_idle_hook(void (*fptr)(void)) {
     rtos_attach_idle_hook(fptr);
 }
 
+void Thread::attach_terminate_hook(void (*fptr)(osThreadId id)) {
+    terminate_hook = fptr;
+}
+
 Thread::~Thread() {
     // terminate is thread safe
     terminate();
 #ifdef __MBED_CMSIS_RTOS_CM
     if (_dynamic_stack) {
         delete[] (_thread_def.stack_pointer);
+        _thread_def.stack_pointer = (uint32_t*)NULL;
     }
 #endif
 }

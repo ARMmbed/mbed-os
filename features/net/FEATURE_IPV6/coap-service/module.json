@@ -1,6 +1,6 @@
 {
   "name": "coap-service",
-  "version": "4.0.1",
+  "version": "4.0.3",
   "description": "CoAP Service library",
   "keywords": [
     "coap",
@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "nanostack-libservice": "^3.0.0",
-    "mbed-client-c": "^2.0.0",
+    "mbed-client-c": "^3.0.0",
     "sal-stack-nanostack": "^5.0.0",
     "mbedtls": "^2.0.0"
   },

@@ -167,8 +167,8 @@ int32_t cfstore_test_startup(void)
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
     int32_t ret = ARM_DRIVER_ERROR;
     static FlashJournal_t jrnl;
-    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
-    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
+    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
 
     ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
     CFSTORE_EX5_TEST_ASSERT_MSG(ret >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (ret=%d)\r\n", __func__, (int) ret);
@@ -278,7 +278,7 @@ static control_t cfstore_EXAMPLE5_app_start(const size_t call_count)
     ctx->hkey_prev = ctx->hkey_prev_buf;
     ctx->caps = cfstore_drv->GetCapabilities();
     CFSTORE_EX5_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, ctx->caps.asynchronous_ops);
-    if(ctx->caps.asynchronous_ops == true){
+    if(ctx->caps.asynchronous_ops){
     	/* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
     	 * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_EX5_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");

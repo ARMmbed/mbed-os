@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if DEVICE_STORAGE
-
 #include "Driver_Storage.h"
 #include "cmsis_nvic.h"
 #include "MK64F12.h"
@@ -32,6 +30,10 @@
 #endif
 
 #include <string.h>
+
+/* Redefine this macro to a printf equivalent to print trace */
+#define tr_debug(...)
+
 
 #ifdef USING_KSDK2
 /*!
@@ -142,6 +144,76 @@ extern volatile uint32_t *const kFCCOBx;
 #define SIZEOF_DOUBLE_PHRASE              (16)
 #endif /* #ifdef USING_KSDK2 */
 
+/* While the K64F flash controller is capable of launching operations asynchronously and
+ * allowing program execution to continue while an erase/program is active, it
+ * doesn't allow simultaneous read accesses while and erase/program is active on
+ * the same block of flash.
+ *
+ * Read/fetch accesses can originate arbitrarily as a result of program
+ * execution. This means that code which operates on flash should not reside in
+ * flash; or at least it should not reside in the same bank of flash as it is
+ * operating upon. The only way to ensure that application code and flash driver
+ * are residing on separate banks of flash is to reserve bank-0 (or BLOCK0) for
+ * the application and bank-1 (BLOCK1) for the driver--this also happens to be
+ * the default setting.
+ *
+ * But it is quite likely that this default will be over-ridden by the use of
+ * config options depending upon the actual application. If we don't have a
+ * clean separation between the application and the space managed by this
+ * driver, then we need to enforce the following:
+ *
+ *   - Force synchronous mode of execution in the storage_driver.
+ *   - Disable interrupts during erase/program operations.
+ *   - Ensure all code and data structures used in the storage driver execute
+ *     out of RAM. Refer to __RAMFUNC (below) which allows for this.
+ *
+ * It is difficult to determine the application's span of internal-flash at
+ * compile time. Therefore we assume that STORAGE_START_ADDR is the
+ * boundary between application and this driver. When this boundary is set to
+ * lie at BLOCK1_START_ADDR, there is no possibility of read-while-write run-
+ * time errors.
+ *
+ * In the following, caps.asynchronous_ops is defined to be 1 if and only if
+ * asynchronous operation mode is requested and there doesn't exist the
+ * possibility of concurrent reads.
+ */
+
+#if (defined(STORAGE_START_ADDR) && (STORAGE_START_ADDR != BLOCK1_START_ADDR))
+#define EXISTS_POSSIBILITY_OF_CONCURRENT_READ 1
+#else
+#define EXISTS_POSSIBILITY_OF_CONCURRENT_READ 0
+#endif
+
+/* Define '__RAMFUNC' as an attribute to mark a function as residing in RAM.
+ * Use of __RAMFUNC puts a function in the .data section--i.e. the
+ * initialized data section. This will be copied into RAM automatically by the
+ * startup sequence. */
+#ifndef __RAMFUNC
+#if defined(__GNUC__) || defined(__clang__) // GCC and llvm/clang
+#define __RAMFUNC __attribute__ ((section (".data#"), noinline)) /* The '#' following ".data" needs a bit of
+                        * explanation. Without it, we are liable to get the following warning 'Warning: ignoring
+                        * changed section attributes for .data'. This is because __attribute__((section(".data")))
+                        * generates the following assembly:
+                        *
+                        * .section .data,"ax",%progbits
+                        *
+                        * But .data doesn't need the 'x' (execute) attribute bit. To remove the warning, we specify
+                        * the attribute with a '#' at the tail, which emits:
+                        *
+                        * .section .data#,"ax",%progbits
+                        *
+                        * Note that '#' (in the above) acts like a comment-start, and masks the additional
+                        * attributes which don't apply to '.data'.
+                        */
+#elif defined (__CC_ARM)
+#define __RAMFUNC __attribute__ ((section(".ramfunc"), noinline))
+#elif defined ( __ICCARM__ )
+#define __RAMFUNC __ramfunc
+#else // unknown compiler
+    #error "This compiler is not yet supported. If you can contribute support for defining a function to be RAM resident, please provide a definition for __RAMFUNC"
+#endif
+#endif /* #ifndef __RAMFUNC */
+
 /*
  * forward declarations
  */
@@ -169,16 +241,16 @@ struct mtd_k64f_data {
 static const ARM_STORAGE_BLOCK blockTable[] = {
     {
         /**< This is the start address of the flash block. */
-#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR
-        .addr       = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR,
+#ifdef STORAGE_START_ADDR
+        .addr       = STORAGE_START_ADDR,
 #else
         .addr       = BLOCK1_START_ADDR,
 #endif
 
         /**< This is the size of the flash block, in units of bytes.
          *   Together with addr, it describes a range [addr, addr+size). */
-#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE
-        .size       = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE,
+#ifdef STORAGE_SIZE
+        .size       = STORAGE_SIZE,
 #else
         .size       = BLOCK1_SIZE,
 #endif
@@ -200,7 +272,8 @@ static const ARM_DRIVER_VERSION version = {
 };
 
 
-#if (!defined(DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_ASYNC_OPS) || DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_ASYNC_OPS)
+#if ((!defined(STORAGE_CONFIG_HARDWARE_MTD_K64F_ASYNC_OPS) || STORAGE_CONFIG_HARDWARE_MTD_K64F_ASYNC_OPS) && \
+     !EXISTS_POSSIBILITY_OF_CONCURRENT_READ)
 #define ASYNC_OPS 1
 #else
 #define ASYNC_OPS 0
@@ -219,8 +292,8 @@ static const ARM_STORAGE_CAPABILITIES caps = {
     .asynchronous_ops = ASYNC_OPS,
 
     /* Enable chip-erase functionality if we own all of block-1. */
-    #if ((!defined (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR) || (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_START_ADDR == BLOCK1_START_ADDR)) && \
-         (!defined (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE)       || (DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE == BLOCK1_SIZE)))
+    #if ((!defined (STORAGE_START_ADDR) || (STORAGE_START_ADDR == BLOCK1_START_ADDR)) && \
+         (!defined (STORAGE_SIZE)       || (STORAGE_SIZE == BLOCK1_SIZE)))
     .erase_all        = 1,    /**< Supports EraseChip operation. */
     #else
     .erase_all        = 0,    /**< Supports EraseChip operation. */
@@ -228,8 +301,8 @@ static const ARM_STORAGE_CAPABILITIES caps = {
 };
 
 static const ARM_STORAGE_INFO info = {
-#ifdef DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE
-    .total_storage        = DEVICE_STORAGE_CONFIG_HARDWARE_MTD_K64F_SIZE, /**< Total available storage, in units of octets. */
+#ifdef STORAGE_SIZE
+    .total_storage        = STORAGE_SIZE, /**< Total available storage, in units of octets. */
 #else
     .total_storage        = BLOCK1_SIZE, /**< Total available storage, in units of octets. By default, BLOCK0 is reserved to hold program code. */
 #endif
@@ -410,6 +483,10 @@ static inline void launchCommand(void)
 
 #else /* #if !ASYNC_OPS */
 
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+/* This function needs to execute from RAM to avoid read-while-write errors. */
+__RAMFUNC
+#endif
 static void launchCommandAndWaitForCompletion()
 {
     // It contains the inlined equivalent of the following code snippet:
@@ -418,10 +495,17 @@ static void launchCommandAndWaitForCompletion()
     //         /* Spin waiting for the command execution to complete. */
     //     }
 
+#ifdef USING_KSDK2
     FTFx->FSTAT = FTFx_FSTAT_CCIF_MASK; /* launchcommand() */
     while ((FTFx->FSTAT & FTFx_FSTAT_CCIF_MASK) == 0) {
         /* Spin waiting for the command execution to complete. */
     }
+#else
+    BW_FTFE_FSTAT_CCIF(FTFE, 1); /* launchCommand() */
+    while (BR_FTFE_FSTAT_CCIF(FTFE) == 0) {
+        /* Spin waiting for the command execution to complete. */
+    }
+#endif
 }
 #endif /* #if !ASYNC_OPS */
 
@@ -562,6 +646,7 @@ static inline void setupNextProgramData(struct mtd_k64f_data *context)
     if ((context->amountLeftToOperate == PROGRAM_PHRASE_SIZEOF_INLINE_DATA) ||
         ((context->currentOperatingStorageAddress % SIZEOF_DOUBLE_PHRASE) == PROGRAM_PHRASE_SIZEOF_INLINE_DATA)) {
         setup8ByteWrite(context->currentOperatingStorageAddress, context->currentOperatingData);
+        tr_debug("setupNextProgramData: W8, [%lu]", (uint32_t)context->currentOperatingStorageAddress);
 
         context->amountLeftToOperate            -= PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
         context->currentOperatingStorageAddress += PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
@@ -569,6 +654,7 @@ static inline void setupNextProgramData(struct mtd_k64f_data *context)
     } else {
         size_t amount = sizeofLargestProgramSection(context->currentOperatingStorageAddress, context->amountLeftToOperate);
         setupProgramSection(context->currentOperatingStorageAddress, context->currentOperatingData, amount);
+        tr_debug("setupNextProgramData: W%u, [%lu]", amount, (uint32_t)context->currentOperatingStorageAddress);
 
         context->amountLeftToOperate            -= amount;
         context->currentOperatingStorageAddress += amount;
@@ -607,6 +693,8 @@ static inline void setupNextErase(struct mtd_k64f_data *context)
 
 static int32_t executeCommand(struct mtd_k64f_data *context)
 {
+    tr_debug("executeCommand: top");
+
 #if ASYNC_OPS
     /* Asynchronous operation */
     (void)context; /* avoid compiler warning about un-used variables */
@@ -624,12 +712,21 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
 
     enableCommandCompletionInterrupt();
 
+    tr_debug("executeCommand: async. return");
     return ARM_DRIVER_OK; /* signal asynchronous completion. An interrupt will signal completion later. */
 #else /* #if ASYNC_OPS */
-    /* Synchronous operation. */
+    /* Synchronous operation. This is the common case. */
 
     while (1) {
+        tr_debug("executeCommand: synchronous iteration");
+
+        #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+        __disable_irq();
+        #endif
         launchCommandAndWaitForCompletion();
+        #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+        __enable_irq();
+        #endif
 
         /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
@@ -664,6 +761,7 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
                         break;
                     } else {
                         /* erase can be skipped since this sector is already erased. */
+                        tr_debug("fast forward erase");
                         progressEraseContextByEraseUnit(context);
                     }
                 }
@@ -691,6 +789,7 @@ static inline void launchCommandFromIRQ(const struct mtd_k64f_data *context)
     if (failedWithAccessError() || failedWithProtectionError()) {
         clearErrorStatusBits();
         if (context->commandCompletionCallback) {
+            tr_debug("irq: invoking callback with error");
             context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, context->currentCommand);
         }
         return;
@@ -726,6 +825,7 @@ static void ftfe_ccie_irq_handler(void)
         case ARM_STORAGE_OPERATION_PROGRAM_DATA:
             if (context->amountLeftToOperate == 0) {
                 if (context->commandCompletionCallback) {
+                    tr_debug("irq: [PROGRAM] invoking callback");
                     context->commandCompletionCallback(context->sizeofCurrentOperation, ARM_STORAGE_OPERATION_PROGRAM_DATA);
                 }
                 return;
@@ -745,11 +845,13 @@ static void ftfe_ccie_irq_handler(void)
                     break;
                 } else {
                     /* erase can be skipped since this sector is already erased. */
+                    tr_debug("fast forward erase");
                     progressEraseContextByEraseUnit(context);
                 }
             }
             if (context->amountLeftToOperate == 0) {
                 if (context->commandCompletionCallback) {
+                    tr_debug("irq: [ERASE] invoking callback");
                     context->commandCompletionCallback(context->sizeofCurrentOperation, ARM_STORAGE_OPERATION_ERASE);
                 }
                 return;
@@ -761,6 +863,7 @@ static void ftfe_ccie_irq_handler(void)
 
         default:
             if (context->commandCompletionCallback) {
+                tr_debug("irq: [default] invoking callback");
                 context->commandCompletionCallback(ARM_DRIVER_OK, context->currentCommand);
             }
             break;
@@ -827,6 +930,8 @@ static ARM_STORAGE_CAPABILITIES getCapabilities(void)
 
 static int32_t initialize(ARM_Storage_Callback_t callback)
 {
+    tr_debug("called initialize(%p)", callback);
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
     memset(context, 0, sizeof(mtd_k64f_data));
     context->currentCommand = ARM_STORAGE_OPERATION_INITIALIZE;
@@ -860,6 +965,8 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
 }
 
 static int32_t uninitialize(void) {
+    tr_debug("called uninitialize");
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
     context->currentCommand = ARM_STORAGE_OPERATION_UNINITIALIZE;
 
@@ -883,6 +990,8 @@ static int32_t uninitialize(void) {
 
 static int32_t powerControl(ARM_POWER_STATE state)
 {
+    tr_debug("called powerControl(%u)", state);
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
     context->currentCommand = ARM_STORAGE_OPERATION_POWER_CONTROL;
 
@@ -892,6 +1001,8 @@ static int32_t powerControl(ARM_POWER_STATE state)
 
 static int32_t readData(uint64_t addr, void *data, uint32_t size)
 {
+    tr_debug("called ReadData(%lu, %lu)", (uint32_t)addr, size);
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
     context->currentCommand = ARM_STORAGE_OPERATION_READ_DATA;
 
@@ -914,6 +1025,8 @@ static int32_t readData(uint64_t addr, void *data, uint32_t size)
 
 static int32_t programData(uint64_t addr, const void *data, uint32_t size)
 {
+    tr_debug("called ProgramData(%lu, %lu)", (uint32_t)addr, size);
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
     if (!context->initialized) {
         return (int32_t)ARM_DRIVER_ERROR; /* illegal */
@@ -955,6 +1068,8 @@ static int32_t programData(uint64_t addr, const void *data, uint32_t size)
 
 static int32_t erase(uint64_t addr, uint32_t size)
 {
+    tr_debug("called erase(%lu, %lu)", (uint32_t)addr, size);
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
 
     if (!context->initialized) {
@@ -995,6 +1110,8 @@ static int32_t erase(uint64_t addr, uint32_t size)
 
 static int32_t eraseAll(void)
 {
+    tr_debug("called eraseAll");
+
     struct mtd_k64f_data *context = &mtd_k64f_data;
 
     if (!context->initialized) {
@@ -1105,7 +1222,7 @@ int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP)
     return ARM_DRIVER_ERROR;
 }
 
-ARM_DRIVER_STORAGE ARM_Driver_Storage_(0) = {
+ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F = {
     .GetVersion      = getVersion,
     .GetCapabilities = getCapabilities,
     .Initialize      = initialize,
@@ -1121,5 +1238,3 @@ ARM_DRIVER_STORAGE ARM_Driver_Storage_(0) = {
     .GetNextBlock    = nextBlock,
     .GetBlock        = getBlock
 };
-
-#endif /* #if DEVICE_STORAGE */

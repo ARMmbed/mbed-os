@@ -91,7 +91,7 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     return files, exporter
 
 
-def zip_export(file_name, prefix, resources, project_files):
+def zip_export(file_name, prefix, resources, project_files, inc_repos):
     """Create a zip file from an exported project.
 
     Positional Parameters:
@@ -105,21 +105,21 @@ def zip_export(file_name, prefix, resources, project_files):
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
         for loc, resource in resources.iteritems():
-            print resource.features
             for res in [resource] + resource.features.values():
-                extras = []
-                for directory in res.repo_dirs:
-                    for root, _, files in walk(directory):
-                        for repo_file in files:
-                            source = join(root, repo_file)
-                            extras.append(source)
-                            res.file_basepath[source] = res.base_path
-                for source in \
+                to_zip = (
                     res.headers + res.s_sources + res.c_sources +\
                     res.cpp_sources + res.libraries + res.hex_files + \
                     [res.linker_script] + res.bin_files + res.objects + \
-                    res.json_files + res.lib_refs + res.lib_builds + \
-                    res.repo_files + extras:
+                    res.json_files + res.lib_refs + res.lib_builds)
+                if inc_repos:
+                    for directory in res.repo_dirs:
+                        for root, _, files in walk(directory):
+                            for repo_file in files:
+                                source = join(root, repo_file)
+                                to_zip.append(source)
+                                res.file_basepath[source] = res.base_path
+                    to_zip += res.repo_files
+                for source in to_zip:
                     if source:
                         zip_file.write(
                             source,
@@ -132,7 +132,7 @@ def export_project(src_paths, export_path, target, ide,
                    libraries_paths=None, options=None, linker_script=None,
                    clean=False, notify=None, verbose=False, name=None,
                    inc_dirs=None, jobs=1, silent=False, extra_verbose=False,
-                   config=None, macros=None, zip_proj=None):
+                   config=None, macros=None, zip_proj=None, inc_repos=False):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -223,9 +223,9 @@ def export_project(src_paths, export_path, target, ide,
     files.append(config_header)
     if zip_proj:
         if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, resource_dict, files)
+            zip_export(join(export_path, zip_proj), name, resource_dict, files, inc_repos)
         else:
-            zip_export(zip_proj, name, resource_dict, files)
+            zip_export(zip_proj, name, resource_dict, files, inc_repos)
 
     return exporter
 

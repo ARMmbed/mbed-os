@@ -16,7 +16,6 @@ limitations under the License.
 """
 import re
 from os.path import join, dirname, splitext, basename
-from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -32,6 +31,9 @@ class ARM(mbedToolchain):
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
 
+    # ANY changes to these default flags is backwards incompatible and require
+    # an update to the mbed-sdk-tools and website that introduces a profile
+    # for the previous version of these flags
     DEFAULT_FLAGS = {
         'common': ["-c", "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
@@ -41,6 +43,13 @@ class ARM(mbedToolchain):
         'cxx': ["--cpp", "--no_rtti", "--no_vla"],
         'ld': [],
     }
+
+    @staticmethod
+    def check_executable():
+        """Returns True if the executable (armcc) location specified by the
+         user exists OR the executable can be found on the PATH.
+         Returns False otherwise."""
+        return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
@@ -55,11 +64,6 @@ class ARM(mbedToolchain):
             cpu = "Cortex-M7.fp.sp"
         else:
             cpu = target.core
-
-        if not TOOLCHAIN_PATHS['ARM']:
-            exe = find_executable('armcc')
-            if exe:
-                TOOLCHAIN_PATHS['ARM'] = dirname(dirname(exe))
 
         ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
         ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
@@ -85,8 +89,6 @@ class ARM(mbedToolchain):
 
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
-
-        self.toolchain_path = TOOLCHAIN_PATHS['ARM']
 
     def parse_dependencies(self, dep_path):
         dependencies = []

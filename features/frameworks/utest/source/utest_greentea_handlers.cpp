@@ -21,7 +21,6 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest_stack_trace.h"
 #include "utest/utest_serial.h"
-#include "mbed_stats.h"
 
 using namespace utest::v1;
 
@@ -106,10 +105,7 @@ utest::v1::status_t utest::v1::greentea_test_setup_handler(const size_t number_o
 void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     UTEST_LOG_FUNCTION();
-    mbed_stats_heap_t heap_stats;
     verbose_test_teardown_handler(passed, failed, failure);
-    mbed_stats_heap_get(&heap_stats);
-    greentea_send_kv("max_heap_usage",heap_stats.max_size);
     greentea_send_kv(TEST_ENV_TESTCASE_SUMMARY, passed, failed);
     int result = !(failed || (failure.reason && !(failure.reason & REASON_IGNORE)));
     GREENTEA_TESTSUITE_RESULT(result);

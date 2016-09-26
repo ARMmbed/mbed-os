@@ -28,7 +28,7 @@
  *******************************************************************************
  */
 #include "sleep_api.h"
-
+#include "rtc_api_hal.h"
 
 #if DEVICE_SLEEP
 
@@ -44,28 +44,16 @@ void sleep(void) {
     HAL_ResumeTick();
 }
 
-
-#if defined(TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
-void deepsleep(void) {
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-
-    HAL_InitTick(TICK_INT_PRIORITY);
-
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-
-    HAL_InitTick(TICK_INT_PRIORITY);
-}
-
-#else
 void deepsleep(void) {
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
-}
+
+#if DEVICE_LOWPOWERTIMER
+    rtc_synchronize();
 #endif
+}
 
 #endif

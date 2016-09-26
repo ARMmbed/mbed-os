@@ -35,7 +35,7 @@ from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from utils import argparse_dir_not_parent
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
@@ -115,6 +115,21 @@ if __name__ == '__main__':
             args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
 
+        if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+            search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+            args_error(parser, "Could not find executable for %s.\n"
+                               "Currently set search path: %s"
+                       % (toolchain, search_path))
+
+        # App config
+        # Disable finding `mbed_app.json` files in the source tree if not
+        # explicitly defined on the command line. Config system searches for
+        # `mbed_app.json` files if `app_config` is None, but will set the
+        # app config data to an empty dictionary if the path value is another
+        # falsey value besides None.
+        if options.app_config is None:
+            options.app_config = ''
+
         # Find all tests in the relevant paths
         for path in all_paths:
             all_tests.update(find_tests(path, mcu, toolchain, options.options,
@@ -178,7 +193,6 @@ if __name__ == '__main__':
                                                 verbose=options.verbose,
                                                 notify=notify,
                                                 archive=False,
-                                                remove_config_header_file=True,
                                                 app_config=options.app_config)
 
                 library_build_success = True
@@ -196,6 +210,7 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
+
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
                         options=options.options,
                         clean=options.clean,

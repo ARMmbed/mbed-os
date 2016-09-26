@@ -247,6 +247,7 @@ OS_TID rt_tsk_create (FUNCP task, U32 prio_stksz, void *stk, void *argv) {
   task_context->task_id = (U8)i;
   /* Pass parameter 'argv' to 'rt_init_context' */
   task_context->msg = argv;
+  task_context->argv = argv;
   /* For 'size == 0' system allocates the user stack from the memory pool. */
   rt_init_context (task_context, (U8)(prio_stksz & 0xFFU), task);
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if defined(S110)
 #include "btle.h"
 
 #include "nRF5xn.h"
@@ -323,3 +323,4 @@ btle_generateResolvableAddress(const ble_gap_irk_t &irk, ble_gap_addr_t &address
     /* Calculate the hash and store it in the top half of the address */
     ah(irk.irk, &address.addr[BLE_GAP_ADDR_LEN - 3], address.addr);
 }
+#endif

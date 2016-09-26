@@ -19,6 +19,7 @@
 
 #include "api/inc/uvisor_exports.h"
 #include "api/inc/page_allocator_exports.h"
+#include "api/inc/rpc_exports.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -43,10 +44,15 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
         UVISOR_BOX_MAGIC, \
         UVISOR_BOX_VERSION, \
         0, \
+        0, \
         sizeof(RtxBoxIndex), \
-        0, \
-        0, \
-        0, \
+        { \
+            0, \
+            sizeof(uvisor_rpc_outgoing_message_queue_t), \
+            sizeof(uvisor_rpc_incoming_message_queue_t), \
+            sizeof(uvisor_rpc_fn_group_queue_t), \
+        }, \
+        NULL, \
         NULL, \
         acl_list, \
         acl_list_count \
@@ -74,7 +80,10 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
                     (UVISOR_MIN_STACK(stack_size) + \
                     (context_size) + \
                     (__uvisor_box_heapsize) + \
-                    sizeof(RtxBoxIndex) \
+                    sizeof(RtxBoxIndex) + \
+                    sizeof(uvisor_rpc_outgoing_message_queue_t) + \
+                    sizeof(uvisor_rpc_incoming_message_queue_t) + \
+                    sizeof(uvisor_rpc_fn_group_queue_t) \
                 ) \
             * 8) \
         / 6)]; \
@@ -83,9 +92,14 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
         UVISOR_BOX_MAGIC, \
         UVISOR_BOX_VERSION, \
         UVISOR_MIN_STACK(stack_size), \
-        sizeof(RtxBoxIndex), \
-        context_size, \
         __uvisor_box_heapsize, \
+        sizeof(RtxBoxIndex), \
+        { \
+            context_size, \
+            sizeof(uvisor_rpc_outgoing_message_queue_t), \
+            sizeof(uvisor_rpc_incoming_message_queue_t), \
+            sizeof(uvisor_rpc_fn_group_queue_t), \
+        }, \
         __uvisor_box_lib_config, \
         __uvisor_box_namespace, \
         acl_list, \
@@ -138,13 +152,6 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
     static const uint32_t __uvisor_box_heapsize = heap_size;
 
 #define uvisor_ctx (*__uvisor_ps)
-
-/* Return the numeric box ID of the current box. */
-UVISOR_EXTERN int uvisor_box_id_self(void);
-
-/* Return the numeric box ID of the box that is calling through the most recent
- * secure gateway. Return -1 if there is no secure gateway calling box. */
-UVISOR_EXTERN int uvisor_box_id_caller(void);
 
 /* Copy the box namespace of the specified box ID to the memory provided by
  * box_namespace. The box_namespace's length must be at least

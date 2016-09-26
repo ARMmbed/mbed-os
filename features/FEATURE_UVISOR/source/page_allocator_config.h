@@ -37,8 +37,10 @@
 #define UVISOR_PAGE_SIZE_MINIMUM (1024UL)
 #endif
 
-/* Defines the number of uint32_t page owner masks in the owner map. */
-#define UVISOR_PAGE_MAP_COUNT ((UVISOR_PAGE_MAX_COUNT + 31) / 32)
+/* Defines the number of uint32_t page owner masks in the owner map.
+ * +8 is used for ARMv7-M MPUs, where a shift of up to 7-bits may be required
+ * to align MPU regions. */
+#define UVISOR_PAGE_MAP_COUNT ((UVISOR_PAGE_MAX_COUNT + 31 + 8) / 32)
 
 /* The page box_id is the box id which is 8-bit large. */
 typedef uint8_t page_owner_t;
@@ -46,6 +48,10 @@ typedef uint8_t page_owner_t;
 #define UVISOR_PAGE_UNUSED ((page_owner_t) (-1))
 /* Contains the total number of available pages. */
 extern uint8_t g_page_count_total;
+/* Contains the shift of the page owner mask. */
+extern uint8_t g_page_map_shift;
+/* Contains the ARMv7-MPU rounded page end. */
+extern uint32_t g_page_head_end_rounded;
 
 /** Sets the page bit in the page map array.
  * @param map   an array of `uint32_t` containing the page map
@@ -53,7 +59,7 @@ extern uint8_t g_page_count_total;
  */
 static inline void page_allocator_map_set(uint32_t * const map, uint8_t page)
 {
-    page += UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    page += g_page_map_shift;
     map[page / 32] |= (1UL << (page % 32));
 }
 
@@ -63,7 +69,7 @@ static inline void page_allocator_map_set(uint32_t * const map, uint8_t page)
  */
 static inline void page_allocator_map_clear(uint32_t * const map, uint8_t page)
 {
-    page += UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    page += g_page_map_shift;
     map[page / 32] &= ~(1UL << (page % 32));
 }
 
@@ -75,7 +81,7 @@ static inline void page_allocator_map_clear(uint32_t * const map, uint8_t page)
  */
 static inline int page_allocator_map_get(const uint32_t * const map, uint8_t page)
 {
-    page += UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    page += g_page_map_shift;
     return (map[page / 32] >> (page % 32)) & 0x1;
 }
 

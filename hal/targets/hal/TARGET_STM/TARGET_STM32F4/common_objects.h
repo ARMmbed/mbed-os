@@ -68,6 +68,36 @@ struct serial_s {
 #endif
 };
 
+struct spi_s {
+    SPI_HandleTypeDef handle;
+    IRQn_Type spiIRQ;
+    SPIName spi;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+#ifdef DEVICE_SPI_ASYNCH
+    uint32_t event;
+    uint8_t module;
+    uint8_t transfer_type;
+#endif
+};
+
+struct i2c_s {
+    I2CName  i2c;
+    I2C_HandleTypeDef handle;
+    IRQn_Type event_i2cIRQ;
+    IRQn_Type error_i2cIRQ;
+    uint8_t slave;
+#if DEVICE_I2C_ASYNCH
+    uint32_t address;
+    uint8_t event;
+    uint8_t stop;
+    uint8_t available_events;
+    uint8_t XferOperation;
+#endif
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

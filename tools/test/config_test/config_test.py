@@ -27,6 +27,7 @@ def compare_config(cfg, expected):
             if cfg[k].value != expected[k]:
                 return "'%s': expected '%s', got '%s'" % (k, expected[k], cfg[k].value)
     except KeyError:
+        raise
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
         if k not in ["desc", "expected_macros", "expected_features"] + cfg.keys():
@@ -39,13 +40,17 @@ def test_tree(full_name, name):
     if "test_data" in sys.modules:
        del sys.modules["test_data"]
     import test_data
+    # If the test defines custom targets, they must exist in a file called
+    # "targets.json" in the test's directory.
+    if os.path.isfile(os.path.join(full_name, "targets.json")):
+        set_targets_json_location(os.path.join(full_name, "targets.json"))
+    else: # uset the regular set of targets
+        set_targets_json_location()
     for target, expected in test_data.expected_results.items():
         sys.stdout.write("%s:'%s'(%s) " % (name, expected["desc"], target))
         sys.stdout.flush()
         err_msg = None
         try:
-            # Use 'set_targets_json_location' to remove the previous custom targets from the target list
-            set_targets_json_location(Target._Target__targets_json_location)
             cfg, macros, features = get_config(full_name, target, "GCC_ARM")
             macros = Config.config_macros_to_macros(macros)
         except ConfigException as e:

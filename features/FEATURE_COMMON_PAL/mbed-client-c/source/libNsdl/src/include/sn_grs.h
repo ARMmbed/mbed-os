@@ -51,41 +51,42 @@ typedef NS_LIST_HEAD(sn_nsdl_resource_info_s, link) resource_list_t;
 struct grs_s {
     struct coap_s *coap;
 
-    uint16_t resource_root_count;
-    resource_list_t resource_root_list;
-
-    void    *(*sn_grs_alloc)(uint16_t);
+    void *(*sn_grs_alloc)(uint16_t);
     void (*sn_grs_free)(void *);
     uint8_t (*sn_grs_tx_callback)(struct nsdl_s *, sn_nsdl_capab_e , uint8_t *, uint16_t, sn_nsdl_addr_s *);
     int8_t (*sn_grs_rx_callback)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *);
+
+    uint16_t resource_root_count;
+    resource_list_t resource_root_list;
 };
 
 
 struct nsdl_s {
-    struct grs_s *grs;
-
-    uint8_t *oma_bs_address_ptr;                                                /* Bootstrap address pointer. If null, no bootstrap in use */
-    uint8_t oma_bs_address_len;                                                 /* Bootstrap address length */
-    uint16_t oma_bs_port;                                                       /* Bootstrap port */
-    void (*sn_nsdl_oma_bs_done_cb)(sn_nsdl_oma_server_info_t *server_info_ptr); /* Callback to inform application when bootstrap is done */
-    sn_nsdl_ep_parameters_s *ep_information_ptr;    // Endpoint parameters, Name, Domain etc..
-    sn_nsdl_oma_server_info_t *nsp_address_ptr;     // NSP server address information
-    uint8_t sn_nsdl_endpoint_registered;
+    uint16_t update_register_msg_id;
+    uint16_t register_msg_len;
+    uint16_t update_register_msg_len;
 
     uint16_t register_msg_id;
     uint16_t unregister_msg_id;
 
+    uint16_t bootstrap_msg_id;
+    uint16_t oma_bs_port;                                                       /* Bootstrap port */
+    uint8_t oma_bs_address_len;                                                 /* Bootstrap address length */
+    unsigned int sn_nsdl_endpoint_registered:1;
+    bool handle_bootstrap_msg:1;
+
+    struct grs_s *grs;
+    uint8_t *oma_bs_address_ptr;                                                /* Bootstrap address pointer. If null, no bootstrap in use */
+    sn_nsdl_ep_parameters_s *ep_information_ptr;                                // Endpoint parameters, Name, Domain etc..
+    sn_nsdl_oma_server_info_t *nsp_address_ptr;                                 // NSP server address information
+
+    void (*sn_nsdl_oma_bs_done_cb)(sn_nsdl_oma_server_info_t *server_info_ptr); /* Callback to inform application when bootstrap is done */
     void *(*sn_nsdl_alloc)(uint16_t);
     void (*sn_nsdl_free)(void *);
     uint8_t (*sn_nsdl_tx_callback)(struct nsdl_s *, sn_nsdl_capab_e , uint8_t *, uint16_t, sn_nsdl_addr_s *);
     uint8_t (*sn_nsdl_rx_callback)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *);
     void (*sn_nsdl_oma_bs_done_cb_handle)(sn_nsdl_oma_server_info_t *server_info_ptr,
                                           struct nsdl_s *handle); /* Callback to inform application when bootstrap is done with nsdl handle */
-    uint16_t update_register_msg_id;
-    uint16_t register_msg_len;
-    uint16_t update_register_msg_len;
-    uint16_t bootstrap_msg_id;
-    bool handle_bootstrap_msg;
 };
 
 /***** Function prototypes *****/
@@ -119,6 +120,7 @@ extern void                             sn_grs_free_resource_list(struct grs_s *
 extern int8_t                           sn_grs_update_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res);
 extern int8_t                           sn_grs_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *address_ptr, sn_coap_hdr_s *coap_hdr_ptr);
 extern int8_t                           sn_grs_create_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res);
+extern int8_t                           sn_grs_put_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res);
 extern int8_t                           sn_grs_delete_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path);
 extern void                             sn_grs_mark_resources_as_registered(struct nsdl_s *handle);
 

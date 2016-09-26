@@ -35,15 +35,16 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 int main() {
     GREENTEA_SETUP(20, "default_auto");
 
-    bool result = true;
+    bool result = false;
     EthernetInterface eth;
     //eth.init(); //Use DHCP
     eth.connect();
     printf("TCP client IP Address is %s\r\n", eth.get_ip_address());
 
     TCPSocket sock(&eth);
+    printf("HTTP: Connection to %s:%d\r\n", HTTP_SERVER_NAME, HTTP_SERVER_PORT);
     if (sock.connect(HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
-        printf("HTTP: Connected to %s:%d\r\n", HTTP_SERVER_NAME, HTTP_SERVER_PORT);
+        printf("HTTP: OK\r\n");
 
         // We are constructing GET command like this:
         // GET http://developer.mbed.org/media/uploads/mbed_official/hello.txt HTTP/1.0\n\n
@@ -66,17 +67,18 @@ int main() {
         TEST_ASSERT_TRUE(found_200_ok);
         TEST_ASSERT_TRUE(found_hello);
 
-        if (!found_200_ok) result = false;
-        if (!found_hello) result = false;
+        if (found_200_ok && found_hello) result = true;
 
         printf("HTTP: Received %d chars from server\r\n", ret);
         printf("HTTP: Received 200 OK status ... %s\r\n", found_200_ok ? "[OK]" : "[FAIL]");
         printf("HTTP: Received '%s' status ... %s\r\n", HTTP_HELLO_STR, found_hello ? "[OK]" : "[FAIL]");
-        printf("HTTP: Received massage:\r\n\r\n");
+        printf("HTTP: Received message:\r\n");
         printf("%s", buffer);
+        sock.close();
+    } else {
+        printf("HTTP: ERROR\r\n");
     }
 
-    sock.close();
     eth.disconnect();
     GREENTEA_TESTSUITE_RESULT(result);
 }

@@ -22,9 +22,33 @@
 
 
 // Default NetworkStack operations
-int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
+int NetworkStack::gethostbyname(const char *name, SocketAddress *address)
 {
-    return nsapi_dns_query(this, address, name);
+    // check for simple ip addresses
+    if (address->set_ip_address(name)) {
+        return 0;
+    }
+
+    return nsapi_dns_query(this, name, address);
+}
+
+int NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+{
+    // check for simple ip addresses
+    if (address->set_ip_address(name)) {
+        if (address->get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        return 0;
+    }
+
+    return nsapi_dns_query(this, name, address, version);
+}
+
+int NetworkStack::add_dns_server(const SocketAddress &address)
+{
+    return nsapi_dns_add_server(address);
 }
 
 int NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
@@ -76,16 +100,25 @@ public:
         return address->get_ip_address();
     }
 
-    virtual int gethostbyname(SocketAddress *address, const char *name)
+    virtual int gethostbyname(const char *name, SocketAddress *address)
     {
         if (!_stack_api()->gethostbyname) {
-            return NetworkStack::gethostbyname(address, name);
+            return NetworkStack::gethostbyname(name, address);
         }
 
         nsapi_addr_t addr = {NSAPI_IPv4, 0};
-        int err = _stack_api()->gethostbyname(_stack(), &addr, name);
+        int err = _stack_api()->gethostbyname(_stack(), name, &addr);
         address->set_addr(addr);
         return err;
+    }
+
+    virtual int add_dns_server(const SocketAddress &address)
+    {
+        if (!_stack_api()->add_dns_server) {
+            return NetworkStack::add_dns_server(address);
+        }
+
+        return _stack_api()->add_dns_server(_stack(), address.get_addr());
     }
 
     virtual int setstackopt(int level, int optname, const void *optval, unsigned optlen)

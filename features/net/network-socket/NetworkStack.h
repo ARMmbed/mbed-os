@@ -45,15 +45,37 @@ public:
      *
      *  The hostname may be either a domain name or an IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
-     *  
-     *  If no stack-specific DNS resolution is provided, the hostname
-     *  will be resolve using a UDP socket on the stack. 
      *
-     *  @param address  Destination for the host SocketAddress
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
      *  @param host     Hostname to resolve
+     *  @param address  Destination for the host SocketAddress
      *  @return         0 on success, negative error code on failure
      */
-    virtual int gethostbyname(SocketAddress *address, const char *host);
+    virtual int gethostbyname(const char *host, SocketAddress *address);
+
+    /** Translates a hostname to an IP address with specific version
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
+     *  @param host     Hostname to resolve
+     *  @param address  Destination for the host SocketAddress
+     *  @param version  IP version of address to resolve
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version);
+
+    /** Add a domain name server to list of servers to query
+     *
+     *  @param addr     Destination for the host address
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int add_dns_server(const SocketAddress &address);
 
     /*  Set stack-specific stack options
      *
@@ -66,7 +88,7 @@ public:
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     virtual int setstackopt(int level, int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific stack options
@@ -80,7 +102,7 @@ public:
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     virtual int getstackopt(int level, int optname, void *optval, unsigned *optlen);
 
 protected:
@@ -260,7 +282,7 @@ protected:
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     virtual int setsockopt(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific socket options
@@ -275,7 +297,7 @@ protected:
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     virtual int getsockopt(nsapi_socket_t handle, int level, int optname, void *optval, unsigned *optlen);
 };
 

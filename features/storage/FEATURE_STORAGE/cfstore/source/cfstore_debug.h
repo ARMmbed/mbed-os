@@ -27,6 +27,7 @@
         printf(_fmt, __VA_ARGS__);                      \
   }while(0);
 
+//todo: restore #define noCFSTORE_DEBUG
 #define noCFSTORE_DEBUG
 //#define CFSTORE_DEBUG
 #ifdef CFSTORE_DEBUG

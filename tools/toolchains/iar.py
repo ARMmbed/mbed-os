@@ -16,8 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, exists, dirname, splitext, exists
-from distutils.spawn import find_executable
+from os.path import join, splitext, exists
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -30,6 +29,9 @@ class IAR(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
+    # ANY changes to these default flags is backwards incompatible and require
+    # an update to the mbed-sdk-tools and website that introduces a profile
+    # for the previous version of these flags
     DEFAULT_FLAGS = {
         'common': [
             "--no_wrap_diagnostics",
@@ -41,9 +43,16 @@ class IAR(mbedToolchain):
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
         'asm': [],
         'c': ["--vla"],
-        'cxx': ["--guard_calls"],
+        'cxx': ["--guard_calls", "--no_static_destruction"],
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
+
+    @staticmethod
+    def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
+        return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
@@ -51,11 +60,6 @@ class IAR(mbedToolchain):
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
-
-        if not TOOLCHAIN_PATHS['IAR']:
-            exe =  find_executable('iccarm')
-            if exe:
-                TOOLCHAIN_PATHS['IAR'] = dirname(dirname(exe))
 
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
@@ -104,11 +108,9 @@ class IAR(mbedToolchain):
         self.cppc = [main_cc]
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
-        self.ld   = join(IAR_BIN, "ilinkarm")
+        self.ld   = [join(IAR_BIN, "ilinkarm")]
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
-
-        self.toolchain_path = TOOLCHAIN_PATHS['IAR']
 
     def parse_dependencies(self, dep_path):
         return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()
@@ -203,7 +205,7 @@ class IAR(mbedToolchain):
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = [self.ld, "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
+        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
 
         if mem_map:
             cmd.extend(["--config", mem_map])

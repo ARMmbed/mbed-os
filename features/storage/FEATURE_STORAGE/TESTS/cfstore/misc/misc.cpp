@@ -272,7 +272,7 @@ control_t cfstore_misc_test_04_start(const size_t call_count)
 
     status = drv->GetStatus();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() before initialisation should have reported error, but reported no error.\r\n", __func__);
-    TEST_ASSERT_MESSAGE(status.error == true, cfstore_misc_utest_msg_g);
+    TEST_ASSERT_MESSAGE(status.error == 1, cfstore_misc_utest_msg_g);
 
     ret = drv->Initialize(cfstore_utest_default_callback, NULL);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to initialize CFSTORE (ret=%d)\n", __func__, (int) ret);
@@ -295,10 +295,10 @@ control_t cfstore_misc_test_04_end(const size_t call_count)
 
     status = drv->GetStatus();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() but reported error.\r\n", __func__);
-    TEST_ASSERT_MESSAGE(status.error == false, cfstore_misc_utest_msg_g);
+    TEST_ASSERT_MESSAGE(status.error == 0, cfstore_misc_utest_msg_g);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() reported operation in progress.\r\n", __func__);
-    TEST_ASSERT_MESSAGE(status.in_progress == false, cfstore_misc_utest_msg_g);
+    TEST_ASSERT_MESSAGE(status.in_progress == 0, cfstore_misc_utest_msg_g);
 
     ret = drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);

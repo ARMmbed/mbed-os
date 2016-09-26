@@ -160,6 +160,7 @@ used throughout the whole project.
 #define osFeature_Semaphore    65535   ///< maximum count for \ref osSemaphoreCreate function
 #define osFeature_Wait         0       ///< osWait function: 1=available, 0=not available
 #define osFeature_SysTick      1       ///< osKernelSysTick functions: 1=available, 0=not available
+#define osFeature_ThreadEnum   1       ///< Thread enumeration available
 
 #if defined (__CC_ARM)
 #define os_InRegs __value_in_regs      // Compiler specific: force struct in registers
@@ -223,6 +224,16 @@ typedef enum  {
   osTimerPeriodic         =     1        ///< repeating timer
 } os_timer_type;
 
+typedef enum {
+  osThreadInfoState,
+  osThreadInfoStackSize,
+  osThreadInfoStackMax,
+  osThreadInfoEntry,
+  osThreadInfoArg,
+
+  osThreadInfo_reserved   =  0x7FFFFFFF  ///< prevent from enum down-size compiler optimization.
+} osThreadInfo;
+
 /// Entry point of a thread.
 /// \note MUST REMAIN UNCHANGED: \b os_pthread shall be consistent in every CMSIS-RTOS.
 typedef void (*os_pthread) (void const *argument);
@@ -261,6 +272,8 @@ typedef struct os_messageQ_cb *osMessageQId;
 /// \note CAN BE CHANGED: \b os_mailQ_cb is implementation specific in every CMSIS-RTOS.
 typedef struct os_mailQ_cb *osMailQId;
 
+/// Thread enumeration ID identifies the enumeration (pointer to a thread enumeration control block).
+typedef uint32_t *osThreadEnumId;
 
 /// Thread Definition structure contains startup information of a thread.
 /// \note CAN BE CHANGED: \b os_thread_def is implementation specific in every CMSIS-RTOS.
@@ -447,6 +460,13 @@ osPriority osThreadGetPriority (osThreadId thread_id);
 /// Get current thread state.
 uint8_t osThreadGetState (osThreadId thread_id);
 #endif
+
+/// Get into from an active thread.
+/// \param[in]     thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId.
+/// \param[in]     info          information to read.
+/// \return current state of the thread function.
+/// \return requested info that includes the status code.
+os_InRegs osEvent _osThreadGetInfo(osThreadId thread_id, osThreadInfo info);
 
 //  ==== Generic Wait Functions ====
 
@@ -821,6 +841,26 @@ os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec);
 osStatus osMailFree (osMailQId queue_id, void *mail);
 
 #endif  // Mail Queues available
+
+
+//  ==== Thread Enumeration Functions ====
+
+#if (defined (osFeature_ThreadEnum)  &&  (osFeature_ThreadEnum != 0))     // Thread enumeration available
+
+/// Start a thread enumeration.
+/// \return an enumeration ID or NULL on error.
+osThreadEnumId _osThreadsEnumStart(void);
+
+/// Get the next task ID in the enumeration.
+/// \return a thread ID or NULL on if the end of the enumeration has been reached.
+osThreadId _osThreadEnumNext(osThreadEnumId enum_id);
+
+/// Free the enumeration structure.
+/// \param[in]     enum_id       pointer to the enumeration ID that was obtained with \ref _osThreadsEnumStart.
+/// \return status code that indicates the execution status of the function.
+osStatus _osThreadEnumFree(osThreadEnumId enum_id);
+
+#endif  // Thread Enumeration available
 
 
 //  ==== RTX Extensions ====

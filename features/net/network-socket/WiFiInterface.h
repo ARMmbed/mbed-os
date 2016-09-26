@@ -73,6 +73,15 @@ public:
                                uint8_t channel = 0, wifi_connect_cb_t cb = NULL, void *data = NULL,
                                unsigned timeout = 0) = 0;
 
+    /** Start the interface
+     *
+     *  Attempts to connect to a WiFi network. Requires ssid and passphrase to be set.
+     *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int connect();
+
     /** Stop the interface
      *
      *  @return          0 on success, or error code on failure

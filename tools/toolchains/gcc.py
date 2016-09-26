@@ -15,8 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext, dirname, exists
-from distutils.spawn import find_executable
+from os.path import join, basename, splitext
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -29,6 +28,9 @@ class GCC(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
+    # ANY changes to these default flags is backwards incompatible and require
+    # an update to the mbed-sdk-tools and website that introduces a profile
+    # for the previous version of these flags
     DEFAULT_FLAGS = {
         'common': ["-c", "-Wall", "-Wextra",
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
@@ -40,7 +42,8 @@ class GCC(mbedToolchain):
         'c': ["-std=gnu99"],
         'cxx': ["-std=gnu++98", "-fno-rtti", "-Wvla"],
         'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main",
-            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_calloc_r"],
+            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_calloc_r",
+            "-Wl,--wrap,exit", "-Wl,--wrap,atexit"],
     }
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
@@ -110,11 +113,6 @@ class GCC(mbedToolchain):
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
-
-        if tool_path:
-            self.toolchain_path = main_cc
-        else:
-            self.toolchain_path = find_executable("arm-none-eabi-gcc") or ''
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -275,6 +273,13 @@ class GCC(mbedToolchain):
 
 
 class GCC_ARM(GCC):
+    @staticmethod
+    def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
+        return mbedToolchain.generic_check_executable("GCC_ARM", 'arm-none-eabi-gcc', 1)
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose)
 
@@ -300,6 +305,13 @@ class GCC_ARM(GCC):
 
 
 class GCC_CR(GCC):
+    @staticmethod
+    def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
+        return mbedToolchain.generic_check_executable("GCC_CR", 'arm-none-eabi-gcc', 1)
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_CR'], extra_verbose=extra_verbose)
 
