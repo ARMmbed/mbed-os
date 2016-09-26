@@ -20,7 +20,7 @@
 
 /* Interface implementation */
 EthernetInterface::EthernetInterface()
-    : _dhcp(false), _ip_address(), _netmask(), _gateway()
+    : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
 }
 
