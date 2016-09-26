@@ -121,6 +121,15 @@ if __name__ == '__main__':
                                "Currently set search path: %s"
                        % (toolchain, search_path))
 
+        # App config
+        # Disable finding `mbed_app.json` files in the source tree if not
+        # explicitly defined on the command line. Config system searches for
+        # `mbed_app.json` files if `app_config` is None, but will set the
+        # app config data to an empty dictionary if the path value is another
+        # falsey value besides None.
+        if options.app_config is None:
+            options.app_config = ''
+
         # Find all tests in the relevant paths
         for path in all_paths:
             all_tests.update(find_tests(path, mcu, toolchain, options.options,
@@ -184,7 +193,6 @@ if __name__ == '__main__':
                                                 verbose=options.verbose,
                                                 notify=notify,
                                                 archive=False,
-                                                remove_config_header_file=True,
                                                 app_config=options.app_config)
 
                 library_build_success = True
