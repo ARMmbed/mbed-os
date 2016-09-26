@@ -4,22 +4,19 @@
  *
  *  \brief  Bluetooth device address utilities.
  *
- *          $Date: 2015-09-26 13:06:16 -0400 (Sat, 26 Sep 2015) $
- *          $Revision: 4027 $
+ *          $Date: 2016-02-18 16:07:11 -0800 (Thu, 18 Feb 2016) $
+ *          $Revision: 5910 $
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
+ *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef BDA_H
@@ -91,6 +88,19 @@ bool_t BdaCmp(const uint8_t *pAddr1, const uint8_t *pAddr2);
  */
 /*************************************************************************************************/
 uint8_t *BdaClr(uint8_t *pDst);
+
+/*************************************************************************************************/
+/*!
+*  \fn     BdaIsZeros
+*
+*  \brief  Check if a BD address is all zeros.
+*
+*  \param  pAddr    Pointer to address.
+*
+*  \return TRUE if address is all zeros, FALSE otherwise.
+*/
+/*************************************************************************************************/
+bool_t BdaIsZeros(const uint8_t *pAddr);
 
 /*************************************************************************************************/
 /*!

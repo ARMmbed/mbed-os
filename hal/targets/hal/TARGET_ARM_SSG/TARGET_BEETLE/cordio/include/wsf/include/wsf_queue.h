@@ -1,25 +1,22 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_queue.h
- *
+ *        
  *  \brief  General purpose queue service.
  *
- *          $Date: 2011-10-15 00:35:03 -0400 (Sat, 15 Oct 2011) $
+ *          $Date: 2011-10-14 21:35:03 -0700 (Fri, 14 Oct 2011) $
  *          $Revision: 191 $
+ *  
+ *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef WSF_QUEUE_H
