@@ -34,13 +34,13 @@
 
 #include "mbed_error.h"
 
-#if DEVICE_RTC_LSI
+#if RTC_LSI
 static int rtc_inited = 0;
 #endif
 
 static RTC_HandleTypeDef RtcHandle;
 
-#if DEVICE_RTC_LSI
+#if RTC_LSI
     #define RTC_CLOCK LSI_VALUE
 #else
     #define RTC_CLOCK LSE_VALUE
@@ -64,14 +64,14 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-#if DEVICE_RTC_LSI
+#if RTC_LSI
     if (rtc_inited) return;
     rtc_inited = 1;
 #endif
 
     RtcHandle.Instance = RTC;
 
-#if !DEVICE_RTC_LSI
+#if !RTC_LSI
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -130,7 +130,7 @@ void rtc_init(void)
     }
 
 #if DEVICE_LOWPOWERTIMER
-#if DEVICE_RTC_LSI
+#if RTC_LSI
     rtc_write(0);
 #else
     if (!rtc_isenabled()) {
@@ -146,7 +146,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-#if DEVICE_RTC_LSI
+#if RTC_LSI
     // Enable Power clock
     __HAL_RCC_PWR_CLK_ENABLE();
 
@@ -169,14 +169,14 @@ void rtc_free(void)
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-#if DEVICE_RTC_LSI
+#if RTC_LSI
     rtc_inited = 0;
 #endif
 }
 
 int rtc_isenabled(void)
 {
-#if DEVICE_RTC_LSI
+#if RTC_LSI
   return rtc_inited;
 #else
   if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
