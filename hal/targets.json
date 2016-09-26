@@ -833,7 +833,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
         "macros": ["DEVICE_RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "STORAGE", "TRNG"],
         "detect_code": ["0796"],
         "features": ["IPV4"],
         "release_versions": ["2", "5"]
@@ -1075,7 +1075,7 @@
         "macros": ["DEVICE_RTC_LSI=1","TRANSACTION_QUEUE_SIZE_SPI=2"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "disco-f429zi"},
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "STORAGE", "TRNG"],
         "release_versions": ["2", "5"]
     },
     "DISCO_F469NI": {
@@ -1088,7 +1088,7 @@
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "progen": {"target": "disco-f469ni"},
         "detect_code": ["0788"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG"],
         "release_versions": ["2", "5"]
     },
     "DISCO_L053C8": {
