@@ -403,7 +403,7 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
     }
 
     // Zero out socket set
-    lwip_arena_init(15000);
+    lwip_arena_init();
 
 #if LWIP_IPV6
     netif_create_ip6_linklocal_address(&lwip_netif, 1/*from MAC*/);
