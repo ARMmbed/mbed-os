@@ -84,7 +84,14 @@ def get_default_options_parser(add_clean=True, add_options=True,
 
 
 def extract_profile(parser, options, toolchain):
-    profile = { 'c': [], 'cxx': [], 'ld': [], 'common': [], 'asm': []}
+    """Extract a Toolchain profile from parsed options
+
+    Positional arguments:
+    parser - parser used to parse the command line arguments
+    options - The parsed command line arguments
+    toolchain - the toolchain that the profile should be extracted for
+    """
+    profile = {'c': [], 'cxx': [], 'ld': [], 'common': [], 'asm': []}
     filenames = options.profile or [join(dirname(__file__), "profiles",
                                          "default.json")]
     for filename in filenames:
