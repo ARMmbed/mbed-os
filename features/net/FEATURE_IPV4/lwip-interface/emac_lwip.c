@@ -35,12 +35,7 @@ static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
 
 static err_t emac_lwip_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
 {
-    /* Only send packets if the link is up */
-    if (netif->flags & NETIF_FLAG_UP) {
-        return etharp_output(netif, q, ipaddr);
-    }
-
-    return ERR_CONN;
+    return etharp_output(netif, q, ipaddr);
 }
 
 static void emac_lwip_input(void *data, emac_stack_t *buf)
