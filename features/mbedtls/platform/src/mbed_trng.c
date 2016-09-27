@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "hal/trng_api.h"
+#if defined(DEVICE_TRNG)
 
-#if defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && defined(DEVICE_TRNG)
+#include "hal/trng_api.h"
 
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
     trng_t trng_obj;
