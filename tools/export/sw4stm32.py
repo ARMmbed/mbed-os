@@ -70,7 +70,7 @@ class Sw4STM32(Exporter):
     }
 
     TARGETS = BOARDS.keys()
-        
+
     def __gen_dir(self, dirname):
         settings = join(self.export_dir, dirname)
         mkdir(settings)
@@ -83,7 +83,7 @@ class Sw4STM32(Exporter):
         for lib in self.resources.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
-        
+
         ctx = {
             'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
