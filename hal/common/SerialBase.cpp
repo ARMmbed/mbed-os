@@ -67,7 +67,7 @@ int SerialBase::writeable() {
     return ret;
 }
 
-void SerialBase::attach(Callback<void()> func, IrqType type) {
+void SerialBase::attach(const Event& func, IrqType type) {
     lock();
     // Disable interrupts when attaching interrupt handler
     core_util_critical_section_enter();
