@@ -83,7 +83,7 @@ public:
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
-    void rise(const EventAdapter& func);
+    void rise(const EventAdapter<void()>& func);
 
     /** Attach a member function to call when a rising edge occurs on the input
      *
@@ -107,7 +107,7 @@ public:
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
-    void fall(const EventAdapter& func);
+    void fall(const EventAdapter<void()>& func);
 
     /** Attach a member function to call when a falling edge occurs on the input
      *
@@ -149,8 +149,8 @@ protected:
     gpio_t gpio;
     gpio_irq_t gpio_irq;
 
-    EventAdapter _rise;
-    EventAdapter _fall;
+    EventAdapter<void()> _rise;
+    EventAdapter<void()> _fall;
 };
 
 } // namespace mbed

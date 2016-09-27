@@ -47,7 +47,7 @@ static void test_callbacks() {
     call_count = 0;
     // Create and call (they'll execute immediately in the context of the main thread)
     for (unsigned i = 0; i < 10; i ++) {
-        EventAdapter(test_func).call();
+        EventAdapter<void()>(test_func).call();
         TEST_ASSERT_EQUAL_UINT32(call_count, i + 1);
     }
 }
@@ -60,7 +60,7 @@ static void test_events() {
     queue_thread.start(callback(&queue, &EventQueue::dispatch_forever));
     // Create and call 10 events that will be queued
     for (unsigned i = 0; i < 10; i ++) {
-        EventAdapter(queue.event(test_func)).call();
+        EventAdapter<void()>(queue.event(test_func)).call();
     }
     // Wait for them to finish
     while (call_count < 10) {

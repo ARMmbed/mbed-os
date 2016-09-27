@@ -20,11 +20,14 @@
 #if MBED_CONF_MBED_EVENTS_PRESENT
 #include "Event.h"
 #endif
+#include "mbed_assert.h"
 #include <stdint.h>
+#include <new>
 
 namespace mbed {
 
-#if MBED_CONF_MBED_EVENTS_PRESENT
+template<typename F>
+class EventAdapter;
 
 /** An EventAdapter holds either a Callback<void()> or an Event<void()>. It can be used
  *  for attach()-style functions to specify if the attached callback should run in user
@@ -44,11 +47,15 @@ namespace mbed {
  *      sw.rise(callback(handler)); // run in interrupt context
  *      sw.rise(handler); // shortcut for the form above (run in interrupt context)
  *  }
+ *  @endcode
  */
-class EventAdapter {
+template<>
+class EventAdapter<void()> {
 
     typedef Callback<void()> adapter_callback_t;
+#if MBED_CONF_MBED_EVENTS_PRESENT
     typedef events::Event<void()> adapter_event_t;
+#endif
 
 public:
     /** Create an empty EventAdapter (it contains an empty Callback)
@@ -60,7 +67,7 @@ public:
     /** Create an EventAdapter that holds a callback
      *  @param cb The callback
      */
-    EventAdapter(const adapter_callback_t& cb) {
+    EventAdapter(const adapter_callback_t &cb) {
         construct_callback(cb);
     }
 
@@ -175,14 +182,16 @@ public:
         construct_callback(callback(func, arg));
     }
 
+#if MBED_CONF_MBED_EVENTS_PRESENT
     /** Create an EventAdapter that holds an Event
      *  @param evt The event
      */
-    EventAdapter(const adapter_event_t& evt) {
+    EventAdapter(const adapter_event_t &evt) {
         construct_event(evt);
     }
+#endif
 
-    EventAdapter(const EventAdapter& adapter) {
+    EventAdapter(const EventAdapter &adapter) {
         _attach(adapter);
     }
 
@@ -196,7 +205,7 @@ public:
         }
     }
 
-    EventAdapter& operator =(const EventAdapter& rhs) {
+    EventAdapter& operator =(const EventAdapter &rhs) {
         if (this != &rhs) {
             destroy();
             _attach(rhs);
@@ -207,7 +216,7 @@ public:
     /** Attach this adapter to the callback or event in a different adapter
      *  @param adapter The EventAdapter to attach.
      */
-    void attach(const EventAdapter& adapter) {
+    void attach(const EventAdapter &adapter) {
         destroy();
         _attach(adapter);
     }
@@ -218,7 +227,9 @@ public:
         if (_is_cb) {
             get_callback()->call();
         } else {
+#if MBED_CONF_MBED_EVENTS_PRESENT
             get_event()->call();
+#endif
         }
     }
 
@@ -238,7 +249,9 @@ private:
     union {
         // Ensure alignment by declaring the storage uint32_t instead of uint8_t
         uint32_t _cb_data[(sizeof(adapter_callback_t) + sizeof(uint32_t) - 1) / sizeof(uint32_t)];
+#if MBED_CONF_MBED_EVENTS_PRESENT
         uint32_t _evt_data[(sizeof(adapter_event_t) + sizeof(uint32_t) - 1) / sizeof(uint32_t)];
+#endif
     };
     bool  _is_cb;
 
@@ -246,56 +259,57 @@ private:
         if (_is_cb) {
             get_callback()->~adapter_callback_t();
         } else {
+#if MBED_CONF_MBED_EVENTS_PRESENT
             get_event()->~adapter_event_t();
+#endif
         }
     }
 
-    void construct_callback(const adapter_callback_t& cb) {
+    void construct_callback(const adapter_callback_t &cb) {
         _is_cb = true;
         adapter_callback_t *p_cb = reinterpret_cast<adapter_callback_t*>(&_cb_data);
         new (p_cb) adapter_callback_t();
         p_cb->attach(cb);
     }
 
-    void construct_event(const adapter_event_t&evt) {
+#if MBED_CONF_MBED_EVENTS_PRESENT
+    void construct_event(const adapter_event_t &evt) {
         _is_cb = false;
         adapter_event_t *p_evt = reinterpret_cast<adapter_event_t*>(&_evt_data);
         new(p_evt) adapter_event_t(evt);
     }
 
     const adapter_event_t *get_event() const {
+        MBED_ASSERT(!_is_cb);
         return reinterpret_cast<const adapter_event_t*>(&_evt_data);
     }
 
     adapter_event_t *get_event() {
+        MBED_ASSERT(!_is_cb);
         return reinterpret_cast<adapter_event_t*>(&_evt_data);
     }
+#endif
 
     const adapter_callback_t *get_callback() const {
+        MBED_ASSERT(_is_cb);
         return reinterpret_cast<const adapter_callback_t*>(&_cb_data);
     }
 
     adapter_callback_t *get_callback()  {
+        MBED_ASSERT(_is_cb);
         return reinterpret_cast<adapter_callback_t*>(&_cb_data);
     }
 
-    void _attach(const EventAdapter& adapter) {
+    void _attach(const EventAdapter &adapter) {
         if (adapter._is_cb) {
             construct_callback(*adapter.get_callback());
         } else {
+#if MBED_CONF_MBED_EVENTS_PRESENT
             construct_event(*adapter.get_event());
+#endif
         }
     }
 };
-
-
-#else // #if MBED_CONF_MBED_EVENTS_PRESENT
-
-/** Without an event queue, an EventAdapter is an alias for Callback<void()>
- */
-typedef Callback<void()> EventAdapter;
-
-#endif // #if MBED_CONF_MBED_EVENTS_PRESENT
 
 } // namespace mbed
 

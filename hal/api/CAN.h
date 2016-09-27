@@ -214,7 +214,7 @@ public:
      *  @param func A pointer to a void function, or 0 to set as none
      *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
-    void attach(const EventAdapter& func, IrqType type=RxIrq);
+    void attach(const EventAdapter<void()>& func, IrqType type=RxIrq);
 
    /** Attach a member function to call whenever a CAN frame received interrupt
     *  is generated.
@@ -247,9 +247,9 @@ public:
 protected:
     virtual void lock();
     virtual void unlock();
-    can_t               _can;
-    EventAdapter        _irq[IrqCnt];
-    PlatformMutex       _mutex;
+    can_t                   _can;
+    EventAdapter<void()>    _irq[IrqCnt];
+    PlatformMutex           _mutex;
 };
 
 } // namespace mbed

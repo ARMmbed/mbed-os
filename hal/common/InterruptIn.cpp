@@ -50,7 +50,7 @@ void InterruptIn::mode(PinMode pull) {
     core_util_critical_section_exit();
 }
 
-void InterruptIn::rise(const EventAdapter& func) {
+void InterruptIn::rise(const EventAdapter<void()>& func) {
     core_util_critical_section_enter();
     if (func) {
         _rise.attach(func);
@@ -62,7 +62,7 @@ void InterruptIn::rise(const EventAdapter& func) {
     core_util_critical_section_exit();
 }
 
-void InterruptIn::fall(const EventAdapter& func) {
+void InterruptIn::fall(const EventAdapter<void()>& func) {
     core_util_critical_section_enter();
     if (func) {
         _fall.attach(func);
