@@ -21,7 +21,7 @@
 #if DEVICE_SERIAL
 
 #include "Stream.h"
-#include "Callback.h"
+#include "EventAdapter.h"
 #include "serial_api.h"
 #include "toolchain.h"
 
@@ -97,7 +97,7 @@ public:
      *  @param func A pointer to a void function, or 0 to set as none
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      */
-    void attach(Callback<void()> func, IrqType type=RxIrq);
+    void attach(const EventAdapter& func, IrqType type=RxIrq);
 
     /** Attach a member function to call whenever a serial interrupt is generated
      *
@@ -246,7 +246,7 @@ protected:
 #endif
 
     serial_t         _serial;
-    Callback<void()> _irq[IrqCnt];
+    EventAdapter     _irq[IrqCnt];
     int              _baud;
 
 };
