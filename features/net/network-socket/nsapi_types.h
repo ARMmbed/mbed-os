@@ -85,15 +85,16 @@ typedef enum nsapi_error {
  *  @enum nsapi_version_t
  */
 typedef enum nsapi_version {
-    NSAPI_IPv4, /*!< Address is IPv4 */
-    NSAPI_IPv6, /*!< Address is IPv6 */
+    NSAPI_IPv4,   /*!< Address is IPv4 */
+    NSAPI_IPv6,   /*!< Address is IPv6 */
+    NSAPI_UNSPEC  /*!< Address is unspecified */
 } nsapi_version_t;
 
 /** IP address structure for passing IP addresses by value
  */
 typedef struct nsapi_addr {
     /** IP version
-     *  NSAPI_IPv4 or NSAPI_IPv6
+     *  NSAPI_IPv4 or NSAPI_IPv6 (NSAPI_UNSPEC not currently supported)
      */
     nsapi_version_t version;
 
@@ -197,9 +198,10 @@ typedef struct nsapi_stack_api
      *  @param stack    Stack handle
      *  @param addr     Destination for the host IP address
      *  @param host     Hostname to resolve
+     *  @param version  Address family
      *  @return         0 on success, negative error code on failure
      */
-    int (*gethostbyname)(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr);
+    int (*gethostbyname)(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr, nsapi_version_t version);
 
     /** Add a domain name server to list of servers to query
      *
