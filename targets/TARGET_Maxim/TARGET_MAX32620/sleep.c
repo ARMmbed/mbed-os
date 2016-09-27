@@ -32,14 +32,12 @@
  */
 
 #include "sleep_api.h"
-#include "cmsis.h"
 #include "pwrman_regs.h"
 #include "pwrseq_regs.h"
 #include "clkman_regs.h"
 #include "ioman_regs.h"
 #include "rtc_regs.h"
 #include "usb_regs.h"
-#include "wait_api.h"
 
 #define REVISION_A3 2
 #define REVISION_A4 3
@@ -178,7 +176,7 @@ void deepsleep(void)
     MXC_PWRSEQ->reg1 |= MXC_F_PWRSEQ_REG1_PWR_MBUS_GATE;
 
     // Dummy read to make sure SSB writes are complete
-    MXC_PWRSEQ->reg0;
+    MXC_PWRSEQ->reg0 = MXC_PWRSEQ->reg0;
 
     if (part_rev == REVISION_A4) {
         // Note: ARM deep-sleep requires a specific sequence to clear event latches,
