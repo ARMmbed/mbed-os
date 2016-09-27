@@ -17,19 +17,12 @@
 * TYPES
 *=========================================================================*/
 typedef struct {
-    emac_link_input_fn _wifi_input_cb;
-    emac_link_state_change_fn _wifi_state_cb;
-    void* _link_input_user_data;
-    void* _link_state_user_data;
+    emac_link_input_fn wifi_input_cb;
+    emac_link_state_change_fn wifi_state_cb;
+    void* link_input_user_data;
+    void* link_state_user_data;
     bool linkStateRegistered;
-    Mutex send_mutex;
 } wifi_emac_api_s;
-
-/*===========================================================================
-* DEFINITIONS
-*=========================================================================*/
-static wifi_emac_api_s _admin;
-static const char ifname[] = "WL0";
 
 /*===========================================================================
 * DECLARATIONS
@@ -42,6 +35,38 @@ static cbWLANTARGET_dataFrame* handleWlanTargetAllocDataFrame(uint32_t size);
 static void handleWlanTargetFreeDataFrame(cbWLANTARGET_dataFrame* frame);
 static cb_uint32 handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame* frame);
 static cb_uint8 handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame* frame);
+
+static uint32_t wifi_get_mtu_size(emac_interface_t *emac);
+static void wifi_get_ifname(emac_interface_t *emac, char *name, uint8_t size);
+static uint8_t wifi_get_hwaddr_size(emac_interface_t *emac);
+static void wifi_get_hwaddr(emac_interface_t *emac, uint8_t *addr);
+static void wifi_set_hwaddr(emac_interface_t *emac, uint8_t *addr);
+static bool wifi_link_out(emac_interface_t *emac, emac_stack_mem_t *buf);
+static bool wifi_power_up(emac_interface_t *emac);
+static void wifi_power_down(emac_interface_t *emac);
+static void wifi_set_link_input_cb(emac_interface_t *emac, emac_link_input_fn input_cb, void *data);
+static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_change_fn state_cb, void *data);
+
+/*===========================================================================
+* DEFINITIONS
+*=========================================================================*/
+static wifi_emac_api_s _admin;
+static const char _ifname[] = "WL0";
+
+const emac_interface_ops_t wifi_emac_interface = {
+    .get_mtu_size = wifi_get_mtu_size,
+    .get_ifname = wifi_get_ifname,
+    .get_hwaddr_size = wifi_get_hwaddr_size,
+    .get_hwaddr = wifi_get_hwaddr,
+    .set_hwaddr = wifi_set_hwaddr,
+    .link_out = wifi_link_out,
+    .power_up = wifi_power_up,
+    .power_down = wifi_power_down,
+    .set_link_input_cb = wifi_set_link_input_cb,
+    .set_link_state_cb = wifi_set_link_state_cb
+};
+
+static emac_interface_t _intf = { wifi_emac_interface, NULL };
 
 static const cbWLANTARGET_Callback _wlanTargetCallback =
 {
@@ -79,14 +104,14 @@ static void statusIndication(void *dummy, cbWLAN_StatusIndicationInfo status, vo
             break;
     }
     if (sendCb) {
-        _admin._wifi_state_cb(_admin._link_state_user_data, linkUp);
+        _admin.wifi_state_cb(_admin.link_state_user_data, linkUp);
     }
 }
 
 static void packetIndication(void *dummy, cbWLAN_PacketIndicationInfo *packetInfo)
 {
     (void)dummy;
-    _admin._wifi_input_cb(_admin._link_input_user_data, (void*)packetInfo);
+    _admin.wifi_input_cb(_admin.link_input_user_data, (void*)packetInfo->rxData);
 }
 
 static cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGET_dataFrame* frame, uint32_t size, uint32_t offsetInFrame)
@@ -203,7 +228,7 @@ static void wifi_get_ifname(emac_interface_t *emac, char *name, uint8_t size)
 {
     (void)emac;
     MBED_ASSERT(name != NULL);
-    memcpy((void*)name, (void*)&ifname, cb_MIN(size, sizeof(ifname)));
+    memcpy((void*)name, (void*)&_ifname, cb_MIN(size, sizeof(_ifname)));
 }
 
 static uint8_t wifi_get_hwaddr_size(emac_interface_t *emac)
@@ -231,17 +256,20 @@ static void wifi_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
 static bool wifi_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 {
     (void)emac;
-    _admin.send_mutex.lock();
+    cbMAIN_driverLock();
     cbWLAN_sendPacket((void*)buf);
-    _admin.send_mutex.unlock();
+    cbMAIN_driverUnlock();
     return true;
 }
+
 
 static bool wifi_power_up(emac_interface_t *emac)
 {
     (void)emac;
 
+    cbMAIN_driverLock();
     cbWLANTARGET_registerCallbacks((cbWLANTARGET_Callback*)&_wlanTargetCallback);
+    cbMAIN_driverUnlock();
     return true;
 }
 
@@ -255,10 +283,12 @@ static void wifi_set_link_input_cb(emac_interface_t *emac, emac_link_input_fn in
     void *dummy = NULL;
     (void)emac;
 
-    _admin._wifi_input_cb = input_cb;
-    _admin._link_input_user_data = data;
+    _admin.wifi_input_cb = input_cb;
+    _admin.link_input_user_data = data;
 
+    cbMAIN_driverLock();
     cbWLAN_registerPacketIndicationCallback(packetIndication, dummy);
+    cbMAIN_driverUnlock();
 }
 
 static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_change_fn state_cb, void *data)
@@ -267,11 +297,13 @@ static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_chang
     void *dummy = NULL;
     (void)emac;
     
-    _admin._wifi_state_cb = state_cb;
-    _admin._link_state_user_data = data;
+    _admin.wifi_state_cb = state_cb;
+    _admin.link_state_user_data = data;
 
     if (!_admin.linkStateRegistered) {
+        cbMAIN_driverLock();
         result = cbWLAN_registerStatusCallback(statusIndication, dummy);
+        cbMAIN_driverUnlock();
         if (result == cbSTATUS_OK) {
             _admin.linkStateRegistered = true;
         }
@@ -279,21 +311,7 @@ static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_chang
 
 }
 
-const emac_interface_ops_t wifi_emac_interface = {
-    .get_mtu_size = wifi_get_mtu_size,
-    .get_ifname = wifi_get_ifname,
-    .get_hwaddr_size = wifi_get_hwaddr_size,
-    .get_hwaddr = wifi_get_hwaddr,
-    .set_hwaddr = wifi_set_hwaddr,
-    .link_out = wifi_link_out,
-    .power_up = wifi_power_up,
-    .power_down = wifi_power_down,
-    .set_link_input_cb = wifi_set_link_input_cb,
-    .set_link_state_cb = wifi_set_link_state_cb
-};
-
-//@TODO: add declaration in a suitable include file
-void get_emac_interface_ops(const emac_interface_ops_t* emac_interface)
+emac_interface_t* get_emac_interface()
 {
-    emac_interface = &wifi_emac_interface;
+    return &_intf;
 }
