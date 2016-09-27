@@ -32,6 +32,30 @@ namespace mbed {
 template <typename F>
 class Callback;
 
+// Internal sfinae declarations
+//
+// These are used to eliminate overloads based on type attributes
+// 1. Does a function object have a call operator
+// 2. Does a function object fit in the available storage
+//
+// These eliminations are handled cleanly by the compiler and avoid
+// massive and misleading error messages when confronted with an
+// invalid type (or worse, runtime failures)
+namespace detail {
+    struct nil {};
+
+    template <bool B, typename R = nil>
+    struct enable_if { typedef R type; };
+
+    template <typename R>
+    struct enable_if<false, R> {};
+
+    template <typename M, M>
+    struct is_type {
+        static const bool value = true;
+    };
+}
+
 /** Callback class based on template specialization
  *
  * @Note Synchronization level: Not protected
@@ -162,6 +186,54 @@ public:
     template<typename T>
     Callback(R (*func)(const volatile T*), const volatile T *arg) {
         generate(function_context<R (*)(const volatile T*), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -402,6 +474,58 @@ public:
     void attach(R (*func)(const volatile T*), const volatile T *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -768,6 +892,54 @@ public:
         generate(function_context<R (*)(const volatile T*, A0), const volatile T>(func, arg));
     }
 
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
@@ -1006,6 +1178,58 @@ public:
     void attach(R (*func)(const volatile T*, A0), const volatile T *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -1372,6 +1596,54 @@ public:
         generate(function_context<R (*)(const volatile T*, A0, A1), const volatile T>(func, arg));
     }
 
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
@@ -1610,6 +1882,58 @@ public:
     void attach(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -1976,6 +2300,54 @@ public:
         generate(function_context<R (*)(const volatile T*, A0, A1, A2), const volatile T>(func, arg));
     }
 
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
@@ -2214,6 +2586,58 @@ public:
     void attach(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -2580,6 +3004,54 @@ public:
         generate(function_context<R (*)(const volatile T*, A0, A1, A2, A3), const volatile T>(func, arg));
     }
 
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
@@ -2818,6 +3290,58 @@ public:
     void attach(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -3184,6 +3708,54 @@ public:
         generate(function_context<R (*)(const volatile T*, A0, A1, A2, A3, A4), const volatile T>(func, arg));
     }
 
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
     /** Create a Callback with a static function and bound pointer
      *  @param obj  Pointer to object to bind to function
      *  @param func Static function to attach
@@ -3422,6 +3994,58 @@ public:
     void attach(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -3813,6 +4437,54 @@ Callback<R()> callback(R (*func)(const volatile T*), const volatile T *arg) {
 }
 
 /** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -4083,6 +4755,54 @@ Callback<R(A0)> callback(R (*func)(volatile T*, A0), volatile T *arg) {
 template <typename T, typename R, typename A0>
 Callback<R(A0)> callback(R (*func)(const volatile T*, A0), const volatile T *arg) {
     return Callback<R(A0)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4359,6 +5079,54 @@ Callback<R(A0, A1)> callback(R (*func)(const volatile T*, A0, A1), const volatil
 }
 
 /** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -4629,6 +5397,54 @@ Callback<R(A0, A1, A2)> callback(R (*func)(volatile T*, A0, A1, A2), volatile T 
 template <typename T, typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
     return Callback<R(A0, A1, A2)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4905,6 +5721,54 @@ Callback<R(A0, A1, A2, A3)> callback(R (*func)(const volatile T*, A0, A1, A2, A3
 }
 
 /** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -5175,6 +6039,54 @@ Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(volatile T*, A0, A1, A2, A3, 
 template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
     return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
