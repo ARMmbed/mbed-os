@@ -124,6 +124,10 @@ struct sleep_s {
     int powerdown;
 };
 
+struct trng_s {
+    uint8_t dummy;
+};
+
 #ifdef __cplusplus
 }
 #endif

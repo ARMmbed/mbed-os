@@ -61,6 +61,10 @@ struct dac_s {
     DACName dac;
 };
 
+struct trng_s {
+    uint8_t dummy;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
