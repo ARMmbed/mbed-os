@@ -1,0 +1,6 @@
+{
+    "name": "mbed-events",
+    "config": {
+        "present": 1
+    }
+}

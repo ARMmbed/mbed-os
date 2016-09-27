@@ -1,11 +1,30 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2016 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #ifndef MBED_EVENT_ADAPTER_H
 #define MBED_EVENT_ADAPTER_H
 
 #include "Callback.h"
+#if MBED_CONF_MBED_EVENTS_PRESENT
 #include "Event.h"
+#endif
 #include <stdint.h>
 
 namespace mbed {
+
+#if MBED_CONF_MBED_EVENTS_PRESENT
 
 /** An EventAdapter holds either a Callback<void()> or an Event<void()>. It can be used
  *  for attach()-style functions to specify if the attached callback should run in user
@@ -269,6 +288,15 @@ private:
     }
 };
 
+
+#else // #if MBED_CONF_MBED_EVENTS_PRESENT
+
+/** Without an event queue, an EventAdapter is an alias for Callback<void()>
+ */
+typedef Callback<void()> EventAdapter;
+
+#endif // #if MBED_CONF_MBED_EVENTS_PRESENT
+
 } // namespace mbed
 
-#endif
+#endif // #ifndef MBED_EVENT_ADAPTER_H
