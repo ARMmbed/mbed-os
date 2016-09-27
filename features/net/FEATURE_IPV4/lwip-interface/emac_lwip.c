@@ -98,12 +98,12 @@ err_t emac_lwip_if_init(struct netif *netif)
 }
 
 /* That's a compatibility layer for lwip_stack.c, it's already done by emac_interface in power_up and power_down */
-void eth_arch_enable_interrupts(void)
+void emac_lwip_enable_interrupts(void)
 {
 
 }
 
-void eth_arch_disable_interrupts(void)
+void emac_lwip_disable_interrupts(void)
 {
 
 }

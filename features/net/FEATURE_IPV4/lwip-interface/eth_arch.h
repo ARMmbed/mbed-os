@@ -29,12 +29,14 @@
 extern "C" {
 #endif
 
-void eth_arch_enable_interrupts(void);
-void eth_arch_disable_interrupts(void);
 
 #if DEVICE_EMAC
 err_t emac_lwip_if_init(struct netif *netif);
+void emac_lwip_enable_interrupts(void);
+void emac_lwip_disable_interrupts(void);
 #else /* DEVICE_EMAC */
+void eth_arch_enable_interrupts(void);
+void eth_arch_disable_interrupts(void);
 err_t eth_arch_enetif_init(struct netif *netif);
 #endif /* DEVICE_MAC */
 
