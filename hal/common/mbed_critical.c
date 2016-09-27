@@ -19,6 +19,7 @@
 
 #include "cmsis.h"
 #include "mbed_assert.h"
+#include "toolchain.h"
 
 #define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
 
@@ -34,7 +35,7 @@ bool core_util_are_interrupts_enabled(void)
 #endif
 }
 
-void core_util_critical_section_enter(void)
+MBED_WEAK void core_util_critical_section_enter(void)
 {
     bool interrupts_disabled = !core_util_are_interrupts_enabled();
     __disable_irq();
@@ -59,7 +60,7 @@ void core_util_critical_section_enter(void)
     interrupt_enable_counter++;
 }
 
-void core_util_critical_section_exit(void)
+MBED_WEAK void core_util_critical_section_exit(void)
 {
     /* If critical_section_enter has not previously been called, do nothing */
     if (interrupt_enable_counter) {
