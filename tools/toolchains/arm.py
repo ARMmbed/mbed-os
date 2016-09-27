@@ -30,20 +30,6 @@ class ARM(mbedToolchain):
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
-
-    # ANY changes to these default flags is backwards incompatible and require
-    # an update to the mbed-sdk-tools and website that introduces a profile
-    # for the previous version of these flags
-    DEFAULT_FLAGS = {
-        'common': ["-c", "--gnu",
-            "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars"],
-        'asm': [],
-        'c': ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
-        'cxx': ["--cpp", "--no_rtti", "--no_vla"],
-        'ld': [],
-    }
-
     @staticmethod
     def check_executable():
         """Returns True if the executable (armcc) location specified by the
@@ -51,9 +37,9 @@ class ARM(mbedToolchain):
          Returns False otherwise."""
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
-    def __init__(self, target, options=None, notify=None, macros=None,
+    def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent,
+        mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
@@ -74,14 +60,6 @@ class ARM(mbedToolchain):
         main_cc = join(ARM_BIN, "armcc")
 
         self.flags['common'] += ["--cpu=%s" % cpu]
-        if "save-asm" in self.options:
-            self.flags['common'].extend(["--asm", "--interleave"])
-
-        if "debug-info" in self.options:
-            self.flags['common'].append("-g")
-            self.flags['c'].append("-O0")
-        else:
-            self.flags['c'].append("-O3")
 
         self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + ["-I \""+ARM_INC+"\""]
         self.cc = [main_cc] + self.flags['common'] + self.flags['c'] + ["-I \""+ARM_INC+"\""]
@@ -244,9 +222,9 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None, macros=None,
+    def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None):
-        ARM.__init__(self, target, options, notify, macros, silent,
+        ARM.__init__(self, target, notify, macros, silent,
                      extra_verbose=extra_verbose, build_profile=build_profile)
 
         # Run-time values
@@ -256,9 +234,9 @@ class ARM_STD(ARM):
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
 
-    def __init__(self, target, options=None, notify=None, macros=None,
+    def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None):
-        ARM.__init__(self, target, options, notify, macros, silent,
+        ARM.__init__(self, target, notify, macros, silent,
                      extra_verbose=extra_verbose, build_profile=build_profile)
 
         # Extend flags

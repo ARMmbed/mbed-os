@@ -274,7 +274,7 @@ def get_mbed_official_release(version):
 
 
 def prepare_toolchain(src_paths, target, toolchain_name,
-                      macros=None, options=None, clean=False, jobs=1,
+                      macros=None, clean=False, jobs=1,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None,
                       app_config=None, build_profile=None):
@@ -287,7 +287,6 @@ def prepare_toolchain(src_paths, target, toolchain_name,
 
     Keyword arguments:
     macros - additional macros
-    options - general compiler options like debug-symbols or small-build
     clean - Rebuild everything if True
     jobs - how many compilers we can run at once
     notify - Notify function for logs
@@ -296,6 +295,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
+    build_profile - a dict of flags that will be passed to the compiler
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -309,7 +309,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     # Toolchain instance
     try:
         toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, options, notify, macros, silent,
+            target, notify, macros, silent,
             extra_verbose=extra_verbose, build_profile=build_profile)
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
@@ -361,7 +361,7 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,
-                  libraries_paths=None, options=None, linker_script=None,
+                  libraries_paths=None, linker_script=None,
                   clean=False, notify=None, verbose=False, name=None,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
@@ -378,7 +378,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     Keyword arguments:
     libraries_paths - The location of libraries to include when linking
-    options - general compiler options like debug-symbols or small-build
     linker_script - the file that drives the linker to do it's job
     clean - Rebuild everything if True
     notify - Notify function for logs
@@ -395,6 +394,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
+    build_profile - a dict of flags that will be passed to the compiler
     """
 
     # Convert src_path to a list if needed
@@ -411,8 +411,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
-        src_paths, target, toolchain_name, macros=macros, options=options,
-        clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
+        src_paths, target, toolchain_name, macros=macros, clean=clean,
+        jobs=jobs, notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, config=config, app_config=app_config,
         build_profile=build_profile)
 
@@ -484,11 +484,12 @@ def build_project(src_paths, build_path, target, toolchain_name,
         raise
 
 def build_library(src_paths, build_path, target, toolchain_name,
-                  dependencies_paths=None, options=None, name=None, clean=False,
+                  dependencies_paths=None, name=None, clean=False,
                   archive=True, notify=None, verbose=False, macros=None,
                   inc_dirs=None, jobs=1, silent=False, report=None,
                   properties=None, extra_verbose=False, project_id=None,
-                  remove_config_header_file=False, app_config=None):
+                  remove_config_header_file=False, app_config=None,
+                  build_profile=None):
     """ Build a library
 
     Positional arguments:
@@ -500,7 +501,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     Keyword arguments:
     dependencies_paths - The location of libraries to include when linking
-    options - general compiler options like debug-symbols or small-build
     name - the name of the library
     clean - Rebuild everything if True
     archive - whether the library will create an archive file
@@ -516,6 +516,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     project_id - the name that goes in the report
     remove_config_header_file - delete config header file when done building
     app_config - location of a chosen mbed_app.json file
+    build_profile - a dict of flags that will be passed to the compiler
     """
 
     # Convert src_path to a list if needed
@@ -537,9 +538,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
-        src_paths, target, toolchain_name, macros=macros, options=options,
-        clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, app_config=app_config)
+        src_paths, target, toolchain_name, macros=macros, clean=clean,
+        jobs=jobs, notify=notify, silent=silent, verbose=verbose,
+        extra_verbose=extra_verbose, app_config=app_config,
+        build_profile=build_profile)
 
     # The first path will give the name to the library
     if name is None:
@@ -640,9 +642,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
 ### Legacy methods ###
 ######################
 
-def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
+def build_lib(lib_id, target, toolchain_name, verbose=False,
               clean=False, macros=None, notify=None, jobs=1, silent=False,
-              report=None, properties=None, extra_verbose=False):
+              report=None, properties=None, extra_verbose=False,
+              build_profile=None):
     """ Legacy method for building mbed libraries
 
     Positional arguments:
@@ -651,7 +654,6 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
     toolchain_name - the name of the build tools
 
     Keyword arguments:
-    options - general compiler options like debug-symbols or small-build
     clean - Rebuild everything if True
     verbose - Write the actual tools command lines used if True
     macros - additional macros
@@ -661,6 +663,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
     extra_verbose - even more output!
+    build_profile - a dict of flags that will be passed to the compiler
     """
     lib = Library(lib_id)
     if not lib.is_supported(target, toolchain_name):
@@ -716,8 +719,8 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
     try:
         # Toolchain instance
         toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, options, macros=macros, notify=notify, silent=silent,
-            extra_verbose=extra_verbose)
+            target, macros=macros, notify=notify, silent=silent,
+            extra_verbose=extra_verbose, build_profile=build_profile)
         toolchain.VERBOSE = verbose
         toolchain.jobs = jobs
         toolchain.build_all = clean
@@ -805,9 +808,10 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False,
 
 # We do have unique legacy conventions about how we build and package the mbed
 # library
-def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
+def build_mbed_libs(target, toolchain_name, verbose=False,
                     clean=False, macros=None, notify=None, jobs=1, silent=False,
-                    report=None, properties=None, extra_verbose=False):
+                    report=None, properties=None, extra_verbose=False,
+                    build_profile=None):
     """ Function returns True is library was built and false if building was
     skipped
 
@@ -816,7 +820,6 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
     toolchain_name - the name of the build tools
 
     Keyword arguments:
-    options - general compiler options like debug-symbols or small-build
     verbose - Write the actual tools command lines used if True
     clean - Rebuild everything if True
     macros - additional macros
@@ -826,6 +829,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
     extra_verbose - even more output!
+    build_profile - a dict of flags that will be passed to the compiler
     """
 
     if report != None:
@@ -860,8 +864,8 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False,
     try:
         # Toolchain
         toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, options, macros=macros, notify=notify, silent=silent,
-            extra_verbose=extra_verbose)
+            target, macros=macros, notify=notify, silent=silent,
+            extra_verbose=extra_verbose, build_profile=build_profile)
         toolchain.VERBOSE = verbose
         toolchain.jobs = jobs
         toolchain.build_all = clean
@@ -1097,9 +1101,9 @@ def get_target_supported_toolchains(target):
 
 
 def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
-                         cppcheck_msg_format, options=None, verbose=False,
+                         cppcheck_msg_format, verbose=False,
                          clean=False, macros=None, notify=None, jobs=1,
-                         extra_verbose=False):
+                         extra_verbose=False, build_profile=None):
     """Perform static analysis on a target and toolchain combination
 
     Positional arguments:
@@ -1109,18 +1113,19 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
     cppcheck_msg_format - the format of the check messages
 
     Keyword arguments:
-    options - things like debug-symbols, or small-build, etc.
     verbose - more printing!
     clean - start from a clean slate
     macros - extra macros to compile with
     notify - the notification event handling function
     jobs - number of commands to run at once
     extra_verbose - even moar printing
+    build_profile - a dict of flags that will be passed to the compiler
     """
     # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options,
-                                                  macros=macros, notify=notify,
-                                                  extra_verbose=extra_verbose)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, macros=macros,
+                                                  notify=notify,
+                                                  extra_verbose=extra_verbose,
+                                                  build_profile=build_profile)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
@@ -1242,9 +1247,9 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
 
 
 def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd,
-                             cppcheck_msg_format, options=None, verbose=False,
+                             cppcheck_msg_format, verbose=False,
                              clean=False, macros=None, notify=None, jobs=1,
-                             extra_verbose=False):
+                             extra_verbose=False, build_profile=None):
     """Perform static analysis on a library as if it were to be compiled for a
     particular target and toolchain combination
     """
@@ -1252,9 +1257,9 @@ def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd,
     if lib.is_supported(target, toolchain):
         static_analysis_scan_library(
             lib.source_dir, lib.build_dir, target, toolchain, cppcheck_cmd,
-            cppcheck_msg_format, lib.dependencies, options, verbose=verbose,
+            cppcheck_msg_format, lib.dependencies, verbose=verbose,
             clean=clean, macros=macros, notify=notify, jobs=jobs,
-            extra_verbose=extra_verbose)
+            extra_verbose=extra_verbose, build_profile=build_profile)
     else:
         print('Library "%s" is not yet supported on target %s with toolchain %s'
               % (lib_id, target.name, toolchain))
@@ -1262,10 +1267,10 @@ def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd,
 
 def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
                                  cppcheck_cmd, cppcheck_msg_format,
-                                 dependencies_paths=None, options=None,
+                                 dependencies_paths=None,
                                  name=None, clean=False, notify=None,
                                  verbose=False, macros=None, jobs=1,
-                                 extra_verbose=False):
+                                 extra_verbose=False, build_profile=None):
     """ Function scans library for statically detectable defects
 
     Positional arguments:
@@ -1278,7 +1283,6 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
 
     Keyword arguments:
     dependencies_paths - the paths to sources that this library depends on
-    options - things like debug-symbols, or small-build, etc.
     name - the name of this library
     clean - start from a clean slate
     notify - the notification event handling function
@@ -1286,6 +1290,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
     macros - extra macros to compile with
     jobs - number of commands to run at once
     extra_verbose - even moar printing
+    build_profile - a dict of flags that will be passed to the compiler
     """
     if type(src_paths) != ListType:
         src_paths = [src_paths]
@@ -1296,9 +1301,10 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
                             src_path)
 
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options,
-                                                  macros=macros, notify=notify,
-                                                  extra_verbose=extra_verbose)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, macros=macros,
+                                                  notify=notify,
+                                                  extra_verbose=extra_verbose,
+                                                  build_profile=build_profile)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
 

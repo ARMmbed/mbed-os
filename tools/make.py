@@ -42,6 +42,7 @@ from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
+from tools.options import extract_profile
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
@@ -181,9 +182,6 @@ if __name__ == '__main__':
     parser.add_argument("-l", "--linker", dest="linker_script",
                       type=argparse_filestring_type,
                       default=None, help="use the specified linker script")
-    parser.add_argument("--profile", dest="profile",
-                        type=argparse_filestring_type,
-                        default=None)
 
     options = parser.parse_args()
 
@@ -224,16 +222,6 @@ if __name__ == '__main__':
     if options.source_dir and not options.build_dir:
         args_error(parser, "argument --build is required when argument --source is provided")
 
-    if options.profile:
-        contents = json.load(open(options.profile))
-        try:
-            profile = contents[toolchain]
-        except KeyError:
-            args_error(parser, ("argument --profile: toolchain {} is not"
-                                " supported by profile {}").format(toolchain,
-                                                                   options.profile))
-    else:
-        profile = None
 
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it
@@ -286,7 +274,8 @@ if __name__ == '__main__':
             build_dir = options.build_dir
 
         try:
-            bin_file = build_project(test.source_dir, build_dir, mcu, toolchain, test.dependencies, options.options,
+            bin_file = build_project(test.source_dir, build_dir, mcu, toolchain,
+                                     test.dependencies,
                                      linker_script=options.linker_script,
                                      clean=options.clean,
                                      verbose=options.verbose,
@@ -296,7 +285,9 @@ if __name__ == '__main__':
                                      jobs=options.jobs,
                                      name=options.artifact_name,
                                      app_config=options.app_config,
-                                     build_profile=profile)
+                                     build_profile=extract_profile(parser,
+                                                                   options,
+                                                                   toolchain))
             print 'Image: %s'% bin_file
 
             if options.disk:
