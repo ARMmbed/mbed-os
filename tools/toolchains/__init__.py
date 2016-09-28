@@ -760,6 +760,7 @@ class mbedToolchain:
                     'chroot': self.CHROOT
                 })
             else:
+                self.compiled += 1
                 objects.append(object)
 
         # Use queues/multiprocessing if cpu count is higher than setting
