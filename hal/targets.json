@@ -1181,10 +1181,11 @@
         "core": "Cortex-M3",
         "default_toolchain": "ARM",
         "extra_labels": ["STM", "STM32L1", "STM32L151CC"],
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "progen": {"target": "xdot-l151cc"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "default_lib": "std"
+        "default_lib": "std",
+        "release_versions": ["5"]
     },
     "MOTE_L152RC": {
         "inherits": ["Target"],
