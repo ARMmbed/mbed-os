@@ -68,8 +68,6 @@ typedef enum
 #define EXTERNAL_INT_VECTOR_OFFSET 16
 /**@endcond */
 
-#define PACKED(TYPE) __packed TYPE
-
 void critical_region_enter (void);
 void critical_region_exit (void);
 

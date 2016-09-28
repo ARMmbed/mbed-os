@@ -375,10 +375,10 @@ static void pwm_transition_n_to_m(app_pwm_t const * const p_instance,
 
 #ifdef NRF52
     if (ticks + ((nrf_timer_frequency_get(p_instance->p_timer->p_reg) == 
-        (m_use_ppi_delay_workaround ? NRF_TIMER_FREQ_8MHz : NRF_TIMER_FREQ_16MHz) ) ? 1 : 0)
+        (m_use_ppi_delay_workaround ? NRF_TIMER_FREQ_8MHz : NRF_TIMER_FREQ_16MHz) ) ? 1U : 0U)
         < p_ch_cb->pulsewidth)
 #else
-    if (ticks + ((nrf_timer_frequency_get(p_instance->p_timer->p_reg) == NRF_TIMER_FREQ_16MHz) ? 1 : 0)
+    if (ticks + ((nrf_timer_frequency_get(p_instance->p_timer->p_reg) == NRF_TIMER_FREQ_16MHz) ? 1U : 0U)
         < p_ch_cb->pulsewidth)
 #endif
     {

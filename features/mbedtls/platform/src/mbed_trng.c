@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef __DEPRECATE_H__
-#define __DEPRECATE_H__
+#if defined(DEVICE_TRNG)
 
-#ifdef YOTTA_CFG_MBED_OS
-	#include "compiler-polyfill/attributes.h"
-#else
-	#define __deprecated_message(msg)
-#endif
+#include "hal/trng_api.h"
+
+int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
+    trng_t trng_obj;
+    trng_init(&trng_obj);
+    int ret = trng_get_bytes(&trng_obj, output, len, olen);
+    trng_free(&trng_obj);
+    return ret;
+}
 
 #endif

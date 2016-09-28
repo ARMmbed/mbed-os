@@ -123,7 +123,6 @@ static int32_t utest_us_ticker_run()
             callback();
         }
     }
-    return 0;
 }
 
 

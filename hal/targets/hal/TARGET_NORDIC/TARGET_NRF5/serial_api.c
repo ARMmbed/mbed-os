@@ -314,7 +314,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
         if (UART_CB.hwfc == NRF_UART_HWFC_ENABLED) {
             serial_set_flow_control(obj, FlowControlRTSCTS,
-                (PinName)UART_CB.pselrts, (PinName)UART_CB.pselcts);
+                (PinName) UART_CB.pselrts, (PinName) UART_CB.pselcts);
         }
         nrf_uart_enable(UART_INSTANCE);
 
