@@ -39,7 +39,7 @@
 ; 
 ;*******************************************************************************
 
-__initial_sp    EQU     0x20020000 ; Top of RAM
+__initial_sp    EQU     0x20030000 ; Top of RAM
 
                 PRESERVE8
                 THUMB
