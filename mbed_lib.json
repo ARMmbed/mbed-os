@@ -9,6 +9,11 @@
         "stdio-baud-rate": {
             "help": "Baud rate for stdio",
             "value": 9600
+        },
+
+        "stdio-flush-at-exit": {
+            "help": "Enable or disable the flush of standard I/O's at exit.",
+            "value": true
         }
     }
 }
