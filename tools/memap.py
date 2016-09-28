@@ -518,6 +518,44 @@ class MemapParser(object):
 
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
 
+    def compute_report(self):
+        for k in self.sections:
+            self.subtotal[k] = 0
+
+        for i in sorted(self.modules):
+            for k in self.sections:
+                self.subtotal[k] += self.modules[i][k]
+
+        # Calculate misc flash sections
+        self.misc_flash_mem = 0
+        for i in self.modules:
+            for k in self.misc_flash_sections:
+                if self.modules[i][k]:
+                    self.misc_flash_mem += self.modules[i][k]
+
+        self.mem_summary = {
+            'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
+            'heap': (self.subtotal['.heap']),
+            'stack': (self.subtotal['.stack']),
+            'total_ram': (self.subtotal['.data'] + self.subtotal['.bss'] +
+                          self.subtotal['.heap']+self.subtotal['.stack']),
+            'total_flash': (self.subtotal['.text'] + self.subtotal['.data'] +
+                            self.misc_flash_mem),
+        }
+
+        self.mem_report = []
+        for i in sorted(self.modules):
+            self.mem_report.append({
+                "module":i,
+                "size":{
+                    k:self.modules[i][k] for k in self.print_sections
+                }
+            })
+
+        self.mem_report.append({
+            'summary': self.mem_summary
+        })
+
     def parse(self, mapfile, toolchain):
         """ Parse and decode map file depending on the toolchain
 
@@ -540,44 +578,9 @@ class MemapParser(object):
                     self.parse_map_file_iar(file_input)
                 else:
                     result = False
-
-            for k in self.sections:
-                self.subtotal[k] = 0
-
-            for i in sorted(self.modules):
-                for k in self.sections:
-                    self.subtotal[k] += self.modules[i][k]
-
-            # Calculate misc flash sections
-            self.misc_flash_mem = 0
-            for i in self.modules:
-                for k in self.misc_flash_sections:
-                    if self.modules[i][k]:
-                        self.misc_flash_mem += self.modules[i][k]
-
-            self.mem_summary = {
-                'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
-                'heap': (self.subtotal['.heap']),
-                'stack': (self.subtotal['.stack']),
-                'total_ram': (self.subtotal['.data'] + self.subtotal['.bss'] +
-                              self.subtotal['.heap']+self.subtotal['.stack']),
-                'total_flash': (self.subtotal['.text'] + self.subtotal['.data'] +
-                                self.misc_flash_mem),
-            }
-
-            self.mem_report = []
-            for i in sorted(self.modules):
-                self.mem_report.append({
-                    "module":i,
-                    "size":{
-                        k:self.modules[i][k] for k in self.print_sections
-                    }
-                })
-
-            self.mem_report.append({
-                'summary': self.mem_summary
-            })
-
+            
+            self.compute_report()
+        
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             result = False
