@@ -10,10 +10,11 @@ import json
 import argparse
 from prettytable import PrettyTable
 
-from tools.utils import argparse_filestring_type, \
+from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
 
 DEBUG = False
+DETAILED = False
 RE_ARMCC = re.compile(
     r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
 RE_IAR = re.compile(
@@ -114,9 +115,17 @@ class MemapParser(object):
                 module_name = data[0] + '/' + data[1]
 
             return [module_name, object_name]
-        else:
+            
+        elif DETAILED:           
+            rex_obj_name = r'^.+\/(.+\.o\)*)$'
+            test_rex_obj_name = re.match(rex_obj_name, txt)
+            if test_rex_obj_name:
+                object_name = test_rex_obj_name.group(1)
+                return ['Misc/' + object_name, ""]        
+                
             return ['Misc', ""]
-
+        else: 
+            return ['Misc', ""]
 
     def parse_section_gcc(self, line):
         """ Parse data from a section of gcc map file
@@ -620,6 +629,8 @@ def main():
         ", ".join(MemapParser.export_formats))
 
     parser.add_argument('-v', '--version', action='version', version=version)
+    
+    parser.add_argument('-d', '--detailed', action='store_true', help='Displays the elements in "Misc" in a detailed fashion', required=False)
 
     # Parse/run command
     if len(sys.argv) <= 1:
@@ -627,7 +638,10 @@ def main():
         sys.exit(1)
 
 
-    args = parser.parse_args()
+    args, remainder = parser.parse_known_args()
+    
+    global DETAILED
+    DETAILED = args.detailed    
 
     # Create memap object
     memap = MemapParser()
