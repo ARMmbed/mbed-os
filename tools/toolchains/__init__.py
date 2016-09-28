@@ -120,6 +120,29 @@ class Resources:
 
         return self
 
+    def detect_duplicates(self):
+        dupe_dict = dict()
+        for filename in self.s_sources + self.c_sources + self.cpp_sources:
+            objname, _ = splitext(basename(filename))
+            dupe_dict.setdefault(objname, [])
+            dupe_dict[objname].append(filename)
+        for objname, filenames in dupe_dict.iteritems():
+            if len(filenames) > 1:
+                print "[ERROR] Object file %s.o is not unique!"\
+                    " It could be made from:" % objname
+                print columnate(filenames)
+        dupe_headers = dict()
+        for filename in self.headers:
+            headername = basename(filename)
+            dupe_headers.setdefault(headername, [])
+            dupe_headers[headername].append(headername)
+        for headername, locations in dupe_headers.iteritems():
+            if len(filenames) > 1:
+                print "[ERROR] Header file %s is not unique! It could be:" %\
+                    headername
+                print columnate(locations)
+
+
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',

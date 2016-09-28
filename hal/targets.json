@@ -20,7 +20,8 @@
         "fpu": "double",
         "public": true,
         "default_build": "standard",
-        "release": true
+        "release": true,
+        "supported_toolchains": ["ARM"]
     },
     "CM4_UARM": {
         "inherits": ["Target"],
