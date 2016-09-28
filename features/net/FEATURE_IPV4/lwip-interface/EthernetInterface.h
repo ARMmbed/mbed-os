@@ -92,7 +92,7 @@ public:
      */
     virtual const char *get_netmask();
 
-    /** Get the local gateway
+    /** Get the local gateways
      *
      *  @return         Null-terminated representation of the local gateway
      *                  or null if no network mask has been recieved
@@ -107,7 +107,7 @@ protected:
     virtual NetworkStack *get_stack();
 
     bool _dhcp;
-    char _ip_address[NSAPI_IPv4_SIZE];
+    char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
 };

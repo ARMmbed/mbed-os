@@ -29,6 +29,49 @@
 #include "lwip/sys.h"
 #include "lwip/mem.h"
 
+/* Define the heap ourselves to give us section placement control */
+#ifndef ETHMEM_SECTION
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#  endif
+#elif defined(TARGET_LPC1768)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
+#  endif
+#else
+#define ETHMEM_SECTION
+#endif
+#endif
+
+/* LWIP's mem.c doesn't give visibility of its overhead; memory area has to be big
+ * enough to hold "MEM_SIZE" (which we specify) plus mem.c's overhead. Have to work
+ * it all out here, copying code from mem.c */
+struct mem {
+  /** index (-> ram[next]) of the next struct */
+  mem_size_t next;
+  /** index (-> ram[prev]) of the previous struct */
+  mem_size_t prev;
+  /** 1: this area is used; 0: this area is unused */
+  u8_t used;
+};
+
+#define SIZEOF_STRUCT_MEM    LWIP_MEM_ALIGN_SIZE(sizeof(struct mem))
+#define MEM_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MEM_SIZE)
+
+#if defined (__ICCARM__)
+#pragma location = ".ethusbram"
+#endif
+LWIP_DECLARE_MEMORY_ALIGNED(lwip_ram_heap, MEM_SIZE_ALIGNED + (2U*SIZEOF_STRUCT_MEM)) ETHMEM_SECTION;
+
  #if NO_SYS==1
 #include "cmsis.h"
 
