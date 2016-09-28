@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("--silent", help="Supress printing of filenames, just return number of duplicates", action="store_true")
     args = parser.parse_args()
 
-    toolchain = GCC_ARM(TARGET_MAP[".Super-Target"])
+    toolchain = GCC_ARM(TARGET_MAP["K64F"])
 
     resources = sum([toolchain.scan_resources(d) for d in args.dirs], None)
 
