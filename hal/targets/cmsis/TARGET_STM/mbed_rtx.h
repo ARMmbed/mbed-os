@@ -317,36 +317,6 @@
 #define OS_CLOCK                168000000
 #endif
 
-#elif defined(TARGET_STM32F411RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                100000000
-#endif
-
-#elif defined(TARGET_STM32F411RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                100000000
-#endif
-
 #elif defined(TARGET_STM32F405RG)
 
 #ifndef INITIAL_SP
@@ -360,21 +330,6 @@
 #endif
 #ifndef OS_CLOCK
 #define OS_CLOCK                48000000
-#endif
-
-#elif defined(TARGET_STM32F411RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                96000000
 #endif
 
 #elif defined(TARGET_STM32F401RE)
@@ -405,6 +360,21 @@
 #endif
 #ifndef OS_CLOCK
 #define OS_CLOCK                100000000
+#endif
+
+#elif defined(TARGET_MTS_MDOT_F411RE) || defined (TARGET_MTS_DRAGONFLY_F411RE)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20020000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          1024
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                96000000
 #endif
 
 #elif defined(TARGET_STM32F411RE)
