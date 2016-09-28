@@ -38,6 +38,20 @@ typedef void (*wifi_connect_cb_t)(nsapi_error_t res, wifi_ap_t *ap, void *data);
 class WiFiInterface: public NetworkInterface
 {
 public:
+    /** WiFiInterface lifetime
+     */
+    WiFiInterface();
+    virtual ~WiFiInterface();
+
+    /** Set the WiFi network credentials
+     *
+     *  @param ssid     Name of the network to connect to
+     *  @param pass     Security passphrase to connect to the network
+     *  @param security Type of encryption for connection
+     *                  (defaults to NSAPI_SECURITY_NONE)
+     */
+    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
+
     /** Start the interface
      *
      *  Attempts to connect to a WiFi network.
@@ -49,7 +63,7 @@ public:
      *  @param timeout   Timeout in milliseconds; 0 for no timeout (Default: 0)
      *  @return          0 on success, or error code on failure
      */
-    virtual nsapi_error_t connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
+    virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
                                   uint8_t channel = 0, unsigned timeout = 0) = 0;
 
     /** Start the interface
@@ -80,19 +94,13 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect();
+    virtual int connect() = 0;
 
     /** Stop the interface
      *
      *  @return          0 on success, or error code on failure
      */
-    virtual nsapi_error_t disconnect() = 0;
-
-    /** Get the local MAC address
-     *
-     *  @return         Null-terminated representation of the local MAC address in "00:11:22:33:44:55" form
-     */
-    virtual const char *get_mac_address() = 0;
+    virtual int disconnect() = 0;
 
     /** Get the current WiFi interface state
      *
@@ -129,6 +137,11 @@ public:
      * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
     virtual void scan_async(wifi_ap_scan_cb_t cb, void *data = NULL, unsigned timeout = 0) = 0;
+
+private:
+    char *_ssid;
+    char *_pass;
+    nsapi_security_t _security;
 };
 
 #endif

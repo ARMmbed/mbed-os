@@ -136,12 +136,6 @@ public:
      */
     virtual int add_dns_server(const SocketAddress &address);
 
-    /** Get the local MAC address
-     *
-     *  @return         Null-terminated representation of the local MAC address
-     */
-    virtual const char *get_mac_address() = 0;
-
 protected:
     friend class Socket;
     friend class UDPSocket;
