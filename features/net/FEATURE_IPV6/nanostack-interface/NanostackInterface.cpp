@@ -170,6 +170,7 @@ NanostackSocket::~NanostackSocket()
         int ret = socket_free(socket_id);
         MBED_ASSERT(0 == ret);
         MBED_ASSERT(socket_tbl[socket_id] == this);
+        socket_tbl[socket_id] = NULL;
         socket_id = -1;
         data_free_all();
     }
