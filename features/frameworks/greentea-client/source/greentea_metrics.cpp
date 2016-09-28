@@ -35,10 +35,13 @@ typedef struct {
 
 // Mutex to protect "buf"
 SingletonPtr<Mutex> mutex;
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 static char buf[128];
 static SingletonPtr<CircularBuffer<thread_info_t, THREAD_BUF_COUNT> > queue;
+#endif
 
 static void send_heap_info(void);
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 static void send_stack_info(void);
 static void on_thread_terminate(osThreadId id);
 static void enqeue_thread_info(osThreadId id);
@@ -47,6 +50,7 @@ static void deque_and_print_thread_info(void);
 // sprintf uses a lot of stack so use these instead
 static uint32_t print_hex(char *buf, uint32_t value);
 static uint32_t print_dec(char *buf, uint32_t value);
+#endif
 
 void greentea_metrics_setup()
 {
@@ -71,6 +75,7 @@ static void send_heap_info()
     greentea_send_kv("max_heap_usage",heap_stats.max_size);
 }
 
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 MBED_UNUSED static void send_stack_info()
 {
     mutex->lock();
@@ -205,3 +210,5 @@ static uint32_t print_dec(char *buf, uint32_t value)
 
     return pos;
 }
+
+#endif
