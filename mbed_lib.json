@@ -15,5 +15,10 @@
             "help": "Enable or disable the flush of standard I/O's at exit.",
             "value": true
         }
+    },
+    "target_overrides": {
+        "EFM32": {
+            "stdio-baud-rate": 115200
+        }
     }
 }
