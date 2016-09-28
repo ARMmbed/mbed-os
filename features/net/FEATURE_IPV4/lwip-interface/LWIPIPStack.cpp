@@ -21,7 +21,8 @@
 
 void IPStackInterface::bringup(emac_interface_t *emac)
 {
-    lwip_bringup(emac);
+    // no dhcp at this stage, neither other details
+    lwip_bringup(emac, false, 0, 0, 0);
 }
 
 void IPStackInterface::bringdown()
