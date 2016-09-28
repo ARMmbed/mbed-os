@@ -32,7 +32,8 @@ SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
 
 
 def target_cross_toolchain(allowed_toolchains,
-                           features=[], targets=TARGET_MAP.keys()):
+                           features=[], targets=TARGET_MAP.keys(),
+                           toolchains=SUPPORTED_TOOLCHAINS):
     """Generate pairs of target and toolchains
 
     Args:
@@ -42,14 +43,16 @@ def target_cross_toolchain(allowed_toolchains,
     features - the features that must be in the features array of a
                target
     targets - a list of available targets
+    toolchains - a list of available toolchains
     """
-    for target, toolchains in get_mbed_official_release("5"):
-        for toolchain in toolchains:
+    for release_target, release_toolchains in get_mbed_official_release("5"):
+        for toolchain in release_toolchains:
             if (toolchain in allowed_toolchains and
-                target in targets and
-                all(feature in TARGET_MAP[target].features
+                toolchain in toolchains and
+                release_target in targets and
+                all(feature in TARGET_MAP[release_target].features
                     for feature in features)):
-                yield target, toolchain
+                yield release_target, toolchain
 
 
 def main():
