@@ -19,6 +19,8 @@
     #define STACK_SIZE 512
 #elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F103RB) || defined(TARGET_STM32F091RC)
     #define STACK_SIZE 512
+#elif defined(TARGET_STM32F410RB)
+    #define STACK_SIZE 512
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
