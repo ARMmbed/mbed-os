@@ -111,7 +111,7 @@ void sdk_mapped_flags_bulk_update_by_key(uint16_t           * p_keys,
         {
             if (p_keys[i] == key)
             {
-                for (int j = 0; j < n_flag_collections; j++)
+                for (uint32_t j = 0; j < n_flag_collections; j++)
                 {
                     if (value)
                     {

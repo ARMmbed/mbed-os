@@ -52,7 +52,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
     nordicUUID = custom_convert_to_nordic_uuid(service.getUUID());
 
     uint16_t serviceHandle;
-    ASSERT( ERROR_NONE ==
+    ASSERT_TRUE( ERROR_NONE ==
             sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
                                      &nordicUUID,
                                      &serviceHandle),
@@ -88,7 +88,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             }
         }
 
-        ASSERT ( ERROR_NONE ==
+        ASSERT_TRUE ( ERROR_NONE ==
                  custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
                                               &nordicUUID,
                                               p_char->getProperties(),
@@ -123,7 +123,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
 
             nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
 
-            ASSERT(ERROR_NONE ==
+            ASSERT_TRUE(ERROR_NONE ==
                    custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
                                             &nordicUUID,
                                             p_desc->getValuePtr(),
@@ -177,7 +177,7 @@ ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
         .p_value = buffer,
     };
 
-    ASSERT( ERROR_NONE ==
+    ASSERT_TRUE( ERROR_NONE ==
             sd_ble_gatts_value_get(connectionHandle, attributeHandle, &value),
             BLE_ERROR_PARAM_OUT_OF_RANGE);
     *lengthP = value.len;
