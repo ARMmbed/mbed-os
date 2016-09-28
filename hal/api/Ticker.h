@@ -17,7 +17,7 @@
 #define MBED_TICKER_H
 
 #include "TimerEvent.h"
-#include "Callback.h"
+#include "EventAdapter.h"
 #include "toolchain.h"
 
 namespace mbed {
@@ -72,7 +72,7 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(Callback<void()> func, float t) {
+    void attach(const EventAdapter<void()>& func, float t) {
         attach_us(func, t * 1000000.0f);
     }
 
@@ -98,7 +98,7 @@ public:
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      */
-    void attach_us(Callback<void()> func, timestamp_t t) {
+    void attach_us(const EventAdapter<void()>& func, timestamp_t t) {
         _function.attach(func);
         setup(t);
     }
@@ -133,8 +133,8 @@ protected:
     virtual void handler();
 
 protected:
-    timestamp_t         _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
-    Callback<void()>    _function;  /**< Callback. */
+    timestamp_t             _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    EventAdapter<void()>    _function;  /**< Callback. */
 };
 
 } // namespace mbed
