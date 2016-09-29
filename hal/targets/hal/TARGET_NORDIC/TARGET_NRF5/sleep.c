@@ -26,7 +26,6 @@
 void sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
-    NRF_POWER->TASKS_LOWPWR = 1;
 
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk; /* send an event when an interrupt is pending.
                                         * This helps with the wakeup from the following app_evt_wait(). */
@@ -37,8 +36,11 @@ void sleep(void)
     // and check if the soft device is running
     if ((__get_PRIMASK() == 0) && (sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && (sd_enabled == 1)) {
         // soft device is enabled, use the primitives from the soft device to go to sleep
+        sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
         sd_app_evt_wait();
     } else {
+        NRF_POWER->TASKS_LOWPWR = 1;
+
         // Note: it is not possible to just use WFE at this stage because WFE
         // will read the event register (not accessible) and if an event occured,
         // in the past, it will just clear the event register and continue execution.
