@@ -21,14 +21,6 @@
 #include "Callback.h"
 #include "network-socket/NetworkInterface.h"
 
-typedef struct wifi_ap {
-    char ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
-    uint8_t bssid[6];
-    nsapi_security_t security;
-    int8_t rssi;
-    uint8_t channel;
-} wifi_ap_t;
-
 /** WiFiInterface class
  *
  *  Common interface that is shared between WiFi devices
@@ -36,6 +28,14 @@ typedef struct wifi_ap {
 class WiFiInterface: public NetworkInterface
 {
 public:
+    typedef struct wifi_ap {
+        char ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
+        uint8_t bssid[6];
+        nsapi_security_t security;
+        int8_t rssi;
+        uint8_t channel;
+    } wifi_ap_t;
+
     /** WiFiInterface lifetime
      */
     WiFiInterface();
