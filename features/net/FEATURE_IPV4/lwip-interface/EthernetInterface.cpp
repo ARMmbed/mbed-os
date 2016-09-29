@@ -59,17 +59,29 @@ const char *EthernetInterface::get_mac_address()
 
 const char *EthernetInterface::get_ip_address()
 {
-    return lwip_get_ip_address();
+    if (lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
+        return _ip_address;
+    }
+
+    return 0;
 }
 
 const char *EthernetInterface::get_netmask()
 {
-    return lwip_get_netmask();
+    if (lwip_get_netmask(_netmask, sizeof _netmask)) {
+        return _netmask;
+    }
+
+    return 0;
 }
 
 const char *EthernetInterface::get_gateway()
 {
-    return lwip_get_gateway();
+    if (lwip_get_gateway(_gateway, sizeof _gateway)) {
+        return _gateway;
+    }
+
+    return 0;
 }
 
 NetworkStack *EthernetInterface::get_stack()

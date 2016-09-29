@@ -19,6 +19,8 @@
 						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug.{{uid}}" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug">
 							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.{{uid}}" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="{{mcu_name}}" valueType="string"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.board.{{uid}}" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="{{board_name}}" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.{{uid}}" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.{{floating_point_hardware}}" valueType="enumerated"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.{{uid}}" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.{{floating_point_abi}}" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.{{uid}}" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
 							<builder buildPath="${workspace_loc:/{{name}}}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.{{uid}}" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.{{debug_tool_compiler_uid}}" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">

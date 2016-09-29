@@ -18,6 +18,7 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <new>
 #include "mbed_assert.h"
 #include "toolchain.h"
 
@@ -31,6 +32,30 @@ namespace mbed {
 template <typename F>
 class Callback;
 
+// Internal sfinae declarations
+//
+// These are used to eliminate overloads based on type attributes
+// 1. Does a function object have a call operator
+// 2. Does a function object fit in the available storage
+//
+// These eliminations are handled cleanly by the compiler and avoid
+// massive and misleading error messages when confronted with an
+// invalid type (or worse, runtime failures)
+namespace detail {
+    struct nil {};
+
+    template <bool B, typename R = nil>
+    struct enable_if { typedef R type; };
+
+    template <typename R>
+    struct enable_if<false, R> {};
+
+    template <typename M, M>
+    struct is_type {
+        static const bool value = true;
+    };
+}
+
 /** Callback class based on template specialization
  *
  * @Note Synchronization level: Not protected
@@ -42,7 +67,21 @@ public:
      *  @param func     Static function to attach
      */
     Callback(R (*func)() = 0) {
-        attach(func);
+        if (!func) {
+            _ops = 0;
+        } else {
+            generate(func);
+        }
+    }
+
+    /** Attach a Callback
+     *  @param func     The Callback to attach
+     */
+    Callback(const Callback<R()> &func) {
+        if (func._ops) {
+            func._ops->move(this, &func);
+        }
+        _ops = func._ops;
     }
 
     /** Create a Callback with a member function
@@ -51,7 +90,7 @@ public:
      */
     template<typename T>
     Callback(T *obj, R (T::*method)()) {
-        attach(obj, method);
+        generate(method_context<T, R (T::*)()>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -60,7 +99,7 @@ public:
      */
     template<typename T>
     Callback(const T *obj, R (T::*method)() const) {
-        attach(obj, method);
+        generate(method_context<const T, R (T::*)() const>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -69,7 +108,7 @@ public:
      */
     template<typename T>
     Callback(volatile T *obj, R (T::*method)() volatile) {
-        attach(obj, method);
+        generate(method_context<volatile T, R (T::*)() volatile>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -78,7 +117,7 @@ public:
      */
     template<typename T>
     Callback(const volatile T *obj, R (T::*method)() const volatile) {
-        attach(obj, method);
+        generate(method_context<const volatile T, R (T::*)() const volatile>(obj, method));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -86,7 +125,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(void*), void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(void*), void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -94,7 +133,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const void*), const void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const void*), const void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -102,7 +141,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(volatile void*), volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile void*), volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -110,7 +149,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const volatile void*), const volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile void*), const volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -119,7 +158,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(T*), T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(T*), T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -128,7 +167,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const T*), const T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const T*), const T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -137,7 +176,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(volatile T*), volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile T*), volatile T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -146,7 +185,55 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const volatile T*), const volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile T*), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -158,7 +245,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -170,7 +257,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -182,7 +269,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -194,7 +281,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -207,7 +294,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -220,7 +307,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -233,7 +320,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -246,34 +333,31 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
+    }
+
+    /** Destroy a callback
+     */
+    ~Callback() {
+        if (_ops) {
+            _ops->dtor(this);
+        }
     }
 
     /** Attach a static function
      *  @param func     Static function to attach
      */
     void attach(R (*func)()) {
-        struct local {
-            static R _thunk(void*, const void *func) {
-                return (*static_cast<R (*const *)()>(func))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = 0;
-        _thunk = func ? &local::_thunk : 0;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a Callback
      *  @param func     The Callback to attach
      */
     void attach(const Callback<R()> &func) {
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func._func, sizeof func);
-        _obj = func._obj;
-        _thunk = func._thunk;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a member function
@@ -282,18 +366,8 @@ public:
      */
     template<typename T>
     void attach(T *obj, R (T::*method)()) {
-        struct local {
-            static R _thunk(void *obj, const void *method) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)()>(method)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -302,18 +376,8 @@ public:
      */
     template<typename T>
     void attach(const T *obj, R (T::*method)() const) {
-        struct local {
-            static R _thunk(void *obj, const void *method) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)() const>(method)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -322,18 +386,8 @@ public:
      */
     template<typename T>
     void attach(volatile T *obj, R (T::*method)() volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)() volatile>(method)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -342,18 +396,8 @@ public:
      */
     template<typename T>
     void attach(const volatile T *obj, R (T::*method)() const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)() const volatile>(method)))(
-                        );
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a static function with a bound pointer
@@ -361,17 +405,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(void*), void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(void*)>(func))(
-                        (void*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -379,17 +414,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const void*), const void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(const void*)>(func))(
-                        (const void*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -397,17 +423,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(volatile void*), volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(volatile void*)>(func))(
-                        (volatile void*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -415,17 +432,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const volatile void*), const volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(const volatile void*)>(func))(
-                        (const volatile void*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -434,17 +442,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(T*), T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(T*)>(func))(
-                        (T*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -453,17 +452,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const T*), const T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(const T*)>(func))(
-                        (const T*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -472,17 +462,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(volatile T*), volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(volatile T*)>(func))(
-                        (volatile T*)arg);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -491,17 +472,60 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const volatile T*), const volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func) {
-                return (*static_cast<R (*const *)(const volatile T*)>(func))(
-                        (const volatile T*)arg);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, arg);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -513,17 +537,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(void*)>(func))(
-                        (void*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -535,17 +550,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(const void*)>(func))(
-                        (const void*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -557,17 +563,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(volatile void*)>(func))(
-                        (volatile void*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -579,17 +576,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(const volatile void*)>(func))(
-                        (const volatile void*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -602,17 +590,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(T*)>(func))(
-                        (T*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -625,17 +604,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(const T*)>(func))(
-                        (const T*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -648,17 +618,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(volatile T*)>(func))(
-                        (volatile T*)obj);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -671,24 +632,26 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*)) {
-        struct local {
-            static R _thunk(void *obj, const void *func) {
-                return (*static_cast<R (*const *)(const volatile T*)>(func))(
-                        (const volatile T*)obj);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, obj);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+    /** Assign a callback
+     */
+    Callback &operator=(const Callback &that) {
+        if (this != &that) {
+            this->~Callback();
+            new (this) Callback(that);
+        }
+
+        return *this;
     }
 
     /** Call the attached function
      */
     R call() const {
-        MBED_ASSERT(_thunk);
-        return _thunk(_obj, &_func);
+        MBED_ASSERT(_ops);
+        return _ops->call(this);
     }
 
     /** Call the attached function
@@ -700,7 +663,7 @@ public:
     /** Test if function has been attached
      */
     operator bool() const {
-        return _thunk;
+        return _ops;
     }
 
     /** Test for equality
@@ -719,8 +682,7 @@ public:
      *  @param func Callback to call passed as void pointer
      */
     static R thunk(void *func) {
-        return static_cast<Callback<R()>*>(func)->call(
-                );
+        return static_cast<Callback*>(func)->call();
     }
 
 private:
@@ -730,14 +692,72 @@ private:
     struct _class;
     union {
         void (*_staticfunc)();
-        void (*_boundfunc)(_class *);
+        void (*_boundfunc)(_class*);
         void (_class::*_methodfunc)();
     } _func;
-
     void *_obj;
 
-    // Thunk registered on attach to dispatch calls
-    R (*_thunk)(void*, const void*);
+    // Dynamically dispatched operations
+    const struct ops {
+        R (*call)(const void*);
+        void (*move)(void*, const void*);
+        void (*dtor)(void*);
+    } *_ops;
+
+    // Generate operations for function object
+    template <typename F>
+    void generate(const F &f) {
+        struct local {
+            static R call(const void *p) {
+                return (*(F*)p)();
+            }
+
+            static void move(void *d, const void *p) {
+                new (d) F(*(F*)p);
+            }
+
+            static void dtor(void *p) {
+                ((F*)p)->~F();
+            }
+        };
+
+        static const ops ops = {
+            &local::call,
+            &local::move,
+            &local::dtor,
+        };
+
+        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        new (this) F(f);
+        _ops = &ops;
+    }
+
+    // Wrappers for functions with context
+    template <typename O, typename M>
+    struct method_context {
+        M method;
+        O *obj;
+
+        method_context(O *obj, M method)
+            : method(method), obj(obj) {}
+
+        R operator()() const {
+            return (obj->*method)();
+        }
+    };
+
+    template <typename F, typename A>
+    struct function_context {
+        F func;
+        A *arg;
+
+        function_context(F func, A *arg)
+            : func(func), arg(arg) {}
+
+        R operator()() const {
+            return func(arg);
+        }
+    };
 };
 
 /** Callback class based on template specialization
@@ -751,7 +771,21 @@ public:
      *  @param func     Static function to attach
      */
     Callback(R (*func)(A0) = 0) {
-        attach(func);
+        if (!func) {
+            _ops = 0;
+        } else {
+            generate(func);
+        }
+    }
+
+    /** Attach a Callback
+     *  @param func     The Callback to attach
+     */
+    Callback(const Callback<R(A0)> &func) {
+        if (func._ops) {
+            func._ops->move(this, &func);
+        }
+        _ops = func._ops;
     }
 
     /** Create a Callback with a member function
@@ -760,7 +794,7 @@ public:
      */
     template<typename T>
     Callback(T *obj, R (T::*method)(A0)) {
-        attach(obj, method);
+        generate(method_context<T, R (T::*)(A0)>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -769,7 +803,7 @@ public:
      */
     template<typename T>
     Callback(const T *obj, R (T::*method)(A0) const) {
-        attach(obj, method);
+        generate(method_context<const T, R (T::*)(A0) const>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -778,7 +812,7 @@ public:
      */
     template<typename T>
     Callback(volatile T *obj, R (T::*method)(A0) volatile) {
-        attach(obj, method);
+        generate(method_context<volatile T, R (T::*)(A0) volatile>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -787,7 +821,7 @@ public:
      */
     template<typename T>
     Callback(const volatile T *obj, R (T::*method)(A0) const volatile) {
-        attach(obj, method);
+        generate(method_context<const volatile T, R (T::*)(A0) const volatile>(obj, method));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -795,7 +829,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(void*, A0), void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(void*, A0), void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -803,7 +837,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const void*, A0), const void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const void*, A0), const void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -811,7 +845,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(volatile void*, A0), volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile void*, A0), volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -819,7 +853,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const volatile void*, A0), const volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile void*, A0), const volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -828,7 +862,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(T*, A0), T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(T*, A0), T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -837,7 +871,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const T*, A0), const T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const T*, A0), const T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -846,7 +880,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(volatile T*, A0), volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile T*, A0), volatile T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -855,7 +889,55 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const volatile T*, A0), const volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile T*, A0), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -867,7 +949,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -879,7 +961,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -891,7 +973,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -903,7 +985,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -916,7 +998,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -929,7 +1011,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -942,7 +1024,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -955,34 +1037,31 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
+    }
+
+    /** Destroy a callback
+     */
+    ~Callback() {
+        if (_ops) {
+            _ops->dtor(this);
+        }
     }
 
     /** Attach a static function
      *  @param func     Static function to attach
      */
     void attach(R (*func)(A0)) {
-        struct local {
-            static R _thunk(void*, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(A0)>(func))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = 0;
-        _thunk = func ? &local::_thunk : 0;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a Callback
      *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0)> &func) {
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func._func, sizeof func);
-        _obj = func._obj;
-        _thunk = func._thunk;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a member function
@@ -991,18 +1070,8 @@ public:
      */
     template<typename T>
     void attach(T *obj, R (T::*method)(A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0)>(method)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -1011,18 +1080,8 @@ public:
      */
     template<typename T>
     void attach(const T *obj, R (T::*method)(A0) const) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0) const>(method)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -1031,18 +1090,8 @@ public:
      */
     template<typename T>
     void attach(volatile T *obj, R (T::*method)(A0) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0) volatile>(method)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -1051,18 +1100,8 @@ public:
      */
     template<typename T>
     void attach(const volatile T *obj, R (T::*method)(A0) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0) const volatile>(method)))(
-                        a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a static function with a bound pointer
@@ -1070,17 +1109,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(void*, A0), void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(void*, A0)>(func))(
-                        (void*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1088,17 +1118,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const void*, A0), const void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const void*, A0)>(func))(
-                        (const void*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1106,17 +1127,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(volatile void*, A0), volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(volatile void*, A0)>(func))(
-                        (volatile void*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1124,17 +1136,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const volatile void*, A0), const volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const volatile void*, A0)>(func))(
-                        (const volatile void*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1143,17 +1146,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(T*, A0), T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(T*, A0)>(func))(
-                        (T*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1162,17 +1156,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const T*, A0), const T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const T*, A0)>(func))(
-                        (const T*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1181,17 +1166,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(volatile T*, A0), volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(volatile T*, A0)>(func))(
-                        (volatile T*)arg, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1200,17 +1176,60 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const volatile T*, A0), const volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const volatile T*, A0)>(func))(
-                        (const volatile T*)arg, a0);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, arg);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -1222,17 +1241,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(void*, A0)>(func))(
-                        (void*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1244,17 +1254,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const void*, A0)>(func))(
-                        (const void*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1266,17 +1267,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(volatile void*, A0)>(func))(
-                        (volatile void*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1288,17 +1280,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const volatile void*, A0)>(func))(
-                        (const volatile void*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1311,17 +1294,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(T*, A0)>(func))(
-                        (T*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1334,17 +1308,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const T*, A0)>(func))(
-                        (const T*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1357,17 +1322,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(volatile T*, A0)>(func))(
-                        (volatile T*)obj, a0);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1380,24 +1336,26 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0) {
-                return (*static_cast<R (*const *)(const volatile T*, A0)>(func))(
-                        (const volatile T*)obj, a0);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, obj);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+    /** Assign a callback
+     */
+    Callback &operator=(const Callback &that) {
+        if (this != &that) {
+            this->~Callback();
+            new (this) Callback(that);
+        }
+
+        return *this;
     }
 
     /** Call the attached function
      */
     R call(A0 a0) const {
-        MBED_ASSERT(_thunk);
-        return _thunk(_obj, &_func, a0);
+        MBED_ASSERT(_ops);
+        return _ops->call(this, a0);
     }
 
     /** Call the attached function
@@ -1409,7 +1367,7 @@ public:
     /** Test if function has been attached
      */
     operator bool() const {
-        return _thunk;
+        return _ops;
     }
 
     /** Test for equality
@@ -1428,8 +1386,7 @@ public:
      *  @param func Callback to call passed as void pointer
      */
     static R thunk(void *func, A0 a0) {
-        return static_cast<Callback<R(A0)>*>(func)->call(
-                a0);
+        return static_cast<Callback*>(func)->call(a0);
     }
 
 private:
@@ -1438,15 +1395,73 @@ private:
     // to garuntee proper size and alignment
     struct _class;
     union {
-        void (*_staticfunc)();
-        void (*_boundfunc)(_class *);
-        void (_class::*_methodfunc)();
+        void (*_staticfunc)(A0);
+        void (*_boundfunc)(_class*, A0);
+        void (_class::*_methodfunc)(A0);
     } _func;
-
     void *_obj;
 
-    // Thunk registered on attach to dispatch calls
-    R (*_thunk)(void*, const void*, A0);
+    // Dynamically dispatched operations
+    const struct ops {
+        R (*call)(const void*, A0);
+        void (*move)(void*, const void*);
+        void (*dtor)(void*);
+    } *_ops;
+
+    // Generate operations for function object
+    template <typename F>
+    void generate(const F &f) {
+        struct local {
+            static R call(const void *p, A0 a0) {
+                return (*(F*)p)(a0);
+            }
+
+            static void move(void *d, const void *p) {
+                new (d) F(*(F*)p);
+            }
+
+            static void dtor(void *p) {
+                ((F*)p)->~F();
+            }
+        };
+
+        static const ops ops = {
+            &local::call,
+            &local::move,
+            &local::dtor,
+        };
+
+        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        new (this) F(f);
+        _ops = &ops;
+    }
+
+    // Wrappers for functions with context
+    template <typename O, typename M>
+    struct method_context {
+        M method;
+        O *obj;
+
+        method_context(O *obj, M method)
+            : method(method), obj(obj) {}
+
+        R operator()(A0 a0) const {
+            return (obj->*method)(a0);
+        }
+    };
+
+    template <typename F, typename A>
+    struct function_context {
+        F func;
+        A *arg;
+
+        function_context(F func, A *arg)
+            : func(func), arg(arg) {}
+
+        R operator()(A0 a0) const {
+            return func(arg, a0);
+        }
+    };
 };
 
 /** Callback class based on template specialization
@@ -1460,7 +1475,21 @@ public:
      *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1) = 0) {
-        attach(func);
+        if (!func) {
+            _ops = 0;
+        } else {
+            generate(func);
+        }
+    }
+
+    /** Attach a Callback
+     *  @param func     The Callback to attach
+     */
+    Callback(const Callback<R(A0, A1)> &func) {
+        if (func._ops) {
+            func._ops->move(this, &func);
+        }
+        _ops = func._ops;
     }
 
     /** Create a Callback with a member function
@@ -1469,7 +1498,7 @@ public:
      */
     template<typename T>
     Callback(T *obj, R (T::*method)(A0, A1)) {
-        attach(obj, method);
+        generate(method_context<T, R (T::*)(A0, A1)>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -1478,7 +1507,7 @@ public:
      */
     template<typename T>
     Callback(const T *obj, R (T::*method)(A0, A1) const) {
-        attach(obj, method);
+        generate(method_context<const T, R (T::*)(A0, A1) const>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -1487,7 +1516,7 @@ public:
      */
     template<typename T>
     Callback(volatile T *obj, R (T::*method)(A0, A1) volatile) {
-        attach(obj, method);
+        generate(method_context<volatile T, R (T::*)(A0, A1) volatile>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -1496,7 +1525,7 @@ public:
      */
     template<typename T>
     Callback(const volatile T *obj, R (T::*method)(A0, A1) const volatile) {
-        attach(obj, method);
+        generate(method_context<const volatile T, R (T::*)(A0, A1) const volatile>(obj, method));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1504,7 +1533,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(void*, A0, A1), void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(void*, A0, A1), void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1512,7 +1541,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const void*, A0, A1), const void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const void*, A0, A1), const void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1520,7 +1549,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(volatile void*, A0, A1), volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile void*, A0, A1), volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1528,7 +1557,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const volatile void*, A0, A1), const volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile void*, A0, A1), const volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1537,7 +1566,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(T*, A0, A1), T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(T*, A0, A1), T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1546,7 +1575,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const T*, A0, A1), const T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const T*, A0, A1), const T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1555,7 +1584,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(volatile T*, A0, A1), volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile T*, A0, A1), volatile T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1564,7 +1593,55 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile T*, A0, A1), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1576,7 +1653,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1588,7 +1665,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1600,7 +1677,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1612,7 +1689,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1625,7 +1702,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1638,7 +1715,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1651,7 +1728,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -1664,34 +1741,31 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
+    }
+
+    /** Destroy a callback
+     */
+    ~Callback() {
+        if (_ops) {
+            _ops->dtor(this);
+        }
     }
 
     /** Attach a static function
      *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1)) {
-        struct local {
-            static R _thunk(void*, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(A0, A1)>(func))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = 0;
-        _thunk = func ? &local::_thunk : 0;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a Callback
      *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1)> &func) {
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func._func, sizeof func);
-        _obj = func._obj;
-        _thunk = func._thunk;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a member function
@@ -1700,18 +1774,8 @@ public:
      */
     template<typename T>
     void attach(T *obj, R (T::*method)(A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1)>(method)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -1720,18 +1784,8 @@ public:
      */
     template<typename T>
     void attach(const T *obj, R (T::*method)(A0, A1) const) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1) const>(method)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -1740,18 +1794,8 @@ public:
      */
     template<typename T>
     void attach(volatile T *obj, R (T::*method)(A0, A1) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1) volatile>(method)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -1760,18 +1804,8 @@ public:
      */
     template<typename T>
     void attach(const volatile T *obj, R (T::*method)(A0, A1) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1) const volatile>(method)))(
-                        a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a static function with a bound pointer
@@ -1779,17 +1813,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(void*, A0, A1), void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(void*, A0, A1)>(func))(
-                        (void*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1797,17 +1822,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const void*, A0, A1), const void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const void*, A0, A1)>(func))(
-                        (const void*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1815,17 +1831,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(volatile void*, A0, A1), volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1)>(func))(
-                        (volatile void*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1833,17 +1840,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const volatile void*, A0, A1), const volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1)>(func))(
-                        (const volatile void*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1852,17 +1850,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(T*, A0, A1), T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(T*, A0, A1)>(func))(
-                        (T*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1871,17 +1860,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const T*, A0, A1), const T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const T*, A0, A1)>(func))(
-                        (const T*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1890,17 +1870,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(volatile T*, A0, A1), volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1)>(func))(
-                        (volatile T*)arg, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -1909,17 +1880,60 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1)>(func))(
-                        (const volatile T*)arg, a0, a1);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, arg);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -1931,17 +1945,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(void*, A0, A1)>(func))(
-                        (void*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1953,17 +1958,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const void*, A0, A1)>(func))(
-                        (const void*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1975,17 +1971,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1)>(func))(
-                        (volatile void*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -1997,17 +1984,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1)>(func))(
-                        (const volatile void*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2020,17 +1998,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(T*, A0, A1)>(func))(
-                        (T*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2043,17 +2012,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const T*, A0, A1)>(func))(
-                        (const T*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2066,17 +2026,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1)>(func))(
-                        (volatile T*)obj, a0, a1);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2089,24 +2040,26 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1)>(func))(
-                        (const volatile T*)obj, a0, a1);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, obj);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+    /** Assign a callback
+     */
+    Callback &operator=(const Callback &that) {
+        if (this != &that) {
+            this->~Callback();
+            new (this) Callback(that);
+        }
+
+        return *this;
     }
 
     /** Call the attached function
      */
     R call(A0 a0, A1 a1) const {
-        MBED_ASSERT(_thunk);
-        return _thunk(_obj, &_func, a0, a1);
+        MBED_ASSERT(_ops);
+        return _ops->call(this, a0, a1);
     }
 
     /** Call the attached function
@@ -2118,7 +2071,7 @@ public:
     /** Test if function has been attached
      */
     operator bool() const {
-        return _thunk;
+        return _ops;
     }
 
     /** Test for equality
@@ -2137,8 +2090,7 @@ public:
      *  @param func Callback to call passed as void pointer
      */
     static R thunk(void *func, A0 a0, A1 a1) {
-        return static_cast<Callback<R(A0, A1)>*>(func)->call(
-                a0, a1);
+        return static_cast<Callback*>(func)->call(a0, a1);
     }
 
 private:
@@ -2147,15 +2099,73 @@ private:
     // to garuntee proper size and alignment
     struct _class;
     union {
-        void (*_staticfunc)();
-        void (*_boundfunc)(_class *);
-        void (_class::*_methodfunc)();
+        void (*_staticfunc)(A0, A1);
+        void (*_boundfunc)(_class*, A0, A1);
+        void (_class::*_methodfunc)(A0, A1);
     } _func;
-
     void *_obj;
 
-    // Thunk registered on attach to dispatch calls
-    R (*_thunk)(void*, const void*, A0, A1);
+    // Dynamically dispatched operations
+    const struct ops {
+        R (*call)(const void*, A0, A1);
+        void (*move)(void*, const void*);
+        void (*dtor)(void*);
+    } *_ops;
+
+    // Generate operations for function object
+    template <typename F>
+    void generate(const F &f) {
+        struct local {
+            static R call(const void *p, A0 a0, A1 a1) {
+                return (*(F*)p)(a0, a1);
+            }
+
+            static void move(void *d, const void *p) {
+                new (d) F(*(F*)p);
+            }
+
+            static void dtor(void *p) {
+                ((F*)p)->~F();
+            }
+        };
+
+        static const ops ops = {
+            &local::call,
+            &local::move,
+            &local::dtor,
+        };
+
+        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        new (this) F(f);
+        _ops = &ops;
+    }
+
+    // Wrappers for functions with context
+    template <typename O, typename M>
+    struct method_context {
+        M method;
+        O *obj;
+
+        method_context(O *obj, M method)
+            : method(method), obj(obj) {}
+
+        R operator()(A0 a0, A1 a1) const {
+            return (obj->*method)(a0, a1);
+        }
+    };
+
+    template <typename F, typename A>
+    struct function_context {
+        F func;
+        A *arg;
+
+        function_context(F func, A *arg)
+            : func(func), arg(arg) {}
+
+        R operator()(A0 a0, A1 a1) const {
+            return func(arg, a0, a1);
+        }
+    };
 };
 
 /** Callback class based on template specialization
@@ -2169,7 +2179,21 @@ public:
      *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1, A2) = 0) {
-        attach(func);
+        if (!func) {
+            _ops = 0;
+        } else {
+            generate(func);
+        }
+    }
+
+    /** Attach a Callback
+     *  @param func     The Callback to attach
+     */
+    Callback(const Callback<R(A0, A1, A2)> &func) {
+        if (func._ops) {
+            func._ops->move(this, &func);
+        }
+        _ops = func._ops;
     }
 
     /** Create a Callback with a member function
@@ -2178,7 +2202,7 @@ public:
      */
     template<typename T>
     Callback(T *obj, R (T::*method)(A0, A1, A2)) {
-        attach(obj, method);
+        generate(method_context<T, R (T::*)(A0, A1, A2)>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -2187,7 +2211,7 @@ public:
      */
     template<typename T>
     Callback(const T *obj, R (T::*method)(A0, A1, A2) const) {
-        attach(obj, method);
+        generate(method_context<const T, R (T::*)(A0, A1, A2) const>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -2196,7 +2220,7 @@ public:
      */
     template<typename T>
     Callback(volatile T *obj, R (T::*method)(A0, A1, A2) volatile) {
-        attach(obj, method);
+        generate(method_context<volatile T, R (T::*)(A0, A1, A2) volatile>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -2205,7 +2229,7 @@ public:
      */
     template<typename T>
     Callback(const volatile T *obj, R (T::*method)(A0, A1, A2) const volatile) {
-        attach(obj, method);
+        generate(method_context<const volatile T, R (T::*)(A0, A1, A2) const volatile>(obj, method));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2213,7 +2237,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(void*, A0, A1, A2), void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(void*, A0, A1, A2), void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2221,7 +2245,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const void*, A0, A1, A2), const void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const void*, A0, A1, A2), const void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2229,7 +2253,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(volatile void*, A0, A1, A2), volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile void*, A0, A1, A2), volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2237,7 +2261,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const volatile void*, A0, A1, A2), const volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile void*, A0, A1, A2), const volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2246,7 +2270,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(T*, A0, A1, A2), T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(T*, A0, A1, A2), T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2255,7 +2279,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const T*, A0, A1, A2), const T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const T*, A0, A1, A2), const T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2264,7 +2288,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(volatile T*, A0, A1, A2), volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile T*, A0, A1, A2), volatile T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2273,7 +2297,55 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile T*, A0, A1, A2), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2285,7 +2357,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2297,7 +2369,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2309,7 +2381,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2321,7 +2393,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2334,7 +2406,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2347,7 +2419,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2360,7 +2432,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2373,34 +2445,31 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
+    }
+
+    /** Destroy a callback
+     */
+    ~Callback() {
+        if (_ops) {
+            _ops->dtor(this);
+        }
     }
 
     /** Attach a static function
      *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1, A2)) {
-        struct local {
-            static R _thunk(void*, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(A0, A1, A2)>(func))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = 0;
-        _thunk = func ? &local::_thunk : 0;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a Callback
      *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1, A2)> &func) {
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func._func, sizeof func);
-        _obj = func._obj;
-        _thunk = func._thunk;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a member function
@@ -2409,18 +2478,8 @@ public:
      */
     template<typename T>
     void attach(T *obj, R (T::*method)(A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2)>(method)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -2429,18 +2488,8 @@ public:
      */
     template<typename T>
     void attach(const T *obj, R (T::*method)(A0, A1, A2) const) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2) const>(method)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -2449,18 +2498,8 @@ public:
      */
     template<typename T>
     void attach(volatile T *obj, R (T::*method)(A0, A1, A2) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2) volatile>(method)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -2469,18 +2508,8 @@ public:
      */
     template<typename T>
     void attach(const volatile T *obj, R (T::*method)(A0, A1, A2) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2) const volatile>(method)))(
-                        a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a static function with a bound pointer
@@ -2488,17 +2517,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(void*, A0, A1, A2), void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(void*, A0, A1, A2)>(func))(
-                        (void*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2506,17 +2526,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const void*, A0, A1, A2), const void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const void*, A0, A1, A2)>(func))(
-                        (const void*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2524,17 +2535,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(volatile void*, A0, A1, A2), volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2)>(func))(
-                        (volatile void*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2542,17 +2544,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const volatile void*, A0, A1, A2), const volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2)>(func))(
-                        (const volatile void*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2561,17 +2554,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(T*, A0, A1, A2), T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(T*, A0, A1, A2)>(func))(
-                        (T*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2580,17 +2564,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const T*, A0, A1, A2), const T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const T*, A0, A1, A2)>(func))(
-                        (const T*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2599,17 +2574,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(volatile T*, A0, A1, A2), volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2)>(func))(
-                        (volatile T*)arg, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -2618,17 +2584,60 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2)>(func))(
-                        (const volatile T*)arg, a0, a1, a2);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, arg);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -2640,17 +2649,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(void*, A0, A1, A2)>(func))(
-                        (void*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2662,17 +2662,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const void*, A0, A1, A2)>(func))(
-                        (const void*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2684,17 +2675,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2)>(func))(
-                        (volatile void*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2706,17 +2688,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2)>(func))(
-                        (const volatile void*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2729,17 +2702,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(T*, A0, A1, A2)>(func))(
-                        (T*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2752,17 +2716,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const T*, A0, A1, A2)>(func))(
-                        (const T*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2775,17 +2730,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2)>(func))(
-                        (volatile T*)obj, a0, a1, a2);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -2798,24 +2744,26 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2)>(func))(
-                        (const volatile T*)obj, a0, a1, a2);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, obj);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+    /** Assign a callback
+     */
+    Callback &operator=(const Callback &that) {
+        if (this != &that) {
+            this->~Callback();
+            new (this) Callback(that);
+        }
+
+        return *this;
     }
 
     /** Call the attached function
      */
     R call(A0 a0, A1 a1, A2 a2) const {
-        MBED_ASSERT(_thunk);
-        return _thunk(_obj, &_func, a0, a1, a2);
+        MBED_ASSERT(_ops);
+        return _ops->call(this, a0, a1, a2);
     }
 
     /** Call the attached function
@@ -2827,7 +2775,7 @@ public:
     /** Test if function has been attached
      */
     operator bool() const {
-        return _thunk;
+        return _ops;
     }
 
     /** Test for equality
@@ -2846,8 +2794,7 @@ public:
      *  @param func Callback to call passed as void pointer
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2) {
-        return static_cast<Callback<R(A0, A1, A2)>*>(func)->call(
-                a0, a1, a2);
+        return static_cast<Callback*>(func)->call(a0, a1, a2);
     }
 
 private:
@@ -2856,15 +2803,73 @@ private:
     // to garuntee proper size and alignment
     struct _class;
     union {
-        void (*_staticfunc)();
-        void (*_boundfunc)(_class *);
-        void (_class::*_methodfunc)();
+        void (*_staticfunc)(A0, A1, A2);
+        void (*_boundfunc)(_class*, A0, A1, A2);
+        void (_class::*_methodfunc)(A0, A1, A2);
     } _func;
-
     void *_obj;
 
-    // Thunk registered on attach to dispatch calls
-    R (*_thunk)(void*, const void*, A0, A1, A2);
+    // Dynamically dispatched operations
+    const struct ops {
+        R (*call)(const void*, A0, A1, A2);
+        void (*move)(void*, const void*);
+        void (*dtor)(void*);
+    } *_ops;
+
+    // Generate operations for function object
+    template <typename F>
+    void generate(const F &f) {
+        struct local {
+            static R call(const void *p, A0 a0, A1 a1, A2 a2) {
+                return (*(F*)p)(a0, a1, a2);
+            }
+
+            static void move(void *d, const void *p) {
+                new (d) F(*(F*)p);
+            }
+
+            static void dtor(void *p) {
+                ((F*)p)->~F();
+            }
+        };
+
+        static const ops ops = {
+            &local::call,
+            &local::move,
+            &local::dtor,
+        };
+
+        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        new (this) F(f);
+        _ops = &ops;
+    }
+
+    // Wrappers for functions with context
+    template <typename O, typename M>
+    struct method_context {
+        M method;
+        O *obj;
+
+        method_context(O *obj, M method)
+            : method(method), obj(obj) {}
+
+        R operator()(A0 a0, A1 a1, A2 a2) const {
+            return (obj->*method)(a0, a1, a2);
+        }
+    };
+
+    template <typename F, typename A>
+    struct function_context {
+        F func;
+        A *arg;
+
+        function_context(F func, A *arg)
+            : func(func), arg(arg) {}
+
+        R operator()(A0 a0, A1 a1, A2 a2) const {
+            return func(arg, a0, a1, a2);
+        }
+    };
 };
 
 /** Callback class based on template specialization
@@ -2878,7 +2883,21 @@ public:
      *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1, A2, A3) = 0) {
-        attach(func);
+        if (!func) {
+            _ops = 0;
+        } else {
+            generate(func);
+        }
+    }
+
+    /** Attach a Callback
+     *  @param func     The Callback to attach
+     */
+    Callback(const Callback<R(A0, A1, A2, A3)> &func) {
+        if (func._ops) {
+            func._ops->move(this, &func);
+        }
+        _ops = func._ops;
     }
 
     /** Create a Callback with a member function
@@ -2887,7 +2906,7 @@ public:
      */
     template<typename T>
     Callback(T *obj, R (T::*method)(A0, A1, A2, A3)) {
-        attach(obj, method);
+        generate(method_context<T, R (T::*)(A0, A1, A2, A3)>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -2896,7 +2915,7 @@ public:
      */
     template<typename T>
     Callback(const T *obj, R (T::*method)(A0, A1, A2, A3) const) {
-        attach(obj, method);
+        generate(method_context<const T, R (T::*)(A0, A1, A2, A3) const>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -2905,7 +2924,7 @@ public:
      */
     template<typename T>
     Callback(volatile T *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
-        attach(obj, method);
+        generate(method_context<volatile T, R (T::*)(A0, A1, A2, A3) volatile>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -2914,7 +2933,7 @@ public:
      */
     template<typename T>
     Callback(const volatile T *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
-        attach(obj, method);
+        generate(method_context<const volatile T, R (T::*)(A0, A1, A2, A3) const volatile>(obj, method));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2922,7 +2941,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(void*, A0, A1, A2, A3), void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(void*, A0, A1, A2, A3), void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2930,7 +2949,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const void*, A0, A1, A2, A3), const void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const void*, A0, A1, A2, A3), const void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2938,7 +2957,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(volatile void*, A0, A1, A2, A3), volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile void*, A0, A1, A2, A3), volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2946,7 +2965,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const volatile void*, A0, A1, A2, A3), const volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile void*, A0, A1, A2, A3), const volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2955,7 +2974,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(T*, A0, A1, A2, A3), T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(T*, A0, A1, A2, A3), T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2964,7 +2983,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const T*, A0, A1, A2, A3), const T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const T*, A0, A1, A2, A3), const T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2973,7 +2992,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(volatile T*, A0, A1, A2, A3), volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile T*, A0, A1, A2, A3), volatile T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2982,7 +3001,55 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile T*, A0, A1, A2, A3), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -2994,7 +3061,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3006,7 +3073,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3018,7 +3085,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3030,7 +3097,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3043,7 +3110,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3056,7 +3123,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3069,7 +3136,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3082,34 +3149,31 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
+    }
+
+    /** Destroy a callback
+     */
+    ~Callback() {
+        if (_ops) {
+            _ops->dtor(this);
+        }
     }
 
     /** Attach a static function
      *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void*, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(A0, A1, A2, A3)>(func))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = 0;
-        _thunk = func ? &local::_thunk : 0;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a Callback
      *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1, A2, A3)> &func) {
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func._func, sizeof func);
-        _obj = func._obj;
-        _thunk = func._thunk;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a member function
@@ -3118,18 +3182,8 @@ public:
      */
     template<typename T>
     void attach(T *obj, R (T::*method)(A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3)>(method)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -3138,18 +3192,8 @@ public:
      */
     template<typename T>
     void attach(const T *obj, R (T::*method)(A0, A1, A2, A3) const) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) const>(method)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -3158,18 +3202,8 @@ public:
      */
     template<typename T>
     void attach(volatile T *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) volatile>(method)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -3178,18 +3212,8 @@ public:
      */
     template<typename T>
     void attach(const volatile T *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3) const volatile>(method)))(
-                        a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a static function with a bound pointer
@@ -3197,17 +3221,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(void*, A0, A1, A2, A3), void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(void*, A0, A1, A2, A3)>(func))(
-                        (void*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3215,17 +3230,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const void*, A0, A1, A2, A3), const void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const void*, A0, A1, A2, A3)>(func))(
-                        (const void*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3233,17 +3239,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(volatile void*, A0, A1, A2, A3), volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2, A3)>(func))(
-                        (volatile void*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3251,17 +3248,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const volatile void*, A0, A1, A2, A3), const volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2, A3)>(func))(
-                        (const volatile void*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3270,17 +3258,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(T*, A0, A1, A2, A3), T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(T*, A0, A1, A2, A3)>(func))(
-                        (T*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3289,17 +3268,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const T*, A0, A1, A2, A3), const T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const T*, A0, A1, A2, A3)>(func))(
-                        (const T*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3308,17 +3278,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(volatile T*, A0, A1, A2, A3), volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2, A3)>(func))(
-                        (volatile T*)arg, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3327,17 +3288,60 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3)>(func))(
-                        (const volatile T*)arg, a0, a1, a2, a3);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, arg);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -3349,17 +3353,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(void*, A0, A1, A2, A3)>(func))(
-                        (void*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3371,17 +3366,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const void*, A0, A1, A2, A3)>(func))(
-                        (const void*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3393,17 +3379,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2, A3)>(func))(
-                        (volatile void*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3415,17 +3392,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2, A3)>(func))(
-                        (const volatile void*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3438,17 +3406,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(T*, A0, A1, A2, A3)>(func))(
-                        (T*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3461,17 +3420,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const T*, A0, A1, A2, A3)>(func))(
-                        (const T*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3484,17 +3434,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2, A3)>(func))(
-                        (volatile T*)obj, a0, a1, a2, a3);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -3507,24 +3448,26 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3)>(func))(
-                        (const volatile T*)obj, a0, a1, a2, a3);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, obj);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+    /** Assign a callback
+     */
+    Callback &operator=(const Callback &that) {
+        if (this != &that) {
+            this->~Callback();
+            new (this) Callback(that);
+        }
+
+        return *this;
     }
 
     /** Call the attached function
      */
     R call(A0 a0, A1 a1, A2 a2, A3 a3) const {
-        MBED_ASSERT(_thunk);
-        return _thunk(_obj, &_func, a0, a1, a2, a3);
+        MBED_ASSERT(_ops);
+        return _ops->call(this, a0, a1, a2, a3);
     }
 
     /** Call the attached function
@@ -3536,7 +3479,7 @@ public:
     /** Test if function has been attached
      */
     operator bool() const {
-        return _thunk;
+        return _ops;
     }
 
     /** Test for equality
@@ -3555,8 +3498,7 @@ public:
      *  @param func Callback to call passed as void pointer
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
-        return static_cast<Callback<R(A0, A1, A2, A3)>*>(func)->call(
-                a0, a1, a2, a3);
+        return static_cast<Callback*>(func)->call(a0, a1, a2, a3);
     }
 
 private:
@@ -3565,15 +3507,73 @@ private:
     // to garuntee proper size and alignment
     struct _class;
     union {
-        void (*_staticfunc)();
-        void (*_boundfunc)(_class *);
-        void (_class::*_methodfunc)();
+        void (*_staticfunc)(A0, A1, A2, A3);
+        void (*_boundfunc)(_class*, A0, A1, A2, A3);
+        void (_class::*_methodfunc)(A0, A1, A2, A3);
     } _func;
-
     void *_obj;
 
-    // Thunk registered on attach to dispatch calls
-    R (*_thunk)(void*, const void*, A0, A1, A2, A3);
+    // Dynamically dispatched operations
+    const struct ops {
+        R (*call)(const void*, A0, A1, A2, A3);
+        void (*move)(void*, const void*);
+        void (*dtor)(void*);
+    } *_ops;
+
+    // Generate operations for function object
+    template <typename F>
+    void generate(const F &f) {
+        struct local {
+            static R call(const void *p, A0 a0, A1 a1, A2 a2, A3 a3) {
+                return (*(F*)p)(a0, a1, a2, a3);
+            }
+
+            static void move(void *d, const void *p) {
+                new (d) F(*(F*)p);
+            }
+
+            static void dtor(void *p) {
+                ((F*)p)->~F();
+            }
+        };
+
+        static const ops ops = {
+            &local::call,
+            &local::move,
+            &local::dtor,
+        };
+
+        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        new (this) F(f);
+        _ops = &ops;
+    }
+
+    // Wrappers for functions with context
+    template <typename O, typename M>
+    struct method_context {
+        M method;
+        O *obj;
+
+        method_context(O *obj, M method)
+            : method(method), obj(obj) {}
+
+        R operator()(A0 a0, A1 a1, A2 a2, A3 a3) const {
+            return (obj->*method)(a0, a1, a2, a3);
+        }
+    };
+
+    template <typename F, typename A>
+    struct function_context {
+        F func;
+        A *arg;
+
+        function_context(F func, A *arg)
+            : func(func), arg(arg) {}
+
+        R operator()(A0 a0, A1 a1, A2 a2, A3 a3) const {
+            return func(arg, a0, a1, a2, a3);
+        }
+    };
 };
 
 /** Callback class based on template specialization
@@ -3587,7 +3587,21 @@ public:
      *  @param func     Static function to attach
      */
     Callback(R (*func)(A0, A1, A2, A3, A4) = 0) {
-        attach(func);
+        if (!func) {
+            _ops = 0;
+        } else {
+            generate(func);
+        }
+    }
+
+    /** Attach a Callback
+     *  @param func     The Callback to attach
+     */
+    Callback(const Callback<R(A0, A1, A2, A3, A4)> &func) {
+        if (func._ops) {
+            func._ops->move(this, &func);
+        }
+        _ops = func._ops;
     }
 
     /** Create a Callback with a member function
@@ -3596,7 +3610,7 @@ public:
      */
     template<typename T>
     Callback(T *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
-        attach(obj, method);
+        generate(method_context<T, R (T::*)(A0, A1, A2, A3, A4)>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -3605,7 +3619,7 @@ public:
      */
     template<typename T>
     Callback(const T *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
-        attach(obj, method);
+        generate(method_context<const T, R (T::*)(A0, A1, A2, A3, A4) const>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -3614,7 +3628,7 @@ public:
      */
     template<typename T>
     Callback(volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
-        attach(obj, method);
+        generate(method_context<volatile T, R (T::*)(A0, A1, A2, A3, A4) volatile>(obj, method));
     }
 
     /** Create a Callback with a member function
@@ -3623,7 +3637,7 @@ public:
      */
     template<typename T>
     Callback(const volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
-        attach(obj, method);
+        generate(method_context<const volatile T, R (T::*)(A0, A1, A2, A3, A4) const volatile>(obj, method));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3631,7 +3645,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(void*, A0, A1, A2, A3, A4), void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(void*, A0, A1, A2, A3, A4), void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3639,7 +3653,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const void*, A0, A1, A2, A3, A4), const void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const void*, A0, A1, A2, A3, A4), const void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3647,7 +3661,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(volatile void*, A0, A1, A2, A3, A4), volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile void*, A0, A1, A2, A3, A4), volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3655,7 +3669,7 @@ public:
      *  @param arg      Pointer argument to function
      */
     Callback(R (*func)(const volatile void*, A0, A1, A2, A3, A4), const volatile void *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile void*, A0, A1, A2, A3, A4), const volatile void>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3664,7 +3678,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(T*, A0, A1, A2, A3, A4), T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(T*, A0, A1, A2, A3, A4), T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3673,7 +3687,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const T*, A0, A1, A2, A3, A4), const T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const T*, A0, A1, A2, A3, A4), const T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3682,7 +3696,7 @@ public:
      */
     template<typename T>
     Callback(R (*func)(volatile T*, A0, A1, A2, A3, A4), volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(volatile T*, A0, A1, A2, A3, A4), volatile T>(func, arg));
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3691,7 +3705,55 @@ public:
      */
     template<typename T>
     Callback(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
-        attach(func, arg);
+        generate(function_context<R (*)(const volatile T*, A0, A1, A2, A3, A4), const volatile T>(func, arg));
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
+    }
+
+    /** Create a Callback with a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        generate(f);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3703,7 +3765,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(void *obj, R (*func)(void*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3715,7 +3777,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const void *obj, R (*func)(const void*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3727,7 +3789,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3739,7 +3801,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3752,7 +3814,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3765,7 +3827,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const T *obj, R (*func)(const T*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3778,7 +3840,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
     }
 
     /** Create a Callback with a static function and bound pointer
@@ -3791,34 +3853,31 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to Callback(func, arg)")
     Callback(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3, A4)) {
-        attach(func, obj);
+        new (this) Callback(func, obj);
+    }
+
+    /** Destroy a callback
+     */
+    ~Callback() {
+        if (_ops) {
+            _ops->dtor(this);
+        }
     }
 
     /** Attach a static function
      *  @param func     Static function to attach
      */
     void attach(R (*func)(A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void*, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(A0, A1, A2, A3, A4)>(func))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = 0;
-        _thunk = func ? &local::_thunk : 0;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a Callback
      *  @param func     The Callback to attach
      */
     void attach(const Callback<R(A0, A1, A2, A3, A4)> &func) {
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func._func, sizeof func);
-        _obj = func._obj;
-        _thunk = func._thunk;
+        this->~Callback();
+        new (this) Callback(func);
     }
 
     /** Attach a member function
@@ -3827,18 +3886,8 @@ public:
      */
     template<typename T>
     void attach(T *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4)>(method)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -3847,18 +3896,8 @@ public:
      */
     template<typename T>
     void attach(const T *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((const T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) const>(method)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -3867,18 +3906,8 @@ public:
      */
     template<typename T>
     void attach(volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) volatile>(method)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a member function
@@ -3887,18 +3916,8 @@ public:
      */
     template<typename T>
     void attach(const volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
-        struct local {
-            static R _thunk(void *obj, const void *method, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (((const volatile T*)obj)->*
-                        (*static_cast<R (T::*const *)(A0, A1, A2, A3, A4) const volatile>(method)))(
-                        a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &obj, sizeof obj);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(obj, method);
     }
 
     /** Attach a static function with a bound pointer
@@ -3906,17 +3925,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(void*, A0, A1, A2, A3, A4), void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(void*, A0, A1, A2, A3, A4)>(func))(
-                        (void*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3924,17 +3934,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const void*, A0, A1, A2, A3, A4), const void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const void*, A0, A1, A2, A3, A4)>(func))(
-                        (const void*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3942,17 +3943,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(volatile void*, A0, A1, A2, A3, A4), volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2, A3, A4)>(func))(
-                        (volatile void*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3960,17 +3952,8 @@ public:
      *  @param arg      Pointer argument to function
      */
     void attach(R (*func)(const volatile void*, A0, A1, A2, A3, A4), const volatile void *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2, A3, A4)>(func))(
-                        (const volatile void*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3979,17 +3962,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(T*, A0, A1, A2, A3, A4), T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(T*, A0, A1, A2, A3, A4)>(func))(
-                        (T*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -3998,17 +3972,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const T*, A0, A1, A2, A3, A4), const T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const T*, A0, A1, A2, A3, A4)>(func))(
-                        (const T*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -4017,17 +3982,8 @@ public:
      */
     template <typename T>
     void attach(R (*func)(volatile T*, A0, A1, A2, A3, A4), volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2, A3, A4)>(func))(
-                        (volatile T*)arg, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, arg);
     }
 
     /** Attach a static function with a bound pointer
@@ -4036,17 +3992,60 @@ public:
      */
     template <typename T>
     void attach(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
-        struct local {
-            static R _thunk(void *arg, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3, A4)>(func))(
-                        (const volatile T*)arg, a0, a1, a2, a3, a4);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, arg);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)arg;
-        _thunk = &local::_thunk;
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
+    }
+
+    /** Attach a function object
+     *  @param func     Function object to attach
+     *  @note The function object is limited to a single word of storage
+     */
+    template <typename F>
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+        this->~Callback();
+        new (this) Callback(f);
     }
 
     /** Attach a static function with a bound pointer
@@ -4058,17 +4057,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(void *obj, R (*func)(void*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(void*, A0, A1, A2, A3, A4)>(func))(
-                        (void*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4080,17 +4070,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const void *obj, R (*func)(const void*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const void*, A0, A1, A2, A3, A4)>(func))(
-                        (const void*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4102,17 +4083,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile void *obj, R (*func)(volatile void*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(volatile void*, A0, A1, A2, A3, A4)>(func))(
-                        (volatile void*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4124,17 +4096,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile void *obj, R (*func)(const volatile void*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const volatile void*, A0, A1, A2, A3, A4)>(func))(
-                        (const volatile void*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4147,17 +4110,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(T *obj, R (*func)(T*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(T*, A0, A1, A2, A3, A4)>(func))(
-                        (T*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4170,17 +4124,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const T *obj, R (*func)(const T*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const T*, A0, A1, A2, A3, A4)>(func))(
-                        (const T*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4193,17 +4138,8 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(volatile T *obj, R (*func)(volatile T*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(volatile T*, A0, A1, A2, A3, A4)>(func))(
-                        (volatile T*)obj, a0, a1, a2, a3, a4);
-            }
-        };
-
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+        this->~Callback();
+        new (this) Callback(func, obj);
     }
 
     /** Attach a static function with a bound pointer
@@ -4216,24 +4152,26 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Arguments to callback have been reordered to attach(func, arg)")
     void attach(const volatile T *obj, R (*func)(const volatile T*, A0, A1, A2, A3, A4)) {
-        struct local {
-            static R _thunk(void *obj, const void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*static_cast<R (*const *)(const volatile T*, A0, A1, A2, A3, A4)>(func))(
-                        (const volatile T*)obj, a0, a1, a2, a3, a4);
-            }
-        };
+        this->~Callback();
+        new (this) Callback(func, obj);
+    }
 
-        memset(&_func, 0, sizeof _func);
-        memcpy(&_func, &func, sizeof func);
-        _obj = (void*)obj;
-        _thunk = &local::_thunk;
+    /** Assign a callback
+     */
+    Callback &operator=(const Callback &that) {
+        if (this != &that) {
+            this->~Callback();
+            new (this) Callback(that);
+        }
+
+        return *this;
     }
 
     /** Call the attached function
      */
     R call(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) const {
-        MBED_ASSERT(_thunk);
-        return _thunk(_obj, &_func, a0, a1, a2, a3, a4);
+        MBED_ASSERT(_ops);
+        return _ops->call(this, a0, a1, a2, a3, a4);
     }
 
     /** Call the attached function
@@ -4245,7 +4183,7 @@ public:
     /** Test if function has been attached
      */
     operator bool() const {
-        return _thunk;
+        return _ops;
     }
 
     /** Test for equality
@@ -4264,8 +4202,7 @@ public:
      *  @param func Callback to call passed as void pointer
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-        return static_cast<Callback<R(A0, A1, A2, A3, A4)>*>(func)->call(
-                a0, a1, a2, a3, a4);
+        return static_cast<Callback*>(func)->call(a0, a1, a2, a3, a4);
     }
 
 private:
@@ -4274,15 +4211,73 @@ private:
     // to garuntee proper size and alignment
     struct _class;
     union {
-        void (*_staticfunc)();
-        void (*_boundfunc)(_class *);
-        void (_class::*_methodfunc)();
+        void (*_staticfunc)(A0, A1, A2, A3, A4);
+        void (*_boundfunc)(_class*, A0, A1, A2, A3, A4);
+        void (_class::*_methodfunc)(A0, A1, A2, A3, A4);
     } _func;
-
     void *_obj;
 
-    // Thunk registered on attach to dispatch calls
-    R (*_thunk)(void*, const void*, A0, A1, A2, A3, A4);
+    // Dynamically dispatched operations
+    const struct ops {
+        R (*call)(const void*, A0, A1, A2, A3, A4);
+        void (*move)(void*, const void*);
+        void (*dtor)(void*);
+    } *_ops;
+
+    // Generate operations for function object
+    template <typename F>
+    void generate(const F &f) {
+        struct local {
+            static R call(const void *p, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+                return (*(F*)p)(a0, a1, a2, a3, a4);
+            }
+
+            static void move(void *d, const void *p) {
+                new (d) F(*(F*)p);
+            }
+
+            static void dtor(void *p) {
+                ((F*)p)->~F();
+            }
+        };
+
+        static const ops ops = {
+            &local::call,
+            &local::move,
+            &local::dtor,
+        };
+
+        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        new (this) F(f);
+        _ops = &ops;
+    }
+
+    // Wrappers for functions with context
+    template <typename O, typename M>
+    struct method_context {
+        M method;
+        O *obj;
+
+        method_context(O *obj, M method)
+            : method(method), obj(obj) {}
+
+        R operator()(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) const {
+            return (obj->*method)(a0, a1, a2, a3, a4);
+        }
+    };
+
+    template <typename F, typename A>
+    struct function_context {
+        F func;
+        A *arg;
+
+        function_context(F func, A *arg)
+            : func(func), arg(arg) {}
+
+        R operator()(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) const {
+            return func(arg, a0, a1, a2, a3, a4);
+        }
+    };
 };
 
 // Internally used event type
@@ -4439,6 +4434,54 @@ Callback<R()> callback(R (*func)(volatile T*), volatile T *arg) {
 template <typename T, typename R>
 Callback<R()> callback(R (*func)(const volatile T*), const volatile T *arg) {
     return Callback<R()>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R>
+Callback<R()> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R()>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4715,6 +4758,54 @@ Callback<R(A0)> callback(R (*func)(const volatile T*, A0), const volatile T *arg
 }
 
 /** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0>
+Callback<R(A0)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -4985,6 +5076,54 @@ Callback<R(A0, A1)> callback(R (*func)(volatile T*, A0, A1), volatile T *arg) {
 template <typename T, typename R, typename A0, typename A1>
 Callback<R(A0, A1)> callback(R (*func)(const volatile T*, A0, A1), const volatile T *arg) {
     return Callback<R(A0, A1)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5261,6 +5400,54 @@ Callback<R(A0, A1, A2)> callback(R (*func)(const volatile T*, A0, A1, A2), const
 }
 
 /** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -5531,6 +5718,54 @@ Callback<R(A0, A1, A2, A3)> callback(R (*func)(volatile T*, A0, A1, A2, A3), vol
 template <typename T, typename R, typename A0, typename A1, typename A2, typename A3>
 Callback<R(A0, A1, A2, A3)> callback(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile T *arg) {
     return Callback<R(A0, A1, A2, A3)>(func, arg);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5807,6 +6042,54 @@ Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const volatile T*, A0, A1, A2
 }
 
 /** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
+ *  @param func     Function object to attach
+ *  @note The function object is limited to a single word of storage
+ */
+template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
+    return Callback<R(A0, A1, A2, A3, A4)>(f);
+}
+
+/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -5930,3 +6213,4 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const volatile T *obj, R (*func)(const 
 } // namespace mbed
 
 #endif
+

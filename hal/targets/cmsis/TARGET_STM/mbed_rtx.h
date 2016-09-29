@@ -422,21 +422,6 @@
 #define OS_CLOCK                100000000
 #endif
 
-#elif defined(TARGET_STM32F429ZI)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20030000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                168000000
-#endif
-
 #elif defined(TARGET_STM32F446RE)
 
 #ifndef INITIAL_SP
@@ -633,6 +618,21 @@
 #endif
 
 #elif defined(TARGET_NZ32_SC151)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20008000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                32000000
+#endif
+
+#elif defined(TARGET_XDOT_L151CC)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)

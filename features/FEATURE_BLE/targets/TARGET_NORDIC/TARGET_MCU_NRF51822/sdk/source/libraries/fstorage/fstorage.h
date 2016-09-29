@@ -74,23 +74,6 @@ typedef void (*fs_cb_t)(uint8_t             op_code,
                         fs_length_t         length_words);
 
 
-/**@brief Function prototype for a callback handler.
- *
- * @details This function is expected to be implemented by the module that 
- *          registers for fstorage usage. Its usage is described
- *          in the function pointer type fs_cb_t.
- *
- * @param[in]   op_code         Flash operation code.
- * @param[in]   result          Result of the flash operation.
- * @param[in]   p_data          Pointer to the resulting data (or NULL if not in use).
- * @param[in]   length_words    Length of data in words.
- */
-static void fs_callback(uint8_t             op_code,
-                        uint32_t            result,
-                        uint32_t    const * p_data,
-                        fs_length_t         length_words);
-
-
 /**@brief Flash storage config variable.
  *
  * @details     The fstorage module will update the start_addr and end_address according to 

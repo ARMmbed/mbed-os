@@ -609,8 +609,10 @@ extern "C" void exit(int return_code) {
 #endif
 
 #if DEVICE_STDIO_MESSAGES
+#if MBED_CONF_CORE_STDIO_FLUSH_AT_EXIT
     fflush(stdout);
     fflush(stderr);
+#endif
 #endif
 
 #if DEVICE_SEMIHOST

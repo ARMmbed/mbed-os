@@ -30,9 +30,9 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
 int lwip_bringdown(void);
 
 const char *lwip_get_mac_address(void);
-const char *lwip_get_ip_address(void);
-const char *lwip_get_netmask(void);
-const char *lwip_get_gateway(void);
+char *lwip_get_ip_address(char *buf, int buflen);
+char *lwip_get_netmask(char *buf, int buflen);
+char *lwip_get_gateway(char *buf, int buflen);
 
 extern nsapi_stack_t lwip_stack;
 

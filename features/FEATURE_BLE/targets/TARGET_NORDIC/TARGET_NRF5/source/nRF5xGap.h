@@ -221,7 +221,7 @@ private:
      */
     void processRadioNotificationEvent(bool param) {
         radioNotificationCallbackParam = param;
-        radioNotificationTimeout.attach_us(this, &nRF5xGap::postRadioNotificationCallback, 0);
+        radioNotificationTimeout.attach_us(mbed::callback(this, &nRF5xGap::postRadioNotificationCallback), 0);
     }
     friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 

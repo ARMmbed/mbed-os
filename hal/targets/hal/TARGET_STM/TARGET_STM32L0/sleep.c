@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "sleep_api.h"
+#include "rtc_api_hal.h"
 
 #if DEVICE_SLEEP
 
@@ -50,6 +51,10 @@ void deepsleep(void)
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
+    
+#if DEVICE_LOWPOWERTIMER
+    rtc_synchronize();
+#endif
 }
 
 #endif

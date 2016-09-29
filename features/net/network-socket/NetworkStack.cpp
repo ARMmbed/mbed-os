@@ -107,7 +107,19 @@ public:
         }
 
         nsapi_addr_t addr = {NSAPI_IPv4, 0};
-        int err = _stack_api()->gethostbyname(_stack(), name, &addr);
+        int err = _stack_api()->gethostbyname(_stack(), name, &addr, NSAPI_UNSPEC);
+        address->set_addr(addr);
+        return err;
+    }
+
+    virtual int gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+    {
+        if (!_stack_api()->gethostbyname) {
+            return NetworkStack::gethostbyname(name, address, version);
+        }
+
+        nsapi_addr_t addr = {NSAPI_IPv4, 0};
+        int err = _stack_api()->gethostbyname(_stack(), name, &addr, version);
         address->set_addr(addr);
         return err;
     }

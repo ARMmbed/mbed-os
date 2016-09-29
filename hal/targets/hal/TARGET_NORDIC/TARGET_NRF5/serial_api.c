@@ -258,11 +258,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_gpio_cfg_input(UART_CB.pselrxd, NRF_GPIO_PIN_NOPULL);
     }
 
-    // UART pins must only be configured when the peripheral is disabled.
-    nrf_uart_disable(UART_INSTANCE);
-
     if (UART_CB.initialized) {
-        // Reconfigure RX/TX pins only.
+        // For already initialized peripheral it is sufficient to reconfigure
+        // RX/TX pins only.
+
+        // Ensure that there is no unfinished TX transfer.
+        while (!serial_writable(obj)) {
+        }
+        // UART pins can be configured only when the peripheral is disabled.
+        nrf_uart_disable(UART_INSTANCE);
         nrf_uart_txrx_pins_set(UART_INSTANCE, UART_CB.pseltxd, UART_CB.pselrxd);
         nrf_uart_enable(UART_INSTANCE);
     }
@@ -310,7 +314,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
         if (UART_CB.hwfc == NRF_UART_HWFC_ENABLED) {
             serial_set_flow_control(obj, FlowControlRTSCTS,
-                UART_CB.pselrts, UART_CB.pselcts);
+                (PinName) UART_CB.pselrts, (PinName) UART_CB.pselcts);
         }
         nrf_uart_enable(UART_INSTANCE);
 
@@ -479,9 +483,6 @@ void serial_putc(serial_t *obj, int c)
 
     nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
     nrf_uart_txd_set(UART_INSTANCE, (uint8_t)c);
-    // Wait until sending is completed.
-    while (!nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_TXDRDY)) {
-    }
 }
 
 int serial_readable(serial_t *obj)

@@ -48,6 +48,16 @@ int main() {
     printf("Initialize PWM on pin 24 with duty cycle: %.2f\n", pwm_dp24.read());
     printf("Initialize PWM on pin 18 with duty cycle: %.2f\n", pwm_dp18.read());
 
+#elif defined(TARGET_LPC1347)
+    PwmOut pwm_1(P0_18);
+    PwmOut pwm_2(P0_9);
+
+    pwm_1.write(0.75);
+    pwm_2.write(0.50);
+
+    printf("Initialize PWM on P0_18 with duty cycle: %.2f\n", pwm_1.read());
+    printf("Initialize PWM on P0_9 with duty cycle: %.2f\n", pwm_2.read());
+
 #elif defined(TARGET_NRF51822)
     PwmOut pwm_p24(p24);
     PwmOut pwm_p25(p25);

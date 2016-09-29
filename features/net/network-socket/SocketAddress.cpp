@@ -289,22 +289,11 @@ void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16
 {
     _ip_address[0] = '\0';
 
-    // Check for valid IP addresses
-    if (host && ipv4_is_valid(host)) {
-        _addr.version = NSAPI_IPv4;
-        ipv4_from_address(_addr.bytes, host);
-        _port = port;
-    } else if (host && ipv6_is_valid(host)) {
-        _addr.version = NSAPI_IPv6;
-        ipv6_from_address(_addr.bytes, host);
-        _port = port;
-    } else {
-        // DNS lookup
-        int err = iface->gethostbyname(host, this);
-        _port = port;
-        if (err) {
-            _addr = nsapi_addr_t();
-            _port = 0;
-        }
+    // gethostbyname must check for literals, so can call it directly
+    int err = iface->gethostbyname(host, this);
+    _port = port;
+    if (err) {
+        _addr = nsapi_addr_t();
+        _port = 0;
     }
 }
