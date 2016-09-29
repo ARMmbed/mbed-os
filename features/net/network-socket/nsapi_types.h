@@ -45,7 +45,7 @@ typedef enum nsapi_error {
     NSAPI_ERROR_AUTH_FAILURE  = -3010,     /*!< connection to access point failed */
     NSAPI_ERROR_DEVICE_ERROR  = -3011,     /*!< failure interfacing with the network processor */
     NSAPI_ERROR_TIMEOUT       = -3012,     /*!< operation timed out */
-    NSAPI_ERROR_BAD_SSID      = -3013,     /*!< ssid not found */
+    NSAPI_ERROR_NO_SSID      = -3013,      /*!< ssid not found */
 } nsapi_error_t;
 
 /** Enum of encryption types
