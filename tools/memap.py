@@ -638,7 +638,7 @@ def main():
         sys.exit(1)
 
 
-    args, remainder = parser.parse_known_args()
+    args = parser.parse_args()
     
     global DETAILED
     DETAILED = args.detailed    
