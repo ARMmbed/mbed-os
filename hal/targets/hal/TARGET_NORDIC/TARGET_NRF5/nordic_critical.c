@@ -22,7 +22,7 @@
 #include "nrf_sdm.h"
 #include "nrf_nvic.h"
 
-static volatile uint8_t  _sd_state = 0;
+static uint8_t  _sd_state = 0;
 static volatile uint32_t _entry_count = 0;
 
 void core_util_critical_section_enter()

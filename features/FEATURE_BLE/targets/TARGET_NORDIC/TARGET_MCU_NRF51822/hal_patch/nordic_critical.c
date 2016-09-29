@@ -21,12 +21,12 @@
 #include "nrf_soc.h"
 #include "nrf_sdm.h"
 
-static volatile union {
+static union {
     uint32_t _PRIMASK_state;
     uint8_t  _sd_state;
 } _state = { 0 } ;
 static volatile uint32_t _entry_count = 0;
-static volatile bool _use_softdevice_routine = false;
+static bool _use_softdevice_routine = false;
 
 void core_util_critical_section_enter()
 {
