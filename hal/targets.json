@@ -1187,7 +1187,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "progen": {"target": "xdot-l151cc"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "default_build": "std",
+        "default_build": "standard",
         "release_versions": ["5"]
     },
     "MOTE_L152RC": {
