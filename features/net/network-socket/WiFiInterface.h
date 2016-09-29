@@ -18,6 +18,7 @@
 #define WIFI_INTERFACE_H
 
 #include <string.h>
+#include "Callback.h"
 #include "network-socket/NetworkInterface.h"
 
 typedef struct wifi_ap {
@@ -27,9 +28,6 @@ typedef struct wifi_ap {
     int8_t rssi;
     uint8_t channel;
 } wifi_ap_t;
-
-typedef void (*wifi_ap_scan_cb_t)(wifi_ap_t *ap, void *data);
-typedef void (*wifi_connect_cb_t)(nsapi_error_t res, wifi_ap_t *ap, void *data);
 
 /** WiFiInterface class
  *
@@ -84,7 +82,7 @@ public:
      *  @param timeout   Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
     virtual void connect_async(const char *ssid, const char *pass,nsapi_security_t security = NSAPI_SECURITY_NONE,
-                               uint8_t channel = 0, wifi_connect_cb_t cb = NULL, void *data = NULL,
+                               uint8_t channel = 0, mbed::Callback<void(nsapi_error_t, wifi_ap_t*, void*)> cb = NULL, void *data = NULL,
                                unsigned timeout = 0) = 0;
 
     /** Start the interface
@@ -136,7 +134,7 @@ public:
      * @param  data  User handle that will be passed to @a cb along with the AP data (Default: NULL)
      * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
-    virtual void scan_async(wifi_ap_scan_cb_t cb, void *data = NULL, unsigned timeout = 0) = 0;
+    virtual void scan_async(mbed::Callback<void(wifi_ap_t*, void*)> cb, void *data = NULL, unsigned timeout = 0) = 0;
 
 private:
     char *_ssid;
