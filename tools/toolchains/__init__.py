@@ -431,6 +431,16 @@ class mbedToolchain:
                 'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
+
+            # This is a policy decision and it should /really/ be in the config system
+            # ATM it's here for backward compatibility
+            if (("-g" in self.flags['common'] and
+                 "-O0") in self.flags['common'] or
+                ("-r" in self.flags['common'] and
+                 "-On" in self.flags['common'])):
+                self.labels['TARGET'].append("DEBUG")
+            else:
+                self.labels['TARGET'].append("RELEASE")
         return self.labels
 
 
