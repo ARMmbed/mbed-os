@@ -37,5 +37,5 @@ const char * IPStackInterface::get_mac_address()
 
 const char * IPStackInterface::get_ip_address()
 {
-    return lwip_get_ip_address();
+    return lwip_get_ip_address(_ip_address, sizeof(_ip_address));
 }

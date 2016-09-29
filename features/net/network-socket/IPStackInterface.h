@@ -52,6 +52,8 @@ public:
      * @return IP address in "10.11.12.13" form
      */
     virtual const char *get_ip_address();
+private:
+    char _ip_address[16]; //IPv4
 };
 
 #endif /* IP_STACK_INTERFACE_H */
