@@ -20,7 +20,7 @@ import os
 # Implementation of mbed configuration mechanism
 from tools.utils import json_file_to_dict
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
-    generate_py_target, get_resolution_order
+    generate_py_target, get_resolution_order, Target
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
