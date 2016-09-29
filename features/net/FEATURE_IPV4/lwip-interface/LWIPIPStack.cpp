@@ -41,7 +41,7 @@ int IPStackInterface::start_dhcp(uint timeout)
 
 int IPStackInterface::start_static_ip(const char *ip, const char *netmask, const char *gw)
 {
-    return lwip_start_static_ip();
+    return lwip_start_static_ip(ip, netmask, gw);
 }
 
 const char * IPStackInterface::get_mac_address()

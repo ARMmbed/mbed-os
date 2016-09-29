@@ -34,6 +34,9 @@ char *lwip_get_ip_address(char *buf, int buflen);
 char *lwip_get_netmask(char *buf, int buflen);
 char *lwip_get_gateway(char *buf, int buflen);
 
+int lwip_start_dhcp(unsigned int timeout);
+int lwip_start_static_ip(const char *ip, const char *netmask, const char *gw);
+
 extern nsapi_stack_t lwip_stack;
 
 

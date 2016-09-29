@@ -509,7 +509,7 @@ int lwip_bringdown(void)
         netif_set_down(&lwip_netif);
     }
 #endif
-
+}
 
 /* LWIP error remapping */
 static int lwip_err_remap(err_t err) {
@@ -535,6 +535,46 @@ static int lwip_err_remap(err_t err) {
         default:
             return NSAPI_ERROR_DEVICE_ERROR;
     }
+}
+
+int lwip_start_dhcp(unsigned int timeout)
+{
+    err_t err = NSAPI_ERROR_DNS_FAILURE;
+#if LWIP_IPV4
+    err = dhcp_start(&lwip_netif);
+    if (err) {
+        return NSAPI_ERROR_DHCP_FAILURE;
+    }
+#endif
+
+    // If doesn't have address
+    if (!lwip_get_ip_addr(true, &lwip_netif)) {
+        err = sys_arch_sem_wait(&lwip_netif_has_addr, timeout);
+        if (err == SYS_ARCH_TIMEOUT) {
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+        lwip_connected = true;
+    }
+    return err;
+}
+
+int lwip_start_static_ip(const char *ip, const char *netmask, const char *gw)
+{
+
+#if LWIP_IPV4
+    ip4_addr_t ip_addr;
+    ip4_addr_t netmask_addr;
+    ip4_addr_t gw_addr;
+
+    if (!inet_aton(ip, &ip_addr) ||
+        !inet_aton(netmask, &netmask_addr) ||
+        !inet_aton(gw, &gw_addr)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
+#endif
+
 }
 
 /* LWIP network stack implementation */
