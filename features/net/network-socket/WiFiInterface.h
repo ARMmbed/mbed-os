@@ -141,6 +141,7 @@ private:
     char *_ssid;
     char *_pass;
     nsapi_security_t _security;
+    char _ip_address[16]; //IPv4 only thus 16
 };
 
 #endif
