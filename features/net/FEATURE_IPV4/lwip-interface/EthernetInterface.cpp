@@ -22,11 +22,7 @@
 EthernetInterface::EthernetInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
-#if DEVICE_EMAC
-    return lwip_bringup(NULL);
-#else /* DEVICE_EMAC */
-    return lwip_bringup();
-#endif /* DEVICE_EMAC */
+    connect();
 }
 
 int EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
