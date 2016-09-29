@@ -23,8 +23,6 @@ The event loop must be created and started manually. The simplest way to achieve
 #include "mbed.h"
 #include "mbed_events.h"
 
-using events::EventQueue;
-
 // Create a queue that can hold a maximum of 32 events
 Queue queue(32 * EVENTS_EVENT_SIZE);
 // Create a thread that'll run the event queue's dispatch function
@@ -46,8 +44,6 @@ Once the event loop is created, it can be used for posting events. Let's conside
 ```
 #include "mbed.h"
 #include "mbed_events.h"
-
-using events::EventQueue;
 
 DigitalOut led1(LED1);
 InterruptIn sw(SW2);
@@ -74,7 +70,6 @@ int main() {
     sw.rise(rise_handler);
     // The 'fall' handler will execute in the context of thread 't'
     sw.fall(queue.event(fall_handler));
-    Thread::wait(osWaitForever);
 }
 
 ```
