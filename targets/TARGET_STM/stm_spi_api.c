@@ -333,42 +333,6 @@ static inline int ssp_writeable(spi_t *obj)
     return status;
 }
 
-static inline void ssp_write(spi_t *obj, int value)
-{
-    SPI_TypeDef *spi = SPI_INST(obj);
-    struct spi_s *spiobj = SPI_S(obj);
-    SPI_HandleTypeDef *handle = &(spiobj->handle);
-
-    while (!ssp_writeable(obj));
-
-    //spi->DR = (uint16_t)value;
-    if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
-        // Force 8-bit access to the data register
-        uint8_t *p_spi_dr = 0;
-        p_spi_dr = (uint8_t *) & (spi->DR);
-        *p_spi_dr = (uint8_t)value;
-    } else { // SPI_DATASIZE_16BIT
-        spi->DR = (uint16_t)value;
-    }
-}
-
-static inline int ssp_read(spi_t *obj)
-{
-    SPI_TypeDef *spi = SPI_INST(obj);
-    struct spi_s *spiobj = SPI_S(obj);
-    SPI_HandleTypeDef *handle = &(spiobj->handle);
-    while (!ssp_readable(obj));
-    //return (int)spi->DR;
-    if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
-        // Force 8-bit access to the data register
-        uint8_t *p_spi_dr = 0;
-        p_spi_dr = (uint8_t *) & (spi->DR);
-        return (int)(*p_spi_dr);
-    } else {
-        return (int)spi->DR;
-    }
-}
-
 static inline int ssp_busy(spi_t *obj)
 {
     int status;
@@ -380,8 +344,21 @@ static inline int ssp_busy(spi_t *obj)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    ssp_write(obj, value);
-    return ssp_read(obj);
+    uint16_t size, Rx, ret;
+    struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
+
+    size = (handle->Init.DataSize == SPI_DATASIZE_16BIT) ? 2 : 1;
+
+    /*  Use 10ms timeout */
+    ret = HAL_SPI_TransmitReceive(handle,(uint8_t*)&value,(uint8_t*)&Rx,size,10);
+
+    if(ret == HAL_OK) {
+        return Rx;
+    } else {
+        DEBUG_PRINTF("SPI inst=0x%8X ERROR in write\r\n", (int)handle->Instance);
+        return -1;
+    }
 }
 
 int spi_slave_receive(spi_t *obj)
@@ -395,7 +372,6 @@ int spi_slave_read(spi_t *obj)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     while (!ssp_readable(obj));
-    //return (int)spi->DR;
     if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
         // Force 8-bit access to the data register
         uint8_t *p_spi_dr = 0;
