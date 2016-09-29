@@ -59,6 +59,12 @@
 #define TX_OPT_MULTICAST_HOP_LIMIT_64   0x02    /**< Use multicast hop limit of 64. */
 ///@}
 
+typedef enum dhcp_instance_type
+{
+    DHCP_INSTANCE_CLIENT,
+    DHCP_INSTANCE_SERVER
+} dhcp_instance_type_e;
+
 /**
  * \brief DHCP Service receive callback.
  *
@@ -96,14 +102,18 @@ typedef int (dhcp_service_receive_resp_cb)(uint16_t instance_id, void *ptr, uint
 
 
 /**
- * \brief Initialize the server instance.
+ * \brief Initialize a new DHCP service instance.
  *
  * Creates and shares the socket for other DHCP services.
+ *
+ * \param interface_id Interface for the new DHCP instance.
+ * \param instance_type The type of the new DHCP instance.
+ * \param A callback function to receive DHCP messages.
  *
  * \return Instance ID that is used to identify the service.
  */
 
-uint16_t dhcp_service_init(int8_t interface_id, dhcp_service_receive_req_cb *receive_req_cb);
+uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_type, dhcp_service_receive_req_cb *receive_req_cb);
 
 /**
 * \brief Deletes a server instance.

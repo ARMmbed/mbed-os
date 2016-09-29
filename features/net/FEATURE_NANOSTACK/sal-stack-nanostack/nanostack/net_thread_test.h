@@ -30,7 +30,7 @@ extern "C" {
 
 #include "ns_types.h"
 
-
+#define thread_test_router_upgrade(iface) thread_test_router_id_request_send(iface, 2) // THREAD_COAP_STATUS_TLV_TOO_FEW_ROUTERS
 /**
   * \brief Add a static neighbour
   *
@@ -174,15 +174,7 @@ int thread_test_set_context_id_reuse_timeout(
  * \return <0 Remove fail
  */
 int thread_test_remove_router_by_id(int8_t interface_id, uint8_t routerId);
-/**
- * \brief Start router upgrade process.
- *
- * \param interface_id Network Interface
- *
- * \return 0, upgrade started
- * \return <0 fail
- */
-int thread_test_router_upgrade(int8_t interface_id);
+
 /**
  * \brief Start router downgrade process.
  *
@@ -367,7 +359,7 @@ int8_t thread_test_neighbour_info_get(int8_t interface_id, uint8_t index, uint16
 typedef int (response_cb)(int8_t interface_id, uint8_t *response_ptr, uint16_t response_len);
 
 /**
- * \brief Send diagnostic command
+ * \brief Send diagnostic command DEPRECATED
  *
  * \param interface_id      Network Interface
  * \param address_ptr       Address to which the command is sent
@@ -380,6 +372,24 @@ typedef int (response_cb)(int8_t interface_id, uint8_t *response_ptr, uint16_t r
  */
 int thread_test_diagnostic_command_send(int8_t interface_id, uint8_t *address_ptr,const char *uri_ptr, uint8_t request_length, uint8_t *request_ptr, response_cb *resp_cb);
 
+typedef int (coap_response_cb)(int8_t interface_id, uint8_t message_code, uint8_t message_type, uint8_t *response_ptr, uint16_t response_len);
+
+/**
+ * \brief Send diagnostic request
+ *
+ * \param interface_id      Network Interface
+ * \param address_ptr       Address to which the command is sent
+ * \param msg_type           Uri for the command
+ * \param msg_code           Uri for the command
+ * \param uri_ptr           Uri for the command
+ * \param request_length    The length of the request
+ * \param request_ptr       Pointer to the beginning of the request contents
+ * \param resp_cb           Pointer to callback function that is called after the reply for the command is obtained
+ *
+ * \return 0,               Command send OK
+ * \return <0               Command send Fail
+ */
+int thread_test_coap_request_send(int8_t interface_id, uint8_t *address_ptr, uint16_t port, uint8_t msg_type, uint8_t msg_code, uint16_t content_format, const char *uri_ptr, uint8_t *request_ptr, uint8_t request_length, coap_response_cb *resp_cb);
 
 /**
  * \brief Set initial SLAAC iid.
@@ -390,6 +400,26 @@ int thread_test_diagnostic_command_send(int8_t interface_id, uint8_t *address_pt
  * \return <0               Command Fail
  */
 int8_t thread_test_initial_slaac_iid_set(int8_t interface_id, uint8_t *iid);
+
+/**
+ * \brief Send router ID request.
+ *
+ * \param interface_id      Network Interface
+ * \param status            Value of router ID request status TLV
+ * \return 0,               Command OK
+ * \return <0               Command Fail
+ */
+int8_t thread_test_router_id_request_send(int8_t interface_id, uint8_t status);
+
+/**
+ * \brief Set joiner port to joiner router device.
+ * If port == 0, then default port is used.
+ *
+ * \param iid               Joiner port.
+ * \return 0,               Command OK
+ * \return <0               Command Fail
+ */
+int8_t thread_test_joiner_router_joiner_port_set(uint16_t port);
 
 #ifdef __cplusplus
 }

@@ -321,10 +321,11 @@ int coap_security_handler_connect(coap_security_t *sec, bool is_server, SecureSo
         return -1;
     }
 
-    //TODO: Only needed for server type?
+#ifdef MBEDTLS_SSL_SRV_C
     mbedtls_ssl_conf_dtls_cookies(&sec->_conf, simple_cookie_write,
                                   simple_cookie_check,
                                   &sec->_cookie);
+#endif
 
     sec->_is_started = true;
 
@@ -416,10 +417,11 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
         return -1;
     }
 
-    //Only needed for server type?
+#ifdef MBEDTLS_SSL_SRV_C
     mbedtls_ssl_conf_dtls_cookies(&sec->_conf, simple_cookie_write,
                                   simple_cookie_check,
                                   &sec->_cookie);
+#endif
 
     mbedtls_ssl_conf_min_version(&sec->_conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
     mbedtls_ssl_conf_max_version(&sec->_conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);

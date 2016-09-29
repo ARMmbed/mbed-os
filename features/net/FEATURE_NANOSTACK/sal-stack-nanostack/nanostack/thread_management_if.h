@@ -122,6 +122,38 @@ int thread_management_node_init(
     link_configuration_s *static_configuration);
 
 /**
+ * Thread device type.
+ *
+ * REED - Router enabled End device. Device can become router or end device depending on network conditions.
+ * FED - Full End Device. Device creates links and makes address queries but does not become router.
+ * MED - Minimal End Device. Device communicates through parent. With radio on
+ * SED - Sleepy End Device. Device communicates through parent. Uses data poll to sleep.
+*/
+typedef enum {
+    THREAD_DEVICE_REED = 1,
+    THREAD_DEVICE_FED,
+    THREAD_DEVICE_MED,
+    THREAD_DEVICE_SED,
+} thread_device_type_e;
+
+/**
+ * Change thread device type.
+ *
+ * This function modifies the thread device mode. Default values are given in
+ * function arm_nwk_interface_configure_6lowpan_bootstrap_set().
+ *
+ * If this function is called when interface is up re-attach is made.
+ *
+ * \param interface_id Network interface ID.
+ * \param device_type Device type of current bootstrap.
+ *
+ * \return 0, Set OK.
+ * \return <0 Set fail.
+ */
+
+int thread_management_device_type_set(int8_t interface_id, thread_device_type_e device_type);
+
+/**
  * Get Thread network settings.
  *
  * Configuration is a pointer to the static configuration and only valid in current context.

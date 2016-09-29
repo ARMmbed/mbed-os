@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2016 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -27,10 +27,8 @@
 
 #include "ns_types.h"
 
-
 /**
- * Structure specifying the prefix service.
- *
+ * \brief Border router network data structure.
  */
 typedef struct thread_border_router_info_t {
     unsigned            Prf: 2;               /**!< Prefix preference, 01 = High, 00 = Default, 11 = Low, 10 = Reserved. */
@@ -43,10 +41,6 @@ typedef struct thread_border_router_info_t {
     bool                P_nd_dns: 1;          /**!< this border router is able to provide DNS information */
     bool                stableData: 1;        /**!< This data is stable and expected to be available at least 48h. */
 } thread_border_router_info_t;
-
-/* Define flags for backwards compatibility. Remove once applications have been updated */
-#define P_slaac_preferred   P_preferred
-#define P_slaac_valid       P_slaac
 
 /**
  * \brief Create local service that is provided to the Thread network.
@@ -157,5 +151,33 @@ int thread_border_router_publish(int8_t interface_id);
  * \return <0 Push not OK.
  */
 int thread_border_router_delete_all(int8_t interface_id);
+
+/**
+ * \brief Set Recursive DNS server (RDNSS) option that is encoded according to RFC6106.
+ * Setting a new RDNSS will overwrite previous RDNSS option. Set RNDDS will be used
+ * until it is cleared.
+ *
+ * \param interface_id Network interface ID.
+ * \param recursive_dns_server_option Recursive DNS server option encoded according to rfc6106, can be NULL to clear existing RDNSS.
+ * \param recursive_dns_server_option_len Length of the recursive_dns_server_option in bytes.
+ *
+ * \return 0, Option saved OK.
+ * \return <0 when error occurs during option processing.
+ */
+int thread_border_router_recursive_dns_server_option_set(int8_t interface_id, uint8_t *recursive_dns_server_option, uint16_t recursive_dns_server_option_len);
+
+/**
+ * \brief Set DNS server search list (DNSSL) option that is encoded according to RFC6106.
+ * Setting a new DNSSL will overwrite previous DNSSL option. Set DNSSL will be used
+ * until it is cleared.
+ *
+ * \param interface_id Network interface ID.
+ * \param dns_search_list_option DNS search list option encoded according to rfc6106, can be NULL to clear existing DNSSL.
+ * \param search_list_option_len Length of the dns_search_list_option in bytes.
+ *
+ * \return 0, Option saved OK.
+ * \return <0 when error occurs during option processing.
+ */
+int thread_border_router_dns_search_list_option_set(int8_t interface_id, uint8_t *dns_search_list_option, uint16_t search_list_option_len);
 
 #endif /* THREAD_DHCPV6_SERVER_H_ */

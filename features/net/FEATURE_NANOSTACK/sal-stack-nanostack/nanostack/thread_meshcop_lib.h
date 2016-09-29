@@ -53,6 +53,11 @@
 #define MESHCOP_TLV_JOINER_UDP_PORT                        18
 
 /**
+ * Network management TLV specific bit defines
+ */
+#define MESHCOP_TLV_ACTIVE_TIME_STAMP_U_BIT                 0x01
+
+/**
  * Relay message TLV
  */
 #define MESHCOP_TLV_JOINER_ENCAPSULATION                   17
@@ -157,6 +162,18 @@ uint8_t *thread_meshcop_tlv_data_write_uint32(uint8_t *ptr, const uint8_t type, 
  * \return pointer value for writing the next TLV.
  */
 uint8_t *thread_meshcop_tlv_data_write_uint64(uint8_t *ptr, const uint8_t type, const uint64_t data);
+
+/**
+ * Check if TLV exists in the message.
+ *
+ * \param ptr Message buffer.
+ * \param length Length of the message buffer to validate message.
+ * \param type Type of TLV searched.
+ *
+ * \return true if TLV is found.
+ * \return false if TLV does not exist.
+ */
+bool thread_meshcop_tlv_exist(const uint8_t *ptr, const uint16_t length, const uint8_t type);
 
 /**
  * Find TLV from message.

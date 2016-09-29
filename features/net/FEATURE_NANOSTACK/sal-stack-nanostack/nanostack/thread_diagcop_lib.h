@@ -40,8 +40,7 @@
 #define DIAGCOP_TLV_SUPPLY_VOLTAGE                          15  /**< Can not reset*/
 #define DIAGCOP_TLV_CHILD_TABLE                             16  /**< Can not reset*/
 #define DIAGCOP_TLV_CHANNEL_PAGES                           17  /**< Can not reset*/
-
-#define DIAGCOP_TLV_GET                                     13
+#define DIAGCOP_TLV_TYPE_LIST                               18
 
 /**
  * \brief Write array TLV.
