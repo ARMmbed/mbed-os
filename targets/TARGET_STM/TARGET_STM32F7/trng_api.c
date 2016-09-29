@@ -26,6 +26,7 @@
 
 /** trng_get_byte
  *  @brief Get one byte of entropy from the RNG, assuming it is up and running.
+ *  @param obj TRNG obj
  *  @param pointer to the hardware generated random byte.
  */
 static void trng_get_byte(trng_t *obj, unsigned char *byte )
