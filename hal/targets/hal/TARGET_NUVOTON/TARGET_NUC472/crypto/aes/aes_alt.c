@@ -41,8 +41,7 @@
 //static int aes_init_done = 0;
 
 
-#define mbedtls_trace  //printf
-
+#define mbedtls_trace(...) //printf(__VA_ARGS__)
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {
