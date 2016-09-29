@@ -24,7 +24,6 @@
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
 #include "netif/etharp.h"
-#include "netif/ppp_oe.h"
 
 static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
 {
