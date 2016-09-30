@@ -25,6 +25,7 @@
 
 // entry point for C++ api
 #include "network-socket/SocketAddress.h"
+#include "network-socket/WiFiAccessPoint.h"
 #include "network-socket/NetworkStack.h"
 
 #include "network-socket/NetworkInterface.h"

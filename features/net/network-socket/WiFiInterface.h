@@ -20,7 +20,7 @@
 #include <string.h>
 #include "Callback.h"
 #include "network-socket/NetworkInterface.h"
-#include "nsapi.h"
+#include "network-socket/WiFiAccessPoint.h"
 
 /** WiFiInterface class
  *
@@ -29,14 +29,6 @@
 class WiFiInterface: public NetworkInterface
 {
 public:
-    typedef struct wifi_ap {
-        char ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
-        uint8_t bssid[6];
-        nsapi_security_t security;
-        int8_t rssi;
-        uint8_t channel;
-    } wifi_ap_t;
-
     /** WiFiInterface lifetime
      */
     virtual ~WiFiInterface() {};
@@ -107,7 +99,7 @@ public:
      * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *                  see @a nsapi_error
      */
-    virtual int scan(wifi_ap_t *res, unsigned count) = 0;
+    virtual int scan(WiFiAccessPoint *res, unsigned count) = 0;
 };
 
 #endif

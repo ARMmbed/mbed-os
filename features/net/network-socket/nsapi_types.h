@@ -163,6 +163,18 @@ typedef enum nsapi_option {
     NSAPI_RCVBUF,    /*!< Sets recv buffer size */
 } nsapi_option_t;
 
+/** nsapi_wifi_ap structure
+ *
+ *  Structure representing a WiFi Access Point
+ */
+typedef struct nsapi_wifi_ap {
+    char ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
+    uint8_t bssid[6];
+    nsapi_security_t security;
+    int8_t rssi;
+    uint8_t channel;
+} nsapi_wifi_ap_t;
+
 
 /** nsapi_stack structure
  *
