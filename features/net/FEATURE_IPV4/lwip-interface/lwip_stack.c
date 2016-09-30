@@ -455,6 +455,7 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
 
     netif_set_up(&lwip_netif);
 
+#if !DEVICE_EMAC
 #if LWIP_IPV4
     // Connect to the network
     lwip_dhcp = dhcp;
@@ -476,6 +477,7 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
         }
         lwip_connected = true;
     }
+#endif /* DEVICE_EMAC */
 
 #if ADDR_TIMEOUT
     // If address is not for preferred stack waits a while to see
