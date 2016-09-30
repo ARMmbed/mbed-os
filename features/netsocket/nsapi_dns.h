@@ -19,7 +19,7 @@
 
 #include "nsapi_types.h"
 #ifdef __cplusplus
-#include "network-socket/NetworkStack.h"
+#include "netsocket/NetworkStack.h"
 #endif
 
 #ifndef __cplusplus

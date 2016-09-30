@@ -16,13 +16,13 @@
 #ifndef MBED_PLATFORM_H
 #define MBED_PLATFORM_H
 
-#include "device.h"
-#include "PinNames.h"
-#include "PeripheralNames.h"
-
 #include <cstddef>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
+#include "device.h"
+#include "PinNames.h"
+#include "PeripheralNames.h"
 
 #endif

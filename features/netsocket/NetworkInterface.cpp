@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "network-socket/NetworkInterface.h"
-#include "network-socket/NetworkStack.h"
+#include "netsocket/NetworkInterface.h"
+#include "netsocket/NetworkStack.h"
 #include <string.h>
 
 

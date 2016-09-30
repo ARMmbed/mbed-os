@@ -17,10 +17,10 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-#include "network-socket/Socket.h"
-#include "network-socket/TCPSocket.h"
-#include "network-socket/NetworkStack.h"
-#include "network-socket/NetworkInterface.h"
+#include "netsocket/Socket.h"
+#include "netsocket/TCPSocket.h"
+#include "netsocket/NetworkStack.h"
+#include "netsocket/NetworkInterface.h"
 #include "rtos/Semaphore.h"
 
 

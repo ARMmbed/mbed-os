@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "nsapi_dns.h"
-#include "network-socket/UDPSocket.h"
+#include "netsocket/UDPSocket.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

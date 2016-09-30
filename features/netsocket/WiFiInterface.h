@@ -17,7 +17,7 @@
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
-#include "network-socket/NetworkInterface.h"
+#include "netsocket/NetworkInterface.h"
 
 
 /** Enum of WiFi encryption types

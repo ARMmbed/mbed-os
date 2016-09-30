@@ -17,7 +17,7 @@
 #ifndef MESH_INTERFACE_H
 #define MESH_INTERFACE_H
 
-#include "network-socket/NetworkInterface.h"
+#include "netsocket/NetworkInterface.h"
 
 
 /** MeshInterface class

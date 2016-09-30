@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "network-socket/WiFiInterface.h"
+#include "netsocket/WiFiInterface.h"
 #include <stdlib.h>
 #include <string.h>
 

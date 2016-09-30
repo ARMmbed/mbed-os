@@ -24,19 +24,19 @@
 #ifdef __cplusplus
 
 // entry point for C++ api
-#include "network-socket/SocketAddress.h"
-#include "network-socket/NetworkStack.h"
+#include "netsocket/SocketAddress.h"
+#include "netsocket/NetworkStack.h"
 
-#include "network-socket/NetworkInterface.h"
-#include "network-socket/EthInterface.h"
-#include "network-socket/WiFiInterface.h"
-#include "network-socket/CellularInterface.h"
-#include "network-socket/MeshInterface.h"
+#include "netsocket/NetworkInterface.h"
+#include "netsocket/EthInterface.h"
+#include "netsocket/WiFiInterface.h"
+#include "netsocket/CellularInterface.h"
+#include "netsocket/MeshInterface.h"
 
-#include "network-socket/Socket.h"
-#include "network-socket/UDPSocket.h"
-#include "network-socket/TCPSocket.h"
-#include "network-socket/TCPServer.h"
+#include "netsocket/Socket.h"
+#include "netsocket/UDPSocket.h"
+#include "netsocket/TCPSocket.h"
+#include "netsocket/TCPServer.h"
 
 #endif
 

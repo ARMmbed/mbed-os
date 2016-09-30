@@ -18,8 +18,8 @@
 #define NETWORK_STACK_H
 
 #include "nsapi_types.h"
-#include "network-socket/SocketAddress.h"
-#include "network-socket/NetworkInterface.h"
+#include "netsocket/SocketAddress.h"
+#include "netsocket/NetworkInterface.h"
 
 
 /** NetworkStack class

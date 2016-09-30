@@ -18,7 +18,8 @@
 
 typedef int FILEHANDLE;
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
 
 #if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 #    define O_RDONLY 0

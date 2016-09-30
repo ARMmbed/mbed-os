@@ -17,8 +17,8 @@
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
-#include "network-socket/nsapi_types.h"
-#include "network-socket/SocketAddress.h"
+#include "netsocket/nsapi_types.h"
+#include "netsocket/SocketAddress.h"
 
 // Predeclared class
 class NetworkStack;

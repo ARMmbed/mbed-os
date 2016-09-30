@@ -17,7 +17,7 @@
 #ifndef ETH_INTERFACE_H
 #define ETH_INTERFACE_H
 
-#include "network-socket/NetworkInterface.h"
+#include "netsocket/NetworkInterface.h"
 
 
 /** EthInterface class

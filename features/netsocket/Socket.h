@@ -17,8 +17,8 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "network-socket/SocketAddress.h"
-#include "network-socket/NetworkStack.h"
+#include "netsocket/SocketAddress.h"
+#include "netsocket/NetworkStack.h"
 #include "rtos/Mutex.h"
 #include "Callback.h"
 #include "toolchain.h"

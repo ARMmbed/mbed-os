@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "network-socket/CellularInterface.h"
+#include "netsocket/CellularInterface.h"
 #include <stdlib.h>
 #include <string.h>
 
