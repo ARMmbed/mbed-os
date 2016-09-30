@@ -134,6 +134,12 @@ class Resources:
         return dupe_dict, dupe_headers
 
     def detect_duplicates(self, toolchain):
+        """Detect all potential ambiguities in filenames and report them with
+        a toolchain notification
+
+        Positional Arguments:
+        toolchain - used for notifications
+        """
         count = 0
         dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
         for objname, filenames in dupe_dict.iteritems():
