@@ -119,7 +119,7 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
     }
 }
 
-void mbed_mac_address(char *mac)
+uint8_t mbed_otp_mac_address(char *mac)
 {
     C029_OTP_Header *pFound = NULL;
     C029_OTP_Header *pTemp = (C029_OTP_Header*)C029_OTP_START_ADDRESS;
@@ -140,4 +140,6 @@ void mbed_mac_address(char *mac)
         }
     }
     memcpy(mac, _macAddr, 6);
+
+    return 1;
 }
