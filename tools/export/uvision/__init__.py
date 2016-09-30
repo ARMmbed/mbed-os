@@ -5,6 +5,7 @@ import copy
 from collections import namedtuple
 from distutils.spawn import find_executable
 import subprocess
+import re
 
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
@@ -26,10 +27,11 @@ class DeviceUvision(DeviceCMSIS):
             self.svd = dev_format.format(self.dname, self.debug_svd)
         self.reg_file = dev_format.format(self.dname, self.compile_header)
         self.debug_interface = self.uv_debug()
+        self.flash_dll = self.generate_flash_dll()
 
     def uv_debug(self):
         """Return a namedtuple of information about uvision debug settings"""
-        UVDebug = namedtuple('UVDebug',['bin_loc','core_flag'])
+        UVDebug = namedtuple('UVDebug',['bin_loc','core_flag', 'key'])
 
         # CortexMXn => pCMX
         cpu = self.core.replace("Cortex-", "C")
@@ -38,12 +40,72 @@ class DeviceUvision(DeviceCMSIS):
         cpu_flag = "p"+cpu
 
         # Locations found in Keil_v5/TOOLS.INI
-        debuggers = {"st-link":'STLink\\ST-LINKIII-KEIL_SWO.dll',
-                     "j-link":'Segger\\JL2CM3.dll',
-                     "cmsis-dap":'BIN\\CMSIS_AGDI.dll',
-                     "nulink":'NULink\\Nu_Link.dll'}
-        binary = debuggers[self.debug_interface.lower()]
-        return UVDebug(binary, cpu_flag)
+        debuggers = {"st-link": ('STLink\\ST-LINKIII-KEIL_SWO.dll', 'ST-LINKIII-KEIL_SWO'),
+                     "j-link":('Segger\\JL2CM3.dll', 'JL2CM3'),
+                     "cmsis-dap":('BIN\\CMSIS_AGDI.dll', 'CMSIS_AGDI'),
+                     "nulink":('NULink\\Nu_Link.dll','Nu_Link')}
+        res = debuggers[self.debug.lower()]
+        binary = res[0]
+        key = res[1]
+
+        return UVDebug(binary, cpu_flag, key)
+
+    def generate_flash_dll(self):
+        '''Flash DLL string from uvision
+        S = SW/JTAG Clock ID
+        C = CPU index in JTAG chain
+        P = Access Port
+        For the Options for Target -> Debug tab -> settings -> "Flash" tab in the dialog:
+        FD = RAM Start for Flash Functions
+        FC = RAM Size for Flash Functions
+        FN = Number of Flash types
+        FF = Flash File Name (without an extension)
+        FS = Start Address of the Flash Device
+        FL = Size of the Flash Device
+        FP = Full path to the Device algorithm (RTE)
+
+        Necessary to flash some targets. Info gathered from algorithms field of pdsc file.
+        '''
+        fl_count = 0
+        def get_mem_no_x(mem_str):
+            mem_reg = "\dx(\w+)"
+            m = re.search(mem_reg, mem_str)
+            return m.group(1) if m else None
+
+        RAMS = [(get_mem_no_x(info["start"]), get_mem_no_x(info["size"]))
+                for mem, info in self.target_info["memory"].items() if "RAM" in mem]
+        format_str = "UL2CM3(-S0 -C0 -P0 -FD{ramstart}"+" -FC{ramsize} "+"-FN{num_algos} {extra_flags})"
+        ramstart = ''
+        #Default according to Keil developer
+        ramsize = '1000'
+        if len(RAMS)>=1:
+            ramstart = RAMS[0][0]
+        extra_flags = []
+        for name, info in self.target_info["algorithm"].items():
+            if int(info["default"])==0:
+                continue
+            name_reg = "\w*/([\w_]+)\.flm"
+            m = re.search(name_reg, name.lower())
+            fl_name = m.group(1) if m else None
+            name_flag = "-FF" + str(fl_count) + fl_name
+
+            start, size = get_mem_no_x(info["start"]), get_mem_no_x(info["size"])
+            rom_start_flag = "-FS"+str(fl_count)+str(start)
+            rom_size_flag = "-FL" + str(fl_count) + str(size)
+
+            if info["ramstart"] is not None and info["ramsize"] is not None:
+                ramstart = get_mem_no_x(info["ramstart"])
+                ramsize = get_mem_no_x(info["ramsize"])
+
+            path_flag = "-FP" + str(fl_count) + "($$Device:"+self.dname+"$"+name+")"
+
+            extra_flags.extend([name_flag, rom_start_flag, rom_size_flag, path_flag])
+            fl_count += 1
+
+        extra = " ".join(extra_flags)
+        return format_str.format(ramstart=ramstart,
+                                 ramsize=ramsize,
+                                 extra_flags=extra, num_algos=fl_count)
 
 
 class Uvision(Exporter):
@@ -134,6 +196,7 @@ class Uvision(Exporter):
                                   or 'd' in ctx['device'].core.lower() else 2
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
+        self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
 
     def build(self):
         ERRORLEVEL = {

@@ -108,7 +108,7 @@ class IAR(Exporter):
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
-            'debugger': DeviceCMSIS(self.target).debug_interface.replace('-','').upper()
+            'debugger': DeviceCMSIS(self.target).debug.replace('-','').upper()
         }
         ctx.update(flags)
 

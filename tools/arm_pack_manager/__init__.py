@@ -162,14 +162,22 @@ class Cache () :
                                                       size=m["size"]))
                                        for m in device("memory")])
         except (KeyError, TypeError, IndexError) as e : pass
-        try: to_ret["algorithm"] = dict(name=device.algorithm["name"].replace('\\','/'),
-                                       start=device.algorithm["start"],
-                                       size=device.algorithm["size"],
-                                       RAMstart=device.algorithm.get("ramstart",None),
-                                       RAMsize=device.algorithm.get("ramsize",None))
-
-
-        except (KeyError, TypeError, IndexError) as e : pass
+        try: algorithms = device("algorithm")
+        except:
+            try: algorithms = device.parent("algorithm")
+            except: pass
+        else:
+            if not algorithms:
+                try: algorithms = device.parent("algorithm")
+                except: pass
+        try : to_ret["algorithm"] = dict([(algo.get("name").replace('\\','/'),
+                                           dict(start=algo["start"],
+                                                size=algo["size"],
+                                                ramstart=algo.get("ramstart",None),
+                                                ramsize=algo.get("ramsize",None),
+                                                default=algo.get("default",1)))
+                                       for algo in algorithms])
+        except (KeyError, TypeError, IndexError) as e: pass
         try: to_ret["debug"] = device.parent.parent.debug["svd"]
         except (KeyError, TypeError, IndexError) as e : pass
         try: to_ret["debug"] = device.parent.debug["svd"]
@@ -225,48 +233,11 @@ class Cache () :
 
         return to_ret
 
-    def _apply_device_debug(self, device, debug):
-        if device:
-            self._index[device].setdefault('debug-interface', [])
-            if "JTAG" not in debug and \
-               debug not in self._index[device]['debug-interface']:
-                self._index[device]['debug-interface'].append(debug)
-
-    def _apply_group_debug(self, key, search_val, pdsc, debug):
-        for fam in pdsc.findAll(key, {'d'+key: search_val}):
-            for dev in fam.findAll("device"):
-                self._apply_device_debug(dev("dname"), debug)
-
-    def _update_debug(self, d):
-        try:
-            pdsc = self.pdsc_from_cache(d)
-            for dev in pdsc("board"):
-                try:
-                    debug = dev.debuginterface['adapter']
-                except:
-                    try:
-                        odbg = dev.find("feature",{"type":"ODbg"})
-                        debug = odbg["name"]
-                    except:
-                        continue
-                for device in dev("compatibledevice") + dev("mounteddevice"):
-                    self._apply_group_debug("family",
-                                            device.get("dfamily",None),
-                                            pdsc, debug)
-                    self._apply_group_debug("subfamily",
-                                            device.get("dsubfamily", None),
-                                            pdsc, debug)
-                    self._apply_device_debug(device.get("dname", None), debug)
-        except (KeyError, TypeError, IndexError) as e:
-            stderr.write("[ ERROR ] file {}\n".format(d))
-            print(e)
-
     def _generate_index_helper(self, d) :
         try :
             pack = self.pdsc_to_pack(d)
             self._index.update(dict([(dev['dname'], self._extract_dict(dev, d, pack)) for dev in
                                     (self.pdsc_from_cache(d)("device"))]))
-            self._update_debug(d)
         except AttributeError as e :
             stderr.write("[ ERROR ] file {}\n".format(d))
             print(e)
@@ -318,6 +289,7 @@ class Cache () :
         self.counter = 0
         do_queue(Reader, self._generate_index_helper, self.get_urls())
         with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
+            self._index["version"] = "0.1.0"
             dump(self._index, out)
         stdout.write("\n")
 
