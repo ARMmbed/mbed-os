@@ -137,7 +137,7 @@ public:
      */
     virtual void scan_async(mbed::Callback<void(wifi_ap_t*, void*)> cb, void *data = NULL, unsigned timeout = 0) = 0;
 
-private:
+protected:
     char *_ssid;
     char *_pass;
     nsapi_security_t _security;
