@@ -102,15 +102,7 @@ void call_every_test() {
     queue.dispatch(N*100);
 }
 
-struct big { char data[1024]; } big;
-
-void allocate_failure_test1() {
-    EventQueue queue(32);
-    int id = queue.call((void (*)(struct big))0, big);
-    TEST_ASSERT(!id);
-}
-
-void allocate_failure_test2() {
+void allocate_failure_test() {
     EventQueue queue;
     int id;
 
@@ -250,8 +242,7 @@ const Case cases[] = {
     Case("Testing call_in",    call_in_test<20>),
     Case("Testing call_every", call_every_test<20>),
 
-    Case("Testing allocate failure 1", allocate_failure_test1),
-    Case("Testing allocate failure 2", allocate_failure_test2),
+    Case("Testing allocate failure", allocate_failure_test),
 
     Case("Testing event cancel 1", cancel_test1<20>),
     Case("Testing the event class", event_class_test),
