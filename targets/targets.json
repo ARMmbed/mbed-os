@@ -566,7 +566,7 @@
         "progen": {"target": "frdm-k64f"},
         "detect_code": ["0240"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG"],
-        "features": ["IPV4", "STORAGE"],
+        "features": ["LWIP", "STORAGE"],
         "release_versions": ["2", "5"]
     },
     "MTS_GAMBIT": {
@@ -705,7 +705,7 @@
         "progen": {"target": "nucleo-f207zg"},
         "detect_code": ["0835"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_F302R8": {
@@ -835,7 +835,7 @@
         "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "detect_code": ["0796"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_F446RE": {
@@ -892,7 +892,7 @@
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_F767ZI": {
@@ -904,7 +904,7 @@
         "progen": {"target": "nucleo-f767zi"},
         "detect_code": ["0818"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_L011K4": {
@@ -1111,7 +1111,7 @@
         "progen": {"target": "disco-f746ng"},
         "detect_code": ["0815"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },
     "DISCO_F769NI": {
@@ -1123,7 +1123,7 @@
         "progen": {"target": "disco-f769ni"},
         "detect_code": ["0817"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2"]
     },
     "DISCO_L476VG": {
@@ -1218,7 +1218,7 @@
         "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["5"]
     },
     "NZ32_SC151": {
@@ -1725,7 +1725,7 @@
             }
         },
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
@@ -1742,7 +1742,7 @@
         },
         "program_cycle_s": 2,
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "default_lib": "std",
         "release_versions": ["2", "5"]
     },
@@ -2086,7 +2086,7 @@
         "inherits": ["Target"],
         "progen": {"target": "numaker-pfm-nuc472"},
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG"],
-        "features": ["IPV4"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"]
     },    
     "NCS36510": {
