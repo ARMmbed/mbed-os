@@ -22,7 +22,6 @@
 EthernetInterface::EthernetInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
-    connect();
 }
 
 int EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
@@ -50,8 +49,7 @@ int EthernetInterface::connect()
 
 int EthernetInterface::disconnect()
 {
-    lwip_bringdown();
-    return 0;
+    return lwip_bringdown();
 }
 
 const char *EthernetInterface::get_mac_address()
