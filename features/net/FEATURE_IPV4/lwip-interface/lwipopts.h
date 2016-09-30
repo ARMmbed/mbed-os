@@ -117,7 +117,12 @@
 
 #define LWIP_DHCP                   LWIP_IPV4
 #define LWIP_DNS                    1
+
+#if MBED_CONF_LWIP_SOCKET_API
+#define LWIP_SOCKET                 1
+#else
 #define LWIP_SOCKET                 0
+#endif
 
 #define SO_REUSE                    1
 
@@ -126,7 +131,9 @@
 #define LWIP_IGMP                   LWIP_IPV4
 #define LWIP_RAND()                 rand()
 
+#ifndef LWIP_COMPAT_SOCKETS
 #define LWIP_COMPAT_SOCKETS         0
+#endif
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #define LWIP_SO_RCVTIMEO            1
 #define LWIP_TCP_KEEPALIVE          1
