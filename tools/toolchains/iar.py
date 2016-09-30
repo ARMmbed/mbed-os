@@ -102,6 +102,7 @@ class IAR(mbedToolchain):
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
+                    msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
@@ -121,6 +122,9 @@ class IAR(mbedToolchain):
                     msg = None
                 else:
                     msg['text'] += line+"\n"
+
+        if msg is not None:
+            self.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
