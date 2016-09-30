@@ -240,37 +240,5 @@ class ARM_MICRO(ARM):
         ARM.__init__(self, target, notify, macros, silent,
                      extra_verbose=extra_verbose, build_profile=build_profile)
 
-        # Extend flags
-        self.flags['common'].extend(["-D__MICROLIB"])
-        self.flags['c'].extend(["--library_type=microlib"])
-        self.flags['ld'].extend(["--library_type=microlib"])
-
         # Run-time values
-        self.asm  += ["-D__MICROLIB"]
-        self.cc   += ["-D__MICROLIB", "--library_type=microlib"]
-        self.cppc += ["-D__MICROLIB", "--library_type=microlib"]
-        self.ld   += ["--library_type=microlib"]
-
-        # Only allow a single thread
-        self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
-        self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
-
-        # We had to patch microlib to add C++ support
-        # In later releases this patch should have entered mainline
-        if ARM_MICRO.PATCHED_LIBRARY:
-            # Run-time values
-            self.flags['ld'].extend(["--noscanlib"])
-            # Run-time values
-            self.ld   += ["--noscanlib"]
-
-            # System Libraries
-            self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "microlib", lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
-
-            if target.core == "Cortex-M3":
-                self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "cpplib", lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
-
-            elif target.core in ["Cortex-M0", "Cortex-M0+"]:
-                self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "cpplib", lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
-        else:
-            # Run-time values
-            self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
+        self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])

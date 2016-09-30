@@ -12,5 +12,12 @@
         "c": [],
         "cxx": [],
         "ld": []
+    },
+    "uARM": {
+        "common": ["--asm", "--interleave"],
+        "asm": [],
+        "c": [],
+        "cxx": [],
+        "ld": []
     }
 }
