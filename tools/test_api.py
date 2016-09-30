@@ -60,6 +60,7 @@ from tools.build_api import add_result_to_report
 from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
 from tools.libraries import LIBRARIES, LIBRARY_MAP
+from tools.options import extract_profile
 from tools.toolchains import TOOLCHAIN_PATHS
 from tools.toolchains import TOOLCHAINS
 from tools.test_exporters import ReportExporter, ResultExporterType
@@ -170,6 +171,8 @@ class SingleTestRunner(object):
                  _test_loops_list=None,
                  _muts={},
                  _clean=False,
+                 _parser=None,
+                 _opts=None,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
                  _opts_report_html_file_name=None,
@@ -258,6 +261,8 @@ class SingleTestRunner(object):
         self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
+        self.opts_parser = _parser
+        self.opts = _opts
         self.opts_auto_detect = _opts_auto_detect
         self.opts_include_non_automated = _opts_include_non_automated
 
@@ -357,6 +362,8 @@ class SingleTestRunner(object):
 
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
+            profile = extract_profile(self.opts_parser, self.opts, toolchain)
+
 
             try:
                 build_mbed_libs_result = build_mbed_libs(T,
@@ -365,7 +372,8 @@ class SingleTestRunner(object):
                                                          verbose=self.opts_verbose,
                                                          jobs=self.opts_jobs,
                                                          report=build_report,
-                                                         properties=build_properties)
+                                                         properties=build_properties,
+                                                         build_profile=profile)
 
                 if not build_mbed_libs_result:
                     print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
@@ -433,7 +441,8 @@ class SingleTestRunner(object):
                               clean=clean_mbed_libs_options,
                               jobs=self.opts_jobs,
                               report=build_report,
-                              properties=build_properties)
+                              properties=build_properties,
+                              build_profile=profile)
 
                 except ToolException:
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
@@ -484,7 +493,8 @@ class SingleTestRunner(object):
                                      report=build_report,
                                      properties=build_properties,
                                      project_id=test_id,
-                                     project_description=test.get_description())
+                                     project_description=test.get_description(),
+                                     build_profile=profile)
 
                 except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
@@ -1783,6 +1793,10 @@ def get_default_test_options_parser():
                         default=False,
                         action="store_true",
                         help='Test only peripheral declared for MUT and skip common tests')
+
+    parser.add_argument("--profile", dest="profile", action="append",
+                        type=argparse_filestring_type,
+                        default=[])
 
     parser.add_argument('-C', '--only-commons',
                         dest='test_only_common',
