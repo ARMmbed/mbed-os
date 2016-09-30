@@ -19,7 +19,6 @@
 
 #include "network-socket/nsapi_types.h"
 #include "network-socket/SocketAddress.h"
-#include "emac_api.h"
 
 // Predeclared class
 class NetworkStack;
@@ -100,7 +99,7 @@ public:
      * @param timeout Request timeout in ms
      * @return NSAPI_ERROR_OK in case of success, error code otherwise
      */
-    virtual int start_dhcp(uint timeout = 15000) = 0;
+    virtual int start_dhcp(unsigned int timeout = 15000) = 0;
 
     /** Starts the interface with static IP
      *
