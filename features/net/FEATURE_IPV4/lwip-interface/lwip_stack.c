@@ -395,9 +395,7 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
         netif_set_link_callback  (&lwip_netif, lwip_netif_link_irq);
         netif_set_status_callback(&lwip_netif, lwip_netif_status_irq);
 
-#if DEVICE_EMAC
-        emac_lwip_enable_interrupts();
-#else
+#if !DEVICE_EMAC
         eth_arch_enable_interrupts();
 #endif
     }

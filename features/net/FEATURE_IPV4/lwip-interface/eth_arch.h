@@ -31,8 +31,6 @@ extern "C" {
 
 #if DEVICE_EMAC
 err_t emac_lwip_if_init(struct netif *netif);
-void emac_lwip_enable_interrupts(void);
-void emac_lwip_disable_interrupts(void);
 
 #else /* DEVICE_EMAC */
 void eth_arch_enable_interrupts(void);
