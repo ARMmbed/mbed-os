@@ -1,69 +1,43 @@
 # How to contribute
 
-This directory structure is entirely generated or copied from other repositories. Do not send patches against it, they cannot be accepted because all code will be entirely overwritten on next release.
+This directory structure contains some repositories that are copied from external sources.
 
-Instead, follow these instructions to send and test your contributions against master repositories.
+Please follow these instructions to send contributions to master repositories.
 
 ## Directory structure
 
 This directory consists of following modules
 
+* [coap-service](#coap-service)
 * [mbed-mesh-api](#mbed-mesh-api)
-* [mbed-trace](#mbed-trace)
-* [nanostack-hal-mbed-cmsis-rtos](#nanostack-hal-mbed-cmsis-rtos)
-* [nanostack-libservice](#nanostack-libservice)
-* [sal-stack-nanostack-eventloop](#sal-stack-nanostack-eventloop)
-* [sal-stack-nanostack-private](#sal-stack-nanostack-private)
+* [nanostack-interface](#nanostack-interface)
+* [sal-stack-nanostack](#sal-stack-nanostack)
 
+## coap-service
+
+Master repository is located in the https://github.com/ARMmbed/coap-service
+
+Please send contributions against that repository.
+
+To test changes, remove the `coap-service` repository and replace with Git clone
+of the master repository.
+
+```
+rm -rf coap-service
+git clone git@github.com:ARMmbed/coap-service.git
+```
 
 ## mbed-mesh-api
 
-mbed Mesh API is copied from master repository https://github.com/ARMmbed/mbed-mesh-api
+This is the master source of mbed-mesh-api.
+Send contributions directly to this repository.
 
-To replace the copied version with the master repository, follow these steps:
+## nanostack-interface
 
-* Remove the mbed-mesh-api directory: `rm -rf mbed-mesh-api`
-* Clone from the master: `git clone git@github.com:ARMmbed/mbed-mesh-api.git`
+This is the master source of nanostack-interface.
+Send contributions directly to this repository.
 
-Now you have the mbed-mesh-api directory replaced with the Git repository cloned from the original. You can build and test your changes against it and send patches normally to Github as a pull requests.
-
-## mbed-trace
-
-mbed-trace library is copied from master repository https://github.com/ARMmbed/mbed-trace
-
-To replace the copied version with the master repository, follow these steps:
-
-* Remove the mbed-mesh-api directory: `rm -rf mbed-trace`
-* Clone from the master: `git clone git@github.com:ARMmbed/mbed-trace.git`
-
-## nanostack-hal-mbed-cmsis-rtos
-
-nanostack-hal-mbed-cmsis-rtos library is copied from master repository https://github.com/ARMmbed/nanostack-hal-mbed-cmsis-rtos
-
-To replace the copied version with the master repository, follow these steps:
-
-* Remove the mbed-mesh-api directory: `rm -rf nanostack-hal-mbed-cmsis-rtos`
-* Clone from the master: `git clone git@github.com:ARMmbed/nanostack-hal-mbed-cmsis-rtos.git`
-
-## nanostack-libservice
-
-nanostack-libservice library is copied from master repository https://github.com/ARMmbed/nanostack-libservice
-
-To replace the copied version with the master repository, follow these steps:
-
-* Remove the mbed-mesh-api directory: `rm -rf nanostack-libservice`
-* Clone from the master: `git clone git@github.com:ARMmbed/nanostack-libservice.git`
-
-## sal-stack-nanostack-eventloop
-
-sal-stack-nanostack-eventloop library is copied from master repository https://github.com/ARMmbed/sal-stack-nanostack-eventloop
-
-To replace the copied version with the master repository, follow these steps:
-
-* Remove the mbed-mesh-api directory: `rm -rf sal-stack-nanostack-eventloop`
-* Clone from the master: `git clone git@github.com:ARMmbed/sal-stack-nanostack-eventloop.git`
-
-## sal-stack-nanostack-private
+## sal-stack-nanostack
 
 This directory holds binary libraries generated from the Nanostack networking library.
 
@@ -74,9 +48,12 @@ If you have access, the source directory is available in https://github.com/ARMm
 You can replace the binary libraries with the source tree as follows:
 
 * Remove the sal-stack-nanostack directory: `rm -rf sal-stack-nanostack`
-* Clone the original source repository: `git@github.com:ARMmbed/sal-stack-nanostack-private.git`
+* Remove the binaries located one directory up: `rm -rf ../nanostack-binaries`
+* Clone the original source repository to root folder of your application: `git@github.com:ARMmbed/sal-stack-nanostack-private.git`
 
 Now you can modify, build and test your changes with the mbed OS build.
+
+**NOTE:** You do not need to clone the Nanostack to exactly same location in the build tree. This may even cause build problems.
 
 ### Instructions for generating the binary modules
 
