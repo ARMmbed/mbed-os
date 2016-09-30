@@ -182,7 +182,7 @@ if __name__ == '__main__':
                     print str(e)
 
     # copy targets.json file as part of the release
-    copy(join(dirname(abspath(__file__)), '..', 'hal', 'targets.json'), MBED_LIBRARIES)
+    copy(join(dirname(abspath(__file__)), '..', 'targets', 'targets.json'), MBED_LIBRARIES)
 
     # Write summary of the builds
     if options.report_build_file_name:

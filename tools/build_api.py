@@ -25,8 +25,8 @@ from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException
-from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL,\
-    MBED_COMMON, MBED_CONFIG_FILE
+from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_HEADER,\
+    MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
@@ -904,13 +904,16 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
                        ('MBED', target.name, toolchain_name))
 
         # Common Headers
-        toolchain.copy_files(toolchain.scan_resources(MBED_API).headers,
+        toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
+        toolchain.copy_files(toolchain.scan_resources(MBED_DRIVERS).headers,
+                             MBED_LIBRARIES)
+        toolchain.copy_files(toolchain.scan_resources(MBED_PLATFORM).headers,
                              MBED_LIBRARIES)
         toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers,
                              MBED_LIBRARIES)
 
         # Target specific sources
-        hal_src = join(MBED_TARGETS_PATH, "hal")
+        hal_src = MBED_TARGETS_PATH
         hal_implementation = toolchain.scan_resources(hal_src)
         toolchain.copy_files(hal_implementation.headers +
                              hal_implementation.hex_files +
@@ -922,7 +925,9 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
                                             [MBED_LIBRARIES] + incdirs)
 
         # Common Sources
-        mbed_resources = toolchain.scan_resources(MBED_COMMON)
+        mbed_resources = toolchain.scan_resources(MBED_DRIVERS)
+        mbed_resources += toolchain.scan_resources(MBED_PLATFORM)
+        mbed_resources += toolchain.scan_resources(MBED_HAL)
         objects += toolchain.compile_sources(mbed_resources, tmp_path,
                                              [MBED_LIBRARIES] + incdirs)
 
@@ -1187,7 +1192,10 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
                    ('MBED', target.name, toolchain_name))
 
     # Common Headers
-    toolchain.copy_files(toolchain.scan_resources(MBED_API).headers,
+    toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
+    toolchain.copy_files(toolchain.scan_resources(MBED_DRIVERS).headers,
+                         MBED_LIBRARIES)
+    toolchain.copy_files(toolchain.scan_resources(MBED_PLATFORM).headers,
                          MBED_LIBRARIES)
     toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers,
                          MBED_LIBRARIES)
@@ -1217,8 +1225,8 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
     # command line
     mbed_includes = ["-I%s" % i for i in mbed_resources.inc_dirs]
     mbed_includes.append("-I%s"% str(build_target))
-    mbed_includes.append("-I%s"% str(MBED_COMMON))
-    mbed_includes.append("-I%s"% str(MBED_API))
+    mbed_includes.append("-I%s"% str(MBED_DRIVERS))
+    mbed_includes.append("-I%s"% str(MBED_PLATFORM))
     mbed_includes.append("-I%s"% str(MBED_HAL))
     mbed_c_sources = " ".join(mbed_resources.c_sources)
     mbed_cpp_sources = " ".join(mbed_resources.cpp_sources)
