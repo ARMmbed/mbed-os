@@ -29,8 +29,7 @@ class CellularInterface : public NetworkInterface
 public:
     /** CellularInterface lifetime
      */
-    CellularInterface();
-    virtual ~CellularInterface();
+    virtual ~CellularInterface() {};
 
     /** Set the cellular network APN and credentials
      *
@@ -38,7 +37,7 @@ public:
      *  @param user     Optional username for the APN
      *  @param pass     Optional password fot the APN
      */
-    virtual int set_credentials(const char *apn, const char *user = 0, const char *pass = 0);
+    virtual int set_credentials(const char *apn, const char *user = 0, const char *pass = 0) = 0;
 
     /** Start the interface
      *
@@ -55,18 +54,13 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect();
+    virtual int connect() = 0;
  
     /** Stop the interface
      *
      *  @return         0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
-
-private:
-    char *_apn;
-    char *_user;
-    char *_pass;
 };
 
  
