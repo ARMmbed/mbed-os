@@ -10,10 +10,11 @@ import json
 import argparse
 from prettytable import PrettyTable
 
-from tools.utils import argparse_filestring_type, \
+from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
 
 DEBUG = False
+
 RE_ARMCC = re.compile(
     r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
 RE_IAR = re.compile(
@@ -37,10 +38,12 @@ class MemapParser(object):
     # sections to print info (generic for all toolchains)
     sections = ('.text', '.data', '.bss', '.heap', '.stack')
 
-    def __init__(self):
+    def __init__(self, detailed_misc=False):
         """ General initialization
         """
-
+        # 
+        self.detailed_misc = detailed_misc
+        
         # list of all modules and their sections
         self.modules = dict()
 
@@ -95,8 +98,8 @@ class MemapParser(object):
         else:
             return False         # everything else, means no change in section
 
-    @staticmethod
-    def path_object_to_module_name(txt):
+    
+    def path_object_to_module_name(self, txt):
         """ Parse a path to object file to extract it's module and object data
 
         Positional arguments:
@@ -119,9 +122,17 @@ class MemapParser(object):
                 module_name = data[0] + '/' + data[1]
 
             return [module_name, object_name]
-        else:
+            
+        elif self.detailed_misc:           
+            rex_obj_name = r'^.+\/(.+\.o\)*)$'
+            test_rex_obj_name = re.match(rex_obj_name, txt)
+            if test_rex_obj_name:
+                object_name = test_rex_obj_name.group(1)
+                return ['Misc/' + object_name, ""]        
+                
             return ['Misc', ""]
-
+        else: 
+            return ['Misc', ""]
 
     def parse_section_gcc(self, line):
         """ Parse data from a section of gcc map file
@@ -617,6 +628,8 @@ def main():
         ", ".join(MemapParser.export_formats))
 
     parser.add_argument('-v', '--version', action='version', version=version)
+    
+    parser.add_argument('-d', '--detailed', action='store_true', help='Displays the elements in "Misc" in a detailed fashion', required=False)
 
     # Parse/run command
     if len(sys.argv) <= 1:
@@ -627,7 +640,7 @@ def main():
     args = parser.parse_args()
 
     # Create memap object
-    memap = MemapParser()
+    memap = MemapParser(detailed_misc=args.detailed)
 
     # Parse and decode a map file
     if args.file and args.toolchain:
