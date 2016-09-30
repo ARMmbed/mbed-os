@@ -26,6 +26,10 @@
 #include "network-socket/nsapi.h"
 #endif
 
+#if MBED_CONF_EVENTS_PRESENT
+#include "events/mbed_events.h"
+#endif
+
 #include "toolchain.h"
 #include "platform.h"
 
