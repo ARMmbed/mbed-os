@@ -95,16 +95,14 @@ public:
      */
     virtual int connect() = 0;
 
-    /**
-     * Sends the dhcp request
+    /** Sends DHCP request
      *
      * @param timeout Request timeout in ms
      * @return NSAPI_ERROR_OK in case of success, error code otherwise
      */
     virtual int start_dhcp(uint timeout = 15000) = 0;
 
-    /**
-     * Starts the interface with static IP
+    /** Starts the interface with static IP
      *
      * @param  ip      Static IP to use (in XYZ.XYZ.XYZ.XYZ format)
      * @param  netmask Network mask to use (in XYZ.XYZ.XYZ.XYZ format)
