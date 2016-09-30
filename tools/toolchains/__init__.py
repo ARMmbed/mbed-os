@@ -31,7 +31,7 @@ from distutils.spawn import find_executable
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, compile_worker
-from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
+from tools.settings import MBED_ORG_USER
 import tools.hooks as hooks
 from tools.memap import MemapParser
 from hashlib import md5
@@ -217,7 +217,9 @@ class mbedToolchain:
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+    profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
+
+    def __init__(self, target, notify=None, macros=None, silent=False, extra_verbose=False, build_profile=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -225,7 +227,7 @@ class mbedToolchain:
         self.hook = hooks.Hook(target, self)
 
         # Toolchain flags
-        self.flags = deepcopy(self.DEFAULT_FLAGS)
+        self.flags = deepcopy(build_profile or self.profile_template)
 
         # User-defined macros
         self.macros = macros or []
@@ -290,15 +292,6 @@ class mbedToolchain:
         # Print output buffer
         self.output = str()
         self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
-
-        # Build options passed by -o flag
-        self.options = options if options is not None else []
-
-        # Build options passed by settings.py or mbed_settings.py
-        self.options.extend(BUILD_OPTIONS)
-
-        if self.options:
-            self.info("Build Options: %s" % (', '.join(self.options)))
 
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
@@ -434,10 +427,20 @@ class mbedToolchain:
             toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
-                'TARGET': self.target.labels + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
+                'TARGET': self.target.labels,
                 'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
+
+            # This is a policy decision and it should /really/ be in the config system
+            # ATM it's here for backward compatibility
+            if (("-g" in self.flags['common'] and
+                 "-O0") in self.flags['common'] or
+                ("-r" in self.flags['common'] and
+                 "-On" in self.flags['common'])):
+                self.labels['TARGET'].append("DEBUG")
+            else:
+                self.labels['TARGET'].append("RELEASE")
         return self.labels
 
 

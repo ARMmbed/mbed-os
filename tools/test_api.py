@@ -355,14 +355,12 @@ class SingleTestRunner(object):
                 print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                 continue
 
-            build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
 
             try:
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
-                                                         options=build_mbed_libs_options,
                                                          clean=clean_mbed_libs_options,
                                                          verbose=self.opts_verbose,
                                                          jobs=self.opts_jobs,
@@ -423,7 +421,6 @@ class SingleTestRunner(object):
                         libraries.append(lib['id'])
 
 
-            build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
             clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
 
             # Build all required libraries
@@ -432,7 +429,6 @@ class SingleTestRunner(object):
                     build_lib(lib_id,
                               T,
                               toolchain,
-                              options=build_project_options,
                               verbose=self.opts_verbose,
                               clean=clean_mbed_libs_options,
                               jobs=self.opts_jobs,
@@ -479,7 +475,6 @@ class SingleTestRunner(object):
                                      T,
                                      toolchain,
                                      test.dependencies,
-                                     options=build_project_options,
                                      clean=clean_project_options,
                                      verbose=self.opts_verbose,
                                      name=project_name,
@@ -1990,7 +1985,7 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=None):
+def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
     target_name: name of the target to use for scanning (ex. 'K64F')
@@ -2002,7 +1997,7 @@ def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=N
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options,
+    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name,
                                   silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
@@ -2060,9 +2055,10 @@ def norm_relative_path(path, start):
     return path
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
-        options=None, clean=False, notify=None, verbose=False, jobs=1,
-        macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False, app_config=None):
+                clean=False, notify=None, verbose=False, jobs=1, macros=None,
+                silent=False, report=None, properties=None,
+                continue_on_build_fail=False, app_config=None,
+                build_profile=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2095,7 +2091,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                     options=options,
                                      jobs=jobs,
                                      clean=clean,
                                      macros=macros,
@@ -2104,7 +2099,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      report=report,
                                      properties=properties,
                                      verbose=verbose,
-                                     app_config=app_config)
+                                     app_config=app_config,
+                                     build_profile=build_profile)
 
         except Exception, e:
             if not isinstance(e, NotSupportedException):

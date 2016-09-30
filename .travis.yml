@@ -19,3 +19,4 @@ install:
   - sudo pip install jinja2
   - sudo pip install pytest
   - sudo pip install pylint
+  - sudo pip install hypothesis
