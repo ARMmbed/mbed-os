@@ -60,3 +60,11 @@ int WiFiInterface::set_credentials(const char *ssid, const char *pass, nsapi_sec
     return 0;
 }
 
+int WiFiInterface::connect()
+{
+    if (!_ssid || !_pass) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    return connect(_ssid, _pass, _security);
+}
