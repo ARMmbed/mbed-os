@@ -4,6 +4,7 @@ from itertools import groupby
 from xml.etree.ElementTree import Element, tostring
 import ntpath
 import re
+import json
 
 from xdg.BaseDirectory import save_data_path
 
@@ -34,7 +35,7 @@ class DeviceCMSIS():
     def __init__(self, target):
         cache = Cache(True, False)
         data_path = join(save_data_path('arm-pack-manager'), "index.json")
-        if not exists(data_path):
+        if not exists(data_path) or not self.check_version(data_path):
             cache.cache_descriptors()
 
         t = TARGET_MAP[target]
@@ -51,14 +52,21 @@ class DeviceCMSIS():
             except:
                 raise TargetNotSupportedException("Target not in CMSIS packs")
 
+        self.target_info = target_info
+
         self.url = target_info['pdsc_file']
         self.pack_url, self.pack_id = ntpath.split(self.url)
         self.dname = cpu_name
         self.dfpu = target_info['processor']['fpu']
-        self.debug_interface, self.dvendor = self.vendor_debug(target_info['vendor'])
+        self.debug, self.dvendor = self.vendor_debug(target_info['vendor'])
         self.dendian = target_info['processor'].get('endianness','Little-endian')
         self.debug_svd = target_info.get('debug', '')
         self.compile_header = target_info['compile']['header']
+
+    def check_version(self, filename):
+        with open(filename) as data_file:
+            data = json.load(data_file)
+            return data.get("version", "0") == "0.1.0"
 
     def vendor_debug(self, vendor):
         reg = "([\w\s]+):?\d*?"
@@ -78,6 +86,7 @@ class DeviceCMSIS():
         cpu = cpu.replace("+","P")
         cpu = cpu.replace("F","_FP")
         return cpu
+
 
 class CMSIS(Exporter):
     NAME = 'cmsis'
