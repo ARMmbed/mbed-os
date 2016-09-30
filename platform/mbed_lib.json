@@ -1,5 +1,5 @@
 {
-    "name": "core",
+    "name": "platform",
     "config": {
         "stdio-convert-newlines": {
             "help": "Enable conversion to standard newlines on stdin/stdout",

@@ -98,7 +98,7 @@ FileHandle::~FileHandle() {
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
-#if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
 static char stdio_in_prev;
 static char stdio_out_prev;
 #endif
@@ -108,8 +108,8 @@ static void init_serial() {
 #if DEVICE_SERIAL
     if (stdio_uart_inited) return;
     serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
-#if MBED_CONF_CORE_STDIO_BAUD_RATE
-    serial_baud(&stdio_uart, MBED_CONF_CORE_STDIO_BAUD_RATE);
+#if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
+    serial_baud(&stdio_uart, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #endif
 #endif
 }
@@ -243,7 +243,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
     if (fh < 3) {
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
-#if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
         for (unsigned int i = 0; i < length; i++) {
             if (buffer[i] == '\n' && stdio_out_prev != '\r') {
                  serial_putc(&stdio_uart, '\r');
@@ -281,7 +281,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
-#if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
         while (true) {
             char c = serial_getc(&stdio_uart);
             if ((c == '\r' && stdio_in_prev != '\n') ||
@@ -609,7 +609,7 @@ extern "C" void exit(int return_code) {
 #endif
 
 #if DEVICE_STDIO_MESSAGES
-#if MBED_CONF_CORE_STDIO_FLUSH_AT_EXIT
+#if MBED_CONF_PLATFORM_STDIO_FLUSH_AT_EXIT
     fflush(stdout);
     fflush(stderr);
 #endif
