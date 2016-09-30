@@ -370,8 +370,7 @@ int8_t nd_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
     tasklet_data_ptr->network_interface_id = nwk_interface_id;
     tasklet_data_ptr->tasklet_state = TASKLET_STATE_INITIALIZED;
 
-    //TODO: Fetch these values from device config api
-    tasklet_data_ptr->mode = NET_6LOWPAN_ROUTER;
+    tasklet_data_ptr->mode = MBED_CONF_MBED_MESH_API_6LOWPAN_ND_DEVICE_TYPE;
     tasklet_data_ptr->sec_mode = NET_SEC_MODE_NO_LINK_SECURITY;
     //tasklet_data_ptr->psk_sec_info.key_id = 0;
 

@@ -10,7 +10,7 @@ Currently, 6LoWPAN-ND (neighbour discovery) and Thread bootstrap modes are suppo
 
 ## Module Configuration
 
-This module supports static configuration via **mbed configuration system** by using the `mbed_app.json` file. The application needs to create the configuration file if it wants to use other than default settings. 
+This module supports static configuration via **mbed configuration system** by using the `mbed_app.json` file. The application needs to create the configuration file if it wants to use other than default settings.
 
 An example of the configuration file:
 
@@ -58,7 +58,7 @@ An example of the configuration file:
 | 6lowpan-nd-psk-key-id | number | PSK key id when PSK is enabled |
 | 6lowpan-nd-psk-key | byte array [16] | Pre shared network key |
 | 6lowpan-nd-sec-level | number [1-7] | Network security level. Use default `5` |
-
+| 6lowpan-nd-device-type | "NET_6LOWPAN_ROUTER" or "NET_6LOWPAN_HOST" | Device mode. Router is routing packets from other device, creating a mesh network. |
 
 ## Usage notes
 
