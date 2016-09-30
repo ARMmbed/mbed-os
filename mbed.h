@@ -19,7 +19,7 @@
 #define MBED_LIBRARY_VERSION 123
 
 #if MBED_CONF_RTOS_PRESENT
-#include "rtos/rtos.h"
+#include "rtos.h"
 #endif
 
 #if MBED_CONF_NSAPI_PRESENT

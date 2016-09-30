@@ -24,7 +24,7 @@ from tools.settings import ROOT, BUILD_DIR
 BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 
 # Embedded Libraries Sources
-LIB_DIR = join(ROOT, "libraries")
+LIB_DIR = join(ROOT, "features/unsupported")
 
 TOOLS = join(ROOT, "tools")
 TOOLS_DATA = join(TOOLS, "data")
@@ -40,7 +40,7 @@ MBED_TARGETS_PATH = join(ROOT, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 
-MBED_CONFIG_FILE = join(ROOT, "mbed_lib.json")
+MBED_CONFIG_FILE = join(ROOT, "platform/mbed_lib.json")
 
 # Tests
 TEST_DIR = join(LIB_DIR, "tests")
@@ -54,7 +54,7 @@ RPC_LIBRARY = join(BUILD_DIR, "rpc")
 # mbed RTOS
 RTOS = join(ROOT, "rtos")
 MBED_RTX = join(RTOS, "rtx")
-RTOS_ABSTRACTION = join(RTOS, "rtos")
+RTOS_ABSTRACTION = RTOS
 
 RTOS_LIBRARIES = join(BUILD_DIR, "rtos")
 
