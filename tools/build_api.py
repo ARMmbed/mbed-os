@@ -912,7 +912,8 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         hal_implementation = toolchain.scan_resources(hal_src)
         toolchain.copy_files(hal_implementation.headers +
                              hal_implementation.hex_files +
-                             hal_implementation.libraries,
+                             hal_implementation.libraries +
+                             [MBED_CONFIG_FILE],
                              build_target, resources=hal_implementation)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
         objects = toolchain.compile_sources(hal_implementation, tmp_path,
