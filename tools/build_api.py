@@ -303,7 +303,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
 
     # If the configuration object was not yet created, create it now
-    config = config or Config(target, src_paths)
+    config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
 
     # Toolchain instance
