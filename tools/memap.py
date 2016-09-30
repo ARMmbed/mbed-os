@@ -14,7 +14,7 @@ from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
 
 DEBUG = False
-DETAILED = False
+
 RE_ARMCC = re.compile(
     r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
 RE_IAR = re.compile(
@@ -25,7 +25,7 @@ class MemapParser(object):
     """An object that represents parsed results, parses the memory map files,
     and writes out different file types of memory results
     """
-
+    
     print_sections = ('.text', '.data', '.bss')
 
     misc_flash_sections = ('.interrupts', '.flash_config')
@@ -41,7 +41,9 @@ class MemapParser(object):
     def __init__(self):
         """ General initialization
         """
-
+        # 
+        self.detailed_misc = False
+        
         # list of all modules and their sections
         self.modules = dict()
 
@@ -91,8 +93,8 @@ class MemapParser(object):
         else:
             return False         # everything else, means no change in section
 
-    @staticmethod
-    def path_object_to_module_name(txt):
+    
+    def path_object_to_module_name(self, txt):
         """ Parse a path to object file to extract it's module and object data
 
         Positional arguments:
@@ -116,7 +118,7 @@ class MemapParser(object):
 
             return [module_name, object_name]
             
-        elif DETAILED:           
+        elif self.detailed_misc:           
             rex_obj_name = r'^.+\/(.+\.o\)*)$'
             test_rex_obj_name = re.match(rex_obj_name, txt)
             if test_rex_obj_name:
@@ -638,13 +640,14 @@ def main():
         sys.exit(1)
 
 
-    args, remainder = parser.parse_known_args()
-    
-    global DETAILED
-    DETAILED = args.detailed    
+    args = parser.parse_args()   
 
     # Create memap object
     memap = MemapParser()
+    
+    # Show Misc unfolded
+    if args.detailed:
+        memap.detailed_misc = True
 
     # Parse and decode a map file
     if args.file and args.toolchain:
