@@ -25,7 +25,7 @@ class MemapParser(object):
     """An object that represents parsed results, parses the memory map files,
     and writes out different file types of memory results
     """
-    
+
     print_sections = ('.text', '.data', '.bss')
 
     misc_flash_sections = ('.interrupts', '.flash_config')
@@ -38,11 +38,11 @@ class MemapParser(object):
     # sections to print info (generic for all toolchains)
     sections = ('.text', '.data', '.bss', '.heap', '.stack')
 
-    def __init__(self):
+    def __init__(self, detailed_misc=False):
         """ General initialization
         """
         # 
-        self.detailed_misc = False
+        self.detailed_misc = detailed_misc
         
         # list of all modules and their sections
         self.modules = dict()
@@ -640,14 +640,10 @@ def main():
         sys.exit(1)
 
 
-    args = parser.parse_args()   
+    args = parser.parse_args()
 
     # Create memap object
-    memap = MemapParser()
-    
-    # Show Misc unfolded
-    if args.detailed:
-        memap.detailed_misc = True
+    memap = MemapParser(detailed_misc=args.detailed)
 
     # Parse and decode a map file
     if args.file and args.toolchain:
