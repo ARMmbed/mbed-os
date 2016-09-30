@@ -19,6 +19,7 @@
 
 #include "platform.h"
 
+
 #if DEVICE_EMAC
 
 #include <stdbool.h>
@@ -153,6 +154,10 @@ typedef struct emac_interface {
     const emac_interface_ops_t ops;
     void *hw;
 } emac_interface_t;
+
+#else
+
+typedef void *emac_interface_t;
 
 #endif /* DEVICE_EMAC */
 #endif  /* MBED_EMAC_API_H */
