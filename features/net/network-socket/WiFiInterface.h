@@ -79,11 +79,10 @@ public:
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
      *  @param cb        Function to be called when the connect finishes (Default: NULL)
-     *  @param data      Arbitrary user data to pass to @a cb function (Default: NULL)
      *  @param timeout   Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
     virtual void connect_async(const char *ssid, const char *pass,nsapi_security_t security = NSAPI_SECURITY_NONE,
-                               uint8_t channel = 0, mbed::Callback<void(nsapi_error_t, wifi_ap_t*, void*)> cb = NULL, void *data = NULL,
+                               uint8_t channel = 0, mbed::Callback<void(nsapi_error_t, wifi_ap_t*)> cb = NULL,
                                unsigned timeout = 0) = 0;
 
     /** Start the interface
@@ -135,7 +134,7 @@ public:
      * @param  data  User handle that will be passed to @a cb along with the AP data (Default: NULL)
      * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      */
-    virtual void scan_async(mbed::Callback<void(wifi_ap_t*, void*)> cb, void *data = NULL, unsigned timeout = 0) = 0;
+    virtual void scan_async(mbed::Callback<void(wifi_ap_t*)> cb, unsigned timeout = 0) = 0;
 
 protected:
     char *_ssid;
