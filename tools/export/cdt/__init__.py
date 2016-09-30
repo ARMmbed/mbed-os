@@ -26,8 +26,8 @@ class Eclipse(Makefile):
             makedirs(join(self.export_dir,'eclipse-extras'))
 
 
-        self.gen_file('cdt/py_ocd_settings.tmpl', ctx,
-                      join('eclipse-extras',self.target+'_py_ocd_settings.launch'))
+        self.gen_file('cdt/pyocd_settings.tmpl', ctx,
+                      join('eclipse-extras',self.target+'_pyocd_settings.launch'))
         self.gen_file('cdt/necessary_software.tmpl', ctx,
                       join('eclipse-extras','necessary_software.p2f'))
 
