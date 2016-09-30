@@ -120,6 +120,43 @@ class Resources:
 
         return self
 
+    def _collect_duplicates(self, dupe_dict, dupe_headers):
+        for filename in self.s_sources + self.c_sources + self.cpp_sources:
+            objname, _ = splitext(basename(filename))
+            dupe_dict.setdefault(objname, set())
+            dupe_dict[objname] |= set([filename])
+        for filename in self.headers:
+            headername = basename(filename)
+            dupe_headers.setdefault(headername, set())
+            dupe_headers[headername] |= set([headername])
+        for res in self.features.values():
+            res._collect_duplicates(dupe_dict, dupe_headers)
+        return dupe_dict, dupe_headers
+
+    def detect_duplicates(self, toolchain):
+        """Detect all potential ambiguities in filenames and report them with
+        a toolchain notification
+
+        Positional Arguments:
+        toolchain - used for notifications
+        """
+        count = 0
+        dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
+        for objname, filenames in dupe_dict.iteritems():
+            if len(filenames) > 1:
+                count+=1
+                toolchain.tool_error(
+                    "Object file %s.o is not unique! It could be made from: %s"\
+                    % (objname, " ".join(filenames)))
+        for headername, locations in dupe_headers.iteritems():
+            if len(locations) > 1:
+                count+=1
+                toolchain.tool_error(
+                    "Header file %s is not unique! It could be: %s" %\
+                    (headername, " ".join(locations)))
+        return count
+
+
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',

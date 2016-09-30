@@ -3,6 +3,7 @@ import sys
 import os
 from string import printable
 from copy import deepcopy
+from mock import MagicMock
 from hypothesis import given
 from hypothesis.strategies import text, lists, fixed_dictionaries
 
@@ -10,7 +11,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
                                     ".."))
 sys.path.insert(0, ROOT)
 
-from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES
+from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
+    Resources
 from tools.targets import TARGET_MAP
 
 def test_instantiation():
@@ -96,3 +98,27 @@ def test_toolchain_profile_asm(profile, source_file):
                 "Toolchain %s did not propigate arg %s" % (toolchain.name,
                                                            parameter)
 
+    for name, Class in  TOOLCHAIN_CLASSES.items():
+        CLS = Class(TARGET_MAP["K64F"])
+        assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
+
+
+@given(lists(text(alphabet=ALPHABET, min_size=1), min_size=1))
+def test_detect_duplicates(filenames):
+    c_sources = [os.path.join(name, "dupe.c") for name in filenames]
+    s_sources = [os.path.join(name, "dupe.s") for name in filenames]
+    cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
+    with MagicMock() as notify:
+        toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
+        res = Resources()
+        res.c_sources = c_sources
+        res.s_sources = s_sources
+        res.cpp_sources = cpp_sources
+        assert res.detect_duplicates(toolchain) == 1,\
+            "Not Enough duplicates found"
+
+        _, (notification, _), _ = notify.mock_calls[1]
+        assert "dupe.o" in notification["message"]
+        assert "dupe.s" in notification["message"]
+        assert "dupe.c" in notification["message"]
+        assert "dupe.cpp" in notification["message"]
