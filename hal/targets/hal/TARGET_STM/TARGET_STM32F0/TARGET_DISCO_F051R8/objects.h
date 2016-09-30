@@ -66,17 +66,6 @@ struct dac_s {
     uint32_t channel;
 };
 
-struct serial_s {
-    UARTName uart;
-    int index; // Used by irq
-    uint32_t baudrate;
-    uint32_t databits;
-    uint32_t stopbits;
-    uint32_t parity; 
-    PinName pin_tx;
-    PinName pin_rx;
-};
-
 struct spi_s {
     SPIName spi;
     uint32_t bits;

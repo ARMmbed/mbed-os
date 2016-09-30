@@ -24,48 +24,6 @@
     .syntax unified
     .arch armv7-m
 
-/* Memory Model
-   The HEAP starts at the end of the DATA section and grows upward.
-
-   The STACK starts at the end of the RAM and grows downward.
-
-   The HEAP and stack STACK are only checked at compile time:
-   (DATA_SIZE + HEAP_SIZE + STACK_SIZE) < RAM_SIZE
-
-   This is just a check for the bare minimum for the Heap+Stack area before
-   aborting compilation, it is not the run time limit:
-   Heap_Size + Stack_Size = 0x80 + 0x80 = 0x100
- */
-    .section .stack
-    .align 3
-#ifdef __STACK_SIZE
-    .equ    Stack_Size, __STACK_SIZE
-#else
-    .equ    Stack_Size, 0x400
-#endif
-    .globl    __StackTop
-    .globl    __StackLimit
-__StackLimit:
-    .space    Stack_Size
-    .size __StackLimit, . - __StackLimit
-__StackTop:
-    .size __StackTop, . - __StackTop
-
-    .section .heap
-    .align 3
-#ifdef __HEAP_SIZE
-    .equ    Heap_Size, __HEAP_SIZE
-#else
-    .equ    Heap_Size, 0xC00
-#endif
-    .globl    __HeapBase
-    .globl    __HeapLimit
-__HeapBase:
-    .space    Heap_Size
-    .size __HeapBase, . - __HeapBase
-__HeapLimit:
-    .size __HeapLimit, . - __HeapLimit
-
     .section .vector_table,"a",%progbits
     .align 2
     .globl __isr_vector
@@ -143,6 +101,15 @@ __isr_vector:
     .globl   Reset_Handler
     .type    Reset_Handler, %function
 Reset_Handler:
+    ldr    r0, =SystemInit
+    blx    r0
+/* The call to uvisor_init() happens independently of uVisor being enabled or
+* not, so it is conditionally compiled only based on FEATURE_UVISOR. */
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+    /* Call uvisor_init() */
+    ldr   r0, =uvisor_init
+    blx   r0
+#endif /* FEATURE_UVISOR && TARGET_UVISOR_SUPPORTED */
 /*
  * Loop to copy data from read only memory to RAM. The ranges
  * of copy from/to are specified by following symbols evaluated in

@@ -344,64 +344,47 @@ void serial_free(serial_t *obj)
     }
 }
 
-static nrf_uart_baudrate_t baud_translate(int rate)
-{
-    nrf_uart_baudrate_t baud;
-
-    if (rate < 57600) {
-        if (rate < 14400) {
-            if (rate < 2400) {
-                baud = NRF_UART_BAUDRATE_1200;
-            } else if (rate < 4800) {
-                baud = NRF_UART_BAUDRATE_2400;
-            } else if (rate < 9600) {
-                baud = NRF_UART_BAUDRATE_4800;
-            } else {
-                baud = NRF_UART_BAUDRATE_9600;
-            }
-        } else {
-            if (rate < 19200) {
-                baud = NRF_UART_BAUDRATE_14400;
-            } else if (rate < 28800) {
-                baud = NRF_UART_BAUDRATE_19200;
-            } else if (rate < 38400) {
-                baud = NRF_UART_BAUDRATE_28800;
-            } else {
-                baud = NRF_UART_BAUDRATE_38400;
-            }
-        }
-    } else {
-        if (rate < 250000) {
-            if (rate < 76800) {
-                baud = NRF_UART_BAUDRATE_57600;
-            } else if (rate < 115200) {
-                baud = NRF_UART_BAUDRATE_76800;
-            } else if (rate < 230400) {
-                baud = NRF_UART_BAUDRATE_115200;
-            } else {
-                baud = NRF_UART_BAUDRATE_230400;
-            }
-        } else {
-            if (rate < 460800) {
-                baud = NRF_UART_BAUDRATE_250000;
-            } else if (rate < 921600) {
-                baud = NRF_UART_BAUDRATE_460800;
-            } else if (rate < 1000000) {
-                baud = NRF_UART_BAUDRATE_921600;
-            } else {
-                baud = NRF_UART_BAUDRATE_1000000;
-            }
-        }
-    }
-    return baud;
-}
 void serial_baud(serial_t *obj, int baudrate)
 {
-    (void)obj;
-    UART_CB.baudrate = baud_translate(baudrate);
+    // nrf_uart_baudrate_set() is not used here (registers are accessed
+    // directly) to make it possible to set special baud rates like 56000
+    // or 31250.
 
-    // Reconfigure UART peripheral.
-    nrf_uart_baudrate_set(UART_INSTANCE, UART_CB.baudrate);
+    static uint32_t const acceptedSpeeds[][2] = {
+        { 1200,    UART_BAUDRATE_BAUDRATE_Baud1200   },
+        { 2400,    UART_BAUDRATE_BAUDRATE_Baud2400   },
+        { 4800,    UART_BAUDRATE_BAUDRATE_Baud4800   },
+        { 9600,    UART_BAUDRATE_BAUDRATE_Baud9600   },
+        { 14400,   UART_BAUDRATE_BAUDRATE_Baud14400  },
+        { 19200,   UART_BAUDRATE_BAUDRATE_Baud19200  },
+        { 28800,   UART_BAUDRATE_BAUDRATE_Baud28800  },
+        { 31250,   (0x00800000UL) /* 31250 baud */   },
+        { 38400,   UART_BAUDRATE_BAUDRATE_Baud38400  },
+        { 56000,   (0x00E51000UL) /* 56000 baud */   },
+        { 57600,   UART_BAUDRATE_BAUDRATE_Baud57600  },
+        { 76800,   UART_BAUDRATE_BAUDRATE_Baud76800  },
+        { 115200,  UART_BAUDRATE_BAUDRATE_Baud115200 },
+        { 230400,  UART_BAUDRATE_BAUDRATE_Baud230400 },
+        { 250000,  UART_BAUDRATE_BAUDRATE_Baud250000 },
+        { 460800,  UART_BAUDRATE_BAUDRATE_Baud460800 },
+        { 921600,  UART_BAUDRATE_BAUDRATE_Baud921600 },
+        { 1000000, UART_BAUDRATE_BAUDRATE_Baud1M     }
+    };
+
+    if (baudrate <= 1200) {
+        UART_INSTANCE->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1200;
+        return;
+    }
+
+    int const item_cnt = sizeof(acceptedSpeeds)/sizeof(acceptedSpeeds[0]);
+    for (int i = 1; i < item_cnt; i++) {
+        if ((uint32_t)baudrate < acceptedSpeeds[i][0]) {
+            UART_INSTANCE->BAUDRATE = acceptedSpeeds[i - 1][1];
+            return;
+        }
+    }
+
+    UART_INSTANCE->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1M;
 }
 
 void serial_format(serial_t *obj,

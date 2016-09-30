@@ -21,22 +21,20 @@
   *                                 during program execution.
   *
   * This file configures the system clock as follows:
-  *-----------------------------------------------------------------------------
-  * System clock source                | 1- PLL_HSE_EXTC        | 3- PLL_HSI
-  *                                    | (external 8 MHz clock) | (internal 16 MHz)
-  *                                    | 2- PLL_HSE_XTAL        |
-  *                                    | (external 8 MHz xtal)  |
-  *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 100                    | 100
-  *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 100                    | 100
-  *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 50                     | 50
-  *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 100                    | 100
-  *-----------------------------------------------------------------------------
-  * USB capable (48 MHz precise clock) | NO                     | NO
-  *-----------------------------------------------------------------------------  
+  *--------------------------------------------------------------------------------------
+  * System clock source                | PLL_HSE_XTAL           | PLL_HSE_XTAL           
+  *                                    | (external 8 MHz clock) | (external 8 MHz clock) 
+  *--------------------------------------------------------------------------------------
+  * SYSCLK(MHz)                        | 168                    | 180                    
+  *--------------------------------------------------------------------------------------
+  * AHBCLK (MHz)                       | 168                    | 180                    
+  *--------------------------------------------------------------------------------------
+  * APB1CLK (MHz)                      | 42                     | 45                     
+  *--------------------------------------------------------------------------------------
+  * APB2CLK (MHz)                      | 84                     | 90                     
+  *--------------------------------------------------------------------------------------
+  * USB capable (48 MHz precise clock) | YES                    | NO                     
+  *--------------------------------------------------------------------------------------
   ******************************************************************************
   * @attention
   *
@@ -137,9 +135,9 @@
   * @{
   */
 
-/* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (0) /* Use external clock */
-#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
+/* Select the SYSCLOCK  to start with (0=OFF, 1=ON) */
+#define USE_SYSCLOCK_168 (1) /* Use external 8MHz xtal and sets SYSCLK to 168MHz */
+#define USE_SYSCLOCK_180 (0) /* Use external 8MHz xtal and sets SYSCLK to 180MHz */
 
 /**
   * @}
@@ -156,7 +154,7 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-uint32_t SystemCoreClock = 16000000;
+  uint32_t SystemCoreClock = 168000000;
 const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**
@@ -171,12 +169,7 @@ const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 
   static void SystemInit_ExtMemCtl(void); 
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
-#endif
-
-uint8_t SetSysClock_PLL_HSI(void);
-
+void SetSysClock(void);
 /**
   * @}
   */
@@ -235,6 +228,7 @@ void SystemInit(void)
   /* Configure the System clock source, PLL Multiplier and Divider factors,
      AHB/APBx prescalers and Flash settings */
   SetSysClock();
+  SystemCoreClockUpdate();
   
   /* Reset the timer to avoid issues after the RAM initialization */
   TIM_MST_RESET_ON;
@@ -752,13 +746,11 @@ void SystemInit_ExtMemCtl(void)
   /* No pull-up, pull-down for PGx pins */ 
   GPIOG->PUPDR   = 0x00000000;
   
-/*-- FMC/FSMC Configuration --------------------------------------------------*/
+/*-- FMC/FSMC Configuration --------------------------------------------------*/                                                                               
   /* Enable the FMC/FSMC interface clock */
   RCC->AHB3ENR         |= 0x00000001;
-
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
-  /* Delay after an RCC peripheral clock enabling */
-  tmp = READ_BIT(RCC->AHB3ENR, RCC_AHB3ENR_FMCEN);
+  
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) 
   /* Configure and enable Bank1_SRAM2 */
   FMC_Bank1->BTCR[2]  = 0x00001011;
   FMC_Bank1->BTCR[3]  = 0x00000201;
@@ -789,153 +781,86 @@ void SystemInit_ExtMemCtl(void)
 }
 #endif /* DATA_IN_ExtSRAM && DATA_IN_ExtSDRAM */
 
-/**
-  * @brief  Configures the System clock source, PLL Multiplier and Divider factors,
-  *               AHB/APBx prescalers and Flash settings
-  * @note   This function should be called only once the RCC clock configuration  
-  *         is reset to the default reset state (done in SystemInit() function).             
-  * @param  None
-  * @retval None
-  */
+/** System Clock Configuration
+*/
+#if USE_SYSCLOCK_168 != 0
+/*
+ * generated code by STM32CubeMX 4.4.0 for board 32F429Discovery
+ * and SYSCLK=168MHZ
+ */
 void SetSysClock(void)
 {
-  /* 1- Try to start with HSE and external clock */
-#if USE_PLL_HSE_EXTC != 0
-  if (SetSysClock_PLL_HSE(1) == 0)
-#endif
-  {
-    /* 2- If fail try to start with HSE and external xtal */
-    #if USE_PLL_HSE_XTAL != 0
-    if (SetSysClock_PLL_HSE(0) == 0)
-    #endif
-    {
-      /* 3- If fail start with HSI clock */
-      if (SetSysClock_PLL_HSI() == 0)
-      {
-        while(1)
-        {
-          // [TODO] Put something here to tell the user that a problem occured...
-        }
-      }
-    }
-  }
+
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+
+  __PWR_CLK_ENABLE();
+
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 24;
+  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
+  HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
+                              |RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
   
-  /* Output clock on MCO2 pin(PC9) for debugging purpose */
-  //HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_4); // 100 MHz / 4 = 25 MHz
+  // HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_3);
+
+
 }
 
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
-/******************************************************************************/
-/*            PLL (clocked by HSE) used as System clock source                */
-/******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+#elif USE_SYSCLOCK_180 != 0
+/*
+ * generated code by STM32CubeMX 4.4.0 for board 32F429Discovery
+ * and SYSCLK=180MHZ
+ */
+void SetSysClock(void)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+
   RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
-     regarding system frequency refer to product datasheet. */
   __PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
-  
-  /* Enable HSE oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
-  if (bypass == 0)
-  {
-    RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 8 MHz xtal on OSC_IN/OSC_OUT */
-  }
-  else
-  {
-    RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
-  }
-  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-  //RCC_OscInitStruct.PLL.PLLM          = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
-  //RCC_OscInitStruct.PLL.PLLN          = 400;           // VCO output clock = 400 MHz (1 MHz * 400)
-  //RCC_OscInitStruct.PLL.PLLM            = 4;             // VCO input clock = 2 MHz (8 MHz / 4)
-  //RCC_OscInitStruct.PLL.PLLN            = 200;           // VCO output clock = 400 MHz (2 MHz * 200)
-  #define VCO_IN_FREQ 2000000
-  RCC_OscInitStruct.PLL.PLLM            = (HSE_VALUE / VCO_IN_FREQ); // VCO input clock = 2 MHz = (24 MHz / 12)
-  RCC_OscInitStruct.PLL.PLLN            = (400000000 / VCO_IN_FREQ); // VCO output clock = 400 MHz = (2 MHz * 200)
-  RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV4; // PLLCLK = 100 MHz (400 MHz / 4)
-  RCC_OscInitStruct.PLL.PLLQ            = 9;             // USB clock = 44.44 MHz (400 MHz / 9) --> Not good for USB
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
- 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
-  RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 100 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 100 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;           //  50 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 100 MHz
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
 
-  /* Output clock on MCO1 pin(PA8) for debugging purpose */
-  
-  //if (bypass == 0)
-  //  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2); // 4 MHz with xtal
-  //else
-  //  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1); // 8 MHz with external clock
-  
-  return 1; // OK
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 360;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
+  HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+  HAL_PWREx_ActivateOverDrive();
+
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
+                              |RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+
+  // HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_3);
+
 }
 #endif
 
-/******************************************************************************/
-/*            PLL (clocked by HSI) used as System clock source                */
-/******************************************************************************/
-uint8_t SetSysClock_PLL_HSI(void)
-{
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
-     regarding system frequency refer to product datasheet. */
-  __PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
- 
-  /* Enable HSI oscillator and activate PLL with HSI as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
-  RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
-  RCC_OscInitStruct.HSICalibrationValue = 16;
-  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;   
-  //RCC_OscInitStruct.PLL.PLLM          = 16;            // VCO input clock = 1 MHz (16 MHz / 16)
-  //RCC_OscInitStruct.PLL.PLLN          = 400;           // VCO output clock = 400 MHz (1 MHz * 400)
-  RCC_OscInitStruct.PLL.PLLM            = 8;             // VCO input clock = 2 MHz (16 MHz / 8)
-  RCC_OscInitStruct.PLL.PLLN            = 200;           // VCO output clock = 400 MHz (2 MHz * 200)
-  RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV4; // PLLCLK = 100 MHz (400 MHz / 4)
-  RCC_OscInitStruct.PLL.PLLQ            = 9;             // USB clock = 44.44 MHz (400 MHz / 9) --> Not good for USB
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
- 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
-  RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 100 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 100 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;           //  50 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 100 MHz
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
-
-  /* Output clock on MCO1 pin(PA8) for debugging purpose */
-  //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
-
-  return 1; // OK
-}
-
 /**
   * @}
   */
@@ -943,8 +868,8 @@ uint8_t SetSysClock_PLL_HSI(void)
 /**
   * @}
   */
-
+  
 /**
   * @}
-  */
+  */    
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

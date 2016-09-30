@@ -26,8 +26,7 @@ int EthernetInterface::connect()
 
 int EthernetInterface::disconnect()
 {
-    lwip_bringdown();
-    return 0;
+    return lwip_bringdown();
 }
 
 const char *EthernetInterface::get_ip_address()

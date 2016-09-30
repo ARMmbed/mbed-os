@@ -10,6 +10,7 @@ The way tests are run and compiled in mbed OS 5 is substantially different from 
     - [Test names](#test-names)
   - [Building tests](#building-tests)
     - [Building process](#building-process)
+    - [App config](#app-config)
   - [Running tests](#running-tests)
   - [Writing tests](#writing-tests)
 - [Debugging tests](#debugging-tests)
@@ -72,6 +73,12 @@ The full build process is:
 1. Find all tests that match the given target and toolchain.
 1. For each discovered test, build all of its source files and link it with the non-test code that was built in step 1.
 1. If specified, create a test specification file and place it in the given directory for use by testing tools. This is placed in the build directory by default when using mbed CLI.
+
+#### App config
+
+When building an mbed application, the presence of a `mbed_app.json` file allows you to set or override different config settings from libraries and targets. However, because the tests share a common build, this can cause issues when tests have different configurations that affect the OS.
+
+If you need to use app config, this must be set via the `--app-config` option when calling `mbed test`. **If this option is not specified, the build system will ignore all `mbed_app.json` files and use the default config values.**
 
 ### Running tests
 

@@ -27,6 +27,7 @@ def compare_config(cfg, expected):
             if cfg[k].value != expected[k]:
                 return "'%s': expected '%s', got '%s'" % (k, expected[k], cfg[k].value)
     except KeyError:
+        raise
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
         if k not in ["desc", "expected_macros", "expected_features"] + cfg.keys():

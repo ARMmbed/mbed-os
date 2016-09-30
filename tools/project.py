@@ -21,7 +21,7 @@ from tools.utils import argparse_force_uppercase_type
 from tools.project_api import export_project
 
 
-def setup_project(ide, target, program=None, source_dir=None, build=None):
+def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
     """Generate a name, if not provided, and find dependencies
 
     Positional arguments:
@@ -39,7 +39,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None):
     if source_dir:
         # --source is used to generate IDE files to toolchain directly
         # in the source tree and doesn't generate zip file
-        project_dir = source_dir[0]
+        project_dir = export_path or source_dir[0]
         if program:
             project_name = TESTS[program]
         else:
@@ -63,7 +63,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None):
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           clean=False, zip_proj=False, options=None):
+           clean=False, zip_proj=False, options=None, export_path=None, silent=False):
     """Do an export of a project.
 
     Positional arguments:
@@ -77,14 +77,17 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     project_id - the name of the project
     clean - start from a clean state before exporting
     zip_proj - create a zip file or not
+
+    Returns an object of type Exporter (tools/exports/exporters.py)
     """
     project_dir, name, src, lib = setup_project(ide, target, program=project_id,
-                                                source_dir=src, build=build)
+                                                source_dir=src, build=build, export_path=export_path)
 
     zip_name = name+".zip" if zip_proj else None
 
-    export_project(src, project_dir, target, ide, clean=clean, name=name,
-                   macros=macros, libraries_paths=lib, zip_proj=zip_name, options=options)
+    return export_project(src, project_dir, target, ide, clean=clean, name=name,
+                   macros=macros, libraries_paths=lib, zip_proj=zip_name,
+                   options=options, silent=silent)
 
 
 def main():

@@ -44,6 +44,22 @@ static const PinMap PinMap_ADC[] = {
     {PF_11, ADC1_5, 0},
     {P7_7,  ADC1_6, 0},
     {PF_7,  ADC1_7, 0},
+    {adc0_0,  ADC_pin0_0, 0},
+    {adc0_1,  ADC_pin0_1, 0},
+    {adc0_2,  ADC_pin0_2, 0},
+    {adc0_3,  ADC_pin0_3, 0},
+    {adc0_4,  ADC_pin0_4, 0},
+    {adc0_5,  ADC_pin0_5, 0},
+    {adc0_6,  ADC_pin0_6, 0},
+    {adc0_7,  ADC_pin0_7, 0},
+    {adc1_0,  ADC_pin1_0, 0},
+    {adc1_1,  ADC_pin1_1, 0},
+    {adc1_2,  ADC_pin1_2, 0},
+    {adc1_3,  ADC_pin1_3, 0},
+    {adc1_4,  ADC_pin1_4, 0},
+    {adc1_5,  ADC_pin1_5, 0},
+    {adc1_6,  ADC_pin1_6, 0},
+    {adc1_7,  ADC_pin1_7, 0},
     {NC,    NC,     0   }
 };
 
@@ -52,16 +68,30 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
     name = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (LPC_ADC_T *)NC);
+    
+    // Set ADC number
+    if(name < ADC1_0) {
+        obj->num = 0;
+    } else if(name < ADC_pin0_0 && name > ADC0_6) {
+        obj->num = 1;
+    } else if(name < ADC_pin1_1 && name > ADC1_7) {
+        obj->num = 0;
+    } else if(name > ADC_pin0_7) {
+        obj->num = 1;
+    }
 
-    // Set ADC register, number and channel
-    obj->num = (name >> ADC0_7) ? 1 : 0;
+    //ADC register and channel
     obj->ch = name % (ADC0_7 + 1);
     obj->adc = (LPC_ADC_T *) (obj->num > 0) ? LPC_ADC1 : LPC_ADC0;
 
-    // Reset pin function to GPIO
-    gpio_set(pin);
-    // Select ADC on analog function select register in SCU
-    LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
+    // Reset pin function to GPIO if it is a GPIO pin. for adc only pins it is not necessary
+    if(name < ADC_pin0_0) {
+    	gpio_set(pin);
+    	// Select ADC on analog function select register in SCU
+    	LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
+    } else {
+    	LPC_SCU->ENAIO[obj->num] &= ~(1 << obj->ch);
+    }
     
     // Calculate minimum clock divider
     //  clkdiv = divider - 1

@@ -1,4 +1,3 @@
-#include "stm32f4xx_hal.h"
 #include "lwip/opt.h"
 
 #include "lwip/timers.h"
@@ -26,7 +25,7 @@ __ALIGN_BEGIN ETH_DMADescTypeDef DMARxDscrTab[ETH_RXBUFNB] __ALIGN_END; /* Ether
 __ALIGN_BEGIN ETH_DMADescTypeDef DMATxDscrTab[ETH_TXBUFNB] __ALIGN_END; /* Ethernet Tx DMA Descriptor */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4 
+  #pragma data_alignment=4
 #endif
 __ALIGN_BEGIN uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __ALIGN_END; /* Ethernet Receive Buffer */
 
@@ -132,23 +131,6 @@ static void _eth_arch_low_level_init(struct netif *netif)
 
     /* Enable MAC and DMA transmission and reception */
     HAL_ETH_Start(&EthHandle);
-
-    /**** Configure PHY to generate an interrupt when Eth Link state changes ****/
-    /* Read Register Configuration */
-    HAL_ETH_ReadPHYRegister(&EthHandle, PHY_MICR, &regvalue);
-
-    regvalue |= (PHY_MICR_INT_EN | PHY_MICR_INT_OE);
-
-    /* Enable Interrupts */
-    HAL_ETH_WritePHYRegister(&EthHandle, PHY_MICR, regvalue);
-
-    /* Read Register Configuration */
-    HAL_ETH_ReadPHYRegister(&EthHandle, PHY_MISR, &regvalue);
-
-    regvalue |= PHY_MISR_LINK_INT_EN;
-
-    /* Enable Interrupt on change of link status */
-    HAL_ETH_WritePHYRegister(&EthHandle, PHY_MISR, regvalue);
 #endif
 }
 
@@ -180,8 +162,7 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p)
     uint32_t payloadoffset = 0;
     DmaTxDesc = EthHandle.TxDesc;
     bufferoffset = 0;
-    
-    
+
     sys_mutex_lock(&tx_lock_mutex);
 
     /* copy frame from pbufs to driver buffers */
@@ -239,9 +220,9 @@ error:
         /* Resume DMA transmission*/
         EthHandle.Instance->DMATPDR = 0;
     }
-    
+
     sys_mutex_unlock(&tx_lock_mutex);
-    
+
     return errval;
 }
 
@@ -345,7 +326,7 @@ static void _eth_arch_rx_task(void *arg)
             if (netif->input(p, netif) != ERR_OK) {
                 pbuf_free(p);
                 p = NULL;
-            } 
+            }
         }
     }
 }
@@ -359,13 +340,13 @@ static void _eth_arch_phy_task(void *arg)
 {
     struct netif   *netif = (struct netif*)arg;
     uint32_t phy_status = 0;
-    
+
     while (1) {
         uint32_t status;
-        if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_SR, &status) == HAL_OK) {
-            if ((status & PHY_LINK_STATUS) && !(phy_status & PHY_LINK_STATUS)) {
+        if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
+            if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1);
-            } else if (!(status & PHY_LINK_STATUS) && (phy_status & PHY_LINK_STATUS)) {
+            } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1);
             }
             phy_status = status;
@@ -427,16 +408,16 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
     /* semaphore */
     sys_sem_new(&rx_ready_sem, 0);
-    
+
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
     sys_thread_new("_eth_arch_rx_task", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
     sys_thread_new("_eth_arch_phy_task", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
-    
+
     /* initialize the hardware */
     _eth_arch_low_level_init(netif);
-    
+
     return ERR_OK;
 }
 

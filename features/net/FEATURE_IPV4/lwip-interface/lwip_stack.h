@@ -26,7 +26,7 @@ extern "C" {
 
 // Access to lwip through the nsapi
 int lwip_bringup(void);
-void lwip_bringdown(void);
+int lwip_bringdown(void);
 
 extern nsapi_stack_t lwip_stack;
 

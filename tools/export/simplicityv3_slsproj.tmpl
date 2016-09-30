@@ -18,6 +18,9 @@
   {%- for file in main_files -%}
   <file name = "{{ file }}" uri = "file:./{{ file }}" partCompatibility = ""/>
   {%- endfor %}
+  {%- if include_root %}
+  <file name = "mbed_config.h" uri = "file:./mbed_config.h" partCompatibility = ""/>
+  {%- endif %}
 
   <sourceFolder></sourceFolder>
   <model:property key="cppProjectCommon.languageId" value="org.eclipse.cdt.core.g++"/>
@@ -25,6 +28,9 @@
   <configuration name="com.silabs.ide.si32.gcc.debug#com.silabs.ide.si32.gcc:4.8.3.20131129" label="GNU ARM v4.8.3 - Debug" stockConfigCompatibility="com.silabs.ide.toolchain.core.debug">
     <model:description></model:description>
 {# Add all include paths to the managed build compiler, paths relative to project #}
+    {%- if include_root %}
+    <includePath languageCompatibility="c cpp" uri="."/>
+    {%- endif %}
     {%- for path in include_paths %}
     <includePath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
     {%- endfor %}
@@ -83,6 +89,9 @@
   <configuration name="com.silabs.ide.si32.gcc.release#com.silabs.ide.si32.gcc:4.8.3.20131129" label="GNU ARM v4.8.3 - Release" stockConfigCompatibility="com.silabs.ide.toolchain.core.release">
     <model:description></model:description>
 {# Add all include paths to the managed build compiler, paths relative to project #}
+    {%- if include_root %}
+    <includePath languageCompatibility="c cpp" uri="."/>
+    {%- endif %}
     {%- for path in include_paths %}
     <includePath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
     {%- endfor %}
