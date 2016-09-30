@@ -22,5 +22,5 @@ if __name__ == "__main__":
 
     scanned_files = {}
 
-    exit(resources.detect_duplicates())
+    exit(resources.detect_duplicates(toolchain))
 

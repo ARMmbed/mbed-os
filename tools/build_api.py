@@ -452,7 +452,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Link Program
         res, _ = toolchain.link_program(resources, build_path, name)
 
-        resources.detect_duplicates()
+        resources.detect_duplicates(toolchain)
 
         if report != None:
             end = time()

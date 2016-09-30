@@ -133,21 +133,21 @@ class Resources:
             res._collect_duplicates(dupe_dict, dupe_headers)
         return dupe_dict, dupe_headers
 
-    def detect_duplicates(self):
+    def detect_duplicates(self, toolchain):
         count = 0
         dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
         for objname, filenames in dupe_dict.iteritems():
             if len(filenames) > 1:
                 count+=1
-                print "[ERROR] Object file %s.o is not unique!"\
-                    " It could be made from:" % objname
-                print columnate(filenames)
+                toolchain.tool_error(
+                    "Object file %s.o is not unique! It could be made from: %s"\
+                    % (objname, " ".join(filenames)))
         for headername, locations in dupe_headers.iteritems():
             if len(locations) > 1:
                 count+=1
-                print "[ERROR] Header file %s is not unique! It could be:" %\
-                    headername
-                print columnate(locations)
+                toolchain.tool_error(
+                    "Header file %s is not unique! It could be: %s" %\
+                    (headername, " ".join(locations)))
         return count
 
 
