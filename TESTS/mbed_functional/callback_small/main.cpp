@@ -198,19 +198,19 @@ void test_dispatch0() {
     Verifier<T>::verify0((const Thing<T>*)&thing, &Thing<T>::const_member_func0);
     Verifier<T>::verify0((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func0);
     Verifier<T>::verify0((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func0);
-    Verifier<T>::verify0(&thing, &bound_func0<T>);
-    Verifier<T>::verify0((const Thing<T>*)&thing, &const_func0<T>);
-    Verifier<T>::verify0((volatile Thing<T>*)&thing, &volatile_func0<T>);
-    Verifier<T>::verify0((const volatile Thing<T>*)&thing, &const_volatile_func0<T>);
+    Verifier<T>::verify0(&bound_func0<T>, &thing);
+    Verifier<T>::verify0(&const_func0<T>, (const Thing<T>*)&thing);
+    Verifier<T>::verify0(&volatile_func0<T>, (volatile Thing<T>*)&thing);
+    Verifier<T>::verify0(&const_volatile_func0<T>, (const volatile Thing<T>*)&thing);
     Verifier<T>::verify0(callback(static_func0<T>));
 
     Callback<T()> cb(static_func0);
     Verifier<T>::verify0(cb);
     cb = static_func0;
     Verifier<T>::verify0(cb);
-    cb.attach(&thing, &bound_func0<T>);
+    cb.attach(&bound_func0<T>, &thing);
     Verifier<T>::verify0(&cb, &Callback<T()>::call);
-    Verifier<T>::verify0((void*)&cb, &Callback<T()>::thunk);
+    Verifier<T>::verify0(&Callback<T()>::thunk, (void*)&cb);
 }
 
 template <typename T>
@@ -221,19 +221,19 @@ void test_dispatch1() {
     Verifier<T>::verify1((const Thing<T>*)&thing, &Thing<T>::const_member_func1);
     Verifier<T>::verify1((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func1);
     Verifier<T>::verify1((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func1);
-    Verifier<T>::verify1(&thing, &bound_func1<T>);
-    Verifier<T>::verify1((const Thing<T>*)&thing, &const_func1<T>);
-    Verifier<T>::verify1((volatile Thing<T>*)&thing, &volatile_func1<T>);
-    Verifier<T>::verify1((const volatile Thing<T>*)&thing, &const_volatile_func1<T>);
+    Verifier<T>::verify1(&bound_func1<T>, &thing);
+    Verifier<T>::verify1(&const_func1<T>, (const Thing<T>*)&thing);
+    Verifier<T>::verify1(&volatile_func1<T>, (volatile Thing<T>*)&thing);
+    Verifier<T>::verify1(&const_volatile_func1<T>, (const volatile Thing<T>*)&thing);
     Verifier<T>::verify1(callback(static_func1<T>));
 
     Callback<T(T)> cb(static_func1);
     Verifier<T>::verify1(cb);
     cb = static_func1;
     Verifier<T>::verify1(cb);
-    cb.attach(&thing, &bound_func1<T>);
+    cb.attach(&bound_func1<T>, &thing);
     Verifier<T>::verify1(&cb, &Callback<T(T)>::call);
-    Verifier<T>::verify1((void*)&cb, &Callback<T(T)>::thunk);
+    Verifier<T>::verify1(&Callback<T(T)>::thunk, (void*)&cb);
 }
 
 template <typename T>
@@ -244,19 +244,19 @@ void test_dispatch2() {
     Verifier<T>::verify2((const Thing<T>*)&thing, &Thing<T>::const_member_func2);
     Verifier<T>::verify2((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func2);
     Verifier<T>::verify2((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func2);
-    Verifier<T>::verify2(&thing, &bound_func2<T>);
-    Verifier<T>::verify2((const Thing<T>*)&thing, &const_func2<T>);
-    Verifier<T>::verify2((volatile Thing<T>*)&thing, &volatile_func2<T>);
-    Verifier<T>::verify2((const volatile Thing<T>*)&thing, &const_volatile_func2<T>);
+    Verifier<T>::verify2(&bound_func2<T>, &thing);
+    Verifier<T>::verify2(&const_func2<T>, (const Thing<T>*)&thing);
+    Verifier<T>::verify2(&volatile_func2<T>, (volatile Thing<T>*)&thing);
+    Verifier<T>::verify2(&const_volatile_func2<T>, (const volatile Thing<T>*)&thing);
     Verifier<T>::verify2(callback(static_func2<T>));
 
     Callback<T(T, T)> cb(static_func2);
     Verifier<T>::verify2(cb);
     cb = static_func2;
     Verifier<T>::verify2(cb);
-    cb.attach(&thing, &bound_func2<T>);
+    cb.attach(&bound_func2<T>, &thing);
     Verifier<T>::verify2(&cb, &Callback<T(T, T)>::call);
-    Verifier<T>::verify2((void*)&cb, &Callback<T(T, T)>::thunk);
+    Verifier<T>::verify2(&Callback<T(T, T)>::thunk, (void*)&cb);
 }
 
 template <typename T>
@@ -267,19 +267,19 @@ void test_dispatch3() {
     Verifier<T>::verify3((const Thing<T>*)&thing, &Thing<T>::const_member_func3);
     Verifier<T>::verify3((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func3);
     Verifier<T>::verify3((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func3);
-    Verifier<T>::verify3(&thing, &bound_func3<T>);
-    Verifier<T>::verify3((const Thing<T>*)&thing, &const_func3<T>);
-    Verifier<T>::verify3((volatile Thing<T>*)&thing, &volatile_func3<T>);
-    Verifier<T>::verify3((const volatile Thing<T>*)&thing, &const_volatile_func3<T>);
+    Verifier<T>::verify3(&bound_func3<T>, &thing);
+    Verifier<T>::verify3(&const_func3<T>, (const Thing<T>*)&thing);
+    Verifier<T>::verify3(&volatile_func3<T>, (volatile Thing<T>*)&thing);
+    Verifier<T>::verify3(&const_volatile_func3<T>, (const volatile Thing<T>*)&thing);
     Verifier<T>::verify3(callback(static_func3<T>));
 
     Callback<T(T, T, T)> cb(static_func3);
     Verifier<T>::verify3(cb);
     cb = static_func3;
     Verifier<T>::verify3(cb);
-    cb.attach(&thing, &bound_func3<T>);
+    cb.attach(&bound_func3<T>, &thing);
     Verifier<T>::verify3(&cb, &Callback<T(T, T, T)>::call);
-    Verifier<T>::verify3((void*)&cb, &Callback<T(T, T, T)>::thunk);
+    Verifier<T>::verify3(&Callback<T(T, T, T)>::thunk, (void*)&cb);
 }
 
 template <typename T>
@@ -290,19 +290,19 @@ void test_dispatch4() {
     Verifier<T>::verify4((const Thing<T>*)&thing, &Thing<T>::const_member_func4);
     Verifier<T>::verify4((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func4);
     Verifier<T>::verify4((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func4);
-    Verifier<T>::verify4(&thing, &bound_func4<T>);
-    Verifier<T>::verify4((const Thing<T>*)&thing, &const_func4<T>);
-    Verifier<T>::verify4((volatile Thing<T>*)&thing, &volatile_func4<T>);
-    Verifier<T>::verify4((const volatile Thing<T>*)&thing, &const_volatile_func4<T>);
+    Verifier<T>::verify4(&bound_func4<T>, &thing);
+    Verifier<T>::verify4(&const_func4<T>, (const Thing<T>*)&thing);
+    Verifier<T>::verify4(&volatile_func4<T>, (volatile Thing<T>*)&thing);
+    Verifier<T>::verify4(&const_volatile_func4<T>, (const volatile Thing<T>*)&thing);
     Verifier<T>::verify4(callback(static_func4<T>));
 
     Callback<T(T, T, T, T)> cb(static_func4);
     Verifier<T>::verify4(cb);
     cb = static_func4;
     Verifier<T>::verify4(cb);
-    cb.attach(&thing, &bound_func4<T>);
+    cb.attach(&bound_func4<T>, &thing);
     Verifier<T>::verify4(&cb, &Callback<T(T, T, T, T)>::call);
-    Verifier<T>::verify4((void*)&cb, &Callback<T(T, T, T, T)>::thunk);
+    Verifier<T>::verify4(&Callback<T(T, T, T, T)>::thunk, (void*)&cb);
 }
 
 template <typename T>
@@ -313,19 +313,19 @@ void test_dispatch5() {
     Verifier<T>::verify5((const Thing<T>*)&thing, &Thing<T>::const_member_func5);
     Verifier<T>::verify5((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func5);
     Verifier<T>::verify5((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func5);
-    Verifier<T>::verify5(&thing, &bound_func5<T>);
-    Verifier<T>::verify5((const Thing<T>*)&thing, &const_func5<T>);
-    Verifier<T>::verify5((volatile Thing<T>*)&thing, &volatile_func5<T>);
-    Verifier<T>::verify5((const volatile Thing<T>*)&thing, &const_volatile_func5<T>);
+    Verifier<T>::verify5(&bound_func5<T>, &thing);
+    Verifier<T>::verify5(&const_func5<T>, (const Thing<T>*)&thing);
+    Verifier<T>::verify5(&volatile_func5<T>, (volatile Thing<T>*)&thing);
+    Verifier<T>::verify5(&const_volatile_func5<T>, (const volatile Thing<T>*)&thing);
     Verifier<T>::verify5(callback(static_func5<T>));
 
     Callback<T(T, T, T, T, T)> cb(static_func5);
     Verifier<T>::verify5(cb);
     cb = static_func5;
     Verifier<T>::verify5(cb);
-    cb.attach(&thing, &bound_func5<T>);
+    cb.attach(&bound_func5<T>, &thing);
     Verifier<T>::verify5(&cb, &Callback<T(T, T, T, T, T)>::call);
-    Verifier<T>::verify5((void*)&cb, &Callback<T(T, T, T, T, T)>::thunk);
+    Verifier<T>::verify5(&Callback<T(T, T, T, T, T)>::thunk, (void*)&cb);
 }
 
 
