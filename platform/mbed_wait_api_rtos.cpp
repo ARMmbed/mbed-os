@@ -18,10 +18,10 @@
 // if the RTOS is present.
 #ifdef MBED_CONF_RTOS_PRESENT
 
-#include "wait_api.h"
-#include "us_ticker_api.h"
-#include "rtos.h"
-#include "critical.h"
+#include "platform/wait_api.h"
+#include "hal/us_ticker_api.h"
+#include "rtos/rtos.h"
+#include "platform/critical.h"
 
 void wait(float s) {
     wait_us(s * 1000000.0f);

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Ethernet.h"
+#include "drivers/Ethernet.h"
 
 #if DEVICE_ETHERNET
 
-#include "ethernet_api.h"
+#include "hal/ethernet_api.h"
 
 namespace mbed {
 

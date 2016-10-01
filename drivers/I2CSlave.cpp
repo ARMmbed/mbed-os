@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "I2CSlave.h"
+#include "drivers/I2CSlave.h"
 
 #if DEVICE_I2CSLAVE
 

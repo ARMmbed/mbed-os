@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "BusInOut.h"
-#include "mbed_assert.h"
+#include "drivers/BusInOut.h"
+#include "platform/mbed_assert.h"
 
 namespace mbed {
 

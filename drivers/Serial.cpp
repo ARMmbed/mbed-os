@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Serial.h"
-#include "wait_api.h"
+#include "drivers/Serial.h"
+#include "platform/wait_api.h"
 
 #if DEVICE_SERIAL
 

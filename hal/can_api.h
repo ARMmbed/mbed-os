@@ -22,7 +22,7 @@
 
 #include "PinNames.h"
 #include "PeripheralNames.h"
-#include "can_helper.h"
+#include "hal/can_helper.h"
 
 #ifdef __cplusplus
 extern "C" {

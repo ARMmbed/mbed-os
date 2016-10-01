@@ -16,11 +16,11 @@
 #ifndef MBED_PWMOUT_H
 #define MBED_PWMOUT_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_PWMOUT
-#include "pwmout_api.h"
-#include "critical.h"
+#include "hal/pwmout_api.h"
+#include "platform/critical.h"
 
 namespace mbed {
 

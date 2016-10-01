@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "gpio_api.h"
+#include "hal/gpio_api.h"
 
 static inline void _gpio_init_in(gpio_t* gpio, PinName pin, PinMode mode)
 {

@@ -17,7 +17,7 @@
 #define MBED_US_TICKER_API_H
 
 #include <stdint.h>
-#include "ticker_api.h"
+#include "hal/ticker_api.h"
 
 #ifdef __cplusplus
 extern "C" {

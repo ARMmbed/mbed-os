@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pinmap.h"
-#include "mbed_error.h"
+#include "hal/pinmap.h"
+#include "platform/mbed_error.h"
 
 void pinmap_pinout(PinName pin, const PinMap *map) {
     if (pin == NC)

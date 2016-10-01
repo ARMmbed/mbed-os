@@ -17,8 +17,8 @@
 #define MBED_SERIAL_API_H
 
 #include "device.h"
-#include "buffer.h"
-#include "dma_api.h"
+#include "hal/buffer.h"
+#include "hal/dma_api.h"
 
 #if DEVICE_SERIAL
 

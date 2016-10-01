@@ -16,8 +16,8 @@
 #ifndef MBED_FILELIKE_H
 #define MBED_FILELIKE_H
 
-#include "FileBase.h"
-#include "FileHandle.h"
+#include "drivers/FileBase.h"
+#include "drivers/FileHandle.h"
 
 namespace mbed {
 

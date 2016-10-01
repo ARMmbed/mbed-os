@@ -17,8 +17,8 @@
 #define MBED_SPI_API_H
 
 #include "device.h"
-#include "dma_api.h"
-#include "buffer.h"
+#include "hal/dma_api.h"
+#include "hal/buffer.h"
 
 #if DEVICE_SPI
 

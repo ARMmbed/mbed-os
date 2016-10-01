@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "Thread.h"
+#include "rtos/Thread.h"
 
 #include "mbed.h"
-#include "rtos_idle.h"
+#include "rtos/rtos_idle.h"
 
 // rt_tid2ptcb is an internal function which we exposed to get TCB for thread id
 #undef NULL  //Workaround for conflicting macros in rt_TypeDef.h and stdio.h

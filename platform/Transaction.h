@@ -16,8 +16,8 @@
 #ifndef MBED_TRANSACTION_H
 #define MBED_TRANSACTION_H
 
-#include "platform.h"
-#include "FunctionPointer.h"
+#include "platform/platform.h"
+#include "platform/FunctionPointer.h"
 
 namespace mbed {
 

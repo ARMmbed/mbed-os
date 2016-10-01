@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "LocalFileSystem.h"
+#include "drivers/LocalFileSystem.h"
 
 #if DEVICE_LOCALFILESYSTEM
 
-#include "semihost_api.h"
+#include "platform/semihost_api.h"
 #include <string.h>
 #include <stdio.h>
 

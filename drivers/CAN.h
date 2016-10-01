@@ -16,14 +16,13 @@
 #ifndef MBED_CAN_H
 #define MBED_CAN_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_CAN
 
-#include "can_api.h"
-#include "can_helper.h"
-#include "Callback.h"
-#include "PlatformMutex.h"
+#include "hal/can_api.h"
+#include "platform/Callback.h"
+#include "platform/PlatformMutex.h"
 
 namespace mbed {
 

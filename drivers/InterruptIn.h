@@ -16,15 +16,15 @@
 #ifndef MBED_INTERRUPTIN_H
 #define MBED_INTERRUPTIN_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_INTERRUPTIN
 
-#include "gpio_api.h"
-#include "gpio_irq_api.h"
-#include "Callback.h"
-#include "critical.h"
-#include "toolchain.h"
+#include "hal/gpio_api.h"
+#include "hal/gpio_irq_api.h"
+#include "platform/Callback.h"
+#include "platform/critical.h"
+#include "platform/toolchain.h"
 
 namespace mbed {
 

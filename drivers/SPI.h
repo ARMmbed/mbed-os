@@ -16,20 +16,20 @@
 #ifndef MBED_SPI_H
 #define MBED_SPI_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_SPI
 
-#include "PlatformMutex.h"
-#include "spi_api.h"
-#include "SingletonPtr.h"
+#include "platform/PlatformMutex.h"
+#include "hal/spi_api.h"
+#include "platform/SingletonPtr.h"
 
 #if DEVICE_SPI_ASYNCH
-#include "CThunk.h"
-#include "dma_api.h"
-#include "CircularBuffer.h"
-#include "FunctionPointer.h"
-#include "Transaction.h"
+#include "platform/CThunk.h"
+#include "hal/dma_api.h"
+#include "platform/CircularBuffer.h"
+#include "platform/FunctionPointer.h"
+#include "platform/Transaction.h"
 #endif
 
 namespace mbed {

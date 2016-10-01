@@ -16,9 +16,9 @@
 #ifndef MBED_DIGITALOUT_H
 #define MBED_DIGITALOUT_H
 
-#include "platform.h"
-#include "gpio_api.h"
-#include "critical.h"
+#include "platform/platform.h"
+#include "hal/gpio_api.h"
+#include "platform/critical.h"
 
 namespace mbed {
 

@@ -16,12 +16,12 @@
 #ifndef MBED_PORTOUT_H
 #define MBED_PORTOUT_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_PORTOUT
 
-#include "port_api.h"
-#include "critical.h"
+#include "hal/port_api.h"
+#include "platform/critical.h"
 
 namespace mbed {
 /** A multiple pin digital out

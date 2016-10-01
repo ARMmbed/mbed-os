@@ -19,13 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "RtosTimer.h"
+#include "rtos/RtosTimer.h"
 
 #include <string.h>
 
 #include "mbed.h"
 #include "cmsis_os.h"
-#include "mbed_error.h"
+#include "platform/mbed_error.h"
 
 namespace rtos {
 

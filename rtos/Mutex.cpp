@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "Mutex.h"
+#include "rtos/Mutex.h"
 
 #include <string.h>
-#include "mbed_error.h"
+#include "platform/mbed_error.h"
 
 namespace rtos {
 

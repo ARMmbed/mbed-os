@@ -16,8 +16,8 @@
 #ifndef MBED_TIMER_H
 #define MBED_TIMER_H
 
-#include "platform.h"
-#include "ticker_api.h"
+#include "platform/platform.h"
+#include "hal/ticker_api.h"
 
 namespace mbed {
 

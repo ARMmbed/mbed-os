@@ -16,7 +16,7 @@
 #ifndef MBED_CIRCULARBUFFER_H
 #define MBED_CIRCULARBUFFER_H
 
-#include "critical.h"
+#include "platform/critical.h"
 
 namespace mbed {
 

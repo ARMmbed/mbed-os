@@ -16,12 +16,12 @@
 #ifndef MBED_RAW_SERIAL_H
 #define MBED_RAW_SERIAL_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_SERIAL
 
-#include "SerialBase.h"
-#include "serial_api.h"
+#include "drivers/SerialBase.h"
+#include "hal/serial_api.h"
 
 namespace mbed {
 

@@ -16,9 +16,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "device.h"
-#include "toolchain.h"
-#include "mbed_error.h"
-#include "mbed_interface.h"
+#include "platform/toolchain.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_interface.h"
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif

@@ -17,10 +17,10 @@
 #define MBED_I2C_API_H
 
 #include "device.h"
-#include "buffer.h"
+#include "hal/buffer.h"
 
 #if DEVICE_I2C_ASYNCH
-#include "dma_api.h"
+#include "hal/dma_api.h"
 #endif
 
 #if DEVICE_I2C

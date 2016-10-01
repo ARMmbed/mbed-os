@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
-
-#include "AnalogIn.h"
+#include "drivers/AnalogIn.h"
 
 #if DEVICE_ANALOGIN
 

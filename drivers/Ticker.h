@@ -16,9 +16,9 @@
 #ifndef MBED_TICKER_H
 #define MBED_TICKER_H
 
-#include "TimerEvent.h"
-#include "Callback.h"
-#include "toolchain.h"
+#include "drivers/TimerEvent.h"
+#include "platform/Callback.h"
+#include "platform/toolchain.h"
 
 namespace mbed {
 

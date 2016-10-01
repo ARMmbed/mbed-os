@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 // Platform specific files
-#include "equeue_platform.h"
+#include "equeue/equeue_platform.h"
 
 #include <stddef.h>
 #include <stdint.h>

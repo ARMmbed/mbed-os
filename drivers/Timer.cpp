@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Timer.h"
-#include "ticker_api.h"
-#include "us_ticker_api.h"
-#include "critical.h"
+#include "drivers/Timer.h"
+#include "hal/ticker_api.h"
+#include "hal/us_ticker_api.h"
+#include "platform/critical.h"
 
 namespace mbed {
 

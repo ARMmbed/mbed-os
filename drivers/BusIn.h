@@ -16,9 +16,9 @@
 #ifndef MBED_BUSIN_H
 #define MBED_BUSIN_H
 
-#include "platform.h"
-#include "DigitalIn.h"
-#include "PlatformMutex.h"
+#include "platform/platform.h"
+#include "drivers/DigitalIn.h"
+#include "platform/PlatformMutex.h"
 
 namespace mbed {
 

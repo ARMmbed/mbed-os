@@ -16,8 +16,8 @@
 #ifndef MBED_CALLCHAIN_H
 #define MBED_CALLCHAIN_H
 
-#include "Callback.h"
-#include "toolchain.h"
+#include "platform/Callback.h"
+#include "platform/toolchain.h"
 #include <string.h>
 
 namespace mbed {

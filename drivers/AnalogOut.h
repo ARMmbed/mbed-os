@@ -16,12 +16,12 @@
 #ifndef MBED_ANALOGOUT_H
 #define MBED_ANALOGOUT_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_ANALOGOUT
 
-#include "analogout_api.h"
-#include "PlatformMutex.h"
+#include "hal/analogout_api.h"
+#include "platform/PlatformMutex.h"
 
 namespace mbed {
 

@@ -17,7 +17,7 @@
 #define PLATFORM_MUTEX_H
 
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "Mutex.h"
+#include "rtos/Mutex.h"
 typedef rtos::Mutex PlatformMutex;
 #else
 /** A stub mutex for when an RTOS is not present

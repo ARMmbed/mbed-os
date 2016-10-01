@@ -17,7 +17,7 @@
 #define MBED_SEMIHOST_H
 
 #include "device.h"
-#include "toolchain.h"
+#include "platform/toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {

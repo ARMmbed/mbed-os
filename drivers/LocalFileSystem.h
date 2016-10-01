@@ -16,12 +16,12 @@
 #ifndef MBED_LOCALFILESYSTEM_H
 #define MBED_LOCALFILESYSTEM_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_LOCALFILESYSTEM
 
-#include "FileSystemLike.h"
-#include "PlatformMutex.h"
+#include "drivers/FileSystemLike.h"
+#include "platform/PlatformMutex.h"
 
 namespace mbed {
 

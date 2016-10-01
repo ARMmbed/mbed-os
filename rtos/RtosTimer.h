@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 #include "cmsis_os.h"
-#include "Callback.h"
-#include "toolchain.h"
+#include "platform/Callback.h"
+#include "platform/toolchain.h"
 
 namespace rtos {
 

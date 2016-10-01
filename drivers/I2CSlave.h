@@ -16,11 +16,11 @@
 #ifndef MBED_I2C_SLAVE_H
 #define MBED_I2C_SLAVE_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_I2CSLAVE
 
-#include "i2c_api.h"
+#include "hal/i2c_api.h"
 
 namespace mbed {
 

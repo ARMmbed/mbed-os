@@ -20,7 +20,7 @@
 
 #if DEVICE_LOWPOWERTIMER
 
-#include "ticker_api.h"
+#include "hal/ticker_api.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,18 +16,18 @@
 #ifndef MBED_I2C_H
 #define MBED_I2C_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_I2C
 
-#include "i2c_api.h"
-#include "SingletonPtr.h"
-#include "PlatformMutex.h"
+#include "hal/i2c_api.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 #if DEVICE_I2C_ASYNCH
-#include "CThunk.h"
-#include "dma_api.h"
-#include "FunctionPointer.h"
+#include "platform/CThunk.h"
+#include "hal/dma_api.h"
+#include "platform/FunctionPointer.h"
 #endif
 
 namespace mbed {

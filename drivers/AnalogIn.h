@@ -16,13 +16,13 @@
 #ifndef MBED_ANALOGIN_H
 #define MBED_ANALOGIN_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_ANALOGIN
 
-#include "analogin_api.h"
-#include "SingletonPtr.h"
-#include "PlatformMutex.h"
+#include "hal/analogin_api.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 namespace mbed {
 

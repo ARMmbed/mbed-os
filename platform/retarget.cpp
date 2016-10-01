@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "platform.h"
-#include "FileHandle.h"
-#include "FileSystemLike.h"
-#include "FilePath.h"
-#include "serial_api.h"
-#include "toolchain.h"
-#include "semihost_api.h"
-#include "mbed_interface.h"
-#include "SingletonPtr.h"
-#include "PlatformMutex.h"
-#include "mbed_error.h"
-#include "mbed_stats.h"
+#include "platform/platform.h"
+#include "drivers/FileHandle.h"
+#include "drivers/FileSystemLike.h"
+#include "drivers/FilePath.h"
+#include "hal/serial_api.h"
+#include "platform/toolchain.h"
+#include "platform/semihost_api.h"
+#include "platform/mbed_interface.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_stats.h"
 #include <stdlib.h>
 #include <string.h>
 #if DEVICE_STDIO_MESSAGES

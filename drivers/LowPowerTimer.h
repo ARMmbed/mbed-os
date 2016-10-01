@@ -16,12 +16,12 @@
 #ifndef MBED_LOWPOWERTIMER_H
 #define MBED_LOWPOWERTIMER_H
 
-#include "platform.h"
-#include "Timer.h"
+#include "platform/platform.h"
+#include "drivers/Timer.h"
 
 #if DEVICE_LOWPOWERTIMER
 
-#include "lp_ticker_api.h"
+#include "hal/lp_ticker_api.h"
 
 namespace mbed {
 

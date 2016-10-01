@@ -16,8 +16,8 @@
 #ifndef MBED_BUSINOUT_H
 #define MBED_BUSINOUT_H
 
-#include "DigitalInOut.h"
-#include "PlatformMutex.h"
+#include "drivers/DigitalInOut.h"
+#include "platform/PlatformMutex.h"
 
 namespace mbed {
 

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "SPI.h"
-#include "critical.h"
+#include "drivers/SPI.h"
+#include "platform/critical.h"
 
 #if DEVICE_SPI
 

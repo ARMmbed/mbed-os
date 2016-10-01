@@ -16,11 +16,11 @@
 #ifndef MBED_SPISLAVE_H
 #define MBED_SPISLAVE_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_SPISLAVE
 
-#include "spi_api.h"
+#include "hal/spi_api.h"
 
 namespace mbed {
 

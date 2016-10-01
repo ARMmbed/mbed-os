@@ -16,8 +16,8 @@
 #ifndef MBED_FUNCTIONPOINTER_H
 #define MBED_FUNCTIONPOINTER_H
 
-#include "Callback.h"
-#include "toolchain.h"
+#include "platform/Callback.h"
+#include "platform/toolchain.h"
 #include <string.h>
 #include <stdint.h>
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "FilePath.h"
+#include "drivers/FilePath.h"
 
 namespace mbed {
 

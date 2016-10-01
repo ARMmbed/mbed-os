@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "I2C.h"
+#include "drivers/I2C.h"
 
 #if DEVICE_I2C
 

@@ -16,11 +16,11 @@
 #ifndef MBED_FILESYSTEMLIKE_H
 #define MBED_FILESYSTEMLIKE_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
-#include "FileBase.h"
-#include "FileHandle.h"
-#include "DirHandle.h"
+#include "drivers/FileBase.h"
+#include "drivers/FileHandle.h"
+#include "drivers/DirHandle.h"
 
 namespace mbed {
 

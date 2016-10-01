@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "rtc_api.h"
+#include "hal/rtc_api.h"
 
 #include <time.h>
-#include "critical.h"
-#include "rtc_time.h"
-#include "us_ticker_api.h"
-#include "SingletonPtr.h"
-#include "PlatformMutex.h"
+#include "platform/critical.h"
+#include "platform/rtc_time.h"
+#include "hal/us_ticker_api.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 static SingletonPtr<PlatformMutex> _mutex;
 

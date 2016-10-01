@@ -24,10 +24,10 @@
 
 #include <stdint.h>
 #include "cmsis_os.h"
-#include "Callback.h"
-#include "toolchain.h"
-#include "Semaphore.h"
-#include "Mutex.h"
+#include "platform/Callback.h"
+#include "platform/toolchain.h"
+#include "rtos/Semaphore.h"
+#include "rtos/Mutex.h"
 
 namespace rtos {
 

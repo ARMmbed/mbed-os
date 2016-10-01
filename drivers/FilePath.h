@@ -16,10 +16,10 @@
 #ifndef MBED_FILEPATH_H
 #define MBED_FILEPATH_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
-#include "FileSystemLike.h"
-#include "FileLike.h"
+#include "drivers/FileSystemLike.h"
+#include "drivers/FileLike.h"
 
 namespace mbed {
 

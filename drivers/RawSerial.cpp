@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "RawSerial.h"
-#include "wait_api.h"
+#include "drivers/RawSerial.h"
+#include "platform/wait_api.h"
 #include <cstdarg>
 
 #if DEVICE_SERIAL

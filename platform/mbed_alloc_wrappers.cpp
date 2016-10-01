@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "mbed_mem_trace.h"
-#include "mbed_stats.h"
-#include "toolchain.h"
-#include "SingletonPtr.h"
-#include "PlatformMutex.h"
+#include "platform/mbed_mem_trace.h"
+#include "platform/mbed_stats.h"
+#include "platform/toolchain.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "us_ticker_api.h"
+#include "hal/us_ticker_api.h"
 
 static ticker_event_queue_t events;
 

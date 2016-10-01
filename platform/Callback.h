@@ -19,8 +19,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <new>
-#include "mbed_assert.h"
-#include "toolchain.h"
+#include "platform/mbed_assert.h"
+#include "platform/toolchain.h"
 
 namespace mbed {
 

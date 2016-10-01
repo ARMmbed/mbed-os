@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-#include "rtos_idle.h"
+#include "rtos/rtos_idle.h"
 
 static void default_idle_hook(void)
 {

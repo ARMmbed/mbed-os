@@ -16,7 +16,7 @@
 #ifndef MBED_TIMEOUT_H
 #define MBED_TIMEOUT_H
 
-#include "Ticker.h"
+#include "drivers/Ticker.h"
 
 namespace mbed {
 

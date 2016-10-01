@@ -16,12 +16,12 @@
 #ifndef MBED_PORTIN_H
 #define MBED_PORTIN_H
 
-#include "platform.h"
+#include "platform/platform.h"
 
 #if DEVICE_PORTIN
 
-#include "port_api.h"
-#include "critical.h"
+#include "hal/port_api.h"
+#include "platform/critical.h"
 
 namespace mbed {
 
