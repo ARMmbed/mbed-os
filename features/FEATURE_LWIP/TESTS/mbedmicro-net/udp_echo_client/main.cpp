@@ -1,5 +1,5 @@
-#if !FEATURE_IPV4
-    #error [NOT_SUPPORTED] IPV4 not supported for this target
+#if !FEATURE_LWIP
+    #error [NOT_SUPPORTED] LWIP not supported for this target
 #endif
 
 #include "mbed.h"
