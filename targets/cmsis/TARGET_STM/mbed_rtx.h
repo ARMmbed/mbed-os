@@ -287,7 +287,7 @@
 #define OS_CLOCK                168000000
 #endif
 
-#elif defined(TARGET_UBLOX_C029)
+#elif defined(TARGET_UBLOX_EVK_ODIN_W2)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
