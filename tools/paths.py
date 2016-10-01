@@ -39,6 +39,9 @@ MBED_HAL = join(ROOT, "hal")
 MBED_TARGETS_PATH = join(ROOT, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
+MBED_LIBRARIES_DRIVERS = join(MBED_LIBRARIES, "drivers")
+MBED_LIBRARIES_PLATFORM = join(MBED_LIBRARIES, "platform")
+MBED_LIBRARIES_HAL = join(MBED_LIBRARIES, "hal")
 
 MBED_CONFIG_FILE = join(ROOT, "platform/mbed_lib.json")
 
@@ -54,7 +57,6 @@ RPC_LIBRARY = join(BUILD_DIR, "rpc")
 # mbed RTOS
 RTOS = join(ROOT, "rtos")
 MBED_RTX = join(RTOS, "rtx")
-RTOS_ABSTRACTION = RTOS
 
 RTOS_LIBRARIES = join(BUILD_DIR, "rtos")
 

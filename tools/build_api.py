@@ -26,7 +26,9 @@ from time import time
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException
 from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_HEADER,\
-    MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE
+    MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
+    MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
+    BUILD_DIR
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
@@ -772,6 +774,8 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path,
                                  resources=resource)
+            toolchain.copy_files(resource.headers, join(build_path, name),
+                                 resources=resource)
 
         dependencies_include_dir.extend(
             toolchain.scan_resources(build_path).inc_dirs)
@@ -905,12 +909,12 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
 
         # Common Headers
         toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
-        toolchain.copy_files(toolchain.scan_resources(MBED_DRIVERS).headers,
-                             MBED_LIBRARIES)
-        toolchain.copy_files(toolchain.scan_resources(MBED_PLATFORM).headers,
-                             MBED_LIBRARIES)
-        toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers,
-                             MBED_LIBRARIES)
+        for dir, dest in [(MBED_DRIVERS, MBED_LIBRARIES_DRIVERS),
+                          (MBED_PLATFORM, MBED_LIBRARIES_PLATFORM),
+                          (MBED_HAL, MBED_LIBRARIES_HAL)]:
+            resources = toolchain.scan_resources(dir)
+            toolchain.copy_files(resources.headers, MBED_LIBRARIES)
+            toolchain.copy_files(resources.headers, dest)
 
         # Target specific sources
         hal_src = MBED_TARGETS_PATH
@@ -925,14 +929,14 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
                                             [MBED_LIBRARIES] + incdirs)
 
         # Common Sources
-        mbed_resources = toolchain.scan_resources(MBED_DRIVERS)
-        mbed_resources += toolchain.scan_resources(MBED_PLATFORM)
-        mbed_resources += toolchain.scan_resources(MBED_HAL)
+        mbed_resources = None
+        for dir in [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]:
+            mbed_resources += toolchain.scan_resources(dir)
+
         objects += toolchain.compile_sources(mbed_resources, tmp_path,
-                                             [MBED_LIBRARIES] + incdirs)
+                [MBED_LIBRARIES] + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
-        # being part of the mbed library, for reasons that have to do with the
         # way the linker search for symbols in archives. These are:
         #   - retarget.o: to make sure that the C standard lib symbols get
         #                 overridden
