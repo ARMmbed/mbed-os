@@ -30,6 +30,7 @@ sys.path.insert(0, ROOT)
 
 from tools.utils import args_error
 from tools.paths import BUILD_DIR
+from tools.paths import MBED_LIBRARIES
 from tools.paths import RTOS_LIBRARIES
 from tools.paths import RPC_LIBRARY
 from tools.paths import ETH_LIBRARY
@@ -285,6 +286,7 @@ if __name__ == '__main__':
                                      jobs=options.jobs,
                                      name=options.artifact_name,
                                      app_config=options.app_config,
+                                     inc_dirs=[dirname(MBED_LIBRARIES)],
                                      build_profile=extract_profile(parser,
                                                                    options,
                                                                    toolchain))

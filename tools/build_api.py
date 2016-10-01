@@ -19,7 +19,7 @@ import re
 import tempfile
 from types import ListType
 from shutil import rmtree
-from os.path import join, exists, basename, abspath, normpath
+from os.path import join, exists, dirname, basename, abspath, normpath
 from os import linesep, remove
 from time import time
 
@@ -755,6 +755,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
             for path in dependencies_paths:
                 lib_resources = toolchain.scan_resources(path)
                 dependencies_include_dir.extend(lib_resources.inc_dirs)
+                dependencies_include_dir.extend(map(dirname, lib_resources.inc_dirs))
 
         if inc_dirs:
             dependencies_include_dir.extend(inc_dirs)
@@ -773,8 +774,6 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         # Copy Headers
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path,
-                                 resources=resource)
-            toolchain.copy_files(resource.headers, join(build_path, name),
                                  resources=resource)
 
         dependencies_include_dir.extend(
@@ -909,12 +908,14 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
 
         # Common Headers
         toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
+        library_incdirs = [dirname(MBED_LIBRARIES), MBED_LIBRARIES]
+
         for dir, dest in [(MBED_DRIVERS, MBED_LIBRARIES_DRIVERS),
                           (MBED_PLATFORM, MBED_LIBRARIES_PLATFORM),
                           (MBED_HAL, MBED_LIBRARIES_HAL)]:
             resources = toolchain.scan_resources(dir)
-            toolchain.copy_files(resources.headers, MBED_LIBRARIES)
             toolchain.copy_files(resources.headers, dest)
+            library_incdirs.append(dest)
 
         # Target specific sources
         hal_src = MBED_TARGETS_PATH
@@ -926,7 +927,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
                              build_target, resources=hal_implementation)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
         objects = toolchain.compile_sources(hal_implementation, tmp_path,
-                                            [MBED_LIBRARIES] + incdirs)
+                                            library_incdirs + incdirs)
 
         # Common Sources
         mbed_resources = None
@@ -934,7 +935,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
             mbed_resources += toolchain.scan_resources(dir)
 
         objects += toolchain.compile_sources(mbed_resources, tmp_path,
-                [MBED_LIBRARIES] + incdirs)
+                                             library_incdirs + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
         # way the linker search for symbols in archives. These are:
