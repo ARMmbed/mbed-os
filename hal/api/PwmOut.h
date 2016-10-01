@@ -67,6 +67,14 @@ public:
         core_util_critical_section_exit();
     }
 
+    /** To Free up pwm pin.
+     */
+    ~PwmOut() {
+        core_util_critical_section_enter();
+        pwmout_free(&_pwm);
+        core_util_critical_section_exit();
+    }
+
     /** Set the ouput duty-cycle, specified as a percentage (float)
      *
      *  @param value A floating-point value representing the output duty-cycle,
