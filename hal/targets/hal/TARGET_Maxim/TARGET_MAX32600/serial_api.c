@@ -96,6 +96,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 }
 
+void serial_free(serial_t *obj)
+{
+
+}
+
 //******************************************************************************
 void serial_baud(serial_t *obj, int baudrate)
 {
