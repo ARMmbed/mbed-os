@@ -254,7 +254,8 @@
         "progen": {"target": "mbed-lpc1768"},
         "detect_code": ["1010"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "features": ["LWIP"]
     },
     "ARCH_PRO": {
         "supported_form_factors": ["ARDUINO"],
@@ -265,7 +266,8 @@
         "inherits": ["LPCTarget"],
         "progen": {"target": "arch-pro"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "features": ["LWIP"]
     },
     "UBLOX_C027": {
         "supported_form_factors": ["ARDUINO"],
@@ -276,7 +278,8 @@
         "inherits": ["LPCTarget"],
         "progen": {"target": "ublox-c027"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_RED", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "features": ["LWIP"]
     },
     "XBED_LPC1768": {
         "inherits": ["LPCTarget"],
