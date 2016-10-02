@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "equeue.h"
+#include "equeue/equeue.h"
 
 #include <stdlib.h>
 #include <string.h>

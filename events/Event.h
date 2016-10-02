@@ -16,8 +16,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "EventQueue.h"
-#include "mbed_assert.h"
+#include "events/EventQueue.h"
+#include "platform/mbed_assert.h"
 
 namespace events {
 

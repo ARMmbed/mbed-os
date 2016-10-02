@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 
-#include "mbed_events.h"
+#include "events/mbed_events.h"
 #include "mbed.h"
 
 

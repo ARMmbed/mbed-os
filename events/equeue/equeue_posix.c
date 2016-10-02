@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "equeue_platform.h"
+#include "equeue/equeue_platform.h"
 
 #if defined(EQUEUE_PLATFORM_POSIX)
 
