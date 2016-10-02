@@ -22,8 +22,8 @@
 
 #ifdef __cplusplus
 
-#include "EventQueue.h"
-#include "Event.h"
+#include "events/EventQueue.h"
+#include "events/Event.h"
 
 using namespace events;
 
