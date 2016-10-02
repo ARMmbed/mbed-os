@@ -24,7 +24,7 @@
 // calculate the relative-difference between absolute times while
 // correctly handling overflow conditions
 static inline int equeue_tickdiff(unsigned a, unsigned b) {
-    return (int)(a - b);
+    return (int)(unsigned)(a - b);
 }
 
 // calculate the relative-difference between absolute times, but
