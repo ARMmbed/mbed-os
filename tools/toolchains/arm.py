@@ -30,20 +30,6 @@ class ARM(mbedToolchain):
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
-
-    # ANY changes to these default flags is backwards incompatible and require
-    # an update to the mbed-sdk-tools and website that introduces a profile
-    # for the previous version of these flags
-    DEFAULT_FLAGS = {
-        'common': ["-c", "--gnu",
-            "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars"],
-        'asm': [],
-        'c': ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
-        'cxx': ["--cpp", "--no_rtti", "--no_vla"],
-        'ld': [],
-    }
-
     @staticmethod
     def check_executable():
         """Returns True if the executable (armcc) location specified by the
@@ -51,8 +37,11 @@ class ARM(mbedToolchain):
          Returns False otherwise."""
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        mbedToolchain.__init__(self, target, notify, macros, silent,
+                               extra_verbose=extra_verbose,
+                               build_profile=build_profile)
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -71,14 +60,6 @@ class ARM(mbedToolchain):
         main_cc = join(ARM_BIN, "armcc")
 
         self.flags['common'] += ["--cpu=%s" % cpu]
-        if "save-asm" in self.options:
-            self.flags['common'].extend(["--asm", "--interleave"])
-
-        if "debug-info" in self.options:
-            self.flags['common'].append("-g")
-            self.flags['c'].append("-O0")
-        else:
-            self.flags['c'].append("-O3")
 
         self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + ["-I \""+ARM_INC+"\""]
         self.cc = [main_cc] + self.flags['common'] + self.flags['c'] + ["-I \""+ARM_INC+"\""]
@@ -106,6 +87,7 @@ class ARM(mbedToolchain):
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
+                    msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
@@ -241,8 +223,10 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        ARM.__init__(self, target, notify, macros, silent,
+                     extra_verbose=extra_verbose, build_profile=build_profile)
 
         # Run-time values
         self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
@@ -251,40 +235,10 @@ class ARM_STD(ARM):
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
-
-        # Extend flags
-        self.flags['common'].extend(["-D__MICROLIB"])
-        self.flags['c'].extend(["--library_type=microlib"])
-        self.flags['ld'].extend(["--library_type=microlib"])
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        ARM.__init__(self, target, notify, macros, silent,
+                     extra_verbose=extra_verbose, build_profile=build_profile)
 
         # Run-time values
-        self.asm  += ["-D__MICROLIB"]
-        self.cc   += ["-D__MICROLIB", "--library_type=microlib"]
-        self.cppc += ["-D__MICROLIB", "--library_type=microlib"]
-        self.ld   += ["--library_type=microlib"]
-
-        # Only allow a single thread
-        self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
-        self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
-
-        # We had to patch microlib to add C++ support
-        # In later releases this patch should have entered mainline
-        if ARM_MICRO.PATCHED_LIBRARY:
-            # Run-time values
-            self.flags['ld'].extend(["--noscanlib"])
-            # Run-time values
-            self.ld   += ["--noscanlib"]
-
-            # System Libraries
-            self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "microlib", lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
-
-            if target.core == "Cortex-M3":
-                self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "cpplib", lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
-
-            elif target.core in ["Cortex-M0", "Cortex-M0+"]:
-                self.sys_libs.extend([join(TOOLCHAIN_PATHS['ARM'], "lib", "cpplib", lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
-        else:
-            # Run-time values
-            self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
+        self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])

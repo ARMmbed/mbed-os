@@ -4437,54 +4437,6 @@ Callback<R()> callback(R (*func)(const volatile T*), const volatile T *arg) {
 }
 
 /** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R>
-Callback<R()> callback(F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(), &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R()>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R>
-Callback<R()> callback(const F f, typename detail::enable_if<
-                detail::is_type<R (F::*)() const, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R()>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R>
-Callback<R()> callback(volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R()>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R>
-Callback<R()> callback(const volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R()>(f);
-}
-
-/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -4755,54 +4707,6 @@ Callback<R(A0)> callback(R (*func)(volatile T*, A0), volatile T *arg) {
 template <typename T, typename R, typename A0>
 Callback<R(A0)> callback(R (*func)(const volatile T*, A0), const volatile T *arg) {
     return Callback<R(A0)>(func, arg);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0>
-Callback<R(A0)> callback(F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0>
-Callback<R(A0)> callback(const F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0>
-Callback<R(A0)> callback(volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0>
-Callback<R(A0)> callback(const volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5079,54 +4983,6 @@ Callback<R(A0, A1)> callback(R (*func)(const volatile T*, A0, A1), const volatil
 }
 
 /** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -5397,54 +5253,6 @@ Callback<R(A0, A1, A2)> callback(R (*func)(volatile T*, A0, A1, A2), volatile T 
 template <typename T, typename R, typename A0, typename A1, typename A2>
 Callback<R(A0, A1, A2)> callback(R (*func)(const volatile T*, A0, A1, A2), const volatile T *arg) {
     return Callback<R(A0, A1, A2)>(func, arg);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2)>(f);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5721,54 +5529,6 @@ Callback<R(A0, A1, A2, A3)> callback(R (*func)(const volatile T*, A0, A1, A2, A3
 }
 
 /** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
  *
  *  @param obj  Optional pointer to object to bind to function
  *  @param func Static function to attach
@@ -6039,54 +5799,6 @@ Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(volatile T*, A0, A1, A2, A3, 
 template <typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 Callback<R(A0, A1, A2, A3, A4)> callback(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile T *arg) {
     return Callback<R(A0, A1, A2, A3, A4)>(func, arg);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3, A4)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3, A4)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3, A4)>(f);
-}
-
-/** Create a callback class with type infered from the arguments
- *  @param func     Function object to attach
- *  @note The function object is limited to a single word of storage
- */
-template <typename F, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const volatile F f, typename detail::enable_if<
-                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
-                sizeof(F) <= sizeof(uintptr_t)
-            >::type = detail::nil()) {
-    return Callback<R(A0, A1, A2, A3, A4)>(f);
 }
 
 /** Create a callback class with type infered from the arguments

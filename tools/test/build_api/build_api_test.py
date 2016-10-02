@@ -16,8 +16,10 @@ limitations under the License.
 """
 
 import unittest
-from mock import patch
-from tools.build_api import prepare_toolchain, build_project, build_library
+from collections import namedtuple
+from mock import patch, MagicMock
+from tools.build_api import prepare_toolchain, build_project, build_library,\
+    scan_resources
 
 """
 Tests for build_api.py
@@ -47,7 +49,30 @@ class BuildApiTests(unittest.TestCase):
         """
         pass
 
-    @patch('tools.config.Config.__init__')
+    @patch('tools.toolchains.arm.ARM_STD.parse_dependencies',
+           return_value=["foo"])
+    @patch('tools.toolchains.mbedToolchain.need_update',
+           side_effect=[i % 2 for i in range(3000)])
+    @patch('os.mkdir')
+    @patch('tools.toolchains.exists', return_value=True)
+    @patch('tools.utils.run_cmd', return_value=("", "", 0))
+    def test_always_complete_build(self, *_):
+        with MagicMock() as notify:
+            toolchain = prepare_toolchain(self.src_paths, self.target,
+                                          self.toolchain_name, notify=notify)
+
+            res = scan_resources(self.src_paths, toolchain)
+
+            toolchain.RESPONSE_FILES=False
+            toolchain.config_processed = True
+            toolchain.config_file = "junk"
+            toolchain.compile_sources(res, self.build_path)
+
+            assert any('percent' in msg[0] and msg[0]['percent'] == 100.0
+                       for _, msg, _ in notify.mock_calls if msg)
+
+
+    @patch('tools.build_api.Config')
     def test_prepare_toolchain_app_config(self, mock_config_init):
         """
         Test that prepare_toolchain uses app_config correctly
@@ -56,15 +81,18 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         app_config = "app_config"
-        mock_config_init.return_value = None
+        mock_config_init.return_value = namedtuple("Config", "target")(
+            namedtuple("Target",
+                       "init_hooks name features core")(lambda _, __ : None,
+                                                        "Junk", [], "Cortex-M3"))
 
         prepare_toolchain(self.src_paths, self.target, self.toolchain_name,
                           app_config=app_config)
 
-        mock_config_init.assert_called_with(self.target, self.src_paths,
-                                            app_config=app_config)
+        mock_config_init.assert_called_once_with(self.target, self.src_paths,
+                                                 app_config=app_config)
 
-    @patch('tools.config.Config.__init__')
+    @patch('tools.build_api.Config')
     def test_prepare_toolchain_no_app_config(self, mock_config_init):
         """
         Test that prepare_toolchain correctly deals with no app_config
@@ -72,12 +100,15 @@ class BuildApiTests(unittest.TestCase):
         :param mock_config_init: mock of Config __init__
         :return:
         """
-        mock_config_init.return_value = None
+        mock_config_init.return_value = namedtuple("Config", "target")(
+            namedtuple("Target",
+                       "init_hooks name features core")(lambda _, __ : None,
+                                                        "Junk", [], "Cortex-M3"))
 
         prepare_toolchain(self.src_paths, self.target, self.toolchain_name)
 
-        mock_config_init.assert_called_with(self.target, self.src_paths,
-                                            app_config=None)
+        mock_config_init.assert_called_once_with(self.target, self.src_paths,
+                                                 app_config=None)
 
     @patch('tools.build_api.scan_resources')
     @patch('tools.build_api.mkdir')

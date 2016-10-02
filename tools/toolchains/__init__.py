@@ -31,7 +31,7 @@ from distutils.spawn import find_executable
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, compile_worker
-from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
+from tools.settings import MBED_ORG_USER
 import tools.hooks as hooks
 from tools.memap import MemapParser
 from hashlib import md5
@@ -119,6 +119,43 @@ class Resources:
         self.features.update(resources.features)
 
         return self
+
+    def _collect_duplicates(self, dupe_dict, dupe_headers):
+        for filename in self.s_sources + self.c_sources + self.cpp_sources:
+            objname, _ = splitext(basename(filename))
+            dupe_dict.setdefault(objname, set())
+            dupe_dict[objname] |= set([filename])
+        for filename in self.headers:
+            headername = basename(filename)
+            dupe_headers.setdefault(headername, set())
+            dupe_headers[headername] |= set([headername])
+        for res in self.features.values():
+            res._collect_duplicates(dupe_dict, dupe_headers)
+        return dupe_dict, dupe_headers
+
+    def detect_duplicates(self, toolchain):
+        """Detect all potential ambiguities in filenames and report them with
+        a toolchain notification
+
+        Positional Arguments:
+        toolchain - used for notifications
+        """
+        count = 0
+        dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
+        for objname, filenames in dupe_dict.iteritems():
+            if len(filenames) > 1:
+                count+=1
+                toolchain.tool_error(
+                    "Object file %s.o is not unique! It could be made from: %s"\
+                    % (objname, " ".join(filenames)))
+        for headername, locations in dupe_headers.iteritems():
+            if len(locations) > 1:
+                count+=1
+                toolchain.tool_error(
+                    "Header file %s is not unique! It could be: %s" %\
+                    (headername, " ".join(locations)))
+        return count
+
 
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
@@ -217,7 +254,9 @@ class mbedToolchain:
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+    profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
+
+    def __init__(self, target, notify=None, macros=None, silent=False, extra_verbose=False, build_profile=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -225,7 +264,7 @@ class mbedToolchain:
         self.hook = hooks.Hook(target, self)
 
         # Toolchain flags
-        self.flags = deepcopy(self.DEFAULT_FLAGS)
+        self.flags = deepcopy(build_profile or self.profile_template)
 
         # User-defined macros
         self.macros = macros or []
@@ -290,15 +329,6 @@ class mbedToolchain:
         # Print output buffer
         self.output = str()
         self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
-
-        # Build options passed by -o flag
-        self.options = options if options is not None else []
-
-        # Build options passed by settings.py or mbed_settings.py
-        self.options.extend(BUILD_OPTIONS)
-
-        if self.options:
-            self.info("Build Options: %s" % (', '.join(self.options)))
 
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
@@ -434,10 +464,20 @@ class mbedToolchain:
             toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
-                'TARGET': self.target.labels + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
+                'TARGET': self.target.labels,
                 'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
+
+            # This is a policy decision and it should /really/ be in the config system
+            # ATM it's here for backward compatibility
+            if (("-g" in self.flags['common'] and
+                 "-O0") in self.flags['common'] or
+                ("-r" in self.flags['common'] and
+                 "-On" in self.flags['common'])):
+                self.labels['TARGET'].append("DEBUG")
+            else:
+                self.labels['TARGET'].append("RELEASE")
         return self.labels
 
 
@@ -757,6 +797,7 @@ class mbedToolchain:
                     'chroot': self.CHROOT
                 })
             else:
+                self.compiled += 1
                 objects.append(object)
 
         # Use queues/multiprocessing if cpu count is higher than setting
@@ -1047,7 +1088,7 @@ class mbedToolchain:
         # Here we return memory statistics structure (constructed after
         # call to generate_output) which contains raw data in bytes
         # about sections + summary
-        return memap.mem_summary
+        return memap.mem_report
 
     # Set the configuration data
     def set_config_data(self, config_data):
