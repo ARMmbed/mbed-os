@@ -55,11 +55,6 @@ int NetworkInterface::set_dhcp(bool dhcp)
 }
 
 // DNS operations go through the underlying stack by default
-int NetworkInterface::gethostbyname(const char *name, SocketAddress *address)
-{
-    return get_stack()->gethostbyname(name, address);
-}
-
 int NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
     return get_stack()->gethostbyname(name, address, version);

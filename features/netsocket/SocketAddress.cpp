@@ -215,17 +215,19 @@ void SocketAddress::set_port(uint16_t port)
 
 const char *SocketAddress::get_ip_address() const
 {
-    char *ip_address = (char *)_ip_address;
+    if (_addr.version == NSAPI_UNSPEC) {
+        return NULL;
+    }
 
-    if (!ip_address[0]) {
+    if (!_ip_address[0]) {
         if (_addr.version == NSAPI_IPv4) {
-            ipv4_to_address(ip_address, _addr.bytes);
+            ipv4_to_address(_ip_address, _addr.bytes);
         } else if (_addr.version == NSAPI_IPv6) {
-            ipv6_to_address(ip_address, _addr.bytes);
+            ipv6_to_address(_ip_address, _addr.bytes);
         }
     }
 
-    return ip_address;
+    return _ip_address;
 }
 
 const void *SocketAddress::get_ip_bytes() const
@@ -250,34 +252,38 @@ uint16_t SocketAddress::get_port() const
 
 SocketAddress::operator bool() const
 {
-    int count = 0;
     if (_addr.version == NSAPI_IPv4) {
-        count = NSAPI_IPv4_BYTES;
-    } else if (_addr.version == NSAPI_IPv6) {
-        count = NSAPI_IPv6_BYTES;
-    }
-
-    for (int i = 0; i < count; i++) {
-        if (_addr.bytes[i]) {
-            return true;
+        for (int i = 0; i < NSAPI_IPv4_BYTES; i++) {
+            if (_addr.bytes[i]) {
+                return true;
+            }
         }
-    }
 
-    return false;
+        return false;
+    } else if (_addr.version == NSAPI_IPv6) {
+        for (int i = 0; i < NSAPI_IPv6_BYTES; i++) {
+            if (_addr.bytes[i]) {
+                return true;
+            }
+        }
+
+        return false;
+    } else {
+        return false;
+    }
 }
 
 bool operator==(const SocketAddress &a, const SocketAddress &b)
 {
-    int count = 0;
-    if (a._addr.version == NSAPI_IPv4 && b._addr.version == NSAPI_IPv4) {
-        count = NSAPI_IPv4_BYTES;
-    } else if (a._addr.version == NSAPI_IPv6 && b._addr.version == NSAPI_IPv6) {
-        count = NSAPI_IPv6_BYTES;
-    } else {
+    if (!a && !b) {
+        return true;
+    } else if (a._addr.version != b._addr.version) {
         return false;
+    } else if (a._addr.version == NSAPI_IPv4) {
+        return memcmp(a._addr.bytes, b._addr.bytes, NSAPI_IPv4_BYTES) == 0;
+    } else if (a._addr.version == NSAPI_IPv6) {
+        return memcmp(a._addr.bytes, b._addr.bytes, NSAPI_IPv6_BYTES) == 0;
     }
-
-    return (memcmp(a._addr.bytes, b._addr.bytes, count) == 0);
 }
 
 bool operator!=(const SocketAddress &a, const SocketAddress &b)
