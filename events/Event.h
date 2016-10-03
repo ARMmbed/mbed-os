@@ -47,41 +47,17 @@ public:
      */
     template <typename F>
     Event(EventQueue *q, F f) {
-        struct local {
-            static int post(struct event *e) {
-                typedef EventQueue::context00<F> C;
-                struct local {
-                    static void call(void *p) { (*static_cast<C*>(p))(); }
-                    static void dtor(void *p) { static_cast<C*>(p)->~C(); }
-                };
-
-                void *p = equeue_alloc(e->equeue, sizeof(C));
-                if (!p) {
-                    return 0;
-                }
-
-                new (p) C(*reinterpret_cast<F*>(e+1));
-                equeue_event_delay(p, e->delay);
-                equeue_event_period(p, e->period);
-                equeue_event_dtor(p, &local::dtor);
-                return equeue_post(e->equeue, &local::call, p);
-            }
-
-            static void dtor(struct event *e) {
-                reinterpret_cast<F*>(e+1)->~F();
-            }
-        };
-
         _event = static_cast<struct event *>(
                 equeue_alloc(&q->_equeue, sizeof(struct event) + sizeof(F)));
+
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = 0;
             _event->period = -1;
 
-            _event->post = &local::post;
-            _event->dtor = &local::dtor;
+            _event->post = &Event::event_post<F>;
+            _event->dtor = &Event::event_dtor<F>;
 
             new (_event+1) F(f);
 
@@ -221,6 +197,38 @@ private:
 
         // F follows
     } *_event;
+
+    // Event attributes
+    template <typename F>
+    static int event_post(struct event *e) {
+        typedef EventQueue::context00<F> C;
+        void *p = equeue_alloc(e->equeue, sizeof(C));
+        if (!p) {
+            return 0;
+        }
+
+        new (p) C(*(F*)(e + 1));
+        equeue_event_delay(p, e->delay);
+        equeue_event_period(p, e->period);
+        equeue_event_dtor(p, &Event::function_dtor<C>);
+        return equeue_post(e->equeue, &Event::function_call<C>, p);
+    }
+
+    template <typename F>
+    static void event_dtor(struct event *e) {
+        ((F*)(e + 1))->~F();
+    }
+
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
 
 public:
     /** Create an event
@@ -443,41 +451,17 @@ public:
      */
     template <typename F>
     Event(EventQueue *q, F f) {
-        struct local {
-            static int post(struct event *e, A0 a0) {
-                typedef EventQueue::context10<F, A0> C;
-                struct local {
-                    static void call(void *p) { (*static_cast<C*>(p))(); }
-                    static void dtor(void *p) { static_cast<C*>(p)->~C(); }
-                };
-
-                void *p = equeue_alloc(e->equeue, sizeof(C));
-                if (!p) {
-                    return 0;
-                }
-
-                new (p) C(*reinterpret_cast<F*>(e+1), a0);
-                equeue_event_delay(p, e->delay);
-                equeue_event_period(p, e->period);
-                equeue_event_dtor(p, &local::dtor);
-                return equeue_post(e->equeue, &local::call, p);
-            }
-
-            static void dtor(struct event *e) {
-                reinterpret_cast<F*>(e+1)->~F();
-            }
-        };
-
         _event = static_cast<struct event *>(
                 equeue_alloc(&q->_equeue, sizeof(struct event) + sizeof(F)));
+
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = 0;
             _event->period = -1;
 
-            _event->post = &local::post;
-            _event->dtor = &local::dtor;
+            _event->post = &Event::event_post<F>;
+            _event->dtor = &Event::event_dtor<F>;
 
             new (_event+1) F(f);
 
@@ -617,6 +601,38 @@ private:
 
         // F follows
     } *_event;
+
+    // Event attributes
+    template <typename F>
+    static int event_post(struct event *e, A0 a0) {
+        typedef EventQueue::context10<F, A0> C;
+        void *p = equeue_alloc(e->equeue, sizeof(C));
+        if (!p) {
+            return 0;
+        }
+
+        new (p) C(*(F*)(e + 1), a0);
+        equeue_event_delay(p, e->delay);
+        equeue_event_period(p, e->period);
+        equeue_event_dtor(p, &Event::function_dtor<C>);
+        return equeue_post(e->equeue, &Event::function_call<C>, p);
+    }
+
+    template <typename F>
+    static void event_dtor(struct event *e) {
+        ((F*)(e + 1))->~F();
+    }
+
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
 
 public:
     /** Create an event
@@ -839,41 +855,17 @@ public:
      */
     template <typename F>
     Event(EventQueue *q, F f) {
-        struct local {
-            static int post(struct event *e, A0 a0, A1 a1) {
-                typedef EventQueue::context20<F, A0, A1> C;
-                struct local {
-                    static void call(void *p) { (*static_cast<C*>(p))(); }
-                    static void dtor(void *p) { static_cast<C*>(p)->~C(); }
-                };
-
-                void *p = equeue_alloc(e->equeue, sizeof(C));
-                if (!p) {
-                    return 0;
-                }
-
-                new (p) C(*reinterpret_cast<F*>(e+1), a0, a1);
-                equeue_event_delay(p, e->delay);
-                equeue_event_period(p, e->period);
-                equeue_event_dtor(p, &local::dtor);
-                return equeue_post(e->equeue, &local::call, p);
-            }
-
-            static void dtor(struct event *e) {
-                reinterpret_cast<F*>(e+1)->~F();
-            }
-        };
-
         _event = static_cast<struct event *>(
                 equeue_alloc(&q->_equeue, sizeof(struct event) + sizeof(F)));
+
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = 0;
             _event->period = -1;
 
-            _event->post = &local::post;
-            _event->dtor = &local::dtor;
+            _event->post = &Event::event_post<F>;
+            _event->dtor = &Event::event_dtor<F>;
 
             new (_event+1) F(f);
 
@@ -1013,6 +1005,38 @@ private:
 
         // F follows
     } *_event;
+
+    // Event attributes
+    template <typename F>
+    static int event_post(struct event *e, A0 a0, A1 a1) {
+        typedef EventQueue::context20<F, A0, A1> C;
+        void *p = equeue_alloc(e->equeue, sizeof(C));
+        if (!p) {
+            return 0;
+        }
+
+        new (p) C(*(F*)(e + 1), a0, a1);
+        equeue_event_delay(p, e->delay);
+        equeue_event_period(p, e->period);
+        equeue_event_dtor(p, &Event::function_dtor<C>);
+        return equeue_post(e->equeue, &Event::function_call<C>, p);
+    }
+
+    template <typename F>
+    static void event_dtor(struct event *e) {
+        ((F*)(e + 1))->~F();
+    }
+
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
 
 public:
     /** Create an event
@@ -1235,41 +1259,17 @@ public:
      */
     template <typename F>
     Event(EventQueue *q, F f) {
-        struct local {
-            static int post(struct event *e, A0 a0, A1 a1, A2 a2) {
-                typedef EventQueue::context30<F, A0, A1, A2> C;
-                struct local {
-                    static void call(void *p) { (*static_cast<C*>(p))(); }
-                    static void dtor(void *p) { static_cast<C*>(p)->~C(); }
-                };
-
-                void *p = equeue_alloc(e->equeue, sizeof(C));
-                if (!p) {
-                    return 0;
-                }
-
-                new (p) C(*reinterpret_cast<F*>(e+1), a0, a1, a2);
-                equeue_event_delay(p, e->delay);
-                equeue_event_period(p, e->period);
-                equeue_event_dtor(p, &local::dtor);
-                return equeue_post(e->equeue, &local::call, p);
-            }
-
-            static void dtor(struct event *e) {
-                reinterpret_cast<F*>(e+1)->~F();
-            }
-        };
-
         _event = static_cast<struct event *>(
                 equeue_alloc(&q->_equeue, sizeof(struct event) + sizeof(F)));
+
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = 0;
             _event->period = -1;
 
-            _event->post = &local::post;
-            _event->dtor = &local::dtor;
+            _event->post = &Event::event_post<F>;
+            _event->dtor = &Event::event_dtor<F>;
 
             new (_event+1) F(f);
 
@@ -1409,6 +1409,38 @@ private:
 
         // F follows
     } *_event;
+
+    // Event attributes
+    template <typename F>
+    static int event_post(struct event *e, A0 a0, A1 a1, A2 a2) {
+        typedef EventQueue::context30<F, A0, A1, A2> C;
+        void *p = equeue_alloc(e->equeue, sizeof(C));
+        if (!p) {
+            return 0;
+        }
+
+        new (p) C(*(F*)(e + 1), a0, a1, a2);
+        equeue_event_delay(p, e->delay);
+        equeue_event_period(p, e->period);
+        equeue_event_dtor(p, &Event::function_dtor<C>);
+        return equeue_post(e->equeue, &Event::function_call<C>, p);
+    }
+
+    template <typename F>
+    static void event_dtor(struct event *e) {
+        ((F*)(e + 1))->~F();
+    }
+
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
 
 public:
     /** Create an event
@@ -1631,41 +1663,17 @@ public:
      */
     template <typename F>
     Event(EventQueue *q, F f) {
-        struct local {
-            static int post(struct event *e, A0 a0, A1 a1, A2 a2, A3 a3) {
-                typedef EventQueue::context40<F, A0, A1, A2, A3> C;
-                struct local {
-                    static void call(void *p) { (*static_cast<C*>(p))(); }
-                    static void dtor(void *p) { static_cast<C*>(p)->~C(); }
-                };
-
-                void *p = equeue_alloc(e->equeue, sizeof(C));
-                if (!p) {
-                    return 0;
-                }
-
-                new (p) C(*reinterpret_cast<F*>(e+1), a0, a1, a2, a3);
-                equeue_event_delay(p, e->delay);
-                equeue_event_period(p, e->period);
-                equeue_event_dtor(p, &local::dtor);
-                return equeue_post(e->equeue, &local::call, p);
-            }
-
-            static void dtor(struct event *e) {
-                reinterpret_cast<F*>(e+1)->~F();
-            }
-        };
-
         _event = static_cast<struct event *>(
                 equeue_alloc(&q->_equeue, sizeof(struct event) + sizeof(F)));
+
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = 0;
             _event->period = -1;
 
-            _event->post = &local::post;
-            _event->dtor = &local::dtor;
+            _event->post = &Event::event_post<F>;
+            _event->dtor = &Event::event_dtor<F>;
 
             new (_event+1) F(f);
 
@@ -1805,6 +1813,38 @@ private:
 
         // F follows
     } *_event;
+
+    // Event attributes
+    template <typename F>
+    static int event_post(struct event *e, A0 a0, A1 a1, A2 a2, A3 a3) {
+        typedef EventQueue::context40<F, A0, A1, A2, A3> C;
+        void *p = equeue_alloc(e->equeue, sizeof(C));
+        if (!p) {
+            return 0;
+        }
+
+        new (p) C(*(F*)(e + 1), a0, a1, a2, a3);
+        equeue_event_delay(p, e->delay);
+        equeue_event_period(p, e->period);
+        equeue_event_dtor(p, &Event::function_dtor<C>);
+        return equeue_post(e->equeue, &Event::function_call<C>, p);
+    }
+
+    template <typename F>
+    static void event_dtor(struct event *e) {
+        ((F*)(e + 1))->~F();
+    }
+
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
 
 public:
     /** Create an event
@@ -2027,41 +2067,17 @@ public:
      */
     template <typename F>
     Event(EventQueue *q, F f) {
-        struct local {
-            static int post(struct event *e, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                typedef EventQueue::context50<F, A0, A1, A2, A3, A4> C;
-                struct local {
-                    static void call(void *p) { (*static_cast<C*>(p))(); }
-                    static void dtor(void *p) { static_cast<C*>(p)->~C(); }
-                };
-
-                void *p = equeue_alloc(e->equeue, sizeof(C));
-                if (!p) {
-                    return 0;
-                }
-
-                new (p) C(*reinterpret_cast<F*>(e+1), a0, a1, a2, a3, a4);
-                equeue_event_delay(p, e->delay);
-                equeue_event_period(p, e->period);
-                equeue_event_dtor(p, &local::dtor);
-                return equeue_post(e->equeue, &local::call, p);
-            }
-
-            static void dtor(struct event *e) {
-                reinterpret_cast<F*>(e+1)->~F();
-            }
-        };
-
         _event = static_cast<struct event *>(
                 equeue_alloc(&q->_equeue, sizeof(struct event) + sizeof(F)));
+
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = 0;
             _event->period = -1;
 
-            _event->post = &local::post;
-            _event->dtor = &local::dtor;
+            _event->post = &Event::event_post<F>;
+            _event->dtor = &Event::event_dtor<F>;
 
             new (_event+1) F(f);
 
@@ -2201,6 +2217,38 @@ private:
 
         // F follows
     } *_event;
+
+    // Event attributes
+    template <typename F>
+    static int event_post(struct event *e, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+        typedef EventQueue::context50<F, A0, A1, A2, A3, A4> C;
+        void *p = equeue_alloc(e->equeue, sizeof(C));
+        if (!p) {
+            return 0;
+        }
+
+        new (p) C(*(F*)(e + 1), a0, a1, a2, a3, a4);
+        equeue_event_delay(p, e->delay);
+        equeue_event_period(p, e->period);
+        equeue_event_dtor(p, &Event::function_dtor<C>);
+        return equeue_post(e->equeue, &Event::function_call<C>, p);
+    }
+
+    template <typename F>
+    static void event_dtor(struct event *e) {
+        ((F*)(e + 1))->~F();
+    }
+
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
 
 public:
     /** Create an event
