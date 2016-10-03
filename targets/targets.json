@@ -15,7 +15,8 @@
     "Super_Target": {
         "inherits": ["Target"],
         "core": "Cortex-M4",
-        "features_add": ["UVISOR", "BLE", "CLIENT", "IPV4", "IPV6"]
+        "features_add": ["UVISOR", "BLE", "CLIENT", "IPV4", "IPV6"],
+        "supported_toolchains": ["ARM"]
     },
     "CM4_UARM": {
         "inherits": ["Target"],
