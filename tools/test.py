@@ -27,7 +27,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
-from tools.options import get_default_options_parser
+from tools.options import get_default_options_parser, extract_profile
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
 from tools.targets import TARGET_MAP
@@ -121,9 +121,18 @@ if __name__ == '__main__':
                                "Currently set search path: %s"
                        % (toolchain, search_path))
 
+        # App config
+        # Disable finding `mbed_app.json` files in the source tree if not
+        # explicitly defined on the command line. Config system searches for
+        # `mbed_app.json` files if `app_config` is None, but will set the
+        # app config data to an empty dictionary if the path value is another
+        # falsey value besides None.
+        if options.app_config is None:
+            options.app_config = ''
+
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path, mcu, toolchain, options.options,
+            all_tests.update(find_tests(path, mcu, toolchain, 
                                         app_config=options.app_config))
 
         # Filter tests by name if specified
@@ -171,10 +180,10 @@ if __name__ == '__main__':
             build_properties = {}
 
             library_build_success = False
+            profile = extract_profile(parser, options, toolchain)
             try:
                 # Build sources
                 build_library(base_source_paths, options.build_dir, mcu, toolchain,
-                                                options=options.options,
                                                 jobs=options.jobs,
                                                 clean=options.clean,
                                                 report=build_report,
@@ -184,8 +193,8 @@ if __name__ == '__main__':
                                                 verbose=options.verbose,
                                                 notify=notify,
                                                 archive=False,
-                                                remove_config_header_file=True,
-                                                app_config=options.app_config)
+                                                app_config=options.app_config,
+                              build_profile=profile)
 
                 library_build_success = True
             except ToolException, e:
@@ -204,7 +213,6 @@ if __name__ == '__main__':
                 # Build all the tests
 
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
-                        options=options.options,
                         clean=options.clean,
                         report=build_report,
                         properties=build_properties,
@@ -213,7 +221,8 @@ if __name__ == '__main__':
                         notify=notify,
                         jobs=options.jobs,
                         continue_on_build_fail=options.continue_on_build_fail,
-                        app_config=options.app_config)
+                                                             app_config=options.app_config,
+                                                             build_profile=profile)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:

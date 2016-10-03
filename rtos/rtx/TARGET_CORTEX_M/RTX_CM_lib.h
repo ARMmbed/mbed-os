@@ -52,7 +52,7 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     60
+#define OS_TCB_SIZE     64
 #define OS_TMR_SIZE     8
 
 typedef void    *OS_ID;
@@ -353,8 +353,11 @@ extern void pre_main (void);
 
 #if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832) || defined (TARGET_STM32F334R8) ||\
     defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || \
-    defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8)
+    defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8) ||\
+    defined(TARGET_STM32F103RB)
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
+#elif defined(TARGET_XDOT_L151CC)
+static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 6 / sizeof(uint32_t)];
 #else
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 2 / sizeof(uint32_t)];
 #endif
@@ -392,219 +395,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
  *
  */
 
-
-// This define should be probably moved to the CMSIS layer
-#if   defined(TARGET_LPC1768)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_LPC11U24)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_LPC1114)
-#define INITIAL_SP            (0x10001000UL)
-
-#elif defined(TARGET_LPC812)
-#define INITIAL_SP            (0x10001000UL)
-
-#elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_KL25Z)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif defined(TARGET_KL26Z)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif defined(TARGET_KL27Z)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif defined(TARGET_K64F)
-#define INITIAL_SP            (0x20030000UL)
-
-#if defined(__CC_ARM) || defined(__GNUC__)
-#define ISR_STACK_SIZE        (0x1000)
-#endif
-
-#elif defined(TARGET_K66F)
-#define INITIAL_SP            (0x20030000UL)
-
-#elif defined(TARGET_K22F)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif defined(TARGET_KL46Z)
-#define INITIAL_SP            (0x20006000UL)
-
-#elif defined(TARGET_KL43Z)
-#define INITIAL_SP            (0x20006000UL)
-
-#elif defined(TARGET_KL05Z)
-#define INITIAL_SP            (0x20000C00UL)
-
-#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-#define INITIAL_SP            (0x10010000UL)
-
-#elif defined(TARGET_LPC4330)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_LPC4337)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_LPC1347)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_STM32F100RB) || defined(TARGET_STM32F051R8)
-#define INITIAL_SP            (0x20002000UL)
-
-#elif defined(TARGET_DISCO_F303VC)
-#define INITIAL_SP            (0x2000A000UL)
-
-#elif defined(TARGET_STM32F407) || defined(TARGET_STM32F407VG)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F401RE)
-#define INITIAL_SP            (0x20018000UL)
-
-#elif defined(TARGET_LPC1549)
-#define INITIAL_SP            (0x02009000UL)
-
-#elif defined(TARGET_LPC11U68)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_STM32F411RE)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F207ZG)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F410RB)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32F103RB) || defined(TARGET_STM32L073RZ)
-#define INITIAL_SP            (0x20005000UL)
-
-#elif defined(TARGET_STM32F302R8)
-#define INITIAL_SP            (0x20004000UL)
-
-#elif  defined(TARGET_STM32F334R8)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif  defined(TARGET_STM32F334C8)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif  defined(TARGET_STM32F405RG)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F429ZI) || defined(TARGET_UBLOX_C029)
-#define INITIAL_SP            (0x20030000UL)
-
-#elif defined(TARGET_STM32F091RC)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32F401VC)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303ZE)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif defined(TARGET_STM32F303K8)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif (defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG))
-#define INITIAL_SP            (0x20050000UL)
-
-#elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_MAX32620)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_TEENSY3_1)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32L152RE)
-#define INITIAL_SP            (0x20014000UL)
-
-#elif defined(TARGET_NZ32_SC151)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32F446ZE)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F072RB) || defined(TARGET_STM32F070RB)
-#define INITIAL_SP            (0x20004000UL)
-
-#elif defined(TARGET_STM32L432KC)
-#define INITIAL_SP            (0x2000C000UL)
-
-#elif defined(TARGET_STM32L476VG)
-#define INITIAL_SP            (0x20018000UL)
-
-#elif defined(TARGET_STM32L476RG)
-#define INITIAL_SP            (0x20018000UL)
-
-#elif defined(TARGET_STM32F469NI)
-#define INITIAL_SP            (0x20050000UL)
-
-#elif defined(TARGET_STM32L152RC)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_EFM32GG_STK3700) || defined(TARGET_BEETLE)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_EFM32HG_STK3400)
-#define INITIAL_SP            (0x20002000UL)
-
-#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32PG_STK3401)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_MCU_NORDIC_32K)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_MCU_NORDIC_16K)
-#define INITIAL_SP            (0x20004000UL)
-
-#elif defined(TARGET_MCU_NRF52832)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif (defined(TARGET_STM32F767ZI))
-#define INITIAL_SP            (0x20080000UL)
-
-#elif (defined(TARGET_STM32F769NI))
-#define INITIAL_SP            (0x20080000UL)
-
-#elif defined(TARGET_NUMAKER_PFM_NUC472)
-#   if defined(__CC_ARM)
-extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Base[];
-extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
-extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$ZI$$Base)
-#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
-#define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
-#define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
-#   elif defined(__GNUC__)
-extern uint32_t	                __StackTop[];
-extern uint32_t	                __StackLimit[];
-extern uint32_t                 __end__[];
-extern uint32_t                 __HeapLimit[];
-#define HEAP_START              ((unsigned char*)__end__)
-#define HEAP_SIZE               ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
-#define ISR_STACK_START         ((unsigned char*)__StackLimit)
-#define ISR_STACK_SIZE          ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
-#   elif defined(__ICCARM__)
-/* No region declarations needed */
-#   else
-#error "no toolchain defined"
-#   endif
-
-#elif defined(TARGET_NCS36510)
-#define INITIAL_SP            (0x40000000UL)
-
-#else
-#error "no target defined"
-
-#endif
-
 extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;
 
@@ -639,6 +429,10 @@ uint32_t mbed_stack_isr_size = 0;
     #define HEAP_SIZE           ((uint32_t)__section_size("HEAP"))
     #define ISR_STACK_START     ((unsigned char*)__section_begin("CSTACK"))
     #define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
+#endif
+
+#if !defined(INITIAL_SP) && !defined(HEAP_START)
+    #error "no target defined"
 #endif
 
 /* Define heap region if it has not been defined already */

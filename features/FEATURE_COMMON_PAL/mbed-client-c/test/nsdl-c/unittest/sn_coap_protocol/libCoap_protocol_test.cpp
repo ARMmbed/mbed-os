@@ -27,6 +27,7 @@
 #include "sn_coap_parser_stub.h"
 #include "sn_coap_header_check_stub.h"
 
+
 int retCounter = 0;
 static coap_s *coap_handle = NULL;
 void myFree(void* addr);
@@ -87,9 +88,13 @@ TEST(libCoap_protocol, sn_coap_protocol_destroy)
     msg_ptr->send_msg_ptr->uri_path_len = 2;
 
     ns_list_add_to_end(&handle->linked_list_resent_msgs, msg_ptr);
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
     ns_list_init(&handle->linked_list_duplication_msgs);
+#endif
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
     ns_list_init(&handle->linked_list_blockwise_sent_msgs);
     ns_list_init(&handle->linked_list_blockwise_received_payloads);
+#endif
     CHECK( 0 == sn_coap_protocol_destroy(handle));
 }
 

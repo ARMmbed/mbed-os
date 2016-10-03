@@ -55,6 +55,10 @@ const void * g_page_heap_end;
 uint8_t g_page_count_free;
 /* Contains the total number of available pages. */
 uint8_t g_page_count_total;
+/* Contains the shift of the page owner mask. */
+uint8_t g_page_map_shift;
+/* Contains the rounded up page end address for ARMv7-M MPU region alignment. */
+uint32_t g_page_head_end_rounded;
 
 /* Helper function maps pointer to page id, or UVISOR_PAGE_UNUSED. */
 uint8_t page_allocator_get_page_from_address(uint32_t address)
@@ -132,12 +136,20 @@ void page_allocator_init(void * const heap_start, void * const heap_end, const u
     /* Remember the end of the heap. */
     g_page_heap_end = g_page_heap_start + g_page_count_total * g_page_size;
 
-    DPRINTF("uvisor_page_init:\n.page_heap start 0x%08x\n.page_heap end   0x%08x\n.page_heap available %ukB split into %u pages of %ukB\n\n",
+    g_page_head_end_rounded = vmpu_round_up_region((uint32_t) g_page_heap_end, g_page_size * 8);
+    /* Compute the page map shift.
+     * This initial shift fully left aligns the page map. */
+    g_page_map_shift = UVISOR_PAGE_MAP_COUNT * 32 - g_page_count_total;
+    g_page_map_shift -= (g_page_head_end_rounded - (uint32_t) g_page_heap_end) / g_page_size;
+
+    DPRINTF(
+        "page heap: [0x%08x, 0x%08x] %ukB -> %u %ukB pages\r\n",
             (unsigned int) g_page_heap_start,
             (unsigned int) g_page_heap_end,
             (unsigned int) (g_page_count_free * g_page_size / 1024),
             (unsigned int) g_page_count_total,
-            (unsigned int) (g_page_size / 1024));
+            (unsigned int) (g_page_size / 1024)
+    );
 
     /* Force a reset of owner and usage page maps. */
     memset(g_page_owner_map, 0, sizeof(g_page_owner_map));

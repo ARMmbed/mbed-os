@@ -135,7 +135,7 @@ ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
     #define CFG_CUSTOM_UUID_BASE  "\x6E\x40\x00\x00\xB5\xA3\xF3\x93\xE0\xA9\xE5\x0E\x24\xDC\xCA\x9E"
 
     uint8_t uuid_type = custom_add_uuid_base(CFG_CUSTOM_UUID_BASE);
-    ASSERT(uuid_type > 0, ERROR_NOT_FOUND);
+    ASSERT_TRUE(uuid_type > 0, ERROR_NOT_FOUND);
 
     // We can now safely add the primary service and any characteristics
     // for our custom service ...

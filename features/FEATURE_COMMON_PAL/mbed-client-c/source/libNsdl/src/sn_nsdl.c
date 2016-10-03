@@ -29,6 +29,7 @@
 #include "sn_coap_protocol_internal.h"
 #include "sn_nsdl_lib.h"
 #include "sn_grs.h"
+#include "sn_config.h"
 #include "mbed-trace/mbed_trace.h"
 
 #define TRACE_GROUP "coap"

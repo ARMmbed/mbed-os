@@ -18,6 +18,8 @@
 #define __UVISOR_API_VMPU_EXPORTS_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/pool_queue_exports.h"
+#include "api/inc/rpc_exports.h"
 #include <stdint.h>
 
 /* The maximum box namespace length is 37 so that it is exactly big enough for
@@ -149,18 +151,36 @@ typedef struct {
 } UVISOR_PACKED UvisorBoxAclItem;
 
 typedef struct {
+    /* Contains user provided size of box context without guards of buffers. */
+    uint32_t context_size;
+    /* Contains total memory used by the RPC queues (incl. management and pool). */
+    uint32_t rpc_outgoing_message_size;
+    uint32_t rpc_incoming_message_size;
+    uint32_t rpc_fn_group_size;
+} UVISOR_PACKED uvisor_sizes_t;
+
+/* The number of additional bss sections per box bss.
+ * The size of each section is stored in the box config, and uVisor core will
+ * iterate over the box bss, split it into sections as defined by the size table
+ * and assign a pointer to beginning of that section into the box index pointer table.
+ */
+#define UVISOR_BOX_INDEX_SIZE_COUNT (sizeof(uvisor_sizes_t) / sizeof(uint32_t))
+
+typedef struct {
     uint32_t magic;
     uint32_t version;
 
     /* Box stack size includes stack guards and rounding buffer. */
     uint32_t stack_size;
-
-    /* Contains the size of the index (must be at least sizeof(UvisorBoxIndex)). */
-    uint32_t index_size;
-    /* Contains user provided size of box context without guards of buffers. */
-    uint32_t context_size;
     /* Contains user provided size of box heap without guards of buffers. */
     uint32_t heap_size;
+    /* Contains the size of the index (must be at least sizeof(UvisorBoxIndex)). */
+    uint32_t index_size;
+
+    union {
+        uint32_t bss_size[UVISOR_BOX_INDEX_SIZE_COUNT];
+        uvisor_sizes_t sizes;
+    };
 
     /* Opaque-to-uVisor data that potentially contains uvisor-lib-specific or
      * OS-specific per-box configuration */
@@ -172,8 +192,17 @@ typedef struct {
 } UVISOR_PACKED UvisorBoxConfig;
 
 typedef struct {
-    /* Pointer to the user context */
-    void * ctx;
+    union {
+        void * bss_ptr[UVISOR_BOX_INDEX_SIZE_COUNT];
+        struct {
+            /* Pointer to the user context */
+            void * ctx;
+            /* Pointer to the RPC queues */
+            uvisor_rpc_outgoing_message_queue_t * rpc_outgoing_message_queue;
+            uvisor_rpc_incoming_message_queue_t * rpc_incoming_message_queue;
+            uvisor_rpc_fn_group_queue_t * rpc_fn_group_queue;
+        };
+    };
     /* Pointer to the box heap */
     void * box_heap;
     /* Size of the box heap */
@@ -182,6 +211,14 @@ typedef struct {
      * This is set to `NULL` by uVisor, signalling to the user lib that the
      * box heap needs to be initialized before use! */
     void * active_heap;
+
+    /* Counter that helps to avoid waiting on the same RPC message result twice
+     * by accident. */
+    uint32_t rpc_result_counter;
+
+    /* Box ID */
+    int box_id_self;
+
     /* Pointer to the box config */
     const UvisorBoxConfig * config;
 } UVISOR_PACKED UvisorBoxIndex;

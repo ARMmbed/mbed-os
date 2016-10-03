@@ -31,6 +31,7 @@ from tools.toolchains import TOOLCHAINS, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.toolchains import mbedToolchain
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
+from tools.options import extract_profile
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
@@ -222,13 +223,20 @@ if __name__ == '__main__':
                 try:
                     mcu = TARGET_MAP[target]
                     # CMSIS and MBED libs analysis
-                    static_analysis_scan(mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, verbose=options.verbose, jobs=options.jobs)
+                    profile = extract_profile(parser, options, toolchain)
+                    static_analysis_scan(
+                        mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
+                        verbose=options.verbose, jobs=options.jobs,
+                        build_profile=profile)
                     for lib_id in libraries:
                         # Static check for library
-                        static_analysis_scan_lib(lib_id, mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
-                                  options=options.options,
-                                  extra_verbose=options.extra_verbose_notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
-                                  macros=options.macros)
+                        static_analysis_scan_lib(
+                            lib_id, mcu, toolchain, CPPCHECK_CMD,
+                            CPPCHECK_MSG_FORMAT,
+                            extra_verbose=options.extra_verbose_notify,
+                            verbose=options.verbose, jobs=options.jobs,
+                            clean=options.clean, macros=options.macros,
+                            build_profile=profile)
                         pass
                 except Exception, e:
                     if options.verbose:
@@ -248,9 +256,9 @@ if __name__ == '__main__':
                 else:
                     try:
                         mcu = TARGET_MAP[target]
+                        profile = extract_profile(parser, options, toolchain)
                         if options.source_dir:
                             lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
-                                                        options=options.options,
                                                         extra_verbose=options.extra_verbose_notify,
                                                         verbose=options.verbose,
                                                         silent=options.silent,
@@ -258,26 +266,27 @@ if __name__ == '__main__':
                                                         clean=options.clean,
                                                         archive=(not options.no_archive),
                                                         macros=options.macros,
-                                                        name=options.artifact_name)
+                                                        name=options.artifact_name,
+                                                        build_profile=profile)
                         else:
                             lib_build_res = build_mbed_libs(mcu, toolchain,
-                                                        options=options.options,
                                                         extra_verbose=options.extra_verbose_notify,
                                                         verbose=options.verbose,
                                                         silent=options.silent,
                                                         jobs=options.jobs,
                                                         clean=options.clean,
-                                                        macros=options.macros)
+                                                            macros=options.macros,
+                                                            build_profile=profile)
 
                         for lib_id in libraries:
                             build_lib(lib_id, mcu, toolchain,
-                                    options=options.options,
                                     extra_verbose=options.extra_verbose_notify,
                                     verbose=options.verbose,
                                     silent=options.silent,
                                     clean=options.clean,
                                     macros=options.macros,
-                                    jobs=options.jobs)
+                                      jobs=options.jobs,
+                                      build_profile=profile)
                         if lib_build_res:
                             successes.append(tt_id)
                         else:

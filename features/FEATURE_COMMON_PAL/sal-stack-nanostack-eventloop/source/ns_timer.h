@@ -20,7 +20,6 @@
 extern "C" {
 #endif
 
-extern int8_t ns_timer_init(void);
 extern int8_t ns_timer_sleep(void);
 
 #ifdef __cplusplus

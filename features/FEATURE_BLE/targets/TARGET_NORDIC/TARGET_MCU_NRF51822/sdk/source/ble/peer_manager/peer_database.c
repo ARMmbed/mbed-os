@@ -172,7 +172,7 @@ static pdb_buffer_record_t * write_buffer_record_find_unused(void)
  */
 static void write_buffer_record_release(pdb_buffer_record_t * p_write_buffer_record)
 {
-    for (int i = 0; i < p_write_buffer_record->n_bufs; i++)
+    for (uint32_t i = 0; i < p_write_buffer_record->n_bufs; i++)
     {
         pm_buffer_release(&m_pdb.write_buffer, p_write_buffer_record->buffer_block_id + i);
     }

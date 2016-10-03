@@ -23,7 +23,6 @@
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
     nRF5xn                &ble         = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
-    nRF5xGap              &gap         = (nRF5xGap &) ble.getGap();
     nRF5xGattClient       &gattClient  = (nRF5xGattClient &) ble.getGattClient();
     nRF5xServiceDiscovery &sdSingleton = gattClient.discovery();
     nRF5xCharacteristicDescriptorDiscoverer &characteristicDescriptorDiscoverer =

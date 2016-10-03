@@ -454,7 +454,8 @@ void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
 
 end:
     if ( m_trace.mutex_release_f ) {
-        for ( ;m_trace.mutex_lock_count > 0; m_trace.mutex_lock_count-- ) {
+        while (m_trace.mutex_lock_count > 0) {
+            m_trace.mutex_lock_count--;
             m_trace.mutex_release_f();
         }
     }

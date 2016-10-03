@@ -68,7 +68,7 @@
 #define FDS_CMD_QUEUE_SIZE_GC       (1)
 
 
-static uint8_t m_nested_critical;
+//static uint8_t m_nested_critical;
 
 /** Macros to enable and disable application interrupts. */
 #define CRITICAL_SECTION_ENTER()    //sd_nvic_critical_region_enter(&m_nested_critical)

@@ -28,26 +28,12 @@ class GCC(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
-    # ANY changes to these default flags is backwards incompatible and require
-    # an update to the mbed-sdk-tools and website that introduces a profile
-    # for the previous version of these flags
-    DEFAULT_FLAGS = {
-        'common': ["-c", "-Wall", "-Wextra",
-            "-Wno-unused-parameter", "-Wno-missing-field-initializers",
-            "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
-            "-ffunction-sections", "-fdata-sections", "-funsigned-char",
-            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
-            ],
-        'asm': ["-x", "assembler-with-cpp"],
-        'c': ["-std=gnu99"],
-        'cxx': ["-std=gnu++98", "-fno-rtti", "-Wvla"],
-        'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main",
-            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_calloc_r",
-            "-Wl,--wrap,exit", "-Wl,--wrap,atexit"],
-    }
-
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target,  notify=None, macros=None,
+                 silent=False, tool_path="", extra_verbose=False,
+                 build_profile=None):
+        mbedToolchain.__init__(self, target, notify, macros, silent,
+                               extra_verbose=extra_verbose,
+                               build_profile=build_profile)
 
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0plus"
@@ -75,8 +61,6 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfpu=fpv5-d16")
             self.cpu.append("-mfloat-abi=softfp")
 
-
-
         if target.core == "Cortex-A9":
             self.cpu.append("-mthumb-interwork")
             self.cpu.append("-marm")
@@ -85,19 +69,7 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-
-        # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
-        # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
         self.flags["common"] += self.cpu
-
-        if "save-asm" in self.options:
-            self.flags["common"].append("-save-temps")
-
-        if "debug-info" in self.options:
-            self.flags["common"].append("-g")
-            self.flags["common"].append("-O0")
-        else:
-            self.flags["common"].append("-Os")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -146,6 +118,7 @@ class GCC(mbedToolchain):
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
+                    msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
@@ -165,6 +138,9 @@ class GCC(mbedToolchain):
                     msg = None
                 else:
                     msg['text'] += line+"\n"
+
+        if msg is not None:
+            self.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -280,27 +256,12 @@ class GCC_ARM(GCC):
         Returns False otherwise."""
         return mbedToolchain.generic_check_executable("GCC_ARM", 'arm-none-eabi-gcc', 1)
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose)
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        GCC.__init__(self, target, notify, macros, silent,
+                     TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose,
+                     build_profile=build_profile)
 
-        # Use latest gcc nanolib
-        if "std-lib" in self.options:
-            use_nano = False
-        elif "small-lib" in self.options:
-            use_nano = True
-        elif target.default_lib == "std":
-            use_nano = False
-        elif target.default_lib == "small":
-            use_nano = True
-        else:
-            use_nano = False
-
-        if use_nano:
-            self.ld.append("--specs=nano.specs")
-            self.flags['ld'].append("--specs=nano.specs")
-            self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
-            self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
-            self.macros.extend(["MBED_RTOS_SINGLE_THREAD"])
         self.sys_libs.append("nosys")
 
 
@@ -312,8 +273,11 @@ class GCC_CR(GCC):
         Returns False otherwise."""
         return mbedToolchain.generic_check_executable("GCC_CR", 'arm-none-eabi-gcc', 1)
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        GCC.__init__(self, target, options, notify, macros, silent, TOOLCHAIN_PATHS['GCC_CR'], extra_verbose=extra_verbose)
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        GCC.__init__(self, target, notify, macros, silent,
+                     TOOLCHAIN_PATHS['GCC_CR'], extra_verbose=extra_verbose,
+                     build_profile=build_profile)
 
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",

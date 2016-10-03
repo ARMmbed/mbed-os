@@ -10,10 +10,11 @@ import json
 import argparse
 from prettytable import PrettyTable
 
-from tools.utils import argparse_filestring_type, \
+from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
 
 DEBUG = False
+
 RE_ARMCC = re.compile(
     r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
 RE_IAR = re.compile(
@@ -37,10 +38,12 @@ class MemapParser(object):
     # sections to print info (generic for all toolchains)
     sections = ('.text', '.data', '.bss', '.heap', '.stack')
 
-    def __init__(self):
+    def __init__(self, detailed_misc=False):
         """ General initialization
         """
-
+        # 
+        self.detailed_misc = detailed_misc
+        
         # list of all modules and their sections
         self.modules = dict()
 
@@ -51,8 +54,13 @@ class MemapParser(object):
         # list of all object files and mappting to module names
         self.object_to_module = dict()
 
-        # Memory usage summary structure
+        # Memory report (sections + summary)
+        self.mem_report = []
+
+        # Just the memory summary section
         self.mem_summary = dict()
+
+        self.subtotal = dict()
 
     def module_add(self, module_name, size, section):
         """ Adds a module / section to the list
@@ -90,8 +98,8 @@ class MemapParser(object):
         else:
             return False         # everything else, means no change in section
 
-    @staticmethod
-    def path_object_to_module_name(txt):
+    
+    def path_object_to_module_name(self, txt):
         """ Parse a path to object file to extract it's module and object data
 
         Positional arguments:
@@ -114,9 +122,17 @@ class MemapParser(object):
                 module_name = data[0] + '/' + data[1]
 
             return [module_name, object_name]
-        else:
+            
+        elif self.detailed_misc:           
+            rex_obj_name = r'^.+\/(.+\.o\)*)$'
+            test_rex_obj_name = re.match(rex_obj_name, txt)
+            if test_rex_obj_name:
+                object_name = test_rex_obj_name.group(1)
+                return ['Misc/' + object_name, ""]        
+                
             return ['Misc', ""]
-
+        else: 
+            return ['Misc', ""]
 
     def parse_section_gcc(self, line):
         """ Parse data from a section of gcc map file
@@ -399,68 +415,27 @@ class MemapParser(object):
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             return False
 
-        subtotal = dict()
-        for k in self.sections:
-            subtotal[k] = 0
-
-        # Calculate misc flash sections
-        misc_flash_mem = 0
-        for i in self.modules:
-            for k in self.misc_flash_sections:
-                if self.modules[i][k]:
-                    misc_flash_mem += self.modules[i][k]
-
-        json_obj = []
-        for i in sorted(self.modules):
-
-            row = []
-
-            json_obj.append({
-                "module":i,
-                "size":{
-                    k:self.modules[i][k] for k in self.print_sections
-                }
-            })
-
-        summary = {
-            'summary':{
-                'static_ram': (subtotal['.data'] + subtotal['.bss']),
-                'heap': (subtotal['.heap']),
-                'stack': (subtotal['.stack']),
-                'total_ram': (subtotal['.data'] + subtotal['.bss'] +
-                              subtotal['.heap']+subtotal['.stack']),
-                'total_flash': (subtotal['.text'] + subtotal['.data'] +
-                                misc_flash_mem),
-            }
-        }
-
-        self.mem_summary = json_obj + [summary]
-
         to_call = {'json': self.generate_json,
                    'csv-ci': self.generate_csv,
                    'table': self.generate_table}[export_format]
-        to_call(subtotal, misc_flash_mem, file_desc)
+        to_call(file_desc)
 
         if file_desc is not sys.stdout:
             file_desc.close()
 
-    def generate_json(self, _, dummy, file_desc):
+    def generate_json(self, file_desc):
         """Generate a json file from a memory map
 
         Positional arguments:
-        subtotal - total sizes for each module
-        misc_flash_mem - size of misc flash sections
         file_desc - the file to write out the final report to
         """
-        file_desc.write(json.dumps(self.mem_summary, indent=4))
+        file_desc.write(json.dumps(self.mem_report, indent=4))
         file_desc.write('\n')
 
-    def generate_csv(self, subtotal, misc_flash_mem, file_desc):
+    def generate_csv(self, file_desc):
         """Generate a CSV file from a memoy map
 
         Positional arguments:
-        subtotal - total sizes for each module
-        misc_flash_mem - size of misc flash sections
         file_desc - the file to write out the final report to
         """
         csv_writer = csv.writer(file_desc, delimiter=',',
@@ -474,36 +449,33 @@ class MemapParser(object):
                 csv_sizes += [self.modules[i][k]]
 
         csv_module_section += ['static_ram']
-        csv_sizes += [subtotal['.data']+subtotal['.bss']]
+        csv_sizes += [self.mem_summary['static_ram']]
 
         csv_module_section += ['heap']
-        if subtotal['.heap'] == 0:
+        if self.mem_summary['heap'] == 0:
             csv_sizes += ['unknown']
         else:
-            csv_sizes += [subtotal['.heap']]
+            csv_sizes += [self.mem_summary['heap']]
 
         csv_module_section += ['stack']
-        if subtotal['.stack'] == 0:
+        if self.mem_summary['stack'] == 0:
             csv_sizes += ['unknown']
         else:
-            csv_sizes += [subtotal['.stack']]
+            csv_sizes += [self.mem_summary['stack']]
 
         csv_module_section += ['total_ram']
-        csv_sizes += [subtotal['.data'] + subtotal['.bss'] +
-                      subtotal['.heap'] + subtotal['.stack']]
+        csv_sizes += [self.mem_summary['total_ram']]
 
         csv_module_section += ['total_flash']
-        csv_sizes += [subtotal['.text']+subtotal['.data']+misc_flash_mem]
+        csv_sizes += [self.mem_summary['total_flash']]
 
         csv_writer.writerow(csv_module_section)
         csv_writer.writerow(csv_sizes)
 
-    def generate_table(self, subtotal, misc_flash_mem, file_desc):
+    def generate_table(self, file_desc):
         """Generate a table from a memoy map
 
         Positional arguments:
-        subtotal - total sizes for each module
-        misc_flash_mem - size of misc flash sections
         file_desc - the file to write out the final report to
         """
         # Create table
@@ -521,9 +493,6 @@ class MemapParser(object):
         for i in sorted(self.modules):
             row = [i]
 
-            for k in self.sections:
-                subtotal[k] += self.modules[i][k]
-
             for k in self.print_sections:
                 row.append(self.modules[i][k])
 
@@ -531,36 +500,72 @@ class MemapParser(object):
 
         subtotal_row = ['Subtotals']
         for k in self.print_sections:
-            subtotal_row.append(subtotal[k])
+            subtotal_row.append(self.subtotal[k])
 
         table.add_row(subtotal_row)
 
         file_desc.write(table.get_string())
         file_desc.write('\n')
 
-        if subtotal['.heap'] == 0:
+        if self.mem_summary['heap'] == 0:
             file_desc.write("Allocated Heap: unknown\n")
         else:
             file_desc.write("Allocated Heap: %s bytes\n" %
-                            str(subtotal['.heap']))
+                            str(self.mem_summary['heap']))
 
-        if subtotal['.stack'] == 0:
+        if self.mem_summary['stack'] == 0:
             file_desc.write("Allocated Stack: unknown\n")
         else:
             file_desc.write("Allocated Stack: %s bytes\n" %
-                            str(subtotal['.stack']))
+                            str(self.mem_summary['stack']))
 
         file_desc.write("Total Static RAM memory (data + bss): %s bytes\n" %
-                        (str(subtotal['.data'] + subtotal['.bss'])))
+                        (str(self.mem_summary['static_ram'])))
         file_desc.write(
             "Total RAM memory (data + bss + heap + stack): %s bytes\n"
-            % (str(subtotal['.data'] + subtotal['.bss'] + subtotal['.heap'] +
-                   subtotal['.stack'])))
+            % (str(self.mem_summary['total_ram'])))
         file_desc.write("Total Flash memory (text + data + misc): %s bytes\n" %
-                        (str(subtotal['.text'] + subtotal['.data'] +
-                             misc_flash_mem)))
+                        (str(self.mem_summary['total_flash'])))
 
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
+
+    def compute_report(self):
+        for k in self.sections:
+            self.subtotal[k] = 0
+
+        for i in sorted(self.modules):
+            for k in self.sections:
+                self.subtotal[k] += self.modules[i][k]
+
+        # Calculate misc flash sections
+        self.misc_flash_mem = 0
+        for i in self.modules:
+            for k in self.misc_flash_sections:
+                if self.modules[i][k]:
+                    self.misc_flash_mem += self.modules[i][k]
+
+        self.mem_summary = {
+            'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
+            'heap': (self.subtotal['.heap']),
+            'stack': (self.subtotal['.stack']),
+            'total_ram': (self.subtotal['.data'] + self.subtotal['.bss'] +
+                          self.subtotal['.heap']+self.subtotal['.stack']),
+            'total_flash': (self.subtotal['.text'] + self.subtotal['.data'] +
+                            self.misc_flash_mem),
+        }
+
+        self.mem_report = []
+        for i in sorted(self.modules):
+            self.mem_report.append({
+                "module":i,
+                "size":{
+                    k:self.modules[i][k] for k in self.print_sections
+                }
+            })
+
+        self.mem_report.append({
+            'summary': self.mem_summary
+        })
 
     def parse(self, mapfile, toolchain):
         """ Parse and decode map file depending on the toolchain
@@ -584,6 +589,9 @@ class MemapParser(object):
                     self.parse_map_file_iar(file_input)
                 else:
                     result = False
+            
+            self.compute_report()
+        
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             result = False
@@ -620,6 +628,8 @@ def main():
         ", ".join(MemapParser.export_formats))
 
     parser.add_argument('-v', '--version', action='version', version=version)
+    
+    parser.add_argument('-d', '--detailed', action='store_true', help='Displays the elements in "Misc" in a detailed fashion', required=False)
 
     # Parse/run command
     if len(sys.argv) <= 1:
@@ -630,7 +640,7 @@ def main():
     args = parser.parse_args()
 
     # Create memap object
-    memap = MemapParser()
+    memap = MemapParser(detailed_misc=args.detailed)
 
     # Parse and decode a map file
     if args.file and args.toolchain:

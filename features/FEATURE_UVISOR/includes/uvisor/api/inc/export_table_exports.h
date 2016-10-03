@@ -18,6 +18,7 @@
 #define __UVISOR_API_EXPORT_TABLE_EXPORTS_H__
 
 #include "rt_OsEventObserver.h"
+#include "api/inc/pool_queue_exports.h"
 #include <stdint.h>
 
 /* If this magic doesn't match what you get in a TUvisorExportTable, then you
@@ -39,9 +40,21 @@ typedef struct {
 
     OsEventObserver os_event_observer;
 
+    UvisorPoolTable pool;
+
     /* This must be the last element of the table so that uvisor-input.S can
      * export the size statically. */
     uint32_t size;
 } TUvisorExportTable;
+
+static inline TUvisorExportTable const * uvisor_export_table(void)
+{
+    /* Defined in uvisor-input.S */
+    extern uint32_t uvisor_config;
+    extern uint32_t uvisor_export_table_size;
+
+    uintptr_t uvisor_config_addr = (uintptr_t) &uvisor_config;
+    return (TUvisorExportTable *) (uvisor_config_addr - uvisor_export_table_size);
+}
 
 #endif

@@ -63,7 +63,11 @@ class IAREmbeddedWorkbench(Exporter):
 
         project_data['misc'] = self.flags
         # VLA is enabled via template IccAllowVLA
-        project_data['misc']['c_flags'].remove("--vla")
+        if "--vla" in  project_data['misc']['c_flags']:
+            project_data['misc']['c_flags'].remove("--vla")
+        # Static destruction enabled via template
+        if "--no_static_destruction" in project_data['misc']['cxx_flags']:
+            project_data['misc']['cxx_flags'].remove("--no_static_destruction")
         project_data['misc']['asm_flags'] = list(set(project_data['misc']['asm_flags']))
         project_data['build_dir'] = os.path.join(project_data['build_dir'], 'iar_arm')
         self.progen_gen_file(project_data)

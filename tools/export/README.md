@@ -1107,7 +1107,7 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
     </tr>
     <tr>
-        <td>UBLOX_C029</td>
+        <td>UBLOX_EVK_ODIN_W2</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>

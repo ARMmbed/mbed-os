@@ -81,7 +81,7 @@ rsync:
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)
 
-TARGET_M%: $(TARGET_SUPPORTED)/*/*/*_m%_*.a
+TARGET_M%: $(TARGET_SUPPORTED)/*/*/*_cortex_m%*.a
 	@printf "#\n# Copying $@ files...\n"
 	mkdir $(foreach file,$^,$(dir $(file))$@)
 	$(foreach file,$^,mv $(file) $(dir $(file))$@/lib$(notdir $(file));)

@@ -234,7 +234,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 /*! @brief      Callback when an error occurs inside the SoftDevice */
 void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name)
 {
-    ASSERT(false, (void) 0);
+    ASSERT_TRUE(false, (void) 0);
 }
 
 /*!
