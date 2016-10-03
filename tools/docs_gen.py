@@ -2,6 +2,7 @@
 """
 
 from os.path import dirname, join
+from os import sep
 
 import subprocess
 
@@ -12,6 +13,7 @@ def generate_documentation(dirs, output_dir):
     dirs - the directories that doxygen should scan for documentation
     output_dir - location of the documentation after the return of this function
     """
+    print dirs
     with open(join(dirname(__file__), "Doxyfile")) as doxyfile:
         proc = subprocess.Popen(["doxygen", "-"], stdin=subprocess.PIPE)
         proc.stdin.write(doxyfile.read())
@@ -32,17 +34,20 @@ if __name__ == "__main__":
     toolchain = GCC_ARM(TARGET_MAP["Super_Target"])
     resources = toolchain.scan_resources(".")
     for src in resources.headers:
-        with open(src) as fd:
-            contents = fd.read()
-        with open(src, "w+") as fd:
-            fd.write("/** \\addtogroup feature_mbed_os */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(contents))
+        if len(src.split(sep)) > 2:
+            name = src.split(sep)[1]
+            if name == "features":
+                name = src.split(sep)[2]
+            with open(src) as fd:
+                contents = fd.read()
+            with open(src, "w+") as fd:
+                fd.write("/** \\addtogroup {:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(name,contents))
     for name, res in resources.features.iteritems():
         for src in res.headers:
             with open(src) as fd:
                 contents = fd.read()
             with open(src, "w+") as fd:
-                fd.write("/** \\addtogroup feature_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(name.lower(),contents))
+                fd.write("/** \\addtogroup FEATURE_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(name,contents))
 
-    generate_documentation(sum(map(lambda x:x.headers, resources.features.values()), resources.headers),
+    generate_documentation(filter(lambda x: "targets" not in x, sum(map(lambda x:x.headers, resources.features.values()), resources.headers)),
                            join(dirname(dirname(__file__)), "mbed-docs"))
-    print resources
