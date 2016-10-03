@@ -3,7 +3,7 @@ import sys
 import os
 from string import printable
 from copy import deepcopy
-from mock import MagicMock
+from mock import MagicMock, patch
 from hypothesis import given
 from hypothesis.strategies import text, lists, fixed_dictionaries
 
@@ -37,16 +37,17 @@ def test_toolchain_profile_c(profile, source_file):
     filename = deepcopy(source_file)
     filename[-1] += ".c"
     to_compile = os.path.join(*filename)
-    for _, tc_class in TOOLCHAIN_CLASSES.items():
-        toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
-        toolchain.inc_md5 = ""
-        toolchain.build_dir = ""
-        compile_command = toolchain.compile_command(to_compile,
-                                                    to_compile + ".o", [])
-        for parameter in profile['c'] + profile['common']:
-            assert any(parameter in cmd for cmd in compile_command), \
-                "Toolchain %s did not propigate arg %s" % (toolchain.name,
-                                                           parameter)
+    with patch('os.mkdir') as _mkdir:
+        for _, tc_class in TOOLCHAIN_CLASSES.items():
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain.inc_md5 = ""
+            toolchain.build_dir = ""
+            compile_command = toolchain.compile_command(to_compile,
+                                                        to_compile + ".o", [])
+            for parameter in profile['c'] + profile['common']:
+                assert any(parameter in cmd for cmd in compile_command), \
+                    "Toolchain %s did not propigate arg %s" % (toolchain.name,
+                                                            parameter)
 
 @given(fixed_dictionaries({
     'common': lists(text()),
@@ -61,16 +62,17 @@ def test_toolchain_profile_cpp(profile, source_file):
     filename = deepcopy(source_file)
     filename[-1] += ".cpp"
     to_compile = os.path.join(*filename)
-    for _, tc_class in TOOLCHAIN_CLASSES.items():
-        toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
-        toolchain.inc_md5 = ""
-        toolchain.build_dir = ""
-        compile_command = toolchain.compile_command(to_compile,
-                                                    to_compile + ".o", [])
-        for parameter in profile['cxx'] + profile['common']:
-            assert any(parameter in cmd for cmd in compile_command), \
-                "Toolchain %s did not propigate arg %s" % (toolchain.name,
-                                                           parameter)
+    with patch('os.mkdir') as _mkdir:
+        for _, tc_class in TOOLCHAIN_CLASSES.items():
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain.inc_md5 = ""
+            toolchain.build_dir = ""
+            compile_command = toolchain.compile_command(to_compile,
+                                                        to_compile + ".o", [])
+            for parameter in profile['cxx'] + profile['common']:
+                assert any(parameter in cmd for cmd in compile_command), \
+                    "Toolchain %s did not propigate arg %s" % (toolchain.name,
+                                                            parameter)
 
 @given(fixed_dictionaries({
     'common': lists(text()),
@@ -85,18 +87,19 @@ def test_toolchain_profile_asm(profile, source_file):
     filename = deepcopy(source_file)
     filename[-1] += ".s"
     to_compile = os.path.join(*filename)
-    for _, tc_class in TOOLCHAIN_CLASSES.items():
-        toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
-        toolchain.inc_md5 = ""
-        toolchain.build_dir = ""
-        compile_command = toolchain.compile_command(to_compile,
-                                                    to_compile + ".o", [])
-        if not compile_command:
-            assert compile_command, to_compile
-        for parameter in profile['asm']:
-            assert any(parameter in cmd for cmd in compile_command), \
-                "Toolchain %s did not propigate arg %s" % (toolchain.name,
-                                                           parameter)
+    with patch('os.mkdir') as _mkdir:
+        for _, tc_class in TOOLCHAIN_CLASSES.items():
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain.inc_md5 = ""
+            toolchain.build_dir = ""
+            compile_command = toolchain.compile_command(to_compile,
+                                                        to_compile + ".o", [])
+            if not compile_command:
+                assert compile_command, to_compile
+            for parameter in profile['asm']:
+                assert any(parameter in cmd for cmd in compile_command), \
+                    "Toolchain %s did not propigate arg %s" % (toolchain.name,
+                                                            parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
         CLS = Class(TARGET_MAP["K64F"])
