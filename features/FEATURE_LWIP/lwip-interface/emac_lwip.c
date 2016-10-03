@@ -33,11 +33,6 @@ static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
     return ret ? ERR_OK : ERR_IF;
 }
 
-static err_t emac_lwip_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
-{
-    return etharp_output(netif, q, ipaddr);
-}
-
 static void emac_lwip_input(void *data, emac_stack_t *buf)
 {
     struct eth_hdr *ethhdr;
@@ -81,7 +76,10 @@ err_t emac_lwip_if_init(struct netif *netif)
 
     mac->ops.get_ifname(mac, netif->name, 2);
 
-    netif->output = emac_lwip_output;
+#if LWIP_IPV4
+    netif->output = etharp_output;
+#endif /* LWIP_IPV4 */
+
     netif->linkoutput = emac_lwip_low_level_output;
 
     if (!mac->ops.power_up(mac)) {

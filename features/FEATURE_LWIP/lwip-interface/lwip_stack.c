@@ -35,6 +35,14 @@
 
 #include "emac_api.h"
 
+#if DEVICE_EMAC
+    #define NETIF_INIT_FN emac_lwip_if_init
+#else
+    #define NETIF_INIT_FN eth_arch_enetif_init
+#endif
+
+#define DHCP_TIMEOUT 15000
+
 /* Static arena of sockets */
 static struct lwip_socket {
     bool in_use;
@@ -352,6 +360,47 @@ char *lwip_get_gateway(char *buf, int buflen)
 #endif
 }
 
+int lwip_start_dhcp(unsigned int timeout)
+{
+    err_t err = 0;
+#if LWIP_IPV4
+    err = dhcp_start(&lwip_netif);
+    if (err) {
+        return NSAPI_ERROR_DHCP_FAILURE;
+    }
+#endif
+
+#if DEVICE_EMAC
+    // If doesn't have address
+    if (!lwip_get_ip_addr(true, &lwip_netif)) {
+        err = sys_arch_sem_wait(&lwip_netif_has_addr, timeout);
+        if (err == SYS_ARCH_TIMEOUT) {
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+        lwip_connected = true;
+    }
+#endif /* DEVICE_EMAC */
+
+    return err;
+}
+
+int lwip_start_static_ip(const char *ip, const char *netmask, const char *gw)
+{
+
+#if LWIP_IPV4
+    ip4_addr_t ip_addr;
+    ip4_addr_t netmask_addr;
+    ip4_addr_t gw_addr;
+
+    if (!inet_aton(ip, &ip_addr) ||
+        !inet_aton(netmask, &netmask_addr) ||
+        !inet_aton(gw, &gw_addr)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
+#endif
+}
 
 int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
@@ -373,23 +422,14 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
         sys_arch_sem_wait(&lwip_tcpip_inited, 0);
 
         memset(&lwip_netif, 0, sizeof lwip_netif);
-#if DEVICE_EMAC
         if (!netif_add(&lwip_netif,
 #if LWIP_IPV4
                 0, 0, 0,
 #endif
-                emac, emac_lwip_if_init, tcpip_input)) {
+                emac, NETIF_INIT_FN, tcpip_input)) {
             return -1;
         }
-#else /* DEVICE_EMAC */
-        if (!netif_add(&lwip_netif,
-#if LWIP_IPV4
-                0, 0, 0,
-#endif
-                NULL, eth_arch_enetif_init, tcpip_input)) {
-            return -1;
-        }
-#endif /* DEVICE_EMAC */
+
         netif_set_default(&lwip_netif);
 
         netif_set_link_callback  (&lwip_netif, lwip_netif_link_irq);
@@ -435,47 +475,26 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
         }
     }
 
-#if LWIP_IPV4
+#if !DEVICE_EMAC
     if (!dhcp) {
-        ip4_addr_t ip_addr;
-        ip4_addr_t netmask_addr;
-        ip4_addr_t gw_addr;
-
-        if (!inet_aton(ip, &ip_addr) ||
-            !inet_aton(netmask, &netmask_addr) ||
-            !inet_aton(gw, &gw_addr)) {
-            return NSAPI_ERROR_PARAMETER;
-        }
-
-        netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
+        lwip_start_static_ip(ip, netmask, gw);
     }
-#endif
 
     netif_set_up(&lwip_netif);
 
-#if !DEVICE_EMAC
-#if LWIP_IPV4
-    // Connect to the network
     lwip_dhcp = dhcp;
-
-    if (lwip_dhcp) {
-        err_t err = dhcp_start(&lwip_netif);
-        if (err) {
-            return NSAPI_ERROR_DHCP_FAILURE;
-        }
+    if (dhcp) {
+        lwip_start_dhcp(DHCP_TIMEOUT);
     }
-#endif
 
     // If doesn't have address
     if (!lwip_get_ip_addr(true, &lwip_netif)) {
-        //ret = sys_arch_sem_wait(&lwip_netif_has_addr, 15000);
-        ret = sys_arch_sem_wait(&lwip_netif_has_addr, 30000);
+        ret = sys_arch_sem_wait(&lwip_netif_has_addr, DHCP_TIMEOUT);
         if (ret == SYS_ARCH_TIMEOUT) {
             return NSAPI_ERROR_DHCP_FAILURE;
         }
         lwip_connected = true;
     }
-#endif /* DEVICE_EMAC */
 
 #if ADDR_TIMEOUT
     // If address is not for preferred stack waits a while to see
@@ -484,6 +503,8 @@ int lwip_bringup(emac_interface_t *emac, bool dhcp, const char *ip, const char *
         ret = sys_arch_sem_wait(&lwip_netif_has_addr, ADDR_TIMEOUT * 1000);
     }
 #endif
+
+#endif /* DEVICE_EMAC */
 
 #if LWIP_IPV6
     add_dns_addr(&lwip_netif);
@@ -535,46 +556,6 @@ static int lwip_err_remap(err_t err) {
         default:
             return NSAPI_ERROR_DEVICE_ERROR;
     }
-}
-
-int lwip_start_dhcp(unsigned int timeout)
-{
-    err_t err = NSAPI_ERROR_DNS_FAILURE;
-#if LWIP_IPV4
-    err = dhcp_start(&lwip_netif);
-    if (err) {
-        return NSAPI_ERROR_DHCP_FAILURE;
-    }
-#endif
-
-    // If doesn't have address
-    if (!lwip_get_ip_addr(true, &lwip_netif)) {
-        err = sys_arch_sem_wait(&lwip_netif_has_addr, timeout);
-        if (err == SYS_ARCH_TIMEOUT) {
-            return NSAPI_ERROR_DHCP_FAILURE;
-        }
-        lwip_connected = true;
-    }
-    return err;
-}
-
-int lwip_start_static_ip(const char *ip, const char *netmask, const char *gw)
-{
-
-#if LWIP_IPV4
-    ip4_addr_t ip_addr;
-    ip4_addr_t netmask_addr;
-    ip4_addr_t gw_addr;
-
-    if (!inet_aton(ip, &ip_addr) ||
-        !inet_aton(netmask, &netmask_addr) ||
-        !inet_aton(gw, &gw_addr)) {
-        return NSAPI_ERROR_PARAMETER;
-    }
-
-    netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
-#endif
-
 }
 
 /* LWIP network stack implementation */
