@@ -36,12 +36,14 @@ from tools.test_api import find_tests
 from tools.project import export
 from Queue import Queue
 from threading import Thread, Lock
-from tools.project_api import print_results
+from tools.project_api import print_results, get_exporter_toolchain
 from tools.tests import test_name_known, test_known, Test
 from tools.export.exporters import FailedBuildException, \
                                    TargetNotSupportedException
 from tools.utils import argparse_force_lowercase_type, \
-                        argparse_many, columnate, args_error
+                        argparse_many, columnate, args_error, \
+                        argparse_filestring_type
+from tools.options import extract_profile
 
 print_lock = Lock()
 
@@ -72,13 +74,15 @@ class Reader (Thread) :
 
 class ExportBuildTest(object):
     """Object to encapsulate logic for progen build testing"""
-    def __init__(self, tests):
+    def __init__(self, tests, parser, options):
         """
         Initialize an instance of class ProgenBuildTest
         Args:
             tests: array of TestCase instances
         """
         self.total = len(tests)
+        self.parser = parser
+        self.options = options
         self.counter = 0
         self.successes = []
         self.failures = []
@@ -155,11 +159,13 @@ class ExportBuildTest(object):
                                                                   test_case.name))
 
         try:
+            _, toolchain = get_exporter_toolchain(test_case.ide)
+            profile = extract_profile(self.parser, self.options, toolchain)
             exporter = export(test_case.mcu, test_case.ide,
                               project_id=test_case.id, zip_proj=None,
                               clean=True, src=test_case.src,
                               export_path=join(EXPORT_DIR,name_str),
-                              silent=True)
+                              silent=True, build_profile=profile)
             exporter.generated_files.append(join(EXPORT_DIR,name_str,test_case.log))
             self.build_queue.put((exporter,test_case))
         except TargetNotSupportedException:
@@ -243,6 +249,12 @@ def main():
                         help="Which version of mbed to test",
                         default=RELEASE_VERSIONS[-1])
 
+    parser.add_argument("--profile",
+                        dest="profile",
+                        action="append",
+                        type=argparse_filestring_type,
+                        default=[])
+
     options = parser.parse_args()
     # targets in chosen release
     targetnames = [target[0] for target in
@@ -273,7 +285,7 @@ def main():
             for test in v5_tests:
                 default_test.update({'name':test[0],'src':[test[1],ROOT]})
                 tests.append(copy(default_test))
-    test = ExportBuildTest(tests)
+    test = ExportBuildTest(tests, parser, options)
     test.batch_tests(clean=options.clean)
     print_results(test.successes, test.failures, test.skips)
     sys.exit(len(test.failures))
