@@ -105,12 +105,27 @@
 
 #define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
 
+#ifndef PBUF_POOL_SIZE
 #define PBUF_POOL_SIZE              5
+#endif
+#ifndef MEMP_NUM_TCP_PCB_LISTEN
 #define MEMP_NUM_TCP_PCB_LISTEN     4
+#endif
+#ifndef MEMP_NUM_TCP_PCB
 #define MEMP_NUM_TCP_PCB            4
+#endif
+#ifndef MEMP_NUM_UDP_PCB
 #define MEMP_NUM_UDP_PCB            4
+#endif
+#ifndef MEMP_NUM_PBUF
 #define MEMP_NUM_PBUF               8
+#endif
+#ifndef MEMP_NUM_NETBUF
 #define MEMP_NUM_NETBUF             8
+#endif
+#ifndef MEMP_NUM_NETCONN
+#define MEMP_NUM_NETCONN            4
+#endif
 
 #define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0
