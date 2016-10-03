@@ -29,24 +29,6 @@ class IAR(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
-    # ANY changes to these default flags is backwards incompatible and require
-    # an update to the mbed-sdk-tools and website that introduces a profile
-    # for the previous version of these flags
-    DEFAULT_FLAGS = {
-        'common': [
-            "--no_wrap_diagnostics",
-            # Pa050: No need to be notified about "non-native end of line sequence"
-            # Pa084: Pointless integer comparison -> checks for the values of an enum, but we use values outside of the enum to notify errors (ie: NC).
-            # Pa093: Implicit conversion from float to integer (ie: wait_ms(85.4) -> wait_ms(85))
-            # Pa082: Operation involving two values from two registers (ie: (float)(*obj->MR)/(float)(LPC_PWM1->MR0))
-            "-e", # Enable IAR language extension
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
-        'asm': [],
-        'c': ["--vla"],
-        'cxx': ["--guard_calls", "--no_static_destruction"],
-        'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
-    }
-
     @staticmethod
     def check_executable():
         """Returns True if the executable (arm-none-eabi-gcc) location
@@ -54,8 +36,11 @@ class IAR(mbedToolchain):
         Returns False otherwise."""
         return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        mbedToolchain.__init__(self, target, notify, macros, silent,
+                               extra_verbose=extra_verbose,
+                               build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
         else:
@@ -94,12 +79,6 @@ class IAR(mbedToolchain):
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
 
-        if "debug-info" in self.options:
-            c_flags_cmd.append("-r")
-            c_flags_cmd.append("-On")
-        else:
-            c_flags_cmd.append("-Oh")
-
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
@@ -123,6 +102,7 @@ class IAR(mbedToolchain):
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
+                    msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
@@ -142,6 +122,9 @@ class IAR(mbedToolchain):
                     msg = None
                 else:
                     msg['text'] += line+"\n"
+
+        if msg is not None:
+            self.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)

@@ -24,23 +24,26 @@ from tools.settings import ROOT, BUILD_DIR
 BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 
 # Embedded Libraries Sources
-LIB_DIR = join(ROOT, "libraries")
+LIB_DIR = join(ROOT, "features/unsupported")
 
 TOOLS = join(ROOT, "tools")
 TOOLS_DATA = join(TOOLS, "data")
 TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
 # mbed libraries
-MBED_BASE = join(ROOT, "hal")
+MBED_HEADER = join(ROOT, "mbed.h")
+MBED_DRIVERS = join(ROOT, "drivers")
+MBED_PLATFORM = join(ROOT, "platform")
+MBED_HAL = join(ROOT, "hal")
 
-MBED_API = join(MBED_BASE, "api")
-MBED_COMMON = join(MBED_BASE, "common")
-MBED_HAL = join(MBED_BASE, "hal")
-MBED_TARGETS_PATH = join(MBED_BASE, "targets")
+MBED_TARGETS_PATH = join(ROOT, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
+MBED_LIBRARIES_DRIVERS = join(MBED_LIBRARIES, "drivers")
+MBED_LIBRARIES_PLATFORM = join(MBED_LIBRARIES, "platform")
+MBED_LIBRARIES_HAL = join(MBED_LIBRARIES, "hal")
 
-MBED_CONFIG_FILE = join(ROOT, "mbed_lib.json")
+MBED_CONFIG_FILE = join(ROOT, "platform/mbed_lib.json")
 
 # Tests
 TEST_DIR = join(LIB_DIR, "tests")
@@ -54,7 +57,6 @@ RPC_LIBRARY = join(BUILD_DIR, "rpc")
 # mbed RTOS
 RTOS = join(ROOT, "rtos")
 MBED_RTX = join(RTOS, "rtx")
-RTOS_ABSTRACTION = join(RTOS, "rtos")
 
 RTOS_LIBRARIES = join(BUILD_DIR, "rtos")
 
