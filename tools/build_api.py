@@ -25,8 +25,8 @@ from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException
-from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_HEADER,\
-    MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
+from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
+    MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
     MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
     BUILD_DIR
 from tools.targets import TARGET_NAMES, TARGET_MAP
@@ -892,7 +892,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         # CMSIS
         toolchain.info("Building library %s (%s, %s)" %
                        ('CMSIS', target.name, toolchain_name))
-        cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+        cmsis_src = MBED_CMSIS_PATH
         resources = toolchain.scan_resources(cmsis_src)
 
         toolchain.copy_files(resources.headers, build_target)
@@ -1154,7 +1154,7 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
     # CMSIS
     toolchain.info("Static analysis for %s (%s, %s)" %
                    ('CMSIS', target.name, toolchain_name))
-    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+    cmsis_src = MBED_CMSIS_PATH
     resources = toolchain.scan_resources(cmsis_src)
 
     # Copy files before analysis
