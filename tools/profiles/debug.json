@@ -25,7 +25,7 @@
     "uARM": {
         "common": ["-c", "--gnu", "-Otime", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
-                   "--multibyte_chars", "-O0", "-D__MICROLIB", "-g"
+                   "--multibyte_chars", "-O0", "-D__MICROLIB", "-g",
                    "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD"],
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
