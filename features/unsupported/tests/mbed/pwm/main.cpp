@@ -157,7 +157,7 @@ int main() {
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
 
     notify_completion(result == value ? true : false);
-#elif defined(TARGET_UBLOX_C029)
+#elif defined(TARGET_UBLOX_EVK_ODIN_W2)
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);

@@ -336,7 +336,7 @@ $ python build.py -S
 | ARCH_BLE                |  Default  |     -     | Supported | Supported |     -     |
 | ARCH_GPRS               | Supported |  Default  | Supported | Supported | Supported |
 ...
-| UBLOX_C029              | Supported |  Default  | Supported | Supported |     -     |
+| UBLOX_EVK_ODIN_W2       | Supported |  Default  | Supported | Supported |     -     |
 | WALLBOT_BLE             |  Default  |     -     | Supported | Supported |     -     |
 | XADOW_M0                | Supported |  Default  | Supported | Supported | Supported |
 +-------------------------+-----------+-----------+-----------+-----------+-----------+
