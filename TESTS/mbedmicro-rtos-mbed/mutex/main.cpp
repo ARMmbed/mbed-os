@@ -34,6 +34,8 @@
     #define STACK_SIZE 1536
 #elif defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
     #define STACK_SIZE 1024
+#elif defined(TARGET_XDOT_L151CC)
+    #define STACK_SIZE 1024
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif

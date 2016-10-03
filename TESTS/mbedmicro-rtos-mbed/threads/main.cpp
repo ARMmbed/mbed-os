@@ -23,6 +23,8 @@
     #define STACK_SIZE 512
 #elif defined(TARGET_STM32L073RZ)
     #define STACK_SIZE 512
+#elif defined(TARGET_XDOT_L151CC)
+    #define STACK_SIZE 1024
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
