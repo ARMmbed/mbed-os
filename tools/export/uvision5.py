@@ -83,11 +83,14 @@ class Uvision5(Exporter):
                                                    + self.flags['c_flags']
                                                    + self.flags['cxx_flags']))
         # not compatible with c99 flag set in the template
-        project_data['misc']['c_flags'].remove("--c99")
+        try:project_data['misc']['c_flags'].remove("--c99")
+        except ValueError: pass
         # cpp is not required as it's implicit for cpp files
-        project_data['misc']['c_flags'].remove("--cpp")
-        # we want no-vla for only cxx, but it's also applied for C in IDE, thus we remove it
-        project_data['misc']['c_flags'].remove("--no_vla")
+        try:project_data['misc']['c_flags'].remove("--cpp")
+        except ValueError: pass
+        # we want no-vla for only cxx, but it's also applied for C in IDE, thus we remove it=
+        try:project_data['misc']['c_flags'].remove("--no_vla")
+        except ValueError: pass
         project_data['misc']['ld_flags'] = self.flags['ld_flags']
 
         i = 0
