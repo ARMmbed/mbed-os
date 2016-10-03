@@ -28,6 +28,10 @@ import json
 from collections import OrderedDict
 import logging
 
+def remove_if_in(lst, thing):
+    if thing in lst:
+        lst.remove(thing)
+
 def compile_worker(job):
     """Standard task runner used for compiling
 
