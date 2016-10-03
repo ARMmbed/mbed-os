@@ -96,6 +96,14 @@ emac_stack_mem_t *emac_stack_mem_chain_dequeue(emac_stack_t* stack, emac_stack_m
  */
 uint32_t emac_stack_mem_chain_len(emac_stack_t* stack, emac_stack_mem_chain_t *chain);
 
+/**
+ * Increases the reference counter for the memory
+ *
+ * @param  stack Emac stack context
+ * @param  mem   Memory structure
+ */
+void emac_stack_mem_ref(emac_stack_t* stack, emac_stack_mem_t *mem);
+
 #endif /* DEVICE_EMAC */
 
 #endif /* EMAC_MBED_STACK_MEM_h */
