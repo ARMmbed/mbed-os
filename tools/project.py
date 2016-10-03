@@ -10,7 +10,7 @@ from shutil import move, rmtree
 from argparse import ArgumentParser
 from os.path import normpath, realpath
 
-from tools.paths import EXPORT_DIR, MBED_BASE, MBED_LIBRARIES
+from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES
 from tools.export import EXPORTERS, mcu_ide_matrix
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
@@ -18,7 +18,7 @@ from tools.targets import TARGET_NAMES
 from tools.utils import argparse_filestring_type, argparse_many, args_error
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
-from tools.project_api import export_project
+from tools.project_api import export_project, get_exporter_toolchain
 from tools.options import extract_profile
 
 
@@ -53,7 +53,8 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
             # Substitute the mbed library builds with their sources
             if MBED_LIBRARIES in test.dependencies:
                 test.dependencies.remove(MBED_LIBRARIES)
-                test.dependencies.append(MBED_BASE)
+                test.dependencies.append(MBED_HAL)
+
 
         src_paths = [test.source_dir]
         lib_paths = test.dependencies
