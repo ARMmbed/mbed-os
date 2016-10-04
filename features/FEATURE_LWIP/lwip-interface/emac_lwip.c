@@ -35,7 +35,6 @@ static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
 
 static void emac_lwip_input(void *data, emac_stack_t *buf)
 {
-    struct eth_hdr *ethhdr;
     struct pbuf *p = (struct pbuf *)buf;
     struct netif *netif = (struct netif *)data;
 

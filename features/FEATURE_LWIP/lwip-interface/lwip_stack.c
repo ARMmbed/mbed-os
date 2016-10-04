@@ -513,6 +513,10 @@ int mbed_lwip_bringdown(void)
         netif_set_down(&lwip_netif);
     }
 #endif
+
+    lwip_connected = false;
+    // TO DO - actually remove addresses from stack, and shut down properly
+    return 0;
 }
 
 /* LWIP error remapping */
