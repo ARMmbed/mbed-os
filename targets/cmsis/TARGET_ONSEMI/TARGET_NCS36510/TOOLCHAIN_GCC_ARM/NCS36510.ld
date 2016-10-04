@@ -205,7 +205,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*);
-        . += 0x4000;
+        . += 0x800;
         __HeapLimit = .;
     } > RAM
     PROVIDE(__heap_size = SIZEOF(.heap));
