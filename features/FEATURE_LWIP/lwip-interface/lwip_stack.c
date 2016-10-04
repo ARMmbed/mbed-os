@@ -337,7 +337,7 @@ const char *mbed_lwip_get_netmask(char *buf, int buflen)
 #if LWIP_IPV4
     const ip4_addr_t *addr = netif_ip4_netmask(&lwip_netif);
     if (!ip4_addr_isany(addr)) {
-        return inet_ntoa_r(addr, buf, buflen);
+        return ip4addr_ntoa_r(addr, buf, buflen);
     } else {
         return NULL;
     }
@@ -351,7 +351,7 @@ char *mbed_lwip_get_gateway(char *buf, int buflen)
 #if LWIP_IPV4
     const ip4_addr_t *addr = netif_ip4_gw(&lwip_netif);
     if (!ip4_addr_isany(addr)) {
-        return inet_ntoa_r(addr, buf, buflen);
+        return ip4addr_ntoa_r(addr, buf, buflen);
     } else {
         return NULL;
     }

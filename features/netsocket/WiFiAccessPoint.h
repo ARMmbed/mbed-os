@@ -29,6 +29,7 @@ class WiFiAccessPoint
 {
     /** WiFiAccessPoint lifetime
      */
+public:
     WiFiAccessPoint();
     WiFiAccessPoint(nsapi_wifi_ap_t ap);
 

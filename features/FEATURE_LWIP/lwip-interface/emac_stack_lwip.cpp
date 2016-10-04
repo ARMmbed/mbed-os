@@ -80,4 +80,9 @@ uint32_t emac_stack_mem_chain_len(emac_stack_t* stack, emac_stack_mem_chain_t *c
     return ((struct pbuf*)chain)->tot_len;
 }
 
+void emac_stack_mem_ref(emac_stack_t* stack, emac_stack_mem_t *mem)
+{
+    pbuf_ref((struct pbuf*)mem);
+}
+
 #endif /* DEVICE_EMAC */

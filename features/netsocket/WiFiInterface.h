@@ -69,7 +69,7 @@ public:
      */
     virtual int connect(const char *ssid, const char *pass,
             nsapi_security_t security = NSAPI_SECURITY_NONE,
-            uint8_t channel = 0);
+            uint8_t channel = 0) = 0;
 
     /** Start the interface
      *
