@@ -707,29 +707,31 @@ private:
     // Generate operations for function object
     template <typename F>
     void generate(const F &f) {
-        struct local {
-            static R call(const void *p) {
-                return (*(F*)p)();
-            }
-
-            static void move(void *d, const void *p) {
-                new (d) F(*(F*)p);
-            }
-
-            static void dtor(void *p) {
-                ((F*)p)->~F();
-            }
-        };
-
         static const ops ops = {
-            &local::call,
-            &local::move,
-            &local::dtor,
+            &Callback::function_call<F>,
+            &Callback::function_move<F>,
+            &Callback::function_dtor<F>,
         };
 
         MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
         new (this) F(f);
         _ops = &ops;
+    }
+
+    // Function attributes
+    template <typename F>
+    static R function_call(const void *p) {
+        return (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_move(void *d, const void *p) {
+        new (d) F(*(F*)p);
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
     }
 
     // Wrappers for functions with context
@@ -1411,29 +1413,31 @@ private:
     // Generate operations for function object
     template <typename F>
     void generate(const F &f) {
-        struct local {
-            static R call(const void *p, A0 a0) {
-                return (*(F*)p)(a0);
-            }
-
-            static void move(void *d, const void *p) {
-                new (d) F(*(F*)p);
-            }
-
-            static void dtor(void *p) {
-                ((F*)p)->~F();
-            }
-        };
-
         static const ops ops = {
-            &local::call,
-            &local::move,
-            &local::dtor,
+            &Callback::function_call<F>,
+            &Callback::function_move<F>,
+            &Callback::function_dtor<F>,
         };
 
         MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
         new (this) F(f);
         _ops = &ops;
+    }
+
+    // Function attributes
+    template <typename F>
+    static R function_call(const void *p, A0 a0) {
+        return (*(F*)p)(a0);
+    }
+
+    template <typename F>
+    static void function_move(void *d, const void *p) {
+        new (d) F(*(F*)p);
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
     }
 
     // Wrappers for functions with context
@@ -2115,29 +2119,31 @@ private:
     // Generate operations for function object
     template <typename F>
     void generate(const F &f) {
-        struct local {
-            static R call(const void *p, A0 a0, A1 a1) {
-                return (*(F*)p)(a0, a1);
-            }
-
-            static void move(void *d, const void *p) {
-                new (d) F(*(F*)p);
-            }
-
-            static void dtor(void *p) {
-                ((F*)p)->~F();
-            }
-        };
-
         static const ops ops = {
-            &local::call,
-            &local::move,
-            &local::dtor,
+            &Callback::function_call<F>,
+            &Callback::function_move<F>,
+            &Callback::function_dtor<F>,
         };
 
         MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
         new (this) F(f);
         _ops = &ops;
+    }
+
+    // Function attributes
+    template <typename F>
+    static R function_call(const void *p, A0 a0, A1 a1) {
+        return (*(F*)p)(a0, a1);
+    }
+
+    template <typename F>
+    static void function_move(void *d, const void *p) {
+        new (d) F(*(F*)p);
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
     }
 
     // Wrappers for functions with context
@@ -2819,29 +2825,31 @@ private:
     // Generate operations for function object
     template <typename F>
     void generate(const F &f) {
-        struct local {
-            static R call(const void *p, A0 a0, A1 a1, A2 a2) {
-                return (*(F*)p)(a0, a1, a2);
-            }
-
-            static void move(void *d, const void *p) {
-                new (d) F(*(F*)p);
-            }
-
-            static void dtor(void *p) {
-                ((F*)p)->~F();
-            }
-        };
-
         static const ops ops = {
-            &local::call,
-            &local::move,
-            &local::dtor,
+            &Callback::function_call<F>,
+            &Callback::function_move<F>,
+            &Callback::function_dtor<F>,
         };
 
         MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
         new (this) F(f);
         _ops = &ops;
+    }
+
+    // Function attributes
+    template <typename F>
+    static R function_call(const void *p, A0 a0, A1 a1, A2 a2) {
+        return (*(F*)p)(a0, a1, a2);
+    }
+
+    template <typename F>
+    static void function_move(void *d, const void *p) {
+        new (d) F(*(F*)p);
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
     }
 
     // Wrappers for functions with context
@@ -3523,29 +3531,31 @@ private:
     // Generate operations for function object
     template <typename F>
     void generate(const F &f) {
-        struct local {
-            static R call(const void *p, A0 a0, A1 a1, A2 a2, A3 a3) {
-                return (*(F*)p)(a0, a1, a2, a3);
-            }
-
-            static void move(void *d, const void *p) {
-                new (d) F(*(F*)p);
-            }
-
-            static void dtor(void *p) {
-                ((F*)p)->~F();
-            }
-        };
-
         static const ops ops = {
-            &local::call,
-            &local::move,
-            &local::dtor,
+            &Callback::function_call<F>,
+            &Callback::function_move<F>,
+            &Callback::function_dtor<F>,
         };
 
         MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
         new (this) F(f);
         _ops = &ops;
+    }
+
+    // Function attributes
+    template <typename F>
+    static R function_call(const void *p, A0 a0, A1 a1, A2 a2, A3 a3) {
+        return (*(F*)p)(a0, a1, a2, a3);
+    }
+
+    template <typename F>
+    static void function_move(void *d, const void *p) {
+        new (d) F(*(F*)p);
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
     }
 
     // Wrappers for functions with context
@@ -4227,29 +4237,31 @@ private:
     // Generate operations for function object
     template <typename F>
     void generate(const F &f) {
-        struct local {
-            static R call(const void *p, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
-                return (*(F*)p)(a0, a1, a2, a3, a4);
-            }
-
-            static void move(void *d, const void *p) {
-                new (d) F(*(F*)p);
-            }
-
-            static void dtor(void *p) {
-                ((F*)p)->~F();
-            }
-        };
-
         static const ops ops = {
-            &local::call,
-            &local::move,
-            &local::dtor,
+            &Callback::function_call<F>,
+            &Callback::function_move<F>,
+            &Callback::function_dtor<F>,
         };
 
         MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
         new (this) F(f);
         _ops = &ops;
+    }
+
+    // Function attributes
+    template <typename F>
+    static R function_call(const void *p, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+        return (*(F*)p)(a0, a1, a2, a3, a4);
+    }
+
+    template <typename F>
+    static void function_move(void *d, const void *p) {
+        new (d) F(*(F*)p);
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
     }
 
     // Wrappers for functions with context
