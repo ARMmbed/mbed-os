@@ -123,6 +123,16 @@ const PinMap PinMap_UART_RX[] = {
     {NC,    NC,     0}
 };
 
+const PinMap PinMap_UART_RTS[] = {
+    {PA_12, UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_USART1)},
+    {NC,    NC,     0}
+};
+
+const PinMap PinMap_UART_CTS[] = {
+    {PA_11, UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_USART1)},
+    {NC,    NC,     0}
+};
+
 //*** SPI ***
 
 const PinMap PinMap_SPI_MOSI[] = {
