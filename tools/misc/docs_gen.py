@@ -35,7 +35,7 @@ if __name__ == "__main__":
     import sys
     from os.path import abspath, dirname, join
     # Be sure that the tools directory is in the search path
-    ROOT = abspath(join(dirname(__file__), ".."))
+    ROOT = abspath(join(dirname(__file__), "..", ".."))
     sys.path.insert(0, ROOT)
 
     from tools.toolchains.gcc import GCC_ARM
