@@ -58,7 +58,7 @@ typedef enum nsapi_security {
     NSAPI_SECURITY_WPA          = 0x2,      /*!< phrase conforms to WPA */
     NSAPI_SECURITY_WPA2         = 0x3,      /*!< phrase conforms to WPA2 */
     NSAPI_SECURITY_WPA_WPA2     = 0x4,      /*!< phrase conforms to WPA/WPA2 */
-    NSAPI_SECURITY_UNSSUPPORTED = 0xFF,     /*!< unknown/unsupported security in scan results */
+    NSAPI_SECURITY_UNSUPPORTED  = 0xFF,     /*!< unknown/unsupported security in scan results */
 } nsapi_security_t;
 
 /** Maximum size of IP address representation
