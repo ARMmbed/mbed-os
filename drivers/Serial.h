@@ -59,11 +59,25 @@ public:
      *
      *  @param tx Transmit pin
      *  @param rx Receive pin
+     *  @param name The name of the stream associated with this serial port (optional)
+     *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
      *
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
-    Serial(PinName tx, PinName rx, const char *name=NULL);
+    Serial(PinName tx, PinName rx, const char *name=NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+
+
+    /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
+     *
+     *  @param tx Transmit pin
+     *  @param rx Receive pin
+     *  @param baud The baud rate of the serial port
+     *
+     *  @note
+     *    Either tx or rx may be specified as NC if unused
+     */
+    Serial(PinName tx, PinName rx, int baud);
 
 protected:
     virtual int _getc();
