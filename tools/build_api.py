@@ -925,17 +925,20 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
                              hal_implementation.libraries +
                              [MBED_CONFIG_FILE],
                              build_target, resources=hal_implementation)
+        toolchain.copy_files(hal_implementation.linker_script, build_toolchain)
+        toolchain.copy_files(hal_implementation.bin_files, build_toolchain)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
         objects = toolchain.compile_sources(hal_implementation, tmp_path,
                                             library_incdirs + incdirs)
+        toolchain.copy_files(objects, build_toolchain)
 
         # Common Sources
         mbed_resources = None
         for dir in [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]:
             mbed_resources += toolchain.scan_resources(dir)
 
-        objects += toolchain.compile_sources(mbed_resources, tmp_path,
-                                             library_incdirs + incdirs)
+        objects = toolchain.compile_sources(mbed_resources, tmp_path,
+                                            library_incdirs + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
         # way the linker search for symbols in archives. These are:
