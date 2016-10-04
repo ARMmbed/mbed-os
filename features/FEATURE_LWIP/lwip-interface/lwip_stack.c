@@ -120,7 +120,8 @@ static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 #if !LWIP_IPV4
     /* For bind() and other purposes, need to accept "null" of other type */
     /* (People use IPv4 0.0.0.0 as a general null) */
-    if (in->version == NSAPI_IPv4 && all_zeros(in->bytes, 4)) {
+    if (in->version == NSAPI_UNSPEC ||
+        (in->version == NSAPI_IPv4 && all_zeros(in->bytes, 4))) {
         ip_addr_set_zero_ip6(out);
         return true;
     }
@@ -135,11 +136,23 @@ static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
     }
 #if !LWIP_IPV6
     /* For symmetry with above, accept IPv6 :: as a general null */
-    if (in->version == NSAPI_IPv6 && all_zeros(in->bytes, 16)) {
+    if (in->version == NSAPI_UNSPEC ||
+        (in->version == NSAPI_IPv6 && all_zeros(in->bytes, 16))) {
         ip_addr_set_zero_ip4(out);
         return true;
     }
 #endif
+#endif
+
+#if LWIP_IPV4 && LWIP_IPV6
+    if (in->version == NSAPI_UNSPEC) {
+#if IP_VERSION_PREF == PREF_IPV4
+        ip_addr_set_zero_ip4(out);
+#else
+        ip_addr_set_zero_ip6(out);
+#endif
+        return true;
+    }
 #endif
 
     return false;
