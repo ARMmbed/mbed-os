@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include "nsdynmemLIB.h"
+#include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
 #include "sn_coap_protocol.h"
 #include "ns_types.h"
@@ -202,13 +203,11 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
         return -1;
     }
+    /* Request received */
     if (coap_message->msg_code > 0 && coap_message->msg_code < 32) {
-
-        //TODO Sorry
-
         coap_transaction_t *transaction_ptr = transaction_create();
         if (transaction_ptr) {
-
+            transaction_ptr->service_id = coap_service_id_find_by_socket(socket_id);
             transaction_ptr->msg_id = coap_message->msg_id;
             transaction_ptr->client_request = false;// this is server transaction
             memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
@@ -224,8 +223,8 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         }else{
             //TODO: handle error case
         }
+    /* Response received */
     } else {
-        //response find by MSG id
         coap_transaction_t *this = NULL;
         if( coap_message->token_ptr ){
             this = transaction_find_client_by_token(coap_message->token_ptr);
@@ -242,6 +241,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
         transaction_delete(this);
     }
+
     return 0;
 
 }

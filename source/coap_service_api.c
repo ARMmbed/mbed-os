@@ -21,6 +21,7 @@
 #include "coap_connection_handler.h"
 #include "net_interface.h"
 #include "coap_service_api_internal.h"
+#include "coap_message_handler.h"
 
 static int16_t coap_service_coap_msg_process(int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len);
 static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr);
@@ -130,7 +131,7 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
         return -1;
     }
 
-    tr_debug("Service %d, CoAP TX Function", transaction_ptr->service_id);
+    tr_debug("Service %d, CoAP TX Function - mid: %d", transaction_ptr->service_id, common_read_16_bit(data_ptr + 2));
 
     this = service_find(transaction_ptr->service_id);
     if (!this) {
@@ -176,10 +177,16 @@ static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_m
     if( !coap_message ){
         return -1;
     }
-    // Message is request find correct handle
+
+    // Message is request, find correct handle
     this = service_find_by_uri(socket_id, coap_message->uri_path_ptr, coap_message->uri_path_len);
     if (!this) {
-        tr_warn("not registered uri %.*s", coap_message->uri_path_len, coap_message->uri_path_ptr);
+        tr_debug("not registered uri %.*s", coap_message->uri_path_len, coap_message->uri_path_ptr);
+        if (coap_message->msg_type == COAP_MSG_TYPE_CONFIRMABLE) {
+            coap_message_handler_response_send(coap_service_handle, transaction_ptr->service_id, COAP_SERVICE_OPTIONS_NONE, coap_message,
+                COAP_MSG_CODE_RESPONSE_NOT_FOUND, COAP_CT_NONE, NULL, 0);
+            return 0;
+        }
         return -1;
     }
 
@@ -470,4 +477,11 @@ int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint3
 uint32_t coap_service_get_internal_timer_ticks(void)
 {
     return coap_ticks;
+}
+
+uint16_t coap_service_id_find_by_socket(int8_t socket_id)
+{
+    coap_service_t *this = service_find_by_socket(socket_id);
+
+    return this ? this->service_id:0;
 }
