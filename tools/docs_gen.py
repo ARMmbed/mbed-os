@@ -3,6 +3,7 @@
 
 from os.path import dirname, join
 from os import sep
+from re import compile
 
 import subprocess
 
@@ -21,6 +22,14 @@ def generate_documentation(dirs, output_dir):
         proc.stdin.write("INPUT={}".format(" ".join(dirs)))
         proc.stdin.close()
         proc.wait()
+
+MATCH_NAMESPACE = compile(r'^namespace.*')
+
+def find_namespace(contents):
+    for num, line in enumerate(contents.split("\n")):
+        if MATCH_NAMESPACE.match(line):
+            return num + 1
+    return 0
 
 if __name__ == "__main__":
     import sys
@@ -41,13 +50,19 @@ if __name__ == "__main__":
             with open(src) as fd:
                 contents = fd.read()
             with open(src, "w+") as fd:
-                fd.write("/** \\addtogroup {:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(name,contents))
+                insert_at = find_namespace(contents)
+                before = "\n".join(contents.split("\n")[:insert_at])
+                after = "\n".join(contents.split("\n")[insert_at:])
+                fd.write("{:s}\n/** \\addtogroup {:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(before,name,after))
     for name, res in resources.features.iteritems():
         for src in res.headers:
             with open(src) as fd:
                 contents = fd.read()
             with open(src, "w+") as fd:
-                fd.write("/** \\addtogroup FEATURE_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(name,contents))
+                insert_at = find_namespace(contents)
+                before = "\n".join(contents.split("\n")[:insert_at])
+                after = "\n".join(contents.split("\n")[insert_at:])
+                fd.write("{:s}\n/** \\addtogroup FEATURE_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(before,name,after))
 
     generate_documentation(filter(lambda x: "targets" not in x, sum(map(lambda x:x.headers, resources.features.values()), resources.headers)),
                            join(dirname(dirname(__file__)), "mbed-docs"))
