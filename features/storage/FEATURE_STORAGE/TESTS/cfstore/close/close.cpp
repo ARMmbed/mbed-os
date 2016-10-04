@@ -52,9 +52,9 @@ UVISOR_BOX_CONFIG(cfstore_close_box1, UVISOR_BOX_STACK_SIZE);
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_close_test_01_kv_data[] = {
-    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "first_data_"},
-    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "second_data"},
-    { NULL, NULL},
+    {"yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "first_data_"},
+    {"yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "second_data"},
+    {NULL, NULL},
 };
 
 

@@ -163,10 +163,10 @@ out0:
 
 /* KV data for test_03 */
 static cfstore_kv_data_t cfstore_flush_test_02_kv_data[] = {
-    { "com.arm.mbed.configurationstore.test.flush.cfstoreflushtest02", "1"},
+    {"com.arm.mbed.configurationstore.test.flush.cfstoreflushtest02", "1"},
     /*          1         2         3         4         5         6        7  */
     /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 
@@ -581,7 +581,7 @@ static control_t cfstore_flush_test_02_k64f(void)
     CFSTORE_FENTRYLOG("%s:entered: \r\n", __func__);
     memset(&caps, 0, sizeof(caps));
     caps = drv->GetCapabilities();
-    if(caps.asynchronous_ops == false){
+    if(caps.asynchronous_ops == false) {
         /* This is a async mode only test. If this test is not built for sync mode, then skip testing return true
          * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_LOG("*** Skipping test as binary built for flash journal sync mode, and this test is async-only%s", "\n");

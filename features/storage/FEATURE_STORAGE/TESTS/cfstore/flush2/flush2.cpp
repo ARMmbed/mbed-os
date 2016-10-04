@@ -66,10 +66,10 @@ static char cfstore_flush_utest_msg_g[CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE];
 
 /* KV data for test_03 */
 static cfstore_kv_data_t cfstore_flush_test_02_kv_data[] = {
-    { "com.arm.mbed.configurationstore.test.flush.cfstoreflushtest02", "1"},
+    {"com.arm.mbed.configurationstore.test.flush.cfstoreflushtest02", "1"},
     /*          1         2         3         4         5         6        7  */
     /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /* async test version */

@@ -58,7 +58,7 @@ UVISOR_BOX_CONFIG(cfstore_write_box1, UVISOR_BOX_STACK_SIZE);
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_write_test_01_kv_data[] = {
     CFSTORE_INIT_1_TABLE_MID_NODE,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 
@@ -109,7 +109,7 @@ control_t cfstore_write_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_write_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\n", __func__, cfstore_write_test_01_kv_data[0].key_name, cfstore_write_test_01_kv_data[0].value, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_write_utest_msg_g);
 
-    for(i = 0; i < strlen(cfstore_write_test_01_kv_data[0].value); i++) {
+    for (i = 0; i < strlen(cfstore_write_test_01_kv_data[0].value); i++) {
         len = 1;
         ret = drv->Write(hkey, &cfstore_write_test_01_kv_data[0].value[i], &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_write_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Write failed for char (\'%c\') (ret=%d)\n", __func__, cfstore_write_test_01_kv_data[0].value[i], (int) ret);

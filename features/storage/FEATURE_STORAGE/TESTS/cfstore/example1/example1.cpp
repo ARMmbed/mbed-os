@@ -273,8 +273,7 @@ typedef enum cfstore_ex_flash_state_t {
     CFSTORE_EX_FLASH_STATE_READY,
 } cfstore_ex_flash_state_t;
 
-typedef struct cfstore_example1_flash_ctx_t
-{
+typedef struct cfstore_example1_flash_ctx_t {
     volatile cfstore_ex_flash_state_t state;
 } cfstore_example1_flash_ctx_t;
 
@@ -300,40 +299,39 @@ static void cfstore_ex_flash_journal_callback(int32_t status, FlashJournal_OpCod
          * intentional fall through */
     }
 
-    switch(cmd_code)
-    {
-    case FLASH_JOURNAL_OPCODE_FORMAT:
-        /* format done */
-        CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
-        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_INITIALIZING;
+    switch(cmd_code) {
+        case FLASH_JOURNAL_OPCODE_FORMAT:
+            /* format done */
+            CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
+            cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_INITIALIZING;
 
-        CFSTORE_EX1_LOG("FLASH INITIALIZING%s", "\n");
-        status = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
-        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
-        if(status == 0) {
-            /* async completion pending */
-            break;
-        }
+            CFSTORE_EX1_LOG("FLASH INITIALIZING%s", "\n");
+            status = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
+            CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
+            if(status == 0) {
+                /* async completion pending */
+                break;
+            }
         /* status > 0 implies  operation completed synchronously
          * intentional fall through */
-    case FLASH_JOURNAL_OPCODE_INITIALIZE:
-        /* initialize done */
-        CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
-        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_RESETTING;
+        case FLASH_JOURNAL_OPCODE_INITIALIZE:
+            /* initialize done */
+            CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
+            cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_RESETTING;
 
-        CFSTORE_EX1_LOG("FLASH RESETTING%s", "\n");
-        status = FlashJournal_reset(&jrnl);
-        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (status=%d)\r\n", __func__, (int) status);
+            CFSTORE_EX1_LOG("FLASH RESETTING%s", "\n");
+            status = FlashJournal_reset(&jrnl);
+            CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (status=%d)\r\n", __func__, (int) status);
         /* intentional fall through */
-    case FLASH_JOURNAL_OPCODE_RESET:
-        /* reset done */
-        CFSTORE_EX1_LOG("FLASH RESET DONE%s", "\n");
-        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_READY;
-        break;
+        case FLASH_JOURNAL_OPCODE_RESET:
+            /* reset done */
+            CFSTORE_EX1_LOG("FLASH RESET DONE%s", "\n");
+            cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_READY;
+            break;
 
-    default:
-        CFSTORE_EX1_LOG("%s:Error: notification of unsupported cmd_code event (status=%d, cmd_code=%d)\n", __func__, (int) status, (int) cmd_code);
-        return;
+        default:
+            CFSTORE_EX1_LOG("%s:Error: notification of unsupported cmd_code event (status=%d, cmd_code=%d)\n", __func__, (int) status, (int) cmd_code);
+            return;
     }
     return;
 }

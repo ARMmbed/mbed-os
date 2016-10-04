@@ -93,8 +93,8 @@ extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_flush_test_01_kv_data[] = {
-    { CFSTORE_TEST_DATA_KEYNAME, CFSTORE_TEST_DATA_VALUE_INIT},
-    { NULL, NULL},
+    {CFSTORE_TEST_DATA_KEYNAME, CFSTORE_TEST_DATA_VALUE_INIT},
+    {NULL, NULL},
 };
 
 

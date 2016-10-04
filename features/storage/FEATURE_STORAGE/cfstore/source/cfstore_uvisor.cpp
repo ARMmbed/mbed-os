@@ -513,7 +513,7 @@ UVISOR_EXTERN int32_t cfstore_uvisor_gw_open(const char *key_name, uint32_t flag
     if (ret >= ARM_DRIVER_OK) {
         /* Store pointer to secure storage buffer in caller supplied hkey buffer
          * This is callers opaque handle */
-         CFSTORE_UVISOR_HKEY_PRV_SET(hkey, hkey_prv);
+        CFSTORE_UVISOR_HKEY_PRV_SET(hkey, hkey_prv);
     }
     return ret;
 }
@@ -615,23 +615,23 @@ int32_t cfstore_box_thread(void)
 
     /* The list of functions we are interested in handling RPC requests for */
     static const TFN_Ptr my_fn_array[] = {
-            (TFN_Ptr) cfstore_uvisor_gw_close,
-            (TFN_Ptr) cfstore_uvisor_gw_create,
-            (TFN_Ptr) cfstore_uvisor_gw_delete,
-            (TFN_Ptr) cfstore_uvisor_gw_find,
-            (TFN_Ptr) cfstore_uvisor_gw_flush,
-            (TFN_Ptr) cfstore_get_capabilities,
-            (TFN_Ptr) cfstore_uvisor_gw_get_key_name,
-            (TFN_Ptr) cfstore_get_status,
-            (TFN_Ptr) cfstore_uvisor_gw_get_value_len,
-            (TFN_Ptr) cfstore_get_version,
-            (TFN_Ptr) cfstore_uvisor_gw_initialise,
-            (TFN_Ptr) cfstore_uvisor_gw_open,
-            (TFN_Ptr) cfstore_power_control,
-            (TFN_Ptr) cfstore_uvisor_gw_read,
-            (TFN_Ptr) cfstore_uvisor_gw_rseek,
-            (TFN_Ptr) cfstore_uvisor_gw_uninitialize,
-            (TFN_Ptr) cfstore_uvisor_gw_write
+        (TFN_Ptr) cfstore_uvisor_gw_close,
+        (TFN_Ptr) cfstore_uvisor_gw_create,
+        (TFN_Ptr) cfstore_uvisor_gw_delete,
+        (TFN_Ptr) cfstore_uvisor_gw_find,
+        (TFN_Ptr) cfstore_uvisor_gw_flush,
+        (TFN_Ptr) cfstore_get_capabilities,
+        (TFN_Ptr) cfstore_uvisor_gw_get_key_name,
+        (TFN_Ptr) cfstore_get_status,
+        (TFN_Ptr) cfstore_uvisor_gw_get_value_len,
+        (TFN_Ptr) cfstore_get_version,
+        (TFN_Ptr) cfstore_uvisor_gw_initialise,
+        (TFN_Ptr) cfstore_uvisor_gw_open,
+        (TFN_Ptr) cfstore_power_control,
+        (TFN_Ptr) cfstore_uvisor_gw_read,
+        (TFN_Ptr) cfstore_uvisor_gw_rseek,
+        (TFN_Ptr) cfstore_uvisor_gw_uninitialize,
+        (TFN_Ptr) cfstore_uvisor_gw_write
     };
 
     while (1) {

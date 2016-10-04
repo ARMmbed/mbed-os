@@ -324,7 +324,7 @@ out:
 int32_t cfstore_flush3_check_data(uint8_t* data, int32_t len, uint8_t val)
 {
     int i;
-    for(i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         if (data[i] != val) {
             /* found byte which doesnt have the expected data value */
             return ARM_DRIVER_ERROR;
@@ -504,7 +504,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(com.arm.mbed.spv.sst.node.x) where x = {1..29}, each of which should fail\n", __func__);
-    for(i = 1; i <= 29; i++) {
+    for (i = 1; i <= 29; i++) {
         snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.%d", (char*) kv_name_root, (char*) kv_name_node, (int) i);
         ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  C.%d cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i+2, (int) ret, kv_name);
@@ -594,7 +594,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(com.arm.mbed.spv.sst.node.x) where x = {1..29}, each of which should fail.\n", __func__);
-    for(i = 1; i <= 29; i++) {
+    for (i = 1; i <= 29; i++) {
         snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.%d", (char*) kv_name_root, (char*) kv_name_node, (int) i);
         ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  E.%d cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i+2, (int) ret, kv_name);
@@ -721,7 +721,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.node.1) 217 bytes should be read. repeat 4 times.\n", __func__);
-    for(i = 0; i < 4; i++) {
+    for (i = 0; i < 4; i++) {
         memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
         snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.1", (char*) kv_name_root, (char*) kv_name_node);
         ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 217);
@@ -844,7 +844,7 @@ static control_t cfstore_flush3_test_00(const size_t call_count)
     /* initialise the context */
     caps = drv->GetCapabilities();
     CFSTORE_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, caps.asynchronous_ops);
-    if(caps.asynchronous_ops == 1){
+    if(caps.asynchronous_ops == 1) {
         /* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
          * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");

@@ -213,7 +213,7 @@ static control_t cfstore_example2_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(len == (PvStrLen(value) + 1), cfstore_example2_utest_msg_g);
 
     /* convert any terminating nulls to '=' */
-    while ( (ptr = (char*) memchr(readBuf, 0, (PvStrLen(value) + 1))) != NULL) {
+    while ((ptr = (char*) memchr(readBuf, 0, (PvStrLen(value) + 1))) != NULL) {
         *ptr = '=';
     }
     /* check the data is as expected */

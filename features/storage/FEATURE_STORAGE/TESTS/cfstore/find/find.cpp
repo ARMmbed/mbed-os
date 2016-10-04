@@ -204,8 +204,8 @@ control_t cfstore_find_test_03_end(const size_t call_count)
 /*
  * use this data:
  *  static cfstore_kv_data_t cfstore_find_test_04_kv_data[] = {
- *        { "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "abcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyz"},
- *        { NULL, NULL},
+ *        {"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "abcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyzabcdefghjklmnopqrstuvwxyz"},
+ *        {NULL, NULL},
  * };
  *
  */
@@ -290,16 +290,16 @@ typedef struct cfstore_find_key_name_validate_t {
 } cfstore_find_key_name_validate_t;
 
 cfstore_find_key_name_validate_t cfstore_find_test_05_data[] = {
-    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{*}{foot}backLeft", true},
-    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}backLeft", true},
-    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}*", true},
-    { "yotta.hello-world.animal{1}{foot}backLeft", "yotta.hello-world.animal{?}{foot}backLeft", false},
-    { "xyz", "xyz", true},
-    { "xyzijkXYZ", "XYZ", false},
-    { "xyzijkXYZ", "*XYZ", true},
-    { "xyzijkXYZ", "xyz*XYZ", true},
-    { "xyzijkXYZ", "*yz*XYZ", true},
-    { "xyzijkXYZ", "*ijk*", true},
+    {"yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{*}{foot}backLeft", true},
+    {"yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}backLeft", true},
+    {"yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}*", true},
+    {"yotta.hello-world.animal{1}{foot}backLeft", "yotta.hello-world.animal{?}{foot}backLeft", false},
+    {"xyz", "xyz", true},
+    {"xyzijkXYZ", "XYZ", false},
+    {"xyzijkXYZ", "*XYZ", true},
+    {"xyzijkXYZ", "xyz*XYZ", true},
+    {"xyzijkXYZ", "*yz*XYZ", true},
+    {"xyzijkXYZ", "*ijk*", true},
     { NULL, NULL, false},
 };
 /// @endcond
@@ -334,18 +334,18 @@ control_t cfstore_find_test_05_end(const size_t call_count)
 
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
-#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_03      { "0123456789abcdef0123456.yxxx.3", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_05      { "0123456789abcdef0123456.yxxx.5", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_07      { "0123456789abcdef0123456.yxxx.7", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_09      { "0123456789abcdef0123456.yxxx.9", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_03      {"0123456789abcdef0123456.yxxx.3", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_05      {"0123456789abcdef0123456.yxxx.5", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_07      {"0123456789abcdef0123456.yxxx.7", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_MATCH_09      {"0123456789abcdef0123456.yxxx.9", "abcdefghijklmnopqrstuvwxyz"}
 
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_01      { "0123456789abcdef0123456.xxxx.1", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_02      { "0123456789abcdef0123456.xxxx.2", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_04      { "0123456789abcdef0123456.xxxx.4", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_06      { "0123456789abcdef0123456.xxxx.6", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_08      { "0123456789abcdef0123456.xxxx.8", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_10      { "0123456789abcdef0123456.xxxx.10", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_11      { "0123456789abcdef0123456.xxxx.11", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_01      {"0123456789abcdef0123456.xxxx.1", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_02      {"0123456789abcdef0123456.xxxx.2", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_04      {"0123456789abcdef0123456.xxxx.4", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_06      {"0123456789abcdef0123456.xxxx.6", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_08      {"0123456789abcdef0123456.xxxx.8", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_10      {"0123456789abcdef0123456.xxxx.10", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_11      {"0123456789abcdef0123456.xxxx.11", "abcdefghijklmnopqrstuvwxyz"}
 
 /* table 1: to initialise cfstore with CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01 */
 static cfstore_kv_data_t cfstore_find_test_06_data[] = {
@@ -360,7 +360,7 @@ static cfstore_kv_data_t cfstore_find_test_06_data[] = {
     CFSTORE_FIND_TEST_06_ENTRY_MATCH_09,
     CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_10,
     CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_11,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 static cfstore_kv_data_t cfstore_find_test_06_data_match_results[] = {
@@ -368,7 +368,7 @@ static cfstore_kv_data_t cfstore_find_test_06_data_match_results[] = {
     CFSTORE_FIND_TEST_06_ENTRY_MATCH_05,
     CFSTORE_FIND_TEST_06_ENTRY_MATCH_07,
     CFSTORE_FIND_TEST_06_ENTRY_MATCH_09,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 /// @endcond
 
@@ -450,13 +450,12 @@ control_t cfstore_find_test_07_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to add cfstore_find_test_06_data table data (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
 
-    while(true)
-    {
+    while(true) {
 
         ret = drv->Find(key_name_query, NULL, next);
         if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
             /* no more attributes found matching search criteria.*/
-           break;
+            break;
         }
 
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Find() failed(ret=%d).\n", __func__, (int) ret);
@@ -469,8 +468,8 @@ control_t cfstore_find_test_07_end(const size_t call_count)
 
         CFSTORE_LOG("%s:Found entry key_name=%s\n", __func__, key_name);
         node = cfstore_find_test_06_data_match_results;
-        while(node->key_name != NULL){
-            if(strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0){
+        while(node->key_name != NULL) {
+            if(strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0) {
                 find_count++;
                 break;
             }

@@ -53,7 +53,7 @@ UVISOR_BOX_CONFIG(cfstore_read_box1, UVISOR_BOX_STACK_SIZE);
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_read_test_01_kv_data[] = {
     CFSTORE_INIT_1_TABLE_MID_NODE,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /* report whether built/configured for flash sync or async mode */

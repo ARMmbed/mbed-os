@@ -18,11 +18,11 @@ The design goals can be summarised as follows:
 
 ### Details of Design Goals
 
-- The muxing/demuxing of multiple c++ layer client callbacks from a single
+- The muxing/demuxing of multiple C++ layer client callbacks from a single
   underlying c-layer callback for asynchronous completion notifications.
   Considerations include:
 	- allowing the registration of multiple asynchronous
-      notification callbacks at the c++ layer (currently not supported)
+      notification callbacks at the C++ layer (currently not supported)
     - Per client object type callback granularity (currently not supported)
     - avoiding performance bottlenecks e.g. serialising transactions to the
       c-layer using a transaction queue with mutex.
@@ -182,3 +182,16 @@ As a consequence of the above:
   to Cfstore derived classes, for example.
 - CfstoreKey class also does not have a Notify() method for async notification.
 
+
+
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |16 |16 |16 |16 |   64    |      128      |      128      |      128      |      
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |     slot_0    |    slot_1     |   slot_2      |    slot_3     |      
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 
+ 
+ todo Monday: get finished analysis to Marcelo.
+ 

@@ -81,12 +81,30 @@ void cfstore_os_semaphore_unlock(cfstore_os_semaphore_t *sem)
 #else
 
 /* null implementation */
-void cfstore_os_mutex_init(cfstore_os_mutex_t* lock) {(void) lock;}
-void cfstore_os_mutex_lock(cfstore_os_mutex_t* lock) {(void) lock;}
-void cfstore_os_mutex_unlock(cfstore_os_mutex_t* lock) {(void) lock;}
-void cfstore_os_semaphore_init(cfstore_os_semaphore_t *sem) {(void) sem;}
-void cfstore_os_semaphore_lock(cfstore_os_semaphore_t *sem) {(void) sem;}
-void cfstore_os_semaphore_unlock(cfstore_os_semaphore_t *sem) {(void) sem;}
+void cfstore_os_mutex_init(cfstore_os_mutex_t* lock)
+{
+    (void) lock;
+}
+void cfstore_os_mutex_lock(cfstore_os_mutex_t* lock)
+{
+    (void) lock;
+}
+void cfstore_os_mutex_unlock(cfstore_os_mutex_t* lock)
+{
+    (void) lock;
+}
+void cfstore_os_semaphore_init(cfstore_os_semaphore_t *sem)
+{
+    (void) sem;
+}
+void cfstore_os_semaphore_lock(cfstore_os_semaphore_t *sem)
+{
+    (void) sem;
+}
+void cfstore_os_semaphore_unlock(cfstore_os_semaphore_t *sem)
+{
+    (void) sem;
+}
 
 #endif   /* __MBED__ */
 

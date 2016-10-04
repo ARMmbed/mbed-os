@@ -61,7 +61,7 @@ UVISOR_SET_MODE_ACL(UVISOR_ENABLED, cfstore_acl_uvisor_box_add_del_g);
 
 static cfstore_kv_data_t cfstore_add_del_test_07_data[] = {
     CFSTORE_INIT_1_TABLE_MID_NODE,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 
@@ -139,7 +139,7 @@ static cfstore_kv_data_t cfstore_add_del_test_08_data[] = {
     CFSTORE_INIT_1_TABLE_HEAD,
     CFSTORE_INIT_1_TABLE_MID_NODE,
     CFSTORE_INIT_1_TABLE_TAIL,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 
@@ -377,8 +377,8 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-       /*          1         2         3         4         5         6        7  */
-       /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
     Case("ADD_DEL_test_00", cfstore_add_del_test_00),
     Case("ADD_DEL_test_01_start", cfstore_utest_default_start),
     Case("ADD_DEL_test_01_end", cfstore_add_del_test_01_end),

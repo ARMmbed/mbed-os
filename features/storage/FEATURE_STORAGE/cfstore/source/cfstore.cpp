@@ -31,7 +31,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-namespace cfstore {
+namespace cfstore
+{
 
 #define CFSTORE_SEMAPHORE_SLOTS  0
 
@@ -94,7 +95,7 @@ int32_t Cfstore::initialize(void)
 
     cfstore_debug_log("%s:entered:\n", __func__);
     mtx_lock.lock();
-    if (initialised_count == 0){
+    if (initialised_count == 0) {
         initialised_count++;
         mtx_lock.unlock();
 

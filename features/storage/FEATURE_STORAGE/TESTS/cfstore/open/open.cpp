@@ -69,8 +69,8 @@ UVISOR_BOX_CONFIG(cfstore_open_box1, UVISOR_BOX_STACK_SIZE);
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_open_test_01_kv_data[] = {
-    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "missing"},
-    { NULL, NULL},
+    {"yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "missing"},
+    {NULL, NULL},
 };
 
 
@@ -167,7 +167,7 @@ control_t cfstore_open_test_01_end(const size_t call_count)
 
 static cfstore_kv_data_t cfstore_open_test_02_data[] = {
     CFSTORE_INIT_1_TABLE_MID_NODE,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /**
@@ -405,9 +405,9 @@ control_t cfstore_open_test_05_end(const size_t call_count)
     node = cfstore_open_kv_name_ascii_table;
     while (node->code !=  cfstore_open_kv_name_ascii_table_code_sentinel_g) {
         /* loop over range */
-        for(j = node->code; j < (node+1)->code; j++) {
+        for (j = node->code; j < (node+1)->code; j++) {
             /* set the start, mid, last character of the name to the test char code */
-            for(pos = (uint32_t) cfstore_open_kv_name_pos_start; pos < (uint32_t) cfstore_open_kv_name_pos_max; pos++) {
+            for (pos = (uint32_t) cfstore_open_kv_name_pos_start; pos < (uint32_t) cfstore_open_kv_name_pos_max; pos++) {
                 name_len = CFSTORE_KEY_NAME_MAX_LENGTH;
                 memset(kv_name, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
                 memset(&kdesc, 0, sizeof(kdesc));
@@ -536,7 +536,7 @@ control_t cfstore_open_test_06_end(const size_t call_count)
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
 
     /* generate a kv name of illegal chars*/
-    for(i = 0; i < name_len; i++) {
+    for (i = 0; i < name_len; i++) {
         pos = rand() % (buf_data_max+1);
         kv_name[i] = cfstore_open_ascii_illegal_buf_g[pos];
     }
@@ -580,7 +580,7 @@ control_t cfstore_open_test_07_end(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK , cfstore_open_utest_msg_g);
 
     /* pepper the illegal chars across the string*/
-    for(i++; i < buf_data_max; i++) {
+    for (i++; i < buf_data_max; i++) {
         kv_name[rand() % (name_len+1)] = cfstore_open_ascii_illegal_buf_g[i];
     }
     ret = cfstore_test_create(kv_name, kv_name, &name_len, &kdesc);

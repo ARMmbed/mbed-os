@@ -146,10 +146,9 @@ control_t cfstore_misc_test_01(const size_t call_count)
 static cfstore_kv_data_t cfstore_misc_test_03_kv_data[] = {
     /*          1         2         3         4         5         6        7  */
     /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-    { "The.principles.of.least.action.in.quantum.mechanics", "DoctoralThesis"},
-    { "Space.Time.Approach.to.Quantum.Electrodynamic", " PhysicalReview766)"},
-    { "An.Operator.Calculus.Having.Applications.in.Quantum.Electrodynamics", "PhysicalReview84)"},
-    { NULL, NULL},
+    {"The.principles.of.least.action.in.quantum.mechanics", "DoctoralThesis"},
+    {"Space.Time.Approach.to.Quantum.Electrodynamic", " PhysicalReview766)"},
+    {NULL, NULL},
 };
 
 

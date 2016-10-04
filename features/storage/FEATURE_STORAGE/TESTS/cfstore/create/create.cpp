@@ -63,22 +63,22 @@ UVISOR_BOX_CONFIG(cfstore_create_box1, UVISOR_BOX_STACK_SIZE);
 
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
-#define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_01     { "Lefkada.Vathi.Meganisi.Atokos.Vathi.Ithaki.PeriPigathi.AgiosAndreas.Sami.Kefalonia.AgiaEffimia.AgiaSofia.Fiskardo.Frikes.Kioni.Meganissi.Lefkada", "Penelope"}
-#define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_02     { "Iolcus.Lemnos.Salmydessus.Cyzicus.Cios.Berbryces.Symplegadese.IsleAres.Colchis.Anenea.Sirens.Scylia.Charybdis.Phaeacia.Triton.Iolcus", "Medea"}
-#define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_03     { "338.Chaeronea.336.Macedonia.334.Granicus.333.Issus.332.Tyre.331.Gaugamela.330.Persepolis.Philotas.Parmenion.329.Bactria.Oxus.Samarkand.328.Cleitus.327.Roxane.326.Hydaspes.Bucephalus.324.Hephaestion.323.AlexanderDies", "TheGreat"}
-#define CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01      { "0123456789abcdef0123456", "abcdefghijklmnopqrstuvwxyz"}
-#define CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_02      { "0123456789abcdef0123456", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
-#define CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_03      { "0123456789abcdef0123456", "nopqrstuvwxyz"}
-#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_01     { "Time.Will.Explain.It.All", "Aegeus"}
-#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_02     { "Cleverness.Is.Not.Wisdom", "Bacchae"}
-#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_03     { "Talk.Sense.To.A.Fool.And.He.Calls.You.Foolish", "Bacchae"}
-#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_04     { "There.is.in.the.worst.of.fortune.the.best.of.chances.for.a.happy.change", "Iphigenia.in.Tauris"}
+#define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_01     {"Lefkada.Vathi.Meganisi.Atokos.Vathi.Ithaki.PeriPigathi.AgiosAndreas.Sami.Kefalonia.AgiaEffimia.AgiaSofia.Fiskardo.Frikes.Kioni.Meganissi.Lefkada", "Penelope"}
+#define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_02     {"Iolcus.Lemnos.Salmydessus.Cyzicus.Cios.Berbryces.Symplegadese.IsleAres.Colchis.Anenea.Sirens.Scylia.Charybdis.Phaeacia.Triton.Iolcus", "Medea"}
+#define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_03     {"338.Chaeronea.336.Macedonia.334.Granicus.333.Issus.332.Tyre.331.Gaugamela.330.Persepolis.Philotas.Parmenion.329.Bactria.Oxus.Samarkand.328.Cleitus.327.Roxane.326.Hydaspes.Bucephalus.324.Hephaestion.323.AlexanderDies", "TheGreat"}
+#define CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01      {"0123456789abcdef0123456", "abcdefghijklmnopqrstuvwxyz"}
+#define CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_02      {"0123456789abcdef0123456", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+#define CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_03      {"0123456789abcdef0123456", "nopqrstuvwxyz"}
+#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_01     {"Time.Will.Explain.It.All", "Aegeus"}
+#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_02     {"Cleverness.Is.Not.Wisdom", "Bacchae"}
+#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_03     {"Talk.Sense.To.A.Fool.And.He.Calls.You.Foolish", "Bacchae"}
+#define CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_04     {"There.is.in.the.worst.of.fortune.the.best.of.chances.for.a.happy.change", "Iphigenia.in.Tauris"}
 
 static cfstore_kv_data_t cfstore_create_test_01_data[] = {
     CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01,
     CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_02,
     CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_03,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /* table 1: to initialise cfstore with CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01 */
@@ -91,7 +91,7 @@ static cfstore_kv_data_t cfstore_create_test_01_data_step_01[] = {
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_02,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_03,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_04,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /* table 2: to CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01 grown to CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_02 */
@@ -104,7 +104,7 @@ static cfstore_kv_data_t cfstore_create_test_01_data_step_02[] = {
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_02,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_03,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_04,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /* table 3: to CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_02 shrunk to CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_03 */
@@ -117,7 +117,7 @@ static cfstore_kv_data_t cfstore_create_test_01_data_step_03[] = {
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_02,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_03,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_04,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 
 /* table 3: CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_03 deleted */
@@ -129,7 +129,7 @@ static cfstore_kv_data_t cfstore_create_test_01_data_step_04[] = {
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_02,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_03,
     CFSTORE_CREATE_TEST_01_TABLE_TAIL_ENTRY_04,
-    { NULL, NULL},
+    {NULL, NULL},
 };
 /// @endcond
 
@@ -366,7 +366,7 @@ static int32_t cfstore_create_test_02_core(const size_t call_count)
     (void) call_count;
     memset(value_buf, 0, max_value_buf_size);
 
-    for(i = 0; i < max_num_kvs_create; i++) {
+    for (i = 0; i < max_num_kvs_create; i++) {
         memset(value_buf, 0, max_value_buf_size);
         ret = cfstore_create_kv_create(kv_name_min_len +i, CFSTORE_CREATE_KV_CREATE_NO_TAG, value_buf, kv_value_min_len * (i+1));
         bytes_stored += kv_name_min_len + i;         /* kv_name */
@@ -427,7 +427,7 @@ control_t cfstore_create_test_03_end(const size_t call_count)
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    for(i = 0; i < 100; i++) {
+    for (i = 0; i < 100; i++) {
         ret = cfstore_create_test_02_core(call_count);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: something went wrong (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
@@ -472,7 +472,7 @@ control_t cfstore_create_test_04_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: out of memory.\n", __func__);
     TEST_ASSERT_MESSAGE(value_buf != NULL, cfstore_create_utest_msg_g);
 
-    for(i = 0; i < max_num_kvs_create; i++) {
+    for (i = 0; i < max_num_kvs_create; i++) {
         memset(value_buf, 0, max_value_buf_size);
         ret = cfstore_create_kv_create(kv_name_min_len +i, CFSTORE_CREATE_KV_CREATE_NO_TAG, value_buf, kv_value_min_len/8 * (i+1));
         bytes_stored += kv_name_min_len + i;         /* kv_name */
@@ -523,7 +523,7 @@ int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_sto
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: out of memory.\n", __func__);
     TEST_ASSERT_MESSAGE(value_buf != NULL, cfstore_create_utest_msg_g);
 
-    for(i = 0; i < max_num_kvs_create; i++) {
+    for (i = 0; i < max_num_kvs_create; i++) {
         memset(value_buf, 0, max_value_buf_size);
         snprintf(kv_name_tag_buf, kv_name_tag_len+1, "%0d", (int) i);
         ret = cfstore_create_kv_create(kv_name_min_len, kv_name_tag_buf, value_buf, kv_value_min_len/64 * (i+1));
@@ -543,7 +543,7 @@ int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_sto
     free(value_buf);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
-    if(bytes_stored_ex){
+    if(bytes_stored_ex) {
         *bytes_stored_ex = bytes_stored;
     }
     return ret;
@@ -573,7 +573,7 @@ control_t cfstore_create_test_05(const size_t call_count)
     const uint32_t max_loops = 50;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    for(i = 0; i < max_loops; i++) {
+    for (i = 0; i < max_loops; i++) {
         ret = cfstore_create_test_05_core(call_count, &bytes_stored);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: cfstore_create_test_05_core() failed (ret = %d.\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
@@ -602,15 +602,15 @@ cfstore_create_key_name_validate_t cfstore_create_test_06_data[] = {
     /*                                                                                                    1         1         1         1         1         1         1         1         1         1         2         2         2 */
     /* 0        1         2         3         4         5         6         7         8         9         0         1         2         3         4         5         6         7         8         9         0         1         2 */
     /* 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 */
-    { "",  false},
-    { "abc.{1}.efg", true },
-    { "abc.{1.efg", false },
-    { "abc.1}.efg", false },
-    { "abc.{{1}}.efg", false },
-    { "abc.{}.efg", true },
-    { "abc.}1{.efg", false },
-    { ".piety.demands.us.to.honour.truth.above.our.friends", false },
-    { "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.{100000000}", false },
+    {"",  false},
+    {"abc.{1}.efg", true },
+    {"abc.{1.efg", false },
+    {"abc.1}.efg", false },
+    {"abc.{{1}}.efg", false },
+    {"abc.{}.efg", true },
+    {"abc.}1{.efg", false },
+    {".piety.demands.us.to.honour.truth.above.our.friends", false },
+    {"basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.{100000000}", false },
     { NULL, false},
 };
 /// @endcond
@@ -747,8 +747,7 @@ control_t cfstore_create_test_07_end(const size_t call_count)
 
     /* step 4. Now check that the KVs are all present and correct */
     node = cfstore_create_test_01_data_step_02;
-    while(node->key_name != NULL)
-    {
+    while(node->key_name != NULL) {
         ret = cfstore_test_check_node_correct(node);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:node (key_name=\"%s\", value=\"%s\") not correct in cfstore\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
@@ -764,8 +763,7 @@ control_t cfstore_create_test_07_end(const size_t call_count)
 
     /* Step 5. Now check that the KVs are all present and correct */
     node = cfstore_create_test_01_data_step_03;
-    while(node->key_name != NULL)
-    {
+    while(node->key_name != NULL) {
         ret = cfstore_test_check_node_correct(node);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:node (key_name=\"%s\", value=\"%s\") not correct in cfstore\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
@@ -781,8 +779,7 @@ control_t cfstore_create_test_07_end(const size_t call_count)
 
     /* Now check that the KVs are all present and correct */
     node = cfstore_create_test_01_data_step_04;
-    while(node->key_name != NULL)
-    {
+    while(node->key_name != NULL) {
         ret = cfstore_test_check_node_correct(node);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:node (key_name=\"%s\", value=\"%s\") not correct in cfstore\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);

@@ -27,9 +27,80 @@
 #include "rtos.h"
 #include "cfstore_debug.h"
 #include "cfstore_list.h"
-#include "cfstore_types.h"
 
-namespace cfstore {
+namespace cfstore
+{
+
+
+/* Mapping CMSIS Error identifier to CFSTORE Specific error codes symbols
+ * following mbedOS guidelines
+ */
+#define CFSTORE_OK                                                      ARM_DRIVER_OK
+#define CFSTORE_ERROR_GENERAL                                           ARM_DRIVER_ERROR
+#define CFSTORE_ERROR_BUSY                                              ARM_DRIVER_ERROR_BUSY
+#define CFSTORE_ERROR_TIMEOUT                                           ARM_DRIVER_ERROR_TIMEOUT
+#define CFSTORE_ERROR_UNSUPPORTED                                       ARM_DRIVER_ERROR_UNSUPPORTED
+#define CFSTORE_ERROR_PARAMETER                                         ARM_DRIVER_ERROR_PARAMETER
+#define CFSTORE_ERROR_SPECIFIC                                          ARM_DRIVER_ERROR_SPECIFIC
+#define CFSTORE_ERROR_UNINITIALISED                                     ARM_CFSTORE_DRIVER_ERROR_UNINITIALISED
+#define CFSTORE_ERROR_PREEXISTING_KEY                                   ARM_CFSTORE_DRIVER_ERROR_PREEXISTING_KEY
+#define CFSTORE_ERROR_KEY_NOT_FOUND                                     ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND
+#define CFSTORE_ERROR_INVALID_HANDLE                                    ARM_CFSTORE_DRIVER_ERROR_INVALID_HANDLE
+#define CFSTORE_ERROR_OUT_OF_MEMORY                                     ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY
+#define CFSTORE_ERROR_PREEXISTING_KEY_DELETING                          ARM_CFSTORE_DRIVER_ERROR_PREEXISTING_KEY_DELETING
+#define CFSTORE_ERROR_INVALID_HANDLE_BUF                                ARM_CFSTORE_DRIVER_ERROR_INVALID_HANDLE_BUF
+#define CFSTORE_ERROR_INTERNAL                                          ARM_CFSTORE_DRIVER_ERROR_INTERNAL
+#define CFSTORE_ERROR_INVALID_KEY_NAME                                  ARM_CFSTORE_DRIVER_ERROR_INVALID_KEY_NAME
+#define CFSTORE_ERROR_VALUE_SIZE_TOO_LARGE                              ARM_CFSTORE_DRIVER_ERROR_VALUE_SIZE_TOO_LARGE
+#define CFSTORE_ERROR_KEY_READ_ONLY                                     ARM_CFSTORE_DRIVER_ERROR_KEY_READ_ONLY
+#define CFSTORE_ERROR_INVALID_SEEK                                      ARM_CFSTORE_DRIVER_ERROR_INVALID_SEEK
+#define CFSTORE_ERROR_KEY_UNREADABLE                                    ARM_CFSTORE_DRIVER_ERROR_KEY_UNREADABLE
+#define CFSTORE_ERROR_INVALID_WRITE_BUFFER                              ARM_CFSTORE_DRIVER_ERROR_INVALID_WRITE_BUFFER
+#define CFSTORE_ERROR_INVALID_KEY_LEN                                   ARM_CFSTORE_DRIVER_ERROR_INVALID_KEY_LEN
+#define CFSTORE_ERROR_NOT_SUPPORTED                                     ARM_CFSTORE_DRIVER_ERROR_NOT_SUPPORTED
+#define CFSTORE_ERROR_INVALID_READ_BUFFER                               ARM_CFSTORE_DRIVER_ERROR_INVALID_READ_BUFFER
+#define CFSTORE_ERROR_INVALID_KEY_DESCRIPTOR                            ARM_CFSTORE_DRIVER_ERROR_INVALID_KEY_DESCRIPTOR
+#define CFSTORE_ERROR_PERM_NO_READ_ACCESS                               ARM_CFSTORE_DRIVER_ERROR_PERM_NO_READ_ACCESS
+#define CFSTORE_ERROR_PERM_NO_WRITE_ACCESS                              ARM_CFSTORE_DRIVER_ERROR_PERM_NO_WRITE_ACCESS
+#define CFSTORE_ERROR_PERM_NO_EXECUTE_ACCESS                            ARM_CFSTORE_DRIVER_ERROR_PERM_NO_EXECUTE_ACCESS
+#define CFSTORE_ERROR_NO_PERMISSIONS                                    ARM_CFSTORE_DRIVER_ERROR_NO_PERMISSIONS
+#define CFSTORE_ERROR_HANDLE_COUNT_MAX                                  ARM_CFSTORE_DRIVER_ERROR_HANDLE_COUNT_MAX
+#define CFSTORE_ERROR_JOURNAL_STATUS_ERROR                              ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_ERROR
+#define CFSTORE_ERROR_JOURNAL_STATUS_BUSY                               ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_BUSY
+#define CFSTORE_ERROR_JOURNAL_STATUS_TIMEOUT                            ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_TIMEOUT
+#define CFSTORE_ERROR_JOURNAL_STATUS_UNSUPPORTED                        ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_UNSUPPORTED
+#define CFSTORE_ERROR_JOURNAL_STATUS_PARAMETER                          ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_PARAMETER
+#define CFSTORE_ERROR_JOURNAL_STATUS_BOUNDED_CAPACITY                   ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_BOUNDED_CAPACITY
+#define CFSTORE_ERROR_JOURNAL_STATUS_STORAGE_API_ERROR                  ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_STORAGE_API_ERROR
+#define CFSTORE_ERROR_JOURNAL_STATUS_STORAGE_IO_ERROR                   ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_STORAGE_IO_ERROR
+#define CFSTORE_ERROR_JOURNAL_STATUS_NOT_INITIALIZED                    ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_NOT_INITIALIZED
+#define CFSTORE_ERROR_JOURNAL_STATUS_ATTEMPTING_COMMIT_WITHOUT_WRITE    ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_ATTEMPTING_COMMIT_WITHOUT_WRITE
+#define CFSTORE_ERROR_JOURNAL_STATUS_EMPTY                              ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_EMPTY
+#define CFSTORE_ERROR_JOURNAL_STATUS_SMALL_LOG_REQUEST                  ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_SMALL_LOG_REQUEST
+#define CFSTORE_ERROR_OPERATION_PENDING                                 ARM_CFSTORE_DRIVER_ERROR_OPERATION_PENDING
+#define CFSTORE_ERROR_UVISOR_BOX_ID                                     ARM_CFSTORE_DRIVER_ERROR_UVISOR_BOX_ID
+#define CFSTORE_ERROR_UVISOR_NAMESPACE                                  ARM_CFSTORE_DRIVER_ERROR_UVISOR_NAMESPACE
+
+#define CFSTORE_STORAGE_ERROR_NOT_ERASABLE                              ARM_STORAGE_ERROR_NOT_ERASABLE
+#define CFSTORE_STORAGE_ERROR_NOT_PROGRAMMABLE                          ARM_STORAGE_ERROR_NOT_PROGRAMMABLE
+#define CFSTORE_STORAGE_ERROR_PROTECTED                                 ARM_STORAGE_ERROR_PROTECTED
+#define CFSTORE_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE              ARM_STORAGE_ERROR_RUNTIME_OR_INTEGRITY_FAILURE
+
+/* Mapping CMSIS flash Retention levels identifiers to CFSTORE symbols
+ * following mbedOS guidelines */
+#define CFSTORE_RETENTION_WHILE_DEVICE_ACTIVE       ARM_RETENTION_WHILE_DEVICE_ACTIVE
+#define CFSTORE_RETENTION_ACROSS_SLEEP              ARM_RETENTION_ACROSS_SLEEP
+#define CFSTORE_RETENTION_ACROSS_DEEP_SLEEP         ARM_RETENTION_ACROSS_DEEP_SLEEP
+#define CFSTORE_RETENTION_BATTERY_BACKED            ARM_RETENTION_BATTERY_BACKED
+#define CFSTORE_RETENTION_NVM                       ARM_RETENTION_NVM
+
+/* These types are defined to follow the mbedOS guidelines for naming types rather
+ * that CMSIS guideline. */
+typedef ARM_CFSTORE_CAPABILITIES cfstore_capabilities_t;
+typedef ARM_CFSTORE_DRIVER cfstore_driver_t;
+typedef ARM_CFSTORE_FMODE cfstore_fmode_t;
+typedef ARM_CFSTORE_KEYDESC cfstore_keydesc_t;
+typedef ARM_DRIVER_VERSION cfstore_driver_version_t;
 
 /* forward declaration for use in */
 class Cfstore;
@@ -42,7 +113,8 @@ class Cfstore;
  * @note
  *  All class methods are synchronous.
  */
-class CfstoreKey {
+class CfstoreKey
+{
     /** Cfstore is a friend of CfstoreKey so that Cfstore can instantiate
      *  CfstoreKey objects and set private data.
      */
@@ -386,20 +458,19 @@ public:
     int32_t write(const char *data, size_t *len);
 
 private:
-
     /**
      * @param   hkey
      *  This is insecure storage in the caller box. Cfstore stores the pointer to
      *  the cfstore secured storage in this buffer, which is opaque to the caller.
      *  Should the caller dereference the pointer, uvisor which create a
      *  protection fault.
+     *
+     *  @param  owner
+     *  Pointer to cfstore that created this key. This is required so key can lock
+     *  transactions.
      */
-    uint8_t hkey[CFSTORE_HANDLE_BUFSIZE];   //!< Insecure key handle storage. Cfstore stores the pointer to
-                                            //!< the cfstore secured storage in this buffer, which is opaque to the caller.
-                                            //!< Should the caller dereference the opaque pointer, uvisor will generate a
-                                            //!< protection fault.
-    Cfstore *owner;                         //!< Pointer to cfstore that created this key.
-                                            //!< This is required so key can lock transactions.
+    uint8_t hkey[CFSTORE_HANDLE_BUFSIZE];
+    Cfstore *owner;
 };
 
 /** @brief   Class representing interface to Configuration Store
