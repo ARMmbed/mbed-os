@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 #ifndef GREENTEA_SERIAL_H
 #define GREENTEA_SERIAL_H
 
@@ -11,3 +14,5 @@ public:
 
 extern SingletonPtr<GreenteaSerial> greentea_serial;
 #endif
+
+/** @}*/

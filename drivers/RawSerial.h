@@ -24,6 +24,8 @@
 #include "hal/serial_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  * This is a variation of the Serial class that doesn't use streams,
@@ -101,3 +103,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

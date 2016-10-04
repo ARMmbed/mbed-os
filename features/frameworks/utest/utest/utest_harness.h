@@ -31,6 +31,8 @@
 
 
 namespace utest {
+/** \addtogroup frameworks */
+/** @{*/
 namespace v1 {
 
     /** Test Harness.
@@ -99,3 +101,5 @@ namespace v1 {
 }   // namespace utest
 
 #endif // UTEST_HARNESS_H
+
+/** @}*/

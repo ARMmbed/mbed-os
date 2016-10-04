@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* TCPServer
  * Copyright (c) 2015 ARM Limited
  *
@@ -91,3 +94,5 @@ protected:
 
 
 #endif
+
+/** @}*/

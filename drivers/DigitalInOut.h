@@ -22,6 +22,8 @@
 #include "platform/critical.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A digital input/output, used for setting or reading a bi-directional pin
  *
@@ -138,3 +140,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

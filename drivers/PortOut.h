@@ -24,6 +24,8 @@
 #include "platform/critical.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 /** A multiple pin digital out
  *
  * @Note Synchronization level: Interrupt safe
@@ -107,3 +109,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

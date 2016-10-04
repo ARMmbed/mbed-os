@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2015 ARM Limited
  *
@@ -114,3 +117,5 @@ int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *time
 #endif
 
 #endif
+
+/** @}*/

@@ -20,6 +20,8 @@
 #include "hal/ticker_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A general purpose timer
  *
@@ -91,3 +93,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

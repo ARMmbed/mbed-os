@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -86,3 +89,5 @@ int port_read(port_t *obj);
 #endif
 
 #endif
+
+/** @}*/

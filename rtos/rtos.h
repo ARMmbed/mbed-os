@@ -1,3 +1,6 @@
+
+/** \addtogroup rtos */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2012 ARM Limited
  *
@@ -42,3 +45,5 @@ using namespace rtos;
 #endif
 
 #endif
+
+/** @}*/

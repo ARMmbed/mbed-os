@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /*
  * Copyright (c) 2006-2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -766,3 +769,5 @@ typedef struct _ARM_DRIVER_STORAGE {
 #endif // __cplusplus
 
 #endif /* __DRIVER_STORAGE_H */
+
+/** @}*/

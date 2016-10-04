@@ -1,3 +1,6 @@
+
+/** \addtogroup rtos */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2012 ARM Limited
  *
@@ -35,3 +38,5 @@ void rtos_attach_idle_hook(void (*fptr)(void));
 #endif
 
 #endif
+
+/** @}*/

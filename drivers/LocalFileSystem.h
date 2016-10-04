@@ -24,6 +24,8 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 FILEHANDLE local_file_open(const char* name, int flags);
 
@@ -108,3 +110,5 @@ public:
 #endif
 
 #endif
+
+/** @}*/

@@ -29,6 +29,8 @@
 #include "platform/mbed_error.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** The Queue class allow to control, send, receive, or wait for messages.
  A message can be a integer or pointer value  to a certain type T that is send
@@ -79,3 +81,5 @@ private:
 
 }
 #endif
+
+/** @}*/

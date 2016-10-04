@@ -19,6 +19,8 @@
 #include "drivers/Ticker.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A Timeout is used to call a function at a point in the future
  *
@@ -59,3 +61,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

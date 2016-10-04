@@ -30,6 +30,8 @@
 #include "rtos/Mutex.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** The Thread class allow defining, creating, and controlling thread functions in the system.
  *
@@ -349,3 +351,5 @@ private:
 
 }
 #endif
+
+/** @}*/

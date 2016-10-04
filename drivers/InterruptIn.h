@@ -27,6 +27,8 @@
 #include "platform/toolchain.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A digital interrupt input, used to call a function on a rising or falling edge
  *
@@ -158,3 +160,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

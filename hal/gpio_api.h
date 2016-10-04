@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -126,3 +129,5 @@ void gpio_init_inout(gpio_t* gpio, PinName pin, PinDirection direction, PinMode 
 #endif
 
 #endif
+
+/** @}*/

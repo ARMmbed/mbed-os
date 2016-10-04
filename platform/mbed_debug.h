@@ -1,3 +1,6 @@
+
+/** \addtogroup platform */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -64,3 +67,5 @@ static inline void debug_if(int condition, const char *format, ...) {}
 #endif
 
 #endif
+
+/** @}*/

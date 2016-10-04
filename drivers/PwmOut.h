@@ -23,6 +23,8 @@
 #include "platform/critical.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A pulse-width modulation digital output
  *
@@ -179,3 +181,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

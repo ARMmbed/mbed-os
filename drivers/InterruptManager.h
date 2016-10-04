@@ -22,6 +22,8 @@
 #include <string.h>
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** Use this singleton if you need to chain interrupt handlers.
  *
@@ -169,3 +171,5 @@ private:
 
 #endif
 
+
+/** @}*/

@@ -24,6 +24,8 @@
 #include "platform/critical.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A multiple pin digital input
  *
@@ -98,3 +100,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

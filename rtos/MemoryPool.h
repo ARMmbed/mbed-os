@@ -28,6 +28,8 @@
 #include "cmsis_os.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** Define and manage fixed-size memory pools of objects of a given type.
   @tparam  T         data type of a single object (element).
@@ -80,3 +82,5 @@ private:
 
 }
 #endif
+
+/** @}*/

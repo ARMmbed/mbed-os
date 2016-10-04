@@ -21,6 +21,8 @@
 #include "platform/toolchain.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A Ticker is used to call a function at a recurring interval
  *
@@ -140,3 +142,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

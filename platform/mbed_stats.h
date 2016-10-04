@@ -1,3 +1,6 @@
+
+/** \addtogroup platform */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2016-2016 ARM Limited
  *
@@ -38,3 +41,5 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats);
 #endif
 
 #endif
+
+/** @}*/

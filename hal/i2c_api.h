@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2015 ARM Limited
  *
@@ -239,3 +242,5 @@ void i2c_abort_asynch(i2c_t *obj);
 #endif
 
 #endif
+
+/** @}*/

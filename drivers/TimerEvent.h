@@ -20,6 +20,8 @@
 #include "hal/us_ticker_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** Base abstraction for timer interrupts
  *
@@ -56,3 +58,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

@@ -24,6 +24,8 @@
 #include "platform/critical.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A multiple pin digital in/out used to set/read multiple bi-directional pins
  *
@@ -113,3 +115,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

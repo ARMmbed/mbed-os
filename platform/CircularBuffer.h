@@ -19,6 +19,8 @@
 #include "platform/critical.h"
 
 namespace mbed {
+/** \addtogroup platform */
+/** @{*/
 
 /** Templated Circular buffer class
  *
@@ -113,3 +115,5 @@ private:
 }
 
 #endif
+
+/** @}*/

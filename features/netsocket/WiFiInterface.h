@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* WiFiInterface
  * Copyright (c) 2015 ARM Limited
  *
@@ -90,3 +93,5 @@ private:
 
 
 #endif
+
+/** @}*/

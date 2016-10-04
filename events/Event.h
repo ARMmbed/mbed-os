@@ -20,6 +20,8 @@
 #include "platform/mbed_assert.h"
 
 namespace events {
+/** \addtogroup events */
+/** @{*/
 
 /** Event
  *
@@ -3311,3 +3313,5 @@ Event<void(A0, A1, A2, A3, A4)> EventQueue::event(const volatile T *obj, R (T::*
 }
 
 #endif
+
+/** @}*/
