@@ -31,6 +31,12 @@ def find_namespace(contents):
             return num + 1
     return 0
 
+EXCLUDES = ["targets", "features/FEATURE", "features/mbedtls",
+           "features/nanostack", "features/storage"]
+
+def is_not_excluded(src):
+    return all(exclude not in src for exclude in EXCLUDES)
+
 if __name__ == "__main__":
     import sys
     from os.path import abspath, dirname, join
@@ -42,7 +48,7 @@ if __name__ == "__main__":
     from tools.targets import TARGET_MAP
     toolchain = GCC_ARM(TARGET_MAP["Super_Target"])
     resources = toolchain.scan_resources(".")
-    for src in resources.headers:
+    for src in filter(is_not_excluded, resources.headers):
         if len(src.split(sep)) > 2:
             name = src.split(sep)[1]
             if name == "features":
@@ -55,7 +61,7 @@ if __name__ == "__main__":
                 after = "\n".join(contents.split("\n")[insert_at:])
                 fd.write("{:s}\n/** \\addtogroup {:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(before,name,after))
     for name, res in resources.features.iteritems():
-        for src in res.headers:
+        for src in filter(is_not_excluded, res.headers):
             with open(src) as fd:
                 contents = fd.read()
             with open(src, "w+") as fd:
@@ -64,5 +70,8 @@ if __name__ == "__main__":
                 after = "\n".join(contents.split("\n")[insert_at:])
                 fd.write("{:s}\n/** \\addtogroup FEATURE_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(before,name,after))
 
-    generate_documentation(filter(lambda x: "targets" not in x, sum(map(lambda x:x.headers, resources.features.values()), resources.headers)),
+    generate_documentation(filter(is_not_excluded,
+                                  sum(map(lambda x:x.headers,
+                                          resources.features.values()),
+                                      resources.headers)),
                            join(dirname(dirname(__file__)), "mbed-docs"))
