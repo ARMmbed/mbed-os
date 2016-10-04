@@ -29,15 +29,6 @@
 
 #include "platform/inc/platform_mbed.h"
 
-/*
- * Only use features that do not require an entropy source when
- * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.
- */
-#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
-#include "mbedtls/config-no-entropy.h"
-#else
-#define MBEDTLS_CONFIG_H
-
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
@@ -2606,5 +2597,4 @@
 
 #include "check_config.h"
 
-#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT */
 #endif /* MBEDTLS_CONFIG_H */
