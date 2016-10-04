@@ -23,14 +23,6 @@ def generate_documentation(dirs, output_dir):
         proc.stdin.close()
         proc.wait()
 
-MATCH_NAMESPACE = compile(r'^namespace.*')
-
-def find_namespace(contents):
-    for num, line in enumerate(contents.split("\n")):
-        if MATCH_NAMESPACE.match(line):
-            return num + 1
-    return 0
-
 EXCLUDES = ["targets", "features/FEATURE", "features/mbedtls",
            "features/nanostack", "features/storage"]
 
@@ -48,28 +40,6 @@ if __name__ == "__main__":
     from tools.targets import TARGET_MAP
     toolchain = GCC_ARM(TARGET_MAP["Super_Target"])
     resources = toolchain.scan_resources(".")
-    for src in filter(is_not_excluded, resources.headers):
-        if len(src.split(sep)) > 2:
-            name = src.split(sep)[1]
-            if name == "features":
-                name = src.split(sep)[2]
-            with open(src) as fd:
-                contents = fd.read()
-            with open(src, "w+") as fd:
-                insert_at = find_namespace(contents)
-                before = "\n".join(contents.split("\n")[:insert_at])
-                after = "\n".join(contents.split("\n")[insert_at:])
-                fd.write("{:s}\n/** \\addtogroup {:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(before,name,after))
-    for name, res in resources.features.iteritems():
-        for src in filter(is_not_excluded, res.headers):
-            with open(src) as fd:
-                contents = fd.read()
-            with open(src, "w+") as fd:
-                insert_at = find_namespace(contents)
-                before = "\n".join(contents.split("\n")[:insert_at])
-                after = "\n".join(contents.split("\n")[insert_at:])
-                fd.write("{:s}\n/** \\addtogroup FEATURE_{:s} */\n/** @{{*/\n{:s}\n/** @}}*/\n".format(before,name,after))
-
     generate_documentation(filter(is_not_excluded,
                                   sum(map(lambda x:x.headers,
                                           resources.features.values()),
