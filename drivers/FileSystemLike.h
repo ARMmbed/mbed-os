@@ -23,6 +23,8 @@
 #include "drivers/DirHandle.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A filesystem-like object is one that can be used to open files
  *  though it by fopen("/name/filename", mode)
@@ -104,3 +106,5 @@ public:
 } // namespace mbed
 
 #endif
+
+/** @}*/

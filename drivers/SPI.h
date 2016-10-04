@@ -33,6 +33,8 @@
 #endif
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A SPI Master, used for communicating with SPI slave devices
  *
@@ -259,3 +261,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

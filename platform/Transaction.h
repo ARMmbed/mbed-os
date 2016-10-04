@@ -20,6 +20,8 @@
 #include "platform/FunctionPointer.h"
 
 namespace mbed {
+/** \addtogroup platform */
+/** @{*/
 
 /** Transaction structure
  */
@@ -73,3 +75,5 @@ private:
 }
 
 #endif
+
+/** @}*/

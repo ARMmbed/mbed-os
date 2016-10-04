@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -70,3 +73,5 @@ void rtc_write(time_t t);
 #endif
 
 #endif
+
+/** @}*/

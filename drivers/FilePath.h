@@ -22,6 +22,8 @@
 #include "drivers/FileLike.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 class FilePath {
 public:
@@ -44,3 +46,5 @@ private:
 } // namespace mbed
 
 #endif
+
+/** @}*/

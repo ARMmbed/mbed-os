@@ -1,3 +1,6 @@
+
+/** \addtogroup platform */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -103,3 +106,5 @@ struct SingletonPtr {
 };
 
 #endif
+
+/** @}*/

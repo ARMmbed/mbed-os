@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* MeshInterface
  * Copyright (c) 2015 ARM Limited
  *
@@ -30,3 +33,5 @@ class MeshInterface : public NetworkInterface
 
 
 #endif
+
+/** @}*/

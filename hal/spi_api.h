@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -212,3 +215,5 @@ void spi_abort_asynch(spi_t *obj);
 #endif // SPI_DEVICE
 
 #endif // MBED_SPI_API_H
+
+/** @}*/

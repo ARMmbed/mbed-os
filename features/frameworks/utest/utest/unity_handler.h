@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2015, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -38,3 +41,5 @@ void utest_safe_putc(int chr);
 #endif
 
 #endif // UTEST_UNITY_ASSERT_FAILURE_H
+
+/** @}*/

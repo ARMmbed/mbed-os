@@ -21,6 +21,8 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A digital input bus, used for reading the state of a collection of pins
  *
@@ -102,3 +104,5 @@ private:
 } // namespace mbed
 
 #endif
+
+/** @}*/

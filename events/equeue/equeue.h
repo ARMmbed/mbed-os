@@ -1,3 +1,6 @@
+
+/** \addtogroup events */
+/** @{*/
 /*
  * Flexible event queue for dispatching events
  *
@@ -216,3 +219,5 @@ void equeue_chain(equeue_t *queue, equeue_t *target);
 #endif
 
 #endif
+
+/** @}*/

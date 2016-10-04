@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /* ==========================================
     Unity Project - A Test Framework for C
     Copyright (c) 2007-14 Mike Karlesky, Mark VanderVoord, Greg Williams
@@ -779,3 +782,5 @@ extern const char UnityStrErr64[];
 
 /* End of UNITY_INTERNALS_H */
 #endif
+
+/** @}*/

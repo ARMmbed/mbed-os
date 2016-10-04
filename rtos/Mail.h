@@ -28,6 +28,8 @@
 #include "cmsis_os.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** The Mail class allow to control, send, receive, or wait for mail.
  A mail is a memory block that is send to a thread or interrupt service routine.
@@ -107,3 +109,5 @@ private:
 
 #endif
 
+
+/** @}*/

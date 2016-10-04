@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -61,3 +64,5 @@ void ethernet_set_link(int speed, int duplex);
 
 #endif
 
+
+/** @}*/

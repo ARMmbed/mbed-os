@@ -26,6 +26,8 @@
 
 
 namespace utest {
+/** \addtogroup frameworks */
+/** @{*/
 namespace v1 {
 
     /** Default handler hint.
@@ -191,3 +193,5 @@ namespace v1 {
 }   // namespace utest
 
 #endif // UTEST_DEFAULT_HANDLER_H
+
+/** @}*/

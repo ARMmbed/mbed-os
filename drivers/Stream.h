@@ -21,6 +21,8 @@
 #include <cstdarg>
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 extern void mbed_set_unbuffered_stream(FILE *_file);
 extern int mbed_getc(FILE *_file);
@@ -70,3 +72,5 @@ private:
 } // namespace mbed
 
 #endif
+
+/** @}*/

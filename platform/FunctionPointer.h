@@ -22,6 +22,8 @@
 #include <stdint.h>
 
 namespace mbed {
+/** \addtogroup platform */
+/** @{*/
 
 
 // Declarations for backwards compatibility
@@ -94,3 +96,5 @@ typedef FunctionPointerArg1<void, void> FunctionPointer;
 } // namespace mbed
 
 #endif
+
+/** @}*/

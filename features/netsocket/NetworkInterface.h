@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* NetworkStack
  * Copyright (c) 2015 ARM Limited
  *
@@ -154,3 +157,5 @@ protected:
 
 
 #endif
+
+/** @}*/

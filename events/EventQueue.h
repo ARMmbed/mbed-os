@@ -22,6 +22,8 @@
 #include <new>
 
 namespace events {
+/** \addtogroup events */
+/** @{*/
 
 /** EVENTS_EVENT_SIZE
  *  Minimum size of an event
@@ -2478,3 +2480,5 @@ protected:
 }
 
 #endif
+
+/** @}*/

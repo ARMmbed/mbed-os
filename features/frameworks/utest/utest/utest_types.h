@@ -26,6 +26,8 @@
 #include "SingletonPtr.h"
 
 namespace utest {
+/** \addtogroup frameworks */
+/** @{*/
 namespace v1 {
 
     enum repeat_t {
@@ -402,3 +404,5 @@ namespace v1 {
 }   // namespace utest
 
 #endif // UTEST_TYPES_H
+
+/** @}*/

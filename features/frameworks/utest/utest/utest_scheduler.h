@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2015, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -102,3 +105,5 @@ typedef struct {
 #endif
 
 #endif // UTEST_SCHEDULER_H
+
+/** @}*/

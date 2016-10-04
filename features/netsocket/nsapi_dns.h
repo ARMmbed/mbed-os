@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* nsapi_dns.h
  * Original work Copyright (c) 2013 Henry Leinen (henry[dot]leinen [at] online [dot] de)
  * Modified work Copyright (c) 2015 ARM Limited
@@ -176,3 +179,5 @@ static inline int nsapi_dns_add_server(const char *address)
 #endif
 
 #endif
+
+/** @}*/
