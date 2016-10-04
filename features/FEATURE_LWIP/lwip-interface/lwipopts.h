@@ -81,9 +81,9 @@
 #define DEFAULT_ACCEPTMBOX_SIZE     8
 
 #ifdef LWIP_DEBUG
-#define TCPIP_THREAD_STACKSIZE      1024*2
+#define TCPIP_THREAD_STACKSIZE      1200*2
 #else
-#define TCPIP_THREAD_STACKSIZE      1024
+#define TCPIP_THREAD_STACKSIZE      1200
 #endif
 
 #define TCPIP_THREAD_PRIO           (osPriorityNormal)
