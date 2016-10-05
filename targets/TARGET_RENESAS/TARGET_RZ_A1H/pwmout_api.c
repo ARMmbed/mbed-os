@@ -208,16 +208,10 @@ static int MAX_PERIOD[] = {
 };
 
 typedef enum {
-    MODE_PWM = 0,
-    MODE_MTU2
-} PWMmode;
-
-typedef enum {
     MTU2_PULSE = 0,
     MTU2_PERIOD
 } MTU2Signal;
 
-static int pwm_mode = MODE_PWM;
 static uint16_t init_period_ch1 = 0;
 static uint16_t init_period_ch2 = 0;
 static uint16_t init_mtu2_period_ch[5] = {0};
@@ -234,7 +228,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         /* PWM by MTU2 */
         int tmp_pwm;
         
-        pwm_mode = MODE_MTU2;
         // power on
         CPGSTBCR3 &= ~(CPG_STBCR3_BIT_MSTP33);
         
@@ -269,7 +262,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         }
     } else {
         /* PWM */
-        pwm_mode = MODE_PWM;
         // power on
         CPGSTBCR3 &= ~(CPG_STBCR3_BIT_MSTP30);
 
@@ -306,7 +298,7 @@ void pwmout_write(pwmout_t* obj, float value) {
     uint32_t wk_cycle;
     uint16_t v;
 
-    if (pwm_mode == MODE_MTU2) {
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         int tmp_pwm;
         
@@ -347,7 +339,7 @@ float pwmout_read(pwmout_t* obj) {
     uint32_t wk_cycle;
     float value;
 
-    if (pwm_mode == MODE_MTU2) {
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         uint32_t wk_pulse;
         int tmp_pwm;
@@ -406,7 +398,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     uint16_t wk_last_cycle;
     int      max_us = 0;
 
-    if (pwm_mode == MODE_MTU2) {
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         int tmp_pwm;
         uint16_t tmp_tgra;
@@ -550,7 +542,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     float value = 0;
 
-    if (pwm_mode == MODE_MTU2) {
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         if (mtu2_period_ch[obj->ch] != 0) {
             value = (float)us / (float)mtu2_period_ch[obj->ch];
