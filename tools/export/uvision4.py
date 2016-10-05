@@ -19,6 +19,7 @@ from project_generator_definitions.definitions import ProGenDef
 
 from tools.export.exporters import Exporter, ExporterTargetsProperty
 from tools.targets import TARGET_MAP, TARGET_NAMES
+from tools.utils import remove_if_in
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
 # define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
@@ -87,11 +88,11 @@ class Uvision4(Exporter):
                                                    + self.flags['c_flags']
                                                    + self.flags['cxx_flags']))
         # not compatible with c99 flag set in the template
-        project_data['misc']['c_flags'].remove("--c99")
+        remove_if_in(project_data['misc']['c_flags'], "--c99")
         # cpp is not required as it's implicit for cpp files
-        project_data['misc']['c_flags'].remove("--cpp")
+        remove_if_in(project_data['misc']['c_flags'], "--cpp")
         # we want no-vla for only cxx, but it's also applied for C in IDE, thus we remove it
-        project_data['misc']['c_flags'].remove("--no_vla")
+        remove_if_in(project_data['misc']['c_flags'], "--no_vla")
         project_data['misc']['ld_flags'] = self.flags['ld_flags']
 
         project_data['build_dir'] = project_data['build_dir'] + '\\' + 'uvision4'

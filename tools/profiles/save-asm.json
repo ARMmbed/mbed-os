@@ -1,0 +1,23 @@
+{
+    "GCC_ARM": {
+        "common": ["-save-temps"],
+        "asm": [],
+        "c": [],
+        "cxx": [],
+        "ld": []
+    },
+    "ARM": {
+        "common": ["--asm", "--interleave"],
+        "asm": [],
+        "c": [],
+        "cxx": [],
+        "ld": []
+    },
+    "uARM": {
+        "common": ["--asm", "--interleave"],
+        "asm": [],
+        "c": [],
+        "cxx": [],
+        "ld": []
+    }
+}

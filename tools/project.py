@@ -10,7 +10,7 @@ from shutil import move, rmtree
 from argparse import ArgumentParser
 from os.path import normpath, realpath
 
-from tools.paths import EXPORT_DIR, MBED_BASE, MBED_LIBRARIES
+from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES
 from tools.export import EXPORTERS, mcu_ide_matrix
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
@@ -18,7 +18,8 @@ from tools.targets import TARGET_NAMES
 from tools.utils import argparse_filestring_type, argparse_many, args_error
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
-from tools.project_api import export_project
+from tools.project_api import export_project, get_exporter_toolchain
+from tools.options import extract_profile
 
 
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
@@ -52,7 +53,8 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
             # Substitute the mbed library builds with their sources
             if MBED_LIBRARIES in test.dependencies:
                 test.dependencies.remove(MBED_LIBRARIES)
-                test.dependencies.append(MBED_BASE)
+                test.dependencies.append(MBED_HAL)
+
 
         src_paths = [test.source_dir]
         lib_paths = test.dependencies
@@ -63,7 +65,8 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           clean=False, zip_proj=False, options=None, export_path=None, silent=False):
+           clean=False, zip_proj=False, build_profile=None, export_path=None,
+           silent=False):
     """Do an export of a project.
 
     Positional arguments:
@@ -87,7 +90,7 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     return export_project(src, project_dir, target, ide, clean=clean, name=name,
                    macros=macros, libraries_paths=lib, zip_proj=zip_name,
-                   options=options, silent=silent)
+                   build_profile=build_profile, silent=silent)
 
 
 def main():
@@ -167,11 +170,10 @@ def main():
                         dest="macros",
                         help="Add a macro definition")
 
-    parser.add_argument("-o",
-                        type=argparse_many(str),
-                        dest="opts",
-                        default=["debug-info"],
-                        help="Toolchain options")
+    parser.add_argument("--profile",
+                        type=argparse_filestring_type,
+                        default=[],
+                        help="Toolchain profile")
 
     options = parser.parse_args()
 
@@ -220,10 +222,12 @@ def main():
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
         # Export to selected toolchain
+    _, toolchain_name = get_exporter_toolchain(options.ide)
+    profile = extract_profile(parser, options, toolchain_name)
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
            project_id=options.program, clean=options.clean,
-           zip_proj=zip_proj, options=options.opts)
+           zip_proj=zip_proj, build_profile=profile)
 
 
 if __name__ == "__main__":

@@ -43,13 +43,37 @@ The purpose of the library is to provide a light, simple and general tracing sol
 ### Prerequisites
 
 * Initialize the serial port so that `stdout` works. You can verify that the serial port works using the `printf()` function.
- * if you want to redirect the traces somewhere else, see the [trace API](https://github.com/ARMmbed/mbed-trace/blob/master/mbed-trace/mbed_trace.h#L170).
-* to activate traces, configure yotta with flag: `YOTTA_CFG_MBED_TRACE` set to 1 or true. Setting the flag to 0 or false disables tracing.
- * By default trace uses 1024 bytes buffer for trace lines, but it can be configure by yotta with: `YOTTA_CFG_MBED_TRACE_LINE_LENGTH`. Default length: 1024.
- * To disable ipv6 convertion, set `YOTTA_CFG_MBED_TRACE_FEA_IPV6 = 0` from yotta configurations.
-* If thread safety is needed, configure the wait and release callback functions before initialization so that the protection is in place as soon as the library is initialized. This should usually only be done once in the application's lifetime.
+    * if you want to redirect the traces somewhere else, see the [trace API](https://github.com/ARMmbed/mbed-trace/blob/master/mbed-trace/mbed_trace.h#L170).
+* To enable the tracing API:
+    * With yotta: set `YOTTA_CFG_MBED_TRACE` to 1 or true. Setting the flag to 0 or false disables tracing.
+    * [With mbed OS 5](#enabling-the-tracing-api-in-mbed-os-5)
+* By default, trace uses 1024 bytes buffer for trace lines, but you can change it by yotta with: `YOTTA_CFG_MBED_TRACE_LINE_LENGTH`.
+* To disable the IPv6 conversion, set `YOTTA_CFG_MBED_TRACE_FEA_IPV6 = 0`.
+* If thread safety is needed, configure the wait and release callback functions before initialization to enable the protection. Usually, this needs to be done only once in the application's lifetime.
 * Call the trace initialization (`mbed_trace_init`) once before using any other APIs. It allocates the trace buffer and initializes the internal variables.
-* Define `TRACE_GROUP` in your source code (not in the header!) to use traces. `TRACE_GROUP` is a 1-4 character long char-array (for example `#define TRACE_GROUP "APPL"`). This will be printed on every trace line.
+* Define `TRACE_GROUP` in your source code (not in the header!) to use traces. It is a 1-4 characters long char-array (for example `#define TRACE_GROUP "APPL"`). This will be printed on every trace line.
+
+### Enabling the tracing API in mbed OS 5
+
+* Add the feature COMMON_PAL into the build
+* Set `MBED_CONF_MBED_TRACE_ENABLE` to 1 or true
+
+To do so, add the following to your mbed_app.json:
+
+```json
+{
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["COMMON_PAL"],
+            "mbed-trace.enable": 1
+        }
+    }
+}
+```
+
+Don't forget to fulfill the other [prerequisites](#prerequisites)!
+
+([Click here for more information on the configuration system](https://github.com/ARMmbed/mbed-os/blob/master/docs/config_system.md))
 
 ### Traces
 
@@ -63,20 +87,20 @@ Available levels:
 * info
 * cmdline (special behavior, should not be used)
 
-Set mutex wait and release functions, if thread safety is needed. Do this before initialization so the functions are immediately available:
+For the thread safety, set the mutex wait and release functions. You need do this before the initialization to have the functions available right away:
 
 ```c
 mbed_trace_mutex_wait_function_set(my_mutex_wait);
 mbed_trace_mutex_release_function_set(my_mutex_release);
 ```
 
-Initialization (once in application lifetime):
+Initialization (once in application's lifetime):
 
 ```c
 int mbed_trace_init(void);
 ```
 
-Set output function, `printf` by default:
+Set the output function, `printf` by default:
 
 ```c
 mbed_trace_print_function_set(printf)
@@ -84,10 +108,14 @@ mbed_trace_print_function_set(printf)
 
 ### Helping functions
 
-The purpose of the helping functions is to provide simple conversions, for example from an array to C string, so that you can print everything to single trace line.
-These must be called inside actual trace calls, e.g. ```tr_debug("My IP6 address: %s", mbed_trace_ipv6(addr));```.
+The purpose of the helping functions is to provide simple conversions, for example from an array to C string, so that you can print everything to single trace line. They must be called inside the actual trace calls, for example:
+
+```
+tr_debug("My IP6 address: %s", mbed_trace_ipv6(addr));
+```
 
 Available conversion functions:
+
 ```
 char *mbed_trace_ipv6(const void *addr_ptr)
 char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len)
@@ -104,7 +132,7 @@ See more in [mbed_trace.h](https://github.com/ARMmbed/mbed-trace/blob/master/mbe
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
- // These are only necessary if thread safety is needed
+ // These are necessary only if thread safety is needed
 static Mutex MyMutex;
 static void my_mutex_wait()
 {
@@ -131,15 +159,17 @@ int main(void){
 
 ## Unit tests
 
-To run unit tests
+To run unit tests:
 
-* In Linux:
+* In Linux
+
 ```
 yotta target x86-linux-native
 yotta test mbed_trace_test
 ```
 
-* In Windows:
+* In Windows
+
 ```
 yotta target x86-windows-native
 yotta test mbed_trace_test

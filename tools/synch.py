@@ -47,7 +47,7 @@ commit_msg = ''
 # Tuple data: (repo_name, list_of_code_dirs, [team])
 # team is optional - if not specified, the code is published under mbed_official
 OFFICIAL_CODE = (
-    ("mbed-dev" , MBED_BASE),
+    ("mbed-dev" , [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]),
     ("mbed-rtos", RTOS),
     ("mbed-dsp" , DSP),
     ("mbed-rpc" , MBED_RPC),

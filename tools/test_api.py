@@ -60,6 +60,7 @@ from tools.build_api import add_result_to_report
 from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
 from tools.libraries import LIBRARIES, LIBRARY_MAP
+from tools.options import extract_profile
 from tools.toolchains import TOOLCHAIN_PATHS
 from tools.toolchains import TOOLCHAINS
 from tools.test_exporters import ReportExporter, ResultExporterType
@@ -170,6 +171,8 @@ class SingleTestRunner(object):
                  _test_loops_list=None,
                  _muts={},
                  _clean=False,
+                 _parser=None,
+                 _opts=None,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
                  _opts_report_html_file_name=None,
@@ -258,6 +261,8 @@ class SingleTestRunner(object):
         self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
+        self.opts_parser = _parser
+        self.opts = _opts
         self.opts_auto_detect = _opts_auto_detect
         self.opts_include_non_automated = _opts_include_non_automated
 
@@ -355,19 +360,20 @@ class SingleTestRunner(object):
                 print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                 continue
 
-            build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
+
+            profile = extract_profile(self.opts_parser, self.opts, toolchain)
 
 
             try:
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
-                                                         options=build_mbed_libs_options,
                                                          clean=clean_mbed_libs_options,
                                                          verbose=self.opts_verbose,
                                                          jobs=self.opts_jobs,
                                                          report=build_report,
-                                                         properties=build_properties)
+                                                         properties=build_properties,
+                                                         build_profile=profile)
 
                 if not build_mbed_libs_result:
                     print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
@@ -423,7 +429,6 @@ class SingleTestRunner(object):
                         libraries.append(lib['id'])
 
 
-            build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
             clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
 
             # Build all required libraries
@@ -432,12 +437,12 @@ class SingleTestRunner(object):
                     build_lib(lib_id,
                               T,
                               toolchain,
-                              options=build_project_options,
                               verbose=self.opts_verbose,
                               clean=clean_mbed_libs_options,
                               jobs=self.opts_jobs,
                               report=build_report,
-                              properties=build_properties)
+                              properties=build_properties,
+                              build_profile=profile)
 
                 except ToolException:
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
@@ -479,7 +484,6 @@ class SingleTestRunner(object):
                                      T,
                                      toolchain,
                                      test.dependencies,
-                                     options=build_project_options,
                                      clean=clean_project_options,
                                      verbose=self.opts_verbose,
                                      name=project_name,
@@ -489,7 +493,8 @@ class SingleTestRunner(object):
                                      report=build_report,
                                      properties=build_properties,
                                      project_id=test_id,
-                                     project_description=test.get_description())
+                                     project_description=test.get_description(),
+                                     build_profile=profile)
 
                 except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
@@ -1789,6 +1794,10 @@ def get_default_test_options_parser():
                         action="store_true",
                         help='Test only peripheral declared for MUT and skip common tests')
 
+    parser.add_argument("--profile", dest="profile", action="append",
+                        type=argparse_filestring_type,
+                        default=[])
+
     parser.add_argument('-C', '--only-commons',
                         dest='test_only_common',
                         default=False,
@@ -1990,7 +1999,7 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=None):
+def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
     target_name: name of the target to use for scanning (ex. 'K64F')
@@ -2002,7 +2011,7 @@ def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=N
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options,
+    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name,
                                   silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
@@ -2060,9 +2069,10 @@ def norm_relative_path(path, start):
     return path
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
-        options=None, clean=False, notify=None, verbose=False, jobs=1,
-        macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False, app_config=None):
+                clean=False, notify=None, verbose=False, jobs=1, macros=None,
+                silent=False, report=None, properties=None,
+                continue_on_build_fail=False, app_config=None,
+                build_profile=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2095,7 +2105,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                     options=options,
                                      jobs=jobs,
                                      clean=clean,
                                      macros=macros,
@@ -2104,16 +2113,17 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      report=report,
                                      properties=properties,
                                      verbose=verbose,
-                                     app_config=app_config)
+                                     app_config=app_config,
+                                     build_profile=build_profile)
 
-        except Exception, e:
-            if not isinstance(e, NotSupportedException):
-                result = False
-
-                if continue_on_build_fail:
-                    continue
-                else:
-                    break
+        except NotSupportedException:
+            pass
+        except ToolException:
+            result = False
+            if continue_on_build_fail:
+                continue
+            else:
+                break
 
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.

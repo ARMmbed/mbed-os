@@ -14,8 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from tools.paths import MBED_RTX, RTOS_LIBRARIES, MBED_LIBRARIES, MBED_RPC,\
-    RTOS_ABSTRACTION, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
+from tools.paths import MBED_RTX, RTOS, RTOS_LIBRARIES, MBED_LIBRARIES,\
+    MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
     USB_HOST_LIBRARIES, FAT_FS, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
     SD_FS, FS_LIBRARY, ETH_SOURCES, LWIP_SOURCES, ETH_LIBRARY, UBLOX_SOURCES,\
     UBLOX_LIBRARY, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, CPPUTEST_SRC,\
@@ -36,7 +36,7 @@ LIBRARIES = [
     },
     {
         "id": "rtos",
-        "source_dir": RTOS_ABSTRACTION,
+        "source_dir": RTOS,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
     },
@@ -62,7 +62,7 @@ LIBRARIES = [
         "id": "usb_host",
         "source_dir": USB_HOST,
         "build_dir": USB_HOST_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, FAT_FS, MBED_RTX, RTOS_ABSTRACTION],
+        "dependencies": [MBED_LIBRARIES, FAT_FS, MBED_RTX, RTOS_LIBRARIES],
     },
 
     # DSP libraries

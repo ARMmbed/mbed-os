@@ -135,10 +135,11 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
 
 
 def export_project(src_paths, export_path, target, ide,
-                   libraries_paths=None, options=None, linker_script=None,
-                   clean=False, notify=None, verbose=False, name=None,
-                   inc_dirs=None, jobs=1, silent=False, extra_verbose=False,
-                   config=None, macros=None, zip_proj=None, inc_repos=False):
+                   libraries_paths=None, linker_script=None, clean=False,
+                   notify=None, verbose=False, name=None, inc_dirs=None,
+                   jobs=1, silent=False, extra_verbose=False, config=None,
+                   macros=None, zip_proj=None, inc_repos=False,
+                   build_profile=None):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -149,7 +150,6 @@ def export_project(src_paths, export_path, target, ide,
 
     Keyword Arguments:
     libraries_paths - paths to additional libraries
-    options - build options passed by -o flag
     linker_script - path to the linker script for the specified target
     clean - removes the export_path if it exists
     notify - function is passed all events, and expected to handle notification
@@ -192,10 +192,10 @@ def export_project(src_paths, export_path, target, ide,
 
     # Pass all params to the unified prepare_resources()
     toolchain = prepare_toolchain(paths, target, toolchain_name,
-                                  macros=macros, options=options, clean=clean,
-                                  jobs=jobs, notify=notify, silent=silent,
-                                  verbose=verbose, extra_verbose=extra_verbose,
-                                  config=config)
+                                  macros=macros, clean=clean, jobs=jobs,
+                                  notify=notify, silent=silent, verbose=verbose,
+                                  extra_verbose=extra_verbose, config=config,
+                                  build_profile=build_profile)
     # The first path will give the name to the library
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
