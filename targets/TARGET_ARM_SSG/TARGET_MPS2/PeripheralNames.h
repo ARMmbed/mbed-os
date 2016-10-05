@@ -25,8 +25,7 @@ extern "C" {
 typedef enum {
     UART_0 = (int)CMSDK_UART0_BASE,
     UART_1 = (int)CMSDK_UART1_BASE,
-    UART_2 = (int)CMSDK_UART3_BASE,
-    UART_3 = (int)CMSDK_UART4_BASE
+    UART_2 = (int)CMSDK_UART2_BASE,
 } UARTName;
 
 typedef enum {

@@ -1,5 +1,6 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,357 +14,246 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// math.h required for floating point operations for baud rate calculation
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
-#include "serial_api.h"
 #include "cmsis.h"
-#include "pinmap.h"
-#include "mbed_error.h"
+#include "PinNames.h"
+#include "SMM_MPS2.h"
+#include "serial_api.h"
 #include "gpio_api.h"
 
-/******************************************************************************
- * INITIALIZATION
- ******************************************************************************/
-
-static const PinMap PinMap_UART_TX[] = {
-    {USBTX     , UART_0, 0},
-    {XB_TX   , UART_1, 0},
-    {SH0_TX  , UART_2, 0},
-    {SH1_TX  , UART_3, 0},
-    {NC      , NC    , 0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {USBRX     , UART_0, 0},
-    {XB_RX   , UART_1, 0},
-    {SH0_RX  , UART_2, 0},
-    {SH1_RX  , UART_3, 0},
-    {NC      , NC    , 0}
-};
-
-#define UART_NUM    4
-
-static uart_irq_handler irq_handler;
+#include <stdio.h>
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-struct serial_global_data_s {
-    uint32_t serial_irq_id;
-    gpio_t sw_rts, sw_cts;
-    uint8_t count, rx_irq_set_flow, rx_irq_set_api;
-};
+/** Initialize the serial peripheral. It sets the default parameters for serial
+ *  peripheral, and configures its specifieds pins.
+ *
+ * @param obj The serial object
+ * @param tx  The TX pin name
+ * @param rx  The RX pin name
+ */
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
+    (void)obj;
+    (void)tx;
+    (void)rx;
 
-static struct serial_global_data_s uart_data[UART_NUM];
+    /* Do almost nothing, because we are always UART0 */
+    stdio_uart_inited = 1;
+    /* Not initializing stdio_uart, because don't have to. All UARTs are stdio
+     * UARTs. */
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
-    int is_stdio_uart = 0;
-    
-    // determine the UART to use
-    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
-    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
-    UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
-    }
-    
-    obj->uart = (CMSDK_UART_TypeDef *)uart;
-    //set baud rate and enable Uart in normarl mode (RX and TX enabled)
-    switch (uart)
+    /* Disable RX and TX interrupts, disable overrun interrupts, enable TX,
+     * disable RX */
+    CMSDK_UART0->CTRL = CMSDK_UART_CTRL_TXEN_Msk;
+}
+
+/** Release the serial peripheral, not currently invoked. It requires further
+ *  resource management.
+ *
+ * @param obj The serial object
+ */
+void serial_free(serial_t *obj)
+{
+    (void)obj;
+    /* Do nothing, because we don't have to put anything back */
+}
+
+/** Configure the baud rate
+ *
+ * @param obj      The serial object
+ * @param baudrate The baud rate to be configured
+ */
+void serial_baud(serial_t *obj, int baudrate)
+{
+    (void)obj;
+    (void)baudrate;
+
+    /* We don't care about baud rates (fast model), so we don't have to
+     * configure them.
+     *
+     * However, the UART resets to a BAUDDIV of 0, which is invalid. Set it to
+     * the minimum valid number. */
+    CMSDK_UART0->BAUDDIV = 16;
+}
+
+/** Configure the format. Set the number of bits, parity and the number of stop bits
+ *
+ * @param obj       The serial object
+ * @param data_bits The number of data bits
+ * @param parity    The parity
+ * @param stop_bits The number of stop bits
+ */
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
+    (void)obj;
+    (void)data_bits;
+    (void)parity;
+    (void)stop_bits;
+    /* Do nothing, because we don't care about serial format (fast model) */
+}
+
+/** The serial interrupt handler registration
+ *
+ * @param obj     The serial object
+ * @param handler The interrupt handler which will be invoked when the interrupt fires
+ * @param id      The SerialBase object
+ */
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
+    (void)obj;
+    (void)handler;
+    (void)id;
+    /* Do nothing, because this should never be called */
+
+    //printf("Don't call me.\n");
+    //for (;;);
+}
+
+/** Configure serial interrupt. This function is used for word-approach
+ *
+ * @param obj    The serial object
+ * @param irq    The serial IRQ type (RX or TX)
+ * @param enable Set to non-zero to enable events, or zero to disable them
+ */
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
+    (void)obj;
+    (void)irq;
+    (void)enable;
+    /* I don't know what word-approach is. */
+
+    /* Do nothing, because we won't use interrupts. */
+}
+
+/** Get character. This is a blocking call, waiting for a character
+ *
+ * @param obj The serial object
+ */
+int  serial_getc(serial_t *obj)
+{
+    printf("Anybody calling this?\n");
+    for(;;);
+
+    /* Wait for the RX buffer to be non-empty */
+    while (!serial_readable(obj));
+
+    return CMSDK_UART0->DATA & 0xFF;
+}
+
+/** Send a character. This is a blocking call, waiting for a peripheral to be available
+ *  for writing
+ *
+ * @param obj The serial object
+ * @param c   The character to be sent
+ */
+void serial_putc(serial_t *obj, int c)
+{
+    /* XXX Is this the right place to do this? Is there no higher level like
+     * libc that should do this? */
+    if (c == '\n')
     {
-        case UART_0:
-        {
-          CMSDK_UART0->CTRL = 0x00;    // Disable UART when changing configuration
-          if((int)uart_tx != NC)
-          {
-            CMSDK_UART0->CTRL |= 0x01;  // TX enable 
-          } else {
-            CMSDK_UART0->CTRL &= 0xFFFE;  // TX disable
-          } 
-          
-          
-          if((int)uart_rx != NC)
-          {
-            CMSDK_UART0->CTRL |= 0x02;  // RX enable  
-          } else {
-            CMSDK_UART0->CTRL &= 0xFFFD;  // RX disable
-          } 
-
-        }
-        break;
-        case UART_1:     //XBEE SOCKET UART
-                {
-          CMSDK_UART1->CTRL = 0x00;    // Disable UART when changing configuration
-          if((int)tx != NC)
-          {
-            CMSDK_UART1->CTRL = 0x1;   // TX enable 
-             CMSDK_GPIO1->ALTFUNCSET |= 0x0100;
-          }
-          if((int)rx != NC)
-          {
-            CMSDK_UART1->CTRL |= 0x2;  // RX enable
-            CMSDK_GPIO1->ALTFUNCSET |= 0x0080;
-          } 
-        }
-        break;
-        case UART_2:     //Sheild0 UART
-        {     
-          CMSDK_UART3->CTRL = 0x00;    // Disable UART when changing configuration
-          if((int)tx != NC)
-          {
-            CMSDK_UART3->CTRL = 0x1;   // TX enable 
-            CMSDK_GPIO0->ALTFUNCSET |= 0x0010;
-          }
-          if((int)rx != NC)
-          {
-            CMSDK_UART3->CTRL |= 0x2;  // RX enable 
-            CMSDK_GPIO0->ALTFUNCSET |= 0x0001;
-          }
-        } 
-        break;
-        case UART_3:     //Sheild1 UART
-        {
-          CMSDK_UART4->CTRL = 0x00;    // Disable UART when changing configuration
-          if((int)tx != NC)
-          {
-            CMSDK_UART4->CTRL = 0x1;   // TX enable 
-             CMSDK_GPIO1->ALTFUNCSET |= 0x4000;
-          }
-          if((int)rx != NC)
-          {
-            CMSDK_UART4->CTRL |= 0x2;  // RX enable 
-            CMSDK_GPIO1->ALTFUNCSET |= 0x0400;
-          }
-        }
-        break;
+        serial_putc(obj, '\r');
     }
 
-    // set default baud rate and format
-    serial_baud  (obj, 9600);
-    
-    // pinout the chosen uart
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
-    
-    switch (uart) {
-        case UART_0: obj->index = 0; break;
-        case UART_1: obj->index = 1; break;
-        case UART_2: obj->index = 2; break;
-        case UART_3: obj->index = 3; break;
-    }
-    uart_data[obj->index].sw_rts.pin = NC;
-    uart_data[obj->index].sw_cts.pin = NC;
-    serial_set_flow_control(obj, FlowControlNone, NC, NC);
-    
-    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
-    
-    if (is_stdio_uart) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
+    /* Wait for the TX buffer to be no longer full */
+    while (!serial_writable(obj));
+
+    /* Write the data (upper 24-bits are reserved) */
+    CMSDK_UART0->DATA = c & 0xFF;
 }
 
-void serial_free(serial_t *obj) {
-      uart_data[obj->index].serial_irq_id = 0;
+/** Check if the serial peripheral is readable
+ *
+ * @param obj The serial object
+ * @return Non-zero value if a character can be read, 0 if nothing to read
+ */
+int  serial_readable(serial_t *obj)
+{
+    (void)obj;
+
+    /* Datasheet says we have RX buffer full bit in STATE, but not RX buffer
+     * empty. Such crap. All we have to go on instead is the RX interrupt
+     * status, which I assume we get when there is a byte available... */
+
+    /* XXX As currently implemented, this just says if the RX buffer is full.
+     * It might never become full if only a few bytes are received (not ever
+     * enough to fill a buffer). */
+    return !(CMSDK_UART0->STATE & CMSDK_UART_STATE_RXBF_Msk);
 }
 
-// serial_baud
-// set the baud rate, taking in to account the current SystemFrequency
-void serial_baud(serial_t *obj, int baudrate) {
-    // The MPS2 has a simple divider to control the baud rate. The formula is:
-    //
-    // Baudrate = PCLK / BAUDDIV
-        //
-        // PCLK = 25 Mhz
-        // so for a desired baud rate of 9600
-        //  25000000 / 9600 = 2604
-    //
-    //check to see if minimum baud value entered
-    int baudrate_div = 0;
-    baudrate_div = SystemCoreClock / baudrate;
-    if(baudrate >= 16){
-    switch ((int)obj->uart) {
-        case UART_0: CMSDK_UART0->BAUDDIV = baudrate_div; break;
-        case UART_1: CMSDK_UART1->BAUDDIV = baudrate_div; break;
-        case UART_2: CMSDK_UART3->BAUDDIV = baudrate_div; break;
-        case UART_3: CMSDK_UART4->BAUDDIV = baudrate_div; break;
-        default: error("serial_baud"); break;
-    }
-    } else {
-        error("serial_baud");
-    }
+/** Check if the serial peripheral is writable
+ *
+ * @param obj The serial object
+ * @return Non-zero value if a character can be written, 0 otherwise.
+ */
+int  serial_writable(serial_t *obj)
+{
+    (void)obj;
 
+    /* Serial is writable if the TX buffer is not full. */
+    return !(CMSDK_UART0->STATE & CMSDK_UART_STATE_TXBF_Msk);
 }
 
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+/** Clear the serial peripheral
+ *
+ * @param obj The serial object
+ */
+void serial_clear(serial_t *obj)
+{
+    (void)obj;
+
+    /* Not implemented */
 }
 
-/******************************************************************************
- * INTERRUPTS HANDLING
- ******************************************************************************/
-static inline void uart_irq(uint32_t intstatus, uint32_t index, CMSDK_UART_TypeDef *puart) {
-    SerialIrq irq_type;
-    switch (intstatus)
-    {
-        case 1:
-        {
-            irq_type = TxIrq;
-        }
-        break;
+/** Set the break
+ *
+ * @param obj The serial object
+ */
+void serial_break_set(serial_t *obj)
+{
+    (void)obj;
 
-        case 2:
-        {
-            irq_type = RxIrq;
-        }
-        break;
-
-        default: return;
-    }   /* End of Switch */
-
-    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin)) 
-    {
-        gpio_write(&uart_data[index].sw_rts, 1);
-        // Disable interrupt if it wasn't enabled by other part of the application
-        if (!uart_data[index].rx_irq_set_api)
-        {
-            /* Disable Rx interrupt */
-            puart->CTRL &= ~(CMSDK_UART_CTRL_RXIRQEN_Msk);
-        }
-    }
-
-    if (uart_data[index].serial_irq_id != 0)
-    {
-        if ((irq_type != RxIrq) || (uart_data[index].rx_irq_set_api))
-        {
-            irq_handler(uart_data[index].serial_irq_id, irq_type);
-        }
-    }
-
-    if( irq_type == TxIrq )
-    {
-        /* Clear the TX interrupt Flag */
-        puart->INTCLEAR |= 0x01;
-    }
-    else
-    {
-        /* Clear the Rx interupt Flag */
-        puart->INTCLEAR |= 0x02;
-    }
+    /* Not implemented */
 }
 
-void uart0_irq() {uart_irq(CMSDK_UART0->INTSTATUS & 0x3, 0, (CMSDK_UART_TypeDef*)CMSDK_UART0);}
-void uart1_irq() {uart_irq(CMSDK_UART1->INTSTATUS & 0x3, 1, (CMSDK_UART_TypeDef*)CMSDK_UART1);}
-void uart2_irq() {uart_irq(CMSDK_UART3->INTSTATUS & 0x3, 2, (CMSDK_UART_TypeDef*)CMSDK_UART3);}
-void uart3_irq() {uart_irq(CMSDK_UART4->INTSTATUS & 0x3, 3, (CMSDK_UART_TypeDef*)CMSDK_UART4);}
+/** Clear the break
+ *
+ * @param obj The serial object
+ */
+void serial_break_clear(serial_t *obj)
+{
+    (void)obj;
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
-    irq_handler = handler;
-    uart_data[obj->index].serial_irq_id = id;
+    /* Not implemented */
 }
 
-static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
-    /* Declare a variable of type IRQn, initialise to 0  */
-    IRQn_Type irq_n = (IRQn_Type)0;
-    uint32_t vector = 0;
-    switch ((int)obj->uart)
-        {
-            case UART_0:
-            {
-                irq_n   = (( irq == TxIrq ) ?  UARTTX0_IRQn : UARTRX0_IRQn);
-                vector  = (uint32_t)&uart0_irq;
-            }
-            break;
+/** Configure the TX pin for UART function.
+ *
+ * @param tx The pin name used for TX
+ */
+void serial_pinout_tx(PinName tx)
+{
+    (void)tx;
 
-            case UART_1:
-            {
-                irq_n   = (( irq == TxIrq ) ?  UARTTX1_IRQn : UARTRX1_IRQn);
-                vector  = (uint32_t)&uart1_irq;
-            }
-            break;
-            case UART_2:
-            {
-                irq_n   = (( irq == TxIrq ) ?  UARTTX3_IRQn : UARTRX3_IRQn);
-                vector  = (uint32_t)&uart2_irq;
-            }
-            break;
-            case UART_3:
-            {
-                irq_n   = (( irq == TxIrq ) ?  UARTTX4_IRQn : UARTRX4_IRQn);
-            vector  = (uint32_t)&uart3_irq;
-            }
-            break;
-    }
-
-    if (enable)
-    {
-        if( irq == TxIrq )
-        {
-            /* Transmit IRQ, set appripriate enable */
-
-            /* set TX interrupt enable in CTRL REG */
-            obj->uart->CTRL |= CMSDK_UART_CTRL_TXIRQEN_Msk;
-        }
-        else
-        {
-            /* set Rx interrupt on in CTRL REG */
-            obj->uart->CTRL |= CMSDK_UART_CTRL_RXIRQEN_Msk;
-        }
-        NVIC_SetVector(irq_n, vector);
-        NVIC_EnableIRQ(irq_n);
-
-    }
-    else 
-    {   /*      Disable   IRQ   */
-        
-        obj->uart->CTRL &= ~(1 << (irq + 2));
-
-            NVIC_DisableIRQ(irq_n);
-    }
+    /* We don't care about this for now */
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-    serial_irq_set_internal(obj, irq, enable);
-}
+/** Configure the serial for the flow control. It sets flow control in the hardware
+ *  if a serial peripheral supports it, otherwise software emulation is used.
+ *
+ * @param obj    The serial object
+ * @param type   The type of the flow control. Look at the available FlowControl types.
+ * @param rxflow The TX pin name
+ * @param txflow The RX pin name
+ */
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    (void)obj;
+    (void)type;
+    (void)rxflow;
+    (void)txflow;
 
-/******************************************************************************
- * READ/WRITE
- ******************************************************************************/
-int serial_getc(serial_t *obj) {
-    while (serial_readable(obj) == 0);
-    int data = obj->uart->DATA;
-    return data;
+    /* Not implemented */
 }
-
-void serial_putc(serial_t *obj, int c) {
-    while (serial_writable(obj));
-    obj->uart->DATA = c;
-}
-
-int serial_readable(serial_t *obj) {
-    return obj->uart->STATE & 0x2;
-}
-
-int serial_writable(serial_t *obj) {
-    return obj->uart->STATE & 0x1;
-}
-
-void serial_clear(serial_t *obj) {
-    obj->uart->DATA = 0x00;
-}
-
-void serial_pinout_tx(PinName tx) {
-    pinmap_pinout(tx, PinMap_UART_TX);
-}
-
-void serial_break_set(serial_t *obj) {
-}
-
-void serial_break_clear(serial_t *obj) {
-}
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
-}
-

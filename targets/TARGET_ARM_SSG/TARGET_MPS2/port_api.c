@@ -28,9 +28,9 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     CMSDK_GPIO_TypeDef *port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO0_BASE + ((int)port * 0x10));    
 
     obj->reg_in  = &port_reg->DATAOUT;
-    obj->reg_dir = &port_reg->OUTENABLESET;
-    obj->reg_dirclr = &port_reg->OUTENABLECLR;
- 
+    obj->reg_dir = &port_reg->OUTENSET;
+    obj->reg_dirclr = &port_reg->OUTENCLR;
+
     uint32_t i;
     // The function is set per pin: reuse gpio logic
     for (i=0; i<16; i++) {

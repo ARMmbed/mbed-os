@@ -70,46 +70,17 @@ void gpio_init(gpio_t *obj, PinName pin) {
         if(pin <=15) {
             obj->reg_data = &CMSDK_GPIO0->DATAOUT ;
             obj->reg_in  =         &CMSDK_GPIO0->DATA ;
-            obj->reg_dir =         &CMSDK_GPIO0->OUTENABLESET ;
-            obj->reg_dirclr = &CMSDK_GPIO0->OUTENABLECLR ;
+            obj->reg_dir =         &CMSDK_GPIO0->OUTENSET ;
+            obj->reg_dirclr = &CMSDK_GPIO0->OUTENCLR ;
         } else if (pin >= 16 && pin <= 31){
             obj->reg_data = &CMSDK_GPIO1->DATAOUT ;
             obj->reg_in  =         &CMSDK_GPIO1->DATA ;
-            obj->reg_dir =         &CMSDK_GPIO1->OUTENABLESET ;
-            obj->reg_dirclr = &CMSDK_GPIO1->OUTENABLECLR ;
-        } else if (pin >= 32 && pin <= 47){
-            obj->reg_data = &CMSDK_GPIO2->DATAOUT;
-            obj->reg_in  =         &CMSDK_GPIO2->DATA;
-            obj->reg_dir =         &CMSDK_GPIO2->OUTENABLESET ;
-            obj->reg_dirclr = &CMSDK_GPIO2->OUTENABLECLR ;
-        }    else if (pin >= 48 && pin <= 51){
-            obj->reg_data = &CMSDK_GPIO3->DATAOUT;
-            obj->reg_in  =         &CMSDK_GPIO3->DATA;
-            obj->reg_dir =         &CMSDK_GPIO3->OUTENABLESET ;
-            obj->reg_dirclr = &CMSDK_GPIO3->OUTENABLECLR ;
-        } else if (pin == 100 || pin == 101){
-            obj->reg_data = &MPS2_FPGAIO->LED; //user leds
-            obj->reg_in  =  &MPS2_FPGAIO->LED;
-        } else if (pin == 110 || pin == 111){
-            obj->reg_data = &MPS2_FPGAIO->BUTTON; //user switches
-            obj->reg_in = &MPS2_FPGAIO->BUTTON; //user switches
-        }else if (pin >= 200 && pin <= 207){
-            obj->reg_data = &MPS2_SCC->LEDS; //mcc leds
-            obj->reg_in = &MPS2_SCC->LEDS; //mcc leds
-        }else if (pin >= 210 && pin <= 217){
-            obj->reg_in = &MPS2_SCC->SWITCHES; //mcc switches
-        }else if (pin == 303 || pin == 307){
-            obj->reg_data = &MPS2_FPGAIO->MISC; //spi chip select = 303, clcd chip select = 307
-        }else if (pin == 308 || pin == 309 || pin == 310 || pin == 311){
-            obj->reg_data = &MPS2_FPGAIO->MISC; //clcd control bits
-        }else if (pin == 323 || pin == 334 || pin == 653){ //spi 3 chip select = 323, spi 4 chip select = 334, adc chip select = 653
-            obj->reg_data = &MPS2_FPGAIO->MISC; //spi cs bits
+            obj->reg_dir =         &CMSDK_GPIO1->OUTENSET ;
+            obj->reg_dirclr = &CMSDK_GPIO1->OUTENCLR ;
         }
         
         if (pin == 323){
             CMSDK_GPIO0->ALTFUNCSET |= 0x1000;
-        }else if (pin == 334){
-            CMSDK_GPIO2->ALTFUNCSET |= 0x0040;
         }else if (pin == 653){
             CMSDK_GPIO1->ALTFUNCSET |= 0x0001;
         }
