@@ -41,7 +41,7 @@ int EthernetInterface::set_dhcp(bool dhcp)
 
 int EthernetInterface::connect()
 {
-    return lwip_bringup(_dhcp,
+    return mbed_lwip_bringup(_dhcp,
             _ip_address[0] ? _ip_address : 0,
             _netmask[0] ? _netmask : 0,
             _gateway[0] ? _gateway : 0);
@@ -49,17 +49,17 @@ int EthernetInterface::connect()
 
 int EthernetInterface::disconnect()
 {
-    return lwip_bringdown();
+    return mbed_lwip_bringdown();
 }
 
 const char *EthernetInterface::get_mac_address()
 {
-    return lwip_get_mac_address();
+    return mbed_lwip_get_mac_address();
 }
 
 const char *EthernetInterface::get_ip_address()
 {
-    if (lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
+    if (mbed_lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
         return _ip_address;
     }
 
@@ -68,7 +68,7 @@ const char *EthernetInterface::get_ip_address()
 
 const char *EthernetInterface::get_netmask()
 {
-    if (lwip_get_netmask(_netmask, sizeof _netmask)) {
+    if (mbed_lwip_get_netmask(_netmask, sizeof _netmask)) {
         return _netmask;
     }
 
@@ -77,7 +77,7 @@ const char *EthernetInterface::get_netmask()
 
 const char *EthernetInterface::get_gateway()
 {
-    if (lwip_get_gateway(_gateway, sizeof _gateway)) {
+    if (mbed_lwip_get_gateway(_gateway, sizeof _gateway)) {
         return _gateway;
     }
 

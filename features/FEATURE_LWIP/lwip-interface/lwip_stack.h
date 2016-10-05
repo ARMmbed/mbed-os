@@ -18,20 +18,21 @@
 #define LWIP_STACK_H
 
 #include "nsapi.h"
+#include "emac_api.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
 // Access to lwip through the nsapi
-int lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
-int lwip_bringdown(void);
+int mbed_lwip_init(emac_interface_t *emac);
+int mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
+int mbed_lwip_bringdown(void);
 
-const char *lwip_get_mac_address(void);
-char *lwip_get_ip_address(char *buf, int buflen);
-char *lwip_get_netmask(char *buf, int buflen);
-char *lwip_get_gateway(char *buf, int buflen);
+const char *mbed_lwip_get_mac_address(void);
+char *mbed_lwip_get_ip_address(char *buf, int buflen);
+char *mbed_lwip_get_netmask(char *buf, int buflen);
+char *mbed_lwip_get_gateway(char *buf, int buflen);
 
 extern nsapi_stack_t lwip_stack;
 

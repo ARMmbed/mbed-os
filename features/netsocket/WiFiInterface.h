@@ -1,5 +1,5 @@
 /* WiFiInterface
- * Copyright (c) 2015 ARM Limited
+ * Copyright (c) 2015 - 2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,10 @@
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
+#include <string.h>
+#include "Callback.h"
 #include "netsocket/NetworkInterface.h"
-
-
-/** Enum of WiFi encryption types
- *
- *  The security type specifies a particular security to use when
- *  connected to a WiFi network
- *
- *  @enum nsapi_protocol_t
- */
-enum nsapi_security_t {
-    NSAPI_SECURITY_NONE = 0,   /*!< open access point */
-    NSAPI_SECURITY_WEP,        /*!< phrase conforms to WEP */
-    NSAPI_SECURITY_WPA,        /*!< phrase conforms to WPA */
-    NSAPI_SECURITY_WPA2,       /*!< phrase conforms to WPA2 */
-};
+#include "netsocket/WiFiAccessPoint.h"
 
 /** WiFiInterface class
  *
@@ -43,29 +31,45 @@ class WiFiInterface: public NetworkInterface
 public:
     /** WiFiInterface lifetime
      */
-    WiFiInterface();
-    virtual ~WiFiInterface();
+    virtual ~WiFiInterface() {};
 
     /** Set the WiFi network credentials
-     *
-     *  @param ssid     Name of the network to connect to
-     *  @param pass     Security passphrase to connect to the network
-     *  @param security Type of encryption for connection
-     *                  (defaults to NSAPI_SECURITY_NONE)
-     */
-    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
-
-    /** Start the interface
-     *
-     *  Attempts to connect to a WiFi network. If passphrase is invalid,
-     *  NSAPI_ERROR_AUTH_ERROR is returned.
      *
      *  @param ssid      Name of the network to connect to
      *  @param pass      Security passphrase to connect to the network
      *  @param security  Type of encryption for connection
-     *  @return          0 on success, negative error code on failure
+     *                   (defaults to NSAPI_SECURITY_NONE)
+     *  @return          0 on success, or error code on failure
      */
-    virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
+    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
+
+    /** Set the WiFi network channel
+     *
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual int set_channel(uint8_t channel) = 0;
+
+    /** Gets the current radio signal strength for active connection
+     *
+     *  @return         Connection strength in dBm (negative value),
+     *                  or 0 if measurement impossible
+     */
+    virtual int8_t get_rssi() = 0;
+
+    /** Start the interface
+     *
+     *  Attempts to connect to a WiFi network.
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual int connect(const char *ssid, const char *pass,
+            nsapi_security_t security = NSAPI_SECURITY_NONE,
+            uint8_t channel = 0) = 0;
 
     /** Start the interface
      *
@@ -74,19 +78,28 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect();
+    virtual int connect() = 0;
 
     /** Stop the interface
      *
-     *  @return          0 on success, negative error code on failure
+     *  @return         0 on success, or error code on failure
      */
     virtual int disconnect() = 0;
 
-private:
-    char *_ssid;
-    char *_pass;
-    nsapi_security_t _security;
+    /** Scan for available networks
+     *
+     *  The scan will 
+     *  If the network interface is set to non-blocking mode, scan will attempt to scan
+     *  for WiFi networks asynchronously and return NSAPI_ERROR_WOULD_BLOCK. If a callback
+     *  is attached, the callback will be called when the operation has completed.
+     *
+     * @param  ap       Pointer to allocated array to store discovered AP
+     * @param  count    Size of allocated @a res array, or 0 to only count available AP
+     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
+     * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     *                  see @a nsapi_error
+     */
+    virtual int scan(WiFiAccessPoint *res, unsigned count) = 0;
 };
-
 
 #endif
