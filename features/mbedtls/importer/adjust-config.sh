@@ -37,23 +37,28 @@ add_code() {
 
 # add an #ifndef to include config-no-entropy.h when the target does not have
 # an entropy source we can use.
-add_code                                                                \
-    "#ifndef MBEDTLS_CONFIG_H\n"                                        \
-    "\n"                                                                \
-    "#include \"platform\/inc\/platform_mbed.h\"\n"                     \
-    "\n"                                                                \
-    "\/*\n"                                                             \
-    " * Only use features that do not require an entropy source when\n" \
-    " * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.\n"             \
-    " *\/\n"                                                            \
-    "#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)\n"                      \
-    "#include \"mbedtls\/config-no-entropy.h\"\n"                       \
+add_code                                                                                  \
+    "#ifndef MBEDTLS_CONFIG_H\n"                                                          \
+    "\n"                                                                                  \
+    "#include \"platform\/inc\/platform_mbed.h\"\n"                                       \
+    "\n"                                                                                  \
+    "\/*\n"                                                                               \
+    " * Only use features that do not require an entropy source when\n"                   \
+    " * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.\n"                               \
+    " *\/\n"                                                                              \
+    "#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY)\n" \
+    "#include \"mbedtls\/config-no-entropy.h\"\n"                                         \
+    "\n"                                                                                  \
+    "#if defined(MBEDTLS_USER_CONFIG_FILE)\n"                                             \
+    "#include MBEDTLS_USER_CONFIG_FILE\n"                                                 \
+    "#endif\n"                                                                            \
+    "\n"                                                                                  \
     "#else\n"
 
-add_code                                           \
-    "#include \"check_config.h\"\n"                \
-    "\n"                                           \
-    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT *\/"
+add_code                                                                         \
+    "#include \"check_config.h\"\n"                                              \
+    "\n"                                                                         \
+    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY *\/"
 
 # not supported on mbed OS, nor used by mbed Client
 conf unset MBEDTLS_NET_C
