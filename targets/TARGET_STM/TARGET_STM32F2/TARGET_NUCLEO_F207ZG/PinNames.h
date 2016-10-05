@@ -201,6 +201,7 @@ typedef enum {
 
     // ADC internal channels
     ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
 
     // Arduino connector namings
     A0          = PA_3,
