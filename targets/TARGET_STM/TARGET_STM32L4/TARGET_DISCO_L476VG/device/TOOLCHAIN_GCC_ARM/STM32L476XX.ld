@@ -140,7 +140,7 @@ SECTIONS
     .stack_dummy (COPY):
     {
         *(.stack*)
-    } > SRAM2
+    } > SRAM1
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
