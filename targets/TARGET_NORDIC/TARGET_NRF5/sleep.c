@@ -16,8 +16,8 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "mbed_interface.h"
+#include "softdevice_handler.h"
 #include "nrf_soc.h"
-#include "nrf_sdm.h"
 
 // Mask of reserved bits of the register ICSR in the System Control Block peripheral
 // In this case, bits which are equal to 0 are the bits reserved in this register
@@ -27,29 +27,27 @@ void sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
 
-    SCB->SCR |= SCB_SCR_SEVONPEND_Msk; /* send an event when an interrupt is pending.
-                                        * This helps with the wakeup from the following app_evt_wait(). */
+    // Trigger an event when an interrupt is pending. This allows to wake up
+    // the processor from disabled interrupts.
+    SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
-    uint8_t sd_enabled;
-
-    // look if exceptions are enabled or not, if they are, it is possible to make an SVC call
-    // and check if the soft device is running
-    if ((__get_PRIMASK() == 0) && (sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && (sd_enabled == 1)) {
-        // soft device is enabled, use the primitives from the soft device to go to sleep
+    // If the SoftDevice is enabled, its API must be used to go to sleep.
+    if (softdevice_handler_isEnabled())
+    {
         sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
         sd_app_evt_wait();
-    } else {
+    }
+    else
+    {
         NRF_POWER->TASKS_LOWPWR = 1;
 
-        // Note: it is not possible to just use WFE at this stage because WFE
-        // will read the event register (not accessible) and if an event occured,
-        // in the past, it will just clear the event register and continue execution.
-        // SVC call like sd_softdevice_is_enabled set the event register to 1.
-        // This means that a making an SVC call followed by WFE will never put the
-        // CPU to sleep.
-        // Our startegy here is to clear the event register then, if there is any
-        // interrupt, return from here. If no interrupts are pending, just call
-        // WFE.
+        // Note: it is not sufficient to just use WFE here, since the internal
+        // event register may be already set from an event that occurred in the
+        // past (like an SVC call to the SoftDevice) and in such case WFE will
+        // just clear the register and continue execution.
+        // Therefore, the strategy here is to first clear the event register
+        // by using SEV/WFE pair, and then execute WFE again, unless there is
+        // a pending interrupt.
 
         // Set an event and wake up whatsoever, this will clear the event
         // register from all previous events set (SVC call included)
