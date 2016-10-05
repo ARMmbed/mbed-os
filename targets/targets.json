@@ -653,7 +653,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0700"],
-        "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F103RB"
     },
@@ -1025,7 +1025,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F407", "STM32F407VG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "device_name": "STM32F407VG"
     },
     "DISCO_F429ZI": {
@@ -1729,7 +1729,6 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "forced_reset_timeout": 2,
         "release_versions": ["2", "5"],
-        "forced_reset_timeout": 2,
         "device_name": "EFM32GG990F1024"
     },
     "EFM32LG_STK3600": {
@@ -1872,7 +1871,14 @@
         "inherits": ["Target"],
         "core": "Cortex-M0",
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
-        "macros": ["NRF51", "TARGET_NRF51822", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S130", "TARGET_MCU_NRF51822"],
+        "macros": [
+            "NRF51",
+            "TARGET_NRF51822",
+            "BLE_STACK_SUPPORT_REQD",
+            "SOFTDEVICE_PRESENT",
+            "S130",
+            "TARGET_MCU_NRF51822"
+        ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5"],
         "OUTPUT_EXT": "hex",
@@ -1897,7 +1903,8 @@
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"},
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            },
             "uart_hwfc": {
                 "help": "Value: 1 for enable, 0 for disable",
                 "value": 1,
@@ -1953,7 +1960,8 @@
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"},
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            },
             "uart_hwfc": {
                 "help": "Value: 1 for enable, 0 for disable",
                 "value": 1,
