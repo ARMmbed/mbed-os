@@ -17,6 +17,7 @@ TEST_SRC_FILES = \
 	../stub/eventOS_event_stub.c \
 	../stub/coap_connection_handler_stub.c \
 	../stub/coap_message_handler_stub.c \
+	../stub/common_functions_stub.c
 
 include ../MakefileWorker.mk
 

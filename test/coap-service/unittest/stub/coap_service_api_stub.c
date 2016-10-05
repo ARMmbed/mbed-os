@@ -62,3 +62,8 @@ uint32_t coap_service_get_internal_timer_ticks(void)
 {
     return 1;
 }
+
+uint16_t coap_service_id_find_by_socket(int8_t socket_id)
+{
+    return 1;
+}

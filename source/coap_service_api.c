@@ -174,7 +174,7 @@ static void service_event_handler(arm_event_s *event)
 static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr)
 {
     coap_service_t *this;
-    if( !coap_message ){
+    if (!coap_message || !transaction_ptr) {
         return -1;
     }
 
