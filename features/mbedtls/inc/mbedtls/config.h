@@ -33,8 +33,13 @@
  * Only use features that do not require an entropy source when
  * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.
  */
-#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
+#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY)
 #include "mbedtls/config-no-entropy.h"
+
+#if defined(MBEDTLS_USER_CONFIG_FILE)
+#include MBEDTLS_USER_CONFIG_FILE
+#endif
+
 #else
 #define MBEDTLS_CONFIG_H
 
@@ -2606,5 +2611,5 @@
 
 #include "check_config.h"
 
-#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT */
+#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY */
 #endif /* MBEDTLS_CONFIG_H */
