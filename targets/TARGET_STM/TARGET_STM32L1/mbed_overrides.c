@@ -35,6 +35,10 @@ void mbed_sdk_init()
 {
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
+#if !defined(TOOLCHAIN_GCC_ARM)
+    // Need to restart HAL driver after the RAM is initialized
+    HAL_Init();
+#endif
 
 #if defined(TARGET_XDOT_L151CC)
     if (PWR->CSR & PWR_CSR_SBF) {
