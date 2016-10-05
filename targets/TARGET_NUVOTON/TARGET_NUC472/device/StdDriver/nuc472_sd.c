@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     SD.c
  * @version  V1.00
- * $Revision: 13 $
- * $Date: 14/10/08 9:02a $
+ * $Revision: 16 $
+ * $Date: 15/11/26 10:45a $
  * @brief    NUC472/NUC442 SD driver source file
  *
  * @note
@@ -41,12 +41,12 @@ uint8_t *_sd_pSDHCBuffer;
 uint32_t _sd_ReferenceClock;
 
 #if defined (__CC_ARM)
-__align(4096) uint8_t _sd_ucSDHCBuffer[64];
+__align(4096) uint8_t _sd_ucSDHCBuffer[512];
 #elif defined ( __ICCARM__ ) /*!< IAR Compiler */
 #pragma data_alignment = 4096
-uint8_t _sd_ucSDHCBuffer[64];
+uint8_t _sd_ucSDHCBuffer[512];
 #elif defined ( __GNUC__ )
-uint8_t _sd_ucSDHCBuffer[64] __attribute__((aligned (4096)));
+uint8_t _sd_ucSDHCBuffer[512] __attribute__((aligned (4096)));
 #endif
 
 int sd0_ok = 0;
@@ -371,14 +371,20 @@ int SD_Init(SD_INFO_T *pSD)
             for (i=0x100; i>0; i--);
 
             _sd_uR3_CMD = 1;
-            if (SD_SDCmdAndRsp(pSD, 1, 0x80ff8000, u32CmdTimeOut) != 2) { // MMC memory
+
+            if (SD_SDCmdAndRsp(pSD, 1, 0x40ff8000, u32CmdTimeOut) != 2) {  // eMMC memory
                 resp = SD->RESP0;
                 while (!(resp & 0x00800000)) {      // check if card is ready
                     _sd_uR3_CMD = 1;
-                    SD_SDCmdAndRsp(pSD, 1, 0x80ff8000, u32CmdTimeOut);      // high voltage
+
+                    SD_SDCmdAndRsp(pSD, 1, 0x40ff8000, u32CmdTimeOut);      // high voltage
                     resp = SD->RESP0;
                 }
-                pSD->CardType = SD_TYPE_MMC;
+
+                if(resp & 0x00400000)
+                    pSD->CardType = SD_TYPE_EMMC;
+                else
+                    pSD->CardType = SD_TYPE_MMC;
             } else {
                 pSD->CardType = SD_TYPE_UNKNOWN;
                 return SD_ERR_DEVICE;
@@ -403,7 +409,7 @@ int SD_Init(SD_INFO_T *pSD)
     // CMD2, CMD3
     if (pSD->CardType != SD_TYPE_UNKNOWN) {
         SD_SDCmdAndRsp2(pSD, 2, 0x00, CIDBuffer);
-        if (pSD->CardType == SD_TYPE_MMC) {
+        if ((pSD->CardType == SD_TYPE_MMC) || (pSD->CardType == SD_TYPE_EMMC)) {
             if ((status = SD_SDCmdAndRsp(pSD, 3, 0x10000, 0)) != Successful)        // set RCA
                 return status;
             pSD->RCA = 0x10000;
@@ -460,6 +466,7 @@ int SD_SwitchToHighSpeed(SD_INFO_T *pSD)
 int SD_SelectCardType(SD_INFO_T *pSD)
 {
     int volatile status=0;
+    unsigned int arg;
 
     if ((status = SD_SDCmdAndRsp(pSD, 7, pSD->RCA, 0)) != Successful)
         return status;
@@ -509,8 +516,20 @@ int SD_SelectCardType(SD_INFO_T *pSD)
             return status;
 
         SD->CTL |= SDH_CTL_DBW_Msk;
-    } else if (pSD->CardType == SD_TYPE_MMC) {
-        SD->CTL &= ~SDH_CTL_DBW_Msk;
+    } else if ((pSD->CardType == SD_TYPE_MMC) ||(pSD->CardType == SD_TYPE_EMMC)) {
+
+        if(pSD->CardType == SD_TYPE_MMC)
+            SD->CTL &= ~SDH_CTL_DBW_Msk;
+
+        //--- sent CMD6 to MMC card to set bus width to 4 bits mode
+        // set CMD6 argument Access field to 3, Index to 183, Value to 1 (4-bit mode)
+        arg = (3 << 24) | (183 << 16) | (1 << 8);
+        if ((status = SD_SDCmdAndRsp(pSD, 6, arg, 0)) != Successful)
+            return status;
+        SD_CheckRB();
+
+        SD->CTL |= SDH_CTL_DBW_Msk;; // set bus width to 4-bit mode for SD host controller
+
     }
 
     if ((status = SD_SDCmdAndRsp(pSD, 16, SD_BLOCK_SIZE, 0)) != Successful) // set block length
@@ -518,9 +537,11 @@ int SD_SelectCardType(SD_INFO_T *pSD)
     SD->BLEN = SD_BLOCK_SIZE - 1;           // set the block size
 
     SD_SDCommand(pSD, 7, 0);
+    SD->CTL |= SDH_CTL_CLK8OEN_Msk;
+    while(SD->CTL & SDH_CTL_CLK8OEN_Msk);
 
 #ifdef _SD_USE_INT_
-    SD->INTEN |= SDH_INTEN_BLKD_IE_Msk;
+    SD->INTEN |= SDH_INTEN_BLKDIEN_Msk;
 #endif  //_SD_USE_INT_
 
     return Successful;
@@ -528,40 +549,61 @@ int SD_SelectCardType(SD_INFO_T *pSD)
 
 void SD_Get_SD_info(SD_INFO_T *pSD, DISK_DATA_T *_info)
 {
-    unsigned int i;
     unsigned int R_LEN, C_Size, MULT, size;
     unsigned int Buffer[4];
     unsigned char *ptr;
 
     SD_SDCmdAndRsp2(pSD, 9, pSD->RCA, Buffer);
 
-    if ((Buffer[0] & 0xc0000000) && (pSD->CardType != SD_TYPE_MMC)) {
-        C_Size = ((Buffer[1] & 0x0000003f) << 16) | ((Buffer[2] & 0xffff0000) >> 16);
-        size = (C_Size+1) * 512;    // Kbytes
+    if ((pSD->CardType == SD_TYPE_MMC) || (pSD->CardType == SD_TYPE_EMMC)) {
+        // for MMC/eMMC card
+        if ((Buffer[0] & 0xc0000000) == 0xc0000000) {
+            // CSD_STRUCTURE [127:126] is 3
+            // CSD version depend on EXT_CSD register in eMMC v4.4 for card size > 2GB
+            SD_SDCmdAndRsp(pSD, 7, pSD->RCA, 0);
 
-        _info->diskSize = size;
-        _info->totalSectorN = size << 1;
+            ptr = (uint8_t *)((uint32_t)_sd_ucSDHCBuffer );
+            SD->DMASA = (uint32_t)ptr;  // set DMA transfer starting address
+            SD->BLEN = 511;  // read 512 bytes for EXT_CSD
+
+            if (SD_SDCmdAndRspDataIn(pSD, 8, 0x00) != Successful)
+                return;
+
+            SD_SDCommand(pSD, 7, 0);
+            SD->CTL |= SDH_CTL_CLK8OEN_Msk;
+            while(SD->CTL & SDH_CTL_CLK8OEN_Msk);
+
+            _info->totalSectorN = (*(uint32_t *)(ptr+212));
+            _info->diskSize = _info->totalSectorN / 2;
+        } else {
+            // CSD version v1.0/1.1/1.2 in eMMC v4.4 spec for card size <= 2GB
+            R_LEN = (Buffer[1] & 0x000f0000) >> 16;
+            C_Size = ((Buffer[1] & 0x000003ff) << 2) | ((Buffer[2] & 0xc0000000) >> 30);
+            MULT = (Buffer[2] & 0x00038000) >> 15;
+            size = (C_Size+1) * (1<<(MULT+2)) * (1<<R_LEN);
+
+            _info->diskSize = size / 1024;
+            _info->totalSectorN = size / 512;
+        }
     } else {
-        R_LEN = (Buffer[1] & 0x000f0000) >> 16;
-        C_Size = ((Buffer[1] & 0x000003ff) << 2) | ((Buffer[2] & 0xc0000000) >> 30);
-        MULT = (Buffer[2] & 0x00038000) >> 15;
-        size = (C_Size+1) * (1<<(MULT+2)) * (1<<R_LEN);
+        if (Buffer[0] & 0xc0000000) {
+            C_Size = ((Buffer[1] & 0x0000003f) << 16) | ((Buffer[2] & 0xffff0000) >> 16);
+            size = (C_Size+1) * 512;    // Kbytes
 
-        _info->diskSize = size / 1024;
-        _info->totalSectorN = size / 512;
+            _info->diskSize = size;
+            _info->totalSectorN = size << 1;
+        } else {
+            R_LEN = (Buffer[1] & 0x000f0000) >> 16;
+            C_Size = ((Buffer[1] & 0x000003ff) << 2) | ((Buffer[2] & 0xc0000000) >> 30);
+            MULT = (Buffer[2] & 0x00038000) >> 15;
+            size = (C_Size+1) * (1<<(MULT+2)) * (1<<R_LEN);
+
+            _info->diskSize = size / 1024;
+            _info->totalSectorN = size / 512;
+        }
     }
+
     _info->sectorSize = 512;
-
-    SD_SDCmdAndRsp2(pSD, 10, pSD->RCA, Buffer);
-
-    _info->vendor[0] = (Buffer[0] & 0xff000000) >> 24;
-    ptr = (unsigned char *)Buffer;
-    ptr = ptr + 4;
-    for (i=0; i<5; i++)
-        _info->product[i] = *ptr++;
-    ptr = ptr + 10;
-    for (i=0; i<4; i++)
-        _info->serial[i] = *ptr++;
 }
 
 int SD_ChipErase(SD_INFO_T *pSD, DISK_DATA_T *_info)
@@ -743,7 +785,7 @@ uint32_t SD_Read(uint32_t u32CardNum, uint8_t *pu8BufAddr, uint32_t u32StartSec,
 
     SD->BLEN = blksize - 1;       // the actual byte count is equal to (SDBLEN+1)
 
-    if (pSD->CardType == SD_TYPE_SD_HIGH)
+    if ( (pSD->CardType == SD_TYPE_SD_HIGH) || (pSD->CardType == SD_TYPE_EMMC) )
         SD->CMDARG = u32StartSec;
     else
         SD->CMDARG = u32StartSec * blksize;
@@ -845,6 +887,8 @@ uint32_t SD_Read(uint32_t u32CardNum, uint8_t *pu8BufAddr, uint32_t u32StartSec,
     SD_CheckRB();
 
     SD_SDCommand(pSD, 7, 0);
+    SD->CTL |= SDH_CTL_CLK8OEN_Msk;
+    while(SD->CTL & SDH_CTL_CLK8OEN_Msk);
 
     return Successful;
 }
@@ -891,7 +935,7 @@ uint32_t SD_Write(uint32_t u32CardNum, uint8_t *pu8BufAddr, uint32_t u32StartSec
     // According to SD Spec v2.0, the write CMD block size MUST be 512, and the start address MUST be 512*n.
     SD->BLEN = SD_BLOCK_SIZE - 1;           // set the block size
 
-    if (pSD->CardType == SD_TYPE_SD_HIGH)
+    if ((pSD->CardType == SD_TYPE_SD_HIGH) || (pSD->CardType == SD_TYPE_EMMC))
         SD->CMDARG = u32StartSec;
     else
         SD->CMDARG = u32StartSec * SD_BLOCK_SIZE;  // set start address for SD CMD
@@ -975,6 +1019,8 @@ uint32_t SD_Write(uint32_t u32CardNum, uint8_t *pu8BufAddr, uint32_t u32StartSec
     SD_CheckRB();
 
     SD_SDCommand(pSD, 7, 0);
+    SD->CTL |= SDH_CTL_CLK8OEN_Msk;
+    while(SD->CTL & SDH_CTL_CLK8OEN_Msk);
 
     return Successful;
 }
