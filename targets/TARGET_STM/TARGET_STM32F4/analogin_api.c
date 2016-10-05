@@ -170,13 +170,13 @@ static inline uint16_t adc_read(analogin_t *obj)
             sConfig.Channel = ADC_CHANNEL_15;
             break;
         case 16:
-            sConfig.Channel = ADC_CHANNEL_16;
+            sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
             break;
         case 17:
-            sConfig.Channel = ADC_CHANNEL_17;
+            sConfig.Channel = ADC_CHANNEL_VREFINT;
             break;
         case 18:
-            sConfig.Channel = ADC_CHANNEL_18;
+            sConfig.Channel = ADC_CHANNEL_VBAT;
             break;
         default:
             return 0;
