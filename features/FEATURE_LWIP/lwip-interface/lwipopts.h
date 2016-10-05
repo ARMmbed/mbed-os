@@ -106,24 +106,35 @@
 #define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
 
 #ifndef PBUF_POOL_SIZE
+/// Each requires 684 bytes of RAM.
 #define PBUF_POOL_SIZE              5
 #endif
 #ifndef MEMP_NUM_TCP_PCB_LISTEN
+/// One is needed for each TCPServer.
+/// Each requires 72 bytes of RAM.
 #define MEMP_NUM_TCP_PCB_LISTEN     4
 #endif
 #ifndef MEMP_NUM_TCP_PCB
+/// One is needed for each TCPSocket.
+/// Each requires 196 bytes of RAM.
 #define MEMP_NUM_TCP_PCB            4
 #endif
 #ifndef MEMP_NUM_UDP_PCB
+/// One is needed for each UDPSocket.
+/// Each requires 84 bytes of RAM (rounded to multiple of 512).
 #define MEMP_NUM_UDP_PCB            4
 #endif
 #ifndef MEMP_NUM_PBUF
+/// Each requires 92 bytes of RAM.
 #define MEMP_NUM_PBUF               8
 #endif
 #ifndef MEMP_NUM_NETBUF
+/// Each requires 64 bytes of RAM.
 #define MEMP_NUM_NETBUF             8
 #endif
 #ifndef MEMP_NUM_NETCONN
+/// One netconn is needed for each UDPSocket, TCPSocket or TCPServer.
+/// Each requires 236 bytes of RAM (rounded to multiple of 512).
 #define MEMP_NUM_NETCONN            4
 #endif
 
