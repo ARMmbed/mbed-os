@@ -148,11 +148,17 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   
   /* Check the parameters */
   assert_param(IS_PCD_ALL_INSTANCE(hpcd->Instance));
+  if(hpcd->State == HAL_PCD_STATE_RESET)
+  {  
+    /* Allocate lock resource and initialize it */
+    hpcd->Lock = HAL_UNLOCKED;
+	for (i = 0; i < hpcd->Init.dev_endpoints ; i++)
+	hpcd->EPLock[i].Lock = HAL_UNLOCKED;
+    /* Init the low level hardware : GPIO, CLOCK, NVIC... */
+    HAL_PCD_MspInit(hpcd);
+  }
 
   hpcd->State = HAL_PCD_STATE_BUSY;
-  
-  /* Init the low level hardware : GPIO, CLOCK, NVIC... */
-  HAL_PCD_MspInit(hpcd);
 
   /* Disable the Interrupts */
  __HAL_PCD_DISABLE(hpcd);
@@ -190,7 +196,6 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
    
    hpcd->Instance->DIEPTXF[i] = 0U;
  }
- 
  /* Init Device */
  USB_DevInit(hpcd->Instance, hpcd->Init);
  
@@ -296,10 +301,10 @@ __weak void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
   */
 HAL_StatusTypeDef HAL_PCD_Start(PCD_HandleTypeDef *hpcd)
 { 
-  __HAL_LOCK(hpcd); 
+  //__HAL_LOCK(hpcd); 
   USB_DevConnect (hpcd->Instance);  
   __HAL_PCD_ENABLE(hpcd);
-  __HAL_UNLOCK(hpcd); 
+  //__HAL_UNLOCK(hpcd); 
   return HAL_OK;
 }
 
@@ -310,11 +315,11 @@ HAL_StatusTypeDef HAL_PCD_Start(PCD_HandleTypeDef *hpcd)
   */
 HAL_StatusTypeDef HAL_PCD_Stop(PCD_HandleTypeDef *hpcd)
 { 
-  __HAL_LOCK(hpcd); 
+  //__HAL_LOCK(hpcd); 
   __HAL_PCD_DISABLE(hpcd);
   USB_StopDevice(hpcd->Instance);
   USB_DevDisconnect(hpcd->Instance);
-  __HAL_UNLOCK(hpcd); 
+  //__HAL_UNLOCK(hpcd); 
   return HAL_OK;
 }
 
@@ -421,7 +426,8 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
            if(( epint & USB_OTG_DIEPINT_XFRC) == USB_OTG_DIEPINT_XFRC)
           {
             fifoemptymsk = 0x1U << epnum;
-            USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
+			
+            atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK,fifoemptymsk);
             
             CLEAR_IN_EP_INTR(epnum, USB_OTG_DIEPINT_XFRC);
             
@@ -440,7 +446,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
                 /* prepare to rx more setup packets */
                 USB_EP0_OutStart(hpcd->Instance, 1U, (uint8_t *)hpcd->Setup);
               }
-            }           
+            }
           }
            if(( epint & USB_OTG_DIEPINT_TOC) == USB_OTG_DIEPINT_TOC)
           {
@@ -968,9 +974,9 @@ HAL_StatusTypeDef HAL_PCD_EP_Open(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint
     ep->data_pid_start = 0U;
   }
   
-  __HAL_LOCK(hpcd); 
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   USB_ActivateEndpoint(hpcd->Instance , ep);
-  __HAL_UNLOCK(hpcd);   
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]);   
   return ret;
 }
 
@@ -997,9 +1003,9 @@ HAL_StatusTypeDef HAL_PCD_EP_Close(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
   
   ep->is_in = (0x80U & ep_addr) != 0U;
   
-  __HAL_LOCK(hpcd); 
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   USB_DeactivateEndpoint(hpcd->Instance , ep);
-  __HAL_UNLOCK(hpcd);   
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]);   
   return HAL_OK;
 }
 
@@ -1030,7 +1036,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, u
     ep->dma_addr = (uint32_t)pBuf;  
   }
   
-  __HAL_LOCK(hpcd); 
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   
   if ((ep_addr & 0x7FU) == 0U)
   {
@@ -1040,7 +1046,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, u
   {
     USB_EPStartXfer(hpcd->Instance , ep, hpcd->Init.dma_enable);
   }
-  __HAL_UNLOCK(hpcd); 
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   
   return HAL_OK;
 }
@@ -1081,7 +1087,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, 
     ep->dma_addr = (uint32_t)pBuf;  
   }
   
-  __HAL_LOCK(hpcd); 
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   
   if ((ep_addr & 0x7FU) == 0U)
   {
@@ -1092,7 +1098,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, 
     USB_EPStartXfer(hpcd->Instance , ep, hpcd->Init.dma_enable);
   }
   
-  __HAL_UNLOCK(hpcd);
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]);
      
   return HAL_OK;
 }
@@ -1121,13 +1127,13 @@ HAL_StatusTypeDef HAL_PCD_EP_SetStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
   ep->is_in = ((ep_addr & 0x80U) == 0x80U);
   
   
-  __HAL_LOCK(hpcd); 
+   __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   USB_EPSetStall(hpcd->Instance , ep);
   if((ep_addr & 0x7FU) == 0U)
   {
     USB_EP0_OutStart(hpcd->Instance, hpcd->Init.dma_enable, (uint8_t *)hpcd->Setup);
   }
-  __HAL_UNLOCK(hpcd); 
+   __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   
   return HAL_OK;
 }
@@ -1155,9 +1161,9 @@ HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
   ep->num   = ep_addr & 0x7FU;
   ep->is_in = ((ep_addr & 0x80U) == 0x80U);
   
-  __HAL_LOCK(hpcd); 
+   __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   USB_EPClearStall(hpcd->Instance , ep);
-  __HAL_UNLOCK(hpcd); 
+   __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
     
   return HAL_OK;
 }
@@ -1170,8 +1176,7 @@ HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
   */
 HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
 {
-  __HAL_LOCK(hpcd); 
-  
+   __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
   if ((ep_addr & 0x80U) == 0x80U)
   {
     USB_FlushTxFifo(hpcd->Instance, ep_addr & 0x7FU);
@@ -1181,7 +1186,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
     USB_FlushRxFifo(hpcd->Instance);
   }
   
-  __HAL_UNLOCK(hpcd); 
+   __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7FU]); 
     
   return HAL_OK;
 }
@@ -1304,8 +1309,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
   if(len <= 0U)
   {
     fifoemptymsk = 0x1U << epnum;
-    USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
-    
+    atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK, fifoemptymsk);
   }
   
   return HAL_OK;  

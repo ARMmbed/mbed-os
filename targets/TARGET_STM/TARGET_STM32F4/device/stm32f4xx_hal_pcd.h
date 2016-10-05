@@ -92,14 +92,21 @@ typedef USB_OTG_EPTypeDef      PCD_EPTypeDef ;
 
 /** 
   * @brief  PCD Handle Structure definition  
-  */ 
+  */
+
+typedef struct
+{
+	HAL_LockTypeDef Lock;
+} PCD_EPLockDef;
+
 typedef struct
 {
   PCD_TypeDef             *Instance;    /*!< Register base address              */
   PCD_InitTypeDef         Init;         /*!< PCD required parameters            */
   PCD_EPTypeDef           IN_ep[15];    /*!< IN endpoint parameters             */
   PCD_EPTypeDef           OUT_ep[15];   /*!< OUT endpoint parameters            */
-  HAL_LockTypeDef         Lock;         /*!< PCD peripheral status              */
+  HAL_LockTypeDef		  Lock;			/*!< PCD peripheral status              */
+  PCD_EPLockDef           EPLock[15];   /*!< PCD endpoint peripheral status     */
   __IO PCD_StateTypeDef   State;        /*!< PCD communication state            */
   uint32_t                Setup[12];    /*!< Setup packet buffer                */
 #ifdef USB_OTG_GLPMCFG_LPMEN
