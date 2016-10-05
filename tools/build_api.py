@@ -405,6 +405,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     # Extend src_paths wiht libraries_paths
     if libraries_paths is not None:
         src_paths.extend(libraries_paths)
+        inc_dirs.extend(map(dirname, libraries_paths))
 
     # Build Directory
     if clean and exists(build_path):
