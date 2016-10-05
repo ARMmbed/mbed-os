@@ -32,13 +32,10 @@ void sleep(void)
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
     // If the SoftDevice is enabled, its API must be used to go to sleep.
-    if (softdevice_handler_isEnabled())
-    {
+    if (softdevice_handler_isEnabled()) {
         sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
         sd_app_evt_wait();
-    }
-    else
-    {
+    } else {
         NRF_POWER->TASKS_LOWPWR = 1;
 
         // Note: it is not sufficient to just use WFE here, since the internal
