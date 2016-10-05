@@ -43,8 +43,10 @@ typedef enum {
 #include "USBEndpoints_LPC11U.h"
 #elif defined(TARGET_KL25Z) | defined(TARGET_KL26Z) | defined(TARGET_KL27Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_TEENSY3_1)
 #include "USBEndpoints_KL25Z.h"
-#elif defined (TARGET_STM32F4)
+#elif !defined(USB_STM_HAL) && defined(TARGET_STM32F4)
 #include "USBEndpoints_STM32F4.h"
+#elif defined (TARGET_STM32F4) || defined (TARGET_STM32F2) || defined (TARGET_STM32F7) || defined (TARGET_STM32F3) || defined(TARGET_STM32L4)
+#include "USBEndpoints_STM32.h"
 #elif defined (TARGET_RZ_A1H) || defined (TARGET_VK_RZ_A1H)
 #include "USBEndpoints_RZ_A1H.h"
 #elif defined(TARGET_Maxim)
