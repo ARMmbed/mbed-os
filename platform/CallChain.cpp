@@ -45,7 +45,7 @@ pFunctionPointer_t CallChain::add(Callback<void()> func) {
 pFunctionPointer_t CallChain::add_front(Callback<void()> func) {
     CallChainLink *link = new CallChainLink(func);
     link->next = _chain;
-    _chain = link->next;
+    _chain = link;
     return &link->cb;
 }
 
