@@ -101,6 +101,7 @@ class IAR(Exporter):
             flags['c_flags'].remove('--vla')
         if '--no_static_destruction' in flags['c_flags']:
             flags['c_flags'].remove('--no_static_destruction')
+        #Optimizations 
         if '-Oh' in flags['c_flags']:
             flags['c_flags'].remove('-Oh')
         ctx = {
