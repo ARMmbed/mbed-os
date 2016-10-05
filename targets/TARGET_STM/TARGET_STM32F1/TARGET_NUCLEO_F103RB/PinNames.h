@@ -46,9 +46,9 @@ extern "C" {
                                                                        ((CHANNEL  & 0x1F) << 11) |\
                                                                        ((INVERTED & 0x01) << 16)))
 
-#define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
-#define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
-#define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_MODE(X)     (((X) >>  0) & 0x0F)
+#define STM_PIN_PUPD(X)     (((X) >>  4) & 0x07)
+#define STM_PIN_AFNUM(X)    (((X) >>  7) & 0x0F)
 #define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x1F)
 #define STM_PIN_INVERTED(X) (((X) >> 16) & 0x01)
 
@@ -132,6 +132,7 @@ typedef enum {
 
     // ADC internal channels
     ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
 
     // Arduino connector namings
     A0          = PA_0,
