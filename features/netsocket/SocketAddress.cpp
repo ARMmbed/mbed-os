@@ -107,8 +107,6 @@ static void ipv6_from_address(uint8_t *bytes, const char *addr)
 {
     // Start with zeroed address
     uint16_t shorts[NSAPI_IPv6_BYTES/2];
-    memset(shorts, 0, sizeof shorts);
-
     int suffix = 0;
 
     // Find double colons and scan suffix
@@ -122,6 +120,8 @@ static void ipv6_from_address(uint8_t *bytes, const char *addr)
     // Move suffix to end
     memmove(&shorts[NSAPI_IPv6_BYTES/2-suffix], &shorts[0],
             suffix*sizeof(uint16_t));
+    memset(&shorts[0], 0,
+            (NSAPI_IPv6_BYTES/2-suffix)*sizeof(uint16_t));
 
     // Scan prefix
     ipv6_scan_chunk(shorts, &addr[0]);
