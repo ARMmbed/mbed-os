@@ -43,14 +43,14 @@ extern "C" {
 #define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((MODE     & 0x0F) <<  0) |\
                                                                        ((PUPD     & 0x07) <<  4) |\
                                                                        ((AFNUM    & 0x0F) <<  7) |\
-                                                                       ((CHANNEL  & 0x0F) << 11) |\
-                                                                       ((INVERTED & 0x01) << 15)))
+                                                                       ((CHANNEL  & 0x1F) << 11) |\
+                                                                       ((INVERTED & 0x01) << 16)))
 
-#define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
-#define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
-#define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
-#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
-#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
+#define STM_PIN_MODE(X)     (((X) >>  0) & 0x0F)
+#define STM_PIN_PUPD(X)     (((X) >>  4) & 0x07)
+#define STM_PIN_AFNUM(X)    (((X) >>  7) & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x1F)
+#define STM_PIN_INVERTED(X) (((X) >> 16) & 0x01)
 
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
@@ -129,6 +129,10 @@ typedef enum {
     PC_15 = 0x2F,
 
     PD_2  = 0x32,
+
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
 
     // PCB printout
     A0          = PA_0,
