@@ -164,7 +164,9 @@ SVC_Handler_Veneer
 
 SVC_ContextSave
         TST     LR,#0x10                ; is it extended frame?
+#if (__FPU_PRESENT == 1)
         VSTMDBEQ R12!,{S16-S31}         ; yes, stack also VFP hi-regs
+#endif
         MOVEQ   R0,#0x01                ; os_tsk->stack_frame val
         MOVNE   R0,#0x00
         STRB    R0,[R1,#TCB_STACKF]     ; os_tsk.run->stack_frame = val
@@ -184,7 +186,9 @@ SVC_ContextRestore
         CMP     R0,#0                   ; Basic/Extended Stack Frame
         MVNEQ   LR,#:NOT:0xFFFFFFFD     ; set EXC_RETURN value
         MVNNE   LR,#:NOT:0xFFFFFFED
+#if (__FPU_PRESENT == 1)
         VLDMIANE R12!,{S16-S31}         ; restore VFP hi-registers
+#endif
         MSR     PSP,R12                 ; Write PSP
 
 SVC_Exit
@@ -247,7 +251,9 @@ Sys_Switch
 
         MRS     R12,PSP                 ; Read PSP
         TST     LR,#0x10                ; is it extended frame?
+#if (__FPU_PRESENT == 1)
         VSTMDBEQ R12!,{S16-S31}         ; yes, stack also VFP hi-regs
+#endif
         MOVEQ   R0,#0x01                ; os_tsk->stack_frame val
         MOVNE   R0,#0x00
         STRB    R0,[R1,#TCB_STACKF]     ; os_tsk.run->stack_frame = val
@@ -266,7 +272,9 @@ Sys_Switch
         CMP     R0,#0                   ; Basic/Extended Stack Frame
         MVNEQ   LR,#:NOT:0xFFFFFFFD     ; set EXC_RETURN value
         MVNNE   LR,#:NOT:0xFFFFFFED
+#if (__FPU_PRESENT == 1)
         VLDMIANE R12!,{S16-S31}         ; restore VFP hi-regs
+#endif
         MSR     PSP,R12                 ; Write PSP
 
 Sys_Exit
