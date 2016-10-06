@@ -133,6 +133,10 @@ typedef enum {
     PH_0  = 0x70,
     PH_1  = 0x71,
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+
     // Generic signals namings
     LED1        = PB_2,
     LED2        = PB_2,
