@@ -126,7 +126,7 @@ class ExportBuildTest(object):
                                     test_case.ide,
                                     test_case.name))
             try:
-                exporter.progen_build()
+                exporter.build()
             except FailedBuildException:
                 self.failures.append("%s::%s\t%s" % (test_case.mcu,
                                                      test_case.ide,
@@ -187,6 +187,8 @@ def check_valid_mbed_os(test):
         supported = columnate([t for t in all_os_tests.keys()])
         raise ArgumentTypeError("Program with name '{0}' not found. "
                                 "Supported tests are: \n{1}".format(test,supported))
+
+
 def check_version(version):
     """Check if the specified version is valid
     args:
@@ -201,7 +203,7 @@ def check_version(version):
 def main():
     """Entry point"""
 
-    ide_list = ["iar", "uvision", "uvision4"]
+    ide_list = ["iar", "uvision"]
 
     default_v2 = [test_name_known("MBED_BLINKY")]
     default_v5 = [check_valid_mbed_os('tests-mbedmicro-rtos-mbed-basic')]
