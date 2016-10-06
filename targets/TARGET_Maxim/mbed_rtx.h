@@ -59,7 +59,7 @@
 #define OS_MAINSTKSIZE          256
 #endif
 #ifndef OS_CLOCK
-#define OS_CLOCK                96000000
+#define OS_CLOCK                48000000
 #endif
 
 #endif
