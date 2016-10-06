@@ -133,6 +133,10 @@ typedef enum {
     PH_0  = 0x70,
     PH_1  = 0x71,
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+
     // GPIOs
     GPIO0           = PA_4,     // analog out capable, analog in capable
     GPIO1           = PA_5,     // analog out capable, analog in capable
