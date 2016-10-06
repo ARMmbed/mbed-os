@@ -34,7 +34,7 @@
     },
     "IAR": {
         "common": [
-            "--no_wrap_diagnostics", "non-native end of line sequence", "-e",
+            "--no_wrap_diagnostics",  "-e",
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-On", "-r"],
         "asm": [],
         "c": ["--vla"],
