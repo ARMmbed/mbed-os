@@ -258,9 +258,7 @@ void spi_init(spi_t *obj,
         spi_info_t *p_spi_info = &m_spi_info[i];
         if (!p_spi_info->initialized) {
          
-#ifndef HARDWIRE_SPI_TWI_INTERRUPT         
             NVIC_SetVector(spi_hanlder_desc[i].IRQn, spi_hanlder_desc[i].vector);
-#endif
             
             p_spi_info->sck_pin   = (uint8_t)sclk;
             p_spi_info->mosi_pin  = (mosi != NC) ?
