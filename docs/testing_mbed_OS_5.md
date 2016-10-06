@@ -78,7 +78,9 @@ The full build process is:
 
 When building an mbed application, the presence of a `mbed_app.json` file allows you to set or override different config settings from libraries and targets. However, because the tests share a common build, this can cause issues when tests have different configurations that affect the OS.
 
-If you need to use app config, this must be set via the `--app-config` option when calling `mbed test`. **If this option is not specified, the build system will ignore all `mbed_app.json` files and use the default config values.**
+The build system will look for an `mbed_app.json` file in your shared project files (any directory not inside of a `TESTS` folder). If this is found, this configuration file will be used for both the non-test code as well as each test case inside your project's source tree. If there is more than one `mbed_app.json` files in the source tree, the config system will error.
+
+If you need to test with multiple configurations, then you can use the `--app-config` option. This will override the search for an `mbed_app.json` file and use the config file you specify for the build.
 
 ### Running tests
 
