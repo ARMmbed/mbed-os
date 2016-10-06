@@ -53,7 +53,7 @@ static uint8_t running;
 // NOTE: Setting the CMSIS SystemCoreClock value to the actual value it will
 // be AFTER SystemInit() runs.  This is required so the hal drivers will have
 // the correct value when the DATA sections are initialized.
-uint32_t SystemCoreClock = RO_FREQ;
+uint32_t SystemCoreClock = RO_FREQ / 2;
 
 void SystemCoreClockUpdate(void)
 {
@@ -147,10 +147,9 @@ void SystemInit(void)
 
     low_level_init();
 
-    // Select 96MHz ring oscillator as clock source
+    // Select 48MHz ring oscillator as clock source
     uint32_t reg = MXC_CLKMAN->clk_ctrl;
     reg &= ~MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT;
-    reg |= 1 << MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_POS;
     MXC_CLKMAN->clk_ctrl = reg;
 
     // Copy trim information from shadow registers into power manager registers
