@@ -401,8 +401,6 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     if (obj->pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         int tmp_pwm;
-        uint16_t tmp_tgra;
-        uint16_t tmp_tgrc;
         uint8_t tmp_tcr_up;
         uint8_t tmp_tstr_sp;
         uint8_t tmp_tstr_st;
@@ -459,12 +457,10 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         *MTU2_PWM_MATCH[tmp_pwm][MTU2_PERIOD] = (uint16_t)wk_cycle;     // Set period
 
         // Set duty again(TGRA)
-        tmp_tgra = *TGRA_MATCH[obj->ch];
-        set_mtu2_duty_again(&tmp_tgra, wk_last_cycle, wk_cycle);
+        set_mtu2_duty_again(TGRA_MATCH[obj->ch], wk_last_cycle, wk_cycle);
         if ((obj->ch == 0) || (obj->ch == 3) || (obj->ch == 4)) {
             // Set duty again(TGRC)
-            tmp_tgrc = *TGRC_MATCH[obj->ch];
-            set_mtu2_duty_again(&tmp_tgrc, wk_last_cycle, wk_cycle);
+            set_mtu2_duty_again(TGRC_MATCH[obj->ch], wk_last_cycle, wk_cycle);
         }
         *TMDR_MATCH[obj->ch] = 0x02;                                    // PWM mode 1
 
@@ -558,7 +554,6 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
                 value = (float)us / (float)period_ch1;
             }
         }
-
-        pwmout_write(obj, value);
     }
+    pwmout_write(obj, value);
 }
