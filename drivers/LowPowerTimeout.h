@@ -24,6 +24,8 @@
 #include "drivers/LowPowerTicker.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** Low Power Timout
  *
@@ -42,3 +44,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

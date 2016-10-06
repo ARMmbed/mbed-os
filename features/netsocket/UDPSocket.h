@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* UDPSocket
  * Copyright (c) 2015 ARM Limited
  *
@@ -120,3 +123,5 @@ protected:
 
 
 #endif
+
+/** @}*/

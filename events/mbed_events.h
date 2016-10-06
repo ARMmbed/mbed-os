@@ -1,3 +1,6 @@
+
+/** \addtogroup events */
+/** @{*/
 /* events
  * Copyright (c) 2016 ARM Limited
  *
@@ -31,3 +34,5 @@ using namespace events;
 
 
 #endif
+
+/** @}*/

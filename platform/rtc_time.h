@@ -1,3 +1,6 @@
+
+/** \addtogroup platform */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -85,3 +88,5 @@ void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init
 #ifdef __cplusplus
 }
 #endif
+
+/** @}*/

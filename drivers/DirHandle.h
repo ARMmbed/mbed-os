@@ -31,6 +31,8 @@ struct dirent {
 };
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** Represents a directory stream. Objects of this type are returned
  *  by a FileSystemLike's opendir method. Implementations must define
@@ -118,3 +120,5 @@ extern "C" {
 };
 
 #endif /* MBED_DIRHANDLE_H */
+
+/** @}*/

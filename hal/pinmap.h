@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -43,3 +46,5 @@ uint32_t pinmap_find_function(PinName pin, const PinMap* map);
 #endif
 
 #endif
+
+/** @}*/

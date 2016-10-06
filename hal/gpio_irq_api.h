@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -90,3 +93,5 @@ void gpio_irq_disable(gpio_irq_t *obj);
 #endif
 
 #endif
+
+/** @}*/

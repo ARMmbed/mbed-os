@@ -28,6 +28,8 @@
 #include "platform/toolchain.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** The RtosTimer class allow creating and and controlling of timer functions in the system.
  A timer function is called when a time period expires whereby both on-shot and
@@ -105,3 +107,5 @@ private:
 }
 
 #endif
+
+/** @}*/

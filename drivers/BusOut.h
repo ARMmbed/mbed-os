@@ -20,6 +20,8 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A digital output bus, used for setting the state of a collection of pins
  */
@@ -105,3 +107,5 @@ private:
 } // namespace mbed
 
 #endif
+
+/** @}*/

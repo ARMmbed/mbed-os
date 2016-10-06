@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -113,3 +116,5 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us);
 #endif
 
 #endif
+
+/** @}*/

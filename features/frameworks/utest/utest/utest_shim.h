@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -85,3 +88,5 @@ utest_v1_scheduler_t utest_v1_get_scheduler(void);
 #endif
 
 #endif // UTEST_SHIM_H
+
+/** @}*/

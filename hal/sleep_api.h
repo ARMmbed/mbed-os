@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -62,3 +65,5 @@ void deepsleep(void);
 #endif
 
 #endif
+
+/** @}*/

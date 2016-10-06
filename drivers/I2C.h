@@ -31,6 +31,8 @@
 #endif
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** An I2C Master, used for communicating with I2C slave devices
  *
@@ -191,3 +193,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

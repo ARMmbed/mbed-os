@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* NetworkStack
  * Copyright (c) 2015 ARM Limited
  *
@@ -321,3 +324,5 @@ NetworkStack *nsapi_create_stack(IF *iface)
 
 
 #endif
+
+/** @}*/

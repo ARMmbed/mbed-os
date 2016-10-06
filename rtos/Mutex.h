@@ -26,6 +26,8 @@
 #include "cmsis_os.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** The Mutex class is used to synchronise the execution of threads.
  This is for example used to protect access to a shared resource.
@@ -67,3 +69,5 @@ private:
 
 }
 #endif
+
+/** @}*/

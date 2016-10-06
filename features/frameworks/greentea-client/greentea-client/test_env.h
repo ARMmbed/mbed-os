@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /*
  * Copyright (c) 2013-2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -97,3 +100,5 @@ void greentea_notify_coverage_end();
 #endif  // MBED_CFG_DEBUG_OPTIONS_COVERAGE
 
 #endif  // GREENTEA_CLIENT_TEST_ENV_H_
+
+/** @}*/

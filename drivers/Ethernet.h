@@ -21,6 +21,8 @@
 #if DEVICE_ETHERNET
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** An ethernet interface, to use with the ethernet pins.
  *
@@ -170,3 +172,5 @@ public:
 #endif
 
 #endif
+
+/** @}*/

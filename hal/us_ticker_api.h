@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2015 ARM Limited
  *
@@ -76,3 +79,5 @@ void us_ticker_clear_interrupt(void);
 #endif
 
 #endif
+
+/** @}*/

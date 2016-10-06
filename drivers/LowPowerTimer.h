@@ -24,6 +24,8 @@
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** Low power timer
  *
@@ -42,3 +44,5 @@ public:
 #endif
 
 #endif
+
+/** @}*/

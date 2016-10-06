@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* nsapi.h - The network socket API
  * Copyright (c) 2015 ARM Limited
  *
@@ -481,3 +484,5 @@ typedef struct nsapi_stack_api
 #endif
 
 #endif
+
+/** @}*/

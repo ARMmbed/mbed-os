@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /*
  * Copyright (c) 2006-2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -51,3 +54,5 @@ typedef enum _ARM_POWER_STATE {
 } ARM_POWER_STATE;
 
 #endif /* __DRIVER_COMMON_H */
+
+/** @}*/

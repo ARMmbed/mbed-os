@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
  *
@@ -78,3 +81,5 @@ void          can_monitor  (can_t *obj, int silent);
 #endif    // MBED_CAN_API_H
 
 #endif
+
+/** @}*/
