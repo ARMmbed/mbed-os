@@ -64,7 +64,10 @@ typedef void (*generic_irq_handler_t)(void);
 #define VECTORS_FLASH_START 0x1B000
 #endif
 
-
+/**
+ * @brief Function for relocation of the vector to RAM on nRF5x devices.
+ * This function is intended to be called during startup.
+ */
 void nrf_reloc_vector_table(void)
 {
     // Copy and switch to dynamic vectors
