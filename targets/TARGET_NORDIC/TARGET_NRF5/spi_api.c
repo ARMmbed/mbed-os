@@ -85,6 +85,33 @@ typedef struct {
     nrf_drv_spi_t  master;
     nrf_drv_spis_t slave;
 } sdk_driver_instances_t;
+
+void SPI0_TWI0_IRQHandler(void);
+void SPI1_TWI1_IRQHandler(void);
+void SPIM2_SPIS2_SPI2_IRQHandler(void);
+
+static peripheral_hanlder_desc_t spi_hanlder_desc[SPI_COUNT] = {
+    #if SPI0_ENABLED
+    {
+        SPIS0_IRQ,
+        (uint32_t) SPI0_TWI0_IRQHandler
+    },
+    #endif
+    #if SPI1_ENABLED
+    {
+        SPIS1_IRQ,
+        (uint32_t) SPI1_TWI1_IRQHandler
+    },
+    #endif
+    #if SPI2_ENABLED
+    {
+        SPIS2_IRQ,
+        (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler
+    },
+    #endif    
+};
+
+
 static sdk_driver_instances_t m_instances[SPI_COUNT] = {
     #if SPI0_ENABLED
     {
@@ -230,6 +257,11 @@ void spi_init(spi_t *obj,
     for (i = 0; i < SPI_COUNT; ++i) {
         spi_info_t *p_spi_info = &m_spi_info[i];
         if (!p_spi_info->initialized) {
+         
+#ifndef HARDWIRE_SPI_TWI_INTERRUPT         
+            NVIC_SetVector(spi_hanlder_desc[i].IRQn, spi_hanlder_desc[i].vector);
+#endif
+            
             p_spi_info->sck_pin   = (uint8_t)sclk;
             p_spi_info->mosi_pin  = (mosi != NC) ?
                 (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;

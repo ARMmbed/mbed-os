@@ -18,7 +18,10 @@ LR_IROM1 0x18000 0x0028000  {
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM1 0x20002000 0x00002000  {
+  RW_IRAM0 0x20002000 UNINIT 0x000000c0  { ;no init section
+        *(noinit)
+  }
+  RW_IRAM1 0x200020C0 0x00001F40  {
    .ANY (+RW +ZI)
   }
 }
