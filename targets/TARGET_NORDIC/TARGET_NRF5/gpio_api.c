@@ -58,6 +58,7 @@ static void gpiote_irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t a
     }
 }
 
+void GPIOTE_IRQHandler(void);// exported from nrf_drv_gpiote.c
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
@@ -66,6 +67,9 @@ void gpio_init(gpio_t *obj, PinName pin)
         return;
     }
     MBED_ASSERT((uint32_t)pin < GPIO_PIN_COUNT);
+    
+    NVIC_SetVector(GPIOTE_IRQn, (uint32_t) GPIOTE_IRQHandler);
+    
     (void) nrf_drv_gpiote_init();
 
     m_gpio_cfg[obj->pin].used_as_gpio = true;

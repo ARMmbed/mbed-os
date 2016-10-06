@@ -52,52 +52,14 @@
  */
 
 
-#define NVIC_RAM_VECTOR_ADDRESS   (0x10000000)  // Location of vectors in RAM
-#define NVIC_FLASH_VECTOR_ADDRESS (0x0)       // Initial vector position in flash
-/*
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
-    uint32_t *vectors = (uint32_t*)SCB->VTOR;
-    uint32_t i;
+extern uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
 
-    // Copy and switch to dynamic vectors if the first time called
-    if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
-        uint32_t *old_vectors = vectors;
-        vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
-        for (i=0; i<NVIC_NUM_VECTORS; i++) {
-            vectors[i] = old_vectors[i];
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
+    nrf_dispatch_vector[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
         }
-        SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
-    }
-    vectors[IRQn + 16] = vector;
-}
 
-uint32_t NVIC_GetVector(IRQn_Type IRQn) {
-    uint32_t *vectors = (uint32_t*)SCB->VTOR;
-    return vectors[IRQn + 16];
-}*/
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
-   // int i;
-    // Space for dynamic vectors, initialised to allocate in R/W
-    static volatile uint32_t* vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
-    /*
-    // Copy and switch to dynamic vectors if first time called
-    if((LPC_SYSCON->SYSMEMREMAP & 0x3) != 0x1) {     
-      uint32_t *old_vectors = (uint32_t *)0;         // FLASH vectors are at 0x0
-      for(i = 0; i < NVIC_NUM_VECTORS; i++) {    
-            vectors[i] = old_vectors[i];
-        }
-        LPC_SYSCON->SYSMEMREMAP = 0x1; // Remaps 0x0-0x1FF FLASH block to RAM block
-    }*/
-
-    // Set the vector 
-    vectors[IRQn + 16] = vector; 
-}
-
-uint32_t NVIC_GetVector(IRQn_Type IRQn) {
-    // We can always read vectors at 0x0, as the addresses are remapped
-    uint32_t *vectors = (uint32_t*)0; 
-
-    // Return the vector
-    return vectors[IRQn + 16];
+uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
+    return nrf_dispatch_vector[IRQn + NVIC_USER_IRQ_OFFSET];
 }

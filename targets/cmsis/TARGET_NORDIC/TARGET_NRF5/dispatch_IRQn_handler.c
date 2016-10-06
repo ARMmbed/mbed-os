@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2015 Nordic Semiconductor ASA
+ * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,42 +35,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
+ 
+#include "nrf.h"
+#include "cmsis_nvic.h"
+#include "stdint.h"
+#include "nrf_sdm.h"
+#include "section_vars.h"
+
+#if defined(__CC_ARM)
+    __attribute__ ((section("noinit"),zero_init))
+    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
+#elif defined(__GNUC__)
+    __attribute__ ((section(".noinit")))
+    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
+#elif defined(__ICCARM__)
+    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS] @ ".noinit";
+#endif
 
 
-#ifndef NRF_H
-#define NRF_H
+typedef void (*generic_irq_handler_t)(void);
 
-/* MDK version */
-#define MDK_MAJOR_VERSION   8
-#define MDK_MINOR_VERSION   5
-#define MDK_MICRO_VERSION   0
 
-#if defined(_WIN32)
-    /* Do not include nrf51 specific files when building for PC host */
-#elif defined(__unix)
-    /* Do not include nrf51 specific files when building for PC host */
-#elif defined(__APPLE__)
-    /* Do not include nrf51 specific files when building for PC host */
-#else
+#ifdef NRF52
+#define VECTORS_FLASH_START 0x1C000
+#endif
 
-    /* Family selection for family includes. */
-    #if defined (NRF51)
-        #include "nrf51.h"
-        #include "nrf51_bitfields.h"
-        #include "nrf51_deprecated.h"
-    #elif defined (NRF52)
-        #include "nrf52.h"
-        #include "nrf52_bitfields.h"
-        #include "nrf51_to_nrf52.h"
-        #include "nrf52_name_change.h"
-    #else
-        #error "Device family must be defined. See nrf.h."
-    #endif /* NRF51, NRF52 */
+#ifdef NRF51
+#define VECTORS_FLASH_START 0x1B000
+#endif
 
-    #include "compiler_abstraction.h"
-    #include "irq_handlers_hw.h"
 
-#endif /* _WIN32 || __unix || __APPLE__ */
+void nrf_reloc_vector_table(void)
+{
+    // Copy and switch to dynamic vectors
+	uint32_t *old_vectors = (uint32_t*)VECTORS_FLASH_START;
+	uint32_t i;
+	for (i = 0; i< NVIC_NUM_VECTORS; i++) {
+		nrf_dispatch_vector[i] = old_vectors[i];
+	}
 
-#endif /* NRF_H */
-
+	sd_softdevice_vector_table_base_set((uint32_t) nrf_dispatch_vector);
+}

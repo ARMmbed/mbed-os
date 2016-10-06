@@ -140,6 +140,13 @@ SECTIONS
 
     __edata = .;
 
+    .noinit :
+    {
+      PROVIDE(__start_noinit = .);
+      KEEP(*(.noinit))
+      PROVIDE(__stop_noinit = .);
+    } > RAM
+    
     .bss :
     {
         . = ALIGN(4);

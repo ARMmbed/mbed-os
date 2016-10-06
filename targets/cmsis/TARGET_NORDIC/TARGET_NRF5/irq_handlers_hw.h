@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2015 Nordic Semiconductor ASA
+ * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,41 +36,20 @@
  * 
  */
 
+/**
+ * @file irq_handlers_hw.h
+ * @brief Heleper file for wiring irq handlers to theirs vectors.
+ */
+ 
+#ifndef IRQ_HANDLERS_HW_H__
+#define IRQ_HANDLERS_HW_H__
 
-#ifndef NRF_H
-#define NRF_H
 
-/* MDK version */
-#define MDK_MAJOR_VERSION   8
-#define MDK_MINOR_VERSION   5
-#define MDK_MICRO_VERSION   0
+typedef struct
+{
+    IRQn_Type      IRQn;
+    uint32_t       vector;
+} peripheral_hanlder_desc_t;
 
-#if defined(_WIN32)
-    /* Do not include nrf51 specific files when building for PC host */
-#elif defined(__unix)
-    /* Do not include nrf51 specific files when building for PC host */
-#elif defined(__APPLE__)
-    /* Do not include nrf51 specific files when building for PC host */
-#else
-
-    /* Family selection for family includes. */
-    #if defined (NRF51)
-        #include "nrf51.h"
-        #include "nrf51_bitfields.h"
-        #include "nrf51_deprecated.h"
-    #elif defined (NRF52)
-        #include "nrf52.h"
-        #include "nrf52_bitfields.h"
-        #include "nrf51_to_nrf52.h"
-        #include "nrf52_name_change.h"
-    #else
-        #error "Device family must be defined. See nrf.h."
-    #endif /* NRF51, NRF52 */
-
-    #include "compiler_abstraction.h"
-    #include "irq_handlers_hw.h"
-
-#endif /* _WIN32 || __unix || __APPLE__ */
-
-#endif /* NRF_H */
+#endif // IRQ_HANDLERS_HW_H__
 

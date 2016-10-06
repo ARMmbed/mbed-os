@@ -107,6 +107,25 @@ static uint8_t twi_address(int i2c_address)
     return (i2c_address >> 1);
 }
 
+void SPI0_TWI0_IRQHandler(void);
+void SPI1_TWI1_IRQHandler(void);
+
+static peripheral_hanlder_desc_t twi_handlers[TWI_COUNT] =
+{
+    #if TWI0_ENABLED
+    {
+        SPI0_TWI0_IRQn,
+        (uint32_t) SPI0_TWI0_IRQHandler
+    },
+    #endif
+    #if TWI1_ENABLED
+    {
+        SPI1_TWI1_IRQn,
+        (uint32_t) SPI1_TWI1_IRQHandler
+    }
+    #endif 
+};
+
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
     int i;
@@ -130,6 +149,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     for (i = 0; i < TWI_COUNT; ++i) {
         if (!m_twi_info[i].initialized) {
+
+            NVIC_SetVector(twi_handlers[i].IRQn, twi_handlers[i].vector);
+
             nrf_drv_twi_t const *twi = &m_twi_instances[i];
             ret_code_t ret_code =
                 nrf_drv_twi_init(twi, &config, twi_event_handler, obj);
