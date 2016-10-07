@@ -114,12 +114,6 @@ __Vectors:
     .long 	SWI3_IRQHandler_v		 /*SWI3 */
     .long 	SWI4_IRQHandler		 /*SWI4 */
     .long 	SWI5_IRQHandler		 /*SWI5 */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
 
 
     .size    __Vectors, . - __Vectors
