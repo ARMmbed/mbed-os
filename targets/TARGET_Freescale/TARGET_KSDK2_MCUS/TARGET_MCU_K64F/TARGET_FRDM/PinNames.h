@@ -218,7 +218,7 @@ typedef enum {
     D5 = PTA2,
     D6 = PTC2,
     D7 = PTC3,
-    D8 = PTA0,
+    D8 = PTC12,
     D9 = PTC4,
     D10 = PTD0,
     D11 = PTD2,
