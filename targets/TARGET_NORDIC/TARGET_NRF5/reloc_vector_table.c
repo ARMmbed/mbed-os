@@ -56,13 +56,8 @@
 typedef void (*generic_irq_handler_t)(void);
 
 
-#ifdef NRF52
-#define VECTORS_FLASH_START 0x1C000
-#endif
-
-#ifdef NRF51
-#define VECTORS_FLASH_START 0x1B000
-#endif
+extern uint32_t __Vectors[];
+#define VECTORS_FLASH_START __Vectors
 
 /**
  * @brief Function for relocation of the vector to RAM on nRF5x devices.
