@@ -36,6 +36,7 @@ MBED_DRIVERS = join(ROOT, "drivers")
 MBED_PLATFORM = join(ROOT, "platform")
 MBED_HAL = join(ROOT, "hal")
 
+MBED_CMSIS_PATH = join(ROOT, "cmsis")
 MBED_TARGETS_PATH = join(ROOT, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
