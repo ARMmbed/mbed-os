@@ -428,7 +428,7 @@ class MemapParser(object):
         file_desc - the file to write out the final report to
         """
         csv_writer = csv.writer(file_desc, delimiter=',',
-                                quoting=csv.QUOTE_NONE)
+                                quoting=csv.QUOTE_MINIMAL)
 
         csv_module_section = []
         csv_sizes = []
