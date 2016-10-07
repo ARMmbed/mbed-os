@@ -76,8 +76,8 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     QDEC_IRQHandler_v
                 DCD     COMP_LPCOMP_IRQHandler_v
                 DCD     SWI0_EGU0_IRQHandler_v
-                DCD     SWI1_EGU1_IRQHandler
-                DCD     SWI2_EGU2_IRQHandler
+                DCD     SWI1_EGU1_IRQHandler_v
+                DCD     SWI2_EGU2_IRQHandler_v
                 DCD     SWI3_EGU3_IRQHandler_v
                 DCD     SWI4_EGU4_IRQHandler
                 DCD     SWI5_EGU5_IRQHandler
@@ -387,8 +387,8 @@ Default_Handler PROC
                 EXPORT   QDEC_IRQHandler_v [WEAK]
                 EXPORT   COMP_LPCOMP_IRQHandler_v [WEAK]
                 EXPORT   SWI0_EGU0_IRQHandler_v [WEAK]
-                EXPORT   SWI1_EGU1_IRQHandler [WEAK]
-                EXPORT   SWI2_EGU2_IRQHandler [WEAK]
+                EXPORT   SWI1_EGU1_IRQHandler_v [WEAK]
+                EXPORT   SWI2_EGU2_IRQHandler_v [WEAK]
                 EXPORT   SWI3_EGU3_IRQHandler_v [WEAK]
                 EXPORT   SWI4_EGU4_IRQHandler [WEAK]
                 EXPORT   SWI5_EGU5_IRQHandler [WEAK]
@@ -424,8 +424,8 @@ RTC1_IRQHandler_v
 QDEC_IRQHandler_v
 COMP_LPCOMP_IRQHandler_v
 SWI0_EGU0_IRQHandler_v
-SWI1_EGU1_IRQHandler
-SWI2_EGU2_IRQHandler
+SWI1_EGU1_IRQHandler_v
+SWI2_EGU2_IRQHandler_v
 SWI3_EGU3_IRQHandler_v
 SWI4_EGU4_IRQHandler
 SWI5_EGU5_IRQHandler

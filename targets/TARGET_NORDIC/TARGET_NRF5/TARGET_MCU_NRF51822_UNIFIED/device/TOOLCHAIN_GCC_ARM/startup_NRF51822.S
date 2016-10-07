@@ -109,8 +109,8 @@ __Vectors:
     .long 	QDEC_IRQHandler_v		 /*QDEC */
     .long 	LPCOMP_IRQHandler_v		 /*LPCOMP */
     .long 	SWI0_IRQHandler_v		 /*SWI0 */
-    .long 	SWI1_IRQHandler		 /*SWI1 */
-    .long 	SWI2_IRQHandler		 /*SWI2 */
+    .long 	SWI1_IRQHandler_v		 /*SWI1 */
+    .long 	SWI2_IRQHandler_v		 /*SWI2 */
     .long 	SWI3_IRQHandler_v		 /*SWI3 */
     .long 	SWI4_IRQHandler		 /*SWI4 */
     .long 	SWI5_IRQHandler		 /*SWI5 */
@@ -256,8 +256,8 @@ Default_Handler:
     IRQ  QDEC_IRQHandler_v
     IRQ  LPCOMP_IRQHandler_v
     IRQ  SWI0_IRQHandler_v
-    IRQ  SWI1_IRQHandler         /* restricted for Radio Notification */
-    IRQ  SWI2_IRQHandler         /* blocked for SoftDevice Event */
+    IRQ  SWI1_IRQHandler_v         /* restricted for Radio Notification */
+    IRQ  SWI2_IRQHandler_v         /* blocked for SoftDevice Event */
     IRQ  SWI3_IRQHandler_v
     IRQ  SWI4_IRQHandler         /* blocked */
     IRQ  SWI5_IRQHandler         /* blocked */

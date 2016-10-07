@@ -64,8 +64,8 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD      QDEC_IRQHandler_v ;QDEC
                 DCD      LPCOMP_COMP_IRQHandler_v ;LPCOMP_COMP
                 DCD      SWI0_IRQHandler_v ;SWI0
-                DCD      SWI1_IRQHandler ;SWI1
-                DCD      SWI2_IRQHandler ;SWI2
+                DCD      SWI1_IRQHandler_v ;SWI1
+                DCD      SWI2_IRQHandler_v ;SWI2
                 DCD      SWI3_IRQHandler_v ;SWI3
                 DCD      SWI4_IRQHandler ;SWI4
                 DCD      SWI5_IRQHandler ;SWI5
@@ -158,8 +158,8 @@ Default_Handler PROC
                 EXPORT   QDEC_IRQHandler_v [WEAK]
                 EXPORT   LPCOMP_COMP_IRQHandler_v [WEAK]
                 EXPORT   SWI0_IRQHandler_v [WEAK]
-                EXPORT   SWI1_IRQHandler [WEAK]
-                EXPORT   SWI2_IRQHandler [WEAK]
+                EXPORT   SWI1_IRQHandler_v [WEAK]
+                EXPORT   SWI2_IRQHandler_v [WEAK]
                 EXPORT   SWI3_IRQHandler_v [WEAK]
                 EXPORT   SWI4_IRQHandler [WEAK]
                 EXPORT   SWI5_IRQHandler [WEAK]
@@ -183,8 +183,8 @@ RTC1_IRQHandler_v
 QDEC_IRQHandler_v
 LPCOMP_COMP_IRQHandler_v
 SWI0_IRQHandler_v
-SWI1_IRQHandler
-SWI2_IRQHandler
+SWI1_IRQHandler_v
+SWI2_IRQHandler_v
 SWI3_IRQHandler_v
 SWI4_IRQHandler
 SWI5_IRQHandler

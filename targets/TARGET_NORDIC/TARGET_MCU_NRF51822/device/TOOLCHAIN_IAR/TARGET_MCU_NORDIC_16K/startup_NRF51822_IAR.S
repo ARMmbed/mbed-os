@@ -69,8 +69,8 @@ __vector_table
         DCD      QDEC_IRQHandler_v ;QDEC
         DCD      LPCOMP_COMP_IRQHandler_v ;LPCOMP_COMP
         DCD      SWI0_IRQHandler ;SWI0
-        DCD      SWI1_IRQHandler ;SWI1
-        DCD      SWI2_IRQHandler ;SWI2
+        DCD      SWI1_IRQHandler_v ;SWI1
+        DCD      SWI2_IRQHandler_v ;SWI2
         DCD      SWI3_IRQHandler_v ;SWI3
         DCD      SWI4_IRQHandler ;SWI4
         DCD      SWI5_IRQHandler ;SWI5
@@ -215,13 +215,13 @@ LPCOMP_COMP_IRQHandler_v
         SECTION .text:CODE:REORDER:NOROOT(1)
 SWI0_IRQHandler
         B .
-        PUBWEAK  SWI1_IRQHandler
+        PUBWEAK  SWI1_IRQHandler_v
         SECTION .text:CODE:REORDER:NOROOT(1)
-SWI1_IRQHandler
+SWI1_IRQHandler_v
         B .
-        PUBWEAK  SWI2_IRQHandler
+        PUBWEAK  SWI2_IRQHandler_v
         SECTION .text:CODE:REORDER:NOROOT(1)
-SWI2_IRQHandler
+SWI2_IRQHandler_v
         B .
         PUBWEAK  SWI3_IRQHandler_v
         SECTION .text:CODE:REORDER:NOROOT(1)

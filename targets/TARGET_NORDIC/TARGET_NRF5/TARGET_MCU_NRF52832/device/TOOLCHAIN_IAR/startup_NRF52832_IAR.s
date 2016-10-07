@@ -100,8 +100,8 @@ __vector_table
         DCD     QDEC_IRQHandler_v
         DCD     COMP_LPCOMP_IRQHandler_v
         DCD     SWI0_EGU0_IRQHandler_v
-        DCD     SWI1_EGU1_IRQHandler
-        DCD     SWI2_EGU2_IRQHandler
+        DCD     SWI1_EGU1_IRQHandler_v
+        DCD     SWI2_EGU2_IRQHandler_v
         DCD     SWI3_EGU3_IRQHandler_v
         DCD     SWI4_EGU4_IRQHandler
         DCD     SWI5_EGU5_IRQHandler
@@ -495,14 +495,14 @@ COMP_LPCOMP_IRQHandler_v
 SWI0_EGU0_IRQHandler_v
         B .
 
-        PUBWEAK  SWI1_EGU1_IRQHandler
+        PUBWEAK  SWI1_EGU1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SWI1_EGU1_IRQHandler
+SWI1_EGU1_IRQHandler_v
         B .
 
-        PUBWEAK  SWI2_EGU2_IRQHandler
+        PUBWEAK  SWI2_EGU2_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SWI2_EGU2_IRQHandler
+SWI2_EGU2_IRQHandler_v
         B .
 
         PUBWEAK  SWI3_EGU3_IRQHandler_v
