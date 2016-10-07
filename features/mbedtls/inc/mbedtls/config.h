@@ -33,8 +33,13 @@
  * Only use features that do not require an entropy source when
  * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.
  */
-#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
+#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY)
 #include "mbedtls/config-no-entropy.h"
+
+#if defined(MBEDTLS_USER_CONFIG_FILE)
+#include MBEDTLS_USER_CONFIG_FILE
+#endif
+
 #else
 #define MBEDTLS_CONFIG_H
 
@@ -1682,6 +1687,19 @@
 #define MBEDTLS_CIPHER_C
 
 /**
+ * \def MBEDTLS_CMAC_C
+ *
+ * Enable the CMAC (Cipher-based Message Authentication Code) mode for block
+ * ciphers.
+ *
+ * Module:  library/cmac.c
+ *
+ * Requires: MBEDTLS_AES_C or MBEDTLS_DES_C
+ *
+ */
+//#define MBEDTLS_CMAC_C
+
+/**
  * \def MBEDTLS_CTR_DRBG_C
  *
  * Enable the CTR_DRBG AES-256-based random generator.
@@ -2606,5 +2624,5 @@
 
 #include "check_config.h"
 
-#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT */
+#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY */
 #endif /* MBEDTLS_CONFIG_H */
