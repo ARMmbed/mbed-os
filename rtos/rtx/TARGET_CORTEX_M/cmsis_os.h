@@ -77,12 +77,6 @@
 
 #ifdef __MBED_CMSIS_RTOS_CM
 
-/* Single thread - disable timers and set task count to one */
-#if defined(MBED_RTOS_SINGLE_THREAD)
-#define OS_TASKCNT  1
-#define OS_TIMERS   0
-#endif
-
 /* If os timers macro is set to 0, there's no timer thread created, therefore
  * main thread has tid 0x01  
  */
