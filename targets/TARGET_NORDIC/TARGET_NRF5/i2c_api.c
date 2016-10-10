@@ -124,8 +124,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     nrf_drv_twi_config_t const config = {
         .scl                = scl,
         .sda                = sda,
-        .frequency          = NRF_TWI_FREQ_100K,
-        .interrupt_priority = APP_IRQ_PRIORITY_LOW,
+        .frequency          = NRF_TWI_FREQ_100K,  
+#ifdef NRF51
+        .interrupt_priority = APP_IRQ_PRIORITY_LOW
+#elif defined(NRF52)
+        .interrupt_priority = APP_IRQ_PRIORITY_LOWEST
+#endif
+        
     };
 
     for (i = 0; i < TWI_COUNT; ++i) {
