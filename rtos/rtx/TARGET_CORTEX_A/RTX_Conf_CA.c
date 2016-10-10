@@ -38,11 +38,6 @@
  *      RTX User configuration part BEGIN
  *---------------------------------------------------------------------------*/
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
-#define OS_TASKCNT  1
-#define OS_TIMERS   0
-#endif
-
 // Include per-target RTX config file
 #include "mbed_rtx.h"
 
