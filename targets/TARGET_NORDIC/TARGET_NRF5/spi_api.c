@@ -228,7 +228,7 @@ static void prepare_master_config(nrf_drv_spi_config_t *p_config,
     p_config->frequency = p_spi_info->frequency;
     p_config->mode      = (nrf_drv_spi_mode_t)p_spi_info->spi_mode;
 
-    p_config->irq_priority = APP_IRQ_PRIORITY_LOW;
+    p_config->irq_priority = SPI1_CONFIG_IRQ_PRIORITY;
     p_config->orc          = 0xFF;
     p_config->bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
 }
@@ -242,7 +242,7 @@ static void prepare_slave_config(nrf_drv_spis_config_t *p_config,
     p_config->csn_pin   = p_spi_info->ss_pin;
     p_config->mode      = (nrf_drv_spis_mode_t)p_spi_info->spi_mode;
 
-    p_config->irq_priority = APP_IRQ_PRIORITY_LOW;
+    p_config->irq_priority = SPIS1_CONFIG_IRQ_PRIORITY;
     p_config->orc          = NRF_DRV_SPIS_DEFAULT_ORC;
     p_config->def          = NRF_DRV_SPIS_DEFAULT_DEF;
     p_config->bit_order    = NRF_DRV_SPIS_BIT_ORDER_MSB_FIRST;
