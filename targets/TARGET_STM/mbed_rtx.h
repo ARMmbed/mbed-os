@@ -272,7 +272,7 @@
 #define OS_CLOCK                84000000
 #endif
 
-#elif defined(TARGET_STM32F429ZI)
+#elif (defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F439ZI))
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
