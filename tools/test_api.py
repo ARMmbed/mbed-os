@@ -37,6 +37,7 @@ from time import sleep, time
 from Queue import Queue, Empty
 from os.path import join, exists, basename, relpath
 from threading import Thread, Lock
+from multiprocessing import Pool, cpu_count
 from subprocess import Popen, PIPE
 
 # Imports related to mbed build api
@@ -2068,6 +2069,27 @@ def norm_relative_path(path, start):
     path = path.replace("\\", "/")
     return path
 
+
+def build_test_worker(*args, **kwargs):
+    bin_file = None
+    ret = {
+        'result': False,
+        'args': args,
+        'kwargs': kwargs
+    }
+
+    try:
+        bin_file = build_project(*args, **kwargs)
+        ret['result'] = True
+        ret['bin_file'] = bin_file
+        ret['kwargs'] = kwargs
+
+    except:
+        ret['reason'] = sys.exc_info()[1]
+
+    return ret
+
+
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, verbose=False, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
@@ -2095,58 +2117,86 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
     result = True
 
-    map_outputs_total = list()
+    jobs_count = int(jobs if jobs else cpu_count())
+    p = Pool(processes=jobs_count)
+
+    results = []
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
         bin_file = None
         test_case_folder_name = os.path.basename(test_path)
         
+        args = (src_path, test_build_path, target, toolchain_name)
+        kwargs = {
+            'jobs': jobs,
+            'clean': clean,
+            'macros': macros,
+            'name': test_case_folder_name,
+            'project_id': test_name,
+            'report': report,
+            'properties': properties,
+            'verbose': verbose,
+            'app_config': app_config,
+            'build_profile': build_profile
+        }
         
-        try:
-            bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                     jobs=jobs,
-                                     clean=clean,
-                                     macros=macros,
-                                     name=test_case_folder_name,
-                                     project_id=test_name,
-                                     report=report,
-                                     properties=properties,
-                                     verbose=verbose,
-                                     app_config=app_config,
-                                     build_profile=build_profile)
+        results.append(p.apply_async(build_test_worker, args, kwargs))
 
-        except NotSupportedException:
-            pass
-        except ToolException:
-            result = False
-            if continue_on_build_fail:
-                continue
+    p.close()
+    result = True
+    itr = 0
+    while len(results):
+        itr += 1
+        if itr > 360000:
+            p.terminate()
+            p.join()
+            raise ToolException("Compile did not finish in 10 minutes")
+
+        sleep(0.01)
+        pending = 0
+        for r in results:
+            if r.ready() is True:
+                try:
+                    worker_result = r.get()
+                    results.remove(r)
+
+
+                    for test_key in worker_result['kwargs']['report'][target_name][toolchain_name].keys():
+                        report[target_name][toolchain_name][test_key] = worker_result['kwargs']['report'][target_name][toolchain_name][test_key]
+
+                    if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
+                        result = False
+
+                    if worker_result['result'] and 'bin_file' in worker_result:
+                        bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
+
+                        test_build['tests'][worker_result['kwargs']['project_id']] = {
+                            "binaries": [
+                                {
+                                    "path": bin_file
+                                }
+                            ]
+                        }
+                        
+                        # TODO: add 'Image: bin_file' print statement here
+
+                except ToolException, err:
+                    if p._taskqueue.queue:
+                        p._taskqueue.queue.clear()
+                        sleep(0.5)
+                    p.terminate()
+                    p.join()
+                    raise ToolException(err)
             else:
-                break
+                pending += 1
+                if pending >= jobs_count:
+                    break
 
-        # If a clean build was carried out last time, disable it for the next build.
-        # Otherwise the previously built test will be deleted.
-        if clean:
-            clean = False
-
-        # Normalize the path
-        if bin_file:
-            bin_file = norm_relative_path(bin_file, execution_directory)
-
-            test_build['tests'][test_name] = {
-                "binaries": [
-                    {
-                        "path": bin_file
-                    }
-                ]
-            }
-
-            print 'Image: %s'% bin_file
+    p.join()
 
     test_builds = {}
     test_builds["%s-%s" % (target_name, toolchain_name)] = test_build
-    
 
     return result, test_builds
 
