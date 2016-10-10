@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-#include "rtos_idle.h"
+#include "rtos/rtos_idle.h"
 
 static void default_idle_hook(void)
 {
-    /* Sleep: Please note - for the most power savings, disconnect the 
-       interface chip (debugger).
-       This can be done, but it would break the local file system.
+    /* Sleep: Please note - for the most power savings, disconnect the.
+     interface chip (debugger).
+     This can be done, but it would break the local file system.
     */
      sleep();
 }
