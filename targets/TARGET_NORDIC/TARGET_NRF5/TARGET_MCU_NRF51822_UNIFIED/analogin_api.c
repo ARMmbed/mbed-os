@@ -39,7 +39,7 @@ static const PinMap PinMap_ADC[] = {
     {NC, NC, 0}
 };
 
-void ADC_IRQHandler(void); // export IRQ handler form nrf_drv_adc.c
+void ADC_IRQHandler(void); // export IRQ handler from nrf_drv_adc.c
 
 void analogin_init(analogin_t *obj, PinName pin)
 {

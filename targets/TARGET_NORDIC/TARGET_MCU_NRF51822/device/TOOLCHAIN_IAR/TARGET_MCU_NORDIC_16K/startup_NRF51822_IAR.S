@@ -20,7 +20,6 @@
 
         EXTERN  __iar_program_start
         EXTERN  SystemInit
-        EXTERN  nrf_reloc_vector_table
         PUBLIC  __vector_table
         PUBLIC  __Vectors
         PUBLIC  __Vectors_End
@@ -50,28 +49,28 @@ __vector_table
         ; External Interrupts
         DCD      POWER_CLOCK_IRQHandler ;POWER_CLOCK
         DCD      RADIO_IRQHandler ;RADIO
-        DCD      UART0_IRQHandler_v ;UART0
-        DCD      SPI0_TWI0_IRQHandler_v ;SPI0_TWI0
-        DCD      SPI1_TWI1_IRQHandler_v ;SPI1_TWI1
+        DCD      UART0_IRQHandler ;UART0
+        DCD      SPI0_TWI0_IRQHandler ;SPI0_TWI0
+        DCD      SPI1_TWI1_IRQHandler ;SPI1_TWI1
         DCD      0 ;Reserved
-        DCD      GPIOTE_IRQHandler_v ;GPIOTE
-        DCD      ADC_IRQHandler_v ;ADC
+        DCD      GPIOTE_IRQHandler ;GPIOTE
+        DCD      ADC_IRQHandler ;ADC
         DCD      TIMER0_IRQHandler ;TIMER0
-        DCD      TIMER1_IRQHandler_v ;TIMER1
-        DCD      TIMER2_IRQHandler_v ;TIMER2
+        DCD      TIMER1_IRQHandler ;TIMER1
+        DCD      TIMER2_IRQHandler ;TIMER2
         DCD      RTC0_IRQHandler ;RTC0
         DCD      TEMP_IRQHandler ;TEMP
         DCD      RNG_IRQHandler ;RNG
         DCD      ECB_IRQHandler ;ECB
         DCD      CCM_AAR_IRQHandler ;CCM_AAR
-        DCD      WDT_IRQHandler_v ;WDT
-        DCD      RTC1_IRQHandler_v ;RTC1
-        DCD      QDEC_IRQHandler_v ;QDEC
-        DCD      LPCOMP_COMP_IRQHandler_v ;LPCOMP_COMP
+        DCD      WDT_IRQHandler ;WDT
+        DCD      RTC1_IRQHandler ;RTC1
+        DCD      QDEC_IRQHandler ;QDEC
+        DCD      LPCOMP_COMP_IRQHandler ;LPCOMP_COMP
         DCD      SWI0_IRQHandler ;SWI0
-        DCD      SWI1_IRQHandler_v ;SWI1
-        DCD      SWI2_IRQHandler_v ;SWI2
-        DCD      SWI3_IRQHandler_v ;SWI3
+        DCD      SWI1_IRQHandler ;SWI1
+        DCD      SWI2_IRQHandler ;SWI2
+        DCD      SWI3_IRQHandler ;SWI3
         DCD      SWI4_IRQHandler ;SWI4
         DCD      SWI5_IRQHandler ;SWI5
         DCD      0 ;Reserved
@@ -100,8 +99,6 @@ Reset_Handler
         ORRS    R2, R2, R1
         STR     R2, [R0]
         LDR     R0, =SystemInit
-        BLX     R0
-        LDR     R0, =nrf_reloc_vector_table
         BLX     R0
         LDR     R0, =__iar_program_start
         BX      R0
@@ -143,37 +140,37 @@ POWER_CLOCK_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 RADIO_IRQHandler
         B .
-        PUBWEAK  UART0_IRQHandler_v
+        PUBWEAK  UART0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-UART0_IRQHandler_v
+UART0_IRQHandler
         B .
-        PUBWEAK  SPI0_TWI0_IRQHandler_v
+        PUBWEAK  SPI0_TWI0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SPI0_TWI0_IRQHandler_v
+SPI0_TWI0_IRQHandler
         B .
-        PUBWEAK  SPI1_TWI1_IRQHandler_v
+        PUBWEAK  SPI1_TWI1_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SPI1_TWI1_IRQHandler_v
+SPI1_TWI1_IRQHandler
         B .
-        PUBWEAK  GPIOTE_IRQHandler_v
+        PUBWEAK  GPIOTE_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-GPIOTE_IRQHandler_v
+GPIOTE_IRQHandler
         B .
-        PUBWEAK  ADC_IRQHandler_v
+        PUBWEAK  ADC_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-ADC_IRQHandler_v
+ADC_IRQHandler
         B .
         PUBWEAK  TIMER0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 TIMER0_IRQHandler
         B .
-        PUBWEAK  TIMER1_IRQHandler_v
+        PUBWEAK  TIMER1_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-TIMER1_IRQHandler_v
+TIMER1_IRQHandler
         B .
-        PUBWEAK  TIMER2_IRQHandler_v
+        PUBWEAK  TIMER2_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-TIMER2_IRQHandler_v
+TIMER2_IRQHandler
         B .
         PUBWEAK  RTC0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
@@ -195,37 +192,37 @@ ECB_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 CCM_AAR_IRQHandler
         B .
-        PUBWEAK  WDT_IRQHandler_v
+        PUBWEAK  WDT_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-WDT_IRQHandler_v
+WDT_IRQHandler
         B .
-        PUBWEAK  RTC1_IRQHandler_v
+        PUBWEAK  RTC1_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-RTC1_IRQHandler_v
+RTC1_IRQHandler
         B .
-        PUBWEAK  QDEC_IRQHandler_v
+        PUBWEAK  QDEC_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-QDEC_IRQHandler_v
+QDEC_IRQHandler
         B .
-        PUBWEAK  LPCOMP_COMP_IRQHandler_v
+        PUBWEAK  LPCOMP_COMP_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-LPCOMP_COMP_IRQHandler_v
+LPCOMP_COMP_IRQHandler
         B .
         PUBWEAK  SWI0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 SWI0_IRQHandler
         B .
-        PUBWEAK  SWI1_IRQHandler_v
+        PUBWEAK  SWI1_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SWI1_IRQHandler_v
+SWI1_IRQHandler
         B .
-        PUBWEAK  SWI2_IRQHandler_v
+        PUBWEAK  SWI2_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SWI2_IRQHandler_v
+SWI2_IRQHandler
         B .
-        PUBWEAK  SWI3_IRQHandler_v
+        PUBWEAK  SWI3_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SWI3_IRQHandler_v
+SWI3_IRQHandler
         B .
         PUBWEAK  SWI4_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)

@@ -120,7 +120,7 @@ error_t btle_init(void)
 {
     nrf_clock_lf_cfg_t clockConfiguration;
 
-    // register softdevice hanlder vector
+    // register softdevice handler vector
     NVIC_SetVector(SD_EVT_IRQn, (uint32_t) SD_EVT_IRQHandler);
     
     // Configure the LF clock according to values provided by btle_clock.h.

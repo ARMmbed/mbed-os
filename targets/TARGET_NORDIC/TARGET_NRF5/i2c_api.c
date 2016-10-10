@@ -110,7 +110,7 @@ static uint8_t twi_address(int i2c_address)
 void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
 
-static peripheral_hanlder_desc_t twi_handlers[TWI_COUNT] =
+static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
 {
     #if TWI0_ENABLED
     {
