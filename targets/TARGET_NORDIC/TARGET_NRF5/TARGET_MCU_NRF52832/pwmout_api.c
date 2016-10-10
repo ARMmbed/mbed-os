@@ -112,7 +112,7 @@ void PWM0_IRQHandler(void);
 void PWM1_IRQHandler(void);
 void PWM2_IRQHandler(void);
 
-static peripheral_hanlder_desc_t pwm_handlers[PWM_INSTANCE_COUNT] =
+static const peripheral_handler_desc_t pwm_handlers[PWM_INSTANCE_COUNT] =
 {
     {
         PWM0_IRQn,

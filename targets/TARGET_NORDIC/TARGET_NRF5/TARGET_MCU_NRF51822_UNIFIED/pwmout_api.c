@@ -100,7 +100,7 @@ void GPIOTE_IRQHandler(void);// exported from nrf_drv_gpiote.c
 void TIMER1_IRQHandler(void);
 void TIMER2_IRQHandler(void);
 
-static peripheral_hanlder_desc_t timer_handlers[] =
+static const peripheral_handler_desc_t timer_handlers[] =
 {
     {
         TIMER1_IRQn,

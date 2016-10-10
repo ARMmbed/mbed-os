@@ -90,47 +90,47 @@ void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
 void SPIM2_SPIS2_SPI2_IRQHandler(void);
 
-static peripheral_hanlder_desc_t spi_hanlder_desc[SPI_COUNT] = {
-    #if SPI0_ENABLED
+static const peripheral_handler_desc_t spi_hanlder_desc[SPI_COUNT] = {
+#if SPI0_ENABLED
     {
         SPIS0_IRQ,
         (uint32_t) SPI0_TWI0_IRQHandler
     },
-    #endif
-    #if SPI1_ENABLED
+#endif
+#if SPI1_ENABLED
     {
         SPIS1_IRQ,
         (uint32_t) SPI1_TWI1_IRQHandler
     },
-    #endif
-    #if SPI2_ENABLED
+#endif
+#if SPI2_ENABLED
     {
         SPIS2_IRQ,
         (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler
     },
-    #endif    
+#endif    
 };
 
 
 static sdk_driver_instances_t m_instances[SPI_COUNT] = {
-    #if SPI0_ENABLED
+#if SPI0_ENABLED
     {
         NRF_DRV_SPI_INSTANCE(0),
         NRF_DRV_SPIS_INSTANCE(0)
     },
-    #endif
-    #if SPI1_ENABLED
+#endif
+#if SPI1_ENABLED
     {
         NRF_DRV_SPI_INSTANCE(1),
         NRF_DRV_SPIS_INSTANCE(1)
     },
-    #endif
-    #if SPI2_ENABLED
+#endif
+#if SPI2_ENABLED
     {
         NRF_DRV_SPI_INSTANCE(2),
         NRF_DRV_SPIS_INSTANCE(2)
     },
-    #endif
+#endif
 };
 
 static void master_event_handler(uint8_t spi_idx,

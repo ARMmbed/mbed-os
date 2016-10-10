@@ -49,7 +49,7 @@ typedef struct
 {
     IRQn_Type      IRQn;
     uint32_t       vector;
-} peripheral_hanlder_desc_t;
+} peripheral_handler_desc_t;
 
 #endif // IRQ_HANDLERS_HW_H__
 
