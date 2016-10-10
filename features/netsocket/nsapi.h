@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* nsapi.h - The network socket API
  * Copyright (c) 2015 ARM Limited
  *
@@ -42,3 +45,5 @@
 
 
 #endif
+
+/** @}*/

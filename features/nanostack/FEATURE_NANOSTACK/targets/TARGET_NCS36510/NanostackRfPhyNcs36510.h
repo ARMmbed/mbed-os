@@ -15,7 +15,7 @@
  */
 
 #ifndef NANOSTACK_PHY_NCS36510_H_
-#define NANOSTACK_PHY_MCR20A_H_
+#define NANOSTACK_PHY_NCS36510_H_
 
 #include "mbed.h"
 #include "NanostackRfPhy.h"
@@ -30,4 +30,4 @@ public:
     void set_mac_address(uint8_t *mac);
 };
 
-#endif /* NANOSTACK_PHY_MCR20A_H_ */
+#endif /* NANOSTACK_PHY_NCS36510_H_ */

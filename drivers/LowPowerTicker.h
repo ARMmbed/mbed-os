@@ -24,6 +24,8 @@
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** Low Power Ticker
  *
@@ -44,3 +46,5 @@ public:
 #endif
 
 #endif
+
+/** @}*/

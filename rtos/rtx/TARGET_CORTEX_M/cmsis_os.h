@@ -1,3 +1,6 @@
+
+/** \addtogroup rtos */
+/** @{*/
 /* ----------------------------------------------------------------------
  * $Date:        5. February 2013
  * $Revision:    V1.02
@@ -740,3 +743,5 @@ void os_resume (uint32_t sleep_time);
 #endif
 
 #endif  // _CMSIS_OS_H
+
+/** @}*/

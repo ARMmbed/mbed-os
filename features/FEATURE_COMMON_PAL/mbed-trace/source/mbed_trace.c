@@ -454,10 +454,20 @@ void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
 
 end:
     if ( m_trace.mutex_release_f ) {
-        while (m_trace.mutex_lock_count > 0) {
-            m_trace.mutex_lock_count--;
+        // Store the mutex lock count to temp variable so that it won't get
+        // clobbered during last loop iteration when mutex gets released
+        int count = m_trace.mutex_lock_count;
+        m_trace.mutex_lock_count = 0;
+        // Since the helper functions (eg. mbed_trace_array) are used like this:
+        //   mbed_tracef(TRACE_LEVEL_INFO, "grp", "%s", mbed_trace_array(some_array))
+        // The helper function MUST acquire the mutex if it modifies any buffers. However
+        // it CANNOT unlock the mutex because that would allow another thread to acquire
+        // the mutex after helper function unlocks it and before mbed_tracef acquires it
+        // for itself. This means that here we have to unlock the mutex as many times
+        // as it was acquired by trace function and any possible helper functions.
+        do {
             m_trace.mutex_release_f();
-        }
+        } while (--count > 0);
     }
 }
 static void mbed_trace_reset_tmp(void)

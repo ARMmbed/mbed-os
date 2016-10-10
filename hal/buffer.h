@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2014-2015 ARM Limited
  *
@@ -28,3 +31,5 @@ typedef struct buffer_s {
 } buffer_t;
 
 #endif
+
+/** @}*/

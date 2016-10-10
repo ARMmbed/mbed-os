@@ -25,6 +25,8 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** CANMessage class
  *
@@ -256,3 +258,5 @@ protected:
 #endif
 
 #endif    // MBED_CAN_H
+
+/** @}*/

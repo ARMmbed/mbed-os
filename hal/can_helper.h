@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -51,3 +54,5 @@ typedef struct CAN_Message CAN_Message;
 #endif
 
 #endif // MBED_CAN_HELPER_H
+
+/** @}*/

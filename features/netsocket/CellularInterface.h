@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* CellularInterface
  * Copyright (c) 2015 ARM Limited
  *
@@ -65,3 +68,5 @@ public:
 
  
 #endif
+
+/** @}*/

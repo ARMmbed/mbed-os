@@ -46,6 +46,8 @@ typedef long off_t;
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 typedef enum {
     FilePathType,
@@ -80,3 +82,5 @@ private:
 } // namespace mbed
 
 #endif
+
+/** @}*/

@@ -21,6 +21,8 @@
 #include <string.h>
 
 namespace mbed {
+/** \addtogroup platform */
+/** @{*/
 
 /** Group one or more functions in an instance of a CallChain, then call them in
  * sequence using CallChain::call(). Used mostly by the interrupt chaining code,
@@ -186,3 +188,5 @@ private:
 } // namespace mbed
 
 #endif
+
+/** @}*/

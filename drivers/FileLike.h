@@ -20,6 +20,8 @@
 #include "drivers/FileHandle.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /* Class FileLike
  *  A file-like object is one that can be opened with fopen by
@@ -45,3 +47,5 @@ public:
 } // namespace mbed
 
 #endif
+
+/** @}*/

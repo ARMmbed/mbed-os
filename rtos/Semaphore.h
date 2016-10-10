@@ -26,6 +26,8 @@
 #include "cmsis_os.h"
 
 namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
 /** The Semaphore class is used to manage and protect access to a set of shared resources. */
 class Semaphore {
@@ -58,3 +60,5 @@ private:
 
 }
 #endif
+
+/** @}*/

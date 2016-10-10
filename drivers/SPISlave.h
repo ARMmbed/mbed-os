@@ -23,6 +23,8 @@
 #include "hal/spi_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A SPI slave, used for communicating with a SPI Master device
  *
@@ -122,3 +124,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

@@ -26,6 +26,8 @@
 #include "serial_api.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  *
@@ -93,3 +95,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

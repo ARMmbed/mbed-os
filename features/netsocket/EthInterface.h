@@ -1,3 +1,6 @@
+
+/** \addtogroup netsocket */
+/** @{*/
 /* EthInterface
  * Copyright (c) 2015 ARM Limited
  *
@@ -30,3 +33,5 @@ class EthInterface : public NetworkInterface
 
 
 #endif
+
+/** @}*/

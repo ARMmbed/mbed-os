@@ -1,3 +1,6 @@
+
+/** \addtogroup platform */
+/** @{*/
 /* General C++ Object Thunking class
  *
  * - allows direct callbacks to non-static C++ class functions
@@ -238,3 +241,5 @@ class CThunk
 };
 
 #endif/*__CTHUNK_H__*/
+
+/** @}*/

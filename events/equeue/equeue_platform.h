@@ -1,3 +1,6 @@
+
+/** \addtogroup events */
+/** @{*/
 /*
  * System specific implementation
  *
@@ -138,3 +141,5 @@ bool equeue_sema_wait(equeue_sema_t *sema, int ms);
 #endif
 
 #endif
+
+/** @}*/

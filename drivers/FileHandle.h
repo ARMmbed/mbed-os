@@ -29,6 +29,8 @@ typedef long off_t;
 #endif
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** An OO equivalent of the internal FILEHANDLE variable
  *  and associated _sys_* functions.
@@ -138,3 +140,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

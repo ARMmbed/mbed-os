@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -42,3 +45,5 @@ extern void utest_dump_trace();
 #endif // UTEST_STACK_TRACE
 
 #endif // UTEST_STACK_TRACE_H
+
+/** @}*/

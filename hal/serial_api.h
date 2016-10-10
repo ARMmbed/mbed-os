@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -300,3 +303,5 @@ void serial_rx_abort_asynch(serial_t *obj);
 #endif
 
 #endif
+
+/** @}*/

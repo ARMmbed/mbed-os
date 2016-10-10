@@ -24,6 +24,8 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+/** \addtogroup drivers */
+/** @{*/
 
 /** An analog output, used for setting the voltage on a pin
  *
@@ -144,3 +146,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

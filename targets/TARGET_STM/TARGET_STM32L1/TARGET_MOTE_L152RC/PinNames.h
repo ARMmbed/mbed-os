@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,11 +36,22 @@
 extern "C" {
 #endif
 
-// See stm32l0xx_hal_gpio.h and stm32l0xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
-#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
-#define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
-#define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
-#define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((MODE  & 0x0F) << 0) |\
+                                                ((PUPD  & 0x07) << 4) |\
+                                                ((AFNUM & 0x0F) << 7)))
+
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((MODE     & 0x0F) <<  0) |\
+                                                                       ((PUPD     & 0x07) <<  4) |\
+                                                                       ((AFNUM    & 0x0F) <<  7) |\
+                                                                       ((CHANNEL  & 0x1F) << 11) |\
+                                                                       ((INVERTED & 0x01) << 16)))
+
+#define STM_PIN_MODE(X)     (((X) >>  0) & 0x0F)
+#define STM_PIN_PUPD(X)     (((X) >>  4) & 0x07)
+#define STM_PIN_AFNUM(X)    (((X) >>  7) & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x1F)
+#define STM_PIN_INVERTED(X) (((X) >> 16) & 0x01)
+
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -121,6 +132,10 @@ typedef enum {
 
     //PH_0  = 0x70,
     //PH_1  = 0x71,
+
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
 
     // Arduino connector namings
     A0          = PA_0,

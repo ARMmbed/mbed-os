@@ -25,8 +25,8 @@ from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException
-from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_HEADER,\
-    MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
+from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
+    MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
     MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
     BUILD_DIR
 from tools.targets import TARGET_NAMES, TARGET_MAP
@@ -405,6 +405,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     # Extend src_paths wiht libraries_paths
     if libraries_paths is not None:
         src_paths.extend(libraries_paths)
+        inc_dirs.extend(map(dirname, libraries_paths))
 
     # Build Directory
     if clean and exists(build_path):
@@ -892,7 +893,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         # CMSIS
         toolchain.info("Building library %s (%s, %s)" %
                        ('CMSIS', target.name, toolchain_name))
-        cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+        cmsis_src = MBED_CMSIS_PATH
         resources = toolchain.scan_resources(cmsis_src)
 
         toolchain.copy_files(resources.headers, build_target)
@@ -925,17 +926,20 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
                              hal_implementation.libraries +
                              [MBED_CONFIG_FILE],
                              build_target, resources=hal_implementation)
+        toolchain.copy_files(hal_implementation.linker_script, build_toolchain)
+        toolchain.copy_files(hal_implementation.bin_files, build_toolchain)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
         objects = toolchain.compile_sources(hal_implementation, tmp_path,
                                             library_incdirs + incdirs)
+        toolchain.copy_files(objects, build_toolchain)
 
         # Common Sources
         mbed_resources = None
         for dir in [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]:
             mbed_resources += toolchain.scan_resources(dir)
 
-        objects += toolchain.compile_sources(mbed_resources, tmp_path,
-                                             library_incdirs + incdirs)
+        objects = toolchain.compile_sources(mbed_resources, tmp_path,
+                                            library_incdirs + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
         # way the linker search for symbols in archives. These are:
@@ -1154,7 +1158,7 @@ def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
     # CMSIS
     toolchain.info("Static analysis for %s (%s, %s)" %
                    ('CMSIS', target.name, toolchain_name))
-    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+    cmsis_src = MBED_CMSIS_PATH
     resources = toolchain.scan_resources(cmsis_src)
 
     # Copy files before analysis

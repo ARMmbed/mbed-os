@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 #ifndef GREENTEA_METRICS_H
 #define GREENTEA_METRICS_H
 
@@ -12,3 +15,5 @@ void greentea_metrics_setup(void);
 void greentea_metrics_report(void);
 
 #endif
+
+/** @}*/

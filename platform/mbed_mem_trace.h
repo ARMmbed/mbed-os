@@ -1,3 +1,6 @@
+
+/** \addtogroup platform */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
  *
@@ -136,3 +139,5 @@ void mbed_mem_trace_default_callback(uint8_t op, void *res, void *caller, ...);
 
 #endif// #ifndef __MBED_MEM_TRACE_H__
 
+
+/** @}*/
