@@ -22,7 +22,7 @@ import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext, abspath
-from os.path import commonprefix, normpath
+from os.path import commonprefix, normpath, dirname
 from subprocess import Popen, PIPE, STDOUT, call
 import json
 from collections import OrderedDict
@@ -434,6 +434,19 @@ def argparse_filestring_type(string):
     else:
         raise argparse.ArgumentTypeError(
             "{0}"" does not exist in the filesystem.".format(string))
+
+def argparse_profile_filestring_type(string):
+    """ An argument parser that verifies that a string passed in is either
+    absolute path or a file name (expanded to
+    mbed-os/tools/profiles/<fname>.json) of a existing file"""
+    fpath = join(dirname(__file__), "profiles/{}.json".format(string))
+    if exists(string):
+        return string
+    elif exists(fpath):
+        return fpath
+    else:
+        raise argparse.ArgumentTypeError(
+            "{0} does not exist in the filesystem.".format(string))
 
 def columnate(strings, separator=", ", chars=80):
     """ render a list of strings as a in a bunch of columns
