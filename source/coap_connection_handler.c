@@ -490,8 +490,11 @@ static void secure_recv_sckt_msg(void *cb_res)
                 int len = 0;
                 len = coap_security_handler_read(session->sec_handler, data, sock->data_len);
                 if( len < 0 ){
+                    if (len != MBEDTLS_ERR_SSL_WANT_READ && len != MBEDTLS_ERR_SSL_WANT_WRITE &&
+                            len != MBEDTLS_ERR_SSL_UNEXPECTED_MESSAGE) {
+                        secure_session_delete(session);
+                    }
                     ns_dyn_mem_free(data);
-                    secure_session_delete( session );
                 }else{
                     if( sock->parent->_recv_cb ){
                         sock->parent->_recv_cb(sock->listen_socket, src_address.address, src_address.identifier, data, len);
@@ -593,11 +596,14 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                 int len = 0;
                 len = coap_security_handler_read(session->sec_handler, data, sock->data_len);
                 if( len < 0 ){
+                    if (len != MBEDTLS_ERR_SSL_WANT_READ && len != MBEDTLS_ERR_SSL_WANT_WRITE &&
+                            len != MBEDTLS_ERR_SSL_UNEXPECTED_MESSAGE) {
+                        secure_session_delete(session);
+                    }
                     ns_dyn_mem_free(data);
-                    secure_session_delete( session );
                     return 0;
-                }else{
-                    if( sock->parent->_recv_cb ){
+                } else {
+                    if (sock->parent->_recv_cb) {
                         sock->parent->_recv_cb(sock->listen_socket, address, port, data, len);
                     }
                     ns_dyn_mem_free(data);
