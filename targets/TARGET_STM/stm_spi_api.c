@@ -289,24 +289,24 @@ static const uint16_t baudrate_prescaler_table[] =	{SPI_BAUDRATEPRESCALER_2,
 
 void spi_frequency(spi_t *obj, int hz) {
     struct spi_s *spiobj = SPI_S(obj);
-	int spi_hz = 0;
-	uint8_t prescaler_rank = 0;
+    int spi_hz = 0;
+    uint8_t prescaler_rank = 0;
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-	/* Get the clock of the peripheral */
-	spi_hz = spi_get_clock_freq(obj);
+    /* Get the clock of the peripheral */
+    spi_hz = spi_get_clock_freq(obj);
 
-	/* Define pre-scaler in order to get highest available frequency below requested frequency */
-	while ((spi_hz > hz) && (prescaler_rank < sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0]))){
-		spi_hz = spi_hz / 2;
-		prescaler_rank++;
-	}
+    /* Define pre-scaler in order to get highest available frequency below requested frequency */
+    while ((spi_hz > hz) && (prescaler_rank < sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0]))){
+        spi_hz = spi_hz / 2;
+        prescaler_rank++;
+    }
 
-	if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
-		handle->Init.BaudRatePrescaler = baudrate_prescaler_table[prescaler_rank-1];
-	} else {
-		error("Couldn't setup requested SPI frequency");
-	}
+    if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
+        handle->Init.BaudRatePrescaler = baudrate_prescaler_table[prescaler_rank-1];
+    } else {
+        error("Couldn't setup requested SPI frequency");
+    }
 
     init_spi(obj);
 }
@@ -388,7 +388,6 @@ void spi_slave_write(spi_t *obj, int value)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     while (!ssp_writeable(obj));
-    //spi->DR = (uint16_t)value;
     if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
         // Force 8-bit access to the data register
         uint8_t *p_spi_dr = 0;
@@ -427,8 +426,11 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     obj->spi.transfer_type = transfer_type;
 
-    if (is16bit) words = length / 2;
-    else         words = length;
+    if (is16bit) {
+        words = length / 2;
+    } else {
+        words = length;
+    }
 
     // enable the interrupt
     IRQn_Type irq_n = spiobj->spiIRQ;
@@ -438,7 +440,6 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     NVIC_EnableIRQ(irq_n);
 
     // enable the right hal transfer
-    //static uint16_t sink;
     int rc = 0;
     switch(transfer_type) {
         case SPI_TRANSFER_TYPE_TXRX:
