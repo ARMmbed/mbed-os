@@ -76,6 +76,14 @@ public:
     static const unsigned PASSKEY_LEN = 6;
     typedef uint8_t Passkey_t[PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
 
+    /**
+     * Declaration of type containing a Identity Resolving Key to be used during pairing. This
+     * is passed into initializeSecurity() to specify a custom value
+     * for privacy address resolving instead of usage the default one.
+     */    
+    static const unsigned ID_RESOLVING_KEY_LEN = 16;
+    typedef uint8_t idResolvingkey_t[ID_RESOLVING_KEY_LEN];
+
 public:
     typedef void (*HandleSpecificEvent_t)(Gap::Handle_t handle);
     typedef void (*SecuritySetupInitiatedCallback_t)(Gap::Handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
@@ -118,6 +126,50 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    
+    /**
+     * Enable the BLE stack's Security Manager. The Security Manager implements
+     * the actual cryptographic algorithms and protocol exchanges that allow two
+     * devices to securely exchange data and privately detect each other.
+     * Calling this API is a prerequisite for encryption, pairing (bonding) and usage of resolvable privacy addressing.
+     *
+     * @param[in]  enableBonding   Allow for bonding.
+     * @param[in]  requireMITM     Require protection for man-in-the-middle attacks.
+     * @param[in]  iocaps          To specify the I/O capabilities of this peripheral,
+     *                             such as availability of a display or keyboard, to
+     *                             support out-of-band exchanges of security data.
+     * @param[in]  passkey         To specify a static passkey.
+     * @param[in]  idResolvingkey  To specify a custom identity resolving key.
+     *                             If NULL the device's default IRK will be used.
+     *                             
+     * @param[in]  addrInterval    Custom private address cycle interval in seconds.
+     *                             If 0 is given, the address will not be automatically refreshed at all.
+     *                             This parameter applies to the random resolvable address modes - such mode can be
+     *                             set using BLE::Gap.setAddress() API.
+     *                             
+     * @param[in]  acceptReBonding Allow for bonding even if a bond for connection already exist.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t init(bool                     enableBonding   = true,
+                             bool                     requireMITM     = true,
+                             SecurityIOCapabilities_t iocaps          = IO_CAPS_NONE,
+                             const Passkey_t          passkey         = NULL,
+                             const idResolvingkey_t   idResolvingkey  = NULL,
+                             uint16_t                 addressInterval = 0
+                             bool                     acceptReBonding = false) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)enableBonding;
+        (void)requireMITM;
+        (void)iocaps;
+        (void)passkey;
+        (void)idResolvingkey;
+        (void)addressInterval;
+        (void)acceptReBonding;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    
     /**
      * Get the security status of a connection.
      *
@@ -246,6 +298,11 @@ public:
      * To set the callback for when the passkey needs to be displayed on a peripheral with DISPLAY capability.
      */
     virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback) {passkeyDisplayCallback = callback;}
+    
+    /**
+     * To indicate that a connected peer (central) is trying to pair, but the bond with this peer already exist.
+     */
+    virtual void onSecurityReBonding(HandleSpecificEvent_t callback) {securityReBondingCallback = callback;}
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
@@ -278,6 +335,12 @@ public:
             passkeyDisplayCallback(handle, passkey);
         }
     }
+    
+    void processSecurityReBondingEvent(Gap::Handle_t handle) {
+        if (securityReBondingCallback) {
+            securityReBondingCallback(handle);
+        }
+    }
 
 protected:
     SecurityManager() :
@@ -285,7 +348,8 @@ protected:
         securitySetupCompletedCallback(),
         linkSecuredCallback(),
         securityContextStoredCallback(),
-        passkeyDisplayCallback() {
+        passkeyDisplayCallback(),
+        securityReBondingCallback() {
         /* empty */
     }
 
@@ -313,6 +377,7 @@ public:
         linkSecuredCallback            = NULL;
         securityContextStoredCallback  = NULL;
         passkeyDisplayCallback         = NULL;
+        securityReBondingCallback      = NULL;
 
         return BLE_ERROR_NONE;
     }
@@ -323,6 +388,7 @@ protected:
     LinkSecuredCallback_t            linkSecuredCallback;
     HandleSpecificEvent_t            securityContextStoredCallback;
     PasskeyDisplayCallback_t         passkeyDisplayCallback;
+    HandleSpecificEvent_t            securityReBondingCallback;
 
 private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
