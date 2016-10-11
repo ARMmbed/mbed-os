@@ -2071,6 +2071,19 @@ def norm_relative_path(path, start):
 
 
 def build_test_worker(*args, **kwargs):
+    """This is a worker function for the parallel building of tests. The `args`
+    and `kwargs` are passed directly to `build_project`. It returns a dictionary
+    with the following structure:
+
+    {
+        'result': `True` if no exceptions were thrown, `False` otherwise
+        'reason': Instance of exception that was thrown on failure
+        'bin_file': Path to the created binary if `build_project` was
+                    successful. Not present otherwise
+        'kwargs': The keyword arguments that were passed to `build_project`.
+                  This includes arguments that were modified (ex. report)
+    }
+    """
     bin_file = None
     ret = {
         'result': False,
@@ -2138,7 +2151,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'properties': properties,
             'verbose': verbose,
             'app_config': app_config,
-            'build_profile': build_profile
+            'build_profile': build_profile,
+            'silent': True
         }
         
         results.append(p.apply_async(build_test_worker, args, kwargs))
@@ -2161,13 +2175,16 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                     worker_result = r.get()
                     results.remove(r)
 
+                    # Take report from the kwargs and merge it into existing report
+                    report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                    for test_key in report_entry.keys():
+                        report[target_name][toolchain_name][test_key] = report_entry[test_key]
 
-                    for test_key in worker_result['kwargs']['report'][target_name][toolchain_name].keys():
-                        report[target_name][toolchain_name][test_key] = worker_result['kwargs']['report'][target_name][toolchain_name][test_key]
-
+                    # Set the overall result to a failure if a build failure occurred
                     if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
                         result = False
 
+                    # Adding binary path to test build result
                     if worker_result['result'] and 'bin_file' in worker_result:
                         bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
 
@@ -2179,7 +2196,9 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             ]
                         }
                         
-                        # TODO: add 'Image: bin_file' print statement here
+                        test_key = worker_result['kwargs']['project_id'].upper()
+                        print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
+                        print 'Image: %s\n' % bin_file
 
                 except ToolException, err:
                     if p._taskqueue.queue:

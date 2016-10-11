@@ -1076,7 +1076,7 @@ class mbedToolchain:
             return None
 
         # Write output to stdout in text (pretty table) format
-        memap.generate_output('table')
+        self.info(memap.generate_output('table', silent=True))
 
         # Write output to file in JSON format
         map_out = splitext(map)[0] + "_map.json"
