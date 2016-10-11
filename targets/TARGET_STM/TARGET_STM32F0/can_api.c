@@ -349,23 +349,39 @@ int can_mode(can_t *obj, CanMode mode)
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
 {
-    CanHandle.Instance = (CAN_TypeDef *)(obj->can);
-    CAN_FilterConfTypeDef  sFilterConfig;
+    int retval = 0;
     
-    sFilterConfig.FilterNumber = handle;
-    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-    sFilterConfig.FilterIdHigh = (uint8_t) (id >> 8);
-    sFilterConfig.FilterIdLow = (uint8_t) id;
-    sFilterConfig.FilterMaskIdHigh = (uint8_t) (mask >> 8);
-    sFilterConfig.FilterMaskIdLow = (uint8_t) mask;
-    sFilterConfig.FilterFIFOAssignment = 0;
-    sFilterConfig.FilterActivation = ENABLE;
-    sFilterConfig.BankNumber = 14;
-  
-    HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);
-      
-    return 0;
+    // filter for CANAny format cannot be configured for STM32
+    if((format == CANStandard) || (format == CANExtended)) {
+        
+        CanHandle.Instance = (CAN_TypeDef *)(obj->can);
+        CAN_FilterConfTypeDef  sFilterConfig;
+        
+        sFilterConfig.FilterNumber = handle;
+        sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+        sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
+
+        if(format == CANStandard) {
+            sFilterConfig.FilterIdHigh = id << 5;
+            sFilterConfig.FilterIdLow =  0x0;
+            sFilterConfig.FilterMaskIdHigh = mask << 5;
+            sFilterConfig.FilterMaskIdLow = 0x0;	// allows both remote and data frames
+        }
+        else if(format == CANExtended){
+            sFilterConfig.FilterIdHigh = id >> 13; 	// EXTID[28:13]
+            sFilterConfig.FilterIdLow = (0x00FF & (id << 3)) | (1 << 2);  // EXTID[12:0]
+            sFilterConfig.FilterMaskIdHigh = mask >> 13;
+            sFilterConfig.FilterMaskIdLow = (0x00FF & (mask << 3)) | (1 << 2);
+		}
+        
+        sFilterConfig.FilterFIFOAssignment = 0;
+        sFilterConfig.FilterActivation = ENABLE;
+        sFilterConfig.BankNumber = 14 + handle;
+        
+        HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);	
+        retval = handle;
+    }
+    return retval;
 }
 
 static void can_irq(CANName name, int id) 
