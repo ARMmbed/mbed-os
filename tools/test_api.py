@@ -2097,8 +2097,16 @@ def build_test_worker(*args, **kwargs):
         ret['bin_file'] = bin_file
         ret['kwargs'] = kwargs
 
+    except NotSupportedException, e:
+        ret['reason'] = e
+    except ToolException, e:
+        ret['reason'] = e
+    except KeyboardInterrupt, e:
+        ret['reason'] = e
     except:
-        ret['reason'] = sys.exc_info()[1]
+        # Print unhandled exceptions here
+        import traceback
+        traceback.print_exc(file=sys.stdout)
 
     return ret
 
@@ -2132,7 +2140,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
     jobs_count = int(jobs if jobs else cpu_count())
     p = Pool(processes=jobs_count)
-
     results = []
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
@@ -2166,51 +2173,61 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             p.terminate()
             p.join()
             raise ToolException("Compile did not finish in 10 minutes")
+        else:
+            sleep(0.01)
+            pending = 0
+            for r in results:
+                if r.ready() is True:
+                    try:
+                        worker_result = r.get()
+                        results.remove(r)
 
-        sleep(0.01)
-        pending = 0
-        for r in results:
-            if r.ready() is True:
-                try:
-                    worker_result = r.get()
-                    results.remove(r)
-
-                    # Take report from the kwargs and merge it into existing report
-                    report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
-                    for test_key in report_entry.keys():
-                        report[target_name][toolchain_name][test_key] = report_entry[test_key]
-
-                    # Set the overall result to a failure if a build failure occurred
-                    if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
-                        result = False
-
-                    # Adding binary path to test build result
-                    if worker_result['result'] and 'bin_file' in worker_result:
-                        bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
-
-                        test_build['tests'][worker_result['kwargs']['project_id']] = {
-                            "binaries": [
-                                {
-                                    "path": bin_file
-                                }
-                            ]
-                        }
+                        # Take report from the kwargs and merge it into existing report
+                        report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                        for test_key in report_entry.keys():
+                            report[target_name][toolchain_name][test_key] = report_entry[test_key]
                         
-                        test_key = worker_result['kwargs']['project_id'].upper()
-                        print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
-                        print 'Image: %s\n' % bin_file
+                        # Set the overall result to a failure if a build failure occurred
+                        if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
+                            result = False
+                            break
 
-                except ToolException, err:
-                    if p._taskqueue.queue:
-                        p._taskqueue.queue.clear()
-                        sleep(0.5)
-                    p.terminate()
-                    p.join()
-                    raise ToolException(err)
-            else:
-                pending += 1
-                if pending >= jobs_count:
-                    break
+                        # Adding binary path to test build result
+                        if worker_result['result'] and 'bin_file' in worker_result:
+                            bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
+
+                            test_build['tests'][worker_result['kwargs']['project_id']] = {
+                                "binaries": [
+                                    {
+                                        "path": bin_file
+                                    }
+                                ]
+                            }
+
+                            test_key = worker_result['kwargs']['project_id'].upper()
+                            print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
+                            print 'Image: %s\n' % bin_file
+
+                    except:
+                        if p._taskqueue.queue:
+                            p._taskqueue.queue.clear()
+                            sleep(0.5)
+                        p.terminate()
+                        p.join()
+                        raise
+                else:
+                    pending += 1
+                    if pending >= jobs_count:
+                        break
+
+            # Break as soon as possible if there is a failure and we are not
+            # continuing on build failures
+            if not result and not continue_on_build_fail:
+                if p._taskqueue.queue:
+                    p._taskqueue.queue.clear()
+                    sleep(0.5)
+                p.terminate()
+                break
 
     p.join()
 

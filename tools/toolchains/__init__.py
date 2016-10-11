@@ -1075,16 +1075,8 @@ class mbedToolchain:
             self.info("Unknown toolchain for memory statistics %s" % toolchain)
             return None
 
-        # Write output to stdout in text (pretty table) format
-        self.info(memap.generate_output('table', silent=True))
-
-        # Write output to file in JSON format
-        map_out = splitext(map)[0] + "_map.json"
-        memap.generate_output('json', map_out)
-
-        # Write output to file in CSV format for the CI
-        map_csv = splitext(map)[0] + "_map.csv"
-        memap.generate_output('csv-ci', map_csv)
+        # Store the memap instance for later use
+        self.memap_instance = memap
 
         # Here we return memory statistics structure (constructed after
         # call to generate_output) which contains raw data in bytes
