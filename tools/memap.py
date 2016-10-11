@@ -9,6 +9,7 @@ import csv
 import json
 import argparse
 from prettytable import PrettyTable
+from StringIO import StringIO
 
 from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
@@ -385,7 +386,7 @@ class MemapParser(object):
 
     export_formats = ["json", "csv-ci", "table"]
 
-    def generate_output(self, export_format, file_output=None):
+    def generate_output(self, export_format, file_output=None, silent=False):
         """ Generates summary of memory map data
 
         Positional arguments:
@@ -396,10 +397,13 @@ class MemapParser(object):
         """
 
         try:
-            if file_output:
-                file_desc = open(file_output, 'wb')
+            if silent:
+                file_desc = None
             else:
-                file_desc = sys.stdout
+                if file_output:
+                    file_desc = open(file_output, 'wb')
+                else:
+                    file_desc = sys.stdout
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             return False
@@ -407,10 +411,12 @@ class MemapParser(object):
         to_call = {'json': self.generate_json,
                    'csv-ci': self.generate_csv,
                    'table': self.generate_table}[export_format]
-        to_call(file_desc)
+        output_string = to_call(file_desc)
 
-        if file_desc is not sys.stdout:
+        if file_desc is not sys.stdout and file_desc is not None:
             file_desc.close()
+
+        return output_string
 
     def generate_json(self, file_desc):
         """Generate a json file from a memory map
@@ -418,8 +424,12 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        file_desc.write(json.dumps(self.mem_report, indent=4))
-        file_desc.write('\n')
+        output = json.dumps(self.mem_report, indent=4)
+        if file_desc:
+            file_desc.write(output)
+            file_desc.write('\n')
+
+        return output
 
     def generate_csv(self, file_desc):
         """Generate a CSV file from a memoy map
@@ -427,7 +437,8 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        csv_writer = csv.writer(file_desc, delimiter=',',
+        string_io = StringIO()
+        csv_writer = csv.writer(string_io, delimiter=',',
                                 quoting=csv.QUOTE_MINIMAL)
 
         csv_module_section = []
@@ -460,6 +471,11 @@ class MemapParser(object):
 
         csv_writer.writerow(csv_module_section)
         csv_writer.writerow(csv_sizes)
+
+        if file_desc:
+            file_desc.write(string_io.getvalue())
+
+        return string_io.getvalue()
 
     def generate_table(self, file_desc):
         """Generate a table from a memoy map
@@ -501,28 +517,32 @@ class MemapParser(object):
 
         table.add_row(subtotal_row)
 
-        file_desc.write(table.get_string())
-        file_desc.write('\n')
+        output = table.get_string()
+        output += '\n'
 
         if self.mem_summary['heap'] == 0:
-            file_desc.write("Allocated Heap: unknown\n")
+            output += "Allocated Heap: unknown\n"
         else:
-            file_desc.write("Allocated Heap: %s bytes\n" %
-                            str(self.mem_summary['heap']))
+            output += "Allocated Heap: %s bytes\n" % \
+                        str(self.mem_summary['heap'])
 
         if self.mem_summary['stack'] == 0:
-            file_desc.write("Allocated Stack: unknown\n")
+            output += "Allocated Stack: unknown\n"
         else:
-            file_desc.write("Allocated Stack: %s bytes\n" %
-                            str(self.mem_summary['stack']))
+            output += "Allocated Stack: %s bytes\n" % \
+                        str(self.mem_summary['stack'])
 
-        file_desc.write("Total Static RAM memory (data + bss): %s bytes\n" %
-                        (str(self.mem_summary['static_ram'])))
-        file_desc.write(
-            "Total RAM memory (data + bss + heap + stack): %s bytes\n"
-            % (str(self.mem_summary['total_ram'])))
-        file_desc.write("Total Flash memory (text + data + misc): %s bytes\n" %
-                        (str(self.mem_summary['total_flash'])))
+        output += "Total Static RAM memory (data + bss): %s bytes\n" % \
+                        str(self.mem_summary['static_ram'])
+        output += "Total RAM memory (data + bss + heap + stack): %s bytes\n" % \
+                        str(self.mem_summary['total_ram'])
+        output += "Total Flash memory (text + data + misc): %s bytes\n" % \
+                        str(self.mem_summary['total_flash'])
+
+        if file_desc:
+            file_desc.write(output)
+
+        return output
 
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
 
