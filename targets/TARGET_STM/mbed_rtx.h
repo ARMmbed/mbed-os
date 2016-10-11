@@ -452,7 +452,7 @@
 #define OS_CLOCK                216000000
 #endif
 
-#elif defined(TARGET_STM32F746ZG)
+#elif (defined(TARGET_STM32F746ZG) || defined(TARGET_STM32F756ZG))
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20050000UL)

@@ -888,7 +888,7 @@
     "NUCLEO_F746ZG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG"],
+        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG", "F746_F756"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
@@ -898,6 +898,19 @@
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746ZG"
+    },
+    "NUCLEO_F756ZG": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7F",
+        "extra_labels": ["STM", "STM32F7", "STM32F756", "STM32F756ZG", "F746_F756"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "default_toolchain": "ARM",
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["0819"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "features": ["LWIP"],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F756ZG"
     },
     "NUCLEO_F767ZI": {
         "inherits": ["Target"],
