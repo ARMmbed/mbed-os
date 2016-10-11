@@ -647,7 +647,7 @@
 #define OS_CLOCK                80000000
 #endif
 
-#elif defined(TARGET_STM32L476RG)
+#elif (defined(TARGET_STM32L476RG) || defined(TARGET_STM32L486RG))
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
