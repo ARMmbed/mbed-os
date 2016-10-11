@@ -146,5 +146,8 @@
     },
     "STM32F407VG": {
         "OGChipSelectEditMenu": "STM32F407VG\tST STM32F407VG"
+    },
+    "nRF52832_xxAA":{
+        "OGChipSelectEditMenu": "nRF52832-xxAA\tNordicSemi nRF52832-xxAA"
     }
 }
