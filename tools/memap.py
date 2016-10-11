@@ -9,7 +9,6 @@ import csv
 import json
 import argparse
 from prettytable import PrettyTable
-from StringIO import StringIO
 
 from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
@@ -386,7 +385,7 @@ class MemapParser(object):
 
     export_formats = ["json", "csv-ci", "table"]
 
-    def generate_output(self, export_format, file_output=None, silent=False):
+    def generate_output(self, export_format, file_output=None):
         """ Generates summary of memory map data
 
         Positional arguments:
@@ -394,16 +393,15 @@ class MemapParser(object):
 
         Keyword arguments:
         file_desc - descriptor (either stdout or file)
+
+        Returns: generated string for the 'table' format, otherwise None
         """
 
         try:
-            if silent:
-                file_desc = None
+            if file_output:
+                file_desc = open(file_output, 'wb')
             else:
-                if file_output:
-                    file_desc = open(file_output, 'wb')
-                else:
-                    file_desc = sys.stdout
+                file_desc = sys.stdout
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             return False
@@ -411,12 +409,12 @@ class MemapParser(object):
         to_call = {'json': self.generate_json,
                    'csv-ci': self.generate_csv,
                    'table': self.generate_table}[export_format]
-        output_string = to_call(file_desc)
+        output = to_call(file_desc)
 
-        if file_desc is not sys.stdout and file_desc is not None:
+        if file_desc is not sys.stdout:
             file_desc.close()
 
-        return output_string
+        return output
 
     def generate_json(self, file_desc):
         """Generate a json file from a memory map
@@ -424,12 +422,10 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        output = json.dumps(self.mem_report, indent=4)
-        if file_desc:
-            file_desc.write(output)
-            file_desc.write('\n')
+        file_desc.write(json.dumps(self.mem_report, indent=4))
+        file_desc.write('\n')
 
-        return output
+        return None
 
     def generate_csv(self, file_desc):
         """Generate a CSV file from a memoy map
@@ -437,8 +433,7 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        string_io = StringIO()
-        csv_writer = csv.writer(string_io, delimiter=',',
+        csv_writer = csv.writer(file_desc, delimiter=',',
                                 quoting=csv.QUOTE_MINIMAL)
 
         csv_module_section = []
@@ -472,16 +467,15 @@ class MemapParser(object):
         csv_writer.writerow(csv_module_section)
         csv_writer.writerow(csv_sizes)
 
-        if file_desc:
-            file_desc.write(string_io.getvalue())
-
-        return string_io.getvalue()
+        return None
 
     def generate_table(self, file_desc):
         """Generate a table from a memoy map
 
         Positional arguments:
         file_desc - the file to write out the final report to
+
+        Returns: string of the generated table
         """
         # Create table
         columns = ['Module']
@@ -538,9 +532,6 @@ class MemapParser(object):
                         str(self.mem_summary['total_ram'])
         output += "Total Flash memory (text + data + misc): %s bytes\n" % \
                         str(self.mem_summary['total_flash'])
-
-        if file_desc:
-            file_desc.write(output)
 
         return output
 
@@ -666,11 +657,15 @@ def main():
         if memap.parse(args.file, args.toolchain) is False:
             sys.exit(0)
 
+    returned_string = None
     # Write output in file
     if args.output != None:
-        memap.generate_output(args.export, args.output)
+        returned_string = memap.generate_output(args.export, args.output)
     else: # Write output in screen
-        memap.generate_output(args.export)
+        returned_string = memap.generate_output(args.export)
+
+    if args.export == 'table' and returned_string:
+        print returned_string
 
     sys.exit(0)
 

@@ -459,7 +459,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
         memap_table = ''
         if memap_instance:
             # Write output to stdout in text (pretty table) format
-            memap_table = memap_instance.generate_output('table', silent=silent)
+            memap_table = memap_instance.generate_output('table')
+
+            if not silent:
+                print memap_table
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
