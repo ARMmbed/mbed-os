@@ -148,6 +148,7 @@ public:
      *                             set using BLE::Gap.setAddress() API.
      *                             
      * @param[in]  acceptReBonding Allow for bonding even if a bond for connection already exist.
+     * @param[in]  oob           Out Of Band pairing enable.
      *
      * @return BLE_ERROR_NONE on success.
      */
@@ -156,8 +157,9 @@ public:
                              SecurityIOCapabilities_t iocaps          = IO_CAPS_NONE,
                              const Passkey_t          passkey         = NULL,
                              const idResolvingkey_t   idResolvingkey  = NULL,
-                             uint16_t                 addressInterval = 0
-                             bool                     acceptReBonding = false) {
+                             uint16_t                 addressInterval = 0,
+                             bool                     acceptReBonding = false,
+                             bool                     oob             = false) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
@@ -166,6 +168,7 @@ public:
         (void)idResolvingkey;
         (void)addressInterval;
         (void)acceptReBonding;
+        (void)oob;
 
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -392,6 +395,21 @@ protected:
 
 private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
+
+public:
+    /**
+     * Function for generate Temporary Key value.
+     *
+     * @param[out] tk   Generated Temporary Key.
+     *
+     * @retval BLE_ERROR_NONE             On success, else an error code indicating reason for failure.
+     * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
+     *                                    application registration.
+     */
+     virtual ble_error_t generateTk(Gap::Temporarykey_t &tk) {
+        (void)tk;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if OOB pairing is supported. */
+     }
 };
 
 #endif /*__SECURITY_MANAGER_H__*/
