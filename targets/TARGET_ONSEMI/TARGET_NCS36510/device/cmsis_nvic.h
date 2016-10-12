@@ -24,7 +24,7 @@
 * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 * @endinternal
 *
-* @ingroup 
+* @ingroup
 *
 * @details
 */

@@ -55,26 +55,26 @@ extern "C" {
 
 
 /** output configuration push/pull */
-#define PAD_OUTCFG_PUSHPULL	                (uint8_t)0x00
+#define PAD_OUTCFG_PUSHPULL                    (uint8_t)0x00
 
 /** output configuration open drain */
-#define PAD_OOUTCFG_OPENDRAIN                   (uint8_t)0x01
+#define PAD_OOUTCFG_OPENDRAIN                  (uint8_t)0x01
 
 /** no pull up nor pull down */
-#define PAD_PULL_NONE	                        (uint8_t)0x01
+#define PAD_PULL_NONE                          (uint8_t)0x01
 
 /** pull down */
-#define PAD_PULL_DOWN	                        (uint8_t)0x00
+#define PAD_PULL_DOWN                          (uint8_t)0x00
 
 /** pull up */
-#define PAD_PULL_UP		                (uint8_t)0x03
+#define PAD_PULL_UP                            (uint8_t)0x03
 
 /* Number of DIO lines supported by NCS36510 */
-#define NUMBER_OF_GPIO		        ((uint8_t)0x12)
+#define NUMBER_OF_GPIO        ((uint8_t)0x12)
 
 /* All DIO lines set to 1 */
-#define IO_ALL				((uint32_t)0x3FFFF)
-#define IO_NONE				((uint32_t)0x00000)
+#define IO_ALL                ((uint32_t)0x3FFFF)
+#define IO_NONE               ((uint32_t)0x00000)
 
 /* Gpio handler */
 void fGpioHandler(void);

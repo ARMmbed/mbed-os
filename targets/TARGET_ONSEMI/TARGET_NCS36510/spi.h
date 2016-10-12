@@ -42,9 +42,35 @@ extern "C" {
 #endif
 
 /* Miscellaneous I/O and control operations codes */
-#define SPI_IPC7207_IOCTL_GET_SLAVE_SELECT	(0x1) /**< <b>Ioctl request code</b>: Reading slaveSelect register */
-#define SPI_IPC7207_IOCTL_SET_SLAVE_SELECT	(0x2) /**< <b>Ioctl request code</b>: Setting slaveSelect register */
-#define SPI_IPC7207_IOCTL_FLUSH				(0x3) /**< <b>Ioctl request code</b>: Flushin FIFOs and serial shift registers */
+#define SPI_IPC7207_IOCTL_GET_SLAVE_SELECT    (0x1) /**< <b>Ioctl request code</b>: Reading slaveSelect register */
+#define SPI_IPC7207_IOCTL_SET_SLAVE_SELECT    (0x2) /**< <b>Ioctl request code</b>: Setting slaveSelect register */
+#define SPI_IPC7207_IOCTL_FLUSH               (0x3) /**< <b>Ioctl request code</b>: Flushin FIFOs and serial shift registers */
+
+/* Control register bit positions */
+#define SPI_WORD_WIDTH_BIT_POS          6
+#define SPI_SLAVE_MASTER_BIT_POS        5
+#define SPI_CPOL_BIT_POS                4
+#define SPI_CPHA_BIT_POS                3
+#define SPI_ENDIAN_BIT_POS              2
+#define SPI_SAMPLE_EDGE_BIT_POS         1
+#define SPI_PORT_ENABLE_BIT_POS         0
+
+/* COntrol register bits */
+#define SPI_ENDIAN_MSB_FIRST            1
+#define SPI_CPOL_IDLE_LOW               0
+#define SPI_CPHA_BEFORE_1ST_EDGE        0
+#define SPI_MASTER_MODE                 1
+#define SPI_WORD_WIDTH_8_BITS           0
+#define SPI_SAMPLE_OPP_CLK_EDGE_DATA    0
+#define SPI_SLAVE_SELECT_NORM_BEHAVE    0
+#define SPI_PORT_ENABLE                 1
+
+#define SPI_SLAVE_SELECT_DEFAULT        0x10
+
+#define SPI_DEFAULT_CONFIG              0x25
+
+#define SPI_DEFAULT_SPEED               1000000
+#define SPI_BYTE_MASK                   0xFF
 
 extern void fSpiInit(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel);
 extern void fSpiClose(spi_t *obj);

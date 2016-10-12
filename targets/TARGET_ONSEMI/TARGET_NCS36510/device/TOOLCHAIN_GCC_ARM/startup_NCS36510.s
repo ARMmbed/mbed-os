@@ -33,90 +33,90 @@
    ---------------------------------------------------------------------------*/
 
 
-	.syntax	unified
-	.arch	armv7-m
+.syntax    unified
+.arch    armv7-m
 
-  .section .stack
-  .align 3
+.section .stack
+.align 3
 #ifdef __STACK_SIZE
-  .equ    Stack_Size, __STACK_SIZE
+.equ    Stack_Size, __STACK_SIZE
 #else
-  .equ    Stack_Size, 0x400
+.equ    Stack_Size, 0x400
 #endif
-  .globl    __StackTop
-  .globl    __StackLimit
+.globl    __StackTop
+.globl    __StackLimit
 __StackLimit:
-  .space    Stack_Size
-  .size __StackLimit, . - __StackLimit
+.space    Stack_Size
+.size __StackLimit, . - __StackLimit
 __StackTop:
-  .size __StackTop, . - __StackTop
+.size __StackTop, . - __StackTop
 
-  .section .heap
-  .align 3
+.section .heap
+.align 3
 #ifdef __HEAP_SIZE
-  .equ    Heap_Size, __HEAP_SIZE
+.equ    Heap_Size, __HEAP_SIZE
 #else
-  .equ    Heap_Size, 0x400
+.equ    Heap_Size, 0x400
 #endif
-  .globl    __HeapBase
-  .globl    __HeapLimit
+.globl    __HeapBase
+.globl    __HeapLimit
 __HeapBase:
-  .space    Heap_Size
-  .size __HeapBase, . - __HeapBase
+.space    Heap_Size
+.size __HeapBase, . - __HeapBase
 __HeapLimit:
-  .size __HeapLimit, . - __HeapLimit
+.size __HeapLimit, . - __HeapLimit
 
-  .section .vector_table,"a",%progbits
-  .align 2
-  .globl __Vectors
+.section .vector_table,"a",%progbits
+.align 2
+.globl __Vectors
 __Vectors:
-  .long   __StackTop                  /* Top of Stack */
-  .long   Reset_Handler               /* Reset Handler */
-  .long   NMI_Handler                 /* NMI Handler                  */
-  .long   HardFault_Handler           /* Hard Fault Handler           */
-  .long   MemManage_Handler           /* MPU Fault Handler            */
-  .long   BusFault_Handler            /* Bus Fault Handler            */
-  .long   UsageFault_Handler          /* Usage Fault Handler          */
-  .long   0                           /* Reserved                     */
-  .long   0                           /* Reserved                     */
-  .long   0                           /* Reserved                     */
-  .long   0                           /* Reserved                     */
-  .long   SVC_Handler                 /* SVCall Handler               */
-  .long   DebugMon_Handler            /* Debug Monitor Handler        */
-  .long   0                           /* Reserved                     */
-  .long   PendSV_Handler              /* PendSV Handler               */
-  .long   SysTick_Handler             /* SysTick Handler              */
+.long   __StackTop                  /* Top of Stack */
+.long   Reset_Handler               /* Reset Handler */
+.long   NMI_Handler                 /* NMI Handler                  */
+.long   HardFault_Handler           /* Hard Fault Handler           */
+.long   MemManage_Handler           /* MPU Fault Handler            */
+.long   BusFault_Handler            /* Bus Fault Handler            */
+.long   UsageFault_Handler          /* Usage Fault Handler          */
+.long   0                           /* Reserved                     */
+.long   0                           /* Reserved                     */
+.long   0                           /* Reserved                     */
+.long   0                           /* Reserved                     */
+.long   SVC_Handler                 /* SVCall Handler               */
+.long   DebugMon_Handler            /* Debug Monitor Handler        */
+.long   0                           /* Reserved                     */
+.long   PendSV_Handler              /* PendSV Handler               */
+.long   SysTick_Handler             /* SysTick Handler              */
 
-  /* External Interrupts */
-  .long	fIrqTim0Handler
-	.long	fIrqTim1Handler
-	.long	fIrqTim2Handler
-	.long	fIrqUart1Handler
-	.long	fIrqSpiHandler
-	.long	fIrqI2CHandler
-	.long	fIrqGpioHandler
-	.long	fIrqRtcHandler
-	.long	fIrqFlashHandler
-	.long	fIrqMacHwHandler
-	.long	fIrqAesHandler
-	.long	fIrqAdcHandler
-	.long	fIrqClockCalHandler
-	.long	fIrqUart2Handler
-	.long	fIrqUviHandler
-	.long	fIrqDmaHandler
- 	.long	fIrqDbgPwrUpHandler
- 	.long	fIrqSpi2Handler	
- 	.long	fIrqI2C2Handler
- 	.long	fIrqFVDDHCompHandler
-  
-  .size    __Vectors, . - __Vectors
+/* External Interrupts */
+.long    fIrqTim0Handler
+.long    fIrqTim1Handler
+.long    fIrqTim2Handler
+.long    fIrqUart1Handler
+.long    fIrqSpiHandler
+.long    fIrqI2CHandler
+.long    fIrqGpioHandler
+.long    fIrqRtcHandler
+.long    fIrqFlashHandler
+.long    fIrqMacHwHandler
+.long    fIrqAesHandler
+.long    fIrqAdcHandler
+.long    fIrqClockCalHandler
+.long    fIrqUart2Handler
+.long    fIrqUviHandler
+.long    fIrqDmaHandler
+.long    fIrqDbgPwrUpHandler
+.long    fIrqSpi2Handler
+.long    fIrqI2C2Handler
+.long    fIrqFVDDHCompHandler
 
-  .section .text.Reset_Handler
-  .thumb
-  .thumb_func
-  .align  2
-  .globl   Reset_Handler
-  .type    Reset_Handler, %function
+.size    __Vectors, . - __Vectors
+
+.section .text.Reset_Handler
+.thumb
+.thumb_func
+.align  2
+.globl   Reset_Handler
+.type    Reset_Handler, %function
 Reset_Handler:
 /*     Loop to copy data from read only memory to RAM. The ranges
 *      of copy from/to are specified by following symbols evaluated in

@@ -53,24 +53,24 @@
 *************************************************************************************************/
 
 /* Interrupt Control and State Register (0xE000ED04)
- * 31 		NMIPENDSET 			R/W 	0 		NMI pended
- * 28 		PENDSVSET 			R/W 	0 		Write 1 to pend system call; Read value
- * 												indicates pending status
- * 27 		PENDSVCLR 			W 		0 		Write 1 to clear PendSV pending status
- * 26 		PENDSTSET 			R/W 	0 		Write 1 to pend Systick exception; Read
- *												value indicates pending status
- * 25 		PENDSTCLR 			W 		0 		Write 1 to clear Systick pending status
- * 23 		ISRPREEMPT 			R 		0 		Indicate that a pending interrupt is going
- *												to be active in next step (for debug)
- * 22 		ISRPENDING 			R 		0 		External interrupt pending (excluding
- *												system exceptions such as NMI for
- *												fault)
- * 21:12 	VECTPENDING 		R 		0 		Pending ISR number
- * 11 		RETTOBASE 			R 		0 		Set to 1 when the processor is running
- * 												an exception handler and will return to
- *												thread level if interrupt return and no
- *												other exceptions pending
- * 9:0 		VECTACTIVE 			R 		0 		Current running interrupt service routine
+ * 31         NMIPENDSET            R/W     0     NMI pended
+ * 28         PENDSVSET             R/W     0     Write 1 to pend system call; Read value
+ *                                                indicates pending status
+ * 27         PENDSVCLR             W       0     Write 1 to clear PendSV pending status
+ * 26         PENDSTSET             R/W     0     Write 1 to pend Systick exception; Read
+ *                                                value indicates pending status
+ * 25         PENDSTCLR             W       0     Write 1 to clear Systick pending status
+ * 23         ISRPREEMPT            R       0     Indicate that a pending interrupt is going
+ *                                                to be active in next step (for debug)
+ * 22         ISRPENDING            R       0     External interrupt pending (excluding
+ *                                                system exceptions such as NMI for
+ *                                                fault)
+ * 21:12     VECTPENDING            R       0     Pending ISR number
+ * 11         RETTOBASE             R       0     Set to 1 when the processor is running
+ *                                                an exception handler and will return to
+ *                                                thread level if interrupt return and no
+ *                                                other exceptions pending
+ * 9:0         VECTACTIVE           R       0     Current running interrupt service routine
  */
 #define RUNNING_IN_ISR  (((SCB->ICSR & 0x3FF) > 0 ) ? 1 : 0)
 

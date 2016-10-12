@@ -57,53 +57,53 @@ extern "C" {
 #include "cmsis_nvic.h"
 
 /* Miscellaneous I/O and control operations codes */
-#define TIMER_IOCTL_GET_LOAD	1 /**< <b>Ioctl request code</b>: Getting load value. */
-#define TIMER_IOCTL_SET_LOAD	2 /**< <b>Ioctl request code</b>: Seting load value. */
-#define TIMER_IOCTL_GET_VALUE	3 /**< <b>Ioctl request code</b>: Getting current timer value. */
+#define TIMER_IOCTL_GET_LOAD    1 /**< <b>Ioctl request code</b>: Getting load value. */
+#define TIMER_IOCTL_SET_LOAD    2 /**< <b>Ioctl request code</b>: Seting load value. */
+#define TIMER_IOCTL_GET_VALUE   3 /**< <b>Ioctl request code</b>: Getting current timer value. */
 
 /* Timer control bits */
-#define TIMER_ENABLE_BIT		0x1
-#define TIMER_PRESCALE_BIT_POS	0x2
-#define TIMER_MODE_BIT_POS		0x6
-#define TIMER_ENABLE_BIT_POS	0x7
+#define TIMER_ENABLE_BIT        0x1
+#define TIMER_PRESCALE_BIT_POS  0x2
+#define TIMER_MODE_BIT_POS      0x6
+#define TIMER_ENABLE_BIT_POS    0x7
 
 /* Options defines */
 // TODO (MIV): put this in an enumerated value
 typedef enum {
-    CLK_DIVIDER_1		=	0,
-    CLK_DIVIDER_2		=	3,
-    CLK_DIVIDER_8		=	4,
-    CLK_DIVIDER_16		=	1,
-    CLK_DIVIDER_32		=	5,
-    CLK_DIVIDER_128		=	6,
-    CLK_DIVIDER_256		=	2,
-    CLK_DIVIDER_1024	=	7
+    CLK_DIVIDER_1     = 0,
+    CLK_DIVIDER_2     = 3,
+    CLK_DIVIDER_8     = 4,
+    CLK_DIVIDER_16    = 1,
+    CLK_DIVIDER_32    = 5,
+    CLK_DIVIDER_128   = 6,
+    CLK_DIVIDER_256   = 2,
+    CLK_DIVIDER_1024  = 7
 } ClockDivider;
 
-#define TIME_MODE_FREE_RUNNING	0x0
-#define TIME_MODE_PERIODIC		0x1
+#define TIME_MODE_FREE_RUNNING    0x0
+#define TIME_MODE_PERIODIC        0x1
 
 typedef  void (*timer_irq_handlers_t)(void) ;
 
 /** Options to be passed when opening a timer device instance.*/
 typedef struct timer_options {
-    TimerReg_pt membase;	/**< Memory base for the device's registers. */
-    uint8_t irq;		/**< IRQ number of the IRQ associated to the device. */
-    boolean mode;		/**< Timer mode:
-	 	 	 	 	 	 	 * - 0 = Free Run mode (no interrupt generation)
-	 	 	 	 	 	 	 * <b> # timer duration = (65535 + 1) * prescaler  * peripheral clock (PCLK) period </b>
-	 	 	 	 	 	 	 * - 1 = Periodic mode (interrupt generation)
-	 	 	 	 	 	 	 * <b> # timer duration = (load  + 1) * prescaler  * peripheral clock (PCLK) period </b> */
-    uint8_t prescale;	/**< Timer prescaler: from 1 to 1024.
-	 	 	 	 	 	 	 * - CLK_DIVIDER_1 = clock not divided
-	 	 	 	 	 	 	 * - CLK_DIVIDER_2 = clock is divided by 2
-	 	 	 	 	 	 	 * - CLK_DIVIDER_8 = clock is divided by 8
-	 	 	 	 	 	 	 * - CLK_DIVIDER_16 = clock is divided by 16
-	 	 	 	 	 	 	 * - CLK_DIVIDER_32 = clock is divided by 32
-	 	 	 	 	 	 	 * - CLK_DIVIDER_128 = clock is divided by 128
-	 	 	 	 	 	 	 * - CLK_DIVIDER_256 = clock is divided by 256
-	 	 	 	 	 	 	 * - CLK_DIVIDER_1024 = clock is divided by 1024 */
-    uint16_t load;		/**< Timer load: from 0 to 65535. */
+    TimerReg_pt membase;    /**< Memory base for the device's registers. */
+    uint8_t irq;            /**< IRQ number of the IRQ associated to the device. */
+    boolean mode;           /**< Timer mode:
+                                   * - 0 = Free Run mode (no interrupt generation)
+                                   * <b> # timer duration = (65535 + 1) * prescaler  * peripheral clock (PCLK) period </b>
+                                   * - 1 = Periodic mode (interrupt generation)
+                                   * <b> # timer duration = (load  + 1) * prescaler  * peripheral clock (PCLK) period </b> */
+    uint8_t prescale;    /**< Timer prescaler: from 1 to 1024.
+                                   * - CLK_DIVIDER_1 = clock not divided
+                                   * - CLK_DIVIDER_2 = clock is divided by 2
+                                   * - CLK_DIVIDER_8 = clock is divided by 8
+                                   * - CLK_DIVIDER_16 = clock is divided by 16
+                                   * - CLK_DIVIDER_32 = clock is divided by 32
+                                   * - CLK_DIVIDER_128 = clock is divided by 128
+                                   * - CLK_DIVIDER_256 = clock is divided by 256
+                                   * - CLK_DIVIDER_1024 = clock is divided by 1024 */
+    uint16_t load;        /**< Timer load: from 0 to 65535. */
     timer_irq_handlers_t handler; /**< Timer handler or call-back */
 } timer_options_t, *timer_options_pt;
 

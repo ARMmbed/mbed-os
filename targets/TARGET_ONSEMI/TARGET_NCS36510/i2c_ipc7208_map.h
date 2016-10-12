@@ -66,9 +66,9 @@ typedef struct {
     union {
         struct {
             __IO uint32_t CMD_FIFO_INT :1; /**< Command FIFO empty interrupt : 0 = disable , 1 = enable */
-            __IO uint32_t RD_FIFO_INT :1; /**< Read Data FIFO Not Empty Interrupt :  0 = disable , 1 = enable */
-            __IO uint32_t I2C_ERR_INT :1; /**< I2C Error Interrupt : 0 = disable , 1 = enable */
-            //		__IO uint32_t PAD :4; /**< Reserved. Writes have no effect; Read as 0x00. */
+            __IO uint32_t RD_FIFO_INT :1;  /**< Read Data FIFO Not Empty Interrupt :  0 = disable , 1 = enable */
+            __IO uint32_t I2C_ERR_INT :1;  /**< I2C Error Interrupt : 0 = disable , 1 = enable */
+            //    __IO uint32_t PAD :4;    /**< Reserved. Writes have no effect; Read as 0x00. */
         } BITS;
         __IO uint32_t WORD;
     } IER;

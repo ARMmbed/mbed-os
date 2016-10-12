@@ -46,10 +46,10 @@ __root const fibtable_t fib_table @ "FIBTABLE" = { LOAD_ADDRESS,{0x0,0x00,0x00,0
 #endif /* IAR */
 
 const mib_systemRevision_t systemRevision = {
-    0x82,	/**< hardware revision */
-    0x00,	/**< patch level */
-    0x01,	/**< Build number */
-    0x00,	/**< feature set, Minor version */
-    0x01,	/**< generation, Major version */
-    'E'		/**< release */
+    0x82,    /**< hardware revision */
+    0x00,    /**< patch level */
+    0x01,    /**< Build number */
+    0x00,    /**< feature set, Minor version */
+    0x01,    /**< generation, Major version */
+    'E'      /**< release */
 };
