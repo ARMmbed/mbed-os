@@ -16,12 +16,13 @@ limitations under the License.
 """
 from json import load
 from os.path import join, dirname
+from os import listdir
 from argparse import ArgumentParser
 from tools.toolchains import TOOLCHAINS
 from tools.targets import TARGET_NAMES
 from tools.utils import argparse_force_uppercase_type, \
     argparse_lowercase_hyphen_type, argparse_many, \
-    argparse_filestring_type, args_error
+    argparse_filestring_type, args_error, argparse_profile_filestring_type
 
 def get_default_options_parser(add_clean=True, add_options=True,
                                add_app_config=False):
@@ -73,7 +74,9 @@ def get_default_options_parser(add_clean=True, add_options=True,
 
     if add_options:
         parser.add_argument("--profile", dest="profile", action="append",
-                            type=argparse_filestring_type,
+                            type=argparse_profile_filestring_type,
+                            help="Build profile to use. Can be either path to json" \
+                            "file or one of the default one ({})".format(", ".join(list_profiles())),
                             default=[])
     if add_app_config:
         parser.add_argument("--app-config", default=None, dest="app_config",
@@ -82,6 +85,12 @@ def get_default_options_parser(add_clean=True, add_options=True,
 
     return parser
 
+def list_profiles():
+    """Lists available build profiles
+
+    Checks default profile directory (mbed-os/tools/profiles/) for all the json files and return list of names only
+    """
+    return [fn.replace(".json", "") for fn in listdir(join(dirname(__file__), "profiles")) if fn.endswith(".json")]
 
 def extract_profile(parser, options, toolchain):
     """Extract a Toolchain profile from parsed options
