@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
@@ -173,19 +174,14 @@ public:
      */
     template <typename F>
     int call(F f) {
-        struct local {
-            static void call(void *p) { (*static_cast<F*>(p))(); }
-            static void dtor(void *p) { static_cast<F*>(p)->~F(); }
-        };
-
         void *p = equeue_alloc(&_equeue, sizeof(F));
         if (!p) {
             return 0;
         }
 
         F *e = new (p) F(f);
-        equeue_event_dtor(e, &local::dtor);
-        return equeue_post(&_equeue, &local::call, e);
+        equeue_event_dtor(e, &EventQueue::function_dtor<F>);
+        return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
 
     /** Calls an event on the queue
@@ -437,11 +433,6 @@ public:
      */
     template <typename F>
     int call_in(int ms, F f) {
-        struct local {
-            static void call(void *p) { (*static_cast<F*>(p))(); }
-            static void dtor(void *p) { static_cast<F*>(p)->~F(); }
-        };
-
         void *p = equeue_alloc(&_equeue, sizeof(F));
         if (!p) {
             return 0;
@@ -449,8 +440,8 @@ public:
 
         F *e = new (p) F(f);
         equeue_event_delay(e, ms);
-        equeue_event_dtor(e, &local::dtor);
-        return equeue_post(&_equeue, &local::call, e);
+        equeue_event_dtor(e, &EventQueue::function_dtor<F>);
+        return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
 
     /** Calls an event on the queue after a specified delay
@@ -702,11 +693,6 @@ public:
      */
     template <typename F>
     int call_every(int ms, F f) {
-        struct local {
-            static void call(void *p) { (*static_cast<F*>(p))(); }
-            static void dtor(void *p) { static_cast<F*>(p)->~F(); }
-        };
-
         void *p = equeue_alloc(&_equeue, sizeof(F));
         if (!p) {
             return 0;
@@ -715,8 +701,8 @@ public:
         F *e = new (p) F(f);
         equeue_event_delay(e, ms);
         equeue_event_period(e, ms);
-        equeue_event_dtor(e, &local::dtor);
-        return equeue_post(&_equeue, &local::call, e);
+        equeue_event_dtor(e, &EventQueue::function_dtor<F>);
+        return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
 
     /** Calls an event on the queue periodically
@@ -2044,6 +2030,18 @@ protected:
     struct equeue _equeue;
     mbed::Callback<void(int)> _update;
 
+    // Function attributes
+    template <typename F>
+    static void function_call(void *p) {
+        (*(F*)p)();
+    }
+
+    template <typename F>
+    static void function_dtor(void *p) {
+        ((F*)p)->~F();
+    }
+
+    // Context structures
     template <typename F>
     struct context00 {
         F f;
