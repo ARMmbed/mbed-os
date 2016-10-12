@@ -20,7 +20,6 @@ RE_ARMCC = re.compile(
 RE_IAR = re.compile(
     r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
     r'+0x(\w{8})\s+0x(\w+)\s+(.+)\s.+$')
-RE_LIB_MATCH = re.compile("^.*/(.*\.a)\((.*)\)$")
 
 class MemapParser(object):
     """An object that represents parsed results, parses the memory map files,
@@ -38,16 +37,13 @@ class MemapParser(object):
 
     # sections to print info (generic for all toolchains)
     sections = ('.text', '.data', '.bss', '.heap', '.stack')
-    MAXDEPTH = object()
 
-    def __init__(self, depth=2):
+    def __init__(self, detailed_misc=False):
         """ General initialization
         """
-
-        self.depth = depth
-
-        self.mapfile = None
-
+        # 
+        self.detailed_misc = detailed_misc
+        
         # list of all modules and their sections
         self.modules = dict()
 
@@ -102,7 +98,7 @@ class MemapParser(object):
         else:
             return False         # everything else, means no change in section
 
-
+    
     def path_object_to_module_name(self, txt):
         """ Parse a path to object file to extract it's module and object data
 
@@ -111,25 +107,32 @@ class MemapParser(object):
         """
 
         txt = txt.replace('\\', '/')
-        name = txt.split('/')
-        mapfile_beginning = os.path.dirname(self.mapfile).split('/')
-        if name[0] == "." or name[0] == "":
-            name = name[1:]
-        for thing in mapfile_beginning:
-            if name[0] == thing:
-                name = name[1:]
-            elif name[0] in mapfile_beginning:
-                pass
+        rex_mbed_os_name = r'^.+mbed-os\/(.+)\/(.+\.o)$'
+        test_rex_mbed_os_name = re.match(rex_mbed_os_name, txt)
+
+        if test_rex_mbed_os_name:
+
+            object_name = test_rex_mbed_os_name.group(2)
+            data = test_rex_mbed_os_name.group(1).split('/')
+            ndata = len(data)
+
+            if ndata == 1:
+                module_name = data[0]
             else:
-                break
-        if name[0] == "mbed-os":
-            name = name[1:]
-        if name[0] == "features":
-            name = name[1:]
-        is_lib = RE_LIB_MATCH.match(txt)
-        if is_lib:
-            name = ["libraries", is_lib.group(1), is_lib.group(2)]
-        return "/".join(name), name[-1]
+                module_name = data[0] + '/' + data[1]
+
+            return [module_name, object_name]
+            
+        elif self.detailed_misc:           
+            rex_obj_name = r'^.+\/(.+\.o\)*)$'
+            test_rex_obj_name = re.match(rex_obj_name, txt)
+            if test_rex_obj_name:
+                object_name = test_rex_obj_name.group(1)
+                return ['Misc/' + object_name, ""]        
+                
+            return ['Misc', ""]
+        else: 
+            return ['Misc', ""]
 
     def parse_section_gcc(self, line):
         """ Parse data from a section of gcc map file
@@ -364,7 +367,15 @@ class MemapParser(object):
 
         path = path.replace('\\', '/')
 
-        search_path = os.path.dirname(path)
+        # check location of map file
+        rex = r'^(.+)' + r'\/(.+\.map)$'
+        test_rex = re.match(rex, path)
+
+        if test_rex:
+            search_path = test_rex.group(1) + '/mbed-os/'
+        else:
+            print "Warning: this doesn't look like an mbed project"
+            return
 
         for root, _, obj_files in os.walk(search_path):
             for obj_file in obj_files:
@@ -479,19 +490,11 @@ class MemapParser(object):
         for i in list(self.print_sections):
             table.align[i] = 'r'
 
-        local_modules = {}
         for i in sorted(self.modules):
-            module_name = "/".join(i.split("/")[:self.depth])
-            local_modules.setdefault(module_name,
-                                     {k: 0 for k in self.print_sections})
-            for k in self.print_sections:
-                local_modules[module_name][k] += self.modules[i][k]
-
-        for i in sorted(local_modules.keys()):
             row = [i]
 
             for k in self.print_sections:
-                row.append(local_modules[i][k])
+                row.append(self.modules[i][k])
 
             table.add_row(row)
 
@@ -572,8 +575,6 @@ class MemapParser(object):
         toolchain - the toolchain used to create the file
         """
 
-        self.mapfile = mapfile
-
         result = True
         try:
             with open(mapfile, 'r') as file_input:
@@ -588,8 +589,9 @@ class MemapParser(object):
                     self.parse_map_file_iar(file_input)
                 else:
                     result = False
+            
             self.compute_report()
-
+        
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             result = False
@@ -629,7 +631,6 @@ def main():
     
     parser.add_argument('-d', '--detailed', action='store_true', help='Displays the elements in "Misc" in a detailed fashion', required=False)
 
-    parser.add_argument('--max-depth', dest='max_depth', type=int, help='Displays the elements in "Misc" in a detailed fashion', required=False, default=None)
     # Parse/run command
     if len(sys.argv) <= 1:
         parser.print_help()
@@ -639,7 +640,7 @@ def main():
     args = parser.parse_args()
 
     # Create memap object
-    memap = MemapParser(depth=(args.max_depth or (MemapParser.MAXDEPTH if args.detailed else 2)))
+    memap = MemapParser(detailed_misc=args.detailed)
 
     # Parse and decode a map file
     if args.file and args.toolchain:
