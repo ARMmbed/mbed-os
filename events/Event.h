@@ -212,24 +212,13 @@ private:
         new (p) C(*(F*)(e + 1));
         equeue_event_delay(p, e->delay);
         equeue_event_period(p, e->period);
-        equeue_event_dtor(p, &Event::function_dtor<C>);
-        return equeue_post(e->equeue, &Event::function_call<C>, p);
+        equeue_event_dtor(p, &EventQueue::function_dtor<C>);
+        return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }
 
     template <typename F>
     static void event_dtor(struct event *e) {
         ((F*)(e + 1))->~F();
-    }
-
-    // Function attributes
-    template <typename F>
-    static void function_call(void *p) {
-        (*(F*)p)();
-    }
-
-    template <typename F>
-    static void function_dtor(void *p) {
-        ((F*)p)->~F();
     }
 
 public:
@@ -616,24 +605,13 @@ private:
         new (p) C(*(F*)(e + 1), a0);
         equeue_event_delay(p, e->delay);
         equeue_event_period(p, e->period);
-        equeue_event_dtor(p, &Event::function_dtor<C>);
-        return equeue_post(e->equeue, &Event::function_call<C>, p);
+        equeue_event_dtor(p, &EventQueue::function_dtor<C>);
+        return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }
 
     template <typename F>
     static void event_dtor(struct event *e) {
         ((F*)(e + 1))->~F();
-    }
-
-    // Function attributes
-    template <typename F>
-    static void function_call(void *p) {
-        (*(F*)p)();
-    }
-
-    template <typename F>
-    static void function_dtor(void *p) {
-        ((F*)p)->~F();
     }
 
 public:
@@ -1020,24 +998,13 @@ private:
         new (p) C(*(F*)(e + 1), a0, a1);
         equeue_event_delay(p, e->delay);
         equeue_event_period(p, e->period);
-        equeue_event_dtor(p, &Event::function_dtor<C>);
-        return equeue_post(e->equeue, &Event::function_call<C>, p);
+        equeue_event_dtor(p, &EventQueue::function_dtor<C>);
+        return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }
 
     template <typename F>
     static void event_dtor(struct event *e) {
         ((F*)(e + 1))->~F();
-    }
-
-    // Function attributes
-    template <typename F>
-    static void function_call(void *p) {
-        (*(F*)p)();
-    }
-
-    template <typename F>
-    static void function_dtor(void *p) {
-        ((F*)p)->~F();
     }
 
 public:
@@ -1424,24 +1391,13 @@ private:
         new (p) C(*(F*)(e + 1), a0, a1, a2);
         equeue_event_delay(p, e->delay);
         equeue_event_period(p, e->period);
-        equeue_event_dtor(p, &Event::function_dtor<C>);
-        return equeue_post(e->equeue, &Event::function_call<C>, p);
+        equeue_event_dtor(p, &EventQueue::function_dtor<C>);
+        return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }
 
     template <typename F>
     static void event_dtor(struct event *e) {
         ((F*)(e + 1))->~F();
-    }
-
-    // Function attributes
-    template <typename F>
-    static void function_call(void *p) {
-        (*(F*)p)();
-    }
-
-    template <typename F>
-    static void function_dtor(void *p) {
-        ((F*)p)->~F();
     }
 
 public:
@@ -1828,24 +1784,13 @@ private:
         new (p) C(*(F*)(e + 1), a0, a1, a2, a3);
         equeue_event_delay(p, e->delay);
         equeue_event_period(p, e->period);
-        equeue_event_dtor(p, &Event::function_dtor<C>);
-        return equeue_post(e->equeue, &Event::function_call<C>, p);
+        equeue_event_dtor(p, &EventQueue::function_dtor<C>);
+        return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }
 
     template <typename F>
     static void event_dtor(struct event *e) {
         ((F*)(e + 1))->~F();
-    }
-
-    // Function attributes
-    template <typename F>
-    static void function_call(void *p) {
-        (*(F*)p)();
-    }
-
-    template <typename F>
-    static void function_dtor(void *p) {
-        ((F*)p)->~F();
     }
 
 public:
@@ -2232,24 +2177,13 @@ private:
         new (p) C(*(F*)(e + 1), a0, a1, a2, a3, a4);
         equeue_event_delay(p, e->delay);
         equeue_event_period(p, e->period);
-        equeue_event_dtor(p, &Event::function_dtor<C>);
-        return equeue_post(e->equeue, &Event::function_call<C>, p);
+        equeue_event_dtor(p, &EventQueue::function_dtor<C>);
+        return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }
 
     template <typename F>
     static void event_dtor(struct event *e) {
         ((F*)(e + 1))->~F();
-    }
-
-    // Function attributes
-    template <typename F>
-    static void function_call(void *p) {
-        (*(F*)p)();
-    }
-
-    template <typename F>
-    static void function_dtor(void *p) {
-        ((F*)p)->~F();
     }
 
 public:
