@@ -55,6 +55,15 @@ extern const PinMap PinMap_SPI_MISO[];
 extern const PinMap PinMap_SPI_SCLK[];
 extern const PinMap PinMap_SPI_SSEL[];
 
+//*** SD ***
+extern const PinMap PinMap_SD_CD[];
+extern const PinMap PinMap_SD_CMD[];
+extern const PinMap PinMap_SD_CLK[];
+extern const PinMap PinMap_SD_DAT0[];
+extern const PinMap PinMap_SD_DAT1[];
+extern const PinMap PinMap_SD_DAT2[];
+extern const PinMap PinMap_SD_DAT3[];
+
 #ifdef __cplusplus
 }
 #endif

@@ -72,7 +72,10 @@ enum ENDPOINT_TYPE {
 #define  OR_CONTROL_CLE                 0x00000010
 #define  OR_CONTROL_BLE                 0x00000020
 #define  OR_CONTROL_HCFS                0x000000C0
+#define  OR_CONTROL_HC_RSET             0x00000000
+#define  OR_CONTROL_HC_RES              0x00000040
 #define  OR_CONTROL_HC_OPER             0x00000080
+#define  OR_CONTROL_HC_SUSP             0x000000C0
 // ----------------- HcCommandStatus Register -----------------
 #define  OR_CMD_STATUS_HCR              0x00000001
 #define  OR_CMD_STATUS_CLF              0x00000002
@@ -94,6 +97,8 @@ enum ENDPOINT_TYPE {
 #define  OR_RH_PORT_CSC                 0x00010000
 #define  OR_RH_PORT_PRSC                0x00100000
 #define  OR_RH_PORT_LSDA                0x00000200
+#define  OR_RH_PORT_PESC                0x00020000
+#define  OR_RH_PORT_OCIC                0x00080000
 
 #define  FI                     0x2EDF           // 12000 bits per frame (-1)
 #define  DEFAULT_FMINTERVAL     ((((6 * (FI - 210)) / 7) << 16) | FI)
