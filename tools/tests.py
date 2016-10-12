@@ -70,6 +70,8 @@ Wiring:
 
   * analog_loop (AnalogIn, AnalogOut):
       * Arduino headers: (A0 <-> A5)
+      * NUCLEO64: (A0 <-> A2)
+      * NUCLEO144: (A0 <-> D13)
       * LPC1549: (A0 <-> D12)
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
@@ -187,12 +189,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "LPC2460", "KL25Z", "K64F", "K66F", "K22F", "LPC4088", "LPC1549",
-                "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303K8", "NUCLEO_F303RE", "NUCLEO_F207ZG",
-                "NUCLEO_F334R8", "NUCLEO_F303ZE", "NUCLEO_L053R8", "NUCLEO_L073RZ", "NUCLEO_L152RE",
-                "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "NUCLEO_F446ZE",
-                "DISCO_F407VG", "DISCO_F746NG", "NUCLEO_F746ZG",
-                "ARCH_MAX", "MAX32600MBED", "MOTE_L152RC", "B96B_F446VE"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
