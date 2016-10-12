@@ -39,32 +39,21 @@ void in_handler() {
 #define PIN_IN      (p11)
 #define PIN_OUT     (p12)
 
-#elif defined(TARGET_NUCLEO_F030R8) || \
-      defined(TARGET_NUCLEO_F070RB) || \
-      defined(TARGET_NUCLEO_F072RB) || \
-      defined(TARGET_NUCLEO_F091RC) || \
-      defined(TARGET_NUCLEO_F103RB) || \
-      defined(TARGET_NUCLEO_F302R8) || \
-      defined(TARGET_NUCLEO_F303RE) || \
-      defined(TARGET_NUCLEO_F334R8) || \
-      defined(TARGET_NUCLEO_F401RE) || \
-      defined(TARGET_NUCLEO_F410RB) || \
-      defined(TARGET_NUCLEO_F411RE) || \
-      defined(TARGET_NUCLEO_F429ZI) || \
-      defined(TARGET_NUCLEO_F446RE) || \
-      defined(TARGET_NUCLEO_F446ZE) || \
-      defined(TARGET_NUCLEO_L053R8) || \
-      defined(TARGET_NUCLEO_L073RZ) || \
-      defined(TARGET_NUCLEO_L152RE)
-#define PIN_IN      PB_8
-#define PIN_OUT     PC_7
+#elif defined(TARGET_STM) && defined(TARGET_FF_ARDUINO)
+// TARGET_FF_ARDUINO cannot be used
+// D0 is used as USBRX for some NUCLEO64
+// D7 is not used for some NUCLEO32
+#define PIN_OUT     D2
+#define PIN_IN      D9
 
-#elif defined(TARGET_NUCLEO_F031K6) || \
-      defined(TARGET_NUCLEO_F042K6) || \
-      defined(TARGET_NUCLEO_L011K4) || \
-      defined(TARGET_NUCLEO_L031K6)
-#define PIN_IN      A4
-#define PIN_OUT     A5
+#elif defined(TARGET_DISCO_L053C8) || \
+      defined(TARGET_DISCO_F334C8)
+#define PIN_OUT     PA_15
+#define PIN_IN      PA_8
+
+#elif defined(TARGET_DISCO_L476VG)
+#define PIN_OUT     PA_1
+#define PIN_IN      PA_2
 
 #elif defined(TARGET_ARCH_MAX) || \
       defined(TARGET_DISCO_F407VG) || \
