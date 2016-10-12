@@ -47,18 +47,18 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     Reset_Handler             ; Reset Handler
                 DCD     NMI_Handler               ; NMI Handler
                 DCD     HardFault_Handler         ; Hard Fault Handler
-                DCD     DefaultIRQ_Handler        ; MPU Fault Handler
-                DCD     DefaultIRQ_Handler        ; Bus Fault Handler
-                DCD     DefaultIRQ_Handler        ; Usage Fault Handler
+                DCD     MemManage_Handler         ; MPU Fault Handler
+                DCD     BusFault_Handler          ; Bus Fault Handler
+                DCD     UsageFault_Handler        ; Usage Fault Handler
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
-                DCD     DefaultIRQ_Handler        ; SVCall Handler
+                DCD     SVC_Handler               ; SVCall Handler
                 DCD     DebugMon_Handler          ; Debug Monitor Handler
                 DCD     0                         ; Reserved
-                DCD     DefaultIRQ_Handler        ; PendSV Handler
-                DCD     SysTick_IRQHandler        ; SysTick Handler
+                DCD     PendSV_Handler            ; PendSV Handler
+                DCD     SysTick_Handler           ; SysTick Handler
 
                 ; Maxim 32620 Externals interrupts
                 DCD CLKMAN_IRQHandler         /* 16:01 CLKMAN */ 
@@ -139,9 +139,24 @@ HardFault_Handler       PROC
                         B       HardFault_Handler
                         ENDP
 
-DefaultIRQ_Handler      PROC
-                        EXPORT DefaultIRQ_Handler               [WEAK]             
-                        B       DefaultIRQ_Handler
+MemManage_Handler       PROC
+                        EXPORT MemManage_Handler                [WEAK]             
+                        B       MemManage_Handler
+                        ENDP
+
+BusFault_Handler        PROC
+                        EXPORT BusFault_Handler                 [WEAK]             
+                        B       BusFault_Handler
+                        ENDP
+
+UsageFault_Handler      PROC
+                        EXPORT UsageFault_Handler               [WEAK]             
+                        B       UsageFault_Handler
+                        ENDP
+
+SVC_Handler             PROC
+                        EXPORT SVC_Handler                      [WEAK]             
+                        B       SVC_Handler
                         ENDP
 
 DebugMon_Handler        PROC
@@ -149,9 +164,14 @@ DebugMon_Handler        PROC
                         B       DebugMon_Handler
                         ENDP
 
-SysTick_IRQHandler      PROC
-                        EXPORT SysTick_IRQHandler               [WEAK]             
-                        B       SysTick_IRQHandler
+PendSV_Handler          PROC
+                        EXPORT PendSV_Handler                   [WEAK]             
+                        B       PendSV_Handler
+                        ENDP
+
+SysTick_Handler         PROC
+                        EXPORT SysTick_Handler                  [WEAK]             
+                        B       SysTick_Handler
                         ENDP
 
 Default_Handler PROC

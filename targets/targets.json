@@ -1705,6 +1705,7 @@
         "extra_labels": ["Maxim", "MAX32610"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
+        "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
     "MAX32600MBED": {
@@ -1723,6 +1724,7 @@
         "extra_labels": ["Maxim", "MAX32620"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
     "EFM32GG_STK3700": {

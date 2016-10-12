@@ -68,14 +68,14 @@ const PinMap PinMap_I2C_SCL[] = {
 /*
 */
 const PinMap PinMap_UART_TX[] = {
-	{ P0_1, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P2_1, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P3_1, UART_2, (int)&((pin_function_t){&MXC_IOMAN->uart2_req, &MXC_IOMAN->uart2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P5_4, UART_3, (int)&((pin_function_t){&MXC_IOMAN->uart3_req, &MXC_IOMAN->uart3_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P0_0, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P2_0, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P3_0, UART_2, (int)&((pin_function_t){&MXC_IOMAN->uart2_req, &MXC_IOMAN->uart2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
-	{ P5_3, UART_3, (int)&((pin_function_t){&MXC_IOMAN->uart3_req, &MXC_IOMAN->uart3_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P0_1, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P2_1, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P3_1, UART_2, (int)&((pin_function_t){&MXC_IOMAN->uart2_req, &MXC_IOMAN->uart2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P5_4, UART_3, (int)&((pin_function_t){&MXC_IOMAN->uart3_req, &MXC_IOMAN->uart3_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P0_0, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P2_0, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P3_0, UART_2, (int)&((pin_function_t){&MXC_IOMAN->uart2_req, &MXC_IOMAN->uart2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
+    { P5_3, UART_3, (int)&((pin_function_t){&MXC_IOMAN->uart3_req, &MXC_IOMAN->uart3_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_REQ_IO_REQ), (MXC_F_IOMAN_UART_ACK_IO_MAP | MXC_F_IOMAN_UART_ACK_IO_ACK)}) },
     { NC,   NC,     0 }
 };
 
@@ -157,30 +157,30 @@ const PinMap PinMap_SPI_QUAD[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-	{ P0_0, PWM_0,  1 }, { P2_0, PWM_0,  1 }, { P4_0, PWM_0,  1 }, {P6_0, PWM_0, 1},
-	{ P0_1, PWM_1,  1 }, { P2_1, PWM_1,  1 }, { P4_1, PWM_1,  1 },
-	{ P0_2, PWM_2,  1 }, { P2_2, PWM_2,  1 }, { P4_2, PWM_2,  1 },
-	{ P0_3, PWM_3,  1 }, { P2_3, PWM_3,  1 }, { P4_3, PWM_3,  1 },
-	{ P0_4, PWM_4,  1 }, { P2_4, PWM_4,  1 }, { P4_4, PWM_4,  1 },
-	{ P0_5, PWM_5,  1 }, { P2_5, PWM_5,  1 }, { P4_5, PWM_5,  1 },
-	{ P0_6, PWM_6,  1 }, { P2_6, PWM_6,  1 }, { P4_6, PWM_6,  1 },
-	{ P0_7, PWM_7,  1 }, { P2_7, PWM_7,  1 }, { P4_7, PWM_7,  1 },
-	{ P1_0, PWM_8,  1 }, { P3_0, PWM_8,  1 }, { P5_0, PWM_8,  1 },
-	{ P1_1, PWM_9,  1 }, { P3_1, PWM_9,  1 }, { P5_1, PWM_9,  1 },
-	{ P1_2, PWM_10, 1 }, { P3_2, PWM_10, 1 }, { P5_2, PWM_10, 1 },
-	{ P1_3, PWM_11, 1 }, { P3_3, PWM_11, 1 }, { P5_3, PWM_11, 1 },
-	{ P1_4, PWM_12, 1 }, { P3_4, PWM_12, 1 }, { P5_4, PWM_12, 1 },
-	{ P1_5, PWM_13, 1 }, { P3_5, PWM_13, 1 }, { P5_5, PWM_13, 1 },
-	{ P1_6, PWM_14, 1 }, { P3_6, PWM_14, 1 }, { P5_6, PWM_14, 1 },
-	{ P1_7, PWM_15, 1 }, { P3_7, PWM_15, 1 }, { P5_7, PWM_15, 1 },
-	{ NC,   NC,    0 }
+    { P0_0, PWM_0,  1 }, { P2_0, PWM_0,  1 }, { P4_0, PWM_0,  1 }, {P6_0, PWM_0, 1},
+    { P0_1, PWM_1,  1 }, { P2_1, PWM_1,  1 }, { P4_1, PWM_1,  1 },
+    { P0_2, PWM_2,  1 }, { P2_2, PWM_2,  1 }, { P4_2, PWM_2,  1 },
+    { P0_3, PWM_3,  1 }, { P2_3, PWM_3,  1 }, { P4_3, PWM_3,  1 },
+    { P0_4, PWM_4,  1 }, { P2_4, PWM_4,  1 }, { P4_4, PWM_4,  1 },
+    { P0_5, PWM_5,  1 }, { P2_5, PWM_5,  1 }, { P4_5, PWM_5,  1 },
+    { P0_6, PWM_6,  1 }, { P2_6, PWM_6,  1 }, { P4_6, PWM_6,  1 },
+    { P0_7, PWM_7,  1 }, { P2_7, PWM_7,  1 }, { P4_7, PWM_7,  1 },
+    { P1_0, PWM_8,  1 }, { P3_0, PWM_8,  1 }, { P5_0, PWM_8,  1 },
+    { P1_1, PWM_9,  1 }, { P3_1, PWM_9,  1 }, { P5_1, PWM_9,  1 },
+    { P1_2, PWM_10, 1 }, { P3_2, PWM_10, 1 }, { P5_2, PWM_10, 1 },
+    { P1_3, PWM_11, 1 }, { P3_3, PWM_11, 1 }, { P5_3, PWM_11, 1 },
+    { P1_4, PWM_12, 1 }, { P3_4, PWM_12, 1 }, { P5_4, PWM_12, 1 },
+    { P1_5, PWM_13, 1 }, { P3_5, PWM_13, 1 }, { P5_5, PWM_13, 1 },
+    { P1_6, PWM_14, 1 }, { P3_6, PWM_14, 1 }, { P5_6, PWM_14, 1 },
+    { P1_7, PWM_15, 1 }, { P3_7, PWM_15, 1 }, { P5_7, PWM_15, 1 },
+    { NC,   NC,    0 }
 };
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-	{ AIN_0, ADC, 0 },
-	{ AIN_1, ADC, 0 },
-	{ AIN_2, ADC, 0 },
-	{ AIN_3, ADC, 0 },
-	{ NC,    NC,  0 }
+    { AIN_0, ADC, 0 },
+    { AIN_1, ADC, 0 },
+    { AIN_2, ADC, 0 },
+    { AIN_3, ADC, 0 },
+    { NC,    NC,  0 }
 };

@@ -69,7 +69,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Give the application the option to manually control Slave Select
     if ((SPIName)spi_ssel != (SPIName)NC) {
         spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-        // Slave select is currently limited to slave select zero. If others are 
+        // Slave select is currently limited to slave select zero. If others are
         // to be supported a function to map PinName to a value suitable for use
         // in mstr_cfg.slave_sel will be required.
         obj->spi.ssel = 0;
@@ -352,7 +352,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
 
         // Set the transaction configuration in the header
         header = ((write | (read << 1)) << MXC_F_SPI_FIFO_DIR_POS) | (req->width << MXC_F_SPI_FIFO_WIDTH_POS);
-        
+
         if (remain >= SPI_MAX_BYTE_LEN) {
 
             // Send a 32 byte header
@@ -367,7 +367,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
                 // Send in increments of 32 byte pages
                 header |= MXC_S_SPI_FIFO_UNIT_PAGES;
                 pages = remain / SPI_MAX_PAGE_LEN;
-                
+
                 if (pages >= 32) {
                     // 0 maps to 32 in the header
                     bytes = 32 * SPI_MAX_PAGE_LEN;
@@ -380,7 +380,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
                 if ((remain - bytes) == 0) {
                     header |= MXC_F_SPI_FIFO_DASS;
                 }
-            }   
+            }
 
             fifo->trans_16[0] = header;
 
@@ -414,7 +414,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
             }
 
             // Only memcpy even numbers
-            length = ((length / 2) * 2); 
+            length = ((length / 2) * 2);
 
             memcpy((void*)fifo->trans_32, &(req->tx_data[req->write_num]), length);
 
@@ -450,8 +450,8 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
     }
 
     // Check to see if we've finished reading and writing
-    if (((read && (req->read_num == req->len)) || !read) && 
-        ((req->write_num == req->len) || !write)) {
+    if (((read && (req->read_num == req->len)) || !read) &&
+            ((req->write_num == req->len) || !write)) {
 
         // Disable interrupts
         spim->inten = 0;
@@ -469,7 +469,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
     // Save object reference for callback
     state[obj->spi.index] = &obj->spi;
-    
+
     // Initialize request info
     obj->spi.tx_data = tx;
     obj->spi.rx_data = rx;
@@ -491,7 +491,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     mxc_spi_regs_t *spim = obj->spi.spi;
     uint32_t flags;
-    
+
     // Clear the interrupt flags
     spim->inten = 0;
     flags = spim->intfl;
@@ -503,7 +503,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
             return 0;
         }
     }
-    
+
     state[obj->spi.index] = NULL;
 
     return SPI_EVENT_COMPLETE;
@@ -516,7 +516,7 @@ uint8_t spi_active(spi_t *obj)
 
     // Check to see if there are any ongoing transactions
     if ((state[obj->spi.index] == NULL) &&
-        !(spim->fifo_ctrl & MXC_F_SPI_FIFO_CTRL_TX_FIFO_USED)) {
+            !(spim->fifo_ctrl & MXC_F_SPI_FIFO_CTRL_TX_FIFO_USED)) {
         return 0;
     }
 
