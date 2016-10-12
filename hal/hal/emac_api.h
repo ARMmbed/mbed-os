@@ -17,9 +17,6 @@
 #ifndef MBED_EMAC_API_H
 #define MBED_EMAC_API_H
 
-#include "platform.h"
-
-
 #if DEVICE_EMAC
 
 #include <stdbool.h>
