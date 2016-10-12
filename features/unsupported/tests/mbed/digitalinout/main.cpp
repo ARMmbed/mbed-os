@@ -10,31 +10,21 @@ DigitalInOut d2(dp2);
 DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
-#elif defined(TARGET_NUCLEO_F030R8) || \
-      defined(TARGET_NUCLEO_F070RB) || \
-      defined(TARGET_NUCLEO_F072RB) || \
-      defined(TARGET_NUCLEO_F091RC) || \
-      defined(TARGET_NUCLEO_F103RB) || \
-      defined(TARGET_NUCLEO_F302R8) || \
-      defined(TARGET_NUCLEO_F303RE) || \
-      defined(TARGET_NUCLEO_F334R8) || \
-      defined(TARGET_NUCLEO_F401RE) || \
-      defined(TARGET_NUCLEO_F410RB) || \
-      defined(TARGET_NUCLEO_F411RE) || \
-      defined(TARGET_NUCLEO_F446RE) || \
-      defined(TARGET_NUCLEO_F446ZE) || \
-      defined(TARGET_NUCLEO_L053R8) || \
-      defined(TARGET_NUCLEO_L073RZ) || \
-      defined(TARGET_NUCLEO_L152RE)
-DigitalInOut d1(PC_7);
-DigitalInOut d2(PB_8);
+#elif defined(TARGET_STM) && defined(TARGET_FF_ARDUINO)
+// TARGET_FF_ARDUINO cannot be used
+// D0 is used as USBRX for some NUCLEO64
+// D7 is not used for some NUCLEO32
+DigitalInOut d1(D9);
+DigitalInOut d2(D2);
 
-#elif defined(TARGET_NUCLEO_F031K6) || \
-      defined(TARGET_NUCLEO_F042K6) || \
-      defined(TARGET_NUCLEO_L011K4) || \
-      defined(TARGET_NUCLEO_L031K6)
-DigitalInOut d1(A4);
-DigitalInOut d2(A5);
+#elif defined(TARGET_DISCO_L053C8) || \
+      defined(TARGET_DISCO_F334C8)
+DigitalInOut d1(PA_15);
+DigitalInOut d2(PA_8);
+
+#elif defined(TARGET_DISCO_L476VG)
+DigitalInOut d1(PA_1);
+DigitalInOut d2(PA_2);
 
 #elif defined(TARGET_ARCH_MAX) || \
       defined(TARGET_DISCO_F407VG) || \
