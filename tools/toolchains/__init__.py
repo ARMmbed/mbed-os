@@ -413,7 +413,10 @@ class mbedToolchain:
     def get_symbols(self, for_asm=False):
         if for_asm:
             if self.asm_symbols is None:
-                self.asm_symbols = []
+                # Target and Toolchain symbols
+                labels = self.get_labels()
+                self.asm_symbols = ["TARGET_%s" % t for t in labels['TARGET']]
+                self.asm_symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
                 # Cortex CPU symbols
                 if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
