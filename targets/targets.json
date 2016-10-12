@@ -304,7 +304,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC81X"],
         "is_disk_virtual": true,
-        "supported_toolchains": ["uARM", "IAR", "GCC_ARM"],
+        "supported_toolchains": ["uARM", "IAR", "GCC_CR", "GCC_ARM"],
         "inherits": ["LPCTarget"],
         "detect_code": ["1050"],
         "device_has": ["ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE"],
