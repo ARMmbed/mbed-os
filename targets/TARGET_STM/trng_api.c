@@ -1,5 +1,5 @@
 /*
- *  Hardware entropy collector for the STM32F4 family
+ *  Hardware entropy collector for the STM32 families
  *
  *  Copyright (C) 2006-2016, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
@@ -20,10 +20,6 @@
 
 #if defined(DEVICE_TRNG)
 
-#if defined(TARGET_STM32F405xx) || defined(TARGET_STM32F415xx) || defined(TARGET_STM32F407xx) || defined(TARGET_STM32F417xx) ||\
-    defined(TARGET_STM32F427xx) || defined(TARGET_STM32F437xx) || defined(TARGET_STM32F429xx) || defined(TARGET_STM32F439xx) ||\
-    defined(TARGET_STM32F410Tx) || defined(TARGET_STM32F410Cx) || defined(TARGET_STM32F410Rx) || defined(TARGET_STM32F469xx) ||\
-    defined(TARGET_STM32F479xx)
 #include <stdlib.h>
 #include "cmsis.h"
 #include "trng_api.h"
@@ -40,12 +36,24 @@ static void trng_get_byte(trng_t *obj, unsigned char *byte )
 
 void trng_init(trng_t *obj)
 {
+#if defined(TARGET_STM32L4)
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+
+    /*Select PLLQ output as RNG clock source */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
+    PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_PLL;
+    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif
+
     /* RNG Peripheral clock enable */
     __HAL_RCC_RNG_CLK_ENABLE();
 
     /* Initialize RNG instance */
     obj->handle.Instance = RNG;
     HAL_RNG_Init(&obj->handle);
+
+    /* first random number generated after setting the RNGEN bit should not be used */
+    HAL_RNG_GetRandomNumber(&obj->handle);
 
 }
 
@@ -76,7 +84,5 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
     return( ret );
 }
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F410xx || STM32F469xx || STM32F479xx */
 
 #endif

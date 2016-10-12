@@ -84,6 +84,10 @@ struct i2c_s {
     I2CName  i2c;
 };
 
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
+
 #include "common_objects.h"
 #include "gpio_object.h"
 
