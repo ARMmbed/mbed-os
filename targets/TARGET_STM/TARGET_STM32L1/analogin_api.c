@@ -53,8 +53,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(function != (uint32_t)NC);
     obj->channel = STM_PIN_CHANNEL(function);
 
-    // Configure GPIO excepted for internal channels (Temperature, Vref)
-    if ((obj->channel != 16) && (obj->channel != 17)) {
+    // Configure GPIO excepted for internal channels (Temperature, Vref, Vbat, ...)
+    // ADC Internal Channels "pins" are described in PinNames.h and must have a value >= 0xF0
+    if (pin < 0xF0) {
         pinmap_pinout(pin, PinMap_ADC);
     }
 
