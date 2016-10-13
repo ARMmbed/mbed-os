@@ -143,7 +143,9 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
     if (direction == PIN_INPUT) {
         obj->GPIOMEMBASE->W_IN = obj->gpioMask;
@@ -163,7 +165,9 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
 void gpio_write(gpio_t *obj, int value)
 {
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
     /* Set the GPIO based on value */
     if (value) {
@@ -186,7 +190,9 @@ int gpio_read(gpio_t *obj)
     int ret;
 
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
     ret = (obj->GPIOMEMBASE->R_STATE_W_SET & obj->gpioMask) ? 1: 0;
 
