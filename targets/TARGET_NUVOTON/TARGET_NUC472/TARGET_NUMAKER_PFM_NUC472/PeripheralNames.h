@@ -116,8 +116,8 @@ typedef enum {
 } DMAName;
 
 typedef enum {
-    SD_0 = (int) NU_MODNAME(SD_BASE, 0),
-    SD_1 = (int) NU_MODNAME(SD_BASE, 1)
+    SD_0_0 = (int) NU_MODNAME(SD_BASE, 0),
+    SD_0_1 = (int) NU_MODNAME(SD_BASE, 1)
 } SDName;
 
 #ifdef __cplusplus
