@@ -79,8 +79,8 @@ static uint32_t gpioIds[NUMBER_OF_GPIO] = {0};
 
 /** Main GPIO IRQ handler called from vector table handler
  *
- * @param gpioBase    The GPIO register base address
- * @return            void
+ * @param gpioBase  The GPIO register base address
+ * @return          void
  */
 void fGpioHandler(void)
 {
@@ -90,7 +90,9 @@ void fGpioHandler(void)
     GpioReg_pt gpioBase;
 
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
     gpioBase = GPIOREG;
 
@@ -114,7 +116,7 @@ void fGpioHandler(void)
                     event = IRQ_NONE;
                 }
             }
-            gpioBase->IRQ_CLEAR |= (0x1 << index);
+            gpioBase->IRQ_CLEAR = (0x1 << index);
 
             /* Call the handler registered to the pin */
             irq_handler(gpioIds[index], event);
@@ -146,7 +148,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     gpioIds[pin] = id;
 
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
     /* Initialize the GPIO membase */
     obj->GPIOMEMBASE = GPIOREG;
@@ -157,10 +161,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
      * then change this setting to  obj->GPIOMEMBASE->W_IN |= obj->pinMask. All parameter setting needs to change from = to |=
      */
     obj->GPIOMEMBASE->W_IN = obj->pinMask;
-    obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
     obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
-    obj->GPIOMEMBASE->IRQ_POLARITY_SET = (obj->pinMask);
-    obj->GPIOMEMBASE->ANYEDGE_SET = IO_NONE;
+    obj->GPIOMEMBASE->IRQ_POLARITY_SET = obj->pinMask;
 
     /* Register the handler for this pin */
     irq_handler = handler;
@@ -179,9 +181,12 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 void gpio_irq_free(gpio_irq_t *obj)
 {
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
-    obj->GPIOMEMBASE->W_IN = (IO_ALL ^ (obj->pinMask));
+    /* Make the pin as output in order to release it */
+    obj->GPIOMEMBASE->W_OUT = obj->pinMask;
     gpioIds[obj->pin] = 0;
 }
 
@@ -195,32 +200,40 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
 
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
     switch(event) {
         case IRQ_RISE:
-            obj->GPIOMEMBASE->IRQ_EDGE = (obj->pinMask);
-            obj->GPIOMEMBASE->IRQ_LEVEL = (IO_ALL ^ (obj->pinMask));
-            /* Enable is an integer; hence checking for 1 or 0*/
+            obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
+
+            /* Enable rising edge */
+            obj->GPIOMEMBASE->IRQ_POLARITY_SET = obj->pinMask;
+
+            /* Enable the IRQ based on enable parameter */
             if (enable == 1) {
-                /* Enable rising edge */
-                obj->GPIOMEMBASE->IRQ_POLARITY_SET = (obj->pinMask);
+
+                obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
             } else if (enable == 0) {
-                /* Disable rising edge */
-                obj->GPIOMEMBASE->IRQ_POLARITY_SET = (IO_ALL ^ (obj->pinMask));
+
+                obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
             }
             break;
 
         case IRQ_FALL:
-            obj->GPIOMEMBASE->IRQ_EDGE = (obj->pinMask);
-            obj->GPIOMEMBASE->IRQ_LEVEL = (IO_ALL ^ (obj->pinMask));
-            /* Enable is an integer; hence checking for 1 or 0*/
+            obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
+
+            /* Enable falling edge */
+            obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = obj->pinMask;
+
+            /* Enable the IRQ based on enable parameter */
             if (enable == 1) {
-                /* Enable falling edge */
-                obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = (obj->pinMask);
+
+                obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
             } else if (enable == 0) {
-                /* Disable falling edge */
-                obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = (IO_ALL ^ (obj->pinMask));
+
+                obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
             }
             break;
 
@@ -239,9 +252,11 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 void gpio_irq_enable(gpio_irq_t *obj)
 {
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
-    obj->GPIOMEMBASE->IRQ_ENABLE_SET = (obj->pinMask);
+    obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
 }
 
 /** Disable GPIO IRQ
@@ -252,9 +267,11 @@ void gpio_irq_enable(gpio_irq_t *obj)
 void gpio_irq_disable(gpio_irq_t *obj)
 {
     /* Enable the GPIO clock */
-    CLOCK_ENABLE(CLOCK_GPIO);
+    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
+        CLOCK_ENABLE(CLOCK_GPIO);
+    }
 
-    obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = (obj->pinMask);
+    obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
 }
 
 #endif //DEVICE_INTERRUPTIN
