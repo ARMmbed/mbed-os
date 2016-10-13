@@ -16,8 +16,6 @@
 #ifndef MBED_EMAC_STACK_MEM_H
 #define MBED_EMAC_STACK_MEM_H
 
-#include "platform.h"
-
 #if DEVICE_EMAC
 
 #include <stdint.h>
