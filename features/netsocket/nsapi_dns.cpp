@@ -217,7 +217,7 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
         return NSAPI_ERROR_NO_MEMORY;
     }
 
-    int result = NSAPI_ERROR_OK;
+    int result = NSAPI_ERROR_DNS_FAILURE;
 
     // check against each dns server
     for (unsigned i = 0; i < DNS_SERVERS_SIZE; i++) {
@@ -243,11 +243,12 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
         }
 
         const uint8_t *response = packet;
-        if (!dns_scan_response(&response, addr, addr_count)) {
-            result = NSAPI_ERROR_DNS_FAILURE;
-        } else {
-            break;
+        if (dns_scan_response(&response, addr, addr_count) > 0) {
+            result = NSAPI_ERROR_OK;
         }
+
+        /* The DNS response is final, no need to check other servers */
+        break;
     }
 
     // clean up packet
