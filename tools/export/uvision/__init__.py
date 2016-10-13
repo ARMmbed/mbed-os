@@ -122,7 +122,7 @@ class Uvision(Exporter):
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,
                   '.obj': 3, '.o': 3, '.lib': 4,
-                  '.ar': 4, '.h': 5, '.sct': 4}
+                  '.ar': 4, '.h': 5, '.hpp': 5, '.sct': 4}
 
     def uv_file(self, loc):
         """Return a namedtuple of information about project file
