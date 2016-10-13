@@ -1,9 +1,0 @@
-{
-    "GCC_ARM": {
-        "common": [ "-DMBED_RTOS_SINGLE_THREAD"],
-        "asm": [],
-        "c": [],
-        "cxx": [],
-        "ld": [ "--specs=nano.specs"]
-    }
-}
