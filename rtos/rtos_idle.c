@@ -24,11 +24,10 @@
 
 static void default_idle_hook(void)
 {
-    /* Sleep: ideally, we should put the chip to sleep.
-     Unfortunately, this usually requires disconnecting the interface chip (debugger).
-     This can be done, but it would break the local file system.
-    */
-    // sleep();
+    /* Sleep: Please note - for the most power savings, disconnect the.
+       interface chip (debugger).
+    */   
+     sleep();
 }
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
