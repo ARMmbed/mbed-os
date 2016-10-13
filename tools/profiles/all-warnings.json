@@ -1,9 +1,0 @@
-{
-    "GCC_ARM": {
-        "common": ["-pedantic"],
-        "asm": [],
-        "c": [],
-        "cxx": [],
-        "ld": []
-    }
-}
