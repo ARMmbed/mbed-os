@@ -821,12 +821,27 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx"],
+        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "F429_F439"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
         "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "detect_code": ["0796"],
+        "features": ["LWIP"],
+        "release_versions": ["2", "5"],
+        "device_name" : "STM32F429ZI"
+    },
+    "NUCLEO_F439ZI": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "F429_F439"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "progen": {"target": "nucleo-f439zi"},
+        "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "detect_code": ["0797"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F429ZI"
@@ -873,7 +888,7 @@
     "NUCLEO_F746ZG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG"],
+        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG", "F746_F756"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
@@ -883,6 +898,19 @@
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746ZG"
+    },
+    "NUCLEO_F756ZG": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7F",
+        "extra_labels": ["STM", "STM32F7", "STM32F756", "STM32F756ZG", "F746_F756"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "default_toolchain": "ARM",
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["0819"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "features": ["LWIP"],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F756ZG"
     },
     "NUCLEO_F767ZI": {
         "inherits": ["Target"],
@@ -978,7 +1006,7 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32L4", "STM32L476RG"],
+        "extra_labels": ["STM", "STM32L4", "STM32L476RG", "L476_L486"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
         "detect_code": ["0765"],
@@ -986,6 +1014,18 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "stm32l476rg"
+    },
+    "NUCLEO_L486RG": {
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32L4", "STM32L486RG", "L476_L486"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "inherits": ["Target"],
+        "detect_code": ["0827"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"],
+        "device_name": "stm32l486rg"
     },
     "STM32F3XX": {
         "inherits": ["Target"],

@@ -272,7 +272,7 @@
 #define OS_CLOCK                84000000
 #endif
 
-#elif defined(TARGET_STM32F429ZI)
+#elif (defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F439ZI))
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
@@ -452,7 +452,7 @@
 #define OS_CLOCK                216000000
 #endif
 
-#elif defined(TARGET_STM32F746ZG)
+#elif (defined(TARGET_STM32F746ZG) || defined(TARGET_STM32F756ZG))
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20050000UL)
@@ -647,7 +647,7 @@
 #define OS_CLOCK                80000000
 #endif
 
-#elif defined(TARGET_STM32L476RG)
+#elif (defined(TARGET_STM32L476RG) || defined(TARGET_STM32L486RG))
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
