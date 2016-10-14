@@ -1,3 +1,4 @@
+#if DEVICE_EMAC
 
 #include <stdio.h>
 #include "cb_main.h"
@@ -325,3 +326,4 @@ void wifi_emac_init_mem(void)
     cbWLANTARGET_registerCallbacks((cbWLANTARGET_Callback*)&_wlanTargetCallback);
 }
 
+#endif
