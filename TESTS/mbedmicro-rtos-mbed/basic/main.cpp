@@ -44,7 +44,7 @@ void print_tick_thread() {
 }
 
 int main() {
-    GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
+    GREENTEA_SETUP(total_ticks + 5, "default_auto");
     
     Thread tick_thread(osPriorityNormal, STACK_SIZE);
     tick_thread.start(print_tick_thread);

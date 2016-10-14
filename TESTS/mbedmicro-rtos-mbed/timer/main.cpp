@@ -24,7 +24,7 @@ void blink(void const *n) {
 }
 
 int main(void) {
-    GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
+    GREENTEA_SETUP(total_ticks + 5, "default_auto");
 
     RtosTimer led_1_timer(blink, osTimerPeriodic, (void *)0);
     RtosTimer led_2_timer(blink, osTimerPeriodic, (void *)1);
