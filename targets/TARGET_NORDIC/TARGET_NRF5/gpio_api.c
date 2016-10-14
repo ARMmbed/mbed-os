@@ -20,7 +20,11 @@
 #include "nrf_drv_gpiote.h"
 
 
-#define GPIO_PIN_COUNT 31
+#if defined(TARGET_MCU_NRF51822)
+    #define GPIO_PIN_COUNT 31
+#else
+    #define GPIO_PIN_COUNT 32
+#endif
 
 typedef struct {
     bool         used_as_gpio : 1;
