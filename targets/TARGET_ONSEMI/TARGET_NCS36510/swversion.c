@@ -7,11 +7,11 @@
 * $Rev: 2199 $
 * $Date: 2013-08-07 12:17:27 +0200 (Wed, 07 Aug 2013) $
 ******************************************************************************
- * Copyright 2016 Semiconductor Components Industries LLC (d/b/a “ON Semiconductor”).
+ * Copyright 2016 Semiconductor Components Industries LLC (d/b/a "ON Semiconductor").
  * All rights reserved.  This software and/or documentation is licensed by ON Semiconductor
  * under limited terms and conditions.  The terms and conditions pertaining to the software
  * and/or documentation are available at http://www.onsemi.com/site/pdf/ONSEMI_T&C.pdf
- * (“ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Software”) and
+ * ("ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Software") and
  * if applicable the software license agreement.  Do not use this software and/or
  * documentation unless you have carefully read and you agree to the limited terms and
  * conditions.  By using this software and/or documentation, you agree to the limited
@@ -37,7 +37,7 @@
 *                                                                                                *
 *************************************************************************************************/
 
-#ifdef IAR
+#ifdef __ICCARM__
 /** Define a fib table constant region, to be located at fixed offset in the binary
  * such that flash loader knows where to find it and gets the build dependent data
  * it needs for programming the new fib.
