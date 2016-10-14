@@ -86,7 +86,7 @@ void fGpioHandler(void)
 {
     uint8_t index;
     uint32_t active_interrupts = 0;
-    gpio_irq_event event;
+    gpio_irq_event event = IRQ_NONE;
     GpioReg_pt gpioBase;
 
     /* Enable the GPIO clock */
@@ -108,12 +108,9 @@ void fGpioHandler(void)
                 if ((gpioBase->IRQ_POLARITY_SET >> index) &0x01)  {
                     /* Edge triggered high */
                     event = IRQ_RISE;
-                } else if ((gpioBase->IRQ_POLARITY_CLEAR >> index) &0x01) {
+                } else {
                     /* Edge triggered low */
                     event = IRQ_FALL;
-                } else {
-                    /* Edge none */
-                    event = IRQ_NONE;
                 }
             }
             gpioBase->IRQ_CLEAR = (0x1 << index);
@@ -156,10 +153,6 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->GPIOMEMBASE = GPIOREG;
 
     /* Set default values for the pin interrupt */
-    /* TODO: Only one DIO line is configured using this function; overrides other DIO line setting
-     * If mbed layer wants to call this function repeatedly for setting multiple DIO lines as input
-     * then change this setting to  obj->GPIOMEMBASE->W_IN |= obj->pinMask. All parameter setting needs to change from = to |=
-     */
     obj->GPIOMEMBASE->W_IN = obj->pinMask;
     obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
     obj->GPIOMEMBASE->IRQ_POLARITY_SET = obj->pinMask;
@@ -185,8 +178,8 @@ void gpio_irq_free(gpio_irq_t *obj)
         CLOCK_ENABLE(CLOCK_GPIO);
     }
 
-    /* Make the pin as output in order to release it */
-    obj->GPIOMEMBASE->W_OUT = obj->pinMask;
+    /* Disable IRQs to indicate that it is now free */
+    obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
     gpioIds[obj->pin] = 0;
 }
 
@@ -198,7 +191,6 @@ void gpio_irq_free(gpio_irq_t *obj)
  */
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-
     /* Enable the GPIO clock */
     if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
         CLOCK_ENABLE(CLOCK_GPIO);
@@ -266,6 +258,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
  */
 void gpio_irq_disable(gpio_irq_t *obj)
 {
+
     /* Enable the GPIO clock */
     if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
         CLOCK_ENABLE(CLOCK_GPIO);
