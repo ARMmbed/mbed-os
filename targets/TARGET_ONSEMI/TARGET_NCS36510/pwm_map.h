@@ -79,10 +79,10 @@ typedef struct {
     __IO uint32_t DUTYCYCLE;
     union {
         struct {
-            __O uint32_t ENABLE :8;	/**< Write any value to enable PWM output */
-            __I uint32_t PAD :1;	/** < Pad */
-            __I uint32_t ENABLE_STATE :1;	/**< Current state of pwmEnable configuration bit.  ‘1’ PWM output is enabled.  ‘0’ PWN output is disabled. */
-            __I uint32_t OUTPUT_STATE :1;	/**< Current state of PWM output */
+            __O uint32_t ENABLE :8;          /**< Write any value to enable PWM output */
+            __I uint32_t PAD :1;             /** < Pad */
+            __I uint32_t ENABLE_STATE :1;    /**< Current state of pwmEnable configuration bit.  ‘1’ PWM output is enabled.  ‘0’ PWN output is disabled. */
+            __I uint32_t OUTPUT_STATE :1;    /**< Current state of PWM output */
         } BITS;
         __IO uint32_t WORD;
     } PWM_ENABLE;

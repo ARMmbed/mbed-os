@@ -14,7 +14,7 @@ LR_IROM1 0x00000000 0x200000  {    ; load region size_region
     }
 
     ; [RAM] Vector table dynamic copy: 65 vectors * 4 bytes = 260 (0x104) + 4
-	; for 8 byte alignment
+    ; for 8 byte alignment
     RW_IRAM1 (0x20000000+0x108) (0x40000-0x108)  {  ; RW data
         .ANY (+RW +ZI)
     }

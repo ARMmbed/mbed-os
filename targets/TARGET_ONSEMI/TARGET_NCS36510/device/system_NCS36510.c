@@ -44,8 +44,9 @@ uint32_t SystemCoreClock = __SYSTEM_CLOCK;/*!< System Clock Frequency (Core Cloc
   Clock functions
  *----------------------------------------------------------------------------*/
 void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
-{ /*Function not implimented */
-  SystemCoreClock = __SYSTEM_CLOCK;
+{
+    /*Function not implimented */
+    SystemCoreClock = __SYSTEM_CLOCK;
 }
 
 /**
@@ -60,7 +61,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 void SystemInit (void)
 {
 
-  SystemCoreClock = __SYSTEM_CLOCK;
+    SystemCoreClock = __SYSTEM_CLOCK;
 
-  fNcs36510Init();
+    fNcs36510Init();
 }

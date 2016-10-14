@@ -39,13 +39,13 @@
 *                                                                                                *
 *************************************************************************************************/
 
-#define CONFIGURE_AS_GPIO		(uint8_t)0x00
-#define CONFIGURE_AS_RESERVED_0	(uint8_t)0x01
-#define CONFIGURE_AS_RESERVED_1	(uint8_t)0x02
-#define CONFIGURE_AS_RESERVED_2	(uint8_t)0x03
-#define CONFIGURE_AS_PWM		(uint8_t)0x04
-#define CONFIGURE_AS_I2C		(uint8_t)0x05
-#define CONFIGURE_AS_SPI		(uint8_t)0x06
-#define CONFIGURE_AS_UART		(uint8_t)0x07
+#define CONFIGURE_AS_GPIO        (uint8_t)0x00
+#define CONFIGURE_AS_RESERVED_0  (uint8_t)0x01
+#define CONFIGURE_AS_RESERVED_1  (uint8_t)0x02
+#define CONFIGURE_AS_RESERVED_2  (uint8_t)0x03
+#define CONFIGURE_AS_PWM         (uint8_t)0x04
+#define CONFIGURE_AS_I2C         (uint8_t)0x05
+#define CONFIGURE_AS_SPI         (uint8_t)0x06
+#define CONFIGURE_AS_UART        (uint8_t)0x07
 
 #endif //_CROSSBAR_H_

@@ -21,22 +21,24 @@
 #include "nu_miscutil.h"
 #include "critical.h"
 
+// us_ticker tick = us = timestamp
 #define US_PER_TICK             1
+#define US_PER_SEC              (1000 * 1000)
 
-// NOTE: mbed-drivers-test-timeout test requires 100 us timer granularity.
-// NOTE: us_ticker will alarm the system for its counting, so make the counting period as long as possible for better power saving.
-#define US_PER_TMR0HIRES_INT    (1000 * 1000 * 10)
-#define TMR0HIRES_FIRE_FREQ     (1000 * 1000 / US_PER_TMR0HIRES_INT)
-#define US_PER_TMR0HIRES_CLK    1
-#define TMR0HIRES_CLK_FREQ      (1000 * 1000 / US_PER_TMR0HIRES_CLK)
+#define TMR0HIRES_CLK_PER_SEC           (1000 * 1000)
+#define TMR1HIRES_CLK_PER_SEC           (1000 * 1000)
+#define TMR1LORES_CLK_PER_SEC           (__LIRC)
 
-#define US_PER_TMR1LORES_CLK    100
-#define TMR1LORES_CLK_FREQ      (1000 * 1000 / US_PER_TMR1LORES_CLK)
-#define US_PER_TMR1HIRES_CLK    1
-#define TMR1HIRES_CLK_FREQ      (1000 * 1000 / US_PER_TMR1HIRES_CLK)
+#define US_PER_TMR0HIRES_CLK            (US_PER_SEC / TMR0HIRES_CLK_PER_SEC)
+#define US_PER_TMR1HIRES_CLK            (US_PER_SEC / TMR1HIRES_CLK_PER_SEC)
+#define US_PER_TMR1LORES_CLK            (US_PER_SEC / TMR1LORES_CLK_PER_SEC)
+
+#define US_PER_TMR0HIRES_INT            (1000 * 1000 * 10)
+#define TMR0HIRES_CLK_PER_TMR0HIRES_INT ((uint32_t) ((uint64_t) US_PER_TMR0HIRES_INT * TMR0HIRES_CLK_PER_SEC / US_PER_SEC))
+
 
 // Determine to use lo-res/hi-res timer according to CD period
-#define CD_TMR_SEP_US       1000
+#define US_TMR_SEP_CD       1000
 
 static void tmr0_vec(void);
 static void tmr1_vec(void);
@@ -45,8 +47,8 @@ static void us_ticker_arm_cd(void);
 static int us_ticker_inited = 0;
 static volatile uint32_t counter_major = 0;
 static volatile uint32_t pd_comp_us = 0;    // Power-down compenstaion for normal counter
-static volatile int cd_major_minor_us = 0;
-static volatile int cd_minor_us = 0;
+static volatile uint32_t cd_major_minor_us = 0;
+static volatile uint32_t cd_minor_us = 0;
 static volatile int cd_hires_tmr_armed = 0; // Flag of armed or not of hi-res timer for CD counter
 
 // NOTE: PCLK is set up in mbed_sdk_init(), invocation of which must be before C++ global object constructor. See init_api.c for details.
@@ -88,9 +90,10 @@ void us_ticker_init(void)
 
     // Timer for normal counter
     uint32_t clk_timer0 = TIMER_GetModuleClock((TIMER_T *) NU_MODBASE(timer0hires_modinit.modname));
-    uint32_t prescale_timer0 = clk_timer0 / TMR0HIRES_CLK_FREQ - 1;
+    uint32_t prescale_timer0 = clk_timer0 / TMR0HIRES_CLK_PER_SEC - 1;
     MBED_ASSERT((prescale_timer0 != (uint32_t) -1) && prescale_timer0 <= 127);
-    uint32_t cmp_timer0 = US_PER_TMR0HIRES_INT / US_PER_TMR0HIRES_CLK;
+    MBED_ASSERT((clk_timer0 % TMR0HIRES_CLK_PER_SEC) == 0);
+    uint32_t cmp_timer0 = TMR0HIRES_CLK_PER_TMR0HIRES_INT;
     MBED_ASSERT(cmp_timer0 >= TMR_CMP_MIN && cmp_timer0 <= TMR_CMP_MAX);
     ((TIMER_T *) NU_MODBASE(timer0hires_modinit.modname))->CTL = TIMER_PERIODIC_MODE | prescale_timer0 | TIMER_CTL_CNTDATEN_Msk;
     ((TIMER_T *) NU_MODBASE(timer0hires_modinit.modname))->CMP = cmp_timer0;
@@ -156,12 +159,21 @@ void us_ticker_clear_interrupt(void)
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer1lores_modinit.modname));
+    cd_hires_tmr_armed = 0;
     
     int delta = (int) (timestamp - us_ticker_read());
-    // NOTE: If this event was in the past, arm an interrupt to be triggered immediately.
-    cd_major_minor_us = delta * US_PER_TICK;
-    
-    us_ticker_arm_cd();
+    if (delta > 0) {
+        cd_major_minor_us = delta * US_PER_TICK;
+        us_ticker_arm_cd();
+    }
+    else {
+        cd_major_minor_us = cd_minor_us = 0;
+        /**
+         * This event was in the past. Set the interrupt as pending, but don't process it here.
+         * This prevents a recurive loop under heavy load which can lead to a stack overflow.
+         */  
+        NVIC_SetPendingIRQ(timer1lores_modinit.irq_n);
+    }
 }
 
 void us_ticker_prepare_sleep(struct sleep_s *obj)
@@ -205,9 +217,9 @@ static void tmr0_vec(void)
 static void tmr1_vec(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(timer1lores_modinit.modname));
-    cd_major_minor_us -= cd_minor_us;
+    cd_major_minor_us = (cd_major_minor_us > cd_minor_us) ? (cd_major_minor_us - cd_minor_us) : 0;
     cd_hires_tmr_armed = 0;
-    if (cd_major_minor_us <= 0) {
+    if (cd_major_minor_us == 0) {
         // NOTE: us_ticker_set_interrupt() may get called in us_ticker_irq_handler();
         us_ticker_irq_handler();
     }
@@ -219,22 +231,22 @@ static void tmr1_vec(void)
 static void us_ticker_arm_cd(void)
 {
     TIMER_T * timer1_base = (TIMER_T *) NU_MODBASE(timer1lores_modinit.modname);
-    uint32_t tmr1_clk_freq;
+    uint32_t tmr1_clk_per_sec;
     uint32_t us_per_tmr1_clk;
     
     /**
-     * Reserve CD_TMR_SEP_US-plus alarm period for hi-res timer
-     * 1. period >= CD_TMR_SEP_US * 2. Divide into two rounds:
-     *    CD_TMR_SEP_US * n (lo-res timer)
-     *    CD_TMR_SEP_US + period % CD_TMR_SEP_US (hi-res timer)
-     * 2. period < CD_TMR_SEP_US * 2. Just one round:
+     * Reserve US_TMR_SEP_CD-plus alarm period for hi-res timer
+     * 1. period >= US_TMR_SEP_CD * 2. Divide into two rounds:
+     *    US_TMR_SEP_CD * n (lo-res timer)
+     *    US_TMR_SEP_CD + period % US_TMR_SEP_CD (hi-res timer)
+     * 2. period < US_TMR_SEP_CD * 2. Just one round:
      *    period (hi-res timer)
      */
-    if (cd_major_minor_us >= CD_TMR_SEP_US * 2) {
-        cd_minor_us = cd_major_minor_us - cd_major_minor_us % CD_TMR_SEP_US - CD_TMR_SEP_US;
+    if (cd_major_minor_us >= US_TMR_SEP_CD * 2) {
+        cd_minor_us = cd_major_minor_us - cd_major_minor_us % US_TMR_SEP_CD - US_TMR_SEP_CD;
         
         CLK_SetModuleClock(timer1lores_modinit.clkidx, timer1lores_modinit.clksrc, timer1lores_modinit.clkdiv);
-        tmr1_clk_freq = TMR1LORES_CLK_FREQ;
+        tmr1_clk_per_sec = TMR1LORES_CLK_PER_SEC;
         us_per_tmr1_clk = US_PER_TMR1LORES_CLK;
         
         cd_hires_tmr_armed = 0;
@@ -243,7 +255,7 @@ static void us_ticker_arm_cd(void)
         cd_minor_us = cd_major_minor_us;
         
         CLK_SetModuleClock(timer1hires_modinit.clkidx, timer1hires_modinit.clksrc, timer1hires_modinit.clkdiv);
-        tmr1_clk_freq = TMR1HIRES_CLK_FREQ;
+        tmr1_clk_per_sec = TMR1HIRES_CLK_PER_SEC;
         us_per_tmr1_clk = US_PER_TMR1HIRES_CLK;
         
         cd_hires_tmr_armed = 1;
@@ -253,13 +265,15 @@ static void us_ticker_arm_cd(void)
     timer1_base->CTL |= TIMER_CTL_RSTCNT_Msk;
     // One-shot mode, Clock = 1 MHz 
     uint32_t clk_timer1 = TIMER_GetModuleClock((TIMER_T *) NU_MODBASE(timer1lores_modinit.modname));
-    uint32_t prescale_timer1 = clk_timer1 / tmr1_clk_freq - 1;
+    uint32_t prescale_timer1 = clk_timer1 / tmr1_clk_per_sec - 1;
     MBED_ASSERT((prescale_timer1 != (uint32_t) -1) && prescale_timer1 <= 127);
+    MBED_ASSERT((clk_timer1 % tmr1_clk_per_sec) == 0);
     timer1_base->CTL &= ~(TIMER_CTL_OPMODE_Msk | TIMER_CTL_PSC_Msk | TIMER_CTL_CNTDATEN_Msk);
     timer1_base->CTL |= TIMER_ONESHOT_MODE | prescale_timer1 | TIMER_CTL_CNTDATEN_Msk;
     
-    cd_minor_us = NU_CLAMP(cd_minor_us, TMR_CMP_MIN * us_per_tmr1_clk, TMR_CMP_MAX * us_per_tmr1_clk);
-    timer1_base->CMP = cd_minor_us / us_per_tmr1_clk;
+    uint32_t cmp_timer1 = cd_minor_us / us_per_tmr1_clk;
+    cmp_timer1 = NU_CLAMP(cmp_timer1, TMR_CMP_MIN, TMR_CMP_MAX);
+    timer1_base->CMP = cmp_timer1;
     
     TIMER_EnableInt(timer1_base);
     TIMER_Start(timer1_base);

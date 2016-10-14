@@ -61,10 +61,10 @@
  *    Entry 16 <-> Channel 26
  *
  * Each entry is compound of 4 items.
- * 	  Item 0: Rx Frequency integer divide portion
- * 	  Item 1: Rx Frequency fractional divide portion
- * 	  Item 2: Tx Frequency integer divide portion
- * 	  Item 3: Tx Frequency fractional divide portion
+ *       Item 0: Rx Frequency integer divide portion
+ *       Item 1: Rx Frequency fractional divide portion
+ *       Item 2: Tx Frequency integer divide portion
+ *       Item 3: Tx Frequency fractional divide portion
  *
  * The tx power table is used to program internal hardware register for different 15.4 tx power levels.
  * It has 43 entries corresponding to tx power levels from -32dBm to +10dBm.
@@ -100,7 +100,7 @@ const uint32_t rfLut[16][4] =  {{0x50,0x00D4A7,0x4B,0x00A000},
     {0x53,0xFED4A6,0x4E,0xFDFFFE}
 };
 
-const uint8_t txPowerLut[43]  =	 {0,0,0, // -32dBm to -30dBm
+const uint8_t txPowerLut[43]  =  {0,0,0, // -32dBm to -30dBm
                                   0,0,0,0,0,0,0,0,0,0, // -29dBm to -20dBm
                                   0,0,0,0,0,0,0,0,1,2, // -19dBm to -10dBm
                                   3,4,5,6,7,8,9,10,11,12, // -9dBm to 0dBm
@@ -130,7 +130,7 @@ const uint32_t rfLut[16][4] =  {{0x47,0xFF15FC,0x4B,0x00A000},
     {0x49,0xFFE8CF,0x4E,0xFDFFFE}
 };
 
-const uint8_t txPowerLut[43]  =	 {0,0,0, // -32dBm to -30dBm
+const uint8_t txPowerLut[43]  =  {0,0,0, // -32dBm to -30dBm
                                   0,0,0,0,0,0,0,0,0,0, // -29dBm to -20dBm
                                   0,0,0,0,0,0,1,1,2,2, // -19dBm to -10dBm (clamp low at -14dB)
                                   3,3,4,6,7,9,10,12,13,15, // -9dBm to 0dBm
@@ -141,7 +141,7 @@ const uint8_t txPowerLut[43]  =	 {0,0,0, // -32dBm to -30dBm
 #ifdef REVB
 /** This rf LUT is built for low side injection, using high side injection
  * would requiere to change this LUT. */
-const uint32_t rfLut[16][4] =	{{0x47,0xFF15FC,0x4B,0x00A000},
+const uint32_t rfLut[16][4] =  {{0x47,0xFF15FC,0x4B,0x00A000},
     {0x47,0xFFAC93,0x4B,0x014001},
     {0x47,0x00432A,0x4B,0x01E001},
     {0x47,0x00D9C1,0x4C,0xFE7FFF},
@@ -159,7 +159,7 @@ const uint32_t rfLut[16][4] =	{{0x47,0xFF15FC,0x4B,0x00A000},
     {0x49,0xFFE8CF,0x4E,0xFDFFFE}
 };
 
-const uint8_t txPowerLut[43]  =	 {0,0,0, // -32dBm to -30dBm
+const uint8_t txPowerLut[43]  =  {0,0,0, // -32dBm to -30dBm
                                   0,0,0,0,0,0,0,0,0,0, // -29dBm to -20dBm
                                   0,0,0,0,0,0,1,1,2,2, // -19dBm to -10dBm (clamp low at -14dB)
                                   3,3,4,6,7,9,10,12,13,15, // -9dBm to 0dBm
@@ -168,7 +168,7 @@ const uint8_t txPowerLut[43]  =	 {0,0,0, // -32dBm to -30dBm
 #endif
 
 #ifdef REVA
-const uint32_t rfLut[16][4] =	{{0x57,0xFF5D2F,0x51,0x018001},
+const uint32_t rfLut[16][4] =  {{0x57,0xFF5D2F,0x51,0x018001},
     {0x57,0x0007DA,0x52,0xFE1FFF},
     {0x57,0x00B285,0x52,0xFEBFFF},
     {0x57,0x015D30,0x52,0xFF6000},
@@ -186,7 +186,7 @@ const uint32_t rfLut[16][4] =	{{0x57,0xFF5D2F,0x51,0x018001},
     {0x59,0x015D30,0x53,0xFEDFFF}
 };
 
-const uint8_t txPowerLut[43]  =	 {1,2,3, // -32dBm to -30dBm
+const uint8_t txPowerLut[43]  =  {1,2,3, // -32dBm to -30dBm
                                   4,5,5,5,5,5,5,5,5,5, // -29dBm to -20dBm (clamp at -28dB)
                                   5,5,5,5,5,5,5,5,5,5, // -19dBm to -10dBm
                                   5,5,5,5,5,5,5,5,5,5, // -9dBm to 0dBm

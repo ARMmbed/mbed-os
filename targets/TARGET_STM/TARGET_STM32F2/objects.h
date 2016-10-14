@@ -85,17 +85,18 @@ struct serial_s {
 };
 
 struct spi_s {
+    SPI_HandleTypeDef handle;
+    IRQn_Type spiIRQ;
     SPIName spi;
-    uint32_t bits;
-    uint32_t cpol;
-    uint32_t cpha;
-    uint32_t mode;
-    uint32_t nss;
-    uint32_t br_presc;
     PinName pin_miso;
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
+#ifdef DEVICE_SPI_ASYNCH
+    uint32_t event;
+    uint8_t module;
+    uint8_t transfer_type;
+#endif
 };
 
 struct i2c_s {

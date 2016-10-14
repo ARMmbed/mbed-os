@@ -108,18 +108,18 @@ boolean fPadIOCtrl(uint8_t PadNum, uint8_t OutputDriveStrength, uint8_t OutputDr
 {
     PadReg_t *PadRegOffset;
     /** \verbatim
-    	Table: O/p drive strength
+        Table: O/p drive strength
 
-    		Drive strength	3.3V (min/typ/max)	1V (min/typ/max)
-    		000  	 		1/1.4/2.1 mA		0.043/0.07/0.11 mA
-    		001  	 		2/2.7/4.1 mA		0.086/0.15/0.215 mA
-    		010  	 		4.1/5.3/7.8 mA		0.188/0.3/0.4 mA
-    		011  	 		8.1/10.4/15 8 mA	0.4/0.6/0.81 mA
-    		100  	 		20.8/26/37 mA*		1/1.6/2.2 mA
-    		101  	 		40.5/50/70 mA*	    2/3/4.3 mA
-    		11x  	 		57/73/102 mA*   	3/4.6/6.2 mA
+            Drive strength    3.3V (min/typ/max)    1V (min/typ/max)
+            000               1/1.4/2.1 mA        0.043/0.07/0.11 mA
+            001               2/2.7/4.1 mA        0.086/0.15/0.215 mA
+            010               4.1/5.3/7.8 mA        0.188/0.3/0.4 mA
+            011               8.1/10.4/15 8 mA    0.4/0.6/0.81 mA
+            100               20.8/26/37 mA*        1/1.6/2.2 mA
+            101               40.5/50/70 mA*        2/3/4.3 mA
+            11x               57/73/102 mA*       3/4.6/6.2 mA
 
-    	*Values are only accessible when CDBGPWRUPREQ is high.  This limits the maximum output current in functional mode. \endverbatim */
+        *Values are only accessible when CDBGPWRUPREQ is high.  This limits the maximum output current in functional mode. \endverbatim */
 
 
     if((PadNum  <= PAD_NUM_OF_IO) &&

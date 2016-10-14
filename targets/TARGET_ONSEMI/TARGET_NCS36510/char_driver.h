@@ -42,8 +42,8 @@
 
 #include "driver.h"
 
-#define DRV_NO_ERROR			(True)
-#define DRV_ERROR				(False)
+#define DRV_NO_ERROR       (True)
+#define DRV_ERROR          (False)
 
 /** A character driver structure. */
 typedef struct char_driver {

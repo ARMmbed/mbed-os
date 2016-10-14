@@ -1,4 +1,4 @@
-;/**************************************************************************//**
+;/******************************************************************************
 ; * @file     startup_ARMCM3.s
 ; * @brief    CMSIS Cortex-M4 Core Device Startup File
 ; *           for CM3 Device Series
@@ -91,32 +91,32 @@ __vector_table_0x1c
         DCD     SysTick_Handler
 
         ; External Interrupts
-        DCD		fIrqTim0Handler
-        DCD		fIrqTim1Handler
-        DCD		fIrqTim2Handler
-        DCD		fIrqUart1Handler
-        DCD		fIrqSpiHandler
-        DCD		fIrqI2CHandler
-        DCD		fIrqGpioHandler
-        DCD		fIrqRtcHandler
-        DCD		fIrqFlashHandler
-        DCD		fIrqMacHwHandler
-        DCD		fIrqAesHandler
-        DCD		fIrqAdcHandler
-        DCD		fIrqClockCalHandler
-        DCD		fIrqUart2Handler
-        DCD		fIrqUviHandler
-        DCD		fIrqDmaHandler
-       	DCD		fIrqDbgPwrUpHandler
-       	/* REV C/D interrupts */
-       	DCD		fIrqSpi2Handler
-       	DCD		fIrqI2c2Handler
-       	DCD		FIrqFVDDHCompHandler	/* FVDDH Supply Comparator Trip */
+        DCD        fIrqTim0Handler
+        DCD        fIrqTim1Handler
+        DCD        fIrqTim2Handler
+        DCD        fIrqUart1Handler
+        DCD        fIrqSpiHandler
+        DCD        fIrqI2CHandler
+        DCD        fIrqGpioHandler
+        DCD        fIrqRtcHandler
+        DCD        fIrqFlashHandler
+        DCD        fIrqMacHwHandler
+        DCD        fIrqAesHandler
+        DCD        fIrqAdcHandler
+        DCD        fIrqClockCalHandler
+        DCD        fIrqUart2Handler
+        DCD        fIrqUviHandler
+        DCD        fIrqDmaHandler
+        DCD        fIrqDbgPwrUpHandler
+        /* REV C/D interrupts */
+        DCD        fIrqSpi2Handler
+        DCD        fIrqI2c2Handler
+        DCD        FIrqFVDDHCompHandler    /* FVDDH Supply Comparator Trip */
 #endif
 __Vectors_End
 
 __Vectors       EQU   __vector_table
-__Vectors_Size 	EQU   __Vectors_End - __Vectors
+__Vectors_Size  EQU   __Vectors_End - __Vectors
 
 opt:        DC32     0x2082353F /* Full featured device */
 opt_reg:    DC32     0x4001E000
@@ -292,7 +292,7 @@ fIrqUviHandler
 fIrqSpi2Handler
         B fIrqSpi2Handler
 
-	PUBWEAK fIrqI2c2Handler
+        PUBWEAK fIrqI2c2Handler
         SECTION .text:CODE:REORDER(1)
 fIrqI2c2Handler
         B fIrqI2c2Handler
@@ -302,7 +302,7 @@ fIrqI2c2Handler
 FIrqFVDDHCompHandler
         B FIrqFVDDHCompHandler
 
-	PUBWEAK DEF_IRQHandler
+        PUBWEAK DEF_IRQHandler
         SECTION .text:CODE:REORDER(1)
 DEF_IRQHandler
         B DEF_IRQHandler

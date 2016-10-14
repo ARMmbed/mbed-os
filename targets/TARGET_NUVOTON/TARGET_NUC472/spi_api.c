@@ -116,7 +116,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
 
-    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+    //SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);

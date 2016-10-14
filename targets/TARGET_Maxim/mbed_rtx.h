@@ -50,7 +50,7 @@
 #elif defined(TARGET_MAX32620)
 
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
+#define INITIAL_SP              (0x20040000UL)
 #endif
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              14
@@ -59,7 +59,7 @@
 #define OS_MAINSTKSIZE          256
 #endif
 #ifndef OS_CLOCK
-#define OS_CLOCK                96000000
+#define OS_CLOCK                48000000
 #endif
 
 #endif

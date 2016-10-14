@@ -35,14 +35,14 @@
 #include "sleep_api.h"
 #include "cmsis_nvic.h"
 
-#define ENABLE			(uint8_t)0x01
-#define DISABLE 		(uint8_t)0x00
-#define MAC_LUT_SIZE	(uint8_t)96
+#define ENABLE          (uint8_t)0x01
+#define DISABLE         (uint8_t)0x00
+#define MAC_LUT_SIZE    (uint8_t)96
 
-#define portNVIC_SYSTICK_CTRL_REG			( * ( ( volatile unsigned long * ) 0xe000e010 ) )
-#define portNVIC_SYSTICK_CLK_BIT			( 1UL << 2UL )
-#define portNVIC_SYSTICK_INT_BIT			( 1UL << 1UL )
-#define portNVIC_SYSTICK_ENABLE_BIT			( 1UL << 0UL )
+#define portNVIC_SYSTICK_CTRL_REG           ( * ( ( volatile unsigned long * ) 0xe000e010 ) )
+#define portNVIC_SYSTICK_CLK_BIT            ( 1UL << 2UL )
+#define portNVIC_SYSTICK_INT_BIT            ( 1UL << 1UL )
+#define portNVIC_SYSTICK_ENABLE_BIT         ( 1UL << 0UL )
 
 void sleep(void)
 {
@@ -79,7 +79,7 @@ void coma(void)
     PMUREG->CONTROL.BITS.ENCOMA = ENABLE;
 
     /* TODO Wait till MAC is idle */
-    //		while((MACHWREG->SEQUENCER == MACHW_SEQ_TX) || (MACHWREG->SEQUENCER == MACHW_SEQ_ED) || (MACHWREG->SEQUENCER == MACHW_SEQ_CCA));
+    //        while((MACHWREG->SEQUENCER == MACHW_SEQ_TX) || (MACHWREG->SEQUENCER == MACHW_SEQ_ED) || (MACHWREG->SEQUENCER == MACHW_SEQ_CCA));
 
     /* TODO Back up MAC_LUT *
     uint8_t MAC_LUT_BackUp[MAC_LUT_SIZE];

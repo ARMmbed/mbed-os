@@ -33,6 +33,6 @@
 #include <stdint.h>
 
 typedef uint8_t error;
-#define NO_ERROR		(0xFF)
+#define NO_ERROR        (0xFF)
 
 #endif /* ERROR_H_ */

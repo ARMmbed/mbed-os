@@ -60,7 +60,9 @@ struct analogin_s {
     uint8_t channel;
 };
 
-
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
 
 #include "common_objects.h"
 struct can_s {

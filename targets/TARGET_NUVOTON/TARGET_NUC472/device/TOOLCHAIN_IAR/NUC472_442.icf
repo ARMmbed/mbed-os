@@ -26,7 +26,7 @@ define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 /* NOTE: Vector table base requires to be aligned to the power of vector table size. Give a safe value here. */
 define block IRAMVEC   with alignment = 1024, size = 4 * (16 + 142)         { };
 /* Move non-critical libraries to external SRAM while internal SRAM is insufficient. */
-define block XRAM_NC   with alignment = 8                                   { readwrite object sal-stack-lwip.a };
+define block XRAM_NC   with alignment = 8                                   { zeroinit object *lwip_*, zeroinit object *mesh_system.o };
 
 
 initialize by copy { readwrite };

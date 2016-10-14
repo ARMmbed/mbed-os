@@ -68,7 +68,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Enable I2C1 clock and pinout if not done
     if ((obj_s->i2c == I2C_1) && !i2c1_inited) {
         i2c1_inited = 1;
-        __I2C1_CLK_ENABLE();
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -78,11 +77,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
 #endif
+        __I2C1_CLK_ENABLE();
     }
     // Enable I2C2 clock and pinout if not done
     if ((obj_s->i2c == I2C_2) && !i2c2_inited) {
         i2c2_inited = 1;
-        __I2C2_CLK_ENABLE();
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -92,12 +91,12 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
 #endif
+        __I2C2_CLK_ENABLE();
     }
 #if defined I2C3_BASE
     // Enable I2C3 clock and pinout if not done
     if ((obj_s->i2c == I2C_3) && !i2c3_inited) {
         i2c3_inited = 1;
-        __I2C3_CLK_ENABLE();
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -107,6 +106,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->event_i2cIRQ = I2C3_EV_IRQn;
         obj_s->error_i2cIRQ = I2C3_ER_IRQn;
 #endif
+        __I2C3_CLK_ENABLE();
     }
 #endif
 
@@ -114,7 +114,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Enable I2C3 clock and pinout if not done
     if ((obj_s->i2c == FMPI2C_1) && !fmpi2c1_inited) {
         fmpi2c1_inited = 1;
-        __HAL_RCC_FMPI2C1_CLK_ENABLE();
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -124,6 +123,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->event_i2cIRQ = FMPI2C1_EV_IRQn;
         obj_s->error_i2cIRQ = FMPI2C1_ER_IRQn;
 #endif
+        __HAL_RCC_FMPI2C1_CLK_ENABLE();
     }
 #endif
 
@@ -150,8 +150,6 @@ void i2c_frequency(i2c_t *obj, int hz)
     int timeout;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
-
-    handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
 
     MBED_ASSERT((hz > 0) && (hz <= 400000));
 
@@ -212,20 +210,8 @@ inline int i2c_start(i2c_t *obj) {
 }
 
 inline int i2c_stop(i2c_t *obj) {
-
-    int timeout;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-
-    //Wait Byte transfer finished before sending stop
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return 0;
-        }
-    }
 
     // Generate the STOP condition
     i2c->CR1 |= I2C_CR1_STOP;
@@ -361,7 +347,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
 
     handle->Instance->DR = (uint8_t)data;
 
-    // Wait until the byte (might be the adress) is transmitted
+    // Wait until the byte (might be the address) is transmitted
     timeout = FLAG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXE) == RESET) &&
             (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET) &&
@@ -384,6 +370,8 @@ void i2c_reset(i2c_t *obj) {
     int timeout;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+
+    handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
 
     // wait before reset
     timeout = LONG_TIMEOUT;
@@ -569,7 +557,6 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
             return -1;
         }
     }
-
 
     /* Clear AF flag */
     __HAL_I2C_CLEAR_FLAG(handle, I2C_FLAG_AF);

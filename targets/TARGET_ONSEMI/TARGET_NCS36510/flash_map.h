@@ -41,11 +41,11 @@
 typedef struct {
     union {
         struct {
-            __I uint32_t FLASH_A_BUSY:1;		/**< Busy A */
-            __I uint32_t FLASH_B_BUSY:1;		/**< Busy B */
-            __I uint32_t FLASH_A_UNLOCK:1;	/**< Unlock A */
-            __I uint32_t FLASH_B_UNLOCK:1;	/**< Unlock B */
-            __I uint32_t FLASH_ERROR:3;		/**< 000 – No Error, 111 – Attempt to access an array while it is busy powering up, 001 – Attempt to erase bootloader in the field, 010 – Attempt to access array during erase, 100 – Attempt to access array during write */
+            __I uint32_t FLASH_A_BUSY:1;      /**< Busy A */
+            __I uint32_t FLASH_B_BUSY:1;      /**< Busy B */
+            __I uint32_t FLASH_A_UNLOCK:1;    /**< Unlock A */
+            __I uint32_t FLASH_B_UNLOCK:1;    /**< Unlock B */
+            __I uint32_t FLASH_ERROR:3;       /**< 000 – No Error, 111 – Attempt to access an array while it is busy powering up, 001 – Attempt to erase bootloader in the field, 010 – Attempt to access array during erase, 100 – Attempt to access array during write */
         } BITS;
         __I uint32_t WORD;
     } STATUS;
