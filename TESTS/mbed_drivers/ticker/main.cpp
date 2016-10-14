@@ -18,6 +18,7 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 
+
 using namespace utest::v1;
 
 static const int ONE_SECOND_MS = 1000;
@@ -141,7 +142,7 @@ Case cases[] = {
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP((total_ticks + 5) * 3, "timing_drift_auto");
+    GREENTEA_SETUP((total_ticks + 5) * 3, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
