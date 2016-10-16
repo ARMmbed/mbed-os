@@ -4045,6 +4045,7 @@ static int32_t cfstore_uninitialise(void)
             CFSTORE_FREE(ctx->area_0_head);
             ctx->area_0_head = NULL;
             ctx->area_0_tail = NULL;
+            ctx->area_0_len = 0;
         }
     }
 out:
