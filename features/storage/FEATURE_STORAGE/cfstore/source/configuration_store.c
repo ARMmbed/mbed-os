@@ -1294,6 +1294,7 @@ static int32_t cfstore_get_next_hkvt(cfstore_area_hkvt_t* prev, cfstore_area_hkv
 
 	CFSTORE_ASSERT(prev != NULL);
     CFSTORE_ASSERT(next != NULL);
+    CFSTORE_ASSERT(prev->tail <= ctx->area_0_tail);
 
     if(prev->tail == ctx->area_0_tail){
         CFSTORE_TP(CFSTORE_TP_VERBOSE1, "%s:reached the end of the list. return NULL entry\n", __func__);
@@ -1433,6 +1434,14 @@ static int32_t cfstore_realloc_ex(ARM_CFSTORE_SIZE size, uint64_t *allocated_siz
         }
 
         ptr = (uint8_t*) CFSTORE_REALLOC((void*) ctx->area_0_head, size);
+        if (ptr == NULL) {
+            if (total_kv_size <= ctx->area_0_len) {
+                /* Size is shrinking so a realloc failure is recoverable.
+                 * Update ptr so it matches the previous head.
+                 */
+                ptr = ctx->area_0_head;
+            }
+        }
         if(ptr == NULL){
             CFSTORE_ERRLOG("%s:Error: unable to allocate memory (size=%d)\n", __func__, (int) size);
             /* realloc() has failed to allocate the required memory object. If previously
