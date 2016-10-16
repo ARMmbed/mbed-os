@@ -83,7 +83,7 @@ static uint64_t rtc_read64(void);
 //******************************************************************************
 static void overflow_handler(void)
 {
-    MXC_RTCTMR->flags |= MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS; 
+    MXC_RTCTMR->flags |= MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
     overflow_cnt++;
 
     // Wait for pending transactions
@@ -271,7 +271,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     MXC_RTCTMR->comp[0] = comp_value;
-    MXC_RTCTMR->flags |= MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS; 
+    MXC_RTCTMR->flags |= MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
     MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0; // enable the interrupt
 
     // Enable wakeup from RTC
@@ -290,7 +290,7 @@ inline void lp_ticker_disable_interrupt(void)
 //******************************************************************************
 inline void lp_ticker_clear_interrupt(void)
 {
-    MXC_RTCTMR->flags |= MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS; 
+    MXC_RTCTMR->flags |= MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
 
     // Wait for pending transactions
     while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);

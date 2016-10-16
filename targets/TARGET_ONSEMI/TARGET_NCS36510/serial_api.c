@@ -89,12 +89,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
     /*TODO: determine if pullups are needed/recommended */
-    /*	if (tx != NC) {
-    			pin_mode(tx, PullUp);
+    /*    if (tx != NC) {
+                pin_mode(tx, PullUp);
       }
-    	if (rx != NC) {
-    			pin_mode(rx, PullUp);
-    	}
+        if (rx != NC) {
+                pin_mode(rx, PullUp);
+        }
     */
     /* Configure IOs to UART using cross bar, pad and GPIO settings */
 
@@ -132,8 +132,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     PadRegOffset = (PadReg_t*)(PADREG_BASE + (rx * PAD_REG_ADRS_BYTE_SIZE));
     PadRegOffset->PADIO0.WORD = PAD_UART_RX;  /* Pad settings for UART Rx */
 
-    GPIOREG->W_OUT	|= (True << tx); /* tx as OUT direction */
-    GPIOREG->W_IN 	|= (True << rx); /* rx as IN directon */
+    GPIOREG->W_OUT    |= (True << tx); /* tx as OUT direction */
+    GPIOREG->W_IN     |= (True << rx); /* rx as IN directon */
 
     CLOCK_DISABLE(CLOCK_PAD);
     CLOCK_DISABLE(CLOCK_CROSSB);
@@ -324,8 +324,8 @@ int serial_getc(serial_t *obj)
 {
     uint8_t c;
 
-    while(!obj->UARTREG->LSR.BITS.READY); 	/* Wait for received data is ready */
-    c = obj->UARTREG->RBR & 0xFF; 			/* Get received character */
+    while(!obj->UARTREG->LSR.BITS.READY);     /* Wait for received data is ready */
+    c = obj->UARTREG->RBR & 0xFF;             /* Get received character */
     return c;
 }
 

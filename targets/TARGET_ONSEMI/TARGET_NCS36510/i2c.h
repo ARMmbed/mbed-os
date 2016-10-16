@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file    i2c.h
- * @brief	(API) Public header of i2c driver
+ * @brief    (API) Public header of i2c driver
  * @internal
  * @author   ON Semiconductor
  * $Rev:  $
@@ -35,61 +35,61 @@
 #include "PeripheralPins.h"
 
 #ifndef I2C_H_
-#define	I2C_H_
+#define    I2C_H_
 
 /* Miscellaneous I/O and control operations codes */
-#define I2C_IPC7208_IOCTL_NOT_ACK		0x03
-#define I2C_IPC7208_IOCTL_NULL_CMD		0x04
-#define I2C_IPC7208_IOCTL_ACK			0x05
+#define I2C_IPC7208_IOCTL_NOT_ACK        0x03
+#define I2C_IPC7208_IOCTL_NULL_CMD       0x04
+#define I2C_IPC7208_IOCTL_ACK            0x05
 
 /* Definitions for the clock speed. */
-#define I2C_SPEED_100K_AT_8MHZ	(uint8_t)0x12
-#define I2C_SPEED_100K_AT_16MHZ	(uint8_t)0x26
-#define I2C_SPEED_400K_AT_8MHZ	(uint8_t)0x03
-#define I2C_SPEED_400K_AT_16MHZ	(uint8_t)0x08
+#define I2C_SPEED_100K_AT_8MHZ     (uint8_t)0x12
+#define I2C_SPEED_100K_AT_16MHZ    (uint8_t)0x26
+#define I2C_SPEED_400K_AT_8MHZ     (uint8_t)0x03
+#define I2C_SPEED_400K_AT_16MHZ    (uint8_t)0x08
 
 
 /* I2C commands */
-#define I2C_CMD_NULL  		0x00
-#define I2C_CMD_WDAT0 		0x10
-#define I2C_CMD_WDAT1 		0x11
-#define I2C_CMD_WDAT8 		0x12
-#define I2C_CMD_RDAT8 		0x13
-#define I2C_CMD_STOP  		0x14
-#define I2C_CMD_START 		0x15
-#define I2C_CMD_VRFY_ACK 	0x16
-#define I2C_CMD_VRFY_VACK  	0x17
+#define I2C_CMD_NULL          0x00
+#define I2C_CMD_WDAT0         0x10
+#define I2C_CMD_WDAT1         0x11
+#define I2C_CMD_WDAT8         0x12
+#define I2C_CMD_RDAT8         0x13
+#define I2C_CMD_STOP          0x14
+#define I2C_CMD_START         0x15
+#define I2C_CMD_VRFY_ACK      0x16
+#define I2C_CMD_VRFY_VACK     0x17
 
 /* Status register bits */
-#define I2C_STATUS_CMD_FIFO_MPTY_BIT 	0x01
-#define I2C_STATUS_RD_DATA_RDY_BIT 		0x02
-#define I2C_STATUS_BUS_ERR_BIT 			0x04
-#define I2C_STATUS_RD_DATA_UFL_BIT 		0x08
-#define I2C_STATUS_CMD_FIFO_OFL_BIT 	0x10
-#define I2C_STATUS_CMD_FIFO_FULL_BIT 	0x20
+#define I2C_STATUS_CMD_FIFO_MPTY_BIT     0x01
+#define I2C_STATUS_RD_DATA_RDY_BIT       0x02
+#define I2C_STATUS_BUS_ERR_BIT           0x04
+#define I2C_STATUS_RD_DATA_UFL_BIT       0x08
+#define I2C_STATUS_CMD_FIFO_OFL_BIT      0x10
+#define I2C_STATUS_CMD_FIFO_FULL_BIT     0x20
 
 /* I2C return status */
-#define I2C_STATUS_INVALID			0xFF
-#define I2C_STATUS_SUCCESS			0x00
-#define I2C_STATUS_FAIL				0x01
-#define I2C_STATUS_BUS_ERROR		0x02
-#define I2C_STATUS_RD_DATA_UFL		0x03
-#define I2C_STATUS_CMD_FIFO_OFL		0x04
-#define I2C_STATUS_INTERRUPT_ERROR	0x05
-#define I2C_STATUS_CMD_FIFO_EMPTY	0x06
+#define I2C_STATUS_INVALID            0xFF
+#define I2C_STATUS_SUCCESS            0x00
+#define I2C_STATUS_FAIL               0x01
+#define I2C_STATUS_BUS_ERROR          0x02
+#define I2C_STATUS_RD_DATA_UFL        0x03
+#define I2C_STATUS_CMD_FIFO_OFL       0x04
+#define I2C_STATUS_INTERRUPT_ERROR    0x05
+#define I2C_STATUS_CMD_FIFO_EMPTY     0x06
 
 /* I2C clock divider position */
-#define I2C_CLOCKDIVEDER_VAL_MASK 		0x1F
-#define I2C_APB_CLK_DIVIDER_VAL_MASK	0x1FE0
+#define I2C_CLOCKDIVEDER_VAL_MASK       0x1F
+#define I2C_APB_CLK_DIVIDER_VAL_MASK    0x1FE0
 
 /* Error check */
-#define I2C_UFL_CHECK 		(d->membase->STATUS.WORD & 0x80)
-#define FIFO_OFL_CHECK 		(d->membase->STATUS.WORD & 0x10)
-#define I2C_BUS_ERR_CHECK 	(d->membase->STATUS.WORD & 0x04)
-#define RD_DATA_READY 		(d->membase->STATUS.WORD & 0x02)
+#define I2C_UFL_CHECK         (d->membase->STATUS.WORD & 0x80)
+#define FIFO_OFL_CHECK        (d->membase->STATUS.WORD & 0x10)
+#define I2C_BUS_ERR_CHECK     (d->membase->STATUS.WORD & 0x04)
+#define RD_DATA_READY         (d->membase->STATUS.WORD & 0x02)
 
-#define I2C_API_STATUS_SUCCESS	0
-#define PAD_REG_ADRS_BYTE_SIZE	4
+#define I2C_API_STATUS_SUCCESS    0
+#define PAD_REG_ADRS_BYTE_SIZE    4
 
 /** Init I2C device.
  * @details

@@ -35,6 +35,17 @@ class GCC(mbedToolchain):
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
+        # Add flags for current size setting
+        default_lib = "std"
+        if hasattr(target, "default_lib"):
+            default_lib = target.default_lib
+        elif hasattr(target, "default_build"): # Legacy
+            default_lib = target.default_build
+
+        if default_lib == "small":
+            self.flags["common"].append("-DMBED_RTOS_SINGLE_THREAD")
+            self.flags["ld"].append("--specs=nano.specs")
+
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0plus"
         elif target.core == "Cortex-M4F":

@@ -47,18 +47,18 @@ __vector_table  DCD     sfe(CSTACK)               /* Top of Stack */
                 DCD     Reset_Handler             /* Reset Handler */
                 DCD     NMI_Handler               /* NMI Handler */
                 DCD     HardFault_Handler         /* Hard Fault Handler */
-                DCD     DefaultIRQ_Handler        /* MPU Fault Handler */
-                DCD     DefaultIRQ_Handler        /* Bus Fault Handler */
-                DCD     DefaultIRQ_Handler        /* Usage Fault Handler */
+                DCD     MemManage_Handler         /* MPU Fault Handler */
+                DCD     BusFault_Handler          /* Bus Fault Handler */
+                DCD     UsageFault_Handler        /* Usage Fault Handler */
                 DCD     0                         /* Reserved */
                 DCD     0                         /* Reserved */
                 DCD     0                         /* Reserved */
                 DCD     0                         /* Reserved */
-                DCD     DefaultIRQ_Handler        /* SVCall Handler */
+                DCD     SVC_Handler               /* SVCall Handler */
                 DCD     DebugMon_Handler          /* Debug Monitor Handler */
                 DCD     0                         /* Reserved */
-                DCD     DefaultIRQ_Handler        /* PendSV Handler */
-                DCD     SysTick_IRQHandler        /* SysTick Handler */
+                DCD     PendSV_Handler            /* PendSV Handler */
+                DCD     SysTick_Handler           /* SysTick Handler */
 
                 /* Maxim 32600 Externals interrupts */
                 DCD     UART0_IRQHandler          /* 16: 1 UART0 */
@@ -130,20 +130,40 @@ NMI_Handler
 HardFault_Handler
                 B       HardFault_Handler
 
-                PUBWEAK DefaultIRQ_Handler
+                PUBWEAK MemManage_Handler
                 SECTION .text:CODE:REORDER:NOROOT(1)
-DefaultIRQ_Handler
-                B       DefaultIRQ_Handler
+MemManage_Handler
+                B       MemManage_Handler
+
+                PUBWEAK BusFault_Handler
+                SECTION .text:CODE:REORDER:NOROOT(1)
+BusFault_Handler
+                B       BusFault_Handler
+
+                PUBWEAK UsageFault_Handler
+                SECTION .text:CODE:REORDER:NOROOT(1)
+UsageFault_Handler
+                B       UsageFault_Handler
+
+                PUBWEAK SVC_Handler
+                SECTION .text:CODE:REORDER:NOROOT(1)
+SVC_Handler
+                B       SVC_Handler
                    
                 PUBWEAK DebugMon_Handler
                 SECTION .text:CODE:REORDER:NOROOT(1)
 DebugMon_Handler
                 B       DebugMon_Handler
 
-                PUBWEAK SysTick_IRQHandler
+                PUBWEAK PendSV_Handler
                 SECTION .text:CODE:REORDER:NOROOT(1)
-SysTick_IRQHandler
-                B       SysTick_IRQHandler
+PendSV_Handler
+                B       PendSV_Handler
+
+                PUBWEAK SysTick_Handler
+                SECTION .text:CODE:REORDER:NOROOT(1)
+SysTick_Handler
+                B       SysTick_Handler
       
                 PUBWEAK UART0_IRQHandler
                 SECTION .text:CODE:REORDER:NOROOT(1)

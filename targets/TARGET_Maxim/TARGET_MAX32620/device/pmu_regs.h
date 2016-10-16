@@ -57,20 +57,20 @@ extern "C" {
 typedef struct {
     __IO uint32_t start_opcode[32];
     __IO uint32_t enable;
-    __IO uint32_t rsvd0; 
+    __IO uint32_t rsvd0;
     __IO uint32_t ll_stopped;
-    __IO uint32_t manual; 
-    __IO uint32_t bus_error; 
-    __IO uint32_t rsvd1; 
-    __IO uint32_t to_stat; 
-    __IO uint32_t rsvd2[4]; 
-    __IO uint32_t to_sel[3]; 
+    __IO uint32_t manual;
+    __IO uint32_t bus_error;
+    __IO uint32_t rsvd1;
+    __IO uint32_t to_stat;
+    __IO uint32_t rsvd2[4];
+    __IO uint32_t to_sel[3];
     __IO uint32_t ps_sel[2];
-    __IO uint32_t interrupt; 
+    __IO uint32_t interrupt;
     __IO uint32_t int_enable;
-    __IO uint32_t rsvd3[6]; 
+    __IO uint32_t rsvd3[6];
     __IO uint32_t burst_size[5];
-    __IO uint32_t rsvd4[3];  
+    __IO uint32_t rsvd4[3];
     __IO uint32_t padding[192]; /* Offset to next channel */
 } mxc_pmu_bits_t;
 

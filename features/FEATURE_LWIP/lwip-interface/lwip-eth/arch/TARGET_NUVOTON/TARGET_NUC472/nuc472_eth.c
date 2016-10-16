@@ -24,7 +24,7 @@
 #include "nuc472_eth.h"
 #include "lwip/opt.h"
 #include "lwip/def.h"
-
+#include "toolchain.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
 #define ETH_TRIGGER_TX()    do{EMAC->TXST = 0;}while(0)
@@ -33,6 +33,7 @@
 #define ETH_DISABLE_TX()    do{EMAC->CTL &= ~EMAC_CTL_TXON;}while(0)
 #define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON;}while(0)
 
+/*
 #ifdef __ICCARM__
 #pragma data_alignment=4
 struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM];
@@ -41,13 +42,18 @@ struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM];
 struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM] __attribute__ ((aligned(4)));
 struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM] __attribute__ ((aligned(4)));
 #endif
+*/
+struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM] MBED_ALIGN(4);
+struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM] MBED_ALIGN(4);
+
 struct eth_descriptor volatile *cur_tx_desc_ptr, *cur_rx_desc_ptr, *fin_tx_desc_ptr;
 
-u8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
-u8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
+u8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE]  MBED_ALIGN(4);
+u8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE]  MBED_ALIGN(4);
 
 extern void ethernetif_input(u16_t len, u8_t *buf, u32_t s, u32_t ns);
 extern void ethernetif_loopback_input(struct pbuf *p);
+extern void ack_emac_rx_isr(void);
 
 // PTP source clock is 84MHz (Real chip using PLL). Each tick is 11.90ns
 // Assume we want to set each tick to 100ns.
@@ -256,7 +262,6 @@ unsigned int m_status;
 
 void EMAC_RX_IRQHandler(void)
 {
-    unsigned int cur_entry, status;
 
     m_status = EMAC->INTSTS & 0xFFFF;
     EMAC->INTSTS = m_status;

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "platform.h"
-
 #if DEVICE_EMAC
 
 #include "emac_stack_mem.h"

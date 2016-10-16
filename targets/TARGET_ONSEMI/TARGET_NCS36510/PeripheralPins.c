@@ -67,31 +67,39 @@ const PinMap PinMap_SPI_SCLK[] = {
     {SPI1_SCLK_2, SPI_0, 6},
     {SPI1_SCLK_3, SPI_0, 6},
     {SPI2_SCLK,   SPI_1, 6},
-    {NC, 		  NC,    0}
+    {NC,          NC,    0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
     /*todo: other pins are possible, need to add */
     {SPI1_SDATAO_2, SPI_0, 6},
     {SPI1_SDATAO_3, SPI_0, 6},
-    {SPI2_SDATAO, 	SPI_1, 6},
-    {NC, 			NC,    0}
+    {SPI2_SDATAO,   SPI_1, 6},
+    {NC,            NC,    0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
     /*todo: other pins are possible, need to add */
     {SPI1_SDATAI_2, SPI_0, 6},
     {SPI1_SDATAI_3, SPI_0, 6},
-    {SPI2_SDATAI, 	SPI_1, 6},
-    {NC, 			NC,    0}
+    {SPI2_SDATAI,   SPI_1, 6},
+    {NC,            NC,    0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
     /*todo: other pins are possible, need to add */
     /* TODO what about SSNO */
-    {SPI1_SSNI_2, SPI_0, 6},
-    {SPI2_SSNI,   SPI_1, 6},
-    {NC, 		  NC,    0}
+    {SPI1_SSNO0_1, SPI_0, 6},
+    {SPI1_SSNO1_1, SPI_0, 6},
+    {SPI1_SSNO2_1, SPI_0, 6},
+    {SPI1_SSNO3_1, SPI_0, 6},
+    {SPI1_SSNI_2,  SPI_0, 6},
+    {SPI1_SSNO0_2, SPI_0, 6},
+    {SPI1_SSNO1_2, SPI_0, 6},
+    {SPI1_SSNO2_2, SPI_0, 6},
+    {SPI2_SSNI,    SPI_1, 6},
+    {SPI2_SSNO0,   SPI_1, 6},
+    {NC,           NC,    0}
 };
 
 

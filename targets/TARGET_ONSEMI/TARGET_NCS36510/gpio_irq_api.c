@@ -79,8 +79,8 @@ static uint32_t gpioIds[NUMBER_OF_GPIO] = {0};
 
 /** Main GPIO IRQ handler called from vector table handler
  *
- * @param gpioBase	The GPIO register base address
- * @return 			void
+ * @param gpioBase    The GPIO register base address
+ * @return            void
  */
 void fGpioHandler(void)
 {

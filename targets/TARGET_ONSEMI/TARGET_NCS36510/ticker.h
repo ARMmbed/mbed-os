@@ -36,41 +36,41 @@
  *
  * These definitions should be adjusted to setup Orion core frequencies.
  */
-#define	CPU_CLOCK_ROOT_HZ			( ( unsigned long ) 32000000) /**< <b> Orion 32MHz root frequency </b> */
-#define	CPU_CLOCK_DIV_32M			( 1 ) /**< <b> Divider to set up core frequency at 32MHz </b> */
-#define	CPU_CLOCK_DIV_16M			( 2 ) /**< <b> Divider to set up core frequency at 16MHz </b> */
-#define	CPU_CLOCK_DIV_8M			( 4 ) /**< <b> Divider to set up core frequency at 8MHz </b> */
-#define	CPU_CLOCK_DIV_4M			( 8 ) /**< <b> Divider to set up core frequency at 4MHz </b> */
+#define    CPU_CLOCK_ROOT_HZ           ( ( unsigned long ) 32000000) /**< <b> Orion 32MHz root frequency </b> */
+#define    CPU_CLOCK_DIV_32M           ( 1 ) /**< <b> Divider to set up core frequency at 32MHz </b> */
+#define    CPU_CLOCK_DIV_16M           ( 2 ) /**< <b> Divider to set up core frequency at 16MHz </b> */
+#define    CPU_CLOCK_DIV_8M            ( 4 ) /**< <b> Divider to set up core frequency at 8MHz </b> */
+#define    CPU_CLOCK_DIV_4M            ( 8 ) /**< <b> Divider to set up core frequency at 4MHz </b> */
 
-#define	CPU_CLOCK_DIV				CPU_CLOCK_DIV_32M /**< <b> Selected divider to be used by application code </b> */
+#define    CPU_CLOCK_DIV               CPU_CLOCK_DIV_32M /**< <b> Selected divider to be used by application code </b> */
 
-#define configCPU_CLOCK_HZ			( ( unsigned long ) (CPU_CLOCK_ROOT_HZ/CPU_CLOCK_DIV) )
-#define configTICK_RATE_HZ			( ( unsigned long ) 1000000 ) // 1uSec ticker rate
+#define configCPU_CLOCK_HZ             ( ( unsigned long ) (CPU_CLOCK_ROOT_HZ/CPU_CLOCK_DIV) )
+#define configTICK_RATE_HZ             ( ( unsigned long ) 1000000 ) // 1uSec ticker rate
 
 
 /* Lowest priority */
 
-#define configKERNEL_INTERRUPT_PRIORITY 		( 0xFF )
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	        ( 0x8F )
+#define configKERNEL_INTERRUPT_PRIORITY         ( 0xFF )
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY    ( 0x8F )
 
 #define configSYSTICK_CLOCK_HZ configCPU_CLOCK_HZ
 
 /* Constants required to manipulate the core.  Registers first... */
-#define portNVIC_SYSTICK_CTRL_REG			( * ( ( volatile unsigned long * ) 0xe000e010 ) )
-#define portNVIC_SYSTICK_LOAD_REG			( * ( ( volatile unsigned long * ) 0xe000e014 ) )
-#define portNVIC_SYSTICK_CURRENT_VALUE_REG	        ( * ( ( volatile unsigned long * ) 0xe000e018 ) )
-#define portNVIC_INT_CTRL_REG				( * ( ( volatile unsigned long * ) 0xe000ed04 ) )
-#define portNVIC_SYSPRI2_REG				( * ( ( volatile unsigned long * ) 0xe000ed20 ) )
+#define portNVIC_SYSTICK_CTRL_REG            ( * ( ( volatile unsigned long * ) 0xe000e010 ) )
+#define portNVIC_SYSTICK_LOAD_REG            ( * ( ( volatile unsigned long * ) 0xe000e014 ) )
+#define portNVIC_SYSTICK_CURRENT_VALUE_REG   ( * ( ( volatile unsigned long * ) 0xe000e018 ) )
+#define portNVIC_INT_CTRL_REG                ( * ( ( volatile unsigned long * ) 0xe000ed04 ) )
+#define portNVIC_SYSPRI2_REG                 ( * ( ( volatile unsigned long * ) 0xe000ed20 ) )
 
 /* ...then bits in the registers. */
-#define portNVIC_SYSTICK_CLK_BIT			( 1UL << 2UL )
-#define portNVIC_SYSTICK_INT_BIT			( 1UL << 1UL )
-#define portNVIC_SYSTICK_ENABLE_BIT			( 1UL << 0UL )
-#define portNVIC_SYSTICK_COUNT_FLAG_BIT		        ( 1UL << 16UL )
+#define portNVIC_SYSTICK_CLK_BIT            ( 1UL << 2UL )
+#define portNVIC_SYSTICK_INT_BIT            ( 1UL << 1UL )
+#define portNVIC_SYSTICK_ENABLE_BIT         ( 1UL << 0UL )
+#define portNVIC_SYSTICK_COUNT_FLAG_BIT     ( 1UL << 16UL )
 
 /* Orion has 4 interrupt priority bits
  */
-#define portNVIC_SYSTICK_PRI		        ( ( ( unsigned long ) configKERNEL_INTERRUPT_PRIORITY ) << 24 )
+#define portNVIC_SYSTICK_PRI                ( ( ( unsigned long ) configKERNEL_INTERRUPT_PRIORITY ) << 24 )
 
 /* API definitions */
 void fSysTickInit(void);

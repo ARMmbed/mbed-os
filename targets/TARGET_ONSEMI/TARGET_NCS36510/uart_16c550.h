@@ -59,45 +59,45 @@ typedef struct uart_16c550_options {
     uint8_t irq; /**< The IRQ number of the IRQ associated to the device. */
 } uart_16c550_options_t, *uart_16c550_options_pt;
 
-#define UART_NUM		2
+#define UART_NUM        2
 
-#define CTS_ASSERT		1
-#define CTS_UNASSERT	0
-#define RTS_ASSERT		1
-#define RTS_UNASSERT	0
+#define CTS_ASSERT      1
+#define CTS_UNASSERT    0
+#define RTS_ASSERT      1
+#define RTS_UNASSERT    0
 
-#define UART_ERROR_INSUFFICIENT_SPACE 	((uint8_t)0xF0)
+#define UART_ERROR_INSUFFICIENT_SPACE   ((uint8_t)0xF0)
 #define UART_ERROR_TOO_BIG              ((uint8_t)0xF1)
 
 /** The depth of the hardware FIFOs. */
-#define UART_HW_FIFO_DEPTH		16
+#define UART_HW_FIFO_DEPTH        16
 
 /** The length of the receive buffer in software. */
-#define UART_RX_BUFFER_LENGTH		(1<<8)
-#define UART_TX_BUFFER_LENGTH		(1<<8)
+#define UART_RX_BUFFER_LENGTH        (1<<8)
+#define UART_TX_BUFFER_LENGTH        (1<<8)
 
-#define STATUS_INVALID_PARAMETER	0x1
-#define STATUS_SUCCESS			 	0x1
+#define STATUS_INVALID_PARAMETER    0x1
+#define STATUS_SUCCESS              0x1
 
-#define UART_LCR_DATALEN_BIT_POS	0
-#define UART_LCR_STPBIT_BIT_POS		2
-#define UART_LCR_PARITY_BIT_POS		3
+#define UART_LCR_DATALEN_BIT_POS    0
+#define UART_LCR_STPBIT_BIT_POS     2
+#define UART_LCR_PARITY_BIT_POS     3
 
 #define UART_FCS_RX_FIFO_RST_BIT_POS 1
 #define UART_FCS_TX_FIFO_RST_BIT_POS 2
 
-#define UART_RX_IRQ		0x0
-#define UART_TX_IRQ		0x1
+#define UART_RX_IRQ        0x0
+#define UART_TX_IRQ        0x1
 
-#define UART_RX_BUFFER_LEN_MAX	16
+#define UART_RX_BUFFER_LEN_MAX    16
 
-#define UART_LSR_TX_EMPTY_MASK		0x40
-#define UART_LSR_RX_DATA_READY_MASK	0x01
+#define UART_LSR_TX_EMPTY_MASK        0x40
+#define UART_LSR_RX_DATA_READY_MASK   0x01
 
-#define UART_IER_TX_EMPTY_MASK		0x02
-#define UART_IER_RX_DATA_READY_MASK	0x01
+#define UART_IER_TX_EMPTY_MASK        0x02
+#define UART_IER_RX_DATA_READY_MASK   0x01
 
-#define UART_DEFAULT_BAUD	9600
+#define UART_DEFAULT_BAUD    9600
 
 /** Interrupt handler for 16C550 UART devices; to be called from an actual ISR.
  * @param membase The memory base for the device that corresponds to the IRQ.

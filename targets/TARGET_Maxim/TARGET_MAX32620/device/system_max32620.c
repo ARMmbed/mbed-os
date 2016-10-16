@@ -53,12 +53,12 @@ static uint8_t running;
 // NOTE: Setting the CMSIS SystemCoreClock value to the actual value it will
 // be AFTER SystemInit() runs.  This is required so the hal drivers will have
 // the correct value when the DATA sections are initialized.
-uint32_t SystemCoreClock = RO_FREQ;
+uint32_t SystemCoreClock = RO_FREQ / 2;
 
 void SystemCoreClockUpdate(void)
 {
     switch ((MXC_CLKMAN->clk_ctrl & MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT) >> MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_POS) {
-             
+
         case MXC_V_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_96MHZ_RO_DIV_2:
         default:
             SystemCoreClock = RO_FREQ / 2;
@@ -147,10 +147,9 @@ void SystemInit(void)
 
     low_level_init();
 
-    // Select 96MHz ring oscillator as clock source
+    // Select 48MHz ring oscillator as clock source
     uint32_t reg = MXC_CLKMAN->clk_ctrl;
     reg &= ~MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT;
-    reg |= 1 << MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_POS;
     MXC_CLKMAN->clk_ctrl = reg;
 
     // Copy trim information from shadow registers into power manager registers
@@ -187,11 +186,11 @@ void SystemInit(void)
     // Clear all unused wakeup sources
     // Beware! Do not change any flag not mentioned here, as they will gate important power sequencer signals
     MXC_PWRSEQ->msk_flags &= ~(MXC_F_PWRSEQ_MSK_FLAGS_PWR_USB_PLUG_WAKEUP |
-			       MXC_F_PWRSEQ_MSK_FLAGS_PWR_USB_REMOVE_WAKEUP);
+                               MXC_F_PWRSEQ_MSK_FLAGS_PWR_USB_REMOVE_WAKEUP);
 
     // RTC sources are inverted, so a 1 will disable them
     MXC_PWRSEQ->msk_flags |= (MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR1 |
-			      MXC_F_PWRSEQ_MSK_FLAGS_RTC_PRESCALE_CMP);
+                              MXC_F_PWRSEQ_MSK_FLAGS_RTC_PRESCALE_CMP);
 
     /* Enable RTOS Mode: Enable 32kHz clock synchronizer to SysTick external clock input */
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;
@@ -206,7 +205,7 @@ void SystemInit(void)
     SCB->CPACR |= SCB_CPACR_CP10_Msk | SCB_CPACR_CP11_Msk;
     __DSB();
     __ISB();
-#endif  
+#endif
 
     // Trim ring oscillator
     Trim_ROAtomic();

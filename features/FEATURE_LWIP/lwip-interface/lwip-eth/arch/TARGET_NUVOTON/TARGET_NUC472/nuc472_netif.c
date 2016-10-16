@@ -79,6 +79,8 @@ struct netif *_netif;
 
 unsigned char my_mac_addr[6] = {0x02, 0x00, 0xac, 0x55, 0x66, 0x77};
 extern u8_t my_mac_addr[6];
+extern int ETH_link_ok(void);
+extern void EMAC_RX_Action(void);
 
 sys_sem_t RxReadySem; /**< RX packet ready semaphore */
 
@@ -421,7 +423,7 @@ err_t
     /* Packet receive task */
 
     err = sys_sem_new(&RxReadySem, 0);
-    LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
+    if(err != ERR_OK) LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
 	// In GCC code, DEFAULT_THREAD_STACKSIZE 512 bytes is not enough for rx_task
 #if defined (__GNUC__)	
     // mbed OS 2.0, DEFAULT_THREAD_STACKSIZE*3
@@ -482,10 +484,10 @@ typedef struct {
 
 static void __phy_task(void *data) {
   struct netif *netif = (struct netif*)data;
-  PHY_STATE crt_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
-  PHY_STATE prev_state;
+//  PHY_STATE crt_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
+//  PHY_STATE prev_state;
 
-  prev_state = crt_state;
+//  prev_state = crt_state;
   while (1) {
     // Get current status
     // Get the actual PHY link speed

@@ -36,11 +36,12 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 extern char Image$$RW_IRAM1$$ZI$$Limit[];
 
-extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+{
     uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
     uint32_t sp_limit = __current_sp();
 
@@ -54,4 +55,4 @@ extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_
 
 #ifdef __cplusplus
 }
-#endif 
+#endif

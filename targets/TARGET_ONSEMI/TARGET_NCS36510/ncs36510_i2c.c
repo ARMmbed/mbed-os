@@ -76,11 +76,11 @@ void fI2cInit(i2c_t *obj,PinName sda,PinName scl)
 
     /* enable interrupt associated with the device */
     if(obj->membase == I2C1REG) {
-        CLOCK_ENABLE(CLOCK_I2C); 			/* enable i2c peripheral */
+        CLOCK_ENABLE(CLOCK_I2C);             /* enable i2c peripheral */
         NVIC_ClearPendingIRQ(I2C_IRQn);
         NVIC_EnableIRQ(I2C_IRQn);
     } else {
-        CLOCK_ENABLE(CLOCK_I2C2); 			/* enable i2c peripheral */
+        CLOCK_ENABLE(CLOCK_I2C2);            /* enable i2c peripheral */
         NVIC_ClearPendingIRQ(I2C2_IRQn);
         NVIC_EnableIRQ(I2C2_IRQn);
     }

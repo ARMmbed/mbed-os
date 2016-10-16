@@ -58,7 +58,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  */
 void SystemInit (void)
 {
-    uint32_t u32RTC_EN_Flag = 0;
+    //uint32_t u32RTC_EN_Flag = 0;
 
     /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)

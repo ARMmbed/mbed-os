@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     sd.h
  * @version  V1.00
- * $Revision: 11 $
- * $Date: 14/10/03 2:25p $
+ * $Revision: 12 $
+ * $Date: 14/11/04 10:10a $
  * @brief    NUC472/NUC442 SD driver header file
  *
  * @note
@@ -41,6 +41,7 @@
 #define SD_TYPE_SD_HIGH 1
 #define SD_TYPE_SD_LOW      2
 #define SD_TYPE_MMC     3
+#define SD_TYPE_EMMC		4
 
 /* SD error */
 #define SD_NO_SD_CARD           (SD_ERR_ID|0x10)

@@ -116,7 +116,7 @@ typedef enum {
     AIN_3 = (0xA << PORT_SHIFT) | 3,
 
     // LEDs
-	LED_RED = P2_0,
+    LED_RED = P2_0,
     LED1 = LED_RED,
     LED2 = NOT_CONNECTED,
     LED3 = NOT_CONNECTED,

@@ -111,43 +111,43 @@ typedef struct {
     } INT_CLEAR;
 #endif /* REVB */
 #ifdef REVD
-    __IO uint32_t SUB_SECOND_COUNTER;	/**<SUB SECOND Counter */	/* 0x4000F000 */
-    __IO uint32_t SECOND_COUNTER;		/**<SECOND Counter */		/* 0x4000F004 */
-    __IO uint32_t SUB_SECOND_ALARM;		/**< SUB SECOND alarm */	/* 0x4000F008 */
-    __IO uint32_t SECOND_ALARM;			/**< SECOND alarm */		/* 0x4000F00c */
+    __IO uint32_t SUB_SECOND_COUNTER;    /**<SUB SECOND Counter */   /* 0x4000F000 */
+    __IO uint32_t SECOND_COUNTER;        /**<SECOND Counter */       /* 0x4000F004 */
+    __IO uint32_t SUB_SECOND_ALARM;      /**< SUB SECOND alarm */    /* 0x4000F008 */
+    __IO uint32_t SECOND_ALARM;          /**< SECOND alarm */        /* 0x4000F00c */
     union {
         struct {
-            __IO uint32_t SUB_SEC_COUNTER_EN :1;	/**<Sub-second counter enable.  (1=count is enabled, 0=retain count value) */
-            __IO uint32_t SEC_COUNTER_EN :1;		/**<Second counter enable. (1=count is enabled, 0=retain count value) */
-            __IO uint32_t SUB_SECOND_INT_EN :1;		/**<Sub-second interrupt enable (1=interrupt enabled, 0=interrupt disabled) */
-            __IO uint32_t SECOND_INT_EN :1;			/**<Second interrupt enable (1=interrupt enabled, 0=interrupt disabled) */
+            __IO uint32_t SUB_SEC_COUNTER_EN :1;    /**<Sub-second counter enable.  (1=count is enabled, 0=retain count value) */
+            __IO uint32_t SEC_COUNTER_EN :1;        /**<Second counter enable. (1=count is enabled, 0=retain count value) */
+            __IO uint32_t SUB_SECOND_INT_EN :1;     /**<Sub-second interrupt enable (1=interrupt enabled, 0=interrupt disabled) */
+            __IO uint32_t SECOND_INT_EN :1;         /**<Second interrupt enable (1=interrupt enabled, 0=interrupt disabled) */
         } BITS;
         __IO uint32_t WORD;
-    } CONTROL;			/* 0x4000F010 */
+    } CONTROL;            /* 0x4000F010 */
     union {
         struct {
             /**<Any write to the status register will clear the error bit. */
-            __IO uint32_t SUB_SECOND_INT:1;				/**<Sub-second interrupt status.  (1=interrupt active, 0=no interrupt)*/
-            __IO uint32_t SECOND_INT :1;				/**<Second interrupt status.  (1=interrupt active, 0=no interrupt)*/
-            __IO uint32_t WRITE_ERROR :1;				/**<Reads error bit which is set when a write occurs before a previous write to the same register has completed. */
-            __IO uint32_t BSY_ANY_WRT :1;				/**<Busy with any write.*/
-            __IO uint32_t BSY_SUB_SEC_CNTR_REG_WRT :1;	/**<Busy with a sub-second counter register write.*/
-            __IO uint32_t BSY_SEC_CNTR_REG_WRT :1;		/**<Busy with a second counter register write.*/
-            __IO uint32_t BSY_SUB_SEC_ALRM_REG_WRT :1;	/**<Busy with a sub-second alarm register write.*/
-            __IO uint32_t BSY_SEC_ALRM_REG_WRT:1;		/**<Busy with a second alarm register write.*/
-            __IO uint32_t BSY_CTRL_REG_WRT :1;			/**<Busy with a control register write.*/
-            __IO uint32_t BSY_SUB_SEC_INT_CLR_WRT :1;	/**<Busy with a sub-second interrupt clear write.*/
-            __IO uint32_t BSY_SEC_INT_CLR_WRT :1;		/**<Busy with a second interrupt clear write.*/
+            __IO uint32_t SUB_SECOND_INT:1;             /**<Sub-second interrupt status.  (1=interrupt active, 0=no interrupt)*/
+            __IO uint32_t SECOND_INT :1;                /**<Second interrupt status.  (1=interrupt active, 0=no interrupt)*/
+            __IO uint32_t WRITE_ERROR :1;               /**<Reads error bit which is set when a write occurs before a previous write to the same register has completed. */
+            __IO uint32_t BSY_ANY_WRT :1;               /**<Busy with any write.*/
+            __IO uint32_t BSY_SUB_SEC_CNTR_REG_WRT :1;  /**<Busy with a sub-second counter register write.*/
+            __IO uint32_t BSY_SEC_CNTR_REG_WRT :1;      /**<Busy with a second counter register write.*/
+            __IO uint32_t BSY_SUB_SEC_ALRM_REG_WRT :1;  /**<Busy with a sub-second alarm register write.*/
+            __IO uint32_t BSY_SEC_ALRM_REG_WRT:1;       /**<Busy with a second alarm register write.*/
+            __IO uint32_t BSY_CTRL_REG_WRT :1;          /**<Busy with a control register write.*/
+            __IO uint32_t BSY_SUB_SEC_INT_CLR_WRT :1;   /**<Busy with a sub-second interrupt clear write.*/
+            __IO uint32_t BSY_SEC_INT_CLR_WRT :1;       /**<Busy with a second interrupt clear write.*/
         } BITS;
         __IO uint32_t WORD;
-    } STATUS;			/* 0x4000F014 */
+    } STATUS;            /* 0x4000F014 */
     union {
         struct {
-            __O uint32_t SUB_SECOND :1;		/**<Write 1 to this register to clear the sub-second interrupt.*/
-            __O uint32_t SECOND :1;			/**<Write 1 to this register to clear the second interrupt.*/
+            __O uint32_t SUB_SECOND :1;        /**<Write 1 to this register to clear the sub-second interrupt.*/
+            __O uint32_t SECOND :1;            /**<Write 1 to this register to clear the second interrupt.*/
         } BITS;
         __O uint32_t WORD;
-    } INT_CLEAR;			/* 0x4000F018 */
+    } INT_CLEAR;            /* 0x4000F018 */
 #endif /* REVD */
 } RtcReg_t, *RtcReg_pt;
 

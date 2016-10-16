@@ -2,48 +2,46 @@
  * NCS36510 ARM GCC linker script file
  */
 
-MEMORY
-{
-  VECTORS (rx)          : ORIGIN = 0x00003000, LENGTH = 0x00000090
-  FLASH (rx)            : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
-  RAM (rwx)             : ORIGIN = 0x3FFF4000, LENGTH = 48K 
-}
+MEMORY {
+    VECTORS (rx)          : ORIGIN = 0x00003000, LENGTH = 0x00000090
+        FLASH (rx)            : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
+        RAM (rwx)             : ORIGIN = 0x3FFF4000, LENGTH = 48K
+    }
 
-/* Linker script to place sections and symbol values. Should be used together
- * with other linker script that defines memory regions FLASH and RAM.
- * It references following symbols, which must be defined in code:
- * _reset_init : Entry of reset handler
- *
- * It defines following symbols, which code can use without definition:
- * __exidx_start
- * __exidx_end
- * __etext
- * __data_start__
- * __preinit_array_start
- * __preinit_array_end
- * __init_array_start
- * __init_array_end
- * __fini_array_start
- * __fini_array_end
- * __data_end__
- * __bss_start__
- * __bss_end__
- * __end__
- * end
- * __HeapLimit
- * __StackLimit
- * __StackTop
- * __stack
- */
-ENTRY(Reset_Handler)
+    /* Linker script to place sections and symbol values. Should be used together
+     * with other linker script that defines memory regions FLASH and RAM.
+     * It references following symbols, which must be defined in code:
+     * _reset_init : Entry of reset handler
+     *
+     * It defines following symbols, which code can use without definition:
+     * __exidx_start
+     * __exidx_end
+     * __etext
+     * __data_start__
+     * __preinit_array_start
+     * __preinit_array_end
+     * __init_array_start
+     * __init_array_end
+     * __fini_array_start
+     * __fini_array_end
+     * __data_end__
+     * __bss_start__
+     * __bss_end__
+     * __end__
+     * end
+     * __HeapLimit
+     * __StackLimit
+     * __StackTop
+     * __stack
+     */
+    ENTRY(Reset_Handler)
 
-SECTIONS
-{
-    .isr_vector :
+    SECTIONS {
+.isr_vector :
     {
         __vector_table = .;
         KEEP(*(.vector_table))
-         . = ALIGN(4);
+        . = ALIGN(4);
     } > VECTORS
 
     /* ensure that uvisor bss is at the beginning of memory */
@@ -70,7 +68,7 @@ SECTIONS
         __uvisor_bss_end = .;
     } > RAM
 
-    .text :
+.text :
     {
         /* uVisor code and data */
         . = ALIGN(4);
@@ -102,19 +100,19 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-    .ARM.extab :
+.ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
 
-    .ARM.exidx :
+.ARM.exidx :
     {
-       __exidx_start = .;
+        __exidx_start = .;
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-       __exidx_end = .;
+        __exidx_end = .;
     } > FLASH
 
-    .data :
+.data :
     {
         PROVIDE( __etext = LOADADDR(.data) );
 
@@ -149,7 +147,7 @@ SECTIONS
     } >RAM AT>FLASH
 
     /* uvisor configuration data */
-    .uvisor.secure :
+.uvisor.secure :
     {
         . = ALIGN(32);
         __uvisor_secure_start = .;
@@ -211,7 +209,7 @@ SECTIONS
     PROVIDE(__heap_size = SIZEOF(.heap));
     PROVIDE(__mbed_sbrk_start = ADDR(.heap));
     PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
-    
+
     /* .stack section doesn't contains any symbols. It is only
      * used for linker to reserve space for the main stack section
      * WARNING: .stack should come immediately after the last secure memory

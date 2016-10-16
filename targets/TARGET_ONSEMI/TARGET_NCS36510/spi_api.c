@@ -43,10 +43,7 @@
 #include "cmsis_nvic.h"
 
 
-#define SPI_FREQ_MAX			4000000
-#define SPI_ENDIAN_LSB_FIRST	0
-#define SPI_MASTER_MODE			1
-#define SPI_SLAVE_MODE			0
+#define SPI_FREQ_MAX 4000000
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
@@ -59,18 +56,15 @@ void spi_free(spi_t *obj)
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    if(slave) {
-        /* Slave mode */
-        obj->membase->CONTROL.BITS.MODE = SPI_SLAVE_MODE;
-    } else {
-        /* Master mode */
-        obj->membase->CONTROL.BITS.MODE = SPI_MASTER_MODE;
-    }
-    obj->membase->CONTROL.BITS.WORD_WIDTH = bits >> 0x4; 			/* word width */
-    obj->membase->CONTROL.BITS.CPOL 	  = mode >> 0x1; 			/* CPOL  */
-    obj->membase->CONTROL.BITS.CPHA 	  = mode & 0x1; 			/* CPHA */
+    /* Clear word width | Slave/Master | CPOL | CPHA | MSB first bits in control register */
+    obj->membase->CONTROL.WORD &= ~(uint32_t)((True >> SPI_WORD_WIDTH_BIT_POS) |
+                                  (True >> SPI_SLAVE_MASTER_BIT_POS) |
+                                  (True >> SPI_CPOL_BIT_POS) |
+                                  (True >> SPI_CPHA_BIT_POS));
 
-    obj->membase->CONTROL.BITS.ENDIAN 	  = SPI_ENDIAN_LSB_FIRST;	/* Endian */
+    /* Configure word width | Slave/Master | CPOL | CPHA | MSB first bits in control register */
+    obj->membase->CONTROL.WORD |= (uint32_t)(((bits >> 0x4) >> 6) | (!slave >> 5) |
+                                  ((mode >> 0x1) >> 4) | ((mode & 0x1) >> 3));
 }
 
 void spi_frequency(spi_t *obj, int hz)
@@ -101,6 +95,29 @@ uint8_t spi_get_module(spi_t *obj)
     } else {
         return 2; /* Invalid address */
     }
+}
+
+int  spi_slave_receive(spi_t *obj)
+{
+	if(obj->membase->STATUS.BITS.RX_EMPTY != True){ /* if receive status is not empty */
+		return True;	/* Byte available to read */
+	}
+	return False; /* Byte not available to read */
+}
+
+int  spi_slave_read(spi_t *obj)
+{
+	int byte;
+	
+	while (obj->membase->STATUS.BITS.RX_EMPTY == True); /* Wait till Receive status is empty */
+    byte = obj->membase->RX_DATA;
+    return byte;
+}
+
+void spi_slave_write(spi_t *obj, int value)
+{
+	while((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
+    obj->membase->TX_DATA = value;
 }
 
 #if DEVICE_SPI_ASYNCH /* TODO Not implemented yet */
@@ -147,12 +164,12 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     }
 
 
-    //	enable events
+    //    enable events
 
     obj->spi.event |= event;
 
 
-    //		set sleep_level
+    //        set sleep_level
     enable irq
 
     //write async

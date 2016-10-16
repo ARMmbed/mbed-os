@@ -72,72 +72,63 @@ typedef enum {
     Bitfield structs for registers in this module
 */
 
-typedef struct
-{
+typedef struct {
     uint32_t wud_req_p0 : 8;
     uint32_t wud_req_p1 : 8;
     uint32_t wud_req_p2 : 8;
     uint32_t wud_req_p3 : 8;
 } mxc_ioman_wud_req0_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t wud_req_p4 : 8;
     uint32_t wud_req_p5 : 8;
     uint32_t wud_req_p6 : 1;
     uint32_t            : 15;
 } mxc_ioman_wud_req1_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t wud_ack_p0 : 8;
     uint32_t wud_ack_p1 : 8;
     uint32_t wud_ack_p2 : 8;
     uint32_t wud_ack_p3 : 8;
 } mxc_ioman_wud_ack0_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t wud_ack_p4 : 8;
     uint32_t wud_ack_p5 : 8;
     uint32_t wud_ack_p6 : 1;
     uint32_t            : 15;
 } mxc_ioman_wud_ack1_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t ali_req_p0 : 8;
     uint32_t ali_req_p1 : 8;
     uint32_t ali_req_p2 : 8;
     uint32_t ali_req_p3 : 8;
 } mxc_ioman_ali_req0_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t ali_req_p4 : 8;
     uint32_t ali_req_p5 : 8;
     uint32_t ali_req_p6 : 1;
     uint32_t            : 15;
 } mxc_ioman_ali_req1_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t ali_ack_p0 : 8;
     uint32_t ali_ack_p1 : 8;
     uint32_t ali_ack_p2 : 8;
     uint32_t ali_ack_p3 : 8;
 } mxc_ioman_ali_ack0_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t ali_ack_p4 : 8;
     uint32_t ali_ack_p5 : 8;
     uint32_t ali_ack_p6 : 1;
     uint32_t            : 15;
 } mxc_ioman_ali_ack1_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_req : 1;
     uint32_t             : 3;
@@ -151,8 +142,7 @@ typedef struct
     uint32_t             : 15;
 } mxc_ioman_spix_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_ack : 1;
     uint32_t             : 3;
@@ -166,8 +156,7 @@ typedef struct
     uint32_t             : 15;
 } mxc_ioman_spix_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -178,8 +167,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart0_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -190,8 +178,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart0_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -202,8 +189,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart1_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -214,8 +200,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart1_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -226,8 +211,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart2_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -238,8 +222,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart2_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -250,8 +233,7 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart3_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_map     : 1;
     uint32_t cts_map    : 1;
     uint32_t rts_map    : 1;
@@ -262,66 +244,57 @@ typedef struct
     uint32_t            : 25;
 } mxc_ioman_uart3_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_req : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cm0_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_ack : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cm0_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_req : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cm1_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_ack : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cm1_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_req : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cm2_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_ack : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cm2_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_sel      : 2;
     uint32_t             : 2;
     uint32_t mapping_req : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cs_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t io_sel      : 2;
     uint32_t             : 2;
     uint32_t mapping_ack : 1;
     uint32_t             : 27;
 } mxc_ioman_i2cs_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_req : 1;
     uint32_t             : 3;
@@ -337,8 +310,7 @@ typedef struct
     uint32_t             : 7;
 } mxc_ioman_spim0_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_ack : 1;
     uint32_t             : 3;
@@ -354,8 +326,7 @@ typedef struct
     uint32_t             : 7;
 } mxc_ioman_spim0_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_req : 1;
     uint32_t             : 3;
@@ -369,8 +340,7 @@ typedef struct
     uint32_t             : 7;
 } mxc_ioman_spim1_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_ack : 1;
     uint32_t             : 3;
@@ -384,8 +354,7 @@ typedef struct
     uint32_t             : 7;
 } mxc_ioman_spim1_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t mapping_req : 1;
     uint32_t             : 3;
     uint32_t core_io_req : 1;
@@ -403,8 +372,7 @@ typedef struct
     uint32_t             : 7;
 } mxc_ioman_spim2_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t mapping_ack : 1;
     uint32_t             : 3;
     uint32_t core_io_ack : 1;
@@ -422,8 +390,7 @@ typedef struct
     uint32_t             : 7;
 } mxc_ioman_spim2_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_req : 1;
     uint32_t             : 3;
@@ -433,8 +400,7 @@ typedef struct
     uint32_t             : 19;
 } mxc_ioman_spib_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t core_io_ack : 1;
     uint32_t             : 3;
@@ -444,16 +410,14 @@ typedef struct
     uint32_t             : 19;
 } mxc_ioman_spib_ack_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_req : 1;
     uint32_t epu_io_req  : 1;
     uint32_t             : 26;
 } mxc_ioman_owm_req_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t             : 4;
     uint32_t mapping_ack : 1;
     uint32_t epu_io_ack  : 1;

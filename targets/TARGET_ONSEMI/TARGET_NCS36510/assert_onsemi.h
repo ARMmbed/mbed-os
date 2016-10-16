@@ -55,15 +55,15 @@ void fOnAssert(const char *filename, unsigned int line);
 /** Can be assigned to hook into the assertion. */
 extern void (*assertCallback)(const char *filename, unsigned int line);
 
-#define ASSERT(test)		((test) ? (void)0 : fOnAssert(__FILE__, __LINE__))
+#define ASSERT(test)        ((test) ? (void)0 : fOnAssert(__FILE__, __LINE__))
 
-#define VERIFY(test)		ASSERT(test)
+#define VERIFY(test)        ASSERT(test)
 
 #else
 
-#define ASSERT(test)		((test) ? (void)0 : 1)
+#define ASSERT(test)        ((test) ? (void)0 : 1)
 
-#define VERIFY(test)		((void)(test))
+#define VERIFY(test)        ((void)(test))
 
 #endif // DEBUG
 
