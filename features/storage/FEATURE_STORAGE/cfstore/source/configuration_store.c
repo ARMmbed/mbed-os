@@ -2458,11 +2458,11 @@ static int32_t cfstore_file_destroy(cfstore_file_t* file)
             if(cfstore_hkvt_get_flags_delete(&hkvt)){
                 ret = cfstore_delete_ex(&hkvt);
             }
-            /* reset client buffer to empty ready for reuse */
-            /* delete the file even if not deleting the KV*/
-            cfstore_listDel(&file->node);
-            memset(file, 0, sizeof(cfstore_file_t));
         }
+        /* reset client buffer to empty ready for reuse */
+        /* delete the file even if not deleting the KV*/
+        cfstore_listDel(&file->node);
+        memset(file, 0, sizeof(cfstore_file_t));
     }
     return ret;
 }
