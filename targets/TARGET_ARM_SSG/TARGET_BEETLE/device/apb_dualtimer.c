@@ -297,18 +297,38 @@ void DualTimer_SetInterrupt_2(uint32_t timer, uint32_t time_us,
 }
 
 /*
- * DualTimer_DisableInterrupt(): disables timer interrupt
- * timer: timer on which interrupt is disabled
+ * DualTimer_DisableInterrupt(): disables timer interrupts
+ * dualimer: dualtimer on which interrupt is disabled
+ * single_timer: single timer in the dualtimer on which
+ *               interrupt is disabled
  */
-void DualTimer_DisableInterrupt(uint32_t timer)
+void DualTimer_DisableInterrupt(uint32_t dualtimer,
+                                uint32_t single_timer)
 {
     /* Verify if the Timer is enabled */
-    if (DualTimer_isEnabled(timer) == 1) {
-        /* Disable Interrupt */
-        (DualTimers[timer].dualtimer1)->TimerControl &=
-                                CMSDK_DUALTIMER_CTRL_EN_Msk;
-        (DualTimers[timer].dualtimer2)->TimerControl &=
-                                CMSDK_DUALTIMER_CTRL_EN_Msk;
+    if (DualTimer_isEnabled(dualtimer) == 1) {
+        switch(single_timer) {
+            case SINGLETIMER1:
+                /* Disable Interrupt for single timer 1 */
+                (DualTimers[dualtimer].dualtimer1)->TimerControl &=
+                                       CMSDK_DUALTIMER_CTRL_EN_Msk;
+                break;
+            case SINGLETIMER2:
+                /* Disable Interrupt for single timer 2 */
+                (DualTimers[dualtimer].dualtimer2)->TimerControl &=
+                                       CMSDK_DUALTIMER_CTRL_EN_Msk;
+                break;
+            case ALL_SINGLETIMERS:
+                /* Disable Interrupt for single timer 1 */
+                (DualTimers[dualtimer].dualtimer1)->TimerControl &=
+                                       CMSDK_DUALTIMER_CTRL_EN_Msk;
+                /* Disable Interrupt for single timer 2 */
+                (DualTimers[dualtimer].dualtimer2)->TimerControl &=
+                                       CMSDK_DUALTIMER_CTRL_EN_Msk;
+                break;
+            default:
+                break;
+        }
     }
 }
 

@@ -142,7 +142,8 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 void lp_ticker_disable_interrupt(void)
 {
     /* Disable Interrupt */
-    DualTimer_DisableInterrupt(DUALTIMER0);
+    DualTimer_DisableInterrupt(DUALTIMER0,
+                               SINGLETIMER1);
 }
 
 /**
