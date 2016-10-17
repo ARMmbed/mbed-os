@@ -698,8 +698,9 @@ static int mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, 
     netconn_set_recvtimeout(ns->conn, 1);
     *(struct lwip_socket **)handle = ns;
 
-    (void) netconn_peer(ns->conn, (ip_addr_t *)addr->bytes, port);
-    addr->version = NSAPI_IPv4;
+    ip_addr_t peer_addr;
+    (void) netconn_peer(ns->conn, &peer_addr, port);
+    convert_lwip_addr_to_mbed(addr, &peer_addr);
 
     return 0;
 }
