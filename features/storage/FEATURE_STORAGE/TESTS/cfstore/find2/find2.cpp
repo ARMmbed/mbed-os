@@ -148,13 +148,13 @@ static control_t cfstore_find2_test_01(const size_t call_count)
 /* fixed version of brendans code */
 static control_t cfstore_find2_test_02(const size_t call_count)
 {
-    char keyBuffer[128] = "com.arm.mbed.manifest-manager.root.AQAAAAAAAAA-.manifest";
+    static char keyBuffer[128] = "com.arm.mbed.manifest-manager.root.AQAAAAAAAAA-.manifest";
 
     int32_t rc;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_HANDLE_INIT(prev);
     ARM_CFSTORE_SIZE length;
-    char value[CFSTORE_FIND2_TEST_02_VALUE_SIZE];
+    static char value[CFSTORE_FIND2_TEST_02_VALUE_SIZE];
 
     // Initialize the config store
     (void) call_count;

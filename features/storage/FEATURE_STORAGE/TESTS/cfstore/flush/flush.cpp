@@ -120,7 +120,9 @@ using namespace utest::v1;
  * cfstore_flush_utest_msg_g
  *  buffer for storing TEST_ASSERT_xxx_MESSAGE messages
  */
-char cfstore_flush_utest_msg_g[CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE];
+static char cfstore_flush_utest_msg_g[CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE];
+static char cfstore_flush_value[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+
 
 /* Configure secure box. */
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
@@ -345,7 +347,6 @@ static void cfstore_flush_fsm_initializing(void* context)
 
 /* static void cfstore_flush_fsm_init_on_exit(void* context){ (void) context;} */
 
-
 /* @brief  fsm handler called on entry to flushing state */
 static void cfstore_flush_fsm_flush_on_entry(void* context)
 {
@@ -354,7 +355,6 @@ static void cfstore_flush_fsm_flush_on_entry(void* context)
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
     const char* key_name_query = "*";
-    char value[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     ARM_CFSTORE_SIZE len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     ARM_CFSTORE_HANDLE_INIT(next);
     ARM_CFSTORE_HANDLE_INIT(prev);
@@ -395,18 +395,18 @@ static void cfstore_flush_fsm_flush_on_entry(void* context)
     } else {
         /*read the value, increment by 1 and write value back */
         len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
-        ret = cfstore_test_read(cfstore_flush_test_02_kv_data->key_name, value, &len);
+        ret = cfstore_test_read(cfstore_flush_test_02_kv_data->key_name, cfstore_flush_value, &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to read kv data (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
 
-        ivalue = atoi(value);
+        ivalue = atoi(cfstore_flush_value);
         /* revert to CFSTORE_LOG if more trace required */
         CFSTORE_DBGLOG("FLUSH: Read KV from flash (name=%s, value=%d)\n", cfstore_flush_test_02_kv_data->key_name, (int) ivalue);
         /* increment value */
         ++ivalue;
-        snprintf(value, CFSTORE_KEY_NAME_MAX_LENGTH+1, "%d", (int) ivalue);
-        len = strlen(value);
-        ret = cfstore_test_write(cfstore_flush_test_02_kv_data->key_name, value, &len);
+        snprintf(cfstore_flush_value, CFSTORE_KEY_NAME_MAX_LENGTH+1, "%d", (int) ivalue);
+        len = strlen(cfstore_flush_value);
+        ret = cfstore_test_write(cfstore_flush_test_02_kv_data->key_name, cfstore_flush_value, &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write kv data (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
 

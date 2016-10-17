@@ -192,8 +192,8 @@ const char* cfstore_ex_opcode_str[] = {
 };
 
 bool cfstore_example1_done = false;
-const char* cfstore_ex_kv_name = "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well";
-const char* cfstore_ex_kv_value = "TheRollingStone";
+static const char* cfstore_ex_kv_name = "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well";
+static const char* cfstore_ex_kv_value = "TheRollingStone";
 #define CFSTORE_EX1_RSEEK_OFFSET    10   /* offset to S of Stone */
 
 typedef enum cfstore_ex_state_t {
@@ -936,11 +936,6 @@ static control_t cfstore_example1_app_start(const size_t call_count)
         __WFE();
 #endif /* CFSTORE_CONFIG_MBED_OS_VERSION == 3 */
 
-#if defined CFSTORE_CONFIG_MBED_OS_VERSION && CFSTORE_CONFIG_MBED_OS_VERSION == 4
-        /* mbedosV3++
-         * todo: port __WFE()
-         */
-#endif /* CFSTORE_CONFIG_MBED_OS_VERSION == 4 */
         CFSTORE_EX1_LOG("%s: woke up!\n", __func__);
     }
     return CaseNext;

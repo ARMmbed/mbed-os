@@ -117,8 +117,8 @@ const char* cfstore_test_opcode_str[] = {
 static int32_t cfstore_test_dump_print_array(const char* data, ARM_CFSTORE_SIZE len)
 {
     int i;
-    char buf[80];
-    char sbuf[80];
+    static char buf[80];
+    static char sbuf[80];
     char* outbuf = buf;
     char* soutbuf = sbuf;
 
@@ -166,7 +166,7 @@ int32_t cfstore_test_dump(void)
 {
     const char* key_name_query = "*";
     char* read_buf = NULL;
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     ARM_CFSTORE_SIZE vlen = 0;
     int32_t ret = ARM_DRIVER_ERROR;
@@ -353,7 +353,7 @@ int32_t cfstore_test_delete(const char* key_name)
 int32_t cfstore_test_delete_all(void)
 {
     const char* key_name_query = "*";
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
@@ -513,7 +513,7 @@ int32_t cfstore_test_init_1(void)
     char* read_buf = NULL;
     const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     uint8_t key_name_len = 0;
-    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
     ARM_CFSTORE_SIZE max_len = 0;

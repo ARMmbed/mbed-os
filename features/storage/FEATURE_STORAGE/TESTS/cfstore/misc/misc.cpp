@@ -159,7 +159,7 @@ static cfstore_kv_data_t cfstore_misc_test_03_kv_data[] = {
 control_t cfstore_misc_test_02_end(const size_t call_count)
 {
     uint8_t key_name_len = 0;
-    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
     cfstore_kv_data_t* node = NULL;

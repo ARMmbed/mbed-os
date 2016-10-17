@@ -44,7 +44,7 @@ static StorageVolumeManager volumeManager;
 /* used only for the initialization of the volume-manager. */
 static void cfstore_svm_volume_manager_initialize_callback(int32_t status)
 {
-    CFSTORE_FENTRYLOG("%s: operation %d with status %d" , __func__, (int) operation, (int) status);
+    CFSTORE_FENTRYLOG("%s: status %d" , __func__, (int) status);
 }
 
 static void cfstore_svm_journal_mtc_callback(int32_t status, ARM_STORAGE_OPERATION operation)

@@ -122,7 +122,7 @@ control_t cfstore_find_test_03_end(const size_t call_count)
 {
     char* read_buf = NULL;
     const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
-    char key_name_buf[key_name_max_len];
+    static char key_name_buf[key_name_max_len];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
     ARM_CFSTORE_SIZE max_len = 0;
@@ -383,7 +383,7 @@ static cfstore_kv_data_t cfstore_find_test_06_data_match_results[] = {
 control_t cfstore_find_test_06_end(const size_t call_count)
 {
     const char* key_name_query = "0123456789abcdef0123456.y*";
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     int32_t ret = ARM_DRIVER_ERROR;
     int32_t find_count = 0;
@@ -438,7 +438,7 @@ control_t cfstore_find_test_06_end(const size_t call_count)
 control_t cfstore_find_test_07_end(const size_t call_count)
 {
     const char* key_name_query = "0123456789abcdef0123456.y*";
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     int32_t ret = ARM_DRIVER_ERROR;
     int32_t find_count = 0;

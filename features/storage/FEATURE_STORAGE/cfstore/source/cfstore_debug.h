@@ -28,9 +28,7 @@
         printf(_fmt, __VA_ARGS__);                      \
   } while (0);
 
-//todo: restore #define noCFSTORE_DEBUG
-#define noCFSTORE_DEBUG
-//#define CFSTORE_DEBUG
+/* #define noCFSTORE_DEBUG */
 #ifdef CFSTORE_DEBUG
 
 extern uint32_t cfstore_optDebug_g;
@@ -40,10 +38,8 @@ extern uint32_t cfstore_optLogTracepoint_g;
 
 /* uncomment for asserts to work */
 /* #undef NDEBUG */
-// todo: port to mbedOSV3++ #include <core-util/assert.h>
 
 #define CFSTORE_INLINE
-// todo: port to mbedOSV3++ #define CFSTORE_ASSERT  CORE_UTIL_ASSERT
 #define CFSTORE_ASSERT(...)
 
 #define CFSTORE_DBGLOG(_fmt, ...)                       \

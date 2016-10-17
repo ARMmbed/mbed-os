@@ -46,7 +46,7 @@
 
 #ifdef CFSTORE_DEBUG
 uint32_t cfstore_optDebug_g = 1;
-uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE; /*CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY */
+uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE; /*CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY; */
 uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY; */
 #endif
 
@@ -2134,11 +2134,6 @@ static int32_t cfstore_file_destroy(cfstore_file_t *file)
             if (cfstore_hkvt_get_flags_delete(&hkvt)) {
                 ret = cfstore_delete_ex(&hkvt);
             }
-            /* reset client buffer to empty ready for reuse */
-            /* delete the file even if not deleting the KV*/
-            cfstore_listDel(&file->node);
-            memset(file, 0, sizeof(cfstore_file_t));
-
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
             /* IOTSFW_2185
              * When uvisor is enabled, the hkey is securely stored in cfstore box storage
@@ -2151,6 +2146,11 @@ static int32_t cfstore_file_destroy(cfstore_file_t *file)
             CFSTORE_FREE(file);
 #endif
         }
+        /* reset client buffer to empty ready for reuse */
+        /* delete the file even if not deleting the KV*/
+        cfstore_listDel(&file->node);
+        memset(file, 0, sizeof(cfstore_file_t));
+
     }
     return ret;
 }
@@ -3645,6 +3645,7 @@ static int32_t cfstore_initialise(ARM_CFSTORE_CALLBACK callback, void* client_co
         CFSTORE_INIT_LIST_HEAD(&ctx->file_list);
         ctx->area_0_head = NULL;
         ctx->area_0_tail = NULL;
+        ctx->area_0_len = NULL;
 
         CFSTORE_ASSERT(sizeof(cfstore_file_t) == CFSTORE_HANDLE_BUFSIZE);
         if (sizeof(cfstore_file_t) != CFSTORE_HANDLE_BUFSIZE) {
@@ -3737,6 +3738,7 @@ static int32_t cfstore_uninitialise(void)
             CFSTORE_FREE(ctx->area_0_head);
             ctx->area_0_head = NULL;
             ctx->area_0_tail = NULL;
+            ctx->area_0_len = NULL;
         }
     }
 out:

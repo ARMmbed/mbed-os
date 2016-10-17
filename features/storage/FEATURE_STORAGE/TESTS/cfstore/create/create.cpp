@@ -47,7 +47,7 @@
 using namespace utest::v1;
 
 #ifdef CFSTORE_DEBUG
-#define CFSTORE_CREATE_GREENTEA_TIMEOUT_S     360
+#define CFSTORE_CREATE_GREENTEA_TIMEOUT_S     10000
 #else
 #define CFSTORE_CREATE_GREENTEA_TIMEOUT_S     60
 #endif
@@ -172,7 +172,7 @@ static int32_t cfstore_create_kv_create(size_t name_len, char* name_tag, char* v
 {
     int32_t ret = ARM_DRIVER_OK;
     size_t name_len_ex = name_len;
-    char kv_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];    /* extra char for terminating null */
+    static char kv_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];    /* extra char for terminating null */
     ARM_CFSTORE_KEYDESC kdesc;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
@@ -360,7 +360,7 @@ static int32_t cfstore_create_test_02_core(const size_t call_count)
     const size_t kv_name_min_len = CFSTORE_KEY_NAME_MAX_LENGTH - max_num_kvs_create;
     const size_t kv_value_min_len = CFSTORE_TEST_BYTE_DATA_TABLE_SIZE;
     const size_t max_value_buf_size = kv_value_min_len * (max_num_kvs_create +1);
-    char value_buf[max_value_buf_size];
+    static char value_buf[max_value_buf_size];
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -374,7 +374,7 @@ static int32_t cfstore_create_test_02_core(const size_t call_count)
         bytes_stored += 8;                           /* kv overhead */
         if (ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY) {
             CFSTORE_ERRLOG("Out of memory on %d-th KV, trying to allocate memory totalling %d.\n", (int) i, (int) bytes_stored);
-            break;
+            return ret;
         }
         CFSTORE_DBGLOG("Successfully stored %d-th KV bytes,  totalling %d.\n", (int) i, (int) bytes_stored);
     }
@@ -405,9 +405,14 @@ control_t cfstore_create_test_02_end(const size_t call_count)
     (void) call_count;
 
     ret = cfstore_create_test_02_core(call_count);
+    if (ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY) {
+        /* check out of memory recovery process*/
+        ret = 0;
+        goto out0;
+    }
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: something went wrong (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
-
+out0:
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
     return CaseNext;
@@ -429,11 +434,18 @@ control_t cfstore_create_test_03_end(const size_t call_count)
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     for (i = 0; i < 100; i++) {
         ret = cfstore_create_test_02_core(call_count);
+        if (ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY) {
+            /* check out of memory recovery process*/
+            ret = 0;
+            goto out0;
+        }
+
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: something went wrong (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
         /* revert CFSTORE_LOG for more trace */
         CFSTORE_DBGLOG("Successfully completed create/destroy loop %d.\n", (int) i);
     }
+out0:
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
     return CaseNext;
@@ -480,7 +492,9 @@ control_t cfstore_create_test_04_end(const size_t call_count)
         bytes_stored += 8;                           /* kv overhead */
         if (ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY) {
             CFSTORE_ERRLOG("Out of memory on %d-th KV, trying to allocate memory totalling %d.\n", (int) i, (int) bytes_stored);
-            break;
+            /* check out of memory recovery process */
+            ret = 0;
+            goto out0;
         }
         /* revert CFSTORE_LOG for more trace */
         CFSTORE_DBGLOG("Successfully stored %d-th KV bytes,  totalling %d.\n", (int) i, (int) bytes_stored);
@@ -488,6 +502,7 @@ control_t cfstore_create_test_04_end(const size_t call_count)
     ret = cfstore_test_delete_all();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete_all() attributes to clean up after test (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+out0:
     free(value_buf);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
@@ -532,7 +547,9 @@ int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_sto
         bytes_stored += 8;                                                     /* kv overhead */
         if (ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY) {
             CFSTORE_ERRLOG("Out of memory on %d-th KV, trying to allocate memory totalling %d.\n", (int) i, (int) bytes_stored);
-            break;
+            /* check out of memory recovery procedure */
+            ret = 0;
+            goto out0;
         }
         /* revert CFSTORE_LOG for more trace */
         CFSTORE_DBGLOG("Successfully stored %d-th KV bytes,  totalling %d.\n", (int) i, (int) bytes_stored);
@@ -540,6 +557,7 @@ int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_sto
     ret = cfstore_test_delete_all();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete_all() attributes to clean up after test.\n", __func__);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+out0:
     free(value_buf);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
