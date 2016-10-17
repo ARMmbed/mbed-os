@@ -192,3 +192,16 @@ int gpio_read(gpio_t *obj)
 
     return ret;
 }
+
+/* Checks if gpio object is connected (pin was not initialized with NC)
+ * @param pin The pin to be set as GPIO
+ * @return 0 if port is initialized with NC
+ **/
+int gpio_is_connected(const gpio_t *obj)
+{
+    if(obj->gpioPin != (PinName)NC) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
