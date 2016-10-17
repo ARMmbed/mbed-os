@@ -41,11 +41,14 @@ class Eclipse(Makefile):
 
 class EclipseGcc(Eclipse, GccArm):
     LOAD_EXE = True
+    NAME = "Eclipse-GCC-ARM"
 
 class EclipseArmc5(Eclipse, Armc5):
     LOAD_EXE = False
+    NAME = "Eclipse-Armc5"
 
 class EclipseIAR(Eclipse, IAR):
     LOAD_EXE = True
+    NAME = "Eclipse-IAR"
 
 
