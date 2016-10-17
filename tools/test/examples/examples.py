@@ -11,56 +11,21 @@ import json
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
 
-from tools.build_api import get_mbed_official_release
-from tools.targets import TARGET_MAP
 from tools.utils import argparse_force_uppercase_type
-
-
-EXAMPLES = json.load(open(os.path.join(os.path.dirname(__file__),
-                                       "examples.json")))
-
-def print_stuff(name, lst):
-    if lst:
-        print("#"*80)
-        print("# {} example combinations".format(name))
-        print("#")
-    for thing in lst:
-        print(thing)
-
-
-SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
-
-
-def target_cross_toolchain(allowed_toolchains,
-                           features=[], targets=TARGET_MAP.keys(),
-                           toolchains=SUPPORTED_TOOLCHAINS):
-    """Generate pairs of target and toolchains
-
-    Args:
-    allowed_toolchains - a list of all possible toolchains
-
-    Kwargs:
-    features - the features that must be in the features array of a
-               target
-    targets - a list of available targets
-    toolchains - a list of available toolchains
-    """
-    for release_target, release_toolchains in get_mbed_official_release("5"):
-        for toolchain in release_toolchains:
-            if (toolchain in allowed_toolchains and
-                toolchain in toolchains and
-                release_target in targets and
-                all(feature in TARGET_MAP[release_target].features
-                    for feature in features)):
-                yield release_target, toolchain
+import examples_lib as lib
+from examples_lib import SUPPORTED_TOOLCHAINS
 
 
 def main():
     """Entry point"""
     parser = ArgumentParser()
+    parser.add_argument("-c", dest="config", default="examples.json")
     subparsers = parser.add_subparsers()
     import_cmd = subparsers.add_parser("import")
     import_cmd.set_defaults(fn=do_import)
+    version_cmd = subparsers.add_parser("tag")
+    version_cmd.add_argument("tag")
+    version_cmd.set_defaults(fn=do_versionning)
     compile_cmd = subparsers.add_parser("compile")
     compile_cmd.set_defaults(fn=do_compile)
     compile_cmd.add_argument(
@@ -68,38 +33,32 @@ def main():
         type=argparse_force_uppercase_type(SUPPORTED_TOOLCHAINS,
                                            "toolchain"))
     args = parser.parse_args()
-    return args.fn(args)
+    config = json.load(open(os.path.join(os.path.dirname(__file__),
+                               args.config)))
 
+    return args.fn(args, config)
 
-def do_import(_):
+    
+def do_import(_, config):
     """Do the import step of this process"""
-    for example, _ in EXAMPLES.iteritems():
-        subprocess.call(["mbed-cli", "import", example])
+    lib.source_repos(config)
     return 0
 
-
-def do_compile(args):
+def do_compile(args, config):
     """Do the compile step"""
-    failures = []
-    sucesses = []
-    for example, requirements in EXAMPLES.iteritems():
-        os.chdir(basename(example))
-        for target, toolchain in target_cross_toolchain(args.toolchains,
-                                                        **requirements):
-            proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
-                                     "-m", target, "--silent"])
-            proc.wait()
-            example_name = "{} {} {}".format(basename(example), target,
-                                             toolchain)
-            if proc.returncode:
-                failures.append(example_name)
-            else:
-                sucesses.append(example_name)
-        os.chdir("..")
+    results = {}
+    results = lib.compile_repos(config, args.toolchains)
+    
+    lib.print_compilation_summary(results)
+    failures = lib.get_num_failures(results)
+    print("Number of failures = %d" % failures)
+    return failures 
+    
+def do_versionning(args, config):
+    """ Test update the mbed-os to the version specified by the tag """
+    lib.update_mbedos_version(config, args.tag)        
+    return 0
 
-    print_stuff("Passed", sucesses)
-    print_stuff("Failed", failures)
-    return len(failures)
 
 if __name__ == "__main__":
     sys.exit(main())
