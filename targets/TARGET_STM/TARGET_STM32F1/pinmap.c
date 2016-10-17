@@ -162,10 +162,19 @@ void pin_mode(PinName pin, PinMode mode)
 
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
-
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    __IO uint32_t* gpio_reg_hl;//gpio register depends on bit index (high or low)
+    uint32_t shift;
+
+    if (pin_index < 8) {
+        shift = (pin_index * 4);
+        gpio_reg_hl = &(gpio->CRL);
+    } else {
+        shift = (pin_index % 8) * 4;
+        gpio_reg_hl = &(gpio->CRH);
+    }
 
     // Configure open-drain and pull-up/down
     switch (mode) {
@@ -174,16 +183,9 @@ void pin_mode(PinName pin, PinMode mode)
         case PullUp:
         case PullDown:
             // Set pull-up / pull-down for Input mode
-            if (pin_index < 8) {
-                if ((gpio->CRL & (0x03 << (pin_index * 4))) == 0) { // MODE bits = Input mode
-                    gpio->CRL |= (0x08 << (pin_index * 4)); // Set pull-up / pull-down
-                    gpio->CRL &= ~(0x04 << (pin_index * 4)); // ENSURES GPIOx_CRL.CNFx.bit0 = 0
-                }
-            } else {
-                if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) == 0) { // MODE bits = Input mode
-                    gpio->CRH |= (0x08 << ((pin_index % 8) * 4)); // Set pull-up / pull-down
-                    gpio->CRH &= ~(0x04 << ((pin_index % 8) * 4)); // ENSURES GPIOx_CRH.CNFx.bit0 = 0
-                }
+            if ((*gpio_reg_hl & (0x03 << shift)) == 0) { // MODE bits = Input mode
+                *gpio_reg_hl |= (0x08 << shift); // Set pull-up / pull-down
+                *gpio_reg_hl &= ~(0x04 << shift); // ENSURES GPIOx_CRL.CNFx.bit0 = 0
             }
             // Now it's time to setup properly if pullup or pulldown. This is done in ODR register:
             // set pull-up => bit=1, set pull-down => bit = 0
@@ -195,17 +197,51 @@ void pin_mode(PinName pin, PinMode mode)
             break;
         case OpenDrain:
             // Set open-drain for Output mode (General Purpose or Alternate Function)
-            if (pin_index < 8) {
-                if ((gpio->CRL & (0x03 << (pin_index * 4))) > 0) { // MODE bits = Output mode
-                    gpio->CRL |= (0x04 << (pin_index * 4)); // Set open-drain
-                }
-            } else {
-                if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) > 0) { // MODE bits = Output mode
-                    gpio->CRH |= (0x04 << ((pin_index % 8) * 4)); // Set open-drain
-                }
+            if ((*gpio_reg_hl & (0x03 << shift)) > 0) { // MODE bits = Output mode
+                *gpio_reg_hl |= (0x04 << shift); // Set open-drain
             }
             break;
         default:
             break;
     }
+}
+
+/*  Internal function for setting the gpiomode/function
+ *  without changing Pull mode
+ */
+void pin_function_gpiomode(PinName pin, uint32_t gpiomode) {
+
+    /* Read current pull state from HW to avoid over-write*/
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *) Set_GPIO_Clock(port_index);
+    uint32_t pull = PullNone;
+    __IO uint32_t* gpio_reg_hl;//gpio register depends on bit index (high or low)
+    uint32_t shift;
+
+    if (pin_index < 8) {
+        shift = (pin_index * 4);
+        gpio_reg_hl = &(gpio->CRL);
+    } else {
+        shift = (pin_index % 8) * 4;
+        gpio_reg_hl = &(gpio->CRH);
+    }
+
+    /*  Check if pull/pull down is active */
+    if ((!(*gpio_reg_hl & (0x03 << shift))) // input
+        && (!!(*gpio_reg_hl & (0x08 << shift))) // pull-up / down
+        && (!(*gpio_reg_hl & (0x04 << shift)))) { // GPIOx_CRL.CNFx.bit0 = 0
+        if (!!(gpio->ODR & (0x01 << pin_index))) {
+            pull = PullUp;
+        } else {
+            pull = PullDown;
+        }
+    } else { //output
+        if (!!(*gpio_reg_hl & (0x04 << shift))) { //open drain
+            pull = OpenDrain;
+        }
+    }
+
+    /* Then re-use global function for updating the mode part*/
+    pin_function(pin, STM_PIN_DATA(gpiomode, pull, 0));
 }
