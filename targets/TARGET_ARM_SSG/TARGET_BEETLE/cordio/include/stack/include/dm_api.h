@@ -1,25 +1,22 @@
 /*************************************************************************************************/
 /*!
  *  \file   dm_api.h
- *
+ *        
  *  \brief  Device Manager subsystem API.
  *
- *          $Date: 2015-10-30 13:30:55 -0400 (Fri, 30 Oct 2015) $
- *          $Revision: 4347 $
+ *          $Date: 2016-03-29 11:20:44 -0700 (Tue, 29 Mar 2016) $
+ *          $Revision: 6512 $
+ *  
+ *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef DM_API_H
@@ -52,6 +49,7 @@ extern "C" {
 #define DM_ADV_CONN_DIRECT          1     /*! Connectable directed advertising */
 #define DM_ADV_DISC_UNDIRECT        2     /*! Discoverable undirected advertising */
 #define DM_ADV_NONCONN_UNDIRECT     3     /*! Non-connectable undirected advertising */
+#define DM_ADV_CONN_DIRECT_LO_DUTY  4     /*! Connectable directed low duty cycle advertising */
 #define DM_ADV_SCAN_RESPONSE        4     /*! Scan response */
 #define DM_ADV_NONE                 255   /*! For internal use only */
 
@@ -83,6 +81,8 @@ extern "C" {
 /*! The address type */
 #define DM_ADDR_PUBLIC              0     /*! Public address */
 #define DM_ADDR_RANDOM              1     /*! Random address */
+#define DM_ADDR_PUBLIC_IDENTITY     2     /*! Public identity address */
+#define DM_ADDR_RANDOM_IDENTITY     3     /*! Random (static) identity address */
 
 /*! Advertising data types */
 #define DM_ADV_TYPE_FLAGS           0x01  /*! Flag bits */
@@ -113,6 +113,7 @@ extern "C" {
 #define DM_ADV_TYPE_SVC_DATA_128    0x21  /*! Service data - 128-bit UUID */
 #define DM_ADV_TYPE_LESC_CONFIRM    0x22  /*! LE Secure Connections confirm value */
 #define DM_ADV_TYPE_LESC_RANDOM     0x23  /*! LE Secure Connections random value */
+#define DM_ADV_TYPE_URI             0x24  /*! URI */
 #define DM_ADV_TYPE_MANUFACTURER    0xFF  /*! Manufacturer specific data */
 
 /*! Bit mask for flags advertising data type */
@@ -203,6 +204,10 @@ extern "C" {
 /*! Set the type of random address */
 #define DM_RAND_ADDR_SET(addr, type)    {(addr)[5] = ((addr)[5] & 0x3F) | (type);}
 
+/*! Check for Resolvable Random Address */
+#define DM_RAND_ADDR_RPA(addr, type)    (((type) == DM_ADDR_RANDOM) && \
+                                         (DM_RAND_ADDR_GET((addr)) == DM_RAND_ADDR_RESOLV))
+
 /*! Connection busy/idle state */
 #define DM_CONN_IDLE                0     /*! Connection is idle */
 #define DM_CONN_BUSY                1     /*! Connection is busy */
@@ -255,7 +260,17 @@ enum
   DM_SEC_COMPARE_IND,                     /*! Result of Just Works/Numeric Comparison Compare Value Calculation */
   DM_SEC_KEYPRESS_IND,                    /*! Keypress indication from peer in passkey security */
   DM_PRIV_RESOLVED_ADDR_IND,              /*! Private address resolved */
-  DM_CONN_READ_RSSI_IND,                  /*! Read connection RSSI */
+  DM_CONN_READ_RSSI_IND,                  /*! Connection RSSI read */
+  DM_PRIV_ADD_DEV_TO_RES_LIST_IND,        /*! Device added to resolving list */
+  DM_PRIV_REM_DEV_FROM_RES_LIST_IND,      /*! Device removed from resolving list */
+  DM_PRIV_CLEAR_RES_LIST_IND,             /*! Resolving list cleared */
+  DM_PRIV_READ_PEER_RES_ADDR_IND,         /*! Peer resolving address read */
+  DM_PRIV_READ_LOCAL_RES_ADDR_IND,        /*! Local resolving address read */
+  DM_PRIV_SET_ADDR_RES_ENABLE_IND,        /*! Address resolving enable set */
+  DM_REM_CONN_PARAM_REQ_IND,              /*! Remote connection parameter requested */
+  DM_CONN_DATA_LEN_CHANGE_IND,            /*! Data length changed */
+  DM_CONN_WRITE_AUTH_TO_IND,              /*! Write authenticated payload complete */
+  DM_CONN_AUTH_TO_EXPIRED_IND,            /*! Authenticated payload timeout expired */
   DM_ERROR_IND,                           /*! General error */
   DM_VENDOR_SPEC_IND,                     /*! Vendor specific event */
 };
@@ -386,24 +401,34 @@ typedef struct
 /*! Union of DM callback event data types */
 typedef union
 {
-  wsfMsgHdr_t               hdr;
-  hciLeAdvReportEvt_t       scanReport;
-  hciLeConnCmplEvt_t        connOpen;
-  hciLeConnUpdateCmplEvt_t  connUpdate;
-  hciDisconnectCmplEvt_t    connClose;
-  dmSecPairCmplIndEvt_t     pairCmpl;
-  dmSecEncryptIndEvt_t      encryptInd;
-  dmSecAuthReqIndEvt_t      authReq;
-  dmSecPairIndEvt_t         pairInd;
-  dmSecSlaveIndEvt_t        slaveInd;
-  dmSecKeyIndEvt_t          keyInd;
-  dmSecOobCalcIndEvt_t      oobCalcInd;
-  dmSecCnfIndEvt_t          cnfInd;
-  hciLeLtkReqEvt_t          ltkReqInd;
-  hciVendorSpecEvt_t        vendorSpec;
-  dmAdvNewAddrIndEvt_t      advNewAddr;
-  wsfSecEccMsg_t            eccMsg;
-  hciReadRssiCmdCmplEvt_t   readRssi;
+  wsfMsgHdr_t                        hdr;
+  hciLeAdvReportEvt_t                scanReport;
+  hciLeConnCmplEvt_t                 connOpen;
+  hciLeConnUpdateCmplEvt_t           connUpdate;
+  hciDisconnectCmplEvt_t             connClose;
+  dmSecPairCmplIndEvt_t              pairCmpl;
+  dmSecEncryptIndEvt_t               encryptInd;
+  dmSecAuthReqIndEvt_t               authReq;
+  dmSecPairIndEvt_t                  pairInd;
+  dmSecSlaveIndEvt_t                 slaveInd;
+  dmSecKeyIndEvt_t                   keyInd;
+  dmSecOobCalcIndEvt_t               oobCalcInd;
+  dmSecCnfIndEvt_t                   cnfInd;
+  hciLeLtkReqEvt_t                   ltkReqInd;
+  hciVendorSpecEvt_t                 vendorSpec;
+  dmAdvNewAddrIndEvt_t               advNewAddr;
+  wsfSecEccMsg_t                     eccMsg;
+  hciReadRssiCmdCmplEvt_t            readRssi;
+  hciLeReadPeerResAddrCmdCmplEvt_t   readPeerResAddr;
+  hciLeReadLocalResAddrCmdCmplEvt_t  readLocalResAddr;
+  hciLeSetAddrResEnableCmdCmplEvt_t  setAddrResEnable;
+  hciLeAddDevToResListCmdCmplEvt_t   addDevToResList;
+  hciLeRemDevFromResListCmdCmplEvt_t remDevFromResList;
+  hciLeClearResListCmdCmplEvt_t      clearResList;
+  hciLeRemConnParamReqEvt_t          remConnParamReq;
+  hciLeDataLenChangeEvt_t            dataLenChange;
+  hciWriteAuthPayloadToCmdCmplEvt_t writeAuthTo;
+  hciAuthPayloadToExpiredEvt_t      authToExpired;
 } dmEvt_t;
 
 /*! Data type for DmSecSetOob */
@@ -467,13 +492,15 @@ void DmAdvInit(void);
  *        
  *  \brief  Start advertising using the given advertising type and duration.
  *
- *  \param  advType   Advertising type.
- *  \param  duration  The advertising duration, in milliseconds.
+ *  \param  advType       Advertising type.
+ *  \param  duration      The advertising duration, in milliseconds.
+ *  \param  peerAddrType  Peer address type.
+ *  \param  pPeerAddr     Peer address.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void DmAdvStart(uint8_t advType, uint16_t duration);
+void DmAdvStart(uint8_t advType, uint16_t duration, uint8_t peerAddrType, uint8_t *pPeerAddr);
 
 /*************************************************************************************************/
 /*!
@@ -770,13 +797,14 @@ void DmConnClose(uint8_t clientId, dmConnId_t connId, uint8_t reason);
  *  \brief  Accept a connection from the given peer device by initiating directed advertising.
  *
  *  \param  clientId  The client identifier.
+ *  \param  advType   Advertising type.
  *  \param  addrType  Address type.
  *  \param  pAddr     Peer device address.
  *
  *  \return Connection identifier.
  */
 /*************************************************************************************************/
-dmConnId_t DmConnAccept(uint8_t clientId, uint8_t addrType, uint8_t *pAddr);
+dmConnId_t DmConnAccept(uint8_t clientId, uint8_t advType, uint8_t addrType, uint8_t *pAddr);
 
 /*************************************************************************************************/
 /*!
@@ -872,6 +900,67 @@ uint16_t DmConnCheckIdle(dmConnId_t connId);
  */
 /*************************************************************************************************/
 void DmConnReadRssi(dmConnId_t connId);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmRemoteConnParamReqReply
+*
+*  \brief  Reply to the HCI remote connection parameter request event.  This command is used to
+*          indicate that the Host has accepted the remote device’s request to change connection
+*          parameters.
+*
+*  \param  connId      Connection identifier.
+*  \param  pConnSpec   Connection specification.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmRemoteConnParamReqReply(dmConnId_t connId, hciConnSpec_t *pConnSpec);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmRemoteConnParamReqNegReply
+*
+*  \brief  Negative reply to the HCI remote connection parameter request event.  This command
+*          is used to indicate that the Host has rejected the remote device’s request to change
+*          connection parameters.
+*
+*  \param  connId      Connection identifier.
+*  \param  reason      Reason for rejection.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmRemoteConnParamReqNegReply(dmConnId_t connId, uint8_t reason);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmConnSetDataLen
+*
+*  \brief  Set data length for a given connection.
+*
+*  \param  connId      Connection identifier.
+*  \param  txOctets    Maximum number of payload octets for a Data PDU.
+*  \param  txTime      Maximum number of microseconds for a Data PDU.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmConnSetDataLen(dmConnId_t connId, uint16_t txOctets, uint16_t txTime);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmWriteAuthPayloadTimeout
+*
+*  \brief  Set authenticated payload timeout for a given connection.
+*
+*  \param  connId      Connection identifier.
+*  \param  timeout     Timeout period in units of 10ms
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmWriteAuthPayloadTimeout(dmConnId_t connId, uint16_t timeout);
 
 /*************************************************************************************************/
 /*!
@@ -1167,6 +1256,183 @@ void DmPrivResolveAddr(uint8_t *pAddr, uint8_t *pIrk, uint16_t param);
 
 /*************************************************************************************************/
 /*!
+*  \fn     DmPrivAddDevToResList
+*
+*  \brief  Add device to resolving list.  When complete the client's callback function
+*          is called with a DM_PRIV_ADD_DEV_TO_RES_LIST_IND event.  The client must wait
+*          to receive this event before executing this function again.
+*
+*          Note: This command cannot be used when address translation is enabled in the LL and:
+*                - Advertising is enabled
+*                - Scanning is enabled
+*                - Create connection command is outstanding
+*
+*          Note: If the local or peer IRK associated with the peer Identity Address is all
+*                zeros then the LL will use or accept the local or peer Identity Address.
+*
+*          Note: 'enableLlPriv' should be set to TRUE when the last device is being added
+*                 to resolving list to enable address resolution in LL.
+*
+*  \param  addrType      Peer identity address type.
+*  \param  pIdentityAddr Peer identity address.
+*  \param  pPeerIrk      The peer's identity resolving key.
+*  \param  pLocalIrk     The local identity resolving key.
+*  \param  enableLlPriv  Set to TRUE to enable address resolution in LL.
+*  \param  param         client-defined parameter returned with callback event.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivAddDevToResList(uint8_t addrType, const uint8_t *pIdentityAddr, uint8_t *pPeerIrk,
+                           uint8_t *pLocalIrk, bool_t enableLlPriv, uint16_t param);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmPrivRemDevFromResList
+*
+*  \brief  Remove device from resolving list.  When complete the client's callback function
+*          is called with a DM_PRIV_REM_DEV_FROM_RES_LIST_IND event.  The client must wait to
+*          receive this event before executing this function again.
+*
+*          Note: This command cannot be used when address translation is enabled in the LL and:
+*                - Advertising is enabled
+*                - Scanning is enabled
+*                - Create connection command is outstanding
+*
+*  \param  addrType      Peer identity address type.
+*  \param  pIdentityAddr Peer identity address.
+*  \param  param         client-defined parameter returned with callback event.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivRemDevFromResList(uint8_t addrType, const uint8_t *pIdentityAddr, uint16_t param);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmPrivClearResList
+*
+*  \brief  Clear resolving list.  When complete the client's callback function is called with a
+*          DM_PRIV_CLEAR_RES_LIST_IND event.  The client must wait to receive this event before
+*          executing this function again.
+*
+*          Note: This command cannot be used when address translation is enabled in the LL and:
+*                - Advertising is enabled
+*                - Scanning is enabled
+*                - Create connection command is outstanding
+*
+*          Note: Address resolution in LL will be disabled when resolving list's cleared
+*                successfully.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivClearResList(void);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmPrivReadPeerResolvableAddr
+*
+*  \brief  HCI read peer resolvable address command.  When complete the client's callback
+*          function is called with a DM_PRIV_READ_PEER_RES_ADDR_IND event.  The client must
+*          wait to receive this event before executing this function again.
+*
+*  \param  addrType        Peer identity address type.
+*  \param  pIdentityAddr   Peer identity address.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivReadPeerResolvableAddr(uint8_t addrType, const uint8_t *pIdentityAddr);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmPrivReadLocalResolvableAddr
+*
+*  \brief  Read local resolvable address command.  When complete the client's callback
+*          function is called with a DM_PRIV_READ_LOCAL_RES_ADDR_IND event.  The client must
+*          wait to receive this event before executing this function again.
+*
+*  \param  addrType        Peer identity address type.
+*  \param  pIdentityAddr   Peer identity address.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivReadLocalResolvableAddr(uint8_t addrType, const uint8_t *pIdentityAddr);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmPrivSetAddrResEnable
+*
+*  \brief  Enable or disable address resolution in LL.  When complete the client's callback
+*          function is called with a DM_PRIV_SET_ADDR_RES_ENABLE_IND event.  The client must
+*          wait to receive this event before executing this function again.
+*
+*          Note: This command can be used at any time except when:
+*                - Advertising is enabled
+*                - Scanning is enabled
+*                - Create connection command is outstanding
+*
+*  \param  enable   Set to TRUE to enable address resolution or FALSE to disable it.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivSetAddrResEnable(bool_t enable);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmPrivSetResolvablePrivateAddrTimeout
+*
+*  \brief  Set resolvable private address timeout command.
+*
+*  \param  rpaTimeout    Timeout measured in seconds.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+void DmPrivSetResolvablePrivateAddrTimeout(uint16_t rpaTimeout);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmLlPrivEnabled
+*
+*  \brief  Whether LL Privacy is enabled.
+*
+*  \return TRUE if LL Privacy is enabled. FALSE, otherwise.
+*/
+/*************************************************************************************************/
+bool_t DmLlPrivEnabled(void);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmLlAddrType
+*
+*  \brief  Map an address type to a type used by LL.
+*
+*  \param  addrType   Address type used by Host.
+*
+*  \return Address type used by LL.
+*/
+/*************************************************************************************************/
+uint8_t DmLlAddrType(uint8_t addrType);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmHostAddrType
+*
+*  \brief  Map an address type to a type used by Host.
+*
+*  \param  addrType   Address type used by LL.
+*
+*  \return Address type used by Host.
+*/
+/*************************************************************************************************/
+uint8_t DmHostAddrType(uint8_t addrType);
+
+/*************************************************************************************************/
+/*!
  *  \fn     DmL2cConnUpdateCnf
  *        
  *  \brief  For internal use only.  L2C calls this function to send the result of an L2CAP
@@ -1271,6 +1537,32 @@ uint8_t DmConnLocalAddrType(dmConnId_t connId);
  */
 /*************************************************************************************************/
 uint8_t *DmConnLocalAddr(dmConnId_t connId);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmConnPeerRpa
+*
+*  \brief  For internal use only.  Return the peer resolvable private address (RPA).
+*
+*  \param  connId  Connection ID.
+*
+*  \return Pointer to peer RPA.
+*/
+/*************************************************************************************************/
+uint8_t *DmConnPeerRpa(dmConnId_t connId);
+
+/*************************************************************************************************/
+/*!
+*  \fn     DmConnLocalRpa
+*
+*  \brief  For internal use only.  Return the local resolvable private address (RPA).
+*
+*  \param  connId  Connection ID.
+*
+*  \return Pointer to local RPA.
+*/
+/*************************************************************************************************/
+uint8_t *DmConnLocalRpa(dmConnId_t connId);
 
 /*************************************************************************************************/
 /*!

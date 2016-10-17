@@ -4,22 +4,19 @@
  *
  *  \brief  Trace message interface.
  *
- *          $Date: 2015-10-02 20:12:32 -0400 (Fri, 02 Oct 2015) $
- *          $Revision: 4099 $
+ *          $Date: 2016-02-27 09:05:32 -0800 (Sat, 27 Feb 2016) $
+ *          $Revision: 6074 $
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
+ *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef WSF_TRACE_H
@@ -38,6 +35,7 @@ typedef void (*WsfTokenHandler_t)(void);
 
 void WsfTrace(const char *pStr, ...);
 void WsfToken(uint32_t tok, uint32_t var);
+void WsfTraceEnable(bool_t enable);
 
 /* Token management. */
 bool_t WsfTokenService(void);
@@ -215,5 +213,11 @@ uint8_t WsfTokenIOWrite(uint8_t *pBuf, uint8_t len);
 #define LL_TRACE_ERR1(msg, var1)                    WSF_TRACE1("LL", "ERR",  msg, var1)
 #define LL_TRACE_ERR2(msg, var1, var2)              WSF_TRACE2("LL", "ERR",  msg, var1, var2)
 #define LL_TRACE_ERR3(msg, var1, var2, var3)        WSF_TRACE3("LL", "ERR",  msg, var1, var2, var3)
+
+#if (WSF_TRACE_ENABLED == TRUE) || (WSF_TOKEN_ENABLED == TRUE)
+#define LL_TRACE_ENABLE(ena)                        WsfTraceEnable(ena)
+#else
+#define LL_TRACE_ENABLE(ena)
+#endif
 
 #endif /* WSF_TRACE_H */
