@@ -24,6 +24,8 @@
 #include "sn_nsdl.h"
 #include "ns_list.h"
 
+#define TRANSACTION_LIFETIME 180
+
 /**
  * \brief Service message response receive callback.
  *
@@ -47,14 +49,16 @@ typedef struct coap_msg_handler_s {
 
 typedef struct coap_transaction {
     uint8_t remote_address[16];
-    uint16_t remote_port;
     uint8_t token[4];
+    uint32_t create_time;
+    uint16_t remote_port;
     uint16_t msg_id;
+    uint16_t data_len;
     int8_t service_id;
     uint8_t options;
-    bool client_request: 1;
     uint8_t *data_ptr;
-    uint16_t data_len;
+    bool client_request: 1;
+
     coap_message_handler_response_recv *resp_cb;
     ns_list_link_t link;
 } coap_transaction_t;
@@ -80,5 +84,7 @@ extern int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int
         sn_coap_content_format_e content_type, const uint8_t *payload_ptr, uint16_t payload_len);
 
 extern int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t current_time);
+
+extern void transaction_delete(coap_transaction_t *this);
 
 #endif

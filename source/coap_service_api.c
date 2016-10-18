@@ -151,6 +151,8 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
         }
         memcpy(transaction_ptr->data_ptr, data_ptr, data_len);
         transaction_ptr->data_len = data_len;
+    } else if (transaction_ptr->resp_cb == NULL ){
+        transaction_delete(transaction_ptr);
     }
 
     return 0;
@@ -191,7 +193,7 @@ static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_m
     }
 
     uri_registration_t *uri_reg_ptr = uri_registration_find(this, coap_message->uri_path_ptr, coap_message->uri_path_len);
-    if (transaction_ptr && uri_reg_ptr && uri_reg_ptr->request_recv_cb) {
+    if (uri_reg_ptr && uri_reg_ptr->request_recv_cb) {
         tr_debug("Service %d, call request recv cb uri %.*s", this->service_id, coap_message->uri_path_len, coap_message->uri_path_ptr);
 
         if ((this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS ) {//TODO Add secure bypass option
@@ -240,13 +242,6 @@ static int send_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, 
     return -1;
 }
 
-//static void sec_conn_closed_cb(int8_t socket_id)
-//{
-//    coap_service_t *this = service_find_by_socket(socket_id);
-
-//    tr_debug("Secure socket was closed by end device");
-//}
-
 static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40])
 {
     //TODO: this is not enough if shared socket. Inform all!
@@ -255,7 +250,6 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
         this->coap_security_done_cb(this->service_id, address, keyblock);
     }
 
-    //TODO refactor this away. There should be no transaction_ptr(s) before done_cb has been called
     //TODO: send all unsend transactions if more than 1
     coap_transaction_t *transaction_ptr = coap_message_handler_find_transaction(address, port);
     if (transaction_ptr && transaction_ptr->data_ptr) {
@@ -269,7 +263,9 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
         ns_dyn_mem_free(transaction_ptr->data_ptr);
         transaction_ptr->data_ptr = NULL;
         transaction_ptr->data_len = 0;
-        //TODO: who deletes transaction incase no response is required
+        if (transaction_ptr->resp_cb == NULL) {
+            transaction_delete(transaction_ptr);
+        }
     }
 }
 

@@ -17,6 +17,11 @@ coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint
     return coap_message_handler_stub.coap_ptr;
 }
 
+void transaction_delete(coap_transaction_t *this)
+{
+
+}
+
 int8_t coap_message_handler_destroy(coap_msg_handler_t *handle)
 {
     return coap_message_handler_stub.int8_value;
