@@ -32,6 +32,8 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
+#include "cmsis.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
