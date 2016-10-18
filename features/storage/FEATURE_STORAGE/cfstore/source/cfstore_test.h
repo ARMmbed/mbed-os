@@ -54,8 +54,7 @@ typedef struct cfstore_kv_data_t {
     const char* value;
 } cfstore_kv_data_t;
 
-typedef struct cfstore_test_rw_data_entry_t
-{
+typedef struct cfstore_test_rw_data_entry_t {
     uint32_t offset;
     char rw_char;
 } cfstore_test_rw_data_entry_t;

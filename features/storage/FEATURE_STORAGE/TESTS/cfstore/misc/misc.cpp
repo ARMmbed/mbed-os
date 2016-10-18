@@ -84,7 +84,7 @@ control_t cfstore_misc_test_00_start(const size_t call_count)
 
     /* try setting the power control state before initialised, which should fail */
     ret = drv->PowerControl(state);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Eror: PowerControl() call should have failed as CFSTORE not initialised, but the call succeeded\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Eror: PowerControl() call should have failed as CFSTORE not initialised, but the call succeeded\n", __func__);
     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
     ret = drv->Initialize(cfstore_utest_default_callback, NULL);
@@ -102,16 +102,15 @@ static control_t cfstore_misc_test_00_end(const size_t call_count)
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    while(state <= ARM_POWER_FULL)
-    {
+    while (state <= ARM_POWER_FULL) {
         ret = drv->PowerControl(state);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: PowerControl() call failed\r\n", __func__);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: PowerControl() call failed\n", __func__);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
         state = (ARM_POWER_STATE)((uint32_t) state + 1);
     }
     /*try invalid value which should fail*/
     ret = drv->PowerControl((ARM_POWER_STATE ) 0xffffffff);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:ERror: PowerControl() did not fail with bad value 0xffffffff (not as expected)\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:ERror: PowerControl() did not fail with bad value 0xffffffff (not as expected)\n", __func__);
     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
     ret = drv->Uninitialize();
@@ -134,10 +133,10 @@ control_t cfstore_misc_test_01(const size_t call_count)
     memset(&version, 0, sizeof(version));
 
     version = drv->GetVersion();
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:GetVersion() failed to return correct API version.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:GetVersion() failed to return correct API version.\n", __func__);
     TEST_ASSERT_MESSAGE(version.api == ARM_CFSTORE_API_VERSION, cfstore_misc_utest_msg_g);
 
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:GetVersion() to return correct driver version.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:GetVersion() to return correct driver version.\n", __func__);
     TEST_ASSERT_MESSAGE(version.drv == ARM_CFSTORE_DRV_VERSION, cfstore_misc_utest_msg_g);
     return CaseNext;
 }
@@ -145,12 +144,11 @@ control_t cfstore_misc_test_01(const size_t call_count)
 
 /* KV data for test_03 */
 static cfstore_kv_data_t cfstore_misc_test_03_kv_data[] = {
-        /*          1         2         3         4         5         6        7  */
-        /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        { "The.principles.of.least.action.in.quantum.mechanics", "DoctoralThesis"},
-        { "Space.Time.Approach.to.Quantum.Electrodynamic", " PhysicalReview766)"},
-        { "An.Operator.Calculus.Having.Applications.in.Quantum.Electrodynamics", "PhysicalReview84)"},
-        { NULL, NULL},
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    {"The.principles.of.least.action.in.quantum.mechanics", "DoctoralThesis"},
+    {"Space.Time.Approach.to.Quantum.Electrodynamic", " PhysicalReview766)"},
+    {NULL, NULL},
 };
 
 
@@ -161,41 +159,40 @@ static cfstore_kv_data_t cfstore_misc_test_03_kv_data[] = {
 control_t cfstore_misc_test_02_end(const size_t call_count)
 {
     uint8_t key_name_len = 0;
-    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    static char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
     cfstore_kv_data_t* node = NULL;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
-    CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
+    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
     memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
     /* dont set any flags to get default settings */
     memset(&flags, 0, sizeof(flags));
 
     ret = cfstore_test_create_table(cfstore_misc_test_03_kv_data);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to create keys from table.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to create keys from table.\n", __func__);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
     node = cfstore_misc_test_03_kv_data;
-    while(node->key_name != NULL)
-    {
-        CFSTORE_DBGLOG("%s:About to open KV (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
+    while (node->key_name != NULL) {
+        CFSTORE_DBGLOG("%s:About to open KV (key_name=\"%s\", value=\"%s\")\n", __func__, node->key_name, node->value);
         ret = drv->Open(node->key_name, flags, hkey);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\r\n", __func__, node->key_name, node->value, (int) ret);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
         key_name_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
         memset(key_name_buf, 0, key_name_len);
         drv->GetKeyName(hkey, key_name_buf, &key_name_len);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to GetKeyName() (key_name (expected)=\"%s\", key_name (returned)=\"%s\", value=\"%s\"), len return=%d, len expected=%d\r\n", __func__, node->key_name, key_name_buf, node->value, (int) key_name_len, (int) strlen(node->key_name));
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to GetKeyName() (key_name (expected)=\"%s\", key_name (returned)=\"%s\", value=\"%s\"), len return=%d, len expected=%d\n", __func__, node->key_name, key_name_buf, node->value, (int) key_name_len, (int) strlen(node->key_name));
         TEST_ASSERT_MESSAGE(key_name_len == strlen(node->key_name)+1, cfstore_misc_utest_msg_g);
 
         /* revert to CFSTORE_LOG if more trace required */
-        CFSTORE_DBGLOG("GetKeyName() successfully reported key_name (key_name=\"%s\")\r\n", key_name_buf);
+        CFSTORE_DBGLOG("GetKeyName() successfully reported key_name (key_name=\"%s\")\n", key_name_buf);
         ret = drv->Close(hkey);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to close key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to close key (key_name=\"%s\", value=\"%s\")\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
         node++;
     }
@@ -227,25 +224,24 @@ control_t cfstore_misc_test_03_end(const size_t call_count)
     memset(&flags, 0, sizeof(flags));
 
     ret = cfstore_test_create_table(cfstore_misc_test_03_kv_data);
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to create keys from table.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to create keys from table.\n", __func__);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
     node = cfstore_misc_test_03_kv_data;
-    while(node->key_name != NULL)
-    {
-        CFSTORE_DBGLOG("%s:About to open KV (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
+    while (node->key_name != NULL) {
+        CFSTORE_DBGLOG("%s:About to open KV (key_name=\"%s\", value=\"%s\")\n", __func__, node->key_name, node->value);
         ret = drv->Open(node->key_name, flags, hkey);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\r\n", __func__, node->key_name, node->value, (int) ret);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
         drv->GetValueLen(hkey, &len);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Errro: GetValueLen() retrieve incorrect length of value blob(expected=%d, returned=%d)\r\n", __func__, (int) strlen(node->value), (int) len);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Errro: GetValueLen() retrieve incorrect length of value blob(expected=%d, returned=%d)\n", __func__, (int) strlen(node->value), (int) len);
         TEST_ASSERT_MESSAGE(len == strlen(node->value), cfstore_misc_utest_msg_g);
         /* revert to CFSTORE_LOG if more trace required */
-        CFSTORE_DBGLOG("GetValueLen() successfully reported correct value blob length%s", "\r\n");
+        CFSTORE_DBGLOG("GetValueLen() successfully reported correct value blob length%s", "\n");
 
         ret = drv->Close(hkey);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to close key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to close key (key_name=\"%s\", value=\"%s\")\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
         node++;
     }
@@ -271,7 +267,7 @@ control_t cfstore_misc_test_04_start(const size_t call_count)
     (void) call_count;
 
     status = drv->GetStatus();
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() before initialisation should have reported error, but reported no error.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() before initialisation should have reported error, but reported no error.\n", __func__);
     TEST_ASSERT_MESSAGE(status.error == 1, cfstore_misc_utest_msg_g);
 
     ret = drv->Initialize(cfstore_utest_default_callback, NULL);
@@ -294,10 +290,10 @@ control_t cfstore_misc_test_04_end(const size_t call_count)
     (void) call_count;
 
     status = drv->GetStatus();
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() but reported error.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() but reported error.\n", __func__);
     TEST_ASSERT_MESSAGE(status.error == 0, cfstore_misc_utest_msg_g);
 
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() reported operation in progress.\r\n", __func__);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetStatus() reported operation in progress.\n", __func__);
     TEST_ASSERT_MESSAGE(status.in_progress == 0, cfstore_misc_utest_msg_g);
 
     ret = drv->Uninitialize();
@@ -315,18 +311,18 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("MISC_test_00", cfstore_misc_test_00),
-        Case("MISC_test_00_start", cfstore_misc_test_00_start),
-        Case("MISC_test_00_end", cfstore_misc_test_00_end),
-        Case("MISC_test_01", cfstore_misc_test_01),
-        Case("MISC_test_02_start", cfstore_utest_default_start),
-        Case("MISC_test_02_end", cfstore_misc_test_02_end),
-        Case("MISC_test_03_start", cfstore_utest_default_start),
-        Case("MISC_test_03_end", cfstore_misc_test_03_end),
-        Case("MISC_test_04_start", cfstore_misc_test_04_start),
-        Case("MISC_test_05_end", cfstore_misc_test_04_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("MISC_test_00", cfstore_misc_test_00),
+    Case("MISC_test_00_start", cfstore_misc_test_00_start),
+    Case("MISC_test_00_end", cfstore_misc_test_00_end),
+    Case("MISC_test_01", cfstore_misc_test_01),
+    Case("MISC_test_02_start", cfstore_utest_default_start),
+    Case("MISC_test_02_end", cfstore_misc_test_02_end),
+    Case("MISC_test_03_start", cfstore_utest_default_start),
+    Case("MISC_test_03_end", cfstore_misc_test_03_end),
+    Case("MISC_test_04_start", cfstore_misc_test_04_start),
+    Case("MISC_test_05_end", cfstore_misc_test_04_end),
 };
 
 

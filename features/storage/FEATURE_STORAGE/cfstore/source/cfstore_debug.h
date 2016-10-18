@@ -7,6 +7,7 @@
 #ifndef __CFSTORE_DEBUG
 #define __CFSTORE_DEBUG
 
+#include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
 
@@ -25,11 +26,9 @@
   do                                                    \
   {                                                     \
         printf(_fmt, __VA_ARGS__);                      \
-  }while(0);
+  } while (0);
 
-//todo: restore #define noCFSTORE_DEBUG
-#define noCFSTORE_DEBUG
-//#define CFSTORE_DEBUG
+/* #define noCFSTORE_DEBUG */
 #ifdef CFSTORE_DEBUG
 
 extern uint32_t cfstore_optDebug_g;
@@ -39,10 +38,8 @@ extern uint32_t cfstore_optLogTracepoint_g;
 
 /* uncomment for asserts to work */
 /* #undef NDEBUG */
-// todo: port to mbedOSV3++ #include <core-util/assert.h>
 
 #define CFSTORE_INLINE
-// todo: port to mbedOSV3++ #define CFSTORE_ASSERT  CORE_UTIL_ASSERT
 #define CFSTORE_ASSERT(...)
 
 #define CFSTORE_DBGLOG(_fmt, ...)                       \
@@ -52,7 +49,7 @@ extern uint32_t cfstore_optLogTracepoint_g;
     {                                                   \
         printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
-  }while(0);
+  } while (0);
 
 
 #define CFSTORE_ERRLOG(_fmt, ...)                       \
@@ -62,7 +59,7 @@ extern uint32_t cfstore_optLogTracepoint_g;
     {                                                   \
         printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
-  }while(0);
+  } while (0);
 
 
 #define CFSTORE_FENTRYLOG(_fmt, ...)                       \
@@ -72,7 +69,7 @@ extern uint32_t cfstore_optLogTracepoint_g;
     {                                                   \
         printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
-  }while(0);
+  } while (0);
 
 
 /* tracepoints */
@@ -105,16 +102,16 @@ do                                                                              
             printf(_fmt, __VA_ARGS__);                                          \
         }                                                                       \
     }                                                                           \
-}while(0);
+} while (0);
 
 
 #else
-#define CFSTORE_ASSERT(_x)                   do { } while(0)
+#define CFSTORE_ASSERT(_x)                   do { } while (0)
 #define CFSTORE_INLINE                       inline
-#define CFSTORE_DBGLOG(_fmt, ...)            do { } while(0)
-#define CFSTORE_ERRLOG(_fmt, ...)            do { } while(0)
-#define CFSTORE_FENTRYLOG(_fmt, ...)         do { } while(0)
-#define CFSTORE_TP(_tp, _fmt, ...)           do { } while(0)
+#define CFSTORE_DBGLOG(_fmt, ...)            do { } while (0)
+#define CFSTORE_ERRLOG(_fmt, ...)            do { } while (0)
+#define CFSTORE_FENTRYLOG(_fmt, ...)         do { } while (0)
+#define CFSTORE_TP(_tp, _fmt, ...)           do { } while (0)
 #endif /* CFSTORE_DEBUG */
 
 

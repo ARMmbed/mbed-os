@@ -60,8 +60,8 @@ UVISOR_SET_MODE_ACL(UVISOR_ENABLED, cfstore_acl_uvisor_box_add_del_g);
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 static cfstore_kv_data_t cfstore_add_del_test_07_data[] = {
-        CFSTORE_INIT_1_TABLE_MID_NODE,
-        { NULL, NULL},
+    CFSTORE_INIT_1_TABLE_MID_NODE,
+    {NULL, NULL},
 };
 
 
@@ -113,7 +113,7 @@ control_t cfstore_add_del_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to Open() (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
 
-    if(hkey != NULL){
+    if (hkey != NULL) {
         ret = drv->Delete(hkey);
         drv->Close(hkey);
         hkey = NULL;
@@ -136,10 +136,10 @@ control_t cfstore_add_del_test_01_end(const size_t call_count)
 
 
 static cfstore_kv_data_t cfstore_add_del_test_08_data[] = {
-        CFSTORE_INIT_1_TABLE_HEAD,
-        CFSTORE_INIT_1_TABLE_MID_NODE,
-        CFSTORE_INIT_1_TABLE_TAIL,
-        { NULL, NULL},
+    CFSTORE_INIT_1_TABLE_HEAD,
+    CFSTORE_INIT_1_TABLE_MID_NODE,
+    CFSTORE_INIT_1_TABLE_TAIL,
+    {NULL, NULL},
 };
 
 
@@ -169,8 +169,7 @@ control_t cfstore_add_del_test_02_end(const size_t call_count)
     /* create  */
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     node = cfstore_add_del_test_08_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         len = strlen(node->value);
         ret = cfstore_test_create(node->key_name, (char*) node->value, &len, &kdesc);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create kv (key_name=%s.\n", __func__, node->key_name);
@@ -187,8 +186,7 @@ control_t cfstore_add_del_test_02_end(const size_t call_count)
 
     /* check there are no KVs present as expected */
     node = cfstore_add_del_test_08_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         ret = cfstore_test_kv_is_found(node->key_name, &bResult);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: found key when should not be present.\n", __func__);
         TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND && bResult == false, cfstore_add_del_utest_msg_g);
@@ -227,8 +225,7 @@ control_t cfstore_add_del_test_03_end(const size_t call_count)
 
     /* delete some keys */
     node = cfstore_add_del_test_08_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         CFSTORE_DBGLOG("%s:about to delete key (key_name=%s).\n", __func__, node->key_name);
         cfstore_test_delete(node->key_name);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error failed to delete a key (ret=%d).\n", __func__, (int) ret);
@@ -239,8 +236,7 @@ control_t cfstore_add_del_test_03_end(const size_t call_count)
     }
     /* check the keys have been deleted */
     node = cfstore_add_del_test_08_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         ret = cfstore_test_kv_is_found(node->key_name, &bfound);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete a key (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, cfstore_add_del_utest_msg_g);
@@ -381,18 +377,18 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("ADD_DEL_test_00", cfstore_add_del_test_00),
-        Case("ADD_DEL_test_01_start", cfstore_utest_default_start),
-        Case("ADD_DEL_test_01_end", cfstore_add_del_test_01_end),
-        Case("ADD_DEL_test_02_start", cfstore_utest_default_start),
-        Case("ADD_DEL_test_02_end", cfstore_add_del_test_02_end),
-        Case("ADD_DEL_test_03_start", cfstore_utest_default_start),
-        Case("ADD_DEL_test_03_end", cfstore_add_del_test_03_end),
-        Case("ADD_DEL_test_04", cfstore_add_del_test_04),
-        Case("ADD_DEL_test_05_start", cfstore_utest_default_start),
-        Case("ADD_DEL_test_05_end", cfstore_add_del_test_05_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("ADD_DEL_test_00", cfstore_add_del_test_00),
+    Case("ADD_DEL_test_01_start", cfstore_utest_default_start),
+    Case("ADD_DEL_test_01_end", cfstore_add_del_test_01_end),
+    Case("ADD_DEL_test_02_start", cfstore_utest_default_start),
+    Case("ADD_DEL_test_02_end", cfstore_add_del_test_02_end),
+    Case("ADD_DEL_test_03_start", cfstore_utest_default_start),
+    Case("ADD_DEL_test_03_end", cfstore_add_del_test_03_end),
+    Case("ADD_DEL_test_04", cfstore_add_del_test_04),
+    Case("ADD_DEL_test_05_start", cfstore_utest_default_start),
+    Case("ADD_DEL_test_05_end", cfstore_add_del_test_05_end),
 };
 
 

@@ -18,7 +18,7 @@
 #define __CFSTORE_UVISOR_H__
 
 /* target specifc ACLs */
-#if   defined(TARGET_LIKE_FRDM_K64F)
+#if   defined(CFSTORE_UVISOR_TARGET_LIKE_FRDM_K64F)
 
 #define CFSTORE_UVISOR_LED_ON  false
 #define CFSTORE_UVISOR_LED_OFF true
@@ -38,7 +38,7 @@
         {UART0,  sizeof(*UART0),  UVISOR_TACLDEF_PERIPH}, \
     }
 
-#elif defined(TARGET_LIKE_STM32F429I_DISCO)
+#elif defined(CFSTORE_UVISOR_TARGET_LIKE_STM32F429I_DISCO)
 
 #define CFSTORE_UVISOR_LED_ON  false
 #define CFSTORE_UVISOR_LED_OFF true
@@ -61,9 +61,9 @@
         {(void *) 0x42470000, 0x1000, UVISOR_TACLDEF_PERIPH}, \
     }
 
-#elif  defined(TARGET_LIKE_EFM32GG_STK) \
-    || defined(TARGET_LIKE_EFM32LG_STK) \
-    || defined(TARGET_LIKE_EFM32WG_STK)
+#elif  defined(CFSTORE_UVISOR_TARGET_LIKE_EFM32GG_STK) \
+    || defined(CFSTORE_UVISOR_TARGET_LIKE_EFM32LG_STK) \
+    || defined(CFSTORE_UVISOR_TARGET_LIKE_EFM32WG_STK)
 
 #define CFSTORE_UVISOR_LED_ON  false
 #define CFSTORE_UVISOR_LED_OFF true
@@ -84,7 +84,7 @@
         {(void*) 0x0FE08000, 0x1000, UVISOR_TACLDEF_SECURE_CONST}, \
     }
 
-#elif defined(TARGET_LIKE_EFM32PG_STK)
+#elif defined(CFSTORE_UVISOR_TARGET_LIKE_EFM32PG_STK)
 
 #define CFSTORE_UVISOR_LED_ON  false
 #define CFSTORE_UVISOR_LED_OFF true

@@ -26,8 +26,7 @@
  *  Introduction to Algorithms, TH Cormen, CE Leiserson, Rl Rivest,
  *  ISBN 0-262-03141-8 (1989), Pages 206-207.
  */
-typedef struct cfstore_list_node_t
-{
+typedef struct cfstore_list_node_t {
     struct cfstore_list_node_t *next;
     struct cfstore_list_node_t *prev;
 } cfstore_list_node_t;

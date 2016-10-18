@@ -415,10 +415,10 @@ Embedded systems commonly have the following configurations:
 - flash partition4: filesystem/data for image copy 0 (e.g. certificates, keys, kernel boot parameters).
 
 Typical platform (system) configurations may be dimensioned (depending on cost, reliability, etc) as follows:
-- partitions 0, 1, 2, 3, 4, 5 stored on single flash part are typically ~{128MB, 256MB, 512MB} in size. This 
+- partitions 0, 1, 2, 3, 4, 5 stored on single flash part are typically ~{128kB, 256kB, 512kB} in size. This 
   configuration corresponds to Scenario 2.
 - partitions 0, 1, 2 stored on 1st flash part (BANK0),  partitions 3, 4 stored on 2nd flash (BANK1), where parts 
-  are typically ~{128MB, 256MB, 512MB} in size. This configuration corresponds to Scenario 1. 
+  are typically ~{128kB, 256kB, 512kB} in size. This configuration corresponds to Scenario 1. 
 
 
 ### Recommendations for System Designers When Adopting CFSTORE/Flash-Journal
