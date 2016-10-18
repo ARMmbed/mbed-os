@@ -21,8 +21,8 @@
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
       ],
       "features" : [],
-      "targets" : [],
-      "toolchains" : [],
+      "targets" : ["K64F", "NUCLEO_F429ZI"],
+      "toolchains" : ["GCC_ARM", "ARM"],
       "auto-update" : true
     },
     {
