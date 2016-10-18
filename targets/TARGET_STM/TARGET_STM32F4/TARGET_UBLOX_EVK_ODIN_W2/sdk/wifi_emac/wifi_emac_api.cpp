@@ -69,7 +69,7 @@ const emac_interface_ops_t wifi_emac_interface = {
     .set_link_state_cb = wifi_set_link_state_cb
 };
 
-static emac_interface_t _intf = { wifi_emac_interface, NULL };
+static emac_interface_t* _intf = NULL;
 
 static const cbWLANTARGET_Callback _wlanTargetCallback =
 {
@@ -318,7 +318,12 @@ static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_chang
 
 emac_interface_t* wifi_emac_get_interface()
 {
-    return &_intf;
+    if (_intf == NULL) {
+        _intf = new emac_interface_t();
+        _intf->hw = NULL;
+        memcpy((void*)&_intf->ops, &wifi_emac_interface, sizeof(wifi_emac_interface));
+    }
+   return _intf;
 }
 
 void wifi_emac_init_mem(void)
