@@ -252,8 +252,8 @@ typedef enum {
     RSSI = PA_8,
     JTAG_SWCLK = PA_14,
     JTAG_SWIO = PA_13,
-    JTAG_SWO = PB_4,
-    JTAG_NRST = PB_3,
+    JTAG_NRST = PB_4,
+    JTAG_SWO = PB_3,
 
     // Not connected
     NC = (int)0xFFFFFFFF
