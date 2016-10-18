@@ -39,8 +39,10 @@ public:
      *  @param apn      Optional name of the network to connect to
      *  @param user     Optional username for the APN
      *  @param pass     Optional password fot the APN
+     *  @return         0 on success, negative error code on failure
      */
-    virtual int set_credentials(const char *apn, const char *user = 0, const char *pass = 0) = 0;
+    virtual nsapi_error_t set_credentials(const char *apn,
+            const char *username = 0, const char *password = 0) = 0;
 
     /** Start the interface
      *
@@ -49,7 +51,8 @@ public:
      *  @param password Optional password for your APN 
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect(const char *apn, const char *username = 0, const char *password = 0) = 0;
+    virtual nsapi_error_t connect(const char *apn,
+            const char *username = 0, const char *password = 0) = 0;
 
     /** Start the interface
      *
@@ -57,13 +60,13 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect() = 0;
+    virtual nsapi_error_t connect() = 0;
  
     /** Stop the interface
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int disconnect() = 0;
+    virtual nsapi_error_t disconnect() = 0;
 };
 
  
