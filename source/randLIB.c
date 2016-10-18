@@ -69,6 +69,7 @@ static inline uint64_t rol(uint64_t n, int bits)
     return (n << bits) | (n >> (64 - bits));
 }
 
+#ifndef RANDLIB_ASSUME_GOOD_SEED
 /* Lower-quality generator used only for initial seeding, if platform
  * isn't returning multiple seeds itself. Multiplies are rather heavy
  * for lower-end platforms, but this is initialisation only.
@@ -80,7 +81,8 @@ static uint64_t splitmix64(uint64_t *seed)
     z = (z ^ (z >> 27)) * UINT64_C(0x94D049BB133111EB);
     return z ^ (z >> 31);
 }
-#endif
+#endif // RANDLIB_ASSUME_GOOD_SEED
+#endif // RANDOM_DEVICE
 
 void randLIB_seed_random(void)
 {
@@ -102,6 +104,14 @@ void randLIB_seed_random(void)
     s = (uint64_t) arm_random_seed_get() << 32;
     state[1] ^= s | arm_random_seed_get();
 
+#ifdef RANDLIB_ASSUME_GOOD_SEED
+    /* Can avoid significant code overhead of splitmix64(), but we do still
+     * have to check for the theoretically possible illegal case of all-zero.
+     */
+    if (state[0] == 0 && state[1] == 0) {
+        state[1] = 1;
+    }
+#else
     /* This check serves to both to stir the state if the platform is returning
      * constant seeding values, and to avoid the illegal all-zero state.
      */
@@ -110,7 +120,8 @@ void randLIB_seed_random(void)
         state[0] = splitmix64(&seed);
         state[1] = splitmix64(&seed);
     }
-#endif
+#endif // RANDLIB_ASSUME_GOOD_SEED
+#endif // RANDOM_DEVICE
 }
 
 void randLIB_add_seed(uint64_t seed)
