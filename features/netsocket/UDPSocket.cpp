@@ -19,8 +19,7 @@
 #include "mbed_assert.h"
 
 UDPSocket::UDPSocket()
-    : _pending(0), _read_sem(0), _write_sem(0),
-      _read_in_progress(false), _write_in_progress(false)
+    : _pending(0), _read_sem(0), _write_sem(0)
 {
 }
 
@@ -53,12 +52,6 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
     _lock.lock();
     int ret;
 
-    // If this assert is hit then there are two threads
-    // performing a send at the same time which is undefined
-    // behavior
-    MBED_ASSERT(!_write_in_progress);
-    _write_in_progress = true;
-
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -87,7 +80,6 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
         }
     }
 
-    _write_in_progress = false;
     _lock.unlock();
     return ret;
 }
@@ -96,12 +88,6 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
 {
     _lock.lock();
     int ret;
-
-    // If this assert is hit then there are two threads
-    // performing a recv at the same time which is undefined
-    // behavior
-    MBED_ASSERT(!_read_in_progress);
-    _read_in_progress = true;
 
     while (true) {
         if (!_socket) {
@@ -131,7 +117,6 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
         }
     }
 
-    _read_in_progress = false;
     _lock.unlock();
     return ret;
 }
