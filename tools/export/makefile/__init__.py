@@ -44,7 +44,8 @@ class Makefile(Exporter):
                           self.resources.c_sources +
                           self.resources.cpp_sources]
 
-        libraries = [splitext(lib)[0][3:] for lib in self.resources.libraries]
+        libraries = [splitext(basename(lib))[0][3:] for lib
+                     in self.resources.libraries]
 
         ctx = {
             'name': self.project_name,
