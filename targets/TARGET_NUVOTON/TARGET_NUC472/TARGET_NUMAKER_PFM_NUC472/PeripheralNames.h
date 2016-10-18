@@ -120,6 +120,11 @@ typedef enum {
     SD_0_1 = (int) NU_MODNAME(SD_BASE, 1)
 } SDName;
 
+typedef enum {
+    CAN_0 = (int) NU_MODNAME(CAN0_BASE, 0),
+    CAN_1 = (int) NU_MODNAME(CAN1_BASE, 0)
+} CANName;
+
 #ifdef __cplusplus
 }
 #endif
