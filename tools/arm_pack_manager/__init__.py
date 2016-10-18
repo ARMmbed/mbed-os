@@ -16,6 +16,10 @@ from zipfile import ZipFile
 
 RootPackURL = "http://www.keil.com/pack/index.idx"
 
+LocalPackDir = dirname(__file__)
+LocalPackIndex = join(LocalPackDir, "index.json")
+LocalPackAliases = join(LocalPackDir, "aliases.json")
+
 
 protocol_matcher = compile("\w*://")
 def strip_protocol(url) :
@@ -339,7 +343,8 @@ class Cache () :
                 with open(join(save_data_path('arm-pack-manager'), "index.json")) as i :
                     self._index = load(i)
             except IOError :
-                self.generate_index()
+                with open(LocalPackIndex) as i :
+                    self._index = load(i)
         return self._index
     @property
     def aliases(self) :
@@ -369,7 +374,8 @@ class Cache () :
                 with open(join(save_data_path('arm-pack-manager'), "aliases.json")) as i :
                     self._aliases = load(i)
             except IOError :
-                self.generate_aliases()
+                with open(LocalPackAliases) as i :
+                    self._aliases = load(i)
         return self._aliases
 
     def cache_everything(self) :

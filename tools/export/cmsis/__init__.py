@@ -6,8 +6,6 @@ import ntpath
 import re
 import json
 
-from xdg.BaseDirectory import save_data_path
-
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, TargetNotSupportedException
@@ -34,9 +32,6 @@ class DeviceCMSIS():
     Encapsulates target information retrieved by arm-pack-manager"""
     def __init__(self, target):
         cache = Cache(True, False)
-        data_path = join(save_data_path('arm-pack-manager'), "index.json")
-        if not exists(data_path) or not self.check_version(data_path):
-            cache.cache_descriptors()
 
         t = TARGET_MAP[target]
         self.core = t.core
