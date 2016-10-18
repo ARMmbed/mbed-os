@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     PWM.c
  * @version  V1.00
- * $Revision: 22 $
- * $Date: 14/10/02 9:21a $
+ * $Revision: 26 $
+ * $Date: 15/11/18 2:34p $
  * @brief    NUC472/NUC442 PWM driver source file
  *
  * @note
@@ -52,14 +52,14 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
  * @note Since every two channels, (0 & 1), (2 & 3), (4 & 5), shares a prescaler. Call this API to configure PWM frequency may affect
  *       existing frequency of other channel.
  */
-uint32_t PWM_ConfigOutputChannel2(PWM_T *pwm,
-                                 uint32_t u32ChannelNum,
-                                 uint32_t u32Frequency,
-                                 uint32_t u32DutyCycle,
-                                 uint32_t u32Frequency2)
+uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
+                                  uint32_t u32ChannelNum,
+                                  uint32_t u32Frequency,
+                                  uint32_t u32DutyCycle,
+                                  uint32_t u32Frequency2)
 {
     uint32_t i;
-    uint32_t u32PWM_CLock;
+    uint32_t u32PWM_CLock = __HIRC;
     uint8_t  u8Divider = 1, u8Prescale = 0xFF;
     uint16_t u16CNR = 0xFFFF;
 
@@ -100,15 +100,15 @@ uint32_t PWM_ConfigOutputChannel2(PWM_T *pwm,
         }
     } else if (pwm == PWM1) {
         if (u32ChannelNum < 2) {
-            if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 0)
+            if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (0 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __HXT;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 1)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __LXT;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 2)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = SystemCoreClock;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 3)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __HIRC;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 4)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __LIRC;
         } else if (u32ChannelNum < 4) {
             if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (0 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
@@ -207,7 +207,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
                                    uint32_t u32CaptureEdge)
 {
     uint32_t i;
-    uint32_t u32PWM_CLock;
+    uint32_t u32PWM_CLock = __HIRC;
     uint8_t  u8Divider = 1, u8Prescale = 0xFF;
     uint16_t u16CNR = 0xFFFF;
 
@@ -248,15 +248,15 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
         }
     } else if (pwm == PWM1) {
         if (u32ChannelNum < 2) {
-            if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 0)
+            if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (0 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __HXT;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 1)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __LXT;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 2)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = SystemCoreClock;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 3)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __HIRC;
-            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == 4)
+            else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __LIRC;
         } else if (u32ChannelNum < 4) {
             if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (0 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
@@ -451,6 +451,7 @@ uint32_t PWM_GetADCTriggerFlag (PWM_T *pwm, uint32_t u32ChannelNum)
  *                  - \ref PWM_BRK0_CPO0
  *                  - \ref PWM_BRK0_CPO1
  *                  - \ref PWM_BRK0_CPO2
+ *                  - \ref PWM_BRK1_LVDBK
  *                  - \ref PWM_BK1SEL_BKP1
  *                  - \ref PWM_BK1SEL_CPO0
  *                  - \ref PWM_BK1SEL_CPO1
@@ -463,20 +464,29 @@ void PWM_EnableFaultBrake (PWM_T *pwm,
 {
     if ((u32BrakeSource == PWM_BRK0_BKP0)||(u32BrakeSource == PWM_BRK0_CPO0)||(u32BrakeSource == PWM_BRK0_CPO1)||(u32BrakeSource == PWM_BRK0_CPO2))
         pwm->BRKCTL |= (u32BrakeSource | PWM_BRKCTL_BRK0EN_Msk);
+    else if (u32BrakeSource == PWM_BRK1_LVDBK)
+        pwm->BRKCTL |= PWM_BRKCTL_LVDBKEN_Msk;
     else
         pwm->BRKCTL = (pwm->BRKCTL & ~PWM_BRKCTL_BK1SEL_Msk) | u32BrakeSource | PWM_BRKCTL_BRK1EN_Msk;
+
+    pwm->BRKCTL = (pwm->BRKCTL & ~PWM_BRKCTL_BKOD_Msk) | (u32LevelMask << PWM_BRKCTL_BKOD_Pos);
+
 }
 
 /**
  * @brief This function clear fault brake flag
  * @param[in] pwm The base address of PWM module
- * @param[in] u32BrakeSource This parameter is not used
+ * @param[in] u32BrakeSource Fault brake source 0 or 1
+ *                           0: brake 0, 1: brake 1
  * @return None
  * @note After fault brake occurred, application must clear fault brake source before re-enable PWM output
  */
 void PWM_ClearFaultBrakeFlag (PWM_T *pwm, uint32_t u32BrakeSource)
 {
-    pwm->INTSTS = PWM_INTSTS_BRKLK0_Msk;
+    if (u32BrakeSource == 0)
+        pwm->INTSTS = (PWM_INTSTS_BRKLK0_Msk | PWM_INTSTS_BRKIF0_Msk);
+    else
+        pwm->INTSTS = PWM_INTSTS_BRKIF1_Msk;
 }
 
 /**
