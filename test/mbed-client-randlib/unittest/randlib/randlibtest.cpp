@@ -35,6 +35,11 @@ TEST(randLIB, test_randLIB_get_32bit)
     CHECK(test_randLIB_get_32bit());
 }
 
+TEST(randLIB, test_randLIB_get_64bit)
+{
+    CHECK(test_randLIB_get_64bit());
+}
+
 TEST(randLIB, test_randLIB_get_n_bytes_random)
 {
     CHECK(test_randLIB_get_n_bytes_random());
