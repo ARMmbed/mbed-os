@@ -9,6 +9,7 @@ from os.path import dirname, abspath, basename
 import os.path
 import sys
 import subprocess
+from shutil import rmtree
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
@@ -116,7 +117,7 @@ def source_repos(config):
             name = basename(repo)
             if os.path.exists(name):
                 print("'%s' example directory already exists. Deleting..." % name)
-                subprocess.call(['rm', '-rf', name])
+                rmtree(name)
         
             subprocess.call(["mbed-cli", "import", repo])
 
