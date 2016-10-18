@@ -510,3 +510,22 @@ const PinMap PinMap_SD_DAT3[] = {
 
     {NC,    NC,    0}
 };
+
+const PinMap PinMap_CAN_TD[] = {
+    {PB_13, CAN_0, SYS_GPB_MFPH_PB13MFP_CAN0_TXD},
+    {PA_1, CAN_1, SYS_GPA_MFPL_PA1MFP_CAN1_TXD},
+    {PA_6, CAN_1, SYS_GPA_MFPL_PA6MFP_CAN1_TXD},
+    {PH_1, CAN_1, SYS_GPH_MFPL_PH1MFP_CAN1_TXD},
+        
+    {NC,    NC,     0}
+};
+
+
+const PinMap PinMap_CAN_RD[] = {
+    {PB_12, CAN_0, SYS_GPB_MFPH_PB12MFP_CAN0_RXD},
+    {PA_0, CAN_1, SYS_GPA_MFPL_PA0MFP_CAN1_RXD},
+    {PH_0, CAN_1, SYS_GPH_MFPL_PH0MFP_CAN1_RXD},
+        
+    {NC,    NC,    0}
+};
+
