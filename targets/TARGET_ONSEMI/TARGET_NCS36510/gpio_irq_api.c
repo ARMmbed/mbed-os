@@ -187,45 +187,33 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     /* Enable the GPIO clock which may have been switched off by other drivers */
     CLOCK_ENABLE(CLOCK_GPIO);
-
+    obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
+    
     switch(event) {
-        case IRQ_RISE:
-            obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
-
+        case IRQ_RISE: 
+          
             /* Enable rising edge */
             obj->GPIOMEMBASE->IRQ_POLARITY_SET = obj->pinMask;
-
-            /* Enable the IRQ based on enable parameter */
-            if (enable == 1) {
-
-                obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
-            } else if (enable == 0) {
-
-                obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
-            }
-            break;
+           break;
 
         case IRQ_FALL:
-            obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
 
             /* Enable falling edge */
             obj->GPIOMEMBASE->IRQ_POLARITY_CLEAR = obj->pinMask;
-
-            /* Enable the IRQ based on enable parameter */
-            if (enable == 1) {
-
-                obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
-            } else if (enable == 0) {
-
-                obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
-            }
             break;
 
         default:
             /* No event is set */
             break;
     }
+    /* Enable the IRQ based on enable parameter */
+    if (enable == 1) {
 
+        obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
+    } else if (enable == 0) {
+
+        obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
+    }
 }
 
 /** Enable GPIO IRQ
