@@ -207,10 +207,10 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             break;
     }
     /* Enable the IRQ based on enable parameter */
-    if (enable == 1) {
+    if (enable) {
 
         obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
-    } else if (enable == 0) {
+    } else {
 
         obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
     }
