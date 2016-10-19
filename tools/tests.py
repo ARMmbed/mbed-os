@@ -189,6 +189,13 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
+        "mcu": ["LPC1768", "LPC2368", "LPC2460", "KL25Z", "K64F", "K66F", "K22F", "LPC4088", "LPC1549",
+                "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303K8", "NUCLEO_F303RE", "NUCLEO_F207ZG",
+                "NUCLEO_F334R8", "NUCLEO_F303ZE", "NUCLEO_L053R8", "NUCLEO_L073RZ", "NUCLEO_L152RE",
+                "NUCLEO_F410RB", "NUCLEO_F446RE", "NUCLEO_F446ZE", "NUCLEO_F429ZI",
+                "DISCO_F407VG", "NUCLEO_F746ZG", "NUCLEO_L476RG",
+                "DISCO_L053C8", "DISCO_F334C8", "DISCO_L476VG", "DISCO_F469NI", "DISCO_F429ZI",
+                "ARCH_MAX", "MAX32600MBED", "MOTE_L152RC", "B96B_F446VE"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
