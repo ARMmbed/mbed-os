@@ -66,10 +66,13 @@ static void ipv4_from_address(uint8_t *bytes, const char *addr)
     int i = 0;
 
     for (; count < NSAPI_IPv4_BYTES; count++) {
-        int scanned = sscanf(&addr[i], "%hhu", &bytes[count]);
+        unsigned char b;
+        int scanned = sscanf(&addr[i], "%hhu", &b);
         if (scanned < 1) {
             return;
         }
+
+        bytes[count] = b;
 
         for (; addr[i] != '.'; i++) {
             if (!addr[i]) {
@@ -86,10 +89,13 @@ static int ipv6_scan_chunk(uint16_t *shorts, const char *chunk) {
     int i = 0;
 
     for (; count < NSAPI_IPv6_BYTES/2; count++) {
-        int scanned = sscanf(&chunk[i], "%hx", &shorts[count]);
+        unsigned short s;
+        int scanned = sscanf(&chunk[i], "%hx", &s);
         if (scanned < 1) {
             return count;
         }
+
+        shorts[count] = s;
 
         for (; chunk[i] != ':'; i++) {
             if (!chunk[i]) {
