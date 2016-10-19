@@ -51,10 +51,10 @@ Wiring:
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
+      * NUCLEO_*: (D2 <-> D9)
       * LPC1549: (D2 <-> D7)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
-      * NUCLEO_F103RB: (PC_6 <-> PB_8)
       * MAXWSNENV: (TP3 <-> TP4)
       * MAX32600MBED: (P1_0 <-> P4_7)
       * VK_RZ_A1H: (P3_2 <-> P5_6)
