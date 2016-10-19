@@ -72,6 +72,14 @@ extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
 #endif
 
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+bool coverage_report = false;
+const int gcov_fd = 'g' + ((int)'c' << 8);
+
+void greentea_notify_coverage_start(const char *path);
+void greentea_notify_coverage_end(void);
+#endif
+
 // Heap limits - only used if set
 unsigned char *mbed_heap_start = 0;
 uint32_t mbed_heap_size = 0;
@@ -154,6 +162,11 @@ extern "C" WEAK void mbed_sdk_init(void) {
 }
 
 extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    if (coverage_report) {
+        printf ("_open called!\n");
+    }
+#endif
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
@@ -177,6 +190,14 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         init_serial();
         return 2;
     }
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    else if(coverage_report) {
+        //init_serial();
+        printf ("Calling greentea_notify_coverage_end()\n");
+        //greentea_notify_coverage_start(name);
+        return gcov_fd;
+    }
+#endif
     #endif
 
     // find the first empty slot in filehandles
@@ -233,7 +254,14 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 }
 
 extern "C" int PREFIX(_close)(FILEHANDLE fh) {
-    if (fh < 3) return 0;
+    if (fh < 3)
+        return 0;
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    else if (coverage_report && gcov_fd == fh) {
+        greentea_notify_coverage_end();
+        return 0;
+    }
+#endif
 
     FileHandle* fhc = filehandles[fh-3];
     filehandles[fh-3] = NULL;
@@ -266,7 +294,20 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 #endif
         n = length;
-    } else {
+    }
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    else if (coverage_report && fh == gcov_fd){
+        for (unsigned int i = 0; i < length; i++) {
+            if (0 == buffer[i]){
+                printf(".");
+            } else {
+                printf("%02x", buffer[i]);
+            }
+        }
+        n = length;
+    }
+#endif
+    else {
         FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
@@ -313,7 +354,13 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
 #endif
         n = 1;
-    } else {
+    }
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    else if (coverage_report && fh == gcov_fd){
+        n = 0;
+    }
+#endif
+    else {
         FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
@@ -350,7 +397,13 @@ long __lseek(int fh, long offset, int whence)
 int _lseek(FILEHANDLE fh, int offset, int whence)
 #endif
 {
-    if (fh < 3) return 0;
+    if (fh < 3)
+        return 0;
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    else if (coverage_report && fh == gcov_fd){
+        return 0;
+    }
+#endif
 
     FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
@@ -389,6 +442,12 @@ extern "C" int _fstat(int fd, struct stat *st) {
         st->st_mode = S_IFCHR;
         return  0;
     }
+#if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
+    else if (coverage_report && fd == gcov_fd){
+        st->st_size = 0;
+        return 0;
+    }
+#endif
 
     errno = EBADF;
     return -1;
