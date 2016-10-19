@@ -2613,4 +2613,16 @@
 #include "check_config.h"
 
 #endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY */
+
+#if defined(MBEDTLS_TEST_NULL_ENTROPY)
+#warning "MBEDTLS_TEST_NULL_ENTROPY has been enabled. This " \
+    "configuration is not secure and is not suitable for production use"
+#endif
+
+#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
+    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
+#error "No entropy source was found at build time, so TLS " \
+    "functionality is not available"
+#endif
+
 #endif /* MBEDTLS_CONFIG_H */
