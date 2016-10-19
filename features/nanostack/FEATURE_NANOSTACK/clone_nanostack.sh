@@ -58,6 +58,7 @@ clean() {
         rm -rf $dir
     done
     clean_nanostack_binaries
+    clean_nanostack_licenses
 }
 
 clone() {
@@ -80,12 +81,23 @@ export_repos() {
 }
 
 copy_nanostack_binaries() {
-    mkdir -p ../nanostack-binaries
-    mv sal-stack-nanostack/FEATURE_* ../nanostack-binaries/
+    mv sal-stack-nanostack/FEATURE_* ../
 }
 
 clean_nanostack_binaries() {
-    rm -rf ../nanostack-binaries
+    for binaries in ../FEATURE_*; do
+        if [ "$binaries" != "../FEATURE_NANOSTACK" ]; then
+            rm -rf $binaries        
+        fi
+    done
+}
+
+copy_nanostack_licenses() {
+    mv sal-stack-nanostack/LICENSE* ../
+}
+
+clean_nanostack_licenses() {
+    rm -rf ../LICENSE*
 }
 
 case "${1-}" in
@@ -99,6 +111,7 @@ case "${1-}" in
     export)
         export_repos
         copy_nanostack_binaries
+        copy_nanostack_licenses
         ;;
     *)
         print_usage
