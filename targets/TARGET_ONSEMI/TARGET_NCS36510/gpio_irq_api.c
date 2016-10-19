@@ -89,10 +89,8 @@ void fGpioHandler(void)
     gpio_irq_event event = IRQ_NONE;
     GpioReg_pt gpioBase;
 
-    /* Enable the GPIO clock */
-    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
-        CLOCK_ENABLE(CLOCK_GPIO);
-    }
+    /* Enable the GPIO clock which may have been switched off by other drivers */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
     gpioBase = GPIOREG;
 
@@ -144,10 +142,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     /* Store the ID, this is required by registered handler function */
     gpioIds[pin] = id;
 
-    /* Enable the GPIO clock */
-    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
-        CLOCK_ENABLE(CLOCK_GPIO);
-    }
+    /* Enable the GPIO clock which may have been switched off by other drivers */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
     /* Initialize the GPIO membase */
     obj->GPIOMEMBASE = GPIOREG;
@@ -173,10 +169,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
  */
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    /* Enable the GPIO clock */
-    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
-        CLOCK_ENABLE(CLOCK_GPIO);
-    }
+    /* Enable the GPIO clock which may have been switched off by other drivers */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
     /* Disable IRQs to indicate that it is now free */
     obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
@@ -191,10 +185,8 @@ void gpio_irq_free(gpio_irq_t *obj)
  */
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    /* Enable the GPIO clock */
-    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
-        CLOCK_ENABLE(CLOCK_GPIO);
-    }
+    /* Enable the GPIO clock which may have been switched off by other drivers */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
     switch(event) {
         case IRQ_RISE:
@@ -243,10 +235,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
  */
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-    /* Enable the GPIO clock */
-    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
-        CLOCK_ENABLE(CLOCK_GPIO);
-    }
+    /* Enable the GPIO clock which may have been switched off by other drivers */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
     obj->GPIOMEMBASE->IRQ_ENABLE_SET = obj->pinMask;
 }
@@ -259,10 +249,8 @@ void gpio_irq_enable(gpio_irq_t *obj)
 void gpio_irq_disable(gpio_irq_t *obj)
 {
 
-    /* Enable the GPIO clock */
-    if(!CLOCK_IS_ENABLED(CLOCK_GPIO)) {
-        CLOCK_ENABLE(CLOCK_GPIO);
-    }
+    /* Enable the GPIO clock which may have been switched off by other drivers */
+    CLOCK_ENABLE(CLOCK_GPIO);
 
     obj->GPIOMEMBASE->IRQ_ENABLE_CLEAR = obj->pinMask;
 }
