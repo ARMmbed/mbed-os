@@ -157,7 +157,7 @@ uint64_t randLIB_get_64bit(void)
         return 0;
     }
     uint64_t result;
-    if (fread(&result, 1, sizeof result, random_file) != 1) {
+    if (fread(&result, sizeof result, 1, random_file) != 1) {
         result = 0;
     }
     return result;
