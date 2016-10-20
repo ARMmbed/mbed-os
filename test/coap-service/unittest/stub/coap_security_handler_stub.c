@@ -12,9 +12,12 @@
 
 thread_sec_def coap_security_handler_stub;
 
-coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, const uint8_t *address_ptr, uint16_t port,
-                                          SecureConnectionMode mode,
-                                          int (*send_cb)(int8_t socket_id, const uint8_t *address_ptr, uint16_t port, const uint8_t source_addr[static 16], const void *, size_t),
+struct coap_security_s {
+    bool _is_started;
+};
+
+coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, void *handle, SecureConnectionMode mode,
+                                          int (*send_cb)(int8_t socket_id, void *handle, const void *, size_t),
                                           int (*receive_cb)(int8_t socket_id, unsigned char *, size_t),
                                           void (*start_timer_cb)(int8_t timer_id, uint32_t min, uint32_t fin),
                                           int (*timer_status_cb)(int8_t timer_id))
@@ -25,6 +28,12 @@ coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, const u
     coap_security_handler_stub.timer_status_cb = timer_status_cb;
     return coap_security_handler_stub.sec_obj;
 }
+
+coap_security_t *coap_security_handler_stub_alloc(void)
+{
+    return calloc(1, sizeof(coap_security_t));
+}
+
 
 void coap_security_destroy(coap_security_t *sec)
 {
@@ -72,4 +81,14 @@ int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];
     }
     return coap_security_handler_stub.int_value;
+}
+
+bool coap_security_handler_is_started(const coap_security_t *sec)
+{
+    return sec->_is_started;
+}
+
+const void *coap_security_handler_keyblock(const coap_security_t *sec)
+{
+    return NULL;
 }

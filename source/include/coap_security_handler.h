@@ -38,7 +38,7 @@ typedef struct key_block {
     unsigned char value[KEY_BLOCK_LEN];
 } key_block_t;
 
-typedef int send_cb(int8_t socket_id, const uint8_t *address_ptr, uint16_t port, const uint8_t source_addr[static 16], const void *, size_t);
+typedef int send_cb(int8_t socket_id, void *handle, const void *buf, size_t);
 typedef int receive_cb(int8_t socket_id, unsigned char *, size_t);
 typedef void start_timer_cb(int8_t timer_id, uint32_t min, uint32_t fin);
 typedef int timer_status_cb(int8_t timer_id);
@@ -66,40 +66,9 @@ typedef struct {
     uint8_t _priv_len;
 } coap_security_keys_t;
 
-typedef struct coap_security_s {
-    mbedtls_ssl_config          _conf;
-    mbedtls_ssl_context         _ssl;
+typedef struct coap_security_s coap_security_t;
 
-    mbedtls_ctr_drbg_context    _ctr_drbg;
-    mbedtls_entropy_context     _entropy;
-    bool                        _is_started;
-    simple_cookie_t             _cookie;
-    key_block_t                 _keyblk;
-
-    SecureConnectionMode        _conn_mode;
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
-    mbedtls_x509_crt            _cacert;
-    mbedtls_x509_crt            _owncert;
-#endif
-    mbedtls_pk_context          _pkey;
-
-    uint8_t                     _remote_address[16];
-    uint16_t                    _remote_port;
-
-    uint8_t                     _pw[64];
-    uint8_t                     _pw_len;
-
-    bool                        _is_blocking;
-    int8_t                      _socket_id;
-    int8_t                      _timer_id;
-    send_cb                     *_send_cb;
-    receive_cb                  *_receive_cb;
-    start_timer_cb              *_start_timer_cb;
-    timer_status_cb             *_timer_status_cb;
-
-} coap_security_t;
-
-coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, const uint8_t *address_ptr, uint16_t port,
+coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, void *handle,
                                           SecureConnectionMode mode,
                                           send_cb *send_cb,
                                           receive_cb *receive_cb,
@@ -119,5 +88,9 @@ int coap_security_handler_send_message(coap_security_t *sec, unsigned char *mess
 int coap_security_send_close_alert(coap_security_t *sec);
 
 int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len);
+
+bool coap_security_handler_is_started(const coap_security_t *sec);
+
+const void *coap_security_handler_keyblock(const coap_security_t *sec);
 
 #endif
