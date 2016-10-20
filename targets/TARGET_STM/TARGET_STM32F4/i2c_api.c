@@ -48,6 +48,111 @@
     #define I2C_S(obj) (struct i2c_s *) (obj)
 #endif
 
+/*  could be defined at family level */
+#define I2C_NUM (5)
+static I2C_HandleTypeDef* i2c_handles[I2C_NUM];
+
+static void i2c1_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[0];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+
+static void i2c2_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[1];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+
+#if defined(I2C3_BASE)
+static void i2c3_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[2];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+#endif
+#if defined(I2C4_BASE)
+ static void i2c4_irq(void)
+ {
+     I2C_HandleTypeDef * handle = i2c_handles[3];
+     HAL_I2C_EV_IRQHandler(handle);
+     HAL_I2C_ER_IRQHandler(handle);
+ }
+#endif
+#if defined(FMPI2C1_BASE)
+static void i2c5_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[4];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+#endif
+
+void i2c_ev_err_enable(i2c_t *obj, uint32_t handler) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
+    IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
+
+    /* Set up event IT using IRQ and handler tables */
+    NVIC_SetVector(irq_event_n, handler);
+    HAL_NVIC_SetPriority(irq_event_n, 0, 0);
+    HAL_NVIC_EnableIRQ(irq_event_n);
+    /* Set up error IT using IRQ and handler tables */
+    NVIC_SetVector(irq_error_n, handler);
+    HAL_NVIC_SetPriority(irq_error_n, 0, 1);
+    HAL_NVIC_EnableIRQ(irq_error_n);
+}
+
+void i2c_ev_err_disable(i2c_t *obj) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
+    IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
+
+    HAL_NVIC_DisableIRQ(irq_event_n);
+    HAL_NVIC_DisableIRQ(irq_error_n);
+}
+
+void i2c_irq_set(i2c_t *obj, uint32_t enable)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+    uint32_t handler = 0;
+
+    switch (obj_s->index) {
+        case 0:
+            handler = (uint32_t)&i2c1_irq;
+            break;
+        case 1:
+            handler = (uint32_t)&i2c2_irq;
+            break;
+#if defined(I2C3_BASE)
+        case 2:
+            handler = (uint32_t)&i2c3_irq;
+            break;
+#endif
+#if defined(I2C4_BASE)
+        case 3:
+            handler = (uint32_t)&i2c4_irq;
+            break;
+#endif
+#if defined(FMPI2C1_BASE)
+        case 4:
+            handler = (uint32_t)&i2c5_irq;
+            break;
+#endif
+    }
+
+    if (enable) {
+            i2c_handles[obj_s->index] = handle;
+            i2c_ev_err_enable(obj, handler);
+    } else { // disable
+            i2c_ev_err_disable(obj);
+            i2c_handles[obj_s->index] = 0;
+    }
+}
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
@@ -62,58 +167,67 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     // Enable I2C1 clock and pinout if not done
     if (obj_s->i2c == I2C_1) {
+        obj_s->index = 0;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
-#endif
         __I2C1_CLK_ENABLE();
     }
     // Enable I2C2 clock and pinout if not done
     if (obj_s->i2c == I2C_2) {
+        obj_s->index = 1;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
-#endif
         __I2C2_CLK_ENABLE();
     }
 #if defined I2C3_BASE
     // Enable I2C3 clock and pinout if not done
     if (obj_s->i2c == I2C_3) {
+        obj_s->index = 2;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
         obj_s->event_i2cIRQ = I2C3_EV_IRQn;
         obj_s->error_i2cIRQ = I2C3_ER_IRQn;
-#endif
         __I2C3_CLK_ENABLE();
     }
 #endif
-
-#if defined FMPI2C1_BASE
-    // Enable I2C3 clock and pinout if not done
-    if (obj_s->i2c == FMPI2C_1) {
+#if defined I2C4_BASE
+    // Enable  clock and pinout if not done
+    if (obj_s->i2c == I2C_4) {
+        obj_s->index = 3;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
+        obj_s->event_i2cIRQ = I2C4_EV_IRQn;
+        obj_s->error_i2cIRQ = I2C4_ER_IRQn;
+        __I2C4_CLK_ENABLE();
+    }
+#endif
+#if defined FMPI2C1_BASE
+    // Enable  clock and pinout if not done
+    if (obj_s->i2c == FMPI2C_1) {
+        obj_s->index = 3;
+        // Configure I2C pins
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(sda, PullUp);
+        pin_mode(scl, PullUp);
         obj_s->event_i2cIRQ = FMPI2C1_EV_IRQn;
         obj_s->error_i2cIRQ = FMPI2C1_ER_IRQn;
-#endif
         __HAL_RCC_FMPI2C1_CLK_ENABLE();
     }
 #endif
@@ -396,7 +510,12 @@ void i2c_reset(i2c_t *obj) {
         __I2C3_RELEASE_RESET();
     }
 #endif
-
+#if defined I2C4_BASE
+    if (obj_s->i2c == I2C_4) {
+        __I2C4_FORCE_RESET();
+        __I2C4_RELEASE_RESET();
+    }
+#endif
 #if defined FMPI2C1_BASE
     if (obj_s->i2c == FMPI2C_1) {
         __HAL_RCC_FMPI2C1_FORCE_RESET();

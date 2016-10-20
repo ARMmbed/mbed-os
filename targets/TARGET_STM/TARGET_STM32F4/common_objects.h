@@ -90,6 +90,7 @@ struct i2c_s {
      */
     I2CName  i2c;
     I2C_HandleTypeDef handle;
+    uint8_t index;
     IRQn_Type event_i2cIRQ;
     IRQn_Type error_i2cIRQ;
     uint8_t slave;
