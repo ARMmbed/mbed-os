@@ -37,6 +37,17 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
+#ifndef DEBUG_STDIO
+#   define DEBUG_STDIO 0
+#endif
+
+#if DEBUG_STDIO
+#   include <stdio.h>
+#   define DEBUG_PRINTF(...) do { printf(__VA_ARGS__); } while(0)
+#else
+#   define DEBUG_PRINTF(...) {}
+#endif
+
 /* Timeout values are based on core clock and I2C clock.
    The BYTE_TIMEOUT is computed as twice the number of cycles it would
    take to send 10 bits over I2C. Most Flags should take less than that.
@@ -378,11 +389,14 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         }
 
         if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
             /* re-init IP to try and get back in a working state */
             i2c_init(obj, obj_s->sda, obj_s->scl);
         } else {
             count = length;
         }
+    } else {
+        DEBUG_PRINTF("ERROR in i2c_read\r\n");
     }
 
     return count;
@@ -420,11 +434,14 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         }
 
         if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            DEBUG_PRINTF(" TIMEOUT or error in i2c_write\r\n");
             /* re-init IP to try and get back in a working state */
             i2c_init(obj, obj_s->sda, obj_s->scl);
          } else {
             count = length;
        }
+    } else {
+        DEBUG_PRINTF("ERROR in i2c_read\r\n");
     }
 
     return count;
@@ -623,8 +640,11 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
             wait_us(1);
         }
 
-        if(timeout != 0)
-            count = length;
+         if(timeout != 0) {
+             count = length;
+         } else {
+             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_read\r\n");
+         }
     }
 
     return count;
@@ -646,8 +666,11 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
             wait_us(1);
         }
 
-        if(timeout != 0)
-            count = length;
+         if(timeout != 0) {
+             count = length;
+         } else {
+             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_write\r\n");
+         }
     }
 
     return count;
@@ -693,6 +716,8 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
+
+    DEBUG_PRINTF("HAL_I2C_ErrorCallback:%d, index=%d\r\n", (int) hi2c->ErrorCode, obj_s->index);
 
     /* re-init IP to try and get back in a working state */
     i2c_init(obj, obj_s->sda, obj_s->scl);
