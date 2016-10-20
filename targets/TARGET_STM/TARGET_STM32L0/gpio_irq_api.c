@@ -131,6 +131,7 @@ static void gpio_irq2(void)
 }
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
+extern void pin_function_gpiomode(PinName pin, uint32_t gpiomode);
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
@@ -202,15 +203,14 @@ void gpio_irq_free(gpio_irq_t *obj)
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
 
-    // Disable EXTI line
-    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    // Disable EXTI line, but don't change pull-up config
+    pin_function_gpiomode(obj->pin, STM_MODE_INPUT);
     obj->event = EDGE_NONE;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     uint32_t mode = STM_MODE_IT_EVT_RESET;
-    uint32_t pull = GPIO_NOPULL;
 
     if (enable) {
         if (event == IRQ_RISE) {
@@ -252,7 +252,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         }
     }
 
-    pin_function(obj->pin, STM_PIN_DATA(mode, pull, 0));
+    pin_function_gpiomode(obj->pin, mode);
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)

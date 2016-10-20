@@ -149,5 +149,8 @@
     },
     "nRF52832_xxAA":{
         "OGChipSelectEditMenu": "nRF52832-xxAA\tNordicSemi nRF52832-xxAA"
+    },
+    "NCS36510":{
+        "OGChipSelectEditMenu": "Orion\tON Semiconductor NCS36510"
     }
 }

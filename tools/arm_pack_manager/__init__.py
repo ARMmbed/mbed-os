@@ -1,4 +1,3 @@
-from xdg.BaseDirectory import save_data_path
 from pycurl import Curl
 from bs4 import BeautifulSoup
 from os.path import join, dirname, basename
@@ -13,8 +12,13 @@ from itertools import takewhile
 import argparse
 from json import dump, load
 from zipfile import ZipFile
+from tempfile import gettempdir
 
 RootPackURL = "http://www.keil.com/pack/index.idx"
+
+LocalPackDir = dirname(__file__)
+LocalPackIndex = join(LocalPackDir, "index.json")
+LocalPackAliases = join(LocalPackDir, "aliases.json")
 
 
 protocol_matcher = compile("\w*://")
@@ -78,6 +82,7 @@ class Cache () :
         self._aliases = {}
         self.urls = None
         self.no_timeouts = no_timeouts
+        self.data_path = gettempdir()
 
     def display_counter (self, message) :
         stdout.write("{} {}/{}\r".format(message, self.counter, self.total))
@@ -93,7 +98,7 @@ class Cache () :
         :rtype: None
         """
         if not self.silent : print("Caching {}...".format(url))
-        dest = join(save_data_path('arm-pack-manager'), strip_protocol(url))
+        dest = join(self.data_path, strip_protocol(url))
         try :
             makedirs(dirname(dest))
         except OSError as exc :
@@ -288,7 +293,7 @@ class Cache () :
         self._index = {}
         self.counter = 0
         do_queue(Reader, self._generate_index_helper, self.get_urls())
-        with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
+        with open(LocalPackIndex, "wb+") as out:
             self._index["version"] = "0.1.0"
             dump(self._index, out)
         stdout.write("\n")
@@ -297,7 +302,7 @@ class Cache () :
         self._aliases = {}
         self.counter = 0
         do_queue(Reader, self._generate_aliases_helper, self.get_urls())
-        with open(join(save_data_path('arm-pack-manager'), "aliases.json"), "wb+") as out:
+        with open(LocalPackAliases, "wb+") as out:
             dump(self._aliases, out)
         stdout.write("\n")
 
@@ -335,11 +340,8 @@ class Cache () :
 
         """
         if not self._index :
-            try :
-                with open(join(save_data_path('arm-pack-manager'), "index.json")) as i :
-                    self._index = load(i)
-            except IOError :
-                self.generate_index()
+            with open(LocalPackIndex) as i :
+                self._index = load(i)
         return self._index
     @property
     def aliases(self) :
@@ -365,11 +367,8 @@ class Cache () :
 
         """
         if not self._aliases :
-            try :
-                with open(join(save_data_path('arm-pack-manager'), "aliases.json")) as i :
-                    self._aliases = load(i)
-            except IOError :
-                self.generate_aliases()
+            with open(join(self.data_path, "aliases.json")) as i :
+                self._aliases = load(i)
         return self._aliases
 
     def cache_everything(self) :
@@ -426,7 +425,7 @@ class Cache () :
         :return: A parsed representation of the PDSC file.
         :rtype: BeautifulSoup
         """
-        dest = join(save_data_path('arm-pack-manager'), strip_protocol(url))
+        dest = join(self.data_path, strip_protocol(url))
         with open(dest, "r") as fd :
             return BeautifulSoup(fd, "html.parser")
 
@@ -440,7 +439,7 @@ class Cache () :
         :return: A parsed representation of the PACK file.
         :rtype: ZipFile
         """
-        return ZipFile(join(save_data_path('arm-pack-manager'),
+        return ZipFile(join(self.data_path,
                             strip_protocol(device['pack_file'])))
 
     def gen_dict_from_cache() :

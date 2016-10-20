@@ -43,8 +43,18 @@ void lp_timeout_1s_deepsleep(void)
 {
     complete = false;
 
-    /* 
-     * We use here lp_ticker_read() instead of us_ticker_read() for start and 
+    /*
+     * Since deepsleep() may shut down the UART peripheral, we wait for 10ms
+     * to allow for hardware serial buffers to completely flush.
+
+     * This should be replaced with a better function that checks if the
+     * hardware buffers are empty. However, such an API does not exist now,
+     * so we'll use the wait_ms() function for now.
+     */
+    wait_ms(10);
+
+    /*
+     * We use here lp_ticker_read() instead of us_ticker_read() for start and
      * end because the microseconds timer might be disable during deepsleep.
      */
     timestamp_t start = lp_ticker_read();
