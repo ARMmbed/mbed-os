@@ -93,10 +93,14 @@ struct i2c_s {
     uint8_t index;
     IRQn_Type event_i2cIRQ;
     IRQn_Type error_i2cIRQ;
+    volatile uint8_t event;
+#if DEVICE_I2CSLAVE
     uint8_t slave;
+    volatile uint8_t pending_slave_tx_master_rx;
+    volatile uint8_t pending_slave_rx_maxter_tx;
+#endif
 #if DEVICE_I2C_ASYNCH
     uint32_t address;
-    uint8_t event;
     uint8_t stop;
     uint8_t available_events;
     uint8_t XferOperation;
