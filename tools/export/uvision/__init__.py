@@ -82,6 +82,8 @@ class DeviceUvision(DeviceCMSIS):
             ramstart = RAMS[0][0]
         extra_flags = []
         for name, info in self.target_info["algorithm"].items():
+            if not name or not info:
+                continue
             if int(info["default"])==0:
                 continue
             name_reg = "\w*/([\w_]+)\.flm"
