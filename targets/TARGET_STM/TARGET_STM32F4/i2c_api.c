@@ -174,7 +174,20 @@ void i2c_frequency(i2c_t *obj, int hz)
         handle->Instance->CR1 |= I2C_CR1_ACK;
     }
 #endif
+}
 
+i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
+
+    /* Aim of the function is to get i2c_s pointer using hi2c pointer */
+    /* Highly inspired from magical linux kernel's "container_of" */
+    /* (which was not directly used since not compatible with IAR toolchain) */
+    struct i2c_s *obj_s;
+    i2c_t *obj;
+
+    obj_s = (struct i2c_s *)( (char *)hi2c - offsetof(struct i2c_s,handle));
+    obj = (i2c_t *)( (char *)obj_s - offsetof(i2c_t,i2c));
+
+    return (obj);
 }
 
 inline int i2c_start(i2c_t *obj) {
@@ -578,21 +591,6 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 #endif // DEVICE_I2CSLAVE
 
 #if DEVICE_I2C_ASYNCH
-
-
-i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
-
-    /* Aim of the function is to get i2c_s pointer using hi2c pointer */
-    /* Highly inspired from magical linux kernel's "container_of" */
-    /* (which was not directly used since not compatible with IAR toolchain) */
-    struct i2c_s *obj_s;
-    i2c_t *obj;
-
-     obj_s = (struct i2c_s *)( (char *)hi2c - offsetof(struct i2c_s,handle));
-    obj = (i2c_t *)( (char *)obj_s - offsetof(i2c_t,i2c));
-
-    return (obj);
-}
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
