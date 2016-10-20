@@ -6,19 +6,23 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "coap_security_handler.h"
+
+#ifdef COAP_SECURITY_AVAILABLE
+
 #include "mbedtls/sha256.h"
 #include "mbedtls/error.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl_cookie.h"
+#include "mbedtls/entropy.h"
 #include "mbedtls/entropy_poll.h"
-#include "mbedtls/ssl.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/ssl_ciphersuites.h"
+
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "coap_connection_handler.h"
-#include "coap_security_handler.h"
 #include "randLIB.h"
-#include "mbedtls/ssl_ciphersuites.h"
-#include "socket_api.h"
 
 struct coap_security_s {
     mbedtls_ssl_config          _conf;
@@ -620,3 +624,5 @@ int entropy_poll( void *ctx, unsigned char *output, size_t len,
     ns_dyn_mem_free(c);
     return( 0 );
 }
+
+#endif // COAP_SECURITY_AVAILABLE

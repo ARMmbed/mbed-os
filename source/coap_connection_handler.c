@@ -224,7 +224,11 @@ static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephem
         if( !is_secure ){
             this->listen_socket = socket_open(SOCKET_UDP, listen_port, recv_sckt_msg);
         }else{
+#ifdef COAP_SECURITY_AVAILABLE
             this->listen_socket = socket_open(SOCKET_UDP, listen_port, secure_recv_sckt_msg);
+#else
+            tr_err("Secure CoAP unavailable - SSL library not configured, possibly due to lack of entropy source");
+#endif
         }
         // Socket create failed
         if(this->listen_socket < 0){
