@@ -787,18 +787,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     obj_s->address = address;
     obj_s->stop = stop;
 
-    IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
-    IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
-
-    /* Set up event IT using IRQ and handler tables */
-    NVIC_SetVector(irq_event_n, handler);
-    HAL_NVIC_SetPriority(irq_event_n, 0, 1);
-    HAL_NVIC_EnableIRQ(irq_event_n);
-
-    /* Set up error IT using IRQ and handler tables */
-    NVIC_SetVector(irq_error_n, handler);
-    HAL_NVIC_SetPriority(irq_error_n, 0, 0);
-    HAL_NVIC_EnableIRQ(irq_error_n);
+    i2c_ev_err_enable(obj, handler);
 
     /* Set operation step depending if stop sending required or not */
     if ((tx_length && !rx_length) || (!tx_length && rx_length)) {
