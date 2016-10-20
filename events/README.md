@@ -26,7 +26,7 @@ int main() {
 
 ## Usage
 
-The core of the mbed-events library is the [EventQueue](EventQueue.h) class, which represents a single event queue. The `EventQueue::dispatch` function runs the queue, providing the context for executing events:
+The core of the mbed-events library is the [EventQueue](https://docs.mbed.com/docs/mbed-os-api/en/mbed-os-5.2/api/classevents_1_1EventQueue.html) class, which represents a single event queue. The `EventQueue::dispatch` function runs the queue, providing the context for executing events:
 
 ``` cpp
 // Creates an event queue with enough buffer space for 32 Callbacks. This
