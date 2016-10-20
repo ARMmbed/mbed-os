@@ -110,6 +110,10 @@ typedef enum {
     DMA_0 = (int) NU_MODNAME(PDMA_BASE, 0)
 } DMAName;
 
+typedef enum {
+    CAN_0 = (int) NU_MODNAME(CAN0_BASE, 0)
+} CANName;
+
 #ifdef __cplusplus
 }
 #endif

@@ -158,7 +158,11 @@ int32_t CAN_SetRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32IDType, uint3
 int32_t CAN_SetRxMsgAndMsk(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32IDType, uint32_t u32ID, uint32_t u32IDMask);
 int32_t CAN_SetTxMsg(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
 int32_t CAN_TriggerTxMsg(CAN_T  *tCAN, uint32_t u32MsgNum);
-
+uint32_t CAN_GetCANBitRate(CAN_T  *tCAN);
+void CAN_EnterInitMode(CAN_T *tCAN, uint8_t u8Mask);
+void CAN_LeaveInitMode(CAN_T *tCAN);
+void CAN_EnterTestMode(CAN_T *tCAN, uint8_t u8TestMask);
+void CAN_LeaveTestMode(CAN_T *tCAN);
 
 /*@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
 
