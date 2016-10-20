@@ -95,6 +95,7 @@ struct i2c_s {
     PinName scl;
     IRQn_Type event_i2cIRQ;
     IRQn_Type error_i2cIRQ;
+    uint8_t XferOperation;
     volatile uint8_t event;
 #if DEVICE_I2CSLAVE
     uint8_t slave;
@@ -105,7 +106,6 @@ struct i2c_s {
     uint32_t address;
     uint8_t stop;
     uint8_t available_events;
-    uint8_t XferOperation;
 #endif
 };
 
