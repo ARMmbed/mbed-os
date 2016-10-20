@@ -404,19 +404,13 @@ void i2c_reset(i2c_t *obj) {
 #if DEVICE_I2CSLAVE
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
-
-    uint16_t tmpreg = 0;
     struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
     I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
 
-    // Get the old register value
-    tmpreg = i2c->OAR1;
-    // Reset address bits
-    tmpreg &= 0xFC00;
-    // Set new address
-    tmpreg |= (uint16_t)((uint16_t)address & (uint16_t)0x00FE); // 7-bits
-    // Store the new register value
-    i2c->OAR1 = tmpreg;
+    // I2C configuration
+    handle->Init.OwnAddress1     = address;
+    HAL_I2C_Init(handle);
 }
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
@@ -429,6 +423,8 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 
         /* Enable Address Acknowledge */
         i2c->CR1 |= I2C_CR1_ACK;
+    } else {
+        obj_s->slave = 0;
     }
 }
 
