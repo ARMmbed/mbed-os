@@ -359,3 +359,19 @@ const PinMap PinMap_SPI_SSEL[] = {
     
     {NC,    NC,    0}
 };
+
+const PinMap PinMap_CAN_TD[] = {
+    {PC_0, CAN_0, SYS_GPC_MFPL_PC0MFP_CAN0_TXD},
+    {PA_1, CAN_0, SYS_GPA_MFPL_PA1MFP_CAN0_TXD},
+    {PA_12, CAN_0, SYS_GPA_MFPH_PA12MFP_CAN0_TXD},
+	
+    {NC,    NC,     0}
+};
+    
+const PinMap PinMap_CAN_RD[] = { 
+    {PC_1, CAN_0, SYS_GPC_MFPL_PC1MFP_CAN0_RXD},
+    {PA_0, CAN_0, SYS_GPA_MFPL_PA0MFP_CAN0_RXD},
+    {PA_13, CAN_0, SYS_GPA_MFPH_PA13MFP_CAN0_RXD},
+	
+    {NC,    NC,    0}
+};
