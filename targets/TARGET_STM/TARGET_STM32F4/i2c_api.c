@@ -37,11 +37,6 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-/* Timeout values for flags and events waiting loops. These timeouts are
-   not based on accurate values, they just guarantee that the application will
-   not remain stuck if the I2C communication is corrupted. */
-#define FLAG_TIMEOUT ((int)0x1000)
-#define LONG_TIMEOUT ((int)0x8000)
 /* Timeout values are based on core clock and I2C clock.
    The BYTE_TIMEOUT is computed as twice the number of cycles it would
    take to send 10 bits over I2C. Most Flags should take less than that.
@@ -260,10 +255,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj_s->pending_slave_rx_maxter_tx = 0;
 #endif
 
-#if DEVICE_I2C_ASYNCH
     // I2C Xfer operation init
+    obj_s->event = 0;
     obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
-#endif
 
      /* Activate default IRQ handlers for sync mode
      * which would be overwritten in async mode
@@ -354,95 +348,83 @@ inline int i2c_stop(i2c_t *obj) {
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
-
-    int timeout;
-    int count;
-    int value;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0, ret = 0;
+    uint32_t timeout = 0;
 
-    i2c_start(obj);
+    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
+        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+    } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
+        (obj_s->XferOperation == I2C_NEXT_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_NEXT_FRAME;
+    }
 
-    // Wait until SB flag is set
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_SB) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
+    obj_s->event = 0;
+    ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        /*  transfer started : wait completion or timeout */
+        while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+            wait_us(1);
+        }
+
+        if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            /* re-init IP to try and get back in a working state */
+            i2c_init(obj, obj_s->sda, obj_s->scl);
+        } else {
+            count = length;
         }
     }
 
-    handle->Instance->DR = __HAL_I2C_7BIT_ADD_READ(address);
-
-    // Wait address is acknowledged
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
-        }
-    }
-    __HAL_I2C_CLEAR_ADDRFLAG(handle);
-
-    // Read all bytes except last one
-    for (count = 0; count < (length - 1); count++) {
-        value = i2c_byte_read(obj, 0);
-        data[count] = (char)value;
-    }
-
-    // If not repeated start, send stop.
-    // Warning: must be done BEFORE the data is read.
-    if (stop) {
-        i2c_stop(obj);
-    }
-
-    // Read the last byte
-    value = i2c_byte_read(obj, 1);
-    data[count] = (char)value;
-
-    return length;
+    return count;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
-
-    int timeout;
-    int count;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0, ret = 0;
+    uint32_t timeout = 0;
 
-    i2c_start(obj);
-
-    // Wait until SB flag is set
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_SB) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
-        }
+    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
+        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+    } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
+        (obj_s->XferOperation == I2C_NEXT_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_NEXT_FRAME;
     }
 
-    handle->Instance->DR = __HAL_I2C_7BIT_ADD_WRITE(address);
+    obj_s->event = 0;
 
-    // Wait address is acknowledged
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
+    ret = HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation); 
+
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        /*  transfer started : wait completion or timeout */
+        while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+            wait_us(1);
         }
-    }
-    __HAL_I2C_CLEAR_ADDRFLAG(handle);
 
-    for (count = 0; count < length; count++) {
-        if (i2c_byte_write(obj, data[count]) != 1) {
-            i2c_stop(obj);
-            return -1;
-        }
-    }
-
-    // If not repeated start, send stop.
-    if (stop) {
-        i2c_stop(obj);
+        if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            /* re-init IP to try and get back in a working state */
+            i2c_init(obj, obj_s->sda, obj_s->scl);
+         } else {
+            count = length;
+       }
     }
 
     return count;
@@ -673,26 +655,25 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 
 #endif // DEVICE_I2CSLAVE
 
-#if DEVICE_I2C_ASYNCH
-
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
 
+#if DEVICE_I2C_ASYNCH
     /* Handle potential Tx/Rx use case */
     if ((obj->tx_buff.length) && (obj->rx_buff.length)) {
-
-    if (obj_s->stop) {
+        if (obj_s->stop) {
             obj_s->XferOperation = I2C_LAST_FRAME;
-        }
-        else {
+        } else {
             obj_s->XferOperation = I2C_NEXT_FRAME;
         }
 
         HAL_I2C_Master_Sequential_Receive_IT(hi2c, obj_s->address, (uint8_t*)obj->rx_buff.buffer , obj->rx_buff.length, obj_s->XferOperation); 
     }
-    else {
+    else
+#endif
+    {
         /* Set event flag */
         obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
     }
@@ -720,6 +701,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
     obj_s->event = I2C_EVENT_ERROR;
 }
 
+#if DEVICE_I2C_ASYNCH
 void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
