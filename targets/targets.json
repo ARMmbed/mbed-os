@@ -1259,7 +1259,7 @@
         "default_toolchain": "ARM",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx"],
-        "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_USER_CONFIG_FILE=\"sdk/odin_w2_mbedtls_config.h\""],
+        "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
