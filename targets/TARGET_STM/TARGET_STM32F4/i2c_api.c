@@ -42,11 +42,6 @@
 #define FLAG_TIMEOUT ((int)0x1000)
 #define LONG_TIMEOUT ((int)0x8000)
 
-int i2c1_inited = 0;
-int i2c2_inited = 0;
-int i2c3_inited = 0;
-int fmpi2c1_inited = 0;
-
 #if DEVICE_I2C_ASYNCH
     #define I2C_S(obj) (struct i2c_s *) (&((obj)->i2c))
 #else
@@ -66,8 +61,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     MBED_ASSERT(obj_s->i2c != (I2CName)NC);
 
     // Enable I2C1 clock and pinout if not done
-    if ((obj_s->i2c == I2C_1) && !i2c1_inited) {
-        i2c1_inited = 1;
+    if (obj_s->i2c == I2C_1) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -80,8 +74,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         __I2C1_CLK_ENABLE();
     }
     // Enable I2C2 clock and pinout if not done
-    if ((obj_s->i2c == I2C_2) && !i2c2_inited) {
-        i2c2_inited = 1;
+    if (obj_s->i2c == I2C_2) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -95,8 +88,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     }
 #if defined I2C3_BASE
     // Enable I2C3 clock and pinout if not done
-    if ((obj_s->i2c == I2C_3) && !i2c3_inited) {
-        i2c3_inited = 1;
+    if (obj_s->i2c == I2C_3) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -112,8 +104,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
 #if defined FMPI2C1_BASE
     // Enable I2C3 clock and pinout if not done
-    if ((obj_s->i2c == FMPI2C_1) && !fmpi2c1_inited) {
-        fmpi2c1_inited = 1;
+    if (obj_s->i2c == FMPI2C_1) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
