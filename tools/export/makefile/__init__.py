@@ -44,7 +44,8 @@ class Makefile(Exporter):
                           self.resources.c_sources +
                           self.resources.cpp_sources]
 
-        libraries = [splitext(lib)[0][3:] for lib in self.resources.libraries]
+        libraries = [self.prepare_lib(basename(lib)) for lib
+                     in self.resources.libraries]
 
         ctx = {
             'name': self.project_name,
@@ -70,6 +71,7 @@ class Makefile(Exporter):
             'elf2bin_cmd': "\'" + self.toolchain.elf2bin + "\'",
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
+            'user_library_flag': self.USER_LIBRARY_FLAG,
         }
 
         for key in ['include_paths', 'library_paths', 'linker_script',
@@ -108,6 +110,11 @@ class GccArm(Makefile):
     NAME = 'Make-GCC-ARM'
     TOOLCHAIN = "GCC_ARM"
     LINK_SCRIPT_OPTION = "-T"
+    USER_LIBRARY_FLAG = "-L"
+
+    @staticmethod
+    def prepare_lib(libname):
+        return "-l:" + libname
 
 
 class Armc5(Makefile):
@@ -117,6 +124,11 @@ class Armc5(Makefile):
     NAME = 'Make-ARMc5'
     TOOLCHAIN = "ARM"
     LINK_SCRIPT_OPTION = "--scatter"
+    USER_LIBRARY_FLAG = "--userlibpath "
+
+    @staticmethod
+    def prepare_lib(libname):
+        return libname
 
 
 class IAR(Makefile):
@@ -126,3 +138,10 @@ class IAR(Makefile):
     NAME = 'Make-IAR'
     TOOLCHAIN = "IAR"
     LINK_SCRIPT_OPTION = "--config"
+    USER_LIBRARY_FLAG = "-L"
+
+    @staticmethod
+    def prepare_lib(libname):
+        if "lib" == libname[:3]:
+            libname = libname[3:]
+        return "-l" + splitext(libname)[0]
