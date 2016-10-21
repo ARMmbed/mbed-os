@@ -31,6 +31,13 @@ void sleep(void)
     // the processor from disabled interrupts.
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
+#ifdef NRF52
+    /* Clear exceptions and PendingIRQ from the FPU unit */
+    __set_FPSCR(__get_FPSCR()  & ~(FPU_EXCEPTION_MASK));
+    (void) __get_FPSCR();
+    NVIC_ClearPendingIRQ(FPU_IRQn);
+#endif
+
     // If the SoftDevice is enabled, its API must be used to go to sleep.
     if (softdevice_handler_isEnabled()) {
         sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
