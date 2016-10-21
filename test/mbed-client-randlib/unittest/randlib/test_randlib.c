@@ -111,18 +111,18 @@ bool test_randLIB_get_64bit()
 
     /* If passed all "4" seeds, seeding should detect this
      * and use splitmix64 to create the actual seed
-     * (0x03910b0aab9b37e5, 0x0b309ab13d42b2a6),
+     * (0x03910b0eab9b37e1, 0x0b309ab53d42b2a2),
      * and produce this output:
      */
     static const uint64_t expected4444[] = {
-        UINT64_C(0x0ec1a5bbe8ddea8b),
-        UINT64_C(0x0be710b8fcf5a491),
-        UINT64_C(0xb21127f7159348b4),
-        UINT64_C(0xdf31900d21f92182),
-        UINT64_C(0xd5a797507d94daa9),
-        UINT64_C(0x66a1c5a4fb04be3d),
-        UINT64_C(0x259e5385f48353be),
-        UINT64_C(0x5d3e3286cd4eae19)
+        UINT64_C(0x0ec1a5c3e8ddea83),
+        UINT64_C(0x09e710b8faf5a491),
+        UINT64_C(0xd4102776f79448b4),
+        UINT64_C(0x5d61988b60091900),
+        UINT64_C(0xf6c8a72a9c72cb4b),
+        UINT64_C(0xb06923e0cf0f2fb1),
+        UINT64_C(0x24bbed475153f573),
+        UINT64_C(0xfff0b4bd08c5581f),
     };
 
     if (!test_output(4, false, expected4444)) {
