@@ -147,7 +147,7 @@ public:
      *  @param a0..a4   Arguments to pass to the event
      */
     void call() const {
-        int id = post();
+        MBED_UNUSED int id = post();
         MBED_ASSERT(id);
     }
 
@@ -540,7 +540,7 @@ public:
      *  @param a0..a4   Arguments to pass to the event
      */
     void call(A0 a0) const {
-        int id = post(a0);
+        MBED_UNUSED int id = post(a0);
         MBED_ASSERT(id);
     }
 
@@ -933,7 +933,7 @@ public:
      *  @param a0..a4   Arguments to pass to the event
      */
     void call(A0 a0, A1 a1) const {
-        int id = post(a0, a1);
+        MBED_UNUSED int id = post(a0, a1);
         MBED_ASSERT(id);
     }
 
@@ -1326,7 +1326,7 @@ public:
      *  @param a0..a4   Arguments to pass to the event
      */
     void call(A0 a0, A1 a1, A2 a2) const {
-        int id = post(a0, a1, a2);
+        MBED_UNUSED int id = post(a0, a1, a2);
         MBED_ASSERT(id);
     }
 
@@ -1719,7 +1719,7 @@ public:
      *  @param a0..a4   Arguments to pass to the event
      */
     void call(A0 a0, A1 a1, A2 a2, A3 a3) const {
-        int id = post(a0, a1, a2, a3);
+        MBED_UNUSED int id = post(a0, a1, a2, a3);
         MBED_ASSERT(id);
     }
 
@@ -2112,7 +2112,7 @@ public:
      *  @param a0..a4   Arguments to pass to the event
      */
     void call(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) const {
-        int id = post(a0, a1, a2, a3, a4);
+        MBED_UNUSED int id = post(a0, a1, a2, a3, a4);
         MBED_ASSERT(id);
     }
 
