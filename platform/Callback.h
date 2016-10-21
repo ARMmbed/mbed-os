@@ -715,7 +715,8 @@ private:
             &Callback::function_dtor<F>,
         };
 
-        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        MBED_STATIC_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F),
+                "Type F must not exceed the size of the Callback class");
         new (this) F(f);
         _ops = &ops;
     }
@@ -1421,7 +1422,8 @@ private:
             &Callback::function_dtor<F>,
         };
 
-        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        MBED_STATIC_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F),
+                "Type F must not exceed the size of the Callback class");
         new (this) F(f);
         _ops = &ops;
     }
@@ -2127,7 +2129,8 @@ private:
             &Callback::function_dtor<F>,
         };
 
-        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        MBED_STATIC_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F),
+                "Type F must not exceed the size of the Callback class");
         new (this) F(f);
         _ops = &ops;
     }
@@ -2833,7 +2836,8 @@ private:
             &Callback::function_dtor<F>,
         };
 
-        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        MBED_STATIC_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F),
+                "Type F must not exceed the size of the Callback class");
         new (this) F(f);
         _ops = &ops;
     }
@@ -3539,7 +3543,8 @@ private:
             &Callback::function_dtor<F>,
         };
 
-        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        MBED_STATIC_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F),
+                "Type F must not exceed the size of the Callback class");
         new (this) F(f);
         _ops = &ops;
     }
@@ -4245,7 +4250,8 @@ private:
             &Callback::function_dtor<F>,
         };
 
-        MBED_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F));
+        MBED_STATIC_ASSERT(sizeof(Callback) - sizeof(_ops) >= sizeof(F),
+                "Type F must not exceed the size of the Callback class");
         new (this) F(f);
         _ops = &ops;
     }
