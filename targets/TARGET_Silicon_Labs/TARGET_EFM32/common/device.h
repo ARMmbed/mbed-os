@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * @file PortNames.h
+ * @file device.h
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -20,25 +20,10 @@
  * limitations under the License.
  *
  ******************************************************************************/
-#ifndef MBED_PORTNAMES_H
-#define MBED_PORTNAMES_H
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#include "em_gpio.h"
+#include "objects.h"
+#include "device_peripherals.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum {
-    PortA = gpioPortA, /**< Port A */
-    PortB = gpioPortB, /**< Port B */
-    PortC = gpioPortC, /**< Port C */
-    PortD = gpioPortD, /**< Port D */
-    PortE = gpioPortE, /**< Port E */
-    PortF = gpioPortF /**< Port F */
-} PortName;
-
-#ifdef __cplusplus
-}
-#endif
 #endif
