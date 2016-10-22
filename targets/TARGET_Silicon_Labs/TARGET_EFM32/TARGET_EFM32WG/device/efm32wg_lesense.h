@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_lesense.h
  * @brief EFM32WG_LESENSE register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,29 +40,29 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t       CTRL;           /**< Control Register  */
-  __IO uint32_t       TIMCTRL;        /**< Timing Control Register  */
-  __IO uint32_t       PERCTRL;        /**< Peripheral Control Register  */
-  __IO uint32_t       DECCTRL;        /**< Decoder control Register  */
-  __IO uint32_t       BIASCTRL;       /**< Bias Control Register  */
-  __IO uint32_t       CMD;            /**< Command Register  */
-  __IO uint32_t       CHEN;           /**< Channel enable Register  */
-  __I uint32_t        SCANRES;        /**< Scan result register  */
-  __I uint32_t        STATUS;         /**< Status Register  */
-  __I uint32_t        PTR;            /**< Result buffer pointers  */
-  __I uint32_t        BUFDATA;        /**< Result buffer data register  */
-  __I uint32_t        CURCH;          /**< Current channel index  */
-  __IO uint32_t       DECSTATE;       /**< Current decoder state  */
-  __IO uint32_t       SENSORSTATE;    /**< Decoder input register  */
-  __IO uint32_t       IDLECONF;       /**< GPIO Idle phase configuration  */
-  __IO uint32_t       ALTEXCONF;      /**< Alternative excite pin configuration  */
-  __I uint32_t        IF;             /**< Interrupt Flag Register  */
-  __IO uint32_t       IFC;            /**< Interrupt Flag Clear Register  */
-  __IO uint32_t       IFS;            /**< Interrupt Flag Set Register  */
-  __IO uint32_t       IEN;            /**< Interrupt Enable Register  */
-  __I uint32_t        SYNCBUSY;       /**< Synchronization Busy Register  */
-  __IO uint32_t       ROUTE;          /**< I/O Routing Register  */
-  __IO uint32_t       POWERDOWN;      /**< LESENSE RAM power-down register  */
+  __IOM uint32_t      CTRL;           /**< Control Register  */
+  __IOM uint32_t      TIMCTRL;        /**< Timing Control Register  */
+  __IOM uint32_t      PERCTRL;        /**< Peripheral Control Register  */
+  __IOM uint32_t      DECCTRL;        /**< Decoder control Register  */
+  __IOM uint32_t      BIASCTRL;       /**< Bias Control Register  */
+  __IOM uint32_t      CMD;            /**< Command Register  */
+  __IOM uint32_t      CHEN;           /**< Channel enable Register  */
+  __IM uint32_t       SCANRES;        /**< Scan result register  */
+  __IM uint32_t       STATUS;         /**< Status Register  */
+  __IM uint32_t       PTR;            /**< Result buffer pointers  */
+  __IM uint32_t       BUFDATA;        /**< Result buffer data register  */
+  __IM uint32_t       CURCH;          /**< Current channel index  */
+  __IOM uint32_t      DECSTATE;       /**< Current decoder state  */
+  __IOM uint32_t      SENSORSTATE;    /**< Decoder input register  */
+  __IOM uint32_t      IDLECONF;       /**< GPIO Idle phase configuration  */
+  __IOM uint32_t      ALTEXCONF;      /**< Alternative excite pin configuration  */
+  __IM uint32_t       IF;             /**< Interrupt Flag Register  */
+  __IOM uint32_t      IFC;            /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t      IFS;            /**< Interrupt Flag Set Register  */
+  __IOM uint32_t      IEN;            /**< Interrupt Enable Register  */
+  __IM uint32_t       SYNCBUSY;       /**< Synchronization Busy Register  */
+  __IOM uint32_t      ROUTE;          /**< I/O Routing Register  */
+  __IOM uint32_t      POWERDOWN;      /**< LESENSE RAM power-down register  */
 
   uint32_t            RESERVED0[105]; /**< Reserved registers */
   LESENSE_ST_TypeDef  ST[16];         /**< Decoding states */

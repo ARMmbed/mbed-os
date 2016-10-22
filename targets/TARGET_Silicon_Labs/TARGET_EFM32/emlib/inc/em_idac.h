@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_idac.h
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_IDAC_H__
-#define __SILICON_LABS_EM_IDAC_H__
+#ifndef EM_IDAC_H
+#define EM_IDAC_H
 
 #include "em_device.h"
 
@@ -43,12 +43,38 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup IDAC
+ * @brief
+ *  Current Digital-to-Analog Converter (IDAC) Peripheral API
+ *
+ * @details
+ *  The current digital-to-analog converter (IDAC) can source or sink a configurable
+ *  constant current, which can be output on, or sinked from pin or ADC. The current
+ *  is configurable with several ranges of various step sizes. The IDAC can be used
+ *  with PRS and it can operate down to EM3.
+ *
+ *  The following steps are necessary for basic operation:
+ *
+ *  Clock enable:
+ *  @include em_idac_clock_enable.c
+ *
+ *  Initialize the peripheral with default settings and modify selected fields such as
+ *  output select:
+ *  @if DOXYDOC_P1_DEVICE
+ *  @include em_idac_init_adc.c
+ *  @endif
+ *  @if DOXYDOC_P2_DEVICE
+ *  @include em_idac_init_aport.c
+ *  @endif
+ *
+ *  Set output:
+ *  @include em_idac_basic_usage.c
+ *
  * @{
  ******************************************************************************/
 
@@ -195,104 +221,13 @@ typedef struct
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-/***************************************************************************//**
- * @brief
- *   Initialize IDAC.
- *
- * @details
- *   Initializes IDAC according to the initialization structure parameter, and
- *   sets the default calibration value stored in the DEVINFO structure.
- *
- * @note
- *   This function will disable the IDAC prior to configuration.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- *
- * @param[in] init
- *   Pointer to IDAC initialization structure.
- ******************************************************************************/
+
 void IDAC_Init(IDAC_TypeDef *idac, const IDAC_Init_TypeDef *init);
-
-
-/***************************************************************************//**
- * @brief
- *   Enable/disable IDAC.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- *
- * @param[in] enable
- *   true to enable IDAC, false to disable.
- ******************************************************************************/
 void IDAC_Enable(IDAC_TypeDef *idac, bool enable);
-
-
-/***************************************************************************//**
- * @brief
- *   Reset IDAC to same state as after a HW reset.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- ******************************************************************************/
 void IDAC_Reset(IDAC_TypeDef *idac);
-
-
-/***************************************************************************//**
- * @brief
- *   Enable/disable Minimal Output Transition mode.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- *
- * @param[in] enable
- *   true to enable Minimal Output Transition mode, false to disable.
- ******************************************************************************/
 void IDAC_MinimalOutputTransitionMode(IDAC_TypeDef *idac, bool enable);
-
-
-/***************************************************************************//**
- * @brief
- *   Set the current range of the IDAC output.
- *
- * @details
- *   This function sets the current range of the IDAC output. The function
- *   also updates the IDAC calibration register (IDAC_CAL) with the default
- *   calibration value (from DEVINFO, factory setting) corresponding to the
- *   specified range.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- *
- * @param[in] range
- *   Current range value.
- ******************************************************************************/
 void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range);
-
-
-/***************************************************************************//**
- * @brief
- *   Set the current step of the IDAC output.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- *
- * @param[in] step
- *   Step value for IDAC output. Valid range is 0-31.
- ******************************************************************************/
 void IDAC_StepSet(IDAC_TypeDef *idac, const uint32_t step);
-
-
-/***************************************************************************//**
- * @brief
- *   Enable/disable the IDAC OUT pin.
- *
- * @param[in] idac
- *   Pointer to IDAC peripheral register block.
- *
- * @param[in] enable
- *   true to enable the IDAC OUT pin, false to disable.
- ******************************************************************************/
 void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable);
 
 
@@ -301,7 +236,7 @@ void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable);
  * @brief
  *   Clear one or more pending IDAC interrupts.
  *
- * @param[in] IDAC
+ * @param[in] idac
  *   Pointer to IDAC peripheral register block.
  *
  * @param[in] flags
@@ -318,7 +253,7 @@ __STATIC_INLINE void IDAC_IntClear(IDAC_TypeDef *idac, uint32_t flags)
  * @brief
  *   Disable one or more IDAC interrupts.
  *
- * @param[in] IDAC
+ * @param[in] idac
  *   Pointer to IDAC peripheral register block.
  *
  * @param[in] flags
@@ -340,7 +275,7 @@ __STATIC_INLINE void IDAC_IntDisable(IDAC_TypeDef *idac, uint32_t flags)
  *   enabling the interrupt. Consider using IDAC_IntClear() prior to enabling
  *   if such a pending interrupt should be ignored.
  *
- * @param[in] IDAC
+ * @param[in] idac
  *   Pointer to IDAC peripheral register block.
  *
  * @param[in] flags
@@ -360,7 +295,7 @@ __STATIC_INLINE void IDAC_IntEnable(IDAC_TypeDef *idac, uint32_t flags)
  * @note
  *   The event bits are not cleared by the use of this function.
  *
- * @param[in] IDAC
+ * @param[in] idac
  *   Pointer to IDAC peripheral register block.
  *
  * @return
@@ -378,7 +313,7 @@ __STATIC_INLINE uint32_t IDAC_IntGet(IDAC_TypeDef *idac)
  *   Get enabled and pending IDAC interrupt flags.
  *   Useful for handling more interrupt sources in the same interrupt handler.
  *
- * @param[in] IDAC
+ * @param[in] idac
  *   Pointer to IDAC peripheral register block.
  *
  * @note
@@ -409,7 +344,7 @@ __STATIC_INLINE uint32_t IDAC_IntGetEnabled(IDAC_TypeDef *idac)
  * @brief
  *   Set one or more pending IDAC interrupts from SW.
  *
- * @param[in] IDAC
+ * @param[in] idac
  *   Pointer to IDAC peripheral register block.
  *
  * @param[in] flags
@@ -424,7 +359,7 @@ __STATIC_INLINE void IDAC_IntSet(IDAC_TypeDef *idac, uint32_t flags)
 
 
 /** @} (end addtogroup IDAC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
@@ -432,4 +367,4 @@ __STATIC_INLINE void IDAC_IntSet(IDAC_TypeDef *idac, uint32_t flags)
 
 #endif /* defined(IDAC_COUNT) && (IDAC_COUNT > 0) */
 
-#endif /* __SILICON_LABS_EM_IDAC_H__ */
+#endif /* EM_IDAC_H */

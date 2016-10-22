@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_usart.h
  * @brief EFM32ZG_USART register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,31 +40,31 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;       /**< Control Register  */
-  __IO uint32_t FRAME;      /**< USART Frame Format Register  */
-  __IO uint32_t TRIGCTRL;   /**< USART Trigger Control register  */
-  __IO uint32_t CMD;        /**< Command Register  */
-  __I uint32_t  STATUS;     /**< USART Status Register  */
-  __IO uint32_t CLKDIV;     /**< Clock Control Register  */
-  __I uint32_t  RXDATAX;    /**< RX Buffer Data Extended Register  */
-  __I uint32_t  RXDATA;     /**< RX Buffer Data Register  */
-  __I uint32_t  RXDOUBLEX;  /**< RX Buffer Double Data Extended Register  */
-  __I uint32_t  RXDOUBLE;   /**< RX FIFO Double Data Register  */
-  __I uint32_t  RXDATAXP;   /**< RX Buffer Data Extended Peek Register  */
-  __I uint32_t  RXDOUBLEXP; /**< RX Buffer Double Data Extended Peek Register  */
-  __IO uint32_t TXDATAX;    /**< TX Buffer Data Extended Register  */
-  __IO uint32_t TXDATA;     /**< TX Buffer Data Register  */
-  __IO uint32_t TXDOUBLEX;  /**< TX Buffer Double Data Extended Register  */
-  __IO uint32_t TXDOUBLE;   /**< TX Buffer Double Data Register  */
-  __I uint32_t  IF;         /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;        /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;        /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;        /**< Interrupt Enable Register  */
-  __IO uint32_t IRCTRL;     /**< IrDA Control Register  */
-  __IO uint32_t ROUTE;      /**< I/O Routing Register  */
-  __IO uint32_t INPUT;      /**< USART Input Register  */
-  __IO uint32_t I2SCTRL;    /**< I2S Control Register  */
-} USART_TypeDef;            /** @} */
+  __IOM uint32_t CTRL;       /**< Control Register  */
+  __IOM uint32_t FRAME;      /**< USART Frame Format Register  */
+  __IOM uint32_t TRIGCTRL;   /**< USART Trigger Control register  */
+  __IOM uint32_t CMD;        /**< Command Register  */
+  __IM uint32_t  STATUS;     /**< USART Status Register  */
+  __IOM uint32_t CLKDIV;     /**< Clock Control Register  */
+  __IM uint32_t  RXDATAX;    /**< RX Buffer Data Extended Register  */
+  __IM uint32_t  RXDATA;     /**< RX Buffer Data Register  */
+  __IM uint32_t  RXDOUBLEX;  /**< RX Buffer Double Data Extended Register  */
+  __IM uint32_t  RXDOUBLE;   /**< RX FIFO Double Data Register  */
+  __IM uint32_t  RXDATAXP;   /**< RX Buffer Data Extended Peek Register  */
+  __IM uint32_t  RXDOUBLEXP; /**< RX Buffer Double Data Extended Peek Register  */
+  __IOM uint32_t TXDATAX;    /**< TX Buffer Data Extended Register  */
+  __IOM uint32_t TXDATA;     /**< TX Buffer Data Register  */
+  __IOM uint32_t TXDOUBLEX;  /**< TX Buffer Double Data Extended Register  */
+  __IOM uint32_t TXDOUBLE;   /**< TX Buffer Double Data Register  */
+  __IM uint32_t  IF;         /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;        /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;        /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;        /**< Interrupt Enable Register  */
+  __IOM uint32_t IRCTRL;     /**< IrDA Control Register  */
+  __IOM uint32_t ROUTE;      /**< I/O Routing Register  */
+  __IOM uint32_t INPUT;      /**< USART Input Register  */
+  __IOM uint32_t I2SCTRL;    /**< I2S Control Register  */
+} USART_TypeDef;             /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32ZG_USART_BitFields

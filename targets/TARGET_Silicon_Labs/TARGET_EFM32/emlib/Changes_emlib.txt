@@ -1,4 +1,128 @@
 ================ Revision history ============================================
+5.0.0:
+ - em_core: New module, contains API for enabling/disabling interrupts
+   and implementing critical regions.
+   em_core replaces em_int which is deprecated and marked for removal in a
+   later release.
+ - em_emu: Added EMU_SetBiasMode() for Series 1 Configuration 1 devices.
+ - em_chip: Adding EMU_E210 errata fix in CHIP_Init().
+ - em_adc: Changed default value of negSel in ADC_INITSINGLE_DEFAULT
+   from adcNegSelAPORT0XCH1 to adcNegSelVSS.
+ - em_emu, em_cmu, em_chip, em_system: Added support for Series 1,
+   Configuration 2 parts (eg. EFR32MG12)
+ - em_gpio: Fixed GPIO_ExtIntConfig() to enable correct interrupt number on
+   Series 1 devices.
+ - em_ldma: Updated LDMA_Init() and LDMA_StartTransfer() to support pointers
+   to const memory.
+ - em_ldma: Adding LDMA_DESCRIPTOR_SINGLE_P2P_BYTE which can be used when
+   transfering bytes from one peripheral to another peripheral.
+ - em_i2c: Fixed bug that may clear IEN bits set by the user.
+ - em_emu: DCDC LN mode RCOBAND is now set based on LNFORCECCM.
+ - em_emu: Member dcdcLnCompCtrl added to EMU_DCDCInit_TypeDef. This parameter
+   allows configuraiton of 1uF or 4.7uF DCDC capacitor. 1uF is default for
+   Series 1 Device Configuration 1 while 4.7 is default for Series 1
+   Device Configuration 2 and later.
+ - Updated documentation with more code examples for em_assert, em_common,
+   em_cryotimer, em_gpcrc, em_ldma, em_msc, em_ramfunc, em_system, em_usart.
+
+4.4.0:
+ - em_emu: Putting DCDC in bypass mode before entering EM4S.
+ - em_cmu: In the CMU_HFXOInit_TypeDef struct the following members have been
+   deprecated and are no longer in use: autoStartEm01, autoSelEm01, and
+   autoStartSelOnRacWakeup. Any application using the HFXO autostart feature
+   must use the CMU_HFXOAutostartEnable() function instead.
+ - em_emu: Updating DCDC LP comparator bias thresholds for EM2/3/4 according to
+   updated reference manual. The thresholds are compared to the
+   em234LoadCurrent_uA value of the EMU_DCDCInit_TypeDef struct.
+ - em_msc: Fix for errata FLASH_E201 - Potential program failure after power on
+   After a flash write the first word is checked to verify write operation. On
+   a verification failure the first word is re-programmed.
+ - em_adc: Enforcing at least 8 cycle aquisition time when reading ADC internal
+   temp sensor using a 1.25V reference on platform 2 generation 1 devices.
+ - em_adc: Setting GPBIASACC when initializing measurement of the ADC internal
+   temp sensor as documented in the reference manual.
+ - em_emu: Fix for errata EMU_E208 - Occasional Full Reset After Exiting EM4H
+ - em_cmu: Added the possibility to configure external clock as HFXO
+   and LFXO source via the CMU_HFXOInit() and CMU_LFXOInit() functions.
+ - em_emu: Added EMU_EnterEM4H and EMU_EnterEM4S functions.
+ - Fixed shift bug in ADC_EM2ClockConfig_TypeDef.
+ - Added bounds check on ADC prescaler.
+ - Updated ADC_INITSCAN_DEFAULT to match ADC_ScanInputClear().
+
+4.3.1:
+ - EFR32 and EFM32PG/JG em_cmu: Added automatic switching to HFXO
+   PEAKDETSHUNTOPTMODE=CMD  mode after the first enable. This means automatic
+   peak detection and shunt current optimization runs at the first call to
+   CMU_OscillatorEnable(cmuOsc_HFXO, true, true) or
+   CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO) only.
+   Optimization can be restarted by calling CMU_OscillatorTuningOptimize(). This is
+   required if the temperature changes by more than 100degC.
+ - Added CMU_HFXOAutostartEnable() function to support automatic HFXO start and
+   select.
+ - Updated default timeouts for CMU_HFXOInit() to optimize HFXO startup
+   time. The startup time reduction depends on the oscillator specification.
+   The new defaults are safe for typical oscillator specifications.
+ - em_ldma: LDMA_StartTransfer() now only enable a DMA channel once.
+ - em_cmu: Fixed condtitional compilation bug in CMU_ClockSelectGet().
+ - em_usart: Fixed bug in USART_BaudrateCalc() function.
+ - em_usart: Improved corner cases in synchrounous baudrate calculation math.
+ - em_emu.c: EMU_DCDCLnRcoBandSet() calls EMU_DCDCOptimizeSlice() as the slice
+   configuration depends on RCO band.
+
+4.3.0:
+ - em_cmu: Removed unused fields from CMU_HFXOInit_TypeDef. The removed fields
+   are regIshStartup and timeoutWarmSteady.
+ - em_rtc.h: Added RTC_CounterSet function for modifying the RTC Counter.
+ - em_burtc.c: Fixed bug when doing low frequency domain synchronization.
+ - em_gpio.c: Deprecated GPIO_IntConfig(), use new function GPIO_ExtIntConfig()
+   instead.
+ - Removed deprecated file em_part.h.
+ - em_dma.c: Replaced infinite loop on bus errors in default irq handler with
+   an assert.
+ - em_gpio.c: Use direct register write instead of BUS API in GPIO_PinModeSet
+   to prevent glitches.
+ - Fixed incorrect handling of CMU_CTRL_WSHFLE and CMU_HFPRESC_HFCLKLEPRESC in
+   em_cmu.c for EFM32 Pearl and Jade Gecko.
+ - Type enumerations cmuClock_HFLE and cmuSelect_HFCLKLE can now be used for
+   all families to select or reference the divided down HF clock for LE peripherals.
+ - Code size optimization in em_cmu.c.
+ - Added GPCRC support.
+ - Added support for WARNSEL, WINSEL and WDOGRSTDIS to em_wdog. Added interrupt
+   functions. Added support for multiple WDOG instances. Deprecated functions
+   WDOG_Enable(), WDOG_Feed(), WDOG_Init() and WDOG_Lock().
+ - GPIO_EM4GetPinWakeupCause() now returns the content of the EM4WU field from
+   the GPIO_IF register for platform 2 devices.
+ - Added function GPIO_SlewrateSet() to set slewrate for GPIO ports.
+ - Added fix for GPIO_E201 in CHIP_Init().
+ - Added function CMU_HFRCOBandGet() and CMU_HFRCOBandSet() for platform 2.
+   Functions with the same names are present for platform 1, but the parameter
+   and return types are different. Platform 1 and 2 also do not support the same
+   HFRCO/AUXHFRCO frequencies.
+ - Added HFLE wait-state control to CMU_HFRCOBandSet(). This is a bug on
+   EFM32 Wonder Gecko only as HFLE DIV4 is required at 24MHz, in between the 28HMz
+   and 21MHz HFRCO bands.
+ - Fixed reset-cause XMASKs for platform 2, gen 1 parts. Improved
+   documentation in em_rmu.c.
+ - Added support for configuring IrDA on USART1 for EFM32 Happy Gecko. The
+   function USART_InitIrDA() is deprecated, and replaced by USARTn_InitIrDA().
+ - Added module em_ramfunc. Fixed issue with calls from em_msc RAM code to Flash.
+ - Updated current limiter threshold equations for LNCLIMILIMSEL, LPCLIMILIMSEL
+   and DCDCZDETCTRL.
+ - Member type EMU_DcdcLnTransientMode_TypeDef in EMU_DCDCInit_TypeDef changed to
+   EMU_DcdcLnReverseCurrentControl_TypeDef to enable support for reverse current
+   limiter.
+ - EM2/3 current consumption optimization: Default value
+   emuDcdcAnaPeripheralPower_AVDD in EMU_DCDCINIT_DEFAULT for EFR32
+   changed to emuDcdcAnaPeripheralPower_DCDC.
+ - EM2/3 current consumption optimization: DCDC_LP_NFET_CNT updated to 7
+
+4.2.3:
+ - Added DMA and LDMA functions to enable/disable channel requests.
+
+4.2.2:
+ - em_gpio.c: Use direct register write instead of BUS API in GPIO_PinModeSet
+              to prevent glitches.
+
 4.2.1:
  - Added errata fix for an issue that may cause BOD resets in EM2 when using
    DCDC-to-DVDD mode. The fix is implemented in EMU_DCDCInit().
@@ -18,11 +142,11 @@
    retention in EM4H/S.
  - Fixed bug in ADC_InitScan() which caused a overwrite of single conversion
    mode calibration values.
- - Added support for CRYPTO module on Pearl and Jade Geckos (em_crypto.c/h)
+ - Added support for CRYPTO module on EFM32 Pearl and Jade Gecko (em_crypto.c/h).
 
 4.1.1:
  - EMU_DCDCInit() updated with new parameters for EM2 and 3. Current consumption
-   with DCDC at expected levels for EFR32 and EFM32PG revA1, A2 and B0.
+   with DCDC at expected levels for EFR32 and EFM32 Pearl and Jade Gecko.
  - EMU_DCDCInit_TypeDef updated with more parameters. EMU_DcdcLpcmpBiasMode_TypeDef
    is removed.
  - More assertions added to EMU_DCDCInit().
@@ -34,9 +158,10 @@
  - Added support for VMON.
 
 4.1.0:
+ - New signature for RMU_ResetControl() function.
  - The typedef EMU_EM23Init_TypeDef which is a parameter to EMU_EM23Init()
    has got a new definition.
- - Initial support _SILICON_LABS_32B_PLATFORM_2 devices added
+ - Initial support _SILICON_LABS_32B_PLATFORM_2 devices added.
 
 4.0.0:
  - Use ARM CMSIS version 4.2.0.
@@ -50,7 +175,7 @@
  - Fixed I2C_FREQ_STANDARD_MAX macros.
  - Fixed bug in MSC_WriteWord which called internal functions that were linked
    to flash for armgcc. All subsequent calls of MSC_WriteWord should now be
-   linked to RAM for all supported compilers. The internals of MSC_WriteWord
+   linked to RAM for all supported compilers. The internals of MSC_WriteWord()
    will check the global variable SystemCoreClock in order to make sure the
    frequency is high enough for flash operations. If the core clock frequency
    is changed, software is responsible for calling MSC_Init or

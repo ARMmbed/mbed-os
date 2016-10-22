@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_ldma.h
  * @brief EFM32PG1B_LDMA register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,24 +40,24 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t   CTRL;         /**< DMA Control Register  */
-  __I uint32_t    STATUS;       /**< DMA Status Register  */
-  __IO uint32_t   SYNC;         /**< DMA Synchronization Trigger Register (Single-Cycle RMW)  */
+  __IOM uint32_t  CTRL;         /**< DMA Control Register  */
+  __IM uint32_t   STATUS;       /**< DMA Status Register  */
+  __IOM uint32_t  SYNC;         /**< DMA Synchronization Trigger Register (Single-Cycle RMW)  */
   uint32_t        RESERVED0[5]; /**< Reserved for future use **/
-  __IO uint32_t   CHEN;         /**< DMA Channel Enable Register (Single-Cycle RMW)  */
-  __I uint32_t    CHBUSY;       /**< DMA Channel Busy Register  */
-  __IO uint32_t   CHDONE;       /**< DMA Channel Linking Done Register (Single-Cycle RMW)  */
-  __IO uint32_t   DBGHALT;      /**< DMA Channel Debug Halt Register  */
-  __IO uint32_t   SWREQ;        /**< DMA Channel Software Transfer Request Register  */
-  __IO uint32_t   REQDIS;       /**< DMA Channel Request Disable Register  */
-  __I uint32_t    REQPEND;      /**< DMA Channel Requests Pending Register  */
-  __IO uint32_t   LINKLOAD;     /**< DMA Channel Link Load Register  */
-  __IO uint32_t   REQCLEAR;     /**< DMA Channel Request Clear Register  */
+  __IOM uint32_t  CHEN;         /**< DMA Channel Enable Register (Single-Cycle RMW)  */
+  __IM uint32_t   CHBUSY;       /**< DMA Channel Busy Register  */
+  __IOM uint32_t  CHDONE;       /**< DMA Channel Linking Done Register (Single-Cycle RMW)  */
+  __IOM uint32_t  DBGHALT;      /**< DMA Channel Debug Halt Register  */
+  __IOM uint32_t  SWREQ;        /**< DMA Channel Software Transfer Request Register  */
+  __IOM uint32_t  REQDIS;       /**< DMA Channel Request Disable Register  */
+  __IM uint32_t   REQPEND;      /**< DMA Channel Requests Pending Register  */
+  __IOM uint32_t  LINKLOAD;     /**< DMA Channel Link Load Register  */
+  __IOM uint32_t  REQCLEAR;     /**< DMA Channel Request Clear Register  */
   uint32_t        RESERVED1[7]; /**< Reserved for future use **/
-  __I uint32_t    IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t   IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t   IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t   IEN;          /**< Interrupt Enable register  */
+  __IM uint32_t   IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t  IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t  IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t  IEN;          /**< Interrupt Enable register  */
 
   uint32_t        RESERVED2[4]; /**< Reserved registers */
   LDMA_CH_TypeDef CH[8];        /**< DMA Channel Registers */

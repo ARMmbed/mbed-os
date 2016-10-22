@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_idac.h
  * @brief EFM32PG1B_IDAC register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,22 +40,22 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;          /**< Control Register  */
-  __IO uint32_t CURPROG;       /**< Current Programming Register  */
-  uint32_t      RESERVED0[1];  /**< Reserved for future use **/
-  __IO uint32_t DUTYCONFIG;    /**< Duty Cycle Configauration Register  */
+  __IOM uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t CURPROG;       /**< Current Programming Register  */
+  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+  __IOM uint32_t DUTYCONFIG;    /**< Duty Cycle Configauration Register  */
 
-  uint32_t      RESERVED1[2];  /**< Reserved for future use **/
-  __I uint32_t  STATUS;        /**< Status Register  */
-  uint32_t      RESERVED2[1];  /**< Reserved for future use **/
-  __I uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;           /**< Interrupt Enable Register  */
-  uint32_t      RESERVED3[1];  /**< Reserved for future use **/
-  __I uint32_t  APORTREQ;      /**< APORT Request Status Register  */
-  __I uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
-} IDAC_TypeDef;                /** @} */
+  uint32_t       RESERVED1[2];  /**< Reserved for future use **/
+  __IM uint32_t  STATUS;        /**< Status Register  */
+  uint32_t       RESERVED2[1];  /**< Reserved for future use **/
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+  uint32_t       RESERVED3[1];  /**< Reserved for future use **/
+  __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
+  __IM uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
+} IDAC_TypeDef;                 /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_IDAC_BitFields
@@ -80,11 +80,11 @@ typedef struct
 #define _IDAC_CTRL_MINOUTTRANS_MASK                    0x4UL                                     /**< Bit mask for IDAC_MINOUTTRANS */
 #define _IDAC_CTRL_MINOUTTRANS_DEFAULT                 0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
 #define IDAC_CTRL_MINOUTTRANS_DEFAULT                  (_IDAC_CTRL_MINOUTTRANS_DEFAULT << 2)     /**< Shifted mode DEFAULT for IDAC_CTRL */
-#define IDAC_CTRL_OUTEN                                (0x1UL << 3)                              /**< Output Enable */
-#define _IDAC_CTRL_OUTEN_SHIFT                         3                                         /**< Shift value for IDAC_OUTEN */
-#define _IDAC_CTRL_OUTEN_MASK                          0x8UL                                     /**< Bit mask for IDAC_OUTEN */
-#define _IDAC_CTRL_OUTEN_DEFAULT                       0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
-#define IDAC_CTRL_OUTEN_DEFAULT                        (_IDAC_CTRL_OUTEN_DEFAULT << 3)           /**< Shifted mode DEFAULT for IDAC_CTRL */
+#define IDAC_CTRL_APORTOUTEN                           (0x1UL << 3)                              /**< APORT Output Enable */
+#define _IDAC_CTRL_APORTOUTEN_SHIFT                    3                                         /**< Shift value for IDAC_APORTOUTEN */
+#define _IDAC_CTRL_APORTOUTEN_MASK                     0x8UL                                     /**< Bit mask for IDAC_APORTOUTEN */
+#define _IDAC_CTRL_APORTOUTEN_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
+#define IDAC_CTRL_APORTOUTEN_DEFAULT                   (_IDAC_CTRL_APORTOUTEN_DEFAULT << 3)      /**< Shifted mode DEFAULT for IDAC_CTRL */
 #define _IDAC_CTRL_APORTOUTSEL_SHIFT                   4                                         /**< Shift value for IDAC_APORTOUTSEL */
 #define _IDAC_CTRL_APORTOUTSEL_MASK                    0xFF0UL                                   /**< Bit mask for IDAC_APORTOUTSEL */
 #define _IDAC_CTRL_APORTOUTSEL_DEFAULT                 0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
@@ -172,11 +172,11 @@ typedef struct
 #define _IDAC_CTRL_APORTMASTERDIS_MASK                 0x4000UL                                  /**< Bit mask for IDAC_APORTMASTERDIS */
 #define _IDAC_CTRL_APORTMASTERDIS_DEFAULT              0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
 #define IDAC_CTRL_APORTMASTERDIS_DEFAULT               (_IDAC_CTRL_APORTMASTERDIS_DEFAULT << 14) /**< Shifted mode DEFAULT for IDAC_CTRL */
-#define IDAC_CTRL_OUTENPRS                             (0x1UL << 16)                             /**< PRS Controlled Output Enable */
-#define _IDAC_CTRL_OUTENPRS_SHIFT                      16                                        /**< Shift value for IDAC_OUTENPRS */
-#define _IDAC_CTRL_OUTENPRS_MASK                       0x10000UL                                 /**< Bit mask for IDAC_OUTENPRS */
-#define _IDAC_CTRL_OUTENPRS_DEFAULT                    0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
-#define IDAC_CTRL_OUTENPRS_DEFAULT                     (_IDAC_CTRL_OUTENPRS_DEFAULT << 16)       /**< Shifted mode DEFAULT for IDAC_CTRL */
+#define IDAC_CTRL_APORTOUTENPRS                        (0x1UL << 16)                             /**< PRS Controlled APORT Output Enable */
+#define _IDAC_CTRL_APORTOUTENPRS_SHIFT                 16                                        /**< Shift value for IDAC_APORTOUTENPRS */
+#define _IDAC_CTRL_APORTOUTENPRS_MASK                  0x10000UL                                 /**< Bit mask for IDAC_APORTOUTENPRS */
+#define _IDAC_CTRL_APORTOUTENPRS_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */
+#define IDAC_CTRL_APORTOUTENPRS_DEFAULT                (_IDAC_CTRL_APORTOUTENPRS_DEFAULT << 16)  /**< Shifted mode DEFAULT for IDAC_CTRL */
 #define _IDAC_CTRL_PRSSEL_SHIFT                        20                                        /**< Shift value for IDAC_PRSSEL */
 #define _IDAC_CTRL_PRSSEL_MASK                         0xF00000UL                                /**< Bit mask for IDAC_PRSSEL */
 #define _IDAC_CTRL_PRSSEL_DEFAULT                      0x00000000UL                              /**< Mode DEFAULT for IDAC_CTRL */

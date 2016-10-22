@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32gg_emu.h
  * @brief EFM32GG_EMU register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,28 +40,28 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;          /**< Control Register  */
-  __IO uint32_t MEMCTRL;       /**< Memory Control Register  */
-  __IO uint32_t LOCK;          /**< Configuration Lock Register  */
+  __IOM uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t MEMCTRL;       /**< Memory Control Register  */
+  __IOM uint32_t LOCK;          /**< Configuration Lock Register  */
 
-  uint32_t      RESERVED0[6];  /**< Reserved for future use **/
-  __IO uint32_t AUXCTRL;       /**< Auxiliary Control Register  */
+  uint32_t       RESERVED0[6];  /**< Reserved for future use **/
+  __IOM uint32_t AUXCTRL;       /**< Auxiliary Control Register  */
 
-  uint32_t      RESERVED1[1];  /**< Reserved for future use **/
-  __IO uint32_t EM4CONF;       /**< Energy mode 4 configuration register  */
-  __IO uint32_t BUCTRL;        /**< Backup Power configuration register  */
-  __IO uint32_t PWRCONF;       /**< Power connection configuration register  */
-  __IO uint32_t BUINACT;       /**< Backup mode inactive configuration register  */
-  __IO uint32_t BUACT;         /**< Backup mode active configuration register  */
-  __I uint32_t  STATUS;        /**< Status register  */
-  __IO uint32_t ROUTE;         /**< I/O Routing Register  */
-  __I uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;           /**< Interrupt Enable Register  */
-  __IO uint32_t BUBODBUVINCAL; /**< BU_VIN Backup BOD calibration  */
-  __IO uint32_t BUBODUNREGCAL; /**< Unregulated power Backup BOD calibration  */
-} EMU_TypeDef;                 /** @} */
+  uint32_t       RESERVED1[1];  /**< Reserved for future use **/
+  __IOM uint32_t EM4CONF;       /**< Energy mode 4 configuration register  */
+  __IOM uint32_t BUCTRL;        /**< Backup Power configuration register  */
+  __IOM uint32_t PWRCONF;       /**< Power connection configuration register  */
+  __IOM uint32_t BUINACT;       /**< Backup mode inactive configuration register  */
+  __IOM uint32_t BUACT;         /**< Backup mode active configuration register  */
+  __IM uint32_t  STATUS;        /**< Status register  */
+  __IOM uint32_t ROUTE;         /**< I/O Routing Register  */
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+  __IOM uint32_t BUBODBUVINCAL; /**< BU_VIN Backup BOD calibration  */
+  __IOM uint32_t BUBODUNREGCAL; /**< Unregulated power Backup BOD calibration  */
+} EMU_TypeDef;                  /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32GG_EMU_BitFields
@@ -169,35 +169,40 @@ typedef struct
 #define EMU_EM4CONF_LOCKCONF_DEFAULT         (_EMU_EM4CONF_LOCKCONF_DEFAULT << 16)   /**< Shifted mode DEFAULT for EMU_EM4CONF */
 
 /* Bit fields for EMU BUCTRL */
-#define _EMU_BUCTRL_RESETVALUE               0x00000000UL                      /**< Default value for EMU_BUCTRL */
-#define _EMU_BUCTRL_MASK                     0x00000067UL                      /**< Mask for EMU_BUCTRL */
-#define EMU_BUCTRL_EN                        (0x1UL << 0)                      /**< Enable backup mode */
-#define _EMU_BUCTRL_EN_SHIFT                 0                                 /**< Shift value for EMU_EN */
-#define _EMU_BUCTRL_EN_MASK                  0x1UL                             /**< Bit mask for EMU_EN */
-#define _EMU_BUCTRL_EN_DEFAULT               0x00000000UL                      /**< Mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_EN_DEFAULT                (_EMU_BUCTRL_EN_DEFAULT << 0)     /**< Shifted mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_STATEN                    (0x1UL << 1)                      /**< Enable backup mode status export */
-#define _EMU_BUCTRL_STATEN_SHIFT             1                                 /**< Shift value for EMU_STATEN */
-#define _EMU_BUCTRL_STATEN_MASK              0x2UL                             /**< Bit mask for EMU_STATEN */
-#define _EMU_BUCTRL_STATEN_DEFAULT           0x00000000UL                      /**< Mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_STATEN_DEFAULT            (_EMU_BUCTRL_STATEN_DEFAULT << 1) /**< Shifted mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_BODCAL                    (0x1UL << 2)                      /**< Enable BOD calibration mode */
-#define _EMU_BUCTRL_BODCAL_SHIFT             2                                 /**< Shift value for EMU_BODCAL */
-#define _EMU_BUCTRL_BODCAL_MASK              0x4UL                             /**< Bit mask for EMU_BODCAL */
-#define _EMU_BUCTRL_BODCAL_DEFAULT           0x00000000UL                      /**< Mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_BODCAL_DEFAULT            (_EMU_BUCTRL_BODCAL_DEFAULT << 2) /**< Shifted mode DEFAULT for EMU_BUCTRL */
-#define _EMU_BUCTRL_PROBE_SHIFT              5                                 /**< Shift value for EMU_PROBE */
-#define _EMU_BUCTRL_PROBE_MASK               0x60UL                            /**< Bit mask for EMU_PROBE */
-#define _EMU_BUCTRL_PROBE_DEFAULT            0x00000000UL                      /**< Mode DEFAULT for EMU_BUCTRL */
-#define _EMU_BUCTRL_PROBE_DISABLE            0x00000000UL                      /**< Mode DISABLE for EMU_BUCTRL */
-#define _EMU_BUCTRL_PROBE_VDDDREG            0x00000001UL                      /**< Mode VDDDREG for EMU_BUCTRL */
-#define _EMU_BUCTRL_PROBE_BUIN               0x00000002UL                      /**< Mode BUIN for EMU_BUCTRL */
-#define _EMU_BUCTRL_PROBE_BUOUT              0x00000003UL                      /**< Mode BUOUT for EMU_BUCTRL */
-#define EMU_BUCTRL_PROBE_DEFAULT             (_EMU_BUCTRL_PROBE_DEFAULT << 5)  /**< Shifted mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_PROBE_DISABLE             (_EMU_BUCTRL_PROBE_DISABLE << 5)  /**< Shifted mode DISABLE for EMU_BUCTRL */
-#define EMU_BUCTRL_PROBE_VDDDREG             (_EMU_BUCTRL_PROBE_VDDDREG << 5)  /**< Shifted mode VDDDREG for EMU_BUCTRL */
-#define EMU_BUCTRL_PROBE_BUIN                (_EMU_BUCTRL_PROBE_BUIN << 5)     /**< Shifted mode BUIN for EMU_BUCTRL */
-#define EMU_BUCTRL_PROBE_BUOUT               (_EMU_BUCTRL_PROBE_BUOUT << 5)    /**< Shifted mode BUOUT for EMU_BUCTRL */
+#define _EMU_BUCTRL_RESETVALUE               0x00000000UL                           /**< Default value for EMU_BUCTRL */
+#define _EMU_BUCTRL_MASK                     0x0000006FUL                           /**< Mask for EMU_BUCTRL */
+#define EMU_BUCTRL_EN                        (0x1UL << 0)                           /**< Enable backup mode */
+#define _EMU_BUCTRL_EN_SHIFT                 0                                      /**< Shift value for EMU_EN */
+#define _EMU_BUCTRL_EN_MASK                  0x1UL                                  /**< Bit mask for EMU_EN */
+#define _EMU_BUCTRL_EN_DEFAULT               0x00000000UL                           /**< Mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_EN_DEFAULT                (_EMU_BUCTRL_EN_DEFAULT << 0)          /**< Shifted mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_STATEN                    (0x1UL << 1)                           /**< Enable backup mode status export */
+#define _EMU_BUCTRL_STATEN_SHIFT             1                                      /**< Shift value for EMU_STATEN */
+#define _EMU_BUCTRL_STATEN_MASK              0x2UL                                  /**< Bit mask for EMU_STATEN */
+#define _EMU_BUCTRL_STATEN_DEFAULT           0x00000000UL                           /**< Mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_STATEN_DEFAULT            (_EMU_BUCTRL_STATEN_DEFAULT << 1)      /**< Shifted mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_BODCAL                    (0x1UL << 2)                           /**< Enable BOD calibration mode */
+#define _EMU_BUCTRL_BODCAL_SHIFT             2                                      /**< Shift value for EMU_BODCAL */
+#define _EMU_BUCTRL_BODCAL_MASK              0x4UL                                  /**< Bit mask for EMU_BODCAL */
+#define _EMU_BUCTRL_BODCAL_DEFAULT           0x00000000UL                           /**< Mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_BODCAL_DEFAULT            (_EMU_BUCTRL_BODCAL_DEFAULT << 2)      /**< Shifted mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_BUMODEBODEN               (0x1UL << 3)                           /**< Enable brown out detection on BU_VIN when in backup mode */
+#define _EMU_BUCTRL_BUMODEBODEN_SHIFT        3                                      /**< Shift value for EMU_BUMODEBODEN */
+#define _EMU_BUCTRL_BUMODEBODEN_MASK         0x8UL                                  /**< Bit mask for EMU_BUMODEBODEN */
+#define _EMU_BUCTRL_BUMODEBODEN_DEFAULT      0x00000000UL                           /**< Mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_BUMODEBODEN_DEFAULT       (_EMU_BUCTRL_BUMODEBODEN_DEFAULT << 3) /**< Shifted mode DEFAULT for EMU_BUCTRL */
+#define _EMU_BUCTRL_PROBE_SHIFT              5                                      /**< Shift value for EMU_PROBE */
+#define _EMU_BUCTRL_PROBE_MASK               0x60UL                                 /**< Bit mask for EMU_PROBE */
+#define _EMU_BUCTRL_PROBE_DEFAULT            0x00000000UL                           /**< Mode DEFAULT for EMU_BUCTRL */
+#define _EMU_BUCTRL_PROBE_DISABLE            0x00000000UL                           /**< Mode DISABLE for EMU_BUCTRL */
+#define _EMU_BUCTRL_PROBE_VDDDREG            0x00000001UL                           /**< Mode VDDDREG for EMU_BUCTRL */
+#define _EMU_BUCTRL_PROBE_BUIN               0x00000002UL                           /**< Mode BUIN for EMU_BUCTRL */
+#define _EMU_BUCTRL_PROBE_BUOUT              0x00000003UL                           /**< Mode BUOUT for EMU_BUCTRL */
+#define EMU_BUCTRL_PROBE_DEFAULT             (_EMU_BUCTRL_PROBE_DEFAULT << 5)       /**< Shifted mode DEFAULT for EMU_BUCTRL */
+#define EMU_BUCTRL_PROBE_DISABLE             (_EMU_BUCTRL_PROBE_DISABLE << 5)       /**< Shifted mode DISABLE for EMU_BUCTRL */
+#define EMU_BUCTRL_PROBE_VDDDREG             (_EMU_BUCTRL_PROBE_VDDDREG << 5)       /**< Shifted mode VDDDREG for EMU_BUCTRL */
+#define EMU_BUCTRL_PROBE_BUIN                (_EMU_BUCTRL_PROBE_BUIN << 5)          /**< Shifted mode BUIN for EMU_BUCTRL */
+#define EMU_BUCTRL_PROBE_BUOUT               (_EMU_BUCTRL_PROBE_BUOUT << 5)         /**< Shifted mode BUOUT for EMU_BUCTRL */
 
 /* Bit fields for EMU PWRCONF */
 #define _EMU_PWRCONF_RESETVALUE              0x00000000UL                           /**< Default value for EMU_PWRCONF */

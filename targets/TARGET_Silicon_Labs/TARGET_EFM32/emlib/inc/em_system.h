@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_system.h
  * @brief System API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_SYSTEM_H__
-#define __SILICON_LABS_EM_SYSTEM_H__
+#ifndef EM_SYSTEM_H
+#define EM_SYSTEM_H
 
 #include <stdbool.h>
 #include "em_device.h"
@@ -41,12 +41,18 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup SYSTEM
+ * @brief System API
+ * @details
+ *  This module contains functions to read information such as RAM and Flash size,
+ *  device unique ID, chip revision, family and part number from the @ref DEVINFO and
+ *  @ref SCB blocks. Functions to configure and read status from the FPU are available for
+ *  compatible devices.
  * @{
  ******************************************************************************/
 
@@ -112,14 +118,14 @@ typedef enum
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG1V)
   systemPartFamilyBlue1V   = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG1V,       /**< EFR32 Blue Gecko Gen1 Value Device Family */
 #endif
-#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32SG1P)
-  systemPartFamilySnappy1P = _DEVINFO_PART_DEVICE_FAMILY_EFR32SG1P,       /**< EFR32 Snappy Gecko Gen1 Premium Device Family */
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32ZG1P)
+  systemPartFamilyZappy1P = _DEVINFO_PART_DEVICE_FAMILY_EFR32ZG1P,        /**< EFR32 Zappy Gecko Gen1 Premium Device Family */
 #endif
-#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32SG1B)
-  systemPartFamilySnappy1B = _DEVINFO_PART_DEVICE_FAMILY_EFR32SG1B,       /**< EFR32 Snappy Gecko Gen1 Basic Device Family */
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32ZG1B)
+  systemPartFamilyZappy1B = _DEVINFO_PART_DEVICE_FAMILY_EFR32ZG1B,        /**< EFR32 Zappy Gecko Gen1 Basic Device Family */
 #endif
-#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32SG1V)
-  systemPartFamilySnappy1V = _DEVINFO_PART_DEVICE_FAMILY_EFR32SG1V,       /**< EFR32 Snappy Gecko Gen1 Value Device Family */
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32ZG1V)
+  systemPartFamilyZappy1V = _DEVINFO_PART_DEVICE_FAMILY_EFR32ZG1V,        /**< EFR32 Zappy Gecko Gen1 Value Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG1P)
   systemPartFamilyFlex1P   = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG1P,       /**< EFR32 Flex Gecko Gen1 Premium Device Family */
@@ -130,7 +136,47 @@ typedef enum
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG1V)
   systemPartFamilyFlex1V   = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG1V,       /**< EFR32 Flex Gecko Gen1 Value Device Family */
 #endif
-/* Legacy family #defines */
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32MG2P)
+  systemPartFamilyMighty2P = _DEVINFO_PART_DEVICE_FAMILY_EFR32MG2P,       /**< EFR32 Mighty Gecko Gen2 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32MG2B)
+  systemPartFamilyMighty2B = _DEVINFO_PART_DEVICE_FAMILY_EFR32MG2B,       /**< EFR32 Mighty Gecko Gen2 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32MG2V)
+  systemPartFamilyMighty2V = _DEVINFO_PART_DEVICE_FAMILY_EFR32MG2V,       /**< EFR32 Mighty Gecko Gen2 Value Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG2P)
+  systemPartFamilyBlue2P   = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG2P,       /**< EFR32 Blue Gecko Gen2 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG2B)
+  systemPartFamilyBlue2B   = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG2B,       /**< EFR32 Blue Gecko Gen2 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG2V)
+  systemPartFamilyBlue2V   = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG2V,       /**< EFR32 Blue Gecko Gen2 Value Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32ZG2P)
+  systemPartFamilyZappy2P = _DEVINFO_PART_DEVICE_FAMILY_EFR32ZG2P,        /**< EFR32 Zappy Gecko Gen2 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32ZG2B)
+  systemPartFamilyZappy2B = _DEVINFO_PART_DEVICE_FAMILY_EFR32ZG2B,        /**< EFR32 Zappy Gecko Gen2 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32ZG2V)
+  systemPartFamilyZappy2V = _DEVINFO_PART_DEVICE_FAMILY_EFR32ZG2V,        /**< EFR32 Zappy Gecko Gen2 Value Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG2P)
+  systemPartFamilyFlex2P   = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG2P,       /**< EFR32 Flex Gecko Gen2 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG2B)
+  systemPartFamilyFlex2B   = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG2B,       /**< EFR32 Flex Gecko Gen2 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG2V)
+  systemPartFamilyFlex2V   = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG2V,       /**< EFR32 Flex Gecko Gen2 Value Device Family */
+#endif
+
+
+
+
+/* Deprecated family #defines */
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_G)
   systemPartFamilyGecko   = _DEVINFO_PART_DEVICE_FAMILY_G,   /**< Gecko Device Family */
 #endif
@@ -181,12 +227,20 @@ typedef enum
 } SYSTEM_FpuAccess_TypeDef;
 #endif
 
+/** DEVINFO calibration address/value pair */
+typedef struct
+{
+  uint32_t address;                       /**< Peripheral calibration register address */
+  uint32_t calValue;                      /**< Calibration value for register at address */
+}
+SYSTEM_CalAddrVal_TypeDef;
+
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-void     SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev);
-uint32_t SYSTEM_GetCalibrationValue(volatile uint32_t *regAddress);
+void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev);
+bool SYSTEM_GetCalibrationValue(volatile uint32_t *regAddress);
 
 #if defined(__FPU_PRESENT) && (__FPU_PRESENT == 1)
 /***************************************************************************//**
@@ -205,14 +259,15 @@ __STATIC_INLINE void SYSTEM_FpuAccessModeSet(SYSTEM_FpuAccess_TypeDef accessMode
 
 /***************************************************************************//**
  * @brief
- *   Get the unique number for this part.
+ *   Get the unique number for this device.
  *
  * @return
- *   Unique number for this part.
+ *   Unique number for this device.
  ******************************************************************************/
 __STATIC_INLINE uint64_t SYSTEM_GetUnique(void)
 {
-  return (uint64_t)((uint64_t)DEVINFO->UNIQUEH << 32) | (uint64_t)DEVINFO->UNIQUEL;
+  uint32_t tmp = DEVINFO->UNIQUEL;
+  return (uint64_t)((uint64_t)DEVINFO->UNIQUEH << 32) | tmp;
 }
 
 /***************************************************************************//**
@@ -383,10 +438,10 @@ __STATIC_INLINE uint8_t SYSTEM_GetCalibrationTemperature(void)
 }
 
 /** @} (end addtogroup SYSTEM) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SILICON_LABS_EM_SYSTEM_H__ */
+#endif /* EM_SYSTEM_H */
