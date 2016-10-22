@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_msc.h
  * @brief EFM32PG1B_MSC register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,33 +40,34 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Memory System Control Register  */
-  __IO uint32_t READCTRL;     /**< Read Control Register  */
-  __IO uint32_t WRITECTRL;    /**< Write Control Register  */
-  __IO uint32_t WRITECMD;     /**< Write Command Register  */
-  __IO uint32_t ADDRB;        /**< Page Erase/Write Address Buffer  */
-  uint32_t      RESERVED0[1]; /**< Reserved for future use **/
-  __IO uint32_t WDATA;        /**< Write Data Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
+  __IOM uint32_t CTRL;         /**< Memory System Control Register  */
+  __IOM uint32_t READCTRL;     /**< Read Control Register  */
+  __IOM uint32_t WRITECTRL;    /**< Write Control Register  */
+  __IOM uint32_t WRITECMD;     /**< Write Command Register  */
+  __IOM uint32_t ADDRB;        /**< Page Erase/Write Address Buffer  */
+  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+  __IOM uint32_t WDATA;        /**< Write Data Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
 
-  uint32_t      RESERVED1[4]; /**< Reserved for future use **/
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-  __IO uint32_t LOCK;         /**< Configuration Lock Register  */
-  __IO uint32_t CACHECMD;     /**< Flash Cache Command Register  */
-  __I uint32_t  CACHEHITS;    /**< Cache Hits Performance Counter  */
-  __I uint32_t  CACHEMISSES;  /**< Cache Misses Performance Counter  */
+  uint32_t       RESERVED1[4]; /**< Reserved for future use **/
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+  __IOM uint32_t LOCK;         /**< Configuration Lock Register  */
+  __IOM uint32_t CACHECMD;     /**< Flash Cache Command Register  */
+  __IM uint32_t  CACHEHITS;    /**< Cache Hits Performance Counter  */
+  __IM uint32_t  CACHEMISSES;  /**< Cache Misses Performance Counter  */
 
-  uint32_t      RESERVED2[1]; /**< Reserved for future use **/
-  __IO uint32_t MASSLOCK;     /**< Mass Erase Lock Register  */
-  uint32_t      RESERVED3[1]; /**< Reserved for future use **/
-  __IO uint32_t STARTUP;      /**< Startup Control  */
+  uint32_t       RESERVED2[1]; /**< Reserved for future use **/
+  __IOM uint32_t MASSLOCK;     /**< Mass Erase Lock Register  */
 
-  uint32_t      RESERVED4[5]; /**< Reserved for future use **/
-  __IO uint32_t CMD;          /**< Command Register  */
-} MSC_TypeDef;                /** @} */
+  uint32_t       RESERVED3[1]; /**< Reserved for future use **/
+  __IOM uint32_t STARTUP;      /**< Startup Control  */
+
+  uint32_t       RESERVED4[5]; /**< Reserved for future use **/
+  __IOM uint32_t CMD;          /**< Command Register  */
+} MSC_TypeDef;                 /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_MSC_BitFields

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_devinfo.h
  * @brief EFM32LG_DEVINFO register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -39,25 +39,25 @@
  *****************************************************************************/
 typedef struct
 {
-  __I uint32_t CAL;          /**< Calibration temperature and checksum */
-  __I uint32_t ADC0CAL0;     /**< ADC0 Calibration register 0 */
-  __I uint32_t ADC0CAL1;     /**< ADC0 Calibration register 1 */
-  __I uint32_t ADC0CAL2;     /**< ADC0 Calibration register 2 */
-  uint32_t     RESERVED0[2]; /**< Reserved */
-  __I uint32_t DAC0CAL0;     /**< DAC calibrartion register 0 */
-  __I uint32_t DAC0CAL1;     /**< DAC calibrartion register 1 */
-  __I uint32_t DAC0CAL2;     /**< DAC calibrartion register 2 */
-  __I uint32_t AUXHFRCOCAL0; /**< AUXHFRCO calibration register 0 */
-  __I uint32_t AUXHFRCOCAL1; /**< AUXHFRCO calibration register 1 */
-  __I uint32_t HFRCOCAL0;    /**< HFRCO calibration register 0 */
-  __I uint32_t HFRCOCAL1;    /**< HFRCO calibration register 1 */
-  __I uint32_t MEMINFO;      /**< Memory information */
-  uint32_t     RESERVED2[2]; /**< Reserved */
-  __I uint32_t UNIQUEL;      /**< Low 32 bits of device unique number */
-  __I uint32_t UNIQUEH;      /**< High 32 bits of device unique number */
-  __I uint32_t MSIZE;        /**< Flash and SRAM Memory size in KiloBytes */
-  __I uint32_t PART;         /**< Part description */
-} DEVINFO_TypeDef;           /** @} */
+  __IM uint32_t CAL;          /**< Calibration temperature and checksum */
+  __IM uint32_t ADC0CAL0;     /**< ADC0 Calibration register 0 */
+  __IM uint32_t ADC0CAL1;     /**< ADC0 Calibration register 1 */
+  __IM uint32_t ADC0CAL2;     /**< ADC0 Calibration register 2 */
+  uint32_t      RESERVED0[2]; /**< Reserved */
+  __IM uint32_t DAC0CAL0;     /**< DAC calibrartion register 0 */
+  __IM uint32_t DAC0CAL1;     /**< DAC calibrartion register 1 */
+  __IM uint32_t DAC0CAL2;     /**< DAC calibrartion register 2 */
+  __IM uint32_t AUXHFRCOCAL0; /**< AUXHFRCO calibration register 0 */
+  __IM uint32_t AUXHFRCOCAL1; /**< AUXHFRCO calibration register 1 */
+  __IM uint32_t HFRCOCAL0;    /**< HFRCO calibration register 0 */
+  __IM uint32_t HFRCOCAL1;    /**< HFRCO calibration register 1 */
+  __IM uint32_t MEMINFO;      /**< Memory information */
+  uint32_t      RESERVED2[2]; /**< Reserved */
+  __IM uint32_t UNIQUEL;      /**< Low 32 bits of device unique number */
+  __IM uint32_t UNIQUEH;      /**< High 32 bits of device unique number */
+  __IM uint32_t MSIZE;        /**< Flash and SRAM Memory size in KiloBytes */
+  __IM uint32_t PART;         /**< Part description */
+} DEVINFO_TypeDef;            /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32LG_DEVINFO_BitFields

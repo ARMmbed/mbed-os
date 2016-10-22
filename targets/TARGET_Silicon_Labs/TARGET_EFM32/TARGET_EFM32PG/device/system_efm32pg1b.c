@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file system_efm32pg1b.c
  * @brief CMSIS Cortex-M3/M4 System Layer for EFM32 devices.
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -213,7 +213,8 @@ uint32_t SystemHFClockGet(void)
       break;
   }
 
-  return ret;
+  return ret / (1U + ((CMU->HFPRESC & _CMU_HFPRESC_PRESC_MASK)
+                      >> _CMU_HFPRESC_PRESC_SHIFT));
 }
 
 
@@ -285,10 +286,10 @@ void SystemHFXOClockSet(uint32_t freq)
  *****************************************************************************/
 void SystemInit(void)
 {
-#if (__FPU_PRESENT == 1)
+#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
   /* Set floating point coprosessor access mode. */
-  SCB->CPACR |= ((3UL << 10 * 2) |      /* set CP10 Full Access */
-                 (3UL << 11 * 2));      /* set CP11 Full Access */
+  SCB->CPACR |= ((3UL << 10*2) |                    /* set CP10 Full Access */
+                 (3UL << 11*2)  );                  /* set CP11 Full Access */
 #endif
 }
 

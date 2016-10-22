@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_timer.h
  * @brief EFM32PG1B_TIMER register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,33 +40,33 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t    CTRL;         /**< Control Register  */
-  __IO uint32_t    CMD;          /**< Command Register  */
-  __I uint32_t     STATUS;       /**< Status Register  */
-  __I uint32_t     IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t    IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t    IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t    IEN;          /**< Interrupt Enable Register  */
-  __IO uint32_t    TOP;          /**< Counter Top Value Register  */
-  __IO uint32_t    TOPB;         /**< Counter Top Value Buffer Register  */
-  __IO uint32_t    CNT;          /**< Counter Value Register  */
+  __IOM uint32_t   CTRL;         /**< Control Register  */
+  __IOM uint32_t   CMD;          /**< Command Register  */
+  __IM uint32_t    STATUS;       /**< Status Register  */
+  __IM uint32_t    IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t   IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;          /**< Interrupt Enable Register  */
+  __IOM uint32_t   TOP;          /**< Counter Top Value Register  */
+  __IOM uint32_t   TOPB;         /**< Counter Top Value Buffer Register  */
+  __IOM uint32_t   CNT;          /**< Counter Value Register  */
   uint32_t         RESERVED0[1]; /**< Reserved for future use **/
-  __IO uint32_t    LOCK;         /**< TIMER Configuration Lock Register  */
-  __IO uint32_t    ROUTEPEN;     /**< I/O Routing Pin Enable Register  */
-  __IO uint32_t    ROUTELOC0;    /**< I/O Routing Location Register  */
+  __IOM uint32_t   LOCK;         /**< TIMER Configuration Lock Register  */
+  __IOM uint32_t   ROUTEPEN;     /**< I/O Routing Pin Enable Register  */
+  __IOM uint32_t   ROUTELOC0;    /**< I/O Routing Location Register  */
   uint32_t         RESERVED1[1]; /**< Reserved for future use **/
-  __IO uint32_t    ROUTELOC2;    /**< I/O Routing Location Register  */
+  __IOM uint32_t   ROUTELOC2;    /**< I/O Routing Location Register  */
 
   uint32_t         RESERVED2[8]; /**< Reserved registers */
   TIMER_CC_TypeDef CC[4];        /**< Compare/Capture Channel */
 
-  __IO uint32_t    DTCTRL;       /**< DTI Control Register  */
-  __IO uint32_t    DTTIME;       /**< DTI Time Control Register  */
-  __IO uint32_t    DTFC;         /**< DTI Fault Configuration Register  */
-  __IO uint32_t    DTOGEN;       /**< DTI Output Generation Enable Register  */
-  __I uint32_t     DTFAULT;      /**< DTI Fault Register  */
-  __IO uint32_t    DTFAULTC;     /**< DTI Fault Clear Register  */
-  __IO uint32_t    DTLOCK;       /**< DTI Configuration Lock Register  */
+  __IOM uint32_t   DTCTRL;       /**< DTI Control Register  */
+  __IOM uint32_t   DTTIME;       /**< DTI Time Control Register  */
+  __IOM uint32_t   DTFC;         /**< DTI Fault Configuration Register  */
+  __IOM uint32_t   DTOGEN;       /**< DTI Output Generation Enable Register  */
+  __IM uint32_t    DTFAULT;      /**< DTI Fault Register  */
+  __IOM uint32_t   DTFAULTC;     /**< DTI Fault Clear Register  */
+  __IOM uint32_t   DTLOCK;       /**< DTI Configuration Lock Register  */
 } TIMER_TypeDef;                 /** @} */
 
 /**************************************************************************//**

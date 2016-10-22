@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_emu.h
  * @brief EFM32LG_EMU register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,29 +40,29 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t CTRL;          /**< Control Register  */
 
-  uint32_t      RESERVED0[1];  /**< Reserved for future use **/
-  __IO uint32_t LOCK;          /**< Configuration Lock Register  */
+  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+  __IOM uint32_t LOCK;          /**< Configuration Lock Register  */
 
-  uint32_t      RESERVED1[6];  /**< Reserved for future use **/
-  __IO uint32_t AUXCTRL;       /**< Auxiliary Control Register  */
+  uint32_t       RESERVED1[6];  /**< Reserved for future use **/
+  __IOM uint32_t AUXCTRL;       /**< Auxiliary Control Register  */
 
-  uint32_t      RESERVED2[1];  /**< Reserved for future use **/
-  __IO uint32_t EM4CONF;       /**< Energy mode 4 configuration register  */
-  __IO uint32_t BUCTRL;        /**< Backup Power configuration register  */
-  __IO uint32_t PWRCONF;       /**< Power connection configuration register  */
-  __IO uint32_t BUINACT;       /**< Backup mode inactive configuration register  */
-  __IO uint32_t BUACT;         /**< Backup mode active configuration register  */
-  __I uint32_t  STATUS;        /**< Status register  */
-  __IO uint32_t ROUTE;         /**< I/O Routing Register  */
-  __I uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;           /**< Interrupt Enable Register  */
-  __IO uint32_t BUBODBUVINCAL; /**< BU_VIN Backup BOD calibration  */
-  __IO uint32_t BUBODUNREGCAL; /**< Unregulated power Backup BOD calibration  */
-} EMU_TypeDef;                 /** @} */
+  uint32_t       RESERVED2[1];  /**< Reserved for future use **/
+  __IOM uint32_t EM4CONF;       /**< Energy mode 4 configuration register  */
+  __IOM uint32_t BUCTRL;        /**< Backup Power configuration register  */
+  __IOM uint32_t PWRCONF;       /**< Power connection configuration register  */
+  __IOM uint32_t BUINACT;       /**< Backup mode inactive configuration register  */
+  __IOM uint32_t BUACT;         /**< Backup mode active configuration register  */
+  __IM uint32_t  STATUS;        /**< Status register  */
+  __IOM uint32_t ROUTE;         /**< I/O Routing Register  */
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+  __IOM uint32_t BUBODBUVINCAL; /**< BU_VIN Backup BOD calibration  */
+  __IOM uint32_t BUBODUNREGCAL; /**< Unregulated power Backup BOD calibration  */
+} EMU_TypeDef;                  /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32LG_EMU_BitFields

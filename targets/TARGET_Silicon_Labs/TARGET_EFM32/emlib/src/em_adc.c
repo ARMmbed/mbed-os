@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_adc.c
  * @brief Analog to Digital Converter (ADC) Peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -33,18 +33,22 @@
 #include "em_adc.h"
 #if defined( ADC_COUNT ) && ( ADC_COUNT > 0 )
 
-#include "em_cmu.h"
 #include "em_assert.h"
+#include "em_cmu.h"
 #include <stddef.h>
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup ADC
  * @brief Analog to Digital Converter (ADC) Peripheral API
+ * @details
+ *  This module contains functions to control the ADC peripheral of Silicon
+ *  Labs 32-bit MCUs and SoCs. The ADC is used to convert analog signals into a
+ *  digital representation.
  * @{
  ******************************************************************************/
 
@@ -176,6 +180,9 @@
 #define DEVINFO_ADC0_OFFSET2XVDD_SHIFT _DEVINFO_ADC0CAL2_OFFSET2XVDD_SHIFT
 #endif
 
+#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#define FIX_ADC_TEMP_BIAS_EN
+#endif
 /** @endcond */
 
 
@@ -345,11 +352,12 @@ static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
  * @details
  *   Initializes common parts for both single conversion and scan sequence.
  *   In addition, single and/or scan control configuration must be done, please
- *   refer to ADC_InitSingle() and ADC_InitScan() respectively.
- *
- *   On ADC architectures with the ADCn->SCANCHCONF register,
- *   ADC_ScanSingleEndedInit() and ADC_ScanDifferentialInit() can be used to
- *   assist scan conversion input setup.
+ *   refer to @ref ADC_InitSingle() and @ref ADC_InitScan() respectively.
+ *   For ADC architectures with the ADCn->SCANINPUTSEL register, use
+ *   @ref ADC_ScanSingleEndedInputAdd() to configure single-ended scan inputs or
+ *   @ref ADC_ScanDifferentialInputAdd() to configure differential scan inputs.
+ *   @ref ADC_ScanInputClear() is also provided for applications that need to update
+ *   the input configuration.
  *
  * @note
  *   This function will stop any ongoing conversion.
@@ -363,8 +371,26 @@ static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
 void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
 {
   uint32_t tmp;
+  uint8_t presc = init->prescale;
 
   EFM_ASSERT(ADC_REF_VALID(adc));
+
+  if (presc == 0)
+  {
+    /* Assume maximum ADC clock for prescaler 0 */
+    presc = ADC_PrescaleCalc(ADC_MAX_CLOCK, 0);
+  }
+  else
+  {
+    /* Check prescaler bounds against ADC_MAX_CLOCK and ADC_MIN_CLOCK */
+#if defined(_ADC_CTRL_ADCCLKMODE_MASK)
+    if (ADC0->CTRL & ADC_CTRL_ADCCLKMODE_SYNC)
+#endif
+    {
+      EFM_ASSERT(presc >= ADC_PrescaleCalc(ADC_MAX_CLOCK, 0));
+      EFM_ASSERT(presc <= ADC_PrescaleCalc(ADC_MIN_CLOCK, 0));
+    }
+  }
 
   /* Make sure conversion is not in progress */
   adc->CMD = ADC_CMD_SINGLESTOP | ADC_CMD_SCANSTOP;
@@ -372,7 +398,7 @@ void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
   tmp = ((uint32_t)(init->ovsRateSel) << _ADC_CTRL_OVSRSEL_SHIFT)
         | (((uint32_t)(init->timebase) << _ADC_CTRL_TIMEBASE_SHIFT)
           & _ADC_CTRL_TIMEBASE_MASK)
-        | (((uint32_t)(init->prescale) << _ADC_CTRL_PRESC_SHIFT)
+        | (((uint32_t)(presc) << _ADC_CTRL_PRESC_SHIFT)
           & _ADC_CTRL_PRESC_MASK)
 #if defined ( _ADC_CTRL_LPFMODE_MASK )
         | ((uint32_t)(init->lpfMode) << _ADC_CTRL_LPFMODE_SHIFT)
@@ -389,7 +415,7 @@ void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
 #if defined( _ADC_CTRL_ADCCLKMODE_MASK )
   BUS_RegMaskedWrite(&ADC0->CTRL,
                      _ADC_CTRL_ADCCLKMODE_MASK | _ADC_CTRL_ASYNCCLKEN_MASK,
-                     init->em2ClockConfig << _ADC_CTRL_ASYNCCLKEN_SHIFT);
+                     init->em2ClockConfig);
 #endif
 
 #if defined( _SILICON_LABS_32B_PLATFORM_2 )
@@ -412,7 +438,7 @@ void ADC_ScanInputClear(ADC_InitScan_TypeDef *scanInit)
   /* Clear input configuration */
 
   /* Select none */
-  scanInit->scanInputConfig.scanInputSel = 0xFFFFFFFF;
+  scanInit->scanInputConfig.scanInputSel = ADC_SCANINPUTSEL_NONE;
   scanInit->scanInputConfig.scanInputEn = 0;
 
   /* Default alternative negative inputs */
@@ -461,7 +487,7 @@ uint32_t ADC_ScanSingleEndedInputAdd(ADC_InitScan_TypeDef *scanInit,
   currentSel = (scanInit->scanInputConfig.scanInputSel >> (inputGroup * 8)) & 0xFF;
 
   /* If none selected */
-  if (currentSel == 0xFF)
+  if (currentSel == ADC_SCANINPUTSEL_GROUP_NONE)
   {
     scanInit->scanInputConfig.scanInputSel &= ~(0xFF << (inputGroup * 8));
     scanInit->scanInputConfig.scanInputSel |= (newSel << (inputGroup * 8));
@@ -666,6 +692,11 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
  *   When selecting an external reference, the gain and offset calibration
  *   must be set explicitly (CAL register). For other references, the
  *   calibration is updated with values defined during manufacturing.
+ *   For ADC architectures with the ADCn->SCANINPUTSEL register, use
+ *   @ref ADC_ScanSingleEndedInputAdd() to configure single-ended scan inputs or
+ *   @ref ADC_ScanDifferentialInputAdd() to configure differential scan inputs.
+ *   @ref ADC_ScanInputClear() is also provided for applications that need to update
+ *   the input configuration.
  *
  * @note
  *   This function will stop any ongoing scan sequence.
@@ -773,6 +804,10 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
 
   /* Write scan input configuration */
 #if defined( _ADC_SCANINPUTSEL_MASK )
+  /* Check for valid scan input configuration. Use @ref ADC_ScanInputClear()
+     @ref ADC_ScanSingleEndedInputAdd() and @ref ADC_ScanDifferentialInputAdd() to set
+     scan input configuration.  */
+  EFM_ASSERT(init->scanInputConfig.scanInputSel != ADC_SCANINPUTSEL_NONE);
   adc->SCANINPUTSEL = init->scanInputConfig.scanInputSel;
   adc->SCANMASK     = init->scanInputConfig.scanInputEn;
   adc->SCANNEGSEL   = init->scanInputConfig.scanNegSel;
@@ -800,6 +835,14 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
  *
  * @note
  *   This function will stop any ongoing single conversion.
+ *
+ * @cond DOXYDOC_P2_DEVICE
+ * @note
+ *   This function will set the BIASPROG_GPBIASACC bit when selecting the
+ *   internal temperature sensor and clear the bit otherwise. Any
+ *   application that depends on the state of the BIASPROG_GPBIASACC bit should
+ *   modify it after a call to this function.
+ * @endcond
  *
  * @param[in] adc
  *   Pointer to ADC peripheral register block.
@@ -855,6 +898,18 @@ void ADC_InitSingle(ADC_TypeDef *adc, const ADC_InitSingle_TypeDef *init)
     tmp |= ADC_SINGLECTRL_REP;
   }
 
+#if defined( _ADC_SINGLECTRL_POSSEL_TEMP )
+  /* Force at least 8 cycle acquisition time when reading internal temperature
+   * sensor with 1.25V reference */
+  if ((init->posSel == adcPosSelTEMP)
+       && (init->reference == adcRef1V25)
+       && (init->acqTime < adcAcqTime8))
+  {
+    tmp = (tmp & ~_ADC_SINGLECTRL_AT_MASK)
+           | (adcAcqTime8 << _ADC_SINGLECTRL_AT_SHIFT);
+  }
+#endif
+
   /* Set single reference. Check if reference configuraion is extended to SINGLECTRLX. */
 #if defined ( _ADC_SINGLECTRLX_MASK )
   if (init->reference & ADC_CTRLX_VREFSEL_REG)
@@ -893,7 +948,21 @@ void ADC_InitSingle(ADC_TypeDef *adc, const ADC_InitSingle_TypeDef *init)
 
   /* Set DMA availability in EM2 */
 #if defined( _ADC_CTRL_SINGLEDMAWU_MASK )
-  BUS_RegBitWrite(&ADC0->CTRL, _ADC_CTRL_SINGLEDMAWU_SHIFT, init->singleDmaEm2Wu);
+  BUS_RegBitWrite(&adc->CTRL, _ADC_CTRL_SINGLEDMAWU_SHIFT, init->singleDmaEm2Wu);
+#endif
+
+#if defined( _ADC_BIASPROG_GPBIASACC_MASK ) && defined( FIX_ADC_TEMP_BIAS_EN )
+  if (init->posSel == adcPosSelTEMP)
+  {
+    /* ADC should always use low accuracy setting when reading the internal
+     * temperature sensor on platform 2 generation 1 devices. Using high
+     * accuracy setting can introduce a glitch. */
+    BUS_RegBitWrite(&adc->BIASPROG, _ADC_BIASPROG_GPBIASACC_SHIFT, 1);
+  }
+  else
+  {
+    BUS_RegBitWrite(&adc->BIASPROG, _ADC_BIASPROG_GPBIASACC_SHIFT, 0);
+  }
 #endif
 
   /* Assert for any APORT bus conflicts programming errors */
@@ -1078,5 +1147,5 @@ uint8_t ADC_TimebaseCalc(uint32_t hfperFreq)
 
 
 /** @} (end addtogroup ADC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 #endif /* defined(ADC_COUNT) && (ADC_COUNT > 0) */

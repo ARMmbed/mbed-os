@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32gg_lcd.h
  * @brief EFM32GG_LCD register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,42 +40,42 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;          /**< Control Register  */
-  __IO uint32_t DISPCTRL;      /**< Display Control Register  */
-  __IO uint32_t SEGEN;         /**< Segment Enable Register  */
-  __IO uint32_t BACTRL;        /**< Blink and Animation Control Register  */
-  __I uint32_t  STATUS;        /**< Status Register  */
-  __IO uint32_t AREGA;         /**< Animation Register A  */
-  __IO uint32_t AREGB;         /**< Animation Register B  */
-  __I uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;           /**< Interrupt Enable Register  */
+  __IOM uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t DISPCTRL;      /**< Display Control Register  */
+  __IOM uint32_t SEGEN;         /**< Segment Enable Register  */
+  __IOM uint32_t BACTRL;        /**< Blink and Animation Control Register  */
+  __IM uint32_t  STATUS;        /**< Status Register  */
+  __IOM uint32_t AREGA;         /**< Animation Register A  */
+  __IOM uint32_t AREGB;         /**< Animation Register B  */
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
 
-  uint32_t      RESERVED0[5];  /**< Reserved for future use **/
-  __IO uint32_t SEGD0L;        /**< Segment Data Low Register 0  */
-  __IO uint32_t SEGD1L;        /**< Segment Data Low Register 1  */
-  __IO uint32_t SEGD2L;        /**< Segment Data Low Register 2  */
-  __IO uint32_t SEGD3L;        /**< Segment Data Low Register 3  */
-  __IO uint32_t SEGD0H;        /**< Segment Data High Register 0  */
-  __IO uint32_t SEGD1H;        /**< Segment Data High Register 1  */
-  __IO uint32_t SEGD2H;        /**< Segment Data High Register 2  */
-  __IO uint32_t SEGD3H;        /**< Segment Data High Register 3  */
+  uint32_t       RESERVED0[5];  /**< Reserved for future use **/
+  __IOM uint32_t SEGD0L;        /**< Segment Data Low Register 0  */
+  __IOM uint32_t SEGD1L;        /**< Segment Data Low Register 1  */
+  __IOM uint32_t SEGD2L;        /**< Segment Data Low Register 2  */
+  __IOM uint32_t SEGD3L;        /**< Segment Data Low Register 3  */
+  __IOM uint32_t SEGD0H;        /**< Segment Data High Register 0  */
+  __IOM uint32_t SEGD1H;        /**< Segment Data High Register 1  */
+  __IOM uint32_t SEGD2H;        /**< Segment Data High Register 2  */
+  __IOM uint32_t SEGD3H;        /**< Segment Data High Register 3  */
 
-  __IO uint32_t FREEZE;        /**< Freeze Register  */
-  __I uint32_t  SYNCBUSY;      /**< Synchronization Busy Register  */
+  __IOM uint32_t FREEZE;        /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY;      /**< Synchronization Busy Register  */
 
-  uint32_t      RESERVED1[19]; /**< Reserved for future use **/
-  __IO uint32_t SEGD4H;        /**< Segment Data High Register 4  */
-  __IO uint32_t SEGD5H;        /**< Segment Data High Register 5  */
-  __IO uint32_t SEGD6H;        /**< Segment Data High Register 6  */
-  __IO uint32_t SEGD7H;        /**< Segment Data High Register 7  */
-  uint32_t      RESERVED2[2];  /**< Reserved for future use **/
-  __IO uint32_t SEGD4L;        /**< Segment Data Low Register 4  */
-  __IO uint32_t SEGD5L;        /**< Segment Data Low Register 5  */
-  __IO uint32_t SEGD6L;        /**< Segment Data Low Register 6  */
-  __IO uint32_t SEGD7L;        /**< Segment Data Low Register 7  */
-} LCD_TypeDef;                 /** @} */
+  uint32_t       RESERVED1[19]; /**< Reserved for future use **/
+  __IOM uint32_t SEGD4H;        /**< Segment Data High Register 4  */
+  __IOM uint32_t SEGD5H;        /**< Segment Data High Register 5  */
+  __IOM uint32_t SEGD6H;        /**< Segment Data High Register 6  */
+  __IOM uint32_t SEGD7H;        /**< Segment Data High Register 7  */
+  uint32_t       RESERVED2[2];  /**< Reserved for future use **/
+  __IOM uint32_t SEGD4L;        /**< Segment Data Low Register 4  */
+  __IOM uint32_t SEGD5L;        /**< Segment Data Low Register 5  */
+  __IOM uint32_t SEGD6L;        /**< Segment Data Low Register 6  */
+  __IOM uint32_t SEGD7L;        /**< Segment Data Low Register 7  */
+} LCD_TypeDef;                  /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32GG_LCD_BitFields

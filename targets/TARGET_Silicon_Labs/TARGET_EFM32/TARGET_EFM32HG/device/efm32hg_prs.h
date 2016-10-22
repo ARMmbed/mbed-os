@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_prs.h
  * @brief EFM32HG_PRS register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,15 +40,15 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t  SWPULSE;      /**< Software Pulse Register  */
-  __IO uint32_t  SWLEVEL;      /**< Software Level Register  */
-  __IO uint32_t  ROUTE;        /**< I/O Routing Register  */
+  __IOM uint32_t SWPULSE;      /**< Software Pulse Register  */
+  __IOM uint32_t SWLEVEL;      /**< Software Level Register  */
+  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
 
   uint32_t       RESERVED0[1]; /**< Reserved registers */
   PRS_CH_TypeDef CH[6];        /**< Channel registers */
 
   uint32_t       RESERVED1[6]; /**< Reserved for future use **/
-  __IO uint32_t  TRACECTRL;    /**< MTB Trace Control Register  */
+  __IOM uint32_t TRACECTRL;    /**< MTB Trace Control Register  */
 } PRS_TypeDef;                 /** @} */
 
 /**************************************************************************//**

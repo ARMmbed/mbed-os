@@ -12,10 +12,10 @@
  *
  *
  * @endverbatim
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -47,8 +47,14 @@
 #if defined(EFM32PG1B100F128GM32)
 #include "efm32pg1b100f128gm32.h"
 
+#elif defined(EFM32PG1B100F128IM32)
+#include "efm32pg1b100f128im32.h"
+
 #elif defined(EFM32PG1B100F256GM32)
 #include "efm32pg1b100f256gm32.h"
+
+#elif defined(EFM32PG1B100F256IM32)
+#include "efm32pg1b100f256im32.h"
 
 #elif defined(EFM32PG1B200F128GM32)
 #include "efm32pg1b200f128gm32.h"
@@ -56,11 +62,20 @@
 #elif defined(EFM32PG1B200F128GM48)
 #include "efm32pg1b200f128gm48.h"
 
+#elif defined(EFM32PG1B200F128IM32)
+#include "efm32pg1b200f128im32.h"
+
 #elif defined(EFM32PG1B200F256GM32)
 #include "efm32pg1b200f256gm32.h"
 
 #elif defined(EFM32PG1B200F256GM48)
 #include "efm32pg1b200f256gm48.h"
+
+#elif defined(EFM32PG1B200F256IM32)
+#include "efm32pg1b200f256im32.h"
+
+#elif defined(EFM32PG1B200F256IM48)
+#include "efm32pg1b200f256im48.h"
 
 #else
 #error "em_device.h: PART NUMBER undefined"

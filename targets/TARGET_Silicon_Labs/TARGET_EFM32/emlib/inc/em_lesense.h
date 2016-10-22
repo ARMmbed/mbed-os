@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_lesense.h
  * @brief Low Energy Sensor (LESENSE) peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,12 +30,14 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_LESENSE_H__
-#define __SILICON_LABS_EM_LESENSE_H__
+#ifndef EM_LESENSE_H
+#define EM_LESENSE_H
 
 #include "em_device.h"
 
-#if defined(LESENSE_COUNT) && (LESENSE_COUNT > 0)
+/* LESENSE is currently only supported on Platform 1. Full support for Platform 2 LESENSE
+   will be included in the next release. */
+#if defined(LESENSE_COUNT) && (LESENSE_COUNT > 0) && defined(_SILICON_LABS_32B_PLATFORM_1)
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -45,7 +47,7 @@ extern "C" {
 
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -1310,7 +1312,7 @@ __STATIC_INLINE uint32_t LESENSE_IntGetEnabled(void)
 
 
 /** @} (end addtogroup LESENSE) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
@@ -1318,4 +1320,4 @@ __STATIC_INLINE uint32_t LESENSE_IntGetEnabled(void)
 
 #endif /* defined(LESENSE_COUNT) && (LESENSE_COUNT > 0) */
 
-#endif /* __SILICON_LABS_EM_LESENSE_H__ */
+#endif /* EM_LESENSE_H */
