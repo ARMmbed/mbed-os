@@ -61,6 +61,18 @@
 #error Undefined number of low energy UARTs (LEUART).
 #endif
 
+#ifndef UART_PRESENT
+#define UART_COUNT (0)
+#endif
+#ifndef USART_PRESENT
+#define USART_COUNT (0)
+#endif
+#ifndef LEUART_PRESENT
+#define LEUART_COUNT (0)
+#endif
+
+#define MODULES_SIZE_SERIAL (UART_COUNT + USART_COUNT + LEUART_COUNT)
+
 /* Store IRQ id for each UART */
 static uint32_t serial_irq_ids[MODULES_SIZE_SERIAL] = { 0 };
 /* Interrupt handler from mbed common */
