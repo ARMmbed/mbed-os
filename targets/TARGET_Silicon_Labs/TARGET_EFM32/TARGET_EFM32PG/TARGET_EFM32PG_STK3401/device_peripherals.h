@@ -33,9 +33,6 @@
 #define PWM_TIMER_CLOCK  cmuClock_TIMER1
 #define PWM_ROUTE        TIMER_ROUTE_LOCATION_LOC1
 
-/* STDIO */
-#define STDIO_UART        USART0
-
 /* Clocks */
 
 /* Clock definitions */

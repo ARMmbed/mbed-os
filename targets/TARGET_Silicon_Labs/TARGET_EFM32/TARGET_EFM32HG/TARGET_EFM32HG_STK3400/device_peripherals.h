@@ -36,9 +36,6 @@
 /* USB */
 #define USB_TIMER USB_TIMER2
 
-/* STDIO */
-#define STDIO_UART USART1
-
 /* Clocks */
 
 /* Clock definitions */
