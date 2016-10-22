@@ -21,34 +21,70 @@
  * limitations under the License.
  *
  ******************************************************************************/
+#ifndef MBED_CLOCKING_H
+#define MBED_CLOCKING_H
 
-#include "device_peripherals.h"
+/* Clock definitions */
+#define LFXO    0
+#define HFXO    1
+#define LFRCO   2
+#define HFRCO   3
+#if !defined(_EFM32_GECKO_FAMILY)
+#define ULFRCO  4
+#endif
+
+/* Low Energy peripheral clock source.
+ * Options:
+ *  * LFXO: external crystal, please define frequency.
+ *  * LFRCO: internal RC oscillator (32.768kHz)
+ *  * ULFRCO: internal ultra-low power RC oscillator (available down to EM3) (1kHz)
+ */
+#ifndef LOW_ENERGY_CLOCK_SOURCE
+#define LOW_ENERGY_CLOCK_SOURCE LFXO
+#endif
+
+/** Core clock source.
+ * Options:
+ *  * HFXO: external crystal, please define frequency.
+ *  * HFRCO: High-frequency internal RC oscillator. Please select band as well.
+ */
+#ifndef CORE_CLOCK_SOURCE
+#define CORE_CLOCK_SOURCE   HFRCO
+#if defined(_CMU_HFRCOCTRL_BAND_MASK)
+#define HFRCO_FREQUENCY_ENUM   _CMU_HFRCOCTRL_BAND_21MHZ 
+#define HFRCO_FREQUENCY        21000000 
+#elif defined(_CMU_HFRCOCTRL_FREQRANGE_MASK)
+#define HFRCO_FREQUENCY_ENUM   cmuHFRCOFreq_32M0Hz
+#define HFRCO_FREQUENCY        32000000
+#endif
+#endif // CORE_CLOCK_SOURCE
+
+#if !defined(LFXO_FREQUENCY) && (LOW_ENERGY_CLOCK_SOURCE == LFXO)
+#error "LFXO frequency is undefined!"
+#endif
+
+#if !defined(HFXO_FREQUENCY) && (CORE_CLOCK_SOURCE == HFXO)
+#error "HFXO frequency is undefined!"
+#endif
+
+#if (LOW_ENERGY_CLOCK_SOURCE == LFXO)
+#define LOW_ENERGY_CLOCK_FREQUENCY  LFXO_FREQUENCY
+#elif (LOW_ENERGY_CLOCK_SOURCE == LFRCO)
+#define LOW_ENERGY_CLOCK_FREQUENCY  32768
+#elif (LOW_ENERGY_CLOCK_SOURCE == ULFRCO)
+#define LOW_ENERGY_CLOCK_FREQUENCY  1000
+#else
+#error "Unknown Low Energy Clock selection"
+#endif
 
 #if( CORE_CLOCK_SOURCE == HFXO)
 # define REFERENCE_FREQUENCY HFXO_FREQUENCY
 #elif( CORE_CLOCK_SOURCE == HFRCO)
-
-# if defined _CMU_HFRCOCTRL_BAND_MASK
-#  if( HFRCO_FREQUENCY == _CMU_HFRCOCTRL_BAND_1MHZ)
-#   define REFERENCE_FREQUENCY 1000000
-#  elif(HFRCO_FREQUENCY == _CMU_HFRCOCTRL_BAND_7MHZ)
-#   define REFERENCE_FREQUENCY 7000000
-#  elif(HFRCO_FREQUENCY == _CMU_HFRCOCTRL_BAND_11MHZ)
-#   define REFERENCE_FREQUENCY 7000000
-#  elif(HFRCO_FREQUENCY == _CMU_HFRCOCTRL_BAND_14MHZ)
-#   define REFERENCE_FREQUENCY 14000000
-#  elif(HFRCO_FREQUENCY == _CMU_HFRCOCTRL_BAND_21MHZ)
-#   define REFERENCE_FREQUENCY 21000000
-#  elif(HFRCO_FREQUENCY == _CMU_HFRCOCTRL_BAND_28MHZ)
-#   define REFERENCE_FREQUENCY 28000000
-#  else
-#   define REFERENCE_FREQUENCY 14000000
-#  endif
-# elif defined _CMU_HFRCOCTRL_FREQRANGE_MASK
-#  define REFERENCE_FREQUENCY HFRCO_FREQUENCY
-# else
-#  error "HFRCO frequency not defined"
-# endif
+#if !defined(HFRCO_FREQUENCY)
+# error "HFRCO frequency is not defined!"
+#else
+# define REFERENCE_FREQUENCY HFRCO_FREQUENCY
+#endif
 #endif
 
 #if ( LOW_ENERGY_CLOCK_SOURCE == LFXO )
@@ -67,3 +103,4 @@
 # endif
 #endif
 
+#endif

@@ -50,10 +50,6 @@ typedef enum {
     LEUART_0 = LEUART0_BASE
 } UARTName;
 
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
-#define STDIO_UART        USART1
-
 typedef enum {
     SPI_0 = USART0_BASE,
     SPI_1 = USART1_BASE
