@@ -50,7 +50,7 @@ void mbed_sdk_init()
 #elif( CORE_CLOCK_SOURCE == HFRCO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
 # if defined _CMU_HFRCOCTRL_BAND_MASK
-    CMU_HFRCOBandSet(HFRCO_FREQUENCY);
+    CMU_HFRCOBandSet(HFRCO_FREQUENCY_ENUM);
 # elif defined _CMU_HFRCOCTRL_FREQRANGE_MASK
     CMU_HFRCOFreqSet(HFRCO_FREQUENCY_ENUM);
 # else
