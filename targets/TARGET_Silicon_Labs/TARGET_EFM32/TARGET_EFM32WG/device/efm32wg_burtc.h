@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_burtc.h
  * @brief EFM32WG_BURTC register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,23 +40,23 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t     CTRL;          /**< Control Register  */
-  __IO uint32_t     LPMODE;        /**< Low power mode configuration  */
-  __I uint32_t      CNT;           /**< Counter Value Register  */
-  __IO uint32_t     COMP0;         /**< Counter Compare Value  */
-  __I uint32_t      TIMESTAMP;     /**< Backup mode timestamp  */
-  __IO uint32_t     LFXOFDET;      /**< LFXO   */
-  __I uint32_t      STATUS;        /**< Status Register  */
-  __IO uint32_t     CMD;           /**< Command Register  */
-  __IO uint32_t     POWERDOWN;     /**< Retention RAM power-down Register  */
-  __IO uint32_t     LOCK;          /**< Configuration Lock Register  */
-  __I uint32_t      IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t     IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t     IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t     IEN;           /**< Interrupt Enable Register  */
+  __IOM uint32_t    CTRL;          /**< Control Register  */
+  __IOM uint32_t    LPMODE;        /**< Low power mode configuration  */
+  __IM uint32_t     CNT;           /**< Counter Value Register  */
+  __IOM uint32_t    COMP0;         /**< Counter Compare Value  */
+  __IM uint32_t     TIMESTAMP;     /**< Backup mode timestamp  */
+  __IOM uint32_t    LFXOFDET;      /**< LFXO   */
+  __IM uint32_t     STATUS;        /**< Status Register  */
+  __IOM uint32_t    CMD;           /**< Command Register  */
+  __IOM uint32_t    POWERDOWN;     /**< Retention RAM power-down Register  */
+  __IOM uint32_t    LOCK;          /**< Configuration Lock Register  */
+  __IM uint32_t     IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t    IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t    IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t    IEN;           /**< Interrupt Enable Register  */
 
-  __IO uint32_t     FREEZE;        /**< Freeze Register  */
-  __I uint32_t      SYNCBUSY;      /**< Synchronization Busy Register  */
+  __IOM uint32_t    FREEZE;        /**< Freeze Register  */
+  __IM uint32_t     SYNCBUSY;      /**< Synchronization Busy Register  */
 
   uint32_t          RESERVED0[48]; /**< Reserved registers */
   BURTC_RET_TypeDef RET[128];      /**< RetentionReg */

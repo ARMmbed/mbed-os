@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_usb_doep.h
  * @brief EFM32LG_USB_DOEP register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -38,13 +38,13 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTL;          /**< Device OUT Endpoint x+1 Control Register  */
-  uint32_t      RESERVED0[1]; /**< Reserved for future use **/
-  __IO uint32_t INT;          /**< Device OUT Endpoint x+1 Interrupt Register  */
-  uint32_t      RESERVED1[1]; /**< Reserved for future use **/
-  __IO uint32_t TSIZ;         /**< Device OUT Endpoint x+1 Transfer Size Register  */
-  __IO uint32_t DMAADDR;      /**< Device OUT Endpoint x+1 DMA Address Register  */
-  uint32_t      RESERVED2[2]; /**< Reserved future */
+  __IOM uint32_t CTL;          /**< Device OUT Endpoint x+1 Control Register  */
+  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+  __IOM uint32_t INT;          /**< Device OUT Endpoint x+1 Interrupt Register  */
+  uint32_t       RESERVED1[1]; /**< Reserved for future use **/
+  __IOM uint32_t TSIZ;         /**< Device OUT Endpoint x+1 Transfer Size Register  */
+  __IOM uint32_t DMAADDR;      /**< Device OUT Endpoint x+1 DMA Address Register  */
+  uint32_t       RESERVED2[2]; /**< Reserved future */
 } USB_DOEP_TypeDef;
 
 /** @} End of group Parts */

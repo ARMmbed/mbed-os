@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_acmp.h
  * @brief EFM32PG1B_ACMP register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,23 +40,23 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;          /**< Control Register  */
-  __IO uint32_t INPUTSEL;      /**< Input Selection Register  */
-  __I uint32_t  STATUS;        /**< Status Register  */
-  __I uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;           /**< Interrupt Enable Register  */
-  uint32_t      RESERVED0[1];  /**< Reserved for future use **/
-  __I uint32_t  APORTREQ;      /**< APORT Request Status Register  */
-  __I uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
-  __IO uint32_t HYSTERESIS0;   /**< Hysteresis 0 Register  */
-  __IO uint32_t HYSTERESIS1;   /**< Hysteresis 1 Register  */
+  __IOM uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t INPUTSEL;      /**< Input Selection Register  */
+  __IM uint32_t  STATUS;        /**< Status Register  */
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+  __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
+  __IM uint32_t  APORTCONFLICT; /**< APORT Conflict Status Register  */
+  __IOM uint32_t HYSTERESIS0;   /**< Hysteresis 0 Register  */
+  __IOM uint32_t HYSTERESIS1;   /**< Hysteresis 1 Register  */
 
-  uint32_t      RESERVED1[4];  /**< Reserved for future use **/
-  __IO uint32_t ROUTEPEN;      /**< I/O Routing Pine Enable Register  */
-  __IO uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
-} ACMP_TypeDef;                /** @} */
+  uint32_t       RESERVED1[4];  /**< Reserved for future use **/
+  __IOM uint32_t ROUTEPEN;      /**< I/O Routing Pine Enable Register  */
+  __IOM uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
+} ACMP_TypeDef;                 /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_ACMP_BitFields

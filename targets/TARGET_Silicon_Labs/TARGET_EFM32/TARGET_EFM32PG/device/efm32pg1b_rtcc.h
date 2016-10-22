@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_rtcc.h
  * @brief EFM32PG1B_RTCC register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,22 +40,22 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t    CTRL;          /**< Control Register  */
-  __IO uint32_t    PRECNT;        /**< Pre-Counter Value Register  */
-  __IO uint32_t    CNT;           /**< Counter Value Register  */
-  __I uint32_t     COMBCNT;       /**< Combined Pre-Counter and Counter Value Register  */
-  __IO uint32_t    TIME;          /**< Time of day register  */
-  __IO uint32_t    DATE;          /**< Date register  */
-  __I uint32_t     IF;            /**< RTCC Interrupt Flags  */
-  __IO uint32_t    IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t    IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t    IEN;           /**< Interrupt Enable Register  */
-  __I uint32_t     STATUS;        /**< Status register  */
-  __IO uint32_t    CMD;           /**< Command Register  */
-  __I uint32_t     SYNCBUSY;      /**< Synchronization Busy Register  */
-  __IO uint32_t    POWERDOWN;     /**< Retention RAM power-down register  */
-  __IO uint32_t    LOCK;          /**< Configuration Lock Register  */
-  __IO uint32_t    EM4WUEN;       /**< Wake Up Enable  */
+  __IOM uint32_t   CTRL;          /**< Control Register  */
+  __IOM uint32_t   PRECNT;        /**< Pre-Counter Value Register  */
+  __IOM uint32_t   CNT;           /**< Counter Value Register  */
+  __IM uint32_t    COMBCNT;       /**< Combined Pre-Counter and Counter Value Register  */
+  __IOM uint32_t   TIME;          /**< Time of day register  */
+  __IOM uint32_t   DATE;          /**< Date register  */
+  __IM uint32_t    IF;            /**< RTCC Interrupt Flags  */
+  __IOM uint32_t   IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;           /**< Interrupt Enable Register  */
+  __IM uint32_t    STATUS;        /**< Status register  */
+  __IOM uint32_t   CMD;           /**< Command Register  */
+  __IM uint32_t    SYNCBUSY;      /**< Synchronization Busy Register  */
+  __IOM uint32_t   POWERDOWN;     /**< Retention RAM power-down register  */
+  __IOM uint32_t   LOCK;          /**< Configuration Lock Register  */
+  __IOM uint32_t   EM4WUEN;       /**< Wake Up Enable  */
 
   RTCC_CC_TypeDef  CC[3];         /**< Capture/Compare Channel */
 

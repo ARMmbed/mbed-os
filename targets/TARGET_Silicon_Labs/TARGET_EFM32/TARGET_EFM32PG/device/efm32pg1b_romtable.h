@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_romtable.h
  * @brief EFM32PG1B_ROMTABLE register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,16 +40,16 @@
  *****************************************************************************/
 typedef struct
 {
-  __I uint32_t PID4; /**< JEP_106_BANK */
-  __I uint32_t PID5; /**< Unused */
-  __I uint32_t PID6; /**< Unused */
-  __I uint32_t PID7; /**< Unused */
-  __I uint32_t PID0; /**< Chip family LSB, chip major revision */
-  __I uint32_t PID1; /**< JEP_106_NO, Chip family MSB */
-  __I uint32_t PID2; /**< Chip minor rev MSB, JEP_106_PRESENT, JEP_106_NO */
-  __I uint32_t PID3; /**< Chip minor rev LSB */
-  __I uint32_t CID0; /**< Unused */
-} ROMTABLE_TypeDef;  /** @} */
+  __IM uint32_t PID4; /**< JEP_106_BANK */
+  __IM uint32_t PID5; /**< Unused */
+  __IM uint32_t PID6; /**< Unused */
+  __IM uint32_t PID7; /**< Unused */
+  __IM uint32_t PID0; /**< Chip family LSB, chip major revision */
+  __IM uint32_t PID1; /**< JEP_106_NO, Chip family MSB */
+  __IM uint32_t PID2; /**< Chip minor rev MSB, JEP_106_PRESENT, JEP_106_NO */
+  __IM uint32_t PID3; /**< Chip minor rev LSB */
+  __IM uint32_t CID0; /**< Unused */
+} ROMTABLE_TypeDef;   /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_ROMTABLE_BitFields

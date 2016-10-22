@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_cmu.h
  * @brief EFM32WG_CMU register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,41 +40,41 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< CMU Control Register  */
-  __IO uint32_t HFCORECLKDIV; /**< High Frequency Core Clock Division Register  */
-  __IO uint32_t HFPERCLKDIV;  /**< High Frequency Peripheral Clock Division Register  */
-  __IO uint32_t HFRCOCTRL;    /**< HFRCO Control Register  */
-  __IO uint32_t LFRCOCTRL;    /**< LFRCO Control Register  */
-  __IO uint32_t AUXHFRCOCTRL; /**< AUXHFRCO Control Register  */
-  __IO uint32_t CALCTRL;      /**< Calibration Control Register  */
-  __IO uint32_t CALCNT;       /**< Calibration Counter Register  */
-  __IO uint32_t OSCENCMD;     /**< Oscillator Enable/Disable Command Register  */
-  __IO uint32_t CMD;          /**< Command Register  */
-  __IO uint32_t LFCLKSEL;     /**< Low Frequency Clock Select Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-  __IO uint32_t HFCORECLKEN0; /**< High Frequency Core Clock Enable Register 0  */
-  __IO uint32_t HFPERCLKEN0;  /**< High Frequency Peripheral Clock Enable Register 0  */
-  uint32_t      RESERVED0[2]; /**< Reserved for future use **/
-  __I uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
-  __IO uint32_t FREEZE;       /**< Freeze Register  */
-  __IO uint32_t LFACLKEN0;    /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
-  uint32_t      RESERVED1[1]; /**< Reserved for future use **/
-  __IO uint32_t LFBCLKEN0;    /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
+  __IOM uint32_t CTRL;         /**< CMU Control Register  */
+  __IOM uint32_t HFCORECLKDIV; /**< High Frequency Core Clock Division Register  */
+  __IOM uint32_t HFPERCLKDIV;  /**< High Frequency Peripheral Clock Division Register  */
+  __IOM uint32_t HFRCOCTRL;    /**< HFRCO Control Register  */
+  __IOM uint32_t LFRCOCTRL;    /**< LFRCO Control Register  */
+  __IOM uint32_t AUXHFRCOCTRL; /**< AUXHFRCO Control Register  */
+  __IOM uint32_t CALCTRL;      /**< Calibration Control Register  */
+  __IOM uint32_t CALCNT;       /**< Calibration Counter Register  */
+  __IOM uint32_t OSCENCMD;     /**< Oscillator Enable/Disable Command Register  */
+  __IOM uint32_t CMD;          /**< Command Register  */
+  __IOM uint32_t LFCLKSEL;     /**< Low Frequency Clock Select Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+  __IOM uint32_t HFCORECLKEN0; /**< High Frequency Core Clock Enable Register 0  */
+  __IOM uint32_t HFPERCLKEN0;  /**< High Frequency Peripheral Clock Enable Register 0  */
+  uint32_t       RESERVED0[2]; /**< Reserved for future use **/
+  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+  __IOM uint32_t FREEZE;       /**< Freeze Register  */
+  __IOM uint32_t LFACLKEN0;    /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
+  uint32_t       RESERVED1[1]; /**< Reserved for future use **/
+  __IOM uint32_t LFBCLKEN0;    /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
 
-  uint32_t      RESERVED2[1]; /**< Reserved for future use **/
-  __IO uint32_t LFAPRESC0;    /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
-  uint32_t      RESERVED3[1]; /**< Reserved for future use **/
-  __IO uint32_t LFBPRESC0;    /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
-  uint32_t      RESERVED4[1]; /**< Reserved for future use **/
-  __IO uint32_t PCNTCTRL;     /**< PCNT Control Register  */
-  __IO uint32_t LCDCTRL;      /**< LCD Control Register  */
-  __IO uint32_t ROUTE;        /**< I/O Routing Register  */
-  __IO uint32_t LOCK;         /**< Configuration Lock Register  */
-} CMU_TypeDef;                /** @} */
+  uint32_t       RESERVED2[1]; /**< Reserved for future use **/
+  __IOM uint32_t LFAPRESC0;    /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
+  uint32_t       RESERVED3[1]; /**< Reserved for future use **/
+  __IOM uint32_t LFBPRESC0;    /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
+  uint32_t       RESERVED4[1]; /**< Reserved for future use **/
+  __IOM uint32_t PCNTCTRL;     /**< PCNT Control Register  */
+  __IOM uint32_t LCDCTRL;      /**< LCD Control Register  */
+  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
+  __IOM uint32_t LOCK;         /**< Configuration Lock Register  */
+} CMU_TypeDef;                 /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32WG_CMU_BitFields

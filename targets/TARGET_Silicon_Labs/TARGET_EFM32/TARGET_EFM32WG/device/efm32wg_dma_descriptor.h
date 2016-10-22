@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_dma_descriptor.h
  * @brief EFM32WG_DMA_DESCRIPTOR register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -39,12 +39,12 @@
  *****************************************************************************/
 typedef struct
 {
-  /* Note! Use of double __IO (volatile) qualifier to ensure that both */
+  /* Note! Use of double __IOM (volatile) qualifier to ensure that both */
   /* pointer and referenced memory are declared volatile. */
-  __IO void * __IO SRCEND;     /**< DMA source address end */
-  __IO void * __IO DSTEND;     /**< DMA destination address end */
-  __IO uint32_t    CTRL;       /**< DMA control register */
-  __IO uint32_t    USER;       /**< DMA padding register, available for user */
+  __IOM void * __IOM SRCEND;   /**< DMA source address end */
+  __IOM void * __IOM DSTEND;   /**< DMA destination address end */
+  __IOM uint32_t     CTRL;     /**< DMA control register */
+  __IOM uint32_t     USER;     /**< DMA padding register, available for user */
 } DMA_DESCRIPTOR_TypeDef;      /** @} */
 
 /** @} End of group Parts */

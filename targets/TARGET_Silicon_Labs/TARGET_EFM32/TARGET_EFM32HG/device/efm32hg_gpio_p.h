@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_gpio_p.h
  * @brief EFM32HG_GPIO_P register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -38,15 +38,15 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;     /**< Port Control Register  */
-  __IO uint32_t MODEL;    /**< Port Pin Mode Low Register  */
-  __IO uint32_t MODEH;    /**< Port Pin Mode High Register  */
-  __IO uint32_t DOUT;     /**< Port Data Out Register  */
-  __O uint32_t  DOUTSET;  /**< Port Data Out Set Register  */
-  __O uint32_t  DOUTCLR;  /**< Port Data Out Clear Register  */
-  __O uint32_t  DOUTTGL;  /**< Port Data Out Toggle Register  */
-  __I uint32_t  DIN;      /**< Port Data In Register  */
-  __IO uint32_t PINLOCKN; /**< Port Unlocked Pins Register  */
+  __IOM uint32_t CTRL;     /**< Port Control Register  */
+  __IOM uint32_t MODEL;    /**< Port Pin Mode Low Register  */
+  __IOM uint32_t MODEH;    /**< Port Pin Mode High Register  */
+  __IOM uint32_t DOUT;     /**< Port Data Out Register  */
+  __OM uint32_t  DOUTSET;  /**< Port Data Out Set Register  */
+  __OM uint32_t  DOUTCLR;  /**< Port Data Out Clear Register  */
+  __OM uint32_t  DOUTTGL;  /**< Port Data Out Toggle Register  */
+  __IM uint32_t  DIN;      /**< Port Data In Register  */
+  __IOM uint32_t PINLOCKN; /**< Port Unlocked Pins Register  */
 } GPIO_P_TypeDef;
 
 /** @} End of group Parts */

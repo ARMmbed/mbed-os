@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_rtc.h
  * @brief EFM32ZG_RTC register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,18 +40,18 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;     /**< Control Register  */
-  __IO uint32_t CNT;      /**< Counter Value Register  */
-  __IO uint32_t COMP0;    /**< Compare Value Register 0  */
-  __IO uint32_t COMP1;    /**< Compare Value Register 1  */
-  __I uint32_t  IF;       /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;      /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;      /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;      /**< Interrupt Enable Register  */
+  __IOM uint32_t CTRL;     /**< Control Register  */
+  __IOM uint32_t CNT;      /**< Counter Value Register  */
+  __IOM uint32_t COMP0;    /**< Compare Value Register 0  */
+  __IOM uint32_t COMP1;    /**< Compare Value Register 1  */
+  __IM uint32_t  IF;       /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;      /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;      /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;      /**< Interrupt Enable Register  */
 
-  __IO uint32_t FREEZE;   /**< Freeze Register  */
-  __I uint32_t  SYNCBUSY; /**< Synchronization Busy Register  */
-} RTC_TypeDef;            /** @} */
+  __IOM uint32_t FREEZE;   /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY; /**< Synchronization Busy Register  */
+} RTC_TypeDef;             /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32ZG_RTC_BitFields

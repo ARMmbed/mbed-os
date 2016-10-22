@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_gpio_p.h
  * @brief EFM32PG1B_GPIO_P register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -38,17 +38,17 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Port Control Register  */
-  __IO uint32_t MODEL;        /**< Port Pin Mode Low Register  */
-  __IO uint32_t MODEH;        /**< Port Pin Mode High Register  */
-  __IO uint32_t DOUT;         /**< Port Data Out Register  */
-  uint32_t      RESERVED0[2]; /**< Reserved for future use **/
-  __IO uint32_t DOUTTGL;      /**< Port Data Out Toggle Register  */
-  __I uint32_t  DIN;          /**< Port Data In Register  */
-  __IO uint32_t PINLOCKN;     /**< Port Unlocked Pins Register  */
-  uint32_t      RESERVED1[1]; /**< Reserved for future use **/
-  __IO uint32_t OVTDIS;       /**< Over Voltage Disable for all modes  */
-  uint32_t      RESERVED2[1]; /**< Reserved future */
+  __IOM uint32_t CTRL;         /**< Port Control Register  */
+  __IOM uint32_t MODEL;        /**< Port Pin Mode Low Register  */
+  __IOM uint32_t MODEH;        /**< Port Pin Mode High Register  */
+  __IOM uint32_t DOUT;         /**< Port Data Out Register  */
+  uint32_t       RESERVED0[2]; /**< Reserved for future use **/
+  __IOM uint32_t DOUTTGL;      /**< Port Data Out Toggle Register  */
+  __IM uint32_t  DIN;          /**< Port Data In Register  */
+  __IOM uint32_t PINLOCKN;     /**< Port Unlocked Pins Register  */
+  uint32_t       RESERVED1[1]; /**< Reserved for future use **/
+  __IOM uint32_t OVTDIS;       /**< Over Voltage Disable for all modes  */
+  uint32_t       RESERVED2[1]; /**< Reserved future */
 } GPIO_P_TypeDef;
 
 /** @} End of group Parts */

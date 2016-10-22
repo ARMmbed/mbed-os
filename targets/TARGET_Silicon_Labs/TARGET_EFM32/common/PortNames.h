@@ -30,12 +30,30 @@ extern "C" {
 #endif
 
 typedef enum {
+#if ( _GPIO_PORT_A_PIN_COUNT > 0 )
     PortA = gpioPortA, /**< Port A */
+#endif
+#if ( _GPIO_PORT_B_PIN_COUNT > 0 )
     PortB = gpioPortB, /**< Port B */
+#endif
+#if ( _GPIO_PORT_C_PIN_COUNT > 0 )
     PortC = gpioPortC, /**< Port C */
+#endif
+#if ( _GPIO_PORT_D_PIN_COUNT > 0 )
     PortD = gpioPortD, /**< Port D */
+#endif
+#if ( _GPIO_PORT_E_PIN_COUNT > 0 )
     PortE = gpioPortE, /**< Port E */
+#endif
+#if ( _GPIO_PORT_F_PIN_COUNT > 0 )
     PortF = gpioPortF /**< Port F */
+#endif
+#if defined( _GPIO_PORT_G_PIN_COUNT ) && ( _GPIO_PORT_G_PIN_COUNT > 0 )
+    PortG = gpioPortG /**< Port F */
+#endif
+#if defined( _GPIO_PORT_H_PIN_COUNT ) && ( _GPIO_PORT_H_PIN_COUNT > 0 )
+    PortH = gpioPortH /**< Port F */
+#endif
 } PortName;
 
 #ifdef __cplusplus

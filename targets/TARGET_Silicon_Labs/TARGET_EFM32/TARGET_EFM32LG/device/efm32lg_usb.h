@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_usb.h
  * @brief EFM32LG_USB register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,139 +40,139 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t    CTRL;              /**< System Control Register  */
-  __I uint32_t     STATUS;            /**< System Status Register  */
-  __I uint32_t     IF;                /**< Interrupt Flag Register  */
-  __IO uint32_t    IFS;               /**< Interrupt Flag Set Register  */
-  __IO uint32_t    IFC;               /**< Interrupt Flag Clear Register  */
-  __IO uint32_t    IEN;               /**< Interrupt Enable Register  */
-  __IO uint32_t    ROUTE;             /**< I/O Routing Register  */
+  __IOM uint32_t   CTRL;              /**< System Control Register  */
+  __IM uint32_t    STATUS;            /**< System Status Register  */
+  __IM uint32_t    IF;                /**< Interrupt Flag Register  */
+  __IOM uint32_t   IFS;               /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;               /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;               /**< Interrupt Enable Register  */
+  __IOM uint32_t   ROUTE;             /**< I/O Routing Register  */
 
   uint32_t         RESERVED0[61433];  /**< Reserved for future use **/
-  __IO uint32_t    GOTGCTL;           /**< OTG Control and Status Register  */
-  __IO uint32_t    GOTGINT;           /**< OTG Interrupt Register  */
-  __IO uint32_t    GAHBCFG;           /**< AHB Configuration Register  */
-  __IO uint32_t    GUSBCFG;           /**< USB Configuration Register  */
-  __IO uint32_t    GRSTCTL;           /**< Reset Register  */
-  __IO uint32_t    GINTSTS;           /**< Interrupt Register  */
-  __IO uint32_t    GINTMSK;           /**< Interrupt Mask Register  */
-  __I uint32_t     GRXSTSR;           /**< Receive Status Debug Read Register  */
-  __I uint32_t     GRXSTSP;           /**< Receive Status Read and Pop Register  */
-  __IO uint32_t    GRXFSIZ;           /**< Receive FIFO Size Register  */
-  __IO uint32_t    GNPTXFSIZ;         /**< Non-periodic Transmit FIFO Size Register  */
-  __I uint32_t     GNPTXSTS;          /**< Non-periodic Transmit FIFO/Queue Status Register  */
+  __IOM uint32_t   GOTGCTL;           /**< OTG Control and Status Register  */
+  __IOM uint32_t   GOTGINT;           /**< OTG Interrupt Register  */
+  __IOM uint32_t   GAHBCFG;           /**< AHB Configuration Register  */
+  __IOM uint32_t   GUSBCFG;           /**< USB Configuration Register  */
+  __IOM uint32_t   GRSTCTL;           /**< Reset Register  */
+  __IOM uint32_t   GINTSTS;           /**< Interrupt Register  */
+  __IOM uint32_t   GINTMSK;           /**< Interrupt Mask Register  */
+  __IM uint32_t    GRXSTSR;           /**< Receive Status Debug Read Register  */
+  __IM uint32_t    GRXSTSP;           /**< Receive Status Read and Pop Register  */
+  __IOM uint32_t   GRXFSIZ;           /**< Receive FIFO Size Register  */
+  __IOM uint32_t   GNPTXFSIZ;         /**< Non-periodic Transmit FIFO Size Register  */
+  __IM uint32_t    GNPTXSTS;          /**< Non-periodic Transmit FIFO/Queue Status Register  */
   uint32_t         RESERVED1[11];     /**< Reserved for future use **/
-  __IO uint32_t    GDFIFOCFG;         /**< Global DFIFO Configuration Register  */
+  __IOM uint32_t   GDFIFOCFG;         /**< Global DFIFO Configuration Register  */
 
   uint32_t         RESERVED2[40];     /**< Reserved for future use **/
-  __IO uint32_t    HPTXFSIZ;          /**< Host Periodic Transmit FIFO Size Register  */
-  __IO uint32_t    DIEPTXF1;          /**< Device IN Endpoint Transmit FIFO 1 Size Register  */
-  __IO uint32_t    DIEPTXF2;          /**< Device IN Endpoint Transmit FIFO 2 Size Register  */
-  __IO uint32_t    DIEPTXF3;          /**< Device IN Endpoint Transmit FIFO 3 Size Register  */
-  __IO uint32_t    DIEPTXF4;          /**< Device IN Endpoint Transmit FIFO 4 Size Register  */
-  __IO uint32_t    DIEPTXF5;          /**< Device IN Endpoint Transmit FIFO 5 Size Register  */
-  __IO uint32_t    DIEPTXF6;          /**< Device IN Endpoint Transmit FIFO 6 Size Register  */
+  __IOM uint32_t   HPTXFSIZ;          /**< Host Periodic Transmit FIFO Size Register  */
+  __IOM uint32_t   DIEPTXF1;          /**< Device IN Endpoint Transmit FIFO 1 Size Register  */
+  __IOM uint32_t   DIEPTXF2;          /**< Device IN Endpoint Transmit FIFO 2 Size Register  */
+  __IOM uint32_t   DIEPTXF3;          /**< Device IN Endpoint Transmit FIFO 3 Size Register  */
+  __IOM uint32_t   DIEPTXF4;          /**< Device IN Endpoint Transmit FIFO 4 Size Register  */
+  __IOM uint32_t   DIEPTXF5;          /**< Device IN Endpoint Transmit FIFO 5 Size Register  */
+  __IOM uint32_t   DIEPTXF6;          /**< Device IN Endpoint Transmit FIFO 6 Size Register  */
 
   uint32_t         RESERVED3[185];    /**< Reserved for future use **/
-  __IO uint32_t    HCFG;              /**< Host Configuration Register  */
-  __IO uint32_t    HFIR;              /**< Host Frame Interval Register  */
-  __I uint32_t     HFNUM;             /**< Host Frame Number/Frame Time Remaining Register  */
+  __IOM uint32_t   HCFG;              /**< Host Configuration Register  */
+  __IOM uint32_t   HFIR;              /**< Host Frame Interval Register  */
+  __IM uint32_t    HFNUM;             /**< Host Frame Number/Frame Time Remaining Register  */
   uint32_t         RESERVED4[1];      /**< Reserved for future use **/
-  __I uint32_t     HPTXSTS;           /**< Host Periodic Transmit FIFO/Queue Status Register  */
-  __I uint32_t     HAINT;             /**< Host All Channels Interrupt Register  */
-  __IO uint32_t    HAINTMSK;          /**< Host All Channels Interrupt Mask Register  */
+  __IM uint32_t    HPTXSTS;           /**< Host Periodic Transmit FIFO/Queue Status Register  */
+  __IM uint32_t    HAINT;             /**< Host All Channels Interrupt Register  */
+  __IOM uint32_t   HAINTMSK;          /**< Host All Channels Interrupt Mask Register  */
   uint32_t         RESERVED5[9];      /**< Reserved for future use **/
-  __IO uint32_t    HPRT;              /**< Host Port Control and Status Register  */
+  __IOM uint32_t   HPRT;              /**< Host Port Control and Status Register  */
 
   uint32_t         RESERVED6[47];     /**< Reserved registers */
   USB_HC_TypeDef   HC[14];            /**< Host Channel Registers */
 
   uint32_t         RESERVED7[80];     /**< Reserved for future use **/
-  __IO uint32_t    DCFG;              /**< Device Configuration Register  */
-  __IO uint32_t    DCTL;              /**< Device Control Register  */
-  __I uint32_t     DSTS;              /**< Device Status Register  */
+  __IOM uint32_t   DCFG;              /**< Device Configuration Register  */
+  __IOM uint32_t   DCTL;              /**< Device Control Register  */
+  __IM uint32_t    DSTS;              /**< Device Status Register  */
   uint32_t         RESERVED8[1];      /**< Reserved for future use **/
-  __IO uint32_t    DIEPMSK;           /**< Device IN Endpoint Common Interrupt Mask Register  */
-  __IO uint32_t    DOEPMSK;           /**< Device OUT Endpoint Common Interrupt Mask Register  */
-  __I uint32_t     DAINT;             /**< Device All Endpoints Interrupt Register  */
-  __IO uint32_t    DAINTMSK;          /**< Device All Endpoints Interrupt Mask Register  */
+  __IOM uint32_t   DIEPMSK;           /**< Device IN Endpoint Common Interrupt Mask Register  */
+  __IOM uint32_t   DOEPMSK;           /**< Device OUT Endpoint Common Interrupt Mask Register  */
+  __IM uint32_t    DAINT;             /**< Device All Endpoints Interrupt Register  */
+  __IOM uint32_t   DAINTMSK;          /**< Device All Endpoints Interrupt Mask Register  */
   uint32_t         RESERVED9[2];      /**< Reserved for future use **/
-  __IO uint32_t    DVBUSDIS;          /**< Device VBUS Discharge Time Register  */
-  __IO uint32_t    DVBUSPULSE;        /**< Device VBUS Pulsing Time Register  */
+  __IOM uint32_t   DVBUSDIS;          /**< Device VBUS Discharge Time Register  */
+  __IOM uint32_t   DVBUSPULSE;        /**< Device VBUS Pulsing Time Register  */
 
   uint32_t         RESERVED10[1];     /**< Reserved for future use **/
-  __IO uint32_t    DIEPEMPMSK;        /**< Device IN Endpoint FIFO Empty Interrupt Mask Register  */
+  __IOM uint32_t   DIEPEMPMSK;        /**< Device IN Endpoint FIFO Empty Interrupt Mask Register  */
 
   uint32_t         RESERVED11[50];    /**< Reserved for future use **/
-  __IO uint32_t    DIEP0CTL;          /**< Device IN Endpoint 0 Control Register  */
+  __IOM uint32_t   DIEP0CTL;          /**< Device IN Endpoint 0 Control Register  */
   uint32_t         RESERVED12[1];     /**< Reserved for future use **/
-  __IO uint32_t    DIEP0INT;          /**< Device IN Endpoint 0 Interrupt Register  */
+  __IOM uint32_t   DIEP0INT;          /**< Device IN Endpoint 0 Interrupt Register  */
   uint32_t         RESERVED13[1];     /**< Reserved for future use **/
-  __IO uint32_t    DIEP0TSIZ;         /**< Device IN Endpoint 0 Transfer Size Register  */
-  __IO uint32_t    DIEP0DMAADDR;      /**< Device IN Endpoint 0 DMA Address Register  */
-  __I uint32_t     DIEP0TXFSTS;       /**< Device IN Endpoint 0 Transmit FIFO Status Register  */
+  __IOM uint32_t   DIEP0TSIZ;         /**< Device IN Endpoint 0 Transfer Size Register  */
+  __IOM uint32_t   DIEP0DMAADDR;      /**< Device IN Endpoint 0 DMA Address Register  */
+  __IM uint32_t    DIEP0TXFSTS;       /**< Device IN Endpoint 0 Transmit FIFO Status Register  */
 
   uint32_t         RESERVED14[1];     /**< Reserved registers */
   USB_DIEP_TypeDef DIEP[6];           /**< Device IN Endpoint x+1 Registers */
 
   uint32_t         RESERVED15[72];    /**< Reserved for future use **/
-  __IO uint32_t    DOEP0CTL;          /**< Device OUT Endpoint 0 Control Register  */
+  __IOM uint32_t   DOEP0CTL;          /**< Device OUT Endpoint 0 Control Register  */
   uint32_t         RESERVED16[1];     /**< Reserved for future use **/
-  __IO uint32_t    DOEP0INT;          /**< Device OUT Endpoint 0 Interrupt Register  */
+  __IOM uint32_t   DOEP0INT;          /**< Device OUT Endpoint 0 Interrupt Register  */
   uint32_t         RESERVED17[1];     /**< Reserved for future use **/
-  __IO uint32_t    DOEP0TSIZ;         /**< Device OUT Endpoint 0 Transfer Size Register  */
-  __IO uint32_t    DOEP0DMAADDR;      /**< Device OUT Endpoint 0 DMA Address Register  */
+  __IOM uint32_t   DOEP0TSIZ;         /**< Device OUT Endpoint 0 Transfer Size Register  */
+  __IOM uint32_t   DOEP0DMAADDR;      /**< Device OUT Endpoint 0 DMA Address Register  */
 
   uint32_t         RESERVED18[2];     /**< Reserved registers */
   USB_DOEP_TypeDef DOEP[6];           /**< Device OUT Endpoint x+1 Registers */
 
   uint32_t         RESERVED19[136];   /**< Reserved for future use **/
-  __IO uint32_t    PCGCCTL;           /**< Power and Clock Gating Control Register  */
+  __IOM uint32_t   PCGCCTL;           /**< Power and Clock Gating Control Register  */
 
   uint32_t         RESERVED20[127];   /**< Reserved registers */
-  __IO uint32_t    FIFO0D[512];       /**< Device EP 0/Host Channel 0 FIFO  */
+  __IOM uint32_t   FIFO0D[512];       /**< Device EP 0/Host Channel 0 FIFO  */
 
   uint32_t         RESERVED21[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO1D[512];       /**< Device EP 1/Host Channel 1 FIFO  */
+  __IOM uint32_t   FIFO1D[512];       /**< Device EP 1/Host Channel 1 FIFO  */
 
   uint32_t         RESERVED22[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO2D[512];       /**< Device EP 2/Host Channel 2 FIFO  */
+  __IOM uint32_t   FIFO2D[512];       /**< Device EP 2/Host Channel 2 FIFO  */
 
   uint32_t         RESERVED23[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO3D[512];       /**< Device EP 3/Host Channel 3 FIFO  */
+  __IOM uint32_t   FIFO3D[512];       /**< Device EP 3/Host Channel 3 FIFO  */
 
   uint32_t         RESERVED24[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO4D[512];       /**< Device EP 4/Host Channel 4 FIFO  */
+  __IOM uint32_t   FIFO4D[512];       /**< Device EP 4/Host Channel 4 FIFO  */
 
   uint32_t         RESERVED25[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO5D[512];       /**< Device EP 5/Host Channel 5 FIFO  */
+  __IOM uint32_t   FIFO5D[512];       /**< Device EP 5/Host Channel 5 FIFO  */
 
   uint32_t         RESERVED26[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO6D[512];       /**< Device EP 6/Host Channel 6 FIFO  */
+  __IOM uint32_t   FIFO6D[512];       /**< Device EP 6/Host Channel 6 FIFO  */
 
   uint32_t         RESERVED27[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO7D[512];       /**< Host Channel 7 FIFO  */
+  __IOM uint32_t   FIFO7D[512];       /**< Host Channel 7 FIFO  */
 
   uint32_t         RESERVED28[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO8D[512];       /**< Host Channel 8 FIFO  */
+  __IOM uint32_t   FIFO8D[512];       /**< Host Channel 8 FIFO  */
 
   uint32_t         RESERVED29[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO9D[512];       /**< Host Channel 9 FIFO  */
+  __IOM uint32_t   FIFO9D[512];       /**< Host Channel 9 FIFO  */
 
   uint32_t         RESERVED30[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO10D[512];      /**< Host Channel 10 FIFO  */
+  __IOM uint32_t   FIFO10D[512];      /**< Host Channel 10 FIFO  */
 
   uint32_t         RESERVED31[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO11D[512];      /**< Host Channel 11 FIFO  */
+  __IOM uint32_t   FIFO11D[512];      /**< Host Channel 11 FIFO  */
 
   uint32_t         RESERVED32[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO12D[512];      /**< Host Channel 12 FIFO  */
+  __IOM uint32_t   FIFO12D[512];      /**< Host Channel 12 FIFO  */
 
   uint32_t         RESERVED33[512];   /**< Reserved registers */
-  __IO uint32_t    FIFO13D[512];      /**< Host Channel 13 FIFO  */
+  __IOM uint32_t   FIFO13D[512];      /**< Host Channel 13 FIFO  */
 
   uint32_t         RESERVED34[17920]; /**< Reserved registers */
-  __IO uint32_t    FIFORAM[512];      /**< Direct Access to Data FIFO RAM for Debugging (2 KB)  */
+  __IOM uint32_t   FIFORAM[512];      /**< Direct Access to Data FIFO RAM for Debugging (2 KB)  */
 } USB_TypeDef;                        /** @} */
 
 /**************************************************************************//**
@@ -884,7 +884,7 @@ typedef struct
 
 /* Bit fields for USB GRXSTSR */
 #define _USB_GRXSTSR_RESETVALUE                    0x00000000UL                           /**< Default value for USB_GRXSTSR */
-#define _USB_GRXSTSR_MASK                          0x0F1FFFFFUL                           /**< Mask for USB_GRXSTSR */
+#define _USB_GRXSTSR_MASK                          0x01FFFFFFUL                           /**< Mask for USB_GRXSTSR */
 #define _USB_GRXSTSR_CHEPNUM_SHIFT                 0                                      /**< Shift value for USB_CHEPNUM */
 #define _USB_GRXSTSR_CHEPNUM_MASK                  0xFUL                                  /**< Bit mask for USB_CHEPNUM */
 #define _USB_GRXSTSR_CHEPNUM_DEFAULT               0x00000000UL                           /**< Mode DEFAULT for USB_GRXSTSR */
@@ -923,10 +923,10 @@ typedef struct
 #define USB_GRXSTSR_PKTSTS_TGLERR                  (_USB_GRXSTSR_PKTSTS_TGLERR << 17)     /**< Shifted mode TGLERR for USB_GRXSTSR */
 #define USB_GRXSTSR_PKTSTS_SETUPRCV                (_USB_GRXSTSR_PKTSTS_SETUPRCV << 17)   /**< Shifted mode SETUPRCV for USB_GRXSTSR */
 #define USB_GRXSTSR_PKTSTS_CHLT                    (_USB_GRXSTSR_PKTSTS_CHLT << 17)       /**< Shifted mode CHLT for USB_GRXSTSR */
-#define _USB_GRXSTSR_FN_SHIFT                      24                                     /**< Shift value for USB_FN */
-#define _USB_GRXSTSR_FN_MASK                       0xF000000UL                            /**< Bit mask for USB_FN */
+#define _USB_GRXSTSR_FN_SHIFT                      21                                     /**< Shift value for USB_FN */
+#define _USB_GRXSTSR_FN_MASK                       0x1E00000UL                            /**< Bit mask for USB_FN */
 #define _USB_GRXSTSR_FN_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for USB_GRXSTSR */
-#define USB_GRXSTSR_FN_DEFAULT                     (_USB_GRXSTSR_FN_DEFAULT << 24)        /**< Shifted mode DEFAULT for USB_GRXSTSR */
+#define USB_GRXSTSR_FN_DEFAULT                     (_USB_GRXSTSR_FN_DEFAULT << 21)        /**< Shifted mode DEFAULT for USB_GRXSTSR */
 
 /* Bit fields for USB GRXSTSP */
 #define _USB_GRXSTSP_RESETVALUE                    0x00000000UL                           /**< Default value for USB_GRXSTSP */

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_pcnt.h
  * @brief EFM32PG1B_PCNT register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,28 +40,28 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Control Register  */
-  __IO uint32_t CMD;          /**< Command Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __I uint32_t  CNT;          /**< Counter Value Register  */
-  __I uint32_t  TOP;          /**< Top Value Register  */
-  __IO uint32_t TOPB;         /**< Top Value Buffer Register  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-  uint32_t      RESERVED0[1]; /**< Reserved for future use **/
-  __IO uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
+  __IOM uint32_t CTRL;         /**< Control Register  */
+  __IOM uint32_t CMD;          /**< Command Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IM uint32_t  CNT;          /**< Counter Value Register  */
+  __IM uint32_t  TOP;          /**< Top Value Register  */
+  __IOM uint32_t TOPB;         /**< Top Value Buffer Register  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+  __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
 
-  uint32_t      RESERVED1[4]; /**< Reserved for future use **/
-  __IO uint32_t FREEZE;       /**< Freeze Register  */
-  __I uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+  uint32_t       RESERVED1[4]; /**< Reserved for future use **/
+  __IOM uint32_t FREEZE;       /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
 
-  uint32_t      RESERVED2[7]; /**< Reserved for future use **/
-  __I uint32_t  AUXCNT;       /**< Auxiliary Counter Value Register  */
-  __IO uint32_t INPUT;        /**< PCNT Input Register  */
-  __IO uint32_t OVSCFG;       /**< Oversampling Config Register  */
-} PCNT_TypeDef;               /** @} */
+  uint32_t       RESERVED2[7]; /**< Reserved for future use **/
+  __IM uint32_t  AUXCNT;       /**< Auxiliary Counter Value Register  */
+  __IOM uint32_t INPUT;        /**< PCNT Input Register  */
+  __IOM uint32_t OVSCFG;       /**< Oversampling Config Register  */
+} PCNT_TypeDef;                /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_PCNT_BitFields
@@ -315,7 +315,7 @@ typedef struct
 #define _PCNT_IF_DIRCNG_MASK               0x4UL                           /**< Bit mask for PCNT_DIRCNG */
 #define _PCNT_IF_DIRCNG_DEFAULT            0x00000000UL                    /**< Mode DEFAULT for PCNT_IF */
 #define PCNT_IF_DIRCNG_DEFAULT             (_PCNT_IF_DIRCNG_DEFAULT << 2)  /**< Shifted mode DEFAULT for PCNT_IF */
-#define PCNT_IF_AUXOF                      (0x1UL << 3)                    /**< Overflow Interrupt Read Flag */
+#define PCNT_IF_AUXOF                      (0x1UL << 3)                    /**< Auxiliary Overflow Interrupt Read Flag */
 #define _PCNT_IF_AUXOF_SHIFT               3                               /**< Shift value for PCNT_AUXOF */
 #define _PCNT_IF_AUXOF_MASK                0x8UL                           /**< Bit mask for PCNT_AUXOF */
 #define _PCNT_IF_AUXOF_DEFAULT             0x00000000UL                    /**< Mode DEFAULT for PCNT_IF */

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_usb.h
  * @brief EFM32HG_USB register and bit field definitions
- * @version 4.2.0
+ * @version 5.0.0
  ******************************************************************************
  * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,86 +40,86 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t    CTRL;              /**< System Control Register  */
-  __I uint32_t     STATUS;            /**< System Status Register  */
-  __I uint32_t     IF;                /**< Interrupt Flag Register  */
-  __IO uint32_t    IFS;               /**< Interrupt Flag Set Register  */
-  __IO uint32_t    IFC;               /**< Interrupt Flag Clear Register  */
-  __IO uint32_t    IEN;               /**< Interrupt Enable Register  */
-  __IO uint32_t    ROUTE;             /**< I/O Routing Register  */
+  __IOM uint32_t   CTRL;              /**< System Control Register  */
+  __IM uint32_t    STATUS;            /**< System Status Register  */
+  __IM uint32_t    IF;                /**< Interrupt Flag Register  */
+  __IOM uint32_t   IFS;               /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;               /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;               /**< Interrupt Enable Register  */
+  __IOM uint32_t   ROUTE;             /**< I/O Routing Register  */
 
   uint32_t         RESERVED0[61435];  /**< Reserved for future use **/
-  __IO uint32_t    GAHBCFG;           /**< AHB Configuration Register  */
-  __IO uint32_t    GUSBCFG;           /**< USB Configuration Register  */
-  __IO uint32_t    GRSTCTL;           /**< Reset Register  */
-  __IO uint32_t    GINTSTS;           /**< Interrupt Register  */
-  __IO uint32_t    GINTMSK;           /**< Interrupt Mask Register  */
-  __I uint32_t     GRXSTSR;           /**< Receive Status Debug Read Register  */
-  __I uint32_t     GRXSTSP;           /**< Receive Status Read and Pop Register  */
-  __IO uint32_t    GRXFSIZ;           /**< Receive FIFO Size Register  */
-  __IO uint32_t    GNPTXFSIZ;         /**< Non-periodic Transmit FIFO Size Register  */
+  __IOM uint32_t   GAHBCFG;           /**< AHB Configuration Register  */
+  __IOM uint32_t   GUSBCFG;           /**< USB Configuration Register  */
+  __IOM uint32_t   GRSTCTL;           /**< Reset Register  */
+  __IOM uint32_t   GINTSTS;           /**< Interrupt Register  */
+  __IOM uint32_t   GINTMSK;           /**< Interrupt Mask Register  */
+  __IM uint32_t    GRXSTSR;           /**< Receive Status Debug Read Register  */
+  __IM uint32_t    GRXSTSP;           /**< Receive Status Read and Pop Register  */
+  __IOM uint32_t   GRXFSIZ;           /**< Receive FIFO Size Register  */
+  __IOM uint32_t   GNPTXFSIZ;         /**< Non-periodic Transmit FIFO Size Register  */
 
   uint32_t         RESERVED1[12];     /**< Reserved for future use **/
-  __IO uint32_t    GDFIFOCFG;         /**< Global DFIFO Configuration Register  */
+  __IOM uint32_t   GDFIFOCFG;         /**< Global DFIFO Configuration Register  */
 
   uint32_t         RESERVED2[41];     /**< Reserved for future use **/
-  __IO uint32_t    DIEPTXF1;          /**< Device IN Endpoint Transmit FIFO 1 Size Register  */
-  __IO uint32_t    DIEPTXF2;          /**< Device IN Endpoint Transmit FIFO 2 Size Register  */
-  __IO uint32_t    DIEPTXF3;          /**< Device IN Endpoint Transmit FIFO 3 Size Register  */
+  __IOM uint32_t   DIEPTXF1;          /**< Device IN Endpoint Transmit FIFO 1 Size Register  */
+  __IOM uint32_t   DIEPTXF2;          /**< Device IN Endpoint Transmit FIFO 2 Size Register  */
+  __IOM uint32_t   DIEPTXF3;          /**< Device IN Endpoint Transmit FIFO 3 Size Register  */
 
   uint32_t         RESERVED3[444];    /**< Reserved for future use **/
-  __IO uint32_t    DCFG;              /**< Device Configuration Register  */
-  __IO uint32_t    DCTL;              /**< Device Control Register  */
-  __I uint32_t     DSTS;              /**< Device Status Register  */
+  __IOM uint32_t   DCFG;              /**< Device Configuration Register  */
+  __IOM uint32_t   DCTL;              /**< Device Control Register  */
+  __IM uint32_t    DSTS;              /**< Device Status Register  */
   uint32_t         RESERVED4[1];      /**< Reserved for future use **/
-  __IO uint32_t    DIEPMSK;           /**< Device IN Endpoint Common Interrupt Mask Register  */
-  __IO uint32_t    DOEPMSK;           /**< Device OUT Endpoint Common Interrupt Mask Register  */
-  __I uint32_t     DAINT;             /**< Device All Endpoints Interrupt Register  */
-  __IO uint32_t    DAINTMSK;          /**< Device All Endpoints Interrupt Mask Register  */
+  __IOM uint32_t   DIEPMSK;           /**< Device IN Endpoint Common Interrupt Mask Register  */
+  __IOM uint32_t   DOEPMSK;           /**< Device OUT Endpoint Common Interrupt Mask Register  */
+  __IM uint32_t    DAINT;             /**< Device All Endpoints Interrupt Register  */
+  __IOM uint32_t   DAINTMSK;          /**< Device All Endpoints Interrupt Mask Register  */
 
   uint32_t         RESERVED5[5];      /**< Reserved for future use **/
-  __IO uint32_t    DIEPEMPMSK;        /**< Device IN Endpoint FIFO Empty Interrupt Mask Register  */
+  __IOM uint32_t   DIEPEMPMSK;        /**< Device IN Endpoint FIFO Empty Interrupt Mask Register  */
 
   uint32_t         RESERVED6[50];     /**< Reserved for future use **/
-  __IO uint32_t    DIEP0CTL;          /**< Device IN Endpoint 0 Control Register  */
+  __IOM uint32_t   DIEP0CTL;          /**< Device IN Endpoint 0 Control Register  */
   uint32_t         RESERVED7[1];      /**< Reserved for future use **/
-  __IO uint32_t    DIEP0INT;          /**< Device IN Endpoint 0 Interrupt Register  */
+  __IOM uint32_t   DIEP0INT;          /**< Device IN Endpoint 0 Interrupt Register  */
   uint32_t         RESERVED8[1];      /**< Reserved for future use **/
-  __IO uint32_t    DIEP0TSIZ;         /**< Device IN Endpoint 0 Transfer Size Register  */
-  __IO uint32_t    DIEP0DMAADDR;      /**< Device IN Endpoint 0 DMA Address Register  */
-  __I uint32_t     DIEP0TXFSTS;       /**< Device IN Endpoint 0 Transmit FIFO Status Register  */
+  __IOM uint32_t   DIEP0TSIZ;         /**< Device IN Endpoint 0 Transfer Size Register  */
+  __IOM uint32_t   DIEP0DMAADDR;      /**< Device IN Endpoint 0 DMA Address Register  */
+  __IM uint32_t    DIEP0TXFSTS;       /**< Device IN Endpoint 0 Transmit FIFO Status Register  */
 
   uint32_t         RESERVED9[1];      /**< Reserved registers */
   USB_DIEP_TypeDef DIEP[3];           /**< Device IN Endpoint x+1 Registers */
 
   uint32_t         RESERVED10[96];    /**< Reserved for future use **/
-  __IO uint32_t    DOEP0CTL;          /**< Device OUT Endpoint 0 Control Register  */
+  __IOM uint32_t   DOEP0CTL;          /**< Device OUT Endpoint 0 Control Register  */
   uint32_t         RESERVED11[1];     /**< Reserved for future use **/
-  __IO uint32_t    DOEP0INT;          /**< Device OUT Endpoint 0 Interrupt Register  */
+  __IOM uint32_t   DOEP0INT;          /**< Device OUT Endpoint 0 Interrupt Register  */
   uint32_t         RESERVED12[1];     /**< Reserved for future use **/
-  __IO uint32_t    DOEP0TSIZ;         /**< Device OUT Endpoint 0 Transfer Size Register  */
-  __IO uint32_t    DOEP0DMAADDR;      /**< Device OUT Endpoint 0 DMA Address Register  */
+  __IOM uint32_t   DOEP0TSIZ;         /**< Device OUT Endpoint 0 Transfer Size Register  */
+  __IOM uint32_t   DOEP0DMAADDR;      /**< Device OUT Endpoint 0 DMA Address Register  */
 
   uint32_t         RESERVED13[2];     /**< Reserved registers */
   USB_DOEP_TypeDef DOEP[3];           /**< Device OUT Endpoint x+1 Registers */
 
   uint32_t         RESERVED14[160];   /**< Reserved for future use **/
-  __IO uint32_t    PCGCCTL;           /**< Power and Clock Gating Control Register  */
+  __IOM uint32_t   PCGCCTL;           /**< Power and Clock Gating Control Register  */
 
   uint32_t         RESERVED15[127];   /**< Reserved registers */
-  __IO uint32_t    FIFO0D[384];       /**< Device EP 0 FIFO  */
+  __IOM uint32_t   FIFO0D[384];       /**< Device EP 0 FIFO  */
 
   uint32_t         RESERVED16[640];   /**< Reserved registers */
-  __IO uint32_t    FIFO1D[384];       /**< Device EP 1 FIFO  */
+  __IOM uint32_t   FIFO1D[384];       /**< Device EP 1 FIFO  */
 
   uint32_t         RESERVED17[640];   /**< Reserved registers */
-  __IO uint32_t    FIFO2D[384];       /**< Device EP 2 FIFO  */
+  __IOM uint32_t   FIFO2D[384];       /**< Device EP 2 FIFO  */
 
   uint32_t         RESERVED18[640];   /**< Reserved registers */
-  __IO uint32_t    FIFO3D[384];       /**< Device EP 3 FIFO  */
+  __IOM uint32_t   FIFO3D[384];       /**< Device EP 3 FIFO  */
 
   uint32_t         RESERVED19[28288]; /**< Reserved registers */
-  __IO uint32_t    FIFORAM[512];      /**< Direct Access to Data FIFO RAM for Debugging (2 KB)  */
+  __IOM uint32_t   FIFORAM[512];      /**< Direct Access to Data FIFO RAM for Debugging (2 KB)  */
 } USB_TypeDef;                        /** @} */
 
 /**************************************************************************//**
@@ -129,7 +129,7 @@ typedef struct
 
 /* Bit fields for USB CTRL */
 #define _USB_CTRL_RESETVALUE                       0x00000020UL                           /**< Default value for USB_CTRL */
-#define _USB_CTRL_MASK                             0x033302B2UL                           /**< Mask for USB_CTRL */
+#define _USB_CTRL_MASK                             0x03330EB2UL                           /**< Mask for USB_CTRL */
 #define USB_CTRL_DMPUAP                            (0x1UL << 1)                           /**< DMPU Active Polarity */
 #define _USB_CTRL_DMPUAP_SHIFT                     1                                      /**< Shift value for USB_DMPUAP */
 #define _USB_CTRL_DMPUAP_MASK                      0x2UL                                  /**< Bit mask for USB_DMPUAP */
@@ -163,6 +163,16 @@ typedef struct
 #define _USB_CTRL_LEMIDLEEN_MASK                   0x200UL                                /**< Bit mask for USB_LEMIDLEEN */
 #define _USB_CTRL_LEMIDLEEN_DEFAULT                0x00000000UL                           /**< Mode DEFAULT for USB_CTRL */
 #define USB_CTRL_LEMIDLEEN_DEFAULT                 (_USB_CTRL_LEMIDLEEN_DEFAULT << 9)     /**< Shifted mode DEFAULT for USB_CTRL */
+#define USB_CTRL_LEMNAKEN                          (0x1UL << 10)                          /**< Low Energy Mode on OUT NAK Enable */
+#define _USB_CTRL_LEMNAKEN_SHIFT                   10                                     /**< Shift value for USB_LEMNAKEN */
+#define _USB_CTRL_LEMNAKEN_MASK                    0x400UL                                /**< Bit mask for USB_LEMNAKEN */
+#define _USB_CTRL_LEMNAKEN_DEFAULT                 0x00000000UL                           /**< Mode DEFAULT for USB_CTRL */
+#define USB_CTRL_LEMNAKEN_DEFAULT                  (_USB_CTRL_LEMNAKEN_DEFAULT << 10)     /**< Shifted mode DEFAULT for USB_CTRL */
+#define USB_CTRL_LEMADDRMEN                        (0x1UL << 11)                          /**< Low Energy Mode on Device Address Mismatch Enable */
+#define _USB_CTRL_LEMADDRMEN_SHIFT                 11                                     /**< Shift value for USB_LEMADDRMEN */
+#define _USB_CTRL_LEMADDRMEN_MASK                  0x800UL                                /**< Bit mask for USB_LEMADDRMEN */
+#define _USB_CTRL_LEMADDRMEN_DEFAULT               0x00000000UL                           /**< Mode DEFAULT for USB_CTRL */
+#define USB_CTRL_LEMADDRMEN_DEFAULT                (_USB_CTRL_LEMADDRMEN_DEFAULT << 11)   /**< Shifted mode DEFAULT for USB_CTRL */
 #define USB_CTRL_VREGDIS                           (0x1UL << 16)                          /**< Voltage Regulator Disable */
 #define _USB_CTRL_VREGDIS_SHIFT                    16                                     /**< Shift value for USB_VREGDIS */
 #define _USB_CTRL_VREGDIS_MASK                     0x10000UL                              /**< Bit mask for USB_VREGDIS */
