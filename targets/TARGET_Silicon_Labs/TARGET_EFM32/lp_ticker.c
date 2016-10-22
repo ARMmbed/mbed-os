@@ -22,6 +22,7 @@
  ******************************************************************************/
 
 #include "device.h"
+#include "clocking.h"
 #if DEVICE_LOWPOWERTIMER
 
 #include "rtc_api.h"
