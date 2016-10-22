@@ -29,7 +29,7 @@
 #include "PeripheralPins.h"
 #include "pinmap.h"
 #include "pinmap_function.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #include "dma_api.h"
 #include "dma_api_HAL.h"

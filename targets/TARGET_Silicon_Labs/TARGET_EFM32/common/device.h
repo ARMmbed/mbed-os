@@ -23,6 +23,7 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
+#include "cmsis.h"
 #include "objects.h"
 #include "device_peripherals.h"
 
