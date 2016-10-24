@@ -2123,5 +2123,31 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE"
+    },
+    "HI2110": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "extra_labels": ["ublox"],
+        "macros": ["TARGET_PROCESSOR_FAMILY_BOUDICA", "BOUDICA_SARA", "NDEBUG=1"],
+        "public": false,
+        "target_overrides": {
+            "*": {
+                "core.stdio-flush-at-exit": false
+            }
+        },
+        "device_has": ["INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "STDIO_MESSAGES"],
+        "default_lib": "std",
+        "release_versions": ["5"]
+   },
+    "SARA_NBIOT": {
+        "inherits": ["HI2110"],
+        "extra_labels": ["ublox", "HI2110"],
+        "public": false
+    },
+    "SARA_NBIOT_EVK": {
+        "inherits": ["SARA_NBIOT"],
+        "extra_labels": ["ublox", "HI2110", "SARA_NBIOT"]
     }
 }
