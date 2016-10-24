@@ -58,7 +58,7 @@ public:
     virtual int disk_write(const uint8_t* buffer, uint32_t block_number, uint32_t count);
     virtual int disk_sync();
     virtual uint32_t disk_sectors();
-	void debug(bool dbg);
+    void debug(bool dbg);
 
 protected:
 
@@ -85,7 +85,7 @@ protected:
     DigitalOut _cs;
     int cdv;
     int _is_initialized;
-	bool _dbg;
+    bool _dbg;
 };
 
 #endif
