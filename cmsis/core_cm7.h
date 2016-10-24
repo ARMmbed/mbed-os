@@ -2066,6 +2066,38 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
   *pSubPriority     = (Priority                   ) & (uint32_t)((1UL << (SubPriorityBits    )) - 1UL);
 }
 
+
+/**
+  \brief   Set Interrupt Vector
+  \details Sets an interrupt vector in SRAM based interrupt vector table.
+           The interrupt number can be positive to specify a device specific interrupt,
+           or negative to specify a processor exception.
+           VTOR must been relocated to SRAM before.
+  \param [in]   IRQn      Interrupt number
+  \param [in]   vector    Address of interrupt handler function
+ */
+__STATIC_INLINE void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
+}
+
+
+/**
+  \brief   Get Interrupt Vector
+  \details Reads an interrupt vector from interrupt vector table.
+           The interrupt number can be positive to specify a device specific interrupt,
+           or negative to specify a processor exception.
+  \param [in]   IRQn      Interrupt number.
+  \return                 Address of interrupt handler function
+ */
+__STATIC_INLINE uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
+}
+
+
 /**
   \brief   System Reset
   \details Initiates a system reset request to reset the MCU.

@@ -522,6 +522,17 @@ extern "C" void software_init_hook(void)
 
 extern "C" WEAK void mbed_main(void);
 extern "C" WEAK void mbed_main(void) {
+    /* If vector address in RAM is defined, copy and switch to dynamic vectors */
+#ifdef NVIC_RAM_VECTOR_ADDRESS
+    uint32_t *old_vectors = (uint32_t *)SCB->VTOR;
+    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    for (int i = 0; i < NVIC_NUM_VECTORS; i++) {
+        vectors[i] = old_vectors[i];
+    }
+    SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+#else /* NVIC_RAM_VECTOR_ADDRESS */
+#error "NVIC_RAM_VECTOR_ADDRESS not defined!"
+#endif
 }
 
 #if defined(TOOLCHAIN_ARM)
