@@ -6,15 +6,15 @@ mbed OS accelerates the process of creating a connected product by providing a p
  
 ## Current release
  
-Our current release series is mbed OS 5.1:
+Our current release series is mbed OS 5.2:
 
-- [Release Note](https://docs.mbed.com/docs/mbed-os-release-notes/en/latest/5_1/release/)
+- [Release Note](https://docs.mbed.com/docs/mbed-os-release-notes/en/latest/5_2/release_note/)
 
 ## Getting Started for Developers
  
 We have a getting started guide for developers using mbed OS in applications:
  
-- [Getting Started](https://docs.mbed.com/docs/mbed-os-handbook/en/5.1/)
+- [Getting Started](https://docs.mbed.com/docs/mbed-os-handbook/en/5.2/)
 
 ## Getting Started for Contributors
  
