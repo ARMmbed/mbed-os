@@ -16,6 +16,7 @@ TEST_SRC_FILES = \
 	../stub/mbedtls_stub.c \
 	../stub/randLIB_stub.c \
 	../stub/nsdynmemLIB_stub.c \
+	../stub/socket_api_stub.c \
 
 include ../MakefileWorker.mk
 

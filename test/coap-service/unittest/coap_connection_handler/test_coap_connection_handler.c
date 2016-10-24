@@ -105,7 +105,7 @@ bool test_coap_connection_handler_open_connection()
 bool test_coap_connection_handler_send_data()
 {
     coap_security_handler_stub.counter = -1;
-    if( -1 != coap_connection_handler_send_data(NULL, NULL, NULL, 0, false))
+    if( -1 != coap_connection_handler_send_data(NULL, NULL, ns_in6addr_any, NULL, 0, false))
         return false;
 
     ns_address_t addr;
@@ -118,7 +118,7 @@ bool test_coap_connection_handler_send_data()
     if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,false,false) )
         return false;
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
     connection_handler_destroy(handler);
@@ -134,10 +134,10 @@ bool test_coap_connection_handler_send_data()
     if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,false,false) )
         return false;
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
     connection_handler_destroy(handler);
@@ -153,7 +153,7 @@ bool test_coap_connection_handler_send_data()
         return false;
 
 
-    if( 1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( 1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
     connection_handler_destroy(handler);
 
@@ -164,7 +164,7 @@ bool test_coap_connection_handler_send_data()
         return false;
 
     socket_api_stub.int8_value = 7;
-    if( 7 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( 7 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
     connection_handler_destroy(handler);
 

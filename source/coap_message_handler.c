@@ -177,15 +177,15 @@ coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, 
     return transaction_find_by_address( address_ptr, port );
 }
 
-int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port,
+int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
                                       uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *))
 {
-    if( !cb || !handle ){
+    if (!cb || !handle) {
         return -1;
     }
     sn_nsdl_addr_s src_addr;
     sn_coap_hdr_s *coap_message;
-    src_addr.addr_ptr = source_addr_ptr;
+    src_addr.addr_ptr = (uint8_t *)source_addr_ptr;
     src_addr.addr_len  =  16;
     src_addr.type  =  SN_NSDL_ADDRESS_TYPE_IPV6;
     src_addr.port  =  port;
@@ -209,6 +209,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
             transaction_ptr->service_id = coap_service_id_find_by_socket(socket_id);
             transaction_ptr->msg_id = coap_message->msg_id;
             transaction_ptr->client_request = false;// this is server transaction
+            memcpy(transaction_ptr->local_address, dst_addr_ptr, 16);
             memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
             transaction_ptr->remote_port = port;
 
@@ -219,13 +220,13 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
                 transaction_delete(transaction_ptr);
                 return -1;
             }
-        }else{
+        } else {
             //TODO: handle error case
         }
     /* Response received */
     } else {
         coap_transaction_t *this = NULL;
-        if( coap_message->token_ptr ){
+        if (coap_message->token_ptr) {
             this = transaction_find_client_by_token(coap_message->token_ptr);
         }
         if (!this) {
@@ -235,7 +236,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         }
         tr_debug("Service %d, response received", this->service_id);
         if (this->resp_cb) {
-            this->resp_cb(this->service_id, source_addr_ptr, port, coap_message);
+            this->resp_cb(this->service_id, (uint8_t *)source_addr_ptr, port, coap_message);
         }
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
         transaction_delete(this);

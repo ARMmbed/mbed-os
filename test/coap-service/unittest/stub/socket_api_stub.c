@@ -5,6 +5,7 @@
 #include "socket_api_stub.h"
 
 socket_api_stub_data_t socket_api_stub;
+const uint8_t ns_in6addr_any[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int8_t socket_raw_open(void (*passed_fptr)(void *))
 {
@@ -115,4 +116,23 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
     }
 
     return socket_api_stub.int8_value;
+}
+
+int8_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
+{
+    if( socket_api_stub.counter >= 0){
+        return socket_api_stub.values[socket_api_stub.counter--];
+    }
+
+    return socket_api_stub.int8_value;
+}
+
+int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags)
+{
+    return -1;
+}
+
+ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg)
+{
+    return NULL;
 }

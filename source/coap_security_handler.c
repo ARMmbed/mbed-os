@@ -18,6 +18,7 @@
 #include "coap_security_handler.h"
 #include "randLIB.h"
 #include "mbedtls/ssl_ciphersuites.h"
+#include "socket_api.h"
 
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
 const int ECJPAKE_SUITES[] = {
@@ -92,13 +93,13 @@ static void coap_security_handler_reset(coap_security_t *sec){
 }
 
 
-coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port, SecureConnectionMode mode,
-                                          send_cb *send_cb,
-                                          receive_cb *receive_cb,
-                                          start_timer_cb *start_timer_cb,
-                                          timer_status_cb *timer_status_cb)
+coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, const uint8_t *address_ptr, uint16_t port, SecureConnectionMode mode,
+                                          send_cb *socket_cb,
+                                          receive_cb *receive_data_cb,
+                                          start_timer_cb *timer_start_cb,
+                                          timer_status_cb *timer_stat_cb)
 {
-    if( !address_ptr || send_cb == NULL || receive_cb == NULL || start_timer_cb == NULL || timer_status_cb == NULL){
+    if (!address_ptr || socket_cb == NULL || receive_data_cb == NULL || timer_start_cb == NULL || timer_stat_cb == NULL) {
         return NULL;
     }
     coap_security_t *this = ns_dyn_mem_alloc(sizeof(coap_security_t));
@@ -106,7 +107,7 @@ coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t
         return NULL;
     }
     memset(this, 0, sizeof(coap_security_t));
-    if( -1 == coap_security_handler_init(this) ){
+    if (-1 == coap_security_handler_init(this)) {
         ns_dyn_mem_free(this);
         return NULL;
     }
@@ -117,10 +118,10 @@ coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t
     this->_pw_len = 0;
     this->_socket_id = socket_id;
     this->_timer_id = timer_id;
-    this->_send_cb = send_cb;
-    this->_receive_cb = receive_cb;
-    this->_start_timer_cb = start_timer_cb;
-    this->_timer_status_cb = timer_status_cb;
+    this->_send_cb = socket_cb;
+    this->_receive_cb = receive_data_cb;
+    this->_start_timer_cb = timer_start_cb;
+    this->_timer_status_cb = timer_stat_cb;
 
     return this;
 }
@@ -551,7 +552,7 @@ static int get_timer(void *sec_obj)
 
 int f_send( void *ctx, const unsigned char *buf, size_t len){
     coap_security_t *sec = (coap_security_t *)ctx;
-    return sec->_send_cb(sec->_socket_id, sec->_remote_address, sec->_remote_port, buf, len);
+    return sec->_send_cb(sec->_socket_id, sec->_remote_address, sec->_remote_port, ns_in6addr_any, buf, len);
 }
 
 int f_recv(void *ctx, unsigned char *buf, size_t len){

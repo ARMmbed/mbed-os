@@ -38,7 +38,7 @@ typedef struct key_block {
     unsigned char value[KEY_BLOCK_LEN];
 } key_block_t;
 
-typedef int send_cb(int8_t socket_id, uint8_t *address_ptr, uint16_t port, const unsigned char *, size_t);
+typedef int send_cb(int8_t socket_id, const uint8_t *address_ptr, uint16_t port, const uint8_t source_addr[static 16], const void *, size_t);
 typedef int receive_cb(int8_t socket_id, unsigned char *, size_t);
 typedef void start_timer_cb(int8_t timer_id, uint32_t min, uint32_t fin);
 typedef int timer_status_cb(int8_t timer_id);
@@ -99,7 +99,7 @@ typedef struct coap_security_s {
 
 } coap_security_t;
 
-coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
+coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, const uint8_t *address_ptr, uint16_t port,
                                           SecureConnectionMode mode,
                                           send_cb *send_cb,
                                           receive_cb *receive_cb,

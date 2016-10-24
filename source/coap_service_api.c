@@ -23,7 +23,6 @@
 #include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
 
-static int16_t coap_service_coap_msg_process(int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len);
 static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr);
 
 typedef struct uri_registration {
@@ -142,7 +141,8 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
     dest_addr.identifier = address_ptr->port;
     dest_addr.type = ADDRESS_IPV6;
 
-    if( -2 == coap_connection_handler_send_data(this->conn_handler, &dest_addr, data_ptr, data_len, (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS) ){
+    if (-2 == coap_connection_handler_send_data(this->conn_handler, &dest_addr, transaction_ptr->local_address,
+            data_ptr, data_len, (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS)) {
         transaction_ptr->data_ptr = ns_dyn_mem_alloc(data_len);
         if (!transaction_ptr->data_ptr) {
             tr_debug("coap tx out of memory");
@@ -151,7 +151,7 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
         }
         memcpy(transaction_ptr->data_ptr, data_ptr, data_len);
         transaction_ptr->data_len = data_len;
-    } else if (transaction_ptr->resp_cb == NULL ){
+    } else if (transaction_ptr->resp_cb == NULL ) {
         transaction_delete(transaction_ptr);
     }
 
@@ -207,19 +207,18 @@ static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_m
     return -1;
 }
 
-static int16_t coap_service_coap_msg_process(int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len)
-{
-    return coap_message_handler_coap_msg_process( coap_service_handle, socket_id, source_addr_ptr, port, data_ptr, data_len, &coap_msg_process_callback);
-}
-
-static int recv_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, unsigned char *data, int len)
+static int recv_cb(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *data, int len)
 {
     uint8_t *data_ptr = NULL;
     uint16_t data_len = 0;
 
+    if (!data || !len) {
+        return -1;
+    }
+
     data_ptr = own_alloc(len);
 
-    if (!data_ptr || len < 1) {
+    if (!data_ptr) {
         return -1;
     }
     memcpy(data_ptr, data, len);
@@ -227,17 +226,17 @@ static int recv_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, 
     tr_debug("service recv socket data len %d ", data_len);
 
     //parse coap message what CoAP to use
-    int ret = coap_service_coap_msg_process(socket_id, address, port, data_ptr, data_len);
+    int ret = coap_message_handler_coap_msg_process(coap_service_handle, socket_id, src_address, port, dst_address, data_ptr, data_len, &coap_msg_process_callback);
     own_free(data_ptr);
     return ret;
 }
 
-static int send_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, const unsigned char *data_ptr, int data_len)
+static int send_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *data_ptr, int data_len)
 {
     coap_service_t *this = service_find_by_socket(socket_id);
     if (this && this->virtual_socket_send_cb) {
         tr_debug("send to virtual socket");
-        return this->virtual_socket_send_cb(this->service_id, address, port, data_ptr, data_len);
+        return this->virtual_socket_send_cb(this->service_id, (uint8_t*)address, port, data_ptr, data_len);
     }
     return -1;
 }
@@ -259,7 +258,8 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
         dest_addr.identifier = port;
         dest_addr.type = ADDRESS_IPV6;
 
-        coap_connection_handler_send_data(this->conn_handler, &dest_addr, transaction_ptr->data_ptr, transaction_ptr->data_len, (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS);
+        coap_connection_handler_send_data(this->conn_handler, &dest_addr, transaction_ptr->local_address,
+                transaction_ptr->data_ptr, transaction_ptr->data_len, (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS);
         ns_dyn_mem_free(transaction_ptr->data_ptr);
         transaction_ptr->data_ptr = NULL;
         transaction_ptr->data_len = 0;
