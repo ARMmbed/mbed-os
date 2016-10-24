@@ -293,7 +293,7 @@ uint32_t SDFileSystem::disk_sectors() {
 }
 
 void SDFileSystem::debug(bool dbg){
-	_dbg = dbg;
+    _dbg = dbg;
 }
 
 
