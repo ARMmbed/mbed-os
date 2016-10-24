@@ -23,6 +23,8 @@
 // In this case, bits which are equal to 0 are the bits reserved in this register
 #define SCB_ICSR_RESERVED_BITS_MASK     0x9E43F03F
 
+#define FPU_EXCEPTION_MASK 0x0000009F
+
 void sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
