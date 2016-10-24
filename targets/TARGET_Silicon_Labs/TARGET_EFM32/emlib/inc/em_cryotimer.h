@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_cryotimer.h
  * @brief Ultra Low Energy Timer/Counter (CRYOTIMER) peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef EM_CRYOTIMER_H__
-#define EM_CRYOTIMER_H__
+#ifndef EM_CRYOTIMER_H
+#define EM_CRYOTIMER_H
 
 #include <stdbool.h>
 #include "em_device.h"
@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -53,20 +53,55 @@ extern "C" {
  * @brief Ultra Low Energy Timer/Counter (CRYOTIMER) Peripheral API
  *
  * @details
- *   The user is responsible for choosing which oscillator to use for the
- *   CRYOTIMER. The oscillator that is choosen must be enabled and ready before
- *   calling this @ref CRYOTIMER_Init function. See @ref CMU_OscillatorEnable
- *   for details of how to enable and wait for an oscillator to become ready.
- *   Note that ULFRCO is always ready while LFRCO and LFXO must be enable by
- *   the user.
+ *   The CRYOTIMER is a 32 bit counter which operates on a low frequency
+ *   oscillator, and is capable of running in all Energy Modes. It can provide
+ *   periodic wakeup events and PRS signals which can be used to wake up
+ *   peripherals from any energy mode. The CRYOTIMER provides a very wide range
+ *   of periods for the interrupts facilitating flexible ultra-low energy
+ *   operation. Because of its simplicity, the CRYOTIMER is a lower energy
+ *   solution for periodically waking up the MCU compared to the RTCC.
+ *
+ *   To configure the CRYOTIMER you call the @ref CRYOTIMER_Init function.
+ *   This function will configure the CRYOTIMER peripheral according to the
+ *   user configuration.
+ *
+ * @details
+ *   When using the CRYOTIMER the user has to choose which oscillator to use
+ *   as the CRYOTIMER clock. The CRYOTIMER supports 3 low frequency clock
+ *   these are LFXO, LFRCO and ULFRCO. The oscillator that is chosen must be
+ *   enabled and ready before calling this @ref CRYOTIMER_Init function.
+ *   See @ref CMU_OscillatorEnable for details of how to enable and wait for an
+ *   oscillator to become ready. Note that ULFRCO is always ready while LFRCO
+ *   @ref cmuOsc_LFRCO and LFXO @ref cmuOsc_LFXO must be enabled by the user.
  *
  * @details
  *   Note that the only oscillator which is running in EM3 is ULFRCO. Keep this
  *   in mind when choosing which oscillator to use for the CRYOTIMER.
  *
+ *   Here is an example of how to use the CRYOTIMER to generate an interrupt
+ *   at a configurable period.
+ *
+ * @include em_cryotimer_period.c
+ *
  * @details
- *   Special care must be taken if the user wants the CRYOTIMER to run during
- *   EM4. All the low frequency oscillators can be used in EM4, however the
+ *   To use the CRYOTIMER in EM4 the user has to enable EM4 wakeup in the
+ *   CRYOTIMER. This can be done either in the @ref CRYOTIMER_Init_TypeDef
+ *   structure when initializing the CRYOTIMER or at a later time by using
+ *   @ref CRYOTIMER_EM4WakeupEnable.
+ *
+ *   Note that when using the CRYOTIMER to wakeup from EM4 the application has
+ *   the responsibility to clear the wakeup event. This is done by calling
+ *   @ref CRYOTIMER_IntClear. If the user does not clear the wakeup event then
+ *   the wakeup event will stay pending and will cause an immediate wakeup the
+ *   next time the application attempts to enter EM4.
+ *
+ *   Here is an example of how to use the CRYOTIMER to wakeup from EM4 after
+ *   a configurable amount of time.
+ *
+ * @include em_cryotimer_em4.c
+ *
+ * @details
+ *   All the low frequency oscillators can be used in EM4, however the
  *   oscillator that is used must be be configured to be retained when going
  *   into EM4. This can be configured by using functions in the @ref EMU module.
  *   See @ref EMU_EM4Init and @ref EMU_EM4Init_TypeDef. If an oscillator is
@@ -94,7 +129,7 @@ typedef enum
 } CRYOTIMER_Presc_TypeDef;
 
 /** Low frequency oscillator selection. */
-typedef enum 
+typedef enum
 {
   cryotimerOscLFRCO   = _CRYOTIMER_CTRL_OSCSEL_LFRCO,  /**< Select Low Frequency RC Oscillator. */
   cryotimerOscLFXO    = _CRYOTIMER_CTRL_OSCSEL_LFXO,   /**< Select Low Frequency Crystal Oscillator. */
@@ -189,7 +224,7 @@ typedef struct
  *   Clear the CRYOTIMER period interrupt.
  *
  * @param[in] flags
- *   CRYOTIMER interrupt sources to clear. Use CRYOTIMER_IFC_PERIOD
+ *   CRYOTIMER interrupt sources to clear. Use @ref CRYOTIMER_IFC_PERIOD
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntClear(uint32_t flags)
 {
@@ -199,12 +234,13 @@ __STATIC_INLINE void CRYOTIMER_IntClear(uint32_t flags)
 /***************************************************************************//**
  * @brief
  *   Get the CRYOTIMER interrupt flag.
- * 
+ *
  * @note
  *   The event bits are not cleared by the use of this function.
  *
  * @return
- *   Pending CRYOTIMER interrupt sources.
+ *   Pending CRYOTIMER interrupt sources. The only interrupt source available
+ *   for the CRYOTIMER is @ref CRYOTIMER_IF_PERIOD.
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYOTIMER_IntGet(void)
 {
@@ -238,7 +274,7 @@ __STATIC_INLINE uint32_t CRYOTIMER_IntGetEnabled(void)
  *   Enable one or more CRYOTIMER interrupts.
  *
  * @param[in] flags
- *   CRYOTIMER interrupt sources to enable. Use CRYOTIMER_IEN_PERIOD.
+ *   CRYOTIMER interrupt sources to enable. Use @ref CRYOTIMER_IEN_PERIOD.
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntEnable(uint32_t flags)
 {
@@ -250,7 +286,7 @@ __STATIC_INLINE void CRYOTIMER_IntEnable(uint32_t flags)
  *   Disable one or more CRYOTIMER interrupts.
  *
  * @param[in] flags
- *   CRYOTIMER interrupt sources to disable. Use CRYOTIMER_IEN_PERIOD.
+ *   CRYOTIMER interrupt sources to disable. Use @ref CRYOTIMER_IEN_PERIOD.
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntDisable(uint32_t flags)
 {
@@ -265,7 +301,8 @@ __STATIC_INLINE void CRYOTIMER_IntDisable(uint32_t flags)
  *   Writes 1 to the interrupt flag set register.
  *
  * @param[in] flags
- *   CRYOTIMER interrupt sources to set to pending. Use CRYOTIMER_IFS_PERIOD.
+ *   CRYOTIMER interrupt sources to set to pending. Use
+ *   @ref CRYOTIMER_IFS_PERIOD.
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntSet(uint32_t flags)
 {
@@ -277,12 +314,12 @@ __STATIC_INLINE void CRYOTIMER_IntSet(uint32_t flags)
  *   Set the CRYOTIMER period select
  *
  * @note
- *   Sets the duration between the Interrupts/Wakeup events based on 
+ *   Sets the duration between the Interrupts/Wakeup events based on
  *   the pre-scaled clock.
  *
  * @param[in] period
- *   2^period is the number of clock cycles before a wakeup event or 
- *   interrupt is triggered. The CRYOTIMER_Periodsel_TypeDef enum can 
+ *   2^period is the number of clock cycles before a wakeup event or
+ *   interrupt is triggered. The CRYOTIMER_Periodsel_TypeDef enum can
  *   be used a convenience type when calling this function.
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_PeriodSet(uint32_t period)
@@ -295,7 +332,7 @@ __STATIC_INLINE void CRYOTIMER_PeriodSet(uint32_t period)
  *   Get the CRYOTIMER period select value
  *
  * @note
- *   Gets the duration between the Interrupts/Wakeup events in the 
+ *   Gets the duration between the Interrupts/Wakeup events in the
  *   CRYOTIMER.
  *
  * @return
@@ -351,7 +388,7 @@ void CRYOTIMER_Init(const CRYOTIMER_Init_TypeDef *init);
 #endif
 
 /** @} (end addtogroup CRYOTIMER) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #endif /* defined(CRYOTIMER_PRESENT) && (CRYOTIMER_COUNT == 1) */
-#endif /* EM_CRYOTIMER_H__ */
+#endif /* EM_CRYOTIMER_H */

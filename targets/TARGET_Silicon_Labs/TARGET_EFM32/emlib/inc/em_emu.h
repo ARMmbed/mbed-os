@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_emu.h
  * @brief Energy management unit (EMU) peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_EMU_H__
-#define __SILICON_LABS_EM_EMU_H__
+#ifndef EM_EMU_H
+#define EM_EMU_H
 
 #include "em_device.h"
 #if defined( EMU_PRESENT )
@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -169,6 +169,10 @@ typedef enum
   emuDcdcMode_Bypass = EMU_DCDCCTRL_DCDCMODE_BYPASS,
   /** DCDC low-noise mode */
   emuDcdcMode_LowNoise = EMU_DCDCCTRL_DCDCMODE_LOWNOISE,
+#if defined(_EMU_DCDCLPEM01CFG_MASK)
+  /** DCDC low-power mode */
+  emuDcdcMode_LowPower = EMU_DCDCCTRL_DCDCMODE_LOWPOWER,
+#endif
 } EMU_DcdcMode_TypeDef;
 #endif
 
@@ -184,41 +188,64 @@ typedef enum
 #endif
 
 #if defined( _EMU_DCDCMISCCTRL_MASK )
-/** DCDC Low-noise efficiency mode */
-typedef enum
-{
-#if defined( _EFM_DEVICE )
-  /** High efficiency mode */
-  emuDcdcLnHighEfficiency = 0,
+/** DCDC Forced CCM and reverse current limiter control. Positive values have unit mA. */
+typedef int16_t EMU_DcdcLnReverseCurrentControl_TypeDef;
+
+/** High efficiency mode. EMU_DCDCZDETCTRL_ZDETILIMSEL is "don't care". */
+#define emuDcdcLnHighEfficiency       -1
+
+/** Deprecated. Fast transient response mode. Specify a reverse current limit instead.  */
+#define emuDcdcLnFastTransient         160
 #endif
-  /** Fast transient response mode */
-  emuDcdcLnFastTransient = EMU_DCDCMISCCTRL_LNFORCECCM,
-} EMU_DcdcLnTransientMode_TypeDef;
-#endif
+
 
 #if defined( _EMU_DCDCCTRL_MASK )
 /** DCDC Low-noise RCO band select */
 typedef enum
 {
   /** Set RCO to 3MHz */
-  EMU_DcdcLnRcoBand_3MHz = 0,
+  emuDcdcLnRcoBand_3MHz = 0,
   /** Set RCO to 4MHz */
-  EMU_DcdcLnRcoBand_4MHz = 1,
+  emuDcdcLnRcoBand_4MHz = 1,
   /** Set RCO to 5MHz */
-  EMU_DcdcLnRcoBand_5MHz = 2,
+  emuDcdcLnRcoBand_5MHz = 2,
   /** Set RCO to 6MHz */
-  EMU_DcdcLnRcoBand_6MHz = 3,
+  emuDcdcLnRcoBand_6MHz = 3,
   /** Set RCO to 7MHz */
-  EMU_DcdcLnRcoBand_7MHz = 4,
+  emuDcdcLnRcoBand_7MHz = 4,
   /** Set RCO to 8MHz */
-  EMU_DcdcLnRcoBand_8MHz = 5,
+  emuDcdcLnRcoBand_8MHz = 5,
   /** Set RCO to 9MHz */
-  EMU_DcdcLnRcoBand_9MHz = 6,
+  emuDcdcLnRcoBand_9MHz = 6,
   /** Set RCO to 10MHz */
-  EMU_DcdcLnRcoBand_10MHz = 7,
+  emuDcdcLnRcoBand_10MHz = 7,
 } EMU_DcdcLnRcoBand_TypeDef;
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/* Deprecated. */
+#define EMU_DcdcLnRcoBand_3MHz          emuDcdcLnRcoBand_3MHz
+#define EMU_DcdcLnRcoBand_4MHz          emuDcdcLnRcoBand_4MHz
+#define EMU_DcdcLnRcoBand_5MHz          emuDcdcLnRcoBand_5MHz
+#define EMU_DcdcLnRcoBand_6MHz          emuDcdcLnRcoBand_6MHz
+#define EMU_DcdcLnRcoBand_7MHz          emuDcdcLnRcoBand_7MHz
+#define EMU_DcdcLnRcoBand_8MHz          emuDcdcLnRcoBand_8MHz
+#define EMU_DcdcLnRcoBand_9MHz          emuDcdcLnRcoBand_9MHz
+#define EMU_DcdcLnRcoBand_10MHz         emuDcdcLnRcoBand_10MHz
+/** @endcond */
 #endif
+
+
+#if defined( _EMU_DCDCCTRL_MASK )
+/** DCDC Low Noise Compensator Control register. */
+typedef enum
+{
+  /** DCDC capacitor is 1uF. */
+  emuDcdcLnCompCtrl_1u0F,
+  /** DCDC capacitor is 4.7uF. */
+  emuDcdcLnCompCtrl_4u7F,
+} EMU_DcdcLnCompCtrl_TypeDef;
+#endif
+
 
 #if defined( EMU_STATUS_VMONRDY )
 /** VMON channels */
@@ -230,6 +257,16 @@ typedef enum
   emuVmonChannel_IOVDD0
 } EMU_VmonChannel_TypeDef;
 #endif /* EMU_STATUS_VMONRDY */
+
+#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+/** Bias mode configurations */
+typedef enum
+{
+  emuBiasMode_1KHz,
+  emuBiasMode_4KHz,
+  emuBiasMode_Continuous
+} EMU_BiasMode_TypeDef;
+#endif
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
@@ -344,9 +381,9 @@ typedef struct
 typedef struct
 {
   EMU_PowerConfig_TypeDef powerConfig;                  /**< Device external power configuration */
-  EMU_DcdcMode_TypeDef dcdcMode;                        /**< DCDC regulator operating mode in EM0 */
+  EMU_DcdcMode_TypeDef dcdcMode;                        /**< DCDC regulator operating mode in EM0/1 */
   uint16_t mVout;                                       /**< Target output voltage (mV) */
-  uint16_t em01LoadCurrent_mA;                          /**< Estimated average load current in EM0 (mA).
+  uint16_t em01LoadCurrent_mA;                          /**< Estimated average load current in EM0/1 (mA).
                                                              This estimate is also used for EM1 optimization,
                                                              so if EM1 current is expected to be higher than EM0,
                                                              then this parameter should hold the higher EM1 current. */
@@ -354,86 +391,130 @@ typedef struct
                                                              This estimate is also used for EM3 and 4 optimization,
                                                              so if EM3 or 4 current is expected to be higher than EM2,
                                                              then this parameter should hold the higher EM3 or 4 current. */
-  uint16_t maxCurrent_mA;                               /**< Maximum peak DCDC output current (mA).
+  uint16_t maxCurrent_mA;                               /**< Maximum average DCDC output current (mA).
                                                              This can be set to the maximum for the power source,
                                                              for example the maximum for a battery. */
-  EMU_DcdcAnaPeripheralPower_TypeDef anaPeripheralPower;/**< Select analog peripheral power in DCDC-to-DVDD mode */
-  EMU_DcdcLnTransientMode_TypeDef lnTransientMode;      /**< Low-noise transient mode */
-
+  EMU_DcdcAnaPeripheralPower_TypeDef
+    anaPeripheralPower;                                 /**< Select analog peripheral power in DCDC-to-DVDD mode */
+  EMU_DcdcLnReverseCurrentControl_TypeDef
+    reverseCurrentControl;                              /**< Low-noise reverse current control.
+                                                             NOTE: this parameter uses special encoding:
+                                                             >= 0 is forced CCM mode where the parameter is used as the
+                                                                  reverse current threshold in mA.
+                                                             -1   is encoded as emuDcdcLnHighEfficiencyMode (EFM32 only) */
+  EMU_DcdcLnCompCtrl_TypeDef dcdcLnCompCtrl;            /**< DCDC Low-noise mode compensator control. */
 } EMU_DCDCInit_TypeDef;
 
 /** Default DCDC initialization */
 #if defined( _EFM_DEVICE )
+#if defined(_SILICON_LABS_32B_SERIES_1_CONFIG) && (_SILICON_LABS_32B_SERIES_1_CONFIG >= 2)
 #define EMU_DCDCINIT_DEFAULT                                                                                    \
 {                                                                                                               \
   emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
   emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 (can be set to LowPower on EFM32PG revB0) */          \
   1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
-  5,                             /* Nominal EM0 load current of less than 5mA */                                \
-  10,                            /* Nominal EM2/3 load current less than 10uA  */                               \
-  160,                           /* Maximum peak current of 160mA */                                            \
+  5,                             /* Nominal EM0/1 load current of less than 5mA */                              \
+  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
+  200,                           /* Maximum average current of 200mA
+                                    (assume strong battery or other power source) */                            \
   emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
-  emuDcdcLnHighEfficiency,       /* Use low-noise high-efficiency mode (ignored if emuDcdcMode_LowPower) */     \
+  emuDcdcLnHighEfficiency,       /* Use high-efficiency mode */                                                 \
+  emuDcdcLnCompCtrl_4u7F,        /* 4.7uF DCDC capacitor */                                                     \
 }
+
+#else
+#define EMU_DCDCINIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
+  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 (can be set to LowPower on EFM32PG revB0) */          \
+  1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
+  5,                             /* Nominal EM0/1 load current of less than 5mA */                              \
+  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
+  200,                           /* Maximum average current of 200mA
+                                    (assume strong battery or other power source) */                            \
+  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
+  emuDcdcLnHighEfficiency,       /* Use high-efficiency mode */                                                 \
+  emuDcdcLnCompCtrl_1u0F,        /* 1uF DCDC capacitor */                                                       \
+}
+#endif
+
 #else /* EFR32 device */
+#if defined(_SILICON_LABS_32B_SERIES_1_CONFIG) && (_SILICON_LABS_32B_SERIES_1_CONFIG >= 2)
 #define EMU_DCDCINIT_DEFAULT                                                                                    \
 {                                                                                                               \
   emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
   emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 */                                                    \
   1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
-  15,                             /* Nominal EM0 load current of less than 5mA */                               \
-  10,                            /* Nominal EM2/3 load current less than 10uA  */                               \
-  160,                           /* Maximum peak current of 160mA */                                            \
-  emuDcdcAnaPeripheralPower_AVDD,/* Select AVDD as analog power supply (less noise) */                          \
-  emuDcdcLnFastTransient,        /* Use low-noise fast-transient mode */                                        \
+  15,                            /* Nominal EM0/1 load current of less than 15mA */                             \
+  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
+  200,                           /* Maximum average current of 200mA
+                                    (assume strong battery or other power source) */                            \
+  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
+  160,                           /* Maximum reverse current of 160mA */                                         \
+  emuDcdcLnCompCtrl_4u7F,        /* 4.7uF DCDC capacitor */                                                     \
+}
+
+#else
+#define EMU_DCDCINIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
+  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 */                                                    \
+  1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
+  15,                            /* Nominal EM0/1 load current of less than 15mA */                             \
+  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
+  200,                           /* Maximum average current of 200mA
+                                    (assume strong battery or other power source) */                            \
+  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
+  160,                           /* Maximum reverse current of 160mA */                                         \
+  emuDcdcLnCompCtrl_1u0F,        /* 1uF DCDC capacitor */                                                       \
 }
 #endif
-
+#endif
 #endif
 
 #if defined( EMU_STATUS_VMONRDY )
 /** VMON initialization structure */
 typedef struct
 {
-  EMU_VmonChannel_TypeDef channel;                 /**< VMON channel to configure */
-  int threshold;                                   /**< Trigger threshold (mV) */
-  bool riseWakeup;                                 /**< Wake up from EM4H on rising edge */
-  bool fallWakeup;                                 /**< Wake up from EM4H on falling edge */
-  bool enable;                                     /**< Enable VMON channel */
-  bool retDisable;                                 /**< Disable IO0 retention when voltage drops below threshold (IOVDD only) */
+  EMU_VmonChannel_TypeDef channel;      /**< VMON channel to configure */
+  int threshold;                        /**< Trigger threshold (mV) */
+  bool riseWakeup;                      /**< Wake up from EM4H on rising edge */
+  bool fallWakeup;                      /**< Wake up from EM4H on falling edge */
+  bool enable;                          /**< Enable VMON channel */
+  bool retDisable;                      /**< Disable IO0 retention when voltage drops below threshold (IOVDD only) */
 } EMU_VmonInit_TypeDef;
 
 /** Default VMON initialization structure */
-#define EMU_VMONINIT_DEFAULT                                               \
-{                                                                          \
-  emuVmonChannel_AVDD,          /* AVDD VMON channel */                    \
-  3200,                         /* 3.2 V threshold */                      \
-  false,                        /* Don't wake from EM4H on rising edge */  \
-  false,                        /* Don't wake from EM4H on falling edge */ \
-  true,                         /* Enable VMON channel */                  \
-  false                         /* Don't disable IO0 retention */          \
+#define EMU_VMONINIT_DEFAULT                                                       \
+{                                                                                  \
+  emuVmonChannel_AVDD,                  /* AVDD VMON channel */                    \
+  3200,                                 /* 3.2 V threshold */                      \
+  false,                                /* Don't wake from EM4H on rising edge */  \
+  false,                                /* Don't wake from EM4H on falling edge */ \
+  true,                                 /* Enable VMON channel */                  \
+  false                                 /* Don't disable IO0 retention */          \
 }
 
 /** VMON Hysteresis initialization structure */
 typedef struct
 {
-  EMU_VmonChannel_TypeDef channel;                     /**< VMON channel to configure */
-  int riseThreshold;                                   /**< Rising threshold (mV) */
-  int fallThreshold;                                   /**< Falling threshold (mV) */
-  bool riseWakeup;                                     /**< Wake up from EM4H on rising edge */
-  bool fallWakeup;                                     /**< Wake up from EM4H on falling edge */
-  bool enable;                                         /**< Enable VMON channel */
+  EMU_VmonChannel_TypeDef channel;      /**< VMON channel to configure */
+  int riseThreshold;                    /**< Rising threshold (mV) */
+  int fallThreshold;                    /**< Falling threshold (mV) */
+  bool riseWakeup;                      /**< Wake up from EM4H on rising edge */
+  bool fallWakeup;                      /**< Wake up from EM4H on falling edge */
+  bool enable;                          /**< Enable VMON channel */
 } EMU_VmonHystInit_TypeDef;
 
 /** Default VMON Hysteresis initialization structure */
-#define EMU_VMONHYSTINIT_DEFAULT                                           \
-{                                                                          \
-  emuVmonChannel_AVDD,          /* AVDD VMON channel */                    \
-  3200,                         /* 3.2 V rise threshold */                 \
-  3200,                         /* 3.2 V fall threshold */                 \
-  false,                        /* Don't wake from EM4H on rising edge */  \
-  false,                        /* Don't wake from EM4H on falling edge */ \
-  true                          /* Enable VMON channel */                  \
+#define EMU_VMONHYSTINIT_DEFAULT                                                   \
+{                                                                                  \
+  emuVmonChannel_AVDD,                  /* AVDD VMON channel */                    \
+  3200,                                 /* 3.2 V rise threshold */                 \
+  3200,                                 /* 3.2 V fall threshold */                 \
+  false,                                /* Don't wake from EM4H on rising edge */  \
+  false,                                /* Don't wake from EM4H on falling edge */ \
+  true                                  /* Enable VMON channel */                  \
 }
 #endif /* EMU_STATUS_VMONRDY */
 
@@ -459,6 +540,10 @@ void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init);
 void EMU_EnterEM2(bool restore);
 void EMU_EnterEM3(bool restore);
 void EMU_EnterEM4(void);
+#if defined( _EMU_EM4CTRL_MASK )
+void EMU_EnterEM4H(void);
+void EMU_EnterEM4S(void);
+#endif
 void EMU_MemPwrDown(uint32_t blocks);
 void EMU_UpdateOscConfig(void);
 #if defined( BU_PRESENT )
@@ -720,12 +805,16 @@ __STATIC_INLINE void EMU_UnlatchPinRetention(void)
 }
 #endif
 
+#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+void EMU_SetBiasMode(EMU_BiasMode_TypeDef mode);
+#endif
+
 /** @} (end addtogroup EMU) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined( EMU_PRESENT ) */
-#endif /* __SILICON_LABS_EM_EMU_H__ */
+#endif /* EM_EMU_H */
