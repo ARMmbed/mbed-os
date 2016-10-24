@@ -578,14 +578,14 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
             irq_n = USART3_IRQn;
             break;
 #endif
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
         case 3:
-            irq_n = USART4_IRQn;
+            irq_n = UART4_IRQn;
             break;
 #endif
-#if defined(USART5_BASE)
+#if defined(UART5_BASE)
         case 4:
-            irq_n = USART5_IRQn;
+            irq_n = UART5_IRQn;
             break;
 #endif
         default:
