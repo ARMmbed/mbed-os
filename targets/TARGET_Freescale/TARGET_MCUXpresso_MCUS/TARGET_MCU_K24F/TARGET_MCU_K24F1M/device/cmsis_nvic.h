@@ -32,20 +32,14 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#define NVIC_NUM_VECTORS      (16 + 86)   // CORE + MCU Peripherals
-#define NVIC_USER_IRQ_OFFSET  16
+#if defined(__CC_ARM)
+extern uint32_t Image$$VECTOR_RAM$$Base[];
+#define __VECTOR_RAM Image$$VECTOR_RAM$$Base
+#else
+extern uint32_t __VECTOR_RAM[];
+#endif /* defined(__CC_ARM) */
 
-#include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t __NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
+#define NVIC_NUM_VECTORS        (16 + 86)   // CORE + MCU Peripherals
+#define NVIC_RAM_VECTOR_ADDRESS (__VECTOR_RAM)    // Vectors positioned at start of RAM
 
 #endif
