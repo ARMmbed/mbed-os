@@ -30,6 +30,7 @@
 #include "PeripheralNames.h"
 #include "hal_tick.h"
 
+// A 16-bit timer is used
 #if TIM_MST_16BIT
 
 static TIM_HandleTypeDef TimMasterHandle;
