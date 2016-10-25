@@ -66,10 +66,13 @@ static void ipv4_from_address(uint8_t *bytes, const char *addr)
     int i = 0;
 
     for (; count < NSAPI_IPv4_BYTES; count++) {
-        int scanned = sscanf(&addr[i], "%hhu", &bytes[count]);
+        unsigned char b;
+        int scanned = sscanf(&addr[i], "%hhu", &b);
         if (scanned < 1) {
             return;
         }
+
+        bytes[count] = b;
 
         for (; addr[i] != '.'; i++) {
             if (!addr[i]) {
@@ -86,10 +89,13 @@ static int ipv6_scan_chunk(uint16_t *shorts, const char *chunk) {
     int i = 0;
 
     for (; count < NSAPI_IPv6_BYTES/2; count++) {
-        int scanned = sscanf(&chunk[i], "%hx", &shorts[count]);
+        unsigned short s;
+        int scanned = sscanf(&chunk[i], "%hx", &s);
         if (scanned < 1) {
             return count;
         }
+
+        shorts[count] = s;
 
         for (; chunk[i] != ':'; i++) {
             if (!chunk[i]) {
@@ -107,8 +113,6 @@ static void ipv6_from_address(uint8_t *bytes, const char *addr)
 {
     // Start with zeroed address
     uint16_t shorts[NSAPI_IPv6_BYTES/2];
-    memset(shorts, 0, sizeof shorts);
-
     int suffix = 0;
 
     // Find double colons and scan suffix
@@ -122,6 +126,8 @@ static void ipv6_from_address(uint8_t *bytes, const char *addr)
     // Move suffix to end
     memmove(&shorts[NSAPI_IPv6_BYTES/2-suffix], &shorts[0],
             suffix*sizeof(uint16_t));
+    memset(&shorts[0], 0,
+            (NSAPI_IPv6_BYTES/2-suffix)*sizeof(uint16_t));
 
     // Scan prefix
     ipv6_scan_chunk(shorts, &addr[0]);
