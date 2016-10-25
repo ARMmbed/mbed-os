@@ -47,10 +47,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
 
-    // Need to initialize the clocks here as ticker init gets called before mbed_sdk_init
-    if (SystemCoreClock == DEFAULT_SYSTEM_CLOCK)
-        BOARD_BootClockRUN();
-
     uart_config_t config;
 
     UART_GetDefaultConfig(&config);
@@ -99,7 +95,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         if (parity == ParityOdd) {
             temp |= UART_C1_PT_MASK;
         } else if (parity == ParityEven) {
-            // PT=0 so nothing more to do  
+            // PT=0 so nothing more to do
         } else {
             // Hardware does not support forced parity
             MBED_ASSERT(0);
