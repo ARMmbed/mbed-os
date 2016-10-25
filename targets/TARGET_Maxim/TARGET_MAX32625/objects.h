@@ -75,7 +75,8 @@ struct serial_s {
     uint32_t id;
     uart_cfg_t cfg;
     sys_cfg_uart_t sys_cfg;
-    PinName tx_pin;
+    PinName tx;
+    PinName rx;
 };
 
 struct i2c_s {

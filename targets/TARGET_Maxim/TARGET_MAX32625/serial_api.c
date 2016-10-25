@@ -81,8 +81,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
 
-    // Save transmit pin for break function
-    obj->tx_pin = tx;
+    // Record the pins requested
+    obj->tx = tx;
+    obj->rx = rx;
 
     // Merge pin function requests for use with CMSIS init func
     ioman_req_t io_req = {0};
@@ -249,12 +250,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 //******************************************************************************
 int serial_getc(serial_t *obj)
 {
-    int c;
+    int c = 0;
 
-    // Wait for data to be available
-    while ((obj->uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY) == 0);
+    if (obj->rx != NC) {
+        // Wait for data to be available
+        while ((obj->uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY) == 0);
 
-    c = obj->fifo->rx;
+        c = obj->fifo->rx;
+    }
 
     return c;
 }
@@ -262,13 +265,15 @@ int serial_getc(serial_t *obj)
 //******************************************************************************
 void serial_putc(serial_t *obj, int c)
 {
-    // Wait for room in the FIFO without blocking interrupts.
-    while (UART_NumWriteAvail(obj->uart) == 0);
+    if (obj->tx != NC) {
+        // Wait for room in the FIFO without blocking interrupts.
+        while (UART_NumWriteAvail(obj->uart) == 0);
 
-    // Must clear before every write to the buffer to know that the FIFO
-    // is empty when the TX DONE bit is set
-    obj->uart->intfl = MXC_F_UART_INTFL_TX_DONE;
-    obj->fifo->tx = (uint8_t)c;
+        // Must clear before every write to the buffer to know that the FIFO
+        // is empty when the TX DONE bit is set
+        obj->uart->intfl = MXC_F_UART_INTFL_TX_DONE;
+        obj->fifo->tx = (uint8_t)c;
+    }
 }
 
 //******************************************************************************
@@ -300,10 +305,10 @@ void serial_break_set(serial_t *obj)
     while (!(obj->uart->intfl & MXC_F_UART_INTFL_TX_DONE));
 
     // Configure TX to output 0
-    usurp_pin(obj->tx_pin, 0);
+    usurp_pin(obj->tx, 0);
 
     // GPIO is setup now, but we need to unmap UART from the pin
-    pin_function_t *pin_func = (pin_function_t *)pinmap_find_function(obj->tx_pin, PinMap_UART_TX);
+    pin_function_t *pin_func = (pin_function_t *)pinmap_find_function(obj->tx, PinMap_UART_TX);
     *pin_func->reg_req &= ~MXC_F_IOMAN_UART_REQ_IO_REQ;
     MBED_ASSERT((*pin_func->reg_ack & MXC_F_IOMAN_UART_ACK_IO_ACK) == 0);
 }
@@ -312,9 +317,9 @@ void serial_break_set(serial_t *obj)
 void serial_break_clear(serial_t *obj)
 {
     // Configure TX to output 1
-    usurp_pin(obj->tx_pin, 1);
+    usurp_pin(obj->tx, 1);
     // Return TX to UART control
-    serial_pinout_tx(obj->tx_pin);
+    serial_pinout_tx(obj->tx);
 }
 
 //******************************************************************************
