@@ -90,36 +90,30 @@ __Vectors:
   /* External Interrupts */
     .long 	POWER_CLOCK_IRQHandler		 /*POWER_CLOCK */
     .long 	RADIO_IRQHandler		 /*RADIO */
-    .long 	UART0_IRQHandler		 /*UART0 */
-    .long 	SPI0_TWI0_IRQHandler		 /*SPI0_TWI0 */
-    .long 	SPI1_TWI1_IRQHandler		 /*SPI1_TWI1 */
+    .long 	UART0_IRQHandler_v		 /*UART0 */
+    .long 	SPI0_TWI0_IRQHandler_v		 /*SPI0_TWI0 */
+    .long 	SPI1_TWI1_IRQHandler_v		 /*SPI1_TWI1 */
     .long 	0		 /*Reserved */
-    .long 	GPIOTE_IRQHandler		 /*GPIOTE */
-    .long 	ADC_IRQHandler		 /*ADC */
+    .long 	GPIOTE_IRQHandler_v		 /*GPIOTE */
+    .long 	ADC_IRQHandler_v		 /*ADC */
     .long 	TIMER0_IRQHandler		 /*TIMER0 */
-    .long 	TIMER1_IRQHandler		 /*TIMER1 */
-    .long 	TIMER2_IRQHandler		 /*TIMER2 */
+    .long 	TIMER1_IRQHandler_v	 /*TIMER1 */
+    .long 	TIMER2_IRQHandler_v		 /*TIMER2 */
     .long 	RTC0_IRQHandler		 /*RTC0 */
     .long 	TEMP_IRQHandler		 /*TEMP */
     .long 	RNG_IRQHandler		 /*RNG */
     .long 	ECB_IRQHandler		 /*ECB */
     .long 	CCM_AAR_IRQHandler		 /*CCM_AAR */
-    .long 	WDT_IRQHandler		 /*WDT */
-    .long 	RTC1_IRQHandler		 /*RTC1 */
-    .long 	QDEC_IRQHandler		 /*QDEC */
-    .long 	LPCOMP_IRQHandler		 /*LPCOMP */
-    .long 	SWI0_IRQHandler		 /*SWI0 */
-    .long 	SWI1_IRQHandler		 /*SWI1 */
-    .long 	SWI2_IRQHandler		 /*SWI2 */
-    .long 	SWI3_IRQHandler		 /*SWI3 */
+    .long 	WDT_IRQHandler_v		 /*WDT */
+    .long 	RTC1_IRQHandler_v		 /*RTC1 */
+    .long 	QDEC_IRQHandler_v		 /*QDEC */
+    .long 	LPCOMP_IRQHandler_v		 /*LPCOMP */
+    .long 	SWI0_IRQHandler_v		 /*SWI0 */
+    .long 	SWI1_IRQHandler_v		 /*SWI1 */
+    .long 	SWI2_IRQHandler_v		 /*SWI2 */
+    .long 	SWI3_IRQHandler_v		 /*SWI3 */
     .long 	SWI4_IRQHandler		 /*SWI4 */
     .long 	SWI5_IRQHandler		 /*SWI5 */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
-    .long 	0		 /*Reserved */
 
 
     .size    __Vectors, . - __Vectors
@@ -172,6 +166,8 @@ Reset_Handler:
 .LC0:
 
     LDR     R0, =SystemInit
+    BLX     R0
+    LDR     R0, =nrf_reloc_vector_table
     BLX     R0
     LDR     R0, =_start
     BX      R0
@@ -234,31 +230,31 @@ Default_Handler:
     .set    \handler, Default_Handler
     .endm
 
-    IRQ  POWER_CLOCK_IRQHandler
-    IRQ  RADIO_IRQHandler
-    IRQ  UART0_IRQHandler
-    IRQ  SPI0_TWI0_IRQHandler
-    IRQ  SPI1_TWI1_IRQHandler
-    IRQ  GPIOTE_IRQHandler
-    IRQ  ADC_IRQHandler
-    IRQ  TIMER0_IRQHandler
-    IRQ  TIMER1_IRQHandler
-    IRQ  TIMER2_IRQHandler
-    IRQ  RTC0_IRQHandler
-    IRQ  TEMP_IRQHandler
-    IRQ  RNG_IRQHandler
-    IRQ  ECB_IRQHandler
-    IRQ  CCM_AAR_IRQHandler
-    IRQ  WDT_IRQHandler
-    IRQ  RTC1_IRQHandler
-    IRQ  QDEC_IRQHandler
-    IRQ  LPCOMP_IRQHandler
-    IRQ  SWI0_IRQHandler
-    IRQ  SWI1_IRQHandler
-    IRQ  SWI2_IRQHandler
-    IRQ  SWI3_IRQHandler
-    IRQ  SWI4_IRQHandler
-    IRQ  SWI5_IRQHandler
+    IRQ  POWER_CLOCK_IRQHandler     /* restricted */
+    IRQ  RADIO_IRQHandler           /* blocked */
+    IRQ  UART0_IRQHandler_v
+    IRQ  SPI0_TWI0_IRQHandler_v
+    IRQ  SPI1_TWI1_IRQHandler_v
+    IRQ  GPIOTE_IRQHandler_v
+    IRQ  ADC_IRQHandler_v
+    IRQ  TIMER0_IRQHandler          /* blocked */
+    IRQ  TIMER1_IRQHandler_v
+    IRQ  TIMER2_IRQHandler_v
+    IRQ  RTC0_IRQHandler          /* blocked */
+    IRQ  TEMP_IRQHandler          /* restricted */
+    IRQ  RNG_IRQHandler           /* restricted */
+    IRQ  ECB_IRQHandler           /* restricted */
+    IRQ  CCM_AAR_IRQHandler       /* blocked */
+    IRQ  WDT_IRQHandler_v
+    IRQ  RTC1_IRQHandler_v
+    IRQ  QDEC_IRQHandler_v
+    IRQ  LPCOMP_IRQHandler_v
+    IRQ  SWI0_IRQHandler_v
+    IRQ  SWI1_IRQHandler_v         /* restricted for Radio Notification */
+    IRQ  SWI2_IRQHandler_v         /* blocked for SoftDevice Event */
+    IRQ  SWI3_IRQHandler_v
+    IRQ  SWI4_IRQHandler         /* blocked */
+    IRQ  SWI5_IRQHandler         /* blocked */
 
 
   .end
