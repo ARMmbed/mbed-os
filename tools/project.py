@@ -12,6 +12,7 @@ from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES
 from tools.export import EXPORTERS, mcu_ide_matrix
+from tools.export.exporters import TargetNotSupportedException
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
 from tools.targets import TARGET_NAMES
@@ -234,10 +235,13 @@ def main():
         # Export to selected toolchain
     _, toolchain_name = get_exporter_toolchain(options.ide)
     profile = extract_profile(parser, options, toolchain_name)
-    export(options.mcu, options.ide, build=options.build,
+    try:
+        export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
            project_id=options.program, clean=options.clean,
            zip_proj=zip_proj, build_profile=profile)
+    except TargetNotSupportedException:
+        print "Your target is not supported for the selected IDE."
 
 
 if __name__ == "__main__":

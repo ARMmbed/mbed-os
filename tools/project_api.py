@@ -229,10 +229,14 @@ def export_project(src_paths, export_path, target, ide,
                                              macros=macros)
     files.append(config_header)
     if zip_proj:
-        if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, resource_dict, files, inc_repos)
-        else:
-            zip_export(zip_proj, name, resource_dict, files, inc_repos)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            if isinstance(zip_proj, basestring):
+                zip_export(join(export_path, zip_proj), name, resource_dict, files, inc_repos)
+                exporter.zipfile = (join(export_path, zip_proj))
+            else:
+                zip_export(zip_proj, name, resource_dict, files, inc_repos)
 
     return exporter
 

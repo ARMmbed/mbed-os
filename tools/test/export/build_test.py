@@ -27,6 +27,7 @@ import sys
 from shutil import rmtree
 from collections import namedtuple
 from copy import copy
+import zipfile
 
 
 from tools.paths import EXPORT_DIR
@@ -96,6 +97,7 @@ class ExportBuildTest(object):
         return TestCase(**case)
 
     def handle_log(self,log):
+        print log
         try:
             with open(log, 'r') as in_log:
                 print in_log.read()
@@ -126,6 +128,10 @@ class ExportBuildTest(object):
                                     test_case.ide,
                                     test_case.name))
             try:
+                if test_case.zip:
+                    name_str = ('%s_%s_%s') % (test_case.mcu, test_case.ide, test_case.name)
+                    with zipfile.ZipFile(exporter.zipfile, "r") as zip_file:
+                        zip_file.extractall(path=join(EXPORT_DIR, name_str))
                 exporter.build()
             except FailedBuildException:
                 self.failures.append("%s::%s\t%s" % (test_case.mcu,
@@ -161,8 +167,9 @@ class ExportBuildTest(object):
         try:
             _, toolchain = get_exporter_toolchain(test_case.ide)
             profile = extract_profile(self.parser, self.options, toolchain)
+            zip_name = name_str+'.zip' if test_case.zip else None
             exporter = export(test_case.mcu, test_case.ide,
-                              project_id=test_case.id, zip_proj=None,
+                              project_id=test_case.id, zip_proj=zip_name,
                               clean=True, src=test_case.src,
                               export_path=join(EXPORT_DIR,name_str),
                               silent=True, build_profile=profile)
@@ -203,7 +210,7 @@ def check_version(version):
 def main():
     """Entry point"""
 
-    ide_list = ["iar", "uvision"]
+    ide_list = ["iar", "uvision", "make_gcc_arm", "make_iar", "make_armc5"]
 
     default_v2 = [test_name_known("MBED_BLINKY")]
     default_v5 = [check_valid_mbed_os('tests-mbedmicro-rtos-mbed-basic')]
@@ -274,13 +281,14 @@ def main():
         v2_tests = options.programs or default_v2
 
     tests = []
-    default_test = {key:None for key in ['ide', 'mcu', 'name', 'id', 'src', 'log']}
+    default_test = {key:None for key in ['ide', 'mcu', 'name', 'id', 'src', 'log', 'zip']}
     for mcu in test_targets:
         for ide in options.ides:
-            log = "build_log.txt" if ide == 'iar' \
+            log = "build_log.txt" if ide != 'uvision' \
                 else join('build', 'build_log.txt')
             # add each test case to the tests array
-            default_test.update({'mcu': mcu, 'ide': ide, 'log':log})
+            zip = True if "make" in ide else False
+            default_test.update({'mcu': mcu, 'ide': ide, 'log':log, 'zip':zip})
             for test in v2_tests:
                 default_test.update({'name':TESTS[test]["id"], 'id':test})
                 tests.append(copy(default_test))
