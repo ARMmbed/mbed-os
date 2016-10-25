@@ -116,6 +116,7 @@ static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
       else
         g_handle.txBdDirty++;
 
+      osSemaphoreRelease(k64f_enet->xTXDCountSem.id);
       i = (i + 1) % ENET_TX_RING_LEN;
   }
 
