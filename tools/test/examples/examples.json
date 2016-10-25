@@ -9,6 +9,7 @@
       "features" : [],
       "targets" : [],
       "toolchains" : [],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -23,6 +24,7 @@
       "features" : [],
       "targets" : ["K64F", "NUCLEO_F429ZI"],
       "toolchains" : ["GCC_ARM", "ARM"],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -34,6 +36,7 @@
       "features" : ["IPV6"],
       "targets" : [],
       "toolchains" : [],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -55,6 +58,7 @@
       "features" : ["BLE"],
       "targets" : [],
       "toolchains" : [],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -66,6 +70,7 @@
       "features" : ["IPV6"],
       "targets" : [],
       "toolchains" : [],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -76,6 +81,7 @@
       "features" : ["IPV6"],
       "targets" : [],
       "toolchains" : [],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -86,6 +92,7 @@
       "features" : [],
       "targets" : [],
       "toolchains" : [],
+      "compile" : true,
       "auto-update" : true
     },
     {
@@ -96,6 +103,7 @@
       "features" : [],
       "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
+      "compile" : true,
       "auto-update" : false
     }
   ]
