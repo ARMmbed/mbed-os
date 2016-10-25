@@ -83,6 +83,13 @@ boolean fTrim()
         RFANATRIMREG->TX_VCO_TRIM_LUT1 = TRIMREG->TX_VCO_LUT1.WORD;;
         RFANATRIMREG->TX_VCO_TRIM_LUT2 = TRIMREG->TX_VCO_LUT2.WORD;;
 
+        if ( TRIMREG->MAC_ADDR_LOW != 0xFFFFFFFF ) {
+            MACHWREG->LONG_ADDRESS_LOW = TRIMREG->MAC_ADDR_LOW;
+        }
+
+        if ( TRIMREG->MAC_ADDR_HIGH != 0xFFFFFFFF ) {
+            MACHWREG->LONG_ADDRESS_HIGH = TRIMREG->MAC_ADDR_HIGH;
+        }
 
         return True;
     } else {
@@ -158,15 +165,16 @@ void fPmuInit()
     SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
 
     /** Set regulator timings */
-    PMUREG->FVDD_TSETTLE     = 160;
-    PMUREG->FVDD_TSTARTUP    = 400;
+    PMUREG->FVDD_TSETTLE    = 160;
+    PMUREG->FVDD_TSTARTUP   = 400;
+
 
     /** Keep SRAMA & SRAMB powered in coma mode */
     PMUREG->CONTROL.BITS.SRAMA = False;
     PMUREG->CONTROL.BITS.SRAMB = False;
 
-    PMUREG->CONTROL.BITS.N1V1 = True;    /* Enable ACTIVE mode switching regulator */
-    PMUREG->CONTROL.BITS.C1V1 = True;    /* Enable COMA mode switching regulator */
+    PMUREG->CONTROL.BITS.N1V1 = True;   /* Enable ACTIVE mode switching regulator */
+    PMUREG->CONTROL.BITS.C1V1 = True;   /* Enable COMA mode switching regulator */
 
     /** Disable the clock for PMU peripheral device, all settings are done */
     CLOCK_DISABLE(CLOCK_PMU);

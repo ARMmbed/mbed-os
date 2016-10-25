@@ -132,8 +132,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     PadRegOffset = (PadReg_t*)(PADREG_BASE + (rx * PAD_REG_ADRS_BYTE_SIZE));
     PadRegOffset->PADIO0.WORD = PAD_UART_RX;  /* Pad settings for UART Rx */
 
-    GPIOREG->W_OUT    |= (True << tx); /* tx as OUT direction */
-    GPIOREG->W_IN     |= (True << rx); /* rx as IN directon */
+    GPIOREG->W_OUT  = (0x1 << tx); /* tx as OUT direction */
+    GPIOREG->W_IN   = (0x1 << rx); /* rx as IN directon */
 
     CLOCK_DISABLE(CLOCK_PAD);
     CLOCK_DISABLE(CLOCK_CROSSB);
