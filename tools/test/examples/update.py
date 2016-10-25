@@ -58,9 +58,8 @@ def find_all_examples(path):
     """
     examples = []
     for root, dirs, files in os.walk(path):
-        for file in files:
-            if file == 'mbed-os.lib':
-                examples += [root]
+        if 'mbed-os.lib' in files:
+            examples += [root]
     
     return examples
 
@@ -105,12 +104,8 @@ def upgrade_single_example(example, tag, directory):
     add_cmd = ['git', 'add', 'mbed-os.lib']
     return_code = run_cmd(add_cmd)
     
-    if return_code:
-        os.chdir(cwd)
-        return False
-    
     os.chdir(cwd)
-    return True
+    return not return_code
 
 def upgrade_example(example, tag):
     """ Clones the example specified from GitHub and updates the associated mbed-os.lib file
@@ -182,12 +177,8 @@ def upgrade_example(example, tag):
     push_cmd = ['git', 'push', 'origin', tag]
     return_code = run_cmd(push_cmd)
     
-    if return_code:
-        os.chdir(cwd)
-        return False
-        
     os.chdir(cwd)
-    return True
+    return not return_code
 
 def create_work_directory(path):
     """ Create a new directory specified in 'path', overwrite if the directory already 
@@ -254,6 +245,7 @@ def main(arguments):
     # Loop through the examples
     failures = []
     successes = []
+    not_compiled = []
     results = {}
     os.chdir('examples')
 
@@ -266,13 +258,18 @@ def main(arguments):
         # Attempt to update if:
         #   group of examples passed compilation and
         #   auto update is set to True
-        if results[example['name']][0] and example['auto-update']: 
-            if upgrade_example(example, args.tag):
-                successes += [example['name']]
-            else:
+        # Note: results fields are [compiled flag, pass flag, successes list, failures list]
+        if not results[example['name']][0]:
+            # Example was not compiled
+            not_compiled += [example['name']]
+        else:
+            if results[example['name']][1] and example['auto-update']: 
+                if upgrade_example(example, args.tag):
+                    successes += [example['name']]
+                else:
+                    failures += [example['name']]
+            else:    
                 failures += [example['name']]
-        else:    
-            failures += [example['name']]
     
     os.chdir('../')
     
@@ -285,9 +282,15 @@ def main(arguments):
             print('    - %s' % success)
     
     if failures:
-        print('\nThe following were not updated:')
+        print('\nThe following examples were not updated:')
         for fail in failures:
             print('    - %s' % fail)
+
+    if not_compiled:
+        print('The following examples were skipped:')
+        for example in not_compiled:
+            print('    - %s' % example)
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

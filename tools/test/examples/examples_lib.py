@@ -47,13 +47,13 @@ def print_compilation_summary(results):
     print("# Passed example combinations")
     print("#")
     for key, val in results.iteritems():
-        print_list(val[1])
+        print_list(val[2])
             
     print("#")
     print("# Failed example combinations")
     print("#")
     for key, val in results.iteritems():
-        print_list(val[2])
+        print_list(val[3])
     print("#")
     print("#"*80)
     
@@ -132,7 +132,7 @@ def get_num_failures(results):
     num_failures = 0
 
     for key, val in results.iteritems():
-        num_failures = num_failures + len(val[2])
+        num_failures = num_failures + len(val[3])
 
     return num_failures
     
@@ -141,7 +141,7 @@ def compile_repos(config, toolchains):
        
        The results are returned in a [key: value] dictionary format:
        Where key = The example name from the json config file
-             value = a list containing: pass_status, successes, and failures failures
+             value = a list containing: pass_status, successes, and failures
              
              where pass_status = The overall pass status for the compilation of the full
                                  set of example programs comprising the example suite.
@@ -162,31 +162,37 @@ def compile_repos(config, toolchains):
     for example in config['examples']:        
         failures = []
         successes = []
-        if len(example['toolchains']) > 0:
-            toolchains = example['toolchains']
-        
-        for repo in get_repo_list(example):
-            os.chdir(basename(repo))
-            
-            # Check that the target, toolchain and features combinations are valid and return a 
-            # list of valid combinations to work through
-            for target, toolchain in target_cross_toolchain(toolchains,
-                                                            example['features'], example['targets']):
-                proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
-                                         "-m", target, "--silent"])
-                proc.wait()
-                example_summary = "{} {} {}".format(basename(repo), target, toolchain)
-                if proc.returncode:
-                    failures.append(example_summary)
-                else:
-                    successes.append(example_summary)
-            os.chdir("..")
+        compiled = True
         pass_status = True
-        
-        # If there are any compilation failures for the example 'set' then the overall status is fail.
-        if len(failures) > 0:
-            pass_status = False
-        results[example['name']] = [pass_status, successes, failures]
+        if example['compile']:
+            if len(example['toolchains']) > 0:
+                toolchains = example['toolchains']
+            
+            for repo in get_repo_list(example):
+                os.chdir(basename(repo))
+                
+                # Check that the target, toolchain and features combinations are valid and return a 
+                # list of valid combinations to work through
+                for target, toolchain in target_cross_toolchain(toolchains,
+                                                                example['features'], example['targets']):
+                    proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
+                                             "-m", target, "--silent"])
+                    proc.wait()
+                    example_summary = "{} {} {}".format(basename(repo), target, toolchain)
+                    if proc.returncode:
+                        failures.append(example_summary)
+                    else:
+                        successes.append(example_summary)
+                os.chdir("..")
+            
+            # If there are any compilation failures for the example 'set' then the overall status is fail.
+            if len(failures) > 0:
+                pass_status = False
+        else:
+            compiled = False
+
+        results[example['name']] = [compiled, pass_status, successes, failures]
+
     return results
 
 
