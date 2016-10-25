@@ -50,6 +50,10 @@
 #define TIM_MST_RESET_ON   __TIM1_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM1_RELEASE_RESET()
 
+#define TIM_MST_16BIT  1 // A 16-bit timer is used
+
+#define TIM_MST_GET_PCLK_FREQ  HAL_RCC_GetPCLK2
+
 #define HAL_TICK_DELAY (1000) // 1 ms
 
 #ifdef __cplusplus
