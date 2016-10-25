@@ -12,6 +12,11 @@
 #define NVIC_NUM_VECTORS      (16 + EXT_IRQ_COUNT)   // CORE + MCU Peripherals
 #define NVIC_USER_IRQ_OFFSET  16
 
+#if __CORTEX_M == 0
+#define __NVIC_SetVector NVIC_SetVector
+#define __NVIC_GetVector NVIC_GetVector
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
