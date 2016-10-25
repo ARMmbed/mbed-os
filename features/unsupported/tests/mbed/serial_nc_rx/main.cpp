@@ -15,6 +15,7 @@ int main() {
     // This should be true, sync the start of test
     if (c == 'S') {
         pc->printf("RX OK - Start NC test\r\n");
+        wait(0.25);  // wait for characters to finish transmitting
 
         // disconnect TX and  get char
         delete pc;
@@ -25,11 +26,13 @@ int main() {
             delete pc;
             pc = new Serial(USBTX, NC);
             pc->printf("RX OK - Expected\r\n");
+            wait(0.25);  // wait for characters to finish transmitting
 
             c = pc->getc();
             // This should be false/not get here
             if (c == 'U') {
                 pc->printf("RX OK - Unexpected\r\n");
+                wait(0.25);  // wait for characters to finish transmitting
             }
         }
         delete pc;
