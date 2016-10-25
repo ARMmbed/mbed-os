@@ -28,9 +28,9 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "hal_tick.h"
 
-// Timer selection
-#define TIM_MST TIM4
+#if TIM_MST_16BIT
 
 static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;
@@ -38,10 +38,11 @@ static int us_ticker_inited = 0;
 volatile uint32_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
 volatile uint16_t oc_rem_part = 0;
+volatile uint8_t tim_it_update; // TIM_IT_UPDATE event flag set in timer_irq_handler()
+volatile uint32_t tim_it_counter = 0; // Time stamp to be updated by timer_irq_handler()
 
 void set_compare(uint16_t count)
 {
-    TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
     // Enable IT
@@ -53,30 +54,60 @@ void us_ticker_init(void)
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
+    TimMasterHandle.Instance = TIM_MST;
+
     HAL_InitTick(0); // The passed value is not used
 }
 
+// TODO: Check if still true
+// For some reason on L0xx series we need to read and clear the 
+// overflow flag which give extra time to propelry handle possible
+// hiccup after ~60s
+#if defined(TARGET_L0)
 uint32_t us_ticker_read()
 {
-    uint32_t counter, counter2;
+    volatile uint16_t cntH_old, cntH, cntL;
+
     if (!us_ticker_inited) us_ticker_init();
-    // A situation might appear when Master overflows right after Slave is read and before the
-    // new (overflowed) value of Master is read. Which would make the code below consider the
-    // previous (incorrect) value of Slave and the new value of Master, which would return a
-    // value in the past. Avoid this by computing consecutive values of the timer until they
-    // are properly ordered.
-    counter = (uint32_t)(SlaveCounter << 16);
-    counter += TIM_MST->CNT;
-    while (1) {
-        counter2 = (uint32_t)(SlaveCounter << 16);
-        counter2 += TIM_MST->CNT;
-        if (counter2 > counter) {
-            break;
+
+    do {
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
+            __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
         }
-        counter = counter2;
-    }
-    return counter2;
+        cntH_old = SlaveCounter;
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+         cntH_old += 1;
+        }
+        cntL = TIM_MST->CNT;
+
+        cntH = SlaveCounter;
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+            cntH += 1;
+        }
+    } while(cntH_old != cntH);
+    
+    // Glue the upper and lower part together to get a 32 bit timer
+    return (uint32_t)(cntH << 16 | cntL);
 }
+#else
+uint32_t us_ticker_read()
+{
+    uint32_t counter;
+
+    if (!us_ticker_inited) us_ticker_init();
+
+    tim_it_update = 0; // Clear TIM_IT_UPDATE event flag
+
+    counter = TIM_MST->CNT + (uint32_t)(SlaveCounter << 16); // Calculate new time stamp
+
+    if (tim_it_update == 1) {
+        return tim_it_counter; // In case of TIM_IT_UPDATE return the time stamp that was calculated in timer_irq_handler()
+    }
+    else {
+        return counter; // Otherwise return the time stamp calculated here
+    }
+}
+#endif
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
@@ -100,14 +131,14 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_disable_interrupt(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
     }
 }
+
+#endif // TIM_MST_16BIT
