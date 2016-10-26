@@ -60,37 +60,6 @@ void us_ticker_init(void)
     HAL_InitTick(0); // The passed value is not used
 }
 
-// TODO: Check if still true
-// For some reason on L0xx series we need to read and clear the 
-// overflow flag which give extra time to propelry handle possible
-// hiccup after ~60s
-#if defined(TARGET_L0)
-uint32_t us_ticker_read()
-{
-    volatile uint16_t cntH_old, cntH, cntL;
-
-    if (!us_ticker_inited) us_ticker_init();
-
-    do {
-        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
-            __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
-        }
-        cntH_old = SlaveCounter;
-        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
-         cntH_old += 1;
-        }
-        cntL = TIM_MST->CNT;
-
-        cntH = SlaveCounter;
-        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
-            cntH += 1;
-        }
-    } while(cntH_old != cntH);
-    
-    // Glue the upper and lower part together to get a 32 bit timer
-    return (uint32_t)(cntH << 16 | cntL);
-}
-#else
 uint32_t us_ticker_read()
 {
     uint32_t counter;
@@ -108,7 +77,6 @@ uint32_t us_ticker_read()
         return counter; // Otherwise return the time stamp calculated here
     }
 }
-#endif
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
