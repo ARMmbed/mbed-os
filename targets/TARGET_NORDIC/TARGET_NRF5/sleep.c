@@ -23,6 +23,8 @@
 // In this case, bits which are equal to 0 are the bits reserved in this register
 #define SCB_ICSR_RESERVED_BITS_MASK     0x9E43F03F
 
+#define FPU_EXCEPTION_MASK 0x0000009F
+
 void sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
@@ -30,6 +32,13 @@ void sleep(void)
     // Trigger an event when an interrupt is pending. This allows to wake up
     // the processor from disabled interrupts.
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
+
+#ifdef NRF52
+    /* Clear exceptions and PendingIRQ from the FPU unit */
+    __set_FPSCR(__get_FPSCR()  & ~(FPU_EXCEPTION_MASK));
+    (void) __get_FPSCR();
+    NVIC_ClearPendingIRQ(FPU_IRQn);
+#endif
 
     // If the SoftDevice is enabled, its API must be used to go to sleep.
     if (softdevice_handler_isEnabled()) {
