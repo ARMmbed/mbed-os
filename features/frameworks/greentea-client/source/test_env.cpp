@@ -533,7 +533,7 @@ enum Token {
  *
  */
 static int _get_char() {
-    return getchar();
+    return greentea_serial->getc();
 }
 
 /**
