@@ -75,7 +75,11 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
 
     // Get timer clock value
-    PclkFreq = TIM_MST_GET_PCLK_FREQ;
+#if TIM_MST_PCLK == 1
+    PclkFreq = HAL_RCC_GetPCLK1Freq();
+#else
+    PclkFreq = HAL_RCC_GetPCLK2Freq();
+#endif
 
     // Enable timer clock
     TIM_MST_RCC;
@@ -89,7 +93,11 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     TimMasterHandle.Init.Period          = 0xFFFFFFFF;
 
     // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
+#if TIM_MST_PCLK == 1
     if (RCC_ClkInitStruct.APB1CLKDivider == RCC_HCLK_DIV1) {
+#else
+    if (RCC_ClkInitStruct.APB2CLKDivider == RCC_HCLK_DIV1) {
+#endif
         TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
     }
     else {
