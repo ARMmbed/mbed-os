@@ -98,7 +98,9 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 
     TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+#if !TARGET_STM32L1
     TimMasterHandle.Init.RepetitionCounter = 0;
+#endif
     HAL_TIM_OC_Init(&TimMasterHandle);
 
     NVIC_SetVector(TIM_MST_IRQ, (uint32_t)timer_irq_handler);
