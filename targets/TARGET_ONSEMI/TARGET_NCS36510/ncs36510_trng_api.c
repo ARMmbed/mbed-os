@@ -38,6 +38,7 @@
 #include "memory_map.h"
 #include "ncs36510_trng.h"
 #include "clock.h"
+#include "wait_api.h"
 
 /*************************************************************************************************
 *                                                                                                *
@@ -70,13 +71,12 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     uint32_t MSLRandom = 0, Index, TempLen, *TempPtr = (uint32_t*)output;
-    volatile uint32_t delay;
         
     RANDREG->CONTROL.BITS.METASTABLE_LATCH_EN = TRNG_ENABLE;        /* ENable MSL TRNG */
     RANDREG->CONTROL.BITS.MEATSTABLE_SPEED    = TRNG_FAST_MODE;     /* Meta-stable Latch TRNG Speed Control */
     RANDREG->CONTROL.BITS.MODE                = TRNG_ON_READ_EVENT; /* TRNG is only updated on a read event of the TRNG register */
 
-    for(uint32_t delay = 0;delay < 0x1F; delay++);                   /* Wait till generate MSL TRNG after enable for the first time */
+    wait_us(1); /* Wait till MSL generates random number after enable for the first time */
     
     TempLen = length / 4;
 
