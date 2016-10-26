@@ -18,6 +18,7 @@
  */
 #ifndef MBED_STATS_H
 #define MBED_STATS_H
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +36,17 @@ typedef struct {
  * Fill the passed in structure with heap stats.
  */
 void mbed_stats_heap_get(mbed_stats_heap_t *stats);
+
+typedef struct {
+    uint32_t max_size;          /**< Sum of the maximum number of bytes used in each stack. */
+    uint32_t reserved_size;     /**< Current number of bytes allocated for all stacks. */
+    uint32_t stack_cnt;         /**< Number of stacks currently allocated. */
+} mbed_stats_stack_t;
+
+/**
+ * Fill the passed in structure with stack stats.
+ */
+void mbed_stats_stack_get(mbed_stats_stack_t *stats);
 
 #ifdef __cplusplus
 }
