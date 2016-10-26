@@ -45,7 +45,6 @@
       "mbed": [
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-URIBeacon",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Thermometer",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
@@ -56,7 +55,7 @@
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
       ],
       "features" : ["BLE"],
-      "targets" : [],
+      "targets" : ["NRF51_DK", "NRF52_DK", "K64F", "NUCLEO_F401RE"],
       "toolchains" : [],
       "compile" : true,
       "auto-update" : true
