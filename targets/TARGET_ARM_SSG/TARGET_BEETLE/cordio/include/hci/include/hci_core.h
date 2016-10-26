@@ -4,22 +4,19 @@
  *
  *  \brief  HCI core interfaces.
  *
- *          $Date: 2015-06-12 07:19:18 -0400 (Fri, 12 Jun 2015) $
- *          $Revision: 3061 $
+ *          $Date: 2016-03-29 11:20:44 -0700 (Tue, 29 Mar 2016) $
+ *          $Revision: 6512 $
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
+ *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef HCI_CORE_H
@@ -73,6 +70,7 @@ typedef struct
   uint8_t         numCmdPkts;                   /* Controller command packed count */
   uint8_t         leSupFeat;                    /* Controller LE supported features */
   int8_t          advTxPwr;                     /* Controller advertising TX power */
+  uint8_t         resListSize;                  /* Controller resolving list size */
 } hciCoreCb_t;
 
 /**************************************************************************************************
@@ -84,6 +82,12 @@ extern hciCoreCb_t hciCoreCb;
 
 /* LE event mask */
 extern const uint8_t hciLeEventMask[HCI_LE_EVT_MASK_LEN];
+
+/* Event mask page 2 */
+extern const uint8_t hciEventMaskPage2[HCI_EVT_MASK_LEN];
+
+/* LE supported features configuration mask */
+extern uint8_t hciLeSupFeatCfg;
 
 /**************************************************************************************************
   Function Declarations

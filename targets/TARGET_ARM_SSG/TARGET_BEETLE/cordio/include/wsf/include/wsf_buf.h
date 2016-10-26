@@ -4,22 +4,19 @@
  *
  *  \brief  Buffer pool service.
  *
- *          $Date: 2015-09-05 12:01:07 -0400 (Sat, 05 Sep 2015) $
- *          $Revision: 3793 $
+ *          $Date: 2015-12-20 15:10:41 -0800 (Sun, 20 Dec 2015) $
+ *          $Revision: 4927 $
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
+ *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef WSF_BUF_H
@@ -50,10 +47,10 @@ typedef struct
 /*! Pool statistics */
 typedef struct
 {
-  uint8_t bufSize;                  /*!< Pool buffer size. */
-  uint8_t numBuf;                   /*!< Total number of buffers. */
-  uint8_t numAlloc;                 /*!< Number of outstanding allocations. */
-  uint8_t maxAlloc;                 /*!< High allocation watermark. */
+  uint16_t   bufSize;              /*!< Pool buffer size. */
+  uint8_t    numBuf;               /*!< Total number of buffers. */
+  uint8_t    numAlloc;             /*!< Number of outstanding allocations. */
+  uint8_t    maxAlloc;             /*!< High allocation watermark. */
 } WsfBufPoolStat_t;
 
 
@@ -140,6 +137,17 @@ uint8_t WsfBufGetNumAlloc(uint8_t pool);
  */
 /*************************************************************************************************/
 uint8_t *WsfBufGetAllocStats(void);
+
+/*************************************************************************************************/
+/*!
+ *  \fn     WsfBufGetNumPool
+ *
+ *  \brief  Get number of pools.
+ *
+ *  \return Number of pools.
+ */
+/*************************************************************************************************/
+uint8_t WsfBufGetNumPool(void);
 
 /*************************************************************************************************/
 /*!
