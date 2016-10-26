@@ -89,65 +89,65 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF,
 
-    //NINA-B1 module pin names
-    NINA-B1_GPIO_1 = p8,
-    NINA-B1_GPIO_2 = p11,
-    NINA-B1_GPIO_3 = p12,
-    NINA-B1_GPIO_4 = p13,
-    NINA-B1_GPIO_5 = p14,
+    //NINA_B1 module pin names
+    NINA_B1_GPIO_1 = p8,
+    NINA_B1_GPIO_2 = p11,
+    NINA_B1_GPIO_3 = p12,
+    NINA_B1_GPIO_4 = p13,
+    NINA_B1_GPIO_5 = p14,
 
-    NINA-B1_GPIO_7 = p16,
-    NINA-B1_GPIO_8 = p18,
+    NINA_B1_GPIO_7 = p16,
+    NINA_B1_GPIO_8 = p18,
 
-    NINA-B1_GPIO_16 = p28,
-    NINA-B1_GPIO_17 = p29,
-    NINA-B1_GPIO_18 = p30,
+    NINA_B1_GPIO_16 = p28,
+    NINA_B1_GPIO_17 = p29,
+    NINA_B1_GPIO_18 = p30,
 
-    NINA-B1_GPIO_20 = p31,
-    NINA-B1_GPIO_21 = p7,
-    NINA-B1_GPIO_22 = p6,
-    NINA-B1_GPIO_23 = p5,
-    NINA-B1_GPIO_24 = p2,
-    NINA-B1_GPIO_25 = p3,
+    NINA_B1_GPIO_20 = p31,
+    NINA_B1_GPIO_21 = p7,
+    NINA_B1_GPIO_22 = p6,
+    NINA_B1_GPIO_23 = p5,
+    NINA_B1_GPIO_24 = p2,
+    NINA_B1_GPIO_25 = p3,
 
-    NINA-B1_GPIO_27 = p4,
-    NINA-B1_GPIO_28 = p9,
-    NINA-B1_GPIO_29 = p10,
+    NINA_B1_GPIO_27 = p4,
+    NINA_B1_GPIO_28 = p9,
+    NINA_B1_GPIO_29 = p10,
 
-    // EVK-NINA-B1 board
-    LED1 = NINA-B1_GPIO_1,  // Red
-    LED2 = NINA-B1_GPIO_7,  // Green/SW1
-    LED3 = NINA-B1_GPIO_8,  // Blue
+    // EVK-NINA_B1 board
+    LED1 = NINA_B1_GPIO_1,  // Red
+    LED2 = NINA_B1_GPIO_7,  // Green/SW1
+    LED3 = NINA_B1_GPIO_8,  // Blue
     LED4 = NC,
 
-    SW1 = NINA-B1_GPIO_7,
-    SW2 = NINA-B1_GPIO_18,
+    SW1 = NINA_B1_GPIO_7,
+    SW2 = NINA_B1_GPIO_18,
 
-    D0 = NINA-B1_GPIO_23,
-    D1 = NINA-B1_GPIO_22,
-    D2 = NINA-B1_GPIO_21,
-    D3 = NINA-B1_GPIO_20,
-    D4 = NINA-B1_GPIO_8,
+    D0 = NINA_B1_GPIO_23,
+    D1 = NINA_B1_GPIO_22,
+    D2 = NINA_B1_GPIO_21,
+    D3 = NINA_B1_GPIO_20,
+    D4 = NINA_B1_GPIO_8,
     D5 = NC,   // SWDIO
-    D6 = NINA-B1_GPIO_28,
-    D7 = NINA-B1_GPIO_29,
+    D6 = NINA_B1_GPIO_28,
+    D7 = NINA_B1_GPIO_29,
 
     D8 = NC,   // SWDCLK
-    D9 = NINA-B1_GPIO_1,
-    D10 = NINA-B1_GPIO_2,
-    D11 = NINA-B1_GPIO_4,
-    D12 = NINA-B1_GPIO_3,
-    D13 = NINA-B1_GPIO_5,
+    D9 = NINA_B1_GPIO_1,
+    D10 = NINA_B1_GPIO_2,
+    D11 = NINA_B1_GPIO_4,
+    D12 = NINA_B1_GPIO_3,
+    D13 = NINA_B1_GPIO_5,
 
-    D14 = NINA-B1_GPIO_24,
-    D15 = NINA-B1_GPIO_25,
+    D14 = NINA_B1_GPIO_24,
+    D15 = NINA_B1_GPIO_25,
 
-    A0 = NINA-B1_GPIO_25,
-    A1 = NINA-B1_GPIO_24,
-    A2 = NINA-B1_GPIO_27,
-    A3 = NINA-B1_GPIO_18,
-    A4 = NINA-B1_GPIO_17,
-    A5 = NINA-B1_GPIO_16
+    A0 = NINA_B1_GPIO_25,
+    A1 = NINA_B1_GPIO_24,
+    A2 = NINA_B1_GPIO_27,
+    A3 = NINA_B1_GPIO_18,
+    A4 = NINA_B1_GPIO_17,
+    A5 = NINA_B1_GPIO_16,
 
     // Nordic SDK pin names
     RX_PIN_NUMBER = p5,
