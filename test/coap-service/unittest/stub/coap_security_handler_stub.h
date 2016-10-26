@@ -35,4 +35,6 @@ typedef struct tsh{
 
 extern thread_sec_def coap_security_handler_stub;
 
+coap_security_t *coap_security_handler_stub_alloc(void);
+
 #endif //__COAP_SECURITY_HANDLER_STUB_H__

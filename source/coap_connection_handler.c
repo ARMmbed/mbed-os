@@ -64,6 +64,9 @@ typedef struct secure_session {
     coap_security_t *sec_handler; //owned
     internal_socket_t *parent; //not owned
 
+    uint8_t  remote_address[16];
+    uint16_t remote_port;
+
     secure_timer_t timer;
 
     session_state_t session_state;
@@ -72,7 +75,7 @@ typedef struct secure_session {
 } secure_session_t;
 
 static NS_LIST_DEFINE(secure_session_list, secure_session_t, link);
-static int send_to_socket(int8_t socket_id, const uint8_t *address_ptr, uint16_t port, const uint8_t source_addr[static 16], const void *buf, size_t len);
+static int send_to_socket(int8_t socket_id, void *handle, const void *buf, size_t len);
 static int receive_from_socket(int8_t socket_id, unsigned char *buf, size_t len);
 static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms);
 static int timer_status(int8_t timer_id);
@@ -146,8 +149,10 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
         timer_id++;
     }
     this->timer.id = timer_id;
+    memcpy(this->remote_address, address_ptr, 16);
+    this->remote_port = port;
 
-    this->sec_handler = coap_security_create(parent->listen_socket, this->timer.id, address_ptr, port, ECJPAKE,
+    this->sec_handler = coap_security_create(parent->listen_socket, this->timer.id, this, ECJPAKE,
                                                &send_to_socket, &receive_from_socket, &start_timer, &timer_status);
     if( !this->sec_handler ){
         ns_dyn_mem_free(this);
@@ -178,8 +183,8 @@ static secure_session_t *secure_session_find(internal_socket_t *parent, const ui
     secure_session_t *this = NULL;
     ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
         if( cur_ptr->sec_handler ){
-            if (cur_ptr->parent == parent && cur_ptr->sec_handler->_remote_port == port &&
-                memcmp(cur_ptr->sec_handler->_remote_address, address_ptr, 16) == 0) {
+            if (cur_ptr->parent == parent && cur_ptr->remote_port == port &&
+                memcmp(cur_ptr->remote_address, address_ptr, 16) == 0) {
                 this = cur_ptr;
     //            hack_save_remote_address(address_ptr, port);
                 break;
@@ -219,7 +224,11 @@ static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephem
         if( !is_secure ){
             this->listen_socket = socket_open(SOCKET_UDP, listen_port, recv_sckt_msg);
         }else{
+#ifdef COAP_SECURITY_AVAILABLE
             this->listen_socket = socket_open(SOCKET_UDP, listen_port, secure_recv_sckt_msg);
+#else
+            tr_err("Secure CoAP unavailable - SSL library not configured, possibly due to lack of entropy source");
+#endif
         }
         // Socket create failed
         if(this->listen_socket < 0){
@@ -329,15 +338,16 @@ static int8_t send_to_real_socket(int8_t socket_id, const ns_address_t *address,
     return socket_sendmsg(socket_id, &msghdr, 0);
 }
 
-static int send_to_socket(int8_t socket_id, const uint8_t *address_ptr, uint16_t port, const uint8_t source_addr[static 16], const void *buf, size_t len)
+static int send_to_socket(int8_t socket_id, void *handle, const void *buf, size_t len)
 {
+    secure_session_t *session = handle;
     internal_socket_t *sock = int_socket_find_by_socket_id(socket_id);
     if(!sock){
         return -1;
     }
     if(!sock->real_socket){
         // Send to virtual socket cb
-        int ret = sock->parent->_send_cb(sock->listen_socket, address_ptr, port, buf, len);
+        int ret = sock->parent->_send_cb(sock->listen_socket, session->remote_address, session->remote_port, buf, len);
         if( ret < 0 )
             return ret;
         return len;
@@ -353,7 +363,7 @@ static int send_to_socket(int8_t socket_id, const uint8_t *address_ptr, uint16_t
     //For some reason socket_sendto returns 0 in success, while other socket impls return number of bytes sent!!!
     //TODO: check if address_ptr is valid and use that instead if it is
 
-    int8_t ret = send_to_real_socket(sock->listen_socket, &sock->dest_addr, source_addr, buf, len);
+    int8_t ret = send_to_real_socket(sock->listen_socket, &sock->dest_addr, session->remote_address, buf, len);
     if (ret < 0) {
         return ret;
     }
@@ -536,8 +546,8 @@ static void secure_recv_sckt_msg(void *cb_res)
         }
         session->last_contact_time = coap_service_get_internal_timer_ticks();
         // Start handshake
-        if (!session->sec_handler->_is_started) {
-            uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
+        if (!coap_security_handler_is_started(session->sec_handler) ){
+            uint8_t *pw = ns_dyn_mem_alloc(64);
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, src_address.address, src_address.identifier, pw, &pw_len)){
                 //TODO: get_password_cb should support certs and PSK also
@@ -560,7 +570,7 @@ static void secure_recv_sckt_msg(void *cb_res)
                     if( sock->parent->_security_done_cb ){
                         sock->parent->_security_done_cb(sock->listen_socket, src_address.address,
                                                        src_address.identifier,
-                                                       session->sec_handler->_keyblk.value);
+                                                       (void *)coap_security_handler_keyblock(session->sec_handler));
                     }
                 } else if (ret < 0){
                     // error handling
@@ -641,8 +651,8 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
 
         session->last_contact_time = coap_service_get_internal_timer_ticks();
 
-        if (!session->sec_handler->_is_started) {
-            uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
+        if (!coap_security_handler_is_started(session->sec_handler)) {
+            uint8_t *pw = ns_dyn_mem_alloc(64);
             uint8_t pw_len;
             if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, address, port, pw, &pw_len)) {
                 //TODO: get_password_cb should support certs and PSK also
@@ -665,7 +675,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                     if( handler->_security_done_cb ){
                         handler->_security_done_cb(sock->listen_socket,
                                                   address, port,
-                                                  session->sec_handler->_keyblk.value);
+                                                  (void *)coap_security_handler_keyblock(session->sec_handler));
                     }
                     return 0;
                 }
@@ -807,7 +817,7 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, const ns_add
             memcpy( handler->socket->dest_addr.address, dest_addr->address, 16 );
             handler->socket->dest_addr.identifier = dest_addr->identifier;
             handler->socket->dest_addr.type = dest_addr->type;
-            uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
+            uint8_t *pw = ns_dyn_mem_alloc(64);
             if (!pw) {
                 //todo: free secure session?
                 return -1;
