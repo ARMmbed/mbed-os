@@ -68,7 +68,32 @@ uint32_t us_ticker_read()
 
     tim_it_update = 0; // Clear TIM_IT_UPDATE event flag
 
+#if defined(TARGET_STM32L0)
+    volatile uint16_t cntH_old, cntH, cntL;
+    do {
+        // For some reason on L0xx series we need to read and clear the 
+        // overflow flag which give extra time to propelry handle possible
+        // hiccup after ~60s
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
+            __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
+        }
+        cntH_old = SlaveCounter;
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+            cntH_old += 1;
+        }
+        cntL = TIM_MST->CNT;
+
+        cntH = SlaveCounter;
+        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+            cntH += 1;
+        }
+    } while(cntH_old != cntH);
+    
+    // Glue the upper and lower part together to get a 32 bit timer
+    counter = (uint32_t)(cntH << 16 | cntL);
+#else
     counter = TIM_MST->CNT + (uint32_t)(SlaveCounter << 16); // Calculate new time stamp
+#endif
 
     if (tim_it_update == 1) {
         return tim_it_counter; // In case of TIM_IT_UPDATE return the time stamp that was calculated in timer_irq_handler()
