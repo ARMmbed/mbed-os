@@ -29,6 +29,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.utils import args_error
+from tools.utils import NotSupportedException
 from tools.paths import BUILD_DIR
 from tools.paths import MBED_LIBRARIES
 from tools.paths import RTOS_LIBRARIES
@@ -326,6 +327,8 @@ if __name__ == '__main__':
 
         except KeyboardInterrupt, e:
             print "\n[CTRL+c] exit"
+        except NotSupportedException, e:
+            print "\nNot supported for selected target"
         except Exception,e:
             if options.verbose:
                 import traceback
