@@ -33,7 +33,7 @@
 #define DEBUG_TICK 0 // Set to 1 to toggle a pin (see below which pin) at each tick
 
 TIM_HandleTypeDef TimMasterHandle;
-uint32_t PreviousVal = 0;
+volatile uint32_t PreviousVal = 0;
 
 void us_ticker_irq_handler(void);
 
