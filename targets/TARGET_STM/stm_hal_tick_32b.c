@@ -75,7 +75,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
 
     // Get timer clock value
-    PclkFreq = TIM_MST_GET_PCLK_FREQ();
+    PclkFreq = TIM_MST_GET_PCLK_FREQ;
 
     // Enable timer clock
     TIM_MST_RCC;
@@ -86,7 +86,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
-    TimMasterHandle.Init.Period            = 0xFFFFFFFF;
+    TimMasterHandle.Init.Period          = 0xFFFFFFFF;
 
     // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
     if (RCC_ClkInitStruct.APB1CLKDivider == RCC_HCLK_DIV1) {
@@ -131,7 +131,7 @@ void HAL_SuspendTick(void)
     TimMasterHandle.Instance = TIM_MST;
 
     // Disable HAL tick and us_ticker update interrupts (used for 32 bit counter)
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
 void HAL_ResumeTick(void)
@@ -139,7 +139,7 @@ void HAL_ResumeTick(void)
     TimMasterHandle.Instance = TIM_MST;
 
     // Enable HAL tick and us_ticker update interrupts (used for 32 bit counter)
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
 #endif // !TIM_MST_16BIT
