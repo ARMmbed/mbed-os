@@ -49,9 +49,6 @@
 /** Random Number Generator Control HW Structure Overlay */
 typedef struct {
     __IO uint32_t WR_SEED_RD_RAND;         /* Seed set & random read reg - 0x40011000 */
-#ifdef REVB
-    __IO uint32_t MODE;
-#endif /* REVB */
     union {
         struct {
             __IO uint32_t MODE :1;                    /**<Mode Register, 0 – LSFR is updated on every rising edge of PCLK, 1 – LSFR is only updated on a read event of the LSFR register */

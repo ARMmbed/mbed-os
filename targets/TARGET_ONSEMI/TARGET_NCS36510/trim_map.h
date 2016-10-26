@@ -50,6 +50,7 @@
 **************************************************************************************************/
 
 /** trim register map */
+<<<<<<< HEAD
 typedef struct {                        /**< REV B          REV D   */
     __I uint32_t PAD0;                  /**< 0x1FA0         0x1FA0  */
     __I uint32_t MAC_ADDR_LOW;          /**< 0x1FA4 */
@@ -59,9 +60,7 @@ typedef struct {                        /**< REV B          REV D   */
 #endif
     __I uint32_t TRIM_32K_EXT;            /**< 0x1FB0         0x1FAC    */
     __I uint32_t TRIM_32M_EXT;            /**< 0x1FB4         0x1FB0    */
-#ifdef REVD
     __I uint32_t FVVDH_COMP_TH;           /**<                 0x1FB4 */
-#endif
     union {
         struct {                          /* Common to REV B & REV D */
             __I uint32_t CHANNEL11:4;

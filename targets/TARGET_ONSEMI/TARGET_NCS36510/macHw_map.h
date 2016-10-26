@@ -131,9 +131,7 @@ typedef struct {
             __O uint32_t FS:1;
             __O uint32_t FP:1;
             __O uint32_t FMD:1;
-#ifdef REVD
             __I uint32_t PC:1;
-#endif /* REVD */
         } BITS;
         __O uint32_t WORD;
     } CLEAR_IRQ;                                            /**< 0x40014030 */
@@ -145,9 +143,7 @@ typedef struct {
             __IO uint32_t FS:1;
             __IO uint32_t FP:1;
             __IO uint32_t FM:1;
-#ifdef REVD
             __I uint32_t PC:1;
-#endif /* REVD */
         } BITS;
         __IO uint32_t WORD;
     } MASK_IRQ;                                             /**< 0x40014034 */
@@ -159,9 +155,7 @@ typedef struct {
             __I uint32_t FS:1;
             __I uint32_t FP:1;
             __I uint32_t FM:1;
-#ifdef REVD
             __I uint32_t PC:1;
-#endif /* REVD */
         } BITS;
         __I uint32_t WORD;
     } IRQ_STATUS;                                           /**< 0x40014038 */
@@ -202,9 +196,6 @@ typedef struct {
         __IO uint32_t WORD;
     } SLOT_OFFSET;                                          /**< 0x40014064 */
     __I uint32_t TIME_STAMP;                                /**< 0x40014068 */
-#ifdef REVB
-    __O uint32_t PAD5;                                      /**< 0x4001406C */
-#endif /* REVB */
     union {
         struct {
             __IO uint32_t CRD_SHORT_ADDRESS:16;
@@ -214,17 +205,10 @@ typedef struct {
             __IO uint32_t PAN_COORD_ADDR_S:1;
         } BITS;
         __IO uint32_t WORD;
-#ifdef REVB
-    } CRD_SHORT_ADDR;                                   /**< 0x40014070 */
-    __IO uint32_t CRD_LONG_ADDR_HI;                     /**< 0x40014074 */
-    __IO uint32_t CRD_LONG_ADDR_LO;                     /**< 0x40014078 */
-#endif /* REVB */
-#ifdef REVD
 } CRD_SHORT_ADDR;                                       /**< 0x4001406C */
 __IO uint32_t CRD_LONG_ADDR_HI;                         /**< 0x40014070 */
 __IO uint32_t CRD_LONG_ADDR_LO;                         /**< 0x40014074 */
 __O uint32_t PAD5;                                      /**< 0x40014078 */
-#endif /* REVD */
 __O uint32_t PAD9;                                      /**< 0x4001407C */
 __O uint32_t PAD10;                                     /**< 0x40014080 */
 __O uint32_t PAD11;                                     /**< 0x40014084 */

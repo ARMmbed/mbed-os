@@ -37,54 +37,14 @@
 #include "sleep_api.h"
 #include "cmsis_nvic.h"
 
-void mbed_enter_sleep(sleep_t *obj)
+void sleep()
 {
-
-#ifdef SLEEP_TYPE_DEFAULT
-
-    if(SLEEP_TYPE_DEFAULT == SLEEP_TYPE_SLEEP) {
-        /* Sleep mode */
-        sleep();
-    } else if(SLEEP_TYPE_DEFAULT == SLEEP_TYPE_DEEPSLEEP) {
-        /* Deep Sleep mode */
-        deepsleep();
-    } else {
-        /* Coma mode */
-        coma();
-    }
-
-#else
-
-    if(obj->SleepType == SLEEP_TYPE_NONE) {
-        /* Select low power mode based on sleep duration */
-
-        if(obj->timeToSleep <= SLEEP_DURATION_SLEEP_MAX) {
-            /* Sleep mode */
-            sleep();
-        } else if(obj->timeToSleep <= SLEEP_DURATION_DEEPSLEEP_MAX) {
-            /* Deep sleep */
-            deepsleep();
-        } else {
-            /* Coma */
-            coma();
-        }
-    } else if(obj->SleepType == SLEEP_TYPE_SLEEP) {
-        /* Sleep mode */
-        sleep();
-    } else if(obj->SleepType == SLEEP_TYPE_DEEPSLEEP) {
-        /* Deep Sleep mode */
-        deepsleep();
-    } else {
-        /* Coma mode */
-        coma();
-    }
-
-#endif
+    fncs36510_sleep();
 }
 
-void mbed_exit_sleep(sleep_t *obj)
+void deepsleep()
 {
-    (void)obj;
+    fncs36510_deepsleep();
 }
 
 #endif /* DEVICE_SLEEP */
