@@ -49,6 +49,8 @@
 #define TIM_MST_RESET_ON   __TIM5_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM5_RELEASE_RESET()
 
+#define TIM_MST_GET_PCLK_FREQ  HAL_RCC_GetPCLK1Freq()
+
 #define HAL_TICK_DELAY (1000) // 1 ms
 
 #ifdef __cplusplus
