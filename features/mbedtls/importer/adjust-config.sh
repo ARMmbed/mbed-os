@@ -71,6 +71,10 @@ add_code                                                                        
     "    \"functionality is not available\"\n"                                        \
     "#endif\n"
 
+# mbed OS has an alternate threading implementation
+conf set MBEDTLS_THREADING_C
+conf set MBEDTLS_THREADING_ALT
+
 # not supported on mbed OS, nor used by mbed Client
 conf unset MBEDTLS_NET_C
 conf unset MBEDTLS_TIMING_C
