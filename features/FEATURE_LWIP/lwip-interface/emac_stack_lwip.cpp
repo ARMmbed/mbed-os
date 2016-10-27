@@ -47,6 +47,11 @@ void emac_stack_mem_free(emac_stack_t* stack, emac_stack_mem_t *mem)
     pbuf_free((struct pbuf*)mem);
 }
 
+void emac_stack_mem_copy(emac_stack_t* stack, emac_stack_mem_t *to, emac_stack_mem_t *from)
+{
+    pbuf_copy((struct pbuf*)to, (struct pbuf*)from);
+}
+
 void *emac_stack_mem_ptr(emac_stack_t* stack, emac_stack_mem_t *mem)
 {
     return ((struct pbuf*)mem)->payload;
