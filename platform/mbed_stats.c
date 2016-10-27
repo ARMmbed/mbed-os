@@ -30,8 +30,40 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats)
 
         stats->stack_cnt += 1;
     }
-#elif MBED_STACK_STATS_ENABLED
-#warning Stack statistics are not supported without the rtos.
 #endif
 }
 
+size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
+{
+    memset(stats, 0, count*sizeof(mbed_stats_stack_t));
+    size_t i = 0;
+
+#if MBED_STACK_STATS_ENABLED && MBED_CONF_RTOS_PRESENT
+    osThreadEnumId enumid = _osThreadsEnumStart();
+    osThreadId threadid;
+
+    while ((threadid = _osThreadEnumNext(enumid)) && i < count) {
+        osEvent e;
+
+        e = _osThreadGetInfo(threadid, osThreadInfoStackMax);
+        if (e.status == osOK) {
+           stats[i].max_size = (uint32_t)e.value.p;
+        }
+
+        e = _osThreadGetInfo(threadid, osThreadInfoStackSize);
+        if (e.status == osOK) {
+           stats[i].reserved_size = (uint32_t)e.value.p;
+        }
+
+        stats[i].thread_id = (uint32_t)threadid;
+        stats[i].stack_cnt = 1;
+        i += 1;
+    }
+#endif
+
+    return i;
+}
+
+#if MBED_STACK_STATS_ENABLED && !MBED_CONF_RTOS_PRESENT
+#warning Stack statistics are currently not supported without the rtos.
+#endif
