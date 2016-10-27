@@ -265,9 +265,11 @@ static void send_packet(emac_interface_t *emac, void *buf)
 static bool wifi_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 {
     (void)emac;
-    // Break call chain to avoid the driver affecting stack usage for the IP stack thread too much
-    emac_stack_mem_ref(emac,buf);
-    cbMAIN_getEventQueue()->call(send_packet,emac,buf);
+	// Break call chain to avoid the driver affecting stack usage for the IP stack thread too much
+    emac_stack_mem_t *new_buf = emac_stack_mem_alloc(emac, emac_stack_mem_chain_len(emac,buf),0);
+    emac_stack_mem_copy(emac,new_buf,buf);
+    cbMAIN_getEventQueue()->call(send_packet,emac,new_buf);
+    cbMAIN_dispatchEventQueue();
     return true;
 }
 
