@@ -174,6 +174,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
+    obj_s->sda = sda;
+    obj_s->scl = scl;
 
     obj_s->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(obj_s->i2c != (I2CName)NC);
@@ -710,12 +712,11 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
 
-    /* Disable IT. Not always done before calling macro */
-    __HAL_I2C_DISABLE_IT(handle, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR);
+    /* re-init IP to try and get back in a working state */
+    i2c_init(obj, obj_s->sda, obj_s->scl);
 
-    /* Set event flag */
+    /* Keep Set event flag */
     obj_s->event = I2C_EVENT_ERROR;
 }
 
