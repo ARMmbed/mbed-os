@@ -185,7 +185,7 @@ Case cases[] = {
 };
 
 status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(60, "default_auto");
+    GREENTEA_SETUP(90, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
