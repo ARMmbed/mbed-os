@@ -44,6 +44,7 @@ volatile uint32_t tim_it_counter = 0; // Time stamp to be updated by timer_irq_h
 
 void set_compare(uint16_t count)
 {
+    TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
     // Enable IT
@@ -63,6 +64,8 @@ void us_ticker_init(void)
 uint32_t us_ticker_read()
 {
     uint32_t counter;
+
+    TimMasterHandle.Instance = TIM_MST;
 
     if (!us_ticker_inited) us_ticker_init();
 
@@ -106,6 +109,7 @@ uint32_t us_ticker_read()
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     int delta = (int)((uint32_t)timestamp - us_ticker_read());
+
     uint16_t cval = TIM_MST->CNT;
 
     if (delta <= 0) { // This event was in the past
@@ -125,11 +129,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_disable_interrupt(void)
 {
+    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 void us_ticker_clear_interrupt(void)
 {
+    TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
     }

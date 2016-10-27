@@ -51,22 +51,20 @@ uint32_t us_ticker_read() {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
+    TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
-// TODO: Check if still true
-#if defined(TARGET_L4)
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
-#else
-    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
-#endif
     // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 void us_ticker_disable_interrupt(void) {
+    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 void us_ticker_clear_interrupt(void) {
+    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
