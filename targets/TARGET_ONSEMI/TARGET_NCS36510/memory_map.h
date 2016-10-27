@@ -109,6 +109,12 @@
 #define TRIMREG_BASE        ((uint32_t)0x1FA0)
 #define TRIMREG             ((TrimReg_t *)TRIMREG_BASE)
 
+/** User trim structure mapping
+ *
+ */
+#define USRETRIMREG_BASE     ((uint32_t)0x2800)
+#define USERTRIMREG          ((UserTrimReg_t *)USRETRIMREG_BASE)
+
 /** DMA HW Registers Offset */
 #define DMAREG_BASE         ((uint32_t)0x24000400)
 /** DMA HW Structure Overlay */

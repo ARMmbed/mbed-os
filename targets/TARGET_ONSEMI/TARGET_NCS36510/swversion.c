@@ -42,8 +42,8 @@
  * such that flash loader knows where to find it and gets the build dependent data
  * it needs for programming the new fib.
  */
-__root const fibtable_t fib_table @ "FIBTABLE" = { LOAD_ADDRESS,{0x0,0x00,0x00,0x00}};
-#endif /* IAR */
+__root const fibtable_t fib_table @ "FIBTABLE" = {LOAD_ADDRESS,{0x0,0x00,0x00,0x00}};
+#endif /* __ICCARM__ */
 
 const mib_systemRevision_t systemRevision = {
     0x82,    /**< hardware revision */
