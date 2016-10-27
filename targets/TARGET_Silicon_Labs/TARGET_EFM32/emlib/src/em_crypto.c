@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_crypto.c
  * @brief Cryptography accelerator peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -35,141 +35,14 @@
 
 #include "em_crypto.h"
 #include "em_assert.h"
-#include "em_bitband.h"
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup CRYPTO
- *
- * @brief Cryptography accelerator peripheral API
- *
- * @details
- *   This API is intended for use on Silicon Labs target devices, and provides
- *   a thin software interface for the functions of the crypto module, including
- *   @li AES (Advanced Encryption Standard) @ref crypto_aes
- *   @li SHA (Secure Hash Algorithm) @ref crypto_sha
- *   @li Big Integer multiplier @ref crypto_mul
- *   @li Functions for loading data and executing instruction sequences @ref crypto_exec
- *
- *   @n @section crypto_aes AES
- *   The AES APIs include support for AES-128 and AES-256 with block cipher
- *   modes:
- *   @li CBC - Cipher Block Chaining mode
- *   @li CFB - Cipher Feedback mode
- *   @li CTR - Counter mode
- *   @li ECB - Electronic Code Book mode
- *   @li OFB - Output Feedback mode
- *
- *   For the AES APIs Input/output data (plaintext, ciphertext, key etc) are
- *   treated as byte arrays, starting with most significant byte. Ie, 32 bytes
- *   of plaintext (B0...B31) is located in memory in the same order, with B0 at
- *   the lower address and B31 at the higher address.
- *
- *   Byte arrays must always be a multiple of AES block size, ie. a multiple
- *   of 16. Padding, if required, is done at the end of the byte array.
- *
- *   Byte arrays should be word (32 bit) aligned for performance
- *   considerations, since the array is accessed with 32 bit access type.
- *   The core MCUs supports unaligned accesses, but with a performance penalty.
- *
- *   It is possible to specify the same output buffer as input buffer as long
- *   as they point to the same address. In that case the provided input buffer
- *   is replaced with the encrypted/decrypted output. Notice that the buffers
- *   must be exactly overlapping. If partly overlapping, the behavior is
- *   undefined.
- *
- *   It is up to the user to use a cipher mode according to its requirements
- *   in order to not break security. Please refer to specific cipher mode
- *   theory for details.
- *
- *   References:
- *   @li Wikipedia - Cipher modes, http://en.wikipedia.org/wiki/Cipher_modes
- *
- *   @li Recommendation for Block Cipher Modes of Operation,
- *      NIST Special Publication 800-38A, 2001 Edition,
- *      http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
- *
- *   @li Recommendation for Block Cipher Modes of Operation,
- *      http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
- *
- *   @n @section crypto_sha SHA
- *   The SHA APIs include support for 
- *   @li SHA-1 @ref CRYPTO_SHA_1
- *   @li SHA-256 @ref CRYPTO_SHA_256
- *
- *   The SHA-1 implementation is FIPS-180-1 compliant, ref:
- *   @li Wikipedia -  SHA-1, https://en.wikipedia.org/wiki/SHA-1
- *   @li SHA-1 spec - http://www.itl.nist.gov/fipspubs/fip180-1.htm
- *
- *   The SHA-256 implementation is FIPS-180-2 compliant, ref:
- *   @li Wikipedia -  SHA-2, https://en.wikipedia.org/wiki/SHA-2
- *   @li SHA-2 spec - http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
- *
- *   @n @section crypto_mul CRYPTO_Mul
- *   @ref CRYPTO_Mul is a function for multiplying big integers that are
- *   bigger than the operand size of the MUL instruction which is 128 bits.
- *   CRYPTO_Mul multiplies all partial operands of the input operands using
- *   MUL to form a resulting number which may be twice the size of
- *   the operands.
- *
- *   CRPYTO_Mul is typically used by RSA implementations which perform a
- *   huge amount of multiplication and square operations in order to
- *   implement modular exponentiation.
- *   Some RSA implementations use a number representation including arrays
- *   of 32bit words of variable size. The user should compile with
- *   -D USE_VARIABLE_SIZED_DATA_LOADS in order to load these numbers
- *   directly into CRYPTO without converting the number representation.
- *
- *   @n @section crypto_exec Load and Execute Instruction Sequences
- *   The functions for loading data and executing instruction sequences can
- *   be used to implement complex algorithms like elliptic curve cryptography
- *   (ECC)) and authenticated encryption algorithms. There are two typical
- *   modes of operation:
- *   @li Multi sequence operation
- *   @li Single static instruction sequence operation
- *
- *   In multi sequence mode the software starts by loading input data, then
- *   an instruction sequence, execute, and finally read the result. This
- *   process is repeated until the full crypto operation is complete.
- *
- *   When using a single static instruction sequence, there is just one
- *   instruction sequence which is loaded initially. The sequence can be setup
- *   to run multiple times. The data can be loaded during the execution of the
- *   sequence by using DMA, BUFC and/or programmed I/O directly from the MCU
- *   core. For details on how to program the instruction sequences please refer
- *   to the reference manual of the particular Silicon Labs device.
- *
- *   In order to load input data to the CRYPTO module use any of the following
- *   functions:
- *   @li @ref CRYPTO_DataWrite  - Write 128 bits to a DATA register.
- *   @li @ref CRYPTO_DDataWrite - Write 256 bits to a DDATA register.
- *   @li @ref CRYPTO_QDataWrite - Write 512 bits to a QDATA register.
- *
- *   In order to read output data from the CRYPTO module use any of the
- *   following functions:
- *   @li @ref CRYPTO_DataRead  - Read 128 bits from a DATA register.
- *   @li @ref CRYPTO_DDataRead - Read 256 bits from a DDATA register.
- *   @li @ref CRYPTO_QDataRead - Read 512 bits from a QDATA register.
- *
- *   In order to load an instruction sequence to the CRYPTO module use
- *   @ref CRYPTO_InstructionSequenceLoad.
- *
- *   In order to execute the current instruction sequence in the CRYPTO module
- *   use @ref CRYPTO_InstructionSequenceExecute.
- *
- *   In order to check whether an instruction sequence has completed
- *   use @ref CRYPTO_InstructionSequenceDone.
- *
- *   In order to wait for an instruction sequence to complete
- *   use @ref CRYPTO_InstructionSequenceWait.
- *
- *   In order to optimally load (with regards to speed) and execute an
- *   instruction sequence use any of the CRYPTO_EXECUTE_X macros (where X is
- *   in the range 1-20) defined in @ref em_crypto.h. E.g. CRYPTO_EXECUTE_19.
  * @{
  ******************************************************************************/
 
@@ -208,13 +81,15 @@
  ***********************   STATIC FUNCTIONS   **********************************
  ******************************************************************************/
 
-static inline void CRYPTO_AES_ProcessLoop(uint32_t len,
+static inline void CRYPTO_AES_ProcessLoop(CRYPTO_TypeDef *crypto,
+                                          uint32_t len,
                                           CRYPTO_DataReg_TypeDef inReg,
                                           uint32_t * in,
                                           CRYPTO_DataReg_TypeDef outReg,
                                           uint32_t * out);
 
-static void CRYPTO_AES_CBCx(uint8_t * out,
+static void CRYPTO_AES_CBCx(CRYPTO_TypeDef *crypto,
+                            uint8_t * out,
                             const uint8_t * in,
                             unsigned int len,
                             const uint8_t * key,
@@ -222,7 +97,8 @@ static void CRYPTO_AES_CBCx(uint8_t * out,
                             bool encrypt,
                             CRYPTO_KeyWidth_TypeDef keyWidth);
 
-static void CRYPTO_AES_CFBx(uint8_t * out,
+static void CRYPTO_AES_CFBx(CRYPTO_TypeDef *crypto,
+                            uint8_t * out,
                             const uint8_t * in,
                             unsigned int len,
                             const uint8_t * key,
@@ -230,7 +106,8 @@ static void CRYPTO_AES_CFBx(uint8_t * out,
                             bool encrypt,
                             CRYPTO_KeyWidth_TypeDef keyWidth);
 
-static void CRYPTO_AES_CTRx(uint8_t * out,
+static void CRYPTO_AES_CTRx(CRYPTO_TypeDef *crypto,
+                            uint8_t * out,
                             const uint8_t * in,
                             unsigned int len,
                             const uint8_t * key,
@@ -238,14 +115,16 @@ static void CRYPTO_AES_CTRx(uint8_t * out,
                             CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc,
                             CRYPTO_KeyWidth_TypeDef keyWidth);
 
-static void CRYPTO_AES_ECBx(uint8_t * out,
+static void CRYPTO_AES_ECBx(CRYPTO_TypeDef *crypto,
+                            uint8_t * out,
                             const uint8_t * in,
                             unsigned int len,
                             const uint8_t * key,
                             bool encrypt,
                             CRYPTO_KeyWidth_TypeDef keyWidth);
 
-static void CRYPTO_AES_OFBx(uint8_t * out,
+static void CRYPTO_AES_OFBx(CRYPTO_TypeDef *crypto,
+                            uint8_t * out,
                             const uint8_t * in,
                             unsigned int len,
                             const uint8_t * key,
@@ -272,7 +151,7 @@ void CRYPTO_DataWriteVariableSize(CRYPTO_DataReg_TypeDef    dataReg,
 {
   int i;
   volatile uint32_t * reg = (volatile uint32_t *) dataReg;
-  
+
   if (valSize < 4)
   {
     /* Non optimal write of data. */
@@ -296,19 +175,24 @@ void CRYPTO_DataWriteVariableSize(CRYPTO_DataReg_TypeDef    dataReg,
 
 /***************************************************************************//**
  * @brief
- *   Set the modulus type used for wide arithmetic operations.
+ *   Set the modulus used for wide modular operations.
  *
  * @details
- *   This function sets the modulus type to be used by the Modulus instructions
+ *   This function sets the modulus to be used by the modular instructions
  *   of the CRYPTO module.
  *
- * @param[in]  modType  Modulus type.
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
+ * @param[in]  modulusId
+ *   Modulus identifier.
  ******************************************************************************/
-void CRYPTO_ModulusSet(CRYPTO_ModulusType_TypeDef modType)
+void CRYPTO_ModulusSet(CRYPTO_TypeDef *          crypto,
+                       CRYPTO_ModulusId_TypeDef  modulusId)
 {
-  uint32_t temp = CRYPTO->WAC & (~(_CRYPTO_WAC_MODULUS_MASK | _CRYPTO_WAC_MODOP_MASK));
+  uint32_t temp = crypto->WAC & (~(_CRYPTO_WAC_MODULUS_MASK | _CRYPTO_WAC_MODOP_MASK));
 
-  switch (modType)
+  switch (modulusId)
   {
     case cryptoModulusBin256:
     case cryptoModulusBin128:
@@ -321,7 +205,7 @@ void CRYPTO_ModulusSet(CRYPTO_ModulusType_TypeDef modType)
     case cryptoModulusEccB163Order:
     case cryptoModulusEccB163KOrder:
 #endif
-      CRYPTO->WAC = temp | modType | CRYPTO_WAC_MODOP_BINARY;
+      crypto->WAC = temp | modulusId | CRYPTO_WAC_MODOP_BINARY;
       break;
 
     case cryptoModulusEccP256:
@@ -332,11 +216,11 @@ void CRYPTO_ModulusSet(CRYPTO_ModulusType_TypeDef modType)
     case cryptoModulusEccP224Order:
     case cryptoModulusEccP192Order:
 #endif
-      CRYPTO->WAC = temp | modType | CRYPTO_WAC_MODOP_REGULAR;
+      crypto->WAC = temp | modulusId | CRYPTO_WAC_MODOP_REGULAR;
       break;
 
     default:
-      /* Unknown modulus type. */
+      /* Unknown modulus identifier. */
       EFM_ASSERT(0);
   }
 }
@@ -348,18 +232,25 @@ void CRYPTO_ModulusSet(CRYPTO_ModulusType_TypeDef modType)
  * @details
  *   Read 128 bits or 256 bits from KEY register in the CRYPTO module.
  *
- * @param[in]  val     Value of the data to write to the KEYBUF register.
- * @param[in]  keyWidth Key width - 128 or 256 bits
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
+ * @param[in]  val
+ *   Value of the data to write to the KEYBUF register.
+ *
+ * @param[in]  keyWidth
+ *   Key width - 128 or 256 bits
  ******************************************************************************/
-void CRYPTO_KeyRead(CRYPTO_KeyBuf_TypeDef    val,
+void CRYPTO_KeyRead(CRYPTO_TypeDef *         crypto,
+                    CRYPTO_KeyBuf_TypeDef    val,
                     CRYPTO_KeyWidth_TypeDef  keyWidth)
 {
   EFM_ASSERT(val);
 
-  CRYPTO_BurstFromCrypto(&CRYPTO->KEY, &val[0]);
+  CRYPTO_BurstFromCrypto(&crypto->KEY, &val[0]);
   if (keyWidth == cryptoKey256Bits)
   {
-    CRYPTO_BurstFromCrypto(&CRYPTO->KEY, &val[4]);
+    CRYPTO_BurstFromCrypto(&crypto->KEY, &val[4]);
   }
 }
 
@@ -371,16 +262,25 @@ void CRYPTO_KeyRead(CRYPTO_KeyBuf_TypeDef    val,
  *   This function performs a SHA-1 hash operation on the message specified by
  *   msg with length msgLen, and returns the message digest in msgDigest.
  *
- * @param[in]  msg        Message to hash.
- * @param[in]  msgLen     Length of message in bytes.
- * @param[out] msgDigest  Message digest.
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
+ * @param[in]  msg
+ *   Message to hash.
+ *
+ * @param[in]  msgLen
+ *   Length of message in bytes.
+ *
+ * @param[out] msgDigest
+ *   Message digest.
  ******************************************************************************/
-void CRYPTO_SHA_1(const uint8_t *              msg,
+void CRYPTO_SHA_1(CRYPTO_TypeDef *             crypto,
+                  const uint8_t *              msg,
                   uint64_t                     msgLen,
                   CRYPTO_SHA1_Digest_TypeDef   msgDigest)
 {
   uint32_t  temp;
-  int       len;
+  uint32_t  len;
   int       blockLen;
   uint32_t  shaBlock[CRYPTO_SHA1_BLOCK_SIZE_IN_32BIT_WORDS]=
   {
@@ -390,18 +290,19 @@ void CRYPTO_SHA_1(const uint8_t *              msg,
   uint8_t * p8ShaBlock = (uint8_t *) shaBlock;
 
   /* Initialize crypto module to do SHA-1. */
-  CRYPTO->CTRL     = CRYPTO_CTRL_SHA_SHA1;
-  CRYPTO->SEQCTRL  = 0;
-  CRYPTO->SEQCTRLB = 0;
+  crypto->CTRL     = CRYPTO_CTRL_SHA_SHA1;
+  crypto->SEQCTRL  = 0;
+  crypto->SEQCTRLB = 0;
 
   /* Set result width of MADD32 operation. */
-  CRYPTO_ResultWidthSet(cryptoResult256Bits);
-  
+  CRYPTO_ResultWidthSet(crypto, cryptoResult256Bits);
+
   /* Write init value to DDATA1.  */
-  CRYPTO_DDataWrite(cryptoRegDDATA1, shaBlock);
+  CRYPTO_DDataWrite(&crypto->DDATA1, shaBlock);
 
   /* Copy data to DDATA0 and select DDATA0 and DDATA1 for SHA operation. */
-  CRYPTO_EXECUTE_2(CRYPTO_CMD_INSTR_DDATA1TODDATA0,
+  CRYPTO_EXECUTE_2(crypto,
+                   CRYPTO_CMD_INSTR_DDATA1TODDATA0,
                    CRYPTO_CMD_INSTR_SELDDATA0DDATA1);
 
   len = msgLen;
@@ -409,10 +310,11 @@ void CRYPTO_SHA_1(const uint8_t *              msg,
   while (len >= CRYPTO_SHA1_BLOCK_SIZE_IN_BYTES)
   {
     /* Write block to QDATA1.  */
-    CRYPTO_QDataWrite(cryptoRegQDATA1BIG, (uint32_t *) msg);
+    CRYPTO_QDataWrite(&crypto->QDATA1BIG, (uint32_t *) msg);
 
     /* Execute SHA */
-    CRYPTO_EXECUTE_3(CRYPTO_CMD_INSTR_SHA,
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SHA,
                      CRYPTO_CMD_INSTR_MADD32,
                      CRYPTO_CMD_INSTR_DDATA0TODDATA1);
 
@@ -439,10 +341,11 @@ void CRYPTO_SHA_1(const uint8_t *              msg,
       p8ShaBlock[blockLen++] = 0;
 
     /* Write block to QDATA1BIG. */
-    CRYPTO_QDataWrite(cryptoRegQDATA1BIG, shaBlock);
+    CRYPTO_QDataWrite(&crypto->QDATA1BIG, shaBlock);
 
     /* Execute SHA */
-    CRYPTO_EXECUTE_3(CRYPTO_CMD_INSTR_SHA,
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SHA,
                      CRYPTO_CMD_INSTR_MADD32,
                      CRYPTO_CMD_INSTR_DDATA0TODDATA1);
     blockLen = 0;
@@ -462,22 +365,23 @@ void CRYPTO_SHA_1(const uint8_t *              msg,
   }
 
   /* Write block to QDATA1BIG. */
-  CRYPTO_QDataWrite(cryptoRegQDATA1BIG, shaBlock);
+  CRYPTO_QDataWrite(&crypto->QDATA1BIG, shaBlock);
 
   /* Execute SHA */
-  CRYPTO_EXECUTE_3(CRYPTO_CMD_INSTR_SHA,
+  CRYPTO_EXECUTE_3(crypto,
+                   CRYPTO_CMD_INSTR_SHA,
                    CRYPTO_CMD_INSTR_MADD32,
                    CRYPTO_CMD_INSTR_DDATA0TODDATA1);
 
   /* Read resulting message digest from DDATA0BIG.  */
-  ((uint32_t*)msgDigest)[0] = CRYPTO->DDATA0BIG;
-  ((uint32_t*)msgDigest)[1] = CRYPTO->DDATA0BIG;
-  ((uint32_t*)msgDigest)[2] = CRYPTO->DDATA0BIG;
-  ((uint32_t*)msgDigest)[3] = CRYPTO->DDATA0BIG;
-  ((uint32_t*)msgDigest)[4] = CRYPTO->DDATA0BIG;
-  temp = CRYPTO->DDATA0BIG;
-  temp = CRYPTO->DDATA0BIG;
-  temp = CRYPTO->DDATA0BIG;
+  ((uint32_t*)msgDigest)[0] = crypto->DDATA0BIG;
+  ((uint32_t*)msgDigest)[1] = crypto->DDATA0BIG;
+  ((uint32_t*)msgDigest)[2] = crypto->DDATA0BIG;
+  ((uint32_t*)msgDigest)[3] = crypto->DDATA0BIG;
+  ((uint32_t*)msgDigest)[4] = crypto->DDATA0BIG;
+  temp = crypto->DDATA0BIG;
+  temp = crypto->DDATA0BIG;
+  temp = crypto->DDATA0BIG;
 }
 
 /***************************************************************************//**
@@ -488,16 +392,25 @@ void CRYPTO_SHA_1(const uint8_t *              msg,
  *   This function performs a SHA-256 hash operation on the message specified
  *   by msg with length msgLen, and returns the message digest in msgDigest.
  *
- * @param[in]  msg        Message to hash.
- * @param[in]  msgLen     Length of message in bytes.
- * @param[out] msgDigest  Message digest.
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
+ * @param[in]  msg
+ *   Message to hash.
+ *
+ * @param[in]  msgLen
+ *   Length of message in bytes.
+ *
+ * @param[out] msgDigest
+ *   Message digest.
  ******************************************************************************/
-void CRYPTO_SHA_256(const uint8_t *              msg,
+void CRYPTO_SHA_256(CRYPTO_TypeDef *             crypto,
+                    const uint8_t *              msg,
                     uint64_t                     msgLen,
                     CRYPTO_SHA256_Digest_TypeDef msgDigest)
 {
   uint32_t  temp;
-  int       len;
+  uint32_t  len;
   int       blockLen;
   uint32_t  shaBlock[CRYPTO_SHA256_BLOCK_SIZE_IN_32BIT_WORDS]=
   {
@@ -508,28 +421,30 @@ void CRYPTO_SHA_256(const uint8_t *              msg,
   uint8_t * p8ShaBlock = (uint8_t *) shaBlock;
 
   /* Initialize crypyo module to do SHA-256 (SHA-2). */
-  CRYPTO->CTRL     = CRYPTO_CTRL_SHA_SHA2;
-  CRYPTO->SEQCTRL  = 0;
-  CRYPTO->SEQCTRLB = 0;
+  crypto->CTRL     = CRYPTO_CTRL_SHA_SHA2;
+  crypto->SEQCTRL  = 0;
+  crypto->SEQCTRLB = 0;
 
   /* Set result width of MADD32 operation. */
-  CRYPTO_ResultWidthSet(cryptoResult256Bits);
+  CRYPTO_ResultWidthSet(crypto, cryptoResult256Bits);
 
   /* Write init value to DDATA1.  */
-  CRYPTO_DDataWrite(cryptoRegDDATA1, shaBlock);
+  CRYPTO_DDataWrite(&crypto->DDATA1, shaBlock);
 
   /* Copy data ot DDATA0 and select DDATA0 and DDATA1 for SHA operation. */
-  CRYPTO_EXECUTE_2(CRYPTO_CMD_INSTR_DDATA1TODDATA0,
+  CRYPTO_EXECUTE_2(crypto,
+                   CRYPTO_CMD_INSTR_DDATA1TODDATA0,
                    CRYPTO_CMD_INSTR_SELDDATA0DDATA1);
   len = msgLen;
 
   while (len >= CRYPTO_SHA256_BLOCK_SIZE_IN_BYTES)
   {
     /* Write block to QDATA1BIG.  */
-    CRYPTO_QDataWrite(cryptoRegQDATA1BIG, (uint32_t *) msg);
+    CRYPTO_QDataWrite(&crypto->QDATA1BIG, (uint32_t *) msg);
 
     /* Execute SHA */
-    CRYPTO_EXECUTE_3(CRYPTO_CMD_INSTR_SHA,
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SHA,
                      CRYPTO_CMD_INSTR_MADD32,
                      CRYPTO_CMD_INSTR_DDATA0TODDATA1);
 
@@ -556,10 +471,11 @@ void CRYPTO_SHA_256(const uint8_t *              msg,
       p8ShaBlock[blockLen++] = 0;
 
     /* Write block to QDATA1BIG. */
-    CRYPTO_QDataWrite(cryptoRegQDATA1BIG, shaBlock);
+    CRYPTO_QDataWrite(&crypto->QDATA1BIG, shaBlock);
 
     /* Execute SHA */
-    CRYPTO_EXECUTE_3(CRYPTO_CMD_INSTR_SHA,
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SHA,
                      CRYPTO_CMD_INSTR_MADD32,
                      CRYPTO_CMD_INSTR_DDATA0TODDATA1);
     blockLen = 0;
@@ -579,15 +495,16 @@ void CRYPTO_SHA_256(const uint8_t *              msg,
   }
 
   /* Write the final block to QDATA1BIG. */
-  CRYPTO_QDataWrite(cryptoRegQDATA1BIG, shaBlock);
+  CRYPTO_QDataWrite(&crypto->QDATA1BIG, shaBlock);
 
   /* Execute SHA */
-  CRYPTO_EXECUTE_3(CRYPTO_CMD_INSTR_SHA,
+  CRYPTO_EXECUTE_3(crypto,
+                   CRYPTO_CMD_INSTR_SHA,
                    CRYPTO_CMD_INSTR_MADD32,
                    CRYPTO_CMD_INSTR_DDATA0TODDATA1);
 
   /* Read resulting message digest from DDATA0BIG.  */
-  CRYPTO_DDataRead(cryptoRegDDATA0BIG, (uint32_t *)msgDigest);
+  CRYPTO_DDataRead(&crypto->DDATA0BIG, (uint32_t *)msgDigest);
 }
 
 /***************************************************************************//**
@@ -638,7 +555,8 @@ __STATIC_INLINE void cryptoBigintIncrement(uint32_t * words32bits,
  * @param[out] R        result of multiplication
  * @param[in]  rSize    size of result buffer R in bits
  ******************************************************************************/
-void CRYPTO_Mul(uint32_t * A, int aSize,
+void CRYPTO_Mul(CRYPTO_TypeDef * crypto,
+                uint32_t * A, int aSize,
                 uint32_t * B, int bSize,
                 uint32_t * R, int rSize)
 {
@@ -667,22 +585,22 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
   EFM_ASSERT((bSize & PARTIAL_OPERAND_WIDTH_MASK) == 0);
 #endif
   EFM_ASSERT(aSize + bSize <= rSize);
-  
+
   /* Set R to zero. */
   cryptoBigintZeroize(R, rSize >> 5);
 
   /* Set multiplication width. */
-  CRYPTO->WAC = CRYPTO_WAC_MULWIDTH_MUL128 | CRYPTO_WAC_RESULTWIDTH_256BIT;
+  crypto->WAC = CRYPTO_WAC_MULWIDTH_MUL128 | CRYPTO_WAC_RESULTWIDTH_256BIT;
 
   /* Setup DMA request signalling in order for MCU to run in parallel with
      CRYPTO instruction sequence execution, and prepare data loading which
      can take place immediately when CRYPTO is ready inside the instruction
      sequence. */
-  CRYPTO->CTRL =
+  crypto->CTRL =
     CRYPTO_CTRL_DMA0RSEL_DATA0 | CRYPTO_CTRL_DMA0MODE_FULL |
     CRYPTO_CTRL_DMA1RSEL_DATA1 | CRYPTO_CTRL_DMA1MODE_FULL;
 
-  CRYPTO_EXECUTE_4(
+  CRYPTO_EXECUTE_4(crypto,
                    CRYPTO_CMD_INSTR_CCLR,    /* Carry = 0 */
                    CRYPTO_CMD_INSTR_CLR,     /* DDATA0 = 0 */
                    /* clear result accumulation register */
@@ -696,7 +614,7 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
   DDATA3: A(i)
   */
 
-  CRYPTO_SEQ_LOAD_10(
+  CRYPTO_SEQ_LOAD_10(crypto,
                      /* Temporarily load partial operand B(j) to DATA0. */
                      /* R(i+j+1) is still in DATA1 */
                      CRYPTO_CMD_INSTR_DMA0TODATA,
@@ -732,36 +650,36 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
     /* Load partial operand #1 A>>(i*PARTIAL_OPERAND_WIDTH) to DDATA1. */
 #ifdef USE_VARIABLE_SIZED_DATA_LOADS
     if ( (numWordsLastOperandA != 0) && ( i == numPartialOperandsA-1 ) )
-      CRYPTO_DataWriteVariableSize(cryptoRegDATA2,
+      CRYPTO_DataWriteVariableSize(&crypto->DATA2,
                                    &A[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS],
                                    numWordsLastOperandA);
     else
-      CRYPTO_DataWrite(cryptoRegDATA2, &A[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
+      CRYPTO_DataWrite(&crypto->DATA2, &A[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #else
-    CRYPTO_DataWrite(cryptoRegDATA2, &A[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
+    CRYPTO_DataWrite(&crypto->DATA2, &A[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #endif
 
     /* Load partial result in R>>(i*PARTIAL_OPERAND_WIDTH) to DATA1. */
 #ifdef USE_VARIABLE_SIZED_DATA_LOADS
     if ( (numWordsLastOperandR != 0) && ( i == numPartialOperandsR-1 ) )
-      CRYPTO_DataWriteVariableSize(cryptoRegDATA1,
+      CRYPTO_DataWriteVariableSize(&crypto->DATA1,
                                    &R[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS],
                                    numWordsLastOperandR);
     else
-      CRYPTO_DataWrite(cryptoRegDATA1, &R[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
+      CRYPTO_DataWrite(&crypto->DATA1, &R[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #else
-    CRYPTO_DataWrite(cryptoRegDATA1, &R[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
+    CRYPTO_DataWrite(&crypto->DATA1, &R[i*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #endif
-    
+
     /* Clear carry */
-    CRYPTO->CMD = CRYPTO_CMD_INSTR_CCLR;
+    crypto->CMD = CRYPTO_CMD_INSTR_CCLR;
 
     /* Setup number of sequence iterations and block size. */
-    CRYPTO->SEQCTRL = CRYPTO_SEQCTRL_BLOCKSIZE_16BYTES
+    crypto->SEQCTRL = CRYPTO_SEQCTRL_BLOCKSIZE_16BYTES
       | (PARTIAL_OPERAND_WIDTH_IN_BYTES * numPartialOperandsB);
 
     /* Execute the MULtiply instruction sequence. */
-    CRYPTO_InstructionSequenceExecute();
+    CRYPTO_InstructionSequenceExecute(crypto);
 
     for (j=0; j<numPartialOperandsB; j++)
     {
@@ -769,14 +687,14 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
          (via DATA0). */
 #ifdef USE_VARIABLE_SIZED_DATA_LOADS
       if ( (numWordsLastOperandB != 0) && ( j == numPartialOperandsB-1 ) )
-        CRYPTO_DataWriteVariableSize(cryptoRegDATA0,
+        CRYPTO_DataWriteVariableSize(&crypto->DATA0,
                                      &B[j*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS],
                                      numWordsLastOperandB);
       else
-        CRYPTO_DataWrite(cryptoRegDATA0,
+        CRYPTO_DataWrite(&crypto->DATA0,
                          &B[j*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #else
-      CRYPTO_DataWrite(cryptoRegDATA0,
+      CRYPTO_DataWrite(&crypto->DATA0,
                        &B[j*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #endif
 
@@ -784,30 +702,30 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
          R>>((i+j+1)*`PARTIAL_OPERAND_WIDTH) into DATA1. */
 #ifdef USE_VARIABLE_SIZED_DATA_LOADS
       if ( (numWordsLastOperandR != 0) && ( (i+j+1) == numPartialOperandsR-1 ) )
-        CRYPTO_DataWriteVariableSize(cryptoRegDATA1,
+        CRYPTO_DataWriteVariableSize(&crypto->DATA1,
                                      &R[(i+j+1)*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS],
                                      numWordsLastOperandR);
       else
-        CRYPTO_DataWrite(cryptoRegDATA1,
+        CRYPTO_DataWrite(&crypto->DATA1,
                          &R[(i+j+1)*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #else
-      CRYPTO_DataWrite(cryptoRegDATA1,
+      CRYPTO_DataWrite(&crypto->DATA1,
                        &R[(i+j+1)*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 #endif
       /* Store least significant partial result */
-      CRYPTO_DataRead(cryptoRegDATA0,
+      CRYPTO_DataRead(&crypto->DATA0,
                       &R[(i+j)*PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 
     } /* for (j=0; j<numPartialOperandsB; j++) */
 
     /* Handle carry at the end of the inner loop. */
-    if (CRYPTO_CarryIsSet())
+    if (CRYPTO_CarryIsSet(crypto))
       cryptoBigintIncrement(&R[(i+numPartialOperandsB+1)
                                *PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS],
                             (numPartialOperandsA-i-1)
                             *PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS);
 
-    CRYPTO_DataRead(cryptoRegDATA1,
+    CRYPTO_DataRead(&crypto->DATA1,
                     &R[(i+numPartialOperandsB)
                        * PARTIAL_OPERAND_WIDTH_IN_32BIT_WORDS]);
 
@@ -853,6 +771,9 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
  * @endverbatim
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -876,15 +797,16 @@ void CRYPTO_Mul(uint32_t * A, int aSize,
  * @param[in] encrypt
  *   Set to true to encrypt, false to decrypt.
  ******************************************************************************/
-void CRYPTO_AES_CBC128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+void CRYPTO_AES_CBC128(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       const uint8_t *   iv,
+                       bool              encrypt)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_AES_CBCx(out, in, len, key, iv, encrypt, cryptoKey128Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  CRYPTO_AES_CBCx(crypto, out, in, len, key, iv, encrypt, cryptoKey128Bits);
 }
 
 /***************************************************************************//**
@@ -896,6 +818,9 @@ void CRYPTO_AES_CBC128(uint8_t * out,
  *   Please see CRYPTO_AES_CBC128() for CBC figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -918,15 +843,16 @@ void CRYPTO_AES_CBC128(uint8_t * out,
  * @param[in] encrypt
  *   Set to true to encrypt, false to decrypt.
  ******************************************************************************/
-void CRYPTO_AES_CBC256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+void CRYPTO_AES_CBC256(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       const uint8_t *   iv,
+                       bool              encrypt)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES256;
-  CRYPTO_AES_CBCx(out, in, len, key, iv, encrypt, cryptoKey256Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  CRYPTO_AES_CBCx(crypto, out, in, len, key, iv, encrypt, cryptoKey256Bits);
 }
 
 /***************************************************************************//**
@@ -968,6 +894,9 @@ void CRYPTO_AES_CBC256(uint8_t * out,
  * @endverbatim
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -987,15 +916,16 @@ void CRYPTO_AES_CBC256(uint8_t * out,
  * @param[in] encrypt
  *   Set to true to encrypt, false to decrypt.
  ******************************************************************************/
-void CRYPTO_AES_CFB128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+void CRYPTO_AES_CFB128(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       const uint8_t *   iv,
+                       bool              encrypt)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_AES_CFBx(out, in, len, key, iv, encrypt, cryptoKey128Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  CRYPTO_AES_CFBx(crypto, out, in, len, key, iv, encrypt, cryptoKey128Bits);
 }
 
 /***************************************************************************//**
@@ -1006,6 +936,9 @@ void CRYPTO_AES_CFB128(uint8_t * out,
  *   Please see CRYPTO_AES_CFB128() for CFB figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1026,15 +959,16 @@ void CRYPTO_AES_CFB128(uint8_t * out,
  * @param[in] encrypt
  *   Set to true to encrypt, false to decrypt.
  ******************************************************************************/
-void CRYPTO_AES_CFB256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+void CRYPTO_AES_CFB256(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       const uint8_t *   iv,
+                       bool              encrypt)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES256;
-  CRYPTO_AES_CFBx(out, in, len, key, iv, encrypt, cryptoKey256Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  CRYPTO_AES_CFBx(crypto, out, in, len, key, iv, encrypt, cryptoKey256Bits);
 }
 
 /***************************************************************************//**
@@ -1074,6 +1008,9 @@ void CRYPTO_AES_CFB256(uint8_t * out,
  * @endverbatim
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -1098,15 +1035,16 @@ void CRYPTO_AES_CFB256(uint8_t * out,
  *   This parameter is included in order for backwards compatibility with
  *   the EFM32 em_aes.h API.
  ******************************************************************************/
-void CRYPTO_AES_CTR128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       uint8_t * ctr,
+void CRYPTO_AES_CTR128(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       uint8_t *         ctr,
                        CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_AES_CTRx(out, in, len, key, ctr, ctrFunc, cryptoKey128Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  CRYPTO_AES_CTRx(crypto, out, in, len, key, ctr, ctrFunc, cryptoKey128Bits);
 }
 
 /***************************************************************************//**
@@ -1117,6 +1055,9 @@ void CRYPTO_AES_CTR128(uint8_t * out,
  *   Please see CRYPTO_AES_CTR128() for CTR figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1140,15 +1081,16 @@ void CRYPTO_AES_CTR128(uint8_t * out,
  *   This parameter is included in order for backwards compatibility with
  *   the EFM32 em_aes.h API.
  ******************************************************************************/
-void CRYPTO_AES_CTR256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       uint8_t * ctr,
+void CRYPTO_AES_CTR256(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       uint8_t *         ctr,
                        CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES256;
-  CRYPTO_AES_CTRx(out, in, len, key, ctr, ctrFunc, cryptoKey256Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  CRYPTO_AES_CTRx(crypto, out, in, len, key, ctr, ctrFunc, cryptoKey256Bits);
 }
 
 /***************************************************************************//**
@@ -1180,6 +1122,9 @@ void CRYPTO_AES_CTRUpdate32Bit(uint8_t * ctr)
  * @details
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place 128 bit decryption key. Must be at least 16 bytes long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -1187,21 +1132,23 @@ void CRYPTO_AES_CTRUpdate32Bit(uint8_t * ctr)
  * @param[in] in
  *   Buffer holding 128 bit encryption key. Must be at least 16 bytes long.
  ******************************************************************************/
-void CRYPTO_AES_DecryptKey128(uint8_t * out, const uint8_t * in)
+void CRYPTO_AES_DecryptKey128(CRYPTO_TypeDef *  crypto,
+                              uint8_t *         out,
+                              const uint8_t *   in)
 {
   uint32_t       * _out = (uint32_t *) out;
   const uint32_t * _in  = (const uint32_t *) in;
 
   /* Load key */
-  CRYPTO_BurstToCrypto(&CRYPTO->KEYBUF, &_in[0]);
+  CRYPTO_BurstToCrypto(&crypto->KEYBUF, &_in[0]);
 
   /* Do dummy encryption to generate decrypt key */
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_IntClear(CRYPTO_IF_INSTRDONE);
-  CRYPTO->CMD  = CRYPTO_CMD_INSTR_AESENC;
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  CRYPTO_IntClear(crypto, CRYPTO_IF_INSTRDONE);
+  crypto->CMD  = CRYPTO_CMD_INSTR_AESENC;
 
   /* Save decryption key */
-  CRYPTO_BurstFromCrypto(&CRYPTO->KEY, &_out[0]);
+  CRYPTO_BurstFromCrypto(&crypto->KEY, &_out[0]);
 }
 
 /***************************************************************************//**
@@ -1212,6 +1159,9 @@ void CRYPTO_AES_DecryptKey128(uint8_t * out, const uint8_t * in)
  * @details
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place 256 bit decryption key. Must be at least 32 bytes long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -1219,22 +1169,24 @@ void CRYPTO_AES_DecryptKey128(uint8_t * out, const uint8_t * in)
  * @param[in] in
  *   Buffer holding 256 bit encryption key. Must be at least 32 bytes long.
  ******************************************************************************/
-void CRYPTO_AES_DecryptKey256(uint8_t * out, const uint8_t * in)
+void CRYPTO_AES_DecryptKey256(CRYPTO_TypeDef *  crypto,
+                              uint8_t *         out,
+                              const uint8_t *   in)
 {
   uint32_t       * _out = (uint32_t *) out;
   const uint32_t * _in  = (const uint32_t *) in;
 
   /* Load key */
-  CRYPTO_BurstToCrypto(&CRYPTO->KEYBUF, &_in[0]);
-  CRYPTO_BurstToCrypto(&CRYPTO->KEYBUF, &_in[4]);
+  CRYPTO_BurstToCrypto(&crypto->KEYBUF, &_in[0]);
+  CRYPTO_BurstToCrypto(&crypto->KEYBUF, &_in[4]);
 
   /* Do dummy encryption to generate decrypt key */
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES256;
-  CRYPTO->CMD  = CRYPTO_CMD_INSTR_AESENC;
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  crypto->CMD  = CRYPTO_CMD_INSTR_AESENC;
 
   /* Save decryption key */
-  CRYPTO_BurstFromCrypto(&CRYPTO->KEY, &_out[0]);
-  CRYPTO_BurstFromCrypto(&CRYPTO->KEY, &_out[4]);
+  CRYPTO_BurstFromCrypto(&crypto->KEY, &_out[0]);
+  CRYPTO_BurstFromCrypto(&crypto->KEY, &_out[4]);
 }
 
 /***************************************************************************//**
@@ -1271,6 +1223,9 @@ void CRYPTO_AES_DecryptKey256(uint8_t * out, const uint8_t * in)
  * @endverbatim
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -1289,14 +1244,15 @@ void CRYPTO_AES_DecryptKey256(uint8_t * out, const uint8_t * in)
  * @param[in] encrypt
  *   Set to true to encrypt, false to decrypt.
  ******************************************************************************/
-void CRYPTO_AES_ECB128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       bool encrypt)
+void CRYPTO_AES_ECB128(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       bool              encrypt)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_AES_ECBx(out, in, len, key, encrypt, cryptoKey128Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  CRYPTO_AES_ECBx(crypto, out, in, len, key, encrypt, cryptoKey128Bits);
 }
 
 /***************************************************************************//**
@@ -1308,6 +1264,9 @@ void CRYPTO_AES_ECB128(uint8_t * out,
  *   Please see CRYPTO_AES_ECB128() for ECB figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1327,14 +1286,15 @@ void CRYPTO_AES_ECB128(uint8_t * out,
  * @param[in] encrypt
  *   Set to true to encrypt, false to decrypt.
  ******************************************************************************/
-void CRYPTO_AES_ECB256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       bool encrypt)
+void CRYPTO_AES_ECB256(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       bool              encrypt)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES256;
-  CRYPTO_AES_ECBx(out, in, len, key, encrypt, cryptoKey256Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  CRYPTO_AES_ECBx(crypto, out, in, len, key, encrypt, cryptoKey256Bits);
 }
 
 /***************************************************************************//**
@@ -1378,6 +1338,9 @@ void CRYPTO_AES_ECB256(uint8_t * out,
  * @endverbatim
  *   Please refer to general comments on layout and byte ordering of parameters.
  *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
+ *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
@@ -1394,14 +1357,15 @@ void CRYPTO_AES_ECB256(uint8_t * out,
  * @param[in] iv
  *   128 bit initialization vector to use.
  ******************************************************************************/
-void CRYPTO_AES_OFB128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv)
+void CRYPTO_AES_OFB128(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       const uint8_t *   iv)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_AES_OFBx(out, in, len, key, iv, cryptoKey128Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  CRYPTO_AES_OFBx(crypto, out, in, len, key, iv, cryptoKey128Bits);
 }
 
 /***************************************************************************//**
@@ -1412,6 +1376,9 @@ void CRYPTO_AES_OFB128(uint8_t * out,
  *   Please see CRYPTO_AES_OFB128() for OFB figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1429,14 +1396,15 @@ void CRYPTO_AES_OFB128(uint8_t * out,
  * @param[in] iv
  *   128 bit initialization vector to use.
  ******************************************************************************/
-void CRYPTO_AES_OFB256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv)
+void CRYPTO_AES_OFB256(CRYPTO_TypeDef *  crypto,
+                       uint8_t *         out,
+                       const uint8_t *   in,
+                       unsigned int      len,
+                       const uint8_t *   key,
+                       const uint8_t *   iv)
 {
-  CRYPTO->CTRL = CRYPTO_CTRL_AES_AES256;
-  CRYPTO_AES_OFBx(out, in, len, key, iv, cryptoKey256Bits);
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  CRYPTO_AES_OFBx(crypto, out, in, len, key, iv, cryptoKey256Bits);
 }
 
 /*******************************************************************************
@@ -1451,6 +1419,9 @@ void CRYPTO_AES_OFB256(uint8_t * out,
  *   Please see CRYPTO_AES_CBC128() for CBC figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1476,52 +1447,53 @@ void CRYPTO_AES_OFB256(uint8_t * out,
  * @param[in] keyWidth
  *   Set to cryptoKey128Bits or cryptoKey256Bits.
  ******************************************************************************/
-static void CRYPTO_AES_CBCx(uint8_t * out,
-                            const uint8_t * in,
-                            unsigned int len,
-                            const uint8_t * key,
-                            const uint8_t * iv,
-                            bool encrypt,
+static void CRYPTO_AES_CBCx(CRYPTO_TypeDef *  crypto,
+                            uint8_t *         out,
+                            const uint8_t *   in,
+                            unsigned int      len,
+                            const uint8_t *   key,
+                            const uint8_t *   iv,
+                            bool              encrypt,
                             CRYPTO_KeyWidth_TypeDef keyWidth)
 {
   EFM_ASSERT(!(len % CRYPTO_AES_BLOCKSIZE));
 
   /* Initialize control registers. */
-  CRYPTO->WAC = 0;
-  
-  CRYPTO_KeyBufWrite((uint32_t *)key, keyWidth);
+  crypto->WAC = 0;
+
+  CRYPTO_KeyBufWrite(crypto, (uint32_t *)key, keyWidth);
 
   if (encrypt)
   {
-    CRYPTO_DataWrite(cryptoRegDATA0, (uint32_t *)iv);
+    CRYPTO_DataWrite(&crypto->DATA0, (uint32_t *)iv);
 
-    CRYPTO->SEQ0 =
+    crypto->SEQ0 =
       CRYPTO_CMD_INSTR_DATA1TODATA0XOR << _CRYPTO_SEQ0_INSTR0_SHIFT |
       CRYPTO_CMD_INSTR_AESENC          << _CRYPTO_SEQ0_INSTR1_SHIFT;
-        
-    CRYPTO_AES_ProcessLoop(len,
-                           cryptoRegDATA1, (uint32_t *) in,
-                           cryptoRegDATA0, (uint32_t *) out);
+
+    CRYPTO_AES_ProcessLoop(crypto, len,
+                           &crypto->DATA1, (uint32_t *) in,
+                           &crypto->DATA0, (uint32_t *) out);
   }
   else
   {
-    CRYPTO_DataWrite(cryptoRegDATA2, (uint32_t *) iv);
+    CRYPTO_DataWrite(&crypto->DATA2, (uint32_t *) iv);
 
-    CRYPTO->SEQ0 =
+    crypto->SEQ0 =
       CRYPTO_CMD_INSTR_DATA1TODATA0    << _CRYPTO_SEQ0_INSTR0_SHIFT |
       CRYPTO_CMD_INSTR_AESDEC          << _CRYPTO_SEQ0_INSTR1_SHIFT |
       CRYPTO_CMD_INSTR_DATA2TODATA0XOR << _CRYPTO_SEQ0_INSTR2_SHIFT |
       CRYPTO_CMD_INSTR_DATA1TODATA2    << _CRYPTO_SEQ0_INSTR3_SHIFT;
 
-    CRYPTO->SEQ1 = 0;
+    crypto->SEQ1 = 0;
 
     /* The following call is equivalent to the last call in the
        'if( encrypt )' branch. However moving this
        call outside the conditional scope results in slightly poorer
        performance for some compiler optimizations. */
-    CRYPTO_AES_ProcessLoop(len,
-                           cryptoRegDATA1, (uint32_t *) in,
-                           cryptoRegDATA0, (uint32_t *) out);
+    CRYPTO_AES_ProcessLoop(crypto, len,
+                           &crypto->DATA1, (uint32_t *) in,
+                           &crypto->DATA0, (uint32_t *) out);
   }
 }
 
@@ -1533,6 +1505,9 @@ static void CRYPTO_AES_CBCx(uint8_t * out,
  *   Please see CRYPTO_AES_CFB128() for CFB figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1556,52 +1531,53 @@ static void CRYPTO_AES_CBCx(uint8_t * out,
  * @param[in] keyWidth
  *   Set to cryptoKey128Bits or cryptoKey256Bits.
  ******************************************************************************/
-static void CRYPTO_AES_CFBx(uint8_t * out,
-                            const uint8_t * in,
-                            unsigned int len,
-                            const uint8_t * key,
-                            const uint8_t * iv,
-                            bool encrypt,
+static void CRYPTO_AES_CFBx(CRYPTO_TypeDef *  crypto,
+                            uint8_t *         out,
+                            const uint8_t *   in,
+                            unsigned int      len,
+                            const uint8_t *   key,
+                            const uint8_t *   iv,
+                            bool              encrypt,
                             CRYPTO_KeyWidth_TypeDef keyWidth)
 {
   EFM_ASSERT(!(len % CRYPTO_AES_BLOCKSIZE));
 
   /* Initialize control registers. */
-  CRYPTO->WAC = 0;
+  crypto->WAC = 0;
 
   /* Load Key */
-  CRYPTO_KeyBufWrite((uint32_t *)key, keyWidth);
+  CRYPTO_KeyBufWrite(crypto, (uint32_t *)key, keyWidth);
 
   /* Load instructions to CRYPTO sequencer. */
   if (encrypt)
   {
     /* Load IV */
-    CRYPTO_DataWrite(cryptoRegDATA0, (uint32_t *)iv);
+    CRYPTO_DataWrite(&crypto->DATA0, (uint32_t *)iv);
 
-    CRYPTO->SEQ0 =
+    crypto->SEQ0 =
       CRYPTO_CMD_INSTR_AESENC          << _CRYPTO_SEQ0_INSTR0_SHIFT |
       CRYPTO_CMD_INSTR_DATA1TODATA0XOR << _CRYPTO_SEQ0_INSTR1_SHIFT;
-    
-    CRYPTO_AES_ProcessLoop(len,
-                           cryptoRegDATA1, (uint32_t *)in,
-                           cryptoRegDATA0, (uint32_t *)out
+
+    CRYPTO_AES_ProcessLoop(crypto, len,
+                           &crypto->DATA1, (uint32_t *)in,
+                           &crypto->DATA0, (uint32_t *)out
                            );
   }
   else
   {
     /* Load IV */
-    CRYPTO_DataWrite(cryptoRegDATA2, (uint32_t *)iv);
+    CRYPTO_DataWrite(&crypto->DATA2, (uint32_t *)iv);
 
-    CRYPTO->SEQ0 =
+    crypto->SEQ0 =
       CRYPTO_CMD_INSTR_DATA2TODATA0    << _CRYPTO_SEQ0_INSTR0_SHIFT |
       CRYPTO_CMD_INSTR_AESENC          << _CRYPTO_SEQ0_INSTR1_SHIFT |
       CRYPTO_CMD_INSTR_DATA1TODATA0XOR << _CRYPTO_SEQ0_INSTR2_SHIFT |
       CRYPTO_CMD_INSTR_DATA1TODATA2    << _CRYPTO_SEQ0_INSTR3_SHIFT;
-    CRYPTO->SEQ1 = 0;
-    
-    CRYPTO_AES_ProcessLoop(len,
-                           cryptoRegDATA1, (uint32_t *)in,
-                           cryptoRegDATA0, (uint32_t *)out
+    crypto->SEQ1 = 0;
+
+    CRYPTO_AES_ProcessLoop(crypto, len,
+                           &crypto->DATA1, (uint32_t *)in,
+                           &crypto->DATA0, (uint32_t *)out
                            );
   }
 }
@@ -1614,6 +1590,9 @@ static void CRYPTO_AES_CFBx(uint8_t * out,
  *   Please see CRYPTO_AES_CTR128() for CTR figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1640,38 +1619,39 @@ static void CRYPTO_AES_CFBx(uint8_t * out,
  * @param[in] keyWidth
  *   Set to cryptoKey128Bits or cryptoKey256Bits.
  ******************************************************************************/
-static void CRYPTO_AES_CTRx(uint8_t * out,
-                            const uint8_t * in,
-                            unsigned int len,
-                            const uint8_t * key,
-                            uint8_t * ctr,
+static void CRYPTO_AES_CTRx(CRYPTO_TypeDef *  crypto,
+                            uint8_t *         out,
+                            const uint8_t *   in,
+                            unsigned int      len,
+                            const uint8_t *   key,
+                            uint8_t *         ctr,
                             CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc,
                             CRYPTO_KeyWidth_TypeDef keyWidth)
 {
   (void) ctrFunc;
-  
+
   EFM_ASSERT(!(len % CRYPTO_AES_BLOCKSIZE));
 
   /* Initialize control registers. */
-  CRYPTO->CTRL |= CRYPTO_CTRL_INCWIDTH_INCWIDTH4;
-  CRYPTO->WAC   = 0;
+  crypto->CTRL |= CRYPTO_CTRL_INCWIDTH_INCWIDTH4;
+  crypto->WAC   = 0;
 
-  CRYPTO_KeyBufWrite((uint32_t *)key, keyWidth);
+  CRYPTO_KeyBufWrite(crypto, (uint32_t *)key, keyWidth);
 
-  CRYPTO_DataWrite(cryptoRegDATA1, (uint32_t *) ctr);
+  CRYPTO_DataWrite(&crypto->DATA1, (uint32_t *) ctr);
 
-  CRYPTO->SEQ0 = CRYPTO_CMD_INSTR_DATA1TODATA0  << _CRYPTO_SEQ0_INSTR0_SHIFT |
+  crypto->SEQ0 = CRYPTO_CMD_INSTR_DATA1TODATA0  << _CRYPTO_SEQ0_INSTR0_SHIFT |
                  CRYPTO_CMD_INSTR_AESENC        << _CRYPTO_SEQ0_INSTR1_SHIFT |
                  CRYPTO_CMD_INSTR_DATA0TODATA3  << _CRYPTO_SEQ0_INSTR2_SHIFT |
                  CRYPTO_CMD_INSTR_DATA1INC      << _CRYPTO_SEQ0_INSTR3_SHIFT;
 
-  CRYPTO->SEQ1 = CRYPTO_CMD_INSTR_DATA2TODATA0XOR << _CRYPTO_SEQ1_INSTR4_SHIFT;
+  crypto->SEQ1 = CRYPTO_CMD_INSTR_DATA2TODATA0XOR << _CRYPTO_SEQ1_INSTR4_SHIFT;
 
-  CRYPTO_AES_ProcessLoop(len,
-                         cryptoRegDATA2, (uint32_t *) in,
-                         cryptoRegDATA0, (uint32_t *) out);
+  CRYPTO_AES_ProcessLoop(crypto, len,
+                         &crypto->DATA2, (uint32_t *) in,
+                         &crypto->DATA0, (uint32_t *) out);
 
-  CRYPTO_DataRead(cryptoRegDATA1, (uint32_t *) ctr);
+  CRYPTO_DataRead(&crypto->DATA1, (uint32_t *) ctr);
 }
 
 /***************************************************************************//**
@@ -1682,6 +1662,9 @@ static void CRYPTO_AES_CTRx(uint8_t * out,
  *   Please see CRYPTO_AES_ECB128() for ECB figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1704,35 +1687,36 @@ static void CRYPTO_AES_CTRx(uint8_t * out,
  * @param[in] keyWidth
  *   Set to cryptoKey128Bits or cryptoKey256Bits.
  ******************************************************************************/
-static void CRYPTO_AES_ECBx(uint8_t * out,
-                            const uint8_t * in,
-                            unsigned int len,
-                            const uint8_t * key,
-                            bool encrypt,
+static void CRYPTO_AES_ECBx(CRYPTO_TypeDef *  crypto,
+                            uint8_t *         out,
+                            const uint8_t *   in,
+                            unsigned int      len,
+                            const uint8_t *   key,
+                            bool              encrypt,
                             CRYPTO_KeyWidth_TypeDef keyWidth)
 {
   EFM_ASSERT(!(len % CRYPTO_AES_BLOCKSIZE));
 
-  CRYPTO->WAC = 0;
+  crypto->WAC = 0;
 
-  CRYPTO_KeyBufWrite((uint32_t *)key, keyWidth);
+  CRYPTO_KeyBufWrite(crypto, (uint32_t *)key, keyWidth);
 
   if (encrypt)
   {
-    CRYPTO->SEQ0 =
+    crypto->SEQ0 =
       (CRYPTO_CMD_INSTR_AESENC       << _CRYPTO_SEQ0_INSTR0_SHIFT |
        CRYPTO_CMD_INSTR_DATA0TODATA1 << _CRYPTO_SEQ0_INSTR1_SHIFT);
   }
   else
   {
-    CRYPTO->SEQ0 =
+    crypto->SEQ0 =
       (CRYPTO_CMD_INSTR_AESDEC       << _CRYPTO_SEQ0_INSTR0_SHIFT |
        CRYPTO_CMD_INSTR_DATA0TODATA1 << _CRYPTO_SEQ0_INSTR1_SHIFT);
   }
 
-  CRYPTO_AES_ProcessLoop(len,
-                         cryptoRegDATA0, (uint32_t *) in,
-                         cryptoRegDATA1, (uint32_t *) out);
+  CRYPTO_AES_ProcessLoop(crypto, len,
+                         &crypto->DATA0, (uint32_t *) in,
+                         &crypto->DATA1, (uint32_t *) out);
 }
 
 /***************************************************************************//**
@@ -1743,6 +1727,9 @@ static void CRYPTO_AES_ECBx(uint8_t * out,
  *   Please see CRYPTO_AES_OFB128() for OFB figure.
  *
  *   Please refer to general comments on layout and byte ordering of parameters.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[out] out
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
@@ -1763,33 +1750,34 @@ static void CRYPTO_AES_ECBx(uint8_t * out,
  * @param[in] keyWidth
  *   Set to cryptoKey128Bits or cryptoKey256Bits.
  ******************************************************************************/
-static void CRYPTO_AES_OFBx(uint8_t * out,
-                            const uint8_t * in,
-                            unsigned int len,
-                            const uint8_t * key,
-                            const uint8_t * iv,
+static void CRYPTO_AES_OFBx(CRYPTO_TypeDef *  crypto,
+                            uint8_t *         out,
+                            const uint8_t *   in,
+                            unsigned int      len,
+                            const uint8_t *   key,
+                            const uint8_t *   iv,
                             CRYPTO_KeyWidth_TypeDef keyWidth)
 {
   EFM_ASSERT(!(len % CRYPTO_AES_BLOCKSIZE));
 
-  CRYPTO->WAC = 0;
+  crypto->WAC = 0;
 
-  CRYPTO_KeyBufWrite((uint32_t *)key, keyWidth);
+  CRYPTO_KeyBufWrite(crypto, (uint32_t *)key, keyWidth);
 
-  CRYPTO_DataWrite(cryptoRegDATA2, (uint32_t *)iv);
+  CRYPTO_DataWrite(&crypto->DATA2, (uint32_t *)iv);
 
-  CRYPTO->SEQ0 =
+  crypto->SEQ0 =
     CRYPTO_CMD_INSTR_DATA0TODATA1    << _CRYPTO_SEQ0_INSTR0_SHIFT |
     CRYPTO_CMD_INSTR_DATA2TODATA0    << _CRYPTO_SEQ0_INSTR1_SHIFT |
     CRYPTO_CMD_INSTR_AESENC          << _CRYPTO_SEQ0_INSTR2_SHIFT |
     CRYPTO_CMD_INSTR_DATA0TODATA2    << _CRYPTO_SEQ0_INSTR3_SHIFT;
-  CRYPTO->SEQ1 =
+  crypto->SEQ1 =
     CRYPTO_CMD_INSTR_DATA1TODATA0XOR << _CRYPTO_SEQ1_INSTR4_SHIFT |
     CRYPTO_CMD_INSTR_DATA0TODATA1    << _CRYPTO_SEQ1_INSTR5_SHIFT;
 
-  CRYPTO_AES_ProcessLoop(len,
-                         cryptoRegDATA0, (uint32_t *) in,
-                         cryptoRegDATA1, (uint32_t *) out);
+  CRYPTO_AES_ProcessLoop(crypto, len,
+                         &crypto->DATA0, (uint32_t *) in,
+                         &crypto->DATA1, (uint32_t *) out);
 }
 
 /***************************************************************************//**
@@ -1800,6 +1788,9 @@ static void CRYPTO_AES_OFBx(uint8_t * out,
  *   Function loads given register with provided input data. Triggers CRYPTO to
  *   perform sequence of instructions and read specified output register to
  *   output buffer.
+ *
+ * @param[in]  crypto
+ *   Pointer to CRYPTO peripheral register block.
  *
  * @param[in] len
  *   Number of bytes to encrypt/decrypt. Must be a multiple of 16.
@@ -1817,21 +1808,22 @@ static void CRYPTO_AES_OFBx(uint8_t * out,
  *   Buffer to place encrypted/decrypted data. Must be at least @p len long. It
  *   may be set equal to @p in, in which case the input buffer is overwritten.
  ******************************************************************************/
-static inline void CRYPTO_AES_ProcessLoop(uint32_t                len,
+static inline void CRYPTO_AES_ProcessLoop(CRYPTO_TypeDef *        crypto,
+                                          uint32_t                len,
                                           CRYPTO_DataReg_TypeDef  inReg,
                                           uint32_t *              in,
                                           CRYPTO_DataReg_TypeDef  outReg,
                                           uint32_t *              out)
 {
   len /= CRYPTO_AES_BLOCKSIZE;
-  CRYPTO->SEQCTRL = 16 << _CRYPTO_SEQCTRL_LENGTHA_SHIFT;
+  crypto->SEQCTRL = 16 << _CRYPTO_SEQCTRL_LENGTHA_SHIFT;
 
   while (len--)
   {
     /* Load data and trigger encryption */
     CRYPTO_DataWrite(inReg, (uint32_t *)in);
 
-    CRYPTO->CMD = CRYPTO_CMD_SEQSTART;
+    crypto->CMD = CRYPTO_CMD_SEQSTART;
 
     /* Save encrypted/decrypted data */
     CRYPTO_DataRead(outReg, (uint32_t *)out);
@@ -1842,6 +1834,6 @@ static inline void CRYPTO_AES_ProcessLoop(uint32_t                len,
 }
 
 /** @} (end addtogroup CRYPTO) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #endif /* defined(CRYPTO_COUNT) && (CRYPTO_COUNT > 0) */

@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_acmp.h
  * @brief Analog Comparator (ACMP) peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_ACMP_H__
-#define __SILICON_LABS_EM_ACMP_H__
+#ifndef EM_ACMP_H
+#define EM_ACMP_H
 
 #include "em_device.h"
 #if defined(ACMP_COUNT) && (ACMP_COUNT > 0)
@@ -44,12 +44,48 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup ACMP
+ * @brief Analog comparator (ACMP) Peripheral API
+ *
+ * @details
+ *  The Analog Comparator is used to compare the voltage of two analog inputs,
+ *  with a digital output indicating which input voltage is higher. Inputs can
+ *  either be one of the selectable internal references or from external pins.
+ *  Response time and thereby also the current consumption can be configured by
+ *  altering the current supply to the comparator.
+ *
+ *  The ACMP is available down to EM3 and is able to wakeup the system when
+ *  input signals pass a certain threshold. Use @ref ACMP_IntEnable to enable
+ *  an edge interrupt to use this functionality.
+ *
+ *  Here is an example of how to use the em_acmp.h API for comparing an input
+ *  pin to an internal 2.5V reference voltage.
+ *
+ *  @if DOXYDOC_P1_DEVICE
+ *  @include em_acmp_compare_p1.c
+ *  @endif
+ *
+ *  @if DOXYDOC_P2_DEVICE
+ *  @include em_acmp_compare_p2.c
+ *  @endif
+ *
+ * @note
+ *  The ACMP can also be used to compare two separate input pins.
+ *
+ * @details
+ *  The ACMP also contains specialized hardware for capacitive sensing. This
+ *  module contains the function @ref ACMP_CapsenseInit for initializing the
+ *  ACMP for capacitive sensing and the function @ref ACMP_CapsenseChannelSet
+ *  for selecting the current capsense channel.
+ *
+ *  For applications that require capacitive sensing it is recommended to use a
+ *  library like cslib which is provided by Silicon Labs.
+ *
  * @{
  ******************************************************************************/
 
@@ -807,7 +843,8 @@ void ACMP_VBSetup(ACMP_TypeDef *acmp, const ACMP_VBConfig_TypeDef *vbconfig);
  *
  * @param[in] flags
  *   Pending ACMP interrupt source to clear. Use a bitwise logic OR combination
- *   of valid interrupt flags for the ACMP module (ACMP_IF_nnn).
+ *   of valid interrupt flags for the ACMP module. The flags can be for instance
+ *   @ref ACMP_IFC_EDGE or @ref ACMP_IFC_WARMUP.
  ******************************************************************************/
 __STATIC_INLINE void ACMP_IntClear(ACMP_TypeDef *acmp, uint32_t flags)
 {
@@ -824,7 +861,8 @@ __STATIC_INLINE void ACMP_IntClear(ACMP_TypeDef *acmp, uint32_t flags)
  *
  * @param[in] flags
  *   ACMP interrupt sources to disable. Use a bitwise logic OR combination of
- *   valid interrupt flags for the ACMP module (ACMP_IF_nnn).
+ *   valid interrupt flags for the ACMP module. The flags can be for instance
+ *   @ref ACMP_IEN_EDGE or @ref ACMP_IEN_WARMUP.
  ******************************************************************************/
 __STATIC_INLINE void ACMP_IntDisable(ACMP_TypeDef *acmp, uint32_t flags)
 {
@@ -846,7 +884,8 @@ __STATIC_INLINE void ACMP_IntDisable(ACMP_TypeDef *acmp, uint32_t flags)
  *
  * @param[in] flags
  *   ACMP interrupt sources to enable. Use a bitwise logic OR combination of
- *   valid interrupt flags for the ACMP module (ACMP_IF_nnn).
+ *   valid interrupt flags for the ACMP module. The flags can be for instance
+ *   @ref ACMP_IEN_EDGE or @ref ACMP_IEN_WARMUP.
  ******************************************************************************/
 __STATIC_INLINE void ACMP_IntEnable(ACMP_TypeDef *acmp, uint32_t flags)
 {
@@ -866,7 +905,8 @@ __STATIC_INLINE void ACMP_IntEnable(ACMP_TypeDef *acmp, uint32_t flags)
  *
  * @return
  *   ACMP interrupt sources pending. A bitwise logic OR combination of valid
- *   interrupt flags for the ACMP module (ACMP_IF_nnn).
+ *   interrupt flags for the ACMP module. The pending interrupt sources can be
+ *   for instance @ref ACMP_IF_EDGE or @ref ACMP_IF_WARMUP.
  ******************************************************************************/
 __STATIC_INLINE uint32_t ACMP_IntGet(ACMP_TypeDef *acmp)
 {
@@ -915,7 +955,8 @@ __STATIC_INLINE uint32_t ACMP_IntGetEnabled(ACMP_TypeDef *acmp)
  *
  * @param[in] flags
  *   ACMP interrupt sources to set to pending. Use a bitwise logic OR
- *   combination of valid interrupt flags for the ACMP module (ACMP_IF_nnn).
+ *   combination of valid interrupt flags for the ACMP module. The flags can be
+ *   for instance @ref ACMP_IFS_EDGE or @ref ACMP_IFS_WARMUP.
  ******************************************************************************/
 __STATIC_INLINE void ACMP_IntSet(ACMP_TypeDef *acmp, uint32_t flags)
 {
@@ -923,11 +964,11 @@ __STATIC_INLINE void ACMP_IntSet(ACMP_TypeDef *acmp, uint32_t flags)
 }
 
 /** @} (end addtogroup ACMP) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(ACMP_COUNT) && (ACMP_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_ACMP_H__ */
+#endif /* EM_ACMP_H */

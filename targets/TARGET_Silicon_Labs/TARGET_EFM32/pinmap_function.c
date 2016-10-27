@@ -23,7 +23,7 @@
 
 #include "pinmap_function.h"
 #include "PinNames.h"
-#include "error.h"
+#include "mbed_error.h"
 
 /**
  * Get the value of the function field for a pin in a pinmap
