@@ -58,10 +58,13 @@ extern "C" {
 #include "nRF5xServiceDiscovery.h"
 #include "nRF5xCharacteristicDescriptorDiscoverer.h"
 
+
 bool isEventsSignaled = false;
 
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
+extern "C" void SD_EVT_IRQHandler(void); // export the softdevice event handler for registration by nvic-set-vector.
+
 
 static void btle_handler(ble_evt_t *p_ble_evt);
 
@@ -112,10 +115,14 @@ static uint32_t signalEvent()
     return NRF_SUCCESS;
 }
 
+
 error_t btle_init(void)
 {
     nrf_clock_lf_cfg_t clockConfiguration;
 
+    // register softdevice handler vector
+    NVIC_SetVector(SD_EVT_IRQn, (uint32_t) SD_EVT_IRQHandler);
+    
     // Configure the LF clock according to values provided by btle_clock.h.
     // It is input from the chain of the yotta configuration system.
     clockConfiguration.source        = LFCLK_CONF_SOURCE;

@@ -9,6 +9,5 @@ requests
 mbed-ls>=0.2.13
 mbed-host-tests>=1.1.2
 mbed-greentea>=0.2.24
-pycurl>=4
 beautifulsoup4>=4
 fuzzywuzzy>=0.11

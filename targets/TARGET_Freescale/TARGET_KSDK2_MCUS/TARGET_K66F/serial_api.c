@@ -47,10 +47,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
 
-    // Need to initialize the clocks here as ticker init gets called before mbed_sdk_init
-    if (SystemCoreClock == DEFAULT_SYSTEM_CLOCK)
-        BOARD_BootClockRUN();
-
     uart_config_t config;
 
     UART_GetDefaultConfig(&config);

@@ -38,9 +38,13 @@ static const nrf_drv_saadc_config_t saadc_config =
     .interrupt_priority = APP_IRQ_PRIORITY_LOW
 };
 
+void SAADC_IRQHandler(void);
+
 void analogin_init(analogin_t *obj, PinName pin)
 {
     ret_code_t ret_code;
+    
+    NVIC_SetVector(SAADC_IRQn, (uint32_t)SAADC_IRQHandler);
     
     ret_code = nrf_drv_saadc_init(&saadc_config, analog_in_event_handler);
     MBED_ASSERT(((ret_code == NRF_SUCCESS) || (ret_code == NRF_ERROR_INVALID_STATE))); //NRF_ERROR_INVALID_STATE expected for multiple channels used.

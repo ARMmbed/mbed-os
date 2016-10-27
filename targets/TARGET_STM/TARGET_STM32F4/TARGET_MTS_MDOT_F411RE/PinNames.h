@@ -208,6 +208,53 @@ typedef enum {
     LORA_MISO   = PB_14,
     LORA_MOSI   = PB_15,
 
+    // UART pins
+    UART_TX = PA_2,
+    UART_RX = PA_3,
+    UART_CTS = PA_0,
+    UART_RTS = PA_1,
+
+    // SPI pins
+    SPI_MOSI = PA_7,
+    SPI_MISO = PA_6,
+    SPI_SCK = PA_5,
+    SPI_NSS = PA_4,
+
+    // UDK2 pins
+    A0 = PB_1,
+    A1 = PB_0,
+    A2 = PC_1,
+    D0 = PA_3,
+    D1 = PA_2,
+    D2 = PC_13,
+    D3 = PA_0,
+    D6 = PA_1,
+    D7 = PA_11,
+    D10 = PA_4,
+    D11 = PA_7,
+    D12 = PA_6,
+    D13 = PA_5,
+    D14 = PC_9,
+    D15 = PA_8,
+
+    // mDot GPIO pins
+    GPIO0 = PB_1,
+    GPIO1 = PB_0,
+    GPIO2 = PA_5,
+    GPIO3 = PA_4,
+    GPIO4 = PA_1,
+    GPIO5 = PA_0,
+    GPIO6 = PA_7,
+    GPIO7 = PA_6,
+    ASSOCIATE = PC_1,
+    ON_SLEEP = PC_13,
+    SLEEPRQ = PA_11,
+    RSSI = PA_8,
+    JTAG_SWCLK = PA_14,
+    JTAG_SWIO = PA_13,
+    JTAG_NRST = PB_4,
+    JTAG_SWO = PB_3,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

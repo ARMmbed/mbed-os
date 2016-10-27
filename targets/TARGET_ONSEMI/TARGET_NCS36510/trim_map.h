@@ -50,10 +50,10 @@
 **************************************************************************************************/
 
 /** trim register map */
-typedef struct {                          /**< REV B             REV D    */
-    __I uint32_t PAD0;                    /**< 0x1FA0         0x1FA0    */
-    __I uint32_t APP_RESERVED0;           /**< 0x1FA4         0x1FA4    */
-    __I uint32_t APP_RESERVED1;           /**< 0x1FA8         0x1FA8    */
+typedef struct {                        /**< REV B          REV D   */
+    __I uint32_t PAD0;                  /**< 0x1FA0         0x1FA0  */
+    __I uint32_t MAC_ADDR_LOW;          /**< 0x1FA4 */
+    __I uint32_t MAC_ADDR_HIGH;         /**< 0x1FA8 */
 #ifdef REVB
     __I uint32_t TX_POWER;                /**< 0x1FAC */
 #endif

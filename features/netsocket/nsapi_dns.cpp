@@ -102,7 +102,7 @@ static void dns_append_question(uint8_t **p, const char *host, nsapi_version_t v
     dns_append_byte(p, 0);
 
     // fill out question footer
-    if (version == NSAPI_IPv4) {
+    if (version != NSAPI_IPv6) {
         dns_append_word(p, RR_A);       // qtype  = ipv4
     } else {
         dns_append_word(p, RR_AAAA);    // qtype  = ipv6

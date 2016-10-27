@@ -75,7 +75,6 @@ void pin_mode(PinName pin, PinMode mode)
 
         default:
             break;
-
     }
 
     /** - Disable the clock for PAD peripheral device */

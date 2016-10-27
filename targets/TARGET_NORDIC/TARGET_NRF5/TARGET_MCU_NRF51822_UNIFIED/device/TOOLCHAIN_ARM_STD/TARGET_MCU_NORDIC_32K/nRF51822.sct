@@ -12,13 +12,16 @@
 ;
 ;WITH SOFTDEVICE:
 
-LR_IROM1 0x0001B000 0x0025000  {
-  ER_IROM1 0x0001B000 0x0025000  {
+LR_IROM1 0x1B000 0x0025000  {
+  ER_IROM1 0x1B000 0x0025000  {
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM1 0x20002ef8 0x5108  {
+  RW_IRAM0 0x20002ef8 UNINIT 0x000000c0  { ;no init section
+        *(noinit)
+  }
+  RW_IRAM1 0x20002FB8 0x00005048  {
    .ANY (+RW +ZI)
   }
 }
