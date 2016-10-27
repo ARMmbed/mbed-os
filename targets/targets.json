@@ -2320,7 +2320,7 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG"],
         "features": ["LWIP"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["5"],
         "device_name": "NUC472HI8AE"
     },
     "NCS36510": {
