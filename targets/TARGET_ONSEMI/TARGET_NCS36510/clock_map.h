@@ -116,8 +116,27 @@ typedef struct {
     __IO uint32_t WDIV;                                     /**< 0x4001B020 Watchdog clock divider */
     __IO uint32_t TRIM_32M_INT;                             /**< 0x4001B024 32Mhz internal trim */
     __IO uint32_t TRIM_32K_INT;                             /**< 0x4001B02C 32kHz internal trim */
-    __IO uint32_t TRIM_32M_EXT;                             /**< 0x4001B030 32Mhz external trim */
-    __IO uint32_t TRIM_32K_EXT;                             /**< 0x4001B034 32Khz external trim */
+    union {
+        struct {
+            __IO uint32_t TRIM_VALUE :6;    /* External 32MHz Trim Value   */
+            __IO uint32_t BOOST :2;         /* Boost done signal tap control   */
+            __IO uint32_t READY :2;         /* Ready signal tap control   */
+            __IO uint32_t GAIN_MODE :2;     /* Gain Mode   */
+            __IO uint32_t PAD :20;          /* Unused bits   */
+        } BITS;
+        __IO uint32_t WORD;
+    } TRIM_32M_EXT;                                                                 /**< 0x4001B030 32Mhz external trim */
+
+    union {
+        struct {
+            __IO uint32_t TRIM_VALUE :6;    /* External 32MHz Trim Value   */
+            __IO uint32_t BOOST :2;         /* Boost done signal tap control   */
+            __IO uint32_t READY :2;         /* Ready signal tap control   */
+            __IO uint32_t GAIN_MODE :2;     /* Gain Mode   */
+            __IO uint32_t PAD :20;          /* Unused bits   */
+        } BITS;
+        __IO uint32_t WORD;
+    } TRIM_32K_EXT;
     union {
         struct {
             __IO uint32_t OV32M;

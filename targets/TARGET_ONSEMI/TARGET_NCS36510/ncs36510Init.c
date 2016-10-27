@@ -37,6 +37,7 @@
 #include "ncs36510Init.h"
 
 void fPmuInit(void);
+uint32_t ADC_Trim_Offset;
 /**
  * @brief
  * Hardware trimming function
@@ -45,24 +46,35 @@ void fPmuInit(void);
  */
 boolean fTrim()
 {
+    boolean status = False;
 
     /**- Check if trim values are present */
     /**- If Trim data is present.  Only trim if valid trim values are present. */
     /**- Copy trims in registers */
     if (TRIMREG->REVISION_CODE != 0xFFFFFFFF) {
 
+        if ( TRIMREG->MAC_ADDR_LOW != 0xFFFFFFFF ) {
+            MACHWREG->LONG_ADDRESS_LOW = TRIMREG->MAC_ADDR_LOW;
+        }
+
+        if ( TRIMREG->MAC_ADDR_HIGH != 0xFFFFFFFF ) {
+            MACHWREG->LONG_ADDRESS_HIGH = TRIMREG->MAC_ADDR_HIGH;
+        }
+
         /**- board specific clock trims may only be done when present, writing all 1's is not good */
         if ((TRIMREG->TRIM_32K_EXT & 0xFFFF0000) != 0xFFFF0000) {
-            CLOCKREG->TRIM_32K_EXT = TRIMREG->TRIM_32K_EXT;
+            CLOCKREG->TRIM_32K_EXT.WORD = TRIMREG->TRIM_32K_EXT;
         }
 
         if ((TRIMREG->TRIM_32M_EXT & 0xFFFF0000) != 0xFFFF0000) {
-            CLOCKREG->TRIM_32M_EXT = TRIMREG->TRIM_32M_EXT;
+            CLOCKREG->TRIM_32M_EXT.WORD = TRIMREG->TRIM_32M_EXT;
         }
 
         MACHWREG->TX_LENGTH.BITS.TX_PRE_CHIPS = TRIMREG->TX_PRE_CHIPS;
 
-        RFANATRIMREG->TX_CHAIN_TRIM = TRIMREG->TX_CHAIN_TRIM;
+        if ((TRIMREG->TX_TRIM & 0xFFFF0000) != 0xFFFF0000) {
+            RFANATRIMREG->TX_TRIM.WORD = TRIMREG->TX_TRIM;
+        }
         RFANATRIMREG->PLL_VCO_TAP_LOCATION = TRIMREG->PLL_VCO_TAP_LOCATION;
         RFANATRIMREG->PLL_TRIM.WORD = TRIMREG->PLL_TRIM;
 
@@ -75,27 +87,48 @@ boolean fTrim()
         RFANATRIMREG->PMU_TRIM = TRIMREG->PMU_TRIM;
         RANDREG->WR_SEED_RD_RAND = TRIMREG->WR_SEED_RD_RAND;
 
-        /** REVD boards are trimmed (in flash) with rx vco trims specific for high side injection,
-        * */
+        /* High side injection settings */
         RFANATRIMREG->RX_VCO_TRIM_LUT1 = TRIMREG->RX_VCO_LUT1.WORD;;
         RFANATRIMREG->RX_VCO_TRIM_LUT2 = TRIMREG->RX_VCO_LUT2.WORD;;
 
         RFANATRIMREG->TX_VCO_TRIM_LUT1 = TRIMREG->TX_VCO_LUT1.WORD;;
         RFANATRIMREG->TX_VCO_TRIM_LUT2 = TRIMREG->TX_VCO_LUT2.WORD;;
 
-        if ( TRIMREG->MAC_ADDR_LOW != 0xFFFFFFFF ) {
-            MACHWREG->LONG_ADDRESS_LOW = TRIMREG->MAC_ADDR_LOW;
-        }
+        ADC_Trim_Offset = TRIMREG->ADC_OFFSET_TRIM;
 
-        if ( TRIMREG->MAC_ADDR_HIGH != 0xFFFFFFFF ) {
-            MACHWREG->LONG_ADDRESS_HIGH = TRIMREG->MAC_ADDR_HIGH;
-        }
+        status = True;
 
-        return True;
     } else {
-        /**- If no trim values are present, update the global status variable. */
-        return False;
+
+        return(False);
     }
+
+    /** Read in user trim values programmed in the flash memory
+    The user trim values take precedence over factory trim for MAC address
+    */
+    if (( USERTRIMREG->MAC_ADDRESS_LOW != 0xFFFFFFFF ) &&
+            (USERTRIMREG->MAC_ADDRESS_HIGH != 0xFFFFFFFF)) {
+
+        MACHWREG->LONG_ADDRESS_LOW = USERTRIMREG->MAC_ADDRESS_LOW;
+        MACHWREG->LONG_ADDRESS_HIGH = USERTRIMREG->MAC_ADDRESS_HIGH;
+    }
+
+    if (USERTRIMREG->TRIM_32K_EXT != 0xFFFFFFFF) {
+        CLOCKREG->TRIM_32K_EXT.WORD = (USERTRIMREG->TRIM_32K_EXT & 0x00000FFF);
+    }
+
+    if (USERTRIMREG->TRIM_32K_EXT != 0xFFFFFFFF) {
+        CLOCKREG->TRIM_32K_EXT.WORD = (USERTRIMREG->TRIM_32K_EXT & 0x00000FFF);
+    }
+
+    if (USERTRIMREG->RSSI_OFFSET != 0xFFFFFFFF) {
+        DMDREG->DMD_CONTROL2.BITS.RSSI_OFFSET = (USERTRIMREG->RSSI_OFFSET & 0x0000003F);
+    }
+
+    if (USERTRIMREG->TX_TRIM != 0xFFFFFFFF) {
+        RFANATRIMREG->TX_TRIM.BITS.TX_TUNE = (USERTRIMREG->TX_TRIM & 0x0000000F);
+    }
+    return(status);
 }
 
 /* See clock.h for documentation. */
