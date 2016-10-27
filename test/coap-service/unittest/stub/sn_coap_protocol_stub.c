@@ -94,3 +94,7 @@ coap_send_msg_s *sn_coap_protocol_allocate_mem_for_msg(struct coap_s *handle, sn
     return sn_coap_protocol_stub.expectedSendMsg;
 }
 
+int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t msg_id)
+{
+    return 0;
+}

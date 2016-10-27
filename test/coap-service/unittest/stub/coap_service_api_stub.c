@@ -18,6 +18,8 @@
 #include "common_functions.h"
 #include "net_interface.h"
 
+coap_msg_handler_t *coap_service_handle = NULL;
+
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
                                  coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
 {

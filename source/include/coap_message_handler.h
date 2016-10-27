@@ -88,4 +88,6 @@ extern int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t cur
 
 extern void transaction_delete(coap_transaction_t *this);
 
+extern void transactions_delete_all(uint8_t *address_ptr, uint16_t port);
+
 #endif

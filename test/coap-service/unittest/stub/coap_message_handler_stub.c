@@ -22,6 +22,10 @@ void transaction_delete(coap_transaction_t *this)
 
 }
 
+void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
+{
+
+}
 int8_t coap_message_handler_destroy(coap_msg_handler_t *handle)
 {
     return coap_message_handler_stub.int8_value;

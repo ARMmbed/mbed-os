@@ -18,6 +18,7 @@ TEST_SRC_FILES = \
 	../stub/socket_api_stub.c \
 	../stub/coap_security_handler_stub.c \
 	../stub/coap_service_api_stub.c \
+	../stub/coap_message_handler_stub.c \
 
 include ../MakefileWorker.mk
 
