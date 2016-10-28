@@ -229,7 +229,6 @@ def main(arguments):
     args = parser.parse_args(arguments)
 
     cfg = os.path.join(os.path.dirname(__file__), args.config_file)
-    print cfg
     
     # Load the config file
     config = json.load(open(os.path.join(os.path.dirname(__file__),
