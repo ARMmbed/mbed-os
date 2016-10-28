@@ -88,6 +88,19 @@
 #define OS_MAINSTKSIZE          128
 #endif
 
+#elif defined(TARGET_EFR32MG1)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20007C00UL)
+#endif
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              5
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H
