@@ -522,9 +522,10 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
     dst += q->len;
   }
 
-  /* Wait until a descriptor is available for the transfer. */
-  /* THIS WILL BLOCK UNTIL THERE ARE A DESCRIPTOR AVAILABLE */
-  osSemaphoreWait(k64f_enet->xTXDCountSem.id, osWaitForever);
+  /* Check if a descriptor is available for the transfer. */
+  int32_t count = osSemaphoreWait(k64f_enet->xTXDCountSem.id, 0);
+  if (count < 1)
+    return ERR_BUF;
 
   /* Get exclusive access */
   sys_mutex_lock(&k64f_enet->TXLockMutex);
