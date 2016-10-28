@@ -35,7 +35,9 @@ typedef struct {
 } mbed_stats_heap_t;
 
 /**
- * Fill the passed in structure with heap stats.
+ *  Fill the passed in heap stat structure with heap stats.
+ *
+ *  @param stats    A pointer to the mbed_stats_heap_t structure to fill
  */
 void mbed_stats_heap_get(mbed_stats_heap_t *stats);
 
@@ -47,13 +49,20 @@ typedef struct {
 } mbed_stats_stack_t;
 
 /**
- * Fill the passed in structure with stack stats.
+ *  Fill the passed in structure with stack stats.
+ *
+ *  @param stats    A pointer to the mbed_stats_stack_t structure to fill
  */
 void mbed_stats_stack_get(mbed_stats_stack_t *stats);
 
 /**
- * Fill the passed array of stat structures with the stack stats
- * for each available stack.
+ *  Fill the passed array of stat structures with the stack stats
+ *  for each available stack.
+ *
+ *  @param stats    A pointer to an array of mbed_stats_stack_t structures to fill
+ *  @param count    The number of mbed_stats_stack_t structures in the provided array
+ *  @return         The number of mbed_stats_stack_t structures that have been filled,
+ *                  this is equal to the number of stacks on the system.
  */
 size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
 
