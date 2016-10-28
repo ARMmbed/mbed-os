@@ -28,8 +28,6 @@ import sys
 
 build_list = (
     { "target": "LPC1768",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "LPC2368",           "toolchains": "GCC_ARM", "libs": []  },
-    { "target": "LPC2460",           "toolchains": "GCC_ARM", "libs": ["rtos", "usb"]  },
     { "target": "LPC11U24",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
     { "target": "OC_MBUINO",         "toolchains": "GCC_ARM", "libs": []  },
 

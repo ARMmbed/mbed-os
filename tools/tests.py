@@ -136,7 +136,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "file"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
+        "mcu": ["LPC1768", "LPC11U24"]
     },
     {
         "id": "MBED_A3", "description": "C++ STL",
@@ -185,7 +185,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "LPC2460", "KL25Z", "K64F", "K66F", "K22F", "LPC4088", "LPC1549",
+        "mcu": ["LPC1768", "KL25Z", "K64F", "K66F", "K22F", "LPC4088", "LPC1549",
                 "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303K8", "NUCLEO_F303RE", "NUCLEO_F207ZG",
                 "NUCLEO_F334R8", "NUCLEO_F303ZE", "NUCLEO_L053R8", "DISCO_L072CZ_LRWAN1", "NUCLEO_L073RZ", "NUCLEO_L152RE",
                 "NUCLEO_F410RB", "NUCLEO_F446RE", "NUCLEO_F446ZE", "NUCLEO_F429ZI",
@@ -523,7 +523,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
+        "mcu": ["LPC1768", "LPC11U24"]
     },
     {
         "id": "MBED_23", "description": "Ticker Int us",
@@ -689,7 +689,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         #"host_test": "wait_us_auto",
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -704,7 +704,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mutex"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -720,7 +720,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "rtos", "mbed", "semaphore"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -737,7 +737,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "rtos", "mbed", "signals"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -754,7 +754,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -770,7 +770,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -787,7 +787,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         #"host_test": "wait_us_auto",
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -803,7 +803,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "rtos", "mbed", "isr"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC2460", "LPC824", "SSCI824",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "LPC824", "SSCI824",
                 "KL25Z", "KL05Z", "K22F", "K64F", "K66F", "KL43Z", "KL46Z", "HEXIWEAR",
                 "RZ_A1H", "VK_RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "DISCO_F469NI", "NUCLEO_F410RB", "NUCLEO_F429ZI",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F070RB", "NUCLEO_F207ZG",
@@ -948,7 +948,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "utest", "semihost_fs"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
-        "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
+        "mcu": ["LPC1768", "LPC11U24"]
     },
     {
         "id": "UT_3", "description": "General tests",

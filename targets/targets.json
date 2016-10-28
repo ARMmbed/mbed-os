@@ -266,20 +266,6 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "device_name": "LPC1768"
     },
-    "LPC2368": {
-        "inherits": ["LPCTarget"],
-        "core": "ARM7TDMI-S",
-        "extra_labels": ["NXP", "LPC23XX"],
-        "supported_toolchains": ["GCC_ARM", "GCC_CR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
-    },
-    "LPC2460": {
-        "inherits": ["LPCTarget"],
-        "core": "ARM7TDMI-S",
-        "extra_labels": ["NXP", "LPC2460"],
-        "supported_toolchains": ["GCC_ARM"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
-    },
     "LPC810": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M0+",
