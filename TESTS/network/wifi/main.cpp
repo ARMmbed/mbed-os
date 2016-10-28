@@ -20,6 +20,12 @@
 
 #include "mbed.h"
 
+#if TARGET_UBLOX_EVK_ODIN_W2
+#include "OdinWiFiInterface.h"
+#else
+#error [NOT_SUPPORTED] Only built in WiFi modules are supported at this time.
+#endif
+
 using namespace utest::v1;
 
 /**
@@ -32,30 +38,25 @@ using namespace utest::v1;
 #error WIFI_TEST_NETWORKS, WIFI_TEST_PASS and WIFI_TEST_NETWORKS have to be defined for this test.
 #endif
 
+
 const char *networks[] = {WIFI_TEST_NETWORKS, NULL};
 
-/* We use singletons as some of the WiFi modules don't like to be initialized multiple times and using global objects
-   causes greentea serial to timeout.
- */
-#if TARGET_UBLOX_EVK_ODIN_W2
-#include "OdinWiFiInterface.h"
-SingletonPtr<OdinWiFiInterface> wifi;
-#else
-#if !TARGET_FF_ARDUINO
-#error [NOT_SUPPORTED] Only Arduino form factor devices supported
-#endif
-#include "ESP8266Interface.h"
-ESP8266Interface wifi(D1, D0);
-#endif
+WiFiInterface *wifi;
 
-/* That's a hack to accommodate Odin requiring a singleton */
+/* In normal circumstances the WiFi object could be global, but the delay introduced by WiFi initialization is an issue
+   for the tests. It causes Greentea to timeout on syncing with the board. To solve it we defer the actual object
+   creation till we actually need it.
+ */
 WiFiInterface *get_wifi()
 {
+    if (wifi == NULL) {
+        /* We don't really care about freeing this, as its lifetime is through the full test suit run. */
 #if TARGET_UBLOX_EVK_ODIN_W2
-    return wifi.get();
-#else
-    return &wifi;
+        wifi = new OdinWiFiInterface;
 #endif
+    }
+
+    return wifi;
 }
 
 void check_wifi(const char *ssid, bool *net_stat)
