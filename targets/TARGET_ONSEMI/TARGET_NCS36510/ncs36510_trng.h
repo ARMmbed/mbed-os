@@ -1,10 +1,10 @@
 /**
- *******************************************************************************
- * @file    sleep.c
- * @brief Implementation of a sleep functionality
+ ******************************************************************************
+ * @file ncs36510_trng.h
+ * @brief Header file for ncs36510_trng_api.c.
  * @internal
- * @author  ON Semiconductor
- * $Rev:  $
+ * @author  ON Semiconductor.
+ * $Rev: $
  * $Date: $
  ******************************************************************************
  * Copyright 2016 Semiconductor Components Industries LLC (d/b/a “ON Semiconductor”).
@@ -24,40 +24,19 @@
  * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  * @endinternal
  *
- * @ingroup sleep
- *
- * @details
- * Sleep implementation TBD - Dummy function is fine for first release
+ * @ingroup TRNG header
  *
  */
 
-#ifndef SLEEP_H_
-#define SLEEP_H_
+#ifndef RANDOM_H_
+#define RANDOM_H_
 
-/* Orion specific includes */
-#include "types.h"
-#include "memory_map.h"
-#include "gpio_map.h"
-#include "pad_map.h"
-#include "crossbar.h"
-#include "clock.h"
+#define TRNG_SLOW_MODE      0
+#define TRNG_FAST_MODE      1
 
-#define SLEEP_TYPE_NONE         0
-#define SLEEP_TYPE_SLEEP        1
-#define SLEEP_TYPE_DEEPSLEEP    2
-#define SLEEP_TYPE_COMA         3
+#define TRNG_DISABLE        0
+#define TRNG_ENABLE         1
 
-#define SLEEP_TYPE_DEFAULT SLEEP_TYPE_DEEPSLEEP
+#define TRNG_ON_READ_EVENT  1
 
-#define SLEEP_DURATION_SLEEP_MIN        10          /* msec */
-#define SLEEP_DURATION_SLEEP_MAX        200         /* msec */
-#define SLEEP_DURATION_DEEPSLEEP_MAX    500         /* msec */
-#define SLEEP_DURATION_COMA_MAX         1000000000  /* TODO 1000 sec */
-
-void fncs36510_sleep(void);
-
-void fncs36510_deepsleep(void);
-
-void fncs36510_coma(void);
-
-#endif // SLEEP_H_
+#endif /* RANDOM_H_ */

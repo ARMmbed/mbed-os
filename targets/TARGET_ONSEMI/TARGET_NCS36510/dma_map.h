@@ -47,19 +47,6 @@
 **************************************************************************************************/
 
 /** DMA control HW registers structure overlay */
-#ifdef REVB
-typedef struct {
-    __IO uint32_t CONTROL;               /**< Write 1 to enable DMA, write 0 to disable */
-    __IO uint32_t SOURCE;                /**< Address of source, read to get the number of bytes written */
-    __IO uint32_t DESTINATION;           /**< Address of destination, read to get the number of bytes written  */
-    __IO uint32_t SIZE;                  /**< Lenght of the entire transfer */
-    __IO uint32_t STATUS;                /**< To be debined */
-    __IO uint32_t INT_ENABLE;            /**< Enable interrupt source by writing 1. Bit 0: DMA done, Bit 1: Source Error, Bit 2: Destination Error */
-    __IO uint32_t INT_CLEAR_ENABLE;      /**< Clear Interrupt source by writing 1. Bit 0: DMA done, Bit 1: Source Error, Bit 2: Destination Error */
-    __I  uint32_t INT_STATUS;            /**< Current interrupt status. Bit 0: DMA done, Bit 1: Source Error, Bit 2: Destination Error */
-} DmaReg_t, *DmaReg_pt;
-#endif /* REVB */
-#ifdef REVD
 typedef struct {
     union {
         struct {
@@ -104,5 +91,4 @@ typedef struct {
         __I uint32_t WORD;
     } INT_STATUS;                                /**< Interrupt status */
 } DmaReg_t, *DmaReg_pt;
-#endif /* REVD */
 #endif /* DMA_MAP_H_ */

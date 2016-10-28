@@ -24,7 +24,9 @@
  * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  */
 #include "gpio.h"
+#include "gpio_api.h"
 #include "port_api.h"
+#include "pinmap.h"
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT
 

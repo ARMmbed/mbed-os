@@ -157,153 +157,153 @@ Reset_Handler
          BX      R0
 
         PUBWEAK NMI_Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 NMI_Handler
         B NMI_Handler
 
 ;        PUBWEAK HardFault_Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;HardFault_Handler
 ;        B HardFault_Handler
 
         PUBWEAK MemManage_Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 MemManage_Handler
         B MemManage_Handler
 
         PUBWEAK BusFault_Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 BusFault_Handler
         B BusFault_Handler
 
         PUBWEAK UsageFault_Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 UsageFault_Handler
         B UsageFault_Handler
 
 ;        PUBWEAK vPortSVCHandler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;vPortSVCHandler
 ;        B vPortSVCHandler
 
         PUBWEAK DebugMon_Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 DebugMon_Handler
         B DebugMon_Handler
 
 ;        PUBWEAK xPortPendSVHandler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;xPortPendSVHandler
 ;        B xPortPendSVHandler
 
 ;        PUBWEAK SysTick_Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;SysTick_Handler
 ;        B SysTick_Handler
 
 
 ;        PUBWEAK fIrqTim0Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqTim0Handler
 ;        B fIrqTim0Handler
 
 ;        PUBWEAK fIrqTim1Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqTim1Handler
 ;        B fIrqTim1Handler
 
 ;        PUBWEAK fIrqTim2Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqTim2Handler
 ;        B fIrqTim2Handler
 
 ;        PUBWEAK fIrqUart1Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqUart1Handler
 ;        B fIrqUart1Handler
 
 ;        PUBWEAK fIrqSpiHandler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqSpiHandler
 ;        B fIrqSpiHandler
 
         PUBWEAK fIrqI2CHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqI2CHandler
         B fIrqI2CHandler
 
 ;        PUBWEAK fIrqGpioHandler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqGpioHandler
 ;        B fIrqGpioHandler
 
         PUBWEAK fIrqRtcHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqRtcHandler
         B fIrqRtcHandler
 
         PUBWEAK fIrqFlashHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqFlashHandler
         B fIrqFlashHandler
 
         PUBWEAK fIrqMacHwHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqMacHwHandler
         B fIrqMacHwHandler
 
         PUBWEAK fIrqAesHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqAesHandler
         B fIrqAesHandler
 
         PUBWEAK fIrqAdcHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqAdcHandler
         B fIrqAdcHandler
 
         PUBWEAK fIrqClockCalHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqClockCalHandler
         B fIrqClockCalHandler
 
 ;        PUBWEAK fIrqUart2Handler
-;        SECTION .text:CODE:REORDER(1)
+;        SECTION .text:CODE:REORDER:NOROOT(1)
 ;fIrqUart2Handler
 ;        B fIrqUart2Handler
 
         PUBWEAK fIrqDbgPwrUpHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqDbgPwrUpHandler
         B fIrqDbgPwrUpHandler
 
         PUBWEAK fIrqDmaHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqDmaHandler
         B fIrqDmaHandler
 
         PUBWEAK fIrqUviHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqUviHandler
         B fIrqUviHandler
 
         PUBWEAK fIrqSpi2Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqSpi2Handler
         B fIrqSpi2Handler
 
         PUBWEAK fIrqI2c2Handler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 fIrqI2c2Handler
         B fIrqI2c2Handler
 
         PUBWEAK FIrqFVDDHCompHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 FIrqFVDDHCompHandler
         B FIrqFVDDHCompHandler
 
         PUBWEAK DEF_IRQHandler
-        SECTION .text:CODE:REORDER(1)
+        SECTION .text:CODE:REORDER:NOROOT(1)
 DEF_IRQHandler
         B DEF_IRQHandler
 
