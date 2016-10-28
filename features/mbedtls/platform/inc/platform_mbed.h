@@ -24,3 +24,22 @@
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
+
+#if defined(DEVICE_AES)
+#define MBEDTLS_AES_ALT
+#endif
+
+#if defined(DEVICE_SHA)
+#define MBEDTLS_SHA1_ALT
+#define MBEDTLS_SHA256_ALT
+#endif
+
+#if defined(DEVICE_ECC)
+#define MBEDTLS_ECP_DEVICE_ALT
+#define MBEDTLS_ECP_DOUBLE_JAC_ALT
+#define MBEDTLS_ECP_DEVICE_ADD_MIXED_ALT
+#define MBEDTLS_ECP_NORMALIZE_JAC_ALT
+#define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT
+#define MBEDTLS_MPI_MODULAR_DIVISION_ALT
+#endif
+
