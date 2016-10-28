@@ -292,6 +292,7 @@ static void uart_irq(int id)
             if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
             irq_handler(serial_irq_ids[id], RxIrq);
                 volatile uint32_t tmpval = huart->Instance->RDR; // Clear RXNE flag
+                UNUSED(tmpval);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
@@ -578,14 +579,14 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
             irq_n = USART3_IRQn;
             break;
 #endif
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
         case 3:
-            irq_n = USART4_IRQn;
+            irq_n = UART4_IRQn;
             break;
 #endif
-#if defined(USART5_BASE)
+#if defined(UART5_BASE)
         case 4:
-            irq_n = USART5_IRQn;
+            irq_n = UART5_IRQn;
             break;
 #endif
         default:
@@ -875,6 +876,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     // clear flags
     __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_PEF | UART_CLEAR_FEF | UART_CLEAR_OREF);
     volatile uint32_t tmpval = huart->Instance->RDR; // Clear RXNE flag
+    UNUSED(tmpval);
     
     // reset states
     huart->RxXferCount = 0;

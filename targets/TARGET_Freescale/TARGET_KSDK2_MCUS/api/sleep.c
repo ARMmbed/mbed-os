@@ -16,6 +16,7 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "fsl_smc.h"
+#include "fsl_clock_config.h"
 
 void sleep(void) {
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
@@ -37,11 +38,7 @@ void deepsleep(void) {
      * need to enter PEE mode manually.
      */
     if (mode == kMCG_ModePEE) {
-        /* Wait for PLL lock. */
-        while (!(MCG_S_LOCK0_MASK & MCG->S))
-        {
-        }
-        CLOCK_SetPeeMode();
+        BOARD_BootClockRUN();
     }
 #endif
 }

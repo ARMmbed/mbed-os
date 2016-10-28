@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_adc.h
  * @brief Analog to Digital Converter (ADC) peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_ADC_H__
-#define __SILICON_LABS_EM_ADC_H__
+#ifndef EM_ADC_H
+#define EM_ADC_H
 
 #include "em_device.h"
 #if defined( ADC_COUNT ) && ( ADC_COUNT > 0 )
@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -197,8 +197,15 @@ typedef enum
   /** Buffered VDD. */
   adcRefVDD       = _ADC_SINGLECTRL_REF_VDD,
 
+#if defined( _ADC_SINGLECTRL_REF_5VDIFF )
   /** Internal differential 5V reference. */
   adcRef5VDIFF    = _ADC_SINGLECTRL_REF_5VDIFF,
+#endif
+
+#if defined( _ADC_SINGLECTRL_REF_5V )
+  /** Internal 5V reference. */
+  adcRef5V        = _ADC_SINGLECTRL_REF_5V,
+#endif
 
   /** Single ended external reference from pin 6. */
   adcRefExtSingle = _ADC_SINGLECTRL_REF_EXTSINGLE,
@@ -248,6 +255,13 @@ typedef enum
 #endif
 } ADC_Ref_TypeDef;
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/* Deprecated enum names */
+#if !defined( _ADC_SINGLECTRL_REF_5VDIFF )
+#define adcRef5VDIFF adcRef5V
+#endif
+/** @endcond */
+
 
 /** Sample resolution. */
 typedef enum
@@ -279,7 +293,6 @@ typedef enum
   adcSingleInputVrefDiv2 = _ADC_SINGLECTRL_INPUTSEL_VREFDIV2, /**< Vref divided by 2. */
   adcSingleInputDACOut0  = _ADC_SINGLECTRL_INPUTSEL_DAC0OUT0, /**< DAC output 0. */
   adcSingleInputDACOut1  = _ADC_SINGLECTRL_INPUTSEL_DAC0OUT1, /**< DAC output 1. */
-  /* TBD: Use define when available */
   adcSingleInputATEST    = 15,                                /**< ATEST. */
 
   /* Differential mode enabled */
@@ -287,12 +300,11 @@ typedef enum
   adcSingleInputCh2Ch3   = _ADC_SINGLECTRL_INPUTSEL_CH2CH3,   /**< Positive Ch2, negative Ch3. */
   adcSingleInputCh4Ch5   = _ADC_SINGLECTRL_INPUTSEL_CH4CH5,   /**< Positive Ch4, negative Ch5. */
   adcSingleInputCh6Ch7   = _ADC_SINGLECTRL_INPUTSEL_CH6CH7,   /**< Positive Ch6, negative Ch7. */
-  /* TBD: Use define when available */
   adcSingleInputDiff0    = 4                                  /**< Differential 0. */
 } ADC_SingleInput_TypeDef;
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-/* Legacy enum names */
+/* Deprecated enum names */
 #define adcSingleInpCh0       adcSingleInputCh0
 #define adcSingleInpCh1       adcSingleInputCh1
 #define adcSingleInpCh2       adcSingleInputCh2
@@ -489,7 +501,8 @@ typedef enum
   adcPosSelIO0         = _ADC_SINGLECTRL_POSSEL_IO0,
   adcPosSelIO1         = _ADC_SINGLECTRL_POSSEL_IO1,
   adcPosSelVSP         = _ADC_SINGLECTRL_POSSEL_VSP,
-  adcPosSelSP0         = _ADC_SINGLECTRL_POSSEL_SP0,
+  adcPosSelOPA2        = _ADC_SINGLECTRL_POSSEL_OPA2,
+  adcPosSelOPA3        = _ADC_SINGLECTRL_POSSEL_OPA3,
   adcPosSelTEMP        = _ADC_SINGLECTRL_POSSEL_TEMP,
   adcPosSelDAC0OUT0    = _ADC_SINGLECTRL_POSSEL_DAC0OUT0,
   adcPosSelTESTP       = _ADC_SINGLECTRL_POSSEL_TESTP,
@@ -684,6 +697,17 @@ typedef enum
   adcScanInputGroup3 = 3,
 } ADC_ScanInputGroup_TypeDef;
 
+/* Define none selected for ADC_SCANINPUTSEL */
+#define ADC_SCANINPUTSEL_GROUP_NONE     0xFFU
+#define ADC_SCANINPUTSEL_NONE           ((ADC_SCANINPUTSEL_GROUP_NONE                   \
+                                          << _ADC_SCANINPUTSEL_INPUT0TO7SEL_SHIFT)      \
+                                         | (ADC_SCANINPUTSEL_GROUP_NONE                 \
+                                            << _ADC_SCANINPUTSEL_INPUT8TO15SEL_SHIFT)   \
+                                         | (ADC_SCANINPUTSEL_GROUP_NONE                 \
+                                            << _ADC_SCANINPUTSEL_INPUT16TO23SEL_SHIFT)  \
+                                         | (ADC_SCANINPUTSEL_GROUP_NONE                 \
+                                            << _ADC_SCANINPUTSEL_INPUT24TO31SEL_SHIFT))
+
   /* ADC scan alternative negative inputs */
 typedef enum
 {
@@ -757,8 +781,8 @@ typedef enum
 typedef enum
 {
   adcEm2Disabled           = 0,
-  adcEm2ClockOnDemand      = _ADC_CTRL_ADCCLKMODE_ASYNC | _ADC_CTRL_ASYNCCLKEN_ASNEEDED,
-  adcEm2ClockAlwaysOn      = _ADC_CTRL_ADCCLKMODE_ASYNC | _ADC_CTRL_ASYNCCLKEN_ALWAYSON,
+  adcEm2ClockOnDemand      = ADC_CTRL_ADCCLKMODE_ASYNC | ADC_CTRL_ASYNCCLKEN_ASNEEDED,
+  adcEm2ClockAlwaysOn      = ADC_CTRL_ADCCLKMODE_ASYNC | ADC_CTRL_ASYNCCLKEN_ALWAYSON,
 } ADC_EM2ClockConfig_TypeDef;
 #endif
 
@@ -842,8 +866,8 @@ typedef struct
 /** Scan input configuration */
 typedef struct
 {
-  /** Input range select to be applied to ADC_SCANCHCONF. */
-  int32_t             scanInputSel;
+  /** Input range select to be applied to ADC_SCANINPUTSEL. */
+  uint32_t            scanInputSel;
 
   /** Input enable mask */
   uint32_t            scanInputEn;
@@ -886,8 +910,8 @@ typedef struct
 
 #if defined( _ADC_SCANINPUTSEL_MASK )
   /**
-   * Scan input configuration. Use ADC_ScanSingleEndedInit() or ADC_ScanDifferentialInit()
-   * to write this struct. Note that the diff variable is included in ADC_InitScanInput_TypeDef.
+   * Scan input configuration. @ref Use ADC_ScanInputClear(), @ref ADC_ScanSingleEndedInputAdd()
+   * or @ref ADC_ScanDifferentialInputAdd() to update this struct.
    */
   ADC_InitScanInput_TypeDef scanInputConfig;
 #endif
@@ -939,9 +963,12 @@ typedef struct
   adcAcqTime1,               /* 1 ADC_CLK cycle acquisition time. */              \
   adcRef1V25,                /* 1.25V internal reference. */                      \
   adcRes12Bit,               /* 12 bit resolution. */                             \
-  0,                         /* Default ADC inputs */                             \
-  0,                         /* Default input mask (all off) */                   \
-  _ADC_SCANNEGSEL_RESETVALUE,/* Default negative select for positive ternimal */  \
+  {                                                                               \
+    /* Initialization should match values set by @ref ADC_ScanInputClear() */     \
+    ADC_SCANINPUTSEL_NONE,   /* Default ADC inputs */                             \
+    0,                       /* Default input mask (all off) */                   \
+    _ADC_SCANNEGSEL_RESETVALUE,/* Default negative select for positive ternimal */\
+  },                                                                              \
   false,                     /* Single-ended input. */                            \
   false,                     /* PRS disabled. */                                  \
   false,                     /* Right adjust. */                                  \
@@ -959,60 +986,60 @@ typedef struct
    * Peripheral reflex system trigger selection. Only applicable if @p prsEnable
    * is enabled.
    */
-  ADC_PRSSEL_TypeDef       prsSel;
+  ADC_PRSSEL_TypeDef            prsSel;
 
   /** Acquisition time (in ADC clock cycles). */
-  ADC_AcqTime_TypeDef      acqTime;
+  ADC_AcqTime_TypeDef           acqTime;
 
   /**
    * Sample reference selection. Notice that for external references, the
    * ADC calibration register must be set explicitly.
    */
-  ADC_Ref_TypeDef          reference;
+  ADC_Ref_TypeDef               reference;
 
   /** Sample resolution. */
-  ADC_Res_TypeDef          resolution;
+  ADC_Res_TypeDef               resolution;
 
 #if defined( _ADC_SINGLECTRL_INPUTSEL_MASK )
   /**
    * Sample input selection, use single ended or differential input according
    * to setting of @p diff.
    */
-  ADC_SingleInput_TypeDef  input;
+  ADC_SingleInput_TypeDef       input;
 #endif
 
 #if defined( _ADC_SINGLECTRL_POSSEL_MASK )
   /** Select positive input for for single channel conversion mode. */
-  ADC_PosSel_TypeDef posSel;
+  ADC_PosSel_TypeDef            posSel;
 #endif
 
 #if defined( _ADC_SINGLECTRL_NEGSEL_MASK )
   /** Select negative input for single channel conversion mode. Negative input is grounded
       for single ended (non-differential) converison.  */
-  ADC_NegSel_TypeDef negSel;
+  ADC_NegSel_TypeDef            negSel;
 #endif
 
   /** Select if single ended or differential input. */
-  bool                     diff;
+  bool                          diff;
 
   /** Peripheral reflex system trigger enable. */
-  bool                     prsEnable;
+  bool                          prsEnable;
 
   /** Select if left adjustment should be done. */
-  bool                     leftAdjust;
+  bool                          leftAdjust;
 
   /** Select if continuous conversion until explicit stop. */
-  bool                     rep;
+  bool                          rep;
 
 #if defined( _ADC_CTRL_SINGLEDMAWU_MASK )
   /** When true, DMA is available in EM2 for single conversion */
-  bool                    singleDmaEm2Wu;
+  bool                          singleDmaEm2Wu;
 #endif
 
 #if defined( _ADC_SINGLECTRLX_FIFOOFACT_MASK )
   /** When true, the FIFO overwrites old data when full. If false, then the FIFO discards new data.
       The SCANOF IRQ is triggered in both cases. */
-  bool                    fifoOverwrite;
+  bool                          fifoOverwrite;
 #endif
 } ADC_InitSingle_TypeDef;
 
@@ -1037,8 +1064,8 @@ typedef struct
   adcAcqTime1,               /* 1 ADC_CLK cycle acquisition time. */              \
   adcRef1V25,                /* 1.25V internal reference. */                      \
   adcRes12Bit,               /* 12 bit resolution. */                             \
-  adcPosSelAPORT0XCH0,         /* Select node BUS0XCH0 as posSel */                 \
-  adcNegSelAPORT0XCH1,         /* Select node BUS0XCH1 as negSel */                 \
+  adcPosSelAPORT0XCH0,       /* Select node BUS0XCH0 as posSel */                 \
+  adcNegSelVSS,              /* Select VSS as negSel */                           \
   false,                     /* Single ended input. */                            \
   false,                     /* PRS disabled. */                                  \
   false,                     /* Right adjust. */                                  \
@@ -1294,11 +1321,11 @@ __STATIC_INLINE void ADC_Start(ADC_TypeDef *adc, ADC_Start_TypeDef cmd)
 
 
 /** @} (end addtogroup ADC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(ADC_COUNT) && (ADC_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_ADC_H__ */
+#endif /* EM_ADC_H */

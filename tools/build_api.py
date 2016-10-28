@@ -455,12 +455,29 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Link Program
         res, _ = toolchain.link_program(resources, build_path, name)
 
+        memap_instance = getattr(toolchain, 'memap_instance', None)
+        memap_table = ''
+        if memap_instance:
+            # Write output to stdout in text (pretty table) format
+            memap_table = memap_instance.generate_output('table')
+
+            if not silent:
+                print memap_table
+
+            # Write output to file in JSON format
+            map_out = join(build_path, name + "_map.json")
+            memap_instance.generate_output('json', map_out)
+
+            # Write output to file in CSV format for the CI
+            map_csv = join(build_path, name + "_map.csv")
+            memap_instance.generate_output('csv-ci', map_csv)
+
         resources.detect_duplicates(toolchain)
 
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = toolchain.get_output()
+            cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = toolchain.map_outputs
 

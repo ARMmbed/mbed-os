@@ -43,9 +43,9 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+                IMPORT  |Image$$ARM_LIB_HEAP$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|  ; Top of Stack
+__Vectors       DCD     |Image$$ARM_LIB_HEAP$$ZI$$Limit|  ; Top of RAM
                 DCD     Reset_Handler  ; Reset Handler
                 DCD     NMI_Handler  ; NMI Handler
                 DCD     HardFault_Handler  ; Hard Fault Handler

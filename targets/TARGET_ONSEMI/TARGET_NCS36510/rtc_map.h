@@ -45,72 +45,6 @@
 
 /** Real Time Clock Control HW Structure Overlay */
 typedef struct {
-#ifdef REVB
-    /*REVD REPLACE COMPLETE MAP WITH DATA FROM DIG DESIGN SPEC */
-    __IO uint32_t SECOND;/**<SECOND Counter */
-    __IO uint32_t MINUTE;/**<DAY Counter */
-    __IO uint32_t HOUR;/**< HOUR Counter */
-    __IO uint32_t DAY;/**< DAY Counter */
-    __IO uint32_t MONTH;/**< MONTH Counter */
-    __IO uint32_t YEAR;/**< YEAR Counter */
-    union {
-        struct {
-            __IO uint32_t PAD1 :1;/**<Reserved; Writes have no effect. Read as 0 */
-            __IO uint32_t TEST_MINUTE :1;/**<0 = normal operation , 1 = Test Mode */
-            __IO uint32_t TEST_HOUR :1;/**<0 = normal operation , 1 = Test Mode */
-            __IO uint32_t TEST_DAY :1;/**<0 = normal operation , 1 = Test Mode */
-            __IO uint32_t TEST_MONTH :1;/**<0 = normal operation , 1 = Test Mode */
-            __IO uint32_t TEST_YEAR :1;/**<0 = normal operation , 1 = Test Mode */
-            __IO uint32_t PAD2 :1;/**<Reserved; Writes have no effect. Read as 0 */
-            __IO uint32_t RESET :1;/**< 0 = counters are incrementing , 1 = counters are in reset */
-        } BITS;
-        __IO uint32_t WORD;
-    } CONTROL;
-    __IO uint32_t DIVISOR;/**<Clock Divisor value */
-    __IO uint32_t ALARM_SECOND;/**<SECOND Alarm's BCD value */
-    __IO uint32_t ALARM_MINUTE;/**<MINUTE Alarm's BCD value */
-    __IO uint32_t ALARM_HOUR;/**<HOUR Alarm's BCD value*/
-    __IO uint32_t ALARM_DAY;/**<DAY Alarm's BCD value */
-    __IO uint32_t ALARM_MONTH;/**<MONTH Alarm's BCD value */
-    __IO uint32_t ALARM_YEAR;/**<YEAR Alarm's BCD value */
-    union {
-        struct {
-            __IO uint32_t SECOND :1;/**<SECOND Alarm interrupt : 0 = disabled, 1 = enabled */
-            __IO uint32_t MINUTE :1;/**<MINUTE Alarm interrupt : 0 = disabled, 1 = enabled */
-            __IO uint32_t HOUR :1;/**<HOUR Alarm interrupt  : 0 = disabled, 1 = enabled */
-            __IO uint32_t DAY :1;/**<DAY Alarm interrupt    : 0 = disabled, 1 = enabled */
-            __IO uint32_t MONTH :1;/**<MONTH Alarm interrupt : 0 = disabled, 1 = enabled */
-            __IO uint32_t YEAR :1;/**<YEAR Alarm interrupt  : 0 = disabled, 1 = enabled */
-            __IO uint32_t PAD :2 ;/**<Writes have no effect; Read as 2’b00 */
-        } BITS;
-        __IO uint32_t WORD;
-    } INT_EN_CONTROL;
-    union {
-        struct {
-            __I uint32_t SECOND :1;/**<SECOND Alarm interrupt : 0= inactive , 1 = active */
-            __I uint32_t MINUTE :1;/**<MINUTE Alarm interrupt : 0= inactive , 1 = active */
-            __I uint32_t HOUR :1;/**<HOUR Alarm interrupt  : 0= inactive , 1 = active  */
-            __I uint32_t DAY :1;/**<DAY Alarm interrupt   : 0= inactive , 1 = active  */
-            __I uint32_t MONTH :1;/**<MONTH Alarm interrupt : 0= inactive , 1 = active   */
-            __I uint32_t YEAR :1;/**<YEAR Alarm interrupt : 0= inactive , 1 = active */
-            __I uint32_t PAD :2; /**<Read as 00 */
-        } BITS;
-        __I uint32_t WORD;
-    } INT_STATUS;
-    union {
-        struct {
-            __O uint32_t SECOND :1;/**<Write 1 to clear the SECOND Alarm interrupt.*/
-            __O uint32_t MINUTE :1;/**<Write 1 to clear the MINUTE Alarm interrupt*/
-            __O uint32_t HOUR :1;/**<Write 1 to clear the HOUR Alarm interrupt*/
-            __O uint32_t DAY :1;/**< Write 1 to clear the DAY Alarm interrupt*/
-            __O uint32_t MONTH :1;/**<Write 1 to clear the MONTH Alarm interrupt */
-            __O uint32_t YEAR :1;/**< Write 1 to clear the YEAR Alarm interrupt*/
-            __O uint32_t PAD :2 ;/**< Writes have no effect. */
-        } BITS;
-        __O uint32_t WORD;
-    } INT_CLEAR;
-#endif /* REVB */
-#ifdef REVD
     __IO uint32_t SUB_SECOND_COUNTER;    /**<SUB SECOND Counter */   /* 0x4000F000 */
     __IO uint32_t SECOND_COUNTER;        /**<SECOND Counter */       /* 0x4000F004 */
     __IO uint32_t SUB_SECOND_ALARM;      /**< SUB SECOND alarm */    /* 0x4000F008 */
@@ -148,7 +82,6 @@ typedef struct {
         } BITS;
         __O uint32_t WORD;
     } INT_CLEAR;            /* 0x4000F018 */
-#endif /* REVD */
 } RtcReg_t, *RtcReg_pt;
 
 #endif /* RTC_MAP_H_ */

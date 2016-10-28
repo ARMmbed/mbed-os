@@ -1,5 +1,4 @@
-from xdg.BaseDirectory import save_data_path
-from pycurl import Curl
+from urllib2 import urlopen, URLError
 from bs4 import BeautifulSoup
 from os.path import join, dirname, basename
 from os import makedirs
@@ -13,8 +12,13 @@ from itertools import takewhile
 import argparse
 from json import dump, load
 from zipfile import ZipFile
+from tempfile import gettempdir
 
 RootPackURL = "http://www.keil.com/pack/index.idx"
+
+LocalPackDir = dirname(__file__)
+LocalPackIndex = join(LocalPackDir, "index.json")
+LocalPackAliases = join(LocalPackDir, "aliases.json")
 
 
 protocol_matcher = compile("\w*://")
@@ -45,19 +49,6 @@ class Reader (Thread) :
             self.func(url)
             self.queue.task_done()
 
-class Cacher (Thread) :
-    def __init__(self, queue, func) :
-        Thread.__init__(self)
-        self.queue = queue
-        self.curl = Curl()
-        self.curl.setopt(self.curl.FOLLOWLOCATION, True)
-        self.func = func
-    def run(self) :
-        while True :
-            url = self.queue.get()
-            self.func(self.curl, url)
-            self.queue.task_done()
-
 
 class Cache () :
     """ The Cache object is the only relevant API object at the moment
@@ -78,12 +69,13 @@ class Cache () :
         self._aliases = {}
         self.urls = None
         self.no_timeouts = no_timeouts
+        self.data_path = gettempdir()
 
     def display_counter (self, message) :
         stdout.write("{} {}/{}\r".format(message, self.counter, self.total))
         stdout.flush()
 
-    def cache_file (self, curl, url) :
+    def cache_file (self, url) :
         """Low level interface to caching a single file.
 
         :param curl: The user is responsible for providing a curl.Curl object as the curl parameter.
@@ -93,24 +85,17 @@ class Cache () :
         :rtype: None
         """
         if not self.silent : print("Caching {}...".format(url))
-        dest = join(save_data_path('arm-pack-manager'), strip_protocol(url))
+        dest = join(self.data_path, strip_protocol(url))
         try :
             makedirs(dirname(dest))
         except OSError as exc :
             if exc.errno == EEXIST : pass
             else : raise
-        with open(dest, "wb+") as fd :
-            curl.setopt(curl.URL, url)
-            curl.setopt(curl.FOLLOWLOCATION, True)
-            curl.setopt(curl.WRITEDATA, fd)
-            if not self.no_timeouts :
-                curl.setopt(curl.CONNECTTIMEOUT, 2)
-                curl.setopt(curl.LOW_SPEED_LIMIT, 50 * 1024)
-                curl.setopt(curl.LOW_SPEED_TIME, 2)
-            try :
-                curl.perform()
-            except Exception as e :
-                stderr.write("[ ERROR ] file {} did not download {}\n".format(url, str(e)))
+        try:
+            with open(dest, "wb+") as fd :
+                fd.write(urlopen(url).read())
+        except URLError as e:
+            stderr.write(e.reason)
         self.counter += 1
         self.display_counter("Caching Files")
 
@@ -288,7 +273,7 @@ class Cache () :
         self._index = {}
         self.counter = 0
         do_queue(Reader, self._generate_index_helper, self.get_urls())
-        with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
+        with open(LocalPackIndex, "wb+") as out:
             self._index["version"] = "0.1.0"
             dump(self._index, out)
         stdout.write("\n")
@@ -297,7 +282,7 @@ class Cache () :
         self._aliases = {}
         self.counter = 0
         do_queue(Reader, self._generate_aliases_helper, self.get_urls())
-        with open(join(save_data_path('arm-pack-manager'), "aliases.json"), "wb+") as out:
+        with open(LocalPackAliases, "wb+") as out:
             dump(self._aliases, out)
         stdout.write("\n")
 
@@ -335,11 +320,8 @@ class Cache () :
 
         """
         if not self._index :
-            try :
-                with open(join(save_data_path('arm-pack-manager'), "index.json")) as i :
-                    self._index = load(i)
-            except IOError :
-                self.generate_index()
+            with open(LocalPackIndex) as i :
+                self._index = load(i)
         return self._index
     @property
     def aliases(self) :
@@ -365,11 +347,8 @@ class Cache () :
 
         """
         if not self._aliases :
-            try :
-                with open(join(save_data_path('arm-pack-manager'), "aliases.json")) as i :
-                    self._aliases = load(i)
-            except IOError :
-                self.generate_aliases()
+            with open(join(self.data_path, "aliases.json")) as i :
+                self._aliases = load(i)
         return self._aliases
 
     def cache_everything(self) :
@@ -402,7 +381,7 @@ class Cache () :
         """
         self.total = len(list)
         self.display_counter("Caching Files")
-        do_queue(Cacher, self.cache_file, list)
+        do_queue(Reader, self.cache_file, list)
         stdout.write("\n")
 
     def cache_pack_list(self, list) :
@@ -413,7 +392,7 @@ class Cache () :
         """
         self.total = len(list) * 2
         self.display_counter("Caching Files")
-        do_queue(Cacher, self.cache_pdsc_and_pack, list)
+        do_queue(Reader, self.cache_pdsc_and_pack, list)
         stdout.write("\n")
 
     def pdsc_from_cache(self, url) :
@@ -426,7 +405,7 @@ class Cache () :
         :return: A parsed representation of the PDSC file.
         :rtype: BeautifulSoup
         """
-        dest = join(save_data_path('arm-pack-manager'), strip_protocol(url))
+        dest = join(self.data_path, strip_protocol(url))
         with open(dest, "r") as fd :
             return BeautifulSoup(fd, "html.parser")
 
@@ -440,7 +419,7 @@ class Cache () :
         :return: A parsed representation of the PACK file.
         :rtype: ZipFile
         """
-        return ZipFile(join(save_data_path('arm-pack-manager'),
+        return ZipFile(join(self.data_path,
                             strip_protocol(device['pack_file'])))
 
     def gen_dict_from_cache() :

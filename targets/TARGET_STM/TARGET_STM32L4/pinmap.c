@@ -149,3 +149,19 @@ void pin_mode(PinName pin, PinMode mode)
     gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPDR0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
 }
+
+/*  Internal function for setting the gpiomode/function
+ *  without changing Pull mode
+ */
+void pin_function_gpiomode(PinName pin, uint32_t gpiomode) {
+
+    /* Read current pull state from HW to avoid over-write*/
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *) Set_GPIO_Clock(port_index);
+    uint32_t temp = gpio->PUPDR;
+    uint32_t pull = (temp  >> (pin_index * 2U)) & GPIO_PUPDR_PUPDR0;
+
+    /* Then re-use global function for updating the mode part*/
+    pin_function(pin, STM_PIN_DATA(gpiomode, pull, 0));
+}

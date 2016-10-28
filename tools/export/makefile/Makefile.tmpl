@@ -53,8 +53,8 @@ PROJECT := {{name}}
 {% endfor %}
 {% for path in include_paths %}INCLUDE_PATHS += -I{{path}}
 {% endfor %}
-LIBRARY_PATHS :={% for p in library_paths %} -L{{p}} {% endfor %}
-LIBRARIES :={% for lib in libraries %} -l{{lib}} {% endfor %}
+LIBRARY_PATHS :={% for p in library_paths %} {{user_library_flag}}{{p}} {% endfor %}
+LIBRARIES :={% for lib in libraries %} {{lib}} {% endfor %}
 LINKER_SCRIPT := {{linker_script}}
 {%- block additional_variables -%}{% endblock %}
 
@@ -133,6 +133,7 @@ $(PROJECT).hex: $(PROJECT).elf
 
 {% if hex_files %}
 $(PROJECT)-combined.hex: $(PROJECT).hex
+	+@echo "NOTE: the $(SREC_CAT) binary is required to be present in your PATH. Please see http://srecord.sourceforge.net/ for more information."
 	$(SREC_CAT) {% for f in hex_files %}{{f}} {% endfor %} -intel $(PROJECT).hex -intel -o $(PROJECT)-combined.hex -intel --line-length=44
 {% endif %}
 # Rules

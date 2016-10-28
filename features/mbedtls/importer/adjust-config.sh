@@ -55,10 +55,21 @@ add_code                                                                        
     "\n"                                                                                  \
     "#else\n"
 
-add_code                                                                         \
-    "#include \"check_config.h\"\n"                                              \
-    "\n"                                                                         \
-    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY *\/"
+add_code                                                                              \
+    "#include \"check_config.h\"\n"                                                   \
+    "\n"                                                                              \
+    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY *\/\n"    \
+    "\n"                                                                              \
+    "#if defined(MBEDTLS_TEST_NULL_ENTROPY)\n"                                        \
+    "#warning \"MBEDTLS_TEST_NULL_ENTROPY has been enabled. This \" \\\\\n"           \
+    "    \"configuration is not secure and is not suitable for production use\"\n"    \
+    "#endif\n"                                                                        \
+    "\n"                                                                              \
+    "#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n" \
+    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)\n"                                    \
+    "#error \"No entropy source was found at build time, so TLS \" \\\\\n"            \
+    "    \"functionality is not available\"\n"                                        \
+    "#endif\n"
 
 # not supported on mbed OS, nor used by mbed Client
 conf unset MBEDTLS_NET_C

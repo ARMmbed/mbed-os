@@ -99,28 +99,28 @@ uint8_t spi_get_module(spi_t *obj)
 
 int  spi_slave_receive(spi_t *obj)
 {
-	if(obj->membase->STATUS.BITS.RX_EMPTY != True){ /* if receive status is not empty */
-		return True;	/* Byte available to read */
-	}
-	return False; /* Byte not available to read */
+    if(obj->membase->STATUS.BITS.RX_EMPTY != True){ /* if receive status is not empty */
+        return True;    /* Byte available to read */
+    }
+    return False; /* Byte not available to read */
 }
 
 int  spi_slave_read(spi_t *obj)
 {
-	int byte;
-	
-	while (obj->membase->STATUS.BITS.RX_EMPTY == True); /* Wait till Receive status is empty */
+    int byte;
+
+    while (obj->membase->STATUS.BITS.RX_EMPTY == True); /* Wait till Receive status is empty */
     byte = obj->membase->RX_DATA;
     return byte;
 }
 
 void spi_slave_write(spi_t *obj, int value)
 {
-	while((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
+    while((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
     obj->membase->TX_DATA = value;
 }
 
-#if DEVICE_SPI_ASYNCH /* TODO Not implemented yet */
+#if DEVICE_SPI_ASYNCH /* TODO Not yet implemented */
 
 void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t handler, uint32_t event, DMAUsage hint)
 {

@@ -37,6 +37,7 @@ from time import sleep, time
 from Queue import Queue, Empty
 from os.path import join, exists, basename, relpath
 from threading import Thread, Lock
+from multiprocessing import Pool, cpu_count
 from subprocess import Popen, PIPE
 
 # Imports related to mbed build api
@@ -2068,6 +2069,48 @@ def norm_relative_path(path, start):
     path = path.replace("\\", "/")
     return path
 
+
+def build_test_worker(*args, **kwargs):
+    """This is a worker function for the parallel building of tests. The `args`
+    and `kwargs` are passed directly to `build_project`. It returns a dictionary
+    with the following structure:
+
+    {
+        'result': `True` if no exceptions were thrown, `False` otherwise
+        'reason': Instance of exception that was thrown on failure
+        'bin_file': Path to the created binary if `build_project` was
+                    successful. Not present otherwise
+        'kwargs': The keyword arguments that were passed to `build_project`.
+                  This includes arguments that were modified (ex. report)
+    }
+    """
+    bin_file = None
+    ret = {
+        'result': False,
+        'args': args,
+        'kwargs': kwargs
+    }
+
+    try:
+        bin_file = build_project(*args, **kwargs)
+        ret['result'] = True
+        ret['bin_file'] = bin_file
+        ret['kwargs'] = kwargs
+
+    except NotSupportedException, e:
+        ret['reason'] = e
+    except ToolException, e:
+        ret['reason'] = e
+    except KeyboardInterrupt, e:
+        ret['reason'] = e
+    except:
+        # Print unhandled exceptions here
+        import traceback
+        traceback.print_exc(file=sys.stdout)
+
+    return ret
+
+
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, verbose=False, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
@@ -2095,58 +2138,101 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
     result = True
 
-    map_outputs_total = list()
+    jobs_count = int(jobs if jobs else cpu_count())
+    p = Pool(processes=jobs_count)
+    results = []
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
         bin_file = None
         test_case_folder_name = os.path.basename(test_path)
         
+        args = (src_path, test_build_path, target, toolchain_name)
+        kwargs = {
+            'jobs': jobs,
+            'clean': clean,
+            'macros': macros,
+            'name': test_case_folder_name,
+            'project_id': test_name,
+            'report': report,
+            'properties': properties,
+            'verbose': verbose,
+            'app_config': app_config,
+            'build_profile': build_profile,
+            'silent': True
+        }
         
-        try:
-            bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                     jobs=jobs,
-                                     clean=clean,
-                                     macros=macros,
-                                     name=test_case_folder_name,
-                                     project_id=test_name,
-                                     report=report,
-                                     properties=properties,
-                                     verbose=verbose,
-                                     app_config=app_config,
-                                     build_profile=build_profile)
+        results.append(p.apply_async(build_test_worker, args, kwargs))
 
-        except NotSupportedException:
-            pass
-        except ToolException:
-            result = False
-            if continue_on_build_fail:
-                continue
-            else:
+    p.close()
+    result = True
+    itr = 0
+    while len(results):
+        itr += 1
+        if itr > 360000:
+            p.terminate()
+            p.join()
+            raise ToolException("Compile did not finish in 10 minutes")
+        else:
+            sleep(0.01)
+            pending = 0
+            for r in results:
+                if r.ready() is True:
+                    try:
+                        worker_result = r.get()
+                        results.remove(r)
+
+                        # Take report from the kwargs and merge it into existing report
+                        report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                        for test_key in report_entry.keys():
+                            report[target_name][toolchain_name][test_key] = report_entry[test_key]
+                        
+                        # Set the overall result to a failure if a build failure occurred
+                        if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
+                            result = False
+                            break
+
+                        # Adding binary path to test build result
+                        if worker_result['result'] and 'bin_file' in worker_result:
+                            bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
+
+                            test_build['tests'][worker_result['kwargs']['project_id']] = {
+                                "binaries": [
+                                    {
+                                        "path": bin_file
+                                    }
+                                ]
+                            }
+
+                            test_key = worker_result['kwargs']['project_id'].upper()
+                            print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
+                            print 'Image: %s\n' % bin_file
+
+                    except:
+                        if p._taskqueue.queue:
+                            p._taskqueue.queue.clear()
+                            sleep(0.5)
+                        p.terminate()
+                        p.join()
+                        raise
+                else:
+                    pending += 1
+                    if pending >= jobs_count:
+                        break
+
+            # Break as soon as possible if there is a failure and we are not
+            # continuing on build failures
+            if not result and not continue_on_build_fail:
+                if p._taskqueue.queue:
+                    p._taskqueue.queue.clear()
+                    sleep(0.5)
+                p.terminate()
                 break
 
-        # If a clean build was carried out last time, disable it for the next build.
-        # Otherwise the previously built test will be deleted.
-        if clean:
-            clean = False
-
-        # Normalize the path
-        if bin_file:
-            bin_file = norm_relative_path(bin_file, execution_directory)
-
-            test_build['tests'][test_name] = {
-                "binaries": [
-                    {
-                        "path": bin_file
-                    }
-                ]
-            }
-
-            print 'Image: %s'% bin_file
+    p.join()
 
     test_builds = {}
     test_builds["%s-%s" % (target_name, toolchain_name)] = test_build
-    
 
     return result, test_builds
 

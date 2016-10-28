@@ -10,6 +10,7 @@ from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, FailedBuildException
 import json
 from tools.export.cmsis import DeviceCMSIS
+from multiprocessing import cpu_count
 
 class IAR(Exporter):
     NAME = 'iar'
@@ -101,7 +102,7 @@ class IAR(Exporter):
             flags['c_flags'].remove('--vla')
         if '--no_static_destruction' in flags['c_flags']:
             flags['c_flags'].remove('--no_static_destruction')
-        #Optimizations 
+        #Optimizations
         if '-Oh' in flags['c_flags']:
             flags['c_flags'].remove('-Oh')
         ctx = {
@@ -135,6 +136,17 @@ class IAR(Exporter):
                 raise Exception("IarBuild.exe not found. Add to path.")
 
         cmd = [iar_exe, proj_file, '-build', self.project_name]
+
+        # IAR does not support a '0' option to automatically use all
+        # available CPUs, so we use Python's multiprocessing library
+        # to detect the number of CPUs available
+        cpus_available = cpu_count()
+        jobs = cpus_available if cpus_available else None
+
+        # Only add the parallel flag if we're using more than one CPU
+        if jobs:
+            cmd += ['-parallel', str(jobs)]
+
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         num_errors = 0
         #Parse the output for printing and errors

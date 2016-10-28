@@ -26,7 +26,6 @@
 
 #include "sleep_api.h"
 #include "sleepmodes.h"
-#include "cmsis.h"
 #include "em_emu.h"
 #include "critical.h"
 

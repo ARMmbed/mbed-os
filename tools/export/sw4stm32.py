@@ -79,7 +79,7 @@ class Sw4STM32(Exporter):
     def generate(self):
         fp_hardware = "no"
         fp_abi = "soft"
-        core = self.target.core
+        core = self.toolchain.target.core
         if core == "Cortex-M4F" or core == "Cortex-M7F":
             fp_hardware = "fpv4-sp-d16"
             fp_abi = "soft-fp"

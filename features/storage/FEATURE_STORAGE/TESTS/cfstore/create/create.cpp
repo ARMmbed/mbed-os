@@ -25,6 +25,7 @@
  */
 
 #include "mbed.h"
+#include "mbed_stats.h"
 #include "cfstore_config.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
@@ -507,11 +508,10 @@ control_t cfstore_create_test_04_end(const size_t call_count)
  *
  * Create enough KV's to consume the whole of available memory
  */
-int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_stored_ex)
+int32_t cfstore_create_test_05_core(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     uint32_t i = 0;
-    uint32_t bytes_stored = 0;
     const uint32_t max_num_kvs_create = 200;
     const size_t kv_name_tag_len = 3;
     const size_t kv_name_min_len = 10;
@@ -535,9 +535,6 @@ int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_sto
         memset(value_buf, 0, max_value_buf_size);
         snprintf(kv_name_tag_buf, kv_name_tag_len+1, "%0d", (int) i);
         ret = cfstore_create_kv_create(kv_name_min_len, kv_name_tag_buf, value_buf, kv_value_min_len/64 * (i+1));
-        bytes_stored += kv_name_min_len + i + strlen(kv_name_tag_buf);         /* kv_name */
-        bytes_stored += kv_value_min_len/64 * (i+1);                           /* kv value blob */
-        bytes_stored += 8;                                                     /* kv overhead */
         if(ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY){
             CFSTORE_ERRLOG("Out of memory on %d-th KV, trying to allocate memory totalling %d.\n", (int) i, (int) bytes_stored);
             break;
@@ -551,9 +548,6 @@ int32_t cfstore_create_test_05_core(const size_t call_count, uint32_t* bytes_sto
     free(value_buf);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
-    if(bytes_stored_ex){
-        *bytes_stored_ex = bytes_stored;
-    }
     return ret;
 }
 
@@ -576,22 +570,25 @@ control_t cfstore_create_test_05(const size_t call_count)
 {
     uint32_t i = 0;
     int32_t ret = ARM_DRIVER_ERROR;
-    uint32_t bytes_stored = 0;
-    uint32_t bytes_stored_prev = 0;
     const uint32_t max_loops = 50;
+    mbed_stats_heap_t stats_before;
+    mbed_stats_heap_t stats_after;
+
+    mbed_stats_heap_get(&stats_before);
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     for(i = 0; i < max_loops; i++) {
-        ret = cfstore_create_test_05_core(call_count, &bytes_stored);
+        ret = cfstore_create_test_05_core(call_count);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: cfstore_create_test_05_core() failed (ret = %d.\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
 
+        mbed_stats_heap_get(&stats_after);
         if(i > 1) {
-            CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: memory leak: stored %d bytes on loop %d, but %d bytes on loop %d .\n", __func__, (int) bytes_stored, (int) i, (int) bytes_stored_prev, (int) i-1);
-            TEST_ASSERT_MESSAGE(bytes_stored == bytes_stored_prev, cfstore_create_utest_msg_g);
-
+            CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: memory leak: stored %d bytes on loop %d, but %d bytes on loop %d .\n", __func__, (int) stats_after.current_size, (int) i, (int) stats_before.current_size, (int) i-1);
+            TEST_ASSERT_MESSAGE(stats_after.current_size == stats_before.current_size, cfstore_create_utest_msg_g);
+            TEST_ASSERT(stats_after.alloc_fail_cnt > stats_before.alloc_fail_cnt);
         }
-        bytes_stored_prev = bytes_stored;
+        stats_before = stats_after;
     }
     return CaseNext;
 }
@@ -828,7 +825,9 @@ Case cases[] = {
         Case("CREATE_test_03_end", cfstore_create_test_03_end),
         Case("CREATE_test_04_start", cfstore_utest_default_start),
         Case("CREATE_test_04_end", cfstore_create_test_04_end),
+#if defined(MBED_HEAP_STATS_ENABLED) && MBED_HEAP_STATS_ENABLED && !defined(__ICCARM__)
         Case("CREATE_test_05", cfstore_create_test_05),
+#endif
         Case("CREATE_test_06_start", cfstore_utest_default_start),
         Case("CREATE_test_06_end", cfstore_create_test_06_end),
         Case("CREATE_test_07_start", cfstore_utest_default_start),

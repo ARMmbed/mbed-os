@@ -52,6 +52,7 @@
 
         EXTERN  __iar_program_start
         EXTERN  SystemInit
+        EXTERN  nrf_reloc_vector_table
         PUBLIC  __vector_table
         PUBLIC  __Vectors
         PUBLIC  __Vectors_End
@@ -80,244 +81,44 @@ __vector_table
         ; External Interrupts
         DCD     POWER_CLOCK_IRQHandler
         DCD     RADIO_IRQHandler
-        DCD     UARTE0_UART0_IRQHandler
-        DCD     SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler
-        DCD     SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler
-        DCD     NFCT_IRQHandler
-        DCD     GPIOTE_IRQHandler
-        DCD     SAADC_IRQHandler
-        DCD     TIMER0_IRQHandler
-        DCD     TIMER1_IRQHandler
-        DCD     TIMER2_IRQHandler
+        DCD     UARTE0_UART0_IRQHandler_v
+        DCD     SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler_v
+        DCD     SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler_v
+        DCD     NFCT_IRQHandler_v
+        DCD     GPIOTE_IRQHandler_v
+        DCD     SAADC_IRQHandler_v
+        DCD     TIMER0_IRQHandler_v
+        DCD     TIMER1_IRQHandler_v
+        DCD     TIMER2_IRQHandler_v
         DCD     RTC0_IRQHandler
-        DCD     TEMP_IRQHandler
+        DCD     TEMP_IRQHandler_v
         DCD     RNG_IRQHandler
         DCD     ECB_IRQHandler
         DCD     CCM_AAR_IRQHandler
-        DCD     WDT_IRQHandler
-        DCD     RTC1_IRQHandler
-        DCD     QDEC_IRQHandler
-        DCD     COMP_LPCOMP_IRQHandler
-        DCD     SWI0_EGU0_IRQHandler
-        DCD     SWI1_EGU1_IRQHandler
-        DCD     SWI2_EGU2_IRQHandler
-        DCD     SWI3_EGU3_IRQHandler
+        DCD     WDT_IRQHandler_v
+        DCD     RTC1_IRQHandler_v
+        DCD     QDEC_IRQHandler_v
+        DCD     COMP_LPCOMP_IRQHandler_v
+        DCD     SWI0_EGU0_IRQHandler_v
+        DCD     SWI1_EGU1_IRQHandler_v
+        DCD     SWI2_EGU2_IRQHandler_v
+        DCD     SWI3_EGU3_IRQHandler_v
         DCD     SWI4_EGU4_IRQHandler
         DCD     SWI5_EGU5_IRQHandler
-        DCD     TIMER3_IRQHandler
-        DCD     TIMER4_IRQHandler
-        DCD     PWM0_IRQHandler
-        DCD     PDM_IRQHandler
+        DCD     TIMER3_IRQHandler_v
+        DCD     TIMER4_IRQHandler_v
+        DCD     PWM0_IRQHandler_v
+        DCD     PDM_IRQHandler_v
         DCD     0                         ; Reserved
         DCD     0                         ; Reserved
         DCD     MWU_IRQHandler
-        DCD     PWM1_IRQHandler
-        DCD     PWM2_IRQHandler
-        DCD     SPIM2_SPIS2_SPI2_IRQHandler
-        DCD     RTC2_IRQHandler
-        DCD     I2S_IRQHandler
-        DCD     FPU_IRQHandler
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
-        DCD     0                         ; Reserved
+        DCD     PWM1_IRQHandler_v
+        DCD     PWM2_IRQHandler_v
+        DCD     SPIM2_SPIS2_SPI2_IRQHandler_v
+        DCD     RTC2_IRQHandler_v
+        DCD     I2S_IRQHandler_v
+        DCD     FPU_IRQHandler_v
+
 
 __Vectors_End
 __Vectors                           EQU   __vector_table
@@ -332,6 +133,8 @@ __Vectors_Size                      EQU   __Vectors_End - __Vectors
 Reset_Handler
 
         LDR     R0, =SystemInit
+        BLX     R0
+        LDR     R0, =nrf_reloc_vector_table
         BLX     R0
         LDR     R0, =__iar_program_start
         BX      R0
@@ -397,49 +200,49 @@ POWER_CLOCK_IRQHandler
 RADIO_IRQHandler
         B .
 
-        PUBWEAK  UARTE0_UART0_IRQHandler
+        PUBWEAK  UARTE0_UART0_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-UARTE0_UART0_IRQHandler
+UARTE0_UART0_IRQHandler_v
         B .
 
-        PUBWEAK  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler
+        PUBWEAK  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler
+SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler_v
         B .
 
-        PUBWEAK  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler
+        PUBWEAK  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler
+SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler_v
         B .
 
-        PUBWEAK  NFCT_IRQHandler
+        PUBWEAK  NFCT_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-NFCT_IRQHandler
+NFCT_IRQHandler_v
         B .
 
-        PUBWEAK  GPIOTE_IRQHandler
+        PUBWEAK  GPIOTE_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-GPIOTE_IRQHandler
+GPIOTE_IRQHandler_v
         B .
 
-        PUBWEAK  SAADC_IRQHandler
+        PUBWEAK  SAADC_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SAADC_IRQHandler
+SAADC_IRQHandler_v
         B .
 
-        PUBWEAK  TIMER0_IRQHandler
+        PUBWEAK  TIMER0_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-TIMER0_IRQHandler
+TIMER0_IRQHandler_v
         B .
 
-        PUBWEAK  TIMER1_IRQHandler
+        PUBWEAK  TIMER1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-TIMER1_IRQHandler
+TIMER1_IRQHandler_v
         B .
 
-        PUBWEAK  TIMER2_IRQHandler
+        PUBWEAK  TIMER2_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-TIMER2_IRQHandler
+TIMER2_IRQHandler_v
         B .
 
         PUBWEAK  RTC0_IRQHandler
@@ -447,9 +250,9 @@ TIMER2_IRQHandler
 RTC0_IRQHandler
         B .
 
-        PUBWEAK  TEMP_IRQHandler
+        PUBWEAK  TEMP_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-TEMP_IRQHandler
+TEMP_IRQHandler_v
         B .
 
         PUBWEAK  RNG_IRQHandler
@@ -467,44 +270,44 @@ ECB_IRQHandler
 CCM_AAR_IRQHandler
         B .
 
-        PUBWEAK  WDT_IRQHandler
+        PUBWEAK  WDT_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-WDT_IRQHandler
+WDT_IRQHandler_v
         B .
 
-        PUBWEAK  RTC1_IRQHandler
+        PUBWEAK  RTC1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-RTC1_IRQHandler
+RTC1_IRQHandler_v
         B .
 
-        PUBWEAK  QDEC_IRQHandler
+        PUBWEAK  QDEC_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-QDEC_IRQHandler
+QDEC_IRQHandler_v
         B .
 
-        PUBWEAK  COMP_LPCOMP_IRQHandler
+        PUBWEAK  COMP_LPCOMP_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-COMP_LPCOMP_IRQHandler
+COMP_LPCOMP_IRQHandler_v
         B .
 
-        PUBWEAK  SWI0_EGU0_IRQHandler
+        PUBWEAK  SWI0_EGU0_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SWI0_EGU0_IRQHandler
+SWI0_EGU0_IRQHandler_v
         B .
 
-        PUBWEAK  SWI1_EGU1_IRQHandler
+        PUBWEAK  SWI1_EGU1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SWI1_EGU1_IRQHandler
+SWI1_EGU1_IRQHandler_v
         B .
 
-        PUBWEAK  SWI2_EGU2_IRQHandler
+        PUBWEAK  SWI2_EGU2_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SWI2_EGU2_IRQHandler
+SWI2_EGU2_IRQHandler_v
         B .
 
-        PUBWEAK  SWI3_EGU3_IRQHandler
+        PUBWEAK  SWI3_EGU3_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SWI3_EGU3_IRQHandler
+SWI3_EGU3_IRQHandler_v
         B .
 
         PUBWEAK  SWI4_EGU4_IRQHandler
@@ -517,24 +320,24 @@ SWI4_EGU4_IRQHandler
 SWI5_EGU5_IRQHandler
         B .
 
-        PUBWEAK  TIMER3_IRQHandler
+        PUBWEAK  TIMER3_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-TIMER3_IRQHandler
+TIMER3_IRQHandler_v
         B .
 
-        PUBWEAK  TIMER4_IRQHandler
+        PUBWEAK  TIMER4_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-TIMER4_IRQHandler
+TIMER4_IRQHandler_v
         B .
 
-        PUBWEAK  PWM0_IRQHandler
+        PUBWEAK  PWM0_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-PWM0_IRQHandler
+PWM0_IRQHandler_v
         B .
 
-        PUBWEAK  PDM_IRQHandler
+        PUBWEAK  PDM_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-PDM_IRQHandler
+PDM_IRQHandler_v
         B .
 
         PUBWEAK  MWU_IRQHandler
@@ -542,34 +345,34 @@ PDM_IRQHandler
 MWU_IRQHandler
         B .
 
-        PUBWEAK  PWM1_IRQHandler
+        PUBWEAK  PWM1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-PWM1_IRQHandler
+PWM1_IRQHandler_v
         B .
 
-        PUBWEAK  PWM2_IRQHandler
+        PUBWEAK  PWM2_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-PWM2_IRQHandler
+PWM2_IRQHandler_v
         B .
 
-        PUBWEAK  SPIM2_SPIS2_SPI2_IRQHandler
+        PUBWEAK  SPIM2_SPIS2_SPI2_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-SPIM2_SPIS2_SPI2_IRQHandler
+SPIM2_SPIS2_SPI2_IRQHandler_v
         B .
 
-        PUBWEAK  RTC2_IRQHandler
+        PUBWEAK  RTC2_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-RTC2_IRQHandler
+RTC2_IRQHandler_v
         B .
 
-        PUBWEAK  I2S_IRQHandler
+        PUBWEAK  I2S_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-I2S_IRQHandler
+I2S_IRQHandler_v
         B .
 
-        PUBWEAK  FPU_IRQHandler
+        PUBWEAK  FPU_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
-FPU_IRQHandler
+FPU_IRQHandler_v
         B .
 
 
