@@ -54,7 +54,12 @@ typedef uintptr_t          mem_ptr_t;
 #define SZT_F "uz"
 
 /* ARM/LPC17xx is little endian only */
+#if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
+#ifdef BYTE_ORDER
+#undef BYTE_ORDER
+#endif
 #define BYTE_ORDER LITTLE_ENDIAN
+#endif
 
 /* Use LWIP error codes */
 #define LWIP_PROVIDE_ERRNO
@@ -92,7 +97,7 @@ typedef uintptr_t          mem_ptr_t;
     #define LWIP_CHKSUM_ALGORITHM   0
 
     void* thumb2_memcpy(void* pDest, const void* pSource, size_t length);
-    u16_t thumb2_checksum(void* pData, int length);
+    u16_t thumb2_checksum(const void* pData, int length);
 #else
     /* Used with IP headers only */
     #define LWIP_CHKSUM_ALGORITHM   1
