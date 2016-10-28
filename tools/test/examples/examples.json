@@ -91,7 +91,7 @@
       "features" : [],
       "targets" : [],
       "toolchains" : [],
-      "compile" : true,
+      "compile" : false,
       "auto-update" : true
     },
     {
