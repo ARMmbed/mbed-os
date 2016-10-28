@@ -1,5 +1,7 @@
-/**
- *  Copyright (C) 2006-2016, ARM Limited, All Rights Reserved
+/*
+ *  Common interface for AES based algorithms for the CRYPTO hw module.
+ *
+ *  Copyright (C) 2016 Silicon Labs, http://www.silabs.com
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,28 +15,15 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
+#ifndef __SILICON_LABS_AESDRV_COMMON_CRYPTO_H
+#define __SILICON_LABS_AESDRV_COMMON_CRYPTO_H
 
-#if defined(DEVICE_TRNG)
-#define MBEDTLS_ENTROPY_HARDWARE_ALT
-#endif
+#include "aesdrv_internal.h"
 
-#if defined(DEVICE_AES)
-#define MBEDTLS_AES_ALT
-#endif
+void AESDRV_HwIoSetup(AESDRV_Context_t* pAesdrvContext,
+                      uint8_t*          pData,
+                      uint32_t          authDataLength,
+                      uint32_t          textLength);
 
-#if defined(DEVICE_SHA)
-#define MBEDTLS_SHA1_ALT
-#define MBEDTLS_SHA256_ALT
-#endif
-
-#if defined(DEVICE_ECC)
-#define MBEDTLS_ECP_DEVICE_ALT
-#define MBEDTLS_ECP_DOUBLE_JAC_ALT
-#define MBEDTLS_ECP_DEVICE_ADD_MIXED_ALT
-#define MBEDTLS_ECP_NORMALIZE_JAC_ALT
-#define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT
-#define MBEDTLS_MPI_MODULAR_DIVISION_ALT
-#endif
+#endif /* __SILICON_LABS_AESDRV_COMMON_CRYPTO_H */
