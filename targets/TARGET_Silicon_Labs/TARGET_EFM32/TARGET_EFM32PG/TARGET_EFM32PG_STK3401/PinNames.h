@@ -55,8 +55,7 @@ typedef enum {
 
     /* Board Controller */
     STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX,
-    EFM_BC_EN   = PA5
+    STDIO_UART_RX = USBRX
 } PinName;
 
 #ifdef __cplusplus

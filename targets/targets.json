@@ -1865,6 +1865,11 @@
                 "help": "Value: One of _CMU_HFRCOCTRL_BAND_28MHZ, _CMU_HFRCOCTRL_BAND_21MHZ, _CMU_HFRCOCTRL_BAND_14MHZ, _CMU_HFRCOCTRL_BAND_11MHZ, _CMU_HFRCOCTRL_BAND_7MHZ, _CMU_HFRCOCTRL_BAND_1MHZ. Be sure to set hfrco_clock_freq accordingly!",
                 "value": "_CMU_HFRCOCTRL_BAND_21MHZ",
                 "macro_name": "HFRCO_FREQUENCY_ENUM"
+            },
+            "board_controller_enable": {
+                "help": "Pin to pull high for enabling the USB serial port",
+                "value": "PF7",
+                "macro_name": "EFM_BC_EN"
             }
         }
     },
@@ -1913,6 +1918,11 @@
                 "help": "Value: One of _CMU_HFRCOCTRL_BAND_28MHZ, _CMU_HFRCOCTRL_BAND_21MHZ, _CMU_HFRCOCTRL_BAND_14MHZ, _CMU_HFRCOCTRL_BAND_11MHZ, _CMU_HFRCOCTRL_BAND_7MHZ, _CMU_HFRCOCTRL_BAND_1MHZ. Be sure to set hfrco_clock_freq accordingly!",
                 "value": "_CMU_HFRCOCTRL_BAND_21MHZ",
                 "macro_name": "HFRCO_FREQUENCY_ENUM"
+            },
+            "board_controller_enable": {
+                "help": "Pin to pull high for enabling the USB serial port",
+                "value": "PF7",
+                "macro_name": "EFM_BC_EN"
             }
         }
     },
@@ -1961,6 +1971,11 @@
                 "help": "Value: One of _CMU_HFRCOCTRL_BAND_28MHZ, _CMU_HFRCOCTRL_BAND_21MHZ, _CMU_HFRCOCTRL_BAND_14MHZ, _CMU_HFRCOCTRL_BAND_11MHZ, _CMU_HFRCOCTRL_BAND_7MHZ, _CMU_HFRCOCTRL_BAND_1MHZ. Be sure to set hfrco_clock_freq accordingly!",
                 "value": "_CMU_HFRCOCTRL_BAND_21MHZ",
                 "macro_name": "HFRCO_FREQUENCY_ENUM"
+            },
+            "board_controller_enable": {
+                "help": "Pin to pull high for enabling the USB serial port",
+                "value": "PF7",
+                "macro_name": "EFM_BC_EN"
             }
         }
     },
@@ -2010,6 +2025,11 @@
                 "help": "Value: One of _CMU_HFRCOCTRL_BAND_21MHZ, _CMU_HFRCOCTRL_BAND_14MHZ, _CMU_HFRCOCTRL_BAND_11MHZ, _CMU_HFRCOCTRL_BAND_7MHZ, _CMU_HFRCOCTRL_BAND_1MHZ. Be sure to set hfrco_clock_freq accordingly!",
                 "value": "_CMU_HFRCOCTRL_BAND_21MHZ",
                 "macro_name": "HFRCO_FREQUENCY_ENUM"
+            },
+            "board_controller_enable": {
+                "help": "Pin to pull high for enabling the USB serial port",
+                "value": "PA9",
+                "macro_name": "EFM_BC_EN"
             }
         }
     },
@@ -2059,6 +2079,11 @@
                 "help": "Value: One of _CMU_HFRCOCTRL_BAND_21MHZ, _CMU_HFRCOCTRL_BAND_14MHZ, _CMU_HFRCOCTRL_BAND_11MHZ, _CMU_HFRCOCTRL_BAND_7MHZ, _CMU_HFRCOCTRL_BAND_1MHZ. Be sure to set hfrco_clock_freq accordingly!",
                 "value": "_CMU_HFRCOCTRL_BAND_21MHZ",
                 "macro_name": "HFRCO_FREQUENCY_ENUM"
+            },
+            "board_controller_enable": {
+                "help": "Pin to pull high for enabling the USB serial port",
+                "value": "PA9",
+                "macro_name": "EFM_BC_EN"
             }
         }
     },
@@ -2106,6 +2131,11 @@
                 "help": "Value: One of cmuHFRCOFreq_1M0Hz, cmuHFRCOFreq_2M0Hz, cmuHFRCOFreq_4M0Hz, cmuHFRCOFreq_7M0Hz, cmuHFRCOFreq_13M0Hz, cmuHFRCOFreq_16M0Hz, cmuHFRCOFreq_19M0Hz, cmuHFRCOFreq_26M0Hz, cmuHFRCOFreq_32M0Hz, cmuHFRCOFreq_38M0Hz. Be sure to set hfrco_clock_freq accordingly!",
                 "value": "cmuHFRCOFreq_32M0Hz",
                 "macro_name": "HFRCO_FREQUENCY_ENUM"
+            },
+            "board_controller_enable": {
+                "help": "Pin to pull high for enabling the USB serial port",
+                "value": "PA5",
+                "macro_name": "EFM_BC_EN"
             }
         }
     },
