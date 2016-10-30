@@ -1,4 +1,3 @@
-#ifdef REVD
 /**
 ******************************************************************************
 * @file pad.h
@@ -85,4 +84,3 @@ extern void fPadInit();
 extern boolean fPadIOCtrl(uint8_t, uint8_t, uint8_t, uint8_t);
 
 #endif //_PAD_H_
-#endif /* REVD */

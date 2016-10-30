@@ -33,6 +33,18 @@
 #include <string.h>
 #include <stddef.h>
 #include "em_common.h"
+/* Workaround for em_common naming change so that we don't need to rework the
+   entire USB HAL */
+#define EFM32_PACK_START(x)        SL_PACK_START(x)
+#define EFM32_PACK_END()           SL_PACK_END()
+#define EFM32_MIN(a, b)            SL_MIN(a, b)
+#define EFM32_MAX(a, b)            SL_MAX(a, b)
+#define EFM32_ATTRIBUTE_PACKED     SL_ATTRIBUTE_PACKED
+#define EFM32_ATTRIBUTE_ALIGN(X)   SL_ATTRIBUTE_ALIGN(X)
+#define EFM32_ALIGN(X)             SL_ALIGN(X)
+#define EFM32_WEAK                 SL_WEAK
+#define EFM32_ATTRIBUTE_SECTION(X) SL_ATTRIBUTE_SECTION(X)
+
 #include "em_int.h"
 
 #if defined( USB_USE_PRINTF )

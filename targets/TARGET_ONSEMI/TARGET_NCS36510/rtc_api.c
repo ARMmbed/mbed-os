@@ -39,8 +39,6 @@
 #include "rtc.h"
 #include "cmsis_nvic.h"
 
-static IRQn_Type Irq;
-
 /* See rtc_apc.h for description */
 
 void rtc_init(void)

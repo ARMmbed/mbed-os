@@ -61,6 +61,18 @@
 #error Undefined number of low energy UARTs (LEUART).
 #endif
 
+#ifndef UART_PRESENT
+#define UART_COUNT (0)
+#endif
+#ifndef USART_PRESENT
+#define USART_COUNT (0)
+#endif
+#ifndef LEUART_PRESENT
+#define LEUART_COUNT (0)
+#endif
+
+#define MODULES_SIZE_SERIAL (UART_COUNT + USART_COUNT + LEUART_COUNT)
+
 /* Store IRQ id for each UART */
 static uint32_t serial_irq_ids[MODULES_SIZE_SERIAL] = { 0 };
 /* Interrupt handler from mbed common */
@@ -555,9 +567,6 @@ static void serial_set_route(serial_t *obj)
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
-    uint32_t baudrate;
-    uint32_t uart_for_stdio = false;
-
     serial_preinit(obj, tx, rx);
 
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
@@ -578,18 +587,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     CMU_ClockEnable(serial_get_clock(obj), true);
 
-    /* Limitations of board controller: CDC port only supports 115kbaud */
-    if(((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX))
-       && (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART )
-      ) {
-        baudrate = 115200;
-        uart_for_stdio = true;
-    } else {
-        baudrate = 9600;
-    }
-
     /* Configure UART for async operation */
-    uart_init(obj, baudrate, ParityNone, 1);
+    uart_init(obj, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE, ParityNone, 1);
 
     /* Enable pins for UART at correct location */
     serial_set_route(obj);
@@ -603,7 +602,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     /* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
-    if(uart_for_stdio) {
+    if(obj == &stdio_uart) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }

@@ -71,14 +71,12 @@
 #define PAD_LOW_POWER    (PAD_PULL_NONE | (PAD_DRIVE_L0<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
 
 /** custom Power PAD configuration */
-#ifdef REVD
 #define PAD_OUTPUT_PN_L1_OD (PAD_PULL_NONE | (PAD_DRIVE_L1<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
 #define PAD_INPUT_PD_L1_PP  (PAD_PULL_DOWN | (PAD_DRIVE_L1<<2) | (PAD_OUTCFG_PUSHPULL<<5))
-#define PAD_UNUSED_PD_L0_PP (PAD_PULL_DOWN | (PAD_DRIVE_L0<<2) | (PAD_OUTCFG_PUSHPULL<<5))
+#define PAD_UNUSED_PD_L1_PP (PAD_PULL_DOWN | (PAD_DRIVE_L1<<2) | (PAD_OUTCFG_PUSHPULL<<5))
 
 #define PAD_UART_TX    (PAD_PULL_UP | (PAD_DRIVE_L1<<2) | (PAD_OUTCFG_PUSHPULL<<5))
 #define PAD_UART_RX    (PAD_PULL_UP | (PAD_DRIVE_L1<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
-#endif /* REVD */
 
 /**************************************************************************************************
 *                                                                                                 *

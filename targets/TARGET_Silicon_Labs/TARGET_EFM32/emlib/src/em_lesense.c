@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_lesense.c
  * @brief Low Energy Sensor (LESENSE) Peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,7 +31,9 @@
  ******************************************************************************/
 
 #include "em_lesense.h"
-#if defined(LESENSE_COUNT) && (LESENSE_COUNT > 0)
+/* LESENSE is currently only supported on Platform 1. Full support for Platform 2 LESENSE
+   will be included in the next release. */
+#if defined(LESENSE_COUNT) && (LESENSE_COUNT > 0) && defined(_SILICON_LABS_32B_PLATFORM_1)
 #include "em_assert.h"
 #include "em_bus.h"
 #include "em_cmu.h"
@@ -43,13 +45,18 @@
 /** @endcond */
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup LESENSE
  * @brief Low Energy Sensor (LESENSE) Peripheral API
+ * @details
+ *  This module contains functions to control the LESENSE peripheral of Silicon
+ *  Labs 32-bit MCUs and SoCs. LESENSE is a low energy sensor interface capable
+ *  of autonomously collecting and processing data from multiple sensors even
+ *  when in EM2.
  * @{
  ******************************************************************************/
 
@@ -1115,6 +1122,6 @@ void LESENSE_Reset(void)
 
 
 /** @} (end addtogroup LESENSE) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #endif /* defined(LESENSE_COUNT) && (LESENSE_COUNT > 0) */

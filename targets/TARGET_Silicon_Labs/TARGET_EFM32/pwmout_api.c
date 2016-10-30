@@ -27,7 +27,6 @@
 
 #include "mbed_assert.h"
 #include "pwmout_api.h"
-#include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "device_peripherals.h"

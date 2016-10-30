@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_i2c.c
  * @brief Inter-integrated Circuit (I2C) Peripheral API
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -40,13 +40,17 @@
  #include <limits.h>
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup I2C
  * @brief Inter-integrated Circuit (I2C) Peripheral API
+ * @details
+ *  This module contains functions to control the I2C peripheral of Silicon
+ *  Labs 32-bit MCUs and SoCs. The I2C interface allows communication on I2C
+ *  buses with the lowest energy consumption possible.
  * @{
  ******************************************************************************/
 
@@ -291,10 +295,10 @@ void I2C_BusFreqSet(I2C_TypeDef *i2c,
   EFM_ASSERT(freqRef > minFreq);
 
   /* SCL frequency is given by
-   * freqScl = freqRef/((Nlow + Nhigh) * (DIV + 1) + I2C_C_MAX)
+   * freqScl = freqRef/((Nlow + Nhigh) * (DIV + 1) + I2C_CR_MAX)
    *
    * Thus
-   * DIV = ((freqRef - (I2C_C_MAX * freqScl))/((Nlow + Nhigh) * freqScl)) - 1
+   * DIV = ((freqRef - (I2C_CR_MAX * freqScl))/((Nlow + Nhigh) * freqScl)) - 1
    *
    * More details can be found in the reference manual,
    * I2C Clock Generation chapter.  */
@@ -862,13 +866,13 @@ I2C_TransferReturn_TypeDef I2C_TransferInit(I2C_TypeDef *i2c,
   /* Enable those interrupts we are interested in throughout transfer. */
   /* Notice that the I2C interrupt must also be enabled in the NVIC, but */
   /* that is left for an additional driver wrapper. */
-  i2c->IEN = I2C_IF_NACK | I2C_IF_ACK | I2C_IF_MSTOP |
-             I2C_IF_RXDATAV | I2C_IF_ERRORS;
+  i2c->IEN |= I2C_IF_NACK | I2C_IF_ACK | I2C_IF_MSTOP |
+              I2C_IF_RXDATAV | I2C_IF_ERRORS;
 
   /* Start transfer */
   return I2C_Transfer(i2c);
 }
 
 /** @} (end addtogroup I2C) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 #endif /* defined(I2C_COUNT) && (I2C_COUNT > 0) */

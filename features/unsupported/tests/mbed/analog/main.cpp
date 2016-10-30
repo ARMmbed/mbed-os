@@ -32,6 +32,8 @@ AnalogOut out(DAC0_OUT);
 AnalogIn in(A0);
 AnalogOut out(D12); //D12 is P0_12, the DAC output pin
 
+// no pin to access DAC on these targets:
+//TARGET_DISCO_F746NG
 // No DAC on these targets:
 //TARGET_NUCLEO_F030R8
 //TARGET_NUCLEO_F070RB
@@ -44,18 +46,23 @@ AnalogOut out(D12); //D12 is P0_12, the DAC output pin
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F446RE) || \
-      defined(TARGET_NUCLEO_F446ZE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
+      defined(TARGET_NUCLEO_L476RG) || \
       defined(TARGET_NUCLEO_L152RE)
 AnalogIn in(A0);
 AnalogOut out(A2);
 
-#elif defined(TARGET_NUCLEO_F746ZG)
+#elif defined(TARGET_NUCLEO_F303K8)
 AnalogIn in(A0);
-AnalogOut out(PA_4);
+AnalogOut out(A3);
 
-#elif defined(TARGET_NUCLEO_F207ZG)
+#elif defined(TARGET_NUCLEO_F207ZG) || \
+      defined(TARGET_NUCLEO_F746ZG) || \
+      defined(TARGET_NUCLEO_F303ZE) || \
+      defined(TARGET_NUCLEO_F410RB) || \
+      defined(TARGET_NUCLEO_F446ZE) || \
+      defined(TARGET_NUCLEO_F429ZI)
 AnalogIn in(A0);
 AnalogOut out(D13);
 
@@ -63,13 +70,18 @@ AnalogOut out(D13);
 AnalogIn in(PA_0);
 AnalogOut out(PA_4);
 
+#elif defined(TARGET_DISCO_L053C8) || \
+      defined(TARGET_DISCO_F334C8)
+AnalogIn in(PA_1);
+AnalogOut out(PA_4);
+
 #elif defined(TARGET_DISCO_F407VG) || \
       defined(TARGET_DISCO_F469NI)
 AnalogIn in(PC_5);
 AnalogOut out(PA_4);
 
-#elif defined(TARGET_NUCLEO_F303ZE)
-AnalogIn in(PC_5);
+#elif defined(TARGET_DISCO_L476VG)
+AnalogIn in(PA_0);
 AnalogOut out(PA_5);
 
 #elif defined(TARGET_DISCO_F429ZI)

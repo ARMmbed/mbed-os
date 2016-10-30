@@ -23,12 +23,10 @@
 
 #include <stddef.h>
 #include "us_ticker_api.h"
-#include "cmsis.h"
+#include "device.h"
 #include "mbed_assert.h"
 #include "em_cmu.h"
 #include "em_timer.h"
-#include "device_peripherals.h"
-#include "device.h"
 #include "clocking.h"
 #include "sleep_api.h"
 #include "sleepmodes.h"
