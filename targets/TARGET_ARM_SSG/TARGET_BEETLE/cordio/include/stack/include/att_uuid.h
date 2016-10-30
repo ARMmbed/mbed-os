@@ -1,25 +1,22 @@
 /*************************************************************************************************/
 /*!
  *  \file   att_uuid.h
- *
+ *        
  *  \brief  Attribute protocol UUIDs from the Bluetooth specification.
  *
- *          $Date: 2015-09-20 14:19:39 -0400 (Sun, 20 Sep 2015) $
- *          $Revision: 3979 $
+ *          $Date: 2015-12-10 08:50:10 -0800 (Thu, 10 Dec 2015) $
+ *          $Revision: 4738 $
+ *  
+ *  Copyright (c) 2011 Wicentric, Inc., all rights reserved.
+ *  Wicentric confidential and proprietary.
  *
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact Wicentric, Inc. prior
+ *  to any use, copying or further distribution of this software.
  */
 /*************************************************************************************************/
 #ifndef ATT_UUID_H
@@ -158,6 +155,7 @@ extern "C" {
 #define ATT_UUID_PNP_ID                     0x2A50    /*! PnP ID */                     
 #define ATT_UUID_GLUCOSE_FEATURE            0x2A51    /*! Glucose Feature */            
 #define ATT_UUID_RACP                       0x2A52    /*! Record Access Control Point */
+#define ATT_UUID_CAR                        0x2AA6    /*! Central Address Resolution */
 
 /* remove when adopted */
 #define ATT_UUID_GENERIC_CTRL_SERVICE       0xF011
@@ -412,18 +410,19 @@ extern const uint8_t attNaChUuid[ATT_16_UUID_LEN];       /*! New Alert */
 extern const uint8_t attSnacChUuid[ATT_16_UUID_LEN];     /*! Supported New Alert Category */
 extern const uint8_t attSuacChUuid[ATT_16_UUID_LEN];     /*! Supported Unread Alert Category */
 extern const uint8_t attBpfChUuid[ATT_16_UUID_LEN];      /*! Blood Pressure Feature */
-extern const uint8_t attHidBmiChUuid[ATT_16_UUID_LEN];     /*! HID Information */            
-extern const uint8_t attHidBkiChUuid[ATT_16_UUID_LEN];     /*! HID Information */            
-extern const uint8_t attHidBkoChUuid[ATT_16_UUID_LEN];     /*! HID Information */            
+extern const uint8_t attHidBmiChUuid[ATT_16_UUID_LEN];   /*! HID Information */            
+extern const uint8_t attHidBkiChUuid[ATT_16_UUID_LEN];   /*! HID Information */            
+extern const uint8_t attHidBkoChUuid[ATT_16_UUID_LEN];   /*! HID Information */            
 extern const uint8_t attHidiChUuid[ATT_16_UUID_LEN];     /*! HID Information */            
-extern const uint8_t attHidRmChUuid[ATT_16_UUID_LEN];       /*! Report Map */                
+extern const uint8_t attHidRmChUuid[ATT_16_UUID_LEN];    /*! Report Map */                
 extern const uint8_t attHidcpChUuid[ATT_16_UUID_LEN];    /*! HID Control Point */          
-extern const uint8_t attHidRepChUuid[ATT_16_UUID_LEN];      /*! Report */                    
-extern const uint8_t attHidPmChUuid[ATT_16_UUID_LEN];       /*! Protocol Mode */              
+extern const uint8_t attHidRepChUuid[ATT_16_UUID_LEN];   /*! Report */                    
+extern const uint8_t attHidPmChUuid[ATT_16_UUID_LEN];    /*! Protocol Mode */              
 extern const uint8_t attSiwChUuid[ATT_16_UUID_LEN];      /*! Scan Interval Window */       
 extern const uint8_t attPnpChUuid[ATT_16_UUID_LEN];      /*! PnP ID */                     
 extern const uint8_t attGlfChUuid[ATT_16_UUID_LEN];      /*! Glucose Feature */            
 extern const uint8_t attRacpChUuid[ATT_16_UUID_LEN];     /*! Record Access Control Point */
+extern const uint8_t attCarChUuid[ATT_16_UUID_LEN];      /*! Central Address Resolution */
 
 /* remove when adopted */
 extern const uint8_t attWssSvcUuid[ATT_16_UUID_LEN];      /*! Weight scale service */

@@ -1,4 +1,4 @@
-from pycurl import Curl
+from urllib2 import urlopen, URLError
 from bs4 import BeautifulSoup
 from os.path import join, dirname, basename
 from os import makedirs
@@ -49,19 +49,6 @@ class Reader (Thread) :
             self.func(url)
             self.queue.task_done()
 
-class Cacher (Thread) :
-    def __init__(self, queue, func) :
-        Thread.__init__(self)
-        self.queue = queue
-        self.curl = Curl()
-        self.curl.setopt(self.curl.FOLLOWLOCATION, True)
-        self.func = func
-    def run(self) :
-        while True :
-            url = self.queue.get()
-            self.func(self.curl, url)
-            self.queue.task_done()
-
 
 class Cache () :
     """ The Cache object is the only relevant API object at the moment
@@ -88,7 +75,7 @@ class Cache () :
         stdout.write("{} {}/{}\r".format(message, self.counter, self.total))
         stdout.flush()
 
-    def cache_file (self, curl, url) :
+    def cache_file (self, url) :
         """Low level interface to caching a single file.
 
         :param curl: The user is responsible for providing a curl.Curl object as the curl parameter.
@@ -104,18 +91,11 @@ class Cache () :
         except OSError as exc :
             if exc.errno == EEXIST : pass
             else : raise
-        with open(dest, "wb+") as fd :
-            curl.setopt(curl.URL, url)
-            curl.setopt(curl.FOLLOWLOCATION, True)
-            curl.setopt(curl.WRITEDATA, fd)
-            if not self.no_timeouts :
-                curl.setopt(curl.CONNECTTIMEOUT, 2)
-                curl.setopt(curl.LOW_SPEED_LIMIT, 50 * 1024)
-                curl.setopt(curl.LOW_SPEED_TIME, 2)
-            try :
-                curl.perform()
-            except Exception as e :
-                stderr.write("[ ERROR ] file {} did not download {}\n".format(url, str(e)))
+        try:
+            with open(dest, "wb+") as fd :
+                fd.write(urlopen(url).read())
+        except URLError as e:
+            stderr.write(e.reason)
         self.counter += 1
         self.display_counter("Caching Files")
 
@@ -401,7 +381,7 @@ class Cache () :
         """
         self.total = len(list)
         self.display_counter("Caching Files")
-        do_queue(Cacher, self.cache_file, list)
+        do_queue(Reader, self.cache_file, list)
         stdout.write("\n")
 
     def cache_pack_list(self, list) :
@@ -412,7 +392,7 @@ class Cache () :
         """
         self.total = len(list) * 2
         self.display_counter("Caching Files")
-        do_queue(Cacher, self.cache_pdsc_and_pack, list)
+        do_queue(Reader, self.cache_pdsc_and_pack, list)
         stdout.write("\n")
 
     def pdsc_from_cache(self, url) :

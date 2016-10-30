@@ -69,244 +69,44 @@ __Vectors:
   /* External Interrupts */
     .long   POWER_CLOCK_IRQHandler
     .long   RADIO_IRQHandler
-    .long   UARTE0_UART0_IRQHandler
-    .long   SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler
-    .long   SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler
-    .long   NFCT_IRQHandler
-    .long   GPIOTE_IRQHandler
-    .long   SAADC_IRQHandler
-    .long   TIMER0_IRQHandler
-    .long   TIMER1_IRQHandler
-    .long   TIMER2_IRQHandler
+    .long   UARTE0_UART0_IRQHandler_v
+    .long   SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler_v
+    .long   SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler_v
+    .long   NFCT_IRQHandler_v
+    .long   GPIOTE_IRQHandler_v
+    .long   SAADC_IRQHandler_v
+    .long   TIMER0_IRQHandler_v
+    .long   TIMER1_IRQHandler_v
+    .long   TIMER2_IRQHandler_v
     .long   RTC0_IRQHandler
-    .long   TEMP_IRQHandler
+    .long   TEMP_IRQHandler_v
     .long   RNG_IRQHandler
     .long   ECB_IRQHandler
     .long   CCM_AAR_IRQHandler
-    .long   WDT_IRQHandler
-    .long   RTC1_IRQHandler
-    .long   QDEC_IRQHandler
-    .long   COMP_LPCOMP_IRQHandler
-    .long   SWI0_EGU0_IRQHandler
-    .long   SWI1_EGU1_IRQHandler
-    .long   SWI2_EGU2_IRQHandler
-    .long   SWI3_EGU3_IRQHandler
+    .long   WDT_IRQHandler_v
+    .long   RTC1_IRQHandler_v
+    .long   QDEC_IRQHandler_v
+    .long   COMP_LPCOMP_IRQHandler_v
+    .long   SWI0_EGU0_IRQHandler_v
+    .long   SWI1_EGU1_IRQHandler_v
+    .long   SWI2_EGU2_IRQHandler_v
+    .long   SWI3_EGU3_IRQHandler_v
     .long   SWI4_EGU4_IRQHandler
     .long   SWI5_EGU5_IRQHandler
-    .long   TIMER3_IRQHandler
-    .long   TIMER4_IRQHandler
-    .long   PWM0_IRQHandler
-    .long   PDM_IRQHandler
+    .long   TIMER3_IRQHandler_v
+    .long   TIMER4_IRQHandler_v
+    .long   PWM0_IRQHandler_v
+    .long   PDM_IRQHandler_v
     .long   0                           /*Reserved */
     .long   0                           /*Reserved */
     .long   MWU_IRQHandler
-    .long   PWM1_IRQHandler
-    .long   PWM2_IRQHandler
-    .long   SPIM2_SPIS2_SPI2_IRQHandler
-    .long   RTC2_IRQHandler
-    .long   I2S_IRQHandler
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
+    .long   PWM1_IRQHandler_v
+    .long   PWM2_IRQHandler_v
+    .long   SPIM2_SPIS2_SPI2_IRQHandler_v
+    .long   RTC2_IRQHandler_v
+    .long   I2S_IRQHandler_v
+    .long   FPU_IRQHandler_v
+
 
     .size    __Vectors, . - __Vectors
 
@@ -344,6 +144,8 @@ Reset_Handler:
 .LC0:
 
     LDR     R0, =SystemInit
+    BLX     R0
+    LDR     R0, =nrf_reloc_vector_table
     BLX     R0
     LDR     R0, =_start
     BX      R0
@@ -427,41 +229,42 @@ Default_Handler:
     .set    \handler, Default_Handler
     .endm
 
-    IRQ  POWER_CLOCK_IRQHandler
-    IRQ  RADIO_IRQHandler
-    IRQ  UARTE0_UART0_IRQHandler
-    IRQ  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler
-    IRQ  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler
-    IRQ  NFCT_IRQHandler
-    IRQ  GPIOTE_IRQHandler
-    IRQ  SAADC_IRQHandler
-    IRQ  TIMER0_IRQHandler
-    IRQ  TIMER1_IRQHandler
-    IRQ  TIMER2_IRQHandler
-    IRQ  RTC0_IRQHandler
-    IRQ  TEMP_IRQHandler
-    IRQ  RNG_IRQHandler
-    IRQ  ECB_IRQHandler
-    IRQ  CCM_AAR_IRQHandler
-    IRQ  WDT_IRQHandler
-    IRQ  RTC1_IRQHandler
-    IRQ  QDEC_IRQHandler
-    IRQ  COMP_LPCOMP_IRQHandler
-    IRQ  SWI0_EGU0_IRQHandler
-    IRQ  SWI1_EGU1_IRQHandler
-    IRQ  SWI2_EGU2_IRQHandler
-    IRQ  SWI3_EGU3_IRQHandler
-    IRQ  SWI4_EGU4_IRQHandler
-    IRQ  SWI5_EGU5_IRQHandler
-    IRQ  TIMER3_IRQHandler
-    IRQ  TIMER4_IRQHandler
-    IRQ  PWM0_IRQHandler
-    IRQ  PDM_IRQHandler
-    IRQ  MWU_IRQHandler
-    IRQ  PWM1_IRQHandler
-    IRQ  PWM2_IRQHandler
-    IRQ  SPIM2_SPIS2_SPI2_IRQHandler
-    IRQ  RTC2_IRQHandler
-    IRQ  I2S_IRQHandler
-
+    IRQ  POWER_CLOCK_IRQHandler                          /* restricted */
+    IRQ  RADIO_IRQHandler                                /* blocked    */
+    IRQ  UARTE0_UART0_IRQHandler_v
+    IRQ  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler_v
+    IRQ  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler_v
+    IRQ  NFCT_IRQHandler_v
+    IRQ  GPIOTE_IRQHandler_v
+    IRQ  SAADC_IRQHandler_v
+    IRQ  TIMER0_IRQHandler_v
+    IRQ  TIMER1_IRQHandler_v
+    IRQ  TIMER2_IRQHandler_v
+    IRQ  RTC0_IRQHandler                                 /* blocked    */
+    IRQ  TEMP_IRQHandler_v
+    IRQ  RNG_IRQHandler                                  /* restricted */
+    IRQ  ECB_IRQHandler                                  /* restricted */
+    IRQ  CCM_AAR_IRQHandler                              /* blocked    */
+    IRQ  WDT_IRQHandler_v
+    IRQ  RTC1_IRQHandler_v
+    IRQ  QDEC_IRQHandler_v
+    IRQ  COMP_LPCOMP_IRQHandler_v
+    IRQ  SWI0_EGU0_IRQHandler_v
+    IRQ  SWI1_EGU1_IRQHandler_v                          /* restricted for Radio Notification */
+    IRQ  SWI2_EGU2_IRQHandler_v                          /* blocked for SoftDevice Event */
+    IRQ  SWI3_EGU3_IRQHandler_v
+    IRQ  SWI4_EGU4_IRQHandler                            /* blocked    */
+    IRQ  SWI5_EGU5_IRQHandler                            /* blocked    */
+    IRQ  TIMER3_IRQHandler_v
+    IRQ  TIMER4_IRQHandler_v
+    IRQ  PWM0_IRQHandler_v
+    IRQ  PDM_IRQHandler_v
+    IRQ  MWU_IRQHandler                                  /* restricted */
+    IRQ  PWM1_IRQHandler_v
+    IRQ  PWM2_IRQHandler_v
+    IRQ  SPIM2_SPIS2_SPI2_IRQHandler_v
+    IRQ  RTC2_IRQHandler_v
+    IRQ  I2S_IRQHandler_v
+    IRQ  FPU_IRQHandler_v
+    
   .end

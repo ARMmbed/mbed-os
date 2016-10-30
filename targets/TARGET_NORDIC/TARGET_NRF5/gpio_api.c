@@ -62,6 +62,7 @@ static void gpiote_irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t a
     }
 }
 
+void GPIOTE_IRQHandler(void);// exported from nrf_drv_gpiote.c
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
@@ -70,6 +71,9 @@ void gpio_init(gpio_t *obj, PinName pin)
         return;
     }
     MBED_ASSERT((uint32_t)pin < GPIO_PIN_COUNT);
+    
+    NVIC_SetVector(GPIOTE_IRQn, (uint32_t) GPIOTE_IRQHandler);
+    
     (void) nrf_drv_gpiote_init();
 
     m_gpio_cfg[obj->pin].used_as_gpio = true;
@@ -86,8 +90,7 @@ int gpio_read(gpio_t *obj)
     }
 }
 
-
-static void gpio_apply_config(uint8_t pin)
+static void gpiote_pin_uninit(uint8_t pin)
 {
     if (m_gpio_initialized & (1UL << pin)) {
         if ((m_gpio_cfg[pin].direction == PIN_OUTPUT) && (!m_gpio_cfg[pin].used_as_irq)) {
@@ -97,7 +100,10 @@ static void gpio_apply_config(uint8_t pin)
             nrf_drv_gpiote_in_uninit(pin);
         }
     }
+}
 
+static void gpio_apply_config(uint8_t pin)
+{
     if (m_gpio_cfg[pin].used_as_gpio || m_gpio_cfg[pin].used_as_irq) {
         if ((m_gpio_cfg[pin].direction == PIN_INPUT)
             || (m_gpio_cfg[pin].used_as_irq)) {
@@ -147,6 +153,9 @@ static void gpio_apply_config(uint8_t pin)
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
     MBED_ASSERT(obj->pin <= GPIO_PIN_COUNT);
+    
+    gpiote_pin_uninit(obj->pin); // try to uninitialize gpio before a change.
+    
     m_gpio_cfg[obj->pin].pull = mode;
     gpio_apply_config(obj->pin);
 }
@@ -155,6 +164,9 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     MBED_ASSERT(obj->pin <= GPIO_PIN_COUNT);
+    
+    gpiote_pin_uninit(obj->pin); // try to uninitialize gpio before a change.
+    
     m_gpio_cfg[obj->pin].direction = direction;
     gpio_apply_config(obj->pin);
 }
@@ -172,6 +184,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     MBED_ASSERT((uint32_t)pin < GPIO_PIN_COUNT);
     (void) nrf_drv_gpiote_init();
 
+    gpiote_pin_uninit(pin); // try to uninitialize gpio before a change.
+    
     m_gpio_cfg[pin].used_as_irq = true;
     m_channel_ids[pin] = id;
     obj->ch            = pin;

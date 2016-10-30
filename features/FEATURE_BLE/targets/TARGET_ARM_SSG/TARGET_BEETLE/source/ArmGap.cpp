@@ -77,8 +77,13 @@ ble_error_t ArmGap::startAdvertising(const GapAdvertisingParams &params)
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
+    /* Peer Addr Type 0 = Public */
+    uint8_t peerAddrType = 0;
+    uint8_t peerAddr[6];
+    memset(peerAddr, 0, 6);
+
     DmAdvSetInterval(params.getInterval(), params.getInterval());
-    DmAdvStart(params.getAdvertisingType(), params.getTimeout());
+    DmAdvStart(params.getAdvertisingType(), params.getTimeout(), peerAddrType, peerAddr);
 
     state.advertising = 1;
 

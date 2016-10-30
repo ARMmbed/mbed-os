@@ -147,6 +147,7 @@ SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs,
 #define SDCARD_V2HC 3
 
 int SDFileSystem::initialise_card() {
+	_dbg = SD_DBG;
     // Set to SCK for initialisation, and clock card with cs = 1
     _spi.lock();
     _spi.frequency(_init_sck);
@@ -158,7 +159,7 @@ int SDFileSystem::initialise_card() {
 
     // send CMD0, should return with all zeros except IDLE STATE set (bit 0)
     if (_cmd(0, 0) != R1_IDLE_STATE) {
-        debug("No disk, or could not put SD card in to SPI idle state\n");
+        debug_if(_dbg, "No disk, or could not put SD card in to SPI idle state\n");
         return SDCARD_FAIL;
     }
 
@@ -169,7 +170,7 @@ int SDFileSystem::initialise_card() {
     } else if (r == (R1_IDLE_STATE | R1_ILLEGAL_COMMAND)) {
         return initialise_card_v1();
     } else {
-        debug("Not in idle state after sending CMD8 (not an SD card?)\n");
+        debug_if(_dbg, "Not in idle state after sending CMD8 (not an SD card?)\n");
         return SDCARD_FAIL;
     }
 }
@@ -179,12 +180,12 @@ int SDFileSystem::initialise_card_v1() {
         _cmd(55, 0);
         if (_cmd(41, 0) == 0) {
             cdv = 512;
-            debug_if(SD_DBG, "\n\rInit: SEDCARD_V1\n\r");
+            debug_if(_dbg, "\n\rInit: SEDCARD_V1\n\r");
             return SDCARD_V1;
         }
     }
 
-    debug("Timeout waiting for v1.x card\n");
+    debug_if(_dbg, "Timeout waiting for v1.x card\n");
     return SDCARD_FAIL;
 }
 
@@ -195,13 +196,13 @@ int SDFileSystem::initialise_card_v2() {
         _cmd(55, 0);
         if (_cmd(41, 0x40000000) == 0) {
             _cmd58();
-            debug_if(SD_DBG, "\n\rInit: SDCARD_V2\n\r");
+            debug_if(_dbg, "\n\rInit: SDCARD_V2\n\r");
             cdv = 1;
             return SDCARD_V2;
         }
     }
 
-    debug("Timeout waiting for v2.x card\n");
+    debug_if(_dbg, "Timeout waiting for v2.x card\n");
     return SDCARD_FAIL;
 }
 
@@ -209,16 +210,16 @@ int SDFileSystem::disk_initialize() {
     lock();
     _is_initialized = initialise_card();
     if (_is_initialized == 0) {
-        debug("Fail to initialize card\n");
+        debug_if(_dbg, "Fail to initialize card\n");
         unlock();
         return 1;
     }
-    debug_if(SD_DBG, "init card = %d\n", _is_initialized);
+    debug_if(_dbg, "init card = %d\n", _is_initialized);
     _sectors = _sd_sectors();
 
     // Set block length to 512 (CMD16)
     if (_cmd(16, 512) != 0) {
-        debug("Set 512-byte block timed out\n");
+        debug_if(_dbg, "Set 512-byte block timed out\n");
         unlock();
         return 1;
     }
@@ -289,6 +290,10 @@ uint32_t SDFileSystem::disk_sectors() {
     uint32_t sectors = _sectors;
     unlock();
     return sectors;
+}
+
+void SDFileSystem::debug(bool dbg){
+    _dbg = dbg;
 }
 
 
@@ -487,13 +492,13 @@ uint32_t SDFileSystem::_sd_sectors() {
 
     // CMD9, Response R2 (R1 byte + 16-byte block read)
     if (_cmdx(9, 0) != 0) {
-        debug("Didn't get a response from the disk\n");
+        debug_if(_dbg, "Didn't get a response from the disk\n");
         return 0;
     }
 
     uint8_t csd[16];
     if (_read(csd, 16) != 0) {
-        debug("Couldn't read csd response from disk\n");
+        debug_if(_dbg, "Couldn't read csd response from disk\n");
         return 0;
     }
 
@@ -516,18 +521,18 @@ uint32_t SDFileSystem::_sd_sectors() {
             blocknr = (c_size + 1) * mult;
             capacity = blocknr * block_len;
             blocks = capacity / 512;
-            debug_if(SD_DBG, "\n\rSDCard\n\rc_size: %d \n\rcapacity: %ld \n\rsectors: %lld\n\r", c_size, capacity, blocks);
+            debug_if(_dbg, "\n\rSDCard\n\rc_size: %d \n\rcapacity: %ld \n\rsectors: %lld\n\r", c_size, capacity, blocks);
             break;
 
         case 1:
             cdv = 1;
             hc_c_size = ext_bits(csd, 63, 48);
             blocks = (hc_c_size+1)*1024;
-            debug_if(SD_DBG, "\n\rSDHC Card \n\rhc_c_size: %d\n\rcapacity: %lld \n\rsectors: %lld\n\r", hc_c_size, blocks*512, blocks);
+            debug_if(_dbg, "\n\rSDHC Card \n\rhc_c_size: %d\n\rcapacity: %lld \n\rsectors: %lld\n\r", hc_c_size, blocks*512, blocks);
             break;
 
         default:
-            debug("CSD struct unsupported\r\n");
+            debug_if(_dbg, "CSD struct unsupported\r\n");
             return 0;
     };
     return blocks;
