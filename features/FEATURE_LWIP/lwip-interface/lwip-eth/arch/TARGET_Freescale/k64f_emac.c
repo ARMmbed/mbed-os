@@ -86,10 +86,8 @@ static void update_read_buffer(uint8_t *buf)
     /* Increases the buffer descriptor to the next one. */
     if (g_handle.rxBdCurrent->control & ENET_BUFFDESCRIPTOR_RX_WRAP_MASK) {
         g_handle.rxBdCurrent = g_handle.rxBdBase;
-        g_handle.rxBdDirty = g_handle.rxBdBase;
     } else {
         g_handle.rxBdCurrent++;
-        g_handle.rxBdDirty++;
     }
 
     /* Actives the receive buffer descriptor. */
