@@ -1,12 +1,12 @@
 /*
 ** ###################################################################
-**     Version:             rev. 2.14, 2015-06-08
-**     Build:               b151217
+**     Version:             rev. 2.15, 2016-03-21
+**     Build:               b160829
 **
 **     Abstract:
 **         Chip specific module features.
 **
-**     Copyright (c) 2015 Freescale Semiconductor, Inc.
+**     Copyright (c) 2016 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
 **     Redistribution and use in source and binary forms, with or without modification,
@@ -83,6 +83,8 @@
 **         Several USB features added.
 **     - rev. 2.14 (2015-06-08)
 **         FTM features BUS_CLOCK and FAST_CLOCK removed.
+**     - rev. 2.15 (2016-03-21)
+**         Added MK64FN1M0CAJ12 part.
 **
 ** ###################################################################
 */
@@ -92,8 +94,8 @@
 
 /* SOC module features */
 
-#if defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VDC12) || \
-    defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FX512VMD12)
+#if defined(CPU_MK64FN1M0CAJ12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FN1M0VMD12) || \
+    defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FX512VMD12)
     /* @brief ACMP availability on the SoC. */
     #define FSL_FEATURE_SOC_ACMP_COUNT (0)
     /* @brief ADC16 availability on the SoC. */
@@ -640,6 +642,8 @@
 #define FSL_FEATURE_FLEXCAN_HAS_BUF31TO0M (0)
 /* @brief Number of interrupt vectors. */
 #define FSL_FEATURE_FLEXCAN_INTERRUPT_COUNT (6)
+/* @brief Is affected by errata with ID 5641 (Module does not transmit a message that is enabled to be transmitted at a specific moment during the arbitration process). */
+#define FSL_FEATURE_FLEXCAN_HAS_ERRATA_5641 (0)
 
 /* CMP module features */
 
@@ -701,7 +705,7 @@
 #define FSL_FEATURE_DMAMUX_MODULE_CHANNEL (16)
 /* @brief Total number of DMA channels on all modules. */
 #define FSL_FEATURE_DMAMUX_DMAMUX_CHANNELS (FSL_FEATURE_SOC_DMAMUX_COUNT * 16)
-/* @brief Has the periodic trigger capability for the triggered DMA channel 0 (register bit CHCFG0[TRIG]). */
+/* @brief Has the periodic trigger capability for the triggered DMA channel (register bit CHCFG0[TRIG]). */
 #define FSL_FEATURE_DMAMUX_HAS_TRIG (1)
 
 /* ENET module features */
@@ -728,7 +732,8 @@
 
 /* FLASH module features */
 
-#if defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FN1M0VMD12)
+#if defined(CPU_MK64FN1M0CAJ12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || \
+    defined(CPU_MK64FN1M0VMD12)
     /* @brief Is of type FTFA. */
     #define FSL_FEATURE_FLASH_IS_FTFA (0)
     /* @brief Is of type FTFE. */
@@ -749,6 +754,8 @@
     #define FSL_FEATURE_FLASH_HAS_FMC_FLASH_CACHE_CONTROLS (1)
     /* @brief Has flash cache control in MCM module. */
     #define FSL_FEATURE_FLASH_HAS_MCM_FLASH_CACHE_CONTROLS (0)
+    /* @brief Has flash cache control in MSCM module. */
+    #define FSL_FEATURE_FLASH_HAS_MSCM_FLASH_CACHE_CONTROLS (0)
     /* @brief P-Flash start address. */
     #define FSL_FEATURE_FLASH_PFLASH_START_ADDRESS (0x00000000)
     /* @brief P-Flash block count. */
@@ -763,6 +770,8 @@
     #define FSL_FEATURE_FLASH_PFLASH_BLOCK_DATA_PATH_WIDTH (16)
     /* @brief P-Flash block swap feature. */
     #define FSL_FEATURE_FLASH_HAS_PFLASH_BLOCK_SWAP (1)
+    /* @brief P-Flash protection region count. */
+    #define FSL_FEATURE_FLASH_PFLASH_PROTECTION_REGION_COUNT (32)
     /* @brief Has FlexNVM memory. */
     #define FSL_FEATURE_FLASH_HAS_FLEX_NVM (0)
     /* @brief FlexNVM start address. (Valid only if FlexNVM is available.) */
@@ -815,6 +824,10 @@
     #define FSL_FEATURE_FLASH_HAS_SWAP_CONTROL_CMD (1)
     /* @brief Has 0x49 Erase All Blocks Unsecure command. */
     #define FSL_FEATURE_FLASH_HAS_ERASE_ALL_BLOCKS_UNSECURE_CMD (0)
+    /* @brief Has 0x4A Read 1s All Execute-only Segments command. */
+    #define FSL_FEATURE_FLASH_HAS_READ_1S_ALL_EXECUTE_ONLY_SEGMENTS_CMD (0)
+    /* @brief Has 0x4B Erase All Execute-only Segments command. */
+    #define FSL_FEATURE_FLASH_HAS_ERASE_ALL_EXECUTE_ONLY_SEGMENTS_CMD (0)
     /* @brief Has 0x80 Program Partition command. */
     #define FSL_FEATURE_FLASH_HAS_PROGRAM_PARTITION_CMD (0)
     /* @brief Has 0x81 Set FlexRAM Function command. */
@@ -926,6 +939,8 @@
     #define FSL_FEATURE_FLASH_HAS_FMC_FLASH_CACHE_CONTROLS (1)
     /* @brief Has flash cache control in MCM module. */
     #define FSL_FEATURE_FLASH_HAS_MCM_FLASH_CACHE_CONTROLS (0)
+    /* @brief Has flash cache control in MSCM module. */
+    #define FSL_FEATURE_FLASH_HAS_MSCM_FLASH_CACHE_CONTROLS (0)
     /* @brief P-Flash start address. */
     #define FSL_FEATURE_FLASH_PFLASH_START_ADDRESS (0x00000000)
     /* @brief P-Flash block count. */
@@ -940,6 +955,8 @@
     #define FSL_FEATURE_FLASH_PFLASH_BLOCK_DATA_PATH_WIDTH (16)
     /* @brief P-Flash block swap feature. */
     #define FSL_FEATURE_FLASH_HAS_PFLASH_BLOCK_SWAP (0)
+    /* @brief P-Flash protection region count. */
+    #define FSL_FEATURE_FLASH_PFLASH_PROTECTION_REGION_COUNT (32)
     /* @brief Has FlexNVM memory. */
     #define FSL_FEATURE_FLASH_HAS_FLEX_NVM (1)
     /* @brief FlexNVM start address. (Valid only if FlexNVM is available.) */
@@ -979,19 +996,23 @@
     /* @brief Has 0x0B Program Section command. */
     #define FSL_FEATURE_FLASH_HAS_PROGRAM_SECTION_CMD (1)
     /* @brief Has 0x40 Read 1s All Blocks command. */
-    #define FSL_FEATURE_FLASH_HAS_READ_1S_ALL_BLOCKS_CMD (0)
+    #define FSL_FEATURE_FLASH_HAS_READ_1S_ALL_BLOCKS_CMD (1)
     /* @brief Has 0x41 Read Once command. */
     #define FSL_FEATURE_FLASH_HAS_READ_ONCE_CMD (1)
     /* @brief Has 0x43 Program Once command. */
     #define FSL_FEATURE_FLASH_HAS_PROGRAM_ONCE_CMD (1)
     /* @brief Has 0x44 Erase All Blocks command. */
-    #define FSL_FEATURE_FLASH_HAS_ERASE_ALL_BLOCKS_CMD (0)
+    #define FSL_FEATURE_FLASH_HAS_ERASE_ALL_BLOCKS_CMD (1)
     /* @brief Has 0x45 Verify Backdoor Access Key command. */
     #define FSL_FEATURE_FLASH_HAS_VERIFY_BACKDOOR_ACCESS_KEY_CMD (1)
     /* @brief Has 0x46 Swap Control command. */
     #define FSL_FEATURE_FLASH_HAS_SWAP_CONTROL_CMD (0)
     /* @brief Has 0x49 Erase All Blocks Unsecure command. */
     #define FSL_FEATURE_FLASH_HAS_ERASE_ALL_BLOCKS_UNSECURE_CMD (0)
+    /* @brief Has 0x4A Read 1s All Execute-only Segments command. */
+    #define FSL_FEATURE_FLASH_HAS_READ_1S_ALL_EXECUTE_ONLY_SEGMENTS_CMD (0)
+    /* @brief Has 0x4B Erase All Execute-only Segments command. */
+    #define FSL_FEATURE_FLASH_HAS_ERASE_ALL_EXECUTE_ONLY_SEGMENTS_CMD (0)
     /* @brief Has 0x80 Program Partition command. */
     #define FSL_FEATURE_FLASH_HAS_PROGRAM_PARTITION_CMD (1)
     /* @brief Has 0x81 Set FlexRAM Function command. */
@@ -1082,7 +1103,8 @@
     #define FSL_FEATURE_FLASH_FLEX_NVM_EEPROM_SIZE_FOR_EEESIZE_1110 (0xFFFF)
     /* @brief Emulated eeprom size code 1111 mapping to emulated eeprom size in bytes (0xFFFF = reserved). */
     #define FSL_FEATURE_FLASH_FLEX_NVM_EEPROM_SIZE_FOR_EEESIZE_1111 (0x0000)
-#endif /* defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FN1M0VMD12) */
+#endif /* defined(CPU_MK64FN1M0CAJ12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || \
+    defined(CPU_MK64FN1M0VMD12) */
 
 /* FTM module features */
 
@@ -1094,6 +1116,8 @@
     ((x) == FTM3 ? (8) : (-1)))))
 /* @brief Has counter reset by the selected input capture event (register bits C0SC[ICRST], C1SC[ICRST], ...). */
 #define FSL_FEATURE_FTM_HAS_COUNTER_RESET_BY_CAPTURE_EVENT (0)
+/* @brief Has extended deadtime value. */
+#define FSL_FEATURE_FTM_HAS_EXTENDED_DEADTIME_VALUE (0)
 /* @brief Enable pwm output for the module. */
 #define FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT (0)
 /* @brief Has half-cycle reload for the module. */
@@ -1102,6 +1126,15 @@
 #define FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT (0)
 /* @brief Has reload initialization trigger. */
 #define FSL_FEATURE_FTM_HAS_RELOAD_INITIALIZATION_TRIGGER (0)
+
+/* GPIO module features */
+
+/* @brief Has fast (single cycle) access capability via a dedicated memory region. */
+#define FSL_FEATURE_GPIO_HAS_FAST_GPIO (0)
+/* @brief Has port input disable register (PIDR). */
+#define FSL_FEATURE_GPIO_HAS_INPUT_DISABLE (0)
+/* @brief Has dedicated interrupt vector. */
+#define FSL_FEATURE_GPIO_HAS_PORT_INTERRUPT_VECTOR (1)
 
 /* I2C module features */
 
@@ -1125,6 +1158,8 @@
 #define FSL_FEATURE_I2C_HAS_HIGH_DRIVE_SELECTION (1)
 /* @brief Has double buffering support (register S2). */
 #define FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING (0)
+/* @brief Has double buffer enable. */
+#define FSL_FEATURE_I2C_HAS_DOUBLE_BUFFER_ENABLE (0)
 
 /* SAI module features */
 
@@ -1163,7 +1198,7 @@
 #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
 /* @brief Number of digital filters. */
 #define FSL_FEATURE_LLWU_HAS_PIN_FILTER (2)
-/* @brief Has MF5 register. */
+/* @brief Has MF register. */
 #define FSL_FEATURE_LLWU_HAS_MF (0)
 /* @brief Has PF register. */
 #define FSL_FEATURE_LLWU_HAS_PF (0)
@@ -1390,6 +1425,8 @@
 
 /* @brief Has shared interrupt handler with another LPTMR module. */
 #define FSL_FEATURE_LPTMR_HAS_SHARED_IRQ_HANDLER (0)
+/* @brief Whether LPTMR counter is 32 bits width. */
+#define FSL_FEATURE_LPTMR_CNR_WIDTH_IS_32B (0)
 
 /* MCG module features */
 
@@ -1468,22 +1505,14 @@
 #define FSL_FEATURE_MPU_DESCRIPTOR_COUNT (12)
 /* @brief Has process identifier support. */
 #define FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER (1)
-/* @brief Has master 0. */
-#define FSL_FEATURE_MPU_HAS_MASTER0 (1)
-/* @brief Has master 1. */
-#define FSL_FEATURE_MPU_HAS_MASTER1 (1)
-/* @brief Has master 2. */
-#define FSL_FEATURE_MPU_HAS_MASTER2 (1)
-/* @brief Has master 3. */
-#define FSL_FEATURE_MPU_HAS_MASTER3 (1)
-/* @brief Has master 4. */
-#define FSL_FEATURE_MPU_HAS_MASTER4 (1)
-/* @brief Has master 5. */
-#define FSL_FEATURE_MPU_HAS_MASTER5 (1)
-/* @brief Has master 6. */
-#define FSL_FEATURE_MPU_HAS_MASTER6 (0)
-/* @brief Has master 7. */
-#define FSL_FEATURE_MPU_HAS_MASTER7 (0)
+/* @brief Total number of MPU master. */
+#define FSL_FEATURE_MPU_MASTER_COUNT (8)
+/* @brief Total number of MPU master with privileged rights */
+#define FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT (4)
+/* @brief Max index of used MPU master. */
+#define FSL_FEATURE_MPU_MASTER_MAX_INDEX (5)
+/* @brief Has master 4 or 5 or 6 or 7. */
+#define FSL_FEATURE_MPU_HAS_MASTER_4_7 (1)
 
 /* interrupt module features */
 
@@ -1587,15 +1616,6 @@
 /* @brief Defines whether PCR[IRQC] bit-field has trigger states. */
 #define FSL_FEATURE_PORT_HAS_IRQC_TRIGGER (0)
 
-/* GPIO module features */
-
-/* @brief Has fast (single cycle) access capability via a dedicated memory region. */
-#define FSL_FEATURE_GPIO_HAS_FAST_GPIO (0)
-/* @brief Has port input disable register (PIDR). */
-#define FSL_FEATURE_GPIO_HAS_INPUT_DISABLE (0)
-/* @brief Has dedicated interrupt vector. */
-#define FSL_FEATURE_GPIO_HAS_PORT_INTERRUPT_VECTOR (1)
-
 /* RCM module features */
 
 /* @brief Has Loss-of-Lock Reset support. */
@@ -1629,8 +1649,8 @@
 
 /* RTC module features */
 
-#if defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FX512VDC12) || \
-    defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FX512VLQ12)
+#if defined(CPU_MK64FN1M0CAJ12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || \
+    defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FX512VLQ12)
     /* @brief Has wakeup pin. */
     #define FSL_FEATURE_RTC_HAS_WAKEUP_PIN (1)
     /* @brief Has wakeup pin selection (bit field CR[WPS]). */
@@ -1672,8 +1692,8 @@
     #define FSL_FEATURE_RTC_HAS_TSIC (0)
     /* @brief Has OSC capacitor setting RTC_CR[SC2P ~ SC16P] */
     #define FSL_FEATURE_RTC_HAS_OSC_SCXP (1)
-#endif /* defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FX512VDC12) || \
-    defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FX512VLQ12) */
+#endif /* defined(CPU_MK64FN1M0CAJ12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FN1M0VLQ12) || \
+    defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FX512VLQ12) */
 
 /* SDHC module features */
 
@@ -2012,8 +2032,8 @@
 #define FSL_FEATURE_UART_HAS_IR_SUPPORT (1)
 /* @brief 2 bits long stop bit is available. */
 #define FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT (1)
-/* @brief Maximal data width without parity bit. */
-#define FSL_FEATURE_UART_HAS_10BIT_DATA_SUPPORT (0)
+/* @brief If 10-bit mode is supported. */
+#define FSL_FEATURE_UART_HAS_10BIT_DATA_SUPPORT (1)
 /* @brief Baud rate fine adjustment is available. */
 #define FSL_FEATURE_UART_HAS_BAUD_RATE_FINE_ADJUST_SUPPORT (1)
 /* @brief Baud rate oversampling is available (has bit fields C4[OSR], C5[BOTHEDGE], C5[RESYNCDIS] or BAUD[OSR], BAUD[BOTHEDGE], BAUD[RESYNCDIS] if the registers are 32-bit wide). */
@@ -2090,7 +2110,7 @@
 #define FSL_FEATURE_VREF_HAS_CHOP_OSC (1)
 /* @brief Has second order curvature compensation (bit SC[ICOMPEN]) */
 #define FSL_FEATURE_VREF_HAS_COMPENSATION (1)
-/* @brief Describes the set of SC[MODE_LV] bitfield values */
+/* @brief If high/low buffer mode supported */
 #define FSL_FEATURE_VREF_MODE_LV_TYPE (1)
 /* @brief Module has also low reference (registers VREFL/VREFH) */
 #define FSL_FEATURE_VREF_HAS_LOW_REFERENCE (0)

@@ -102,8 +102,10 @@ static I2S_Type *const s_saiBases[] = I2S_BASE_PTRS;
 /* IRQ number array */
 static const IRQn_Type s_saiTxIRQ[] = I2S_TX_IRQS;
 static const IRQn_Type s_saiRxIRQ[] = I2S_RX_IRQS;
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /* Clock name array */
 static const clock_ip_name_t s_saiClock[] = SAI_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 /*! @brief Pointer to tx IRQ handler for each instance. */
 static sai_tx_isr_t s_saiTxIsr;
 /*! @brief Pointer to tx IRQ handler for each instance. */
@@ -237,8 +239,10 @@ void SAI_TxInit(I2S_Type *base, const sai_config_t *config)
 {
     uint32_t val = 0;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable the SAI clock */
     CLOCK_EnableClock(s_saiClock[SAI_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 #if defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)
     /* Master clock source setting */
@@ -339,8 +343,10 @@ void SAI_RxInit(I2S_Type *base, const sai_config_t *config)
 {
     uint32_t val = 0;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable SAI clock first. */
     CLOCK_EnableClock(s_saiClock[SAI_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 #if defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)
     /* Master clock source setting */
@@ -441,7 +447,9 @@ void SAI_Deinit(I2S_Type *base)
 {
     SAI_TxEnable(base, false);
     SAI_RxEnable(base, false);
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     CLOCK_DisableClock(s_saiClock[SAI_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void SAI_TxGetDefaultConfig(sai_config_t *config)
