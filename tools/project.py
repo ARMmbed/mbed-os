@@ -234,7 +234,7 @@ def main():
         # Export to selected toolchain
     exporter, toolchain_name = get_exporter_toolchain(options.ide)
     if options.mcu not in exporter.TARGETS:
-        args_error(parser, "%s not supported by %s")
+        args_error(parser, "%s not supported by %s"%(options.mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name)
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
