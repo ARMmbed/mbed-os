@@ -206,14 +206,14 @@ class Uvision(Exporter):
         self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
 
     @staticmethod
-    def build(project_name, log_name='build_log.txt', clean=True):
+    def build(project_name, log_name='build_log.txt', cleanup=True):
         success = 0
         warn  = 1
         cmd = ["UV4.exe", '-r', '-j0', '-o', log_name, project_name+".uvprojx"]
         ret_code = subprocess.call(cmd)
         with open(log_name, 'r') as build_log:
             print build_log.read()
-        if clean:
+        if cleanup:
             os.remove(log_name)
             os.remove(project_name+".uvprojx")
             os.remove(project_name+".uvoptx")

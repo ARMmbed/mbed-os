@@ -106,7 +106,7 @@ class Makefile(Exporter):
             raise NotSupportedException("This make tool is in development")
 
     @staticmethod
-    def build(project_name, build_log="build_log.txt", project_loc=None, clean=True):
+    def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build Make project """
         # > Make -C [project directory] -j
         cmd = ["make", "-j"]
@@ -114,7 +114,7 @@ class Makefile(Exporter):
         ret = p.communicate()
         out, err = ret[0], ret[1]
         ret_code = p.returncode
-        with open(build_log, 'w+') as f:
+        with open(log_name, 'w+') as f:
             f.write("=" * 10 + "OUT" + "=" * 10 + "\n")
             f.write(out)
             f.write("=" * 10 + "ERR" + "=" * 10 + "\n")
@@ -123,13 +123,13 @@ class Makefile(Exporter):
                 f.write("SUCCESS")
             else:
                 f.write("FAILURE")
-        with open(build_log, 'r') as f:
+        with open(log_name, 'r') as f:
             print "\n".join(f.readlines())
         sys.stdout.flush()
 
-        if clean:
+        if cleanup:
             remove("Makefile")
-            remove(build_log)
+            remove(log_name)
             if exists('.build'):
                 shutil.rmtree('.build')
         if ret_code != 0:

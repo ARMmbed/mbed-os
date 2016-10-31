@@ -122,7 +122,7 @@ class IAR(Exporter):
         self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
 
     @staticmethod
-    def build(project_name, clean=True):
+    def build(project_name, cleanup=True):
         """ Build IAR project """
         # > IarBuild [project_path] -build [project_name]
 
@@ -149,7 +149,7 @@ class IAR(Exporter):
             if m is not None:
                 num_errors = int(m.group(1))
 
-        if clean:
+        if cleanup:
             os.remove(project_name + ".ewp")
             os.remove(project_name + ".ewd")
             os.remove(project_name + ".eww")
