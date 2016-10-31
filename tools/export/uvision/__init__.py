@@ -3,7 +3,7 @@ from os.path import sep, normpath, join, exists
 import ntpath
 import copy
 from collections import namedtuple
-from distutils.spawn import find_executable
+import shutil
 import subprocess
 import re
 
@@ -117,10 +117,15 @@ class Uvision(Exporter):
     project file (.uvprojx).
     The needed information can be viewed in uvision.tmpl
     """
-    NAME = 'cmsis'
+    NAME = 'uvision5'
     TOOLCHAIN = 'ARM'
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "ARM" in obj.supported_toolchains]
+    TARGETS = []
+    for target, obj in TARGET_MAP.iteritems():
+        if not ("ARM" in obj.supported_toolchains and hasattr(obj, "device_name")):
+            continue
+        if not DeviceCMSIS.check_supported(target):
+            continue
+        TARGETS.append(target)
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,
                   '.obj': 3, '.o': 3, '.lib': 4,
@@ -200,35 +205,22 @@ class Uvision(Exporter):
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
         self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
 
-    def build(self):
-        ERRORLEVEL = {
-            0: 'success (0 warnings, 0 errors)',
-            1: 'warnings',
-            2: 'errors',
-            3: 'fatal errors',
-            11: 'cant write to project file',
-            12: 'device error',
-            13: 'error writing',
-            15: 'error reading xml file',
-        }
+    @staticmethod
+    def build(project_name, log_name='build_log.txt', clean=True):
         success = 0
         warn  = 1
-        if find_executable("UV4"):
-            uv_exe = "UV4.exe"
-        else:
-            uv_exe = join('C:', sep,
-            'Keil_v5', 'UV4', 'UV4.exe')
-            if not exists(uv_exe):
-                raise Exception("UV4.exe not found. Add to path.")
-        cmd = [uv_exe, '-r', '-j0', '-o', join(self.export_dir,'build_log.txt'), join(self.export_dir,self.project_name+".uvprojx")]
+        cmd = ["UV4.exe", '-r', '-j0', '-o', log_name, project_name+".uvprojx"]
         ret_code = subprocess.call(cmd)
-        with open(join(self.export_dir, 'build_log.txt'), 'r') as build_log:
+        with open(log_name, 'r') as build_log:
             print build_log.read()
+        if clean:
+            os.remove(log_name)
+            os.remove(project_name+".uvprojx")
+            os.remove(project_name+".uvoptx")
+            shutil.rmtree(".build")
+
 
         if ret_code != success and ret_code != warn:
             # Seems like something went wrong.
-            raise FailedBuildException("Project: %s build failed with the status: %s" % (
-                self.project_name, ERRORLEVEL.get(ret_code, "Unknown")))
-        else:
-            return "Project: %s build succeeded with the status: %s" % (
-            self.project_name, ERRORLEVEL.get(ret_code, "Unknown"))
+            return -1
+        return 0

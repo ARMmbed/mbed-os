@@ -16,7 +16,10 @@ limitations under the License.
 """
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
     exists
-from os import curdir, getcwd
+from os import remove
+import sys
+from subprocess import check_output, CalledProcessError, Popen, PIPE
+import shutil
 from jinja2.exceptions import TemplateNotFound
 from tools.export.exporters import Exporter
 from tools.utils import NotSupportedException
@@ -101,6 +104,38 @@ class Makefile(Exporter):
                 pass
         else:
             raise NotSupportedException("This make tool is in development")
+
+    @staticmethod
+    def build(project_name, build_log="build_log.txt", project_loc=None, clean=True):
+        """ Build Make project """
+        # > Make -C [project directory] -j
+        cmd = ["make", "-j"]
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        ret = p.communicate()
+        out, err = ret[0], ret[1]
+        ret_code = p.returncode
+        with open(build_log, 'w+') as f:
+            f.write("=" * 10 + "OUT" + "=" * 10 + "\n")
+            f.write(out)
+            f.write("=" * 10 + "ERR" + "=" * 10 + "\n")
+            f.write(err)
+            if ret_code == 0:
+                f.write("SUCCESS")
+            else:
+                f.write("FAILURE")
+        with open(build_log, 'r') as f:
+            print "\n".join(f.readlines())
+        sys.stdout.flush()
+
+        if clean:
+            remove("Makefile")
+            remove(build_log)
+            if exists('.build'):
+                shutil.rmtree('.build')
+        if ret_code != 0:
+            # Seems like something went wrong.
+            return -1
+        return 0
 
 
 class GccArm(Makefile):

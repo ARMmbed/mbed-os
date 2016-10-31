@@ -31,10 +31,25 @@ class DeviceCMSIS():
 
     Encapsulates target information retrieved by arm-pack-manager"""
     def __init__(self, target):
-        cache = Cache(True, False)
+        target_info = self.check_supported(target)
+        if not target_info:
+            raise TargetNotSupportedException("Target not supported in CMSIS pack")
 
+        self.url = target_info['pdsc_file']
+        self.pack_url, self.pack_id = ntpath.split(self.url)
+        self.dname = target_info["_cpu_name"]
+        self.core = target_info["_core"]
+        self.dfpu = target_info['processor']['fpu']
+        self.debug, self.dvendor = self.vendor_debug(target_info['vendor'])
+        self.dendian = target_info['processor'].get('endianness','Little-endian')
+        self.debug_svd = target_info.get('debug', '')
+        self.compile_header = target_info['compile']['header']
+        self.target_info = target_info
+
+    @staticmethod
+    def check_supported(target):
+        cache = Cache(True, False)
         t = TARGET_MAP[target]
-        self.core = t.core
         try:
             cpu_name = t.device_name
             target_info = cache.index[cpu_name]
@@ -42,26 +57,13 @@ class DeviceCMSIS():
         except:
             try:
                 # Try to find the core as a generic CMSIS target
-                cpu_name = self.cpu_cmsis()
+                cpu_name = DeviceCMSIS.cpu_cmsis(t.core)
                 target_info = cache.index[cpu_name]
             except:
-                raise TargetNotSupportedException("Target not in CMSIS packs")
-
-        self.target_info = target_info
-
-        self.url = target_info['pdsc_file']
-        self.pack_url, self.pack_id = ntpath.split(self.url)
-        self.dname = cpu_name
-        self.dfpu = target_info['processor']['fpu']
-        self.debug, self.dvendor = self.vendor_debug(target_info['vendor'])
-        self.dendian = target_info['processor'].get('endianness','Little-endian')
-        self.debug_svd = target_info.get('debug', '')
-        self.compile_header = target_info['compile']['header']
-
-    def check_version(self, filename):
-        with open(filename) as data_file:
-            data = json.load(data_file)
-            return data.get("version", "0") == "0.1.0"
+                return False
+        target_info["_cpu_name"] = cpu_name
+        target_info["_core"] = t.core
+        return target_info
 
     def vendor_debug(self, vendor):
         reg = "([\w\s]+):?\d*?"
@@ -74,9 +76,9 @@ class DeviceCMSIS():
         }
         return debug_map.get(vendor_match, "CMSIS-DAP"), vendor_match
 
-    def cpu_cmsis(self):
+    @staticmethod
+    def cpu_cmsis(cpu):
         #Cortex-M4F => ARMCM4_FP, Cortex-M0+ => ARMCM0P
-        cpu = self.core
         cpu = cpu.replace("Cortex-","ARMC")
         cpu = cpu.replace("+","P")
         cpu = cpu.replace("F","_FP")
