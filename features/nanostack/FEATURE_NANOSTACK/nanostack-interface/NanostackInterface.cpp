@@ -809,12 +809,23 @@ int NanostackInterface::socket_bind(void *handle, const SocketAddress &address)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    const void *addr_field;
+    switch (address.get_ip_version()) {
+        case NSAPI_IPv6:
+            addr_field = address.get_ip_bytes();
+            break;
+        case NSAPI_UNSPEC:
+            addr_field = &ns_in6addr_any;
+            break;
+        default:
+            return NSAPI_ERROR_UNSUPPORTED;
+    }
 
     nanostack_lock();
 
     ns_address_t ns_address;
     ns_address.type = ADDRESS_IPV6;
-    memset(ns_address.address, 0, sizeof ns_address.address);
+    memcpy(ns_address.address, addr_field, sizeof ns_address.address);
     ns_address.identifier = address.get_port();
     int ret = NSAPI_ERROR_DEVICE_ERROR;
     if (0 == ::socket_bind(socket->socket_id, &ns_address)) {
