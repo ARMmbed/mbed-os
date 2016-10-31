@@ -2,12 +2,12 @@
 ;  @file:    startup_MK64F12.s
 ;  @purpose: CMSIS Cortex-M4 Core Device Startup File
 ;            MK64F12
-;  @version: 2.8
-;  @date:    2015-2-19
-;  @build:   b151210
+;  @version: 2.9
+;  @date:    2016-3-21
+;  @build:   b160321
 ; ---------------------------------------------------------------------------------------
 ;
-; Copyright (c) 1997 - 2015 , Freescale Semiconductor, Inc.
+; Copyright (c) 1997 - 2016 , Freescale Semiconductor, Inc.
 ; All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without modification,

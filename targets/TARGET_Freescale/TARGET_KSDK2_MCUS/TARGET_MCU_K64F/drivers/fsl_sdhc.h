@@ -477,7 +477,8 @@ typedef struct _sdhc_config
  * @brief Card data descriptor
  *
  * Defines a structure to contain data-related attribute. 'enableIgnoreError' is used for the case that upper card
- * driver want to ignore the error event to read/write all the data not to stop read/write immediately when error event
+ * driver
+ * want to ignore the error event to read/write all the data not to stop read/write immediately when error event
  * happen for example bus testing procedure for MMC card.
  */
 typedef struct _sdhc_data
@@ -829,7 +830,8 @@ static inline void SDHC_SetDataBusWidth(SDHC_Type *base, sdhc_data_bus_width_t w
  * @brief Sets the card transfer-related configuration.
  *
  * This function fills the card transfer-related command argument/transfer flag/data size. The command and data are sent
- * by SDHC after calling this function.
+ by
+ * SDHC after calling this function.
  *
  * Example:
    @code
@@ -929,7 +931,8 @@ static inline void SDHC_EnableCardDetectTest(SDHC_Type *base, bool enable)
  *
  * This function sets the card detection test level to indicate whether the card is inserted into the SDHC when DAT[3]/
  * CD pin is selected as a card detection pin. This function can also assert the pin logic when DAT[3]/CD pin is
- * selected as the card detection pin.
+ * selected
+ * as the card detection pin.
  *
  * @param base SDHC peripheral base address.
  * @param high True to set the card detect level to high.
@@ -1007,7 +1010,8 @@ static inline void SDHC_SetForceEvent(SDHC_Type *base, uint32_t mask)
  * @brief Transfers the command/data using a blocking method.
  *
  * This function waits until the command response/data is received or the SDHC encounters an error by polling the status
- * flag. The application must not call this API in multiple threads at the same time. Because of that this API doesn't support
+ * flag.
+ * The application must not call this API in multiple threads at the same time. Because of that this API doesn't support
  * the re-entry mechanism.
  *
  * @note There is no need to call the API 'SDHC_TransferCreateHandle' when calling this API.
@@ -1044,7 +1048,8 @@ void SDHC_TransferCreateHandle(SDHC_Type *base,
  * @brief Transfers the command/data using an interrupt and an asynchronous method.
  *
  * This function sends a command and data and returns immediately. It doesn't wait the transfer complete or encounter an
- * error. The application must not call this API in multiple threads at the same time. Because of that this API doesn't support
+ * error.
+ * The application must not call this API in multiple threads at the same time. Because of that this API doesn't support
  * the re-entry mechanism.
  *
  * @note Call the API 'SDHC_TransferCreateHandle' when calling this API.
