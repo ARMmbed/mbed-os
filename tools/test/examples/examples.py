@@ -59,7 +59,9 @@ def target_cross_toolchain(allowed_toolchains,
 
 
 def target_cross_ide(allowed_ides,
-                    targets=TARGET_MAP.keys()):
+                     features=[],
+                     ides=SUPPORTED_IDES,
+                     toolchains=SUPPORTED_TOOLCHAINS):
     """Generate pairs of target and ides
 
     Args:
@@ -68,7 +70,11 @@ def target_cross_ide(allowed_ides,
     """
     for release_target, release_toolchains in get_mbed_official_release("5"):
         for ide in allowed_ides:
-            if release_target in EXPORTERS[ide].TARGETS:
+            if (release_target in EXPORTERS[ide].TARGETS and
+                EXPORTERS[ide].TOOLCHAIN in toolchains and
+                ide in ides and
+                all(feature in TARGET_MAP[release_target].features
+                    for feature in features)):
                 yield release_target, ide
 
 
@@ -101,7 +107,7 @@ def main():
 
 
 def do_export(args):
-
+    """Do export and build step"""
     def print_message(message, name):
         print(message+ " %s"%name)
         sys.stdout.flush()
@@ -114,7 +120,8 @@ def do_export(args):
         if ex_name != "mbed-os-example-blinky":
             continue
         os.chdir(ex_name)
-        for target, ide in target_cross_ide(args.ide):
+        for target, ide in target_cross_ide(args.ide,
+                                            **requirements):
             example_name = "{} {} {}".format(ex_name, target,
                                              ide)
             print_message("Export:",example_name)

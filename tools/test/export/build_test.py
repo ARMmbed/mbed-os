@@ -128,7 +128,7 @@ class ExportBuildTest(object):
 
             cwd = os.getcwd()
             os.chdir(exporter.export_dir)
-            res = EXPORTERS[exporter.NAME.lower()].build(exporter.project_name, clean=False)
+            res = EXPORTERS[exporter.NAME.lower()].build(exporter.project_name, cleanup=False)
             os.chdir(cwd)
             if res:
                 self.failures.append("%s::%s\t%s" % (test_case.mcu,
