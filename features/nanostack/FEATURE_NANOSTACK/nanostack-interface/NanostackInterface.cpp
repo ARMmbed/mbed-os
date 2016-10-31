@@ -716,6 +716,10 @@ int NanostackInterface::socket_sendto(void *handle, const SocketAddress &address
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    if (address.get_ip_version() != NSAPI_IPv6) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     nanostack_lock();
 
     int ret;
@@ -847,6 +851,10 @@ int NanostackInterface::socket_connect(void *handle, const SocketAddress &addr)
     if (NULL == handle) {
         MBED_ASSERT(false);
         return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    if (addr.get_ip_version() != NSAPI_IPv6) {
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     nanostack_lock();
