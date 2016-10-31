@@ -137,6 +137,30 @@ linking_list = [
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
+     },
+    {"target": "K64F",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
+               "fat"  : ["MBED_A12", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+    {"target": "K22F",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
+               "fat"  : ["MBED_A12", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+    {"target": "KL43Z",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
+               "fat"  : ["MBED_A12", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
      }
      ]
 

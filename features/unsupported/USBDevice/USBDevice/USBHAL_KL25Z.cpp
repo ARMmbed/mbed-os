@@ -18,6 +18,9 @@
 
 #if defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_TEENSY3_1)
 
+#if defined(TARGET_KSDK2_MCUS)
+#include "fsl_common.h"
+#endif
 #include "USBHAL.h"
 
 USBHAL * USBHAL::instance;
@@ -65,7 +68,8 @@ typedef struct BDT {
 // there are:
 //    * 16 bidirectionnal endpt -> 32 physical endpt
 //    * as there are ODD and EVEN buffer -> 32*2 bdt
-__attribute__((__aligned__(512))) BDT bdt[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
+MBED_ALIGN(512) BDT bdt[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];  // 512 bytes aligned!
+
 uint8_t * endpoint_buffer[(NUMBER_OF_PHYSICAL_ENDPOINTS - 2) * 2];
 uint8_t * endpoint_buffer_iso[2*2];
 
@@ -86,7 +90,7 @@ USBHAL::USBHAL(void) {
     // Disable IRQ
     NVIC_DisableIRQ(USB0_IRQn);
 
-#if defined(TARGET_K64F)
+#if (defined(FSL_FEATURE_SOC_MPU_COUNT) && (FSL_FEATURE_SOC_MPU_COUNT > 0U))
     MPU->CESR=0;
 #endif
     // fill in callback array
@@ -121,18 +125,9 @@ USBHAL::USBHAL(void) {
     epCallback[28] = &USBHAL::EP15_OUT_callback;
     epCallback[29] = &USBHAL::EP15_IN_callback;
 
-#if defined(TARGET_KL43Z)
+#if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
     // enable USBFS clock
-    SIM->SCGC4 |= SIM_SCGC4_USBFS_MASK;
-
-    // enable the IRC48M clock
-    USB0->CLK_RECOVER_IRC_EN |= USB_CLK_RECOVER_IRC_EN_IRC_EN_MASK;
-
-    // enable the USB clock recovery tuning
-    USB0->CLK_RECOVER_CTRL |= USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN_MASK;
-
-    // choose usb src clock
-    SIM->SOPT2 |= SIM_SOPT2_USBSRC_MASK;
+    CLOCK_EnableUsbfs0Clock(kCLOCK_UsbSrcIrc48M, 48000000U);
 #else
     // choose usb src as PLL
     SIM->SOPT2 &= ~SIM_SOPT2_PLLFLLSEL_MASK;
@@ -148,10 +143,6 @@ USBHAL::USBHAL(void) {
     NVIC_EnableIRQ(USB0_IRQn);
 
     // USB Module Configuration
-    // Reset USB Module
-    USB0->USBTRC0 |= USB_USBTRC0_USBRESET_MASK;
-    while(USB0->USBTRC0 & USB_USBTRC0_USBRESET_MASK);
-
     // Set BDT Base Register
     USB0->BDTPAGE1 = (uint8_t)((uint32_t)bdt>>8);
     USB0->BDTPAGE2 = (uint8_t)((uint32_t)bdt>>16);
