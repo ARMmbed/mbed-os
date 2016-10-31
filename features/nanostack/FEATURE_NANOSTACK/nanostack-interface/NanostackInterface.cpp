@@ -28,7 +28,6 @@
 #include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
 #include "net_interface.h"
-#include "ip6string.h"
 // Uncomment to enable trace
 //#define HAVE_DEBUG
 #include "ns_trace.h"
@@ -126,16 +125,13 @@ static void convert_mbed_addr_to_ns(ns_address_t *ns_addr,
 {
     ns_addr->type = ADDRESS_IPV6;
     ns_addr->identifier = s_addr->get_port();
-    const char *str = s_addr->get_ip_address();
-    stoip6(str, strlen(str), ns_addr->address);
+    memcpy(ns_addr->address, s_addr->get_ip_bytes(), 16);
 }
 
 static void convert_ns_addr_to_mbed(SocketAddress *s_addr, const ns_address_t *ns_addr)
 {
-    char str[40];
-    ip6tos(ns_addr->address, str);
     s_addr->set_port(ns_addr->identifier);
-    s_addr->set_ip_address(str);
+    s_addr->set_ip_bytes(ns_addr->address, NSAPI_IPv6);
 }
 
 void* NanostackSocket::operator new(std::size_t sz) {
