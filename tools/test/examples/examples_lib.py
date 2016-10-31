@@ -81,6 +81,19 @@ def target_cross_toolchain(allowed_toolchains,
                     for feature in features)):
                 yield target, toolchain
 
+def target_cross_ide(allowed_ides,
+                    targets=TARGET_MAP.keys()):
+    """Generate pairs of target and ides
+
+    Args:
+    allowed_ides - a list of all possible IDEs
+
+    """
+    for release_target, release_toolchains in get_mbed_official_release("5"):
+        for ide in allowed_ides:
+            if release_target in EXPORTERS[ide].TARGETS:
+                yield release_target, ide
+
 
 def get_repo_list(example):
     """ Returns a list of all the repos associated with the specific example in the json
