@@ -68,9 +68,7 @@ class DeviceUvision(DeviceCMSIS):
         '''
         fl_count = 0
         def get_mem_no_x(mem_str):
-            mem_reg = "\dx(\w+)"
-            m = re.search(mem_reg, mem_str)
-            return m.group(1) if m else None
+            return mem_str[2:]
 
         RAMS = [(get_mem_no_x(info["start"]), get_mem_no_x(info["size"]))
                 for mem, info in self.target_info["memory"].items() if "RAM" in mem]

@@ -16,9 +16,11 @@ limitations under the License.
 """
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
     exists
-from os import curdir, getcwd
+import sys
+from subprocess import check_output, CalledProcessError, Popen, PIPE
+import subprocess
 from jinja2.exceptions import TemplateNotFound
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, FailedBuildException
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
 
@@ -101,6 +103,51 @@ class Makefile(Exporter):
                 pass
         else:
             raise NotSupportedException("This make tool is in development")
+
+    def build(self):
+        """ Build Make project """
+        # > Make -C [project directory] -j
+        if self.zipfile:
+            proj_file = splitext(self.zipfile)[0]
+        else:
+            proj_file = join(self.export_dir, "Makefile")
+
+        ret_dict = {
+            0: 'Normal exit with no errors.',
+            1: 'General purpose error if no other explicit error is known.',
+            2: 'There was an error in the makefile.',
+            3: 'A shell line had a non-zero status.',
+            4: 'Make ran out of memory.',
+            5: 'The program specified on the shell line was not executable.',
+            6: 'The shell line was longer than the command processor allowed.',
+            7: 'The program specified on the shell line could not be found.',
+            8: 'There was not enough memory to execute the shell line.',
+            9: 'The shell line produced a device error.',
+            10: 'The program specified on the shell line became resident.',
+            11: 'The shell line producedan unknown error.',
+            15: 'There was a problem with the memory miser.',
+            16: 'The user hit CTRL+C or CTRL+BREAK..'}
+        cmd = ["make", "-C", proj_file, "-j"]
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        ret = p.communicate()
+        out, err = ret[0], ret[1]
+        ret_code = p.returncode
+        with open(join(self.export_dir, 'build_log.txt'), 'w') as f:
+            f.write("=" * 10 + "OUT" + "=" * 10 + "\n")
+            f.write(out)
+            f.write("=" * 10 + "ERR" + "=" * 10 + "\n")
+            f.write(err)
+            if ret_code == 0:
+                f.write("SUCCESS")
+            else:
+                f.write("FAILURE")
+        if ret_code != 0:
+            # Seems like something went wrong.
+            raise FailedBuildException("Project: %s build failed with the status: %s" % (
+                self.project_name, ret_dict.get(ret_code, "Unknown")))
+        else:
+            return "Project: %s build succeeded with the status: %s" % (
+            self.project_name, ret_dict[0])
 
 
 class GccArm(Makefile):
