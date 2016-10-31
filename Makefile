@@ -30,9 +30,6 @@ override CFLAGS += -I$(NSDLC_DIR)/nsdl-c
 EVENTLOOP_DIR := ../event-loop
 override CFLAGS += -I$(EVENTLOOP_DIR)/nanostack-event-loop/
 
-MBEDTLS_DIR := ../mbedtls
-override CFLAGS += -I$(MBEDTLS_DIR)/configs -I$(MBEDTLS_DIR) -DMBEDTLS_CONFIG_FILE='<config-thread.h>' -I$(MBEDTLS_DIR)/include
-
 COAPSERVICE_DIR := ../coap-service
 override CFLAGS += -I$(COAPSERVICE_DIR)/coap-service/
 override CFLAGS += -I$(COAPSERVICE_DIR)/source/include/
