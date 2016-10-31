@@ -30,6 +30,7 @@ class DeviceCMSIS():
     """CMSIS Device class
 
     Encapsulates target information retrieved by arm-pack-manager"""
+    cache = Cache(True, False)
     def __init__(self, target):
         target_info = self.check_supported(target)
         if not target_info:
@@ -48,17 +49,16 @@ class DeviceCMSIS():
 
     @staticmethod
     def check_supported(target):
-        cache = Cache(True, False)
         t = TARGET_MAP[target]
         try:
             cpu_name = t.device_name
-            target_info = cache.index[cpu_name]
+            target_info = DeviceCMSIS.cache.index[cpu_name]
         # Target does not have device name or pdsc file
         except:
             try:
                 # Try to find the core as a generic CMSIS target
                 cpu_name = DeviceCMSIS.cpu_cmsis(t.core)
-                target_info = cache.index[cpu_name]
+                target_info = DeviceCMSIS.index[cpu_name]
             except:
                 return False
         target_info["_cpu_name"] = cpu_name
