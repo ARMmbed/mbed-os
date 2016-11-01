@@ -5,7 +5,7 @@
 #if defined(TARGET_KL25Z)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
 
-#elif defined(TARGET_KL46Z)
+#elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 
 #elif defined(TARGET_K64F) || defined(TARGET_K66F)
