@@ -33,7 +33,7 @@ int8_t socket_free(int8_t socket)
 
     return socket_api_stub.int8_value;
 }
-int8_t socket_listen(int8_t socket, uint8_t backlog)
+int8_t socket_listen(int8_t socket, ...)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];

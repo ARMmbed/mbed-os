@@ -533,6 +533,10 @@ static void secure_recv_sckt_msg(void *cb_res)
     memset(&src_address, 0, sizeof(ns_address_t));
 
     if (sock && read_data(sckt_data, sock, &src_address, dst_address) == 0) {
+        /* If received from multicast address, reject */
+        if (*(dst_address) == 0xFF) {
+            return;
+        }
         secure_session_t *session = secure_session_find(sock, src_address.address, src_address.identifier);
 
         // Create session

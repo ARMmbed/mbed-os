@@ -7,6 +7,7 @@
 #include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
 #include "sn_coap_protocol.h"
+#include "socket_api.h"
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
@@ -220,7 +221,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
             transaction_ptr->service_id = coap_service_id_find_by_socket(socket_id);
             transaction_ptr->msg_id = coap_message->msg_id;
             transaction_ptr->client_request = false;// this is server transaction
-            memcpy(transaction_ptr->local_address, dst_addr_ptr, 16);
+            memcpy(transaction_ptr->local_address, *(dst_addr_ptr) == 0xFF ? ns_in6addr_any : dst_addr_ptr, 16);
             memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
             transaction_ptr->remote_port = port;
 
