@@ -290,6 +290,8 @@ bool operator==(const SocketAddress &a, const SocketAddress &b)
     } else if (a._addr.version == NSAPI_IPv6) {
         return memcmp(a._addr.bytes, b._addr.bytes, NSAPI_IPv6_BYTES) == 0;
     }
+
+    MBED_UNREACHABLE;
 }
 
 bool operator!=(const SocketAddress &a, const SocketAddress &b)
