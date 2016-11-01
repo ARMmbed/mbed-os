@@ -300,7 +300,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
     } else if (coverage_report && fh == gcov_fd) {
         for (unsigned int i = 0; i < length; i++) {
-            if (0 == buffer[i]){
+            if (0 == buffer[i]) {
                 printf(".");
             } else {
                 printf("%02x", buffer[i]);
