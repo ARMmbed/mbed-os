@@ -25,7 +25,7 @@ int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(vo
     return socket_api_stub.int8_value;
 }
 
-int8_t socket_free(int8_t socket)
+int8_t socket_close(int8_t socket)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];
@@ -33,7 +33,7 @@ int8_t socket_free(int8_t socket)
 
     return socket_api_stub.int8_value;
 }
-int8_t socket_listen(int8_t socket, ...)
+int8_t socket_listen(int8_t socket, uint8_t backlog)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];
@@ -57,14 +57,7 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
 
     return socket_api_stub.int8_value;
 }
-int8_t socket_close(int8_t socket, ns_address_t *address)
-{
-    if( socket_api_stub.counter >= 0){
-        return socket_api_stub.values[socket_api_stub.counter--];
-    }
 
-    return socket_api_stub.int8_value;
-}
 int8_t socket_send(int8_t socket, uint8_t *buffer, uint16_t length)
 {
     if( socket_api_stub.counter >= 0){
