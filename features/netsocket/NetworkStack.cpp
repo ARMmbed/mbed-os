@@ -33,6 +33,15 @@ int NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_
         return 0;
     }
 
+    // if the version is unspecified, try to guess the version from the
+    // ip address of the underlying stack
+    if (version == NSAPI_UNSPEC) {
+        SocketAddress testaddress;
+        if (testaddress.set_ip_address(this->get_ip_address())) {
+            version = testaddress.get_ip_version();
+        }
+    }
+
     return nsapi_dns_query(this, name, address, version);
 }
 
