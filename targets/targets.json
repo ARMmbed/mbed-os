@@ -483,20 +483,21 @@
         "device_name": "MK20DX256xxx7"
     },
     "MCU_K22F512": {
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "KSDK2_MCUS", "MCU_K22F", "MCU_K22F512", "FRDM", "KPSDK_MCUS", "KPSDK_CODE"],
         "is_disk_virtual": true,
+        "public": false,
         "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"],
         "device_name": "MK22DN512xxx5"
     },
     "K22F": {
+        "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_K22F512"],
+        "release_versions": ["2", "5"],
         "extra_labels_add": ["FRDM"]
     },
     "KL27Z": {
