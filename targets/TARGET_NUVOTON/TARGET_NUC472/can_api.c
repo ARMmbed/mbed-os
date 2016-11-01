@@ -149,7 +149,6 @@ static void can_irq(CANName name, int id)
         }
     } else if (u8IIDRstatus!=0) {
 
-        //CAN_MsgInterrupt(can, u8IIDRstatus);
         if(id)
             can1_irq_handler(can_irq_ids[id] , IRQ_OVERRUN);
         else
@@ -211,14 +210,14 @@ void can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable)
     switch (irq)
     {
         case IRQ_ERROR:
-        //case IRQ_PASSIVE:
-        //case IRQ_ARB:
+        case IRQ_BUS:
+        case IRQ_PASSIVE:
             ((CAN_T *)(obj->can))->CON = (((CAN_T *)(obj->can))->CON) |CAN_CON_EIE_Msk;
+            ((CAN_T *)(obj->can))->CON = (((CAN_T *)(obj->can))->CON) |CAN_CON_SIE_Msk;
             break;
         
         case IRQ_RX:
         case IRQ_TX:
-        case IRQ_BUS:
         case IRQ_OVERRUN:
         case IRQ_WAKEUP:
             ((CAN_T *)(obj->can))->CON = (((CAN_T *)(obj->can))->CON) |CAN_CON_SIE_Msk;
