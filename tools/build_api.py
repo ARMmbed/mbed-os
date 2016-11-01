@@ -320,8 +320,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
         else:
             toolchain = TOOLCHAIN_CLASSES[toolchain_name](
                 target, notify, macros, silent,
-                extra_verbose=extra_verbose, build_profile=build_profile,
-                coverage_filter=coverage_filter)
+                extra_verbose=extra_verbose, build_profile=build_profile)
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
 

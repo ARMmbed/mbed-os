@@ -193,7 +193,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         return 2;
     }
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    else if(coverage_report) {
+    else if (coverage_report) {
         init_serial();
         // Encapsulate coverage data in greentea key,value pair.
         greentea_notify_coverage_start(name);
@@ -298,7 +298,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
         n = length;
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    } else if (coverage_report && fh == gcov_fd){
+    } else if (coverage_report && fh == gcov_fd) {
         for (unsigned int i = 0; i < length; i++) {
             if (0 == buffer[i]){
                 printf(".");
@@ -356,7 +356,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
         n = 1;
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    } else if (coverage_report && fh == gcov_fd){
+    } else if (coverage_report && fh == gcov_fd) {
         n = 0;
 #endif
     } else {
@@ -399,7 +399,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     if (fh < 3)
         return 0;
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    else if (coverage_report && fh == gcov_fd){
+    else if (coverage_report && fh == gcov_fd) {
         return 0;
     }
 #endif
@@ -442,7 +442,7 @@ extern "C" int _fstat(int fd, struct stat *st) {
         return  0;
     }
 #if defined MBED_CFG_DEBUG_OPTIONS_COVERAGE
-    else if (coverage_report && fd == gcov_fd){
+    else if (coverage_report && fd == gcov_fd) {
         st->st_size = 0;
         return 0;
     }

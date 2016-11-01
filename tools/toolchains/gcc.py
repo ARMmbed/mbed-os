@@ -84,6 +84,8 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
+        self.flags["common"] += self.cpu
+
         # Coverage is turned On if coverage_filter is not empty. This means all sources are compiled with coverage
         # macro and application is linked with coverage flags.
         # Only source files that match regex from coverage_filter list are compiled with coverage flags. Since turning
@@ -91,13 +93,9 @@ class GCC(mbedToolchain):
         # error.
         self.coverage_filter = coverage_filter
         if self.coverage_filter:
-            self.macros.append(self.COVERAGE_MACRO)
-
-        self.flags["common"] += self.cpu
-
-        if self.coverage_filter:
             self.flags["common"].append("-g")
             self.flags["common"].append("-O0")
+            self.macros.append(self.COVERAGE_MACRO)
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -194,10 +192,13 @@ class GCC(mbedToolchain):
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
+        cmd = self.asm
+
+        # Add coverage flag on files on which coverage is enabled.
         if self.check_if_coverage_enabled(source):
-            cmd = self.asm + self.COVERAGE_FLAGS + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
-        else:
-            cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
+            cmd += self.COVERAGE_FLAGS
+
+        cmd += self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
@@ -208,10 +209,13 @@ class GCC(mbedToolchain):
     @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
+        cmd = cc
+
+        # Add coverage flag on files on which coverage is enabled.
         if self.check_if_coverage_enabled(source):
-            cmd = cc + self.COVERAGE_FLAGS + self.get_compile_options(self.get_symbols(), includes)
-        else:
-            cmd = cc + self.get_compile_options(self.get_symbols(), includes)
+            cmd += self.COVERAGE_FLAGS
+
+        cmd += self.get_compile_options(self.get_symbols(), includes)
 
         cmd.extend(self.get_dep_option(object))
 
@@ -239,10 +243,14 @@ class GCC(mbedToolchain):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
 
+        cmd = self.ld
+
+        # Link with coverage flag if coverage is enabled.
         if self.coverage_filter:
-            cmd = self.ld + self.COVERAGE_FLAGS + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
-        else:
-            cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+            cmd += self.COVERAGE_FLAGS
+
+        cmd += ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+
         if mem_map:
             cmd.extend(['-T', mem_map])
 
