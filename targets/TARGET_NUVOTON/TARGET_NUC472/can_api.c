@@ -248,58 +248,58 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     STR_CANMSG_T CMsg;
     
     CMsg.IdType = (uint32_t)msg.format;
-	CMsg.FrameType = (uint32_t)!msg.type;
-	CMsg.Id = msg.id;
-	CMsg.DLC = msg.len;
-	memcpy((void *)&CMsg.Data[0],(const void *)&msg.data[0], (unsigned int)8);
+    CMsg.FrameType = (uint32_t)!msg.type;
+    CMsg.Id = msg.id;
+    CMsg.DLC = msg.len;
+    memcpy((void *)&CMsg.Data[0],(const void *)&msg.data[0], (unsigned int)8);
 
-	return CAN_Transmit((CAN_T *)(obj->can), cc, &CMsg);
+    return CAN_Transmit((CAN_T *)(obj->can), cc, &CMsg);
 }
 
 int can_read(can_t *obj, CAN_Message *msg, int handle)
 {
-	STR_CANMSG_T CMsg;
+    STR_CANMSG_T CMsg;
 
-	if(!CAN_Receive((CAN_T *)(obj->can), handle, &CMsg))
-	return 0;
-		
-	msg->format = (CANFormat)CMsg.IdType;
-	msg->type = (CANType)!CMsg.FrameType;
-	msg->id = CMsg.Id;
-	msg->len = CMsg.DLC;
-	memcpy(&msg->data[0], &CMsg.Data[0], 8);
-	
-	return 1;
+    if(!CAN_Receive((CAN_T *)(obj->can), handle, &CMsg))
+    return 0;
+        
+    msg->format = (CANFormat)CMsg.IdType;
+    msg->type = (CANType)!CMsg.FrameType;
+    msg->id = CMsg.Id;
+    msg->len = CMsg.DLC;
+    memcpy(&msg->data[0], &CMsg.Data[0], 8);
+    
+    return 1;
 }
 
 int can_mode(can_t *obj, CanMode mode)
 {
-	int success = 0;
-	switch (mode)
-	{
-		case MODE_RESET:
-			CAN_LeaveTestMode((CAN_T*)obj->can);
-			success = 1;
-			break;
-		
-		case MODE_NORMAL:
-			CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_BASIC_Msk);
-			success = 1;
-			break;
-		
-		case MODE_SILENT:
-			CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_SILENT_Msk);
-			success = 1;
-			break;
-		
-		case MODE_TEST_LOCAL:
-		case MODE_TEST_GLOBAL:
-			CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_LBACK_Msk);
-			success = 1;
-			break;
-		
-		case MODE_TEST_SILENT:
-			CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_SILENT_Msk | CAN_TEST_LBACK_Msk);
+    int success = 0;
+    switch (mode)
+    {
+        case MODE_RESET:
+            CAN_LeaveTestMode((CAN_T*)obj->can);
+            success = 1;
+            break;
+        
+        case MODE_NORMAL:
+            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_BASIC_Msk);
+            success = 1;
+            break;
+        
+        case MODE_SILENT:
+            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_SILENT_Msk);
+            success = 1;
+            break;
+        
+        case MODE_TEST_LOCAL:
+        case MODE_TEST_GLOBAL:
+            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_LBACK_Msk);
+            success = 1;
+            break;
+        
+        case MODE_TEST_SILENT:
+            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_SILENT_Msk | CAN_TEST_LBACK_Msk);
             success = 1;
             break;
         
