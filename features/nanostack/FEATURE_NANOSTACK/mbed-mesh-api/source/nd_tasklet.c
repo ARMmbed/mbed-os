@@ -263,6 +263,10 @@ void nd_tasklet_configure_and_connect_to_network(void)
     arm_nwk_6lowpan_link_nwk_id_filter_for_nwk_scan(
         tasklet_data_ptr->network_interface_id, NULL);
 
+    arm_nwk_6lowpan_link_panid_filter_for_nwk_scan(
+         tasklet_data_ptr->network_interface_id,
+         MBED_MESH_API_6LOWPAN_ND_PANID_FILTER);
+
     status = arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
     if (status >= 0) {
         tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
