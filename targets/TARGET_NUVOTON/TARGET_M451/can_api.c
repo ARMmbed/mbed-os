@@ -29,7 +29,7 @@
  #include "critical.h"
  
  #define NU_CAN_DEBUG    0
- #define CAN_NUM		 1
+ #define CAN_NUM         1
  
  static uint32_t can_irq_ids[CAN_NUM] = {0};
  static can_irq_handler can0_irq_handler;
@@ -44,7 +44,7 @@
  
  void can_init(can_t *obj, PinName rd, PinName td)
  {
-	uint32_t can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
+    uint32_t can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     uint32_t can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     obj->can = (CANName)pinmap_merge(can_td, can_rd);
     MBED_ASSERT((int)obj->can != NC);
@@ -58,18 +58,18 @@
     
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
-	 
-	obj->index = 0;
-	
+     
+    obj->index = 0;
+    
     pinmap_pinout(td, PinMap_CAN_TD);
     pinmap_pinout(rd, PinMap_CAN_RD);
     
-	/* For M453 mbed Board Transmitter Setting (RS Pin) */
+    /* For M453 mbed Board Transmitter Setting (RS Pin) */
     GPIO_SetMode(PA, BIT0| BIT1, GPIO_MODE_OUTPUT);    
     PA0 = 0x00;
     PA1 = 0x00;   
 
-	CAN_Open((CAN_T *)obj->can, 500000, CAN_NORMAL_MODE);
+    CAN_Open((CAN_T *)obj->can, 500000, CAN_NORMAL_MODE);
     
     can_filter(obj, 0, 0, CANStandard, 0);
  }
@@ -78,29 +78,29 @@
 void can_free(can_t *obj)
 {
 
-	const struct nu_modinit_s *modinit = get_modinit(obj->can, can_modinit_tab);
-	
-	MBED_ASSERT(modinit != NULL);
+    const struct nu_modinit_s *modinit = get_modinit(obj->can, can_modinit_tab);
+    
+    MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->can);
     
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
-	
-	CLK_DisableModuleClock(modinit->clkidx);
+    
+    CLK_DisableModuleClock(modinit->clkidx);
 }
 
 int can_frequency(can_t *obj, int hz)
 {
-	CAN_SetBaudRate((CAN_T *)obj->can, hz);
-	
-	return CAN_GetCANBitRate((CAN_T *)obj->can);
+    CAN_SetBaudRate((CAN_T *)obj->can, hz);
+    
+    return CAN_GetCANBitRate((CAN_T *)obj->can);
 }
 
 static void can_irq(CANName name, int id) 
 {
-	
-	CAN_T *can = (CAN_T *)NU_MODBASE(name);
-	uint32_t u8IIDRstatus;
+    
+    CAN_T *can = (CAN_T *)NU_MODBASE(name);
+    uint32_t u8IIDRstatus;
 
     u8IIDRstatus = can->IIDR;
 
@@ -110,12 +110,12 @@ static void can_irq(CANName name, int id)
         /**************************/
         if(can->STATUS & CAN_STATUS_RXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_RXOK_Msk;   /* Clear Rx Ok status*/
-			can0_irq_handler(can_irq_ids[id], IRQ_RX);
+            can0_irq_handler(can_irq_ids[id], IRQ_RX);
         }
 
         if(can->STATUS & CAN_STATUS_TXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_TXOK_Msk;    /* Clear Tx Ok status*/
-			can0_irq_handler(can_irq_ids[id], IRQ_TX);
+            can0_irq_handler(can_irq_ids[id], IRQ_TX);
         }
 
         /**************************/
