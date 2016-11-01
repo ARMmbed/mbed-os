@@ -7,7 +7,7 @@ import re
 import sys
 
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter, FailedBuildException
+from tools.export.exporters import Exporter
 import json
 from tools.export.cmsis import DeviceCMSIS
 from multiprocessing import cpu_count

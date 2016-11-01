@@ -30,7 +30,8 @@ class DeviceCMSIS():
     """CMSIS Device class
 
     Encapsulates target information retrieved by arm-pack-manager"""
-    cache = Cache(True, False)
+
+    CACHE = Cache(True, False)
     def __init__(self, target):
         target_info = self.check_supported(target)
         if not target_info:
@@ -52,7 +53,7 @@ class DeviceCMSIS():
         t = TARGET_MAP[target]
         try:
             cpu_name = t.device_name
-            target_info = DeviceCMSIS.cache.index[cpu_name]
+            target_info = DeviceCMSIS.CACHE.index[cpu_name]
         # Target does not have device name or pdsc file
         except:
             try:

@@ -9,7 +9,7 @@ import re
 
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter, FailedBuildException
+from tools.export.exporters import Exporter
 from tools.export.cmsis import DeviceCMSIS
 
 cache_d = False
@@ -207,6 +207,8 @@ class Uvision(Exporter):
 
     @staticmethod
     def build(project_name, log_name='build_log.txt', cleanup=True):
+        """ Build Uvision project """
+        # > UV4.exe -r -j0 -o [log_name] [project_name].uvprojx
         success = 0
         warn  = 1
         cmd = ["UV4.exe", '-r', '-j0', '-o', log_name, project_name+".uvprojx"]

@@ -108,7 +108,7 @@ class Makefile(Exporter):
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build Make project """
-        # > Make -C [project directory] -j
+        # > Make -j
         cmd = ["make", "-j"]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         ret = p.communicate()
