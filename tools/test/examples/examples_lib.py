@@ -16,8 +16,10 @@ sys.path.insert(0, ROOT)
 
 from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP
+from tools.export import EXPORTERS
 
 SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
+SUPPORTED_IDES = ["iar", "uvision", "make_gcc_arm", "make_iar", "make_armc5"]
 
 def print_list(lst):
     """Prints to screen the contents of a list
@@ -30,13 +32,13 @@ def print_list(lst):
         for thing in lst:
             print("# %s" % thing)
 
-def print_compilation_summary(results):
-    """Prints to screen the results of compiling combinations of example programs,
-       targets and compile chains.
+def print_summary(results, export=False):
+    """Prints to screen the results of compiling/exporting combinations of example programs,
+       targets and compile toolchains/IDEs.
 
     Args:
-    results - results of the compilation stage. See compile_repos() for
-              details of the format. 
+    results - results of the compilation stage. See compile_repos() and export_repos()
+              for details of the format.
 
     """
 
@@ -48,12 +50,23 @@ def print_compilation_summary(results):
     print("#")
     for key, val in results.iteritems():
         print_list(val[2])
+
+    second_result = "Failed example combinations" if not export else \
+        "Failed export example combinations"
             
     print("#")
-    print("# Failed example combinations")
+    print("# %s"%second_result)
     print("#")
     for key, val in results.iteritems():
         print_list(val[3])
+
+    if export:
+        print("#")
+        print("# Failed build example combinations")
+        print("#")
+        for key, val in results.iteritems():
+            print_list(val[4])
+
     print("#")
     print("#"*80)
     
@@ -81,18 +94,30 @@ def target_cross_toolchain(allowed_toolchains,
                     for feature in features)):
                 yield target, toolchain
 
+
 def target_cross_ide(allowed_ides,
-                    targets=TARGET_MAP.keys()):
+                    features=[], targets=[]):
     """Generate pairs of target and ides
 
     Args:
     allowed_ides - a list of all possible IDEs
 
+    Kwargs:
+    features - the features that must be in the features array of a
+               target
+    targets - a list of available targets
     """
-    for release_target, release_toolchains in get_mbed_official_release("5"):
+    if len(targets) == 0:
+        targets=TARGET_MAP.keys()
+
+    for target, toolchains in get_mbed_official_release("5"):
         for ide in allowed_ides:
-            if release_target in EXPORTERS[ide].TARGETS:
-                yield release_target, ide
+            if (EXPORTERS[ide].TOOLCHAIN in toolchains and
+                target in EXPORTERS[ide].TARGETS and
+                target in targets and
+                all(feature in TARGET_MAP[target].features
+                    for feature in features)):
+                yield target, ide
 
 
 def get_repo_list(example):
@@ -134,7 +159,7 @@ def source_repos(config):
         
             subprocess.call(["mbed-cli", "import", repo])
 
-def get_num_failures(results):
+def get_num_failures(results, export=False):
     """ Returns the number of failed compilations from the results summary
     Args:
     results - results summary of the compilation stage. See compile_repos() for
@@ -146,9 +171,68 @@ def get_num_failures(results):
 
     for key, val in results.iteritems():
         num_failures = num_failures + len(val[3])
+        if export:
+            num_failures += len(val[4])
 
     return num_failures
-    
+
+
+def export_repos(config, ides):
+    def print_message(message, name):
+        print(message+ " %s"%name)
+        sys.stdout.flush()
+
+    results = {}
+    print("\nExporting example repos....\n")
+    for example in config['examples']:
+        export_failures = []
+        build_failures = []
+        successes = []
+        exported = True
+        pass_status = True
+        if example['export']:
+            for repo in get_repo_list(example):
+                example_project_name = basename(repo)
+                os.chdir(example_project_name)
+                # Check that the target, IDE, and features combinations are valid and return a
+                # list of valid combinations to work through
+                for target, ide in target_cross_ide(ides,
+                                                    example['features'],
+                                                    example['targets']):
+                    example_name = "{} {} {}".format(example_project_name, target,
+                                                     ide)
+                    def status(message):
+                        print(message + " %s" % example_name)
+                        sys.stdout.flush()
+
+                    status("Exporting")
+                    proc = subprocess.Popen(["mbed-cli", "export", "-i", ide,
+                                             "-m", target])
+                    proc.wait()
+                    if proc.returncode:
+                        export_failures.append(example_name)
+                        status("FAILURE exporting")
+                    else:
+                        status("SUCCESS exporting")
+                        status("Building")
+                        if EXPORTERS[ide].build(example_project_name):
+                            status("FAILURE building")
+                            build_failures.append(example_name)
+                        else:
+                            status("SUCCESS building")
+                            successes.append(example_name)
+                    os.chdir("..")
+
+                if len(build_failures+export_failures) > 0:
+                    pass_status= False
+        else:
+            exported = False
+
+        results[example['name']] = [exported, pass_status, successes, export_failures, build_failures]
+
+    return results
+
+
 def compile_repos(config, toolchains):
     """Compiles combinations of example programs, targets and compile chains.
        
