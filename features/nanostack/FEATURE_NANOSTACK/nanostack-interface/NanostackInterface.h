@@ -37,7 +37,7 @@ protected:
      *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_open(void **handle, nsapi_protocol_t proto);
+    virtual nsapi_error_t socket_open(void **handle, nsapi_protocol_t proto);
 
     /** Close the socket
      *
@@ -47,7 +47,7 @@ protected:
      *  @param handle   Socket handle
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_close(void *handle);
+    virtual nsapi_error_t socket_close(void *handle);
 
     /** Bind a specific address to a socket
      *
@@ -58,7 +58,7 @@ protected:
      *  @param address  Local address to bind
      *  @return         0 on success, negative error code on failure.
      */
-    virtual int socket_bind(void *handle, const SocketAddress &address);
+    virtual nsapi_error_t socket_bind(void *handle, const SocketAddress &address);
 
     /** Listen for connections on a TCP socket
      *
@@ -70,7 +70,7 @@ protected:
      *                  simultaneously
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_listen(void *handle, int backlog);
+    virtual nsapi_error_t socket_listen(void *handle, int backlog);
 
     /** Connects TCP socket to a remote host
      *
@@ -81,7 +81,7 @@ protected:
      *  @param address  The SocketAddress of the remote host
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_connect(void *handle, const SocketAddress &address);
+    virtual nsapi_error_t socket_connect(void *handle, const SocketAddress &address);
 
     /** Accepts a connection on a TCP socket
      *
@@ -101,7 +101,7 @@ protected:
      *  @param address  Destination for the remote address or NULL
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_accept(void *handle, void **server, SocketAddress *address);
+    virtual nsapi_error_t socket_accept(void *handle, void **server, SocketAddress *address);
 
     /** Send data over a TCP socket
      *
@@ -117,7 +117,7 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_send(void *handle, const void *data, unsigned size);
+    virtual nsapi_size_or_error_t socket_send(void *handle, const void *data, nsapi_size_t size);
 
     /** Receive data over a TCP socket
      *
@@ -133,7 +133,7 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_recv(void *handle, void *data, unsigned size);
+    virtual nsapi_size_or_error_t socket_recv(void *handle, void *data, nsapi_size_t size);
 
     /** Send a packet over a UDP socket
      *
@@ -150,7 +150,7 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_sendto(void *handle, const SocketAddress &address, const void *data, unsigned size);
+    virtual nsapi_size_or_error_t socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size);
 
     /** Receive a packet over a UDP socket
      *
@@ -167,7 +167,7 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
+    virtual nsapi_size_or_error_t socket_recvfrom(void *handle, SocketAddress *address, void *buffer, nsapi_size_t size);
 
     /** Register a callback on state change of the socket
      *
@@ -197,7 +197,7 @@ protected:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
+    virtual nsapi_error_t setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific socket options
      *
@@ -212,7 +212,7 @@ protected:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual int getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
+    virtual nsapi_error_t getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 
 private:
     static NanostackInterface * _ns_interface;
@@ -228,19 +228,19 @@ public:
      *
      *  @return     0 on success, negative on failure
      */
-    virtual int initialize(NanostackRfPhy *phy);
+    virtual nsapi_error_t initialize(NanostackRfPhy *phy);
 
     /** Start the interface
      *
      *  @return     0 on success, negative on failure
      */
-    virtual int connect() = 0;
+    virtual nsapi_error_t connect() = 0;
 
     /** Stop the interface
      *
      *  @return     0 on success, negative on failure
      */
-    virtual int disconnect();
+    virtual nsapi_error_t disconnect();
 
     /** Get the internally stored IP address
     /return     IP address of the interface or null if not yet connected
@@ -255,8 +255,8 @@ public:
 protected:
     MeshInterfaceNanostack();
     MeshInterfaceNanostack(NanostackRfPhy *phy);
-    int register_rf();
-    int actual_connect();
+    nsapi_error_t register_rf();
+    nsapi_error_t actual_connect();
     virtual NetworkStack * get_stack(void);
 
     void mesh_network_handler(mesh_connection_status_t status);
@@ -287,7 +287,7 @@ public:
 
     }
 
-    int connect();
+    nsapi_error_t connect();
 protected:
     Mesh6LoWPAN_ND *get_mesh_api() const { return static_cast<Mesh6LoWPAN_ND *>(mesh_api); }
 private:
@@ -312,7 +312,7 @@ public:
 
     }
 
-    int connect();
+    nsapi_error_t connect();
 protected:
     MeshThread *get_mesh_api() const { return static_cast<MeshThread *>(mesh_api); }
 private:
