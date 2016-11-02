@@ -175,6 +175,11 @@ def main():
                         default=[],
                         help="Toolchain profile")
 
+    parser.add_argument("--update-packs",
+                        dest="update_packs",
+                        action="store_true",
+                        default=False)
+
     options = parser.parse_args()
 
     # Print available tests in order and exit
@@ -202,6 +207,11 @@ def main():
             print "Unexpected error:", sys.exc_info()[0]
             raise
         exit(0)
+
+    if options.update_packs:
+        from tools.arm_pack_manager import Cache
+        cache = Cache(True, True)
+        cache.cache_descriptors()
 
     # Clean Export Directory
     if options.clean:

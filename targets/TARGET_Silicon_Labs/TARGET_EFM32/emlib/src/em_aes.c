@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_aes.c
  * @brief Advanced Encryption Standard (AES) accelerator peripheral API.
- * @version 4.2.1
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -35,45 +35,12 @@
 
 #include "em_assert.h"
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup AES
- * @brief Advanced Encryption Standard Accelerator (AES) Peripheral API.
- * @details
- *   This API is intended for use on Silicon Labs target devices, and the
- *   following input/output notations should be noted:
- *
- *   @li Input/output data (plaintext, ciphertext, key etc) are treated as
- *     byte arrays, starting with most significant byte. Ie, 32 bytes of
- *     plaintext (B0...B31) is located in memory in the same order, with B0 at
- *     the lower address and B31 at the higher address.
- *
- *   @li Byte arrays must always be a multiple of AES block size, ie a multiple
- *     of 16. Padding, if required, is done at the end of the byte array.
- *
- *   @li Byte arrays should be word (32 bit) aligned for performance
- *     considerations, since the array is accessed with 32 bit access type.
- *     The Cortex-M supports unaligned accesses, but with a performance penalty.
- *
- *   @li It is possible to specify the same output buffer as input buffer
- *     as long as they point to the same address. In that case the provided input
- *     buffer is replaced with the encrypted/decrypted output. Notice that the
- *     buffers must be exactly overlapping. If partly overlapping, the
- *     behaviour is undefined.
- *
- *   It is up to the user to use a cipher mode according to its requirements
- *   in order to not break security. Please refer to specific cipher mode
- *   theory for details.
- *
- *   References:
- *   @li Wikipedia - Cipher modes, http://en.wikipedia.org/wiki/Cipher_modes
- *
- *   @li Recommendation for Block Cipher Modes of Operation,
- *      NIST Special Publication 800-38A, 2001 Edition,
- *      http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
  * @{
  ******************************************************************************/
 
@@ -1383,5 +1350,5 @@ void AES_OFB256(uint8_t *out,
 
 
 /** @} (end addtogroup AES) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 #endif /* defined(AES_COUNT) && (AES_COUNT > 0) */

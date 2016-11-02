@@ -1,28 +1,10 @@
 /***************************************************************************//**
  * @file em_assert.h
  * @brief Emlib peripheral API "assert" implementation.
- * @version 4.2.1
- *
- * @details
- * By default, emlib library assert usage is not included in order to reduce
- * footprint and processing overhead. Further, emlib assert usage is decoupled
- * from ISO C assert handling (NDEBUG usage), to allow a user to use ISO C
- * assert without including emlib assert statements.
- *
- * Below are available defines for controlling emlib assert inclusion. The defines
- * are typically defined for a project to be used by the preprocessor.
- *
- * @li If DEBUG_EFM is defined, the internal emlib library assert handling will
- * be used, which may be a quite rudimentary implementation.
- *
- * @li If DEBUG_EFM_USER is defined instead, the user must provide their own
- * assert handling routine (assertEFM()).
- *
- * As indicated above, if none of the above defines are used, emlib assert
- * statements are not compiled.
+ * @version 5.0.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -48,17 +30,54 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_ASSERT_H__
-#define __SILICON_LABS_EM_ASSERT_H__
+#ifndef EM_ASSERT_H
+#define EM_ASSERT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/***************************************************************************//**
+ * @addtogroup emlib
+ * @{
+ ******************************************************************************/
+
+#if defined(DOXY_DOC_ONLY)
+/** @brief Included for documentation purposes only. This define is not present by default.
+  * @ref DEBUG_EFM should be defined from the compiler to enable the default internal
+  * assert handler. */
+#define DEBUG_EFM
+/** @endcond */
+#endif
 
 #if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
-
+/***************************************************************************//**
+ * @addtogroup ASSERT
+ * @brief Error checking module.
+ * @details
+ * By default, EMLIB library assert usage is not included in order to reduce
+ * footprint and processing overhead. Further, EMLIB assert usage is decoupled
+ * from ISO C assert handling (NDEBUG usage), to allow a user to use ISO C
+ * assert without including EMLIB assert statements.
+ *
+ * Below are available defines for controlling EMLIB assert inclusion. The defines
+ * are typically defined for a project to be used by the preprocessor.
+ *
+ * @li If @ref DEBUG_EFM is defined, the internal EMLIB library assert handling will
+ * be used. This is implemented as a simple while(true) loop. @ref DEBUG_EFM is not
+ * defined by default.
+ *
+ * @li If DEBUG_EFM_USER is defined instead, the user must provide their own
+ * implementation of the assertEFM() function.
+ *
+ * @li If both @ref DEBUG_EFM and DEBUG_EFM_USER are undefined then all EFM_ASSERT()
+ * statements are no operation.
+ *
+ * @note
+ * The internal EMLIB assert is documented here because @ref DEBUG_EFM is defined in
+ * the doxygen configuration.
+ * @{
+ ******************************************************************************/
 /* Due to footprint considerations, we only pass file name and line number, */
 /* not the assert expression (nor function name (C99)) */
 void assertEFM(const char *file, int line);
@@ -66,14 +85,16 @@ void assertEFM(const char *file, int line);
 
 #else
 
+/** Default assertion is no operation */
 #define EFM_ASSERT(expr)    ((void)(expr))
 
 #endif /* defined(DEBUG_EFM) || defined(DEBUG_EFM_USER) */
 
-/** @endcond */
+/** @} (end addtogroup ASSERT) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SILICON_LABS_EM_ASSERT_H__ */
+#endif /* EM_ASSERT_H */

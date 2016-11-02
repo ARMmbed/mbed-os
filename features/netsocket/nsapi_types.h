@@ -103,16 +103,18 @@ typedef enum nsapi_security {
  *  @enum nsapi_version_t
  */
 typedef enum nsapi_version {
-    NSAPI_IPv4,   /*!< Address is IPv4 */
-    NSAPI_IPv6,   /*!< Address is IPv6 */
-    NSAPI_UNSPEC  /*!< Address is unspecified */
+    NSAPI_UNSPEC,   /*!< Address is unspecified */
+    NSAPI_IPv4,     /*!< Address is IPv4 */
+    NSAPI_IPv6,     /*!< Address is IPv6 */
 } nsapi_version_t;
 
 /** IP address structure for passing IP addresses by value
  */
 typedef struct nsapi_addr {
     /** IP version
-     *  NSAPI_IPv4 or NSAPI_IPv6 (NSAPI_UNSPEC not currently supported)
+     *  - NSAPI_IPv4
+     *  - NSAPI_IPv6
+     *  - NSAPI_UNSPEC
      */
     nsapi_version_t version;
 

@@ -5,6 +5,7 @@
         "6lowpan-nd-channel-mask": "(1<<12)",
         "6lowpan-nd-channel-page": 0,
         "6lowpan-nd-channel": 12,
+        "6lowpan-nd-panid-filter": "0xffff",
         "6lowpan-nd-security-mode": "NONE",
         "6lowpan-nd-psk-key-id": 1,
         "6lowpan-nd-psk-key": "{0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf}",

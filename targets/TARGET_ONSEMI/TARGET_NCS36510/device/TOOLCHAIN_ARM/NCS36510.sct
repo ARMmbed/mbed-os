@@ -1,7 +1,5 @@
 #! armcc -E
 
-#define Heap_Size                    0x0400
-
 LR_IROM1 0x00003000 0x0004F000  {    ; load region size_region
   ER_IROM1 0x00003000 0x0004F000  {  ; load address = execution address
    *.o (RESET, +First)
@@ -11,13 +9,8 @@ LR_IROM1 0x00003000 0x0004F000  {    ; load region size_region
 
   ; no uvisor support at this time
 
-  ;ARM_LIB_STACK AlignExpr(+0, 8) EMPTY 0x1000 {}
-   ARM_LIB_STACK 0x3FFF4000 EMPTY 0x1000 {}
-
-  RW_IRAM0 +0 {
+  RW_IRAM1 0x3FFF4000 {
     .ANY(+RW +ZI)
-  }
-  RW_IRAM1 ImageLimit(RW_IRAM0) EMPTY Heap_Size { ; Heap region growing up
   }
   ARM_LIB_HEAP AlignExpr(+0, 8) ALIGN 8 EMPTY (0x3FFF4000 + 0xC000 - AlignExpr(ImageLimit(RW_IRAM1),8) ) {}
 }

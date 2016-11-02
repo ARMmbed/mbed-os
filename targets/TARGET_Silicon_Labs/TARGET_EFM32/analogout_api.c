@@ -25,7 +25,7 @@
 #if DEVICE_ANALOGOUT
 
 #include "mbed_assert.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "analogout_api.h"
 #include "pinmap.h"
 #include "pinmap_function.h"

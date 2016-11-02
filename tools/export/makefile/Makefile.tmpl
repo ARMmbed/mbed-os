@@ -53,8 +53,8 @@ PROJECT := {{name}}
 {% endfor %}
 {% for path in include_paths %}INCLUDE_PATHS += -I{{path}}
 {% endfor %}
-LIBRARY_PATHS :={% for p in library_paths %} -L{{p}} {% endfor %}
-LIBRARIES :={% for lib in libraries %} -l{{lib}} {% endfor %}
+LIBRARY_PATHS :={% for p in library_paths %} {{user_library_flag}}{{p}} {% endfor %}
+LIBRARIES :={% for lib in libraries %} {{lib}} {% endfor %}
 LINKER_SCRIPT := {{linker_script}}
 {%- block additional_variables -%}{% endblock %}
 

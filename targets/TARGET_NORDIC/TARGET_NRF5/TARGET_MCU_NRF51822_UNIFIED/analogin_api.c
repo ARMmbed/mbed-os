@@ -39,6 +39,7 @@ static const PinMap PinMap_ADC[] = {
     {NC, NC, 0}
 };
 
+void ADC_IRQHandler(void); // export IRQ handler from nrf_drv_adc.c
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -49,6 +50,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(pinFunc != (uint32_t)NC);
     
     obj->adc_pin =  pinFunc;
+    
+    NVIC_SetVector(ADC_IRQn, (uint32_t)ADC_IRQHandler);
     
     ret_code_t ret_code;
                                               // p_config, event_handler

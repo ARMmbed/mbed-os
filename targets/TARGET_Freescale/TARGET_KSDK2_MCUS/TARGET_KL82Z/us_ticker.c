@@ -26,9 +26,6 @@ void us_ticker_init(void) {
         return;
     }
     us_ticker_inited = 1;
-    // Need to initialize the clocks here as ticker init gets called before mbed_sdk_init
-    if (SystemCoreClock == DEFAULT_SYSTEM_CLOCK)
-        BOARD_BootClockRUN();
     //Common for ticker/timer
     uint32_t busClock;
     // Structure to initialize PIT

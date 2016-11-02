@@ -45,28 +45,28 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 ; External Interrupts
                 DCD      POWER_CLOCK_IRQHandler ;POWER_CLOCK
                 DCD      RADIO_IRQHandler ;RADIO
-                DCD      UART0_IRQHandler ;UART0
-                DCD      SPI0_TWI0_IRQHandler ;SPI0_TWI0
-                DCD      SPI1_TWI1_IRQHandler ;SPI1_TWI1
+                DCD      UART0_IRQHandler_v ;UART0
+                DCD      SPI0_TWI0_IRQHandler_v ;SPI0_TWI0
+                DCD      SPI1_TWI1_IRQHandler_v ;SPI1_TWI1
                 DCD      0 ;Reserved
-                DCD      GPIOTE_IRQHandler ;GPIOTE
-                DCD      ADC_IRQHandler ;ADC
+                DCD      GPIOTE_IRQHandler_v ;GPIOTE
+                DCD      ADC_IRQHandler_v ;ADC
                 DCD      TIMER0_IRQHandler ;TIMER0
-                DCD      TIMER1_IRQHandler ;TIMER1
-                DCD      TIMER2_IRQHandler ;TIMER2
+                DCD      TIMER1_IRQHandler_v ;TIMER1
+                DCD      TIMER2_IRQHandler_v ;TIMER2
                 DCD      RTC0_IRQHandler ;RTC0
                 DCD      TEMP_IRQHandler ;TEMP
                 DCD      RNG_IRQHandler ;RNG
                 DCD      ECB_IRQHandler ;ECB
                 DCD      CCM_AAR_IRQHandler ;CCM_AAR
-                DCD      WDT_IRQHandler ;WDT
-                DCD      RTC1_IRQHandler ;RTC1
-                DCD      QDEC_IRQHandler ;QDEC
-                DCD      LPCOMP_IRQHandler ;LPCOMP
-                DCD      SWI0_IRQHandler ;SWI0
-                DCD      SWI1_IRQHandler ;SWI1
-                DCD      SWI2_IRQHandler ;SWI2
-                DCD      SWI3_IRQHandler ;SWI3
+                DCD      WDT_IRQHandler_v ;WDT
+                DCD      RTC1_IRQHandler_v ;RTC1
+                DCD      QDEC_IRQHandler_v ;QDEC
+                DCD      LPCOMP_IRQHandler_v ;LPCOMP_COMP
+                DCD      SWI0_IRQHandler_v ;SWI0
+                DCD      SWI1_IRQHandler_v ;SWI1
+                DCD      SWI2_IRQHandler_v ;SWI2
+                DCD      SWI3_IRQHandler_v ;SWI3
                 DCD      SWI4_IRQHandler ;SWI4
                 DCD      SWI5_IRQHandler ;SWI5
                 DCD      0 ;Reserved
@@ -93,6 +93,7 @@ Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
                 IMPORT  SystemInit
                 IMPORT  __main
+                IMPORT  nrf_reloc_vector_table
                 
                 MOVS    R1, #NRF_POWER_RAMONx_RAMxON_ONMODE_Msk
                 
@@ -107,6 +108,8 @@ Reset_Handler   PROC
                 STR     R2, [R0]
                 
                 LDR     R0, =SystemInit
+                BLX     R0
+                LDR     R0, =nrf_reloc_vector_table
                 BLX     R0
                 LDR     R0, =__main
                 BX      R0
@@ -140,52 +143,52 @@ Default_Handler PROC
 
                 EXPORT   POWER_CLOCK_IRQHandler [WEAK]
                 EXPORT   RADIO_IRQHandler [WEAK]
-                EXPORT   UART0_IRQHandler [WEAK]
-                EXPORT   SPI0_TWI0_IRQHandler [WEAK]
-                EXPORT   SPI1_TWI1_IRQHandler [WEAK]
-                EXPORT   GPIOTE_IRQHandler [WEAK]
-                EXPORT   ADC_IRQHandler [WEAK]
+                EXPORT   UART0_IRQHandler_v [WEAK]
+                EXPORT   SPI0_TWI0_IRQHandler_v [WEAK]
+                EXPORT   SPI1_TWI1_IRQHandler_v [WEAK]
+                EXPORT   GPIOTE_IRQHandler_v [WEAK]
+                EXPORT   ADC_IRQHandler_v [WEAK]
                 EXPORT   TIMER0_IRQHandler [WEAK]
-                EXPORT   TIMER1_IRQHandler [WEAK]
-                EXPORT   TIMER2_IRQHandler [WEAK]
+                EXPORT   TIMER1_IRQHandler_v [WEAK]
+                EXPORT   TIMER2_IRQHandler_v [WEAK]
                 EXPORT   RTC0_IRQHandler [WEAK]
                 EXPORT   TEMP_IRQHandler [WEAK]
                 EXPORT   RNG_IRQHandler [WEAK]
                 EXPORT   ECB_IRQHandler [WEAK]
                 EXPORT   CCM_AAR_IRQHandler [WEAK]
-                EXPORT   WDT_IRQHandler [WEAK]
-                EXPORT   RTC1_IRQHandler [WEAK]
-                EXPORT   QDEC_IRQHandler [WEAK]
-                EXPORT   LPCOMP_IRQHandler [WEAK]
-                EXPORT   SWI0_IRQHandler [WEAK]
-                EXPORT   SWI1_IRQHandler [WEAK]
-                EXPORT   SWI2_IRQHandler [WEAK]
-                EXPORT   SWI3_IRQHandler [WEAK]
+                EXPORT   WDT_IRQHandler_v [WEAK]
+                EXPORT   RTC1_IRQHandler_v [WEAK]
+                EXPORT   QDEC_IRQHandler_v [WEAK]
+                EXPORT   LPCOMP_IRQHandler_v [WEAK]
+                EXPORT   SWI0_IRQHandler_v [WEAK]
+                EXPORT   SWI1_IRQHandler_v [WEAK]
+                EXPORT   SWI2_IRQHandler_v [WEAK]
+                EXPORT   SWI3_IRQHandler_v [WEAK]
                 EXPORT   SWI4_IRQHandler [WEAK]
                 EXPORT   SWI5_IRQHandler [WEAK]
 POWER_CLOCK_IRQHandler
 RADIO_IRQHandler
-UART0_IRQHandler
-SPI0_TWI0_IRQHandler
-SPI1_TWI1_IRQHandler
-GPIOTE_IRQHandler
-ADC_IRQHandler
+UART0_IRQHandler_v
+SPI0_TWI0_IRQHandler_v
+SPI1_TWI1_IRQHandler_v
+GPIOTE_IRQHandler_v
+ADC_IRQHandler_v
 TIMER0_IRQHandler
-TIMER1_IRQHandler
-TIMER2_IRQHandler
+TIMER1_IRQHandler_v
+TIMER2_IRQHandler_v
 RTC0_IRQHandler
 TEMP_IRQHandler
 RNG_IRQHandler
 ECB_IRQHandler
 CCM_AAR_IRQHandler
-WDT_IRQHandler
-RTC1_IRQHandler
-QDEC_IRQHandler
-LPCOMP_IRQHandler
-SWI0_IRQHandler
-SWI1_IRQHandler
-SWI2_IRQHandler
-SWI3_IRQHandler
+WDT_IRQHandler_v
+RTC1_IRQHandler_v
+QDEC_IRQHandler_v
+LPCOMP_IRQHandler_v
+SWI0_IRQHandler_v
+SWI1_IRQHandler_v
+SWI2_IRQHandler_v
+SWI3_IRQHandler_v
 SWI4_IRQHandler
 SWI5_IRQHandler
 

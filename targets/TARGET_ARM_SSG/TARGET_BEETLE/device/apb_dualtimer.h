@@ -22,10 +22,11 @@ extern "C" {
 #endif
 
 /* Supported Number of Dual Timers */
-#define NUM_DUALTIMERS  1
-#define DUALTIMER0      0
-#define SINGLETIMER1    1
-#define SINGLETIMER2    2
+#define NUM_DUALTIMERS   1
+#define DUALTIMER0       0
+#define SINGLETIMER1     1
+#define SINGLETIMER2     2
+#define ALL_SINGLETIMERS 3
 
 /*
  * DualTimer_Initialize(): Initializes a hardware timer
@@ -107,10 +108,13 @@ void DualTimer_SetInterrupt_2(uint32_t timer, uint32_t time_us,
             timerenable_t mode);
 
 /*
- * DualTimer_DisableInterrupt(): disables timer interrupt
- * timer: timer on which interrupt is disabled
+ * DualTimer_DisableInterrupt(): disables timer interrupts
+ * dualimer: dualtimer on which interrupt is disabled
+ * single_timer: single timer in the dualtimer on which
+ *               interrupt is disabled
  */
-void DualTimer_DisableInterrupt(uint32_t timer);
+void DualTimer_DisableInterrupt(uint32_t dualtimer,
+                                uint32_t single_timer);
 
 /*
  * DualTimer_ClearInterrupt(): clear timer interrupt

@@ -109,9 +109,6 @@ void gpio_init(gpio_t *obj, PinName pin)
     /** - Get PAD IO register address for the PAD number */
     PadReg_t *PadRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
 
-    /* - Disable the GPIO clock */
-    CLOCK_DISABLE(CLOCK_GPIO);
-
     /** - Enable the clock for PAD peripheral device */
     CLOCK_ENABLE(CLOCK_PAD);
 
@@ -142,7 +139,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
  */
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
-    /* Enable the GPIO clock */
+    /* Enable the GPIO clock which may have been switched off by other drivers */
     CLOCK_ENABLE(CLOCK_GPIO);
 
     if (direction == PIN_INPUT) {
@@ -151,8 +148,6 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
         obj->GPIOMEMBASE->W_OUT = obj->gpioMask;
     }
 
-    /* - Disable the GPIO clock */
-    CLOCK_DISABLE(CLOCK_GPIO);
 }
 
 /** Set the output value
@@ -162,7 +157,8 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
  */
 void gpio_write(gpio_t *obj, int value)
 {
-    /* Enable the GPIO clock */
+
+    /* Enable the GPIO clock which may have been switched off by other drivers */
     CLOCK_ENABLE(CLOCK_GPIO);
 
     /* Set the GPIO based on value */
@@ -172,8 +168,6 @@ void gpio_write(gpio_t *obj, int value)
         obj->GPIOMEMBASE->R_IRQ_W_CLEAR = obj->gpioMask;
     }
 
-    /* - Disable the GPIO clock */
-    CLOCK_DISABLE(CLOCK_GPIO);
 }
 
 /** Read the input value
@@ -185,13 +179,23 @@ int gpio_read(gpio_t *obj)
 {
     int ret;
 
-    /* Enable the GPIO clock */
+    /* Enable the GPIO clock which may have been switched off by other drivers */
     CLOCK_ENABLE(CLOCK_GPIO);
 
     ret = (obj->GPIOMEMBASE->R_STATE_W_SET & obj->gpioMask) ? 1: 0;
 
-    /* - Disable the GPIO clock */
-    CLOCK_DISABLE(CLOCK_GPIO);
-
     return ret;
+}
+
+/* Checks if gpio object is connected (pin was not initialized with NC)
+ * @param pin The pin to be set as GPIO
+ * @return 0 if port is initialized with NC
+ **/
+int gpio_is_connected(const gpio_t *obj)
+{
+    if(obj->gpioPin != (PinName)NC) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

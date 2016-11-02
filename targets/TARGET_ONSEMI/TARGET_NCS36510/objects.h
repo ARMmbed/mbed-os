@@ -169,7 +169,7 @@ struct spi_s {
     uint8_t rxWatermark;          /* Receive FIFO Watermark: Defines level of TX Half Full Flag:
                                             * - Value between 1 and 15
                                             * * (unused option in current implementation / rxWatermark fixed to 1) */
-    spi_ipc7207_endian_t endian; /* Bits endianness:
+    spi_ipc7207_endian_t endian;  /* Bits endianness:
                                     * - LITTLE_ENDIAN = LSB first
                                     * - BIG_ENDIAN = MSB first */
     uint8_t samplingEdge;         /* SDI sampling edge (relative to SDO sampling edge):
@@ -191,6 +191,10 @@ struct i2c_s {
     I2cIpc7208Reg_pt membase;      /**< The memory base for the device's registers. */
     IRQn_Type irq;                 /**< The IRQ number of the IRQ associated to the device. */
     //queue_pt rxQueue;            /**< The receive queue for the device instance. */
+};
+
+struct trng_s {
+    RandReg_pt membase;    /**< The memory base for the device's registers. */
 };
 
 #ifdef __cplusplus

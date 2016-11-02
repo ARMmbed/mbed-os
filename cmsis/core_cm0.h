@@ -197,6 +197,14 @@
 #define     __O     volatile             /*!< Defines 'write only' permissions                */
 #define     __IO    volatile             /*!< Defines 'read / write' permissions              */
 
+#ifdef __cplusplus
+  #define   __IM    volatile             /*!< Defines 'read only' permissions                 */
+#else
+  #define   __IM    volatile const       /*!< Defines 'read only' permissions                 */
+#endif
+#define     __OM    volatile             /*!< Defines 'write only' permissions                */
+#define     __IOM   volatile             /*!< Defines 'read / write' permissions              */
+
 /*@} end of group Cortex_M0 */
 
 

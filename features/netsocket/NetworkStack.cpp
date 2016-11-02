@@ -22,16 +22,6 @@
 
 
 // Default NetworkStack operations
-int NetworkStack::gethostbyname(const char *name, SocketAddress *address)
-{
-    // check for simple ip addresses
-    if (address->set_ip_address(name)) {
-        return 0;
-    }
-
-    return nsapi_dns_query(this, name, address);
-}
-
 int NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
     // check for simple ip addresses
@@ -41,6 +31,15 @@ int NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_
         }
 
         return 0;
+    }
+
+    // if the version is unspecified, try to guess the version from the
+    // ip address of the underlying stack
+    if (version == NSAPI_UNSPEC) {
+        SocketAddress testaddress;
+        if (testaddress.set_ip_address(this->get_ip_address())) {
+            version = testaddress.get_ip_version();
+        }
     }
 
     return nsapi_dns_query(this, name, address, version);
@@ -100,25 +99,13 @@ public:
         return address->get_ip_address();
     }
 
-    virtual int gethostbyname(const char *name, SocketAddress *address)
-    {
-        if (!_stack_api()->gethostbyname) {
-            return NetworkStack::gethostbyname(name, address);
-        }
-
-        nsapi_addr_t addr = {NSAPI_IPv4, 0};
-        int err = _stack_api()->gethostbyname(_stack(), name, &addr, NSAPI_UNSPEC);
-        address->set_addr(addr);
-        return err;
-    }
-
     virtual int gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
     {
         if (!_stack_api()->gethostbyname) {
             return NetworkStack::gethostbyname(name, address, version);
         }
 
-        nsapi_addr_t addr = {NSAPI_IPv4, 0};
+        nsapi_addr_t addr = {NSAPI_UNSPEC, 0};
         int err = _stack_api()->gethostbyname(_stack(), name, &addr, version);
         address->set_addr(addr);
         return err;

@@ -163,7 +163,7 @@ public:
 private:
     void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port);
 
-    char _ip_address[NSAPI_IP_SIZE];
+    mutable char _ip_address[NSAPI_IP_SIZE];
     nsapi_addr_t _addr;
     uint16_t _port;
 };

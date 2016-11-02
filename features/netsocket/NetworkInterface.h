@@ -103,20 +103,6 @@ public:
      */
     virtual int disconnect() = 0;
 
-    /** Translates a hostname to an IP address
-     *
-     *  The hostname may be either a domain name or an IP address. If the
-     *  hostname is an IP address, no network transactions will be performed.
-     *
-     *  If no stack-specific DNS resolution is provided, the hostname
-     *  will be resolve using a UDP socket on the stack.
-     *
-     *  @param address  Destination for the host SocketAddress
-     *  @param host     Hostname to resolve
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int gethostbyname(const char *host, SocketAddress *address);
-
     /** Translates a hostname to an IP address with specific version
      *
      *  The hostname may be either a domain name or an IP address. If the
@@ -127,10 +113,11 @@ public:
      *
      *  @param address  Destination for the host SocketAddress
      *  @param host     Hostname to resolve
-     *  @param version  IP version of address to resolve
+     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
      *  @return         0 on success, negative error code on failure
      */
-    virtual int gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version);
+    virtual int gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Add a domain name server to list of servers to query
      *

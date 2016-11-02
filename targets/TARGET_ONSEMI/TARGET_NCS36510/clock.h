@@ -82,6 +82,7 @@
 
 #define CLOCK_ENABLE(a)         CLOCKREG->PDIS.WORD &= ~(1 << a)
 #define CLOCK_DISABLE(a)        CLOCKREG->PDIS.WORD |= (uint32_t)(1 << a)
+#define CLOCK_IS_ENABLED(a)     (((CLOCKREG->PDIS.WORD >> a) & 1)?0:1)
 
 /*************************************************************************************************
 *                                                                                                *
