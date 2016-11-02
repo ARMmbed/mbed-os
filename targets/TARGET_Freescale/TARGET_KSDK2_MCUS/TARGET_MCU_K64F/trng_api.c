@@ -64,7 +64,6 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 {
     (void)obj;
     size_t i;
-    int ret;
 
     /* Set "Interrupt Mask", "High Assurance" and "Go",
      * unset "Clear interrupt" and "Sleep" */
