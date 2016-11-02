@@ -18,6 +18,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
 import os
+import re
 import sys
 import json
 import uuid
