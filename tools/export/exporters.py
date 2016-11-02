@@ -1,6 +1,6 @@
 """Just a template for subclassing"""
 import os
-import sys
+from abc import abstractmethod, ABCMeta
 import logging
 from os.path import join, dirname, relpath, basename, realpath
 from itertools import groupby
@@ -32,11 +32,13 @@ class Exporter(object):
     few helper methods for implementing an exporter with either jinja2 or
     progen.
     """
+    __metaclass__ = ABCMeta
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
     NAME = None
     TARGETS = None
     TOOLCHAIN = None
+
 
     def __init__(self, target, export_dir, project_name, toolchain,
                  extra_symbols=None, resources=None):
@@ -164,3 +166,8 @@ class Exporter(object):
         Returns -1 on failure and 0 on success
         """
         raise NotImplemented("Implement in derived Exporter class.")
+
+    @abstractmethod
+    def generate(self):
+        """Generate an IDE/tool specific project file"""
+        raise NotImplemented("Implement a generate function in Exporter child class")
