@@ -95,8 +95,8 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
 static void secure_session_delete(secure_session_t *this)
 {
     if (this) {
-        transactions_delete_all(this->remote_host.address, this->remote_host.identifier);
         ns_list_remove(&secure_session_list, this);
+        transactions_delete_all(this->remote_host.address, this->remote_host.identifier);
         if( this->sec_handler ){
             coap_security_destroy(this->sec_handler);
             this->sec_handler = NULL;
@@ -529,7 +529,7 @@ static void secure_recv_sckt_msg(void *cb_res)
     socket_callback_t *sckt_data = cb_res;
     internal_socket_t *sock = int_socket_find_by_socket_id(sckt_data->socket_id);
     ns_address_t src_address;
-    uint8_t dst_address[16];
+    uint8_t dst_address[16] = {0};
     memset(&src_address, 0, sizeof(ns_address_t));
 
     if (sock && read_data(sckt_data, sock, &src_address, dst_address) == 0) {

@@ -99,6 +99,9 @@ void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
     coap_transaction_t *transaction = transaction_find_by_address(address_ptr, port);
 
     while (transaction) {
+        if (transaction->resp_cb) {
+            transaction->resp_cb(transaction->service_id, address_ptr, port, NULL);
+        }
         sn_coap_protocol_delete_retransmission(coap_service_handle->coap, transaction->msg_id);
         transaction_delete(transaction);
         transaction = transaction_find_by_address(address_ptr, port);
