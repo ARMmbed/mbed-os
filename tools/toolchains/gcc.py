@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
+import copy
 from os.path import join, basename, splitext
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
@@ -192,13 +193,7 @@ class GCC(mbedToolchain):
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm
-
-        # Add coverage flag on files on which coverage is enabled.
-        if self.check_if_coverage_enabled(source):
-            cmd += self.COVERAGE_FLAGS
-
-        cmd += self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
@@ -209,13 +204,12 @@ class GCC(mbedToolchain):
     @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
-        cmd = cc
 
         # Add coverage flag on files on which coverage is enabled.
         if self.check_if_coverage_enabled(source):
-            cmd += self.COVERAGE_FLAGS
-
-        cmd += self.get_compile_options(self.get_symbols(), includes)
+            cmd = cc + self.COVERAGE_FLAGS + self.get_compile_options(self.get_symbols(), includes)
+        else: 
+            cmd = cc + self.get_compile_options(self.get_symbols(), includes)
 
         cmd.extend(self.get_dep_option(object))
 
@@ -243,13 +237,11 @@ class GCC(mbedToolchain):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
 
-        cmd = self.ld
-
         # Link with coverage flag if coverage is enabled.
         if self.coverage_filter:
-            cmd += self.COVERAGE_FLAGS
-
-        cmd += ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+            cmd = self.ld + self.COVERAGE_FLAGS + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+        else:
+            cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
 
         if mem_map:
             cmd.extend(['-T', mem_map])
