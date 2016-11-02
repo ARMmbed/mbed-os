@@ -1055,7 +1055,7 @@ void test_crc32()
 
 #ifndef AVOID_GREENTEA
 // Custom setup handler required for proper Greentea support
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(60, "default_auto");
     // Call the default reporting function
