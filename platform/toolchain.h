@@ -19,6 +19,8 @@
 #ifndef MBED_TOOLCHAIN_H
 #define MBED_TOOLCHAIN_H
 
+#include "mbed_preprocessor.h"
+
 
 // Warning for unsupported compilers
 #if !defined(__GNUC__)   /* GCC        */ \
@@ -65,8 +67,7 @@
  */
 #ifndef MBED_ALIGN
 #if defined(__ICCARM__)
-#define _MBED_ALIGN(N) _Pragma(#N)
-#define MBED_ALIGN(N) _MBED_ALIGN(data_alignment=N)
+#define MBED_ALIGN(N) _Pragma(MBED_STRINGIFY(data_alignment=N))
 #else
 #define MBED_ALIGN(N) __attribute__((aligned(N)))
 #endif

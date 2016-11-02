@@ -19,6 +19,8 @@
 #ifndef MBED_ASSERT_H
 #define MBED_ASSERT_H
 
+#include "mbed_preprocessor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,10 +51,6 @@ do {                                                     \
 } while (0)
 #endif
 
-
-#define _MBED_CONCAT_(a, b) a##b
-#define _MBED_CONCAT(a, b) _MBED_CONCAT_(a, b)
-#define _MBED_ASSERTION _MBED_CONCAT(_MBED_ASSERTION_AT_, __LINE__)
 
 /** MBED_STATIC_ASSERT
  *  Declare compile-time assertions, results in compile-time error if condition is false
@@ -90,7 +88,8 @@ do {                                                     \
 #elif defined(__ICCARM__)
 #define MBED_STATIC_ASSERT(expr, msg) static_assert(expr, msg)
 #else
-#define MBED_STATIC_ASSERT(expr, msg) enum {_MBED_ASSERTION = sizeof(char[(expr) ? 1 : -1])}
+#define MBED_STATIC_ASSERT(expr, msg) \
+    enum {MBED_CONCAT(MBED_ASSERTION_AT_, __LINE__) = sizeof(char[(expr) ? 1 : -1])}
 #endif
 
 /** MBED_STRUCT_STATIC_ASSERT
