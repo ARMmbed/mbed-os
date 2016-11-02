@@ -33,7 +33,8 @@
 // A 32-bit timer is used
 #if !TIM_MST_16BIT
 
-static TIM_HandleTypeDef TimMasterHandle;
+TIM_HandleTypeDef TimMasterHandle;
+
 static int us_ticker_inited = 0;
 
 void us_ticker_init(void) {

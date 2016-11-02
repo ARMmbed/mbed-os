@@ -33,8 +33,7 @@
 // A 16-bit timer is used
 #if TIM_MST_16BIT
 
-static TIM_HandleTypeDef TimMasterHandle;
-static int us_ticker_inited = 0;
+TIM_HandleTypeDef TimMasterHandle;
 
 volatile uint32_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
@@ -42,8 +41,9 @@ volatile uint16_t oc_rem_part = 0;
 volatile uint8_t tim_it_update; // TIM_IT_UPDATE event flag set in timer_irq_handler()
 volatile uint32_t tim_it_counter = 0; // Time stamp to be updated by timer_irq_handler()
 
-void set_compare(uint16_t count)
-{
+static int us_ticker_inited = 0;
+
+void set_compare(uint16_t count) {
     TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
@@ -51,8 +51,7 @@ void set_compare(uint16_t count)
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_init(void)
-{
+void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
@@ -61,8 +60,7 @@ void us_ticker_init(void)
     HAL_InitTick(0); // The passed value is not used
 }
 
-uint32_t us_ticker_read()
-{
+uint32_t us_ticker_read() {
     uint32_t counter;
 
     TimMasterHandle.Instance = TIM_MST;
@@ -106,8 +104,7 @@ uint32_t us_ticker_read()
     }
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     int delta = (int)((uint32_t)timestamp - us_ticker_read());
 
     uint16_t cval = TIM_MST->CNT;
@@ -127,14 +124,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 }
 
-void us_ticker_disable_interrupt(void)
-{
+void us_ticker_disable_interrupt(void) {
     TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void)
-{
+void us_ticker_clear_interrupt(void) {
     TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);

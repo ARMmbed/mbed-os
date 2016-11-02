@@ -32,17 +32,18 @@
 
 #define DEBUG_TICK 0 // Set to 1 to toggle a pin (see below which pin) at each tick
 
-TIM_HandleTypeDef TimMasterHandle;
-volatile uint32_t PreviousVal = 0;
-
-void us_ticker_irq_handler(void);
-void set_compare(uint16_t count);
+extern TIM_HandleTypeDef TimMasterHandle;
 
 extern volatile uint32_t SlaveCounter;
 extern volatile uint32_t oc_int_part;
 extern volatile uint16_t oc_rem_part;
 extern volatile uint8_t  tim_it_update;
 extern volatile uint32_t tim_it_counter;
+
+volatile uint32_t PreviousVal = 0;
+
+void us_ticker_irq_handler(void);
+void set_compare(uint16_t count);
 
 #if defined(TARGET_STM32F0)
 void timer_update_irq_handler(void) {
@@ -65,8 +66,7 @@ void timer_irq_handler(void) {
 #if defined(TARGET_STM32F0)
 } // end timer_update_irq_handler function
 // Used for mbed timeout (channel 1) and HAL tick (channel 2)
-void timer_oc_irq_handler(void)
-{
+void timer_oc_irq_handler(void) {
     uint16_t cnt_val = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
 #endif
@@ -173,18 +173,14 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     return HAL_OK;
 }
 
-void HAL_SuspendTick(void)
-{
+void HAL_SuspendTick(void) {
     TimMasterHandle.Instance = TIM_MST;
-
     // Disable HAL tick and us_ticker update interrupts (used for 32 bit counter)
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
-void HAL_ResumeTick(void)
-{
+void HAL_ResumeTick(void) {
     TimMasterHandle.Instance = TIM_MST;
-
     // Enable HAL tick and us_ticker update interrupts (used for 32 bit counter)
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
