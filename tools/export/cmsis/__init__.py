@@ -36,7 +36,6 @@ class DeviceCMSIS():
         target_info = self.check_supported(target)
         if not target_info:
             raise TargetNotSupportedException("Target not supported in CMSIS pack")
-
         self.url = target_info['pdsc_file']
         self.pack_url, self.pack_id = ntpath.split(self.url)
         self.dname = target_info["_cpu_name"]
@@ -67,6 +66,15 @@ class DeviceCMSIS():
         return target_info
 
     def vendor_debug(self, vendor):
+        """Reads the vendor from a PDSC <dvendor> tag.
+        This tag contains some additional numeric information that is meaningless
+        for our purposes, so we use a regex to filter.
+
+        Positional arguments:
+        Vendor - information in <dvendor> tag scraped from ArmPackManager
+
+        Returns a tuple of (debugger, vendor)
+        """
         reg = "([\w\s]+):?\d*?"
         m = re.search(reg, vendor)
         vendor_match = m.group(1) if m else None
@@ -79,7 +87,13 @@ class DeviceCMSIS():
 
     @staticmethod
     def cpu_cmsis(cpu):
-        #Cortex-M4F => ARMCM4_FP, Cortex-M0+ => ARMCM0P
+        """
+        Transforms information from targets.json to the way the generic cores are named
+        in CMSIS PDSC files.
+        Ex:
+        Cortex-M4F => ARMCM4_FP, Cortex-M0+ => ARMCM0P
+        Returns formatted CPU
+        """
         cpu = cpu.replace("Cortex-","ARMC")
         cpu = cpu.replace("+","P")
         cpu = cpu.replace("F","_FP")
@@ -123,7 +137,6 @@ class CMSIS(Exporter):
         return root_element
 
     def generate(self):
-
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries + \
