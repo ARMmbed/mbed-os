@@ -4,7 +4,7 @@ import ntpath
 import copy
 from collections import namedtuple
 import shutil
-import subprocess
+from subprocess import Popen, PIPE
 import re
 
 from tools.arm_pack_manager import Cache
@@ -208,21 +208,30 @@ class Uvision(Exporter):
     @staticmethod
     def build(project_name, log_name='build_log.txt', cleanup=True):
         """ Build Uvision project """
-        # > UV4.exe -r -j0 -o [log_name] [project_name].uvprojx
-        success = 0
-        warn  = 1
-        cmd = ["UV4.exe", '-r', '-j0', '-o', log_name, project_name+".uvprojx"]
-        ret_code = subprocess.call(cmd)
-        with open(log_name, 'r') as build_log:
-            print build_log.read()
+        # > UV4 -r -j0 -o [log_name] [project_name].uvprojx
+        proj_file = project_name + ".uvprojx"
+        cmd = ['UV4', '-r', '-j0', '-o', log_name, proj_file]
+
+        # Build the project
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        ret_code = p.returncode
+
+        # Print the log file to stdout
+        with open(log_name, 'r') as f:
+            print f.read()
+
+        # Cleanup the exported and built files
         if cleanup:
             os.remove(log_name)
             os.remove(project_name+".uvprojx")
             os.remove(project_name+".uvoptx")
-            shutil.rmtree(".build")
+            if exists('.build'):
+                shutil.rmtree(".build")
 
-
-        if ret_code != success and ret_code != warn:
+        # Returns 0 upon success, 1 upon a warning, and neither upon an error
+        if ret_code != 0 and ret_code != 1:
             # Seems like something went wrong.
             return -1
-        return 0
+        else:
+            return 0

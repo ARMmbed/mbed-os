@@ -110,32 +110,41 @@ class Makefile(Exporter):
         """ Build Make project """
         # > Make -j
         cmd = ["make", "-j"]
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        ret = p.communicate()
-        out, err = ret[0], ret[1]
-        ret_code = p.returncode
-        with open(log_name, 'w+') as f:
-            f.write("=" * 10 + "OUT" + "=" * 10 + "\n")
-            f.write(out)
-            f.write("=" * 10 + "ERR" + "=" * 10 + "\n")
-            f.write(err)
-            if ret_code == 0:
-                f.write("SUCCESS")
-            else:
-                f.write("FAILURE")
-        with open(log_name, 'r') as f:
-            print "\n".join(f.readlines())
-        sys.stdout.flush()
 
+        # Build the project
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        ret_code = p.returncode
+
+        out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        out_string += out
+        out_string += "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        out_string += err
+
+        if ret_code == 0:
+            out_string += "SUCCESS"
+        else:
+            out_string += "FAILURE"
+
+        print out_string
+
+        if log_name:
+            # Write the output to the log file
+            with open(log_name, 'w+') as f:
+                f.write(out_string)
+
+        # Cleanup the exported and built files
         if cleanup:
             remove("Makefile")
             remove(log_name)
             if exists('.build'):
                 shutil.rmtree('.build')
+
         if ret_code != 0:
             # Seems like something went wrong.
             return -1
-        return 0
+        else:
+            return 0
 
 
 class GccArm(Makefile):
