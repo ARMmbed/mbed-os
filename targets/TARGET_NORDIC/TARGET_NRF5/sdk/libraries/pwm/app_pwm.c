@@ -789,7 +789,11 @@ ret_code_t app_pwm_init(app_pwm_t const * const p_instance, app_pwm_config_t con
         .frequency          = timer_freq,
         .mode               = NRF_TIMER_MODE_TIMER,
         .bit_width          = NRF_TIMER_BIT_WIDTH_16,
+#ifdef NRF51
         .interrupt_priority = APP_IRQ_PRIORITY_LOW,
+#elif defined(NRF52)
+        .interrupt_priority = APP_IRQ_PRIORITY_LOWEST,
+#endif
         .p_context          = (void *) (uint32_t) p_instance->p_timer->instance_id
     };
     err_code = nrf_drv_timer_init(p_instance->p_timer, &timer_cfg,
