@@ -28,7 +28,6 @@
 #include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
 #include "net_interface.h"
-#include "ip6string.h"
 // Uncomment to enable trace
 //#define HAVE_DEBUG
 #include "ns_trace.h"
@@ -126,16 +125,13 @@ static void convert_mbed_addr_to_ns(ns_address_t *ns_addr,
 {
     ns_addr->type = ADDRESS_IPV6;
     ns_addr->identifier = s_addr->get_port();
-    const char *str = s_addr->get_ip_address();
-    stoip6(str, strlen(str), ns_addr->address);
+    memcpy(ns_addr->address, s_addr->get_ip_bytes(), 16);
 }
 
 static void convert_ns_addr_to_mbed(SocketAddress *s_addr, const ns_address_t *ns_addr)
 {
-    char str[40];
-    ip6tos(ns_addr->address, str);
     s_addr->set_port(ns_addr->identifier);
-    s_addr->set_ip_address(str);
+    s_addr->set_ip_bytes(ns_addr->address, NSAPI_IPv6);
 }
 
 void* NanostackSocket::operator new(std::size_t sz) {
@@ -716,6 +712,10 @@ int NanostackInterface::socket_sendto(void *handle, const SocketAddress &address
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    if (address.get_ip_version() != NSAPI_IPv6) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     nanostack_lock();
 
     int ret;
@@ -805,12 +805,23 @@ int NanostackInterface::socket_bind(void *handle, const SocketAddress &address)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    const void *addr_field;
+    switch (address.get_ip_version()) {
+        case NSAPI_IPv6:
+            addr_field = address.get_ip_bytes();
+            break;
+        case NSAPI_UNSPEC:
+            addr_field = &ns_in6addr_any;
+            break;
+        default:
+            return NSAPI_ERROR_UNSUPPORTED;
+    }
 
     nanostack_lock();
 
     ns_address_t ns_address;
     ns_address.type = ADDRESS_IPV6;
-    memset(ns_address.address, 0, sizeof ns_address.address);
+    memcpy(ns_address.address, addr_field, sizeof ns_address.address);
     ns_address.identifier = address.get_port();
     int ret = NSAPI_ERROR_DEVICE_ERROR;
     if (0 == ::socket_bind(socket->socket_id, &ns_address)) {
@@ -847,6 +858,10 @@ int NanostackInterface::socket_connect(void *handle, const SocketAddress &addr)
     if (NULL == handle) {
         MBED_ASSERT(false);
         return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    if (addr.get_ip_version() != NSAPI_IPv6) {
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     nanostack_lock();
