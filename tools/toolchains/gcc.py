@@ -40,6 +40,9 @@ class GCC(mbedToolchain):
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
+        if type(coverage_filter) != list:
+            raise TypeError("coverage_filter should of type list.")
+
         # Add flags for current size setting
         default_lib = "std"
         if hasattr(target, "default_lib"):

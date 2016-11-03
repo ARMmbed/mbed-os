@@ -522,7 +522,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   inc_dirs=None, jobs=1, silent=False, report=None,
                   properties=None, extra_verbose=False, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None, coverage_filter=None):
+                  build_profile=None, coverage_filter=[]):
     """ Build a library
 
     Positional arguments:
