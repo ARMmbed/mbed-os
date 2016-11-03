@@ -91,12 +91,12 @@ class Makefile(Exporter):
         ctx.update(self.flags)
 
         for templatefile in \
-            ['makefile/%s_%s.tmpl' % (self.NAME.lower(),
+            ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
                                       self.target.lower())] + \
-            ['makefile/%s_%s.tmpl' % (self.NAME.lower(),
+            ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
                                       label.lower()) for label
              in self.toolchain.target.extra_labels] +\
-            ['makefile/%s.tmpl' % self.NAME.lower()]:
+            ['makefile/%s.tmpl' % self.TEMPLATE]:
             try:
                 self.gen_file(templatefile, ctx, 'Makefile')
                 break
@@ -143,6 +143,7 @@ class GccArm(Makefile):
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if "GCC_ARM" in obj.supported_toolchains]
     NAME = 'Make-GCC-ARM'
+    TEMPLATE = 'make-gcc-arm'
     TOOLCHAIN = "GCC_ARM"
     LINK_SCRIPT_OPTION = "-T"
     USER_LIBRARY_FLAG = "-L"
@@ -157,6 +158,7 @@ class Armc5(Makefile):
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if "ARM" in obj.supported_toolchains]
     NAME = 'Make-ARMc5'
+    TEMPLATE = 'make-armc5'
     TOOLCHAIN = "ARM"
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
@@ -171,6 +173,7 @@ class IAR(Makefile):
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if "IAR" in obj.supported_toolchains]
     NAME = 'Make-IAR'
+    TEMPLATE = 'make-iar'
     TOOLCHAIN = "IAR"
     LINK_SCRIPT_OPTION = "--config"
     USER_LIBRARY_FLAG = "-L"
