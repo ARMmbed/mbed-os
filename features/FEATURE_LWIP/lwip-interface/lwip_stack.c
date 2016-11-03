@@ -293,16 +293,20 @@ static void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
 {
     static bool any_addr = true;
 
-    // Indicates that has address
-    if (any_addr == true && mbed_lwip_get_ip_addr(true, lwip_netif)) {
-        sys_sem_signal(&lwip_netif_has_addr);
-        any_addr = false;
-        return;
-    }
+    if (netif_is_up(lwip_netif)) {
+        // Indicates that has address
+        if (any_addr == true && mbed_lwip_get_ip_addr(true, lwip_netif)) {
+            sys_sem_signal(&lwip_netif_has_addr);
+            any_addr = false;
+            return;
+        }
 
-    // Indicates that has preferred address
-    if (mbed_lwip_get_ip_addr(false, lwip_netif)) {
-        sys_sem_signal(&lwip_netif_has_addr);
+        // Indicates that has preferred address
+        if (mbed_lwip_get_ip_addr(false, lwip_netif)) {
+            sys_sem_signal(&lwip_netif_has_addr);
+        }
+    } else {
+        any_addr = true;
     }
 }
 
@@ -509,6 +513,15 @@ nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, 
     return 0;
 }
 
+#if LWIP_IPV6
+void mbed_lwip_clear_ipv6_addresses(struct netif *lwip_netif)
+{
+    for (u8_t i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+        netif_ip6_addr_set_state(lwip_netif, i, IP6_ADDR_INVALID);
+    }
+}
+#endif
+
 nsapi_error_t mbed_lwip_bringdown(void)
 {
     // Check if we've connected
@@ -522,13 +535,18 @@ nsapi_error_t mbed_lwip_bringdown(void)
         dhcp_release(&lwip_netif);
         dhcp_stop(&lwip_netif);
         lwip_dhcp = false;
-    } else {
-        netif_set_down(&lwip_netif);
     }
 #endif
 
+    netif_set_down(&lwip_netif);
+
+#if LWIP_IPV6
+    mbed_lwip_clear_ipv6_addresses(&lwip_netif);
+#endif
+
+    sys_sem_free(&lwip_netif_has_addr);
+    sys_sem_new(&lwip_netif_has_addr, 0);
     lwip_connected = false;
-    // TO DO - actually remove addresses from stack, and shut down properly
     return 0;
 }
 
