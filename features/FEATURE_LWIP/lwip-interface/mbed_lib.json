@@ -16,6 +16,10 @@
         "addr-timeout": {
             "help": "On dual stack system how long to wait preferred stack's address in seconds",
             "value": 5
+        },
+        "socket-api": {
+            "help": "Enable the lwip socket API (see lwip/sockets.h) e.g. to aid porting of existing code.  You may also want to \"#define LWIP_COMPAT_SOCKETS 1\" in code using the API.",
+            "value": false
         }
     }
 }
