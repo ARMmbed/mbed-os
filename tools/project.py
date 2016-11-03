@@ -18,6 +18,7 @@ from tools.targets import TARGET_NAMES
 from tools.utils import argparse_filestring_type, argparse_many, args_error
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
+from tools.utils import print_large_string
 from tools.project_api import export_project, get_exporter_toolchain
 from tools.options import extract_profile
 
@@ -189,7 +190,7 @@ def main():
 
     # Only prints matrix of supported IDEs
     if options.supported_ides:
-        print mcu_ide_matrix()
+        print_large_string(mcu_ide_matrix())
         exit(0)
 
     # Only prints matrix of supported IDEs
