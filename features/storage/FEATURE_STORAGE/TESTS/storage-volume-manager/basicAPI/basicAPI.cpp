@@ -56,7 +56,7 @@ static int32_t virtualVolumeCallbackStatus;
 
 #ifndef AVOID_GREENTEA
 // Custom setup handler required for proper Greentea support
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(30, "default_auto");
     // Call the default reporting function
