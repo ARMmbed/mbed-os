@@ -104,7 +104,7 @@ static void mbed_lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u
 /* TCP/IP and Network Interface Initialisation */
 static struct netif lwip_netif;
 static bool lwip_dhcp = false;
-static char lwip_mac_address[NSAPI_MAC_SIZE] = "\0";
+static char lwip_mac_address[NSAPI_MAC_SIZE];
 
 #if !LWIP_IPV4 || !LWIP_IPV6
 static bool all_zeros(const uint8_t *p, int len)
@@ -309,13 +309,13 @@ static void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
 static void mbed_lwip_set_mac_address(void)
 {
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
-    snprintf(lwip_mac_address, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
+    snprintf(lwip_mac_address, NSAPI_MAC_SIZE, "%02x:%02x:%02x:%02x:%02x:%02x",
             MBED_MAC_ADDR_0, MBED_MAC_ADDR_1, MBED_MAC_ADDR_2,
             MBED_MAC_ADDR_3, MBED_MAC_ADDR_4, MBED_MAC_ADDR_5);
 #else
     char mac[6];
     mbed_mac_address(mac);
-    snprintf(lwip_mac_address, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
+    snprintf(lwip_mac_address, NSAPI_MAC_SIZE, "%02x:%02x:%02x:%02x:%02x:%02x",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
 }
