@@ -13,7 +13,10 @@ sys.path.insert(0, ROOT)
 
 from tools.utils import argparse_force_uppercase_type
 import examples_lib as lib
-from examples_lib import SUPPORTED_TOOLCHAINS
+from examples_lib import SUPPORTED_TOOLCHAINS, SUPPORTED_IDES
+
+EXAMPLES = json.load(open(os.path.join(os.path.dirname(__file__),
+                                       "examples.json")))
 
 
 def main():
@@ -27,29 +30,46 @@ def main():
     version_cmd.add_argument("tag")
     version_cmd.set_defaults(fn=do_versionning)
     compile_cmd = subparsers.add_parser("compile")
-    compile_cmd.set_defaults(fn=do_compile)
+    compile_cmd.set_defaults(fn=do_compile),
     compile_cmd.add_argument(
         "toolchains", nargs="*", default=SUPPORTED_TOOLCHAINS,
         type=argparse_force_uppercase_type(SUPPORTED_TOOLCHAINS,
-                                           "toolchain"))
+                                           "toolchain")),
+    export_cmd = subparsers.add_parser("export")
+    export_cmd.set_defaults(fn=do_export),
+    export_cmd.add_argument(
+        "ide", nargs="*", default=SUPPORTED_IDES,
+        type=argparse_force_uppercase_type(SUPPORTED_IDES,
+                                           "ide"))
     args = parser.parse_args()
     config = json.load(open(os.path.join(os.path.dirname(__file__),
                                args.config)))
-
     return args.fn(args, config)
 
-    
+
+def do_export(args, config):
+    """Do export and build step"""
+    results = {}
+    results = lib.export_repos(config, args.ide)
+
+    lib.print_summary(results, export=True)
+    failures = lib.get_num_failures(results, export=True)
+    print("Number of failures = %d" % failures)
+    return failures
+
+
 def do_import(_, config):
     """Do the import step of this process"""
     lib.source_repos(config)
     return 0
+
 
 def do_compile(args, config):
     """Do the compile step"""
     results = {}
     results = lib.compile_repos(config, args.toolchains)
     
-    lib.print_compilation_summary(results)
+    lib.print_summary(results)
     failures = lib.get_num_failures(results)
     print("Number of failures = %d" % failures)
     return failures 

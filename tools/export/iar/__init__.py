@@ -2,12 +2,12 @@ import os
 from os.path import sep, join, exists
 from collections import namedtuple
 from subprocess import Popen, PIPE
-from distutils.spawn import find_executable
+import shutil
 import re
 import sys
 
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter, FailedBuildException
+from tools.export.exporters import Exporter
 import json
 from tools.export.cmsis import DeviceCMSIS
 from multiprocessing import cpu_count
@@ -29,7 +29,8 @@ class IAR(Exporter):
     #iar_definitions.json
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if hasattr(obj, 'device_name') and
-               obj.device_name in IAR_DEFS.keys()]
+               obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains
+               and DeviceCMSIS.check_supported(target)]
 
     SPECIAL_TEMPLATES = {
         'rz_a1h'  : 'iar/iar_rz_a1h.ewp.tmpl',
@@ -120,22 +121,13 @@ class IAR(Exporter):
         self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
         self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
 
-    def build(self):
+    @staticmethod
+    def build(project_name, cleanup=True):
         """ Build IAR project """
         # > IarBuild [project_path] -build [project_name]
-        proj_file = join(self.export_dir, self.project_name + ".ewp")
 
-        if find_executable("IarBuild"):
-            iar_exe = "IarBuild.exe"
-        else:
-            iar_exe = join('C:', sep,
-                          'Program Files (x86)', 'IAR Systems',
-                          'Embedded Workbench 7.5', 'common', 'bin',
-                          'IarBuild.exe')
-            if not exists(iar_exe):
-                raise Exception("IarBuild.exe not found. Add to path.")
-
-        cmd = [iar_exe, proj_file, '-build', self.project_name]
+        proj_file = project_name + ".ewp"
+        cmd = ["IarBuild.exe", proj_file, '-build', project_name]
 
         # IAR does not support a '0' option to automatically use all
         # available CPUs, so we use Python's multiprocessing library
@@ -156,7 +148,14 @@ class IAR(Exporter):
             m = re.match(error_re, line)
             if m is not None:
                 num_errors = int(m.group(1))
+
+        if cleanup:
+            os.remove(project_name + ".ewp")
+            os.remove(project_name + ".ewd")
+            os.remove(project_name + ".eww")
+            shutil.rmtree('.build')
+
         if num_errors !=0:
             # Seems like something went wrong.
-            raise FailedBuildException("Project: %s build failed with %s erros" % (
-            proj_file, num_errors))
+            return -1
+        return 0
