@@ -122,12 +122,11 @@ class IAR(Exporter):
         self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
 
     @staticmethod
-    def build(project_name, cleanup=True):
+    def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build IAR project """
         # > IarBuild [project_path] -build [project_name]
-
         proj_file = project_name + ".ewp"
-        cmd = ["IarBuild.exe", proj_file, '-build', project_name]
+        cmd = ["IarBuild", proj_file, '-build', project_name]
 
         # IAR does not support a '0' option to automatically use all
         # available CPUs, so we use Python's multiprocessing library
@@ -139,23 +138,38 @@ class IAR(Exporter):
         if jobs:
             cmd += ['-parallel', str(jobs)]
 
+        # Build the project
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        num_errors = 0
-        #Parse the output for printing and errors
-        for line in p.stdout.readlines():
-            sys.stdout.write(line)
-            error_re = '\s*Total number of errors:\s*(\d+)\s*'
-            m = re.match(error_re, line)
-            if m is not None:
-                num_errors = int(m.group(1))
+        out, err = p.communicate()
+        ret_code = p.returncode
 
+        out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        out_string += out
+        out_string += "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        out_string += err
+
+        if ret_code == 0:
+            out_string += "SUCCESS"
+        else:
+            out_string += "FAILURE"
+
+        print out_string
+
+        if log_name:
+            # Write the output to the log file
+            with open(log_name, 'w+') as f:
+                f.write(out_string)
+
+        # Cleanup the exported and built files
         if cleanup:
             os.remove(project_name + ".ewp")
             os.remove(project_name + ".ewd")
             os.remove(project_name + ".eww")
-            shutil.rmtree('.build')
+            if exists('.build'):
+                shutil.rmtree('.build')
 
-        if num_errors !=0:
+        if ret_code !=0:
             # Seems like something went wrong.
             return -1
-        return 0
+        else:
+            return 0
