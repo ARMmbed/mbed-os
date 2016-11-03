@@ -419,6 +419,7 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
 
     SystemCoreClockUpdate();
 
+#if 0   // original implementation got 5% inaccuracy.
     u32Value = SystemCoreClock;
 
     if(u32BaudRate * 8 < (u32Value/2)) {
@@ -428,7 +429,26 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
         u8Tseg1 = 2;
         u8Tseg2 = 1;
     }
+#else
+    u32Value = SystemCoreClock / u32BaudRate;
+    /* Fix for most standard baud rates, include 125K */
 
+    u8Tseg1 = 3;
+    u8Tseg2 = 2;
+    while(1)
+    {
+        if(((u32Value % (u8Tseg1 + u8Tseg2 + 3)) == 0) | (u8Tseg1 >= 15))
+            break;
+
+        u8Tseg1++;
+
+        if((u32Value % (u8Tseg1 + u8Tseg2 + 3)) == 0)
+            break;
+
+        if(u8Tseg2 < 7)
+            u8Tseg2++;
+    }
+#endif
     u32Brp  = SystemCoreClock/(u32BaudRate) / (u8Tseg1 + u8Tseg2 + 3) -1;
 
     u32Value = ((uint32_t)u8Tseg2 << CAN_BTIME_TSEG2_Pos) | ((uint32_t)u8Tseg1 << CAN_BTIME_TSEG1_Pos) |

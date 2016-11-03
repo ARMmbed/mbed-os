@@ -123,6 +123,10 @@ struct sleep_s {
     int powerdown;
 };
 
+struct can_s {
+    CANName can;
+    char index; 
+};
 #ifdef __cplusplus
 }
 #endif

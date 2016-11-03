@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     pwm.h
  * @version  V1.00
- * $Revision: 19 $
- * $Date: 14/10/06 1:36p $
+ * $Revision: 22 $
+ * $Date: 15/11/16 2:08p $
  * @brief    NUC472/NUC442 PWM driver header file
  *
  * @note
@@ -29,14 +29,18 @@ extern "C"
   @{
 */
 #define PWM_CHANNEL_NUM                     (6)      /*!< PWM channel number \hideinitializer */
+#define PWM_CH0                             (0UL)    /*!< PWM channel 0  \hideinitializer */
+#define PWM_CH1                             (1UL)    /*!< PWM channel 1  \hideinitializer */
+#define PWM_CH2                             (2UL)    /*!< PWM channel 2  \hideinitializer */
+#define PWM_CH3                             (3UL)    /*!< PWM channel 3  \hideinitializer */
+#define PWM_CH4                             (4UL)    /*!< PWM channel 4  \hideinitializer */
+#define PWM_CH5                             (5UL)    /*!< PWM channel 5  \hideinitializer */
 #define PWM_CH_0_MASK                       (1UL)    /*!< PWM channel 0 mask \hideinitializer */
 #define PWM_CH_1_MASK                       (2UL)    /*!< PWM channel 1 mask \hideinitializer */
 #define PWM_CH_2_MASK                       (4UL)    /*!< PWM channel 2 mask \hideinitializer */
 #define PWM_CH_3_MASK                       (8UL)    /*!< PWM channel 3 mask \hideinitializer */
 #define PWM_CH_4_MASK                       (16UL)   /*!< PWM channel 4 mask \hideinitializer */
 #define PWM_CH_5_MASK                       (32UL)   /*!< PWM channel 5 mask \hideinitializer */
-#define PWM_CH_6_MASK                       (64UL)   /*!< PWM channel 6 mask \hideinitializer */
-#define PWM_CH_7_MASK                       (128UL)  /*!< PWM channel 7 mask \hideinitializer */
 #define PWM_CLK_DIV_1                       (4UL)    /*!< PWM clock divide by 1 \hideinitializer */
 #define PWM_CLK_DIV_2                       (0UL)    /*!< PWM clock divide by 2 \hideinitializer */
 #define PWM_CLK_DIV_4                       (1UL)    /*!< PWM clock divide by 4 \hideinitializer */
@@ -48,10 +52,11 @@ extern "C"
 #define PWM_TRIGGER_ADC_FALLING_EDGE_POINT  (0x10000UL)       /*!< PWM trigger ADC while output falling edge is detected \hideinitializer */
 #define PWM_TRIGGER_ADC_CENTER_POINT        (0x100UL)         /*!< PWM trigger ADC while counter matches (CNR + 1) \hideinitializer */
 #define PWM_TRIGGER_ADC_PERIOD_POINT        (0x1UL)           /*!< PWM trigger ADC while counter down count to 0  \hideinitializer */
-#define PWM_BRK0_BKP0                       (0UL)                          /*!< Brake0 signal source from external pin BKP0 \hideinitializer */
+#define PWM_BRK0_BKP0                       (PWM_BRKCTL_BRK0EN_Msk)                          /*!< Brake0 signal source from external pin BKP0 \hideinitializer */
 #define PWM_BRK0_CPO0                       (PWM_BRKCTL_CPO0BKEN_Msk)      /*!< Brake0 signal source from analog comparator 0 output \hideinitializer */
 #define PWM_BRK0_CPO1                       (PWM_BRKCTL_CPO1BKEN_Msk)      /*!< Brake0 signal source from analog comparator 1 output \hideinitializer */
 #define PWM_BRK0_CPO2                       (PWM_BRKCTL_CPO2BKEN_Msk)      /*!< Brake0 signal source from analog comparator 2 output \hideinitializer */
+#define PWM_BRK1_LVDBK                      (PWM_BRKCTL_LVDBKEN_Msk)     /*!< Brake1 signal source from level detect \hideinitializer */
 #define PWM_BK1SEL_BKP1                     (0UL << PWM_BRKCTL_BK1SEL_Pos) /*!< Brake1 signal source from external pin BKP1 \hideinitializer */
 #define PWM_BK1SEL_CPO0                     (1UL << PWM_BRKCTL_BK1SEL_Pos) /*!< Brake1 signal source from analog comparator 0 output \hideinitializer */
 #define PWM_BK1SEL_CPO1                     (2UL << PWM_BRKCTL_BK1SEL_Pos) /*!< Brake1 signal source from analog comparator 1 output \hideinitializer */
@@ -79,7 +84,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_ENABLE_COMPLEMENTARY_MODE(pwm) (pwm->CTL = pwm->CTL | PWM_CTL_OUTMODE_Msk)
+#define PWM_ENABLE_COMPLEMENTARY_MODE(pwm) ((pwm)->CTL = (pwm)->CTL | PWM_CTL_OUTMODE_Msk)
 
 /**
  * @brief This macro disable complementary mode, and enable independent mode.
@@ -87,7 +92,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_DISABLE_COMPLEMENTARY_MODE(pwm) (pwm->CTL = pwm->CTL & ~PWM_CTL_OUTMODE_Msk)
+#define PWM_DISABLE_COMPLEMENTARY_MODE(pwm) ((pwm)->CTL = (pwm)->CTL & ~PWM_CTL_OUTMODE_Msk)
 
 /**
  * @brief This macro enable group mode
@@ -95,7 +100,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_ENABLE_GROUP_MODE(pwm) (pwm->CTL = pwm->CTL | PWM_CTL_GROUPEN_Msk)
+#define PWM_ENABLE_GROUP_MODE(pwm) ((pwm)->CTL = (pwm)->CTL | PWM_CTL_GROUPEN_Msk)
 
 /**
  * @brief This macro disable group mode
@@ -103,7 +108,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_DISABLE_GROUP_MODE(pwm) (pwm->CTL = pwm->CTL & ~PWM_CTL_GROUPEN_Msk)
+#define PWM_DISABLE_GROUP_MODE(pwm) ((pwm)->CTL = (pwm)->CTL & ~PWM_CTL_GROUPEN_Msk)
 
 /**
  * @brief This macro enable synchronous mode
@@ -111,7 +116,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_ENABLE_SYNC_MODE(pwm) (pwm->CTL = pwm->CTL | PWM_CTL_SYNCEN_Msk)
+#define PWM_ENABLE_SYNC_MODE(pwm) ((pwm)->CTL = (pwm)->CTL | PWM_CTL_SYNCEN_Msk)
 
 /**
  * @brief This macro disable synchronous mode, and enable independent mode.
@@ -119,7 +124,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_DISABLE_SYNC_MODE(pwm) (pwm->CTL = pwm->CTL & ~PWM_CTL_SYNCEN_Msk)
+#define PWM_DISABLE_SYNC_MODE(pwm) ((pwm)->CTL = (pwm)->CTL & ~PWM_CTL_SYNCEN_Msk)
 
 /**
  * @brief This macro enable output inverter of specified channel(s)
@@ -129,7 +134,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_ENABLE_OUTPUT_INVERTER(pwm, u32ChannelMask) (pwm->CTL |= (u32ChannelMask << PWM_CTL_PINV_Pos)
+#define PWM_ENABLE_OUTPUT_INVERTER(pwm, u32ChannelMask) ((pwm)->CTL = (((pwm)->CTL & ~PWM_CTL_PINV_Msk) | ((u32ChannelMask) << PWM_CTL_PINV_Pos)))
 
 /**
  * @brief This macro get captured rising data
@@ -138,7 +143,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_GET_CAPTURE_RISING_DATA(pwm, u32ChannelNum) (*(__IO uint32_t *) (&pwm->RCAPDAT0 + 2 * u32ChannelNum))
+#define PWM_GET_CAPTURE_RISING_DATA(pwm, u32ChannelNum) (*(__IO uint32_t *) (&(pwm)->RCAPDAT0 + 2 * (u32ChannelNum)))
 
 /**
  * @brief This macro get captured falling data
@@ -147,7 +152,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_GET_CAPTURE_FALLING_DATA(pwm, u32ChannelNum) (*(__IO uint32_t *) (&pwm->FCAPDAT0 + 2 * u32ChannelNum))
+#define PWM_GET_CAPTURE_FALLING_DATA(pwm, u32ChannelNum) (*(__IO uint32_t *) (&(pwm)->FCAPDAT0 + 2 * (u32ChannelNum)))
 
 /**
  * @brief This macro mask output output logic to high or low
@@ -158,7 +163,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define PWM_MASK_OUTPUT(pwm, u32ChannelMask, u32LevelMask) (pwm->MSKEN |= u32ChannelMask)
+#define PWM_MASK_OUTPUT(pwm, u32ChannelMask, u32LevelMask) ((pwm)->MSKEN |= (u32ChannelMask))
 
 /**
  * @brief This macro set the prescaler of the selected channel
@@ -171,7 +176,7 @@ extern "C"
  * \hideinitializer
  */
 #define PWM_SET_PRESCALER(pwm, u32ChannelNum, u32Prescaler) \
-    (pwm->CLKPSC = (pwm->CLKPSC & ~(PWM_CLKPSC_CLKPSC01_Msk << (((u32ChannelNum) >> 1) * 8))) | ((u32Prescaler) << (((u32ChannelNum) >> 1) * 8)))
+    (pwm->CLKPSC = ((pwm)->CLKPSC & ~(PWM_CLKPSC_CLKPSC01_Msk << (((u32ChannelNum) >> 1) * 8))) | ((u32Prescaler) << (((u32ChannelNum) >> 1) * 8)))
 
 /**
  * @brief This macro set the divider of the selected channel
@@ -187,7 +192,7 @@ extern "C"
  * \hideinitializer
  */
 #define PWM_SET_DIVIDER(pwm, u32ChannelNum, u32Divider) \
-    (pwm->CLKDIV = (pwm->CLKDIV & ~(PWM_CLKDIV_CLKDIV0_Msk << ((u32ChannelNum) * 4))) | ((u32Divider) << ((u32ChannelNum) * 4)))
+    ((pwm)->CLKDIV = ((pwm)->CLKDIV & ~(PWM_CLKDIV_CLKDIV0_Msk << ((u32ChannelNum) * 4))) | ((u32Divider) << ((u32ChannelNum) * 4)))
 
 /**
  * @brief This macro set the duty of the selected channel
@@ -198,7 +203,7 @@ extern "C"
  * @note This new setting will take effect on next PWM period
  * \hideinitializer
  */
-#define PWM_SET_CMR(pwm, u32ChannelNum, u32CMR) (pwm->CMPDAT[u32ChannelNum] = (u32CMR))
+#define PWM_SET_CMR(pwm, u32ChannelNum, u32CMR) ((pwm)->CMPDAT[(u32ChannelNum)] = (u32CMR))
 
 /**
  * @brief This macro set the period of the selected channel
@@ -210,7 +215,7 @@ extern "C"
  * @note PWM counter will stop if period length set to 0
  * \hideinitializer
  */
-#define PWM_SET_CNR(pwm, u32ChannelNum, u32CNR)  (pwm->PERIOD[u32ChannelNum] = (u32CNR))
+#define PWM_SET_CNR(pwm, u32ChannelNum, u32CNR)  ((pwm)->PERIOD[(u32ChannelNum)] = (u32CNR))
 
 /**
  * @brief This macro set the PWM aligned type
@@ -224,7 +229,11 @@ extern "C"
  * \hideinitializer
  */
 #define PWM_SET_ALIGNED_TYPE(pwm, u32ChannelMask, u32AlignedType) \
-    (pwm->CTL = (pwm->CTL & ~(u32ChannelMask << PWM_CTL_CNTMODE_Pos) | (u32AlignedType << PWM_CTL_CNTMODE_Pos))
+do { \
+    (pwm)->CTL = ((pwm)->CTL & ~PWM_CTL_CNTTYPE_Msk); \
+    if ((u32AlignedType) == PWM_CENTER_ALIGNED) \
+      (pwm)->CTL = ((pwm)->CTL | ((u32ChannelMask) << PWM_CTL_CNTTYPE_Pos)); \
+} while(0)
 
 
 uint32_t PWM_ConfigOutputChannel(PWM_T *pwm,
