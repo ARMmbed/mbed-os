@@ -18,8 +18,8 @@ ifeq (,$(filter .build,$(notdir $(CURDIR))))
 .SUFFIXES:
 OBJDIR := .build
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-MAKETARGET = $(MAKE) --no-print-directory -C $(OBJDIR) -f $(mkfile_path) \
-		SRCDIR=$(CURDIR) $(MAKECMDGOALS)
+MAKETARGET = '$(MAKE)' --no-print-directory -C $(OBJDIR) -f '$(mkfile_path)' \
+		'SRCDIR=$(CURDIR)' $(MAKECMDGOALS)
 .PHONY: $(OBJDIR) clean
 all:
 	+@$(call MAKEDIR,$(OBJDIR))
