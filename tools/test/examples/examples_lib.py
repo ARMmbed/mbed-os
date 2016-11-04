@@ -228,35 +228,36 @@ def get_num_failures(results, export=False):
 
     return num_failures
 
-
-def export_repos(config, ides):
+def export_repos(config, ides, targets, examples):
     """Exports and builds combinations of example programs, targets and IDEs.
 
-           The results are returned in a [key: value] dictionary format:
-           Where key = The example name from the json config file
-                 value = a list containing: pass_status, successes, export failures, build_failures,
-                 and build_skips
+        The results are returned in a [key: value] dictionary format:
+            Where key = The example name from the json config file
+            value = a list containing: pass_status, successes, export failures, build_failures,
+            and build_skips
 
-                 where pass_status = The overall pass status for the export of the full
-                                     set of example programs comprising the example suite.
-                                     (IE they must build and export)
-                                     True if all examples pass, false otherwise
-                       successes = list of examples that exported and built (if possible)
-                                   If the exporter has no build functionality, then it is a pass
-                                   if exported
-                       export_failures = list of examples that failed to export.
-                       build_failures = list of examples that failed to build
-                       build_skips = list of examples that cannot build
+            where pass_status = The overall pass status for the export of the full
+            set of example programs comprising the example suite.
+            IE they must build and export) True if all examples pass, false otherwise
+            successes = list of examples that exported and built (if possible)
+            If the exporter has no build functionality, then it is a pass
+            if exported
+            export_failures = list of examples that failed to export.
+            build_failures = list of examples that failed to build
+            build_skips = list of examples that cannot build
 
-                       Both successes and failures contain the example name, target and IDE
+            Both successes and failures contain the example name, target and IDE
 
-        Args:
-        config - the json object imported from the file.
-        ides - List of IDES to export to
-        """
+            Args:
+            config - the json object imported from the file.
+            ides - List of IDES to export to
+    """
     results = {}
     print("\nExporting example repos....\n")
     for example in config['examples']:
+        if example['name'] not in examples:
+            continue
+
         export_failures = []
         build_failures = []
         build_skips = []
@@ -271,7 +272,7 @@ def export_repos(config, ides):
                 # list of valid combinations to work through
                 for target, ide in target_cross_ide(ides,
                                                     example['features'],
-                                                    example['targets']):
+                                                    example['targets'] or targets):
                     example_name = "{} {} {}".format(example_project_name, target,
                                                      ide)
                     def status(message):
@@ -311,7 +312,7 @@ def export_repos(config, ides):
     return results
 
 
-def compile_repos(config, toolchains):
+def compile_repos(config, toolchains, targets, examples):
     """Compiles combinations of example programs, targets and compile chains.
        
        The results are returned in a [key: value] dictionary format:
@@ -334,7 +335,9 @@ def compile_repos(config, toolchains):
     """
     results = {}
     print("\nCompiling example repos....\n")
-    for example in config['examples']:        
+    for example in config['examples']:
+        if example['name'] not in examples:
+            continue
         failures = []
         successes = []
         compiled = True
@@ -350,7 +353,8 @@ def compile_repos(config, toolchains):
                 # Check that the target, toolchain and features combinations are valid and return a 
                 # list of valid combinations to work through
                 for target, toolchain in target_cross_toolchain(toolchains,
-                                                                example['features'], example['targets']):
+                                                                example['features'],
+                                                                example['targets'] or targets):
                     proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
                                              "-m", target, "--silent"])
                     proc.wait()
@@ -372,7 +376,7 @@ def compile_repos(config, toolchains):
     return results
 
 
-def update_mbedos_version(config, tag):
+def update_mbedos_version(config, tag, example):
     """ For each example repo identified in the config json object, update the version of 
         mbed-os to that specified by the supplied GitHub tag. This function assumes that each
         example repo has already been cloned.
