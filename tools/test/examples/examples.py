@@ -32,7 +32,8 @@ def main():
     parser.add_argument("-c", dest="config", default="examples.json")
     parser.add_argument("-e", "--example",
                         help=("filter the examples used in the script"),
-                        type=argparse_many()
+                        type=argparse_many(lambda x: x),
+                        default = EXAMPLES.keys())
     subparsers = parser.add_subparsers()
     import_cmd = subparsers.add_parser("import")
     import_cmd.set_defaults(fn=do_import)
@@ -55,7 +56,8 @@ def main():
                             metavar="MCU",
                             type=argparse_many(
                                 argparse_force_uppercase_type(
-                                    official_target_names, "MCU")))
+                                    official_target_names, "MCU")),
+                            default=official_target_names)
     export_cmd = subparsers.add_parser("export")
     export_cmd.set_defaults(fn=do_export),
     export_cmd.add_argument(
@@ -68,7 +70,8 @@ def main():
                             metavar="MCU",
                             type=argparse_many(
                                 argparse_force_uppercase_type(
-                                    official_target_names, "MCU")))
+                                    official_target_names, "MCU")),
+                            default=official_target_names)
     args = parser.parse_args()
     config = json.load(open(os.path.join(os.path.dirname(__file__),
                                args.config)))
@@ -78,7 +81,7 @@ def main():
 def do_export(args, config):
     """Do export and build step"""
     results = {}
-    results = lib.export_repos(config, args.ide)
+    results = lib.export_repos(config, args.ide, args.mcu, args.example)
 
     lib.print_summary(results, export=True)
     failures = lib.get_num_failures(results, export=True)
@@ -107,7 +110,7 @@ def do_deploy(_, config):
 def do_compile(args, config):
     """Do the compile step"""
     results = {}
-    results = lib.compile_repos(config, args.toolchains)
+    results = lib.compile_repos(config, args.toolchains, args.mcu, args.example)
     
     lib.print_summary(results)
     failures = lib.get_num_failures(results)
