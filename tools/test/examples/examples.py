@@ -119,7 +119,7 @@ def do_compile(args, config):
     
 def do_versionning(args, config):
     """ Test update the mbed-os to the version specified by the tag """
-    lib.update_mbedos_version(config, args.tag)        
+    lib.update_mbedos_version(config, args.tag, args.example)
     return 0
 
 
