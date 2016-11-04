@@ -221,7 +221,7 @@ def export_repos(config, ides):
                         else:
                             status("SUCCESS building")
                             successes.append(example_name)
-                    os.chdir("..")
+                os.chdir("..")
 
                 if len(build_failures+export_failures) > 0:
                     pass_status= False
