@@ -382,7 +382,7 @@ def compile_repos(config, toolchains, targets, examples):
     return results
 
 
-def update_mbedos_version(config, tag, example):
+def update_mbedos_version(config, tag, examples):
     """ For each example repo identified in the config json object, update the version of 
         mbed-os to that specified by the supplied GitHub tag. This function assumes that each
         example repo has already been cloned.
@@ -394,8 +394,10 @@ def update_mbedos_version(config, tag, example):
     """
     print("Updating mbed-os in examples to version %s\n" % tag)
     for example in config['examples']:
-        for repo_info in get_repo_list(example):
-            update_dir =  basename(repo_info['repo']) + "/mbed-os"
+        if example['name'] not in examples:
+            continue
+        for repo in get_repo_list(example):
+            update_dir =  basename(repo) + "/mbed-os"
             print("\nChanging dir to %s\n" % update_dir)
             os.chdir(update_dir)
             subprocess.call(["mbed-cli", "update", tag, "--clean"])
