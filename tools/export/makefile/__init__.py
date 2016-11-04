@@ -64,14 +64,18 @@ class Makefile(Exporter):
                           == "projectfiles")
                       else [".."]),
             'cc_cmd': " ".join(["\'" + part + "\'" for part
-                                in self.toolchain.cc]),
+                                in ([basename(self.toolchain.cc[0])] +
+                                    self.toolchain.cc[1:])]),
             'cppc_cmd': " ".join(["\'" + part + "\'" for part
-                                  in self.toolchain.cppc]),
+                                  in ([basename(self.toolchain.cppc[0])] +
+                                      self.toolchain.cppc[1:])]),
             'asm_cmd': " ".join(["\'" + part + "\'" for part
-                                 in self.toolchain.asm]),
+                                in ([basename(self.toolchain.asm[0])] +
+                                    self.toolchain.asm[1:])]),
             'ld_cmd': " ".join(["\'" + part + "\'" for part
-                                in self.toolchain.ld]),
-            'elf2bin_cmd': "\'" + self.toolchain.elf2bin + "\'",
+                                in ([basename(self.toolchain.ld[0])] +
+                                    self.toolchain.ld[1:])]),
+            'elf2bin_cmd': "\'" + basename(self.toolchain.elf2bin) + "\'",
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
