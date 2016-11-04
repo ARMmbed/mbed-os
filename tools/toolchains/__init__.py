@@ -256,7 +256,8 @@ class mbedToolchain:
 
     profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
 
-    def __init__(self, target, notify=None, macros=None, silent=False, extra_verbose=False, build_profile=None):
+    def __init__(self, target, notify=None, macros=None, silent=False,
+                 extra_verbose=False, build_profile=None, coverage_filter=[]):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -340,6 +341,11 @@ class mbedToolchain:
 
         # Used by the mbed Online Build System to build in chrooted environment
         self.CHROOT = None
+
+        if type(coverage_filter) != list:
+            raise TypeError("coverage_filter should be of type list.")
+
+        self.coverage_filter = coverage_filter
 
         # Call post __init__() hooks before the ARM/GCC_ARM/IAR toolchain __init__() takes over
         self.init()

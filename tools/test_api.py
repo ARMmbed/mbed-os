@@ -2164,7 +2164,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'build_profile': build_profile,
             'silent': True,
             # Coverage requires main(). So if enabled on any module, enable it on test as well.
-            'coverage_filter': ".*" if coverage_filter else []
+            'coverage_filter': [".*"] if coverage_filter else []
         }
         
         results.append(p.apply_async(build_test_worker, args, kwargs))

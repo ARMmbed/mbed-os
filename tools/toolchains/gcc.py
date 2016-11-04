@@ -38,10 +38,9 @@ class GCC(mbedToolchain):
                  build_profile=None, coverage_filter=[]):
         mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+                               build_profile=build_profile,
+                               coverage_filter=coverage_filter)
 
-        if type(coverage_filter) != list:
-            raise TypeError("coverage_filter should of type list.")
 
         # Add flags for current size setting
         default_lib = "std"
@@ -95,10 +94,11 @@ class GCC(mbedToolchain):
         # Only source files that match regex from coverage_filter list are compiled with coverage flags. Since turning
         # On code coverage on all sources increases static data size it overlaps with stack allocation and causes linker
         # error.
-        self.coverage_filter = coverage_filter
         if self.coverage_filter:
-            self.flags["common"].append("-g")
-            self.flags["common"].append("-O0")
+            if "-g" not in self.flags["common"]:
+                self.flags["common"].append("-g")
+            if "-O0" not in self.flags["common"]:
+                self.flags["common"].append("-O0")
             self.macros.append(self.COVERAGE_MACRO)
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
