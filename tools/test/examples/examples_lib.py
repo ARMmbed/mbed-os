@@ -75,7 +75,13 @@ def print_summary(results, export=False):
 
     print("#")
     print("#"*80)
-    
+
+def valid_targets(allowed_targets, targets):
+    if len(allowed_targets) > 0:
+        return [t for t in targets if t in allowed_targets]
+    else:
+        return targets
+
 
 def target_cross_toolchain(allowed_toolchains,
                            features=[], targets=[]):
@@ -272,7 +278,7 @@ def export_repos(config, ides, targets, examples):
                 # list of valid combinations to work through
                 for target, ide in target_cross_ide(ides,
                                                     example['features'],
-                                                    example['targets'] or targets):
+                                                    valid_targets(example['targets'],targets)):
                     example_name = "{} {} {}".format(example_project_name, target,
                                                      ide)
                     def status(message):
@@ -354,7 +360,7 @@ def compile_repos(config, toolchains, targets, examples):
                 # list of valid combinations to work through
                 for target, toolchain in target_cross_toolchain(toolchains,
                                                                 example['features'],
-                                                                example['targets'] or targets):
+                                                                valid_targets(example['targets'],targets)):
                     proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
                                              "-m", target, "--silent"])
                     proc.wait()
