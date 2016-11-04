@@ -12,6 +12,8 @@ ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
 
 from tools.utils import argparse_force_uppercase_type
+from tools.utils import argparse_many
+from tools.build_api import get_mbed_official_release
 import examples_lib as lib
 from examples_lib import SUPPORTED_TOOLCHAINS, SUPPORTED_IDES
 
@@ -21,8 +23,16 @@ EXAMPLES = json.load(open(os.path.join(os.path.dirname(__file__),
 
 def main():
     """Entry point"""
+
+    official_targets = get_mbed_official_release("5")
+    official_target_names = [x[0] for x in official_targets]
+
+
     parser = ArgumentParser()
     parser.add_argument("-c", dest="config", default="examples.json")
+    parser.add_argument("-e", "--example",
+                        help=("filter the examples used in the script"),
+                        type=argparse_many()
     subparsers = parser.add_subparsers()
     import_cmd = subparsers.add_parser("import")
     import_cmd.set_defaults(fn=do_import)
@@ -39,12 +49,26 @@ def main():
         "toolchains", nargs="*", default=SUPPORTED_TOOLCHAINS,
         type=argparse_force_uppercase_type(SUPPORTED_TOOLCHAINS,
                                            "toolchain")),
+    compile_cmd.add_argument("-m", "--mcu",
+                             help=("build for the given MCU (%s)" %
+                                ', '.join(official_target_names)),
+                            metavar="MCU",
+                            type=argparse_many(
+                                argparse_force_uppercase_type(
+                                    official_target_names, "MCU")))
     export_cmd = subparsers.add_parser("export")
     export_cmd.set_defaults(fn=do_export),
     export_cmd.add_argument(
         "ide", nargs="*", default=SUPPORTED_IDES,
         type=argparse_force_uppercase_type(SUPPORTED_IDES,
                                            "ide"))
+    export_cmd.add_argument("-m", "--mcu",
+                             help=("build for the given MCU (%s)" %
+                                ', '.join(official_target_names)),
+                            metavar="MCU",
+                            type=argparse_many(
+                                argparse_force_uppercase_type(
+                                    official_target_names, "MCU")))
     args = parser.parse_args()
     config = json.load(open(os.path.join(os.path.dirname(__file__),
                                args.config)))
