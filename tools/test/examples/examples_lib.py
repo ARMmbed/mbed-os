@@ -130,34 +130,78 @@ def get_repo_list(example):
 
     Args:
     example - Example for which the repo list is requested
-    repos - The list of repos contained within that example in the json file 
+    repos - The list of repos and types contained within that example in the json file
 
     """
     repos = []
     if len(example['mbed']) > 0:
         for repo in example['mbed']:
-            repos.append(repo)
+            repos.append({
+                'repo': repo,
+                'type': 'hg'
+            })
     else:
-        repos.append(example['github'])
+        repos.append({
+            'repo': example['github'],
+            'type': 'git'
+        })
     return repos
 
 def source_repos(config):
-    """ Clones each of the repos associated with the specific examples name from the 
-        json config file. Note if there is already a clone of the repo then it will first
-        be removed to ensure a clean, up to date cloning.
+    """ Imports each of the repos and its dependencies (.lib files) associated
+        with the specific examples name from the json config file. Note if
+        there is already a clone of the repo then it will first be removed to
+        ensure a clean, up to date cloning.
     Args:
     config - the json object imported from the file. 
 
     """
     print("\nImporting example repos....\n")
     for example in config['examples']:
-        for repo in get_repo_list(example):
-            name = basename(repo)
+        for repo_info in get_repo_list(example):
+            name = basename(repo_info['repo'])
             if os.path.exists(name):
                 print("'%s' example directory already exists. Deleting..." % name)
                 rmtree(name)
         
-            subprocess.call(["mbed-cli", "import", repo])
+            subprocess.call(["mbed-cli", "import", repo_info['repo']])
+
+def clone_repos(config):
+    """ Clones each of the repos associated with the specific examples name from the
+        json config file. Note if there is already a clone of the repo then it will first
+        be removed to ensure a clean, up to date cloning.
+    Args:
+    config - the json object imported from the file.
+
+    """
+    print("\nCloning example repos....\n")
+    for example in config['examples']:
+        for repo_info in get_repo_list(example):
+            name = basename(repo_info['repo'])
+            if os.path.exists(name):
+                print("'%s' example directory already exists. Deleting..." % name)
+                rmtree(name)
+
+            subprocess.call([repo_info['type'], "clone", repo_info['repo']])
+
+def deploy_repos(config):
+    """ If the example directory exists as provided by the json config file,
+        pull in the examples dependencies by using `mbed-cli deploy`.
+    Args:
+    config - the json object imported from the file.
+
+    """
+    print("\nDeploying example repos....\n")
+    for example in config['examples']:
+        for repo_info in get_repo_list(example):
+            name = basename(repo_info['repo'])
+
+            if os.path.exists(name):
+                os.chdir(name)
+                subprocess.call(["mbed-cli", "deploy"])
+                os.chdir("..")
+            else:
+                print("'%s' example directory doesn't exist. Skipping..." % name)
 
 def get_num_failures(results, export=False):
     """ Returns the number of failed compilations from the results summary
@@ -191,8 +235,8 @@ def export_repos(config, ides):
         exported = True
         pass_status = True
         if example['export']:
-            for repo in get_repo_list(example):
-                example_project_name = basename(repo)
+            for repo_info in get_repo_list(example):
+                example_project_name = basename(repo_info['repo'])
                 os.chdir(example_project_name)
                 # Check that the target, IDE, and features combinations are valid and return a
                 # list of valid combinations to work through
@@ -265,8 +309,9 @@ def compile_repos(config, toolchains):
             if len(example['toolchains']) > 0:
                 toolchains = example['toolchains']
             
-            for repo in get_repo_list(example):
-                os.chdir(basename(repo))
+            for repo_info in get_repo_list(example):
+                name = basename(repo_info['repo'])
+                os.chdir(name)
                 
                 # Check that the target, toolchain and features combinations are valid and return a 
                 # list of valid combinations to work through
@@ -275,7 +320,7 @@ def compile_repos(config, toolchains):
                     proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
                                              "-m", target, "--silent"])
                     proc.wait()
-                    example_summary = "{} {} {}".format(basename(repo), target, toolchain)
+                    example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:
                         failures.append(example_summary)
                     else:
@@ -305,8 +350,8 @@ def update_mbedos_version(config, tag):
     """
     print("Updating mbed-os in examples to version %s\n" % tag)
     for example in config['examples']:
-        for repo in get_repo_list(example):
-            update_dir =  basename(repo) + "/mbed-os"
+        for repo_info in get_repo_list(example):
+            update_dir =  basename(repo_info['repo']) + "/mbed-os"
             print("\nChanging dir to %s\n" % update_dir)
             os.chdir(update_dir)
             subprocess.call(["mbed-cli", "update", tag, "--clean"])

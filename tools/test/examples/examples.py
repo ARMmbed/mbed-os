@@ -26,6 +26,10 @@ def main():
     subparsers = parser.add_subparsers()
     import_cmd = subparsers.add_parser("import")
     import_cmd.set_defaults(fn=do_import)
+    clone_cmd = subparsers.add_parser("clone")
+    clone_cmd.set_defaults(fn=do_clone)
+    deploy_cmd = subparsers.add_parser("deploy")
+    deploy_cmd.set_defaults(fn=do_deploy)
     version_cmd = subparsers.add_parser("tag")
     version_cmd.add_argument("tag")
     version_cmd.set_defaults(fn=do_versionning)
@@ -61,6 +65,18 @@ def do_export(args, config):
 def do_import(_, config):
     """Do the import step of this process"""
     lib.source_repos(config)
+    return 0
+
+
+def do_clone(_, config):
+    """Do the clone step of this process"""
+    lib.clone_repos(config)
+    return 0
+
+
+def do_deploy(_, config):
+    """Do the deploy step of this process"""
+    lib.deploy_repos(config)
     return 0
 
 
