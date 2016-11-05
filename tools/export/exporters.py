@@ -1,6 +1,6 @@
 """Just a template for subclassing"""
 import os
-import sys
+from abc import abstractmethod, ABCMeta
 import logging
 from os.path import join, dirname, relpath, basename, realpath
 from itertools import groupby
@@ -10,16 +10,6 @@ import copy
 
 from tools.targets import TARGET_MAP
 
-
-class OldLibrariesException(Exception):
-    """Exception that indicates an export can not complete due to an out of date
-    library version.
-    """
-    pass
-
-class FailedBuildException(Exception):
-    """Exception that indicates that a build failed"""
-    pass
 
 class TargetNotSupportedException(Exception):
     """Indicates that an IDE does not support a particular MCU"""
@@ -42,11 +32,13 @@ class Exporter(object):
     few helper methods for implementing an exporter with either jinja2 or
     progen.
     """
+    __metaclass__ = ABCMeta
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
     NAME = None
     TARGETS = None
     TOOLCHAIN = None
+
 
     def __init__(self, target, export_dir, project_name, toolchain,
                  extra_symbols=None, resources=None):
@@ -119,13 +111,6 @@ class Exporter(object):
             source_files.extend(getattr(self.resources, key))
         return list(set([os.path.dirname(src) for src in source_files]))
 
-    def check_supported(self):
-        """Indicated if this combination of IDE and MCU is supported"""
-        if self.target not in self.TARGETS or \
-           self.TOOLCHAIN not in TARGET_MAP[self.target].supported_toolchains:
-            raise TargetNotSupportedException()
-        return True
-
     def gen_file(self, template_file, data, target_file):
         """Generates a project file from a template using jinja"""
         jinja_loader = FileSystemLoader(
@@ -153,9 +138,36 @@ class Exporter(object):
     def group_project_files(self, sources):
         """Group the source files by their encompassing directory
         Positional Arguments:
-        sources - array of sourc locations
+        sources - array of source locations
 
         Returns a dictionary of {group name: list of source locations}
         """
         data = sorted(sources, key=self.make_key)
         return {k: list(g) for k,g in groupby(data, self.make_key)}
+
+    @staticmethod
+    def build(project_name, log_name='build_log.txt', cleanup=True):
+        """Invoke exporters build command within a subprocess.
+        This method is assumed to be executed at the same level as exporter
+        project files and project source code.
+        See uvision/__init__.py, iar/__init__.py, and makefile/__init__.py for
+        example implemenation.
+
+        Positional Arguments:
+        project_name - the name of the project to build; often required by
+        exporter's build command.
+
+        Keyword Args:
+        log_name - name of the build log to create. Written and printed out,
+        deleted if cleanup = True
+        cleanup - a boolean dictating whether exported project files and
+        build log are removed after build
+
+        Returns -1 on failure and 0 on success
+        """
+        raise NotImplemented("Implement in derived Exporter class.")
+
+    @abstractmethod
+    def generate(self):
+        """Generate an IDE/tool specific project file"""
+        raise NotImplemented("Implement a generate function in Exporter child class")

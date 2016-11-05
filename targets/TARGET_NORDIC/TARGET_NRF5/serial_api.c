@@ -74,6 +74,12 @@
 #define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
 #define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
 
+#ifdef NRF51
+    #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
+#elif defined(NRF52)
+    #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
+#endif
+
 // Required by "retarget.cpp".
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -294,7 +300,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     #if DEVICE_SERIAL_ASYNCH
         nrf_uart_int_enable(UART_INSTANCE, NRF_UART_INT_MASK_ERROR);
     #endif
-        nrf_drv_common_irq_enable(UART_IRQn, APP_IRQ_PRIORITY_LOW);
+        nrf_drv_common_irq_enable(UART_IRQn, NRFx_MBED_UART_IRQ_PRIORITY);
 
         // TX interrupt needs to be signaled when transmitter buffer is empty,
         // so a dummy transmission is needed to get the TXDRDY event initially

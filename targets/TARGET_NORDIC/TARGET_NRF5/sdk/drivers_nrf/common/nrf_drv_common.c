@@ -226,7 +226,11 @@ void nrf_drv_common_irq_enable(IRQn_Type IRQn, uint8_t priority)
 {
 
 #ifdef SOFTDEVICE_PRESENT
-    ASSERT((priority == APP_IRQ_PRIORITY_LOW) || (priority == APP_IRQ_PRIORITY_HIGH));
+    #ifdef NRF51
+            ASSERT((priority == APP_IRQ_PRIORITY_LOW) || (priority == APP_IRQ_PRIORITY_HIGH));
+    #elif defined(NRF52)
+            ASSERT((priority == APP_IRQ_PRIORITY_LOWEST) || (priority == APP_IRQ_PRIORITY_HIGH));
+    #endif    
 #endif
 
     NVIC_SetPriority(IRQn, priority);

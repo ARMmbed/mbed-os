@@ -181,7 +181,11 @@ uint32_t log_uart_init()
                          UART_RX_BUF_SIZE,
                          UART_TX_BUF_SIZE,
                          uart_error_cb,
-                         APP_IRQ_PRIORITY_LOW,
+#ifdef NRF51
+                         APP_IRQ_PRIORITY_LOW
+#elif defined(NRF52)
+                         APP_IRQ_PRIORITY_LOWEST
+#endif
                          err_code);
 
     initialized = true;

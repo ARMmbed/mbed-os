@@ -30,40 +30,51 @@ class DeviceCMSIS():
     """CMSIS Device class
 
     Encapsulates target information retrieved by arm-pack-manager"""
+
+    CACHE = Cache(True, False)
     def __init__(self, target):
-        cache = Cache(True, False)
-
-        t = TARGET_MAP[target]
-        self.core = t.core
-        try:
-            cpu_name = t.device_name
-            target_info = cache.index[cpu_name]
-        # Target does not have device name or pdsc file
-        except:
-            try:
-                # Try to find the core as a generic CMSIS target
-                cpu_name = self.cpu_cmsis()
-                target_info = cache.index[cpu_name]
-            except:
-                raise TargetNotSupportedException("Target not in CMSIS packs")
-
-        self.target_info = target_info
-
+        target_info = self.check_supported(target)
+        if not target_info:
+            raise TargetNotSupportedException("Target not supported in CMSIS pack")
         self.url = target_info['pdsc_file']
         self.pack_url, self.pack_id = ntpath.split(self.url)
-        self.dname = cpu_name
+        self.dname = target_info["_cpu_name"]
+        self.core = target_info["_core"]
         self.dfpu = target_info['processor']['fpu']
         self.debug, self.dvendor = self.vendor_debug(target_info['vendor'])
         self.dendian = target_info['processor'].get('endianness','Little-endian')
         self.debug_svd = target_info.get('debug', '')
         self.compile_header = target_info['compile']['header']
+        self.target_info = target_info
 
-    def check_version(self, filename):
-        with open(filename) as data_file:
-            data = json.load(data_file)
-            return data.get("version", "0") == "0.1.0"
+    @staticmethod
+    def check_supported(target):
+        t = TARGET_MAP[target]
+        try:
+            cpu_name = t.device_name
+            target_info = DeviceCMSIS.CACHE.index[cpu_name]
+        # Target does not have device name or pdsc file
+        except:
+            try:
+                # Try to find the core as a generic CMSIS target
+                cpu_name = DeviceCMSIS.cpu_cmsis(t.core)
+                target_info = DeviceCMSIS.index[cpu_name]
+            except:
+                return False
+        target_info["_cpu_name"] = cpu_name
+        target_info["_core"] = t.core
+        return target_info
 
     def vendor_debug(self, vendor):
+        """Reads the vendor from a PDSC <dvendor> tag.
+        This tag contains some additional numeric information that is meaningless
+        for our purposes, so we use a regex to filter.
+
+        Positional arguments:
+        Vendor - information in <dvendor> tag scraped from ArmPackManager
+
+        Returns a tuple of (debugger, vendor)
+        """
         reg = "([\w\s]+):?\d*?"
         m = re.search(reg, vendor)
         vendor_match = m.group(1) if m else None
@@ -74,9 +85,15 @@ class DeviceCMSIS():
         }
         return debug_map.get(vendor_match, "CMSIS-DAP"), vendor_match
 
-    def cpu_cmsis(self):
-        #Cortex-M4F => ARMCM4_FP, Cortex-M0+ => ARMCM0P
-        cpu = self.core
+    @staticmethod
+    def cpu_cmsis(cpu):
+        """
+        Transforms information from targets.json to the way the generic cores are named
+        in CMSIS PDSC files.
+        Ex:
+        Cortex-M4F => ARMCM4_FP, Cortex-M0+ => ARMCM0P
+        Returns formatted CPU
+        """
         cpu = cpu.replace("Cortex-","ARMC")
         cpu = cpu.replace("+","P")
         cpu = cpu.replace("F","_FP")
@@ -120,7 +137,6 @@ class CMSIS(Exporter):
         return root_element
 
     def generate(self):
-
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries + \

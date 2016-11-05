@@ -31,11 +31,13 @@
 #define DNS_SERVERS_SIZE 5
 
 nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
-    {NSAPI_IPv4, {8, 8, 8, 8}},
-    {NSAPI_IPv4, {209, 244, 0, 3}},
-    {NSAPI_IPv4, {84, 200, 69, 80}},
-    {NSAPI_IPv4, {8, 26, 56, 26}},
-    {NSAPI_IPv4, {208, 67, 222, 222}},
+    {NSAPI_IPv4, {8, 8, 8, 8}},                             // Google
+    {NSAPI_IPv4, {209, 244, 0, 3}},                         // Level 3
+    {NSAPI_IPv4, {84, 200, 69, 80}},                        // DNS.WATCH
+    {NSAPI_IPv6, {0x20,0x01, 0x48,0x60, 0x48,0x60, 0,0,     // Google
+                  0,0, 0,0, 0,0, 0x88,0x88}},
+    {NSAPI_IPv6, {0x20,0x01, 0x16,0x08, 0,0x10, 0,0x25,     // DNS.WATCH
+                  0,0, 0,0, 0x1c,0x04, 0xb1,0x2f}},
 };
 
 // DNS server configuration
@@ -226,11 +228,9 @@ static int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
         dns_append_question(&question, host, version);
 
         err = socket.sendto(SocketAddress(dns_servers[i], 53), packet, DNS_BUFFER_SIZE);
-        if (err == NSAPI_ERROR_WOULD_BLOCK) {
+        // send may fail for various reasons, including wrong address type - move on
+        if (err < 0) {
             continue;
-        } else if (err < 0) {
-            result = err;
-            break;
         }
 
         // recv the response
