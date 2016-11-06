@@ -22,6 +22,7 @@
 #include "mbed_events.h"
 
 #include "rtos.h"
+#include "cmsis_os.h"
 #include "emac_api.h"
 #include "nsapi_types.h"
 #include "lwip/netif.h"
@@ -211,8 +212,9 @@ private:
     int32_t target_id;
     // Event queue for sending start up and connection events from driver to this class
     MsgQueue _event_queue;
-    // Event queue for sending scan events from driver to this class
-    MsgQueue _scan_event_queue;    
+    // Message queue for sending scan events from driver to this class
+    osMessageQId _scan_msg_queue_id;
+    osMessageQDef_t _queue_def;
 };
 
 #endif
