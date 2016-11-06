@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:model="http://www.silabs.com/sls/IDE.ecore" name="{{ name }}" kitCompatibility="{{ kit }}"
+																		  partCompatibility="{{ part }}"
+																		  toolchainCompatibility="com.silabs.ide.si32.gcc:4.8.3.20131129"
+																		  sdkCompatibility="com.silabs.sdk.si32.efm32"
+																		  propertyScope="project"
+																		  contentRoot=".">
+{# Hierarchically include all folders into the project #}
+  {%- for child in recursiveFolders.children recursive %}
+  <folder name="{{ child.name }}" uri="{{ child.name }}" includeAllFiles="true" includeAllFolders="true">
+    {%- if child.children -%}
+    {{ loop(child.children) }}
+    {%- endif %}
+  </folder>
+  {%- endfor %}
+
+{# Include all source files not belonging to a subfolder separately #}
+  {%- for file in main_files -%}
+  <file name = "{{ file }}" uri = "file:./{{ file }}" partCompatibility = ""/>
+  {%- endfor %}
+  {%- if include_root %}
+  <file name = "mbed_config.h" uri = "file:./mbed_config.h" partCompatibility = ""/>
+  {%- endif %}
+
+  <sourceFolder></sourceFolder>
+  <model:property key="cppProjectCommon.languageId" value="org.eclipse.cdt.core.g++"/>
+  <model:property key="projectCommon.buildArtifactType" value="EXE"/>
+  <configuration name="com.silabs.ide.si32.gcc.debug#com.silabs.ide.si32.gcc:4.8.3.20131129" label="GNU ARM v4.8.3 - Debug" stockConfigCompatibility="com.silabs.ide.toolchain.core.debug">
+    <model:description></model:description>
+{# Add all include paths to the managed build compiler, paths relative to project #}
+    {%- if include_root %}
+    <includePath languageCompatibility="c cpp" uri="."/>
+    {%- endif %}
+    {%- for path in include_paths %}
+    <includePath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
+    {%- endfor %}
+{# Add all mbed-defined #Defines for the preprocessor #}
+    {%- for define, value in defines %}
+    <macroDefinition languageCompatibility="c cpp" name="{{ define }}" value="{{ value }}"/>
+    {%- endfor %}
+{# Include all standard libraries that mbed requires #}
+    <macroDefinition languageCompatibility="c cpp" name="DEBUG" value="1"/>
+    <libraryFile languageCompatibility="c" name="stdc++"/>
+    <libraryFile languageCompatibility="c" name="supc++"/>
+    <libraryFile languageCompatibility="c" name="m"/>
+    <libraryFile languageCompatibility="c" name="nosys"/>
+    <libraryFile languageCompatibility="c" name="c"/>
+    <libraryFile languageCompatibility="c" name="gcc"/>
+{# Include exported libraries #}
+    {%- for library in libraries %}
+    <libraryFile languageCompatibility="c cpp" name="{{ library }}"/>
+    {%- endfor %}
+{# Add library search paths #}
+    {%- for path in library_paths %}
+    <libraryPath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
+    {%- endfor %}
+{# Add in separate object files if needed #}
+    {%- if object_files %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.userobjs" value="
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}}{% if not loop.last %} {% endif %}
+    {%- endfor -%}"/>
+    {%- endif %}
+{# Manually override linker ordering #}
+    {%- if libraries %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.category.ordering.selection" value="
+    {%- if object_files -%}
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}};
+    {%- endfor -%}
+    {%- endif -%}
+    {%- for library in libraries -%}
+    ${-l{{ library }}}{% if not loop.last %};{% endif %}
+    {%- endfor -%}"/>
+    {%- endif %}
+{# Define mbed-specific linker file #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
+{# Make sure to wrap main in order to get clock initialization done right #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="{{ld_flags|join(" ")}}"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="{{ld_flags|join(" ")}}"/>
+{# For debug build, don't apply optimizations #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.misc.other" value="-c {{common_flags|join(" ")}} {{c_flags|join(" ")}}"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c {{common_flags|join(" ")}} {{cxx_flags|join(" ")}}"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect.default"/>
+  </configuration>
+  <configuration name="com.silabs.ide.si32.gcc.release#com.silabs.ide.si32.gcc:4.8.3.20131129" label="GNU ARM v4.8.3 - Release" stockConfigCompatibility="com.silabs.ide.toolchain.core.release">
+    <model:description></model:description>
+{# Add all include paths to the managed build compiler, paths relative to project #}
+    {%- if include_root %}
+    <includePath languageCompatibility="c cpp" uri="."/>
+    {%- endif %}
+    {%- for path in include_paths %}
+    <includePath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
+    {%- endfor %}
+{# Add all mbed-defined #Defines for the preprocessor #}
+    {%- for define, value in defines %}
+    <macroDefinition languageCompatibility="c cpp" name="{{ define }}" value="{{ value }}"/>
+    {%- endfor %}
+{# Include all standard libraries that mbed requires #}
+    <libraryFile languageCompatibility="c" name="stdc++"/>
+    <libraryFile languageCompatibility="c" name="supc++"/>
+    <libraryFile languageCompatibility="c" name="m"/>
+    <libraryFile languageCompatibility="c" name="nosys"/>
+    <libraryFile languageCompatibility="c" name="c"/>
+    <libraryFile languageCompatibility="c" name="gcc"/>
+{# Include exported libraries #}
+    {%- for library in libraries %}
+    <libraryFile languageCompatibility="c cpp" name="{{ library }}"/>
+    {%- endfor %}
+{# Add library search paths #}
+    {%- for path in library_paths %}
+    <libraryPath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
+    {%- endfor %}
+{# Add in separate object files if needed #}
+    {%- if object_files %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.userobjs" value="
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}}{% if not loop.last %} {% endif %}
+    {%- endfor -%}"/>
+    {%- endif %}
+{# Manually override linker ordering #}
+    {%- if libraries %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.category.ordering.selection" value="
+    {%- if object_files -%}
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}};
+    {%- endfor -%}
+    {%- endif -%}
+    {%- for library in libraries -%}{% if not loop.last %};{% endif %}
+    ${-l{{ library }}}
+    {%- endfor -%}"/>
+    {%- endif %}
+{# Define mbed-specific linker file #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
+{# Make sure to wrap main in order to get clock initialization done right #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="{{ld_flags|join(" ")}}"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="{{ld_flags|join(" ")}}"/>
+{# Use optimize for size on release build #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.size"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.misc.other" value="-c {{common_flags|join(" ")}} {{c_flags|join(" ")}}"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.size"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c {{common_flags|join(" ")}} {{cxx_flags|join(" ")}}"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect.default"/>
+  </configuration>
+</project>

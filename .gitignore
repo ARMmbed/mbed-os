@@ -7,10 +7,13 @@ dist
 MANIFEST
 
 # Private settings
-private_settings.py
+mbed_settings.py
 
 # Default Build Directory
-build/
+.build/
+BUILD/
+.mbed
+venv/
 
 # Eclipse Project Files
 .cproject
@@ -32,8 +35,6 @@ var
 sdist
 develop-eggs
 .installed.cfg
-lib
-lib64
 
 # Installer logs
 pip-log.txt

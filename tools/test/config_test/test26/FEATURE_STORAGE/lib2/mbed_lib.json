@@ -1,0 +1,8 @@
+{
+    "name": "lib2",
+    "config": {
+        "test": {
+            "value": "BAD"
+        }
+    }
+}

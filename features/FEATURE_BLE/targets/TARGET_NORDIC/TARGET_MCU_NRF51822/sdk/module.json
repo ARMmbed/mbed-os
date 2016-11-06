@@ -1,0 +1,51 @@
+{
+  "name": "nrf51-sdk",
+  "version": "2.4.0",
+  "description": "Module to contain files provided by the nordic nRF51 SDK",
+  "keywords": [
+    "nordic",
+    "nrf51",
+    "sdk"
+  ],
+  "author": "",
+  "repository": {
+    "url": "git@github.com:ARMmbed/nrf51-sdk.git",
+    "type": "git"
+  },
+  "license": "nordic",
+  "targetDependencies": {
+    "mbed-classic": {
+      "mbed-classic": "~0.0.1"
+    },
+    "mbed-os": {
+      "mbed-drivers": "*"
+    }
+  },
+  "extraIncludes": [
+    "source/nordic_sdk/components/ble/ble_radio_notification",
+    "source/nordic_sdk/components/ble/ble_services/ble_dfu",
+    "source/nordic_sdk/components/ble/common",
+    "source/nordic_sdk/components/ble/device_manager",
+    "source/nordic_sdk/components/ble/device_manager/config",
+    "source/nordic_sdk/components/ble/peer_manager",
+    "source/nordic_sdk/components/device",
+    "source/nordic_sdk/components/drivers_nrf/ble_flash",
+    "source/nordic_sdk/components/drivers_nrf/delay",
+    "source/nordic_sdk/components/drivers_nrf/hal",
+    "source/nordic_sdk/components/drivers_nrf/pstorage",
+    "source/nordic_sdk/components/drivers_nrf/pstorage/config",
+    "source/nordic_sdk/components/libraries/bootloader_dfu",
+    "source/nordic_sdk/components/libraries/bootloader_dfu/hci_transport",
+    "source/nordic_sdk/components/libraries/crc16",
+    "source/nordic_sdk/components/libraries/hci",
+    "source/nordic_sdk/components/libraries/scheduler",
+    "source/nordic_sdk/components/libraries/timer",
+    "source/nordic_sdk/components/libraries/util",
+    "source/nordic_sdk/components/libraries/fds",
+    "source/nordic_sdk/components/libraries/fstorage",
+    "source/nordic_sdk/components/libraries/experimental_section_vars",
+    "source/nordic_sdk/components/softdevice/common/softdevice_handler",
+    "source/nordic_sdk/components/softdevice/s130/headers",
+    "source/nordic_sdk/components/toolchain"
+  ]
+}

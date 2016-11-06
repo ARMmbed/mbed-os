@@ -1,0 +1,20 @@
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{{solution_uuid}}") = "{{name}}", "{{name}}.cppproj", "{{project_uuid}}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{{project_uuid}}.Debug|ARM.ActiveCfg = Debug|ARM
+		{{project_uuid}}.Debug|ARM.Build.0 = Debug|ARM
+		{{project_uuid}}.Release|ARM.ActiveCfg = Release|ARM
+		{{project_uuid}}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
