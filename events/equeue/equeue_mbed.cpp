@@ -38,8 +38,10 @@ static void equeue_tick_update() {
 }
 
 static void equeue_tick_init() {
-    MBED_ASSERT(sizeof(equeue_timer) >= sizeof(Timer));
-    MBED_ASSERT(sizeof(equeue_ticker) >= sizeof(Ticker));
+    MBED_STATIC_ASSERT(sizeof(equeue_timer) >= sizeof(Timer),
+            "The equeue_timer buffer must fit the class Timer");
+    MBED_STATIC_ASSERT(sizeof(equeue_ticker) >= sizeof(Ticker),
+            "The equeue_ticker buffer must fit the class Ticker");
     new (equeue_timer) Timer;
     new (equeue_ticker) Ticker;
 
@@ -78,7 +80,8 @@ void equeue_mutex_unlock(equeue_mutex_t *m) {
 #ifdef MBED_CONF_RTOS_PRESENT
 
 int equeue_sema_create(equeue_sema_t *s) {
-    MBED_ASSERT(sizeof(equeue_sema_t) >= sizeof(Semaphore));
+    MBED_STATIC_ASSERT(sizeof(equeue_sema_t) >= sizeof(Semaphore),
+            "The equeue_sema_t must fit the class Semaphore");
     new (s) Semaphore(0);
     return 0;
 }

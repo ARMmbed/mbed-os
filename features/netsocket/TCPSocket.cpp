@@ -34,10 +34,10 @@ nsapi_protocol_t TCPSocket::get_proto()
     return NSAPI_TCP;
 }
 
-int TCPSocket::connect(const SocketAddress &address)
+nsapi_error_t TCPSocket::connect(const SocketAddress &address)
 {
     _lock.lock();
-    int ret;
+    nsapi_error_t ret;
 
     if (!_socket) {
         ret = NSAPI_ERROR_NO_SOCKET;
@@ -49,10 +49,10 @@ int TCPSocket::connect(const SocketAddress &address)
     return ret;
 }
 
-int TCPSocket::connect(const char *host, uint16_t port)
+nsapi_error_t TCPSocket::connect(const char *host, uint16_t port)
 {
     SocketAddress address;
-    int err = _stack->gethostbyname(host, &address);
+    nsapi_error_t err = _stack->gethostbyname(host, &address);
     if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
@@ -63,10 +63,10 @@ int TCPSocket::connect(const char *host, uint16_t port)
     return connect(address);
 }
 
-int TCPSocket::send(const void *data, unsigned size)
+nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
 {
     _lock.lock();
-    int ret;
+    nsapi_size_or_error_t ret;
 
     // If this assert is hit then there are two threads
     // performing a send at the same time which is undefined
@@ -81,7 +81,7 @@ int TCPSocket::send(const void *data, unsigned size)
         }
 
         _pending = 0;
-        int sent = _stack->socket_send(_socket, data, size);
+        nsapi_size_or_error_t sent = _stack->socket_send(_socket, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             ret = sent;
             break;
@@ -107,10 +107,10 @@ int TCPSocket::send(const void *data, unsigned size)
     return ret;
 }
 
-int TCPSocket::recv(void *data, unsigned size)
+nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
 {
     _lock.lock();
-    int ret;
+    nsapi_size_or_error_t ret;
 
     // If this assert is hit then there are two threads
     // performing a recv at the same time which is undefined
@@ -125,7 +125,7 @@ int TCPSocket::recv(void *data, unsigned size)
         }
 
         _pending = 0;
-        int recv = _stack->socket_recv(_socket, data, size);
+        nsapi_size_or_error_t recv = _stack->socket_recv(_socket, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
             break;

@@ -37,7 +37,7 @@
  *  @return         0 on success, negative error code on failure
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
-int nsapi_dns_query(nsapi_stack_t *stack, const char *host,
+nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
         nsapi_addr_t *addr, nsapi_version_t version);
 
 /** Query a domain name server for multiple IP address of a given hostname
@@ -50,15 +50,15 @@ int nsapi_dns_query(nsapi_stack_t *stack, const char *host,
  *  @return           Number of addresses found on success, negative error code on failure
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
-int nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, unsigned addr_count, nsapi_version_t version);
+nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
+        nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version);
 
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
  *  @return         0 on success, negative error code on failure
  */
-int nsapi_dns_add_server(nsapi_addr_t addr);
+nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr);
 
 
 #else
@@ -73,7 +73,7 @@ int nsapi_dns_add_server(nsapi_addr_t addr);
  *  @return         0 on success, negative error code on failure
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
-int nsapi_dns_query(NetworkStack *stack, const char *host,
+nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
         SocketAddress *addr, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for an IP address of a given hostname
@@ -85,7 +85,7 @@ int nsapi_dns_query(NetworkStack *stack, const char *host,
  *  @return         0 on success, negative error code on failure
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
-extern "C" int nsapi_dns_query(nsapi_stack_t *stack, const char *host,
+extern "C" nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
         nsapi_addr_t *addr, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for an IP address of a given hostname
@@ -98,7 +98,7 @@ extern "C" int nsapi_dns_query(nsapi_stack_t *stack, const char *host,
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 template <typename S>
-int nsapi_dns_query(S *stack, const char *host,
+nsapi_error_t nsapi_dns_query(S *stack, const char *host,
         SocketAddress *addr, nsapi_version_t version = NSAPI_IPv4)
 {
     return nsapi_dns_query(nsapi_create_stack(stack), host, addr, version);
@@ -114,8 +114,8 @@ int nsapi_dns_query(S *stack, const char *host,
  *  @return           Number of addresses found on success, negative error code on failure
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
-int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
-        SocketAddress *addr, unsigned addr_count, nsapi_version_t version = NSAPI_IPv4);
+nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
+        SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for multiple IP address of a given hostname
  *
@@ -127,8 +127,8 @@ int nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
  *  @return           Number of addresses found on success, negative error code on failure
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
-extern "C" int nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, unsigned addr_count, nsapi_version_t version = NSAPI_IPv4);
+extern "C" nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
+        nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for multiple IP address of a given hostname
  *
@@ -141,8 +141,8 @@ extern "C" int nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 template <typename S>
-int nsapi_dns_query_multiple(S *stack, const char *host,
-        SocketAddress *addr, unsigned addr_count, nsapi_version_t version = NSAPI_IPv4)
+nsapi_size_or_error_t nsapi_dns_query_multiple(S *stack, const char *host,
+        SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4)
 {
     return nsapi_dns_query_multiple(nsapi_create_stack(stack),
                 host, addr, addr_count, version);
@@ -153,14 +153,14 @@ int nsapi_dns_query_multiple(S *stack, const char *host,
  *  @param addr     Destination for the host address
  *  @return         0 on success, negative error code on failure
  */
-extern "C" int nsapi_dns_add_server(nsapi_addr_t addr);
+extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr);
 
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
  *  @return         0 on success, negative error code on failure
  */
-static inline int nsapi_dns_add_server(const SocketAddress &address)
+static inline nsapi_error_t nsapi_dns_add_server(const SocketAddress &address)
 {
     return nsapi_dns_add_server(address.get_addr());
 }
@@ -170,7 +170,7 @@ static inline int nsapi_dns_add_server(const SocketAddress &address)
  *  @param addr     Destination for the host address
  *  @return         0 on success, negative error code on failure
  */
-static inline int nsapi_dns_add_server(const char *address)
+static inline nsapi_error_t nsapi_dns_add_server(const char *address)
 {
     return nsapi_dns_add_server(SocketAddress(address));
 }

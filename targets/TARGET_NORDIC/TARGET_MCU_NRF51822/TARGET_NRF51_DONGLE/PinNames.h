@@ -91,6 +91,7 @@ typedef enum {
     P0_25 = p25,
     P0_28 = p28,
     P0_29 = p29,
+    P0_30 = p30,
 
     LED1    = p21,
     LED2    = p22,
