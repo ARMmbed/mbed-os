@@ -2,7 +2,7 @@
  * Nuvoton NUC472 GCC linker script file
  */
 
-StackSize = 0x1000;
+StackSize = 0x800;
 
 MEMORY
 {
