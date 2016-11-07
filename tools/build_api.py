@@ -25,6 +25,7 @@ from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException
+from tools.settings import ROOT
 from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
     MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
@@ -35,6 +36,7 @@ from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from tools.config import Config
+from tools.legacy_profiles import get_toolchain_profile, find_build_profile
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -307,6 +309,14 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
+
+    profile_version = [find_build_profile(path) for path in src_paths]
+    new_profile = None
+    for version in profile_version:
+        new_profile = get_toolchain_profile(toolchain_name, version)
+        break
+    if new_profile:
+        build_profile = new_profile
 
     # Toolchain instance
     try:
