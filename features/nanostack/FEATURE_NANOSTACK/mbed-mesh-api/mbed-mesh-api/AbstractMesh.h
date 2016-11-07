@@ -19,12 +19,6 @@
 
 #include "AbstractNetworkInterface.h"
 #include "mbed.h"
-#ifdef YOTTA_CFG
-#include "core-util/FunctionPointer.h"
-
-using namespace mbed;
-using namespace mbed::util;
-#endif
 
 /**
  * \brief Abstract Mesh networking interface.
@@ -38,11 +32,7 @@ public:
     /**
      * Typedef for network callback
      */
-#ifdef YOTTA_CFG
-    typedef FunctionPointer1<void, mesh_connection_status_t> mesh_network_handler_t;
-#else
     typedef FunctionPointerArg1<void, mesh_connection_status_t> mesh_network_handler_t;
-#endif
 
     /**
      * Constructor
