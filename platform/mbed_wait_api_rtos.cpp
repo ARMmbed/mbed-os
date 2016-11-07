@@ -37,13 +37,10 @@ void wait_us(int us) {
     int ms = us / 1000;
     if ((ms > 0) && core_util_are_interrupts_enabled()) {
         Thread::wait((uint32_t)ms);
-        us -= ms * 1000;
     }
     // Use busy waiting for sub-millisecond delays, or for the whole
     // interval if interrupts are not enabled
-    if (us > 0) {
-        while((us_ticker_read() - start) < (uint32_t)us);
-    }
+    while ((us_ticker_read() - start) < (uint32_t)us);
 }
 
 #endif // #if MBED_CONF_RTOS_PRESENT
