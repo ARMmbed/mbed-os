@@ -46,7 +46,8 @@ public:
      *  @param gateway  Null-terminated representation of the local gateway
      *  @return         0 on success, negative error code on failure
      */
-    virtual int set_network(const char *ip_address, const char *netmask, const char *gateway);
+    virtual nsapi_error_t set_network(
+            const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -55,17 +56,17 @@ public:
      *  @param dhcp     False to disable dhcp (defaults to enabled)
      *  @return         0 on success, negative error code on failure
      */
-    virtual int set_dhcp(bool dhcp);
+    virtual nsapi_error_t set_dhcp(bool dhcp);
 
     /** Start the interface
      *  @return             0 on success, negative on failure
      */
-    virtual int connect();
+    virtual nsapi_error_t connect();
 
     /** Stop the interface
      *  @return             0 on success, negative on failure
      */
-    virtual int disconnect();
+    virtual nsapi_error_t disconnect();
 
     /** Get the local MAC address
      *

@@ -74,7 +74,8 @@ public:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    int sendto(const char *host, uint16_t port, const void *data, unsigned size);
+    nsapi_size_or_error_t sendto(const char *host, uint16_t port,
+            const void *data, nsapi_size_t size);
 
     /** Send a packet over a UDP socket
      *
@@ -91,7 +92,8 @@ public:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    int sendto(const SocketAddress &address, const void *data, unsigned size);
+    nsapi_size_or_error_t sendto(const SocketAddress &address,
+            const void *data, nsapi_size_t size);
 
     /** Receive a packet over a UDP socket
      *
@@ -108,7 +110,8 @@ public:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    int recvfrom(SocketAddress *address, void *data, unsigned size);
+    nsapi_size_or_error_t recvfrom(SocketAddress *address,
+            void *data, nsapi_size_t size);
 
 protected:
     virtual nsapi_protocol_t get_proto();

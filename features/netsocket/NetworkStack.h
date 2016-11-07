@@ -58,14 +58,15 @@ public:
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
      *  @return         0 on success, negative error code on failure
      */
-    virtual int gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+    virtual nsapi_error_t gethostbyname(const char *host,
+            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Add a domain name server to list of servers to query
      *
      *  @param addr     Destination for the host address
      *  @return         0 on success, negative error code on failure
      */
-    virtual int add_dns_server(const SocketAddress &address);
+    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
 
     /*  Set stack-specific stack options
      *
@@ -79,7 +80,7 @@ public:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual int setstackopt(int level, int optname, const void *optval, unsigned optlen);
+    virtual nsapi_error_t setstackopt(int level, int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific stack options
      *
@@ -93,7 +94,7 @@ public:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual int getstackopt(int level, int optname, void *optval, unsigned *optlen);
+    virtual nsapi_error_t getstackopt(int level, int optname, void *optval, unsigned *optlen);
 
 protected:
     friend class Socket;
@@ -113,7 +114,7 @@ protected:
      *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto) = 0;
+    virtual nsapi_error_t socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto) = 0;
 
     /** Close the socket
      *
@@ -123,7 +124,7 @@ protected:
      *  @param handle   Socket handle
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_close(nsapi_socket_t handle) = 0;
+    virtual nsapi_error_t socket_close(nsapi_socket_t handle) = 0;
 
     /** Bind a specific address to a socket
      *
@@ -134,7 +135,7 @@ protected:
      *  @param address  Local address to bind
      *  @return         0 on success, negative error code on failure.
      */
-    virtual int socket_bind(nsapi_socket_t handle, const SocketAddress &address) = 0;
+    virtual nsapi_error_t socket_bind(nsapi_socket_t handle, const SocketAddress &address) = 0;
 
     /** Listen for connections on a TCP socket
      *
@@ -146,7 +147,7 @@ protected:
      *                  simultaneously
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_listen(nsapi_socket_t handle, int backlog) = 0;
+    virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog) = 0;
 
     /** Connects TCP socket to a remote host
      *
@@ -157,7 +158,7 @@ protected:
      *  @param address  The SocketAddress of the remote host
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_connect(nsapi_socket_t handle, const SocketAddress &address) = 0;
+    virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address) = 0;
 
     /** Accepts a connection on a TCP socket
      *
@@ -177,7 +178,8 @@ protected:
      *  @param address  Destination for the remote address or NULL
      *  @return         0 on success, negative error code on failure
      */
-    virtual int socket_accept(nsapi_socket_t server, nsapi_socket_t *handle, SocketAddress *address=0) = 0;
+    virtual nsapi_error_t socket_accept(nsapi_socket_t server,
+            nsapi_socket_t *handle, SocketAddress *address=0) = 0;
 
     /** Send data over a TCP socket
      *
@@ -193,7 +195,8 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_send(nsapi_socket_t handle, const void *data, unsigned size) = 0;
+    virtual nsapi_size_or_error_t socket_send(nsapi_socket_t handle,
+            const void *data, nsapi_size_t size) = 0;
 
     /** Receive data over a TCP socket
      *
@@ -209,7 +212,8 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_recv(nsapi_socket_t handle, void *data, unsigned size) = 0;
+    virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t handle,
+            void *data, nsapi_size_t size) = 0;
 
     /** Send a packet over a UDP socket
      *
@@ -226,7 +230,8 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_sendto(nsapi_socket_t handle, const SocketAddress &address, const void *data, unsigned size) = 0;
+    virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
+            const void *data, nsapi_size_t size) = 0;
 
     /** Receive a packet over a UDP socket
      *
@@ -243,7 +248,8 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual int socket_recvfrom(nsapi_socket_t handle, SocketAddress *address, void *buffer, unsigned size) = 0;
+    virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
+            void *buffer, nsapi_size_t size) = 0;
 
     /** Register a callback on state change of the socket
      *
@@ -273,7 +279,8 @@ protected:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual int setsockopt(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen);
+    virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
+            int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific socket options
      *
@@ -288,7 +295,8 @@ protected:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual int getsockopt(nsapi_socket_t handle, int level, int optname, void *optval, unsigned *optlen);
+    virtual nsapi_error_t getsockopt(nsapi_socket_t handle, int level,
+            int optname, void *optval, unsigned *optlen);
 };
 
 

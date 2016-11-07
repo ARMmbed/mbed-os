@@ -44,14 +44,15 @@ public:
      *                   (defaults to NSAPI_SECURITY_NONE)
      *  @return          0 on success, or error code on failure
      */
-    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
+    virtual nsapi_error_t set_credentials(const char *ssid, const char *pass,
+            nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
 
     /** Set the WiFi network channel
      *
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          0 on success, or error code on failure
      */
-    virtual int set_channel(uint8_t channel) = 0;
+    virtual nsapi_error_t set_channel(uint8_t channel) = 0;
 
     /** Gets the current radio signal strength for active connection
      *
@@ -70,9 +71,8 @@ public:
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          0 on success, or error code on failure
      */
-    virtual int connect(const char *ssid, const char *pass,
-            nsapi_security_t security = NSAPI_SECURITY_NONE,
-            uint8_t channel = 0) = 0;
+    virtual nsapi_error_t connect(const char *ssid, const char *pass,
+            nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0) = 0;
 
     /** Start the interface
      *
@@ -81,13 +81,13 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect() = 0;
+    virtual nsapi_error_t connect() = 0;
 
     /** Stop the interface
      *
      *  @return         0 on success, or error code on failure
      */
-    virtual int disconnect() = 0;
+    virtual nsapi_error_t disconnect() = 0;
 
     /** Scan for available networks
      *
@@ -99,10 +99,11 @@ public:
      * @param  ap       Pointer to allocated array to store discovered AP
      * @param  count    Size of allocated @a res array, or 0 to only count available AP
      * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
-     * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     * @return          Number of entries in @a, or if @a count was 0 number of available networks, 
+     *                  negative on error
      *                  see @a nsapi_error
      */
-    virtual int scan(WiFiAccessPoint *res, unsigned count) = 0;
+    virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
 };
 
 #endif

@@ -24,22 +24,22 @@ EthernetInterface::EthernetInterface()
 {
 }
 
-int EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     _dhcp = false;
     strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
     strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
     strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
-    return 0;
+    return NSAPI_ERROR_OK;
 }
 
-int EthernetInterface::set_dhcp(bool dhcp)
+nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
 {
     _dhcp = dhcp;
-    return 0;
+    return NSAPI_ERROR_OK;
 }
 
-int EthernetInterface::connect()
+nsapi_error_t EthernetInterface::connect()
 {
     return mbed_lwip_bringup(_dhcp,
             _ip_address[0] ? _ip_address : 0,
@@ -47,7 +47,7 @@ int EthernetInterface::connect()
             _gateway[0] ? _gateway : 0);
 }
 
-int EthernetInterface::disconnect()
+nsapi_error_t EthernetInterface::disconnect()
 {
     return mbed_lwip_bringdown();
 }
@@ -63,7 +63,7 @@ const char *EthernetInterface::get_ip_address()
         return _ip_address;
     }
 
-    return 0;
+    return NULL;
 }
 
 const char *EthernetInterface::get_netmask()
