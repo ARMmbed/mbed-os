@@ -150,6 +150,11 @@ int32_t CAN_SetMultiRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32MsgCount
 int32_t CAN_SetRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32IDType, uint32_t u32ID);
 int32_t CAN_SetTxMsg(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
 int32_t CAN_TriggerTxMsg(CAN_T  *tCAN, uint32_t u32MsgNum);
+uint32_t CAN_GetCANBitRate(CAN_T  *tCAN);
+void CAN_EnterInitMode(CAN_T *tCAN);
+void CAN_LeaveInitMode(CAN_T *tCAN);
+void CAN_EnterTestMode(CAN_T *tCAN, uint8_t u8TestMask);
+void CAN_LeaveTestMode(CAN_T *tCAN);
 
 /*@}*/ /* end of group NUC472_442_CAN_EXPORTED_FUNCTIONS */
 

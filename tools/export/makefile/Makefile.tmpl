@@ -9,8 +9,8 @@ ifeq ($(shell echo $$OS),$$OS)
     MAKEDIR = if not exist "$(1)" mkdir "$(1)"
     RM = rmdir /S /Q "$(1)"
 else
-    MAKEDIR = $(SHELL) -c "mkdir -p \"$(1)\""
-    RM = $(SHELL) -c "rm -rf \"$(1)\""
+    MAKEDIR = '$(SHELL)' -c "mkdir -p \"$(1)\""
+    RM = '$(SHELL)' -c "rm -rf \"$(1)\""
 endif
 
 # Move to the build directory
@@ -18,8 +18,8 @@ ifeq (,$(filter .build,$(notdir $(CURDIR))))
 .SUFFIXES:
 OBJDIR := .build
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-MAKETARGET = $(MAKE) --no-print-directory -C $(OBJDIR) -f $(mkfile_path) \
-		SRCDIR=$(CURDIR) $(MAKECMDGOALS)
+MAKETARGET = '$(MAKE)' --no-print-directory -C $(OBJDIR) -f '$(mkfile_path)' \
+		'SRCDIR=$(CURDIR)' $(MAKECMDGOALS)
 .PHONY: $(OBJDIR) clean
 all:
 	+@$(call MAKEDIR,$(OBJDIR))

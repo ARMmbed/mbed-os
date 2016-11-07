@@ -18,6 +18,7 @@ from tools.targets import TARGET_NAMES
 from tools.utils import argparse_filestring_type, argparse_many, args_error
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
+from tools.utils import print_large_string
 from tools.project_api import export_project, get_exporter_toolchain
 from tools.options import extract_profile
 
@@ -189,7 +190,7 @@ def main():
 
     # Only prints matrix of supported IDEs
     if options.supported_ides:
-        print mcu_ide_matrix()
+        print_large_string(mcu_ide_matrix())
         exit(0)
 
     # Only prints matrix of supported IDEs
@@ -232,7 +233,9 @@ def main():
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
         # Export to selected toolchain
-    _, toolchain_name = get_exporter_toolchain(options.ide)
+    exporter, toolchain_name = get_exporter_toolchain(options.ide)
+    if options.mcu not in exporter.TARGETS:
+        args_error(parser, "%s not supported by %s"%(options.mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name)
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,

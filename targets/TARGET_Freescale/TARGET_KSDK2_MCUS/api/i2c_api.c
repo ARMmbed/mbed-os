@@ -170,10 +170,15 @@ int i2c_byte_read(i2c_t *obj, int last) {
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
+#if FSL_I2C_DRIVER_VERSION > MAKE_VERSION(2, 0, 1)
+    if (I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1, kI2C_TransferNoStopFlag) == kStatus_Success) {
+        return 1;
+    }
+#else
     if (I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1) == kStatus_Success) {
         return 1;
     }
-
+#endif
     return 0;
 }
 
@@ -184,7 +189,11 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
     I2C_SlaveGetDefaultConfig(&slave_config);
     slave_config.slaveAddress = 0;
     slave_config.enableSlave = (bool)enable_slave;
+#if FSL_I2C_DRIVER_VERSION > MAKE_VERSION(2, 0, 1)
+    I2C_SlaveInit(i2c_addrs[obj->instance], &slave_config, CLOCK_GetFreq(i2c_clocks[obj->instance]));
+#else
     I2C_SlaveInit(i2c_addrs[obj->instance], &slave_config);
+#endif
 }
 
 int i2c_slave_receive(i2c_t *obj) {

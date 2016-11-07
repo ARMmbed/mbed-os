@@ -22,6 +22,7 @@ from os.path import join, dirname, exists, abspath
 ROOT = abspath(join(dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, ROOT)
 import argparse
+import os
 from argparse import ArgumentTypeError
 import sys
 from shutil import rmtree
@@ -37,9 +38,8 @@ from tools.project import export
 from Queue import Queue
 from threading import Thread, Lock
 from tools.project_api import print_results, get_exporter_toolchain
-from tools.tests import test_name_known, test_known, Test
-from tools.export.exporters import FailedBuildException, \
-                                   TargetNotSupportedException
+from tools.tests import test_name_known, test_known
+from tools.export import EXPORTERS
 from tools.utils import argparse_force_lowercase_type, \
                         argparse_many, columnate, args_error, \
                         argparse_filestring_type
@@ -125,9 +125,12 @@ class ExportBuildTest(object):
                                  % (test_case.mcu,
                                     test_case.ide,
                                     test_case.name))
-            try:
-                exporter.build()
-            except FailedBuildException:
+
+            cwd = os.getcwd()
+            os.chdir(exporter.export_dir)
+            res = EXPORTERS[exporter.NAME.lower()].build(exporter.project_name, cleanup=False)
+            os.chdir(cwd)
+            if res:
                 self.failures.append("%s::%s\t%s" % (test_case.mcu,
                                                      test_case.ide,
                                                      test_case.name))
@@ -157,20 +160,19 @@ class ExportBuildTest(object):
         self.display_counter("Exporting test case  %s::%s\t%s" % (test_case.mcu,
                                                                   test_case.ide,
                                                                   test_case.name))
-
-        try:
-            _, toolchain = get_exporter_toolchain(test_case.ide)
-            profile = extract_profile(self.parser, self.options, toolchain)
-            exporter = export(test_case.mcu, test_case.ide,
+        exporter, toolchain = get_exporter_toolchain(test_case.ide)
+        if test_case.mcu not in exporter.TARGETS:
+            self.skips.append("%s::%s\t%s" % (test_case.mcu, test_case.ide,
+                                              test_case.name))
+            return
+        profile = extract_profile(self.parser, self.options, toolchain)
+        exporter = export(test_case.mcu, test_case.ide,
                               project_id=test_case.id, zip_proj=None,
                               clean=True, src=test_case.src,
                               export_path=join(EXPORT_DIR,name_str),
                               silent=True, build_profile=profile)
-            exporter.generated_files.append(join(EXPORT_DIR,name_str,test_case.log))
-            self.build_queue.put((exporter,test_case))
-        except TargetNotSupportedException:
-            self.skips.append("%s::%s\t%s" % (test_case.mcu, test_case.ide,
-                                              test_case.name))
+        exporter.generated_files.append(join(EXPORT_DIR,name_str,test_case.log))
+        self.build_queue.put((exporter,test_case))
             # Check if the specified name is in all_os_tests
 
 
@@ -265,7 +267,7 @@ def main():
     test_targets = options.mcu or targetnames
     if not all([t in targetnames for t in test_targets]):
         args_error(parser, "Only specify targets in release %s:\n%s"
-                   %(options.release, columnate(targetnames)))
+                   %(options.release, columnate(sorted(targetnames))))
 
     v2_tests, v5_tests = [],[]
     if options.release == '5':

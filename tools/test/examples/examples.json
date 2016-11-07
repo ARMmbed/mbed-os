@@ -1,8 +1,125 @@
 {
-    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-blinky" : {},
-    "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal" :
-    {"features": ["IPV6"]},
-    "https://github.com/ARMmbed/mbed-os-example-client" : {"features": ["IPV6"]},
-    "https://github.com/ARMmbed/mbed-os-example-sockets" : {"features": ["IPV6"]},
-    "https://github.com/ARMmbed/mbed-os-example-uvisor" : {"targets": ["K64F"], "toolchains":["GCC_ARM"]}
+  "examples": [
+    {
+      "name": "mbed-os-example-blinky",
+      "github": "https://github.com/ARMmbed/mbed-os-example-blinky",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-blinky"
+      ],
+      "features" : [],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-tls",
+      "github": "https://github.com/ARMmbed/mbed-os-example-tls",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-benchmark",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-tls-client",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-hashing",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
+      ],
+      "features" : [],
+      "targets" : ["K64F", "NUCLEO_F429ZI"],
+      "toolchains" : ["GCC_ARM", "ARM"],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-mesh-minimal",
+      "github":"https://github.com/ARMmbed/mbed-os-example-mesh-minimal",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
+      ],
+      "features" : ["IPV6"],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-ble",
+      "github":"https://github.com/ARMmbed/mbed-os-example-ble",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Thermometer",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-EddystoneService",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-EddystoneObserver",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
+      ],
+      "features" : ["BLE"],
+      "targets" : ["NRF51_DK", "NRF52_DK", "K64F", "NUCLEO_F401RE"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-client",
+      "github":"https://github.com/ARMmbed/mbed-os-example-client",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-client"
+      ],
+      "features" : ["IPV6"],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-sockets",
+      "github":"https://github.com/ARMmbed/mbed-os-example-sockets",
+      "mbed": [
+      ],
+      "features" : ["IPV6"],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-wifi",
+      "github":"https://github.com/ARMmbed/mbed-os-example-wifi",
+      "mbed": [
+      ],
+      "features" : [],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : false,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-uvisor",
+      "github":"https://github.com/ARMmbed/mbed-os-example-uvisor",
+      "mbed": [
+      ],
+      "features" : [],
+      "targets" : ["K64F"],
+      "toolchains" : ["GCC_ARM"],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : false
+    }
+  ]
 }

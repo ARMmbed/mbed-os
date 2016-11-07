@@ -65,6 +65,11 @@ extern const PinMap PinMap_SD_DAT1[];
 extern const PinMap PinMap_SD_DAT2[];
 extern const PinMap PinMap_SD_DAT3[];
 
+//*** CAN ***
+
+extern PinMap const PinMap_CAN_TD[];
+extern PinMap const PinMap_CAN_RD[];
+
 #ifdef __cplusplus
 }
 #endif

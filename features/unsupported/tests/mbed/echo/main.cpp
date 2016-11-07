@@ -15,6 +15,7 @@ int main() {
     MBED_HOSTTEST_SELECT(echo);
     MBED_HOSTTEST_DESCRIPTION(Serial Echo at 115200);
     MBED_HOSTTEST_START("MBED_A9");
+    wait(0.5);  // wait for characters to finish transmitting
 
     Serial pc(TXPIN, RXPIN);
     pc.baud(115200);

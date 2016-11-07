@@ -164,6 +164,5 @@ The hook code can look quite different between different targets. Take a look at
 
 This property is used to pass necessary data for exporting the mbed code to various 3rd party tools and IDEs.
 
-This is possible because the device name corresponds to a field in publicly hosted CMSIS packs. These packs hold target properties. [This](http://www.keil.com/pack/Keil.Kinetis_K20_DFP.pdsc) is the pdsc that contains TEENSY_31 device (MK20DX256xxx7). The device information begins on line 156. The dname (device name) field on line 156 directly corresponds to that in the Uvision5 IDE target selection window. Beginning on line 15 of `tools/export/uvision/uvision.tmpl`, target information from these packs is used to generate valid Uvision5 projects. If the device name is not found, we use a generic ARM CPU target in Uvision5.
-`tools/export/iar/iar_definitions.json` utilizes this device name to store information necessary to set the target in an IAR project.
+Please see [exporters.md](exporters.md) for information about this field.
 

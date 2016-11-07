@@ -29,8 +29,13 @@
  * so it can be called by the C-HAL implementation configuration_store.c
  */
 
+#ifndef CFSTORE_SVM_VOL_01_START_OFFSET
 #define CFSTORE_SVM_VOL_01_START_OFFSET       0x80000UL
+#endif
+
+#ifndef CFSTORE_SVM_VOL_01_SIZE
 #define CFSTORE_SVM_VOL_01_SIZE               0x80000UL
+#endif
 
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
@@ -39,7 +44,7 @@ static ARM_DRIVER_STORAGE *cfstore_svm_storage_drv = &ARM_Driver_Storage_MTD_K64
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
 /* the storage volume manager instance used to generate virtual mtd descriptors */
-static StorageVolumeManager volumeManager;
+StorageVolumeManager volumeManager;
 
 /* used only for the initialization of the volume-manager. */
 static void cfstore_svm_volume_manager_initialize_callback(int32_t status)

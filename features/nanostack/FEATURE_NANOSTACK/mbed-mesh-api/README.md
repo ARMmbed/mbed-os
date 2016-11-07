@@ -54,6 +54,7 @@ An example of the configuration file:
 | 6lowpan-nd-channel-mask    | number [0-0x07fff800] | Channel mask, bit-mask of channels to use |
 | 6lowpan-nd-channel-page   | number [0, 2] | 0 for 2,4 GHz and 2 for sub-GHz radios |
 | 6lowpan-nd-channel        | number [0-27] | RF channel to use when `channel_mask` is not defined |
+| 6lowpan-nd-panid-filter | number [0-0xffff] | Beacon PAN ID filter, 0xffff means no filtering |
 | 6lowpan-nd-security-mode | "NONE" or "PSK" | To use either no security, or Pre shared network key |
 | 6lowpan-nd-psk-key-id | number | PSK key id when PSK is enabled |
 | 6lowpan-nd-psk-key | byte array [16] | Pre shared network key |

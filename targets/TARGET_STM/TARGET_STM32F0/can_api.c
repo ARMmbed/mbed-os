@@ -36,7 +36,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
     obj->can = (CANName)pinmap_merge(can_rd, can_td);
     MBED_ASSERT((int)obj->can != NC);    
 
-    if(obj->can == CAN_1) {
+    if (obj->can == CAN_1) {
         __HAL_RCC_CAN1_CLK_ENABLE();
         obj->index = 0;
     }
@@ -173,11 +173,11 @@ int can_frequency(can_t *obj, int f)
 
     if (btr > 0) {
         can->MCR |= CAN_MCR_INRQ ;
-        while((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
+        while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
         }
         can->BTR = btr;
         can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
-        while((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+        while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
         }
         return 1;
     } else {
@@ -203,12 +203,9 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
 
     if (transmitmailbox != CAN_TXSTATUS_NOMAILBOX) {
     can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
-    if (!(msg.format))
-    {
+    if (!(msg.format)) {
       can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | msg.type);
-    }
-    else
-    {
+    } else {
       can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
     }
 
@@ -262,7 +259,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     msg->data[7] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDHR >> 24);
     
     /* Release the FIFO */
-    if(handle == CAN_FIFO0) {
+    if (handle == CAN_FIFO0) {
         /* Release FIFO0 */
         can->RF0R = CAN_RF0R_RFOM0;
     } else { /* FIFONumber == CAN_FIFO1 */
@@ -315,7 +312,7 @@ int can_mode(can_t *obj, CanMode mode)
     int success = 0;
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     can->MCR |= CAN_MCR_INRQ ;
-    while((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
+    while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
     }
     switch (mode) {
         case MODE_NORMAL:
@@ -342,30 +339,43 @@ int can_mode(can_t *obj, CanMode mode)
             break;
     }
     can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
-    while((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+    while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
     }
     return success;
 }
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
 {
-    CanHandle.Instance = (CAN_TypeDef *)(obj->can);
-    CAN_FilterConfTypeDef  sFilterConfig;
+    int retval = 0;
     
-    sFilterConfig.FilterNumber = handle;
-    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-    sFilterConfig.FilterIdHigh = (uint8_t) (id >> 8);
-    sFilterConfig.FilterIdLow = (uint8_t) id;
-    sFilterConfig.FilterMaskIdHigh = (uint8_t) (mask >> 8);
-    sFilterConfig.FilterMaskIdLow = (uint8_t) mask;
-    sFilterConfig.FilterFIFOAssignment = 0;
-    sFilterConfig.FilterActivation = ENABLE;
-    sFilterConfig.BankNumber = 14;
-  
-    HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);
-      
-    return 0;
+    // filter for CANAny format cannot be configured for STM32
+    if ((format == CANStandard) || (format == CANExtended)) {
+        CanHandle.Instance = (CAN_TypeDef *)(obj->can);
+        CAN_FilterConfTypeDef  sFilterConfig;
+        sFilterConfig.FilterNumber = handle;
+        sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+        sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
+
+        if (format == CANStandard) {
+            sFilterConfig.FilterIdHigh = id << 5;
+            sFilterConfig.FilterIdLow =  0x0;
+            sFilterConfig.FilterMaskIdHigh = mask << 5;
+            sFilterConfig.FilterMaskIdLow = 0x0;	// allows both remote and data frames
+        } else if (format == CANExtended) {
+            sFilterConfig.FilterIdHigh = id >> 13; 	// EXTID[28:13]
+            sFilterConfig.FilterIdLow = (0x00FF & (id << 3)) | (1 << 2);  // EXTID[12:0]
+            sFilterConfig.FilterMaskIdHigh = mask >> 13;
+            sFilterConfig.FilterMaskIdLow = (0x00FF & (mask << 3)) | (1 << 2);
+        }
+        
+        sFilterConfig.FilterFIFOAssignment = 0;
+        sFilterConfig.FilterActivation = ENABLE;
+        sFilterConfig.BankNumber = 14 + handle;
+        
+        HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);	
+        retval = handle;
+    }
+    return retval;
 }
 
 static void can_irq(CANName name, int id) 
@@ -373,7 +383,7 @@ static void can_irq(CANName name, int id)
     uint32_t tmp1 = 0, tmp2 = 0, tmp3 = 0;    
     CanHandle.Instance = (CAN_TypeDef *)name;
     
-    if(__HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_TME)) {
+    if (__HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_TME)) {
         tmp1 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_0);
         tmp2 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_1);
         tmp3 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_2);
@@ -386,7 +396,7 @@ static void can_irq(CANName name, int id)
     tmp1 = __HAL_CAN_MSG_PENDING(&CanHandle, CAN_FIFO0);
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_FMP0);
   
-    if((tmp1 != 0) && tmp2) {
+    if ((tmp1 != 0) && tmp2) {
          irq_handler(can_irq_ids[id], IRQ_RX);
     }
   
@@ -394,19 +404,19 @@ static void can_irq(CANName name, int id)
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_EPV);
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR); 
   
-    if(tmp1 && tmp2 && tmp3) {
+    if (tmp1 && tmp2 && tmp3) {
          irq_handler(can_irq_ids[id], IRQ_PASSIVE);
     }
   
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_BOF);
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_BOF);
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);  
-    if(tmp1 && tmp2 && tmp3) {
+    if (tmp1 && tmp2 && tmp3) {
         irq_handler(can_irq_ids[id], IRQ_BUS);
     }
   
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);  
-    if(tmp1 && tmp2 && tmp3) {
+    if (tmp1 && tmp2 && tmp3) {
         irq_handler(can_irq_ids[id], IRQ_ERROR);
     }  
 }
@@ -424,7 +434,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     uint32_t vector = 0;    
     uint32_t ier;
 
-    if(obj->can == CAN_1) {
+    if (obj->can == CAN_1) {
         switch (type) {
             case IRQ_RX:
                 ier = CAN_IT_FMP0;
@@ -447,7 +457,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
         vector = (uint32_t)&CAN_IRQHandler;
     } 
 
-    if(enable) {
+    if (enable) {
         can->IER |= ier;
     } else {
         can->IER &= ~ier;
