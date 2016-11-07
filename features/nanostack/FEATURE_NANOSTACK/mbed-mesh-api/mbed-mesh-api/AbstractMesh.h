@@ -17,14 +17,14 @@
 #ifndef __ABSTRACTMESH_H__
 #define __ABSTRACTMESH_H__
 
-#include "AbstractNetworkInterface.h"
 #include "mbed.h"
+#include "mesh_interface_types.h"
 
 /**
  * \brief Abstract Mesh networking interface.
  * This class can't be instantiated directly.
  */
-class AbstractMesh : public AbstractNetworkInterface
+class AbstractMesh
 {
 
 public:
@@ -77,6 +77,15 @@ public:
      * \param state state of the network
      * */
     void callback(mesh_connection_status_t state);
+
+    /**
+     * \brief Read own global IP address
+     *
+     * \param address is where the IP address will be copied
+     * \param len is the length of the address buffer, must be at least 40 bytes
+     * \return true if address is read successfully, false otherwise
+     */
+    virtual bool getOwnIpAddress(char *address, int8_t len) = 0;
 
 protected:
 
