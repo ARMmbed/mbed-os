@@ -1,0 +1,36 @@
+{
+    "GCC_ARM": {
+        "common":     ["-c", "-Wall", "-fmessage-length=0", "-fno-exceptions", "-fno-builtin", "-ffunction-sections", "-fdata-sections"],
+        "c": ["-std=gnu99"],
+        "asm": ["-x", "assembler-with-cpp"],
+        "cxx": ["-std=gnu++98"],
+        "ld":  ["-Wl,--gc-sections"]
+    },
+    "uARM": {
+        "version":    "4.1",
+        "common":     ["-c", "--gnu", "-Otime", "--split_sections", "--apcs=interwork"],
+        "cxx": ["--cpp"],
+        "asm": [],
+        "ld": ["--library_type=microlib"],
+        "COMPILE_C_AS_CPP": true,
+        "PATCHED_LIBRARY" : true
+    },
+    "ARM": {
+        "version":    "4.01",
+        "common":     ["-c", "--gnu", "-Otime", "--split_sections", "--apcs=interwork"],
+        "cxx": ["--cpp"],
+        "asm": [],
+        "ld": [],
+        "COMPILE_C_AS_CPP": true,
+        "PATCHED_LIBRARY" : true
+    },
+    "IAR": {
+        "common": [
+            "--no_wrap_diagnostics", "-e",
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh"],
+        "asm": [],
+        "c": ["--vla"],
+        "cxx": ["--guard_calls", "--no_static_destruction"],
+        "ld": ["--skip_dynamic_initialization", "--threaded_lib"]
+    }
+}

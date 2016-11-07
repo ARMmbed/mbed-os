@@ -116,3 +116,8 @@ CPPUTEST_TESTRUNNER_SCR = join(TEST_DIR, "utest", "testrunner")
 CPPUTEST_TESTRUNNER_INC = join(TEST_DIR, "utest", "testrunner")
 
 CPPUTEST_LIBRARY = join(BUILD_DIR, "cpputest")
+
+# profiles
+
+PROFILES = join(TOOLS, "profiles")
+PROFILES_LEGACY = join(PROFILES, "legacy")

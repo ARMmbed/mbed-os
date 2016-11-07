@@ -1,0 +1,39 @@
+{
+    "GCC_ARM": {
+        "common": ["-c", "-Wall", "-Wextra",
+                   "-Wno-unused-parameter", "-Wno-missing-field-initializers",
+                   "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
+                   "-ffunction-sections", "-fdata-sections", "-funsigned-char",
+                   "-MMD", "-fno-delete-null-pointer-checks",
+                   "-fomit-frame-pointer", "-Os"],
+        "asm": ["-x", "assembler-with-cpp"],
+        "c": ["-std=gnu99"],
+        "cxx": ["-std=gnu++98", "-fno-rtti", "-Wvla"],
+        "ld":  ["-Wl,--gc-sections", "-Wl,--wrap,main"]
+    },
+    "uARM": {
+        "version":    "5.06",
+        "common":     ["-c", "--gnu", "-O3", "-Otime", "--split_sections", "--apcs=interwork"],
+        "cxx": ["--cpp", "--no_rtti"],
+        "asm": [],
+        "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
+        "ld": ["--library_type=microlib"]
+    },
+    "ARM": {
+        "version":    "5.06",
+        "common":     ["-c", "--gnu", "-O3", "-Otime", "--split_sections", "--apcs=interwork"],
+        "cxx": ["--cpp", "--no_rtti"],
+        "asm": [],
+        "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
+        "ld": []
+    },
+    "IAR": {
+        "common": [
+            "--no_wrap_diagnostics", "-e",
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh"],
+        "asm": [],
+        "c": ["--vla"],
+        "cxx": ["--guard_calls", "--no_static_destruction"],
+        "ld": ["--skip_dynamic_initialization", "--threaded_lib"]
+    }
+}

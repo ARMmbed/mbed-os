@@ -266,6 +266,11 @@ class mbedToolchain:
         # Toolchain flags
         self.flags = deepcopy(build_profile or self.profile_template)
 
+        for key, value in self.flags.iteritems():
+            if key.isupper():
+                self.setattr(key, value)
+                del self.flags[key]
+
         # User-defined macros
         self.macros = macros or []
 
