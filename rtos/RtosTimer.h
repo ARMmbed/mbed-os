@@ -37,6 +37,41 @@ namespace rtos {
 
  Timers are handled in the thread osTimerThread.
  Callback functions run under control of this thread and may use CMSIS-RTOS API calls.
+
+ @deprecated
+ The RtosTimer has been superseded by the EventQueue. The RtosTimer and EventQueue duplicate
+ the functionality of timing events outside of interrupt context, however the EventQueue
+ has additional features to handle deferring other events to multiple contexts.
+
+ For an example, the following code shows a simple use of the RtosTimer:
+ @code
+ DigitalOut led(LED1);
+ void blink() {
+     led = !led;
+ }
+
+ RtosTimer timer(&blink);
+ int main() {
+     timer.start(1000); // call blink every 1s
+     wait_ms(5000);
+     timer.stop(); // stop after 5s
+ }
+ @endcode
+
+ This is the above example rewritten to use the EventQueue:
+ @code
+ DigitalOut led(LED1);
+ void blink() {
+     led = !led;
+ }
+
+ EventQueue queue(4*EVENTS_EVENT_SIZE);
+ int main() {
+    int blink_id = queue.call_every(1000, &blink); // call blink every 1s
+    queue.dispatch(5000);
+    queue.cancel(blink_id); // stop after 5s
+ }
+ @endcode
 */
 class RtosTimer {
 public:
@@ -45,9 +80,13 @@ public:
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
       @param   argument  argument to the timer call back function. (default: NULL)
       @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
+      @deprecated
+          The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
+    MBED_DEPRECATED_SINCE("mbed-os-5.2",
+        "The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details")
     RtosTimer(void (*func)(void const *argument), os_timer_type type=osTimerPeriodic, void *argument=NULL) {
         constructor(mbed::callback((void (*)(void *))func, argument), type);
     }
@@ -55,7 +94,11 @@ public:
     /** Create timer.
       @param   func      function to be executed by this timer.
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+      @deprecated
+          The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
     */
+    MBED_DEPRECATED_SINCE("mbed-os-5.2",
+        "The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details")
     RtosTimer(mbed::Callback<void()> func, os_timer_type type=osTimerPeriodic) {
         constructor(func, type);
     }
@@ -67,11 +110,15 @@ public:
       @deprecated
           The RtosTimer constructor does not support cv-qualifiers. Replaced by
           RtosTimer(callback(obj, method), os_timer_type).
+      @deprecated
+          The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The RtosTimer constructor does not support cv-qualifiers. Replaced by "
         "RtosTimer(callback(obj, method), os_timer_type).")
+    MBED_DEPRECATED_SINCE("mbed-os-5.2",
+        "The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details")
     RtosTimer(T *obj, M method, os_timer_type type=osTimerPeriodic) {
         constructor(mbed::callback(obj, method), type);
     }
