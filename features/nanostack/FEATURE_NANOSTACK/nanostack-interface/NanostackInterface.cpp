@@ -23,8 +23,6 @@
 #include "eventOS_scheduler.h"
 #include "randLIB.h"
 
-#include "mbed-mesh-api/MeshInterfaceFactory.h"
-
 #include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
 #include "net_interface.h"
@@ -559,7 +557,7 @@ nsapi_error_t ThreadInterface::connect()
     mesh_system_init();
     nanostack_lock();
 
-    mesh_api = MeshInterfaceFactory::createInterface(MESH_TYPE_THREAD);
+    mesh_api = new MeshThread;
     if (!mesh_api) {
         nanostack_unlock();
         return NSAPI_ERROR_NO_MEMORY;
@@ -590,7 +588,7 @@ nsapi_error_t LoWPANNDInterface::connect()
     mesh_system_init();
     nanostack_lock();
 
-    mesh_api = MeshInterfaceFactory::createInterface(MESH_TYPE_6LOWPAN_ND);
+    mesh_api = new Mesh6LoWPAN_ND;
     if (!mesh_api) {
         nanostack_unlock();
         return NSAPI_ERROR_NO_MEMORY;

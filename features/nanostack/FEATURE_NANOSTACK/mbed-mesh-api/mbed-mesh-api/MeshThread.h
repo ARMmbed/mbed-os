@@ -29,6 +29,7 @@ class MeshThread : public AbstractMesh
 public:
 
     virtual ~MeshThread();
+    MeshThread();
 
     /*
      * \brief Initialization of the interface.
@@ -64,11 +65,6 @@ public:
     friend class MeshInterfaceFactory;
 
 private:
-    /*
-     * \brief private constructor for the MeshThread
-     */
-    MeshThread();
-
     /*
      * avoid copy/assign object
      */

@@ -27,7 +27,7 @@ class Mesh6LoWPAN_ND : public AbstractMesh
 {
 
 public:
-
+    Mesh6LoWPAN_ND();
     virtual ~Mesh6LoWPAN_ND();
 
     /**
@@ -51,11 +51,6 @@ public:
     friend class MeshInterfaceFactory;
 
 private:
-    /*
-     * \brief private constructor for the 6LoWPAN_ND
-     */
-    Mesh6LoWPAN_ND();
-
     /*
      * avoid copy/assign object
      */
