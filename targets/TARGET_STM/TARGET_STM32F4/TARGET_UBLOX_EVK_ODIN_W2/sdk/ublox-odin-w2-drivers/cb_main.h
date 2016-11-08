@@ -110,6 +110,7 @@ extern void cbMAIN_startOS(void);
 /**
 * Get event queue. Used for running a function in the same thread context as the driver.
 * Can not be called before cbMAIN_initOS/cbMAIN_initBt/cbMAIN_initWlan.
+* Use cbMAIN_dispatchEventQueue to trigger the driver to call the queued up functions.
 * @return EventQueue     Pointer to the event queue where function calls can be enqueued.
 */
 extern EventQueue* cbMAIN_getEventQueue(void);
@@ -127,5 +128,12 @@ extern void cbMAIN_driverLock(void);
 * @return void
 */
 extern void cbMAIN_driverUnlock(void);
+
+/**
+* Dispatch event queue. Should be called to trigger calls that have been queued up in the driver context
+*
+* @return void
+*/
+extern void cbMAIN_dispatchEventQueue(void);
 
 #endif /*_CB_MAIN_H_*/
