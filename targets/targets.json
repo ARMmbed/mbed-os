@@ -2327,6 +2327,32 @@
         "inherits": ["Target"],
         "core": "Cortex-M3",
         "extra_labels": ["ONSEMI"],
+        "config": {
+            "mac-addr-low": {
+                "help": "Lower 32 bits of the MAC extended address",
+                "value": "0x12345678"
+            },
+            "mac-addr-high": {
+                "help": "Higher 32 bits of the MAC extended address",
+                "value": "0xACDE4800"
+            },
+            "32KHz-clk-trim": {
+                "help": "32KHz clock trim",
+                "value": "0x3A"
+            },
+            "32MHz-clk-trim": {
+                "help": "32MHz clock trim",
+                "value": "0x16"
+            },
+            "rssi-trim": {
+                "help": "RSSI trim",
+                "value": "0x3D"
+            },
+            "txtune-trim": {
+                "help": "TX tune trim",
+                "value": "0x12"
+            }
+        },
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
