@@ -27,6 +27,8 @@
     #define STACK_SIZE 1024
 #elif defined(TARGET_HI2110)
     #define STACK_SIZE 512
+#elif defined(TARGET_EFR32)
+    #define STACK_SIZE 512
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
