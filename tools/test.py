@@ -26,6 +26,7 @@ import fnmatch
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.config import ConfigException
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
 from tools.options import get_default_options_parser, extract_profile
 from tools.build_api import build_project, build_library
@@ -120,15 +121,6 @@ if __name__ == '__main__':
             args_error(parser, "Could not find executable for %s.\n"
                                "Currently set search path: %s"
                        % (toolchain, search_path))
-
-        # App config
-        # Disable finding `mbed_app.json` files in the source tree if not
-        # explicitly defined on the command line. Config system searches for
-        # `mbed_app.json` files if `app_config` is None, but will set the
-        # app config data to an empty dictionary if the path value is another
-        # falsey value besides None.
-        if options.app_config is None:
-            options.app_config = ''
 
         # Find all tests in the relevant paths
         for path in all_paths:
@@ -261,6 +253,9 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
+    except ConfigException, e:
+        # Catching ConfigException here to prevent a traceback
+        print "[ERROR] %s" % str(e)
     except Exception,e:
         import traceback
         traceback.print_exc(file=sys.stdout)

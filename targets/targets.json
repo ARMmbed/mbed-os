@@ -482,18 +482,23 @@
         "release_versions": ["2"],
         "device_name": "MK20DX256xxx7"
     },
-    "K22F": {
-        "supported_form_factors": ["ARDUINO"],
+    "MCU_K22F512": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM", "KPSDK_MCUS", "KPSDK_CODE"],
+        "extra_labels": ["Freescale", "KSDK2_MCUS", "MCU_K22F", "MCU_K22F512", "FRDM", "KPSDK_MCUS", "KPSDK_CODE"],
         "is_disk_virtual": true,
+        "public": false,
         "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"],
         "device_name": "MK22DN512xxx5"
+    },
+    "K22F": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_K22F512"],
+        "release_versions": ["2", "5"],
+        "extra_labels_add": ["FRDM"]
     },
     "KL27Z": {
         "inherits": ["Target"],
@@ -531,10 +536,10 @@
         "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
-        "progen": {"target": "frdm-kl82z"},
         "detect_code": ["0218"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "device_name": "MKL82Z128xxx7"
     },
     "KW24D": {
         "supported_form_factors": ["ARDUINO"],
@@ -544,10 +549,10 @@
         "is_disk_virtual": true,
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "progen": {"target": "frdm-kw24d"},
         "detect_code": ["0250"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "device_name": "MKW24D512xxx5"
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
@@ -599,6 +604,19 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name" : "MK66FN2M0xxx18"
+    },
+    "K82F": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["0217"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"],
+        "device_name" : "MK66FN256xxx15"
     },
     "NUCLEO_F030R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -1616,7 +1634,8 @@
     "NRF51_MICROBIT": {
         "inherits": ["MCU_NRF51_16K_S110"],
         "macros_add": ["TARGET_NRF_LFCLK_RC"],
-        "release_versions": ["2"]
+        "release_versions": ["2"],
+        "device_name": "nRF51822_xxAA"
     },
     "NRF51_MICROBIT_BOOT": {
         "inherits": ["MCU_NRF51_16K_BOOT_S110"],
@@ -1813,6 +1832,24 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["BLE"],
+        "release_versions": ["2", "5"]
+    },
+    "MAX32625MBED": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32625","TARGET_REV=0x4132"],
+        "extra_labels": ["Maxim", "MAX32625"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"]
+    },
+    "MAX32625NEXPAQ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32625","TARGET_REV=0x4132"],
+        "extra_labels": ["Maxim", "MAX32625"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"]
     },
     "EFM32": {
@@ -2240,7 +2277,7 @@
     "NRF51_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "device_name": "nRF51822_xxAA"
     },
@@ -2291,7 +2328,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
     },
@@ -2318,7 +2355,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE"
@@ -2328,9 +2365,9 @@
         "core": "Cortex-M3",
         "extra_labels": ["ONSEMI"],
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
-        "macros": ["REVD", "CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
+        "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER"],
+        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER", "TRNG"],
         "device_name": "NCS36510",
         "release_versions": ["2", "5"]
     },
@@ -2342,8 +2379,34 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "progen": {"target": "numaker-pfm-m453"},
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE"
+    },
+    "HI2110": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "extra_labels": ["ublox"],
+        "macros": ["TARGET_PROCESSOR_FAMILY_BOUDICA", "BOUDICA_SARA", "NDEBUG=1"],
+        "public": false,
+        "target_overrides": {
+            "*": {
+                "core.stdio-flush-at-exit": false
+            }
+        },
+        "device_has": ["INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "STDIO_MESSAGES"],
+        "default_lib": "std",
+        "release_versions": ["5"]
+   },
+    "SARA_NBIOT": {
+        "inherits": ["HI2110"],
+        "extra_labels": ["ublox", "HI2110"],
+        "public": false
+    },
+    "SARA_NBIOT_EVK": {
+        "inherits": ["SARA_NBIOT"],
+        "extra_labels": ["ublox", "HI2110", "SARA_NBIOT"]
     }
 }

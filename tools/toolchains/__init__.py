@@ -370,24 +370,24 @@ class mbedToolchain:
             msg = '[%(severity)s] %(file)s@%(line)s,%(col)s: %(message)s' % event
 
         elif event['type'] == 'progress':
-            if not silent:
-                if 'percent' in event:
-                    msg = '{} [{:>5.1f}%]: {}'.format(event['action'].title(),
-                                                      event['percent'],
-                                                      basename(event['file']))
-                else:
-                    msg = '{}: {}'.format(event['action'].title(),
-                                          basename(event['file']))
+            if 'percent' in event:
+                msg = '{} [{:>5.1f}%]: {}'.format(event['action'].title(),
+                                                  event['percent'],
+                                                  basename(event['file']))
+            else:
+                msg = '{}: {}'.format(event['action'].title(),
+                                      basename(event['file']))
 
         if msg:
-            print msg
+            if not silent:
+                print msg
             self.output += msg + "\n"
 
     def print_notify_verbose(self, event, silent=False):
         """ Default command line notification with more verbose mode
         """
         if event['type'] in ['info', 'debug']:
-            self.print_notify(event) # standard handle
+            self.print_notify(event, silent=silent) # standard handle
 
         elif event['type'] == 'cc':
             event['severity'] = event['severity'].title()
@@ -396,7 +396,8 @@ class mbedToolchain:
             event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
             event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
             msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
-            print msg
+            if not silent:
+                print msg
             self.output += msg + "\n"
 
         elif event['type'] == 'progress':
@@ -1074,16 +1075,8 @@ class mbedToolchain:
             self.info("Unknown toolchain for memory statistics %s" % toolchain)
             return None
 
-        # Write output to stdout in text (pretty table) format
-        memap.generate_output('table')
-
-        # Write output to file in JSON format
-        map_out = splitext(map)[0] + "_map.json"
-        memap.generate_output('json', map_out)
-
-        # Write output to file in CSV format for the CI
-        map_csv = splitext(map)[0] + "_map.csv"
-        memap.generate_output('csv-ci', map_csv)
+        # Store the memap instance for later use
+        self.memap_instance = memap
 
         # Here we return memory statistics structure (constructed after
         # call to generate_output) which contains raw data in bytes

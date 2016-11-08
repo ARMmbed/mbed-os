@@ -9,8 +9,10 @@ private:
     const int pattern;
 
 public:
-    Test(const char* _name) : name(_name), pattern(PATTERN_CHECK_VALUE)  {
-        print("init");
+    Test(const char* _name, bool print_message=true) : name(_name), pattern(PATTERN_CHECK_VALUE)  {
+        if (print_message) {
+            print("init");
+        }
     }
 
     void print(const char *message) {
@@ -39,7 +41,7 @@ public:
 };
 
 /* Check C++ startup initialisation */
-Test s("Static");
+Test s("Static", false);
 
 /* EXPECTED OUTPUT:
 *******************
@@ -59,6 +61,7 @@ int main (void) {
     bool result = true;
     for (;;)
     {
+        s.print("init");
         // Global stack object simple test
         s.stack_test();
         if (s.check_init() == false)

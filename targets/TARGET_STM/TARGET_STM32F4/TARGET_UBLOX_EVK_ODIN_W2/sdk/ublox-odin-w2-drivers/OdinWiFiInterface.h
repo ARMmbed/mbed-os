@@ -22,6 +22,7 @@
 #include "mbed_events.h"
 
 #include "rtos.h"
+#include "cmsis_os.h"
 #include "emac_api.h"
 #include "nsapi_types.h"
 #include "lwip/netif.h"
@@ -54,14 +55,14 @@ public:
      *                   (defaults to NSAPI_SECURITY_NONE)
      *  @return          0 on success, or error code on failure
      */
-    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
+    virtual nsapi_error_t set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
     
     /** Set the WiFi network channel
      *
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          0 on success, or error code on failure
      */
-    virtual int set_channel(uint8_t channel);
+    virtual nsapi_error_t set_channel(uint8_t channel);
     
     /** Start the interface
      *
@@ -73,7 +74,7 @@ public:
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          0 on success, or error code on failure
      */
-    virtual int connect(const char *ssid,
+    virtual nsapi_error_t connect(const char *ssid,
         const char *pass,
         nsapi_security_t security = NSAPI_SECURITY_NONE,
         uint8_t channel = 0);
@@ -85,13 +86,13 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int connect();
+    virtual nsapi_error_t connect();
 
     /** Stop the interface
      *
      *  @return         0 on success, or error code on failure
      */
-    virtual int disconnect();
+    virtual nsapi_error_t disconnect();
 
     /** Get the local MAC address
      *
@@ -136,7 +137,7 @@ public:
      *  @param gateway  Null-terminated representation of the local gateway
      *  @return         0 on success, negative error code on failure
      */
-    virtual int set_network(const char *ip_address, const char *netmask, const char *gateway);
+    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -147,7 +148,7 @@ public:
      *  @param dhcp     True to enable DHCP
      *  @return         0 on success, negative error code on failure
      */
-    virtual int set_dhcp(bool dhcp);
+    virtual nsapi_error_t set_dhcp(bool dhcp);
     
     /** Gets the current radio signal strength for active connection
      *
@@ -168,7 +169,7 @@ public:
      * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *                  see @a nsapi_error
      */
-    virtual int scan(WiFiAccessPoint *res, unsigned count);
+    virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count);
 
     /** Sets timeout for connection setup. Note that the time for DHCP retrieval is not included.
      *
@@ -184,7 +185,7 @@ protected:
 
 private:
     
-    int connect_async(const char *ssid,
+    nsapi_error_t connect_async(const char *ssid,
         const char *pass,
         nsapi_security_t security = NSAPI_SECURITY_NONE,
         uint8_t channel = 0,
@@ -211,8 +212,9 @@ private:
     int32_t target_id;
     // Event queue for sending start up and connection events from driver to this class
     MsgQueue _event_queue;
-    // Event queue for sending scan events from driver to this class
-    MsgQueue _scan_event_queue;    
+    // Message queue for sending scan events from driver to this class
+    osMessageQId _scan_msg_queue_id;
+    osMessageQDef_t _queue_def;
 };
 
 #endif

@@ -38,8 +38,6 @@
 #define DEVICE_SPI_ASYNCH       1
 #define DEVICE_SPISLAVE         1
 
-#define DEVICE_CAN              0
-
 #define DEVICE_RTC              1
 
 #define DEVICE_ETHERNET         0

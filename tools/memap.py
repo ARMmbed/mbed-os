@@ -404,6 +404,8 @@ class MemapParser(object):
 
         Keyword arguments:
         file_desc - descriptor (either stdout or file)
+
+        Returns: generated string for the 'table' format, otherwise None
         """
 
         try:
@@ -418,10 +420,12 @@ class MemapParser(object):
         to_call = {'json': self.generate_json,
                    'csv-ci': self.generate_csv,
                    'table': self.generate_table}[export_format]
-        to_call(file_desc)
+        output = to_call(file_desc)
 
         if file_desc is not sys.stdout:
             file_desc.close()
+
+        return output
 
     def generate_json(self, file_desc):
         """Generate a json file from a memory map
@@ -431,6 +435,8 @@ class MemapParser(object):
         """
         file_desc.write(json.dumps(self.mem_report, indent=4))
         file_desc.write('\n')
+
+        return None
 
     def generate_csv(self, file_desc):
         """Generate a CSV file from a memoy map
@@ -472,11 +478,15 @@ class MemapParser(object):
         csv_writer.writerow(csv_module_section)
         csv_writer.writerow(csv_sizes)
 
+        return None
+
     def generate_table(self, file_desc):
         """Generate a table from a memoy map
 
         Positional arguments:
         file_desc - the file to write out the final report to
+
+        Returns: string of the generated table
         """
         # Create table
         columns = ['Module']
@@ -504,28 +514,29 @@ class MemapParser(object):
 
         table.add_row(subtotal_row)
 
-        file_desc.write(table.get_string())
-        file_desc.write('\n')
+        output = table.get_string()
+        output += '\n'
 
         if self.mem_summary['heap'] == 0:
-            file_desc.write("Allocated Heap: unknown\n")
+            output += "Allocated Heap: unknown\n"
         else:
-            file_desc.write("Allocated Heap: %s bytes\n" %
-                            str(self.mem_summary['heap']))
+            output += "Allocated Heap: %s bytes\n" % \
+                        str(self.mem_summary['heap'])
 
         if self.mem_summary['stack'] == 0:
-            file_desc.write("Allocated Stack: unknown\n")
+            output += "Allocated Stack: unknown\n"
         else:
-            file_desc.write("Allocated Stack: %s bytes\n" %
-                            str(self.mem_summary['stack']))
+            output += "Allocated Stack: %s bytes\n" % \
+                        str(self.mem_summary['stack'])
 
-        file_desc.write("Total Static RAM memory (data + bss): %s bytes\n" %
-                        (str(self.mem_summary['static_ram'])))
-        file_desc.write(
-            "Total RAM memory (data + bss + heap + stack): %s bytes\n"
-            % (str(self.mem_summary['total_ram'])))
-        file_desc.write("Total Flash memory (text + data + misc): %s bytes\n" %
-                        (str(self.mem_summary['total_flash'])))
+        output += "Total Static RAM memory (data + bss): %s bytes\n" % \
+                        str(self.mem_summary['static_ram'])
+        output += "Total RAM memory (data + bss + heap + stack): %s bytes\n" % \
+                        str(self.mem_summary['total_ram'])
+        output += "Total Flash memory (text + data + misc): %s bytes\n" % \
+                        str(self.mem_summary['total_flash'])
+
+        return output
 
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
 
@@ -647,11 +658,15 @@ def main():
         if memap.parse(args.file, args.toolchain) is False:
             sys.exit(0)
 
+    returned_string = None
     # Write output in file
     if args.output != None:
-        memap.generate_output(args.export, args.output)
+        returned_string = memap.generate_output(args.export, args.output)
     else: # Write output in screen
-        memap.generate_output(args.export)
+        returned_string = memap.generate_output(args.export)
+
+    if args.export == 'table' and returned_string:
+        print returned_string
 
     sys.exit(0)
 

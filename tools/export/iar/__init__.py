@@ -2,14 +2,15 @@ import os
 from os.path import sep, join, exists
 from collections import namedtuple
 from subprocess import Popen, PIPE
-from distutils.spawn import find_executable
+import shutil
 import re
 import sys
 
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter, FailedBuildException
+from tools.export.exporters import Exporter
 import json
 from tools.export.cmsis import DeviceCMSIS
+from multiprocessing import cpu_count
 
 class IAR(Exporter):
     NAME = 'iar'
@@ -28,7 +29,8 @@ class IAR(Exporter):
     #iar_definitions.json
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if hasattr(obj, 'device_name') and
-               obj.device_name in IAR_DEFS.keys()]
+               obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains
+               and DeviceCMSIS.check_supported(target)]
 
     SPECIAL_TEMPLATES = {
         'rz_a1h'  : 'iar/iar_rz_a1h.ewp.tmpl',
@@ -101,7 +103,7 @@ class IAR(Exporter):
             flags['c_flags'].remove('--vla')
         if '--no_static_destruction' in flags['c_flags']:
             flags['c_flags'].remove('--no_static_destruction')
-        #Optimizations 
+        #Optimizations
         if '-Oh' in flags['c_flags']:
             flags['c_flags'].remove('-Oh')
         ctx = {
@@ -119,32 +121,55 @@ class IAR(Exporter):
         self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
         self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
 
-    def build(self):
+    @staticmethod
+    def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build IAR project """
         # > IarBuild [project_path] -build [project_name]
-        proj_file = join(self.export_dir, self.project_name + ".ewp")
+        proj_file = project_name + ".ewp"
+        cmd = ["IarBuild", proj_file, '-build', project_name]
 
-        if find_executable("IarBuild"):
-            iar_exe = "IarBuild.exe"
-        else:
-            iar_exe = join('C:', sep,
-                          'Program Files (x86)', 'IAR Systems',
-                          'Embedded Workbench 7.5', 'common', 'bin',
-                          'IarBuild.exe')
-            if not exists(iar_exe):
-                raise Exception("IarBuild.exe not found. Add to path.")
+        # IAR does not support a '0' option to automatically use all
+        # available CPUs, so we use Python's multiprocessing library
+        # to detect the number of CPUs available
+        cpus_available = cpu_count()
+        jobs = cpus_available if cpus_available else None
 
-        cmd = [iar_exe, proj_file, '-build', self.project_name]
+        # Only add the parallel flag if we're using more than one CPU
+        if jobs:
+            cmd += ['-parallel', str(jobs)]
+
+        # Build the project
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        num_errors = 0
-        #Parse the output for printing and errors
-        for line in p.stdout.readlines():
-            sys.stdout.write(line)
-            error_re = '\s*Total number of errors:\s*(\d+)\s*'
-            m = re.match(error_re, line)
-            if m is not None:
-                num_errors = int(m.group(1))
-        if num_errors !=0:
+        out, err = p.communicate()
+        ret_code = p.returncode
+
+        out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        out_string += out
+        out_string += "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        out_string += err
+
+        if ret_code == 0:
+            out_string += "SUCCESS"
+        else:
+            out_string += "FAILURE"
+
+        print out_string
+
+        if log_name:
+            # Write the output to the log file
+            with open(log_name, 'w+') as f:
+                f.write(out_string)
+
+        # Cleanup the exported and built files
+        if cleanup:
+            os.remove(project_name + ".ewp")
+            os.remove(project_name + ".ewd")
+            os.remove(project_name + ".eww")
+            if exists('.build'):
+                shutil.rmtree('.build')
+
+        if ret_code !=0:
             # Seems like something went wrong.
-            raise FailedBuildException("Project: %s build failed with %s erros" % (
-            proj_file, num_errors))
+            return -1
+        else:
+            return 0

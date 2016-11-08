@@ -35,7 +35,7 @@ static const nrf_drv_saadc_config_t saadc_config =
 {
     .resolution         = NRF_SAADC_RESOLUTION_12BIT,
     .oversample         = NRF_SAADC_OVERSAMPLE_DISABLED,
-    .interrupt_priority = APP_IRQ_PRIORITY_LOW
+    .interrupt_priority = SAADC_CONFIG_IRQ_PRIORITY
 };
 
 void SAADC_IRQHandler(void);

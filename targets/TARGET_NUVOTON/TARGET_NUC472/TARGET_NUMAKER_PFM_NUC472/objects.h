@@ -128,6 +128,10 @@ struct trng_s {
     uint8_t dummy;
 };
 
+struct can_s {
+	CANName can;
+	char index; 
+};
 #ifdef __cplusplus
 }
 #endif

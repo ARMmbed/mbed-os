@@ -16,7 +16,7 @@
 #ifndef MBED_H
 #define MBED_H
 
-#define MBED_LIBRARY_VERSION 128
+#define MBED_LIBRARY_VERSION 129
 
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos/rtos.h"

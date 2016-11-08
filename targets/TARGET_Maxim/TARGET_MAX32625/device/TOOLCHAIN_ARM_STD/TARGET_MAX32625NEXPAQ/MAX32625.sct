@@ -1,0 +1,16 @@
+; MAX32625
+; 512KB FLASH (0x70000) @ 0x000010000
+; 160KB RAM (0x24F00) @ 0x20003100
+
+LR_IROM1 0x000010000 0x70000  {    ; load region size_region
+    ER_IROM1 0x000010000 0x70000  {  ; load address = execution address 
+        *.o (RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    ; [RAM] Vector table dynamic copy: 68 vectors * 4 bytes = 272 (0x110)
+    RW_IRAM1 (0x20003100+0x110) (0x24F00-0x110)  {  ; RW data
+        .ANY (+RW +ZI)
+    }
+}

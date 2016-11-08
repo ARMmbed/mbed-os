@@ -74,6 +74,12 @@
 #define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
 #define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
 
+#ifdef NRF51
+    #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
+#elif defined(NRF52)
+    #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
+#endif
+
 // Required by "retarget.cpp".
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -115,6 +121,9 @@ typedef struct {
 } uart_ctlblock_t;
 
 static uart_ctlblock_t uart_cb[UART_INSTANCE_COUNT];
+
+static void internal_set_hwfc(FlowControl type,
+                             PinName rxflow, PinName txflow);
 
 
 #if DEVICE_SERIAL_ASYNCH
@@ -291,7 +300,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     #if DEVICE_SERIAL_ASYNCH
         nrf_uart_int_enable(UART_INSTANCE, NRF_UART_INT_MASK_ERROR);
     #endif
-        nrf_drv_common_irq_enable(UART_IRQn, APP_IRQ_PRIORITY_LOW);
+        nrf_drv_common_irq_enable(UART_IRQn, NRFx_MBED_UART_IRQ_PRIORITY);
 
         // TX interrupt needs to be signaled when transmitter buffer is empty,
         // so a dummy transmission is needed to get the TXDRDY event initially
@@ -317,9 +326,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_baudrate_set(UART_INSTANCE, UART_CB.baudrate);
         nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
         if (UART_CB.hwfc == NRF_UART_HWFC_ENABLED) {
-            serial_set_flow_control(obj, FlowControlRTSCTS,
+            internal_set_hwfc(FlowControlRTSCTS,
                 (PinName) UART_CB.pselrts, (PinName) UART_CB.pselcts);
         }
+        
         nrf_uart_enable(UART_INSTANCE);
 
         UART_CB.initialized = true;
@@ -528,15 +538,14 @@ void serial_break_clear(serial_t *obj)
     nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STARTTX);
 }
 
-void serial_set_flow_control(serial_t *obj, FlowControl type,
+
+static void internal_set_hwfc(FlowControl type,
                              PinName rxflow, PinName txflow)
 {
-    (void)obj;
-
     UART_CB.pselrts =
-        (rxflow == NC) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)rxflow;
+        ((rxflow == NC) || (type == FlowControlCTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)rxflow;
     UART_CB.pselcts =
-        (txflow == NC) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)txflow;
+        ((txflow == NC) || (type == FlowControlRTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)txflow;
 
     if (UART_CB.pselrts != NRF_UART_PSEL_DISCONNECTED) {
         nrf_gpio_pin_set(UART_CB.pselrts);
@@ -545,10 +554,23 @@ void serial_set_flow_control(serial_t *obj, FlowControl type,
     if (UART_CB.pselcts != NRF_UART_PSEL_DISCONNECTED) {
         nrf_gpio_cfg_input(UART_CB.pselcts, NRF_GPIO_PIN_NOPULL);
     }
-    nrf_uart_disable(UART_INSTANCE);
+    
+    UART_CB.hwfc = (type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART0_CONFIG_HWFC;
+    
+    nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
     nrf_uart_hwfc_pins_set(UART_INSTANCE, UART_CB.pselrts, UART_CB.pselcts);
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type,
+                             PinName rxflow, PinName txflow)
+{
+    (void)obj;
+    
+    nrf_uart_disable(UART_INSTANCE);
+    internal_set_hwfc(type, rxflow, txflow);
     nrf_uart_enable(UART_INSTANCE);
 }
+
 
 void serial_clear(serial_t *obj) {
     (void)obj;

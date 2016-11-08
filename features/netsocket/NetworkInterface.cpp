@@ -40,27 +40,27 @@ const char *NetworkInterface::get_gateway()
     return 0;
 }
 
-int NetworkInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+nsapi_error_t NetworkInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-int NetworkInterface::set_dhcp(bool dhcp)
+nsapi_error_t NetworkInterface::set_dhcp(bool dhcp)
 {
     if (!dhcp) {
         return NSAPI_ERROR_UNSUPPORTED;
     } else {
-        return 0;
+        return NSAPI_ERROR_OK;
     }
 }
 
 // DNS operations go through the underlying stack by default
-int NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
     return get_stack()->gethostbyname(name, address, version);
 }
 
-int NetworkInterface::add_dns_server(const SocketAddress &address)
+nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
 {
     return get_stack()->add_dns_server(address);
 }

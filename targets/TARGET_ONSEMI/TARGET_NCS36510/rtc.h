@@ -52,8 +52,14 @@
 #define RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS      2
 #define RTC_CONTROL_SEC_CNT_INT_BIT_POS         3
 
+#define RTC_STATUS_SUB_SEC_ALARM_WRT_BIT_POS    6
+#define RTC_STATUS_SEC_ALARM_WRT_BIT_POS        7
+#define RTC_STATUS_CONTROL_WRT_BIT_POS          8
 #define RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS  9
 #define RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS      10
+
+#define SUB_SEC_MASK    0x7FFF
+
 
 /* FUnction pointer for call back */
 typedef void (* fRtcCallBack)(void);

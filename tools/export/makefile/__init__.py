@@ -16,7 +16,10 @@ limitations under the License.
 """
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
     exists
-from os import curdir, getcwd
+from os import remove
+import sys
+from subprocess import check_output, CalledProcessError, Popen, PIPE
+import shutil
 from jinja2.exceptions import TemplateNotFound
 from tools.export.exporters import Exporter
 from tools.utils import NotSupportedException
@@ -61,14 +64,18 @@ class Makefile(Exporter):
                           == "projectfiles")
                       else [".."]),
             'cc_cmd': " ".join(["\'" + part + "\'" for part
-                                in self.toolchain.cc]),
+                                in ([basename(self.toolchain.cc[0])] +
+                                    self.toolchain.cc[1:])]),
             'cppc_cmd': " ".join(["\'" + part + "\'" for part
-                                  in self.toolchain.cppc]),
+                                  in ([basename(self.toolchain.cppc[0])] +
+                                      self.toolchain.cppc[1:])]),
             'asm_cmd': " ".join(["\'" + part + "\'" for part
-                                 in self.toolchain.asm]),
+                                in ([basename(self.toolchain.asm[0])] +
+                                    self.toolchain.asm[1:])]),
             'ld_cmd': " ".join(["\'" + part + "\'" for part
-                                in self.toolchain.ld]),
-            'elf2bin_cmd': "\'" + self.toolchain.elf2bin + "\'",
+                                in ([basename(self.toolchain.ld[0])] +
+                                    self.toolchain.ld[1:])]),
+            'elf2bin_cmd': "\'" + basename(self.toolchain.elf2bin) + "\'",
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
@@ -88,12 +95,12 @@ class Makefile(Exporter):
         ctx.update(self.flags)
 
         for templatefile in \
-            ['makefile/%s_%s.tmpl' % (self.NAME.lower(),
+            ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
                                       self.target.lower())] + \
-            ['makefile/%s_%s.tmpl' % (self.NAME.lower(),
+            ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
                                       label.lower()) for label
              in self.toolchain.target.extra_labels] +\
-            ['makefile/%s.tmpl' % self.NAME.lower()]:
+            ['makefile/%s.tmpl' % self.TEMPLATE]:
             try:
                 self.gen_file(templatefile, ctx, 'Makefile')
                 break
@@ -102,12 +109,54 @@ class Makefile(Exporter):
         else:
             raise NotSupportedException("This make tool is in development")
 
+    @staticmethod
+    def build(project_name, log_name="build_log.txt", cleanup=True):
+        """ Build Make project """
+        # > Make -j
+        cmd = ["make", "-j"]
+
+        # Build the project
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        ret_code = p.returncode
+
+        out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        out_string += out
+        out_string += "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        out_string += err
+
+        if ret_code == 0:
+            out_string += "SUCCESS"
+        else:
+            out_string += "FAILURE"
+
+        print out_string
+
+        if log_name:
+            # Write the output to the log file
+            with open(log_name, 'w+') as f:
+                f.write(out_string)
+
+        # Cleanup the exported and built files
+        if cleanup:
+            remove("Makefile")
+            remove(log_name)
+            if exists('.build'):
+                shutil.rmtree('.build')
+
+        if ret_code != 0:
+            # Seems like something went wrong.
+            return -1
+        else:
+            return 0
+
 
 class GccArm(Makefile):
     """GCC ARM specific makefile target"""
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if "GCC_ARM" in obj.supported_toolchains]
     NAME = 'Make-GCC-ARM'
+    TEMPLATE = 'make-gcc-arm'
     TOOLCHAIN = "GCC_ARM"
     LINK_SCRIPT_OPTION = "-T"
     USER_LIBRARY_FLAG = "-L"
@@ -122,6 +171,7 @@ class Armc5(Makefile):
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if "ARM" in obj.supported_toolchains]
     NAME = 'Make-ARMc5'
+    TEMPLATE = 'make-armc5'
     TOOLCHAIN = "ARM"
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
@@ -136,6 +186,7 @@ class IAR(Makefile):
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if "IAR" in obj.supported_toolchains]
     NAME = 'Make-IAR'
+    TEMPLATE = 'make-iar'
     TOOLCHAIN = "IAR"
     LINK_SCRIPT_OPTION = "--config"
     USER_LIBRARY_FLAG = "-L"
