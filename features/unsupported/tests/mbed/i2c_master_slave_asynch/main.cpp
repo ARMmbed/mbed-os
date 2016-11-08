@@ -69,7 +69,8 @@ int main()
 
     // First transfer: master to slave
     printf("\nFirst transfer: Master Tx, Repeated Start\n");
-    master.transfer(ADDR, buf_master, SIZE, 0, 0, callback, I2C_EVENT_ALL, true);
+    if(master.transfer(ADDR, buf_master, SIZE, 0, 0, callback, I2C_EVENT_ALL, true) != 0)
+            notify_completion(false);
 
     while (!master_complete) {
         if(slave.receive() == I2CSlave::WriteAddressed) {
@@ -89,7 +90,8 @@ int main()
 
     // Second transfer: slave to master
     printf("\nSecond transfer: Master Rx\n");
-    master.transfer(ADDR, 0, 0, res_master, SIZE, callback, I2C_EVENT_ALL, true);
+    if(master.transfer(ADDR, 0, 0, res_master, SIZE, callback, I2C_EVENT_ALL, true) != 0)
+            notify_completion(false);
 
     while (!master_complete) {
         if(slave.receive() == I2CSlave::ReadAddressed) {
@@ -117,7 +119,8 @@ int main()
 
     // Third transfer: Tx/Rx
     printf("\nThird transfer: Master Tx/Rx\n");
-    master.transfer(ADDR, buf_master_tx, SIZE, buf_master_rx, SIZE, callback, I2C_EVENT_ALL, false);
+    if(master.transfer(ADDR, buf_master_tx, SIZE, buf_master_rx, SIZE, callback, I2C_EVENT_ALL, false) != 0)
+            notify_completion(false);
 
     while (!master_complete) {
 
@@ -129,6 +132,7 @@ int main()
                 buf_slave_txrx[i]++;
             }
         }
+
         if((i == I2CSlave::ReadAddressed) ) {
             slave.write(buf_slave_txrx, SIZE);
         }
