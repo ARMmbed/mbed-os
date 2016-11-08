@@ -50,6 +50,15 @@ emac_stack_mem_t *emac_stack_mem_alloc(emac_stack_t* stack, uint32_t size, uint3
 void emac_stack_mem_free(emac_stack_t* stack, emac_stack_mem_t *mem);
 
 /**
+ * Copy memory
+ *
+ * @param  stack Emac stack context
+ * @param to Memory to copy to
+ * @param from Memory to copy from
+ */
+void emac_stack_mem_copy(emac_stack_t* stack, emac_stack_mem_t *to, emac_stack_mem_t *from);
+
+/**
  * Return pointer to the payload
  *
  * @param  stack Emac stack context
