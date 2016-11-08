@@ -386,8 +386,8 @@ def update_mbedos_version(config, tag, examples):
     for example in config['examples']:
         if example['name'] not in examples:
             continue
-        for repo in get_repo_list(example):
-            update_dir =  basename(repo) + "/mbed-os"
+        for repo_info in get_repo_list(example):
+            update_dir =  basename(repo_info['repo']) + "/mbed-os"
             print("\nChanging dir to %s\n" % update_dir)
             os.chdir(update_dir)
             subprocess.call(["mbed-cli", "update", tag, "--clean"])
