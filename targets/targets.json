@@ -2139,14 +2139,14 @@
             }
         }
     },
-    "EFR32MG1P132f256GM48": {
+    "EFR32MG1P132F256GM48": {
         "inherits": ["EFM32"],
         "extra_labels_add": ["EFR32", "EFR32MG1", "256K", "SL_RAIL"],
         "core": "Cortex-M4F",
-        "macros": ["EFR32MG1P132f256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
+        "macros": ["EFR32MG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
-        "device_name": "EFR32MG1P132f256GM48",
+        "device_name": "EFR32MG1P132F256GM48",
         "public": false
     },
     "EFR32MG1P233F256GM48": {
@@ -2160,7 +2160,7 @@
         "public": false
     },
     "EFR32MG1_BRD4150": {
-        "inherits": ["EFR32MG1P132f256GM48"],
+        "inherits": ["EFR32MG1P132F256GM48"],
         "device_has": ["AES", "SHA", "ECC", "SL_PTI", "RF_2P4GHZ", "RF_SUBGHZ", "ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "forced_reset_timeout": 2,
         "config": {
@@ -2205,7 +2205,7 @@
     "THUNDERBOARD_SENSE": {
         "inherits": ["EFR32MG1P233F256GM48"],
         "device_has": ["AES", "SHA", "ECC", "SL_PTI", "RF_2P4GHZ", "ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
-        "forced_reset_timeout": 2,
+        "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {
                 "help": "Value: HFXO for external crystal, HFRCO for internal RC oscillator",
