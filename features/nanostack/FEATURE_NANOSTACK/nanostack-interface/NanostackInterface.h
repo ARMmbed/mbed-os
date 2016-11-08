@@ -1,16 +1,27 @@
 /*
  * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef NANOSTACK_INTERFACE_H_
 #define NANOSTACK_INTERFACE_H_
 
+#include "mbed.h"
 #include "NetworkStack.h"
 #include "MeshInterface.h"
 #include "NanostackRfPhy.h"
-
-#include "mbed-mesh-api/Mesh6LoWPAN_ND.h"
-#include "mbed-mesh-api/MeshThread.h"
+#include "mesh_interface_types.h"
 
 class NanostackInterface : public NetworkStack {
 public:
@@ -240,7 +251,7 @@ public:
      *
      *  @return     0 on success, negative on failure
      */
-    virtual nsapi_error_t disconnect();
+    virtual nsapi_error_t disconnect() = 0;
 
     /** Get the internally stored IP address
     /return     IP address of the interface or null if not yet connected
@@ -252,72 +263,56 @@ public:
     */
     virtual const char *get_mac_address();
 
+    /**
+     * \brief Callback from C-layer
+     * \param state state of the network
+     * */
+    void mesh_network_handler(mesh_connection_status_t status);
+
 protected:
     MeshInterfaceNanostack();
     MeshInterfaceNanostack(NanostackRfPhy *phy);
     nsapi_error_t register_rf();
-    nsapi_error_t actual_connect();
     virtual NetworkStack * get_stack(void);
 
-    void mesh_network_handler(mesh_connection_status_t status);
+    /**
+     * \brief Connect interface to the mesh network
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_PARAM in case of illegal parameters.
+     * \return MESH_ERROR_MEMORY in case of memory error.
+     * \return MESH_ERROR_STATE if interface is already connected to network.
+     * \return MESH_ERROR_UNKNOWN in case of unspecified error.
+     * */
+    virtual mesh_error_t mesh_connect() = 0;
+
+    /**
+     * \brief Disconnect interface from the mesh network
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of error.
+     * */
+    virtual mesh_error_t mesh_disconnect() = 0;
+
+    /**
+     * \brief Read own global IP address
+     *
+     * \param address is where the IP address will be copied
+     * \param len is the length of the address buffer, must be at least 40 bytes
+     * \return true if address is read successfully, false otherwise
+     */
+    virtual bool getOwnIpAddress(char *address, int8_t len) = 0;
+
     NanostackRfPhy *phy;
-    AbstractMesh *mesh_api;
-    int8_t rf_device_id;
+    /** Network interface ID */
+    int8_t _network_interface_id;
+    /** Registered device ID */
+    int8_t _device_id;
     uint8_t eui64[8];
     char ip_addr_str[40];
     char mac_addr_str[24];
     Semaphore connect_semaphore;
 };
 
-class LoWPANNDInterface : public MeshInterfaceNanostack {
-public:
 
-    /** Create an uninitialized LoWPANNDInterface
-     *
-     *  Must initialize to initialize the mesh on a phy.
-     */
-    LoWPANNDInterface() : MeshInterfaceNanostack() {
-
-    }
-
-    /** Create an initialized MeshInterface
-     *
-     */
-    LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
-
-    }
-
-    nsapi_error_t connect();
-protected:
-    Mesh6LoWPAN_ND *get_mesh_api() const { return static_cast<Mesh6LoWPAN_ND *>(mesh_api); }
-private:
-
-};
-
-class ThreadInterface : public MeshInterfaceNanostack {
-public:
-
-    /** Create an uninitialized LoWPANNDInterface
-     *
-     *  Must initialize to initialize the mesh on a phy.
-     */
-    ThreadInterface() : MeshInterfaceNanostack() {
-
-    }
-
-    /** Create an initialized MeshInterface
-     *
-     */
-    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
-
-    }
-
-    nsapi_error_t connect();
-protected:
-    MeshThread *get_mesh_api() const { return static_cast<MeshThread *>(mesh_api); }
-private:
-
-};
-
+nsapi_error_t map_mesh_error(mesh_error_t err);
 
 #endif /* NANOSTACK_INTERFACE_H_ */

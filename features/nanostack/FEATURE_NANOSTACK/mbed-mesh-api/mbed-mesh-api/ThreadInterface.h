@@ -14,47 +14,40 @@
  * limitations under the License.
  */
 
-#ifndef __ABSTRACTMESH_H__
-#define __ABSTRACTMESH_H__
+#ifndef THREADINTERFACE_H
+#define THREADINTERFACE_H
 
-#include "mbed.h"
-#include "mesh_interface_types.h"
+#include "NanostackInterface.h"
 
-/**
- * \brief Abstract Mesh networking interface.
- * This class can't be instantiated directly.
- */
-class AbstractMesh
-{
-
+class ThreadInterface : public MeshInterfaceNanostack {
 public:
 
-    /**
-     * Typedef for network callback
+    /** Create an uninitialized LoWPANNDInterface
+     *
+     *  Must initialize to initialize the mesh on a phy.
      */
-    typedef FunctionPointerArg1<void, mesh_connection_status_t> mesh_network_handler_t;
+    ThreadInterface() : MeshInterfaceNanostack() {
 
-    /**
-     * Constructor
-     * \param type mesh network type
+    }
+
+    /** Create an initialized MeshInterface
+     *
      */
-    AbstractMesh(mesh_network_type_t type);
+    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
 
-    // Destructor, force derived classes to implement own destructors
-    // and prevent class creation.
-    virtual ~AbstractMesh() = 0;
+    }
 
-    /**
+    int connect();
+    int disconnect();
+private:
+    /*
      * \brief Initialization of the interface.
-     * \param registered device is physical device registered
-     * \param callbackHandler is callback that is called when network state changes
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_PARAM when input parameters are illegal (also in case when RF device is already associated to other interface)
      * \return MESH_ERROR_MEMORY in case of memory error
      * \return MESH_ERROR_UNKNOWN in other error cases
      */
-    virtual mesh_error_t init(int8_t registered_device_id, mesh_network_handler_t callbackHandler);
-
+    mesh_error_t init();
     /**
      * \brief Connect interface to the mesh network
      * \return MESH_ERROR_NONE on success.
@@ -63,20 +56,14 @@ public:
      * \return MESH_ERROR_STATE if interface is already connected to network.
      * \return MESH_ERROR_UNKNOWN in case of unspecified error.
      * */
-    virtual mesh_error_t connect();
+    mesh_error_t mesh_connect();
 
     /**
      * \brief Disconnect interface from the mesh network
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of error.
      * */
-    virtual mesh_error_t disconnect();
-
-    /**
-     * \brief Callback from C-layer
-     * \param state state of the network
-     * */
-    void callback(mesh_connection_status_t state);
+    mesh_error_t mesh_disconnect();
 
     /**
      * \brief Read own global IP address
@@ -85,29 +72,7 @@ public:
      * \param len is the length of the address buffer, must be at least 40 bytes
      * \return true if address is read successfully, false otherwise
      */
-    virtual bool getOwnIpAddress(char *address, int8_t len) = 0;
-
-protected:
-
-    /*
-     * Mesh callback function
-     */
-    mesh_network_handler_t _mesh_network_handler;
-
-    /*
-     * Network interface ID
-     */
-    int8_t _network_interface_id;
-
-    /*
-     * Registered device ID
-     */
-    int8_t _device_id;
-
-    /*
-     * Mesh network type
-     */
-    mesh_network_type_t _mesh_network_type;
+    bool getOwnIpAddress(char *address, int8_t len);
 };
 
-#endif /* __ABSTRACTMESH_H__ */
+#endif // THREADINTERFACE_H

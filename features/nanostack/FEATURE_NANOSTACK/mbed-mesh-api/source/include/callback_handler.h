@@ -18,9 +18,7 @@
 #define __INCLUDE_CALLBACK_HANDLER_H__
 
 #include "mbed.h"
-#include "mbed-mesh-api/AbstractMesh.h"
-
-extern AbstractMesh  *__abstract_mesh_interface;
+#include "mesh_interface_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +30,9 @@ void __mesh_handler_c_callback(mesh_connection_status_t state);
 }
 #endif
 
-
+#ifdef __cplusplus
+#include "NanostackInterface.h"
+void __mesh_handler_set_callback(MeshInterfaceNanostack *handler);
+#endif
 
 #endif /* __INCLUDE_CALLBACK_HANDLER_H__ */

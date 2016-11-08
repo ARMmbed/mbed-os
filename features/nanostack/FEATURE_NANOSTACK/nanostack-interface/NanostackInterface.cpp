@@ -26,10 +26,17 @@
 #include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
 #include "net_interface.h"
+
 // Uncomment to enable trace
 //#define HAVE_DEBUG
 #include "ns_trace.h"
 #define TRACE_GROUP "nsif"
+
+#include "nanostack-event-loop/eventOS_scheduler.h"
+
+#define nanostack_lock()            eventOS_scheduler_mutex_wait()
+#define nanostack_unlock()          eventOS_scheduler_mutex_release()
+#define nanostack_assert_locked()   //MBED_ASSERT(eventOS_scheduler_mutex_is_owner())
 
 #define NS_INTERFACE_SOCKETS_MAX  16  //same as NanoStack SOCKET_MAX
 #define NANOSTACK_SOCKET_UDP 17 // same as nanostack SOCKET_UDP
@@ -37,10 +44,6 @@
 
 #define MALLOC  ns_dyn_mem_alloc
 #define FREE    ns_dyn_mem_free
-
-#define nanostack_lock()            eventOS_scheduler_mutex_wait()
-#define nanostack_unlock()          eventOS_scheduler_mutex_release()
-#define nanostack_assert_locked()   //MBED_ASSERT(eventOS_scheduler_mutex_is_owner())
 
 enum socket_mode_t {
     SOCKET_MODE_UNOPENED,   // No socket ID
@@ -107,7 +110,7 @@ private:
 
 static NanostackSocket * socket_tbl[NS_INTERFACE_SOCKETS_MAX];
 
-static nsapi_error_t map_mesh_error(mesh_error_t err)
+nsapi_error_t map_mesh_error(mesh_error_t err)
 {
     switch (err) {
         case MESH_ERROR_NONE: return 0;
@@ -443,20 +446,21 @@ void NanostackSocket::event_connnect_closed(socket_callback_t *sock_cb)
 }
 
 MeshInterfaceNanostack::MeshInterfaceNanostack()
-    : phy(NULL), mesh_api(NULL), rf_device_id(-1), eui64(),
+    : phy(NULL), _network_interface_id(-1), _device_id(-1), eui64(),
       ip_addr_str(), mac_addr_str(), connect_semaphore(0)
 {
     // Nothing to do
 }
 
 MeshInterfaceNanostack::MeshInterfaceNanostack(NanostackRfPhy *phy)
-    : phy(phy), mesh_api(NULL), rf_device_id(-1), connect_semaphore(0)
+    : phy(phy), _network_interface_id(-1), _device_id(-1), connect_semaphore(0)
 {
     // Nothing to do
 }
 
 nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
 {
+    mesh_system_init();
     if (this->phy != NULL) {
         error("Phy already set");
     }
@@ -479,8 +483,8 @@ nsapi_error_t MeshInterfaceNanostack::register_rf()
 {
     nanostack_lock();
 
-    rf_device_id = phy->rf_register();
-    if (rf_device_id < 0) {
+    _device_id = phy->rf_register();
+    if (_device_id < 0) {
         nanostack_unlock();
         return -1;
     }
@@ -493,43 +497,9 @@ nsapi_error_t MeshInterfaceNanostack::register_rf()
     return 0;
 }
 
-nsapi_error_t MeshInterfaceNanostack::actual_connect()
-{
-    nanostack_assert_locked();
-
-    mesh_error_t status = mesh_api->connect();
-    if (status != MESH_ERROR_NONE) {
-        nanostack_unlock();
-        return map_mesh_error(status);
-    }
-
-    // Release mutex before blocking
-    nanostack_unlock();
-
-    int32_t count = connect_semaphore.wait(30000);
-
-    nanostack_lock();
-
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
-    }
-    return 0;
-}
-
 NetworkStack * MeshInterfaceNanostack::get_stack()
 {
     return NanostackInterface::get_stack();
-}
-
-nsapi_error_t MeshInterfaceNanostack::disconnect()
-{
-    nanostack_lock();
-
-    mesh_error_t status = mesh_api->disconnect();
-
-    nanostack_unlock();
-
-    return map_mesh_error(status);
 }
 
 const char *MeshInterfaceNanostack::get_ip_address()
@@ -537,7 +507,7 @@ const char *MeshInterfaceNanostack::get_ip_address()
     nanostack_lock();
 
     const char *ret = NULL;
-    if (mesh_api && mesh_api->getOwnIpAddress(ip_addr_str, sizeof ip_addr_str)) {
+    if (getOwnIpAddress(ip_addr_str, sizeof ip_addr_str)) {
         ret = ip_addr_str;
     }
 
@@ -549,68 +519,6 @@ const char *MeshInterfaceNanostack::get_ip_address()
 const char *MeshInterfaceNanostack::get_mac_address()
 {
     return mac_addr_str;
-}
-
-nsapi_error_t ThreadInterface::connect()
-{
-    // initialize mesh networking resources, memory, timers, etc...
-    mesh_system_init();
-    nanostack_lock();
-
-    mesh_api = new MeshThread;
-    if (!mesh_api) {
-        nanostack_unlock();
-        return NSAPI_ERROR_NO_MEMORY;
-    }
-    if (register_rf() < 0) {
-        nanostack_unlock();
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    // After the RF is up, we can seed the random from it.
-    randLIB_seed_random();
-
-    mesh_error_t status = ((MeshThread *)mesh_api)->init(rf_device_id, AbstractMesh::mesh_network_handler_t(static_cast<MeshInterfaceNanostack *>(this), &ThreadInterface::mesh_network_handler), eui64, NULL);
-    if (status != MESH_ERROR_NONE) {
-        nanostack_unlock();
-        return map_mesh_error(status);
-    }
-    nsapi_error_t ret = this->actual_connect();
-
-    nanostack_unlock();
-
-    return ret;
-}
-
-nsapi_error_t LoWPANNDInterface::connect()
-{
-    // initialize mesh networking resources, memory, timers, etc...
-    mesh_system_init();
-    nanostack_lock();
-
-    mesh_api = new Mesh6LoWPAN_ND;
-    if (!mesh_api) {
-        nanostack_unlock();
-        return NSAPI_ERROR_NO_MEMORY;
-    }
-    if (register_rf() < 0) {
-        nanostack_unlock();
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    // After the RF is up, we can seed the random from it.
-    randLIB_seed_random();
-
-    mesh_error_t status = ((Mesh6LoWPAN_ND *)mesh_api)->init(rf_device_id, AbstractMesh::mesh_network_handler_t(static_cast<MeshInterfaceNanostack *>(this), &LoWPANNDInterface::mesh_network_handler));
-    if (status != MESH_ERROR_NONE) {
-        nanostack_unlock();
-        return map_mesh_error(status);
-    }
-    nsapi_error_t ret = this->actual_connect();
-
-    nanostack_unlock();
-
-    return ret;
 }
 
 NanostackInterface * NanostackInterface::_ns_interface;
