@@ -45,7 +45,6 @@ I2CSlave slave(D3, D6);
 volatile int why;
 volatile bool master_complete = false;
 void cbmaster_done(int event) {
-    printf("cbmaster_done\n");
     master_complete = true;
     why = event;
 }
