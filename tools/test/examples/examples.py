@@ -90,19 +90,19 @@ def do_export(args, config, examples):
     return failures
 
 
-def do_import(args, config, examples):
+def do_import(_, config, examples):
     """Do the import step of this process"""
     lib.source_repos(config, examples)
     return 0
 
 
-def do_clone(args, config, examples):
+def do_clone(_, config, examples):
     """Do the clone step of this process"""
     lib.clone_repos(config, examples)
     return 0
 
 
-def do_deploy(args, config, examples):
+def do_deploy(_, config, examples):
     """Do the deploy step of this process"""
     lib.deploy_repos(config, examples)
     return 0
