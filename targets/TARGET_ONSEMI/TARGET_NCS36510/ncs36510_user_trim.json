@@ -1,8 +1,0 @@
-{
-  "mac-addr-low": "0x12345678",
-  "mac-addr-high": "0xACDE48EF",
-  "32KHz-clk-trim": "0x3A",
-  "32MHz-clk-trim": "0x16",
-  "rssi-trim": "0x3D",
-  "txtune-trim": "0x12"
-}
