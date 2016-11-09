@@ -2329,20 +2329,20 @@
         "extra_labels": ["ONSEMI"],
         "config": {
             "mac-addr-low": {
-                "help": "Lower 32 bits of the MAC extended address",
-                "value": "0x12345678"
+                "help": "Lower 32 bits of the MAC extended address. All FFs indicates that factory programmed MAC address shall be used. In order to override the factory programmed MAC address this value needs to be changed from 0xFFFFFFFF to any chosen value.",
+                "value": "0xFFFFFFFF"
             },
             "mac-addr-high": {
-                "help": "Higher 32 bits of the MAC extended address",
-                "value": "0xACDE4800"
+                "help": "Higher 32 bits of the MAC extended address. All FFs indicates that factory programmed MAC address shall be used. In order to override the factory programmed MAC address this value needs to be changed from 0xFFFFFFFF to any chosen value.",
+                "value": "0xFFFFFFFF"
             },
             "32KHz-clk-trim": {
                 "help": "32KHz clock trim",
-                "value": "0x3A"
+                "value": "0x39"
             },
             "32MHz-clk-trim": {
                 "help": "32MHz clock trim",
-                "value": "0x16"
+                "value": "0x17"
             },
             "rssi-trim": {
                 "help": "RSSI trim",
@@ -2350,7 +2350,7 @@
             },
             "txtune-trim": {
                 "help": "TX tune trim",
-                "value": "0x12"
+                "value": "0xFFFFFFFF"
             }
         },
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
