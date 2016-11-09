@@ -27,8 +27,11 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
 
+    uint32_t MGCOUTClock = SystemCoreClock * (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT));
+    uint32_t BusClock = MGCOUTClock / (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV2_MASK) >> SIM_CLKDIV1_OUTDIV2_SHIFT));
+
     uint32_t clkdiv = 0;
-    float clkval = SystemCoreClock / 1000000.0f;
+    float clkval = BusClock / 1000000.0f;
 
     while (clkval > 1) {
         clkdiv++;
