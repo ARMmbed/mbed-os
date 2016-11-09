@@ -1061,7 +1061,7 @@ typedef enum CGU_BASE_CLK {
     CLK_BASE_APB3,        /* Base clock for APB3 group */
     CLK_BASE_LCD,         /* Base clock for LCD pixel clock */
 #if defined(CHIP_LPC43XX)
-    CLK_BASE_ADCHS,       /* Base clock for ADCHS */
+    CLK_BASE_VADC,        /* Base clock for VADC */
 #else
     CLK_BASE_RESERVED3,
 #endif
