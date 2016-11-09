@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -214,8 +214,8 @@ static HAL_StatusTypeDef  I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s,
   */
 HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
 {
-  uint32_t i2sdiv = 2, i2sodd = 0, packetlength = 1;
-  uint32_t tmp = 0, i2sclk = 0, tmpreg = 0;
+  uint32_t i2sdiv = 2U, i2sodd = 0U, packetlength = 1U;
+  uint32_t tmp = 0U, i2sclk = 0U, tmpreg = 0U;
   
   /* Check the I2S handle allocation */
   if(hi2s == NULL)
@@ -246,8 +246,8 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   /* If the default value has to be written, reinitialize i2sdiv and i2sodd*/
   if(hi2s->Init.AudioFreq == I2S_AUDIOFREQ_DEFAULT)
   {
-    i2sodd = (uint32_t)0;
-    i2sdiv = (uint32_t)2;   
+    i2sodd = (uint32_t)0U;
+    i2sdiv = (uint32_t)2U;   
   }
   /* If the requested audio frequency is not the default, compute the prescaler */
   else
@@ -256,12 +256,12 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     if(hi2s->Init.DataFormat == I2S_DATAFORMAT_16B)
     {
       /* Packet length is 16 bits */
-      packetlength = 1;
+      packetlength = 1U;
     }
     else
     {
       /* Packet length is 32 bits */
-      packetlength = 2;
+      packetlength = 2U;
     }
 
     /* Get the source clock value: based on System Clock value */
@@ -271,33 +271,33 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     if(hi2s->Init.MCLKOutput == I2S_MCLKOUTPUT_ENABLE)
     {
       /* MCLK output is enabled */
-      tmp = (uint32_t)(((((i2sclk / 256) * 10) / hi2s->Init.AudioFreq)) + 5);
+      tmp = (uint32_t)(((((i2sclk / 256U) * 10U) / hi2s->Init.AudioFreq)) + 5U);
     }
     else
     {
       /* MCLK output is disabled */
-      tmp = (uint32_t)(((((i2sclk / (32 * packetlength)) *10 ) / hi2s->Init.AudioFreq)) + 5);
+      tmp = (uint32_t)(((((i2sclk / (32U * packetlength)) *10U ) / hi2s->Init.AudioFreq)) + 5U);
     }
 
     /* Remove the flatting point */
-    tmp = tmp / 10;  
+    tmp = tmp / 10U;  
 
     /* Check the parity of the divider */
-    i2sodd = (uint32_t)(tmp & (uint32_t)1);
+    i2sodd = (uint32_t)(tmp & (uint32_t)1U);
 
     /* Compute the i2sdiv prescaler */
-    i2sdiv = (uint32_t)((tmp - i2sodd) / 2);
+    i2sdiv = (uint32_t)((tmp - i2sodd) / 2U);
 
     /* Get the Mask for the Odd bit (SPI_I2SPR[8]) register */
-    i2sodd = (uint32_t) (i2sodd << 8);
+    i2sodd = (uint32_t) (i2sodd << 8U);
   }
 
   /* Test if the divider is 1 or 0 or greater than 0xFF */
-  if((i2sdiv < 2) || (i2sdiv > 0xFF))
+  if((i2sdiv < 2U) || (i2sdiv > 0xFFU))
   {
     /* Set the default values */
-    i2sdiv = 2;
-    i2sodd = 0;
+    i2sdiv = 2U;
+    i2sodd = 0U;
   }
 
   /*----------------------- SPIx I2SCFGR & I2SPR Configuration ----------------*/
@@ -467,7 +467,7 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
 HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == NULL ) || (Size == 0U)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -480,8 +480,8 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
     if(((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_24B)||\
       ((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_32B))
     {
-      hi2s->TxXferSize = (Size << 1);
-      hi2s->TxXferCount = (Size << 1);
+      hi2s->TxXferSize = (Size << 1U);
+      hi2s->TxXferCount = (Size << 1U);
     }
     else
     {
@@ -501,7 +501,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
       __HAL_I2S_ENABLE(hi2s);
     }
     
-    while(hi2s->TxXferCount > 0)
+    while(hi2s->TxXferCount > 0U)
     {
       /* Wait until TXE flag is set */
       if (I2S_WaitFlagStateUntilTimeout(hi2s, I2S_FLAG_TXE, RESET, Timeout) != HAL_OK)
@@ -562,7 +562,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
   */
 HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == NULL ) || (Size == 0U)) 
   {
     return  HAL_ERROR;
   }
@@ -575,8 +575,8 @@ HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint
     if(((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_24B)||\
       ((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_32B))
     {
-      hi2s->RxXferSize = (Size << 1);
-      hi2s->RxXferCount = (Size << 1);
+      hi2s->RxXferSize = (Size << 1U);
+      hi2s->RxXferCount = (Size << 1U);
     }
     else
     {
@@ -605,7 +605,7 @@ HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint
     }
 
     /* Receive data */
-    while(hi2s->RxXferCount > 0)
+    while(hi2s->RxXferCount > 0U)
     {
       /* Wait until RXNE flag is set */
       if (I2S_WaitFlagStateUntilTimeout(hi2s, I2S_FLAG_RXNE, RESET, Timeout) != HAL_OK)
@@ -649,7 +649,7 @@ HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint
   */
 HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
-  if((pData == NULL) || (Size == 0)) 
+  if((pData == NULL) || (Size == 0U)) 
   {
     return  HAL_ERROR;
   }
@@ -666,8 +666,8 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
     if(((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_24B)||\
       ((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_32B))
     {
-      hi2s->TxXferSize = (Size << 1);
-      hi2s->TxXferCount = (Size << 1);
+      hi2s->TxXferSize = (Size << 1U);
+      hi2s->TxXferCount = (Size << 1U);
     }
     else
     {
@@ -717,7 +717,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   */
 HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -734,8 +734,8 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
     if(((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_24B)||\
       ((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_32B))
     {
-      hi2s->RxXferSize = (Size << 1);
-      hi2s->RxXferCount = (Size << 1);
+      hi2s->RxXferSize = (Size << 1U);
+      hi2s->RxXferCount = (Size << 1U);
     }  
     else
     {
@@ -782,7 +782,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
   */
 HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
-  if((pData == NULL) || (Size == 0)) 
+  if((pData == NULL) || (Size == 0U)) 
   {
     return  HAL_ERROR;
   }
@@ -799,8 +799,8 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
     if(((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_24B)||\
       ((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_32B))
     {
-      hi2s->TxXferSize = (Size << 1);
-      hi2s->TxXferCount = (Size << 1);
+      hi2s->TxXferSize = (Size << 1U);
+      hi2s->TxXferCount = (Size << 1U);
     }
     else
     {
@@ -863,7 +863,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
   */
 HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
-  if((pData == NULL) || (Size == 0))
+  if((pData == NULL) || (Size == 0U))
   {
     return  HAL_ERROR;
   }
@@ -880,8 +880,8 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
     if(((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_24B)||\
       ((hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN)) == I2S_DATAFORMAT_32B))
     {
-      hi2s->RxXferSize = (Size << 1);
-      hi2s->RxXferCount = (Size << 1);
+      hi2s->RxXferSize = (Size << 1U);
+      hi2s->RxXferCount = (Size << 1U);
     }
     else
     {
@@ -1243,7 +1243,7 @@ static void I2S_DMATxCplt(DMA_HandleTypeDef *hdma)
     /* Disable Tx DMA Request */
     CLEAR_BIT(hi2s->Instance->CR2, SPI_CR2_TXDMAEN);
 
-    hi2s->TxXferCount = 0;
+    hi2s->TxXferCount = 0U;
     hi2s->State = HAL_I2S_STATE_READY;
   }
   HAL_I2S_TxCpltCallback(hi2s);
@@ -1276,7 +1276,7 @@ static void I2S_DMARxCplt(DMA_HandleTypeDef *hdma)
   {
     /* Disable Rx DMA Request */
     CLEAR_BIT(hi2s->Instance->CR2, SPI_CR2_RXDMAEN);
-    hi2s->RxXferCount = 0;
+    hi2s->RxXferCount = 0U;
     hi2s->State = HAL_I2S_STATE_READY;
   }
   HAL_I2S_RxCpltCallback(hi2s); 
@@ -1307,8 +1307,8 @@ static void I2S_DMAError(DMA_HandleTypeDef *hdma)
 
   /* Disable Rx and Tx DMA Request */
   CLEAR_BIT(hi2s->Instance->CR2, (SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN));
-  hi2s->TxXferCount = 0;
-  hi2s->RxXferCount = 0;
+  hi2s->TxXferCount = 0U;
+  hi2s->RxXferCount = 0U;
 
   hi2s->State= HAL_I2S_STATE_READY;
 
@@ -1329,7 +1329,7 @@ static void I2S_Transmit_IT(I2S_HandleTypeDef *hi2s)
   hi2s->Instance->DR = (*hi2s->pTxBuffPtr++);
   hi2s->TxXferCount--;
     
-  if(hi2s->TxXferCount == 0)
+  if(hi2s->TxXferCount == 0U)
   {
     /* Disable TXE and ERR interrupt */
     __HAL_I2S_DISABLE_IT(hi2s, (I2S_IT_TXE | I2S_IT_ERR));
@@ -1350,7 +1350,7 @@ static void I2S_Receive_IT(I2S_HandleTypeDef *hi2s)
   (*hi2s->pRxBuffPtr++) = hi2s->Instance->DR;
   hi2s->RxXferCount--;
   
-  if(hi2s->RxXferCount == 0)
+  if(hi2s->RxXferCount == 0U)
   {
     /* Disable RXNE and ERR interrupt */
     __HAL_I2S_DISABLE_IT(hi2s, (I2S_IT_RXNE | I2S_IT_ERR));
@@ -1372,7 +1372,7 @@ static void I2S_Receive_IT(I2S_HandleTypeDef *hi2s)
   */
 static HAL_StatusTypeDef I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s, uint32_t Flag, uint32_t Status, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Get tick */
   tickstart = HAL_GetTick();
@@ -1384,7 +1384,7 @@ static HAL_StatusTypeDef I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s, 
     {
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Set the I2S State ready */
           hi2s->State= HAL_I2S_STATE_READY;
@@ -1403,7 +1403,7 @@ static HAL_StatusTypeDef I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s, 
     {
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Set the I2S State ready */
           hi2s->State= HAL_I2S_STATE_READY;

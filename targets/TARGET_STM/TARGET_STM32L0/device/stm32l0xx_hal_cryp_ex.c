@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   CRYPEx HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -40,7 +40,7 @@
   ******************************************************************************  
   */ 
 
-#if defined (STM32L021xx) ||defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L021xx) ||defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 

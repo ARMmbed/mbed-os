@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -283,12 +283,12 @@
 /* Delay for ADC stabilization time.                                          */
 /* Maximum delay is 1us (refer to device datasheet, parameter tSTART). */
 /* Unit: us */
-#define ADC_STAB_DELAY_US       ((uint32_t) 1)
+#define ADC_STAB_DELAY_US       ((uint32_t) 1U)
 
 /* Delay for temperature sensor stabilization time. */
 /* Maximum delay is 10us (refer to device datasheet, parameter tSTART). */
 /* Unit: us */
-#define ADC_TEMPSENSOR_DELAY_US ((uint32_t) 10) 
+#define ADC_TEMPSENSOR_DELAY_US ((uint32_t) 10U) 
 /**
   * @}
   */
@@ -374,12 +374,12 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   assert_param(IS_ADC_SAMPLE_TIME(hadc->Init.SamplingTime));
   assert_param(IS_ADC_SCAN_MODE(hadc->Init.ScanConvMode));  
   assert_param(IS_ADC_DATA_ALIGN(hadc->Init.DataAlign)); 
-  assert_param(IS_FUNCTIONAL_STATE(hadc->Init.ContinuousConvMode));	    
+  assert_param(IS_FUNCTIONAL_STATE(hadc->Init.ContinuousConvMode));
   assert_param(IS_FUNCTIONAL_STATE(hadc->Init.DiscontinuousConvMode));
   assert_param(IS_ADC_EXTTRIG_EDGE(hadc->Init.ExternalTrigConvEdge));
   assert_param(IS_ADC_EXTTRIG(hadc->Init.ExternalTrigConv));   
-  assert_param(IS_FUNCTIONAL_STATE(hadc->Init.DMAContinuousRequests));	    
-  assert_param(IS_ADC_OVERRUN(hadc->Init.Overrun));	    
+  assert_param(IS_FUNCTIONAL_STATE(hadc->Init.DMAContinuousRequests));
+  assert_param(IS_ADC_OVERRUN(hadc->Init.Overrun));
   assert_param(IS_FUNCTIONAL_STATE(hadc->Init.LowPowerAutoWait));
   assert_param(IS_FUNCTIONAL_STATE(hadc->Init.LowPowerFrequencyMode));
   assert_param(IS_FUNCTIONAL_STATE(hadc->Init.LowPowerAutoPowerOff));
@@ -581,7 +581,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   * @note   For devices with several ADCs: reset of ADC common registers is done 
   *         only if all ADCs sharing the same common group are disabled.
   *         If this is not the case, reset of these common parameters reset is  
-  *         bypassed without error reporting: it can be the intended behaviour in
+  *         bypassed without error reporting: it can be the intended behavior in
   *         case of reset of a single ADC while the other ADCs sharing the same 
   *         common group is still running.
   * @param  hadc: ADC handle
@@ -934,7 +934,7 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
     /* Check if timeout is disabled (set to infinite wait) */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+      if((Timeout == 0U) || ((HAL_GetTick()-tickstart) > Timeout))
       {
         /* Update ADC state machine to timeout */
         SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
@@ -1009,7 +1009,7 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
   */
 HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout)
 {
-  uint32_t tickstart = 0; 
+  uint32_t tickstart = 0U; 
   
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -1024,7 +1024,7 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventTy
     /* Check if timeout is disabled (set to infinite wait) */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Update ADC state machine to timeout */
         SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
@@ -1578,7 +1578,7 @@ __weak void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
   */
 
 /** @addtogroup ADC_Exported_Functions_Group3
- *  @brief   	Peripheral Control functions 
+ *  @brief      Peripheral Control functions 
  *
 @verbatim   
  ===============================================================================
@@ -1722,7 +1722,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
   *         "ADC_AnalogWDGConfTypeDef".
   * @param  hadc: ADC handle
   * @param  AnalogWDGConfig: Structure of ADC analog watchdog configuration
-  * @retval HAL status	  
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDGConfTypeDef* AnalogWDGConfig)
 {
@@ -1882,7 +1882,7 @@ uint32_t HAL_ADC_GetError(ADC_HandleTypeDef *hadc)
   */
 static HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef* hadc)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
 
   /* ADC enable and wait for ADC ready (in case of ADC is disabled or         */
   /* enabling phase not yet completed: flag ADC ready not yet set).           */
@@ -1941,7 +1941,7 @@ static HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef* hadc)
   */
 static HAL_StatusTypeDef ADC_Disable(ADC_HandleTypeDef* hadc)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Verification if ADC is not already disabled:                             */
   /* Note: forbidden to disable ADC (set bit ADC_CR_ADDIS) if ADC is already  */
@@ -1997,7 +1997,7 @@ static HAL_StatusTypeDef ADC_Disable(ADC_HandleTypeDef* hadc)
   */
 static HAL_StatusTypeDef ADC_ConversionStop(ADC_HandleTypeDef* hadc)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
 
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -2143,9 +2143,9 @@ static void ADC_DMAError(DMA_HandleTypeDef *hdma)
 static void ADC_DelayMicroSecond(uint32_t microSecond)
 {
   /* Compute number of CPU cycles to wait for */
-  __IO uint32_t waitLoopIndex = (microSecond * (SystemCoreClock / 1000000));
+  __IO uint32_t waitLoopIndex = (microSecond * (SystemCoreClock / 1000000U));
 
-  while(waitLoopIndex != 0)
+  while(waitLoopIndex != 0U)
   {
     waitLoopIndex--;
   } 

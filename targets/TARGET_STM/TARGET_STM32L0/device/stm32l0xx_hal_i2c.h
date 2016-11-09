@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -103,17 +103,17 @@ typedef struct
 
 typedef enum
 {
-  HAL_I2C_STATE_RESET           = 0x00,  /*!< I2C not yet initialized or disabled         */
-  HAL_I2C_STATE_READY           = 0x01,  /*!< I2C initialized and ready for use           */
-  HAL_I2C_STATE_BUSY            = 0x02,  /*!< I2C internal process is ongoing             */
-  HAL_I2C_STATE_MASTER_BUSY_TX  = 0x12,  /*!< Master Data Transmission process is ongoing */
-  HAL_I2C_STATE_MASTER_BUSY_RX  = 0x22,  /*!< Master Data Reception process is ongoing    */
-  HAL_I2C_STATE_SLAVE_BUSY_TX   = 0x32,  /*!< Slave Data Transmission process is ongoing  */
-  HAL_I2C_STATE_SLAVE_BUSY_RX   = 0x42,  /*!< Slave Data Reception process is ongoing     */
-  HAL_I2C_STATE_MEM_BUSY_TX     = 0x52,  /*!< Memory Data Transmission process is ongoing */
-  HAL_I2C_STATE_MEM_BUSY_RX     = 0x62,  /*!< Memory Data Reception process is ongoing    */
-  HAL_I2C_STATE_TIMEOUT         = 0x03,  /*!< Timeout state                               */
-  HAL_I2C_STATE_ERROR           = 0x04   /*!< Reception process is ongoing                */
+  HAL_I2C_STATE_RESET           = 0x00U,  /*!< I2C not yet initialized or disabled         */
+  HAL_I2C_STATE_READY           = 0x01U,  /*!< I2C initialized and ready for use           */
+  HAL_I2C_STATE_BUSY            = 0x02U,  /*!< I2C internal process is ongoing             */
+  HAL_I2C_STATE_MASTER_BUSY_TX  = 0x12U,  /*!< Master Data Transmission process is ongoing */
+  HAL_I2C_STATE_MASTER_BUSY_RX  = 0x22U,  /*!< Master Data Reception process is ongoing    */
+  HAL_I2C_STATE_SLAVE_BUSY_TX   = 0x32U,  /*!< Slave Data Transmission process is ongoing  */
+  HAL_I2C_STATE_SLAVE_BUSY_RX   = 0x42U,  /*!< Slave Data Reception process is ongoing     */
+  HAL_I2C_STATE_MEM_BUSY_TX     = 0x52U,  /*!< Memory Data Transmission process is ongoing */
+  HAL_I2C_STATE_MEM_BUSY_RX     = 0x62U,  /*!< Memory Data Reception process is ongoing    */
+  HAL_I2C_STATE_TIMEOUT         = 0x03U,  /*!< Timeout state                               */
+  HAL_I2C_STATE_ERROR           = 0x04U   /*!< Reception process is ongoing                */
 }HAL_I2C_StateTypeDef;
 
 /** 
@@ -124,14 +124,14 @@ typedef enum
   * @brief  I2C Error Code
   * @{
   */ 
-#define HAL_I2C_ERROR_NONE    0x00 /*!< No error              */
-#define HAL_I2C_ERROR_BERR    0x01 /*!< BERR error            */
-#define HAL_I2C_ERROR_ARLO    0x02 /*!< ARLO error            */
-#define HAL_I2C_ERROR_AF      0x04 /*!< ACKF error            */
-#define HAL_I2C_ERROR_OVR     0x08 /*!< OVR error             */
-#define HAL_I2C_ERROR_DMA     0x10 /*!< DMA transfer error    */
-#define HAL_I2C_ERROR_TIMEOUT 0x20 /*!< Timeout error         */
-#define HAL_I2C_ERROR_SIZE    0x40 /*!< Size Management error */
+#define HAL_I2C_ERROR_NONE    0x00U /*!< No error              */
+#define HAL_I2C_ERROR_BERR    0x01U /*!< BERR error            */
+#define HAL_I2C_ERROR_ARLO    0x02U /*!< ARLO error            */
+#define HAL_I2C_ERROR_AF      0x04U /*!< ACKF error            */
+#define HAL_I2C_ERROR_OVR     0x08U /*!< OVR error             */
+#define HAL_I2C_ERROR_DMA     0x10U /*!< DMA transfer error    */
+#define HAL_I2C_ERROR_TIMEOUT 0x20U /*!< Timeout error         */
+#define HAL_I2C_ERROR_SIZE    0x40U /*!< Size Management error */
 /** 
   * @}
   */
@@ -179,8 +179,8 @@ typedef struct
 /** @defgroup I2C_addressing_mode I2C addressing mode
   * @{
   */
-#define I2C_ADDRESSINGMODE_7BIT          ((uint32_t)0x00000001)
-#define I2C_ADDRESSINGMODE_10BIT         ((uint32_t)0x00000002)
+#define I2C_ADDRESSINGMODE_7BIT          ((uint32_t)0x00000001U)
+#define I2C_ADDRESSINGMODE_10BIT         ((uint32_t)0x00000002U)
 /**
   * @}
   */
@@ -188,7 +188,7 @@ typedef struct
 /** @defgroup I2C_dual_addressing_mode I2C dual addressing mode
   * @{
   */
-#define I2C_DUALADDRESS_DISABLE        ((uint32_t)0x00000000)
+#define I2C_DUALADDRESS_DISABLE        ((uint32_t)0x00000000U)
 #define I2C_DUALADDRESS_ENABLE         I2C_OAR2_OA2EN
 /**
   * @}
@@ -197,14 +197,14 @@ typedef struct
 /** @defgroup I2C_own_address2_masks I2C own address2 masks
   * @{
   */
-#define I2C_OA2_NOMASK                  ((uint8_t)0x00)
-#define I2C_OA2_MASK01                  ((uint8_t)0x01)
-#define I2C_OA2_MASK02                  ((uint8_t)0x02)
-#define I2C_OA2_MASK03                  ((uint8_t)0x03)
-#define I2C_OA2_MASK04                  ((uint8_t)0x04)
-#define I2C_OA2_MASK05                  ((uint8_t)0x05)
-#define I2C_OA2_MASK06                  ((uint8_t)0x06)
-#define I2C_OA2_MASK07                  ((uint8_t)0x07)
+#define I2C_OA2_NOMASK                  ((uint8_t)0x00U)
+#define I2C_OA2_MASK01                  ((uint8_t)0x01U)
+#define I2C_OA2_MASK02                  ((uint8_t)0x02U)
+#define I2C_OA2_MASK03                  ((uint8_t)0x03U)
+#define I2C_OA2_MASK04                  ((uint8_t)0x04U)
+#define I2C_OA2_MASK05                  ((uint8_t)0x05U)
+#define I2C_OA2_MASK06                  ((uint8_t)0x06U)
+#define I2C_OA2_MASK07                  ((uint8_t)0x07U)
 /**
   * @}
   */
@@ -212,7 +212,7 @@ typedef struct
 /** @defgroup I2C_general_call_addressing_mode I2C general call addressing mode
   * @{
   */
-#define I2C_GENERALCALL_DISABLE        ((uint32_t)0x00000000)
+#define I2C_GENERALCALL_DISABLE        ((uint32_t)0x00000000U)
 #define I2C_GENERALCALL_ENABLE         I2C_CR1_GCEN
 /**
   * @}
@@ -221,7 +221,7 @@ typedef struct
 /** @defgroup I2C_nostretch_mode I2C nostretch mode
   * @{
   */
-#define I2C_NOSTRETCH_DISABLE          ((uint32_t)0x00000000)
+#define I2C_NOSTRETCH_DISABLE          ((uint32_t)0x00000000U)
 #define I2C_NOSTRETCH_ENABLE           I2C_CR1_NOSTRETCH
 /**
   * @}
@@ -230,8 +230,8 @@ typedef struct
 /** @defgroup I2C_Memory_Address_Size I2C Memory Address Size
   * @{
   */
-#define I2C_MEMADD_SIZE_8BIT            ((uint32_t)0x00000001)
-#define I2C_MEMADD_SIZE_16BIT           ((uint32_t)0x00000002)
+#define I2C_MEMADD_SIZE_8BIT            ((uint32_t)0x00000001U)
+#define I2C_MEMADD_SIZE_16BIT           ((uint32_t)0x00000002U)
 /**
   * @}
   */  
@@ -241,7 +241,7 @@ typedef struct
   */
 #define  I2C_RELOAD_MODE                I2C_CR2_RELOAD
 #define  I2C_AUTOEND_MODE               I2C_CR2_AUTOEND
-#define  I2C_SOFTEND_MODE               ((uint32_t)0x00000000)
+#define  I2C_SOFTEND_MODE               ((uint32_t)0x00000000U)
 /**
   * @}
   */
@@ -249,7 +249,7 @@ typedef struct
 /** @defgroup I2C_StartStopMode_definition I2C StartStopMode definition
   * @{
   */
-#define  I2C_NO_STARTSTOP                 ((uint32_t)0x00000000)
+#define  I2C_NO_STARTSTOP                 ((uint32_t)0x00000000U)
 #define  I2C_GENERATE_STOP                I2C_CR2_STOP
 #define  I2C_GENERATE_START_READ          (uint32_t)(I2C_CR2_START | I2C_CR2_RD_WRN)
 #define  I2C_GENERATE_START_WRITE         I2C_CR2_START
@@ -469,11 +469,11 @@ typedef struct
 
 #define __I2C_RESET_CR2(__HANDLE__)     ((__HANDLE__)->Instance->CR2 &= (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN)))
 
-#define IS_I2C_OWN_ADDRESS1(ADDRESS1)   ((ADDRESS1) <= (uint32_t)0x000003FF)
-#define IS_I2C_OWN_ADDRESS2(ADDRESS2)   ((ADDRESS2) <= (uint16_t)0x00FF)
+#define IS_I2C_OWN_ADDRESS1(ADDRESS1)   ((ADDRESS1) <= (uint32_t)0x000003FFU)
+#define IS_I2C_OWN_ADDRESS2(ADDRESS2)   ((ADDRESS2) <= (uint16_t)0x00FFU)
 
-#define __I2C_MEM_ADD_MSB(__ADDRESS__)  ((uint8_t)((uint16_t)(((uint16_t)((__ADDRESS__) & (uint16_t)(0xFF00))) >> 8)))
-#define __I2C_MEM_ADD_LSB(__ADDRESS__)  ((uint8_t)((uint16_t)((__ADDRESS__) & (uint16_t)(0x00FF))))
+#define __I2C_MEM_ADD_MSB(__ADDRESS__)  ((uint8_t)((uint16_t)(((uint16_t)((__ADDRESS__) & (uint16_t)(0xFF00U))) >> 8)))
+#define __I2C_MEM_ADD_LSB(__ADDRESS__)  ((uint8_t)((uint16_t)((__ADDRESS__) & (uint16_t)(0x00FFU))))
 
 #define __I2C_GENERATE_START(__ADDMODE__,__ADDRESS__)   (((__ADDMODE__) == I2C_ADDRESSINGMODE_7BIT) ? (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_START) | (I2C_CR2_AUTOEND)) & (~I2C_CR2_RD_WRN)) : \
                                                           (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_ADD10) | (I2C_CR2_START)) & (~I2C_CR2_RD_WRN)))
