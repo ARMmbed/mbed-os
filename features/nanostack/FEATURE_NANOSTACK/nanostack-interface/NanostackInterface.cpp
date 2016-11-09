@@ -162,15 +162,7 @@ NanostackSocket::~NanostackSocket()
     if (mode != SOCKET_MODE_CLOSED) {
         close();
     }
-    if (socket_id >= 0) {
-        nsapi_error_t ret = socket_free(socket_id);
-        MBED_ASSERT(0 == ret);
-        MBED_ASSERT(socket_tbl[socket_id] == this);
-        socket_tbl[socket_id] = NULL;
-        socket_id = -1;
-        data_free_all();
-    }
-
+    data_free_all();
 }
 
 bool NanostackSocket::open(void)
@@ -205,8 +197,11 @@ void NanostackSocket::close()
     MBED_ASSERT(mode != SOCKET_MODE_CLOSED);
 
     if (socket_id >= 0) {
-        nsapi_error_t ret = socket_close(socket_id, (addr_valid ? &ns_address : NULL));
+        nsapi_error_t ret = socket_close(socket_id);
         MBED_ASSERT(0 == ret);
+        MBED_ASSERT(socket_tbl[socket_id] == this);
+        socket_tbl[socket_id] = NULL;
+        socket_id = -1;
     } else {
         MBED_ASSERT(SOCKET_MODE_UNOPENED == mode);
     }
@@ -281,14 +276,14 @@ void NanostackSocket::socket_callback(void *cb) {
             tr_debug("SOCKET_BIND_DONE");
             socket->event_bind_done(sock_cb);
             break;
-        case SOCKET_BIND_FAIL: // Not used in NS
+        case SOCKET_BIND_FAIL:
             tr_debug("SOCKET_BIND_FAIL");
             break;
-        case SOCKET_BIND_AUTH_FAIL: // Not used in NS
+        case SOCKET_BIND_AUTH_FAIL:
             tr_debug("SOCKET_BIND_AUTH_FAIL");
             break;
-        case SOCKET_SERVER_CONNECT_TO_CLIENT: // Not used in NS
-            tr_debug("SOCKET_SERVER_CONNECT_TO_CLIENT");
+        case SOCKET_INCOMING_CONNECTION:
+            tr_debug("SOCKET_INCOMING_CONNECTION");
             break;
         case SOCKET_TX_FAIL:
             tr_debug("SOCKET_TX_FAIL");
@@ -297,8 +292,8 @@ void NanostackSocket::socket_callback(void *cb) {
             tr_debug("SOCKET_CONNECT_CLOSED");
             socket->event_connnect_closed(sock_cb);
             break;
-        case SOCKET_CONNECT_FAIL_CLOSED: // Not used in NS
-            tr_debug("SOCKET_CONNECT_FAIL_CLOSED");
+        case SOCKET_CONNECTION_RESET:
+            tr_debug("SOCKET_CONNECTION_RESET");
             break;
         case SOCKET_NO_ROUTE:
             tr_debug("SOCKET_NO_ROUTE");
