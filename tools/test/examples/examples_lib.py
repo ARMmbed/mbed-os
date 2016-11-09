@@ -75,52 +75,46 @@ def print_summary(results, export=False):
 
     print("#")
     print("#"*80)
-    
 
-def target_cross_toolchain(allowed_toolchains,
-                           features=[], targets=[]):
+def valid_choices(allowed_choices, all_choices):
+    if len(allowed_choices) > 0:
+        return [t for t in all_choices if t in allowed_choices]
+    else:
+        return all_choices
+
+
+def target_cross_toolchain(allowed_targets, allowed_toolchains, features=[]):
     """Generate pairs of target and toolchains
 
     Args:
+    allowed_targets - a list of all possible targets
     allowed_toolchains - a list of all possible toolchains
 
     Kwargs:
     features - the features that must be in the features array of a
                target
-    targets - a list of available targets
     """
-    if len(targets) == 0:
-        targets=TARGET_MAP.keys()
-        
-    for target, toolchains in get_mbed_official_release("5"):
-        for toolchain in toolchains:
-            if (toolchain in allowed_toolchains and
-                target in targets and
-                all(feature in TARGET_MAP[target].features
-                    for feature in features)):
+    for target in allowed_targets:
+        for toolchain in allowed_toolchains:
+            if all(feature in TARGET_MAP[target].features
+                    for feature in features):
                 yield target, toolchain
 
 
-def target_cross_ide(allowed_ides,
-                    features=[], targets=[]):
+def target_cross_ide(allowed_targets, allowed_ides, features=[]):
     """Generate pairs of target and ides
 
     Args:
+    allowed_targets - a list of all possible targets
     allowed_ides - a list of all possible IDEs
 
     Kwargs:
     features - the features that must be in the features array of a
                target
-    targets - a list of available targets
     """
-    if len(targets) == 0:
-        targets=TARGET_MAP.keys()
-
-    for target, toolchains in get_mbed_official_release("5"):
+    for target in allowed_targets:
         for ide in allowed_ides:
-            if (EXPORTERS[ide].TOOLCHAIN in toolchains and
-                target in EXPORTERS[ide].TARGETS and
-                target in targets and
+            if (target in EXPORTERS[ide].TARGETS and
                 all(feature in TARGET_MAP[target].features
                     for feature in features)):
                 yield target, ide
@@ -154,7 +148,7 @@ def get_repo_list(example):
     return repos
 
 
-def source_repos(config):
+def source_repos(config, examples):
     """ Imports each of the repos and its dependencies (.lib files) associated
         with the specific examples name from the json config file. Note if
         there is already a clone of the repo then it will first be removed to
@@ -167,13 +161,14 @@ def source_repos(config):
     for example in config['examples']:
         for repo_info in get_repo_list(example):
             name = basename(repo_info['repo'])
-            if os.path.exists(name):
-                print("'%s' example directory already exists. Deleting..." % name)
-                rmtree(name)
-        
-            subprocess.call(["mbed-cli", "import", repo_info['repo']])
+            if name in examples:
+                if os.path.exists(name):
+                    print("'%s' example directory already exists. Deleting..." % name)
+                    rmtree(name)
 
-def clone_repos(config):
+                subprocess.call(["mbed-cli", "import", repo_info['repo']])
+
+def clone_repos(config, examples):
     """ Clones each of the repos associated with the specific examples name from the
         json config file. Note if there is already a clone of the repo then it will first
         be removed to ensure a clean, up to date cloning.
@@ -185,13 +180,14 @@ def clone_repos(config):
     for example in config['examples']:
         for repo_info in get_repo_list(example):
             name = basename(repo_info['repo'])
-            if os.path.exists(name):
-                print("'%s' example directory already exists. Deleting..." % name)
-                rmtree(name)
+            if name in examples:
+                if os.path.exists(name):
+                    print("'%s' example directory already exists. Deleting..." % name)
+                    rmtree(name)
 
-            subprocess.call([repo_info['type'], "clone", repo_info['repo']])
+                subprocess.call([repo_info['type'], "clone", repo_info['repo']])
 
-def deploy_repos(config):
+def deploy_repos(config, examples):
     """ If the example directory exists as provided by the json config file,
         pull in the examples dependencies by using `mbed-cli deploy`.
     Args:
@@ -202,13 +198,13 @@ def deploy_repos(config):
     for example in config['examples']:
         for repo_info in get_repo_list(example):
             name = basename(repo_info['repo'])
-
-            if os.path.exists(name):
-                os.chdir(name)
-                subprocess.call(["mbed-cli", "deploy"])
-                os.chdir("..")
-            else:
-                print("'%s' example directory doesn't exist. Skipping..." % name)
+            if name in examples:
+                if os.path.exists(name):
+                    os.chdir(name)
+                    subprocess.call(["mbed-cli", "deploy"])
+                    os.chdir("..")
+                else:
+                    print("'%s' example directory doesn't exist. Skipping..." % name)
 
 
 def get_num_failures(results, export=False):
@@ -228,35 +224,36 @@ def get_num_failures(results, export=False):
 
     return num_failures
 
-
-def export_repos(config, ides):
+def export_repos(config, ides, targets, examples):
     """Exports and builds combinations of example programs, targets and IDEs.
 
-           The results are returned in a [key: value] dictionary format:
-           Where key = The example name from the json config file
-                 value = a list containing: pass_status, successes, export failures, build_failures,
-                 and build_skips
+        The results are returned in a [key: value] dictionary format:
+            Where key = The example name from the json config file
+            value = a list containing: pass_status, successes, export failures, build_failures,
+            and build_skips
 
-                 where pass_status = The overall pass status for the export of the full
-                                     set of example programs comprising the example suite.
-                                     (IE they must build and export)
-                                     True if all examples pass, false otherwise
-                       successes = list of examples that exported and built (if possible)
-                                   If the exporter has no build functionality, then it is a pass
-                                   if exported
-                       export_failures = list of examples that failed to export.
-                       build_failures = list of examples that failed to build
-                       build_skips = list of examples that cannot build
+            where pass_status = The overall pass status for the export of the full
+            set of example programs comprising the example suite.
+            IE they must build and export) True if all examples pass, false otherwise
+            successes = list of examples that exported and built (if possible)
+            If the exporter has no build functionality, then it is a pass
+            if exported
+            export_failures = list of examples that failed to export.
+            build_failures = list of examples that failed to build
+            build_skips = list of examples that cannot build
 
-                       Both successes and failures contain the example name, target and IDE
+            Both successes and failures contain the example name, target and IDE
 
-        Args:
-        config - the json object imported from the file.
-        ides - List of IDES to export to
-        """
+            Args:
+            config - the json object imported from the file.
+            ides - List of IDES to export to
+    """
     results = {}
     print("\nExporting example repos....\n")
     for example in config['examples']:
+        if example['name'] not in examples:
+            continue
+
         export_failures = []
         build_failures = []
         build_skips = []
@@ -269,9 +266,9 @@ def export_repos(config, ides):
                 os.chdir(example_project_name)
                 # Check that the target, IDE, and features combinations are valid and return a
                 # list of valid combinations to work through
-                for target, ide in target_cross_ide(ides,
-                                                    example['features'],
-                                                    example['targets']):
+                for target, ide in target_cross_ide(valid_choices(example['targets'], targets),
+                                                    valid_choices(example['exporters'], ides),
+                                                    example['features']):
                     example_name = "{} {} {}".format(example_project_name, target,
                                                      ide)
                     def status(message):
@@ -311,7 +308,7 @@ def export_repos(config, ides):
     return results
 
 
-def compile_repos(config, toolchains):
+def compile_repos(config, toolchains, targets, examples):
     """Compiles combinations of example programs, targets and compile chains.
        
        The results are returned in a [key: value] dictionary format:
@@ -334,23 +331,23 @@ def compile_repos(config, toolchains):
     """
     results = {}
     print("\nCompiling example repos....\n")
-    for example in config['examples']:        
+    for example in config['examples']:
+        if example['name'] not in examples:
+            continue
         failures = []
         successes = []
         compiled = True
         pass_status = True
         if example['compile']:
-            if len(example['toolchains']) > 0:
-                toolchains = example['toolchains']
-            
             for repo_info in get_repo_list(example):
                 name = basename(repo_info['repo'])
                 os.chdir(name)
                 
                 # Check that the target, toolchain and features combinations are valid and return a 
                 # list of valid combinations to work through
-                for target, toolchain in target_cross_toolchain(toolchains,
-                                                                example['features'], example['targets']):
+                for target, toolchain in target_cross_toolchain(valid_choices(example['targets'], targets),
+                                                                valid_choices(example['toolchains'], toolchains),
+                                                                example['features']):
                     proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
                                              "-m", target, "--silent"])
                     proc.wait()
@@ -372,7 +369,7 @@ def compile_repos(config, toolchains):
     return results
 
 
-def update_mbedos_version(config, tag):
+def update_mbedos_version(config, tag, examples):
     """ For each example repo identified in the config json object, update the version of 
         mbed-os to that specified by the supplied GitHub tag. This function assumes that each
         example repo has already been cloned.
@@ -384,6 +381,8 @@ def update_mbedos_version(config, tag):
     """
     print("Updating mbed-os in examples to version %s\n" % tag)
     for example in config['examples']:
+        if example['name'] not in examples:
+            continue
         for repo_info in get_repo_list(example):
             update_dir =  basename(repo_info['repo']) + "/mbed-os"
             print("\nChanging dir to %s\n" % update_dir)
