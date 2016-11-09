@@ -1880,6 +1880,15 @@
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"]
     },
+    "MAX32630FTHR": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["__SYSTEM_HFX=96000000", "TARGET=MAX32630", "TARGET_REV=0x4132"],
+        "extra_labels": ["Maxim", "MAX32630"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"]
+    },
     "EFM32": {
         "inherits": ["Target"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
