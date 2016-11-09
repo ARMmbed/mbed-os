@@ -28,12 +28,10 @@
 #  * Same order. Each line should have maching pair in same index at other array
 REPOSITORIES=(
     git@github.com:ARMmbed/sal-stack-nanostack.git
-    git@github.com:ARMmbed/coap-service.git
     )
 
 DIRECTORIES=(
     sal-stack-nanostack
-    coap-service
     )
 
 # Exit immediately on fail, thread unset variables as error
@@ -87,7 +85,7 @@ copy_nanostack_binaries() {
 clean_nanostack_binaries() {
     for binaries in ../FEATURE_*; do
         if [ "$binaries" != "../FEATURE_NANOSTACK" ]; then
-            rm -rf $binaries        
+            rm -rf $binaries
         fi
     done
 }
