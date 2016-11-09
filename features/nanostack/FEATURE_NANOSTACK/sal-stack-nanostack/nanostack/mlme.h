@@ -249,6 +249,8 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*>The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*>Default key source*/
     //NON standard extension
+    macLoadBalancingBeaconTxPeriod = 0xfd,  /*> Set Beacon periodic Tx interval.Value size uint16_t in seconds, Use 0 to disable */
+    macLoadBalancingAcceptAnyBeacon = 0xfe, /*>Beacon accept state control from other network. Value size bool, data true=Enable, false=disable .*/
     macThreadForceLongAddressForBeacon = 0xff /*>Thread standard force beacon source address for extended 64-bit*/
 } mlme_attr_t;
 

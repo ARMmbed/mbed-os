@@ -1,0 +1,28 @@
+@startuml
+
+class NanostackRfPhy {
+    +int8_t rf_register()
+    +int8_t rf_register()
+    +void get_mac_address(uint8_t *mac)
+    +void set_mac_address(uint8_t *mac)
+}
+
+class MeshInterfaceNanostack {
+}
+MeshInterfaceNanostack o-- NanostackRfPhy
+MeshInterfaceNanostack o-- AbstractMesh
+MeshInterfaceNanostack o-- NanostackInterface
+
+class MeshInterface {
+}
+NanostackInterface --|> NetworkStack
+MeshInterfaceNanostack --|> MeshInterface
+MeshInterface --|> NetworkInterface
+
+LoWPANNDInterface --|> MeshInterfaceNanostack
+ThreadInterface --|> MeshInterfaceNanostack
+
+AbstractMesh --|> AbstractNetworkInterface
+class AbstractNetworkInterface
+
+@enduml

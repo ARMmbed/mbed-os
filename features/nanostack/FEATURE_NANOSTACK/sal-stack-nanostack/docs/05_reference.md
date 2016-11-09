@@ -6,6 +6,8 @@ This manual describes the APIs regarding the ARM mbed Networking stack, for exam
 
 As Thread runs on top of the 6LoWPAN stack, most of the networking stack functionality is shared. However, when building the stack you can cherry-pick the features, configurations or functionalities. In such case, please refer to [Build time configurations](quick_start_build.md).
 
+To read even more of the APIs, check the [Doxygen documentation](https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/api/index.html).
+
 ## Intended audience
 
 This manual has been written for experienced software developers to assist with using the ARM software product range.

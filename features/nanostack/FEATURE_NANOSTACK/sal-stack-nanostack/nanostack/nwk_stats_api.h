@@ -37,8 +37,11 @@ extern "C" {
 typedef struct nwk_stats_t {
     /*mac stats*/
     uint16_t mac_tx_buffer_overflow; /**< MAC TX queue overflow count. */
+    uint16_t mac_tx_queue_size;     /**< MAC TX queue current size. */
+    uint16_t mac_tx_queue_peak;     /**< MAC TX queue peak size. */
     uint32_t mac_rx_count;          /**< MAC RX packet count. */
     uint32_t mac_tx_count;          /**< MAC TX packet count. */
+    uint32_t mac_bc_tx_count;       /**< MAC broadcast TX packet count. */
     uint32_t mac_rx_drop;           /**< MAC RX packet drop count. */
     /* Mac Payload Flow */
     uint32_t mac_tx_bytes;          /**< MAC TX bytes count. */
@@ -48,6 +51,13 @@ typedef struct nwk_stats_t {
     uint32_t mac_tx_cca_cnt;        /**< MAC TX CCA count. */
     uint32_t mac_tx_failed_cca;     /**< MAC failed CCA count. */
     uint32_t mac_security_drop;     /**< MAC security packet drops count. */
+    /* FHSS stats */
+    int16_t fhss_drift_compensation;    /**< FHSS synchronization drift compensation (us/channel). */
+    uint8_t fhss_hop_count;             /**< FHSS hop count. */
+    int8_t fhss_synch_parent_rssi;      /**< FHSS synchronization parent RSSI. */
+    uint16_t fhss_synch_interval;       /**< FHSS synchronization interval (s). */
+    int16_t fhss_prev_avg_synch_fix;    /**< Average of 5 preceding synchronization fixes (us). Updated after every fifth synch fix.*/
+    uint32_t fhss_synch_lost;           /**< FHSS synchronization lost counter. */
     /* 6Lowpan */
     uint32_t ip_rx_count;           /**< IP RX packet count. */
     uint32_t ip_tx_count;           /**< IP TX packet count. */
@@ -77,6 +87,10 @@ typedef struct nwk_stats_t {
     uint32_t buf_headroom_realloc;  /**< Buffer headroom realloc count. */
     uint32_t buf_headroom_shuffle;  /**< Buffer headroom shuffle count. */
     uint32_t buf_headroom_fail;     /**< Buffer headroom failure count. */
+    /* ETX */
+    uint16_t etx_1st_parent;        /**< Primary parent ETX. */
+    uint16_t etx_2nd_parent;        /**< Secondary parent ETX. */
+
 } nwk_stats_t;
 
 /**

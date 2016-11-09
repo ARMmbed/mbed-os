@@ -244,6 +244,17 @@ int thread_test_increment_key_sequence_counter(int8_t interface_id);
 int thread_test_key_sequence_counter_update(int8_t interface_id, uint32_t thrKeySequenceCounter);
 
 /**
+ * \brief Set new Thread key rotation value
+ *
+ * \param interface_id Network interface ID
+ * \param thrKeyRotation Key rotation value in seconds
+ *
+ * \return 0, OK
+ * \return <0 Error
+ */
+int thread_test_key_rotation_update(int8_t interface_id, uint32_t thrKeyRotation);
+
+/**
  * \brief Thread router select threshold values set
  *
  * \param interface_id Network Interface

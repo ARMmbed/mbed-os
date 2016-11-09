@@ -37,12 +37,8 @@ DIRECTORIES=(
 # Exit immediately on fail, thread unset variables as error
 set -eu
 
-# Count number of repositories
+# Count number of repositories (minus one)
 N=0
-for repo in ${REPOSITORIES[*]}; do
-    let N=N+1
-done
-let N=N-1 # Substract one, because indexes start from 0
 
 print_usage() {
     echo -e "Usage: $0 [clean | clone | export ]"

@@ -70,8 +70,11 @@ Various types of network stats can be collected using the structure `typedef str
 Member|Description
 ------|-----------
 `mac_tx_buffer_overflow`|Provides a count MAC TX queue overflow.
+`mac_tx_queue_size`|Current MAC TX queue size.
+`mac_tx_queue_peak`|MAC TX queue peak size.
 `mac_rx_count`|Number of received MAC packets.
 `mac_tx_count`|Number of transmitted MAC packets.
+`mac_bc_tx_count`|>Number of transmitted MAC broadcast packets.
 `mac_rx_drop`|Number of dropped MAC packets.
 
 ### MAC payload flow
@@ -85,6 +88,17 @@ Member|Description
 `mac_tx_cca_cnt`|Number of times clear channel assessment was made.
 `mac_tx_failed_cca`|Number of failed CCA attempts.
 `mac_security_drop`|Number of security packets dropped.
+
+### FHSS related statistics
+
+Member|Description
+------|-----------
+`fhss_drift_compensation`|FHSS synchronization drift compensation (us/channel).
+`fhss_hop_count`|FHSS hop count.
+`fhss_synch_parent_rssi`|FHSS synchronization parent RSSI.
+`fhss_synch_interval`|FHSS synchronization interval (s).
+`fhss_prev_avg_synch_fix`|Average of 5 preceding synchronization fixes (us).
+`fhss_synch_lost`|FHSS synchronization lost counter.
 
 ### 6LoWPAN related statistics
 
@@ -134,3 +148,10 @@ Member|Description
 `buf_headroom_realloc`|A buffer headroom allocation count.
 `buf_headroom_shuffle`|A buffer headroom shuffling count.
 `buf_headroom_fail`|A buffer headroom failure count.
+
+### ETX statistics
+
+Member|Description
+------|-----------
+`etx_1st_parent`|Primary parent ETX.
+`etx_2nd_parent`|Secondary parent ETX.
