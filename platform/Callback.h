@@ -90,8 +90,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(T *obj, R (T::*method)()) {
+    template<typename T, typename U>
+    Callback(U *obj, R (T::*method)()) {
         generate(method_context<T, R (T::*)()>(obj, method));
     }
 
@@ -99,8 +99,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const T *obj, R (T::*method)() const) {
+    template<typename T, typename U>
+    Callback(const U *obj, R (T::*method)() const) {
         generate(method_context<const T, R (T::*)() const>(obj, method));
     }
 
@@ -108,8 +108,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*method)() volatile) {
+    template<typename T, typename U>
+    Callback(volatile U *obj, R (T::*method)() volatile) {
         generate(method_context<volatile T, R (T::*)() volatile>(obj, method));
     }
 
@@ -117,8 +117,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*method)() const volatile) {
+    template<typename T, typename U>
+    Callback(const volatile U *obj, R (T::*method)() const volatile) {
         generate(method_context<const volatile T, R (T::*)() const volatile>(obj, method));
     }
 
@@ -366,8 +366,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(T *obj, R (T::*method)()) {
+    template<typename T, typename U>
+    void attach(U *obj, R (T::*method)()) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -376,8 +376,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const T *obj, R (T::*method)() const) {
+    template<typename T, typename U>
+    void attach(const U *obj, R (T::*method)() const) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -386,8 +386,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*method)() volatile) {
+    template<typename T, typename U>
+    void attach(volatile U *obj, R (T::*method)() volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -396,8 +396,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*method)() const volatile) {
+    template<typename T, typename U>
+    void attach(const volatile U *obj, R (T::*method)() const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -797,8 +797,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(T *obj, R (T::*method)(A0)) {
+    template<typename T, typename U>
+    Callback(U *obj, R (T::*method)(A0)) {
         generate(method_context<T, R (T::*)(A0)>(obj, method));
     }
 
@@ -806,8 +806,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const T *obj, R (T::*method)(A0) const) {
+    template<typename T, typename U>
+    Callback(const U *obj, R (T::*method)(A0) const) {
         generate(method_context<const T, R (T::*)(A0) const>(obj, method));
     }
 
@@ -815,8 +815,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*method)(A0) volatile) {
+    template<typename T, typename U>
+    Callback(volatile U *obj, R (T::*method)(A0) volatile) {
         generate(method_context<volatile T, R (T::*)(A0) volatile>(obj, method));
     }
 
@@ -824,8 +824,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*method)(A0) const volatile) {
+    template<typename T, typename U>
+    Callback(const volatile U *obj, R (T::*method)(A0) const volatile) {
         generate(method_context<const volatile T, R (T::*)(A0) const volatile>(obj, method));
     }
 
@@ -1073,8 +1073,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(T *obj, R (T::*method)(A0)) {
+    template<typename T, typename U>
+    void attach(U *obj, R (T::*method)(A0)) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1083,8 +1083,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const T *obj, R (T::*method)(A0) const) {
+    template<typename T, typename U>
+    void attach(const U *obj, R (T::*method)(A0) const) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1093,8 +1093,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*method)(A0) volatile) {
+    template<typename T, typename U>
+    void attach(volatile U *obj, R (T::*method)(A0) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1103,8 +1103,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*method)(A0) const volatile) {
+    template<typename T, typename U>
+    void attach(const volatile U *obj, R (T::*method)(A0) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1504,8 +1504,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(T *obj, R (T::*method)(A0, A1)) {
+    template<typename T, typename U>
+    Callback(U *obj, R (T::*method)(A0, A1)) {
         generate(method_context<T, R (T::*)(A0, A1)>(obj, method));
     }
 
@@ -1513,8 +1513,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const T *obj, R (T::*method)(A0, A1) const) {
+    template<typename T, typename U>
+    Callback(const U *obj, R (T::*method)(A0, A1) const) {
         generate(method_context<const T, R (T::*)(A0, A1) const>(obj, method));
     }
 
@@ -1522,8 +1522,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*method)(A0, A1) volatile) {
+    template<typename T, typename U>
+    Callback(volatile U *obj, R (T::*method)(A0, A1) volatile) {
         generate(method_context<volatile T, R (T::*)(A0, A1) volatile>(obj, method));
     }
 
@@ -1531,8 +1531,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*method)(A0, A1) const volatile) {
+    template<typename T, typename U>
+    Callback(const volatile U *obj, R (T::*method)(A0, A1) const volatile) {
         generate(method_context<const volatile T, R (T::*)(A0, A1) const volatile>(obj, method));
     }
 
@@ -1780,8 +1780,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(T *obj, R (T::*method)(A0, A1)) {
+    template<typename T, typename U>
+    void attach(U *obj, R (T::*method)(A0, A1)) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1790,8 +1790,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const T *obj, R (T::*method)(A0, A1) const) {
+    template<typename T, typename U>
+    void attach(const U *obj, R (T::*method)(A0, A1) const) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1800,8 +1800,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*method)(A0, A1) volatile) {
+    template<typename T, typename U>
+    void attach(volatile U *obj, R (T::*method)(A0, A1) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -1810,8 +1810,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*method)(A0, A1) const volatile) {
+    template<typename T, typename U>
+    void attach(const volatile U *obj, R (T::*method)(A0, A1) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -2211,8 +2211,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(T *obj, R (T::*method)(A0, A1, A2)) {
+    template<typename T, typename U>
+    Callback(U *obj, R (T::*method)(A0, A1, A2)) {
         generate(method_context<T, R (T::*)(A0, A1, A2)>(obj, method));
     }
 
@@ -2220,8 +2220,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const T *obj, R (T::*method)(A0, A1, A2) const) {
+    template<typename T, typename U>
+    Callback(const U *obj, R (T::*method)(A0, A1, A2) const) {
         generate(method_context<const T, R (T::*)(A0, A1, A2) const>(obj, method));
     }
 
@@ -2229,8 +2229,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*method)(A0, A1, A2) volatile) {
+    template<typename T, typename U>
+    Callback(volatile U *obj, R (T::*method)(A0, A1, A2) volatile) {
         generate(method_context<volatile T, R (T::*)(A0, A1, A2) volatile>(obj, method));
     }
 
@@ -2238,8 +2238,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*method)(A0, A1, A2) const volatile) {
+    template<typename T, typename U>
+    Callback(const volatile U *obj, R (T::*method)(A0, A1, A2) const volatile) {
         generate(method_context<const volatile T, R (T::*)(A0, A1, A2) const volatile>(obj, method));
     }
 
@@ -2487,8 +2487,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(T *obj, R (T::*method)(A0, A1, A2)) {
+    template<typename T, typename U>
+    void attach(U *obj, R (T::*method)(A0, A1, A2)) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -2497,8 +2497,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const T *obj, R (T::*method)(A0, A1, A2) const) {
+    template<typename T, typename U>
+    void attach(const U *obj, R (T::*method)(A0, A1, A2) const) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -2507,8 +2507,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*method)(A0, A1, A2) volatile) {
+    template<typename T, typename U>
+    void attach(volatile U *obj, R (T::*method)(A0, A1, A2) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -2517,8 +2517,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*method)(A0, A1, A2) const volatile) {
+    template<typename T, typename U>
+    void attach(const volatile U *obj, R (T::*method)(A0, A1, A2) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -2918,8 +2918,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(T *obj, R (T::*method)(A0, A1, A2, A3)) {
+    template<typename T, typename U>
+    Callback(U *obj, R (T::*method)(A0, A1, A2, A3)) {
         generate(method_context<T, R (T::*)(A0, A1, A2, A3)>(obj, method));
     }
 
@@ -2927,8 +2927,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const T *obj, R (T::*method)(A0, A1, A2, A3) const) {
+    template<typename T, typename U>
+    Callback(const U *obj, R (T::*method)(A0, A1, A2, A3) const) {
         generate(method_context<const T, R (T::*)(A0, A1, A2, A3) const>(obj, method));
     }
 
@@ -2936,8 +2936,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
+    template<typename T, typename U>
+    Callback(volatile U *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
         generate(method_context<volatile T, R (T::*)(A0, A1, A2, A3) volatile>(obj, method));
     }
 
@@ -2945,8 +2945,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
+    template<typename T, typename U>
+    Callback(const volatile U *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
         generate(method_context<const volatile T, R (T::*)(A0, A1, A2, A3) const volatile>(obj, method));
     }
 
@@ -3194,8 +3194,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(T *obj, R (T::*method)(A0, A1, A2, A3)) {
+    template<typename T, typename U>
+    void attach(U *obj, R (T::*method)(A0, A1, A2, A3)) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3204,8 +3204,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const T *obj, R (T::*method)(A0, A1, A2, A3) const) {
+    template<typename T, typename U>
+    void attach(const U *obj, R (T::*method)(A0, A1, A2, A3) const) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3214,8 +3214,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
+    template<typename T, typename U>
+    void attach(volatile U *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3224,8 +3224,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
+    template<typename T, typename U>
+    void attach(const volatile U *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3625,8 +3625,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(T *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
+    template<typename T, typename U>
+    Callback(U *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
         generate(method_context<T, R (T::*)(A0, A1, A2, A3, A4)>(obj, method));
     }
 
@@ -3634,8 +3634,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const T *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
+    template<typename T, typename U>
+    Callback(const U *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
         generate(method_context<const T, R (T::*)(A0, A1, A2, A3, A4) const>(obj, method));
     }
 
@@ -3643,8 +3643,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
+    template<typename T, typename U>
+    Callback(volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
         generate(method_context<volatile T, R (T::*)(A0, A1, A2, A3, A4) volatile>(obj, method));
     }
 
@@ -3652,8 +3652,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    Callback(const volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
+    template<typename T, typename U>
+    Callback(const volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
         generate(method_context<const volatile T, R (T::*)(A0, A1, A2, A3, A4) const volatile>(obj, method));
     }
 
@@ -3901,8 +3901,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(T *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
+    template<typename T, typename U>
+    void attach(U *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3911,8 +3911,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const T *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
+    template<typename T, typename U>
+    void attach(const U *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3921,8 +3921,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
+    template<typename T, typename U>
+    void attach(volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -3931,8 +3931,8 @@ public:
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
      */
-    template<typename T>
-    void attach(const volatile T *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
+    template<typename T, typename U>
+    void attach(const volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
     }
@@ -4330,9 +4330,9 @@ Callback<R()> callback(const Callback<R()> &func) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R>
-Callback<R()> callback(T *obj, R (T::*func)()) {
-    return Callback<R()>(obj, func);
+template<typename T, typename U, typename R>
+Callback<R()> callback(U *obj, R (T::*method)()) {
+    return Callback<R()>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4341,9 +4341,9 @@ Callback<R()> callback(T *obj, R (T::*func)()) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R>
-Callback<R()> callback(const T *obj, R (T::*func)() const) {
-    return Callback<R()>(obj, func);
+template<typename T, typename U, typename R>
+Callback<R()> callback(const U *obj, R (T::*method)() const) {
+    return Callback<R()>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4352,9 +4352,9 @@ Callback<R()> callback(const T *obj, R (T::*func)() const) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R>
-Callback<R()> callback(volatile T *obj, R (T::*func)() volatile) {
-    return Callback<R()>(obj, func);
+template<typename T, typename U, typename R>
+Callback<R()> callback(volatile U *obj, R (T::*method)() volatile) {
+    return Callback<R()>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4363,9 +4363,9 @@ Callback<R()> callback(volatile T *obj, R (T::*func)() volatile) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R>
-Callback<R()> callback(const volatile T *obj, R (T::*func)() const volatile) {
-    return Callback<R()>(obj, func);
+template<typename T, typename U, typename R>
+Callback<R()> callback(const volatile U *obj, R (T::*method)() const volatile) {
+    return Callback<R()>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4603,9 +4603,9 @@ Callback<R(A0)> callback(const Callback<R(A0)> &func) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0>
-Callback<R(A0)> callback(T *obj, R (T::*func)(A0)) {
-    return Callback<R(A0)>(obj, func);
+template<typename T, typename U, typename R, typename A0>
+Callback<R(A0)> callback(U *obj, R (T::*method)(A0)) {
+    return Callback<R(A0)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4614,9 +4614,9 @@ Callback<R(A0)> callback(T *obj, R (T::*func)(A0)) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0>
-Callback<R(A0)> callback(const T *obj, R (T::*func)(A0) const) {
-    return Callback<R(A0)>(obj, func);
+template<typename T, typename U, typename R, typename A0>
+Callback<R(A0)> callback(const U *obj, R (T::*method)(A0) const) {
+    return Callback<R(A0)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4625,9 +4625,9 @@ Callback<R(A0)> callback(const T *obj, R (T::*func)(A0) const) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0>
-Callback<R(A0)> callback(volatile T *obj, R (T::*func)(A0) volatile) {
-    return Callback<R(A0)>(obj, func);
+template<typename T, typename U, typename R, typename A0>
+Callback<R(A0)> callback(volatile U *obj, R (T::*method)(A0) volatile) {
+    return Callback<R(A0)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4636,9 +4636,9 @@ Callback<R(A0)> callback(volatile T *obj, R (T::*func)(A0) volatile) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0>
-Callback<R(A0)> callback(const volatile T *obj, R (T::*func)(A0) const volatile) {
-    return Callback<R(A0)>(obj, func);
+template<typename T, typename U, typename R, typename A0>
+Callback<R(A0)> callback(const volatile U *obj, R (T::*method)(A0) const volatile) {
+    return Callback<R(A0)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4876,9 +4876,9 @@ Callback<R(A0, A1)> callback(const Callback<R(A0, A1)> &func) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(T *obj, R (T::*func)(A0, A1)) {
-    return Callback<R(A0, A1)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(U *obj, R (T::*method)(A0, A1)) {
+    return Callback<R(A0, A1)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4887,9 +4887,9 @@ Callback<R(A0, A1)> callback(T *obj, R (T::*func)(A0, A1)) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const T *obj, R (T::*func)(A0, A1) const) {
-    return Callback<R(A0, A1)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(const U *obj, R (T::*method)(A0, A1) const) {
+    return Callback<R(A0, A1)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4898,9 +4898,9 @@ Callback<R(A0, A1)> callback(const T *obj, R (T::*func)(A0, A1) const) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(volatile T *obj, R (T::*func)(A0, A1) volatile) {
-    return Callback<R(A0, A1)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(volatile U *obj, R (T::*method)(A0, A1) volatile) {
+    return Callback<R(A0, A1)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -4909,9 +4909,9 @@ Callback<R(A0, A1)> callback(volatile T *obj, R (T::*func)(A0, A1) volatile) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1>
-Callback<R(A0, A1)> callback(const volatile T *obj, R (T::*func)(A0, A1) const volatile) {
-    return Callback<R(A0, A1)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1>
+Callback<R(A0, A1)> callback(const volatile U *obj, R (T::*method)(A0, A1) const volatile) {
+    return Callback<R(A0, A1)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5149,9 +5149,9 @@ Callback<R(A0, A1, A2)> callback(const Callback<R(A0, A1, A2)> &func) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(T *obj, R (T::*func)(A0, A1, A2)) {
-    return Callback<R(A0, A1, A2)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(U *obj, R (T::*method)(A0, A1, A2)) {
+    return Callback<R(A0, A1, A2)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5160,9 +5160,9 @@ Callback<R(A0, A1, A2)> callback(T *obj, R (T::*func)(A0, A1, A2)) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const T *obj, R (T::*func)(A0, A1, A2) const) {
-    return Callback<R(A0, A1, A2)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(const U *obj, R (T::*method)(A0, A1, A2) const) {
+    return Callback<R(A0, A1, A2)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5171,9 +5171,9 @@ Callback<R(A0, A1, A2)> callback(const T *obj, R (T::*func)(A0, A1, A2) const) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(volatile T *obj, R (T::*func)(A0, A1, A2) volatile) {
-    return Callback<R(A0, A1, A2)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(volatile U *obj, R (T::*method)(A0, A1, A2) volatile) {
+    return Callback<R(A0, A1, A2)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5182,9 +5182,9 @@ Callback<R(A0, A1, A2)> callback(volatile T *obj, R (T::*func)(A0, A1, A2) volat
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2>
-Callback<R(A0, A1, A2)> callback(const volatile T *obj, R (T::*func)(A0, A1, A2) const volatile) {
-    return Callback<R(A0, A1, A2)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2>
+Callback<R(A0, A1, A2)> callback(const volatile U *obj, R (T::*method)(A0, A1, A2) const volatile) {
+    return Callback<R(A0, A1, A2)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5422,9 +5422,9 @@ Callback<R(A0, A1, A2, A3)> callback(const Callback<R(A0, A1, A2, A3)> &func) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(T *obj, R (T::*func)(A0, A1, A2, A3)) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(U *obj, R (T::*method)(A0, A1, A2, A3)) {
+    return Callback<R(A0, A1, A2, A3)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5433,9 +5433,9 @@ Callback<R(A0, A1, A2, A3)> callback(T *obj, R (T::*func)(A0, A1, A2, A3)) {
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const T *obj, R (T::*func)(A0, A1, A2, A3) const) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(const U *obj, R (T::*method)(A0, A1, A2, A3) const) {
+    return Callback<R(A0, A1, A2, A3)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5444,9 +5444,9 @@ Callback<R(A0, A1, A2, A3)> callback(const T *obj, R (T::*func)(A0, A1, A2, A3) 
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(volatile T *obj, R (T::*func)(A0, A1, A2, A3) volatile) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(volatile U *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
+    return Callback<R(A0, A1, A2, A3)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5455,9 +5455,9 @@ Callback<R(A0, A1, A2, A3)> callback(volatile T *obj, R (T::*func)(A0, A1, A2, A
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3>
-Callback<R(A0, A1, A2, A3)> callback(const volatile T *obj, R (T::*func)(A0, A1, A2, A3) const volatile) {
-    return Callback<R(A0, A1, A2, A3)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3>
+Callback<R(A0, A1, A2, A3)> callback(const volatile U *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
+    return Callback<R(A0, A1, A2, A3)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5695,9 +5695,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const Callback<R(A0, A1, A2, A3, A4)> &
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(T *obj, R (T::*func)(A0, A1, A2, A3, A4)) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(U *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
+    return Callback<R(A0, A1, A2, A3, A4)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5706,9 +5706,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(T *obj, R (T::*func)(A0, A1, A2, A3, A4
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const T *obj, R (T::*func)(A0, A1, A2, A3, A4) const) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(const U *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
+    return Callback<R(A0, A1, A2, A3, A4)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5717,9 +5717,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const T *obj, R (T::*func)(A0, A1, A2, 
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) volatile) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
+    return Callback<R(A0, A1, A2, A3, A4)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
@@ -5728,9 +5728,9 @@ Callback<R(A0, A1, A2, A3, A4)> callback(volatile T *obj, R (T::*func)(A0, A1, A
  *  @param method   Member function to attach
  *  @return         Callback with infered type
  */
-template<typename T, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
-Callback<R(A0, A1, A2, A3, A4)> callback(const volatile T *obj, R (T::*func)(A0, A1, A2, A3, A4) const volatile) {
-    return Callback<R(A0, A1, A2, A3, A4)>(obj, func);
+template<typename T, typename U, typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
+Callback<R(A0, A1, A2, A3, A4)> callback(const volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
+    return Callback<R(A0, A1, A2, A3, A4)>(obj, method);
 }
 
 /** Create a callback class with type infered from the arguments
