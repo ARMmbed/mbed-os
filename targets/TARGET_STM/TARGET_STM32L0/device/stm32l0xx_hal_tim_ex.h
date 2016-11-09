@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
@@ -80,7 +80,7 @@ typedef struct {
 /** @defgroup TIMEx_Trigger_Selection Trigger selection
   * @{
   */  
-#define  TIM_TRGO_RESET            ((uint32_t)0x0000)
+#define  TIM_TRGO_RESET            ((uint32_t)0x0000U)
 #define  TIM_TRGO_ENABLE           (TIM_CR2_MMS_0)
 #define  TIM_TRGO_UPDATE           (TIM_CR2_MMS_1)
 #define  TIM_TRGO_OC1              ((TIM_CR2_MMS_1 | TIM_CR2_MMS_0))
@@ -108,7 +108,7 @@ typedef struct {
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
     || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 
-#define TIM2_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM2_ETR_GPIO                     ((uint32_t)0x0U)
 #define TIM2_ETR_HSI48                    TIM2_OR_ETR_RMP_2
 #define TIM2_ETR_HSI16                    (TIM2_OR_ETR_RMP_1 | TIM2_OR_ETR_RMP_0)
 #define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
@@ -117,7 +117,7 @@ typedef struct {
 
 #elif defined (STM32L011xx) || defined (STM32L021xx) || defined (STM32L031xx) || defined (STM32L041xx)
 
-#define TIM2_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM2_ETR_GPIO                     ((uint32_t)0x0U)
 #define TIM2_ETR_HSI16                    (TIM2_OR_ETR_RMP_1 | TIM2_OR_ETR_RMP_0)
 #define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
 #define TIM2_ETR_COMP2_OUT                (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_1)
@@ -125,7 +125,7 @@ typedef struct {
 
 #else
 
-#define TIM2_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM2_ETR_GPIO                     ((uint32_t)0x0U)
 #define TIM2_ETR_HSI48                    TIM2_OR_ETR_RMP_2
 #define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
 #define TIM2_ETR_COMP2_OUT                (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_1)
@@ -135,15 +135,15 @@ typedef struct {
 
 
 
-#define TIM2_TI4_GPIO                     ((uint32_t)0x0)
+#define TIM2_TI4_GPIO                     ((uint32_t)0x0U)
 #define TIM2_TI4_COMP2                    TIM2_OR_TI4_RMP_0
 #define TIM2_TI4_COMP1                    TIM2_OR_TI4_RMP_1
 
-#define TIM21_ETR_GPIO                    ((uint32_t)0x0)
+#define TIM21_ETR_GPIO                    ((uint32_t)0x0U)
 #define TIM21_ETR_COMP2_OUT               TIM21_OR_ETR_RMP_0
 #define TIM21_ETR_COMP1_OUT               TIM21_OR_ETR_RMP_1
 #define TIM21_ETR_LSE                     TIM21_OR_ETR_RMP
-#define TIM21_TI1_GPIO                    ((uint32_t)0x0)
+#define TIM21_TI1_GPIO                    ((uint32_t)0x0U)
 #define TIM21_TI1_MCO                     TIM21_OR_TI1_RMP
 #define TIM21_TI1_RTC_WKUT_IT             TIM21_OR_TI1_RMP_0
 #define TIM21_TI1_HSE_RTC                 TIM21_OR_TI1_RMP_1
@@ -151,15 +151,15 @@ typedef struct {
 #define TIM21_TI1_LSE                     TIM21_OR_TI1_RMP_2
 #define TIM21_TI1_LSI                     (TIM21_OR_TI1_RMP_2 | TIM21_OR_TI1_RMP_0)
 #define TIM21_TI1_COMP1_OUT               (TIM21_OR_TI1_RMP_2 | TIM21_OR_TI1_RMP_1)
-#define TIM21_TI2_GPIO                    ((uint32_t)0x0)
+#define TIM21_TI2_GPIO                    ((uint32_t)0x0U)
 #define TIM21_TI2_COMP2_OUT               TIM21_OR_TI2_RMP
 
 #if !defined(STM32L011xx) && !defined(STM32L021xx)
-#define TIM22_ETR_LSE                     ((uint32_t)0x0)
+#define TIM22_ETR_LSE                     ((uint32_t)0x0U)
 #define TIM22_ETR_COMP2_OUT               TIM22_OR_ETR_RMP_0
 #define TIM22_ETR_COMP1_OUT               TIM22_OR_ETR_RMP_1
 #define TIM22_ETR_GPIO                    TIM22_OR_ETR_RMP
-#define TIM22_TI1_GPIO1                   ((uint32_t)0x0)
+#define TIM22_TI1_GPIO1                   ((uint32_t)0x0U)
 #define TIM22_TI1_COMP2_OUT               TIM22_OR_TI1_RMP_0
 #define TIM22_TI1_COMP1_OUT               TIM22_OR_TI1_RMP_1
 #define TIM22_TI1_GPIO2                   TIM22_OR_TI1_RMP
@@ -168,13 +168,13 @@ typedef struct {
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
     || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 
-#define TIM3_TI4_GPIO_DEF                 ((uint32_t)0x0)
+#define TIM3_TI4_GPIO_DEF                 ((uint32_t)0x0U)
 #define TIM3_TI4_GPIOC9_AF2               TIM3_OR_TI4_RMP
-#define TIM3_TI2_GPIO_DEF                 ((uint32_t)0x0)
+#define TIM3_TI2_GPIO_DEF                 ((uint32_t)0x0U)
 #define TIM3_TI2_GPIOB5_AF4               TIM3_OR_TI2_RMP
-#define TIM3_TI1_USB_SOF                  ((uint32_t)0x0)
+#define TIM3_TI1_USB_SOF                  ((uint32_t)0x0U)
 #define TIM3_TI1_GPIO                     TIM3_OR_TI1_RMP
-#define TIM3_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM3_ETR_GPIO                     ((uint32_t)0x0U)
 #define TIM3_ETR_HSI                      TIM3_OR_ETR_RMP_1
 
 #endif /*defined (STM32L07Xxx) or defined (STM32L08Xxx) */

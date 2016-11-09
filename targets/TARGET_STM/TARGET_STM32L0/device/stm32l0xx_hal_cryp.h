@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
@@ -82,11 +82,11 @@ typedef struct
   */ 
 typedef enum
 {
-  HAL_CRYP_STATE_RESET             = 0x00,  /*!< CRYP not yet initialized or disabled  */
-  HAL_CRYP_STATE_READY             = 0x01,  /*!< CRYP initialized and ready for use    */
-  HAL_CRYP_STATE_BUSY              = 0x02,  /*!< CRYP internal processing is ongoing   */
-  HAL_CRYP_STATE_TIMEOUT           = 0x03,  /*!< CRYP timeout state                    */
-  HAL_CRYP_STATE_ERROR             = 0x04   /*!< CRYP error state                      */ 
+  HAL_CRYP_STATE_RESET             = 0x00U,  /*!< CRYP not yet initialized or disabled  */
+  HAL_CRYP_STATE_READY             = 0x01U,  /*!< CRYP initialized and ready for use    */
+  HAL_CRYP_STATE_BUSY              = 0x02U,  /*!< CRYP internal processing is ongoing   */
+  HAL_CRYP_STATE_TIMEOUT           = 0x03U,  /*!< CRYP timeout state                    */
+  HAL_CRYP_STATE_ERROR             = 0x04U   /*!< CRYP error state                      */ 
     
 }HAL_CRYP_STATETypeDef;
 
@@ -95,8 +95,8 @@ typedef enum
   */ 
 typedef enum
 {
-  HAL_CRYP_PHASE_READY             = 0x01,    /*!< CRYP peripheral is ready for initialization. */
-  HAL_CRYP_PHASE_PROCESS           = 0x02,    /*!< CRYP peripheral is in processing phase */
+  HAL_CRYP_PHASE_READY             = 0x01U,    /*!< CRYP peripheral is ready for initialization. */
+  HAL_CRYP_PHASE_PROCESS           = 0x02U,    /*!< CRYP peripheral is in processing phase */
 }HAL_PhaseTypeDef;
 
 /** 
@@ -143,7 +143,7 @@ typedef struct
 /** @defgroup CRYP_Data_Type CRYP Data Type
   * @{
   */
-#define CRYP_DATATYPE_32B         ((uint32_t)0x00000000)
+#define CRYP_DATATYPE_32B         ((uint32_t)0x00000000U)
 #define CRYP_DATATYPE_16B         AES_CR_DATATYPE_0
 #define CRYP_DATATYPE_8B          AES_CR_DATATYPE_1
 #define CRYP_DATATYPE_1B          AES_CR_DATATYPE
@@ -161,7 +161,7 @@ typedef struct
   */ 
 #define CRYP_CR_ALGOMODE_DIRECTION              (uint32_t)(AES_CR_MODE|AES_CR_CHMOD)
 
-#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT        ((uint32_t)0x00000000)
+#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT        ((uint32_t)0x00000000U)
 #define CRYP_CR_ALGOMODE_AES_ECB_KEYDERDECRYPT  (AES_CR_MODE)
 #define CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT        (AES_CR_CHMOD_0)
 #define CRYP_CR_ALGOMODE_AES_CBC_KEYDERDECRYPT  ((uint32_t)(AES_CR_CHMOD_0|AES_CR_MODE))

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   IWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Independent Watchdog (IWDG) peripheral:
@@ -129,7 +129,7 @@
   * @{
   */
 /* TimeOut value */
-#define HAL_IWDG_DEFAULT_TIMEOUT (uint32_t)1000
+#define HAL_IWDG_DEFAULT_TIMEOUT (uint32_t)1000U
 
 /* Local define used to check the SR status register */
 #define IWDG_SR_FLAGS  (IWDG_FLAG_PVU | IWDG_FLAG_RVU | IWDG_FLAG_WVU)
@@ -172,7 +172,7 @@
 
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
 
   /* Check the IWDG handle allocation */
   if(hiwdg == NULL)
@@ -186,7 +186,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   assert_param(IS_IWDG_WINDOW(hiwdg->Init.Window));
 
   /* Check pending flag, if previous update not done, return error */
-  if(((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0)
+  if(((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0U)
   {
     return HAL_ERROR;
   }
@@ -217,7 +217,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
     tickstart = HAL_GetTick();
 
      /* Wait for register to be updated */
-     while (((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0)
+     while (((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0U)
      {
        if((HAL_GetTick()-tickstart) > HAL_IWDG_DEFAULT_TIMEOUT)
        {
@@ -281,7 +281,7 @@ __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
   */
 HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
 
   /* Process locked */
   __HAL_LOCK(hiwdg); 
@@ -301,7 +301,7 @@ HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg)
   tickstart = HAL_GetTick();
   
  /* Wait until PVU, RVU, WVU flag are RESET */
-  while (((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0)
+  while (((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0U)
   {
     if((HAL_GetTick()-tickstart) > HAL_IWDG_DEFAULT_TIMEOUT)
     { 
@@ -332,7 +332,7 @@ HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg)
   */
 HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
 
   /* Process Locked */
   __HAL_LOCK(hiwdg);

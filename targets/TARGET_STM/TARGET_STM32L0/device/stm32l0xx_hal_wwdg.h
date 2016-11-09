@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
@@ -68,11 +68,11 @@
   */
 typedef enum
 {
-  HAL_WWDG_STATE_RESET     = 0x00,  /*!< WWDG not yet initialized or disabled */
-  HAL_WWDG_STATE_READY     = 0x01,  /*!< WWDG initialized and ready for use   */
-  HAL_WWDG_STATE_BUSY      = 0x02,  /*!< WWDG internal process is ongoing     */
-  HAL_WWDG_STATE_TIMEOUT   = 0x03,  /*!< WWDG timeout state                   */
-  HAL_WWDG_STATE_ERROR     = 0x04   /*!< WWDG error state                     */
+  HAL_WWDG_STATE_RESET     = 0x00U,  /*!< WWDG not yet initialized or disabled */
+  HAL_WWDG_STATE_READY     = 0x01U,  /*!< WWDG initialized and ready for use   */
+  HAL_WWDG_STATE_BUSY      = 0x02U,  /*!< WWDG internal process is ongoing     */
+  HAL_WWDG_STATE_TIMEOUT   = 0x03U,  /*!< WWDG timeout state                   */
+  HAL_WWDG_STATE_ERROR     = 0x04U   /*!< WWDG error state                     */
 }HAL_WWDG_StateTypeDef;
 
 /**
@@ -140,7 +140,7 @@ typedef struct
 
 /* --- CFR Register ---*/
 /* Alias word address of EWI bit */
-#define WWDG_CFR_BASE   (uint32_t)(WWDG_BASE + 0x04)
+#define WWDG_CFR_BASE   (uint32_t)(WWDG_BASE + 0x04U)
 
 /**
   * @}
@@ -166,7 +166,7 @@ typedef struct
 /** @defgroup WWDG_Prescaler WWDG Prescaler
   * @{
   */
-#define WWDG_PRESCALER_1   ((uint32_t)0x00000000)  /*!< WWDG counter clock = (PCLK1/4096)/1 */
+#define WWDG_PRESCALER_1   ((uint32_t)0x00000000U)  /*!< WWDG counter clock = (PCLK1/4096)/1 */
 #define WWDG_PRESCALER_2   ((uint32_t)WWDG_CFR_WDGTB0)  /*!< WWDG counter clock = (PCLK1/4096)/2 */
 #define WWDG_PRESCALER_4   ((uint32_t)WWDG_CFR_WDGTB1)  /*!< WWDG counter clock = (PCLK1/4096)/4 */
 #define WWDG_PRESCALER_8   ((uint32_t)WWDG_CFR_WDGTB)  /*!< WWDG counter clock = (PCLK1/4096)/8 */
@@ -181,10 +181,10 @@ typedef struct
 
 
 /* Check for window */
-#define IS_WWDG_WINDOW(__WINDOW__) ((__WINDOW__) <= 0x7F)
+#define IS_WWDG_WINDOW(__WINDOW__) ((__WINDOW__) <= 0x7FU)
 
 /* Check for counter */
-#define IS_WWDG_COUNTER(__COUNTER__) (((__COUNTER__) >= 0x40) && ((__COUNTER__) <= 0x7F))
+#define IS_WWDG_COUNTER(__COUNTER__) (((__COUNTER__) >= 0x40U) && ((__COUNTER__) <= 0x7FU))
 
 /**
   * @}

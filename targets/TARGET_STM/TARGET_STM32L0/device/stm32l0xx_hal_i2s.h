@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -90,13 +90,13 @@ typedef struct
   */ 
 typedef enum
 {
-  HAL_I2S_STATE_RESET      = 0x00,  /*!< I2S not yet initialized or disabled                */
-  HAL_I2S_STATE_READY      = 0x01,  /*!< I2S initialized and ready for use                  */
-  HAL_I2S_STATE_BUSY       = 0x02,  /*!< I2S internal process is ongoing                    */   
-  HAL_I2S_STATE_BUSY_TX    = 0x12,  /*!< Data Transmission process is ongoing               */ 
-  HAL_I2S_STATE_BUSY_RX    = 0x22,  /*!< Data Reception process is ongoing                  */
-  HAL_I2S_STATE_TIMEOUT    = 0x03,  /*!< I2S timeout state                                  */ 
-  HAL_I2S_STATE_ERROR      = 0x04   /*!< I2S error state                                    */      
+  HAL_I2S_STATE_RESET      = 0x00U,  /*!< I2S not yet initialized or disabled                */
+  HAL_I2S_STATE_READY      = 0x01U,  /*!< I2S initialized and ready for use                  */
+  HAL_I2S_STATE_BUSY       = 0x02U,  /*!< I2S internal process is ongoing                    */   
+  HAL_I2S_STATE_BUSY_TX    = 0x12U,  /*!< Data Transmission process is ongoing               */ 
+  HAL_I2S_STATE_BUSY_RX    = 0x22U,  /*!< Data Reception process is ongoing                  */
+  HAL_I2S_STATE_TIMEOUT    = 0x03U,  /*!< I2S timeout state                                  */ 
+  HAL_I2S_STATE_ERROR      = 0x04U   /*!< I2S error state                                    */      
 }HAL_I2S_StateTypeDef;
 
 /** 
@@ -149,11 +149,11 @@ typedef struct
   * @defgroup  I2S_ErrorCode I2S Error Code
   * @{
   */
-#define HAL_I2S_ERROR_NONE      ((uint32_t)0x00)    /*!< No error                    */
-#define HAL_I2S_ERROR_UDR       ((uint32_t)0x01)    /*!< I2S Underrun error          */
-#define HAL_I2S_ERROR_OVR       ((uint32_t)0x02)    /*!< I2S Overrun error           */
-#define HAL_I2S_ERROR_FRE       ((uint32_t)0x04)    /*!< I2S Frame format error      */
-#define HAL_I2S_ERROR_DMA       ((uint32_t)0x08)    /*!< DMA transfer error          */
+#define HAL_I2S_ERROR_NONE      ((uint32_t)0x00U)    /*!< No error                    */
+#define HAL_I2S_ERROR_UDR       ((uint32_t)0x01U)    /*!< I2S Underrun error          */
+#define HAL_I2S_ERROR_OVR       ((uint32_t)0x02U)    /*!< I2S Overrun error           */
+#define HAL_I2S_ERROR_FRE       ((uint32_t)0x04U)    /*!< I2S Frame format error      */
+#define HAL_I2S_ERROR_DMA       ((uint32_t)0x08U)    /*!< DMA transfer error          */
   /**
     * @}
     */
@@ -161,7 +161,7 @@ typedef struct
 /** @defgroup I2S_Mode I2S Mode
   * @{
   */
-#define I2S_MODE_SLAVE_TX                ((uint32_t) 0x00000000)
+#define I2S_MODE_SLAVE_TX                ((uint32_t) 0x00000000U)
 #define I2S_MODE_SLAVE_RX                ((uint32_t) SPI_I2SCFGR_I2SCFG_0)
 #define I2S_MODE_MASTER_TX               ((uint32_t) SPI_I2SCFGR_I2SCFG_1)
 #define I2S_MODE_MASTER_RX               ((uint32_t)(SPI_I2SCFGR_I2SCFG_0 |\
@@ -173,7 +173,7 @@ typedef struct
 /** @defgroup I2S_Standard I2S Standard
   * @{
   */
-#define I2S_STANDARD_PHILIPS             ((uint32_t) 0x00000000)
+#define I2S_STANDARD_PHILIPS             ((uint32_t) 0x00000000U)
 #define I2S_STANDARD_MSB                 ((uint32_t) SPI_I2SCFGR_I2SSTD_0)
 #define I2S_STANDARD_LSB                 ((uint32_t) SPI_I2SCFGR_I2SSTD_1)
 #define I2S_STANDARD_PCM_SHORT           ((uint32_t)(SPI_I2SCFGR_I2SSTD_0 |\
@@ -196,7 +196,7 @@ typedef struct
 /** @defgroup I2S_Data_Format I2S Data Format
   * @{
   */
-#define I2S_DATAFORMAT_16B               ((uint32_t) 0x00000000)
+#define I2S_DATAFORMAT_16B               ((uint32_t) 0x00000000U)
 #define I2S_DATAFORMAT_16B_EXTENDED      ((uint32_t) SPI_I2SCFGR_CHLEN)
 #define I2S_DATAFORMAT_24B               ((uint32_t)(SPI_I2SCFGR_CHLEN | SPI_I2SCFGR_DATLEN_0))
 #define I2S_DATAFORMAT_32B               ((uint32_t)(SPI_I2SCFGR_CHLEN | SPI_I2SCFGR_DATLEN_1))
@@ -208,7 +208,7 @@ typedef struct
   * @{
   */
 #define I2S_MCLKOUTPUT_ENABLE           ((uint32_t)SPI_I2SPR_MCKOE)
-#define I2S_MCLKOUTPUT_DISABLE          ((uint32_t)0x00000000)
+#define I2S_MCLKOUTPUT_DISABLE          ((uint32_t)0x00000000U)
 /**
   * @}
   */
@@ -216,16 +216,16 @@ typedef struct
 /** @defgroup I2S_Audio_Frequency I2S Audio Frequency
   * @{
   */
-#define I2S_AUDIOFREQ_192K               ((uint32_t)192000)
-#define I2S_AUDIOFREQ_96K                ((uint32_t)96000)
-#define I2S_AUDIOFREQ_48K                ((uint32_t)48000)
-#define I2S_AUDIOFREQ_44K                ((uint32_t)44100)
-#define I2S_AUDIOFREQ_32K                ((uint32_t)32000)
-#define I2S_AUDIOFREQ_22K                ((uint32_t)22050)
-#define I2S_AUDIOFREQ_16K                ((uint32_t)16000)
-#define I2S_AUDIOFREQ_11K                ((uint32_t)11025)
-#define I2S_AUDIOFREQ_8K                 ((uint32_t)8000)
-#define I2S_AUDIOFREQ_DEFAULT            ((uint32_t)2)
+#define I2S_AUDIOFREQ_192K               ((uint32_t)192000U)
+#define I2S_AUDIOFREQ_96K                ((uint32_t)96000U)
+#define I2S_AUDIOFREQ_48K                ((uint32_t)48000U)
+#define I2S_AUDIOFREQ_44K                ((uint32_t)44100U)
+#define I2S_AUDIOFREQ_32K                ((uint32_t)32000U)
+#define I2S_AUDIOFREQ_22K                ((uint32_t)22050U)
+#define I2S_AUDIOFREQ_16K                ((uint32_t)16000U)
+#define I2S_AUDIOFREQ_11K                ((uint32_t)11025U)
+#define I2S_AUDIOFREQ_8K                 ((uint32_t)8000U)
+#define I2S_AUDIOFREQ_DEFAULT            ((uint32_t)2U)
 /**
   * @}
   */
@@ -233,7 +233,7 @@ typedef struct
 /** @defgroup I2S_Clock_Polarity I2S Clock Polarity
   * @{
   */
-#define I2S_CPOL_LOW                    ((uint32_t)0x00000000)
+#define I2S_CPOL_LOW                    ((uint32_t)0x00000000U)
 #define I2S_CPOL_HIGH                   ((uint32_t)SPI_I2SCFGR_CKPOL)
 /**
   * @}
