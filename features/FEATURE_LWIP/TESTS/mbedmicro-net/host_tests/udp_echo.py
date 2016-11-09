@@ -28,7 +28,6 @@ class UDPEchoClientHandler(BaseRequestHandler):
         """ UDP packet handler. Echoes data back to sender's address.
         """
         data, sock = self.request
-        print ('HOST: UDPEchoClientHandler: Rx: \n%s\n' % data)
         sock.sendto(data, self.client_address)
 
 

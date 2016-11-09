@@ -33,24 +33,18 @@ class TCPEchoClientHandler(BaseRequestHandler):
         Note: reason for not echoing data back after receiving {{end}} is that send
               fails raising a SocketError as client closes connection.
         """
-        print ("HOST: TCPEchoClient_Handler: Connection received...")
         while self.server.isrunning():
             try:
                 data = self.recv()
                 if not data: break
             except Exception as e:
-                print ('HOST: TCPEchoClient_Handler recv error: %s' % str(e))
                 break
-
-            print ('HOST: TCPEchoClient_Handler: Rx: \n%s\n' % data)
 
             try:
                 # echo data back to the client
                 self.send(data)
             except Exception as e:
-                print ('HOST: TCPEchoClient_Handler send error: %s' % str(e))
                 break
-        print 'Connection finished'
 
     def recv(self):
         """
