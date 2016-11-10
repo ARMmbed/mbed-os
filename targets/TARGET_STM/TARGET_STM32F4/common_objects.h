@@ -87,6 +87,7 @@ struct i2c_s {
     /*  The 1st 2 members I2CName i2c
      *  and I2C_HandleTypeDef handle should
      *  be kept as the first members of this struct
+     *  to have get_i2c_obj() function work as expected
      */
     I2CName  i2c;
     I2C_HandleTypeDef handle;
