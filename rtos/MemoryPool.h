@@ -42,41 +42,41 @@ public:
     MemoryPool() {
     #ifdef CMSIS_OS_RTX
         memset(_pool_m, 0, sizeof(_pool_m));
-        _pool_def.pool = _pool_m;
-
-        _pool_def.pool_sz = pool_sz;
-        _pool_def.item_sz =  sizeof(T);
+        _pool_attr.cb_mem = _pool_m;
+        _pool_attr.cb_size = sizeof(_pool_m);
     #endif
-        _pool_id = osPoolCreate(&_pool_def);
+        _pool_id = osMemoryPoolNew(pool_sz, sizeof(T), &_pool_attr);
     }
 
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* alloc(void) {
-        return (T*)osPoolAlloc(_pool_id);
+        return (T*)osMemoryPoolAlloc(_pool_id, 0);
     }
 
     /** Allocate a memory block of type T from a memory pool and set memory block to zero.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* calloc(void) {
-        return (T*)osPoolCAlloc(_pool_id);
+        T *item = (T*)osMemoryPoolAlloc(_pool_id, 0);
+        memset(item, 0, sizeof(T));
+        return item;
     }
 
     /** Return an allocated memory block back to a specific memory pool.
       @param   address of the allocated memory block that is returned to the memory pool.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus free(T *block) {
-        return osPoolFree(_pool_id, (void*)block);
+    osStatus_t free(T *block) {
+        return osMemoryPoolFree(_pool_id, (void*)block);
     }
 
 private:
-    osPoolId    _pool_id;
-    osPoolDef_t _pool_def;
+    osMemoryPoolId_t _pool_id;
+    osMemoryPoolAttr_t _pool_attr;
 #ifdef CMSIS_OS_RTX
-    uint32_t    _pool_m[3+((sizeof(T)+3)/4)*(pool_sz)];
+    uint32_t _pool_m[3+((sizeof(T)+3)/4)*(pool_sz)];
 #endif
 };
 
