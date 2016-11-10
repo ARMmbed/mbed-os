@@ -11,7 +11,7 @@ define symbol __ICFEDIT_region_IRAM_end__   = 0x20010000;
 define symbol __ICFEDIT_region_XRAM_start__ = 0x60000000;
 define symbol __ICFEDIT_region_XRAM_end__   = 0x60100000;
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x2000;
+define symbol __ICFEDIT_size_cstack__ = 0x800;
 define symbol __ICFEDIT_size_heap__   = 0xC0000;
 /**** End of ICF editor section. ###ICF###*/
 
