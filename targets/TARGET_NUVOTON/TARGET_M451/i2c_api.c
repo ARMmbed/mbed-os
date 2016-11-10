@@ -221,7 +221,7 @@ int i2c_byte_read(i2c_t *obj, int last)
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
-    return i2c_do_write(obj, (data & 0xFF), 0);
+    return i2c_do_write(obj, (data & 0xFF), 0) == 0 ? 1 : 0;
 }
 
 #if DEVICE_I2CSLAVE
@@ -352,6 +352,10 @@ int i2c_allow_powerdown(void)
 
 static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastdata)
 {
+    if (! buf || ! length) {
+        return 0;
+    }
+    
     int tran_len = 0;
     
     i2c_disable_int(obj);
