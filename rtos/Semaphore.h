@@ -46,15 +46,15 @@ public:
     /** Release a Semaphore resource that was obtain with Semaphore::wait.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus release(void);
+    osStatus_t release(void);
 
     ~Semaphore();
 
 private:
     osSemaphoreId _osSemaphoreId;
-    osSemaphoreDef_t _osSemaphoreDef;
+    osSemaphoreAttr_t _osSemaphoreAttr;
 #ifdef CMSIS_OS_RTX
-    uint32_t _semaphore_data[2];
+    uint32_t _semaphore_data[sizeof(os_semaphore_s)];
 #endif
 };
 

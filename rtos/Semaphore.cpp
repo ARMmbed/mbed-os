@@ -28,16 +28,17 @@ namespace rtos {
 Semaphore::Semaphore(int32_t count) {
 #ifdef CMSIS_OS_RTX
     memset(_semaphore_data, 0, sizeof(_semaphore_data));
-    _osSemaphoreDef.semaphore = _semaphore_data;
+    _osSemaphoreAttr.cb_mem = _semaphore_data;
+    _osSemaphoreAttr.cb_szie = sizeof(_semaphore_data);
 #endif
-    _osSemaphoreId = osSemaphoreCreate(&_osSemaphoreDef, count);
+    _osSemaphoreId = osSemaphoreNew(count, count, &_osSemaphoreAttr);
 }
 
 int32_t Semaphore::wait(uint32_t millisec) {
-    return osSemaphoreWait(_osSemaphoreId, millisec);
+    return osSemaphoreAcquire(_osSemaphoreId, millisec);
 }
 
-osStatus Semaphore::release(void) {
+osStatus_t Semaphore::release(void) {
     return osSemaphoreRelease(_osSemaphoreId);
 }
 
