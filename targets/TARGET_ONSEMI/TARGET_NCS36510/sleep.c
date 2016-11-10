@@ -101,10 +101,10 @@ void fncs36510_coma(void)
 
     /** Trim the oscillators */
     if ((TRIMREG->TRIM_32K_EXT & 0xFFFF0000) != 0xFFFF0000) {
-        CLOCKREG->TRIM_32K_EXT = TRIMREG->TRIM_32K_EXT;
+        CLOCKREG->TRIM_32K_EXT.WORD = TRIMREG->TRIM_32K_EXT;
     }
     if ((TRIMREG->TRIM_32M_EXT & 0xFFFF0000) != 0xFFFF0000) {
-        CLOCKREG->TRIM_32M_EXT = TRIMREG->TRIM_32M_EXT;
+        CLOCKREG->TRIM_32M_EXT.WORD = TRIMREG->TRIM_32M_EXT;
     }
 
     /* Enable UART 1 & 2 FIFO */
