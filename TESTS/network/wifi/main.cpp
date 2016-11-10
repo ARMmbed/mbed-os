@@ -35,7 +35,7 @@ using namespace utest::v1;
  * - WIFI_TEST_NETWORKS - List of network that presence will be asserted e.g. "net1", "net2", "net3"
  */
 #if !defined(MBED_CONF_APP_WIFI_SSID) || !defined(MBED_CONF_APP_WIFI_PASSWORD) || !defined(MBED_CONF_APP_WIFI_NETWORKS)
-#error MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD and MBED_CONF_APP_WIFI_NETWORKS have to be defined for this test.
+#error [NOT_SUPPORTED] MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD and MBED_CONF_APP_WIFI_NETWORKS have to be defined for this test.
 #endif
 
 const char *networks[] = {MBED_CONF_APP_WIFI_NETWORKS, NULL};
