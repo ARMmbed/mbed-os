@@ -2149,7 +2149,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         
         args = (src_path, test_build_path, target, toolchain_name)
         kwargs = {
-            'jobs': jobs,
+            'jobs': 1,
             'clean': clean,
             'macros': macros,
             'name': test_case_folder_name,
