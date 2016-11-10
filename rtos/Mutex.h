@@ -41,7 +41,7 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever)
       @return  status code that indicates the execution status of the function.
      */
-    osStatus lock(uint32_t millisec=osWaitForever);
+    osStatus_t lock(uint32_t millisec=osWaitForever);
 
     /** Try to lock the mutex, and return immediately
       @return  true if the mutex was acquired, false otherwise.
@@ -51,16 +51,16 @@ public:
     /** Unlock the mutex that has previously been locked by the same thread
       @return  status code that indicates the execution status of the function.
      */
-    osStatus unlock();
+    osStatus_t unlock();
 
     ~Mutex();
 
 private:
-    osMutexId _osMutexId;
-    osMutexDef_t _osMutexDef;
+    osMutexId_t _osMutexId;
+    osMutexAttr_t _osMutexAttr;
 #ifdef CMSIS_OS_RTX
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    int32_t _mutex_data[4];
+    int32_t _mutex_data[sizeof(os_mutex_s)];
 #else
     int32_t _mutex_data[3];
 #endif

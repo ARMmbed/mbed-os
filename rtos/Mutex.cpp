@@ -29,23 +29,24 @@ namespace rtos {
 Mutex::Mutex() {
 #ifdef CMSIS_OS_RTX
     memset(_mutex_data, 0, sizeof(_mutex_data));
-    _osMutexDef.mutex = _mutex_data;
+    _osMutexAttr.cb_mem = _mutex_data;
+    _osMutexAttr.cb_size = sizeof(_mutex_data);
 #endif
-    _osMutexId = osMutexCreate(&_osMutexDef);
+    _osMutexId = osMutexNew(&_osMutexAttr);
     if (_osMutexId == NULL) {
         error("Error initializing the mutex object\n");
     }
 }
 
-osStatus Mutex::lock(uint32_t millisec) {
-    return osMutexWait(_osMutexId, millisec);
+osStatus_t Mutex::lock(uint32_t millisec) {
+    return osMutexAcquire(_osMutexId, millisec);
 }
 
 bool Mutex::trylock() {
-    return (osMutexWait(_osMutexId, 0) == osOK);
+    return (osMutexAcquire(_osMutexId, 0) == osOK);
 }
 
-osStatus Mutex::unlock() {
+osStatus_t Mutex::unlock() {
     return osMutexRelease(_osMutexId);
 }
 
