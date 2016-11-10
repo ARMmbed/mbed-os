@@ -26,7 +26,7 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
 {
     // check for simple ip addresses
     if (address->set_ip_address(name)) {
-        if (address->get_ip_version() != version) {
+        if (version != NSAPI_UNSPEC && address->get_ip_version() != version) {
             return NSAPI_ERROR_DNS_FAILURE;
         }
 
