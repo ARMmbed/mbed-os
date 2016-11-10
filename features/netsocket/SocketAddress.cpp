@@ -203,8 +203,14 @@ bool SocketAddress::set_ip_address(const char *addr)
 void SocketAddress::set_ip_bytes(const void *bytes, nsapi_version_t version)
 {
     nsapi_addr_t addr;
+
+    addr = nsapi_addr_t();
     addr.version = version;
-    memcpy(addr.bytes, bytes, NSAPI_IP_BYTES);
+    if (version == NSAPI_IPv6) {
+        memcpy(addr.bytes, bytes, NSAPI_IPv6_BYTES);
+    } else if (version == NSAPI_IPv4) {
+        memcpy(addr.bytes, bytes, NSAPI_IPv4_BYTES);
+    }
     set_addr(addr);
 }
 
