@@ -30,16 +30,15 @@ using namespace utest::v1;
 
 /**
  * WiFi tests require following macros to be defined:
- * - WIFI_TEST_SSID - SSID of a network the test will try connecting to
- * - WIFI_TEST_PASS - Passphrase that will be used to connecting to the network
+ * - MBED_CONF_APP_WIFI_SSID - SSID of a network the test will try connecting to
+ * - MBED_CONF_APP_WIFI_PASSWORD - Passphrase that will be used to connecting to the network
  * - WIFI_TEST_NETWORKS - List of network that presence will be asserted e.g. "net1", "net2", "net3"
  */
-#if !defined(WIFI_TEST_SSID) || !defined(WIFI_TEST_PASS) || !defined(WIFI_TEST_NETWORKS)
-#error WIFI_TEST_NETWORKS, WIFI_TEST_PASS and WIFI_TEST_NETWORKS have to be defined for this test.
+#if !defined(MBED_CONF_APP_WIFI_SSID) || !defined(MBED_CONF_APP_WIFI_PASSWORD) || !defined(MBED_CONF_APP_WIFI_NETWORKS)
+#error MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD and MBED_CONF_APP_WIFI_NETWORKS have to be defined for this test.
 #endif
 
-
-const char *networks[] = {WIFI_TEST_NETWORKS, NULL};
+const char *networks[] = {MBED_CONF_APP_WIFI_NETWORKS, NULL};
 
 WiFiInterface *wifi;
 
@@ -101,7 +100,7 @@ void wifi_connect()
 {
     int ret;
 
-    ret = get_wifi()->connect(WIFI_TEST_SSID, WIFI_TEST_PASS, NSAPI_SECURITY_WPA_WPA2);
+    ret = get_wifi()->connect(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
     TEST_ASSERT_MESSAGE(ret == 0, "Connect failed");
 
     ret = get_wifi()->disconnect();
@@ -118,7 +117,7 @@ void wifi_connect_scan()
 
     memset(net_stat, 0, sizeof(net_stat));
 
-    ret = get_wifi()->connect(WIFI_TEST_SSID, WIFI_TEST_PASS, NSAPI_SECURITY_WPA_WPA2);
+    ret = get_wifi()->connect(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
     TEST_ASSERT_MESSAGE(ret == 0, "Connect failed");
 
     count = get_wifi()->scan(NULL, 0);
@@ -146,7 +145,7 @@ void wifi_http()
     TCPSocket socket;
     int ret;
 
-    ret = get_wifi()->connect(WIFI_TEST_SSID, WIFI_TEST_PASS, NSAPI_SECURITY_WPA_WPA2);
+    ret = get_wifi()->connect(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
     TEST_ASSERT_MESSAGE(ret == 0, "Connect failed");
 
     // Open a socket on the network interface, and create a TCP connection to www.arm.com
