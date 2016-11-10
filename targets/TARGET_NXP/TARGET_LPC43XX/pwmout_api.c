@@ -29,7 +29,9 @@
 
 // configuration options
 #define PWM_FREQ_BASE   1000000                 // Base frequency 1 MHz = 1000000
-#define PWM_MODE        1                       // 0 = 32-bit, 1 = 16-bit low, 2 = 16-bit high
+#ifndef PWM_MODE
+  #define PWM_MODE        1                     // 0 = 32-bit, 1 = 16-bit low, 2 = 16-bit high
+#endif
 
 // macros
 #define PWM_SETCOUNT(x) (x - 1)                 // set count value
@@ -163,8 +165,8 @@ static void _pwmout_dev_init() {
 
     // initialize SCT outputs
     for (i = 0; i < CONFIG_SCT_nOU; i++) {
-        LPC_SCT->OUT[i].SET = (1 << 0); // event 0 will set SCTOUT_xx
-        LPC_SCT->OUT[i].CLR = 0; // set clear event when duty cycle
+        LPC_SCT->OUT[i].SET = 0; // defer set event until pulsewidth defined
+        LPC_SCT->OUT[i].CLR = (1 << 0); // event 0 clears PWM pin
     }
     LPC_SCT->OUTPUT = 0; // default outputs to clear
 
@@ -252,15 +254,18 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     // calculate number of ticks
     uint32_t v = pwm_clock_mhz * us;
+    uint32_t i = obj->pwm;
     //MBED_ASSERT(PWM_GETCOUNT(*PWM_MR0) >= v);
 
     if (v > 0) {
         // set new match register value and enable SCT output
         *PWM_MR(obj->mr) = PWM_SETCOUNT(v);
-        LPC_SCT->OUT[obj->pwm].CLR = (1 << obj->mr);  // on event will clear PWM_XX
+        LPC_SCT->OUT[i].SET = (1 << 0); // event 0 sets PWM pin
+        LPC_SCT->OUT[i].CLR = (1 << obj->mr);  // match event clears PWM pin
     } else {
-        // set match to zero and disable SCT output
+        // set match to zero and clear SCT output
         *PWM_MR(obj->mr) = 0;
-        LPC_SCT->OUT[obj->pwm].CLR = 0;
+        LPC_SCT->OUT[i].SET = 0; // no set event if no pulsewidth defined
+        LPC_SCT->OUT[i].CLR = (1 << 0); // event 0 clears PWM pin
     }
 }
