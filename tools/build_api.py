@@ -134,7 +134,7 @@ def get_config(src_paths, target, toolchain_name):
         toolchain.config.add_config_files(resources.json_files)
 
         # Add features while we find new ones
-        features = toolchain.config.get_features()
+        features = set(toolchain.config.get_features())
         if features == prev_features:
             break
 
