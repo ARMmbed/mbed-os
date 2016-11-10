@@ -28,8 +28,9 @@
 #ifndef CORE_CM_H_
 #define CORE_CM_H_
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <stdint.h>
+#include "cmsis_compiler.h"
+#include "cmsis.h"
 
 #ifndef __ARM_ARCH_6M__
 #define __ARM_ARCH_6M__         0U

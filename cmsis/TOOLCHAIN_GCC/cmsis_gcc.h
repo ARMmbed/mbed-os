@@ -47,7 +47,7 @@
 #ifndef   __USED
   #define __USED                    __attribute__((used))
 #endif
-#ifndef   _WEAK
+#ifndef   __WEAK
   #define __WEAK                    __attribute__((weak))
 #endif
 #ifndef   __UNALIGNED_UINT32

@@ -26,7 +26,7 @@
  */
 
 #include "rtx_os.h"
-
+#include "mbed_rtx.h"
 
 // System Configuration
 // ====================
@@ -443,6 +443,19 @@ extern const uint8_t *os_irq_cm_ref;
 // OS Initialization
 // =================
 
+extern int main (void);
+osThreadAttr_t _main_thread_attr;
+
+void rtx_start_main(void)
+{
+
+  _main_thread_attr.stack_size = 4*OS_MAINSTKSIZE;
+  _main_thread_attr.priority = osPriorityNormal;
+  osThreadNew((os_thread_func_t)main, NULL, &_main_thread_attr);    // Create application main thread
+
+  osKernelStart();                                                  // Start thread execution
+}
+
 #if  defined(__CC_ARM) || \
     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
@@ -450,14 +463,16 @@ extern const uint8_t *os_irq_cm_ref;
 void _platform_post_stackheap_init (void);
 void _platform_post_stackheap_init (void) {
   osKernelInitialize();
+  rtx_start_main();
 }
 #endif
 
 #elif defined (__GNUC__)
 
-void software_init_hook (void);
-void software_init_hook (void) {
-  osKernelInitialize();
+void software_init_hook_rtos(void)
+{
+    osKernelInitialize();                                             // Initialize CMSIS-RTOS
+    rtx_start_main();
 }
 
 #endif
