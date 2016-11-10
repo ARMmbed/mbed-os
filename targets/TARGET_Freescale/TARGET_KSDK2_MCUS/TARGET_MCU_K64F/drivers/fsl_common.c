@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015, Freescale Semiconductor, Inc.
+* Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -99,3 +99,63 @@ void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
         __enable_irq();
     }
 }
+#ifndef CPU_QN908X
+#if (defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0))
+
+void EnableDeepSleepIRQ(IRQn_Type interrupt)
+{
+    uint32_t index = 0;
+    uint32_t intNumber = (uint32_t)interrupt;
+    while (intNumber >= 32u)
+    {
+        index++;
+        intNumber -= 32u;
+    }
+
+    SYSCON->STARTERSET[index] = 1u << intNumber;
+    EnableIRQ(interrupt); /* also enable interrupt at NVIC */
+}
+
+void DisableDeepSleepIRQ(IRQn_Type interrupt)
+{
+    uint32_t index = 0;
+    uint32_t intNumber = (uint32_t)interrupt;
+    while (intNumber >= 32u)
+    {
+        index++;
+        intNumber -= 32u;
+    }
+
+    DisableIRQ(interrupt); /* also disable interrupt at NVIC */
+    SYSCON->STARTERCLR[index] = 1u << intNumber;
+}
+#endif /* FSL_FEATURE_SOC_SYSCON_COUNT */
+#else
+void EnableDeepSleepIRQ(IRQn_Type interrupt)
+{
+    uint32_t index = 0;
+    uint32_t intNumber = (uint32_t)interrupt;
+    while (intNumber >= 32u)
+    {
+        index++;
+        intNumber -= 32u;
+    }
+
+    /*   SYSCON->STARTERSET[index] = 1u << intNumber; */
+    EnableIRQ(interrupt); /* also enable interrupt at NVIC */
+}
+
+void DisableDeepSleepIRQ(IRQn_Type interrupt)
+{
+    uint32_t index = 0;
+    uint32_t intNumber = (uint32_t)interrupt;
+    while (intNumber >= 32u)
+    {
+        index++;
+        intNumber -= 32u;
+    }
+
+    DisableIRQ(interrupt); /* also disable interrupt at NVIC */
+                           /*   SYSCON->STARTERCLR[index] = 1u << intNumber; */
+}
+#endif /*CPU_QN908X */

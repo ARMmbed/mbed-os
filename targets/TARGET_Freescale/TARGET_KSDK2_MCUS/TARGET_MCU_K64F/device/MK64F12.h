@@ -1,6 +1,7 @@
 /*
 ** ###################################################################
-**     Processors:          MK64FN1M0VDC12
+**     Processors:          MK64FN1M0CAJ12
+**                          MK64FN1M0VDC12
 **                          MK64FN1M0VLL12
 **                          MK64FN1M0VLQ12
 **                          MK64FN1M0VMD12
@@ -15,13 +16,13 @@
 **                          IAR ANSI C/C++ Compiler for ARM
 **
 **     Reference manual:    K64P144M120SF5RM, Rev.2, January 2014
-**     Version:             rev. 2.8, 2015-02-19
-**     Build:               b151218
+**     Version:             rev. 2.9, 2016-03-21
+**     Build:               b160321
 **
 **     Abstract:
 **         CMSIS Peripheral Access Layer for MK64F12
 **
-**     Copyright (c) 1997 - 2015 Freescale Semiconductor, Inc.
+**     Copyright (c) 1997 - 2016 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
 **     Redistribution and use in source and binary forms, with or without modification,
@@ -84,14 +85,17 @@
 **         Interrupt INT_LPTimer renamed to INT_LPTMR0, interrupt INT_Watchdog renamed to INT_WDOG_EWM.
 **     - rev. 2.8 (2015-02-19)
 **         Renamed interrupt vector LLW to LLWU.
+**     - rev. 2.9 (2016-03-21)
+**         Added MK64FN1M0CAJ12 part.
+**         GPIO - renamed port instances: PTx -> GPIOx.
 **
 ** ###################################################################
 */
 
 /*!
  * @file MK64F12.h
- * @version 2.8
- * @date 2015-02-19
+ * @version 2.9
+ * @date 2016-03-21
  * @brief CMSIS Peripheral Access Layer for MK64F12
  *
  * CMSIS Peripheral Access Layer for MK64F12
@@ -104,7 +108,7 @@
  * compatible) */
 #define MCU_MEM_MAP_VERSION 0x0200U
 /** Memory map minor version */
-#define MCU_MEM_MAP_VERSION_MINOR 0x0008U
+#define MCU_MEM_MAP_VERSION_MINOR 0x0009U
 
 /**
  * @brief Macro to calculate address of an aliased word in the peripheral
@@ -6926,30 +6930,30 @@ typedef struct {
 
 
 /* GPIO - Peripheral instance base addresses */
-/** Peripheral PTA base address */
-#define PTA_BASE                                 (0x400FF000u)
-/** Peripheral PTA base pointer */
-#define PTA                                      ((GPIO_Type *)PTA_BASE)
-/** Peripheral PTB base address */
-#define PTB_BASE                                 (0x400FF040u)
-/** Peripheral PTB base pointer */
-#define PTB                                      ((GPIO_Type *)PTB_BASE)
-/** Peripheral PTC base address */
-#define PTC_BASE                                 (0x400FF080u)
-/** Peripheral PTC base pointer */
-#define PTC                                      ((GPIO_Type *)PTC_BASE)
-/** Peripheral PTD base address */
-#define PTD_BASE                                 (0x400FF0C0u)
-/** Peripheral PTD base pointer */
-#define PTD                                      ((GPIO_Type *)PTD_BASE)
-/** Peripheral PTE base address */
-#define PTE_BASE                                 (0x400FF100u)
-/** Peripheral PTE base pointer */
-#define PTE                                      ((GPIO_Type *)PTE_BASE)
+/** Peripheral GPIOA base address */
+#define GPIOA_BASE                               (0x400FF000u)
+/** Peripheral GPIOA base pointer */
+#define GPIOA                                    ((GPIO_Type *)GPIOA_BASE)
+/** Peripheral GPIOB base address */
+#define GPIOB_BASE                               (0x400FF040u)
+/** Peripheral GPIOB base pointer */
+#define GPIOB                                    ((GPIO_Type *)GPIOB_BASE)
+/** Peripheral GPIOC base address */
+#define GPIOC_BASE                               (0x400FF080u)
+/** Peripheral GPIOC base pointer */
+#define GPIOC                                    ((GPIO_Type *)GPIOC_BASE)
+/** Peripheral GPIOD base address */
+#define GPIOD_BASE                               (0x400FF0C0u)
+/** Peripheral GPIOD base pointer */
+#define GPIOD                                    ((GPIO_Type *)GPIOD_BASE)
+/** Peripheral GPIOE base address */
+#define GPIOE_BASE                               (0x400FF100u)
+/** Peripheral GPIOE base pointer */
+#define GPIOE                                    ((GPIO_Type *)GPIOE_BASE)
 /** Array initializer of GPIO peripheral base addresses */
-#define GPIO_BASE_ADDRS                          { PTA_BASE, PTB_BASE, PTC_BASE, PTD_BASE, PTE_BASE }
+#define GPIO_BASE_ADDRS                          { GPIOA_BASE, GPIOB_BASE, GPIOC_BASE, GPIOD_BASE, GPIOE_BASE }
 /** Array initializer of GPIO peripheral base pointers */
-#define GPIO_BASE_PTRS                           { PTA, PTB, PTC, PTD, PTE }
+#define GPIO_BASE_PTRS                           { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE }
 
 /*!
  * @}
@@ -12677,16 +12681,16 @@ typedef struct {
 #define DSPI1                                    SPI1
 #define DSPI2                                    SPI2
 #define FLEXCAN0                                 CAN0
-#define GPIOA_BASE                               PTA_BASE
-#define GPIOA                                    PTA
-#define GPIOB_BASE                               PTB_BASE
-#define GPIOB                                    PTB
-#define GPIOC_BASE                               PTC_BASE
-#define GPIOC                                    PTC
-#define GPIOD_BASE                               PTD_BASE
-#define GPIOD                                    PTD
-#define GPIOE_BASE                               PTE_BASE
-#define GPIOE                                    PTE
+#define PTA_BASE                                 GPIOA_BASE
+#define PTA                                      GPIOA
+#define PTB_BASE                                 GPIOB_BASE
+#define PTB                                      GPIOB
+#define PTC_BASE                                 GPIOC_BASE
+#define PTC                                      GPIOC
+#define PTD_BASE                                 GPIOD_BASE
+#define PTD                                      GPIOD
+#define PTE_BASE                                 GPIOE_BASE
+#define PTE                                      GPIOE
 #define UART_WP7816_T_TYPE0_REG(base)            UART_WP7816T0_REG(base)
 #define UART_WP7816_T_TYPE1_REG(base)            UART_WP7816T1_REG(base)
 #define UART_WP7816_T_TYPE0_WI_MASK              UART_WP7816T0_WI_MASK
