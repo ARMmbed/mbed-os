@@ -815,8 +815,8 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
-        "detect_code": ["0740"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "detect_code": ["0744"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
     },
@@ -1156,7 +1156,7 @@
         "inherits": ["Target"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "detect_code": ["0788"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI"
     },
@@ -2355,7 +2355,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE"
@@ -2364,6 +2364,32 @@
         "inherits": ["Target"],
         "core": "Cortex-M3",
         "extra_labels": ["ONSEMI"],
+        "config": {
+            "mac-addr-low": {
+                "help": "Lower 32 bits of the MAC extended address. All FFs indicates that factory programmed MAC address shall be used. In order to override the factory programmed MAC address this value needs to be changed from 0xFFFFFFFF to any chosen value.",
+                "value": "0xFFFFFFFF"
+            },
+            "mac-addr-high": {
+                "help": "Higher 32 bits of the MAC extended address. All FFs indicates that factory programmed MAC address shall be used. In order to override the factory programmed MAC address this value needs to be changed from 0xFFFFFFFF to any chosen value.",
+                "value": "0xFFFFFFFF"
+            },
+            "32KHz-clk-trim": {
+                "help": "32KHz clock trim",
+                "value": "0x39"
+            },
+            "32MHz-clk-trim": {
+                "help": "32MHz clock trim",
+                "value": "0x17"
+            },
+            "rssi-trim": {
+                "help": "RSSI trim",
+                "value": "0x3D"
+            },
+            "txtune-trim": {
+                "help": "TX tune trim",
+                "value": "0xFFFFFFFF"
+            }
+        },
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -2379,7 +2405,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "progen": {"target": "numaker-pfm-m453"},
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE"
     },

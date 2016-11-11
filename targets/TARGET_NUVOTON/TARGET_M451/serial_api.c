@@ -31,6 +31,7 @@
 #endif
 
 struct nu_uart_var {
+    uint32_t    ref_cnt;                // Reference count of the H/W module
     serial_t *  obj;
     uint32_t    fifo_size_tx;
     uint32_t    fifo_size_rx;
@@ -80,6 +81,7 @@ static int serial_is_irq_en(serial_t *obj, SerialIrq irq);
 #endif
 
 static struct nu_uart_var uart0_var = {
+    .ref_cnt            =   0,
     .obj                =   NULL,
     .fifo_size_tx       =   16,
     .fifo_size_rx       =   16,
@@ -91,6 +93,7 @@ static struct nu_uart_var uart0_var = {
 #endif
 };
 static struct nu_uart_var uart1_var = {
+    .ref_cnt            =   0,
     .obj                =   NULL,
     .fifo_size_tx       =   16,
     .fifo_size_rx       =   16,
@@ -102,6 +105,7 @@ static struct nu_uart_var uart1_var = {
 #endif
 };
 static struct nu_uart_var uart2_var = {
+    .ref_cnt            =   0,
     .obj                =   NULL,
     .fifo_size_tx       =   16,
     .fifo_size_rx       =   16,
@@ -113,6 +117,7 @@ static struct nu_uart_var uart2_var = {
 #endif
 };
 static struct nu_uart_var uart3_var = {
+    .ref_cnt            =   0,
     .obj                =   NULL,
     .fifo_size_tx       =   16,
     .fifo_size_rx       =   16,
@@ -142,7 +147,7 @@ extern void mbed_sdk_init(void);
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
-    // NOTE: serial_init() gets called from _sys_open() timing of which is before main()/mbed_hal_init().
+    // NOTE: With armcc, serial_init() gets called from _sys_open() timing of which is before main()/mbed_sdk_init().
     mbed_sdk_init();
     
     // Determine which UART_x the pins are used for
@@ -156,32 +161,31 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->serial.uart);
     
-    // Reset this module
-    SYS_ResetModule(modinit->rsetidx);
+    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     
-    // Select IP clock source
-    CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
-    // Enable IP clock
-    CLK_EnableModuleClock(modinit->clkidx);
+    if (! var->ref_cnt) {
+        // Reset this module
+        SYS_ResetModule(modinit->rsetidx);
+    
+        // Select IP clock source
+        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+        // Enable IP clock
+        CLK_EnableModuleClock(modinit->clkidx);
 
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
-    // FIXME: Why PullUp?
-    //if (tx != NC) {
-    //    pin_mode(tx, PullUp);
-    //}
-    //if (rx != NC) {
-    //    pin_mode(rx, PullUp);
-    //}
-    obj->serial.pin_tx = tx;
-    obj->serial.pin_rx = rx;
+        pinmap_pinout(tx, PinMap_UART_TX);
+        pinmap_pinout(rx, PinMap_UART_RX);
+    
+        obj->serial.pin_tx = tx;
+        obj->serial.pin_rx = rx;
+    }
+    var->ref_cnt ++;
     
     // Configure the UART module and set its baudrate
     serial_baud(obj, 9600);
     // Configure data bits, parity, and stop bits
     serial_format(obj, 8, ParityNone, 1);
     
-    obj->serial.vec = ((struct nu_uart_var *) modinit->var)->vec;
+    obj->serial.vec = var->vec;
     
 #if DEVICE_SERIAL_ASYNCH
     obj->serial.dma_usage_tx = DMA_USAGE_NEVER;
@@ -192,51 +196,61 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
 
     // For stdio management
-    if (obj == &stdio_uart) {
+    if (obj->serial.uart == STDIO_UART) {
         stdio_uart_inited = 1;
-        /* NOTE: Not required anymore because stdio_uart will be manually initialized in mbed-drivers/source/retarget.cpp from mbed beta */
-        //memcpy(&stdio_uart, obj, sizeof(serial_t));
+        memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
     
-    // Mark this module to be inited.
-    int i = modinit - uart_modinit_tab;
-    uart_modinit_mask |= 1 << i;
+    if (var->ref_cnt) {
+        // Mark this module to be inited.
+        int i = modinit - uart_modinit_tab;
+        uart_modinit_mask |= 1 << i;
+    }
 }
 
 void serial_free(serial_t *obj)
 {
-#if DEVICE_SERIAL_ASYNCH
-    if (obj->serial.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
-        dma_channel_free(obj->serial.dma_chn_id_tx);
-        obj->serial.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
-    }
-    if (obj->serial.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
-        dma_channel_free(obj->serial.dma_chn_id_rx);
-        obj->serial.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
-    }
-#endif
-
-    UART_Close((UART_T *) NU_MODBASE(obj->serial.uart));
-    
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->serial.uart);
     
-    UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-    NVIC_DisableIRQ(modinit->irq_n);
+    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     
-    // Disable IP clock
-    CLK_DisableModuleClock(modinit->clkidx);
+    var->ref_cnt --;
+    if (! var->ref_cnt) {
+#if DEVICE_SERIAL_ASYNCH
+        if (obj->serial.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
+            dma_channel_free(obj->serial.dma_chn_id_tx);
+            obj->serial.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
+        }
+        if (obj->serial.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
+            dma_channel_free(obj->serial.dma_chn_id_rx);
+            obj->serial.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
+        }
+#endif
+
+        UART_Close((UART_T *) NU_MODBASE(obj->serial.uart));
     
-    ((struct nu_uart_var *) modinit->var)->obj = NULL;
+        UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+        NVIC_DisableIRQ(modinit->irq_n);
     
-    if (obj == &stdio_uart) {
+        // Disable IP clock
+        CLK_DisableModuleClock(modinit->clkidx);
+    }
+    
+    if (var->obj == obj) {
+        var->obj = NULL;
+    }
+    
+    if (obj->serial.uart == STDIO_UART) {
         stdio_uart_inited = 0;
     }
     
-    // Mark this module to be deinited.
-    int i = modinit - uart_modinit_tab;
-    uart_modinit_mask &= ~(1 << i);
+    if (! var->ref_cnt) {
+        // Mark this module to be deinited.
+        int i = modinit - uart_modinit_tab;
+        uart_modinit_mask &= ~(1 << i);
+    }
 }
 
 void serial_baud(serial_t *obj, int baudrate) {
@@ -317,7 +331,6 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->serial.uart);
     
-    ((struct nu_uart_var *) modinit->var)->obj = obj;
     obj->serial.irq_handler = (uint32_t) handler;
     obj->serial.irq_id = id;
     
@@ -334,6 +347,11 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     
         NVIC_SetVector(modinit->irq_n, (uint32_t) obj->serial.vec);
         NVIC_EnableIRQ(modinit->irq_n);
+        
+        struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
+        // Multiple serial S/W objects for single UART H/W module possibly.
+        // Bind serial S/W object to UART H/W module as interrupt is enabled.
+        var->obj = obj;
         
         switch (irq) {
             // NOTE: Setting inten_msk first to avoid race condition
@@ -634,7 +652,7 @@ int serial_irq_handler_asynch(serial_t *obj)
     int event_rx = 0;
     int event_tx = 0;
     
-    // Necessary for both interrup way and DMA way
+    // Necessary for both interrupt way and DMA way
     if (serial_is_irq_en(obj, RxIrq)) {
         event_rx = serial_rx_event_check(obj);
         if (event_rx) {
@@ -996,9 +1014,9 @@ static void serial_tx_enable_interrupt(serial_t *obj, uint32_t handler, uint8_t 
     MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     // Necessary for both interrupt way and DMA way
-    ((struct nu_uart_var *) modinit->var)->obj = obj;
+    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     // With our own async vector, tx/rx handlers can be different.
-    obj->serial.vec = ((struct nu_uart_var *) modinit->var)->vec_async;
+    obj->serial.vec = var->vec_async;
     obj->serial.irq_handler_tx_async = (void (*)(void)) handler;
     serial_irq_set(obj, TxIrq, enable);
 }
@@ -1010,9 +1028,9 @@ static void serial_rx_enable_interrupt(serial_t *obj, uint32_t handler, uint8_t 
     MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     // Necessary for both interrupt way and DMA way
-    ((struct nu_uart_var *) modinit->var)->obj = obj;
+    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     // With our own async vector, tx/rx handlers can be different.
-    obj->serial.vec = ((struct nu_uart_var *) modinit->var)->vec_async;
+    obj->serial.vec = var->vec_async;
     obj->serial.irq_handler_rx_async = (void (*) (void)) handler;
     serial_irq_set(obj, RxIrq, enable);
 }

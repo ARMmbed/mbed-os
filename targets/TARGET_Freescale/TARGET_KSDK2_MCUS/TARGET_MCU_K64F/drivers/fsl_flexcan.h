@@ -195,7 +195,7 @@ typedef enum _flexcan_rx_fifo_filter_type
 } flexcan_rx_fifo_filter_type_t;
 
 /*!
- * @brief FlexCAN Rx FIFO priority
+ * @brief FlexCAN Rx FIFO priority.
  *
  * The matching process starts from the Rx MB(or Rx FIFO) with higher priority.
  * If no MB(or Rx FIFO filter) is satisfied, the matching process goes on with
@@ -366,7 +366,7 @@ typedef struct _flexcan_rx_mb_config
 /*! @brief FlexCAN Rx FIFO configuration structure. */
 typedef struct _flexcan_rx_fifo_config
 {
-    uint32_t *idFilterTable;                    /*!< Pointer to FlexCAN Rx FIFO identifier filter table. */
+    uint32_t *idFilterTable;                    /*!< Pointer to the FlexCAN Rx FIFO identifier filter table. */
     uint8_t idFilterNum;                        /*!< The quantity of filter elements. */
     flexcan_rx_fifo_filter_type_t idFilterType; /*!< The FlexCAN Rx FIFO Filter type. */
     flexcan_rx_fifo_priority_t priority;        /*!< The FlexCAN Rx FIFO receive priority. */
@@ -431,7 +431,7 @@ extern "C" {
  *
  * This function initializes the FlexCAN module with user-defined settings.
  * This example shows how to set up the flexcan_config_t parameters and how
- * to call the FLEXCAN_Init function by passing in these parameters:
+ * to call the FLEXCAN_Init function by passing in these parameters.
  *  @code
  *   flexcan_config_t flexcanConfig;
  *   flexcanConfig.clkSrc            = kFLEXCAN_ClkSrcOsc;
@@ -445,7 +445,7 @@ extern "C" {
  *   @endcode
  *
  * @param base FlexCAN peripheral base address.
- * @param config Pointer to user-defined configuration structure.
+ * @param config Pointer to the user-defined configuration structure.
  * @param sourceClock_Hz FlexCAN Protocol Engine clock source frequency in Hz.
  */
 void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *config, uint32_t sourceClock_Hz);
@@ -453,18 +453,18 @@ void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *config, uint32_t sourc
 /*!
  * @brief De-initializes a FlexCAN instance.
  *
- * This function disable the FlexCAN module clock and set all register value
- * to reset value.
+ * This function disables the FlexCAN module clock and sets all register values
+ * to the reset value.
  *
  * @param base FlexCAN peripheral base address.
  */
 void FLEXCAN_Deinit(CAN_Type *base);
 
 /*!
- * @brief Get the default configuration structure.
+ * @brief Gets the default configuration structure.
  *
- * This function initializes the FlexCAN configuration structure to default value. The default
- * value are:
+ * This function initializes the FlexCAN configuration structure to default values. The default
+ * values are as follows.
  *   flexcanConfig->clkSrc            = KFLEXCAN_ClkSrcOsc;
  *   flexcanConfig->baudRate          = 125000U;
  *   flexcanConfig->maxMbNum          = 16;
@@ -473,7 +473,7 @@ void FLEXCAN_Deinit(CAN_Type *base);
  *   flexcanConfig->enableIndividMask = false;
  *   flexcanConfig->enableDoze        = false;
  *
- * @param config Pointer to FlexCAN configuration structure.
+ * @param config Pointer to the FlexCAN configuration structure.
  */
 void FLEXCAN_GetDefaultConfig(flexcan_config_t *config);
 
@@ -503,7 +503,7 @@ void FLEXCAN_SetTimingConfig(CAN_Type *base, const flexcan_timing_config_t *conf
 /*!
  * @brief Sets the FlexCAN receive message buffer global mask.
  *
- * This function sets the global mask for FlexCAN message buffer in a matching process.
+ * This function sets the global mask for the FlexCAN message buffer in a matching process.
  * The configuration is only effective when the Rx individual mask is disabled in the FLEXCAN_Init().
  *
  * @param base FlexCAN peripheral base address.
@@ -524,12 +524,12 @@ void FLEXCAN_SetRxFifoGlobalMask(CAN_Type *base, uint32_t mask);
 /*!
  * @brief Sets the FlexCAN receive individual mask.
  *
- * This function sets the individual mask for FlexCAN matching process.
- * The configuration is only effective when the Rx individual mask is enabled in FLEXCAN_Init().
- * If Rx FIFO is disabled, the individual mask is applied to the corresponding Message Buffer.
- * If Rx FIFO is enabled, the individual mask for Rx FIFO occupied Message Buffer is applied to
- * the Rx Filter with same index. What calls for special attention is that only the first 32
- * individual masks can be used as Rx FIFO filter mask.
+ * This function sets the individual mask for the FlexCAN matching process.
+ * The configuration is only effective when the Rx individual mask is enabled in the FLEXCAN_Init().
+ * If the Rx FIFO is disabled, the individual mask is applied to the corresponding Message Buffer.
+ * If the Rx FIFO is enabled, the individual mask for Rx FIFO occupied Message Buffer is applied to
+ * the Rx Filter with the same index. Note that only the first 32
+ * individual masks can be used as the Rx FIFO filter mask.
  *
  * @param base FlexCAN peripheral base address.
  * @param maskIdx The Index of individual Mask.
@@ -545,7 +545,7 @@ void FLEXCAN_SetRxIndividualMask(CAN_Type *base, uint8_t maskIdx, uint32_t mask)
  *
  * @param base FlexCAN peripheral base address.
  * @param mbIdx The Message Buffer index.
- * @param enable Enable/Disable Tx Message Buffer.
+ * @param enable Enable/disable Tx Message Buffer.
  *               - true: Enable Tx Message Buffer.
  *               - false: Disable Tx Message Buffer.
  */
@@ -559,8 +559,8 @@ void FLEXCAN_SetTxMbConfig(CAN_Type *base, uint8_t mbIdx, bool enable);
  *
  * @param base FlexCAN peripheral base address.
  * @param mbIdx The Message Buffer index.
- * @param config Pointer to FlexCAN Message Buffer configuration structure.
- * @param enable Enable/Disable Rx Message Buffer.
+ * @param config Pointer to the FlexCAN Message Buffer configuration structure.
+ * @param enable Enable/disable Rx Message Buffer.
  *               - true: Enable Rx Message Buffer.
  *               - false: Disable Rx Message Buffer.
  */
@@ -572,8 +572,8 @@ void FLEXCAN_SetRxMbConfig(CAN_Type *base, uint8_t mbIdx, const flexcan_rx_mb_co
  * This function configures the Rx FIFO with given Rx FIFO configuration.
  *
  * @param base FlexCAN peripheral base address.
- * @param config Pointer to FlexCAN Rx FIFO configuration structure.
- * @param enable Enable/Disable Rx FIFO.
+ * @param config Pointer to the FlexCAN Rx FIFO configuration structure.
+ * @param enable Enable/disable Rx FIFO.
  *               - true: Enable Rx FIFO.
  *               - false: Disable Rx FIFO.
  */
@@ -691,9 +691,9 @@ static inline void FLEXCAN_ClearMbStatusFlags(CAN_Type *base, uint32_t mask)
  */
 
 /*!
- * @brief Enables FlexCAN interrupts according to provided mask.
+ * @brief Enables FlexCAN interrupts according to the provided mask.
  *
- * This function enables the FlexCAN interrupts according to provided mask. The mask
+ * This function enables the FlexCAN interrupts according to the provided mask. The mask
  * is a logical OR of enumeration members, see @ref _flexcan_interrupt_enable.
  *
  * @param base FlexCAN peripheral base address.
@@ -712,9 +712,9 @@ static inline void FLEXCAN_EnableInterrupts(CAN_Type *base, uint32_t mask)
 }
 
 /*!
- * @brief Disables FlexCAN interrupts according to provided mask.
+ * @brief Disables FlexCAN interrupts according to the provided mask.
  *
- * This function disables the FlexCAN interrupts according to provided mask. The mask
+ * This function disables the FlexCAN interrupts according to the provided mask. The mask
  * is a logical OR of enumeration members, see @ref _flexcan_interrupt_enable.
  *
  * @param base FlexCAN peripheral base address.
@@ -735,7 +735,7 @@ static inline void FLEXCAN_DisableInterrupts(CAN_Type *base, uint32_t mask)
 /*!
  * @brief Enables FlexCAN Message Buffer interrupts.
  *
- * This function enables the interrupts of given Message Buffers
+ * This function enables the interrupts of given Message Buffers.
  *
  * @param base FlexCAN peripheral base address.
  * @param mask The ORed FlexCAN Message Buffer mask.
@@ -757,7 +757,7 @@ static inline void FLEXCAN_EnableMbInterrupts(CAN_Type *base, uint32_t mask)
 /*!
  * @brief Disables FlexCAN Message Buffer interrupts.
  *
- * This function disables the interrupts of given Message Buffers
+ * This function disables the interrupts of given Message Buffers.
  *
  * @param base FlexCAN peripheral base address.
  * @param mask The ORed FlexCAN Message Buffer mask.
@@ -846,7 +846,7 @@ static inline void FLEXCAN_Enable(CAN_Type *base, bool enable)
 }
 
 /*!
- * @brief Writes a FlexCAN Message to Transmit Message Buffer.
+ * @brief Writes a FlexCAN Message to the Transmit Message Buffer.
  *
  * This function writes a CAN Message to the specified Transmit Message Buffer
  * and changes the Message Buffer state to start CAN Message transmit. After
@@ -938,7 +938,7 @@ status_t FLEXCAN_TransferReceiveFifoBlocking(CAN_Type *base, flexcan_frame_t *rx
 /*!
  * @brief Initializes the FlexCAN handle.
  *
- * This function initializes the FlexCAN handle which can be used for other FlexCAN
+ * This function initializes the FlexCAN handle, which can be used for other FlexCAN
  * transactional APIs. Usually, for a specified FlexCAN instance,
  * call this API once to get the initialized handle.
  *

@@ -21,7 +21,6 @@
 #define WIFI_INTERFACE_H
 
 #include <string.h>
-#include "Callback.h"
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
@@ -91,17 +90,14 @@ public:
 
     /** Scan for available networks
      *
-     *  The scan will 
-     *  If the network interface is set to non-blocking mode, scan will attempt to scan
-     *  for WiFi networks asynchronously and return NSAPI_ERROR_WOULD_BLOCK. If a callback
-     *  is attached, the callback will be called when the operation has completed.
+     *  This function will block. If the @a count is 0, function will only return count of available networks, so that
+     *  user can allocated necessary memory. If the @count is grater than 0 and the @a ap is not NULL it'll be populated
+     *  with discovered networks up to value of @a count.
      *
-     * @param  ap       Pointer to allocated array to store discovered AP
-     * @param  count    Size of allocated @a res array, or 0 to only count available AP
-     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
-     * @return          Number of entries in @a, or if @a count was 0 number of available networks, 
-     *                  negative on error
-     *                  see @a nsapi_error
+     *  @param  ap       Pointer to allocated array to store discovered AP
+     *  @param  count    Size of allocated @a res array, or 0 to only count available AP
+     *  @return          Number of entries in @a, or if @a count was 0 number of available networks,
+     *                   negative on error see @a nsapi_error
      */
     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
 };

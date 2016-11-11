@@ -179,8 +179,10 @@ static const IRQn_Type s_flexcanErrorIRQ[] = CAN_Error_IRQS;
 static const IRQn_Type s_flexcanBusOffIRQ[] = CAN_Bus_Off_IRQS;
 static const IRQn_Type s_flexcanMbIRQ[] = CAN_ORed_Message_buffer_IRQS;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /* Array of FlexCAN clock name. */
 static const clock_ip_name_t s_flexcanClock[] = FLEXCAN_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /* FlexCAN ISR for transactional APIs. */
 static flexcan_isr_t s_flexcanIsr;
@@ -425,8 +427,10 @@ void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *config, uint32_t sourc
     assert(config);
     assert((config->maxMbNum > 0) && (config->maxMbNum <= FSL_FEATURE_FLEXCAN_HAS_MESSAGE_BUFFER_MAX_NUMBERn(base)));
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable FlexCAN clock. */
     CLOCK_EnableClock(s_flexcanClock[FLEXCAN_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Disable FlexCAN Module. */
     FLEXCAN_Enable(base, false);
@@ -478,8 +482,10 @@ void FLEXCAN_Deinit(CAN_Type *base)
     /* Disable FlexCAN module. */
     FLEXCAN_Enable(base, false);
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Disable FlexCAN clock. */
     CLOCK_DisableClock(s_flexcanClock[FLEXCAN_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void FLEXCAN_GetDefaultConfig(flexcan_config_t *config)

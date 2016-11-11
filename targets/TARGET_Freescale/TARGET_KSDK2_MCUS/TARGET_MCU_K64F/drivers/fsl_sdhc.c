@@ -230,8 +230,10 @@ static SDHC_Type *const s_sdhcBase[] = SDHC_BASE_PTRS;
 /*! @brief SDHC IRQ name array */
 static const IRQn_Type s_sdhcIRQ[] = SDHC_IRQS;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /*! @brief SDHC clock array name */
 static const clock_ip_name_t s_sdhcClock[] = SDHC_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /* SDHC ISR for transactional APIs. */
 static sdhc_isr_t s_sdhcIsr;
@@ -411,10 +413,10 @@ static uint32_t SDHC_ReadDataPort(SDHC_Type *base, sdhc_data_t *data, uint32_t t
     uint32_t readWatermark = ((base->WML & SDHC_WML_RDWML_MASK) >> SDHC_WML_RDWML_SHIFT);
 
     /*
-     * Add non aligned access support ,user need make sure your buffer size is big
-     * enough to hold the data,in other words,user need make sure the buffer size
-     * is 4 byte aligned
-     */
+       * Add non aligned access support ,user need make sure your buffer size is big
+       * enough to hold the data,in other words,user need make sure the buffer size
+       * is 4 byte aligned
+       */
     if (data->blockSize % sizeof(uint32_t) != 0U)
     {
         data->blockSize +=
@@ -458,10 +460,10 @@ static status_t SDHC_ReadByDataPortBlocking(SDHC_Type *base, sdhc_data_t *data)
     status_t error = kStatus_Success;
 
     /*
-     * Add non aligned access support ,user need make sure your buffer size is big
-     * enough to hold the data,in other words,user need make sure the buffer size
-     * is 4 byte aligned
-     */
+       * Add non aligned access support ,user need make sure your buffer size is big
+       * enough to hold the data,in other words,user need make sure the buffer size
+       * is 4 byte aligned
+       */
     if (data->blockSize % sizeof(uint32_t) != 0U)
     {
         data->blockSize +=
@@ -506,10 +508,10 @@ static uint32_t SDHC_WriteDataPort(SDHC_Type *base, sdhc_data_t *data, uint32_t 
     uint32_t writeWatermark = ((base->WML & SDHC_WML_WRWML_MASK) >> SDHC_WML_WRWML_SHIFT);
 
     /*
-     * Add non aligned access support ,user need make sure your buffer size is big
-     * enough to hold the data,in other words,user need make sure the buffer size
-     * is 4 byte aligned
-     */
+       * Add non aligned access support ,user need make sure your buffer size is big
+       * enough to hold the data,in other words,user need make sure the buffer size
+       * is 4 byte aligned
+       */
     if (data->blockSize % sizeof(uint32_t) != 0U)
     {
         data->blockSize +=
@@ -553,10 +555,10 @@ static status_t SDHC_WriteByDataPortBlocking(SDHC_Type *base, sdhc_data_t *data)
     status_t error = kStatus_Success;
 
     /*
-     * Add non aligned access support ,user need make sure your buffer size is big
-     * enough to hold the data,in other words,user need make sure the buffer size
-     * is 4 byte aligned
-     */
+       * Add non aligned access support ,user need make sure your buffer size is big
+       * enough to hold the data,in other words,user need make sure the buffer size
+       * is 4 byte aligned
+       */
     if (data->blockSize % sizeof(uint32_t) != 0U)
     {
         data->blockSize +=
@@ -787,8 +789,10 @@ void SDHC_Init(SDHC_Type *base, const sdhc_config_t *config)
     uint32_t proctl;
     uint32_t wml;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable SDHC clock. */
     CLOCK_EnableClock(s_sdhcClock[SDHC_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Reset SDHC. */
     SDHC_Reset(base, kSDHC_ResetAll, 100);
@@ -822,8 +826,10 @@ void SDHC_Init(SDHC_Type *base, const sdhc_config_t *config)
 
 void SDHC_Deinit(SDHC_Type *base)
 {
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Disable clock. */
     CLOCK_DisableClock(s_sdhcClock[SDHC_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 bool SDHC_Reset(SDHC_Type *base, uint32_t mask, uint32_t timeout)
@@ -923,7 +929,7 @@ bool SDHC_SetCardActive(SDHC_Type *base, uint32_t timeout)
 {
     base->SYSCTL |= SDHC_SYSCTL_INITA_MASK;
     /* Delay some time to wait card become active state. */
-    while (base->SYSCTL & SDHC_SYSCTL_INITA_MASK)
+    while ((base->SYSCTL & SDHC_SYSCTL_INITA_MASK))
     {
         if (!timeout)
         {
@@ -1008,7 +1014,7 @@ void SDHC_SetMmcBootConfig(SDHC_Type *base, const sdhc_boot_config_t *config)
     uint32_t mmcboot = 0U;
 
     mmcboot = (SDHC_MMCBOOT_DTOCVACK(config->ackTimeoutCount) | SDHC_MMCBOOT_BOOTMODE(config->bootMode) |
-              SDHC_MMCBOOT_BOOTBLKCNT(config->blockCount));
+               SDHC_MMCBOOT_BOOTBLKCNT(config->blockCount));
     if (config->enableBootAck)
     {
         mmcboot |= SDHC_MMCBOOT_BOOTACK_MASK;
@@ -1118,10 +1124,10 @@ status_t SDHC_SetAdmaTableConfig(SDHC_Type *base,
 #endif /* FSL_SDHC_ENABLE_ADMA1 */
             case kSDHC_DmaModeAdma2:
                 /*
-                 * Add non aligned access support ,user need make sure your buffer size is big
-                 * enough to hold the data,in other words,user need make sure the buffer size
-                 * is 4 byte aligned
-                 */
+                * Add non aligned access support ,user need make sure your buffer size is big
+                * enough to hold the data,in other words,user need make sure the buffer size
+                * is 4 byte aligned
+                */
                 if (dataBytes % sizeof(uint32_t) != 0U)
                 {
                     dataBytes +=
