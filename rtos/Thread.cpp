@@ -82,6 +82,9 @@ osStatus_t Thread::start(Callback<void()> task) {
     for (uint32_t i = 0; i < (_thread_attr.stack_size / sizeof(uint32_t)); i++) {
         ((uint32_t *)_thread_attr.stack_mem)[i] = 0xE25A2EA5;
     }
+
+    _thread_attr.cb_size = sizeof(_ob_mem);
+    _thread_attr.cb_mem = _ob_mem;
 #endif
     _task = task;
     _tid = osThreadNew(Thread::_thunk, this, &_thread_attr);

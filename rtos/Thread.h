@@ -330,6 +330,7 @@ private:
     bool _dynamic_stack;
     Semaphore _join_sem;
     Mutex _mutex;
+    char _ob_mem[sizeof(os_thread_t)];
 };
 
 }

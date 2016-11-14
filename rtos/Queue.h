@@ -45,8 +45,10 @@ public:
     Queue() {
     #ifdef CMSIS_OS_RTX
         memset(_queue_q, 0, sizeof(_queue_q));
-        _queue_attr.cb_mem = _queue_q;
-        _queue_attr.cb_size = sizeof(_queue_q);
+        _queue_attr.mq_mem = _queue_q;
+        _queue_attr.mq_size = sizeof(_queue_q);
+        _queue_attr.cb_mem = _ob_m;
+        _queue_attr.cb_size = sizeof(_ob_m);
     #endif
         _queue_id = osMessageQueueNew(queue_sz, sizeof(T), &_queue_attr);
         if (_queue_id == NULL) {
@@ -80,6 +82,7 @@ private:
     osMessageQueueAttr_t _queue_attr;
 #ifdef CMSIS_OS_RTX
     uint32_t        _queue_q[4+(queue_sz)];
+    char            _ob_m[sizeof(os_message_queue_t)];
 #endif
 };
 
