@@ -45,10 +45,10 @@ public:
     Queue() {
     #ifdef CMSIS_OS_RTX
         memset(_queue_q, 0, sizeof(_queue_q));
-        _queue_def.pool = _queue_q;
-        _queue_def.queue_sz = queue_sz;
+        _queue_attr.cb_mem = _queue_q;
+        _queue_attr.cb_size = sizeof(_queue_q);
     #endif
-        _queue_id = osMessageCreate(&_queue_def, NULL);
+        _queue_id = osMessageQueueNew(queue_sz, sizeof(T), &_queue_attr);
         if (_queue_id == NULL) {
             error("Error initialising the queue object\n");
         }
@@ -57,23 +57,27 @@ public:
     /** Put a message in a Queue.
       @param   data      message pointer.
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0)
+      @param   prio      priority value or 0 in case of default. (default: 0)
       @return  status code that indicates the execution status of the function.
     */
-    osStatus put(T* data, uint32_t millisec=0) {
-        return osMessagePut(_queue_id, (uint32_t)data, millisec);
+    osStatus_t put(T* data, uint32_t millisec=0, uint8_t prio=0) {
+        return osMessageQueuePut(_queue_id, data, prio, millisec);
     }
 
     /** Get a message or Wait for a message from a Queue.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event information that includes the message and the status code.
     */
-    osEvent get(uint32_t millisec=osWaitForever) {
-        return osMessageGet(_queue_id, millisec);
+    T *get(uint32_t millisec=osWaitForever) {
+        T *data;
+        osMessageQueueGet(_queue_id, data, NULL, millisec);
+
+        return data;
     }
 
 private:
-    osMessageQId    _queue_id;
-    osMessageQDef_t _queue_def;
+    osMessageQueueId_t  _queue_id;
+    osMessageQueueAttr_t _queue_attr;
 #ifdef CMSIS_OS_RTX
     uint32_t        _queue_q[4+(queue_sz)];
 #endif
