@@ -278,6 +278,8 @@ def get_mbed_official_release(version):
 
 def get_legacy_build_profile(src_paths, toolchain):
     new_profile = None
+    if not isinstance(src_paths, list):
+        src_paths = [src_paths]
     for targets_json, version in [find_legacy_files(path)
                                   for path in src_paths]:
         set_targets_json_location(targets_json)
