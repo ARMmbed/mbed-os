@@ -811,6 +811,23 @@ __asm(
 __STATIC_INLINE void __v7_inv_dcache_all(void) {
     __v7_all_cache(0);
 }
+/** \brief  Clean the whole D$
+
+    DCCSW. Clean by Set/Way
+ */
+
+__STATIC_INLINE void __v7_clean_dcache_all(void) {
+    __v7_all_cache(1);
+}
+
+/** \brief  Clean and invalidate the whole D$
+
+    DCCISW. Clean and Invalidate by Set/Way
+ */
+
+__STATIC_INLINE void __v7_clean_inv_dcache_all(void) {
+    __v7_all_cache(2);
+}
 /** \brief  Clean and Invalidate D$ by MVA
 
     DCCIMVAC. Data cache clean and invalidate by MVA to PoC
