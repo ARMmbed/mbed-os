@@ -5,6 +5,10 @@
             "help": "Enable GPIO IRQ debounce",
             "value": 0
         },
+        "gpio-irq-debounce-enable-list": {
+            "help": "Comma separated pin list to enable GPIO IRQ debounce",
+            "value": "NC"
+        },
         "gpio-irq-debounce-clock-source": {
             "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
             "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
