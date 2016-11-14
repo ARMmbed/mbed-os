@@ -7,12 +7,6 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nsth"
 
-#include "nanostack-event-loop/eventOS_scheduler.h"
-
-#define nanostack_lock()            eventOS_scheduler_mutex_wait()
-#define nanostack_unlock()          eventOS_scheduler_mutex_release()
-#define nanostack_assert_locked()   //MBED_ASSERT(eventOS_scheduler_mutex_is_owner())
-
 int ThreadInterface::connect()
 {
     nanostack_lock();

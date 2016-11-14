@@ -42,4 +42,11 @@ void mesh_system_init(void);
 #ifdef __cplusplus
 }
 #endif
+
+#include "nanostack-event-loop/eventOS_scheduler.h"
+
+#define nanostack_lock()            eventOS_scheduler_mutex_wait()
+#define nanostack_unlock()          eventOS_scheduler_mutex_release()
+#define nanostack_assert_locked()   //MBED_ASSERT(eventOS_scheduler_mutex_is_owner())
+
 #endif /* __INCLUDE_MESH_SYSTEM__ */

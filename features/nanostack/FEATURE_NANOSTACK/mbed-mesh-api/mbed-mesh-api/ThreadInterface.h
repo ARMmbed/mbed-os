@@ -17,7 +17,7 @@
 #ifndef THREADINTERFACE_H
 #define THREADINTERFACE_H
 
-#include "NanostackInterface.h"
+#include "MeshInterfaceNanostack.h"
 
 class ThreadInterface : public MeshInterfaceNanostack {
 public:

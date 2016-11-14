@@ -17,7 +17,7 @@
 #ifndef LOWPANNDINTERFACE_H
 #define LOWPANNDINTERFACE_H
 
-#include "NanostackInterface.h"
+#include "MeshInterfaceNanostack.h"
 
 class LoWPANNDInterface : public MeshInterfaceNanostack {
 public:
