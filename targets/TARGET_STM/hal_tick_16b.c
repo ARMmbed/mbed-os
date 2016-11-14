@@ -48,7 +48,8 @@ void set_compare(uint16_t count);
 #if defined(TARGET_STM32F0)
 void timer_update_irq_handler(void) {
 #else
-void timer_irq_handler(void) {
+void timer_irq_handler(void)
+{
 #endif
     uint16_t cnt_val = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
@@ -66,7 +67,8 @@ void timer_irq_handler(void) {
 #if defined(TARGET_STM32F0)
 } // end timer_update_irq_handler function
 // Used for mbed timeout (channel 1) and HAL tick (channel 2)
-void timer_oc_irq_handler(void) {
+void timer_oc_irq_handler(void)
+{
     uint16_t cnt_val = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
 #endif
@@ -110,7 +112,8 @@ void timer_oc_irq_handler(void) {
 }
 
 // Reconfigure the HAL tick using a standard timer instead of systick.
-HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
+{
     // Enable timer clock
     TIM_MST_RCC;
 
@@ -173,13 +176,15 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     return HAL_OK;
 }
 
-void HAL_SuspendTick(void) {
+void HAL_SuspendTick(void)
+{
     TimMasterHandle.Instance = TIM_MST;
     // Disable HAL tick and us_ticker update interrupts (used for 32 bit counter)
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
-void HAL_ResumeTick(void) {
+void HAL_ResumeTick(void)
+{
     TimMasterHandle.Instance = TIM_MST;
     // Enable HAL tick and us_ticker update interrupts (used for 32 bit counter)
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));

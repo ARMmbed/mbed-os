@@ -43,7 +43,8 @@ volatile uint32_t tim_it_counter = 0; // Time stamp to be updated by timer_irq_h
 
 static int us_ticker_inited = 0;
 
-void set_compare(uint16_t count) {
+void set_compare(uint16_t count)
+{
     TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
@@ -51,7 +52,8 @@ void set_compare(uint16_t count) {
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_init(void) {
+void us_ticker_init(void)
+{
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
@@ -60,7 +62,8 @@ void us_ticker_init(void) {
     HAL_InitTick(0); // The passed value is not used
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     uint32_t counter;
 
     TimMasterHandle.Instance = TIM_MST;
@@ -70,7 +73,7 @@ uint32_t us_ticker_read() {
 #if defined(TARGET_STM32L0)
     uint16_t cntH_old, cntH, cntL;
     do {
-        // For some reason on L0xx series we need to read and clear the 
+        // For some reason on L0xx series we need to read and clear the
         // overflow flag which give extra time to propelry handle possible
         // hiccup after ~60s
         if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
@@ -100,7 +103,8 @@ uint32_t us_ticker_read() {
 #endif
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     int delta = (int)((uint32_t)timestamp - us_ticker_read());
 
     uint16_t cval = TIM_MST->CNT;
@@ -120,12 +124,14 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     }
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
