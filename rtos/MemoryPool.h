@@ -78,7 +78,7 @@ private:
     osMemoryPoolId_t _pool_id;
     osMemoryPoolAttr_t _pool_attr;
 #ifdef CMSIS_OS_RTX
-    uint32_t _pool_m[3+((sizeof(T)+3)/4)*(pool_sz)];
+    char _pool_m[sizeof(T) * pool_sz];
     char _ob_m[sizeof(os_memory_pool_t)];
 #endif
 };

@@ -78,11 +78,11 @@ public:
     }
 
 private:
-    osMessageQueueId_t  _queue_id;
+    osMessageQueueId_t   _queue_id;
     osMessageQueueAttr_t _queue_attr;
 #ifdef CMSIS_OS_RTX
-    uint32_t        _queue_q[4+(queue_sz)];
-    char            _ob_m[sizeof(os_message_queue_t)];
+    void                *_queue_q[queue_sz];
+    char                 _ob_m[sizeof(os_message_queue_t)];
 #endif
 };
 

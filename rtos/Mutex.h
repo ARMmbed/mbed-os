@@ -60,7 +60,7 @@ private:
     osMutexAttr_t _osMutexAttr;
 #ifdef CMSIS_OS_RTX
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    int32_t _mutex_data[sizeof(os_mutex_s)];
+    char _mutex_data[sizeof(os_mutex_s)];
 #else
     int32_t _mutex_data[3];
 #endif

@@ -54,7 +54,7 @@ private:
     osSemaphoreId _osSemaphoreId;
     osSemaphoreAttr_t _osSemaphoreAttr;
 #ifdef CMSIS_OS_RTX
-    uint32_t _semaphore_data[sizeof(os_semaphore_s)];
+    char _semaphore_data[sizeof(os_semaphore_s)];
 #endif
 };
 
