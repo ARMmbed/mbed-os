@@ -25,13 +25,13 @@ MeshInterfaceNanostack::MeshInterfaceNanostack()
     // Nothing to do
 }
 
-MeshInterfaceNanostack::MeshInterfaceNanostack(NanostackRfPhy *phy)
+MeshInterfaceNanostack::MeshInterfaceNanostack(NanostackPhy *phy)
     : phy(phy), _network_interface_id(-1), _device_id(-1), connect_semaphore(0)
 {
     // Nothing to do
 }
 
-nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
+nsapi_error_t MeshInterfaceNanostack::initialize(NanostackPhy *phy)
 {
     mesh_system_init();
     if (this->phy != NULL) {
@@ -52,11 +52,11 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
     nanostack_unlock();
 }
 
-nsapi_error_t MeshInterfaceNanostack::register_rf()
+nsapi_error_t MeshInterfaceNanostack::register_phy()
 {
     nanostack_lock();
 
-    _device_id = phy->rf_register();
+    _device_id = phy->phy_register();
     if (_device_id < 0) {
         nanostack_unlock();
         return -1;

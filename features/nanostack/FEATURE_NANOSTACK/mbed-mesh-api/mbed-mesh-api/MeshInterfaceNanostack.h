@@ -32,7 +32,7 @@ public:
      *
      *  @return     0 on success, negative on failure
      */
-    virtual nsapi_error_t initialize(NanostackRfPhy *phy);
+    virtual nsapi_error_t initialize(NanostackPhy *phy);
 
     /** Start the interface
      *
@@ -64,26 +64,9 @@ public:
 
 protected:
     MeshInterfaceNanostack();
-    MeshInterfaceNanostack(NanostackRfPhy *phy);
-    nsapi_error_t register_rf();
+    MeshInterfaceNanostack(NanostackPhy *phy);
+    nsapi_error_t register_phy();
     virtual NetworkStack * get_stack(void);
-
-    /**
-     * \brief Connect interface to the mesh network
-     * \return MESH_ERROR_NONE on success.
-     * \return MESH_ERROR_PARAM in case of illegal parameters.
-     * \return MESH_ERROR_MEMORY in case of memory error.
-     * \return MESH_ERROR_STATE if interface is already connected to network.
-     * \return MESH_ERROR_UNKNOWN in case of unspecified error.
-     * */
-    virtual mesh_error_t mesh_connect() = 0;
-
-    /**
-     * \brief Disconnect interface from the mesh network
-     * \return MESH_ERROR_NONE on success.
-     * \return MESH_ERROR_UNKNOWN in case of error.
-     * */
-    virtual mesh_error_t mesh_disconnect() = 0;
 
     /**
      * \brief Read own global IP address
@@ -94,7 +77,7 @@ protected:
      */
     virtual bool getOwnIpAddress(char *address, int8_t len) = 0;
 
-    NanostackRfPhy *phy;
+    NanostackPhy *phy;
     /** Network interface ID */
     int8_t _network_interface_id;
     /** Registered device ID */

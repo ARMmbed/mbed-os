@@ -26,17 +26,14 @@ public:
      *
      *  Must initialize to initialize the mesh on a phy.
      */
-    LoWPANNDInterface() : MeshInterfaceNanostack() {
-
-    }
+    LoWPANNDInterface() : MeshInterfaceNanostack() { }
 
     /** Create an initialized MeshInterface
      *
      */
-    LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
+    LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
-    }
-
+    nsapi_error_t initialize(NanostackRfPhy *phy);
     int connect();
     int disconnect();
     bool getOwnIpAddress(char *address, int8_t len);

@@ -7,11 +7,16 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nslp"
 
+nsapi_error_t LoWPANNDInterface::initialize(NanostackRfPhy *phy)
+{
+    return MeshInterfaceNanostack::initialize(phy);
+}
+
 int LoWPANNDInterface::connect()
 {
     nanostack_lock();
 
-    if (register_rf() < 0) {
+    if (register_phy() < 0) {
         nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }

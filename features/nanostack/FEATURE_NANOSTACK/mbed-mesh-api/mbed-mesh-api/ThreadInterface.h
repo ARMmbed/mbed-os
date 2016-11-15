@@ -26,17 +26,14 @@ public:
      *
      *  Must initialize to initialize the mesh on a phy.
      */
-    ThreadInterface() : MeshInterfaceNanostack() {
-
-    }
+    ThreadInterface() : MeshInterfaceNanostack() { }
 
     /** Create an initialized MeshInterface
      *
      */
-    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) {
+    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
-    }
-
+    nsapi_error_t initialize(NanostackRfPhy *phy);
     int connect();
     int disconnect();
 private:
