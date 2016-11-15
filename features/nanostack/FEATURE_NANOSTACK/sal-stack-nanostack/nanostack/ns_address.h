@@ -35,7 +35,7 @@ typedef enum address_type_t {
  * /struct ns_address_t
  * /brief Struct for the addresses used by the socket interface functions and net_address_get().
  */
-typedef struct ns_address_t {
+typedef struct ns_address {
     address_type_t type;          /**< Address type. */
     uint8_t address[16];          /**< Addresss. */
     uint16_t identifier;          /**< TCP/UDP port number. */

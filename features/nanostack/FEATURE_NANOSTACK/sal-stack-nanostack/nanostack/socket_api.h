@@ -23,20 +23,22 @@ extern "C" {
  *
  * \section socket-com Common socket API
  *  - socket_open(), A function to open a socket.
- *  - socket_free(), A function to free a socket.
+ *  - socket_close(), A function to close a socket.
  *
  * \section socket-read Socket read API at callback
  *  - socket_read(), A function to read received data buffer from a socket.
+ *  - socket_recvmsg(), A function to read received data buffer from a socket to Posix defined message structure
  *  - socket_read_session_address(), A function to read session info for a TCP event.
  *
  * \section socket-tx Socket TX API
  * - socket_send(), A function to write data buffer to a socket.
  * - socket_sendto(), A function to write data to a specific destination in the socket.
+ * - socket_senmsg(), A function which support socket_send and socket_sendto functionality which supports ancillary data
  *
  * \section sock-connect TCP socket connection handle
  *  - socket_listen(), A function to set the socket to listening mode.
  *  - socket_connect(), A function to connect to a remote peer.
- *  - socket_close(), A function to close a connection.
+ *  - socket_shutdown(), A function to shut down a connection.
  *
  * Sockets are a common abstraction model for network communication and are used in most operating systems.
  * 6LoWPAN Library API follows BSD socket API conventions closely with some extensions necessitated
@@ -85,7 +87,7 @@ extern "C" {
  *
  * \section socket-receive Socket receiving
  * When there is data to read from the socket, a receive callback function is called with the event type parameter set to SOCKET_DATA.
- * The application must read the received data with socket_read() during the callback because the stack will release the data
+ * The application must read the received data with socket_read() or socket_recvmsg() during the callback because the stack will release the data
  * when returning from the receive callback.
  *
  * Socket event has event_type and socket_id fields. The receive callback function must be defined when socket is opened using socket_open() API.
@@ -99,7 +101,7 @@ extern "C" {
  * | SOCKET_BIND_DONE           | 0x10  | TCP connection ready.                                               |
  * | SOCKET_TX_FAIL             | 0x50  | Socket data send failed.                                            |
  * | SOCKET_CONNECT_CLOSED      | 0x60  | TCP connection closed.                                              |
- * | SOCKET_CONNECT_FAIL_CLOSED | 0x70  | TCP connection closed no ACK received.                              |
+ * | SOCKET_CONNECTION_RESET    | 0x70  | TCP connection reset.                                               |
  * | SOCKET_NO_ROUTER           | 0x80  | No route available to destination.                                  |
  * | SOCKET_TX_DONE             | 0x90  | Last socket TX process done, in TCP, whole TCP process is ready.    |
  * | SOCKET_NO_RAM              | 0xA0  | No RAM available.                                                   |
@@ -110,9 +112,10 @@ extern "C" {
  * | API                           | Socket Type   | Description                                                      |
  * | :---------------------------: | :-----------: | :------------------------------------------------------------:   |
  * | socket_open()                 | Server/Client | Open socket to specific or dynamic port number.                  |
- * | socket_close()                | Server/Client | Close opened TCP connection.                                     |
+ * | socket_shutdown()             | Client        | Shut down opened TCP connection.                                 |
  * | socket_listen()               | Server        | Set server port to listen state.                                 |
  * | socket_connect()              | Client        | Connect client socket to specific destination.                   |
+ * | socket_close()                | Server/Client | Closes the TCP Socket.                   |
  * | socket_send()                 | Client        | Send data to session based destination.                          |
  * | socket_sendto()               | Server/Client | Send data to specific destination.                               |
  * | socket_read_session_address() | Server/Client | Read socket TCP session address and port information.            |
@@ -120,11 +123,11 @@ extern "C" {
  * When the TCP socket is opened it is in closed state. It must be set either to listen or to connect state before it can be used to receive or transmit data.
  *
  * A socket can be set to listen mode with the socket_listen() function. After the call, the socket can accept an incoming connection from a remote host.
- * The listen mode closes the connection automatically after server timeout or when the client or application closes the connection manually by socket_close() function.
+ * The listen mode closes the connection automatically after server timeout or when the client or application closes the connection manually by socket_shutdown() function.
  *
  * A TCP socket can be connected to a remote host with socket_connect() with correct arguments. After the function call, a (non-blocking) application must wait for the socket event to confirm the successful state change of the socket.
  * After the successful state change, data can be sent using socket_send() by client and socket_send() by server.
- * The connection can be closed with socket_close() function or by server timeout.
+ * The connection can be shut down with socket_shutdown() function or by server timeout.
  *
  * \section socket-udpicmp How to use UDP and RAW socket:
  *
@@ -177,12 +180,122 @@ extern "C" {
  */
 
 typedef struct socket_callback_t {
-    uint8_t event_type;     /**< Socket Callback Event check list below*/
+    uint8_t event_type;     /**< Socket Callback Event check list below */
     int8_t socket_id;       /**< Socket id queue which socket cause call back */
     int8_t interface_id;    /**< Network Interface ID where Packet came */
     uint16_t  d_len;        /**< Data length if event type is SOCKET_DATA */
     uint8_t LINK_LQI;       /**< LINK LQI info if interface cuold give */
 } socket_callback_t;
+
+/*!
+ * \struct ns_msghdr_t
+ * \brief Normal IP socket message structure for socket_recvmsg() and socket_sendmsg().
+ */
+
+typedef struct ns_msghdr {
+    void *msg_name;                 /**< Optional address send use for destination and receive it will be source. MUST be ns_address_t */
+    uint_fast16_t msg_namelen;      /**< Length of optional address use sizeof(ns_address_t) when msg_name is defined */
+    ns_iovec_t *msg_iov;            /**< Message data vector list */
+    uint_fast16_t  msg_iovlen;      /**< Data vector count in msg_iov */
+    void *msg_control;              /**< Ancillary data list of ns_cmsghdr_t pointer */
+    uint_fast16_t  msg_controllen;  /**< Ancillary data length */
+    int flags;                      /**< Flags for received messages */
+} ns_msghdr_t;
+
+/*!
+ * \struct ns_cmsghdr_t
+ * \brief Control messages.
+ */
+typedef struct ns_cmsghdr {
+    uint16_t cmsg_len;      /**< Ancillary data control messages length including cmsghdr */
+    uint8_t cmsg_level;     /**< Originating protocol level should be SOCKET_IPPROTO_IPV6 */
+    uint8_t cmsg_type;      /**< Protocol Specific types for example SOCKET_IPV6_PKTINFO,  */
+} ns_cmsghdr_t;
+
+
+/** \name socket_recvmsg() message error flags.
+ * \anchor MSG_HEADER_FLAGS
+ */
+///@{
+/** In msg_flags, indicates that given data buffer was smaller than received datagram. Can also be passed as an flag parameter to recvmsg. */
+#define NS_MSG_TRUNC    1
+/** Indicates that given ancillary data buffer was smaller than enabled at socket msg->msg_controllen define proper writed data lengths. */
+#define NS_MSG_CTRUNC   2
+///@}
+/*!
+ * \struct ns_in6_pktinfo_t
+ * \brief IPv6 packet info which is used for socket_recvmsg() socket_sendmsg().
+ */
+typedef struct ns_in6_pktinfo {
+    uint8_t ipi6_addr[16];    /**< src/dst IPv6 address */
+    int8_t  ipi6_ifindex;    /**< send/recv interface index */
+} ns_in6_pktinfo_t;
+
+#define CMSG_HEADER_ALIGN sizeof(long)
+
+#define CMSG_DATA_ALIGN CMSG_HEADER_ALIGN
+
+#ifndef NS_ALIGN_SIZE
+#define NS_ALIGN_SIZE(length, aligment_base) \
+    ((length + (aligment_base -1 )) & ~(aligment_base -1))
+#endif
+
+/**
+ * \brief Parse first control message header from message ancillary data.
+ *
+ * \param msgh Pointer for socket message.
+ *
+ * \return Pointer to first control message header , Could be NULL when control_message is undefined.
+ */
+#define NS_CMSG_FIRSTHDR(msgh) \
+    ((msgh)->msg_controllen >= sizeof(struct ns_cmsghdr) ? \
+            (struct ns_cmsghdr *)(msgh)->msg_control : \
+            (struct ns_cmsghdr *)NULL )
+/**
+ * \brief Parse next control message from message by current control message header.
+ *
+ * \param msgh Pointer for socket message.
+ * \param cmsg Pointer for last parsed control message
+ *
+ * \return Pointer to Next control message header , Could be NULL when no more control messages data.
+ */
+
+ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg);
+
+/**
+ * \brief Get Data pointer from control message header.
+ *
+ * \param cmsg Pointer (ns_cmsghdr_t) for last parsed control message
+ *
+ * \return Data pointer.
+ */
+#define NS_CMSG_DATA(cmsg) \
+    ((uint8_t *)(cmsg) + NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN))
+
+/**
+ * \brief Returns the total space required for a cmsg header plus the specified data, allowing for all padding
+ *
+ * \param length  size of the ancillary data
+ *
+ * For example, the space required for a SOCKET_IPV6_PKTINFO is NS_CMSG_SPACE(sizeof(ns_in6_pktinfo))
+ *
+ * \return Total size of CMSG header, data and trailing padding.
+ */
+#define NS_CMSG_SPACE(length) \
+    (NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN) + NS_ALIGN_SIZE(length, CMSG_HEADER_ALIGN))
+
+/**
+ * \brief Calculate length to store in cmsg_len with taking into account any necessary alignment.
+ *
+ * \param length  size of the ancillary data
+ *
+ * For example, cmsg_len for a SOCKET_IPV6_PKTINFO is NS_CMSG_LEN(sizeof(ns_in6_pktinfo))
+ *
+ * \return Size of CMSG header plus data, without trailing padding.
+ */
+#define NS_CMSG_LEN(length) \
+    (NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN) + length)
+
 
 /** IPv6 wildcard address IN_ANY */
 extern const uint8_t ns_in6addr_any[16];
@@ -198,33 +311,47 @@ extern const uint8_t ns_in6addr_any[16];
  * \return -1 on failure.
  * \return -2 on port reserved.
  */
-extern int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(void *));
+int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(void *));
 
 /**
- * \brief A function to free a socket.
+ * \brief A function to close a socket.
  *
- * \param socket ID of the socket to be released.
+ * \param socket ID of the socket to be closed.
  *
- * \return 0 socket released.
- * \return -1 socket not released.
+ * \return 0 socket closed.
+ * \return -1 socket not closed.
  */
-extern int8_t socket_free(int8_t socket);
+int8_t socket_close(int8_t socket);
 
 /**
- * \brief A function to set the socket to listening mode.
+ * \brief A function to set a socket to listening mode.
  *
- * \param socket Socket ID to bind.
+ * \param socket The socket ID.
+ * \param backlog The pending connections queue size. (Not yet implemented).
  * \return 0 on success.
  * \return -1 on failure.
  */
-extern int8_t socket_listen(int8_t socket);
+int8_t socket_listen(int8_t socket, uint8_t backlog);
+
+/**
+ * \brief A function to accept a new connection on an socket.
+ *
+ * NOT YET IMPLEMENTED - PLACEHOLDER FOR FUTURE TCP CHANGES
+ *
+ * \param socket_id The socket ID of the listening socket.
+ * \param addr Either NULL pointer or pointer to structure where the remote address of the connecting host is copied.
+ * \param passed_fptr A function pointer to a function that is called whenever a data frame is received to the new socket.
+ * \return 0 or greater on success; return value is the new socket ID.
+ * \return -1 on failure.
+ */
+int8_t socket_accept(int8_t socket_id, ns_address_t *addr, void (*passed_fptr)(void *));
 
 /**
  * \brief A function to connect to remote peer (TCP).
  *
  * \param socket The socket ID.
  * \param address The address of a remote peer.
- * \param randomly_take_src_number 1 enables find next free random port number for the current one.
+ * \deprecated \param randomly_take_src_number Ignored - random local port is always chosen if not yet bound
  *
  * \return 0 on success.
  * \return -1 in case of an invalid socket ID or parameter.
@@ -235,7 +362,7 @@ extern int8_t socket_listen(int8_t socket);
  * \return -6 if the TCP session state is wrong.
  * \return -7 if the source address selection fails.
  */
-extern int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_take_src_number);
+int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_take_src_number);
 
 /**
  * \brief Bind socket to address.
@@ -249,10 +376,12 @@ extern int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t rando
  * \return 0 on success.
  * \return -1 if the given address is NULL.
  * \return -2 if the port is already bound to another socket.
+ * \return -3 if address is not us.
  * \return -4 if the socket is already bound.
- * \return -5 bind is not supported on this type of socket
+ * \return -5 bind is not supported on this type of socket.
+ *
  */
-extern int8_t socket_bind(int8_t socket, const ns_address_t *address);
+int8_t socket_bind(int8_t socket, const ns_address_t *address);
 
 /**
  * \brief Bind a local address to a socket based on the destination address and
@@ -271,22 +400,26 @@ extern int8_t socket_bind(int8_t socket, const ns_address_t *address);
  * \return -5 if the source address selection fails.
  * \return -6 bind2addrsel is not supported on this type of socket.
  */
-extern int8_t socket_bind2addrsel(int8_t socket, const ns_address_t *dst_address);
+int8_t socket_bind2addrsel(int8_t socket, const ns_address_t *dst_address);
 
 /**
- * \brief A function to close a connection.
+ * Options for the socket_shutdown() parameter 'how'.
+ */
+#define SOCKET_SHUT_RD      0   ///< Disables further receive operations.
+#define SOCKET_SHUT_WR      1   ///< Disables further send operations.
+#define SOCKET_SHUT_RDWR    2   ///< Disables further send and receive operations.
+
+/**
+ * \brief A function to shut down a connection.
  *
- * \param socket The ID of the socket to be closed.
- * \param address The address of the destination client. When using as a client, a null pointer shall be passed.
+ * \param socket The ID of the socket to be shut down.
+ * \param how How socket is to be shut down, one of SOCKET_SHUT_XX.
  *
  * \return 0 on success.
- * \return -1 if the given socket ID is not found, if the socket type is wrong or tcp_close() returns a failure.
+ * \return -1 if the given socket ID is not found, if the socket type is wrong or TCP layer returns a failure.
  * \return -2 if no active TCP session was found.
- * \return -3 if the referred socket ID port is declared as a zero.
- *
- * Note: It is highly recommended to always use randomly_take_src_number. The stack generates a new source port between 49152-65534.
  */
-extern int8_t socket_close(int8_t socket, ns_address_t *address);
+int8_t socket_shutdown(int8_t socket, uint8_t how);
 
 /**
  * \brief Send data via a connected TCP socket by client.
@@ -301,12 +434,12 @@ extern int8_t socket_close(int8_t socket, ns_address_t *address);
  * \return 0 done
  * \return -1 Invalid socket ID.
  * \return -2 Socket memory allocation fail.
- * \return -3 TCP state not established.
- * \return -4 Socket TX process busy.
- * \return -5 Socket is not connected.
- * \return -6 Packet too short.
+ * \return -3 TCP state not established or address scope not defined .
+ * \return -4 Socket TX process busy or unknown interface.
+ * \return -5 Socket not connected
+ * \return -6 Packet too short (ICMP raw socket error).
  */
-extern int8_t socket_send(int8_t socket, uint8_t *buffer, uint16_t length);
+int8_t socket_send(int8_t socket, uint8_t *buffer, uint16_t length);
 
 /**
  * \brief A function to read received data buffer from a socket.
@@ -324,7 +457,32 @@ extern int8_t socket_send(int8_t socket, uint8_t *buffer, uint16_t length);
  * \return 0 if no data is available to read.
  * \return -1 invalid input parameters.
  */
-extern int16_t socket_read(int8_t socket, ns_address_t *src_addr, uint8_t *buffer, uint16_t length);
+int16_t socket_read(int8_t socket, ns_address_t *src_addr, uint8_t *buffer, uint16_t length);
+
+/**
+ * \brief A function to read received message with ancillary data from a socket.
+ *
+ * Used by the application to get data from a socket. This method must be called once
+ * from a socket callback when handling event SOCKET_DATA. If the received data does not fit
+ * in the buffer provided the excess data bytes are discarded.
+ *
+ * Ancillary data must request by socket_setsockopt().
+ *
+ * msg->msg_controllen is updated to indicate actual length of ancillary data output
+ *
+ * The returned length is normally the length of data actually written to the buffer; if
+ * NS_MSG_TRUNC is set in flags, then for non-stream sockets, the actual datagram length is
+ * returned instead, which may be larger than the buffer size.
+ *
+ * \param socket The socket ID.
+ * \param msg A pointer to a structure where messages is stored with or without ancillary data
+ * \param flags A flags for message read.
+ *
+ * \return greater than 0 indicates the length of the data.
+ * \return 0 if no data is available to read.
+ * \return -1 invalid input parameters.
+ */
+int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags);
 
 /**
  * \brief A function to send UDP, TCP or raw ICMP data via the socket.
@@ -335,14 +493,43 @@ extern int16_t socket_read(int8_t socket, ns_address_t *src_addr, uint8_t *buffe
  * \param address A pointer to the destination address information.
  * \param buffer A pointer to data to be sent.
  * \param length Length of the data to be sent.
+ *
  * \return 0 on success.
  * \return -1 Invalid socket ID.
  * \return -2 Socket memory allocation fail.
- * \return -3 TCP state not established.
- * \return -4 Socket TX process busy.
- * \return -6 Packet too short.
+ * \return -3 TCP state not established or address scope not defined .
+ * \return -4 Socket TX process busy or unknown interface.
+ * \return -5 Socket not connected
+ * \return -6 Packet too short (ICMP raw socket error).
  */
-extern int8_t socket_sendto(int8_t socket, ns_address_t *address, uint8_t *buffer, uint16_t length);
+int8_t socket_sendto(int8_t socket, ns_address_t *address, uint8_t *buffer, uint16_t length);
+
+/**
+ * \brief A function to send UDP, TCP or raw ICMP data via the socket with or without ancillary data or destination address.
+ *
+ * Used by the application to send data message header support also vector list socket_send() and socket_sendto() use this functionality internally.
+ *
+ * \param socket The socket ID.
+ * \param msg A pointer to the Message header which include address, payload and ancillary data.
+ * \param flags A flags for message send for future usage (not supported yet)
+ *
+ * Messages destination address is defined by msg->msg_name which must be ns_address_t. If msg->msg_nme is NULL socket select connected address
+ *
+ * Messages payload and length is defined msg->msg_iov and msg->msg_iovlen. API support to send multiple data vector.
+ *
+ * Supported ancillary data for send defined by msg->msg_control and msg->msg_controllen.
+ *
+ * msg->flags and flags is ignored
+ *
+ * \return 0 on success.
+ * \return -1 Invalid socket ID or message structure.
+ * \return -2 Socket memory allocation fail.
+ * \return -3 TCP state not established or address scope not defined .
+ * \return -4 Socket TX process busy or unknown interface.
+ * \return -5 Socket not connected
+ * \return -6 Packet too short (ICMP raw socket error).
+ */
+int8_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags);
 
 /**
  * \brief A function to read session info for TCP event.
@@ -358,7 +545,7 @@ extern int8_t socket_sendto(int8_t socket, ns_address_t *address, uint8_t *buffe
  * Note: This function should be called only at socket callback when the socket event is SOCKET_BIND_DONE or SOCKET_TX_DONE.
  * The following sections introduce those functions.
  */
-extern int8_t socket_read_session_address(int8_t socket, ns_address_t *address);
+int8_t socket_read_session_address(int8_t socket, ns_address_t *address);
 
 
 /** \name Flags for SOCKET_IPV6_ADDR_PREFERENCES - opposites 16 bits apart. */
@@ -398,11 +585,46 @@ extern int8_t socket_read_session_address(int8_t socket, ns_address_t *address);
 #define SOCKET_IPV6_DONTFRAG                6
 /** Specify flow label for outgoing packets, as int32_t; valid values 0-0xfffff, or -1 for system default, or -2 to always autogenerate */
 #define SOCKET_IPV6_FLOW_LABEL              7
+/** Hop limit control for socket_sendmsg() and indicate for hop limit socket_recmsg(), as int16_t; valid values 0-255, -1 for default for outgoing packet */
+#define SOCKET_IPV6_HOPLIMIT                8
+/** Specify control messages packet info for send and receive as ns_in6_pktinfo_t socket_sendmsg() it define source address and outgoing interface. socket_recvmsg() it define messages destination address and arrival interface. Reference at RFC3542*/
+#define SOCKET_IPV6_PKTINFO                 9
+
+/** Specify socket_recvmsg() ancillary data request state for Packet info (destination address and interface id), as bool; valid values true write enabled, false write disabled */
+#define SOCKET_IPV6_RECVPKTINFO             10
+/** Specify socket_recvmsg() ancillary data request state for receive messages hop-limit, as bool; valid values true  write enabled, false information write disabled */
+#define SOCKET_IPV6_RECVHOPLIMIT           11
+/** Specify socket_recvmsg() ancillary data request state for receive messages traffic class, as bool; valid values true  write enabled, false information write disabled */
+#define SOCKET_IPV6_RECVTCLASS             12
 
 #define SOCKET_BROADCAST_PAN                0xfc /**< Internal use - transmit with IEEE 802.15.4 broadcast PAN ID */
 #define SOCKET_LINK_LAYER_SECURITY          0xfd /**< Not standard enable or disable socket security at link layer (For 802.15.4). */
 #define SOCKET_INTERFACE_SELECT             0xfe /**< Not standard socket interface ID. */
 #define SOCKET_IPV6_ADDRESS_SELECT          0xff /**< Deprecated - use SOCKET_IPV6_ADDR_PREFERENCES instead. */
+
+/** Socket options summary
+ *
+ * | opt_name / cmsg_type         | Data type        | set/getsockopt  | sendmsg | recvmsg                           |
+ * | :--------------------------: | :--------------: | :-------------: | :-----: | :-------------------------------: |
+ * | SOCKET_IPV6_TCLASS           | int16_t          |     Yes         |   Yes   | If enabled with RECVTCLASS        |
+ * | SOCKET_IPV6_UNICAST_HOPS     | int16_t          |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_HOPS   | int16_t          |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_ADDR_PREFERENCES | int              |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_USE_MIN_MTU      | int8_t           |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_DONTFRAG         | int8_t           |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_FLOW_LABEL       | int32_t          |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_HOPLIMIT         | int16_t          |     No          |   Yes   | If enabled with RECVHOPLIMIT      |
+ * | SOCKET_IPV6_PKTINFO          | ns_in6_pktinfo_t |     No          |   Yes   | If enabled with RECVPKTINFO       |
+ * | SOCKET_IPV6_RECVPKTINFO      | bool             |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_RECVHOPLIMIT     | bool             |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_RECVTCLASS       | bool             |     Yes         |   No    | No                                |
+ * | SOCKET_BROADCAST_PAN         | int8_t           |     Yes         |   No    | No                                |
+ * | SOCKET_LINK_LAYER_SECURITY   | int8_t           |     Yes         |   No    | No                                |
+ * | SOCKET_INTERFACE_SELECT      | int8_t           |     Yes         |   No    | No                                |
+ *
+ *
+ */
+
 ///@}
 
 /**
@@ -422,7 +644,7 @@ extern int8_t socket_read_session_address(int8_t socket, ns_address_t *address);
  * \return -2 invalid/unsupported option.
  * \return -3 invalid option value.
  */
-extern int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const void *opt_value, uint16_t opt_len);
+int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const void *opt_value, uint16_t opt_len);
 
 /**
  * \brief Get an option for a socket.
@@ -442,7 +664,7 @@ extern int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, 
  * \return -1 invalid socket ID.
  * \return -2 invalid/unsupported option.
  */
-extern int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *opt_value, uint16_t *opt_len);
+int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *opt_value, uint16_t *opt_len);
 
 #ifdef __cplusplus
 }

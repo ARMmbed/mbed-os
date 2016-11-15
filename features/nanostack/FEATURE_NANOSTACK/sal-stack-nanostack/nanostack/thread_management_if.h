@@ -107,6 +107,10 @@ typedef struct {
 /**
  * Initialize Thread stack to node mode.
  *
+ * If static configuration is given and new one is updated by commissioner
+ * it will override current setup. it is save to always give this as
+ * default configuration.
+ *
  * \param interface_id Network interface ID.
  * \param channel_list A pointer to channel list. Can be NULL if all channels accepted.
  * \param device_configuration A pointer to device configuration.
@@ -285,6 +289,20 @@ int8_t thread_management_get_request_full_nwk_data(int8_t interface_id, bool *fu
  * \return <0 Read fail.
  */
 int thread_management_get_leader_address(int8_t interface_id, uint8_t *address_ptr);
+
+/**
+ * Get leader anycast address.
+ *
+ * Address should be used when contacting Leader without need to know the actual routing details.
+ * This address will remain valid even after leader changes.
+ *
+ * \param interface_id Network interface ID.
+ * \param address_ptr A pointer to the location of address after copying.
+ *
+ * \return 0, Read OK.
+ * \return <0 Read fail. Not connected to Thread network.
+ */
+int thread_management_get_leader_aloc(int8_t interface_id, uint8_t *address_ptr);
 
 /**
  * Get parent link local 16 address.

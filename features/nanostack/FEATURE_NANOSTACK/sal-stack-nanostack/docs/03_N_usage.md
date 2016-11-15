@@ -20,7 +20,7 @@ TCP, UDP, or ICMP packets can be sent and received using the socket interface AP
 
 For UDP/ICMP, a socket is ready to send and receive data after a successful call to `socket_open()` and when the `NET_READY` event has been received.
 
-For TCP, when a socket is opened it is in _closed_ state. It must be set to either _listen_ or _connect_ state before using it for receiving or transmitting data. To receive data, the socket can be set to listen mode by calling `socket_listen()`. After that, the socket can accept an incoming connection from a remote host. To send data, `socket_connect()` is called with a set of arguments. When the socket event has confirmed the state change of the socket, data can then be sent using `socket_send()`. The function call `socket_close()` is used to close the socket.
+For TCP, when a socket is opened it is in _closed_ state. It must be set to either _listen_ or _connect_ state before using it for receiving or transmitting data. To receive data, the socket can be set to listen mode by calling `socket_listen()`. After that, the socket can accept an incoming connection from a remote host. To send data, `socket_connect()` is called with a set of arguments. When the socket event has confirmed the state change of the socket, data can then be sent using `socket_send()`. The function call `socket_shutdown()` is used to shut down the socket.
 
 ## Features
 

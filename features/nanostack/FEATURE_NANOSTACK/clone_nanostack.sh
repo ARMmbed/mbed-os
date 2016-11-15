@@ -28,23 +28,17 @@
 #  * Same order. Each line should have maching pair in same index at other array
 REPOSITORIES=(
     git@github.com:ARMmbed/sal-stack-nanostack.git
-    git@github.com:ARMmbed/coap-service.git
     )
 
 DIRECTORIES=(
     sal-stack-nanostack
-    coap-service
     )
 
 # Exit immediately on fail, thread unset variables as error
 set -eu
 
-# Count number of repositories
+# Count number of repositories (minus one)
 N=0
-for repo in ${REPOSITORIES[*]}; do
-    let N=N+1
-done
-let N=N-1 # Substract one, because indexes start from 0
 
 print_usage() {
     echo -e "Usage: $0 [clean | clone | export ]"
@@ -87,7 +81,7 @@ copy_nanostack_binaries() {
 clean_nanostack_binaries() {
     for binaries in ../FEATURE_*; do
         if [ "$binaries" != "../FEATURE_NANOSTACK" ]; then
-            rm -rf $binaries        
+            rm -rf $binaries
         fi
     done
 }

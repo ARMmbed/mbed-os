@@ -19,7 +19,13 @@
 #ifndef __COAP_SERVICE_API_INTERNAL_H__
 #define __COAP_SERVICE_API_INTERNAL_H__
 
+#include "coap_message_handler.h"
+
+
+extern coap_msg_handler_t *coap_service_handle;
 
 uint32_t coap_service_get_internal_timer_ticks(void);
+
+uint16_t coap_service_id_find_by_socket(int8_t socket_id);
 
 #endif

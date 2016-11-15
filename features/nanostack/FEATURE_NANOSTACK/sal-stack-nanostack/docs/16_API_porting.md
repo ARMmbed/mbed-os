@@ -26,17 +26,17 @@ The mbed OS port of Nanostack consist of a few helper modules that provide easie
 
 ![Nanostack inside mbed OS](img/nanostack_in_mbed_OS.png)
 
-* [mbed Mesh API](https://github.com/ARMmbed/mbed-mesh-api) controls and initializes Nanostack on mbed OS.
+* [mbed Mesh API](https://github.com/ARMmbed/mbed-os/tree/master/features/nanostack/FEATURE_NANOSTACK/mbed-mesh-api) controls and initializes Nanostack on mbed OS.
     * Security settings.
     * Channel configuration.
     * Connection and reconnection logic.
-* [nanostack-hal-mbed-cmsis-rtos](https://github.com/ARMmbed/nanostack-hal-mbed-cmsis-rtos) implements Platform API for mbed OS.
+* [nanostack-hal-mbed-cmsis-rtos](https://github.com/ARMmbed/mbed-os/tree/master/features/FEATURE_COMMON_PAL/nanostack-hal-mbed-cmsis-rtos) implements Platform API for mbed OS.
     * An internal event handler is initialized when the stack starts.
     * The event handler is running in its own thread. Not visible for users.
-* `NanostackInterface` class implements Socket API.
+* [NanostackInterface](https://github.com/ARMmbed/mbed-os/tree/master/features/nanostack/FEATURE_NANOSTACK/nanostack-interface) class implements the network stack abstration for the socket layer.
     * Initializes the RF driver. See [Providing RF driver](#providing-rf-driver-for-mbed-os-applications).
 
-In mbed OS, Socket API hides the differences between networking stacks. Users will only use one of its high level APIs:
+In mbed OS, Socket API hides the differences between the networking stacks. Users will only use one of its high level APIs:
 
 * UDPSocket
 * TCPSocket
@@ -46,45 +46,22 @@ In mbed OS, Socket API hides the differences between networking stacks. Users wi
 
 For an example of a simple application using Nanostack, see [Example mesh application for mbed OS](https://github.com/ARMmbed/mbed-os-example-mesh-minimal).
 
-For documentation of Socket API see following links
+For documentation of Socket API see the following links
 
 * [Socket API: Getting started](https://developer.mbed.org/teams/NetworkSocketAPI/wiki/Getting-Started)
 * [Socket API: Doxygen](https://developer.mbed.org/teams/NetworkSocketAPI/code/NetworkSocketAPI/docs/tip/)
 
 #### Providing RF driver for mbed OS applications
 
-For mbed OS 5, the RF driver actually lives outside the OS tree and is called from `NanostackInterface` in the initialization phase.
+For mbed OS 5, the RF driver implements the `NanostackRfPhy` API.
+`MeshInterfaceNanostack` requires the driver object to be provided when
+initializing.
 
-`NanostackInterface` requires the driver to provide the following API:
+![NanostackRfPhy](img/NanostackRfPhy.png)
 
-**Header:** `driverRFPhy.h`
+Applications use only `LoWPANNDInterface` or `ThreadInterface` directly to set up the network and provide a driver. Rest of the classes provide an abstration between Nanostack and Socket layers of mbed OS.
 
-```
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "nanostack/platform/arm_hal_phy.h"
-
-/** Registers RF driver to Nanostack.
- * \return driver ID
- */
-int8_t rf_device_register(void);
-
-/** Read EUI64 address from the device and write to pointer.
- * \param ptr Pointer to location where to copy the address.
- */
-void rf_read_mac_address(uint8_t *ptr);
-
-/** Return RF noise level from device.
- * Used to seed a internal pseudorandom generator.
- * \return random number.
- */
-int8_t rf_read_random(void);
-
-#ifdef __cplusplus
-}
-#endif
-```
+See [NanostackRfPhy.h](https://github.com/ARMmbed/mbed-os/blob/master/features/nanostack/FEATURE_NANOSTACK/nanostack-interface/NanostackRfPhy.h) for an up-to-date header file and API.
 
 Driver API used for communication between the driver and Nanostack is documented in section [_Device Driver API_](driver_api.md).
 

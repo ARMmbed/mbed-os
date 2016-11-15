@@ -33,12 +33,12 @@ uint32_t randLIB_get_32bit(void)
     return 0;
 }
 
-int8_t randLIB_get_n_bytes_random(uint8_t *data_ptr, uint8_t eight_bit_boundary)
+void *randLIB_get_n_bytes_random(void *data_ptr, uint8_t count)
 {
-    if(data_ptr && eight_bit_boundary > 0){
-        data_ptr[0] = counter++%255;
+    if(data_ptr && count > 0){
+        *((int*)data_ptr) = counter++%255;
     }
-    return 0;
+    return data_ptr;
 }
 
 uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max)

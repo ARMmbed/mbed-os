@@ -105,7 +105,7 @@ bool test_coap_connection_handler_open_connection()
 bool test_coap_connection_handler_send_data()
 {
     coap_security_handler_stub.counter = -1;
-    if( -1 != coap_connection_handler_send_data(NULL, NULL, NULL, 0, false))
+    if( -1 != coap_connection_handler_send_data(NULL, NULL, ns_in6addr_any, NULL, 0, false))
         return false;
 
     ns_address_t addr;
@@ -118,15 +118,12 @@ bool test_coap_connection_handler_send_data()
     if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,false,false) )
         return false;
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
     connection_handler_destroy(handler);
 
-    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
-    coap_security_handler_stub.sec_obj->_remote_port = 22;
-    memset(coap_security_handler_stub.sec_obj->_remote_address, 1, 16 );
+    coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
     nsdynmemlib_stub.returnCounter = 1;
     handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
@@ -134,10 +131,10 @@ bool test_coap_connection_handler_send_data()
     if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,false,false) )
         return false;
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
     connection_handler_destroy(handler);
@@ -153,7 +150,7 @@ bool test_coap_connection_handler_send_data()
         return false;
 
 
-    if( 1 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( 1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
     connection_handler_destroy(handler);
 
@@ -164,7 +161,7 @@ bool test_coap_connection_handler_send_data()
         return false;
 
     socket_api_stub.int8_value = 7;
-    if( 7 != coap_connection_handler_send_data(handler, &addr, NULL, 0, true))
+    if( 7 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
     connection_handler_destroy(handler);
 
@@ -200,10 +197,7 @@ bool test_coap_connection_handler_virtual_recv()
         return false;
 
     //handler->socket->data still in memory
-    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
-    coap_security_handler_stub.sec_obj->_remote_port = 55;
-    memset(coap_security_handler_stub.sec_obj->_remote_address, 4, 16 );
+    coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
     ns_timer_stub.int8_value = -1;
     nsdynmemlib_stub.returnCounter = 3;
@@ -229,8 +223,6 @@ bool test_coap_connection_handler_virtual_recv()
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_security_handler_stub.int_value = 0;
-    coap_security_handler_stub.sec_obj->_remote_port = 12;
-    memset(coap_security_handler_stub.sec_obj->_remote_address, 1, 16 );
     if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
         return false;
 
@@ -300,11 +292,7 @@ bool test_timer_callbacks()
         return false;
 
     //handler->socket->data still in memory
-    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
-    coap_security_handler_stub.sec_obj->_remote_port = 55;
-    memset(coap_security_handler_stub.sec_obj->_remote_address, 4, 16 );
-    coap_security_handler_stub.sec_obj->_timer_id = 5;
+    coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
     ns_timer_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 3;
@@ -353,8 +341,7 @@ bool test_socket_api_callbacks()
     socket_callback_t *sckt_data = (socket_callback_t *)malloc(sizeof(socket_callback_t));
     memset(sckt_data, 0, sizeof(socket_callback_t));
 
-    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
+    coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
     socket_api_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 1;
@@ -433,8 +420,7 @@ bool test_security_callbacks()
     socket_callback_t *sckt_data = (socket_callback_t *)malloc(sizeof(socket_callback_t));
     memset(sckt_data, 0, sizeof(socket_callback_t));
 
-    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
+    coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);

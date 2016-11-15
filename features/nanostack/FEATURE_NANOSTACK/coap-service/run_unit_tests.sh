@@ -17,7 +17,5 @@ echo
 echo "Build coap service unit tests"
 echo
 
-yt target x86-linux-native
-yt up
 make -f Makefile.test test
 make -f Makefile.test test clean

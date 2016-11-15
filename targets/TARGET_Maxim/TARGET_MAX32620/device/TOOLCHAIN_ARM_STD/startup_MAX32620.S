@@ -61,55 +61,55 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     SysTick_Handler           ; SysTick Handler
 
                 ; Maxim 32620 Externals interrupts
-                DCD CLKMAN_IRQHandler         /* 16:01 CLKMAN */ 
-                DCD PWRMAN_IRQHandler         /* 17:02 PWRMAN */
-                DCD FLC_IRQHandler            /* 18:03 Flash Controller */
-                DCD RTC0_IRQHandler           /* 19:04 RTC INT0 */
-                DCD RTC1_IRQHandler           /* 20:05 RTC INT1 */
-                DCD RTC2_IRQHandler           /* 21:06 RTC INT2 */
-                DCD RTC3_IRQHandler           /* 22:07 RTC INT3 */
-                DCD PMU_IRQHandler            /* 23:08 PMU */
-                DCD USB_IRQHandler            /* 24:09 USB */
-                DCD AES_IRQHandler            /* 25:10 AES */
-                DCD MAA_IRQHandler            /* 26:11 MAA */
-                DCD WDT0_IRQHandler           /* 27:12 WATCHDOG0 */
-                DCD WDT0_P_IRQHandler         /* 28:13 WATCHDOG0 PRE-WINDOW */
-                DCD WDT1_IRQHandler           /* 29:14 WATCHDOG1 */
-                DCD WDT1_P_IRQHandler         /* 30:15 WATCHDOG1 PRE-WINDOW */
-                DCD GPIO_P0_IRQHandler        /* 31:16 GPIO Port 0  */
-                DCD GPIO_P1_IRQHandler        /* 32:17 GPIO Port 1  */
-                DCD GPIO_P2_IRQHandler        /* 33:18 GPIO Port 2  */
-                DCD GPIO_P3_IRQHandler        /* 34:19 GPIO Port 3  */
-                DCD GPIO_P4_IRQHandler        /* 35:20 GPIO Port 4  */
-                DCD GPIO_P5_IRQHandler        /* 36:21 GPIO Port 5  */
-                DCD GPIO_P6_IRQHandler        /* 37:22 GPIO Port 6  */
-                DCD TMR0_IRQHandler           /* 38:23 Timer32-0 */
-                DCD TMR16_0_IRQHandler        /* 39:24 Timer16-s0 */
-                DCD TMR1_IRQHandler           /* 40:25 Timer32-1 */
-                DCD TMR16_1_IRQHandler        /* 41:26 Timer16-s1 */
-                DCD TMR2_IRQHandler           /* 42:27 Timer32-2 */
-                DCD TMR16_2_IRQHandler        /* 43:28 Timer16-s2 */
-                DCD TMR3_IRQHandler           /* 44:29 Timer32-3 */
-                DCD TMR16_3_IRQHandler        /* 45:30 Timer16-s3 */
-                DCD TMR4_IRQHandler           /* 46:31 Timer32-4 */
-                DCD TMR16_4_IRQHandler        /* 47:32 Timer16-s4 */
-                DCD TMR5_IRQHandler           /* 48:33 Timer32-5 */
-                DCD TMR16_5_IRQHandler        /* 49:34 Timer16-s5 */
-                DCD UART0_IRQHandler          /* 50:35 UART0 */
-                DCD UART1_IRQHandler          /* 51:36 UART1 */
-                DCD UART2_IRQHandler          /* 52:37 UART0 */
-                DCD UART3_IRQHandler          /* 53:38 UART1 */
-                DCD PT_IRQHandler             /* 54:39 PT */
-                DCD I2CM0_IRQHandler          /* 55:40 I2C Master 0 */
-                DCD I2CM1_IRQHandler          /* 56:41 I2C Master 1 */
-                DCD I2CM2_IRQHandler          /* 57:42 I2C Master 2 */
-                DCD I2CS_IRQHandler           /* 58:43 I2C Slave */
-                DCD SPI0_IRQHandler           /* 59:44 SPI0 */
-                DCD SPI1_IRQHandler           /* 60:45 SPI1 */
-                DCD SPI2_IRQHandler           /* 61:46 SPI2 */
-                DCD SPIB_IRQHandler           /* 62:47 SPI Bridge */
-                DCD OWM_IRQHandler            /* 63:48 1-Wire Master */
-                DCD AFE_IRQHandler            /* 64:49 AFE */   
+                DCD CLKMAN_IRQHandler         ; 16:01 CLKMAN
+                DCD PWRMAN_IRQHandler         ; 17:02 PWRMAN
+                DCD FLC_IRQHandler            ; 18:03 Flash Controller
+                DCD RTC0_IRQHandler           ; 19:04 RTC INT0
+                DCD RTC1_IRQHandler           ; 20:05 RTC INT1
+                DCD RTC2_IRQHandler           ; 21:06 RTC INT2
+                DCD RTC3_IRQHandler           ; 22:07 RTC INT3
+                DCD PMU_IRQHandler            ; 23:08 PMU
+                DCD USB_IRQHandler            ; 24:09 USB
+                DCD AES_IRQHandler            ; 25:10 AES
+                DCD MAA_IRQHandler            ; 26:11 MAA
+                DCD WDT0_IRQHandler           ; 27:12 WATCHDOG0
+                DCD WDT0_P_IRQHandler         ; 28:13 WATCHDOG0 PRE-WINDOW
+                DCD WDT1_IRQHandler           ; 29:14 WATCHDOG1
+                DCD WDT1_P_IRQHandler         ; 30:15 WATCHDOG1 PRE-WINDOW
+                DCD GPIO_P0_IRQHandler        ; 31:16 GPIO Port 0 
+                DCD GPIO_P1_IRQHandler        ; 32:17 GPIO Port 1 
+                DCD GPIO_P2_IRQHandler        ; 33:18 GPIO Port 2 
+                DCD GPIO_P3_IRQHandler        ; 34:19 GPIO Port 3 
+                DCD GPIO_P4_IRQHandler        ; 35:20 GPIO Port 4 
+                DCD GPIO_P5_IRQHandler        ; 36:21 GPIO Port 5 
+                DCD GPIO_P6_IRQHandler        ; 37:22 GPIO Port 6 
+                DCD TMR0_IRQHandler           ; 38:23 Timer32-0
+                DCD TMR16_0_IRQHandler        ; 39:24 Timer16-s0
+                DCD TMR1_IRQHandler           ; 40:25 Timer32-1
+                DCD TMR16_1_IRQHandler        ; 41:26 Timer16-s1
+                DCD TMR2_IRQHandler           ; 42:27 Timer32-2
+                DCD TMR16_2_IRQHandler        ; 43:28 Timer16-s2
+                DCD TMR3_IRQHandler           ; 44:29 Timer32-3
+                DCD TMR16_3_IRQHandler        ; 45:30 Timer16-s3
+                DCD TMR4_IRQHandler           ; 46:31 Timer32-4
+                DCD TMR16_4_IRQHandler        ; 47:32 Timer16-s4
+                DCD TMR5_IRQHandler           ; 48:33 Timer32-5
+                DCD TMR16_5_IRQHandler        ; 49:34 Timer16-s5
+                DCD UART0_IRQHandler          ; 50:35 UART0
+                DCD UART1_IRQHandler          ; 51:36 UART1
+                DCD UART2_IRQHandler          ; 52:37 UART0
+                DCD UART3_IRQHandler          ; 53:38 UART1
+                DCD PT_IRQHandler             ; 54:39 PT
+                DCD I2CM0_IRQHandler          ; 55:40 I2C Master 0
+                DCD I2CM1_IRQHandler          ; 56:41 I2C Master 1
+                DCD I2CM2_IRQHandler          ; 57:42 I2C Master 2
+                DCD I2CS_IRQHandler           ; 58:43 I2C Slave
+                DCD SPI0_IRQHandler           ; 59:44 SPI0
+                DCD SPI1_IRQHandler           ; 60:45 SPI1
+                DCD SPI2_IRQHandler           ; 61:46 SPI2
+                DCD SPIB_IRQHandler           ; 62:47 SPI Bridge
+                DCD OWM_IRQHandler            ; 63:48 1-Wire Master
+                DCD AFE_IRQHandler            ; 64:49 AFE   
 				
 __Vectors_End
 
