@@ -902,7 +902,8 @@ static int32_t checkForEachBlockInRange(uint64_t startAddr, uint32_t size, int32
     return ARM_DRIVER_OK;
 }
 
-static int32_t blockIsProgrammable(const ARM_STORAGE_BLOCK *blockP) {
+static int32_t blockIsProgrammable(const ARM_STORAGE_BLOCK *blockP)
+{
     if (!blockP->attributes.programmable) {
         return ARM_STORAGE_ERROR_NOT_PROGRAMMABLE;
     }
@@ -910,7 +911,8 @@ static int32_t blockIsProgrammable(const ARM_STORAGE_BLOCK *blockP) {
     return ARM_DRIVER_OK;
 }
 
-static int32_t blockIsErasable(const ARM_STORAGE_BLOCK *blockP) {
+static int32_t blockIsErasable(const ARM_STORAGE_BLOCK *blockP)
+{
     if (!blockP->attributes.erasable) {
         return ARM_STORAGE_ERROR_NOT_ERASABLE;
     }
@@ -964,7 +966,8 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
     return 1; /* synchronous completion. */
 }
 
-static int32_t uninitialize(void) {
+static int32_t uninitialize(void)
+{
     tr_debug("called uninitialize");
 
     struct mtd_k64f_data *context = &mtd_k64f_data;
@@ -1170,7 +1173,8 @@ static int32_t getInfo(ARM_STORAGE_INFO *infoP)
     return ARM_DRIVER_OK;
 }
 
-static uint32_t resolveAddress(uint64_t addr) {
+static uint32_t resolveAddress(uint64_t addr)
+{
     return (uint32_t)addr;
 }
 
