@@ -532,7 +532,6 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     long_write_request_t* req = findLongWriteRequest(conn_handle);
                     if (!req)  {
                         sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
-                        releaseLongWriteRequest(conn_handle);
                         return;
                     }
 
@@ -540,27 +539,20 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     if (req->length == 0) {
                         req->attr_handle = input_req.handle;
                         req->offset = input_req.offset;
-                    }
+                    } else { 
+                        // it should be the subsequent write
+                        if ((req->offset + req->length) != input_req.offset) {
+                            sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_offset_reply);
+                            releaseLongWriteRequest(conn_handle);
+                            return;
+                        }
 
-                    // it is disalowed to write backward
-                    if (input_req.offset < req->offset) {
-                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_offset_reply);
-                        releaseLongWriteRequest(conn_handle);
-                        return;
-                    }
-
-                    // it should be the subsequent write
-                    if ((req->offset + req->length) != input_req.offset) {
-                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_offset_reply);
-                        releaseLongWriteRequest(conn_handle);
-                        return;
-                    }
-
-                    // it is not allowed to write multiple characteristic with the same request
-                    if (input_req.handle != req->attr_handle) {
-                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
-                        releaseLongWriteRequest(conn_handle);
-                        return;
+                        // it is not allowed to write multiple characteristic with the same request
+                        if (input_req.handle != req->attr_handle) {
+                            sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
+                            releaseLongWriteRequest(conn_handle);
+                            return;
+                        }
                     }
 
                     // start the copy of what is in input
@@ -595,7 +587,6 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     long_write_request_t* req = findLongWriteRequest(conn_handle);
                     if (!req) {
                         sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
-                        releaseLongWriteRequest(conn_handle);
                         return;
                     }
 
@@ -615,7 +606,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     // just leave here.
                     if (write_authorization != AUTH_CALLBACK_REPLY_SUCCESS) {
                         // report the status of the operation in any cases
-                        sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &write_auth_invalid_reply);
+                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
                         releaseLongWriteRequest(conn_handle);
                         return;
                     }
@@ -633,7 +624,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                         return;
                     }
 
-                    sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &write_auth_succes_reply);
+                    sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_succes_reply);
 
                     GattWriteCallbackParams writeParams = {
                         .connHandle = conn_handle,
@@ -751,7 +742,7 @@ uint16_t nRF5xGattServer::getBiggestCharacteristicSize() const {
 }
 
 nRF5xGattServer::long_write_request_t* nRF5xGattServer::allocateLongWriteRequest(uint16_t connection_handle) {
-    for (size_t i = 0; i < TOTAL_CONCURENT_LONG_WRITE_REQUEST; ++i) {
+    for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
         long_write_request_t& req = long_write_requests[i];
         if (req.data == NULL) {
             uint16_t block_size = getBiggestCharacteristicSize();
@@ -780,7 +771,7 @@ bool nRF5xGattServer::releaseLongWriteRequest(uint16_t connection_handle) {
 }
 
 nRF5xGattServer::long_write_request_t* nRF5xGattServer::findLongWriteRequest(uint16_t connection_handle) {
-    for (size_t i = 0; i < TOTAL_CONCURENT_LONG_WRITE_REQUEST; ++i) {
+    for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
         long_write_request_t& req = long_write_requests[i];
         if (req.data != NULL && req.conn_handle == connection_handle) {
             return &req;
@@ -791,7 +782,7 @@ nRF5xGattServer::long_write_request_t* nRF5xGattServer::findLongWriteRequest(uin
 }
 
 void nRF5xGattServer::releaseAllWriteRequests() {
-    for (size_t i = 0; i < TOTAL_CONCURENT_LONG_WRITE_REQUEST; ++i) {
+    for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
         long_write_request_t& req = long_write_requests[i];
         if (req.data != NULL) {
             free(req.data);

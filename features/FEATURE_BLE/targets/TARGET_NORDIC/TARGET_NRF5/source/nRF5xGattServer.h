@@ -45,7 +45,7 @@ public:
 private:
     const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
     const static unsigned BLE_TOTAL_DESCRIPTORS     = 8;
-    const static unsigned TOTAL_CONCURENT_LONG_WRITE_REQUEST = 3;
+    const static unsigned TOTAL_CONCURRENT_LONG_WRITE_REQUESTS = 3;
 
 private:
     struct long_write_request_t {
@@ -124,7 +124,7 @@ private:
 
     /**
      * Find a long write request from a characteristic handle
-     * @param  connection_handle The connection handle associated with the reauest.
+     * @param  connection_handle The connection handle associated with the request.
      * @return a pointer to the request if found otherwise NULL.
      */
     long_write_request_t* findLongWriteRequest(uint16_t connection_handle);
@@ -140,7 +140,7 @@ private:
     GattAttribute            *p_descriptors[BLE_TOTAL_DESCRIPTORS];
     uint8_t                   descriptorCount;
     uint16_t                  nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
-    long_write_request_t      long_write_requests[TOTAL_CONCURENT_LONG_WRITE_REQUEST];
+    long_write_request_t      long_write_requests[TOTAL_CONCURRENT_LONG_WRITE_REQUESTS];
 
     /*
      * Allow instantiation from nRF5xn when required.
