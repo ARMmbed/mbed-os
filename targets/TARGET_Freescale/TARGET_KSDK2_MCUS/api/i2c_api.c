@@ -32,7 +32,8 @@ static I2C_Type *const i2c_addrs[] = I2C_BASE_PTRS;
 /* Array of I2C bus clock frequencies */
 static clock_name_t const i2c_clocks[] = I2C_CLOCK_FREQS;
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
@@ -57,7 +58,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 #endif
 }
 
-int i2c_start(i2c_t *obj) {
+int i2c_start(i2c_t *obj)
+{
     I2C_Type *base = i2c_addrs[obj->instance];
     uint32_t statusFlags = I2C_MasterGetStatusFlags(base);
 
@@ -77,7 +79,8 @@ int i2c_start(i2c_t *obj) {
     return 0;
 }
 
-int i2c_stop(i2c_t *obj) {
+int i2c_stop(i2c_t *obj)
+{
     if (I2C_MasterStop(i2c_addrs[obj->instance]) != kStatus_Success) {
         obj->next_repeated_start = 0;
         return 1;
@@ -86,14 +89,16 @@ int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
-void i2c_frequency(i2c_t *obj, int hz) {
+void i2c_frequency(i2c_t *obj, int hz)
+{
     uint32_t busClock;
 
     busClock = CLOCK_GetFreq(i2c_clocks[obj->instance]);
     I2C_MasterSetBaudRate(i2c_addrs[obj->instance], hz, busClock);
 }
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
+{
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
 
@@ -121,7 +126,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     return length;
 }
 
-int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
+int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
+{
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
 
@@ -145,11 +151,13 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     return length;
 }
 
-void i2c_reset(i2c_t *obj) {
+void i2c_reset(i2c_t *obj)
+{
     i2c_stop(obj);
 }
 
-int i2c_byte_read(i2c_t *obj, int last) {
+int i2c_byte_read(i2c_t *obj, int last)
+{
     uint8_t data;
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
@@ -169,7 +177,8 @@ int i2c_byte_read(i2c_t *obj, int last) {
     return data;
 }
 
-int i2c_byte_write(i2c_t *obj, int data) {
+int i2c_byte_write(i2c_t *obj, int data)
+{
 #if FSL_I2C_DRIVER_VERSION > MAKE_VERSION(2, 0, 1)
     if (I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1, kI2C_TransferNoStopFlag) == kStatus_Success) {
         return 1;
@@ -184,7 +193,8 @@ int i2c_byte_write(i2c_t *obj, int data) {
 
 
 #if DEVICE_I2CSLAVE
-void i2c_slave_mode(i2c_t *obj, int enable_slave) {
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
+{
     i2c_slave_config_t slave_config;
     I2C_SlaveGetDefaultConfig(&slave_config);
     slave_config.slaveAddress = 0;
@@ -196,7 +206,8 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #endif
 }
 
-int i2c_slave_receive(i2c_t *obj) {
+int i2c_slave_receive(i2c_t *obj)
+{
     uint32_t status_flags = I2C_SlaveGetStatusFlags(i2c_addrs[obj->instance]);
 
     if (status_flags & kI2C_AddressMatchFlag) {
@@ -213,7 +224,8 @@ int i2c_slave_receive(i2c_t *obj) {
     }
 }
 
-int i2c_slave_read(i2c_t *obj, char *data, int length) {
+int i2c_slave_read(i2c_t *obj, char *data, int length)
+{
     I2C_Type *base = i2c_addrs[obj->instance];
 
     if (base->S & kI2C_AddressMatchFlag) {
@@ -228,7 +240,8 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     return length;
 }
 
-int i2c_slave_write(i2c_t *obj, const char *data, int length) {
+int i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
     I2C_Type *base = i2c_addrs[obj->instance];
 
     I2C_SlaveWriteBlocking(base, (uint8_t *)data, length);
@@ -241,7 +254,8 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     return length;
 }
 
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
     i2c_addrs[obj->instance]->A1 = address & 0xfe;
 }
 #endif

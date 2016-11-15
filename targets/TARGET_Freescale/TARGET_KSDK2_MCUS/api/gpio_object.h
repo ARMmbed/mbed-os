@@ -24,7 +24,8 @@ typedef struct {
     PinName pin;
 } gpio_t;
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->pin != (PinName)NC;
 }
 
