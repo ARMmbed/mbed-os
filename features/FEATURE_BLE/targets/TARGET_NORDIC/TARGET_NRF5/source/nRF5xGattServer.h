@@ -109,8 +109,7 @@ private:
 
     /**
      * Allocate a new write long request. return null if no requests are available.
-     * @param  connection_handle The connection handle which where the request will
-     * happen.
+     * @param  connection_handle The connection handle to be associated with the request.
      * @return the allocated request or NULL if no requests are available.
      */
     long_write_request_t* allocateLongWriteRequest(uint16_t connection_handle);
