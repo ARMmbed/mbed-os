@@ -23,6 +23,7 @@
 // Include here for backward compatibility
 #include "LoWPANNDInterface.h"
 #include "ThreadInterface.h"
+#include "NanostackEthernetInterface.h"
 #include "MeshInterfaceNanostack.h"
 
 class NanostackInterface : public NetworkStack {
