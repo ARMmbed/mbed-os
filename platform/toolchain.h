@@ -220,10 +220,10 @@
  *  @endcode
  */
 #ifndef MBED_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define MBED_DEPRECATED(M) __attribute__((deprecated(M)))
-#elif defined(__CC_ARM)
+#if defined(__CC_ARM)
 #define MBED_DEPRECATED(M) __attribute__((deprecated))
+#elif defined(__GNUC__) || defined(__clang__)
+#define MBED_DEPRECATED(M) __attribute__((deprecated(M)))
 #else
 #define MBED_DEPRECATED(M)
 #endif
