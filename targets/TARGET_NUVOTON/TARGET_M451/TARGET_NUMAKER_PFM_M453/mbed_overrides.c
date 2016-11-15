@@ -64,9 +64,8 @@ void mbed_sdk_init(void)
     CLK_SetCoreClock(72000000);
 
 #if DEVICE_ANALOGIN
-    // FIXME: Check voltage reference for EADC
-    /* Vref connect to AVDD */
-    //SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_VREFCTL_Msk) | SYS_VREFCTL_VREF_AVDD;
+    /* Vref connect to internal */
+    SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_VREFCTL_Msk) | SYS_VREFCTL_VREF_3_072V;
 #endif
     
     /* Update System Core Clock */
