@@ -79,27 +79,27 @@ typedef enum arm_library_event_type_e {
 /** Socket event mask. */
 #define SOCKET_EVENT_MASK                   0xF0
 /** Data received. */
-#define SOCKET_DATA                         0
+#define SOCKET_DATA                         (0 << 4)
 /** TCP connection ready. */
-#define SOCKET_BIND_DONE                    1 << 4
+#define SOCKET_BIND_DONE                    (1 << 4)
 /** TCP connection failure. */
-#define SOCKET_BIND_FAIL                    2 << 4
+#define SOCKET_BIND_FAIL                    (2 << 4)
 /** TCP connection authentication failed. */
-#define SOCKET_BIND_AUTH_FAIL               3 << 4
-/** TCP state from listen to establishment. */
-#define SOCKET_SERVER_CONNECT_TO_CLIENT     4 << 4
+#define SOCKET_BIND_AUTH_FAIL               (3 << 4)
+/** TCP incoming connection attempt to listening socket */
+#define SOCKET_INCOMING_CONNECTION          (4 << 4)
 /** Socket data send failure. */
-#define SOCKET_TX_FAIL                      5 << 4
+#define SOCKET_TX_FAIL                      (5 << 4)
 /** TCP connection closed. */
-#define SOCKET_CONNECT_CLOSED               6 << 4
-/** TCP connection closed because no ACK received. */
-#define SOCKET_CONNECT_FAIL_CLOSED          7 << 4
+#define SOCKET_CONNECT_CLOSED               (6 << 4)
+/** TCP connection reset */
+#define SOCKET_CONNECTION_RESET             (7 << 4)
 /** No route available to the destination. */
-#define SOCKET_NO_ROUTE                     8 << 4
+#define SOCKET_NO_ROUTE                     (8 << 4)
 /** Socket TX done. */
-#define SOCKET_TX_DONE                      9 << 4
+#define SOCKET_TX_DONE                      (9 << 4)
 /** Out of memory failure. */
-#define SOCKET_NO_RAM                       10 << 4
+#define SOCKET_NO_RAM                       (10 << 4)
 
 /*!
  * \enum net_security_t
@@ -477,7 +477,7 @@ extern int8_t arm_nwk_6lowpan_link_scan_parameter_set(int8_t interface_id, uint8
  * \brief A function to set the PAN ID filter.
  *
  * \param interface_id Network interface ID.
- * \param pan_id_filter The PAN ID to be allowed value 0xffff clean filter.
+ * \param pan_id_filter Enable filter for specific PAN ID. 0xffff disables the filter.
  *
  * \return 0 Filter set OK.
  * \return -1 Unknown Network interface ID.

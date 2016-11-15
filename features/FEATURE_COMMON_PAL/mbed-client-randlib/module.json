@@ -1,6 +1,6 @@
 {
   "name": "nanostack-randlib",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Pseudo random library used by mbed-client and 6LoWPAN stack.",
   "keywords": [],
   "homepage": "https://github.com/ARMmbed/mbed-client-randlib",

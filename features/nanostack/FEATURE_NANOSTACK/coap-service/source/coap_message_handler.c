@@ -4,8 +4,10 @@
 
 #include <string.h>
 #include "nsdynmemLIB.h"
+#include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
 #include "sn_coap_protocol.h"
+#include "socket_api.h"
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
@@ -73,22 +75,48 @@ static coap_transaction_t *transaction_create(void)
     if (this) {
         memset(this, 0, sizeof(coap_transaction_t));
         this->client_request = true;// default to client initiated method
+        this->create_time = coap_service_get_internal_timer_ticks();
         ns_list_add_to_start(&request_list, this);
     }
 
     return this;
 }
-static void transaction_delete(coap_transaction_t *this)
+
+static void transaction_free(coap_transaction_t *this)
+{
+    if (!this) {
+        return;
+    }
+
+    if (this->data_ptr) {
+        ns_dyn_mem_free(this->data_ptr);
+    }
+    ns_dyn_mem_free(this);
+}
+
+void transaction_delete(coap_transaction_t *this)
 {
     if (this) {
         ns_list_remove(&request_list, this);
-        if(this->data_ptr){
-            ns_dyn_mem_free(this->data_ptr);
-        }
-        ns_dyn_mem_free(this);
+        transaction_free(this);
     }
 
     return;
+}
+
+void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
+{
+    coap_transaction_t *transaction = transaction_find_by_address(address_ptr, port);
+
+    while (transaction) {
+        ns_list_remove(&request_list, transaction);
+        if (transaction->resp_cb) {
+            transaction->resp_cb(transaction->service_id, address_ptr, port, NULL);
+        }
+        sn_coap_protocol_delete_retransmission(coap_service_handle->coap, transaction->msg_id);
+        transaction_free(transaction);
+        transaction = transaction_find_by_address(address_ptr, port);
+    }
 }
 
 static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_ptr, void *param)
@@ -96,21 +124,24 @@ static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_
     coap_transaction_t *this = NULL;
     (void)address_ptr;
     (void)param;
-    tr_warn("transaction was not handled");
+    tr_warn("transaction was not handled %d", resp_ptr->msg_id);
     if (!resp_ptr) {
         return -1;
     }
     if( resp_ptr->token_ptr ){
         this = transaction_find_client_by_token(resp_ptr->token_ptr);
     }
-    if (this && this->resp_cb) {
+    if (!this) {
+        return 0;
+    }
+
+    ns_list_remove(&request_list, this);
+    if (this->resp_cb) {
         this->resp_cb(this->service_id, address_ptr->addr_ptr, address_ptr->port, NULL);
     }
-    transaction_delete(this);
+    transaction_free(this);
     return 0;
 }
-
-static void coap_service_build_content_format(sn_coap_hdr_s *header, sn_coap_content_format_e format);
 
 coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint16_t), void (*used_free_func_ptr)(void *),
                                   uint8_t (*used_tx_callback_ptr)(uint8_t *, uint16_t, sn_nsdl_addr_s *, void *)){
@@ -177,15 +208,15 @@ coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, 
     return transaction_find_by_address( address_ptr, port );
 }
 
-int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port,
+int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
                                       uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *))
 {
-    if( !cb || !handle ){
+    if (!cb || !handle) {
         return -1;
     }
     sn_nsdl_addr_s src_addr;
     sn_coap_hdr_s *coap_message;
-    src_addr.addr_ptr = source_addr_ptr;
+    src_addr.addr_ptr = (uint8_t *)source_addr_ptr;
     src_addr.addr_len  =  16;
     src_addr.type  =  SN_NSDL_ADDRESS_TYPE_IPV6;
     src_addr.port  =  port;
@@ -202,15 +233,14 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
         return -1;
     }
+    /* Request received */
     if (coap_message->msg_code > 0 && coap_message->msg_code < 32) {
-
-        //TODO Sorry
-
         coap_transaction_t *transaction_ptr = transaction_create();
         if (transaction_ptr) {
-
+            transaction_ptr->service_id = coap_service_id_find_by_socket(socket_id);
             transaction_ptr->msg_id = coap_message->msg_id;
             transaction_ptr->client_request = false;// this is server transaction
+            memcpy(transaction_ptr->local_address, *(dst_addr_ptr) == 0xFF ? ns_in6addr_any : dst_addr_ptr, 16);
             memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
             transaction_ptr->remote_port = port;
 
@@ -221,13 +251,13 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
                 transaction_delete(transaction_ptr);
                 return -1;
             }
-        }else{
+        } else {
             //TODO: handle error case
         }
+    /* Response received */
     } else {
-        //response find by MSG id
         coap_transaction_t *this = NULL;
-        if( coap_message->token_ptr ){
+        if (coap_message->token_ptr) {
             this = transaction_find_client_by_token(coap_message->token_ptr);
         }
         if (!this) {
@@ -236,12 +266,14 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
             return -1;
         }
         tr_debug("Service %d, response received", this->service_id);
+        ns_list_remove(&request_list, this);
         if (this->resp_cb) {
-            this->resp_cb(this->service_id, source_addr_ptr, port, coap_message);
+            this->resp_cb(this->service_id, (uint8_t *)source_addr_ptr, port, coap_message);
         }
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
-        transaction_delete(this);
+        transaction_free(this);
     }
+
     return 0;
 
 }
@@ -280,7 +312,7 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     request.msg_code = msg_code;
     request.uri_path_ptr = (uint8_t *)uri;
     request.uri_path_len = strlen(uri);
-    coap_service_build_content_format(&request, cont_type);
+    request.content_format = cont_type;
 
     do{
         randLIB_get_n_bytes_random(token,4);
@@ -310,7 +342,6 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     return transaction_ptr->msg_id;
 }
 
-//TODO: refactor this to use nsdl
 int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr, uint16_t payload_len)
 {
     coap_transaction_t *transaction_ptr;
@@ -344,46 +375,34 @@ int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t ser
     }
     response->payload_len = payload_len;
     response->payload_ptr = (uint8_t *) payload_ptr;  // Cast away const and trust that nsdl doesn't modify...
-    coap_service_build_content_format(response, content_type);
+    response->content_format = content_type;
 
     data_len = sn_coap_builder_calc_needed_packet_data_size(response);
     data_ptr = own_alloc(data_len);
     if (data_len > 0 && !data_ptr) {
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, response);
-        //TODO deallocate stuff i quess
         return -1;
     }
     sn_coap_protocol_build(handle->coap, &dst_addr, data_ptr, response, transaction_ptr);
     sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, response);
     handle->sn_coap_tx_callback(data_ptr, data_len, &dst_addr, transaction_ptr);
     sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, request_ptr);
-    transaction_delete(transaction_ptr);
     own_free(data_ptr);
     return 0;
 }
 
 int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t current_time){
+
     if( !handle ){
         return -1;
     }
+
+    // Remove outdated transactions from queue
+    ns_list_foreach_safe(coap_transaction_t, transaction, &request_list) {
+        if ((transaction->create_time + TRANSACTION_LIFETIME) < current_time) {
+            transaction_delete(transaction);
+        }
+    }
+
     return sn_coap_protocol_exec(handle->coap, current_time);
-}
-
-static void coap_service_build_content_format(sn_coap_hdr_s *header, sn_coap_content_format_e format)
-{
-    header->content_format = format;
-
-//    if (format == COAP_CT_NONE) {
-//        return;
-//    }
-//    if (format == 0) { /* text/plain */
-//        header->content_type_len = 0;
-//    } else if (format <= 0xff) {
-//        header->content_type_ptr[0] = format;
-//        header->content_type_len = 1;
-//    } else {
-//        header->content_type_ptr[0] = format >> 8;
-//        header->content_type_ptr[1] = format & 0xff;
-//        header->content_type_len = 2;
-//    }
 }

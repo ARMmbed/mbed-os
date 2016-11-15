@@ -6,18 +6,54 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "coap_security_handler.h"
+
+#ifdef COAP_SECURITY_AVAILABLE
+
 #include "mbedtls/sha256.h"
 #include "mbedtls/error.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl_cookie.h"
+#include "mbedtls/entropy.h"
 #include "mbedtls/entropy_poll.h"
-#include "mbedtls/ssl.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/ssl_ciphersuites.h"
+
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "coap_connection_handler.h"
-#include "coap_security_handler.h"
 #include "randLIB.h"
-#include "mbedtls/ssl_ciphersuites.h"
+
+struct coap_security_s {
+    mbedtls_ssl_config          _conf;
+    mbedtls_ssl_context         _ssl;
+
+    mbedtls_ctr_drbg_context    _ctr_drbg;
+    mbedtls_entropy_context     _entropy;
+    bool                        _is_started;
+    simple_cookie_t             _cookie;
+    key_block_t                 _keyblk;
+
+    SecureConnectionMode        _conn_mode;
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    mbedtls_x509_crt            _cacert;
+    mbedtls_x509_crt            _owncert;
+#endif
+    mbedtls_pk_context          _pkey;
+
+    uint8_t                     _pw[64];
+    uint8_t                     _pw_len;
+
+    bool                        _is_blocking;
+    int8_t                      _socket_id;
+    int8_t                      _timer_id;
+    void                        *_handle;
+    send_cb                     *_send_cb;
+    receive_cb                  *_receive_cb;
+    start_timer_cb              *_start_timer_cb;
+    timer_status_cb             *_timer_status_cb;
+
+};
 
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
 const int ECJPAKE_SUITES[] = {
@@ -77,6 +113,16 @@ static int coap_security_handler_init(coap_security_t *sec){
     return 0;
 }
 
+bool coap_security_handler_is_started(const coap_security_t *sec)
+{
+    return sec->_is_started;
+}
+
+const void *coap_security_handler_keyblock(const coap_security_t *sec)
+{
+    return sec->_keyblk.value;
+}
+
 static void coap_security_handler_reset(coap_security_t *sec){
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt_free(&sec->_cacert);
@@ -92,13 +138,13 @@ static void coap_security_handler_reset(coap_security_t *sec){
 }
 
 
-coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port, SecureConnectionMode mode,
-                                          send_cb *send_cb,
-                                          receive_cb *receive_cb,
-                                          start_timer_cb *start_timer_cb,
-                                          timer_status_cb *timer_status_cb)
+coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, void *handle, SecureConnectionMode mode,
+                                          send_cb *socket_cb,
+                                          receive_cb *receive_data_cb,
+                                          start_timer_cb *timer_start_cb,
+                                          timer_status_cb *timer_stat_cb)
 {
-    if( !address_ptr || send_cb == NULL || receive_cb == NULL || start_timer_cb == NULL || timer_status_cb == NULL){
+    if (socket_cb == NULL || receive_data_cb == NULL || timer_start_cb == NULL || timer_stat_cb == NULL) {
         return NULL;
     }
     coap_security_t *this = ns_dyn_mem_alloc(sizeof(coap_security_t));
@@ -106,21 +152,20 @@ coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t
         return NULL;
     }
     memset(this, 0, sizeof(coap_security_t));
-    if( -1 == coap_security_handler_init(this) ){
+    if (-1 == coap_security_handler_init(this)) {
         ns_dyn_mem_free(this);
         return NULL;
     }
-    this->_remote_port = port;
-    memcpy(this->_remote_address, address_ptr, 16);
+    this->_handle = handle;
     this->_conn_mode = mode;
     memset(this->_pw, 0, 64);
     this->_pw_len = 0;
     this->_socket_id = socket_id;
     this->_timer_id = timer_id;
-    this->_send_cb = send_cb;
-    this->_receive_cb = receive_cb;
-    this->_start_timer_cb = start_timer_cb;
-    this->_timer_status_cb = timer_status_cb;
+    this->_send_cb = socket_cb;
+    this->_receive_cb = receive_data_cb;
+    this->_start_timer_cb = timer_start_cb;
+    this->_timer_status_cb = timer_stat_cb;
 
     return this;
 }
@@ -551,7 +596,7 @@ static int get_timer(void *sec_obj)
 
 int f_send( void *ctx, const unsigned char *buf, size_t len){
     coap_security_t *sec = (coap_security_t *)ctx;
-    return sec->_send_cb(sec->_socket_id, sec->_remote_address, sec->_remote_port, buf, len);
+    return sec->_send_cb(sec->_socket_id, sec->_handle, buf, len);
 }
 
 int f_recv(void *ctx, unsigned char *buf, size_t len){
@@ -579,3 +624,5 @@ int entropy_poll( void *ctx, unsigned char *output, size_t len,
     ns_dyn_mem_free(c);
     return( 0 );
 }
+
+#endif // COAP_SECURITY_AVAILABLE
