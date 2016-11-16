@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   CRYP HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -97,7 +97,7 @@
   ******************************************************************************  
   */ 
 
-#if defined (STM32L021xx) || defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L021xx) || defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
@@ -208,8 +208,8 @@ HAL_StatusTypeDef HAL_CRYP_Init(CRYP_HandleTypeDef *hcryp)
     MODIFY_REG(hcryp->Instance->CR, AES_CR_DATATYPE, hcryp->Init.DataType);
     
     /* Reset CrypInCount and CrypOutCount */
-    hcryp->CrypInCount = 0;
-    hcryp->CrypOutCount = 0;
+    hcryp->CrypInCount = 0U;
+    hcryp->CrypOutCount = 0U;
     
     /* Change the CRYP state */
     hcryp->State = HAL_CRYP_STATE_READY;
@@ -252,8 +252,8 @@ HAL_StatusTypeDef HAL_CRYP_DeInit(CRYP_HandleTypeDef *hcryp)
   hcryp->Phase = HAL_CRYP_PHASE_READY;
   
   /* Reset CrypInCount and CrypOutCount */
-  hcryp->CrypInCount = 0;
-  hcryp->CrypOutCount = 0;
+  hcryp->CrypInCount = 0U;
+  hcryp->CrypOutCount = 0U;
   
   /* Disable the CRYP Peripheral Clock */
   __HAL_CRYP_DISABLE(hcryp);
@@ -341,7 +341,7 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
   __HAL_LOCK(hcryp);
 
   /* Check that data aligned on u32 and Size multiple of 16*/
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -417,7 +417,7 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
   __HAL_LOCK(hcryp);
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -496,7 +496,7 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
   __HAL_LOCK(hcryp);
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -575,7 +575,7 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
   __HAL_LOCK(hcryp);
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -651,7 +651,7 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
   __HAL_LOCK(hcryp);
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -730,7 +730,7 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
   __HAL_LOCK(hcryp);
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -791,10 +791,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
   */
 HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -844,14 +844,14 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;
     
     /* Return function status */
     return HAL_OK;
@@ -877,10 +877,10 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
   */
 HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -933,14 +933,14 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;
     
     /* Return function status */
     return HAL_OK;
@@ -966,10 +966,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
   */
 HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1022,14 +1022,14 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;
     
     /* Return function status */
     return HAL_OK;
@@ -1055,10 +1055,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
   */
 HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1108,14 +1108,14 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;    
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;    
     
     /* Return function status */
     return HAL_OK;
@@ -1141,10 +1141,10 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
   */
 HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1197,14 +1197,14 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;    
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;    
     
     /* Return function status */
     return HAL_OK;
@@ -1230,10 +1230,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
   */
 HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1286,14 +1286,14 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;    
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;    
     
     /* Return function status */
     return HAL_OK;
@@ -1319,10 +1319,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
   */
 HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1384,10 +1384,10 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
 HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1452,10 +1452,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
 HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1521,10 +1521,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
 HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {  
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1590,10 +1590,10 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
 HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1662,10 +1662,10 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
 HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {  
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
   
   /* Check that data aligned on u32 */
-  if((((uint32_t)pPlainData & (uint32_t)0x00000003) != 0) || (((uint32_t)pCypherData & (uint32_t)0x00000003) != 0) || ((Size & (uint16_t)0x000F) != 0))
+  if((((uint32_t)pPlainData & (uint32_t)0x00000003U) != 0U) || (((uint32_t)pCypherData & (uint32_t)0x00000003U) != 0U) || ((Size & (uint16_t)0x000FU) != 0U))
   {
     /* Process Locked */
     __HAL_UNLOCK(hcryp);
@@ -1903,25 +1903,25 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp)
   */
 static HAL_StatusTypeDef CRYP_EncryptDecrypt_IT(CRYP_HandleTypeDef *hcryp)
 {
-  uint32_t inputaddr = 0, outputaddr = 0;
+  uint32_t inputaddr = 0U, outputaddr = 0U;
 
   /* Get the last Output data adress */
   outputaddr = (uint32_t)hcryp->pCrypOutBuffPtr;
   
   /* Read the Output block from the Output Register */
   *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-  outputaddr+=4;
+  outputaddr+=4U;
   *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-  outputaddr+=4;
+  outputaddr+=4U;
   *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-  outputaddr+=4;
+  outputaddr+=4U;
   *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
   
-  hcryp->pCrypOutBuffPtr += 16;
-  hcryp->CrypOutCount -= 16;
+  hcryp->pCrypOutBuffPtr += 16U;
+  hcryp->CrypOutCount -= 16U;
   
   /* Check if all input text is encrypted or decrypted */
-  if(hcryp->CrypOutCount == 0)
+  if(hcryp->CrypOutCount == 0U)
   {
     /* Disable Computation Complete Interrupt */
     __HAL_CRYP_DISABLE_IT(hcryp,CRYP_IT_CC);
@@ -1943,14 +1943,14 @@ static HAL_StatusTypeDef CRYP_EncryptDecrypt_IT(CRYP_HandleTypeDef *hcryp)
     
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    hcryp->pCrypInBuffPtr += 16;
-    hcryp->CrypInCount -= 16;      
+    hcryp->pCrypInBuffPtr += 16U;
+    hcryp->CrypInCount -= 16U;      
   }
   return HAL_OK;
 }
@@ -2026,11 +2026,11 @@ static void CRYP_SetKey(CRYP_HandleTypeDef *hcryp, uint8_t *Key)
   uint32_t keyaddr = (uint32_t)Key;
   
   hcryp->Instance->KEYR3 = __REV(*(uint32_t*)(keyaddr));
-  keyaddr+=4;
+  keyaddr+=4U;
   hcryp->Instance->KEYR2 = __REV(*(uint32_t*)(keyaddr));
-  keyaddr+=4;
+  keyaddr+=4U;
   hcryp->Instance->KEYR1 = __REV(*(uint32_t*)(keyaddr));
-  keyaddr+=4;
+  keyaddr+=4U;
   hcryp->Instance->KEYR0 = __REV(*(uint32_t*)(keyaddr));
 }
 
@@ -2052,11 +2052,11 @@ static void CRYP_SetInitVector(CRYP_HandleTypeDef *hcryp, uint8_t *InitVector)
   uint32_t ivaddr = (uint32_t)InitVector;
   
   hcryp->Instance->IVR3 = __REV(*(uint32_t*)(ivaddr));
-  ivaddr+=4;
+  ivaddr+=4U;
   hcryp->Instance->IVR2 = __REV(*(uint32_t*)(ivaddr));
-  ivaddr+=4;
+  ivaddr+=4U;
   hcryp->Instance->IVR1 = __REV(*(uint32_t*)(ivaddr));
-  ivaddr+=4;
+  ivaddr+=4U;
   hcryp->Instance->IVR0 = __REV(*(uint32_t*)(ivaddr));
 }
 
@@ -2072,23 +2072,23 @@ static void CRYP_SetInitVector(CRYP_HandleTypeDef *hcryp, uint8_t *InitVector)
   */
 static HAL_StatusTypeDef CRYP_ProcessData(CRYP_HandleTypeDef *hcryp, uint8_t* Input, uint16_t Ilength, uint8_t* Output, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
-  uint32_t index = 0;
+  uint32_t index = 0U;
   uint32_t inputaddr  = (uint32_t)Input;
   uint32_t outputaddr = (uint32_t)Output;
   
-  for(index=0; (index < Ilength); index += 16)
+  for(index=0U; (index < Ilength); index += 16U)
   {
     /* Write the Input block in the Data Input register */
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-    inputaddr+=4;
+    inputaddr+=4U;
     
     /* Get timeout */
     tickstart = HAL_GetTick();
@@ -2098,7 +2098,7 @@ static HAL_StatusTypeDef CRYP_ProcessData(CRYP_HandleTypeDef *hcryp, uint8_t* In
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
@@ -2115,13 +2115,13 @@ static HAL_StatusTypeDef CRYP_ProcessData(CRYP_HandleTypeDef *hcryp, uint8_t* In
     
     /* Read the Output block from the Data Output Register */
     *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-    outputaddr+=4;
+    outputaddr+=4U;
     *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-    outputaddr+=4;
+    outputaddr+=4U;
     *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-    outputaddr+=4;
+    outputaddr+=4U;
     *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-    outputaddr+=4;
+    outputaddr+=4U;
   }
   /* Return function status */
   return HAL_OK;

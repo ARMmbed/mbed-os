@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -60,10 +60,10 @@
 /** @defgroup PWR_PVD_Mode_Mask PWR PVD Mode Mask
   * @{
   */ 
-#define PVD_MODE_IT               ((uint32_t)0x00010000)
-#define PVD_MODE_EVT              ((uint32_t)0x00020000)
-#define PVD_RISING_EDGE           ((uint32_t)0x00000001)
-#define PVD_FALLING_EDGE          ((uint32_t)0x00000002)
+#define PVD_MODE_IT               ((uint32_t)0x00010000U)
+#define PVD_MODE_EVT              ((uint32_t)0x00020000U)
+#define PVD_RISING_EDGE           ((uint32_t)0x00000001U)
+#define PVD_FALLING_EDGE          ((uint32_t)0x00000002U)
 /**
   * @}
   */
@@ -477,7 +477,7 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   */
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 {
-   uint32_t tmpreg = 0;
+   uint32_t tmpreg = 0U;
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));
   assert_param(IS_PWR_SLEEP_ENTRY(SLEEPEntry));
@@ -538,7 +538,7 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   */
 void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
 
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));

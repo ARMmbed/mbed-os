@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_irda_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of IRDA HAL Extension module.
   ******************************************************************************
   * @attention
@@ -64,7 +64,7 @@
   * @{
   */
 #define IRDA_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
-#define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000)
+#define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_IRDA_WORD_LENGTH(LENGTH) (((LENGTH) == IRDA_WORDLENGTH_7B) || \
                                      ((LENGTH) == IRDA_WORDLENGTH_8B) || \
@@ -211,33 +211,33 @@
   {                                                                   \
      if ((__HANDLE__)->Init.Parity == IRDA_PARITY_NONE)               \
      {                                                                \
-        (__HANDLE__)->Mask = 0x01FF ;                                 \
+        (__HANDLE__)->Mask = 0x01FFU ;                                 \
      }                                                                \
      else                                                             \
      {                                                                \
-        (__HANDLE__)->Mask = 0x00FF ;                                 \
+        (__HANDLE__)->Mask = 0x00FFU ;                                 \
      }                                                                \
   }                                                                   \
   else if ((__HANDLE__)->Init.WordLength == IRDA_WORDLENGTH_8B)       \
   {                                                                   \
      if ((__HANDLE__)->Init.Parity == IRDA_PARITY_NONE)               \
      {                                                                \
-        (__HANDLE__)->Mask = 0x00FF ;                                 \
+        (__HANDLE__)->Mask = 0x00FFU ;                                 \
      }                                                                \
      else                                                             \
      {                                                                \
-        (__HANDLE__)->Mask = 0x007F ;                                 \
+        (__HANDLE__)->Mask = 0x007FU ;                                 \
      }                                                                \
   }                                                                   \
   else if ((__HANDLE__)->Init.WordLength == IRDA_WORDLENGTH_7B)       \
   {                                                                   \
      if ((__HANDLE__)->Init.Parity == IRDA_PARITY_NONE)               \
      {                                                                \
-        (__HANDLE__)->Mask = 0x007F ;                                 \
+        (__HANDLE__)->Mask = 0x007FU ;                                 \
      }                                                                \
      else                                                             \
      {                                                                \
-        (__HANDLE__)->Mask = 0x003F ;                                 \
+        (__HANDLE__)->Mask = 0x003FU ;                                 \
      }                                                                \
   }                                                                   \
 } while(0)

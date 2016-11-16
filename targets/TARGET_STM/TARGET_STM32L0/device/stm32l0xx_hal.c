@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -68,23 +68,36 @@
   * @{
   */
 
+
+/** @defgroup SysTick System Tick
+  * @{
+  */
+/**
+ * @brief uwTick_variable uwTick variable
+ */
+__IO uint32_t uwTick;
+
+/**
+  * @}
+  */
+
 /** @defgroup HAL_Version HAL Version
   * @{
   */
 
 /**
- * @brief STM32L0xx HAL Driver version number V1.5.0
+ * @brief STM32L0xx HAL Driver version number V1.7.0
  */
-#define __STM32L0xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L0xx_HAL_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
-#define __STM32L0xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
-#define __STM32L0xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
-#define __STM32L0xx_HAL_VERSION         ((__STM32L0xx_HAL_VERSION_MAIN << 24)\
-                                        |(__STM32L0xx_HAL_VERSION_SUB1 << 16)\
-                                        |(__STM32L0xx_HAL_VERSION_SUB2 << 8 )\
+#define __STM32L0xx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
+#define __STM32L0xx_HAL_VERSION_SUB1   (0x07U) /*!< [23:16] sub1 version */
+#define __STM32L0xx_HAL_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
+#define __STM32L0xx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
+#define __STM32L0xx_HAL_VERSION         ((__STM32L0xx_HAL_VERSION_MAIN << 24U)\
+                                        |(__STM32L0xx_HAL_VERSION_SUB1 << 16U)\
+                                        |(__STM32L0xx_HAL_VERSION_SUB2 << 8U )\
                                         |(__STM32L0xx_HAL_VERSION_RC))
 
-#define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
+#define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFFU)
 
 /**
   * @}
@@ -96,7 +109,7 @@
 /** @defgroup HAL_Private HAL Private
   * @{
   */ 
-static __IO uint32_t uwTick;
+
 
 /**
   * @}
@@ -247,10 +260,10 @@ __weak void HAL_MspDeInit(void)
 __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   /*Configure the SysTick to have interrupt in 1ms time basis*/
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  HAL_SYSTICK_Config(SystemCoreClock/1000U);
 
   /*Configure the SysTick IRQ priority */
-  HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0U);
 
    /* Return function status */
   return HAL_OK;
@@ -319,7 +332,7 @@ __weak uint32_t HAL_GetTick(void)
   */
 __weak void HAL_Delay(__IO uint32_t Delay)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   tickstart = HAL_GetTick();
   while((HAL_GetTick() - tickstart) < Delay)
   {
@@ -373,7 +386,7 @@ uint32_t HAL_GetHalVersion(void)
   */
 uint32_t HAL_GetREVID(void)
 {
-  return((DBGMCU->IDCODE) >> 16);
+  return((DBGMCU->IDCODE) >> 16U);
 }
 
 /**
@@ -487,25 +500,6 @@ uint32_t  HAL_SYSCFG_GetBootMode(void)
   return (SYSCFG->CFGR1 & SYSCFG_CFGR1_BOOT_MODE);
 }
 
-/**
-  * @brief Enables the VREFINT.
-  * @retval None
-  */
-void HAL_SYSCFG_EnableVREFINT(void)
-{
-    /* Enable the VREFINT by setting EN_VREFINT bit in the CFGR3 register */
-    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_EN_VREFINT);
-}
-
-/**
-  * @brief Disables the VREFINT.
-  * @retval None
-  */
-void HAL_SYSCFG_DisableVREFINT(void)
-{
-    /* Disable the VREFINT by setting EN_VREFINT bit in the CFGR3 register */
-    CLEAR_BIT(SYSCFG->CFGR3,SYSCFG_CFGR3_EN_VREFINT); 
-}
 /**
   * @brief Selects the output of internal reference voltage (VREFINT).
   *        The VREFINT output can be routed to(PB0) or

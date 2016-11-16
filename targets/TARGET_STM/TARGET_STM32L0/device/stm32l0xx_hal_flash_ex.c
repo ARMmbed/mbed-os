@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -103,7 +103,7 @@ static uint32_t          FLASH_OB_GetWRP(void);
 static uint32_t          FLASH_OB_GetWRP2(void);
 #endif
 static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, uint8_t OB_STDBY);
-static HAL_StatusTypeDef FLASH_OB_BOOTBit1Config(uint8_t OB_BOOT_Bit1);
+static HAL_StatusTypeDef FLASH_OB_BOOTBit1Config(uint8_t OB_BOOT_BIT1);
 #if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
 static HAL_StatusTypeDef FLASH_OB_BFB2Config(uint8_t OB_BFB2);
 #endif
@@ -159,7 +159,7 @@ static HAL_StatusTypeDef FLASH_OB_BFB2Config(uint8_t OB_BFB2);
 HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError)
 {
   HAL_StatusTypeDef status = HAL_ERROR;
-  uint32_t index = 0;
+  uint32_t index = 0U;
   
   /* Process Locked */
   __HAL_LOCK(&ProcFlash);
@@ -173,13 +173,13 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
     ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
     /*Initialization of PageError variable*/
-    *PageError = 0xFFFFFFFF;
+    *PageError = 0xFFFFFFFFU;
       
     /* Check the parameters */
     assert_param(IS_NBPAGES(pEraseInit->NbPages));
     assert_param(IS_FLASH_TYPEERASE(pEraseInit->TypeErase));
     assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress));
-    assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1));
+    assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U));
 
     /* Erase by sector by sector to be done*/
     for(index = pEraseInit->PageAddress; index < ((pEraseInit->NbPages * FLASH_PAGE_SIZE)+ pEraseInit->PageAddress); index += FLASH_PAGE_SIZE)
@@ -243,7 +243,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
     assert_param(IS_NBPAGES(pEraseInit->NbPages));
     assert_param(IS_FLASH_TYPEERASE(pEraseInit->TypeErase));
     assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress));
-    assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1));
+    assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U));
   
     /* Clean the error context */
     ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
@@ -458,7 +458,7 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   pAdvOBInit->OptionType = OPTIONBYTE_PCROP;
 #endif
   /* Get PCROP state */
-  pAdvOBInit->PCROPState = (FLASH->OPTR & FLASH_OPTR_WPRMOD) >> 8;
+  pAdvOBInit->PCROPState = (FLASH->OPTR & FLASH_OPTR_WPRMOD) >> 8U;
   /* Get PCROP protected sector */
   pAdvOBInit->PCROPSector = FLASH->WRPR;
 
@@ -467,7 +467,7 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   pAdvOBInit->PCROPSector2 = FLASH->WRPR2;
 
   /* Get boot bank config */
-  pAdvOBInit->BootConfig = (FLASH->OPTR & FLASH_OPTR_BFB2) >> 23;
+  pAdvOBInit->BootConfig = (FLASH->OPTR & FLASH_OPTR_BFB2) >> 23U;
 #endif
 }
 
@@ -479,7 +479,7 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   */
 HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
 {
-  return (FLASH_OB_PCROPSelectionConfig(1));
+  return (FLASH_OB_PCROPSelectionConfig(1U));
 }
 
 /**
@@ -490,7 +490,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
   */
 HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
 {
-  return (FLASH_OB_PCROPSelectionConfig(0));
+  return (FLASH_OB_PCROPSelectionConfig(0U));
 }
 
 /**
@@ -578,7 +578,7 @@ HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Erase(uint32_t Address)
     ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
     /* Write "00000000h" to valid address in the data memory" */
-      *(__IO uint32_t *) Address = 0x00000000;
+      *(__IO uint32_t *) Address = 0x00000000U;
 
     status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   }
@@ -680,7 +680,7 @@ void HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void)
 static uint8_t FLASH_OB_GetUser(void)
 {
   /* Return the User Option Byte */
-  return (uint8_t)((FLASH->OPTR & FLASH_OPTR_USER) >> 16);
+  return (uint8_t)((FLASH->OPTR & FLASH_OPTR_USER) >> 16U);
 }
 
 /**
@@ -699,7 +699,7 @@ static uint8_t FLASH_OB_GetRDP(void)
 static uint8_t FLASH_OB_GetBOR(void)
 {
   /* Return the BOR level */
-  return (uint8_t)((FLASH->OPTR & (uint32_t)FLASH_OPTR_BOR_LEV) >> 16);
+  return (uint8_t)((FLASH->OPTR & (uint32_t)FLASH_OPTR_BOR_LEV) >> 16U);
 }
 
 /**
@@ -709,7 +709,7 @@ static uint8_t FLASH_OB_GetBOR(void)
 static uint8_t FLASH_OB_GetBOOTBit1(void)
 {
   /* Return the BOR level */
-  return (FLASH->OPTR & FLASH_OPTR_BOOT1) >> 31;
+  return (FLASH->OPTR & FLASH_OPTR_BOOT1) >> 31U;
 
 }
 
@@ -754,7 +754,7 @@ static uint32_t FLASH_OB_GetWRP2(void)
 static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, uint8_t OB_STDBY)
 {
   HAL_StatusTypeDef status = HAL_OK; 
-  uint32_t tmp = 0, tmp1 = 0, OB_Bits = (uint32_t) (OB_IWDG | OB_STOP | OB_STDBY);
+  uint32_t tmp = 0U, tmp1 = 0U, OB_Bits = (uint32_t) (OB_IWDG | OB_STOP | OB_STDBY);
 
   /* Check the parameters */
   assert_param(IS_OB_IWDG_SOURCE(OB_IWDG));
@@ -765,10 +765,10 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, u
   ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OPTR_USER) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OPTR_USER) >> 16U);
 
   /* Calculate the user option byte to write */ 
-  tmp = (~(OB_Bits | tmp1)) << 16;
+  tmp = (~(OB_Bits | tmp1)) << 16U;
   tmp |= OB_Bits | tmp1;
   
   /* Wait for last operation to be completed */
@@ -803,14 +803,14 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, u
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP)
 {
   HAL_StatusTypeDef status;
-  uint32_t tmp = 0, tmp1 = 0, OB_Bits = (uint32_t) OB_RDP;
+  uint32_t tmp = 0U, tmp1 = 0U, OB_Bits = (uint32_t) OB_RDP;
   
   /* Check the parameters */
   assert_param(IS_OB_RDP(OB_RDP));
   
   /* Calculate the option byte to write */
-  tmp = (OB->RDP & ((~FLASH_OPTR_RDPROT) & 0x0000FFFF)) | OB_Bits; 
-  tmp1 = (~tmp << 16) | tmp;
+  tmp = (OB->RDP & ((~FLASH_OPTR_RDPROT) & 0x0000FFFFU)) | OB_Bits; 
+  tmp1 = (~tmp << 16U) | tmp;
   
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
@@ -843,16 +843,16 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP)
 static HAL_StatusTypeDef FLASH_OB_BORConfig(uint8_t OB_BOR)
 {
   HAL_StatusTypeDef status = HAL_OK; 
-  uint32_t tmp = 0, tmp1 = 0, OB_Bits = (uint32_t) OB_BOR;
+  uint32_t tmp = 0U, tmp1 = 0U, OB_Bits = (uint32_t) OB_BOR;
 
   /* Check the parameters */
   assert_param(IS_OB_BOR_LEVEL(OB_BOR));
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OPTR_BOR_LEV) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OPTR_BOR_LEV) >> 16U);
 
   /* Calculate the user option byte to write */ 
-  tmp = (~(OB_Bits | tmp1)) << 16;
+  tmp = (~(OB_Bits | tmp1)) << 16U;
   tmp |= OB_Bits | tmp1;
     
   /* Wait for last operation to be completed */
@@ -882,16 +882,16 @@ static HAL_StatusTypeDef FLASH_OB_BORConfig(uint8_t OB_BOR)
 static HAL_StatusTypeDef FLASH_OB_BOOTBit1Config(uint8_t OB_BOOT_BIT1)
 {
   HAL_StatusTypeDef status = HAL_OK; 
-  uint32_t tmp = 0, tmp1 = 0, OB_Bits = ((uint32_t) OB_BOOT_BIT1) << 15;
+  uint32_t tmp = 0U, tmp1 = 0U, OB_Bits = ((uint32_t) OB_BOOT_BIT1) << 15U;
 
   /* Check the parameters */
   assert_param(IS_OB_BOOT1(OB_BOOT_BIT1));
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OPTR_BOOT1) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OPTR_BOOT1) >> 16U);
 
   /* Calculate the user option byte to write */ 
-  tmp = (~(OB_Bits | tmp1)) << 16;
+  tmp = (~(OB_Bits | tmp1)) << 16U;
   tmp |= OB_Bits | tmp1;
     
   /* Wait for last operation to be completed */
@@ -923,13 +923,13 @@ static HAL_StatusTypeDef FLASH_OB_BOOTBit1Config(uint8_t OB_BOOT_BIT1)
 static HAL_StatusTypeDef FLASH_OB_PCROPSelectionConfig(uint32_t WPRMOD)
 {
   HAL_StatusTypeDef status;
-  uint32_t tmp = 0, tmp1 = 0, OB_Bits = ((uint32_t) WPRMOD) << 8;
+  uint32_t tmp = 0U, tmp1 = 0U, OB_Bits = ((uint32_t) WPRMOD) << 8U;
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OPTR_WPRMOD) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OPTR_WPRMOD) >> 16U);
 
   /* Calculate the user option byte to write */ 
-  tmp = (~(OB_Bits | tmp1)) << 16;
+  tmp = (~(OB_Bits | tmp1)) << 16U;
   tmp |= OB_Bits | tmp1;
   
     /* Wait for last operation to be completed */
@@ -960,16 +960,16 @@ static HAL_StatusTypeDef FLASH_OB_PCROPSelectionConfig(uint32_t WPRMOD)
 static HAL_StatusTypeDef FLASH_OB_BFB2Config(uint8_t OB_BFB2)
 {
   HAL_StatusTypeDef status = HAL_OK; 
-  uint32_t tmp = 0, tmp1 = 0, OB_Bits = ((uint32_t) OB_BFB2) << 7;
+  uint32_t tmp = 0U, tmp1 = 0U, OB_Bits = ((uint32_t) OB_BFB2) << 7U;
 
   /* Check the parameters */
   assert_param(IS_OB_BOOT_BANK(OB_BFB2));
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OPTR_BFB2) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OPTR_BFB2) >> 16U);
 
   /* Calculate the user option byte to write */ 
-  tmp = (~(OB_Bits | tmp1)) << 16;
+  tmp = (~(OB_Bits | tmp1)) << 16U;
   tmp |= OB_Bits | tmp1;
     
   /* Wait for last operation to be completed */
@@ -1013,7 +1013,7 @@ static HAL_StatusTypeDef FLASH_OB_ProtectedSectorsConfig(uint32_t Sector, uint32
 #endif
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint32_t WRP_Data = 0;
+  uint32_t WRP_Data = 0U;
   uint32_t OB_WRP = Sector;
   
   /* Check the parameters */
@@ -1027,46 +1027,46 @@ static HAL_StatusTypeDef FLASH_OB_ProtectedSectorsConfig(uint32_t Sector, uint32
     /* Clean the error context */
     ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
-    if (OB_WRP & 0x0000FFFF)
+    if (OB_WRP & 0x0000FFFFU)
     {
       if (NewState != OB_WRPSTATE_DISABLE)
       {
         WRP_Data = (uint16_t)(((OB_WRP & WRP_MASK_LOW) | OB->WRP01));
-        OB->WRP01 = (uint32_t)(~(WRP_Data) << 16) | (WRP_Data);
+        OB->WRP01 = (uint32_t)(~(WRP_Data) << 16U) | (WRP_Data);
       }             
       else
       {
         WRP_Data = (uint16_t)(~OB_WRP & (WRP_MASK_LOW & OB->WRP01));
-        OB->WRP01 =  (uint32_t)((~WRP_Data) << 16) | (WRP_Data);
+        OB->WRP01 =  (uint32_t)((~WRP_Data) << 16U) | (WRP_Data);
       }
     }
 #if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
-    if (OB_WRP & 0xFFFF0000)
+    if (OB_WRP & 0xFFFF0000U)
     {
       if (NewState != OB_WRPSTATE_DISABLE)
       {
-        WRP_Data = (uint16_t)((((OB_WRP & WRP_MASK_HIGH) >> 16 | OB->WRP23))); 
-        OB->WRP23 = (uint32_t)(~(WRP_Data) << 16) | (WRP_Data);
+        WRP_Data = (uint16_t)((((OB_WRP & WRP_MASK_HIGH) >> 16U | OB->WRP23))); 
+        OB->WRP23 = (uint32_t)(~(WRP_Data) << 16U) | (WRP_Data);
       }             
       else
       {
-        WRP_Data = (uint16_t)((((~OB_WRP & WRP_MASK_HIGH) >> 16 & OB->WRP23))); 
-        OB->WRP23 = (uint32_t)((~WRP_Data) << 16) | (WRP_Data);
+        WRP_Data = (uint16_t)((((~OB_WRP & WRP_MASK_HIGH) >> 16U & OB->WRP23))); 
+        OB->WRP23 = (uint32_t)((~WRP_Data) << 16U) | (WRP_Data);
       } 
     }
 
     OB_WRP = Sector2;
-    if (OB_WRP & 0x0000FFFF)
+    if (OB_WRP & 0x0000FFFFU)
     {
       if (NewState != OB_WRPSTATE_DISABLE)
       {
         WRP_Data = (uint16_t)(((OB_WRP & WRP_MASK_LOW) | OB->WRP45));
-        OB->WRP45 =(uint32_t)(~(WRP_Data) << 16) | (WRP_Data);
+        OB->WRP45 =(uint32_t)(~(WRP_Data) << 16U) | (WRP_Data);
       }             
       else
       {
         WRP_Data = (uint16_t)(~OB_WRP & (WRP_MASK_LOW & OB->WRP45));
-        OB->WRP45 = (uint32_t)((~WRP_Data) << 16) | (WRP_Data);
+        OB->WRP45 = (uint32_t)((~WRP_Data) << 16U) | (WRP_Data);
       }
     }
 #endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -67,11 +67,11 @@
   */ 
 typedef enum
 {
-  HAL_DAC_STATE_RESET             = 0x00,  /*!< DAC not yet initialized or disabled  */
-  HAL_DAC_STATE_READY             = 0x01,  /*!< DAC initialized and ready for use    */
-  HAL_DAC_STATE_BUSY              = 0x02,  /*!< DAC internal processing is ongoing   */
-  HAL_DAC_STATE_TIMEOUT           = 0x03,  /*!< DAC timeout state                    */
-  HAL_DAC_STATE_ERROR             = 0x04   /*!< DAC error state                      */
+  HAL_DAC_STATE_RESET             = 0x00U,  /*!< DAC not yet initialized or disabled  */
+  HAL_DAC_STATE_READY             = 0x01U,  /*!< DAC initialized and ready for use    */
+  HAL_DAC_STATE_BUSY              = 0x02U,  /*!< DAC internal processing is ongoing   */
+  HAL_DAC_STATE_TIMEOUT           = 0x03U,  /*!< DAC timeout state                    */
+  HAL_DAC_STATE_ERROR             = 0x04U   /*!< DAC error state                      */
  
 }HAL_DAC_StateTypeDef;
  
@@ -122,12 +122,12 @@ typedef struct
 /** @defgroup DAC_Error_Code DAC Error Code
   * @{
   */
-#define  HAL_DAC_ERROR_NONE              0x00    /*!< No error                          */
-#define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01    /*!< DAC channel1 DAM underrun error   */
+#define  HAL_DAC_ERROR_NONE              0x00U    /*!< No error                          */
+#define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01U    /*!< DAC channel1 DAM underrun error   */
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02    /*!< DAC channel2 DAM underrun error   */
+#define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02U    /*!< DAC channel2 DAM underrun error   */
 #endif
-#define  HAL_DAC_ERROR_DMA               0x04    /*!< DMA error                         */
+#define  HAL_DAC_ERROR_DMA               0x04U    /*!< DMA error                         */
 /**
   * @}
   */
@@ -135,7 +135,7 @@ typedef struct
 /** @defgroup DAC_trigger_selection DAC trigger selection
   * @{
   */
-#define DAC_TRIGGER_NONE       ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC1_DHRxxxx register has been loaded, and not by external trigger */
+#define DAC_TRIGGER_NONE       ((uint32_t)0x00000000U) /*!< Conversion is automatic once the DAC1_DHRxxxx register has been loaded, and not by external trigger */
 #define DAC_TRIGGER_T6_TRGO    ((uint32_t)                                                    DAC_CR_TEN1)  /*!< TIM6 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_T21_TRGO   ((uint32_t)(                 DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM21 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_T2_TRGO    ((uint32_t)(DAC_CR_TSEL1_2 |                                   DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
@@ -173,7 +173,7 @@ typedef struct
 /** @defgroup DAC_output_buffer DAC output buffer
   * @{
   */
-#define DAC_OUTPUTBUFFER_ENABLE            ((uint32_t)0x00000000)
+#define DAC_OUTPUTBUFFER_ENABLE            ((uint32_t)0x00000000U)
 #define DAC_OUTPUTBUFFER_DISABLE           ((uint32_t)DAC_CR_BOFF1)
 
 #define IS_DAC_OUTPUT_BUFFER_STATE(STATE) (((STATE) == DAC_OUTPUTBUFFER_ENABLE) || \
@@ -185,9 +185,9 @@ typedef struct
 /** @defgroup DAC_Channel_selection DAC Channel selection
   * @{
   */
-#define DAC_CHANNEL_1                      ((uint32_t)0x00000000)
+#define DAC_CHANNEL_1                      ((uint32_t)0x00000000U)
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define DAC_CHANNEL_2                      ((uint32_t)0x00000010)
+#define DAC_CHANNEL_2                      ((uint32_t)0x00000010U)
 #endif
 
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
@@ -203,9 +203,9 @@ typedef struct
 /** @defgroup DAC_data_alignement DAC data alignement
   * @{
   */
-#define DAC_ALIGN_12B_R                    ((uint32_t)0x00000000)
-#define DAC_ALIGN_12B_L                    ((uint32_t)0x00000004)
-#define DAC_ALIGN_8B_R                     ((uint32_t)0x00000008)
+#define DAC_ALIGN_12B_R                    ((uint32_t)0x00000000U)
+#define DAC_ALIGN_12B_L                    ((uint32_t)0x00000004U)
+#define DAC_ALIGN_8B_R                     ((uint32_t)0x00000008U)
 
 #define IS_DAC_ALIGN(ALIGN) (((ALIGN) == DAC_ALIGN_12B_R) || \
                              ((ALIGN) == DAC_ALIGN_12B_L) || \
@@ -217,7 +217,7 @@ typedef struct
 /** @defgroup DAC_data DAC data
   * @{
   */
-#define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0)
+#define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0U)
 /**
   * @}
   */
@@ -332,19 +332,19 @@ CLEAR_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
   * @param  __ALIGNEMENT__: specifies the DAC alignement
   * @retval None
   */
-#define DAC_DHR12R1_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000008) + (__ALIGNEMENT__))
+#define DAC_DHR12R1_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000008U) + (__ALIGNEMENT__))
 
 /** @brief  Set DHR12R2 alignment
   * @param  __ALIGNEMENT__: specifies the DAC alignement
   * @retval None
   */
-#define DAC_DHR12R2_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000014) + (__ALIGNEMENT__))
+#define DAC_DHR12R2_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000014U) + (__ALIGNEMENT__))
 
 /** @brief  Set DHR12RD alignment
   * @param  __ALIGNEMENT__: specifies the DAC alignement
   * @retval None
   */
-#define DAC_DHR12RD_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000020) + (__ALIGNEMENT__))
+#define DAC_DHR12RD_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000020U) + (__ALIGNEMENT__))
 
 /** @brief Enable the DAC interrupt
   * @param  __HANDLE__: specifies the DAC handle
