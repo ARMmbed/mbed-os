@@ -10,10 +10,16 @@
 #include "EthernetInterface.h"
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
+#include "unity/unity.h"
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE
 #define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 256
 #endif
+
+#ifndef MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT
+#define MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT 500
+#endif
+
 
 namespace {
     char tx_buffer[MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE] = {0};
@@ -37,8 +43,6 @@ int main() {
 
     greentea_send_kv("target_ip", eth.get_ip_address());
 
-    bool result = false;
-
     char recv_key[] = "host_port";
     char ipbuf[60] = {0};
     char portbuf[16] = {0};
@@ -46,6 +50,7 @@ int main() {
 
     UDPSocket sock;
     sock.open(&eth);
+    sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
     greentea_send_kv("host_ip", " ");
     greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
@@ -55,24 +60,27 @@ int main() {
     sscanf(portbuf, "%u", &port);
 
     printf("MBED: UDP Server IP address received: %s:%d \n", ipbuf, port);
+    SocketAddress udp_addr(ipbuf, port);
 
-    SocketAddress addr(ipbuf, port);
+    int success = 0;
 
     for (int i=0; i < ECHO_LOOPS; ++i) {
         prep_buffer(tx_buffer, sizeof(tx_buffer));
-        const int ret = sock.sendto(addr, tx_buffer, sizeof(tx_buffer));
+        const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
         printf("[%02d] sent...%d Bytes \n", i, ret);
 
-        const int n = sock.recvfrom(&addr, rx_buffer, sizeof(rx_buffer));
+        SocketAddress temp_addr;
+        const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
         printf("[%02d] recv...%d Bytes \n", i, n);
 
-        if (memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer))) {
-            result = false;
-            break;
+        if ((temp_addr == udp_addr &&
+             n == sizeof(tx_buffer) &&
+             memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
+            success += 1;
         }
-
-        result = true;
     }
+
+    bool result = (success > 3*ECHO_LOOPS/4);
 
     sock.close();
     eth.disconnect();

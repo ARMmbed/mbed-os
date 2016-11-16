@@ -69,12 +69,15 @@ public:
             printf("[%02d] sent...%d Bytes \n", i, ret);
             iomutex.unlock();
 
-            const int n = sock.recvfrom(&udp_addr, rx_buffer, sizeof(rx_buffer));
+            SocketAddress temp_addr;
+            const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
             iomutex.lock();
             printf("[%02d] recv...%d Bytes \n", i, n);
             iomutex.unlock();
 
-            if (memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0) {
+            if ((temp_addr == udp_addr &&
+                 n == sizeof(tx_buffer) &&
+                 memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
                 success += 1;
             }
         }
