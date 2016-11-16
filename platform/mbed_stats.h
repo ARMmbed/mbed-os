@@ -18,6 +18,8 @@
  */
 #ifndef MBED_STATS_H
 #define MBED_STATS_H
+#include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,14 +29,42 @@ typedef struct {
     uint32_t current_size;      /**< Bytes allocated currently. */
     uint32_t max_size;          /**< Max bytes allocated at a given time. */
     uint32_t total_size;        /**< Cumulative sum of bytes ever allocated. */
+    uint32_t reserved_size;     /**< Current number of bytes allocated for the heap. */
     uint32_t alloc_cnt;         /**< Current number of allocations. */
     uint32_t alloc_fail_cnt;    /**< Number of failed allocations. */
 } mbed_stats_heap_t;
 
 /**
- * Fill the passed in structure with heap stats.
+ *  Fill the passed in heap stat structure with heap stats.
+ *
+ *  @param stats    A pointer to the mbed_stats_heap_t structure to fill
  */
 void mbed_stats_heap_get(mbed_stats_heap_t *stats);
+
+typedef struct {
+    uint32_t thread_id;         /**< Identifier for thread that owns the stack. */
+    uint32_t max_size;          /**< Sum of the maximum number of bytes used in each stack. */
+    uint32_t reserved_size;     /**< Current number of bytes allocated for all stacks. */
+    uint32_t stack_cnt;         /**< Number of stacks currently allocated. */
+} mbed_stats_stack_t;
+
+/**
+ *  Fill the passed in structure with stack stats.
+ *
+ *  @param stats    A pointer to the mbed_stats_stack_t structure to fill
+ */
+void mbed_stats_stack_get(mbed_stats_stack_t *stats);
+
+/**
+ *  Fill the passed array of stat structures with the stack stats
+ *  for each available stack.
+ *
+ *  @param stats    A pointer to an array of mbed_stats_stack_t structures to fill
+ *  @param count    The number of mbed_stats_stack_t structures in the provided array
+ *  @return         The number of mbed_stats_stack_t structures that have been filled,
+ *                  this is equal to the number of stacks on the system.
+ */
+size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
 
 #ifdef __cplusplus
 }

@@ -57,6 +57,9 @@ static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0};
 void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 {
 #ifdef MBED_HEAP_STATS_ENABLED
+    extern uint32_t mbed_heap_size;
+    heap_stats.reserved_size = mbed_heap_size;
+
     malloc_stats_mutex->lock();
     memcpy(stats, &heap_stats, sizeof(mbed_stats_heap_t));
     malloc_stats_mutex->unlock();
