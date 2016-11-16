@@ -93,7 +93,6 @@ clean:
 	rm -f $(TARGET_PREFIX)apache-2.0.txt
 	rm -f $(TARGET_PREFIX)VERSION.txt
 	rm -f $(TARGET_PREFIX)AUTHORS.txt
-	rm -rf $(TARGET_PREFIX)/targets
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
