@@ -59,7 +59,6 @@ struct spi_s {
     PinName pin_ssel;
 #ifdef DEVICE_SPI_ASYNCH
     uint32_t event;
-    uint8_t module;
     uint8_t transfer_type;
 #endif
 };
