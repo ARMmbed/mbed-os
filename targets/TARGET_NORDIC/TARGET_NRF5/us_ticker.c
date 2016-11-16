@@ -110,9 +110,6 @@ void common_rtc_init(void)
     // events will be enabled or disabled as needed (such approach is more
     // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
-    #if defined(TARGET_MCU_NRF51822)
-        OS_TICK_INT_MASK |
-    #endif
     #if DEVICE_LOWPOWERTIMER
         LP_TICKER_INT_MASK |
     #endif
@@ -506,6 +503,7 @@ static void register_next_tick() {
 int os_tick_init (void)
 {
     common_rtc_init();
+    nrf_rtc_int_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, 0);
     register_next_tick();
