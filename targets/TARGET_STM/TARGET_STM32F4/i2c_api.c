@@ -29,6 +29,7 @@
  */
 #include "mbed_assert.h"
 #include "i2c_api.h"
+#include "platform/wait_api.h"
 
 #if DEVICE_I2C
 
@@ -36,16 +37,29 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-/* Timeout values for flags and events waiting loops. These timeouts are
-   not based on accurate values, they just guarantee that the application will
-   not remain stuck if the I2C communication is corrupted. */
-#define FLAG_TIMEOUT ((int)0x1000)
-#define LONG_TIMEOUT ((int)0x8000)
+#ifndef DEBUG_STDIO
+#   define DEBUG_STDIO 0
+#endif
 
-int i2c1_inited = 0;
-int i2c2_inited = 0;
-int i2c3_inited = 0;
-int fmpi2c1_inited = 0;
+#if DEBUG_STDIO
+#   include <stdio.h>
+#   define DEBUG_PRINTF(...) do { printf(__VA_ARGS__); } while(0)
+#else
+#   define DEBUG_PRINTF(...) {}
+#endif
+
+/* Timeout values are based on core clock and I2C clock.
+   The BYTE_TIMEOUT is computed as twice the number of cycles it would
+   take to send 10 bits over I2C. Most Flags should take less than that.
+   This is for immediate FLAG or ACK check.
+*/
+#define BYTE_TIMEOUT ((SystemCoreClock / handle->Init.ClockSpeed) * 2 * 10)
+/* Timeout values based on I2C clock.
+   The BYTE_TIMEOUT_US is computed as 3x the time in us it would
+   take to send 10 bits over I2C. Most Flags should take less than that.
+   This is for complete transfers check.
+*/
+#define BYTE_TIMEOUT_US   ((SystemCoreClock / handle->Init.ClockSpeed) * 3 * 10)
 
 #if DEVICE_I2C_ASYNCH
     #define I2C_S(obj) (struct i2c_s *) (&((obj)->i2c))
@@ -53,6 +67,111 @@ int fmpi2c1_inited = 0;
     #define I2C_S(obj) (struct i2c_s *) (obj)
 #endif
 
+/*  could be defined at family level */
+#define I2C_NUM (5)
+static I2C_HandleTypeDef* i2c_handles[I2C_NUM];
+
+static void i2c1_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[0];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+
+static void i2c2_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[1];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+
+#if defined(I2C3_BASE)
+static void i2c3_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[2];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+#endif
+#if defined(I2C4_BASE)
+ static void i2c4_irq(void)
+ {
+     I2C_HandleTypeDef * handle = i2c_handles[3];
+     HAL_I2C_EV_IRQHandler(handle);
+     HAL_I2C_ER_IRQHandler(handle);
+ }
+#endif
+#if defined(FMPI2C1_BASE)
+static void i2c5_irq(void)
+{
+    I2C_HandleTypeDef * handle = i2c_handles[4];
+    HAL_I2C_EV_IRQHandler(handle);
+    HAL_I2C_ER_IRQHandler(handle);
+}
+#endif
+
+void i2c_ev_err_enable(i2c_t *obj, uint32_t handler) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
+    IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
+
+    /* Set up event IT using IRQ and handler tables */
+    NVIC_SetVector(irq_event_n, handler);
+    HAL_NVIC_SetPriority(irq_event_n, 0, 0);
+    HAL_NVIC_EnableIRQ(irq_event_n);
+    /* Set up error IT using IRQ and handler tables */
+    NVIC_SetVector(irq_error_n, handler);
+    HAL_NVIC_SetPriority(irq_error_n, 0, 1);
+    HAL_NVIC_EnableIRQ(irq_error_n);
+}
+
+void i2c_ev_err_disable(i2c_t *obj) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
+    IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
+
+    HAL_NVIC_DisableIRQ(irq_event_n);
+    HAL_NVIC_DisableIRQ(irq_error_n);
+}
+
+void i2c_irq_set(i2c_t *obj, uint32_t enable)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+    uint32_t handler = 0;
+
+    switch (obj_s->index) {
+        case 0:
+            handler = (uint32_t)&i2c1_irq;
+            break;
+        case 1:
+            handler = (uint32_t)&i2c2_irq;
+            break;
+#if defined(I2C3_BASE)
+        case 2:
+            handler = (uint32_t)&i2c3_irq;
+            break;
+#endif
+#if defined(I2C4_BASE)
+        case 3:
+            handler = (uint32_t)&i2c4_irq;
+            break;
+#endif
+#if defined(FMPI2C1_BASE)
+        case 4:
+            handler = (uint32_t)&i2c5_irq;
+            break;
+#endif
+    }
+
+    if (enable) {
+            i2c_handles[obj_s->index] = handle;
+            i2c_ev_err_enable(obj, handler);
+    } else { // disable
+            i2c_ev_err_disable(obj);
+            i2c_handles[obj_s->index] = 0;
+    }
+}
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
@@ -61,68 +180,75 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
+    obj_s->sda = sda;
+    obj_s->scl = scl;
 
     obj_s->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(obj_s->i2c != (I2CName)NC);
 
     // Enable I2C1 clock and pinout if not done
-    if ((obj_s->i2c == I2C_1) && !i2c1_inited) {
-        i2c1_inited = 1;
+    if (obj_s->i2c == I2C_1) {
+        obj_s->index = 0;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
-#endif
         __I2C1_CLK_ENABLE();
     }
     // Enable I2C2 clock and pinout if not done
-    if ((obj_s->i2c == I2C_2) && !i2c2_inited) {
-        i2c2_inited = 1;
+    if (obj_s->i2c == I2C_2) {
+        obj_s->index = 1;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
-#endif
         __I2C2_CLK_ENABLE();
     }
 #if defined I2C3_BASE
     // Enable I2C3 clock and pinout if not done
-    if ((obj_s->i2c == I2C_3) && !i2c3_inited) {
-        i2c3_inited = 1;
+    if (obj_s->i2c == I2C_3) {
+        obj_s->index = 2;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
         obj_s->event_i2cIRQ = I2C3_EV_IRQn;
         obj_s->error_i2cIRQ = I2C3_ER_IRQn;
-#endif
         __I2C3_CLK_ENABLE();
     }
 #endif
-
-#if defined FMPI2C1_BASE
-    // Enable I2C3 clock and pinout if not done
-    if ((obj_s->i2c == FMPI2C_1) && !fmpi2c1_inited) {
-        fmpi2c1_inited = 1;
+#if defined I2C4_BASE
+    // Enable  clock and pinout if not done
+    if (obj_s->i2c == I2C_4) {
+        obj_s->index = 3;
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
         pin_mode(sda, PullUp);
         pin_mode(scl, PullUp);
-#if DEVICE_I2C_ASYNCH
+        obj_s->event_i2cIRQ = I2C4_EV_IRQn;
+        obj_s->error_i2cIRQ = I2C4_ER_IRQn;
+        __I2C4_CLK_ENABLE();
+    }
+#endif
+#if defined FMPI2C1_BASE
+    // Enable  clock and pinout if not done
+    if (obj_s->i2c == FMPI2C_1) {
+        obj_s->index = 3;
+        // Configure I2C pins
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(sda, PullUp);
+        pin_mode(scl, PullUp);
         obj_s->event_i2cIRQ = FMPI2C1_EV_IRQn;
         obj_s->error_i2cIRQ = FMPI2C1_ER_IRQn;
-#endif
         __HAL_RCC_FMPI2C1_CLK_ENABLE();
     }
 #endif
@@ -136,12 +262,18 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 #if DEVICE_I2CSLAVE
     // I2C master by default
     obj_s->slave = 0;
+    obj_s->pending_slave_tx_master_rx = 0;
+    obj_s->pending_slave_rx_maxter_tx = 0;
 #endif
 
-#if DEVICE_I2C_ASYNCH
     // I2C Xfer operation init
+    obj_s->event = 0;
     obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
-#endif
+
+     /* Activate default IRQ handlers for sync mode
+     * which would be overwritten in async mode
+     */
+    i2c_irq_set(obj, 1);
 }
 
 void i2c_frequency(i2c_t *obj, int hz)
@@ -154,8 +286,8 @@ void i2c_frequency(i2c_t *obj, int hz)
     MBED_ASSERT((hz > 0) && (hz <= 400000));
 
     // wait before init
-    timeout = LONG_TIMEOUT;
-    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    timeout = BYTE_TIMEOUT;
+    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -168,13 +300,20 @@ void i2c_frequency(i2c_t *obj, int hz)
     handle->Init.OwnAddress2     = 0;
     HAL_I2C_Init(handle);
 
-#if DEVICE_I2CSLAVE
-    if (obj_s->slave) {
-        /* Enable Address Acknowledge */
-        handle->Instance->CR1 |= I2C_CR1_ACK;
-    }
-#endif
+}
 
+i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
+
+    /* Aim of the function is to get i2c_s pointer using hi2c pointer */
+    /* Highly inspired from magical linux kernel's "container_of" */
+    /* (which was not directly used since not compatible with IAR toolchain) */
+    struct i2c_s *obj_s;
+    i2c_t *obj;
+
+    obj_s = (struct i2c_s *)( (char *)hi2c - offsetof(struct i2c_s,handle));
+    obj = (i2c_t *)( (char *)obj_s - offsetof(i2c_t,i2c));
+
+    return (obj);
 }
 
 inline int i2c_start(i2c_t *obj) {
@@ -188,7 +327,7 @@ inline int i2c_start(i2c_t *obj) {
 
     // Wait the STOP condition has been previously correctly sent
     // This timeout can be avoid in some specific cases by simply clearing the STOP bit
-    timeout = FLAG_TIMEOUT;
+    timeout = BYTE_TIMEOUT;
     while ((handle->Instance->CR1 & I2C_CR1_STOP) == I2C_CR1_STOP) {
         if ((timeout--) == 0) {
             return 1;
@@ -199,7 +338,7 @@ inline int i2c_start(i2c_t *obj) {
     handle->Instance->CR1 |= I2C_CR1_START;
 
     // Wait the START condition has been correctly sent
-    timeout = FLAG_TIMEOUT;
+    timeout = BYTE_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_SB) == RESET) {
         if ((timeout--) == 0) {
             return 1;
@@ -220,95 +359,89 @@ inline int i2c_stop(i2c_t *obj) {
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
-
-    int timeout;
-    int count;
-    int value;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0, ret = 0;
+    uint32_t timeout = 0;
 
-    i2c_start(obj);
+    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
+        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+    } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
+        (obj_s->XferOperation == I2C_NEXT_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_NEXT_FRAME;
+    }
 
-    // Wait until SB flag is set
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_SB) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
+    obj_s->event = 0;
+    ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        /*  transfer started : wait completion or timeout */
+        while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+            wait_us(1);
         }
-    }
 
-    handle->Instance->DR = __HAL_I2C_7BIT_ADD_READ(address);
-
-    // Wait address is acknowledged
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
+        if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
+            /* re-init IP to try and get back in a working state */
+            i2c_init(obj, obj_s->sda, obj_s->scl);
+        } else {
+            count = length;
         }
-    }
-    __HAL_I2C_CLEAR_ADDRFLAG(handle);
-
-    // Read all bytes except last one
-    for (count = 0; count < (length - 1); count++) {
-        value = i2c_byte_read(obj, 0);
-        data[count] = (char)value;
+    } else {
+        DEBUG_PRINTF("ERROR in i2c_read\r\n");
     }
 
-    // If not repeated start, send stop.
-    // Warning: must be done BEFORE the data is read.
-    if (stop) {
-        i2c_stop(obj);
-    }
-
-    // Read the last byte
-    value = i2c_byte_read(obj, 1);
-    data[count] = (char)value;
-
-    return length;
+    return count;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
-
-    int timeout;
-    int count;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0, ret = 0;
+    uint32_t timeout = 0;
 
-    i2c_start(obj);
-
-    // Wait until SB flag is set
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_SB) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
-        }
+    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
+        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+    } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
+        (obj_s->XferOperation == I2C_NEXT_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_NEXT_FRAME;
     }
 
-    handle->Instance->DR = __HAL_I2C_7BIT_ADD_WRITE(address);
+    obj_s->event = 0;
 
-    // Wait address is acknowledged
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET) {
-        timeout--;
-        if (timeout == 0) {
-            return -1;
+    ret = HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation); 
+
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        /*  transfer started : wait completion or timeout */
+        while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+            wait_us(1);
         }
-    }
-    __HAL_I2C_CLEAR_ADDRFLAG(handle);
 
-    for (count = 0; count < length; count++) {
-        if (i2c_byte_write(obj, data[count]) != 1) {
-            i2c_stop(obj);
-            return -1;
-        }
-    }
-
-    // If not repeated start, send stop.
-    if (stop) {
-        i2c_stop(obj);
+        if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            DEBUG_PRINTF(" TIMEOUT or error in i2c_write\r\n");
+            /* re-init IP to try and get back in a working state */
+            i2c_init(obj, obj_s->sda, obj_s->scl);
+         } else {
+            count = length;
+       }
+    } else {
+        DEBUG_PRINTF("ERROR in i2c_read\r\n");
     }
 
     return count;
@@ -329,7 +462,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     }
 
     // Wait until the byte is received
-    timeout = FLAG_TIMEOUT;
+    timeout = BYTE_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_RXNE) == RESET) {
         if ((timeout--) == 0) {
             return -1;
@@ -348,7 +481,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
     handle->Instance->DR = (uint8_t)data;
 
     // Wait until the byte (might be the address) is transmitted
-    timeout = FLAG_TIMEOUT;
+    timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXE) == RESET) &&
             (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET) &&
              (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET)) {
@@ -374,8 +507,8 @@ void i2c_reset(i2c_t *obj) {
     handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
 
     // wait before reset
-    timeout = LONG_TIMEOUT;
-    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    timeout = BYTE_TIMEOUT;
+    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
 
     if (obj_s->i2c == I2C_1) {
         __I2C1_FORCE_RESET();
@@ -392,7 +525,12 @@ void i2c_reset(i2c_t *obj) {
         __I2C3_RELEASE_RESET();
     }
 #endif
-
+#if defined I2C4_BASE
+    if (obj_s->i2c == I2C_4) {
+        __I2C4_FORCE_RESET();
+        __I2C4_RELEASE_RESET();
+    }
+#endif
 #if defined FMPI2C1_BASE
     if (obj_s->i2c == FMPI2C_1) {
         __HAL_RCC_FMPI2C1_FORCE_RESET();
@@ -404,31 +542,27 @@ void i2c_reset(i2c_t *obj) {
 #if DEVICE_I2CSLAVE
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
-
-    uint16_t tmpreg = 0;
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
 
-    // Get the old register value
-    tmpreg = i2c->OAR1;
-    // Reset address bits
-    tmpreg &= 0xFC00;
-    // Set new address
-    tmpreg |= (uint16_t)((uint16_t)address & (uint16_t)0x00FE); // 7-bits
-    // Store the new register value
-    i2c->OAR1 = tmpreg;
+    // I2C configuration
+    handle->Init.OwnAddress1     = address;
+    HAL_I2C_Init(handle);
+
+    HAL_I2C_EnableListen_IT(handle);
 }
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     if (enable_slave) {
         obj_s->slave = 1;
-
-        /* Enable Address Acknowledge */
-        i2c->CR1 |= I2C_CR1_ACK;
+        HAL_I2C_EnableListen_IT(handle);
+    } else {
+        obj_s->slave = 0;
+        HAL_I2C_DisableListen_IT(handle);
     }
 }
 
@@ -438,184 +572,131 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteGeneral   2 // the master is writing to all slave
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
+
+void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode) {
+    /* Get object ptr based on handler ptr */
+    i2c_t *obj = get_i2c_obj(hi2c);
+    struct i2c_s *obj_s = I2C_S(obj);
+
+    /*  Transfer direction in HAL is from Master point of view */
+    if(TransferDirection == I2C_DIRECTION_RECEIVE) {
+        obj_s->pending_slave_tx_master_rx = 1;
+    }
+
+    if(TransferDirection == I2C_DIRECTION_TRANSMIT) {
+        obj_s->pending_slave_rx_maxter_tx = 1;
+    }
+}
+
+void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *I2cHandle){
+    /* Get object ptr based on handler ptr */
+    i2c_t *obj = get_i2c_obj(I2cHandle);
+    struct i2c_s *obj_s = I2C_S(obj);
+    obj_s->pending_slave_tx_master_rx = 0;
+}
+
+void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle){
+    /* Get object ptr based on handler ptr */
+    i2c_t *obj = get_i2c_obj(I2cHandle);
+    struct i2c_s *obj_s = I2C_S(obj);
+    obj_s->pending_slave_rx_maxter_tx = 0;
+}
+
+void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+    /* restart listening for master requests */
+    HAL_I2C_EnableListen_IT(hi2c);
+}
+
 int i2c_slave_receive(i2c_t *obj) {
 
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-
     int retValue = NoData;
 
-    /* Reading BUSY flag before ADDR flag could clear ADDR */
-    int addr = __HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR);
+     if(obj_s->pending_slave_rx_maxter_tx) {
+         retValue = WriteAddressed;
+     }
 
-    if (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY) == 1) {
-        if (addr == 1) {
-            if (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TRA) == 1) {
-                retValue = ReadAddressed;
-            } else {
-                retValue = WriteAddressed;
-            }
-            __HAL_I2C_CLEAR_ADDRFLAG(handle);
-        }
-    }
+     if(obj_s->pending_slave_tx_master_rx) {
+            retValue = ReadAddressed;
+     }
 
     return (retValue);
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
-
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0;
+    int ret = 0;
+    uint32_t timeout = 0;
 
-    uint32_t Timeout;
-    int size = 0;
+    /*  Always use I2C_NEXT_FRAME as slave will just adapt to master requests */
+    ret = HAL_I2C_Slave_Sequential_Receive_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
-    while (length > 0) {
-
-        /* Wait until RXNE flag is set */
-        // Wait until the byte is received
-        Timeout = FLAG_TIMEOUT;
-        while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_RXNE) == RESET) {
-            Timeout--;
-            if (Timeout == 0) {
-                return -1;
-            }
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        while(obj_s->pending_slave_rx_maxter_tx && (--timeout != 0)) {
+            wait_us(1);
         }
 
-        /* Read data from DR */
-        (*data++) = handle->Instance->DR;
-        length--;
-        size++;
-
-        if ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == SET) && (length != 0)) {
-            /* Read data from DR */
-            (*data++) = handle->Instance->DR;
-            length--;
-            size++;
-        }
+         if(timeout != 0) {
+             count = length;
+         } else {
+             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_read\r\n");
+         }
     }
 
-    /* Wait until STOP flag is set */
-    Timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_STOPF) == RESET) {
-        Timeout--;
-        if (Timeout == 0) {
-            return -1;
-        }
-    }
-
-    /* Clear STOP flag */
-    __HAL_I2C_CLEAR_STOPFLAG(handle);
-
-    /* Wait until BUSY flag is reset */
-    Timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY) == SET) {
-        Timeout--;
-        if (Timeout == 0) {
-            return -1;
-        }
-    }
-
-    return size;
+    return count;
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
-
-    uint32_t Timeout;
-    int size = 0;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0;
+    int ret = 0;
+    uint32_t timeout = 0;
 
-    while (length > 0) {
-        /* Wait until TXE flag is set */
-        Timeout = FLAG_TIMEOUT;
-        while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXE) == RESET) {
-            Timeout--;
-            if (Timeout == 0) {
-                return -1;
-            }
+    /*  Always use I2C_NEXT_FRAME as slave will just adapt to master requests */
+    ret = HAL_I2C_Slave_Sequential_Transmit_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
+
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        while(obj_s->pending_slave_tx_master_rx && (--timeout != 0)) {
+            wait_us(1);
         }
 
-        /* Write data to DR */
-        handle->Instance->DR = (*data++);
-        length--;
-        size++;
-
-        if ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == SET) && (length != 0)) {
-            /* Write data to DR */
-            handle->Instance->DR = (*data++);
-            length--;
-            size++;
-        }
+         if(timeout != 0) {
+             count = length;
+         } else {
+             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_write\r\n");
+         }
     }
 
-    /* Wait until AF flag is set */
-    Timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_AF) == RESET) {
-        Timeout--;
-        if (Timeout == 0) {
-            return -1;
-        }
-    }
-
-    /* Clear AF flag */
-    __HAL_I2C_CLEAR_FLAG(handle, I2C_FLAG_AF);
-
-
-    /* Wait until BUSY flag is reset */
-    Timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY) == SET) {
-        Timeout--;
-        if (Timeout == 0) {
-            return -1;
-        }
-    }
-
-    handle->State = HAL_I2C_STATE_READY;
-
-    /* Process Unlocked */
-    __HAL_UNLOCK(handle);
-
-    return size;
+    return count;
 }
 
 #endif // DEVICE_I2CSLAVE
-
-#if DEVICE_I2C_ASYNCH
-
-
-i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
-
-    /* Aim of the function is to get i2c_s pointer using hi2c pointer */
-    /* Highly inspired from magical linux kernel's "container_of" */
-    /* (which was not directly used since not compatible with IAR toolchain) */
-    struct i2c_s *obj_s;
-    i2c_t *obj;
-
-     obj_s = (struct i2c_s *)( (char *)hi2c - offsetof(struct i2c_s,handle));
-    obj = (i2c_t *)( (char *)obj_s - offsetof(i2c_t,i2c));
-
-    return (obj);
-}
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
 
+#if DEVICE_I2C_ASYNCH
     /* Handle potential Tx/Rx use case */
     if ((obj->tx_buff.length) && (obj->rx_buff.length)) {
-
-    if (obj_s->stop) {
+        if (obj_s->stop) {
             obj_s->XferOperation = I2C_LAST_FRAME;
-        }
-        else {
+        } else {
             obj_s->XferOperation = I2C_NEXT_FRAME;
         }
 
         HAL_I2C_Master_Sequential_Receive_IT(hi2c, obj_s->address, (uint8_t*)obj->rx_buff.buffer , obj->rx_buff.length, obj_s->XferOperation); 
     }
-    else {
+    else
+#endif
+    {
         /* Set event flag */
         obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
     }
@@ -635,15 +716,17 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
 
-    /* Disable IT. Not always done before calling macro */
-    __HAL_I2C_DISABLE_IT(handle, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR);
+    DEBUG_PRINTF("HAL_I2C_ErrorCallback:%d, index=%d\r\n", (int) hi2c->ErrorCode, obj_s->index);
 
-    /* Set event flag */
+    /* re-init IP to try and get back in a working state */
+    i2c_init(obj, obj_s->sda, obj_s->scl);
+
+    /* Keep Set event flag */
     obj_s->event = I2C_EVENT_ERROR;
 }
 
+#if DEVICE_I2C_ASYNCH
 void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
@@ -683,18 +766,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     obj_s->address = address;
     obj_s->stop = stop;
 
-    IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
-    IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
-
-    /* Set up event IT using IRQ and handler tables */
-    NVIC_SetVector(irq_event_n, handler);
-    HAL_NVIC_SetPriority(irq_event_n, 0, 1);
-    HAL_NVIC_EnableIRQ(irq_event_n);
-
-    /* Set up error IT using IRQ and handler tables */
-    NVIC_SetVector(irq_error_n, handler);
-    HAL_NVIC_SetPriority(irq_error_n, 0, 0);
-    HAL_NVIC_EnableIRQ(irq_error_n);
+    i2c_ev_err_enable(obj, handler);
 
     /* Set operation step depending if stop sending required or not */
     if ((tx_length && !rx_length) || (!tx_length && rx_length)) {
