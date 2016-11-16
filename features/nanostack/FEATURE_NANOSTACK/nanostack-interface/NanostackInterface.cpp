@@ -457,8 +457,10 @@ NanostackInterface * NanostackInterface::get_stack()
 
 const char * NanostackInterface::get_ip_address()
 {
-    // Unsupported
-    return NULL;
+    // Must result a valid IPv6 address
+    // For gethostbyname() to detect IP version.
+    static const char localhost[] = "::";
+    return localhost;
 }
 
 nsapi_error_t NanostackInterface::socket_open(void **handle, nsapi_protocol_t protocol)
