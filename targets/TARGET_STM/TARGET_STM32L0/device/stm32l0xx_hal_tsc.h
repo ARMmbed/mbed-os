@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tsc.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   This file contains all the functions prototypes for the TSC firmware 
   *          library.
   ******************************************************************************
@@ -66,10 +66,10 @@
   */ 
 typedef enum
 {
-  HAL_TSC_STATE_RESET  = 0x00, /*!< TSC registers have their reset value */
-  HAL_TSC_STATE_READY  = 0x01, /*!< TSC registers are initialized or acquisition is completed with success */
-  HAL_TSC_STATE_BUSY   = 0x02, /*!< TSC initialization or acquisition is on-going */
-  HAL_TSC_STATE_ERROR  = 0x03  /*!< Acquisition is completed with max count error */
+  HAL_TSC_STATE_RESET  = 0x00U, /*!< TSC registers have their reset value */
+  HAL_TSC_STATE_READY  = 0x01U, /*!< TSC registers are initialized or acquisition is completed with success */
+  HAL_TSC_STATE_BUSY   = 0x02U, /*!< TSC initialization or acquisition is on-going */
+  HAL_TSC_STATE_ERROR  = 0x03U  /*!< Acquisition is completed with max count error */
 } HAL_TSC_StateTypeDef;
 
 /** 
@@ -77,8 +77,8 @@ typedef enum
   */ 
 typedef enum
 {
-  TSC_GROUP_ONGOING   = 0x00, /*!< Acquisition on group is on-going or not started */
-  TSC_GROUP_COMPLETED = 0x01  /*!< Acquisition on group is completed with success (no max count error) */
+  TSC_GROUP_ONGOING   = 0x00U, /*!< Acquisition on group is on-going or not started */
+  TSC_GROUP_COMPLETED = 0x01U  /*!< Acquisition on group is completed with success (no max count error) */
 } TSC_GroupStatusTypeDef;
 
 /** 
@@ -135,72 +135,72 @@ typedef struct
   */ 
 
 
-#define TSC_CTPH_1CYCLE   ((uint32_t)((uint32_t) 0 << 28))
-#define TSC_CTPH_2CYCLES  ((uint32_t)((uint32_t) 1 << 28))
-#define TSC_CTPH_3CYCLES  ((uint32_t)((uint32_t) 2 << 28))
-#define TSC_CTPH_4CYCLES  ((uint32_t)((uint32_t) 3 << 28))
-#define TSC_CTPH_5CYCLES  ((uint32_t)((uint32_t) 4 << 28))
-#define TSC_CTPH_6CYCLES  ((uint32_t)((uint32_t) 5 << 28))
-#define TSC_CTPH_7CYCLES  ((uint32_t)((uint32_t) 6 << 28))
-#define TSC_CTPH_8CYCLES  ((uint32_t)((uint32_t) 7 << 28))
-#define TSC_CTPH_9CYCLES  ((uint32_t)((uint32_t) 8 << 28))
-#define TSC_CTPH_10CYCLES ((uint32_t)((uint32_t) 9 << 28))
-#define TSC_CTPH_11CYCLES ((uint32_t)((uint32_t)10 << 28))
-#define TSC_CTPH_12CYCLES ((uint32_t)((uint32_t)11 << 28))
-#define TSC_CTPH_13CYCLES ((uint32_t)((uint32_t)12 << 28))
-#define TSC_CTPH_14CYCLES ((uint32_t)((uint32_t)13 << 28))
-#define TSC_CTPH_15CYCLES ((uint32_t)((uint32_t)14 << 28))
-#define TSC_CTPH_16CYCLES ((uint32_t)((uint32_t)15 << 28))
+#define TSC_CTPH_1CYCLE   ((uint32_t)((uint32_t) 0U << 28U))
+#define TSC_CTPH_2CYCLES  ((uint32_t)((uint32_t) 1U << 28U))
+#define TSC_CTPH_3CYCLES  ((uint32_t)((uint32_t) 2U << 28U))
+#define TSC_CTPH_4CYCLES  ((uint32_t)((uint32_t) 3U << 28U))
+#define TSC_CTPH_5CYCLES  ((uint32_t)((uint32_t) 4U << 28U))
+#define TSC_CTPH_6CYCLES  ((uint32_t)((uint32_t) 5U << 28U))
+#define TSC_CTPH_7CYCLES  ((uint32_t)((uint32_t) 6U << 28U))
+#define TSC_CTPH_8CYCLES  ((uint32_t)((uint32_t) 7U << 28U))
+#define TSC_CTPH_9CYCLES  ((uint32_t)((uint32_t) 8U << 28U))
+#define TSC_CTPH_10CYCLES ((uint32_t)((uint32_t) 9U << 28U))
+#define TSC_CTPH_11CYCLES ((uint32_t)((uint32_t)10U << 28U))
+#define TSC_CTPH_12CYCLES ((uint32_t)((uint32_t)11U << 28U))
+#define TSC_CTPH_13CYCLES ((uint32_t)((uint32_t)12U << 28U))
+#define TSC_CTPH_14CYCLES ((uint32_t)((uint32_t)13U << 28U))
+#define TSC_CTPH_15CYCLES ((uint32_t)((uint32_t)14U << 28U))
+#define TSC_CTPH_16CYCLES ((uint32_t)((uint32_t)15U << 28U))
 
-#define TSC_CTPL_1CYCLE   ((uint32_t)((uint32_t) 0 << 24))
-#define TSC_CTPL_2CYCLES  ((uint32_t)((uint32_t) 1 << 24))
-#define TSC_CTPL_3CYCLES  ((uint32_t)((uint32_t) 2 << 24))
-#define TSC_CTPL_4CYCLES  ((uint32_t)((uint32_t) 3 << 24))
-#define TSC_CTPL_5CYCLES  ((uint32_t)((uint32_t) 4 << 24))
-#define TSC_CTPL_6CYCLES  ((uint32_t)((uint32_t) 5 << 24))
-#define TSC_CTPL_7CYCLES  ((uint32_t)((uint32_t) 6 << 24))
-#define TSC_CTPL_8CYCLES  ((uint32_t)((uint32_t) 7 << 24))
-#define TSC_CTPL_9CYCLES  ((uint32_t)((uint32_t) 8 << 24))
-#define TSC_CTPL_10CYCLES ((uint32_t)((uint32_t) 9 << 24))
-#define TSC_CTPL_11CYCLES ((uint32_t)((uint32_t)10 << 24))
-#define TSC_CTPL_12CYCLES ((uint32_t)((uint32_t)11 << 24))
-#define TSC_CTPL_13CYCLES ((uint32_t)((uint32_t)12 << 24))
-#define TSC_CTPL_14CYCLES ((uint32_t)((uint32_t)13 << 24))
-#define TSC_CTPL_15CYCLES ((uint32_t)((uint32_t)14 << 24))
-#define TSC_CTPL_16CYCLES ((uint32_t)((uint32_t)15 << 24))
+#define TSC_CTPL_1CYCLE   ((uint32_t)((uint32_t) 0U << 24U))
+#define TSC_CTPL_2CYCLES  ((uint32_t)((uint32_t) 1U << 24U))
+#define TSC_CTPL_3CYCLES  ((uint32_t)((uint32_t) 2U << 24U))
+#define TSC_CTPL_4CYCLES  ((uint32_t)((uint32_t) 3U << 24U))
+#define TSC_CTPL_5CYCLES  ((uint32_t)((uint32_t) 4U << 24U))
+#define TSC_CTPL_6CYCLES  ((uint32_t)((uint32_t) 5U << 24U))
+#define TSC_CTPL_7CYCLES  ((uint32_t)((uint32_t) 6U << 24U))
+#define TSC_CTPL_8CYCLES  ((uint32_t)((uint32_t) 7U << 24U))
+#define TSC_CTPL_9CYCLES  ((uint32_t)((uint32_t) 8U << 24U))
+#define TSC_CTPL_10CYCLES ((uint32_t)((uint32_t) 9U << 24U))
+#define TSC_CTPL_11CYCLES ((uint32_t)((uint32_t)10U << 24U))
+#define TSC_CTPL_12CYCLES ((uint32_t)((uint32_t)11U << 24U))
+#define TSC_CTPL_13CYCLES ((uint32_t)((uint32_t)12U << 24U))
+#define TSC_CTPL_14CYCLES ((uint32_t)((uint32_t)13U << 24U))
+#define TSC_CTPL_15CYCLES ((uint32_t)((uint32_t)14U << 24U))
+#define TSC_CTPL_16CYCLES ((uint32_t)((uint32_t)15U << 24U))
 
-#define TSC_SS_PRESC_DIV1 ((uint32_t)0)  
+#define TSC_SS_PRESC_DIV1 ((uint32_t)0U)  
 #define TSC_SS_PRESC_DIV2  (TSC_CR_SSPSC) 
 
-#define TSC_PG_PRESC_DIV1   ((uint32_t)(0 << 12))
-#define TSC_PG_PRESC_DIV2   ((uint32_t)(1 << 12))
-#define TSC_PG_PRESC_DIV4   ((uint32_t)(2 << 12))
-#define TSC_PG_PRESC_DIV8   ((uint32_t)(3 << 12))
-#define TSC_PG_PRESC_DIV16  ((uint32_t)(4 << 12))
-#define TSC_PG_PRESC_DIV32  ((uint32_t)(5 << 12))
-#define TSC_PG_PRESC_DIV64  ((uint32_t)(6 << 12))
-#define TSC_PG_PRESC_DIV128 ((uint32_t)(7 << 12))
-#define TSC_MCV_255   ((uint32_t)(0 << 5))
-#define TSC_MCV_511   ((uint32_t)(1 << 5))
-#define TSC_MCV_1023  ((uint32_t)(2 << 5))
-#define TSC_MCV_2047  ((uint32_t)(3 << 5))
-#define TSC_MCV_4095  ((uint32_t)(4 << 5))
-#define TSC_MCV_8191  ((uint32_t)(5 << 5))
-#define TSC_MCV_16383 ((uint32_t)(6 << 5))
+#define TSC_PG_PRESC_DIV1   ((uint32_t)(0U << 12U))
+#define TSC_PG_PRESC_DIV2   ((uint32_t)(1U << 12U))
+#define TSC_PG_PRESC_DIV4   ((uint32_t)(2U << 12U))
+#define TSC_PG_PRESC_DIV8   ((uint32_t)(3U << 12U))
+#define TSC_PG_PRESC_DIV16  ((uint32_t)(4U << 12U))
+#define TSC_PG_PRESC_DIV32  ((uint32_t)(5U << 12U))
+#define TSC_PG_PRESC_DIV64  ((uint32_t)(6U << 12U))
+#define TSC_PG_PRESC_DIV128 ((uint32_t)(7U << 12U))
+#define TSC_MCV_255   ((uint32_t)(0U << 5U))
+#define TSC_MCV_511   ((uint32_t)(1U << 5U))
+#define TSC_MCV_1023  ((uint32_t)(2U << 5U))
+#define TSC_MCV_2047  ((uint32_t)(3U << 5U))
+#define TSC_MCV_4095  ((uint32_t)(4U << 5U))
+#define TSC_MCV_8191  ((uint32_t)(5U << 5U))
+#define TSC_MCV_16383 ((uint32_t)(6U << 5U))
 
-#define TSC_IODEF_OUT_PP_LOW ((uint32_t)0)
+#define TSC_IODEF_OUT_PP_LOW ((uint32_t)0U)
 #define TSC_IODEF_IN_FLOAT   (TSC_CR_IODEF)
 
-#define TSC_SYNC_POLARITY_FALLING      ((uint32_t)0)
+#define TSC_SYNC_POLARITY_FALLING      ((uint32_t)0U)
 #define TSC_SYNC_POLARITY_RISING (TSC_CR_SYNCPOL)
 
-#define TSC_ACQ_MODE_NORMAL  ((uint32_t)0)
+#define TSC_ACQ_MODE_NORMAL  ((uint32_t)0U)
 #define TSC_ACQ_MODE_SYNCHRO (TSC_CR_AM)
 
-#define TSC_IOMODE_UNUSED   ((uint32_t)0)
-#define TSC_IOMODE_CHANNEL  ((uint32_t)1)
-#define TSC_IOMODE_SHIELD   ((uint32_t)2)
-#define TSC_IOMODE_SAMPLING ((uint32_t)3)
+#define TSC_IOMODE_UNUSED   ((uint32_t)0U)
+#define TSC_IOMODE_CHANNEL  ((uint32_t)1U)
+#define TSC_IOMODE_SHIELD   ((uint32_t)2U)
+#define TSC_IOMODE_SAMPLING ((uint32_t)3U)
 
 /** @defgroup TSC_interrupts_definition TSC Interrupts Definition
   * @{
@@ -222,74 +222,74 @@ typedef struct
 
 #define TSC_NB_OF_GROUPS (8)
 
-#define TSC_GROUP1 ((uint32_t)0x00000001)
-#define TSC_GROUP2 ((uint32_t)0x00000002)
-#define TSC_GROUP3 ((uint32_t)0x00000004)
-#define TSC_GROUP4 ((uint32_t)0x00000008)
-#define TSC_GROUP5 ((uint32_t)0x00000010)
-#define TSC_GROUP6 ((uint32_t)0x00000020)
-#define TSC_GROUP7 ((uint32_t)0x00000040)
-#define TSC_GROUP8 ((uint32_t)0x00000080)
-#define TSC_ALL_GROUPS ((uint32_t)0x000000FF)
+#define TSC_GROUP1 ((uint32_t)0x00000001U)
+#define TSC_GROUP2 ((uint32_t)0x00000002U)
+#define TSC_GROUP3 ((uint32_t)0x00000004U)
+#define TSC_GROUP4 ((uint32_t)0x00000008U)
+#define TSC_GROUP5 ((uint32_t)0x00000010U)
+#define TSC_GROUP6 ((uint32_t)0x00000020U)
+#define TSC_GROUP7 ((uint32_t)0x00000040U)
+#define TSC_GROUP8 ((uint32_t)0x00000080U)
+#define TSC_ALL_GROUPS ((uint32_t)0x000000FFU)
 
-#define TSC_GROUP1_IDX ((uint32_t)0)
-#define TSC_GROUP2_IDX ((uint32_t)1)
-#define TSC_GROUP3_IDX ((uint32_t)2)
-#define TSC_GROUP4_IDX ((uint32_t)3)
-#define TSC_GROUP5_IDX ((uint32_t)4)
-#define TSC_GROUP6_IDX ((uint32_t)5)
-#define TSC_GROUP7_IDX ((uint32_t)6)
-#define TSC_GROUP8_IDX ((uint32_t)7)
+#define TSC_GROUP1_IDX ((uint32_t)0U)
+#define TSC_GROUP2_IDX ((uint32_t)1U)
+#define TSC_GROUP3_IDX ((uint32_t)2U)
+#define TSC_GROUP4_IDX ((uint32_t)3U)
+#define TSC_GROUP5_IDX ((uint32_t)4U)
+#define TSC_GROUP6_IDX ((uint32_t)5U)
+#define TSC_GROUP7_IDX ((uint32_t)6U)
+#define TSC_GROUP8_IDX ((uint32_t)7U)
 
-#define TSC_GROUP1_IO1 ((uint32_t)0x00000001)
-#define TSC_GROUP1_IO2 ((uint32_t)0x00000002)
-#define TSC_GROUP1_IO3 ((uint32_t)0x00000004)
-#define TSC_GROUP1_IO4 ((uint32_t)0x00000008)
-#define TSC_GROUP1_ALL_IOS ((uint32_t)0x0000000F)
+#define TSC_GROUP1_IO1 ((uint32_t)0x00000001U)
+#define TSC_GROUP1_IO2 ((uint32_t)0x00000002U)
+#define TSC_GROUP1_IO3 ((uint32_t)0x00000004U)
+#define TSC_GROUP1_IO4 ((uint32_t)0x00000008U)
+#define TSC_GROUP1_ALL_IOS ((uint32_t)0x0000000FU)
 
-#define TSC_GROUP2_IO1 ((uint32_t)0x00000010)
-#define TSC_GROUP2_IO2 ((uint32_t)0x00000020)
-#define TSC_GROUP2_IO3 ((uint32_t)0x00000040)
-#define TSC_GROUP2_IO4 ((uint32_t)0x00000080)
-#define TSC_GROUP2_ALL_IOS ((uint32_t)0x000000F0)
+#define TSC_GROUP2_IO1 ((uint32_t)0x00000010U)
+#define TSC_GROUP2_IO2 ((uint32_t)0x00000020U)
+#define TSC_GROUP2_IO3 ((uint32_t)0x00000040U)
+#define TSC_GROUP2_IO4 ((uint32_t)0x00000080U)
+#define TSC_GROUP2_ALL_IOS ((uint32_t)0x000000F0U)
 
-#define TSC_GROUP3_IO1 ((uint32_t)0x00000100)
-#define TSC_GROUP3_IO2 ((uint32_t)0x00000200)
-#define TSC_GROUP3_IO3 ((uint32_t)0x00000400)
-#define TSC_GROUP3_IO4 ((uint32_t)0x00000800)
-#define TSC_GROUP3_ALL_IOS ((uint32_t)0x00000F00)
+#define TSC_GROUP3_IO1 ((uint32_t)0x00000100U)
+#define TSC_GROUP3_IO2 ((uint32_t)0x00000200U)
+#define TSC_GROUP3_IO3 ((uint32_t)0x00000400U)
+#define TSC_GROUP3_IO4 ((uint32_t)0x00000800U)
+#define TSC_GROUP3_ALL_IOS ((uint32_t)0x00000F00U)
 
-#define TSC_GROUP4_IO1 ((uint32_t)0x00001000)
-#define TSC_GROUP4_IO2 ((uint32_t)0x00002000)
-#define TSC_GROUP4_IO3 ((uint32_t)0x00004000)
-#define TSC_GROUP4_IO4 ((uint32_t)0x00008000)
-#define TSC_GROUP4_ALL_IOS ((uint32_t)0x0000F000)
+#define TSC_GROUP4_IO1 ((uint32_t)0x00001000U)
+#define TSC_GROUP4_IO2 ((uint32_t)0x00002000U)
+#define TSC_GROUP4_IO3 ((uint32_t)0x00004000U)
+#define TSC_GROUP4_IO4 ((uint32_t)0x00008000U)
+#define TSC_GROUP4_ALL_IOS ((uint32_t)0x0000F000U)
 
-#define TSC_GROUP5_IO1 ((uint32_t)0x00010000)
-#define TSC_GROUP5_IO2 ((uint32_t)0x00020000)
-#define TSC_GROUP5_IO3 ((uint32_t)0x00040000)
-#define TSC_GROUP5_IO4 ((uint32_t)0x00080000)
-#define TSC_GROUP5_ALL_IOS ((uint32_t)0x000F0000)
+#define TSC_GROUP5_IO1 ((uint32_t)0x00010000U)
+#define TSC_GROUP5_IO2 ((uint32_t)0x00020000U)
+#define TSC_GROUP5_IO3 ((uint32_t)0x00040000U)
+#define TSC_GROUP5_IO4 ((uint32_t)0x00080000U)
+#define TSC_GROUP5_ALL_IOS ((uint32_t)0x000F0000U)
 
-#define TSC_GROUP6_IO1 ((uint32_t)0x00100000)
-#define TSC_GROUP6_IO2 ((uint32_t)0x00200000)
-#define TSC_GROUP6_IO3 ((uint32_t)0x00400000)
-#define TSC_GROUP6_IO4 ((uint32_t)0x00800000)
-#define TSC_GROUP6_ALL_IOS ((uint32_t)0x00F00000)
+#define TSC_GROUP6_IO1 ((uint32_t)0x00100000U)
+#define TSC_GROUP6_IO2 ((uint32_t)0x00200000U)
+#define TSC_GROUP6_IO3 ((uint32_t)0x00400000U)
+#define TSC_GROUP6_IO4 ((uint32_t)0x00800000U)
+#define TSC_GROUP6_ALL_IOS ((uint32_t)0x00F00000U)
 
-#define TSC_GROUP7_IO1 ((uint32_t)0x01000000)
-#define TSC_GROUP7_IO2 ((uint32_t)0x02000000)
-#define TSC_GROUP7_IO3 ((uint32_t)0x04000000)
-#define TSC_GROUP7_IO4 ((uint32_t)0x08000000)
-#define TSC_GROUP7_ALL_IOS ((uint32_t)0x0F000000)
+#define TSC_GROUP7_IO1 ((uint32_t)0x01000000U)
+#define TSC_GROUP7_IO2 ((uint32_t)0x02000000U)
+#define TSC_GROUP7_IO3 ((uint32_t)0x04000000U)
+#define TSC_GROUP7_IO4 ((uint32_t)0x08000000U)
+#define TSC_GROUP7_ALL_IOS ((uint32_t)0x0F000000U)
 
-#define TSC_GROUP8_IO1 ((uint32_t)0x10000000)
-#define TSC_GROUP8_IO2 ((uint32_t)0x20000000)
-#define TSC_GROUP8_IO3 ((uint32_t)0x40000000)
-#define TSC_GROUP8_IO4 ((uint32_t)0x80000000)
-#define TSC_GROUP8_ALL_IOS ((uint32_t)0xF0000000)
+#define TSC_GROUP8_IO1 ((uint32_t)0x10000000U)
+#define TSC_GROUP8_IO2 ((uint32_t)0x20000000U)
+#define TSC_GROUP8_IO3 ((uint32_t)0x40000000U)
+#define TSC_GROUP8_IO4 ((uint32_t)0x80000000U)
+#define TSC_GROUP8_ALL_IOS ((uint32_t)0xF0000000U)
 
-#define TSC_ALL_GROUPS_ALL_IOS ((uint32_t)0xFFFFFFFF)
+#define TSC_ALL_GROUPS_ALL_IOS ((uint32_t)0xFFFFFFFFU)
 
 /**
   * @}
@@ -488,7 +488,7 @@ typedef struct
   * @retval SET or RESET
   */
 #define __HAL_TSC_GET_GROUP_STATUS(__HANDLE__, __GX_INDEX__) \
-((((__HANDLE__)->Instance->IOGCSR & (uint32_t)((uint32_t)1 << ((__GX_INDEX__) + (uint32_t)16))) == (uint32_t)((uint32_t)1 << ((__GX_INDEX__) + (uint32_t)16))) ? TSC_GROUP_COMPLETED : TSC_GROUP_ONGOING)
+((((__HANDLE__)->Instance->IOGCSR & (uint32_t)((uint32_t)1U << ((__GX_INDEX__) + (uint32_t)16U))) == (uint32_t)((uint32_t)1U << ((__GX_INDEX__) + (uint32_t)16U))) ? TSC_GROUP_COMPLETED : TSC_GROUP_ONGOING)
 
 /**
   * @}
@@ -536,7 +536,7 @@ typedef struct
 
 #define IS_TSC_SS(VAL) (((VAL) == DISABLE) || ((VAL) == ENABLE))
 
-#define IS_TSC_SSD(VAL) (((VAL) == 0) || (((VAL) > 0) && ((VAL) < 128)))
+#define IS_TSC_SSD(VAL) (((VAL) == 0U) || (((VAL) > 0U) && ((VAL) < 128U)))
 #define IS_TSC_SS_PRESC(VAL) (((VAL) == TSC_SS_PRESC_DIV1) || ((VAL) == TSC_SS_PRESC_DIV2))
 #define IS_TSC_PG_PRESC(VAL) (((VAL) == TSC_PG_PRESC_DIV1) || \
                               ((VAL) == TSC_PG_PRESC_DIV2) || \
@@ -563,7 +563,7 @@ typedef struct
                             ((VAL) == TSC_IOMODE_SAMPLING))
 #define IS_TSC_MCE_IT(VAL) (((VAL) == DISABLE) || ((VAL) == ENABLE))
 
-#define IS_TSC_GROUP_INDEX(VAL) (((VAL) == 0) || (((VAL) > 0) && ((VAL) < TSC_NB_OF_GROUPS)))
+#define IS_TSC_GROUP_INDEX(VAL) (((VAL) == 0U) || (((VAL) > 0U) && ((VAL) < TSC_NB_OF_GROUPS)))
 
 /**
   * @}

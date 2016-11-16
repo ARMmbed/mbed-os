@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Extended UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -76,7 +76,7 @@
   */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define UART_REACK_TIMEOUT       ((uint32_t) 1000)
+#define UART_REACK_TIMEOUT       ((uint32_t) 1000U)
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -128,7 +128,7 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
   */
 HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity, uint32_t AssertionTime, uint32_t DeassertionTime)
 {
-  uint32_t temp = 0x0;
+  uint32_t temp = 0x0U;
   
   /* Check the UART handle allocation */
   if(huart == NULL)
@@ -145,13 +145,13 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   /* Check the Driver Enable deassertion time */
   assert_param(IS_UART_DEASSERTIONTIME(DeassertionTime));
   
-  if(huart->State == HAL_UART_STATE_RESET)
+  if(huart->gState == HAL_UART_STATE_RESET)
   {   
     /* Init the low level hardware : GPIO, CLOCK, CORTEX */
     HAL_UART_MspInit(huart);
   }
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -178,7 +178,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
   
-  /* TEACK and/or REACK to check before moving huart->State to Ready */
+  /* TEACK and/or REACK to check before moving huart->gState and huart_RxState to Ready */
   return (UART_CheckIdleState(huart));
 }
 
@@ -219,12 +219,12 @@ HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)
   /* Process Locked */
   __HAL_LOCK(huart);
   
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
   
   /* Set the USART UESM bit */
   huart->Instance->CR1 |= USART_CR1_UESM;
   
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
   
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -243,12 +243,12 @@ HAL_StatusTypeDef HAL_UARTEx_EnableClockStopMode(UART_HandleTypeDef *huart)
   /* Process Locked */
   __HAL_LOCK(huart);
   
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
   
   /* Set the USART UESM bit */
   huart->Instance->CR3 |= USART_CR3_UCESM;
   
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
   
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -266,12 +266,12 @@ HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart)
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY; 
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Clear USART UESM bit */
   huart->Instance->CR1 &= ~(USART_CR1_UESM);
   
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -289,12 +289,12 @@ HAL_StatusTypeDef HAL_UARTEx_DisableClockStopMode(UART_HandleTypeDef *huart)
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Clear USART UESM bit */
   huart->Instance->CR3 &= ~(USART_CR3_UCESM);
 
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -323,7 +323,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -339,7 +339,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
 
-  /* Wait until REACK flag is set before moving huart->State to Ready */
+  /* Wait until REACK flag is set before moving huart->gState to Ready */
   if(UART_WaitOnFlagUntilTimeout(huart, USART_ISR_REACK, RESET, UART_REACK_TIMEOUT) != HAL_OK)
   {
     return HAL_TIMEOUT;
@@ -350,7 +350,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
 
   /* Initialize the UART state*/
   huart->ErrorCode = HAL_UART_ERROR_NONE;
-  huart->State= HAL_UART_STATE_READY;
+  huart->gState= HAL_UART_STATE_READY;
 
   return HAL_OK;
 }
@@ -379,7 +379,7 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
   /* Check the address length parameter */
   assert_param(IS_UART_ADDRESSLENGTH_DETECT(AddressLength));
   
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
   
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -390,7 +390,7 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart); 
   
-  /* TEACK and/or REACK to check before moving huart->State to Ready */
+  /* TEACK and/or REACK to check before moving huart->gState and/or huart->RxState to Ready */
   return (UART_CheckIdleState(huart));
 }
 

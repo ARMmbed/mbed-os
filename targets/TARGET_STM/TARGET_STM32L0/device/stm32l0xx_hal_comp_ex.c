@@ -2,11 +2,12 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Extended COMP HAL module driver.
-  * @brief   This file provides firmware functions to manage the VREFINT
-  *          which can act as input to the comparator.
+  * @brief   This file provides firmware functions to manage voltage reference
+  *          VrefInt that must be specifically controled for comparator
+  *          instance COMP2.
   @verbatim 
   ==============================================================================
                ##### COMP peripheral Extended features  #####
@@ -75,28 +76,29 @@
   */
 
 /**
-  * @brief  Enables the Buffer Vrefint for the COMP.
-  * @note   This is functional only if the LOCK bit is not set
-
+  * @brief  Enable Vrefint and path to comparator, used by comparator
+  *         instance COMP2 input based on VrefInt or subdivision of VrefInt.
+  * @note   The equivalent of this function is managed automatically when
+  *         using function "HAL_COMP_Init()".
+  * @note   VrefInt requires a startup time
+  *         (refer to device datasheet, parameter "TVREFINT").
   * @retval None
   */
 void HAL_COMPEx_EnableVREFINT(void)
 {
-    /* Enable the Buffer for the COMP by setting EN_VREFINT bit and the ENBUFLP_VREFINT_COMP in the CFGR3 register */
-
-    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP | SYSCFG_CFGR3_EN_VREFINT);
+  /* Enable the Buffer for the COMP by setting ENBUFLP_VREFINT_COMP bit in the CFGR3 register */
+  SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP);
 }
 
 /**
-  * @brief  Disables the Buffer Vrefint for the COMP.
-  * @note   This is functional only if the LOCK bit is not set
+  * @brief  Disable Vrefint and path to comparator, used by comparator
+  *         instance COMP2 input based on VrefInt or subdivision of VrefInt.
   * @retval None
   */
 void HAL_COMPEx_DisableVREFINT(void)
 {
-    /* Disable the Vrefint by resetting ENBUFLP_BGAP_COMP bit and the EN_VREFINT bit in the CFGR3 register */
-
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP | SYSCFG_CFGR3_EN_VREFINT));
+  /* Disable the Vrefint by resetting ENBUFLP_VREFINT_COMP bit in the CFGR3 register */
+  SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP));
 }
 
 /**

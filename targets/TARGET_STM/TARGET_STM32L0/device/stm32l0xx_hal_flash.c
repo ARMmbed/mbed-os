@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -315,12 +315,12 @@ void HAL_FLASH_IRQHandler(void)
   /* Check FLASH operation error flags */
 
   /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
-   *           (RevID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+   *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
    *           as expected. If the user run an application using the first
    *           cut of the STM32L031xx device or the first cut of the STM32L041xx
    *           device, the check on the FLASH_FLAG_OPTVERR bit should be ignored.
    *
-   *           Note :The RevID of the device can be retrieved via the HAL_GetREVID()
+   *           Note :The revId of the device can be retrieved via the HAL_GetREVID()
    *           function.
    *
    */
@@ -332,7 +332,7 @@ void HAL_FLASH_IRQHandler(void)
     {
       /* Return the faulty sector */
       temp = ProcFlash.Page;
-      ProcFlash.Page = 0xFFFFFFFF;
+      ProcFlash.Page = 0xFFFFFFFFU;
     }
     else
     {
@@ -365,7 +365,7 @@ void HAL_FLASH_IRQHandler(void)
         ProcFlash.NbPagesToErase--;
   
         /* Check if there are still sectors to erase */
-        if(ProcFlash.NbPagesToErase != 0)
+        if(ProcFlash.NbPagesToErase != 0U)
         {
           temp = ProcFlash.Page;
           /* Indicate user which sector has been erased */
@@ -384,7 +384,7 @@ void HAL_FLASH_IRQHandler(void)
         {
           /* No more sectors to Erase, user callback can be called */
           /* Reset Sector and stop Erase sectors procedure */
-          ProcFlash.Page = temp = 0xFFFFFFFF;
+          ProcFlash.Page = temp = 0xFFFFFFFFU;
           ProcFlash.ProcedureOnGoing = FLASH_PROC_NONE;
           /* FLASH EOP interrupt user callback */
           HAL_FLASH_EndOfOperationCallback(temp);
@@ -634,7 +634,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
   { 
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         return HAL_TIMEOUT;
       }
@@ -745,7 +745,7 @@ void FLASH_ErasePage(uint32_t Page_Address)
   SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
   
   /* Write 00000000h to the first word of the program page to erase */
-  *(__IO uint32_t *)Page_Address = 0x00000000;
+  *(__IO uint32_t *)Page_Address = 0x00000000U;
 }
 
 /**

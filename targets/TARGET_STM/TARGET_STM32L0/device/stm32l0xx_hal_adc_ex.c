@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -83,17 +83,17 @@
   /* Values defined to be higher than worst cases: low clock frequency,       */
   /* maximum prescaler.                                                       */
   /* Unit: ms                                                                 */
-  #define ADC_CALIBRATION_TIMEOUT      10      
+  #define ADC_CALIBRATION_TIMEOUT      10U      
 
 /* Delay for VREFINT stabilization time. */
 /* Internal reference startup time max value is 3ms  (refer to device datasheet, parameter TVREFINT). */
 /* Unit: ms */
-#define SYSCFG_BUF_VREFINT_ENABLE_TIMEOUT       ((uint32_t) 3)
+#define SYSCFG_BUF_VREFINT_ENABLE_TIMEOUT       ((uint32_t) 3U)
 
 /* Delay for TEMPSENSOR stabilization time. */
-/* Temperature sensor startup time max value is 10µs  (refer to device datasheet, parameter tSTART). */
+/* Temperature sensor startup time max value is 10us  (refer to device datasheet, parameter tSTART). */
 /* Unit: ms */
-#define SYSCFG_BUF_TEMPSENSOR_ENABLE_TIMEOUT    ((uint32_t) 1)
+#define SYSCFG_BUF_TEMPSENSOR_ENABLE_TIMEOUT    ((uint32_t) 1U)
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -138,7 +138,7 @@ This subsection provides functions allowing to:
 HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t SingleDiff)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
-  uint32_t tickstart=0;
+  uint32_t tickstart=0U;
   
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -211,7 +211,7 @@ uint32_t HAL_ADCEx_Calibration_GetValue(ADC_HandleTypeDef* hadc, uint32_t Single
   assert_param(IS_ADC_SINGLE_DIFFERENTIAL(SingleDiff)); 
   
   /* Return the ADC calibration value */ 
-  return ((hadc->Instance->CALFACT) & 0x0000007F);
+  return ((hadc->Instance->CALFACT) & 0x0000007FU);
 }
 
 /**
@@ -272,16 +272,16 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32
 */
 HAL_StatusTypeDef HAL_ADCEx_EnableVREFINT(void)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
-  /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
-  SET_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_VREFINT_ADC | SYSCFG_CFGR3_EN_VREFINT));
+  /* Enable the Buffer for the ADC by setting ENBUF_SENSOR_ADC bit in the CFGR3 register */
+  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_VREFINT_ADC);
   
   /* Wait for Vrefint buffer effectively enabled */
   /* Get tick count */
   tickstart = HAL_GetTick();
   
-  while(HAL_IS_BIT_CLR(SYSCFG->CFGR3, SYSCFG_CFGR3_VREFINT_ADC_RDYF))
+  while(HAL_IS_BIT_CLR(SYSCFG->CFGR3, SYSCFG_CFGR3_VREFINT_RDYF))
   {
     if((HAL_GetTick() - tickstart) > SYSCFG_BUF_VREFINT_ENABLE_TIMEOUT)
     { 
@@ -299,8 +299,8 @@ HAL_StatusTypeDef HAL_ADCEx_EnableVREFINT(void)
   */
 void HAL_ADCEx_DisableVREFINT(void)
 {
-    /* Disable the Vrefint by resetting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
-    CLEAR_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_VREFINT_ADC | SYSCFG_CFGR3_EN_VREFINT)); 
+  /* Disable the Vrefint by resetting ENBUF_SENSOR_ADC bit in the CFGR3 register */
+  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_VREFINT_ADC);
 }
 
 /**
@@ -313,16 +313,16 @@ void HAL_ADCEx_DisableVREFINT(void)
 */
 HAL_StatusTypeDef HAL_ADCEx_EnableVREFINTTempSensor(void)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
-  /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
-  SET_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_SENSOR_ADC | SYSCFG_CFGR3_EN_VREFINT));
+  /* Enable the Buffer for the ADC by setting ENBUF_SENSOR_ADC bit in the CFGR3 register */
+  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_SENSOR_ADC);
   
   /* Wait for Vrefint buffer effectively enabled */
   /* Get tick count */
   tickstart = HAL_GetTick();
   
-  while(HAL_IS_BIT_CLR(SYSCFG->CFGR3, SYSCFG_CFGR3_VREFINT_ADC_RDYF))
+  while(HAL_IS_BIT_CLR(SYSCFG->CFGR3, SYSCFG_CFGR3_VREFINT_RDYF))
   {
     if((HAL_GetTick() - tickstart) > SYSCFG_BUF_TEMPSENSOR_ENABLE_TIMEOUT)
     { 
@@ -334,14 +334,14 @@ HAL_StatusTypeDef HAL_ADCEx_EnableVREFINTTempSensor(void)
 }
 
 /**
-  * @brief Disables the VEREFINT and Sensor for the ADC.
+  * @brief Disables the VREFINT and Sensor for the ADC.
   * @note This is functional only if the LOCK is not set.
   * @retval None
   */
 void HAL_ADCEx_DisableVREFINTTempSensor(void)
 {
-    /* Disable the Vrefint by resetting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
-    CLEAR_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_SENSOR_ADC | SYSCFG_CFGR3_EN_VREFINT));
+  /* Disable the Vrefint by resetting ENBUF_SENSOR_ADC bit in the CFGR3 register */
+  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_SENSOR_ADC);
 }
 
 /**

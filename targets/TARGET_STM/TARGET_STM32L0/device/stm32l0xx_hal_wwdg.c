@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -196,9 +196,9 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   HAL_WWDG_MspDeInit(hwwdg);
 
   /* Reset WWDG Control, configuration and status  register */
-  MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA),0x0000007F);
-  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI),0x0000007F);
-  MODIFY_REG(hwwdg->Instance->SR,WWDG_SR_EWIF,0x0);
+  MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA),0x0000007FU);
+  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI),0x0000007FU);
+  MODIFY_REG(hwwdg->Instance->SR,WWDG_SR_EWIF,0x0U);
 
   /* Change peripheral state and release lock*/
   hwwdg->State = HAL_WWDG_STATE_RESET;

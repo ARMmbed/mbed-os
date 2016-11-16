@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -481,7 +481,7 @@ __weak uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel)
   /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
 
   /* Return function status */
-  return 0;
+  return 0U;
 }
 
 /**
@@ -596,7 +596,7 @@ __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
   */
 HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel)
 {
-  uint32_t tmpreg1 = 0, tmpreg2 = 0;
+  uint32_t tmpreg1 = 0U, tmpreg2 = 0U;
 
   /* Check the DAC parameters */
   assert_param(IS_DAC_TRIGGER(sConfig->DAC_Trigger));

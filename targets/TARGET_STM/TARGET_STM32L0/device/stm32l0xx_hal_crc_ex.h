@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of CRC HAL extension module.
   ******************************************************************************
   * @attention
@@ -64,7 +64,7 @@
 /** @defgroup CRCEx_Input_Data_Inversion CRC Extended input data inversion modes
   * @{
   */
-#define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000)
+#define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000U)
 #define CRC_INPUTDATA_INVERSION_BYTE              ((uint32_t)CRC_CR_REV_IN_0)
 #define CRC_INPUTDATA_INVERSION_HALFWORD          ((uint32_t)CRC_CR_REV_IN_1)
 #define CRC_INPUTDATA_INVERSION_WORD              ((uint32_t)CRC_CR_REV_IN)
@@ -76,7 +76,7 @@
 /** @defgroup CRCEx_Output_Data_Inversion CRC Extended output data inversion modes
   * @{
   */
-#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000)
+#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000U)
 #define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)
 /**                                               
   * @}

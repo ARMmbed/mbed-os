@@ -825,10 +825,10 @@ void serial_tx_abort_asynch(serial_t *obj)
     // reset states
     huart->TxXferCount = 0;
     // update handle state
-    if(huart->State == HAL_UART_STATE_BUSY_TX_RX) {
-        huart->State = HAL_UART_STATE_BUSY_RX;
+    if(huart->gState == HAL_UART_STATE_BUSY_TX_RX) {
+        huart->gState = HAL_UART_STATE_BUSY_RX;
     } else {
-        huart->State = HAL_UART_STATE_READY;
+        huart->gState = HAL_UART_STATE_READY;
     }
 }
 
@@ -855,10 +855,10 @@ void serial_rx_abort_asynch(serial_t *obj)
     // reset states
     huart->RxXferCount = 0;
     // update handle state
-    if(huart->State == HAL_UART_STATE_BUSY_TX_RX) {
-        huart->State = HAL_UART_STATE_BUSY_TX;
+    if(huart->RxState == HAL_UART_STATE_BUSY_TX_RX) {
+        huart->RxState = HAL_UART_STATE_BUSY_TX;
     } else {
-        huart->State = HAL_UART_STATE_READY;
+        huart->RxState = HAL_UART_STATE_READY;
     }
 }
 

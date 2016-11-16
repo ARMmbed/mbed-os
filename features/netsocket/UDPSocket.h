@@ -45,8 +45,7 @@ public:
      */
     template <typename S>
     UDPSocket(S *stack)
-        : _pending(0), _read_sem(0), _write_sem(0),
-          _read_in_progress(false), _write_in_progress(false)
+        : _pending(0), _read_sem(0), _write_sem(0)
     {
         open(stack);
     }
@@ -120,8 +119,6 @@ protected:
     volatile unsigned _pending;
     rtos::Semaphore _read_sem;
     rtos::Semaphore _write_sem;
-    bool _read_in_progress;
-    bool _write_in_progress;
 };
 
 

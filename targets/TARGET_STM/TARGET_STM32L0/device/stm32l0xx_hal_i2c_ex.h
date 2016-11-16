@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of I2C HAL Extension module.
   ******************************************************************************
   * @attention
@@ -64,7 +64,7 @@
 /** @defgroup I2CEx_Analog_Filter I2C Analog Filter Enabling
   * @{
   */
-#define I2C_ANALOGFILTER_ENABLE        ((uint32_t)0x00000000)
+#define I2C_ANALOGFILTER_ENABLE        ((uint32_t)0x00000000U)
 #define I2C_ANALOGFILTER_DISABLE       I2C_CR1_ANFOFF
 /**
   * @}
@@ -124,7 +124,7 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 #define IS_I2C_ANALOG_FILTER(FILTER)    (((FILTER) == I2C_ANALOGFILTER_ENABLE) || \
                                           ((FILTER) == I2C_ANALOGFILTER_DISABLE))
   
-#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
+#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000FU)
 
 #if defined(STM32L031xx) || defined(STM32L041xx) || defined(STM32L011xx) || defined(STM32L021xx)
 #define IS_I2C_FASTMODEPLUS(__CONFIG__) ((((__CONFIG__) & (I2C_FASTMODEPLUS_PB6)) == I2C_FASTMODEPLUS_PB6)    || \

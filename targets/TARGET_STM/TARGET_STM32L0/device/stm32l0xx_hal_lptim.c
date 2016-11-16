@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lptim.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   LPTIM HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -165,7 +165,7 @@
   */
 HAL_StatusTypeDef HAL_LPTIM_Init(LPTIM_HandleTypeDef *hlptim)
 {
-  uint32_t tmpcfgr = 0;
+  uint32_t tmpcfgr = 0U;
   
   /* Check the LPTIM handle allocation */
   if(hlptim == NULL)
@@ -851,7 +851,7 @@ HAL_StatusTypeDef HAL_LPTIM_SetOnce_Stop_IT(LPTIM_HandleTypeDef *hlptim)
   */
 HAL_StatusTypeDef HAL_LPTIM_Encoder_Start(LPTIM_HandleTypeDef *hlptim, uint32_t Period)
 {
-  uint32_t tmpcfgr = 0;
+  uint32_t tmpcfgr = 0U;
    
   /* Check the parameters */
   assert_param(IS_LPTIM_INSTANCE(hlptim->Instance));
@@ -930,7 +930,7 @@ HAL_StatusTypeDef HAL_LPTIM_Encoder_Stop(LPTIM_HandleTypeDef *hlptim)
   */
 HAL_StatusTypeDef HAL_LPTIM_Encoder_Start_IT(LPTIM_HandleTypeDef *hlptim, uint32_t Period)
 {
-  uint32_t tmpcfgr = 0;
+  uint32_t tmpcfgr = 0U;
   
   /* Check the parameters */
   assert_param(IS_LPTIM_INSTANCE(hlptim->Instance));
@@ -1102,6 +1102,12 @@ HAL_StatusTypeDef HAL_LPTIM_TimeOut_Start_IT(LPTIM_HandleTypeDef *hlptim, uint32
   /* Set the LPTIM state */
   hlptim->State= HAL_LPTIM_STATE_BUSY;
   
+  /* Enable EXTI Line interrupt on the LPTIM Wake-up Timer */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT();
+
+  /* Enable rising edge trigger on the LPTIM Wake-up Timer Exti line */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
+
   /* Set TIMOUT bit to enable the timeout function */
   hlptim->Instance->CFGR |= LPTIM_CFGR_TIMOUT;  
   
@@ -1140,6 +1146,12 @@ HAL_StatusTypeDef HAL_LPTIM_TimeOut_Stop_IT(LPTIM_HandleTypeDef *hlptim)
   /* Set the LPTIM state */
   hlptim->State= HAL_LPTIM_STATE_BUSY;
   
+  /* Disable rising edge trigger on the LPTIM Wake-up Timer Exti line */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_RISING_EDGE();
+
+  /* Disable EXTI Line interrupt on the LPTIM Wake-up Timer */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_IT();
+
   /* Disable the Peripheral */
   __HAL_LPTIM_DISABLE(hlptim);
   
@@ -1236,6 +1248,12 @@ HAL_StatusTypeDef HAL_LPTIM_Counter_Start_IT(LPTIM_HandleTypeDef *hlptim, uint32
   /* Set the LPTIM state */
   hlptim->State= HAL_LPTIM_STATE_BUSY;
   
+  /* Enable EXTI Line interrupt on the LPTIM Wake-up Timer */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT();
+
+  /* Enable rising edge trigger on the LPTIM Wake-up Timer Exti line */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
+
   /* If clock source is not ULPTIM clock and counter source is external, then it must not be prescaled */
   if((hlptim->Init.Clock.Source != LPTIM_CLOCKSOURCE_ULPTIM) && (hlptim->Init.CounterSource == LPTIM_COUNTERSOURCE_EXTERNAL))
   {
@@ -1280,6 +1298,12 @@ HAL_StatusTypeDef HAL_LPTIM_Counter_Stop_IT(LPTIM_HandleTypeDef *hlptim)
   /* Set the LPTIM state */
   hlptim->State= HAL_LPTIM_STATE_BUSY;
   
+  /* Disable rising edge trigger on the LPTIM Wake-up Timer Exti line */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_RISING_EDGE();
+
+  /* Disable EXTI Line interrupt on the LPTIM Wake-up Timer */
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_IT();
+
   /* Disable the Peripheral */
   __HAL_LPTIM_DISABLE(hlptim);
   
@@ -1470,6 +1494,8 @@ void HAL_LPTIM_IRQHandler(LPTIM_HandleTypeDef *hlptim)
       HAL_LPTIM_DirectionDownCallback(hlptim);      
     }
   }
+
+  __HAL_LPTIM_WAKEUPTIMER_EXTI_CLEAR_FLAG();
 }
 
 /**

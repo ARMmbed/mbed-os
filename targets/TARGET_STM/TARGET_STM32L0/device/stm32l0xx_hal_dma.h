@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -101,8 +101,8 @@ typedef struct
   */  
 typedef enum 
 {
-  DMA_MODE            = 0,      /*!< Control related DMA mode Parameter in DMA_InitTypeDef        */
-  DMA_PRIORITY        = 1,      /*!< Control related priority level Parameter in DMA_InitTypeDef  */
+  DMA_MODE            = 0U,      /*!< Control related DMA mode Parameter in DMA_InitTypeDef        */
+  DMA_PRIORITY        = 1U,      /*!< Control related priority level Parameter in DMA_InitTypeDef  */
   
 } DMA_ControlTypeDef;
 
@@ -111,12 +111,12 @@ typedef enum
   */ 
 typedef enum
 {
-  HAL_DMA_STATE_RESET             = 0x00,  /*!< DMA not yet initialized or disabled */  
-  HAL_DMA_STATE_READY             = 0x01,  /*!< DMA process success and ready for use   */
-  HAL_DMA_STATE_BUSY              = 0x02,  /*!< DMA process is ongoing              */     
-  HAL_DMA_STATE_TIMEOUT           = 0x03,  /*!< DMA timeout state                   */  
-  HAL_DMA_STATE_ERROR             = 0x04,  /*!< DMA error state                     */
-  HAL_DMA_STATE_READY_HALF        = 0x05,  /*!< DMA Half process success            */
+  HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA not yet initialized or disabled */  
+  HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA process success and ready for use   */
+  HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA process is ongoing              */     
+  HAL_DMA_STATE_TIMEOUT           = 0x03U,  /*!< DMA timeout state                   */  
+  HAL_DMA_STATE_ERROR             = 0x04U,  /*!< DMA error state                     */
+  HAL_DMA_STATE_READY_HALF        = 0x05U,  /*!< DMA Half process success            */
 }HAL_DMA_StateTypeDef;
 
 /** 
@@ -124,8 +124,8 @@ typedef enum
   */ 
 typedef enum
 {
-  HAL_DMA_FULL_TRANSFER      = 0x00,    /*!< Full transfer     */
-  HAL_DMA_HALF_TRANSFER      = 0x01,    /*!< Half Transfer     */
+  HAL_DMA_FULL_TRANSFER      = 0x00U,    /*!< Full transfer     */
+  HAL_DMA_HALF_TRANSFER      = 0x01U,    /*!< Half Transfer     */
 
 }HAL_DMA_LevelCompleteTypeDef;
 
@@ -168,9 +168,9 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Error_Code DMA Error Codes
   * @{
   */ 
-#define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
-#define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001)    /*!< Transfer error       */
-#define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020)    /*!< Timeout error        */
+#define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000U)    /*!< No error             */
+#define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001U)    /*!< Transfer error       */
+#define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020U)    /*!< Timeout error        */
 
 #if defined (STM32L011xx) || defined (STM32L021xx)
 #define IS_DMA_ALL_INSTANCE(INSTANCE) (((INSTANCE) == DMA1_Channel1) || \
@@ -200,22 +200,22 @@ typedef struct __DMA_HandleTypeDef
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 
-#define DMA_REQUEST_0                     ((uint32_t)0x00000000)
-#define DMA_REQUEST_1                     ((uint32_t)0x00000001)
-#define DMA_REQUEST_2                     ((uint32_t)0x00000002)
-#define DMA_REQUEST_3                     ((uint32_t)0x00000003)
-#define DMA_REQUEST_4                     ((uint32_t)0x00000004)
-#define DMA_REQUEST_5                     ((uint32_t)0x00000005)
-#define DMA_REQUEST_6                     ((uint32_t)0x00000006)
-#define DMA_REQUEST_7                     ((uint32_t)0x00000007)
-#define DMA_REQUEST_8                     ((uint32_t)0x00000008)
-#define DMA_REQUEST_9                     ((uint32_t)0x00000009)
-#define DMA_REQUEST_10                    ((uint32_t)0x0000000A)
-#define DMA_REQUEST_11                    ((uint32_t)0x0000000B)
-#define DMA_REQUEST_12                    ((uint32_t)0x0000000C)
-#define DMA_REQUEST_13                    ((uint32_t)0x0000000D)
-#define DMA_REQUEST_14                    ((uint32_t)0x0000000E)
-#define DMA_REQUEST_15                    ((uint32_t)0x0000000F)
+#define DMA_REQUEST_0                     ((uint32_t)0x00000000U)
+#define DMA_REQUEST_1                     ((uint32_t)0x00000001U)
+#define DMA_REQUEST_2                     ((uint32_t)0x00000002U)
+#define DMA_REQUEST_3                     ((uint32_t)0x00000003U)
+#define DMA_REQUEST_4                     ((uint32_t)0x00000004U)
+#define DMA_REQUEST_5                     ((uint32_t)0x00000005U)
+#define DMA_REQUEST_6                     ((uint32_t)0x00000006U)
+#define DMA_REQUEST_7                     ((uint32_t)0x00000007U)
+#define DMA_REQUEST_8                     ((uint32_t)0x00000008U)
+#define DMA_REQUEST_9                     ((uint32_t)0x00000009U)
+#define DMA_REQUEST_10                    ((uint32_t)0x0000000AU)
+#define DMA_REQUEST_11                    ((uint32_t)0x0000000BU)
+#define DMA_REQUEST_12                    ((uint32_t)0x0000000CU)
+#define DMA_REQUEST_13                    ((uint32_t)0x0000000DU)
+#define DMA_REQUEST_14                    ((uint32_t)0x0000000EU)
+#define DMA_REQUEST_15                    ((uint32_t)0x0000000FU)
 
 #define IS_DMA_ALL_REQUEST(REQUEST) (((REQUEST) == DMA_REQUEST_0) || \
                                      ((REQUEST) == DMA_REQUEST_1) || \
@@ -236,17 +236,17 @@ typedef struct __DMA_HandleTypeDef
 
 #else /* #if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
                                        
-#define DMA_REQUEST_0                     ((uint32_t)0x00000000)
-#define DMA_REQUEST_1                     ((uint32_t)0x00000001)
-#define DMA_REQUEST_2                     ((uint32_t)0x00000002)
-#define DMA_REQUEST_3                     ((uint32_t)0x00000003)
-#define DMA_REQUEST_4                     ((uint32_t)0x00000004)
-#define DMA_REQUEST_5                     ((uint32_t)0x00000005)
-#define DMA_REQUEST_6                     ((uint32_t)0x00000006)
-#define DMA_REQUEST_7                     ((uint32_t)0x00000007)
-#define DMA_REQUEST_8                     ((uint32_t)0x00000008)
-#define DMA_REQUEST_9                     ((uint32_t)0x00000009)
-#define DMA_REQUEST_11                    ((uint32_t)0x0000000B)
+#define DMA_REQUEST_0                     ((uint32_t)0x00000000U)
+#define DMA_REQUEST_1                     ((uint32_t)0x00000001U)
+#define DMA_REQUEST_2                     ((uint32_t)0x00000002U)
+#define DMA_REQUEST_3                     ((uint32_t)0x00000003U)
+#define DMA_REQUEST_4                     ((uint32_t)0x00000004U)
+#define DMA_REQUEST_5                     ((uint32_t)0x00000005U)
+#define DMA_REQUEST_6                     ((uint32_t)0x00000006U)
+#define DMA_REQUEST_7                     ((uint32_t)0x00000007U)
+#define DMA_REQUEST_8                     ((uint32_t)0x00000008U)
+#define DMA_REQUEST_9                     ((uint32_t)0x00000009U)
+#define DMA_REQUEST_11                    ((uint32_t)0x0000000BU)
 
 #define IS_DMA_ALL_REQUEST(REQUEST) (((REQUEST) == DMA_REQUEST_0) || \
                                      ((REQUEST) == DMA_REQUEST_1) || \
@@ -268,7 +268,7 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Data_transfer_direction DMA Data Transfer directions
   * @{
   */ 
-#define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000)        /*!< Peripheral to memory direction */
+#define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000U)        /*!< Peripheral to memory direction */
 #define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_CCR_DIR)       /*!< Memory to peripheral direction */
 #define DMA_MEMORY_TO_MEMORY         ((uint32_t)(DMA_CCR_MEM2MEM)) /*!< Memory to memory direction     */
 
@@ -291,7 +291,7 @@ typedef struct __DMA_HandleTypeDef
   * @{
   */ 
 #define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< Peripheral increment mode Enable */
-#define DMA_PINC_DISABLE       ((uint32_t)0x00000000)    /*!< Peripheral increment mode Disable */
+#define DMA_PINC_DISABLE       ((uint32_t)0x00000000U)    /*!< Peripheral increment mode Disable */
 
 #define IS_DMA_PERIPHERAL_INC_STATE(STATE) (((STATE) == DMA_PINC_ENABLE) || \
                                             ((STATE) == DMA_PINC_DISABLE))
@@ -303,7 +303,7 @@ typedef struct __DMA_HandleTypeDef
   * @{
   */ 
 #define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< Memory increment mode Enable  */
-#define DMA_MINC_DISABLE        ((uint32_t)0x00000000)    /*!< Memory increment mode Disable */
+#define DMA_MINC_DISABLE        ((uint32_t)0x00000000U)    /*!< Memory increment mode Disable */
 
 #define IS_DMA_MEMORY_INC_STATE(STATE) (((STATE) == DMA_MINC_ENABLE)  || \
                                         ((STATE) == DMA_MINC_DISABLE))
@@ -314,7 +314,7 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Peripheral_data_size DMA Peripheral Data Size Alignment
   * @{
   */ 
-#define DMA_PDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Peripheral data alignment : Byte     */
+#define DMA_PDATAALIGN_BYTE          ((uint32_t)0x00000000U)       /*!< Peripheral data alignment : Byte     */
 #define DMA_PDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_PSIZE_0)  /*!< Peripheral data alignment : HalfWord */
 #define DMA_PDATAALIGN_WORD          ((uint32_t)DMA_CCR_PSIZE_1)  /*!< Peripheral data alignment : Word     */
 
@@ -329,7 +329,7 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Memory_data_size DMA Memory Data Size Alignment
   * @{ 
   */
-#define DMA_MDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Memory data alignment : Byte     */
+#define DMA_MDATAALIGN_BYTE          ((uint32_t)0x00000000U)       /*!< Memory data alignment : Byte     */
 #define DMA_MDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_MSIZE_0)  /*!< Memory data alignment : HalfWord */
 #define DMA_MDATAALIGN_WORD          ((uint32_t)DMA_CCR_MSIZE_1)  /*!< Memory data alignment : Word     */
 
@@ -343,7 +343,7 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_mode DMA Mode
   * @{
   */ 
-#define DMA_NORMAL         ((uint32_t)0x00000000)       /*!< Normal Mode                  */
+#define DMA_NORMAL         ((uint32_t)0x00000000U)       /*!< Normal Mode                  */
 #define DMA_CIRCULAR       ((uint32_t)DMA_CCR_CIRC)    /*!< Circular Mode                */
 
 #define IS_DMA_MODE(MODE) (((MODE) == DMA_NORMAL )  || \
@@ -355,7 +355,7 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Priority_level DMA Priority Level
   * @{
   */
-#define DMA_PRIORITY_LOW             ((uint32_t)0x00000000)    /*!< Priority level : Low       */
+#define DMA_PRIORITY_LOW             ((uint32_t)0x00000000U)    /*!< Priority level : Low       */
 #define DMA_PRIORITY_MEDIUM          ((uint32_t)DMA_CCR_PL_0)  /*!< Priority level : Medium    */
 #define DMA_PRIORITY_HIGH            ((uint32_t)DMA_CCR_PL_1)  /*!< Priority level : High      */
 #define DMA_PRIORITY_VERY_HIGH       ((uint32_t)DMA_CCR_PL)    /*!< Priority level : Very_High */
@@ -385,34 +385,34 @@ typedef struct __DMA_HandleTypeDef
   * @{
   */ 
 
-#define DMA_FLAG_GL1                      ((uint32_t)0x00000001)
-#define DMA_FLAG_TC1                      ((uint32_t)0x00000002)
-#define DMA_FLAG_HT1                      ((uint32_t)0x00000004)
-#define DMA_FLAG_TE1                      ((uint32_t)0x00000008)
-#define DMA_FLAG_GL2                      ((uint32_t)0x00000010)
-#define DMA_FLAG_TC2                      ((uint32_t)0x00000020)
-#define DMA_FLAG_HT2                      ((uint32_t)0x00000040)
-#define DMA_FLAG_TE2                      ((uint32_t)0x00000080)
-#define DMA_FLAG_GL3                      ((uint32_t)0x00000100)
-#define DMA_FLAG_TC3                      ((uint32_t)0x00000200)
-#define DMA_FLAG_HT3                      ((uint32_t)0x00000400)
-#define DMA_FLAG_TE3                      ((uint32_t)0x00000800)
-#define DMA_FLAG_GL4                      ((uint32_t)0x00001000)
-#define DMA_FLAG_TC4                      ((uint32_t)0x00002000)
-#define DMA_FLAG_HT4                      ((uint32_t)0x00004000)
-#define DMA_FLAG_TE4                      ((uint32_t)0x00008000)
-#define DMA_FLAG_GL5                      ((uint32_t)0x00010000)
-#define DMA_FLAG_TC5                      ((uint32_t)0x00020000)
-#define DMA_FLAG_HT5                      ((uint32_t)0x00040000)
-#define DMA_FLAG_TE5                      ((uint32_t)0x00080000)
-#define DMA_FLAG_GL6                      ((uint32_t)0x00100000)
-#define DMA_FLAG_TC6                      ((uint32_t)0x00200000)
-#define DMA_FLAG_HT6                      ((uint32_t)0x00400000)
-#define DMA_FLAG_TE6                      ((uint32_t)0x00800000)
-#define DMA_FLAG_GL7                      ((uint32_t)0x01000000)
-#define DMA_FLAG_TC7                      ((uint32_t)0x02000000)
-#define DMA_FLAG_HT7                      ((uint32_t)0x04000000)
-#define DMA_FLAG_TE7                      ((uint32_t)0x08000000)
+#define DMA_FLAG_GL1                      ((uint32_t)0x00000001U)
+#define DMA_FLAG_TC1                      ((uint32_t)0x00000002U)
+#define DMA_FLAG_HT1                      ((uint32_t)0x00000004U)
+#define DMA_FLAG_TE1                      ((uint32_t)0x00000008U)
+#define DMA_FLAG_GL2                      ((uint32_t)0x00000010U)
+#define DMA_FLAG_TC2                      ((uint32_t)0x00000020U)
+#define DMA_FLAG_HT2                      ((uint32_t)0x00000040U)
+#define DMA_FLAG_TE2                      ((uint32_t)0x00000080U)
+#define DMA_FLAG_GL3                      ((uint32_t)0x00000100U)
+#define DMA_FLAG_TC3                      ((uint32_t)0x00000200U)
+#define DMA_FLAG_HT3                      ((uint32_t)0x00000400U)
+#define DMA_FLAG_TE3                      ((uint32_t)0x00000800U)
+#define DMA_FLAG_GL4                      ((uint32_t)0x00001000U)
+#define DMA_FLAG_TC4                      ((uint32_t)0x00002000U)
+#define DMA_FLAG_HT4                      ((uint32_t)0x00004000U)
+#define DMA_FLAG_TE4                      ((uint32_t)0x00008000U)
+#define DMA_FLAG_GL5                      ((uint32_t)0x00010000U)
+#define DMA_FLAG_TC5                      ((uint32_t)0x00020000U)
+#define DMA_FLAG_HT5                      ((uint32_t)0x00040000U)
+#define DMA_FLAG_TE5                      ((uint32_t)0x00080000U)
+#define DMA_FLAG_GL6                      ((uint32_t)0x00100000U)
+#define DMA_FLAG_TC6                      ((uint32_t)0x00200000U)
+#define DMA_FLAG_HT6                      ((uint32_t)0x00400000U)
+#define DMA_FLAG_TE6                      ((uint32_t)0x00800000U)
+#define DMA_FLAG_GL7                      ((uint32_t)0x01000000U)
+#define DMA_FLAG_TC7                      ((uint32_t)0x02000000U)
+#define DMA_FLAG_HT7                      ((uint32_t)0x04000000U)
+#define DMA_FLAG_TE7                      ((uint32_t)0x08000000U)
 
 
 /**
@@ -604,6 +604,14 @@ typedef struct __DMA_HandleTypeDef
   * @retval The state of DMA_IT (SET or RESET).
   */
 #define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  (((__HANDLE__)->Instance->CCR & (__INTERRUPT__)))
+
+/**
+  * @brief  Returns the number of remaining data units in the current DMAy Channelx transfer.
+  * @param  __HANDLE__: DMA handle
+  *
+  * @retval The number of remaining data units in the current DMA Channel transfer.
+  */
+#define __HAL_DMA_GET_COUNTER(__HANDLE__) ((__HANDLE__)->Instance->CNDTR)
 
 /**
   * @}

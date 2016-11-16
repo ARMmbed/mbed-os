@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -119,14 +119,14 @@ typedef struct
   */ 
 typedef enum
 {
-  HAL_USART_STATE_RESET             = 0x00,    /*!< Peripheral Reset state */  
-  HAL_USART_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
-  HAL_USART_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing */   
-  HAL_USART_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing */ 
-  HAL_USART_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing */
-  HAL_USART_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission Reception process is ongoing */
-  HAL_USART_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
-  HAL_USART_STATE_ERROR             = 0x04     /*!< Error */      
+  HAL_USART_STATE_RESET             = 0x00U,    /*!< Peripheral Reset state */  
+  HAL_USART_STATE_READY             = 0x01U,    /*!< Peripheral Initialized and ready for use */
+  HAL_USART_STATE_BUSY              = 0x02U,    /*!< an internal process is ongoing */   
+  HAL_USART_STATE_BUSY_TX           = 0x12U,    /*!< Data Transmission process is ongoing */ 
+  HAL_USART_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing */
+  HAL_USART_STATE_BUSY_TX_RX        = 0x32U,    /*!< Data Transmission Reception process is ongoing */
+  HAL_USART_STATE_TIMEOUT           = 0x03U,    /*!< Timeout state */
+  HAL_USART_STATE_ERROR             = 0x04U     /*!< Error */      
 }HAL_USART_StateTypeDef;
 /**
   * @}
@@ -138,12 +138,12 @@ typedef enum
   * @brief  HAL USART Error Code  definition
   */ 
 
-#define   HAL_USART_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
-#define   HAL_USART_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
-#define   HAL_USART_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
-#define   HAL_USART_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
-#define   HAL_USART_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
-#define   HAL_USART_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error  */
+#define   HAL_USART_ERROR_NONE      ((uint32_t)0x00U)    /*!< No error            */
+#define   HAL_USART_ERROR_PE        ((uint32_t)0x01U)    /*!< Parity error        */
+#define   HAL_USART_ERROR_NE        ((uint32_t)0x02U)    /*!< Noise error         */
+#define   HAL_USART_ERROR_FE        ((uint32_t)0x04U)    /*!< frame error         */
+#define   HAL_USART_ERROR_ORE       ((uint32_t)0x08U)    /*!< Overrun error       */
+#define   HAL_USART_ERROR_DMA       ((uint32_t)0x10U)    /*!< DMA transfer error  */
 
 /**
   * @}
@@ -156,12 +156,12 @@ typedef enum
   */
 typedef enum
 {
-  USART_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source    */
-  USART_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source    */
-  USART_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source      */
-  USART_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source   */
-  USART_CLOCKSOURCE_LSE        = 0x08,    /*!< LSE clock source      */
-  USART_CLOCKSOURCE_UNDEFINED  = 0x10     /*!< Undefined clock source */
+  USART_CLOCKSOURCE_PCLK1      = 0x00U,    /*!< PCLK1 clock source    */
+  USART_CLOCKSOURCE_PCLK2      = 0x01U,    /*!< PCLK2 clock source    */
+  USART_CLOCKSOURCE_HSI        = 0x02U,    /*!< HSI clock source      */
+  USART_CLOCKSOURCE_SYSCLK     = 0x04U,    /*!< SYSCLK clock source   */
+  USART_CLOCKSOURCE_LSE        = 0x08U,    /*!< LSE clock source      */
+  USART_CLOCKSOURCE_UNDEFINED  = 0x10U     /*!< Undefined clock source */
 }USART_ClockSourceTypeDef;
 /**
   * @}
@@ -219,7 +219,7 @@ typedef struct
 /** @defgroup USART_Stop_Bits USART stop bit definition
   * @{
   */
-#define USART_STOPBITS_1                     ((uint32_t)0x0000)
+#define USART_STOPBITS_1                     ((uint32_t)0x0000U)
 #define USART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
 #define USART_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1))
 #define IS_USART_STOPBITS(STOPBITS) (((STOPBITS) == USART_STOPBITS_1) || \
@@ -232,7 +232,7 @@ typedef struct
 /** @defgroup USART_Parity USART parity definition
   * @{
   */ 
-#define USART_PARITY_NONE                    ((uint32_t)0x0000)
+#define USART_PARITY_NONE                    ((uint32_t)0x0000U)
 #define USART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
 #define USART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
 #define IS_USART_PARITY(PARITY) (((PARITY) == USART_PARITY_NONE) || \
@@ -258,7 +258,7 @@ typedef struct
 /** @defgroup USART_Clock USART clock activation definition
   * @{
   */ 
-#define USART_CLOCK_DISABLE                 ((uint32_t)0x0000)
+#define USART_CLOCK_DISABLE                 ((uint32_t)0x0000U)
 #define USART_CLOCK_ENABLE                  ((uint32_t)USART_CR2_CLKEN)
 #define IS_USART_CLOCK(CLOCK)      (((CLOCK) == USART_CLOCK_DISABLE) || \
                                    ((CLOCK) == USART_CLOCK_ENABLE))
@@ -269,7 +269,7 @@ typedef struct
 /** @defgroup USART_Clock_Polarity USART polarity level definition
   * @{
   */
-#define USART_POLARITY_LOW                   ((uint32_t)0x0000)
+#define USART_POLARITY_LOW                   ((uint32_t)0x0000U)
 #define USART_POLARITY_HIGH                  ((uint32_t)USART_CR2_CPOL)
 #define IS_USART_POLARITY(CPOL) (((CPOL) == USART_POLARITY_LOW) || ((CPOL) == USART_POLARITY_HIGH))
 /**
@@ -279,7 +279,7 @@ typedef struct
 /** @defgroup USART_Clock_Phase USART clock phase definition
   * @{
   */
-#define USART_PHASE_1EDGE                    ((uint32_t)0x0000)
+#define USART_PHASE_1EDGE                    ((uint32_t)0x0000U)
 #define USART_PHASE_2EDGE                    ((uint32_t)USART_CR2_CPHA)
 #define IS_USART_PHASE(CPHA) (((CPHA) == USART_PHASE_1EDGE) || ((CPHA) == USART_PHASE_2EDGE))
 /**
@@ -289,7 +289,7 @@ typedef struct
 /** @defgroup USART_Last_Bit USART last bit activation definition
   * @{
   */
-#define USART_LASTBIT_DISABLE                ((uint32_t)0x0000)
+#define USART_LASTBIT_DISABLE                ((uint32_t)0x0000U)
 #define USART_LASTBIT_ENABLE                 ((uint32_t)USART_CR2_LBCL)
 #define IS_USART_LASTBIT(LASTBIT) (((LASTBIT) == USART_LASTBIT_DISABLE) || \
                                        ((LASTBIT) == USART_LASTBIT_ENABLE))
@@ -332,16 +332,16 @@ typedef struct
   * @{
   */
   
-#define USART_IT_PE                          ((uint16_t)0x0028)
-#define USART_IT_TXE                         ((uint16_t)0x0727)
-#define USART_IT_TC                          ((uint16_t)0x0626)
-#define USART_IT_RXNE                        ((uint16_t)0x0525)
-#define USART_IT_IDLE                        ((uint16_t)0x0424)
-#define USART_IT_ERR                         ((uint16_t)0x0060)
+#define USART_IT_PE                          ((uint16_t)0x0028U)
+#define USART_IT_TXE                         ((uint16_t)0x0727U)
+#define USART_IT_TC                          ((uint16_t)0x0626U)
+#define USART_IT_RXNE                        ((uint16_t)0x0525U)
+#define USART_IT_IDLE                        ((uint16_t)0x0424U)
+#define USART_IT_ERR                         ((uint16_t)0x0060U)
 
-#define USART_IT_ORE                         ((uint16_t)0x0300)
-#define USART_IT_NE                          ((uint16_t)0x0200)
-#define USART_IT_FE                          ((uint16_t)0x0100)
+#define USART_IT_ORE                         ((uint16_t)0x0300U)
+#define USART_IT_NE                          ((uint16_t)0x0200U)
+#define USART_IT_FE                          ((uint16_t)0x0100U)
 /**
   * @}
   */
@@ -374,7 +374,7 @@ typedef struct
 /** @defgroup USART_Interruption_Mask USART interruption mask definition
   * @{
   */  
-#define USART_IT_MASK                             ((uint16_t)0x001F)  
+#define USART_IT_MASK                             ((uint16_t)0x001FU)  
 /**
   * @}
   */
@@ -489,9 +489,9 @@ typedef struct
   *            @arg USART_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
   */
-#define __HAL_USART_ENABLE_IT(__HANDLE__, __INTERRUPT__)(((((uint8_t)(__INTERRUPT__)) >> 5) == 1)? ((__HANDLE__)->Instance->CR1 |= (1 << ((__INTERRUPT__) & USART_IT_MASK))): \
-                                                        ((((uint8_t)(__INTERRUPT__)) >> 5) == 2)? ((__HANDLE__)->Instance->CR2 |= (1 << ((__INTERRUPT__) & USART_IT_MASK))): \
-                                                        ((__HANDLE__)->Instance->CR3 |= (1 << ((__INTERRUPT__) & USART_IT_MASK))))
+#define __HAL_USART_ENABLE_IT(__HANDLE__, __INTERRUPT__)(((((uint8_t)(__INTERRUPT__)) >> 5U) == 1U)? ((__HANDLE__)->Instance->CR1 |= (1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+                                                        ((((uint8_t)(__INTERRUPT__)) >> 5U) == 2U)? ((__HANDLE__)->Instance->CR2 |= (1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+                                                        ((__HANDLE__)->Instance->CR3 |= (1U << ((__INTERRUPT__) & USART_IT_MASK))))
 
 /** @brief  Disables the specified USART interrupt.
   * @param  __HANDLE__: specifies the USART Handle which can be USART1 or USART2.
@@ -505,9 +505,9 @@ typedef struct
   *            @arg USART_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
   */
-#define __HAL_USART_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (((((uint8_t)(__INTERRUPT__)) >> 5) == 1)? ((__HANDLE__)->Instance->CR1 &= ~ ((uint32_t)1 << ((__INTERRUPT__) & USART_IT_MASK))): \
-                                                        ((((uint8_t)(__INTERRUPT__)) >> 5) == 2)? ((__HANDLE__)->Instance->CR2 &= ~ ((uint32_t)1 << ((__INTERRUPT__) & USART_IT_MASK))): \
-                                                        ((__HANDLE__)->Instance->CR3 &= ~ ((uint32_t)1 << ((__INTERRUPT__) & USART_IT_MASK))))
+#define __HAL_USART_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (((((uint8_t)(__INTERRUPT__)) >> 5U) == 1U)? ((__HANDLE__)->Instance->CR1 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+                                                        ((((uint8_t)(__INTERRUPT__)) >> 5U) == 2U)? ((__HANDLE__)->Instance->CR2 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+                                                        ((__HANDLE__)->Instance->CR3 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))))
 
 /** @brief  Checks whether the specified USART interrupt has occurred or not.
   * @param  __HANDLE__: specifies the USART Handle which can be USART1 or USART2.
@@ -523,7 +523,7 @@ typedef struct
   *            @arg USART_IT_PE: Parity Error interrupt
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
-#define __HAL_USART_GET_IT(__HANDLE__, __IT__) ((__HANDLE__)->Instance->ISR & ((uint32_t)1 << ((__IT__)>> 0x08))) 
+#define __HAL_USART_GET_IT(__HANDLE__, __IT__) ((__HANDLE__)->Instance->ISR & ((uint32_t)1U << ((__IT__)>> 0x08U))) 
 
 /** @brief  Checks whether the specified USART interrupt source is enabled.
   * @param  __HANDLE__: specifies the USART Handle which can be USART1 or USART2.
@@ -539,8 +539,8 @@ typedef struct
   *            @arg USART_IT_PE: Parity Error interrupt
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
-#define __HAL_USART_GET_IT_SOURCE(__HANDLE__, __IT__) ((((((uint8_t)(__IT__)) >> 5) == 1)? (__HANDLE__)->Instance->CR1:(((((uint8_t)(__IT__)) >> 5) == 2)? \
-                                                   (__HANDLE__)->Instance->CR2 : (__HANDLE__)->Instance->CR3)) & ((uint32_t)1 << \
+#define __HAL_USART_GET_IT_SOURCE(__HANDLE__, __IT__) ((((((uint8_t)(__IT__)) >> 5U) == 1U)? (__HANDLE__)->Instance->CR1:(((((uint8_t)(__IT__)) >> 5U) == 2U)? \
+                                                   (__HANDLE__)->Instance->CR2 : (__HANDLE__)->Instance->CR3)) & ((uint32_t)1U << \
                                                    (((uint16_t)(__IT__)) & USART_IT_MASK)))
 
 
@@ -604,7 +604,7 @@ typedef struct
   *         divided by the smallest oversampling used on the USART (i.e. 8) 
   * @retval Test result (TRUE or FALSE).
   */
-#define IS_USART_BAUDRATE(BAUDRATE) ((BAUDRATE) < 4000001)
+#define IS_USART_BAUDRATE(BAUDRATE) ((BAUDRATE) < 4000001U)
 
 /**
   * @}
