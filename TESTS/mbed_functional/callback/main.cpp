@@ -233,6 +233,11 @@ template <typename T>
 T const_volatile_void_func5(const volatile void *t, T a0, T a1, T a2, T a3, T a4)
     { return static_cast<const volatile Thing<T>*>(t)->t | a0 | a1 | a2 | a3 | a4; }
 
+// Inheriting class
+template <typename T>
+class Thing2 : public Thing<T> {
+};
+
 
 // function call and result verification
 template <typename T>
@@ -315,15 +320,18 @@ struct Verifier {
 template <typename T>
 void test_dispatch0() {
     Thing<T> thing;
+    Thing2<T> thing2;
     Verifier<T>::verify0(static_func0<T>);
     Verifier<T>::verify0(&thing, &Thing<T>::member_func0);
     Verifier<T>::verify0((const Thing<T>*)&thing, &Thing<T>::const_member_func0);
     Verifier<T>::verify0((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func0);
     Verifier<T>::verify0((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func0);
+    Verifier<T>::verify0(&thing2, &Thing2<T>::member_func0);
     Verifier<T>::verify0(&bound_func0<T>, &thing);
     Verifier<T>::verify0(&const_bound_func0<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify0(&volatile_bound_func0<T>, (volatile Thing<T>*)&thing);
     Verifier<T>::verify0(&const_volatile_bound_func0<T>, (const volatile Thing<T>*)&thing);
+    Verifier<T>::verify0(&bound_func0<T>, &thing2);
     Verifier<T>::verify0(&void_func0<T>, &thing);
     Verifier<T>::verify0(&const_void_func0<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify0(&volatile_void_func0<T>, (volatile Thing<T>*)&thing);
@@ -342,15 +350,18 @@ void test_dispatch0() {
 template <typename T>
 void test_dispatch1() {
     Thing<T> thing;
+    Thing2<T> thing2;
     Verifier<T>::verify1(static_func1<T>);
     Verifier<T>::verify1(&thing, &Thing<T>::member_func1);
     Verifier<T>::verify1((const Thing<T>*)&thing, &Thing<T>::const_member_func1);
     Verifier<T>::verify1((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func1);
     Verifier<T>::verify1((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func1);
+    Verifier<T>::verify1(&thing2, &Thing2<T>::member_func1);
     Verifier<T>::verify1(&bound_func1<T>, &thing);
     Verifier<T>::verify1(&const_bound_func1<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify1(&volatile_bound_func1<T>, (volatile Thing<T>*)&thing);
     Verifier<T>::verify1(&const_volatile_bound_func1<T>, (const volatile Thing<T>*)&thing);
+    Verifier<T>::verify1(&bound_func1<T>, &thing2);
     Verifier<T>::verify1(&void_func1<T>, &thing);
     Verifier<T>::verify1(&const_void_func1<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify1(&volatile_void_func1<T>, (volatile Thing<T>*)&thing);
@@ -369,15 +380,18 @@ void test_dispatch1() {
 template <typename T>
 void test_dispatch2() {
     Thing<T> thing;
+    Thing2<T> thing2;
     Verifier<T>::verify2(static_func2<T>);
     Verifier<T>::verify2(&thing, &Thing<T>::member_func2);
     Verifier<T>::verify2((const Thing<T>*)&thing, &Thing<T>::const_member_func2);
     Verifier<T>::verify2((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func2);
     Verifier<T>::verify2((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func2);
+    Verifier<T>::verify2(&thing2, &Thing2<T>::member_func2);
     Verifier<T>::verify2(&bound_func2<T>, &thing);
     Verifier<T>::verify2(&const_bound_func2<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify2(&volatile_bound_func2<T>, (volatile Thing<T>*)&thing);
     Verifier<T>::verify2(&const_volatile_bound_func2<T>, (const volatile Thing<T>*)&thing);
+    Verifier<T>::verify2(&bound_func2<T>, &thing2);
     Verifier<T>::verify2(&void_func2<T>, &thing);
     Verifier<T>::verify2(&const_void_func2<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify2(&volatile_void_func2<T>, (volatile Thing<T>*)&thing);
@@ -396,15 +410,18 @@ void test_dispatch2() {
 template <typename T>
 void test_dispatch3() {
     Thing<T> thing;
+    Thing2<T> thing2;
     Verifier<T>::verify3(static_func3<T>);
     Verifier<T>::verify3(&thing, &Thing<T>::member_func3);
     Verifier<T>::verify3((const Thing<T>*)&thing, &Thing<T>::const_member_func3);
     Verifier<T>::verify3((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func3);
     Verifier<T>::verify3((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func3);
+    Verifier<T>::verify3(&thing2, &Thing2<T>::member_func3);
     Verifier<T>::verify3(&bound_func3<T>, &thing);
     Verifier<T>::verify3(&const_bound_func3<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify3(&volatile_bound_func3<T>, (volatile Thing<T>*)&thing);
     Verifier<T>::verify3(&const_volatile_bound_func3<T>, (const volatile Thing<T>*)&thing);
+    Verifier<T>::verify3(&bound_func3<T>, &thing2);
     Verifier<T>::verify3(&void_func3<T>, &thing);
     Verifier<T>::verify3(&const_void_func3<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify3(&volatile_void_func3<T>, (volatile Thing<T>*)&thing);
@@ -423,15 +440,18 @@ void test_dispatch3() {
 template <typename T>
 void test_dispatch4() {
     Thing<T> thing;
+    Thing2<T> thing2;
     Verifier<T>::verify4(static_func4<T>);
     Verifier<T>::verify4(&thing, &Thing<T>::member_func4);
     Verifier<T>::verify4((const Thing<T>*)&thing, &Thing<T>::const_member_func4);
     Verifier<T>::verify4((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func4);
     Verifier<T>::verify4((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func4);
+    Verifier<T>::verify4(&thing2, &Thing2<T>::member_func4);
     Verifier<T>::verify4(&bound_func4<T>, &thing);
     Verifier<T>::verify4(&const_bound_func4<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify4(&volatile_bound_func4<T>, (volatile Thing<T>*)&thing);
     Verifier<T>::verify4(&const_volatile_bound_func4<T>, (const volatile Thing<T>*)&thing);
+    Verifier<T>::verify4(&bound_func4<T>, &thing2);
     Verifier<T>::verify4(&void_func4<T>, &thing);
     Verifier<T>::verify4(&const_void_func4<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify4(&volatile_void_func4<T>, (volatile Thing<T>*)&thing);
@@ -450,15 +470,18 @@ void test_dispatch4() {
 template <typename T>
 void test_dispatch5() {
     Thing<T> thing;
+    Thing2<T> thing2;
     Verifier<T>::verify5(static_func5<T>);
     Verifier<T>::verify5(&thing, &Thing<T>::member_func5);
     Verifier<T>::verify5((const Thing<T>*)&thing, &Thing<T>::const_member_func5);
     Verifier<T>::verify5((volatile Thing<T>*)&thing, &Thing<T>::volatile_member_func5);
     Verifier<T>::verify5((const volatile Thing<T>*)&thing, &Thing<T>::const_volatile_member_func5);
+    Verifier<T>::verify5(&thing2, &Thing2<T>::member_func5);
     Verifier<T>::verify5(&bound_func5<T>, &thing);
     Verifier<T>::verify5(&const_bound_func5<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify5(&volatile_bound_func5<T>, (volatile Thing<T>*)&thing);
     Verifier<T>::verify5(&const_volatile_bound_func5<T>, (const volatile Thing<T>*)&thing);
+    Verifier<T>::verify5(&bound_func5<T>, &thing2);
     Verifier<T>::verify5(&void_func5<T>, &thing);
     Verifier<T>::verify5(&const_void_func5<T>, (const Thing<T>*)&thing);
     Verifier<T>::verify5(&volatile_void_func5<T>, (volatile Thing<T>*)&thing);
