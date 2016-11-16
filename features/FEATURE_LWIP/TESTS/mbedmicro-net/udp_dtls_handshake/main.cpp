@@ -57,7 +57,7 @@ int main() {
         udp_dtls_handshake_pattern[i] = (~0xf & udp_dtls_handshake_pattern[i]) + 0x10;
     }
 
-    printf("MBED: [");
+    printf("MBED: DTLS pattern [");
     for (int i = 0; i < udp_dtls_handshake_count; i++) {
         printf("%d", udp_dtls_handshake_pattern[i]);
         if (i != udp_dtls_handshake_count-1) {

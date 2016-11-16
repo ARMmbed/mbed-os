@@ -17,12 +17,12 @@
 #define MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX 0x80000
 #endif
 
-#ifndef MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_BUFFER
-#define MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_BUFFER 1024
-#endif
-
 #ifndef MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_SEED
 #define MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_SEED 0x6d626564
+#endif
+
+#ifndef MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG
+#define MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG false
 #endif
 
 
@@ -53,14 +53,18 @@ public:
     }
 
     void buffer(uint8_t *buffer, size_t size) {
+        RandSeq lookahead = *this;
+
         for (size_t i = 0; i < size; i++) {
-            buffer[i] = next() & 0xff;
+            buffer[i] = lookahead.next() & 0xff;
         }
     }
 
     int cmp(uint8_t *buffer, size_t size) {
+        RandSeq lookahead = *this;
+
         for (size_t i = 0; i < size; i++) {
-            int diff = buffer[i] - (next() & 0xff);
+            int diff = buffer[i] - (lookahead.next() & 0xff);
             if (diff != 0) {
                 return diff;
             }
@@ -70,10 +74,39 @@ public:
 };
 
 // Shared buffer for network transactions
-uint8_t buffer[MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_BUFFER] = {0};
+uint8_t *buffer;
+size_t buffer_size;
+
+// Tries to get the biggest buffer possible on the device. Exponentially
+// grows a buffer until heap runs out of space, and uses half to leave
+// space for the rest of the program
+void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
+    size_t i = min;
+    while (i < max) {
+        void *b = malloc(i);
+        if (!b) {
+            i /= 4;
+            if (i < min) {
+                i = min;
+            }
+            break;
+        }
+        free(b);
+        i *= 2;
+    }
+
+    *buffer = (uint8_t *)malloc(i);
+    *size = i;
+    TEST_ASSERT(buffer);
+}
+
 
 int main() {
     GREENTEA_SETUP(60, "tcp_echo");
+    generate_buffer(&buffer, &buffer_size,
+        MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN,
+        MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX);
+    printf("MBED: Generated buffer %d\r\n", buffer_size);
 
     EthernetInterface eth;
     int err = eth.connect();
@@ -106,6 +139,7 @@ int main() {
     Timer timer;
     timer.start();
 
+    // Tests exponentially growing sequences
     for (size_t size = MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN;
          size < MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX;
          size *= 2) {
@@ -113,7 +147,7 @@ int main() {
         TEST_ASSERT_EQUAL(0, err);
         err = sock.connect(tcp_addr);
         TEST_ASSERT_EQUAL(0, err);
-        printf("TCP: Connected to %s:%d\r\n", ipbuf, port);
+        printf("TCP: %s:%d streaming %d bytes\r\n", ipbuf, port, size);
 
         sock.set_blocking(false);
 
@@ -124,30 +158,36 @@ int main() {
         size_t tx_count = 0;
 
         while (tx_count < size || rx_count < size) {
+            // Send out data
             if (tx_count < size) {
-                RandSeq chunk_seq = tx_seq;
                 size_t chunk_size = size - tx_count;
-                if (chunk_size > sizeof(buffer)) {
-                    chunk_size = sizeof(buffer);
+                if (chunk_size > buffer_size) {
+                    chunk_size = buffer_size;
                 }
 
-                chunk_seq.buffer(buffer, chunk_size);
+                tx_seq.buffer(buffer, chunk_size);
                 int td = sock.send(buffer, chunk_size);
                 TEST_ASSERT(td > 0 || td == NSAPI_ERROR_WOULD_BLOCK);
                 if (td > 0) {
-                    printf("TCP: tx -> %d\r\n", td);
+                    if (MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                        printf("TCP: tx -> %d\r\n", td);
+                    }
                     tx_seq.skip(td);
                     tx_count += td;
                 }
             }
 
+            // Verify recieved data
             if (rx_count < size) {
-                int rd = sock.recv(buffer, sizeof(buffer));
+                int rd = sock.recv(buffer, buffer_size);
                 TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);
                 if (rd > 0) {
-                    printf("TCP: rx <- %d\r\n", rd);
+                    if (MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                        printf("TCP: rx <- %d\r\n", rd);
+                    }
                     int diff = rx_seq.cmp(buffer, rd);
                     TEST_ASSERT_EQUAL(0, diff);
+                    rx_seq.skip(rd);
                     rx_count += rd;
                 }
             }
@@ -159,9 +199,9 @@ int main() {
 
     timer.stop();
     printf("MBED: Time taken: %fs\r\n", timer.read());
-    printf("MBED: Speed: %fkb/s\r\n",
+    printf("MBED: Speed: %.3fkb/s\r\n",
             8*(2*MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX - 
-            MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / 1000*timer.read());
+            MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
 
     eth.disconnect();
     GREENTEA_TESTSUITE_RESULT(result);
