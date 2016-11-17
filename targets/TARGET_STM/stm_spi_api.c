@@ -434,8 +434,8 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     // enable the interrupt
     IRQn_Type irq_n = spiobj->spiIRQ;
-    NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
+    NVIC_ClearPendingIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
     NVIC_EnableIRQ(irq_n);
 
