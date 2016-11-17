@@ -182,6 +182,9 @@ int main() {
                     // last good sequence and cut buffer in half
                     if (window > MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) {
                         window /= 2;
+                    }
+
+                    if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
                         printf("UDP: Not sent (%d), window = %d\r\n", td, window);
                     }
                 }
@@ -215,6 +218,9 @@ int main() {
                     known_time = timer.read_ms();
                     if (window > MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) {
                         window /= 2;
+                    }
+
+                    if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
                         printf("UDP: Dropped, window = %d\r\n", window);
                     }
                 } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {
