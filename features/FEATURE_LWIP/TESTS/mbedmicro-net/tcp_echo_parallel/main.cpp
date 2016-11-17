@@ -10,7 +10,7 @@
 
 
 #ifndef MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE
-#define MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE 256
+#define MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE 64
 #endif
 
 #ifndef MBED_CFG_TCP_CLIENT_ECHO_THREADS
@@ -18,7 +18,6 @@
 #endif
 
 
-const char ASCII_MAX = '~' - ' ';
 EthernetInterface net;
 SocketAddress tcp_addr;
 Mutex iomutex;

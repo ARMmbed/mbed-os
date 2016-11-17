@@ -9,7 +9,7 @@
 #include "unity/unity.h"
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE
-#define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 256
+#define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 64
 #endif
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT
@@ -21,7 +21,6 @@
 #endif
 
 
-const char ASCII_MAX = '~' - ' ';
 const int ECHO_LOOPS = 16;
 EthernetInterface net;
 SocketAddress udp_addr;
