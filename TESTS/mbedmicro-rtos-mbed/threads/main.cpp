@@ -53,7 +53,8 @@ void increment_with_wait(counter_t* counter) {
 }
 
 void increment_with_child(counter_t* counter) {
-    Thread child(counter, increment, osPriorityNormal, STACK_SIZE);
+    Thread child(osPriorityNormal, STACK_SIZE);
+    child.start(mbed::callback(increment, counter));
     child.join();
 }
 
@@ -62,7 +63,8 @@ void increment_with_murder(counter_t* counter) {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread child(counter, increment, osPriorityNormal, STACK_SIZE);
+        Thread child(osPriorityNormal, STACK_SIZE);
+        child.start(mbed::callback(increment, counter));
         child.terminate();
     }
 
@@ -79,7 +81,8 @@ void self_terminate(Thread *self) {
 template <void (*F)(counter_t *)>
 void test_single_thread() {
     counter_t counter(0);
-    Thread thread(&counter, F, osPriorityNormal, STACK_SIZE);
+    Thread thread(osPriorityNormal, STACK_SIZE);
+    thread.start(mbed::callback(F, &counter));
     thread.join();
     TEST_ASSERT_EQUAL(counter, 1);
 }
@@ -90,7 +93,8 @@ void test_parallel_threads() {
     Thread *threads[N];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(&counter, F, osPriorityNormal, STACK_SIZE);
+        threads[i] = new Thread(osPriorityNormal, STACK_SIZE);
+        threads[i].start(mbed::callback(F, &counter));
     }
 
     for (int i = 0; i < N; i++) {
@@ -106,7 +110,8 @@ void test_serial_threads() {
     counter_t counter(0);
 
     for (int i = 0; i < N; i++) {
-        Thread thread(&counter, F, osPriorityNormal, STACK_SIZE);
+        Thread thread(osPriorityNormal, STACK_SIZE);
+        thread.start(mbed::callback(F, &counter));
         thread.join();
     }
 
@@ -115,7 +120,7 @@ void test_serial_threads() {
 
 void test_self_terminate() {
     Thread *thread = new Thread(osPriorityNormal, STACK_SIZE);
-    thread->start(thread, self_terminate);
+    thread->start(mbed::callback(self_terminate, thread));
     thread->join();
     delete thread;
 }
