@@ -9,17 +9,16 @@
 
 static uint8_t sys_irq_disable_counter;
 
-static osMutexDef(critical);
-static osMutexId critical_mutex_id;
+static osMutexId_t critical_mutex_id;
 
 void platform_critical_init(void)
 {
-    critical_mutex_id = osMutexCreate(osMutex(critical));
+    critical_mutex_id = osMutexNew(NULL);
 }
 
 void platform_enter_critical(void)
 {
-    osMutexWait(critical_mutex_id, osWaitForever);
+    osMutexAcquire(critical_mutex_id, osWaitForever);
     sys_irq_disable_counter++;
 }
 

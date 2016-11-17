@@ -11,7 +11,7 @@
 #include "platform/arm_hal_timer.h"
 #include "platform/arm_hal_interrupt.h"
 
-static osThreadId timer_thread_id;
+static osThreadId_t timer_thread_id;
 
 static Timer timer;
 static Timeout timeout;
@@ -21,7 +21,7 @@ static void (*arm_hal_callback)(void);
 static void timer_thread(const void *)
 {
     for (;;) {
-        osSignalWait(1, osWaitForever);
+        osThreadFlagsWait(1, 0, osWaitForever);
         // !!! We don't do our own enter/exit critical - we rely on callback
         // doing it (ns_timer_interrupt_handler does)
         //platform_enter_critical();
@@ -33,8 +33,10 @@ static void timer_thread(const void *)
 // Called once at boot
 void platform_timer_enable(void)
 {
-    static osThreadDef(timer_thread, osPriorityRealtime, /*1,*/ 2*1024);
-    timer_thread_id = osThreadCreate(osThread(timer_thread), NULL);
+    static osThreadAttr_t timer_thread_attr;
+    timer_thread_attr.stack_size = 2 * 1024;
+    timer_thread_attr.priority = osPriorityRealtime;
+    timer_thread_id = osThreadNew(timer_thread, NULL, &timer_thread_attr);
     timer.start();
 }
 
@@ -53,7 +55,7 @@ void platform_timer_set_cb(void (*new_fp)(void))
 static void timer_callback(void)
 {
     due = 0;
-    osSignalSet(timer_thread_id, 1);
+    osThreadFlagsSet(timer_thread_id, 1);
     //callback();
 }
 

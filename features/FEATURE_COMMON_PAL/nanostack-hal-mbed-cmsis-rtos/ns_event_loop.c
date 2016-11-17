@@ -14,19 +14,17 @@
 
 static void event_loop_thread(const void *arg);
 
-// 1K should be enough - it's what the SAM4E port uses...
-// What happened to the instances parameter?
-static osThreadDef(event_loop_thread, osPriorityNormal, /*1,*/ MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE);
-static osMutexDef(event);
+static osThreadAttr_t event_thread_attr;
+static osMutexAttr_t event_mutex_attr;
 
-static osThreadId event_thread_id;
-static osMutexId event_mutex_id;
-static osThreadId event_mutex_owner_id = NULL;
+static osThreadId_t event_thread_id;
+static osMutexId_t event_mutex_id;
+static osThreadId_t event_mutex_owner_id = NULL;
 static uint32_t owner_count = 0;
 
 void eventOS_scheduler_mutex_wait(void)
 {
-    osMutexWait(event_mutex_id, osWaitForever);
+    osMutexAcquire(event_mutex_id, osWaitForever);
     if (0 == owner_count) {
         event_mutex_owner_id = osThreadGetId();
     }
@@ -52,7 +50,7 @@ void eventOS_scheduler_signal(void)
     // XXX why does signal set lock if called with irqs disabled?
     //__enable_irq();
     //tr_debug("signal %p", (void*)event_thread_id);
-    osSignalSet(event_thread_id, 1);
+    osThreadFlagsSet(event_thread_id, 1);
     //tr_debug("signalled %p", (void*)event_thread_id);
 }
 
@@ -60,14 +58,14 @@ void eventOS_scheduler_idle(void)
 {
     //tr_debug("idle");
     eventOS_scheduler_mutex_release();
-    osSignalWait(1, osWaitForever);
+    osThreadFlagsWait(1, 0, osWaitForever);
     eventOS_scheduler_mutex_wait();
 }
 
 static void event_loop_thread(const void *arg)
 {
     //tr_debug("event_loop_thread create");
-    osSignalWait(2, osWaitForever);
+    osThreadFlagsWait(2, 0, osWaitForever);
 
     eventOS_scheduler_mutex_wait();
     tr_debug("event_loop_thread");
@@ -78,11 +76,14 @@ static void event_loop_thread(const void *arg)
 
 void ns_event_loop_thread_create(void)
 {
-    event_mutex_id = osMutexCreate(osMutex(event));
-    event_thread_id = osThreadCreate(osThread(event_loop_thread), NULL);
+    event_mutex_id = osMutexNew(NULL);
+
+    event_thread_attr.priority = osPriorityNormal;
+    event_thread_attr.stack_size = MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE; // 1K should be enough - it's what the SAM4E port uses...
+    event_thread_id = osThreadNew(event_loop_thread, NULL, &event_thread_attr);
 }
 
 void ns_event_loop_thread_start(void)
 {
-    osSignalSet(event_thread_id, 2);
+    osThreadFlagsSet(event_thread_id, 2);
 }
