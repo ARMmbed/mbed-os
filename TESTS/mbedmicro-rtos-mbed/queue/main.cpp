@@ -61,9 +61,8 @@ int main (void) {
     int result_counter = 0;
 
     while (true) {
-        osEvent evt = queue.get();
-        if (evt.status == osEventMessage) {
-            message_t *message = (message_t*)evt.value.p;
+        message_t *message = queue.get();
+        if (message != NULL) {
             const float expected_voltage = CREATE_VOLTAGE(message->counter);
             const float expected_current = CREATE_CURRENT(message->counter);
             // Check using macros if received values correspond to values sent via queue
