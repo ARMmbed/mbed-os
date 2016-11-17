@@ -127,10 +127,12 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
     
 #ifdef CMSIS_OS_RTX
     memset(mbox->queue, 0, sizeof(mbox->queue));
-    mbox->def.pool = mbox->queue;
-    mbox->def.queue_sz = queue_sz;
+    mbox->attr.mq_mem = mbox->queue;
+    mbox->attr.mq_size = queue_sz;
+    mbox->attr.cb_mem = mbox->obj;
+    mbox->attr.cb_size = sizeof(mbox->obj);
 #endif
-    mbox->id = osMessageCreate(&mbox->def, NULL);
+    mbox->id = osMessageQueueNew(queue_sz, sizeof(void *), &mbox->attr);
     return (mbox->id == NULL) ? (ERR_MEM) : (ERR_OK);
 }
 
@@ -145,8 +147,7 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
  *      sys_mbox_t *mbox         -- Handle of mailbox
  *---------------------------------------------------------------------------*/
 void sys_mbox_free(sys_mbox_t *mbox) {
-    osEvent event = osMessageGet(mbox->id, 0);
-    if (event.status == osEventMessage)
+    if (osMessageQueueGetCount(mbox->id) != 0)
         error("sys_mbox_free error\n");
 }
 
@@ -160,7 +161,7 @@ void sys_mbox_free(sys_mbox_t *mbox) {
  *      void *msg              -- Pointer to data to post
  *---------------------------------------------------------------------------*/
 void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
-    if (osMessagePut(mbox->id, (uint32_t)msg, osWaitForever) != osOK)
+    if (osMessageQueuePut(mbox->id, msg, 0, osWaitForever) != osOK)
         error("sys_mbox_post error\n");
 }
 
@@ -178,7 +179,7 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
  *                                  if not.
  *---------------------------------------------------------------------------*/
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
-    osStatus status = osMessagePut(mbox->id, (uint32_t)msg, 0);
+    osStatus_t status = osMessageQueuePut(mbox->id, msg, 0, 0);
     return (status == osOK) ? (ERR_OK) : (ERR_MEM);
 }
 
@@ -210,12 +211,10 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
     u32_t start = us_ticker_read();
     
-    osEvent event = osMessageGet(mbox->id, (timeout != 0)?(timeout):(osWaitForever));
-    if (event.status != osEventMessage)
+    osStatus_t res = osMessageQueueGet(mbox->id, *msg, NULL, (timeout != 0)?(timeout):(osWaitForever));
+    if (res != osOK)
         return SYS_ARCH_TIMEOUT;
-    
-    *msg = (void *)event.value.v;
-    
+
     return (us_ticker_read() - start) / 1000;
 }
 
@@ -234,12 +233,10 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
  *                                  return ERR_OK.
  *---------------------------------------------------------------------------*/
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
-    osEvent event = osMessageGet(mbox->id, 0);
-    if (event.status != osEventMessage)
+    osStatus_t res = osMessageQueueGet(mbox->id, *msg, NULL, 0);
+    if (res != osOK)
         return SYS_MBOX_EMPTY;
-    
-    *msg = (void *)event.value.v;
-    
+
     return ERR_OK;
 }
 
@@ -258,10 +255,11 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
  *---------------------------------------------------------------------------*/
 err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
 #ifdef CMSIS_OS_RTX
-    memset(sem->data, 0, sizeof(uint32_t)*2);
-    sem->def.semaphore = sem->data;
+    memset(sem->data, 0, sizeof(sem->data));
+    sem->attr.cb_mem = sem->data;
+    sem->attr.cb_size = sizeof(sem->data);
 #endif
-    sem->id = osSemaphoreCreate(&sem->def, count);
+    sem->id = osSemaphoreNew(count, count, &sem->attr);
     if (sem->id == NULL)
         error("sys_sem_new create error\n");
     
@@ -294,7 +292,7 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
     u32_t start = us_ticker_read();
     
-    if (osSemaphoreWait(sem->id, (timeout != 0)?(timeout):(osWaitForever)) < 1)
+    if (osSemaphoreAcquire(sem->id, (timeout != 0)?(timeout):(osWaitForever)) < 1)
         return SYS_ARCH_TIMEOUT;
     
     return (us_ticker_read() - start) / 1000;
@@ -329,13 +327,14 @@ void sys_sem_free(sys_sem_t *sem) {}
 err_t sys_mutex_new(sys_mutex_t *mutex) {
 #ifdef CMSIS_OS_RTX
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    memset(mutex->data, 0, sizeof(int32_t)*4);
+    memset(mutex->data, 0, sizeof(mutex->data));
 #else
     memset(mutex->data, 0, sizeof(int32_t)*3);
 #endif
-    mutex->def.mutex = mutex->data;
+    mutex->attr.cb_mem = mutex->data;
+    mutex->attr.cb_size = sizeof(mutex->data);
 #endif
-    mutex->id = osMutexCreate(&mutex->def);
+    mutex->id = osMutexNew(&mutex->attr);
     if (mutex->id == NULL)
         return ERR_MEM;
     
@@ -345,7 +344,7 @@ err_t sys_mutex_new(sys_mutex_t *mutex) {
 /** Lock a mutex
  * @param mutex the mutex to lock */
 void sys_mutex_lock(sys_mutex_t *mutex) {
-    if (osMutexWait(mutex->id, osWaitForever) != osOK)
+    if (osMutexAcquire(mutex->id, osWaitForever) != osOK)
         error("sys_mutex_lock error\n");
 }
 
@@ -366,12 +365,11 @@ void sys_mutex_free(sys_mutex_t *mutex) {}
  * Description:
  *      Initialize sys arch
  *---------------------------------------------------------------------------*/
-osMutexId lwip_sys_mutex;
-osMutexDef(lwip_sys_mutex);
+osMutexId_t lwip_sys_mutex;
 
 void sys_init(void) {
     us_ticker_read(); // Init sys tick
-    lwip_sys_mutex = osMutexCreate(osMutex(lwip_sys_mutex));
+    lwip_sys_mutex = osMutexNew(NULL);
     if (lwip_sys_mutex == NULL)
         error("sys_init error\n");
 }
@@ -408,7 +406,7 @@ u32_t sys_jiffies(void) {
  *      sys_prot_t              -- Previous protection level (not used here)
  *---------------------------------------------------------------------------*/
 sys_prot_t sys_arch_protect(void) {
-    if (osMutexWait(lwip_sys_mutex, osWaitForever) != osOK)
+    if (osMutexAcquire(lwip_sys_mutex, osWaitForever) != osOK)
         error("sys_arch_protect error\n");
     return (sys_prot_t) 1;
 }
@@ -470,15 +468,14 @@ sys_thread_t sys_thread_new(const char *pcName,
     thread_pool_index++;
     
 #ifdef CMSIS_OS_RTX
-    t->def.pthread = (os_pthread)thread;
-    t->def.tpriority = (osPriority)priority;
-    t->def.stacksize = stacksize;
-    t->def.stack_pointer = (uint32_t*)malloc(stacksize);
-    if (t->def.stack_pointer == NULL) {
+    t->attr.priority = (osPriority_t)priority;
+    t->attr.stack_size = stacksize;
+    t->attr.stack_mem = (uint32_t*)malloc(stacksize);
+    if (t->attr.stack_mem == NULL) {
       error("Error allocating the stack memory");
     }
 #endif
-    t->id = osThreadCreate(&t->def, arg);
+    t->id = osThreadNew((os_thread_func_t)thread, &t->attr, arg);
     if (t->id == NULL)
         error("sys_thread_new create error\n");
     

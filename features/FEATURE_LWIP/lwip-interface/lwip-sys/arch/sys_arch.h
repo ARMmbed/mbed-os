@@ -19,6 +19,7 @@
 #define __ARCH_SYS_ARCH_H__
 
 #include "lwip/opt.h"
+#include "rtx_os.h"
 
 extern u8_t lwip_ram_heap[];
 
@@ -27,10 +28,10 @@ extern u8_t lwip_ram_heap[];
 
 // === SEMAPHORE ===
 typedef struct {
-    osSemaphoreId    id;
-    osSemaphoreDef_t def;
+    osSemaphoreId_t   id;
+    osSemaphoreAttr_t attr;
 #ifdef CMSIS_OS_RTX
-    uint32_t         data[2];
+    char         data[sizeof(os_semaphore_t)];
 #endif
 } sys_sem_t;
 
@@ -39,13 +40,13 @@ typedef struct {
 
 // === MUTEX ===
 typedef struct {
-    osMutexId    id;
-    osMutexDef_t def;
+    osMutexId_t    id;
+    osMutexAttr_t  attr;
 #ifdef CMSIS_OS_RTX
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    int32_t      data[4];
+    char       data[sizeof(os_mutex_t)];
 #else
-    int32_t      data[3];
+    int32_t    data[3];
 #endif
 #endif
 } sys_mutex_t;
@@ -54,10 +55,11 @@ typedef struct {
 #define MB_SIZE      8
 
 typedef struct {
-    osMessageQId    id;
-    osMessageQDef_t def;
+    osMessageQueueId_t   id;
+    osMessageQueueAttr_t attr;
 #ifdef CMSIS_OS_RTX
-    uint32_t        queue[4+MB_SIZE]; /* The +4 is required for RTX OS_MCB overhead. */
+    uint32_t        queue[MB_SIZE]; /* The +4 is required for RTX OS_MCB overhead. */
+    char            obj[sizeof(os_message_queue_t)];
 #endif
 } sys_mbox_t;
 
@@ -75,8 +77,8 @@ typedef struct {
 
 // === THREAD ===
 typedef struct {
-    osThreadId    id;
-    osThreadDef_t def;
+    osThreadId_t   id;
+    osThreadAttr_t attr;
 } sys_thread_data_t;
 typedef sys_thread_data_t* sys_thread_t;
 

@@ -521,7 +521,7 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   }
 
   /* Check if a descriptor is available for the transfer. */
-  int32_t count = osSemaphoreWait(k64f_enet->xTXDCountSem.id, 0);
+  int32_t count = osSemaphoreAcquire(k64f_enet->xTXDCountSem.id, 0);
   if (count < 1)
     return ERR_BUF;
 
@@ -688,9 +688,10 @@ err_t eth_arch_enetif_init(struct netif *netif)
   /* CMSIS-RTOS, start tasks */
 #ifdef CMSIS_OS_RTX
   memset(k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
-  k64f_enetdata.xTXDCountSem.def.semaphore = k64f_enetdata.xTXDCountSem.data;
+  k64f_enetdata.xTXDCountSem.attr.cb_mem = k64f_enetdata.xTXDCountSem.data;
+  k64f_enetdata.xTXDCountSem.attr.cb_size = sizeof(k64f_enetdata.xTXDCountSem.data);
 #endif
-  k64f_enetdata.xTXDCountSem.id = osSemaphoreCreate(&k64f_enetdata.xTXDCountSem.def, ENET_TX_RING_LEN);
+  k64f_enetdata.xTXDCountSem.id = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &k64f_enetdata.xTXDCountSem.attr);
 
   LWIP_ASSERT("xTXDCountSem creation error", (k64f_enetdata.xTXDCountSem.id != NULL));
 
