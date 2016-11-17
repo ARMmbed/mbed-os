@@ -29,7 +29,7 @@ Semaphore::Semaphore(int32_t count) {
 #ifdef CMSIS_OS_RTX
     memset(_semaphore_data, 0, sizeof(_semaphore_data));
     _osSemaphoreAttr.cb_mem = _semaphore_data;
-    _osSemaphoreAttr.cb_szie = sizeof(_semaphore_data);
+    _osSemaphoreAttr.cb_size = sizeof(_semaphore_data);
 #endif
     _osSemaphoreId = osSemaphoreNew(count, count, &_osSemaphoreAttr);
 }

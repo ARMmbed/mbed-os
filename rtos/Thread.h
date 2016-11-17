@@ -68,7 +68,7 @@ public:
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
     */
-    Thread(osPriority priority=osPriorityNormal,
+    Thread(osPriority_t priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(priority, stack_size, stack_mem);
@@ -96,7 +96,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(task).")
     Thread(mbed::Callback<void()> task,
-           osPriority priority=osPriorityNormal,
+           osPriority_t priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(task, priority, stack_size, stack_mem);
@@ -126,7 +126,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (T::*task)(),
-           osPriority priority=osPriorityNormal,
+           osPriority_t priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(mbed::callback(task, argument),
@@ -157,7 +157,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (*task)(T *),
-           osPriority priority=osPriorityNormal,
+           osPriority_t priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(mbed::callback(task, argument),
@@ -187,7 +187,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(callback(task, argument)).")
     Thread(void (*task)(void const *argument), void *argument=NULL,
-           osPriority priority=osPriorityNormal,
+           osPriority_t priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(mbed::callback((void (*)(void *))task, argument),
