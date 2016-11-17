@@ -182,9 +182,12 @@ public:
                         if (window > MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) {
                             window /= 2;
                         }
-                        iomutex.lock();
-                        printf("UDP: Not sent (%d), window = %d\r\n", td, window);
-                        iomutex.unlock();
+
+                        if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                            iomutex.lock();
+                            printf("UDP: Not sent (%d), window = %d\r\n", td, window);
+                            iomutex.unlock();
+                        }
                     }
                 }
 
@@ -219,9 +222,12 @@ public:
                         if (window > MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) {
                             window /= 2;
                         }
-                        iomutex.lock();
-                        printf("UDP: Dropped, window = %d\r\n", window);
-                        iomutex.unlock();
+
+                        if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                            iomutex.lock();
+                            printf("UDP: Dropped, window = %d\r\n", window);
+                            iomutex.unlock();
+                        }
                     } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {
                         break;
                     }
@@ -238,7 +244,7 @@ PressureTest *pressure_tests[MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(60, "udp_echo");
+    GREENTEA_SETUP(2*60, "udp_echo");
 
     uint8_t *buffer;
     size_t buffer_size;
