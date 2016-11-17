@@ -5,7 +5,7 @@
                    "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD", "-fno-delete-null-pointer-checks",
-                   "-fomit-frame-pointer", "-Os"],
+                   "-fomit-frame-pointer", "-Os", "-DNDEBUG"],
         "asm": ["-x", "assembler-with-cpp"],
         "c": ["-std=gnu99"],
         "cxx": ["-std=gnu++98", "-fno-rtti", "-Wvla"],
@@ -16,7 +16,7 @@
     "ARM": {
         "common": ["-c", "--gnu", "-Otime", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
-                   "--multibyte_chars", "-O3"],
+                   "--multibyte_chars", "-O3", "-DNDEBUG"],
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         "cxx": ["--cpp", "--no_rtti", "--no_vla"],
@@ -26,7 +26,7 @@
         "common": ["-c", "--gnu", "-Otime", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O3", "-D__MICROLIB",
-                   "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD"],
+                   "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD", "-DNDEBUG"],
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         "cxx": ["--cpp", "--no_rtti", "--no_vla"],
@@ -35,7 +35,7 @@
     "IAR": {
         "common": [
             "--no_wrap_diagnostics", "-e",
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh"],
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh", "-DNDEBUG"],
         "asm": [],
         "c": ["--vla"],
         "cxx": ["--guard_calls", "--no_static_destruction"],
