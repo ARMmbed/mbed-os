@@ -153,18 +153,19 @@ public:
             RandSeq rx_seq;
             size_t rx_count = 0;
             size_t tx_count = 0;
+            size_t window = buffer_size;
 
             while (tx_count < size || rx_count < size) {
                 // Send out data
                 if (tx_count < size) {
                     size_t chunk_size = size - tx_count;
-                    if (chunk_size > buffer_size) {
-                        chunk_size = buffer_size;
+                    if (chunk_size > window) {
+                        chunk_size = window;
                     }
 
                     tx_seq.buffer(buffer, chunk_size);
                     int td = sock.send(buffer, chunk_size);
-                    TEST_ASSERT(td > 0 || td == NSAPI_ERROR_WOULD_BLOCK);
+
                     if (td > 0) {
                         if (MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG) {
                             iomutex.lock();
@@ -173,11 +174,23 @@ public:
                         }
                         tx_seq.skip(td);
                         tx_count += td;
+                    } else if (td != NSAPI_ERROR_WOULD_BLOCK) {
+                        // We may fail to send because of buffering issues,
+                        // cut buffer in half
+                        if (window > MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) {
+                            window /= 2;
+                        }
+
+                        if (MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                            iomutex.lock();
+                            printf("TCP: Not sent (%d), window = %d\r\n", td, window);
+                            iomutex.unlock();
+                        }
                     }
                 }
 
                 // Verify recieved data
-                if (rx_count < size) {
+                while (rx_count < size) {
                     int rd = sock.recv(buffer, buffer_size);
                     TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);
                     if (rd > 0) {
@@ -190,6 +203,8 @@ public:
                         TEST_ASSERT_EQUAL(0, diff);
                         rx_seq.skip(rd);
                         rx_count += rd;
+                    } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {
+                        break;
                     }
                 }
             }
