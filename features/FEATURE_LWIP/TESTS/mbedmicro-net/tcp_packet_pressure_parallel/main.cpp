@@ -204,7 +204,7 @@ PressureTest *pressure_tests[MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
+    GREENTEA_SETUP(2*60, "tcp_echo");
 
     uint8_t *buffer;
     size_t buffer_size;
