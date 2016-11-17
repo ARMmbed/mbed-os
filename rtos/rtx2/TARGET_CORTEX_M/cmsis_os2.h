@@ -53,8 +53,9 @@
 extern "C"
 {
 #endif
- 
- 
+
+#define CMSIS_OS_RTX
+
 //  ==== Enumerations, structures, defines ====
  
 /// Version information.
