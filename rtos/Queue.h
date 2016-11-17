@@ -68,12 +68,14 @@ public:
 
     /** Get a message or Wait for a message from a Queue.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  event information that includes the message and the status code.
+      @return  message or NULL if no messages available, timeout or error occurred.
     */
     T *get(uint32_t millisec=osWaitForever) {
         T *data;
-        osMessageQueueGet(_queue_id, data, NULL, millisec);
-
+        osStatus_t res = osMessageQueueGet(_queue_id, data, NULL, millisec);
+        if (res != osOK) {
+          data = NULL;
+        }
         return data;
     }
 
