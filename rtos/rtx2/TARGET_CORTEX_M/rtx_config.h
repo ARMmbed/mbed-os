@@ -439,6 +439,19 @@ extern       uint8_t  os_irq_cm;
 extern const uint8_t *os_irq_cm_ref;
        const uint8_t* os_irq_cm_ref = &os_irq_cm;
 
+// mbedOS
+// ======
+
+osMutexId_t singleton_mutex_id;
+osMutexId_t malloc_mutex_id;
+osMutexId_t env_mutex_id;
+
+void mbed_pre_main(void)
+{
+  singleton_mutex_id = osMutexNew(NULL);
+  malloc_mutex_id = osMutexNew(NULL);
+  env_mutex_id = osMutexNew(NULL);
+}
 
 // OS Initialization
 // =================
@@ -448,6 +461,7 @@ osThreadAttr_t _main_thread_attr;
 
 void rtx_start_main(void)
 {
+  mbed_pre_main();                                                  // mbed specific init
 
   _main_thread_attr.stack_size = 4*OS_MAINSTKSIZE;
   _main_thread_attr.priority = osPriorityNormal;
