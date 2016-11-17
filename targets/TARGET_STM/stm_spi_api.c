@@ -434,8 +434,8 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     // enable the interrupt
     IRQn_Type irq_n = spiobj->spiIRQ;
-    NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
+    NVIC_ClearPendingIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
     NVIC_EnableIRQ(irq_n);
 
@@ -545,6 +545,9 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
             // else we're done
             event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
        }
+       // enable the interrupt
+       NVIC_DisableIRQ(spiobj->spiIRQ);
+       NVIC_ClearPendingIRQ(spiobj->spiIRQ);
     }
 
     if (event) DEBUG_PRINTF("SPI: Event: 0x%x\n", event);
