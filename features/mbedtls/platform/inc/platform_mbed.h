@@ -21,6 +21,6 @@
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
 
-#if defined(DEVICE_CRYPTO)
+#if defined(MBEDTLS_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
