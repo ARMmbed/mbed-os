@@ -23,7 +23,7 @@
 #include "PeripheralPins.h"
 #include "nu_modutil.h"
 
-static uint32_t adc_modinit_mask = 0;
+static uint32_t eadc_modinit_mask = 0;
 
 static const struct nu_modinit_s adc_modinit_tab[] = {
     {ADC_0_0, EADC_MODULE, CLK_CLKSEL1_ADCSEL_PLL, CLK_CLKDIV0_ADC(5), ADC_RST, EADC0_IRQn, NULL},
@@ -57,7 +57,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
     
     // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
-    if (! adc_modinit_mask) {
+    if (! eadc_modinit_mask) {
         // Reset this module if no channel enabled
         SYS_ResetModule(modinit->rsetidx);
         
@@ -78,7 +78,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Configure the sample module Nmod for analog input channel Nch and software trigger source
     EADC_ConfigSampleModule(eadc_base, chn, EADC_SOFTWARE_TRIGGER, chn % 8);
     
-    adc_modinit_mask |= 1 << chn;
+    eadc_modinit_mask |= 1 << chn;
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
