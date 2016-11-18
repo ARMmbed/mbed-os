@@ -64,7 +64,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->adcReg = (AdcReg_pt)adc;
     obj->pin = pin;
     obj->pinFlag = 1;
-
+    obj->ADC_Offset_Value = TRIMREG->ADC_OFFSET_TRIM;
+    
     switch (pin) {
         case A0:
             adc_pin=0;
@@ -183,7 +184,14 @@ uint16_t analogin_read_u16(analogin_t *obj)
     while((uint32_t)(obj->adcReg->STATUS)!=(uint32_t)1) {
     }
     adcData =(uint16_t)(obj->adcReg->DATA);
-    CLOCK_DISABLE(CLOCK_ADC);
+    
+    /* Offset the ADC data with trim value */
+    if (obj->ADC_Offset_Value != 0xFFFFFFFF) {
+      
+        if(adcData >= obj->ADC_Offset_Value) {
+            adcData -= obj->ADC_Offset_Value;
+        }
+    }
 
     return(adcData);
 }

@@ -61,7 +61,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     obj->pwmReg->DUTYCYCLE = 0x80;
 
     /* Write the PWM output enable register 0x4000B004, to 1 */
-    obj->pwmReg->PWM_ENABLE.WORD = 0x1;
+    obj->pwmReg->PWM_ENABLE = 0x1;
 
     obj->pwmReg->PRESCALE_DISABLE = 0x1;
 
@@ -190,7 +190,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     }
     /* If pulsewidth is less than 128uSec, set the prescaler to 4096
      * by enabling prescale register 0x4000B00C to 1 */
-    obj->pwmReg->PRESCALE_ENABLE.WORD = 0x1;
+    obj->pwmReg->PRESCALE_ENABLE = 0x1;
 
     /* Calculate the duty cycle based on the width of the pulse */
     /* ((255 * us) / 128) + 1 = duty cycle */
