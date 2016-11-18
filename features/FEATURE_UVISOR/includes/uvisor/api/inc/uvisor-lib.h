@@ -25,7 +25,7 @@
 #if defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1
 
 /* Library header files */
-#include "api/inc/benchmark.h"
+#include "api/inc/api.h"
 #include "api/inc/box_config.h"
 #include "api/inc/box_id.h"
 #include "api/inc/debug.h"
@@ -37,6 +37,7 @@
 #include "api/inc/rpc_gateway.h"
 #include "api/inc/secure_access.h"
 #include "api/inc/uvisor_semaphore.h"
+#include "api/inc/vmpu.h"
 
 #else /* defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1 */
 
@@ -56,11 +57,9 @@ UVISOR_EXTERN int uvisor_lib_init(void);
  * target platform. */
 #include "api/inc/debug_exports.h"
 #include "api/inc/context_exports.h"
-#include "api/inc/export_table_exports.h"
 #include "api/inc/halt_exports.h"
 #include "api/inc/register_gateway_exports.h"
 #include "api/inc/rpc_gateway_exports.h"
-#include "api/inc/svc_exports.h"
 #include "api/inc/priv_sys_hook_exports.h"
 #include "api/inc/unvic_exports.h"
 #include "api/inc/uvisor_exports.h"

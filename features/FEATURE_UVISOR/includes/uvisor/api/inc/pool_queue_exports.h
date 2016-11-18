@@ -194,15 +194,4 @@ static inline void * uvisor_pool_pointer_to(uvisor_pool_t * pool, uvisor_pool_sl
     return (uint8_t *) pool->array + pool->stride * slot;
 }
 
-typedef struct {
-    int (*init)(uvisor_pool_t *, void *, size_t, size_t, int);
-    int (*queue_init)(uvisor_pool_queue_t *, uvisor_pool_t *, void *, size_t, size_t, int);
-    uvisor_pool_slot_t (*allocate)(uvisor_pool_t *, uint32_t);
-    void (*queue_enqueue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
-    uvisor_pool_slot_t (*free)(uvisor_pool_t *, uvisor_pool_slot_t);
-    uvisor_pool_slot_t (*queue_dequeue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
-    uvisor_pool_slot_t (*queue_dequeue_first)(uvisor_pool_queue_t *);
-    uvisor_pool_slot_t (*queue_find_first)(uvisor_pool_queue_t *, TQueryFN_Ptr, void *);
-} UvisorPoolTable;
-
 #endif
