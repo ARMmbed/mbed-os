@@ -2,7 +2,7 @@
  * @file     CLK.h
  * @version  V1.0
  * $Revision  1 $
- * $Date: 14/10/06 1:50p $
+ * $Date: 15/11/19 10:06a $
  * @brief    NUC472/NUC442 CLK Header File
  *
  * @note
@@ -30,11 +30,18 @@ extern "C"
 @{
 */
 
-#define FREQ_50MHZ       50000000
-#define FREQ_24MHZ       24000000
-#define FREQ_22MHZ       22000000
-#define FREQ_32KHZ          32767
-#define FREQ_10KHZ          10000
+#define FREQ_500MHZ        500000000
+#define FREQ_250MHZ        250000000
+#define FREQ_200MHZ        200000000
+#define FREQ_125MHZ        125000000
+#define FREQ_72MHZ         72000000
+#define FREQ_50MHZ         50000000
+#define FREQ_25MHZ         25000000
+#define FREQ_24MHZ         24000000
+#define FREQ_22MHZ         22000000
+#define FREQ_32KHZ         32000
+#define FREQ_10KHZ         10000
+
 /*---------------------------------------------------------------------------------------------------------*/
 /*  PLLCTL constant definitions. PLL = FIN * NF / NR / NO                                                  */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -69,9 +76,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  PLL2CTL constant definitions.                                                                */
 /*---------------------------------------------------------------------------------------------------------*/
-#define CLK_PLL2CTL_USPLL(x)       (((x)-1) << CLK_PLL2CTL_PLL2DIV_Pos) /*!< USBPLL clock frequency = (480 MHz) / 2 / (USB_N + 1). It could be 1~256,  Max. PLL frequency :480MHz / 2 when XTL12M.  \hideinitializer */
-#define CLK_PLL2CTL_USBPLL_DIS     (0x00UL<<CLK_PLL2CTL_PLL2CKEN_Pos)   /*!< USB PHY PLL (480MHz)  Disable  \hideinitializer */
-#define CLK_PLL2CTL_PLL2CKEN    (0x01UL<<CLK_PLL2CTL_PLL2CKEN_Pos)   /*!< USB PHY PLL (480MHz)  Enable   \hideinitializer */
+#define CLK_PLL2CTL_PLL2DIV(x)       (((x)-1) << CLK_PLL2CTL_PLL2DIV_Pos) /*!< USBPLL clock frequency = (480 MHz) / 2 / (USB_N + 1). It could be 1~256,  Max. PLL frequency :480MHz / 2 when XTL12M.  \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  CLKSEL0 constant definitions.  (Write-protection)                                                                         */
@@ -80,7 +85,7 @@ extern "C"
 #define CLK_CLKSEL0_HCLKSEL_LXT         (0x01UL<<CLK_CLKSEL0_HCLKSEL_Pos) /*!< Setting clock source as external XTAL 32.768KHz \hideinitializer */
 #define CLK_CLKSEL0_HCLKSEL_PLL         (0x02UL<<CLK_CLKSEL0_HCLKSEL_Pos) /*!< Setting clock source as PLL output  \hideinitializer */
 #define CLK_CLKSEL0_HCLKSEL_LIRC        (0x03UL<<CLK_CLKSEL0_HCLKSEL_Pos) /*!< Setting clock source as internal 10KHz RC clock  \hideinitializer */
-#define CLK_CLKSEL0_HCLKSEL_USBPLL      (0x04UL<<CLK_CLKSEL0_HCLKSEL_Pos) /*!< Setting clock source as USBPLL clock  \hideinitializer */
+#define CLK_CLKSEL0_HCLKSEL_PLL2        (0x04UL<<CLK_CLKSEL0_HCLKSEL_Pos) /*!< Setting clock source as USBPLL clock  \hideinitializer */
 #define CLK_CLKSEL0_HCLKSEL_HIRC        (0x07UL<<CLK_CLKSEL0_HCLKSEL_Pos) /*!< Setting clock source as internal 22.1184MHz RC clock  \hideinitializer */
 
 #define CLK_CLKSEL0_STCLKSEL_HXT         (0x00UL<<CLK_CLKSEL0_STCLKSEL_Pos)  /*!< Setting clock source as external XTAL  \hideinitializer */
@@ -88,19 +93,23 @@ extern "C"
 #define CLK_CLKSEL0_STCLKSEL_HXT_DIV2    (0x02UL<<CLK_CLKSEL0_STCLKSEL_Pos)  /*!< Setting clock source as external XTAL/2  \hideinitializer */
 #define CLK_CLKSEL0_STCLKSEL_HCLK_DIV2    (0x03UL<<CLK_CLKSEL0_STCLKSEL_Pos)  /*!< Setting clock source as HCLK/2  \hideinitializer */
 #define CLK_CLKSEL0_STCLKSEL_HIRC_DIV2  (0x07UL<<CLK_CLKSEL0_STCLKSEL_Pos)  /*!< Setting clock source as internal 22.1184MHz RC clock/2  \hideinitializer */
+#define CLK_CLKSEL0_STCLKSEL_HCLK      (0x01UL<<SysTick_CTRL_CLKSOURCE_Pos) /*!< Setting SysTick clock source as HCLK */
 
 #define CLK_CLKSEL0_PCLKSEL_HCLK   (0x00UL<<CLK_CLKSEL0_PCLKSEL_Pos)    /*!< Setting clock source as HCLK  \hideinitializer */
 #define CLK_CLKSEL0_PCLKSEL_HCLK_DIV2  (0x01UL<<CLK_CLKSEL0_PCLKSEL_Pos)    /*!< Setting clock source as HCLK/2  \hideinitializer */
 
-#define CLK_CLKSEL0_USBHSEL_PLL2   (0x00UL<<CLK_CLKSEL0_USBHSEL_Pos)    /*!< Setting clock source as PLL2   \hideinitializer */
-#define CLK_CLKSEL0_USBHSEL_PLL    (0x01UL<<CLK_CLKSEL0_USBHSEL_Pos)    /*!< Setting clock source as PLL  \hideinitializer */
-
-#define CLK_CLKSEL0_EMACSEL_PLL   (0x01UL<<10)    /*!< Setting clock source as PLL  \hideinitializer */
+#define CLK_CLKSEL0_USBHSEL_PLL   (0x01UL<<CLK_CLKSEL0_USBHSEL_Pos)    /*!< Setting clock source as PLL   \hideinitializer */
+#define CLK_CLKSEL0_USBHSEL_PLL2    (0x00UL<<CLK_CLKSEL0_USBHSEL_Pos)    /*!< Setting clock source as PLL2  \hideinitializer */
 
 #define CLK_CLKSEL0_CAPSEL_HXT     (0x00UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as external XTAL  \hideinitializer */
-#define CLK_CLKSEL0_CAPSEL_PLL2    (0x01UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as PLL2  \hideinitializer */
+#define CLK_CLKSEL0_CAPSEL_PLL     (0x01UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as PLL   \hideinitializer */
 #define CLK_CLKSEL0_CAPSEL_HCLK    (0x02UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as HCLK  \hideinitializer */
 #define CLK_CLKSEL0_CAPSEL_HIRC    (0x03UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as internal 22.1184MHz RC clock  \hideinitializer */
+
+#define CLK_CLKSEL0_ICAPSEL_HXT    (0x00UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as external XTAL  \hideinitializer */
+#define CLK_CLKSEL0_ICAPSEL_PLL    (0x01UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as PLL   \hideinitializer */
+#define CLK_CLKSEL0_ICAPSEL_HCLK   (0x02UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as HCLK  \hideinitializer */
+#define CLK_CLKSEL0_ICAPSEL_HIRC   (0x03UL<<CLK_CLKSEL0_CAPSEL_Pos)    /*!< Setting clock source as internal 22.1184MHz RC clock  \hideinitializer */
 
 #define CLK_CLKSEL0_SDHSEL_HXT    (0x00UL<<CLK_CLKSEL0_SDHSEL_Pos)    /*!< Setting clock source as external XTAL  \hideinitializer */
 #define CLK_CLKSEL0_SDHSEL_PLL    (0x01UL<<CLK_CLKSEL0_SDHSEL_Pos)    /*!< Setting clock source as PLL2  \hideinitializer */
@@ -110,6 +119,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  CLKSEL1 constant definitions.                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
+#define CLK_CLKSEL1_WDTSEL_HXT       (0x0UL<<CLK_CLKSEL1_WDTSEL_Pos)       /*!< Setting WDT clock source as external XTAL \hideinitializer */
 #define CLK_CLKSEL1_WDTSEL_LXT       (0x1UL<<CLK_CLKSEL1_WDTSEL_Pos)       /*!< Setting WDT clock source as external XTAL 32.768KHz \hideinitializer */
 #define CLK_CLKSEL1_WDTSEL_HCLK_DIV2048  (0x2UL<<CLK_CLKSEL1_WDTSEL_Pos)       /*!< Setting WDT clock source as HCLK/2048  \hideinitializer */
 #define CLK_CLKSEL1_WDTSEL_LIRC        (0x3UL<<CLK_CLKSEL1_WDTSEL_Pos)       /*!< Setting WDT clock source as internal 10KHz RC clock  \hideinitializer */
@@ -118,6 +128,11 @@ extern "C"
 #define CLK_CLKSEL1_ADCSEL_PLL           (0x1UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting ADC clock source as PLL  \hideinitializer */
 #define CLK_CLKSEL1_ADCSEL_PCLK          (0x2UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting ADC clock source as PCLK  \hideinitializer */
 #define CLK_CLKSEL1_ADCSEL_HIRC        (0x3UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting ADC clock source as internal 22.1184MHz RC clock  \hideinitializer */
+
+#define CLK_CLKSEL1_EADCSEL_HXT          (0x0UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting EADC clock source as external XTAL  \hideinitializer */
+#define CLK_CLKSEL1_EADCSEL_PLL           (0x1UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting EADC clock source as PLL  \hideinitializer */
+#define CLK_CLKSEL1_EADCSEL_PCLK          (0x2UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting EADC clock source as PCLK  \hideinitializer */
+#define CLK_CLKSEL1_EADCSEL_HIRC        (0x3UL<<CLK_CLKSEL1_ADCSEL_Pos)       /*!< Setting EADC clock source as internal 22.1184MHz RC clock  \hideinitializer */
 
 #define CLK_CLKSEL1_SPI0SEL_PLL          (0x0UL<<CLK_CLKSEL1_SPI0SEL_Pos)       /*!< Setting SPI0 clock source as PLL  \hideinitializer */
 #define CLK_CLKSEL1_SPI0SEL_PCLK         (0x1UL<<CLK_CLKSEL1_SPI0SEL_Pos)       /*!< Setting SPI0 clock source as PCLK  \hideinitializer */
@@ -280,15 +295,15 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  CLKDIV3 constant definitions.                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
-#define CLK_CLKDIV3_CAP(x)      (((x)-1) << CLK_CLKDIV3_ICAPDIV_Pos) /*!< CLKDIV Setting for CAP Engine clock divider. It could be 1~256  \hideinitializer */
-#define CLK_CLKDIV3_VASENSOR(x)   (((x)-1) << CLK_CLKDIV3_VASENSORDIV_Pos) /*!< CLKDIV Setting for Video Pixel clock divider. It could be 1~256  \hideinitializer */
+#define CLK_CLKDIV3_CAP(x)      (((x)-1) << CLK_CLKDIV3_CAPDIV_Pos) /*!< CLKDIV Setting for CAP Engine clock divider. It could be 1~256  \hideinitializer */
+#define CLK_CLKDIV3_VSENSE(x)   (((x)-1) << CLK_CLKDIV3_VSENSEDIV_Pos) /*!< CLKDIV Setting for Video Pixel clock divider. It could be 1~256  \hideinitializer */
 #define CLK_CLKDIV3_EMAC(x)  (((x)-1) << CLK_CLKDIV3_EMACDIV_Pos) /*!< CLKDIV Setting for EMAC_MDCLK clock divider. It could be 1~256  \hideinitializer */
 
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  MODULE constant definitions.                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
-#define MODULE_AHPBCLK(x)                  ((x >>30) & 0x3)    /*!< Calculate AHBCLK/APBCLK offset on MODULE index  \hideinitializer */
+#define MODULE_APBCLK(x)                   ((x >>30) & 0x3)    /*!< Calculate AHBCLK/APBCLK offset on MODULE index  \hideinitializer */
 #define MODULE_CLKSEL(x)                   ((x >>28) & 0x3)    /*!< Calculate CLKSEL offset on MODULE index  \hideinitializer */
 #define MODULE_CLKSEL_Msk(x)               ((x >>25) & 0x7)    /*!< Calculate CLKSEL mask offset on MODULE index  \hideinitializer */
 #define MODULE_CLKSEL_Pos(x)               ((x >>20) & 0x1f)   /*!< Calculate CLKSEL position offset on MODULE index  \hideinitializer */
@@ -297,6 +312,16 @@ extern "C"
 #define MODULE_CLKDIV_Pos(x)               ((x >>5 ) & 0x1f)   /*!< Calculate CLKDIV position offset on MODULE index  \hideinitializer */
 #define MODULE_IP_EN_Pos(x)                ((x >>0 ) & 0x1f)   /*!< Calculate APBCLK offset on MODULE index  \hideinitializer */
 #define MODULE_NoMsk                       0x0                 /*!< Not mask on MODULE index  \hideinitializer */
+#define NA                                 MODULE_NoMsk        /*!< Not Available  \hideinitializer */
+
+#define MODULE_APBCLK_ENC(x)               (((x) & 0x03) << 30)   /*!< MODULE index, 0x0:AHBCLK, 0x1:APBCLK0, 0x2:APBCLK1 */
+#define MODULE_CLKSEL_ENC(x)               (((x) & 0x03) << 28)   /*!< CLKSEL offset on MODULE index, 0x0:CLKSEL0, 0x1:CLKSEL1, 0x2:CLKSEL2, 0x3:CLKSEL3 */
+#define MODULE_CLKSEL_Msk_ENC(x)           (((x) & 0x07) << 25)   /*!< CLKSEL mask offset on MODULE index */
+#define MODULE_CLKSEL_Pos_ENC(x)           (((x) & 0x1f) << 20)   /*!< CLKSEL position offset on MODULE index */
+#define MODULE_CLKDIV_ENC(x)               (((x) & 0x03) << 18)   /*!< APBCLK CLKDIV on MODULE index, 0x0:CLKDIV, 0x1:CLKDIV1 */
+#define MODULE_CLKDIV_Msk_ENC(x)           (((x) & 0xff) << 10)   /*!< CLKDIV mask offset on MODULE index */
+#define MODULE_CLKDIV_Pos_ENC(x)           (((x) & 0x1f) <<  5)   /*!< CLKDIV position offset on MODULE index */
+#define MODULE_IP_EN_Pos_ENC(x)            (((x) & 0x1f) <<  0)   /*!< AHBCLK/APBCLK offset on MODULE index */
 /*--------------------------------------------------------------------------------------------------------------------------------------*/
 /*   AHBCLK/APBCLK(2) | CLKSEL(2) | CLKSEL_Msk(3) |    CLKSEL_Pos(5)    | CLKDIV(2) | CLKDIV_Msk(8) |     CLKDIV_Pos(5)  |  IP_EN_Pos(5)*/
 /*--------------------------------------------------------------------------------------------------------------------------------------*/
@@ -304,15 +329,15 @@ extern "C"
 #define ISP_MODULE       ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_AHBCLK_ISPCKEN_Pos)     /*!< ISP Module  \hideinitializer */
 #define EBI_MODULE       ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_AHBCLK_EBICKEN_Pos)     /*!< EBI Module  \hideinitializer */
 #define USBH_MODULE      ((0UL<<30)|(0<<28)|(1<<25)           |( 8<<20)|(0<<18)|(0xF<<10)         |( 4<<5)|CLK_AHBCLK_USBHCKEN_Pos)    /*!< USBH Module  \hideinitializer */
-#define EMAC_MODULE      ((0UL<<30)|(0<<28)|(1<<25)           |(10<<20)|(3<<18)|(0xFF<<10)        |(16<<5)|CLK_AHBCLK_EMACCKEN_Pos)    /*!< EMAC Module  \hideinitializer */
+#define EMAC_MODULE      ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|(10<<20)|(3<<18)|(0xFF<<10)        |(16<<5)|CLK_AHBCLK_EMACCKEN_Pos)    /*!< EMAC Module  \hideinitializer */
 #define SDH_MODULE       ((0UL<<30)|(0<<28)|(3<<25)           |(20<<20)|(0<<18)|(0xFF<<10)        |(24<<5)|CLK_AHBCLK_SDHCKEN_Pos)     /*!< SDH Module  \hideinitializer */
 #define CRC_MODULE       ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_AHBCLK_CRCCKEN_Pos)     /*!< CRC Module  \hideinitializer */
-#define CAP_MODULE       ((0UL<<30)|(0<<28)|(3<<25)           |(16<<20)|(3<<18)|(0xFF<<10)        |( 0<<5)|CLK_AHBCLK_ICAPCKEN_Pos)    /*!< CAP Module  \hideinitializer */
-#define SENCLK_MODULE    ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(3<<18)|(0xFF<<10)        |( 8<<5)|CLK_AHBCLK_SENCLKCKEN_Pos)  /*!< Sensor Clock Module  \hideinitializer */
+#define CAP_MODULE       ((0UL<<30)|(0<<28)|(3<<25)           |(16<<20)|(3<<18)|(0xFF<<10)        |( 0<<5)|CLK_AHBCLK_CAPCKEN_Pos)     /*!< CAP Module  \hideinitializer */
+#define SEN_MODULE       ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(3<<18)|(0xFF<<10)        |( 8<<5)|CLK_AHBCLK_SENCKEN_Pos)     /*!< Sensor Clock Module  \hideinitializer */
 #define USBD_MODULE      ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_AHBCLK_USBDCKEN_Pos)    /*!< USBD Module  \hideinitializer */
 #define CRPT_MODULE      ((0UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_AHBCLK_CRPTCKEN_Pos)    /*!< CRYPTO Module  \hideinitializer */
 
-#define WDT_MODULE       ((1UL<<30)|(3<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK0_WDTCKEN_Pos)    /*!< Watchdog Timer Module  \hideinitializer */
+#define WDT_MODULE       ((1UL<<30)|(1<<28)|(3<<25)           |( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK0_WDTCKEN_Pos)    /*!< Watchdog Timer Module  \hideinitializer */
 #define WWDT_MODULE      ((1UL<<30)|(1<<28)|(3<<25)           |(30<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK0_WDTCKEN_Pos)    /*!< Window Watchdog Timer Module  \hideinitializer */
 #define RTC_MODULE       ((1UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK0_RTCCKEN_Pos)    /*!< RTC Module  \hideinitializer */
 #define TMR0_MODULE      ((1UL<<30)|(1<<28)|(7<<25)           |( 8<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK0_TMR0CKEN_Pos)   /*!< Timer0 Module  \hideinitializer */
@@ -358,13 +383,12 @@ extern "C"
 #define PWM1CH45_MODULE  ((2UL<<30)|(2<<28)|(7<<25)           |(20<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_PWM1CH45CKEN_Pos) /*!< PWM1CH45 Module  \hideinitializer */
 #define QEI0_MODULE      ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_QEI0CKEN_Pos)   /*!< QEI0 Module  \hideinitializer */
 #define QEI1_MODULE      ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_QEI1CKEN_Pos)   /*!< QEI1 Module  \hideinitializer */
-#define TAMPER_MODULE    ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_TAMPERCKEN_Pos) /*!< TAMPER Module  \hideinitializer */
 #define ECAP0_MODULE     ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_ECAP0CKEN_Pos)  /*!< ECAP0 Module  \hideinitializer */
 #define ECAP1_MODULE     ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_ECAP1CKEN_Pos)  /*!< ECAP1 Module  \hideinitializer */
 #define EPWM0_MODULE     ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_EPWM0CKEN_Pos)  /*!< EPWM0 Module  \hideinitializer */
 #define EPWM1_MODULE     ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_EPWM1CKEN_Pos)  /*!< EPWM1 Module  \hideinitializer */
 #define OPA_MODULE       ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_OPACKEN_Pos)    /*!< OPA Module  \hideinitializer */
-#define EADC_MODULE      ((2UL<<30)|(0<<28)|(MODULE_NoMsk<<25)|( 0<<20)|(0<<18)|(MODULE_NoMsk<<10)|( 0<<5)|CLK_APBCLK1_EADCCKEN_Pos)   /*!< EADC Module  \hideinitializer */
+#define EADC_MODULE      ((2UL<<30)|(1<<28)|(3<<25)           |( 2<<20)|(0<<18)|(0xFF<<10)        |(16<<5)|CLK_APBCLK1_EADCCKEN_Pos)   /*!< EADC Module  \hideinitializer */
 
 /*@}*/ /* end of group NUC472_442_CLK_EXPORTED_CONSTANTS */
 
@@ -395,6 +419,8 @@ uint32_t CLK_EnablePLL(uint32_t u32PllClkSrc, uint32_t u32PllFreq);
 void CLK_DisablePLL(void);
 void CLK_SysTickDelay(uint32_t us);
 uint32_t CLK_WaitClockReady(uint32_t u32ClkMask);
+void CLK_EnableSysTick(uint32_t u32ClkSrc, uint32_t u32Count);
+void CLK_DisableSysTick(void);
 
 /*@}*/ /* end of group NUC472_442_CLK_EXPORTED_FUNCTIONS */
 
