@@ -226,8 +226,11 @@ class Uvision(Exporter):
             os.remove(log_name)
             os.remove(project_name+".uvprojx")
             os.remove(project_name+".uvoptx")
+            # legacy .build directory cleaned if exists
             if exists('.build'):
-                shutil.rmtree(".build")
+                shutil.rmtree('.build')
+            if exists('BUILD'):
+                shutil.rmtree('BUILD')
 
         # Returns 0 upon success, 1 upon a warning, and neither upon an error
         if ret_code != 0 and ret_code != 1:
