@@ -26,23 +26,6 @@ MemBlockDevice::MemBlockDevice(bd_size_t size, bd_count_t count)
 
 MemBlockDevice::~MemBlockDevice()
 {
-    // nop if uninitialized
-    deinit();
-}
-
-bd_error_t MemBlockDevice::init()
-{
-    _blocks = (uint8_t**)malloc(_count*sizeof(uint8_t*));
-    if (!_blocks) {
-        return BD_ERROR_DEVICE_ERROR;
-    }
-
-    memset(_blocks, 0, _count*sizeof(uint8_t*));
-    return BD_ERROR_OK;
-}
-
-bd_error_t MemBlockDevice::deinit()
-{
     if (_blocks) {
         for (bd_count_t i = 0; i < _count; i++) {
             free(_blocks[i]);
@@ -51,7 +34,26 @@ bd_error_t MemBlockDevice::deinit()
         free(_blocks);
         _blocks = 0;
     }
+}
 
+bd_error_t MemBlockDevice::init()
+{
+    if (!_blocks) {
+        _blocks = (uint8_t**)malloc(_count*sizeof(uint8_t*));
+        if (!_blocks) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
+        memset(_blocks, 0, _count*sizeof(uint8_t*));
+    }
+
+    return BD_ERROR_OK;
+}
+
+bd_error_t MemBlockDevice::deinit()
+{
+    // Memory is lazily cleaned up in destructor to allow
+    // data to live across de/reinitialization
     return BD_ERROR_OK;
 }
 
