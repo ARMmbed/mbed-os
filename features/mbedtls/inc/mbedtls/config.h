@@ -233,16 +233,16 @@
  * \def MBEDTLS_AES_ALT
  *
  * MBEDTLS__MODULE_NAME__ALT: Uncomment a macro to let mbed TLS use your
- * alternate core implementation of a symmetric crypto or hash module (e.g.
- * platform specific assembly optimized implementations). Keep in mind that
- * the function prototypes should remain the same.
+ * alternate core implementation of a symmetric crypto, an arithmetic or hash
+ * module (e.g. platform specific assembly optimized implementations). Keep
+ * in mind that the function prototypes should remain the same.
  *
  * This replaces the whole module. If you only want to replace one of the
  * functions, use one of the MBEDTLS__FUNCTION_NAME__ALT flags.
  *
  * Example: In case you uncomment MBEDTLS_AES_ALT, mbed TLS will no longer
- * provide the "struct mbedtls_aes_context" definition and omit the base function
- * declarations and implementations. "aes_alt.h" will be included from
+ * provide the "struct mbedtls_aes_context" definition and omit the base
+ * function declarations and implementations. "aes_alt.h" will be included from
  * "aes.h" to include the new function definitions.
  *
  * Uncomment a macro to enable alternate implementation of the corresponding
@@ -261,6 +261,16 @@
 //#define MBEDTLS_SHA1_ALT
 //#define MBEDTLS_SHA256_ALT
 //#define MBEDTLS_SHA512_ALT
+/*
+ * When replacing the elliptic curve module, pleace consider, that it is
+ * implemented with two .c files:
+ *      - ecp.c
+ *      - ecp_curves.c
+ * You can replace them very much like all the other MBEDTLS__MODULE_NAME__ALT
+ * macros as described above. The only difference is that you have to make sure
+ * that you provide functionality for both .c files.
+ */
+//#define MBEDTLS_ECP_ALT
 
 /**
  * \def MBEDTLS_MD2_PROCESS_ALT
@@ -299,6 +309,59 @@
 //#define MBEDTLS_AES_SETKEY_DEC_ALT
 //#define MBEDTLS_AES_ENCRYPT_ALT
 //#define MBEDTLS_AES_DECRYPT_ALT
+
+/**
+ * \def MBEDTLS_ECP_INTERNAL_ALT
+ *
+ * Expose a part of the internal interface of the Elliptic Curve Point module.
+ *
+ * MBEDTLS_ECP__FUNCTION_NAME__ALT: Uncomment a macro to let mbed TLS use your
+ * alternative core implementation of elliptic curve arithmetic. Keep in mind
+ * that function prototypes should remain the same.
+ *
+ * This partially replaces one function. The header file from mbed TLS is still
+ * used, in contrast to the MBEDTLS_ECP_ALT flag. The original implementation
+ * is still present and it is used for group structures not supported by the
+ * alternative.
+ *
+ * Any of these options become available by defining MBEDTLS_ECP_INTERNAL_ALT
+ * and implementing the following functions:
+ *      unsigned char mbedtls_internal_ecp_grp_capable(
+ *          const mbedtls_ecp_group *grp )
+ *      int  mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
+ *      void mbedtls_internal_ecp_deinit( const mbedtls_ecp_group *grp )
+ * The mbedtls_internal_ecp_grp_capable function should return 1 if the
+ * replacement functions implement arithmetic for the given group and 0
+ * otherwise.
+ * The functions mbedtls_internal_ecp_init and mbedtls_internal_ecp_deinit are
+ * called before and after each point operation and provide an opportunity to
+ * implement optimized set up and tear down instructions.
+ *
+ * Example: In case you uncomment MBEDTLS_ECP_INTERNAL_ALT and
+ * MBEDTLS_ECP_DOUBLE_JAC_ALT, mbed TLS will still provide the ecp_double_jac
+ * function, but will use your mbedtls_internal_ecp_double_jac if the group is
+ * supported (your mbedtls_internal_ecp_grp_capable function returns 1 when
+ * receives it as an argument). If the group is not supported then the original
+ * implementation is used. The other functions and the definition of
+ * mbedtls_ecp_group and mbedtls_ecp_point will not change, so your
+ * implementation of mbedtls_internal_ecp_double_jac and
+ * mbedtls_internal_ecp_grp_capable must be compatible with this definition.
+ *
+ * Uncomment a macro to enable alternate implementation of the corresponding
+ * function.
+ */
+/* Required for all the functions in this section */
+//#define MBEDTLS_ECP_INTERNAL_ALT
+/* Support for Weierstrass curves with Jacobi representation */
+//#define MBEDTLS_ECP_RANDOMIZE_JAC_ALT
+//#define MBEDTLS_ECP_ADD_MIXED_ALT
+//#define MBEDTLS_ECP_DOUBLE_JAC_ALT
+//#define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT
+//#define MBEDTLS_ECP_NORMALIZE_JAC_ALT
+/* Support for curves with Montgomery arithmetic */
+//#define MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT
+//#define MBEDTLS_ECP_RANDOMIZE_MXZ_ALT
+//#define MBEDTLS_ECP_NORMALIZE_MXZ_ALT
 
 /**
  * \def MBEDTLS_TEST_NULL_ENTROPY
