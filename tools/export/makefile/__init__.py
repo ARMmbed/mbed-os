@@ -141,8 +141,11 @@ class Makefile(Exporter):
         if cleanup:
             remove("Makefile")
             remove(log_name)
+            # legacy .build directory cleaned if exists
             if exists('.build'):
                 shutil.rmtree('.build')
+            if exists('BUILD'):
+                shutil.rmtree('BUILD')
 
         if ret_code != 0:
             # Seems like something went wrong.
