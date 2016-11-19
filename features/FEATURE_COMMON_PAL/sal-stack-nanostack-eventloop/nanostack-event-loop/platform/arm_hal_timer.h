@@ -15,6 +15,9 @@
  */
 #ifndef ARM_HAL_TIMER_H_
 #define ARM_HAL_TIMER_H_
+
+#include "eventloop_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,6 +25,7 @@ extern "C" {
  * \brief This function perform timer init.
  */
 extern void platform_timer_enable(void);
+
 /**
  * \brief This function is API for set Timer interrupt handler for stack
  *
@@ -30,6 +34,7 @@ extern void platform_timer_enable(void);
  */
 typedef void (*platform_timer_cb)(void);
 extern void platform_timer_set_cb(platform_timer_cb new_fp);
+
 /**
  * \brief This function is API for stack timer start
  *
@@ -37,17 +42,48 @@ extern void platform_timer_set_cb(platform_timer_cb new_fp);
  *
  */
 extern void platform_timer_start(uint16_t slots);
+
 /**
  * \brief This function is API for stack timer stop
  *
  */
 extern void platform_timer_disable(void);
+
 /**
  * \brief This function is API for stack timer to read active timer remaining slot count
  *
  * \return 50us time slot remaining
  */
 extern uint16_t platform_timer_get_remaining_slots(void);
+
+#ifdef NS_EVENTLOOP_USE_TICK_TIMER
+/**
+ * \brief This function is API for registering low resolution tick timer callback. Also does
+ *        any necessary initialization of the tick timer.
+ *
+ * \return -1 for failure, success otherwise
+ */
+extern int8_t platform_tick_timer_register(void (*tick_timer_cb_handler)(void));
+
+/**
+ * \brief This function is API for starting the low resolution tick timer. The callback
+ *        set with platform_tick_timer_register gets called periodically until stopped
+ *        by calling platform_tick_timer_stop.
+ *
+ * \param period_ms define how many milliseconds time period will be started
+ * \return -1 for failure, success otherwise
+ */
+extern int8_t platform_tick_timer_start(uint32_t period_ms);
+
+/**
+ * \brief This function is API for stopping the low resolution tick timer
+ *
+ * \return -1 for failure, success otherwise
+ */
+extern int8_t platform_tick_timer_stop(void);
+
+#endif // NS_EVENTLOOP_USE_TICK_TIMER
+
 #ifdef __cplusplus
 }
 #endif

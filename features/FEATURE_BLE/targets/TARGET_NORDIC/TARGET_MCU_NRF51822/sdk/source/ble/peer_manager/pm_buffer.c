@@ -93,7 +93,7 @@ uint8_t pm_buffer_block_acquire(pm_buffer_t * p_buffer, uint32_t n_blocks)
             {
                 first_locked_mutex = i;
             }
-            if ((i - first_locked_mutex + 1) == n_blocks)
+            if ((i - first_locked_mutex + 1) >= 0 && ((uint32_t)(i - first_locked_mutex + 1)) == n_blocks)
             {
                 return first_locked_mutex;
             }

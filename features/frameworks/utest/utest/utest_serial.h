@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -24,3 +27,5 @@
 #define utest_printf(...) greentea_serial->printf(__VA_ARGS__)
 
 #endif // UTEST_SERIAL_H
+
+/** @}*/

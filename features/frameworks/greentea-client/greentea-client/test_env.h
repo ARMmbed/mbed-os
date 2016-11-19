@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /*
  * Copyright (c) 2013-2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -75,6 +78,8 @@ extern const char* GREENTEA_TEST_ENV_LCOV_START;
  */
 void GREENTEA_SETUP(const int, const char *);
 void GREENTEA_TESTSUITE_RESULT(const int);
+void GREENTEA_TESTCASE_START(const char *test_case_name);
+void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed);
 
 /**
  *  Test suite result related notification API
@@ -95,3 +100,5 @@ void greentea_notify_coverage_end();
 #endif  // MBED_CFG_DEBUG_OPTIONS_COVERAGE
 
 #endif  // GREENTEA_CLIENT_TEST_ENV_H_
+
+/** @}*/

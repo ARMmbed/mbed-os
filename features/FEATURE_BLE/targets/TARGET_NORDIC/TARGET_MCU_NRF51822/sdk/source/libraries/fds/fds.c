@@ -40,6 +40,10 @@
 #include "nrf_error.h"
 #include "app_util.h"
 
+static void fs_callback(uint8_t             op_code,
+                        uint32_t            result,
+                        uint32_t    const * p_data,
+                        fs_length_t         length_words);
 
 /** Our fstorage configuration.
  *  The other fields will be assigned automatically during compilation. */

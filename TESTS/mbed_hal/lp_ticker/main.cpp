@@ -65,12 +65,22 @@ void lp_ticker_1s_deepsleep()
     complete = false;
     uint32_t delay_ts;
 
+    /*
+     * Since deepsleep() may shut down the UART peripheral, we wait for 10ms
+     * to allow for hardware serial buffers to completely flush.
+
+     * This should be replaced with a better function that checks if the
+     * hardware buffers are empty. However, such an API does not exist now,
+     * so we'll use the wait_ms() function for now.
+     */
+    wait_ms(10);
+
     ticker_set_handler(lp_ticker_data, cb_done);
     ticker_remove_event(lp_ticker_data, &delay_event);
     delay_ts = lp_ticker_read() + 1000000;
 
-    /* 
-     * We use here lp_ticker_read() instead of us_ticker_read() for start and 
+    /*
+     * We use here lp_ticker_read() instead of us_ticker_read() for start and
      * end because the microseconds timer might be disable during deepsleep.
      */
     timestamp_t start = lp_ticker_read();
@@ -123,7 +133,7 @@ void lp_ticker_5s(void)
     lp_ticker_delay_us(5000000, LONG_TIMEOUT);
 }
 
-status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -139,7 +149,7 @@ Case cases[] = {
 #endif /* DEVICE_SLEEP */
 };
 
-status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
     GREENTEA_SETUP(20, "default_auto");
     lp_ticker_data->interface->init();
     return greentea_test_setup_handler(number_of_cases);

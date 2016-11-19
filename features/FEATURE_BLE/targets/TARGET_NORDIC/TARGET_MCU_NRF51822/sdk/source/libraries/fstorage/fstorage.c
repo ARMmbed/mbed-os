@@ -559,7 +559,7 @@ void fs_debug_print()
     printf("Num items: 0x%08lx\r\n",        (unsigned long)FS_SECTION_VARS_COUNT);
     printf("===== ITEMS %lu =====\r\n",     (unsigned long)FS_SECTION_VARS_COUNT);
 
-    for(int i = 0; i < FS_SECTION_VARS_COUNT; i++)
+    for(uint32_t i = 0; i < FS_SECTION_VARS_COUNT; i++)
     {
         fs_config_t* config = FS_SECTION_VARS_GET(i);
         printf( "Address: 0x%08lx, CB: 0x%08lx\r\n",

@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2015, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -26,3 +29,5 @@
 #include "utest/utest_serial.h"
 
 #endif // UTEST_H
+
+/** @}*/

@@ -71,43 +71,39 @@ typedef enum sn_nsdl_registration_mode_ {
 
 
 typedef struct omalw_certificate_list_ {
-    uint8_t certificate_chain_len;
-    uint8_t *certificate_ptr[2];
-    uint16_t certificate_len[2];
-    uint8_t *own_private_key_ptr;
+    uint8_t  certificate_chain_len;
     uint16_t own_private_key_len;
+    uint16_t certificate_len[2];
+    uint8_t  *certificate_ptr[2];
+    uint8_t  *own_private_key_ptr;
 } omalw_certificate_list_t;
 
 /**
  * \brief Endpoint registration parameters
  */
 typedef struct sn_nsdl_ep_parameters_ {
-    uint8_t     *endpoint_name_ptr;                     /**< Endpoint name */
     uint8_t     endpoint_name_len;
-
-    uint8_t     *domain_name_ptr;                       /**< Domain to register. If null, NSP uses default domain */
     uint8_t     domain_name_len;
-
-    uint8_t     *type_ptr;                              /**< Endpoint type */
     uint8_t     type_len;
-
-    uint8_t     *lifetime_ptr;                          /**< Endpoint lifetime in seconds. eg. "1200" = 1200 seconds */
     uint8_t     lifetime_len;
+    uint8_t     location_len;
 
     sn_nsdl_registration_mode_t ds_register_mode;       /**< Defines registration mode */
     sn_nsdl_oma_binding_and_mode_t binding_and_mode;    /**< Defines endpoints binding and mode */
 
+    uint8_t     *endpoint_name_ptr;                     /**< Endpoint name */
+    uint8_t     *domain_name_ptr;                       /**< Domain to register. If null, NSP uses default domain */
+    uint8_t     *type_ptr;                              /**< Endpoint type */
+    uint8_t     *lifetime_ptr;                          /**< Endpoint lifetime in seconds. eg. "1200" = 1200 seconds */
     uint8_t     *location_ptr;                          /**< Endpoint location in server, optional parameter,default is NULL */
-    uint8_t     location_len;
-
 } sn_nsdl_ep_parameters_s;
 
 /**
  * \brief For internal use
  */
 typedef struct sn_nsdl_sent_messages_ {
-    uint16_t    msg_id_number;
     uint8_t     message_type;
+    uint16_t    msg_id_number;
     ns_list_link_t  link;
 } sn_nsdl_sent_messages_s;
 
@@ -154,7 +150,7 @@ typedef enum sn_nsdl_oma_device_error_ {
  * \brief Defines the resource mode
  */
 typedef enum sn_nsdl_resource_mode_ {
-    SN_GRS_STATIC,                      /**< Static resources have some value that doesn't change */
+    SN_GRS_STATIC = 0,                  /**< Static resources have some value that doesn't change */
     SN_GRS_DYNAMIC,                     /**< Dynamic resources are handled in application. Therefore one must give function callback pointer to them */
     SN_GRS_DIRECTORY                    /**< Directory resources are unused and unsupported */
 } sn_nsdl_resource_mode_e;
@@ -163,19 +159,17 @@ typedef enum sn_nsdl_resource_mode_ {
  * \brief Resource registration parameters
  */
 typedef struct sn_nsdl_resource_parameters_ {
-    uint8_t     *resource_type_ptr;
-    uint16_t    resource_type_len;
+    unsigned int     observable:2;
+    unsigned int     registered:2;
 
-    uint8_t     *interface_description_ptr;
+    uint16_t    resource_type_len;
     uint16_t    interface_description_len;
 
-    uint8_t     coap_content_type;
+    uint16_t    coap_content_type;
+//    uint8_t     mime_content_type;
 
-    uint8_t     mime_content_type;
-
-    uint8_t     observable;
-
-    uint8_t     registered;
+    uint8_t     *resource_type_ptr;
+    uint8_t     *interface_description_ptr;
 
 } sn_nsdl_resource_parameters_s;
 
@@ -183,24 +177,30 @@ typedef struct sn_nsdl_resource_parameters_ {
  * \brief Defines parameters for the resource.
  */
 typedef struct sn_nsdl_resource_info_ {
-    sn_nsdl_resource_parameters_s   *resource_parameters_ptr;
 
-    sn_nsdl_resource_mode_e         mode;                       /**< STATIC etc.. */
+    unsigned int                    mode:2;                     /**< STATIC etc.. */
+
+    unsigned int                    access:4;
+
+    bool                            publish_uri:1;
+
+    bool                            is_put:1; //if true, pointers are assumed to be consts (never freed). Note: resource_parameters_ptr is always freed!
+
+    uint8_t                         external_memory_block;
 
     uint16_t                        pathlen;                    /**< Address */
-    uint8_t                         *path;
 
     uint16_t                        resourcelen;                /**< 0 if dynamic resource, resource information in static resource */
-    uint8_t                         *resource;                  /**< NULL if dynamic resource */
 
-    sn_grs_resource_acl_e           access;
+    sn_nsdl_resource_parameters_s   *resource_parameters_ptr;
 
     uint8_t (*sn_grs_dyn_res_callback)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *, sn_nsdl_capab_e);
 
+    uint8_t                         *path;
+
+    uint8_t                         *resource;                  /**< NULL if dynamic resource */
+
     ns_list_link_t                  link;
-
-    uint8_t                         publish_uri;
-
 } sn_nsdl_resource_info_s;
 
 /**
@@ -226,9 +226,11 @@ typedef struct sn_nsdl_oma_server_info_ {
  */
 typedef struct sn_nsdl_bs_ep_info_ {
     void (*oma_bs_status_cb)(sn_nsdl_oma_server_info_t *);  /**< Callback for OMA bootstrap status */
-    sn_nsdl_oma_device_t *device_object;                    /**< OMA LWM2M mandatory device resources */
+
     void (*oma_bs_status_cb_handle)(sn_nsdl_oma_server_info_t *,
                                     struct nsdl_s *);  /**< Callback for OMA bootstrap status with nsdl handle */
+
+    sn_nsdl_oma_device_t *device_object;                    /**< OMA LWM2M mandatory device resources */
 } sn_nsdl_bs_ep_info_t;
 
 
@@ -329,8 +331,8 @@ extern void sn_nsdl_nsp_lost(struct nsdl_s *handle);
 /**
  * \fn extern uint16_t sn_nsdl_send_observation_notification(struct nsdl_s *handle, uint8_t *token_ptr, uint8_t token_len,
  *                                                  uint8_t *payload_ptr, uint16_t payload_len,
- *                                                  uint8_t *observe_ptr, uint8_t observe_len,
- *                                                  sn_coap_msg_type_e message_type, uint8_t content_type)
+ *                                                  sn_coap_observe_e observe,
+ *                                                  sn_coap_msg_type_e message_type, sn_coap_content_format_e content_format)
  *
  *
  * \brief Sends observation message to mbed Device Server
@@ -340,24 +342,23 @@ extern void sn_nsdl_nsp_lost(struct nsdl_s *handle);
  * \param   token_len       Token length
  * \param   *payload_ptr    Pointer to payload to be sent
  * \param   payload_len     Payload length
- * \param   *observe_ptr    Pointer to observe number to be sent
- * \param   observe_len     Observe number len
+ * \param   observe         Observe option value to be sent
  * \param   message_type    Observation message type (confirmable or non-confirmable)
- * \param   content_type    Observation message payload contetnt type
+ * \param   content_format  Observation message payload content format
  *
  * \return  !0  Success, observation messages message ID
  * \return  0   Failure
  */
 extern uint16_t sn_nsdl_send_observation_notification(struct nsdl_s *handle, uint8_t *token_ptr, uint8_t token_len,
         uint8_t *payload_ptr, uint16_t payload_len,
-        uint8_t *observe_ptr, uint8_t observe_len,
+        sn_coap_observe_e observe,
         sn_coap_msg_type_e message_type,
-        uint8_t content_type);
+        sn_coap_content_format_e content_format);
 
 /**
  * \fn extern uint16_t sn_nsdl_send_observation_notification_with_uri_path(struct nsdl_s *handle, uint8_t *token_ptr, uint8_t token_len,
  *                                                  uint8_t *payload_ptr, uint16_t payload_len,
- *                                                  uint8_t *observe_ptr, uint8_t observe_len,
+ *                                                  sn_coap_observe_e observe,
  *                                                  sn_coap_msg_type_e message_type, uint8_t content_type,
  *                                                  uint8_t *uri_path_ptr,
  *                                                  uint16_t uri_path_len)
@@ -370,8 +371,7 @@ extern uint16_t sn_nsdl_send_observation_notification(struct nsdl_s *handle, uin
  * \param   token_len       Token length
  * \param   *payload_ptr    Pointer to payload to be sent
  * \param   payload_len     Payload length
- * \param   *observe_ptr    Pointer to observe number to be sent
- * \param   observe_len     Observe number len
+ * \param   observe         Observe option value to be sent
  * \param   message_type    Observation message type (confirmable or non-confirmable)
  * \param   content_type    Observation message payload contetnt type
  * \param   uri_path_ptr    Pointer to uri path to be sent
@@ -382,7 +382,7 @@ extern uint16_t sn_nsdl_send_observation_notification(struct nsdl_s *handle, uin
  */
 extern uint16_t sn_nsdl_send_observation_notification_with_uri_path(struct nsdl_s *handle, uint8_t *token_ptr, uint8_t token_len,
         uint8_t *payload_ptr, uint16_t payload_len,
-        uint8_t *observe_ptr, uint8_t observe_len,
+        sn_coap_observe_e observe,
         sn_coap_msg_type_e message_type,
         uint8_t content_type,
         uint8_t *uri_path_ptr,
@@ -455,6 +455,25 @@ extern int8_t sn_nsdl_exec(struct nsdl_s *handle, uint32_t time);
  * \return  -4  List adding failure
  */
 extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
+
+/**
+ * \fn  extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
+ *
+ * \brief Resource putting function.
+ *
+ * Used to put a static or dynamic CoAP resource without creating copy of it.
+ * NOTE: Remember that only resource will be owned, not data that it contains
+ *
+ * \param   *res    Pointer to a structure of type sn_nsdl_resource_info_t that contains the information
+ *     about the resource.
+ *
+ * \return  0   Success
+ * \return  -1  Failure
+ * \return  -2  Resource already exists
+ * \return  -3  Invalid path
+ * \return  -4  List adding failure
+ */
+extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
 
 /**
  * \fn extern int8_t sn_nsdl_update_resource(sn_nsdl_resource_info_s *res)
@@ -556,6 +575,17 @@ extern int8_t sn_nsdl_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *a
 extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint16_t port, sn_nsdl_addr_type_e address_type);
 
 /**
+ * \fn extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
+ *
+ * \brief This function is used to set the mbed Device Server address given by an application.
+ *
+ * \param   *handle Pointer to nsdl-library handle
+ * \return  0   Success
+ * \return  -1  Failed to indicate that internal address pointer is not allocated (call nsdl_init() first).
+ */
+extern int8_t set_NSP_address_2(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
+
+/**
  * \fn extern int8_t sn_nsdl_destroy(struct nsdl_s *handle);
  *
  * \param   *handle Pointer to nsdl-library handle
@@ -617,13 +647,29 @@ extern int8_t sn_nsdl_create_oma_device_object(struct nsdl_s *handle, sn_nsdl_om
 extern sn_coap_hdr_s *sn_nsdl_build_response(struct nsdl_s *handle, sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code);
 
 /**
+ * \brief Allocates and initializes options list structure
+ *
+ * \param *handle Pointer to library handle
+ * \param *coap_msg_ptr is pointer to CoAP message that will contain the options
+ *
+ * If the message already has a pointer to an option structure, that pointer
+ * is returned, rather than a new structure being allocated.
+ *
+ * \return Return value is pointer to the CoAP options structure.\n
+ *         In following failure cases NULL is returned:\n
+ *          -Failure in given pointer (= NULL)\n
+ *          -Failure in memory allocation (malloc() returns NULL)
+ */
+extern sn_coap_options_list_s *sn_nsdl_alloc_options_list(struct nsdl_s *handle, sn_coap_hdr_s *coap_msg_ptr);
+
+/**
  * \fn void sn_nsdl_release_allocated_coap_msg_mem(struct nsdl_s *handle, sn_coap_hdr_s *freed_coap_msg_ptr)
  *
  * \brief Releases memory of given CoAP message
  *
  *        Note!!! Does not release Payload part
  *
- * \param *handle Pointer to CoAP library handle
+ * \param *handle Pointer to library handle
  *
  * \param *freed_coap_msg_ptr is pointer to released CoAP message
  */

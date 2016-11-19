@@ -257,8 +257,8 @@ int32_t cfstore_test_startup(void)
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 
     static FlashJournal_t jrnl;
-    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
-    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
+    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
 
     ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
     if(ret < JOURNAL_STATUS_OK){

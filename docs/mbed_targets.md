@@ -14,7 +14,7 @@ mbed uses JSON as a description language for its build targets. The JSON descrip
             "function": "TEENSY3_1Code.binary_hook",
             "toolchains": ["ARM_STD", "ARM_MICRO", "GCC_ARM"]
         },
-        "progen": {"target": "teensy-31"},
+        "device_name": "MK20DX256xxx7",
         "detect_code": ["0230"]
 ```
 
@@ -160,17 +160,9 @@ In this case, it converts the output file (`binf`) from binary format to Intel H
 
 The hook code can look quite different between different targets. Take a look at the other classes in *targets.py* for more examples of hook code.
 
-## progen
+## device_name
 
-This property is used to pass additional data to the project generator (used to export the mbed code to various 3rd party tools and IDEs). A definition for `progen` looks like this:
+This property is used to pass necessary data for exporting the mbed code to various 3rd party tools and IDEs.
 
-```
-"progen": {
-    "target": "lpc11u35_401",
-    "uvision": {
-        "template": ["uvision_microlib.uvproj.tmpl"]
-    }
-```
+Please see [exporters.md](exporters.md) for information about this field.
 
-The `target` property of `progen` specifies the target name that must be used for the exporter (if different than the mbed target name).
-For each exporter, a template for exporting can also be specified. In this example, the template used for generating a uVision project file is in a file called `uvision_microlib.uvproj.tmpl`. It is assumed that all the templates are located in `tools/export`.

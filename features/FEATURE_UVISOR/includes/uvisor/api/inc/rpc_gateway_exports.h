@@ -18,42 +18,28 @@
 #define __UVISOR_API_RPC_GATEWAY_EXPORTS_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/magic_exports.h"
 #include <stdint.h>
 
-/* udf imm16
- * UDF - ARMv7M ARM section A7.7.191
- * 111 1;0 111;1111; <imm4>; 1 01 0; <imm12> (Encoding T2)
- */
-#define UDF_OPCODE(imm16) \
-    ((uint32_t) (0xA000F7F0UL | (((uint32_t) (imm16) & 0xFFFU) << 16U) | (((uint32_t) (imm16) & 0xF000UL) >> 12)))
-
-/** RPC gateway magics
- *
- * The following magics are used to verify an RPC gateway structure. The magics are
- * chosen to be one of the explicitly undefined Thumb-2 instructions.
- */
-/* TODO Unify all sources of magic (for register gateway, rpc gateway, and
- * everybody else) */
-#if defined(__thumb__) && defined(__thumb2__)
-#define UVISOR_RPC_GATEWAY_MAGIC_ASYNC UDF_OPCODE(0x07C2)
-#define UVISOR_RPC_GATEWAY_MAGIC_SYNC  UDF_OPCODE(0x07C3)
-#else
-#error "Unsupported instruction set. The ARM Thumb-2 instruction set must be supported."
-#endif   /* __thumb__ && __thumb2__ */
-
+/* ldr pc, [pc, #<label - instr + 4>]
+ * LDR (immediate) - ARMv7M ARM section A7.7.42
+ * 1111;1 00 0; 0 10 1; <Rn - 1111>; <Rt - 1111>; <imm12> (Encoding T3) */
+#define LDR_PC_PC_IMM_OPCODE(instr, label) \
+    ((uint32_t) (0xF000F8DFUL | ((((uint32_t) (label) - ((uint32_t) (instr) + 4)) & 0xFFFUL) << 16)))
 
 /** RPC gateway structure
  *
  * This struct is packed because we must ensure that the `ldr_pc` field has no
  * padding before itself and will be located at a valid instruction location,
- * and that the `function` field is at a pre-determined offset from the
- * `ldr_pc` field.
+ * and that the `caller` and `target` field are at a pre-determined offset from
+ * the `ldr_pc` field.
  */
-typedef struct {
+typedef struct RPCGateway {
     uint32_t ldr_pc;
     uint32_t magic;
     uint32_t box_ptr;
-    uint32_t function; /* It's like a pretend literal pool. */
+    uint32_t target;
+    uint32_t caller; /* This is not for use by anything other than the ldr_pc. It's like a pretend literal pool. */
 } UVISOR_PACKED UVISOR_ALIGN(4) TRPCGateway;
 
 #endif /* __UVISOR_API_RPC_GATEWAY_EXPORTS_H__ */

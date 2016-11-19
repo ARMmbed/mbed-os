@@ -19,16 +19,19 @@ limitations under the License.
 TEST BUILD & RUN
 """
 import sys
+import json
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname, isfile, isdir
+from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.utils import args_error
+from tools.utils import NotSupportedException
 from tools.paths import BUILD_DIR
+from tools.paths import MBED_LIBRARIES
 from tools.paths import RTOS_LIBRARIES
 from tools.paths import RPC_LIBRARY
 from tools.paths import ETH_LIBRARY
@@ -41,13 +44,13 @@ from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
+from tools.options import extract_profile
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
-from argparse import ArgumentTypeError
-from tools.toolchains import mbedToolchain
+from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
@@ -221,6 +224,7 @@ if __name__ == '__main__':
     if options.source_dir and not options.build_dir:
         args_error(parser, "argument --build is required when argument --source is provided")
 
+
     if options.color:
         # This import happens late to prevent initializing colorization when we don't need it
         import colorize
@@ -231,6 +235,12 @@ if __name__ == '__main__':
         notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
     else:
         notify = None
+
+    if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+        search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+        args_error(parser, "Could not find executable for %s.\n"
+                           "Currently set search path: %s"
+                           %(toolchain,search_path))
 
     # Test
     for test_no in p:
@@ -266,7 +276,8 @@ if __name__ == '__main__':
             build_dir = options.build_dir
 
         try:
-            bin_file = build_project(test.source_dir, build_dir, mcu, toolchain, test.dependencies, options.options,
+            bin_file = build_project(test.source_dir, build_dir, mcu, toolchain,
+                                     test.dependencies,
                                      linker_script=options.linker_script,
                                      clean=options.clean,
                                      verbose=options.verbose,
@@ -275,7 +286,11 @@ if __name__ == '__main__':
                                      macros=options.macros,
                                      jobs=options.jobs,
                                      name=options.artifact_name,
-                                     app_config=options.app_config)
+                                     app_config=options.app_config,
+                                     inc_dirs=[dirname(MBED_LIBRARIES)],
+                                     build_profile=extract_profile(parser,
+                                                                   options,
+                                                                   toolchain))
             print 'Image: %s'% bin_file
 
             if options.disk:
@@ -312,6 +327,8 @@ if __name__ == '__main__':
 
         except KeyboardInterrupt, e:
             print "\n[CTRL+c] exit"
+        except NotSupportedException, e:
+            print "\nNot supported for selected target"
         except Exception,e:
             if options.verbose:
                 import traceback

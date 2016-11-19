@@ -22,11 +22,16 @@ import math
 from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext, abspath
-from os.path import commonprefix, normpath
+from os.path import commonprefix, normpath, dirname
 from subprocess import Popen, PIPE, STDOUT, call
+from math import ceil
 import json
 from collections import OrderedDict
 import logging
+
+def remove_if_in(lst, thing):
+    if thing in lst:
+        lst.remove(thing)
 
 def compile_worker(job):
     """Standard task runner used for compiling
@@ -431,6 +436,19 @@ def argparse_filestring_type(string):
         raise argparse.ArgumentTypeError(
             "{0}"" does not exist in the filesystem.".format(string))
 
+def argparse_profile_filestring_type(string):
+    """ An argument parser that verifies that a string passed in is either
+    absolute path or a file name (expanded to
+    mbed-os/tools/profiles/<fname>.json) of a existing file"""
+    fpath = join(dirname(__file__), "profiles/{}.json".format(string))
+    if exists(string):
+        return string
+    elif exists(fpath):
+        return fpath
+    else:
+        raise argparse.ArgumentTypeError(
+            "{0} does not exist in the filesystem.".format(string))
+
 def columnate(strings, separator=", ", chars=80):
     """ render a list of strings as a in a bunch of columns
 
@@ -469,3 +487,23 @@ def argparse_dir_not_parent(other):
         else:
             return not_parent
     return parse_type
+
+def print_large_string(large_string):
+    """ Breaks a string up into smaller pieces before print them
+
+    This is a limitation within Windows, as detailed here:
+    https://bugs.python.org/issue11395
+
+    Positional arguments:
+    large_string - the large string to print
+    """
+    string_limit = 1000
+    large_string_len = len(large_string)
+    num_parts = int(ceil(float(large_string_len) / float(string_limit)))
+    for string_part in range(num_parts):
+        start_index = string_part * string_limit
+        if string_part == num_parts - 1:
+            print large_string[start_index:]
+        else:
+            end_index = ((string_part + 1) * string_limit) - 1
+            print large_string[start_index:end_index],

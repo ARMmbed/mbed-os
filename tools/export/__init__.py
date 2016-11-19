@@ -14,27 +14,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os, tempfile
-from os.path import join, exists, basename
-from shutil import copytree, rmtree, copy
-import yaml
 
-from tools.export import uvision4, uvision5, codered, gccarm, ds5_5, iar
+from tools.export import codered, ds5_5, iar, makefile
 from tools.export import emblocks, coide, kds, simplicityv3, atmelstudio
-from tools.export import sw4stm32, e2studio, zip
-from tools.export.exporters import OldLibrariesException, FailedBuildException
-from tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
-
-from project_generator_definitions.definitions import ProGenDef
+from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
+from tools.targets import TARGET_NAMES
 
 EXPORTERS = {
-    'uvision': uvision4.Uvision4,
-    'uvision4': uvision4.Uvision4,
-    'uvision5': uvision5.Uvision5,
+    'uvision5': uvision.Uvision,
+    'uvision': uvision.Uvision,
     'lpcxpresso': codered.CodeRed,
-    'gcc_arm': gccarm.GccArm,
+    'gcc_arm': makefile.GccArm,
+    'make_gcc_arm': makefile.GccArm,
+    'make_armc5': makefile.Armc5,
+    'make_iar': makefile.IAR,
     'ds5_5': ds5_5.DS5_5,
-    'iar': iar.IAREmbeddedWorkbench,
+    'iar': iar.IAR,
     'emblocks' : emblocks.IntermediateFile,
     'coide' : coide.CoIDE,
     'kds' : kds.KDS,
@@ -42,7 +37,11 @@ EXPORTERS = {
     'atmelstudio' : atmelstudio.AtmelStudio,
     'sw4stm32'    : sw4stm32.Sw4STM32,
     'e2studio' : e2studio.E2Studio,
+    'eclipse_gcc_arm'  : cdt.EclipseGcc,
+    'eclipse_iar'      : cdt.EclipseIAR,
+    'eclipse_armc5'    : cdt.EclipseArmc5,
     'zip' : zip.ZIP,
+    'cmsis'    : cmsis.CMSIS
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """

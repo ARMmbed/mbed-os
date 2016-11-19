@@ -392,6 +392,10 @@ extern       osThreadId      osThreadId_osTimerThread;
 extern const osMessageQDef_t os_messageQ_def_osTimerMessageQ;
 extern       osMessageQId    osMessageQId_osTimerMessageQ;
 
+// Thread creation and destruction
+osMutexDef(osThreadMutex);
+osMutexId osMutexId_osThreadMutex;
+void sysThreadTerminate(osThreadId id);
 
 // ==== Helper Functions ====
 
@@ -490,6 +494,8 @@ osStatus svcKernelInitialize (void) {
     // Create OS Timers resources (Message Queue & Thread)
     osMessageQId_osTimerMessageQ = svcMessageCreate (&os_messageQ_def_osTimerMessageQ, NULL);
     osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL, NULL);
+    // Initialize thread mutex
+    osMutexId_osThreadMutex = osMutexCreate(osMutex(osThreadMutex));
   }
 
   sysThreadError(osOK);
@@ -546,7 +552,7 @@ uint32_t svcKernelSysTick (void) {
 
 /// Initialize the RTOS Kernel for creating objects
 osStatus osKernelInitialize (void) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   if ((__get_CONTROL() & 1U) == 0U) {           // Privileged mode
@@ -560,7 +566,7 @@ osStatus osKernelInitialize (void) {
 osStatus osKernelStart (void) {
   uint32_t stack[8];
 
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
 
@@ -601,7 +607,7 @@ osStatus osKernelStart (void) {
 
 /// Check if the RTOS kernel is already started
 int32_t osKernelRunning (void) {
-  if ((__get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {
+  if ((__get_PRIMASK() != 0U || __get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {
     // in ISR or Privileged
     return (int32_t)os_running;
   } else {
@@ -611,7 +617,7 @@ int32_t osKernelRunning (void) {
 
 /// Get the RTOS kernel system timer counter
 uint32_t osKernelSysTick (void) {
-  if (__get_IPSR() != 0U) { return 0U; }        // Not allowed in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) { return 0U; }        // Not allowed in ISR
   return __svcKernelSysTick();
 }
 
@@ -632,6 +638,7 @@ SVC_1_1(svcThreadTerminate,   osStatus,         osThreadId,                  RET
 SVC_0_1(svcThreadYield,       osStatus,                                      RET_osStatus)
 SVC_2_1(svcThreadSetPriority, osStatus,         osThreadId,      osPriority, RET_osStatus)
 SVC_1_1(svcThreadGetPriority, osPriority,       osThreadId,                  RET_osPriority)
+SVC_2_3(svcThreadGetInfo,    os_InRegs osEvent, osThreadId,    osThreadInfo, RET_osEvent)
 
 // Thread Service Calls
 
@@ -791,6 +798,67 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
   return (osPriority)(ptcb->prio - 1 + osPriorityIdle); 
 }
 
+/// Get info from an active thread
+os_InRegs osEvent_type svcThreadGetInfo (osThreadId thread_id, osThreadInfo info) {
+  P_TCB ptcb;
+  osEvent ret;
+  ret.status = osOK;
+
+  ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
+  if (ptcb == NULL) {
+    ret.status = osErrorValue;
+    return osEvent_ret_status;
+  }
+
+  if (osThreadInfoStackSize == info) {
+    uint32_t size;
+    size = ptcb->priv_stack;
+    if (0 == size) {
+      // This is an OS task - always a fixed size
+      size = os_stackinfo & 0x3FFFF;
+    }
+    ret.value.v = size;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoStackMax == info) {
+    uint32_t i;
+    uint32_t *stack_ptr;
+    uint32_t stack_size;
+    if (!(os_stackinfo & (1 << 28))) {
+      // Stack init must be turned on for max stack usage
+      ret.status = osErrorResource;
+      return osEvent_ret_status;
+    }
+    stack_ptr = (uint32_t*)ptcb->stack;
+    stack_size = ptcb->priv_stack;
+    if (0 == stack_size) {
+      // This is an OS task - always a fixed size
+      stack_size = os_stackinfo & 0x3FFFF;
+    }
+    for (i = 1; i <stack_size / 4; i++) {
+      if (stack_ptr[i] != MAGIC_PATTERN) {
+        break;
+      }
+    }
+    ret.value.v = stack_size - i * 4;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoEntry == info) {
+    ret.value.p = (void*)ptcb->ptask;
+    return osEvent_ret_value;
+  }
+
+  if (osThreadInfoArg == info) {
+    ret.value.p = (void*)ptcb->argv;
+    return osEvent_ret_value;
+  }
+
+  // Unsupported option so return error
+  ret.status = osErrorParameter;
+  return osEvent_ret_status;
+}
 
 // Thread Public API
 
@@ -799,20 +867,25 @@ osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument) {
   return osThreadContextCreate(thread_def, argument, NULL);
 }
 osThreadId osThreadContextCreate (const osThreadDef_t *thread_def, void *argument, void *context) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
     // Privileged and not running
     return   svcThreadCreate(thread_def, argument, context);
   } else {
-    return __svcThreadCreate(thread_def, argument, context);
+    osThreadId id;
+    osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+    // Thread mutex must be held when a thread is created or terminated
+    id = __svcThreadCreate(thread_def, argument, context);
+    osMutexRelease(osMutexId_osThreadMutex);
+    return id;
   }
 }
 
 /// Return the thread ID of the current running thread
 osThreadId osThreadGetId (void) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   return __svcThreadGetId();
@@ -820,15 +893,21 @@ osThreadId osThreadGetId (void) {
 
 /// Terminate execution of a thread and remove it from ActiveThreads
 osStatus osThreadTerminate (osThreadId thread_id) {
-  if (__get_IPSR() != 0U) { 
+  osStatus status;
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
-  return __svcThreadTerminate(thread_id);
+  osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  sysThreadTerminate(thread_id);
+  // Thread mutex must be held when a thread is created or terminated
+  status = __svcThreadTerminate(thread_id);
+  osMutexRelease(osMutexId_osThreadMutex);
+  return status;
 }
 
 /// Pass control to next thread that is in state READY
 osStatus osThreadYield (void) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcThreadYield();
@@ -836,7 +915,7 @@ osStatus osThreadYield (void) {
 
 /// Change priority of an active thread
 osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcThreadSetPriority(thread_id, priority);
@@ -844,7 +923,7 @@ osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority) {
 
 /// Get current priority of an active thread
 osPriority osThreadGetPriority (osThreadId thread_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osPriorityError;                     // Not allowed in ISR
   }
   return __svcThreadGetPriority(thread_id);
@@ -852,8 +931,15 @@ osPriority osThreadGetPriority (osThreadId thread_id) {
 
 /// INTERNAL - Not Public
 /// Auto Terminate Thread on exit (used implicitly when thread exists)
-__NO_RETURN void osThreadExit (void) { 
-  __svcThreadTerminate(__svcThreadGetId()); 
+__NO_RETURN void osThreadExit (void) {
+  osThreadId id;
+  // Thread mutex must be held when a thread is created or terminated
+  // Note - the mutex will be released automatically by the os when
+  //        the thread is terminated
+  osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  id = __svcThreadGetId();
+  sysThreadTerminate(id);
+  __svcThreadTerminate(id);
   for (;;);                                     // Should never come here
 }
 
@@ -862,7 +948,7 @@ __NO_RETURN void osThreadExit (void) {
 uint8_t osThreadGetState (osThreadId thread_id) {
   P_TCB ptcb;
 
-  if (__get_IPSR() != 0U) return osErrorISR;     // Not allowed in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) return osErrorISR;     // Not allowed in ISR
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
   if (ptcb == NULL) return INACTIVE;
@@ -870,6 +956,49 @@ uint8_t osThreadGetState (osThreadId thread_id) {
   return ptcb->state;
 }
 #endif
+
+/// Get the requested info from the specified active thread
+os_InRegs osEvent _osThreadGetInfo(osThreadId thread_id, osThreadInfo info) {
+  osEvent ret;
+
+  if (__get_IPSR() != 0U) {                     // Not allowed in ISR
+    ret.status = osErrorISR;
+    return ret;
+  }
+  return __svcThreadGetInfo(thread_id, info);
+}
+
+osThreadEnumId _osThreadsEnumStart() {
+  static uint32_t thread_enum_index;
+  osMutexWait(osMutexId_osThreadMutex, osWaitForever);
+  thread_enum_index = 0;
+  return &thread_enum_index;
+}
+
+osThreadId _osThreadEnumNext(osThreadEnumId enum_id) {
+  uint32_t i;
+  osThreadId id = NULL;
+  uint32_t *index = (uint32_t*)enum_id;
+  for (i = *index; i < os_maxtaskrun; i++) {
+    if (os_active_TCB[i] != NULL) {
+      id = (osThreadId)os_active_TCB[i];
+      break;
+    }
+  }
+  if (i == os_maxtaskrun) {
+    // Include the idle task at the end of the enumeration
+    id = &os_idle_TCB;
+  }
+  *index = i + 1;
+  return id;
+}
+
+osStatus _osThreadEnumFree(osThreadEnumId enum_id) {
+  uint32_t *index = (uint32_t*)enum_id;
+  *index = 0;
+  osMutexRelease(osMutexId_osThreadMutex);
+  return osOK;
+}
 
 // ==== Generic Wait Functions ====
 
@@ -911,7 +1040,7 @@ os_InRegs osEvent_type svcWait (uint32_t millisec) {
 
 /// Wait for Timeout (Time Delay)
 osStatus osDelay (uint32_t millisec) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcDelay(millisec);
@@ -925,7 +1054,7 @@ os_InRegs osEvent osWait (uint32_t millisec) {
   ret.status = osErrorOS;
   return ret;
 #else
-  if (__get_IPSR() != 0U) {                     // Not allowed in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // Not allowed in ISR
     ret.status = osErrorISR;
     return ret;
   }
@@ -1208,7 +1337,7 @@ void sysUserTimerUpdate (uint32_t sleep_time) {
 
 /// Create timer
 osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
@@ -1221,7 +1350,7 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
 
 /// Start or restart timer
 osStatus osTimerStart (osTimerId timer_id, uint32_t millisec) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcTimerStart(timer_id, millisec);
@@ -1229,7 +1358,7 @@ osStatus osTimerStart (osTimerId timer_id, uint32_t millisec) {
 
 /// Stop timer
 osStatus osTimerStop (osTimerId timer_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcTimerStop(timer_id);
@@ -1237,7 +1366,7 @@ osStatus osTimerStop (osTimerId timer_id) {
 
 /// Delete timer
 osStatus osTimerDelete (osTimerId timer_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcTimerDelete(timer_id);
@@ -1374,7 +1503,7 @@ int32_t isrSignalSet (osThreadId thread_id, int32_t signals) {
 
 /// Set the specified Signal Flags of an active thread
 int32_t osSignalSet (osThreadId thread_id, int32_t signals) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // in ISR
     return   isrSignalSet(thread_id, signals); 
   } else {                                      // in Thread
     return __svcSignalSet(thread_id, signals);
@@ -1383,7 +1512,7 @@ int32_t osSignalSet (osThreadId thread_id, int32_t signals) {
 
 /// Clear the specified Signal Flags of an active thread
 int32_t osSignalClear (osThreadId thread_id, int32_t signals) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return (int32_t)0x80000000U;                // Not allowed in ISR
   }
   return __svcSignalClear(thread_id, signals);
@@ -1393,7 +1522,7 @@ int32_t osSignalClear (osThreadId thread_id, int32_t signals) {
 os_InRegs osEvent osSignalWait (int32_t signals, uint32_t millisec) {
   osEvent ret;
 
-  if (__get_IPSR() != 0U) {                     // Not allowed in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // Not allowed in ISR
     ret.status = osErrorISR;
     return ret;
   }
@@ -1505,7 +1634,7 @@ osStatus svcMutexDelete (osMutexId mutex_id) {
 
 /// Create and Initialize a Mutex object
 osMutexId osMutexCreate (const osMutexDef_t *mutex_def) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
@@ -1518,7 +1647,7 @@ osMutexId osMutexCreate (const osMutexDef_t *mutex_def) {
 
 /// Wait until a Mutex becomes available
 osStatus osMutexWait (osMutexId mutex_id, uint32_t millisec) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcMutexWait(mutex_id, millisec);
@@ -1526,7 +1655,7 @@ osStatus osMutexWait (osMutexId mutex_id, uint32_t millisec) {
 
 /// Release a Mutex that was obtained with osMutexWait
 osStatus osMutexRelease (osMutexId mutex_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcMutexRelease(mutex_id);
@@ -1534,7 +1663,7 @@ osStatus osMutexRelease (osMutexId mutex_id) {
 
 /// Delete a Mutex that was created by osMutexCreate
 osStatus osMutexDelete (osMutexId mutex_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcMutexDelete(mutex_id);
@@ -1672,7 +1801,7 @@ osStatus isrSemaphoreRelease (osSemaphoreId semaphore_id) {
 
 /// Create and Initialize a Semaphore object
 osSemaphoreId osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t count) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
@@ -1685,7 +1814,7 @@ osSemaphoreId osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t 
 
 /// Wait until a Semaphore becomes available
 int32_t osSemaphoreWait (osSemaphoreId semaphore_id, uint32_t millisec) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return -1;                                  // Not allowed in ISR
   }
   return __svcSemaphoreWait(semaphore_id, millisec);
@@ -1693,16 +1822,16 @@ int32_t osSemaphoreWait (osSemaphoreId semaphore_id, uint32_t millisec) {
 
 /// Release a Semaphore
 osStatus osSemaphoreRelease (osSemaphoreId semaphore_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {    // in ISR
     return   isrSemaphoreRelease(semaphore_id);
-  } else {                                      // in Thread
+  } else {                                              // in Thread
     return __svcSemaphoreRelease(semaphore_id);
   }
 }
 
 /// Delete a Semaphore that was created by osSemaphoreCreate
 osStatus osSemaphoreDelete (osSemaphoreId semaphore_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
   return __svcSemaphoreDelete(semaphore_id);
@@ -1785,7 +1914,7 @@ osStatus sysPoolFree (osPoolId pool_id, void *block) {
 
 /// Create and Initialize memory pool
 osPoolId osPoolCreate (const osPoolDef_t *pool_def) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
@@ -1798,7 +1927,7 @@ osPoolId osPoolCreate (const osPoolDef_t *pool_def) {
 
 /// Allocate a memory block from a memory pool
 void *osPoolAlloc (osPoolId pool_id) {
-  if ((__get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {     // in ISR or Privileged
+  if ((__get_PRIMASK() != 0U || __get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {     // in ISR or Privileged
     return   sysPoolAlloc(pool_id);
   } else {                                      // in Thread
     return __sysPoolAlloc(pool_id);
@@ -1809,7 +1938,7 @@ void *osPoolAlloc (osPoolId pool_id) {
 void *osPoolCAlloc (osPoolId pool_id) {
   void *mem;
 
-  if ((__get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {     // in ISR or Privileged
+  if ((__get_PRIMASK() != 0U || __get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {     // in ISR or Privileged
     mem =   sysPoolAlloc(pool_id);
   } else {                                      // in Thread
     mem = __sysPoolAlloc(pool_id);
@@ -1822,7 +1951,7 @@ void *osPoolCAlloc (osPoolId pool_id) {
 
 /// Return an allocated memory block back to a specific memory pool
 osStatus osPoolFree (osPoolId pool_id, void *block) {
-  if ((__get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {     // in ISR or Privileged
+  if ((__get_PRIMASK() != 0U || __get_IPSR() != 0U) || ((__get_CONTROL() & 1U) == 0U)) {     // in ISR or Privileged
     return   sysPoolFree(pool_id, block);
   } else {                                      // in Thread
     return __sysPoolFree(pool_id, block);
@@ -1962,7 +2091,7 @@ os_InRegs osEvent isrMessageGet (osMessageQId queue_id, uint32_t millisec) {
 
 /// Create and Initialize Message Queue
 osMessageQId osMessageCreate (const osMessageQDef_t *queue_def, osThreadId thread_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
@@ -1975,7 +2104,7 @@ osMessageQId osMessageCreate (const osMessageQDef_t *queue_def, osThreadId threa
 
 /// Put a Message to a Queue
 osStatus osMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // in ISR
     return   isrMessagePut(queue_id, info, millisec);
   } else {                                      // in Thread
     return __svcMessagePut(queue_id, info, millisec);
@@ -1984,7 +2113,7 @@ osStatus osMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec) 
 
 /// Get a Message or Wait for a Message from a Queue
 os_InRegs osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // in ISR
     return   isrMessageGet(queue_id, millisec);
   } else {                                      // in Thread
     return __svcMessageGet(queue_id, millisec);
@@ -2121,7 +2250,7 @@ osStatus sysMailFree (osMailQId queue_id, void *mail, uint32_t isr) {
 
 /// Create and Initialize mail queue
 osMailQId osMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
-  if (__get_IPSR() != 0U) {
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
@@ -2134,7 +2263,7 @@ osMailQId osMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
 
 /// Allocate a memory block from a mail
 void *osMailAlloc (osMailQId queue_id, uint32_t millisec) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // in ISR
     return   sysMailAlloc(queue_id, millisec, 1U);
   } else {                                      // in Thread
     return __sysMailAlloc(queue_id, millisec, 0U);
@@ -2146,7 +2275,7 @@ void *osMailCAlloc (osMailQId queue_id, uint32_t millisec) {
   void *pool;
   void *mem;
 
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // in ISR
     mem =   sysMailAlloc(queue_id, millisec, 1U);
   } else {                                      // in Thread
     mem = __sysMailAlloc(queue_id, millisec, 0U);
@@ -2161,7 +2290,7 @@ void *osMailCAlloc (osMailQId queue_id, uint32_t millisec) {
 
 /// Free a memory block from a mail
 osStatus osMailFree (osMailQId queue_id, void *mail) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (__get_PRIMASK() != 0U || __get_IPSR() != 0U) {                     // in ISR
     return   sysMailFree(queue_id, mail, 1U);
   } else {                                      // in Thread
     return __sysMailFree(queue_id, mail, 0U);

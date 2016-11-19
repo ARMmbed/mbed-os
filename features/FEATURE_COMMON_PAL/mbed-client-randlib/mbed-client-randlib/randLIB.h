@@ -48,10 +48,22 @@ extern "C" {
 /**
   * \brief Init seed for Pseudo Random.
   *
+  * Makes call(s) to the platform's arm_random_seed_get() to seed the
+  * pseudo-random generator.
+  *
   * \return None
   *
   */
 extern void randLIB_seed_random(void);
+
+/**
+ * \brief Update seed for pseudo-random generator
+ *
+ * Adds seed information to existing generator, to perturb the
+ * sequence.
+ * \param seed 64 bits of data to add to the seed.
+ */
+extern void randLIB_add_seed(uint64_t seed);
 
 /**
   * \brief Generate 8-bit random number.
@@ -75,21 +87,29 @@ extern uint16_t randLIB_get_16bit(void);
   * \brief Generate 32-bit random number.
   *
   * \param None
-  * \return 16-bit random number
+  * \return 32-bit random number
   *
   */
 extern uint32_t randLIB_get_32bit(void);
 
 /**
+  * \brief Generate 64-bit random number.
+  *
+  * \param None
+  * \return 64-bit random number
+  *
+  */
+extern uint64_t randLIB_get_64bit(void);
+
+/**
   * \brief Generate n-bytes random numbers.
   *
   * \param data_ptr pointer where random will be stored
-  * \param eight_bit_boundary how many bytes need random
-  * \return 0 process valid
-  * \return -1 Unsupported Parameters
+  * \param count how many bytes need random
   *
+  * \return data_ptr
   */
-extern int8_t randLIB_get_n_bytes_random(uint8_t *data_ptr, uint8_t eight_bit_boundary);
+extern void *randLIB_get_n_bytes_random(void *data_ptr, uint8_t count);
 
 /**
   * \brief Generate a random number within a range.
@@ -116,6 +136,12 @@ uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max);
   * \param max_factor The maximum value for the random factor
   */
 uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor);
+
+#ifdef RANDLIB_PRNG
+/* \internal Reset the PRNG state to zero (invalid) */
+void randLIB_reset(void);
+#endif
+
 
 #ifdef __cplusplus
 }

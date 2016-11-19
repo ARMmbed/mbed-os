@@ -3,6 +3,6 @@
 expected_results = {
     "test_target": {
         "desc": "test recursive features",
-        "expected_features": ["IPV4", "IPV6", "UVISOR"]
+        "expected_features": ["IPV4", "STORAGE", "UVISOR"]
     }
 }

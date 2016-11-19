@@ -27,10 +27,11 @@ from inspect import getmro
 from copy import deepcopy
 from tools.config import Config
 from abc import ABCMeta, abstractmethod
+from distutils.spawn import find_executable
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, compile_worker
-from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
+from tools.settings import MBED_ORG_USER
 import tools.hooks as hooks
 from tools.memap import MemapParser
 from hashlib import md5
@@ -119,6 +120,43 @@ class Resources:
 
         return self
 
+    def _collect_duplicates(self, dupe_dict, dupe_headers):
+        for filename in self.s_sources + self.c_sources + self.cpp_sources:
+            objname, _ = splitext(basename(filename))
+            dupe_dict.setdefault(objname, set())
+            dupe_dict[objname] |= set([filename])
+        for filename in self.headers:
+            headername = basename(filename)
+            dupe_headers.setdefault(headername, set())
+            dupe_headers[headername] |= set([headername])
+        for res in self.features.values():
+            res._collect_duplicates(dupe_dict, dupe_headers)
+        return dupe_dict, dupe_headers
+
+    def detect_duplicates(self, toolchain):
+        """Detect all potential ambiguities in filenames and report them with
+        a toolchain notification
+
+        Positional Arguments:
+        toolchain - used for notifications
+        """
+        count = 0
+        dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
+        for objname, filenames in dupe_dict.iteritems():
+            if len(filenames) > 1:
+                count+=1
+                toolchain.tool_error(
+                    "Object file %s.o is not unique! It could be made from: %s"\
+                    % (objname, " ".join(filenames)))
+        for headername, locations in dupe_headers.iteritems():
+            if len(locations) > 1:
+                count+=1
+                toolchain.tool_error(
+                    "Header file %s is not unique! It could be: %s" %\
+                    (headername, " ".join(locations)))
+        return count
+
+
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
@@ -188,23 +226,6 @@ LEGACY_TOOLCHAIN_NAMES = {
 }
 
 
-def check_toolchain_path(function):
-    """Check if the path to toolchain is valid. Exit if not.
-    Use this function as a decorator.  Causes a system exit if the path does
-    not exist. Execute the function as normal if the path does exist.
-
-    Positional arguments:
-    function -- the function to decorate
-    """
-    def perform_check(self, *args, **kwargs):
-        if not exists(self.toolchain_path) and not exists(self.toolchain_path+'.exe'):
-            error_string = 'Could not find executable for %s.\n Currently ' \
-                           'set search path: %s'% (self.name, self.toolchain_path)
-            raise Exception(error_string)
-        return function(self, *args, **kwargs)
-    return perform_check
-
-
 class mbedToolchain:
     # Verbose logging
     VERBOSE = True
@@ -233,7 +254,9 @@ class mbedToolchain:
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+    profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
+
+    def __init__(self, target, notify=None, macros=None, silent=False, extra_verbose=False, build_profile=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -241,7 +264,7 @@ class mbedToolchain:
         self.hook = hooks.Hook(target, self)
 
         # Toolchain flags
-        self.flags = deepcopy(self.DEFAULT_FLAGS)
+        self.flags = deepcopy(build_profile or self.profile_template)
 
         # User-defined macros
         self.macros = macros or []
@@ -307,15 +330,6 @@ class mbedToolchain:
         self.output = str()
         self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
 
-        # Build options passed by -o flag
-        self.options = options if options is not None else []
-
-        # Build options passed by settings.py or mbed_settings.py
-        self.options.extend(BUILD_OPTIONS)
-
-        if self.options:
-            self.info("Build Options: %s" % (', '.join(self.options)))
-
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
@@ -356,18 +370,24 @@ class mbedToolchain:
             msg = '[%(severity)s] %(file)s@%(line)s,%(col)s: %(message)s' % event
 
         elif event['type'] == 'progress':
-            if not silent:
-                msg = '%s: %s' % (event['action'].title(), basename(event['file']))
+            if 'percent' in event:
+                msg = '{} [{:>5.1f}%]: {}'.format(event['action'].title(),
+                                                  event['percent'],
+                                                  basename(event['file']))
+            else:
+                msg = '{}: {}'.format(event['action'].title(),
+                                      basename(event['file']))
 
         if msg:
-            print msg
+            if not silent:
+                print msg
             self.output += msg + "\n"
 
     def print_notify_verbose(self, event, silent=False):
         """ Default command line notification with more verbose mode
         """
         if event['type'] in ['info', 'debug']:
-            self.print_notify(event) # standard handle
+            self.print_notify(event, silent=silent) # standard handle
 
         elif event['type'] == 'cc':
             event['severity'] = event['severity'].title()
@@ -376,7 +396,8 @@ class mbedToolchain:
             event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
             event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
             msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
-            print msg
+            if not silent:
+                print msg
             self.output += msg + "\n"
 
         elif event['type'] == 'progress':
@@ -444,10 +465,20 @@ class mbedToolchain:
             toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
-                'TARGET': self.target.get_labels() + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
+                'TARGET': self.target.labels,
                 'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
+
+            # This is a policy decision and it should /really/ be in the config system
+            # ATM it's here for backward compatibility
+            if (("-g" in self.flags['common'] and
+                 "-O0") in self.flags['common'] or
+                ("-r" in self.flags['common'] and
+                 "-On" in self.flags['common'])):
+                self.labels['TARGET'].append("DEBUG")
+            else:
+                self.labels['TARGET'].append("RELEASE")
         return self.labels
 
 
@@ -611,7 +642,10 @@ class mbedToolchain:
         elif ext == '.bld':
             resources.lib_builds.append(file_path)
 
-        elif file == '.hgignore':
+        elif basename(file_path) == '.hgignore':
+            resources.repo_files.append(file_path)
+
+        elif basename(file_path) == '.gitignore':
             resources.repo_files.append(file_path)
 
         elif ext == '.hex':
@@ -720,7 +754,6 @@ class mbedToolchain:
 
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    @check_toolchain_path
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
@@ -765,6 +798,7 @@ class mbedToolchain:
                     'chroot': self.CHROOT
                 })
             else:
+                self.compiled += 1
                 objects.append(object)
 
         # Use queues/multiprocessing if cpu count is higher than setting
@@ -853,7 +887,10 @@ class mbedToolchain:
         if ext == '.c' or  ext == '.cpp':
             base, _ = splitext(object)
             dep_path = base + '.d'
-            deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
+            try:
+                deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
+            except IOError, IndexError:
+                deps = []
             if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
@@ -919,7 +956,6 @@ class mbedToolchain:
             else:
                 raise ToolException(_stderr)
 
-    @check_toolchain_path
     def build_library(self, objects, dir, name):
         needed_update = False
         lib = self.STD_LIB_NAME % name
@@ -931,7 +967,6 @@ class mbedToolchain:
 
         return needed_update
 
-    @check_toolchain_path
     def link_program(self, r, tmp_path, name):
         needed_update = False
         ext = 'bin'
@@ -1043,21 +1078,13 @@ class mbedToolchain:
             self.info("Unknown toolchain for memory statistics %s" % toolchain)
             return None
 
-        # Write output to stdout in text (pretty table) format
-        memap.generate_output('table')
-
-        # Write output to file in JSON format
-        map_out = splitext(map)[0] + "_map.json"
-        memap.generate_output('json', map_out)
-
-        # Write output to file in CSV format for the CI
-        map_csv = splitext(map)[0] + "_map.csv"
-        memap.generate_output('csv-ci', map_csv)
+        # Store the memap instance for later use
+        self.memap_instance = memap
 
         # Here we return memory statistics structure (constructed after
         # call to generate_output) which contains raw data in bytes
         # about sections + summary
-        return memap.mem_summary
+        return memap.mem_report
 
     # Set the configuration data
     def set_config_data(self, config_data):
@@ -1110,6 +1137,51 @@ class mbedToolchain:
         # file for subsequent calls, without trying to manipulate its content in any way.
         self.config_processed = True
         return self.config_file
+
+    @staticmethod
+    def generic_check_executable(tool_key, executable_name, levels_up,
+                                 nested_dir=None):
+        """
+        Positional args:
+        tool_key: the key to index TOOLCHAIN_PATHS
+        executable_name: the toolchain's named executable (ex. armcc)
+        levels_up: each toolchain joins the toolchain_path, some
+        variable directories (bin, include), and the executable name,
+        so the TOOLCHAIN_PATH value must be appropriately distanced
+
+        Keyword args:
+        nested_dir: the directory within TOOLCHAIN_PATHS where the executable
+          is found (ex: 'bin' for ARM\bin\armcc (necessary to check for path
+          that will be used by toolchain's compile)
+
+        Returns True if the executable location specified by the user
+        exists and is valid OR the executable can be found on the PATH.
+        Returns False otherwise.
+        """
+        # Search PATH if user did not specify a path or specified path doesn't
+        # exist.
+        if not TOOLCHAIN_PATHS[tool_key] or not exists(TOOLCHAIN_PATHS[tool_key]):
+            exe = find_executable(executable_name)
+            if not exe:
+                return False
+            for level in range(levels_up):
+                # move up the specified number of directories
+                exe = dirname(exe)
+            TOOLCHAIN_PATHS[tool_key] = exe
+        if nested_dir:
+            subdir = join(TOOLCHAIN_PATHS[tool_key], nested_dir,
+                          executable_name)
+        else:
+            subdir = join(TOOLCHAIN_PATHS[tool_key],executable_name)
+        # User could have specified a path that exists but does not contain exe
+        return exists(subdir) or exists(subdir +'.exe')
+
+    @abstractmethod
+    def check_executable(self):
+        """Returns True if the executable (armcc) location specified by the
+         user exists OR the executable can be found on the PATH.
+         Returns False otherwise."""
+        raise NotImplemented
 
     @abstractmethod
     def get_config_option(self, config_header):

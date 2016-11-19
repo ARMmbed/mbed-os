@@ -16,8 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, exists, dirname, splitext, exists
-from distutils.spawn import find_executable
+from os.path import join, splitext, exists
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -30,32 +29,22 @@ class IAR(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
-    DEFAULT_FLAGS = {
-        'common': [
-            "--no_wrap_diagnostics",
-            # Pa050: No need to be notified about "non-native end of line sequence"
-            # Pa084: Pointless integer comparison -> checks for the values of an enum, but we use values outside of the enum to notify errors (ie: NC).
-            # Pa093: Implicit conversion from float to integer (ie: wait_ms(85.4) -> wait_ms(85))
-            # Pa082: Operation involving two values from two registers (ie: (float)(*obj->MR)/(float)(LPC_PWM1->MR0))
-            "-e", # Enable IAR language extension
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
-        'asm': [],
-        'c': ["--vla"],
-        'cxx': ["--guard_calls"],
-        'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
-    }
+    @staticmethod
+    def check_executable():
+        """Returns True if the executable (arm-none-eabi-gcc) location
+        specified by the user exists OR the executable can be found on the PATH.
+        Returns False otherwise."""
+        return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None):
+        mbedToolchain.__init__(self, target, notify, macros, silent,
+                               extra_verbose=extra_verbose,
+                               build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
-
-        if not TOOLCHAIN_PATHS['IAR']:
-            exe =  find_executable('iccarm')
-            if exe:
-                TOOLCHAIN_PATHS['IAR'] = dirname(dirname(exe))
 
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
@@ -90,12 +79,6 @@ class IAR(mbedToolchain):
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
 
-        if "debug-info" in self.options:
-            c_flags_cmd.append("-r")
-            c_flags_cmd.append("-On")
-        else:
-            c_flags_cmd.append("-Oh")
-
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
@@ -104,11 +87,9 @@ class IAR(mbedToolchain):
         self.cppc = [main_cc]
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
-        self.ld   = join(IAR_BIN, "ilinkarm")
+        self.ld   = [join(IAR_BIN, "ilinkarm")]
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
-
-        self.toolchain_path = TOOLCHAIN_PATHS['IAR']
 
     def parse_dependencies(self, dep_path):
         return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()
@@ -121,6 +102,7 @@ class IAR(mbedToolchain):
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
+                    msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
@@ -140,6 +122,9 @@ class IAR(mbedToolchain):
                     msg = None
                 else:
                     msg['text'] += line+"\n"
+
+        if msg is not None:
+            self.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -203,7 +188,7 @@ class IAR(mbedToolchain):
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = [self.ld, "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
+        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
 
         if mem_map:
             cmd.extend(["--config", mem_map])

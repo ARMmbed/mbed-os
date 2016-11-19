@@ -18,6 +18,8 @@ bool test_randLIB_get_16bit();
 
 bool test_randLIB_get_32bit();
 
+bool test_randLIB_get_64bit();
+
 bool test_randLIB_get_n_bytes_random();
 
 bool test_randLIB_get_random_in_range();

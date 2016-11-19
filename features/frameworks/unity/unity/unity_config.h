@@ -1,3 +1,6 @@
+
+/** \addtogroup frameworks */
+/** @{*/
 /****************************************************************************
  * Copyright (c) 2015, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -36,3 +39,5 @@
 #endif //UNITY_OUTPUT_CHAR
     
 #endif // UNITY_CONFIG_H
+
+/** @}*/

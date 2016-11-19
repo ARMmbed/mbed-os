@@ -37,6 +37,7 @@ from time import sleep, time
 from Queue import Queue, Empty
 from os.path import join, exists, basename, relpath
 from threading import Thread, Lock
+from multiprocessing import Pool, cpu_count
 from subprocess import Popen, PIPE
 
 # Imports related to mbed build api
@@ -59,7 +60,9 @@ from tools.build_api import create_result
 from tools.build_api import add_result_to_report
 from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
+from tools.build_api import get_config
 from tools.libraries import LIBRARIES, LIBRARY_MAP
+from tools.options import extract_profile
 from tools.toolchains import TOOLCHAIN_PATHS
 from tools.toolchains import TOOLCHAINS
 from tools.test_exporters import ReportExporter, ResultExporterType
@@ -170,6 +173,8 @@ class SingleTestRunner(object):
                  _test_loops_list=None,
                  _muts={},
                  _clean=False,
+                 _parser=None,
+                 _opts=None,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
                  _opts_report_html_file_name=None,
@@ -258,6 +263,8 @@ class SingleTestRunner(object):
         self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
+        self.opts_parser = _parser
+        self.opts = _opts
         self.opts_auto_detect = _opts_auto_detect
         self.opts_include_non_automated = _opts_include_non_automated
 
@@ -355,19 +362,20 @@ class SingleTestRunner(object):
                 print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                 continue
 
-            build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
+
+            profile = extract_profile(self.opts_parser, self.opts, toolchain)
 
 
             try:
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
-                                                         options=build_mbed_libs_options,
                                                          clean=clean_mbed_libs_options,
                                                          verbose=self.opts_verbose,
                                                          jobs=self.opts_jobs,
                                                          report=build_report,
-                                                         properties=build_properties)
+                                                         properties=build_properties,
+                                                         build_profile=profile)
 
                 if not build_mbed_libs_result:
                     print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
@@ -423,7 +431,6 @@ class SingleTestRunner(object):
                         libraries.append(lib['id'])
 
 
-            build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
             clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
 
             # Build all required libraries
@@ -432,12 +439,12 @@ class SingleTestRunner(object):
                     build_lib(lib_id,
                               T,
                               toolchain,
-                              options=build_project_options,
                               verbose=self.opts_verbose,
                               clean=clean_mbed_libs_options,
                               jobs=self.opts_jobs,
                               report=build_report,
-                              properties=build_properties)
+                              properties=build_properties,
+                              build_profile=profile)
 
                 except ToolException:
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
@@ -479,7 +486,6 @@ class SingleTestRunner(object):
                                      T,
                                      toolchain,
                                      test.dependencies,
-                                     options=build_project_options,
                                      clean=clean_project_options,
                                      verbose=self.opts_verbose,
                                      name=project_name,
@@ -489,7 +495,8 @@ class SingleTestRunner(object):
                                      report=build_report,
                                      properties=build_properties,
                                      project_id=test_id,
-                                     project_description=test.get_description())
+                                     project_description=test.get_description(),
+                                     build_profile=profile)
 
                 except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
@@ -1789,6 +1796,10 @@ def get_default_test_options_parser():
                         action="store_true",
                         help='Test only peripheral declared for MUT and skip common tests')
 
+    parser.add_argument("--profile", dest="profile", action="append",
+                        type=argparse_filestring_type,
+                        default=[])
+
     parser.add_argument('-C', '--only-commons',
                         dest='test_only_common',
                         default=False,
@@ -1990,7 +2001,7 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
-def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=None):
+def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
     target_name: name of the target to use for scanning (ex. 'K64F')
@@ -2002,7 +2013,7 @@ def find_tests(base_dir, target_name, toolchain_name, options=None, app_config=N
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name, options=options,
+    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name,
                                   silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
@@ -2059,10 +2070,53 @@ def norm_relative_path(path, start):
     path = path.replace("\\", "/")
     return path
 
+
+def build_test_worker(*args, **kwargs):
+    """This is a worker function for the parallel building of tests. The `args`
+    and `kwargs` are passed directly to `build_project`. It returns a dictionary
+    with the following structure:
+
+    {
+        'result': `True` if no exceptions were thrown, `False` otherwise
+        'reason': Instance of exception that was thrown on failure
+        'bin_file': Path to the created binary if `build_project` was
+                    successful. Not present otherwise
+        'kwargs': The keyword arguments that were passed to `build_project`.
+                  This includes arguments that were modified (ex. report)
+    }
+    """
+    bin_file = None
+    ret = {
+        'result': False,
+        'args': args,
+        'kwargs': kwargs
+    }
+
+    try:
+        bin_file = build_project(*args, **kwargs)
+        ret['result'] = True
+        ret['bin_file'] = bin_file
+        ret['kwargs'] = kwargs
+
+    except NotSupportedException, e:
+        ret['reason'] = e
+    except ToolException, e:
+        ret['reason'] = e
+    except KeyboardInterrupt, e:
+        ret['reason'] = e
+    except:
+        # Print unhandled exceptions here
+        import traceback
+        traceback.print_exc(file=sys.stdout)
+
+    return ret
+
+
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
-        options=None, clean=False, notify=None, verbose=False, jobs=1,
-        macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False, app_config=None):
+                clean=False, notify=None, verbose=False, jobs=1, macros=None,
+                silent=False, report=None, properties=None,
+                continue_on_build_fail=False, app_config=None,
+                build_profile=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2073,70 +2127,118 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     base_path = norm_relative_path(build_path, execution_directory)
 
     target_name = target if isinstance(target, str) else target.name
-    
+    cfg, macros, features = get_config(base_source_paths, target_name, toolchain_name)
+
+    baud_rate = 9600
+    if 'platform.stdio-baud-rate' in cfg:
+        baud_rate = cfg['platform.stdio-baud-rate'].value
+
     test_build = {
         "platform": target_name,
         "toolchain": toolchain_name,
         "base_path": base_path,
-        "baud_rate": 9600,
+        "baud_rate": baud_rate,
         "binary_type": "bootable",
         "tests": {}
     }
 
     result = True
 
-    map_outputs_total = list()
+    jobs_count = int(jobs if jobs else cpu_count())
+    p = Pool(processes=jobs_count)
+    results = []
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
         bin_file = None
         test_case_folder_name = os.path.basename(test_path)
         
+        args = (src_path, test_build_path, target, toolchain_name)
+        kwargs = {
+            'jobs': 1,
+            'clean': clean,
+            'macros': macros,
+            'name': test_case_folder_name,
+            'project_id': test_name,
+            'report': report,
+            'properties': properties,
+            'verbose': verbose,
+            'app_config': app_config,
+            'build_profile': build_profile,
+            'silent': True
+        }
         
-        try:
-            bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                     options=options,
-                                     jobs=jobs,
-                                     clean=clean,
-                                     macros=macros,
-                                     name=test_case_folder_name,
-                                     project_id=test_name,
-                                     report=report,
-                                     properties=properties,
-                                     verbose=verbose,
-                                     app_config=app_config)
+        results.append(p.apply_async(build_test_worker, args, kwargs))
 
-        except Exception, e:
-            if not isinstance(e, NotSupportedException):
-                result = False
+    p.close()
+    result = True
+    itr = 0
+    while len(results):
+        itr += 1
+        if itr > 360000:
+            p.terminate()
+            p.join()
+            raise ToolException("Compile did not finish in 10 minutes")
+        else:
+            sleep(0.01)
+            pending = 0
+            for r in results:
+                if r.ready() is True:
+                    try:
+                        worker_result = r.get()
+                        results.remove(r)
 
-                if continue_on_build_fail:
-                    continue
+                        # Take report from the kwargs and merge it into existing report
+                        report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                        for test_key in report_entry.keys():
+                            report[target_name][toolchain_name][test_key] = report_entry[test_key]
+                        
+                        # Set the overall result to a failure if a build failure occurred
+                        if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
+                            result = False
+                            break
+
+                        # Adding binary path to test build result
+                        if worker_result['result'] and 'bin_file' in worker_result:
+                            bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
+
+                            test_build['tests'][worker_result['kwargs']['project_id']] = {
+                                "binaries": [
+                                    {
+                                        "path": bin_file
+                                    }
+                                ]
+                            }
+
+                            test_key = worker_result['kwargs']['project_id'].upper()
+                            print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
+                            print 'Image: %s\n' % bin_file
+
+                    except:
+                        if p._taskqueue.queue:
+                            p._taskqueue.queue.clear()
+                            sleep(0.5)
+                        p.terminate()
+                        p.join()
+                        raise
                 else:
-                    break
+                    pending += 1
+                    if pending >= jobs_count:
+                        break
 
-        # If a clean build was carried out last time, disable it for the next build.
-        # Otherwise the previously built test will be deleted.
-        if clean:
-            clean = False
+            # Break as soon as possible if there is a failure and we are not
+            # continuing on build failures
+            if not result and not continue_on_build_fail:
+                if p._taskqueue.queue:
+                    p._taskqueue.queue.clear()
+                    sleep(0.5)
+                p.terminate()
+                break
 
-        # Normalize the path
-        if bin_file:
-            bin_file = norm_relative_path(bin_file, execution_directory)
-
-            test_build['tests'][test_name] = {
-                "binaries": [
-                    {
-                        "path": bin_file
-                    }
-                ]
-            }
-
-            print 'Image: %s'% bin_file
+    p.join()
 
     test_builds = {}
     test_builds["%s-%s" % (target_name, toolchain_name)] = test_build
-    
 
     return result, test_builds
 

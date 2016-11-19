@@ -88,7 +88,8 @@ char cfstore_flash_utest_msg_g[CFSTORE_FLASH_UTEST_MSG_BUF_SIZE];
 
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 uint16_t cfstore_flash_mtd_async_ops_g = 0;
-extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
+extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
+
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_flush_test_01_kv_data[] = {
@@ -279,7 +280,7 @@ void cfstore_flash_test_01_callback(int32_t status, FlashJournal_OpCode_t cmd_co
 static void cfstore_flash_fsm_init_on_entry(void* context)
 {
     /* round up cfstore_flash_data_blob_t to nearest k64f program unit size */
-    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
     FlashJournal_Info_t info;
     FlashJournal_Status_t status = JOURNAL_STATUS_ERROR;
     cfstore_flash_ctx_t* ctx = (cfstore_flash_ctx_t*) context;

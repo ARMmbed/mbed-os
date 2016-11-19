@@ -29,6 +29,7 @@ sys.path.insert(0, ROOT)
 from tools.build_api import build_mbed_libs
 from tools.build_api import write_build_report
 from tools.build_api import get_mbed_official_release
+from tools.options import extract_profile
 from tools.targets import TARGET_MAP, TARGET_NAMES
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.test_api import SingleTestRunner
@@ -47,6 +48,8 @@ if __name__ == '__main__':
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
+
+    parser.add_option("--profile", dest="profile", action="append", default=[])
 
     parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
 
@@ -127,6 +130,8 @@ if __name__ == '__main__':
             test_spec["targets"][target_name] = toolchains
 
         single_test = SingleTestRunner(_muts=mut,
+                                       _parser=parser,
+                                       _opts=options,
                                        _opts_report_build_file_name=options.report_build_file_name,
                                        _test_spec=test_spec,
                                        _opts_test_by_names=",".join(test_names),
@@ -162,14 +167,22 @@ if __name__ == '__main__':
             for toolchain in toolchains:
                 id = "%s::%s" % (target_name, toolchain)
 
+                profile = extract_profile(parser, options, toolchain)
+
                 try:
-                    built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs, report=build_report, properties=build_properties)
+                    built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name],
+                                                     toolchain,
+                                                     verbose=options.verbose,
+                                                     jobs=options.jobs,
+                                                     report=build_report,
+                                                     properties=build_properties,
+                                                     build_profile=profile)
 
                 except Exception, e:
                     print str(e)
 
     # copy targets.json file as part of the release
-    copy(join(dirname(abspath(__file__)), '..', 'hal', 'targets.json'), MBED_LIBRARIES)
+    copy(join(dirname(abspath(__file__)), '..', 'targets', 'targets.json'), MBED_LIBRARIES)
 
     # Write summary of the builds
     if options.report_build_file_name:

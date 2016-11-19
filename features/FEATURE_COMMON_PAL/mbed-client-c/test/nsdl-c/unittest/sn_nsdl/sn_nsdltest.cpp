@@ -136,6 +136,11 @@ TEST(sn_nsdl, test_sn_nsdl_create_resource)
     CHECK(test_sn_nsdl_create_resource());
 }
 
+TEST(sn_nsdl, test_sn_nsdl_put_resource)
+{
+    CHECK(test_sn_nsdl_put_resource());
+}
+
 TEST(sn_nsdl, test_sn_nsdl_delete_resource)
 {
     CHECK(test_sn_nsdl_delete_resource());

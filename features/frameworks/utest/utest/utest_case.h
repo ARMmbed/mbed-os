@@ -27,6 +27,8 @@
 
 
 namespace utest {
+/** \addtogroup frameworks */
+/** @{*/
 namespace v1 {
 
     /** Test case wrapper class.
@@ -127,3 +129,5 @@ namespace v1 {
 }   // namespace utest
 
  #endif // UTEST_CASES_H
+
+/** @}*/

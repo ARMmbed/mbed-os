@@ -125,7 +125,6 @@ static inline void debugger_breakpoint(void)
 //--------------------------------------------------------------------+
 // Logical Assert
 //--------------------------------------------------------------------+
-#define ASSERT(...)                      ASSERT_TRUE(__VA_ARGS__)
 #define ASSERT_TRUE(condition  , error)  ASSERT_DEFINE( , (condition), error, "%s", "evaluated to false")
 #define ASSERT_FALSE(condition , error)  ASSERT_DEFINE( ,!(condition), error, "%s", "evaluated to true")
 

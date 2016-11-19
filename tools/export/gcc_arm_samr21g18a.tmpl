@@ -1,4 +1,0 @@
-{% extends "gcc_arm_common.tmpl" %}
-
-{% block cpu %} -mcpu=cortex-m0plus -mthumb {% endblock %}
-{% block ld_sys_libs %}{{ super() }} -Wl,--start-group -lc -lc -lnosys -Wl,--end-group {% endblock %}

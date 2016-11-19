@@ -29,7 +29,7 @@ extern uint32_t __HeapLimit[];  /* __heap_end   */
 extern uint32_t __StackLimit[];   /* bottom of stack */
 
 /* There is only one box index for box 0. */
-RtxBoxIndex * __uvisor_ps;
+RtxBoxIndex * __uvisor_ps UVISOR_ALIGN(4);
 
 static void box_index_init(void *box_bss, uint32_t heap_size)
 {
