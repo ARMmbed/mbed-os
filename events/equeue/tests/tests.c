@@ -557,6 +557,42 @@ void chain_test(void) {
     equeue_dispatch(&q1, 30);
 
     test_assert(touched == 6);
+
+    equeue_destroy(&q1);
+    equeue_destroy(&q2);
+}
+
+void unchain_test(void) {
+    equeue_t q1;
+    int err = equeue_create(&q1, 2048);
+    test_assert(!err);
+
+    equeue_t q2;
+    err = equeue_create(&q2, 2048);
+    test_assert(!err);
+
+    equeue_chain(&q2, &q1);
+
+    int touched = 0;
+    int id1 = equeue_call(&q1, simple_func, &touched);
+    int id2 = equeue_call(&q2, simple_func, &touched);
+    test_assert(id1 && id2);
+
+    equeue_dispatch(&q1, 0);
+    test_assert(touched == 2);
+
+    equeue_chain(&q2, 0);
+    equeue_chain(&q1, &q2);
+
+    id1 = equeue_call(&q1, simple_func, &touched);
+    id2 = equeue_call(&q2, simple_func, &touched);
+    test_assert(id1 && id2);
+
+    equeue_dispatch(&q2, 0);
+    test_assert(touched == 4);
+
+    equeue_destroy(&q1);
+    equeue_destroy(&q2);
 }
 
 // Barrage tests
@@ -671,6 +707,7 @@ int main() {
     test_run(sloth_test);
     test_run(background_test);
     test_run(chain_test);
+    test_run(unchain_test);
     test_run(multithread_test);
     test_run(simple_barrage_test, 20);
     test_run(fragmenting_barrage_test, 20);
