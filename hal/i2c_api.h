@@ -117,7 +117,9 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop);
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
  *  @param stop    Stop to be generated after the transfer is done
- *  @return Number of written bytes
+ *  @return 
+ *      zero or non-zero - Number of written bytes
+ *      negative - I2C_ERROR_XXX status
  */
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop);
 
