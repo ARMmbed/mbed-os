@@ -432,7 +432,7 @@ static void txdscr_init()
         txdesc[i].Status = TX_LAST_SEGM | TX_FIRST_SEGM;;
         txdesc[i].Ctrl   = 0;
         txdesc[i].BufAddr1   = (uint32_t)&txbuf[i];
-        if (i == (NUM_RX_FRAG - 1)) {
+        if (i == (NUM_TX_FRAG - 1)) {
             txdesc[i].Status |= TX_END_RING;
         }
     }

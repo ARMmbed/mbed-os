@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
@@ -63,7 +63,7 @@
   */
 typedef enum 
 {
-  FLASH_PROC_NONE = 0, 
+  FLASH_PROC_NONE = 0U, 
   FLASH_PROC_PAGEERASE,
   FLASH_PROC_PROGRAM
 } FLASH_ProcedureTypeDef;
@@ -117,8 +117,8 @@ typedef struct
 extern FLASH_ProcessTypeDef ProcFlash;   
 
 
-#define FLASH_TIMEOUT_VALUE        ((uint32_t)50000) /* 50 s */
-#define FLASH_SIZE_DATA_REGISTER   ((uint32_t)0x1FF8007C)
+#define FLASH_TIMEOUT_VALUE        ((uint32_t)50000U) /* 50 s */
+#define FLASH_SIZE_DATA_REGISTER   ((uint32_t)0x1FF8007CU)
 /**
   * @}
   */
@@ -131,13 +131,13 @@ extern FLASH_ProcessTypeDef ProcFlash;
   /**
   * @brief  FLASH size information
   */
-#define FLASH_SIZE                 (uint32_t)(*((uint16_t *)FLASH_SIZE_DATA_REGISTER) * 1024)
-#define FLASH_PAGE_SIZE            ((uint32_t)128)
+#define FLASH_SIZE                 (uint32_t)(*((uint16_t *)FLASH_SIZE_DATA_REGISTER) * 1024U)
+#define FLASH_PAGE_SIZE            ((uint32_t)128U)
 
 /** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */
-#define FLASH_TYPEPROGRAM_WORD     ((uint32_t)0x02)  /*!<Program a word (32-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAM_WORD     ((uint32_t)0x02U) /*!<Program a word (32-bit) at a specified address.*/
 /**
   * @}
   */
@@ -145,8 +145,8 @@ extern FLASH_ProcessTypeDef ProcFlash;
 /** @defgroup FLASH_Latency FLASH Latency 
   * @{
   */ 
-#define FLASH_LATENCY_0            ((uint8_t)0x00)    /*!< FLASH Zero Latency cycle */
-#define FLASH_LATENCY_1            ((uint8_t)0x01)    /*!< FLASH One Latency cycle */
+#define FLASH_LATENCY_0            ((uint8_t)0x00U)   /*!< FLASH Zero Latency cycle */
+#define FLASH_LATENCY_1            ((uint8_t)0x01U)   /*!< FLASH One Latency cycle */
 /**
   * @}
   */
@@ -181,14 +181,14 @@ extern FLASH_ProcessTypeDef ProcFlash;
 /** @defgroup FLASH_Error_Code Flash Error Code
   * @{
   */
-#define HAL_FLASH_ERROR_NONE    0x00
-#define HAL_FLASH_ERROR_RD      0x01
-#define HAL_FLASH_ERROR_SIZE    0x02
-#define HAL_FLASH_ERROR_PGA     0x04
-#define HAL_FLASH_ERROR_WRP     0x08
-#define HAL_FLASH_ERROR_OPTV    0x10
-#define HAL_FLASH_ERROR_FWWERR  0x20
-#define HAL_FLASH_ERROR_NOTZERO 0x40
+#define HAL_FLASH_ERROR_NONE    0x00U
+#define HAL_FLASH_ERROR_RD      0x01U
+#define HAL_FLASH_ERROR_SIZE    0x02U
+#define HAL_FLASH_ERROR_PGA     0x04U
+#define HAL_FLASH_ERROR_WRP     0x08U
+#define HAL_FLASH_ERROR_OPTV    0x10U
+#define HAL_FLASH_ERROR_FWWERR  0x20U
+#define HAL_FLASH_ERROR_NOTZERO 0x40U
 /**
   * @}
   */
@@ -196,22 +196,22 @@ extern FLASH_ProcessTypeDef ProcFlash;
 /** @defgroup FLASH_Keys FLASH Keys 
   * @{
   */ 
-#define FLASH_PDKEY1               ((uint32_t)0x04152637) /*!< Flash power down key1 */
-#define FLASH_PDKEY2               ((uint32_t)0xFAFBFCFD) /*!< Flash power down key2: used with FLASH_PDKEY1 
+#define FLASH_PDKEY1               ((uint32_t)0x04152637U) /*!< Flash power down key1 */
+#define FLASH_PDKEY2               ((uint32_t)0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
                                                                to unlock the RUN_PD bit in FLASH_ACR */
 
-#define FLASH_PEKEY1               ((uint32_t)0x89ABCDEF) /*!< Flash program erase key1 */
-#define FLASH_PEKEY2               ((uint32_t)0x02030405) /*!< Flash program erase key: used with FLASH_PEKEY2
-                                                               to unlock the write access to the FLASH_PECR register and
-                                                               data EEPROM */
+#define FLASH_PEKEY1               ((uint32_t)0x89ABCDEFU) /*!< Flash program erase key1 */
+#define FLASH_PEKEY2               ((uint32_t)0x02030405U) /*!< Flash program erase key: used with FLASH_PEKEY2
+                                                                to unlock the write access to the FLASH_PECR register and
+                                                                data EEPROM */
 
-#define FLASH_PRGKEY1              ((uint32_t)0x8C9DAEBF) /*!< Flash program memory key1 */
-#define FLASH_PRGKEY2              ((uint32_t)0x13141516) /*!< Flash program memory key2: used with FLASH_PRGKEY2
-                                                               to unlock the program memory */
+#define FLASH_PRGKEY1              ((uint32_t)0x8C9DAEBFU) /*!< Flash program memory key1 */
+#define FLASH_PRGKEY2              ((uint32_t)0x13141516u) /*!< Flash program memory key2: used with FLASH_PRGKEY2
+                                                                to unlock the program memory */
 
-#define FLASH_OPTKEY1              ((uint32_t)0xFBEAD9C8) /*!< Flash option key1 */
-#define FLASH_OPTKEY2              ((uint32_t)0x24252627) /*!< Flash option key2: used with FLASH_OPTKEY1 to
-                                                               unlock the write access to the option byte block */
+#define FLASH_OPTKEY1              ((uint32_t)0xFBEAD9C8U) /*!< Flash option key1 */
+#define FLASH_OPTKEY2              ((uint32_t)0x24252627U) /*!< Flash option key2: used with FLASH_OPTKEY1 to
+                                                                unlock the write access to the option byte block */
 /**
   * @}
   */

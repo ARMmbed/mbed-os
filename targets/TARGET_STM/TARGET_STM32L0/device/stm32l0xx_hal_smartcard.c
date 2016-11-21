@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -106,8 +106,8 @@
   */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define TEACK_REACK_TIMEOUT               1000
-#define HAL_SMARTCARD_TXDMA_TIMEOUTVALUE  22000
+#define TEACK_REACK_TIMEOUT               1000U
+#define HAL_SMARTCARD_TXDMA_TIMEOUTVALUE  22000U
 #define USART_CR1_FIELDS      ((uint32_t)(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | \
                                           USART_CR1_TE | USART_CR1_RE | USART_CR1_OVER8))
 #define USART_CR2_CLK_FIELDS  ((uint32_t)(USART_CR2_CLKEN|USART_CR2_CPOL|USART_CR2_CPHA|USART_CR2_LBCL))   
@@ -146,14 +146,7 @@ static void SMARTCARD_AdvFeatureConfig(SMARTCARD_HandleTypeDef *hsc);
     associated to the SmartCard.
       (+) These parameters can be configured: 
         (++) Baud Rate
-        (++) Parity: parity should be enabled,
-             Frame Length is fixed to 8 bits plus parity:
-             the USART frame format is given in the following table:
-   +---------------------------------------------------------------+
-   | M1M0 bits |  PCE bit  |            USART frame                |
-   |-----------------------|---------------------------------------|
-   |     01    |    1      |    | SB | 8 bit data | PB | STB |     |
-   +---------------------------------------------------------------+
+        (++) Parity: parity should be enabled,frame Length is fixed to 8 bits plus parity.
         (++) Receiver/transmitter modes
         (++) Synchronous mode (and if enabled, phase, polarity and last bit parameters)
         (++) Prescaler value
@@ -176,6 +169,15 @@ static void SMARTCARD_AdvFeatureConfig(SMARTCARD_HandleTypeDef *hsc);
     (details for the procedures are available in reference manual).
 
 @endverbatim
+
+  The USART frame format is given in the following table:
+
+  Table 1. USART frame format.
+   +---------------------------------------------------------------+
+   | M1M0 bits |  PCE bit  |            USART frame                |
+   |-----------------------|---------------------------------------|
+   |     01    |    1      |    | SB | 8 bit data | PB | STB |     |
+   +---------------------------------------------------------------+
   * @{
   */
 
@@ -356,7 +358,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
 {
   if((hsc->State == HAL_SMARTCARD_STATE_READY) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -376,14 +378,14 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
     
     hsc->TxXferSize = Size;
     hsc->TxXferCount = Size;
-    while(hsc->TxXferCount > 0)
+    while(hsc->TxXferCount > 0U)
     {
       hsc->TxXferCount--;      
       if(SMARTCARD_WaitOnFlagUntilTimeout(hsc, SMARTCARD_FLAG_TXE, RESET, Timeout) != HAL_OK)  
       { 
         return HAL_TIMEOUT;
       }
-      hsc->Instance->TDR = (*pData++ & (uint8_t)0xFF);     
+      hsc->Instance->TDR = (*pData++ & (uint8_t)0xFFU);     
     }
     if(SMARTCARD_WaitOnFlagUntilTimeout(hsc, SMARTCARD_FLAG_TC, RESET, Timeout) != HAL_OK)  
     { 
@@ -422,7 +424,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *p
 { 
   if((hsc->State == HAL_SMARTCARD_STATE_READY) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_TX))
   { 
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -444,14 +446,14 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *p
     hsc->RxXferSize = Size; 
     hsc->RxXferCount = Size;
     /* Check the remain data to be received */
-    while(hsc->RxXferCount > 0)
+    while(hsc->RxXferCount > 0U)
     {
       hsc->RxXferCount--;    
       if(SMARTCARD_WaitOnFlagUntilTimeout(hsc, SMARTCARD_FLAG_RXNE, RESET, Timeout) != HAL_OK)  
       { 
         return HAL_TIMEOUT;
       }          
-      *pData++ = (uint8_t)(hsc->Instance->RDR & (uint8_t)0x00FF);              
+      *pData++ = (uint8_t)(hsc->Instance->RDR & (uint8_t)0x00FFU);              
     }
     
     /* Check if a non-blocking transmit Process is ongoing or not */
@@ -486,7 +488,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc, uint8_
 {
   if((hsc->State == HAL_SMARTCARD_STATE_READY) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -537,7 +539,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc, uint8_t
 {
   if((hsc->State == HAL_SMARTCARD_STATE_READY) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -593,7 +595,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_DMA(SMARTCARD_HandleTypeDef *hsc, uint8
   
   if((hsc->State == HAL_SMARTCARD_STATE_READY) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -659,7 +661,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_DMA(SMARTCARD_HandleTypeDef *hsc, uint8_
   
   if((hsc->State == HAL_SMARTCARD_STATE_READY) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -892,7 +894,7 @@ static HAL_StatusTypeDef SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc)
 {
   if((hsc->State == HAL_SMARTCARD_STATE_BUSY_TX) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_TX_RX)) 
   {
-    if(hsc->TxXferCount == 0)
+    if(hsc->TxXferCount == 0U)
     {
       /* Disable the SMARTCARD Transmit Complete Interrupt */
       __HAL_SMARTCARD_DISABLE_IT(hsc, SMARTCARD_IT_TC);
@@ -916,7 +918,7 @@ static HAL_StatusTypeDef SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc)
     }
     else
     {    
-      hsc->Instance->TDR = (*hsc->pTxBuffPtr++ & (uint8_t)0xFF);     
+      hsc->Instance->TDR = (*hsc->pTxBuffPtr++ & (uint8_t)0xFFU);     
       hsc->TxXferCount--;
   
       return HAL_OK;
@@ -939,9 +941,9 @@ static HAL_StatusTypeDef SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc)
 {
   if((hsc->State == HAL_SMARTCARD_STATE_BUSY_RX) || (hsc->State == HAL_SMARTCARD_STATE_BUSY_TX_RX))
   {
-    *hsc->pRxBuffPtr++ = (uint8_t)(hsc->Instance->RDR & (uint8_t)0xFF);  
+    *hsc->pRxBuffPtr++ = (uint8_t)(hsc->Instance->RDR & (uint8_t)0xFFU);  
     
-    if(--hsc->RxXferCount == 0)
+    if(--hsc->RxXferCount == 0U)
     {
       while(HAL_IS_BIT_SET(hsc->Instance->ISR, SMARTCARD_FLAG_RXNE))
       {
@@ -983,8 +985,8 @@ static HAL_StatusTypeDef SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc)
   */
 static void SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsc)
 {
-  uint32_t tmpreg = 0x00000000;
-  uint32_t clocksource = 0x00000000;
+  uint32_t tmpreg = 0x00000000U;
+  uint32_t clocksource = 0x00000000U;
   
   /* Check the parameters */ 
   assert_param(IS_SMARTCARD_INSTANCE(hsc->Instance));
@@ -1056,19 +1058,19 @@ static void SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsc)
   switch (clocksource)
   {
   case SMARTCARD_CLOCKSOURCE_PCLK1: 
-    hsc->Instance->BRR = (uint16_t)(HAL_RCC_GetPCLK1Freq() / hsc->Init.BaudRate);
+    hsc->Instance->BRR = (uint16_t)((HAL_RCC_GetPCLK1Freq() + (hsc->Init.BaudRate/2U)) / hsc->Init.BaudRate);
     break;
   case SMARTCARD_CLOCKSOURCE_PCLK2: 
-    hsc->Instance->BRR = (uint16_t)(HAL_RCC_GetPCLK2Freq() / hsc->Init.BaudRate);
+    hsc->Instance->BRR = (uint16_t)((HAL_RCC_GetPCLK2Freq() + (hsc->Init.BaudRate/2U)) / hsc->Init.BaudRate);
     break;
   case SMARTCARD_CLOCKSOURCE_HSI: 
-    hsc->Instance->BRR = (uint16_t)(HSI_VALUE / hsc->Init.BaudRate); 
+    hsc->Instance->BRR = (uint16_t)((HSI_VALUE + (hsc->Init.BaudRate/2U)) / hsc->Init.BaudRate);
     break; 
   case SMARTCARD_CLOCKSOURCE_SYSCLK:  
-    hsc->Instance->BRR = (uint16_t)(HAL_RCC_GetSysClockFreq() / hsc->Init.BaudRate);
+    hsc->Instance->BRR = (uint16_t)((HAL_RCC_GetSysClockFreq() + (hsc->Init.BaudRate/2U)) / hsc->Init.BaudRate);
     break;  
   case SMARTCARD_CLOCKSOURCE_LSE:                
-    hsc->Instance->BRR = (uint16_t)(LSE_VALUE / hsc->Init.BaudRate); 
+    hsc->Instance->BRR = (uint16_t)((LSE_VALUE + (hsc->Init.BaudRate/2U)) / hsc->Init.BaudRate);
     break;
   default:
     break;
@@ -1184,7 +1186,7 @@ static void SMARTCARD_AdvFeatureConfig(SMARTCARD_HandleTypeDef *hsc)
   */
 static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDef *hsc, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
 {
-  uint32_t tickstart = 0x00;
+  uint32_t tickstart = 0x00U;
   tickstart = HAL_GetTick();
 
   /* Wait until flag is set */
@@ -1195,7 +1197,7 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
           __HAL_SMARTCARD_DISABLE_IT(hsc, SMARTCARD_IT_TXE);
@@ -1220,7 +1222,7 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
           __HAL_SMARTCARD_DISABLE_IT(hsc, SMARTCARD_IT_TXE);
@@ -1249,7 +1251,7 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
 static void SMARTCARD_DMATransmitCplt(DMA_HandleTypeDef *hdma)     
 {
   SMARTCARD_HandleTypeDef* hsmartcard = ( SMARTCARD_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  hsmartcard->TxXferCount = 0;
+  hsmartcard->TxXferCount = 0U;
 
   /* Disable the DMA transfer for transmit request by resetting the DMAT bit
   in the SMARTCARD associated USART CR3 register */
@@ -1267,7 +1269,7 @@ static void SMARTCARD_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 static void SMARTCARD_DMAReceiveCplt(DMA_HandleTypeDef *hdma)  
 {
   SMARTCARD_HandleTypeDef* hsc = ( SMARTCARD_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  hsc->RxXferCount = 0;
+  hsc->RxXferCount = 0U;
   
   /* Disable the DMA transfer for the receiver request by setting the DMAR bit 
      in the SMARTCARD associated USART CR3 register */
@@ -1294,8 +1296,8 @@ static void SMARTCARD_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 static void SMARTCARD_DMAError(DMA_HandleTypeDef *hdma)
 {
   SMARTCARD_HandleTypeDef* hsc = ( SMARTCARD_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  hsc->RxXferCount = 0;
-  hsc->TxXferCount = 0;
+  hsc->RxXferCount = 0U;
+  hsc->TxXferCount = 0U;
   hsc->State= HAL_SMARTCARD_STATE_READY;
   hsc->ErrorCode |= HAL_SMARTCARD_ERROR_DMA;
   HAL_SMARTCARD_ErrorCallback(hsc);

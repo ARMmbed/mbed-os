@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -61,7 +61,7 @@
 /** @defgroup SYSCFG_BootMode Boot Mode
   * @{
   */
-#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000)
+#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000U)
 #define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_BOOT_MODE_0)
 #define SYSCFG_BOOT_SRAM               ((uint32_t)SYSCFG_CFGR1_BOOT_MODE)     
 
@@ -75,7 +75,7 @@
 #define DBGMCU_SLEEP                 DBGMCU_CR_DBG_SLEEP
 #define DBGMCU_STOP                  DBGMCU_CR_DBG_STOP
 #define DBGMCU_STANDBY               DBGMCU_CR_DBG_STANDBY
-#define IS_DBGMCU_PERIPH(__PERIPH__) ((((__PERIPH__) & (~(DBGMCU_CR_DBG))) == 0x00) && ((__PERIPH__) != 0x00))
+#define IS_DBGMCU_PERIPH(__PERIPH__) ((((__PERIPH__) & (~(DBGMCU_CR_DBG))) == 0x00U) && ((__PERIPH__) != 0x00U))
 
 
 /**
@@ -89,9 +89,9 @@
 #define SYSCFG_LCD_EXT_CAPA             SYSCFG_CFGR2_CAPA /*!< Connection of internal Vlcd rail to external capacitors */
 #define SYSCFG_VLCD_PB2_EXT_CAPA_ON     SYSCFG_CFGR2_CAPA_0  /*!< Connection on PB2   */
 #define SYSCFG_VLCD_PB12_EXT_CAPA_ON    SYSCFG_CFGR2_CAPA_1  /*!< Connection on PB12  */
-#define SYSCFG_VLCD_PE11_EXT_CAPA_ON    SYSCFG_CFGR2_CAPA_2  /*!< Connection on PB0   */
+#define SYSCFG_VLCD_PB0_EXT_CAPA_ON     SYSCFG_CFGR2_CAPA_2  /*!< Connection on PB0   */
 #if defined (SYSCFG_CFGR2_CAPA_3)
-#define SYSCFG_VLCD_PB0_EXT_CAPA_ON     SYSCFG_CFGR2_CAPA_3  /*!< Connection on PE11  */
+#define SYSCFG_VLCD_PE11_EXT_CAPA_ON    SYSCFG_CFGR2_CAPA_3  /*!< Connection on PE11  */
 #endif
 #if defined (SYSCFG_CFGR2_CAPA_4)
 #define SYSCFG_VLCD_PE12_EXT_CAPA_ON    SYSCFG_CFGR2_CAPA_4  /*!< Connection on PE12  */
@@ -105,7 +105,7 @@
 /** @defgroup SYSCFG_VREFINT_OUT_SELECT SYSCFG VREFINT Out Selection
   * @{
   */ 
-#define SYSCFG_VREFINT_OUT_NONE          ((uint32_t)0x00000000) /* no pad connected */  
+#define SYSCFG_VREFINT_OUT_NONE          ((uint32_t)0x00000000U) /* no pad connected */  
 #define SYSCFG_VREFINT_OUT_PB0           SYSCFG_CFGR3_VREF_OUT_0 /* Selects PBO as output for the Vrefint */
 #define SYSCFG_VREFINT_OUT_PB1           SYSCFG_CFGR3_VREF_OUT_1 /* Selects PB1 as output for the Vrefint */
 #define SYSCFG_VREFINT_OUT_PB0_PB1       SYSCFG_CFGR3_VREF_OUT   /* Selects PBO and PB1 as output for the Vrefint */
@@ -291,6 +291,36 @@
 #define __HAL_SYSCFG_DBG_LP_CONFIG(__DBGLPMODE__)    do {assert_param(IS_DBGMCU_PERIPH(__DBGLPMODE__)); \
                                                        MODIFY_REG(DBGMCU->CR, DBGMCU_CR_DBG, (__DBGLPMODE__)); \
                                                      } while (0) 
+
+#if defined (LCD_BASE) /* STM32L0x3xx only */  
+                                                       
+/** @brief  Macro to configure the VLCD Decoupling capacitance connection.
+  *
+  * @param  __SYSCFG_VLCD_CAPA__: specifies the decoupling of LCD capacitance for rails connection on GPIO.
+  *          This parameter can be a combination of following values (when available):
+  *            @arg SYSCFG_VLCD_PB2_EXT_CAPA_ON:  Connection on PB2   
+  *            @arg SYSCFG_VLCD_PB12_EXT_CAPA_ON: Connection on PB12
+  *            @arg SYSCFG_VLCD_PB0_EXT_CAPA_ON:  Connection on PB0
+  *            @arg SYSCFG_VLCD_PE11_EXT_CAPA_ON: Connection on PE11
+  *            @arg SYSCFG_VLCD_PE12_EXT_CAPA_ON: Connection on PE12   
+  * @retval None
+  */
+#define __HAL_SYSCFG_VLCD_CAPA_CONFIG(__SYSCFG_VLCD_CAPA__) \
+                  MODIFY_REG(SYSCFG->CFGR2, SYSCFG_LCD_EXT_CAPA, (uint32_t)(__SYSCFG_VLCD_CAPA__))
+
+/**
+  * @brief  Returns the decoupling of LCD capacitance configured by user.
+  * @retval The LCD capacitance connection as configured by user. The returned can be a combination of :
+  *            SYSCFG_VLCD_PB2_EXT_CAPA_ON:  Connection on PB2   
+  *            SYSCFG_VLCD_PB12_EXT_CAPA_ON: Connection on PB12
+  *            SYSCFG_VLCD_PB0_EXT_CAPA_ON:  Connection on PB0
+  *            SYSCFG_VLCD_PE11_EXT_CAPA_ON: Connection on PE11
+  *            SYSCFG_VLCD_PE12_EXT_CAPA_ON: Connection on PE12 
+  */
+#define __HAL_SYSCFG_GET_VLCD_CAPA_CONFIG()          READ_BIT(SYSCFG->CFGR2, SYSCFG_LCD_EXT_CAPA)
+              
+#endif
+                                                        
 /**
   * @brief  Returns the boot mode as configured by user.
   * @retval The boot mode as configured by user. The returned can be a value of :
@@ -372,8 +402,6 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void);
 void HAL_DBGMCU_DBG_EnableLowPowerConfig(uint32_t Periph);
 void HAL_DBGMCU_DBG_DisableLowPowerConfig(uint32_t Periph);
 uint32_t  HAL_SYSCFG_GetBootMode(void);
-void HAL_SYSCFG_EnableVREFINT(void);
-void HAL_SYSCFG_DisableVREFINT(void);
 void HAL_SYSCFG_Enable_Lock_VREFINT(void);
 void HAL_SYSCFG_Disable_Lock_VREFINT(void);
 void HAL_SYSCFG_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT);

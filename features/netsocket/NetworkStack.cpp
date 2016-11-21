@@ -26,7 +26,7 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
 {
     // check for simple ip addresses
     if (address->set_ip_address(name)) {
-        if (address->get_ip_version() != version) {
+        if (version != NSAPI_UNSPEC && address->get_ip_version() != version) {
             return NSAPI_ERROR_DNS_FAILURE;
         }
 
@@ -281,7 +281,8 @@ protected:
 // Conversion function for network stacks
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
 {
-    MBED_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper));
+    MBED_STATIC_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
+            "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
     return new (stack->_stack_buffer) NetworkStackWrapper;
 }
 

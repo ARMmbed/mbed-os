@@ -60,6 +60,7 @@ from tools.build_api import create_result
 from tools.build_api import add_result_to_report
 from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
+from tools.build_api import get_config
 from tools.libraries import LIBRARIES, LIBRARY_MAP
 from tools.options import extract_profile
 from tools.toolchains import TOOLCHAIN_PATHS
@@ -2126,12 +2127,17 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     base_path = norm_relative_path(build_path, execution_directory)
 
     target_name = target if isinstance(target, str) else target.name
-    
+    cfg, macros, features = get_config(base_source_paths, target_name, toolchain_name)
+
+    baud_rate = 9600
+    if 'platform.stdio-baud-rate' in cfg:
+        baud_rate = cfg['platform.stdio-baud-rate'].value
+
     test_build = {
         "platform": target_name,
         "toolchain": toolchain_name,
         "base_path": base_path,
-        "baud_rate": 9600,
+        "baud_rate": baud_rate,
         "binary_type": "bootable",
         "tests": {}
     }
@@ -2149,7 +2155,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         
         args = (src_path, test_build_path, target, toolchain_name)
         kwargs = {
-            'jobs': jobs,
+            'jobs': 1,
             'clean': clean,
             'macros': macros,
             'name': test_case_folder_name,

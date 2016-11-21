@@ -20,6 +20,7 @@
 
 #include "RZ_A1_Init.h"
 #include "MBRZA1H.h"
+#include "vfp_neon_push_pop.h"
 
 #define US_TICKER_TIMER_IRQn (OSTMI1TINT_IRQn)
 #define CPG_STBCR5_BIT_MSTP50   (0x01u) /* OSTM1 */
@@ -31,6 +32,8 @@ static double count_clock = 0;
 static uint32_t last_read = 0;
 static uint32_t wrap_arround = 0;
 static uint64_t ticker_us_last64 = 0;
+static uint64_t set_cmp_val64 = 0;
+static uint64_t timestamp64 = 0;
 
 void us_ticker_interrupt(void) {
     us_ticker_irq_handler();
@@ -80,9 +83,15 @@ static uint64_t ticker_read_counter64(void) {
     return cnt_val64;
 }
 
-uint32_t us_ticker_read() {
+static void us_ticker_read_last(void) {
     uint64_t cnt_val64;
-    uint64_t us_val64;
+
+    cnt_val64        = ticker_read_counter64();
+
+    ticker_us_last64 = (cnt_val64 / count_clock);
+}
+
+uint32_t us_ticker_read() {
     int check_irq_masked;
 
 #if defined ( __ICCARM__)
@@ -91,22 +100,24 @@ uint32_t us_ticker_read() {
     check_irq_masked = __disable_irq();
 #endif /* __ICCARM__ */
 
-    cnt_val64        = ticker_read_counter64();
-    us_val64         = (cnt_val64 / count_clock);
-    ticker_us_last64 = us_val64;
+    __vfp_neon_push();
+    us_ticker_read_last();
+    __vfp_neon_pop();
 
     if (!check_irq_masked) {
         __enable_irq();
     }
 
     /* clock to us */
-    return (uint32_t)us_val64;
+    return (uint32_t)ticker_us_last64;
+}
+
+static void us_ticker_calc_compare_match(void) {
+    set_cmp_val64  = timestamp64 * count_clock;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    uint64_t timestamp64;
-    uint64_t set_cmp_val64;
     volatile uint32_t set_cmp_val;
     uint64_t count_val_64;
 
@@ -118,7 +129,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     }
 
     /* calc compare mach timestamp */
-    set_cmp_val64  = timestamp64 * count_clock;
+    __vfp_neon_push();
+    us_ticker_calc_compare_match();
+    __vfp_neon_pop();
+
     set_cmp_val    = (uint32_t)(set_cmp_val64 & 0x00000000FFFFFFFF);
     count_val_64   = ticker_read_counter64();
     if (set_cmp_val64 <= (count_val_64 + 500)) {

@@ -3960,7 +3960,8 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
     __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_EVT | I2C_IT_ERR);
 
     hi2c->State = HAL_I2C_STATE_READY;
-    
+    hi2c->PreviousState = I2C_STATE_NONE;
+
     if(hi2c->Mode == HAL_I2C_MODE_MEM)
     {
       hi2c->Mode = HAL_I2C_MODE_NONE;

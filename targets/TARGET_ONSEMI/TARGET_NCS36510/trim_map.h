@@ -113,7 +113,7 @@ typedef struct {
     __I uint32_t ON_RESERVED1;            /**< 0x1FCC */
     __I uint32_t ADC_OFFSET_TRIM;         /**< 0x1FD0 */
     __I uint32_t TX_PRE_CHIPS;            /**< 0x1FD4 */
-    __I uint32_t TX_CHAIN_TRIM;           /**< 0x1FD8 */
+    __I uint32_t TX_TRIM;                 /**< 0x1FD8 */
     __I uint32_t PLL_VCO_TAP_LOCATION;    /**< 0x1FDC */
     __I uint32_t PLL_TRIM;                /**< 0x1FE0 */
     __I uint32_t RSSI_OFFSET;             /**< 0x1FE4 */
@@ -125,4 +125,14 @@ typedef struct {
     __I uint32_t REVISION_CODE;           /**< 0x1FFC */
 } TrimReg_t, *TrimReg_pt;
 
+
+/** User defined trim register map */
+typedef struct {
+    __IO uint32_t MAC_ADDRESS_LOW;		/**< 0x2800     */
+    __IO uint32_t MAC_ADDRESS_HIGH;		/**< 0x2804     */
+    __IO uint32_t TRIM_32K_EXT;		        /**< 0x2808	*/
+    __IO uint32_t TRIM_32M_EXT;		        /**< 0x280C	*/
+    __IO uint32_t RSSI_OFFSET;		        /**< 0x2810	*/
+    __IO uint32_t TX_TRIM;		        /**< 0x2814	*/
+} UserTrimReg_t, *UserTrimReg_pt;
 #endif /* TRIM_MAP_H_ */

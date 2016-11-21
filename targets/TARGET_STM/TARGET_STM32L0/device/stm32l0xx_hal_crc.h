@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
@@ -64,11 +64,11 @@
   */ 
 typedef enum
 {                                            
-  HAL_CRC_STATE_RESET     = 0x00,  /*!< CRC not yet initialized or disabled */
-  HAL_CRC_STATE_READY     = 0x01,  /*!< CRC initialized and ready for use   */
-  HAL_CRC_STATE_BUSY      = 0x02,  /*!< CRC internal process is ongoing     */
-  HAL_CRC_STATE_TIMEOUT   = 0x03,  /*!< CRC timeout state                   */
-  HAL_CRC_STATE_ERROR     = 0x04   /*!< CRC error state                     */
+  HAL_CRC_STATE_RESET     = 0x00U,  /*!< CRC not yet initialized or disabled */
+  HAL_CRC_STATE_READY     = 0x01U,  /*!< CRC initialized and ready for use   */
+  HAL_CRC_STATE_BUSY      = 0x02U,  /*!< CRC internal process is ongoing     */
+  HAL_CRC_STATE_TIMEOUT   = 0x03U,  /*!< CRC timeout state                   */
+  HAL_CRC_STATE_ERROR     = 0x04U   /*!< CRC error state                     */
 }HAL_CRC_StateTypeDef;
 
 
@@ -151,7 +151,7 @@ typedef struct
 /** @defgroup CRC_Default_Polynomial_Value    Default CRC generating polynomial
   * @{
   */
-#define DEFAULT_CRC32_POLY      0x04C11DB7
+#define DEFAULT_CRC32_POLY      0x04C11DB7U
 
 /**
   * @}
@@ -160,7 +160,7 @@ typedef struct
 /** @defgroup CRC_Default_InitValue    Default CRC computation initialization value
   * @{
   */
-#define DEFAULT_CRC_INITVALUE   0xFFFFFFFF
+#define DEFAULT_CRC_INITVALUE   0xFFFFFFFFU
 
 /**
   * @}
@@ -169,8 +169,8 @@ typedef struct
 /** @defgroup CRC_Default_Polynomial    Indicates whether or not default polynomial is used
   * @{
   */
-#define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00)
-#define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01)
+#define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00U)
+#define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01U)
 
 /**
   * @}
@@ -179,8 +179,8 @@ typedef struct
 /** @defgroup CRC_Default_InitValue_Use    Indicates whether or not default init value is used
   * @{
   */                                      
-#define DEFAULT_INIT_VALUE_ENABLE      ((uint8_t)0x00)
-#define DEFAULT_INIT_VALUE_DISABLE     ((uint8_t)0x01)
+#define DEFAULT_INIT_VALUE_ENABLE      ((uint8_t)0x00U)
+#define DEFAULT_INIT_VALUE_DISABLE     ((uint8_t)0x01U)
 
 
 /**
@@ -190,7 +190,7 @@ typedef struct
 /** @defgroup CRC_Polynomial_Sizes Polynomial sizes to configure the IP
   * @{
   */
-#define CRC_POLYLENGTH_32B                  ((uint32_t)0x00000000)
+#define CRC_POLYLENGTH_32B                  ((uint32_t)0x00000000U)
 #define CRC_POLYLENGTH_16B                  ((uint32_t)CRC_CR_POLYSIZE_0)
 #define CRC_POLYLENGTH_8B                   ((uint32_t)CRC_CR_POLYSIZE_1)
 #define CRC_POLYLENGTH_7B                   ((uint32_t)CRC_CR_POLYSIZE)
@@ -201,10 +201,10 @@ typedef struct
 /** @defgroup CRC_Polynomial_Size_Definitions CRC polynomial possible sizes actual definitions
   * @{
   */
-#define HAL_CRC_LENGTH_32B     32
-#define HAL_CRC_LENGTH_16B     16
-#define HAL_CRC_LENGTH_8B       8
-#define HAL_CRC_LENGTH_7B       7
+#define HAL_CRC_LENGTH_32B     32U
+#define HAL_CRC_LENGTH_16B     16U
+#define HAL_CRC_LENGTH_8B       8U
+#define HAL_CRC_LENGTH_7B       7U
 
 /**
   * @}
@@ -217,10 +217,10 @@ typedef struct
  * an error is triggered in HAL_CRC_Init() if InputDataFormat field is set 
  * to CRC_INPUT_FORMAT_UNDEFINED: the format MUST be defined by the user for 
  * the CRC APIs to provide a correct result */   
-#define CRC_INPUTDATA_FORMAT_UNDEFINED             ((uint32_t)0x00000000)
-#define CRC_INPUTDATA_FORMAT_BYTES                 ((uint32_t)0x00000001)
-#define CRC_INPUTDATA_FORMAT_HALFWORDS             ((uint32_t)0x00000002)
-#define CRC_INPUTDATA_FORMAT_WORDS                 ((uint32_t)0x00000003)
+#define CRC_INPUTDATA_FORMAT_UNDEFINED             ((uint32_t)0x00000000U)
+#define CRC_INPUTDATA_FORMAT_BYTES                 ((uint32_t)0x00000001U)
+#define CRC_INPUTDATA_FORMAT_HALFWORDS             ((uint32_t)0x00000002U)
+#define CRC_INPUTDATA_FORMAT_WORDS                 ((uint32_t)0x00000003U)
 
 /** 
   * @}

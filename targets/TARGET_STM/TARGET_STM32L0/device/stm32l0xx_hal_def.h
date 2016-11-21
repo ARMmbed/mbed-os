@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   This file contains HAL common defines, enumeration, macros and
   *          structures definitions.
   ******************************************************************************
@@ -56,10 +56,10 @@
   */
 typedef enum
 {
-  HAL_OK       = 0x00,
-  HAL_ERROR    = 0x01,
-  HAL_BUSY     = 0x02,
-  HAL_TIMEOUT  = 0x03
+  HAL_OK       = 0x00U,
+  HAL_ERROR    = 0x01U,
+  HAL_BUSY     = 0x02U,
+  HAL_TIMEOUT  = 0x03U
 } HAL_StatusTypeDef;
 
 /**
@@ -67,15 +67,15 @@ typedef enum
   */
 typedef enum
 {
-  HAL_UNLOCKED = 0x00,
-  HAL_LOCKED   = 0x01
+  HAL_UNLOCKED = 0x00U,
+  HAL_LOCKED   = 0x01U  
 } HAL_LockTypeDef;
 
 /* Exported macro ------------------------------------------------------------*/
 
 #define UNUSED(x) ((void)(x))
 
-#define HAL_MAX_DELAY      0xFFFFFFFF
+#define HAL_MAX_DELAY      0xFFFFFFFFU
 
 #define HAL_IS_BIT_SET(REG, BIT)         (((REG) & (BIT)) != RESET)
 #define HAL_IS_BIT_CLR(REG, BIT)         (((REG) & (BIT)) == RESET)
@@ -101,7 +101,7 @@ typedef enum
   *            HAL_PPP_MspInit() which will reconfigure the low level hardware.
   * @retval None
   */
-#define __HAL_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = 0)
+#define __HAL_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = 0U)
 
 #if (USE_RTOS == 1)
 

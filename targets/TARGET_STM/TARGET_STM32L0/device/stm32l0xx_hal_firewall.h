@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_firewall.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of FIREWALL HAL module.
   ******************************************************************************
   * @attention
@@ -108,7 +108,7 @@ typedef struct
 /** @defgroup FIREWALL_VolatileData_Executable   FIREWALL volatile data segment execution status
   * @{
   */
-#define FIREWALL_VOLATILEDATA_NOT_EXECUTABLE                 ((uint32_t)0x0000)
+#define FIREWALL_VOLATILEDATA_NOT_EXECUTABLE                 ((uint32_t)0x0000U)
 #define FIREWALL_VOLATILEDATA_EXECUTABLE                     ((uint32_t)FW_CR_VDE)
 /**
   * @}
@@ -117,7 +117,7 @@ typedef struct
 /** @defgroup FIREWALL_VolatileData_Shared  FIREWALL volatile data segment share status
   * @{
   */ 
-#define FIREWALL_VOLATILEDATA_NOT_SHARED                ((uint32_t)0x0000)
+#define FIREWALL_VOLATILEDATA_NOT_SHARED                ((uint32_t)0x0000U)
 #define FIREWALL_VOLATILEDATA_SHARED                    ((uint32_t)FW_CR_VDS) 
 /**
   * @}
@@ -126,7 +126,7 @@ typedef struct
 /** @defgroup FIREWALL_Pre_Arm FIREWALL pre arm status
   * @{
   */ 
-#define FIREWALL_PRE_ARM_RESET                 ((uint32_t)0x0000)
+#define FIREWALL_PRE_ARM_RESET                 ((uint32_t)0x0000U)
 #define FIREWALL_PRE_ARM_SET                   ((uint32_t)FW_CR_FPA)
 
 /**
@@ -147,7 +147,7 @@ typedef struct
 #define IS_FIREWALL_NONVOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= FLASH_BASE) && ((ADDRESS) < (FLASH_BASE + FLASH_SIZE)))                                                   
 #define IS_FIREWALL_NONVOLATILEDATA_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= (FLASH_BASE + FLASH_SIZE)) 
 
-#define IS_FIREWALL_VOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= SRAM_BASE) && ((ADDRESS) < (SRAM_BASE + SRAM1_SIZE_MAX)))
+#define IS_FIREWALL_VOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= SRAM_BASE) && ((ADDRESS) < (SRAM_BASE + SRAM_SIZE_MAX)))
 #define IS_FIREWALL_VOLATILEDATA_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= (SRAM_BASE + SRAM_SIZE_MAX))                                                        
     
   

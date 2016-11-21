@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -104,7 +104,7 @@
   *
   * @{
   */
-#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
+#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000U)  /* 1s  */
 
 
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
@@ -140,7 +140,7 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   */
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
 { 
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   /* Check the DMA peripheral state */
   if(hdma == NULL)
@@ -200,7 +200,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C2S;
     
     /* Configure request selection for DMA1 Channel2 */
-    DMA1_CSELR->CSELR |= (uint32_t)(hdma->Init.Request << 4);
+    DMA1_CSELR->CSELR |= (uint32_t)(hdma->Init.Request << 4U);
   }
   else if (hdma->Instance == DMA1_Channel3)
   {
@@ -208,7 +208,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C3S;
     
     /* Configure request selection for DMA1 Channel3 */
-    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 8);
+    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 8U);
   }
   else if (hdma->Instance == DMA1_Channel4)
   {
@@ -216,7 +216,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C4S;
     
     /* Configure request selection for DMA1 Channel4 */
-    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 12);
+    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 12U);
   }
   else if (hdma->Instance == DMA1_Channel5)
   {
@@ -224,7 +224,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C5S;
     
     /* Configure request selection for DMA1 Channel5 */
-    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 16);
+    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 16U);
   }
 #if !defined (STM32L011xx) && !defined (STM32L021xx)
   else if (hdma->Instance == DMA1_Channel6)
@@ -233,7 +233,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C6S;
     
     /* Configure request selection for DMA1 Channel6 */
-    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 20);
+    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 20U);
   }
   else if (hdma->Instance == DMA1_Channel7)
   {
@@ -241,7 +241,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C7S;
     
     /* Configure request selection for DMA1 Channel7 */
-    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 24);
+    DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 24U);
   }
 #endif   
   /* Initialize the DMA state*/
@@ -274,16 +274,16 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   __HAL_DMA_DISABLE(hdma);
   
   /* Reset DMA Channel control register */
-  hdma->Instance->CCR  = 0;
+  hdma->Instance->CCR  = 0U;
   
   /* Reset DMA Channel Number of Data to Transfer register */
-  hdma->Instance->CNDTR = 0;
+  hdma->Instance->CNDTR = 0U;
   
   /* Reset DMA Channel peripheral address register */
-  hdma->Instance->CPAR  = 0;
+  hdma->Instance->CPAR  = 0U;
   
   /* Reset DMA Channel memory address register */
-  hdma->Instance->CMAR = 0;
+  hdma->Instance->CMAR = 0U;
 
   /* Clear all flags */
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_GI_FLAG_INDEX(hdma));
@@ -445,7 +445,7 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
   */
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Disable the channel */
   __HAL_DMA_DISABLE(hdma);
@@ -454,7 +454,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   tickstart = HAL_GetTick();
   
   /* Check if the DMA Channel is effectively disabled */
-  while((hdma->Instance->CCR & DMA_CCR_EN) != 0) 
+  while((hdma->Instance->CCR & DMA_CCR_EN) != 0U) 
   {
     /* Check for the Timeout */
     if( (HAL_GetTick()  - tickstart ) > HAL_TIMEOUT_DMA_ABORT)
@@ -491,7 +491,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout)
 {
   uint32_t temp;
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Get the level transfer complete flag */
   if(CompleteLevel == HAL_DMA_FULL_TRANSFER)
@@ -529,7 +529,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Update error code */
         SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TIMEOUT);
@@ -614,7 +614,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_HT) != RESET)
     { 
       /* Disable the half transfer interrupt if the DMA mode is not CIRCULAR */
-      if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0)
+      if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0U)
       {
         /* Disable the half transfer interrupt */
         __HAL_DMA_DISABLE_IT(hdma, DMA_IT_HT);
@@ -638,7 +638,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   {
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_TC) != RESET)
     {
-      if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0)
+      if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0U)
       {
         /* Disable the transfer complete interrupt */
         __HAL_DMA_DISABLE_IT(hdma, DMA_IT_TC);

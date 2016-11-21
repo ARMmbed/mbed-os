@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 - 2015, Freescale Semiconductor, Inc.
+ * Copyright (c) 2014 - 2016, Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,9 +36,9 @@
  *
  * The CPU macro should be declared in the project or makefile.
  */
-#if (defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FX512VLL12) || \
-    defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || \
-    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12))
+#if (defined(CPU_MK64FN1M0CAJ12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FN1M0VLL12) || \
+    defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VDC12) || \
+    defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FX512VMD12))
 
 #define K64F12_SERIES
 
