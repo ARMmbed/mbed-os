@@ -1,6 +1,6 @@
 /**************************************************************************//**
- * @file     core_armv8mml.h
- * @brief    CMSIS ARMv8MML Core Peripheral Access Layer Header File
+ * @file     core_cm33.h
+ * @brief    CMSIS Cortex-M33 Core Peripheral Access Layer Header File
  * @version  V5.00
  * @date     02. November 2016
  ******************************************************************************/
@@ -28,8 +28,8 @@
   #pragma clang system_header   /* treat file as system include file */
 #endif
 
-#ifndef __CORE_ARMV8MML_H_GENERIC
-#define __CORE_ARMV8MML_H_GENERIC
+#ifndef __CORE_CM33_H_GENERIC
+#define __CORE_CM33_H_GENERIC
 
 #include <stdint.h>
 
@@ -56,17 +56,17 @@
  *                 CMSIS definitions
  ******************************************************************************/
 /**
-  \ingroup Cortex_ARMv8MML
+  \ingroup Cortex_M33
   @{
  */
 
-/*  CMSIS ARMv8MML definitions */
-#define __ARMv8MML_CMSIS_VERSION_MAIN  ( 5U)                                       /*!< [31:16] CMSIS HAL main version */
-#define __ARMv8MML_CMSIS_VERSION_SUB   ( 0U)                                       /*!< [15:0]  CMSIS HAL sub version */
-#define __ARMv8MML_CMSIS_VERSION       ((__ARMv8MML_CMSIS_VERSION_MAIN << 16U) | \
-                                         __ARMv8MML_CMSIS_VERSION_SUB           )  /*!< CMSIS HAL version number */
+/*  CMSIS CM33 definitions */
+#define __CM33_CMSIS_VERSION_MAIN  ( 5U)                                      /*!< [31:16] CMSIS HAL main version */
+#define __CM33_CMSIS_VERSION_SUB   ( 0U)                                      /*!< [15:0]  CMSIS HAL sub version */
+#define __CM33_CMSIS_VERSION       ((__CM33_CMSIS_VERSION_MAIN << 16U) | \
+                                     __CM33_CMSIS_VERSION_SUB           )     /*!< CMSIS HAL version number */
 
-#define __CORTEX_M                     (81U)                                       /*!< Cortex-M Core */
+#define __CORTEX_M                 (33U)                                      /*!< Cortex-M Core */
 
 /** __FPU_USED indicates whether an FPU is used or not.
     For this, __FPU_PRESENT has to be checked prior to making use of FPU specific registers and functions.
@@ -163,12 +163,12 @@
 }
 #endif
 
-#endif /* __CORE_ARMV8MML_H_GENERIC */
+#endif /* __CORE_CM33_H_GENERIC */
 
 #ifndef __CMSIS_GENERIC
 
-#ifndef __CORE_ARMV8MML_H_DEPENDANT
-#define __CORE_ARMV8MML_H_DEPENDANT
+#ifndef __CORE_CM33_H_DEPENDANT
+#define __CORE_CM33_H_DEPENDANT
 
 #ifdef __cplusplus
  extern "C" {
@@ -176,9 +176,9 @@
 
 /* check device defines and use defaults */
 #if defined __CHECK_DEVICE_DEFINES
-  #ifndef __ARMv8MML_REV
-    #define __ARMv8MML_REV               0x0000U
-    #warning "__ARMv8MML_REV not defined in device header file; using default!"
+  #ifndef __CM33_REV
+    #define __CM33_REV                0x0000U
+    #warning "__CM33_REV not defined in device header file; using default!"
   #endif
 
   #ifndef __FPU_PRESENT
@@ -233,7 +233,7 @@
 #define     __OM     volatile            /*! Defines 'write only' structure member permissions */
 #define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
 
-/*@} end of group ARMv8MML */
+/*@} end of group Cortex_M33 */
 
 
 
@@ -1963,7 +1963,7 @@ typedef struct
   @{
  */
 
-/* Memory mapping of ARMv8MML Hardware */
+/* Memory mapping of Cortex-M33 Hardware */
   #define SCS_BASE            (0xE000E000UL)                             /*!< System Control Space Base Address */
   #define ITM_BASE            (0xE0000000UL)                             /*!< ITM Base Address */
   #define DWT_BASE            (0xE0001000UL)                             /*!< DWT Base Address */
@@ -2852,6 +2852,6 @@ __STATIC_INLINE int32_t ITM_CheckChar (void)
 }
 #endif
 
-#endif /* __CORE_ARMV8MML_H_DEPENDANT */
+#endif /* __CORE_CM33_H_DEPENDANT */
 
 #endif /* __CMSIS_GENERIC */

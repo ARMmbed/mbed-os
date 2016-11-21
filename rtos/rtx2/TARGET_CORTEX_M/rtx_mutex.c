@@ -64,6 +64,7 @@ void os_MutexOwnerRelease (os_mutex_t *mutex_list) {
 
 //  Service Calls definitions
 SVC0_1(MutexNew,      osMutexId_t,  const osMutexAttr_t *)
+SVC0_1(MutexGetName,  const char *, osMutexId_t)
 SVC0_2(MutexAcquire,  osStatus_t,   osMutexId_t, uint32_t)
 SVC0_1(MutexRelease,  osStatus_t,   osMutexId_t)
 SVC0_1(MutexGetOwner, osThreadId_t, osMutexId_t)
@@ -125,6 +126,25 @@ osMutexId_t os_svcMutexNew (const osMutexAttr_t *attr) {
   mutex->lock         = 0U;
 
   return mutex;
+}
+
+/// Get name of a Mutex object.
+/// \note API identical to osMutexGetName
+const char *os_svcMutexGetName (osMutexId_t mutex_id) {
+  os_mutex_t *mutex = (os_mutex_t *)mutex_id;
+
+  // Check parameters
+  if ((mutex == NULL) ||
+      (mutex->id != os_IdMutex)) {
+    return NULL;
+  }
+
+  // Check object state
+  if (mutex->state == os_ObjectInactive) {
+    return NULL;
+  }
+
+  return mutex->name;
 }
 
 /// Acquire a Mutex or timeout if it is locked.
@@ -375,10 +395,10 @@ osStatus_t os_svcMutexDelete (osMutexId_t mutex_id) {
 
 /// Create and Initialize a Mutex object.
 osMutexId_t osMutexNew (const osMutexAttr_t *attr) {
-  if (__get_IPSR() != 0U) {
-    return NULL;                                // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
   }
-  if ((os_KernelGetState() == os_KernelReady) && ((__get_CONTROL() & 1U) == 0U)) {
+  if ((os_KernelGetState() == os_KernelReady) && IS_PRIVILEGED()) {
     // Kernel Ready (not running) and in Privileged mode
     return os_svcMutexNew(attr);
   } else {
@@ -386,34 +406,42 @@ osMutexId_t osMutexNew (const osMutexAttr_t *attr) {
   }
 }
 
+/// Get name of a Mutex object.
+const char *osMutexGetName (osMutexId_t mutex_id) {
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
+  }
+  return  __svcMutexGetName(mutex_id);
+}
+
 /// Acquire a Mutex or timeout if it is locked.
 osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return  __svcMutexAcquire(mutex_id, timeout);
 }
 
 /// Release a Mutex that was acquired by \ref osMutexAcquire.
 osStatus_t osMutexRelease (osMutexId_t mutex_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return  __svcMutexRelease(mutex_id);
 }
 
 /// Get Thread which owns a Mutex object.
 osThreadId_t osMutexGetOwner (osMutexId_t mutex_id) {
-  if (__get_IPSR() != 0U) {
-    return NULL;                                // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
   }
   return  __svcMutexGetOwner(mutex_id);
 }
 
 /// Delete a Mutex object.
 osStatus_t osMutexDelete (osMutexId_t mutex_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcMutexDelete(mutex_id);
 }

@@ -56,7 +56,7 @@ SVC_Handler:
         LDM      R0,{R0-R3,R12}         // Load function parameters and address from stack
         BLX      R12                    // Call service function
         MRS      R12,PSP                // Get PSP
-        STR      R0,[R12]               // Store function return value
+        STM      R12,{R0-R1}            // Store function return values
 
 SVC_Context:
         LDR      R3,=os_Info+I_T_RUN_OFS// Load address of os_Info.run

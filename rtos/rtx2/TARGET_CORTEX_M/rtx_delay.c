@@ -30,7 +30,7 @@
 
 //  Service Calls definitions
 SVC0_1(Delay,      osStatus_t, uint32_t)
-SVC0_1(DelayUntil, osStatus_t, uint64_t)
+SVC0_2(DelayUntil, osStatus_t, uint32_t, uint32_t)
 
 /// Wait for Timeout (Time Delay).
 /// \note API identical to osDelay
@@ -47,7 +47,8 @@ osStatus_t os_svcDelay (uint32_t ticks) {
 
 /// Wait until specified time.
 /// \note API identical to osDelayUntil
-osStatus_t os_svcDelayUntil (uint64_t ticks) {
+osStatus_t os_svcDelayUntil (uint32_t ticks_l, uint32_t ticks_h) {
+  uint64_t ticks = ((uint64_t)ticks_l) | ((uint64_t)ticks_h << 32);
 
   ticks -= os_Info.kernel.tick;
   if (ticks >= 0xFFFFFFFFU) {
@@ -64,16 +65,16 @@ osStatus_t os_svcDelayUntil (uint64_t ticks) {
 
 /// Wait for Timeout (Time Delay).
 osStatus_t osDelay (uint32_t ticks) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcDelay(ticks);
 }
 
 /// Wait until specified time.
 osStatus_t osDelayUntil (uint64_t ticks) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
-  return __svcDelayUntil(ticks);
+  return __svcDelayUntil((uint32_t)ticks, (uint32_t)(ticks >> 32));
 }

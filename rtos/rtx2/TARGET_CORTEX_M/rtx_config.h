@@ -291,10 +291,10 @@ __attribute__((section(".data.os.mempool.mpi"))) =
 
 // Memory Pool for Memory Pool Data Storage
 #if (OS_MEMPOOL_DATA_SIZE != 0)
-#if ((OS_MEMPOOL_DATA_SIZE & 3) != 0)
+#if ((OS_MEMPOOL_DATA_SIZE & 7) != 0)
 #error "Invalid Data Memory size for Memory Pools!"
 #endif
-static uint32_t os_mp_data[OS_MEMPOOL_DATA_SIZE/4] \
+static uint32_t os_mp_data[OS_MEMPOOL_DATA_SIZE/8] \
 __attribute__((section(".bss.os.mempool.mem")));
 #endif
 
@@ -321,10 +321,10 @@ __attribute__((section(".data.os.msgqueue.mpi"))) =
 
 // Memory Pool for Message Queue Data Storage
 #if (OS_MSGQUEUE_DATA_SIZE != 0)
-#if ((OS_MSGQUEUE_DATA_SIZE & 3) != 0)
+#if ((OS_MSGQUEUE_DATA_SIZE & 7) != 0)
 #error "Invalid Data Memory size for Message Queues!"
 #endif
-static uint32_t os_mq_data[OS_MSGQUEUE_DATA_SIZE/4] \
+static uint32_t os_mq_data[OS_MSGQUEUE_DATA_SIZE/8] \
 __attribute__((section(".bss.os.msgqueue.mem")));
 #endif
 
@@ -438,6 +438,11 @@ const os_config_t os_Config = {
 extern       uint8_t  os_irq_cm;
 extern const uint8_t *os_irq_cm_ref;
        const uint8_t* os_irq_cm_ref = &os_irq_cm;
+
+// Default User SVC Table
+__attribute__((weak))
+extern void * const os_UserSVC_Table[];
+       void * const os_UserSVC_Table[1] = { (void *)0 };
 
 // mbedOS
 // ======

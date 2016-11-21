@@ -80,46 +80,24 @@ void *os_MemoryPoolAlloc (os_mp_info_t *mp_info) {
 #if (__EXCLUSIVE_ACCESS == 0U)
   __disable_irq();
 
-  block = mp_info->block_free;
-  if (block != NULL) {
-    mp_info->block_free = *((void **)block);
+  if (mp_info->used_blocks < mp_info->max_blocks) {
     mp_info->used_blocks++;
+    block = mp_info->block_free;
+    if (block != NULL) {
+      mp_info->block_free = *((void **)block);
+    }
+  } else {
+    block = NULL;
   }
 
   if (primask == 0U) {
     __enable_irq();
   }
 #else
-  {
-    register uint32_t val, res;
-
-    __ASM volatile (
-    ".syntax unified\n\t"
-    "loop1%=:\n\t"
-      "ldrex %[block],[%[mp_info],%[_block_free]]\n\t"
-      "cbnz  %[block],update%=\n\t"
-      "clrex\n\t"
-      "b     exit%=\n\t"
-    "update%=:\n\t"
-      "ldr   %[val],[%[block]]\n\t"
-      "strex %[res],%[val],[%[mp_info],%[_block_free]]\n\t"
-      "cbz   %[res],loop2%=\n\t"
-      "b     loop1%=\n\t"
-    "loop2%=:\n\t"
-      "ldrex %[val],[%[mp_info],%[_used_blocks]]\n\t"
-      "adds  %[val],#1\n\t"
-      "strex %[res],%[val],[%[mp_info],%[_used_blocks]]\n\t"
-      "cbz   %[res],exit%=\n\t"
-      "b     loop2%=\n\t"
-    "exit%=:"
-    : [block]        "=&l" (block),
-      [val]          "=&l" (val),
-      [res]          "=&l" (res)
-    : [mp_info]      "l"   (mp_info),
-      [_block_free]  "I"   (offsetof(os_mp_info_t, block_free)),
-      [_used_blocks] "I"   (offsetof(os_mp_info_t, used_blocks))
-    : "cc", "memory"
-    );
+  if (os_exc_inc32_lt(&mp_info->used_blocks, mp_info->max_blocks) < mp_info->max_blocks) {
+    block = os_exc_link_get(&mp_info->block_free);
+  } else {
+    block = NULL;
   }
 #endif
 
@@ -134,6 +112,7 @@ osStatus_t os_MemoryPoolFree (os_mp_info_t *mp_info, void *block) {
 #if (__EXCLUSIVE_ACCESS == 0U)
   uint32_t primask = __get_PRIMASK();
 #endif
+  osStatus_t status;
 
   if (mp_info == NULL) {
     return osErrorParameter;
@@ -145,50 +124,28 @@ osStatus_t os_MemoryPoolFree (os_mp_info_t *mp_info, void *block) {
 #if (__EXCLUSIVE_ACCESS == 0U)
   __disable_irq();
 
-  *((void **)block) = mp_info->block_free;
-  mp_info->block_free = block;
-  mp_info->used_blocks--;
+  if (mp_info->used_blocks != 0U) {
+    mp_info->used_blocks--;
+    *((void **)block) = mp_info->block_free;
+    mp_info->block_free = block;
+    status = osOK;
+  } else {
+    status = osErrorResource;
+  }
 
   if (primask == 0U) {
     __enable_irq();
   }
 #else
-  {
-    register uint32_t val1, val2, res;
-
-    __ASM volatile (
-    ".syntax unified\n\t"
-    "loop1%=:\n\t"
-      "ldr   %[val1],[%[mp_info],%[_block_free]]\n\t"
-      "str   %[val1],[%[block]]\n\t"
-      "dmb\n\t"
-      "ldrex %[val1],[%[mp_info],%[_block_free]]\n\t"
-      "ldr   %[val2],[%[block]]\n\t"
-      "cmp   %[val2],%[val1]\n\t"
-      "bne   loop1%=\n\t"
-      "strex %[res],%[block],[%[mp_info],%[_block_free]]\n\t"
-      "cbz   %[res],loop2%=\n\t"
-      "b     loop1%=\n\t"
-    "loop2%=:\n\t"
-      "ldrex %[val1],[%[mp_info],%[_used_blocks]]\n\t"
-      "subs  %[val1],#1\n\t"
-      "strex %[res],%[val1],[%[mp_info],%[_used_blocks]]\n\t"
-      "cbz   %[res],exit%=\n\t"
-      "b     loop2%=\n\t"
-    "exit%=:"
-    : [val1]         "=&l" (val1),
-      [val2]         "=&l" (val2),
-      [res]          "=&l" (res)
-    : [block]        "l"   (block),
-      [mp_info]      "l"   (mp_info),
-      [_block_free]  "I"   (offsetof(os_mp_info_t, block_free)),
-      [_used_blocks] "I"   (offsetof(os_mp_info_t, used_blocks))
-    : "cc", "memory"
-    );
+  if (os_exc_dec32_nz(&mp_info->used_blocks) != 0U) {
+    os_exc_link_put(&mp_info->block_free, block);
+    status = osOK;
+  } else {
+    status = osErrorResource;
   }
 #endif
 
-  return osOK;
+  return status;
 }
 
 /// Memory Pool post ISR processing.
@@ -218,6 +175,7 @@ void os_MemoryPoolPostProcess (os_memory_pool_t *mp) {
 
 //  Service Calls definitions
 SVC0_3(MemoryPoolNew,          osMemoryPoolId_t, uint32_t, uint32_t, const osMemoryPoolAttr_t *)
+SVC0_1(MemoryPoolGetName,      const char *,     osMemoryPoolId_t)
 SVC0_2(MemoryPoolAlloc,        void *,           osMemoryPoolId_t, uint32_t)
 SVC0_2(MemoryPoolFree,         osStatus_t,       osMemoryPoolId_t, void *)
 SVC0_1(MemoryPoolGetCapacity,  uint32_t,         osMemoryPoolId_t)
@@ -322,6 +280,25 @@ osMemoryPoolId_t os_svcMemoryPoolNew (uint32_t block_count, uint32_t block_size,
   os_Info.post_process.memory_pool = os_MemoryPoolPostProcess;
 
   return mp;
+}
+
+/// Get name of a Memory Pool object.
+/// \note API identical to osMemoryPoolGetName
+const char *os_svcMemoryPoolGetName (osMemoryPoolId_t mp_id) {
+  os_memory_pool_t *mp = (os_memory_pool_t *)mp_id;
+
+  // Check parameters
+  if ((mp == NULL) ||
+      (mp->id != os_IdMemoryPool)) {
+    return NULL;
+  }
+
+  // Check object state
+  if (mp->state == os_ObjectInactive) {
+    return NULL;
+  }
+
+  return mp->name;
 }
 
 /// Allocate a memory block from a Memory Pool.
@@ -576,10 +553,10 @@ osStatus_t os_isrMemoryPoolFree (osMemoryPoolId_t mp_id, void *block) {
 
 /// Create and Initialize a Memory Pool object.
 osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, const osMemoryPoolAttr_t *attr) {
-  if (__get_IPSR() != 0U) {
-    return NULL;                                // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
   }
-  if ((os_KernelGetState() == os_KernelReady) && ((__get_CONTROL() & 1U) == 0U)) {
+  if ((os_KernelGetState() == os_KernelReady) && IS_PRIVILEGED()) {
     // Kernel Ready (not running) and in Privileged mode
     return os_svcMemoryPoolNew(block_count, block_size, attr);
   } else {
@@ -587,64 +564,72 @@ osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, con
   }
 }
 
+/// Get name of a Memory Pool object.
+const char *osMemoryPoolGetName (osMemoryPoolId_t mp_id) {
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
+  }
+  return  __svcMemoryPoolGetName(mp_id);
+}
+
 /// Allocate a memory block from a Memory Pool.
 void *osMemoryPoolAlloc (osMemoryPoolId_t mp_id, uint32_t timeout) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_isrMemoryPoolAlloc(mp_id, timeout);
-  } else {                                      // in Thread
+  } else {
     return  __svcMemoryPoolAlloc(mp_id, timeout);
   }
 }
 
 /// Return an allocated memory block back to a Memory Pool.
 osStatus_t osMemoryPoolFree (osMemoryPoolId_t mp_id, void *block) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_isrMemoryPoolFree(mp_id, block);
-  } else {                                      // in Thread
+  } else {
     return  __svcMemoryPoolFree(mp_id, block);
   }
 }
 
 /// Get maximum number of memory blocks in a Memory Pool.
 uint32_t osMemoryPoolGetCapacity (osMemoryPoolId_t mp_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMemoryPoolGetCapacity(mp_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMemoryPoolGetCapacity(mp_id);
   }
 }
 
 /// Get memory block size in a Memory Pool.
 uint32_t osMemoryPoolGetBlockSize (osMemoryPoolId_t mp_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMemoryPoolGetBlockSize(mp_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMemoryPoolGetBlockSize(mp_id);
   }
 }
 
 /// Get number of memory blocks used in a Memory Pool.
 uint32_t osMemoryPoolGetCount (osMemoryPoolId_t mp_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMemoryPoolGetCount(mp_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMemoryPoolGetCount(mp_id);
   }
 }
 
 /// Get number of memory blocks available in a Memory Pool.
 uint32_t osMemoryPoolGetSpace (osMemoryPoolId_t mp_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMemoryPoolGetSpace(mp_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMemoryPoolGetSpace(mp_id);
   }
 }
 
 /// Delete a Memory Pool object.
 osStatus_t osMemoryPoolDelete (osMemoryPoolId_t mp_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcMemoryPoolDelete(mp_id);
 }

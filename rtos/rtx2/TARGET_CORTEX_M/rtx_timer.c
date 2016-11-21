@@ -126,11 +126,12 @@ __NO_RETURN void os_TimerThread (void *argument) {
 //  ==== Service Calls ====
 
 //  Service Calls definitions
-SVC0_4(TimerNew,       osTimerId_t, os_timer_func_t, osTimerType_t, void *, const osTimerAttr_t *)
-SVC0_2(TimerStart,     osStatus_t,  osTimerId_t, uint32_t)
-SVC0_1(TimerStop,      osStatus_t,  osTimerId_t)
-SVC0_1(TimerIsRunning, uint32_t,    osTimerId_t)
-SVC0_1(TimerDelete,    osStatus_t,  osTimerId_t)
+SVC0_4(TimerNew,       osTimerId_t,  os_timer_func_t, osTimerType_t, void *, const osTimerAttr_t *)
+SVC0_1(TimerGetName,   const char *, osTimerId_t)
+SVC0_2(TimerStart,     osStatus_t,   osTimerId_t, uint32_t)
+SVC0_1(TimerStop,      osStatus_t,   osTimerId_t)
+SVC0_1(TimerIsRunning, uint32_t,     osTimerId_t)
+SVC0_1(TimerDelete,    osStatus_t,   osTimerId_t)
 
 /// Create and Initialize a timer.
 /// \note API identical to osTimerNew
@@ -218,6 +219,25 @@ osTimerId_t os_svcTimerNew (os_timer_func_t func, osTimerType_t type, void *argu
   timer->finfo.arg = argument;
 
   return timer;
+}
+
+/// Get name of a timer.
+/// \note API identical to osTimerGetName
+const char *os_svcTimerGetName (osTimerId_t timer_id) {
+  os_timer_t *timer = (os_timer_t *)timer_id;
+
+  // Check parameters
+  if ((timer == NULL) ||
+      (timer->id != os_IdTimer)) {
+    return NULL;
+  }
+
+  // Check object state
+  if (timer->state == os_ObjectInactive) {
+    return NULL;
+  }
+
+  return timer->name;
 }
 
 /// Start or restart a timer.
@@ -338,10 +358,10 @@ osStatus_t os_svcTimerDelete (osTimerId_t timer_id) {
 
 /// Create and Initialize a timer.
 osTimerId_t osTimerNew (os_timer_func_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr) {
-  if (__get_IPSR() != 0U) {
-    return NULL;                                // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
   }
-  if ((os_KernelGetState() == os_KernelReady) && ((__get_CONTROL() & 1U) == 0U)) {
+  if ((os_KernelGetState() == os_KernelReady) && IS_PRIVILEGED()) {
     // Kernel Ready (not running) and in Priviledged mode
     return os_svcTimerNew(func, type, argument, attr);
   } else {
@@ -349,34 +369,42 @@ osTimerId_t osTimerNew (os_timer_func_t func, osTimerType_t type, void *argument
   }
 }
 
+/// Get name of a timer.
+const char *osTimerGetName (osTimerId_t timer_id) {
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
+  }
+  return  __svcTimerGetName(timer_id);
+}
+
 /// Start or restart a timer.
 osStatus_t osTimerStart (osTimerId_t timer_id, uint32_t ticks) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcTimerStart(timer_id, ticks);
 }
 
 /// Stop a timer.
 osStatus_t osTimerStop (osTimerId_t timer_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcTimerStop(timer_id);
 }
 
 /// Check if a timer is running.
 uint32_t osTimerIsRunning (osTimerId_t timer_id) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return 0U;
   }
   return __svcTimerIsRunning(timer_id);
 }
 
 /// Delete a timer.
 osStatus_t osTimerDelete (osTimerId_t timer_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcTimerDelete(timer_id);
 }

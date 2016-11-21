@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------
-* Copyright (C) 2010-2015 ARM Limited. All rights reserved.
+* Copyright (C) 2010-2016 ARM Limited. All rights reserved.
 *
-* $Date:        28. December 2015
-* $Revision:    V1.4.5 d
+* $Date:        22. October 2016
+* $Revision:    V1.4.5 e
 *
 * Project:      CMSIS DSP Library
 * Title:        arm_math.h
@@ -1029,6 +1029,17 @@ extern "C"
   {
     return ((uint32_t)(((((q31_t)x << 24) >> 24) & (q31_t)0x0000FFFF) |
                        ((((q31_t)x <<  8) >>  8) & (q31_t)0xFFFF0000)  ));
+  }
+
+  /*
+   * @brief C custom defined SMMLA for M3 and M0 processors
+   */
+  CMSIS_INLINE __STATIC_INLINE int32_t __SMMLA(
+  int32_t x,
+  int32_t y,
+  int32_t sum)
+  {
+    return (sum + (int32_t) (((int64_t) x * y) >> 32));
   }
 
 #endif /* defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */

@@ -181,14 +181,14 @@ void os_MessageQueuePostProcess (os_message_t *msg) {
         // Wakeup waiting Thread with highest Priority
         thread = os_ThreadListGet((os_object_t*)mq);
         os_ThreadWaitExit(thread, (uint32_t)osOK, false);
-        // Copy Message (R1 = const void *msg_ptr, R2 = msg_prio)
+        // Copy Message (R2: const void *msg_ptr, R3: uint8_t msg_prio)
         reg = os_ThreadRegPtr(thread);
-        memcpy((uint8_t *)msg + sizeof(os_message_t), (void *)reg[1], mq->msg_size);
+        memcpy((uint8_t *)msg + sizeof(os_message_t), (void *)reg[2], mq->msg_size);
         // Store Message into Queue
         msg->id       = os_IdMessage;
         msg->state    = os_ObjectActive;
         msg->flags    = 0U;
-        msg->priority = (uint8_t)reg[2];
+        msg->priority = (uint8_t)reg[3];
         os_MessageQueuePut(mq, msg);
       }
     }
@@ -204,11 +204,11 @@ void os_MessageQueuePostProcess (os_message_t *msg) {
       // Wakeup waiting Thread with highest Priority
       thread = os_ThreadListGet((os_object_t*)mq);
       os_ThreadWaitExit(thread, (uint32_t)osOK, false);
-      // Copy Message (R1 = void *msg_ptr, R2 = *msg_prio)
+      // Copy Message (R2: void *msg_ptr, R3: uint8_t *msg_prio)
       reg = os_ThreadRegPtr(thread);
-      memcpy((void *)reg[1], (uint8_t *)msg + sizeof(os_message_t), mq->msg_size);
-      if (reg[2] != 0U) {
-        *((uint8_t *)reg[2]) = msg->priority;
+      memcpy((void *)reg[2], (uint8_t *)msg + sizeof(os_message_t), mq->msg_size);
+      if (reg[3] != 0U) {
+        *((uint8_t *)reg[3]) = msg->priority;
       }
       // Free memory
       msg->state = os_ObjectInactive;
@@ -223,6 +223,7 @@ void os_MessageQueuePostProcess (os_message_t *msg) {
 //  ==== Service Calls ====
 
 SVC0_3(MessageQueueNew,         osMessageQueueId_t, uint32_t, uint32_t, const osMessageQueueAttr_t *)
+SVC0_1(MessageQueueGetName,     const char *,       osMessageQueueId_t)
 SVC0_4(MessageQueuePut,         osStatus_t,         osMessageQueueId_t, const void *, uint8_t,   uint32_t)
 SVC0_4(MessageQueueGet,         osStatus_t,         osMessageQueueId_t,       void *, uint8_t *, uint32_t)
 SVC0_1(MessageQueueGetCapacity, uint32_t,           osMessageQueueId_t)
@@ -336,6 +337,25 @@ osMessageQueueId_t os_svcMessageQueueNew (uint32_t msg_count, uint32_t msg_size,
   return mq;
 }
 
+/// Get name of a Message Queue object.
+/// \note API identical to osMessageQueueGetName
+const char *os_svcMessageQueueGetName (osMessageQueueId_t mq_id) {
+  os_message_queue_t *mq = (os_message_queue_t *)mq_id;
+
+  // Check parameters
+  if ((mq == NULL) ||
+      (mq->id != os_IdMessageQueue)) {
+    return NULL;
+  }
+
+  // Check object state
+  if (mq->state == os_ObjectInactive) {
+    return NULL;
+  }
+
+  return mq->name;
+}
+
 /// Put a Message into a Queue or timeout if Queue is full.
 /// \note API identical to osMessageQueuePut
 osStatus_t os_svcMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout) {
@@ -363,11 +383,11 @@ osStatus_t os_svcMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr,
     // Wakeup waiting Thread with highest Priority
     thread = os_ThreadListGet((os_object_t*)mq);
     os_ThreadWaitExit(thread, (uint32_t)osOK, true);
-    // Copy Message (R1 = void *msg_ptr, R2 = *msg_prio)
+    // Copy Message (R2: void *msg_ptr, R3: uint8_t *msg_prio)
     reg = os_ThreadRegPtr(thread);
-    memcpy((void *)reg[1], msg_ptr, mq->msg_size);
-    if (reg[2] != 0U) {
-      *((uint8_t *)reg[2]) = msg_prio;
+    memcpy((void *)reg[2], msg_ptr, mq->msg_size);
+    if (reg[3] != 0U) {
+      *((uint8_t *)reg[3]) = msg_prio;
     }
     return osOK;
   }
@@ -389,6 +409,10 @@ osStatus_t os_svcMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr,
       // Suspend current Thread
       os_ThreadListPut((os_object_t*)mq, os_ThreadGetRunning());
       os_ThreadWaitEnter(os_ThreadWaitingMessagePut, timeout);
+      // Save arguments (R2: const void *msg_ptr, R3: uint8_t msg_prio)
+      reg = (uint32_t *)(__get_PSP());
+      reg[2] = (uint32_t)msg_ptr;
+      reg[3] = (uint32_t)msg_prio;
       return osErrorTimeout;
     } else {
       return osErrorResource;
@@ -438,6 +462,10 @@ osStatus_t os_svcMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8
       // Suspend current Thread
       os_ThreadListPut((os_object_t*)mq, os_ThreadGetRunning());
       os_ThreadWaitEnter(os_ThreadWaitingMessageGet, timeout);
+      // Save arguments (R2: void *msg_ptr, R3: uint8_t *msg_prio)
+      reg = (uint32_t *)(__get_PSP());
+      reg[2] = (uint32_t)msg_ptr;
+      reg[3] = (uint32_t)msg_prio;
       return osErrorTimeout;
     } else {
       return osErrorResource;
@@ -452,14 +480,14 @@ osStatus_t os_svcMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8
       // Wakeup waiting Thread with highest Priority
       thread = os_ThreadListGet((os_object_t*)mq);
       os_ThreadWaitExit(thread, (uint32_t)osOK, true);
-      // Copy Message (R1 = const void *msg_ptr, R2 = msg_prio)
+      // Copy Message (R2: const void *msg_ptr, R3: uint8_t msg_prio)
       reg = os_ThreadRegPtr(thread);
-      memcpy((uint8_t *)msg + sizeof(os_message_t), (void *)reg[1], mq->msg_size);
+      memcpy((uint8_t *)msg + sizeof(os_message_t), (void *)reg[2], mq->msg_size);
       // Store Message into Queue
       msg->id       = os_IdMessage;
       msg->state    = os_ObjectActive;
       msg->flags    = 0U;
-      msg->priority = (uint8_t)reg[2];
+      msg->priority = (uint8_t)reg[3];
       os_MessageQueuePut(mq, msg);
     }
   }
@@ -584,14 +612,14 @@ osStatus_t os_svcMessageQueueReset (osMessageQueueId_t mq_id) {
         // Wakeup waiting Thread with highest Priority
         thread = os_ThreadListGet((os_object_t*)mq);
         os_ThreadWaitExit(thread, (uint32_t)osOK, false);
-        // Copy Message (R1 = const void *msg_ptr, R2 = msg_prio)
+        // Copy Message (R2: const void *msg_ptr, R3: uint8_t msg_prio)
         reg = os_ThreadRegPtr(thread);
-        memcpy((uint8_t *)msg + sizeof(os_message_t), (void *)reg[1], mq->msg_size);
+        memcpy((uint8_t *)msg + sizeof(os_message_t), (void *)reg[2], mq->msg_size);
         // Store Message into Queue
         msg->id       = os_IdMessage;
         msg->state    = os_ObjectActive;
         msg->flags    = 0U;
-        msg->priority = (uint8_t)reg[2];
+        msg->priority = (uint8_t)reg[3];
         os_MessageQueuePut(mq, msg);
       }
     } while ((msg != NULL) && (mq->thread_list != NULL));
@@ -746,10 +774,10 @@ osStatus_t os_isrMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8
 
 /// Create and Initialize a Message Queue object.
 osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr) {
-  if (__get_IPSR() != 0U) {
-    return NULL;                                // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
   }
-  if ((os_KernelGetState() == os_KernelReady) && ((__get_CONTROL() & 1U) == 0U)) {
+  if ((os_KernelGetState() == os_KernelReady) && IS_PRIVILEGED()) {
     // Kernel Ready (not running) and in Privileged mode
     return os_svcMessageQueueNew(msg_count, msg_size, attr);
   } else {
@@ -757,72 +785,80 @@ osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, con
   }
 }
 
+/// Get name of a Message Queue object.
+const char *osMessageQueueGetName (osMessageQueueId_t mq_id) {
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return NULL;
+  }
+  return  __svcMessageQueueGetName(mq_id);
+}
+
 /// Put a Message into a Queue or timeout if Queue is full.
 osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_isrMessageQueuePut(mq_id, msg_ptr, msg_prio, timeout);
-  } else {                                      // in Thread
+  } else {
     return  __svcMessageQueuePut(mq_id, msg_ptr, msg_prio, timeout);
   }
 }
 
 /// Get a Message from a Queue or timeout if Queue is empty.
 osStatus_t osMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_isrMessageQueueGet(mq_id, msg_ptr, msg_prio, timeout);
-  } else {                                      // in Thread
+  } else {
     return  __svcMessageQueueGet(mq_id, msg_ptr, msg_prio, timeout);
   }
 }
 
 /// Get maximum number of messages in a Message Queue.
 uint32_t osMessageQueueGetCapacity (osMessageQueueId_t mq_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMessageQueueGetCapacity(mq_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMessageQueueGetCapacity(mq_id);
   }
 }
 
 /// Get maximum message size in a Memory Pool.
 uint32_t osMessageQueueGetMsgSize (osMessageQueueId_t mq_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMessageQueueGetMsgSize(mq_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMessageQueueGetMsgSize(mq_id);
   }
 }
 
 /// Get number of queued messages in a Message Queue.
 uint32_t osMessageQueueGetCount (osMessageQueueId_t mq_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMessageQueueGetCount(mq_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMessageQueueGetCount(mq_id);
   }
 }
 
 /// Get number of available slots for messages in a Message Queue.
 uint32_t osMessageQueueGetSpace (osMessageQueueId_t mq_id) {
-  if (__get_IPSR() != 0U) {                     // in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     return os_svcMessageQueueGetSpace(mq_id);
-  } else {                                      // in Thread
+  } else {
     return  __svcMessageQueueGetSpace(mq_id);
   }
 }
 
 /// Reset a Message Queue to initial empty state.
 osStatus_t osMessageQueueReset (osMessageQueueId_t mq_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcMessageQueueReset(mq_id);
 }
 
 /// Delete a Message Queue object.
 osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   return __svcMessageQueueDelete(mq_id);
 }

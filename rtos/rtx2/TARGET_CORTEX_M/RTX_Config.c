@@ -210,7 +210,7 @@
 //     <i> Applies to objects with system provided memory for control blocks.
 #define OS_MEMPOOL_NUM              1
  
-//     <o>Data Storage Memory size [bytes] <0-1073741824:4>
+//     <o>Data Storage Memory size [bytes] <0-1073741824:8>
 //     <i> Defines the combined data storage memory size.
 //     <i> Applies to objects with system provided memory for data storage.
 //     <i> Default: 0
@@ -232,7 +232,7 @@
 //     <i> Applies to objects with system provided memory for control blocks.
 #define OS_MSGQUEUE_NUM             1
  
-//     <o>Data Storage Memory size [bytes] <0-1073741824:4>
+//     <o>Data Storage Memory size [bytes] <0-1073741824:8>
 //     <i> Defines the combined data storage memory size.
 //     <i> Applies to objects with system provided memory for data storage.
 //     <i> Default: 0

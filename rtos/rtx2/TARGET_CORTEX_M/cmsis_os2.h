@@ -1,5 +1,6 @@
 /** \addtogroup rtos */
 /** @{*/
+
 /*
  * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
  *
@@ -19,7 +20,7 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        18. October 2016
+ * $Date:        20. October 2016
  * $Revision:    V2.0
  *
  * Project:      CMSIS-RTOS2 API
@@ -45,7 +46,9 @@
 #define __NO_RETURN
 #endif
 #endif
- 
+
+#define CMSIS_OS_RTX
+
 #include <stdint.h>
 #include <stddef.h>
  
@@ -53,9 +56,8 @@
 extern "C"
 {
 #endif
-
-#define CMSIS_OS_RTX
-
+ 
+ 
 //  ==== Enumerations, structures, defines ====
  
 /// Version information.
@@ -342,6 +344,11 @@ uint32_t osKernelGetSysTimerFreq (void);
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadNew (os_thread_func_t func, void *argument, const osThreadAttr_t *attr);
  
+/// Get name of a thread.
+/// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
+/// \return name as NULL terminated string.
+const char *osThreadGetName (osThreadId_t thread_id);
+ 
 /// Return the thread ID of the current running thread.
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadGetId (void);
@@ -350,6 +357,16 @@ osThreadId_t osThreadGetId (void);
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
 /// \return current thread state of the specified thread.
 osThreadState_t osThreadGetState (osThreadId_t thread_id);
+ 
+/// Get stack size of a thread.
+/// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
+/// \return stack size in bytes.
+uint32_t osThreadGetStackSize (osThreadId_t thread_id);
+ 
+/// Get available stack space of a thread based on stack watermark recording during execution.
+/// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
+/// \return remaining stack space in bytes.
+uint32_t osThreadGetStackSpace (osThreadId_t thread_id);
  
 /// Change priority of a thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
@@ -393,6 +410,16 @@ __NO_RETURN void osThreadExit (void);
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
 /// \return status code that indicates the execution status of the function.
 osStatus_t osThreadTerminate (osThreadId_t thread_id);
+ 
+/// Get number of active threads.
+/// \return number of active threads.
+uint32_t osThreadGetCount (void);
+ 
+/// Enumerate active threads.
+/// \param[out]    thread_array  pointer to array for retrieving thread IDs.
+/// \param[in]     array_items   maximum number of items in array for retrieving thread IDs.
+/// \return number of enumerated threads.
+uint32_t osThreadEnumerate (osThreadId_t *thread_array, uint32_t array_items);
  
  
 //  ==== Thread Flags Functions ====
@@ -443,6 +470,11 @@ osStatus_t osDelayUntil (uint64_t ticks);
 /// \return timer ID for reference by other functions or NULL in case of error.
 osTimerId_t osTimerNew (os_timer_func_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr);
  
+/// Get name of a timer.
+/// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.
+/// \return name as NULL terminated string.
+const char *osTimerGetName (osTimerId_t timer_id);
+ 
 /// Start or restart a timer.
 /// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.
 /// \param[in]     ticks         \ref CMSIS_RTOS_TimeOutValue "time ticks" value of the timer.
@@ -471,6 +503,11 @@ osStatus_t osTimerDelete (osTimerId_t timer_id);
 /// \param[in]     attr          event flags attributes; NULL: default values.
 /// \return event flags ID for reference by other functions or NULL in case of error.
 osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr);
+ 
+/// Get name of an Event Flags object.
+/// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
+/// \return name as NULL terminated string.
+const char *osEventFlagsGetName (osEventFlagsId_t ef_id);
  
 /// Set the specified Event Flags.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
@@ -510,6 +547,11 @@ osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id);
 /// \return mutex ID for reference by other functions or NULL in case of error.
 osMutexId_t osMutexNew (const osMutexAttr_t *attr);
  
+/// Get name of a Mutex object.
+/// \param[in]     mutex_id      mutex ID obtained by \ref osMutexNew.
+/// \return name as NULL terminated string.
+const char *osMutexGetName (osMutexId_t mutex_id);
+ 
 /// Acquire a Mutex or timeout if it is locked.
 /// \param[in]     mutex_id      mutex ID obtained by \ref osMutexNew.
 /// \param[in]     timeout       \ref CMSIS_RTOS_TimeOutValue or 0 in case of no time-out.
@@ -541,6 +583,11 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id);
 /// \return semaphore ID for reference by other functions or NULL in case of error.
 osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr);
  
+/// Get name of a Semaphore object.
+/// \param[in]     semaphore_id  semaphore ID obtained by \ref osSemaphoreNew.
+/// \return name as NULL terminated string.
+const char *osSemaphoreGetName (osSemaphoreId_t semaphore_id);
+ 
 /// Acquire a Semaphore token or timeout if no tokens are available.
 /// \param[in]     semaphore_id  semaphore ID obtained by \ref osSemaphoreNew.
 /// \param[in]     timeout       \ref CMSIS_RTOS_TimeOutValue or 0 in case of no time-out.
@@ -571,6 +618,11 @@ osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id);
 /// \param[in]     attr          memory pool attributes; NULL: default values.
 /// \return memory pool ID for reference by other functions or NULL in case of error.
 osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, const osMemoryPoolAttr_t *attr);
+ 
+/// Get name of a Memory Pool object.
+/// \param[in]     mp_id         memory pool ID obtained by \ref osMemoryPoolNew.
+/// \return name as NULL terminated string.
+const char *osMemoryPoolGetName (osMemoryPoolId_t mp_id);
  
 /// Allocate a memory block from a Memory Pool.
 /// \param[in]     mp_id         memory pool ID obtained by \ref osMemoryPoolNew.
@@ -618,6 +670,11 @@ osStatus_t osMemoryPoolDelete (osMemoryPoolId_t mp_id);
 /// \param[in]     attr          message queue attributes; NULL: default values.
 /// \return message queue ID for reference by other functions or NULL in case of error.
 osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr);
+ 
+/// Get name of a Message Queue object.
+/// \param[in]     mq_id         message queue ID obtained by \ref osMessageQueueNew.
+/// \return name as NULL terminated string.
+const char *osMessageQueueGetName (osMessageQueueId_t mq_id);
  
 /// Put a Message into a Queue or timeout if Queue is full.
 /// \param[in]     mq_id         message queue ID obtained by \ref osMessageQueueNew.
@@ -673,3 +730,4 @@ osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id);
 #endif  // CMSIS_OS2_H_
 
 /** @}*/
+

@@ -428,34 +428,34 @@ uint32_t os_svcKernelGetSysTimerFreq (void) {
 
 /// Initialize the RTOS Kernel.
 osStatus_t osKernelInitialize (void) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
-  if ((__get_CONTROL() & 1U) == 0U) {           // Privileged mode
+  if (IS_PRIVILEGED()) {
     return os_svcKernelInitialize();
-  } else {                                      // Unprivileged mode
+  } else {
     return  __svcKernelInitialize();
   }
 }
 
 ///  Get RTOS Kernel Information.
 osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size) {
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
-  if ((__get_CONTROL() & 1U) == 0U) {           // Privileged mode
+  if (IS_PRIVILEGED()) {
     return os_svcKernelGetInfo(version, id_buf, id_size);
-  } else {                                      // Unprivileged mode
+  } else {
     return  __svcKernelGetInfo(version, id_buf, id_size);
   }
 }
 
 /// Get the current RTOS Kernel state.
 osKernelState_t osKernelGetState (void) {
-  if (__get_IPSR() != 0U) {
-    return osKernelError;                       // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osKernelError;
   }
-  if ((__get_CONTROL() & 1U) == 0U) {           // Privileged mode
+  if (IS_PRIVILEGED()) {
     return os_svcKernelGetState();
   } else {
     return  __svcKernelGetState();
@@ -467,14 +467,14 @@ osStatus_t osKernelStart (void) {
   osStatus_t status;
   uint32_t   stack[8];
 
-  if (__get_IPSR() != 0U) {
-    return osErrorISR;                          // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return osErrorISR;
   }
   switch (__get_CONTROL() & 0x03U) {
     case 0x00U:                                 // Privileged Thread mode & MSP
 #if ( (__ARM_ARCH_8M_MAIN__ == 1U) || \
      ((__ARM_ARCH_8M_BASE__ == 1U) && (__DOMAIN_NS == 0U)))
-//    __set_PSPLIM((uint32_t)stack);
+      __set_PSPLIM((uint32_t)stack);
 #endif
       __set_PSP((uint32_t)(stack + 8));         // Initial PSP
       __set_CONTROL(0x02U);                     // Set Privileged Thread mode & PSP
@@ -496,64 +496,68 @@ osStatus_t osKernelStart (void) {
 
 /// Lock the RTOS Kernel scheduler.
 uint32_t osKernelLock (void) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return 0U;
   }
   return __svcKernelLock();
 }
  
 /// Unlock the RTOS Kernel scheduler.
 void osKernelUnlock (void) {
-  if (__get_IPSR() != 0U) {
-    return;                                     // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return;
   }
   __svcKernelUnlock();
 }
 
 /// Suspend the RTOS Kernel scheduler.
 uint32_t osKernelSuspend (void) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return 0U;
   }
   return __svcKernelSuspend();
 }
 
 /// Resume the RTOS Kernel scheduler.
 void osKernelResume (uint32_t sleep_ticks) {
-  if (__get_IPSR() != 0U) {
-    return;                                     // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return;
   }
   __svcKernelResume(sleep_ticks);
 }
 
 /// Get the RTOS kernel tick count.
 uint64_t osKernelGetTickCount (void) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return os_svcKernelGetTickCount();
+  } else {
+    return  __svcKernelGetTickCount();
   }
-  return __svcKernelGetTickCount();
 }
 
 /// Get the RTOS kernel tick frequency.
 uint32_t osKernelGetTickFreq (void) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return os_svcKernelGetTickFreq();
+  } else {
+    return  __svcKernelGetTickFreq();
   }
-  return __svcKernelGetTickFreq();
 }
 
 /// Get the RTOS kernel system timer count.
 uint32_t osKernelGetSysTimerCount (void) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return os_svcKernelGetSysTimerCount();
+  } else {
+    return  __svcKernelGetSysTimerCount();
   }
-  return __svcKernelGetSysTimerCount();
 }
 
 /// Get the RTOS kernel system timer frequency.
 uint32_t osKernelGetSysTimerFreq (void) {
-  if (__get_IPSR() != 0U) {
-    return 0U;                                  // Not allowed in ISR
+  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    return os_svcKernelGetSysTimerFreq();
+  } else {
+    return  __svcKernelGetSysTimerFreq();
   }
-  return __svcKernelGetSysTimerFreq();
 }

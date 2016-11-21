@@ -52,17 +52,17 @@ uint32_t os_MemoryInit (void *mem, uint32_t size) {
   mem_head_t  *head;
   mem_block_t *ptr;
 
-  if ((mem == NULL) || ((uint32_t)mem & 3U) || (size & 3U) ||
-      (size < (sizeof(mem_head_t) + sizeof(mem_block_t) + sizeof(mem_block_t *)))) {
+  if ((mem == NULL) || ((uint32_t)mem & 7U) || (size & 7U) ||
+      (size < (sizeof(mem_head_t) + 2*sizeof(mem_block_t)))) {
     return 0U;
   }
 
   head = (mem_head_t *)mem;
   head->size = size;
-  head->used = sizeof(mem_head_t) + sizeof(mem_block_t *);
+  head->used = sizeof(mem_head_t) + sizeof(mem_block_t);
 
   ptr = (mem_block_t *)((uint32_t)mem + sizeof(mem_head_t));
-  ptr->next = (mem_block_t *)((uint32_t)mem + size - sizeof(mem_block_t *));
+  ptr->next = (mem_block_t *)((uint32_t)mem + size - sizeof(mem_block_t));
   ptr->next->next = NULL;
   ptr->info = 0U;
 
@@ -84,8 +84,8 @@ void *os_MemoryAlloc (void *mem, uint32_t size, uint32_t type) {
 
   // Add header to size
   size += sizeof(mem_block_t);
-  // Make sure that block is 4-byte aligned
-  size = (size + 3U) & ~((uint32_t)3U);
+  // Make sure that block is 8-byte aligned
+  size = (size + 7U) & ~((uint32_t)7U);
 
   // Search for hole big enough
   p = (mem_block_t *)((uint32_t)mem + sizeof(mem_head_t));
@@ -156,5 +156,5 @@ uint32_t os_MemoryFree (void *mem, void *block) {
     p_prev->next = p->next;
   }
 
-  return 0U;
+  return 1U;
 }
