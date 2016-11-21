@@ -69,12 +69,13 @@
 #endif
 
 // The stack space occupied is mainly dependent on the underling C standard library
-#if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
-#    define WORDS_STACK_SIZE   512
-#elif defined(TOOLCHAIN_ARM_MICRO)
-#    define WORDS_STACK_SIZE   128
+#ifndef WORDS_STACK_SIZE
+#	if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
+#	    define WORDS_STACK_SIZE   512
+#	elif defined(TOOLCHAIN_ARM_MICRO)
+#	    define WORDS_STACK_SIZE   128
+#	endif
 #endif
-
 #ifdef __MBED_CMSIS_RTOS_CM
 
 /* Single thread - disable timers and set task count to one */
