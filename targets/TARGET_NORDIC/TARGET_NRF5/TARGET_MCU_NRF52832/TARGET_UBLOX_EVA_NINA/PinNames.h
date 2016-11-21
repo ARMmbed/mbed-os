@@ -74,7 +74,7 @@ typedef enum {
     NINA_B1_GPIO_29 = p10,
     
     // Board pins
-    LED1 = NINA-B1_GPIO_7, // ORANGE
+    LED1 = NINA_B1_GPIO_7, // ORANGE
     LED2 = NC,
     LED3 = NC,
     LED4 = NC,
