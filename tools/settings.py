@@ -25,7 +25,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 ##############################################################################
 # Toolchains and Build System Settings
 ##############################################################################
-BUILD_DIR = abspath(join(ROOT, ".build"))
+BUILD_DIR = abspath(join(ROOT, "BUILD"))
 
 # ARM Compiler 5
 ARM_PATH = "C:/Keil_v5/ARM/ARMCC"

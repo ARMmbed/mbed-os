@@ -14,7 +14,7 @@ class Eclipse(Makefile):
         super(Eclipse, self).generate()
         ctx = {
             'name': self.project_name,
-            'elf_location': join('.build',self.project_name)+'.elf',
+            'elf_location': join('BUILD',self.project_name)+'.elf',
             'c_symbols': self.toolchain.get_symbols(),
             'asm_symbols': self.toolchain.get_symbols(True),
             'target': self.target,
