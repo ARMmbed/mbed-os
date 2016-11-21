@@ -1,3 +1,7 @@
+#if DEVICE_EMAC
+    #error [NOT_SUPPORTED] Not supported for WiFi targets
+#endif
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -5,7 +9,6 @@
 #include "EthernetInterface.h"
 
 using namespace utest::v1;
-
 
 // Hostname for testing against
 // Must have A and AAAA records
