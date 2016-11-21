@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+	#define MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC		(NRF_LF_SRC_RC)
+	#define MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL	16
+	#define MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG	1
 void mbed_sdk_init()
 {
 	printf("", __TIME__, __DATE__);	
