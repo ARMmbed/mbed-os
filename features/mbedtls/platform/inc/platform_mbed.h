@@ -20,3 +20,11 @@
 #if defined(DEVICE_TRNG)
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
+
+/*
+ * Enable mbed TLS to use mbed OS mutexes
+ */
+#if defined(MBEDTLS_THREADING)
+#define MBEDTLS_THREADING_C
+#define MBEDTLS_THREADING_ALT
+#endif
