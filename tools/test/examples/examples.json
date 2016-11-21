@@ -111,10 +111,33 @@
     {
       "name": "mbed-os-example-uvisor",
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor",
-      "mbed": [
-      ],
+      "mbed": [],
       "features" : [],
-      "targets" : ["K64F"],
+      "targets" : ["K64F", "EFM32GG_STK3700"],
+      "toolchains" : ["GCC_ARM"],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : false
+    },
+    {
+      "name": "mbed-os-example-uvisor-thread",
+      "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-thread",
+      "mbed": [],
+      "features" : [],
+      "targets" : ["K64F", "EFM32GG_STK3700"],
+      "toolchains" : ["GCC_ARM"],
+      "exporters": [],
+      "compile" : true,
+      "export": false,
+      "auto-update" : false
+    },
+    {
+      "name": "mbed-os-example-uvisor-number-store",
+      "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-number-store",
+      "mbed": [],
+      "features" : [],
+      "targets" : ["K64F", "EFM32GG_STK3700"],
       "toolchains" : ["GCC_ARM"],
       "exporters": [],
       "compile" : true,
