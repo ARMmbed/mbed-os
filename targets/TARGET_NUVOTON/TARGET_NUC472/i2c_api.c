@@ -51,6 +51,7 @@ static void i2c3_vec(void);
 static void i2c4_vec(void);
 static void i2c_irq(i2c_t *obj);
 static void i2c_fsm_reset(i2c_t *obj, uint32_t i2c_ctl);
+static void i2c_fsm_tranfini(i2c_t *obj, int tran_pos_adv);
 
 static struct nu_i2c_var i2c0_var = {
     .obj                =   NULL,
@@ -645,33 +646,30 @@ static void i2c_irq(i2c_t *obj)
                     I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_SI_Msk | I2C_CTL_AA_Msk);
                 }
                 else {
-                    if (status == 0x18) {
-                        obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
-                        i2c_disable_int(obj);
-                        break;
-                    }
-                    // Go Master Repeat Start
-                    i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+                    i2c_fsm_tranfini(obj, 0);
                 }
             }
             else {
                 i2c_disable_int(obj);
             }
             break;
+            
         case 0x30:  // Master Transmit Data NACK
-        case 0x20:  // Master Transmit Address NACK
-            // Go Master Repeat Start
-            i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+            i2c_fsm_tranfini(obj, 0);
             break;
+            
+        case 0x20:  // Master Transmit Address NACK
+            i2c_fsm_tranfini(obj, -1);  // Roll back data position to indicate slave address not ACKed
+            break;
+            
         case 0x38:  // Master Arbitration Lost
             i2c_fsm_reset(obj, I2C_CTL_SI_Msk | I2C_CTL_AA_Msk);
             break;
         
         case 0x48:  // Master Receive Address NACK
-            // Go Master Stop.
-            // Go Master Repeat Start
-            i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+            i2c_fsm_tranfini(obj, -1);  // Roll back data position to indicate slave address not ACKed
             break;
+            
         case 0x40:  // Master Receive Address ACK
         case 0x50:  // Master Receive Data ACK
         case 0x58:  // Master Receive Data NACK
@@ -688,8 +686,7 @@ static void i2c_irq(i2c_t *obj)
                             while (1);
                         }
 #endif
-                        // Go Master Repeat Start
-                        i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+                        i2c_fsm_tranfini(obj, 0);
                     }
                     else {
                         uint32_t i2c_ctl = I2C_CTL_SI_Msk | I2C_CTL_AA_Msk;
@@ -856,6 +853,15 @@ static void i2c_fsm_reset(i2c_t *obj, uint32_t i2c_ctl)
     obj->i2c.slaveaddr_state = NoData;
 }
 
+static void i2c_fsm_tranfini(i2c_t *obj, int tran_pos_adv)
+{
+    if (obj->i2c.tran_pos) {
+        obj->i2c.tran_pos += tran_pos_adv;
+    }
+            
+    obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
+    i2c_disable_int(obj);
+}
 
 #if DEVICE_I2C_ASYNCH
 
