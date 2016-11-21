@@ -183,13 +183,14 @@ static inline uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
+    ADC->CCR &= ~(ADC_CCR_VBATE | ADC_CCR_TSVREFE); // Workaround
     HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
 
     HAL_ADC_Start(&AdcHandle); // Start conversion
 
     // Wait end of conversion and get value
     if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+        return (uint16_t)HAL_ADC_GetValue(&AdcHandle);
     } else {
         return 0;
     }
