@@ -5,7 +5,9 @@
 #ifndef NANOSTACK_RF_PHY_H_
 #define NANOSTACK_RF_PHY_H_
 
-class NanostackRfPhy {
+#include "NanostackPhy.h"
+
+class NanostackRfPhy : public NanostackPhy {
 public:
 
     /** Register this physical interface with Nanostack
@@ -20,21 +22,17 @@ public:
      */
     virtual void rf_unregister() = 0;
 
-    /** Read the mac address of this physical interface
+    /** Register this physical interface with Nanostack
      *
-     * Note - some devices do not have a mac address
-     *        in hardware.
+     *  @return         Device driver ID or a negative error
+     *                  code on failure
      */
-    virtual void get_mac_address(uint8_t *mac) = 0;
+    int8_t phy_register() { return rf_register();}
 
-    /** Set the mac address of this physical interface
+    /** Unregister this physical interface
      *
      */
-    virtual void set_mac_address(uint8_t *mac) = 0;
-
-protected:
-    NanostackRfPhy() {}
-    virtual ~NanostackRfPhy() {}
+    void unregister() { rf_unregister(); }
 };
 
-#endif /* NANOSTACK_INTERFACE_H_ */
+#endif /* NANOSTACK_RF_PHY_H_ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2016 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stdint.h>
 
-#ifdef YOTTA_CFG
-/* At the moment, nothing in the Yotta build is providing these */
-void arm_random_module_init(void)
-{
-}
+#ifndef ENET_TASKLET_H
+#define ENET_TASKLET_H
 
-uint32_t arm_random_seed_get(void)
-{
-    return 0;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void enet_tasklet_init(void);
+uint8_t enet_tasklet_network_init(int8_t);
+int8_t enet_tasklet_connect(void (*)(mesh_connection_status_t mesh_status), int8_t nwk_interface_id);
+void enet_tasklet_disconnect();
+int8_t enet_tasklet_get_ip_address(char *address, int8_t len);
+
+#ifdef __cplusplus
 }
 #endif
+
+#endif // ENET_TASKLET_H
