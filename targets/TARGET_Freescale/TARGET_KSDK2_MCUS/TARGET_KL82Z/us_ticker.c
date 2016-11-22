@@ -21,7 +21,8 @@
 
 static int us_ticker_inited = 0;
 
-void us_ticker_init(void) {
+void us_ticker_init(void)
+{
     if (us_ticker_inited) {
         return;
     }
@@ -51,7 +52,8 @@ void us_ticker_init(void) {
 }
 
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     if (!us_ticker_inited) {
         us_ticker_init();
     }
@@ -59,15 +61,18 @@ uint32_t us_ticker_read() {
     return ~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1));
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     PIT_DisableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     PIT_ClearStatusFlags(PIT, kPIT_Chnl_3, PIT_TFLG_TIF_MASK);
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     int delta = (int)(timestamp - us_ticker_read());
     if (delta <= 0) {
         // This event was in the past.

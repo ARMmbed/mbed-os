@@ -21,7 +21,8 @@
 /* Array of PORT peripheral base address. */
 static PORT_Type *const port_addrs[] = PORT_BASE_PTRS;
 
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int function)
+{
     MBED_ASSERT(pin != (PinName)NC);
     clock_ip_name_t port_clocks[] = PORT_CLOCKS;
 
@@ -30,7 +31,8 @@ void pin_function(PinName pin, int function) {
     PORT_SetPinMux(port_addrs[pin >> GPIO_PORT_SHIFT], pin & 0xFF, (port_mux_t)function);
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t instance = pin >> GPIO_PORT_SHIFT;
     uint32_t pinName = pin & 0xFF;

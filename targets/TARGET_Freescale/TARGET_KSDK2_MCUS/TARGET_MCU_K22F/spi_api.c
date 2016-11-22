@@ -32,7 +32,8 @@ static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 /* Array of SPI bus clock frequencies */
 static clock_name_t const spi_clocks[] = SPI_CLOCK_FREQS;
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -53,12 +54,13 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
     DSPI_Deinit(spi_address[obj->instance]);
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
-
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     dspi_master_config_t master_config;
     dspi_slave_config_t slave_config;
 
@@ -84,18 +86,21 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     }
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     uint32_t busClock = CLOCK_GetFreq(spi_clocks[obj->instance]);
     DSPI_MasterSetBaudRate(spi_address[obj->instance], kDSPI_Ctar0, (uint32_t)hz, busClock);
     //Half clock period delay after SPI transfer
     DSPI_MasterSetDelayTimes(spi_address[obj->instance], kDSPI_Ctar0, kDSPI_LastSckToPcs, busClock, 500000000 / hz);
 }
 
-static inline int spi_readable(spi_t * obj) {
+static inline int spi_readable(spi_t * obj)
+{
     return (DSPI_GetStatusFlags(spi_address[obj->instance]) & kDSPI_RxFifoDrainRequestFlag);
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     dspi_command_data_config_t command;
     uint32_t rx_data;
     DSPI_GetDefaultDataCommandConfig(&command);
@@ -112,11 +117,13 @@ int spi_master_write(spi_t *obj, int value) {
     return rx_data & 0xffff;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return spi_readable(obj);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     uint32_t rx_data;
 
     while (!spi_readable(obj));
@@ -125,7 +132,8 @@ int spi_slave_read(spi_t *obj) {
     return rx_data & 0xffff;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     DSPI_SlaveWriteDataBlocking(spi_address[obj->instance], (uint32_t)value);
 }
 

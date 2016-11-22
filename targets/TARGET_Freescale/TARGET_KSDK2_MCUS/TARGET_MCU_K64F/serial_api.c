@@ -41,7 +41,8 @@ static clock_name_t const uart_clocks[] = UART_CLOCK_FREQS;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
     uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
     obj->index = pinmap_merge(uart_tx, uart_rx);
@@ -74,16 +75,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 }
 
-void serial_free(serial_t *obj) {
+void serial_free(serial_t *obj)
+{
     UART_Deinit(uart_addrs[obj->index]);
     serial_irq_ids[obj->index] = 0;
 }
 
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
     UART_SetBaudRate(uart_addrs[obj->index], (uint32_t)baudrate, CLOCK_GetFreq(uart_clocks[obj->index]));
 }
 
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
     UART_Type *base = uart_addrs[obj->index];
     uint8_t temp;
     /* Set bit count and parity mode. */
@@ -111,7 +115,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint32_t index) {
+static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint32_t index)
+{
     UART_Type *base = uart_addrs[index];
 
     /* If RX overrun. */
@@ -130,42 +135,50 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
     }
 }
 
-void uart0_irq() {
+void uart0_irq()
+{
     uint32_t status_flags = UART0->S1;
     uart_irq((status_flags & kUART_TxDataRegEmptyFlag), (status_flags & kUART_RxDataRegFullFlag), 0);
 }
 
-void uart1_irq() {
+void uart1_irq()
+{
     uint32_t status_flags = UART1->S1;
     uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 1);
 }
 
-void uart2_irq() {
+void uart2_irq()
+{
     uint32_t status_flags = UART2->S1;
     uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 2);
 }
 
-void uart3_irq() {
+void uart3_irq()
+{
     uint32_t status_flags = UART3->S1;
     uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 3);
 }
 
-void uart4_irq() {
+void uart4_irq()
+{
     uint32_t status_flags = UART4->S1;
     uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 4);
 }
 
-void uart5_irq() {
+void uart5_irq()
+{
     uint32_t status_flags = UART5->S1;
     uart_irq((status_flags & UART_S1_TDRE_MASK), (status_flags & UART_S1_RDRF_MASK), 5);
 }
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
     IRQn_Type uart_irqs[] = UART_RX_TX_IRQS;
     uint32_t vector = 0;
 
@@ -234,7 +247,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
 }
 
-int serial_getc(serial_t *obj) {
+int serial_getc(serial_t *obj)
+{
     while (!serial_readable(obj));
     uint8_t data;
     data = UART_ReadByte(uart_addrs[obj->index]);
@@ -242,37 +256,44 @@ int serial_getc(serial_t *obj) {
     return data;
 }
 
-void serial_putc(serial_t *obj, int c) {
+void serial_putc(serial_t *obj, int c)
+{
     while (!serial_writable(obj));
     UART_WriteByte(uart_addrs[obj->index], (uint8_t)c);
 }
 
-int serial_readable(serial_t *obj) {
+int serial_readable(serial_t *obj)
+{
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->index]);
     if (status_flags & kUART_RxOverrunFlag)
         UART_ClearStatusFlags(uart_addrs[obj->index], kUART_RxOverrunFlag);
     return (status_flags & kUART_RxDataRegFullFlag);
 }
 
-int serial_writable(serial_t *obj) {
+int serial_writable(serial_t *obj)
+{
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->index]);
     if (status_flags & kUART_RxOverrunFlag)
         UART_ClearStatusFlags(uart_addrs[obj->index], kUART_RxOverrunFlag);
     return (status_flags & kUART_TxDataRegEmptyFlag);
 }
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
 }
 
-void serial_pinout_tx(PinName tx) {
+void serial_pinout_tx(PinName tx)
+{
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
-void serial_break_set(serial_t *obj) {
+void serial_break_set(serial_t *obj)
+{
     uart_addrs[obj->index]->C2 |= UART_C2_SBK_MASK;
 }
 
-void serial_break_clear(serial_t *obj) {
+void serial_break_clear(serial_t *obj)
+{
     uart_addrs[obj->index]->C2 &= ~UART_C2_SBK_MASK;
 }
 
