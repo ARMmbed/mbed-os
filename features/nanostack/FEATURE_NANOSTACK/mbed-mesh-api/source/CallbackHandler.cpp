@@ -17,12 +17,17 @@
 #include "include/callback_handler.h"
 
 
-AbstractMesh  *__abstract_mesh_interface = NULL;
+static MeshInterfaceNanostack *_handler = NULL;
 
 void __mesh_handler_c_callback(mesh_connection_status_t state)
 {
 
-    if (__abstract_mesh_interface) {
-        __abstract_mesh_interface->callback(state);
+    if (_handler) {
+        _handler->mesh_network_handler(state);
     }
+}
+
+void __mesh_handler_set_callback(MeshInterfaceNanostack *handler)
+{
+    _handler = handler;
 }
