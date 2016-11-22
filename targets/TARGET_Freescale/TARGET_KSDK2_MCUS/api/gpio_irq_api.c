@@ -40,7 +40,8 @@ static const IRQn_Type port_irqs[] = PORT_IRQS;
 #define IRQ_FALLING_EDGE    (10)
 #define IRQ_EITHER_EDGE     (11)
 
-static void handle_interrupt_in(PortName port, int ch_base) {
+static void handle_interrupt_in(PortName port, int ch_base)
+{
     uint32_t i;
     uint32_t interrupt_flags;
     PORT_Type *port_base = port_addrs[port];
@@ -79,13 +80,33 @@ static void handle_interrupt_in(PortName port, int ch_base) {
     PORT_ClearPinsInterruptFlags(port_base, interrupt_flags);
 }
 
-void gpio_irqA(void) {handle_interrupt_in(PortA, 0);}
-void gpio_irqB(void) {handle_interrupt_in(PortB, 32);}
-void gpio_irqC(void) {handle_interrupt_in(PortC, 64);}
-void gpio_irqD(void) {handle_interrupt_in(PortD, 96);}
-void gpio_irqE(void) {handle_interrupt_in(PortE, 128);}
+void gpio_irqA(void)
+{
+    handle_interrupt_in(PortA, 0);
+}
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+void gpio_irqB(void)
+{
+    handle_interrupt_in(PortB, 32);
+}
+
+void gpio_irqC(void)
+{
+    handle_interrupt_in(PortC, 64);
+}
+
+void gpio_irqD(void)
+{
+    handle_interrupt_in(PortD, 96);
+}
+
+void gpio_irqE(void)
+{
+    handle_interrupt_in(PortE, 128);
+}
+
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
     if (pin == NC) {
         return -1;
     }
@@ -131,11 +152,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     channel_ids[obj->ch] = 0;
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
     PORT_Type *base = port_addrs[obj->port];
     port_interrupt_t irq_settings = kPORT_InterruptOrDMADisabled;
 
@@ -176,11 +199,13 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     base->PCR[obj->pin] |= PORT_PCR_ISF_MASK;
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
     NVIC_EnableIRQ(port_irqs[obj->port]);
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     NVIC_DisableIRQ(port_irqs[obj->port]);
 }
 

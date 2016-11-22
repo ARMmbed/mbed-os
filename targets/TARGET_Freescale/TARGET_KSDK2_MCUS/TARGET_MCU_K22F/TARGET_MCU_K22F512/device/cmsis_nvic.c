@@ -32,11 +32,13 @@
 
 extern void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler);
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
     InstallIRQHandler(IRQn, vector);
 }
 
-uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
     uint32_t *vectors = (uint32_t*)SCB->VTOR;
     return vectors[IRQn + 16];
 }

@@ -29,7 +29,8 @@ static ADC_Type *const adc_addrs[] = ADC_BASE_PTRS;
 
 #define MAX_FADC 6000000
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
@@ -57,7 +58,8 @@ void analogin_init(analogin_t *obj, PinName pin) {
     pinmap_pinout(pin, PinMap_ADC);
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
     adc16_channel_config_t adc16_channel_config;
 
@@ -83,7 +85,8 @@ uint16_t analogin_read_u16(analogin_t *obj) {
     return ADC16_GetChannelConversionValue(adc_addrs[instance], 0);
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)0xFFFF);
 }

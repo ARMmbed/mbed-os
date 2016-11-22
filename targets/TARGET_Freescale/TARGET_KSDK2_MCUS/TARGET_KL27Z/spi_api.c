@@ -32,7 +32,8 @@ static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 /* Array of SPI bus clock frequencies */
 static clock_name_t const spi_clocks[] = SPI_CLOCK_FREQS;
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -53,11 +54,13 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
     SPI_Deinit(spi_address[obj->instance]);
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
 
     spi_master_config_t master_config;
     spi_slave_config_t slave_config;
@@ -87,15 +90,18 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     }
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     SPI_MasterSetBaudRate(spi_address[obj->instance], (uint32_t)hz, CLOCK_GetFreq(spi_clocks[obj->instance]));
 }
 
-static inline int spi_readable(spi_t * obj) {
+static inline int spi_readable(spi_t * obj)
+{
     return (SPI_GetStatusFlags(spi_address[obj->instance]) & kSPI_RxBufferFullFlag);
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     spi_transfer_t xfer = {0};
     uint32_t rx_data;
     SPI_Type *base = spi_address[obj->instance];
@@ -109,11 +115,13 @@ int spi_master_write(spi_t *obj, int value) {
     return rx_data & 0xffff;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return spi_readable(obj);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     uint32_t rx_data;
 
     while (!spi_readable(obj));
@@ -122,7 +130,8 @@ int spi_slave_read(spi_t *obj) {
     return rx_data & 0xffff;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     SPI_Type *base = spi_address[obj->instance];
     size_t size = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
     SPI_WriteBlocking(spi_address[obj->instance], (uint8_t *)&value, size);
