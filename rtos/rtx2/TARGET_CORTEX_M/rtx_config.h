@@ -27,6 +27,8 @@
 
 #include "rtx_os.h"
 #include "mbed_rtx.h"
+#include "cmsis_os.h"
+#include "cmsis_compiler.h"
 
 // System Configuration
 // ====================
@@ -463,13 +465,19 @@ void mbed_pre_main(void)
 
 extern int main (void);
 osThreadAttr_t _main_thread_attr;
+char _main_stack[DEFAULT_STACK_SIZE] __ALIGNED(8);
+char _main_obj[sizeof(os_thread_t)];
 
 void rtx_start_main(void)
 {
   mbed_pre_main();                                                  // mbed specific init
 
-  _main_thread_attr.stack_size = 4*OS_MAINSTKSIZE;
+  _main_thread_attr.stack_mem = _main_stack;
+  _main_thread_attr.stack_size = sizeof(_main_stack);
+  _main_thread_attr.cb_size = sizeof(_main_obj);
+  _main_thread_attr.cb_mem = _main_obj;
   _main_thread_attr.priority = osPriorityNormal;
+  _main_thread_attr.name = "MAIN";
   osThreadNew((os_thread_func_t)main, NULL, &_main_thread_attr);    // Create application main thread
 
   osKernelStart();                                                  // Start thread execution
