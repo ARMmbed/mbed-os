@@ -289,8 +289,8 @@ void Thread::_thunk(void * thread_ptr)
     t->_task();
     t->_mutex.lock();
     t->_tid = (osThreadId)NULL;
+    t->_mutex.unlock();
     t->_join_sem.release();
-    // rtos will release the mutex automatically
 }
 
 }
