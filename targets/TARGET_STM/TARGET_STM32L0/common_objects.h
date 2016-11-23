@@ -116,5 +116,8 @@ struct i2c_s {
 }
 #endif
 
+/* STM32L0 HAL doesn't provide this API called in rtc_api.c */
+#define RTC_WKUP_IRQn RTC_IRQn
+
 #endif
 
