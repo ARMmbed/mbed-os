@@ -113,7 +113,7 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor",
       "mbed": [],
       "features" : [],
-      "targets" : ["K64F", "EFM32GG_STK3700"],
+      "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
       "exporters": [],
       "compile" : true,
