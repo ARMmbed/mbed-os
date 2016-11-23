@@ -153,7 +153,7 @@ extern "C"
 
 /* Single thread - disable timers and set task count to one */
 #if defined(MBED_RTOS_SINGLE_THREAD)
-#define OS_TASKCNT  1
+#define OS_THREAD_NUM  1
 #define OS_TIMERS   0
 #endif
 

@@ -22,8 +22,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -40,8 +40,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -55,8 +55,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10001000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -70,8 +70,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -85,8 +85,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x02009000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -100,8 +100,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -113,8 +113,8 @@
 #elif defined(TARGET_LPC2368)
 
 /* FIXME: INITIAL_SP is undefined for this target */
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -132,8 +132,8 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (__usr_stack_top__)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -150,8 +150,8 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -165,7 +165,7 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
-#define OS_TASKCNT              14
+#define OS_THREAD_NUM              14
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -178,8 +178,8 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10001000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -193,8 +193,8 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128

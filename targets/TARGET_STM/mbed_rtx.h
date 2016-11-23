@@ -22,8 +22,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -37,8 +37,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -52,8 +52,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -67,8 +67,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -82,8 +82,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -97,8 +97,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -112,8 +112,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20005000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -127,8 +127,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -142,8 +142,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x2000A000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -157,8 +157,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -172,8 +172,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -187,8 +187,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -202,8 +202,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -217,8 +217,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -232,8 +232,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -247,8 +247,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -262,8 +262,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -277,8 +277,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -292,8 +292,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
@@ -307,8 +307,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20050000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -322,8 +322,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -337,8 +337,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -352,8 +352,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -367,8 +367,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          1024
@@ -382,8 +382,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -397,8 +397,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -412,8 +412,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -427,8 +427,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -442,8 +442,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20050000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -457,8 +457,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20050000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -472,8 +472,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20080000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -487,8 +487,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20080000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -502,8 +502,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -517,8 +517,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -532,8 +532,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -547,8 +547,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20005000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
@@ -562,8 +562,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -577,8 +577,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20014000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -592,8 +592,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -607,8 +607,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -622,8 +622,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -637,8 +637,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x2000C000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -652,8 +652,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256

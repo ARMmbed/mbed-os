@@ -19,8 +19,8 @@
 
 #if defined(TARGET_NUMAKER_PFM_NUC472)
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -55,8 +55,8 @@
 
 #elif defined(TARGET_NUMAKER_PFM_M453)
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256

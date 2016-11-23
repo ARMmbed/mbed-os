@@ -27,8 +27,8 @@
 #   endif
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
@@ -45,8 +45,8 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#ifndef OS_THREAD_NUM
+#define OS_THREAD_NUM              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
