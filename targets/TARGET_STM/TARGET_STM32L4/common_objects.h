@@ -89,5 +89,8 @@ struct serial_s {
 }
 #endif
 
+/* STM32L4 HAL doesn't provide this API called in rtc_api.c */
+#define __HAL_RCC_RTC_CLKPRESCALER(__RTCCLKSource__)
+
 #endif
 
