@@ -28,8 +28,8 @@
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
 
 #include "mbed_rtx.h"
+#include "mbed_error.h"
 
- 
 // <h>System Configuration
 // =======================
  
@@ -324,7 +324,8 @@ extern void rtos_idle_loop(void);
 __NO_RETURN void os_IdleThread (void *argument) {
   (void)argument;
 
-  rtos_idle_loop();
+  while(1)
+    rtos_idle_loop();
 }
  
 // OS Error Callback function
@@ -353,6 +354,9 @@ uint32_t os_Error (uint32_t code, void *object_id) {
 
   osThreadId_t tid = osThreadGetId();
   error("CMSIS-RTOS error status: 0x%8X, task ID: 0x%08X\n\r", code, tid);
+
+  /* That's never reached */
+  return code;
 }
  
 #include "rtx_config.h"

@@ -296,7 +296,7 @@ __attribute__((section(".data.os.mempool.mpi"))) =
 #if ((OS_MEMPOOL_DATA_SIZE & 7) != 0)
 #error "Invalid Data Memory size for Memory Pools!"
 #endif
-static uint32_t os_mp_data[OS_MEMPOOL_DATA_SIZE/8] \
+static uint64_t os_mp_data[OS_MEMPOOL_DATA_SIZE/8] \
 __attribute__((section(".bss.os.mempool.mem")));
 #endif
 
@@ -326,7 +326,7 @@ __attribute__((section(".data.os.msgqueue.mpi"))) =
 #if ((OS_MSGQUEUE_DATA_SIZE & 7) != 0)
 #error "Invalid Data Memory size for Message Queues!"
 #endif
-static uint32_t os_mq_data[OS_MSGQUEUE_DATA_SIZE/8] \
+static uint64_t os_mq_data[OS_MSGQUEUE_DATA_SIZE/8] \
 __attribute__((section(".bss.os.msgqueue.mem")));
 #endif
 
