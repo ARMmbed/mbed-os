@@ -26,9 +26,6 @@
  */
 
 #include "rtx_os.h"
-#include "mbed_rtx.h"
-#include "cmsis_os.h"
-#include "cmsis_compiler.h"
 
 // System Configuration
 // ====================
@@ -446,45 +443,10 @@ __attribute__((weak))
 extern void * const os_UserSVC_Table[];
        void * const os_UserSVC_Table[1] = { (void *)0 };
 
-// mbedOS
-// ======
-
-extern void __libc_init_array (void);
-extern int main(int argc, char **argv);
-osMutexId_t singleton_mutex_id;
-osMutexId_t malloc_mutex_id;
-osMutexId_t env_mutex_id;
-
-void pre_main(void)
-{
-  singleton_mutex_id = osMutexNew(NULL);
-  malloc_mutex_id = osMutexNew(NULL);
-  env_mutex_id = osMutexNew(NULL);
-
-  __libc_init_array();
-
-  main(0, NULL);
-}
-
 // OS Initialization
 // =================
 
-osThreadAttr_t _main_thread_attr;
-char _main_stack[DEFAULT_STACK_SIZE] __ALIGNED(8);
-char _main_obj[sizeof(os_thread_t)];
-
-void rtx_start_main(void)
-{
-  _main_thread_attr.stack_mem = _main_stack;
-  _main_thread_attr.stack_size = sizeof(_main_stack);
-  _main_thread_attr.cb_size = sizeof(_main_obj);
-  _main_thread_attr.cb_mem = _main_obj;
-  _main_thread_attr.priority = osPriorityNormal;
-  _main_thread_attr.name = "MAIN";
-  osThreadNew((os_thread_func_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
-
-  osKernelStart();                                                  // Start thread execution
-}
+extern void mbed_start_main(void);
 
 #if  defined(__CC_ARM) || \
     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
@@ -493,7 +455,7 @@ void rtx_start_main(void)
 void _platform_post_stackheap_init (void);
 void _platform_post_stackheap_init (void) {
   osKernelInitialize();
-  rtx_start_main();
+  mbed_start_main();
 }
 #endif
 
@@ -501,8 +463,8 @@ void _platform_post_stackheap_init (void) {
 
 void software_init_hook_rtos(void)
 {
-    osKernelInitialize();                                             // Initialize CMSIS-RTOS
-    rtx_start_main();
+  osKernelInitialize();                                             // Initialize CMSIS-RTOS
+  mbed_start_main();
 }
 
 #endif
