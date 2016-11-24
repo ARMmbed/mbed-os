@@ -35,7 +35,7 @@ int __uvisor_semaphore_pend(UvisorSemaphore * s, uint32_t timeout_ms)
     }
 
     if (num_available_tokens == 0) {
-        return UVISOR_ERROR_OUT_OF_STRUCTURES;
+        return UVISOR_ERROR_TIMEOUT;
     }
 
     return 0;
