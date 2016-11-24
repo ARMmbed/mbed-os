@@ -94,7 +94,7 @@ void test_parallel_threads() {
 
     for (int i = 0; i < N; i++) {
         threads[i] = new Thread(osPriorityNormal, STACK_SIZE);
-        threads[i].start(mbed::callback(F, &counter));
+        threads[i]->start(mbed::callback(F, &counter));
     }
 
     for (int i = 0; i < N; i++) {
