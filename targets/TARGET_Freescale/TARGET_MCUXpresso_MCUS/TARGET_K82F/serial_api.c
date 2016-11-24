@@ -48,7 +48,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT((int)obj->index != NC);
 
     /* Set the LPUART clock source */
-    CLOCK_SetLpuartClock(2U);
+    CLOCK_SetLpuartClock(1U);
 
     lpuart_config_t config;
     LPUART_GetDefaultConfig(&config);

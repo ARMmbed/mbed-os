@@ -36,7 +36,7 @@
 /* Array for LPUART module clocks */
 #define LPUART_CLOCK_FREQS                         \
     {                                              \
-        kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk   \
+        kCLOCK_PllFllSelClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk   \
     }
 
 /* Array for I2C module clocks */
