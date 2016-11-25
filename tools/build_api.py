@@ -279,7 +279,8 @@ def prepare_toolchain(src_paths, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None,
-                      app_config=None, build_profile=None):
+                      app_config=None, build_profile=None,
+                      coverage_filter=[]):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -298,6 +299,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    coverage_filter - list of regex to filter source files for enabling coverage
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -310,9 +312,16 @@ def prepare_toolchain(src_paths, target, toolchain_name,
 
     # Toolchain instance
     try:
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, notify, macros, silent,
-            extra_verbose=extra_verbose, build_profile=build_profile)
+        if toolchain_name == "GCC_ARM":
+            toolchain = TOOLCHAIN_CLASSES[toolchain_name](
+                target, notify, macros, silent,
+                extra_verbose=extra_verbose, build_profile=build_profile,
+                coverage_filter=coverage_filter)
+        else:
+            toolchain = TOOLCHAIN_CLASSES[toolchain_name](
+                target, notify, macros, silent,
+                extra_verbose=extra_verbose, build_profile=build_profile,
+                coverage_filter=coverage_filter)
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
 
@@ -362,13 +371,14 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     return resources
 
+
 def build_project(src_paths, build_path, target, toolchain_name,
                   libraries_paths=None, linker_script=None,
                   clean=False, notify=None, verbose=False, name=None,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None,
-                  app_config=None, build_profile=None):
+                  app_config=None, build_profile=None, coverage_filter=[]):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -397,6 +407,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    coverage_filter - list of regex to filter source files for enabling coverage
     """
 
     # Convert src_path to a list if needed
@@ -417,7 +428,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths, target, toolchain_name, macros=macros, clean=clean,
         jobs=jobs, notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, config=config, app_config=app_config,
-        build_profile=build_profile)
+        build_profile=build_profile, coverage_filter=coverage_filter)
 
     # The first path will give the name to the library
     if name is None:
@@ -505,13 +516,14 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Let Exception propagate
         raise
 
+
 def build_library(src_paths, build_path, target, toolchain_name,
                   dependencies_paths=None, name=None, clean=False,
                   archive=True, notify=None, verbose=False, macros=None,
                   inc_dirs=None, jobs=1, silent=False, report=None,
                   properties=None, extra_verbose=False, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None):
+                  build_profile=None, coverage_filter=None):
     """ Build a library
 
     Positional arguments:
@@ -536,6 +548,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     properties - UUUUHHHHH beats me
     extra_verbose - even more output!
     project_id - the name that goes in the report
+    coverage_filter - list of regex to filter source files for enabling coverage
     remove_config_header_file - delete config header file when done building
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
@@ -563,7 +576,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths, target, toolchain_name, macros=macros, clean=clean,
         jobs=jobs, notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, app_config=app_config,
-        build_profile=build_profile)
+        build_profile=build_profile, coverage_filter=coverage_filter)
 
     # The first path will give the name to the library
     if name is None:
