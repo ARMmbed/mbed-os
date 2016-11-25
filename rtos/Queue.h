@@ -51,9 +51,7 @@ public:
         _queue_attr.cb_size = sizeof(_ob_m);
     #endif
         _queue_id = osMessageQueueNew(queue_sz, sizeof(T*), &_queue_attr);
-        if (_queue_id == NULL) {
-            error("Error initializing the queue object\n");
-        }
+        MBED_ASSERT(_queue_id);
     }
 
     /** Put a message in a Queue.

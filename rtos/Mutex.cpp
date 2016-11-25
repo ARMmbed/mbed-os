@@ -22,7 +22,8 @@
 #include "rtos/Mutex.h"
 
 #include <string.h>
-#include "platform/mbed_error.h"
+#include "mbed_error.h"
+#include "mbed_assert.h"
 
 namespace rtos {
 
@@ -33,9 +34,7 @@ Mutex::Mutex() {
     _osMutexAttr.cb_size = sizeof(_mutex_data);
 #endif
     _osMutexId = osMutexNew(&_osMutexAttr);
-    if (_osMutexId == NULL) {
-        error("Error initializing the mutex object\n");
-    }
+    MBED_ASSERT(_osMutexId);
 }
 
 osStatus_t Mutex::lock(uint32_t millisec) {

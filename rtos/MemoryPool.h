@@ -48,6 +48,7 @@ public:
         _pool_attr.cb_size = sizeof(_ob_m);
     #endif
         _pool_id = osMemoryPoolNew(pool_sz, sizeof(T), &_pool_attr);
+        MBED_ASSERT(_pool_id);
     }
 
     /** Allocate a memory block of type T from a memory pool.
