@@ -63,8 +63,8 @@ int main (void) {
             result = false;
             break;
         } else {
-            printf("QUEUE_GET: Value(%u) ... [OK]\r\n", *msg);
-            if (*msg == QUEUE_PUT_ISR_VALUE) {
+            printf("QUEUE_GET: Value(%u) ... [OK]\r\n", (uint32_t)msg);
+            if ((uint32_t)msg == QUEUE_PUT_ISR_VALUE) {
                 isr_puts_counter++;
             }
             if (isr_puts_counter >= QUEUE_SIZE) {
