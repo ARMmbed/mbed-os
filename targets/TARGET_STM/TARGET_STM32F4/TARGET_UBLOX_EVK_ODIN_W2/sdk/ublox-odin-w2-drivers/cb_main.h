@@ -49,6 +49,12 @@ typedef void(*cbMAIN_ErrorHandler)(
     const cb_char*      filename,
     cb_uint32           line);
 
+typedef struct
+{
+    cbWLAN_MACAddress      mac;                 /**< MAC of WLAN interface, set to all zeros if hardware programmed address should be used. */
+    cbWM_TxPowerSettings   txPowerSettings;     /**< Transmission power settings. */
+} cbMAIN_WlanStartParams;
+
 /*---------------------------------------------------------------------------
 * Callback to indicate that initialization of BT stack is completed.
 *-------------------------------------------------------------------------*/
@@ -89,7 +95,7 @@ extern cb_int32 cbMAIN_initWlan(void);
 * @param params Start parameters passed to WLAN driver instance.
 * @return cbSTATUS_OK if successful, otherwise cbSTATUS_ERROR.
 */
-extern cb_int32 cbMAIN_startWlan(cb_int32 targetId, cbWLAN_StartParameters *params);
+extern cb_int32 cbMAIN_startWlan(cb_int32 targetId, cbMAIN_WlanStartParams *params);
 
 /**
 * Register error handler function.
