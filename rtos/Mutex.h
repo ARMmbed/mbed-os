@@ -23,7 +23,8 @@
 #define MUTEX_H
 
 #include <stdint.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "rtx_os.h"
 
 namespace rtos {
 /** \addtogroup rtos */

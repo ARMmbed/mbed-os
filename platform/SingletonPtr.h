@@ -23,7 +23,7 @@
 #include <new>
 #include "platform/mbed_assert.h"
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #endif
 
 #ifdef MBED_CONF_RTOS_PRESENT

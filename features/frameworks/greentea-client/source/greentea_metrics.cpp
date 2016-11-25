@@ -18,7 +18,7 @@
 #include "mbed.h"
 #include "rtos.h"
 #include "mbed_stats.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "greentea-client/test_env.h"
 #include "greentea-client/greentea_metrics.h"
 #include "SingletonPtr.h"

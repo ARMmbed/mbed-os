@@ -25,7 +25,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "rtx_os.h"
 #include "platform/mbed_error.h"
 
 namespace rtos {

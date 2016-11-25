@@ -3,7 +3,7 @@
  */
 
 #include "cmsis.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "ns_trace.h"
 
 #include "eventOS_scheduler.h"

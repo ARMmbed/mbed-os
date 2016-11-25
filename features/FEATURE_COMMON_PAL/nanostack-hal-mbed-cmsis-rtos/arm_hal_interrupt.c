@@ -4,7 +4,7 @@
 
 #include "arm_hal_interrupt.h"
 #include "arm_hal_interrupt_private.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 
 static uint8_t sys_irq_disable_counter;

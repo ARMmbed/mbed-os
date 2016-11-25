@@ -24,10 +24,10 @@
 #include "mbed.h"
 #include "rtos/rtos_idle.h"
 
-static void (*terminate_hook)(osThreadId id) = 0;
-extern "C" void thread_terminate_hook(osThreadId id)
+static void (*terminate_hook)(osThreadId_t id) = 0;
+extern "C" void thread_terminate_hook(osThreadId_t id)
 {
-    if (terminate_hook != (void (*)(osThreadId))NULL) {
+    if (terminate_hook != (void (*)(osThreadId_t))NULL) {
         terminate_hook(id);
     }
 }
@@ -122,7 +122,7 @@ osStatus_t Thread::terminate() {
 osStatus_t Thread::join() {
     int32_t ret = _join_sem.wait();
     if (ret < 0) {
-        return osErrorOS;
+        return osError;
     }
 
     // The semaphore has been released so this thread is being
@@ -268,7 +268,7 @@ void Thread::attach_idle_hook(void (*fptr)(void)) {
     rtos_attach_idle_hook(fptr);
 }
 
-void Thread::attach_terminate_hook(void (*fptr)(osThreadId id)) {
+void Thread::attach_terminate_hook(void (*fptr)(osThreadId_t id)) {
     terminate_hook = fptr;
 }
 
@@ -288,7 +288,7 @@ void Thread::_thunk(void * thread_ptr)
     Thread *t = (Thread*)thread_ptr;
     t->_task();
     t->_mutex.lock();
-    t->_tid = (osThreadId)NULL;
+    t->_tid = (osThreadId_t)NULL;
     t->_mutex.unlock();
     t->_join_sem.release();
 }

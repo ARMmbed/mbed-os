@@ -24,7 +24,7 @@
 extern u8_t lwip_ram_heap[];
 
 #if NO_SYS == 0
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 // === SEMAPHORE ===
 typedef struct {

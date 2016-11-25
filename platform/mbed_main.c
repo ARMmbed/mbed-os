@@ -15,7 +15,8 @@
  */
 
 #include "mbed_rtx.h"
-#include "cmsis_os.h"
+#include "rtx_os.h"
+#include "cmsis_os2.h"
 #include "cmsis_compiler.h"
 
 extern void __libc_init_array (void);

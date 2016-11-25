@@ -23,7 +23,8 @@
 #define THREAD_H
 
 #include <stdint.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "rtx_os.h"
 #include "platform/Callback.h"
 #include "platform/toolchain.h"
 #include "rtos/Semaphore.h"

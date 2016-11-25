@@ -22,7 +22,7 @@
 #include "mbed_events.h"
 
 #include "rtos.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "emac_api.h"
 #include "nsapi_types.h"
 #include "lwip/netif.h"

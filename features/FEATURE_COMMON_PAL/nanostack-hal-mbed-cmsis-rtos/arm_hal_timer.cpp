@@ -5,7 +5,7 @@
 // Include before mbed.h to properly get UINT*_C()
 #include "ns_types.h"
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "mbed.h"
 
 #include "platform/arm_hal_timer.h"
