@@ -17,13 +17,29 @@
 #ifndef __UVISOR_API_BOX_ID_H__
 #define __UVISOR_API_BOX_ID_H__
 
-#include "api/inc/uvisor_exports.h"
+#include "api/inc/api.h"
+
+UVISOR_EXTERN_C_BEGIN
 
 /* Return the numeric box ID of the current box. */
-UVISOR_EXTERN int uvisor_box_id_self(void);
+int uvisor_box_id_self(void);
 
 /* Return the numeric box ID of the box that is calling through the most recent
  * secure gateway. Return -1 if there is no secure gateway calling box. */
-UVISOR_EXTERN int uvisor_box_id_caller(void) UVISOR_DEPRECATED;
+int uvisor_box_id_caller(void) UVISOR_DEPRECATED;
+
+/* Copy the box namespace of the specified box ID to the memory provided by
+ * box_namespace. The box_namespace's length must be at least
+ * MAX_BOX_NAMESPACE_LENGTH bytes. Return how many bytes were copied into
+ * box_namespace. Return UVISOR_ERROR_INVALID_BOX_ID if the provided box ID is
+ * invalid. Return UVISOR_ERROR_BUFFER_TOO_SMALL if the provided box_namespace
+ * is too small to hold MAX_BOX_NAMESPACE_LENGTH bytes. Return
+ * UVISOR_ERROR_BOX_NAMESPACE_ANONYMOUS if the box is anonymous. */
+static UVISOR_FORCEINLINE int uvisor_box_namespace(int box_id, char *box_namespace, size_t length)
+{
+    return uvisor_api.box_namespace(box_id, box_namespace, length);
+}
+
+UVISOR_EXTERN_C_END
 
 #endif /* __UVISOR_API_BOX_ID_H__ */

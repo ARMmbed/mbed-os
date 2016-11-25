@@ -19,7 +19,15 @@
 
 #include "api/inc/halt_exports.h"
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/api.h"
 
-UVISOR_EXTERN void uvisor_error(THaltUserError reason);
+UVISOR_EXTERN_C_BEGIN
+
+static UVISOR_FORCEINLINE void uvisor_error(THaltUserError reason)
+{
+    uvisor_api.error(reason);
+}
+
+UVISOR_EXTERN_C_END
 
 #endif /* __UVISOR_API_ERROR_H__ */

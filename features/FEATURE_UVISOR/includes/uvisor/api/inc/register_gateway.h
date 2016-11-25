@@ -19,12 +19,16 @@
 
 #include "api/inc/register_gateway_exports.h"
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/svc_exports.h"
 #include <stdint.h>
 
 /** Get the offset of a struct member.
  * @internal
  */
 #define __UVISOR_OFFSETOF(type, member) ((uint32_t) (&(((type *)(0))->member)))
+
+/** Generate the SVCall opcode from the SVC ID. */
+#define UVISOR_SVC_OPCODE(id) ((uint16_t) (0xDF00 | ((id) & 0xFF)))
 
 /** Generate the opcode of the 16-bit Thumb-2 16-bit T2 encoding of the branch
  *  instruction.
