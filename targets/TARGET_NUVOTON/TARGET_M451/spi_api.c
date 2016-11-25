@@ -709,7 +709,12 @@ static uint8_t spi_get_data_width(spi_t *obj)
 {    
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    return ((spi_base->CTL & SPI_CTL_DWIDTH_Msk) >> SPI_CTL_DWIDTH_Pos);
+    uint32_t data_width = ((spi_base->CTL & SPI_CTL_DWIDTH_Msk) >> SPI_CTL_DWIDTH_Pos);
+    if (data_width == 0) {
+        data_width = 32;
+    }
+    
+    return data_width;
 }
 
 static int spi_is_tx_complete(spi_t *obj)
