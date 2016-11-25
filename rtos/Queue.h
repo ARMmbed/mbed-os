@@ -50,9 +50,9 @@ public:
         _queue_attr.cb_mem = _ob_m;
         _queue_attr.cb_size = sizeof(_ob_m);
     #endif
-        _queue_id = osMessageQueueNew(queue_sz, sizeof(T), &_queue_attr);
+        _queue_id = osMessageQueueNew(queue_sz, sizeof(T*), &_queue_attr);
         if (_queue_id == NULL) {
-            error("Error initialising the queue object\n");
+            error("Error initializing the queue object\n");
         }
     }
 
@@ -63,7 +63,7 @@ public:
       @return  status code that indicates the execution status of the function.
     */
     osStatus_t put(T* data, uint32_t millisec=0, uint8_t prio=0) {
-        return osMessageQueuePut(_queue_id, data, prio, millisec);
+        return osMessageQueuePut(_queue_id, &data, prio, millisec);
     }
 
     /** Get a message or Wait for a message from a Queue.
@@ -72,7 +72,7 @@ public:
     */
     T *get(uint32_t millisec=osWaitForever) {
         T *data;
-        osStatus_t res = osMessageQueueGet(_queue_id, data, NULL, millisec);
+        osStatus_t res = osMessageQueueGet(_queue_id, &data, NULL, millisec);
         if (res != osOK) {
           data = NULL;
         }
@@ -83,7 +83,7 @@ private:
     osMessageQueueId_t   _queue_id;
     osMessageQueueAttr_t _queue_attr;
 #ifdef CMSIS_OS_RTX
-    void                *_queue_q[queue_sz];
+    char                 _queue_q[queue_sz * (sizeof(T*) + sizeof(os_message_t))];
     char                 _ob_m[sizeof(os_message_queue_t)];
 #endif
 };

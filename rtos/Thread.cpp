@@ -112,10 +112,10 @@ osStatus_t Thread::terminate() {
     osThreadId_t local_id = _tid;
     _join_sem.release();
     _tid = (osThreadId_t)NULL;
+    _mutex.unlock();
 
     ret = osThreadTerminate(local_id);
 
-    _mutex.unlock();
     return ret;
 }
 
