@@ -18,7 +18,6 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
 import os
-import re
 import sys
 import json
 import uuid
@@ -2116,9 +2115,12 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, verbose=False, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
-                build_profile=None):
+                build_profile=None, coverage_filter=[]):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
+
+    Keyword arguments:
+        coverage_filter - list of regex to filter source files for enabling coverage
 
     Returns a tuple of the build result (True or False) followed by the test
     build data structure"""
@@ -2165,7 +2167,9 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'verbose': verbose,
             'app_config': app_config,
             'build_profile': build_profile,
-            'silent': True
+            'silent': True,
+            # Coverage requires main(). So if enabled on any module, enable it on test as well.
+            'coverage_filter': ".*" if coverage_filter else []
         }
         
         results.append(p.apply_async(build_test_worker, args, kwargs))
