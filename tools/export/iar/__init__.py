@@ -29,8 +29,7 @@ class IAR(Exporter):
     #iar_definitions.json
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if hasattr(obj, 'device_name') and
-               obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains
-               and DeviceCMSIS.check_supported(target)]
+               obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains]
 
     SPECIAL_TEMPLATES = {
         'rz_a1h'  : 'iar/iar_rz_a1h.ewp.tmpl',
@@ -106,6 +105,12 @@ class IAR(Exporter):
         #Optimizations
         if '-Oh' in flags['c_flags']:
             flags['c_flags'].remove('-Oh')
+
+        try:
+            debugger = DeviceCMSIS(self.target).debug.replace('-','').upper()
+        except:
+            debugger = "CMSISDAP"
+
         ctx = {
             'name': self.project_name,
             'groups': self.iar_groups(self.format_src(srcs)),
@@ -113,7 +118,7 @@ class IAR(Exporter):
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
-            'debugger': DeviceCMSIS(self.target).debug.replace('-','').upper()
+            'debugger': debugger
         }
         ctx.update(flags)
 
