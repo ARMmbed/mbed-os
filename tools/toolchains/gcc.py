@@ -15,10 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
+import copy
 from os.path import join, basename, splitext
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
+
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
@@ -28,12 +30,17 @@ class GCC(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
+    COVERAGE_FLAGS = ["-fprofile-arcs", "-ftest-coverage"]
+    COVERAGE_MACRO = 'MBED_CFG_DEBUG_OPTIONS_COVERAGE'
+
     def __init__(self, target,  notify=None, macros=None,
                  silent=False, tool_path="", extra_verbose=False,
-                 build_profile=None):
+                 build_profile=None, coverage_filter=[]):
         mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+                               build_profile=build_profile,
+                               coverage_filter=coverage_filter)
+
 
         # Add flags for current size setting
         default_lib = "std"
@@ -81,6 +88,18 @@ class GCC(mbedToolchain):
             self.cpu.append("-mno-unaligned-access")
 
         self.flags["common"] += self.cpu
+
+        # Coverage is turned On if coverage_filter is not empty. This means all sources are compiled with coverage
+        # macro and application is linked with coverage flags.
+        # Only source files that match regex from coverage_filter list are compiled with coverage flags. Since turning
+        # On code coverage on all sources increases static data size it overlaps with stack allocation and causes linker
+        # error.
+        if self.coverage_filter:
+            if "-g" not in self.flags["common"]:
+                self.flags["common"].append("-g")
+            if "-O0" not in self.flags["common"]:
+                self.flags["common"].append("-O0")
+            self.macros.append(self.COVERAGE_MACRO)
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -188,7 +207,12 @@ class GCC(mbedToolchain):
     @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
-        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
+
+        # Add coverage flag on files on which coverage is enabled.
+        if self.check_if_coverage_enabled(source):
+            cmd = cc + self.COVERAGE_FLAGS + self.get_compile_options(self.get_symbols(), includes)
+        else: 
+            cmd = cc + self.get_compile_options(self.get_symbols(), includes)
 
         cmd.extend(self.get_dep_option(object))
 
@@ -215,7 +239,13 @@ class GCC(mbedToolchain):
 
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+
+        # Link with coverage flag if coverage is enabled.
+        if self.coverage_filter:
+            cmd = self.ld + self.COVERAGE_FLAGS + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+        else:
+            cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+
         if mem_map:
             cmd.extend(['-T', mem_map])
 
@@ -258,6 +288,18 @@ class GCC(mbedToolchain):
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
+    def check_if_coverage_enabled(self, src_path):
+        """
+        Checks if coverage is enabled on the source path.
+
+        :param src_path:
+        :return:
+        """
+        for exp in self.coverage_filter:
+            if re.search(exp, src_path):
+                return True
+        return False
+
 
 class GCC_ARM(GCC):
     @staticmethod
@@ -268,10 +310,10 @@ class GCC_ARM(GCC):
         return mbedToolchain.generic_check_executable("GCC_ARM", 'arm-none-eabi-gcc', 1)
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None, coverage_filter=[]):
         GCC.__init__(self, target, notify, macros, silent,
                      TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose,
-                     build_profile=build_profile)
+                     build_profile=build_profile, coverage_filter=coverage_filter)
 
         self.sys_libs.append("nosys")
 

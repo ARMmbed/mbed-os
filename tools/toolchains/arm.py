@@ -38,10 +38,14 @@ class ARM(mbedToolchain):
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None,
+                 coverage_filter=[]):
         mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+                               build_profile=build_profile,
+                               coverage_filter=coverage_filter)
+        if coverage_filter:
+            raise Exception("Armc5 does not support code coverage at this time")
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -224,9 +228,11 @@ class ARM(mbedToolchain):
 
 class ARM_STD(ARM):
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None,
+                 coverage_filter=[]):
         ARM.__init__(self, target, notify, macros, silent,
-                     extra_verbose=extra_verbose, build_profile=build_profile)
+                     extra_verbose=extra_verbose, build_profile=build_profile,
+                     coverage_filter=coverage_filter)
 
         # Run-time values
         self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
@@ -236,9 +242,11 @@ class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None,
+                 coverage_filter=[]):
         ARM.__init__(self, target, notify, macros, silent,
-                     extra_verbose=extra_verbose, build_profile=build_profile)
+                     extra_verbose=extra_verbose, build_profile=build_profile,
+                     coverage_filter=coverage_filter)
 
         # Run-time values
         self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
