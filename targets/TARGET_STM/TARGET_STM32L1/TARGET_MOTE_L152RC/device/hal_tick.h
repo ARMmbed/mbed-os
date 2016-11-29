@@ -49,6 +49,10 @@
 #define TIM_MST_RESET_ON   __TIM5_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM5_RELEASE_RESET()
 
+#define TIM_MST_16BIT  0 // 1=16-bit timer, 0=32-bit timer
+
+#define TIM_MST_PCLK  1 // Select the peripheral clock number (1 or 2)
+
 #define HAL_TICK_DELAY (1000) // 1 ms
 
 #ifdef __cplusplus
