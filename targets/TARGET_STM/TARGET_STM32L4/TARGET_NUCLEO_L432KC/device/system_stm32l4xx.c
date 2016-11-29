@@ -131,7 +131,7 @@
   */
 
 // Select the clock sources (default is PLL_MSI) to start with (0=OFF, 1=ON)
-#define USE_PLL_HSE_EXTC (1) // Use external clock
+#define USE_PLL_HSE_EXTC (0) // Use external clock
 #define USE_PLL_HSE_XTAL (0) // Use external xtal
 #define USE_PLL_HSI      (0) // Use HSI/MSI internal clock (0=MSI, 1=HSI)
 #define DEBUG_MCO        (0) // Output the MCO on PA8 for debugging (0=OFF, 1=SYSCLK, 2=HSE, 3=HSI, 4=MSI)
