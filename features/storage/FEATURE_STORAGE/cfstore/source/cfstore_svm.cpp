@@ -41,8 +41,6 @@
 extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
 static ARM_DRIVER_STORAGE *cfstore_svm_storage_drv = &ARM_Driver_Storage_MTD_K64F;
 
-#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
-
 /* the storage volume manager instance used to generate virtual mtd descriptors */
 StorageVolumeManager volumeManager;
 
@@ -79,3 +77,6 @@ int32_t cfstore_svm_init(struct _ARM_DRIVER_STORAGE *storage_mtd)
     }
     return ret;
 }
+
+#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
