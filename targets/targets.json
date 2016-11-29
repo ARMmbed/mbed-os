@@ -554,6 +554,19 @@
         "release_versions": ["2", "5"],
         "device_name": "MKW24D512xxx5"
     },
+    "KW41Z": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M0+",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["0201"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"],
+        "device_name": "MKW41Z512xxx4"
+    },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
