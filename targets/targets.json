@@ -802,7 +802,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0720"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
@@ -828,7 +828,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0740"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
@@ -855,7 +855,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "F429_F439"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
-        "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "detect_code": ["0796"],
         "features": ["LWIP"],
@@ -898,7 +898,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0778"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2",  "USB_STM_HAL"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F446ZE"
@@ -1132,7 +1132,7 @@
         "core": "Cortex-M4F",
         "extra_labels": ["STM", "STM32F4", "STM32F407", "STM32F407VG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "device_name": "STM32F407VG"
     },

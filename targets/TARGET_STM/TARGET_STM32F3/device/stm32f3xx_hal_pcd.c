@@ -156,7 +156,8 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   {  
     /* Allocate lock resource and initialize it */
     hpcd->Lock = HAL_UNLOCKED;
-  
+	for (i = 0; i < hpcd->Init.dev_endpoints ; i++)
+	hpcd->EPLock[i].Lock = HAL_UNLOCKED;
     /* Init the low level hardware : GPIO, CLOCK, NVIC... */
     HAL_PCD_MspInit(hpcd);
   }
@@ -185,8 +186,8 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
    hpcd->OUT_ep[i].maxpacket = 0;
    hpcd->OUT_ep[i].xfer_buff = 0;
    hpcd->OUT_ep[i].xfer_len = 0;
+
  }
-  
  /* Init Device */
  /*CNTR_FRES = 1*/
  hpcd->Instance->CNTR = USB_CNTR_FRES;

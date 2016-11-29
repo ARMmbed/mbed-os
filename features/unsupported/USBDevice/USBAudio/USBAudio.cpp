@@ -313,7 +313,8 @@ void USBAudio::USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {
                 switch (transfer->setup.bRequest) {
                     case REQUEST_SET_CUR:
                         mute = data & 0xff;
-                        updateVol.call();
+                        if (updateVol)
+                            updateVol.call();
                         break;
                     default:
                         break;
@@ -324,7 +325,8 @@ void USBAudio::USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {
                     case REQUEST_SET_CUR:
                         volCur = data;
                         volume = (float)volCur/(float)volMax;
-                        updateVol.call();
+                        if (updateVol)
+                            updateVol.call();
                         break;
                     default:
                         break;

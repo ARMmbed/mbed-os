@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 mbed.org, MIT License
+/* Copyright (c) 2016 mbed.org, MIT License
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without
@@ -15,54 +15,14 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-#include "stdint.h"
-#include "USBSerial.h"
-
-int USBSerial::_putc(int c) {
-    if (!terminal_connected)
-        return 0;
-    send((uint8_t *)&c, 1);
-    return 1;
-}
-
-int USBSerial::_getc() {
-    uint8_t c = 0;
-    while (buf.isEmpty());
-    buf.dequeue(&c);
-    return c;
-}
-
-
-bool USBSerial::writeBlock(uint8_t * buf, uint16_t size) {
-    if(size > MAX_PACKET_SIZE_EPBULK) {
-        return false;
-    }
-    if(!send(buf, size)) {
-        return false;
-    }
-    return true;
-}
-
-
-
-bool USBSerial::EPBULK_OUT_callback() {
-    uint8_t c[65];
-    uint32_t size = 0;
-
-    //we read the packet received and put it on the circular buffer
-    readEP(c, &size);
-    for (uint32_t i = 0; i < size; i++) {
-        buf.queue(c[i]);
-    }
-
-    //call a potential handlenr
-    if (rx)
-        rx.call();
-
-    return true;
-}
-
-uint8_t USBSerial::available() {
-    return buf.available();
-}
+#ifdef TARGET_STM32F303ZE
+#include "USBHAL_STM32F303ZE.h"
+#endif
+#if defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F446ZE)  || defined(TARGET_STM32F207ZG) \
+|| defined(TARGET_STM32F767ZI) || defined (TARGET_STM32F746ZG) || defined(TARGET_STM32F411RE) \
+|| defined(TARGET_STM32F407VG) || defined(TARGET_STM32F401RE)
+#include "USBHAL_STM_144_64pins.h"
+#endif
+#ifdef TARGET_STM32L476VG
+#include "USBHAL_STM32L476VG.h"
+#endif
