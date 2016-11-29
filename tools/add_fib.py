@@ -16,6 +16,7 @@ import itertools
 import binascii
 import intelhex
 from tools.config import Config
+import sys 
 
 FIB_BASE = 0x2000
 FLASH_BASE = 0x3000
@@ -29,6 +30,24 @@ def ranges(i):
 
 
 def add_fib_at_start(arginput):
+    import os
+# Take binary file back up to '_orig.bin'
+    filesize = os.path.getsize(arginput + ".bin")
+    if filesize > 0x4F000:
+# Remove gap between Flash A and B 
+        origfile = open(arginput + ".bin", "rb")
+        newfile = open(arginput + "_new.bin", "wb")
+        FlashA = origfile.read(0x4F000)
+        newfile.write(FlashA)
+        origfile.seek(0xFF000)
+        FlashB = origfile.read(filesize)
+        newfile.write(FlashB)
+        newfile.close()
+        origfile.close()
+        Origfile = arginput + ".bin"
+        Newfile = arginput + "_new.bin"
+        os.remove(Origfile)
+        os.rename(Newfile, Origfile)
     input_file = arginput + ".bin"
     file_name_hex = arginput + "_fib.hex"
     file_name_bin = arginput + ".bin"
@@ -213,3 +232,7 @@ def add_fib_at_start(arginput):
     # Write out file(s)
     output_hex_file.tofile(file_name_hex, 'hex')
     output_hex_file.tofile(file_name_bin, 'bin')
+
+if __name__ == '__main__':
+    arginput = sys.argv[1]
+    add_fib_at_start(arginput)
