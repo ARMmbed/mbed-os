@@ -131,7 +131,7 @@
   */
 
 // Select the clock sources (default is PLL_MSI) to start with (0=OFF, 1=ON)
-#define USE_PLL_HSE_EXTC (1) // Use external clock
+#define USE_PLL_HSE_EXTC (0) // Use external clock
 #define USE_PLL_HSE_XTAL (0) // Use external xtal
 #define USE_PLL_HSI      (0) // Use HSI/MSI internal clock (0=MSI, 1=HSI)
 #define DEBUG_MCO        (0) // Output the MCO on PA8 for debugging (0=OFF, 1=SYSCLK, 2=HSE, 3=HSI, 4=MSI)
@@ -547,7 +547,7 @@ uint8_t SetSysClock_PLL_MSI(void)
   RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
   RCC_OscInitStruct.HSIState             = RCC_HSI_OFF;
 
-  RCC_OscInitStruct.HSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.MSIClockRange        = RCC_MSIRANGE_6;
   RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_11;
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;
@@ -568,10 +568,10 @@ uint8_t SetSysClock_PLL_MSI(void)
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
   // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
   RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 80 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 80 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 80 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;           // 80 MHz
+  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     return 0; // FAIL
