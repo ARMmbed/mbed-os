@@ -56,13 +56,12 @@ __vector_size = 0xDC;
  */
 ENTRY(Reset_Handler)
 
-/* Note: The uVisor expects the text section at a fixed location, as specified
-             by the porting process configuration parameter: FLASH_OFFSET. */
-__UVISOR_TEXT_OFFSET = 0x100;
-__UVISOR_TEXT_START = ORIGIN(FLASH) + __UVISOR_TEXT_OFFSET;
-
 SECTIONS
 {
+  /* Note: The uVisor expects the text section at a fixed location, as specified
+               by the porting process configuration parameter: FLASH_OFFSET. */
+  __UVISOR_FLASH_OFFSET = 0x100;
+  __UVISOR_FLASH_START = ORIGIN(FLASH) + __UVISOR_FLASH_OFFSET;
   .text :
   {
     KEEP(*(.vectors))
@@ -71,7 +70,7 @@ SECTIONS
     __end__ = .;
 
     /* uVisor code and data */
-    . = __UVISOR_TEXT_OFFSET;
+    . = __UVISOR_FLASH_OFFSET;
     . = ALIGN(4);
     __uvisor_main_start = .;
     *(.uvisor.main)
@@ -147,24 +146,26 @@ SECTIONS
   } > FLASH
   */
 
-  /* Ensure that the uVisor BSS section is put first in SRAM. */
+  /* uVisor own memory and private box memories
+  /* If uVisor shares the SRAM with the OS/app, ensure that this section is
+   * the first one after the VTOR relocation section. */
   /* Note: The uVisor expects this section at a fixed location, as specified
            by the porting process configuration parameter: SRAM_OFFSET. */
   __UVISOR_SRAM_OFFSET = 0x0;
-  __UVISOR_BSS_START = ORIGIN(RAM) + __UVISOR_SRAM_OFFSET;
-  .uvisor.bss __UVISOR_BSS_START (NOLOAD):
+  __UVISOR_SRAM_START = ORIGIN(m_data) + __UVISOR_SRAM_OFFSET;
+  .uvisor.bss __UVISOR_SRAM_START (NOLOAD):
   {
     . = ALIGN(32);
     __uvisor_bss_start = .;
 
-    /* uVisor main BSS section */
+    /* Protected uVisor own BSS section */
     . = ALIGN(32);
     __uvisor_bss_main_start = .;
     KEEP(*(.keep.uvisor.bss.main))
     . = ALIGN(32);
     __uvisor_bss_main_end = .;
 
-    /* Secure boxes BSS section */
+    /* Protected uVisor boxes' static memories */
     . = ALIGN(32);
     __uvisor_bss_boxes_start = .;
     KEEP(*(.keep.uvisor.bss.boxes))
@@ -175,15 +176,16 @@ SECTIONS
     __uvisor_bss_end = .;
   } > RAM
 
-  /* Heap space for the page allocator */
+  /* Heap space for the page allocator
+  /* If uVisor shares the SRAM with the OS/app, ensure that this section is
+   * the first one after the uVisor BSS section. Otherwise, ensure it is the
+   * first one after the VTOR relocation section. */
   .page_heap (NOLOAD) :
   {
     . = ALIGN(32);
     __uvisor_page_start = .;
     KEEP(*(.keep.uvisor.page_heap))
-
     . = ALIGN( (1 << LOG2CEIL(LENGTH(RAM))) / 8);
-
     __uvisor_page_end = .;
   } > RAM
 
@@ -284,10 +286,6 @@ SECTIONS
     __bss_end__ = .;
   } > RAM
 
-  __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-  __stack = __StackTop;
-  __StackLimit = __StackTop - STACK_SIZE;
-
   .heap (NOLOAD):
   {
     __uvisor_heap_start = .;
@@ -296,17 +294,21 @@ SECTIONS
     end = __end__;
     _end = __end__;
     . += HEAP_SIZE;
+    __HeapLimit = .;
+    __uvisor_heap_end = .;
   } > RAM
 
-  __HeapLimit = __StackLimit;
-  __uvisor_heap_end = __StackLimit;
+  __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+  __stack = __StackTop;
+  __StackLimit = __StackTop - STACK_SIZE;
+
+  ASSERT(__StackLimit >= __HeapLimit, "Region RAM overflowed with stack and heap")
 
   /* Provide physical memory boundaries for uVisor. */
   __uvisor_flash_start = ORIGIN(FLASH);
   __uvisor_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
   __uvisor_sram_start = ORIGIN(RAM);
   __uvisor_sram_end = ORIGIN(RAM) + LENGTH(RAM);
-
-  /* Check if FLASH usage exceeds FLASH size. */
-  ASSERT(LENGTH(FLASH) >= __uvisor_secure_end, "FLASH memory overflowed!")
+  __uvisor_public_sram_start = __uvisor_sram_start;
+  __uvisor_public_sram_end = __uvisor_sram_end;
 }
