@@ -30,7 +30,7 @@ namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
 
-/** The Mutex class is used to synchronise the execution of threads.
+/** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
 */
 class Mutex {

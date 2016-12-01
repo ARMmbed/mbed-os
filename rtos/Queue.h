@@ -42,7 +42,7 @@ namespace rtos {
 template<typename T, uint32_t queue_sz>
 class Queue {
 public:
-    /** Create and initialise a message Queue. */
+    /** Create and initialize a message Queue. */
     Queue() {
     #ifdef CMSIS_OS_RTX
         memset(_queue_q, 0, sizeof(_queue_q));

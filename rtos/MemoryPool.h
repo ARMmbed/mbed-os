@@ -64,12 +64,14 @@ public:
     */
     T* calloc(void) {
         T *item = (T*)osMemoryPoolAlloc(_pool_id, 0);
-        memset(item, 0, sizeof(T));
+        if (item != NULL) {
+            memset(item, 0, sizeof(T));
+        }
         return item;
     }
 
-    /** Return an allocated memory block back to a specific memory pool.
-      @param   address of the allocated memory block that is returned to the memory pool.
+    /** Free a memory block.
+      @param   address of the allocated memory block to be freed.
       @return  status code that indicates the execution status of the function.
     */
     osStatus_t free(T *block) {
