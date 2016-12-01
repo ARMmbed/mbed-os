@@ -296,8 +296,6 @@ void i2c_frequency(i2c_t *obj, int hz)
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
-    MBED_ASSERT((hz > 0) && (hz <= 400000));
-
     // wait before init
     timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
@@ -307,6 +305,8 @@ void i2c_frequency(i2c_t *obj, int hz)
     handle->Init.DutyCycle       = I2C_DUTYCYCLE_2;
 #endif
 #ifdef I2C_IP_VERSION_V2
+    /*  Only predefined timing for below frequencies are supported */
+    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
     handle->Init.Timing = get_i2c_timing(hz);
 
     // Enable the Fast Mode Plus capability
