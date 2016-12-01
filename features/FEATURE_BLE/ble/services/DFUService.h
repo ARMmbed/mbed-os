@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifdef TARGET_NRF51822 /* DFU only supported on nrf51 platforms */
-
 #ifndef __BLE_DFU_SERVICE_H__
 #define __BLE_DFU_SERVICE_H__
+ 
+#if defined(TARGET_NRF51822) || defined(TARGET_NRF52832) /* DFU only supported on nrf5x platforms */
 
 #include "ble/BLE.h"
 #include "ble/UUID.h"
@@ -142,5 +142,6 @@ protected:
     static ResetPrepare_t handoverCallback;  /**< Application-specific handover callback. */
 };
 
+#endif /* #ifdef TARGET_NRF51822 or TARGET_NRF52832 */
+
 #endif /* #ifndef __BLE_DFU_SERVICE_H__*/
-#endif /* #ifdef TARGET_NRF51822 */
