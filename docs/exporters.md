@@ -53,7 +53,12 @@ The dname (device name) field on line 156 directly corresponds to that in the Uv
 ##### IAR
 [`tools/export/iar/iar_definitions.json`](https://github.com/ARMmbed/mbed-os/blob/master/tools/export/iar/iar_definitions.json) utilizes this device name to store information necessary to set the target in an IAR project.
 
+##### Updating index.json
+You can regenerate `index.json` to contain a newly made CMSIS pack with the following command:
 
+`mbed export -i [IDE] --update-packs`
+
+You should include the changes to `index.json` in your PR that adds support for the new target.
 
 
 
