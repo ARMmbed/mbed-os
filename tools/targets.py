@@ -462,12 +462,20 @@ class MCU_NRF51Code(object):
                                  % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
                     blf = hexf
                     break
-                elif hexf.find(softdevice_and_offset_entry['boot']) != -1:
-                    t_self.debug("Bootloader file found %s."
-                                 % softdevice_and_offset_entry['boot'])
-                    blf = hexf
-                    break
-
+                else:
+                    try:
+                        boot_num = t_self.target.bootloader_select_index
+                    except AttributeError:
+                        boot_num = 0
+                        
+                    expected_bootloader_name = softdevice_and_offset_entry['boot'][boot_num]
+                
+                    if hexf.find(expected_bootloader_name) != -1:
+                        t_self.debug("Bootloader file found %s."
+                                    % softdevice_and_offset_entry['boot'])
+                        blf = hexf
+                        break
+        
         # Merge user code with softdevice
         from intelhex import IntelHex
         binh = IntelHex()
