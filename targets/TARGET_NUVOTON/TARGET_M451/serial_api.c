@@ -479,9 +479,6 @@ static void uart_irq(serial_t *obj)
 #if DEVICE_SERIAL_ASYNCH
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    // NOTE: tx_width is deprecated. Assume its value is databits ceiled to the nearest number among 8, 16, and 32.
-    tx_width = (obj->serial.databits <= 8) ? 8 : (obj->serial.databits <= 16) ? 16 : 32;
-    
     MBED_ASSERT(tx_width == 8 || tx_width == 16 || tx_width == 32);
 
     obj->serial.dma_usage_tx = hint;
@@ -536,9 +533,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
 
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
-    // NOTE: rx_width is deprecated. Assume its value is databits ceiled to the nearest number among 8, 16, and 32.
-    rx_width = (obj->serial.databits <= 8) ? 8 : (obj->serial.databits <= 16) ? 16 : 32;
-    
     MBED_ASSERT(rx_width == 8 || rx_width == 16 || rx_width == 32);
 
     obj->serial.dma_usage_rx = hint;
