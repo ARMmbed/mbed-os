@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "cmsis.h"
 #include "mbed_rtx.h"
 #include "rtx_os.h"
 #include "cmsis_os2.h"
@@ -30,28 +31,50 @@ osThreadAttr_t _main_thread_attr;
 char _main_stack[DEFAULT_STACK_SIZE] __ALIGNED(8);
 char _main_obj[sizeof(os_thread_t)];
 
+static void mbed_cpy_nvic(void)
+{
+    /* If vector address in RAM is defined, copy and switch to dynamic vectors. Exceptions for M0 which doesn't have
+    VTOR register and for A9 for which CMSIS doesn't define NVIC_SetVector; in both cases target code is
+    responsible for correctly handling the vectors.
+    */
+#if !defined(__CORTEX_M0) && !defined(__CORTEX_A9)
+#ifdef NVIC_RAM_VECTOR_ADDRESS
+    uint32_t *old_vectors = (uint32_t *)SCB->VTOR;
+    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    for (int i = 0; i < NVIC_NUM_VECTORS; i++) {
+        vectors[i] = old_vectors[i];
+    }
+    SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+#else /* NVIC_RAM_VECTOR_ADDRESS */
+#error NVIC_RAM_VECTOR_ADDRESS not defined!
+#endif /* NVIC_RAM_VECTOR_ADDRESS */
+#endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */ 
+}
+
 void pre_main(void)
 {
-  singleton_mutex_id = osMutexNew(NULL);
-  malloc_mutex_id = osMutexNew(NULL);
-  env_mutex_id = osMutexNew(NULL);
+    singleton_mutex_id = osMutexNew(NULL);
+    malloc_mutex_id = osMutexNew(NULL);
+    env_mutex_id = osMutexNew(NULL);
 
-  __libc_init_array();
+    __libc_init_array();
 
-  main(0, NULL);
+    main(0, NULL);
 }
 
 void mbed_start_main(void)
 {
-  _main_thread_attr.stack_mem = _main_stack;
-  _main_thread_attr.stack_size = sizeof(_main_stack);
-  _main_thread_attr.cb_size = sizeof(_main_obj);
-  _main_thread_attr.cb_mem = _main_obj;
-  _main_thread_attr.priority = osPriorityNormal;
-  _main_thread_attr.name = "MAIN";
-  osThreadNew((os_thread_func_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
+    mbed_cpy_nvic();
 
-  osKernelStart();                                                      // Start thread execution
+    _main_thread_attr.stack_mem = _main_stack;
+    _main_thread_attr.stack_size = sizeof(_main_stack);
+    _main_thread_attr.cb_size = sizeof(_main_obj);
+    _main_thread_attr.cb_mem = _main_obj;
+    _main_thread_attr.priority = osPriorityNormal;
+    _main_thread_attr.name = "MAIN";
+    osThreadNew((os_thread_func_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
+
+    osKernelStart();                                                      // Start thread execution
 }
 
 // Opaque declaration of _reent structure
