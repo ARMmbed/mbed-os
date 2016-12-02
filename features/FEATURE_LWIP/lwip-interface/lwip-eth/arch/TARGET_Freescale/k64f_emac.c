@@ -521,8 +521,8 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   }
 
   /* Check if a descriptor is available for the transfer. */
-  int32_t count = osSemaphoreAcquire(k64f_enet->xTXDCountSem.id, 0);
-  if (count < 1)
+  osStatus_t stat = osSemaphoreAcquire(k64f_enet->xTXDCountSem.id, 0);
+  if (stat != osOK)
     return ERR_BUF;
 
   /* Get exclusive access */

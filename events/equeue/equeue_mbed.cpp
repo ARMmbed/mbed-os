@@ -99,7 +99,7 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms) {
         ms = osWaitForever;
     }
 
-    return (reinterpret_cast<Semaphore*>(s)->wait(ms) > 0);
+    return (reinterpret_cast<Semaphore*>(s)->wait(ms) == osOK);
 }
 
 #else

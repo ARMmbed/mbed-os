@@ -32,11 +32,11 @@ Semaphore::Semaphore(int32_t count) {
     _osSemaphoreAttr.cb_mem = _semaphore_data;
     _osSemaphoreAttr.cb_size = sizeof(_semaphore_data);
 #endif
-    _osSemaphoreId = osSemaphoreNew(INT16_MAX, count, &_osSemaphoreAttr);
+    _osSemaphoreId = osSemaphoreNew(UINT16_MAX, count, &_osSemaphoreAttr);
     MBED_ASSERT(_osSemaphoreId != NULL);
 }
 
-int32_t Semaphore::wait(uint32_t millisec) {
+osStatus_t Semaphore::wait(uint32_t millisec) {
     return osSemaphoreAcquire(_osSemaphoreId, millisec);
 }
 

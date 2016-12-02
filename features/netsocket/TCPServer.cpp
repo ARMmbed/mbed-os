@@ -79,15 +79,15 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
         } else if (NSAPI_ERROR_WOULD_BLOCK != ret) {
             break;
         } else {
-            int32_t count;
+            osStatus_t stat;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            count = _accept_sem.wait(_timeout);
+            stat = _accept_sem.wait(_timeout);
             _lock.lock();
 
-            if (count < 1) {
+            if (stat != osOK) {
                 // Semaphore wait timed out so break out and return
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
@@ -101,8 +101,8 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 
 void TCPServer::event()
 {
-    int32_t acount = _accept_sem.wait(0);
-    if (acount <= 1) {
+    osStatus_t astat = _accept_sem.wait(0);
+    if (astat <= osOK) {
         _accept_sem.release();
     }
 
