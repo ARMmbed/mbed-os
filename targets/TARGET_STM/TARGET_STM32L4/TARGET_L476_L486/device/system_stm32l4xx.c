@@ -26,21 +26,19 @@
   *
   *   This file configures the system clock as follows:
   *=============================================================================
-  * System clock source                | 1- PLL_HSE_EXTC        | 3- PLL_HSI
-  *                                    | (external 8 MHz clock) | (internal 16 MHz)
-  *                                    | 2- PLL_HSE_XTAL        | or PLL_MSI
-  *                                    | (external 8 MHz xtal)  | (internal 4 MHz)
-  *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * USB capable (48 MHz precise clock) | YES                    | NO
-  *-----------------------------------------------------------------------------
+  * System clock source                | PLL_HSE                     | PLL_HSI           | PLL_MSI
+  *                                    | (external 4 to 48 MHz xtal) | (internal 16 MHz) | (internal 100kHz to 48 MHz)
+  *---------------------------------------------------------------------------------------------
+  * SYSCLK(MHz)                        | 48                          | 80                | 80
+  *---------------------------------------------------------------------------------------------
+  * AHBCLK (MHz)                       | 48                          | 80                | 80
+  *---------------------------------------------------------------------------------------------
+  * APB1CLK (MHz)                      | 48                          | 80                | 80
+  *---------------------------------------------------------------------------------------------
+  * APB2CLK (MHz)                      | 48                          | 80                | 80
+  *---------------------------------------------------------------------------------------------
+  * USB capable (48 MHz precise clock) | YES                         | NO                | YES
+  *---------------------------------------------------------------------------------------------
   *=============================================================================
   ******************************************************************************
   * @attention
@@ -131,7 +129,7 @@
   */
 
 // Select the clock sources (default is PLL_MSI) to start with (0=OFF, 1=ON)
-#define USE_PLL_HSE_EXTC (1) // Use external clock
+#define USE_PLL_HSE_EXTC (0) // Use external clock
 #define USE_PLL_HSE_XTAL (0) // Use external xtal
 #define USE_PLL_HSI      (0) // Use HSI/MSI internal clock (0=MSI, 1=HSI)
 #define DEBUG_MCO        (0) // Output the MCO on PA8 for debugging (0=OFF, 1=SYSCLK, 2=HSE, 3=HSI, 4=MSI)
@@ -530,7 +528,8 @@ uint8_t SetSysClock_PLL_MSI(void)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+
   // Enable LSE Oscillator to automatically calibrate the MSI clock
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
@@ -538,32 +537,39 @@ uint8_t SetSysClock_PLL_MSI(void)
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
     RCC->CR |= RCC_CR_MSIPLLEN; // Enable MSI PLL-mode
   }
-  
-  // Enable MSI oscillator and activate PLL with MSI as source
-  RCC_OscInitStruct.OscillatorType       = RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
+
+  HAL_RCCEx_DisableLSECSS();
+   /* Enable MSI Oscillator and activate PLL with MSI as source */
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.MSIState             = RCC_MSI_ON;
   RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
   RCC_OscInitStruct.HSIState             = RCC_HSI_OFF;
-  RCC_OscInitStruct.MSIClockRange        = RCC_MSIRANGE_6;
-  RCC_OscInitStruct.MSICalibrationValue  = RCC_MSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource        = RCC_PLLSOURCE_MSI; // 4 MHz
-  RCC_OscInitStruct.PLL.PLLM             = 1; // VCO input clock = 4 MHz (4 MHz / 1)
-  RCC_OscInitStruct.PLL.PLLN             = 40; // VCO output clock = 160 MHz (4 MHz * 40)
-  RCC_OscInitStruct.PLL.PLLP             = 7; // PLLSAI3 clock = 22.86 MHz (160 MHz / 7)
-  RCC_OscInitStruct.PLL.PLLQ             = 4; // USB clock (PLL48M1) = 40 MHz (160 MHz / 4) --> Not good for USB
-  RCC_OscInitStruct.PLL.PLLR             = 2; // PLL clock = 80 MHz (160 MHz / 2)
+
+  RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_11; /* 48 MHz */
+  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;
+  RCC_OscInitStruct.PLL.PLLM            = 6;    /* 8 MHz */
+  RCC_OscInitStruct.PLL.PLLN            = 40;   /* 320 MHz */
+  RCC_OscInitStruct.PLL.PLLP            = 7;    /* 45 MHz */
+  RCC_OscInitStruct.PLL.PLLQ            = 4;    /* 80 MHz */
+  RCC_OscInitStruct.PLL.PLLR            = 4;    /* 80 MHz */
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     return 0; // FAIL
   }
-  
+   /* Enable MSI Auto-calibration through LSE */
+  HAL_RCCEx_EnableMSIPLLMode();
+  /* Select MSI output as USB clock source */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_MSI; /* 48 MHz */
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
   // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
   RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 80 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 80 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 80 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 80 MHz
+  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; /* 80 MHz */
+  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         /* 80 MHz */
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           /* 80 MHz */
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;           /* 40 MHz */
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     return 0; // FAIL
