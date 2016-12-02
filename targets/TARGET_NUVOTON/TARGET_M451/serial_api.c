@@ -300,8 +300,8 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         MBED_ASSERT(uart_rts == obj->serial.uart);
         // Enable the pin for RTS function
         pinmap_pinout(rxflow, PinMap_UART_RTS);
-        // nRTS pin output is high level active
-        uart_base->MODEM = (uart_base->MODEM & ~UART_MODEM_RTSACTLV_Msk);
+        // nRTS pin output is low level active
+        uart_base->MODEM |= UART_MODEM_RTSACTLV_Msk;
         uart_base->FIFO = (uart_base->FIFO & ~UART_FIFO_RTSTRGLV_Msk) | UART_FIFO_RTSTRGLV_8BYTES;
         // Enable RTS
         uart_base->INTEN |= UART_INTEN_ATORTSEN_Msk;
@@ -313,8 +313,8 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         MBED_ASSERT(uart_cts == obj->serial.uart);
         // Enable the pin for CTS function
         pinmap_pinout(txflow, PinMap_UART_CTS);
-        // nCTS pin input is high level active
-        uart_base->MODEMSTS = (uart_base->MODEMSTS & ~UART_MODEMSTS_CTSACTLV_Msk);
+        // nCTS pin input is low level active
+        uart_base->MODEMSTS |= UART_MODEMSTS_CTSACTLV_Msk;
         // Enable CTS
         uart_base->INTEN |= UART_INTEN_ATOCTSEN_Msk;
     }
