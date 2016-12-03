@@ -137,6 +137,7 @@ typedef enum {
     ADC_TEMP    = 0xF0,
     ADC_VREF1   = 0xF1,
     ADC_VREF2   = 0xF2,
+    ADC_VREF    = ADC_VREF1,
     ADC_VBAT    = 0xF3,
     ADC_VOPAMP2 = 0xF4,
 

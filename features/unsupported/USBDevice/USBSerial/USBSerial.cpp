@@ -56,8 +56,9 @@ bool USBSerial::EPBULK_OUT_callback() {
         buf.queue(c[i]);
     }
 
-    //call a potential handler
-    rx.call();
+    //call a potential handlenr
+    if (rx)
+        rx.call();
 
     return true;
 }

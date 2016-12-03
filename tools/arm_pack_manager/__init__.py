@@ -78,8 +78,6 @@ class Cache () :
     def cache_file (self, url) :
         """Low level interface to caching a single file.
 
-        :param curl: The user is responsible for providing a curl.Curl object as the curl parameter.
-        :type curl: curl.Curl
         :param url: The URL to cache.
         :type url: str
         :rtype: None
@@ -117,10 +115,10 @@ class Cache () :
                 content.package.find('name').get_text() + "." +
                 largest_version(content) + ".pack")
 
-    def cache_pdsc_and_pack (self, curl, url) :
-        self.cache_file(curl, url)
+    def cache_pdsc_and_pack (self, url) :
+        self.cache_file(url)
         try :
-            self.cache_file(curl, self.pdsc_to_pack(url))
+            self.cache_file(self.pdsc_to_pack(url))
         except AttributeError :
             stderr.write("[ ERROR ] {} does not appear to be a conforming .pdsc file\n".format(url))
             self.counter += 1
@@ -433,6 +431,6 @@ class Cache () :
         :return: A parsed representation of the PDSC file.
         :rtype: BeautifulSoup
         """
-        self.cache_file(Curl(), url)
+        self.cache_file(url)
         return self.pdsc_from_cache(url)
 

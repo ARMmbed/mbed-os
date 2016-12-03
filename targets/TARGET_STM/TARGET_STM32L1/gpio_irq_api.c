@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -261,8 +261,10 @@ void gpio_irq_free(gpio_irq_t *obj)
 {
     gpio_channel_t *gpio_channel = &channels[obj->irq_index];
     uint32_t pin_index  = STM_PIN(obj->pin);
+    uint32_t gpio_addr = GPIOA_BASE + (GPIOB_BASE-GPIOA_BASE) * STM_PORT(obj->pin);
     uint32_t gpio_idx = pin_base_nr[pin_index];
-
+    
+    HAL_GPIO_DeInit((GPIO_TypeDef *)gpio_addr, (1<<pin_index));
     gpio_channel->pin_mask &= ~(1 << gpio_idx);
     gpio_channel->channel_ids[gpio_idx] = 0;
     gpio_channel->channel_gpio[gpio_idx] = 0;

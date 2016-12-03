@@ -111,6 +111,7 @@ struct analogin_s {
     AdcReg_pt             adcReg;
     PinName               pin;
     uint8_t               pinFlag;
+    uint32_t              ADC_Offset_Value;
 };
 
 struct pwmout_s {
