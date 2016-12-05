@@ -249,13 +249,14 @@ void USBHost::usb_process() {
 
 USBHost::USBHost() : usbThread(osPriorityNormal, USB_THREAD_STACK)
 {
+#ifndef USBHOST_OTHER
     headControlEndpoint = NULL;
     headBulkEndpoint = NULL;
     headInterruptEndpoint = NULL;
     tailControlEndpoint = NULL;
     tailBulkEndpoint = NULL;
     tailInterruptEndpoint = NULL;
-
+#endif
     lenReportDescr = 0;
 
     controlEndpointAllocated = false;
@@ -312,6 +313,12 @@ void USBHost::transferCompleted(volatile uint32_t addr)
         if (td->ep != NULL) {
             USBEndpoint * ep = (USBEndpoint *)(td->ep);
 
+#ifdef USBHOST_OTHER
+            state =  ((HCTD *)td)->state;
+            if (state == USB_TYPE_IDLE)
+                ep->setLengthTransferred((uint32_t)td->currBufPtr - (uint32_t)ep->getBufStart());
+
+#else
             if (((HCTD *)td)->control >> 28) {
                 state = ((HCTD *)td)->control >> 28;
             } else {
@@ -319,6 +326,9 @@ void USBHost::transferCompleted(volatile uint32_t addr)
                     ep->setLengthTransferred((uint32_t)td->currBufPtr - (uint32_t)ep->getBufStart());
                 state = 16 /*USB_TYPE_IDLE*/;
             }
+#endif
+            if (state == USB_TYPE_IDLE)
+                ep->setLengthTransferred((uint32_t)td->currBufPtr - (uint32_t)ep->getBufStart());
 
             ep->unqueueTransfer(td);
 
@@ -428,8 +438,10 @@ void USBHost::freeDevice(USBDeviceConnected * dev)
                 USB_DBG("FREE INTF %d on dev: %p, %p, nb_endpot: %d, %s", j, (void *)dev->getInterface(j), dev, dev->getInterface(j)->nb_endpoint, dev->getName(j));
                 for (int i = 0; i < dev->getInterface(j)->nb_endpoint; i++) {
                     if ((ep = dev->getEndpoint(j, i)) != NULL) {
+#ifndef USBHOST_OTHER
                         ed = (HCED *)ep->getHCED();
                         ed->control |= (1 << 14); //sKip bit
+#endif
                         unqueueEndpoint(ep);
 
                         freeTD((volatile uint8_t*)ep->getTDList()[0]);
@@ -450,6 +462,9 @@ void USBHost::freeDevice(USBDeviceConnected * dev)
 
 void USBHost::unqueueEndpoint(USBEndpoint * ep)
 {
+#ifdef USBHOST_OTHER
+    ep->setState(USB_TYPE_FREE);
+#else
     USBEndpoint * prec = NULL;
     USBEndpoint * current = NULL;
 
@@ -499,6 +514,7 @@ void USBHost::unqueueEndpoint(USBEndpoint * ep)
             current = current->nextEndpoint();
         }
     }
+#endif
 }
 
 
@@ -563,8 +579,10 @@ bool USBHost::addEndpoint(USBDeviceConnected * dev, uint8_t intf_nb, USBEndpoint
         return false;
     }
 
+#ifndef USBHOST_OTHER
     HCED * prevEd;
 
+#endif
     // set device address in the USBEndpoint descriptor
     if (dev == NULL) {
         ep->setDeviceAddress(0);
@@ -578,6 +596,7 @@ bool USBHost::addEndpoint(USBDeviceConnected * dev, uint8_t intf_nb, USBEndpoint
 
     ep->setIntfNb(intf_nb);
 
+#ifndef USBHOST_OTHER
     // queue the new USBEndpoint on the ED list
     switch (ep->getType()) {
 
@@ -625,6 +644,7 @@ bool USBHost::addEndpoint(USBDeviceConnected * dev, uint8_t intf_nb, USBEndpoint
             return false;
     }
 
+#endif
     ep->dev = dev;
     dev->addEndpoint(intf_nb, ep);
 
@@ -659,7 +679,7 @@ int USBHost::findDevice(uint8_t hub, uint8_t port, USBHostHub * hub_parent)
 
 void USBHost::printList(ENDPOINT_TYPE type)
 {
-#if DEBUG_EP_STATE
+#if defined(DEBUG_EP_STATE) && !defined(USBHOST_OTHER)
     volatile HCED * hced;
     switch(type) {
         case CONTROL_ENDPOINT:
@@ -708,6 +728,7 @@ USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
         return USB_TYPE_ERROR;
     }
 
+#ifndef USBHOST_OTHER 
     uint32_t token = (ed->isSetup() ? TD_SETUP : ( (ed->getDir() == IN) ? TD_IN : TD_OUT ));
 
     uint32_t td_toggle;
@@ -732,6 +753,12 @@ USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
     ed->queueTransfer();
     printList(type);
     enableList(type);
+#else
+	/*  call method specific for endpoint  */
+	td->currBufPtr   = buf;
+	td->size = len;
+	ret = ed->queueTransfer();
+#endif
 
     td_mutex.unlock();
 
