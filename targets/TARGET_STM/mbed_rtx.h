@@ -584,7 +584,7 @@
 #define OS_MAINSTKSIZE          256
 #endif
 #ifndef OS_CLOCK
-#define OS_CLOCK                24000000
+#define OS_CLOCK                32000000
 #endif
 
 #elif defined(TARGET_NZ32_SC151)
