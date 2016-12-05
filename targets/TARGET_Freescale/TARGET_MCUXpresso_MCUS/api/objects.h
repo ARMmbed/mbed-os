@@ -23,6 +23,9 @@
 #if DEVICE_SPI_ASYNCH
 #include "fsl_dspi_edma.h"
 #endif
+#if DEVICE_SERIAL_ASYNCH
+#include "fsl_uart_edma.h"
+#endif
 #include "dma_api_hal.h"
 
 #ifdef __cplusplus
@@ -46,6 +49,15 @@ struct pwmout_s {
 
 struct serial_s {
     int index;
+#if DEVICE_SERIAL_ASYNCH
+    uint8_t txstate;
+    uint8_t rxstate;
+    uint32_t events;
+    uart_handle_t uart_transfer_handle;
+    uart_edma_handle_t uart_dma_handle;
+    dma_options_t uartDmaTx;
+    dma_options_t uartDmaRx;
+#endif
 };
 
 struct analogin_s {
