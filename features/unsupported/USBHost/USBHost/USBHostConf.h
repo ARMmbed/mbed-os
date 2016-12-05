@@ -16,7 +16,70 @@
 
 #ifndef USBHOST_CONF_H
 #define USBHOST_CONF_H
+#if defined(TARGET_STM)
+/*
+* Maximum number of devices that can be connected
+* to the usb host
+*/
+/*   hub + 2 devices */
+#define MAX_DEVICE_CONNECTED        3
 
+/*
+* Maximum of Hub connected to the usb host
+*/
+#define MAX_HUB_NB                  0
+
+/*
+* Maximum number of ports on a USB hub
+*/
+#define MAX_HUB_PORT                2
+
+/*
+* Enable USBHostMSD
+*/
+#define USBHOST_MSD                 1
+
+/*
+* Enable USBHostKeyboard
+*/
+#define USBHOST_KEYBOARD            1
+
+/*
+* Enable USBHostMouse
+*/
+#define USBHOST_MOUSE               1
+
+/*
+* Enable USBHostSerial or USBHostMultiSerial (if set > 1)
+*/
+#define USBHOST_SERIAL              1
+
+/*
+* Enable USB3Gmodule
+*/
+#define USBHOST_3GMODULE            1
+
+/*
+* Enable USB MIDI
+*/
+#define USBHOST_MIDI                1
+
+/*
+* Maximum number of interfaces of a usb device
+*/
+#define MAX_INTF                    2
+
+/*
+* Maximum number of endpoints on each interface
+*/
+#define MAX_ENDPOINT_PER_INTERFACE  2
+
+/*
+* Maximum number of endpoint descriptors that can be allocated
+*/
+#define MAX_ENDPOINT               11 /*  USB FS 11 channel */
+
+#else
 /*
 * Maximum number of devices that can be connected
 * to the usb host
@@ -77,7 +140,7 @@
 * Maximum number of endpoint descriptors that can be allocated
 */
 #define MAX_ENDPOINT                (MAX_DEVICE_CONNECTED * MAX_INTF * MAX_ENDPOINT_PER_INTERFACE)
-
+#endif
 /*
 * Maximum number of transfer descriptors that can be allocated
 */
@@ -86,6 +149,6 @@
 /*
 * usb_thread stack size
 */
-#define USB_THREAD_STACK            (256*4 + MAX_HUB_NB*256*4)
+#define USB_THREAD_STACK            (256*4 + 2*256*4)
 
 #endif
