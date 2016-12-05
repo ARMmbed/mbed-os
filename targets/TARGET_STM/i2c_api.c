@@ -128,15 +128,27 @@ void i2c_ev_err_enable(i2c_t *obj, uint32_t handler) {
     struct i2c_s *obj_s = I2C_S(obj);
     IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
     IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
+    /*  default prio in master case is set to 2 */
+    uint32_t prio = 2;
 
-    /* Set up event IT using IRQ and handler tables */
+    /* Set up ITs using IRQ and handler tables */
     NVIC_SetVector(irq_event_n, handler);
-    HAL_NVIC_SetPriority(irq_event_n, 0, 0);
-    HAL_NVIC_EnableIRQ(irq_event_n);
-    /* Set up error IT using IRQ and handler tables */
     NVIC_SetVector(irq_error_n, handler);
-    HAL_NVIC_SetPriority(irq_error_n, 0, 1);
-    HAL_NVIC_EnableIRQ(irq_error_n);
+
+#if DEVICE_I2CSLAVE
+    /*  Set higher priority to slave device than master.
+     *  In case a device makes use of both master and slave, the
+     *  slave needs higher responsiveness.
+     */
+    if (obj_s->slave) {
+        prio = 1;
+    }
+#endif
+
+    NVIC_SetPriority(irq_event_n, prio);
+    NVIC_SetPriority(irq_error_n, prio);
+    NVIC_EnableIRQ(irq_event_n);
+    NVIC_EnableIRQ(irq_error_n);
 }
 
 void i2c_ev_err_disable(i2c_t *obj) {
