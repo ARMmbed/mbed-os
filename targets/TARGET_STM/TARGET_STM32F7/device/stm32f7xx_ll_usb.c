@@ -1520,6 +1520,8 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
       
       /* Write packet into the Tx FIFO. */
       USB_WritePacket(USBx, hc->xfer_buff, hc->ch_num, hc->xfer_len, 0);
+      hc->xfer_count = hc->xfer_len;
+
     }
   }
   
