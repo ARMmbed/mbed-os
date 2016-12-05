@@ -45,4 +45,18 @@
         kDmaRequestMux0SPI0Rx, kDmaRequestMux0SPI1, kDmaRequestMux0SPI2 \
     }
 
+/* Array for UART DMA TX requests */
+#define UART_DMA_TX_REQUEST_NUMBERS                                            \
+    {                                                                            \
+        kDmaRequestMux0UART0Tx, kDmaRequestMux0UART1Tx, kDmaRequestMux0UART2Tx,  \
+        kDmaRequestMux0UART3Tx, kDmaRequestMux0UART4, kDmaRequestMux0UART5       \
+    }
+
+/* Array for UART DMA RX requests */
+#define UART_DMA_RX_REQUEST_NUMBERS                                            \
+    {                                                                            \
+        kDmaRequestMux0UART0Rx, kDmaRequestMux0UART1Rx, kDmaRequestMux0UART2Rx,  \
+        kDmaRequestMux0UART3Rx, kDmaRequestMux0UART4, kDmaRequestMux0UART5       \
+    }
+
 #endif /* _FSL_DMA_REQS_H_ */
