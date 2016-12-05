@@ -699,7 +699,8 @@ void USBHost::printList(ENDPOINT_TYPE type)
 // add a transfer on the TD linked list
 USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
 {
-    td_mutex.lock();
+    USB_TYPE ret=USB_TYPE_PROCESSING;
+	td_mutex.lock();
 
     // allocate a TD which will be freed in TDcompletion
     volatile HCTD * td = ed->getNextTD();
@@ -734,7 +735,7 @@ USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
 
     td_mutex.unlock();
 
-    return USB_TYPE_PROCESSING;
+    return ret;
 }
 
 
@@ -1033,9 +1034,9 @@ USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, ui
         printf("\r\n\r\n");
     }
 #endif
-    addTransfer(ep, buf, len);
+    res = addTransfer(ep, buf, len);
 
-    if (blocking) {
+    if ((blocking)&& (res == USB_TYPE_PROCESSING)) {
 
         ep->ep_queue.get();
         res = ep->getState();
@@ -1049,7 +1050,7 @@ USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, ui
         return USB_TYPE_OK;
     }
 
-    return USB_TYPE_PROCESSING;
+    return res;
 
 }
 
@@ -1090,9 +1091,9 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
 #endif
 
     control->setNextToken(TD_SETUP);
-    addTransfer(control, (uint8_t*)setupPacket, 8);
+    res = addTransfer(control, (uint8_t*)setupPacket, 8);
 
-    control->ep_queue.get();
+    if (res == USB_TYPE_PROCESSING) control->ep_queue.get();
     res = control->getState();
 
     USB_DBG_TRANSFER("CONTROL setup stage %s", control->getStateString());
@@ -1104,9 +1105,9 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
     if (length_transfer) {
         token = (write) ? TD_OUT : TD_IN;
         control->setNextToken(token);
-        addTransfer(control, (uint8_t *)buf, length_transfer);
+        res = addTransfer(control, (uint8_t *)buf, length_transfer);
 
-        control->ep_queue.get();
+        if (res == USB_TYPE_PROCESSING) control->ep_queue.get();
         res = control->getState();
 
 #if DEBUG_TRANSFER
@@ -1131,9 +1132,9 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
 
     token = (write) ? TD_IN : TD_OUT;
     control->setNextToken(token);
-    addTransfer(control, NULL, 0);
+    res = addTransfer(control, NULL, 0);
 
-    control->ep_queue.get();
+    if (res == USB_TYPE_PROCESSING) control->ep_queue.get();
     res = control->getState();
 
     USB_DBG_TRANSFER("CONTROL ack stage %s", control->getStateString());
