@@ -34,9 +34,10 @@ namespace rtos {
 class Semaphore {
 public:
     /** Create and Initialize a Semaphore object used for managing resources.
-      @param number of available resources; maximum index value is (count-1). (default: 0).
+      @param number of available resources (default: 0).
+      @param maximum number of available resources (default: UINT16_MAX)
     */
-    Semaphore(int32_t count=0);
+    Semaphore(int32_t count=0, uint16_t max_count=UINT16_MAX);
 
     /** Wait until a Semaphore resource becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).

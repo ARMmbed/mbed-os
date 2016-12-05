@@ -26,13 +26,13 @@
 
 namespace rtos {
 
-Semaphore::Semaphore(int32_t count) {
+Semaphore::Semaphore(int32_t count, uint16_t max_count) {
 #ifdef CMSIS_OS_RTX
     memset(_semaphore_data, 0, sizeof(_semaphore_data));
     _osSemaphoreAttr.cb_mem = _semaphore_data;
     _osSemaphoreAttr.cb_size = sizeof(_semaphore_data);
 #endif
-    _osSemaphoreId = osSemaphoreNew(UINT16_MAX, count, &_osSemaphoreAttr);
+    _osSemaphoreId = osSemaphoreNew(max_count, count, &_osSemaphoreAttr);
     MBED_ASSERT(_osSemaphoreId != NULL);
 }
 
