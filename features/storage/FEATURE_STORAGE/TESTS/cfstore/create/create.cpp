@@ -536,11 +536,11 @@ int32_t cfstore_create_test_05_core(const size_t call_count)
         snprintf(kv_name_tag_buf, kv_name_tag_len+1, "%0d", (int) i);
         ret = cfstore_create_kv_create(kv_name_min_len, kv_name_tag_buf, value_buf, kv_value_min_len/64 * (i+1));
         if(ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY){
-            CFSTORE_ERRLOG("Out of memory on %d-th KV, trying to allocate memory totalling %d.\n", (int) i, (int) bytes_stored);
+            CFSTORE_ERRLOG("Out of memory on %d-th KV.\n", (int) i);
             break;
         }
         /* revert CFSTORE_LOG for more trace */
-        CFSTORE_DBGLOG("Successfully stored %d-th KV bytes,  totalling %d.\n", (int) i, (int) bytes_stored);
+        CFSTORE_DBGLOG("Successfully stored %d-th KV.\n", (int) i);
     }
     ret = cfstore_test_delete_all();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete_all() attributes to clean up after test.\n", __func__);
