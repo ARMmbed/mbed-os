@@ -67,7 +67,7 @@ public:
     /**
     * Queue a transfer on the endpoint
     */
-    void queueTransfer();
+    USB_TYPE queueTransfer();
 
     /**
     * Unqueue a transfer from the endpoint

@@ -132,7 +132,7 @@ const char * USBEndpoint::getStateString() {
     return type_string[state].str;
 }
 
-void USBEndpoint::queueTransfer()
+USB_TYPE USBEndpoint::queueTransfer()
 {
     transfer_len = (uint32_t)td_current->bufEnd - (uint32_t)td_current->currBufPtr + 1;
     transferred = transfer_len;
@@ -142,6 +142,7 @@ void USBEndpoint::queueTransfer()
     state = USB_TYPE_PROCESSING;
     td_current->nextTD = (hcTd*)td_next;
     hced->tailTD = td_next;
+    return USB_TYPE_PROCESSING;
 }
 
 void USBEndpoint::unqueueTransfer(volatile HCTD * td)
