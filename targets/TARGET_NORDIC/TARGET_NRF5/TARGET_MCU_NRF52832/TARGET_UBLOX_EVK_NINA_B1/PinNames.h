@@ -116,7 +116,6 @@ typedef enum {
 
 typedef enum {
     PullNone = 0,
-    PullNone = 0,
     PullDown = 1,
     PullUp = 3,
     PullDefault = PullUp
