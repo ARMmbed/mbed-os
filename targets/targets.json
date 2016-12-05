@@ -868,7 +868,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "F429_F439"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
-        "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "detect_code": ["0796"],
         "features": ["LWIP"],
@@ -883,12 +883,12 @@
         "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "F429_F439"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f439zi"},
-        "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "detect_code": ["0797"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F429ZI"
+        "device_name" : "STM32F439ZI"
     },
     "NUCLEO_F446RE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -2490,6 +2490,7 @@
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
+        "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"}, 
         "device_name": "nRF52832_xxAA"
     },
     "BLUEPILL_F103C8": {
