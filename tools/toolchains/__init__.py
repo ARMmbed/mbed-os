@@ -472,7 +472,7 @@ class mbedToolchain:
 
             # This is a policy decision and it should /really/ be in the config system
             # ATM it's here for backward compatibility
-            if (("-g" in self.flags['common'] and
+            if ((("-g" in self.flags['common'] or "-g3" in self.flags['common']) and
                  "-O0") in self.flags['common'] or
                 ("-r" in self.flags['common'] and
                  "-On" in self.flags['common'])):
