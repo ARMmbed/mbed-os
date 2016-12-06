@@ -36,22 +36,22 @@
 static RTC_HandleTypeDef RtcHandle;
 
 #if RTC_LSI
-    #define RTC_CLOCK LSI_VALUE
+#define RTC_CLOCK LSI_VALUE
 #else
-    #define RTC_CLOCK LSE_VALUE
+#define RTC_CLOCK LSE_VALUE
 #endif
 
 #if DEVICE_LOWPOWERTIMER
-    #define RTC_ASYNCH_PREDIV ((RTC_CLOCK - 1) / 0x8000)
-    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
+#define RTC_ASYNCH_PREDIV ((RTC_CLOCK - 1) / 0x8000)
+#define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
 #else
-    #define RTC_ASYNCH_PREDIV (0x007F)
-    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
+#define RTC_ASYNCH_PREDIV (0x007F)
+#define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
 #endif
 
 #if DEVICE_LOWPOWERTIMER
-    static void (*irq_handler)(void);
-    static void RTC_IRQHandler(void);
+static void (*irq_handler)(void);
+static void RTC_IRQHandler(void);
 #endif
 
 void rtc_init(void)
@@ -70,20 +70,16 @@ void rtc_init(void)
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
 
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-    }
-    else
-    {
-	      error("Cannot initialize RTC with LSE\n");
+    } else {
+        error("Cannot initialize RTC with LSE\n");
     }
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 
@@ -100,8 +96,7 @@ void rtc_init(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("Cannot initialize RTC with LSI\n");
     }
 
@@ -110,8 +105,7 @@ void rtc_init(void)
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("PeriphClkInitStruct RTC failed with LSI\n");
     }
 
@@ -258,16 +252,13 @@ void rtc_write(time_t t)
 int rtc_isenabled(void)
 {
 #if DEVICE_LOWPOWERTIMER
-  if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS)
-  {
-      return 1;
-  }
-  else
-  {
-      return 0;
-  }
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
+        return 1;
+    } else {
+        return 0;
+    }
 #else /* DEVICE_LOWPOWERTIMER */
-  return 1;
+    return 1;
 #endif /* DEVICE_LOWPOWERTIMER */
 }
 
