@@ -55,8 +55,8 @@ uint32_t lp_ticker_read(void)
     lp_ticker_init();
 
     do {
-      time = rtc_read();
-      usecs = rtc_read_subseconds();
+        time = rtc_read();
+        usecs = rtc_read_subseconds();
     } while (time != rtc_read());
 
     return (time * 1000000) + usecs;
