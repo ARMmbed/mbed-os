@@ -104,7 +104,8 @@ public:
     * Call the handler associted to the end of a transfer
     */
     inline void call() {
-        rx.call();
+        if (rx)
+            rx.call();
     };
 
 
