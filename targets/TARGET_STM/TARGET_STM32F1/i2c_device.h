@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,49 +27,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#ifndef MBED_I2C_DEVICE_H
+#define MBED_I2C_DEVICE_H
 
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct gpio_irq_s {
-    IRQn_Type irq_n;
-    uint32_t irq_index;
-    uint32_t event;
-    PinName pin;
-};
+#ifdef DEVICE_I2C
 
-struct port_s {
-    PortName port;
-    uint32_t mask;
-    PinDirection direction;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_out;
-};
+/*  Define IP version */
+#define I2C_IP_VERSION_V1
 
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint8_t channel;
-};
+#define I2C_IT_ALL (I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR)
 
-struct can_s {
-    CANName can;
-    int index;
-};
-
-#include "gpio_object.h"
-#include "common_objects.h"
-
-#ifdef __cplusplus
-}
-#endif
+#endif // DEVICE_I2C
 
 #endif
