@@ -247,7 +247,7 @@ void thread_tasklet_configure_and_connect_to_network(void)
 
     // network name
     MBED_ASSERT(strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) > 0 && strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) < 17);
-    memcpy(thread_tasklet_data_ptr->link_config.name, MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, 16);       
+    memcpy(thread_tasklet_data_ptr->link_config.name, MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME));       
     
     thread_tasklet_data_ptr->link_config.timestamp = MBED_MESH_API_THREAD_CONFIG_COMMISSIONING_DATASET_TIMESTAMP;
     
@@ -267,13 +267,11 @@ void thread_tasklet_configure_and_connect_to_network(void)
     const uint8_t master_key[] = MBED_MESH_API_THREAD_MASTER_KEY;
     MBED_ASSERT(sizeof(master_key) == 16);
     memcpy(thread_tasklet_data_ptr->link_config.master_key, master_key, 16);
-    TRACE_DETAIL("Master key: %s", trace_array(master_key, 16));    
 
     // PSKc
     const uint8_t PSKc[] = MBED_MESH_API_THREAD_CONFIG_PSKC;
     MBED_ASSERT(sizeof(PSKc) == 16);
     memcpy(thread_tasklet_data_ptr->link_config.PSKc, PSKc, 16);
-    TRACE_DETAIL("PSKc: %s", trace_array(PSKc, 16));
 
     // PSKd
     const char PSKd[] = MBED_MESH_API_THREAD_PSKD;
@@ -284,7 +282,6 @@ void thread_tasklet_configure_and_connect_to_network(void)
     ns_dyn_mem_free(device_configuration.PSKd_ptr);
     device_configuration.PSKd_ptr = (uint8_t*)dyn_buf;
     device_configuration.PSKd_len = sizeof(PSKd) - 1;
-    TRACE_DETAIL("PSKd: %s", device_configuration.PSKd_ptr);
 
     thread_tasklet_data_ptr->link_config.key_rotation = 3600;
     thread_tasklet_data_ptr->link_config.key_sequence = 0;
