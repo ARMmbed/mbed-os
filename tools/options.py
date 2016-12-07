@@ -22,7 +22,12 @@ from tools.toolchains import TOOLCHAINS
 from tools.targets import TARGET_NAMES
 from tools.utils import argparse_force_uppercase_type, \
     argparse_lowercase_hyphen_type, argparse_many, \
-    argparse_filestring_type, args_error, argparse_profile_filestring_type
+    argparse_filestring_type, args_error, argparse_profile_filestring_type,\
+    argparse_deprecate
+
+FLAGS_DEPRECATION_MESSAGE = "Please use the --profile argument instead.\n"\
+                            "Documentation may be found in "\
+                            "docs/Toolchain_Profiles.md"
 
 def get_default_options_parser(add_clean=True, add_options=True,
                                add_app_config=False):
@@ -59,14 +64,17 @@ def get_default_options_parser(add_clean=True, add_options=True,
                         help="print Warnings, and Errors in color",
                         action="store_true", default=False)
 
-    parser.add_argument("--cflags", default=[], action="append",
-                        help="Extra flags to provide to the C compiler")
+    parser.add_argument("--cflags",
+                        type=argparse_deprecate(FLAGS_DEPRECATION_MESSAGE),
+                        help="Deprecated. " + FLAGS_DEPRECATION_MESSAGE)
 
-    parser.add_argument("--asmflags", default=[], action="append",
-                        help="Extra flags to provide to the assembler")
+    parser.add_argument("--asmflags",
+                        type=argparse_deprecate(FLAGS_DEPRECATION_MESSAGE),
+                        help="Deprecated. " + FLAGS_DEPRECATION_MESSAGE)
 
-    parser.add_argument("--ldflags", default=[], action="append",
-                        help="Extra flags to provide to the linker")
+    parser.add_argument("--ldflags",
+                        type=argparse_deprecate(FLAGS_DEPRECATION_MESSAGE),
+                        help="Deprecated. " + FLAGS_DEPRECATION_MESSAGE)
 
     if add_clean:
         parser.add_argument("-c", "--clean", action="store_true", default=False,
