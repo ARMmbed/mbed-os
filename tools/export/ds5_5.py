@@ -20,6 +20,7 @@ from os.path import basename
 
 class DS5_5(Exporter):
     NAME = 'DS5'
+    TOOLCHAIN = 'ARM'
 
     TARGETS = [
         'LPC1768',
