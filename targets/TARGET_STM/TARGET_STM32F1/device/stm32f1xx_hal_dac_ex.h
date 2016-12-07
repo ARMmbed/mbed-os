@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    29-April-2016
+  * @version V1.0.5
+  * @date    06-December-2016
   * @brief   Header file of DAC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -96,16 +96,6 @@
   * @}
   */
 
-/** @defgroup DACEx_wave_generation DACEx wave generation
-  * @{
-  */
-#define DAC_WAVE_NOISE                     ((uint32_t)DAC_CR_WAVE1_0)
-#define DAC_WAVE_TRIANGLE                  ((uint32_t)DAC_CR_WAVE1_1)
-
-/**
-  * @}
-  */
-   
 /** @defgroup DACEx_trigger_selection DAC trigger selection
   * @{
   */
