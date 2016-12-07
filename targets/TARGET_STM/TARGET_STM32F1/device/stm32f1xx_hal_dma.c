@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    29-April-2016
+  * @version V1.0.5
+  * @date    06-December-2016
   * @brief   DMA HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -420,6 +420,49 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   __HAL_UNLOCK(hdma);
   
   return HAL_OK;
+}
+
+/**
+  * @brief  Aborts the DMA Transfer in Interrupt mode.
+  * @param  hdma  : pointer to a DMA_HandleTypeDef structure that contains
+  *                 the configuration information for the specified DMA Stream.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma)
+{  
+  HAL_StatusTypeDef status = HAL_OK;
+  
+  if(HAL_DMA_STATE_BUSY != hdma->State)
+  {
+    /* no transfer ongoing */
+    hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
+
+    status = HAL_ERROR;
+  }
+  else
+  {
+    /* Disable DMA IT */
+    __HAL_DMA_DISABLE_IT(hdma, (DMA_IT_TC | DMA_IT_HT | DMA_IT_TE));
+
+    /* Disable the channel */
+    __HAL_DMA_DISABLE(hdma);
+
+    /* Clear all flags */
+    __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_GI_FLAG_INDEX(hdma));
+
+    /* Change the DMA state */
+    hdma->State = HAL_DMA_STATE_READY;
+
+    /* Process Unlocked */
+    __HAL_UNLOCK(hdma);
+
+    /* Call User Abort callback */
+    if(hdma->XferAbortCallback != NULL)
+    {
+      hdma->XferAbortCallback(hdma);
+    } 
+  }
+  return status;
 }
 
 /**
