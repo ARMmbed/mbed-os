@@ -32,6 +32,7 @@ Mutex::Mutex() {
     memset(_mutex_data, 0, sizeof(_mutex_data));
     _osMutexAttr.cb_mem = _mutex_data;
     _osMutexAttr.cb_size = sizeof(_mutex_data);
+    _osMutexAttr.attr_bits = osMutexRecursive;
 #endif
     _osMutexId = osMutexNew(&_osMutexAttr);
     MBED_ASSERT(_osMutexId);
