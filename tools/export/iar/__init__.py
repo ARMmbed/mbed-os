@@ -7,7 +7,7 @@ import re
 import sys
 
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, TargetNotSupportedException
 import json
 from tools.export.cmsis import DeviceCMSIS
 from multiprocessing import cpu_count
@@ -108,7 +108,7 @@ class IAR(Exporter):
 
         try:
             debugger = DeviceCMSIS(self.target).debug.replace('-','').upper()
-        except:
+        except TargetNotSupportedException:
             debugger = "CMSISDAP"
 
         ctx = {
