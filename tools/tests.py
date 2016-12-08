@@ -1026,7 +1026,11 @@ TESTS = [
         "source_dir": join(TEST_DIR, "usb", "host", "mass_storage"),
         "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, FAT_FS, RTOS],
     },
-
+    {
+        "id": "USB_11", "description": "mouse",
+        "source_dir": join(TEST_DIR, "usb", "host", "mouse"),
+        "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, RTOS],
+    },
     # CMSIS DSP
     {
         "id": "CMSIS_DSP_1", "description": "FIR",
