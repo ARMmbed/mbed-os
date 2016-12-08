@@ -196,8 +196,6 @@ void bootloader_util_app_start(uint32_t start_addr)
     // kill systick
     SysTick->CTRL  = 0;
 #endif    
-    // disable all interrupts
-    core_util_critical_section_enter();
     
     bootloader_util_reset(start_addr);
 }
