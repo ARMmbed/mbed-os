@@ -977,7 +977,8 @@ TESTS = [
         "supported": CORTEX_ARM_SUPPORT,
     },
 
-    # USB Tests
+    # USB Tests 
+    # USB device test list
     {
         "id": "USB_1", "description": "Mouse",
         "source_dir": join(TEST_DIR, "usb", "device", "basic"),
@@ -1017,6 +1018,12 @@ TESTS = [
         "id": "USB_8", "description": "AUDIO_CB",
         "source_dir": join(TEST_DIR, "usb", "device", "audio_cb"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+    },
+    # USB host test list
+    {
+        "id": "USB_10", "description": "MSD",
+        "source_dir": join(TEST_DIR, "usb", "host", "mass_storage"),
+        "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, FAT_FS, RTOS],
     },
 
     # CMSIS DSP
