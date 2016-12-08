@@ -24,7 +24,7 @@
 #include <math.h>
 #include <string.h>
 
-#define CAN_NUM    1
+#define CAN_NUM    2
 static CAN_HandleTypeDef CanHandle;
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
@@ -36,9 +36,34 @@ void can_init(can_t *obj, PinName rd, PinName td)
     obj->can = (CANName)pinmap_merge(can_rd, can_td);
     MBED_ASSERT((int)obj->can != NC);    
 
-    if(obj->can == CAN_1) {
-        __HAL_RCC_CAN1_CLK_ENABLE();
+    //if(obj->can == CAN_1) {
+    //    __HAL_RCC_CAN1_CLK_ENABLE();
+    //    obj->index = 0;
+    //}
+    CAN1->FA1R = 0;
+    switch ((int)obj->can){
+    case CAN_1:
+        __CAN1_CLK_ENABLE();
+        __CAN1_FORCE_RESET();
+        __CAN1_RELEASE_RESET();
         obj->index = 0;
+        CAN1->FMR |= CAN_FMR_FINIT;
+        CAN1->FA1R &= 0xffff0000;
+        CAN1->FMR &= ~CAN_FMR_FINIT;
+        break;
+#if defined(STM32F105xC) || defined(STM32F107xC)
+    default:
+        __CAN2_CLK_ENABLE();
+        __CAN2_FORCE_RESET();
+        __CAN2_RELEASE_RESET();
+        obj->index = 1;
+        CAN1->FMR |= CAN_FMR_FINIT;
+        CAN1->FMR &= (uint32_t)0xFFFFC0F1;
+        CAN1->FMR |= (uint32_t)(14) << 8;
+        CAN1->FA1R &= 0xffff;
+        CAN1->FMR &= ~CAN_FMR_FINIT;
+        break;
+#endif	
     }
 
     // Configure the CAN pins
@@ -68,8 +93,8 @@ void can_init(can_t *obj, PinName rd, PinName td)
     if (HAL_CAN_Init(&CanHandle) != HAL_OK) {
        error("Cannot initialize CAN");
     }
-    // Set initial CAN frequency to 100kb/s
-    can_frequency(obj, 100000);
+    // Set initial CAN frequency to 250kb/s
+    can_frequency(obj, 250000);
 
     can_filter(obj, 0, 0, CANStandard, 0);
 }
@@ -96,7 +121,23 @@ void can_free(can_t *obj)
         __HAL_RCC_CAN1_FORCE_RESET();
         __HAL_RCC_CAN1_RELEASE_RESET();
         __HAL_RCC_CAN1_CLK_DISABLE();
+        NVIC_DisableIRQ((IRQn_Type)CAN1_TX_IRQn);
+        NVIC_DisableIRQ((IRQn_Type)CAN1_RX0_IRQn);
+        NVIC_DisableIRQ((IRQn_Type)CAN1_RX1_IRQn);
+        NVIC_DisableIRQ((IRQn_Type)CAN1_SCE_IRQn);
     }
+#if defined(STM32F105xC) || defined(STM32F107xC)
+    else{
+        __HAL_RCC_CAN2_FORCE_RESET();
+        __HAL_RCC_CAN2_RELEASE_RESET();
+        __HAL_RCC_CAN2_CLK_DISABLE();
+        NVIC_DisableIRQ((IRQn_Type)CAN2_TX_IRQn);
+        NVIC_DisableIRQ((IRQn_Type)CAN2_RX0_IRQn);
+        NVIC_DisableIRQ((IRQn_Type)CAN2_RX1_IRQn);
+        NVIC_DisableIRQ((IRQn_Type)CAN2_SCE_IRQn);
+        id = 1;
+    }
+#endif	
 }
 
 // The following table is used to program bit_timing. It is an adjustment of the sample
@@ -347,25 +388,129 @@ int can_mode(can_t *obj, CanMode mode)
     return success;
 }
 
-int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
-{
-    CanHandle.Instance = (CAN_TypeDef *)(obj->can);
-    CAN_FilterConfTypeDef  sFilterConfig;
-    
-    sFilterConfig.FilterNumber = handle;
-    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-    sFilterConfig.FilterIdHigh = (uint8_t) (id >> 8);
-    sFilterConfig.FilterIdLow = (uint8_t) id;
-    sFilterConfig.FilterMaskIdHigh = (uint8_t) (mask >> 8);
-    sFilterConfig.FilterMaskIdLow = (uint8_t) mask;
-    sFilterConfig.FilterFIFOAssignment = 0;
-    sFilterConfig.FilterActivation = ENABLE;
-    sFilterConfig.BankNumber = 14;
-  
-    HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);
-      
+#define GET_CAF_FUNCTION(CAFF)	((CAFF>>16)&0xFFFF)
+#define CAF_FUNCTION(CAFF)	    ((CAFF<<16)&0xFFFF0000)
+
+enum CAN_FilterFunction{
+    CAF_Compatible = 0,
+    CAF_NXP_Group,
+    CAF_NXP_FullCAN,
+    CAF_STM_TWO16BIT_MASK,
+    CAF_STM_TWO16BIT_LIST,
+    CAF_STM_ONE32BIT_LIST,
+};
+
+#define CAN_AF_CRTL(BIT,LIST,INDEX)	(((BIT)<<16)|((LIST)<<8)|(INDEX))
+#define GET_CTRL_INDEX(CTRL)				(CTRL&0xFF)
+#define GET_CTRL_LIST(CTRL)					((CTRL>>8)&0xFF)
+#define GET_CTRL_BIT(CTRL)					((CTRL>>16)&0xFF)
+static int can_filter2(uint32_t id, uint32_t mask, CANFormat format, int32_t ctrl){
+    CAN_FilterConfTypeDef  filter;
+    int filter_number_bit_pos;
+
+    if (format >= CANExtended){
+        id = id << 3 | 0x4;
+        mask = (mask << 3) | 0x7;
+    } else{
+        id = id << 21;
+        mask = (mask << 21) | 0x7;
+    }
+
+    filter.FilterNumber = GET_CTRL_INDEX(ctrl);
+    filter.FilterScale = GET_CTRL_BIT(ctrl);
+    filter.FilterMode = GET_CTRL_LIST(ctrl);	    //标识符屏蔽位模式：CAN_FilterMode_IdMask,
+                                                    //标识符列表模式：  CAN_FilterMode_IdList
+    filter.FilterIdHigh = (id >> 16) & 0xffff;
+    filter.FilterIdLow = (id & 0xffff);
+    filter.FilterMaskIdHigh = (mask >> 16) & 0xffff;
+    filter.FilterMaskIdLow = (mask & 0xffff);
+    filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    filter.FilterActivation = ENABLE;
+
+    filter_number_bit_pos = ((uint32_t)1) << filter.FilterNumber;
+    CAN1->FMR |= CAN_FMR_FINIT;
+    CAN1->FA1R &= ~(uint32_t)filter_number_bit_pos;
+
+    if (filter.FilterScale == CAN_FILTERSCALE_16BIT){
+        CAN1->FS1R &= ~(uint32_t)filter_number_bit_pos;
+        CAN1->sFilterRegister[filter.FilterNumber].FR1 =
+            ((0x0000FFFF & (uint32_t)filter.FilterMaskIdLow) << 16) |
+            (0x0000FFFF & (uint32_t)filter.FilterIdLow);
+        CAN1->sFilterRegister[filter.FilterNumber].FR2 =
+            ((0x0000FFFF & (uint32_t)filter.FilterMaskIdHigh) << 16) |
+            (0x0000FFFF & (uint32_t)filter.FilterIdHigh);
+    }
+
+    if (filter.FilterScale == CAN_FILTERSCALE_32BIT){
+        CAN1->FS1R |= filter_number_bit_pos;
+        CAN1->sFilterRegister[filter.FilterNumber].FR1 =
+            ((0x0000FFFF & (uint32_t)filter.FilterIdHigh) << 16) |
+            (0x0000FFFF & (uint32_t)filter.FilterIdLow);
+        CAN1->sFilterRegister[filter.FilterNumber].FR2 =
+            ((0x0000FFFF & (uint32_t)filter.FilterMaskIdHigh) << 16) |
+            (0x0000FFFF & (uint32_t)filter.FilterMaskIdLow);
+    }
+    if (filter.FilterMode == CAN_FILTERMODE_IDMASK){
+        CAN1->FM1R &= ~(uint32_t)filter_number_bit_pos;
+    } else{
+        CAN1->FM1R |= (uint32_t)filter_number_bit_pos;
+    }
+    if (filter.FilterFIFOAssignment == CAN_FILTER_FIFO0){
+        CAN1->FFA1R &= ~(uint32_t)filter_number_bit_pos;
+    }
+    if (filter.FilterFIFOAssignment == CAN_FILTER_FIFO1){
+        CAN1->FFA1R |= (uint32_t)filter_number_bit_pos;
+    }
+    if (filter.FilterActivation == ENABLE){
+        CAN1->FA1R |= filter_number_bit_pos;
+    }
+    CAN1->FMR &= ~CAN_FMR_FINIT;
+
     return 0;
+}
+static int can_getFilterIndex(int canctrl){
+    for (int i = canctrl * 14; i < ((canctrl + 1) * 14); i++){
+        if ((CAN1->FA1R & (1 << i)) == 0){
+            return i;
+        }
+    }
+    return -1;
+}
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle){
+    int filterIndex = 0;
+    if ((handle & 0xffff) == 0){
+        filterIndex = can_getFilterIndex(obj->index);
+        if (filterIndex == -1){
+            return filterIndex;
+        }
+    }
+    if (GET_CAF_FUNCTION(handle) == CAF_Compatible){
+        if (format == CANAny){
+            if (!(id & (~0x7ff) || mask & (~0x7ff))){
+                can_filter2(id, mask, CANStandard, CAN_AF_CRTL(CAN_FILTERSCALE_32BIT, CAN_FILTERMODE_IDMASK, filterIndex));
+                /// 无条件自动查找一个空闲的过滤器
+                filterIndex = can_getFilterIndex(obj->index);
+                if (filterIndex == -1){
+                    return filterIndex;
+                }
+                can_filter2(id, mask, CANExtended, CAN_AF_CRTL(CAN_FILTERSCALE_32BIT, CAN_FILTERMODE_IDMASK, filterIndex));
+            } else{
+                can_filter2(id, mask, CANExtended, CAN_AF_CRTL(CAN_FILTERSCALE_32BIT, CAN_FILTERMODE_IDMASK, filterIndex));
+            }
+        } else{
+            can_filter2(id, mask, format, CAN_AF_CRTL(CAN_FILTERSCALE_32BIT, CAN_FILTERMODE_IDMASK, filterIndex));
+        }
+    } else if (GET_CAF_FUNCTION(handle) == CAF_STM_TWO16BIT_MASK){
+        // 16位掩码模式 2个标准标识符,2个掩码
+        can_filter2(id, mask, format, CAN_AF_CRTL(CAN_FILTERSCALE_16BIT, CAN_FILTERMODE_IDMASK, filterIndex));
+    } else if (GET_CAF_FUNCTION(handle) == CAF_STM_TWO16BIT_LIST){
+        // 16位列表模式 4个标准标识符
+        can_filter2(id, mask, format, CAN_AF_CRTL(CAN_FILTERSCALE_16BIT, CAN_FILTERMODE_IDLIST, filterIndex));
+    } else if (GET_CAF_FUNCTION(handle) == CAF_STM_ONE32BIT_LIST){
+        // 32位列表模式 2个扩展标识符
+        can_filter2(id, mask, format, CAN_AF_CRTL(CAN_FILTERSCALE_32BIT, CAN_FILTERMODE_IDLIST, filterIndex));
+    }
+    return filterIndex;
 }
 
 static void can_irq(CANName name, int id) 
@@ -377,6 +522,15 @@ static void can_irq(CANName name, int id)
         tmp1 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_0);
         tmp2 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_1);
         tmp3 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_2);
+        if (tmp1){
+            CanHandle.Instance->TSR |= CAN_TSR_RQCP0;
+        }
+        if (tmp2){
+            CanHandle.Instance->TSR |= CAN_TSR_RQCP1;
+        }
+        if (tmp3){
+            CanHandle.Instance->TSR |= CAN_TSR_RQCP2;
+        }
         if(tmp1 || tmp2 || tmp3)  
         {
             irq_handler(can_irq_ids[id], IRQ_TX);
@@ -426,6 +580,20 @@ void CAN1_SCE_IRQHandler(void)
     can_irq(CAN_1, 0);
 }
 
+#if defined(STM32F105xC) || defined(STM32F107xC)
+void CAN2_RX0_IRQHandler(void){
+    can_irq(CAN_2, 0);
+}
+
+void CAN2_TX_IRQHandler(void){
+    can_irq(CAN_2, 0);
+}
+
+void CAN2_SCE_IRQHandler(void){
+    can_irq(CAN_2, 0);
+}
+#endif
+
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 {
 
@@ -463,16 +631,49 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 break;
             default: return;
         }
-    } 
+    }
+#if defined(STM32F105xC) || defined(STM32F107xC)
+    else{
+        switch (type){
+        case IRQ_RX:
+            ier = CAN_IT_FMP0;
+            irq_n = CAN2_RX0_IRQn;
+            vector = (uint32_t)&CAN2_RX0_IRQHandler;
+            break;
+        case IRQ_TX:
+            ier = CAN_IT_TME;
+            irq_n = CAN2_TX_IRQn;
+            vector = (uint32_t)&CAN2_TX_IRQHandler;
+            break;
+        case IRQ_ERROR:
+            ier = CAN_IT_ERR;
+            irq_n = CAN2_SCE_IRQn;
+            vector = (uint32_t)&CAN2_SCE_IRQHandler;
+            break;
+        case IRQ_PASSIVE:
+            ier = CAN_IT_EPV;
+            irq_n = CAN2_SCE_IRQn;
+            vector = (uint32_t)&CAN2_SCE_IRQHandler;
+            break;
+        case IRQ_BUS:
+            ier = CAN_IT_BOF;
+            irq_n = CAN2_SCE_IRQn;
+            vector = (uint32_t)&CAN2_SCE_IRQHandler;
+            break;
+        default: return;
+        }
+    }
+#endif
 
     if(enable) {
         can->IER |= ier;
+        NVIC_SetVector(irq_n, vector);
+        NVIC_EnableIRQ(irq_n);
     } else {
         can->IER &= ~ier;
+        NVIC_DisableIRQ(irq_n);
     }
 
-    NVIC_SetVector(irq_n, vector);
-    NVIC_EnableIRQ(irq_n);
 }
 
 #endif // DEVICE_CAN
