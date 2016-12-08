@@ -442,60 +442,6 @@ i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
     return (obj);
 }
 
-/* SYNCHRONOUS API FUNCTIONS */
-
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
-    struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-    int count = 0, ret = 0;
-    uint32_t timeout = 0;
-
-    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-        (obj_s->XferOperation == I2C_LAST_FRAME)) {
-        if (stop)
-            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
-        else
-            obj_s->XferOperation = I2C_FIRST_FRAME;
-    } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
-        (obj_s->XferOperation == I2C_NEXT_FRAME)) {
-        if (stop)
-            obj_s->XferOperation = I2C_LAST_FRAME;
-        else
-            obj_s->XferOperation = I2C_NEXT_FRAME;
-    }
-
-    obj_s->event = 0;
-
-     /* Activate default IRQ handlers for sync mode
-     * which would be overwritten in async mode
-     */
-    i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
-
-    ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
-
-    if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * length;
-        /*  transfer started : wait completion or timeout */
-        while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
-        }
-
-        i2c_ev_err_disable(obj);
-
-        if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
-            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
-            /* re-init IP to try and get back in a working state */
-            i2c_init(obj, obj_s->sda, obj_s->scl);
-        } else {
-            count = length;
-        }
-    } else {
-        DEBUG_PRINTF("ERROR in i2c_read\r\n");
-    }
-
-    return count;
-}
-
 /*
  *  UNITARY APIS.
  *  For very basic operations, direct registers access is needed
@@ -685,6 +631,58 @@ void i2c_reset(i2c_t *obj) {
 /*
  *  SYNC APIS
  */
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int count = 0, ret = 0;
+    uint32_t timeout = 0;
+
+    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
+        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+    } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
+        (obj_s->XferOperation == I2C_NEXT_FRAME)) {
+        if (stop)
+            obj_s->XferOperation = I2C_LAST_FRAME;
+        else
+            obj_s->XferOperation = I2C_NEXT_FRAME;
+    }
+
+    obj_s->event = 0;
+
+     /* Activate default IRQ handlers for sync mode
+     * which would be overwritten in async mode
+     */
+    i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
+
+    ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+
+    if(ret == HAL_OK) {
+        timeout = BYTE_TIMEOUT_US * length;
+        /*  transfer started : wait completion or timeout */
+        while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+            wait_us(1);
+        }
+
+        i2c_ev_err_disable(obj);
+
+        if((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
+            /* re-init IP to try and get back in a working state */
+            i2c_init(obj, obj_s->sda, obj_s->scl);
+        } else {
+            count = length;
+        }
+    } else {
+        DEBUG_PRINTF("ERROR in i2c_read:%d\r\n", ret);
+    }
+
+    return count;
+}
+
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
