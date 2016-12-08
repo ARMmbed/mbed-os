@@ -270,12 +270,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     }
 #endif
 
-    // Reset to clear pending flags if any
-    i2c_reset(obj);
-
     // I2C configuration
+    // Default hz value used for timeout computation
     if(!obj_s->hz)
         obj_s->hz = 100000; // 100 kHz per default
+
+    // Reset to clear pending flags if any
+    i2c_reset(obj);
     i2c_frequency(obj, obj_s->hz );
 
 #if DEVICE_I2CSLAVE
