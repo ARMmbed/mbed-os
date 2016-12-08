@@ -30,6 +30,7 @@
 #define vmpu_is_box_id_valid(...) 0
 #define vmpu_public_flash_addr(...) 1
 #define vmpu_sram_addr(...) 1
+#define vmpu_public_sram_addr(...) 1
 #define HALT_ERROR(id, ...) {}
 #define UVISOR_PAGE_ALLOCATOR_MUTEX_AQUIRE  page_allocator_mutex_aquire()
 #define UVISOR_PAGE_ALLOCATOR_MUTEX_RELEASE osMutexRelease(g_page_allocator_mutex_id)

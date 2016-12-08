@@ -84,12 +84,12 @@ void page_allocator_init(void * const heap_start, void * const heap_end, const u
             "Page size pointer (0x%08x) is not in flash memory.\n",
             (unsigned int) page_size);
     }
-    if (!heap_start || !vmpu_sram_addr((uint32_t) heap_start)) {
+    if (!heap_start || !vmpu_public_sram_addr((uint32_t) heap_start)) {
         HALT_ERROR(SANITY_CHECK_FAILED,
             "Page heap start pointer (0x%08x) is not in sram memory.\n",
             (unsigned int) heap_start);
     }
-    if (!heap_end || !vmpu_sram_addr((uint32_t) heap_end)) {
+    if (!heap_end || !vmpu_public_sram_addr((uint32_t) heap_end)) {
         HALT_ERROR(SANITY_CHECK_FAILED,
             "Page heap end pointer (0x%08x) is not in sram memory.\n",
             (unsigned int) heap_end);
