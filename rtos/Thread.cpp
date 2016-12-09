@@ -39,11 +39,9 @@ void Thread::constructor(osPriority_t priority,
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
 
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     _thread_attr.priority = priority;
     _thread_attr.stack_size = stack_size;
     _thread_attr.stack_mem = (uint32_t*)stack_mem;
-#endif
 }
 
 void Thread::constructor(Callback<void()> task,
@@ -72,7 +70,6 @@ osStatus_t Thread::start(Callback<void()> task) {
         return osErrorParameter;
     }
 
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     if (_thread_attr.stack_mem == NULL) {
         _thread_attr.stack_mem = new uint32_t[_thread_attr.stack_size/sizeof(uint32_t)];
         MBED_ASSERT(_thread_attr.stack_mem != NULL);
@@ -85,7 +82,6 @@ osStatus_t Thread::start(Callback<void()> task) {
 
     _thread_attr.cb_size = sizeof(_ob_mem);
     _thread_attr.cb_mem = _ob_mem;
-#endif
     _task = task;
     _tid = osThreadNew(Thread::_thunk, this, &_thread_attr);
     if (_tid == NULL) {
@@ -178,7 +174,6 @@ osThreadState_t Thread::get_state() {
 }
 
 uint32_t Thread::stack_size() {
-#ifndef __MBED_CMSIS_RTOS_CA9
     uint32_t size = 0;
     _mutex.lock();
 
@@ -189,13 +184,9 @@ uint32_t Thread::stack_size() {
 
     _mutex.unlock();
     return size;
-#else
-    return 0;
-#endif
 }
 
 uint32_t Thread::free_stack() {
-#ifndef __MBED_CMSIS_RTOS_CA9
     uint32_t size = 0;
     _mutex.lock();
 
@@ -206,13 +197,9 @@ uint32_t Thread::free_stack() {
 
     _mutex.unlock();
     return size;
-#else
-    return 0;
-#endif
 }
 
 uint32_t Thread::used_stack() {
-#ifndef __MBED_CMSIS_RTOS_CA9
     uint32_t size = 0;
     _mutex.lock();
 
@@ -223,13 +210,9 @@ uint32_t Thread::used_stack() {
 
     _mutex.unlock();
     return size;
-#else
-    return 0;
-#endif
 }
 
 uint32_t Thread::max_stack() {
-#ifndef __MBED_CMSIS_RTOS_CA9
     uint32_t size = 0;
     _mutex.lock();
 
@@ -243,9 +226,6 @@ uint32_t Thread::max_stack() {
 
     _mutex.unlock();
     return size;
-#else
-    return 0;
-#endif
 }
 
 int32_t Thread::signal_wait(int32_t flags, uint32_t millisec) {
@@ -275,12 +255,10 @@ void Thread::attach_terminate_hook(void (*fptr)(osThreadId_t id)) {
 Thread::~Thread() {
     // terminate is thread safe
     terminate();
-#ifdef __MBED_CMSIS_RTOS_CM
     if (_dynamic_stack) {
         delete[] (uint32_t*)(_thread_attr.stack_mem);
         _thread_attr.stack_mem = (uint32_t*)NULL;
     }
-#endif
 }
 
 void Thread::_thunk(void * thread_ptr)

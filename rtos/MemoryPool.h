@@ -41,13 +41,11 @@ class MemoryPool {
 public:
     /** Create and Initialize a memory pool. */
     MemoryPool() {
-    #ifdef CMSIS_OS_RTX
         memset(_pool_m, 0, sizeof(_pool_m));
         _pool_attr.mp_mem = _pool_m;
         _pool_attr.mp_size = sizeof(_pool_m);
         _pool_attr.cb_mem = _ob_m;
         _pool_attr.cb_size = sizeof(_ob_m);
-    #endif
         _pool_id = osMemoryPoolNew(pool_sz, sizeof(T), &_pool_attr);
         MBED_ASSERT(_pool_id);
     }
@@ -81,10 +79,8 @@ public:
 private:
     osMemoryPoolId_t _pool_id;
     osMemoryPoolAttr_t _pool_attr;
-#ifdef CMSIS_OS_RTX
     char _pool_m[sizeof(T) * pool_sz];
     char _ob_m[sizeof(os_memory_pool_t)];
-#endif
 };
 
 }

@@ -44,13 +44,11 @@ class Queue {
 public:
     /** Create and initialize a message Queue. */
     Queue() {
-    #ifdef CMSIS_OS_RTX
         memset(_queue_q, 0, sizeof(_queue_q));
         _queue_attr.mq_mem = _queue_q;
         _queue_attr.mq_size = sizeof(_queue_q);
         _queue_attr.cb_mem = _ob_m;
         _queue_attr.cb_size = sizeof(_ob_m);
-    #endif
         _queue_id = osMessageQueueNew(queue_sz, sizeof(T*), &_queue_attr);
         MBED_ASSERT(_queue_id);
     }
@@ -81,10 +79,8 @@ public:
 private:
     osMessageQueueId_t   _queue_id;
     osMessageQueueAttr_t _queue_attr;
-#ifdef CMSIS_OS_RTX
     char                 _queue_q[queue_sz * (sizeof(T*) + sizeof(os_message_t))];
     char                 _ob_m[sizeof(os_message_queue_t)];
-#endif
 };
 
 }
