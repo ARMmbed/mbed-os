@@ -159,7 +159,7 @@ time_t rtc_read(void)
     timeinfo.tm_wday = dateStruct.WeekDay;
     timeinfo.tm_mon  = dateStruct.Month - 1;
     timeinfo.tm_mday = dateStruct.Date;
-    timeinfo.tm_year = dateStruct.Year;
+    timeinfo.tm_year = dateStruct.Year + 68;
     timeinfo.tm_hour = timeStruct.Hours;
     timeinfo.tm_min  = timeStruct.Minutes;
     timeinfo.tm_sec  = timeStruct.Seconds;
@@ -186,7 +186,7 @@ void rtc_write(time_t t)
     dateStruct.WeekDay        = timeinfo->tm_wday;
     dateStruct.Month          = timeinfo->tm_mon + 1;
     dateStruct.Date           = timeinfo->tm_mday;
-    dateStruct.Year           = timeinfo->tm_year;
+    dateStruct.Year           = timeinfo->tm_year - 68;
     timeStruct.Hours          = timeinfo->tm_hour;
     timeStruct.Minutes        = timeinfo->tm_min;
     timeStruct.Seconds        = timeinfo->tm_sec;
