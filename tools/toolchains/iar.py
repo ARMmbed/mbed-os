@@ -60,14 +60,16 @@ class IAR(mbedToolchain):
         # custom c flags
         if target.core == "Cortex-M4F":
           c_flags_cmd = [
-              "--cpu", "Cortex-M4F",
-              "--thumb", "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h")
+              "--cpu", "Cortex-M4F"
           ]
         else:
           c_flags_cmd = [
-              "--cpu", cpuchoice,
-              "--thumb", "--dlib_config", join(TOOLCHAIN_PATHS['IAR'], "inc", "c", "DLib_Config_Full.h")
+              "--cpu", cpuchoice
           ]
+
+        c_flags_cmd.extend([
+            "--thumb", "--dlib_config", "DLib_Config_Full.h"
+        ])
         # custom c++ cmd flags
         cxx_flags_cmd = [
             "--c++", "--no_rtti", "--no_exceptions"
