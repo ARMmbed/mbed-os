@@ -24,8 +24,14 @@ extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
 osMutexId_t singleton_mutex_id;
+osMutexAttr_t singleton_mutex_attr;
+
 osMutexId_t malloc_mutex_id;
+osMutexAttr_t malloc_mutex_attr;
+
 osMutexId_t env_mutex_id;
+osMutexAttr_t env_mutex_attr;
+
 
 osThreadAttr_t _main_thread_attr;
 char _main_stack[DEFAULT_STACK_SIZE] __ALIGNED(8);
@@ -53,9 +59,14 @@ static void mbed_cpy_nvic(void)
 
 void pre_main(void)
 {
-    singleton_mutex_id = osMutexNew(NULL);
-    malloc_mutex_id = osMutexNew(NULL);
-    env_mutex_id = osMutexNew(NULL);
+    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
+
+    malloc_mutex_attr.attr_bits = osMutexRecursive;
+    malloc_mutex_id = osMutexNew(&malloc_mutex_attr);
+
+    env_mutex_attr.attr_bits = osMutexRecursive;
+    env_mutex_id = osMutexNew(&env_mutex_attr);
 
     __libc_init_array();
 
