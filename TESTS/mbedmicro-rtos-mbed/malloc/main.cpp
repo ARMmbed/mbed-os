@@ -7,7 +7,11 @@
 #endif
 
 #define NUM_THREADS         5
+#if defined(__CORTEX_A9)
+#define THREAD_STACK_SIZE   DEFAULT_STACK_SIZE
+#else
 #define THREAD_STACK_SIZE   256
+#endif
 
 DigitalOut led1(LED1);
 volatile bool should_exit = false;
