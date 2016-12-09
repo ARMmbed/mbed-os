@@ -23,13 +23,16 @@
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
-osMutexId_t singleton_mutex_id;
+osMutexId_t   singleton_mutex_id;
+os_mutex_t    singleton_mutex_obj;
 osMutexAttr_t singleton_mutex_attr;
 
-osMutexId_t malloc_mutex_id;
+osMutexId_t   malloc_mutex_id;
+os_mutex_t    malloc_mutex_obj;
 osMutexAttr_t malloc_mutex_attr;
 
-osMutexId_t env_mutex_id;
+osMutexId_t   env_mutex_id;
+os_mutex_t    env_mutex_obj;
 osMutexAttr_t env_mutex_attr;
 
 
@@ -60,12 +63,18 @@ static void mbed_cpy_nvic(void)
 void pre_main(void)
 {
     singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
+    singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     malloc_mutex_attr.attr_bits = osMutexRecursive;
+    malloc_mutex_attr.cb_size = sizeof(malloc_mutex_obj);
+    malloc_mutex_attr.cb_mem = &malloc_mutex_obj;
     malloc_mutex_id = osMutexNew(&malloc_mutex_attr);
 
     env_mutex_attr.attr_bits = osMutexRecursive;
+    env_mutex_attr.cb_size = sizeof(env_mutex_obj);
+    env_mutex_attr.cb_mem = &env_mutex_obj;
     env_mutex_id = osMutexNew(&env_mutex_attr);
 
     __libc_init_array();
