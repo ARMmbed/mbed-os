@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 #include "pinmap.h"
 
 
- /// @code 位定义 //{
 
 #define BFN_PREP(x, name)       ( ((x)<<name##_SHIFT) & name##_MASK )
 #define BFN_GET(y, name)        ( ((y) & name##_MASK)>>name##_SHIFT )
@@ -201,10 +200,6 @@
 #define ID_EXT_MASK     0x1FFFFFFF
 #define DLC_MASK        0x0F
 
-//} @code  end
-
-
-/// @code 引脚定义//{
 
 #define SCU_PINIO_CAN_TD   SCU_MODE_INACT
 #define SCU_PINIO_CAN_RD   (SCU_MODE_INACT|SCU_MODE_INBUFF_EN)
@@ -225,7 +220,7 @@ static const PinMap PinMap_CAN_TD[] = {
     {P1_17, CAN_1, (SCU_PINIO_CAN_TD | 5)},
     {PE_0,  CAN_1, (SCU_PINIO_CAN_TD | 5)},
     {NC,	NC,	 0}
-};//} @code  end
+};
 
 #define CAN_NUM	2
 
@@ -278,7 +273,6 @@ static inline void can_irq(CANName name, int id){
     }
     canint = can->INT;
     if (((can->ND2 << 16) + can->ND1) & (1 << (canint - 1))){
-        // 确保新数据位有效
         irq_handler(can_irq_ids[id], IRQ_RX);
     }
 }
@@ -801,7 +795,7 @@ void can_monitor(can_t *obj, int silent){
         obj->dev->CNTL |= CANCNTL_INIT;
     }
 }
-//} @code  end
+
 #endif
 
 
