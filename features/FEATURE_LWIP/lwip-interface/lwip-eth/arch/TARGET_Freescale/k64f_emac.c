@@ -41,7 +41,13 @@ uint32_t *rx_ptr[ENET_RX_RING_LEN];
  ********************************************************************************/
 #define ENET_BuffSizeAlign(n) ENET_ALIGN(n, ENET_BUFF_ALIGNMENT)
 #define ENET_ALIGN(x,align)   ((unsigned int)((x) + ((align)-1)) & (unsigned int)(~(unsigned int)((align)- 1)))
+#if (defined(TARGET_K64F) && (defined(TARGET_FRDM)))
 extern void k64f_init_eth_hardware(void);
+#endif
+
+#if (defined(TARGET_K66F) && (defined(TARGET_FRDM)))
+extern void k66f_init_eth_hardware(void);
+#endif
 
 /* K64F EMAC driver data structure */
 struct k64f_enetdata {
@@ -204,8 +210,13 @@ static err_t low_level_init(struct netif *netif)
     (uint8_t *)&rx_ptr,
     NULL,
   };
-
+#if (defined(TARGET_K64F) && (defined(TARGET_FRDM)))
   k64f_init_eth_hardware();
+#endif
+
+#if (defined(TARGET_K66F) && (defined(TARGET_FRDM)))
+  k66f_init_eth_hardware();
+#endif
 
   sysClock = CLOCK_GetFreq(kCLOCK_CoreSysClk);
 
