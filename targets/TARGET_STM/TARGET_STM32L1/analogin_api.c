@@ -70,6 +70,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
         RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+        RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
         HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
         AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
