@@ -27,23 +27,23 @@
 namespace rtos {
 
 Semaphore::Semaphore(int32_t count, uint16_t max_count) {
-    memset(_semaphore_data, 0, sizeof(_semaphore_data));
-    _osSemaphoreAttr.cb_mem = _semaphore_data;
-    _osSemaphoreAttr.cb_size = sizeof(_semaphore_data);
-    _osSemaphoreId = osSemaphoreNew(max_count, count, &_osSemaphoreAttr);
-    MBED_ASSERT(_osSemaphoreId != NULL);
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    _attr.cb_mem = &_obj_mem;
+    _attr.cb_size = sizeof(_obj_mem);
+    _id = osSemaphoreNew(max_count, count, &_attr);
+    MBED_ASSERT(_id != NULL);
 }
 
 osStatus_t Semaphore::wait(uint32_t millisec) {
-    return osSemaphoreAcquire(_osSemaphoreId, millisec);
+    return osSemaphoreAcquire(_id, millisec);
 }
 
 osStatus_t Semaphore::release(void) {
-    return osSemaphoreRelease(_osSemaphoreId);
+    return osSemaphoreRelease(_id);
 }
 
 Semaphore::~Semaphore() {
-    osSemaphoreDelete(_osSemaphoreId);
+    osSemaphoreDelete(_id);
 }
 
 }

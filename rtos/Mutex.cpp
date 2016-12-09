@@ -28,28 +28,28 @@
 namespace rtos {
 
 Mutex::Mutex() {
-    memset(_mutex_data, 0, sizeof(_mutex_data));
-    _osMutexAttr.cb_mem = _mutex_data;
-    _osMutexAttr.cb_size = sizeof(_mutex_data);
-    _osMutexAttr.attr_bits = osMutexRecursive;
-    _osMutexId = osMutexNew(&_osMutexAttr);
-    MBED_ASSERT(_osMutexId);
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    _attr.cb_mem = &_obj_mem;
+    _attr.cb_size = sizeof(_obj_mem);
+    _attr.attr_bits = osMutexRecursive;
+    _id = osMutexNew(&_attr);
+    MBED_ASSERT(_id);
 }
 
 osStatus_t Mutex::lock(uint32_t millisec) {
-    return osMutexAcquire(_osMutexId, millisec);
+    return osMutexAcquire(_id, millisec);
 }
 
 bool Mutex::trylock() {
-    return (osMutexAcquire(_osMutexId, 0) == osOK);
+    return (osMutexAcquire(_id, 0) == osOK);
 }
 
 osStatus_t Mutex::unlock() {
-    return osMutexRelease(_osMutexId);
+    return osMutexRelease(_id);
 }
 
 Mutex::~Mutex() {
-    osMutexDelete(_osMutexId);
+    osMutexDelete(_id);
 }
 
 }

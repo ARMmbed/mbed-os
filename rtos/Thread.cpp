@@ -39,9 +39,9 @@ void Thread::constructor(osPriority_t priority,
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
 
-    _thread_attr.priority = priority;
-    _thread_attr.stack_size = stack_size;
-    _thread_attr.stack_mem = (uint32_t*)stack_mem;
+    _attr.priority = priority;
+    _attr.stack_size = stack_size;
+    _attr.stack_mem = (uint32_t*)stack_mem;
 }
 
 void Thread::constructor(Callback<void()> task,
@@ -70,24 +70,25 @@ osStatus_t Thread::start(Callback<void()> task) {
         return osErrorParameter;
     }
 
-    if (_thread_attr.stack_mem == NULL) {
-        _thread_attr.stack_mem = new uint32_t[_thread_attr.stack_size/sizeof(uint32_t)];
-        MBED_ASSERT(_thread_attr.stack_mem != NULL);
+    if (_attr.stack_mem == NULL) {
+        _attr.stack_mem = new uint32_t[_attr.stack_size/sizeof(uint32_t)];
+        MBED_ASSERT(_attr.stack_mem != NULL);
     }
 
     //Fill the stack with a magic word for maximum usage checking
-    for (uint32_t i = 0; i < (_thread_attr.stack_size / sizeof(uint32_t)); i++) {
-        ((uint32_t *)_thread_attr.stack_mem)[i] = 0xE25A2EA5;
+    for (uint32_t i = 0; i < (_attr.stack_size / sizeof(uint32_t)); i++) {
+        ((uint32_t *)_attr.stack_mem)[i] = 0xE25A2EA5;
     }
 
-    _thread_attr.cb_size = sizeof(_ob_mem);
-    _thread_attr.cb_mem = _ob_mem;
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    _attr.cb_size = sizeof(_obj_mem);
+    _attr.cb_mem = &_obj_mem;
     _task = task;
-    _tid = osThreadNew(Thread::_thunk, this, &_thread_attr);
+    _tid = osThreadNew(Thread::_thunk, this, &_attr);
     if (_tid == NULL) {
         if (_dynamic_stack) {
-            delete[] (uint32_t *)(_thread_attr.stack_mem);
-            _thread_attr.stack_mem = (uint32_t*)NULL;
+            delete[] (uint32_t *)(_attr.stack_mem);
+            _attr.stack_mem = (uint32_t*)NULL;
         }
         _mutex.unlock();
         _join_sem.release();
@@ -256,8 +257,8 @@ Thread::~Thread() {
     // terminate is thread safe
     terminate();
     if (_dynamic_stack) {
-        delete[] (uint32_t*)(_thread_attr.stack_mem);
-        _thread_attr.stack_mem = (uint32_t*)NULL;
+        delete[] (uint32_t*)(_attr.stack_mem);
+        _attr.stack_mem = (uint32_t*)NULL;
     }
 }
 

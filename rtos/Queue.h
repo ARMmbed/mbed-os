@@ -44,13 +44,13 @@ class Queue {
 public:
     /** Create and initialize a message Queue. */
     Queue() {
-        memset(_queue_q, 0, sizeof(_queue_q));
-        _queue_attr.mq_mem = _queue_q;
-        _queue_attr.mq_size = sizeof(_queue_q);
-        _queue_attr.cb_mem = _ob_m;
-        _queue_attr.cb_size = sizeof(_ob_m);
-        _queue_id = osMessageQueueNew(queue_sz, sizeof(T*), &_queue_attr);
-        MBED_ASSERT(_queue_id);
+        memset(&_obj_mem, 0, sizeof(_obj_mem));
+        _attr.mq_mem = _queue_mem;
+        _attr.mq_size = sizeof(_queue_mem);
+        _attr.cb_mem = &_obj_mem;
+        _attr.cb_size = sizeof(_obj_mem);
+        _id = osMessageQueueNew(queue_sz, sizeof(T*), &_attr);
+        MBED_ASSERT(_id);
     }
 
     /** Put a message in a Queue.
@@ -60,7 +60,7 @@ public:
       @return  status code that indicates the execution status of the function.
     */
     osStatus_t put(T* data, uint32_t millisec=0, uint8_t prio=0) {
-        return osMessageQueuePut(_queue_id, &data, prio, millisec);
+        return osMessageQueuePut(_id, &data, prio, millisec);
     }
 
     /** Get a message or Wait for a message from a Queue.
@@ -69,7 +69,7 @@ public:
     */
     T *get(uint32_t millisec=osWaitForever) {
         T *data;
-        osStatus_t res = osMessageQueueGet(_queue_id, &data, NULL, millisec);
+        osStatus_t res = osMessageQueueGet(_id, &data, NULL, millisec);
         if (res != osOK) {
           data = NULL;
         }
@@ -77,10 +77,10 @@ public:
     }
 
 private:
-    osMessageQueueId_t   _queue_id;
-    osMessageQueueAttr_t _queue_attr;
-    char                 _queue_q[queue_sz * (sizeof(T*) + sizeof(os_message_t))];
-    char                 _ob_m[sizeof(os_message_queue_t)];
+    osMessageQueueId_t   _id;
+    osMessageQueueAttr_t _attr;
+    char                 _queue_mem[queue_sz * (sizeof(T*) + sizeof(os_message_t))];
+    os_message_queue_t   _obj_mem;
 };
 
 }

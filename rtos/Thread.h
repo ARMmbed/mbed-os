@@ -326,12 +326,12 @@ private:
     static void _thunk(void * thread_ptr);
 
     mbed::Callback<void()> _task;
-    osThreadId_t _tid;
-    osThreadAttr_t _thread_attr;
-    bool _dynamic_stack;
-    Semaphore _join_sem;
-    Mutex _mutex;
-    char _ob_mem[sizeof(os_thread_t)];
+    osThreadId_t           _tid;
+    osThreadAttr_t         _attr;
+    bool                   _dynamic_stack;
+    Semaphore              _join_sem;
+    Mutex                  _mutex;
+    os_thread_t            _obj_mem;
 };
 
 }

@@ -41,27 +41,28 @@ class MemoryPool {
 public:
     /** Create and Initialize a memory pool. */
     MemoryPool() {
-        memset(_pool_m, 0, sizeof(_pool_m));
-        _pool_attr.mp_mem = _pool_m;
-        _pool_attr.mp_size = sizeof(_pool_m);
-        _pool_attr.cb_mem = _ob_m;
-        _pool_attr.cb_size = sizeof(_ob_m);
-        _pool_id = osMemoryPoolNew(pool_sz, sizeof(T), &_pool_attr);
-        MBED_ASSERT(_pool_id);
+        memset(_pool_mem, 0, sizeof(_pool_mem));
+        memset(&_obj_mem, 0, sizeof(_obj_mem));
+        _attr.mp_mem = _pool_mem;
+        _attr.mp_size = sizeof(_pool_mem);
+        _attr.cb_mem = &_obj_mem;
+        _attr.cb_size = sizeof(_obj_mem);
+        _id = osMemoryPoolNew(pool_sz, sizeof(T), &_attr);
+        MBED_ASSERT(_id);
     }
 
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* alloc(void) {
-        return (T*)osMemoryPoolAlloc(_pool_id, 0);
+        return (T*)osMemoryPoolAlloc(_id, 0);
     }
 
     /** Allocate a memory block of type T from a memory pool and set memory block to zero.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* calloc(void) {
-        T *item = (T*)osMemoryPoolAlloc(_pool_id, 0);
+        T *item = (T*)osMemoryPoolAlloc(_id, 0);
         if (item != NULL) {
             memset(item, 0, sizeof(T));
         }
@@ -73,14 +74,14 @@ public:
       @return  status code that indicates the execution status of the function.
     */
     osStatus_t free(T *block) {
-        return osMemoryPoolFree(_pool_id, (void*)block);
+        return osMemoryPoolFree(_id, (void*)block);
     }
 
 private:
-    osMemoryPoolId_t _pool_id;
-    osMemoryPoolAttr_t _pool_attr;
-    char _pool_m[sizeof(T) * pool_sz];
-    char _ob_m[sizeof(os_memory_pool_t)];
+    osMemoryPoolId_t   _id;
+    osMemoryPoolAttr_t _attr;
+    char               _pool_mem[sizeof(T) * pool_sz];
+    os_memory_pool_t   _obj_mem;
 };
 
 }

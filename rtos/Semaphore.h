@@ -53,9 +53,9 @@ public:
     ~Semaphore();
 
 private:
-    osSemaphoreId_t _osSemaphoreId;
-    osSemaphoreAttr_t _osSemaphoreAttr;
-    char _semaphore_data[sizeof(os_semaphore_t)];
+    osSemaphoreId_t   _id;
+    osSemaphoreAttr_t _attr;
+    os_semaphore_t    _obj_mem;
 };
 
 }

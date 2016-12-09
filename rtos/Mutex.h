@@ -57,9 +57,9 @@ public:
     ~Mutex();
 
 private:
-    osMutexId_t _osMutexId;
-    osMutexAttr_t _osMutexAttr;
-    char _mutex_data[sizeof(os_mutex_t)];
+    osMutexId_t   _id;
+    osMutexAttr_t _attr;
+    os_mutex_t    _obj_mem;
 };
 
 }
