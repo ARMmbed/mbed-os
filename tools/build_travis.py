@@ -127,6 +127,9 @@ build_list = (
     { "target": "SAMD21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "SAML21J18A",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_L476VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    
+    { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "rtos", "usb", "fat"] },
  )
 
 ################################################################################
@@ -235,7 +238,23 @@ linking_list = [
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
              }
-    }
+    },
+    {"target": "NUMAKER_PFM_NUC472",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "fat"  : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+     {"target": "NUMAKER_PFM_M453",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "fat"  : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     }
 
     ]
 
