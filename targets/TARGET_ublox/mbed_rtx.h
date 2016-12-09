@@ -23,9 +23,6 @@
 #define INITIAL_SP              (0x01000000 + 0x05000 - 256)
 #endif
 
-#ifndef OS_THREAD_NUM
-#define OS_THREAD_NUM              6
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif

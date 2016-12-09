@@ -1,6 +1,3 @@
-
-/** \addtogroup rtos */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2012 ARM Limited
  *
@@ -22,28 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef RTOS_H
-#define RTOS_H
+#ifndef MBED_RTX_CONF_H
+#define MBED_RTX_CONF_H
 
 #include "mbed_rtx.h"
-#include "mbed_rtx_conf.h"
-#include "rtos/Thread.h"
-#include "rtos/Mutex.h"
-#include "rtos/Semaphore.h"
-#include "rtos/MemoryPool.h"
-#include "rtos/Queue.h"
 
-using namespace rtos;
+#define CMSIS_OS_RTX
 
-/* Get mbed lib version number, as RTOS depends on mbed lib features
-   like mbed_error, Callback and others.
-*/
-#include "mbed.h"
-
-#if (MBED_LIBRARY_VERSION < 122)
-#error "This version of RTOS requires mbed library version > 121"
+#ifndef OS_STACK_SIZE
+#define OS_STACK_SIZE               4096
 #endif
 
-#endif
-
-/** @}*/
+#endif /* MBED_RTX_CONF_H */

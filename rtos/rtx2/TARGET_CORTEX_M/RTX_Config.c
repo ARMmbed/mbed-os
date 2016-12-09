@@ -29,6 +29,7 @@
 
 #include "mbed_rtx.h"
 #include "mbed_error.h"
+#include "mbed_rtx_conf.h"
 
 // <h>System Configuration
 // =======================
@@ -88,7 +89,7 @@
 //     <i> Defines maximum number of user threads that can be active at the same time.
 //     <i> Applies to user threads with system provided memory for control blocks.
 #ifndef OS_THREAD_NUM
-#error "target doesn not define OS_THREAD_NUM or no target defined"
+#define OS_THREAD_NUM               1
 #endif
  
 //     <o>Number of user Threads with user-provided Stack size <0-1000>

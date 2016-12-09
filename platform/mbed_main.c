@@ -34,7 +34,7 @@ osMutexAttr_t env_mutex_attr;
 
 
 osThreadAttr_t _main_thread_attr;
-char _main_stack[DEFAULT_STACK_SIZE] __ALIGNED(8);
+char _main_stack[4096] __ALIGNED(8);
 char _main_obj[sizeof(os_thread_t)];
 
 static void mbed_cpy_nvic(void)

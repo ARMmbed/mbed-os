@@ -83,7 +83,7 @@ typedef struct {
 typedef sys_thread_data_t* sys_thread_t;
 
 #define SYS_THREAD_POOL_N                   6
-#define SYS_DEFAULT_THREAD_STACK_DEPTH      DEFAULT_STACK_SIZE
+#define SYS_DEFAULT_THREAD_STACK_DEPTH      OS_STACK_SIZE
 
 // === PROTECTION ===
 typedef int sys_prot_t;
