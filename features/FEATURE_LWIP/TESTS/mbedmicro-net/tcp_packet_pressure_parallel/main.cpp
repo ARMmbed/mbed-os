@@ -1,6 +1,9 @@
 #if !FEATURE_LWIP
     #error [NOT_SUPPORTED] LWIP not supported for this target
 #endif
+#ifndef MBED_EXTENDED_TESTS
+    #error [NOT_SUPPORTED] Parallel pressure tests are not supported by default
+#endif
 
 #include "mbed.h"
 #include "EthernetInterface.h"
