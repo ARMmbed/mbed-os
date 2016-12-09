@@ -14509,7 +14509,7 @@ typedef struct
                                           ((INSTANCE) == ADC34_COMMON))
 
 /****************************** CAN Instances *********************************/
-#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN)
+#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN1)
 
 /****************************** COMP Instances ********************************/
 #define IS_COMP_ALL_INSTANCE(INSTANCE) (((INSTANCE) == COMP1) || \
