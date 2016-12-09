@@ -91,6 +91,7 @@ struct i2c_s {
     I2CName  i2c;
     I2C_HandleTypeDef handle;
     uint8_t index;
+    int hz;
     PinName sda;
     PinName scl;
     IRQn_Type event_i2cIRQ;

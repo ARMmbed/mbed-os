@@ -66,10 +66,6 @@ struct dac_s {
     uint32_t channel;
 };
 
-struct i2c_s {
-    I2CName  i2c;
-};
-
 #include "common_objects.h"
 #include "gpio_object.h"
 
