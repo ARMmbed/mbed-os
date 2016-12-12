@@ -77,6 +77,8 @@ void mbed_sdk_init(void)
 #if DEVICE_ANALOGIN
     /* Vref connect to AVDD */
     SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_VREFCTL_Msk) | SYS_VREFCTL_VREF_AVDD;
+    /* Switch ADC0 to EADC mode */
+    SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_ADCMODESEL_Msk) | SYS_VREFCTL_ADCMODESEL_EADC;
 #endif
     
     /* Update System Core Clock */

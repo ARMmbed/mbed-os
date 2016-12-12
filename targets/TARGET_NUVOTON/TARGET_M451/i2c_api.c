@@ -48,6 +48,7 @@ static void i2c0_vec(void);
 static void i2c1_vec(void);
 static void i2c_irq(i2c_t *obj);
 static void i2c_fsm_reset(i2c_t *obj, uint32_t i2c_ctl);
+static void i2c_fsm_tranfini(i2c_t *obj, int lastdatanaked);
 
 static struct nu_i2c_var i2c0_var = {
     .obj                =   NULL,
@@ -68,8 +69,6 @@ static const struct nu_modinit_s i2c_modinit_tab[] = {
 };
 
 static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastdata);
-static int i2c_do_write(i2c_t *obj, char data, int naklastdata);
-static int i2c_do_read(i2c_t *obj, char *data, int naklastdata);
 static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync);
 #define NU_I2C_TIMEOUT_STAT_INT     500000
 #define NU_I2C_TIMEOUT_STOP         500000
@@ -97,6 +96,7 @@ static void i2c_rollback_vector_interrupt(i2c_t *obj);
 
 #define TRANCTRL_STARTED        (1)
 #define TRANCTRL_NAKLASTDATA    (1 << 1)
+#define TRANCTRL_LASTDATANAKED  (1 << 2)
 
 uint32_t us_ticker_read(void);
 
@@ -168,7 +168,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         return I2C_ERROR_BUS_BUSY;
     }
 
-    if (i2c_do_write(obj, i2c_addr2data(address, 1), 0)) {
+    if (i2c_byte_write(obj, i2c_addr2data(address, 1)) != 1) {
         i2c_stop(obj);
         return I2C_ERROR_NO_SLAVE;
     }
@@ -191,7 +191,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         return I2C_ERROR_BUS_BUSY;
     }
 
-    if (i2c_do_write(obj, i2c_addr2data(address, 0), 0)) {
+    if (i2c_byte_write(obj, i2c_addr2data(address, 0)) != 1) {
         i2c_stop(obj);
         return I2C_ERROR_NO_SLAVE;
     }
@@ -214,14 +214,22 @@ void i2c_reset(i2c_t *obj)
 int i2c_byte_read(i2c_t *obj, int last)
 {
     char data = 0;
-    
-    i2c_do_read(obj, &data, last);
+    i2c_do_tran(obj, &data, 1, 1, last);
     return data;
 }
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
-    return i2c_do_write(obj, (data & 0xFF), 0);
+    char data_[1];
+    data_[0] = data & 0xFF;
+    
+    if (i2c_do_tran(obj, data_, 1, 0, 0) == 1 &&
+        ! (obj->i2c.tran_ctrl & TRANCTRL_LASTDATANAKED)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
 #if DEVICE_I2CSLAVE
@@ -352,6 +360,10 @@ int i2c_allow_powerdown(void)
 
 static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastdata)
 {
+    if (! buf || ! length) {
+        return 0;
+    }
+    
     int tran_len = 0;
     
     i2c_disable_int(obj);
@@ -369,7 +381,6 @@ static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastd
     }
     else {
         i2c_disable_int(obj);
-        obj->i2c.tran_ctrl = 0;
         tran_len = obj->i2c.tran_pos - obj->i2c.tran_beg;
         obj->i2c.tran_beg = NULL;
         obj->i2c.tran_pos = NULL;
@@ -378,18 +389,6 @@ static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastd
     }
     
     return tran_len;
-}
-
-static int i2c_do_write(i2c_t *obj, char data, int naklastdata)
-{
-    char data_[1];
-    data_[0] = data;
-    return i2c_do_tran(obj, data_, 1, 0, naklastdata) == 1 ? 0 : I2C_ERROR_BUS_BUSY;
-}
-
-static int i2c_do_read(i2c_t *obj, char *data, int naklastdata)
-{
-    return i2c_do_tran(obj, data, 1, 1, naklastdata) == 1 ? 0 : I2C_ERROR_BUS_BUSY;
 }
 
 static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
@@ -611,32 +610,30 @@ static void i2c_irq(i2c_t *obj)
                     I2C_SET_CONTROL_REG(i2c_base, I2C_CTL_SI_Msk | I2C_CTL_AA_Msk);
                 }
                 else {
-                    if (status == 0x18) {
-                        obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
-                        i2c_disable_int(obj);
-                        break;
-                    }
-                    // Go Master Repeat Start
-                    i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+                    i2c_fsm_tranfini(obj, 0);
                 }
             }
             else {
                 i2c_disable_int(obj);
             }
             break;
+            
         case 0x30:  // Master Transmit Data NACK
-        case 0x20:  // Master Transmit Address NACK
-            // Go Master Repeat Start
-            i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+            i2c_fsm_tranfini(obj, 1);
             break;
+            
+        case 0x20:  // Master Transmit Address NACK
+            i2c_fsm_tranfini(obj, 1);
+            break;
+            
         case 0x38:  // Master Arbitration Lost
             i2c_fsm_reset(obj, I2C_CTL_SI_Msk | I2C_CTL_AA_Msk);
             break;
         
         case 0x48:  // Master Receive Address NACK
-            // Go Master Repeat Start
-            i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+            i2c_fsm_tranfini(obj, 1);
             break;
+            
         case 0x40:  // Master Receive Address ACK
         case 0x50:  // Master Receive Data ACK
         case 0x58:  // Master Receive Data NACK
@@ -653,8 +650,7 @@ static void i2c_irq(i2c_t *obj)
                             while (1);
                         }
 #endif
-                        // Go Master Repeat Start
-                        i2c_fsm_reset(obj, I2C_CTL_STA_Msk | I2C_CTL_SI_Msk);
+                        i2c_fsm_tranfini(obj, 1);
                     }
                     else {
                         uint32_t i2c_ctl = I2C_CTL_SI_Msk | I2C_CTL_AA_Msk;
@@ -819,6 +815,16 @@ static void i2c_fsm_reset(i2c_t *obj, uint32_t i2c_ctl)
             
     I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
     obj->i2c.slaveaddr_state = NoData;
+}
+
+static void i2c_fsm_tranfini(i2c_t *obj, int lastdatanaked)
+{
+    if (lastdatanaked) {
+        obj->i2c.tran_ctrl |= TRANCTRL_LASTDATANAKED;
+    }
+            
+    obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
+    i2c_disable_int(obj);
 }
 
 #if DEVICE_I2C_ASYNCH

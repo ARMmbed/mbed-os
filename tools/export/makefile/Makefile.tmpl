@@ -13,7 +13,7 @@ else
     RM = '$(SHELL)' -c "rm -rf \"$(1)\""
 endif
 
-OBJDIR := .build
+OBJDIR := BUILD
 # Move to the build directory
 ifeq (,$(filter $(OBJDIR),$(notdir $(CURDIR))))
 .SUFFIXES:

@@ -45,24 +45,19 @@
 
 /** Power management Control HW Structure Overlay */
 typedef struct {
-    __IO uint32_t DUTYCYCLE;
-    union {
-        struct {
-            __O uint32_t ENABLE :8;          /**< Write any value to enable PWM output */
-            __I uint32_t PAD :1;             /** < Pad */
-            __I uint32_t ENABLE_STATE :1;    /**< Current state of pwmEnable configuration bit.  ‘1’ PWM output is enabled.  ‘0’ PWN output is disabled. */
-            __I uint32_t OUTPUT_STATE :1;    /**< Current state of PWM output */
-        } BITS;
-        __IO uint32_t WORD;
-    } PWM_ENABLE;
+    __O uint32_t DUTYCYCLE;
+    __O uint32_t PWM_ENABLE;
     __O uint32_t PWM_DISABLE;
+    __O uint32_t PRESCALE_ENABLE;
+    __O uint32_t PRESCALE_DISABLE;
     union {
         struct {
-            __O uint32_t ENABLE :8; /**< Write any value to select enable the 4-bit prescaler */
-            __I uint32_t STATE:1; /**< Current state of the prescaler.  ‘1’ the prescaler is enabled.  ‘0’ the prescaler is disabled. */
+            __I uint32_t CUR_DUTY_CYCLE_VALUE : 8; /** Curent value of duty Cycle */
+            __I uint32_t CUR_PRE_SCALER_STATE : 1; /** Current state of the prescaler.  ‘1’ the prescaler is enabled.  ‘0’ the prescaler is disabled. */
+            __I uint32_t CUR_PWM_ENABLE_STATE : 1; /** Current state of the PWM.  ‘1’ the PWM is enabled.  ‘0’ the PWM is disabled. */
+            __I uint32_t CUR_PWM_OUTPUT_STATE : 1; /** Current state of PWM output */
         } BITS;
-        __IO uint32_t WORD;
-    } PRESCALE_ENABLE;
-    __O uint32_t PRESCALE_DISABLE;
+        __I uint32_t WORD;
+    } READ_CONFIG_STATUS;
 } PwmReg_t, *PwmReg_pt;
 #endif /* PWM_MAP_H_ */

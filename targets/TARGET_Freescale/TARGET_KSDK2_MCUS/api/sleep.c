@@ -18,13 +18,15 @@
 #include "fsl_smc.h"
 #include "fsl_clock_config.h"
 
-void sleep(void) {
+void sleep(void)
+{
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
 
     SMC_SetPowerModeWait(SMC);
 }
 
-void deepsleep(void) {
+void deepsleep(void)
+{
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
     mcg_mode_t mode = CLOCK_GetMode();
 #endif
@@ -37,8 +39,10 @@ void deepsleep(void) {
      * If enter stop modes when MCG in PEE mode, then after wakeup, the MCG is in PBE mode,
      * need to enter PEE mode manually.
      */
+#if defined(kMCG_ModePEE)
     if (mode == kMCG_ModePEE) {
         BOARD_BootClockRUN();
     }
+#endif
 #endif
 }

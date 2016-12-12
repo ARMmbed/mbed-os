@@ -23,7 +23,8 @@
 
 extern void rtc_setup_oscillator(RTC_Type *base);
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     rtc_config_t rtcConfig;
 
     RTC_GetDefaultConfig(&rtcConfig);
@@ -34,7 +35,8 @@ void rtc_init(void) {
     RTC_StartTimer(RTC);
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     RTC_Deinit(RTC);
 }
 
@@ -42,16 +44,19 @@ void rtc_free(void) {
  * Little check routine to see if the RTC has been enabled
  * 0 = Disabled, 1 = Enabled
  */
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     CLOCK_EnableClock(kCLOCK_Rtc0);
     return (int)((RTC->SR & RTC_SR_TCE_MASK) >> RTC_SR_TCE_SHIFT);
 }
 
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     return (time_t)RTC->TSR;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     if (t == 0) {
         t = 1;
     }

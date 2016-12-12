@@ -21,7 +21,8 @@
 
 static GPIO_Type * const gpio_addrs[] = GPIO_BASE_PTRS;
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_num = pin & 0xFF;
 
@@ -29,7 +30,8 @@ uint32_t gpio_set(PinName pin) {
     return 1 << pin_num;
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     obj->pin = pin;
     if (pin == (PinName)NC)
         return;
@@ -37,11 +39,13 @@ void gpio_init(gpio_t *obj, PinName pin) {
     pin_function(pin, (int)kPORT_MuxAsGpio);
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     pin_mode(obj->pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pin & 0xFF;
@@ -57,7 +61,8 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
     }
 }
 
-void gpio_write(gpio_t *obj, int value) {
+void gpio_write(gpio_t *obj, int value)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pin & 0xFF;
@@ -65,7 +70,8 @@ void gpio_write(gpio_t *obj, int value) {
     GPIO_WritePinOutput(gpio_addrs[port], pin, value);
 }
 
-int gpio_read(gpio_t *obj) {
+int gpio_read(gpio_t *obj)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pin & 0xFF;

@@ -328,6 +328,9 @@ HISTORY
 
   ++ Bugfixes:
 
+  2016-11-25: Simon Goldschmidt
+  * dhcp.c: fixed bug #49676 (Possible endless loop when parsing dhcp options)
+
   2016-07-20: Simon Goldschmidt
   * memp.h/.c: fixed bug #48442 (memp stats don't work for MEMP_MEM_MALLOC)
 

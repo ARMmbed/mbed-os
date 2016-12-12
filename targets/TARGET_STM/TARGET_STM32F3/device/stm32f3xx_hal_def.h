@@ -122,6 +122,27 @@ typedef enum
                                       (__HANDLE__)->Lock = HAL_UNLOCKED;    \
                                     }while (0)
 #endif /* USE_RTOS */
+#if defined (__CC_ARM)
+#pragma diag_suppress 3731
+#endif
+static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
+{
+	uint32_t newValue;
+	do {
+		newValue = (uint32_t)__LDREXW((volatile unsigned long *)ptr) | mask;
+
+	} while (__STREXW(newValue,(volatile unsigned long*) ptr));
+}
+
+
+static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
+{
+	uint32_t newValue;
+	do {
+		newValue = (uint32_t)__LDREXW((volatile unsigned long *)ptr) &~mask;
+
+	} while (__STREXW(newValue,(volatile unsigned long*) ptr));
+}
 
 #if  defined ( __GNUC__ )
   #ifndef __weak

@@ -96,6 +96,12 @@ publish: rsync TARGET_M3 TARGET_M4
 	#
 	# Rename target directorires to TARGET_* filters...
 	$(foreach target, $(TARGET_TRANSLATION),mv $(TARGET_SUPPORTED)/$(subst .,,$(suffix $(target))) $(TARGET_SUPPORTED)/TARGET_$(basename $(target));)
+	#
+	# Updating checked out version tag
+	git -C $(UVISOR_DIR) describe --tags --abbrev=40 --dirty > $(TARGET_PREFIX)VERSION.txt
+	#
+	# Updated list of authors, sorted by contributions
+	git -C $(UVISOR_DIR) shortlog -s -n > $(TARGET_PREFIX)AUTHORS.txt
 
 uvisor-compile: $(UVISOR_GIT_CFG)
 	make -C $(UVISOR_DIR)
@@ -104,12 +110,6 @@ update: $(UVISOR_GIT_CFG)
 	#
 	# Updating to latest uVisor library version
 	git -C $(UVISOR_DIR) pull --rebase
-	#
-	# Updating checked out version tag
-	git -C $(UVISOR_DIR) describe --tags --abbrev=40 --dirty > $(TARGET_PREFIX)VERSION.txt
-	#
-	# Updated list of authors, sorted by contributions
-	git -C $(UVISOR_DIR) shortlog -s -n > $(TARGET_PREFIX)AUTHORS.txt
 
 $(UVISOR_GIT_CFG):
 	rm -rf $(UVISOR_DIR)

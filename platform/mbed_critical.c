@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+/* Declare __STDC_LIMIT_MACROS so stdint.h defines UINT32_MAX when using C++ */
+#define __STDC_LIMIT_MACROS
 #include "platform/critical.h"
 
 #include "cmsis.h"

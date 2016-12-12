@@ -19,18 +19,60 @@
 
 #include "api/inc/unvic_exports.h"
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/api.h"
 #include <stdint.h>
 
-UVISOR_EXTERN void vIRQ_SetVector(uint32_t irqn, uint32_t vector);
-UVISOR_EXTERN uint32_t vIRQ_GetVector(uint32_t irqn);
-UVISOR_EXTERN void vIRQ_EnableIRQ(uint32_t irqn);
-UVISOR_EXTERN void vIRQ_DisableIRQ(uint32_t irqn);
-UVISOR_EXTERN void vIRQ_ClearPendingIRQ(uint32_t irqn);
-UVISOR_EXTERN void vIRQ_SetPendingIRQ(uint32_t irqn);
-UVISOR_EXTERN uint32_t vIRQ_GetPendingIRQ(uint32_t irqn);
-UVISOR_EXTERN void vIRQ_SetPriority(uint32_t irqn, uint32_t priority);
-UVISOR_EXTERN uint32_t vIRQ_GetPriority(uint32_t irqn);
-UVISOR_EXTERN int vIRQ_GetLevel(void);
+UVISOR_EXTERN_C_BEGIN
+
+static UVISOR_FORCEINLINE void vIRQ_SetVector(uint32_t irqn, uint32_t vector)
+{
+    uvisor_api.irq_set_vector(irqn, vector);
+}
+
+static UVISOR_FORCEINLINE uint32_t vIRQ_GetVector(uint32_t irqn)
+{
+    return uvisor_api.irq_get_vector(irqn);
+}
+
+static UVISOR_FORCEINLINE void vIRQ_EnableIRQ(uint32_t irqn)
+{
+    uvisor_api.irq_enable(irqn);
+}
+
+static UVISOR_FORCEINLINE void vIRQ_DisableIRQ(uint32_t irqn)
+{
+    uvisor_api.irq_disable(irqn);
+}
+
+static UVISOR_FORCEINLINE void vIRQ_ClearPendingIRQ(uint32_t irqn)
+{
+    uvisor_api.irq_clear_pending(irqn);
+}
+
+static UVISOR_FORCEINLINE void vIRQ_SetPendingIRQ(uint32_t irqn)
+{
+    uvisor_api.irq_set_pending(irqn);
+}
+
+static UVISOR_FORCEINLINE uint32_t vIRQ_GetPendingIRQ(uint32_t irqn)
+{
+    return uvisor_api.irq_get_pending(irqn);
+}
+
+static UVISOR_FORCEINLINE void vIRQ_SetPriority(uint32_t irqn, uint32_t priority)
+{
+    uvisor_api.irq_set_priority(irqn, priority);
+}
+
+static UVISOR_FORCEINLINE uint32_t vIRQ_GetPriority(uint32_t irqn)
+{
+    return uvisor_api.irq_get_priority(irqn);
+}
+
+static UVISOR_FORCEINLINE int vIRQ_GetLevel(void)
+{
+    return uvisor_api.irq_get_level();
+}
 
 /** Disable all interrupts for the currently active box.
  *
@@ -51,7 +93,10 @@ UVISOR_EXTERN int vIRQ_GetLevel(void);
  * vIRQ_EnableAll();   counter = 0; IRQs are now re-enabled.
  *
  * where some_function() also has a disable/enable pair. */
-UVISOR_EXTERN void vIRQ_DisableAll(void);
+static UVISOR_FORCEINLINE void vIRQ_DisableAll(void)
+{
+    uvisor_api.irq_disable_all();
+}
 
 /** Re-enable all interrupts that were previously disabled for the currently
  *  active box.
@@ -59,12 +104,20 @@ UVISOR_EXTERN void vIRQ_DisableAll(void);
  * This function only re-enables interrupt if the uVisor internal counter is set
  * to 0, to make sure that nested disabling of IRQs is still effective. See
  * ::vIRQ_DisableAll for more information. */
-UVISOR_EXTERN void vIRQ_EnableAll(void);
+static UVISOR_FORCEINLINE void vIRQ_EnableAll(void)
+{
+    uvisor_api.irq_enable_all();
+}
 
 /** Reset the device.
  * @warning Currently only the debug box can reset the device.
  * @param reason[in]    Reason for rebooting. Currently not used.
  */
-UVISOR_EXTERN void vIRQ_SystemReset(TResetReason reason);
+static UVISOR_FORCEINLINE void vIRQ_SystemReset(TResetReason reason)
+{
+    return uvisor_api.irq_system_reset(reason);
+}
+
+UVISOR_EXTERN_C_END
 
 #endif /* __UVISOR_API_INTERRUPTS_H__ */

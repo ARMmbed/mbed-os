@@ -21,7 +21,7 @@
 
 /* this value refers to the minimum allowable priority in the physical NVIC
  * module, but not in the virtualised one (vIRQ) */
-#define __UVISOR_NVIC_MIN_PRIORITY ((uint32_t) 1)
+#define __UVISOR_NVIC_MIN_PRIORITY ((uint32_t) 2)
 
 /* this is the maximum priority allowed for the vIRQ module */
 /* users of uVisor APIs can use this to determine the maximum level of

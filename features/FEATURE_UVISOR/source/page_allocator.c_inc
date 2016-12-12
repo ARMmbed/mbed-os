@@ -23,8 +23,8 @@
 #include <uvisor.h>
 #include "page_allocator.h"
 #include "page_allocator_faults.h"
-#include "mpu/vmpu_unpriv_access.h"
-#include "mpu/vmpu.h"
+#include "vmpu_unpriv_access.h"
+#include "vmpu.h"
 #include "halt.h"
 #include "context.h"
 

@@ -23,11 +23,13 @@
 /* Array of GPIO peripheral base address. */
 static GPIO_Type *const port_addrs[] = GPIO_BASE_PTRS;
 
-PinName port_pin(PortName port, int pin_n) {
+PinName port_pin(PortName port, int pin_n)
+{
     return (PinName)((port << GPIO_PORT_SHIFT) | pin_n);
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
     obj->port = port;
     obj->mask = mask;
 
@@ -41,8 +43,8 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     port_dir(obj, dir);
 }
 
-void port_mode(port_t *obj, PinMode mode) {
-
+void port_mode(port_t *obj, PinMode mode)
+{
     // The mode is set per pin: reuse pinmap logic
     for (uint32_t i = 0; i < 32; i++) {
         if (obj->mask & (1 << i)) {
@@ -51,7 +53,8 @@ void port_mode(port_t *obj, PinMode mode) {
     }
 }
 
-void port_dir(port_t *obj, PinDirection dir) {
+void port_dir(port_t *obj, PinDirection dir)
+{
     GPIO_Type *base = port_addrs[obj->port];
     uint32_t direction = base->PDDR;
 
@@ -66,14 +69,16 @@ void port_dir(port_t *obj, PinDirection dir) {
     base->PDDR = direction;
 }
 
-void port_write(port_t *obj, int value) {
+void port_write(port_t *obj, int value)
+{
     GPIO_Type *base = port_addrs[obj->port];
     uint32_t input = base->PDIR & ~obj->mask;
 
     base->PDOR = (input | (uint32_t)(value & obj->mask));
 }
 
-int port_read(port_t *obj) {
+int port_read(port_t *obj)
+{
     GPIO_Type *base = port_addrs[obj->port];
 
     return (int)(base->PDIR & obj->mask);

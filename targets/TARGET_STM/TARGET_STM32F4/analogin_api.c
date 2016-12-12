@@ -183,13 +183,19 @@ static inline uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
+    // Measuring VBAT sets the ADC_CCR_VBATE bit in ADC->CCR, and there is not
+    // possibility with the ST HAL driver to clear it. If it isn't cleared,
+    // VBAT remains connected to the ADC channel in preference to temperature,
+    // so VBAT readings are returned in place of temperature.
+    ADC->CCR &= ~(ADC_CCR_VBATE | ADC_CCR_TSVREFE);
+
     HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
 
     HAL_ADC_Start(&AdcHandle); // Start conversion
 
     // Wait end of conversion and get value
     if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+        return (uint16_t)HAL_ADC_GetValue(&AdcHandle);
     } else {
         return 0;
     }

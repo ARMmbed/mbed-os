@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 UVISOR_EXTERN const uint32_t __uvisor_mode;
+UVISOR_EXTERN void const * const main_cfg_ptr;
 
 #define UVISOR_DISABLED   0
 #define UVISOR_PERMISSIVE 1
@@ -58,7 +59,7 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
         acl_list_count \
     }; \
     \
-    extern const __attribute__((section(".keep.uvisor.cfgtbl_ptr_first"), aligned(4))) void * const main_cfg_ptr = &main_cfg;
+    UVISOR_EXTERN const __attribute__((section(".keep.uvisor.cfgtbl_ptr_first"), aligned(4))) void * const main_cfg_ptr = &main_cfg;
 
 /* Creates a global page heap with at least `minimum_number_of_pages` each of size `page_size` in bytes.
  * The total page heap size is at least `minimum_number_of_pages * page_size`. */
@@ -106,7 +107,10 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
         acl_list_count \
     }; \
     \
-    extern const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const box_name ## _cfg_ptr = &box_name ## _cfg;
+    UVISOR_EXTERN const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const box_name ## _cfg_ptr = &box_name ## _cfg;
+
+#define UVISOR_BOX_EXTERN(box_name) \
+    UVISOR_EXTERN const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const box_name ## _cfg_ptr;
 
 #define __UVISOR_BOX_CONFIG_NOCONTEXT(box_name, acl_list, stack_size) \
     __UVISOR_BOX_CONFIG(box_name, acl_list, UVISOR_ARRAY_COUNT(acl_list), stack_size, 0) \
@@ -152,14 +156,5 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
     static const uint32_t __uvisor_box_heapsize = heap_size;
 
 #define uvisor_ctx (*__uvisor_ps)
-
-/* Copy the box namespace of the specified box ID to the memory provided by
- * box_namespace. The box_namespace's length must be at least
- * MAX_BOX_NAMESPACE_LENGTH bytes. Return how many bytes were copied into
- * box_namespace. Return UVISOR_ERROR_INVALID_BOX_ID if the provided box ID is
- * invalid. Return UVISOR_ERROR_BUFFER_TOO_SMALL if the provided box_namespace
- * is too small to hold MAX_BOX_NAMESPACE_LENGTH bytes. Return
- * UVISOR_ERROR_BOX_NAMESPACE_ANONYMOUS if the box is anonymous. */
-UVISOR_EXTERN int uvisor_box_namespace(int box_id, char *box_namespace, size_t length);
 
 #endif /* __UVISOR_API_BOX_CONFIG_H__ */
