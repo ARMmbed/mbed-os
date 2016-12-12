@@ -868,6 +868,7 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
             } else {
                 s->conn->pcb.udp->so_options &= SOF_BROADCAST;
             }
+            return 0;
 
         default:
             return NSAPI_ERROR_UNSUPPORTED;
