@@ -112,6 +112,8 @@ public:
     nsapi_size_or_error_t recvfrom(SocketAddress *address,
             void *data, nsapi_size_t size);
 
+    nsapi_error_t set_broadcast(bool broadcast);
+
 protected:
     virtual nsapi_protocol_t get_proto();
     virtual void event();
