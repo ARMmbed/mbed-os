@@ -186,6 +186,48 @@ uint32_t i2c_get_irq_handler(i2c_t *obj)
     return handler;
 }
 
+void i2c_hw_reset(i2c_t *obj) {
+    int timeout;
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+
+    handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
+
+    // wait before reset
+    timeout = BYTE_TIMEOUT;
+    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
+#if defined I2C1_BASE
+    if (obj_s->i2c == I2C_1) {
+        __HAL_RCC_I2C1_FORCE_RESET();
+        __HAL_RCC_I2C1_RELEASE_RESET();
+    }
+#endif
+#if defined I2C2_BASE
+    if (obj_s->i2c == I2C_2) {
+        __HAL_RCC_I2C2_FORCE_RESET();
+        __HAL_RCC_I2C2_RELEASE_RESET();
+    }
+#endif
+#if defined I2C3_BASE
+    if (obj_s->i2c == I2C_3) {
+        __HAL_RCC_I2C3_FORCE_RESET();
+        __HAL_RCC_I2C3_RELEASE_RESET();
+    }
+#endif
+#if defined I2C4_BASE
+    if (obj_s->i2c == I2C_4) {
+        __HAL_RCC_I2C4_FORCE_RESET();
+        __HAL_RCC_I2C4_RELEASE_RESET();
+    }
+#endif
+#if defined FMPI2C1_BASE
+    if (obj_s->i2c == FMPI2C_1) {
+        __HAL_RCC_FMPI2C1_FORCE_RESET();
+        __HAL_RCC_FMPI2C1_RELEASE_RESET();
+    }
+#endif
+}
+
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     struct i2c_s *obj_s = I2C_S(obj);
@@ -276,7 +318,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->hz = 100000; // 100 kHz per default
 
     // Reset to clear pending flags if any
-    i2c_reset(obj);
+    i2c_hw_reset(obj);
     i2c_frequency(obj, obj_s->hz );
 
 #if DEVICE_I2CSLAVE
@@ -386,49 +428,6 @@ i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
     obj = (i2c_t *)( (char *)obj_s - offsetof(i2c_t,i2c));
 
     return (obj);
-}
-
-void i2c_reset(i2c_t *obj) {
-
-    int timeout;
-    struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-
-    handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
-
-    // wait before reset
-    timeout = BYTE_TIMEOUT;
-    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
-#if defined I2C1_BASE
-    if (obj_s->i2c == I2C_1) {
-        __HAL_RCC_I2C1_FORCE_RESET();
-        __HAL_RCC_I2C1_RELEASE_RESET();
-    }
-#endif
-#if defined I2C2_BASE
-    if (obj_s->i2c == I2C_2) {
-        __HAL_RCC_I2C2_FORCE_RESET();
-        __HAL_RCC_I2C2_RELEASE_RESET();
-    }
-#endif
-#if defined I2C3_BASE
-    if (obj_s->i2c == I2C_3) {
-        __HAL_RCC_I2C3_FORCE_RESET();
-        __HAL_RCC_I2C3_RELEASE_RESET();
-    }
-#endif
-#if defined I2C4_BASE
-    if (obj_s->i2c == I2C_4) {
-        __HAL_RCC_I2C4_FORCE_RESET();
-        __HAL_RCC_I2C4_RELEASE_RESET();
-    }
-#endif
-#if defined FMPI2C1_BASE
-    if (obj_s->i2c == FMPI2C_1) {
-        __HAL_RCC_FMPI2C1_FORCE_RESET();
-        __HAL_RCC_FMPI2C1_RELEASE_RESET();
-    }
-#endif
 }
 
 /* SYNCHRONOUS API FUNCTIONS */
@@ -662,6 +661,14 @@ int i2c_byte_write(i2c_t *obj, int data) {
     return 1;
 }
 #endif //I2C_IP_VERSION_V2
+
+void i2c_reset(i2c_t *obj) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    /*  As recommended in i2c_api.h, mainly send stop */
+    i2c_stop(obj);
+    /* then re-init */
+    i2c_init(obj, obj_s->sda, obj_s->scl);
+}
 
 /*
  *  SYNC APIS
