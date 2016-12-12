@@ -184,6 +184,7 @@ typedef enum nsapi_option {
     NSAPI_LINGER,    /*!< Keeps close from returning until queues empty */
     NSAPI_SNDBUF,    /*!< Sets send buffer size */
     NSAPI_RCVBUF,    /*!< Sets recv buffer size */
+    NSAPI_BROADCAST, /*!< Receive broadcast packets */
 } nsapi_option_t;
 
 /** nsapi_wifi_ap structure

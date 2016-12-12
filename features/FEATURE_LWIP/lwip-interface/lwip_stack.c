@@ -858,6 +858,18 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
             }
             return 0;
 
+        case NSAPI_BROADCAST:
+            if (optlen != sizeof(int) || (s->conn->type != NETCONN_UDP && s->conn->type != NETCONN_RAW)) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            if (*(int *)optval) {
+                s->conn->pcb.udp->so_options |= SOF_BROADCAST;
+            } else {
+                s->conn->pcb.udp->so_options &= SOF_BROADCAST;
+            }
+            return 0;
+
         default:
             return NSAPI_ERROR_UNSUPPORTED;
     }
