@@ -1612,6 +1612,23 @@
         "extra_labels_add": ["DELTA_DFCM_NNN40"],
         "macros_add": ["TARGET_DELTA_DFCM_NNN40", "TARGET_NRF_LFCLK_RC"]
     },
+    "DELTA_DFCM_NNN50": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K"],
+        "macros_add": ["TARGET_NRF_LFCLK_RC"]
+    },
+    "DELTA_DFCM_NNN50_BOOT": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_BOOT"],
+        "extra_labels_add": ["DELTA_DFCM_NNN50"],
+        "macros_add": ["TARGET_DELTA_DFCM_NNN50", "TARGET_NRF_LFCLK_RC"]
+    },
+    "DELTA_DFCM_NNN50_OTA": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_OTA"],
+        "extra_labels_add": ["DELTA_DFCM_NNN50"],
+        "macros_add": ["TARGET_DELTA_DFCM_NNN50", "TARGET_NRF_LFCLK_RC"]
+    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
