@@ -1138,7 +1138,7 @@
         "extra_labels": ["STM", "STM32F3", "STM32F303", "STM32F303VC"],
         "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
         "supported_toolchains": ["GCC_ARM"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "device_name": "STM32F303VC"
     },
     "DISCO_F334C8": {

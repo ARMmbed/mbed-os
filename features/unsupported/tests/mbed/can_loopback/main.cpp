@@ -24,7 +24,8 @@ CAN can1(PA_11, PA_12);
 #elif defined(TARGET_DISCO_F469NI)  || defined(TARGET_DISCO_F746NG)  || \
       defined(TARGET_NUCLEO_F446ZE) || defined(TARGET_NUCLEO_F103RB) || \
       defined(TARGET_NUCLEO_F207ZG) || defined(TARGET_NUCLEO_F303ZE) || \
-      defined(TARGET_DISCO_F769NI) || defined(TARGET_NUCLEO_F767ZI)
+      defined(TARGET_DISCO_F769NI) || defined(TARGET_NUCLEO_F767ZI)  || \
+      defined(TARGET_DISCO_F303VC)
 CAN can1(PB_8, PB_9);
 #endif
 
