@@ -2571,7 +2571,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
     /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
-    hi2c->XferOptions = XferOptions;
+    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE));
     hi2c->XferISR     = I2C_Master_ISR_IT;
 
     /* If size > MAX_NBYTE_SIZE, use reload mode */
@@ -2584,15 +2584,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
     {
       hi2c->XferSize = hi2c->XferCount;
       xfermode = hi2c->XferOptions;
-      
-      /* If transfer direction not change, do not generate Restart Condition */
-      /* Mean Previous state is same as current state */
-      if(hi2c->PreviousState == I2C_STATE_SLAVE_BUSY_TX)
-      {
-        xferrequest = I2C_NO_STARTSTOP;
-      }
     }
-    
 
     /* Send Slave Address and set NBYTES to write */
     I2C_TransferConfig(hi2c, DevAddress, hi2c->XferSize, xfermode, xferrequest);
@@ -2644,7 +2636,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
     /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
-    hi2c->XferOptions = XferOptions;
+    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE));
     hi2c->XferISR     = I2C_Master_ISR_IT;
 
     /* If hi2c->XferCount > MAX_NBYTE_SIZE, use reload mode */
@@ -2657,13 +2649,6 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
     {
       hi2c->XferSize = hi2c->XferCount;
       xfermode = hi2c->XferOptions;
-
-      /* If transfer direction not change, do not generate Restart Condition */
-      /* Mean Previous state is same as current state */
-      if(hi2c->PreviousState == I2C_STATE_MASTER_BUSY_RX)
-      {
-        xferrequest = I2C_NO_STARTSTOP;
-      }
     }
 
     /* Send Slave Address and set NBYTES to read */

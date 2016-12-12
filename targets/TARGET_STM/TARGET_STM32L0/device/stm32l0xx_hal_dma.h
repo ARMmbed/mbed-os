@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
+  * @version $VERSION$
+  * @date    $DATE$
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -139,19 +139,21 @@ typedef struct __DMA_HandleTypeDef
   
   DMA_InitTypeDef       Init;                                                         /*!< DMA communication parameters           */ 
   
-  HAL_LockTypeDef       Lock;                                                         /*!< DMA locking object                     */  
+  HAL_LockTypeDef       Lock;                                                         /*!< DMA locking object                     */
   
   __IO HAL_DMA_StateTypeDef  State;                                                   /*!< DMA transfer state                     */
   
-  void                  *Parent;                                                      /*!< Parent object state                    */  
+  void                  *Parent;                                                      /*!< Parent object state                    */
   
   void                  (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
   
   void                  (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
 
   void                  (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
-  
-  __IO uint32_t          ErrorCode;                                                    /*!< DMA Error code                         */
+
+  void                  (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer abort callback          */  
+
+__IO uint32_t          ErrorCode;                                                     /*!< DMA Error code                         */
   
 } DMA_HandleTypeDef;    
 
@@ -170,6 +172,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 #define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000U)    /*!< No error             */
 #define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001U)    /*!< Transfer error       */
+#define HAL_DMA_ERROR_NO_XFER   ((uint32_t)0x00000004U)    /*!< no ongoing transfer  */
 #define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020U)    /*!< Timeout error        */
 
 #if defined (STM32L011xx) || defined (STM32L021xx)
@@ -643,6 +646,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
 /**

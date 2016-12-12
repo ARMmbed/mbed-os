@@ -27,13 +27,13 @@
   *                                    | 2- PLL_HSE_XTAL        |
   *                                    | (external 8 MHz xtal)  |
   *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 24                     | 32
+  * SYSCLK(MHz)                        | 32                     | 32
   *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 24                     | 32
+  * AHBCLK (MHz)                       | 32                     | 32
   *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 24                     | 32
+  * APB1CLK (MHz)                      | 32                     | 32
   *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 24                     | 32
+  * APB2CLK (MHz)                      | 32                     | 32
   *-----------------------------------------------------------------------------
   * USB capable (48 MHz precise clock) | YES                    | NO
   *-----------------------------------------------------------------------------
@@ -526,7 +526,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   
   /* Enable HSE and HSI48 oscillators and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
   if (bypass == 0)
   {
     RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 8 MHz xtal on OSC_IN/OSC_OUT */
@@ -540,8 +540,8 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   // USBCLK = 48 MHz (8 MHz * 6) --> USB OK
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL6;
-  RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV2;
+  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV3;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     return 0; // FAIL
@@ -549,10 +549,10 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
  
   /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
   RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 24 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 24 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 24 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 24 MHz
+  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 32 MHz
+  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 32 MHz
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     return 0; // FAIL
@@ -583,7 +583,7 @@ uint8_t SetSysClock_PLL_HSI(void)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   
   /* Enable HSI oscillator and activate PLL with HSI as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
   RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;

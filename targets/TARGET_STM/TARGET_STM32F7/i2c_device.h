@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,94 +27,61 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_COMMON_OBJECTS_H
-#define MBED_COMMON_OBJECTS_H
+#ifndef MBED_I2C_DEVICE_H
+#define MBED_I2C_DEVICE_H
 
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct pwmout_s {
-    PWMName pwm;
-    PinName pin;
-    uint32_t prescaler;
-    uint32_t period;
-    uint32_t pulse;
-    uint8_t channel;
-    uint8_t inverted;
-};
+#ifdef DEVICE_I2C
 
-struct spi_s {
-    SPI_HandleTypeDef handle;
-    IRQn_Type spiIRQ;
-    SPIName spi;
-    PinName pin_miso;
-    PinName pin_mosi;
-    PinName pin_sclk;
-    PinName pin_ssel;
-#ifdef DEVICE_SPI_ASYNCH
-    uint32_t event;
-    uint8_t transfer_type;
-#endif
-};
+#define I2C_IP_VERSION_V2
 
-struct serial_s {
-    UARTName uart;
-    int index; // Used by irq
-    uint32_t baudrate;
-    uint32_t databits;
-    uint32_t stopbits;
-    uint32_t parity;
-    PinName pin_tx;
-    PinName pin_rx;
-#if DEVICE_SERIAL_ASYNCH
-    uint32_t events;
-#endif
-#if DEVICE_SERIAL_FC
-    uint32_t hw_flow_ctl;
-    PinName pin_rts;
-    PinName pin_cts;
-#endif
-};
+#define I2C_IT_ALL (I2C_IT_ERRI|I2C_IT_TCI|I2C_IT_STOPI|I2C_IT_NACKI|I2C_IT_ADDRI|I2C_IT_RXI|I2C_IT_TXI)
 
-struct i2c_s {
-    /*  The 1st 2 members I2CName i2c
-     *  and I2C_HandleTypeDef handle should
-     *  be kept as the first members of this struct
-     *  to ensure i2c_get_obj to work as expected
-     */
-    I2CName  i2c;
-    I2C_HandleTypeDef handle;
-    uint8_t index;
-    int hz;
-    PinName sda;
-    PinName scl;
-    IRQn_Type event_i2cIRQ;
-    IRQn_Type error_i2cIRQ;
-    uint32_t XferOperation;
-    volatile uint8_t event;
-#if DEVICE_I2CSLAVE
-    uint8_t slave;
-    volatile uint8_t pending_slave_tx_master_rx;
-    volatile uint8_t pending_slave_rx_maxter_tx;
-#endif
-#if DEVICE_I2C_ASYNCH
-    uint32_t address;
-    uint8_t stop;
-    uint8_t available_events;
-#endif
-};
+/*  Family specifc settings for clock source */
+#define I2CAPI_I2C1_CLKSRC RCC_I2C1CLKSOURCE_PCLK1
+#define I2CAPI_I2C2_CLKSRC RCC_I2C2CLKSOURCE_PCLK1
+#define I2CAPI_I2C3_CLKSRC RCC_I2C3CLKSOURCE_PCLK1
+#define I2CAPI_I2C4_CLKSRC RCC_I2C4CLKSOURCE_PCLK1
 
-#include "gpio_object.h"
+/*  Provide the suitable timing depending on requested frequencie */
+inline uint32_t get_i2c_timing(int hz)
+{
+    uint32_t tim = 0;
+    /*
+       Values calculated with I2C_Timing_Configuration tool (excel file)
+       * Standard mode (up to 100 kHz)
+       * Fast Mode (up to 400 kHz)
+       * Fast Mode Plus (up to 1 MHz)
+       Below values obtained with:
+       - I2Cx clock source = APB1CLK = 54 MHz
+       - Analog filter delay = ON
+       - Digital filter coefficient = 0
+    */
+    switch (hz) {
+        case 100000:
+            tim = 0x10916998; // Standard mode with Rise time = 120ns, Fall time = 120ns
+            break;
+        case 400000:
+            tim = 0x00B11B54; // Fast Mode with Rise time = 120ns, Fall time = 120ns
+            break;
+        case 1000000:
+            tim = 0x0090091B; // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
+            break;
+        default:
+            break;
+    }
+    return tim;
+}
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // DEVICE_I2C
 
+#endif

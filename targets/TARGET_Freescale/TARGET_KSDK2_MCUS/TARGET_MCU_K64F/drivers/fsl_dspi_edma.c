@@ -162,8 +162,6 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
 
     handle->txBuffIfNull = ((uint32_t)DSPI_DUMMY_DATA << 8) | DSPI_DUMMY_DATA;
 
-    handle->state = kDSPI_Busy;
-
     dspi_command_data_config_t commandStruct;
     DSPI_StopTransfer(base);
     DSPI_FlushFifo(base, true, true);
@@ -221,6 +219,8 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
     {
         return kStatus_InvalidArgument;
     }
+
+    handle->state = kDSPI_Busy;
 
     DSPI_DisableDMA(base, kDSPI_RxDmaEnable | kDSPI_TxDmaEnable);
 
@@ -706,13 +706,13 @@ static void EDMA_DspiMasterCallback(edma_handle_t *edmaHandle,
 
     DSPI_DisableDMA((dspiEdmaPrivateHandle->base), kDSPI_RxDmaEnable | kDSPI_TxDmaEnable);
 
+    dspiEdmaPrivateHandle->handle->state = kDSPI_Idle;
+
     if (dspiEdmaPrivateHandle->handle->callback)
     {
         dspiEdmaPrivateHandle->handle->callback(dspiEdmaPrivateHandle->base, dspiEdmaPrivateHandle->handle,
                                                 kStatus_Success, dspiEdmaPrivateHandle->handle->userData);
     }
-
-    dspiEdmaPrivateHandle->handle->state = kDSPI_Idle;
 }
 
 void DSPI_MasterTransferAbortEDMA(SPI_Type *base, dspi_master_edma_handle_t *handle)

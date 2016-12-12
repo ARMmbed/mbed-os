@@ -101,7 +101,7 @@ def target_cross_toolchain(allowed_targets, allowed_toolchains, features=[]):
                 yield target, toolchain
 
 
-def target_cross_ide(allowed_targets, allowed_ides, features=[]):
+def target_cross_ide(allowed_targets, allowed_ides, features=[], toolchains=[]):
     """Generate pairs of target and ides
 
     Args:
@@ -115,6 +115,7 @@ def target_cross_ide(allowed_targets, allowed_ides, features=[]):
     for target in allowed_targets:
         for ide in allowed_ides:
             if (target in EXPORTERS[ide].TARGETS and
+                (not toolchains or EXPORTERS[ide].TOOLCHAIN in toolchains) and
                 all(feature in TARGET_MAP[target].features
                     for feature in features)):
                 yield target, ide
@@ -268,7 +269,7 @@ def export_repos(config, ides, targets, examples):
                 # list of valid combinations to work through
                 for target, ide in target_cross_ide(valid_choices(example['targets'], targets),
                                                     valid_choices(example['exporters'], ides),
-                                                    example['features']):
+                                                    example['features'], example['toolchains']):
                     example_name = "{} {} {}".format(example_project_name, target,
                                                      ide)
                     def status(message):

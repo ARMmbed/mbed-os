@@ -323,7 +323,7 @@ void serial_putc(serial_t *obj, int c)
 //******************************************************************************
 int serial_readable(serial_t *obj)
 {
-    return (obj->uart->intfl & MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY);
+    return (obj->uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY);
 }
 
 //******************************************************************************

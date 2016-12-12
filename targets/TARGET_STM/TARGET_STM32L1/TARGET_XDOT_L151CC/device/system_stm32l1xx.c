@@ -98,10 +98,7 @@
 /** @addtogroup STM32L1xx_System_Private_Defines
   * @{
   */
-#if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)24000000) /*!< Default value of the External oscillator in Hz.
-                                                This value can be provided and adapted by the user application. */
-#endif /* HSE_VALUE */
+#define HSE_VALUE    ((uint32_t)24000000) /*!< XDOT-L151CC has a 24MHz External crystal */
 
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)16000000) /*!< Default value of the Internal oscillator in Hz.
@@ -527,7 +524,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   
   /* Enable HSE and HSI48 oscillators and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
   if (bypass == 0)
   {
     RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 24 MHz xtal on OSC_IN/OSC_OUT */
@@ -585,7 +582,7 @@ uint8_t SetSysClock_PLL_HSI(void)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   
   /* Enable HSI oscillator and activate PLL with HSI as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
   RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
   // SYSCLK = 32 MHz ((16 MHz * 4) / 2)
