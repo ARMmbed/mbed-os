@@ -676,7 +676,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * length;
+        timeout = BYTE_TIMEOUT_US * (length + 1);
         /*  transfer started : wait completion or timeout */
         while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
             wait_us(1);
@@ -732,7 +732,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     ret = HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation); 
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * length;
+        timeout = BYTE_TIMEOUT_US * (length + 1);
         /*  transfer started : wait completion or timeout */
         while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
             wait_us(1);
@@ -911,7 +911,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     ret = HAL_I2C_Slave_Sequential_Receive_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * length;
+        timeout = BYTE_TIMEOUT_US * (length + 1);
         while(obj_s->pending_slave_rx_maxter_tx && (--timeout != 0)) {
             wait_us(1);
         }
@@ -936,7 +936,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     ret = HAL_I2C_Slave_Sequential_Transmit_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * length;
+        timeout = BYTE_TIMEOUT_US * (length + 1);
         while(obj_s->pending_slave_tx_master_rx && (--timeout != 0)) {
             wait_us(1);
         }
