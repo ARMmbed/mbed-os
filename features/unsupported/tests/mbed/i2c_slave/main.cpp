@@ -16,8 +16,7 @@ I2CSlave slave(p9, p10);
 I2CSlave slave(PA16, PA17);
 #elif defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
 I2CSlave slave(PA08, PA09);
-#elif defined(TARGET_NUCLEO_F411RE) || defined(TARGET_NUCLEO_F446RE)
-//I2C master(PB_9, PB_8); // I2C_1 (Arduino: D14/D15)
+#elif defined(TARGET_NUCLEO_F446RE)
 I2CSlave slave(PB_3, PB_10); // I2C_2 (Arduino: D3/D6)
 #elif defined(TARGET_NUCLEO_F429ZI)
 I2CSlave slave(PB_11, PB_10); // I2C_2

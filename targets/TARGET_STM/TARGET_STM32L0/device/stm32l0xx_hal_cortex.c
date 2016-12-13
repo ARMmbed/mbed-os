@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the CORTEX:
@@ -47,7 +47,7 @@
         (++) Configures the SysTick Counter clock source to be Core Clock Source (HCLK).
         (++) Enables the SysTick Interrupt.
         (++) Starts the SysTick Counter.
-    
+	
    (+) You can change the SysTick Clock source to be HCLK_Div8 by calling the function
        HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK_DIV8) just after the
        HAL_SYSTICK_Config() function call. The HAL_SYSTICK_CLKSourceConfig() function is defined
@@ -356,7 +356,7 @@ void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
     assert_param(IS_MPU_REGION_SIZE(MPU_Init->Size));
 
     /* Set the base adsress and set the 4 LSB to 0 */
-    MPU->RBAR = (MPU_Init->BaseAddress) & 0xfffffff0;
+    MPU->RBAR = (MPU_Init->BaseAddress) & 0xfffffff0U;
 
     /* Fill the field RASR */
     MPU->RASR = ((uint32_t)MPU_Init->DisableExec        << MPU_RASR_XN_Pos)   |
@@ -370,8 +370,8 @@ void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
   }
   else
   {
-    MPU->RBAR = 0x00;
-    MPU->RASR = 0x00;
+    MPU->RBAR = 0x00U;
+    MPU->RASR = 0x00U;
   }
 }
 #endif /* __MPU_PRESENT */

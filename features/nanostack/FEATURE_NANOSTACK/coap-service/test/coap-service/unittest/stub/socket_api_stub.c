@@ -5,6 +5,7 @@
 #include "socket_api_stub.h"
 
 socket_api_stub_data_t socket_api_stub;
+const uint8_t ns_in6addr_any[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int8_t socket_raw_open(void (*passed_fptr)(void *))
 {
@@ -24,7 +25,7 @@ int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(vo
     return socket_api_stub.int8_value;
 }
 
-int8_t socket_free(int8_t socket)
+int8_t socket_close(int8_t socket)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];
@@ -32,7 +33,7 @@ int8_t socket_free(int8_t socket)
 
     return socket_api_stub.int8_value;
 }
-int8_t socket_listen(int8_t socket)
+int8_t socket_listen(int8_t socket, uint8_t backlog)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];
@@ -56,14 +57,7 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
 
     return socket_api_stub.int8_value;
 }
-int8_t socket_close(int8_t socket, ns_address_t *address)
-{
-    if( socket_api_stub.counter >= 0){
-        return socket_api_stub.values[socket_api_stub.counter--];
-    }
 
-    return socket_api_stub.int8_value;
-}
 int8_t socket_send(int8_t socket, uint8_t *buffer, uint16_t length)
 {
     if( socket_api_stub.counter >= 0){
@@ -115,4 +109,23 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
     }
 
     return socket_api_stub.int8_value;
+}
+
+int8_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
+{
+    if( socket_api_stub.counter >= 0){
+        return socket_api_stub.values[socket_api_stub.counter--];
+    }
+
+    return socket_api_stub.int8_value;
+}
+
+int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags)
+{
+    return -1;
+}
+
+ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg)
+{
+    return NULL;
 }

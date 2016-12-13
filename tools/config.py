@@ -17,6 +17,7 @@ limitations under the License.
 
 from copy import deepcopy
 import os
+import sys
 # Implementation of mbed configuration mechanism
 from tools.utils import json_file_to_dict
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \

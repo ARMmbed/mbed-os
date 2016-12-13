@@ -45,6 +45,29 @@ public:
 private:
     const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
     const static unsigned BLE_TOTAL_DESCRIPTORS     = 8;
+    const static unsigned TOTAL_CONCURRENT_LONG_WRITE_REQUESTS = 3;
+
+private:
+    struct long_write_request_t {
+        // the connection handle for a long write request
+        uint16_t conn_handle;
+
+        // the attribute handle for the long write request
+        // This implementation folow the bluetooth route
+        // where a write request target a single characteristic
+        // (see BLUETOOTH SPECIFICATION Version 4.2 [Vol 3, Part G] - 4.9.4)
+        uint16_t attr_handle;
+
+        // offset of the transaction
+        uint16_t offset;
+
+        // length of the data
+        uint16_t length;
+
+        // current data
+        uint8_t* data;
+    };
+
 
 private:
     /**
@@ -79,19 +102,51 @@ private:
         return -1;
     }
 
+    /**
+     * Return the biggest size used by a characteristic in the server
+     */
+    uint16_t getBiggestCharacteristicSize() const;
+
+    /**
+     * Allocate a new write long request. return null if no requests are available.
+     * @param  connection_handle The connection handle to be associated with the request.
+     * @return the allocated request or NULL if no requests are available.
+     */
+    long_write_request_t* allocateLongWriteRequest(uint16_t connection_handle);
+
+    /**
+     * Release a long write request and free a slot for subsequent write long requests.
+     * @param  connection_handle The connection handle associated with the request
+     * @return true if the request where allocated and was release, false otherwise.
+     */
+    bool releaseLongWriteRequest(uint16_t connection_handle);
+
+    /**
+     * Find a long write request from a characteristic handle
+     * @param  connection_handle The connection handle associated with the request.
+     * @return a pointer to the request if found otherwise NULL.
+     */
+    long_write_request_t* findLongWriteRequest(uint16_t connection_handle);
+
+    /**
+     * Release all pending write requests.
+     */
+    void releaseAllWriteRequests();
+
 private:
     GattCharacteristic       *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t  nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
     GattAttribute            *p_descriptors[BLE_TOTAL_DESCRIPTORS];
     uint8_t                   descriptorCount;
     uint16_t                  nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
+    long_write_request_t      long_write_requests[TOTAL_CONCURRENT_LONG_WRITE_REQUESTS];
 
     /*
      * Allow instantiation from nRF5xn when required.
      */
     friend class nRF5xn;
 
-    nRF5xGattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
+    nRF5xGattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles(), long_write_requests() {
         /* empty */
     }
 

@@ -26,6 +26,47 @@
 
 #include "nRF5xn.h"
 
+namespace {
+
+static const ble_gatts_rw_authorize_reply_params_t write_auth_queue_full_reply = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    .params = {
+        .write = {
+            .gatt_status = BLE_GATT_STATUS_ATTERR_PREPARE_QUEUE_FULL
+        }
+    }
+};
+
+static const ble_gatts_rw_authorize_reply_params_t write_auth_invalid_offset_reply = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    .params = {
+        .write = {
+            .gatt_status = BLE_GATT_STATUS_ATTERR_INVALID_OFFSET
+        }
+    }
+};
+
+static const ble_gatts_rw_authorize_reply_params_t write_auth_succes_reply = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    .params = {
+        .write = {
+            .gatt_status = BLE_GATT_STATUS_SUCCESS,
+            .update = 0
+        }
+    }
+};
+
+static const ble_gatts_rw_authorize_reply_params_t write_auth_invalid_reply = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    .params = {
+        .write = {
+            .gatt_status = BLE_GATT_STATUS_ATTERR_INVALID
+        }
+    }
+};
+
+}
+
 /**************************************************************************/
 /*!
     @brief  Adds a new service to the GATT table on the peripheral
@@ -354,6 +395,8 @@ ble_error_t nRF5xGattServer::reset(void)
     memset(nrfDescriptorHandles,     0, sizeof(nrfDescriptorHandles));
     descriptorCount = 0;
 
+    releaseAllWriteRequests();
+
     return BLE_ERROR_NONE;
 }
 
@@ -427,13 +470,33 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
             }
             break;
 
+        case BLE_EVT_USER_MEM_REQUEST: {
+            uint16_t conn_handle = p_ble_evt->evt.common_evt.conn_handle;
+
+            // allocate a new long request for this connection
+            // NOTE: we don't care about the result at this stage,
+            // it is not possible to cancel the operation anyway.
+            // If the request was not allocated then it will gracefully failled
+            // at subsequent stages.
+            allocateLongWriteRequest(conn_handle);
+            sd_ble_user_mem_reply(conn_handle, NULL);
+            return;
+        }
+
         default:
             return;
     }
 
     int characteristicIndex = resolveValueHandleToCharIndex(handle_value);
     if (characteristicIndex == -1) {
-        return;
+        // filter out the case were the request is a long one,
+        // and there is no attribute handle provided
+        uint8_t write_op = gattsEventP->params.authorize_request.request.write.op;
+        if (eventType != GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ ||
+            (write_op != BLE_GATTS_OP_EXEC_WRITE_REQ_NOW &&
+             write_op != BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)) {
+            return;
+        }
     }
 
     /* Find index (charHandle) in the pool */
@@ -451,6 +514,131 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
             break;
         }
         case GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ: {
+            uint16_t conn_handle = gattsEventP->conn_handle;
+            const ble_gatts_evt_write_t& input_req = gattsEventP->params.authorize_request.request.write;
+            const uint16_t max_size = getBiggestCharacteristicSize();
+
+            // this is a long write request, handle it here.
+            switch (input_req.op) {
+                case BLE_GATTS_OP_PREP_WRITE_REQ: {
+                    // verify that the request is not outside of the possible range
+                    if ((input_req.offset + input_req.len) > max_size) {
+                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_offset_reply);
+                        releaseLongWriteRequest(conn_handle);
+                        return;
+                    }
+
+                    // find the write request
+                    long_write_request_t* req = findLongWriteRequest(conn_handle);
+                    if (!req)  {
+                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
+                        return;
+                    }
+
+                    // initialize the first request by setting the offset
+                    if (req->length == 0) {
+                        req->attr_handle = input_req.handle;
+                        req->offset = input_req.offset;
+                    } else { 
+                        // it should be the subsequent write
+                        if ((req->offset + req->length) != input_req.offset) {
+                            sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_offset_reply);
+                            releaseLongWriteRequest(conn_handle);
+                            return;
+                        }
+
+                        // it is not allowed to write multiple characteristic with the same request
+                        if (input_req.handle != req->attr_handle) {
+                            sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
+                            releaseLongWriteRequest(conn_handle);
+                            return;
+                        }
+                    }
+
+                    // start the copy of what is in input
+                    memcpy(req->data + req->length, input_req.data, input_req.len);
+
+                    // update the lenght of the data written
+                    req->length = req->length + input_req.len;
+
+                    // success, signal it to the softdevice
+                    ble_gatts_rw_authorize_reply_params_t reply = {
+                        .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+                        .params = {
+                            .write = {
+                                .gatt_status = BLE_GATT_STATUS_SUCCESS,
+                                .update = 1,
+                                .offset = input_req.offset,
+                                .len = input_req.len,
+                                .p_data = input_req.data
+                            }
+                        }
+                    };
+
+                    sd_ble_gatts_rw_authorize_reply(conn_handle, &reply);
+                }   return;
+
+                case BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL: {
+                    releaseLongWriteRequest(conn_handle);
+                    sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_succes_reply);
+                }   return;
+
+                case BLE_GATTS_OP_EXEC_WRITE_REQ_NOW: {
+                    long_write_request_t* req = findLongWriteRequest(conn_handle);
+                    if (!req) {
+                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
+                        return;
+                    }
+
+                    GattWriteAuthCallbackParams cbParams = {
+                        .connHandle = conn_handle,
+                        .handle     = req->attr_handle,
+                        .offset     = req->offset,
+                        .len        = req->length,
+                        .data       = req->data,
+                        .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                                                                           * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                                           * request is to proceed. */
+                    };
+                    uint16_t write_authorization = p_characteristics[characteristicIndex]->authorizeWrite(&cbParams);
+
+                    // the user code didn't provide the write authorization,
+                    // just leave here.
+                    if (write_authorization != AUTH_CALLBACK_REPLY_SUCCESS) {
+                        // report the status of the operation in any cases
+                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
+                        releaseLongWriteRequest(conn_handle);
+                        return;
+                    }
+
+                    // FIXME can't use ::write here, this function doesn't take the offset into account ...
+                    ble_gatts_value_t value = {
+                        .len     = req->length,
+                        .offset  = req->offset,
+                        .p_value = req->data
+                    };
+                    uint32_t update_err = sd_ble_gatts_value_set(conn_handle, req->attr_handle, &value);
+                    if (update_err) {
+                        sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
+                        releaseLongWriteRequest(conn_handle);
+                        return;
+                    }
+
+                    sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_succes_reply);
+
+                    GattWriteCallbackParams writeParams = {
+                        .connHandle = conn_handle,
+                        .handle     = req->attr_handle,
+                        .writeOp    = static_cast<GattWriteCallbackParams::WriteOp_t>(input_req.op),
+                        .offset     = req->offset,
+                        .len        = req->length,
+                        .data       = req->data,
+                    };
+                    handleDataWrittenEvent(&writeParams);
+                    releaseLongWriteRequest(conn_handle);
+                }   return;
+            }
+
             GattWriteAuthCallbackParams cbParams = {
                 .connHandle = gattsEventP->conn_handle,
                 .handle     = handle_value,
@@ -539,5 +727,66 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
         default:
             handleEvent(eventType, handle_value);
             break;
+    }
+}
+
+uint16_t nRF5xGattServer::getBiggestCharacteristicSize() const {
+    uint16_t result = 0;
+    for (size_t i = 0; i < characteristicCount; ++i) {
+        uint16_t current_size = p_characteristics[i]->getValueAttribute().getMaxLength();
+        if (current_size > result) {
+            result = current_size;
+        }
+    }
+    return result;
+}
+
+nRF5xGattServer::long_write_request_t* nRF5xGattServer::allocateLongWriteRequest(uint16_t connection_handle) {
+    for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
+        long_write_request_t& req = long_write_requests[i];
+        if (req.data == NULL) {
+            uint16_t block_size = getBiggestCharacteristicSize();
+            req.data = static_cast<uint8_t*>(malloc(block_size));
+            req.offset = 0;
+            req.length = 0;
+            req.conn_handle = connection_handle;
+            return &req;
+        }
+    }
+    // if nothing has been found then return null
+    return NULL;
+}
+
+bool nRF5xGattServer::releaseLongWriteRequest(uint16_t connection_handle) {
+    long_write_request_t* req = findLongWriteRequest(connection_handle);
+    if (!req) {
+        return false;
+    }
+
+    free(req->data);
+    req->data = NULL;
+
+    // the other fields are not relevant, return now
+    return true;
+}
+
+nRF5xGattServer::long_write_request_t* nRF5xGattServer::findLongWriteRequest(uint16_t connection_handle) {
+    for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
+        long_write_request_t& req = long_write_requests[i];
+        if (req.data != NULL && req.conn_handle == connection_handle) {
+            return &req;
+        }
+    }
+    // if nothing has been found then return null
+    return NULL;
+}
+
+void nRF5xGattServer::releaseAllWriteRequests() {
+    for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
+        long_write_request_t& req = long_write_requests[i];
+        if (req.data != NULL) {
+            free(req.data);
+            req.data = NULL;
+        }
     }
 }

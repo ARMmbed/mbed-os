@@ -165,8 +165,11 @@ class IAR(Exporter):
             os.remove(project_name + ".ewp")
             os.remove(project_name + ".ewd")
             os.remove(project_name + ".eww")
+            # legacy output file location
             if exists('.build'):
                 shutil.rmtree('.build')
+            if exists('BUILD'):
+                shutil.rmtree('BUILD')
 
         if ret_code !=0:
             # Seems like something went wrong.

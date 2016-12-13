@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
@@ -94,14 +94,14 @@ typedef struct
   */ 
 typedef enum
 {
-  HAL_IRDA_STATE_RESET             = 0x00,    /*!< Peripheral is not yet Initialized */
-  HAL_IRDA_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
-  HAL_IRDA_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing */
-  HAL_IRDA_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing */
-  HAL_IRDA_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing */
-  HAL_IRDA_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission and Reception process is ongoing */
-  HAL_IRDA_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
-  HAL_IRDA_STATE_ERROR             = 0x04     /*!< Error */
+  HAL_IRDA_STATE_RESET             = 0x00U,    /*!< Peripheral is not yet Initialized */
+  HAL_IRDA_STATE_READY             = 0x01U,    /*!< Peripheral Initialized and ready for use */
+  HAL_IRDA_STATE_BUSY              = 0x02U,    /*!< an internal process is ongoing */
+  HAL_IRDA_STATE_BUSY_TX           = 0x12U,    /*!< Data Transmission process is ongoing */
+  HAL_IRDA_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing */
+  HAL_IRDA_STATE_BUSY_TX_RX        = 0x32U,    /*!< Data Transmission and Reception process is ongoing */
+  HAL_IRDA_STATE_TIMEOUT           = 0x03U,    /*!< Timeout state */
+  HAL_IRDA_STATE_ERROR             = 0x04U     /*!< Error */
 }HAL_IRDA_StateTypeDef;
 
 
@@ -159,29 +159,29 @@ typedef struct
   * @brief  HAL IRDA Error Code definition
   */
 
-#define  HAL_IRDA_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
-#define  HAL_IRDA_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
-#define  HAL_IRDA_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
-#define  HAL_IRDA_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
-#define  HAL_IRDA_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
-#define  HAL_IRDA_ERROR_DMA       ((uint32_t)0x10)     /*!< DMA transfer error  */
+#define  HAL_IRDA_ERROR_NONE      ((uint32_t)0x00U)    /*!< No error            */
+#define  HAL_IRDA_ERROR_PE        ((uint32_t)0x01U)    /*!< Parity error        */
+#define  HAL_IRDA_ERROR_NE        ((uint32_t)0x02U)    /*!< Noise error         */
+#define  HAL_IRDA_ERROR_FE        ((uint32_t)0x04U)    /*!< frame error         */
+#define  HAL_IRDA_ERROR_ORE       ((uint32_t)0x08U)    /*!< Overrun error       */
+#define  HAL_IRDA_ERROR_DMA       ((uint32_t)0x10U)     /*!< DMA transfer error  */
 
 /**
   * @brief IRDA clock sources definition
   */
 typedef enum
 {
-  IRDA_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source  */
-  IRDA_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source  */
-  IRDA_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source    */
-  IRDA_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source */
-  IRDA_CLOCKSOURCE_LSE        = 0x08     /*!< LSE clock source     */
+  IRDA_CLOCKSOURCE_PCLK1      = 0x00U,    /*!< PCLK1 clock source  */
+  IRDA_CLOCKSOURCE_PCLK2      = 0x01U,    /*!< PCLK2 clock source  */
+  IRDA_CLOCKSOURCE_HSI        = 0x02U,    /*!< HSI clock source    */
+  IRDA_CLOCKSOURCE_SYSCLK     = 0x04U,    /*!< SYSCLK clock source */
+  IRDA_CLOCKSOURCE_LSE        = 0x08U     /*!< LSE clock source     */
 }IRDA_ClockSourceTypeDef;
 
 /** @defgroup IRDA_Parity IRDA Parity
   * @{
   */ 
-#define IRDA_PARITY_NONE                    ((uint32_t)0x0000)
+#define IRDA_PARITY_NONE                    ((uint32_t)0x0000U)
 #define IRDA_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
 #define IRDA_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
 #define IS_IRDA_PARITY(PARITY) (((PARITY) == IRDA_PARITY_NONE) || \
@@ -206,7 +206,7 @@ typedef enum
 /** @defgroup IRDA_Low_Power IRDA low power
   * @{
   */
-#define IRDA_POWERMODE_NORMAL                    ((uint32_t)0x0000)
+#define IRDA_POWERMODE_NORMAL                    ((uint32_t)0x0000U)
 #define IRDA_POWERMODE_LOWPOWER                  ((uint32_t)USART_CR3_IRLP)
 #define IS_IRDA_POWERMODE(MODE) (((MODE) == IRDA_POWERMODE_LOWPOWER) || \
                                  ((MODE) == IRDA_POWERMODE_NORMAL))
@@ -217,7 +217,7 @@ typedef enum
  /** @defgroup IRDA_State IRDA State
   * @{
   */ 
-#define IRDA_STATE_DISABLE                  ((uint32_t)0x0000)
+#define IRDA_STATE_DISABLE                  ((uint32_t)0x0000U)
 #define IRDA_STATE_ENABLE                   ((uint32_t)USART_CR1_UE)
 #define IS_IRDA_STATE(STATE) (((STATE) == IRDA_STATE_DISABLE) || \
                               ((STATE) == IRDA_STATE_ENABLE))
@@ -228,7 +228,7 @@ typedef enum
  /** @defgroup IRDA_Mode IRDA Mode
   * @{
   */ 
-#define IRDA_MODE_DISABLE                  ((uint32_t)0x0000)
+#define IRDA_MODE_DISABLE                  ((uint32_t)0x0000U)
 #define IRDA_MODE_ENABLE                   ((uint32_t)USART_CR3_IREN)
 #define IS_IRDA_MODE(STATE)  (((STATE) == IRDA_MODE_DISABLE) || \
                               ((STATE) == IRDA_MODE_ENABLE))
@@ -239,7 +239,7 @@ typedef enum
 /** @defgroup IRDA_One_Bit IRDA One bit
   * @{
   */
-#define IRDA_ONE_BIT_SAMPLE_DISABLE          ((uint32_t)0x00000000)
+#define IRDA_ONE_BIT_SAMPLE_DISABLE          ((uint32_t)0x00000000U)
 #define IRDA_ONE_BIT_SAMPLE_ENABLE           ((uint32_t)USART_CR3_ONEBIT)
 #define IS_IRDA_ONE_BIT_SAMPLE(ONEBIT)         (((ONEBIT) == IRDA_ONE_BIT_SAMPLE_DISABLE) || \
                                                   ((ONEBIT) == IRDA_ONE_BIT_SAMPLE_ENABLE))
@@ -250,7 +250,7 @@ typedef enum
 /** @defgroup IRDA_DMA_Tx IRDA DMA TX
   * @{
   */
-#define IRDA_DMA_TX_DISABLE          ((uint32_t)0x00000000)
+#define IRDA_DMA_TX_DISABLE          ((uint32_t)0x00000000U)
 #define IRDA_DMA_TX_ENABLE           ((uint32_t)USART_CR3_DMAT)
 #define IS_IRDA_DMA_TX(DMATX)         (((DMATX) == IRDA_DMA_TX_DISABLE) || \
                                        ((DMATX) == IRDA_DMA_TX_ENABLE))
@@ -261,7 +261,7 @@ typedef enum
 /** @defgroup IRDA_DMA_Rx IRDA DMA RX
   * @{
   */
-#define IRDA_DMA_RX_DISABLE           ((uint32_t)0x0000)
+#define IRDA_DMA_RX_DISABLE           ((uint32_t)0x0000U)
 #define IRDA_DMA_RX_ENABLE            ((uint32_t)USART_CR3_DMAR)
 #define IS_IRDA_DMA_RX(DMARX)         (((DMARX) == IRDA_DMA_RX_DISABLE) || \
                                        ((DMARX) == IRDA_DMA_RX_ENABLE))
@@ -300,11 +300,11 @@ typedef enum
   *           - ZZZZ  : Flag position in the ISR register(4bits)
   * @{   
   */  
-#define IRDA_IT_PE                          ((uint16_t)0x0028)
-#define IRDA_IT_TXE                         ((uint16_t)0x0727)
-#define IRDA_IT_TC                          ((uint16_t)0x0626)
-#define IRDA_IT_RXNE                        ((uint16_t)0x0525)
-#define IRDA_IT_IDLE                        ((uint16_t)0x0424)
+#define IRDA_IT_PE                          ((uint16_t)0x0028U)
+#define IRDA_IT_TXE                         ((uint16_t)0x0727U)
+#define IRDA_IT_TC                          ((uint16_t)0x0626U)
+#define IRDA_IT_RXNE                        ((uint16_t)0x0525U)
+#define IRDA_IT_IDLE                        ((uint16_t)0x0424U)
 
 
                                 
@@ -315,14 +315,14 @@ typedef enum
   *                 - 10: CR2 register
   *                 - 11: CR3 register
   */
-#define IRDA_IT_ERR                         ((uint16_t)0x0060)
+#define IRDA_IT_ERR                         ((uint16_t)0x0060U)
 
 /**       Elements values convention: 0000ZZZZ00000000b
   *           - ZZZZ  : Flag position in the ISR register(4bits)
   */
-#define IRDA_IT_ORE                         ((uint16_t)0x0300)
-#define IRDA_IT_NE                          ((uint16_t)0x0200)
-#define IRDA_IT_FE                          ((uint16_t)0x0100)
+#define IRDA_IT_ORE                         ((uint16_t)0x0300U)
+#define IRDA_IT_NE                          ((uint16_t)0x0200U)
+#define IRDA_IT_FE                          ((uint16_t)0x0100U)
 /**
   * @}
   */
@@ -360,7 +360,7 @@ typedef enum
 /** @defgroup IRDA_Interruption_Mask IRDA Interruption mask
   * @{
   */ 
-#define IRDA_IT_MASK  ((uint16_t)0x001F)  
+#define IRDA_IT_MASK  ((uint16_t)0x001FU)  
 /**
   * @}
   */
@@ -477,9 +477,9 @@ typedef enum
   *            @arg IRDA_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
   */
-#define __HAL_IRDA_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((((uint8_t)(__INTERRUPT__)) >> 5) == 1)? ((__HANDLE__)->Instance->CR1 |= (1 << ((__INTERRUPT__) & IRDA_IT_MASK))): \
-                                                          ((((uint8_t)(__INTERRUPT__)) >> 5) == 2)? ((__HANDLE__)->Instance->CR2 |= (1 << ((__INTERRUPT__) & IRDA_IT_MASK))): \
-                                                          ((__HANDLE__)->Instance->CR3 |= (1 << ((__INTERRUPT__) & IRDA_IT_MASK))))
+#define __HAL_IRDA_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((((uint8_t)(__INTERRUPT__)) >> 5U) == 1U)? ((__HANDLE__)->Instance->CR1 |= (1U << ((__INTERRUPT__) & IRDA_IT_MASK))): \
+                                                          ((((uint8_t)(__INTERRUPT__)) >> 5U) == 2U)? ((__HANDLE__)->Instance->CR2 |= (1U << ((__INTERRUPT__) & IRDA_IT_MASK))): \
+                                                          ((__HANDLE__)->Instance->CR3 |= (1U << ((__INTERRUPT__) & IRDA_IT_MASK))))
 
 /** @brief  Disable the specified IRDA interrupt.
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -494,8 +494,8 @@ typedef enum
   *            @arg IRDA_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
   */
-#define __HAL_IRDA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (((((uint8_t)(__INTERRUPT__)) >> 5) == 1)? ((__HANDLE__)->Instance->CR1 &= ~ ((uint32_t)1 << ((__INTERRUPT__) & IRDA_IT_MASK))): \
-                                                           ((((uint8_t)(__INTERRUPT__)) >> 5) == 2)? ((__HANDLE__)->Instance->CR2 &= ~ ((uint32_t)1 << ((__INTERRUPT__) & IRDA_IT_MASK))): \
+#define __HAL_IRDA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (((((uint8_t)(__INTERRUPT__)) >> 5U) == 1U)? ((__HANDLE__)->Instance->CR1 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & IRDA_IT_MASK))): \
+                                                           ((((uint8_t)(__INTERRUPT__)) >> 5U) == 2U)? ((__HANDLE__)->Instance->CR2 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & IRDA_IT_MASK))): \
                                                            ((__HANDLE__)->Instance->CR3 &= ~ ((uint32_t)1 << ((__INTERRUPT__) & IRDA_IT_MASK))))
 
 /** @brief  Check whether the specified IRDA interrupt has occurred or not.
@@ -513,7 +513,7 @@ typedef enum
   *            @arg IRDA_IT_PE: Parity Error interrupt  
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
-#define __HAL_IRDA_GET_IT(__HANDLE__, __IT__) ((__HANDLE__)->Instance->ISR & ((uint32_t)1 << ((__IT__)>> 0x08))) 
+#define __HAL_IRDA_GET_IT(__HANDLE__, __IT__) ((__HANDLE__)->Instance->ISR & ((uint32_t)1U << ((__IT__)>> 0x08U))) 
 
 /** @brief  Check whether the specified IRDA interrupt source is enabled.
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -530,8 +530,8 @@ typedef enum
   *            @arg IRDA_IT_PE: Parity Error interrupt  
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
-#define __HAL_IRDA_GET_IT_SOURCE(__HANDLE__, __IT__) ((((((uint8_t)(__IT__)) >> 5) == 1)? (__HANDLE__)->Instance->CR1:(((((uint8_t)(__IT__)) >> 5) == 2)? \
-                                                          (__HANDLE__)->Instance->CR2 : (__HANDLE__)->Instance->CR3)) & ((uint32_t)1 << (((uint16_t)(__IT__)) & IRDA_IT_MASK)))
+#define __HAL_IRDA_GET_IT_SOURCE(__HANDLE__, __IT__) ((((((uint8_t)(__IT__)) >> 5U) == 1U)? (__HANDLE__)->Instance->CR1:(((((uint8_t)(__IT__)) >> 5U) == 2U)? \
+                                                          (__HANDLE__)->Instance->CR2 : (__HANDLE__)->Instance->CR3)) & ((uint32_t)1U << (((uint16_t)(__IT__)) & IRDA_IT_MASK)))
 
 /** @brief  Clear the specified IRDA ISR flag, in setting the proper ICR register flag.
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -591,13 +591,13 @@ typedef enum
   * @param  __BAUDRATE__: specifies the IRDA Baudrate set by the user.
   * @retval True or False
   */   
-#define IS_IRDA_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 115201)
+#define IS_IRDA_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 115201U)
 
 /** @brief  Ensure that IRDA prescaler value is strictly larger than 0
   * @param  __PRESCALER__: specifies the IRDA prescaler value set by the user.
   * @retval True or False
   */  
-#define IS_IRDA_PRESCALER(__PRESCALER__) ((__PRESCALER__) > 0)
+#define IS_IRDA_PRESCALER(__PRESCALER__) ((__PRESCALER__) > 0U)
 
 /**
  * @}

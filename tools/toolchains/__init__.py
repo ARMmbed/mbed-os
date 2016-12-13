@@ -472,7 +472,7 @@ class mbedToolchain:
 
             # This is a policy decision and it should /really/ be in the config system
             # ATM it's here for backward compatibility
-            if (("-g" in self.flags['common'] and
+            if ((("-g" in self.flags['common'] or "-g3" in self.flags['common']) and
                  "-O0") in self.flags['common'] or
                 ("-r" in self.flags['common'] and
                  "-On" in self.flags['common'])):
@@ -887,7 +887,10 @@ class mbedToolchain:
         if ext == '.c' or  ext == '.cpp':
             base, _ = splitext(object)
             dep_path = base + '.d'
-            deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
+            try:
+                deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
+            except IOError, IndexError:
+                deps = []
             if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)

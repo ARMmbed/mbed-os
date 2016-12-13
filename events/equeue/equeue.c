@@ -558,6 +558,11 @@ static void equeue_chain_update(void *p, int ms) {
 }
 
 void equeue_chain(equeue_t *q, equeue_t *target) {
+    if (!target) {
+        equeue_background(q, 0, 0);
+        return;
+    }
+
     struct equeue_chain_context *c = equeue_alloc(q,
             sizeof(struct equeue_chain_context));
 

@@ -20,8 +20,8 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
     return thread_conn_handler_stub.int_value;
 }
 
-coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, unsigned char *, int),
-                                                 int (*send_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, const unsigned char *, int),
+coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int),
+                                                 int (*send_cb)(int8_t socket_id, uint8_t const address[static 16], uint16_t port, const void *, int),
                                                  int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len),
                                                  void(*done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static KEY_BLOCK_LEN]) )
 {
@@ -46,7 +46,7 @@ int coap_connection_handler_open_connection(coap_conn_handler_t *handler, uint16
     return thread_conn_handler_stub.int_value;
 }
 
-int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t *dest_addr, uint8_t *data_ptr, uint16_t data_len, bool bypass_link_sec)
+int coap_connection_handler_send_data(coap_conn_handler_t *handler, const ns_address_t *dest_addr, const uint8_t dst_address[static 16], uint8_t *data_ptr, uint16_t data_len, bool bypass_link_sec)
 {
     return thread_conn_handler_stub.int_value;
 }

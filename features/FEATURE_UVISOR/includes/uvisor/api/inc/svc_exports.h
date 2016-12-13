@@ -18,6 +18,7 @@
 #define __UVISOR_API_SVC_EXPORTS_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/api.h"
 #include <stdint.h>
 
 /* An SVCall takes a 8bit immediate, which is used as follows:
@@ -88,31 +89,6 @@
                                                          UVISOR_SVC_FAST_INDEX(index) | \
                                                          UVISOR_SVC_FAST_NARGS_SET(nargs)))
 
-/* SVC immediate values for custom table */
-#define UVISOR_SVC_ID_ISR_SET               UVISOR_SVC_CUSTOM_TABLE(1)
-#define UVISOR_SVC_ID_ISR_GET               UVISOR_SVC_CUSTOM_TABLE(2)
-#define UVISOR_SVC_ID_IRQ_ENABLE            UVISOR_SVC_CUSTOM_TABLE(3)
-#define UVISOR_SVC_ID_IRQ_DISABLE           UVISOR_SVC_CUSTOM_TABLE(4)
-#define UVISOR_SVC_ID_IRQ_PEND_CLR          UVISOR_SVC_CUSTOM_TABLE(5)
-#define UVISOR_SVC_ID_IRQ_PEND_SET          UVISOR_SVC_CUSTOM_TABLE(6)
-#define UVISOR_SVC_ID_IRQ_PEND_GET          UVISOR_SVC_CUSTOM_TABLE(7)
-#define UVISOR_SVC_ID_IRQ_PRIO_SET          UVISOR_SVC_CUSTOM_TABLE(8)
-#define UVISOR_SVC_ID_IRQ_PRIO_GET          UVISOR_SVC_CUSTOM_TABLE(9)
-#define UVISOR_SVC_ID_BENCHMARK_CFG         UVISOR_SVC_CUSTOM_TABLE(10)
-#define UVISOR_SVC_ID_BENCHMARK_RST         UVISOR_SVC_CUSTOM_TABLE(11)
-#define UVISOR_SVC_ID_BENCHMARK_STOP        UVISOR_SVC_CUSTOM_TABLE(12)
-#define UVISOR_SVC_ID_HALT_USER_ERR         UVISOR_SVC_CUSTOM_TABLE(13)
-#define UVISOR_SVC_ID_IRQ_LEVEL_GET         UVISOR_SVC_CUSTOM_TABLE(14)
-#define UVISOR_SVC_ID_BOX_ID_SELF           UVISOR_SVC_CUSTOM_TABLE(15)
-#define UVISOR_SVC_ID_BOX_ID_CALLER         UVISOR_SVC_CUSTOM_TABLE(16)
-#define UVISOR_SVC_ID_BOX_NAMESPACE_FROM_ID UVISOR_SVC_CUSTOM_TABLE(17)
-#define UVISOR_SVC_ID_DEBUG_REBOOT          UVISOR_SVC_CUSTOM_TABLE(18)
-#define UVISOR_SVC_ID_DEBUG_REGISTER_BOX    UVISOR_SVC_CUSTOM_TABLE(19)
-#define UVISOR_SVC_ID_IRQ_DISABLE_ALL       UVISOR_SVC_CUSTOM_TABLE(20)
-#define UVISOR_SVC_ID_IRQ_ENABLE_ALL        UVISOR_SVC_CUSTOM_TABLE(21)
-#define UVISOR_SVC_ID_PAGE_MALLOC           UVISOR_SVC_CUSTOM_TABLE(22)
-#define UVISOR_SVC_ID_PAGE_FREE             UVISOR_SVC_CUSTOM_TABLE(23)
-
 /* SVC immediate values for hardcoded table (call from unprivileged) */
 #define UVISOR_SVC_ID_UNVIC_OUT           UVISOR_SVC_FIXED_TABLE(0, 0)
 /* Deprecated: UVISOR_SVC_ID_CX_IN(nargs) UVISOR_SVC_FIXED_TABLE(1, nargs) */
@@ -123,43 +99,5 @@
 
 /* SVC immediate values for hardcoded table (call from privileged) */
 #define UVISOR_SVC_ID_UNVIC_IN         UVISOR_SVC_FIXED_TABLE(0, 0)
-
-/** Generate the SVCall opcode from the SVC ID. */
-#define UVISOR_SVC_OPCODE(id) ((uint16_t) 0xDF00 | (uint8_t) ((id) & 0xFF))
-
-/* macro to execute an SVCall; additional metadata can be provided, which will
- * be appended right after the svc instruction */
-/* note: the macro is implicitly overloaded to allow 0 to 4 32bits arguments */
-#if defined(__CC_ARM)
-
-#elif defined(__GNUC__)
-
-#define UVISOR_SVC(id, metadata, ...) \
-    ({ \
-        UVISOR_MACRO_REGS_ARGS(uint32_t, ##__VA_ARGS__); \
-        UVISOR_MACRO_REGS_RETVAL(uint32_t, res); \
-        asm volatile( \
-            "svc %[svc_id]\n" \
-            metadata \
-            : UVISOR_MACRO_GCC_ASM_OUTPUT(res) \
-            : UVISOR_MACRO_GCC_ASM_INPUT(__VA_ARGS__), \
-              [svc_id] "I" ((id) & 0xFF) \
-        ); \
-        res; \
-    })
-
-#define UVISOR_FUNCTION_CALL(dst_fn, ...) \
-    ({ \
-        UVISOR_MACRO_REGS_ARGS(uint32_t, ##__VA_ARGS__); \
-        UVISOR_MACRO_REGS_RETVAL(uint32_t, res); \
-        asm volatile( \
-            "bl " UVISOR_TO_STRING(dst_fn) "\n" \
-            : UVISOR_MACRO_GCC_ASM_OUTPUT(res) \
-            : UVISOR_MACRO_GCC_ASM_INPUT(__VA_ARGS__) \
-        ); \
-        res; \
-    })
-
-#endif /* defined(__CC_ARM) || defined(__GNUC__) */
 
 #endif /* __UVISOR_API_SVC_EXPORTS_H__ */

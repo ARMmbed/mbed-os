@@ -742,6 +742,8 @@ __STATIC_INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
   if ((int32_t)(IRQn) >= 0)
   {
     NVIC->ICER[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    __DSB();
+    __ISB();
   }
 }
 

@@ -3,8 +3,8 @@
   * @file    stm32l0xx_hal_rng.h
 
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of RNG HAL module.
   ******************************************************************************
   * @attention
@@ -70,11 +70,11 @@
   */
 typedef enum
 {
-  HAL_RNG_STATE_RESET     = 0x00,  /*!< RNG not yet initialized or disabled */
-  HAL_RNG_STATE_READY     = 0x01,  /*!< RNG initialized and ready for use   */
-  HAL_RNG_STATE_BUSY      = 0x02,  /*!< RNG internal process is ongoing     */ 
-  HAL_RNG_STATE_TIMEOUT   = 0x03,  /*!< RNG timeout state                   */
-  HAL_RNG_STATE_ERROR     = 0x04   /*!< RNG error state                     */
+  HAL_RNG_STATE_RESET     = 0x00U,  /*!< RNG not yet initialized or disabled */
+  HAL_RNG_STATE_READY     = 0x01U,  /*!< RNG initialized and ready for use   */
+  HAL_RNG_STATE_BUSY      = 0x02U,  /*!< RNG internal process is ongoing     */ 
+  HAL_RNG_STATE_TIMEOUT   = 0x03U,  /*!< RNG timeout state                   */
+  HAL_RNG_STATE_ERROR     = 0x04U   /*!< RNG error state                     */
     
 }HAL_RNG_StateTypeDef;
 

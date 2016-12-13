@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <string.h>
 #include "fsl_device_registers.h"
 

@@ -85,10 +85,10 @@ Event type|Description
 `SOCKET_BIND_DONE`|TCP connection ready.
 `SOCKET_BIND_FAIL`|TCP connection failed.
 `SOCKET_BIND_AUTH_FAIL`|TCP connection authentication failed.
-`SOCKET_SERVER_CONNECT_TO_CLIENT`|TCP connection state change from listen to establishment.
+`SOCKET_INCOMING_CONNECTION`|TCP connection state change from listen to establishment.
 `SOCKET_TX_FAIL`|Socket data send failed.
 `SOCKET_CONNECT_CLOSED`|TCP connection closed.
-`SOCKET_CONNECT_FAIL_CLOSED`|TCP connection closed - no ACK received.
+`SOCKET_CONNECTION_RESET`|TCP connection reset.
 `SOCKET_NO_ROUTER`|No route available to destination.
 `SOCKET_TX_DONE`|Last socket TX process done, in TCP case whole TCP process is ready.
 `SOCKET_NO_RAM `|If no RAM is present.
@@ -143,7 +143,7 @@ To connect the TCP socket to a remote host, call `socket_connect( )` with the co
 
 After receiving a successful state event, data can be sent using the `socket_send( )` call. 
 
-The connection can be closed by calling function `socket_close( )`. The 6LoWPAN stack closes the connection automatically after a server timeout or when the remote end closes the connection. When the socket is no longer needed it must be released by calling the function `socket_free( )`.
+The connection can be shut down by calling function `socket_shutdown( )`. The 6LoWPAN stack shuts down the connection automatically after a server timeout or when the remote end closes the connection. When the socket is no longer needed it must be released by calling the function `socket_close( )`.
 
 ## Using UDP and ICMP sockets
 
@@ -182,7 +182,7 @@ Parameter|Description
 
 To release a socket:
 
-`int8_t socket_free( int8_t socket )`
+`int8_t socket_close( int8_t socket )`
 
 Parameter|Description
 ---------|-----------
@@ -302,7 +302,7 @@ Response Event|Socket Type|Description
 --------------|-----------|-----------
 `SOCKET_TX_DONE`|TCP/UDP|UDP link layer TX ready/TCP TX process ready by TCP _Acknowledgement_ (ACK).
 `SOCKET_TX_FAIL`|UDP|UDP link layer TX fails.
-`SOCKET_CONNECT_FAIL_CLOSED`|TCP|TX process fails and connection closed.
+`SOCKET_CONNECTION_RESET`|TCP|TX process fails and connection closed.
 
 To transmit data on an unconnected socket:
 
@@ -365,20 +365,22 @@ Function|Description
 --------|-----------
 `socket_listen()`|Set socket to the listen state.
 `socket_connect()`|Connect socket to a host.
-`socket_close()`|Close socket connection.
+`socket_shutdown()`|Shut down socket connection.
 
 To set a TCP socket into the listen state:
 
 ```
 int8_t socket_listen
 (
-	int8_t	socket
-
+	int8_t	socket,
+	uint8_t	backlog
+)
 ```
 
 Parameter|Description
 ---------|-----------
 `socket`|The socket ID that is to be set to the listen state.
+`backlog`|The pending connections queue size. (Not yet implemented).
 
 <dl>
 <dt>Return value</dt>
@@ -419,20 +421,20 @@ There are two possible responses from the stack for `socket_connect( )`:
 - `SOCKET_CONNECT_FAIL_CLOSED`
 	- TCP handshake fail.
 
-To close a TCP connection:
+To shut down a TCP connection:
 
 ```
-int8_t socket_close
-
+int8_t socket_shutdown
+(
 	int8_t			socket,
-	ns_address_t	*address
+	uint8_t			how
 )
 ```
 
 Parameter|Description
 ---------|-----------
-`socket`|The socket ID of the socket to be disconnected from the remote host.
-`address`|The destination client address; a client should use a null pointer for this parameter.
+`socket`|The socket ID of the socket to be shut down.
+`how`|How socket is to be shut down, one of `SOCKET_SHUT_RD`, `SOCKET_SHUT_WR` or `SOCKET_SHUT_RDWR`.
 
 <dl>
 <dt>Return value</dt>

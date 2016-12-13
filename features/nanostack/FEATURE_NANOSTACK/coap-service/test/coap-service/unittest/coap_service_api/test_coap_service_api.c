@@ -330,14 +330,14 @@ bool test_conn_handler_callbacks()
 
     if( thread_conn_handler_stub.receive_from_sock_cb ){
         coap_message_handler_stub.int16_value = 2;
-        if( -1 != thread_conn_handler_stub.receive_from_sock_cb(1, buf, 12, NULL, 0))
+        if( -1 != thread_conn_handler_stub.receive_from_sock_cb(1, buf, 12, NULL, NULL, 0))
             return false;
 
         nsdynmemlib_stub.returnCounter = 1;
         uint8_t * ptr = ns_dyn_mem_alloc(5);
         memset(ptr, 3, 5);
         nsdynmemlib_stub.returnCounter = 1;
-        if( 2 != thread_conn_handler_stub.receive_from_sock_cb(1, buf, 12, ptr, 5))
+        if( 2 != thread_conn_handler_stub.receive_from_sock_cb(1, buf, 12, NULL, ptr, 5))
             return false;
         ns_dyn_mem_free(ptr);
         coap_message_handler_stub.int16_value = 0;

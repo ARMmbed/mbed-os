@@ -25,6 +25,10 @@ extern "C" {
 extern void arm_random_module_init(void);
 /**
  * \brief Get random library seed value.
+ *
+ * This function should return as random a value as possible, using
+ * hardware sources. Repeated calls should return different values if
+ * at all possible.
  */
 extern uint32_t arm_random_seed_get(void);
 #ifdef __cplusplus

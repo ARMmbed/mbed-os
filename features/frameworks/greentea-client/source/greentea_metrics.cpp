@@ -34,7 +34,7 @@ typedef struct {
 } thread_info_t;
 
 // Mutex to protect "buf"
-SingletonPtr<Mutex> mutex;
+static SingletonPtr<Mutex> mutex;
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 static char buf[128];
 static SingletonPtr<CircularBuffer<thread_info_t, THREAD_BUF_COUNT> > queue;

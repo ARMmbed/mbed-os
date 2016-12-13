@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -153,13 +153,13 @@ typedef struct
   * @brief  RCC CRS Status definition  
   */  
 
-#define  RCC_CRS_NONE       ((uint32_t) 0x00000000)
-#define  RCC_CRS_TIMEOUT    ((uint32_t) 0x00000001)
-#define  RCC_CRS_SYNCOK     ((uint32_t) 0x00000002)
-#define  RCC_CRS_SYNCWARM   ((uint32_t) 0x00000004)
-#define  RCC_CRS_SYNCERR    ((uint32_t) 0x00000008)
-#define  RCC_CRS_SYNCMISS   ((uint32_t) 0x00000010)
-#define  RCC_CRS_TRIMOV     ((uint32_t) 0x00000020)
+#define  RCC_CRS_NONE       ((uint32_t) 0x00000000U)
+#define  RCC_CRS_TIMEOUT    ((uint32_t) 0x00000001U)
+#define  RCC_CRS_SYNCOK     ((uint32_t) 0x00000002U)
+#define  RCC_CRS_SYNCWARN   ((uint32_t) 0x00000004U)
+#define  RCC_CRS_SYNCERR    ((uint32_t) 0x00000008U)
+#define  RCC_CRS_SYNCMISS   ((uint32_t) 0x00000010U)
+#define  RCC_CRS_TRIMOVF    ((uint32_t) 0x00000020U)
 
 /**
   * @}
@@ -232,37 +232,37 @@ typedef struct
   */
 #if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined(STM32L031xx) && !defined(STM32L041xx) && !defined(STM32L051xx) && !defined(STM32L061xx) && !defined(STM32L071xx) && !defined(STM32L081xx) 
 
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002)
-#define RCC_PERIPHCLK_LPUART1          ((uint32_t)0x00000004)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000008)
-#define RCC_PERIPHCLK_I2C2             ((uint32_t)0x00000010)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_USB              ((uint32_t)0x00000040)
-#define RCC_PERIPHCLK_LPTIM1           ((uint32_t)0x00000080)
+#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001U)
+#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002U)
+#define RCC_PERIPHCLK_LPUART1          ((uint32_t)0x00000004U)
+#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000008U)
+#define RCC_PERIPHCLK_I2C2             ((uint32_t)0x00000010U)
+#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00000020U)
+#define RCC_PERIPHCLK_USB              ((uint32_t)0x00000040U)
+#define RCC_PERIPHCLK_LPTIM1           ((uint32_t)0x00000080U)
 #if defined (STM32L053xx) || defined(STM32L063xx) || defined(STM32L073xx) || defined(STM32L083xx)
-#define RCC_PERIPHCLK_LCD              ((uint32_t)0x00000800)
+#define RCC_PERIPHCLK_LCD              ((uint32_t)0x00000800U)
 #endif
 #if defined (STM32L072xx) || defined(STM32L073xx) || defined(STM32L082xx) || defined(STM32L083xx)
-#define RCC_PERIPHCLK_I2C3             ((uint32_t)0x00000100)
+#define RCC_PERIPHCLK_I2C3             ((uint32_t)0x00000100U)
 #endif
 
 
 #else /* !(STM32L011xx) && !(STM32L021xx) && !(STM32L031xx) && !(STM32L041xx) && !(STM32L051xx) && !(STM32L061xx) && !(STM32L071xx) && !(STM32L081xx) */
 
 #if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined(STM32L031xx) && !defined(STM32L041xx)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
+#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001U)
 #endif
-#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002)
-#define RCC_PERIPHCLK_LPUART1          ((uint32_t)0x00000004)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000008)
+#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002U)
+#define RCC_PERIPHCLK_LPUART1          ((uint32_t)0x00000004U)
+#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000008U)
 #if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined(STM32L031xx) && !defined(STM32L041xx)
-#define RCC_PERIPHCLK_I2C2             ((uint32_t)0x00000010)
+#define RCC_PERIPHCLK_I2C2             ((uint32_t)0x00000010U)
 #endif
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_LPTIM1           ((uint32_t)0x00000080)
+#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00000020U)
+#define RCC_PERIPHCLK_LPTIM1           ((uint32_t)0x00000080U)
 #if defined(STM32L071xx) || defined(STM32L081xx)
-#define RCC_PERIPHCLK_I2C3             ((uint32_t)0x00000100)
+#define RCC_PERIPHCLK_I2C3             ((uint32_t)0x00000100U)
 #endif
 
 #endif /* !(STM32L011xx) && !(STM32L021xx) && !(STM32L031xx) && !(STM32L041xx) && !(STM32L061xx) && !(STM32L071xx) && !(STM32L081xx) */
@@ -273,7 +273,7 @@ typedef struct
 /** @defgroup RCCEx_USART1_Clock_Source RCC USART1 Clock Source
   * @{
   */
-#define RCC_USART1CLKSOURCE_PCLK2        ((uint32_t)0x00000000) 
+#define RCC_USART1CLKSOURCE_PCLK2        ((uint32_t)0x00000000U) 
 #define RCC_USART1CLKSOURCE_SYSCLK       RCC_CCIPR_USART1SEL_0
 #define RCC_USART1CLKSOURCE_HSI          RCC_CCIPR_USART1SEL_1
 #define RCC_USART1CLKSOURCE_LSE          (RCC_CCIPR_USART1SEL_0 | RCC_CCIPR_USART1SEL_1)
@@ -285,7 +285,7 @@ typedef struct
 /** @defgroup RCCEx_USART2_Clock_Source RCC USART2 Clock Source
   * @{
   */
-#define RCC_USART2CLKSOURCE_PCLK1        ((uint32_t)0x00000000) 
+#define RCC_USART2CLKSOURCE_PCLK1        ((uint32_t)0x00000000U) 
 #define RCC_USART2CLKSOURCE_SYSCLK       RCC_CCIPR_USART2SEL_0
 #define RCC_USART2CLKSOURCE_HSI          RCC_CCIPR_USART2SEL_1
 #define RCC_USART2CLKSOURCE_LSE          (RCC_CCIPR_USART2SEL_0 | RCC_CCIPR_USART2SEL_1)
@@ -297,7 +297,7 @@ typedef struct
 /** @defgroup RCCEx_LPUART1_Clock_Source RCC LPUART Clock Source
   * @{
   */
-#define RCC_LPUART1CLKSOURCE_PCLK1        ((uint32_t)0x00000000) 
+#define RCC_LPUART1CLKSOURCE_PCLK1        ((uint32_t)0x00000000U) 
 #define RCC_LPUART1CLKSOURCE_SYSCLK       RCC_CCIPR_LPUART1SEL_0
 #define RCC_LPUART1CLKSOURCE_HSI          RCC_CCIPR_LPUART1SEL_1
 #define RCC_LPUART1CLKSOURCE_LSE          (RCC_CCIPR_LPUART1SEL_0 | RCC_CCIPR_LPUART1SEL_1)
@@ -309,7 +309,7 @@ typedef struct
 /** @defgroup RCCEx_I2C1_Clock_Source RCC I2C1 Clock Source
   * @{
   */
-#define RCC_I2C1CLKSOURCE_PCLK1          ((uint32_t)0x00000000) 
+#define RCC_I2C1CLKSOURCE_PCLK1          ((uint32_t)0x00000000U) 
 #define RCC_I2C1CLKSOURCE_SYSCLK         RCC_CCIPR_I2C1SEL_0
 #define RCC_I2C1CLKSOURCE_HSI            RCC_CCIPR_I2C1SEL_1
 
@@ -322,7 +322,7 @@ typedef struct
 /** @defgroup RCCEx_I2C3_Clock_Source RCC I2C3 Clock Source
   * @{
   */
-#define RCC_I2C3CLKSOURCE_PCLK1          ((uint32_t)0x00000000) 
+#define RCC_I2C3CLKSOURCE_PCLK1          ((uint32_t)0x00000000U) 
 #define RCC_I2C3CLKSOURCE_SYSCLK         RCC_CCIPR_I2C3SEL_0
 #define RCC_I2C3CLKSOURCE_HSI            RCC_CCIPR_I2C3SEL_1
 
@@ -336,8 +336,8 @@ typedef struct
 /** @defgroup RCCEx_TIM_PRescaler_Selection RCC TIM Prescaler Selection
   * @{
   */
-#define RCC_TIMPRES_DESACTIVATED        ((uint8_t)0x00)
-#define RCC_TIMPRES_ACTIVATED           ((uint8_t)0x01)
+#define RCC_TIMPRES_DESACTIVATED        ((uint8_t)0x00U)
+#define RCC_TIMPRES_ACTIVATED           ((uint8_t)0x01U)
 /**
   * @}
   */
@@ -347,7 +347,7 @@ typedef struct
   * @{
   */
 #define RCC_USBCLKSOURCE_HSI48           RCC_CCIPR_HSI48SEL
-#define RCC_USBCLKSOURCE_PLL          ((uint32_t)0x00000000)
+#define RCC_USBCLKSOURCE_PLL          ((uint32_t)0x00000000U)
 
 /**
   * @}
@@ -357,7 +357,7 @@ typedef struct
   * @{
   */
 #define RCC_RNGCLKSOURCE_HSI48           RCC_CCIPR_HSI48SEL
-#define RCC_RNGCLKSOURCE_PLLCLK          ((uint32_t)0x00000000)
+#define RCC_RNGCLKSOURCE_PLLCLK          ((uint32_t)0x00000000U)
 
 /**
   * @}
@@ -366,9 +366,9 @@ typedef struct
 /** @defgroup RCCEx_HSI48M_Clock_Source RCC HSI48M Clock Source
   * @{
   */
-#define RCC_FLAG_HSI48               SYSCFG_CFGR3_REF_HSI48_RDYF
+#define RCC_FLAG_HSI48               SYSCFG_CFGR3_VREFINT_RDYF
 
-#define RCC_HSI48M_PLL                 ((uint32_t)0x00000000)
+#define RCC_HSI48M_PLL                 ((uint32_t)0x00000000U)
 #define RCC_HSI48M_HSI48                 RCC_CCIPR_HSI48SEL
 
 
@@ -380,7 +380,7 @@ typedef struct
 /** @defgroup RCC_HSI_Config RCC HSI Configuration
   * @{
   */
-#define RCC_HSI_OFF                      ((uint8_t)0x00)
+#define RCC_HSI_OFF                      ((uint8_t)0x00U)
 #define RCC_HSI_ON                       RCC_CR_HSION
 #define RCC_HSI_DIV4                     (RCC_CR_HSIDIVEN | RCC_CR_HSION)
 #if defined(STM32L073xx) || defined(STM32L083xx) || \
@@ -396,7 +396,7 @@ typedef struct
 /** @defgroup RCCEx_LPTIM1_Clock_Source RCC LPTIM1 Clock Source
   * @{
   */
-#define RCC_LPTIM1CLKSOURCE_PCLK        ((uint32_t)0x00000000)
+#define RCC_LPTIM1CLKSOURCE_PCLK        ((uint32_t)0x00000000U)
 #define RCC_LPTIM1CLKSOURCE_LSI         RCC_CCIPR_LPTIM1SEL_0
 #define RCC_LPTIM1CLKSOURCE_HSI         RCC_CCIPR_LPTIM1SEL_1
 #define RCC_LPTIM1CLKSOURCE_LSE         RCC_CCIPR_LPTIM1SEL
@@ -409,7 +409,7 @@ typedef struct
   * @{
   */
 
-#define RCC_STOP_WAKEUPCLOCK_MSI                ((uint32_t)0x00)
+#define RCC_STOP_WAKEUPCLOCK_MSI                ((uint32_t)0x00U)
 #define RCC_STOP_WAKEUPCLOCK_HSI                RCC_CFGR_STOPWUCK
 
 /**
@@ -420,7 +420,7 @@ typedef struct
   * @{
   */
 
-#define RCC_LSEDRIVE_LOW                 ((uint32_t)0x00000000)
+#define RCC_LSEDRIVE_LOW                 ((uint32_t)0x00000000U)
 #define RCC_LSEDRIVE_MEDIUMLOW           RCC_CSR_LSEDRV_0
 #define RCC_LSEDRIVE_MEDIUMHIGH          RCC_CSR_LSEDRV_1
 #define RCC_LSEDRIVE_HIGH                RCC_CSR_LSEDRV
@@ -441,7 +441,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_SynchroSource RCC CRS Synchro Source
   * @{
   */
-#define RCC_CRS_SYNC_SOURCE_GPIO       ((uint32_t)0x00)        /*!< Synchro Signal source GPIO */
+#define RCC_CRS_SYNC_SOURCE_GPIO       ((uint32_t)0x00U)        /*!< Synchro Signal source GPIO */
 #define RCC_CRS_SYNC_SOURCE_LSE        CRS_CFGR_SYNCSRC_0      /*!< Synchro Signal source LSE */
 #define RCC_CRS_SYNC_SOURCE_USB        CRS_CFGR_SYNCSRC_1      /*!< Synchro Signal source USB SOF (default)*/
   
@@ -452,7 +452,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_SynchroDivider RCC CRS Synchro Divider
   * @{
   */
-#define RCC_CRS_SYNC_DIV1        ((uint32_t)0x00)                          /*!< Synchro Signal not divided (default) */
+#define RCC_CRS_SYNC_DIV1        ((uint32_t)0x00U)                          /*!< Synchro Signal not divided (default) */
 #define RCC_CRS_SYNC_DIV2        CRS_CFGR_SYNCDIV_0                        /*!< Synchro Signal divided by 2 */
 #define RCC_CRS_SYNC_DIV4        CRS_CFGR_SYNCDIV_1                        /*!< Synchro Signal divided by 4 */
 #define RCC_CRS_SYNC_DIV8        (CRS_CFGR_SYNCDIV_1 | CRS_CFGR_SYNCDIV_0) /*!< Synchro Signal divided by 8 */
@@ -468,7 +468,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_SynchroPolarity RCC CRS Synchro Polarity
   * @{
   */
-#define RCC_CRS_SYNC_POLARITY_RISING        ((uint32_t)0x00)      /*!< Synchro Active on rising edge (default) */
+#define RCC_CRS_SYNC_POLARITY_RISING        ((uint32_t)0x00U)      /*!< Synchro Active on rising edge (default) */
 #define RCC_CRS_SYNC_POLARITY_FALLING       CRS_CFGR_SYNCPOL      /*!< Synchro Active on falling edge */
   
 /**
@@ -478,7 +478,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_ReloadValueDefault RCC CRS Reload Default Value
   * @{
   */
-#define RCC_CRS_RELOADVALUE_DEFAULT         ((uint32_t)0xBB7F)      /*!< The reset value of the RELOAD field corresponds 
+#define RCC_CRS_RELOADVALUE_DEFAULT         ((uint32_t)0xBB7FU)      /*!< The reset value of the RELOAD field corresponds 
                                                               to a target frequency of 48 MHz and a synchronization signal frequency of 1 kHz (SOF signal from USB). */
     
 /**
@@ -488,7 +488,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_ErrorLimitDefault RCC CRS Error Limit Default
   * @{
   */
-#define RCC_CRS_ERRORLIMIT_DEFAULT          ((uint32_t)0x22)      /*!< Default Frequency error limit */
+#define RCC_CRS_ERRORLIMIT_DEFAULT          ((uint32_t)0x22U)      /*!< Default Frequency error limit */
     
 /**
   * @}
@@ -497,7 +497,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_HSI48CalibrationDefault RCC CRS HSI48 Calibration Default
   * @{
   */
-#define RCC_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)0x20)      /*!< The default value is 32, which corresponds to the middle of the trimming interval. 
+#define RCC_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)0x20U)      /*!< The default value is 32, which corresponds to the middle of the trimming interval. 
                                                                 The trimming step is around 67 kHz between two consecutive TRIM steps. A higher TRIM value
                                                                 corresponds to a higher output frequency */
     
@@ -508,7 +508,7 @@ typedef struct
 /** @defgroup RCCEx_CRS_FreqErrorDirection RCC CRS Frequency Error Direction
   * @{
   */
-#define RCC_CRS_FREQERRORDIR_UP             ((uint32_t)0x00)          /*!< Upcounting direction, the actual frequency is above the target */
+#define RCC_CRS_FREQERRORDIR_UP             ((uint32_t)0x00U)          /*!< Upcounting direction, the actual frequency is above the target */
 #define RCC_CRS_FREQERRORDIR_DOWN           ((uint32_t)CRS_ISR_FEDIR) /*!< Downcounting direction, the actual frequency is below the target */
     
 /**
@@ -518,13 +518,13 @@ typedef struct
 /** @defgroup RCCEx_CRS_Interrupt_Sources RCC CRS Interrupt Sources
   * @{
   */
-#define RCC_CRS_IT_SYNCOK             CRS_ISR_SYNCOKF    /*!< SYNC event OK */
-#define RCC_CRS_IT_SYNCWARN           CRS_ISR_SYNCWARNF  /*!< SYNC warning */
-#define RCC_CRS_IT_ERR                CRS_ISR_ERRF       /*!< error */
-#define RCC_CRS_IT_ESYNC              CRS_ISR_ESYNCF     /*!< Expected SYNC */
-#define RCC_CRS_IT_TRIMOVF            CRS_ISR_TRIMOVF    /*!< Trimming overflow or underflow */
-#define RCC_CRS_IT_SYNCERR            CRS_ISR_SYNCERR    /*!< SYNC error */
-#define RCC_CRS_IT_SYNCMISS           CRS_ISR_SYNCMISS    /*!< SYNC missed*/
+#define RCC_CRS_IT_SYNCOK             CRS_CR_SYNCOKIE    /*!< SYNC event OK */
+#define RCC_CRS_IT_SYNCWARN           CRS_CR_SYNCWARNIE  /*!< SYNC warning */
+#define RCC_CRS_IT_ERR                CRS_CR_ERRIE       /*!< error */
+#define RCC_CRS_IT_ESYNC              CRS_CR_ESYNCIE     /*!< Expected SYNC */
+#define RCC_CRS_IT_TRIMOVF            CRS_CR_ERRIE       /*!< Trimming overflow or underflow */
+#define RCC_CRS_IT_SYNCERR            CRS_CR_ERRIE       /*!< SYNC error */
+#define RCC_CRS_IT_SYNCMISS           CRS_CR_ERRIE       /*!< SYNC missed*/
 
 /**
   * @}
@@ -1626,10 +1626,10 @@ typedef struct
   */
 #define __HAL_RCC_HSI48_ENABLE()  do { SET_BIT(RCC->CRRCR, RCC_CRRCR_HSI48ON);   \
                                                     RCC->APB2ENR |=  RCC_APB2ENR_SYSCFGEN; \
-                                                    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENREF_HSI48 | SYSCFG_CFGR3_EN_VREFINT);  \
+                                                    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENREF_HSI48);  \
                                                    } while (0)
 #define __HAL_RCC_HSI48_DISABLE()  do { CLEAR_BIT(RCC->CRRCR, RCC_CRRCR_HSI48ON);   \
-                                                    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENREF_HSI48 | SYSCFG_CFGR3_EN_VREFINT));  \
+                                                    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENREF_HSI48));  \
                                                    } while (0)
 /** @brief  Enable or disable the HSI48M DIV6 OUT .
   * @note   After reset, the HSI48Mhz (divided by 6) output is not available
@@ -1784,11 +1784,11 @@ void HAL_RCCEx_DisableHSI48_VREFINT(void);
 #define IS_RCC_CRS_SYNC_POLARITY(__POLARITY__) (((__POLARITY__) == RCC_CRS_SYNC_POLARITY_RISING) || \
                                                 ((__POLARITY__) == RCC_CRS_SYNC_POLARITY_FALLING))
                                                 
-#define IS_RCC_CRS_RELOADVALUE(__VALUE__) (((__VALUE__) <= 0xFFFF))
+#define IS_RCC_CRS_RELOADVALUE(__VALUE__) (((__VALUE__) <= 0xFFFFU))
 
-#define IS_RCC_CRS_ERRORLIMIT(__VALUE__) (((__VALUE__) <= 0xFF))
+#define IS_RCC_CRS_ERRORLIMIT(__VALUE__) (((__VALUE__) <= 0xFFU))
 
-#define IS_RCC_CRS_HSI48CALIBRATION(__VALUE__) (((__VALUE__) <= 0x3F))
+#define IS_RCC_CRS_HSI48CALIBRATION(__VALUE__) (((__VALUE__) <= 0x3FU))
 
 #define IS_RCC_CRS_FREQERRORDIR(__DIR__) (((__DIR__) == RCC_CRS_FREQERRORDIR_UP) || \
                                           ((__DIR__) == RCC_CRS_FREQERRORDIR_DOWN))

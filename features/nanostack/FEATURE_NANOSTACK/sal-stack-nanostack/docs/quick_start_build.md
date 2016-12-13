@@ -14,7 +14,7 @@ Option Name | Features supported | Current binary size v2.1.13
 `lowpan_border_router_rf_tunnel` | 6LoWPAN-ND border router using an external microcontroller running the low level MAC functionality. | 313 kB
 `lowpan_host` | 6LoWPAN-ND not routing host mode. | 194 kB
 `lowpan_router` | 6LoWPAN-ND routing host mode. | 230 kB
-`mbedOS` | Everything but without security features (PANA, ECC, ECJPAKE). | 382 kB
+`nanostack_full` | Everything but without security features (PANA, ECC, ECJPAKE). | 382 kB
 `rf_interface` | RF interface running only low level MAC. To be used with `lowpan_border_router_rf_tunnel`. | 168 kB
 `thread_border_router` |  Thread router device with border router capability. | 320 kB
 `thread_router` | Thread host with routing capability. | 302 kB
@@ -26,7 +26,7 @@ They will differ based on the toolchains or the status of the repository. The fi
 
 For mbed OS 5.0, there will be only one binary module available. This is a temporary solution for mbed OS 5.0 toolchain and will be updated to support multiple configurations later.
 
-The binary module for mbed OS 5.0 follows the `mbedOS` configuration.
+The binary module for mbed OS 5.0 follows the `nanostack_full` configuration.
 
 ## Using configuration option on mbed OS 3.0
 

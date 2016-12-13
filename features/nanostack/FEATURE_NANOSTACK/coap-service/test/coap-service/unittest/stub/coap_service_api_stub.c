@@ -18,6 +18,8 @@
 #include "common_functions.h"
 #include "net_interface.h"
 
+coap_msg_handler_t *coap_service_handle = NULL;
+
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
                                  coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
 {
@@ -59,6 +61,11 @@ int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hd
 }
 
 uint32_t coap_service_get_internal_timer_ticks(void)
+{
+    return 1;
+}
+
+uint16_t coap_service_id_find_by_socket(int8_t socket_id)
 {
     return 1;
 }

@@ -17,6 +17,15 @@ coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint
     return coap_message_handler_stub.coap_ptr;
 }
 
+void transaction_delete(coap_transaction_t *this)
+{
+
+}
+
+void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
+{
+
+}
 int8_t coap_message_handler_destroy(coap_msg_handler_t *handle)
 {
     return coap_message_handler_stub.int8_value;
@@ -32,8 +41,8 @@ coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, 
     return coap_message_handler_stub.coap_tx_ptr;
 }
 
-int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port,
-                                                         uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *))
+int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
+                                      uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *))
 {
     coap_message_handler_stub.cb = cb;
     return coap_message_handler_stub.int16_value;

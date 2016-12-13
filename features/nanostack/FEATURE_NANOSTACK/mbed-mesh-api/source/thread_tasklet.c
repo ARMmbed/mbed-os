@@ -25,9 +25,8 @@
 #include "include/thread_tasklet.h"
 #include "include/static_config.h"
 #include "include/mesh_system.h"
-#ifndef YOTTA_CFG
 #include "ns_event_loop.h"
-#endif
+
 // For tracing we need to define flag, have include and define group
 #define HAVE_DEBUG 1
 #include "ns_trace.h"
@@ -396,9 +395,7 @@ int8_t thread_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_i
             // -2 memory allocation failure
             return thread_tasklet_data_ptr->tasklet;
         }
-#ifndef YOTTA_CFG
         ns_event_loop_thread_start();
-#endif
     } else {
         thread_tasklet_data_ptr->tasklet = tasklet;
         mesh_system_send_connect_event(thread_tasklet_data_ptr->tasklet);
@@ -449,7 +446,7 @@ int8_t thread_tasklet_network_init(int8_t device_id)
 
 void thread_tasklet_device_config_set(uint8_t *eui64, char *pskd)
 {
-    (void) pskd; // this parameter is delivered via yotta configuration
+    (void) pskd; // this parameter is delivered via mbed configuration
     memcpy(device_configuration.eui64, eui64, 8);
 }
 

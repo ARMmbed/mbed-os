@@ -32,8 +32,8 @@ typedef struct {
     bool bool_value;
     coap_conn_handler_t *handler_obj;
 
-    int (*send_to_sock_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, const unsigned char *, int);
-    int (*receive_from_sock_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, unsigned char *, int);
+    int (*send_to_sock_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, const void *, int);
+    int (*receive_from_sock_cb)(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *data, int len);
     int (*get_passwd_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len);
     void (*sec_done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40]);
 

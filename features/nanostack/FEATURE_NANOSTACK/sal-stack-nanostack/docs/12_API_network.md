@@ -414,8 +414,8 @@ int8_t arm_nwk_6lowpan_link_panid_filter_for_nwk_scan
 Parameter|Description
 ---------|-----------
 `interface_id`|The network interface ID.
-`pan_id_filter`|Values `0x0000-0xFFFD` enable the filter for a specific ID.<br>
-The value `0xFFFE` or `0xFFFF` (default) disables the filter.
+`pan_id_filter`|Values `0x0000-0xFFFE` enable the filter for a specific ID.<br>
+The value `0xFFFF` (default) disables the filter.
 
 <dl>
 <dt>Return value</dt>
