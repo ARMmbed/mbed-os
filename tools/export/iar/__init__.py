@@ -32,10 +32,6 @@ class IAR(Exporter):
                obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains
                and DeviceCMSIS.check_supported(target)]
 
-    SPECIAL_TEMPLATES = {
-        'rz_a1h'  : 'iar/iar_rz_a1h.ewp.tmpl'
-    }
-
     def iar_groups(self, grouped_src):
         """Return a namedtuple of group info
         Positional Arguments:
@@ -88,9 +84,6 @@ class IAR(Exporter):
             grouped[group] = [self.format_file(src) for src in files]
         return grouped
 
-    def get_ewp_template(self):
-        return self.SPECIAL_TEMPLATES.get(self.target.lower(), 'iar/ewp.tmpl')
-
     def generate(self):
         """Generate the .eww, .ewd, and .ewp files"""
         srcs = self.resources.headers + self.resources.s_sources + \
@@ -118,9 +111,9 @@ class IAR(Exporter):
         }
         ctx.update(flags)
 
-        self.gen_file('iar/eww.tmpl', ctx, self.project_name+".eww")
+        self.gen_file('iar/eww.tmpl', ctx, self.project_name + ".eww")
         self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
-        self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
+        self.gen_file('iar/ewp.tmpl', ctx, self.project_name + ".ewp")
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
