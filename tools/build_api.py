@@ -25,16 +25,18 @@ from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException
+from tools.settings import ROOT
 from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
     MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
     BUILD_DIR
-from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.targets import TARGET_NAMES, TARGET_MAP, set_targets_json_location
 from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from tools.config import Config
+from tools.legacy_profiles import find_legacy_files, get_toolchain_profile
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -274,6 +276,16 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
+def get_legacy_build_profile(src_paths, toolchain):
+    new_profile = None
+    if not isinstance(src_paths, list):
+        src_paths = [src_paths]
+    for targets_json, version in [find_legacy_files(path)
+                                  for path in src_paths]:
+        set_targets_json_location(targets_json)
+        new_profile = new_profile or get_toolchain_profile(toolchain, version)
+    return new_profile
+
 
 def prepare_toolchain(src_paths, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -304,9 +316,11 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
 
+
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
+
 
     # Toolchain instance
     try:

@@ -23,6 +23,7 @@ from tools.targets import TARGET_NAMES
 from tools.utils import argparse_force_uppercase_type, \
     argparse_lowercase_hyphen_type, argparse_many, \
     argparse_filestring_type, args_error, argparse_profile_filestring_type
+from tools.paths import PROFILES
 
 def get_default_options_parser(add_clean=True, add_options=True,
                                add_app_config=False):
@@ -90,7 +91,7 @@ def list_profiles():
 
     Checks default profile directory (mbed-os/tools/profiles/) for all the json files and return list of names only
     """
-    return [fn.replace(".json", "") for fn in listdir(join(dirname(__file__), "profiles")) if fn.endswith(".json")]
+    return [fn.replace(".json", "") for fn in listdir(PROFILES) if fn.endswith(".json")]
 
 def extract_profile(parser, options, toolchain):
     """Extract a Toolchain profile from parsed options
@@ -101,8 +102,7 @@ def extract_profile(parser, options, toolchain):
     toolchain - the toolchain that the profile should be extracted for
     """
     profile = {'c': [], 'cxx': [], 'ld': [], 'common': [], 'asm': []}
-    filenames = options.profile or [join(dirname(__file__), "profiles",
-                                         "default.json")]
+    filenames = options.profile or [join(PROFILES, "default.json")]
     for filename in filenames:
         contents = load(open(filename))
         try:

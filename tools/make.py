@@ -47,6 +47,7 @@ from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
+from tools.build_api import get_legacy_build_profile
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
@@ -271,6 +272,8 @@ if __name__ == '__main__':
         if options.source_dir is not None:
             test.source_dir = options.source_dir
             build_dir = options.source_dir
+        build_profile = (get_legacy_build_profile(test.source_dir, toolchain) or
+                         extract_profile(parser, options, toolchain))
 
         if options.build_dir is not None:
             build_dir = options.build_dir
@@ -288,9 +291,7 @@ if __name__ == '__main__':
                                      name=options.artifact_name,
                                      app_config=options.app_config,
                                      inc_dirs=[dirname(MBED_LIBRARIES)],
-                                     build_profile=extract_profile(parser,
-                                                                   options,
-                                                                   toolchain))
+                                     build_profile=build_profile)
             print 'Image: %s'% bin_file
 
             if options.disk:
