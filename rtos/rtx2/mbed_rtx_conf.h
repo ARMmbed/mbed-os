@@ -24,10 +24,10 @@
 
 #include "mbed_rtx.h"
 
-#define CMSIS_OS_RTX
-
 #ifndef OS_STACK_SIZE
 #define OS_STACK_SIZE               4096
 #endif
+
+#define OS_DYNAMIC_MEM_SIZE         0
 
 #endif /* MBED_RTX_CONF_H */

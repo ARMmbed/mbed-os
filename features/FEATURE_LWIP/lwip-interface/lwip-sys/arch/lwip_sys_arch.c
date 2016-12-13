@@ -125,13 +125,11 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
     if (queue_sz > MB_SIZE)
         error("sys_mbox_new size error\n");
     
-#ifdef CMSIS_OS_RTX
     memset(mbox->queue, 0, sizeof(mbox->queue));
     mbox->attr.mq_mem = mbox->queue;
     mbox->attr.mq_size = sizeof(mbox->queue);
     mbox->attr.cb_mem = mbox->obj;
     mbox->attr.cb_size = sizeof(mbox->obj);
-#endif
     mbox->id = osMessageQueueNew(queue_sz, sizeof(void *), &mbox->attr);
     return (mbox->id == NULL) ? (ERR_MEM) : (ERR_OK);
 }
@@ -254,11 +252,9 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
  *      err_t                 -- ERR_OK if semaphore created
  *---------------------------------------------------------------------------*/
 err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
-#ifdef CMSIS_OS_RTX
     memset(sem->data, 0, sizeof(sem->data));
     sem->attr.cb_mem = sem->data;
     sem->attr.cb_size = sizeof(sem->data);
-#endif
     sem->id = osSemaphoreNew(UINT16_MAX, count, &sem->attr);
     if (sem->id == NULL)
         error("sys_sem_new create error\n");
@@ -325,15 +321,9 @@ void sys_sem_free(sys_sem_t *sem) {}
  * @param mutex pointer to the mutex to create
  * @return a new mutex */
 err_t sys_mutex_new(sys_mutex_t *mutex) {
-#ifdef CMSIS_OS_RTX
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     memset(mutex->data, 0, sizeof(mutex->data));
-#else
-    memset(mutex->data, 0, sizeof(int32_t)*3);
-#endif
     mutex->attr.cb_mem = mutex->data;
     mutex->attr.cb_size = sizeof(mutex->data);
-#endif
     mutex->id = osMutexNew(&mutex->attr);
     if (mutex->id == NULL)
         return ERR_MEM;
@@ -366,10 +356,14 @@ void sys_mutex_free(sys_mutex_t *mutex) {}
  *      Initialize sys arch
  *---------------------------------------------------------------------------*/
 osMutexId_t lwip_sys_mutex;
+osMutexAttr_t lwip_sys_mutex_attr;
+os_mutex_t lwip_sys_mutex_obj;
 
 void sys_init(void) {
     us_ticker_read(); // Init sys tick
-    lwip_sys_mutex = osMutexNew(NULL);
+    lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_obj;
+    lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_obj);
+    lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
     if (lwip_sys_mutex == NULL)
         error("sys_init error\n");
 }
@@ -467,15 +461,15 @@ sys_thread_t sys_thread_new(const char *pcName,
     sys_thread_t t = (sys_thread_t)&thread_pool[thread_pool_index];
     thread_pool_index++;
     
-#ifdef CMSIS_OS_RTX
     t->attr.name = pcName;
     t->attr.priority = (osPriority_t)priority;
+    t->attr.cb_size = sizeof(t->obj);
+    t->attr.cb_mem = t->obj;
     t->attr.stack_size = stacksize;
     t->attr.stack_mem = malloc(stacksize);
     if (t->attr.stack_mem == NULL) {
       error("Error allocating the stack memory");
     }
-#endif
     t->id = osThreadNew((os_thread_func_t)thread, arg, &t->attr);
     if (t->id == NULL)
         error("sys_thread_new create error\n");

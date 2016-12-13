@@ -1022,11 +1022,9 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
     /* CMSIS-RTOS, start tasks */
 #if NO_SYS == 0
-#ifdef CMSIS_OS_RTX
     memset(lpc_enetdata.xTXDCountSem.data, 0, sizeof(lpc_enetdata.xTXDCountSem.data));
     lpc_enetdata.xTXDCountSem.attr.cb_mem = lpc_enetdata.xTXDCountSem.data;
     lpc_enetdata.xTXDCountSem.attr.cb_size = sizeof(lpc_enetdata.xTXDCountSem.data);
-#endif
     lpc_enetdata.xTXDCountSem.id = osSemaphoreNew(LPC_NUM_BUFF_TXDESCS, LPC_NUM_BUFF_TXDESCS, &lpc_enetdata.xTXDCountSem.attr);
 	LWIP_ASSERT("xTXDCountSem creation error", (lpc_enetdata.xTXDCountSem.id != NULL));
 
