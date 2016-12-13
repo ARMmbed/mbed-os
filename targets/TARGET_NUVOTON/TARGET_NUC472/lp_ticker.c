@@ -94,11 +94,14 @@ void lp_ticker_init(void)
     TIMER_EnableInt((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
     
-    // Schedule wakeup to match semantics of lp_ticker_get_compare_match()
-    lp_ticker_set_interrupt(wakeup_tick);
+    // NOTE: TIMER_Start() first and then lp_ticker_set_interrupt(); otherwise, we may get stuck in lp_ticker_read() because
+    //       timer is not running.
     
     // Start timer
     TIMER_Start((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
+    
+    // Schedule wakeup to match semantics of lp_ticker_get_compare_match()
+    lp_ticker_set_interrupt(wakeup_tick);
 }
 
 timestamp_t lp_ticker_read()
