@@ -128,7 +128,7 @@ class TCPEchoClientTest(BaseHostTest):
         :return:
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect((target_ip, 0)) # Target IP, Any port
+        s.connect((target_ip, 8000)) # Target IP, 'random' port
         ip = s.getsockname()[0]
         s.close()
         return ip
