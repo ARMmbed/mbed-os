@@ -1615,7 +1615,9 @@
     "DELTA_DFCM_NNN50": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
-        "macros_add": ["TARGET_NRF_LFCLK_RC"]
+        "macros_add": ["TARGET_NRF_LFCLK_RC"],
+        "release_versions": ["2", "5"],
+        "device_name": "nRF51822_xxAC"
     },
     "DELTA_DFCM_NNN50_BOOT": {
         "supported_form_factors": ["ARDUINO"],
