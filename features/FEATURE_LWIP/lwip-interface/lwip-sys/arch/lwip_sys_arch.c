@@ -126,10 +126,11 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
         error("sys_mbox_new size error\n");
     
     memset(mbox->queue, 0, sizeof(mbox->queue));
+    memset(&mbox->data, 0, sizeof(mbox->data));
     mbox->attr.mq_mem = mbox->queue;
     mbox->attr.mq_size = sizeof(mbox->queue);
-    mbox->attr.cb_mem = mbox->obj;
-    mbox->attr.cb_size = sizeof(mbox->obj);
+    mbox->attr.cb_mem = &mbox->data;
+    mbox->attr.cb_size = sizeof(mbox->data);
     mbox->id = osMessageQueueNew(queue_sz, sizeof(void *), &mbox->attr);
     return (mbox->id == NULL) ? (ERR_MEM) : (ERR_OK);
 }
@@ -252,8 +253,8 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
  *      err_t                 -- ERR_OK if semaphore created
  *---------------------------------------------------------------------------*/
 err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
-    memset(sem->data, 0, sizeof(sem->data));
-    sem->attr.cb_mem = sem->data;
+    memset(&sem->data, 0, sizeof(sem->data));
+    sem->attr.cb_mem = &sem->data;
     sem->attr.cb_size = sizeof(sem->data);
     sem->id = osSemaphoreNew(UINT16_MAX, count, &sem->attr);
     if (sem->id == NULL)
@@ -321,8 +322,8 @@ void sys_sem_free(sys_sem_t *sem) {}
  * @param mutex pointer to the mutex to create
  * @return a new mutex */
 err_t sys_mutex_new(sys_mutex_t *mutex) {
-    memset(mutex->data, 0, sizeof(mutex->data));
-    mutex->attr.cb_mem = mutex->data;
+    memset(&mutex->data, 0, sizeof(mutex->data));
+    mutex->attr.cb_mem = &mutex->data;
     mutex->attr.cb_size = sizeof(mutex->data);
     mutex->id = osMutexNew(&mutex->attr);
     if (mutex->id == NULL)
@@ -357,12 +358,12 @@ void sys_mutex_free(sys_mutex_t *mutex) {}
  *---------------------------------------------------------------------------*/
 osMutexId_t lwip_sys_mutex;
 osMutexAttr_t lwip_sys_mutex_attr;
-os_mutex_t lwip_sys_mutex_obj;
+os_mutex_t lwip_sys_mutex_data;
 
 void sys_init(void) {
     us_ticker_read(); // Init sys tick
-    lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_obj;
-    lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_obj);
+    lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_data;
+    lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
     if (lwip_sys_mutex == NULL)
         error("sys_init error\n");
@@ -463,8 +464,8 @@ sys_thread_t sys_thread_new(const char *pcName,
     
     t->attr.name = pcName;
     t->attr.priority = (osPriority_t)priority;
-    t->attr.cb_size = sizeof(t->obj);
-    t->attr.cb_mem = t->obj;
+    t->attr.cb_size = sizeof(t->data);
+    t->attr.cb_mem = &t->data;
     t->attr.stack_size = stacksize;
     t->attr.stack_mem = malloc(stacksize);
     if (t->attr.stack_mem == NULL) {

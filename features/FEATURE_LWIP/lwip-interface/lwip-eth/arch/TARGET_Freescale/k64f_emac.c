@@ -686,8 +686,8 @@ err_t eth_arch_enetif_init(struct netif *netif)
   netif->linkoutput = k64f_low_level_output;
 
   /* CMSIS-RTOS, start tasks */
-  memset(k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
-  k64f_enetdata.xTXDCountSem.attr.cb_mem = k64f_enetdata.xTXDCountSem.data;
+  memset(&k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
+  k64f_enetdata.xTXDCountSem.attr.cb_mem = &k64f_enetdata.xTXDCountSem.data;
   k64f_enetdata.xTXDCountSem.attr.cb_size = sizeof(k64f_enetdata.xTXDCountSem.data);
   k64f_enetdata.xTXDCountSem.id = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &k64f_enetdata.xTXDCountSem.attr);
 

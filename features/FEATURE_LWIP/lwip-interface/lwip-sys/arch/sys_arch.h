@@ -30,7 +30,7 @@ extern u8_t lwip_ram_heap[];
 typedef struct {
     osSemaphoreId_t   id;
     osSemaphoreAttr_t attr;
-    char         data[sizeof(os_semaphore_t)];
+    os_semaphore_t    data;
 } sys_sem_t;
 
 #define sys_sem_valid(x)        (((*x).id == NULL) ? 0 : 1)
@@ -38,9 +38,9 @@ typedef struct {
 
 // === MUTEX ===
 typedef struct {
-    osMutexId_t    id;
-    osMutexAttr_t  attr;
-    char       data[sizeof(os_mutex_t)];
+    osMutexId_t   id;
+    osMutexAttr_t attr;
+    os_mutex_t    data;
 } sys_mutex_t;
 
 // === MAIL BOX ===
@@ -49,8 +49,8 @@ typedef struct {
 typedef struct {
     osMessageQueueId_t   id;
     osMessageQueueAttr_t attr;
-    char        queue[MB_SIZE * (sizeof(void*) + sizeof(os_message_t))];
-    char        obj[sizeof(os_message_queue_t)];
+    char                 queue[MB_SIZE * (sizeof(void*) + sizeof(os_message_t))];
+    os_message_queue_t   data;
 } sys_mbox_t;
 
 #define SYS_MBOX_NULL               ((uint32_t) NULL)
@@ -69,7 +69,7 @@ typedef struct {
 typedef struct {
     osThreadId_t   id;
     osThreadAttr_t attr;
-    char obj[sizeof(os_thread_t)];
+    os_thread_t    data;
 } sys_thread_data_t;
 typedef sys_thread_data_t* sys_thread_t;
 
