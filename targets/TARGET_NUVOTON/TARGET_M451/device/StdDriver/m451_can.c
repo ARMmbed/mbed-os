@@ -196,8 +196,9 @@ void CAN_WaitMsg(CAN_T *tCAN)
         }
 
         if(tCAN->STATUS & CAN_STATUS_RXOK_Msk)
+        {
             DEBUG_PRINTF("Rx OK\n");
-
+        }
         if(tCAN->STATUS & CAN_STATUS_LEC_Msk)
         {
             DEBUG_PRINTF("Error\n");

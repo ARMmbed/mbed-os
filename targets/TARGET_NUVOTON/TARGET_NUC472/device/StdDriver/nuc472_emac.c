@@ -204,7 +204,7 @@ static void EMAC_PhyInit(void)
             break;
     }
 
-    if(!EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_LINK_VALID) {     // Cable not connected
+    if(~EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) && PHY_STATUS_LINK_VALID) {     // Cable not connected
         printf("Unplug\n..");
         EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
         EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
@@ -485,10 +485,10 @@ uint32_t EMAC_RecvPkt(uint8_t *pu8Data, uint32_t *pu32Size)
                 u32Count = 1;
             } else {
                 // Save Error status if necessary
-                if (status & EMAC_RXFD_RP);
-                if (status & EMAC_RXFD_ALIE);
-                if (status & EMAC_RXFD_PTLE);
-                if (status & EMAC_RXFD_CRCE);
+                if (status & EMAC_RXFD_RP) {;}
+                if (status & EMAC_RXFD_ALIE) {;}
+                if (status & EMAC_RXFD_PTLE) {;}
+                if (status & EMAC_RXFD_CRCE) {;}
             }
         }
     }
@@ -545,10 +545,10 @@ uint32_t EMAC_RecvPktTS(uint8_t *pu8Data, uint32_t *pu32Size, uint32_t *pu32Sec,
                 u32Count = 1;
             } else {
                 // Save Error status if necessary
-                if (status & EMAC_RXFD_RP);
-                if (status & EMAC_RXFD_ALIE);
-                if (status & EMAC_RXFD_PTLE);
-                if (status & EMAC_RXFD_CRCE);
+                if (status & EMAC_RXFD_RP) {;}
+                if (status & EMAC_RXFD_ALIE) {;}
+                if (status & EMAC_RXFD_PTLE) {;}
+                if (status & EMAC_RXFD_CRCE) {;}
             }
         }
     }
@@ -664,14 +664,14 @@ uint32_t EMAC_SendPktDone(void)
                 u32Count++;
             } else {
                 // Do nothing here on error.
-                if (status & EMAC_TXFD_TXABT);
-                if (status & EMAC_TXFD_DEF);
-                if (status & EMAC_TXFD_PAU);
-                if (status & EMAC_TXFD_EXDEF);
-                if (status & EMAC_TXFD_NCS);
-                if (status & EMAC_TXFD_SQE);
-                if (status & EMAC_TXFD_LC);
-                if (status & EMAC_TXFD_TXHA);
+                if (status & EMAC_TXFD_TXABT) {;}
+                if (status & EMAC_TXFD_DEF) {;}
+                if (status & EMAC_TXFD_PAU) {;}
+                if (status & EMAC_TXFD_EXDEF) {;}
+                if (status & EMAC_TXFD_NCS) {;}
+                if (status & EMAC_TXFD_SQE) {;}
+                if (status & EMAC_TXFD_LC) {;}
+                if (status & EMAC_TXFD_TXHA) {;}
             }
 
             // restore descriptor link list and data pointer they will be overwrite if time stamp enabled
@@ -727,14 +727,14 @@ uint32_t EMAC_SendPktDoneTS(uint32_t *pu32Sec, uint32_t *pu32Nsec)
             *pu32Nsec = EMAC_Subsec2Nsec(desc->u32Data); // Sub nano second store in DATA field
         } else {
             // Do nothing here on error.
-            if (status & EMAC_TXFD_TXABT);
-            if (status & EMAC_TXFD_DEF);
-            if (status & EMAC_TXFD_PAU);
-            if (status & EMAC_TXFD_EXDEF);
-            if (status & EMAC_TXFD_NCS);
-            if (status & EMAC_TXFD_SQE);
-            if (status & EMAC_TXFD_LC);
-            if (status & EMAC_TXFD_TXHA);
+            if (status & EMAC_TXFD_TXABT) {;}
+            if (status & EMAC_TXFD_DEF) {;}
+            if (status & EMAC_TXFD_PAU) {;}
+            if (status & EMAC_TXFD_EXDEF) {;}
+            if (status & EMAC_TXFD_NCS) {;}
+            if (status & EMAC_TXFD_SQE) {;}
+            if (status & EMAC_TXFD_LC) {;}
+            if (status & EMAC_TXFD_TXHA) {;}
         }
 
         // restore descriptor link list and data pointer they will be overwrite if time stamp enabled
