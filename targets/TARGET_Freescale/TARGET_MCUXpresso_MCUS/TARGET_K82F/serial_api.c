@@ -47,8 +47,30 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
 
-    /* Set the LPUART clock source */
-    CLOCK_SetLpuartClock(1U);
+    // since the LPuart initialization depends very much on the source clock and its
+    // frequency, we do a check here and retrieve the frequency accordingly
+    // The CLOCK_SetLpuartSrc() is already done during clock init.
+    uint32_t lpuart_src_freq;
+    switch (SIM->SOPT2 & SIM_SOPT2_LPUARTSRC_MASK) {
+        case SIM_SOPT2_LPUARTSRC(3U): {
+            lpuart_src_freq = CLOCK_GetInternalRefClkFreq();
+            break;
+        }
+        case SIM_SOPT2_LPUARTSRC(2U): {
+            lpuart_src_freq = CLOCK_GetOsc0ErClkFreq();
+            break;
+        }
+        case SIM_SOPT2_LPUARTSRC(1U): {
+            lpuart_src_freq = CLOCK_GetPllFllSelClkFreq();
+            break;
+        }
+        default: {
+            /* Set the LPUART clock source */
+            CLOCK_SetLpuartClock(1U);
+            lpuart_src_freq = CLOCK_GetFreq(uart_clocks[obj->index]);
+            break;
+        }
+    }
 
     lpuart_config_t config;
     LPUART_GetDefaultConfig(&config);
@@ -56,7 +78,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     config.enableTx = false;
     config.enableRx = false;
 
-    LPUART_Init(uart_addrs[obj->index], &config, CLOCK_GetFreq(uart_clocks[obj->index]));
+    LPUART_Init(uart_addrs[obj->index], &config, lpuart_src_freq);
 
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
