@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  *
  * @defgroup app_scheduler Scheduler
@@ -71,15 +70,20 @@
  * @ref ble_sdk_app_hids_mouse and @ref ble_sdk_app_hids_keyboard.
  * @endif
  *
- * @image html scheduler_working.jpg The high level design of the scheduler
+ * @image html scheduler_working.svg The high level design of the scheduler
  */
 
 #ifndef APP_SCHEDULER_H__
 #define APP_SCHEDULER_H__
 
+#include "sdk_config.h"
 #include <stdint.h>
 #include "app_error.h"
 #include "app_util.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define APP_SCHED_EVENT_HEADER_SIZE 8       /**< Size of app_scheduler.event_header_t (only for use inside APP_SCHED_BUF_SIZE()). */
 
@@ -93,7 +97,7 @@
  */
 #define APP_SCHED_BUF_SIZE(EVENT_SIZE, QUEUE_SIZE)                                                 \
             (((EVENT_SIZE) + APP_SCHED_EVENT_HEADER_SIZE) * ((QUEUE_SIZE) + 1))
-            
+
 /**@brief Scheduler event handler type. */
 typedef void (*app_sched_event_handler_t)(void * p_event_data, uint16_t event_size);
 
@@ -150,7 +154,7 @@ void app_sched_execute(void);
  * @details Puts an event into the event queue.
  *
  * @param[in]   p_event_data   Pointer to event data to be scheduled.
- * @param[in]   event_size   Size of event data to be scheduled.
+ * @param[in]   event_size     Size of event data to be scheduled.
  * @param[in]   handler        Event handler to receive the event.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
@@ -159,22 +163,32 @@ uint32_t app_sched_event_put(void *                    p_event_data,
                              uint16_t                  event_size,
                              app_sched_event_handler_t handler);
 
-#ifdef APP_SCHEDULER_WITH_PROFILER
 /**@brief Function for getting the maximum observed queue utilization.
  *
  * Function for tuning the module and determining QUEUE_SIZE value and thus module RAM usage.
  *
+ * @note @ref APP_SCHEDULER_WITH_PROFILER must be enabled to use this functionality.
+ *
  * @return Maximum number of events in queue observed so far.
  */
 uint16_t app_sched_queue_utilization_get(void);
-#endif
 
-#ifdef APP_SCHEDULER_WITH_PAUSE
+/**@brief Function for getting the current amount of free space in the queue.
+ *
+ * @details The real amount of free space may be less if entries are being added from an interrupt.
+ *          To get the sxact value, this function should be called from the critical section.
+ *
+ * @return Amount of free space in the queue.
+ */
+uint16_t app_sched_queue_space_get(void);
+
 /**@brief A function to pause the scheduler.
  *
  * @details When the scheduler is paused events are not pulled from the scheduler queue for
  *          processing. The function can be called multiple times. To unblock the scheduler the
  *          function @ref app_sched_resume has to be called the same number of times.
+ *
+ * @note @ref APP_SCHEDULER_WITH_PAUSE must be enabled to use this functionality.
  */
 void app_sched_pause(void);
 
@@ -182,9 +196,15 @@ void app_sched_pause(void);
  *
  * @details To unblock the scheduler this function has to be called the same number of times as
  *          @ref app_sched_pause function.
+ *
+ * @note @ref APP_SCHEDULER_WITH_PAUSE must be enabled to use this functionality.
  */
 void app_sched_resume(void);
+
+#ifdef __cplusplus
+}
 #endif
+
 #endif // APP_SCHEDULER_H__
 
 /** @} */

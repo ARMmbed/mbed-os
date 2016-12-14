@@ -35,17 +35,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(FDS)
 #include "fds.h"
-#include "fds_config.h"
 #include "fds_internal_defs.h"
 
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
 #include "fstorage.h"
-#include "app_util.h"
 #include "nrf_error.h"
 
 #if defined(FDS_CRC_ENABLED)
@@ -328,7 +326,7 @@ static ret_code_t page_tag_write_swap()
 {
     // Needs to be statically allocated since it will be written to flash.
     static uint32_t const page_tag_swap[] = {FDS_PAGE_TAG_MAGIC, FDS_PAGE_TAG_SWAP};
-    return fs_store(&fs_config, m_swap_page.p_addr, page_tag_swap, FDS_PAGE_TAG_SIZE);
+    return fs_store(&fs_config, m_swap_page.p_addr, page_tag_swap, FDS_PAGE_TAG_SIZE, NULL);
 }
 
 
@@ -337,7 +335,7 @@ static ret_code_t page_tag_write_data(uint32_t const * const p_page_addr)
 {
     // Needs to be statically allocated since it will be written to flash.
     static uint32_t const page_tag_data[] = {FDS_PAGE_TAG_MAGIC, FDS_PAGE_TAG_DATA};
-    return fs_store(&fs_config, p_page_addr, page_tag_data, FDS_PAGE_TAG_SIZE);
+    return fs_store(&fs_config, p_page_addr, page_tag_data, FDS_PAGE_TAG_SIZE, NULL);
 }
 
 
@@ -551,12 +549,10 @@ static void dirty_records_stat(uint16_t         page,
         if (!header_is_valid(p_header))
         {
             (*p_dirty_records) += 1;
-            (*p_word_count)    += p_header->tl.length_words;
+            (*p_word_count)    += FDS_HEADER_SIZE + p_header->tl.length_words;
         }
-        else
-        {
-            p_rec += (FDS_HEADER_SIZE + (p_header->tl.length_words));
-        }
+
+        p_rec += (FDS_HEADER_SIZE + (p_header->tl.length_words));
     }
 }
 
@@ -666,6 +662,7 @@ static fds_init_opts_t pages_init()
     uint32_t ret = NO_PAGES;
     // The index of the page being initialized in m_pages[].
     uint16_t page = 0;
+    bool     swap_set_but_not_found  = false;
 
     for (uint16_t i = 0; i < FDS_VIRTUAL_PAGES; i++)
     {
@@ -695,9 +692,15 @@ static fds_init_opts_t pages_init()
                         // If there is no swap page yet, use this one.
                         m_swap_page.p_addr       = p_page_addr;
                         m_swap_page.write_offset = FDS_PAGE_TAG_SIZE;
+                        swap_set_but_not_found   = true;
                     }
 
                     ret |= PAGE_ERASED;
+                }
+                else
+                {
+                    // Do not initialize or use this page.
+                    m_pages[page++].page_type = FDS_PAGE_UNDEFINED;
                 }
                 break;
 
@@ -714,6 +717,15 @@ static fds_init_opts_t pages_init()
                 break;
 
             case FDS_PAGE_SWAP:
+                if (swap_set_but_not_found)
+                {
+                    m_pages[page].page_type    = FDS_PAGE_ERASED;
+                    m_pages[page].p_addr       = m_swap_page.p_addr;
+                    m_pages[page].write_offset = FDS_PAGE_TAG_SIZE;
+
+                    page++;
+                }
+
                 m_swap_page.p_addr = p_page_addr;
                 // If the swap is promoted, this offset should be kept, otherwise,
                 // it should be set to FDS_PAGE_TAG_SIZE.
@@ -738,7 +750,7 @@ static ret_code_t record_header_write_begin(fds_op_t * const p_op, uint32_t * co
 {
     ret_code_t ret;
     ret = fs_store(&fs_config, p_addr + FDS_OFFSET_TL,
-                  (uint32_t*)&p_op->write.header.tl, FDS_HEADER_SIZE_TL);
+                  (uint32_t*)&p_op->write.header.tl, FDS_HEADER_SIZE_TL, NULL);
 
     // Write the record ID next.
     p_op->write.step = FDS_OP_WRITE_RECORD_ID;
@@ -751,7 +763,7 @@ static ret_code_t record_header_write_id(fds_op_t * const p_op, uint32_t * const
 {
     ret_code_t ret;
     ret = fs_store(&fs_config, p_addr + FDS_OFFSET_ID,
-                   (uint32_t*)&p_op->write.header.record_id, FDS_HEADER_SIZE_ID);
+                   (uint32_t*)&p_op->write.header.record_id, FDS_HEADER_SIZE_ID, NULL);
 
     // If this record has zero chunk, write the last part of the header directly.
     // Otherwise, write the record chunks next.
@@ -766,7 +778,7 @@ static ret_code_t record_header_write_finalize(fds_op_t * const p_op, uint32_t *
 {
     ret_code_t ret;
     ret = fs_store(&fs_config, p_addr + FDS_OFFSET_IC,
-                   (uint32_t*)&p_op->write.header.ic, FDS_HEADER_SIZE_IC);
+                   (uint32_t*)&p_op->write.header.ic, FDS_HEADER_SIZE_IC, NULL);
 
     // If this is a simple write operation, then this is the last step.
     // If this is an update instead, delete the old record next.
@@ -777,19 +789,26 @@ static ret_code_t record_header_write_finalize(fds_op_t * const p_op, uint32_t *
 }
 
 
-static ret_code_t record_header_flag_dirty(uint32_t * const p_record)
+static ret_code_t record_header_flag_dirty(uint32_t * const p_record, uint16_t page_to_gc)
 {
     // Flag the record as dirty.
     fs_ret_t ret = fs_store(&fs_config, p_record,
-                            (uint32_t*)&m_fds_tl_dirty, FDS_HEADER_SIZE_TL);
+                            (uint32_t*)&m_fds_tl_dirty, FDS_HEADER_SIZE_TL, NULL);
 
-    return (ret == FS_SUCCESS) ? FDS_SUCCESS : FDS_ERR_BUSY;
+    if (ret != FS_SUCCESS)
+    {
+        return FDS_ERR_BUSY;
+    }
+
+    m_pages[page_to_gc].can_gc = true;
+
+    return FDS_SUCCESS;
 }
 
 
 static ret_code_t record_find_and_delete(fds_op_t * const p_op)
 {
-    ret_code_t        ret; 
+    ret_code_t        ret;
     uint16_t          page;
     fds_record_desc_t desc = {0};
 
@@ -808,10 +827,7 @@ static ret_code_t record_find_and_delete(fds_op_t * const p_op)
         p_op->del.record_key = p_header->tl.record_key;
 
         // Flag the record as dirty.
-        ret = record_header_flag_dirty((uint32_t*)desc.p_record);
-
-        // This page can now be garbage collected.
-        m_pages[page].can_gc = true;
+        ret = record_header_flag_dirty((uint32_t*)desc.p_record, page);
     }
     else
     {
@@ -838,10 +854,7 @@ static ret_code_t file_find_and_delete(fds_op_t * const p_op)
     if (ret == FDS_SUCCESS)
     {
          // A record was found: flag it as dirty.
-        ret = record_header_flag_dirty((uint32_t*)desc.p_record);
-
-        // This page can now be garbage collected.
-        m_pages[tok.page].can_gc = true;
+        ret = record_header_flag_dirty((uint32_t*)desc.p_record, tok.page);
     }
     else // FDS_ERR_NOT_FOUND
     {
@@ -864,7 +877,7 @@ static ret_code_t record_write_chunk(fds_op_t * const p_op, uint32_t * const p_a
     chunk_queue_get_and_advance(&p_chunk);
 
     ret = fs_store(&fs_config, p_addr + p_op->write.chunk_offset,
-                   p_chunk->p_data, p_chunk->length_words);
+                   p_chunk->p_data, p_chunk->length_words, NULL);
 
     // Accumulate the offset.
     p_op->write.chunk_offset += p_chunk->length_words;
@@ -953,7 +966,7 @@ static ret_code_t gc_swap_erase(void)
     m_gc.state               = GC_DISCARD_SWAP;
     m_swap_page.write_offset = FDS_PAGE_TAG_SIZE;
 
-    return fs_erase(&fs_config, m_swap_page.p_addr, FDS_PHY_PAGES_IN_VPAGE);
+    return fs_erase(&fs_config, m_swap_page.p_addr, FDS_PHY_PAGES_IN_VPAGE, NULL);
 }
 
 
@@ -966,7 +979,7 @@ static ret_code_t gc_page_erase(void)
 
     if (m_pages[gc].records_open == 0)
     {
-        ret = fs_erase(&fs_config, m_pages[gc].p_addr, FDS_PHY_PAGES_IN_VPAGE);
+        ret = fs_erase(&fs_config, m_pages[gc].p_addr, FDS_PHY_PAGES_IN_VPAGE, NULL);
         m_gc.state = GC_ERASE_PAGE;
     }
     else
@@ -991,7 +1004,7 @@ static ret_code_t gc_record_copy(void)
 
     // Copy the record to swap; it is guaranteed to fit in the destination page,
     // so there is no need to check its size. This will either succeed or timeout.
-    return fs_store(&fs_config, p_dest, m_gc.p_record_src, record_len);
+    return fs_store(&fs_config, p_dest, m_gc.p_record_src, record_len, NULL);
 }
 
 
@@ -1156,7 +1169,7 @@ static ret_code_t init_execute(uint32_t prev_ret, fds_op_t * const p_op)
         break;
 
         case FDS_OP_INIT_ERASE_SWAP:
-            ret = fs_erase(&fs_config, m_swap_page.p_addr, FDS_PHY_PAGES_IN_VPAGE);
+            ret = fs_erase(&fs_config, m_swap_page.p_addr, FDS_PHY_PAGES_IN_VPAGE, NULL);
             // If the swap is going to be discarded then reset its write_offset.
             m_swap_page.write_offset = FDS_PAGE_TAG_SIZE;
             p_op->init.step          = FDS_OP_INIT_TAG_SWAP;
@@ -1166,7 +1179,7 @@ static ret_code_t init_execute(uint32_t prev_ret, fds_op_t * const p_op)
         {
             // When promoting the swap, keep the write_offset set by pages_init().
             ret = page_tag_write_data(m_swap_page.p_addr);
-        
+
             uint16_t const         gc         = m_gc.cur_page;
             uint32_t const * const p_old_swap = m_swap_page.p_addr;
 
@@ -1208,6 +1221,10 @@ static ret_code_t write_execute(uint32_t prev_ret, fds_op_t * const p_op)
 
     // This must persist across calls.
     static fds_record_desc_t desc = {0};
+    // When a record is updated, this variable will hold the page where the old
+    // copy was stored. This will be used to set the can_gc flag when the header is
+    // invalidated (FDS_OP_WRITE_FLAG_DIRTY).
+    static uint16_t page;
 
     if (prev_ret != FS_SUCCESS)
     {
@@ -1227,8 +1244,6 @@ static ret_code_t write_execute(uint32_t prev_ret, fds_op_t * const p_op)
             // The first step of updating a record constists of locating the copy to be deleted.
             // If the old copy couldn't be found for any reason then the update should fail.
             // This prevents duplicates when queuing multiple updates of the same record.
-
-            uint16_t page;
             desc.p_record  = NULL;
             desc.record_id = p_op->write.record_to_delete;
 
@@ -1257,7 +1272,7 @@ static ret_code_t write_execute(uint32_t prev_ret, fds_op_t * const p_op)
             break;
 
         case FDS_OP_WRITE_FLAG_DIRTY:
-            ret = record_header_flag_dirty((uint32_t*)desc.p_record);
+            ret = record_header_flag_dirty((uint32_t*)desc.p_record, page);
             p_op->write.step = FDS_OP_WRITE_DONE;
             break;
 
@@ -2023,7 +2038,7 @@ ret_code_t fds_record_id_from_desc(fds_record_desc_t const * const p_desc,
 
 ret_code_t fds_stat(fds_stat_t * const p_stat)
 {
-    uint16_t const words_in_page = FDS_PAGE_SIZE - FDS_PAGE_TAG_SIZE;
+    uint16_t const words_in_page = FDS_PAGE_SIZE;
     // The largest number of free contiguous words on any page.
     uint16_t       contig_words  = 0;
 
@@ -2044,9 +2059,10 @@ ret_code_t fds_stat(fds_stat_t * const p_stat)
         uint32_t const * p_record   = NULL;
         uint16_t const   words_used = m_pages[i].write_offset + m_pages[i].words_reserved;
 
-        p_stat->open_records += m_pages[i].records_open;
-        p_stat->words_used   += words_used;
-        contig_words         =  (words_in_page - words_used);
+        p_stat->open_records   += m_pages[i].records_open;
+        p_stat->words_reserved += m_pages[i].words_reserved;
+        p_stat->words_used     += words_used;
+        contig_words           =  (words_in_page - words_used);
 
         if (contig_words > p_stat->largest_contig)
         {
@@ -2082,4 +2098,4 @@ ret_code_t fds_verify_crc_on_writes(bool enable)
 }
 
 #endif
-
+#endif //NRF_MODULE_ENABLED(FDS)

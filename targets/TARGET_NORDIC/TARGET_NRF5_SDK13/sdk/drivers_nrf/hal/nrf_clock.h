@@ -36,14 +36,17 @@
  * 
  */
 
-
 #ifndef NRF_CLOCK_H__
 #define NRF_CLOCK_H__
 
 #include <stddef.h>
 #include <stdbool.h>
- 
+
 #include "nrf.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @defgroup nrf_clock_hal Clock HAL
@@ -84,20 +87,6 @@ typedef enum
     NRF_CLOCK_START_TASK_NOT_TRIGGERED = CLOCK_LFCLKRUN_STATUS_NotTriggered, /**< Task LFCLKSTART/HFCLKSTART has not been triggered. */
     NRF_CLOCK_START_TASK_TRIGGERED     = CLOCK_LFCLKRUN_STATUS_Triggered     /**< Task LFCLKSTART/HFCLKSTART has been triggered. */
 } nrf_clock_start_task_status_t;
-
-/**
- * @brief Crystal frequency selection.
- */
-typedef enum
-{
-#ifdef NRF51
-    NRF_CLOCK_XTALFREQ_Default = CLOCK_XTALFREQ_XTALFREQ_16MHz, /**< Default. 32 MHz. */
-    NRF_CLOCK_XTALFREQ_16MHz   = CLOCK_XTALFREQ_XTALFREQ_16MHz, /**< 16 MHz crystal. */
-    NRF_CLOCK_XTALFREQ_32MHz   = CLOCK_XTALFREQ_XTALFREQ_32MHz  /**< 32 MHz crystal. */
-#elif defined NRF52
-    NRF_CLOCK_XTALFREQ_Default,                                 /**< Default. 64MHz. */
-#endif
-} nrf_clock_xtalfreq_t;
 
 /**
  * @brief Interrupts.
@@ -163,7 +152,7 @@ __STATIC_INLINE void nrf_clock_int_disable(uint32_t int_mask);
 __STATIC_INLINE bool nrf_clock_int_enable_check(nrf_clock_int_mask_t int_mask);
 
 /**
- * @brief Function for retrieving the address of a specific task. 
+ * @brief Function for retrieving the address of a specific task.
  * @details This function can be used by the PPI module.
  *
  * @param[in]  task             Task.
@@ -180,7 +169,7 @@ __STATIC_INLINE uint32_t nrf_clock_task_address_get(nrf_clock_task_t task);
 __STATIC_INLINE void nrf_clock_task_trigger(nrf_clock_task_t task);
 
 /**
- * @brief Function for retrieving the address of a specific event. 
+ * @brief Function for retrieving the address of a specific event.
  * @details This function can be used by the PPI module.
  *
  * @param[in]  event       Event.
@@ -283,21 +272,6 @@ __STATIC_INLINE bool nrf_clock_hf_is_running(nrf_clock_hfclk_t clk_src);
  * @retval     NRF_CLOCK_START_TASK_TRIGGERED         If the task HFCLKSTART has been triggered.
  */
 __STATIC_INLINE nrf_clock_start_task_status_t nrf_clock_hf_start_task_status_get(void);
-
-/**
- * @brief Function for retrieving the frequency selection of the external crystal.
- *
- * @retval     NRF_CLOCK_XTALFREQ_16MHz     If a 16 MHz crystal is used as source for the HFCLK oscillator.
- * @retval     NRF_CLOCK_XTALFREQ_32MHz     If a 32 MHz crystal is used as source for the HFCLK oscillator.
- */
-__STATIC_INLINE nrf_clock_xtalfreq_t nrf_clock_xtalfreq_get(void);
-
-/**
- * @brief Function for changing the frequency selection of the external crystal.
- *
- * @param[in]  xtalfreq             New frequency selection for the external crystal.
- */
-__STATIC_INLINE void nrf_clock_xtalfreq_set(nrf_clock_xtalfreq_t xtalfreq);
 
 /**
  * @brief Function for changing the calibration timer interval.
@@ -408,26 +382,6 @@ __STATIC_INLINE nrf_clock_start_task_status_t nrf_clock_hf_start_task_status_get
                                            CLOCK_HFCLKRUN_STATUS_Pos);
 }
 
-__STATIC_INLINE nrf_clock_xtalfreq_t nrf_clock_xtalfreq_get(void)
-{
-#ifdef NRF51
-    return (nrf_clock_xtalfreq_t)((NRF_CLOCK->XTALFREQ &
-                                       CLOCK_XTALFREQ_XTALFREQ_Msk) >> CLOCK_XTALFREQ_XTALFREQ_Pos);
-#elif defined NRF52
-    return NRF_CLOCK_XTALFREQ_Default;
-#endif
-}
-
-__STATIC_INLINE void nrf_clock_xtalfreq_set(nrf_clock_xtalfreq_t xtalfreq)
-{
-#ifdef NRF51
-    NRF_CLOCK->XTALFREQ =
-        (uint32_t)((xtalfreq << CLOCK_XTALFREQ_XTALFREQ_Pos) & CLOCK_XTALFREQ_XTALFREQ_Msk);
-#elif defined NRF52
-    return;
-#endif
-}
-
 __STATIC_INLINE void nrf_clock_cal_timer_timeout_set(uint32_t interval)
 {
     NRF_CLOCK->CTIV = ((interval << CLOCK_CTIV_CTIV_Pos) & CLOCK_CTIV_CTIV_Msk);
@@ -438,4 +392,9 @@ __STATIC_INLINE void nrf_clock_cal_timer_timeout_set(uint32_t interval)
 /**
  *@}
  **/
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // NRF_CLOCK_H__

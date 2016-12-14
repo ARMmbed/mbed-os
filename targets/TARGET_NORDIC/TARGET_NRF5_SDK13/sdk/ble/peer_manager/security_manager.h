@@ -37,16 +37,19 @@
  */
 
 
-
 #ifndef SECURITY_MANAGER_H__
 #define SECURITY_MANAGER_H__
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "nrf_ble.h"
-#include "nrf_ble_gap.h"
+#include "ble.h"
+#include "ble_gap.h"
 #include "peer_manager_types.h"
 #include "security_dispatcher.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -87,7 +90,6 @@ typedef struct
 } sm_evt_t;
 
 
-
 /**@brief Event handler for events from the Security Manager module.
  *
  * @param[in]  event        The event that has happened.
@@ -96,17 +98,12 @@ typedef struct
 typedef void (*sm_evt_handler_t)(sm_evt_t const * p_event);
 
 
-/**@brief Function for registering with the Security Manager module. This function also
- *        initializes the module if uninitialized.
+/**@brief Function for initializing the Security Manager module.
  *
- * @param[in]  evt_handler  Callback for events from the Security Manager module.
- *
- * @retval NRF_SUCCESS        Registration was successful.
- * @retval NRF_ERROR_NO_MEM   No more registrations possible.
- * @retval NRF_ERROR_NULL     evt_handler was NULL.
- * @retval NRF_ERROR_INTERNAL An unexpected error occurred.
+ * @retval NRF_SUCCESS        If initialization was successful.
+ * @retval NRF_ERROR_INTERNAL If an unexpected error occurred.
  */
-ret_code_t sm_register(sm_evt_handler_t evt_handler);
+ret_code_t sm_init(void);
 
 
 /**@brief Function for dispatching SoftDevice events to the Security Manager module.
@@ -167,8 +164,8 @@ ret_code_t sm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
  * @warning This function is not yet implemented.
  *
  * @note If this function returns an @ref NRF_ERROR_NULL, @ref NRF_ERROR_INVALID_PARAM, @ref
- *       BLE_ERROR_INVALID_CONN_HANDLE, or @ref NRF_ERROR_NO_MEM, this function can be called again
- *       after corrective action.
+ *       BLE_ERROR_INVALID_CONN_HANDLE, or @ref NRF_ERROR_STORAGE_FULL, this function can be called
+ *       again after corrective action.
  *
  * @note To reject a request, call this function with NULL p_sec_params.
  *
@@ -183,7 +180,7 @@ ret_code_t sm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
  * @retval NRF_ERROR_TIMEOUT              There has been an SMP timeout, so no more SMP operations
  *                                        can be performed on this link.
  * @retval BLE_ERROR_INVALID_CONN_HANDLE  Invalid connection handle.
- * @retval NRF_ERROR_NO_MEM               No more room in flash. Fix and reattempt later.
+ * @retval NRF_ERROR_STORAGE_FULL         No more room in flash. Fix and reattempt later.
  * @retval NRF_ERROR_BUSY                 No write buffer. Reattempt later.
  */
 ret_code_t sm_sec_params_reply(uint16_t conn_handle, ble_gap_sec_params_t * p_sec_params);
@@ -215,5 +212,10 @@ ret_code_t sm_link_secure(uint16_t conn_handle, bool force_repairing);
 /** @}
  * @endcond
  */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SECURITY_MANAGER_H__ */

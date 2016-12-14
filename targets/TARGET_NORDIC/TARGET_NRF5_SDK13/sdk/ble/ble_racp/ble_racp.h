@@ -36,10 +36,9 @@
  * 
  */
 
-
 /** @file
  *
- * @defgroup ble_sdk_lib_racp Record Access Control Point
+ * @defgroup ble_racp Record Access Control Point
  * @{
  * @ingroup ble_sdk_lib
  * @brief Record Access Control Point library.
@@ -50,9 +49,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nrf_ble.h"
-#include "nrf_ble_types.h"
-#include "nrf_ble.h"
+#include "ble.h"
+#include "ble_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**@brief Record Access Control Point opcodes. */
 #define RACP_OPCODE_RESERVED                0       /**< Record Access Control Point opcode - Reserved for future use. */
@@ -64,26 +66,29 @@
 #define RACP_OPCODE_RESPONSE_CODE           6       /**< Record Access Control Point opcode - Response code. */
 
 /**@brief Record Access Control Point operators. */
-#define RACP_OPERATOR_NULL                  0       /**< Record Access Control Point operator - Null. */
-#define RACP_OPERATOR_ALL                   1       /**< Record Access Control Point operator - All records. */
-#define RACP_OPERATOR_LESS_OR_EQUAL         2       /**< Record Access Control Point operator - Less than or equal to. */
-#define RACP_OPERATOR_GREATER_OR_EQUAL      3       /**< Record Access Control Point operator - Greater than or equal to. */
-#define RACP_OPERATOR_RANGE                 4       /**< Record Access Control Point operator - Within range of (inclusive). */
-#define RACP_OPERATOR_FIRST                 5       /**< Record Access Control Point operator - First record (i.e. oldest record). */
-#define RACP_OPERATOR_LAST                  6       /**< Record Access Control Point operator - Last record (i.e. most recent record). */
-#define RACP_OPERATOR_RFU_START             7       /**< Record Access Control Point operator - Start of Reserved for Future Use area. */
+#define RACP_OPERATOR_NULL                   0       /**< Record Access Control Point operator - Null. */
+#define RACP_OPERATOR_ALL                    1       /**< Record Access Control Point operator - All records. */
+#define RACP_OPERATOR_LESS_OR_EQUAL          2       /**< Record Access Control Point operator - Less than or equal to. */
+#define RACP_OPERATOR_GREATER_OR_EQUAL       3       /**< Record Access Control Point operator - Greater than or equal to. */
+#define RACP_OPERATOR_RANGE                  4       /**< Record Access Control Point operator - Within range of (inclusive). */
+#define RACP_OPERATOR_FIRST                  5       /**< Record Access Control Point operator - First record (i.e. oldest record). */
+#define RACP_OPERATOR_LAST                   6       /**< Record Access Control Point operator - Last record (i.e. most recent record). */
+#define RACP_OPERATOR_RFU_START              7       /**< Record Access Control Point operator - Start of Reserved for Future Use area. */
+
+/**@brief Record Access Control Point Operand Filter Type Value. */
+#define RACP_OPERAND_FILTER_TYPE_TIME_OFFSET 1       /**< Record Access Control Point Operand Filter Type Value - Time Offset- */
 
 /**@brief Record Access Control Point response codes. */
-#define RACP_RESPONSE_RESERVED              0       /**< Record Access Control Point response code - Reserved for future use. */
-#define RACP_RESPONSE_SUCCESS               1       /**< Record Access Control Point response code - Successful operation. */
-#define RACP_RESPONSE_OPCODE_UNSUPPORTED    2       /**< Record Access Control Point response code - Unsupported op code received. */
-#define RACP_RESPONSE_INVALID_OPERATOR      3       /**< Record Access Control Point response code - Operator not valid for service. */
-#define RACP_RESPONSE_OPERATOR_UNSUPPORTED  4       /**< Record Access Control Point response code - Unsupported operator. */
-#define RACP_RESPONSE_INVALID_OPERAND       5       /**< Record Access Control Point response code - Operand not valid for service. */
-#define RACP_RESPONSE_NO_RECORDS_FOUND      6       /**< Record Access Control Point response code - No matching records found. */
-#define RACP_RESPONSE_ABORT_FAILED          7       /**< Record Access Control Point response code - Abort could not be completed. */
-#define RACP_RESPONSE_PROCEDURE_NOT_DONE    8       /**< Record Access Control Point response code - Procedure could not be completed. */
-#define RACP_RESPONSE_OPERAND_UNSUPPORTED   9       /**< Record Access Control Point response code - Unsupported operand. */
+#define RACP_RESPONSE_RESERVED               0       /**< Record Access Control Point response code - Reserved for future use. */
+#define RACP_RESPONSE_SUCCESS                1       /**< Record Access Control Point response code - Successful operation. */
+#define RACP_RESPONSE_OPCODE_UNSUPPORTED     2       /**< Record Access Control Point response code - Unsupported op code received. */
+#define RACP_RESPONSE_INVALID_OPERATOR       3       /**< Record Access Control Point response code - Operator not valid for service. */
+#define RACP_RESPONSE_OPERATOR_UNSUPPORTED   4       /**< Record Access Control Point response code - Unsupported operator. */
+#define RACP_RESPONSE_INVALID_OPERAND        5       /**< Record Access Control Point response code - Operand not valid for service. */
+#define RACP_RESPONSE_NO_RECORDS_FOUND       6       /**< Record Access Control Point response code - No matching records found. */
+#define RACP_RESPONSE_ABORT_FAILED           7       /**< Record Access Control Point response code - Abort could not be completed. */
+#define RACP_RESPONSE_PROCEDURE_NOT_DONE     8       /**< Record Access Control Point response code - Procedure could not be completed. */
+#define RACP_RESPONSE_OPERAND_UNSUPPORTED    9       /**< Record Access Control Point response code - Unsupported operand. */
 
 /**@brief Record Access Control Point value structure. */
 typedef struct
@@ -118,6 +123,12 @@ void ble_racp_decode(uint8_t data_len, uint8_t * p_data, ble_racp_value_t * p_ra
  */
 uint8_t ble_racp_encode(const ble_racp_value_t * p_racp_val, uint8_t * p_data);
 
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // BLE_RACP_H__
 
 /** @} */
+

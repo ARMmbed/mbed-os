@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  *
  * @defgroup ble_flash_module Flash Manager
@@ -61,16 +60,20 @@
 #include <stdbool.h>
 #include "nrf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define BLE_FLASH_PAGE_SIZE     ((uint16_t)NRF_FICR->CODEPAGESIZE)  /**< Size of one flash page. */
 #define BLE_FLASH_MAGIC_NUMBER  0x45DE0000                          /**< Magic value to identify if flash contains valid data. */
 #define BLE_FLASH_EMPTY_MASK    0xFFFFFFFF                          /**< Bit mask that defines an empty address in flash. */
 
 
 /**@brief Macro for getting the end of the flash available for application.
- * 
- * @details    The result flash page number indicates the end boundary of the flash available 
- *             to the application. If a bootloader is used, the end will be the start of the 
- *             bootloader region. Otherwise, the end will be the size of the flash. 
+ *
+ * @details    The result flash page number indicates the end boundary of the flash available
+ *             to the application. If a bootloader is used, the end will be the start of the
+ *             bootloader region. Otherwise, the end will be the size of the flash.
  */
 #define BLE_FLASH_PAGE_END \
     ((NRF_UICR->NRFFW[0] != BLE_FLASH_EMPTY_MASK) \
@@ -93,12 +96,12 @@ uint32_t ble_flash_page_write(uint8_t page_num, uint32_t * p_in_array, uint8_t w
 /**@brief Function for reading data from flash to RAM.
  *
  * @param[in]  page_num       Page number to read.
- * @param[out] p_out_array    Pointer to a RAM area where the found data will be written. 
+ * @param[out] p_out_array    Pointer to a RAM area where the found data will be written.
  *                            This area has to be 32 bits aligned.
  * @param[out] p_word_count   Number of 32 bits words read.
  *
  * @return     NRF_SUCCESS on successful upload, NRF_ERROR_NOT_FOUND if no valid data has been found
- *             in flash (first 32 bits not equal to the MAGIC_NUMBER+CRC).
+ *             in flash (first 32 bits not equal to the MAGIC_NUMBER + CRC).
  */
 uint32_t ble_flash_page_read(uint8_t page_num, uint32_t * p_out_array, uint8_t * p_word_count);
 
@@ -145,7 +148,7 @@ uint32_t ble_flash_block_write(uint32_t * p_address, uint32_t * p_in_array, uint
 uint32_t ble_flash_page_addr(uint8_t page_num, uint32_t ** pp_page_addr);
 
 /**@brief Function for calculating a 16 bit CRC using the CRC-16-CCITT scheme.
- * 
+ *
  * @param[in]  p_data   Pointer to data on which the CRC is to be calulated.
  * @param[in]  size     Number of bytes on which the CRC is to be calulated.
  * @param[in]  p_crc    Initial CRC value (if NULL, a preset value is used as the initial value).
@@ -163,6 +166,11 @@ uint16_t ble_flash_crc16_compute(uint8_t * p_data, uint16_t size, uint16_t * p_c
  * @param[in]  radio_active   TRUE if radio is active (or about to become active), FALSE otherwise.
  */
 void ble_flash_on_radio_active_evt(bool radio_active);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_FLASH_H__
 

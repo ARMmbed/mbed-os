@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**@file
  *
  * @defgroup app_util_platform Utility Functions and Definitions (Platform)
@@ -59,7 +58,11 @@
 #include "nrf_assert.h"
 #include "app_error.h"
 
-#if defined(NRF51)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if __CORTEX_M == (0x00U)
 #define _PRIO_SD_HIGH       0
 #define _PRIO_APP_HIGH      1
 #define _PRIO_APP_MID       1
@@ -67,7 +70,7 @@
 #define _PRIO_APP_LOW       3
 #define _PRIO_APP_LOWEST    3
 #define _PRIO_THREAD        4
-#elif defined(NRF52)
+#elif __CORTEX_M == (0x04U)
 #define _PRIO_SD_HIGH       0
 #define _PRIO_SD_MID        1
 #define _PRIO_APP_HIGH      2
@@ -81,10 +84,12 @@
     #error "No platform defined"
 #endif
 
+
+//lint -save -e113 -e452
 /**@brief The interrupt priorities available to the application while the SoftDevice is active. */
 typedef enum
 {
-#ifdef SOFTDEVICE_PRESENT
+#ifndef SOFTDEVICE_PRESENT
     APP_IRQ_PRIORITY_HIGHEST = _PRIO_SD_HIGH,
 #else
     APP_IRQ_PRIORITY_HIGHEST = _PRIO_APP_HIGH,
@@ -99,6 +104,8 @@ typedef enum
     APP_IRQ_PRIORITY_LOWEST  = _PRIO_APP_LOWEST,
     APP_IRQ_PRIORITY_THREAD  = _PRIO_THREAD     /**< "Interrupt level" when running in Thread Mode. */
 } app_irq_priority_t;
+//lint -restore
+
 
 /*@brief The privilege levels available to applications in Thread Mode */
 typedef enum
@@ -110,6 +117,40 @@ typedef enum
 /**@cond NO_DOXYGEN */
 #define EXTERNAL_INT_VECTOR_OFFSET 16
 /**@endcond */
+
+/**@brief Macro for setting a breakpoint.
+ */
+#if defined(__GNUC__)
+#define NRF_BREAKPOINT __builtin_trap()
+#else
+#define NRF_BREAKPOINT __BKPT(0)
+#endif
+
+/** @brief Macro for setting a breakpoint.
+ *
+ * If it is possible to detect debugger presence then it is set only in that case.
+ *
+ */
+#if __CORTEX_M == 0x04
+#define NRF_BREAKPOINT_COND do {                            \
+    /* C_DEBUGEN == 1 -> Debugger Connected */              \
+    if (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk)   \
+    {                                                       \
+       /* Generate breakpoint if debugger is connected */   \
+            NRF_BREAKPOINT;                                 \
+    } \
+    }while (0)
+#else
+#define NRF_BREAKPOINT_COND NRF_BREAKPOINT
+#endif // __CORTEX_M == 0x04
+
+#if defined ( __CC_ARM )
+#define PACKED(TYPE) __packed TYPE
+#define PACKED_STRUCT PACKED(struct)
+#elif defined   ( __GNUC__ )
+#define PACKED __attribute__((packed))
+#define PACKED_STRUCT struct PACKED
+#endif
 
 void app_util_critical_region_enter (uint8_t *p_nested);
 void app_util_critical_region_exit (uint8_t nested);
@@ -141,13 +182,13 @@ void app_util_critical_region_exit (uint8_t nested);
     }
 #else
 #define CRITICAL_REGION_EXIT() app_util_critical_region_exit(0)
-#endif 
+#endif
 
 /* Workaround for Keil 4 */
 #ifndef IPSR_ISR_Msk
 #define IPSR_ISR_Msk                       (0x1FFUL /*<< IPSR_ISR_Pos*/)                  /*!< IPSR: ISR Mask */
 #endif
-       
+
 
 
 /**@brief Macro to enable anonymous unions from a certain point in the code.
@@ -177,11 +218,11 @@ void app_util_critical_region_exit (uint8_t nested);
     // For GCC anonymous unions are enabled by default.
 #endif
 
-
 /* Workaround for Keil 4 */
 #ifndef CONTROL_nPRIV_Msk
 #define CONTROL_nPRIV_Msk                  (1UL /*<< CONTROL_nPRIV_Pos*/)                 /*!< CONTROL: nPRIV Mask */
 #endif
+
 
 /**@brief Function for finding the current interrupt level.
  *
@@ -190,19 +231,8 @@ void app_util_critical_region_exit (uint8_t nested);
  * @retval   APP_IRQ_PRIORITY_LOW     We are running in Application Low interrupt level.
  * @retval   APP_IRQ_PRIORITY_THREAD  We are running in Thread Mode.
  */
-static __INLINE uint8_t current_int_priority_get(void)
-{
-    uint32_t isr_vector_num = __get_IPSR() & IPSR_ISR_Msk ;
-    if (isr_vector_num > 0)
-    {
-        int32_t irq_type = ((int32_t)isr_vector_num - EXTERNAL_INT_VECTOR_OFFSET);
-        return (NVIC_GetPriority((IRQn_Type)irq_type) & 0xFF);
-    }
-    else
-    {
-        return APP_IRQ_PRIORITY_THREAD;
-    }
-}
+uint8_t current_int_priority_get(void);
+
 
 /**@brief Function for finding out the current privilege level.
  *
@@ -210,26 +240,12 @@ static __INLINE uint8_t current_int_priority_get(void)
  * @retval   APP_LEVEL_UNPRIVILEGED    We are running in unprivileged level.
  * @retval   APP_LEVEL_PRIVILEGED    We are running in privileged level.
  */
-static __INLINE uint8_t privilege_level_get(void)
-{
-#if defined(NRF51)
-    /* the Cortex-M0 has no concept of privilege */
-    return APP_LEVEL_PRIVILEGED;
-#elif defined(NRF52)
-    uint32_t isr_vector_num = __get_IPSR() & IPSR_ISR_Msk ;
-    if (0 == isr_vector_num)
-    {
-        /* Thread Mode, check nPRIV */
-        int32_t control = __get_CONTROL();
-        return control & CONTROL_nPRIV_Msk ? APP_LEVEL_UNPRIVILEGED : APP_LEVEL_PRIVILEGED;
-    }
-    else
-    {
-        /* Handler Mode, always privileged */
-        return APP_LEVEL_PRIVILEGED;
-    }
-#endif
+uint8_t privilege_level_get(void);
+
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif // APP_UTIL_PLATFORM_H__
 

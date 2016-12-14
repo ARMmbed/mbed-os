@@ -36,12 +36,11 @@
  * 
  */
 
-
 /**
  * @addtogroup nrf_saadc SAADC HAL and driver
  * @ingroup    nrf_drivers
  * @brief      @tagAPI52 Successive Approximation Analog-to-Digital Converter (SAADC) APIs.
- * @details The SAADC HAL provides basic APIs for accessing the registers of the SAADC peripheral. 
+ * @details The SAADC HAL provides basic APIs for accessing the registers of the SAADC peripheral.
  * The SAADC driver provides APIs on a higher level.
  *
  * @defgroup nrf_drv_saadc SAADC driver
@@ -54,9 +53,14 @@
 #ifndef NRF_DRV_SAADC_H__
 #define NRF_DRV_SAADC_H__
 
-#include "nrf_drv_config.h"
+#include "sdk_config.h"
 #include "nrf_saadc.h"
 #include "sdk_errors.h"
+#include "nrf_drv_common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Value that should be set as high limit to disable limit detection.
@@ -70,12 +74,13 @@
 /**
  * @brief Macro for setting @ref nrf_drv_saadc_config_t to default settings.
  */
-#define NRF_DRV_SAADC_DEFAULT_CONFIG                \
-{                                                   \
-    .resolution         = SAADC_CONFIG_RESOLUTION,  \
-    .oversample         = SAADC_CONFIG_OVERSAMPLE,  \
-    .interrupt_priority = SAADC_CONFIG_IRQ_PRIORITY \
-}
+#define NRF_DRV_SAADC_DEFAULT_CONFIG                                        \
+    {                                                                       \
+    .resolution         = (nrf_saadc_resolution_t)SAADC_CONFIG_RESOLUTION,  \
+    .oversample         = (nrf_saadc_oversample_t)SAADC_CONFIG_OVERSAMPLE,  \
+    .interrupt_priority = SAADC_CONFIG_IRQ_PRIORITY,                        \
+    .low_power_mode     = SAADC_CONFIG_LP_MODE                              \
+    }
 
 /**
  * @brief Macro for setting @ref nrf_saadc_channel_config_t to default settings
@@ -84,16 +89,17 @@
  * @param PIN_P Analog input.
  */
 #define NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(PIN_P) \
-{                                                      \
-    .resistor_p = NRF_SAADC_RESISTOR_DISABLED,         \
-    .resistor_n = NRF_SAADC_RESISTOR_DISABLED,         \
-    .gain       = NRF_SAADC_GAIN1_6,                   \
-    .reference  = NRF_SAADC_REFERENCE_INTERNAL,        \
-    .acq_time   = NRF_SAADC_ACQTIME_10US,              \
-    .mode       = NRF_SAADC_MODE_SINGLE_ENDED,         \
-    .pin_p      = (nrf_saadc_input_t)(PIN_P),          \
-    .pin_n      = NRF_SAADC_INPUT_DISABLED             \
-}
+    {                                                  \
+        .resistor_p = NRF_SAADC_RESISTOR_DISABLED,     \
+        .resistor_n = NRF_SAADC_RESISTOR_DISABLED,     \
+        .gain       = NRF_SAADC_GAIN1_6,               \
+        .reference  = NRF_SAADC_REFERENCE_INTERNAL,    \
+        .acq_time   = NRF_SAADC_ACQTIME_10US,          \
+        .mode       = NRF_SAADC_MODE_SINGLE_ENDED,     \
+        .burst      = NRF_SAADC_BURST_DISABLED,        \
+        .pin_p      = (nrf_saadc_input_t)(PIN_P),      \
+        .pin_n      = NRF_SAADC_INPUT_DISABLED         \
+    }
 
 /**
  * @brief Macro for setting @ref nrf_saadc_channel_config_t to default settings
@@ -103,16 +109,16 @@
  * @param PIN_N Negative analog input.
  */
 #define NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_DIFFERENTIAL(PIN_P, PIN_N) \
-{                                                                       \
-    .resistor_p = NRF_SAADC_RESISTOR_DISABLED,                          \
-    .resistor_n = NRF_SAADC_RESISTOR_DISABLED,                          \
-    .gain       = NRF_SAADC_GAIN1_6,                                    \
-    .reference  = NRF_SAADC_REFERENCE_INTERNAL,                         \
-    .acq_time   = NRF_SAADC_ACQTIME_10US,                               \
-    .mode       = NRF_SAADC_MODE_DIFFERENTIAL,                          \
-    .pin_p      = (nrf_saadc_input_t)(PIN_P),                           \
-    .pin_n      = (nrf_saadc_input_t)(PIN_N)                            \
-}
+    {                                                                   \
+        .resistor_p = NRF_SAADC_RESISTOR_DISABLED,                      \
+        .resistor_n = NRF_SAADC_RESISTOR_DISABLED,                      \
+        .gain       = NRF_SAADC_GAIN1_6,                                \
+        .reference  = NRF_SAADC_REFERENCE_INTERNAL,                     \
+        .acq_time   = NRF_SAADC_ACQTIME_10US,                           \
+        .mode       = NRF_SAADC_MODE_DIFFERENTIAL,                      \
+        .pin_p      = (nrf_saadc_input_t)(PIN_P),                       \
+        .pin_n      = (nrf_saadc_input_t)(PIN_N)                        \
+    }
 
 /**
  * @brief Analog-to-digital converter driver configuration structure.
@@ -122,6 +128,7 @@ typedef struct
     nrf_saadc_resolution_t resolution;         ///< Resolution configuration.
     nrf_saadc_oversample_t oversample;         ///< Oversampling configuration.
     uint8_t                interrupt_priority; ///< Interrupt priority.
+    bool                   low_power_mode;     ///< Indicates if low power mode is active.
 } nrf_drv_saadc_config_t;
 
 /**
@@ -129,8 +136,9 @@ typedef struct
  */
 typedef enum
 {
-    NRF_DRV_SAADC_EVT_DONE,    ///< Event generated when the buffer is filled with samples.
-    NRF_DRV_SAADC_EVT_LIMIT,   ///< Event generated after one of the limits is reached.
+    NRF_DRV_SAADC_EVT_DONE,         ///< Event generated when the buffer is filled with samples.
+    NRF_DRV_SAADC_EVT_LIMIT,        ///< Event generated after one of the limits is reached.
+    NRF_DRV_SAADC_EVT_CALIBRATEDONE ///< Event generated when the calibration is complete.
 } nrf_drv_saadc_evt_type_t;
 
 /**
@@ -138,8 +146,8 @@ typedef enum
  */
 typedef struct
 {
-    nrf_saadc_value_t *      p_buffer; ///< Pointer to buffer with converted samples.
-    uint16_t                 size;     ///< Number of samples in the buffer.
+    nrf_saadc_value_t * p_buffer; ///< Pointer to buffer with converted samples.
+    uint16_t            size;     ///< Number of samples in the buffer.
 } nrf_drv_saadc_done_evt_t;
 
 /**
@@ -147,8 +155,8 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t                  channel;    ///< Channel on which the limit was detected.
-    nrf_saadc_limit_t        limit_type; ///< Type of limit detected.
+    uint8_t           channel;    ///< Channel on which the limit was detected.
+    nrf_saadc_limit_t limit_type; ///< Type of limit detected.
 } nrf_drv_saadc_limit_evt_t;
 
 /**
@@ -156,11 +164,11 @@ typedef struct
  */
 typedef struct
 {
-    nrf_drv_saadc_evt_type_t type;      ///< Event type.
+    nrf_drv_saadc_evt_type_t type; ///< Event type.
     union
     {
-        nrf_drv_saadc_done_evt_t  done; ///< Data for @ref NRF_DRV_SAADC_EVT_DONE event.
-        nrf_drv_saadc_limit_evt_t limit;///< Data for @ref NRF_DRV_SAADC_EVT_LIMIT event.
+        nrf_drv_saadc_done_evt_t  done;  ///< Data for @ref NRF_DRV_SAADC_EVT_DONE event.
+        nrf_drv_saadc_limit_evt_t limit; ///< Data for @ref NRF_DRV_SAADC_EVT_LIMIT event.
     } data;
 } nrf_drv_saadc_evt_t;
 
@@ -171,7 +179,7 @@ typedef struct
  *                        the stack, so it is valid only within the context of
  *                        the event handler.
  */
-typedef void (*nrf_drv_saadc_event_handler_t)(nrf_drv_saadc_evt_t const * p_event);
+typedef void (* nrf_drv_saadc_event_handler_t)(nrf_drv_saadc_evt_t const * p_event);
 
 /**
  * @brief Function for initializing the SAADC.
@@ -184,7 +192,7 @@ typedef void (*nrf_drv_saadc_event_handler_t)(nrf_drv_saadc_evt_t const * p_even
  * @retval    NRF_ERROR_INVALID_PARAM If event_handler is NULL.
  */
 ret_code_t nrf_drv_saadc_init(nrf_drv_saadc_config_t const * p_config,
-                              nrf_drv_saadc_event_handler_t event_handler);
+                              nrf_drv_saadc_event_handler_t  event_handler);
 
 /**
  * @brief Function for uninitializing the SAADC.
@@ -193,16 +201,13 @@ ret_code_t nrf_drv_saadc_init(nrf_drv_saadc_config_t const * p_config,
  */
 void nrf_drv_saadc_uninit(void);
 
+
 /**
  * @brief Function for getting the address of a SAMPLE SAADC task.
  *
  * @return     Task address.
  */
-__STATIC_INLINE uint32_t nrf_drv_saadc_sample_task_get(void)
-{
-    return nrf_saadc_task_address_get(NRF_SAADC_TASK_SAMPLE);
-}
-
+uint32_t nrf_drv_saadc_sample_task_get(void);
 
 /**
  * @brief Function for initializing an SAADC channel.
@@ -213,7 +218,7 @@ __STATIC_INLINE uint32_t nrf_drv_saadc_sample_task_get(void)
  * @retval NRF_ERROR_INVALID_STATE If the ADC was not initialized.
  * @retval NRF_ERROR_NO_MEM        If the specified channel was already allocated.
  */
-ret_code_t nrf_drv_saadc_channel_init(uint8_t channel, 
+ret_code_t nrf_drv_saadc_channel_init(uint8_t                                  channel,
                                       nrf_saadc_channel_config_t const * const p_config);
 
 
@@ -228,8 +233,8 @@ ret_code_t nrf_drv_saadc_channel_uninit(uint8_t channel);
 /**
  * @brief Function for starting SAADC sampling.
  *
- * @retval NRF_SUCCESS    If ADC sampling was triggered.
- * @retval NRF_ERROR_BUSY If ADC is in idle state.
+ * @retval NRF_SUCCESS             If ADC sampling was triggered.
+ * @retval NRF_ERROR_INVALID_STATE If ADC is in idle state.
  */
 ret_code_t nrf_drv_saadc_sample(void);
 
@@ -258,15 +263,29 @@ ret_code_t nrf_drv_saadc_sample_convert(uint8_t channel, nrf_saadc_value_t * p_v
  * triggered manually by the @ref nrf_drv_saadc_sample function or by PPI using the @ref NRF_SAADC_TASK_SAMPLE
  * task. If one buffer is already set and the conversion is ongoing, calling this function will
  * result in queuing the given buffer. The driver will start filling the issued buffer when the first one is
- * completed. If the function is called again before the first buffer is filled, it will return with error.
+ * completed. If the function is called again before the first buffer is filled or calibration is in progress,
+ * it will return with error.
  *
  * @param[in] buffer Result buffer.
  * @param[in] size   Buffer size in words.
  *
  * @retval NRF_SUCCESS    If conversion was successful.
- * @retval NRF_ERROR_BUSY If the driver already has two buffers set.
+ * @retval NRF_ERROR_BUSY If the driver already has two buffers set or calibration is in progress.
  */
 ret_code_t nrf_drv_saadc_buffer_convert(nrf_saadc_value_t * buffer, uint16_t size);
+
+/**
+ * @brief Function for triggering the ADC offset calibration.
+ *
+ * This function is non-blocking. The application is notified about completion by the event handler.
+ * Calibration will also trigger DONE and RESULTDONE events.
+ *
+ * The function will fail if ADC is busy or calibration is already in progress.
+ *
+ * @retval NRF_SUCCESS    If calibration was started successfully.
+ * @retval NRF_ERROR_BUSY If the ADC driver is busy.
+ */
+ret_code_t nrf_drv_saadc_calibrate_offset(void);
 
 /**
  * @brief Function for retrieving the SAADC state.
@@ -297,33 +316,9 @@ void nrf_drv_saadc_abort(void);
  */
 void nrf_drv_saadc_limits_set(uint8_t channel, int16_t limit_low, int16_t limit_high);
 
-/**
- * @brief Function for converting a GPIO pin number to an analog input pin number used in the channel
- *        configuration.
- *
- * @param[in]  pin GPIO pin.
- *
- * @return     Value representing an analog input pin. The function returns @ref NRF_SAADC_INPUT_DISABLED
- *             if the specified pin is not an analog input.
- */
-__STATIC_INLINE nrf_saadc_input_t nrf_drv_saadc_gpio_to_ain(uint32_t pin)
-{
-    // AIN0 - AIN3
-    if (pin >= 2 && pin <= 5)
-    {
-        //0 means "not connected", hence this "+ 1"
-        return (nrf_saadc_input_t)(pin - 2 + 1);
-    }
-    // AIN4 - AIN7
-    else if (pin >= 28 && pin <= 31)
-    {
-        return (nrf_saadc_input_t)(pin - 24 + 1);
-    }
-    else
-    {
-        return NRF_SAADC_INPUT_DISABLED;
-    }
+#ifdef __cplusplus
 }
+#endif
 
 #endif // NRF_DRV_SAADC_H__
 

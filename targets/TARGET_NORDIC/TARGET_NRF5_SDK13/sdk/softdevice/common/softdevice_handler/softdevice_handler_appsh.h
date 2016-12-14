@@ -36,16 +36,24 @@
  * 
  */
 
-
 #ifndef SOFTDEVICE_HANDLER_APPSH_H
 #define SOFTDEVICE_HANDLER_APPSH_H
 
 #include "softdevice_handler.h"
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SOFTDEVICE_HANDLER_APPSH_INIT(CLOCK_SOURCE,USE_SCHEDULER) \
     SOFTDEVICE_HANDLER_INIT(CLOCK_SOURCE,(USE_SCHEDULER) ? softdevice_evt_schedule : NULL)
 
 uint32_t softdevice_evt_schedule(void);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //SOFTDEVICE_HANDLER_APPSH_H

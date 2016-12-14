@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**@file
  * @addtogroup nrf_timer Timer HAL and driver
  * @ingroup    nrf_drivers
@@ -44,7 +43,7 @@
  * @details    The timer HAL provides basic APIs for accessing the registers
  *             of the timer. The timer driver provides APIs on a higher level.
  *
- * @defgroup   lib_driver_timer Timer driver
+ * @defgroup   nrf_drv_timer Timer driver
  * @{
  * @ingroup    nrf_timer
  * @brief      Multi-instance timer driver.
@@ -54,10 +53,14 @@
 #define NRF_DRV_TIMER_H__
 
 #include "nordic_common.h"
-#include "nrf_drv_config.h"
+#include "sdk_config.h"
 #include "nrf_timer.h"
 #include "sdk_errors.h"
 #include "nrf_assert.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Timer driver instance data structure.
@@ -68,6 +71,14 @@ typedef struct
     uint8_t          instance_id;      ///< Driver instance index.
     uint8_t          cc_channel_count; ///< Number of capture/compare channels.
 } nrf_drv_timer_t;
+
+#define ENABLED_TIMER_COUNT (TIMER0_ENABLED+TIMER1_ENABLED+TIMER2_ENABLED+TIMER3_ENABLED+TIMER4_ENABLED)
+
+#define TIMER0_INSTANCE_INDEX 0
+#define TIMER1_INSTANCE_INDEX TIMER0_INSTANCE_INDEX+TIMER0_ENABLED
+#define TIMER2_INSTANCE_INDEX TIMER1_INSTANCE_INDEX+TIMER1_ENABLED
+#define TIMER3_INSTANCE_INDEX TIMER2_INSTANCE_INDEX+TIMER2_ENABLED
+#define TIMER4_INSTANCE_INDEX TIMER3_INSTANCE_INDEX+TIMER3_ENABLED
 
 /**
  * @brief Macro for creating a timer driver instance.
@@ -91,21 +102,16 @@ typedef struct
     void *                p_context;          ///< Context passed to interrupt handler.
 } nrf_drv_timer_config_t;
 
-#define TIMER_CONFIG_FREQUENCY(id)    CONCAT_3(TIMER, id, _CONFIG_FREQUENCY)
-#define TIMER_CONFIG_MODE(id)         CONCAT_3(TIMER, id, _CONFIG_MODE)
-#define TIMER_CONFIG_BIT_WIDTH(id)    CONCAT_3(TIMER, id, _CONFIG_BIT_WIDTH)
-#define TIMER_CONFIG_IRQ_PRIORITY(id) CONCAT_3(TIMER, id, _CONFIG_IRQ_PRIORITY)
-
 /**
  * @brief Timer driver instance default configuration.
  */
-#define NRF_DRV_TIMER_DEFAULT_CONFIG(id) \
-{                                                                            \
-    .frequency          = TIMER_CONFIG_FREQUENCY(id),                        \
-    .mode               = (nrf_timer_mode_t)TIMER_CONFIG_MODE(id),           \
-    .bit_width          = (nrf_timer_bit_width_t)TIMER_CONFIG_BIT_WIDTH(id), \
-    .interrupt_priority = TIMER_CONFIG_IRQ_PRIORITY(id),                     \
-    .p_context          = NULL                                               \
+#define NRF_DRV_TIMER_DEFAULT_CONFIG \
+{                                                                               \
+    .frequency          = (nrf_timer_frequency_t)TIMER_DEFAULT_CONFIG_FREQUENCY,\
+    .mode               = (nrf_timer_mode_t)TIMER_DEFAULT_CONFIG_MODE,          \
+    .bit_width          = (nrf_timer_bit_width_t)TIMER_DEFAULT_CONFIG_BIT_WIDTH,\
+    .interrupt_priority = TIMER_DEFAULT_CONFIG_IRQ_PRIORITY,                    \
+    .p_context          = NULL                                                  \
 }
 
 /**
@@ -113,8 +119,8 @@ typedef struct
  *
  * @param[in] event_type Timer event.
  * @param[in] p_context  General purpose parameter set during initialization of
- *                       the timer. This parameter can be used to pass 
- *                       additional information to the handler function, for 
+ *                       the timer. This parameter can be used to pass
+ *                       additional information to the handler function, for
  *                       example, the timer ID.
  */
 typedef void (* nrf_timer_event_handler_t)(nrf_timer_event_t event_type,
@@ -123,7 +129,7 @@ typedef void (* nrf_timer_event_handler_t)(nrf_timer_event_t event_type,
 /**
  * @brief Function for initializing the timer.
  *
- * @param[in] p_instance          Timer instance.
+ * @param[in] p_instance          Pointer to the driver instance structure.
  * @param[in] p_config            Initial configuration.
  *                                If NULL, the default configuration is used.
  * @param[in] timer_event_handler Event handler provided by the user.
@@ -140,59 +146,59 @@ ret_code_t nrf_drv_timer_init(nrf_drv_timer_t const * const p_instance,
 /**
  * @brief Function for uninitializing the timer.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_uninit(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for turning on the timer.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_enable(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for turning off the timer.
  *
- * Note that the timer will allow to enter the lowest possible SYSTEM_ON state 
+ * Note that the timer will allow to enter the lowest possible SYSTEM_ON state
  * only after this function is called.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_disable(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for pausing the timer.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_pause(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for resuming the timer.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_resume(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for clearing the timer.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_clear(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for incrementing the timer.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_timer_increment(nrf_drv_timer_t const * const p_instance);
 
 /**
  * @brief Function for returning the address of a specific timer task.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] timer_task Timer task.
  *
  * @return Task address.
@@ -204,7 +210,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_task_address_get(
 /**
  * @brief Function for returning the address of a specific timer capture task.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] channel    Capture channel number.
  *
  * @return Task address.
@@ -216,7 +222,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_capture_task_address_get(
 /**
  * @brief Function for returning the address of a specific timer event.
  *
- * @param[in] p_instance  Timer instance.
+ * @param[in] p_instance  Pointer to the driver instance structure.
  * @param[in] timer_event Timer event.
  *
  * @return Event address.
@@ -228,7 +234,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_event_address_get(
 /**
  * @brief Function for returning the address of a specific timer compare event.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] channel    Compare channel number.
  *
  * @return Event address.
@@ -240,7 +246,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_compare_event_address_get(
 /**
  * @brief Function for capturing the timer value.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] cc_channel Capture channel number.
  *
  * @return Captured value.
@@ -253,7 +259,7 @@ uint32_t nrf_drv_timer_capture(nrf_drv_timer_t const * const p_instance,
  *
  * Use this function to read channel values when PPI is used for capturing.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] cc_channel Capture channel number.
  *
  * @return Captured value.
@@ -265,7 +271,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_capture_get(
 /**
  * @brief Function for setting the timer channel in compare mode.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] cc_channel Compare channel number.
  * @param[in] cc_value   Compare value.
  * @param[in] enable_int Enable or disable the interrupt for the compare channel.
@@ -278,7 +284,7 @@ void nrf_drv_timer_compare(nrf_drv_timer_t const * const p_instance,
 /**
  * @brief Function for setting the timer channel in extended compare mode.
  *
- * @param[in] p_instance       Timer instance.
+ * @param[in] p_instance       Pointer to the driver instance structure.
  * @param[in] cc_channel       Compare channel number.
  * @param[in] cc_value         Compare value.
  * @param[in] timer_short_mask Shortcut between the compare event on the channel
@@ -295,7 +301,7 @@ void nrf_drv_timer_extended_compare(nrf_drv_timer_t const * const p_instance,
 /**
  * @brief Function for converting time in microseconds to timer ticks.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] time_us    Time in microseconds.
  *
  * @return Number of ticks.
@@ -307,7 +313,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_us_to_ticks(
 /**
  * @brief Function for converting time in milliseconds to timer ticks.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] time_ms    Time in milliseconds.
  *
  * @return Number of ticks.
@@ -319,7 +325,7 @@ __STATIC_INLINE uint32_t nrf_drv_timer_ms_to_ticks(
 /**
  * @brief Function for enabling timer compare interrupt.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] channel    Compare channel.
  */
 void nrf_drv_timer_compare_int_enable(nrf_drv_timer_t const * const p_instance,
@@ -328,7 +334,7 @@ void nrf_drv_timer_compare_int_enable(nrf_drv_timer_t const * const p_instance,
 /**
  * @brief Function for disabling timer compare interrupt.
  *
- * @param[in] p_instance Timer instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] channel    Compare channel.
  */
 void nrf_drv_timer_compare_int_disable(nrf_drv_timer_t const * const p_instance,
@@ -393,6 +399,11 @@ __STATIC_INLINE uint32_t nrf_drv_timer_ms_to_ticks(
 }
 
 #endif // SUPPRESS_INLINE_IMPLEMENTATION
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // NRF_DRV_TIMER_H__
 

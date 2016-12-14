@@ -36,13 +36,11 @@
  * 
  */
 
-
 #include "app_error.h"
 
-#ifdef DEBUG
-#include "bsp.h"
-#endif
- 
+//#define NRF_LOG_MODULE_NAME "APP_ERROR"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
 /*lint -save -e14 */
 
 /**
@@ -51,27 +49,14 @@
  */
 __WEAK void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
+    NRF_LOG_ERROR("Fatal\r\n");
+    NRF_LOG_FINAL_FLUSH();
     // On assert, the system can only recover with a reset.
 #ifndef DEBUG
+    NRF_LOG_INFO("Hit weak handler\r\n");
     NVIC_SystemReset();
 #else
-
-#ifdef BSP_DEFINES_ONLY
-    LEDS_ON(LEDS_MASK);
-#else
-    UNUSED_VARIABLE(bsp_indication_set(BSP_INDICATE_FATAL_ERROR));
-    // This call can be used for debug purposes during application development.
-    // @note CAUTION: Activating this code will write the stack to flash on an error.
-    //                This function should NOT be used in a final product.
-    //                It is intended STRICTLY for development/debugging purposes.
-    //                The flash write will happen EVEN if the radio is active, thus interrupting
-    //                any communication.
-    //                Use with care. Uncomment the line below to use.
-    //ble_debug_assert_handler(error_code, line_num, p_file_name);
-#endif // BSP_DEFINES_ONLY
-
     app_error_save_and_stop(id, pc, info);
-
 #endif // DEBUG
 }
 

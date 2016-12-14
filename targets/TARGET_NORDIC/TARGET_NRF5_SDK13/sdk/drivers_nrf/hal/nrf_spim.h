@@ -36,11 +36,10 @@
  * 
  */
 
-
 /**
  * @defgroup nrf_spim_hal SPIM HAL
  * @{
- * @ingroup nrf_spi_master
+ * @ingroup nrf_spi
  *
  * @brief Hardware access layer for accessing the SPIM peripheral.
  */
@@ -53,6 +52,10 @@
 #include <stdint.h>
 
 #include "nrf.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -84,15 +87,12 @@ typedef enum
     /*lint -save -e30*/
     NRF_SPIM_EVENT_STOPPED = offsetof(NRF_SPIM_Type, EVENTS_STOPPED), ///< SPI transaction has stopped.
     NRF_SPIM_EVENT_ENDRX   = offsetof(NRF_SPIM_Type, EVENTS_ENDRX),   ///< End of RXD buffer reached.
-#ifdef NRF52
     NRF_SPIM_EVENT_END     = offsetof(NRF_SPIM_Type, EVENTS_END),     ///< End of RXD buffer and TXD buffer reached.
-#endif
     NRF_SPIM_EVENT_ENDTX   = offsetof(NRF_SPIM_Type, EVENTS_ENDTX),   ///< End of TXD buffer reached.
     NRF_SPIM_EVENT_STARTED = offsetof(NRF_SPIM_Type, EVENTS_STARTED)  ///< Transaction started.
     /*lint -restore*/
 } nrf_spim_event_t;
 
-#ifdef NRF52
 /**
  * @brief SPIM shortcuts.
  */
@@ -100,7 +100,6 @@ typedef enum
 {
     NRF_SPIM_SHORT_END_START_MASK = SPIM_SHORTS_END_START_Msk ///< Shortcut between END event and START task.
 } nrf_spim_short_mask_t;
-#endif
 
 /**
  * @brief SPIM interrupts.
@@ -109,9 +108,7 @@ typedef enum
 {
     NRF_SPIM_INT_STOPPED_MASK = SPIM_INTENSET_STOPPED_Msk, ///< Interrupt on STOPPED event.
     NRF_SPIM_INT_ENDRX_MASK   = SPIM_INTENSET_ENDRX_Msk,   ///< Interrupt on ENDRX event.
-#ifdef NRF52
     NRF_SPIM_INT_END_MASK     = SPIM_INTENSET_END_Msk,     ///< Interrupt on END event.
-#endif
     NRF_SPIM_INT_ENDTX_MASK   = SPIM_INTENSET_ENDTX_Msk,   ///< Interrupt on ENDTX event.
     NRF_SPIM_INT_STARTED_MASK = SPIM_INTENSET_STARTED_Msk  ///< Interrupt on STARTED event.
 } nrf_spim_int_mask_t;
@@ -156,123 +153,122 @@ typedef enum
 /**
  * @brief Function for activating a specific SPIM task.
  *
- * @param[in] p_spim    SPIM instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] spim_task Task to activate.
  */
-__STATIC_INLINE void nrf_spim_task_trigger(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_task_trigger(NRF_SPIM_Type * p_reg,
                                            nrf_spim_task_t spim_task);
 
 /**
  * @brief Function for getting the address of a specific SPIM task register.
  *
- * @param[in] p_spim    SPIM instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] spim_task Requested task.
  *
  * @return Address of the specified task register.
  */
-__STATIC_INLINE uint32_t nrf_spim_task_address_get(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE uint32_t nrf_spim_task_address_get(NRF_SPIM_Type * p_reg,
                                                    nrf_spim_task_t spim_task);
 
 /**
  * @brief Function for clearing a specific SPIM event.
  *
- * @param[in] p_spim     SPIM instance.
+ * @param[in] p_reg      Pointer to the peripheral registers structure.
  * @param[in] spim_event Event to clear.
  */
-__STATIC_INLINE void nrf_spim_event_clear(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_event_clear(NRF_SPIM_Type * p_reg,
                                           nrf_spim_event_t spim_event);
 
 /**
  * @brief Function for checking the state of a specific SPIM event.
  *
- * @param[in] p_spim     SPIM instance.
+ * @param[in] p_reg      Pointer to the peripheral registers structure.
  * @param[in] spim_event Event to check.
  *
  * @retval true  If the event is set.
  * @retval false If the event is not set.
  */
-__STATIC_INLINE bool nrf_spim_event_check(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE bool nrf_spim_event_check(NRF_SPIM_Type * p_reg,
                                           nrf_spim_event_t spim_event);
 
 /**
  * @brief Function for getting the address of a specific SPIM event register.
  *
- * @param[in] p_spim     SPIM instance.
+ * @param[in] p_reg      Pointer to the peripheral registers structure.
  * @param[in] spim_event Requested event.
  *
  * @return Address of the specified event register.
  */
-__STATIC_INLINE uint32_t nrf_spim_event_address_get(NRF_SPIM_Type  * p_spim,
+__STATIC_INLINE uint32_t nrf_spim_event_address_get(NRF_SPIM_Type  * p_reg,
                                                     nrf_spim_event_t spim_event);
-#ifdef NRF52
 /**
  * @brief Function for enabling specified shortcuts.
  *
- * @param[in] p_spim           SPIM instance.
+ * @param[in] p_reg            Pointer to the peripheral registers structure.
  * @param[in] spim_shorts_mask Shortcuts to enable.
  */
-__STATIC_INLINE void nrf_spim_shorts_enable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_shorts_enable(NRF_SPIM_Type * p_reg,
                                             uint32_t spim_shorts_mask);
 
 /**
  * @brief Function for disabling specified shortcuts.
  *
- * @param[in] p_spim           SPIM instance.
+ * @param[in] p_reg            Pointer to the peripheral registers structure.
  * @param[in] spim_shorts_mask Shortcuts to disable.
  */
-__STATIC_INLINE void nrf_spim_shorts_disable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_shorts_disable(NRF_SPIM_Type * p_reg,
                                              uint32_t spim_shorts_mask);
 
 /**
  * @brief Function for getting shorts setting.
  *
- * @param[in] p_spim           SPIM instance.
+ * @param[in] p_reg           Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE uint32_t nrf_spim_shorts_get(NRF_SPIM_Type * p_spim);
-#endif
+__STATIC_INLINE uint32_t nrf_spim_shorts_get(NRF_SPIM_Type * p_reg);
+
 /**
  * @brief Function for enabling specified interrupts.
  *
- * @param[in] p_spim        SPIM instance.
+ * @param[in] p_reg        Pointer to the peripheral registers structure.
  * @param[in] spim_int_mask Interrupts to enable.
  */
-__STATIC_INLINE void nrf_spim_int_enable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_int_enable(NRF_SPIM_Type * p_reg,
                                          uint32_t spim_int_mask);
 
 /**
  * @brief Function for disabling specified interrupts.
  *
- * @param[in] p_spim        SPIM instance.
+ * @param[in] p_reg        Pointer to the peripheral registers structure.
  * @param[in] spim_int_mask Interrupts to disable.
  */
-__STATIC_INLINE void nrf_spim_int_disable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_int_disable(NRF_SPIM_Type * p_reg,
                                           uint32_t spim_int_mask);
 
 /**
  * @brief Function for retrieving the state of a given interrupt.
  *
- * @param[in] p_spim   SPIM instance.
+ * @param[in] p_reg   Pointer to the peripheral registers structure.
  * @param[in] spim_int Interrupt to check.
  *
  * @retval true  If the interrupt is enabled.
  * @retval false If the interrupt is not enabled.
  */
-__STATIC_INLINE bool nrf_spim_int_enable_check(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE bool nrf_spim_int_enable_check(NRF_SPIM_Type * p_reg,
                                                nrf_spim_int_mask_t spim_int);
 
 /**
  * @brief Function for enabling the SPIM peripheral.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spim_enable(NRF_SPIM_Type * p_spim);
+__STATIC_INLINE void nrf_spim_enable(NRF_SPIM_Type * p_reg);
 
 /**
  * @brief Function for disabling the SPIM peripheral.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_spim);
+__STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_reg);
 
 /**
  * @brief Function for configuring SPIM pins.
@@ -280,12 +276,12 @@ __STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_spim);
  * If a given signal is not needed, pass the @ref NRF_SPIM_PIN_NOT_CONNECTED
  * value instead of its pin number.
  *
- * @param[in] p_spim    SPIM instance.
+ * @param[in] p_reg    Pointer to the peripheral registers structure.
  * @param[in] sck_pin   SCK pin number.
  * @param[in] mosi_pin  MOSI pin number.
  * @param[in] miso_pin  MISO pin number.
  */
-__STATIC_INLINE void nrf_spim_pins_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_pins_set(NRF_SPIM_Type * p_reg,
                                        uint32_t sck_pin,
                                        uint32_t mosi_pin,
                                        uint32_t miso_pin);
@@ -293,195 +289,197 @@ __STATIC_INLINE void nrf_spim_pins_set(NRF_SPIM_Type * p_spim,
 /**
  * @brief Function for setting the SPI master data rate.
  *
- * @param[in] p_spim    SPIM instance.
+ * @param[in] p_reg    Pointer to the peripheral registers structure.
  * @param[in] frequency SPI frequency.
  */
-__STATIC_INLINE void nrf_spim_frequency_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_frequency_set(NRF_SPIM_Type * p_reg,
                                             nrf_spim_frequency_t frequency);
 
 /**
  * @brief Function for setting the transmit buffer.
  *
- * @param[in]  p_spim   SPIM instance.
+ * @param[in]  p_reg   Pointer to the peripheral registers structure.
  * @param[in]  p_buffer Pointer to the buffer with data to send.
  * @param[in]  length   Maximum number of data bytes to transmit.
  */
-__STATIC_INLINE void nrf_spim_tx_buffer_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_tx_buffer_set(NRF_SPIM_Type * p_reg,
                                             uint8_t const * p_buffer,
                                             uint8_t         length);
 
 /**
  * @brief Function for setting the receive buffer.
  *
- * @param[in] p_spim   SPIM instance.
+ * @param[in] p_reg   Pointer to the peripheral registers structure.
  * @param[in] p_buffer Pointer to the buffer for received data.
  * @param[in] length   Maximum number of data bytes to receive.
  */
-__STATIC_INLINE void nrf_spim_rx_buffer_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_rx_buffer_set(NRF_SPIM_Type * p_reg,
                                             uint8_t * p_buffer,
                                             uint8_t   length);
 
 /**
  * @brief Function for setting the SPI configuration.
  *
- * @param[in] p_spim        SPIM instance.
+ * @param[in] p_reg        Pointer to the peripheral registers structure.
  * @param[in] spi_mode      SPI mode.
  * @param[in] spi_bit_order SPI bit order.
  */
-__STATIC_INLINE void nrf_spim_configure(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_configure(NRF_SPIM_Type * p_reg,
                                         nrf_spim_mode_t spi_mode,
                                         nrf_spim_bit_order_t spi_bit_order);
 
 /**
  * @brief Function for setting the over-read character.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  * @param[in] orc    Over-read character that is clocked out in case of
  *                   an over-read of the TXD buffer.
  */
-__STATIC_INLINE void nrf_spim_orc_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_orc_set(NRF_SPIM_Type * p_reg,
                                       uint8_t orc);
 
-#ifdef NRF52
 /**
  * @brief Function for enabling the TX list feature.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spim_tx_list_enable(NRF_SPIM_Type * p_spim);
+__STATIC_INLINE void nrf_spim_tx_list_enable(NRF_SPIM_Type * p_reg);
 
 /**
  * @brief Function for disabling the TX list feature.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spim_tx_list_disable(NRF_SPIM_Type * p_spim);
+__STATIC_INLINE void nrf_spim_tx_list_disable(NRF_SPIM_Type * p_reg);
 
 /**
  * @brief Function for enabling the RX list feature.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spim_rx_list_enable(NRF_SPIM_Type * p_spim);
+__STATIC_INLINE void nrf_spim_rx_list_enable(NRF_SPIM_Type * p_reg);
 
 /**
  * @brief Function for disabling the RX list feature.
  *
- * @param[in] p_spim SPIM instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spim_rx_list_disable(NRF_SPIM_Type * p_spim);
-#endif
+__STATIC_INLINE void nrf_spim_rx_list_disable(NRF_SPIM_Type * p_reg);
+
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
 
-__STATIC_INLINE void nrf_spim_task_trigger(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_task_trigger(NRF_SPIM_Type * p_reg,
                                            nrf_spim_task_t spim_task)
 {
-    *((volatile uint32_t *)((uint8_t *)p_spim + (uint32_t)spim_task)) = 0x1UL;
+    *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spim_task)) = 0x1UL;
 }
 
-__STATIC_INLINE uint32_t nrf_spim_task_address_get(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE uint32_t nrf_spim_task_address_get(NRF_SPIM_Type * p_reg,
                                                    nrf_spim_task_t spim_task)
 {
-    return (uint32_t)((uint8_t *)p_spim + (uint32_t)spim_task);
+    return (uint32_t)((uint8_t *)p_reg + (uint32_t)spim_task);
 }
 
-__STATIC_INLINE void nrf_spim_event_clear(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_event_clear(NRF_SPIM_Type * p_reg,
                                           nrf_spim_event_t spim_event)
 {
-    *((volatile uint32_t *)((uint8_t *)p_spim + (uint32_t)spim_event)) = 0x0UL;
+    *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spim_event)) = 0x0UL;
+#if __CORTEX_M == 0x04
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spim_event));
+    (void)dummy;
+#endif
 }
 
-__STATIC_INLINE bool nrf_spim_event_check(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE bool nrf_spim_event_check(NRF_SPIM_Type * p_reg,
                                           nrf_spim_event_t spim_event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)p_spim + (uint32_t)spim_event);
+    return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spim_event);
 }
 
-__STATIC_INLINE uint32_t nrf_spim_event_address_get(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE uint32_t nrf_spim_event_address_get(NRF_SPIM_Type * p_reg,
                                                     nrf_spim_event_t spim_event)
 {
-    return (uint32_t)((uint8_t *)p_spim + (uint32_t)spim_event);
+    return (uint32_t)((uint8_t *)p_reg + (uint32_t)spim_event);
 }
 
-#ifdef NRF52
-__STATIC_INLINE void nrf_spim_shorts_enable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_shorts_enable(NRF_SPIM_Type * p_reg,
                                             uint32_t spim_shorts_mask)
 {
-    p_spim->SHORTS |= spim_shorts_mask;
+    p_reg->SHORTS |= spim_shorts_mask;
 }
 
-__STATIC_INLINE void nrf_spim_shorts_disable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_shorts_disable(NRF_SPIM_Type * p_reg,
                                              uint32_t spim_shorts_mask)
 {
-    p_spim->SHORTS &= ~(spim_shorts_mask);
+    p_reg->SHORTS &= ~(spim_shorts_mask);
 }
 
-__STATIC_INLINE uint32_t nrf_spim_shorts_get(NRF_SPIM_Type * p_spim)
+__STATIC_INLINE uint32_t nrf_spim_shorts_get(NRF_SPIM_Type * p_reg)
 {
-    return p_spim->SHORTS;
+    return p_reg->SHORTS;
 }
-#endif
-__STATIC_INLINE void nrf_spim_int_enable(NRF_SPIM_Type * p_spim,
+
+__STATIC_INLINE void nrf_spim_int_enable(NRF_SPIM_Type * p_reg,
                                          uint32_t spim_int_mask)
 {
-    p_spim->INTENSET = spim_int_mask;
+    p_reg->INTENSET = spim_int_mask;
 }
 
-__STATIC_INLINE void nrf_spim_int_disable(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_int_disable(NRF_SPIM_Type * p_reg,
                                           uint32_t spim_int_mask)
 {
-    p_spim->INTENCLR = spim_int_mask;
+    p_reg->INTENCLR = spim_int_mask;
 }
 
-__STATIC_INLINE bool nrf_spim_int_enable_check(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE bool nrf_spim_int_enable_check(NRF_SPIM_Type * p_reg,
                                                nrf_spim_int_mask_t spim_int)
 {
-    return (bool)(p_spim->INTENSET & spim_int);
+    return (bool)(p_reg->INTENSET & spim_int);
 }
 
-__STATIC_INLINE void nrf_spim_enable(NRF_SPIM_Type * p_spim)
+__STATIC_INLINE void nrf_spim_enable(NRF_SPIM_Type * p_reg)
 {
-    p_spim->ENABLE = (SPIM_ENABLE_ENABLE_Enabled << SPIM_ENABLE_ENABLE_Pos);
+    p_reg->ENABLE = (SPIM_ENABLE_ENABLE_Enabled << SPIM_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_spim)
+__STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_reg)
 {
-    p_spim->ENABLE = (SPIM_ENABLE_ENABLE_Disabled << SPIM_ENABLE_ENABLE_Pos);
+    p_reg->ENABLE = (SPIM_ENABLE_ENABLE_Disabled << SPIM_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_spim_pins_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_pins_set(NRF_SPIM_Type * p_reg,
                                        uint32_t sck_pin,
                                        uint32_t mosi_pin,
                                        uint32_t miso_pin)
 {
-    p_spim->PSEL.SCK  = sck_pin;
-    p_spim->PSEL.MOSI = mosi_pin;
-    p_spim->PSEL.MISO = miso_pin;
+    p_reg->PSEL.SCK  = sck_pin;
+    p_reg->PSEL.MOSI = mosi_pin;
+    p_reg->PSEL.MISO = miso_pin;
 }
 
-__STATIC_INLINE void nrf_spim_frequency_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_frequency_set(NRF_SPIM_Type * p_reg,
                                             nrf_spim_frequency_t frequency)
 {
-    p_spim->FREQUENCY = frequency;
+    p_reg->FREQUENCY = frequency;
 }
 
-__STATIC_INLINE void nrf_spim_tx_buffer_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_tx_buffer_set(NRF_SPIM_Type * p_reg,
                                             uint8_t const * p_buffer,
                                             uint8_t         length)
 {
-    p_spim->TXD.PTR    = (uint32_t)p_buffer;
-    p_spim->TXD.MAXCNT = length;
+    p_reg->TXD.PTR    = (uint32_t)p_buffer;
+    p_reg->TXD.MAXCNT = length;
 }
 
-__STATIC_INLINE void nrf_spim_rx_buffer_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_rx_buffer_set(NRF_SPIM_Type * p_reg,
                                             uint8_t * p_buffer,
                                             uint8_t   length)
 {
-    p_spim->RXD.PTR    = (uint32_t)p_buffer;
-    p_spim->RXD.MAXCNT = length;
+    p_reg->RXD.PTR    = (uint32_t)p_buffer;
+    p_reg->RXD.MAXCNT = length;
 }
 
-__STATIC_INLINE void nrf_spim_configure(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_configure(NRF_SPIM_Type * p_reg,
                                         nrf_spim_mode_t spi_mode,
                                         nrf_spim_bit_order_t spi_bit_order)
 {
@@ -510,37 +508,42 @@ __STATIC_INLINE void nrf_spim_configure(NRF_SPIM_Type * p_spim,
                   (SPIM_CONFIG_CPHA_Trailing   << SPIM_CONFIG_CPHA_Pos);
         break;
     }
-    p_spim->CONFIG = config;
+    p_reg->CONFIG = config;
 }
 
-__STATIC_INLINE void nrf_spim_orc_set(NRF_SPIM_Type * p_spim,
+__STATIC_INLINE void nrf_spim_orc_set(NRF_SPIM_Type * p_reg,
                                       uint8_t orc)
 {
-    p_spim->ORC = orc;
+    p_reg->ORC = orc;
 }
 
-#ifdef NRF52
-__STATIC_INLINE void nrf_spim_tx_list_enable(NRF_SPIM_Type * p_spim)
+
+__STATIC_INLINE void nrf_spim_tx_list_enable(NRF_SPIM_Type * p_reg)
 {
-    p_spim->TXD.LIST = 1;
+    p_reg->TXD.LIST = 1;
 }
 
-__STATIC_INLINE void nrf_spim_tx_list_disable(NRF_SPIM_Type * p_spim)
+__STATIC_INLINE void nrf_spim_tx_list_disable(NRF_SPIM_Type * p_reg)
 {
-    p_spim->TXD.LIST = 0;
+    p_reg->TXD.LIST = 0;
 }
 
-__STATIC_INLINE void nrf_spim_rx_list_enable(NRF_SPIM_Type * p_spim)
+__STATIC_INLINE void nrf_spim_rx_list_enable(NRF_SPIM_Type * p_reg)
 {
-    p_spim->RXD.LIST = 1;
+    p_reg->RXD.LIST = 1;
 }
 
-__STATIC_INLINE void nrf_spim_rx_list_disable(NRF_SPIM_Type * p_spim)
+__STATIC_INLINE void nrf_spim_rx_list_disable(NRF_SPIM_Type * p_reg)
 {
-    p_spim->RXD.LIST = 0;
+    p_reg->RXD.LIST = 0;
+}
+
+#endif // SUPPRESS_INLINE_IMPLEMENTATION
+
+
+#ifdef __cplusplus
 }
 #endif
-#endif // SUPPRESS_INLINE_IMPLEMENTATION
 
 #endif // NRF_SPIM_H__
 

@@ -36,12 +36,11 @@
  * 
  */
 
-
 #include "ble_conn_state.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "nrf_ble.h"
+#include "ble.h"
 #include "sdk_mapped_flags.h"
 #include "app_error.h"
 

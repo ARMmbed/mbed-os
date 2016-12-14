@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  *
  * @defgroup app_pwm Pulse-width modulation (PWM)
@@ -52,7 +51,7 @@
  * - 1 PPI group per instance.
  * - 1 GPIOTE channel per PWM channel.
  *
- * For example, a PWM instance with two channels will consume 2+4 PPI channels, 1 PPI group, and 2 GPIOTE channels.
+ * For example, a PWM instance with two channels will consume 2 + 4 PPI channels, 1 PPI group, and 2 GPIOTE channels.
  *
  * The maximum number of PWM channels per instance is 2.
  */
@@ -65,7 +64,15 @@
 #include "nrf_drv_timer.h"
 #include "nrf_drv_common.h"
 #include "nrf_drv_ppi.h"
+#include "nrf_peripherals.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if defined(GPIOTE_FEATURE_SET_PRESENT) && defined(GPIOTE_FEATURE_CLR_PRESENT)
+#define GPIOTE_SET_CLEAR_TASKS
+#endif
 
 #define APP_PWM_NOPIN                 0xFFFFFFFF
 
@@ -137,9 +144,9 @@ typedef struct
  *
  * @brief Module for internal usage inside the library only
  *
- * There are some definitions that must be included in the header file because 
+ * There are some definitions that must be included in the header file because
  * of the way the library is set up. In this way, the are accessible to the user.
- * However, any functions and variables defined here may change at any time 
+ * However, any functions and variables defined here may change at any time
  * without a warning, so you should not access them directly.
  */
 
@@ -167,8 +174,12 @@ typedef struct
         app_pwm_channel_cb_t    channels_cb[APP_PWM_CHANNELS_PER_INSTANCE]; //!< Channels data
         uint32_t                period;                                     //!< Selected period in ticks
         app_pwm_callback_t      p_ready_callback;                           //!< Callback function called on PWM readiness
+#ifdef GPIOTE_SET_CLEAR_TASKS
+        nrf_ppi_channel_t       ppi_channel;                               //!< PPI channel used temporary while changing duty
+#else
         nrf_ppi_channel_t       ppi_channels[2];                            //!< PPI channels used temporary while changing duty
         nrf_ppi_channel_group_t ppi_group;                                  //!< PPI group used to synchronize changes on channels
+#endif
         nrf_drv_state_t         state;                                      //!< Current driver status
     } app_pwm_cb_t;
 /** @}
@@ -316,6 +327,11 @@ app_pwm_duty_t app_pwm_channel_duty_get(app_pwm_t const * const p_instance, uint
     uint16_t app_pwm_cycle_ticks_get(app_pwm_t const * const p_instance);
 /** @} */
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

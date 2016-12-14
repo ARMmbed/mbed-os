@@ -1,13 +1,39 @@
-/* Copyright (c) 2015 Nordic Semiconductor. All Rights Reserved.
+/* 
+ * Copyright (c) 2015 Nordic Semiconductor ASA
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *      of conditions and the following disclaimer.
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
+ *      integrated circuit in a product or a software update for such product, must reproduce 
+ *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *      the documentation and/or other materials provided with the distribution.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
+ *      used to endorse or promote products derived from this software without specific prior 
+ *      written permission.
  *
+ *   4. This software, with or without modification, must only be used with a 
+ *      Nordic Semiconductor ASA integrated circuit.
+ *
+ *   5. Any software provided in binary or object form under this license must not be reverse 
+ *      engineered, decompiled, modified and/or disassembled. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
  */
 
 /**@file
@@ -26,11 +52,26 @@
 #define NRF_DRV_PWM_H__
 
 #include "nordic_common.h"
-#include "nrf_drv_config.h"
+#include "sdk_config.h"
 #include "nrf_pwm.h"
 #include "sdk_errors.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#ifndef PWM0_ENABLED
+#define PWM0_ENABLED 0
+#endif
+#ifndef PWM1_ENABLED
+#define PWM1_ENABLED 0
+#endif
+#ifndef PWM2_ENABLED
+#define PWM2_ENABLED 0
+#endif
+#ifndef PWM3_ENABLED
+#define PWM3_ENABLED 0
+#endif
 /**
  * @brief PWM driver instance data structure.
  */
@@ -39,6 +80,11 @@ typedef struct
     NRF_PWM_Type * p_registers;  ///< Pointer to the structure with PWM peripheral instance registers.
     uint8_t        drv_inst_idx; ///< Driver instance index.
 } nrf_drv_pwm_t;
+
+#define PWM0_INSTANCE_INDEX 0
+#define PWM1_INSTANCE_INDEX PWM0_INSTANCE_INDEX+PWM0_ENABLED
+#define PWM2_INSTANCE_INDEX PWM1_INSTANCE_INDEX+PWM1_ENABLED
+#define PWM3_INSTANCE_INDEX PWM2_INSTANCE_INDEX+PWM2_ENABLED
 
 /**
  * @brief Macro for creating a PWM driver instance.
@@ -58,7 +104,7 @@ typedef struct
 #define NRF_DRV_PWM_PIN_NOT_USED    0xFF
 
 /**
- * @brief This value can be added to a pin number to inverse its polarity 
+ * @brief This value can be added to a pin number to inverse its polarity
  *        (set idle state = 1).
  */
 #define NRF_DRV_PWM_PIN_INVERTED    0x80
@@ -68,7 +114,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t output_pins[NRF_PWM_CHANNEL_COUNT]; ///< Pin numbers for individual output channels (optional). 
+    uint8_t output_pins[NRF_PWM_CHANNEL_COUNT]; ///< Pin numbers for individual output channels (optional).
                                                 /**< Use @ref NRF_DRV_PWM_PIN_NOT_USED
                                                  *   if a given output channel is not needed. */
     uint8_t            irq_priority; ///< Interrupt priority.
@@ -82,18 +128,18 @@ typedef struct
 /**
  * @brief PWM driver default configuration.
  */
-#define NRF_DRV_PWM_DEFAULT_CONFIG(id)                       \
-{                                                            \
-    .output_pins  = { CONCAT_3(PWM, id, _CONFIG_OUT0_PIN),   \
-                      CONCAT_3(PWM, id, _CONFIG_OUT1_PIN),   \
-                      CONCAT_3(PWM, id, _CONFIG_OUT2_PIN),   \
-                      CONCAT_3(PWM, id, _CONFIG_OUT3_PIN) }, \
-    .irq_priority = CONCAT_3(PWM, id, _CONFIG_IRQ_PRIORITY), \
-    .base_clock   = CONCAT_3(PWM, id, _CONFIG_BASE_CLOCK),   \
-    .count_mode   = CONCAT_3(PWM, id, _CONFIG_COUNT_MODE),   \
-    .top_value    = CONCAT_3(PWM, id, _CONFIG_TOP_VALUE),    \
-    .load_mode    = CONCAT_3(PWM, id, _CONFIG_LOAD_MODE),    \
-    .step_mode    = CONCAT_3(PWM, id, _CONFIG_STEP_MODE),    \
+#define NRF_DRV_PWM_DEFAULT_CONFIG                                            \
+{                                                                             \
+    .output_pins  = {PWM_DEFAULT_CONFIG_OUT0_PIN,                             \
+                     PWM_DEFAULT_CONFIG_OUT1_PIN,                             \
+                     PWM_DEFAULT_CONFIG_OUT2_PIN,                             \
+                     PWM_DEFAULT_CONFIG_OUT3_PIN },                           \
+    .irq_priority = PWM_DEFAULT_CONFIG_IRQ_PRIORITY,                          \
+    .base_clock   = (nrf_pwm_clk_t)PWM_DEFAULT_CONFIG_BASE_CLOCK,             \
+    .count_mode   = (nrf_pwm_mode_t)PWM_DEFAULT_CONFIG_COUNT_MODE,            \
+    .top_value    = PWM_DEFAULT_CONFIG_TOP_VALUE,                             \
+    .load_mode    = (nrf_pwm_dec_load_t)PWM_DEFAULT_CONFIG_LOAD_MODE,         \
+    .step_mode    = (nrf_pwm_dec_step_t)PWM_DEFAULT_CONFIG_STEP_MODE,         \
 }
 
 
@@ -420,6 +466,11 @@ __STATIC_INLINE uint32_t nrf_drv_pwm_event_address_get(
 }
 
 #endif // SUPPRESS_INLINE_IMPLEMENTATION
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // NRF_DRV_PWM_H__
 

@@ -36,21 +36,24 @@
  * 
  */
 
- 
 /** @file
  *
- * @defgroup crc_compute CRC compute
+ * @defgroup crc16 CRC16 compute
  * @{
  * @ingroup hci_transport
  *
  * @brief    This module implements CRC-16-CCITT (polynomial 0x1021) with 0xFFFF initial value.
  *           The data can be passed in multiple blocks.
  */
- 
+
 #ifndef CRC16_H__
 #define CRC16_H__
 
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**@brief Function for calculating CRC-16 in blocks.
  *
@@ -66,6 +69,11 @@
  */
 uint16_t crc16_compute(uint8_t const * p_data, uint32_t size, uint16_t const * p_crc);
 
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // CRC16_H__
- 
+
 /** @} */

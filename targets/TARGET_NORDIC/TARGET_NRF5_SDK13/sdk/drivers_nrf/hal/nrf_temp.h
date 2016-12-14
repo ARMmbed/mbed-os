@@ -36,11 +36,14 @@
  * 
  */
 
-
 #ifndef NRF_TEMP_H__
 #define NRF_TEMP_H__
 
 #include "nrf.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * @defgroup nrf_temperature TEMP (temperature) abstraction
@@ -71,12 +74,17 @@ static __INLINE void nrf_temp_init(void)
  * The function reads the 10 bit 2's complement value and transforms it to a 32 bit 2's complement value.
  */
 static __INLINE int32_t nrf_temp_read(void)
-{    
+{
     /**@note Workaround for PAN_028 rev2.0A anomaly 28 - TEMP: Negative measured values are not represented correctly */
-    return ((NRF_TEMP->TEMP & MASK_SIGN) != 0) ? (NRF_TEMP->TEMP | MASK_SIGN_EXTENSION) : (NRF_TEMP->TEMP);    
+    return ((NRF_TEMP->TEMP & MASK_SIGN) != 0) ? (NRF_TEMP->TEMP | MASK_SIGN_EXTENSION) : (NRF_TEMP->TEMP);
 }
 /**@endcond */
 
 /** @} */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
