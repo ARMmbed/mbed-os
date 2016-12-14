@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**
  * @defgroup nrf_wdt_hal WDT HAL
  * @{
@@ -53,6 +52,10 @@
 #include <stdint.h>
 
 #include "nrf.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define NRF_WDT_CHANNEL_NUMBER 0x8UL
 #define NRF_WDT_RR_VALUE       0x6E524635UL /* Fixed value, shouldn't be modified.*/
@@ -149,6 +152,10 @@ __STATIC_INLINE void nrf_wdt_task_trigger(nrf_wdt_task_t task)
 __STATIC_INLINE void nrf_wdt_event_clear(nrf_wdt_event_t event)
 {
     *((volatile uint32_t *)((uint8_t *)NRF_WDT + (uint32_t)event)) = NRF_WDT_EVENT_CLEAR;
+#if __CORTEX_M == 0x04
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)NRF_WDT + (uint32_t)event));
+    (void)dummy;
+#endif
 }
 
 
@@ -320,6 +327,11 @@ __STATIC_INLINE void nrf_wdt_reload_request_set(nrf_wdt_rr_register_t rr_registe
     NRF_WDT->RR[rr_register] = NRF_WDT_RR_VALUE;
 }
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

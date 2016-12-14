@@ -36,10 +36,8 @@
  * 
  */
 
-
 #include "ble_radio_notification.h"
 #include <stdlib.h>
-#include "nrf_nvic.h"
 
 
 static bool                                 m_radio_active = false;  /**< Current radio state. */

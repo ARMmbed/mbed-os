@@ -37,10 +37,9 @@
  */
 
 
-
 /**@file
  *
- * @defgroup ble_sdk_lib_db_discovery Database Discovery
+ * @defgroup ble_db_discovery Database Discovery
  * @{
  * @ingroup  ble_sdk_lib
  * @brief    Database discovery module.
@@ -53,9 +52,9 @@
  * @warning  The maximum number of characteristics per service that can be discovered by this module
  *           is determined by the number of characteristics in the service structure defined in
  *           db_disc_config.h. If the peer has more than the supported number of characteristics, then
- *           the first found will be discovered and any further characteristics will be ignored. No
- *           descriptors other than Client Characteristic Configuration Descriptors will be searched
- *           for at the peer.
+ *           the first found will be discovered and any further characteristics will be ignored. Only the
+ *           following descriptors will be searched for at the peer: Client Characteristic Configuration,
+ *           Characteristic Extended Properties, Characteristic User Description, and Report Reference.
  *
  * @note     Presently only one instance of a Primary Service can be discovered by this module. If
  *           there are multiple instances of the service at the peer, only the first instance
@@ -70,11 +69,15 @@
 #define BLE_DB_DISCOVERY_H__
 
 #include <stdint.h>
-#include "nrf_ble_gattc.h"
-#include "nrf_ble.h"
 #include "nrf_error.h"
+#include "ble.h"
+#include "ble_gattc.h"
 #include "ble_srv_common.h"
 #include "ble_gatt_db.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #define BLE_DB_DISCOVERY_MAX_SRV          6  /**< Maximum number of services supported by this module. This also indicates the maximum number of users allowed to be registered to this module. (one user per service). */
@@ -202,6 +205,11 @@ uint32_t ble_db_discovery_start(ble_db_discovery_t * const p_db_discovery,
  */
 void ble_db_discovery_on_ble_evt(ble_db_discovery_t * const p_db_discovery,
                                  const ble_evt_t * const    p_ble_evt);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_DB_DISCOVERY_H__
 

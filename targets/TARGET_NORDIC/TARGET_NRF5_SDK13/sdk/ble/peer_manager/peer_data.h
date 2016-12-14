@@ -37,7 +37,6 @@
  */
 
 
-
 #ifndef PEER_DATA_H__
 #define PEER_DATA_H__
 
@@ -45,6 +44,10 @@
 #include "peer_manager_types.h"
 #include "peer_manager_internal.h"
 #include "fds.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -77,8 +80,13 @@ void peer_data_parts_get(pm_peer_data_const_t const * p_peer_data, fds_record_ch
  */
 ret_code_t peer_data_deserialize(pm_peer_data_flash_t const * p_in_data, pm_peer_data_t * p_out_data);
 
-/** @} 
+/** @}
  * @endcond
  */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PEER_DATA_H__ */

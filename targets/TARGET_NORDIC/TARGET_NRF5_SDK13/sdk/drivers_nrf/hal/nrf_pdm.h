@@ -37,7 +37,6 @@
  */
 
 
-
 #ifndef NRF_PDM_H_
 #define NRF_PDM_H_
 
@@ -53,6 +52,10 @@
 #include <stddef.h>
 #include "nrf.h"
 #include "nrf_assert.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #define NRF_PDM_GAIN_MINIMUM  0x00
@@ -169,6 +172,10 @@ __STATIC_INLINE bool nrf_pdm_event_check(nrf_pdm_event_t pdm_event)
 __STATIC_INLINE void nrf_pdm_event_clear(nrf_pdm_event_t pdm_event)
 {
     *((volatile uint32_t *)((uint8_t *)NRF_PDM + (uint32_t)pdm_event)) = 0x0UL;
+#if __CORTEX_M == 0x04
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)NRF_PDM + (uint32_t)pdm_event));
+    (void)dummy;
+#endif
 }
 
 
@@ -308,10 +315,8 @@ __STATIC_INLINE nrf_pdm_freq_t nrf_pdm_clock_get(void)
  */
 __STATIC_INLINE void nrf_pdm_psel_connect(uint32_t psel_clk, uint32_t psel_din)
 {
-    NRF_PDM->PSEL.CLK = ((psel_clk << PDM_PSEL_CLK_PIN_Pos) & PDM_PSEL_CLK_PIN_Msk)
-            | ((PDM_PSEL_CLK_CONNECT_Connected << PDM_PSEL_CLK_CONNECT_Pos) & PDM_PSEL_CLK_CONNECT_Msk);
-    NRF_PDM->PSEL.DIN = ((psel_din << PDM_PSEL_DIN_PIN_Pos) & PDM_PSEL_DIN_PIN_Msk)
-            | ((PDM_PSEL_DIN_CONNECT_Connected << PDM_PSEL_CLK_CONNECT_Pos) & PDM_PSEL_DIN_CONNECT_Msk);
+    NRF_PDM->PSEL.CLK = psel_clk;
+    NRF_PDM->PSEL.DIN = psel_din;
 }
 
 /**
@@ -319,9 +324,9 @@ __STATIC_INLINE void nrf_pdm_psel_connect(uint32_t psel_clk, uint32_t psel_din)
  */
 __STATIC_INLINE void nrf_pdm_psel_disconnect()
 {
-    NRF_PDM->PSEL.CLK = ((PDM_PSEL_CLK_CONNECT_Disconnected << PDM_PSEL_CLK_CONNECT_Pos) 
+    NRF_PDM->PSEL.CLK = ((PDM_PSEL_CLK_CONNECT_Disconnected << PDM_PSEL_CLK_CONNECT_Pos)
                          & PDM_PSEL_CLK_CONNECT_Msk);
-    NRF_PDM->PSEL.DIN = ((PDM_PSEL_DIN_CONNECT_Disconnected << PDM_PSEL_DIN_CONNECT_Pos) 
+    NRF_PDM->PSEL.DIN = ((PDM_PSEL_DIN_CONNECT_Disconnected << PDM_PSEL_DIN_CONNECT_Pos)
                          & PDM_PSEL_DIN_CONNECT_Msk);
 }
 
@@ -382,5 +387,10 @@ __STATIC_INLINE uint32_t * nrf_pdm_buffer_get()
 /**
  *@}
  **/
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NRF_PDM_H_ */

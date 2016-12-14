@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**
  * @file
  * @brief ECB driver API.
@@ -51,11 +50,15 @@
  * @ingroup nrf_drivers
  * @brief Driver for the AES Electronic Code Book (ECB) peripheral.
  *
- * To encrypt and decrypt data, the peripheral must first be powered on
+ * To encrypt data, the peripheral must first be powered on
  * using @ref nrf_ecb_init. Next, the key must be set using @ref nrf_ecb_set_key.
  */
 
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Function for initializing and powering on the ECB peripheral.
@@ -67,13 +70,13 @@
 bool nrf_ecb_init(void);
 
 /**
- * @brief Function for encrypting and decrypting 16-byte data using current key.
+ * @brief Function for encrypting 16-byte data using current key.
  *
- * This function avoids unnecessary copying of data if the parameters point to the 
+ * This function avoids unnecessary copying of data if the parameters point to the
  * correct locations in the ECB data structure.
  *
- * @param dst Result of encryption/decryption. 16 bytes will be written. 
- * @param src Source with 16-byte data to be encrypted/decrypted.
+ * @param dst Result of encryption, 16 bytes will be written.
+ * @param src Source with 16-byte data to be encrypted.
  *
  * @retval true  If the encryption operation completed.
  * @retval false If the encryption operation did not complete.
@@ -81,11 +84,16 @@ bool nrf_ecb_init(void);
 bool nrf_ecb_crypt(uint8_t * dst, const uint8_t * src);
 
 /**
- * @brief Function for setting the key to be used for encryption and decryption.
+ * @brief Function for setting the key to be used for encryption.
  *
  * @param key Pointer to the key. 16 bytes will be read.
  */
 void nrf_ecb_set_key(const uint8_t * key);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // NRF_ECB_H__
 

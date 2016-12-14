@@ -35,52 +35,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
-
 #include "softdevice_handler.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "nordic_common.h"
-#include "app_error.h"
-#include "nrf_assert.h"
-#include "nrf_nvic.h"
 #include "nrf.h"
-#include "nrf_log.h"
+#include "nrf_assert.h"
+#include "nrf_soc.h"
+#include "nrf_nvic.h"
 #include "sdk_common.h"
-#include "nrf_drv_config.h"
-#if CLOCK_ENABLED
-#include "nrf_drv_clock.h"
-#endif
 
+#if NRF_MODULE_ENABLED(CLOCK)
+#include "nrf_drv_clock.h"
+#endif // NRF_MODULE_ENABLED(CLOCK)
+#include "app_error.h"
+
+#if NRF_MODULE_ENABLED(RNG)
+#include "nrf_drv_rng.h"
+#endif // NRF_MODULE_ENABLED(RNG)
+
+#define NRF_LOG_MODULE_NAME "SDH"
+#include "nrf_log.h"
 #if defined(ANT_STACK_SUPPORT_REQD) && defined(BLE_STACK_SUPPORT_REQD)
     #include "ant_interface.h"
 #elif defined(ANT_STACK_SUPPORT_REQD)
     #include "ant_interface.h"
 #elif defined(BLE_STACK_SUPPORT_REQD)
-    #include "nrf_ble.h"
+    #include "ble.h"
 #endif
-
-
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
-#define SD_HANDLER_LOG(...) NRF_LOG_PRINTF(__VA_ARGS__)
-#else
-#define SD_HANDLER_LOG(...)
-#endif
-
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
-#define SD_HANDLER_LOG_INIT() NRF_LOG_INIT()
-#else
-#define SD_HANDLER_LOG_INIT()
-#endif
-
-
 
 #define RAM_START_ADDRESS         0x20000000
 #define SOFTDEVICE_EVT_IRQ        SD_EVT_IRQn       /**< SoftDevice Event IRQ number. Used for both protocol events and SoC events. */
 #define SOFTDEVICE_EVT_IRQHandler SD_EVT_IRQHandler
-#define RAM_TOTAL_SIZE            ((NRF_FICR->INFO.RAM)*1024)
+#define RAM_TOTAL_SIZE            ((NRF_FICR->INFO.RAM) * 1024)
 #define RAM_END_ADDRESS           (RAM_START_ADDRESS + RAM_TOTAL_SIZE)
 
 
@@ -91,13 +79,10 @@
 #define SOFTDEVICE_CENTRAL_CONN_COUNT  4
 #define SOFTDEVICE_CENTRAL_SEC_COUNT   1
 
-/* Global nvic state instance, required by nrf_nvic.h */
-nrf_nvic_state_t nrf_nvic_state;
-
 static softdevice_evt_schedule_func_t m_evt_schedule_func;              /**< Pointer to function for propagating SoftDevice events to the scheduler. */
 
 static volatile bool                  m_softdevice_enabled = false;     /**< Variable to indicate whether the SoftDevice is enabled. */
-
+static volatile bool                  m_suspended;                      /**< Current state of the event handler. */
 #ifdef BLE_STACK_SUPPORT_REQD
 // The following three definitions is needed only if BLE events are needed to be pulled from the stack.
 static uint8_t                      * mp_ble_evt_buffer;                /**< Buffer for receiving BLE events from the SoftDevice. */
@@ -106,13 +91,12 @@ static ble_evt_handler_t              m_ble_evt_handler;                /**< App
 #endif
 
 #ifdef ANT_STACK_SUPPORT_REQD
-// The following two definition is needed only if ANT events are needed to be pulled from the stack.
+// The following two definitions are needed only if ANT events are needed to be pulled from the stack.
 static ant_evt_t                      m_ant_evt_buffer;                 /**< Buffer for receiving ANT events from the SoftDevice. */
 static ant_evt_handler_t              m_ant_evt_handler;                /**< Application event handler for handling ANT events.  */
 #endif
 
 static sys_evt_handler_t              m_sys_evt_handler;                /**< Application event handler for handling System (SOC) events.  */
-
 
 /**@brief       Callback function for asserts in the SoftDevice.
  *
@@ -132,7 +116,6 @@ void softdevice_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
     app_error_fault_handler(id, pc, info);
 }
 
-
 void intern_softdevice_events_execute(void)
 {
     if (!m_softdevice_enabled)
@@ -142,7 +125,7 @@ void intern_softdevice_events_execute(void)
 
         return;
     }
-#if CLOCK_ENABLED
+#if NRF_MODULE_ENABLED(CLOCK)
     bool no_more_soc_evts = false;
 #else
     bool no_more_soc_evts = (m_sys_evt_handler == NULL);
@@ -160,6 +143,12 @@ void intern_softdevice_events_execute(void)
 
         if (!no_more_soc_evts)
         {
+            if (m_suspended)
+            {
+                // Cancel pulling next event if event handler was suspended by user.
+                return;
+            }
+
             uint32_t evt_id;
 
             // Pull event from SOC.
@@ -176,7 +165,7 @@ void intern_softdevice_events_execute(void)
             else
             {
                 // Call application's SOC event handler.
-#if CLOCK_ENABLED
+#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
                 nrf_drv_clock_on_soc_event(evt_id);
                 if (m_sys_evt_handler)
                 {
@@ -192,6 +181,12 @@ void intern_softdevice_events_execute(void)
         // Fetch BLE Events.
         if (!no_more_ble_evts)
         {
+            if (m_suspended)
+            {
+                // Cancel pulling next event if event handler was suspended by user.
+                return;
+            }
+
             // Pull event from stack
             uint16_t evt_len = m_ble_evt_buffer_size;
 
@@ -216,6 +211,12 @@ void intern_softdevice_events_execute(void)
         // Fetch ANT Events.
         if (!no_more_ant_evts)
         {
+            if (m_suspended)
+            {
+                // Cancel pulling next event if event handler was suspended by user.
+                return;
+            }
+
             // Pull event from stack
             err_code = sd_ant_event_get(&m_ant_evt_buffer.channel,
                                         &m_ant_evt_buffer.event,
@@ -266,19 +267,17 @@ void intern_softdevice_events_execute(void)
     }
 }
 
-bool softdevice_handler_isEnabled(void)
+bool softdevice_handler_is_enabled(void)
 {
     return m_softdevice_enabled;
 }
 
-uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t	*           p_clock_lf_cfg,
+uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
                                  void *                         p_ble_evt_buffer,
                                  uint16_t                       ble_evt_buffer_size,
                                  softdevice_evt_schedule_func_t evt_schedule_func)
 {
     uint32_t err_code;
-
-    SD_HANDLER_LOG_INIT();
 
     // Save configuration.
 #if defined (BLE_STACK_SUPPORT_REQD)
@@ -306,21 +305,54 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t	*           p_clock_lf_cfg,
     m_evt_schedule_func = evt_schedule_func;
 
     // Initialize SoftDevice.
+#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
+    bool power_clock_isr_enabled = nrf_drv_common_irq_enable_check(POWER_CLOCK_IRQn);
+    if (power_clock_isr_enabled)
+    {
+        NVIC_DisableIRQ(POWER_CLOCK_IRQn);
+    }
+#endif
+
+#if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
+    bool rng_isr_enabled = nrf_drv_common_irq_enable_check(RNG_IRQn);
+    if (rng_isr_enabled)
+    {
+        NVIC_DisableIRQ(RNG_IRQn);
+    }
+#endif
 #if defined(S212) || defined(S332)
     err_code = sd_softdevice_enable(p_clock_lf_cfg, softdevice_fault_handler, ANT_LICENSE_KEY);
 #else
     err_code = sd_softdevice_enable(p_clock_lf_cfg, softdevice_fault_handler);
 #endif
+
     if (err_code != NRF_SUCCESS)
     {
+#if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
+        if (rng_isr_enabled)
+        {
+            NVIC_EnableIRQ(RNG_IRQn);
+        }
+#endif
+#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
+        if (power_clock_isr_enabled)
+        {
+            NVIC_EnableIRQ(POWER_CLOCK_IRQn);
+        }
+#endif
         return err_code;
     }
 
     m_softdevice_enabled = true;
+#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
+        nrf_drv_clock_on_sd_enable();
+#endif
 
     // Enable BLE event interrupt (interrupt priority has already been set by the stack).
 #ifdef SOFTDEVICE_PRESENT
-    return sd_nvic_EnableIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
+    err_code = sd_nvic_EnableIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
+		return err_code;
+
 #else
     //In case of Serialization NVIC must be accessed directly.
     NVIC_EnableIRQ(SOFTDEVICE_EVT_IRQ);
@@ -332,12 +364,20 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t	*           p_clock_lf_cfg,
 uint32_t softdevice_handler_sd_disable(void)
 {
     uint32_t err_code = sd_softdevice_disable();
+    if (err_code == NRF_SUCCESS)
+    {
+        m_softdevice_enabled = false;
 
-    m_softdevice_enabled = !(err_code == NRF_SUCCESS);
+#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
+        nrf_drv_clock_on_sd_disable();
+#endif
 
+#if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
+        nrf_drv_rng_on_sd_disable();
+#endif
+    }
     return err_code;
 }
-
 
 #ifdef BLE_STACK_SUPPORT_REQD
 uint32_t softdevice_ble_evt_handler_set(ble_evt_handler_t ble_evt_handler)
@@ -390,6 +430,45 @@ void SOFTDEVICE_EVT_IRQHandler(void)
     }
 }
 
+void softdevice_handler_suspend()
+{
+#ifdef SOFTDEVICE_PRESENT
+    ret_code_t err_code = sd_nvic_DisableIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
+    APP_ERROR_CHECK(err_code);
+#else
+    NVIC_DisableIRQ(SOFTDEVICE_EVT_IRQ);
+#endif
+    m_suspended = true;
+    return;
+}
+
+void softdevice_handler_resume()
+{
+    if (!m_suspended) return;
+    m_suspended = false;
+
+#ifdef SOFTDEVICE_PRESENT
+    ret_code_t err_code;
+
+    // Force calling ISR again to make sure that events not pulled previously
+    // has been processed.
+    err_code = sd_nvic_SetPendingIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
+    APP_ERROR_CHECK(err_code);
+    err_code = sd_nvic_EnableIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
+    APP_ERROR_CHECK(err_code);
+#else
+    NVIC_SetPendingIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
+    NVIC_EnableIRQ(SOFTDEVICE_EVT_IRQ);
+#endif
+
+    return;
+}
+
+bool softdevice_handler_is_suspended()
+{
+    return m_suspended;
+}
+
 #if defined(BLE_STACK_SUPPORT_REQD)
 uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
                                               uint8_t periph_links_count,
@@ -410,18 +489,18 @@ uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
 }
 
 
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
 static inline uint32_t ram_total_size_get(void)
 {
 #ifdef NRF51
     uint32_t size_ram_blocks = (uint32_t)NRF_FICR->SIZERAMBLOCKS;
     uint32_t total_ram_size = size_ram_blocks;
-    total_ram_size = total_ram_size*(NRF_FICR->NUMRAMBLOCK);
+    total_ram_size = total_ram_size * (NRF_FICR->NUMRAMBLOCK);
     return total_ram_size;
-#elif defined (NRF52)
+#elif (defined (NRF52) || defined(NRF52840_XXAA))
     return RAM_TOTAL_SIZE;
 #endif /* NRF51 */
 }
+
 
 /*lint --e{528} -save suppress 528: symbol not referenced */
 /**@brief   Function for finding the end address of the RAM.
@@ -431,46 +510,15 @@ static inline uint32_t ram_total_size_get(void)
 static inline uint32_t ram_end_address_get(void)
 {
     uint32_t ram_end_address = (uint32_t)RAM_START_ADDRESS;
-    ram_end_address+= ram_total_size_get();
+    ram_end_address += ram_total_size_get();
     return ram_end_address;
 }
 /*lint -restore*/
-#endif  //ENABLE_DEBUG_LOG_SUPPORT
 
-/*lint --e{10} --e{19} --e{27} --e{40} --e{529} -save suppress Error 27: Illegal character */
-uint32_t sd_check_ram_start(uint32_t sd_req_ram_start)
-{
-#if (defined(S130) || defined(S132) || defined(S332))
-#if defined ( __CC_ARM )
-    extern uint32_t Image$$RW_IRAM1$$Base;
-    const volatile uint32_t ram_start = (uint32_t) &Image$$RW_IRAM1$$Base;
-#elif defined ( __ICCARM__ )
-    extern uint32_t __ICFEDIT_region_RAM_start__;
-    volatile uint32_t ram_start = (uint32_t) &__ICFEDIT_region_RAM_start__;
-#elif defined   ( __GNUC__ )
-    extern uint32_t __data_start__;
-    volatile uint32_t ram_start = (uint32_t) &__data_start__;
-#endif//__CC_ARM
-    if (ram_start != sd_req_ram_start)
-    {
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
-        uint32_t app_ram_size= ram_end_address_get();
-        SD_HANDLER_LOG("RAM START ADDR 0x%x should be adjusted to 0x%x\r\n",
-                  ram_start,
-                  sd_req_ram_start);
-        app_ram_size -= sd_req_ram_start;
-        SD_HANDLER_LOG("RAM SIZE should be adjusted to 0x%x \r\n",
-                  app_ram_size);
-#endif //NRF_LOG_USES_RTT
-        return NRF_SUCCESS;
-    }
-#endif//defined(S130) || defined(S132) || defined(S332)
-    return NRF_SUCCESS;
-}
-
+/*lint --e{10} --e{27} --e{40} --e{529} -save */
 uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
 {
-#if (defined(S130) || defined(S132) || defined(S332))
+#if (defined(S130) || defined(S132) || defined(S332) || defined(S140))
     uint32_t err_code;
     uint32_t app_ram_base;
 
@@ -486,31 +534,25 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
 #endif
 
     app_ram_base = ram_start;
-    SD_HANDLER_LOG("sd_ble_enable: RAM START at 0x%x\r\n",
+    NRF_LOG_DEBUG("sd_ble_enable: RAM start at 0x%x\r\n",
                     app_ram_base);
     err_code = sd_ble_enable(p_ble_enable_params, &app_ram_base);
 
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
     if (app_ram_base != ram_start)
     {
-        uint32_t app_ram_size= ram_end_address_get();
-        SD_HANDLER_LOG("sd_ble_enable: app_ram_base should be adjusted to 0x%x\r\n",
-                  app_ram_base);
-        app_ram_size -= app_ram_base;
-        SD_HANDLER_LOG("ram size should be adjusted to 0x%x \r\n",
-                  app_ram_size);
+        NRF_LOG_WARNING("sd_ble_enable: RAM start should be adjusted to 0x%x\r\n",
+                app_ram_base);
+        NRF_LOG_WARNING("RAM size should be adjusted to 0x%x \r\n",
+                ram_end_address_get() - app_ram_base);
     }
     else if (err_code != NRF_SUCCESS)
     {
-        SD_HANDLER_LOG("sd_ble_enable: error 0x%x\r\n", err_code);
-        while(1);
+        NRF_LOG_ERROR("sd_ble_enable: error 0x%x\r\n", err_code);
     }
-#endif   // NRF_LOG_USES_RTT
     return err_code;
 #else
     return NRF_SUCCESS;
-#endif   //defined(S130) || defined(S132) || defined(S332)
-
+#endif   //defined(S130) || defined(S132) || defined(S332) || defined(S140)
 }
 /*lint -restore*/
 

@@ -36,9 +36,12 @@
  * 
  */
 
-
 #ifndef APP_ERROR_WEAK_H__
 #define APP_ERROR_WEAK_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** @file
  *
@@ -48,31 +51,34 @@
  *
  * @brief Common application error handler.
  */
- 
-/**@brief       Callback function for asserts in the SoftDevice.
+
+/**@brief       Callback function for errors, asserts, and faults.
  *
- * @details     A pointer to this function will be passed to the SoftDevice. This function will be
- *              called by the SoftDevice if certain unrecoverable errors occur within the
- *              application or SoftDevice.
+ * @details     This function is called every time an error is raised in app_error, nrf_assert, or
+ *              in the SoftDevice. Information about the error can be found in the @p info
+ *              parameter.
  *
- *              See @ref nrf_fault_handler_t for more details.
+ *              See also @ref nrf_fault_handler_t for more details.
+ *
+ * @note        The function is implemented as weak so that it can be redefined by a custom error
+ *              handler when needed.
  *
  * @param[in] id    Fault identifier. See @ref NRF_FAULT_IDS.
  * @param[in] pc    The program counter of the instruction that triggered the fault, or 0 if
  *                  unavailable.
- * @param[in] info  Optional additional information regarding the fault. Refer to each fault
- *                  identifier for details.
- *
- * @remarks Function is implemented as weak so that it can be overwritten by custom application
- *          error handler when needed.
+ * @param[in] info  Optional additional information regarding the fault. The value of the @p id
+ *                  parameter dictates how to interpret this parameter. Refer to the documentation
+ *                  for each fault identifier (@ref NRF_FAULT_IDS and @ref APP_ERROR_FAULT_IDS) for
+ *                  details about interpreting @p info.
  */
-#ifdef __CC_ARM
-	     void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info);
-#else
-__WEAK void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info);
-#endif
+void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info);
 
 
 /** @} */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // APP_ERROR_WEAK_H__

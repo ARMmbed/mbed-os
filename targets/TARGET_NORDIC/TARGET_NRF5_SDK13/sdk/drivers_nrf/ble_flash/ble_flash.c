@@ -36,7 +36,6 @@
  * 
  */
 
-
 #include "ble_flash.h"
 #include <stdlib.h>
 #include <stdint.h>
@@ -69,7 +68,7 @@ uint16_t ble_flash_crc16_compute(uint8_t * p_data, uint16_t size, uint16_t * p_c
 
 
 /**@brief Function for erasing a page in flash.
- * 
+ *
  * @param[in]  p_page  Pointer to first word in page to be erased.
  */
 static void flash_page_erase(uint32_t * p_page)
@@ -116,7 +115,7 @@ static void flash_word_unprotected_write(uint32_t * p_address, uint32_t value)
         // Do nothing.
     }
     *p_address = value;
-    
+
     // Wait flash write to finish
     while (NRF_NVMC->READY == NVMC_READY_READY_Busy)
     {
@@ -264,7 +263,7 @@ uint32_t ble_flash_page_read(uint8_t page_num, uint32_t * p_out_array, uint8_t *
     uint16_t   calc_crc;
     uint32_t   tmp;
 
-    p_page      = (uint32_t *)(BLE_FLASH_PAGE_SIZE * page_num);    
+    p_page      = (uint32_t *)(BLE_FLASH_PAGE_SIZE * page_num);
     p_curr_addr = p_page;
 
     // Check if block is valid

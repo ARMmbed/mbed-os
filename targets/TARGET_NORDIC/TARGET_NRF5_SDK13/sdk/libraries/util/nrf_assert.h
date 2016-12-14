@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  * @brief Utilities for verifying program logic
  */
@@ -52,13 +51,15 @@
 extern "C" {
 #endif
 
-#if defined(DEBUG_NRF) || defined(DEBUG_NRF_USER)
-
 /** @brief Function for handling assertions.
  *
  *
  * @note
  * This function is called when an assertion has triggered.
+ *
+ * @note
+ * This function is deprecated and will be removed in future releases.
+ * Use app_error_fault_handler instead.
  *
  *
  * @post
@@ -70,7 +71,17 @@ extern "C" {
  * @param line_num The line number where the assertion is called
  * @param file_name Pointer to the file name
  */
+//lint -save -esym(14, assert_nrf_callback)
 void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
+//lint -restore
+
+#if (defined(DEBUG_NRF) || defined(DEBUG_NRF_USER))
+#define NRF_ASSERT_PRESENT 1
+#else
+#define NRF_ASSERT_PRESENT 0
+#endif
+
+//#if defined(DEBUG_NRF) || defined(DEBUG_NRF_USER)
 
 /*lint -emacro(506, ASSERT) */ /* Suppress "Constant value Boolean */
 /*lint -emacro(774, ASSERT) */ /* Suppress "Boolean within 'if' always evaluates to True" */ \
@@ -78,20 +89,30 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
 /** @brief Function for checking intended for production code.
  *
  * Check passes if "expr" evaluates to true. */
+
+#ifdef _lint
 #define ASSERT(expr) \
 if (expr)                                                                     \
 {                                                                             \
 }                                                                             \
 else                                                                          \
 {                                                                             \
-    assert_nrf_callback((uint16_t)__LINE__, (uint8_t *)__FILE__);             \
+    while(1);             \
 }
-#else
-#ifndef ASSERT
-#define ASSERT(expr) //!< Assert empty when disabled
-__WEAK void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
+#else //_lint
+#define ASSERT(expr) \
+if (NRF_ASSERT_PRESENT)                                                       \
+{                                                                             \
+    if (expr)                                                                 \
+    {                                                                         \
+    }                                                                         \
+    else                                                                      \
+    {                                                                         \
+        assert_nrf_callback((uint16_t)__LINE__, (uint8_t *)__FILE__);         \
+    }                                                                         \
+}
 #endif
-#endif /* defined(DEBUG_NRF) || defined(DEBUG_NRF_USER) */
+
 
 #ifdef __cplusplus
 }

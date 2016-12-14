@@ -35,8 +35,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
- 
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(BLE_RACP)
 #include "ble_racp.h"
 #include <stdlib.h>
 
@@ -47,7 +47,7 @@ void ble_racp_decode(uint8_t data_len, uint8_t * p_data, ble_racp_value_t * p_ra
     p_racp_val->operator    = 0xFF;
     p_racp_val->operand_len = 0;
     p_racp_val->p_operand   = NULL;
-    
+
     if (data_len > 0)
     {
         p_racp_val->opcode = p_data[0];
@@ -82,3 +82,4 @@ uint8_t ble_racp_encode(const ble_racp_value_t * p_racp_val, uint8_t * p_data)
 
     return len;
 }
+#endif // NRF_MODULE_ENABLED(BLE_RACP)

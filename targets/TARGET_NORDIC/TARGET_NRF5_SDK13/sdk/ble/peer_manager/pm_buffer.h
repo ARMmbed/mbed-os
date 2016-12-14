@@ -37,13 +37,17 @@
  */
 
 
-
 #ifndef BUFFER_H__
 #define BUFFER_H__
 
 #include <stdint.h>
+#include "compiler_abstraction.h"
 #include "sdk_errors.h"
 #include "pm_mutex.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -55,24 +59,29 @@
  */
 
 
-#define BUFFER_INVALID_ID 0xFF
+#define PM_BUFFER_INVALID_ID 0xFF //!< Invalid buffer block ID.
 
-#define PM_BUFFER_INIT(p_buffer, n_blocks, block_size, err_code)    \
-do                                                                  \
-{                                                                   \
-    static union {                                                  \
-        uint8_t  u8[(n_blocks) * (block_size)];                     \
-        uint32_t u32[1]; /*force allign to uint32_t*/               \
-    } buffer_memory;                                                \
-    static uint8_t mutex_memory[MUTEX_STORAGE_SIZE(n_blocks)];      \
-    err_code = pm_buffer_init((p_buffer),                           \
-                               buffer_memory.u8,                    \
-                              (n_blocks) * (block_size),            \
-                               mutex_memory,                        \
-                               MUTEX_STORAGE_SIZE(n_blocks),        \
-                              (n_blocks),                           \
-                              (block_size));                        \
-} while(0)
+
+/**@brief Convenience macro for declaring memory and initializing a buffer instance.
+ *
+ * @param[out] p_buffer    The buffer instance to initialize.
+ * @param[in]  n_blocks    The desired number of blocks in the buffer.
+ * @param[in]  block_size  The desired block size of the buffer.
+ * @param[out] err_code    The return code from @ref pm_buffer_init.
+ */
+#define PM_BUFFER_INIT(p_buffer, n_blocks, block_size, err_code)          \
+do                                                                        \
+{                                                                         \
+    __ALIGN(4) static uint8_t buffer_memory[(n_blocks) * (block_size)];   \
+    __ALIGN(4) static uint8_t mutex_memory[MUTEX_STORAGE_SIZE(n_blocks)]; \
+    err_code = pm_buffer_init((p_buffer),                                 \
+                               buffer_memory,                             \
+                              (n_blocks) * (block_size),                  \
+                               mutex_memory,                              \
+                               MUTEX_STORAGE_SIZE(n_blocks),              \
+                              (n_blocks),                                 \
+                              (block_size));                              \
+} while (0)
 
 
 typedef struct
@@ -113,7 +122,7 @@ ret_code_t pm_buffer_init(pm_buffer_t * p_buffer,
  * @param[in]  n_blocks  The number of contiguous blocks to acquire.
  *
  * @return The id of the acquired block, if successful.
- * @retval BUFFER_INVALID_ID  If unsuccessful.
+ * @retval PM_BUFFER_INVALID_ID  If unsuccessful.
  */
 uint8_t pm_buffer_block_acquire(pm_buffer_t * p_buffer, uint32_t n_blocks);
 
@@ -136,6 +145,11 @@ uint8_t * pm_buffer_ptr_get(pm_buffer_t * p_buffer, uint8_t id);
  */
 void pm_buffer_release(pm_buffer_t * p_buffer, uint8_t id);
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BUFFER_H__
 

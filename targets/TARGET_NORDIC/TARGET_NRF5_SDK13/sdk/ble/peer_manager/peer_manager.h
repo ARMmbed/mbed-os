@@ -37,7 +37,6 @@
  */
 
 
-
 /**
  * @file peer_manager.h
  *
@@ -50,6 +49,10 @@
  *
  * @details The API consists of functions for configuring the pairing and encryption behavior of the
  *          device and functions for manipulating the stored data.
+ *
+ *          This module uses Flash Data Storage (FDS) to interface with persistent storage. The
+ *          Peer Manager needs exclusive use of certain FDS file IDs and record keys. See 
+ *          @ref lib_fds_functionality_keys for more information.
  */
 
 
@@ -59,10 +62,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "sdk_common.h"
-#include "nrf_ble.h"
-#include "nrf_ble_gap.h"
+#include "ble.h"
+#include "ble_gap.h"
 #include "peer_manager_types.h"
 #include "peer_database.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -195,7 +202,7 @@ typedef void (*pm_evt_handler_t)(pm_evt_t const * p_event);
  *          functions.
  *
  * @retval NRF_SUCCESS              If initialization was successful.
- * @retval NRF_ERROR_INTERNAL       If another error occurred.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_init(void);
 
@@ -208,6 +215,7 @@ ret_code_t pm_init(void);
  *
  * @retval NRF_SUCCESS              If initialization was successful.
  * @retval NRF_ERROR_NULL           If @p event_handler was NULL.
+ * @retval NRF_ERROR_NO_MEM         If no more registrations can happen.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  */
 ret_code_t pm_register(pm_evt_handler_t event_handler);
@@ -226,7 +234,7 @@ ret_code_t pm_register(pm_evt_handler_t event_handler);
  * @retval NRF_SUCCESS              If the parameters were set successfully.
  * @retval NRF_ERROR_INVALID_PARAM  If the combination of parameters is invalid.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
- * @retval NRF_ERROR_INTERNAL       If another error occurred.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_sec_params_set(ble_gap_sec_params_t * p_sec_params);
 
@@ -276,10 +284,12 @@ void pm_on_ble_evt(ble_evt_t * p_ble_evt);
  *                                        operations can be performed on this link.
  * @retval BLE_ERROR_INVALID_CONN_HANDLE  If the connection handle is invalid.
  * @retval NRF_ERROR_NOT_FOUND            If the security parameters have not been set.
- * @retval NRF_ERROR_NO_MEM               If there is no more space in flash.
+ * @retval NRF_ERROR_STORAGE_FULL         If there is no more space in persistent storage.
+ * @retval NRF_ERROR_NO_MEM               If no more authentication procedures can run in parallel
+ *                                        for the given role. See @ref sd_ble_gap_authenticate.
  * @retval NRF_ERROR_INVALID_STATE        If the Peer Manager is not initialized, or the peer is
  *                                        disconnected or in the process of disconnecting.
- * @retval NRF_ERROR_INTERNAL             If another error occurred.
+ * @retval NRF_ERROR_INTERNAL             If an internal error occurred.
  */
 ret_code_t pm_conn_secure(uint16_t conn_handle, bool force_repairing);
 
@@ -335,84 +345,201 @@ ret_code_t pm_conn_sec_status_get(uint16_t conn_handle, pm_conn_sec_status_t * p
  *
  * @param[in]  p_public_key  The public key to use for all subsequent LESC operations.
  *
- * @retval NRF_SUCCESS                    Pairing initiated successfully.
- * @retval NRF_ERROR_INVALID_STATE        Peer Manager is not initialized.
+ * @retval NRF_SUCCESS                    If pairing was initiated successfully.
+ * @retval NRF_ERROR_INVALID_STATE        If the Peer Manager is not initialized.
  */
 ret_code_t pm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
 
 
-/**
- * @brief Function for constructing a whitelist for use when advertising.
+/**@brief Function for setting or clearing the whitelist.
  *
- * @details This function constructs a whitelist that contains the addresses and IRKs of the
- *          provided peer IDs. If @p p_peer_ids is NULL, the first (lowest) 8 peer IDs are chosen.
- *          If @ref ble_gap_whitelist_t.pp_addrs in @p p_whitelist is NULL, the whitelist contains
- *          only IRKs, and vice versa.
+ * When using the S13x SoftDevice v3.x, this function sets or clears the whitelist.
+ * When using the S13x SoftDevice v2.x, this function caches a list of
+ * peers that can be retrieved later by @ref pm_whitelist_get to pass to the @ref lib_ble_advertising.
  *
- * @note When using a whitelist, always use the whitelist that was created or set by the most recent
- *       call to this function or to @ref pm_whitelist_custom.
- * @note Do not call this function while advertising or scanning with another whitelist.
+ * To clear the current whitelist, pass either NULL as @p p_peers or zero as @p peer_cnt.
  *
- * @param[in]     p_peer_ids   The IDs of the peers to be added to the whitelist, or NULL.
- * @param[in]     n_peer_ids   The number of peer IDs in @p p_peer_ids.
- * @param[in,out] p_whitelist  The constructed whitelist. Note that @p p_whitelist->pp_addrs
- *                             must be NULL or point to an array with size @ref
- *                             BLE_GAP_WHITELIST_ADDR_MAX_COUNT and @p p_whitelist->pp_irks
- *                             must be NULL or point to an array with size @ref
- *                             BLE_GAP_WHITELIST_IRK_MAX_COUNT.
+ * @param[in] p_peers   The peers to add to the whitelist. Pass NULL to clear the current whitelist.
+ * @param[in] peer_cnt  The number of peers to add to the whitelist. The number must not be greater than
+ *                      @ref BLE_GAP_WHITELIST_ADDR_MAX_COUNT. Pass zero to clear the current
+ *                      whitelist.
  *
- * @retval NRF_SUCCESS              If the whitelist was created successfully.
- * @retval NRF_ERROR_NULL           If @p p_whitelist was NULL.
+ * @retval NRF_SUCCESS                      If the whitelist was successfully set or cleared.
+ * @retval BLE_GAP_ERROR_WHITELIST_IN_USE   If a whitelist is already in use and cannot be set.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR   If a peer in @p p_peers has an address that cannot
+ *                                          be used for whitelisting.
+ * @retval NRF_ERROR_NOT_FOUND              If any of the peers in @p p_peers cannot be found.
+ * @retval NRF_ERROR_DATA_SIZE              If @p peer_cnt is greater than
+ *                                          @ref BLE_GAP_WHITELIST_ADDR_MAX_COUNT.
+ * @retval NRF_ERROR_INVALID_STATE          If the Peer Manager is not initialized.
+ */
+ret_code_t pm_whitelist_set(pm_peer_id_t const * p_peers,
+                            uint32_t             peer_cnt);
+
+
+/**@brief Function for retrieving the previously set whitelist.
+ *
+ * The function retrieves the whitelist of GAP addresses and IRKs that was
+ * previously set by @ref pm_whitelist_set.
+ *
+ * To retrieve only GAP addresses or only IRKs, provide only one of the
+ * buffers. If a buffer is provided, its size must be specified.
+ *
+ * @param[out]   p_addrs    The buffer where to store GAP addresses. Pass NULL to retrieve
+ *                          only IRKs (in that case, @p p_irks must not be NULL).
+ * @param[in,out] p_addr_cnt In: The size of the @p p_addrs buffer.
+ *                          May be NULL if and only if @p p_addrs is NULL.
+ *                          Out: The number of GAP addresses copied into the buffer.
+ *                          If @p p_addrs is NULL, this parameter remains unchanged.
+ * @param[out]   p_irks     The buffer where to store IRKs. Pass NULL to retrieve
+ *                          only GAP addresses (in that case, @p p_addrs must not NULL).
+ * @param[in,out] p_irk_cnt  In: The size of the @p p_irks buffer.
+ *                          May be NULL if and only if @p p_irks is NULL.
+ *                          Out: The number of IRKs copied into the buffer.
+ *                          If @p p_irks is NULL, this paramater remains unchanged.
+ *
+ * @retval NRF_SUCCESS                      If the whitelist was successfully retrieved.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR   If a peer has an address that cannot be used for
+ *                                          whitelisting (this error can occur only
+ *                                          when using the S13x SoftDevice v2.x).
+ * @retval NRF_ERROR_NULL                   If a required parameter is NULL.
+ * @retval NRF_ERROR_NO_MEM                 If the provided buffers are too small.
+ * @retval NRF_ERROR_NOT_FOUND              If the data for any of the cached whitelisted peers
+ *                                          cannot be found. It might have been deleted.
+ * @retval NRF_ERROR_INVALID_STATE          If the Peer Manager is not initialized.
+ */
+ret_code_t pm_whitelist_get(ble_gap_addr_t * p_addrs,
+                            uint32_t       * p_addr_cnt,
+                            ble_gap_irk_t  * p_irks,
+                            uint32_t       * p_irk_cnt);
+
+
+/**@brief Function for setting and clearing the device identities list.
+ *
+ * @param[in]   p_peers     The peers to add to the device identities list. Pass NULL to clear
+ *                          the device identities list.
+ * @param[in]   peer_cnt    The number of peers. Pass zero to clear the device identities list.
+ *
+ * @retval NRF_SUCCESS                              If the device identities list was successfully
+ *                                                  set or cleared.
+ * @retval NRF_ERROR_NOT_FOUND                      If a peer is invalid or its data could not
+ *                                                  be found in flash.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR           If a peer has an address that cannot be
+ *                                                  used for whitelisting.
+ * @retval BLE_ERROR_GAP_DEVICE_IDENTITIES_IN_USE   If the device identities list is in use and
+ *                                                  cannot be set.
+ * @retval NRF_ERROR_INVALID_STATE                  If the Peer Manager is not initialized.
+ * @retval NRF_ERROR_NOT_SUPPORTED                  If using a SoftDevice that does not support
+ *                                                  device identities, e.g. S130 v2.0.
+ */
+ret_code_t pm_device_identities_list_set(pm_peer_id_t const * p_peers,
+                                         uint32_t             peer_cnt);
+
+
+/**@brief Function for setting the local <em>Bluetooth</em> identity address.
+ *
+ * @details The local <em>Bluetooth</em> identity address is the address that identifies the device to other
+ * peers. The address type must be either @ref BLE_GAP_ADDR_TYPE_PUBLIC or @ref
+ * BLE_GAP_ADDR_TYPE_RANDOM_STATIC. The identity address cannot be changed while roles are
+ * running.
+ *
+ * The SoftDevice sets a default address of type @ref BLE_GAP_ADDR_TYPE_RANDOM_STATIC
+ * when it is enabled. This default address is a random number that is populated during
+ * the IC manufacturing process. It remains unchanged for the lifetime of each IC, but the application can assign a different identity address.
+ *
+ * The identity address is distributed to the peer during bonding.
+ * If the address changes, the address stored in the peer device will not be valid and the
+ * ability to reconnect using the old address will be lost.
+ *
+ *
+ * @note The SoftDevice functions @ref sd_ble_gap_addr_set
+ *       and @ref sd_ble_gap_privacy_set must not be called when using the Peer Manager.
+ *       Use this function instead.
+ *
+ * @param[in] p_addr The GAP address to be set.
+ *
+ * @retval NRF_SUCCESS                     If the identity address was set successfully.
+ * @retval NRF_ERROR_NULL                  If @p p_addr is NULL.
+ * @retval NRF_ERROR_INVALID_ADDR          If the @p p_addr pointer is invalid.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR  If the BLE address is invalid.
+ * @retval NRF_ERROR_BUSY                  If the SoftDevice was busy. Process SoftDevice events
+ *                                         and retry.
+ * @retval NRF_ERROR_INVALID_STATE         If the Peer Manager is not initialized or if this function
+ *                                         was called while advertising, scanning, or while connected.
+ * @retval NRF_ERROR_INTERNAL              If an internal error occurred.
+ */
+ret_code_t pm_id_addr_set(ble_gap_addr_t const * p_addr);
+
+
+/**@brief Function for retrieving the local <em>Bluetooth</em> identity address.
+ *
+ * This function always returns the identity address, irrespective of the privacy settings.
+ * This means that the address type will always be either @ref BLE_GAP_ADDR_TYPE_PUBLIC or @ref
+ * BLE_GAP_ADDR_TYPE_RANDOM_STATIC.
+ *
+ * @param[out] p_addr Pointer to the address structure to be filled in.
+ *
+ * @retval NRF_SUCCESS             If the address was retrieved successfully.
+ * @retval NRF_ERROR_NULL          If @p p_addr is NULL.
+ * @retval NRF_ERROR_INVALID_STATE If the Peer Manager is not initialized.
+ */
+ret_code_t pm_id_addr_get(ble_gap_addr_t * p_addr);
+
+
+/**@brief Function for configuring privacy settings.
+ *
+ * The privacy settings cannot be configured while advertising, scanning, or while in a connection.
+ *
+ * @note The SoftDevice functions @ref sd_ble_gap_addr_set
+ *       and @ref sd_ble_gap_privacy_set must not be called when using the Peer Manager.
+ *       Use this function instead.
+ *
+ * @param[in] p_privacy_params Privacy settings.
+ *
+ * @retval NRF_SUCCESS                     If the privacy settings were configured successfully.
+ * @retval NRF_ERROR_NULL                  If @p p_privacy_params is NULL.
+ * @retval NRF_ERROR_BUSY                  If the operation could not be performed at this time.
+ *                                         Process SoftDevice events and retry.
+ * @retval NRF_ERROR_INVALID_PARAM         If the address type is invalid.
+ * @retval NRF_ERROR_INVALID_STATE         If this function is called while BLE roles using
+ *                                         privacy are enabled.
+ * @retval NRF_ERROR_INVALID_STATE         If the Peer Manager is not initialized.
+ */
+ret_code_t pm_privacy_set(pm_privacy_params_t const * p_privacy_params);
+
+
+/**@brief Function for retrieving privacy settings.
+ *
+ * The privacy settings that are returned include the current IRK as well.
+ *
+ * @param[out] p_privacy_params Privacy settings.
+ *
+ * @retval NRF_SUCCESS              If the privacy settings were retrieved successfully.
+ * @retval NRF_ERROR_NULL           If @p p_privacy_params or @p p_privacy_params->p_device_irk is
+ *                                  NULL.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  */
-ret_code_t pm_whitelist_create(pm_peer_id_t        * p_peer_ids,
-                           uint8_t               n_peer_ids,
-                           ble_gap_whitelist_t * p_whitelist);
+ret_code_t pm_privacy_get(pm_privacy_params_t * p_privacy_params);
 
 
-/**
- * @brief Function for informing the Peer Manager of what whitelist should be used.
- *
- * @details This function should be used if the application wants to use a whitelist that is
- *          created in the application. When using Peer Manager, this function must be called to
- *          inform that the custom whitelist should be used instead of the one in Peer Manager.
- *
- * @note When using a whitelist, always use the whitelist that was created or set by the most recent
- *       call to this function or to @ref pm_whitelist_create.
- * @note Do not call this function while advertising or scanning with another whitelist.
- * @note Do not add any IRKs to the whitelist that are not present in the Peer Manager's persistent
- *       storage.
- *
- * @param[in] p_whitelist  The whitelist.
- *
- * @retval NRF_SUCCESS              If the operation completed successfully.
- * @retval NRF_ERROR_NULL           If @p p_whitelist was NULL.
- * @retval NRF_ERROR_NOT_FOUND      If one or more of the whitelist's IRKs was not found in the Peer
- *                                  Manager's persistent storage.
- * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
- */
-ret_code_t pm_whitelist_custom(ble_gap_whitelist_t * p_whitelist);
-
-
-/**
- * @brief Function for getting the connection handle of the connection with a bonded peer.
+/**@brief Function for getting the connection handle of the connection with a bonded peer.
  *
  * @param[in]  peer_id        The peer ID of the bonded peer.
  * @param[out] p_conn_handle  Connection handle, or @ref BLE_ERROR_INVALID_CONN_HANDLE if the peer
  *                            is not connected.
  *
- * @retval NRF_SUCCESS              If the connection handle was determined successfully.
+ * @retval NRF_SUCCESS              If the connection handle was retrieved successfully.
  * @retval NRF_ERROR_NULL           If @p p_conn_handle was NULL.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  */
 ret_code_t pm_conn_handle_get(pm_peer_id_t peer_id, uint16_t * p_conn_handle);
 
 
-/**@brief Function for getting the peer ID of a connected peer.
+/**@brief Function for retrieving the ID of a peer, given its connection handle.
  *
- * @param[in]  conn_handle  Connection handle.
- * @param[out] p_peer_id    Peer ID, or @ref PM_PEER_ID_INVALID if the peer is not bonded or
- *                          @p conn_handle does not refer to a connection.
+ * @param[in]  conn_handle  The connection handle of the peer.
+ * @param[out] p_peer_id    The peer ID, or @ref PM_PEER_ID_INVALID if the peer is not bonded or
+ *                          @p conn_handle does not refer to a valid connection.
  *
  * @retval NRF_SUCCESS              If the peer ID was retrieved successfully.
  * @retval NRF_ERROR_NULL           If @p p_peer_id was NULL.
@@ -518,7 +645,7 @@ ret_code_t pm_peer_data_app_data_load(pm_peer_id_t peer_id,
  * @note Writing the data to persistent storage happens asynchronously. Therefore, the buffer
  *       that contains the data must be kept alive until the operation has completed.
  *
- * @note The data written using this function may later be overwritten as a result of internal
+ * @note The data written using this function might later be overwritten as a result of internal
  *       operations in the Peer Manager. A Peer Manager event is sent each time data is updated,
  *       regardless of whether the operation originated internally or from action by the user.
  *
@@ -588,7 +715,7 @@ ret_code_t pm_peer_data_app_data_store(pm_peer_id_t       peer_id,
  * @retval NRF_ERROR_BUSY           If the underlying flash handler is busy with other flash
  *                                  operations. Try again after receiving a Peer Manager event.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
- * @retval NRF_ERROR_INTERNAL       If another error occurred.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_peer_data_delete(pm_peer_id_t peer_id, pm_peer_data_id_t data_id);
 
@@ -607,12 +734,12 @@ ret_code_t pm_peer_data_delete(pm_peer_id_t peer_id, pm_peer_data_id_t data_id);
  *
  * @retval NRF_SUCCESS              If the store operation for bonding data was initiated successfully.
  * @retval NRF_ERROR_NULL           If @p p_bonding_data or @p p_new_peer_id is NULL.
- * @retval NRF_ERROR_NO_MEM         If there is no more space in persistent storage, so that the new
- *                                  peer cannot be allocated.
- * @retval NRF_ERROR_BUSY           If the underlying flash handler is busy with other flash
+ * @retval NRF_ERROR_STORAGE_FULL   If there is no more space in persistent storage.
+ * @retval NRF_ERROR_NO_MEM         If there are no more available peer IDs.
+ * @retval NRF_ERROR_BUSY           If the underlying flash filesystem is busy with other flash
  *                                  operations. Try again after receiving a Peer Manager event.
- * @retval NRF_ERROR_INVALID_PARAM  If the bonding data is invalid.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_peer_new(pm_peer_id_t           * p_new_peer_id,
                        pm_peer_data_bonding_t * p_bonding_data,
@@ -653,7 +780,7 @@ ret_code_t pm_peer_delete(pm_peer_id_t peer_id);
  *
  * @retval NRF_SUCCESS              If the deletion process was initiated successfully.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
- * @retval NRF_ERROR_INTERNAL       If another error occurred.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_peers_delete(void);
 /** @}*/
@@ -684,7 +811,7 @@ ret_code_t pm_peers_delete(void);
  * @retval NRF_SUCCESS              If the operation completed successfully.
  * @retval NRF_ERROR_NOT_FOUND      If no peers were found.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
- * @retval NRF_ERROR_INTERNAL       If another error occurred.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_peer_ranks_get(pm_peer_id_t * p_highest_ranked_peer,
                              uint32_t     * p_highest_rank,
@@ -712,8 +839,8 @@ ret_code_t pm_peer_ranks_get(pm_peer_id_t * p_highest_ranked_peer,
  * @retval NRF_ERROR_BUSY           If the underlying flash handler is busy with other flash
  *                                  operations, or if a previous call to this function has not
  *                                  completed. Try again after receiving a Peer Manager event.
- * @retval NRF_ERROR_INTERNAL       If another error occurred.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
+ * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
 ret_code_t pm_peer_rank_highest(pm_peer_id_t peer_id);
 
@@ -722,5 +849,10 @@ ret_code_t pm_peer_rank_highest(pm_peer_id_t peer_id);
 /** @} */
 
 /** @} */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // PEER_MANAGER_H__

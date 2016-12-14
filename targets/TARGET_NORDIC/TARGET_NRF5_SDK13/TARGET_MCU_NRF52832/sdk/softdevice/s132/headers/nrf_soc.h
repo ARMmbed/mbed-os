@@ -34,8 +34,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- */
- 
+ */ 
 /**
  * @defgroup nrf_soc_api SoC Library API
  * @{
@@ -62,8 +61,8 @@ extern "C" {
  * @{ */
 
 /**@brief The number of the lowest SVC number reserved for the SoC library. */
-#define SOC_SVC_BASE               (0x20)
-#define SOC_SVC_BASE_NOT_AVAILABLE (0x2B)
+#define SOC_SVC_BASE               (0x20)                   /**< Base value for SVCs that are available when the SoftDevice is disabled. */
+#define SOC_SVC_BASE_NOT_AVAILABLE (0x2B)                   /**< Base value for SVCs that are not available when the SoftDevice is disabled. */
 
 /**@brief Guranteed time for application to process radio inactive notification. */
 #define NRF_RADIO_NOTIFICATION_INACTIVE_GUARANTEED_TIME_US  (62)
@@ -119,16 +118,6 @@ enum NRF_SOC_SVCS
   SD_MUTEX_NEW = SOC_SVC_BASE_NOT_AVAILABLE,
   SD_MUTEX_ACQUIRE,
   SD_MUTEX_RELEASE,
-  SD_RFU_1,
-  SD_RFU_2,
-  SD_RFU_3,
-  SD_RFU_4,
-  SD_RFU_5,
-  SD_RFU_6,
-  SD_RFU_7,
-  SD_RFU_8,
-  SD_RFU_9,
-  SD_RFU_10,
   SD_RAND_APPLICATION_POOL_CAPACITY_GET,
   SD_RAND_APPLICATION_BYTES_AVAILABLE_GET,
   SD_RAND_APPLICATION_VECTOR_GET,
@@ -316,7 +305,7 @@ typedef struct
   {
     nrf_radio_request_earliest_t  earliest;         /**< Parameters for requesting a radio timeslot as early as possible. */
     nrf_radio_request_normal_t    normal;           /**< Parameters for requesting a normal radio timeslot. */
-  } params;
+  } params;                                         /**< Parameter union. */
 } nrf_radio_request_t;
 
 /**@brief Return parameters of the radio timeslot signal callback. */
@@ -333,7 +322,7 @@ typedef struct
     {
       uint32_t              length_us;              /**< Requested extension of the radio timeslot duration (microseconds) (for minimum time see @ref NRF_RADIO_MINIMUM_TIMESLOT_LENGTH_EXTENSION_TIME_US). */
     } extend;                                       /**< Additional parameters for return_code @ref NRF_RADIO_SIGNAL_CALLBACK_ACTION_EXTEND. */
-  } params;
+  } params;                                         /**< Parameter union. */
 } nrf_radio_signal_callback_return_param_t;
 
 /**@brief The radio timeslot signal callback type.
@@ -351,9 +340,9 @@ typedef struct
 typedef nrf_radio_signal_callback_return_param_t * (*nrf_radio_signal_callback_t) (uint8_t signal_type);
 
 /**@brief AES ECB parameter typedefs */
-typedef uint8_t soc_ecb_key_t[SOC_ECB_KEY_LENGTH];
-typedef uint8_t soc_ecb_cleartext_t[SOC_ECB_CLEARTEXT_LENGTH];
-typedef uint8_t soc_ecb_ciphertext_t[SOC_ECB_CIPHERTEXT_LENGTH];
+typedef uint8_t soc_ecb_key_t[SOC_ECB_KEY_LENGTH];                /**< Encryption key type. */
+typedef uint8_t soc_ecb_cleartext_t[SOC_ECB_CLEARTEXT_LENGTH];    /**< Cleartext data type. */
+typedef uint8_t soc_ecb_ciphertext_t[SOC_ECB_CIPHERTEXT_LENGTH];  /**< Ciphertext data type. */
 
 /**@brief AES ECB data structure */
 typedef struct
@@ -503,29 +492,35 @@ SVCALL(SD_POWER_RAMON_CLR, uint32_t, sd_power_ramon_clr(uint32_t ramon));
  */
 SVCALL(SD_POWER_RAMON_GET, uint32_t, sd_power_ramon_get(uint32_t * p_ramon));
 
-/**@brief Set bits in the NRF_POWER->GPREGRET register.
+/**@brief Set bits in the general purpose retention registers (NRF_POWER->GPREGRET*).
  *
+ * @param[in] gpregret_id 0 for GPREGRET, 1 for GPREGRET2.
  * @param[in] gpregret_msk Bits to be set in the GPREGRET register.
  *
+ * @note nRF51 does only have one general purpose retained register, so gpregret_id must be 0 on nRF51.
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_POWER_GPREGRET_SET, uint32_t, sd_power_gpregret_set(uint32_t gpregret_msk));
+SVCALL(SD_POWER_GPREGRET_SET, uint32_t, sd_power_gpregret_set(uint32_t gpregret_id, uint32_t gpregret_msk));
 
-/**@brief Clear bits in the NRF_POWER->GPREGRET register.
+/**@brief Clear bits in the general purpose retention registers (NRF_POWER->GPREGRET*).
  *
+ * @param[in] gpregret_id 0 for GPREGRET, 1 for GPREGRET2.
  * @param[in] gpregret_msk Bits to be clear in the GPREGRET register.
  *
+ * @note nRF51 does only have one general purpose retained register, so gpregret_id must be 0 on nRF51.
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_POWER_GPREGRET_CLR, uint32_t, sd_power_gpregret_clr(uint32_t gpregret_msk));
+SVCALL(SD_POWER_GPREGRET_CLR, uint32_t, sd_power_gpregret_clr(uint32_t gpregret_id, uint32_t gpregret_msk));
 
-/**@brief Get contents of the NRF_POWER->GPREGRET register.
+/**@brief Get contents of the general purpose retention registers (NRF_POWER->GPREGRET*).
  *
+ * @param[in] gpregret_id 0 for GPREGRET, 1 for GPREGRET2.
  * @param[out] p_gpregret Contents of the GPREGRET register.
  *
+ * @note nRF51 does only have one general purpose retained register, so gpregret_id must be 0 on nRF51.
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_POWER_GPREGRET_GET, uint32_t, sd_power_gpregret_get(uint32_t *p_gpregret));
+SVCALL(SD_POWER_GPREGRET_GET, uint32_t, sd_power_gpregret_get(uint32_t gpregret_id, uint32_t *p_gpregret));
 
 /**@brief Sets the DCDC mode.
  *
@@ -772,6 +767,8 @@ SVCALL(SD_TEMP_GET, uint32_t, sd_temp_get(int32_t * p_temp));
 *        they will not interfere with the flash access. This means that all interrupts will be blocked
 *        for a predictable time (depending on the NVMC specification in nRF51 Series Reference Manual
 *        and the command parameters).
+*      - The data in the p_src buffer should not be modified before the @ref NRF_EVT_FLASH_OPERATION_SUCCESS
+*        or the @ref NRF_EVT_FLASH_OPERATION_ERROR have been received if the SoftDevice is enabled.
 *
 *
 * @param[in]  p_dst Pointer to start of flash location to be written.

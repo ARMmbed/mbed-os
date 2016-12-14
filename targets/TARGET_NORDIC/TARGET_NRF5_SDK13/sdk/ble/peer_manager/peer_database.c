@@ -36,27 +36,26 @@
  * 
  */
 
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(PEER_MANAGER)
 #include "peer_database.h"
 
 #include <string.h>
-#include "app_util.h"
 #include "peer_manager_types.h"
 #include "peer_manager_internal.h"
 #include "peer_data_storage.h"
 #include "pm_buffer.h"
-#include "sdk_common.h"
 
-#define MAX_REGISTRANTS    6                         /**< The number of user that can register with the module. */
 
-#define N_WRITE_BUFFERS        8                     /**< The number of write buffers available. */
-#define N_WRITE_BUFFER_RECORDS (N_WRITE_BUFFERS)     /**< The number of write buffer records. */
+#define N_WRITE_BUFFERS             (8)                 /**< The number of write buffers available. */
+#define N_WRITE_BUFFER_RECORDS      (N_WRITE_BUFFERS)   /**< The number of write buffer records. */
+
 
 /**@brief Macro for verifying that the data ID is among the values eligible for using the write buffer.
  *
  * @param[in] data_id  The data ID to verify.
  */
+// @note emdi: could this maybe be a function?
 #define VERIFY_DATA_ID_WRITE_BUF(data_id)                                                    \
 do                                                                                           \
 {                                                                                            \
@@ -64,7 +63,30 @@ do                                                                              
     {                                                                                        \
         return NRF_ERROR_INVALID_PARAM;                                                      \
     }                                                                                        \
-} while(0)
+} while (0)
+
+
+// The number of registered event handlers.
+#define PDB_EVENT_HANDLERS_CNT      (sizeof(m_evt_handlers) / sizeof(m_evt_handlers[0]))
+
+
+// Peer Database event handlers in other Peer Manager submodules.
+extern void pm_pdb_evt_handler(pdb_evt_t const * p_event);
+extern void im_pdb_evt_handler(pdb_evt_t const * p_event);
+extern void sm_pdb_evt_handler(pdb_evt_t const * p_event);
+extern void smd_pdb_evt_handler(pdb_evt_t const * p_event);
+extern void gscm_pdb_evt_handler(pdb_evt_t const * p_event);
+
+// Peer Database events' handlers.
+// The number of elements in this array is PDB_EVENT_HANDLERS_CNT.
+static pdb_evt_handler_t const m_evt_handlers[] =
+{
+    pm_pdb_evt_handler,
+    im_pdb_evt_handler,
+    sm_pdb_evt_handler,
+    smd_pdb_evt_handler,
+    gscm_pdb_evt_handler,
+};
 
 
 /**@brief Struct for keeping track of one write buffer, from allocation, until it is fully written
@@ -74,30 +96,22 @@ typedef struct
 {
     pm_peer_id_t        peer_id;               /**< The peer ID this buffer belongs to. */
     pm_peer_data_id_t   data_id;               /**< The data ID this buffer belongs to. */
-    uint8_t             buffer_block_id;       /**< The index of the first (or only) buffer block containing peer data. */
-    uint32_t            n_bufs;                /**< The number of buffer blocks containing peer data. */
-    uint8_t             store_busy       : 1;  /**< Flag indicating that the buffer was attempted written to flash, but a busy error was returned and the operation should be retried. */
-    uint8_t             store_flash_full : 1;  /**< Flag indicating that the buffer was attempted written to flash, but a flash full error was returned and the operation should be retried after room has been made. */
-    uint8_t             store_requested  : 1;  /**< Flag indicating that the buffer is being written to flash. */
     pm_prepare_token_t  prepare_token;         /**< Token given by Peer Data Storage if room in flash has been reserved. */
     pm_store_token_t    store_token;           /**< Token given by Peer Data Storage when a flash write has been successfully requested. */
+    uint32_t            n_bufs;                /**< The number of buffer blocks containing peer data. */
+    uint8_t             buffer_block_id;       /**< The index of the first (or only) buffer block containing peer data. */
+    uint8_t             store_requested  : 1;  /**< Flag indicating that the buffer is being written to flash. */
+    uint8_t             store_flash_full : 1;  /**< Flag indicating that the buffer was attempted written to flash, but a flash full error was returned and the operation should be retried after room has been made. */
+    uint8_t             store_busy       : 1;  /**< Flag indicating that the buffer was attempted written to flash, but a busy error was returned and the operation should be retried. */
 } pdb_buffer_record_t;
 
-/**@brief Struct for keeping track of the state of the module.
- */
-typedef struct
-{
-    pdb_evt_handler_t   evt_handlers[MAX_REGISTRANTS];                /**< All registered event handlers. */
-    uint8_t             n_registrants;                                /**< The number of registered event handlers. */
-    pm_buffer_t         write_buffer;                                 /**< The state of the write buffer. */
-    pdb_buffer_record_t write_buffer_records[N_WRITE_BUFFER_RECORDS]; /**< The available write buffer records. */
-    uint32_t            n_writes;                                     /**< The number of pending (Not yet successfully requested in Peer Data Storage) store operations. */
-} pdb_t;
 
-static pdb_t m_pdb = {.n_registrants = 0}; /**< The state of the module. */
+static bool                m_module_initialized;
+static pm_buffer_t         m_write_buffer;                                 /**< The state of the write buffer. */
+static pdb_buffer_record_t m_write_buffer_records[N_WRITE_BUFFER_RECORDS]; /**< The available write buffer records. */
+static uint32_t            m_n_writes;                                     /**< The number of pending (Not yet successfully requested in Peer Data Storage) store operations. */
 
-#define MODULE_INITIALIZED (m_pdb.n_registrants > 0) /**< Expression which is true when the module is initialized. */
-#include "sdk_macros.h"
+
 
 /**@brief Function for invalidating a record of a write buffer allocation.
  *
@@ -107,7 +121,7 @@ static void write_buffer_record_invalidate(pdb_buffer_record_t * p_record)
 {
     p_record->peer_id          = PM_PEER_ID_INVALID;
     p_record->data_id          = PM_PEER_DATA_ID_INVALID;
-    p_record->buffer_block_id  = BUFFER_INVALID_ID;
+    p_record->buffer_block_id  = PM_BUFFER_INVALID_ID;
     p_record->store_busy       = false;
     p_record->store_flash_full = false;
     p_record->store_requested  = false;
@@ -128,9 +142,9 @@ static pdb_buffer_record_t * write_buffer_record_find_next(pm_peer_id_t peer_id,
 {
     for (uint32_t i = *p_index; i < N_WRITE_BUFFER_RECORDS; i++)
     {
-        if ((m_pdb.write_buffer_records[i].peer_id == peer_id))
+        if ((m_write_buffer_records[i].peer_id == peer_id))
         {
-            return &m_pdb.write_buffer_records[i];
+            return &m_write_buffer_records[i];
         }
     }
     return NULL;
@@ -182,7 +196,7 @@ static void write_buffer_record_release(pdb_buffer_record_t * p_write_buffer_rec
 {
     for (uint32_t i = 0; i < p_write_buffer_record->n_bufs; i++)
     {
-        pm_buffer_release(&m_pdb.write_buffer, p_write_buffer_record->buffer_block_id + i);
+        pm_buffer_release(&m_write_buffer, p_write_buffer_record->buffer_block_id + i);
     }
 
     write_buffer_record_invalidate(p_write_buffer_record);
@@ -218,9 +232,9 @@ static void write_buffer_record_get(pdb_buffer_record_t ** pp_write_buffer_recor
  */
 static void pdb_evt_send(pdb_evt_t * p_event)
 {
-    for (uint32_t i = 0; i < m_pdb.n_registrants; i++)
+    for (uint32_t i = 0; i < PDB_EVENT_HANDLERS_CNT; i++)
     {
-        m_pdb.evt_handlers[i](p_event);
+        m_evt_handlers[i](p_event);
     }
 }
 
@@ -229,21 +243,21 @@ static void pdb_evt_send(pdb_evt_t * p_event)
  *
  * @param[out] p_event  The event to dispatch.
  */
-static void internal_state_reset(pdb_t * pdb)
+static void internal_state_reset()
 {
-    memset(pdb, 0, sizeof(pdb_t));
     for (uint32_t i = 0; i < N_WRITE_BUFFER_RECORDS; i++)
     {
-        write_buffer_record_invalidate(&pdb->write_buffer_records[i]);
+        write_buffer_record_invalidate(&m_write_buffer_records[i]);
     }
 }
 
 
 /**@brief Function for handling events from the Peer Data Storage module.
+ *        This function is extern in Peer Data Storage.
  *
  * @param[in]  p_event  The event to handle.
  */
-static void pds_evt_handler(pds_evt_t const * p_event)
+void pdb_pds_evt_handler(pds_evt_t const * p_event)
 {
     ret_code_t            err_code;
     pdb_buffer_record_t * p_write_buffer_record;
@@ -283,7 +297,7 @@ static void pds_evt_handler(pds_evt_t const * p_event)
                 && (p_write_buffer_record->store_requested))
             {
                 // Retry if internal buffer.
-                m_pdb.n_writes++;
+                m_n_writes++;
                 p_write_buffer_record->store_requested = false;
                 p_write_buffer_record->store_busy      = true;
             }
@@ -324,20 +338,20 @@ static void pds_evt_handler(pds_evt_t const * p_event)
             break;
     }
 
-    if (m_pdb.n_writes > 0)
+    if (m_n_writes > 0)
     {
         for (uint32_t i = 0; i < N_WRITE_BUFFER_RECORDS; i++)
         {
-            if  ((m_pdb.write_buffer_records[i].store_busy)
-              || (m_pdb.write_buffer_records[i].store_flash_full && retry_flash_full))
+            if  ((m_write_buffer_records[i].store_busy)
+              || (m_write_buffer_records[i].store_flash_full && retry_flash_full))
             {
-                err_code = pdb_write_buf_store(m_pdb.write_buffer_records[i].peer_id,
-                                               m_pdb.write_buffer_records[i].data_id);
+                err_code = pdb_write_buf_store(m_write_buffer_records[i].peer_id,
+                                               m_write_buffer_records[i].data_id);
                 if (err_code != NRF_SUCCESS)
                 {
-                    event.peer_id = m_pdb.write_buffer_records[i].peer_id;
-                    event.data_id = m_pdb.write_buffer_records[i].data_id;
-                    if (err_code == NRF_ERROR_NO_MEM)
+                    event.peer_id = m_write_buffer_records[i].peer_id;
+                    event.data_id = m_write_buffer_records[i].data_id;
+                    if (err_code == NRF_ERROR_STORAGE_FULL)
                     {
                         event.evt_id = PDB_EVT_ERROR_NO_MEM;
                     }
@@ -356,34 +370,22 @@ static void pds_evt_handler(pds_evt_t const * p_event)
 }
 
 
-ret_code_t pdb_register(pdb_evt_handler_t evt_handler)
+ret_code_t pdb_init()
 {
-    if (m_pdb.n_registrants >= MAX_REGISTRANTS)
+    ret_code_t ret;
+
+    NRF_PM_DEBUG_CHECK(!m_module_initialized);
+
+    internal_state_reset();
+
+    PM_BUFFER_INIT(&m_write_buffer, N_WRITE_BUFFERS, PDB_WRITE_BUF_SIZE, ret);
+
+    if (ret != NRF_SUCCESS)
     {
-        return NRF_ERROR_NO_MEM;
+        return NRF_ERROR_INTERNAL;
     }
 
-    VERIFY_PARAM_NOT_NULL(evt_handler);
-
-    if (!MODULE_INITIALIZED)
-    {
-        ret_code_t err_code;
-
-        internal_state_reset(&m_pdb);
-        err_code = pds_register(pds_evt_handler);
-        if (err_code != NRF_SUCCESS)
-        {
-            return NRF_ERROR_INTERNAL;
-        }
-        PM_BUFFER_INIT(&m_pdb.write_buffer, N_WRITE_BUFFERS, PDB_WRITE_BUF_SIZE, err_code);
-        if (err_code != NRF_SUCCESS)
-        {
-            return NRF_ERROR_INTERNAL;
-        }
-    }
-
-    m_pdb.evt_handlers[m_pdb.n_registrants] = evt_handler;
-    m_pdb.n_registrants += 1;
+    m_module_initialized = true;
 
     return NRF_SUCCESS;
 }
@@ -391,20 +393,24 @@ ret_code_t pdb_register(pdb_evt_handler_t evt_handler)
 
 pm_peer_id_t pdb_peer_allocate(void)
 {
+    #if 0
     if (!MODULE_INITIALIZED)
     {
         return PM_PEER_ID_INVALID;
     }
+    #endif
 
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
     return pds_peer_id_allocate();
 }
 
 
 ret_code_t pdb_peer_free(pm_peer_id_t peer_id)
 {
-    VERIFY_MODULE_INITIALIZED();
     ret_code_t err_code_in  = NRF_SUCCESS;
     ret_code_t err_code_out = NRF_SUCCESS;
+
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
 
     int index = 0;
     pdb_buffer_record_t * p_record = write_buffer_record_find_next(peer_id, &index);
@@ -445,14 +451,15 @@ ret_code_t pdb_peer_free(pm_peer_id_t peer_id)
 }
 
 
-ret_code_t pdb_read_buf_get(pm_peer_id_t           peer_id,
-                            pm_peer_data_id_t      data_id,
-                            pm_peer_data_flash_t * p_peer_data,
-                            pm_store_token_t     * p_token)
+ret_code_t pdb_peer_data_ptr_get(pm_peer_id_t                 peer_id,
+                                 pm_peer_data_id_t            data_id,
+                                 pm_peer_data_flash_t * const p_peer_data)
 {
-    VERIFY_MODULE_INITIALIZED();
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+    NRF_PM_DEBUG_CHECK(p_peer_data != NULL);
 
-    return pds_peer_data_read_ptr_get(peer_id, data_id, p_peer_data, p_token);
+    // Pass NULL to only retrieve a pointer.
+    return pds_peer_data_read(peer_id, data_id, (pm_peer_data_t*)p_peer_data, NULL);
 }
 
 
@@ -500,9 +507,11 @@ ret_code_t pdb_write_buf_get(pm_peer_id_t       peer_id,
                              uint32_t           n_bufs,
                              pm_peer_data_t   * p_peer_data)
 {
-    VERIFY_MODULE_INITIALIZED();
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+
     VERIFY_PARAM_NOT_NULL(p_peer_data);
     VERIFY_DATA_ID_WRITE_BUF(data_id);
+
     if (   (n_bufs == 0)
         || (n_bufs > N_WRITE_BUFFERS)
         || !pds_peer_id_is_allocated(peer_id))
@@ -522,7 +531,7 @@ ret_code_t pdb_write_buf_get(pm_peer_id_t       peer_id,
         // Existing buffer is too small.
         for (uint8_t i = 0; i < write_buffer_record->n_bufs; i++)
         {
-            pm_buffer_release(&m_pdb.write_buffer, write_buffer_record->buffer_block_id + i);
+            pm_buffer_release(&m_write_buffer, write_buffer_record->buffer_block_id + i);
         }
         write_buffer_record_invalidate(write_buffer_record);
         write_buffer_record = NULL;
@@ -532,7 +541,7 @@ ret_code_t pdb_write_buf_get(pm_peer_id_t       peer_id,
         // Release excess blocks.
         for (uint8_t i = n_bufs; i < write_buffer_record->n_bufs; i++)
         {
-            pm_buffer_release(&m_pdb.write_buffer, write_buffer_record->buffer_block_id + i);
+            pm_buffer_release(&m_write_buffer, write_buffer_record->buffer_block_id + i);
         }
     }
 
@@ -545,11 +554,11 @@ ret_code_t pdb_write_buf_get(pm_peer_id_t       peer_id,
         }
     }
 
-    if (write_buffer_record->buffer_block_id == BUFFER_INVALID_ID)
+    if (write_buffer_record->buffer_block_id == PM_BUFFER_INVALID_ID)
     {
-        write_buffer_record->buffer_block_id = pm_buffer_block_acquire(&m_pdb.write_buffer, n_bufs);
+        write_buffer_record->buffer_block_id = pm_buffer_block_acquire(&m_write_buffer, n_bufs);
 
-        if (write_buffer_record->buffer_block_id == BUFFER_INVALID_ID)
+        if (write_buffer_record->buffer_block_id == PM_BUFFER_INVALID_ID)
         {
             write_buffer_record_invalidate(write_buffer_record);
             return NRF_ERROR_BUSY;
@@ -560,7 +569,7 @@ ret_code_t pdb_write_buf_get(pm_peer_id_t       peer_id,
 
     write_buffer_record->n_bufs = n_bufs;
 
-    p_buffer_memory = pm_buffer_ptr_get(&m_pdb.write_buffer, write_buffer_record->buffer_block_id);
+    p_buffer_memory = pm_buffer_ptr_get(&m_write_buffer, write_buffer_record->buffer_block_id);
 
     if (p_buffer_memory == NULL)
     {
@@ -579,7 +588,7 @@ ret_code_t pdb_write_buf_get(pm_peer_id_t       peer_id,
 
 ret_code_t pdb_write_buf_release(pm_peer_id_t peer_id, pm_peer_data_id_t data_id)
 {
-    VERIFY_MODULE_INITIALIZED();
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
 
     ret_code_t            err_code = NRF_SUCCESS;
     pdb_buffer_record_t * p_write_buffer_record;
@@ -592,7 +601,7 @@ ret_code_t pdb_write_buf_release(pm_peer_id_t peer_id, pm_peer_data_id_t data_id
 
     if (p_write_buffer_record->prepare_token != PDS_PREPARE_TOKEN_INVALID)
     {
-        err_code = pds_peer_data_write_prepare_cancel(p_write_buffer_record->prepare_token);
+        err_code = pds_space_reserve_cancel(p_write_buffer_record->prepare_token);
         if (err_code != NRF_SUCCESS)
         {
             err_code = NRF_ERROR_INTERNAL;
@@ -607,7 +616,8 @@ ret_code_t pdb_write_buf_release(pm_peer_id_t peer_id, pm_peer_data_id_t data_id
 
 ret_code_t pdb_write_buf_store_prepare(pm_peer_id_t peer_id, pm_peer_data_id_t data_id)
 {
-    VERIFY_MODULE_INITIALIZED();
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+
     VERIFY_DATA_ID_WRITE_BUF(data_id);
 
     ret_code_t            err_code = NRF_SUCCESS;
@@ -621,7 +631,7 @@ ret_code_t pdb_write_buf_store_prepare(pm_peer_id_t peer_id, pm_peer_data_id_t d
 
     if (p_write_buffer_record->prepare_token == PDS_PREPARE_TOKEN_INVALID)
     {
-        uint8_t * p_buffer_memory = pm_buffer_ptr_get(&m_pdb.write_buffer, p_write_buffer_record->buffer_block_id);
+        uint8_t * p_buffer_memory = pm_buffer_ptr_get(&m_write_buffer, p_write_buffer_record->buffer_block_id);
         pm_peer_data_const_t peer_data = {.data_id = data_id};
 
         if (p_buffer_memory == NULL)
@@ -633,7 +643,7 @@ ret_code_t pdb_write_buf_store_prepare(pm_peer_id_t peer_id, pm_peer_data_id_t d
 
         write_buf_length_words_set(&peer_data);
 
-        err_code = pds_peer_data_write_prepare(&peer_data, &p_write_buffer_record->prepare_token);
+        err_code = pds_space_reserve(&peer_data, &p_write_buffer_record->prepare_token);
         if (err_code == NRF_ERROR_INVALID_LENGTH)
         {
             return NRF_ERROR_INTERNAL;
@@ -644,47 +654,11 @@ ret_code_t pdb_write_buf_store_prepare(pm_peer_id_t peer_id, pm_peer_data_id_t d
 }
 
 
-static ret_code_t write_or_update(pm_peer_id_t           peer_id,
-                                  pm_peer_data_id_t      data_id,
-                                  pm_peer_data_const_t * p_peer_data,
-                                  pm_store_token_t     * p_store_token,
-                                  pm_prepare_token_t     prepare_token)
-{
-    pm_peer_data_flash_t old_peer_data;
-    pm_store_token_t     old_store_token;
-    ret_code_t err_code = pds_peer_data_read_ptr_get(peer_id, data_id, &old_peer_data, &old_store_token);
-
-    if (err_code == NRF_SUCCESS)
-    {
-        err_code = pds_peer_data_write_prepare_cancel(prepare_token);
-        if ((err_code == NRF_SUCCESS) || (err_code == NRF_ERROR_NULL))
-        {
-            err_code = pds_peer_data_update(peer_id, p_peer_data, old_store_token, p_store_token);
-        }
-        else
-        {
-            err_code = NRF_ERROR_INTERNAL;
-        }
-    }
-    else if (err_code == NRF_ERROR_NOT_FOUND)
-    {
-        if (prepare_token == PDS_PREPARE_TOKEN_INVALID)
-        {
-            err_code = pds_peer_data_write(peer_id, p_peer_data, p_store_token);
-        }
-        else
-        {
-            err_code = pds_peer_data_write_prepared(peer_id, p_peer_data, prepare_token, p_store_token);
-        }
-    }
-    return err_code;
-}
-
-
 ret_code_t pdb_write_buf_store(pm_peer_id_t      peer_id,
                                pm_peer_data_id_t data_id)
 {
-    VERIFY_MODULE_INITIALIZED();
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+
     VERIFY_DATA_ID_WRITE_BUF(data_id);
 
     ret_code_t            err_code = NRF_SUCCESS;
@@ -705,7 +679,7 @@ ret_code_t pdb_write_buf_store(pm_peer_id_t      peer_id,
         return NRF_SUCCESS;
     }
 
-    p_buffer_memory = pm_buffer_ptr_get(&m_pdb.write_buffer, p_write_buffer_record->buffer_block_id);
+    p_buffer_memory = pm_buffer_ptr_get(&m_write_buffer, p_write_buffer_record->buffer_block_id);
 
     if (p_buffer_memory == NULL)
     {
@@ -716,11 +690,14 @@ ret_code_t pdb_write_buf_store(pm_peer_id_t      peer_id,
 
     write_buf_length_words_set(&peer_data);
 
-    err_code = write_or_update(peer_id, data_id, &peer_data, &p_write_buffer_record->store_token, p_write_buffer_record->prepare_token);
+    err_code = pds_peer_data_store(peer_id,
+                                   &peer_data,
+                                   p_write_buffer_record->prepare_token,
+                                   &p_write_buffer_record->store_token);
 
     if (p_write_buffer_record->store_busy && p_write_buffer_record->store_flash_full)
     {
-        m_pdb.n_writes--;
+        m_n_writes--;
     }
 
     if (err_code == NRF_SUCCESS)
@@ -733,18 +710,18 @@ ret_code_t pdb_write_buf_store(pm_peer_id_t      peer_id,
     {
         if (err_code == NRF_ERROR_BUSY)
         {
-            m_pdb.n_writes++;
+            m_n_writes++;
             p_write_buffer_record->store_busy       = true;
             p_write_buffer_record->store_flash_full = false;
             err_code = NRF_SUCCESS;
         }
-        else if (err_code == NRF_ERROR_NO_MEM)
+        else if (err_code == NRF_ERROR_STORAGE_FULL)
         {
-            m_pdb.n_writes++;
+            m_n_writes++;
             p_write_buffer_record->store_busy       = false;
             p_write_buffer_record->store_flash_full = true;
         }
-        else if ((err_code != NRF_ERROR_NO_MEM) && (err_code != NRF_ERROR_INVALID_PARAM))
+        else if (err_code != NRF_ERROR_INVALID_PARAM)
         {
             err_code = NRF_ERROR_INTERNAL;
         }
@@ -756,40 +733,42 @@ ret_code_t pdb_write_buf_store(pm_peer_id_t      peer_id,
 
 ret_code_t pdb_clear(pm_peer_id_t peer_id, pm_peer_data_id_t data_id)
 {
-    VERIFY_MODULE_INITIALIZED();
-
-    return pds_peer_data_clear(peer_id, data_id);
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+    return pds_peer_data_delete(peer_id, data_id);
 }
 
 
 uint32_t pdb_n_peers(void)
 {
-    if (!MODULE_INITIALIZED)
-    {
-        return 0;
-    }
-
-    return pds_n_peers();
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+    return pds_peer_count_get();
 }
 
 
 pm_peer_id_t pdb_next_peer_id_get(pm_peer_id_t prev_peer_id)
 {
-    if (!MODULE_INITIALIZED)
-    {
-        return PM_PEER_ID_INVALID;
-    }
-
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
     return pds_next_peer_id_get(prev_peer_id);
 }
 
 
-ret_code_t pdb_raw_read(pm_peer_id_t      peer_id,
-                        pm_peer_data_id_t data_id,
-                        pm_peer_data_t  * p_peer_data)
+pm_peer_id_t pdb_next_deleted_peer_id_get(pm_peer_id_t prev_peer_id)
 {
-    VERIFY_MODULE_INITIALIZED();
-    return pds_peer_data_read(peer_id, data_id, p_peer_data, &p_peer_data->length_words);
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+    return pds_next_deleted_peer_id_get(prev_peer_id);
+}
+
+
+ret_code_t pdb_peer_data_load(pm_peer_id_t              peer_id,
+                              pm_peer_data_id_t         data_id,
+                              pm_peer_data_t    * const p_peer_data)
+{
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+    NRF_PM_DEBUG_CHECK(p_peer_data != NULL);
+
+    // Provide the buffer length in bytes.
+    uint32_t const data_len_bytes = (p_peer_data->length_words * sizeof(uint32_t));
+    return pds_peer_data_read(peer_id, data_id, p_peer_data, &data_len_bytes);
 }
 
 
@@ -797,8 +776,7 @@ ret_code_t pdb_raw_store(pm_peer_id_t           peer_id,
                          pm_peer_data_const_t * p_peer_data,
                          pm_store_token_t     * p_store_token)
 {
-    VERIFY_MODULE_INITIALIZED();
-
-    return write_or_update(peer_id, p_peer_data->data_id, p_peer_data, p_store_token, PDS_PREPARE_TOKEN_INVALID);
+    NRF_PM_DEBUG_CHECK(m_module_initialized);
+    return pds_peer_data_store(peer_id, p_peer_data, PDS_PREPARE_TOKEN_INVALID, p_store_token);
 }
-
+#endif // NRF_MODULE_ENABLED(PEER_MANAGER)

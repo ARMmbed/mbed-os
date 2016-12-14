@@ -36,7 +36,6 @@
  * 
  */
 
-
 #include "sdk_mapped_flags.h"
 #include <stdint.h>
 #include <stdbool.h>

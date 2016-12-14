@@ -35,28 +35,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(BLE_DTM)
 #include "ble_dtm.h"
+#include "ble_dtm_hw.h"
 #include <stdbool.h>
 #include <string.h>
 #include "nrf.h"
 
 #define DTM_HEADER_OFFSET        0                                         /**< Index where the header of the pdu is located. */
 #define DTM_HEADER_SIZE          2                                         /**< Size of PDU header. */
-#define DTM_PAYLOAD_MAX_SIZE     37                                        /**< Maximum payload size allowed during dtm execution. */
+#define DTM_PAYLOAD_MAX_SIZE     255                                       /**< Maximum payload size allowed during dtm execution. */
 #define DTM_LENGTH_OFFSET        (DTM_HEADER_OFFSET + 1)                   /**< Index where the length of the payload is encoded. */
 #define DTM_PDU_MAX_MEMORY_SIZE  (DTM_HEADER_SIZE + DTM_PAYLOAD_MAX_SIZE)  /**< Maximum PDU size allowed during dtm execution. */
-
-/**@details The UART poll cycle in micro seconds. 
- *          Baud rate of 19200 bits / second, and 8 data bits, 1 start/stop bit, no flow control, 
- *          give the time to transmit a byte: 10 bits * 1/19200 = approx: 520 us. 
- *
- *          To ensure no loss of bytes, the UART should be polled every 260 us. 
- *
- * @note If UART bit rate is changed, this value should be recalculated as well.
- */
-#define UART_POLL_CYCLE  260
+#define DTM_ON_AIR_OVERHEAD_SIZE 10                                        /**< Size of the packet on air without the payload (preamble + sync word + type + RFU + length + CRC). */
 
 #define RX_MODE          true   /**< Constant defining RX mode for radio during dtm test. */
 #define TX_MODE          false  /**< Constant defining TX mode for radio during dtm test. */
@@ -68,11 +60,40 @@
 #define RFPHY_TEST_0X0F_REF_PATTERN  0x0f  /**<  RF-PHY test packet patterns, for the repeated octet packets. */
 #define RFPHY_TEST_0X55_REF_PATTERN  0x55  /**<  RF-PHY test packet patterns, for the repeated octet packets. */
 
-#define PRBS9_CONTENT {0xff, 0xc1, 0xfb, 0xe8, 0x4c, 0x90, 0x72, 0x8b,  \
-                       0xe7, 0xb3, 0x51, 0x89, 0x63, 0xab, 0x23, 0x23,  \
-                       0x2,  0x84, 0x18, 0x72, 0xaa, 0x61, 0x2f, 0x3b,  \
-                       0x51, 0xa8, 0xe5, 0x37, 0x49, 0xfb, 0xc9, 0xca,  \
-                       0xc,  0x18, 0x53, 0x2c, 0xfd}                         /**< The PRBS9 sequence used as packet payload. */
+#define PRBS9_CONTENT  {0xFF, 0xC1, 0xFB, 0xE8, 0x4C, 0x90, 0x72, 0x8B,   \
+                        0xE7, 0xB3, 0x51, 0x89, 0x63, 0xAB, 0x23, 0x23,   \
+                        0x02, 0x84, 0x18, 0x72, 0xAA, 0x61, 0x2F, 0x3B,   \
+                        0x51, 0xA8, 0xE5, 0x37, 0x49, 0xFB, 0xC9, 0xCA,   \
+                        0x0C, 0x18, 0x53, 0x2C, 0xFD, 0x45, 0xE3, 0x9A,   \
+                        0xE6, 0xF1, 0x5D, 0xB0, 0xB6, 0x1B, 0xB4, 0xBE,   \
+                        0x2A, 0x50, 0xEA, 0xE9, 0x0E, 0x9C, 0x4B, 0x5E,   \
+                        0x57, 0x24, 0xCC, 0xA1, 0xB7, 0x59, 0xB8, 0x87,   \
+                        0xFF, 0xE0, 0x7D, 0x74, 0x26, 0x48, 0xB9, 0xC5,   \
+                        0xF3, 0xD9, 0xA8, 0xC4, 0xB1, 0xD5, 0x91, 0x11,   \
+                        0x01, 0x42, 0x0C, 0x39, 0xD5, 0xB0, 0x97, 0x9D,   \
+                        0x28, 0xD4, 0xF2, 0x9B, 0xA4, 0xFD, 0x64, 0x65,   \
+                        0x06, 0x8C, 0x29, 0x96, 0xFE, 0xA2, 0x71, 0x4D,   \
+                        0xF3, 0xF8, 0x2E, 0x58, 0xDB, 0x0D, 0x5A, 0x5F,   \
+                        0x15, 0x28, 0xF5, 0x74, 0x07, 0xCE, 0x25, 0xAF,   \
+                        0x2B, 0x12, 0xE6, 0xD0, 0xDB, 0x2C, 0xDC, 0xC3,   \
+                        0x7F, 0xF0, 0x3E, 0x3A, 0x13, 0xA4, 0xDC, 0xE2,   \
+                        0xF9, 0x6C, 0x54, 0xE2, 0xD8, 0xEA, 0xC8, 0x88,   \
+                        0x00, 0x21, 0x86, 0x9C, 0x6A, 0xD8, 0xCB, 0x4E,   \
+                        0x14, 0x6A, 0xF9, 0x4D, 0xD2, 0x7E, 0xB2, 0x32,   \
+                        0x03, 0xC6, 0x14, 0x4B, 0x7F, 0xD1, 0xB8, 0xA6,   \
+                        0x79, 0x7C, 0x17, 0xAC, 0xED, 0x06, 0xAD, 0xAF,   \
+                        0x0A, 0x94, 0x7A, 0xBA, 0x03, 0xE7, 0x92, 0xD7,   \
+                        0x15, 0x09, 0x73, 0xE8, 0x6D, 0x16, 0xEE, 0xE1,   \
+                        0x3F, 0x78, 0x1F, 0x9D, 0x09, 0x52, 0x6E, 0xF1,   \
+                        0x7C, 0x36, 0x2A, 0x71, 0x6C, 0x75, 0x64, 0x44,   \
+                        0x80, 0x10, 0x43, 0x4E, 0x35, 0xEC, 0x65, 0x27,   \
+                        0x0A, 0xB5, 0xFC, 0x26, 0x69, 0x3F, 0x59, 0x99,   \
+                        0x01, 0x63, 0x8A, 0xA5, 0xBF, 0x68, 0x5C, 0xD3,   \
+                        0x3C, 0xBE, 0x0B, 0xD6, 0x76, 0x83, 0xD6, 0x57,   \
+                        0x05, 0x4A, 0x3D, 0xDD, 0x81, 0x73, 0xC9, 0xEB,   \
+                        0x8A, 0x84, 0x39, 0xF4, 0x36, 0x0B, 0xF7}           /**< The PRBS9 sequence used as packet payload.
+                                                                                 The bytes in the sequence is in the right order, but the bits of each byte in the array is reverse.
+                                                                                 of that found by running the PRBS9 algorithm. This is because of the endianess of the nRF5 radio. */
 
 /**@brief Structure holding the PDU used for transmitting/receiving a PDU.
  */
@@ -98,7 +119,7 @@ static uint16_t          m_rx_pkt_count;                                     /**
 static pdu_type_t        m_pdu;                                              /**< PDU to be sent. */
 static uint16_t          m_event;                                            /**< current command status - initially "ok", may be set if error detected, or to packet count. */
 static bool              m_new_event;                                        /**< Command has been processed - number of not yet reported event bytes. */
-static uint8_t           m_packet_length;                                    /**< Payload length of transmitted PDU, bits 2:7 of 16-bit dtm command. */
+static uint32_t          m_packet_length;                                    /**< Payload length of transmitted PDU, bits 2:7 of 16-bit dtm command. */
 static dtm_pkt_type_t    m_packet_type;                                      /**< Bits 0..1 of 16-bit transmit command, or 0xFFFFFFFF. */
 static dtm_freq_t        m_phys_ch;                                          /**< 0..39 physical channel number (base 2402 MHz, Interval 2 MHz), bits 8:13 of 16-bit dtm command. */
 static uint32_t          m_current_time = 0;                                 /**< Counter for interrupts from timer to ensure that the 2 bytes forming a DTM command are received within the time window. */
@@ -122,8 +143,8 @@ static uint8_t           m_crcLength         = RADIO_CRCCNF_LEN_Three;       /**
 static uint32_t          m_address           = 0x71764129;                   /**< Address. */
 static uint32_t          m_crc_poly          = 0x0000065B;                   /**< CRC polynomial. */
 static uint32_t          m_crc_init          = 0x00555555;                   /**< Initial value for CRC calculation. */
-static uint8_t           m_radio_mode        = RADIO_MODE_MODE_Ble_1Mbit;    /**< nRF51 specific radio mode vale. */
-static uint32_t          m_txIntervaluS      = 625;                          /**< Time between start of Tx packets (in uS). */
+static uint8_t           m_radio_mode        = RADIO_MODE_MODE_Ble_1Mbit;    /**< nRF51 specific radio mode value. */
+static uint32_t          m_txIntervaluS      = 2500;                          /**< Time between start of Tx packets (in uS). */
 
 
 /**@brief Function for verifying that a received PDU has the expected structure and content.
@@ -133,7 +154,7 @@ static bool check_pdu(void)
     uint8_t        k;                // Byte pointer for running through PDU payload
     uint8_t        pattern;          // Repeating octet value in payload
     dtm_pkt_type_t pdu_packet_type;  // Note: PDU packet type is a 4-bit field in HCI, but 2 bits in BLE DTM
-    uint8_t        length;
+    uint32_t       length = 0;
 
     pdu_packet_type = (dtm_pkt_type_t)(m_pdu.content[DTM_HEADER_OFFSET] & 0x0F);
     length          = m_pdu.content[DTM_LENGTH_OFFSET];
@@ -146,7 +167,7 @@ static bool check_pdu(void)
     if (pdu_packet_type == DTM_PKT_PRBS9)
     {
         // Payload does not consist of one repeated octet; must compare ir with entire block into
-        return (memcmp(m_pdu.content+DTM_HEADER_SIZE, m_prbs_content, length) == 0);
+        return (memcmp(m_pdu.content + DTM_HEADER_SIZE, m_prbs_content, length) == 0);
     }
 
     if (pdu_packet_type == DTM_PKT_0X0F)
@@ -160,7 +181,7 @@ static bool check_pdu(void)
 
     for (k = 0; k < length; k++)
     {
-        // Check repeated pattern filling the PDU payload 
+        // Check repeated pattern filling the PDU payload
         if (m_pdu.content[k + 2] != pattern)
         {
             return false;
@@ -198,28 +219,7 @@ static void radio_reset(void)
  */
 static uint32_t radio_init(void)
 {
-#ifdef NRF51
-    // Handle BLE Radio tuning parameters from production for DTM if required.
-    // Only needed for DTM without SoftDevice, as the SoftDevice normally handles this.
-    // PCN-083.
-    if ( ((NRF_FICR->OVERRIDEEN) & FICR_OVERRIDEEN_BLE_1MBIT_Msk) == FICR_OVERRIDEEN_BLE_1MBIT_Override)
-    {
-        NRF_RADIO->OVERRIDE0 = NRF_FICR->BLE_1MBIT[0];
-        NRF_RADIO->OVERRIDE1 = NRF_FICR->BLE_1MBIT[1];
-        NRF_RADIO->OVERRIDE2 = NRF_FICR->BLE_1MBIT[2];
-        NRF_RADIO->OVERRIDE3 = NRF_FICR->BLE_1MBIT[3];
-        NRF_RADIO->OVERRIDE4 = NRF_FICR->BLE_1MBIT[4];
-    }
-#endif // NRF51
-
-    // Initializing code below is quite generic - for BLE, the values are fixed, and expressions
-    // are constant. Non-constant values are essentially set in radio_prepare().
-    if (((m_tx_power & 0x03) != 0)           ||      // tx_power should be a multiple of 4
-         ((m_tx_power & 0xffffff00) != 0)    ||      // Upper 24 bits are required to be zeroed
-         ((int8_t)m_tx_power > 4)            ||      // Max tx_power is +4 dBm
-         ((int8_t)(m_tx_power & 0xff) < -40) ||      // Min tx_power is -40 dBm
-         (m_radio_mode > RADIO_MODE_MODE_Ble_1Mbit)  // Values 0-2: Proprietary mode, 3 (last valid): BLE
-       )
+    if(dtm_radio_validate(m_tx_power, m_radio_mode) != DTM_SUCCESS)
     {
         return DTM_ERROR_ILLEGAL_CONFIGURATION;
     }
@@ -262,12 +262,7 @@ static uint32_t radio_init(void)
  */
 static void radio_prepare(bool rx)
 {
-#ifdef NRF51
-    NRF_RADIO->TEST         = 0;
-#elif defined(NRF52)
-    NRF_RADIO->MODECNF0     = (RADIO_MODECNF0_RU_Default << RADIO_MODECNF0_RU_Pos) |
-                              (RADIO_MODECNF0_DTX_B1 << RADIO_MODECNF0_DTX_Pos);
-#endif // NRF51 / NRF52
+    dtm_turn_off_test();
     NRF_RADIO->CRCPOLY      = m_crc_poly;
     NRF_RADIO->CRCINIT      = m_crc_init;
     NRF_RADIO->FREQUENCY    = (m_phys_ch << 1) + 2;                  // Actual frequency (MHz): 2400 + register value
@@ -292,12 +287,7 @@ static void radio_prepare(bool rx)
  */
 static void dtm_test_done(void)
 {
-#ifdef NRF51
-    NRF_RADIO->TEST = 0;
-#elif defined(NRF52)
-    NRF_RADIO->MODECNF0 = (RADIO_MODECNF0_RU_Default << RADIO_MODECNF0_RU_Pos) |
-                          (RADIO_MODECNF0_DTX_B1 << RADIO_MODECNF0_DTX_Pos);
-#endif // NRF51 / NRF52
+    dtm_turn_off_test();
     NRF_PPI->CHENCLR = 0x01;
     NRF_PPI->CH[0].EEP = 0;     // Break connection from timer to radio to stop transmit loop
     NRF_PPI->CH[0].TEP = 0;
@@ -334,7 +324,7 @@ static uint32_t timer_init(void)
     mp_timer->SHORTS      = 1 << TIMER_SHORTS_COMPARE0_CLEAR_Pos;  // Clear the count every time timer reaches the CCREG0 count
     mp_timer->PRESCALER   = 4;                                     // Input clock is 16MHz, timer clock = 2 ^ prescale -> interval 1us
     mp_timer->CC[0]       = m_txIntervaluS;                        // 625uS with 1MHz clock to the timer
-    mp_timer->CC[1]       = UART_POLL_CYCLE;                       // 260uS with 1MHz clock to the timer
+    mp_timer->CC[1]       = UART_POLL_CYCLE;                       // Depends on the baud rate of the UART. Default baud rate of 19200 will result in a 260uS time with 1MHz clock to the timer
     mp_timer->TASKS_START = 1;                                     // Start the timer - it will be running continuously
     m_current_time        = 0;
     return DTM_SUCCESS;
@@ -362,13 +352,8 @@ static uint32_t dtm_vendor_specific_pkt(uint32_t vendor_cmd, dtm_freq_t vendor_o
             // Not a packet type, but used to indicate that a continuous carrier signal
             // should be transmitted by the radio.
             radio_prepare(TX_MODE);
-#ifdef NRF51
-            NRF_RADIO->TEST = (RADIO_TEST_PLL_LOCK_Enabled << RADIO_TEST_PLL_LOCK_Pos) |
-                              (RADIO_TEST_CONST_CARRIER_Enabled << RADIO_TEST_CONST_CARRIER_Pos);
-#elif defined(NRF52)
-            NRF_RADIO->MODECNF0 = (RADIO_MODECNF0_RU_Default << RADIO_MODECNF0_RU_Pos) |
-                                  (RADIO_MODECNF0_DTX_B1 << RADIO_MODECNF0_DTX_Pos);
-#endif // NRF51 / NRF52
+
+            dtm_constant_carrier();
 
             // Shortcut between READY event and START task
             NRF_RADIO->SHORTS = 1 << RADIO_SHORTS_READY_START_Pos;
@@ -403,8 +388,9 @@ uint32_t dtm_init(void)
     {
         return DTM_ERROR_ILLEGAL_CONFIGURATION;
     }
-    m_new_event = false;
-    m_state     = STATE_IDLE;
+    m_new_event     = false;
+    m_state         = STATE_IDLE;
+    m_packet_length = 0;
 
     // Enable wake-up on event
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
@@ -420,7 +406,7 @@ uint32_t dtm_wait(void)
 
     for (;;)
     {
-        // Event may be the reception of a packet - 
+        // Event may be the reception of a packet -
         // handle radio first, to give it highest priority:
         if (NRF_RADIO->EVENTS_END != 0)
         {
@@ -465,19 +451,19 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
 {
     // Save specified packet in static variable for tx/rx functions to use.
     // Note that BLE conformance testers always use full length packets.
-    m_packet_length = ((uint8_t)length & 0xFF);
+    m_packet_length = (m_packet_length & 0xC0) | ((uint8_t)length & 0x3F);
     m_packet_type   = payload;
     m_phys_ch       = freq;
 
     // Clean out any non-retrieved event that might linger from an earlier test
     m_new_event     = true;
- 
+
     // Set default event; any error will set it to LE_TEST_STATUS_EVENT_ERROR
     m_event         = LE_TEST_STATUS_EVENT_SUCCESS;
-    
+
     if (m_state == STATE_UNINITIALIZED)
     {
-        // Application has not explicitly initialized DTM, 
+        // Application has not explicitly initialized DTM,
         return DTM_ERROR_UNINITIALIZED;
     }
 
@@ -485,6 +471,14 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
     {
         // Note that timer will continue running after a reset
         dtm_test_done();
+        if (freq == 0x01)
+        {
+            m_packet_length = length << 6;
+        }
+        else
+        {
+            m_packet_length = 0;
+        }
         return DTM_SUCCESS;
     }
 
@@ -505,15 +499,16 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
     {
         // Sequencing error - only TEST_END/RESET are legal while test is running
         // Note: State is unchanged; ongoing test not affected
-        m_event = LE_TEST_STATUS_EVENT_ERROR;               
-        return DTM_ERROR_INVALID_STATE;   
+        m_event = LE_TEST_STATUS_EVENT_ERROR;
+        return DTM_ERROR_INVALID_STATE;
     }
 
-    if (m_phys_ch > PHYS_CH_MAX)
+    // Check for illegal values of m_phys_ch. Skip the check if the packet is vendor spesific.
+    if (payload != DTM_PKT_VENDORSPECIFIC && m_phys_ch > PHYS_CH_MAX)
     {
         // Parameter error
         // Note: State is unchanged; ongoing test not affected
-        m_event = LE_TEST_STATUS_EVENT_ERROR;               
+        m_event = LE_TEST_STATUS_EVENT_ERROR;
         return DTM_ERROR_ILLEGAL_CHANNEL;
     }
 
@@ -530,7 +525,8 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
 
     if (cmd == LE_TRANSMITTER_TEST)
     {
-        if (m_packet_length > DTM_PAYLOAD_MAX_SIZE)
+        // Check for illegal values of m_packet_length. Skip the check if the packet is vendor spesific.
+        if (payload != DTM_PKT_VENDORSPECIFIC && m_packet_length > DTM_PAYLOAD_MAX_SIZE)
         {
             // Parameter error
             m_event = LE_TEST_STATUS_EVENT_ERROR;
@@ -538,39 +534,58 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
         }
 
         // Note that PDU uses 4 bits even though BLE DTM uses only 2 (the HCI SDU uses all 4)
-        m_pdu.content[DTM_HEADER_OFFSET] = ((uint8_t)m_packet_type & 0x0F); 
+        m_pdu.content[DTM_HEADER_OFFSET] = ((uint8_t)m_packet_type & 0x0F);
         m_pdu.content[DTM_LENGTH_OFFSET] = m_packet_length;
-        
+
         switch (m_packet_type)
         {
             case DTM_PKT_PRBS9:
                 // Non-repeated, must copy entire pattern to PDU
-                memcpy(m_pdu.content + DTM_HEADER_SIZE, m_prbs_content, length);
+                memcpy(m_pdu.content + DTM_HEADER_SIZE, m_prbs_content, m_packet_length);
                 break;
-                
+
             case DTM_PKT_0X0F:
                 // Bit pattern 00001111 repeated
-                memset(m_pdu.content + DTM_HEADER_SIZE, RFPHY_TEST_0X0F_REF_PATTERN, length);
+                memset(m_pdu.content + DTM_HEADER_SIZE, RFPHY_TEST_0X0F_REF_PATTERN, m_packet_length);
                 break;
-                
+
             case DTM_PKT_0X55:
                 // Bit pattern 01010101 repeated
-                memset(m_pdu.content + DTM_HEADER_SIZE, RFPHY_TEST_0X55_REF_PATTERN, length);
+                memset(m_pdu.content + DTM_HEADER_SIZE, RFPHY_TEST_0X55_REF_PATTERN, m_packet_length);
                 break;
-                
+
             case DTM_PKT_VENDORSPECIFIC:
                 // The length field is for indicating the vendor specific command to execute.
                 // The frequency field is used for vendor specific options to the command.
                 return dtm_vendor_specific_pkt(length, freq);
-                
+
             default:
-                // Parameter error 
-                m_event = LE_TEST_STATUS_EVENT_ERROR;         
+                // Parameter error
+                m_event = LE_TEST_STATUS_EVENT_ERROR;
                 return DTM_ERROR_ILLEGAL_CONFIGURATION;
         }
 
         // Initialize CRC value, set channel:
         radio_prepare(TX_MODE);
+        // Set the timer to the correct period. The delay between each packet is described in the
+        // Bluetooth Core Spsification version 4.2 Vol. 6 Part F Section 4.1.6.
+        if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE ) * 8  <= 376)
+        {
+            mp_timer->CC[0]       = 625;                        // 625uS with 1MHz clock to the timer
+        }
+        else if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE ) * 8  <= 1000)
+        {
+            mp_timer->CC[0]       = 1250;                        // 625uS with 1MHz clock to the timer
+        }
+        else if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE ) * 8  <= 1624)
+        {
+            mp_timer->CC[0]       = 1875;                        // 625uS with 1MHz clock to the timer
+        }
+        else
+        {
+            mp_timer->CC[0]       = 2500;                        // 625uS with 1MHz clock to the timer
+        }
+
         // Configure PPI so that timer will activate radio every 625 us
         NRF_PPI->CH[0].EEP = (uint32_t)&mp_timer->EVENTS_COMPARE[0];
         NRF_PPI->CH[0].TEP = (uint32_t)&NRF_RADIO->TASKS_TXEN;
@@ -605,25 +620,21 @@ bool dtm_set_txpower(uint32_t new_tx_power)
 {
     // radio->TXPOWER register is 32 bits, low octet a signed value, upper 24 bits zeroed
     int8_t new_power8 = (int8_t)(new_tx_power & 0xFF);
-    
+
+    // The two most significant bits are not sent in the 6 bit field of the DTM command.
+    // These two bits are 1's if and only if the tx_power is a negative number.
+    // All valid negative values have the fourth most significant bit as 1.
+    // All valid positive values have the fourth most significant bit as 0.
+    // By checking this bit, the two most significant bits can be determined.
+    new_power8 = (new_power8 & 0x30) != 0 ? (new_power8 | 0xC0) : new_power8;
+
     if (m_state > STATE_IDLE)
     {
         // radio must be idle to change the tx power
         return false;
     }
 
-    if ((new_power8 > 4) || (new_power8 < -40))
-    {
-        // Parameter outside valid range: nRF radio is restricted to the range -40 dBm to +4 dBm
-        return false;
-    }
-
-    if (new_tx_power & 0x03) 
-    {
-        // Parameter error: The nRF51 radio requires settings that are a multiple of 4.
-        return false;
-    }
-    m_tx_power = new_tx_power;
+    m_tx_power = new_power8;
 
     return true;
 }
@@ -643,28 +654,8 @@ bool dtm_set_timer(uint32_t new_timer)
     {
         return false;
     }
-    if (new_timer == 0)
-    {
-        mp_timer    = NRF_TIMER0;
-        m_timer_irq = TIMER0_IRQn;
-    }
-    else if (new_timer == 1)
-    {
-        mp_timer    = NRF_TIMER1;
-        m_timer_irq = TIMER1_IRQn;
-    }
-    else if (new_timer == 2)
-    {
-        mp_timer    = NRF_TIMER2;
-        m_timer_irq = TIMER2_IRQn;
-    }
-    else
-    {
-        // Parameter error: Only TIMER 0, 1, 2 provided by nRF51   
-        return false;
-    }
-    // New timer has been selected:
-    return true;
+    return dtm_hw_set_timer(&mp_timer, &m_timer_irq, new_timer);
 }
 
-/// @} 
+/// @}
+#endif // NRF_MODULE_ENABLED(BLE_DTM)

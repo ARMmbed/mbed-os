@@ -37,15 +37,18 @@
  */
 
 
-
 #ifndef PEER_ID_H__
 #define PEER_ID_H__
 
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "nrf_ble_gap.h"
+#include "ble_gap.h"
 #include "peer_manager_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -155,5 +158,10 @@ uint32_t peer_id_n_ids(void);
 /** @}
  * @endcond
  */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PEER_ID_H__ */

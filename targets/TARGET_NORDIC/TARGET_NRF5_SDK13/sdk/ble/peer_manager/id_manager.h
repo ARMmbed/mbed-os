@@ -37,15 +37,18 @@
  */
 
 
-
 #ifndef PEER_ID_MANAGER_H__
 #define PEER_ID_MANAGER_H__
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "nrf_ble.h"
-#include "nrf_ble_gap.h"
+#include "ble.h"
+#include "ble_gap.h"
 #include "peer_manager_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -88,17 +91,13 @@ typedef struct
  */
 typedef void (*im_evt_handler_t)(im_evt_t const * p_event);
 
-/**@brief Function for registering for events from the ID Manager module.
+
+/**@brief Function for initializing the Identity manager.
  *
- * @note This will also initialize the module if needed.
- *
- * @param[in]  evt_handler  Callback for events from the ID Manager module.
- *
- * @retval NRF_SUCCESS       Registration was successful.
- * @retval NRF_ERROR_NO_MEM  No more registrations possible.
- * @retval NRF_ERROR_NULL    evt_handler was NULL.
+ * @retval NRF_SUCCESS          If initialization was successful.
+ * @retval NRF_ERROR_INTERNAL   If an error occurred.
  */
-ret_code_t im_register(im_evt_handler_t evt_handler);
+ret_code_t im_init(void);
 
 
 /**@brief Function for dispatching SoftDevice events to the ID Manager module.
@@ -124,16 +123,6 @@ pm_peer_id_t im_peer_id_get_by_conn_handle(uint16_t conn_handle);
  * @return The corresponding peer ID, or @ref PM_PEER_ID_INVALID if none could be resolved.
  */
 pm_peer_id_t im_peer_id_get_by_master_id(ble_gap_master_id_t * p_master_id);
-
-
-/**@brief Function for getting the corresponding peer ID from an IRK match index, see @ref
- *        ble_gap_evt_connected_t.
- *
- * @param[in]  irk_match_idx  The IRK match index.
- *
- * @return The corresponding peer ID, or @ref PM_PEER_ID_INVALID if none could be resolved.
- */
-pm_peer_id_t im_peer_id_get_by_irk_match_idx(uint8_t irk_match_idx);
 
 
 /**@brief Function for getting the corresponding connection handle from a peer ID.
@@ -182,6 +171,10 @@ ret_code_t im_ble_addr_get(uint16_t conn_handle, ble_gap_addr_t * p_ble_addr);
 bool im_master_id_is_valid(ble_gap_master_id_t const * p_master_id);
 
 
+bool im_is_duplicate_bonding_data(pm_peer_data_bonding_t const * p_bonding_data1,
+                                  pm_peer_data_bonding_t const * p_bonding_data2);
+
+
 /**@brief Function for reporting that a new peer ID has been allocated for a specified connection.
  *
  * @param[in]  conn_handle  The connection.
@@ -200,53 +193,78 @@ void im_new_peer_id(uint16_t conn_handle, pm_peer_id_t peer_id);
 ret_code_t im_peer_free(pm_peer_id_t peer_id);
 
 
-/**@brief Function for informing this module of what whitelist will be used.
+/**@brief Function to set the local Bluetooth identity address.
  *
- * @details This function is meant to be used when the app wants to use a custom whitelist.
- *          When using peer manager, this function must be used if a custom whitelist is used.
- *          Only whitelisted IRKs are of any importance for this function.
+ * @details The local Bluetooth identity address is the address that identifies this device to other
+ *          peers. The address type must be either @ref BLE_GAP_ADDR_TYPE_PUBLIC or @ref
+ *          BLE_GAP_ADDR_TYPE_RANDOM_STATIC. The identity address cannot be changed while roles are
+ *          running.
  *
- * @note When using a whitelist, always use the whitelist created/set by the most recent
- *       call to @ref im_whitelist_create or to this function, whichever happened most recently.
- * @note Do not call this function while scanning with another whitelist.
- * @note Do not add any irks to the whitelist that are not present in the bonding data of a peer in
- *       the peer database.
- * @note The whitelist is not altered in any way by calling this function. Only the internal state
- *       of the module is changed.
+ * @note This address will be distributed to the peer during bonding.
+ *       If the address changes, the address stored in the peer device will not be valid and the
+ *       ability to reconnect using the old address will be lost.
  *
- * @param[in] p_whitelist  The whitelist.
+ * @note By default the SoftDevice will set an address of type @ref BLE_GAP_ADDR_TYPE_RANDOM_STATIC
+ *       upon being enabled. The address is a random number populated during the IC manufacturing
+ *       process and remains unchanged for the lifetime of each IC.
  *
- * @retval NRF_SUCCESS         Whitelist successfully set.
- * @retval NRF_ERROR_NULL      p_whitelist was NULL.
- * @retval NRF_ERROR_NOT_FOUND One or more of the whitelists irks was not found in the peer_database.
+ * @param[in] p_addr Pointer to address structure.
+ *
+ * @retval NRF_SUCCESS                     Address successfully set.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR  If the GAP address is invalid.
+ * @retval NRF_ERROR_BUSY                  Could not process at this time. Process SoftDevice events
+ *                                         and retry.
+ * @retval NRF_ERROR_INVALID_STATE         The identity address cannot be changed while advertising,
+ *                                         scanning, or while in a connection.
+ * @retval NRF_ERROR_INTERNAL              If an internal error occurred.
  */
-ret_code_t im_whitelist_custom(ble_gap_whitelist_t const * p_whitelist);
+ret_code_t im_id_addr_set(ble_gap_addr_t const * p_addr);
 
 
-/**
- * @brief Function for constructing a whitelist for use when advertising.
+/**@brief Function to get the local Bluetooth identity address.
  *
- * @note When advertising with whitelist, always use the whitelist created/set by the most recent
- *       call to this function or to @ref im_whitelist_custom, whichever happened most recently.
- * @note Do not call this function while advertising with another whitelist.
+ * @note This will always return the identity address irrespective of the privacy settings,
+ *       i.e. the address type will always be either @ref BLE_GAP_ADDR_TYPE_PUBLIC or @ref
+ *       BLE_GAP_ADDR_TYPE_RANDOM_STATIC.
  *
- * @param[in]     p_peer_ids   The ids of the peers to be added to the whitelist.
- * @param[in]     n_peer_ids   The number of peer ids in p_peer_ids.
- * @param[in,out] p_whitelist  The constructed whitelist. Note that p_adv_whitelist->pp_addrs
- *                             must be NULL or point to an array with size @ref
- *                             BLE_GAP_WHITELIST_ADDR_MAX_COUNT and p_adv_whitelist->pp_irks
- *                             must be NULL or point to an array with size @ref
- *                             BLE_GAP_WHITELIST_IRK_MAX_COUNT.
+ * @param[out] p_addr Pointer to address structure to be filled in.
  *
- * @retval NRF_SUCCESS     Whitelist successfully created.
- * @retval NRF_ERROR_NULL  p_whitelist was NULL.
+ * @retval NRF_SUCCESS  If the address was successfully retrieved.
  */
-ret_code_t im_whitelist_create(pm_peer_id_t        * p_peer_ids,
-                               uint8_t               n_peer_ids,
-                               ble_gap_whitelist_t * p_whitelist);
+ret_code_t im_id_addr_get(ble_gap_addr_t * p_addr);
 
-/**
- * @brief Function for resolving a resolvable address with an identity resolution key (IRK).
+
+/**@brief Function to set privacy settings.
+ *
+ * @details Privacy settings cannot be set while advertising, scanning, or while in a connection.
+ *
+ * @param[in] p_privacy_params Privacy settings.
+ *
+ * @retval NRF_SUCCESS              If privacy options were set successfully.
+ * @retval NRF_ERROR_NULL           If @p p_privacy_params is NULL.
+ * @retval NRF_ERROR_INVALID_PARAM  If the address type is not valid.
+ * @retval NRF_ERROR_BUSY           If the request could not be processed at this time.
+ *                                  Process SoftDevice events and retry.
+ * @retval NRF_ERROR_INVALID_STATE  Privacy settings cannot be changed while BLE roles using
+ *                                  privacy are enabled.
+ */
+ret_code_t im_privacy_set(pm_privacy_params_t const * p_privacy_params);
+
+
+/**@brief Function to retrieve the current privacy settings.
+ *
+ * @details The privacy settings returned include the current device irk as well.
+ *
+ * @param[in] p_privacy_params Privacy settings.
+ *
+ * @retval NRF_SUCCESS            Successfully retrieved privacy settings.
+ * @retval NRF_ERROR_NULL         @c p_privacy_params is NULL.
+ * @retval NRF_ERROR_INTERNAL     If an internal error occurred.
+ */
+ret_code_t im_privacy_get(pm_privacy_params_t * p_privacy_params);
+
+
+/**@brief Function for resolving a resolvable address with an identity resolution key (IRK).
  *
  * @details This function will use the ECB peripheral to resolve a resolvable address.
  *          This can be used to resolve the identity of a device distributing a random
@@ -262,40 +280,60 @@ ret_code_t im_whitelist_create(pm_peer_id_t        * p_peer_ids,
  */
 bool im_address_resolve(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk);
 
-/**@brief Function for calculating the ah() hash function described in Bluetooth core specification
- *        4.2 section 3.H.2.2.2.
+
+/**@brief Function for setting / clearing the whitelist.
  *
- * @detail  BLE uses a hash function to calculate the first half of a resolvable address
- *          from the second half of the address and an irk. This function will use the ECB
- *          periferal to hash these data acording to the Bluetooth core specification.
+ * @param p_peers   The peers to whitelist. Pass NULL to clear the whitelist.
+ * @param peer_cnt  The number of peers to whitelist. Pass zero to clear the whitelist.
  *
- * @note The ECB expect little endian input and output.
- *       This function expect big endian and will reverse the data as necessary.
- *
- * @param[in]  p_k          The key used in the hash function.
- *                          For address resolution this is should be the irk.
- *                          The array must have a length of 16.
- * @param[in]  p_r          The rand used in the hash function. For generating a new address
- *                          this would be a random number. For resolving a resolvable address
- *                          this would be the last half of the address being resolved.
- *                          The array must have a length of 3.
- * @param[out] p_local_hash The result of the hash operation. For address resolution this
- *                          will match the first half of the address being resolved if and only
- *                          if the irk used in the hash function is the same one used to generate
- *                          the address.
- *                          The array must have a length of 16.
- *
- * @note    ====IMPORTANT====
- *          This is a special modification to the original nRF5x SDK required by the mbed BLE API
- *          to be able to generate BLE private resolvable addresses. This function is used by
- *          the BLE API implementation for nRF5xSecurityManager::getAddressFromBondTable() in the
- *          ble-nrf52832 yotta module.
- *          =================
+ * @retval NRF_SUCCESS                      If the whitelist was successfully set or cleared.
+ * @retval BLE_GAP_ERROR_WHITELIST_IN_USE   If a whitelist is in use.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR   If any peer has an address which can not be used
+ *                                          for whitelisting.
+ * @retval NRF_ERROR_NOT_FOUND              If any peer or its data could not be found.
+ * @retval NRF_ERROR_DATA_SIZE              If @p peer_cnt is greater than
+ *                                          @ref BLE_GAP_WHITELIST_ADDR_MAX_COUNT.
  */
-void ah(uint8_t const * p_k, uint8_t const * p_r, uint8_t * p_local_hash);  
+ret_code_t im_whitelist_set(pm_peer_id_t const * p_peers,
+                            uint32_t     const   peer_cnt);
+
+
+/**@brief Retrieves the current whitelist, set by a previous call to @ref im_whitelist_set.
+ *
+ * @param[out]   A buffer where to copy the GAP addresses.
+ * @param[inout] In: the size of the @p p_addrs buffer.
+ *               Out: the number of address copied into the buffer.
+ * @param[out]   A buffer where to copy the IRKs.
+ * @param[inout] In: the size of the @p p_irks buffer.
+ *               Out: the number of IRKs copied into the buffer.
+ *
+ * @retval NRF_SUCCESS                      If the whitelist was successfully retreived.
+ * @retval BLE_ERROR_GAP_INVALID_BLE_ADDR   If any peer has an address which can not be used for
+ *                                          whitelisting.
+ * @retval NRF_ERROR_NOT_FOUND              If the data for any of the cached whitelisted peers
+ *                                          can not be found anymore. It might have been deleted in
+ *                                          the meanwhile.
+ * @retval NRF_ERROR_NO_MEM                 If the provided buffers are too small.
+ */
+ret_code_t im_whitelist_get(ble_gap_addr_t * p_addrs,
+                            uint32_t       * p_addr_cnt,
+                            ble_gap_irk_t  * p_irks,
+                            uint32_t       * p_irk_cnt);
+
+
+/**@brief Set the device identities list.
+ */
+ret_code_t im_device_identities_list_set(pm_peer_id_t const * p_peers,
+                                         uint32_t             peer_cnt);
+
 
 /** @}
  * @endcond
  */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PEER_ID_MANAGER_H__ */

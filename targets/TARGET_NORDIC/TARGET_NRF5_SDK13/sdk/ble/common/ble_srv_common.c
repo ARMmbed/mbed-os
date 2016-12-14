@@ -36,9 +36,8 @@
  * 
  */
 
-
 /* Attention!
-*  To maintain compliance with Nordic Semiconductor ASAï¿½s Bluetooth profile
+*  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile
 *  qualification listings, this section of source code must not be modified.
 */
 
@@ -46,7 +45,19 @@
 #include <string.h>
 #include "nordic_common.h"
 #include "app_error.h"
-#include "nrf_ble.h"
+#include "ble.h"
+
+bool ble_srv_is_notification_enabled(uint8_t const * p_encoded_data)
+{
+    uint16_t cccd_value = uint16_decode(p_encoded_data);
+    return ((cccd_value & BLE_GATT_HVX_NOTIFICATION) != 0);
+}
+
+bool ble_srv_is_indication_enabled(uint8_t const * p_encoded_data)
+{
+    uint16_t cccd_value = uint16_decode(p_encoded_data);
+    return ((cccd_value & BLE_GATT_HVX_INDICATION) != 0);
+}
 
 uint8_t ble_srv_report_ref_encode(uint8_t                    * p_encoded_buffer,
                                   const ble_srv_report_ref_t * p_report_ref)
@@ -147,7 +158,8 @@ uint32_t characteristic_add(uint16_t                   service_handle,
 
         char_md.p_cccd_md  = &cccd_md;
     }
-    char_md.char_props = p_char_props->char_props;
+    char_md.char_props     = p_char_props->char_props;
+    char_md.char_ext_props = p_char_props->char_ext_props;
 
     memset(&attr_char_value, 0, sizeof(ble_gatts_attr_t));
     attr_char_value.p_uuid    = &char_uuid;

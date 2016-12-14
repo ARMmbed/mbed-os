@@ -35,8 +35,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(PPI)
 #include <stdlib.h>
 
 #include "nrf.h"
@@ -44,7 +44,18 @@
 #include "nrf_drv_common.h"
 #include "nrf_ppi.h"
 #include "app_util_platform.h"
-#include "sdk_common.h"
+
+#define NRF_LOG_MODULE_NAME "PPI"
+
+#if PPI_CONFIG_LOG_ENABLED
+#define NRF_LOG_LEVEL       PPI_CONFIG_LOG_LEVEL
+#define NRF_LOG_INFO_COLOR  PPI_CONFIG_INFO_COLOR
+#define NRF_LOG_DEBUG_COLOR PPI_CONFIG_DEBUG_COLOR
+#else //PPI_CONFIG_LOG_ENABLED
+#define NRF_LOG_LEVEL       0
+#endif //PPI_CONFIG_LOG_ENABLED
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
 
 
 static nrf_drv_state_t     m_drv_state;            /**< Driver state */
@@ -193,23 +204,28 @@ uint32_t nrf_drv_ppi_init(void)
     }
     else
     {
-        err_code = MODULE_ALREADY_INITIALIZED;
+
+        err_code = NRF_ERROR_MODULE_ALREADY_INITIALIZED;
     }
 
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
     return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_uninit(void)
 {
+    ret_code_t err_code = NRF_SUCCESS;
     uint32_t mask = NRF_PPI_ALL_APP_GROUPS_MASK;
     nrf_ppi_channel_group_t group;
 
     if (m_drv_state == NRF_DRV_STATE_UNINITIALIZED)
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
-    
+
     m_drv_state = NRF_DRV_STATE_UNINITIALIZED;
 
     // Disable all channels and groups
@@ -217,20 +233,21 @@ uint32_t nrf_drv_ppi_uninit(void)
 
     for (group = NRF_PPI_CHANNEL_GROUP0; mask != 0; mask &= ~group_to_mask(group), group++)
     {
-        if(mask & group_to_mask(group))
+        if (mask & group_to_mask(group))
         {
             nrf_ppi_channel_group_clear(group);
         }
     }
     channel_allocated_clr_all();
     group_allocated_clr_all();
-    return NRF_SUCCESS;
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_channel_alloc(nrf_ppi_channel_t * p_channel)
 {
-    uint32_t err_code;
+    uint32_t err_code = NRF_SUCCESS;
     nrf_ppi_channel_t channel;
     uint32_t mask = 0;
 
@@ -249,26 +266,34 @@ uint32_t nrf_drv_ppi_channel_alloc(nrf_ppi_channel_t * p_channel)
         CRITICAL_REGION_EXIT();
         if (err_code == NRF_SUCCESS)
         {
+            NRF_LOG_INFO("Allocated channel: %d.\r\n", channel);
             break;
         }
     }
 
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
     return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_channel_free(nrf_ppi_channel_t channel)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_programmable_app_channel(channel))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    // First disable this channel
-    nrf_ppi_channel_disable(channel);
-    CRITICAL_REGION_ENTER();
-    channel_allocated_clr(channel);
-    CRITICAL_REGION_EXIT();
-    return NRF_SUCCESS;
+    else
+    {
+        // First disable this channel
+        nrf_ppi_channel_disable(channel);
+        CRITICAL_REGION_ENTER();
+        channel_allocated_clr(channel);
+        CRITICAL_REGION_EXIT();
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 
@@ -277,64 +302,91 @@ uint32_t nrf_drv_ppi_channel_assign(nrf_ppi_channel_t channel, uint32_t eep, uin
     VERIFY_PARAM_NOT_NULL((uint32_t *)eep);
     VERIFY_PARAM_NOT_NULL((uint32_t *)tep);
 
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_programmable_app_channel(channel))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (!is_allocated_channel(channel))
+    else if (!is_allocated_channel(channel))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    
-    nrf_ppi_channel_endpoint_setup(channel, eep, tep);
-    return NRF_SUCCESS;
+    else
+    {
+        nrf_ppi_channel_endpoint_setup(channel, eep, tep);
+        NRF_LOG_INFO("Assigned channel: %d, event end point: %x, task end point: %x.\r\n", channel, eep, tep);
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 uint32_t nrf_drv_ppi_channel_fork_assign(nrf_ppi_channel_t channel, uint32_t fork_tep)
 {
-#ifdef NRF51
-    return NRF_ERROR_NOT_SUPPORTED;
-#else
+    ret_code_t err_code = NRF_SUCCESS;
+#ifdef PPI_FEATURE_FORKS_PRESENT
     if (!is_programmable_app_channel(channel))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (!is_allocated_channel(channel))
+    else if (!is_allocated_channel(channel))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    nrf_ppi_fork_endpoint_setup(channel, fork_tep);
-    return NRF_SUCCESS;
+    else
+    {
+        nrf_ppi_fork_endpoint_setup(channel, fork_tep);
+        NRF_LOG_INFO("Fork assigned channel: %d, task end point: %d.\r\n", channel, fork_tep);
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
+#else   
+    err_code = NRF_ERROR_NOT_SUPPORTED;
+    NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 #endif
 }
 
 uint32_t nrf_drv_ppi_channel_enable(nrf_ppi_channel_t channel)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_app_channel(channel))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (is_programmable_app_channel(channel) && !is_allocated_channel(channel))
+    else if (is_programmable_app_channel(channel) && !is_allocated_channel(channel))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    nrf_ppi_channel_enable(channel);
-    return NRF_SUCCESS;
+    else
+    {
+        nrf_ppi_channel_enable(channel);
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_channel_disable(nrf_ppi_channel_t channel)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_app_channel(channel))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (is_programmable_app_channel(channel) && !is_allocated_channel(channel))
+    else if (is_programmable_app_channel(channel) && !is_allocated_channel(channel))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    nrf_ppi_channel_disable(channel);
-    return NRF_SUCCESS;
+    else
+    {
+        nrf_ppi_channel_disable(channel);
+        err_code = NRF_SUCCESS;
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 
@@ -359,96 +411,128 @@ uint32_t nrf_drv_ppi_group_alloc(nrf_ppi_channel_group_t * p_group)
         CRITICAL_REGION_EXIT();
         if (err_code == NRF_SUCCESS)
         {
+            NRF_LOG_INFO("Allocated group: %d.\r\n", group);
             break;
         }
     }
 
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
     return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_group_free(nrf_ppi_channel_group_t group)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_app_group(group))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
     if (!is_allocated_group(group))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
     else
-    nrf_ppi_group_disable(group);
-    CRITICAL_REGION_ENTER();
-    group_allocated_clr(group);
-    CRITICAL_REGION_EXIT();
-    return NRF_SUCCESS;
+    {
+        nrf_ppi_group_disable(group);
+        CRITICAL_REGION_ENTER();
+        group_allocated_clr(group);
+        CRITICAL_REGION_EXIT();
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_group_enable(nrf_ppi_channel_group_t group)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_app_group(group))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (!is_allocated_group(group))
+    else if (!is_allocated_group(group))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    nrf_ppi_group_enable(group);
-    return NRF_SUCCESS;
+    else
+    {
+        nrf_ppi_group_enable(group);
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 
 uint32_t nrf_drv_ppi_group_disable(nrf_ppi_channel_group_t group)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_app_group(group))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    nrf_ppi_group_disable(group);
-    return NRF_SUCCESS;
+    else
+    {
+        nrf_ppi_group_disable(group);
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 uint32_t nrf_drv_ppi_channels_remove_from_group(uint32_t channel_mask,
                                                 nrf_ppi_channel_group_t group)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+
     if (!is_app_group(group))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (!is_allocated_group(group))
+    else if (!is_allocated_group(group))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    if (!are_app_channels(channel_mask))
+    else if (!are_app_channels(channel_mask))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    CRITICAL_REGION_ENTER();
-    nrf_ppi_channels_remove_from_group(channel_mask, group);
-    CRITICAL_REGION_EXIT();
-    return NRF_SUCCESS;
+    else
+    {
+        CRITICAL_REGION_ENTER();
+        nrf_ppi_channels_remove_from_group(channel_mask, group);
+        CRITICAL_REGION_EXIT();
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 uint32_t nrf_drv_ppi_channels_include_in_group(uint32_t channel_mask,
                                                nrf_ppi_channel_group_t group)
 {
+    ret_code_t err_code = NRF_SUCCESS;
+    
     if (!is_app_group(group))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    if (!is_allocated_group(group))
+    else if (!is_allocated_group(group))
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
     }
-    if (!are_app_channels(channel_mask))
+    else if (!are_app_channels(channel_mask))
     {
-        return NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
     }
-    CRITICAL_REGION_ENTER();
-    nrf_ppi_channels_include_in_group(channel_mask, group);
-    CRITICAL_REGION_EXIT();
-    return NRF_SUCCESS;
+    else
+    {   
+        CRITICAL_REGION_ENTER();
+        nrf_ppi_channels_include_in_group(channel_mask, group);
+        CRITICAL_REGION_EXIT();
+    }
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
+#endif //NRF_MODULE_ENABLED(PPI)

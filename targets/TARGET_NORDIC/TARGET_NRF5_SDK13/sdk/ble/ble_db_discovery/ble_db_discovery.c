@@ -36,17 +36,18 @@
  * 
  */
 
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(BLE_DB_DISCOVERY)
 #include "ble_db_discovery.h"
 #include <stdlib.h>
-#include "nrf_ble.h"
+#include "ble.h"
+#include "ble_srv_common.h"
+#define NRF_LOG_MODULE_NAME "BLE_DB_DISC"
 #include "nrf_log.h"
-
-#include "sdk_common.h"
 
 #define SRV_DISC_START_HANDLE  0x0001                    /**< The start handle value used during service discovery. */
 #define DB_DISCOVERY_MAX_USERS BLE_DB_DISCOVERY_MAX_SRV  /**< The maximum number of users/registrations allowed by this module. */
-#define DB_LOG                 NRF_LOG_PRINTF_DEBUG      /**< A debug logger macro that can be used in this file to do logging information over UART. */
+#define MODULE_INITIALIZED (m_initialized == true)       /**< Macro designating whether the module has been initialized properly. */
 
 
 /**@brief Array of structures containing information about the registered application modules. */
@@ -69,9 +70,6 @@ static ble_db_discovery_evt_handler_t m_evt_handler;
 static uint32_t m_pending_usr_evt_index;    /**< The index to the pending user event array, pointing to the last added pending user event. */
 static uint32_t m_num_of_handlers_reg;      /**< The number of handlers registered with the DB Discovery module. */
 static bool     m_initialized = false;      /**< This variable Indicates if the module is initialized or not. */
-
-#define MODULE_INITIALIZED (m_initialized == true)
-#include "sdk_macros.h"
 
 /**@brief     Function for fetching the event handler provided by a registered application module.
  *
@@ -270,7 +268,7 @@ static void on_srv_disc_completion(ble_db_discovery_t * p_db_discovery,
         // discovery is about to start.
         p_srv_being_discovered->char_count = 0;
 
-        DB_LOG("[DB]: Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
+        NRF_LOG_INFO("Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
                p_srv_being_discovered->srv_uuid.uuid, conn_handle);
 
         uint32_t err_code;
@@ -562,7 +560,7 @@ static void on_primary_srv_discovery_rsp(ble_db_discovery_t * const    p_db_disc
         uint32_t err_code;
         const ble_gattc_evt_prim_srvc_disc_rsp_t * p_prim_srvc_disc_rsp_evt;
 
-        DB_LOG("Found service UUID 0x%x\r\n", p_srv_being_discovered->srv_uuid.uuid);
+        NRF_LOG_INFO("Found service UUID 0x%x\r\n", p_srv_being_discovered->srv_uuid.uuid);
 
         p_prim_srvc_disc_rsp_evt = &(p_ble_gattc_evt->params.prim_srvc_disc_rsp);
 
@@ -589,7 +587,7 @@ static void on_primary_srv_discovery_rsp(ble_db_discovery_t * const    p_db_disc
     }
     else
     {
-        DB_LOG("Service UUID 0x%x Not found\r\n", p_srv_being_discovered->srv_uuid.uuid);
+        NRF_LOG_INFO("Service UUID 0x%x Not found\r\n", p_srv_being_discovered->srv_uuid.uuid);
         // Trigger Service Not Found event to the application.
         discovery_complete_evt_trigger(p_db_discovery,
                                        false,
@@ -654,7 +652,10 @@ static void on_characteristic_discovery_rsp(ble_db_discovery_t * const    p_db_d
             p_srv_being_discovered->charateristics[i].characteristic =
                 p_char_disc_rsp_evt->chars[j];
 
-            p_srv_being_discovered->charateristics[i].cccd_handle = BLE_GATT_HANDLE_INVALID;
+            p_srv_being_discovered->charateristics[i].cccd_handle       = BLE_GATT_HANDLE_INVALID;
+            p_srv_being_discovered->charateristics[i].ext_prop_handle   = BLE_GATT_HANDLE_INVALID;
+            p_srv_being_discovered->charateristics[i].user_desc_handle  = BLE_GATT_HANDLE_INVALID;
+            p_srv_being_discovered->charateristics[i].report_ref_handle = BLE_GATT_HANDLE_INVALID;
         }
 
         ble_gattc_char_t * p_last_known_char;
@@ -730,7 +731,7 @@ static void on_characteristic_discovery_rsp(ble_db_discovery_t * const    p_db_d
         {
             // No more characteristics and descriptors need to be discovered. Discovery is complete.
             // Send a discovery complete event to the user application.
-            DB_LOG("[DB]: Discovery of service with UUID 0x%x completed with success for Connection"
+            NRF_LOG_INFO("Discovery of service with UUID 0x%x completed with success for Connection"
                    " handle %d\r\n", p_srv_being_discovered->srv_uuid.uuid,
                    p_ble_gattc_evt->conn_handle);
 
@@ -771,20 +772,39 @@ static void on_descriptor_discovery_rsp(ble_db_discovery_t * const    p_db_disco
     if (p_ble_gattc_evt->gatt_status == BLE_GATT_STATUS_SUCCESS)
     {
         // The descriptor was found at the peer.
-        // If the descriptor was a CCCD, then the cccd_handle needs to be populated.
-
-        uint32_t i;
-
-        // Loop through all the descriptors to find the CCCD.
-        for (i = 0; i < p_desc_disc_rsp_evt->count; i++)
+        // Iterate through and collect CCCD, Extended Properties,
+        // User Description & Report Reference descriptor handles.
+        for (uint32_t i = 0; i < p_desc_disc_rsp_evt->count; i++)
         {
-            if (
-                p_desc_disc_rsp_evt->descs[i].uuid.uuid ==
-                BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG
-               )
+            switch (p_desc_disc_rsp_evt->descs[i].uuid.uuid)
             {
-                p_char_being_discovered->cccd_handle = p_desc_disc_rsp_evt->descs[i].handle;
+                case BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG:
+                    p_char_being_discovered->cccd_handle =
+                        p_desc_disc_rsp_evt->descs[i].handle;
+                    break;
 
+                case BLE_UUID_DESCRIPTOR_CHAR_EXT_PROP:
+                    p_char_being_discovered->ext_prop_handle =
+                        p_desc_disc_rsp_evt->descs[i].handle;
+                    break;
+
+                case BLE_UUID_DESCRIPTOR_CHAR_USER_DESC:
+                    p_char_being_discovered->user_desc_handle =
+                        p_desc_disc_rsp_evt->descs[i].handle;
+                    break;
+
+                case BLE_UUID_REPORT_REF_DESCR:
+                    p_char_being_discovered->report_ref_handle =
+                        p_desc_disc_rsp_evt->descs[i].handle;
+                    break;
+            }
+
+            /* Break if we've found all the descriptors we are looking for. */
+            if (p_char_being_discovered->cccd_handle       != BLE_GATT_HANDLE_INVALID &&
+                p_char_being_discovered->ext_prop_handle   != BLE_GATT_HANDLE_INVALID &&
+                p_char_being_discovered->user_desc_handle  != BLE_GATT_HANDLE_INVALID &&
+                p_char_being_discovered->report_ref_handle != BLE_GATT_HANDLE_INVALID)
+            {
                 break;
             }
         }
@@ -829,8 +849,8 @@ static void on_descriptor_discovery_rsp(ble_db_discovery_t * const    p_db_disco
 
     if (raise_discov_complete)
     {
-        DB_LOG("[DB]: Discovery of service with UUID 0x%x completed with success for Connection"
-               "handle %d\r\n", p_srv_being_discovered->srv_uuid.uuid,
+        NRF_LOG_INFO("Discovery of service with UUID 0x%x completed with success for Connection"
+               " handle %d\r\n", p_srv_being_discovered->srv_uuid.uuid,
                p_ble_gattc_evt->conn_handle);
 
         discovery_complete_evt_trigger(p_db_discovery,
@@ -900,13 +920,14 @@ uint32_t ble_db_discovery_start(ble_db_discovery_t * const p_db_discovery,
     m_pending_usr_evt_index   = 0;
 
     p_db_discovery->discoveries_count = 0;
-    p_db_discovery->curr_srv_ind = 0;
+    p_db_discovery->curr_srv_ind      = 0;
+    p_db_discovery->curr_char_ind     = 0;
 
     p_srv_being_discovered = &(p_db_discovery->services[p_db_discovery->curr_srv_ind]);
 
     p_srv_being_discovered->srv_uuid = m_registered_handlers[p_db_discovery->curr_srv_ind];
 
-    DB_LOG("[DB]: Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
+    NRF_LOG_INFO("Starting discovery of service with UUID 0x%x for Connection handle %d\r\n",
            p_srv_being_discovered->srv_uuid.uuid, conn_handle);
 
     uint32_t err_code;
@@ -965,3 +986,4 @@ void ble_db_discovery_on_ble_evt(ble_db_discovery_t * const p_db_discovery,
             break;
     }
 }
+#endif // NRF_MODULE_ENABLED(BLE_DB_DISCOVERY)
