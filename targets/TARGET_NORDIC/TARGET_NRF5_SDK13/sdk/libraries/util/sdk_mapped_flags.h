@@ -36,7 +36,6 @@
  * 
  */
 
-
 #ifndef SDK_MAPPED_FLAGS_H__
 #define SDK_MAPPED_FLAGS_H__
 
@@ -44,6 +43,10 @@
 #include <stdbool.h>
 #include "app_util.h"
 #include "compiler_abstraction.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @file
@@ -74,7 +77,7 @@ typedef uint8_t sdk_mapped_flags_t; /**< The bitmap to hold flags. Each flag is 
 // Test whether the flag collection type is large enough to hold all the flags. If this fails,
 // reduce SDK_MAPPED_FLAGS_N_KEYS or increase the size of sdk_mapped_flags_t.
 STATIC_ASSERT((
-    sizeof(sdk_mapped_flags_t)*SDK_MAPPED_FLAGS_N_KEYS_PER_BYTE) >= SDK_MAPPED_FLAGS_N_KEYS);
+    sizeof(sdk_mapped_flags_t) * SDK_MAPPED_FLAGS_N_KEYS_PER_BYTE) >= SDK_MAPPED_FLAGS_N_KEYS);
 
 
 /**@brief Type used to present a subset of the registered keys.
@@ -176,5 +179,10 @@ static __INLINE bool sdk_mapped_flags_any_set(sdk_mapped_flags_t flags)
 
 
 /** @} */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SDK_MAPPED_FLAGS_H__ */

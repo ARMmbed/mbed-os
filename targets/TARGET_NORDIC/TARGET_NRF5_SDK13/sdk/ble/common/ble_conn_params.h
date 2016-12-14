@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  *
  * @defgroup ble_sdk_lib_conn_params Connection Parameters Negotiation
@@ -49,8 +48,12 @@
 #define BLE_CONN_PARAMS_H__
 
 #include <stdint.h>
-#include "nrf_ble.h"
+#include "ble.h"
 #include "ble_srv_common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**@brief Connection Parameters Module event type. */
 typedef enum
@@ -132,6 +135,11 @@ uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t *new_params);
  * @param[in]   p_ble_evt  The event received from the BLE stack.
  */
 void ble_conn_params_on_ble_evt(ble_evt_t * p_ble_evt);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_CONN_PARAMS_H__
 

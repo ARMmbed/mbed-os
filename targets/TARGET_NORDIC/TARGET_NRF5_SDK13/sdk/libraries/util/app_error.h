@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  *
  * @defgroup app_error Common application error handler
@@ -55,8 +54,14 @@
 #include "nrf.h"
 #include "sdk_errors.h"
 #include "nordic_common.h"
-#include "nrf_log.h"
 #include "app_error_weak.h"
+#ifdef ANT_STACK_SUPPORT_REQD
+#include "ant_error.h"
+#endif // ANT_STACK_SUPPORT_REQD
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define NRF_FAULT_ID_SDK_RANGE_START 0x00004000 /**< The start of the range of error IDs defined in the SDK. */
 
@@ -123,23 +128,23 @@ static __INLINE void app_error_log(uint32_t id, uint32_t pc, uint32_t info)
     switch (id)
     {
         case NRF_FAULT_ID_SDK_ASSERT:
-            NRF_LOG(NRF_LOG_COLOR_RED "\n*** ASSERTION FAILED ***\n");
+            //NRF_LOG_INFO(NRF_LOG_COLOR_RED "\r\n*** ASSERTION FAILED ***\r\n");
             if (((assert_info_t *)(info))->p_file_name)
             {
-                NRF_LOG_PRINTF(NRF_LOG_COLOR_WHITE "Line Number: %u\n", (unsigned int) ((assert_info_t *)(info))->line_num);
-                NRF_LOG_PRINTF("File Name:   %s\n", ((assert_info_t *)(info))->p_file_name);
+               // NRF_LOG_INFO(NRF_LOG_COLOR_WHITE "Line Number: %u\r\n", (unsigned int) ((assert_info_t *)(info))->line_num);
+                //NRF_LOG_INFO("File Name:   %s\r\n", ((assert_info_t *)(info))->p_file_name);
             }
-            NRF_LOG_PRINTF(NRF_LOG_COLOR_DEFAULT "\n");
+            //NRF_LOG_INFO(NRF_LOG_COLOR_DEFAULT "\r\n");
             break;
 
         case NRF_FAULT_ID_SDK_ERROR:
-            NRF_LOG(NRF_LOG_COLOR_RED "\n*** APPLICATION ERROR *** \n" NRF_LOG_COLOR_WHITE);
+            //NRF_LOG_INFO(NRF_LOG_COLOR_RED "\r\n*** APPLICATION ERROR *** \r\n" NRF_LOG_COLOR_WHITE);
             if (((error_info_t *)(info))->p_file_name)
             {
-                NRF_LOG_PRINTF("Line Number: %u\n", (unsigned int) ((error_info_t *)(info))->line_num);
-                NRF_LOG_PRINTF("File Name:   %s\n", ((error_info_t *)(info))->p_file_name);
+                //NRF_LOG_INFO("Line Number: %u\r\n", (unsigned int) ((error_info_t *)(info))->line_num);
+                //NRF_LOG_INFO("File Name:   %s\r\n", ((error_info_t *)(info))->p_file_name);
             }
-            NRF_LOG_PRINTF("Error Code:  0x%X\n" NRF_LOG_COLOR_DEFAULT "\n", (unsigned int) ((error_info_t *)(info))->err_code);
+            //NRF_LOG_INFO("Error Code:  0x%X\r\n" NRF_LOG_COLOR_DEFAULT "\r\n", (unsigned int) ((error_info_t *)(info))->err_code);
             break;
     }
 }
@@ -222,6 +227,11 @@ static __INLINE void app_error_print(uint32_t id, uint32_t pc, uint32_t info)
             APP_ERROR_HANDLER(0);                             \
         }                                                     \
     } while (0)
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // APP_ERROR_H__
 

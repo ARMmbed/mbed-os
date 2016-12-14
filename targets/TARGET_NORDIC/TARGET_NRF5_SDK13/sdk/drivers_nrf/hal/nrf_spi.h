@@ -36,11 +36,10 @@
  * 
  */
 
-
 /**
  * @defgroup nrf_spi_hal SPI HAL
  * @{
- * @ingroup nrf_spi_master
+ * @ingroup nrf_spi
  *
  * @brief Hardware access layer for accessing the SPI peripheral.
  */
@@ -53,6 +52,10 @@
 #include <stdint.h>
 
 #include "nrf.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -121,78 +124,78 @@ typedef enum
 /**
  * @brief Function for clearing a specific SPI event.
  *
- * @param[in] p_spi     SPI instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] spi_event Event to clear.
  */
-__STATIC_INLINE void nrf_spi_event_clear(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_event_clear(NRF_SPI_Type * p_reg,
                                          nrf_spi_event_t spi_event);
 
 /**
  * @brief Function for checking the state of a specific SPI event.
  *
- * @param[in] p_spi     SPI instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] spi_event Event to check.
  *
  * @retval true  If the event is set.
  * @retval false If the event is not set.
  */
-__STATIC_INLINE bool nrf_spi_event_check(NRF_SPI_Type * p_spi,
+__STATIC_INLINE bool nrf_spi_event_check(NRF_SPI_Type * p_reg,
                                          nrf_spi_event_t spi_event);
 
 /**
  * @brief Function for getting the address of a specific SPI event register.
  *
- * @param[in] p_spi     SPI instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] spi_event Requested event.
  *
  * @return Address of the specified event register.
  */
-__STATIC_INLINE uint32_t * nrf_spi_event_address_get(NRF_SPI_Type  * p_spi,
+__STATIC_INLINE uint32_t * nrf_spi_event_address_get(NRF_SPI_Type  * p_reg,
                                                      nrf_spi_event_t spi_event);
 
 /**
  * @brief Function for enabling specified interrupts.
  *
- * @param[in] p_spi         SPI instance.
+ * @param[in] p_reg         Pointer to the peripheral registers structure.
  * @param[in] spi_int_mask  Interrupts to enable.
  */
-__STATIC_INLINE void nrf_spi_int_enable(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_int_enable(NRF_SPI_Type * p_reg,
                                         uint32_t spi_int_mask);
 
 /**
  * @brief Function for disabling specified interrupts.
  *
- * @param[in] p_spi         SPI instance.
+ * @param[in] p_reg         Pointer to the peripheral registers structure.
  * @param[in] spi_int_mask  Interrupts to disable.
  */
-__STATIC_INLINE void nrf_spi_int_disable(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_int_disable(NRF_SPI_Type * p_reg,
                                          uint32_t spi_int_mask);
 
 /**
  * @brief Function for retrieving the state of a given interrupt.
  *
- * @param[in] p_spi   SPI instance.
+ * @param[in] p_reg   Pointer to the peripheral registers structure.
  * @param[in] spi_int Interrupt to check.
  *
  * @retval true  If the interrupt is enabled.
  * @retval false If the interrupt is not enabled.
  */
-__STATIC_INLINE bool nrf_spi_int_enable_check(NRF_SPI_Type * p_spi,
+__STATIC_INLINE bool nrf_spi_int_enable_check(NRF_SPI_Type * p_reg,
                                               nrf_spi_int_mask_t spi_int);
 
 /**
  * @brief Function for enabling the SPI peripheral.
  *
- * @param[in] p_spi SPI instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spi_enable(NRF_SPI_Type * p_spi);
+__STATIC_INLINE void nrf_spi_enable(NRF_SPI_Type * p_reg);
 
 /**
  * @brief Function for disabling the SPI peripheral.
  *
- * @param[in] p_spi SPI instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spi_disable(NRF_SPI_Type * p_spi);
+__STATIC_INLINE void nrf_spi_disable(NRF_SPI_Type * p_reg);
 
 /**
  * @brief Function for configuring SPI pins.
@@ -200,12 +203,12 @@ __STATIC_INLINE void nrf_spi_disable(NRF_SPI_Type * p_spi);
  * If a given signal is not needed, pass the @ref NRF_SPI_PIN_NOT_CONNECTED
  * value instead of its pin number.
  *
- * @param[in] p_spi     SPI instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] sck_pin   SCK pin number.
  * @param[in] mosi_pin  MOSI pin number.
  * @param[in] miso_pin  MISO pin number.
  */
-__STATIC_INLINE void nrf_spi_pins_set(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_pins_set(NRF_SPI_Type * p_reg,
                                       uint32_t sck_pin,
                                       uint32_t mosi_pin,
                                       uint32_t miso_pin);
@@ -213,116 +216,120 @@ __STATIC_INLINE void nrf_spi_pins_set(NRF_SPI_Type * p_spi,
 /**
  * @brief Function for writing data to the SPI transmitter register.
  *
- * @param[in] p_spi SPI instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  * @param[in] data  TX data to send.
  */
-__STATIC_INLINE void nrf_spi_txd_set(NRF_SPI_Type * p_spi, uint8_t data);
+__STATIC_INLINE void nrf_spi_txd_set(NRF_SPI_Type * p_reg, uint8_t data);
 
 /**
  * @brief Function for reading data from the SPI receiver register.
  *
- * @param[in] p_spi SPI instance.
+ * @param[in] p_reg Pointer to the peripheral registers structure.
  *
  * @return RX data received.
  */
-__STATIC_INLINE uint8_t nrf_spi_rxd_get(NRF_SPI_Type * p_spi);
+__STATIC_INLINE uint8_t nrf_spi_rxd_get(NRF_SPI_Type * p_reg);
 
 /**
  * @brief Function for setting the SPI master data rate.
  *
- * @param[in] p_spi     SPI instance.
+ * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] frequency SPI frequency.
  */
-__STATIC_INLINE void nrf_spi_frequency_set(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_frequency_set(NRF_SPI_Type * p_reg,
                                            nrf_spi_frequency_t frequency);
 
 /**
  * @brief Function for setting the SPI configuration.
  *
- * @param[in] p_spi         SPI instance.
+ * @param[in] p_reg         Pointer to the peripheral registers structure.
  * @param[in] spi_mode      SPI mode.
  * @param[in] spi_bit_order SPI bit order.
  */
-__STATIC_INLINE void nrf_spi_configure(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_configure(NRF_SPI_Type * p_reg,
                                        nrf_spi_mode_t spi_mode,
                                        nrf_spi_bit_order_t spi_bit_order);
 
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
 
-__STATIC_INLINE void nrf_spi_event_clear(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_event_clear(NRF_SPI_Type * p_reg,
                                          nrf_spi_event_t spi_event)
 {
-    *((volatile uint32_t *)((uint8_t *)p_spi + (uint32_t)spi_event)) = 0x0UL;
+    *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spi_event)) = 0x0UL;
+#if __CORTEX_M == 0x04
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spi_event));
+    (void)dummy;
+#endif
 }
 
-__STATIC_INLINE bool nrf_spi_event_check(NRF_SPI_Type * p_spi,
+__STATIC_INLINE bool nrf_spi_event_check(NRF_SPI_Type * p_reg,
                                          nrf_spi_event_t spi_event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)p_spi + (uint32_t)spi_event);
+    return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spi_event);
 }
 
-__STATIC_INLINE uint32_t * nrf_spi_event_address_get(NRF_SPI_Type * p_spi,
+__STATIC_INLINE uint32_t * nrf_spi_event_address_get(NRF_SPI_Type * p_reg,
                                                      nrf_spi_event_t spi_event)
 {
-    return (uint32_t *)((uint8_t *)p_spi + (uint32_t)spi_event);
+    return (uint32_t *)((uint8_t *)p_reg + (uint32_t)spi_event);
 }
 
-__STATIC_INLINE void nrf_spi_int_enable(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_int_enable(NRF_SPI_Type * p_reg,
                                         uint32_t spi_int_mask)
 {
-    p_spi->INTENSET = spi_int_mask;
+    p_reg->INTENSET = spi_int_mask;
 }
 
-__STATIC_INLINE void nrf_spi_int_disable(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_int_disable(NRF_SPI_Type * p_reg,
                                          uint32_t spi_int_mask)
 {
-    p_spi->INTENCLR = spi_int_mask;
+    p_reg->INTENCLR = spi_int_mask;
 }
 
-__STATIC_INLINE bool nrf_spi_int_enable_check(NRF_SPI_Type * p_spi,
+__STATIC_INLINE bool nrf_spi_int_enable_check(NRF_SPI_Type * p_reg,
                                               nrf_spi_int_mask_t spi_int)
 {
-    return (bool)(p_spi->INTENSET & spi_int);
+    return (bool)(p_reg->INTENSET & spi_int);
 }
 
-__STATIC_INLINE void nrf_spi_enable(NRF_SPI_Type * p_spi)
+__STATIC_INLINE void nrf_spi_enable(NRF_SPI_Type * p_reg)
 {
-    p_spi->ENABLE = (SPI_ENABLE_ENABLE_Enabled << SPI_ENABLE_ENABLE_Pos);
+    p_reg->ENABLE = (SPI_ENABLE_ENABLE_Enabled << SPI_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_spi_disable(NRF_SPI_Type * p_spi)
+__STATIC_INLINE void nrf_spi_disable(NRF_SPI_Type * p_reg)
 {
-    p_spi->ENABLE = (SPI_ENABLE_ENABLE_Disabled << SPI_ENABLE_ENABLE_Pos);
+    p_reg->ENABLE = (SPI_ENABLE_ENABLE_Disabled << SPI_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_spi_pins_set(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_pins_set(NRF_SPI_Type * p_reg,
                                       uint32_t sck_pin,
                                       uint32_t mosi_pin,
                                       uint32_t miso_pin)
 {
-    p_spi->PSELSCK  = sck_pin;
-    p_spi->PSELMOSI = mosi_pin;
-    p_spi->PSELMISO = miso_pin;
+    p_reg->PSELSCK  = sck_pin;
+    p_reg->PSELMOSI = mosi_pin;
+    p_reg->PSELMISO = miso_pin;
 }
 
-__STATIC_INLINE void nrf_spi_txd_set(NRF_SPI_Type * p_spi, uint8_t data)
+__STATIC_INLINE void nrf_spi_txd_set(NRF_SPI_Type * p_reg, uint8_t data)
 {
-    p_spi->TXD = data;
+    p_reg->TXD = data;
 }
 
-__STATIC_INLINE uint8_t nrf_spi_rxd_get(NRF_SPI_Type * p_spi)
+__STATIC_INLINE uint8_t nrf_spi_rxd_get(NRF_SPI_Type * p_reg)
 {
-    return p_spi->RXD;
+    return p_reg->RXD;
 }
 
-__STATIC_INLINE void nrf_spi_frequency_set(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_frequency_set(NRF_SPI_Type * p_reg,
                                            nrf_spi_frequency_t frequency)
 {
-    p_spi->FREQUENCY = frequency;
+    p_reg->FREQUENCY = frequency;
 }
 
-__STATIC_INLINE void nrf_spi_configure(NRF_SPI_Type * p_spi,
+__STATIC_INLINE void nrf_spi_configure(NRF_SPI_Type * p_reg,
                                        nrf_spi_mode_t spi_mode,
                                        nrf_spi_bit_order_t spi_bit_order)
 {
@@ -351,10 +358,15 @@ __STATIC_INLINE void nrf_spi_configure(NRF_SPI_Type * p_spi,
                   (SPI_CONFIG_CPHA_Trailing   << SPI_CONFIG_CPHA_Pos);
         break;
     }
-    p_spi->CONFIG = config;
+    p_reg->CONFIG = config;
 }
 
 #endif // SUPPRESS_INLINE_IMPLEMENTATION
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // NRF_SPI_H__
 

@@ -36,17 +36,19 @@
  * 
  */
 
-
 #ifndef FDS_INTERNAL_DEFS_H__
 #define FDS_INTERNAL_DEFS_H__
-
+#include "sdk_config.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "fds_config.h"
 
 #if defined (FDS_THREADS)
     #include "nrf_soc.h"
     #include "app_util_platform.h"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define FDS_PAGE_TAG_SIZE       (2) // Page tag size, in 4-byte words.
@@ -74,9 +76,9 @@
 #define FDS_OP_COMPLETED        (0x1D1D)
 
 // The size of a physical page, in 4-byte words.
-#if   defined(NRF51)
+#if     defined(NRF51)
     #define FDS_PHY_PAGE_SIZE   (256)
-#elif defined(NRF52)
+ #elif (defined(NRF52) || defined(NRF52840_XXAA))
     #define FDS_PHY_PAGE_SIZE   (1024)
 #endif
 
@@ -328,5 +330,10 @@ typedef struct
 
 #endif
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FDS_INTERNAL_DEFS_H__

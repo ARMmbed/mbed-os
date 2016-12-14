@@ -35,89 +35,83 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
 #ifndef NRF_GPIO_H__
 #define NRF_GPIO_H__
 
 #include "nrf.h"
+#include "nrf_peripherals.h"
+#include "nrf_assert.h"
 #include <stdbool.h>
+#include <stdlib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @defgroup nrf_gpio GPIO abstraction
  * @{
  * @ingroup nrf_drivers
  * @brief GPIO pin abstraction and port abstraction for reading and writing byte-wise to GPIO ports.
- *
- * Here, the GPIO ports are defined as follows:
- * - Port 0 -> pin 0-7
- * - Port 1 -> pin 8-15
- * - Port 2 -> pin 16-23
- * - Port 3 -> pin 24-31
  */
 
-#define NUMBER_OF_PINS 32
+#if (GPIO_COUNT == 1)
+#define NUMBER_OF_PINS (P0_PIN_NUM)
+#define GPIO_REG_LIST  {NRF_GPIO}
+#elif (GPIO_COUNT == 2)
+#define NUMBER_OF_PINS (P0_PIN_NUM + P1_PIN_NUM)
+#define GPIO_REG_LIST  {NRF_P0, NRF_P1}
+#else
+#error "Not supported."
+#endif
 
-/**
- * @brief Enumerator used for selecting between port 0 - 3.
- */
-typedef enum
-{
-    NRF_GPIO_PORT_SELECT_PORT0 = 0,           ///<  Port 0 (GPIO pin 0-7)
-    NRF_GPIO_PORT_SELECT_PORT1,               ///<  Port 1 (GPIO pin 8-15)
-    NRF_GPIO_PORT_SELECT_PORT2,               ///<  Port 2 (GPIO pin 16-23)
-    NRF_GPIO_PORT_SELECT_PORT3,               ///<  Port 3 (GPIO pin 24-31)
-} nrf_gpio_port_select_t;
 
 /**
- * @brief Enumerator used for setting the direction of a GPIO port.
+ * @brief Macro for mapping port and pin numbers to values understandable for nrf_gpio functions.
  */
-typedef enum
-{
-    NRF_GPIO_PORT_DIR_OUTPUT,       ///<  Output
-    NRF_GPIO_PORT_DIR_INPUT         ///<  Input
-} nrf_gpio_port_dir_t;
+#define NRF_GPIO_PIN_MAP(port, pin) ((port << 5) | (pin & 0x1F))
 
 /**
  * @brief Pin direction definitions.
  */
 typedef enum
 {
-    NRF_GPIO_PIN_DIR_INPUT  = GPIO_PIN_CNF_DIR_Input,   ///< Input
-    NRF_GPIO_PIN_DIR_OUTPUT = GPIO_PIN_CNF_DIR_Output   ///< Output
+    NRF_GPIO_PIN_DIR_INPUT  = GPIO_PIN_CNF_DIR_Input, ///< Input.
+    NRF_GPIO_PIN_DIR_OUTPUT = GPIO_PIN_CNF_DIR_Output ///< Output.
 } nrf_gpio_pin_dir_t;
 
 /**
- * @brief Connection of input buffer
+ * @brief Connection of input buffer.
  */
 typedef enum
 {
-    NRF_GPIO_PIN_INPUT_CONNECT    = GPIO_PIN_CNF_INPUT_Connect,   ///< Connect input buffer
-    NRF_GPIO_PIN_INPUT_DISCONNECT = GPIO_PIN_CNF_INPUT_Disconnect ///< Disconnect input buffer
+    NRF_GPIO_PIN_INPUT_CONNECT    = GPIO_PIN_CNF_INPUT_Connect,   ///< Connect input buffer.
+    NRF_GPIO_PIN_INPUT_DISCONNECT = GPIO_PIN_CNF_INPUT_Disconnect ///< Disconnect input buffer.
 } nrf_gpio_pin_input_t;
 
 /**
- * @brief Enumerator used for selecting the pin to be pulled down or up at the time of pin configuration
+ * @brief Enumerator used for selecting the pin to be pulled down or up at the time of pin configuration.
  */
 typedef enum
 {
-    NRF_GPIO_PIN_NOPULL   = GPIO_PIN_CNF_PULL_Disabled,                 ///<  Pin pullup resistor disabled
-    NRF_GPIO_PIN_PULLDOWN = GPIO_PIN_CNF_PULL_Pulldown,                 ///<  Pin pulldown resistor enabled
-    NRF_GPIO_PIN_PULLUP   = GPIO_PIN_CNF_PULL_Pullup,                   ///<  Pin pullup resistor enabled
+    NRF_GPIO_PIN_NOPULL   = GPIO_PIN_CNF_PULL_Disabled, ///<  Pin pull-up resistor disabled.
+    NRF_GPIO_PIN_PULLDOWN = GPIO_PIN_CNF_PULL_Pulldown, ///<  Pin pull-down resistor enabled.
+    NRF_GPIO_PIN_PULLUP   = GPIO_PIN_CNF_PULL_Pullup,   ///<  Pin pull-up resistor enabled.
 } nrf_gpio_pin_pull_t;
 
 /**
- * @brief Enumerator used for selecting output drive mode
+ * @brief Enumerator used for selecting output drive mode.
  */
 typedef enum
 {
-    NRF_GPIO_PIN_S0S1 = GPIO_PIN_CNF_DRIVE_S0S1, ///< !< Standard '0', standard '1'
-    NRF_GPIO_PIN_H0S1 = GPIO_PIN_CNF_DRIVE_H0S1, ///< !< High drive '0', standard '1'
-    NRF_GPIO_PIN_S0H1 = GPIO_PIN_CNF_DRIVE_S0H1, ///< !< Standard '0', high drive '1'
-    NRF_GPIO_PIN_H0H1 = GPIO_PIN_CNF_DRIVE_H0H1, ///< !< High drive '0', high 'drive '1''
-    NRF_GPIO_PIN_D0S1 = GPIO_PIN_CNF_DRIVE_D0S1, ///< !< Disconnect '0' standard '1'
-    NRF_GPIO_PIN_D0H1 = GPIO_PIN_CNF_DRIVE_D0H1, ///< !< Disconnect '0', high drive '1'
-    NRF_GPIO_PIN_S0D1 = GPIO_PIN_CNF_DRIVE_S0D1, ///< !< Standard '0'. disconnect '1'
-    NRF_GPIO_PIN_H0D1 = GPIO_PIN_CNF_DRIVE_H0D1, ///< !< High drive '0', disconnect '1'
+    NRF_GPIO_PIN_S0S1 = GPIO_PIN_CNF_DRIVE_S0S1, ///< !< Standard '0', standard '1'.
+    NRF_GPIO_PIN_H0S1 = GPIO_PIN_CNF_DRIVE_H0S1, ///< !< High-drive '0', standard '1'.
+    NRF_GPIO_PIN_S0H1 = GPIO_PIN_CNF_DRIVE_S0H1, ///< !< Standard '0', high-drive '1'.
+    NRF_GPIO_PIN_H0H1 = GPIO_PIN_CNF_DRIVE_H0H1, ///< !< High drive '0', high-drive '1'.
+    NRF_GPIO_PIN_D0S1 = GPIO_PIN_CNF_DRIVE_D0S1, ///< !< Disconnect '0' standard '1'.
+    NRF_GPIO_PIN_D0H1 = GPIO_PIN_CNF_DRIVE_D0H1, ///< !< Disconnect '0', high-drive '1'.
+    NRF_GPIO_PIN_S0D1 = GPIO_PIN_CNF_DRIVE_S0D1, ///< !< Standard '0', disconnect '1'.
+    NRF_GPIO_PIN_H0D1 = GPIO_PIN_CNF_DRIVE_H0D1, ///< !< High-drive '0', disconnect '1'.
 } nrf_gpio_pin_drive_t;
 
 /**
@@ -125,92 +119,96 @@ typedef enum
  */
 typedef enum
 {
-    NRF_GPIO_PIN_NOSENSE    = GPIO_PIN_CNF_SENSE_Disabled,              ///<  Pin sense level disabled.
-    NRF_GPIO_PIN_SENSE_LOW  = GPIO_PIN_CNF_SENSE_Low,                   ///<  Pin sense low level.
-    NRF_GPIO_PIN_SENSE_HIGH = GPIO_PIN_CNF_SENSE_High,                  ///<  Pin sense high level.
+    NRF_GPIO_PIN_NOSENSE    = GPIO_PIN_CNF_SENSE_Disabled, ///<  Pin sense level disabled.
+    NRF_GPIO_PIN_SENSE_LOW  = GPIO_PIN_CNF_SENSE_Low,      ///<  Pin sense low level.
+    NRF_GPIO_PIN_SENSE_HIGH = GPIO_PIN_CNF_SENSE_High,     ///<  Pin sense high level.
 } nrf_gpio_pin_sense_t;
 
 
+#if (__LINT__ != 1)
+
 /**
- * @brief Function for configuring the GPIO pin range as outputs with normal drive strength.
+ * @brief Function for configuring the GPIO pin range as output pins with normal drive strength.
  *        This function can be used to configure pin range as simple output with gate driving GPIO_PIN_CNF_DRIVE_S0S1 (normal cases).
  *
- * @param pin_range_start specifies the start number (inclusive) in the range of pin numbers to be configured (allowed values 0-30)
+ * @param pin_range_start Specifies the start number (inclusive) in the range of pin numbers to be configured (allowed values 0-30).
  *
- * @param pin_range_end specifies the end number (inclusive) in the range of pin numbers to be configured (allowed values 0-30)
+ * @param pin_range_end Specifies the end number (inclusive) in the range of pin numbers to be configured (allowed values 0-30).
  *
- * @note For configuring only one pin as output use @ref nrf_gpio_cfg_output
- *       Sense capability on the pin is disabled, and input is disconnected from the buffer as the pins are configured as output.
+ * @note For configuring only one pin as output, use @ref nrf_gpio_cfg_output.
+ *       Sense capability on the pin is disabled and input is disconnected from the buffer as the pins are configured as output.
  */
 __STATIC_INLINE void nrf_gpio_range_cfg_output(uint32_t pin_range_start, uint32_t pin_range_end);
 
 /**
- * @brief Function for configuring the GPIO pin range as inputs with given initial value set, hiding inner details.
+ * @brief Function for configuring the GPIO pin range as input pins with given initial value set, hiding inner details.
  *        This function can be used to configure pin range as simple input.
  *
- * @param pin_range_start specifies the start number (inclusive) in the range of pin numbers to be configured (allowed values 0-30)
+ * @param pin_range_start Specifies the start number (inclusive) in the range of pin numbers to be configured (allowed values 0-30).
  *
- * @param pin_range_end specifies the end number (inclusive) in the range of pin numbers to be configured (allowed values 0-30)
+ * @param pin_range_end Specifies the end number (inclusive) in the range of pin numbers to be configured (allowed values 0-30).
  *
- * @param pull_config State of the pin range pull resistor (no pull, pulled down or pulled high)
+ * @param pull_config State of the pin range pull resistor (no pull, pulled down, or pulled high).
  *
- * @note  For configuring only one pin as input use @ref nrf_gpio_cfg_input
- *        Sense capability on the pin is disabled, and input is connected to buffer so that the GPIO->IN register is readable
+ * @note  For configuring only one pin as input, use @ref nrf_gpio_cfg_input.
+ *        Sense capability on the pin is disabled and input is connected to buffer so that the GPIO->IN register is readable.
  */
-__STATIC_INLINE void nrf_gpio_range_cfg_input(uint32_t pin_range_start, uint32_t pin_range_end, nrf_gpio_pin_pull_t pull_config);
+__STATIC_INLINE void nrf_gpio_range_cfg_input(uint32_t            pin_range_start,
+                                              uint32_t            pin_range_end,
+                                              nrf_gpio_pin_pull_t pull_config);
 
 /**
- * @brief Pin configuration function
+ * @brief Pin configuration function.
  *
  * The main pin configuration function.
  * This function allows to set any aspect in PIN_CNF register.
- * @param pin_number Specifies the pin number (allowed values 0-31).
- * @param dir   Pin direction
- * @param input Connect or disconnect input buffer
- * @param pull  Pull configuration
- * @param drive Drive configuration
- * @param sense Pin sensing mechanism
+ * @param pin_number Specifies the pin number.
+ * @param dir        Pin direction.
+ * @param input      Connect or disconnect the input buffer.
+ * @param pull       Pull configuration.
+ * @param drive      Drive configuration.
+ * @param sense      Pin sensing mechanism.
  */
 __STATIC_INLINE void nrf_gpio_cfg(
-        uint32_t             pin_number,
-        nrf_gpio_pin_dir_t   dir,
-        nrf_gpio_pin_input_t input,
-        nrf_gpio_pin_pull_t  pull,
-        nrf_gpio_pin_drive_t drive,
-        nrf_gpio_pin_sense_t sense);
+    uint32_t             pin_number,
+    nrf_gpio_pin_dir_t   dir,
+    nrf_gpio_pin_input_t input,
+    nrf_gpio_pin_pull_t  pull,
+    nrf_gpio_pin_drive_t drive,
+    nrf_gpio_pin_sense_t sense);
 
 /**
- * @brief Function for configuring the given GPIO pin number as output with given initial value set, hiding inner details.
- *        This function can be used to configure pin range as simple input with gate driving GPIO_PIN_CNF_DRIVE_S0S1 (normal cases).
+ * @brief Function for configuring the given GPIO pin number as output, hiding inner details.
+ *        This function can be used to configure a pin as simple output with gate driving GPIO_PIN_CNF_DRIVE_S0S1 (normal cases).
  *
- * @param pin_number specifies the pin number (allowed values 0-31)
+ * @param pin_number Specifies the pin number.
  *
- * @note  Sense capability on the pin is disabled, and input is disconnected from the buffer as the pins are configured as output.
+ * @note  Sense capability on the pin is disabled and input is disconnected from the buffer as the pins are configured as output.
  */
 __STATIC_INLINE void nrf_gpio_cfg_output(uint32_t pin_number);
 
 /**
- * @brief Function for configuring the given GPIO pin number as input with given initial value set, hiding inner details.
- *        This function can be used to configure pin range as simple input with gate driving GPIO_PIN_CNF_DRIVE_S0S1 (normal cases).
+ * @brief Function for configuring the given GPIO pin number as input, hiding inner details.
+ *        This function can be used to configure a pin as simple input.
  *
- * @param pin_number Specifies the pin number (allowed values 0-30).
- * @param pull_config State of the pin range pull resistor (no pull, pulled down or pulled high).
+ * @param pin_number Specifies the pin number.
+ * @param pull_config State of the pin range pull resistor (no pull, pulled down, or pulled high).
  *
- * @note  Sense capability on the pin is disabled, and input is connected to buffer so that the GPIO->IN register is readable
+ * @note  Sense capability on the pin is disabled and input is connected to buffer so that the GPIO->IN register is readable.
  */
 __STATIC_INLINE void nrf_gpio_cfg_input(uint32_t pin_number, nrf_gpio_pin_pull_t pull_config);
 
 /**
- * @brief Function for reseting pin configuration to its default state.
+ * @brief Function for resetting pin configuration to its default state.
  *
- * @param pin_number Specifies the pin number (allowed values 0-31).
+ * @param pin_number Specifies the pin number.
  */
 __STATIC_INLINE void nrf_gpio_cfg_default(uint32_t pin_number);
 
 /**
  * @brief Function for configuring the given GPIO pin number as a watcher. Only input is connected.
  *
- * @param pin_number Specifies the pin number (allowed values 0-31).
+ * @param pin_number Specifies the pin number.
  *
  */
 __STATIC_INLINE void nrf_gpio_cfg_watcher(uint32_t pin_number);
@@ -218,26 +216,28 @@ __STATIC_INLINE void nrf_gpio_cfg_watcher(uint32_t pin_number);
 /**
  * @brief Function for disconnecting input for the given GPIO.
  *
- * @param pin_number Specifies the pin number (allowed values 0-31).
+ * @param pin_number Specifies the pin number.
  *
  */
 __STATIC_INLINE void nrf_gpio_input_disconnect(uint32_t pin_number);
 
 /**
- * @brief Function for configuring the given GPIO pin number as input with given initial value set, hiding inner details.
- *        This function can be used to configure pin range as simple input with gate driving GPIO_PIN_CNF_DRIVE_S0S1 (normal cases).
- *        Sense capability on the pin is configurable, and input is connected to buffer so that the GPIO->IN register is readable.
+ * @brief Function for configuring the given GPIO pin number as input, hiding inner details.
+ *        This function can be used to configure pin range as simple input.
+ *        Sense capability on the pin is configurable and input is connected to buffer so that the GPIO->IN register is readable.
  *
- * @param pin_number   Specifies the pin number (allowed values 0-30).
- * @param pull_config  State of the pin pull resistor (no pull, pulled down or pulled high).
- * @param sense_config Sense level of the pin (no sense, sense low or sense high).
+ * @param pin_number   Specifies the pin number.
+ * @param pull_config  State of the pin pull resistor (no pull, pulled down, or pulled high).
+ * @param sense_config Sense level of the pin (no sense, sense low, or sense high).
  */
-__STATIC_INLINE void nrf_gpio_cfg_sense_input(uint32_t pin_number, nrf_gpio_pin_pull_t pull_config, nrf_gpio_pin_sense_t sense_config);
+__STATIC_INLINE void nrf_gpio_cfg_sense_input(uint32_t             pin_number,
+                                              nrf_gpio_pin_pull_t  pull_config,
+                                              nrf_gpio_pin_sense_t sense_config);
 
 /**
  * @brief Function for configuring sense level for the given GPIO.
  *
- * @param pin_number   Specifies the pin number of gpio pin numbers to be configured (allowed values 0-30).
+ * @param pin_number   Specifies the pin number.
  * @param sense_config Sense configuration.
  *
  */
@@ -246,32 +246,20 @@ __STATIC_INLINE void nrf_gpio_cfg_sense_set(uint32_t pin_number, nrf_gpio_pin_se
 /**
  * @brief Function for setting the direction for a GPIO pin.
  *
- * @param pin_number specifies the pin number (0-31) for which to
- * set the direction.
+ * @param pin_number Specifies the pin number for which to set the direction.
  *
- * @param direction specifies the direction
+ * @param direction Specifies the direction.
  */
 __STATIC_INLINE void nrf_gpio_pin_dir_set(uint32_t pin_number, nrf_gpio_pin_dir_t direction);
 
 /**
  * @brief Function for setting a GPIO pin.
  *
- * Note that the pin must be configured as an output for this
- * function to have any effect.
+ * Note that the pin must be configured as an output for this function to have any effect.
  *
- * @param pin_number Specifies the pin number (0-31) to set.
+ * @param pin_number Specifies the pin number to set.
  */
 __STATIC_INLINE void nrf_gpio_pin_set(uint32_t pin_number);
-
-/**
- * @brief Function for setting GPIO pins.
- *
- * Note that the pins must be configured as outputs for this
- * function to have any effect.
- *
- * @param pin_mask Specifies the pins to set.
- */
-__STATIC_INLINE void nrf_gpio_pins_set(uint32_t pin_mask);
 
 /**
  * @brief Function for clearing a GPIO pin.
@@ -279,19 +267,9 @@ __STATIC_INLINE void nrf_gpio_pins_set(uint32_t pin_mask);
  * Note that the pin must be configured as an output for this
  * function to have any effect.
  *
- * @param pin_number Specifies the pin number (0-31) to clear.
+ * @param pin_number Specifies the pin number to clear.
  */
 __STATIC_INLINE void nrf_gpio_pin_clear(uint32_t pin_number);
-
-/**
- * @brief Function for clearing GPIO pins.
- *
- * Note that the pins must be configured as outputs for this
- * function to have any effect.
- *
- * @param pin_mask Specifies the pins to clear.
- */
-__STATIC_INLINE void nrf_gpio_pins_clear(uint32_t pin_mask);
 
 /**
  * @brief Function for toggling a GPIO pin.
@@ -299,19 +277,9 @@ __STATIC_INLINE void nrf_gpio_pins_clear(uint32_t pin_mask);
  * Note that the pin must be configured as an output for this
  * function to have any effect.
  *
- * @param pin_number Specifies the pin number (0-31) to toggle.
+ * @param pin_number Specifies the pin number to toggle.
  */
 __STATIC_INLINE void nrf_gpio_pin_toggle(uint32_t pin_number);
-
-/**
- * @brief Function for toggling GPIO pins.
- *
- * Note that the pins must be configured as outputs for this
- * function to have any effect.
- *
- * @param pin_mask Specifies the pins to toggle.
- */
-__STATIC_INLINE void nrf_gpio_pins_toggle(uint32_t pin_mask);
 
 /**
  * @brief Function for writing a value to a GPIO pin.
@@ -319,12 +287,11 @@ __STATIC_INLINE void nrf_gpio_pins_toggle(uint32_t pin_mask);
  * Note that the pin must be configured as an output for this
  * function to have any effect.
  *
- * @param pin_number specifies the pin number (0-31) to
- * write.
+ * @param pin_number Specifies the pin number to write.
  *
- * @param value specifies the value to be written to the pin.
- * @arg 0 clears the pin
- * @arg >=1 sets the pin.
+ * @param value Specifies the value to be written to the pin.
+ * @arg 0 Clears the pin.
+ * @arg >=1 Sets the pin.
  */
 __STATIC_INLINE void nrf_gpio_pin_write(uint32_t pin_number, uint32_t value);
 
@@ -334,123 +301,182 @@ __STATIC_INLINE void nrf_gpio_pin_write(uint32_t pin_number, uint32_t value);
  * Note that the pin must have input connected for the value
  * returned from this function to be valid.
  *
- * @param pin_number specifies the pin number (0-31) to
- * read.
+ * @param pin_number Specifies the pin number to read.
  *
- * @return
- * @retval 0 if the pin input level is low.
- * @retval 1 if the pin input level is high.
- * @retval > 1 should never occur.
+ * @return 0 if the pin input level is low. Positive value if the pin is high.
  */
 __STATIC_INLINE uint32_t nrf_gpio_pin_read(uint32_t pin_number);
 
 /**
- * @brief Function for reading the input level of all GPIO pins.
+ * @brief Function for reading the output level of a GPIO pin.
  *
- * Note that the pin must have input connected for the value
- * returned from this function to be valid.
+ * @param pin_number Specifies the pin number to read.
  *
- * @retval Status of input of all pins
+ * @return 0 if the pin output level is low. Positive value if pin output is high.
  */
-__STATIC_INLINE uint32_t nrf_gpio_pins_read(void);
+__STATIC_INLINE uint32_t nrf_gpio_pin_out_read(uint32_t pin_number);
 
 /**
  * @brief Function for reading the sense configuration of a GPIO pin.
  *
- * @param pin_number specifies the pin number (0-31) to
- * read.
+ * @param pin_number Specifies the pin number to read.
  *
- * @retval Sense configuration
+ * @retval Sense configuration.
  */
 __STATIC_INLINE nrf_gpio_pin_sense_t nrf_gpio_pin_sense_get(uint32_t pin_number);
 
 /**
- * @brief Generic function for writing a single byte of a 32 bit word at a given
- * address.
+ * @brief Function for setting output direction on selected pins on a given port.
  *
- * This function should not be called from outside the nrf_gpio
- * abstraction layer.
+ * @param p_reg    Pointer to the peripheral registers structure.
+ * @param out_mask Mask specifying the pins to set as output.
  *
- * @param word_address is the address of the word to be written.
- *
- * @param byte_no is the word byte number (0-3) to be written.
- *
- * @param value is the value to be written to byte "byte_no" of word
- * at address "word_address"
  */
-__STATIC_INLINE void nrf_gpio_word_byte_write(volatile uint32_t * word_address, uint8_t byte_no, uint8_t value);
+__STATIC_INLINE void nrf_gpio_port_dir_output_set(NRF_GPIO_Type * p_reg, uint32_t out_mask);
 
 /**
- * @brief Generic function for reading a single byte of a 32 bit word at a given
- * address.
+ * @brief Function for setting input direction on selected pins on a given port.
  *
- * This function should not be called from outside the nrf_gpio
- * abstraction layer.
+ * @param p_reg    Pointer to the peripheral registers structure.
+ * @param in_mask  Mask specifying the pins to set as input.
  *
- * @param word_address is the address of the word to be read.
- *
- * @param byte_no is the byte number (0-3) of the word to be read.
- *
- * @return byte "byte_no" of word at address "word_address".
  */
-__STATIC_INLINE uint8_t nrf_gpio_word_byte_read(const volatile uint32_t* word_address, uint8_t byte_no);
+__STATIC_INLINE void nrf_gpio_port_dir_input_set(NRF_GPIO_Type * p_reg, uint32_t in_mask);
 
 /**
- * @brief Function for setting the direction of a port.
+ * @brief Function for writing the direction configuration of GPIO pins in a given port.
  *
- * @param port is the port for which to set the direction.
+ * @param p_reg    Pointer to the peripheral registers structure.
+ * @param dir_mask Mask specifying the direction of pins. Bit set means that the given pin is configured as output.
  *
- * @param dir direction to be set for this port.
  */
-__STATIC_INLINE void nrf_gpio_port_dir_set(nrf_gpio_port_select_t port, nrf_gpio_port_dir_t dir);
+__STATIC_INLINE void nrf_gpio_port_dir_write(NRF_GPIO_Type * p_reg, uint32_t dir_mask);
 
 /**
- * @brief Function for reading a GPIO port.
+ * @brief Function for reading the direction configuration of a GPIO port.
  *
- * @param port is the port to read.
+ * @param p_reg    Pointer to the peripheral registers structure.
  *
- * @return the input value on this port.
+ * @retval Pin configuration of the current direction settings. Bit set means that the given pin is configured as output.
  */
-__STATIC_INLINE uint8_t nrf_gpio_port_read(nrf_gpio_port_select_t port);
+__STATIC_INLINE uint32_t nrf_gpio_port_dir_read(NRF_GPIO_Type const * p_reg);
 
 /**
- * @brief Function for writing to a GPIO port.
+ * @brief Function for reading the input signals of GPIO pins on a given port.
  *
- * @param port is the port to write.
+ * @param p_reg Pointer to the peripheral registers structure.
  *
- * @param value is the value to write to this port.
- *
- * @sa nrf_gpio_port_dir_set()
+ * @retval Port input values.
  */
-__STATIC_INLINE void nrf_gpio_port_write(nrf_gpio_port_select_t port, uint8_t value);
+__STATIC_INLINE uint32_t nrf_gpio_port_in_read(NRF_GPIO_Type const * p_reg);
 
 /**
- * @brief Function for setting individual pins on GPIO port.
+ * @brief Function for reading the output signals of GPIO pins of a given port.
  *
- * @param port is the port for which to set the pins.
+ * @param p_reg Pointer to the peripheral registers structure.
  *
- * @param set_mask is a mask specifying which pins to set. A bit
- * set to 1 indicates that the corresponding port pin shall be
- * set.
- *
- * @sa nrf_gpio_port_dir_set()
+ * @retval Port output values.
  */
-__STATIC_INLINE void nrf_gpio_port_set(nrf_gpio_port_select_t port, uint8_t set_mask);
+__STATIC_INLINE uint32_t nrf_gpio_port_out_read(NRF_GPIO_Type const * p_reg);
 
 /**
- * @brief Function for clearing individual pins on GPIO port.
+ * @brief Function for writing the GPIO pins output on a given port.
  *
- * @param port is the port for which to clear the pins.
+ * @param p_reg Pointer to the peripheral registers structure.
+ * @param value Output port mask.
  *
- * @param clr_mask is a mask specifying which pins to clear. A bit
- * set to 1 indicates that the corresponding port pin shall be
- * cleared.
- *
- * @sa nrf_gpio_port_dir_set()
  */
-__STATIC_INLINE void nrf_gpio_port_clear(nrf_gpio_port_select_t port, uint8_t clr_mask);
+__STATIC_INLINE void nrf_gpio_port_out_write(NRF_GPIO_Type * p_reg, uint32_t value);
+
+/**
+ * @brief Function for setting high level on selected GPIO pins of a given port.
+ *
+ * @param p_reg    Pointer to the peripheral registers structure.
+ * @param set_mask Mask with pins to set as logical high level.
+ *
+ */
+__STATIC_INLINE void nrf_gpio_port_out_set(NRF_GPIO_Type * p_reg, uint32_t set_mask);
+
+/**
+ * @brief Function for setting low level on selected GPIO pins of a given port.
+ *
+ * @param p_reg    Pointer to the peripheral registers structure.
+ * @param clr_mask Mask with pins to set as logical low level.
+ *
+ */
+__STATIC_INLINE void nrf_gpio_port_out_clear(NRF_GPIO_Type * p_reg, uint32_t clr_mask);
+
+/**
+ * @brief Function for reading pins state of multiple consecutive ports.
+ *
+ * @param start_port Index of the first port to read.
+ * @param length     Number of ports to read.
+ * @param p_masks    Pointer to output array where port states will be stored.
+ */
+__STATIC_INLINE void nrf_gpio_ports_read(uint32_t start_port, uint32_t length, uint32_t * p_masks);
+
+#ifdef GPIO_DETECTMODE_DETECTMODE_LDETECT
+/**
+ * @brief Function for reading latch state of multiple consecutive ports.
+ *
+ * @param start_port Index of the first port to read.
+ * @param length     Number of ports to read.
+ * @param p_masks    Pointer to output array where latch states will be stored.
+ */
+__STATIC_INLINE void nrf_gpio_latches_read(uint32_t start_port, uint32_t length,
+                                           uint32_t * p_masks);
+
+/**
+ * @brief Function for reading latch state of single pin.
+ *
+ * @param pin_number Pin number.
+ * @return 0 if latch is not set. Positive value otherwise.
+ *
+ */
+__STATIC_INLINE uint32_t nrf_gpio_pin_latch_get(uint32_t pin_number);
+
+/**
+ * @brief Function for clearing latch state of a single pin.
+ *
+ * @param pin_number Pin number.
+ *
+ */
+__STATIC_INLINE void nrf_gpio_pin_latch_clear(uint32_t pin_number);
+#endif
+
+
+#endif // #ifndef (__LINT__ != 1)
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
+
+/**
+ * @brief Function for extracting port and relative pin number from absolute pin number.
+ *
+ * @param[inout] Pointer to absolute pin number which is overriden by relative to port pin number.
+ *
+ * @return Pointer to port register set.
+ *
+ */
+__STATIC_INLINE NRF_GPIO_Type * nrf_gpio_pin_port_decode(uint32_t * p_pin)
+{
+    ASSERT(*p_pin < NUMBER_OF_PINS);
+#if (GPIO_COUNT == 1)
+    // The oldest definition case
+    return NRF_GPIO;
+#else
+    if (*p_pin < P0_PIN_NUM)
+    {
+        return NRF_P0;
+    }
+    else
+    {
+        *p_pin = *p_pin & (P0_PIN_NUM - 1);
+        return NRF_P1;
+    }
+#endif
+}
+
+
 __STATIC_INLINE void nrf_gpio_range_cfg_output(uint32_t pin_range_start, uint32_t pin_range_end)
 {
     /*lint -e{845} // A zero has been given as right argument to operator '|'" */
@@ -460,7 +486,10 @@ __STATIC_INLINE void nrf_gpio_range_cfg_output(uint32_t pin_range_start, uint32_
     }
 }
 
-__STATIC_INLINE void nrf_gpio_range_cfg_input(uint32_t pin_range_start, uint32_t pin_range_end, nrf_gpio_pin_pull_t pull_config)
+
+__STATIC_INLINE void nrf_gpio_range_cfg_input(uint32_t            pin_range_start,
+                                              uint32_t            pin_range_end,
+                                              nrf_gpio_pin_pull_t pull_config)
 {
     /*lint -e{845} // A zero has been given as right argument to operator '|'" */
     for (; pin_range_start <= pin_range_end; pin_range_start++)
@@ -469,136 +498,150 @@ __STATIC_INLINE void nrf_gpio_range_cfg_input(uint32_t pin_range_start, uint32_t
     }
 }
 
+
 __STATIC_INLINE void nrf_gpio_cfg(
-        uint32_t             pin_number,
-        nrf_gpio_pin_dir_t   dir,
-        nrf_gpio_pin_input_t input,
-        nrf_gpio_pin_pull_t  pull,
-        nrf_gpio_pin_drive_t drive,
-        nrf_gpio_pin_sense_t sense)
+    uint32_t             pin_number,
+    nrf_gpio_pin_dir_t   dir,
+    nrf_gpio_pin_input_t input,
+    nrf_gpio_pin_pull_t  pull,
+    nrf_gpio_pin_drive_t drive,
+    nrf_gpio_pin_sense_t sense)
 {
-    NRF_GPIO->PIN_CNF[pin_number] = ((uint32_t)dir   << GPIO_PIN_CNF_DIR_Pos)
-                                  | ((uint32_t)input << GPIO_PIN_CNF_INPUT_Pos)
-                                  | ((uint32_t)pull  << GPIO_PIN_CNF_PULL_Pos)
-                                  | ((uint32_t)drive << GPIO_PIN_CNF_DRIVE_Pos)
-                                  | ((uint32_t)sense << GPIO_PIN_CNF_SENSE_Pos);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    reg->PIN_CNF[pin_number] = ((uint32_t)dir << GPIO_PIN_CNF_DIR_Pos)
+                               | ((uint32_t)input << GPIO_PIN_CNF_INPUT_Pos)
+                               | ((uint32_t)pull << GPIO_PIN_CNF_PULL_Pos)
+                               | ((uint32_t)drive << GPIO_PIN_CNF_DRIVE_Pos)
+                               | ((uint32_t)sense << GPIO_PIN_CNF_SENSE_Pos);
 }
+
 
 __STATIC_INLINE void nrf_gpio_cfg_output(uint32_t pin_number)
 {
     nrf_gpio_cfg(
-            pin_number,
-            NRF_GPIO_PIN_DIR_OUTPUT,
-            NRF_GPIO_PIN_INPUT_DISCONNECT,
-            NRF_GPIO_PIN_NOPULL,
-            NRF_GPIO_PIN_S0S1,
-            NRF_GPIO_PIN_NOSENSE);
+        pin_number,
+        NRF_GPIO_PIN_DIR_OUTPUT,
+        NRF_GPIO_PIN_INPUT_DISCONNECT,
+        NRF_GPIO_PIN_NOPULL,
+        NRF_GPIO_PIN_S0S1,
+        NRF_GPIO_PIN_NOSENSE);
 }
+
 
 __STATIC_INLINE void nrf_gpio_cfg_input(uint32_t pin_number, nrf_gpio_pin_pull_t pull_config)
 {
     nrf_gpio_cfg(
-            pin_number,
-            NRF_GPIO_PIN_DIR_INPUT,
-            NRF_GPIO_PIN_INPUT_CONNECT,
-            pull_config,
-            NRF_GPIO_PIN_S0S1,
-            NRF_GPIO_PIN_NOSENSE);
+        pin_number,
+        NRF_GPIO_PIN_DIR_INPUT,
+        NRF_GPIO_PIN_INPUT_CONNECT,
+        pull_config,
+        NRF_GPIO_PIN_S0S1,
+        NRF_GPIO_PIN_NOSENSE);
 }
+
 
 __STATIC_INLINE void nrf_gpio_cfg_default(uint32_t pin_number)
 {
     nrf_gpio_cfg(
-            pin_number,
-            NRF_GPIO_PIN_DIR_INPUT,
-            NRF_GPIO_PIN_INPUT_DISCONNECT,
-            NRF_GPIO_PIN_NOPULL,
-            NRF_GPIO_PIN_S0S1,
-            NRF_GPIO_PIN_NOSENSE);
+        pin_number,
+        NRF_GPIO_PIN_DIR_INPUT,
+        NRF_GPIO_PIN_INPUT_DISCONNECT,
+        NRF_GPIO_PIN_NOPULL,
+        NRF_GPIO_PIN_S0S1,
+        NRF_GPIO_PIN_NOSENSE);
 }
+
 
 __STATIC_INLINE void nrf_gpio_cfg_watcher(uint32_t pin_number)
 {
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
     /*lint -e{845} // A zero has been given as right argument to operator '|'" */
-    uint32_t cnf = NRF_GPIO->PIN_CNF[pin_number] & ~GPIO_PIN_CNF_INPUT_Msk;
-    NRF_GPIO->PIN_CNF[pin_number] = cnf | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos);
+    uint32_t cnf = reg->PIN_CNF[pin_number] & ~GPIO_PIN_CNF_INPUT_Msk;
+
+    reg->PIN_CNF[pin_number] = cnf | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos);
 }
+
 
 __STATIC_INLINE void nrf_gpio_input_disconnect(uint32_t pin_number)
 {
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
     /*lint -e{845} // A zero has been given as right argument to operator '|'" */
-    uint32_t cnf = NRF_GPIO->PIN_CNF[pin_number] & ~GPIO_PIN_CNF_INPUT_Msk;
-    NRF_GPIO->PIN_CNF[pin_number] = cnf | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos);
+    uint32_t cnf = reg->PIN_CNF[pin_number] & ~GPIO_PIN_CNF_INPUT_Msk;
+
+    reg->PIN_CNF[pin_number] = cnf | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos);
 }
 
-__STATIC_INLINE void nrf_gpio_cfg_sense_input(uint32_t pin_number, nrf_gpio_pin_pull_t pull_config, nrf_gpio_pin_sense_t sense_config)
+
+__STATIC_INLINE void nrf_gpio_cfg_sense_input(uint32_t             pin_number,
+                                              nrf_gpio_pin_pull_t  pull_config,
+                                              nrf_gpio_pin_sense_t sense_config)
 {
     nrf_gpio_cfg(
-            pin_number,
-            NRF_GPIO_PIN_DIR_INPUT,
-            NRF_GPIO_PIN_INPUT_CONNECT,
-            pull_config,
-            NRF_GPIO_PIN_S0S1,
-            sense_config);
+        pin_number,
+        NRF_GPIO_PIN_DIR_INPUT,
+        NRF_GPIO_PIN_INPUT_CONNECT,
+        pull_config,
+        NRF_GPIO_PIN_S0S1,
+        sense_config);
 }
+
 
 __STATIC_INLINE void nrf_gpio_cfg_sense_set(uint32_t pin_number, nrf_gpio_pin_sense_t sense_config)
 {
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
     /*lint -e{845} // A zero has been given as right argument to operator '|'" */
-    //uint32_t cnf = NRF_GPIO->PIN_CNF[pin_number] & ~GPIO_PIN_CNF_SENSE_Msk;
-    NRF_GPIO->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_SENSE_Msk;
-    NRF_GPIO->PIN_CNF[pin_number] |= (sense_config << GPIO_PIN_CNF_SENSE_Pos);
+    reg->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_SENSE_Msk;
+    reg->PIN_CNF[pin_number] |= (sense_config << GPIO_PIN_CNF_SENSE_Pos);
 }
+
 
 __STATIC_INLINE void nrf_gpio_pin_dir_set(uint32_t pin_number, nrf_gpio_pin_dir_t direction)
 {
-    if(direction == NRF_GPIO_PIN_DIR_INPUT)
+    if (direction == NRF_GPIO_PIN_DIR_INPUT)
     {
         nrf_gpio_cfg(
-                pin_number,
-                NRF_GPIO_PIN_DIR_INPUT,
-                NRF_GPIO_PIN_INPUT_CONNECT,
-                NRF_GPIO_PIN_NOPULL,
-                NRF_GPIO_PIN_S0S1,
-                NRF_GPIO_PIN_NOSENSE);
+            pin_number,
+            NRF_GPIO_PIN_DIR_INPUT,
+            NRF_GPIO_PIN_INPUT_CONNECT,
+            NRF_GPIO_PIN_NOPULL,
+            NRF_GPIO_PIN_S0S1,
+            NRF_GPIO_PIN_NOSENSE);
     }
     else
     {
-        NRF_GPIO->DIRSET = (1UL << pin_number);
+        NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+        reg->DIRSET = (1UL << pin_number);
     }
 }
 
+
 __STATIC_INLINE void nrf_gpio_pin_set(uint32_t pin_number)
 {
-    NRF_GPIO->OUTSET = (1UL << pin_number);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    nrf_gpio_port_out_set(reg, 1UL << pin_number);
 }
 
-__STATIC_INLINE void nrf_gpio_pins_set(uint32_t pin_mask)
-{
-    NRF_GPIO->OUTSET = pin_mask;
-}
 
 __STATIC_INLINE void nrf_gpio_pin_clear(uint32_t pin_number)
 {
-    NRF_GPIO->OUTCLR = (1UL << pin_number);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    nrf_gpio_port_out_clear(reg, 1UL << pin_number);
 }
 
-__STATIC_INLINE void nrf_gpio_pins_clear(uint32_t pin_mask)
-{
-    NRF_GPIO->OUTCLR = pin_mask;
-}
 
 __STATIC_INLINE void nrf_gpio_pin_toggle(uint32_t pin_number)
 {
-    nrf_gpio_pins_toggle(1UL << pin_number);
+    NRF_GPIO_Type * reg        = nrf_gpio_pin_port_decode(&pin_number);
+    uint32_t        pins_state = reg->OUT;
+
+    reg->OUTSET = (~pins_state & (1UL << pin_number));
+    reg->OUTCLR = (pins_state & (1UL << pin_number));
 }
 
-__STATIC_INLINE void nrf_gpio_pins_toggle(uint32_t pin_mask)
-{
-    uint32_t pins_state = NRF_GPIO->OUT;
-    NRF_GPIO->OUTSET = (~pins_state & pin_mask);
-    NRF_GPIO->OUTCLR = ( pins_state & pin_mask);
-}
 
 __STATIC_INLINE void nrf_gpio_pin_write(uint32_t pin_number, uint32_t value)
 {
@@ -612,63 +655,139 @@ __STATIC_INLINE void nrf_gpio_pin_write(uint32_t pin_number, uint32_t value)
     }
 }
 
+
 __STATIC_INLINE uint32_t nrf_gpio_pin_read(uint32_t pin_number)
 {
-    return  ((NRF_GPIO->IN >> pin_number) & 1UL);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    return ((nrf_gpio_port_in_read(reg) >> pin_number) & 1UL);
 }
 
-__STATIC_INLINE uint32_t nrf_gpio_pins_read(void)
+
+__STATIC_INLINE uint32_t nrf_gpio_pin_out_read(uint32_t pin_number)
 {
-    return NRF_GPIO->IN;
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    return ((nrf_gpio_port_out_read(reg) >> pin_number) & 1UL);
 }
+
 
 __STATIC_INLINE nrf_gpio_pin_sense_t nrf_gpio_pin_sense_get(uint32_t pin_number)
 {
-    return (nrf_gpio_pin_sense_t)((NRF_GPIO->PIN_CNF[pin_number] & GPIO_PIN_CNF_SENSE_Msk) >> GPIO_PIN_CNF_SENSE_Pos);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    return (nrf_gpio_pin_sense_t)((reg->PIN_CNF[pin_number] &
+                                   GPIO_PIN_CNF_SENSE_Msk) >> GPIO_PIN_CNF_SENSE_Pos);
 }
 
-__STATIC_INLINE void nrf_gpio_word_byte_write(volatile uint32_t * word_address, uint8_t byte_no, uint8_t value)
+
+__STATIC_INLINE void nrf_gpio_port_dir_output_set(NRF_GPIO_Type * p_reg, uint32_t out_mask)
 {
-    *((volatile uint8_t*)(word_address) + byte_no) = value;
+    p_reg->DIRSET = out_mask;
 }
 
-__STATIC_INLINE uint8_t nrf_gpio_word_byte_read(const volatile uint32_t* word_address, uint8_t byte_no)
+
+__STATIC_INLINE void nrf_gpio_port_dir_input_set(NRF_GPIO_Type * p_reg, uint32_t in_mask)
 {
-    return (*((const volatile uint8_t*)(word_address) + byte_no));
+    p_reg->DIRCLR = in_mask;
 }
 
-__STATIC_INLINE void nrf_gpio_port_dir_set(nrf_gpio_port_select_t port, nrf_gpio_port_dir_t dir)
+
+__STATIC_INLINE void nrf_gpio_port_dir_write(NRF_GPIO_Type * p_reg, uint32_t value)
 {
-    if (dir == NRF_GPIO_PORT_DIR_OUTPUT)
+    p_reg->DIR = value;
+}
+
+
+__STATIC_INLINE uint32_t nrf_gpio_port_dir_read(NRF_GPIO_Type const * p_reg)
+{
+    return p_reg->DIR;
+}
+
+
+__STATIC_INLINE uint32_t nrf_gpio_port_in_read(NRF_GPIO_Type const * p_reg)
+{
+    return p_reg->IN;
+}
+
+
+__STATIC_INLINE uint32_t nrf_gpio_port_out_read(NRF_GPIO_Type const * p_reg)
+{
+    return p_reg->OUT;
+}
+
+
+__STATIC_INLINE void nrf_gpio_port_out_write(NRF_GPIO_Type * p_reg, uint32_t value)
+{
+    p_reg->OUT = value;
+}
+
+
+__STATIC_INLINE void nrf_gpio_port_out_set(NRF_GPIO_Type * p_reg, uint32_t set_mask)
+{
+    p_reg->OUTSET = set_mask;
+}
+
+
+__STATIC_INLINE void nrf_gpio_port_out_clear(NRF_GPIO_Type * p_reg, uint32_t clr_mask)
+{
+    p_reg->OUTCLR = clr_mask;
+}
+
+
+__STATIC_INLINE void nrf_gpio_ports_read(uint32_t start_port, uint32_t length, uint32_t * p_masks)
+{
+    NRF_GPIO_Type * gpio_regs[GPIO_COUNT] = GPIO_REG_LIST;
+
+    ASSERT(start_port + length <= GPIO_COUNT);
+    uint32_t i;
+
+    for (i = start_port; i < (start_port + length); i++)
     {
-        nrf_gpio_word_byte_write(&NRF_GPIO->DIRSET, port, 0xFF);
+        *p_masks = nrf_gpio_port_in_read(gpio_regs[i]);
+        p_masks++;
     }
-    else
+}
+
+
+#ifdef GPIO_DETECTMODE_DETECTMODE_LDETECT
+__STATIC_INLINE void nrf_gpio_latches_read(uint32_t start_port, uint32_t length, uint32_t * p_masks)
+{
+    NRF_GPIO_Type * gpio_regs[GPIO_COUNT] = GPIO_REG_LIST;
+    uint32_t        i;
+
+    for (i = start_port; i < (start_port + length); i++)
     {
-        nrf_gpio_range_cfg_input(port*8, (port+1)*8-1, NRF_GPIO_PIN_NOPULL);
+        *p_masks = gpio_regs[i]->LATCH;
+        p_masks++;
     }
 }
 
-__STATIC_INLINE uint8_t nrf_gpio_port_read(nrf_gpio_port_select_t port)
+
+__STATIC_INLINE uint32_t nrf_gpio_pin_latch_get(uint32_t pin_number)
 {
-    return nrf_gpio_word_byte_read(&NRF_GPIO->IN, port);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    return (reg->LATCH & (1 << pin_number)) ? 1 : 0;
 }
 
-__STATIC_INLINE void nrf_gpio_port_write(nrf_gpio_port_select_t port, uint8_t value)
+
+__STATIC_INLINE void nrf_gpio_pin_latch_clear(uint32_t pin_number)
 {
-    nrf_gpio_word_byte_write(&NRF_GPIO->OUT, port, value);
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    reg->LATCH = (1 << pin_number);
 }
 
-__STATIC_INLINE void nrf_gpio_port_set(nrf_gpio_port_select_t port, uint8_t set_mask)
-{
-    nrf_gpio_word_byte_write(&NRF_GPIO->OUTSET, port, set_mask);
-}
 
-__STATIC_INLINE void nrf_gpio_port_clear(nrf_gpio_port_select_t port, uint8_t clr_mask)
-{
-    nrf_gpio_word_byte_write(&NRF_GPIO->OUTCLR, port, clr_mask);
-}
-#endif //SUPPRESS_INLINE_IMPLEMENTATION
+#endif
+#endif // SUPPRESS_INLINE_IMPLEMENTATION
+
 /** @} */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -35,10 +35,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(FSTORAGE)
 #include "fstorage.h"
-#include "fstorage_config.h"
 #include "fstorage_internal_defs.h"
 
 #include <stdint.h>
@@ -51,7 +50,6 @@
 static uint8_t       m_flags;       // fstorage status flags.
 static fs_op_queue_t m_queue;       // Queue of requested operations.
 static uint8_t       m_retry_count; // Number of times the last flash operation was retried.
-
 
 // Sends events to the application.
 static void send_event(fs_op_t const * const p_op, fs_ret_t result)
@@ -77,6 +75,7 @@ static void send_event(fs_op_t const * const p_op, fs_ret_t result)
             // Should not happen.
             break;
     }
+    evt.p_context = p_op->p_context;
 
     p_op->p_config->callback(&evt, result);
 }
@@ -85,14 +84,18 @@ static void send_event(fs_op_t const * const p_op, fs_ret_t result)
 // Checks that a configuration is non-NULL and within section variable bounds.
 static bool check_config(fs_config_t const * const config)
 {
+#ifndef DFU_SUPPORT_SIGNING
     if ((config != NULL) &&
         (FS_SECTION_VARS_START_ADDR <= (uint32_t)config) &&
         (FS_SECTION_VARS_END_ADDR   >  (uint32_t)config))
     {
         return true;
     }
-   
+
     return false;
+#else
+    return true;
+#endif
 }
 
 
@@ -273,7 +276,7 @@ static bool queue_get_next_free(fs_op_t ** p_op)
     }
 
     idx = ((m_queue.rp + m_queue.count) < FS_QUEUE_SIZE) ?
-           (m_queue.rp + m_queue.count) : 0;
+           (m_queue.rp + m_queue.count) : ((m_queue.rp + m_queue.count)-FS_QUEUE_SIZE);
 
     m_queue.count++;
 
@@ -288,66 +291,79 @@ static bool queue_get_next_free(fs_op_t ** p_op)
 
 fs_ret_t fs_init(void)
 {
-    uint32_t const   users         = FS_SECTION_VARS_COUNT;
-    uint32_t const * p_current_end = FS_PAGE_END_ADDR;
-    uint32_t         index_max     = 0x00;
-    uint32_t         index_last    = 0xFFFFFFFF;
+    uint32_t const   total_users     = FS_SECTION_VARS_COUNT;
+    uint32_t         configs_to_init = FS_SECTION_VARS_COUNT;
+    uint32_t const * p_current_end   = FS_PAGE_END_ADDR;
 
     if (m_flags & FS_FLAG_INITIALIZED)
     {
         return FS_SUCCESS;
     }
 
-    #if 0
-    // Check for configurations with duplicate priority.
-    for (uint32_t i = 0; i < users; i++)
-    {
-        for (uint32_t j = i + 1; j < users; j++)
-        {
-            fs_config_t const * const p_config_i = FS_SECTION_VARS_GET(i);
-            fs_config_t const * const p_config_j = FS_SECTION_VARS_GET(j);
+    // Each fstorage user has registered one configuration.
+    // The total number of users (and thus the total number of configurations) is
+    // kept in total_users. Some of these users might have specified their flash
+    // boundaries in their configurations. This function sets the flash boundaries
+    // for the remaining user configurations without further user interaction.
 
-            if (p_config_i->page_order == p_config_j->page_order)
-            {
-                // Error.
-                return FS_ERR_INVALID_CFG;
-            }
+    // First, determine how many user configurations this function has to initialize,
+    // out of the total. This number will be kept in configs_to_init.
+
+    for (uint32_t i = 0; i < total_users; i++)
+    {
+        fs_config_t const * const p_config = FS_SECTION_VARS_GET(i);
+
+        if ((p_config->p_start_addr != NULL) &&
+            (p_config->p_end_addr   != NULL))
+        {
+            configs_to_init--;
         }
     }
-    #endif
 
-    // Assign pages to registered users, beginning with the ones with the highest
-    // priority, which will be assigned pages with the highest memory address.
+    // For each configuration to initialize, assign flash space based on the priority
+    // specified. Higher priority means a higher memory address.
 
-    for (uint32_t i = 0; i < users; i++)
+    for (uint32_t i = 0; i < configs_to_init; i++)
     {
-        uint8_t max_priority  = 0x00;
+        fs_config_t * p_config_i   = FS_SECTION_VARS_GET(i);
+        uint8_t       max_priority = 0;
+        uint8_t       max_index    = i;
 
-        for (uint32_t j = 0; j < users; j++)
+        for (uint32_t j = 0; j < total_users; j++)
         {
-            fs_config_t * const p_config = FS_SECTION_VARS_GET(j);
+            fs_config_t const * const p_config_j = FS_SECTION_VARS_GET(j);
 
-            // Skip the one assigned during last iteration.
-            if (j == index_last)
+            #if 0
+            if (p_config_j->priority == p_config_i->priority)
             {
+                // Duplicated priorities are not allowed.
+                return FS_ERR_INVALID_CFG;
+            }
+            #endif
+
+            if ((p_config_j->p_start_addr != NULL) &&
+                (p_config_j->p_end_addr   != NULL))
+            {
+                // When calculating the configuration with the next highest priority
+                // skip configurations which were already set during a previous iteration.
+                // This check needs to be here to prevent re-using the configurations
+                // with higher priorities which we used in previous iterations.
                 continue;
             }
 
-            if (p_config->priority >= max_priority)
+            if (p_config_j->priority > max_priority)
             {
-                max_priority = p_config->priority;
-                index_max    = j;
+                max_priority = p_config_j->priority;
+                max_index    = j;
             }
         }
 
-        fs_config_t * const p_config = FS_SECTION_VARS_GET(index_max);
+        p_config_i = FS_SECTION_VARS_GET(max_index);
 
-        p_config->p_end_addr   = p_current_end;
-        p_config->p_start_addr = p_current_end - (p_config->num_pages * FS_PAGE_SIZE_WORDS);
+        p_config_i->p_end_addr   = p_current_end;
+        p_config_i->p_start_addr = p_current_end - (p_config_i->num_pages * FS_PAGE_SIZE_WORDS);
 
-        p_current_end = p_config->p_start_addr;
-
-        index_last = index_max;
+        p_current_end = p_config_i->p_start_addr;
     }
 
     m_flags |= FS_FLAG_INITIALIZED;
@@ -356,10 +372,18 @@ fs_ret_t fs_init(void)
 }
 
 
+fs_ret_t fs_fake_init(void)
+{
+    m_flags |= FS_FLAG_INITIALIZED;
+    return FS_SUCCESS;
+}
+
+
 fs_ret_t fs_store(fs_config_t const * const p_config,
                   uint32_t    const * const p_dest,
                   uint32_t    const * const p_src,
-                  uint16_t    const         length_words)
+                  uint16_t    const         length_words,
+                  void *                    p_context)
 {
     fs_op_t * p_op;
 
@@ -403,6 +427,7 @@ fs_ret_t fs_store(fs_config_t const * const p_config,
     }
 
     // Initialize the operation.
+    p_op->p_context          = p_context;
     p_op->p_config           = p_config;
     p_op->op_code            = FS_OP_STORE;
     p_op->store.p_src        = p_src;
@@ -417,7 +442,8 @@ fs_ret_t fs_store(fs_config_t const * const p_config,
 
 fs_ret_t fs_erase(fs_config_t const * const p_config,
                   uint32_t    const * const p_page_addr,
-                  uint16_t    const         num_pages)
+                  uint16_t    const         num_pages,
+                  void *                    p_context)
 {
     fs_op_t * p_op;
 
@@ -437,7 +463,7 @@ fs_ret_t fs_erase(fs_config_t const * const p_config,
     }
 
     // Check that the page is aligned to a page boundary.
-    if (((uint32_t)p_page_addr % FS_PAGE_SIZE) != 0)
+    if (((uint32_t)p_page_addr & (FS_PAGE_SIZE-1)) != 0)
     {
         return FS_ERR_UNALIGNED_ADDR;
     }
@@ -460,6 +486,7 @@ fs_ret_t fs_erase(fs_config_t const * const p_config,
     }
 
     // Initialize the operation.
+    p_op->p_context            = p_context;
     p_op->p_config             = p_config;
     p_op->op_code              = FS_OP_ERASE;
     p_op->erase.page           = ((uint32_t)p_page_addr / FS_PAGE_SIZE);
@@ -487,7 +514,7 @@ fs_ret_t fs_queued_op_count_get(uint32_t * const p_op_count)
 void fs_sys_event_handler(uint32_t sys_evt)
 {
     fs_op_t * const p_op = &m_queue.op[m_queue.rp];
-    
+
     if (m_flags & FS_FLAG_PROCESSING)
     {
         // A flash operation was initiated by this module. Handle the result.
@@ -519,3 +546,14 @@ void fs_sys_event_handler(uint32_t sys_evt)
     queue_process();
 }
 
+bool fs_queue_is_full(void)
+{
+    return (m_queue.count == FS_QUEUE_SIZE);
+}
+
+bool fs_queue_is_empty(void)
+{
+    return (m_queue.count == 0);
+}
+
+#endif //NRF_MODULE_ENABLED(FSTORAGE)

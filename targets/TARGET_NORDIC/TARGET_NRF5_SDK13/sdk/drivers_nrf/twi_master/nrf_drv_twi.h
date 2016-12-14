@@ -36,27 +36,22 @@
  * 
  */
 
-
-/**
+/**@file
+ * @addtogroup nrf_twi Two Wire master interface (TWI/TWIM)
+ * @ingroup    nrf_drivers
+ * @brief      Two Wire master interface (TWI/TWIM) APIs.
  *
- * @defgroup nrf_twi Two-wire interface (TWI)
- * @ingroup nrf_drivers
- * @brief Two-wire interface (TWI) APIs.
  *
- * @defgroup nrf_twi_master TWI master HAL and driver
- * @ingroup nrf_twi
- * @brief TWI master APIs.
- * @details The TWI and TWIM HALs provide basic APIs for accessing the registers of the TWI and TWIM peripherals, respectively. 
- *
- * The TWI master driver provides APIs on a higher level.
- *
+ * @defgroup nrf_drv_twi TWIS driver
+ * @{
+ * @ingroup    nrf_twi
+ * @brief      TWI master APIs.
  */
-
 #ifndef NRF_DRV_TWI_H__
 #define NRF_DRV_TWI_H__
 
 #include "nordic_common.h"
-#include "nrf_drv_config.h"
+#include "sdk_config.h"
 
 // This set of macros makes it possible to exclude parts of code when one type
 // of supported peripherals is not used.
@@ -75,7 +70,11 @@
 #endif
 #include "sdk_errors.h"
 
-#if defined(NRF52)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if defined(TWIM_IN_USE)
     #define NRF_DRV_TWI_PERIPHERAL(id)           \
         (CONCAT_3(TWI, id, _USE_EASY_DMA) == 1 ? \
             (void *)CONCAT_2(NRF_TWIM, id)       \
@@ -84,12 +83,6 @@
     #define NRF_DRV_TWI_PERIPHERAL(id)  (void *)CONCAT_2(NRF_TWI, id)
 #endif
 
-/**
- * @defgroup nrf_drv_twi TWI master driver
- * @{
- * @ingroup nrf_twi_master
- * @brief   Multi-instance TWI master driver.
- */
 
 /**
  * @brief Structure for the TWI master driver instance.
@@ -107,6 +100,9 @@ typedef struct
     bool    use_easy_dma; ///< True if the peripheral with EasyDMA (TWIM) shall be used.
 } nrf_drv_twi_t;
 
+#define TWI0_INSTANCE_INDEX 0
+#define TWI1_INSTANCE_INDEX TWI0_INSTANCE_INDEX+TWI0_ENABLED
+
 /**
  * @brief Macro for creating a TWI master driver instance.
  */
@@ -122,21 +118,25 @@ typedef struct
  */
 typedef struct
 {
-    uint32_t            scl;                ///< SCL pin number.
-    uint32_t            sda;                ///< SDA pin number.
-    nrf_twi_frequency_t frequency;          ///< TWI frequency.
-    uint8_t             interrupt_priority; ///< Interrupt priority.
+    uint32_t            scl;                 ///< SCL pin number.
+    uint32_t            sda;                 ///< SDA pin number.
+    nrf_twi_frequency_t frequency;           ///< TWI frequency.
+    uint8_t             interrupt_priority;  ///< Interrupt priority.
+    bool                clear_bus_init;      ///< Clear bus during init.
+    bool                hold_bus_uninit;     ///< Hold pull up state on gpio pins after uninit.
 } nrf_drv_twi_config_t;
 
 /**
  * @brief TWI master driver instance default configuration.
  */
-#define NRF_DRV_TWI_DEFAULT_CONFIG(id)                            \
-{                                                                 \
-    .frequency          = CONCAT_3(TWI, id, _CONFIG_FREQUENCY),   \
-    .scl                = CONCAT_3(TWI, id, _CONFIG_SCL),         \
-    .sda                = CONCAT_3(TWI, id, _CONFIG_SDA),         \
-    .interrupt_priority = CONCAT_3(TWI, id, _CONFIG_IRQ_PRIORITY) \
+#define NRF_DRV_TWI_DEFAULT_CONFIG                                             \
+{                                                                              \
+    .frequency          = (nrf_twi_frequency_t)TWI_DEFAULT_CONFIG_FREQUENCY,   \
+    .scl                = 31,                                                  \
+    .sda                = 31,                                                  \
+    .interrupt_priority = TWI_DEFAULT_CONFIG_IRQ_PRIORITY,                     \
+    .clear_bus_init     = TWI_DEFAULT_CONFIG_CLR_BUS_INIT,                     \
+    .hold_bus_uninit    = TWI_DEFAULT_CONFIG_HOLD_BUS_UNINIT,                  \
 }
 
 #define NRF_DRV_TWI_FLAG_TX_POSTINC          (1UL << 0) /**< TX buffer address incremented after transfer. */
@@ -237,9 +237,9 @@ typedef void (* nrf_drv_twi_evt_handler_t)(nrf_drv_twi_evt_t const * p_event,
                                            void *                    p_context);
 
 /**
- * @brief Function for initializing the TWI instance.
+ * @brief Function for initializing the TWI driver instance.
  *
- * @param[in] p_instance      TWI instance.
+ * @param[in] p_instance      Pointer to the driver instance structure.
  * @param[in] p_config        Initial configuration. If NULL, the default configuration is used.
  * @param[in] event_handler   Event handler provided by the user. If NULL, blocking mode is enabled.
  * @param[in] p_context       Context passed to event handler.
@@ -247,8 +247,8 @@ typedef void (* nrf_drv_twi_evt_handler_t)(nrf_drv_twi_evt_t const * p_event,
  * @retval NRF_SUCCESS             If initialization was successful.
  * @retval NRF_ERROR_INVALID_STATE If the driver is in invalid state.
  * @retval NRF_ERROR_BUSY          If some other peripheral with the same
- *                                 instance ID is already in use. This is 
- *                                 possible only if PERIPHERAL_RESOURCE_SHARING_ENABLED 
+ *                                 instance ID is already in use. This is
+ *                                 possible only if PERIPHERAL_RESOURCE_SHARING_ENABLED
  *                                 is set to a value other than zero.
  */
 ret_code_t nrf_drv_twi_init(nrf_drv_twi_t const *        p_instance,
@@ -259,21 +259,21 @@ ret_code_t nrf_drv_twi_init(nrf_drv_twi_t const *        p_instance,
 /**
  * @brief Function for uninitializing the TWI instance.
  *
- * @param[in] p_instance  TWI instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_twi_uninit(nrf_drv_twi_t const * p_instance);
 
 /**
  * @brief Function for enabling the TWI instance.
  *
- * @param[in] p_instance  TWI instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_twi_enable(nrf_drv_twi_t const * p_instance);
 
 /**
  * @brief Function for disabling the TWI instance.
  *
- * @param[in] p_instance  TWI instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance);
 
@@ -283,7 +283,7 @@ void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance);
  * The transmission will be stopped when an error occurs. If a transfer is ongoing,
  * the function returns the error code @ref NRF_ERROR_BUSY.
  *
- * @param[in] p_instance TWI instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] address    Address of a specific slave device (only 7 LSB).
  * @param[in] p_data     Pointer to a transmit buffer.
  * @param[in] length     Number of bytes to send.
@@ -291,9 +291,12 @@ void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance);
  *                       after the transfer has completed successfully (allowing
  *                       for a repeated start in the next transfer).
  *
- * @retval NRF_SUCCESS        If the procedure was successful.
- * @retval NRF_ERROR_BUSY     If the driver is not ready for a new transfer.
- * @retval NRF_ERROR_INTERNAL If an error was detected by hardware.
+ * @retval NRF_SUCCESS                  If the procedure was successful.
+ * @retval NRF_ERROR_BUSY               If the driver is not ready for a new transfer.
+ * @retval NRF_ERROR_INTERNAL           If an error was detected by hardware.
+ * @retval NRF_ERROR_INVALID_ADDR       If the EasyDMA is used and memory adress in not in RAM.
+ * @retval NRF_ERROR_DRV_TWI_ERR_ANACK  If NACK received after sending the address.
+ * @retval NRF_ERROR_DRV_TWI_ERR_DNACK  If NACK received after sending a data byte.
  */
 ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
                           uint8_t               address,
@@ -305,16 +308,19 @@ ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
  * @brief Function for reading data from a TWI slave.
  *
  * The transmission will be stopped when an error occurs. If a transfer is ongoing,
- * the function returns the error code @ref NRF_ERROR_BUSY. 
+ * the function returns the error code @ref NRF_ERROR_BUSY.
  *
- * @param[in] p_instance TWI instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] address    Address of a specific slave device (only 7 LSB).
  * @param[in] p_data     Pointer to a receive buffer.
  * @param[in] length     Number of bytes to be received.
  *
- * @retval NRF_SUCCESS             If the procedure was successful.
- * @retval NRF_ERROR_BUSY          If the driver is not ready for a new transfer.
- * @retval NRF_ERROR_INTERNAL      If an error was detected by hardware.
+ * @retval NRF_SUCCESS                    If the procedure was successful.
+ * @retval NRF_ERROR_BUSY                 If the driver is not ready for a new transfer.
+ * @retval NRF_ERROR_INTERNAL             If an error was detected by hardware.
+ * @retval NRF_ERROR_DRV_TWI_ERR_OVERRUN  If the unread data was replaced by new data
+ * @retval NRF_ERROR_DRV_TWI_ERR_ANACK    If NACK received after sending the address.
+ * @retval NRF_ERROR_DRV_TWI_ERR_DNACK    If NACK received after sending a data byte.
  */
 ret_code_t nrf_drv_twi_rx(nrf_drv_twi_t const * p_instance,
                           uint8_t               address,
@@ -340,7 +346,7 @@ ret_code_t nrf_drv_twi_rx(nrf_drv_twi_t const * p_instance,
  *   After the transfer is set up, a set of transfers can be triggered by PPI that will read, for example, the same register of an
  *   external component and put it into a RAM buffer without any interrupts. @ref nrf_drv_twi_stopped_event_get can be used to get the
  *   address of the STOPPED event, which can be used to count the number of transfers. If @ref NRF_DRV_TWI_FLAG_REPEATED_XFER is used,
- *   the driver does not set the instance into busy state, so you must ensure that the next transfers are set up
+ *   the driver does not set the driver instance into busy state, so you must ensure that the next transfers are set up
  *   when TWIM is not active. Supported only by TWIM.
  * - @ref NRF_DRV_TWI_FLAG_TX_NO_STOP<span></span>: No stop condition after TX transfer.
  *
@@ -357,34 +363,29 @@ ret_code_t nrf_drv_twi_rx(nrf_drv_twi_t const * p_instance,
  * This function should be used only if the instance is configured to work in non-blocking mode. If the function is used in blocking mode, the driver asserts.
  * @note If you are using this function with TWI, the only supported flag is @ref NRF_DRV_TWI_FLAG_TX_NO_STOP. All other flags require TWIM.
   *
- * @param[in] p_instance        TWI instance.
+ * @param[in] p_instance        Pointer to the driver instance structure.
  * @param[in] p_xfer_desc       Pointer to the transfer descriptor.
  * @param[in] flags             Transfer options (0 for default settings).
  *
- * @retval NRF_SUCCESS             If the procedure was successful.
- * @retval NRF_ERROR_BUSY          If the driver is not ready for a new transfer.
- * @retval NRF_ERROR_NOT_SUPPORTED If the provided parameters are not supported.
+ * @retval NRF_SUCCESS                    If the procedure was successful.
+ * @retval NRF_ERROR_BUSY                 If the driver is not ready for a new transfer.
+ * @retval NRF_ERROR_NOT_SUPPORTED        If the provided parameters are not supported.
+ * @retval NRF_ERROR_INTERNAL             If an error was detected by hardware.
+ * @retval NRF_ERROR_INVALID_ADDR         If the EasyDMA is used and memory adress in not in RAM
+ * @retval NRF_ERROR_DRV_TWI_ERR_OVERRUN  If the unread data was replaced by new data (TXRX and RX)
+ * @retval NRF_ERROR_DRV_TWI_ERR_ANACK    If NACK received after sending the address.
+ * @retval NRF_ERROR_DRV_TWI_ERR_DNACK    If NACK received after sending a data byte.
  */
 ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
                             nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
                             uint32_t                        flags);
 
 /**
- * @brief Function for checking the TWI driver state.
- *
- * @param[in] p_instance TWI instance.
- *
- * @retval true  If the TWI driver is currently busy performing a transfer.
- * @retval false If the TWI driver is ready for a new transfer.
- */
-bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance);
-
-/**
  * @brief Function for getting the transferred data count.
  *
  * This function provides valid results only in legacy mode.
  *
- * @param[in] p_instance TWI instance.
+ * @param[in] p_instance Pointer to the driver instance structure.
  *
  * @return     Data count.
  */
@@ -396,7 +397,7 @@ uint32_t nrf_drv_twi_data_count_get(nrf_drv_twi_t const * const p_instance);
  * This function should be used if @ref nrf_drv_twi_xfer was called with the flag @ref NRF_DRV_TWI_FLAG_HOLD_XFER.
  * In that case, the transfer is not started by the driver, but it must be started externally by PPI.
  *
- * @param[in]  p_instance TWI instance.
+ * @param[in]  p_instance Pointer to the driver instance structure.
  * @param[in]  xfer_type  Transfer type used in the last call of the @ref nrf_drv_twi_xfer function.
  *
  * @return     Start task address (TX or RX) depending on the value of xfer_type.
@@ -409,7 +410,7 @@ uint32_t nrf_drv_twi_start_task_get(nrf_drv_twi_t const * p_instance, nrf_drv_tw
  * A STOPPED event can be used to detect the end of a transfer if the @ref NRF_DRV_TWI_FLAG_NO_XFER_EVT_HANDLER
  * option is used.
  *
- * @param[in]  p_instance  TWI instance.
+ * @param[in]  p_instance Pointer to the driver instance structure.
  *
  * @return     STOPPED event address.
  */
@@ -417,5 +418,10 @@ uint32_t nrf_drv_twi_stopped_event_get(nrf_drv_twi_t const * p_instance);
 /**
  *@}
  **/
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // NRF_DRV_TWI_H__

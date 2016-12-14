@@ -36,50 +36,38 @@
  * 
  */
 
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(PEER_MANAGER)
 #include "peer_manager.h"
 #include <string.h>
-#include "app_util.h"
 #include "security_manager.h"
+#include "security_dispatcher.h"
 #include "gatt_cache_manager.h"
+#include "gatts_cache_manager.h"
 #include "peer_database.h"
+#include "peer_data_storage.h"
 #include "id_manager.h"
 #include "ble_conn_state.h"
-#include "sdk_common.h"
 #include "peer_manager_internal.h"
 
-#define MODULE_INITIALIZED m_pm.initialized
-#include "sdk_macros.h"
+
+/**< The number of event handlers that can be registered with the module. */
+#define MAX_REGISTRANTS         (3)
+/**< Macro indicating whether the module has been initialized properly. */
+#define MODULE_INITIALIZED      (m_module_initialized)
 
 
-#define MAX_REGISTRANTS 3  /**< The number of event handlers that can be registered with the module. */
+static bool                          m_module_initialized;              /**< Whether or not @ref pm_init has been called successfully. */
+static bool                          m_peer_rank_initialized;           /**< Whether or not @ref rank_init has been called successfully. */
+static bool                          m_deleting_all;                    /**< True from when @ref pm_peers_delete is called until all peers have been deleted. */
+static pm_store_token_t              m_peer_rank_token;                 /**< The store token of an ongoing peer rank update via a call to @ref pm_peer_rank_highest. If @ref PM_STORE_TOKEN_INVALID, there is no ongoing update. */
+static uint32_t                      m_current_highest_peer_rank;       /**< The current highest peer rank. Used by @ref pm_peer_rank_highest. */
+static pm_peer_id_t                  m_highest_ranked_peer;             /**< The peer with the highest peer rank. Used by @ref pm_peer_rank_highest. */
+static pm_evt_handler_t              m_evt_handlers[MAX_REGISTRANTS];   /**< The subscribers to Peer Manager events, as registered through @ref pm_register. */
+static uint8_t                       m_n_registrants;                   /**< The number of event handlers registered through @ref pm_register. */
+static ble_conn_state_user_flag_id_t m_pairing_flag_id;                 /**< The flag ID for which connections are paired. */
+static ble_conn_state_user_flag_id_t m_bonding_flag_id;                 /**< The flag ID for which connections are bonded. */
 
-
-/**@brief Internal state of the module.
- */
-typedef struct
-{
-    uint8_t                       initialized           : 1;     /**< Whether or not @ref pm_init has been called successfully. */
-    uint8_t                       peer_rank_initialized : 1;     /**< Whether or not @ref rank_init has been called successfully. */
-    uint8_t                       deleting_all          : 1;     /**< True from when @ref pm_peers_delete is called until all peers have been deleted. */
-    pm_store_token_t              peer_rank_token;               /**< The store token of an ongoing peer rank update via a call to @ref pm_peer_rank_highest. If @ref PM_STORE_TOKEN_INVALID, there is no ongoing update. */
-    uint32_t                      current_highest_peer_rank;     /**< The current highest peer rank. Used by @ref pm_peer_rank_highest. */
-    pm_peer_id_t                  highest_ranked_peer;           /**< The peer with the highest peer rank. Used by @ref pm_peer_rank_highest. */
-    pm_evt_handler_t              evt_handlers[MAX_REGISTRANTS]; /**< The subscribers to Peer Manager events, as registered through @ref pm_register. */
-    uint8_t                       n_registrants;                 /**< The number of event handlers registered through @ref pm_register. */
-    ble_conn_state_user_flag_id_t pairing_flag_id;               /**< The flag ID for which connections are paired. */
-    ble_conn_state_user_flag_id_t bonding_flag_id;               /**< The flag ID for which connections are bonded. */
-} pm_t;
-
-
-/**@brief Instantiation of Peer Manager internal state.
- */
-static pm_t m_pm =
-{
-    .initialized           = 0,
-    .peer_rank_initialized = 0,
-};
 
 /**@brief Function for sending a Peer Manager event to all subscribers.
  *
@@ -87,18 +75,19 @@ static pm_t m_pm =
  */
 static void evt_send(pm_evt_t * p_pm_evt)
 {
-    for (int i = 0; i < m_pm.n_registrants; i++)
+    for (int i = 0; i < m_n_registrants; i++)
     {
-        m_pm.evt_handlers[i](p_pm_evt);
+        m_evt_handlers[i](p_pm_evt);
     }
 }
 
 
 /**@brief Event handler for events from the Peer Database module.
+ *        This handler is extern in the Peer Database module.
  *
  * @param[in]  p_pdb_evt  The incoming Peer Database event.
  */
-static void pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
+void pm_pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
 {
     bool send_evt = true;
     pm_evt_t pm_evt;
@@ -125,11 +114,11 @@ static void pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
                                             = p_pdb_evt->params.raw_stored_evt.store_token;
             pm_evt.params.peer_data_update_succeeded.flash_changed = true;
 
-            if(    (m_pm.peer_rank_token != PM_STORE_TOKEN_INVALID)
-                && (m_pm.peer_rank_token == p_pdb_evt->params.raw_stored_evt.store_token))
+            if (    (m_peer_rank_token != PM_STORE_TOKEN_INVALID)
+                && (m_peer_rank_token == p_pdb_evt->params.raw_stored_evt.store_token))
             {
-                m_pm.peer_rank_token     = PM_STORE_TOKEN_INVALID;
-                m_pm.highest_ranked_peer = pm_evt.peer_id;
+                m_peer_rank_token     = PM_STORE_TOKEN_INVALID;
+                m_highest_ranked_peer = pm_evt.peer_id;
 
                 pm_evt.params.peer_data_update_succeeded.token = PM_STORE_TOKEN_INVALID;
             }
@@ -144,11 +133,11 @@ static void pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
             pm_evt.params.peer_data_update_failed.error
                                             = p_pdb_evt->params.error_raw_store_evt.err_code;
 
-            if(    (m_pm.peer_rank_token != PM_STORE_TOKEN_INVALID)
-                && (m_pm.peer_rank_token == p_pdb_evt->params.raw_stored_evt.store_token))
+            if (    (m_peer_rank_token != PM_STORE_TOKEN_INVALID)
+                && (m_peer_rank_token == p_pdb_evt->params.raw_stored_evt.store_token))
             {
-                m_pm.peer_rank_token            = PM_STORE_TOKEN_INVALID;
-                m_pm.current_highest_peer_rank -= 1;
+                m_peer_rank_token            = PM_STORE_TOKEN_INVALID;
+                m_current_highest_peer_rank -= 1;
 
                 pm_evt.params.peer_data_update_succeeded.token = PM_STORE_TOKEN_INVALID;
             }
@@ -171,11 +160,13 @@ static void pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
 
         case PDB_EVT_PEER_FREED:
             pm_evt.evt_id = PM_EVT_PEER_DELETE_SUCCEEDED;
-            if (m_pm.deleting_all && (pdb_next_peer_id_get(PM_PEER_ID_INVALID) == PM_PEER_ID_INVALID))
+            // Check that no peers marked for deletion are left.
+            if (m_deleting_all
+                && (pdb_next_peer_id_get(PM_PEER_ID_INVALID) == PM_PEER_ID_INVALID)
+                && (pdb_next_deleted_peer_id_get(PM_PEER_ID_INVALID) == PM_PEER_ID_INVALID))
             {
                 // pm_peers_delete() has been called and this is the last peer to be deleted.
-
-                m_pm.deleting_all = false;
+                m_deleting_all = false;
 
                 pm_evt_t pm_delete_all_evt;
                 memset(&pm_delete_all_evt, 0, sizeof(pm_evt_t));
@@ -191,11 +182,11 @@ static void pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
             pm_evt.evt_id = PM_EVT_PEER_DELETE_FAILED;
             pm_evt.params.peer_delete_failed.error
                                                 = p_pdb_evt->params.peer_free_failed_evt.err_code;
-            if (m_pm.deleting_all)
+            if (m_deleting_all)
             {
                 // pm_peers_delete() has been called and has thus failed.
 
-                m_pm.deleting_all = false;
+                m_deleting_all = false;
 
                 pm_evt_t pm_delete_all_evt;
                 memset(&pm_delete_all_evt, 0, sizeof(pm_evt_t));
@@ -235,10 +226,11 @@ static void pdb_evt_handler(pdb_evt_t const * p_pdb_evt)
 
 
 /**@brief Event handler for events from the Security Manager module.
+ *        This handler is extern in the Security Manager module.
  *
  * @param[in]  p_sm_evt  The incoming Security Manager event.
  */
-static void sm_evt_handler(sm_evt_t const * p_sm_evt)
+void pm_sm_evt_handler(sm_evt_t const * p_sm_evt)
 {
     bool find_peer_id = true;
     bool send_evt     = true;
@@ -260,8 +252,8 @@ static void sm_evt_handler(sm_evt_t const * p_sm_evt)
                                 != PM_LINK_SECURED_PROCEDURE_ENCRYPTION;
             bool bonding = p_sm_evt->params.sec_procedure_start.procedure
                                 == PM_LINK_SECURED_PROCEDURE_BONDING;
-            ble_conn_state_user_flag_set(p_sm_evt->conn_handle, m_pm.pairing_flag_id, pairing);
-            ble_conn_state_user_flag_set(p_sm_evt->conn_handle, m_pm.bonding_flag_id, bonding);
+            ble_conn_state_user_flag_set(p_sm_evt->conn_handle, m_pairing_flag_id, pairing);
+            ble_conn_state_user_flag_set(p_sm_evt->conn_handle, m_bonding_flag_id, bonding);
             break;
         }
 
@@ -271,9 +263,9 @@ static void sm_evt_handler(sm_evt_t const * p_sm_evt)
                         p_sm_evt->params.pairing_success.bonded
                         ? PM_LINK_SECURED_PROCEDURE_BONDING
                         : PM_LINK_SECURED_PROCEDURE_PAIRING;
-            ble_conn_state_user_flag_set(p_sm_evt->conn_handle, m_pm.pairing_flag_id, true);
+            ble_conn_state_user_flag_set(p_sm_evt->conn_handle, m_pairing_flag_id, true);
             ble_conn_state_user_flag_set(p_sm_evt->conn_handle,
-                                         m_pm.bonding_flag_id,
+                                         m_bonding_flag_id,
                                          p_sm_evt->params.pairing_success.bonded
             );
             break;
@@ -281,7 +273,7 @@ static void sm_evt_handler(sm_evt_t const * p_sm_evt)
         case SM_EVT_PAIRING_FAIL:
             pm_evt.evt_id = PM_EVT_CONN_SEC_FAILED;
             pm_evt.params.conn_sec_failed.procedure =
-                        ble_conn_state_user_flag_get(p_sm_evt->conn_handle, m_pm.bonding_flag_id)
+                        ble_conn_state_user_flag_get(p_sm_evt->conn_handle, m_bonding_flag_id)
                         ? PM_LINK_SECURED_PROCEDURE_BONDING
                         : PM_LINK_SECURED_PROCEDURE_PAIRING;
             pm_evt.params.conn_sec_failed.error_src
@@ -291,7 +283,7 @@ static void sm_evt_handler(sm_evt_t const * p_sm_evt)
             break;
 
         case SM_EVT_LINK_ENCRYPTION_UPDATE:
-            if (!ble_conn_state_user_flag_get(p_sm_evt->conn_handle, m_pm.pairing_flag_id))
+            if (!ble_conn_state_user_flag_get(p_sm_evt->conn_handle, m_pairing_flag_id))
             {
                 pm_evt.evt_id = PM_EVT_CONN_SEC_SUCCEEDED;
                 pm_evt.params.conn_sec_succeeded.procedure = PM_LINK_SECURED_PROCEDURE_ENCRYPTION;
@@ -343,7 +335,7 @@ static void sm_evt_handler(sm_evt_t const * p_sm_evt)
         case SM_EVT_ERROR_SMP_TIMEOUT:
             pm_evt.evt_id = PM_EVT_CONN_SEC_FAILED;
             pm_evt.params.conn_sec_failed.procedure
-                        = ble_conn_state_user_flag_get(p_sm_evt->conn_handle, m_pm.bonding_flag_id)
+                        = ble_conn_state_user_flag_get(p_sm_evt->conn_handle, m_bonding_flag_id)
                         ? PM_LINK_SECURED_PROCEDURE_BONDING
                         : PM_LINK_SECURED_PROCEDURE_PAIRING;
             pm_evt.params.conn_sec_failed.error_src  = BLE_GAP_SEC_STATUS_SOURCE_LOCAL;
@@ -372,12 +364,12 @@ static void sm_evt_handler(sm_evt_t const * p_sm_evt)
 
 
 /**@brief Event handler for events from the GATT Cache Manager module.
+ *        This handler is extern in GATT Cache Manager.
  *
  * @param[in]  p_gcm_evt  The incoming GATT Cache Manager event.
  */
-static void gcm_evt_handler(gcm_evt_t const * p_gcm_evt)
+void pm_gcm_evt_handler(gcm_evt_t const * p_gcm_evt)
 {
-
     bool send_evt = true;
     pm_evt_t pm_evt;
 
@@ -444,10 +436,11 @@ static void gcm_evt_handler(gcm_evt_t const * p_gcm_evt)
 
 
 /**@brief Event handler for events from the ID Manager module.
+ *        This function is registered in the ID Manager.
  *
  * @param[in]  p_im_evt  The incoming ID Manager event.
  */
-static void im_evt_handler(im_evt_t const * p_im_evt)
+void pm_im_evt_handler(im_evt_t const * p_im_evt)
 {
     pm_evt_t pm_evt;
     ret_code_t err_code;
@@ -462,7 +455,7 @@ static void im_evt_handler(im_evt_t const * p_im_evt)
             break;
 
         case IM_EVT_BONDED_PEER_CONNECTED:
-            ble_conn_state_user_flag_set(p_im_evt->conn_handle, m_pm.bonding_flag_id, true);
+            ble_conn_state_user_flag_set(p_im_evt->conn_handle, m_bonding_flag_id, true);
             memset(&pm_evt, 0, sizeof(pm_evt_t));
             pm_evt.conn_handle = p_im_evt->conn_handle;
             pm_evt.peer_id = im_peer_id_get_by_conn_handle(p_im_evt->conn_handle);
@@ -487,11 +480,10 @@ void pm_on_ble_evt(ble_evt_t * p_ble_evt)
  */
 static void internal_state_reset()
 {
-    memset(&m_pm, 0, sizeof(m_pm));
-    m_pm.highest_ranked_peer = PM_PEER_ID_INVALID;
-    m_pm.peer_rank_token     = PM_STORE_TOKEN_INVALID;
-    m_pm.pairing_flag_id     = BLE_CONN_STATE_USER_FLAG_INVALID;
-    m_pm.bonding_flag_id     = BLE_CONN_STATE_USER_FLAG_INVALID;
+    m_highest_ranked_peer = PM_PEER_ID_INVALID;
+    m_peer_rank_token     = PM_STORE_TOKEN_INVALID;
+    m_pairing_flag_id     = BLE_CONN_STATE_USER_FLAG_INVALID;
+    m_bonding_flag_id     = BLE_CONN_STATE_USER_FLAG_INVALID;
 }
 
 
@@ -499,29 +491,43 @@ ret_code_t pm_init(void)
 {
     ret_code_t err_code;
 
-    err_code = pdb_register(pdb_evt_handler);
-    if (err_code != NRF_SUCCESS)
-    {
-        if (err_code != NRF_ERROR_INVALID_STATE)
-        {
-            err_code = NRF_ERROR_INTERNAL;
-        }
-        return err_code;
-    }
-
-    err_code = sm_register(sm_evt_handler);
+    err_code = pds_init();
     if (err_code != NRF_SUCCESS)
     {
         return NRF_ERROR_INTERNAL;
     }
 
-    err_code = gcm_init(gcm_evt_handler);
+    err_code = pdb_init();
     if (err_code != NRF_SUCCESS)
     {
         return NRF_ERROR_INTERNAL;
     }
 
-    err_code = im_register(im_evt_handler);
+    err_code = sm_init();
+    if (err_code != NRF_SUCCESS)
+    {
+        return NRF_ERROR_INTERNAL;
+    }
+
+    err_code = smd_init();
+    if (err_code != NRF_SUCCESS)
+    {
+        return NRF_ERROR_INTERNAL;
+    }
+
+    err_code = gcm_init();
+    if (err_code != NRF_SUCCESS)
+    {
+        return NRF_ERROR_INTERNAL;
+    }
+
+    err_code = gscm_init();
+    if (err_code != NRF_SUCCESS)
+    {
+        return NRF_ERROR_INTERNAL;
+    }
+
+    err_code = im_init();
     if (err_code != NRF_SUCCESS)
     {
         return NRF_ERROR_INTERNAL;
@@ -529,20 +535,20 @@ ret_code_t pm_init(void)
 
     internal_state_reset();
 
-    m_pm.pairing_flag_id = ble_conn_state_user_flag_acquire();
-    if (m_pm.pairing_flag_id == BLE_CONN_STATE_USER_FLAG_INVALID)
+    m_pairing_flag_id = ble_conn_state_user_flag_acquire();
+    if (m_pairing_flag_id == BLE_CONN_STATE_USER_FLAG_INVALID)
     {
         return NRF_ERROR_INTERNAL;
     }
 
-    m_pm.bonding_flag_id = ble_conn_state_user_flag_acquire();
-    if (m_pm.bonding_flag_id == BLE_CONN_STATE_USER_FLAG_INVALID)
+    m_bonding_flag_id = ble_conn_state_user_flag_acquire();
+    if (m_bonding_flag_id == BLE_CONN_STATE_USER_FLAG_INVALID)
     {
         return NRF_ERROR_INTERNAL;
     }
 
-    m_pm.peer_rank_initialized = false;
-    m_pm.initialized           = true;
+    m_peer_rank_initialized = false;
+    m_module_initialized    = true;
 
     return NRF_SUCCESS;
 }
@@ -552,13 +558,13 @@ ret_code_t pm_register(pm_evt_handler_t event_handler)
 {
     VERIFY_MODULE_INITIALIZED();
 
-    if (m_pm.n_registrants >= MAX_REGISTRANTS)
+    if (m_n_registrants >= MAX_REGISTRANTS)
     {
         return NRF_ERROR_NO_MEM;
     }
 
-    m_pm.evt_handlers[m_pm.n_registrants] = event_handler;
-    m_pm.n_registrants += 1;
+    m_evt_handlers[m_n_registrants] = event_handler;
+    m_n_registrants += 1;
 
     return NRF_SUCCESS;
 }
@@ -572,11 +578,8 @@ ret_code_t pm_sec_params_set(ble_gap_sec_params_t * p_sec_params)
 
     err_code = sm_sec_params_set(p_sec_params);
 
-    if (err_code == NRF_ERROR_INVALID_STATE)
-    {
-        err_code = NRF_ERROR_INTERNAL;
-    }
-
+    // NRF_ERROR_INVALID_PARAM if parameters are invalid,
+    // NRF_SUCCESS             otherwise.
     return err_code;
 }
 
@@ -613,19 +616,70 @@ void pm_local_database_has_changed(void)
 }
 
 
-ret_code_t pm_whitelist_create(pm_peer_id_t * p_peer_ids,
-                               uint8_t n_peer_ids,
-                               ble_gap_whitelist_t * p_whitelist)
+ret_code_t pm_id_addr_set(ble_gap_addr_t const * p_addr)
 {
     VERIFY_MODULE_INITIALIZED();
-    return im_whitelist_create(p_peer_ids, n_peer_ids, p_whitelist);
+    return im_id_addr_set(p_addr);
 }
 
 
-ret_code_t pm_whitelist_custom(ble_gap_whitelist_t * p_whitelist)
+ret_code_t pm_id_addr_get(ble_gap_addr_t * p_addr)
 {
     VERIFY_MODULE_INITIALIZED();
-    return im_whitelist_custom(p_whitelist);
+    VERIFY_PARAM_NOT_NULL(p_addr);
+    return im_id_addr_get(p_addr);
+}
+
+
+ret_code_t pm_privacy_set(pm_privacy_params_t const * p_privacy_params)
+{
+    VERIFY_MODULE_INITIALIZED();
+    VERIFY_PARAM_NOT_NULL(p_privacy_params);
+    return im_privacy_set(p_privacy_params);
+}
+
+
+ret_code_t pm_privacy_get(pm_privacy_params_t * p_privacy_params)
+{
+    VERIFY_MODULE_INITIALIZED();
+    VERIFY_PARAM_NOT_NULL(p_privacy_params);
+    VERIFY_PARAM_NOT_NULL(p_privacy_params->p_device_irk);
+    return im_privacy_get(p_privacy_params);
+}
+
+
+ret_code_t pm_whitelist_set(pm_peer_id_t const * p_peers,
+                            uint32_t             peer_cnt)
+{
+    VERIFY_MODULE_INITIALIZED();
+    return im_whitelist_set(p_peers, peer_cnt);
+}
+
+
+ret_code_t pm_whitelist_get(ble_gap_addr_t * p_addrs,
+                            uint32_t       * p_addr_cnt,
+                            ble_gap_irk_t  * p_irks,
+                            uint32_t       * p_irk_cnt)
+{
+    VERIFY_MODULE_INITIALIZED();
+
+    if (((p_addrs == NULL) && (p_irks     == NULL)) ||
+        ((p_addrs != NULL) && (p_addr_cnt == NULL)) ||
+        ((p_irks  != NULL) && (p_irk_cnt  == NULL)))
+    {
+        // The buffers can't be both NULL, and if a buffer is provided its size must be specified.
+        return NRF_ERROR_NULL;
+    }
+
+    return im_whitelist_get(p_addrs, p_addr_cnt, p_irks, p_irk_cnt);
+}
+
+
+ret_code_t pm_device_identities_list_set(pm_peer_id_t const * p_peers,
+                                         uint32_t             peer_cnt)
+{
+    VERIFY_MODULE_INITIALIZED();
+    return im_device_identities_list_set(p_peers, peer_cnt);
 }
 
 
@@ -642,7 +696,7 @@ ret_code_t pm_conn_sec_status_get(uint16_t conn_handle, pm_conn_sec_status_t * p
     }
 
     p_conn_sec_status->connected      = (status == BLE_CONN_STATUS_CONNECTED);
-    p_conn_sec_status->bonded         = ble_conn_state_user_flag_get(conn_handle, m_pm.bonding_flag_id);
+    p_conn_sec_status->bonded         = ble_conn_state_user_flag_get(conn_handle, m_bonding_flag_id);
     p_conn_sec_status->encrypted      = ble_conn_state_encrypted(conn_handle);
     p_conn_sec_status->mitm_protected = ble_conn_state_mitm_protected(conn_handle);
     return NRF_SUCCESS;
@@ -713,7 +767,7 @@ ret_code_t pm_peer_data_load(pm_peer_id_t       peer_id,
     peer_data.data_id      = data_id;
     peer_data.p_all_data   = p_data;
 
-    ret_code_t err_code = pdb_raw_read(peer_id, data_id, &peer_data);
+    ret_code_t err_code = pdb_peer_data_load(peer_id, data_id, &peer_data);
 
     *p_length = peer_data.length_words * BYTES_PER_WORD;
 
@@ -767,7 +821,7 @@ ret_code_t pm_peer_data_store(pm_peer_id_t       peer_id,
         return NRF_ERROR_INVALID_PARAM;
     }
 
-    pm_peer_data_const_t peer_data;
+    pm_peer_data_flash_t peer_data;
     memset(&peer_data, 0, sizeof(peer_data));
     peer_data.length_words = BYTES_TO_WORDS(length);
     peer_data.data_id      = data_id;
@@ -832,33 +886,60 @@ ret_code_t pm_peer_new(pm_peer_id_t           * p_new_peer_id,
                        pm_peer_data_bonding_t * p_bonding_data,
                        pm_store_token_t       * p_token)
 {
+    ret_code_t           err_code;
+    pm_peer_id_t         peer_id;
+    pm_peer_data_flash_t peer_data;
+
     VERIFY_MODULE_INITIALIZED();
     VERIFY_PARAM_NOT_NULL(p_bonding_data);
     VERIFY_PARAM_NOT_NULL(p_new_peer_id);
-    ret_code_t err_code;
+
+    memset(&peer_data, 0, sizeof(pm_peer_data_flash_t));
+
+    // Search through existing bonds to look for a duplicate.
+    pds_peer_data_iterate_prepare();
+
+    // @note emdi: should maybe use a critical section, since data is not copied while iterating.
+    while (pds_peer_data_iterate(PM_PEER_DATA_ID_BONDING, &peer_id, &peer_data))
+    {
+        if (im_is_duplicate_bonding_data(p_bonding_data, peer_data.p_bonding_data))
+        {
+            *p_new_peer_id = peer_id;
+            return NRF_SUCCESS;
+        }
+    }
+
+    // If no duplicate data is found, prepare to write a new bond to flash.
 
     *p_new_peer_id = pdb_peer_allocate();
+
     if (*p_new_peer_id == PM_PEER_ID_INVALID)
     {
         return NRF_ERROR_NO_MEM;
     }
 
-    pm_peer_data_const_t peer_data;
-    memset(&peer_data, 0, sizeof(pm_peer_data_const_t));
-    peer_data.length_words        = BYTES_TO_WORDS(sizeof(pm_peer_data_bonding_t));
-    peer_data.data_id             = PM_PEER_DATA_ID_BONDING;
-    peer_data.p_bonding_data      = p_bonding_data;
+    memset(&peer_data, 0, sizeof(pm_peer_data_flash_t));
 
-    err_code = pm_peer_data_bonding_store(*p_new_peer_id, p_bonding_data, p_token);
+    peer_data.data_id        = PM_PEER_DATA_ID_BONDING;
+    peer_data.p_bonding_data = p_bonding_data;
+    peer_data.length_words   = BYTES_TO_WORDS(sizeof(pm_peer_data_bonding_t));
+
+    err_code = pdb_raw_store(*p_new_peer_id, &peer_data, p_token);
+
     if (err_code != NRF_SUCCESS)
     {
-        ret_code_t err_code_free = im_peer_free(*p_new_peer_id);
-        if (err_code_free != NRF_SUCCESS)
+        if (im_peer_free(*p_new_peer_id) != NRF_SUCCESS)
         {
-            err_code = NRF_ERROR_INTERNAL;
+            return NRF_ERROR_INTERNAL;
         }
+
+        // NRF_ERROR_STORAGE_FULL, if no space in flash.
+        // NRF_ERROR_BUSY,         if flash filesystem was busy.
+        // NRF_ERROR_INTENRAL,     on internal error.
+        return err_code;
     }
-    return err_code;
+
+    return NRF_SUCCESS;
 }
 
 
@@ -874,7 +955,7 @@ ret_code_t pm_peers_delete(void)
 {
     VERIFY_MODULE_INITIALIZED();
 
-    m_pm.deleting_all = true;
+    m_deleting_all = true;
 
     pm_peer_id_t current_peer_id = pdb_next_peer_id_get(PM_PEER_ID_INVALID);
     while (current_peer_id != PM_PEER_ID_INVALID)
@@ -905,7 +986,7 @@ ret_code_t pm_peer_ranks_get(pm_peer_id_t * p_highest_ranked_peer,
     pm_peer_data_t       peer_data    = {.length_words = BYTES_TO_WORDS(sizeof(peer_rank)),
                                          .p_peer_rank  = &peer_rank};
     //lint -restore
-    ret_code_t           err_code     = pdb_raw_read(peer_id, PM_PEER_DATA_ID_PEER_RANK, &peer_data);
+    ret_code_t           err_code     = pdb_peer_data_load(peer_id, PM_PEER_DATA_ID_PEER_RANK, &peer_data);
     uint32_t             highest_rank = 0;
     uint32_t             lowest_rank  = 0xFFFFFFFF;
     pm_peer_id_t         highest_ranked_peer = PM_PEER_ID_INVALID;
@@ -934,7 +1015,7 @@ ret_code_t pm_peer_ranks_get(pm_peer_id_t * p_highest_ranked_peer,
             lowest_ranked_peer = peer_id;
         }
         peer_id = pdb_next_peer_id_get(peer_id);
-        err_code = pdb_raw_read(peer_id, PM_PEER_DATA_ID_PEER_RANK, &peer_data);
+        err_code = pdb_peer_data_load(peer_id, PM_PEER_DATA_ID_PEER_RANK, &peer_data);
     }
     if (peer_id == PM_PEER_ID_INVALID)
     {
@@ -968,13 +1049,13 @@ ret_code_t pm_peer_ranks_get(pm_peer_id_t * p_highest_ranked_peer,
  */
 static void rank_init(void)
 {
-    ret_code_t err_code = pm_peer_ranks_get(&m_pm.highest_ranked_peer,
-                                            &m_pm.current_highest_peer_rank,
+    ret_code_t err_code = pm_peer_ranks_get(&m_highest_ranked_peer,
+                                            &m_current_highest_peer_rank,
                                             NULL,
                                             NULL);
     if ((err_code == NRF_SUCCESS) || (err_code == NRF_ERROR_NOT_FOUND))
     {
-        m_pm.peer_rank_initialized = true;
+        m_peer_rank_initialized = true;
     }
 }
 
@@ -985,24 +1066,24 @@ ret_code_t pm_peer_rank_highest(pm_peer_id_t peer_id)
 
     ret_code_t err_code;
     //lint -save -e65 -e64
-    pm_peer_data_const_t peer_data   = {.length_words = BYTES_TO_WORDS(sizeof(m_pm.current_highest_peer_rank)),
+    pm_peer_data_flash_t peer_data   = {.length_words = BYTES_TO_WORDS(sizeof(m_current_highest_peer_rank)),
                                         .data_id      = PM_PEER_DATA_ID_PEER_RANK,
-                                        .p_peer_rank  = &m_pm.current_highest_peer_rank};
+                                        .p_peer_rank  = &m_current_highest_peer_rank};
     //lint -restore
 
 
-    if (!m_pm.peer_rank_initialized)
+    if (!m_peer_rank_initialized)
     {
         rank_init();
     }
 
-    if (!m_pm.peer_rank_initialized || (m_pm.peer_rank_token != PM_STORE_TOKEN_INVALID))
+    if (!m_peer_rank_initialized || (m_peer_rank_token != PM_STORE_TOKEN_INVALID))
     {
         err_code = NRF_ERROR_BUSY;
     }
     else
     {
-        if ((peer_id == m_pm.highest_ranked_peer) && (m_pm.current_highest_peer_rank > 0))
+        if ((peer_id == m_highest_ranked_peer) && (m_current_highest_peer_rank > 0))
         {
             pm_evt_t pm_evt;
 
@@ -1022,14 +1103,14 @@ ret_code_t pm_peer_rank_highest(pm_peer_id_t peer_id)
         }
         else
         {
-            m_pm.current_highest_peer_rank += 1;
-            err_code = pdb_raw_store(peer_id, &peer_data, &m_pm.peer_rank_token);
+            m_current_highest_peer_rank += 1;
+            err_code = pdb_raw_store(peer_id, &peer_data, &m_peer_rank_token);
             if (err_code != NRF_SUCCESS)
             {
-                m_pm.peer_rank_token    = PM_STORE_TOKEN_INVALID;
-                m_pm.current_highest_peer_rank -= 1;
-                if ((err_code != NRF_ERROR_BUSY) && (err_code != NRF_ERROR_NO_MEM))
+                m_peer_rank_token    = PM_STORE_TOKEN_INVALID;
+                m_current_highest_peer_rank -= 1;
                 {
+                if ((err_code != NRF_ERROR_BUSY) && (err_code != NRF_ERROR_STORAGE_FULL))
                     err_code = NRF_ERROR_INTERNAL;
                 }
             }
@@ -1037,3 +1118,4 @@ ret_code_t pm_peer_rank_highest(pm_peer_id_t peer_id)
     }
     return err_code;
 }
+#endif // NRF_MODULE_ENABLED(PEER_MANAGER)

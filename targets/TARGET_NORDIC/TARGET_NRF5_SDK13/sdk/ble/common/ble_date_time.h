@@ -36,9 +36,8 @@
  * 
  */
 
-
-/* Attention! 
-*  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile 
+/* Attention!
+*  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile
 *  qualification listings, this section of source code must not be modified.
 */
 
@@ -59,6 +58,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**@brief Date and Time structure. */
 typedef struct
 {
@@ -74,13 +77,13 @@ static __INLINE uint8_t ble_date_time_encode(const ble_date_time_t * p_date_time
                                              uint8_t *               p_encoded_data)
 {
     uint8_t len = uint16_encode(p_date_time->year, p_encoded_data);
-    
+
     p_encoded_data[len++] = p_date_time->month;
     p_encoded_data[len++] = p_date_time->day;
     p_encoded_data[len++] = p_date_time->hours;
     p_encoded_data[len++] = p_date_time->minutes;
     p_encoded_data[len++] = p_date_time->seconds;
-    
+
     return len;
 }
 
@@ -88,16 +91,21 @@ static __INLINE uint8_t ble_date_time_decode(ble_date_time_t * p_date_time,
                                              const uint8_t *   p_encoded_data)
 {
     uint8_t len = sizeof(uint16_t);
-    
+
     p_date_time->year    = uint16_decode(p_encoded_data);
     p_date_time->month   = p_encoded_data[len++];
-    p_date_time->day     = p_encoded_data[len++]; 
+    p_date_time->day     = p_encoded_data[len++];
     p_date_time->hours   = p_encoded_data[len++];
     p_date_time->minutes = p_encoded_data[len++];
     p_date_time->seconds = p_encoded_data[len++];
-    
+
     return len;
 }
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_DATE_TIME_H__
 

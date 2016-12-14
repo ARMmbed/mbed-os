@@ -36,7 +36,6 @@
  * 
  */
 
-
 /** @file
  *
  * @defgroup ble_debug_assert_handler Assert handler for debug purposes
@@ -49,28 +48,37 @@
  *          This module is ONLY for debugging purposes and must never be used in final product.
  *
  */
- 
+
 #ifndef BLE_DEBUG_ASSERT_HANDLER_H__
 #define BLE_DEBUG_ASSERT_HANDLER_H__
 
 #include <stdint.h>
- 
-/**@brief Function for handling the Debug assert, which can be called from an error handler. 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**@brief Function for handling the Debug assert, which can be called from an error handler.
  *        To be used only for debugging purposes.
  *
  *@details This code will copy the filename and line number into local variables for them to always
- *         be accessible in Keil debugger. The function will also write the ARM Cortex-M0 stack 
- *         memory into flash where it can be retrieved and manually un-winded in order to 
+ *         be accessible in Keil debugger. The function will also write the ARM Cortex-M0 stack
+ *         memory into flash where it can be retrieved and manually un-winded in order to
  *         back-trace the location where the error ocured.<br>
  * @warning <b>ALL INTERRUPTS WILL BE DISABLED.</b>
- * 
+ *
  * @note    This function will never return but loop forever for debug purposes.
  *
  * @param[in] error_code  Error code supplied to the handler.
  * @param[in] line_num    Line number where the original handler is called.
- * @param[in] p_file_name Pointer to the file name. 
+ * @param[in] p_file_name Pointer to the file name.
  */
 void ble_debug_assert_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BLE_DEBUG_ASSERT_HANDLER_H__ */
 

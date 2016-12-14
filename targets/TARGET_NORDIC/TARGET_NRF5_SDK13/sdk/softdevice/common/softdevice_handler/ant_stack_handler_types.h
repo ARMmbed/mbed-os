@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**@file
  *
  * @defgroup ant_stack_handler_types Types definitions for ANT support in SoftDevice handler.
@@ -49,9 +48,14 @@
 #ifndef ANT_STACK_HANDLER_TYPES_H__
 #define ANT_STACK_HANDLER_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef ANT_STACK_SUPPORT_REQD
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #define ANT_STACK_EVT_MSG_BUF_SIZE      32                                                /**< Size of ANT event message buffer. This will be provided to the SoftDevice while fetching an event. */
 #define ANT_STACK_EVT_STRUCT_SIZE       (sizeof(ant_evt_t))                               /**< Size of the @ref ant_evt_t structure. This will be used by the @ref softdevice_handler to internal event buffer size needed. */
@@ -94,6 +98,11 @@ uint32_t softdevice_ant_evt_handler_set(ant_evt_handler_t ant_evt_handler);
 #define ANT_STACK_EVT_STRUCT_SIZE       0                                                 /**< Since the ANT stack support is not required, this is equated to 0, so that the @ref softdevice_handler.h can compute the internal event buffer size without having to care for ANT events.*/
 
 #endif // ANT_STACK_SUPPORT_REQD
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // ANT_STACK_HANDLER_TYPES_H__
 

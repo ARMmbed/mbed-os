@@ -37,11 +37,8 @@
  */
 
 
-
 #ifndef NRF_SAADC_H_
 #define NRF_SAADC_H_
-
-#ifdef NRF52
 
 /**
  * @defgroup nrf_saadc_hal SAADC HAL
@@ -56,7 +53,9 @@
 #include "nrf.h"
 #include "nrf_assert.h"
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define NRF_SAADC_CHANNEL_COUNT 8
 
@@ -170,6 +169,16 @@ typedef enum
 
 
 /**
+ * @brief Analog-to-digital converter channel burst mode.
+ */
+typedef enum
+{
+    NRF_SAADC_BURST_DISABLED = SAADC_CH_CONFIG_BURST_Disabled, ///< Burst mode is disabled (normal operation).
+    NRF_SAADC_BURST_ENABLED  = SAADC_CH_CONFIG_BURST_Enabled   ///< Burst mode is enabled. SAADC takes 2^OVERSAMPLE number of samples as fast as it can, and sends the average to Data RAM.
+} nrf_saadc_burst_t;
+
+
+/**
  * @brief Analog-to-digital converter tasks.
  */
 typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
@@ -188,6 +197,8 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
 {
     NRF_SAADC_EVENT_STARTED       = offsetof(NRF_SAADC_Type, EVENTS_STARTED),       ///< The ADC has started.
     NRF_SAADC_EVENT_END           = offsetof(NRF_SAADC_Type, EVENTS_END),           ///< The ADC has filled up the result buffer.
+    NRF_SAADC_EVENT_DONE          = offsetof(NRF_SAADC_Type, EVENTS_DONE),          ///< A conversion task has been completed.
+    NRF_SAADC_EVENT_RESULTDONE    = offsetof(NRF_SAADC_Type, EVENTS_RESULTDONE),    ///< A result is ready to get transferred to RAM.
     NRF_SAADC_EVENT_CALIBRATEDONE = offsetof(NRF_SAADC_Type, EVENTS_CALIBRATEDONE), ///< Calibration is complete.
     NRF_SAADC_EVENT_STOPPED       = offsetof(NRF_SAADC_Type, EVENTS_STOPPED),       ///< The ADC has stopped.
     NRF_SAADC_EVENT_CH0_LIMITH    = offsetof(NRF_SAADC_Type, EVENTS_CH[0].LIMITH),  ///< Last result is equal or above CH[0].LIMIT.HIGH.
@@ -214,26 +225,29 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
  */
 typedef enum
 {
-    NRF_SAADC_INT_STARTED   = SAADC_INTENSET_STARTED_Msk,   ///< Interrupt on EVENTS_STARTED event.
-    NRF_SAADC_INT_END       = SAADC_INTENSET_END_Msk,       ///< Interrupt on EVENTS_END event.
-    NRF_SAADC_INT_STOPPED   = SAADC_INTENSET_STOPPED_Msk,   ///< Interrupt on EVENTS_STOPPED event.
-    NRF_SAADC_INT_CH0LIMITH = SAADC_INTENSET_CH0LIMITH_Msk, ///< Interrupt on EVENTS_CH[0].LIMITH event.
-    NRF_SAADC_INT_CH0LIMITL = SAADC_INTENSET_CH0LIMITL_Msk, ///< Interrupt on EVENTS_CH[0].LIMITL event.
-    NRF_SAADC_INT_CH1LIMITH = SAADC_INTENSET_CH1LIMITH_Msk, ///< Interrupt on EVENTS_CH[1].LIMITH event.
-    NRF_SAADC_INT_CH1LIMITL = SAADC_INTENSET_CH1LIMITL_Msk, ///< Interrupt on EVENTS_CH[1].LIMITL event.
-    NRF_SAADC_INT_CH2LIMITH = SAADC_INTENSET_CH2LIMITH_Msk, ///< Interrupt on EVENTS_CH[2].LIMITH event.
-    NRF_SAADC_INT_CH2LIMITL = SAADC_INTENSET_CH2LIMITL_Msk, ///< Interrupt on EVENTS_CH[2].LIMITL event.
-    NRF_SAADC_INT_CH3LIMITH = SAADC_INTENSET_CH3LIMITH_Msk, ///< Interrupt on EVENTS_CH[3].LIMITH event.
-    NRF_SAADC_INT_CH3LIMITL = SAADC_INTENSET_CH3LIMITL_Msk, ///< Interrupt on EVENTS_CH[3].LIMITL event.
-    NRF_SAADC_INT_CH4LIMITH = SAADC_INTENSET_CH4LIMITH_Msk, ///< Interrupt on EVENTS_CH[4].LIMITH event.
-    NRF_SAADC_INT_CH4LIMITL = SAADC_INTENSET_CH4LIMITL_Msk, ///< Interrupt on EVENTS_CH[4].LIMITL event.
-    NRF_SAADC_INT_CH5LIMITH = SAADC_INTENSET_CH5LIMITH_Msk, ///< Interrupt on EVENTS_CH[5].LIMITH event.
-    NRF_SAADC_INT_CH5LIMITL = SAADC_INTENSET_CH5LIMITL_Msk, ///< Interrupt on EVENTS_CH[5].LIMITL event.
-    NRF_SAADC_INT_CH6LIMITH = SAADC_INTENSET_CH6LIMITH_Msk, ///< Interrupt on EVENTS_CH[6].LIMITH event.
-    NRF_SAADC_INT_CH6LIMITL = SAADC_INTENSET_CH6LIMITL_Msk, ///< Interrupt on EVENTS_CH[6].LIMITL event.
-    NRF_SAADC_INT_CH7LIMITH = SAADC_INTENSET_CH7LIMITH_Msk, ///< Interrupt on EVENTS_CH[7].LIMITH event.
-    NRF_SAADC_INT_CH7LIMITL = SAADC_INTENSET_CH7LIMITL_Msk, ///< Interrupt on EVENTS_CH[7].LIMITL event.
-    NRF_SAADC_INT_ALL       = 0x7FFFFFFFUL                  ///< Mask of all interrupts.
+    NRF_SAADC_INT_STARTED       = SAADC_INTENSET_STARTED_Msk,       ///< Interrupt on EVENTS_STARTED event.
+    NRF_SAADC_INT_END           = SAADC_INTENSET_END_Msk,           ///< Interrupt on EVENTS_END event.
+    NRF_SAADC_INT_DONE          = SAADC_INTENSET_DONE_Msk,          ///< Interrupt on EVENTS_DONE event.
+    NRF_SAADC_INT_RESULTDONE    = SAADC_INTENSET_RESULTDONE_Msk,    ///< Interrupt on EVENTS_RESULTDONE event.
+    NRF_SAADC_INT_CALIBRATEDONE = SAADC_INTENSET_CALIBRATEDONE_Msk, ///< Interrupt on EVENTS_CALIBRATEDONE event.
+    NRF_SAADC_INT_STOPPED       = SAADC_INTENSET_STOPPED_Msk,       ///< Interrupt on EVENTS_STOPPED event.
+    NRF_SAADC_INT_CH0LIMITH     = SAADC_INTENSET_CH0LIMITH_Msk,     ///< Interrupt on EVENTS_CH[0].LIMITH event.
+    NRF_SAADC_INT_CH0LIMITL     = SAADC_INTENSET_CH0LIMITL_Msk,     ///< Interrupt on EVENTS_CH[0].LIMITL event.
+    NRF_SAADC_INT_CH1LIMITH     = SAADC_INTENSET_CH1LIMITH_Msk,     ///< Interrupt on EVENTS_CH[1].LIMITH event.
+    NRF_SAADC_INT_CH1LIMITL     = SAADC_INTENSET_CH1LIMITL_Msk,     ///< Interrupt on EVENTS_CH[1].LIMITL event.
+    NRF_SAADC_INT_CH2LIMITH     = SAADC_INTENSET_CH2LIMITH_Msk,     ///< Interrupt on EVENTS_CH[2].LIMITH event.
+    NRF_SAADC_INT_CH2LIMITL     = SAADC_INTENSET_CH2LIMITL_Msk,     ///< Interrupt on EVENTS_CH[2].LIMITL event.
+    NRF_SAADC_INT_CH3LIMITH     = SAADC_INTENSET_CH3LIMITH_Msk,     ///< Interrupt on EVENTS_CH[3].LIMITH event.
+    NRF_SAADC_INT_CH3LIMITL     = SAADC_INTENSET_CH3LIMITL_Msk,     ///< Interrupt on EVENTS_CH[3].LIMITL event.
+    NRF_SAADC_INT_CH4LIMITH     = SAADC_INTENSET_CH4LIMITH_Msk,     ///< Interrupt on EVENTS_CH[4].LIMITH event.
+    NRF_SAADC_INT_CH4LIMITL     = SAADC_INTENSET_CH4LIMITL_Msk,     ///< Interrupt on EVENTS_CH[4].LIMITL event.
+    NRF_SAADC_INT_CH5LIMITH     = SAADC_INTENSET_CH5LIMITH_Msk,     ///< Interrupt on EVENTS_CH[5].LIMITH event.
+    NRF_SAADC_INT_CH5LIMITL     = SAADC_INTENSET_CH5LIMITL_Msk,     ///< Interrupt on EVENTS_CH[5].LIMITL event.
+    NRF_SAADC_INT_CH6LIMITH     = SAADC_INTENSET_CH6LIMITH_Msk,     ///< Interrupt on EVENTS_CH[6].LIMITH event.
+    NRF_SAADC_INT_CH6LIMITL     = SAADC_INTENSET_CH6LIMITL_Msk,     ///< Interrupt on EVENTS_CH[6].LIMITL event.
+    NRF_SAADC_INT_CH7LIMITH     = SAADC_INTENSET_CH7LIMITH_Msk,     ///< Interrupt on EVENTS_CH[7].LIMITH event.
+    NRF_SAADC_INT_CH7LIMITL     = SAADC_INTENSET_CH7LIMITL_Msk,     ///< Interrupt on EVENTS_CH[7].LIMITL event.
+    NRF_SAADC_INT_ALL           = 0x7FFFFFFFUL                      ///< Mask of all interrupts.
 } nrf_saadc_int_mask_t;
 
 
@@ -273,6 +287,7 @@ typedef struct
     nrf_saadc_reference_t reference;
     nrf_saadc_acqtime_t   acq_time;
     nrf_saadc_mode_t      mode;
+    nrf_saadc_burst_t     burst;
     nrf_saadc_input_t     pin_p;
     nrf_saadc_input_t     pin_n;
 } nrf_saadc_channel_config_t;
@@ -323,6 +338,10 @@ __STATIC_INLINE bool nrf_saadc_event_check(nrf_saadc_event_t saadc_event)
 __STATIC_INLINE void nrf_saadc_event_clear(nrf_saadc_event_t saadc_event)
 {
     *((volatile uint32_t *)((uint8_t *)NRF_SAADC + (uint32_t)saadc_event)) = 0x0UL;
+#if __CORTEX_M == 0x04
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)NRF_SAADC + (uint32_t)saadc_event));
+    (void)dummy;
+#endif
 }
 
 
@@ -333,9 +352,9 @@ __STATIC_INLINE void nrf_saadc_event_clear(nrf_saadc_event_t saadc_event)
  *
  * @return Address of the specified SAADC event.
  */
-__STATIC_INLINE volatile uint32_t * nrf_saadc_event_address_get(nrf_saadc_event_t saadc_event)
+__STATIC_INLINE uint32_t  nrf_saadc_event_address_get(nrf_saadc_event_t saadc_event)
 {
-    return (volatile uint32_t *)((uint8_t *)NRF_SAADC + (uint32_t)saadc_event);
+    return (uint32_t )((uint8_t *)NRF_SAADC + (uint32_t)saadc_event);
 }
 
 
@@ -371,13 +390,13 @@ __STATIC_INLINE nrf_saadc_event_t nrf_saadc_event_limit_get(uint8_t channel, nrf
 {
     if (limit_type == NRF_SAADC_LIMIT_HIGH)
     {
-        return (nrf_saadc_event_t)( (uint32_t) NRF_SAADC_EVENT_CH0_LIMITH + 
+        return (nrf_saadc_event_t)( (uint32_t) NRF_SAADC_EVENT_CH0_LIMITH +
                         (uint32_t) (NRF_SAADC_EVENT_CH1_LIMITH - NRF_SAADC_EVENT_CH0_LIMITH)
                         * (uint32_t) channel );
     }
     else
     {
-        return (nrf_saadc_event_t)( (uint32_t) NRF_SAADC_EVENT_CH0_LIMITL + 
+        return (nrf_saadc_event_t)( (uint32_t) NRF_SAADC_EVENT_CH0_LIMITL +
                         (uint32_t) (NRF_SAADC_EVENT_CH1_LIMITL - NRF_SAADC_EVENT_CH0_LIMITL)
                         * (uint32_t) channel );
     }
@@ -453,7 +472,7 @@ __STATIC_INLINE void nrf_saadc_int_disable(uint32_t saadc_int_mask)
 
 /**
  * @brief Function for generating masks for SAADC channel limit interrupts.
- * 
+ *
  * @param[in] channel    SAADC channel number.
  * @param[in] limit_type Limit type.
  *
@@ -541,7 +560,7 @@ __STATIC_INLINE uint16_t nrf_saadc_amount_get(void)
 
 /**
  * @brief Function for setting the SAADC sample resolution.
- * 
+ *
  * @param[in] resolution Bit resolution.
  */
 __STATIC_INLINE void nrf_saadc_resolution_set(nrf_saadc_resolution_t resolution)
@@ -581,7 +600,10 @@ void nrf_saadc_channel_init(uint8_t channel, nrf_saadc_channel_config_t const * 
 /**
  *@}
  **/
- 
-#endif //  NRF52
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NRF_SAADC_H_ */

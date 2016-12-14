@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**
  * @file
  * @brief NMVC driver API.
@@ -46,6 +45,10 @@
 #define NRF_NVMC_H__
 
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -65,7 +68,7 @@
  * @brief Erase a page in flash. This is required before writing to any
  * address in the page.
  *
- * @param address Start address of the page. 
+ * @param address Start address of the page.
  */
 void nrf_nvmc_page_erase(uint32_t address);
 
@@ -83,7 +86,7 @@ void nrf_nvmc_write_byte(uint32_t address , uint8_t value);
 
 
 /**
- * @brief Write a 32-bit word to flash. 
+ * @brief Write a 32-bit word to flash.
  * @param address Address to write to.
  * @param value   Value to write.
  */
@@ -102,13 +105,18 @@ void nrf_nvmc_write_bytes(uint32_t  address, const uint8_t * src, uint32_t num_b
 
 /**
  * @brief Write consecutive words to flash.
- * 
+ *
  * @param address   Address to write to.
  * @param src       Pointer to data to copy from.
  * @param num_words Number of bytes in src to write.
  */
 void nrf_nvmc_write_words(uint32_t address, const uint32_t * src, uint32_t num_words);
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // NRF_NVMC_H__
 /** @} */

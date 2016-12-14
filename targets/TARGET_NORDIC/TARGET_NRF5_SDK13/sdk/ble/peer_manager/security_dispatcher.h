@@ -37,15 +37,18 @@
  */
 
 
-
 #ifndef SECURITY_DISPATCHER_H__
 #define SECURITY_DISPATCHER_H__
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "nrf_ble.h"
-#include "nrf_ble_gap.h"
+#include "ble.h"
+#include "ble_gap.h"
 #include "peer_manager_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /**
@@ -195,6 +198,7 @@ typedef struct
 typedef void (*smd_evt_handler_t)(smd_evt_t const * p_event);
 
 
+#if 0
 /**@brief Function for registering with the Security Dispatcher module. This function also
  *        initializes the module if uninitialized.
  *
@@ -205,6 +209,10 @@ typedef void (*smd_evt_handler_t)(smd_evt_t const * p_event);
  * @retval NRF_ERROR_NULL    evt_handler was NULL.
  */
 ret_code_t smd_register(smd_evt_handler_t evt_handler);
+#endif
+
+
+ret_code_t smd_init(void);
 
 
 /**@brief Function for dispatching SoftDevice events to the Security Dispatcher module.
@@ -218,8 +226,8 @@ void smd_ble_evt_handler(ble_evt_t * ble_evt);
  *        procedure on a connection.
  *
  * @note If this function returns an @ref NRF_ERROR_NULL, @ref NRF_ERROR_INVALID_PARAM, @ref
- *       BLE_ERROR_INVALID_CONN_HANDLE, or @ref NRF_ERROR_NO_MEM, this function can be called again
- *       after corrective action.
+ *       BLE_ERROR_INVALID_CONN_HANDLE, or @ref NRF_ERROR_STORAGE_FULL, this function can be called
+ *       again after corrective action.
  *
  * @note To reject a request, call this function with NULL p_sec_params.
  *
@@ -235,7 +243,8 @@ void smd_ble_evt_handler(ble_evt_t * ble_evt);
  * @retval NRF_ERROR_TIMEOUT              There has been an SMP timeout, so no more SMP operations
  *                                        can be performed on this link.
  * @retval BLE_ERROR_INVALID_CONN_HANDLE  Invalid connection handle.
- * @retval NRF_ERROR_NO_MEM               No more room in flash. Fix and reattempt later.
+ * @retval NRF_ERROR_STORAGE_FULL         No more room in flash. Fix and reattempt after the next
+ *                                        FDS garbage collection procedure.
  * @retval NRF_ERROR_BUSY                 No write buffer. Reattempt later.
  */
 ret_code_t smd_params_reply(uint16_t                 conn_handle,
@@ -267,7 +276,8 @@ ret_code_t smd_params_reply(uint16_t                 conn_handle,
  * @retval NRF_ERROR_TIMEOUT              There has been an SMP timeout, so no more SMP operations
  *                                        can be performed on this link.
  * @retval BLE_ERROR_INVALID_CONN_HANDLE  Invalid connection handle.
- * @retval NRF_ERROR_NO_MEM               No more room in flash.
+ * @retval NRF_ERROR_STORAGE_FULL         No more room in flash. Fix and reattempt after the next
+ *                                        FDS garbage collection procedure.
  * @retval NRF_ERROR_INTERNAL             No more available peer IDs.
  */
 ret_code_t smd_link_secure(uint16_t               conn_handle,
@@ -277,5 +287,10 @@ ret_code_t smd_link_secure(uint16_t               conn_handle,
 /** @}
  * @endcond
  */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SECURITY_DISPATCHER_H__ */

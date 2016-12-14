@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**@file
  *
  * @defgroup ble_stack_handler_types Types definitions for BLE support in SoftDevice handler.
@@ -49,16 +48,33 @@
 #ifndef BLE_STACK_HANDLER_TYPES_H__
 #define BLE_STACK_HANDLER_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef BLE_STACK_SUPPORT_REQD
 
 #include <stdlib.h>
-#include "nrf_ble.h"
+#include "ble.h"
 #include "nrf_sdm.h"
 #include "app_error.h"
 #include "app_util.h"
+#include "sdk_config.h"
 
-#define BLE_STACK_EVT_MSG_BUF_SIZE       (sizeof(ble_evt_t) + (GATT_MTU_SIZE_DEFAULT))     /**< Size of BLE event message buffer. This will be provided to the SoftDevice while fetching an event. */
-#define BLE_STACK_HANDLER_SCHED_EVT_SIZE 0                                                 /**< The size of the scheduler event used by SoftDevice handler when passing BLE events using the @ref app_scheduler. */
+/** @brief  Default Maximum ATT MTU size.
+ *
+ * This define should be defined in the sdk_config.h file to override the default.
+ */
+#ifndef NRF_BLE_GATT_MAX_MTU_SIZE
+    #if ((NRF_SD_BLE_API_VERSION == 2) || (NRF_SD_BLE_API_VERSION == 3))
+        #define NRF_BLE_GATT_MAX_MTU_SIZE GATT_MTU_SIZE_DEFAULT
+    #else
+        #define NRF_BLE_GATT_MAX_MTU_SIZE BLE_GATT_MTU_SIZE_DEFAULT
+    #endif
+#endif
+
+#define BLE_STACK_EVT_MSG_BUF_SIZE       (sizeof(ble_evt_t) + (NRF_BLE_GATT_MAX_MTU_SIZE))     /**< Size of BLE event message buffer. This will be provided to the SoftDevice while fetching an event. */
+#define BLE_STACK_HANDLER_SCHED_EVT_SIZE 0                                                     /**< The size of the scheduler event used by SoftDevice handler when passing BLE events using the @ref app_scheduler. */
 
 /**@brief Application stack event handler type. */
 typedef void (*ble_evt_handler_t) (ble_evt_t * p_ble_evt);
@@ -85,6 +101,11 @@ uint32_t softdevice_ble_evt_handler_set(ble_evt_handler_t ble_evt_handler);
 #define BLE_STACK_HANDLER_SCHED_EVT_SIZE  0
 
 #endif // BLE_STACK_SUPPORT_REQD
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_STACK_HANDLER_TYPES_H__
 

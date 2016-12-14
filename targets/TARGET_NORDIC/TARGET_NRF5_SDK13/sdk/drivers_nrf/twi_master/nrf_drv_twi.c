@@ -36,7 +36,10 @@
  * 
  */
 
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(TWI)
+#define ENABLED_TWI_COUNT (TWI0_ENABLED+TWI1_ENABLED)
+#if ENABLED_TWI_COUNT
 #include "nrf_drv_twi.h"
 #include "nrf_drv_common.h"
 #include "nrf_gpio.h"
@@ -45,6 +48,43 @@
 #include "nrf_delay.h"
 
 #include <stdio.h>
+
+#define NRF_LOG_MODULE_NAME "TWI"
+
+#if TWI_CONFIG_LOG_ENABLED
+#define NRF_LOG_LEVEL       TWI_CONFIG_LOG_LEVEL
+#define NRF_LOG_INFO_COLOR  TWI_CONFIG_INFO_COLOR
+#define NRF_LOG_DEBUG_COLOR TWI_CONFIG_DEBUG_COLOR
+#define EVT_TO_STR(event)   (event == NRF_DRV_TWI_EVT_DONE ? "EVT_DONE" :                            \
+                            (event == NRF_DRV_TWI_EVT_ADDRESS_NACK ? "EVT_ADDRESS_NACK" :            \
+                            (event == NRF_DRV_TWI_EVT_DATA_NACK ? "EVT_DATA_NACK" : "UNKNOWN ERROR"))))))
+#define EVT_TO_STR_TWI(event)   (event == NRF_TWI_EVENT_STOPPED ? "NRF_TWI_EVENT_STOPPED" :                            \
+                                (event == NRF_TWI_EVENT_RXDREADY ? "NRF_TWI_EVENT_RXDREADY" :                          \
+                                (event == NRF_TWI_EVENT_TXDSENT ? "NRF_TWI_EVENT_TXDSENT" :                            \
+                                (event == NRF_TWI_EVENT_ERROR ? "NRF_TWI_EVENT_ERROR" :                                \
+                                (event == NRF_TWI_EVENT_BB ? "NRF_TWI_EVENT_BB" :                                      \
+                                (event == NRF_TWI_EVENT_SUSPENDED ? "NRF_TWI_EVENT_SUSPENDED" : "UNKNOWN ERROR"))))))
+#define EVT_TO_STR_TWIM(event)  (event == NRF_TWIM_EVENT_STOPPED ? "NRF_TWIM_EVENT_STOPPED" :                      \
+                                (event == NRF_TWIM_EVENT_ERROR ? "NRF_TWIM_EVENT_ERROR" :                          \
+                                (event == NRF_TWIM_EVENT_SUSPENDED ? "NRF_TWIM_EVENT_SUSPENDED" :                  \
+                                (event == NRF_TWIM_EVENT_RXSTARTED ? "NRF_TWIM_EVENT_RXSTARTED" :                  \
+                                (event == NRF_TWIM_EVENT_TXSTARTED ? "NRF_TWIM_EVENT_TXSTARTED" :                  \
+                                (event == NRF_TWIM_EVENT_LASTRX ? "NRF_TWIM_EVENT_LASTRX" :                        \
+                                (event == NRF_TWIM_EVENT_LASTTX ? "NRF_TWIM_EVENT_LASTTX" : "UNKNOWN ERROR")))))))
+#define TRANSFER_TO_STR(type)   (type == NRF_DRV_TWI_XFER_TX ? "XFER_TX" :                             \
+                                (type == NRF_DRV_TWI_XFER_RX ? "XFER_RX" :                             \
+                                (type == NRF_DRV_TWI_XFER_TXRX ? "XFER_TXRX" :                         \
+                                (type == NRF_DRV_TWI_XFER_TXTX ? "XFER_TXTX" : "UNKNOWN TRANSFER TYPE"))))
+#else //TWI_CONFIG_LOG_ENABLED
+#define EVT_TO_STR(event)           ""
+#define EVT_TO_STR_TWI(event)       ""
+#define EVT_TO_STR_TWIM(event)      ""
+#define TRANSFER_TO_STR(event)      ""
+#define NRF_LOG_LEVEL       0
+#endif //TWI_CONFIG_LOG_ENABLED
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+
 
 #define TWI0_IRQ_HANDLER    SPI0_TWI0_IRQHandler
 #define TWI1_IRQ_HANDLER    SPI1_TWI1_IRQHandler
@@ -66,23 +106,29 @@
 #endif
 
 // All interrupt flags
-#define DISABLE_ALL  0xFFFFFFFF
+#define DISABLE_ALL_INT_SHORT  0xFFFFFFFF
 
-#define SCL_PIN_CONF        ((GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)    \
-                            | (GPIO_PIN_CNF_DRIVE_S0D1     << GPIO_PIN_CNF_DRIVE_Pos)   \
-                            | (GPIO_PIN_CNF_PULL_Pullup    << GPIO_PIN_CNF_PULL_Pos)    \
-                            | (GPIO_PIN_CNF_INPUT_Connect  << GPIO_PIN_CNF_INPUT_Pos)   \
-                            | (GPIO_PIN_CNF_DIR_Input      << GPIO_PIN_CNF_DIR_Pos))
+#define SCL_PIN_INIT_CONF     ( (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
+                              | (GPIO_PIN_CNF_DRIVE_S0D1     << GPIO_PIN_CNF_DRIVE_Pos) \
+                              | (GPIO_PIN_CNF_PULL_Pullup    << GPIO_PIN_CNF_PULL_Pos)  \
+                              | (GPIO_PIN_CNF_INPUT_Connect  << GPIO_PIN_CNF_INPUT_Pos) \
+                              | (GPIO_PIN_CNF_DIR_Input      << GPIO_PIN_CNF_DIR_Pos))
+#define SDA_PIN_INIT_CONF        SCL_PIN_INIT_CONF
 
-#define SDA_PIN_CONF        SCL_PIN_CONF
+#define SDA_PIN_UNINIT_CONF   ( (GPIO_PIN_CNF_SENSE_Disabled   << GPIO_PIN_CNF_SENSE_Pos) \
+                              | (GPIO_PIN_CNF_DRIVE_H0H1       << GPIO_PIN_CNF_DRIVE_Pos) \
+                              | (GPIO_PIN_CNF_PULL_Disabled    << GPIO_PIN_CNF_PULL_Pos)  \
+                              | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                              | (GPIO_PIN_CNF_DIR_Input        << GPIO_PIN_CNF_DIR_Pos))
+#define SCL_PIN_UNINIT_CONF      SDA_PIN_UNINIT_CONF
 
-#define SCL_PIN_CONF_CLR    ((GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)    \
-                            | (GPIO_PIN_CNF_DRIVE_S0D1     << GPIO_PIN_CNF_DRIVE_Pos)   \
-                            | (GPIO_PIN_CNF_PULL_Pullup    << GPIO_PIN_CNF_PULL_Pos)    \
-                            | (GPIO_PIN_CNF_INPUT_Connect  << GPIO_PIN_CNF_INPUT_Pos)   \
-                            | (GPIO_PIN_CNF_DIR_Output     << GPIO_PIN_CNF_DIR_Pos))
+#define SCL_PIN_INIT_CONF_CLR ( (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
+                              | (GPIO_PIN_CNF_DRIVE_S0D1     << GPIO_PIN_CNF_DRIVE_Pos) \
+                              | (GPIO_PIN_CNF_PULL_Pullup    << GPIO_PIN_CNF_PULL_Pos)  \
+                              | (GPIO_PIN_CNF_INPUT_Connect  << GPIO_PIN_CNF_INPUT_Pos) \
+                              | (GPIO_PIN_CNF_DIR_Output     << GPIO_PIN_CNF_DIR_Pos))
+#define SDA_PIN_INIT_CONF_CLR    SCL_PIN_INIT_CONF_CLR
 
-#define SDA_PIN_CONF_CLR    SCL_PIN_CONF_CLR
 
 // Control block - driver instance local data.
 typedef struct
@@ -100,60 +146,73 @@ typedef struct
     volatile bool             busy;
     bool                      repeated;
     uint8_t                   bytes_transferred;
+    bool                      hold_bus_uninit;
 } twi_control_block_t;
 
-static twi_control_block_t m_cb[TWI_COUNT];
+static twi_control_block_t m_cb[ENABLED_TWI_COUNT];
 
-static nrf_drv_twi_config_t const m_default_config[TWI_COUNT] = {
-#if TWI0_ENABLED
-    NRF_DRV_TWI_DEFAULT_CONFIG(0),
-#endif
-#if TWI1_ENABLED
-    NRF_DRV_TWI_DEFAULT_CONFIG(1),
-#endif
-};
-
-#if PERIPHERAL_RESOURCE_SHARING_ENABLED
+#if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
     #define IRQ_HANDLER_NAME(n) irq_handler_for_instance_##n
     #define IRQ_HANDLER(n)      static void IRQ_HANDLER_NAME(n)(void)
 
-    #if TWI0_ENABLED
+    #if NRF_MODULE_ENABLED(TWI0)
         IRQ_HANDLER(0);
     #endif
-    #if TWI1_ENABLED
+    #if NRF_MODULE_ENABLED(TWI1)
         IRQ_HANDLER(1);
     #endif
-    static nrf_drv_irq_handler_t const m_irq_handlers[TWI_COUNT] = {
-    #if TWI0_ENABLED
+    static nrf_drv_irq_handler_t const m_irq_handlers[ENABLED_TWI_COUNT] = {
+    #if NRF_MODULE_ENABLED(TWI0)
         IRQ_HANDLER_NAME(0),
     #endif
-    #if TWI1_ENABLED
+    #if NRF_MODULE_ENABLED(TWI1)
         IRQ_HANDLER_NAME(1),
     #endif
     };
 #else
     #define IRQ_HANDLER(n) void SPI##n##_TWI##n##_IRQHandler(void)
-#endif // PERIPHERAL_RESOURCE_SHARING_ENABLED
+#endif // NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
 
-static void twi_clear_bus(nrf_drv_twi_t const * const p_instance,
-                          nrf_drv_twi_config_t const * p_config)
+static ret_code_t twi_process_error(uint32_t errorsrc)
 {
-    NRF_GPIO->PIN_CNF[p_config->scl] = SCL_PIN_CONF;
-    NRF_GPIO->PIN_CNF[p_config->sda] = SDA_PIN_CONF;
+    ret_code_t ret = NRF_ERROR_INTERNAL;
+
+    if (errorsrc & NRF_TWI_ERROR_OVERRUN)
+    {
+        ret = NRF_ERROR_DRV_TWI_ERR_OVERRUN;
+    }
+
+    if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK)
+    {
+        ret = NRF_ERROR_DRV_TWI_ERR_ANACK;
+    }
+
+    if (errorsrc & NRF_TWI_ERROR_DATA_NACK)
+    {
+        ret = NRF_ERROR_DRV_TWI_ERR_DNACK;
+    }
+
+    return ret;
+}
+
+static void twi_clear_bus(nrf_drv_twi_config_t const * p_config)
+{
+    NRF_GPIO->PIN_CNF[p_config->scl] = SCL_PIN_INIT_CONF;
+    NRF_GPIO->PIN_CNF[p_config->sda] = SDA_PIN_INIT_CONF;
 
     nrf_gpio_pin_set(p_config->scl);
     nrf_gpio_pin_set(p_config->sda);
 
-    NRF_GPIO->PIN_CNF[p_config->scl] = SCL_PIN_CONF_CLR;
-    NRF_GPIO->PIN_CNF[p_config->sda] = SDA_PIN_CONF_CLR;
+    NRF_GPIO->PIN_CNF[p_config->scl] = SCL_PIN_INIT_CONF_CLR;
+    NRF_GPIO->PIN_CNF[p_config->sda] = SDA_PIN_INIT_CONF_CLR;
 
     nrf_delay_us(4);
 
-    for(int i = 0; i < 9; i++)
+    for (int i = 0; i < 9; i++)
     {
         if (nrf_gpio_pin_read(p_config->sda))
         {
-            if(i == 0)
+            if (i == 0)
             {
                 return;
             }
@@ -177,40 +236,47 @@ ret_code_t nrf_drv_twi_init(nrf_drv_twi_t const *        p_instance,
                             nrf_drv_twi_evt_handler_t    event_handler,
                             void *                       p_context)
 {
+    ASSERT(p_config);
+    ASSERT(p_config->scl != p_config->sda);
     twi_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
+    ret_code_t err_code;
 
     if (p_cb->state != NRF_DRV_STATE_UNINITIALIZED)
     {
-        return NRF_ERROR_INVALID_STATE;
+        err_code = NRF_ERROR_INVALID_STATE;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
 
-    if (p_config == NULL)
-    {
-        p_config = &m_default_config[p_instance->drv_inst_idx];
-    }
-
-#if PERIPHERAL_RESOURCE_SHARING_ENABLED
+#if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
     if (nrf_drv_common_per_res_acquire(p_instance->reg.p_twi,
             m_irq_handlers[p_instance->drv_inst_idx]) != NRF_SUCCESS)
     {
-        return NRF_ERROR_BUSY;
+        err_code = NRF_ERROR_BUSY;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
-#endif // PERIPHERAL_RESOURCE_SHARING_ENABLED
+#endif // NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
 
-    p_cb->handler   = event_handler;
-    p_cb->p_context = p_context;
-    p_cb->int_mask  = 0;
-    p_cb->repeated  = false;
-    p_cb->busy      = false;
+    p_cb->handler         = event_handler;
+    p_cb->p_context       = p_context;
+    p_cb->int_mask        = 0;
+    p_cb->repeated        = false;
+    p_cb->busy            = false;
+    p_cb->hold_bus_uninit = p_config->hold_bus_uninit;
 
-    twi_clear_bus(p_instance, p_config);
+    if(p_config->clear_bus_init)
+    {
+        /* Send clocks (max 9) until slave device back from stuck mode */
+        twi_clear_bus(p_config);
+    }
 
     /* To secure correct signal levels on the pins used by the TWI
        master when the system is in OFF mode, and when the TWI master is
        disabled, these pins must be configured in the GPIO peripheral.
     */
-    NRF_GPIO->PIN_CNF[p_config->scl] = SCL_PIN_CONF;
-    NRF_GPIO->PIN_CNF[p_config->sda] = SDA_PIN_CONF;
+    NRF_GPIO->PIN_CNF[p_config->scl] = SCL_PIN_INIT_CONF;
+    NRF_GPIO->PIN_CNF[p_config->sda] = SDA_PIN_INIT_CONF;
 
     CODE_FOR_TWIM
     (
@@ -243,7 +309,9 @@ ret_code_t nrf_drv_twi_init(nrf_drv_twi_t const *        p_instance,
 
     p_cb->state = NRF_DRV_STATE_INITIALIZED;
 
-    return NRF_SUCCESS;
+    err_code = NRF_SUCCESS;
+    NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 void nrf_drv_twi_uninit(nrf_drv_twi_t const * p_instance)
@@ -264,11 +332,26 @@ void nrf_drv_twi_uninit(nrf_drv_twi_t const * p_instance)
     }
     nrf_drv_twi_disable(p_instance);
 
-#if PERIPHERAL_RESOURCE_SHARING_ENABLED
+#if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
     nrf_drv_common_per_res_release(p_instance->reg.p_twi);
 #endif
 
+    if (!p_cb->hold_bus_uninit)
+    {
+        CODE_FOR_TWIM
+        (
+        NRF_GPIO->PIN_CNF[p_instance->reg.p_twim->PSEL.SCL] = SCL_PIN_UNINIT_CONF;
+        NRF_GPIO->PIN_CNF[p_instance->reg.p_twim->PSEL.SDA] = SDA_PIN_UNINIT_CONF;
+        )
+        CODE_FOR_TWI
+        (
+        NRF_GPIO->PIN_CNF[p_instance->reg.p_twi->PSELSCL] = SCL_PIN_UNINIT_CONF;
+        NRF_GPIO->PIN_CNF[p_instance->reg.p_twi->PSELSDA] = SDA_PIN_UNINIT_CONF;
+        )
+    }
+
     p_cb->state = NRF_DRV_STATE_UNINITIALIZED;
+    NRF_LOG_INFO("Instance uninitialized: %d.\r\n", p_instance->drv_inst_idx);
 }
 
 void nrf_drv_twi_enable(nrf_drv_twi_t const * p_instance)
@@ -290,6 +373,7 @@ void nrf_drv_twi_enable(nrf_drv_twi_t const * p_instance)
     )
 
     p_cb->state = NRF_DRV_STATE_POWERED_ON;
+    NRF_LOG_INFO("Instance enabled: %d.\r\n", p_instance->drv_inst_idx);
 }
 
 void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance)
@@ -301,19 +385,20 @@ void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance)
     (
         NRF_TWIM_Type * p_twim = p_instance->reg.p_twim;
         p_cb->int_mask = 0;
-        nrf_twim_int_disable(p_twim, DISABLE_ALL);
-        nrf_twim_shorts_disable(p_twim, DISABLE_ALL);
+        nrf_twim_int_disable(p_twim, DISABLE_ALL_INT_SHORT);
+        nrf_twim_shorts_disable(p_twim, DISABLE_ALL_INT_SHORT);
         nrf_twim_disable(p_twim);
     )
     CODE_FOR_TWI
     (
         NRF_TWI_Type * p_twi = p_instance->reg.p_twi;
-        nrf_twi_int_disable(p_twi, DISABLE_ALL);
-        nrf_twi_shorts_disable(p_twi, DISABLE_ALL);
+        nrf_twi_int_disable(p_twi, DISABLE_ALL_INT_SHORT);
+        nrf_twi_shorts_disable(p_twi, DISABLE_ALL_INT_SHORT);
         nrf_twi_disable(p_twi);
     )
 
     p_cb->state = NRF_DRV_STATE_INITIALIZED;
+    NRF_LOG_INFO("Instance disabled: %d.\r\n", p_instance->drv_inst_idx);
 }
 
 #ifdef TWI_IN_USE
@@ -354,7 +439,7 @@ static void twi_receive_byte(NRF_TWI_Type * p_twi,
 
         ++(*p_bytes_transferred);
 
-        if (*p_bytes_transferred == length-1)
+        if (*p_bytes_transferred == length - 1)
         {
             nrf_twi_shorts_set(p_twi, NRF_TWI_SHORT_BB_STOP_MASK);
         }
@@ -374,16 +459,7 @@ static bool twi_transfer(NRF_TWI_Type  * p_twi,
                          uint8_t         length,
                          bool            no_stop)
 {
-    bool do_stop_check;
-
-    if ((*p_error == true) || (*p_bytes_transferred == length))
-    {
-        do_stop_check = true;
-    }
-    else
-    {
-        do_stop_check = false;
-    }
+    bool do_stop_check = ((*p_error) || ((*p_bytes_transferred) == length));
 
     if (*p_error)
     {
@@ -394,6 +470,7 @@ static bool twi_transfer(NRF_TWI_Type  * p_twi,
     else if (nrf_twi_event_check(p_twi, NRF_TWI_EVENT_ERROR))
     {
         nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
+        NRF_LOG_DEBUG("TWI: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWI(NRF_TWI_EVENT_ERROR));
         nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STOP);
         *p_error = true;
     }
@@ -402,9 +479,11 @@ static bool twi_transfer(NRF_TWI_Type  * p_twi,
         if (nrf_twi_event_check(p_twi, NRF_TWI_EVENT_TXDSENT))
         {
             nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_TXDSENT);
+            NRF_LOG_DEBUG("TWI: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWI(NRF_TWI_EVENT_TXDSENT));
             if (nrf_twi_event_check(p_twi, NRF_TWI_EVENT_ERROR))
             {
                 nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
+                NRF_LOG_DEBUG("TWI: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWI(NRF_TWI_EVENT_ERROR));
                 nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STOP);
                 *p_error = true;
             }
@@ -419,8 +498,10 @@ static bool twi_transfer(NRF_TWI_Type  * p_twi,
         else if (nrf_twi_event_check(p_twi, NRF_TWI_EVENT_RXDREADY))
         {
             nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_RXDREADY);
+            NRF_LOG_DEBUG("TWI: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWI(NRF_TWI_EVENT_RXDREADY));
             if (nrf_twi_event_check(p_twi, NRF_TWI_EVENT_ERROR))
             {
+                NRF_LOG_DEBUG("TWI: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWI(NRF_TWI_EVENT_ERROR));
                 nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
                 nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STOP);
                 *p_error = true;
@@ -435,6 +516,7 @@ static bool twi_transfer(NRF_TWI_Type  * p_twi,
     if (do_stop_check && nrf_twi_event_check(p_twi, NRF_TWI_EVENT_STOPPED))
     {
         nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_STOPPED);
+        NRF_LOG_DEBUG("TWI: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWI(NRF_TWI_EVENT_STOPPED));
         return false;
     }
 
@@ -479,8 +561,14 @@ static ret_code_t twi_tx_start_transfer(twi_control_block_t * p_cb,
 
         if (p_cb->error)
         {
-            ret_code = NRF_ERROR_INTERNAL;
+            uint32_t errorsrc =  nrf_twi_errorsrc_get_and_clear(p_twi);
+
+            if (errorsrc)
+            {
+                ret_code = twi_process_error(errorsrc);
+            }
         }
+
     }
     return ret_code;
 }
@@ -527,7 +615,12 @@ static ret_code_t twi_rx_start_transfer(twi_control_block_t * p_cb,
 
         if (p_cb->error)
         {
-            ret_code = NRF_ERROR_INTERNAL;
+            uint32_t errorsrc =  nrf_twi_errorsrc_get_and_clear(p_twi);
+
+            if (errorsrc)
+            {
+                ret_code = twi_process_error(errorsrc);
+            }
         }
     }
     return ret_code;
@@ -538,15 +631,18 @@ __STATIC_INLINE ret_code_t twi_xfer(twi_control_block_t           * p_cb,
                                     nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
                                     uint32_t                        flags)
 {
-    ret_code_t ret = NRF_SUCCESS;
+
+    ret_code_t err_code = NRF_SUCCESS;
 
     /* Block TWI interrupts to ensure that function is not interrupted by TWI interrupt. */
-    nrf_twi_int_disable(p_twi, DISABLE_ALL);
+    nrf_twi_int_disable(p_twi, DISABLE_ALL_INT_SHORT);
 
     if (p_cb->busy)
     {
         nrf_twi_int_enable(p_twi, p_cb->int_mask);
-        return NRF_ERROR_BUSY;
+        err_code = NRF_ERROR_BUSY;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
     else
     {
@@ -555,7 +651,9 @@ __STATIC_INLINE ret_code_t twi_xfer(twi_control_block_t           * p_cb,
 
     if (flags & NRF_DRV_TWI_FLAG_HOLD_XFER)
     {
-        return NRF_ERROR_NOT_SUPPORTED;
+        err_code = NRF_ERROR_NOT_SUPPORTED;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
 
     p_cb->flags       = flags;
@@ -568,18 +666,20 @@ __STATIC_INLINE ret_code_t twi_xfer(twi_control_block_t           * p_cb,
     {
         p_cb->curr_no_stop = ((p_xfer_desc->type == NRF_DRV_TWI_XFER_TX) &&
                              !(flags & NRF_DRV_TWI_FLAG_TX_NO_STOP)) ? false : true;
-        ret = twi_tx_start_transfer(p_cb, p_twi, p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length, p_cb->curr_no_stop);
+
+        err_code = twi_tx_start_transfer(p_cb, p_twi, p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length, p_cb->curr_no_stop);
     }
     else
     {
         p_cb->curr_no_stop = false;
-        ret = twi_rx_start_transfer(p_cb, p_twi, p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length);
+
+        err_code = twi_rx_start_transfer(p_cb, p_twi, p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length);
     }
     if (p_cb->handler == NULL)
     {
         p_cb->busy = false;
     }
-    return ret;
+    return err_code;
 }
 #endif
 
@@ -603,32 +703,33 @@ __STATIC_INLINE void twim_list_enable_handle(NRF_TWIM_Type * p_twim, uint32_t fl
     {
         nrf_twim_rx_list_disable(p_twim);
     }
-#ifndef NRF52_PAN_46
-#endif
 }
 __STATIC_INLINE ret_code_t twim_xfer(twi_control_block_t           * p_cb,
                                      NRF_TWIM_Type                 * p_twim,
                                      nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
                                      uint32_t                        flags)
 {
-    ret_code_t ret = NRF_SUCCESS;
+    ret_code_t err_code = NRF_SUCCESS;
     nrf_twim_task_t  start_task = NRF_TWIM_TASK_STARTTX;
     nrf_twim_event_t evt_to_wait = NRF_TWIM_EVENT_STOPPED;
 
     if (!nrf_drv_is_in_RAM(p_xfer_desc->p_primary_buf))
     {
-        return NRF_ERROR_INVALID_ADDR;
+        err_code = NRF_ERROR_INVALID_ADDR;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
     /* Block TWI interrupts to ensure that function is not interrupted by TWI interrupt. */
-    nrf_twim_int_disable(p_twim, DISABLE_ALL);
+    nrf_twim_int_disable(p_twim, DISABLE_ALL_INT_SHORT);
     if (p_cb->busy)
     {
         nrf_twim_int_enable(p_twim, p_cb->int_mask);
-        return NRF_ERROR_BUSY;
+        err_code = NRF_ERROR_BUSY;
+        NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+        return err_code;
     }
     else
     {
-
         p_cb->busy = ((NRF_DRV_TWI_FLAG_NO_XFER_EVT_HANDLER & flags) ||
                       (NRF_DRV_TWI_FLAG_REPEATED_XFER & flags)) ? false: true;
     }
@@ -649,7 +750,9 @@ __STATIC_INLINE ret_code_t twim_xfer(twi_control_block_t           * p_cb,
         ASSERT(!(flags & NRF_DRV_TWI_FLAG_NO_XFER_EVT_HANDLER));
         if (!nrf_drv_is_in_RAM(p_xfer_desc->p_secondary_buf))
         {
-            return NRF_ERROR_INVALID_ADDR;
+            err_code = NRF_ERROR_INVALID_ADDR;
+            NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+            return err_code;
         }
         nrf_twim_shorts_set(p_twim, NRF_TWIM_SHORT_LASTTX_SUSPEND_MASK);
         nrf_twim_tx_buffer_set(p_twim, p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length);
@@ -658,14 +761,21 @@ __STATIC_INLINE ret_code_t twim_xfer(twi_control_block_t           * p_cb,
         nrf_twim_event_clear(p_twim, NRF_TWIM_EVENT_SUSPENDED);
         nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_RESUME);
         nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_STARTTX);
-        while(!nrf_twim_event_check(p_twim, NRF_TWIM_EVENT_TXSTARTED))
+        while (!nrf_twim_event_check(p_twim, NRF_TWIM_EVENT_TXSTARTED))
         {}
+        NRF_LOG_DEBUG("TWIM: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWIM(NRF_TWIM_EVENT_TXSTARTED));
         nrf_twim_event_clear(p_twim, NRF_TWIM_EVENT_TXSTARTED);
         nrf_twim_tx_buffer_set(p_twim, p_xfer_desc->p_secondary_buf, p_xfer_desc->secondary_length);
         p_cb->int_mask = NRF_TWIM_INT_SUSPENDED_MASK | NRF_TWIM_INT_ERROR_MASK;
         break;
     case NRF_DRV_TWI_XFER_TXRX:
         nrf_twim_tx_buffer_set(p_twim, p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length);
+        if (!nrf_drv_is_in_RAM(p_xfer_desc->p_secondary_buf))
+        {
+            err_code = NRF_ERROR_INVALID_ADDR;
+            NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+            return err_code;
+        }
         nrf_twim_rx_buffer_set(p_twim, p_xfer_desc->p_secondary_buf, p_xfer_desc->secondary_length);
         nrf_twim_shorts_set(p_twim, NRF_TWIM_SHORT_LASTTX_STARTRX_MASK |
                                     NRF_TWIM_SHORT_LASTRX_STOP_MASK);
@@ -695,7 +805,7 @@ __STATIC_INLINE ret_code_t twim_xfer(twi_control_block_t           * p_cb,
         nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_RESUME);
         break;
     default:
-        ret = NRF_ERROR_INVALID_PARAM;
+        err_code = NRF_ERROR_INVALID_PARAM;
         break;
     }
 
@@ -718,6 +828,7 @@ __STATIC_INLINE ret_code_t twim_xfer(twi_control_block_t           * p_cb,
         {
             if (nrf_twim_event_check(p_twim, NRF_TWIM_EVENT_ERROR))
             {
+                NRF_LOG_DEBUG("TWIM: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWIM(NRF_TWIM_EVENT_ERROR));
                 nrf_twim_event_clear(p_twim, NRF_TWIM_EVENT_ERROR);
                 nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_RESUME);
                 nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_STOP);
@@ -731,10 +842,10 @@ __STATIC_INLINE ret_code_t twim_xfer(twi_control_block_t           * p_cb,
 
         if (errorsrc)
         {
-            ret = NRF_ERROR_INTERNAL;
+            err_code = twi_process_error(errorsrc);
         }
     }
-    return ret;
+    return err_code;
 }
 #endif
 
@@ -742,32 +853,39 @@ ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
                             nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
                             uint32_t                        flags)
 {
-    ret_code_t ret = NRF_SUCCESS;
+
+    ret_code_t err_code = NRF_SUCCESS;
     twi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
 
     // TXRX and TXTX transfers are support only in non-blocking mode.
     ASSERT( !((p_cb->handler == NULL) && (p_xfer_desc->type == NRF_DRV_TWI_XFER_TXRX)));
     ASSERT( !((p_cb->handler == NULL) && (p_xfer_desc->type == NRF_DRV_TWI_XFER_TXTX)));
 
+    NRF_LOG_INFO("Transfer type: %s.\r\n", (uint32_t)TRANSFER_TO_STR(p_xfer_desc->type));
+    NRF_LOG_INFO("Transfer buffers length: primary: %d, secondary: %d.\r\n", p_xfer_desc->primary_length, p_xfer_desc->secondary_length);
+    NRF_LOG_DEBUG("Primary buffer data:\r\n");
+    NRF_LOG_HEXDUMP_DEBUG((uint8_t *)p_xfer_desc->p_primary_buf, p_xfer_desc->primary_length * sizeof(p_xfer_desc->p_primary_buf));
+    NRF_LOG_DEBUG("Secondary buffer data:\r\n");
+    NRF_LOG_HEXDUMP_DEBUG((uint8_t *)p_xfer_desc->p_secondary_buf, p_xfer_desc->secondary_length * sizeof(p_xfer_desc->p_secondary_buf));
+
     CODE_FOR_TWIM
     (
-        ret = twim_xfer(p_cb, (NRF_TWIM_Type *)p_instance->reg.p_twim, p_xfer_desc, flags);
+
+        err_code = twim_xfer(p_cb, (NRF_TWIM_Type *)p_instance->reg.p_twim, p_xfer_desc, flags);
     )
     CODE_FOR_TWI
     (
         if ( (NRF_DRV_TWI_FLAG_TX_POSTINC | NRF_DRV_TWI_FLAG_RX_POSTINC) & flags)
         {
-            return NRF_ERROR_NOT_SUPPORTED;
+            err_code = NRF_ERROR_NOT_SUPPORTED;
+            NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+            return err_code;
         }
-        ret = twi_xfer(p_cb, (NRF_TWI_Type  *)p_instance->reg.p_twi, p_xfer_desc, flags);
-    )
-    return ret;
-}
 
-bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance)
-{
-    twi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
-    return p_cb->busy;
+        err_code = twi_xfer(p_cb, (NRF_TWI_Type  *)p_instance->reg.p_twi, p_xfer_desc, flags);
+    )
+    NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
+    return err_code;
 }
 
 ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
@@ -836,6 +954,7 @@ static void irq_handler_twim(NRF_TWIM_Type * p_twim, twi_control_block_t * p_cb)
     if (nrf_twim_event_check(p_twim, NRF_TWIM_EVENT_ERROR))
     {
         nrf_twim_event_clear(p_twim, NRF_TWIM_EVENT_ERROR);
+        NRF_LOG_DEBUG("TWIM: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWIM(NRF_TWIM_EVENT_ERROR));
         if (!nrf_twim_event_check(p_twim, NRF_TWIM_EVENT_STOPPED))
         {
             nrf_twim_int_disable(p_twim, p_cb->int_mask);
@@ -852,6 +971,7 @@ static void irq_handler_twim(NRF_TWIM_Type * p_twim, twi_control_block_t * p_cb)
 
     if (nrf_twim_event_check(p_twim, NRF_TWIM_EVENT_STOPPED))
     {
+        NRF_LOG_DEBUG("TWIM: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWIM(NRF_TWIM_EVENT_STOPPED));
         nrf_twim_event_clear(p_twim, NRF_TWIM_EVENT_STOPPED);
         event.xfer_desc = p_cb->xfer_desc;
         if (p_cb->error)
@@ -869,12 +989,13 @@ static void irq_handler_twim(NRF_TWIM_Type * p_twim, twi_control_block_t * p_cb)
         {
             nrf_twim_shorts_set(p_twim, 0);
             p_cb->int_mask = 0;
-            nrf_twim_int_disable(p_twim, DISABLE_ALL);
+            nrf_twim_int_disable(p_twim, DISABLE_ALL_INT_SHORT);
         }
     }
     else
     {
         nrf_twim_event_clear(p_twim, NRF_TWIM_EVENT_SUSPENDED);
+        NRF_LOG_DEBUG("TWIM: Event: %s.\r\n", (uint32_t)EVT_TO_STR_TWIM(NRF_TWIM_EVENT_SUSPENDED));
         if (p_cb->xfer_desc.type == NRF_DRV_TWI_XFER_TX)
         {
             event.xfer_desc = p_cb->xfer_desc;
@@ -882,14 +1003,14 @@ static void irq_handler_twim(NRF_TWIM_Type * p_twim, twi_control_block_t * p_cb)
             {
                 nrf_twim_shorts_set(p_twim, 0);
                 p_cb->int_mask = 0;
-                nrf_twim_int_disable(p_twim, DISABLE_ALL);
+                nrf_twim_int_disable(p_twim, DISABLE_ALL_INT_SHORT);
             }
         }
         else
         {
             nrf_twim_shorts_set(p_twim, NRF_TWIM_SHORT_LASTTX_STOP_MASK);
             p_cb->int_mask = NRF_TWIM_INT_STOPPED_MASK | NRF_TWIM_INT_ERROR_MASK;
-            nrf_twim_int_disable(p_twim, DISABLE_ALL);
+            nrf_twim_int_disable(p_twim, DISABLE_ALL_INT_SHORT);
             nrf_twim_int_enable(p_twim, p_cb->int_mask);
             nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_STARTTX);
             nrf_twim_task_trigger(p_twim, NRF_TWIM_TASK_RESUME);
@@ -901,14 +1022,17 @@ static void irq_handler_twim(NRF_TWIM_Type * p_twim, twi_control_block_t * p_cb)
     if (errorsrc & NRF_TWIM_ERROR_ADDRESS_NACK)
     {
         event.type = NRF_DRV_TWI_EVT_ADDRESS_NACK;
+        NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_DRV_TWI_EVT_ADDRESS_NACK));
     }
     else if (errorsrc & NRF_TWIM_ERROR_DATA_NACK)
     {
         event.type = NRF_DRV_TWI_EVT_DATA_NACK;
+        NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_DRV_TWI_EVT_DATA_NACK));
     }
     else
     {
         event.type = NRF_DRV_TWI_EVT_DONE;
+        NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_DRV_TWI_EVT_DONE));
     }
 
     if (!p_cb->repeated)
@@ -958,15 +1082,18 @@ static void irq_handler_twi(NRF_TWI_Type * p_twi, twi_control_block_t * p_cb)
             if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK)
             {
                 event.type = NRF_DRV_TWI_EVT_ADDRESS_NACK;
+                NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_DRV_TWI_EVT_ADDRESS_NACK));
             }
             else if (errorsrc & NRF_TWI_ERROR_DATA_NACK)
             {
                 event.type = NRF_DRV_TWI_EVT_DATA_NACK;
+                NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_DRV_TWI_EVT_DATA_NACK));
             }
         }
         else
         {
             event.type = NRF_DRV_TWI_EVT_DONE;
+            NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_DRV_TWI_EVT_DONE));
         }
 
         p_cb->busy = false;
@@ -980,19 +1107,19 @@ static void irq_handler_twi(NRF_TWI_Type * p_twi, twi_control_block_t * p_cb)
 }
 #endif // TWI_IN_USE
 
-#if TWI0_ENABLED
+#if NRF_MODULE_ENABLED(TWI0)
 IRQ_HANDLER(0)
 {
-    #if (TWI0_USE_EASY_DMA == 1) && defined(NRF52)
+    #if (TWI0_USE_EASY_DMA == 1)
         irq_handler_twim(NRF_TWIM0,
     #else
         irq_handler_twi(NRF_TWI0,
     #endif
             &m_cb[TWI0_INSTANCE_INDEX]);
 }
-#endif // TWI0_ENABLED
+#endif // NRF_MODULE_ENABLED(TWI0)
 
-#if TWI1_ENABLED
+#if NRF_MODULE_ENABLED(TWI1)
 IRQ_HANDLER(1)
 {
     #if (TWI1_USE_EASY_DMA == 1)
@@ -1002,4 +1129,6 @@ IRQ_HANDLER(1)
     #endif
             &m_cb[TWI1_INSTANCE_INDEX]);
 }
-#endif // TWI1_ENABLED
+#endif // NRF_MODULE_ENABLED(TWI1)
+#endif // TWI_COUNT
+#endif // NRF_MODULE_ENABLED(TWI)

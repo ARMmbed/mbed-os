@@ -36,7 +36,6 @@
  * 
  */
 
-
 /**
  * @file
  *
@@ -69,8 +68,12 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "nrf_ble.h"
+#include "ble.h"
 #include "sdk_mapped_flags.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**@brief Connection handle statuses.
  */
@@ -298,5 +301,10 @@ sdk_mapped_flags_t ble_conn_state_user_flag_collection(ble_conn_state_user_flag_
 
 /** @} */
 /** @} */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BLE_CONN_STATE_H__ */

@@ -36,13 +36,12 @@
  * 
  */
 
-
-
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(PEER_MANAGER)
 #include "peer_data.h"
 
 #include "peer_manager_types.h"
 #include "fds.h"
-#include "sdk_common.h"
 
 
 void peer_data_parts_get(pm_peer_data_const_t const * p_peer_data, fds_record_chunk_t * p_chunks, uint16_t * p_n_chunks)
@@ -88,5 +87,4 @@ ret_code_t peer_data_deserialize(pm_peer_data_flash_t const * p_in_data, pm_peer
     }
     return err_code;
 }
-
-
+#endif // NRF_MODULE_ENABLED(PEER_MANAGER)

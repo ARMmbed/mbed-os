@@ -35,7 +35,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
 /**
   @defgroup nrf_mbr_api Master Boot Record API
   @{
