@@ -36,6 +36,17 @@
 #include "mbedtls/sha256.h"
 
 #include <string.h>
+#if defined(MBEDTLS_SELF_TEST)
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#define mbedtls_printf printf
+#define mbedtls_calloc    calloc
+#define mbedtls_free       free
+#endif /* MBEDTLS_PLATFORM_C */
+#endif /* MBEDTLS_SELF_TEST */
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {
@@ -303,6 +314,6 @@ void mbedtls_sha256_sw_finish( mbedtls_sha256_sw_context *ctx, unsigned char out
         PUT_UINT32_BE( ctx->state[7], output, 28 );
 }
 
-#endif /* MBEDTLS_SHA1_ALT */
+#endif /* MBEDTLS_SHA256_ALT */
 
 #endif /* MBEDTLS_SHA256_C */
