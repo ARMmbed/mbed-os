@@ -280,4 +280,6 @@ SECTIONS
     __uvisor_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
     __uvisor_sram_start = ORIGIN(RAM_INTERN);
     __uvisor_sram_end = ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN);
+    __uvisor_public_sram_start = __uvisor_sram_start;
+    __uvisor_public_sram_end = __uvisor_sram_end;
 }
