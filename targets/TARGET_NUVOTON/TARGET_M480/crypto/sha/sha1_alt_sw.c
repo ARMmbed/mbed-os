@@ -24,6 +24,9 @@
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -343,3 +346,5 @@ void mbedtls_sha1_sw_finish( mbedtls_sha1_sw_context *ctx, unsigned char output[
 #endif /* MBEDTLS_SHA1_ALT */
 
 #endif /* MBEDTLS_SHA1_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */
