@@ -145,7 +145,7 @@ def upgrade_copying_list(copy_list, pathes_sdk, dest_mbed_dir_path, print_list):
     
     
     
-def upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, verbose = False):
+def upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, port_relative_dir = '',verbose = False):
     print_list = []
     
     for pathes_sdk in list_sdk:
@@ -166,6 +166,7 @@ def upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, verb
                     if post_path != '.': # destynation is a nested directory
                         corect_hard_copy_dir = os.path.join(hard_copy_dir["mbed_dir"], post_path)
                     
+                    corect_hard_copy_dir = os.path.join(port_relative_dir, corect_hard_copy_dir)
                     
                     upgrade_copying_list(copy_list, pathes_sdk, corect_hard_copy_dir, print_list)
                     break
@@ -178,7 +179,7 @@ def upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, verb
             str_verbose = "{0} --> {1}"
             print(str_verbose.format(item["id"], item["dest_path"]))
                         
-def upgrade_copying_list_by_files(copy_list, list_sdk, force_copy_files_list, verbose = False):
+def upgrade_copying_list_by_files(copy_list, list_sdk, force_copy_files_list, port_relative_dir ='',verbose = False):
     print_list = []
     
     for pathes_sdk in list_sdk:
@@ -189,7 +190,10 @@ def upgrade_copying_list_by_files(copy_list, list_sdk, force_copy_files_list, ve
             for hard_copy_file in force_copy_files_list:
                 if pathes_sdk["id"] == hard_copy_file["sdk_file"]:
                     make_hard_copy = True
-                    upgrade_copying_list(copy_list, pathes_sdk, hard_copy_file["mbed_dir"], print_list)
+                    
+                    corect_hard_copy_dir = os.path.join(port_relative_dir, hard_copy_file["mbed_dir"])
+                    
+                    upgrade_copying_list(copy_list, pathes_sdk, corect_hard_copy_dir, print_list)
                     break
                 
     print("\r\nforced copy of files by files: {0:#d}".format(len(print_list)))
@@ -199,22 +203,27 @@ def upgrade_copying_list_by_files(copy_list, list_sdk, force_copy_files_list, ve
             str_verbose = "{0} --> {1}"
             print(str_verbose.format(item["id"], item["dest_path"]))
             
-def copy_one_file(src, dest, verbose=False):
+def copy_one_file(src, dest, verbose=False,dry_run=False):
     dirs_to_created = os.path.dirname(dest)
     
     if not os.path.exists(dirs_to_created):
-        os.makedirs(dirs_to_created)
-        print('makerdirs: {0}'.format(dirs_to_created))
+        if not dry_run:
+            os.makedirs(dirs_to_created)
+            
+        if verbose:
+            print('makerdirs: {0}'.format(dirs_to_created))
         
-    shutil.copyfile(src, dest)
-    print('copy: {0} --> {1}'.format(src, dest))
-    
-                        
+    if not dry_run:
+        shutil.copyfile(src, dest)
+        
+    if verbose:        
+        print('copy: {0} --> {1}'.format(src, dest))
+
 
 
 if __name__ == '__main__':
     argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument('-n', '--dry_run', help='Dry run', action='store_true')
+    argument_parser.add_argument('-r', '--run', help='run', action='store_true')
     argument_parser.add_argument('-v', '--verbose', help='Verbose mode', action='store_true')
     #argument_parser.add_argument('-r', '--rename_only', help='rename only', action='store_true')
     
@@ -222,7 +231,7 @@ if __name__ == '__main__':
     
     verbose = False
     
-    if parser_args['verbose'] or parser_args['dry_run']:
+    if parser_args['verbose'] or not parser_args['run']:
         verbose = True
                         
     with open('update_desc.json') as data_file:    
@@ -237,6 +246,7 @@ if __name__ == '__main__':
     force_copy_dirs_list = update_desc['force_copy_dirs_list']
     sdk_dirs_in_mbed  = update_desc['sdk_dirs_in_mbed']
     sdk_component_path = update_desc['sdk_component_path']
+    port_relative_dir = update_desc['port_relative_dir_in_mbed']
      
     list_sdk = get_file_pathes_couples(sdk_component_path,
                                        ignore_dirs_list,
@@ -252,17 +262,16 @@ if __name__ == '__main__':
 
     copy_list = get_copying_automatic_list(list_mbed, list_sdk, mbed_port_path, verbose)
             
-    upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, verbose)
-    upgrade_copying_list_by_files(copy_list, list_sdk, force_copy_files_list, verbose)
+    upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, port_relative_dir, verbose)
+    upgrade_copying_list_by_files(copy_list, list_sdk, force_copy_files_list, port_relative_dir, verbose)
     
-    rename_dirs(sdk_dirs_in_mbed, '_old_sdk', parser_args['dry_run'])
+    rename_dirs(sdk_dirs_in_mbed, '_old_sdk', not parser_args['run'])
     
-    if not parser_args['dry_run']:    
-        for copy_item in copy_list:
-            src = os.path.join('.',copy_item["src_path"])
-            dest = os.path.join('.',copy_item["dest_path"])
+    for copy_item in copy_list:
+        src = os.path.join('.',copy_item["src_path"])
+        dest = os.path.join('.',copy_item["dest_path"])
             
-            copy_one_file(src, dest, verbose)
+        copy_one_file(src, dest, verbose, not parser_args['run'])
             
     with open('sdk_update_result.json', 'w') as fp:
         json.dump(copy_list, fp)
