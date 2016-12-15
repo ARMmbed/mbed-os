@@ -264,12 +264,12 @@
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
                 "value": 1,
-                "macro_name": "MODEM_ON_BOARD" 
+                "macro_name": "MODEM_ON_BOARD"
             },
             "modem_data_connection_type": {
                 "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
                 "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART" 
+                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "macros": ["TARGET_LPC1768"],
@@ -675,6 +675,19 @@
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"]
+    },
+    "LPC54114": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPC54114_M4", "LPCXpresso"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_LPC54114J256BD64_cm4", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["1054"],
+        "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"],
+        "device_name" : "LPC54114J256BD64"
     },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
@@ -1385,12 +1398,12 @@
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
                 "value": 1,
-                "macro_name": "MODEM_ON_BOARD" 
+                "macro_name": "MODEM_ON_BOARD"
             },
             "modem_data_connection_type": {
                 "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
                 "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART" 
+                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000", "RTC_LSI=1"],
@@ -1457,12 +1470,12 @@
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
                 "value": 1,
-                "macro_name": "MODEM_ON_BOARD" 
+                "macro_name": "MODEM_ON_BOARD"
             },
             "modem_data_connection_type": {
                 "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
                 "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART" 
+                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "macros_add": ["RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
