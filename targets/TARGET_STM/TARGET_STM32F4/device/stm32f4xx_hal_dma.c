@@ -688,6 +688,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
       /* Clear the Direct Mode error flag */
       regs->IFCR = DMA_FLAG_DMEIF0_4 << hdma->StreamIndex;
     }
+    tmpisr = regs->ISR;
   }
   
   if(hdma->ErrorCode != HAL_DMA_ERROR_NONE)
