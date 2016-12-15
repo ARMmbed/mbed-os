@@ -81,8 +81,8 @@ int i2c_start(i2c_t *obj)
 
 int i2c_stop(i2c_t *obj)
 {
+    obj->next_repeated_start = 0;
     if (I2C_MasterStop(i2c_addrs[obj->instance]) != kStatus_Success) {
-        obj->next_repeated_start = 0;
         return 1;
     }
 
@@ -130,6 +130,25 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
+
+    if (length == 0) {
+        if (I2C_MasterStart(base, address >> 1, kI2C_Write) != kStatus_Success) {
+            return I2C_ERROR_NO_SLAVE;
+        }
+
+        while (!(base->S & kI2C_IntPendingFlag)) {
+        }
+
+        base->S = kI2C_IntPendingFlag;
+
+        if (base->S & kI2C_ReceiveNakFlag) {
+            i2c_stop(obj);
+            return I2C_ERROR_NO_SLAVE;
+        } else {
+            i2c_stop(obj);
+            return length;
+        }
+    }
 
     memset(&master_xfer, 0, sizeof(master_xfer));
     master_xfer.slaveAddress = address >> 1;
