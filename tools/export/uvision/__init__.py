@@ -131,10 +131,10 @@ class Uvision(Exporter):
                   '.obj': 3, '.o': 3, '.lib': 4,
                   '.ar': 4, '.h': 5, '.hpp': 5, '.sct': 4}
 
-    def uv_file(self, loc):
-        """Return a namedtuple of information about project file
+    def uv_files(self, files):
+        """An generator containing Uvision specific information about project files
         Positional Arguments:
-        loc - the file's location
+        files - the location of source files
 
         .uvprojx XML for project file:
         <File>
@@ -143,11 +143,14 @@ class Uvision(Exporter):
             <FilePath>{{file.loc}}</FilePath>
         </File>
         """
-        UVFile = namedtuple('UVFile', ['type','loc','name'])
-        _, ext = os.path.splitext(loc)
-        type = self.file_types[ext.lower()]
-        name = ntpath.basename(normpath(loc))
-        return UVFile(type, loc, name)
+        for loc in files:
+            #Encapsulates the information necessary for template entry above
+            UVFile = namedtuple('UVFile', ['type','loc','name'])
+            _, ext = os.path.splitext(loc)
+            if ext.lower() in self.file_types:
+                type = self.file_types[ext.lower()]
+                name = ntpath.basename(normpath(loc))
+                yield UVFile(type, loc, name)
 
     def format_flags(self):
         """Format toolchain flags for Uvision"""
@@ -179,7 +182,7 @@ class Uvision(Exporter):
         """Make sources into the named tuple for use in the template"""
         grouped = self.group_project_files(srcs)
         for group, files in grouped.items():
-            grouped[group] = [self.uv_file(src) for src in files]
+            grouped[group] = self.uv_files(files)
         return grouped
 
     def generate(self):
@@ -193,6 +196,8 @@ class Uvision(Exporter):
                self.resources.objects + self.resources.libraries
         ctx = {
             'name': self.project_name,
+            # project_files => dict of generators - file group to generator of
+            # UVFile tuples defined above
             'project_files': self.format_src(srcs),
             'linker_script':self.resources.linker_script,
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),

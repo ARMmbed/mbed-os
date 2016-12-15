@@ -24,6 +24,9 @@
     "target_overrides": {
         "EFM32": {
             "stdio-baud-rate": 115200
+        },
+        "EFR32": {
+            "stdio-baud-rate": 115200
         }
     }
 }

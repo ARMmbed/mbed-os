@@ -206,6 +206,7 @@ typedef enum {
     ADC_VREF2   = 0xF2,
     ADC_VREF3   = 0xF3,
     ADC_VREF4   = 0xF4,
+    ADC_VREF    = ADC_VREF1,
     ADC_VBAT    = 0xF5,
     ADC_VOPAMP1 = 0xF6,
     ADC_VOPAMP2 = 0xF7,

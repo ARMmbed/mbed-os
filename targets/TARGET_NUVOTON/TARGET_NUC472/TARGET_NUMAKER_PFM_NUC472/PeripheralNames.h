@@ -44,18 +44,23 @@ typedef enum {
 #endif
 
 typedef enum {
-    ADC_0_0 = (int) NU_MODNAME(ADC_BASE, 0),
-    ADC_0_1 = (int) NU_MODNAME(ADC_BASE, 1),
-    ADC_0_2 = (int) NU_MODNAME(ADC_BASE, 2),
-    ADC_0_3 = (int) NU_MODNAME(ADC_BASE, 3),
-    ADC_0_4 = (int) NU_MODNAME(ADC_BASE, 4),
-    ADC_0_5 = (int) NU_MODNAME(ADC_BASE, 5),
-    ADC_0_6 = (int) NU_MODNAME(ADC_BASE, 6),
-    ADC_0_7 = (int) NU_MODNAME(ADC_BASE, 7),
-    ADC_0_8 = (int) NU_MODNAME(ADC_BASE, 8),
-    ADC_0_9 = (int) NU_MODNAME(ADC_BASE, 9),
-    ADC_0_10 = (int) NU_MODNAME(ADC_BASE, 10),
-    ADC_0_11 = (int) NU_MODNAME(ADC_BASE, 11)
+    ADC_0_0 = (int) NU_MODNAME(EADC_BASE, 0),
+    ADC_0_1 = (int) NU_MODNAME(EADC_BASE, 1),
+    ADC_0_2 = (int) NU_MODNAME(EADC_BASE, 2),
+    ADC_0_3 = (int) NU_MODNAME(EADC_BASE, 3),
+    ADC_0_4 = (int) NU_MODNAME(EADC_BASE, 4),
+    ADC_0_5 = (int) NU_MODNAME(EADC_BASE, 5),
+    ADC_0_6 = (int) NU_MODNAME(EADC_BASE, 6),
+    ADC_0_7 = (int) NU_MODNAME(EADC_BASE, 7),
+    
+    ADC_1_0 = (int) NU_MODNAME(EADC_BASE, 8),
+    ADC_1_1 = (int) NU_MODNAME(EADC_BASE, 9),
+    ADC_1_2 = (int) NU_MODNAME(EADC_BASE, 10),
+    ADC_1_3 = (int) NU_MODNAME(EADC_BASE, 11),
+    ADC_1_4 = (int) NU_MODNAME(EADC_BASE, 12),
+    ADC_1_5 = (int) NU_MODNAME(EADC_BASE, 13),
+    ADC_1_6 = (int) NU_MODNAME(EADC_BASE, 14),
+    ADC_1_7 = (int) NU_MODNAME(EADC_BASE, 15),
 } ADCName;
 
 typedef enum {

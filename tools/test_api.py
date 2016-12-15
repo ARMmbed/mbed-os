@@ -2092,6 +2092,12 @@ def build_test_worker(*args, **kwargs):
         'kwargs': kwargs
     }
 
+    # Use parent TOOLCHAIN_PATHS variable
+    for key, value in kwargs['toolchain_paths'].iteritems():
+        TOOLCHAIN_PATHS[key] = value
+
+    del kwargs['toolchain_paths']
+
     try:
         bin_file = build_project(*args, **kwargs)
         ret['result'] = True
@@ -2165,7 +2171,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'verbose': verbose,
             'app_config': app_config,
             'build_profile': build_profile,
-            'silent': True
+            'silent': True,
+            'toolchain_paths': TOOLCHAIN_PATHS
         }
         
         results.append(p.apply_async(build_test_worker, args, kwargs))

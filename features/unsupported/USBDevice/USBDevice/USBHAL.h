@@ -109,11 +109,13 @@ private:
     static USBHAL * instance;
 
 #if defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
-        bool (USBHAL::*epCallback[10 - 2])(void);
-#elif defined(TARGET_STM32F4)
-        bool (USBHAL::*epCallback[8 - 2])(void);
+    bool (USBHAL::*epCallback[10 - 2])(void);
+#elif defined(TARGET_STM32F4) && !defined(USB_STM_HAL)
+    bool (USBHAL::*epCallback[8 - 2])(void);
+#elif defined(TARGET_STM32F4) || defined(TARGET_STM32F3) || defined (TARGET_STM32F2)|| defined(TARGET_STM32L4) || defined(TARGET_STM32F7)
+    PCD_HandleTypeDef hpcd;
 #else
-        bool (USBHAL::*epCallback[32 - 2])(void);
+    bool (USBHAL::*epCallback[32 - 2])(void);
 #endif
 
 

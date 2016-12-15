@@ -39,8 +39,10 @@ void deepsleep(void)
      * If enter stop modes when MCG in PEE mode, then after wakeup, the MCG is in PBE mode,
      * need to enter PEE mode manually.
      */
+#if defined(kMCG_ModePEE)
     if (mode == kMCG_ModePEE) {
         BOARD_BootClockRUN();
     }
+#endif
 #endif
 }

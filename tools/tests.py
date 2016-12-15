@@ -987,7 +987,6 @@ TESTS = [
         "id": "USB_4", "description": "Serial Port",
         "source_dir": join(TEST_DIR, "usb", "device", "serial"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "USB_5", "description": "Generic HID",

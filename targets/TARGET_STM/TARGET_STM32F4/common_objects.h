@@ -78,7 +78,6 @@ struct spi_s {
     PinName pin_ssel;
 #ifdef DEVICE_SPI_ASYNCH
     uint32_t event;
-    uint8_t module;
     uint8_t transfer_type;
 #endif
 };
@@ -92,6 +91,7 @@ struct i2c_s {
     I2CName  i2c;
     I2C_HandleTypeDef handle;
     uint8_t index;
+    int hz;
     PinName sda;
     PinName scl;
     IRQn_Type event_i2cIRQ;

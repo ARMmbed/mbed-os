@@ -434,8 +434,8 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     // enable the interrupt
     IRQn_Type irq_n = spiobj->spiIRQ;
-    NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
+    NVIC_ClearPendingIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
     NVIC_EnableIRQ(irq_n);
 
@@ -520,19 +520,16 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     }
 }
 
-uint32_t spi_irq_handler_asynch(spi_t *obj)
+inline uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
-    // use the right instance
-    struct spi_s *spiobj = SPI_S(obj);
-    SPI_HandleTypeDef *handle = &spiobj->handle;
     int event = 0;
 
     // call the CubeF4 handler, this will update the handle
-    HAL_SPI_IRQHandler(handle);
+    HAL_SPI_IRQHandler(&obj->spi.handle);
 
-    if (HAL_SPI_GetState(handle) == HAL_SPI_STATE_READY) {
+    if (obj->spi.handle.State == HAL_SPI_STATE_READY) {
         // When HAL SPI is back to READY state, check if there was an error
-        int error = HAL_SPI_GetError(handle);
+        int error = obj->spi.handle.ErrorCode;
         if(error != HAL_SPI_ERROR_NONE) {
             // something went wrong and the transfer has definitely completed
             event = SPI_EVENT_ERROR | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
@@ -545,9 +542,11 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
             // else we're done
             event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
        }
+       // enable the interrupt
+       NVIC_DisableIRQ(obj->spi.spiIRQ);
+       NVIC_ClearPendingIRQ(obj->spi.spiIRQ);
     }
 
-    if (event) DEBUG_PRINTF("SPI: Event: 0x%x\n", event);
 
     return (event & (obj->spi.event | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE));
 }

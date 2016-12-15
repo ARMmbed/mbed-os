@@ -1535,6 +1535,8 @@ again:
 #endif /* LWIP_DHCP_GET_NTP_SRV*/
       case(DHCP_OPTION_OVERLOAD):
         LWIP_ERROR("len == 1", len == 1, return ERR_VAL;);
+        /* decode overload only in options, not in file/sname: invalid packet */
+        LWIP_ERROR("overload in file/sname", options_idx == DHCP_OPTIONS_OFS, return ERR_VAL;);
         decode_idx = DHCP_OPTION_IDX_OVERLOAD;
         break;
       case(DHCP_OPTION_MESSAGE_TYPE):
