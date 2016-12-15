@@ -116,5 +116,7 @@
                           "..\\TARGET_MCU_NRF52832\\sdk"
                          ],
                          
+    "port_relative_dir_in_mbed" : "..",
+                         
     "sdk_component_path": "C:\\nRF5_SDK_13.0.0-1.alpha_055eef3\\components"
 }
