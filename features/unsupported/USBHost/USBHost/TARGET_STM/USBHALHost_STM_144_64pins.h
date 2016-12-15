@@ -96,6 +96,10 @@ USBHALHost::USBHALHost() {
     for (int i = 0; i < MAX_TD; i++) {
         tdBufAlloc[i] = false;
     }
+    __HAL_RCC_PWR_CLK_ENABLE();
+#ifdef TARGET_STM32L4
+    HAL_PWREx_EnableVddUSB();
+#endif
     /* Configure USB FS GPIOs */
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
@@ -105,6 +109,7 @@ USBHALHost::USBHALHost() {
     /*USB ID */
     pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS));
 
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
     /* Configure POWER_SWITCH IO pin */
     USB_VBUS_CONFIG;
     /* Enable USB FS Clocks */

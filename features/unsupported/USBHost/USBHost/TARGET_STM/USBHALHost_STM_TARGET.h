@@ -18,12 +18,12 @@
 
 /*  144 pins boards */
 #if defined(TARGET_NUCLEO_F429ZI) || defined(TARGET_NUCLEO_F446ZE)  || defined(TARGET_NUCLEO_F207ZG) \
-|| defined(TARGET_NUCLEO_F767ZI)
+|| defined(TARGET_NUCLEO_F767ZI) || defined(TARGET_NUCLEO_F746ZG)
 #include "USBHALHost_STM_144_64pins.h"
 #endif
 
 /*  64 pins boards */
-#if defined(TARGET_NUCLEO_F401RE)
+#if defined(TARGET_NUCLEO_F401RE) || defined(TARGET_NUCLEO_L476RG) || defined(TARGET_NUCLEO_F411RE)
 #define USBHALHOST_64pins
 #include "USBHALHost_STM_144_64pins.h"
 #endif
@@ -32,4 +32,8 @@
 
 #ifdef TARGET_DISCO_F429ZI
 #include "USBHALHost_DISCOF429ZI.h"
+#endif
+
+#ifdef TARGET_DISCO_L476VG
+#include "USBHALHost_DISCOL476VG.h"
 #endif
