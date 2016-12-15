@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,113 +27,123 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "rtc_api.h"
-#include "rtc_api_hal.h"
-
 #if DEVICE_RTC
 
+#include "rtc_api.h"
+#include "rtc_api_hal.h"
 #include "mbed_error.h"
-
-#if RTC_LSI
-static int rtc_inited = 0;
-#endif
 
 static RTC_HandleTypeDef RtcHandle;
 
 #if RTC_LSI
-    #define RTC_CLOCK LSI_VALUE
+#define RTC_CLOCK LSI_VALUE
 #else
-    #define RTC_CLOCK LSE_VALUE
+#define RTC_CLOCK LSE_VALUE
 #endif
 
 #if DEVICE_LOWPOWERTIMER
-    #define RTC_ASYNCH_PREDIV ((RTC_CLOCK - 1) / 0x8000)
-    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
+#define RTC_ASYNCH_PREDIV ((RTC_CLOCK - 1) / 0x8000)
+#define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
 #else
-    #define RTC_ASYNCH_PREDIV (0x007F)
-    #define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)    
+#define RTC_ASYNCH_PREDIV (0x007F)
+#define RTC_SYNCH_PREDIV  (RTC_CLOCK / (RTC_ASYNCH_PREDIV + 1) - 1)
 #endif
 
 #if DEVICE_LOWPOWERTIMER
-    static void (*irq_handler)(void);
-    static void RTC_IRQHandler(void);
+static void (*irq_handler)(void);
+static void RTC_IRQHandler(void);
 #endif
 
 void rtc_init(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
-#if RTC_LSI
-    if (rtc_inited) return;
-    rtc_inited = 1;
-#endif
+    // Enable access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
 
     RtcHandle.Instance = RTC;
 
 #if !RTC_LSI
-    // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) { // Check if LSE has started correctly
-        // Connect LSE to RTC
+
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
     } else {
-	    error("Cannot initialize RTC with LSE\n");
+        error("Cannot initialize RTC with LSE\n");
     }
-#else	
-    // Enable Power clock
-    __PWR_CLK_ENABLE();
 
-    // Enable access to Backup domain
-    HAL_PWR_EnableBkUpAccess();
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        error("PeriphClkInitStruct RTC failed with LSE\n");
+    }
+
+#else /* !RTC_LSI */
+
+    __PWR_CLK_ENABLE();
 
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 
-	// Enable LSI clock
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-	RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-	RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		error("Cannot initialize RTC with LSI\n");
-	}
-	// Connect LSI to RTC
+    // Enable LSI clock
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        error("Cannot initialize RTC with LSI\n");
+    }
+
     __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-#endif
+
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        error("PeriphClkInitStruct RTC failed with LSI\n");
+    }
+
+#endif /* !RTC_LSI */
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
 
+#if TARGET_STM32F1
+    RtcHandle.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+#else /* TARGET_STM32F1 */
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
     RtcHandle.Init.AsynchPrediv   = RTC_ASYNCH_PREDIV;
     RtcHandle.Init.SynchPrediv    = RTC_SYNCH_PREDIV;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+#endif /* TARGET_STM32F1 */
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
         error("RTC error: RTC initialization failed.");
     }
 
 #if DEVICE_LOWPOWERTIMER
-#if RTC_LSI
-    rtc_write(0);
-#else
-    if (!rtc_isenabled()) {
+
+#if !RTC_LSI
+    if (!rtc_isenabled())
+#endif /* !RTC_LSI */
+    {
         rtc_write(0);
     }
-#endif
+
     NVIC_ClearPendingIRQ(RTC_WKUP_IRQn);
     NVIC_DisableIRQ(RTC_WKUP_IRQn);
     NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
-#endif
+
+#endif /* DEVICE_LOWPOWERTIMER */
 }
 
 void rtc_free(void)
@@ -160,23 +170,6 @@ void rtc_free(void)
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-#if RTC_LSI
-    rtc_inited = 0;
-#endif
-}
-
-int rtc_isenabled(void)
-{
-#if RTC_LSI
-  return rtc_inited;
-#else
-  if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
-    return 1;
-  } else {
-    return 0;
-  }
-#endif
 }
 
 /*
@@ -233,9 +226,6 @@ void rtc_write(time_t t)
 
     RtcHandle.Instance = RTC;
 
-    // Enable write access to Backup domain
-    HAL_PWR_EnableBkUpAccess();
-
     // Convert the time into a tm
     struct tm *timeinfo = localtime(&t);
 
@@ -247,13 +237,29 @@ void rtc_write(time_t t)
     timeStruct.Hours          = timeinfo->tm_hour;
     timeStruct.Minutes        = timeinfo->tm_min;
     timeStruct.Seconds        = timeinfo->tm_sec;
+
+#if !(TARGET_STM32F1)
     timeStruct.TimeFormat     = RTC_HOURFORMAT_24;
     timeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     timeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
+#endif /* TARGET_STM32F1 */
 
     // Change the RTC current date/time
     HAL_RTC_SetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
     HAL_RTC_SetTime(&RtcHandle, &timeStruct, FORMAT_BIN);
+}
+
+int rtc_isenabled(void)
+{
+#if DEVICE_LOWPOWERTIMER
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
+        return 1;
+    } else {
+        return 0;
+    }
+#else /* DEVICE_LOWPOWERTIMER */
+    return 1;
+#endif /* DEVICE_LOWPOWERTIMER */
 }
 
 #if DEVICE_LOWPOWERTIMER
@@ -284,7 +290,7 @@ uint32_t rtc_read_subseconds(void)
 void rtc_set_wake_up_timer(uint32_t delta)
 {
     uint32_t wake_up_counter = delta / (2000000 / RTC_CLOCK);
-  
+
     if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, wake_up_counter,
                                     RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK) {
         error("Set wake up timer failed\n");
@@ -300,6 +306,7 @@ void rtc_synchronize(void)
 {
     HAL_RTC_WaitForSynchro(&RtcHandle);
 }
-#endif // DEVICE_LOWPOWERTIMER
+#endif /* DEVICE_LOWPOWERTIMER */
 
-#endif
+
+#endif /* DEVICE_RTC */
