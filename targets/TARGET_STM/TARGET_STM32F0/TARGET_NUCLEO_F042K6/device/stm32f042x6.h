@@ -10274,7 +10274,7 @@ typedef struct
 #define IS_ADC_COMMON_INSTANCE(INSTANCE) ((INSTANCE) == ADC)
 
 /******************************* CAN Instances ********************************/
-#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN)
+#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN1)
 
 /****************************** CEC Instances *********************************/
 #define IS_CEC_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CEC)
