@@ -25,6 +25,9 @@
  *  http://csrc.nist.gov/publications/fips/fips46-3/fips46-3.pdf
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -795,3 +798,5 @@ int mbedtls_des3_sw_crypt_cbc( mbedtls_des3_sw_context *ctx,
 
 #endif /* MBEDTLS_DES_ALT */
 #endif /* MBEDTLS_DES_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */
