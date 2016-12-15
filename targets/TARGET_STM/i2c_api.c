@@ -128,15 +128,27 @@ void i2c_ev_err_enable(i2c_t *obj, uint32_t handler) {
     struct i2c_s *obj_s = I2C_S(obj);
     IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
     IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
+    /*  default prio in master case is set to 2 */
+    uint32_t prio = 2;
 
-    /* Set up event IT using IRQ and handler tables */
+    /* Set up ITs using IRQ and handler tables */
     NVIC_SetVector(irq_event_n, handler);
-    HAL_NVIC_SetPriority(irq_event_n, 0, 0);
-    HAL_NVIC_EnableIRQ(irq_event_n);
-    /* Set up error IT using IRQ and handler tables */
     NVIC_SetVector(irq_error_n, handler);
-    HAL_NVIC_SetPriority(irq_error_n, 0, 1);
-    HAL_NVIC_EnableIRQ(irq_error_n);
+
+#if DEVICE_I2CSLAVE
+    /*  Set higher priority to slave device than master.
+     *  In case a device makes use of both master and slave, the
+     *  slave needs higher responsiveness.
+     */
+    if (obj_s->slave) {
+        prio = 1;
+    }
+#endif
+
+    NVIC_SetPriority(irq_event_n, prio);
+    NVIC_SetPriority(irq_error_n, prio);
+    NVIC_EnableIRQ(irq_event_n);
+    NVIC_EnableIRQ(irq_error_n);
 }
 
 void i2c_ev_err_disable(i2c_t *obj) {
@@ -751,11 +763,23 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
+#if DEVICE_I2CSLAVE
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+    uint32_t address = 0;
+    /*  Store address to handle it after reset */
+    if(obj_s->slave)
+        address = handle->Init.OwnAddress1;
+#endif
 
     DEBUG_PRINTF("HAL_I2C_ErrorCallback:%d, index=%d\r\n", (int) hi2c->ErrorCode, obj_s->index);
 
     /* re-init IP to try and get back in a working state */
     i2c_init(obj, obj_s->sda, obj_s->scl);
+
+#if DEVICE_I2CSLAVE
+    /*  restore slave address */
+    i2c_slave_address(obj, 0, address, 0);
+#endif
 
     /* Keep Set event flag */
     obj_s->event = I2C_EVENT_ERROR;
