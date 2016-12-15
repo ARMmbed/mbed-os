@@ -158,7 +158,16 @@ def upgrade_copying_list_by_dirs(copy_list, list_sdk, force_copy_dirs_list, verb
                 if 0 == string.find(pathes_sdk["cutted_root"], hard_copy_dir["sdk_dir"]):
             
                     make_hard_copy = True
-                    upgrade_copying_list(copy_list, pathes_sdk, hard_copy_dir["mbed_dir"], print_list)
+
+                    post_path = os.path.relpath(pathes_sdk["cutted_root"], hard_copy_dir["sdk_dir"])
+                    
+                    if post_path == '.':
+                        corect_hard_copy_dir = hard_copy_dir["mbed_dir"]
+                    if post_path != '.': # destynation is a nested directory
+                        corect_hard_copy_dir = os.path.join(hard_copy_dir["mbed_dir"], post_path)
+                    
+                    
+                    upgrade_copying_list(copy_list, pathes_sdk, corect_hard_copy_dir, print_list)
                     break
                     
                 
