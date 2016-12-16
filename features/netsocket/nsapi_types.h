@@ -48,6 +48,9 @@ enum nsapi_error {
     NSAPI_ERROR_DHCP_FAILURE  = -3010,     /*!< DHCP failed to complete successfully */
     NSAPI_ERROR_AUTH_FAILURE  = -3011,     /*!< connection to access point failed */
     NSAPI_ERROR_DEVICE_ERROR  = -3012,     /*!< failure interfacing with the network processor */
+    NSAPI_ERROR_IN_PROGRESS   = -3013,     /*!< operation (eg connect) in progress */
+    NSAPI_ERROR_ALREADY       = -3014,     /*!< operation (eg connect) already in progress */
+    NSAPI_ERROR_IS_CONNECTED  = -3015,     /*!< socket is already connected */
 };
 
 /** Type used to represent error codes
