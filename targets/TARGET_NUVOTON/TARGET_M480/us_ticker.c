@@ -27,7 +27,7 @@
 
 #define TMR0HIRES_CLK_PER_SEC           (1000 * 1000)
 #define TMR1HIRES_CLK_PER_SEC           (1000 * 1000)
-#define TMR1LORES_CLK_PER_SEC           (__LIRC)
+#define TMR1LORES_CLK_PER_SEC           (__LXT)
 
 #define US_PER_TMR0HIRES_CLK            (US_PER_SEC / TMR0HIRES_CLK_PER_SEC)
 #define US_PER_TMR1HIRES_CLK            (US_PER_SEC / TMR1HIRES_CLK_PER_SEC)
@@ -58,7 +58,7 @@ static volatile int cd_hires_tmr_armed = 0; // Flag of armed or not of hi-res ti
 //       3. PCLK(HXT): Less accurate but can pass mbed-drivers test.
 // NOTE: TIMER_0 for normal counter, TIMER_1 for countdown.
 static const struct nu_modinit_s timer0hires_modinit = {TIMER_0, TMR0_MODULE, CLK_CLKSEL1_TMR0SEL_PCLK0, 0, TMR0_RST, TMR0_IRQn, (void *) tmr0_vec};
-static const struct nu_modinit_s timer1lores_modinit = {TIMER_1, TMR1_MODULE, CLK_CLKSEL1_TMR1SEL_LIRC, 0, TMR1_RST, TMR1_IRQn, (void *) tmr1_vec};
+static const struct nu_modinit_s timer1lores_modinit = {TIMER_1, TMR1_MODULE, CLK_CLKSEL1_TMR1SEL_LXT, 0, TMR1_RST, TMR1_IRQn, (void *) tmr1_vec};
 static const struct nu_modinit_s timer1hires_modinit = {TIMER_1, TMR1_MODULE, CLK_CLKSEL1_TMR1SEL_PCLK0, 0, TMR1_RST, TMR1_IRQn, (void *) tmr1_vec};
 
 #define TMR_CMP_MIN         2
