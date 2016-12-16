@@ -120,28 +120,34 @@ public:
      */
     void set_timeout(int timeout);
 
-    /*  Set stack-specific socket options
+    /*  Set socket options
      *
-     *  The setsockopt allow an application to pass stack-specific hints
-     *  to the underlying stack. For unsupported options,
-     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+     *  setsockopt allows an application to pass stack-specific options
+     *  to the underlying stack using stack-specific level and option names,
+     *  or to request generic options using levels from nsapi_socket_level_t.
      *
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
+     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
+     *  and the socket is unmodified.
+     *
+     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
+     *  @param optname  Level-specific option name
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */    
     nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
 
-    /*  Get stack-specific socket options
+    /*  Get socket options
      *
-     *  The getstackopt allow an application to retrieve stack-specific hints
-     *  from the underlying stack. For unsupported options,
-     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *  getsockopt allows an application to retrieve stack-specific options
+     *  from the underlying stack using stack-specific level and option names,
+     *  or to request generic options using levels from nsapi_socket_level_t.
      *
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
+     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
+     *  and the socket is unmodified.
+     *
+     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
+     *  @param optname  Level-specific option name
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
