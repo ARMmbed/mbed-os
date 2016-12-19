@@ -54,7 +54,7 @@ namespace rtos {
  *
  *  // Spawns a thread to run blink for 5 seconds
  *  int main() {
- *      thread.start(led1, blink);
+ *      thread.start(callback(blink, &led1));
  *      Thread::wait(5000);
  *      running = false;
  *      thread.join();
