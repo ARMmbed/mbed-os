@@ -61,9 +61,9 @@ class ARM(mbedToolchain):
 
         self.flags['common'] += ["--cpu=%s" % cpu]
 
-        self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + ["-I \""+ARM_INC+"\""]
-        self.cc = [main_cc] + self.flags['common'] + self.flags['c'] + ["-I \""+ARM_INC+"\""]
-        self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx'] + ["-I \""+ARM_INC+"\""]
+        self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
+        self.cc = [main_cc] + self.flags['common'] + self.flags['c']
+        self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
 
         self.ld = [join(ARM_BIN, "armlink")]
         self.sys_libs = []
@@ -223,22 +223,8 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
-        ARM.__init__(self, target, notify, macros, silent,
-                     extra_verbose=extra_verbose, build_profile=build_profile)
-
-        # Run-time values
-        self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])
+    pass
 
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
-
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
-        ARM.__init__(self, target, notify, macros, silent,
-                     extra_verbose=extra_verbose, build_profile=build_profile)
-
-        # Run-time values
-        self.ld.extend(["--libpath", join(TOOLCHAIN_PATHS['ARM'], "lib")])

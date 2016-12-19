@@ -4,9 +4,7 @@
   * @author  MCD Application Team
   * @version V1.7.0
   * @date    31-May-2016
-  * @brief   HAL configuration template file.
-  *          This file should be copied to the application folder and renamed
-  *          to stm32l0xx_hal_conf.h.
+  * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
@@ -57,13 +55,19 @@
 #define HAL_COMP_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
 #define HAL_CRYP_MODULE_ENABLED
-/* #define HAL_DAC_MODULE_ENABLED */
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+#define HAL_DAC_MODULE_ENABLED
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
 #define HAL_DMA_MODULE_ENABLED
-/* #define HAL_FIREWALL_MODULE_ENABLED */
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+#define HAL_FIREWALL_MODULE_ENABLED
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
-/* #define HAL_I2S_MODULE_ENABLED */
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+#define HAL_I2S_MODULE_ENABLED
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
 #define HAL_IWDG_MODULE_ENABLED
 #define HAL_LCD_MODULE_ENABLED
 #define HAL_LPTIM_MODULE_ENABLED
@@ -73,7 +77,9 @@
 #define HAL_RTC_MODULE_ENABLED
 #define HAL_SPI_MODULE_ENABLED
 #define HAL_TIM_MODULE_ENABLED
-/* #define HAL_TSC_MODULE_ENABLED */
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+#define HAL_TSC_MODULE_ENABLED
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
 #define HAL_UART_MODULE_ENABLED
 #define HAL_USART_MODULE_ENABLED
 #define HAL_IRDA_MODULE_ENABLED
@@ -81,7 +87,9 @@
 #define HAL_SMBUS_MODULE_ENABLED
 #define HAL_WWDG_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
-/* #define HAL_PCD_MODULE_ENABLED */
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+#define HAL_PCD_MODULE_ENABLED
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**
@@ -152,9 +160,9 @@
   * @brief This is the HAL system configuration section
   */
 #define  VDD_VALUE                    ((uint32_t)3300U) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            (((uint32_t)1U<<__NVIC_PRIO_BITS) - 1U)    /*!< tick interrupt priority */            
-#define  USE_RTOS                     0U     
-#define  PREFETCH_ENABLE              1U              
+#define  TICK_INT_PRIORITY            (((uint32_t)1U<<__NVIC_PRIO_BITS) - 1U)    /*!< tick interrupt priority */
+#define  USE_RTOS                     0U
+#define  PREFETCH_ENABLE              1U
 #define  PREREAD_ENABLE               0U
 #define  BUFFER_CACHE_DISABLE         0U
 
@@ -296,9 +304,8 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
-/* Exported functions ------------------------------------------------------- */
-  void assert_failed(uint8_t* file, uint32_t line);
+  #include "mbed_assert.h"
+  #define assert_param(expr) MBED_ASSERT(expr)
 #else
   #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
@@ -311,3 +318,4 @@
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

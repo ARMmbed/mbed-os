@@ -22,10 +22,9 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined(MBEDTLS_SHA1_C)
+#if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
 
-#include "sha256.h"
 #include "sha_alt_hw.h"
 #include "sha256_alt_sw.h"
 
@@ -103,6 +102,6 @@ void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char da
 #endif
 
 #endif /* MBEDTLS_SHA256_ALT */
-#endif /* MBEDTLS_SHA1_C */
+#endif /* MBEDTLS_SHA256_C */
 
 #endif /* sha256_alt.h */

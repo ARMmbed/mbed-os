@@ -42,7 +42,7 @@
  * search-and-replace for the word "ethernetif" to replace it with
  * something that better describes your network interface.
  */
-
+ 
 #include "lwip/opt.h"
 
 #include "lwip/def.h"
@@ -494,16 +494,15 @@ static void __phy_task(void *data) {
     // Compare with previous state
 			
 			if( !(ETH_link_ok()) && (netif->flags & NETIF_FLAG_LINK_UP) ) {
-				//tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1);
+				/* tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1); */
 				netif_set_link_down(netif);
-				printf("Link Down\r\n");	
+				LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING|LWIP_DBG_ON, ("Link Down\r\n"));	
 			}else if ( ETH_link_ok() && !(netif->flags & NETIF_FLAG_LINK_UP) ) { 
-				//tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1);
+				/* tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1); */
 				netif_set_link_up(netif);
-				printf("Link Up\r\n");
+				LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING|LWIP_DBG_ON, ("Link Up\r\n"));
 			}
 			
-//	printf("-");
     osDelay(200);
   }
 }
