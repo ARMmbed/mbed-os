@@ -41,6 +41,7 @@ I2C master(D14, D15); // I2C_SDA, I2C_SCL
     defined (TARGET_DISCO_F429ZI) || \
     defined (TARGET_NUCLEO_F767ZI) || \
     defined (TARGET_NUCLEO_L053R8) || \
+    defined (TARGET_NUCLEO_L073RZ) || \
     defined (TARGET_NUCLEO_L152RE) || \
     defined (TARGET_NUCLEO_L476RG)
 I2CSlave slave(PB_11, PB_10);
