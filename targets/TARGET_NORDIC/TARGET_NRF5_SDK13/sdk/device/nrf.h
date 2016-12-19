@@ -85,6 +85,7 @@
     #endif /* NRF51, NRF52832_XXAA, NRF52840_XXAA */
 
     #include "compiler_abstraction.h"
+    #include "irq_handlers_hw.h"
 
 #endif /* _WIN32 || __unix || __APPLE__ */
 

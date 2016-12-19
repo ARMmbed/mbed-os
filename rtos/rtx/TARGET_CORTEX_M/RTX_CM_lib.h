@@ -354,7 +354,8 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 /* Main Thread definition */
 extern void pre_main (void);
 
-#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832) || defined (TARGET_STM32F334R8) ||\
+#if defined(TARGET_MCU_NRF52832) ||\
+    defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832) || defined (TARGET_STM32F334R8) ||\
     defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || \
     defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8) ||\
     defined(TARGET_STM32F103RB)

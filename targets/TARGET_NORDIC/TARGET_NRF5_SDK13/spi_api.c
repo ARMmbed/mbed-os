@@ -186,7 +186,7 @@ static void slave_event_handler(uint8_t spi_idx,
         // And prepare for the next transfer.
         // Previous data set in 'spi_slave_write' (if any) has been transmitted,
         // now use the default one, until some new is set by 'spi_slave_write'.
-        p_spi_info->tx_buf = NRF_DRV_SPIS_DEFAULT_ORC;
+        p_spi_info->tx_buf = SPIS_DEFAULT_ORC;
         nrf_drv_spis_buffers_set(&m_instances[spi_idx].slave,
             (uint8_t const *)&p_spi_info->tx_buf, 1,
             (uint8_t *)&p_spi_info->rx_buf, 1);
@@ -228,7 +228,7 @@ static void prepare_master_config(nrf_drv_spi_config_t *p_config,
     p_config->frequency = p_spi_info->frequency;
     p_config->mode      = (nrf_drv_spi_mode_t)p_spi_info->spi_mode;
 
-    p_config->irq_priority = SPI1_CONFIG_IRQ_PRIORITY;
+    p_config->irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY;
     p_config->orc          = 0xFF;
     p_config->bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
 }
@@ -242,9 +242,9 @@ static void prepare_slave_config(nrf_drv_spis_config_t *p_config,
     p_config->csn_pin   = p_spi_info->ss_pin;
     p_config->mode      = (nrf_drv_spis_mode_t)p_spi_info->spi_mode;
 
-    p_config->irq_priority = SPIS1_CONFIG_IRQ_PRIORITY;
-    p_config->orc          = NRF_DRV_SPIS_DEFAULT_ORC;
-    p_config->def          = NRF_DRV_SPIS_DEFAULT_DEF;
+    p_config->irq_priority = SPIS_DEFAULT_CONFIG_IRQ_PRIORITY;
+    p_config->orc          = SPIS_DEFAULT_ORC;
+    p_config->def          = SPIS_DEFAULT_DEF;
     p_config->bit_order    = NRF_DRV_SPIS_BIT_ORDER_MSB_FIRST;
     p_config->csn_pullup   = NRF_DRV_SPIS_DEFAULT_CSN_PULLUP;
     p_config->miso_drive   = NRF_DRV_SPIS_DEFAULT_MISO_DRIVE;
@@ -360,7 +360,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             m_slave_event_handlers[SPI_IDX(obj)]);
 
         // Prepare the slave for transfer.
-        p_spi_info->tx_buf = NRF_DRV_SPIS_DEFAULT_ORC;
+        p_spi_info->tx_buf = SPIS_DEFAULT_ORC;
         nrf_drv_spis_buffers_set(SLAVE_INST(obj),
             (uint8_t const *)&p_spi_info->tx_buf, 1,
             (uint8_t *)&p_spi_info->rx_buf, 1);
