@@ -72,9 +72,8 @@ extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
 #endif
 
-// Heap limits - only used if set
-unsigned char *mbed_heap_start = 0;
-uint32_t mbed_heap_size = 0;
+extern unsigned char *mbed_heap_start;
+extern uint32_t mbed_heap_size;
 
 /* newlib has the filehandle field in the FILE struct as a short, so
  * we can't just return a Filehandle* from _open and instead have to
@@ -485,74 +484,6 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
     exit(1);
 }
 
-#endif
-
-#if defined(TOOLCHAIN_GCC)
-
-#ifdef  FEATURE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif/* FEATURE_UVISOR */
-
-
-extern "C" WEAK void software_init_hook_rtos(void)
-{
-    // Do nothing by default.
-}
-
-extern "C" void software_init_hook(void)
-{
-#ifdef   FEATURE_UVISOR
-    int return_code;
-
-    return_code = uvisor_lib_init();
-    if (return_code) {
-        mbed_die();
-    }
-#endif/* FEATURE_UVISOR */
-    mbed_sdk_init();
-    software_init_hook_rtos();
-}
-#endif
-
-// ****************************************************************************
-// mbed_main is a function that is called before main()
-// mbed_sdk_init() is also a function that is called before main(), but unlike
-// mbed_main(), it is not meant for user code, but for the SDK itself to perform
-// initializations before main() is called.
-
-extern "C" WEAK void mbed_main(void);
-extern "C" WEAK void mbed_main(void) {
-
-}
-
-#if defined(TOOLCHAIN_ARM)
-extern "C" int $Super$$main(void);
-
-extern "C" int $Sub$$main(void) {
-    mbed_main();
-    return $Super$$main();
-}
-
-extern "C" void _platform_post_stackheap_init (void) {
-    mbed_sdk_init();
-}
-
-#elif defined(TOOLCHAIN_GCC)
-extern "C" int __real_main(void);
-
-extern "C" int __wrap_main(void) {
-    mbed_main();
-    return __real_main();
-}
-#elif defined(TOOLCHAIN_IAR)
-// IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
-// to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
-// 'main' to another symbol looses the original 'main' symbol. However, its startup
-// code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
-// Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
-extern "C" void __iar_argc_argv() {
-    mbed_main();
-}
 #endif
 
 // Provide implementation of _sbrk (low-level dynamic memory allocation

@@ -31,7 +31,14 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-extern uint32_t __VECTOR_RAM[];
+#if defined(__CC_ARM)
+    extern uint32_t Image$$VECTOR_RAM$$Base[];
+#define __VECTOR_RAM Image$$VECTOR_RAM$$Base
+#elif defined(__ICCARM__)
+    extern uint32_t __VECTOR_RAM[];
+#elif defined(__GNUC__)
+    extern uint32_t __VECTOR_RAM[];
+#endif /* defined(__CC_ARM) */
 
 /* Symbols defined by the linker script */
 #define NVIC_NUM_VECTORS        (16 + 240)        // CORE + MCU Peripherals

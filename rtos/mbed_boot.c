@@ -18,15 +18,22 @@
 #include "mbed_rtx.h"
 #include "rtx_os.h"
 #include "cmsis_os2.h"
-#include "cmsis_compiler.h"
+#include "platform/toolchain.h"
 
-extern unsigned char *mbed_heap_start;
-extern uint32_t mbed_heap_size;
+// Heap limits - only used if set
+unsigned char *mbed_heap_start = 0;
+uint32_t mbed_heap_size = 0;
 
 unsigned char *mbed_stack_isr_start = 0;
 uint32_t mbed_stack_isr_size = 0;
 
 extern int main(int argc, char **argv);
+WEAK void mbed_main(void);
+void pre_main (void);
+
+osThreadAttr_t _main_thread_attr;
+char _main_stack[4096] __ALIGNED(8);
+char _main_obj[sizeof(os_thread_t)];
 
 osMutexId_t   singleton_mutex_id;
 os_mutex_t    singleton_mutex_obj;
@@ -69,16 +76,19 @@ osMutexAttr_t singleton_mutex_attr;
     #endif
 #endif
 
+/* Define stack sizes if they haven't been set already */
+#if !defined(ISR_STACK_SIZE)
+    #define ISR_STACK_SIZE ((uint32_t)4096)
+#endif
+
 /*
- * set_stack_heap purpose is to set the following variables:
+ * mbed_set_stack_heap purpose is to set the following variables:
  * -mbed_heap_start
  * -mbed_heap_size
  * -mbed_stack_isr_start
  * -mbed_stack_isr_size
- *
- * Along with setting up os_thread_def_main
  */
-void set_stack_heap(void) {
+void mbed_set_stack_heap(void) {
 
     unsigned char *free_start = HEAP_START;
     uint32_t free_size = HEAP_SIZE;
@@ -99,85 +109,6 @@ void set_stack_heap(void) {
     mbed_heap_start = free_start;
 }
 
-/* Define stack sizes if they haven't been set already */
-#if !defined(ISR_STACK_SIZE)
-    #define ISR_STACK_SIZE ((uint32_t)4096)
-#endif
-
-#if defined (__CC_ARM)
-
-void pre_main (void)
-{
-    singleton_mutex_attr.attr_bits = osMutexRecursive;
-    singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
-    singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
-    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
-
-    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
-    main(0, NULL);
-}
-
-/* The single memory model is checking for stack collision at run time, verifing
-   that the heap pointer is underneath the stack pointer.
-   With the RTOS there is not only one stack above the heap, there are multiple
-   stacks and some of them are underneath the heap pointer.
-*/
-#pragma import(__use_two_region_memory)
-
-__asm void __rt_entry (void) {
-
-  IMPORT  __user_setup_stackheap
-  IMPORT  _platform_post_stackheap_init
-  IMPORT  os_thread_def_main
-  IMPORT  osKernelInitialize
-  IMPORT  set_stack_heap
-  IMPORT  osKernelStart
-  IMPORT  osThreadCreate
-
-  /* __user_setup_stackheap returns:
-   * - Heap base in r0 (if the program uses the heap).
-   * - Stack base in sp.
-   * - Heap limit in r2 (if the program uses the heap and uses two-region memory).
-   *
-   * More info can be found in:
-   * ARM Compiler ARM C and C++ Libraries and Floating-Point Support User Guide
-   */
-  BL      __user_setup_stackheap
-  /* Ignore return value of __user_setup_stackheap since
-   * this will be setup by set_stack_heap
-   */
-  BL      _platform_post_stackheap_init
-  BL      osKernelInitialize
-#ifdef __MBED_CMSIS_RTOS_CM
-  BL      set_stack_heap
-#endif
-  LDR     R0,=os_thread_def_main
-  MOVS    R1,#0
-  BL      osThreadCreate
-  BL      osKernelStart
-  /* osKernelStart should not return */
-  B       .
-
-  ALIGN
-}
-
-#elif defined (__GNUC__)
-
-extern void __libc_init_array (void);
-
-osMutexId_t   malloc_mutex_id;
-os_mutex_t    malloc_mutex_obj;
-osMutexAttr_t malloc_mutex_attr;
-
-osMutexId_t   env_mutex_id;
-os_mutex_t    env_mutex_obj;
-osMutexAttr_t env_mutex_attr;
-
-
-osThreadAttr_t _main_thread_attr;
-char _main_stack[4096] __ALIGNED(8);
-char _main_obj[sizeof(os_thread_t)];
-
 static void mbed_cpy_nvic(void)
 {
     /* If vector address in RAM is defined, copy and switch to dynamic vectors. Exceptions for M0 which doesn't have
@@ -195,7 +126,95 @@ static void mbed_cpy_nvic(void)
 #else /* NVIC_RAM_VECTOR_ADDRESS */
 #error NVIC_RAM_VECTOR_ADDRESS not defined!
 #endif /* NVIC_RAM_VECTOR_ADDRESS */
-#endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */ 
+#endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */
+}
+
+// mbed_main is a function that is called before main()
+// mbed_sdk_init() is also a function that is called before main(), but unlike
+// mbed_main(), it is not meant for user code, but for the SDK itself to perform
+// initializations before main() is called.
+WEAK void mbed_main(void) {
+
+}
+
+void mbed_start_main(void)
+{
+    mbed_cpy_nvic();
+
+    mbed_set_stack_heap();
+
+    _main_thread_attr.stack_mem = _main_stack;
+    _main_thread_attr.stack_size = sizeof(_main_stack);
+    _main_thread_attr.cb_size = sizeof(_main_obj);
+    _main_thread_attr.cb_mem = _main_obj;
+    _main_thread_attr.priority = osPriorityNormal;
+    _main_thread_attr.name = "MAIN";
+    osThreadNew((os_thread_func_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
+
+    osKernelStart();                                                      // Start thread execution
+}
+
+/******************** Toolchain specific code ********************/
+
+#if defined (__CC_ARM) /******************** ARMCC ********************/
+
+int $Super$$main(void);
+int $Sub$$main(void) {
+    mbed_main();
+    return $Super$$main();
+}
+
+/* If present, RTX version of this function will be called */
+WEAK void _platform_post_stackheap_init (void) {
+}
+
+void pre_main (void)
+{
+    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
+    singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
+    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
+
+    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
+
+    main(0, NULL);
+}
+
+/* The single memory model is checking for stack collision at run time, verifing
+   that the heap pointer is underneath the stack pointer.
+   With the RTOS there is not only one stack above the heap, there are multiple
+   stacks and some of them are underneath the heap pointer.
+*/
+#pragma import(__use_two_region_memory)
+
+/* Called by the C library */
+void __rt_entry (void) {
+    __user_setup_stackheap();
+    mbed_sdk_init();
+    _platform_post_stackheap_init();
+    mbed_start_main();
+}
+
+#elif defined (__GNUC__) /******************** GCC ********************/
+
+extern void __libc_init_array (void);
+extern int __real_main(void);
+
+osMutexId_t   malloc_mutex_id;
+os_mutex_t    malloc_mutex_obj;
+osMutexAttr_t malloc_mutex_attr;
+
+osMutexId_t   env_mutex_id;
+os_mutex_t    env_mutex_obj;
+osMutexAttr_t env_mutex_attr;
+
+#ifdef  FEATURE_UVISOR
+#include "uvisor-lib/uvisor-lib.h"
+#endif/* FEATURE_UVISOR */
+
+int __wrap_main(void) {
+    mbed_main();
+    return __real_main();
 }
 
 void pre_main(void)
@@ -220,21 +239,19 @@ void pre_main(void)
     main(0, NULL);
 }
 
-void mbed_start_main(void)
+void software_init_hook(void)
 {
-    mbed_cpy_nvic();
+#ifdef   FEATURE_UVISOR
+    int return_code;
 
-    set_stack_heap();
-
-    _main_thread_attr.stack_mem = _main_stack;
-    _main_thread_attr.stack_size = sizeof(_main_stack);
-    _main_thread_attr.cb_size = sizeof(_main_obj);
-    _main_thread_attr.cb_mem = _main_obj;
-    _main_thread_attr.priority = osPriorityNormal;
-    _main_thread_attr.name = "MAIN";
-    osThreadNew((os_thread_func_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
-
-    osKernelStart();                                                      // Start thread execution
+    return_code = uvisor_lib_init();
+    if (return_code) {
+        mbed_die();
+    }
+#endif/* FEATURE_UVISOR */
+    mbed_sdk_init();
+    osKernelInitialize();
+    mbed_start_main();
 }
 
 // Opaque declaration of _reent structure
@@ -258,6 +275,19 @@ void __rtos_env_lock( struct _reent *_r )
 void __rtos_env_unlock( struct _reent *_r )
 {
     osMutexRelease(env_mutex_id);
+}
+
+#endif
+
+#if defined(TOOLCHAIN_IAR) /******************** IAR ********************/
+
+// IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
+// to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
+// 'main' to another symbol looses the original 'main' symbol. However, its startup
+// code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
+// Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
+void __iar_argc_argv() {
+    mbed_main();
 }
 
 #endif

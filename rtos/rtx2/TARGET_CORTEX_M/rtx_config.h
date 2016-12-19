@@ -26,6 +26,7 @@
  */
 
 #include "rtx_os.h"
+#include "cmsis_compiler.h"
 
 // System Configuration
 // ====================
@@ -446,8 +447,6 @@ extern void * const os_UserSVC_Table[];
 // OS Initialization
 // =================
 
-extern void mbed_start_main(void);
-
 #if  defined(__CC_ARM) || \
     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
@@ -455,16 +454,14 @@ extern void mbed_start_main(void);
 void _platform_post_stackheap_init (void);
 void _platform_post_stackheap_init (void) {
   osKernelInitialize();
-  mbed_start_main();
 }
 #endif
 
 #elif defined (__GNUC__)
 
-void software_init_hook_rtos(void)
+__WEAK void software_init_hook(void)
 {
   osKernelInitialize();                                             // Initialize CMSIS-RTOS
-  mbed_start_main();
 }
 
 #endif
@@ -529,7 +526,7 @@ void *__user_perthread_libspace (void) {
 
   return (void *)&os_libspace[n][0];
 }
-
+#if 0
 // Mutex identifier
 typedef void *mutex;
 
@@ -565,6 +562,7 @@ void _mutex_free(mutex *m);
 void _mutex_free(mutex *m) {
   osMutexDelete(*m);
 }
+#endif
 
 #endif
 
