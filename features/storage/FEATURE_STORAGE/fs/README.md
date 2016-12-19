@@ -175,11 +175,13 @@ mbedOS supports a subset of the POSIX File API, as outlined below:
 - fclose()
 - fgetc()
 - fprintf()
-- fputs()
+- [fputc()][MAN_FPUTS].
+- [fputs()][MAN_FPUTS].
 - fopen()
 - freopen()
 - fseek()
 - getc()
+- [rewind()][MAN_REWIND].
 - todo: complete this list.
 
 The FAT32/SDCard support is at the following location in the source code tree:
@@ -204,3 +206,6 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
 [MBED_DEVENV_NOTES]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/12-mbed_devenv_setup_how_to_notes.docx
 [BUILD-TESTS-GCC-20161219-1007]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/build_tests_gcc_20161219_1007.txt
 [RUN-TESTS-GCC-20161219-1011]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/run_tests_master_gcc_ex_app2_fat_basic_20161219_1011.txt
+
+[MAN_FPUTS]: https://linux.die.net/man/3/fputs
+[MAN_REWIND]: https://linux.die.net/man/3/rewind

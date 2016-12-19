@@ -16,25 +16,27 @@
  *
  */
 
-/* The following copyright notice is reproduced from the glibc project */
-
-/* Copyright (C) 1991, 1992 Free Software Foundation, Inc.
-This file is part of the GNU C Library.
-
-The GNU C Library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
-
-The GNU C Library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
-
-You should have received a copy of the GNU Library General Public
-License along with the GNU C Library; see the file COPYING.LIB.  If
-not, write to the Free Software Foundation, Inc., 675 Mass Ave,
-Cambridge, MA 02139, USA.  */
+/* The following copyright notice is reproduced from the glibc project
+ * REF_LICENCE_GLIBC
+ *
+ * Copyright (C) 1991, 1992 Free Software Foundation, Inc.
+ * This file is part of the GNU C Library.
+ *
+ * The GNU C Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * The GNU C Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the GNU C Library; see the file COPYING.LIB.  If
+ * not, write to the Free Software Foundation, Inc., 675 Mass Ave,
+ * Cambridge, MA 02139, USA.
+ */
 
 
 /** @file basic.cpp POSIX File API (stdio) test cases
@@ -51,6 +53,9 @@ Cambridge, MA 02139, USA.  */
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace utest::v1;
 
@@ -114,7 +119,8 @@ SDFileSystem sd(p11, p12, p13, p14, "sd");
 
 #define FSFAT_BASIC_MSG_BUF_SIZE              256
 
-const char *sd_file_path = "/sd/out.txt";
+static const char *sd_file_path = "/sd/out.txt";
+static const char *sd_mount_pt = "sd";
 const int FSFAT_BASIC_DATA_SIZE = 256;
 static char fsfat_basic_msg_g[FSFAT_BASIC_MSG_BUF_SIZE];
 
@@ -135,7 +141,7 @@ static char fsfat_basic_msg_g[FSFAT_BASIC_MSG_BUF_SIZE];
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t sdcard_test_00() {
+static control_t fsfat_test_00() {
 
     uint8_t data_written[FSFAT_BASIC_DATA_SIZE] = { 0 };
     bool result = false;
@@ -182,11 +188,11 @@ static control_t sdcard_test_00() {
 
 extern int errno;
 
-/** @brief  test-fseek.c test ported from glibc project
+/** @brief  test-fseek.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t sdcard_test_01() {
+static control_t fsfat_test_01() {
     FILE *fp, *fp1;
     int i, j;
     int ret = 0;
@@ -235,8 +241,133 @@ static control_t sdcard_test_01() {
         }
     }
     fclose (fp);
+    remove(sd_file_path);
     return CaseNext;
 }
+
+
+/** @brief  test_rdwr.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
+ *
+ * WARNING: this test does not currently work. See WARNING comments below.
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+
+static control_t fsfat_test_02() {
+    static const char hello[] = "Hello, world.\n";
+    static const char replace[] = "Hewwo, world.\n";
+    static const size_t replace_from = 2, replace_to = 4;
+    char* filename = (char*) sd_file_path; //todo: remove
+    char buf[BUFSIZ];
+    FILE *f;
+    int lose = 0;
+    int32_t ret = 0;
+    char *rets = NULL;
+
+    f = fopen(filename, "w+");
+    if (f == NULL) {
+        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: Cannot open file for writing (filename=%s).\n", __func__, filename);
+        TEST_ASSERT_MESSAGE(false, fsfat_basic_msg_g);
+    }
+
+
+    ret = fputs(hello, f);
+    if (ret == EOF) {
+        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: fputs() failed to write string to file (filename=%s, string=%s).\n", __func__, filename, hello);
+        TEST_ASSERT_MESSAGE(false, fsfat_basic_msg_g);
+    }
+
+    rewind(f);
+    rets = fgets(buf, sizeof(buf), f);
+    if (rets == NULL) {
+        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: fgets() failed to get string from file (filename=%s).\n", __func__, filename);
+        TEST_ASSERT_MESSAGE(false, fsfat_basic_msg_g);
+    }
+    rets = NULL;
+
+    rewind(f);
+    ret = fputs(buf, f);
+    if (ret == EOF) {
+        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: fputs() failed to write string to file (filename=%s, string=%s).\n", __func__, filename, buf);
+        TEST_ASSERT_MESSAGE(false, fsfat_basic_msg_g);
+    }
+
+    rewind(f);
+    {
+        register size_t i;
+        for (i = 0; i < replace_from; ++i)
+        {
+            int c = getc(f);
+            if (c == EOF)
+            {
+                printf("EOF at %u.\n", i);
+                lose = 1;
+                break;
+            }
+            else if (c != hello[i])
+            {
+                printf("Got '%c' instead of '%c' at %u.\n",
+                (unsigned char) c, hello[i], i);
+                lose = 1;
+                break;
+            }
+        }
+    }
+    /* WARNING: printf("%s: here1. (lose = %d)\n", __func__, lose); */
+    {
+        long int where = ftell(f);
+        if (where == replace_from)
+        {
+            register size_t i;
+            for (i = replace_from; i < replace_to; ++i) {
+                if (putc(replace[i], f) == EOF) {
+                    printf("putc('%c') got %s at %u.\n",
+                    replace[i], strerror(errno), i);
+                    lose = 1;
+                    break;
+                }
+                /* WARNING: The problem seems to be that putc() is not writing the 'w' chars into the file
+                 * printf("%s: here1.5. (char = %c, char as int=%d, ret=%d) \n", __func__, replace[i], (int) replace[i], ret);
+                 */
+            }
+        }
+        else if (where == -1L)
+        {
+            printf("ftell got %s (should be at %u).\n",
+            strerror(errno), replace_from);
+            lose = 1;
+        }
+        else
+        {
+            printf("ftell returns %u; should be %u.\n", where, replace_from);
+            lose = 1;
+        }
+    }
+
+    if (!lose)
+    {
+        rewind(f);
+        memset(buf, 0, BUFSIZ);
+        if (fgets(buf, sizeof(buf), f) == NULL)
+        {
+            printf("fgets got %s.\n", strerror(errno));
+            lose = 1;
+        }
+        else if (strcmp(buf, replace))
+        {
+            printf("Read \"%s\" instead of \"%s\".\n", buf, replace);
+            lose = 1;
+        }
+    }
+
+    if (lose) {
+        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: Test Failed. Losing file (filename=%s).\n", __func__, filename);
+        TEST_ASSERT_MESSAGE(false, fsfat_basic_msg_g);
+    }
+    remove(filename);
+    return CaseNext;
+}
+
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -247,8 +378,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", sdcard_test_00),
-        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", sdcard_test_01)
+        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", fsfat_test_00),
+        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", fsfat_test_01)
+        /* WARNING: Test case not working but currently not required for PAL support
+         * Case("FSFAT_test_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", fsfat_test_02) */
 };
 
 
