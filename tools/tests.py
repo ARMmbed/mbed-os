@@ -117,8 +117,9 @@ Wiring:
      * NUCLEO_F746ZG: (RX=PA_11, TX=PA_12)
      * DISCO_F746NG:  (RX=PB_8, TX=PB_9)
      * DISCO_L476VG:  (RX=PA_11, TX=PA_12)
-     * NUCLEO_L476RG:  (RX=PA_11, TX=PA_12)
-     * NUCLEO_L432KC:  (RX=PA_11, TX=PA_12)
+     * NUCLEO_L476RG: (RX=PA_11, TX=PA_12)
+     * NUCLEO_L432KC: (RX=PA_11, TX=PA_12)
+     * DISCO_F303VC:  (RX=PA_11, TX=PA_12)
 
 """
 TESTS = [
@@ -323,7 +324,7 @@ TESTS = [
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
-        "DISCO_F769NI", "NUCLEO_F767ZI"]
+        "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC"]
     },
     {
         "id": "MBED_A28", "description": "CAN loopback test",
@@ -335,9 +336,9 @@ TESTS = [
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F303ZE", "NUCLEO_F446RE","NUCLEO_F446ZE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
-        "DISCO_F769NI", "NUCLEO_F767ZI"]
+        "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC"]
     },
-	{
+    {
         "id": "MBED_A29", "description": "i2c_master_slave_asynch",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave_asynch"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
@@ -605,7 +606,7 @@ TESTS = [
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE", "DISCO_F469NI", "NUCLEO_F207ZG",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
-                "NUCLEO_L476RG", "NUCLEO_L432KC"]
+                "NUCLEO_L476RG", "NUCLEO_L432KC", "DISCO_F303VC"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
@@ -615,7 +616,7 @@ TESTS = [
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "NUCLEO_F446ZE", "DISCO_F469NI",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
-                "NUCLEO_L476RG", "NUCLEO_L432KC"]
+                "NUCLEO_L476RG", "NUCLEO_L432KC", "DISCO_F303VC"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",
