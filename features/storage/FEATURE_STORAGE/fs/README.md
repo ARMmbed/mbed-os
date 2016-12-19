@@ -77,6 +77,19 @@ Get a clone of private mbedOS repository in the following way
 
 ### <a name="build-the-mbedos-test-cases"></a> Build the mbedOS Test Cases
 
+Switch to the `sdh_dev_fat32` development branch using the following commands:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ pushd mbed-os
+    simhug01@E107851:/d/demo_area/ex_app1$ git branch
+    * master
+      sdh_dev_fat32
+    simhug01@E107851:/d/demo_area/ex_app1$ git checkout sdh_dev_fat32
+    Switched to branch 'sdh_dev_fat32'
+    simhug01@E107851:/d/demo_area/ex_app1$ git branch
+      master
+    * sdh_dev_fat32
+    simhug01@E107851:/d/demo_area/ex_app1$
+
 Build the test cases for the K64F target using the following commands:
 
     simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F 2>&1 | tee build_tests_gcc_20161219_1007.txt
