@@ -22,7 +22,7 @@
   #error [NOT_SUPPORTED] Target has only one I2C instance
 #endif
 
-#define ADDR (0xA0)
+#define ADDR (0x80)
 #define FREQ 100000
 
 // ********************************************************
