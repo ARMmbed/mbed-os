@@ -179,16 +179,20 @@ int i2c_byte_read(i2c_t *obj, int last)
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
+    status_t ret_value;
 #if FSL_I2C_DRIVER_VERSION > MAKE_VERSION(2, 0, 1)
-    if (I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1, kI2C_TransferNoStopFlag) == kStatus_Success) {
-        return 1;
-    }
+    ret_value = I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1, kI2C_TransferNoStopFlag);
 #else
-    if (I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1) == kStatus_Success) {
-        return 1;
-    }
+    ret_value = I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1);
 #endif
-    return 0;
+
+    if (ret_value == kStatus_Success) {
+        return 1;
+    } else if (ret_value == kStatus_I2C_Nak) {
+        return 0;
+    } else {
+        return 2;
+    }
 }
 
 
