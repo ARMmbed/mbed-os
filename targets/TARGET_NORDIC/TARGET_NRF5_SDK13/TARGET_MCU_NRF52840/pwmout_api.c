@@ -369,7 +369,7 @@ static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initializat
                     NRF_DRV_PWM_PIN_NOT_USED,            // channel 2
                     NRF_DRV_PWM_PIN_NOT_USED,            // channel 3
                 },
-                .irq_priority = PWM0_CONFIG_IRQ_PRIORITY,
+                .irq_priority = PWM_DEFAULT_CONFIG_IRQ_PRIORITY,
                 .base_clock   = pulsewidth_set.pwm_clk,
                 .count_mode   = NRF_PWM_MODE_UP,
                 .top_value    = pulsewidth_set.period_hwu,

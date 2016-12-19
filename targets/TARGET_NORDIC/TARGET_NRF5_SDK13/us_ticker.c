@@ -40,7 +40,6 @@
 #include "common_rtc.h"
 #include "app_util.h"
 #include "nrf_drv_common.h"
-#include "nrf_drv_config.h"
 #include "lp_ticker_api.h"
 
 
@@ -132,7 +131,7 @@ void common_rtc_init(void)
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
 #ifdef NRF51
         APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
         APP_IRQ_PRIORITY_LOWEST
 #endif
         );

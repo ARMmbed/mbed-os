@@ -146,7 +146,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         .frequency          = NRF_TWI_FREQ_100K,  
 #ifdef NRF51
         .interrupt_priority = APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
         .interrupt_priority = APP_IRQ_PRIORITY_LOWEST
 #endif
         
