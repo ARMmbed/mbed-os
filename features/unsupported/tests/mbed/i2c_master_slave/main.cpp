@@ -89,11 +89,8 @@ int main()
     master.start();
     master.write(ADDR);
     master.write(sent);
-    if(slave.receive() != I2CSlave::WriteAddressed)
-    {
-        notify_completion(false);
-        return 1;
-    }
+    while(slave.receive() != I2CSlave::WriteAddressed);
+
     slave.read(&received, 1);
     if(sent != received)
     {
@@ -105,11 +102,8 @@ int main()
     // Second transfer: slave to master
     master.start();
     master.write(ADDR | 1);
-    if(slave.receive() != I2CSlave::ReadAddressed)
-    {
-        notify_completion(false);
-        return 1;
-    }
+    while(slave.receive() != I2CSlave::ReadAddressed);
+
     slave.write(received);
     received = master.read(0);
     slave.stop();
