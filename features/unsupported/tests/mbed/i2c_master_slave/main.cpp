@@ -106,7 +106,7 @@ int main()
 
     slave.write(received);
     received = master.read(0);
-    slave.stop();
+    master.stop();
     notify_completion(received == sent);
 }
 
