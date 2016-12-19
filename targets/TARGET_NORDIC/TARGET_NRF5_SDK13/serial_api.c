@@ -45,7 +45,6 @@
 #include "mbed_error.h"
 #include "nrf_uart.h"
 #include "nrf_drv_common.h"
-#include "nrf_drv_config.h"
 #include "app_util_platform.h"
 #include "nrf_gpio.h"
 
@@ -56,8 +55,8 @@
 #define UART_INSTANCE_ID    0
 #define UART_CB uart_cb[UART_INSTANCE_ID]
 
-#define UART_DEFAULT_BAUDRATE   UART0_CONFIG_BAUDRATE
-#define UART_DEFAULT_PARITY     UART0_CONFIG_PARITY
+#define UART_DEFAULT_BAUDRATE   UART_DEFAULT_CONFIG_BAUDRATE
+#define UART_DEFAULT_PARITY     UART_DEFAULT_CONFIG_PARITY
 
 // expected the macro from mbed configuration system
 #ifndef MBED_CONF_NORDIC_UART_HWFC
@@ -66,17 +65,17 @@
 #endif
 
 #if MBED_CONF_NORDIC_UART_HWFC == 1
-    #define UART_DEFAULT_HWFC       UART0_CONFIG_HWFC
+    #define UART_DEFAULT_HWFC       UART_DEFAULT_CONFIG_HWFC
 #else
     #define UART_DEFAULT_HWFC  NRF_UART_HWFC_DISABLED
 #endif
 
-#define UART_DEFAULT_CTS        UART0_CONFIG_PSEL_CTS
-#define UART_DEFAULT_RTS        UART0_CONFIG_PSEL_RTS
+#define UART_DEFAULT_CTS        CTS_PIN_NUMBER
+#define UART_DEFAULT_RTS        RTS_PIN_NUMBER
 
 #ifdef NRF51
     #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
     #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
 #endif
 
@@ -555,7 +554,7 @@ static void internal_set_hwfc(FlowControl type,
         nrf_gpio_cfg_input(UART_CB.pselcts, NRF_GPIO_PIN_NOPULL);
     }
     
-    UART_CB.hwfc = (type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART0_CONFIG_HWFC;
+    UART_CB.hwfc = (type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART_DEFAULT_CONFIG_HWFC;
     
     nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
     nrf_uart_hwfc_pins_set(UART_INSTANCE, UART_CB.pselrts, UART_CB.pselcts);
