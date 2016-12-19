@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_gpio_ex.c
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    29-April-2016
+  * @version V1.0.5
+  * @date    06-December-2016
   * @brief   GPIO Extension HAL module driver.
   *         This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) extension peripheral.

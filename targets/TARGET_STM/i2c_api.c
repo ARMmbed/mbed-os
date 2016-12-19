@@ -38,8 +38,6 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
-/*  F1 HAL not ready to move to I2C common code - this is ongoing */
-#if !defined(__STM32F1xx_HAL_H)
 #include "i2c_device.h" // family specific defines
 
 #ifndef DEBUG_STDIO
@@ -1067,7 +1065,5 @@ void i2c_abort_asynch(i2c_t *obj) {
 }
 
 #endif // DEVICE_I2C_ASYNCH
-
-#endif // STM32F1
 
 #endif // DEVICE_I2C
