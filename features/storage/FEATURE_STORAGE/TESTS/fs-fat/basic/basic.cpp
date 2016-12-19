@@ -59,24 +59,34 @@
 
 using namespace utest::v1;
 
+/* FSFAT_SDCARD_INSTALLTED
+ *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
+ *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
+ */
 
 #if defined(TARGET_KL25Z)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_K64F) || defined(TARGET_K66F)
 SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_K22F)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_K20D50M)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_nRF51822)
 SDFileSystem sd(p12, p13, p15, p14, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
@@ -93,29 +103,46 @@ SDFileSystem sd(p12, p13, p15, p14, "sd");
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
+
 
 #elif defined(TARGET_DISCO_F051R8) || \
       defined(TARGET_NUCLEO_L031K6)
 SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC2368)
 SDFileSystem sd(p11, p12, p13, p14, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC11U68)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC1549)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_RZ_A1H)
 SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC11U37H_401)
 SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
+/* #define FSFAT_SDCARD_INSTALLED */
 #endif
+
+
+#ifdef FSFAT_SDCARD_INSTALLED
+
+#define FAT_FN_TEST_00      fsfat_test_00
+#define FAT_FN_TEST_01      fsfat_test_01
+#define FAT_FN_TEST_02      fsfat_test_02
+
 
 #define FSFAT_BASIC_MSG_BUF_SIZE              256
 
@@ -252,7 +279,6 @@ static control_t fsfat_test_01() {
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-
 static control_t fsfat_test_02() {
     static const char hello[] = "Hello, world.\n";
     static const char replace[] = "Hewwo, world.\n";
@@ -369,19 +395,36 @@ static control_t fsfat_test_02() {
 }
 
 
+#else
+
+#define FAT_FN_TEST_00      fsfat_test_dummy
+#define FAT_FN_TEST_01      fsfat_test_dummy
+#define FAT_FN_TEST_02      fsfat_test_dummy
+
+/** @brief  fsfat_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
+ *
+ * @return success always
+ */
+static control_t fsfat_test_dummy() {
+    return CaseNext;
+}
+
+#endif
+
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(300, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
+
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", fsfat_test_00),
-        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", fsfat_test_01)
+        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", FAT_FN_TEST_00),
+        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", FAT_FN_TEST_01)
         /* WARNING: Test case not working but currently not required for PAL support
-         * Case("FSFAT_test_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", fsfat_test_02) */
+         * Case("FSFAT_test_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FAT_FN_TEST_02) */
 };
 
 

@@ -4,7 +4,7 @@ Simon Hughes
 
 20161219
 
-Version 0.01
+Version 0.02
 
 
 # Executive Summary
@@ -20,18 +20,18 @@ Note the following:
 - The mbedOS FAT32/SDCard support implements a POSIX File API for off-chip, persistent file storage. 
 - The FAT32/SDCard support was present in mbedOS 2, but was moved to the "unsupported" area of the source tree in mbedOS 5. 
   This is because there are currently no FAT32/SDCard POSIX API test cases in the public repository, software quality is hence unknown, and the features are therefore unsupported.
-- The implementation of new test cases is an active development activity. So far, one test case has been implemented and is available in a private fork. The test case support
+- The implementation of new test cases is an active development activity. So far, one test binary (basic.cpp) has been implemented and is available on the mbed-os branch called 'feature-storage'. The test case support
   is being enhanced as a matter of urgency.
 - The work described here is intended to make the POSIX File API available to the mbed client team before the Christmas holidays. 
-  Further test cases will be implemented and when completed, the work will be merged into the public repository. In the meantime,
-  the work is available from the private fork using `git clone git@github.com:/simonqhughes/mbed-os-1`.
+  Further test cases will be implemented and when completed, the work will be merged into the public repository master branch. In the meantime,
+  the work is available from feature-storage branch.
 
 # Getting Started
 
 This section describes how to build and run the POSIX file API test case. The following steps are covered:
 
 - [Installing the Tools](#installing-the-tools). This section briefly describes how to setup the mbedos development environment.
-- [Git Clone the Private mbedOS Fork](#git-clone-the-private-mbedos-fork). This section describes how to git clone the private mbedOS fork containing the FAT32/SDCard and POSIX File API test case of interest.
+- [Git Clone the Public mbedOS Repo](#git-clone-the-mbedos-repo). This section describes how to git clone the mbedOS repository containing the FAT32/SDCard and POSIX File API test case of interest.
 - [Build the mbedOS Test Cases](#build-the-mbedos-test-cases). This section describes how to build the mbedOS test cases.
 - [Run the POSIX File Test Case](#run-the-posix-file-test-cases).This section describes how to run the POSIX file test case basic.cpp.
 
@@ -64,35 +64,37 @@ Using a Git Bash terminal, setup Greentea in the following way:
     simhug01@E107851:/d/demo_area/$
 
 
-### <a name="git-clone-the-private-mbedos-fork"></a> Git Clone the Private mbedOS Fork 
+### <a name="git-clone-the-mbedos-repo"></a> Git Clone the Public mbedOS Repo 
 
-Get a clone of private mbedOS repository in the following way
+Get a clone of public mbedOS repository in the following way
 
     simhug01@E107851:/d/demo_area$ mkdir ex_app1
     simhug01@E107851:/d/demo_area$ pushd ex_app1
-    simhug01@E107851:/d/demo_area/ex_app1$ git clone git@github.com:/simonqhughes/mbed-os-1 mbed-os
+    simhug01@E107851:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/mbed-os
     <trace removed>
     simhug01@E107851:/d/demo_area/ex_app1$
 
 
 ### <a name="build-the-mbedos-test-cases"></a> Build the mbedOS Test Cases
 
-Switch to the `sdh_dev_fat32` development branch using the following commands:
+Switch to the `feature-storage` branch using the following commands:
 
     simhug01@E107851:/d/demo_area/ex_app1$ pushd mbed-os
     simhug01@E107851:/d/demo_area/ex_app1$ git branch
     * master
-      sdh_dev_fat32
-    simhug01@E107851:/d/demo_area/ex_app1$ git checkout sdh_dev_fat32
-    Switched to branch 'sdh_dev_fat32'
+      feature-storage
+      <other branches deleted>
+    simhug01@E107851:/d/demo_area/ex_app1$ git checkout feature-storage
+    Switched to branch 'feature-storage'
     simhug01@E107851:/d/demo_area/ex_app1$ git branch
       master
-    * sdh_dev_fat32
+    * feature-storage
+      <other branches deleted>
     simhug01@E107851:/d/demo_area/ex_app1$
 
 Build the test cases for the K64F target using the following commands:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F 2>&1 | tee build_tests_gcc_20161219_1007.txt
+    simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F -DFSFAT_SDCARD_INSTALLED 2>&1 | tee build_tests_gcc_20161219_1007.txt
     <trace removed>
     simhug01@E107851:/d/demo_area/ex_app1$
 
@@ -172,17 +174,14 @@ The full [test output log][RUN-TESTS-GCC-20161219-1011] is available for referen
 
 mbedOS supports a subset of the POSIX File API, as outlined below:
 
-- fclose()
-- fgetc()
+- [fclose()][MAN_FCLOSE].
+- [fgetc(), fgets(), getc(), gets()][MAN_FGETS].
+- [fputc(), fputs(), putc(), puts()][MAN_FPUTS].
 - fprintf()
-- [fputc()][MAN_FPUTS].
-- [fputs()][MAN_FPUTS].
 - fopen()
 - freopen()
 - fseek()
-- getc()
 - [rewind()][MAN_REWIND].
-- todo: complete this list.
 
 The FAT32/SDCard support is at the following location in the source code tree:
 
@@ -207,5 +206,7 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
 [BUILD-TESTS-GCC-20161219-1007]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/build_tests_gcc_20161219_1007.txt
 [RUN-TESTS-GCC-20161219-1011]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/run_tests_master_gcc_ex_app2_fat_basic_20161219_1011.txt
 
+[MAN_FCLOSE]: https://linux.die.net/man/3/fclose
+[MAN_FGETS]: https://linux.die.net/man/3/fgets
 [MAN_FPUTS]: https://linux.die.net/man/3/fputs
 [MAN_REWIND]: https://linux.die.net/man/3/rewind
