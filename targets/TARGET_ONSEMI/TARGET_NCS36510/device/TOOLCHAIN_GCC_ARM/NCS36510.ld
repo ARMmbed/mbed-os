@@ -4,8 +4,9 @@
 
 MEMORY {
     VECTORS (rx)          : ORIGIN = 0x00003000, LENGTH = 0x00000090
-        FLASH (rx)            : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
-        RAM (rwx)             : ORIGIN = 0x3FFF4000, LENGTH = 48K
+    FLASHA (rx)           : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
+    FLASHB (rx)           : ORIGIN = 0x00102000, LENGTH = 320K
+    RAM (rwx)             : ORIGIN = 0x3FFF4000, LENGTH = 48K
     }
 
     /* Linker script to place sections and symbol values. Should be used together
@@ -37,47 +38,24 @@ MEMORY {
     ENTRY(Reset_Handler)
 
     SECTIONS {
-.isr_vector :
+    .isr_vector :
     {
         __vector_table = .;
         KEEP(*(.vector_table))
         . = ALIGN(4);
     } > VECTORS
 
-    /* ensure that uvisor bss is at the beginning of memory */
-    .uvisor.bss (NOLOAD):
+    mbed_rtos_start = .;
+    .text_mbed_rtos : /* Place mbed-os and HAL code in FlashA */
     {
-        . = ALIGN(32);
-        __uvisor_bss_start = .;
-
-        /* protected uvisor main bss */
-        . = ALIGN(32);
-        __uvisor_bss_main_start = .;
-        KEEP(*(.keep.uvisor.bss.main))
-        . = ALIGN(32);
-        __uvisor_bss_main_end = .;
-
-        /* protected uvisor secure boxes bss */
-        . = ALIGN(32);
-        __uvisor_bss_boxes_start = .;
-        KEEP(*(.keep.uvisor.bss.boxes))
-        . = ALIGN(32);
-        __uvisor_bss_boxes_end = .;
-
-        . = ALIGN(32);
-        __uvisor_bss_end = .;
-    } > RAM
-
-.text :
-    {
-        /* uVisor code and data */
-        . = ALIGN(4);
-        __uvisor_main_start = .;
-        *(.uvisor.main)
-        __uvisor_main_end = .;
-
-        *(.text*)
-
+        
+        *drivers/*.o(.text* .rodata*)
+        *events/*.o(.text* .rodata*)
+        *hal/*.o(.text* .rodata*)
+        *platform/*.o(.text* .rodata*)
+        *rtos/*.o(.text* .rodata*)
+        *targets/*.o(.text* .rodata*)
+        
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -95,22 +73,29 @@ MEMORY {
         *(SORT(.dtors.*))
         *(.dtors)
 
-        *(.rodata*)
-
         KEEP(*(.eh_frame*))
-    } > FLASH
+
+    } > FLASHA
+    mbed_rtos_end = .;
+    size_of_mbed_rtos = mbed_rtos_end - mbed_rtos_start;
 
 .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > FLASH
+    } > FLASHA
 
 .ARM.exidx :
     {
         __exidx_start = .;
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
         __exidx_end = .;
-    } > FLASH
+    } > FLASHA
+    
+.text : /* Place the remaining application and feature specific code in FlashB */
+    {
+        *(.text*)
+        *(.rodata*)
+    } > FLASHB
 
 .data :
     {
@@ -144,41 +129,7 @@ MEMORY {
         . = ALIGN(32);
         __data_end__ = .;
 
-    } >RAM AT>FLASH
-
-    /* uvisor configuration data */
-.uvisor.secure :
-    {
-        . = ALIGN(32);
-        __uvisor_secure_start = .;
-
-        /* uvisor secure boxes configuration tables */
-        . = ALIGN(32);
-        __uvisor_cfgtbl_start = .;
-        KEEP(*(.keep.uvisor.cfgtbl))
-        . = ALIGN(32);
-        __uvisor_cfgtbl_end = .;
-
-        /* pointers to uvisor secure boxes configuration tables */
-        /* note: no further alignment here, we need to have the exact list of pointers */
-        __uvisor_cfgtbl_ptr_start = .;
-        KEEP(*(.keep.uvisor.cfgtbl_ptr_first))
-        KEEP(*(.keep.uvisor.cfgtbl_ptr))
-        __uvisor_cfgtbl_ptr_end = .;
-
-        /* the following symbols are kept for backward compatibility and will be soon
-         * deprecated; applications actively using uVisor (__uvisor_mode == UVISOR_ENABLED)
-         * will need to use uVisor 0.8.x or above, or the security assetions will halt the
-         * system */
-        /************************/
-        __uvisor_data_src = .;
-        __uvisor_data_start = .;
-        __uvisor_data_end = .;
-        /************************/
-
-        . = ALIGN(32);
-        __uvisor_secure_end = .;
-    } >FLASH
+    } >RAM AT>FLASHB 
 
     .uninitialized (NOLOAD):
     {
