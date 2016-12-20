@@ -79,7 +79,7 @@ VODAFONE_LIBRARY = join(NET_LIBRARIES, "VodafoneUSBModem")
 UBLOX_LIBRARY = join(NET_LIBRARIES, "UbloxUSBModem")
 
 # FS
-FS_PATH = join(LIB_DIR, "filesystem")
+FS_PATH = join(FEATURES_DIR, "filesystem")
 FAT_FS = join(FS_PATH, "fat")
 SD_FS = join(FS_PATH, "sd")
 FS_LIBRARY = join(BUILD_DIR, "fat")
