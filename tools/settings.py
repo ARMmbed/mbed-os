@@ -28,19 +28,19 @@ ROOT = abspath(join(dirname(__file__), ".."))
 BUILD_DIR = abspath(join(ROOT, "BUILD"))
 
 # ARM Compiler 5
-ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
+ARM_PATH = ""
 
 # GCC ARM
 GCC_ARM_PATH = ""
 
 # GCC CodeRed
-GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
+GCC_CR_PATH = ""
 
 # IAR
-IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.3/arm"
+IAR_PATH = ""
 
 # Goanna static analyser. Please overload it in mbed_settings.py
-GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"
+GOANNA_PATH = ""
 
 # cppcheck path (command) and output message format
 CPPCHECK_CMD = ["cppcheck", "--enable=all"]
