@@ -180,7 +180,10 @@ mbedOS supports a subset of the POSIX File API, as outlined below:
 - fprintf()
 - fopen()
 - freopen()
-- fseek()
+- [fread()][MAN_FREAD]
+- [fwrite()][MAN_FWRITE]
+- [fseek()][MAN_FSEEK]
+- [remove()][MAN_REMOVE]
 - [rewind()][MAN_REWIND].
 
 The FAT32/SDCard support is at the following location in the source code tree:
@@ -209,4 +212,8 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
 [MAN_FCLOSE]: https://linux.die.net/man/3/fclose
 [MAN_FGETS]: https://linux.die.net/man/3/fgets
 [MAN_FPUTS]: https://linux.die.net/man/3/fputs
+[MAN_FREAD]: https://linux.die.net/man/3/fread
+[MAN_FSEEK]: https://linux.die.net/man/3/fseek
+[MAN_FWRITE]: https://linux.die.net/man/3/fwrite
+[MAN_REMOVE]: https://linux.die.net/man/3/remove
 [MAN_REWIND]: https://linux.die.net/man/3/rewind
