@@ -2,11 +2,9 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    29-April-2016
-  * @brief   HAL configuration template file.
-  *          This file should be copied to the application folder and renamed
-  *          to stm32l4xx_hal_conf.h.
+  * @version V1.5.1
+  * @date    31-May-2016
+  * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
@@ -367,9 +365,8 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
-/* Exported functions ------------------------------------------------------- */
-  void assert_failed(uint8_t* file, uint32_t line);
+  #include "mbed_assert.h"
+  #define assert_param(expr) MBED_ASSERT(expr)
 #else
   #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */

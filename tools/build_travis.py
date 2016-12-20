@@ -76,6 +76,7 @@ build_list = (
     { "target": "ARCH_MAX",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 
     { "target": "DISCO_F051R8",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "DISCO_F303VC",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F334C8",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F401VC",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_F407VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },

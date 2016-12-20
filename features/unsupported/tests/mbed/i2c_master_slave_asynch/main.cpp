@@ -14,7 +14,7 @@
   #error [NOT_SUPPORTED] I2C Async is not supported
 #endif
 
-#define ADDR (0x90)
+#define ADDR (0x80)
 #define FREQ 100000
 #define SIZE 10
 
