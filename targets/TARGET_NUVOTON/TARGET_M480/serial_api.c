@@ -196,17 +196,26 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     
     if (! var->ref_cnt) {
-        // Reset this module
-        SYS_ResetModule(modinit->rsetidx);
-    
-        // Select IP clock source
-        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
-        // Enable IP clock
-        CLK_EnableModuleClock(modinit->clkidx);
+        do {
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
+            // Support uvisor debug message through stdio uart
+            if (obj->serial.uart == STDIO_UART) {
+                break;
+            }
+#endif
 
-        pinmap_pinout(tx, PinMap_UART_TX);
-        pinmap_pinout(rx, PinMap_UART_RX);
+            // Reset this module
+            SYS_ResetModule(modinit->rsetidx);
     
+            // Select IP clock source
+            CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+            // Enable IP clock
+            CLK_EnableModuleClock(modinit->clkidx);
+
+            pinmap_pinout(tx, PinMap_UART_TX);
+            pinmap_pinout(rx, PinMap_UART_RX);
+        } while (0);
+            
         obj->serial.pin_tx = tx;
         obj->serial.pin_rx = rx;
     }
@@ -261,13 +270,22 @@ void serial_free(serial_t *obj)
         }
 #endif
 
-        UART_Close((UART_T *) NU_MODBASE(obj->serial.uart));
+        do {
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
+            // Support uvisor debug message through stdio uart
+            if (obj->serial.uart == STDIO_UART) {
+                break;
+            }
+#endif
+
+            UART_Close((UART_T *) NU_MODBASE(obj->serial.uart));
     
-        UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-        NVIC_DisableIRQ(modinit->irq_n);
+            UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+            NVIC_DisableIRQ(modinit->irq_n);
     
-        // Disable IP clock
-        CLK_DisableModuleClock(modinit->clkidx);
+            // Disable IP clock
+            CLK_DisableModuleClock(modinit->clkidx);
+        } while (0);
     }
     
     if (var->obj == obj) {
@@ -286,6 +304,13 @@ void serial_free(serial_t *obj)
 }
 
 void serial_baud(serial_t *obj, int baudrate) {
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
+    // Support uvisor debug message through stdio uart
+    if (obj->serial.uart == STDIO_UART) {
+        return;
+    }
+#endif
+
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
     while (! UART_IS_TX_EMPTY(((UART_T *) obj->serial.uart)));
     
@@ -294,6 +319,13 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
+    // Support uvisor debug message through stdio uart
+    if (obj->serial.uart == STDIO_UART) {
+        return;
+    }
+#endif
+
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
     while (! UART_IS_TX_EMPTY(((UART_T *) obj->serial.uart)));
     
