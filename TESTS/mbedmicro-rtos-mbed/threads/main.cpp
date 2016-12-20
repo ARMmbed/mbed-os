@@ -15,23 +15,7 @@
  * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
  * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
  */
-#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
-    #define STACK_SIZE 512
-#elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F103RB) || defined(TARGET_STM32F091RC)
-    #define STACK_SIZE 512
-#elif defined(TARGET_STM32F410RB)
-    #define STACK_SIZE 512
-#elif defined(TARGET_STM32L073RZ)
-    #define STACK_SIZE 512
-#elif defined(TARGET_XDOT_L151CC)
-    #define STACK_SIZE 1024
-#elif defined(TARGET_HI2110)
-    #define STACK_SIZE 512
-#elif defined(TARGET_EFR32)
-    #define STACK_SIZE 512
-#else
-    #define STACK_SIZE DEFAULT_STACK_SIZE
-#endif
+#define PARALLEL_STACK_SIZE 512
 
 using namespace utest::v1;
 
@@ -55,7 +39,7 @@ void increment_with_wait(counter_t* counter) {
 }
 
 void increment_with_child(counter_t* counter) {
-    Thread child(counter, increment, osPriorityNormal, STACK_SIZE);
+    Thread child(counter, increment);
     child.join();
 }
 
@@ -64,7 +48,7 @@ void increment_with_murder(counter_t* counter) {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread child(counter, increment, osPriorityNormal, STACK_SIZE);
+        Thread child(counter, increment);
         child.terminate();
     }
 
@@ -81,7 +65,7 @@ void self_terminate(Thread *self) {
 template <void (*F)(counter_t *)>
 void test_single_thread() {
     counter_t counter(0);
-    Thread thread(&counter, F, osPriorityNormal, STACK_SIZE);
+    Thread thread(&counter, F);
     thread.join();
     TEST_ASSERT_EQUAL(counter, 1);
 }
@@ -92,7 +76,7 @@ void test_parallel_threads() {
     Thread *threads[N];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(&counter, F, osPriorityNormal, STACK_SIZE);
+        threads[i] = new Thread(&counter, F, osPriorityNormal, PARALLEL_STACK_SIZE);
     }
 
     for (int i = 0; i < N; i++) {
@@ -108,7 +92,7 @@ void test_serial_threads() {
     counter_t counter(0);
 
     for (int i = 0; i < N; i++) {
-        Thread thread(&counter, F, osPriorityNormal, STACK_SIZE);
+        Thread thread(&counter, F);
         thread.join();
     }
 
@@ -116,7 +100,7 @@ void test_serial_threads() {
 }
 
 void test_self_terminate() {
-    Thread *thread = new Thread(osPriorityNormal, STACK_SIZE);
+    Thread *thread = new Thread(osPriorityNormal);
     thread->start(thread, self_terminate);
     thread->join();
     delete thread;
