@@ -20,6 +20,10 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#if DEVICE_SPI_ASYNCH
+#include "fsl_dspi_edma.h"
+#endif
+#include "dma_api_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +59,15 @@ struct i2c_s {
 
 struct spi_s {
     uint32_t instance;
+    uint8_t bits;
+#if DEVICE_SPI_ASYNCH
+    status_t status;
+    dspi_master_handle_t spi_master_handle;
+    dspi_master_edma_handle_t spi_dma_master_handle;
+    dma_options_t spiDmaMasterRx;
+    dma_options_t spiDmaMasterTx;
+    dma_options_t spiDmaMasterIntermediary;
+#endif
 };
 
 struct dac_s {

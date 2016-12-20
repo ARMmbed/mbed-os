@@ -165,7 +165,6 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // INTC settings
     InterruptHandlerRegister((IRQn_Type)(nIRQn_h+obj->ch), (void (*)(uint32_t))irq_tbl[obj->ch]);
     INTCICR1 &= ~(0x3 << shift);
-    INTCICR1 |= (0x3 << shift);
     GIC_SetPriority((IRQn_Type)(nIRQn_h+obj->ch), 5);
     GIC_EnableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
     obj->int_enable = 1;

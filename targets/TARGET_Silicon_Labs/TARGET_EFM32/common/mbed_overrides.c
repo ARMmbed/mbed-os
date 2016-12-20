@@ -41,6 +41,14 @@ void mbed_sdk_init()
 #if defined(_SILICON_LABS_32B_PLATFORM_2)
     EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
     EMU_DCDCInit(&dcdcInit);
+    
+#if defined(DEVICE_RF_2P4GHZ) || defined(DEVICE_RF_SUBGHZ)
+    CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_WSTK_DEFAULT;
+    // Initialize the HFXO using the settings from the WSTK bspconfig.h
+    // Note: This configures things like the capacitive tuning CTUNE variable
+    //   which can vary based on your hardware design.
+    CMU_HFXOInit(&hfxoInit);  
+#endif
 #endif
 
     /* Set up the clock sources for this chip */
@@ -101,6 +109,8 @@ void mbed_sdk_init()
 # error "Low energy clock selection not valid"
 #endif
 
+#if defined(EFM_BC_EN)
     /* Enable BC line driver to avoid garbage on CDC port */
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
+#endif
 }

@@ -66,11 +66,13 @@ void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
         {
             unsigned char output[20];
             crypto_sha_getinternstate(output, sizeof (output));
-            dst->sw_ctx.state[0] = nu_get32_be(output);
-            dst->sw_ctx.state[1] = nu_get32_be(output + 4);
-            dst->sw_ctx.state[2] = nu_get32_be(output + 8);
-            dst->sw_ctx.state[3] = nu_get32_be(output + 12);
-            dst->sw_ctx.state[4] = nu_get32_be(output + 16);
+            unsigned char *output_pos = output;
+            unsigned char *output_end = output + (sizeof (output) / sizeof (output[0]));
+            uint32_t *state_pos = (uint32_t *) &(dst->sw_ctx.state[0]);
+            while (output_pos != output_end) {
+                *state_pos ++ = nu_get32_be(output_pos);
+                output_pos += 4;
+            }
         }
         memcpy(dst->sw_ctx.buffer, src->hw_ctx.buffer, src->hw_ctx.buffer_left);
         if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {

@@ -67,18 +67,19 @@ typedef struct {
     __I uint32_t CBCo3; /**< Bits[127:96] of the 128-bit CBC result */
     union {
         struct {
-            __O uint32_t START:1; /**< start the encryption : 0 = no-effect , 1 = enable  */
-            __O uint32_t ACC_CLR:1; /**< Clear the CBC accumulator : 0 = no-effect 1 = clears the CBC accumulator */
-            __O uint32_t INT_CLEAR:1; /**<  interrupt clear : 0 = no-effect 1 = clear the interrupt  */
-            __O uint32_t KEY_LENGTH:1; /**<  Key Length: 0 = 128 Bit Encryption 1 = 256 Bit Encryption  */
+            __IO uint32_t START:1; /**< start the encryption : 0 = no-effect , 1 = enable  */
+            __IO uint32_t ACC_CLR:1; /**< Clear the CBC accumulator : 0 = no-effect 1 = clears the CBC accumulator */
+            __IO uint32_t INT_CLEAR:1; /**<  interrupt clear : 0 = no-effect 1 = clear the interrupt  */
         } BITS;
-        __O uint32_t WORD;
+        __IO uint32_t WORD;
     } CTL;
     union {
         struct {
             __IO uint32_t CBC_MODE:1; /**< counter mode : 0 = counter mode , 1 = CBC mode */
             __IO uint32_t BYPASS:1; /**< encryption : 0 = Normal Mode , 1 = Bypasss any encryption */
             __IO uint32_t INT_EN:1; /**< interrupt mask : 0 = disabled 1 = enabled  */
+            __IO uint32_t KEY_LENGTH:1; /**<  Key Length: 0 = 128 Bit Encryption 1 = 256 Bit Encryption  */
+
         } BITS;
         __IO uint32_t WORD;
     } MODE;

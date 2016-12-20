@@ -58,7 +58,7 @@ class DeviceCMSIS():
             try:
                 # Try to find the core as a generic CMSIS target
                 cpu_name = DeviceCMSIS.cpu_cmsis(t.core)
-                target_info = DeviceCMSIS.index[cpu_name]
+                target_info = DeviceCMSIS.CACHE.index[cpu_name]
             except:
                 return False
         target_info["_cpu_name"] = cpu_name

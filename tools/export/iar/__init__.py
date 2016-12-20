@@ -7,7 +7,7 @@ import re
 import sys
 
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, TargetNotSupportedException
 import json
 from tools.export.cmsis import DeviceCMSIS
 from multiprocessing import cpu_count
@@ -29,13 +29,7 @@ class IAR(Exporter):
     #iar_definitions.json
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if hasattr(obj, 'device_name') and
-               obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains
-               and DeviceCMSIS.check_supported(target)]
-
-    SPECIAL_TEMPLATES = {
-        'rz_a1h'  : 'iar/iar_rz_a1h.ewp.tmpl',
-        'nucleo_f746zg' : 'iar/iar_nucleo_f746zg.ewp.tmpl'
-    }
+               obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains]
 
     def iar_groups(self, grouped_src):
         """Return a namedtuple of group info
@@ -69,7 +63,9 @@ class IAR(Exporter):
             "CoreVariant": '',
             "GFPUCoreSlave": '',
             "GFPUCoreSlave2": 40,
-            "GBECoreSlave": 35
+            "GBECoreSlave": 35,
+            "FPU2": 0,
+            "NrRegs": 0,
         }
 
         iar_defaults.update(device_info)
@@ -87,9 +83,6 @@ class IAR(Exporter):
             grouped[group] = [self.format_file(src) for src in files]
         return grouped
 
-    def get_ewp_template(self):
-        return self.SPECIAL_TEMPLATES.get(self.target.lower(), 'iar/ewp.tmpl')
-
     def generate(self):
         """Generate the .eww, .ewd, and .ewp files"""
         srcs = self.resources.headers + self.resources.s_sources + \
@@ -106,6 +99,12 @@ class IAR(Exporter):
         #Optimizations
         if '-Oh' in flags['c_flags']:
             flags['c_flags'].remove('-Oh')
+
+        try:
+            debugger = DeviceCMSIS(self.target).debug.replace('-','').upper()
+        except TargetNotSupportedException:
+            debugger = "CMSISDAP"
+
         ctx = {
             'name': self.project_name,
             'groups': self.iar_groups(self.format_src(srcs)),
@@ -113,13 +112,13 @@ class IAR(Exporter):
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
-            'debugger': DeviceCMSIS(self.target).debug.replace('-','').upper()
+            'debugger': debugger
         }
         ctx.update(flags)
 
-        self.gen_file('iar/eww.tmpl', ctx, self.project_name+".eww")
+        self.gen_file('iar/eww.tmpl', ctx, self.project_name + ".eww")
         self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
-        self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
+        self.gen_file('iar/ewp.tmpl', ctx, self.project_name + ".ewp")
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):

@@ -1,5 +1,5 @@
 {
-    "stm32l476vg": {
+    "STM32L476VG": {
         "OGChipSelectEditMenu": "STM32L476VG\tST STM32L476VG"
     },
     "LPC11U24FBD48/401": {
@@ -17,7 +17,7 @@
     "STM32F042K6": {
         "OGChipSelectEditMenu": "STM32F042x6\tST STM32F042x6"
     },
-    "stm32l476rg": {
+    "STM32L476RG": {
         "OGChipSelectEditMenu": "STM32L476RG\tST STM32L476RG"
     },
     "STM32L011K4": {
@@ -71,11 +71,12 @@
     "STM32L073RZ": {
         "OGChipSelectEditMenu": "STM32L073RZ\tST STM32L073RZ"
     },
-    "stm32ff746zg": {
+    "STM32F746ZG": {
         "OGChipSelectEditMenu": "STM32F746ZG\tST STM32F746ZG",
+        "GBECoreSlave": 41,
         "CoreVariant": 41,
-        "GFPUCoreSlave2": 41,
-        "GBECoreSlave": 41
+        "FPU2": 6,
+        "NrRegs": 1
     },
     "MKL43Z256xxx4": {
         "OGChipSelectEditMenu": "MKL43Z256xxx4\tFreescale MKL43Z256xxx4"
@@ -83,8 +84,12 @@
     "LPC812M101JDH20": {
         "OGChipSelectEditMenu": "LPC812M101\tNXP LPC812M101"
     },
-    "stm32f746ng": {
-        "OGChipSelectEditMenu": "STM32F746NG\tST STM32F746NG"
+    "STM32F746NG": {
+        "OGChipSelectEditMenu": "STM32F746NG\tST STM32F746NG",
+        "GBECoreSlave": 41,
+        "CoreVariant": 41,
+        "FPU2": 6,
+        "NrRegs": 1
     },
     "STM32F411RE": {
         "OGChipSelectEditMenu": "STM32F411RE\tST STM32F411RE"

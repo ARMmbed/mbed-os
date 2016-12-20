@@ -37,7 +37,7 @@
 #include "ncs36510Init.h"
 
 void fPmuInit(void);
-uint32_t ADC_Trim_Offset;
+
 /**
  * @brief
  * Hardware trimming function
@@ -93,8 +93,6 @@ boolean fTrim()
 
         RFANATRIMREG->TX_VCO_TRIM_LUT1 = TRIMREG->TX_VCO_LUT1.WORD;;
         RFANATRIMREG->TX_VCO_TRIM_LUT2 = TRIMREG->TX_VCO_LUT2.WORD;;
-
-        ADC_Trim_Offset = TRIMREG->ADC_OFFSET_TRIM;
 
         status = True;
 

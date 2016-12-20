@@ -71,7 +71,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
         AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
         AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
         AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        AdcHandle.Init.ScanConvMode          = DISABLE;
+        AdcHandle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
         AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;
         AdcHandle.Init.LowPowerAutoWait      = DISABLE;
         AdcHandle.Init.LowPowerAutoPowerOff  = DISABLE;
