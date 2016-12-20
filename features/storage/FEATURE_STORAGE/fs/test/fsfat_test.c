@@ -31,8 +31,7 @@
 
 #ifdef FSFAT_DEBUG
 uint32_t fsfat_optDebug_g = 1;
-// todo: re-instate uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
-uint32_t fsfat_optLogLevel_g = FSFAT_LOG_FENTRY; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
+uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
 #endif
 
 /* ruler for measuring text strings */
@@ -363,38 +362,38 @@ int32_t fsfat_test_delete_all(void)
     return ret;
 }
 
+//#endif // NOT_DEFINED
 
-/* @brief   test utility function to create a KV in the cfstore
- * @note    this function expects cfstore to have been initialised with
- *          a call to ARM_FSFAT_DRIVER::Initialize()
+
+/* @brief   test utility function to create a file
  */
-int32_t fsfat_test_create(const char* key_name, const char* data, ARM_FSFAT_SIZE* len, ARM_FSFAT_KEYDESC* kdesc)
+int32_t fsfat_test_create(const char* filename, const char* data, size_t* len)
 {
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_SIZE value_len = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_HANDLE_INIT(hkey);
+    int32_t ret = -1;
+    size_t value_len = 0;
 
     FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
     value_len = *len;
-    kdesc->drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
-    ret = drv->Create(key_name, value_len, kdesc, hkey);
+    ret = fopen(filename, value_len, kdesc, hkey);
     if(ret < ARM_DRIVER_OK){
         return ret;
     }
     value_len = *len;
-    ret = drv->Write(hkey, data, &value_len);
+    ret = fwrite(hkey, data, &value_len);
     if(ret < ARM_DRIVER_OK){
-        drv->Close(hkey);
+        flose(hkey);
         return ret;
     }
     if(value_len != *len){
-        drv->Close(hkey);
+        fclose(hkey);
         return ARM_DRIVER_ERROR;
     }
-    drv->Close(hkey);
+    flose(hkey);
     return ret;
 }
+
+
+//#ifdef NOT_DEFINED
 
 /* @brief   test utility function to create KVs from the supplied table
  * @note    this function expects cfstore to have been initialised with
