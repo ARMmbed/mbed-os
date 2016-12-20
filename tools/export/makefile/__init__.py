@@ -40,6 +40,9 @@ class Makefile(Exporter):
 
         Note: subclasses should not need to override this method
         """
+        if not self.resources.linker_script:
+            raise NotSupportedException("No linker script found.")
+
         self.resources.win_to_unix()
 
         to_be_compiled = [splitext(src)[0] + ".o" for src in
