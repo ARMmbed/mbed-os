@@ -14,6 +14,70 @@
  * limitations under the License.
  */
 
+/* mbed OS boot sequence
+ *
+ * Most of mbed supported targets use default ARM Cortex M boot approach, where the core starts executing reset vector
+ * after power up. Reset ISR is defined for each target by the vendor (basing on CMSIS template). Reset vector is
+ * responsible for low level platform init and then calling in libc (__main). Depending on compiler and version of C
+ * library, predefined function will be called which is implemented by mbed OS.
+ *
+ * There's number of functions, vendor and users can provide to setup the platform and/or inject a code to be executed
+ *  before main():
+ *      * Reset vector and SystemInit: Reset vector should do low level core and board initialization.
+ *      * mbed_sdk_init: Higher level board init and making sure the board is ready for the mbed OS.
+ *      * mbed_main: User's code to be executed before main().
+ *      * main: Standard application code.
+ *
+ * Detailed boot procedures:
+ *
+ * For ARMCC:
+ *
+ * Reset (TARGET)
+ *     -> SystemInit (TARGET)
+ *     -> __main (LIBC)
+ *         -> __rt_entry (MBED: rtos/mbed_boot.c)
+ *             -> __user_setup_stackheap (LIBC)
+ *             -> mbed_sdk_init (TARGET)
+ *             -> _platform_post_stackheap_init (RTX)
+ *                 -> osKernelInitialize (RTX)
+ *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
+ *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
+ *                 -> set_stack_heap (MBED: rtos/mbed_boot.c)
+ *                 -> osThreadNew (RTX)
+ *                     -> pre_main(MBED: rtos/mbed_boot.c)
+ *                         -> __rt_lib_init (LIBC)
+ *                         -> $Sub$$main (MBED: rtos/mbed_boot.c)
+ *                             -> mbed_main (MBED: rtos/mbed_boot.c)
+ *                             -> main (APP)
+ *                 -> osKernelStart (RTX)
+ *
+ * In addition to the above, libc will use functions defined by RTX: __user_perthread_libspace, _mutex_initialize,
+ * _mutex_acquire, _mutex_release, _mutex_free for details consult: ARM C and C++ Libraries and Floating-Point
+ * Support User Guide.
+ *
+ * For GCC:
+ *
+ * Reset (TARGET)
+ *     -> SystemInit (TARGET)
+ *     -> __main (LIBC)
+ *         -> software_init_hook (MBED: rtos/mbed_boot.c)
+ *             -> mbed_sdk_init (TARGET)
+ *             -> osKernelInitialize (RTX)
+ *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
+ *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
+ *                 -> set_stack_heap (MBED: rtos/mbed_boot.c)
+ *                 -> osThreadNew (RTX)
+ *                     -> pre_main(MBED: rtos/mbed_boot.c)
+ *                         -> __libc_init_array (LIBC)
+ *                         -> __wrap_main (MBED: rtos/mbed_boot.c)
+ *                             -> mbed_main (MBED: rtos/mbed_boot.c)
+ *                             -> __real_main (APP)
+ *                 -> osKernelStart (RTX)
+ *
+ * In addition to the above, libc will use functions defined in mbed_boot.c: __rtos_malloc_lock/unlock,
+ * __rtos_env_lock/unlock.
+ */
+
 #include "cmsis.h"
 #include "mbed_rtx.h"
 #include "rtx_os.h"
