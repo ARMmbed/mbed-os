@@ -30,4 +30,9 @@
 
 #define OS_DYNAMIC_MEM_SIZE         0
 
+#if defined(__CC_ARM)
+#define OS_MUTEX_OBJ_MEM            1
+#define OS_MUTEX_NUM                6
+#endif
+
 #endif /* MBED_RTX_CONF_H */

@@ -526,7 +526,7 @@ void *__user_perthread_libspace (void) {
 
   return (void *)&os_libspace[n][0];
 }
-#if 0
+
 // Mutex identifier
 typedef void *mutex;
 
@@ -562,7 +562,6 @@ void _mutex_free(mutex *m);
 void _mutex_free(mutex *m) {
   osMutexDelete(*m);
 }
-#endif
 
 #endif
 
