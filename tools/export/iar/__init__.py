@@ -31,11 +31,6 @@ class IAR(Exporter):
                if hasattr(obj, 'device_name') and
                obj.device_name in IAR_DEFS.keys() and "IAR" in obj.supported_toolchains]
 
-    SPECIAL_TEMPLATES = {
-        'rz_a1h'  : 'iar/iar_rz_a1h.ewp.tmpl',
-        'nucleo_f746zg' : 'iar/iar_nucleo_f746zg.ewp.tmpl'
-    }
-
     def iar_groups(self, grouped_src):
         """Return a namedtuple of group info
         Positional Arguments:
@@ -68,7 +63,9 @@ class IAR(Exporter):
             "CoreVariant": '',
             "GFPUCoreSlave": '',
             "GFPUCoreSlave2": 40,
-            "GBECoreSlave": 35
+            "GBECoreSlave": 35,
+            "FPU2": 0,
+            "NrRegs": 0,
         }
 
         iar_defaults.update(device_info)
@@ -85,9 +82,6 @@ class IAR(Exporter):
         for group, files in grouped.items():
             grouped[group] = [self.format_file(src) for src in files]
         return grouped
-
-    def get_ewp_template(self):
-        return self.SPECIAL_TEMPLATES.get(self.target.lower(), 'iar/ewp.tmpl')
 
     def generate(self):
         """Generate the .eww, .ewd, and .ewp files"""
@@ -122,9 +116,9 @@ class IAR(Exporter):
         }
         ctx.update(flags)
 
-        self.gen_file('iar/eww.tmpl', ctx, self.project_name+".eww")
+        self.gen_file('iar/eww.tmpl', ctx, self.project_name + ".eww")
         self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
-        self.gen_file(self.get_ewp_template(), ctx, self.project_name + ".ewp")
+        self.gen_file('iar/ewp.tmpl', ctx, self.project_name + ".ewp")
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):

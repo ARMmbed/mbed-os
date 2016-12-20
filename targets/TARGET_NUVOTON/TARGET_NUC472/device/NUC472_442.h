@@ -32574,7 +32574,7 @@ typedef volatile unsigned long  vu32;       ///< Define 32-bit unsigned volatile
 #include "nuc472_acmp.h"
 #include "nuc472_adc.h"
 #include "nuc472_eadc.h"
-#include "nuc472_cap.h"
+/* Disable Capture: #include "nuc472_cap.h"  */
 #include "nuc472_crypto.h"
 #include "nuc472_pdma.h"
 #include "nuc472_ebi.h"

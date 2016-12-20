@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     uart.h
  * @version  V1.00
- * $Revision: 19 $
- * $Date: 14/10/07 9:28a $
+ * $Revision: 20 $
+ * $Date: 15/11/30 1:35p $
  * @brief    NUC472/NUC442 UART driver header file
  *
  * @note
@@ -310,7 +310,7 @@ extern "C"
  *                               - \ref UART_INTSTS_LINIF_Msk     : LIN Bus Flag.
  *                               - \ref UART_INTSTS_BUFERRIF_Msk  : Buffer Error Interrupt Flag
  *                               - \ref UART_INTSTS_RXTOIF_Msk    : Rx time-out interrupt Flag
- *                               - \ref UART_INTSTS_MODENIF_Msk   : Modem interrupt Flag
+ *                               - \ref UART_INTSTS_MODEMIF_Msk   : Modem interrupt Flag
  *                               - \ref UART_INTSTS_RLSIF_Msk     : Rx Line status interrupt Flag
  *                               - \ref UART_INTSTS_THREIF_Msk    : Tx empty interrupt Flag
  *                               - \ref UART_INTSTS_RDAIF_Msk     : Rx ready interrupt Flag

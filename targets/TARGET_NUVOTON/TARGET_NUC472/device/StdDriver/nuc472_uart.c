@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     uart.c
  * @version  V1.00
- * $Revision: 13 $
- * $Date: 14/10/03 1:55p $
+ * $Revision: 14 $
+ * $Date: 15/11/26 10:47a $
  * @brief    NUC472/NUC442 UART driver source file
  *
  * @note
@@ -118,7 +118,7 @@ void UART_DisableInt(UART_T*  uart, uint32_t u32InterruptFlag )
 void UART_EnableFlowCtrl(UART_T* uart )
 {
     uart->MODEM    |= UART_MODEM_RTSACTLV_Msk;
-    uart->MODEM    &= UART_MODEM_RTS_Msk;
+    uart->MODEM    &= ~UART_MODEM_RTS_Msk;
     uart->MODEMSTS |= UART_MODEMSTS_CTSACTLV_Msk;
     uart->INTEN    |= UART_INTEN_ATORTSEN_Msk | UART_INTEN_ATOCTSEN_Msk;
 }
@@ -161,7 +161,7 @@ void UART_Open(UART_T* uart, uint32_t u32baudrate)
     uint32_t u32Clk;
     uint32_t u32Baud_Div;
 
-    u32ClkTbl[1] = CLK_GetPLLClockFreq();;
+    u32ClkTbl[1] = CLK_GetPLLClockFreq();
 
     u8UartClkSrcSel = (CLK->CLKSEL1 & CLK_CLKSEL1_UARTSEL_Msk) >> CLK_CLKSEL1_UARTSEL_Pos;
 
@@ -272,7 +272,17 @@ void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC)
  */
 void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Direction)
 {
-    uart->BAUD = UART_BAUD_MODE0 | UART_BAUD_MODE0_DIVIDER(12000000, 57600);
+    uint8_t u8UartClkSrcSel;
+    uint32_t u32ClkTbl[4] = {__HXT, 0, __HIRC, __HIRC};
+    uint32_t u32Clk;
+
+    u32ClkTbl[1] = CLK_GetPLLClockFreq();
+
+    u8UartClkSrcSel = (CLK->CLKSEL1 & CLK_CLKSEL1_UARTSEL_Msk) >> CLK_CLKSEL1_UARTSEL_Pos;
+
+    u32Clk = (u32ClkTbl[u8UartClkSrcSel]) / (((CLK->CLKDIV0 & CLK_CLKDIV0_UARTDIV_Msk) >> CLK_CLKDIV0_UARTDIV_Pos) + 1);
+
+    uart->BAUD = UART_BAUD_MODE0 | UART_BAUD_MODE0_DIVIDER(u32Clk, u32Buadrate);
 
     uart->IRDA    &= ~UART_IRDA_TXINV_Msk;
     uart->IRDA    |=  UART_IRDA_RXINV_Msk;

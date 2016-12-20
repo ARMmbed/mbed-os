@@ -688,6 +688,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
       /* Clear the Direct Mode error flag */
       regs->IFCR = DMA_FLAG_DMEIF0_4 << hdma->StreamIndex;
     }
+    tmpisr = regs->ISR;
   }
   
   if(hdma->ErrorCode != HAL_DMA_ERROR_NONE)
@@ -761,6 +762,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_TE;
+
+      /* Change the DMA state */
+      hdma->State = HAL_DMA_STATE_ERROR; // FIX
     }
   }
   /* FIFO Error Interrupt management ******************************************/
@@ -773,6 +777,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_FE;
+
+      /* Change the DMA state */
+      hdma->State = HAL_DMA_STATE_ERROR; // FIX
     }
   }
   /* Direct Mode Error Interrupt management ***********************************/
@@ -785,6 +792,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_DME;
+
+      /* Change the DMA state */
+      hdma->State = HAL_DMA_STATE_ERROR; // FIX
     }
   }
   /* Half Transfer Complete Interrupt management ******************************/
@@ -801,6 +811,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
         /* Current memory buffer used is Memory 0 */
         if((hdma->Instance->CR & DMA_SxCR_CT) == RESET)
         {
+          /* Change DMA peripheral state */
+          hdma->State = HAL_DMA_STATE_READY_HALF_MEM0; // FIX
+
           if(hdma->XferHalfCpltCallback != NULL)
           {
             /* Half transfer callback */
@@ -810,6 +823,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
         /* Current memory buffer used is Memory 1 */
         else
         {
+          /* Change DMA peripheral state */
+          hdma->State = HAL_DMA_STATE_READY_HALF_MEM1; // FIX
+
           if(hdma->XferM1HalfCpltCallback != NULL)
           {
             /* Half transfer callback */
@@ -826,6 +842,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
           hdma->Instance->CR  &= ~(DMA_IT_HT);
         }
         
+        /* Change DMA peripheral state */
+        hdma->State = HAL_DMA_STATE_READY_HALF_MEM0; // FIX
+
         if(hdma->XferHalfCpltCallback != NULL)
         {
           /* Half transfer callback */
@@ -874,6 +893,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
         /* Current memory buffer used is Memory 0 */
         if((hdma->Instance->CR & DMA_SxCR_CT) == RESET)
         {
+          /* Change DMA peripheral state */
+          hdma->State = HAL_DMA_STATE_READY_MEM1; // FIX
+     
           if(hdma->XferM1CpltCallback != NULL)
           {
             /* Transfer complete Callback for memory1 */
@@ -883,6 +905,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
         /* Current memory buffer used is Memory 1 */
         else
         {
+          /* Change DMA peripheral state */
+          hdma->State = HAL_DMA_STATE_READY_MEM0; // FIX
+     
           if(hdma->XferCpltCallback != NULL)
           {
             /* Transfer complete Callback for memory0 */
@@ -893,6 +918,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Disable the transfer complete interrupt if the DMA mode is not CIRCULAR */
       else
       {
+    	/* Change DMA peripheral state */
+    	hdma->State = HAL_DMA_STATE_READY_MEM0; // FIX
+     
         if((hdma->Instance->CR & DMA_SxCR_CIRC) == RESET)
         {
           /* Disable the transfer complete interrupt */
