@@ -148,10 +148,6 @@ static inline int openmode_to_posix(int openmode) {
     return posix;
 }
 
-extern "C" WEAK void mbed_sdk_init(void);
-extern "C" WEAK void mbed_sdk_init(void) {
-}
-
 extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
     // Before version 5.03, we were using a patched version of microlib with proper names

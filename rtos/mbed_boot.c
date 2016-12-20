@@ -137,6 +137,10 @@ WEAK void mbed_main(void) {
 
 }
 
+extern "C" WEAK void mbed_sdk_init(void);
+extern "C" WEAK void mbed_sdk_init(void) {
+}
+
 void mbed_start_main(void)
 {
     mbed_cpy_nvic();
