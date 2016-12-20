@@ -29,8 +29,6 @@
   }while(0);
 
 #define noFSFAT_DEBUG
-// todo: remove next line
-#define FSFAT_DEBUG
 
 #ifdef FSFAT_DEBUG
 

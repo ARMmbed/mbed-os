@@ -275,12 +275,12 @@ int32_t fsfat_filepath_make_dirs(char* filepath)
 /* FIX ME: errno not set correctly when error occurs. This indicates a problem with the implementation. */
 
 /** @brief
- * Basic open test which does the following:
- * - creates KV with default rw perms and writes some data to the value blob.
- * - closes the newly created KV.
- * - opens the KV with the default permissions (r-only)
- * - reads the KV data and checks its the same as the previously created data.
- * - closes the opened key
+ * Basic fopen test which does the following:
+ * - creates file and writes some data to the value blob.
+ * - closes the newly created file.
+ * - opens the file (r-only)
+ * - reads the file data and checks its the same as the previously created data.
+ * - closes the opened file
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
@@ -355,7 +355,6 @@ control_t fsfat_fopen_test_01(const size_t call_count)
     return CaseNext;
 }
 
-
 #ifdef NOT_DEFINED
 
 static fsfat_kv_data_t fsfat_fopen_test_02_data[] = {
@@ -397,7 +396,7 @@ control_t fsfat_fopen_test_02(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
 
     /* by default, owner of key opens with read-only permissions*/
-    ret = drv->Open(fsfat_fopen_test_02_data[0].key_name, flags, hkey);
+    ret = fopen(fsfat_fopen_test_02_data[0].key_name, "w+");
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open node (filename=\"%s\")(ret=%d)\n", __func__, fsfat_fopen_test_02_data[0].key_name, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
 
@@ -414,6 +413,8 @@ control_t fsfat_fopen_test_02(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
+
+
 
 
 /**
