@@ -34,7 +34,6 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
-#include <sys/stat.h>
 
 using namespace utest::v1;
 
@@ -56,8 +55,6 @@ SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 #elif defined(TARGET_K64F) || defined(TARGET_K66F)
 SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, "sd");
 /* #define FSFAT_SDCARD_INSTALLED */
-/* todo: remove  */
-#define FSFAT_SDCARD_INSTALLED
 
 #elif defined(TARGET_K22F)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
@@ -128,6 +125,16 @@ SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
 /// @endcond
 
+#ifdef FSFAT_SDCARD_INSTALLED
+
+#define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_01
+#define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_02
+#define FSFAT_FOPEN_TEST_03      fsfat_fopen_test_03
+#define FSFAT_FOPEN_TEST_04      fsfat_fopen_test_04
+#define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_05
+#define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_06
+#define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_07
+
 
 /* support functions */
 
@@ -165,7 +172,7 @@ static fsfat_kv_data_t fsfat_fopen_test_01_kv_data[] = {
  *
  * @return  On success, this returns the number of components in the filepath Returns number of compoee
  */
-int32_t fsfat_filepath_split(char* filepath, char* parts[], uint32_t num)
+static int32_t fsfat_filepath_split(char* filepath, char* parts[], uint32_t num)
 {
     uint32_t i = 0;
     int32_t ret = -1;
@@ -231,7 +238,7 @@ int32_t fsfat_filepath_remove_all(char* filepath)
  *
  * @return  On success, this returns 0, otherwise < 0 is returned;
  */
-int32_t fsfat_filepath_make_dirs(char* filepath)
+static int32_t fsfat_filepath_make_dirs(char* filepath)
 {
     int32_t i = 0;
     int32_t num_parts = 0;
@@ -284,7 +291,7 @@ int32_t fsfat_filepath_make_dirs(char* filepath)
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-control_t fsfat_fopen_test_01(const size_t call_count)
+static control_t fsfat_fopen_test_01(const size_t call_count)
 {
     char* read_buf;
     int32_t ret = 0;
@@ -799,6 +806,29 @@ control_t fsfat_fopen_test_07(const size_t call_count)
 
 #endif // NOT_DEFINED
 
+#else
+
+#define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_03      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_04      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_dummy
+
+/** @brief  fsfat_fopen_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
+ *
+ * @return success always
+ */
+static control_t fsfat_fopen_test_dummy()
+{
+    printf("Null test\n");
+    return CaseNext;
+}
+
+#endif  /* FSFAT_SDCARD_INSTALLED */
+
+
 /// @cond FSFAT_DOXYGEN_DISABLE
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -809,15 +839,15 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FOPEN_test_01", fsfat_fopen_test_01)
+        Case("FOPEN_test_01", FSFAT_FOPEN_TEST_01)
 
 #ifdef NOT_DEFINED
-        Case("FOPEN_test_02", fsfat_fopen_test_02),
-        Case("FOPEN_test_03", fsfat_fopen_test_03),
-        Case("FOPEN_test_04", fsfat_fopen_test_04),
-        Case("FOPEN_test_05", fsfat_fopen_test_05),
-        Case("FOPEN_test_06", fsfat_fopen_test_06),
-        Case("FOPEN_test_07", fsfat_fopen_test_07),
+        Case("FOPEN_test_02", FSFAT_FOPEN_TEST_02),
+        Case("FOPEN_test_03", FSFAT_FOPEN_TEST_03),
+        Case("FOPEN_test_04", FSFAT_FOPEN_TEST_04),
+        Case("FOPEN_test_05", FSFAT_FOPEN_TEST_05),
+        Case("FOPEN_test_06", FSFAT_FOPEN_TEST_06),
+        Case("FOPEN_test_07", FSFAT_FOPEN_TEST_07),
 #endif // NOT_DEFINED
 
 };

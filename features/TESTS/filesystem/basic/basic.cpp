@@ -139,9 +139,9 @@ SDFileSystem sd(p11, p12, p13, p14, "sd");
 
 #ifdef FSFAT_SDCARD_INSTALLED
 
-#define FAT_FN_TEST_00      fsfat_test_00
-#define FAT_FN_TEST_01      fsfat_test_01
-#define FAT_FN_TEST_02      fsfat_test_02
+#define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
+#define FSFAT_BASIC_TEST_01      fsfat_basic_test_01
+#define FSFAT_BASIC_TEST_02      fsfat_basic_test_02
 
 
 #define FSFAT_BASIC_MSG_BUF_SIZE              256
@@ -168,7 +168,7 @@ static char fsfat_basic_msg_g[FSFAT_BASIC_MSG_BUF_SIZE];
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t fsfat_test_00() {
+static control_t fsfat_basic_test_00() {
 
     uint8_t data_written[FSFAT_BASIC_DATA_SIZE] = { 0 };
     bool result = false;
@@ -219,7 +219,7 @@ extern int errno;
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t fsfat_test_01() {
+static control_t fsfat_basic_test_01() {
     FILE *fp, *fp1;
     int i, j;
     int ret = 0;
@@ -234,6 +234,9 @@ static control_t fsfat_test_01() {
     for (i = 0; i < 256; i++) {
         putc (i, fp);
     }
+    /* FIXME: freopen() should open the specified file closing the first stream. As can be seen from the
+     * code below, the old file descriptor fp can still be used, and this should not happen.
+     */
     fp1 = freopen (sd_file_path, "r", fp);
     TEST_ASSERT_MESSAGE(fp1 == fp, "Error: cannot open file for reading");
 
@@ -279,7 +282,7 @@ static control_t fsfat_test_01() {
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t fsfat_test_02() {
+static control_t fsfat_basic_test_02() {
     static const char hello[] = "Hello, world.\n";
     static const char replace[] = "Hewwo, world.\n";
     static const size_t replace_from = 2, replace_to = 4;
@@ -397,19 +400,21 @@ static control_t fsfat_test_02() {
 
 #else
 
-#define FAT_FN_TEST_00      fsfat_test_dummy
-#define FAT_FN_TEST_01      fsfat_test_dummy
-#define FAT_FN_TEST_02      fsfat_test_dummy
+#define FSFAT_BASIC_TEST_00      fsfat_basic_test_dummy
+#define FSFAT_BASIC_TEST_01      fsfat_basic_test_dummy
+#define FSFAT_BASIC_TEST_02      fsfat_basic_test_dummy
 
-/** @brief  fsfat_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
+/** @brief  fsfat_basic_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
  *
  * @return success always
  */
-static control_t fsfat_test_dummy() {
+static control_t fsfat_basic_test_dummy()
+{
+    printf("Null test\n");
     return CaseNext;
 }
 
-#endif
+#endif  /* FSFAT_SDCARD_INSTALLED */
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -421,10 +426,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", FAT_FN_TEST_00),
-        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", FAT_FN_TEST_01)
+        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", FSFAT_BASIC_TEST_00),
+        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", FSFAT_BASIC_TEST_01)
         /* WARNING: Test case not working but currently not required for PAL support
-         * Case("FSFAT_test_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FAT_FN_TEST_02) */
+         * Case("FSFAT_test_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FSFAT_BASIC_TEST_02) */
 };
 
 
