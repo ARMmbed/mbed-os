@@ -17,6 +17,7 @@ limitations under the License.
 """
 import sys
 import os
+import re
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -30,13 +31,14 @@ check_required_modules(['prettytable'])
 # Imports related to mbed build api
 from tools.build_api import mcu_toolchain_matrix
 from tools.test_api import get_autodetected_MUTS_list
+from argparse import ArgumentParser
 
 
 def main():
     """Entry Point"""
     try:
         # Parse Options
-        parser = get_default_options_parser()
+        parser = ArgumentParser()
 
         parser.add_argument("-S", "--supported-toolchains",
                             action="store_true",
@@ -68,14 +70,17 @@ def main():
         # parameters like 'toolchains_filter' are also set.
         muts = get_autodetected_MUTS_list()
 
+        mcu_filter = options.general_filter_regex or ".*"
+
         count = 0
         for mut in muts.values():
-            print ""
-            print "[mbed] Detected %s, port %s, mounted %s" % \
-                (mut['mcu'], mut['port'], mut['disk'])
-            print "[mbed] Supported toolchains for %s" % mut['mcu']
-            print mcu_toolchain_matrix(platform_filter=r'^'+mut['mcu']+'$')
-            count += 1
+            if re.match(mcu_filter, mut['mcu']):
+                print ""
+                print "[mbed] Detected %s, port %s, mounted %s" % \
+                    (mut['mcu'], mut['port'], mut['disk'])
+                print "[mbed] Supported toolchains for %s" % mut['mcu']
+                print mcu_toolchain_matrix(platform_filter=mut['mcu'])
+                count += 1
 
         if count == 0:
             print "[mbed] No mbed targets where detected on your system."
