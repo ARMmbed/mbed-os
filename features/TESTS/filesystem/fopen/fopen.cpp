@@ -37,12 +37,22 @@
 
 using namespace utest::v1;
 
-static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
+/// @cond FSFAT_DOXYGEN_DISABLE
+#ifdef FSFAT_DEBUG
+#define FSFAT_FOPEN_GREENTEA_TIMEOUT_S     3000
+#else
+#define FSFAT_FOPEN_GREENTEA_TIMEOUT_S     1000
+#endif
+/// @endcond
+
 
 /* FSFAT_SDCARD_INSTALLTED
  *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  */
+#ifdef FSFAT_SDCARD_INSTALLED
+
+static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 
 #if defined(TARGET_KL25Z)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
@@ -116,16 +126,6 @@ SDFileSystem sd(p11, p12, p13, p14, "sd");
 /* #define FSFAT_SDCARD_INSTALLED */
 #endif
 
-
-/// @cond FSFAT_DOXYGEN_DISABLE
-#ifdef FSFAT_DEBUG
-#define FSFAT_FOPEN_GREENTEA_TIMEOUT_S     3000
-#else
-#define FSFAT_FOPEN_GREENTEA_TIMEOUT_S     1000
-#endif
-/// @endcond
-
-#ifdef FSFAT_SDCARD_INSTALLED
 
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_01
 #define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_02

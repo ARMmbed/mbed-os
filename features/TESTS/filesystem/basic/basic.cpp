@@ -63,6 +63,8 @@ using namespace utest::v1;
  *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  */
+#ifdef FSFAT_SDCARD_INSTALLED
+
 
 #if defined(TARGET_KL25Z)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
@@ -136,8 +138,6 @@ SDFileSystem sd(p11, p12, p13, p14, "sd");
 /* #define FSFAT_SDCARD_INSTALLED */
 #endif
 
-
-#ifdef FSFAT_SDCARD_INSTALLED
 
 #define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
 #define FSFAT_BASIC_TEST_01      fsfat_basic_test_01
