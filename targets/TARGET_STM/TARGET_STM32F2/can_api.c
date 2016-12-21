@@ -280,10 +280,10 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     /* Release the FIFO */
     if (handle == CAN_FIFO0) {
         /* Release FIFO0 */
-        can->RF0R = CAN_RF0R_RFOM0;
+        can->RF0R |= CAN_RF0R_RFOM0;
     } else { /* FIFONumber == CAN_FIFO1 */
         /* Release FIFO1 */
-        can->RF1R = CAN_RF1R_RFOM1;
+        can->RF1R |= CAN_RF1R_RFOM1;
     }
 
     return 1;
