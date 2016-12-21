@@ -56,8 +56,8 @@ volatile int change_counter = 0;
 volatile int sem_counter = 0;
 volatile bool sem_defect = false;
 
-void test_thread(void const *delay) {
-    const int thread_delay = int(delay);
+void test_thread(int const *delay) {
+    const int thread_delay = *delay;
     while (true) {
         two_slots.wait();
         sem_counter++;
@@ -81,9 +81,13 @@ int main (void) {
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
     const int t3_delay = THREAD_DELAY * 3;
-    Thread t1(test_thread, (void *)t1_delay, osPriorityNormal, STACK_SIZE);
-    Thread t2(test_thread, (void *)t2_delay, osPriorityNormal, STACK_SIZE);
-    Thread t3(test_thread, (void *)t3_delay, osPriorityNormal, STACK_SIZE);
+    Thread t1(osPriorityNormal, STACK_SIZE);
+    Thread t2(osPriorityNormal, STACK_SIZE);
+    Thread t3(osPriorityNormal, STACK_SIZE);
+
+    t1.start(callback(test_thread, &t1_delay));
+    t2.start(callback(test_thread, &t2_delay));
+    t3.start(callback(test_thread, &t3_delay));
 
     while (true) {
         if (change_counter >= SEM_CHANGES or sem_defect == true) {

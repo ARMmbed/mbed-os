@@ -40,7 +40,7 @@ MemoryPool<message_t, QUEUE_SIZE> mpool;
 Queue<message_t, QUEUE_SIZE> queue;
 
 /* Send Thread */
-void send_thread (void const *argument) {
+void send_thread () {
     static uint32_t i = 10;
     while (true) {
         i++; // Fake data update
@@ -56,7 +56,8 @@ void send_thread (void const *argument) {
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
 
-    Thread thread(send_thread, NULL, osPriorityNormal, STACK_SIZE);
+    Thread thread(osPriorityNormal, STACK_SIZE);
+    thread.start(send_thread);
     bool result = true;
     int result_counter = 0;
 
