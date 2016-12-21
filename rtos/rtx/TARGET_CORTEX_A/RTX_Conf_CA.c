@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RTX_Conf_CM.C
  *      Purpose: Configuration of CMSIS RTX Kernel
- *      Rev.:    V4.60
+ *      Rev.:    V4.80
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
+ *  - Neither the name of ARM  nor the names of its contributors may be used 
+ *    to endorse or promote products derived from this software without 
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -51,8 +51,8 @@
 // <h>Thread Configuration
 // =======================
 //
-//   <o>Number of concurrent running threads <0-250>
-//   <i> Defines max. number of threads that will run at the same time.
+//   <o>Number of concurrent running user threads <1-250>
+//   <i> Defines max. number of user threads that will run at the same time.
 //   <i> Default: 6
 #ifndef OS_TASKCNT
  #define OS_TASKCNT     25
@@ -69,7 +69,7 @@
 //   <i> Defines default stack size for threads with osThreadDef stacksz = 0
 //   <i> Default: 200
 #ifndef OS_STKSIZE
- #define OS_STKSIZE     200
+ #define OS_STKSIZE     200     // this stack size value is in words
 #endif
 #endif // __MBED_CMSIS_RTOS_CA9
 
@@ -77,7 +77,7 @@
 //   <i> Defines stack size for main thread.
 //   <i> Default: 4096
 #ifndef OS_MAINSTKSIZE
- #define OS_MAINSTKSIZE 4096
+ #define OS_MAINSTKSIZE 4096	// this stack size value is in words
 #endif
 
 #ifndef __MBED_CMSIS_RTOS_CA9
@@ -92,21 +92,28 @@
 //   <i> Defines the combined stack size for threads with user-provided stack size.
 //   <i> Default: 0
 #ifndef OS_PRIVSTKSIZE
- #define OS_PRIVSTKSIZE 0
+ #define OS_PRIVSTKSIZE 0       // this stack size value is in words
 #endif
 #endif // __MBED_CMSIS_RTOS_CA9
 
-// <q>Check for stack overflow
-// <i> Includes the stack checking code for stack overflow.
-// <i> Note that additional code reduces the Kernel performance.
+//   <q>Stack overflow checking
+//   <i> Enable stack overflow checks at thread switch.
+//   <i> Enabling this option increases slightly the execution time of a thread switch.
 #ifndef OS_STKCHECK
  #define OS_STKCHECK    1
 #endif
 
-// <o>Processor mode for thread execution
-//   <0=> Unprivileged mode
-//   <1=> Privileged mode
-// <i> Default: Privileged mode
+//   <q>Stack usage watermark
+//   <i> Initialize thread stack with watermark pattern for analyzing stack usage (current/maximum) in System and Thread Viewer.
+//   <i> Enabling this option increases significantly the execution time of osThreadCreate.
+#ifndef OS_STKINIT
+#define OS_STKINIT      0
+#endif
+
+//   <o>Processor mode for thread execution
+//     <0=> Unprivileged mode
+//     <1=> Privileged mode
+//   <i> Default: Privileged mode
 #ifndef OS_RUNPRIV
  #define OS_RUNPRIV     1
 #endif
@@ -115,21 +122,23 @@
 
 // <h>RTX Kernel Timer Tick Configuration
 // ======================================
-// <q> Use Cortex-M SysTick timer as RTX Kernel Timer
-// <i> Use the Cortex-M SysTick timer as a time-base for RTX.
+//   <q> Use Cortex-M SysTick timer as RTX Kernel Timer
+//   <i> Cortex-M processors provide in most cases a SysTick timer that can be used as 
+//   <i> as time-base for RTX.
 #ifndef OS_SYSTICK
  #define OS_SYSTICK     0
 #endif
 //
-//   <o>Timer clock value [Hz] <1-1000000000>
-//   <i> Defines the timer clock value.
+//   <o>RTOS Kernel Timer input clock frequency [Hz] <1-1000000000>
+//   <i> Defines the input frequency of the RTOS Kernel Timer.  
 //   <i> Default: 12000000  (12MHz)
+//   <i> is on most systems identical with the core clock.
 #ifndef OS_CLOCK
  #error "no target defined"
 #endif
 
-//   <o>Timer tick value [us] <1-1000000>
-//   <i> Defines the timer tick value.
+//   <o>RTX Timer tick interval value [us] <1-1000000>
+//   <i> The RTX Timer tick interval value is used to calculate timeout values.
 //   <i> Default: 1000  (1ms)
 #ifndef OS_TICK
  #define OS_TICK        1000
@@ -179,7 +188,7 @@
 //   <i> Defines stack size for Timer thread.
 //   <i> Default: 200
 #ifndef OS_TIMERSTKSZ
- #define OS_TIMERSTKSZ  WORDS_STACK_SIZE
+ #define OS_TIMERSTKSZ  WORDS_STACK_SIZE	    // this stack size value is in words
 #endif
 
 //   <o>Timer Callback Queue size <1-32>
@@ -209,7 +218,7 @@
 
 // Standard library system mutexes
 // ===============================
-//  Define max. number system mutexes that are used to protect
+//  Define max. number system mutexes that are used to protect 
 //  the arm standard runtime library. For microlib they are not used.
 #ifndef OS_MUTEXCNT
  #define OS_MUTEXCNT    12
@@ -229,9 +238,8 @@
 /*--------------------------- os_idle_demon ---------------------------------*/
 extern void rtos_idle_loop(void);
 
+/// \brief The idle demon is running when no other thread is ready to run
 void os_idle_demon (void) {
-  /* The idle demon is a system thread, running when no other thread is      */
-  /* ready to run.                                                           */
   rtos_idle_loop();
 }
 
@@ -276,8 +284,8 @@ extern void OS_Tick_Handler(uint32_t);
 extern uint32_t InterruptHandlerRegister (IRQn_Type irq, IRQHandler handler);
 #endif
 
-// Initialize alternative hardware timer as RTX kernel timer
-// Return: IRQ number of the alternative hardware timer
+/// \brief Initializes an alternative hardware timer as RTX kernel timer
+/// \return                             IRQ number of the alternative hardware timer
 int os_tick_init (void) {
 #if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
   CPGSTBCR5 &= ~(CPG_STBCR5_BIT_MSTP51); /* enable OSTM0 clock */
@@ -300,7 +308,7 @@ int os_tick_init (void) {
 
 /*--------------------------- os_tick_irqack --------------------------------*/
 
-// Acknowledge alternative hardware timer interrupt
+/// \brief Acknowledge alternative hardware timer interrupt
 void os_tick_irqack (void) {
   /* ... */
 }
@@ -308,12 +316,14 @@ void os_tick_irqack (void) {
 #endif   // (OS_SYSTICK == 0)
 
 /*--------------------------- os_error --------------------------------------*/
-extern void mbed_die(void);
+extern void error(const char* format, ...);
+extern osThreadId svcThreadGetId (void);
 
 void os_error (uint32_t err_code) {
-  /* This function is called when a runtime error is detected. Parameter */
-  /* 'err_code' holds the runtime error code (defined in RTL.H).         */
-    mbed_die();
+    /* This function is called when a runtime error is detected. Parameter     */
+    /* 'err_code' holds the runtime error code (defined in RTX_Config.h).      */
+    osThreadId err_task = svcThreadGetId();
+    error("RTX error code: 0x%08X, task ID: 0x%08X\n", err_code, err_task);
 
   /* HERE: include optional code to be executed on runtime error. */
   for (;;);
