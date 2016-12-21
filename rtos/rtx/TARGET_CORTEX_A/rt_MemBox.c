@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      CMSIS-RTOS  -  RTX
+ *      RL-ARM - RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_MEMBOX.C
  *      Purpose: Interface functions for fixed memory block management system
- *      Rev.:    V4.79 plus changes for RTX-Ax
+ *      Rev.:    V4.70
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH, 2015 ARM Limited
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used 
- *    to endorse or promote products derived from this software without 
+ *  - Neither the name of ARM  nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -49,7 +49,7 @@
 
 /*--------------------------- _init_box -------------------------------------*/
 
-U32 _init_box  (void *box_mem, U32 box_size, U32 blk_size) {
+int _init_box  (void *box_mem, U32 box_size, U32 blk_size) {
   /* Initialize memory block system, returns 0 if OK, 1 if fails. */
   void *end;
   void *blk;
@@ -58,20 +58,20 @@ U32 _init_box  (void *box_mem, U32 box_size, U32 blk_size) {
 
   /* Create memory structure. */
   if (blk_size & BOX_ALIGN_8) {
-    /* Memory blocks 8-byte aligned. */ 
-    blk_size = ((blk_size & ~BOX_ALIGN_8) + 7U) & ~(U32)7U;
-    sizeof_bm = (sizeof (struct OS_BM) + 7U) & ~(U32)7U;
+    /* Memory blocks 8-byte aligned. */
+    blk_size = ((blk_size & ~BOX_ALIGN_8) + 7) & ~7;
+    sizeof_bm = (sizeof (struct OS_BM) + 7) & ~7;
   }
   else {
     /* Memory blocks 4-byte aligned. */
-    blk_size = (blk_size + 3U) & ~(U32)3U;
+    blk_size = (blk_size + 3) & ~3;
     sizeof_bm = sizeof (struct OS_BM);
   }
-  if (blk_size == 0U) {
-    return (1U);
+  if (blk_size == 0) {
+    return (1);
   }
   if ((blk_size + sizeof_bm) > box_size) {
-    return (1U);
+    return (1);
   }
   /* Create a Memory structure. */
   blk = ((U8 *) box_mem) + sizeof_bm;
@@ -84,13 +84,13 @@ U32 _init_box  (void *box_mem, U32 box_size, U32 blk_size) {
   end = ((U8 *) end) - blk_size;
   while (1)  {
     next = ((U8 *) blk) + blk_size;
-    if (next > end) { break; }
+    if (next > end)  break;
     *((void **)blk) = next;
     blk = next;
   }
   /* end marker */
-  *((void **)blk) = 0U;
-  return (0U);
+  *((void **)blk) = 0;
+  return (0);
 }
 
 /*--------------------------- rt_alloc_box ----------------------------------*/
@@ -99,22 +99,22 @@ void *rt_alloc_box (void *box_mem) {
   /* Allocate a memory block and return start address. */
   void **free;
 #ifndef __USE_EXCLUSIVE_ACCESS
-  U32  irq_mask;
+  int  irq_dis;
 
 
 #if defined (__ICCARM__)
-  irq_mask = (U32)__disable_irq_iar();
+  irq_dis = __disable_irq_iar();
 #else
-  irq_mask = (U32)__disable_irq ();
+  irq_dis = __disable_irq ();
 #endif /* __ICCARM__ */
   free = ((P_BM) box_mem)->free;
   if (free) {
     ((P_BM) box_mem)->free = *free;
   }
-  if (irq_mask == 0U) { __enable_irq (); }
+  if (!irq_dis) __enable_irq ();
 #else
   do {
-    if ((free = (void **)__ldrex(&((P_BM) box_mem)->free)) == 0U) {
+    if ((free = (void **)__ldrex(&((P_BM) box_mem)->free)) == 0) {
       __clrex();
       break;
     }
@@ -135,8 +135,8 @@ void *_calloc_box (void *box_mem)  {
   free = _alloc_box (box_mem);
   if (free)  {
     p = free;
-    for (i = ((P_BM) box_mem)->blk_size; i; i -= 4U)  {
-      *p = 0U;
+    for (i = ((P_BM) box_mem)->blk_size; i; i -= 4)  {
+      *p = 0;
       p++;
     }
   }
@@ -146,36 +146,34 @@ void *_calloc_box (void *box_mem)  {
 
 /*--------------------------- rt_free_box -----------------------------------*/
 
-U32 rt_free_box (void *box_mem, void *box) {
+int rt_free_box (void *box_mem, void *box) {
   /* Free a memory block, returns 0 if OK, 1 if box does not belong to box_mem */
 #ifndef __USE_EXCLUSIVE_ACCESS
-  U32 irq_mask;
+  int irq_dis;
 #endif
 
-  if ((box < box_mem) || (box >= ((P_BM) box_mem)->end)) {
-    return (1U);
+  if (box < box_mem || box >= ((P_BM) box_mem)->end) {
+    return (1);
   }
 
 #ifndef __USE_EXCLUSIVE_ACCESS
 #if defined (__ICCARM__)
-  irq_mask = (U32)__disable_irq_iar();
+  irq_dis = __disable_irq_iar();
 #else
-  irq_mask = (U32)__disable_irq ();
+  irq_dis = __disable_irq ();
 #endif /* __ICCARM__ */
   *((void **)box) = ((P_BM) box_mem)->free;
   ((P_BM) box_mem)->free = box;
-  if (irq_mask == 0U) { __enable_irq (); }
+  if (!irq_dis) __enable_irq ();
 #else
   do {
-    do {
-      *((void **)box) = ((P_BM) box_mem)->free;
-      __DMB();
-    } while (*(void**)box != (void *)__ldrex(&((P_BM) box_mem)->free));
+    *((void **)box) = (void *)__ldrex(&((P_BM) box_mem)->free);
   } while (__strex ((U32)box, &((P_BM) box_mem)->free));
 #endif
-  return (0U);
+  return (0);
 }
 
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
+
