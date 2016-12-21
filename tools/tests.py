@@ -1004,6 +1004,11 @@ TESTS = [
         "source_dir": join(TEST_DIR, "usb", "device", "audio"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
     },
+    {
+        "id": "USB_8", "description": "AUDIO_CB",
+        "source_dir": join(TEST_DIR, "usb", "device", "audio_cb"),
+        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+    },
 
     # CMSIS DSP
     {
