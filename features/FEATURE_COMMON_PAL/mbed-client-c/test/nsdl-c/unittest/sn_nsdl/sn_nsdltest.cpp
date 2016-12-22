@@ -60,29 +60,9 @@ TEST(sn_nsdl, test_sn_nsdl_send_observation_notification)
     CHECK(test_sn_nsdl_send_observation_notification());
 }
 
-TEST(sn_nsdl, test_sn_nsdl_send_observation_notification_with_uri_path)
-{
-    CHECK(test_sn_nsdl_send_observation_notification_with_uri_path());
-}
-
 TEST(sn_nsdl, test_sn_nsdl_oma_bootstrap)
 {
     CHECK(test_sn_nsdl_oma_bootstrap());
-}
-
-TEST(sn_nsdl, test_sn_nsdl_get_certificates)
-{
-    CHECK(test_sn_nsdl_get_certificates());
-}
-
-TEST(sn_nsdl, test_sn_nsdl_update_certificates)
-{
-    CHECK(test_sn_nsdl_update_certificates());
-}
-
-TEST(sn_nsdl, test_sn_nsdl_create_oma_device_object)
-{
-    CHECK(test_sn_nsdl_create_oma_device_object());
 }
 
 TEST(sn_nsdl, test_sn_nsdl_get_version)
@@ -94,7 +74,6 @@ TEST(sn_nsdl, test_sn_nsdl_process_coap)
 {
     CHECK(test_sn_nsdl_process_coap());
 }
-
 
 TEST(sn_nsdl, test_sn_nsdl_exec)
 {
@@ -186,5 +165,17 @@ TEST(sn_nsdl, test_sn_nsdl_set_duplicate_buffer_size)
     CHECK(test_sn_nsdl_set_duplicate_buffer_size());
 }
 
+TEST(sn_nsdl, test_sn_nsdl_get_context)
+{
+    CHECK(test_sn_nsdl_get_context());
+}
 
+TEST(sn_nsdl, test_sn_nsdl_set_context)
+{
+    CHECK(test_sn_nsdl_set_context());
+}
 
+TEST(sn_nsdl, test_sn_nsdl_alloc_options_list)
+{
+    CHECK(test_sn_nsdl_alloc_options_list());
+}

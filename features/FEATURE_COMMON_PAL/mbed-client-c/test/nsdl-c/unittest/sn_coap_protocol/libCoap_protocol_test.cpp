@@ -84,8 +84,6 @@ TEST(libCoap_protocol, sn_coap_protocol_destroy)
     memset(msg_ptr, 0, sizeof(coap_send_msg_s));
     msg_ptr->send_msg_ptr = (sn_nsdl_transmit_s*)malloc(sizeof(sn_nsdl_transmit_s));
     memset(msg_ptr->send_msg_ptr, 0 , sizeof(sn_nsdl_transmit_s));
-    msg_ptr->send_msg_ptr->uri_path_ptr = (uint8_t*)malloc(2);
-    msg_ptr->send_msg_ptr->uri_path_len = 2;
 
     ns_list_add_to_end(&handle->linked_list_resent_msgs, msg_ptr);
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
@@ -384,24 +382,25 @@ TEST(libCoap_protocol, sn_coap_protocol_build)
     hdr2->options_list_ptr->use_size1 = true;
     hdr2->options_list_ptr->size1 = 0xFFFF01;
 
-    hdr2->payload_ptr = (uint8_t*)malloc(3);
+    int buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    hdr2->payload_ptr = (uint8_t*)malloc(buff_len);
 
     for( int i=0; i < 8; i++ ){
         retCounter = 1 + i;
         sn_coap_builder_stub.expectedInt16 = 1;
-        hdr2->payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+        hdr2->payload_len = buff_len;
         int8_t rett = sn_coap_protocol_build(handle, &addr, dst_packet_data_ptr, hdr2, NULL);
         CHECK( -2 == rett );
     }
 
     retCounter = 11;
     sn_coap_builder_stub.expectedInt16 = 1;
-    hdr2->payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    hdr2->payload_len = buff_len;
     CHECK( 1 == sn_coap_protocol_build(handle, &addr, dst_packet_data_ptr, hdr2, NULL));
 
     retCounter = 19;
     sn_coap_builder_stub.expectedInt16 = 1;
-    hdr2->payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    hdr2->payload_len = buff_len;
     CHECK( 1 == sn_coap_protocol_build(handle, &addr, dst_packet_data_ptr, hdr2, NULL));
 
     free(hdr2->payload_ptr);
@@ -450,7 +449,6 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 1;
     struct coap_s * handle = sn_coap_protocol_init(myMalloc, myFree, null_tx_cb, NULL);
-
     sn_nsdl_addr_s* addr = (sn_nsdl_addr_s*)malloc(sizeof(sn_nsdl_addr_s));
     memset(addr, 0, sizeof(sn_nsdl_addr_s));
 
@@ -582,7 +580,7 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
     memset(list, 0, sizeof(sn_coap_options_list_s));
     sn_coap_parser_stub.expectedHeader->options_list_ptr = list;
     sn_coap_parser_stub.expectedHeader->options_list_ptr->block1 = 1;
-    sn_coap_parser_stub.expectedHeader->msg_id = 4;
+    sn_coap_parser_stub.expectedHeader->msg_id = 5;
     sn_coap_parser_stub.expectedHeader->msg_type = COAP_MSG_TYPE_CONFIRMABLE;
     sn_coap_parser_stub.expectedHeader->msg_code = COAP_MSG_CODE_REQUEST_GET;
     payload = (uint8_t*)malloc(17);
@@ -843,12 +841,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    int buff_size = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_size);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 16;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_size;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -891,13 +890,14 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 21;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    int buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block1 = -1;
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 17;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
 
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
@@ -938,7 +938,8 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = UINT16_MAX;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
 //    tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
 //    memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
 //    tmp_hdr.options_list_ptr->block2 = 1;
@@ -1096,12 +1097,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 16;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1145,13 +1147,14 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 21;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block1 = -1;
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 17;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
 
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
@@ -1197,14 +1200,15 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->use_size2 = true;
     tmp_hdr.options_list_ptr->size2 = 0xFF01;
     tmp_hdr.msg_id = 18;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1350,11 +1354,12 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
 
     tmp_hdr.msg_id = 20;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1425,12 +1430,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 41;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1472,12 +1478,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 42;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1519,12 +1526,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 43;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1565,12 +1573,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 44;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1610,12 +1619,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 45;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1656,12 +1666,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 46;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1706,12 +1717,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 47;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1758,12 +1770,13 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 1;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(tmp_hdr.options_list_ptr, 0, sizeof(sn_coap_options_list_s));
     tmp_hdr.options_list_ptr->block2 = 1;
     tmp_hdr.msg_id = 47;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1942,10 +1955,11 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 5;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.msg_id = 18;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -1981,10 +1995,11 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 5;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.msg_id = 18;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     tmp_hdr.uri_path_ptr = (uint8_t*)malloc(7);
     snprintf((char *)tmp_hdr.uri_path_ptr, 7, "13/0/1");
     tmp_hdr.uri_path_len = 7;
@@ -2025,10 +2040,11 @@ TEST(libCoap_protocol, sn_coap_protocol_parse)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 5;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    buff_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_len);
     tmp_hdr.msg_id = 18;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_len;
     tmp_hdr.uri_path_ptr = (uint8_t*)malloc(7);
     snprintf((char *)tmp_hdr.uri_path_ptr, 7, "13/0/1");
     tmp_hdr.uri_path_len = 7;
@@ -2070,10 +2086,11 @@ TEST(libCoap_protocol, sn_coap_protocol_exec)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 5;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    int buff_size = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buff_size);
     tmp_hdr.msg_id = 18;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buff_size;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);
@@ -2136,10 +2153,11 @@ TEST(libCoap_protocol, sn_coap_protocol_exec2)
 
     retCounter = 20;
     sn_coap_builder_stub.expectedInt16 = 5;
-    tmp_hdr.payload_ptr = (uint8_t*)malloc(3);
+    int buf_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_ptr = (uint8_t*)malloc(buf_len);
     tmp_hdr.msg_id = 18;
     tmp_hdr.msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
-    tmp_hdr.payload_len = SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE + 20;
+    tmp_hdr.payload_len = buf_len;
     sn_coap_protocol_build(handle, &tmp_addr, dst_packet_data_ptr, &tmp_hdr, NULL);
 
     free(tmp_hdr.options_list_ptr);

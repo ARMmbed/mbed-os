@@ -78,6 +78,12 @@ bool test_sn_nsdl_set_block_size();
 
 bool test_sn_nsdl_set_duplicate_buffer_size();
 
+bool test_sn_nsdl_set_context();
+
+bool test_sn_nsdl_get_context();
+
+bool test_sn_nsdl_alloc_options_list();
+
 #ifdef __cplusplus
 }
 #endif

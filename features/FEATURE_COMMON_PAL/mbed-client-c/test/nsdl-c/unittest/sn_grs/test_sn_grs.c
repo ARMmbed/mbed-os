@@ -58,8 +58,9 @@ bool test_sn_grs_destroy()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
 
@@ -142,16 +143,25 @@ bool test_sn_grs_list_resource()
     }
 
     handle->resource_root_count = 0;
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(5);
-    res->pathlen = 5;
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(5);
+    res->static_resource_parameters->pathlen = 5;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
+
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
-    sn_nsdl_resource_info_s* res2 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res2, 0, sizeof(sn_nsdl_resource_info_s));
-    res2->path = (uint8_t*)malloc(4);
-    res2->pathlen = 4;
+    sn_nsdl_dynamic_resource_parameters_s* res2 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res2, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res2->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res2->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res2->static_resource_parameters->path = (uint8_t*)malloc(4);
+    res2->static_resource_parameters->pathlen = 4;
+    res2->free_on_delete = true;
+    res2->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res2);
     ++handle->resource_root_count;
     retCounter = 2;
@@ -203,8 +213,9 @@ bool test_sn_grs_get_first_resource()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
 
@@ -227,12 +238,14 @@ bool test_sn_grs_get_next_resource()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
-    sn_nsdl_resource_info_s* res2 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res2, 0, sizeof(sn_nsdl_resource_info_s));
+    sn_nsdl_dynamic_resource_parameters_s* res2 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res2, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res2->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res2);
     ++handle->resource_root_count;
 
@@ -259,23 +272,31 @@ bool test_sn_grs_delete_resource()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(2);
-    res->pathlen = 1;
-    res->path[0] = 'a';
-    res->path[1] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->pathlen = 1;
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
 
-    sn_nsdl_resource_info_s* res2 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res2, 0, sizeof(sn_nsdl_resource_info_s));
-    res2->path = (uint8_t*)malloc(4);
-    res2->pathlen = 3;
-    res2->path[0] = 'a';
-    res2->path[1] = '/';
-    res2->path[2] = '1';
-    res2->path[3] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res2 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res2, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res2->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res2->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res2->static_resource_parameters->path = (uint8_t*)malloc(4);
+    res2->static_resource_parameters->pathlen = 3;
+    res2->static_resource_parameters->path[0] = 'a';
+    res2->static_resource_parameters->path[1] = '/';
+    res2->static_resource_parameters->path[2] = '1';
+    res2->static_resource_parameters->path[3] = '\0';
+    res2->free_on_delete = true;
+    res2->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res2);
     ++handle->resource_root_count;
 
@@ -288,67 +309,87 @@ bool test_sn_grs_delete_resource()
         return false;
     }
 
-    sn_nsdl_resource_info_s* res3 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res3, 0, sizeof(sn_nsdl_resource_info_s));
-    res3->path = (uint8_t*)malloc(2);
-    res3->pathlen = 1;
-    res3->path[0] = 'a';
-    res3->path[1] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res3 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res3, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res3->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res3->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res3->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res3->static_resource_parameters->pathlen = 1;
+    res3->static_resource_parameters->path[0] = 'a';
+    res3->static_resource_parameters->path[1] = '\0';
+    res3->free_on_delete = true;
+    res3->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res3);
     ++handle->resource_root_count;
 
     /* a/1 */
-    sn_nsdl_resource_info_s* res4 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res4, 0, sizeof(sn_nsdl_resource_info_s));
-    res4->path = (uint8_t*)malloc(4);
-    res4->pathlen = 3;
-    res4->path[0] = 'a';
-    res4->path[1] = '/';
-    res4->path[2] = '1';
-    res4->path[3] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res4 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res4, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res4->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res4->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res4->static_resource_parameters->path = (uint8_t*)malloc(4);
+    res4->static_resource_parameters->pathlen = 3;
+    res4->static_resource_parameters->path[0] = 'a';
+    res4->static_resource_parameters->path[1] = '/';
+    res4->static_resource_parameters->path[2] = '1';
+    res4->static_resource_parameters->path[3] = '\0';
+    res4->free_on_delete = true;
+    res4->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res4);
     ++handle->resource_root_count;
 
     /* a/1/0 */
-    sn_nsdl_resource_info_s* res5 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res5, 0, sizeof(sn_nsdl_resource_info_s));
-    res5->path = (uint8_t*)malloc(6);
-    res5->pathlen = 5;
-    res5->path[0] = 'a';
-    res5->path[1] = '/';
-    res5->path[2] = '1';
-    res5->path[3] = '/';
-    res5->path[4] = '0';
-    res5->path[5] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res5 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res5, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res5->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res5->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res5->static_resource_parameters->path = (uint8_t*)malloc(6);
+    res5->static_resource_parameters->pathlen = 5;
+    res5->static_resource_parameters->path[0] = 'a';
+    res5->static_resource_parameters->path[1] = '/';
+    res5->static_resource_parameters->path[2] = '1';
+    res5->static_resource_parameters->path[3] = '/';
+    res5->static_resource_parameters->path[4] = '0';
+    res5->static_resource_parameters->path[5] = '\0';
+    res5->free_on_delete = true;
+    res5->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res5);
     ++handle->resource_root_count;
 
     /* a/10 */
-    sn_nsdl_resource_info_s* res6 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res6, 0, sizeof(sn_nsdl_resource_info_s));
-    res6->path = (uint8_t*)malloc(5);
-    res6->pathlen = 4;
-    res6->path[0] = 'a';
-    res6->path[1] = '/';
-    res6->path[2] = '1';
-    res6->path[3] = '0';
-    res6->path[4] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res6 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res6, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res6->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res6->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res6->static_resource_parameters->path = (uint8_t*)malloc(5);
+    res6->static_resource_parameters->pathlen = 4;
+    res6->static_resource_parameters->path[0] = 'a';
+    res6->static_resource_parameters->path[1] = '/';
+    res6->static_resource_parameters->path[2] = '1';
+    res6->static_resource_parameters->path[3] = '0';
+    res6->static_resource_parameters->path[4] = '\0';
+    res6->free_on_delete = true;
+    res6->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res6);
     ++handle->resource_root_count;
 
 
     /* a/10/0 */
-    sn_nsdl_resource_info_s* res7 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res7, 0, sizeof(sn_nsdl_resource_info_s));
-    res7->path = (uint8_t*)malloc(7);
-    res7->pathlen = 6;
-    res7->path[0] = 'a';
-    res7->path[1] = '/';
-    res7->path[2] = '1';
-    res7->path[3] = '0';
-    res7->path[4] = '/';
-    res7->path[5] = '0';
-    res7->path[6] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res7 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res7, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res7->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res7->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res7->static_resource_parameters->path = (uint8_t*)malloc(7);
+    res7->static_resource_parameters->pathlen = 6;
+    res7->static_resource_parameters->path[0] = 'a';
+    res7->static_resource_parameters->path[1] = '/';
+    res7->static_resource_parameters->path[2] = '1';
+    res7->static_resource_parameters->path[3] = '0';
+    res7->static_resource_parameters->path[4] = '/';
+    res7->static_resource_parameters->path[5] = '0';
+    res7->static_resource_parameters->path[6] = '\0';
+    res7->free_on_delete = true;
+    res7->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res7);
     ++handle->resource_root_count;
 
@@ -394,32 +435,43 @@ bool test_sn_grs_update_resource()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(2);
-    res->pathlen = 1;
-    res->path[0] = 'a';
-    res->path[1] = '\0';
-    res->resource = (uint8_t*)malloc(2);
-    res->resourcelen = 2;
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->pathlen = 1;
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->static_resource_parameters->resource = (uint8_t*)malloc(2);
+    res->static_resource_parameters->resourcelen = 2;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
-    sn_nsdl_resource_info_s* res2 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res2, 0, sizeof(sn_nsdl_resource_info_s));
-    res2->path = (uint8_t*)malloc(2);
-    res2->pathlen = 1;
-    res2->path[0] = 'b';
-    res2->path[1] = '\0';
+    sn_nsdl_dynamic_resource_parameters_s* res2 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res2, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res2->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res2->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res2->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res2->static_resource_parameters->pathlen = 1;
+    res2->static_resource_parameters->path[0] = 'b';
+    res2->static_resource_parameters->path[1] = '\0';
+    res2->free_on_delete = true;
+    res2->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res2);
     ++handle->resource_root_count;
 
-    sn_nsdl_resource_info_s* res3 = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res3, 0, sizeof(sn_nsdl_resource_info_s));
-    res3->path = (uint8_t*)malloc(2);
-    res3->pathlen = 1;
-    res3->path[0] = 't';
-    res3->path[1] = '\0';
-
+    sn_nsdl_dynamic_resource_parameters_s* res3 = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res3, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res3->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res3->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res3->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res3->static_resource_parameters->pathlen = 1;
+    res3->static_resource_parameters->path[0] = 't';
+    res3->static_resource_parameters->path[1] = '\0';
+    res3->free_on_delete = true;
+    res3->static_resource_parameters->free_on_delete = true;
     if( SN_NSDL_FAILURE != sn_grs_update_resource(handle, res3) ){
         return false;
     }
@@ -429,14 +481,15 @@ bool test_sn_grs_update_resource()
     }
 
     retCounter = 1;
-    res3->path[0] = 'a';
-    res3->resource = (uint8_t*)malloc(2);
-    res3->resourcelen = 2;
+    res3->static_resource_parameters->path[0] = 'a';
+    res3->static_resource_parameters->resource = (uint8_t*)malloc(2);
+    res3->static_resource_parameters->resourcelen = 2;
     if( SN_NSDL_SUCCESS != sn_grs_update_resource(handle, res3) ){
         return false;
     }
-    free(res3->resource);
-    free(res3->path);
+    free(res3->static_resource_parameters->resource);
+    free(res3->static_resource_parameters->path);
+    free(res3->static_resource_parameters);
     free(res3);
 
     sn_grs_destroy(handle);
@@ -454,29 +507,30 @@ bool test_sn_grs_create_resource()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->pathlen = 1;
-
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->pathlen = 1;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
     if( SN_GRS_INVALID_PATH != sn_grs_create_resource(handle, res) ){
         return false;
     }
 
-    res->path = (uint8_t*)malloc(2);
-    res->path[0] = 'a';
-    res->path[1] = '\0';
-    res->resource = (uint8_t*)malloc(2);
-    res->resource[0] = 'a';
-    res->resource[1] = '\0';
-    res->resourcelen = 1;
-    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
-    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->static_resource_parameters->resource = (uint8_t*)malloc(2);
+    res->static_resource_parameters->resource[0] = 'a';
+    res->static_resource_parameters->resource[1] = '\0';
+    res->static_resource_parameters->resourcelen = 1;
 
-    res->resource_parameters_ptr->resource_type_ptr = (uint8_t*)malloc(2);
-    memset(res->resource_parameters_ptr->resource_type_ptr, 0, 2);
+    res->static_resource_parameters->resource_type_ptr = malloc(2);
+    memset(res->static_resource_parameters->resource_type_ptr, 0, 2);
 
-    res->resource_parameters_ptr->interface_description_ptr = (uint8_t*)malloc(2);
-    memset(res->resource_parameters_ptr->interface_description_ptr, 0, 2);
+    res->static_resource_parameters->interface_description_ptr = (uint8_t*)malloc(2);
+    memset(res->static_resource_parameters->interface_description_ptr, 0, 2);
 
     if( SN_GRS_LIST_ADDING_FAILURE != sn_grs_create_resource(handle, res) ){
         return false;
@@ -532,27 +586,31 @@ bool test_sn_grs_put_resource()
     handle->sn_grs_alloc = myMalloc;
     handle->sn_grs_free = myFree;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->pathlen = 1;
-
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->pathlen = 1;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
     if( SN_GRS_INVALID_PATH != sn_grs_put_resource(handle, res) ){
         return false;
     }
 
-    uint8_t pa[2] = "a\0";
-    res->path = &pa;
-    uint8_t re[2] = "a\0";
-    res->resource = &re;
-    res->resourcelen = 1;
-    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
-    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
-
-    uint8_t rt[2];
-    res->resource_parameters_ptr->resource_type_ptr = &rt;
-
-    uint8_t ifp[2];
-    res->resource_parameters_ptr->interface_description_ptr = &ifp;
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->pathlen = 1;
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->static_resource_parameters->resource = (uint8_t*)malloc(2);
+    res->static_resource_parameters->resourcelen = 1;
+    res->static_resource_parameters->resource[0] = 'a';
+    res->static_resource_parameters->resource[1] = '\0';
+    res->static_resource_parameters->resource_type_ptr = (uint8_t*)malloc(2);
+    res->static_resource_parameters->resource_type_ptr[0] = 'a';
+    res->static_resource_parameters->resource_type_ptr[1] = '\0';
+    res->static_resource_parameters->interface_description_ptr = (uint8_t*)malloc(2);
+    res->static_resource_parameters->interface_description_ptr[0] = 'a';
+    res->static_resource_parameters->interface_description_ptr[1] = '\0';
 
     if( SN_NSDL_SUCCESS != sn_grs_put_resource(handle, res) ){
         return false;
@@ -561,7 +619,6 @@ bool test_sn_grs_put_resource()
     if( SN_GRS_RESOURCE_ALREADY_EXISTS != sn_grs_put_resource(handle, res) ){
         return false;
     }
-
 
     sn_grs_destroy(handle);
 
@@ -646,10 +703,11 @@ bool test_sn_grs_process_coap()
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
     hdr->msg_code = COAP_MSG_CODE_REQUEST_GET;
     hdr->msg_type = COAP_MSG_TYPE_RESET;
-    hdr->uri_path_ptr = (uint8_t*)malloc(2);
+    hdr->uri_path_ptr = (uint8_t*)calloc(2, 1);
     hdr->uri_path_len = 2;
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
-    hdr->payload_ptr = (uint8_t*)malloc(2);
+    hdr->payload_ptr = (uint8_t*)calloc(2, 1);
+    hdr->payload_len = 2;
 
     if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
@@ -660,25 +718,28 @@ bool test_sn_grs_process_coap()
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
     hdr->msg_code = COAP_MSG_CODE_REQUEST_POST;
     hdr->msg_type = COAP_MSG_TYPE_RESET;
-    hdr->uri_path_ptr = (uint8_t*)malloc(2);
+    hdr->uri_path_ptr = (uint8_t*)calloc(2, 1);
     hdr->uri_path_len = 2;
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
+    hdr->payload_len = 2;
 
     if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
     }
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(2);
-    res->pathlen = 1;
-    res->path[0] = 'a';
-    res->path[1] = '\0';
-    res->mode = SN_GRS_DYNAMIC;
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->pathlen = 1;
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->static_resource_parameters->mode = SN_GRS_DYNAMIC;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
     res->sn_grs_dyn_res_callback = &myResCallback;
-    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
-    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
     ns_list_add_to_start(&handle->grs->resource_root_list, res);
     ++handle->grs->resource_root_count;
 
@@ -714,7 +775,7 @@ bool test_sn_grs_process_coap()
         return false;
     }
 
-    res->mode = SN_GRS_STATIC;
+    res->static_resource_parameters->mode = SN_GRS_STATIC;
 
     hdr = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
@@ -905,17 +966,17 @@ bool test_sn_grs_process_coap()
     }
 
     //This tries to test dead code
-//    res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-//    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-//    res->path = (uint8_t*)malloc(2);
-//    res->pathlen = 1;
-//    res->path[0] = 'a';
-//    res->path[1] = '\0';
+//    res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+//    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+//    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+//    res->static_resource_parameters->pathlen = 1;
+//    res->static_resource_parameters->path[0] = 'a';
+//    res->static_resource_parameters->path[1] = '\0';
 //    res->mode = SN_GRS_STATIC;
 //    res->sn_grs_dyn_res_callback = &myResCallback;
-//    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
+//    res->static_resource_parameters->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
 //    res->access = SN_GRS_DELETE_ALLOWED;
-//    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
+//    memset(res->static_resource_parameters->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
 //    ns_list_add_to_start(&handle->grs->resource_root_list, res);
 //    ++handle->grs->resource_root_count;
 
@@ -939,6 +1000,7 @@ bool test_sn_grs_process_coap()
 
 //***********************************************
     // Test below if clause ->
+    retCounter = 0;
     hdr = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
     hdr->msg_code = 999;
@@ -956,6 +1018,7 @@ bool test_sn_grs_process_coap()
         return false;
     }
 
+    retCounter = 1;
     hdr = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
     hdr->msg_code = COAP_MSG_CODE_EMPTY;
@@ -977,18 +1040,21 @@ bool test_sn_grs_process_coap()
         return false;
     }
 
-    res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(2);
-    res->pathlen = 1;
-    res->path[0] = 'a';
-    res->path[1] = '\0';
-    res->mode = SN_GRS_STATIC;
+    res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->pathlen = 1;
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->static_resource_parameters->mode = SN_GRS_STATIC;
     res->sn_grs_dyn_res_callback = &myResCallback;
-    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
     res->access = SN_GRS_GET_ALLOWED;
-    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
-    res->resource_parameters_ptr->coap_content_type = 1;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
+    res->coap_content_type = 1;
     ns_list_add_to_start(&handle->grs->resource_root_list, res);
     ++handle->grs->resource_root_count;
 
@@ -1034,8 +1100,8 @@ bool test_sn_grs_process_coap()
         return false;
     }
 
-    res->resource = (uint8_t*)malloc(2);
-    res->resourcelen = 2;
+    res->static_resource_parameters->resource = (uint8_t*)malloc(2);
+    res->static_resource_parameters->resourcelen = 2;
 
     hdr = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
@@ -1162,13 +1228,17 @@ bool test_sn_grs_search_resource()
     }
 
     handle->resource_root_count = 0;
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(4);
-    res->path[0] = 'a';
-    res->path[1] = 'b';
-    res->path[2] = 'c';
-    res->pathlen = 3;
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(4);
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = 'b';
+    res->static_resource_parameters->path[2] = 'c';
+    res->static_resource_parameters->pathlen = 3;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
     ns_list_add_to_start(&handle->resource_root_list, res);
     ++handle->resource_root_count;
 
@@ -1176,8 +1246,8 @@ bool test_sn_grs_search_resource()
         return false;
     }
 
-    res->path[3] = '/';
-    res->pathlen = 4;
+    res->static_resource_parameters->path[3] = '/';
+    res->static_resource_parameters->pathlen = 4;
 
     if( NULL == sn_grs_search_resource(handle, 5, path, SN_GRS_DELETE_METHOD) ){
         return false;
@@ -1199,22 +1269,24 @@ bool test_sn_grs_mark_resources_as_registered()
     struct grs_s* grs = sn_grs_init(&myTxCallback, &myRxCallback, &myMalloc, &myFree);
     handle->grs = grs;
 
-    sn_nsdl_resource_info_s* res = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
-    memset(res, 0, sizeof(sn_nsdl_resource_info_s));
-    res->path = (uint8_t*)malloc(2);
-    res->pathlen = 1;
-    res->path[0] = 'a';
-    res->path[1] = '\0';
-    res->mode = SN_GRS_DYNAMIC;
+    sn_nsdl_dynamic_resource_parameters_s* res = (sn_nsdl_dynamic_resource_parameters_s*)malloc(sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    memset(res, 0, sizeof(sn_nsdl_dynamic_resource_parameters_s));
+    res->static_resource_parameters = (sn_nsdl_static_resource_parameters_s*)malloc(sizeof(sn_nsdl_static_resource_parameters_s));
+    memset(res->static_resource_parameters, 0, sizeof(sn_nsdl_static_resource_parameters_s));
+    res->static_resource_parameters->path = (uint8_t*)malloc(2);
+    res->static_resource_parameters->pathlen = 1;
+    res->static_resource_parameters->path[0] = 'a';
+    res->static_resource_parameters->path[1] = '\0';
+    res->static_resource_parameters->mode = SN_GRS_DYNAMIC;
     res->sn_grs_dyn_res_callback = &myResCallback;
-    res->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
-    memset(res->resource_parameters_ptr, 0, sizeof(sn_nsdl_resource_parameters_s));
-    res->resource_parameters_ptr->registered = SN_NDSL_RESOURCE_REGISTERING;
+    res->free_on_delete = true;
+    res->static_resource_parameters->free_on_delete = true;
+    res->registered = SN_NDSL_RESOURCE_REGISTERING;
     ns_list_add_to_start(&handle->grs->resource_root_list, res);
     ++handle->grs->resource_root_count;
 
     sn_grs_mark_resources_as_registered(handle);
-    if( SN_NDSL_RESOURCE_REGISTERED != res->resource_parameters_ptr->registered ){
+    if( SN_NDSL_RESOURCE_REGISTERED != res->registered ){
         return false;
     }
 

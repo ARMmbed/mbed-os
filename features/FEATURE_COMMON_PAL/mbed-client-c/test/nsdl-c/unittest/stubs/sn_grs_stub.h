@@ -26,7 +26,7 @@ typedef struct {
     int8_t expectedInt8;
     int8_t int8SuccessCounter;
     struct grs_s *expectedGrs;
-    sn_nsdl_resource_info_s *expectedInfo;
+    sn_nsdl_dynamic_resource_parameters_s *expectedInfo;
     sn_grs_resource_list_s *expectedList;
 
     bool useMockedPath;

@@ -159,7 +159,7 @@ TEST(libCoap_builder, build_message_options_uri_path)
 {
     coap_header.uri_path_ptr = temp;
     coap_header.uri_path_len = 2;
-    CHECK(sn_coap_builder(buffer, &coap_header) == 11);
+    CHECK(sn_coap_builder(buffer, &coap_header) == 14);
 }
 
 TEST(libCoap_builder, build_message_options_content_type)
@@ -318,19 +318,22 @@ TEST(libCoap_builder, sn_coap_builder_calc_needed_packet_data_size)
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 16);
 
     //proxy uri tests (4)
-    header.options_list_ptr->proxy_uri_ptr = (uint8_t*)malloc(270);
+    header.options_list_ptr->proxy_uri_ptr = (uint8_t*)malloc(1800);
     header.options_list_ptr->proxy_uri_len = 1800;
     header.options_list_ptr->max_age = COAP_OPTION_MAX_AGE_DEFAULT;
     header.options_list_ptr->accept = COAP_CT_NONE;
 
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
     header.options_list_ptr->proxy_uri_len = 6;
-    header.options_list_ptr->etag_ptr = (uint8_t*)malloc(6);
+    header.options_list_ptr->etag_ptr = (uint8_t*)malloc(4);
     header.options_list_ptr->etag_len = 0;
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
 
     header.options_list_ptr->proxy_uri_len = 14;
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
+
+    // init now the buffer up to 4 bytes, as it will be accessed
+    memset(header.options_list_ptr->etag_ptr, 0, 4);
 
     header.options_list_ptr->proxy_uri_len = 281;
     header.options_list_ptr->block1 = COAP_OPTION_BLOCK_NONE;
@@ -343,7 +346,7 @@ TEST(libCoap_builder, sn_coap_builder_calc_needed_packet_data_size)
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
 
     header.options_list_ptr->uri_host_len = 4;
-    header.options_list_ptr->location_path_ptr = (uint8_t*)malloc(6);
+    header.options_list_ptr->location_path_ptr = (uint8_t*)calloc(270, 1);
     header.options_list_ptr->location_path_len = 270;
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
 
@@ -357,7 +360,7 @@ TEST(libCoap_builder, sn_coap_builder_calc_needed_packet_data_size)
     header.options_list_ptr->uri_port = 6;
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 377);
 
-    header.options_list_ptr->location_query_ptr = (uint8_t*)malloc(6);
+    header.options_list_ptr->location_query_ptr = (uint8_t*)calloc(277, 1);
     header.options_list_ptr->location_query_len = 277;
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
 
@@ -372,6 +375,8 @@ TEST(libCoap_builder, sn_coap_builder_calc_needed_packet_data_size)
     header.options_list_ptr->uri_query_len = 0;
     CHECK(sn_coap_builder_calc_needed_packet_data_size(&header) == 0);
 
+    // init the 4 bytes to something useful, leave rest uninitialized to let valgrind warn if builder is processing past buffer
+    memset(header.options_list_ptr->uri_query_ptr, 0, 4);
     header.options_list_ptr->uri_query_len = 4;
     header.options_list_ptr->block2 = -1;
     header.options_list_ptr->observe = 0xFFFFFF22;

@@ -64,8 +64,6 @@ typedef struct sn_nsdl_transmit_ {
 
     uint16_t                packet_len;
     uint8_t                *packet_ptr;
-    uint8_t                *uri_path_ptr;
-    uint8_t                uri_path_len;
 } sn_nsdl_transmit_s;
 
 /* * * * * * * * * * * * * * * * * * * * * * */
