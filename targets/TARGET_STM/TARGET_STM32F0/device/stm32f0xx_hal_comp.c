@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -188,13 +188,13 @@
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "tSTART").                                                       */
 /* Unit: us                                                                   */
-#define LL_COMP_DELAY_STARTUP_US          ((uint32_t) 60U)  /*!< Delay for COMP startup time */
+#define LL_COMP_DELAY_STARTUP_US          (60U)  /*!< Delay for COMP startup time */
 
 /* CSR register reset value */ 
-#define COMP_CSR_RESET_VALUE            ((uint32_t)0x00000000)
+#define COMP_CSR_RESET_VALUE            (0x00000000U)
 /* CSR register masks */ 
-#define COMP_CSR_RESET_PARAMETERS_MASK   ((uint32_t)0x00003FFF)
-#define COMP_CSR_UPDATE_PARAMETERS_MASK  ((uint32_t)0x00003FFE)
+#define COMP_CSR_RESET_PARAMETERS_MASK   (0x00003FFFU)
+#define COMP_CSR_UPDATE_PARAMETERS_MASK  (0x00003FFEU)
 /* CSR COMPx non inverting input mask */ 
 #define COMP_CSR_COMPxNONINSEL_MASK      ((uint16_t)COMP_CSR_COMP1SW1)
 /* CSR COMP2 shift */ 
@@ -411,7 +411,7 @@ __weak void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp)
   */
 HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
 { 
-  uint32_t wait_loop_index = 0;
+  uint32_t wait_loop_index = 0U;
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t regshift = COMP_CSR_COMP1_SHIFT;
   
@@ -438,8 +438,8 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
       hcomp->State = HAL_COMP_STATE_BUSY;
       
       /* Delay for COMP startup time */
-      wait_loop_index = (LL_COMP_DELAY_STARTUP_US * (SystemCoreClock / 1000000));
-      while(wait_loop_index != 0)
+      wait_loop_index = (LL_COMP_DELAY_STARTUP_US * (SystemCoreClock / 1000000U));
+      while(wait_loop_index != 0U)
       {
         wait_loop_index--;
       }    
@@ -501,7 +501,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
 HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint32_t extiline = 0;
+  uint32_t extiline = 0U;
   
   /* Check the parameter */
   assert_param(IS_COMP_TRIGGERMODE(hcomp->Init.TriggerMode));
@@ -661,7 +661,7 @@ uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
   }
   level = READ_BIT(COMP->CSR, COMP_CSR_COMPxOUT << regshift);
   
-  if(level != 0)
+  if(level != 0U)
   {
     return(COMP_OUTPUTLEVEL_HIGH);
   }

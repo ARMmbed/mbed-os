@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of TIM HAL Extended module.
   ******************************************************************************
   * @attention
@@ -134,12 +134,12 @@ typedef struct
 /** @defgroup TIMEx_Clock_Clear_Input_Source TIMEx Clear Input Source
   * @{
   */
-#define TIM_CLEARINPUTSOURCE_NONE           ((uint32_t)0x00000000U)
-#define TIM_CLEARINPUTSOURCE_ETR            ((uint32_t)0x00000001U)
+#define TIM_CLEARINPUTSOURCE_NONE           (0x00000000U)
+#define TIM_CLEARINPUTSOURCE_ETR            (0x00000001U)
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined (STM32F098xx)
-#define TIM_CLEARINPUTSOURCE_OCREFCLR       ((uint32_t)0x00000002U)
+#define TIM_CLEARINPUTSOURCE_OCREFCLR       (0x00000002U)
 #endif /* STM32F051x8 || STM32F058xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || defined (STM32F098xx) */
@@ -161,7 +161,7 @@ typedef struct
                                   ((TIM_REMAP) == TIM_TIM14_HSE)       ||\
                                   ((TIM_REMAP) == TIM_TIM14_MCO))
 
-#define IS_TIM_DEADTIME(DEADTIME)      ((DEADTIME) <= 0xFF)          /*!< BreakDead Time */
+#define IS_TIM_DEADTIME(DEADTIME)      ((DEADTIME) <= 0xFFU)          /*!< BreakDead Time */
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \

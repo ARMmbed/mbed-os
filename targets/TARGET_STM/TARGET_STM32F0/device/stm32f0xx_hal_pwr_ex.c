@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -59,10 +59,10 @@
 /** @defgroup PWREx_Private_Constants PWREx Private Constants
   * @{
   */
-#define PVD_MODE_IT               ((uint32_t)0x00010000)
-#define PVD_MODE_EVT              ((uint32_t)0x00020000)
-#define PVD_RISING_EDGE           ((uint32_t)0x00000001)
-#define PVD_FALLING_EDGE          ((uint32_t)0x00000002)
+#define PVD_MODE_IT               (0x00010000U)
+#define PVD_MODE_EVT              (0x00020000U)
+#define PVD_RISING_EDGE           (0x00000001U)
+#define PVD_FALLING_EDGE          (0x00000002U)
 /**
   * @}
   */
