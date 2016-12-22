@@ -2,25 +2,25 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C Extended peripheral:
   *           + Extended features functions
-  *         
+  *
   @verbatim
   ==============================================================================
                ##### I2C peripheral Extended features  #####
   ==============================================================================
-           
+
   [..] Comparing to other previous devices, the I2C interface for STM32F0xx
        devices contains the following additional features
-       
+
        (+) Possibility to disable or enable Analog Noise Filter
        (+) Use of a configured Digital Noise Filter
        (+) Disable or enable wakeup from Stop mode
-   
+
                      ##### How to use this driver #####
   ==============================================================================
   [..] This driver provides functions to configure Noise Filter and Wake Up Feature
@@ -31,7 +31,7 @@
           (++) HAL_I2CEx_DisableWakeUp()
     (#) Configure the enable or disable of fast mode plus driving capability using the functions :
           (++) HAL_I2CEx_EnableFastModePlus()
-          (++) HAL_I2CEx_DisbleFastModePlus()
+          (++) HAL_I2CEx_DisableFastModePlus()
   @endverbatim
   ******************************************************************************
   * @attention
@@ -60,7 +60,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -90,11 +90,11 @@
 
 /** @defgroup I2CEx_Exported_Functions_Group1 Extended features functions
   * @brief    Extended features functions
-  *
-@verbatim   
+ *
+@verbatim
  ===============================================================================
                       ##### Extended features functions #####
- ===============================================================================  
+ ===============================================================================
     [..] This section provides functions allowing to:
       (+) Configure Noise Filters 
       (+) Configure Wake Up Feature
@@ -102,9 +102,9 @@
 @endverbatim
   * @{
   */
-  
+
 /**
-  * @brief  Configure I2C Analog noise filter. 
+  * @brief  Configure I2C Analog noise filter.
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
   *                the configuration information for the specified I2Cx peripheral.
   * @param  AnalogFilter New state of the Analog filter.
@@ -115,31 +115,31 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t
   /* Check the parameters */
   assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
   assert_param(IS_I2C_ANALOG_FILTER(AnalogFilter));
-  
+
   if(hi2c->State == HAL_I2C_STATE_READY)
-  { 
+  {
     /* Process Locked */
     __HAL_LOCK(hi2c);
-    
+
     hi2c->State = HAL_I2C_STATE_BUSY;
-    
+
     /* Disable the selected I2C peripheral */
-    __HAL_I2C_DISABLE(hi2c);    
-    
+    __HAL_I2C_DISABLE(hi2c);
+
     /* Reset I2Cx ANOFF bit */
-    hi2c->Instance->CR1 &= ~(I2C_CR1_ANFOFF);    
-    
+    hi2c->Instance->CR1 &= ~(I2C_CR1_ANFOFF);
+
     /* Set analog filter bit*/
     hi2c->Instance->CR1 |= AnalogFilter;
-    
-    __HAL_I2C_ENABLE(hi2c); 
-    
+
+    __HAL_I2C_ENABLE(hi2c);
+
     hi2c->State = HAL_I2C_STATE_READY;
-    
+
     /* Process Unlocked */
     __HAL_UNLOCK(hi2c);
-    
-    return HAL_OK; 
+
+    return HAL_OK;
   }
   else
   {
@@ -148,58 +148,58 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t
 }
 
 /**
-  * @brief  Configure I2C Digital noise filter. 
+  * @brief  Configure I2C Digital noise filter.
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
   *                the configuration information for the specified I2Cx peripheral.
-  * @param  DigitalFilter Coefficient of digital noise filter between 0x00 and 0x0F.
+  * @param  DigitalFilter Coefficient of digital noise filter between Min_Data=0x00 and Max_Data=0x0F.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter)
 {
   uint32_t tmpreg = 0U;
-  
+
   /* Check the parameters */
   assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
   assert_param(IS_I2C_DIGITAL_FILTER(DigitalFilter));
-  
+
   if(hi2c->State == HAL_I2C_STATE_READY)
-  { 
+  {
     /* Process Locked */
     __HAL_LOCK(hi2c);
-    
+
     hi2c->State = HAL_I2C_STATE_BUSY;
-    
+
     /* Disable the selected I2C peripheral */
-    __HAL_I2C_DISABLE(hi2c);  
-    
+    __HAL_I2C_DISABLE(hi2c);
+
     /* Get the old register value */
     tmpreg = hi2c->Instance->CR1;
-    
+
     /* Reset I2Cx DNF bits [11:8] */
     tmpreg &= ~(I2C_CR1_DNF);
-    
+
     /* Set I2Cx DNF coefficient */
     tmpreg |= DigitalFilter << 8U;
-    
+
     /* Store the new register value */
     hi2c->Instance->CR1 = tmpreg;
-    
-    __HAL_I2C_ENABLE(hi2c); 
-    
+
+    __HAL_I2C_ENABLE(hi2c);
+
     hi2c->State = HAL_I2C_STATE_READY;
-    
+
     /* Process Unlocked */
     __HAL_UNLOCK(hi2c);
-    
+
     return HAL_OK;
   }
   else
   {
     return HAL_BUSY;
   }
-}  
+}
+#if defined(I2C_CR1_WUPEN)
 
-#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)
 /**
   * @brief  Enable I2C wakeup from stop mode.
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
@@ -210,35 +210,34 @@ HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp (I2C_HandleTypeDef *hi2c)
 {
   /* Check the parameters */
   assert_param(IS_I2C_WAKEUP_FROMSTOP_INSTANCE(hi2c->Instance));
-  
+
   if(hi2c->State == HAL_I2C_STATE_READY)
-  { 
+  {
     /* Process Locked */
     __HAL_LOCK(hi2c);
-    
+
     hi2c->State = HAL_I2C_STATE_BUSY;
-    
+
     /* Disable the selected I2C peripheral */
-    __HAL_I2C_DISABLE(hi2c);  
-    
+    __HAL_I2C_DISABLE(hi2c);
+
     /* Enable wakeup from stop mode */
-    hi2c->Instance->CR1 |= I2C_CR1_WUPEN;   
-    
-    __HAL_I2C_ENABLE(hi2c); 
-    
+    hi2c->Instance->CR1 |= I2C_CR1_WUPEN;
+
+    __HAL_I2C_ENABLE(hi2c);
+
     hi2c->State = HAL_I2C_STATE_READY;
-    
+
     /* Process Unlocked */
     __HAL_UNLOCK(hi2c);
-    
+
     return HAL_OK;
   }
   else
   {
     return HAL_BUSY;
   }
-}  
-
+}
 
 /**
   * @brief  Disable I2C wakeup from stop mode.
@@ -250,50 +249,57 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c)
 {
   /* Check the parameters */
   assert_param(IS_I2C_WAKEUP_FROMSTOP_INSTANCE(hi2c->Instance));
-  
+
   if(hi2c->State == HAL_I2C_STATE_READY)
-  { 
+  {
     /* Process Locked */
     __HAL_LOCK(hi2c);
-    
+
     hi2c->State = HAL_I2C_STATE_BUSY;
-    
+
     /* Disable the selected I2C peripheral */
-    __HAL_I2C_DISABLE(hi2c);  
-    
+    __HAL_I2C_DISABLE(hi2c);
+
     /* Enable wakeup from stop mode */
-    hi2c->Instance->CR1 &= ~(I2C_CR1_WUPEN);   
-    
+    hi2c->Instance->CR1 &= ~(I2C_CR1_WUPEN);
+
     __HAL_I2C_ENABLE(hi2c); 
-    
+
     hi2c->State = HAL_I2C_STATE_READY;
-    
+
     /* Process Unlocked */
     __HAL_UNLOCK(hi2c);
-    
-    return HAL_OK; 
+
+    return HAL_OK;
   }
   else
   {
     return HAL_BUSY;
   }
-}  
-#endif /* !(STM32F030x6) && !(STM32F030x8) && !(STM32F070x6) && !(STM32F070xB) && !(STM32F030xC) */
+}
+#endif
 
 /**
   * @brief Enable the I2C fast mode plus driving capability.
   * @param ConfigFastModePlus Selects the pin.
   *   This parameter can be one of the @ref I2CEx_FastModePlus values
+  * @note  For I2C1, fast mode plus driving capability can be enabled on all selected
+  *        I2C1 pins using I2C_FASTMODEPLUS_I2C1 parameter or independently
+  *        on each one of the following pins PB6, PB7, PB8 and PB9.
+  * @note  For remaining I2C1 pins (PA14, PA15...) fast mode plus driving capability
+  *        can be enabled only by using I2C_FASTMODEPLUS_I2C1 parameter.
+  * @note  For all I2C2 pins fast mode plus driving capability can be enabled
+  *        only by using I2C_FASTMODEPLUS_I2C2 parameter.
   * @retval None
   */
 void HAL_I2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus)
 {
   /* Check the parameter */
   assert_param(IS_I2C_FASTMODEPLUS(ConfigFastModePlus));
-  
+
   /* Enable SYSCFG clock */
   __HAL_RCC_SYSCFG_CLK_ENABLE();
-  
+
   /* Enable fast mode plus driving capability for selected pin */
   SET_BIT(SYSCFG->CFGR1, (uint32_t)ConfigFastModePlus);
 }
@@ -302,13 +308,20 @@ void HAL_I2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus)
   * @brief Disable the I2C fast mode plus driving capability.
   * @param ConfigFastModePlus Selects the pin.
   *   This parameter can be one of the @ref I2CEx_FastModePlus values
+  * @note  For I2C1, fast mode plus driving capability can be disabled on all selected
+  *        I2C1 pins using I2C_FASTMODEPLUS_I2C1 parameter or independently
+  *        on each one of the following pins PB6, PB7, PB8 and PB9.
+  * @note  For remaining I2C1 pins (PA14, PA15...) fast mode plus driving capability
+  *        can be disabled only by using I2C_FASTMODEPLUS_I2C1 parameter.
+  * @note  For all I2C2 pins fast mode plus driving capability can be disabled
+  *        only by using I2C_FASTMODEPLUS_I2C2 parameter.
   * @retval None
   */
 void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
 {
   /* Check the parameter */
   assert_param(IS_I2C_FASTMODEPLUS(ConfigFastModePlus));
-  
+
   /* Enable SYSCFG clock */
   __HAL_RCC_SYSCFG_CLK_ENABLE();
 
@@ -318,7 +331,7 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
 
 /**
   * @}
-  */  
+  */
 
 /**
   * @}

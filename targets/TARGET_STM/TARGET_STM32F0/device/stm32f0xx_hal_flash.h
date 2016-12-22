@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
@@ -57,7 +57,7 @@
 /** @addtogroup FLASH_Private_Constants
   * @{
   */
-#define FLASH_TIMEOUT_VALUE   ((uint32_t)50000U) /* 50 s */
+#define FLASH_TIMEOUT_VALUE      (50000U) /* 50 s */
 /**
   * @}
   */
@@ -87,12 +87,12 @@
   */
 typedef enum 
 {
-  FLASH_PROC_NONE              = 0, 
-  FLASH_PROC_PAGEERASE         = 1,
-  FLASH_PROC_MASSERASE         = 2,
-  FLASH_PROC_PROGRAMHALFWORD   = 3,
-  FLASH_PROC_PROGRAMWORD       = 4,
-  FLASH_PROC_PROGRAMDOUBLEWORD = 5
+  FLASH_PROC_NONE              = 0U, 
+  FLASH_PROC_PAGEERASE         = 1U,
+  FLASH_PROC_MASSERASE         = 2U,
+  FLASH_PROC_PROGRAMHALFWORD   = 3U,
+  FLASH_PROC_PROGRAMWORD       = 4U,
+  FLASH_PROC_PROGRAMDOUBLEWORD = 5U
 } FLASH_ProcedureTypeDef;
 
 /** 
@@ -138,9 +138,9 @@ typedef struct
 /** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */ 
-#define FLASH_TYPEPROGRAM_HALFWORD   ((uint32_t)0x01U)  /*!<Program a half-word (16-bit) at a specified address.*/
-#define FLASH_TYPEPROGRAM_WORD       ((uint32_t)0x02U)  /*!<Program a word (32-bit) at a specified address.*/
-#define FLASH_TYPEPROGRAM_DOUBLEWORD ((uint32_t)0x03U)  /*!<Program a double word (64-bit) at a specified address*/
+#define FLASH_TYPEPROGRAM_HALFWORD   (0x01U)  /*!<Program a half-word (16-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAM_WORD       (0x02U)  /*!<Program a word (32-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAM_DOUBLEWORD (0x03U)  /*!<Program a double word (64-bit) at a specified address*/
 
 /**
   * @}
@@ -149,7 +149,7 @@ typedef struct
 /** @defgroup FLASH_Latency FLASH Latency
   * @{
   */ 
-#define FLASH_LATENCY_0            ((uint32_t)0x00000000U)    /*!< FLASH Zero Latency cycle */
+#define FLASH_LATENCY_0            (0x00000000U)    /*!< FLASH Zero Latency cycle */
 #define FLASH_LATENCY_1            FLASH_ACR_LATENCY         /*!< FLASH One Latency cycle */
 
 /**
