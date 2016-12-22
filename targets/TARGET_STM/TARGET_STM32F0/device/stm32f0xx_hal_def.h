@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -56,10 +56,10 @@
   */  
 typedef enum 
 {
-  HAL_OK       = 0x00,
-  HAL_ERROR    = 0x01,
-  HAL_BUSY     = 0x02,
-  HAL_TIMEOUT  = 0x03
+  HAL_OK       = 0x00U,
+  HAL_ERROR    = 0x01U,
+  HAL_BUSY     = 0x02U,
+  HAL_TIMEOUT  = 0x03U
 } HAL_StatusTypeDef;
 
 /** 
@@ -67,8 +67,8 @@ typedef enum
   */
 typedef enum 
 {
-  HAL_UNLOCKED = 0x00,
-  HAL_LOCKED   = 0x01  
+  HAL_UNLOCKED = 0x00U,
+  HAL_LOCKED   = 0x01U  
 } HAL_LockTypeDef;
 
 /* Exported macro ------------------------------------------------------------*/
