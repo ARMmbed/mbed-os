@@ -112,6 +112,15 @@ public:
     nsapi_size_or_error_t recvfrom(SocketAddress *address,
             void *data, nsapi_size_t size);
 
+    /** Set broadcast packet behaviour
+     *
+     *  Initially all sockets ignore broadcast packets.
+     *  Setting broadcast to true enable the reception of broadcast packets.
+     *
+     *  @param broadcast    true to enable or false to disable broadcast
+     *                      packets reception
+     *  @return             nsapi_error_t on error or 0 if sucessfull
+     */
     nsapi_error_t set_broadcast(bool broadcast);
 
 protected:
