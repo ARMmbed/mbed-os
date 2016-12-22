@@ -59,36 +59,32 @@
 
 using namespace utest::v1;
 
-/* FSFAT_SDCARD_INSTALLTED
+/* DEVICE_SPI
+ *  This symbol is defined in targets.json if the target has a SPI interface, which is required for SDCard support.
+ * FSFAT_SDCARD_INSTALLTED
  *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  */
-#ifdef FSFAT_SDCARD_INSTALLED
-
+/* #define FSFAT_SDCARD_INSTALLED */
+#if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 #if defined(TARGET_KL25Z)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_K64F) || defined(TARGET_K66F)
 SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_K22F)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_K20D50M)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_nRF51822)
 SDFileSystem sd(p12, p13, p15, p14, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
@@ -105,37 +101,28 @@ SDFileSystem sd(p12, p13, p15, p14, "sd");
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
-
 
 #elif defined(TARGET_DISCO_F051R8) || \
       defined(TARGET_NUCLEO_L031K6)
 SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC2368)
 SDFileSystem sd(p11, p12, p13, p14, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC11U68)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC1549)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_RZ_A1H)
 SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #elif defined(TARGET_LPC11U37H_401)
 SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
 
 #else
-SDFileSystem sd(p11, p12, p13, p14, "sd");
-/* #define FSFAT_SDCARD_INSTALLED */
+#error "[NOT SUPPORTED] Instantiate SDFileSystem sd(p11, p12, p13, p14, "sd") with the correct pin specification for target"
 #endif
 
 
@@ -414,7 +401,7 @@ static control_t fsfat_basic_test_dummy()
     return CaseNext;
 }
 
-#endif  /* FSFAT_SDCARD_INSTALLED */
+#endif  /* defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED) */
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
