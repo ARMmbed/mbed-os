@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -76,7 +76,7 @@
   /* prescaler 4.                                                             */
   /* Unit: ms                                                                 */
   #define ADC_DISABLE_TIMEOUT           2
-  #define ADC_CALIBRATION_TIMEOUT       2      
+  #define ADC_CALIBRATION_TIMEOUT       2U      
 /**
   * @}
   */
@@ -115,7 +115,7 @@
 HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
-  uint32_t tickstart=0;
+  uint32_t tickstart=0U;
   
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));

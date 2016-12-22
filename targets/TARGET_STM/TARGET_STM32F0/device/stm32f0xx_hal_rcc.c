@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -76,7 +76,7 @@
   *
   ******************************************************************************  
 */
-  
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 
@@ -237,7 +237,7 @@ void HAL_RCC_DeInit(void)
   
   /* Reset HSEBYP bit */
   CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
-  
+
   /* Reset CFGR register */
   CLEAR_REG(RCC->CFGR);
   
@@ -270,18 +270,18 @@ void HAL_RCC_DeInit(void)
   */
 HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 {
-   uint32_t tickstart = 0;
+   uint32_t tickstart = 0U;
   
   /* Check the parameters */
   assert_param(RCC_OscInitStruct != NULL);
   assert_param(IS_RCC_OSCILLATORTYPE(RCC_OscInitStruct->OscillatorType));
-  
+
   /*------------------------------- HSE Configuration ------------------------*/ 
   if(((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_HSE) == RCC_OSCILLATORTYPE_HSE)
   {
     /* Check the parameters */
     assert_param(IS_RCC_HSE(RCC_OscInitStruct->HSEState));
-        
+
     /* When the HSE is used as system clock or clock source for PLL in these cases it is not allowed to be disabled */
     if((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_HSE) 
        || ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && (__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSE)))
@@ -726,7 +726,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   */
 HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t FLatency)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Check the parameters */
   assert_param(RCC_ClkInitStruct != NULL);
@@ -986,7 +986,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
 #endif
 void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_MCODiv)
 {
-  GPIO_InitTypeDef gpio = {0};
+  GPIO_InitTypeDef gpio = {0U};
 
   /* Check the parameters */
   assert_param(IS_RCC_MCO(RCC_MCOx));
@@ -1065,13 +1065,13 @@ void HAL_RCC_DisableCSS(void)
   */
 uint32_t HAL_RCC_GetSysClockFreq(void)
 {
-  const uint8_t aPLLMULFactorTable[16] = { 2,  3,  4,  5,  6,  7,  8,  9,
-                                         10, 11, 12, 13, 14, 15, 16, 16};
-  const uint8_t aPredivFactorTable[16] = { 1, 2,  3,  4,  5,  6,  7,  8,
-                                           9,10, 11, 12, 13, 14, 15, 16};
+  const uint8_t aPLLMULFactorTable[16] = { 2U,  3U,  4U,  5U,  6U,  7U,  8U,  9U,
+                                         10U, 11U, 12U, 13U, 14U, 15U, 16U, 16U};
+  const uint8_t aPredivFactorTable[16] = { 1U, 2U,  3U,  4U,  5U,  6U,  7U,  8U,
+                                           9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U};
 
-  uint32_t tmpreg = 0, prediv = 0, pllclk = 0, pllmul = 0;
-  uint32_t sysclockfreq = 0;
+  uint32_t tmpreg = 0U, prediv = 0U, pllclk = 0U, pllmul = 0U;
+  uint32_t sysclockfreq = 0U;
   
   tmpreg = RCC->CFGR;
   
@@ -1106,7 +1106,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
         pllclk = (HSI_VALUE / prediv) * pllmul;
 #else
         /* HSI used as PLL clock source : PLLCLK = HSI/2 * PLLMUL */
-        pllclk = (uint32_t)((HSI_VALUE >> 1) * pllmul);
+        pllclk = (uint32_t)((HSI_VALUE >> 1U) * pllmul);
 #endif
       }
       sysclockfreq = pllclk;

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -170,7 +170,7 @@
 /** @addtogroup RCC_Flag
   * @{
   */
-#define RCC_FLAG_HSI48RDY                ((uint8_t)((CR2_REG_INDEX << 5) | RCC_CR2_HSI48RDY_BitNumber))
+#define RCC_FLAG_HSI48RDY                ((uint8_t)((CR2_REG_INDEX << 5U) | RCC_CR2_HSI48RDY_BitNumber))
 /**
   * @}
   */
@@ -382,9 +382,9 @@
                                     ((_DIV_) == RCC_CRS_SYNC_DIV64) || ((_DIV_) == RCC_CRS_SYNC_DIV128))
 #define IS_RCC_CRS_SYNC_POLARITY(_POLARITY_) (((_POLARITY_) == RCC_CRS_SYNC_POLARITY_RISING) || \
                                               ((_POLARITY_) == RCC_CRS_SYNC_POLARITY_FALLING))
-#define IS_RCC_CRS_RELOADVALUE(_VALUE_) (((_VALUE_) <= 0xFFFF))
-#define IS_RCC_CRS_ERRORLIMIT(_VALUE_) (((_VALUE_) <= 0xFF))
-#define IS_RCC_CRS_HSI48CALIBRATION(_VALUE_) (((_VALUE_) <= 0x3F))
+#define IS_RCC_CRS_RELOADVALUE(_VALUE_) (((_VALUE_) <= 0xFFFFU))
+#define IS_RCC_CRS_ERRORLIMIT(_VALUE_) (((_VALUE_) <= 0xFFU))
+#define IS_RCC_CRS_HSI48CALIBRATION(_VALUE_) (((_VALUE_) <= 0x3FU))
 #define IS_RCC_CRS_FREQERRORDIR(_DIR_) (((_DIR_) == RCC_CRS_FREQERRORDIR_UP) || \
                                         ((_DIR_) == RCC_CRS_FREQERRORDIR_DOWN))
 #endif /* CRS */
@@ -633,64 +633,64 @@ typedef struct
   */
 #if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx)\
  || defined(STM32F030xC)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
 
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || 
           STM32F030xC */
 
 #if defined(STM32F070x6) || defined(STM32F070xB)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
-#define RCC_PERIPHCLK_USB              ((uint32_t)0x00020000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
+#define RCC_PERIPHCLK_USB              (0x00020000U)
 
 #endif /* STM32F070x6 || STM32F070xB */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_CEC              ((uint32_t)0x00000400)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
-#define RCC_PERIPHCLK_USB              ((uint32_t)0x00020000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_CEC              (0x00000400U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
+#define RCC_PERIPHCLK_USB              (0x00020000U)
 
 #endif /* STM32F042x6 || STM32F048xx */
 
 #if defined(STM32F051x8) || defined(STM32F058xx)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_CEC              ((uint32_t)0x00000400)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_CEC              (0x00000400U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
 
 #endif /* STM32F051x8 || STM32F058xx */
 
 #if defined(STM32F071xB)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_CEC              ((uint32_t)0x00000400)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_USART2           (0x00000002U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_CEC              (0x00000400U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
 
 #endif /* STM32F071xB */
 
 #if defined(STM32F072xB) || defined(STM32F078xx)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_CEC              ((uint32_t)0x00000400)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
-#define RCC_PERIPHCLK_USB              ((uint32_t)0x00020000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_USART2           (0x00000002U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_CEC              (0x00000400U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
+#define RCC_PERIPHCLK_USB              (0x00020000U)
 
 #endif /* STM32F072xB || STM32F078xx */
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
-#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
-#define RCC_PERIPHCLK_USART2           ((uint32_t)0x00000002)
-#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
-#define RCC_PERIPHCLK_CEC              ((uint32_t)0x00000400)
-#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
-#define RCC_PERIPHCLK_USART3           ((uint32_t)0x00040000)
+#define RCC_PERIPHCLK_USART1           (0x00000001U)
+#define RCC_PERIPHCLK_USART2           (0x00000002U)
+#define RCC_PERIPHCLK_I2C1             (0x00000020U)
+#define RCC_PERIPHCLK_CEC              (0x00000400U)
+#define RCC_PERIPHCLK_RTC              (0x00010000U)
+#define RCC_PERIPHCLK_USART3           (0x00040000U)
 
 #endif /* STM32F091xC || STM32F098xx */
 
@@ -717,7 +717,7 @@ typedef struct
 /** @defgroup RCCEx_USB_Clock_Source RCCEx USB Clock Source
   * @{
   */
-#define RCC_USBCLKSOURCE_NONE          ((uint32_t)0x00000000) /*!< USB clock disabled */
+#define RCC_USBCLKSOURCE_NONE          (0x00000000U) /*!< USB clock disabled */
 #define RCC_USBCLKSOURCE_PLL           RCC_CFGR3_USBSW_PLLCLK /*!< PLL clock (PLLCLK) selected as USB clock */
 
 /**
@@ -787,18 +787,18 @@ typedef struct
   
 #if defined(RCC_CFGR_MCOPRE)
 
-#define RCC_MCODIV_1                     ((uint32_t)0x00000000)
-#define RCC_MCODIV_2                     ((uint32_t)0x10000000)
-#define RCC_MCODIV_4                     ((uint32_t)0x20000000)
-#define RCC_MCODIV_8                     ((uint32_t)0x30000000)
-#define RCC_MCODIV_16                    ((uint32_t)0x40000000)
-#define RCC_MCODIV_32                    ((uint32_t)0x50000000)
-#define RCC_MCODIV_64                    ((uint32_t)0x60000000)
-#define RCC_MCODIV_128                   ((uint32_t)0x70000000)
+#define RCC_MCODIV_1                     (0x00000000U)
+#define RCC_MCODIV_2                     (0x10000000U)
+#define RCC_MCODIV_4                     (0x20000000U)
+#define RCC_MCODIV_8                     (0x30000000U)
+#define RCC_MCODIV_16                    (0x40000000U)
+#define RCC_MCODIV_32                    (0x50000000U)
+#define RCC_MCODIV_64                    (0x60000000U)
+#define RCC_MCODIV_128                   (0x70000000U)
 
 #else
 
-#define RCC_MCODIV_1                    ((uint32_t)0x00000000)
+#define RCC_MCODIV_1                    (0x00000000U)
 
 #endif /* RCC_CFGR_MCOPRE */
 
@@ -810,7 +810,7 @@ typedef struct
   * @{
   */
 
-#define RCC_LSEDRIVE_LOW                 ((uint32_t)0x00000000) /*!< Xtal mode lower driving capability */
+#define RCC_LSEDRIVE_LOW                 (0x00000000U) /*!< Xtal mode lower driving capability */
 #define RCC_LSEDRIVE_MEDIUMLOW           RCC_BDCR_LSEDRV_1      /*!< Xtal mode medium low driving capability */
 #define RCC_LSEDRIVE_MEDIUMHIGH          RCC_BDCR_LSEDRV_0      /*!< Xtal mode medium high driving capability */
 #define RCC_LSEDRIVE_HIGH                RCC_BDCR_LSEDRV        /*!< Xtal mode higher driving capability */
@@ -824,13 +824,13 @@ typedef struct
 /** @defgroup RCCEx_CRS_Status RCCEx CRS Status
   * @{
   */
-#define RCC_CRS_NONE      ((uint32_t)0x00000000)
-#define RCC_CRS_TIMEOUT   ((uint32_t)0x00000001)
-#define RCC_CRS_SYNCOK    ((uint32_t)0x00000002)
-#define RCC_CRS_SYNCWARN  ((uint32_t)0x00000004)
-#define RCC_CRS_SYNCERR   ((uint32_t)0x00000008)
-#define RCC_CRS_SYNCMISS  ((uint32_t)0x00000010)
-#define RCC_CRS_TRIMOVF   ((uint32_t)0x00000020)
+#define RCC_CRS_NONE      (0x00000000U)
+#define RCC_CRS_TIMEOUT   (0x00000001U)
+#define RCC_CRS_SYNCOK    (0x00000002U)
+#define RCC_CRS_SYNCWARN  (0x00000004U)
+#define RCC_CRS_SYNCERR   (0x00000008U)
+#define RCC_CRS_SYNCMISS  (0x00000010U)
+#define RCC_CRS_TRIMOVF   (0x00000020U)
 
 /**
   * @}

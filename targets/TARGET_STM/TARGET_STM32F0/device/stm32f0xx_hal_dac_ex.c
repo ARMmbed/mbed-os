@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   DAC HAL module driver.
   *          This file provides firmware functions to manage the extended 
   *          functionalities of the DAC peripheral.  
@@ -127,7 +127,7 @@ void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma);
   */
 HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel)
 {
-  uint32_t tmpreg1 = 0, tmpreg2 = 0;
+  uint32_t tmpreg1 = 0U, tmpreg2 = 0U;
 
   /* Check the DAC parameters */
   assert_param(IS_DAC_TRIGGER(sConfig->DAC_Trigger));
@@ -181,7 +181,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   */
 HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel)
 {
-  uint32_t tmpreg1 = 0, tmpreg2 = 0;
+  uint32_t tmpreg1 = 0U, tmpreg2 = 0U;
 
   /* Check the DAC parameters */
   assert_param(IS_DAC_TRIGGER(sConfig->DAC_Trigger));
@@ -362,7 +362,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
     
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -528,7 +528,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
     
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -876,12 +876,12 @@ void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma)
   */
 uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac)
 {
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   tmp |= hdac->Instance->DOR1;
 
   /* DAC channel 2 is present in DAC 1 */
-  tmp |= hdac->Instance->DOR2 << 16;
+  tmp |= hdac->Instance->DOR2 << 16U;
   
   /* Returns the DAC channel data output register value */
   return tmp;
@@ -900,7 +900,7 @@ uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac)
   */
 uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac)
 {
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   tmp |= hdac->Instance->DOR1;
   
@@ -1050,7 +1050,7 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t 
   */
 HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2)
 {  
-  uint32_t data = 0, tmp = 0;
+  uint32_t data = 0U, tmp = 0U;
   
   /* Check the parameters */
   assert_param(IS_DAC_ALIGN(Alignment));
@@ -1060,11 +1060,11 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   /* Calculate and set dual DAC data holding register value */
   if (Alignment == DAC_ALIGN_8B_R)
   {
-    data = ((uint32_t)Data2 << 8) | Data1; 
+    data = ((uint32_t)Data2 << 8U) | Data1; 
   }
   else
   {
-    data = ((uint32_t)Data2 << 16) | Data1;
+    data = ((uint32_t)Data2 << 16U) | Data1;
   }
   
   tmp = (uint32_t)hdac->Instance;

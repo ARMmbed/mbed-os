@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -70,18 +70,18 @@
   * @{
   */
 /** 
-  * @brief STM32F0xx HAL Driver version number V1.4.0
+  * @brief STM32F0xx HAL Driver version number V1.5.0
   */
 #define __STM32F0xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32F0xx_HAL_VERSION_SUB1   (0x04) /*!< [23:16] sub1 version */
+#define __STM32F0xx_HAL_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
 #define __STM32F0xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F0xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32F0xx_HAL_VERSION         ((__STM32F0xx_HAL_VERSION_MAIN << 24)\
-                                        |(__STM32F0xx_HAL_VERSION_SUB1 << 16)\
-                                        |(__STM32F0xx_HAL_VERSION_SUB2 << 8 )\
+#define __STM32F0xx_HAL_VERSION         ((__STM32F0xx_HAL_VERSION_MAIN << 24U)\
+                                        |(__STM32F0xx_HAL_VERSION_SUB1 << 16U)\
+                                        |(__STM32F0xx_HAL_VERSION_SUB2 << 8U )\
                                         |(__STM32F0xx_HAL_VERSION_RC))
 
-#define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
+#define IDCODE_DEVID_MASK    (0x00000FFFU)
 /**
   * @}
   */
@@ -238,10 +238,10 @@ __weak void HAL_MspDeInit(void)
 __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   /*Configure the SysTick to have interrupt in 1ms time basis*/
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000U);
 
   /*Configure the SysTick IRQ priority */
-  HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0U);
 
    /* Return function status */
   return HAL_OK;
@@ -312,7 +312,7 @@ __weak uint32_t HAL_GetTick(void)
   */
 __weak void HAL_Delay(__IO uint32_t Delay)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   tickstart = HAL_GetTick();
   while((HAL_GetTick() - tickstart) < Delay)
   {
@@ -367,7 +367,7 @@ uint32_t HAL_GetHalVersion(void)
   */
 uint32_t HAL_GetREVID(void)
 {
-   return((DBGMCU->IDCODE) >> 16);
+   return((DBGMCU->IDCODE) >> 16U);
 }
 
 /**
