@@ -22,9 +22,14 @@
 #ifndef MBED_SDFILESYSTEM_H
 #define MBED_SDFILESYSTEM_H
 
+/* If the target has no SPI support then SDCard is not supported */
+#ifdef DEVICE_SPI
+
 #include "mbed.h"
 #include "FATFileSystem.h"
 #include <stdint.h>
+
+
 
 /** Access the filesystem on an SD Card using SPI
  *
@@ -88,4 +93,6 @@ protected:
     bool _dbg;
 };
 
-#endif
+#endif  /* DEVICE_SPI */
+
+#endif  /* MBED_SDFILESYSTEM_H */

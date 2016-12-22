@@ -112,6 +112,10 @@
  * | 0xFE | data[0] | data[1] |        | data[n] | crc[15:8] | crc[7:0] |
  * +------+---------+---------+- -  - -+---------+-----------+----------+
  */
+
+/* If the target has no SPI support then SDCard is not supported */
+#ifdef DEVICE_SPI
+
 #include "SDFileSystem.h"
 #include "mbed_debug.h"
 
@@ -537,3 +541,5 @@ uint32_t SDFileSystem::_sd_sectors() {
     };
     return blocks;
 }
+
+#endif  /* DEVICE_SPI */
