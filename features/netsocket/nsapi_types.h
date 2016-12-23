@@ -164,22 +164,45 @@ typedef enum nsapi_protocol {
 } nsapi_protocol_t;
 
 /*  Enum of standardized stack option levels
+ *  for use with NetworkStack::setstackopt and getstackopt.
  *
- *  @enum nsapi_level_t
+ *  @enum nsapi_stack_level_t
  */
-typedef enum nsapi_level {
-    NSAPI_STACK,  /*!< Stack option level */
-    NSAPI_SOCKET, /*!< Socket option level */
-} nsapi_level_t;
+typedef enum nsapi_stack_level {
+    NSAPI_STACK     = 5000, /*!< Stack option level - see nsapi_stack_option_t for options */
+} nsapi_stack_level_t;
 
-/*  Enum of standardized stack options
+/*  Enum of standardized stack option names for level NSAPI_STACK
+ *  of NetworkStack::setstackopt and getstackopt.
  *
  *  These options may not be supported on all stacks, in which
- *  case NSAPI_ERROR_UNSUPPORTED may be returned from setsockopt.
+ *  case NSAPI_ERROR_UNSUPPORTED may be returned.
  *
- *  @enum nsapi_option_t
+ *  @enum nsapi_stack_option_t
  */
-typedef enum nsapi_option {
+typedef enum nsapi_stack_option {
+    NSAPI_IPV4_MRU, /*!< Sets/gets size of largest IPv4 fragmented datagram to reassemble */
+    NSAPI_IPV6_MRU, /*!< Sets/gets size of largest IPv6 fragmented datagram to reassemble */
+} nsapi_stack_option_t;
+
+/*  Enum of standardized socket option levels
+ *  for use with Socket::setsockopt and getsockopt.
+ *
+ *  @enum nsapi_socket_level_t
+ */
+typedef enum nsapi_socket_level {
+    NSAPI_SOCKET    = 7000, /*!< Socket option level - see nsapi_socket_option_t for options */
+} nsapi_socket_level_t;
+
+/*  Enum of standardized socket option names for level NSAPI_SOCKET
+ *  of Socket::setsockopt and getsockopt.
+ *
+ *  These options may not be supported on all stacks, in which
+ *  case NSAPI_ERROR_UNSUPPORTED may be returned.
+ *
+ *  @enum nsapi_socket_option_t
+ */
+typedef enum nsapi_socket_option {
     NSAPI_REUSEADDR, /*!< Allow bind to reuse local addresses */
     NSAPI_KEEPALIVE, /*!< Enables sending of keepalive messages */
     NSAPI_KEEPIDLE,  /*!< Sets timeout value to initiate keepalive */
@@ -187,7 +210,11 @@ typedef enum nsapi_option {
     NSAPI_LINGER,    /*!< Keeps close from returning until queues empty */
     NSAPI_SNDBUF,    /*!< Sets send buffer size */
     NSAPI_RCVBUF,    /*!< Sets recv buffer size */
-} nsapi_option_t;
+} nsapi_socket_option_t;
+
+/* Backwards compatibility - previously didn't distinguish stack and socket options */
+typedef nsapi_socket_level_t nsapi_level_t;
+typedef nsapi_socket_option_t nsapi_option_t;
 
 /** nsapi_wifi_ap structure
  *

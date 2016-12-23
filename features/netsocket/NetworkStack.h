@@ -68,28 +68,31 @@ public:
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
 
-    /*  Set stack-specific stack options
+    /*  Set stack options
      *
-     *  The setstackopt allow an application to pass stack-specific hints
-     *  to the underlying stack. For unsupported options,
-     *  NSAPI_ERROR_UNSUPPORTED is returned and the stack is unmodified.
+     *  setstackopt allows an application to pass stack-specific options
+     *  to the underlying stack using stack-specific level and option names,
+     *  or to request generic options using levels from nsapi_stack_level_t.
      *
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
+     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
+     *  and the stack is unmodified.
+     *
+     *  @param level    Stack-specific protocol level or nsapi_stack_level_t
+     *  @param optname  Level-specific option name
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t setstackopt(int level, int optname, const void *optval, unsigned optlen);
 
-    /*  Get stack-specific stack options
+    /*  Get stack options
      *
-     *  The getstackopt allow an application to retrieve stack-specific hints
-     *  from the underlying stack. For unsupported options,
-     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *  getstackopt allows an application to retrieve stack-specific options
+     *  to the underlying stack using stack-specific level and option names,
+     *  or to request generic options using levels from nsapi_stack_level_t.
      *
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
+     *  @param level    Stack-specific protocol level or nsapi_stack_level_t
+     *  @param optname  Level-specific option name
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
