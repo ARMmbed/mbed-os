@@ -19,8 +19,9 @@
 #include "pinmap.h"
 #include "nrf_drv_gpiote.h"
 
-
 #if defined(TARGET_MCU_NRF51822)
+    #define GPIO_PIN_COUNT 48
+#elif defined(TARGET_MCU_NRF51822)
     #define GPIO_PIN_COUNT 31
 #else
     #define GPIO_PIN_COUNT 32
@@ -36,7 +37,13 @@ typedef struct {
     bool         irq_rise     : 1;
 } gpio_cfg_t;
 
-uint32_t m_gpio_initialized;
+#if GPIO_PIN_COUNT > 32
+    typedef uint32_t gpio_mask_t;
+#else
+    typedef uint32_t gpio_mask_t;
+#endif
+
+gpio_mask_t m_gpio_initialized;
 gpio_cfg_t m_gpio_cfg[GPIO_PIN_COUNT];
 
 
@@ -46,7 +53,7 @@ gpio_cfg_t m_gpio_cfg[GPIO_PIN_COUNT];
 
 static gpio_irq_handler m_irq_handler;
 static uint32_t m_channel_ids[GPIO_PIN_COUNT] = {0};
-uint32_t m_gpio_irq_enabled;
+gpio_mask_t m_gpio_irq_enabled;
 
 
 static void gpiote_irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
@@ -54,7 +61,7 @@ static void gpiote_irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t a
     nrf_gpio_pin_sense_t sense =  nrf_gpio_pin_sense_get(pin);
     gpio_irq_event event = (sense == NRF_GPIO_PIN_SENSE_LOW) ? IRQ_RISE : IRQ_FALL;
     
-    if (m_gpio_irq_enabled & (1UL << pin)) {
+    if (m_gpio_irq_enabled & ((gpio_mask_t)1 << pin)) {
         if (((event == IRQ_RISE) && m_gpio_cfg[pin].irq_rise)
             || ((event == IRQ_FALL) && m_gpio_cfg[pin].irq_fall)) {
                 m_irq_handler(m_channel_ids[pin], event);
@@ -84,7 +91,7 @@ int gpio_read(gpio_t *obj)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
     if (m_gpio_cfg[obj->pin].direction == PIN_OUTPUT) {
-        return ((NRF_GPIO->OUTSET & (1UL << obj->pin)) ? 1 : 0);
+        return (nrf_gpio_pin_out_read(obj->pin) ? 1 : 0);
     } else {
         return nrf_gpio_pin_read(obj->pin);
     }
@@ -92,7 +99,7 @@ int gpio_read(gpio_t *obj)
 
 static void gpiote_pin_uninit(uint8_t pin)
 {
-    if (m_gpio_initialized & (1UL << pin)) {
+    if (m_gpio_initialized & ((gpio_mask_t)1 << pin)) {
         if ((m_gpio_cfg[pin].direction == PIN_OUTPUT) && (!m_gpio_cfg[pin].used_as_irq)) {
             nrf_drv_gpiote_out_uninit(pin);
         }
@@ -116,7 +123,7 @@ static void gpio_apply_config(uint8_t pin)
             if (m_gpio_cfg[pin].used_as_irq) {
                 cfg.pull = NRF_GPIO_PIN_PULLUP;
                 nrf_drv_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
-                if ((m_gpio_irq_enabled & (1 << pin))
+                if ((m_gpio_irq_enabled & ((gpio_mask_t)1 << pin))
                     && (m_gpio_cfg[pin].irq_rise || m_gpio_cfg[pin].irq_fall))
                 {
                     nrf_drv_gpiote_in_event_enable(pin, true);
@@ -142,10 +149,10 @@ static void gpio_apply_config(uint8_t pin)
             nrf_drv_gpiote_out_config_t cfg = GPIOTE_CONFIG_OUT_SIMPLE(m_gpio_cfg[pin].init_high);
             nrf_drv_gpiote_out_init(pin, &cfg);
         }
-        m_gpio_initialized |= (1UL << pin);
+        m_gpio_initialized |= ((gpio_mask_t)1 << pin);
     }
     else {
-        m_gpio_initialized &= ~(1UL << pin);
+        m_gpio_initialized &= ~((gpio_mask_t)1 << pin);
     }
 }
 
@@ -211,7 +218,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     gpio_cfg_t* cfg = &m_gpio_cfg[obj->ch];
     bool irq_enabled_before =
-        (m_gpio_irq_enabled & (1 << obj->ch)) &&
+        (m_gpio_irq_enabled & ((gpio_mask_t)1 << obj->ch)) &&
         (cfg->irq_rise || cfg->irq_fall);
 
     if (event == IRQ_RISE) {
@@ -235,7 +242,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-    m_gpio_irq_enabled |= (1 << obj->ch);
+    m_gpio_irq_enabled |= ((gpio_mask_t)1 << obj->ch);
     if (m_gpio_cfg[obj->ch].irq_rise || m_gpio_cfg[obj->ch].irq_fall) {
         nrf_drv_gpiote_in_event_enable(obj->ch, true);
     }
@@ -244,6 +251,6 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-    m_gpio_irq_enabled &= ~(1 << obj->ch);
+    m_gpio_irq_enabled &= ~((gpio_mask_t)1 << obj->ch);
     nrf_drv_gpiote_in_event_disable(obj->ch);
 }

@@ -29,7 +29,9 @@ void pin_mode(PinName pin, PinMode mode)
     MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t pin_number = (uint32_t)pin;
+    
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
 
-    NRF_GPIO->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_PULL_Msk;
-    NRF_GPIO->PIN_CNF[pin_number] |= (mode << GPIO_PIN_CNF_PULL_Pos);
+    reg->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_PULL_Msk;
+    reg->PIN_CNF[pin_number] |= (mode << GPIO_PIN_CNF_PULL_Pos);
 }

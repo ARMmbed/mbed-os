@@ -2312,7 +2312,7 @@
 // <e> TWI_ENABLED - nrf_drv_twi - TWI/TWIM peripheral driver
 //==========================================================
 #ifndef TWI_ENABLED
-#define TWI_ENABLED 1
+#define TWI_ENABLED 0
 #endif
 #if  TWI_ENABLED
 // <o> TWI_DEFAULT_CONFIG_FREQUENCY  - Frequency
@@ -2456,7 +2456,7 @@
 // <1=> Enabled 
 
 #ifndef UART_DEFAULT_CONFIG_HWFC
-#define UART_DEFAULT_CONFIG_HWFC 0
+#define UART_DEFAULT_CONFIG_HWFC 1
 #endif
 
 // <o> UART_DEFAULT_CONFIG_PARITY  - Parity
@@ -2488,7 +2488,7 @@
 // <268435456=> 57600 baud 
 
 #ifndef UART_DEFAULT_CONFIG_BAUDRATE
-#define UART_DEFAULT_CONFIG_BAUDRATE 30801920
+#define UART_DEFAULT_CONFIG_BAUDRATE 2576384
 #endif
 
 // <o> UART_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority

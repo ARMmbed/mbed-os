@@ -40,20 +40,18 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 
+static NRF_GPIO_Type * const m_ports[] = GPIO_REG_LIST;
+
+
 PinName port_pin(PortName port, int pin_n)
 {
-    (void) port;
-    return (PinName)(pin_n);
+    return NRF_GPIO_PIN_MAP(port, pin_n);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
     obj->port = port;
     obj->mask = mask;
-
-    obj->reg_out = &NRF_GPIO->OUT;
-    obj->reg_in  = &NRF_GPIO->IN;
-    obj->reg_cnf = NRF_GPIO->PIN_CNF;
 
     port_dir(obj, dir);
 }
@@ -72,11 +70,14 @@ void port_mode(port_t *obj, PinMode mode)
 void port_dir(port_t *obj, PinDirection dir)
 {
     int i;
+    
+    volatile uint32_t *reg_cnf = (volatile uint32_t*) m_ports[obj->port]->PIN_CNF;
+    
     switch (dir) {
     case PIN_INPUT:
         for (i = 0; i<31; i++) {
             if (obj->mask & (1 << i)) {
-                obj->reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                     | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                     | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
                                     | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
@@ -86,7 +87,7 @@ void port_dir(port_t *obj, PinDirection dir)
     case PIN_OUTPUT:
         for (i = 0; i<31; i++) {
             if (obj->mask & (1 << i)) {
-                obj->reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                     | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                     | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                     | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
@@ -99,10 +100,11 @@ void port_dir(port_t *obj, PinDirection dir)
 
 void port_write(port_t *obj, int value)
 {
-    *obj->reg_out = value;
+    m_ports[obj->port]->OUTSET = value & obj->mask;
+    m_ports[obj->port]->OUTCLR = (~value) & obj->mask;
 }
 
 int port_read(port_t *obj)
 {
-    return (*obj->reg_in);
+    return ((m_ports[obj->port]->IN) & obj->mask);
 }

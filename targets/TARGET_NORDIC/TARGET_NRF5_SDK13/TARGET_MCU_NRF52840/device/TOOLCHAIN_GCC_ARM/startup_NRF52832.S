@@ -106,6 +106,13 @@ __Vectors:
     .long   RTC2_IRQHandler_v
     .long   I2S_IRQHandler_v
     .long   FPU_IRQHandler_v
+    .long   USBD_IRQHandler_v
+    .long   UARTE1_IRQHandler_v
+    .long   QSPI_IRQHandler_v
+    .long   CRYPTOCELL_IRQHandler_v
+    .long   SPIM3_IRQHandler_v
+    .long   0                           /*Reserved */
+    .long   PWM3_IRQHandler_v
 
 
     .size    __Vectors, . - __Vectors
@@ -266,5 +273,11 @@ Default_Handler:
     IRQ  RTC2_IRQHandler_v
     IRQ  I2S_IRQHandler_v
     IRQ  FPU_IRQHandler_v
+    IRQ  USBD_IRQHandler_v
+    IRQ  UARTE1_IRQHandler_v
+    IRQ  QSPI_IRQHandler_v
+    IRQ  CRYPTOCELL_IRQHandler_v
+    IRQ  SPIM3_IRQHandler_v               
+    IRQ  PWM3_IRQHandler_v
     
   .end
