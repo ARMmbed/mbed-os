@@ -48,12 +48,17 @@
 #include "mbed.h"
 #include "SDFileSystem.h"
 #include "test_env.h"
-
+#include "fsfat_debug.h"
+#include "fsfat_test.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
 #include <stdio.h>
+/* FIXME: unistd.h needed for fsfat_basic_test_04 but this error is generated:
+ * [Error] unistd.h@185,10: conflicting declaration of C function 'unsigned int sleep(unsigned int)'
+ * #include <unistd.h>     // STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO
+ */
 #include <stdlib.h>
 #include <string.h>
 
@@ -66,6 +71,9 @@ using namespace utest::v1;
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  */
 /* #define FSFAT_SDCARD_INSTALLED */
+//todo: remove next 2 lines.
+#define FSFAT_SDCARD_INSTALLED
+#define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 #if defined(TARGET_KL25Z)
@@ -129,6 +137,8 @@ SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 #define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
 #define FSFAT_BASIC_TEST_01      fsfat_basic_test_01
 #define FSFAT_BASIC_TEST_02      fsfat_basic_test_02
+#define FSFAT_BASIC_TEST_03      fsfat_basic_test_03
+#define FSFAT_BASIC_TEST_04      fsfat_basic_test_04
 
 
 #define FSFAT_BASIC_MSG_BUF_SIZE              256
@@ -155,13 +165,16 @@ static char fsfat_basic_msg_g[FSFAT_BASIC_MSG_BUF_SIZE];
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t fsfat_basic_test_00() {
+static control_t fsfat_basic_test_00()
+{
 
     uint8_t data_written[FSFAT_BASIC_DATA_SIZE] = { 0 };
     bool result = false;
+    bool read_result = false;
 
     // Fill data_written buffer with random data
     // Write these data into the file
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
     bool write_result = false;
     {
         printf("SD: Writing ... ");
@@ -178,7 +191,6 @@ static control_t fsfat_basic_test_00() {
     }
 
     // Read back the data from the file and store them in data_read
-    bool read_result = false;
     {
         printf("SD: Reading data ... ");
         FILE *f = fopen(sd_file_path, "r");
@@ -206,11 +218,13 @@ extern int errno;
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t fsfat_basic_test_01() {
+static control_t fsfat_basic_test_01()
+{
     FILE *fp, *fp1;
     int i, j;
     int ret = 0;
 
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
     fp = fopen (sd_file_path, "w+");
     if (fp == NULL)	{
         printf("errno=%d\n", errno);
@@ -269,7 +283,8 @@ static control_t fsfat_basic_test_01() {
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-static control_t fsfat_basic_test_02() {
+static control_t fsfat_basic_test_02()
+{
     static const char hello[] = "Hello, world.\n";
     static const char replace[] = "Hewwo, world.\n";
     static const size_t replace_from = 2, replace_to = 4;
@@ -280,6 +295,7 @@ static control_t fsfat_basic_test_02() {
     int32_t ret = 0;
     char *rets = NULL;
 
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
     f = fopen(filename, "w+");
     if (f == NULL) {
         FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: Cannot open file for writing (filename=%s).\n", __func__, filename);
@@ -384,12 +400,92 @@ static control_t fsfat_basic_test_02() {
     return CaseNext;
 }
 
+/** @brief  temptest.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
+ *
+ * WARNING: this test does not currently work. See WARNING comments below.
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+static control_t fsfat_basic_test_03()
+{
+    char *fn;
+    FILE *fp;
+    char *files[500];
+    int i;
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    memset(files, 0, 500*sizeof(char*));
+    for (i = 0; i < 500; i++) {
+        fn = tmpnam((char *) NULL);
+
+        /* FIXME: tmpnam() doesnt currently generate a temporary filename
+         * re-instate the code below when it does.
+        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: failed to generate a temporary filename.\n", __func__);
+        TEST_ASSERT_MESSAGE(fn != NULL, fsfat_basic_msg_g);
+
+        files[i] = strdup(fn);
+        FSFAT_DBGLOG("%s:filename=%s\n", __func__, fn);
+        fp = fopen (fn, "w");
+        fclose(fp);
+         */
+    }
+
+    for (i = 0; i < 500; i++) {
+        if(files[i] != NULL) {
+            remove(files[i]);
+            free(files[i]);
+        }
+    }
+    return CaseNext;
+}
+
+
+static bool fsfat_basic_fileno_check(const char *name, FILE *stream, int fd)
+{
+    int sfd = fileno (stream);
+    FSFAT_DBGLOG("(fileno (%s) = %d) %c= %d\n", name, sfd, sfd == fd ? '=' : '!', fd);
+
+    if (sfd == fd) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/** @brief  tst-fileno.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
+ *
+ * WARNING: this test does not currently work. See WARNING comments below.
+ *
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+static control_t fsfat_basic_test_04()
+{
+    /* FIXME: unistd.h needed for STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO but this error is generated:
+     * [Error] unistd.h@185,10: conflicting declaration of C function 'unsigned int sleep(unsigned int)'
+    int ret = -1;
+    ret = fsfat_basic_fileno_check("stdin", stdin, STDIN_FILENO);
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdin does not have expected file number (expected=%d, fileno=%d.\n", __func__, stdin, fileno(stdin));
+    TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
+
+    ret = fsfat_basic_fileno_check("stdout", stdout, STDOUT_FILENO);
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdout does not have expected file number (expected=%d, fileno=%d.\n", __func__, stdout, fileno(stdout));
+    TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
+
+    ret = fsfat_basic_fileno_check("stderr", stderr, STDERR_FILENO);
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stderr does not have expected file number (expected=%d, fileno=%d.\n", __func__, stderr, fileno(stderr));
+    TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
+    */
+    return CaseNext;
+}
 
 #else
 
 #define FSFAT_BASIC_TEST_00      fsfat_basic_test_dummy
 #define FSFAT_BASIC_TEST_01      fsfat_basic_test_dummy
 #define FSFAT_BASIC_TEST_02      fsfat_basic_test_dummy
+#define FSFAT_BASIC_TEST_03      fsfat_basic_test_dummy
+#define FSFAT_BASIC_TEST_04      fsfat_basic_test_dummy
 
 /** @brief  fsfat_basic_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
  *
@@ -413,10 +509,13 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.", FSFAT_BASIC_TEST_00),
-        Case("FSFAT_test_01: fopen()/fseek()/fclose() test.", FSFAT_BASIC_TEST_01)
+        Case("FSFAT_BASIC_TEST_00: fopen()/fgetc()/fprintf()/fclose() test.", FSFAT_BASIC_TEST_00),
+        Case("FSFAT_BASIC_TEST_01: fopen()/fseek()/fclose() test.", FSFAT_BASIC_TEST_01)
         /* WARNING: Test case not working but currently not required for PAL support
-         * Case("FSFAT_test_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FSFAT_BASIC_TEST_02) */
+         * Case("FSFAT_BASIC_TEST_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FSFAT_BASIC_TEST_02)
+         * Case("FSFAT_BASIC_TEST_03: tmpnam() test.", FSFAT_BASIC_TEST_03)
+         * Case("FSFAT_BASIC_TEST_04: fileno() test.", FSFAT_BASIC_TEST_04)
+         */
 };
 
 
