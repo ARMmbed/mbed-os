@@ -69,6 +69,11 @@ __asm static void bootloader_util_reset(uint32_t start_addr)
     CMP   R5, #0x00             ; Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader.
     BNE   isr_abort             ; If not zero we need to exit current ISR and jump to reset handler of bootloader.
 
+    MRS   R1, CONTROL           ; Get CONTROL register value
+    MOVS  R2, #0x02             ; load 2 to r2
+    BICS  R1, R2                ; clear value of CONTROL->SPSEL - > make sure MSP will be used
+    MSR   CONTROL, R1           ; set the stack pointer to MSP
+
     MOV   LR, R4                ; Clear the link register and set to ones to ensure no return, R4 = 0xFFFFFFFF.
     BX    R0                    ; Branch to reset handler of bootloader.
 
@@ -105,6 +110,11 @@ static inline void bootloader_util_reset(uint32_t start_addr)
         "mrs   r5, IPSR\t\n"            // Load IPSR to R5 to check for handler or thread mode.
         "cmp   r5, #0x00\t\n"           // Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader.
         "bne   isr_abort\t\n"           // If not zero we need to exit current ISR and jump to reset handler of bootloader.
+
+        "mrs   r1, control\t\n"         // Get CONTROL register value
+        "movs  r2, #0x02\t\n"           // load 2 to r2
+        "bic   r1, r2\t\n"              // clear value of CONTROL->SPSEL - > make sure MSP will be used
+        "msr   control, r1\t\n"         // set the stack pointer to MSP
 
         "mov   lr, r4\t\n"              // Clear the link register and set to ones to ensure no return.
         "bx    r0\t\n"                  // Branch to reset handler of bootloader.
@@ -145,6 +155,11 @@ static inline void bootloader_util_reset(uint32_t start_addr)
         "cmp   r5, #0x00\n"                   // Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader.
         "bne.n isr_abort\n"                   // If not zero we need to exit current ISR and jump to reset handler of bootloader.
 
+        "mrs   r1, control\n"                 // Get CONTROL register value
+        "movs  r2, #0x02\n"                   // load 2 to r2
+        "bics  r1, r2\n"                      // clear value of CONTROL->SPSEL - > make sure MSP will be used
+        "msr   control, r1\n"                 // set the stack pointer to MSP
+        
         "mov   lr, r4\n"                      // Clear the link register and set to ones to ensure no return.
         "bx    r0\n"                          // Branch to reset handler of bootloader.
 
@@ -173,7 +188,14 @@ static inline void bootloader_util_reset(uint32_t start_addr)
 #endif
 
 
+#include "nrf.h"
+
 void bootloader_util_app_start(uint32_t start_addr)
 {
+#ifdef TARGET_MCU_NRF52
+    // kill systick
+    SysTick->CTRL  = 0;
+#endif    
+    
     bootloader_util_reset(start_addr);
 }
