@@ -119,21 +119,6 @@ uint16_t sn_nsdl_oma_bootstrap(struct nsdl_s *handle, sn_nsdl_addr_s *bootstrap_
     return sn_nsdl_stub.expectedUint16;
 }
 
-omalw_certificate_list_t *sn_nsdl_get_certificates(struct nsdl_s *handle)
-{
-    return NULL;
-}
-
-int8_t sn_nsdl_update_certificates(struct nsdl_s *handle, omalw_certificate_list_t *certificate_ptr, uint8_t certificate_chain)
-{
-    return sn_nsdl_stub.expectedInt8;
-}
-
-int8_t sn_nsdl_create_oma_device_object(struct nsdl_s *handle, sn_nsdl_oma_device_t *device_object_ptr)
-{
-    return sn_nsdl_stub.expectedInt8;
-}
-
 char *sn_nsdl_get_version(void)
 {
     return NULL;
@@ -150,7 +135,7 @@ int8_t sn_nsdl_exec(struct nsdl_s *handle, uint32_t time)
     return sn_nsdl_stub.expectedInt8;
 }
 
-sn_nsdl_resource_info_s *sn_nsdl_get_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path_ptr)
+sn_nsdl_dynamic_resource_parameters_s *sn_nsdl_get_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path_ptr)
 {
     return NULL;
 }
@@ -164,7 +149,7 @@ int8_t sn_nsdl_build_registration_body(struct nsdl_s *handle, sn_coap_hdr_s *mes
     return sn_nsdl_stub.expectedInt8;
 }
 
-int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint16_t port, sn_nsdl_addr_type_e address_type)
+int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type)
 {
     return sn_nsdl_stub.expectedInt8;
 }
@@ -184,7 +169,7 @@ void sn_nsdl_free_resource_list(struct nsdl_s *handle, sn_grs_resource_list_s *l
 {
 }
 
-extern int8_t sn_nsdl_update_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res)
+extern int8_t sn_nsdl_update_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
 {
     return sn_nsdl_stub.expectedInt8;
 }
@@ -194,12 +179,12 @@ extern int8_t sn_nsdl_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *a
     return sn_nsdl_stub.expectedInt8;
 }
 
-extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res)
+extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
 {
     return sn_nsdl_stub.expectedInt8;
 }
 
-extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res)
+extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
 {
     return sn_nsdl_stub.expectedInt8;
 }
@@ -209,12 +194,12 @@ extern int8_t sn_nsdl_delete_resource(struct nsdl_s *handle, uint16_t pathlen, u
     return sn_nsdl_stub.expectedInt8;
 }
 
-extern const sn_nsdl_resource_info_s *sn_nsdl_get_first_resource(struct nsdl_s *handle)
+extern const sn_nsdl_dynamic_resource_parameters_s *sn_nsdl_get_first_resource(struct nsdl_s *handle)
 {
     return NULL;
 }
 
-extern const sn_nsdl_resource_info_s *sn_nsdl_get_next_resource(struct nsdl_s *handle, const sn_nsdl_resource_info_s *resource)
+extern const sn_nsdl_dynamic_resource_parameters_s *sn_nsdl_get_next_resource(struct nsdl_s *handle, const sn_nsdl_dynamic_resource_parameters_s *resource)
 {
     return NULL;
 }

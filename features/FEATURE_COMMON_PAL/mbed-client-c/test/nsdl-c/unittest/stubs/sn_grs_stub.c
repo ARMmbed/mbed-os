@@ -78,7 +78,7 @@ extern void sn_grs_free_resource_list(struct grs_s *handle, sn_grs_resource_list
 }
 
 
-extern const sn_nsdl_resource_info_s *sn_grs_get_first_resource(struct grs_s *handle)
+extern sn_nsdl_dynamic_resource_parameters_s *sn_grs_get_first_resource(struct grs_s *handle)
 {
     if( sn_grs_stub.retNull ){
         return NULL;
@@ -96,7 +96,7 @@ extern const sn_nsdl_resource_info_s *sn_grs_get_first_resource(struct grs_s *ha
 }
 
 
-extern const sn_nsdl_resource_info_s *sn_grs_get_next_resource(struct grs_s *handle, const sn_nsdl_resource_info_s *sn_grs_current_resource)
+extern sn_nsdl_dynamic_resource_parameters_s *sn_grs_get_next_resource(struct grs_s *handle, const sn_nsdl_dynamic_resource_parameters_s *sn_grs_current_resource)
 {
     if( sn_grs_stub.retNull ){
         return NULL;
@@ -120,13 +120,13 @@ extern int8_t sn_grs_delete_resource(struct grs_s *handle, uint16_t pathlen, uin
 }
 
 
-extern int8_t sn_grs_update_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res)
+extern int8_t sn_grs_update_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
 {
     return sn_grs_stub.expectedInt8;
 }
 
 
-extern int8_t sn_grs_create_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res)
+extern int8_t sn_grs_create_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
 {
     if( sn_grs_stub.int8SuccessCounter > 0 ){
         sn_grs_stub.int8SuccessCounter--;
@@ -135,10 +135,19 @@ extern int8_t sn_grs_create_resource(struct grs_s *handle, sn_nsdl_resource_info
     return sn_grs_stub.expectedInt8;
 }
 
-int8_t sn_grs_put_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res)
+int8_t sn_grs_put_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
 {
     if( sn_grs_stub.int8SuccessCounter > 0 ){
         sn_grs_stub.int8SuccessCounter--;
+        return SN_NSDL_SUCCESS;
+    }
+    return sn_grs_stub.expectedInt8;
+}
+
+int8_t sn_grs_pop_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res)
+{
+    if( sn_grs_stub.int8SuccessCounter > 0 ){
+        sn_grs_stub.int8SuccessCounter++;
         return SN_NSDL_SUCCESS;
     }
     return sn_grs_stub.expectedInt8;
@@ -154,7 +163,7 @@ extern int8_t sn_grs_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *ad
     return sn_grs_stub.expectedInt8;
 }
 
-sn_nsdl_resource_info_s *sn_grs_search_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path, uint8_t search_method)
+sn_nsdl_dynamic_resource_parameters_s *sn_grs_search_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path, uint8_t search_method)
 {
     if(sn_grs_stub.useMockedPath){
         memcpy(path, &sn_grs_stub.mockedPath, sn_grs_stub.mockedPathLen);
