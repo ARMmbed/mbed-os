@@ -94,6 +94,13 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     RTC2_IRQHandler_v
                 DCD     I2S_IRQHandler_v
                 DCD     FPU_IRQHandler_v
+                DCD     USBD_IRQHandler_v
+                DCD     UARTE1_IRQHandler_v
+                DCD     QSPI_IRQHandler_v
+                DCD     CRYPTOCELL_IRQHandler_v
+                DCD     SPIM3_IRQHandler_v       
+                DCD     0                         ; Reserved                
+                DCD     PWM3_IRQHandler_v
 
 __Vectors_End
 
@@ -202,6 +209,16 @@ Default_Handler PROC
                 EXPORT   RTC2_IRQHandler_v [WEAK]
                 EXPORT   I2S_IRQHandler_v [WEAK]
                 EXPORT   FPU_IRQHandler_v [WEAK]
+                EXPORT   USBD_IRQHandler_v [WEAK]
+                EXPORT   UARTE1_IRQHandler_v [WEAK]
+                EXPORT   QSPI_IRQHandler_v [WEAK]
+                EXPORT   CRYPTOCELL_IRQHandler_v [WEAK]
+                EXPORT   SPIM3_IRQHandler_v [WEAK]
+                EXPORT   PWM3_IRQHandler_v [WEAK]
+                
+                
+                
+                
 POWER_CLOCK_IRQHandler
 RADIO_IRQHandler
 UARTE0_UART0_IRQHandler_v
@@ -239,6 +256,13 @@ SPIM2_SPIS2_SPI2_IRQHandler_v
 RTC2_IRQHandler_v
 I2S_IRQHandler_v
 FPU_IRQHandler_v
+USBD_IRQHandler_v
+UARTE1_IRQHandler_v
+QSPI_IRQHandler_v
+CRYPTOCELL_IRQHandler_v
+SPIM3_IRQHandler_v     
+PWM3_IRQHandler_v
+
                 B .
                 ENDP
                 ALIGN

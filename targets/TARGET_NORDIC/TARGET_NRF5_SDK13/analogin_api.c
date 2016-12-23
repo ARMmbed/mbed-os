@@ -26,6 +26,9 @@
 #define ADC_12BIT_RANGE 0xFFF
 #define ADC_RANGE       ADC_12BIT_RANGE
 
+__STATIC_INLINE nrf_saadc_input_t nrf_drv_saadc_gpio_to_ain(uint32_t pin);
+
+
 static void analog_in_event_handler(nrf_drv_saadc_evt_t const *p_event)// type of nrf_drv_saadc_event_handler_t 
 {
     (void) p_event;
@@ -86,6 +89,35 @@ float analogin_read(analogin_t *obj)
 {
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
+}
+
+
+/**
+ * @brief Function for converting a GPIO pin number to an analog input pin number used in the channel
+ *        configuration.
+ *
+ * @param[in]  pin GPIO pin.
+ *
+ * @return     Value representing an analog input pin. The function returns @ref NRF_SAADC_INPUT_DISABLED
+ *             if the specified pin is not an analog input.
+ */
+__STATIC_INLINE nrf_saadc_input_t nrf_drv_saadc_gpio_to_ain(uint32_t pin)
+{
+    // AIN0 - AIN3
+    if (pin >= 2 && pin <= 5)
+    {
+        //0 means "not connected", hence this "+ 1"
+        return (nrf_saadc_input_t)(pin - 2 + 1);
+    }
+    // AIN4 - AIN7
+    else if (pin >= 28 && pin <= 31)
+    {
+        return (nrf_saadc_input_t)(pin - 24 + 1);
+    }
+    else
+    {
+        return NRF_SAADC_INPUT_DISABLED;
+    }
 }
 
 #endif // DEVICE_ANALOGIN
