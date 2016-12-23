@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GRS_H_
-#define GRS_H_
+#ifndef GRS_2_H_
+#define GRS_2_H_
 
 #ifdef MBED_CLIENT_C_NEW_API
-
-#include "sn_grs2.h"
-
-#else
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +47,7 @@ typedef struct sn_grs_version_ {
     uint8_t build;
 } sn_grs_version_s;
 
-typedef NS_LIST_HEAD(sn_nsdl_resource_info_s, link) resource_list_t;
+typedef NS_LIST_HEAD(sn_nsdl_dynamic_resource_parameters_s, link) resource_list_t;
 
 struct grs_s {
     struct coap_s *coap;
@@ -78,7 +74,6 @@ struct nsdl_s {
     uint16_t oma_bs_port;                                                       /* Bootstrap port */
     uint8_t oma_bs_address_len;                                                 /* Bootstrap address length */
     unsigned int sn_nsdl_endpoint_registered:1;
-    bool handle_bootstrap_msg:1;
 
     struct grs_s *grs;
     uint8_t *oma_bs_address_ptr;                                                /* Bootstrap address pointer. If null, no bootstrap in use */
@@ -116,27 +111,40 @@ struct nsdl_s {
  *
 */
 extern struct grs_s *sn_grs_init(uint8_t (*sn_grs_tx_callback_ptr)(struct nsdl_s *, sn_nsdl_capab_e , uint8_t *, uint16_t,
-                                 sn_nsdl_addr_s *), int8_t (*sn_grs_rx_callback_ptr)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *), void *(*sn_grs_alloc)(uint16_t), void (*sn_grs_free)(void *));
+                                 sn_nsdl_addr_s *),
+                                 int8_t (*sn_grs_rx_callback_ptr)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *),
+                                 void *(*sn_grs_alloc)(uint16_t),
+                                 void (*sn_grs_free)(void *));
 
-extern const sn_nsdl_resource_info_s    *sn_grs_get_first_resource(struct grs_s *handle);
-extern const sn_nsdl_resource_info_s    *sn_grs_get_next_resource(struct grs_s *handle, const sn_nsdl_resource_info_s *sn_grs_current_resource);
-extern int8_t                           sn_grs_process_coap(struct nsdl_s *handle, sn_coap_hdr_s *coap_packet_ptr, sn_nsdl_addr_s *src);
-extern sn_nsdl_resource_info_s          *sn_grs_search_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path, uint8_t search_method);
-extern int8_t                           sn_grs_destroy(struct grs_s *handle);
-extern sn_grs_resource_list_s           *sn_grs_list_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path);
-extern void                             sn_grs_free_resource_list(struct grs_s *handle, sn_grs_resource_list_s *list);
-extern int8_t                           sn_grs_update_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res);
-extern int8_t                           sn_grs_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *address_ptr, sn_coap_hdr_s *coap_hdr_ptr);
-extern int8_t                           sn_grs_create_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res);
-extern int8_t                           sn_grs_put_resource(struct grs_s *handle, sn_nsdl_resource_info_s *res);
-extern int8_t                           sn_grs_delete_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path);
-extern void                             sn_grs_mark_resources_as_registered(struct nsdl_s *handle);
+extern sn_nsdl_dynamic_resource_parameters_s    *sn_grs_get_first_resource(struct grs_s *handle);
+extern sn_nsdl_dynamic_resource_parameters_s    *sn_grs_get_next_resource(struct grs_s *handle,
+                                                                          const sn_nsdl_dynamic_resource_parameters_s *sn_grs_current_resource);
+extern int8_t                                   sn_grs_process_coap(struct nsdl_s *handle,
+                                                                    sn_coap_hdr_s *coap_packet_ptr,
+                                                                    sn_nsdl_addr_s *src);
+extern sn_nsdl_dynamic_resource_parameters_s    *sn_grs_search_resource(struct grs_s *handle,
+                                                                        uint16_t pathlen,
+                                                                        uint8_t *path,
+                                                                        uint8_t search_method);
+extern int8_t                                   sn_grs_destroy(struct grs_s *handle);
+extern sn_grs_resource_list_s                   *sn_grs_list_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path);
+extern void                                     sn_grs_free_resource_list(struct grs_s *handle, sn_grs_resource_list_s *list);
+extern int8_t                                   sn_grs_send_coap_message(struct nsdl_s *handle,
+                                                                         sn_nsdl_addr_s *address_ptr,
+                                                                         sn_coap_hdr_s *coap_hdr_ptr);
+extern int8_t                                   sn_grs_put_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
+extern int8_t                                   sn_grs_pop_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
+extern int8_t                                   sn_grs_delete_resource(struct grs_s *handle, uint16_t pathlen, uint8_t *path);
+extern void                                     sn_grs_mark_resources_as_registered(struct nsdl_s *handle);
+#ifndef MEMORY_OPTIMIZED_API
+extern int8_t                                   sn_grs_create_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
+extern int8_t                                   sn_grs_update_resource(struct grs_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
+#endif
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* MBED_CLIENT_C_NEW_API */
-
 
 #endif /* GRS_H_ */

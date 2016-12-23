@@ -8,6 +8,7 @@
 #include "sn_coap_header.h"
 #include "sn_coap_header_internal.h"
 #include "sn_coap_protocol_internal.h"
+#include <assert.h>
 
 int retCounter = 0;
 
@@ -37,7 +38,9 @@ bool test_sn_coap_parser()
 
     retCounter = 0;
     bool ret = true;
-    uint8_t* ptr = (uint8_t*)malloc(20);
+    // use zero-initialized buffer for tests
+    uint8_t* ptr = (uint8_t*)calloc(20, 1);
+    assert(ptr);
     sn_coap_hdr_s * hdr = sn_coap_parser(NULL, 8, ptr, NULL);
     if( hdr != NULL ){
         free(hdr);

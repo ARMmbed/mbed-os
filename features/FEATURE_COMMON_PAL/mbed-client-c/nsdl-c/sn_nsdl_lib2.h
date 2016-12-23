@@ -22,16 +22,12 @@
 *
 */
 
-#ifndef SN_NSDL_LIB_H_
-#define SN_NSDL_LIB_H_
+#ifndef SN_NSDL_LIB_2_H_
+#define SN_NSDL_LIB_2_H_
 
 #ifdef MBED_CLIENT_C_NEW_API
 
-#include "nsdl-c/sn_nsdl_lib2.h"
-
-#else
-
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +35,7 @@ extern "C" {
 
 #define SN_NSDL_ENDPOINT_NOT_REGISTERED  0
 #define SN_NSDL_ENDPOINT_IS_REGISTERED   1
+
 
 /* Handle structure */
 struct nsdl_s;
@@ -74,15 +71,6 @@ typedef enum sn_nsdl_registration_mode_ {
     REGISTER_WITH_RESOURCES = 0,
     REGISTER_WITH_TEMPLATE
 } sn_nsdl_registration_mode_t;
-
-
-typedef struct omalw_certificate_list_ {
-    uint8_t  certificate_chain_len;
-    uint16_t own_private_key_len;
-    uint16_t certificate_len[2];
-    uint8_t  *certificate_ptr[2];
-    uint8_t  *own_private_key_ptr;
-} omalw_certificate_list_t;
 
 /**
  * \brief Endpoint registration parameters
@@ -125,7 +113,7 @@ typedef struct sn_grs_resource_ {
  * \brief Table of created resources
  */
 typedef struct sn_grs_resource_list_ {
-    uint8_t res_count;                  /**< Number of resources */
+    uint8_t res_count; /**< Number of resources */
     sn_grs_resource_s *res;
 } sn_grs_resource_list_s;
 
@@ -139,19 +127,6 @@ typedef enum sn_grs_resource_acl_ {
     SN_GRS_DELETE_ALLOWED   = 0x08
 } sn_grs_resource_acl_e;
 
-
-typedef enum sn_nsdl_oma_device_error_ {
-    NO_ERROR = 0,
-    LOW_BATTERY_POWER = 1,
-    EXTERNAL_POWER_SUPPLY_OFF = 2,
-    GPS_MODULE_FAILURE = 3,
-    LOW_RECEIVED_SIGNAL_STRENGTH = 4,
-    OUT_OF_MEMORY = 5,
-    SMS_FAILURE = 6,
-    IP_CONN_FAILURE = 7,
-    PERIPHERAL_MALFUNCTION = 8
-} sn_nsdl_oma_device_error_t;
-
 /**
  * \brief Defines the resource mode
  */
@@ -162,61 +137,44 @@ typedef enum sn_nsdl_resource_mode_ {
 } sn_nsdl_resource_mode_e;
 
 /**
- * \brief Resource registration parameters
+ * \brief Defines static parameters for the resource.
+ */
+typedef struct sn_nsdl_static_resource_parameters_ {
+    char        *resource_type_ptr;         //
+    char        *interface_description_ptr; //
+    uint8_t     *path;                      // convert to char*?
+    uint8_t     *resource;                  /**< NULL if dynamic resource */
+    int16_t     pathlen;                    /**< Address */ // Check type
+    uint16_t    resourcelen;                /**< 0 if dynamic resource, resource information in static resource */
+    bool        external_memory_block:1;    /**< 0 means block messages are handled inside this library,
+                                                 otherwise block messages are passed to application */
+    unsigned    mode:2;                     /**< STATIC etc.. */
+    bool        free_on_delete:1;           /**< 1 if struct is dynamic allocted --> to be freed */
+} sn_nsdl_static_resource_parameters_s;
+
+/**
+ * \brief Defines dynamic parameters for the resource.
  */
 typedef struct sn_nsdl_resource_parameters_ {
-    unsigned int     observable:2;
-    unsigned int     registered:2;
-
-    uint16_t    resource_type_len;
-    uint16_t    interface_description_len;
-
-    uint16_t    coap_content_type;
-//    uint8_t     mime_content_type;
-
-    uint8_t     *resource_type_ptr;
-    uint8_t     *interface_description_ptr;
-
-} sn_nsdl_resource_parameters_s;
-
-/**
- * \brief Defines parameters for the resource.
- */
-typedef struct sn_nsdl_resource_info_ {
-
-    unsigned int                    mode:2;                     /**< STATIC etc.. */
-
-    unsigned int                    access:4;
-
-    bool                            publish_uri:1;
-
-    bool                            is_put:1; //if true, pointers are assumed to be consts (never freed). Note: resource_parameters_ptr is always freed!
-
-    uint8_t                         external_memory_block;
-
-    uint16_t                        pathlen;                    /**< Address */
-
-    uint16_t                        resourcelen;                /**< 0 if dynamic resource, resource information in static resource */
-
-    sn_nsdl_resource_parameters_s   *resource_parameters_ptr;
-
-    uint8_t (*sn_grs_dyn_res_callback)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *, sn_nsdl_capab_e);
-
-    uint8_t                         *path;
-
-    uint8_t                         *resource;                  /**< NULL if dynamic resource */
-
-    ns_list_link_t                  link;
-} sn_nsdl_resource_info_s;
-
-/**
- * \brief Defines OMA device object parameters.
- */
-typedef struct sn_nsdl_oma_device_ {
-    sn_nsdl_oma_device_error_t error_code;                                                                          /**< Error code. Mandatory. Can be more than one */
-    uint8_t (*sn_oma_device_boot_callback)(struct nsdl_s *, sn_coap_hdr_s *, sn_nsdl_addr_s *, sn_nsdl_capab_e);    /**< Device boot callback function. If defined, this is called when reset request is received */
-
-} sn_nsdl_oma_device_t;
+    uint8_t                                     (*sn_grs_dyn_res_callback)(struct nsdl_s *,
+                                                                       sn_coap_hdr_s *,
+                                                                       sn_nsdl_addr_s *,
+                                                                       sn_nsdl_capab_e);
+#ifdef MEMORY_OPTIMIZED_API
+    const sn_nsdl_static_resource_parameters_s  *static_resource_parameters;
+#else
+    sn_nsdl_static_resource_parameters_s        *static_resource_parameters;
+#endif
+    ns_list_link_t                              link;
+    uint16_t                                    coap_content_type;  /**< CoAP content type */
+    unsigned                                    access:4;           /**< Allowed operation mode, GET, PUT, etc,
+                                                                         TODO! This should be in static struct but current
+                                                                         mbed-client implementation requires this to be changed at runtime */
+    unsigned                                    registered:2;       /**< Is resource registered or not */
+    bool                                        publish_uri:1;      /**< 1 if resource to be published to server */
+    bool                                        free_on_delete:1;   /**< 1 if struct is dynamic allocted --> to be freed */
+    bool                                        observable:1;       /**< Is resource observable or not */
+} sn_nsdl_dynamic_resource_parameters_s;
 
 /**
  * \brief Defines OMAlw server information
@@ -234,13 +192,8 @@ typedef struct sn_nsdl_bs_ep_info_ {
     void (*oma_bs_status_cb)(sn_nsdl_oma_server_info_t *);  /**< Callback for OMA bootstrap status */
 
     void (*oma_bs_status_cb_handle)(sn_nsdl_oma_server_info_t *,
-                                    struct nsdl_s *);  /**< Callback for OMA bootstrap status with nsdl handle */
-
-    sn_nsdl_oma_device_t *device_object;                    /**< OMA LWM2M mandatory device resources */
+                                    struct nsdl_s *);       /**< Callback for OMA bootstrap status with nsdl handle */
 } sn_nsdl_bs_ep_info_t;
-
-
-
 
 /**
  * \fn struct nsdl_s *sn_nsdl_init  (uint8_t (*sn_nsdl_tx_cb)(sn_nsdl_capab_e , uint8_t *, uint16_t, sn_nsdl_addr_s *),
@@ -310,7 +263,6 @@ extern uint16_t sn_nsdl_update_registration(struct nsdl_s *handle, uint8_t *lt_p
  */
 extern int8_t sn_nsdl_set_endpoint_location(struct nsdl_s *handle, uint8_t *location_ptr, uint8_t location_len);
 
-
 /**
  * \fn extern int8_t sn_nsdl_is_ep_registered(struct nsdl_s *handle)
  *
@@ -362,39 +314,6 @@ extern uint16_t sn_nsdl_send_observation_notification(struct nsdl_s *handle, uin
         sn_coap_content_format_e content_format);
 
 /**
- * \fn extern uint16_t sn_nsdl_send_observation_notification_with_uri_path(struct nsdl_s *handle, uint8_t *token_ptr, uint8_t token_len,
- *                                                  uint8_t *payload_ptr, uint16_t payload_len,
- *                                                  sn_coap_observe_e observe,
- *                                                  sn_coap_msg_type_e message_type, uint8_t content_type,
- *                                                  uint8_t *uri_path_ptr,
- *                                                  uint16_t uri_path_len)
- *
- *
- * \brief Sends observation message to mbed Device Server with uri path
- *
- * \param   *handle         Pointer to nsdl-library handle
- * \param   *token_ptr      Pointer to token to be used
- * \param   token_len       Token length
- * \param   *payload_ptr    Pointer to payload to be sent
- * \param   payload_len     Payload length
- * \param   observe         Observe option value to be sent
- * \param   message_type    Observation message type (confirmable or non-confirmable)
- * \param   content_type    Observation message payload contetnt type
- * \param   uri_path_ptr    Pointer to uri path to be sent
- * \param   uri_path_len    Uri path len
- *
- * \return  !0  Success, observation messages message ID
- * \return  0   Failure
- */
-extern uint16_t sn_nsdl_send_observation_notification_with_uri_path(struct nsdl_s *handle, uint8_t *token_ptr, uint8_t token_len,
-        uint8_t *payload_ptr, uint16_t payload_len,
-        sn_coap_observe_e observe,
-        sn_coap_msg_type_e message_type,
-        uint8_t content_type,
-        uint8_t *uri_path_ptr,
-        uint16_t uri_path_len);
-
-/**
  * \fn extern uint32_t sn_nsdl_get_version(void)
  *
  * \brief Version query function.
@@ -444,8 +363,9 @@ extern int8_t sn_nsdl_process_coap(struct nsdl_s *handle, uint8_t *packet, uint1
  */
 extern int8_t sn_nsdl_exec(struct nsdl_s *handle, uint32_t time);
 
+#ifndef MEMORY_OPTIMIZED_API
 /**
- * \fn  extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
+ * \fn  extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, const sn_nsdl_resource_parameters_s *res);
  *
  * \brief Resource creating function.
  *
@@ -460,29 +380,10 @@ extern int8_t sn_nsdl_exec(struct nsdl_s *handle, uint32_t time);
  * \return  -3  Invalid path
  * \return  -4  List adding failure
  */
-extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
+extern int8_t sn_nsdl_create_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
 
 /**
- * \fn  extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
- *
- * \brief Resource putting function.
- *
- * Used to put a static or dynamic CoAP resource without creating copy of it.
- * NOTE: Remember that only resource will be owned, not data that it contains
- *
- * \param   *res    Pointer to a structure of type sn_nsdl_resource_info_t that contains the information
- *     about the resource.
- *
- * \return  0   Success
- * \return  -1  Failure
- * \return  -2  Resource already exists
- * \return  -3  Invalid path
- * \return  -4  List adding failure
- */
-extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
-
-/**
- * \fn extern int8_t sn_nsdl_update_resource(sn_nsdl_resource_info_s *res)
+ * \fn extern int8_t sn_nsdl_update_resource(struct nsdl_s *handle, sn_nsdl_resource_parameters_s *res)
  *
  * \brief Resource updating function.
  *
@@ -497,7 +398,45 @@ extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_resource_info_
  * \return  0   Success
  * \return  -1  Failure
  */
-extern int8_t sn_nsdl_update_resource(struct nsdl_s *handle, sn_nsdl_resource_info_s *res);
+extern int8_t sn_nsdl_update_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
+#endif
+
+/**
+ * \fn  extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, const sn_nsdl_dynamic_resource_parameters_s *res);
+ *
+ * \brief Resource putting function.
+ *
+ * Used to put a static or dynamic CoAP resource without creating copy of it.
+ * NOTE: Remember that only resource will be owned, not data that it contains
+ * NOTE: The resource may be removed from list by sn_nsdl_pop_resource().
+ *
+ * \param   *res    Pointer to a structure of type sn_nsdl_dynamic_resource_parameters_s that contains the information
+ *     about the resource.
+ *
+ * \return  0   Success
+ * \return  -1  Failure
+ * \return  -2  Resource already exists
+ * \return  -3  Invalid path
+ * \return  -4  List adding failure
+ */
+extern int8_t sn_nsdl_put_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
+
+/**
+ * \fn  extern int8_t sn_nsdl_pop_resource(struct nsdl_s *handle, const sn_nsdl_dynamic_resource_parameters_s *res);
+ *
+ * \brief Resource popping function.
+ *
+ * Used to remove a static or dynamic CoAP resource from lists without deleting it.
+ * NOTE: This function is a counterpart of sn_nsdl_put_resource().
+ *
+ * \param   *res    Pointer to a structure of type sn_nsdl_dynamic_resource_parameters_s that contains the information
+ *     about the resource.
+ *
+ * \return  0   Success
+ * \return  -1  Failure
+ * \return  -3  Invalid path
+ */
+extern int8_t sn_nsdl_pop_resource(struct nsdl_s *handle, sn_nsdl_dynamic_resource_parameters_s *res);
 
 /**
  * \fn extern int8_t sn_nsdl_delete_resource(struct nsdl_s *handle, uint8_t pathlen, uint8_t *path)
@@ -516,7 +455,7 @@ extern int8_t sn_nsdl_update_resource(struct nsdl_s *handle, sn_nsdl_resource_in
 extern int8_t sn_nsdl_delete_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path);
 
 /**
- * \fn extern sn_nsdl_resource_info_s *sn_nsdl_get_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path)
+ * \fn extern sn_nsdl_dynamic_resource_parameters_s *sn_nsdl_get_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path)
  *
  * \brief Resource get function.
  *
@@ -526,10 +465,10 @@ extern int8_t sn_nsdl_delete_resource(struct nsdl_s *handle, uint16_t pathlen, u
  * \param   pathlen Contains the length of the path that is to be returned (excluding possible trailing '\0').
  * \param   *path   A pointer to an array containing the path.
  *
- * \return  !NULL   Success, pointer to a sn_nsdl_resource_info_s that contains the resource information\n
+ * \return  !NULL   Success, pointer to a sn_nsdl_dynamic_resource_parameters_s that contains the resource information\n
  * \return  NULL    Failure
  */
-extern sn_nsdl_resource_info_s *sn_nsdl_get_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path);
+extern sn_nsdl_dynamic_resource_parameters_s *sn_nsdl_get_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path);
 
 /**
  * \fn extern sn_grs_resource_list_s *sn_nsdl_list_resource(struct nsdl_s *handle, uint16_t pathlen, uint8_t *path)
@@ -570,17 +509,6 @@ void sn_nsdl_free_resource_list(struct nsdl_s *handle, sn_grs_resource_list_s *l
 extern int8_t sn_nsdl_send_coap_message(struct nsdl_s *handle, sn_nsdl_addr_s *address_ptr, sn_coap_hdr_s *coap_hdr_ptr);
 
 /**
- * \fn extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint16_t port, sn_nsdl_addr_type_e address_type);
- *
- * \brief This function is used to set the mbed Device Server address given by an application.
- *
- * \param   *handle Pointer to nsdl-library handle
- * \return  0   Success
- * \return  -1  Failed to indicate that internal address pointer is not allocated (call nsdl_init() first).
- */
-extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint16_t port, sn_nsdl_addr_type_e address_type);
-
-/**
  * \fn extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
  *
  * \brief This function is used to set the mbed Device Server address given by an application.
@@ -589,7 +517,7 @@ extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint1
  * \return  0   Success
  * \return  -1  Failed to indicate that internal address pointer is not allocated (call nsdl_init() first).
  */
-extern int8_t set_NSP_address_2(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
+extern int8_t set_NSP_address(struct nsdl_s *handle, uint8_t *NSP_address, uint8_t address_length, uint16_t port, sn_nsdl_addr_type_e address_type);
 
 /**
  * \fn extern int8_t sn_nsdl_destroy(struct nsdl_s *handle);
@@ -609,33 +537,6 @@ extern int8_t sn_nsdl_destroy(struct nsdl_s *handle);
  * \return bootstrap message ID, 0 if failed
  */
 extern uint16_t sn_nsdl_oma_bootstrap(struct nsdl_s *handle, sn_nsdl_addr_s *bootstrap_address_ptr, sn_nsdl_ep_parameters_s *endpoint_info_ptr, sn_nsdl_bs_ep_info_t *bootstrap_endpoint_info_ptr);
-
-/**
- * \fn extern omalw_certificate_list_t *sn_nsdl_get_certificates(struct nsdl_s *handle);
- *
- * \brief Get pointer to received device server certificates
- *
- * \param   *handle Pointer to nsdl-library handle
- */
-extern omalw_certificate_list_t *sn_nsdl_get_certificates(struct nsdl_s *handle);
-
-/**
- * \fn extern int8_t sn_nsdl_update_certificates(struct nsdl_s *handle, omalw_certificate_list_t* certificate_ptr, uint8_t certificate_chain);
- *
- * \brief Updates certificate pointers to resource server.
- *
- * \param   *handle Pointer to nsdl-library handle
- */
-extern int8_t sn_nsdl_update_certificates(struct nsdl_s *handle, omalw_certificate_list_t *certificate_ptr, uint8_t certificate_chain);
-
-/**
- * \fn extern int8_t sn_nsdl_create_oma_device_object(struct nsdl_s *handle, sn_nsdl_oma_device_t *device_object_ptr);
- *
- * \brief Creates new device object resource
- *
- * \param   *handle Pointer to nsdl-library handle
- */
-extern int8_t sn_nsdl_create_oma_device_object(struct nsdl_s *handle, sn_nsdl_oma_device_t *device_object_ptr);
 
 /**
  * \fn sn_coap_hdr_s *sn_nsdl_build_response(struct nsdl_s *handle, sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code)
@@ -761,8 +662,5 @@ extern void *sn_nsdl_get_context(const struct nsdl_s * const handle);
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* MBED_CLIENT_C_NEW_API */
-
-
-#endif /* SN_NSDL_LIB_H_ */
+#endif /* SN_NSDL_LIB_2_H_ */

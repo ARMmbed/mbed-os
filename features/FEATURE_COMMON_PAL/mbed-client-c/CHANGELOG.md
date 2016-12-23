@@ -1,5 +1,293 @@
 # Change Log
 
+## [v3.0.4](https://github.com/ARMmbed/mbed-client-c/releases/tag/v3.0.4) (23-dec-2016)
+[Full Changelog](https://github.com/ARMmbed/mbed-client-c/compare/v3.0.2...v3.0.4)
+
+**New feature**
+
+- CoAP message ID randomization
+- Initial memory optimized API added behind compile time flag
+
+**Closed issues:**
+
+- IOTCLT-1207 - sn_coap_builder_options_build_add_uint_option function produce wrong option value
+- IOTCLT-828 / ARMmbed/mbed-client-c#59 - Random CoAP message ID
+ 
+**Merged pull requests:**
+
+commit 8d247d6baf16d7171dbc1d0e61383aeae59f9f20 (HEAD -> release-3.0.4, tag: v3.0.4, origin/release-3.0.4)
+Author: Jaakko Kukkohovi <jaakko.kukkohovi@arm.com>
+Date:   Fri Dec 23 13:48:23 2016 +0200
+
+    version v3.0.4
+
+commit 6f6d604dc9984dbae4bd183c4151be986de81a1b (origin/mem_opt_part_2, mem_opt_part_2)
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Thu Dec 22 20:12:48 2016 +0200
+
+    Make the code compile two different versions of the API
+    
+    If one defines MBED_CLIENT_C_NEW_API, the new versions of
+    sn_grs and sn_nsdl are selected and old code will continue to work
+    as is if the define is not there.
+
+commit 947bec9fd2a997a1f29633fa83f67fde40c16e0f
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Thu Dec 22 19:12:30 2016 +0200
+
+    Copy the changed files from memory_optimizations -branch to new name
+
+commit a3de842af0b19c8760482cc451b7a2e8520547fb
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Thu Dec 22 18:46:13 2016 +0200
+
+    Copy the sn_nsdl and sn_grs files to fork the API via define
+
+commit d6a4ece6c305a14030a97e340566893560c00496 (origin/master, origin/HEAD, master)
+Author: Jaakko Kukkohovi <jaakko.kukkohovi@arm.com>
+Date:   Fri Dec 9 17:55:17 2016 +0200
+
+    Add application definable context to nsdl handle (#96)
+    
+    Added application definable context field to nsdl handle. This is useful for example when interfacing with c++ objects where a pointer to object is set as the context, and in the callback functions the context pointer can be used to call methods for the correct instance of the c++ object.
+
+commit e502b67a90ff96e52b98828e1e0c93d40071f171
+Author: simosillankorva <simo.sillankorva@arm.com>
+Date:   Mon Nov 21 12:02:23 2016 +0200
+
+    Changed sn_coap_protocol.c to use randLIB for random message ID. (#91)
+    
+    * Changed sn_coap_protocol.c to use randLIB for random message ID. randLIB now needed to build the coap library.
+    
+    * Added randLIB dependency to module.json
+    
+    * Added check for message_id==0 when randomizing, as we dont want to change the api for sn_nsdl.c, that uses it for error cases when sending some messages.
+    
+    * Added randLiIB include path to unit tests.
+    
+    * Added randLIB_stub for sn_coap_protocol unit test.
+
+commit 4cdc3570f3a4dad1cef9787755718fec6917f8f2
+Merge: cfe1e4e 2f7e733
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Nov 16 10:46:52 2016 +0200
+
+    Merge pull request #95 from ARMmbed/anttiylitokola-patch-1
+    
+    Disable message duplication
+
+commit 2f7e7333799082b59346173c8c12fc71fb93ccde
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Nov 16 09:45:38 2016 +0200
+
+    Disable message duplication
+    
+    Message duplication is currently missing some features and it doesn't work reliable yet. Can be enabled again once "IOTCLT-1038
+    CoAP duplicate message detection missing features" is implemented.
+
+commit cfe1e4e8c464a828eb6dfd4550b2f82831b0f489 (origin/memory_optimizations_base)
+Author: Antti Kauppila <antti.kauppila@arm.com>
+Date:   Thu Nov 10 15:20:47 2016 +0200
+
+    Update sn_coap_builder.c
+    
+    1 compilation warning fixed
+
+commit e9c5e25492914bcd583e74ae14f71c9c8465398c
+Merge: fc1f9eb c0bb893
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Nov 9 09:41:00 2016 +0200
+
+    Merge pull request #92 from ARMmbed/iotclt_1207
+    
+    Fix CoAP option building
+
+commit c0bb8936b9d44cda49611bfee9ae55969b717811
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Wed Nov 9 08:20:29 2016 +0200
+
+    Replace unnecessary started flag with len variable.
+
+commit 1deac48ddb51a9e9d85ecb682b9b82c4072b5c44
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Tue Nov 8 14:20:34 2016 +0200
+
+    Fix CoAP option building
+
+commit fc1f9eb790d08306ee435dd3a8452cfc82d7d740
+Merge: 59be2f1 316a9db
+Author: Yogesh Pande <yogpan01@users.noreply.github.com>
+Date:   Thu Nov 3 16:35:47 2016 +0200
+
+    Merge pull request #90 from ARMmbed/valgrind_unittest_fixes
+    
+    Valgrind unittest fixes
+
+commit 316a9dbb11cf2b842255655501c30a5d0d040ca7
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Tue Oct 25 19:24:57 2016 +0300
+
+    sn_coap_builder_unit_tests: fix 1976 valgrind errors
+    
+    Fix 1976 valgrind errors for uninitialized memory accesses by
+    initializing the buffers before trying to parse them.
+    
+    One example of error being fixed:
+    ---8<---8<---8<---
+    ==8405==
+    ==8405== Conditional jump or move depends on uninitialised value(s)
+    ==8405==    at 0x40EA6E: sn_coap_builder_options_get_option_part_count (sn_coap_builder.c:926)
+    ==8405==    by 0x40E7CF: sn_coap_builder_options_calc_option_size (sn_coap_builder.c:834)
+    ==8405==    by 0x40CDA2: sn_coap_builder_calc_needed_packet_data_size_2 (sn_coap_builder.c:238)
+    ==8405==    by 0x40C8C5: sn_coap_builder_calc_needed_packet_data_size (sn_coap_builder.c:147)
+    ==8405==    by 0x404609: TEST_libCoap_builder_sn_coap_builder_calc_needed_packet_data_size_Test::testBody() (libCoap_builder_test.cpp:339)
+    ==8405==    by 0x418660: PlatformSpecificSetJmp (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+    ==8405==    by 0x416C24: Utest::run() (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+    ==8405==    by 0x4172DE: UtestShell::runOneTest(TestPlugin*, TestResult&) (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+    ==8405==    by 0x418660: PlatformSpecificSetJmp (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+    ==8405==    by 0x416B3B: UtestShell::runOneTestWithPlugins(TestPlugin*, TestResult&) (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+    ==8405==    by 0x419F9D: TestRegistry::runAllTests(TestResult&) (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+    ==8405==    by 0x4107D7: CommandLineTestRunner::runAllTests() (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_builder/sn_coap_builder_unit_tests)
+
+commit 7fe1b032d117aec24bacf929bff72aee2d4b1000
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Tue Oct 25 17:32:26 2016 +0300
+
+    sn_nsdl_unit_tests: fix 23 valgrind errors
+    
+    Fix 23 valgrind error for uninitialized memory accesses.
+    
+    One example of warning being fixed:
+    ---8<---8<---
+    ==3916==
+    ==3916== Conditional jump or move depends on uninitialised value(s)
+    ==3916==    at 0x418976: sn_coap_parser_release_allocated_coap_msg_mem (sn_coap_parser_stub.c:42)
+    ==3916==    by 0x420E3A: sn_nsdl_release_allocated_coap_msg_mem (sn_nsdl.c:2535)
+    ==3916==    by 0x417A92: test_sn_nsdl_release_allocated_coap_msg_mem (test_sn_nsdl.c:2885)
+    ==3916==    by 0x402E85: TEST_sn_nsdl_test_sn_nsdl_release_allocated_coap_msg_mem_Test::testBody() (sn_nsdltest.cpp:166)
+    ==3916==    by 0x42A8B0: PlatformSpecificSetJmp (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x428E74: Utest::run() (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x42952E: UtestShell::runOneTest(TestPlugin*, TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x42A8B0: PlatformSpecificSetJmp (in mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x428D8B: UtestShell::runOneTestWithPlugins(TestPlugin*, TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x42C1ED: TestRegistry::runAllTests(TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x422A27: CommandLineTestRunner::runAllTests() (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+    ==3916==    by 0x422ACC: CommandLineTestRunner::runAllTestsMain() (in mbed-client-c/test/nsdl-c/unittest/sn_nsdl/sn_nsdl_unit_tests)
+
+commit 36933741993f71dbd3e02521de5cf69876106030
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Tue Oct 25 16:38:02 2016 +0300
+
+    sn_grs_unit_tests: fix 4 valgrind errors
+    
+    Fix 4 valgrind findings of uninitialized memory usage.
+    
+    One example of error being fixed:
+    ---8<----8<---
+    ==30551==
+    ==30551== Conditional jump or move depends on uninitialised value(s)
+    ==30551==    at 0x40F01B: sn_grs_convert_uri (sn_grs.c:949)
+    ==30551==    by 0x40E7E7: sn_grs_search_resource (sn_grs.c:769)
+    ==30551==    by 0x40D42F: sn_grs_process_coap (sn_grs.c:413)
+    ==30551==    by 0x40869C: test_sn_grs_process_coap (test_sn_grs.c:654)
+    ==30551==    by 0x401E7D: TEST_sn_grs_test_sn_grs_process_coap_Test::testBody() (sn_grstest.cpp:31)
+    ==30551==    by 0x418C20: PlatformSpecificSetJmp (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+    ==30551==    by 0x4171E4: Utest::run() (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+    ==30551==    by 0x41789E: UtestShell::runOneTest(TestPlugin*, TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+    ==30551==    by 0x418C20: PlatformSpecificSetJmp (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+    ==30551==    by 0x4170FB: UtestShell::runOneTestWithPlugins(TestPlugin*, TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+    ==30551==    by 0x41A55D: TestRegistry::runAllTests(TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+    ==30551==    by 0x410D97: CommandLineTestRunner::runAllTests() (in mbed-client-c/test/nsdl-c/unittest/sn_grs/sn_grs_unit_tests)
+
+commit 1eebc512fe157227702b81684b36cb9bad179af2
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Tue Oct 25 16:13:35 2016 +0300
+
+    sn_coap_protocol_unit_tests: Fix 297 valgrind errors for unint. memory.
+    
+    Fix 297 valgrind errors for uses of uninitialized memory. Most cases
+    were caused by same copy-pasted piece which allocated 3 bytes for a
+    buffer but used it as it was much, much larger.
+    
+    One sample of the fixed error:
+    ---8<---8<---
+    ==22740== Invalid read of size 8
+    ==22740==    at 0x4C2F79E: memcpy@@GLIBC_2.14 (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==22740==    by 0x419329: sn_coap_protocol_build (sn_coap_protocol.c:492)
+    ==22740==    by 0x41268E: TEST_libCoap_protocol_sn_coap_protocol_exec_Test::testBody() (libCoap_protocol_test.cpp:2076)
+    ==22740==    by 0x427DE0: PlatformSpecificSetJmp (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x4263A4: Utest::run() (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x426A5E: UtestShell::runOneTest(TestPlugin*, TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x427DE0: PlatformSpecificSetJmp (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x4262BB: UtestShell::runOneTestWithPlugins(TestPlugin*, TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x42971D: TestRegistry::runAllTests(TestResult&) (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x41FF57: CommandLineTestRunner::runAllTests() (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x41FFFC: CommandLineTestRunner::runAllTestsMain() (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+    ==22740==    by 0x42011E: CommandLineTestRunner::RunAllTests(int, char const**) (in mbed-client-c/test/nsdl-c/unittest/sn_coap_protocol/sn_coap_protocol_unit_tests)
+
+commit 1393616579ff888dc23384cc5a50a8be3b7f9935
+Author: Tero Jääskö <tero.jaasko@arm.com>
+Date:   Tue Oct 25 15:21:48 2016 +0300
+
+    sn_coap_parser_unit_tests: Fix uses of uninitialized memory.
+    
+    Fix 10 valgrind erros for uses of uninitialized memory. All the errors
+    are caused by same root cause, where code allocated memory for test buffer
+    and assumed it contains something useful or predictable.
+    
+    One error beind fixed:
+    --8<---8<---
+    ==21841== Conditional jump or move depends on uninitialised value(s)
+    ==21841==    at 0x4093CA: sn_coap_parser_options_parse (sn_coap_parser.c:262)
+    ==21841==    by 0x408E5C: sn_coap_parser (sn_coap_parser.c:133)
+    ==21841==    by 0x403FBC: test_sn_coap_parser (test_sn_coap_parser.c:61)
+    ==21841==    by 0x401CFD: TEST_sn_coap_parser_test_sn_coap_parser_Test::testBody() (sn_coap_parsertest.cpp:20)
+    ==21841==    by 0x414350: PlatformSpecificSetJmp (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x412914: Utest::run() (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x412FCE: UtestShell::runOneTest(TestPlugin*, TestResult&) (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x414350: PlatformSpecificSetJmp (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x41282B: UtestShell::runOneTestWithPlugins(TestPlugin*, TestResult&) (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x415C8D: TestRegistry::runAllTests(TestResult&) (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x40C4C7: CommandLineTestRunner::runAllTests() (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+    ==21841==    by 0x40C56C: CommandLineTestRunner::runAllTestsMain() (in /home/tero/work/mbed-github/mbed-client-c/test/nsdl-c/unittest/sn_coap_parser/sn_coap_parser_unit_tests)
+
+commit 59be2f154af9b8388ae3e3e6a763cd5b0d2700f1 (tag: v3.0.3)
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Thu Sep 29 10:52:54 2016 +0300
+
+    version v3.0.3
+
+commit 3b89e2a465c3876cc184c92c72bdbe66193502c7
+Merge: 58f712b 4369a46
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Thu Sep 29 10:50:20 2016 +0300
+
+    Merge pull request #81 from ARMmbed/duplicate_fix
+    
+    Fix for message duplication handling
+
+commit 4369a4656e4a1ef5e81adf6316513d7a06e9a488
+Author: Antti Yli-Tokola <antti.yli-tokola@arm.com>
+Date:   Thu Sep 29 09:19:36 2016 +0300
+
+    Fix one failing unit test
+
+commit 72bfc3e7199d040b8bfa637e1840a0869f786231
+Author: Tero Heinonen <tero.heinonen@arm.com>
+Date:   Wed Sep 28 13:54:56 2016 +0300
+
+    Enable duplicate message detection
+
+commit 852c1f642afe7eb342016c76807d8b10a0fe7504
+Author: Tero Heinonen <tero.heinonen@arm.com>
+Date:   Thu Sep 22 14:12:15 2016 +0300
+
+    Fix for message duplication handling
+    
+    RFC 7252 chapter 4.5 talks only duplication of Confirmable- and
+    Non-confirmable messages. Adding check for message type before
+    processing duplication store and check.
+
 ## [v3.0.2](https://github.com/ARMmbed/mbed-client-c/releases/tag/v3.0.2) (24-Sep-2016)
 [Full Changelog](https://github.com/ARMmbed/mbed-client-c/compare/v3.0.1...v3.0.2)
 

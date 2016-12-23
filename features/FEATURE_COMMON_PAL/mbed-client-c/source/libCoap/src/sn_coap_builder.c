@@ -149,6 +149,7 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size(sn_coap_hdr_s *src_coap_ms
 
 uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size)
 {
+    (void)blockwise_payload_size;
     tr_debug("sn_coap_builder_calc_needed_packet_data_size_2");
     uint16_t returned_byte_count = 0;
 
@@ -750,13 +751,11 @@ static uint8_t sn_coap_builder_options_build_add_uint_option(uint8_t **dst_packe
 {
     uint8_t payload[4];
     uint8_t len = 0;
-
     /* Construct the variable-length payload representing the value */
-    while (option_value) {
-        if (option_value & 0xff000000) {
+    for (uint8_t i = 0; i < 4; i++) {
+        if (len > 0 || (option_value & 0xff000000)) {
             payload[len++] = option_value >> 24;
         }
-
         option_value <<= 8;
     }
 

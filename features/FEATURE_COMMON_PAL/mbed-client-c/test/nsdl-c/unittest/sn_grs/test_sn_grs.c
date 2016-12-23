@@ -646,10 +646,11 @@ bool test_sn_grs_process_coap()
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
     hdr->msg_code = COAP_MSG_CODE_REQUEST_GET;
     hdr->msg_type = COAP_MSG_TYPE_RESET;
-    hdr->uri_path_ptr = (uint8_t*)malloc(2);
+    hdr->uri_path_ptr = (uint8_t*)calloc(2, 1);
     hdr->uri_path_len = 2;
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
-    hdr->payload_ptr = (uint8_t*)malloc(2);
+    hdr->payload_ptr = (uint8_t*)calloc(2, 1);
+    hdr->payload_len = 2;
 
     if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
@@ -660,10 +661,11 @@ bool test_sn_grs_process_coap()
     memset(hdr, 0, sizeof(sn_coap_hdr_s));
     hdr->msg_code = COAP_MSG_CODE_REQUEST_POST;
     hdr->msg_type = COAP_MSG_TYPE_RESET;
-    hdr->uri_path_ptr = (uint8_t*)malloc(2);
+    hdr->uri_path_ptr = (uint8_t*)calloc(2, 1);
     hdr->uri_path_len = 2;
     hdr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
     hdr->payload_ptr = (uint8_t*)malloc(2);
+    hdr->payload_len = 2;
 
     if( SN_NSDL_SUCCESS != sn_grs_process_coap(handle, hdr, addr) ){
         return false;
