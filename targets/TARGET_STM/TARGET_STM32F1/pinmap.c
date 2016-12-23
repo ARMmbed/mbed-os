@@ -130,6 +130,9 @@ void pin_function(PinName pin, int data)
             case 9: // Full Remap TIM3
                 __HAL_AFIO_REMAP_TIM3_ENABLE();
                 break;
+            case 10: // CAN_RX mapped to PB8, CAN_TX mapped to PB9
+                __HAL_AFIO_REMAP_CAN1_2();
+                break;
             default:
                 break;
         }
