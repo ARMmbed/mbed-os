@@ -31,14 +31,19 @@ extern "C" {
 //#include "configuration_store.h"
 
 /* Defines */
-#define FSFAT_INIT_1_TABLE_HEAD               { "a", ""}
-#define FSFAT_INIT_1_TABLE_MID_NODE           { "0123456789abcdef0123456", "abcdefghijklmnopqrstuvwxyz"}
-#define FSFAT_INIT_1_TABLE_TAIL               { "yotta.hello-world.animal{wobbly-dog}{foot}backRight", "present"}
-#define FSFAT_TEST_RW_TABLE_SENTINEL          0xffffffff
-#define FSFAT_TEST_BYTE_DATA_TABLE_SIZE       256
-#define FSFAT_UTEST_MSG_BUF_SIZE              256
-#define FSFAT_UTEST_DEFAULT_TIMEOUT_MS        10000
-#define FSFAT_MBED_HOSTTEST_TIMEOUT 			60
+#define FSFAT_INIT_1_TABLE_HEAD                 { "a", ""}
+#define FSFAT_INIT_1_TABLE_MID_NODE             { "/sd/01234567.txt", "abcdefghijklmnopqrstuvwxyz"}
+#define FSFAT_INIT_1_TABLE_TAIL                 { "/sd/fopentst/hello/world/animal/wobbly/dog/foot/backrght.txt", "present"}
+#define FSFAT_TEST_RW_TABLE_SENTINEL            0xffffffff
+#define FSFAT_TEST_BYTE_DATA_TABLE_SIZE         256
+#define FSFAT_UTEST_MSG_BUF_SIZE                256
+#define FSFAT_UTEST_DEFAULT_TIMEOUT_MS          10000
+#define FSFAT_MBED_HOSTTEST_TIMEOUT             60
+#define FSFAT_MAX_FILE_BASENAME                 8
+#define FSFAT_MAX_FILE_EXTNAME                  3
+#define FSFAT_BUF_MAX_LENGTH                    64
+#define FSFAT_FILENAME_MAX_LENGTH               255
+
 
 /* support macro for make string for utest _MESSAGE macros, which dont support formatted output */
 #define FSFAT_TEST_UTEST_MESSAGE(_buf, _max_len, _fmt, ...)   \
@@ -54,7 +59,7 @@ extern "C" {
 
 /* kv data for test */
 typedef struct fsfat_kv_data_t {
-    const char* key_name;
+    const char* filename;
     const char* value;
 } fsfat_kv_data_t;
 
@@ -70,19 +75,15 @@ extern fsfat_test_rw_data_entry_t fsfat_test_rw_data_table[];
 extern const char* fsfat_test_opcode_str[];
 extern const uint8_t fsfat_test_byte_data_table[FSFAT_TEST_BYTE_DATA_TABLE_SIZE];
 
-int32_t fsfat_test_check_node_correct(const fsfat_kv_data_t* node);
-//int32_t fsfat_test_create(const char* key_name, const char* data, size_t* len, ARM_FSFAT_KEYDESC* kdesc);
+int32_t fsfat_test_create(const char* filename, const char* data, size_t len);
 int32_t fsfat_test_create_table(const fsfat_kv_data_t* table);
 int32_t fsfat_test_delete(const char* key_name);
 int32_t fsfat_test_delete_all(void);
-int32_t fsfat_test_dump(void);
+int32_t fsfat_test_filename_found(const char* key_name, bool* bfound);
+int32_t fsfat_test_filename_gen(char* name, const size_t len);
 int32_t fsfat_test_init_1(void);
-int32_t fsfat_test_kv_is_found(const char* key_name, bool* bfound);
-int32_t fsfat_test_kv_name_gen(char* name, const size_t len);
 int32_t fsfat_test_read(const char* key_name, char* data, size_t* len);
-int32_t fsfat_test_startup(void);
 int32_t fsfat_test_write(const char* key_name, const char* data, size_t* len);
-
 #ifdef __cplusplus
 }
 #endif

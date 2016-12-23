@@ -31,7 +31,9 @@
 
 #ifdef FSFAT_DEBUG
 uint32_t fsfat_optDebug_g = 1;
-uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
+// todo: revert change
+//uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
+uint32_t fsfat_optLogLevel_g = FSFAT_LOG_FENTRY; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
 #endif
 
 /* ruler for measuring text strings */
@@ -92,259 +94,32 @@ fsfat_test_rw_data_entry_t fsfat_test_rw_data_table[] =
 };
 
 
+
+
+/* @brief  test utility function to delete the file identified by filename
+ */
+int32_t fsfat_test_delete(const char* filename)
+{
+    FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
+    return remove(filename);
+}
+
+//todo: delete
 #ifdef NOT_DEFINED
 
-static int32_t fsfat_test_dump_print_array(const char* data, ARM_FSFAT_SIZE len)
-{
-    int i;
-    char buf[80];
-    char sbuf[80];
-    char* outbuf = buf;
-    char* soutbuf = sbuf;
-
-    memset(outbuf, 0, 80);
-    memset(soutbuf, 0, 80);
-    outbuf += sprintf(outbuf, "      ");
-    soutbuf += sprintf(soutbuf, "      ");
-    for (i = 0; i < (int) len; i++){
-        outbuf += sprintf(outbuf, "%02X ", data[i]);
-
-        if( !(isalnum( (int) data[i]) || ispunct( (int) data[i])) ){
-            *soutbuf++ =  '*';
-        } else {
-            *soutbuf++ = data[i];
-        }
-
-        if( (i % 16 == 0) && i > 0){
-            FSFAT_LOG("%s", buf);
-            FSFAT_LOG("%s\n", sbuf);
-            outbuf = buf;
-            soutbuf = sbuf;
-            memset(outbuf, 0, 80);
-            memset(soutbuf, 0, 80);
-            outbuf += sprintf(outbuf, "      ");
-            soutbuf += sprintf(soutbuf, "      ");
-        }
-    }
-    if(i % 16){
-        /* Pad the end of the string to align string data. */
-        while(i % 16){
-            outbuf += sprintf(outbuf, "   ");
-            i++;
-        }
-        FSFAT_LOG("%s", buf);
-        FSFAT_LOG("      %s", sbuf);
-    }
-    FSFAT_LOG("%s", "\n");
-    return ARM_DRIVER_OK;
-}
-
-
-/* @brief   function to dump contents of cfstore
- */
-int32_t fsfat_test_dump(void)
-{
-    const char* key_name_query = "*";
-    char* read_buf = NULL;
-    char key_name[FSFAT_KEY_NAME_MAX_LENGTH+1];
-    uint8_t len = FSFAT_KEY_NAME_MAX_LENGTH+1;
-    ARM_FSFAT_SIZE vlen = 0;
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_HANDLE_INIT(next);
-    ARM_FSFAT_HANDLE_INIT(prev);
-    ARM_FSFAT_CAPABILITIES caps = fsfat_driver.GetCapabilities();
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-
-    FSFAT_LOG("FSFAT Flash Entries%s", "\n");
-    FSFAT_LOG("=====================%s", "\n\n");
-    while((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK)
-    {
-        len = FSFAT_KEY_NAME_MAX_LENGTH+1;
-        ret = drv->GetKeyName(next, key_name, &len);
-        if(ret < ARM_DRIVER_OK){
-            FSFAT_ERRLOG("Error: failed to get key name%s", "\n");
-            break;
-        }
-        ret = drv->GetValueLen(next, &vlen);
-        if(ret < ARM_DRIVER_OK){
-            FSFAT_ERRLOG("Error: failed to get value length%s", "\n");
-            break;
-        }
-        read_buf = (char*) malloc(vlen+1);
-        if(read_buf == NULL){
-            FSFAT_ERRLOG("Error: failed to malloc() read buffer%s", "\n");
-            break;
-        }
-        ret = drv->Read(next, read_buf, &vlen);
-        if(ret < ARM_DRIVER_OK){
-            FSFAT_ERRLOG("Error: failed to read key value%s", "\n");
-            free(read_buf);
-            break;
-        }
-        FSFAT_LOG("  keyname : %s\n", key_name);
-        FSFAT_LOG("    name len : %d\n", (int) len);
-        FSFAT_LOG("    value len : %d\n", (int) vlen);
-        FSFAT_LOG("    data :%s", "\n");
-        fsfat_test_dump_print_array((const char*) read_buf, vlen);
-        FSFAT_LOG("%s", ".\n");
-        free(read_buf);
-        FSFAT_HANDLE_SWAP(prev, next);
-    }
-    FSFAT_LOG("%s", ".\n");
-    FSFAT_LOG("  caps.asynchronous_ops : %d\n", (int) caps.asynchronous_ops);
-    FSFAT_LOG("%s", ".\n");
-    FSFAT_LOG("== End ==============%s", "\n\n");
-
-    if(ret == ARM_FSFAT_DRIVER_ERROR_KEY_NOT_FOUND) {
-        /* As expected, no more keys have been found by the Find(). */
-        ret = ARM_DRIVER_OK;
-    }
-    return ret;
-}
-
-
-/* @brief   test startup code to reset flash
- */
-int32_t fsfat_test_startup(void)
-{
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_DRIVER* fsfat_drv = &fsfat_driver;
-    ARM_FSFAT_CAPABILITIES caps = fsfat_driver.GetCapabilities();
-
-    FSFAT_LOG("INITIALIZING: caps.asynchronous_ops=%d\n", (int) caps.asynchronous_ops);
-
-    /* Dump contents of FSFAT */
-    ret = fsfat_drv->Initialize(NULL, NULL);
-    if(ret < ARM_DRIVER_OK){
-        FSFAT_ERRLOG("%s:Error: failed to initialize FSFAT (ret=%d)\n", __func__, (int) ret);
-        return ARM_DRIVER_ERROR;
-    }
-    ret = fsfat_test_dump();
-    if(ret < ARM_DRIVER_OK){
-        FSFAT_ERRLOG("%s:Error: failed to dump FSFAT (ret=%d)\n", __func__, (int) ret);
-        return ARM_DRIVER_ERROR;
-    }
-    ret = fsfat_drv->Uninitialize();
-    if(ret < ARM_DRIVER_OK){
-        FSFAT_ERRLOG("%s:Error: failed to uninitialize FSFAT (ret=%d)\n", __func__, (int) ret);
-        return ARM_DRIVER_ERROR;
-    }
-
-#ifdef FSFAT_CONFIG_BACKEND_FLASH_ENABLED
-
-    static FlashJournal_t jrnl;
-    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_MTD_K64F;
-    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
-
-    ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
-    if(ret < JOURNAL_STATUS_OK){
-        FSFAT_ERRLOG("%s:Error: failed to initialize flash journaling layer (ret=%d)\n", __func__, (int) ret);
-        return ARM_DRIVER_ERROR;
-    }
-    ret = FlashJournal_reset(&jrnl);
-    if(ret < JOURNAL_STATUS_OK){
-        FSFAT_ERRLOG("%s:Error: failed to reset flash journal (ret=%d)\n", __func__, (int) ret);
-        return ARM_DRIVER_ERROR;
-    }
-
-#endif /*  FSFAT_CONFIG_BACKEND_FLASH_ENABLED */
-
-    return ARM_DRIVER_OK;
-}
-
-
-/* @brief   test utility function to check a node appears correctly in the cfstore
- * @note    this function expects cfstore to have been initialised with
- *          a call to ARM_FSFAT_DRIVER::Initialize()
- */
-int32_t fsfat_test_check_node_correct(const fsfat_kv_data_t* node)
-{
-    char* read_buf;
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_SIZE len = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_HANDLE_INIT(hkey);
-    ARM_FSFAT_FMODE flags;
-
-    FSFAT_FENTRYLOG("%s:entered\r\n", __func__);
-    memset(&flags, 0, sizeof(flags));
-
-    ret = drv->Open(node->key_name, flags, hkey);
-    if(ret < ARM_DRIVER_OK){
-        FSFAT_ERRLOG("%s:Error: failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\r\n", __func__, node->key_name, node->value, (int) ret);
-        goto out0;
-    }
-    len = strlen(node->value) + 1;
-    read_buf = (char*) malloc(len);
-    if(read_buf == NULL) {
-        FSFAT_ERRLOG("%s:Error: failed to allocated read buffer \r\n", __func__);
-        goto out1;
-    }
-    memset(read_buf, 0, len);
-    ret = drv->Read(hkey, read_buf, &len);
-    if(ret < ARM_DRIVER_OK){
-        FSFAT_ERRLOG("%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
-        goto out2;
-    }
-    /* check read data is as expected */
-    if(strncmp(read_buf, node->value, strlen(node->value)) != 0){
-        FSFAT_ERRLOG("%s:Error: read value data (%s) != KV value data (key_name=\"%s\", value=\"%s\")\r\n", __func__, read_buf, node->key_name, node->value);
-        ret = ARM_DRIVER_ERROR;
-    }
-out2:
-    if(read_buf) free(read_buf);
-out1:
-    drv->Close(hkey);
-    hkey = NULL;
-out0:
-    return ret;
-}
-
-
-/* @brief  test utility function to delete the cfstore key identified by key_name
- * @note    this function expects cfstore to have been initialised with
- *          a call to ARM_FSFAT_DRIVER::Initialize()
- */
-int32_t fsfat_test_delete(const char* key_name)
-{
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_HANDLE_INIT(hkey);
-    ARM_FSFAT_FMODE flags;
-
-    FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
-    memset(&flags, 0, sizeof(flags));
-    ret = drv->Open(key_name, flags, hkey);
-    if(ret < ARM_DRIVER_OK){
-        return ret;
-    }
-    if(hkey != NULL){
-        ret = drv->Delete(hkey);
-        drv->Close(hkey);
-    }
-    return ret;
-}
-
-/* @brief   test utility function to delete all of the KVs in the cfstore
- * @note    this function expects cfstore to have been initialised with
- *          a call to ARM_FSFAT_DRIVER::Initialize()
+/* @brief   test utility function to delete all of the files in the filesystem
  */
 int32_t fsfat_test_delete_all(void)
 {
     const char* key_name_query = "*";
-    char key_name[FSFAT_KEY_NAME_MAX_LENGTH+1];
-    uint8_t len = FSFAT_KEY_NAME_MAX_LENGTH+1;
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_HANDLE_INIT(next);
-    ARM_FSFAT_HANDLE_INIT(prev);
+    char key_name[FSFAT_FILENAME_MAX_LENGTH+1];
+    uint8_t len = FSFAT_FILENAME_MAX_LENGTH+1;
+    int32_t ret = -1;
 
     FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
     while((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK)
     {
-        len = FSFAT_KEY_NAME_MAX_LENGTH+1;
+        len = FSFAT_FILENAME_MAX_LENGTH+1;
         drv->GetKeyName(next, key_name, &len);
         FSFAT_TP(FSFAT_TP_DELETE, "%s:deleting key_name=%s, len=%d\r\n", __func__, key_name, (int) len);
         ret = drv->Delete(next);
@@ -362,38 +137,36 @@ int32_t fsfat_test_delete_all(void)
     return ret;
 }
 
-//#endif // NOT_DEFINED
+#endif // NOT_DEFINED
 
 
 /* @brief   test utility function to create a file
+ *
+ * @param   filename    name of the file including path
+ * @param   data        data to store in file
+ * @param   len         number of bytes of data present in the data buffer.
  */
-int32_t fsfat_test_create(const char* filename, const char* data, size_t* len)
+int32_t fsfat_test_create(const char* filename, const char* data, size_t len)
 {
     int32_t ret = -1;
-    size_t value_len = 0;
+    FILE *fp = NULL;
 
-    FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
-    value_len = *len;
-    ret = fopen(filename, value_len, kdesc, hkey);
-    if(ret < ARM_DRIVER_OK){
+    FSFAT_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
+    fp = fopen(filename, "w+");
+    if(fp == NULL){
         return ret;
     }
-    value_len = *len;
-    ret = fwrite(hkey, data, &value_len);
-    if(ret < ARM_DRIVER_OK){
-        flose(hkey);
+    ret = fwrite((const void*) data, len, 1, fp);
+    if(ret < 0){
+        fclose(fp);
         return ret;
     }
-    if(value_len != *len){
-        fclose(hkey);
-        return ARM_DRIVER_ERROR;
-    }
-    flose(hkey);
+    fclose(fp);
     return ret;
 }
 
 
-//#ifdef NOT_DEFINED
+#ifdef NOT_DEFINED
 
 /* @brief   test utility function to create KVs from the supplied table
  * @note    this function expects cfstore to have been initialised with
@@ -401,7 +174,7 @@ int32_t fsfat_test_create(const char* filename, const char* data, size_t* len)
  */
 int32_t fsfat_test_create_table(const fsfat_kv_data_t* table)
 {
-    int32_t ret = ARM_DRIVER_ERROR;
+    int32_t ret = -1;
     ARM_FSFAT_SIZE len = 0;
     fsfat_kv_data_t* node = NULL;
     ARM_FSFAT_KEYDESC kdesc;
@@ -494,10 +267,10 @@ fsfat_kv_data_t fsfat_test_init_1_data[] = {
 int32_t fsfat_test_init_1(void)
 {
     char* read_buf = NULL;
-    const uint8_t key_name_max_len = FSFAT_KEY_NAME_MAX_LENGTH+1;
+    const uint8_t key_name_max_len = FSFAT_FILENAME_MAX_LENGTH+1;
     uint8_t key_name_len = 0;
-    char key_name_buf[FSFAT_KEY_NAME_MAX_LENGTH+1];
-    int32_t ret = ARM_DRIVER_ERROR;
+    char key_name_buf[FSFAT_FILENAME_MAX_LENGTH+1];
+    int32_t ret = -1;
     ARM_FSFAT_SIZE len = 0;
     ARM_FSFAT_SIZE max_len = 0;
     ARM_FSFAT_DRIVER* drv = &fsfat_driver;
@@ -507,7 +280,7 @@ int32_t fsfat_test_init_1(void)
 
     FSFAT_FENTRYLOG("%s:entered\r\n", __func__);
     memset(&kdesc, 0, sizeof(kdesc));
-    memset(key_name_buf, 0, FSFAT_KEY_NAME_MAX_LENGTH+1);
+    memset(key_name_buf, 0, FSFAT_FILENAME_MAX_LENGTH+1);
 
     /*scan for max length of value blob*/
     node = fsfat_test_init_1_data;
@@ -547,7 +320,7 @@ int32_t fsfat_test_init_1(void)
         if(len != strlen(node->value)){
             FSFAT_ERRLOG("%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d\r\n", __func__, node->key_name, node->value, (int) len);
             drv->Close(hkey);
-            return ARM_DRIVER_ERROR;
+            return -1;
         }
         /* read the data back*/
         len = strlen(node->value);
@@ -561,7 +334,7 @@ int32_t fsfat_test_init_1(void)
         if(len != strlen(node->value)){
             FSFAT_ERRLOG("%s:Error: failed to read full value data (key_name=\"%s\", value=\"%s\"), len=%d, ret=%d\r\n", __func__, node->key_name, node->value, (int) len, (int) ret);
             drv->Close(hkey);
-            return ARM_DRIVER_ERROR;
+            return -1;
         }
         key_name_len = key_name_max_len;
         memset(key_name_buf, 0, key_name_len);
@@ -569,7 +342,7 @@ int32_t fsfat_test_init_1(void)
         if(len != strlen(node->value)){
             FSFAT_ERRLOG("%s:Error: failed to GetKeyName() (key_name=\"%s\", value=\"%s\"), len=%d\r\n", __func__, node->key_name, node->value, (int) len);
             drv->Close(hkey);
-            return ARM_DRIVER_ERROR;
+            return -1;
         }
         /* revert FSFAT_LOG for more trace */
         FSFAT_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\r\n", key_name_buf, read_buf);
@@ -588,7 +361,7 @@ int32_t fsfat_test_init_1(void)
 int32_t fsfat_test_kv_is_found(const char* key_name, bool* bfound)
 {
     FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
-    int32_t ret = ARM_DRIVER_ERROR;
+    int32_t ret = -1;
     ARM_FSFAT_HANDLE_INIT(prev);
     ARM_FSFAT_HANDLE_INIT(next);
     ARM_FSFAT_DRIVER* drv = &fsfat_driver;
@@ -606,26 +379,31 @@ int32_t fsfat_test_kv_is_found(const char* key_name, bool* bfound)
     return ret;
 }
 
+#endif  // NOT_DEFINED
 
 /* @brief   support function for generating a kv_name
  * @param   name    buffer to hold kv name
  * @param   len     length of kv name to generate
- * @note	braces are not included in the generated names as the names are
- *          of varible length and theyre may be unmatched
  *
  */
-#define FSFAT_TEST_KV_NAME_BUF_MAX_DATA (10+26+26+4)
-int32_t fsfat_test_kv_name_gen(char* name, const size_t len)
+int32_t fsfat_test_filename_gen(char* name, const size_t len)
 {
     size_t i;
-    const char buf[FSFAT_TEST_KV_NAME_BUF_MAX_DATA+1] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_@";
+    uint32_t pos = 0;
+
+    const char* buf = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$-_@";
+    const int buf_len = strlen(buf);
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     for(i = 0; i < len; i++)
     {
-        name[i] = buf[i % FSFAT_TEST_KV_NAME_BUF_MAX_DATA];
+        pos = rand() % (buf_len);
+        name[i] = buf[pos];
     }
-    return ARM_DRIVER_OK;
+    return 0;
 }
+
+#ifdef NOT_DEFINED
+
 
 /* @brief   test utility function to read the value blob of a specified KV
  * @note    this function expects cfstore to have been initialised with
@@ -633,7 +411,7 @@ int32_t fsfat_test_kv_name_gen(char* name, const size_t len)
  */
 int32_t fsfat_test_read(const char* key_name, char* data, ARM_FSFAT_SIZE* len)
 {
-    int32_t ret = ARM_DRIVER_ERROR;
+    int32_t ret = -1;
     ARM_FSFAT_DRIVER* drv = &fsfat_driver;
     ARM_FSFAT_HANDLE_INIT(hkey);
     ARM_FSFAT_FMODE flags;
@@ -675,7 +453,7 @@ out0:
  */
 int32_t fsfat_test_write(const char* key_name, const char* data, ARM_FSFAT_SIZE* len)
 {
-    int32_t ret = ARM_DRIVER_ERROR;
+    int32_t ret = -1;
     ARM_FSFAT_DRIVER* drv = &fsfat_driver;
     ARM_FSFAT_HANDLE_INIT(hkey);
     ARM_FSFAT_FMODE flags;

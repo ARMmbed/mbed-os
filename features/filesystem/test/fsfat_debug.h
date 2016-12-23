@@ -28,7 +28,9 @@
         printf(_fmt, __VA_ARGS__);                      \
   }while(0);
 
-#define noFSFAT_DEBUG
+//#define noFSFAT_DEBUG
+// todo: remove next line
+#define FSFAT_DEBUG
 
 #ifdef FSFAT_DEBUG
 
