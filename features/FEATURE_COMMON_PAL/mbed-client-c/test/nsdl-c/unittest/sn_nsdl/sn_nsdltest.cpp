@@ -186,5 +186,14 @@ TEST(sn_nsdl, test_sn_nsdl_set_duplicate_buffer_size)
     CHECK(test_sn_nsdl_set_duplicate_buffer_size());
 }
 
+TEST(sn_nsdl, test_sn_nsdl_get_context)
+{
+    CHECK(test_sn_nsdl_get_context());
+}
+
+TEST(sn_nsdl, test_sn_nsdl_set_context)
+{
+    CHECK(test_sn_nsdl_set_context());
+}
 
 
