@@ -91,6 +91,9 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     
     pwm->OUT0_SET = (1 << 0); // event 0
     pwm->OUT0_CLR = (1 << 1); // event 1
+    // Resolve conflicts on output 0 to set output
+    // This allows duty cycle = 1.0 to work, where the MATCH registers for set and clear are equal
+    pwm->RES = 0x01;
 
     pwm->EV0_CTRL  = (1 << 12);
     pwm->EV0_STATE = 0xFFFFFFFF;
@@ -169,7 +172,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         // Halt the timer and force the output low
         pwm->CTRL |= (1 << 2) | (1 << 3);
         pwm->OUTPUT = 0x00000000;
-        
+
         // Ensure the new period will take immediate effect when the timer is un-halted
         pwm->MATCH0 = pwm->MATCHREL0;
     }
