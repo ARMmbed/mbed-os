@@ -11,9 +11,12 @@
 
 #include "NUC472_442.h"
 #include <errno.h>
+#include "nu_miscutil.h"
 
 extern uint32_t __mbed_sbrk_start;
 extern uint32_t __mbed_krbs_start;
+
+#define NU_HEAP_ALIGN       32
 
 /**
  * The default implementation of _sbrk() (in common/retarget.cpp) for GCC_ARM requires one-region model (heap and stack share one region), which doesn't
@@ -23,8 +26,8 @@ extern uint32_t __mbed_krbs_start;
 void *__wrap__sbrk(int incr)
 {
     static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
-    uint32_t heap_ind_old = heap_ind;
-    uint32_t heap_ind_new = (heap_ind_old + incr + 7) & ~7;
+    uint32_t heap_ind_old = NU_ALIGN_UP(heap_ind, NU_HEAP_ALIGN);
+    uint32_t heap_ind_new = NU_ALIGN_UP(heap_ind_old + incr, NU_HEAP_ALIGN);
     
     if (heap_ind_new > &__mbed_krbs_start) {
         errno = ENOMEM;
