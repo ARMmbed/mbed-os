@@ -178,11 +178,11 @@ public:
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    /** Return number of connected clients
+    /** Return number of connected stations
      *
      *  @return         Number of connected WiFi clients, or negative on error
      */
-    virtual nsapi_size_or_error_t ap_connected()
+    virtual nsapi_size_or_error_t ap_sta_number()
     {
         return NSAPI_ERROR_UNSUPPORTED;
     }
