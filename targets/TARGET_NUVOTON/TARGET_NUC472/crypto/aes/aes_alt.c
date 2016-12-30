@@ -21,6 +21,9 @@
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -588,3 +591,5 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
 
 
 #endif /* MBEDTLS_AES_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */
