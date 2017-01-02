@@ -267,18 +267,18 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
 
     // Put CAN in Reset Mode and enable interrupt
     can_disable(obj);
-    if (!(enabled_irqs && IRQ_ENABLE_ANY)) {
+    if (!(enabled_irqs & IRQ_ENABLE_ANY)) {
         LPC_C_CAN0->CANCNTL &= ~(1UL << 1 | 1UL << 2 | 1UL << 3);
     } else {
         LPC_C_CAN0->CANCNTL |= 1UL << 1;
         // Use status interrupts instead of message interrupts to avoid
         // stomping over potential filter configurations.
-        if (enabled_irqs && IRQ_ENABLE_STATUS) {
+        if (enabled_irqs & IRQ_ENABLE_STATUS) {
             LPC_C_CAN0->CANCNTL |= 1UL << 2;
         } else {
             LPC_C_CAN0->CANCNTL &= ~(1UL << 2);
         }
-        if (enabled_irqs && IRQ_ENABLE_ERROR) {
+        if (enabled_irqs & IRQ_ENABLE_ERROR) {
             LPC_C_CAN0->CANCNTL |= 1UL << 3;
         } else {
             LPC_C_CAN0->CANCNTL &= ~(1UL << 3);
