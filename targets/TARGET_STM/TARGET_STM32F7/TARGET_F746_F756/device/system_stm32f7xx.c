@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f7xx.c
   * @author  MCD Application Team
-  * @version V1.0.2
-  * @date    21-September-2015
+  * @version V1.1.2
+  * @date    23-September-2016 
   * @brief   CMSIS Cortex-M7 Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
