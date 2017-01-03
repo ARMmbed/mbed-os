@@ -2133,7 +2133,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     base_path = norm_relative_path(build_path, execution_directory)
 
     target_name = target if isinstance(target, str) else target.name
-    cfg, macros, features = get_config(base_source_paths, target_name, toolchain_name)
+    cfg, _, _ = get_config(base_source_paths, target_name, toolchain_name)
 
     baud_rate = 9600
     if 'platform.stdio-baud-rate' in cfg:
