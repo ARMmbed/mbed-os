@@ -16,7 +16,7 @@
 # limitations under the License.
 
 from tools.export import codered, ds5_5, iar, makefile
-from tools.export import emblocks, coide, kds, simplicityv3, atmelstudio
+from tools.export import embitz, coide, kds, simplicityv3, atmelstudio
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
 from tools.targets import TARGET_NAMES
 
@@ -30,7 +30,7 @@ EXPORTERS = {
     'make_iar': makefile.IAR,
     'ds5_5': ds5_5.DS5_5,
     'iar': iar.IAR,
-    'emblocks' : emblocks.IntermediateFile,
+    'embitz' : embitz.EmBitz,
     'coide' : coide.CoIDE,
     'kds' : kds.KDS,
     'simplicityv3' : simplicityv3.SimplicityV3,
