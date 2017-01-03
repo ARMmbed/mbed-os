@@ -106,6 +106,8 @@
 #define ENET_NTOHS(n) __REV16(n)
 #define ENET_NTOHL(n) __REV(n)
 
+/* Typedef for interrupt handler. */
+typedef void (*enet_isr_t)(ENET_Type *base, enet_handle_t *handle);
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -132,7 +134,18 @@ static void ENET_SetMacController(ENET_Type *base,
                                   const enet_buffer_config_t *bufferConfig,
                                   uint8_t *macAddr,
                                   uint32_t srcClock_Hz);
-
+/*!
+ * @brief Set ENET handler.
+ *
+ * @param base ENET peripheral base address.
+ * @param handle The ENET handle pointer.
+ * @param config ENET configuration stucture pointer.
+ * @param bufferConfig ENET buffer configuration.
+ */
+static void ENET_SetHandler(ENET_Type *base,
+                            enet_handle_t *handle,
+                            const enet_config_t *config,
+                            const enet_buffer_config_t *bufferConfig);
 /*!
  * @brief Set ENET MAC transmit buffer descriptors.
  *
@@ -226,22 +239,26 @@ static status_t ENET_StoreRxFrameTime(ENET_Type *base, enet_handle_t *handle, en
 static enet_handle_t *s_ENETHandle[FSL_FEATURE_SOC_ENET_COUNT] = {NULL};
 
 /*! @brief Pointers to enet clocks for each instance. */
-const clock_ip_name_t s_enetClock[FSL_FEATURE_SOC_ENET_COUNT] = ENET_CLOCKS;
+const clock_ip_name_t s_enetClock[] = ENET_CLOCKS;
 
 /*! @brief Pointers to enet transmit IRQ number for each instance. */
-const IRQn_Type s_enetTxIrqId[] = ENET_Transmit_IRQS;
+static const IRQn_Type s_enetTxIrqId[] = ENET_Transmit_IRQS;
 /*! @brief Pointers to enet receive IRQ number for each instance. */
-const IRQn_Type s_enetRxIrqId[] = ENET_Receive_IRQS;
+static const IRQn_Type s_enetRxIrqId[] = ENET_Receive_IRQS;
 #if defined(ENET_ENHANCEDBUFFERDESCRIPTOR_MODE) && ENET_ENHANCEDBUFFERDESCRIPTOR_MODE
 /*! @brief Pointers to enet timestamp IRQ number for each instance. */
-const IRQn_Type s_enetTsIrqId[] = ENET_1588_Timer_IRQS;
+static const IRQn_Type s_enetTsIrqId[] = ENET_1588_Timer_IRQS;
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 /*! @brief Pointers to enet error IRQ number for each instance. */
-const IRQn_Type s_enetErrIrqId[] = ENET_Error_IRQS;
+static const IRQn_Type s_enetErrIrqId[] = ENET_Error_IRQS;
 
 /*! @brief Pointers to enet bases for each instance. */
 static ENET_Type *const s_enetBases[] = ENET_BASE_PTRS;
 
+/* ENET ISR for transactional APIs. */
+static enet_isr_t s_enetTxIsr;
+static enet_isr_t s_enetRxIsr;
+static enet_isr_t s_enetErrIsr;
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -312,26 +329,13 @@ void ENET_Init(ENET_Type *base,
     /* Initializes the ENET receive buffer descriptors. */
     ENET_SetRxBufferDescriptors(bufferConfig->rxBdStartAddrAlign, bufferConfig->rxBufferAlign,
                                 bufferConfig->rxBuffSizeAlign, bufferConfig->rxBdNumber,
-                                !!(config->interrupt & (kENET_RxFrameInterrupt | kENET_RxByteInterrupt)));
+                                !!(config->interrupt & (kENET_RxFrameInterrupt | kENET_RxBufferInterrupt)));
 
     /* Initializes the ENET MAC controller. */
     ENET_SetMacController(base, config, bufferConfig, macAddr, srcClock_Hz);
 
-    /* Initialize the handle to zero. */
-    memset(handle, 0, sizeof(enet_handle_t));
-
-    /* Store transfer parameters in handle pointer. */
-    handle->rxBdBase = bufferConfig->rxBdStartAddrAlign;
-    handle->rxBdCurrent = bufferConfig->rxBdStartAddrAlign;
-    handle->rxBdDirty = bufferConfig->rxBdStartAddrAlign;
-    handle->txBdBase = bufferConfig->txBdStartAddrAlign;
-    handle->txBdCurrent = bufferConfig->txBdStartAddrAlign;
-    handle->txBdDirty = bufferConfig->txBdStartAddrAlign;
-    handle->rxBuffSizeAlign = bufferConfig->rxBuffSizeAlign;
-    handle->txBuffSizeAlign = bufferConfig->txBuffSizeAlign;
-
-    /* Save the handle pointer in the global variables. */
-    s_ENETHandle[instance] = handle;
+    /* Set all buffers or data in handler for data transmit/receive process. */
+    ENET_SetHandler(base, handle, config, bufferConfig);
 }
 
 void ENET_Deinit(ENET_Type *base)
@@ -353,6 +357,44 @@ void ENET_SetCallback(enet_handle_t *handle, enet_callback_t callback, void *use
     /* Set callback and userData. */
     handle->callback = callback;
     handle->userData = userData;
+}
+
+static void ENET_SetHandler(ENET_Type *base,
+                            enet_handle_t *handle,
+                            const enet_config_t *config,
+                            const enet_buffer_config_t *bufferConfig)
+{
+    uint32_t instance = ENET_GetInstance(base);
+
+    memset(handle, 0, sizeof(enet_handle_t));
+
+    handle->rxBdBase = bufferConfig->rxBdStartAddrAlign;
+    handle->rxBdCurrent = bufferConfig->rxBdStartAddrAlign;
+    handle->txBdBase = bufferConfig->txBdStartAddrAlign;
+    handle->txBdCurrent = bufferConfig->txBdStartAddrAlign;
+    handle->txBdDirty = bufferConfig->txBdStartAddrAlign;
+    handle->rxBuffSizeAlign = bufferConfig->rxBuffSizeAlign;
+    handle->txBuffSizeAlign = bufferConfig->txBuffSizeAlign;
+
+    /* Save the handle pointer in the global variables. */
+    s_ENETHandle[instance] = handle;
+
+    /* Set the IRQ handler when the interrupt is enabled. */
+    if (config->interrupt & ENET_TX_INTERRUPT)
+    {
+        s_enetTxIsr = ENET_TransmitIRQHandler;
+        EnableIRQ(s_enetTxIrqId[instance]);
+    }
+    if (config->interrupt & ENET_RX_INTERRUPT)
+    {
+        s_enetRxIsr = ENET_ReceiveIRQHandler;
+        EnableIRQ(s_enetRxIrqId[instance]);
+    }
+    if (config->interrupt & ENET_ERR_INTERRUPT)
+    {
+        s_enetErrIsr = ENET_ErrorIRQHandler;
+        EnableIRQ(s_enetErrIrqId[instance]);
+    }
 }
 
 static void ENET_SetMacController(ENET_Type *base,
@@ -452,20 +494,6 @@ static void ENET_SetMacController(ENET_Type *base,
 
     /* Enables Ethernet interrupt and NVIC. */
     ENET_EnableInterrupts(base, config->interrupt);
-    if (config->interrupt & (kENET_RxByteInterrupt | kENET_RxFrameInterrupt))
-    {
-        EnableIRQ(s_enetRxIrqId[instance]);
-    }
-    if (config->interrupt & (kENET_TxByteInterrupt | kENET_TxFrameInterrupt))
-    {
-        EnableIRQ(s_enetTxIrqId[instance]);
-    }
-    if (config->interrupt & (kENET_BabrInterrupt | kENET_BabtInterrupt | kENET_GraceStopInterrupt | kENET_MiiInterrupt |
-                             kENET_EBusERInterrupt | kENET_LateCollisionInterrupt | kENET_RetryLimitInterrupt |
-                             kENET_UnderrunInterrupt | kENET_PayloadRxInterrupt | kENET_WakeupInterrupt))
-    {
-        EnableIRQ(s_enetErrIrqId[instance]);
-    }
 
     /* ENET control register setting. */
     ecr = base->ECR;
@@ -490,10 +518,10 @@ static void ENET_SetTxBufferDescriptors(volatile enet_tx_bd_struct_t *txBdStartA
 
     for (count = 0; count < txBdNumber; count++)
     {
-        if (txBuffSizeAlign != NULL)
+        if (txBuffStartAlign != NULL)
         {
-        /* Set data buffer address. */
-        curBuffDescrip->buffer = (uint8_t *)((uint32_t)&txBuffStartAlign[count * txBuffSizeAlign]);
+            /* Set data buffer address. */
+            curBuffDescrip->buffer = (uint8_t *)((uint32_t)&txBuffStartAlign[count * txBuffSizeAlign]);
         }
         else
         {
@@ -517,6 +545,7 @@ static void ENET_SetTxBufferDescriptors(volatile enet_tx_bd_struct_t *txBdStartA
         /* Increase the index. */
         curBuffDescrip++;
     }
+
 }
 
 static void ENET_SetRxBufferDescriptors(volatile enet_rx_bd_struct_t *rxBdStartAlign,
@@ -564,12 +593,8 @@ static void ENET_SetRxBufferDescriptors(volatile enet_rx_bd_struct_t *rxBdStartA
 
 void ENET_SetMII(ENET_Type *base, enet_mii_speed_t speed, enet_mii_duplex_t duplex)
 {
-    uint32_t rcr;
-    uint32_t tcr;
-
-    rcr = base->RCR;
-    tcr = base->TCR;
-
+    uint32_t rcr = base->RCR;
+    uint32_t tcr = base->TCR;
     /* Sets speed mode. */
     if (kENET_MiiSpeed10M == speed)
     {
@@ -1274,11 +1299,9 @@ void ENET_Ptp1588Configure(ENET_Type *base, enet_handle_t *handle, enet_ptp_conf
 
     /* Enables the time stamp interrupt for the master clock on a device. */
     ENET_EnableInterrupts(base, kENET_TsTimerInterrupt);
-    EnableIRQ(s_enetTsIrqId[instance]);
-
     /* Enables the transmit interrupt to store the transmit frame time-stamp. */
     ENET_EnableInterrupts(base, kENET_TxFrameInterrupt);
-    EnableIRQ(s_enetTxIrqId[instance]);
+    ENET_DisableInterrupts(base, kENET_TxBufferInterrupt);
 
     /* Setting the receive and transmit state for transaction. */
     handle->rxPtpTsDataRing.ptpTsData = ptpConfig->rxPtpTsData;
@@ -1292,6 +1315,11 @@ void ENET_Ptp1588Configure(ENET_Type *base, enet_handle_t *handle, enet_ptp_conf
     handle->msTimerSecond = 0;
     handle->txBdDirtyTime = handle->txBdBase;
     handle->txBdDirtyStatic = handle->txBdBase;
+
+    /* Set the IRQ handler when the interrupt is enabled. */
+    s_enetTxIsr = ENET_TransmitIRQHandler;
+    EnableIRQ(s_enetTsIrqId[instance]);
+    EnableIRQ(s_enetTxIrqId[instance]);
 }
 
 void ENET_Ptp1588StartTimer(ENET_Type *base, uint32_t ptpClkSrc)
@@ -1591,14 +1619,19 @@ void ENET_TransmitIRQHandler(ENET_Type *base, enet_handle_t *handle)
     assert(handle);
 
     /* Check if the transmit interrupt happen. */
-    if ((kENET_TxByteInterrupt | kENET_TxFrameInterrupt) & base->EIR)
+    while ((kENET_TxBufferInterrupt | kENET_TxFrameInterrupt) & base->EIR)
     {
-        /* Clear the transmit interrupt event. */
-        base->EIR = kENET_TxFrameInterrupt | kENET_TxByteInterrupt;
 #ifdef ENET_ENHANCEDBUFFERDESCRIPTOR_MODE
+        if (base->EIR & kENET_TxFrameInterrupt)
+        {
         /* Store the transmit timestamp from the buffer descriptor should be done here. */
         ENET_StoreTxFrameTime(base, handle);
+        }
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
+
+        /* Clear the transmit interrupt event. */
+        base->EIR = kENET_TxFrameInterrupt | kENET_TxBufferInterrupt;
+
         /* Callback function. */
         if (handle->callback)
         {
@@ -1612,10 +1645,10 @@ void ENET_ReceiveIRQHandler(ENET_Type *base, enet_handle_t *handle)
     assert(handle);
 
     /* Check if the receive interrupt happen. */
-    if ((kENET_RxByteInterrupt | kENET_RxFrameInterrupt) & base->EIR)
+    while ((kENET_RxBufferInterrupt | kENET_RxFrameInterrupt) & base->EIR)
     {
         /* Clear the transmit interrupt event. */
-        base->EIR = kENET_RxFrameInterrupt | kENET_RxByteInterrupt;
+        base->EIR = kENET_RxFrameInterrupt | kENET_RxBufferInterrupt;
 
         /* Callback function. */
         if (handle->callback)
@@ -1688,26 +1721,24 @@ void ENET_Ptp1588TimerIRQHandler(ENET_Type *base, enet_handle_t *handle)
         }
     }
 }
+
+void ENET_1588_Timer_IRQHandler(void)
+{
+    ENET_Ptp1588TimerIRQHandler(ENET, s_ENETHandle[0]);
+}
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 
 void ENET_Transmit_IRQHandler(void)
 {
-    ENET_TransmitIRQHandler(ENET, s_ENETHandle[0]);
+    s_enetTxIsr(ENET, s_ENETHandle[0]);
 }
 
 void ENET_Receive_IRQHandler(void)
 {
-    ENET_ReceiveIRQHandler(ENET, s_ENETHandle[0]);
+    s_enetRxIsr(ENET, s_ENETHandle[0]);
 }
 
 void ENET_Error_IRQHandler(void)
 {
-    ENET_ErrorIRQHandler(ENET, s_ENETHandle[0]);
-}
-
-void ENET_1588_Timer_IRQHandler(void)
-{
-#ifdef ENET_ENHANCEDBUFFERDESCRIPTOR_MODE
-    ENET_Ptp1588TimerIRQHandler(ENET, s_ENETHandle[0]);
-#endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
+    s_enetErrIsr(ENET, s_ENETHandle[0]);
 }
