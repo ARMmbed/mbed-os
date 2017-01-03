@@ -121,6 +121,10 @@
 #define ENET_BUFFDESCRIPTOR_RX_EXT_ERR_MASK \
     (ENET_BUFFDESCRIPTOR_RX_MACERR_MASK | ENET_BUFFDESCRIPTOR_RX_PHYERR_MASK | ENET_BUFFDESCRIPTOR_RX_COLLISION_MASK)
 #endif
+#define ENET_TX_INTERRUPT (kENET_TxFrameInterrupt | kENET_TxBufferInterrupt)
+#define ENET_RX_INTERRUPT (kENET_RxFrameInterrupt | kENET_RxBufferInterrupt)
+#define ENET_ERR_INTERRUPT (kENET_BabrInterrupt | kENET_BabtInterrupt | kENET_EBusERInterrupt | \
+    kENET_LateCollisionInterrupt | kENET_RetryLimitInterrupt | kENET_UnderrunInterrupt | kENET_PayloadRxInterrupt)
 
 /*! @name Defines the maximum Ethernet frame size. */
 /*@{*/
