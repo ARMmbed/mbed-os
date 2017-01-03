@@ -26,6 +26,8 @@
 #include "NanostackEthernetInterface.h"
 #include "MeshInterfaceNanostack.h"
 
+struct ns_address;
+
 class NanostackInterface : public NetworkStack {
 public:
     static NanostackInterface *get_stack();
@@ -229,6 +231,8 @@ protected:
     virtual nsapi_error_t getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 
 private:
+    nsapi_size_or_error_t do_sendto(void *handle, const struct ns_address *address, const void *data, nsapi_size_t size);
+    char text_ip_address[40];
     static NanostackInterface * _ns_interface;
 };
 
