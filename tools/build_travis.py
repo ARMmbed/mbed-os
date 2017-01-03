@@ -194,7 +194,6 @@ linking_list = [
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
-               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
              }
     },
     {"target": "NUCLEO_F429ZI",
