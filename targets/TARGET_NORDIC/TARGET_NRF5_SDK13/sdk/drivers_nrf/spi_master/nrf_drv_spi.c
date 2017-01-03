@@ -601,6 +601,27 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
         return err_code;
     )
 }
+
+// modification for mbed-os
+#if __MBED__
+void nrf_drv_spi_abort(nrf_drv_spi_t const * p_instance)
+{
+    spi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    ASSERT(p_cb->state != NRF_DRV_STATE_UNINITIALIZED);
+
+    CODE_FOR_SPIM
+    (
+        nrf_spim_task_trigger(p_instance, NRF_SPIM_TASK_STOP);
+        while (!nrf_spim_event_check(p_instance, NRF_SPIM_EVENT_STOPPED)) {}
+        p_cb->transfer_in_progress = false;
+    )
+    CODE_FOR_SPI
+    (
+        p_cb->abort = true;
+    )
+}
+#endif
+
 #ifdef SPIM_IN_USE
 static void irq_handler_spim(NRF_SPIM_Type * p_spim, spi_control_block_t * p_cb)
 {

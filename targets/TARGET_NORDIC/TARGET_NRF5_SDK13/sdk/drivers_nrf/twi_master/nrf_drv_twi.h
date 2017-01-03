@@ -380,6 +380,19 @@ ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
                             nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
                             uint32_t                        flags);
 
+// modification for mbed-os
+#if __MBED__
+/**
+ * @brief Function for checking the TWI driver state.
+ *
+ * @param[in] p_instance TWI instance.
+ *
+ * @retval true  If the TWI driver is currently busy performing a transfer.
+ * @retval false If the TWI driver is ready for a new transfer.
+ */
+bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance);
+#endif
+
 /**
  * @brief Function for getting the transferred data count.
  *
