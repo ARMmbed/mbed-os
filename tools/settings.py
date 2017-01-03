@@ -34,7 +34,7 @@ ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
 GCC_ARM_PATH = ""
 
 # GCC CodeRed
-GCC_CR_PATH = "c:/nxp/LPCXpresso_8.2.0_647/lpcxpresso/tools/bin" 
+GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
 IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.3/arm"
@@ -49,7 +49,7 @@ CPPCHECK_MSG_FORMAT = ["--template=[{severity}] {file}@{line}: {id}:{message}"]
 BUILD_OPTIONS = []
 
 # mbed.org username
-MBED_ORG_USER = "JojoS"
+MBED_ORG_USER = ""
 
 CLI_COLOR_MAP = {
     "warning": "yellow",
