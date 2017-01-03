@@ -55,6 +55,12 @@ SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, "sd");
 #elif defined(TARGET_LPC11U37H_401)
 SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 
+#elif defined(TARGET_NUMAKER_PFM_NUC472)
+SDFileSystem sd(PF_0, PD_15, PD_14, PD_13, "sd");
+
+#elif defined(TARGET_NUMAKER_PFM_M453)
+SDFileSystem sd(PD_13, PD_14, PD_15, PD_12, "sd");
+
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif

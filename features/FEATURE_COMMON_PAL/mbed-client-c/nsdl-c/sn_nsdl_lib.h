@@ -25,6 +25,12 @@
 #ifndef SN_NSDL_LIB_H_
 #define SN_NSDL_LIB_H_
 
+#ifdef MBED_CLIENT_C_NEW_API
+
+#include "nsdl-c/sn_nsdl_lib2.h"
+
+#else
+
 #include "ns_list.h"
 
 #ifdef __cplusplus
@@ -723,8 +729,40 @@ extern int8_t sn_nsdl_set_block_size(struct nsdl_s *handle, uint16_t block_size)
  */
 extern int8_t sn_nsdl_set_duplicate_buffer_size(struct nsdl_s *handle, uint8_t message_count);
 
+/**
+ * \fn void *sn_nsdl_set_context(const struct nsdl_s *handle, void *context)
+ *
+ * \brief Set the application defined context parameter for given handle.
+ *        This is useful for example when interfacing with c++ objects where a
+ *        pointer to object is set as the context, and in the callback functions
+ *        the context pointer can be used to call methods for the correct instance
+ *        of the c++ object.
+ *
+ * \param *handle Pointer to library handle
+ * \param *context Pointer to the application defined context
+ * \return 0 = success, -1 = failure
+ */
+extern int8_t sn_nsdl_set_context(struct nsdl_s * const handle, void * const context);
+
+/**
+ * \fn void *sn_nsdl_get_context(const struct nsdl_s *handle)
+ *
+ * \brief Get the application defined context parameter for given handle.
+ *        This is useful for example when interfacing with c++ objects where a
+ *        pointer to object is set as the context, and in the callback functions
+ *        the context pointer can be used to call methods for the correct instance
+ *        of the c++ object.
+ *
+ * \param *handle Pointer to library handle
+ * \return Pointer to the application defined context
+ */
+extern void *sn_nsdl_get_context(const struct nsdl_s * const handle);
+
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* MBED_CLIENT_C_NEW_API */
+
 
 #endif /* SN_NSDL_LIB_H_ */

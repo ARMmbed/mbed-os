@@ -303,7 +303,7 @@ void USBD_StandardRequest(void)
     if (gUsbCmd.bmRequestType & 0x80) { /* request data transfer direction */
         // Device to host
         switch (gUsbCmd.bRequest) {
-        case GET_CONFIGURATION: {
+        case USBD_GET_CONFIGURATION: {
             // Return current configuration setting
             USBD_PrepareCtrlIn((uint8_t *)&g_usbd_UsbConfig, 1);
 
@@ -311,14 +311,14 @@ void USBD_StandardRequest(void)
             USBD_ENABLE_CEP_INT(USBD_CEPINTEN_INTKIEN_Msk);
             break;
         }
-        case GET_DESCRIPTOR: {
+        case USBD_GET_DESCRIPTOR: {
             if (!USBD_GetDescriptor()) {
                 USBD_CLR_CEP_INT_FLAG(USBD_CEPINTSTS_INTKIF_Msk);
                 USBD_ENABLE_CEP_INT(USBD_CEPINTEN_INTKIEN_Msk);
             }
             break;
         }
-        case GET_INTERFACE: {
+        case USBD_GET_INTERFACE: {
             // Return current interface setting
             USBD_PrepareCtrlIn((uint8_t *)&g_usbd_UsbAltInterface, 1);
 
@@ -326,7 +326,7 @@ void USBD_StandardRequest(void)
             USBD_ENABLE_CEP_INT(USBD_CEPINTEN_INTKIEN_Msk);
             break;
         }
-        case GET_STATUS: {
+        case USBD_GET_STATUS: {
             // Device
             if (gUsbCmd.bmRequestType == 0x80) {
                 if (g_usbd_sInfo->gu8ConfigDesc[7] & 0x40)
@@ -357,14 +357,14 @@ void USBD_StandardRequest(void)
     } else {
         // Host to device
         switch (gUsbCmd.bRequest) {
-        case CLEAR_FEATURE: {
+        case USBD_CLEAR_FEATURE: {
             /* Status stage */
             USBD_CLR_CEP_INT_FLAG(USBD_CEPINTSTS_STSDONEIF_Msk);
             USBD_SET_CEP_STATE(USB_CEPCTL_NAKCLR);
             USBD_ENABLE_CEP_INT(USBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_ADDRESS: {
+        case USBD_SET_ADDRESS: {
             g_usbd_UsbAddr = (uint8_t)gUsbCmd.wValue;
 
             // DATA IN for end of setup
@@ -374,7 +374,7 @@ void USBD_StandardRequest(void)
             USBD_ENABLE_CEP_INT(USBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_CONFIGURATION: {
+        case USBD_SET_CONFIGURATION: {
             g_usbd_UsbConfig = (uint8_t)gUsbCmd.wValue;
             g_usbd_Configured = 1;
             // DATA IN for end of setup
@@ -384,14 +384,14 @@ void USBD_StandardRequest(void)
             USBD_ENABLE_CEP_INT(USBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_FEATURE: {
+        case USBD_SET_FEATURE: {
             /* Status stage */
             USBD_CLR_CEP_INT_FLAG(USBD_CEPINTSTS_STSDONEIF_Msk);
             USBD_SET_CEP_STATE(USB_CEPCTL_NAKCLR);
             USBD_ENABLE_CEP_INT(USBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_INTERFACE: {
+        case USBD_SET_INTERFACE: {
             g_usbd_UsbAltInterface = (uint8_t)gUsbCmd.wValue;
             if (g_usbd_pfnSetInterface != NULL)
                 g_usbd_pfnSetInterface(g_usbd_UsbAltInterface);
@@ -422,16 +422,16 @@ void USBD_StandardRequest(void)
 void USBD_UpdateDeviceState(void)
 {
     switch (gUsbCmd.bRequest) {
-    case SET_ADDRESS: {
+    case USBD_SET_ADDRESS: {
         USBD_SET_ADDR(g_usbd_UsbAddr);
         break;
     }
-    case SET_FEATURE: {
+    case USBD_SET_FEATURE: {
         if(gUsbCmd.wValue == FEATURE_ENDPOINT_HALT)
             USBD_SetStall(gUsbCmd.wIndex & 0xF);
         break;
     }
-    case CLEAR_FEATURE: {
+    case USBD_CLEAR_FEATURE: {
         if(gUsbCmd.wValue == FEATURE_ENDPOINT_HALT)
             USBD_ClearStall(gUsbCmd.wIndex & 0xF);
         break;
