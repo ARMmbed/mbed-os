@@ -525,7 +525,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_RXNE) == RESET) {
         if ((timeout--) == 0) {
-            return 2;
+            return -1;
         }
     }
 
@@ -622,7 +622,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
         while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
             if ((timeout--) == 0) {
                 DEBUG_PRINTF("timeout in byte_read\r\n");
-                return 2;
+                return -1;
             }
         }
     }
@@ -637,7 +637,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     timeout = FLAG_TIMEOUT;
     while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_RXNE)) {
         if ((timeout--) == 0) {
-            return 2;
+            return -1;
         }
     }
 
