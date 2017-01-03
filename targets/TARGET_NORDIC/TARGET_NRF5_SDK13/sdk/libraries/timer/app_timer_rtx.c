@@ -9,7 +9,8 @@
  * the file.
  *
  */
-
+#ifdef __MBED_CMSIS_RTOS_CM
+ 
 #include "sdk_common.h"
 #if NRF_MODULE_ENABLED(APP_TIMER)
 #include "app_timer.h"
@@ -254,3 +255,5 @@ uint32_t app_timer_cnt_diff_compute(uint32_t   ticks_to,
     return NRF_SUCCESS;
 }
 #endif //NRF_MODULE_ENABLED(APP_TIMER)
+
+#endif // __MBED_CMSIS_RTOS_CM

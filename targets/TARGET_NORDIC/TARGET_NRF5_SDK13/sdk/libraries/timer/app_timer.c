@@ -9,6 +9,8 @@
  * the file.
  *
  */
+#ifndef __MBED_CMSIS_RTOS_CM
+ 
 #include "sdk_common.h"
 #if NRF_MODULE_ENABLED(APP_TIMER)
 #include "app_timer.h"
@@ -1048,3 +1050,4 @@ uint8_t app_timer_op_queue_utilization_get(void)
 }
 #endif
 #endif //NRF_MODULE_ENABLED(APP_TIMER)
+#endif // __MBED_CMSIS_RTOS_CM

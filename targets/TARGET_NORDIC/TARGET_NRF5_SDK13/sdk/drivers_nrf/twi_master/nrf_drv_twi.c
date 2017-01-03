@@ -683,7 +683,18 @@ __STATIC_INLINE ret_code_t twi_xfer(twi_control_block_t           * p_cb,
 }
 #endif
 
+// modification for mbed-os
+#if __MBED__
+bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance)
+{
+    twi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    return p_cb->busy;
+}
+#endif
+
 #ifdef TWIM_IN_USE
+
+
 __STATIC_INLINE void twim_list_enable_handle(NRF_TWIM_Type * p_twim, uint32_t flags)
 {
     if (NRF_DRV_TWI_FLAG_TX_POSTINC & flags)
