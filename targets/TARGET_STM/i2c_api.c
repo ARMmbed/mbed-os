@@ -621,8 +621,8 @@ int i2c_byte_read(i2c_t *obj, int last) {
     if ((tmpreg & I2C_CR2_RELOAD) != 0) {
         while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
             if ((timeout--) == 0) {
-                printf("timeout in byte_read\r\n");
-                //return 2;
+                DEBUG_PRINTF("timeout in byte_read\r\n");
+                return 2;
             }
         }
     }
@@ -688,8 +688,8 @@ int i2c_byte_write(i2c_t *obj, int data) {
         if ((tmpreg & I2C_CR2_RELOAD) != 0) {
             while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
                 if ((timeout--) == 0) {
-                    printf("timeout in byte_write\r\n");
-                    //return 2;
+                    DEBUG_PRINTF("timeout in byte_write\r\n");
+                    return 2;
                 }
             }
         }
