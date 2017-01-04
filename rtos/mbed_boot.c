@@ -31,21 +31,22 @@
  * Detailed boot procedures:
  *
  * For ARMCC:
+ * ==========
  *
  * Reset (TARGET)
  *     -> SystemInit (TARGET)
  *     -> __main (LIBC)
  *         -> __rt_entry (MBED: rtos/mbed_boot.c)
  *             -> __user_setup_stackheap (LIBC)
+ *             -> set_stack_heap (MBED: rtos/mbed_boot.c)
+ *             -> __rt_lib_init (LIBC)
  *             -> mbed_sdk_init (TARGET)
  *             -> _platform_post_stackheap_init (RTX)
  *                 -> osKernelInitialize (RTX)
  *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
  *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
- *                 -> set_stack_heap (MBED: rtos/mbed_boot.c)
  *                 -> osThreadNew (RTX)
  *                     -> pre_main(MBED: rtos/mbed_boot.c)
- *                         -> __rt_lib_init (LIBC)
  *                         -> $Sub$$main (MBED: rtos/mbed_boot.c)
  *                             -> mbed_main (MBED: rtos/mbed_boot.c)
  *                             -> main (APP)
@@ -56,26 +57,66 @@
  * Support User Guide.
  *
  * For GCC:
+ * ========
  *
  * Reset (TARGET)
  *     -> SystemInit (TARGET)
  *     -> __main (LIBC)
  *         -> software_init_hook (MBED: rtos/mbed_boot.c)
+ *             -> set_stack_heap (MBED: rtos/mbed_boot.c)
  *             -> mbed_sdk_init (TARGET)
  *             -> osKernelInitialize (RTX)
  *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
  *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
- *                 -> set_stack_heap (MBED: rtos/mbed_boot.c)
  *                 -> osThreadNew (RTX)
  *                     -> pre_main(MBED: rtos/mbed_boot.c)
- *                         -> __libc_init_array (LIBC)
+ *                     -> __libc_init_array (LIBC)
  *                         -> __wrap_main (MBED: rtos/mbed_boot.c)
  *                             -> mbed_main (MBED: rtos/mbed_boot.c)
  *                             -> __real_main (APP)
  *                 -> osKernelStart (RTX)
  *
- * In addition to the above, libc will use functions defined in mbed_boot.c: __rtos_malloc_lock/unlock,
- * __rtos_env_lock/unlock.
+ *
+ * Other notes:
+ *
+ *    * In addition to the above, libc will use functions defined in mbed_boot.c: __rtos_malloc_lock/unlock,
+ *      __rtos_env_lock/unlock.
+ *
+ *    * First step after the execution is passed to mbed, software_init_hook for GCC and __rt_entry for ARMC is to
+ *      initialize heap.
+ *
+ * Memory layout notes:
+ * ====================
+ *
+ * IAR Default Memory layout notes:
+ * -Heap defined by "HEAP" region in .icf file
+ * -Interrupt stack defined by "CSTACK" region in .icf file
+ * -Value INITIAL_SP is ignored
+ *
+ * IAR Custom Memory layout notes:
+ * -There is no custom layout available for IAR - everything must be defined in
+ *      the .icf file and use the default layout
+ *
+ *
+ * GCC Default Memory layout notes:
+ * -Block of memory from symbol __end__ to define INITIAL_SP used to setup interrupt
+ *      stack and heap in the function set_stack_heap()
+ * -ISR_STACK_SIZE can be overridden to be larger or smaller
+ *
+ * GCC Custom Memory layout notes:
+ * -Heap can be explicitly placed by defining both HEAP_START and HEAP_SIZE
+ * -Interrupt stack can be explicitly placed by defining both ISR_STACK_START and ISR_STACK_SIZE
+ *
+ *
+ * ARM Memory layout
+ * -Block of memory from end of region "RW_IRAM1" to define INITIAL_SP used to setup interrupt
+ *      stack and heap in the function set_stack_heap()
+ * -ISR_STACK_SIZE can be overridden to be larger or smaller
+ *
+ * ARM Custom Memory layout notes:
+ * -Heap can be explicitly placed by defining both HEAP_START and HEAP_SIZE
+ * -Interrupt stack can be explicitly placed by defining both ISR_STACK_START and ISR_STACK_SIZE
+ *
  */
 
 #include "cmsis.h"
@@ -201,15 +242,13 @@ WEAK void mbed_main(void) {
 
 }
 
-extern "C" WEAK void mbed_sdk_init(void);
-extern "C" WEAK void mbed_sdk_init(void) {
+WEAK void mbed_sdk_init(void);
+WEAK void mbed_sdk_init(void) {
 }
 
 void mbed_start_main(void)
 {
     mbed_cpy_nvic();
-
-    mbed_set_stack_heap();
 
     _main_thread_attr.stack_mem = _main_stack;
     _main_thread_attr.stack_size = sizeof(_main_stack);
@@ -243,8 +282,6 @@ void pre_main (void)
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
-    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
-
     main(0, NULL);
 }
 
@@ -258,6 +295,8 @@ void pre_main (void)
 /* Called by the C library */
 void __rt_entry (void) {
     __user_setup_stackheap();
+    mbed_set_stack_heap();
+    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
     mbed_sdk_init();
     _platform_post_stackheap_init();
     mbed_start_main();
@@ -317,6 +356,7 @@ void software_init_hook(void)
         mbed_die();
     }
 #endif/* FEATURE_UVISOR */
+    mbed_set_stack_heap();
     mbed_sdk_init();
     osKernelInitialize();
     mbed_start_main();
