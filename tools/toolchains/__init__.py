@@ -512,6 +512,13 @@ class mbedToolchain:
                 return True
         return False
 
+    def add_ignore_patterns(self, root, base_path, patterns):
+        real_base = relpath(root, base_path)
+        if real_base == ".":
+            self.ignore_patterns.extend(patterns)
+        else:
+            self.ignore_patterns.extend(join(real_base, pat) for pat in patterns)
+
     # Create a Resources object from the path pointed to by *path* by either traversing a
     # a directory structure, when *path* is a directory, or adding *path* to the resources,
     # when *path* is a file.
@@ -559,10 +566,11 @@ class mbedToolchain:
                     lines = [l for l in lines if l != ""] # Strip empty lines
                     lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
                     # Append root path to glob patterns and append patterns to ignore_patterns
-                    self.ignore_patterns.extend([join(root,line.strip()) for line in lines])
+                    self.add_ignore_patterns(root, base_path, lines)
 
             # Skip the whole folder if ignored, e.g. .mbedignore containing '*'
-            if self.is_ignored(join(root,"")):
+            if self.is_ignored(join(relpath(root, base_path),"")):
+                dirs[:] = []
                 continue
 
             for d in copy(dirs):
@@ -577,7 +585,7 @@ class mbedToolchain:
                     # Ignore toolchain that do not match the current TOOLCHAIN
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     # Ignore .mbedignore files
-                    self.is_ignored(join(dir_path,"")) or
+                    self.is_ignored(join(relpath(root, base_path), d,"")) or
                     # Ignore TESTS dir
                     (d == 'TESTS')):
                         dirs.remove(d)
@@ -606,7 +614,7 @@ class mbedToolchain:
     def _add_file(self, file_path, resources, base_path, exclude_paths=None):
         resources.file_basepath[file_path] = base_path
 
-        if self.is_ignored(file_path):
+        if self.is_ignored(relpath(file_path, base_path)):
             return
 
         _, ext = splitext(file_path)
