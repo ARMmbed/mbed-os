@@ -840,6 +840,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   RCC_OscInitStruct.PLL.PLLN            = 192;           // VCO output clock = 384 MHz (2 MHz * 192)
   RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV4; // PLLCLK = 96 MHz (384 MHz / 4)
   RCC_OscInitStruct.PLL.PLLQ            = 8;             // USB clock = 48 MHz (384 MHz / 8) --> Good for USB
+  RCC_OscInitStruct.PLL.PLLR            = 2;             // I2S clocks
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     return 0; // FAIL

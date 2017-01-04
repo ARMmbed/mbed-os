@@ -16,6 +16,11 @@
 #ifndef GRS_H_
 #define GRS_H_
 
+#ifdef MBED_CLIENT_C_NEW_API
+
+#include "sn_grs2.h"
+
+#else
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,6 +84,9 @@ struct nsdl_s {
     uint8_t *oma_bs_address_ptr;                                                /* Bootstrap address pointer. If null, no bootstrap in use */
     sn_nsdl_ep_parameters_s *ep_information_ptr;                                // Endpoint parameters, Name, Domain etc..
     sn_nsdl_oma_server_info_t *nsp_address_ptr;                                 // NSP server address information
+    /* Application definable context. This is useful for example when interfacing with c++ objects where a pointer to object is set as the
+     * context, and in the callback functions the context pointer can be used to call methods for the correct instance of the c++ object. */
+    void *context;
 
     void (*sn_nsdl_oma_bs_done_cb)(sn_nsdl_oma_server_info_t *server_info_ptr); /* Callback to inform application when bootstrap is done */
     void *(*sn_nsdl_alloc)(uint16_t);
@@ -128,7 +136,7 @@ extern void                             sn_grs_mark_resources_as_registered(stru
 }
 #endif
 
-
+#endif /* MBED_CLIENT_C_NEW_API */
 
 
 #endif /* GRS_H_ */

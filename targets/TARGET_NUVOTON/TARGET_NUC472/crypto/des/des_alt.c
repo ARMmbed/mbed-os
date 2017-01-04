@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -408,3 +411,5 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
 #endif /* MBEDTLS_DES_ALT */
 #endif /* MBEDTLS_DES_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */
