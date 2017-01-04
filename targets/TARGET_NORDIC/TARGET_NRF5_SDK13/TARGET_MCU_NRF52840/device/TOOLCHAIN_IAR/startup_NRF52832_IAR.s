@@ -118,7 +118,13 @@ __vector_table
         DCD     RTC2_IRQHandler_v
         DCD     I2S_IRQHandler_v
         DCD     FPU_IRQHandler_v
-
+        DCD     USBD_IRQHandler_v
+        DCD     UARTE1_IRQHandler_v
+        DCD     QSPI_IRQHandler_v
+        DCD     CRYPTOCELL_IRQHandler_v
+        DCD     SPIM3_IRQHandler_v
+        DCD     0                           /*Reserved */
+        DCD     PWM3_IRQHandler_v
 
 __Vectors_End
 __Vectors                           EQU   __vector_table
@@ -375,6 +381,36 @@ I2S_IRQHandler_v
 FPU_IRQHandler_v
         B .
 
+        PUBWEAK  USBD_IRQHandler_v
+        SECTION .text:CODE:NOROOT(1)
+USBD_IRQHandler_v
+        B .
+        
+        PUBWEAK  UARTE1_IRQHandler_v
+        SECTION .text:CODE:NOROOT(1)
+UARTE1_IRQHandler_v
+        B .
+
+        PUBWEAK  QSPI_IRQHandler_v
+        SECTION .text:CODE:NOROOT(1)
+QSPI_IRQHandler_v
+        B .
+
+        PUBWEAK  CRYPTOCELL_IRQHandler_v
+        SECTION .text:CODE:NOROOT(1)
+CRYPTOCELL_IRQHandler_v
+        B .
+
+        PUBWEAK  SPIM3_IRQHandler_v
+        SECTION .text:CODE:NOROOT(1)
+SPIM3_IRQHandler_v
+        B .
+
+        PUBWEAK  PWM3_IRQHandler_v
+        SECTION .text:CODE:NOROOT(1)
+PWM3_IRQHandler_v
+        B .
+        
 
         END
 
