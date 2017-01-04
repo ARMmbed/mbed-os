@@ -45,7 +45,7 @@ static NRF_GPIO_Type * const m_ports[] = GPIO_REG_LIST;
 
 PinName port_pin(PortName port, int pin_n)
 {
-    return NRF_GPIO_PIN_MAP(port, pin_n);
+    return (PinName)NRF_GPIO_PIN_MAP(port, pin_n);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)

@@ -283,9 +283,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_enable(UART_INSTANCE);
     }
     else {
-        UART_CB.baudrate = UART_DEFAULT_BAUDRATE;
-        UART_CB.parity   = UART_DEFAULT_PARITY;
-        UART_CB.hwfc     = UART_DEFAULT_HWFC;
+        UART_CB.baudrate = (nrf_uart_baudrate_t)UART_DEFAULT_BAUDRATE;
+        UART_CB.parity   = (nrf_uart_parity_t)UART_DEFAULT_PARITY;
+        UART_CB.hwfc     = (nrf_uart_hwfc_t)UART_DEFAULT_HWFC;
         UART_CB.pselcts  = UART_DEFAULT_CTS;
         UART_CB.pselrts  = UART_DEFAULT_RTS;
 
@@ -554,7 +554,7 @@ static void internal_set_hwfc(FlowControl type,
         nrf_gpio_cfg_input(UART_CB.pselcts, NRF_GPIO_PIN_NOPULL);
     }
     
-    UART_CB.hwfc = (type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART_DEFAULT_CONFIG_HWFC;
+    UART_CB.hwfc = (nrf_uart_hwfc_t)((type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART_DEFAULT_CONFIG_HWFC);
     
     nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
     nrf_uart_hwfc_pins_set(UART_INSTANCE, UART_CB.pselrts, UART_CB.pselcts);

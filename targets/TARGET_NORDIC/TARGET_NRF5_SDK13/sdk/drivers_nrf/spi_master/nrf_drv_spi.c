@@ -611,8 +611,8 @@ void nrf_drv_spi_abort(nrf_drv_spi_t const * p_instance)
 
     CODE_FOR_SPIM
     (
-        nrf_spim_task_trigger(p_instance, NRF_SPIM_TASK_STOP);
-        while (!nrf_spim_event_check(p_instance, NRF_SPIM_EVENT_STOPPED)) {}
+        nrf_spim_task_trigger(p_instance->p_registers, NRF_SPIM_TASK_STOP);
+        while (!nrf_spim_event_check(p_instance->p_registers, NRF_SPIM_EVENT_STOPPED)) {}
         p_cb->transfer_in_progress = false;
     )
     CODE_FOR_SPI
