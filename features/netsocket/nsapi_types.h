@@ -210,6 +210,7 @@ typedef enum nsapi_socket_option {
     NSAPI_LINGER,    /*!< Keeps close from returning until queues empty */
     NSAPI_SNDBUF,    /*!< Sets send buffer size */
     NSAPI_RCVBUF,    /*!< Sets recv buffer size */
+    NSAPI_BROADCAST, /*!< Receive broadcast packets */
 } nsapi_socket_option_t;
 
 /* Backwards compatibility - previously didn't distinguish stack and socket options */

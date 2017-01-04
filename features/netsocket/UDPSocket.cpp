@@ -121,6 +121,12 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
     return ret;
 }
 
+nsapi_error_t UDPSocket::set_broadcast(bool broadcast)
+{
+    int _broadcast = broadcast ? 1 : 0;
+    return setsockopt(NSAPI_SOCKET, NSAPI_BROADCAST, &_broadcast, sizeof(int));
+}
+
 void UDPSocket::event()
 {
     int32_t wcount = _write_sem.wait(0);
