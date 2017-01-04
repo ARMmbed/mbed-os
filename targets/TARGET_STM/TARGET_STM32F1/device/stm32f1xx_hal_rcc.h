@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    29-April-2016
+  * @version V1.0.5
+  * @date    06-December-2016
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention

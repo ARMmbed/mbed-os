@@ -14581,7 +14581,7 @@ typedef struct
 
 #define IS_ADC_COMMON_INSTANCE(INSTANCE) ((INSTANCE) == ADC12_COMMON)
 /****************************** CAN Instances *********************************/
-#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN)
+#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN1)
 
 /****************************** COMP Instances ********************************/
 #define IS_COMP_ALL_INSTANCE(INSTANCE) (((INSTANCE) == COMP2) || \

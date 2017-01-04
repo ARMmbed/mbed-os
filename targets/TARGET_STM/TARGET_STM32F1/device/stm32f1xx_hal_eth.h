@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_eth.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    29-April-2016
+  * @version V1.0.5
+  * @date    06-December-2016
   * @brief   Header file of ETH HAL module.
   ******************************************************************************
   * @attention
@@ -1117,41 +1117,6 @@ typedef struct
 #define ETH_MAC_ADDRESSMASK_BYTE3      ((uint32_t)0x04000000)  /*!< Mask MAC Address low reg bits [23:16] */
 #define ETH_MAC_ADDRESSMASK_BYTE2      ((uint32_t)0x02000000)  /*!< Mask MAC Address low reg bits [15:8] */
 #define ETH_MAC_ADDRESSMASK_BYTE1      ((uint32_t)0x01000000)  /*!< Mask MAC Address low reg bits [70] */
-
-/**
-  * @}
-  */
-
-/** @defgroup ETH_MAC_Debug_Flags ETH MAC Debug Flags
-  * @{
-  */ 
-#define ETH_MAC_TXFIFO_FULL          ((uint32_t)0x02000000)  /* Tx FIFO full */
-#define ETH_MAC_TXFIFONOT_EMPTY      ((uint32_t)0x01000000)  /* Tx FIFO not empty */
-#define ETH_MAC_TXFIFO_WRITE_ACTIVE  ((uint32_t)0x00400000)  /* Tx FIFO write active */
-#define ETH_MAC_TXFIFO_IDLE     ((uint32_t)0x00000000)  /* Tx FIFO read status: Idle */
-#define ETH_MAC_TXFIFO_READ     ((uint32_t)0x00100000)  /* Tx FIFO read status: Read (transferring data to the MAC transmitter) */
-#define ETH_MAC_TXFIFO_WAITING  ((uint32_t)0x00200000)  /* Tx FIFO read status: Waiting for TxStatus from MAC transmitter */
-#define ETH_MAC_TXFIFO_WRITING  ((uint32_t)0x00300000)  /* Tx FIFO read status: Writing the received TxStatus or flushing the TxFIFO */
-#define ETH_MAC_TRANSMISSION_PAUSE     ((uint32_t)0x00080000)  /* MAC transmitter in pause */
-#define ETH_MAC_TRANSMITFRAMECONTROLLER_IDLE            ((uint32_t)0x00000000)  /* MAC transmit frame controller: Idle */
-#define ETH_MAC_TRANSMITFRAMECONTROLLER_WAITING         ((uint32_t)0x00020000)  /* MAC transmit frame controller: Waiting for Status of previous frame or IFG/backoff period to be over */
-#define ETH_MAC_TRANSMITFRAMECONTROLLER_GENRATING_PCF   ((uint32_t)0x00040000)  /* MAC transmit frame controller: Generating and transmitting a Pause control frame (in full duplex mode) */
-#define ETH_MAC_TRANSMITFRAMECONTROLLER_TRANSFERRING    ((uint32_t)0x00060000)  /* MAC transmit frame controller: Transferring input frame for transmission */
-#define ETH_MAC_MII_TRANSMIT_ACTIVE      ((uint32_t)0x00010000)  /* MAC MII transmit engine active */
-#define ETH_MAC_RXFIFO_EMPTY             ((uint32_t)0x00000000)  /* Rx FIFO fill level: empty */
-#define ETH_MAC_RXFIFO_BELOW_THRESHOLD   ((uint32_t)0x00000100)  /* Rx FIFO fill level: fill-level below flow-control de-activate threshold */
-#define ETH_MAC_RXFIFO_ABOVE_THRESHOLD   ((uint32_t)0x00000200)  /* Rx FIFO fill level: fill-level above flow-control activate threshold */
-#define ETH_MAC_RXFIFO_FULL              ((uint32_t)0x00000300)  /* Rx FIFO fill level: full */
-#define ETH_MAC_READCONTROLLER_IDLE            ((uint32_t)0x00000060)  /* Rx FIFO read controller IDLE state */
-#define ETH_MAC_READCONTROLLER_READING_DATA    ((uint32_t)0x00000060)  /* Rx FIFO read controller Reading frame data */
-#define ETH_MAC_READCONTROLLER_READING_STATUS  ((uint32_t)0x00000060)  /* Rx FIFO read controller Reading frame status (or time-stamp) */
-#define ETH_MAC_READCONTROLLER_FLUSHING        ((uint32_t)0x00000060)  /* Rx FIFO read controller Flushing the frame data and status */
-#define ETH_MAC_RXFIFO_WRITE_ACTIVE     ((uint32_t)0x00000010)  /* Rx FIFO write controller active */
-#define ETH_MAC_SMALL_FIFO_NOTACTIVE    ((uint32_t)0x00000000)  /* MAC small FIFO read / write controllers not active */
-#define ETH_MAC_SMALL_FIFO_READ_ACTIVE  ((uint32_t)0x00000002)  /* MAC small FIFO read controller active */
-#define ETH_MAC_SMALL_FIFO_WRITE_ACTIVE ((uint32_t)0x00000004)  /* MAC small FIFO write controller active */
-#define ETH_MAC_SMALL_FIFO_RW_ACTIVE    ((uint32_t)0x00000006)  /* MAC small FIFO read / write controllers active */
-#define ETH_MAC_MII_RECEIVE_PROTOCOL_ACTIVE   ((uint32_t)0x00000001)  /* MAC MII receive protocol engine active */
 
 /**
   * @}

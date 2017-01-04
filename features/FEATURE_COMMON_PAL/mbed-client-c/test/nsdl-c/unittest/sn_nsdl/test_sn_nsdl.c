@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM. All rights reserved.
+* Copyright (c) 2015 ARM. All rights reserved.
  */
 #include "test_sn_nsdl.h"
 #include <string.h>
@@ -279,6 +279,7 @@ bool test_sn_nsdl_register_endpoint()
     sn_grs_stub.expectedInfo->resource_parameters_ptr->interface_description_ptr[1] = '\0';
     sn_grs_stub.expectedInfo->resource_parameters_ptr->interface_description_len = 1;
     sn_grs_stub.expectedInfo->resource_parameters_ptr->observable = 1;
+    sn_grs_stub.expectedInfo->resource_parameters_ptr->coap_content_type = 0; // XXX: why was this left uninitialized? what was point of this test?
 
     sn_grs_stub.expectedInfo->path = (uint8_t*)malloc(2);
     sn_grs_stub.expectedInfo->path[0] = 'a';
@@ -309,7 +310,7 @@ bool test_sn_nsdl_register_endpoint()
     sn_grs_stub.infoRetCounter = 1;
     sn_grs_stub.expectedInfo = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
     memset( sn_grs_stub.expectedInfo, 0, sizeof(sn_nsdl_resource_info_s));
-    sn_grs_stub.expectedInfo->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
+    sn_grs_stub.expectedInfo->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)calloc(sizeof(sn_nsdl_resource_parameters_s), 1);
     sn_grs_stub.expectedInfo->resource_parameters_ptr->observable = 1;
     sn_grs_stub.expectedInfo->publish_uri = 1;
     eptr->binding_and_mode = 0x06;
@@ -351,6 +352,7 @@ bool test_sn_nsdl_register_endpoint()
     sn_grs_stub.expectedInfo->resource_parameters_ptr->interface_description_ptr[1] = '\0';
     sn_grs_stub.expectedInfo->resource_parameters_ptr->interface_description_len = 1;
     sn_grs_stub.expectedInfo->resource_parameters_ptr->observable = 1;
+    sn_grs_stub.expectedInfo->resource_parameters_ptr->coap_content_type = 0;
 
     sn_grs_stub.expectedInfo->path = (uint8_t*)malloc(2);
     sn_grs_stub.expectedInfo->path[0] = 'a';
@@ -617,6 +619,7 @@ bool test_sn_nsdl_register_endpoint()
     sn_grs_stub.expectedInfo->resource_parameters_ptr->interface_description_ptr[1] = '\0';
     sn_grs_stub.expectedInfo->resource_parameters_ptr->interface_description_len = 1;
     sn_grs_stub.expectedInfo->resource_parameters_ptr->observable = 1;
+    sn_grs_stub.expectedInfo->resource_parameters_ptr->coap_content_type = 0;
     sn_grs_stub.expectedInfo->path = (uint8_t*)malloc(2);
     sn_grs_stub.expectedInfo->path[0] = 'a';
     sn_grs_stub.expectedInfo->path[1] = '\0';
@@ -830,7 +833,7 @@ bool test_sn_nsdl_update_registration()
     sn_grs_stub.infoRetCounter = 1;
     sn_grs_stub.expectedInfo = (sn_nsdl_resource_info_s*)malloc(sizeof(sn_nsdl_resource_info_s));
     memset( sn_grs_stub.expectedInfo, 0, sizeof(sn_nsdl_resource_info_s));
-    sn_grs_stub.expectedInfo->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)malloc(sizeof(sn_nsdl_resource_parameters_s));
+    sn_grs_stub.expectedInfo->resource_parameters_ptr = (sn_nsdl_resource_parameters_s*)calloc(sizeof(sn_nsdl_resource_parameters_s), 1);
     sn_grs_stub.expectedInfo->resource_parameters_ptr->observable = 1;
     sn_grs_stub.expectedInfo->publish_uri = 1;
     retCounter = 3;
@@ -1505,7 +1508,7 @@ bool test_sn_nsdl_process_coap()
     sn_coap_protocol_stub.expectedHeader->msg_code = COAP_MSG_CODE_RESPONSE_CREATED;
     sn_coap_protocol_stub.expectedHeader->options_list_ptr = (sn_coap_options_list_s*)malloc(sizeof(sn_coap_options_list_s));
     memset(sn_coap_protocol_stub.expectedHeader->options_list_ptr, 0, sizeof(sn_coap_options_list_s));
-    sn_coap_protocol_stub.expectedHeader->options_list_ptr->location_path_ptr = (uint8_t*)malloc(2);
+    sn_coap_protocol_stub.expectedHeader->options_list_ptr->location_path_ptr = (uint8_t*)calloc(2, 1);
     sn_coap_protocol_stub.expectedHeader->options_list_ptr->location_path_len = 2;
     handle->register_msg_id = 5;
 
@@ -2650,35 +2653,41 @@ bool test_set_NSP_address()
     handle->nsp_address_ptr->omalw_address_ptr->addr_ptr = (uint8_t*)malloc(2);
     memset( handle->nsp_address_ptr->omalw_address_ptr->addr_ptr, 0, 2 );
 
-    uint8_t* addr = (uint8_t*)malloc(2);
-    memset(addr, 0, 2);
+    // Note: the set_NSP_address() will read 4 bytes of source address
+    uint8_t* addr4 = (uint8_t*)calloc(4, 1);
 
-    if( SN_NSDL_FAILURE != set_NSP_address(handle, addr, 0, SN_NSDL_ADDRESS_TYPE_IPV4) ){
+    if( SN_NSDL_FAILURE != set_NSP_address(handle, addr4, 0, SN_NSDL_ADDRESS_TYPE_IPV4) ){
         return false;
     }
     handle->nsp_address_ptr->omalw_address_ptr->addr_ptr = NULL;
 
     retCounter = 1;
-    if( SN_NSDL_SUCCESS != set_NSP_address(handle, addr, 0, SN_NSDL_ADDRESS_TYPE_IPV4) ){
+    if( SN_NSDL_SUCCESS != set_NSP_address(handle, addr4, 0, SN_NSDL_ADDRESS_TYPE_IPV4) ){
         return false;
     }
     free(handle->nsp_address_ptr->omalw_address_ptr->addr_ptr);
     handle->nsp_address_ptr->omalw_address_ptr->addr_ptr = NULL;
 
-    if( SN_NSDL_FAILURE != set_NSP_address(handle, addr, 0, SN_NSDL_ADDRESS_TYPE_IPV6) ){
+    // Note: the set_NSP_address() will read 16 bytes of source address
+    uint8_t* addr6 = (uint8_t*)calloc(16, 1);
+
+    if( SN_NSDL_FAILURE != set_NSP_address(handle, addr6, 0, SN_NSDL_ADDRESS_TYPE_IPV6) ){
         return false;
     }
+
 
     handle->nsp_address_ptr->omalw_address_ptr->addr_ptr = NULL;
     handle->nsp_address_ptr->omalw_address_ptr->addr_ptr = (uint8_t*)malloc(2);
+    handle->nsp_address_ptr->omalw_address_ptr->addr_len = 2;
     memset( handle->nsp_address_ptr->omalw_address_ptr->addr_ptr, 0, 2 );
 
     retCounter = 1;
-    if( SN_NSDL_SUCCESS != set_NSP_address(handle, addr, 0, SN_NSDL_ADDRESS_TYPE_IPV6) ){
+    if( SN_NSDL_SUCCESS != set_NSP_address(handle, addr6, 0, SN_NSDL_ADDRESS_TYPE_IPV6) ){
         return false;
     }
 
-    free(addr);
+    free(addr4);
+    free(addr6);
     sn_nsdl_destroy(handle);
     return true;
 }
@@ -2880,7 +2889,7 @@ bool test_sn_nsdl_release_allocated_coap_msg_mem()
     memset(sn_grs_stub.expectedGrs,0, sizeof(struct grs_s));
     struct nsdl_s* handle = sn_nsdl_init(&nsdl_tx_callback, &nsdl_rx_callback, &myMalloc, &myFree);
 
-    sn_coap_hdr_s* list = (sn_coap_hdr_s*)malloc(sizeof(sn_coap_hdr_s));
+    sn_coap_hdr_s* list = (sn_coap_hdr_s*)calloc(sizeof(sn_coap_hdr_s), 1);
 
     sn_nsdl_release_allocated_coap_msg_mem(handle, list); //mem leak or pass
 
@@ -2960,6 +2969,54 @@ bool test_sn_nsdl_set_duplicate_buffer_size()
     if (sn_nsdl_set_duplicate_buffer_size(handle,999) != 0){
         return false;
     }
+    sn_nsdl_destroy(handle);
+    return true;
+}
+
+bool test_sn_nsdl_set_context()
+{
+    struct nsdl_s* handle = NULL;
+    if (sn_nsdl_set_context(handle,NULL) == 0){
+        printf("\n\neka\n\n");
+        return false;
+    }
+    retCounter = 4;
+    sn_grs_stub.expectedGrs = (struct grs_s *)malloc(sizeof(struct grs_s));
+    memset(sn_grs_stub.expectedGrs,0, sizeof(struct grs_s));
+    handle = sn_nsdl_init(&nsdl_tx_callback, &nsdl_rx_callback, &myMalloc, &myFree);
+
+    if (sn_nsdl_set_context(handle,NULL) != 0){
+        printf("\n\ntoka\n\n");
+        return false;
+    }
+
+    int somecontext = 1;
+    if (sn_nsdl_set_context(handle,&somecontext) != 0){
+        printf("\n\nkolmas\n\n");
+        return false;
+    }
+    sn_nsdl_destroy(handle);
+    return true;
+}
+
+bool test_sn_nsdl_get_context()
+{
+    struct nsdl_s* handle = NULL;
+    if (sn_nsdl_get_context(handle) != NULL){
+        return false;
+    }
+
+    retCounter = 4;
+    sn_grs_stub.expectedGrs = (struct grs_s *)malloc(sizeof(struct grs_s));
+    memset(sn_grs_stub.expectedGrs,0, sizeof(struct grs_s));
+    handle = sn_nsdl_init(&nsdl_tx_callback, &nsdl_rx_callback, &myMalloc, &myFree);
+
+    int somecontext = 1;
+    sn_nsdl_set_context(handle,&somecontext);
+    if (sn_nsdl_get_context(handle) != &somecontext){
+        return false;
+    }
+
     sn_nsdl_destroy(handle);
     return true;
 }

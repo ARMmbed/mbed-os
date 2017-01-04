@@ -377,6 +377,15 @@ static void can_irq(CANName name, int id)
         tmp1 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_0);
         tmp2 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_1);
         tmp3 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_2);
+        if (tmp1){
+            __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP0);
+        }
+        if (tmp2){
+            __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP1);
+        }
+        if (tmp3){
+            __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP2);
+        }
         if(tmp1 || tmp2 || tmp3)  
         {
             irq_handler(can_irq_ids[id], IRQ_TX);
