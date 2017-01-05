@@ -148,8 +148,16 @@ typedef struct emac_interface_ops {
 } emac_interface_ops_t;
 
 typedef struct emac_interface {
+    /* Members implemented by vendor */
     const emac_interface_ops_t ops;
     void *hw;
+
+    /* Members used by IP stack */
+    sys_sem_t lwip_netif_linked;
+    sys_sem_t lwip_netif_has_addr;
+    bool connected;
+    bool dhcp;
+    struct netif lwip_netif;
 } emac_interface_t;
 
 #else
