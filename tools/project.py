@@ -235,7 +235,7 @@ def main():
     exporter, toolchain_name = get_exporter_toolchain(options.ide)
     if options.mcu not in exporter.TARGETS:
         args_error(parser, "%s not supported by %s"%(options.mcu,options.ide))
-    profile = extract_profile(parser, options, toolchain_name)
+    profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
         rmtree(BUILD_DIR)
     export(options.mcu, options.ide, build=options.build,
