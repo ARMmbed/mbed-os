@@ -29,6 +29,15 @@ static uint8_t gu8LockCanIf[1][2] = {0};    // The chip only has one CAN.
 
 #define RETRY_COUNTS    (0x10000000)
 
+#define TSEG1_MIN 2
+#define TSEG1_MAX 16
+#define TSEG2_MIN 1
+#define TSEG2_MAX 8
+#define BRP_MIN   1
+#define BRP_MAX   1024  /* 6-bit BRP field + 4-bit BRPE field*/
+#define SJW_MAX   4
+#define BRP_INC   1
+
 //#define DEBUG_PRINTF printf
 #define DEBUG_PRINTF(...)
 
@@ -546,8 +555,22 @@ int32_t CAN_ReadMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8Release, STR_CAN
     return TRUE;
 }
 
-/// @endcond HIDDEN_SYMBOLS
+static int can_update_spt(int sampl_pt, int tseg, int *tseg1, int *tseg2)
+{
+    *tseg2 = tseg + 1 - (sampl_pt * (tseg + 1)) / 1000;
+    if (*tseg2 < TSEG2_MIN)
+        *tseg2 = TSEG2_MIN;
+    if (*tseg2 > TSEG2_MAX)
+        *tseg2 = TSEG2_MAX;
+    *tseg1 = tseg - *tseg2;
+    if (*tseg1 > TSEG1_MAX) {
+        *tseg1 = TSEG1_MAX;
+        *tseg2 = tseg - *tseg1;
+    }
+    return 1000 * (tseg + 1 - *tseg2) / (tseg + 1);
+}
 
+/// @endcond HIDDEN_SYMBOLS
 
 /**
   * @brief Set bus baud-rate.
@@ -561,14 +584,17 @@ int32_t CAN_ReadMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8Release, STR_CAN
   */
 uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
 {
-    uint8_t u8Tseg1, u8Tseg2;
-    uint32_t u32Brp;
-    uint32_t u32Value;
-    uint32_t u32PCLK_DIV = 1;
+    long rate;
+    long best_error = 1000000000, error = 0;
+    int best_tseg = 0, best_brp = 0, brp = 0;
+    int tsegall, tseg = 0, tseg1 = 0, tseg2 = 0;
+    int spt_error = 1000, spt = 0, sampl_pt;
+    uint64_t clock_freq = 0, u32PCLK_DIV = 1;
+    uint32_t sjw = 1;
 
     CAN_EnterInitMode(tCAN, 0);
-    SystemCoreClockUpdate();
 
+    SystemCoreClockUpdate();
     if(tCAN == CAN0) {
         if(CLK->CLKSEL0 & (1 << 6))
             u32PCLK_DIV = 2;
@@ -577,56 +603,77 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
             u32PCLK_DIV = 2;
     }
 
-    u32Value = SystemCoreClock / u32BaudRate / u32PCLK_DIV;
+    clock_freq = SystemCoreClock / u32PCLK_DIV;
 
-#if 0
-    u8Tseg1 = 2;
-    u8Tseg2 = 1;
-    while(1) {
-        if(((u32Value % (u8Tseg1 + u8Tseg2 + 3)) == 0))
-            break;
-        if(u8Tseg1 < 7)
-            u8Tseg2++;
+    if(u32BaudRate >= 1000000)
+        u32BaudRate = 1000000;
 
-        if((u32Value % (u8Tseg1 + u8Tseg2 + 3)) == 0)
-            break;
-        if(u8Tseg1 < 15)
-            u8Tseg1++;
-        else {
-            u8Tseg1 = 2;
-            u8Tseg2 = 1;
-            break;
+    /* Use CIA recommended sample points */
+    if (u32BaudRate > 800000)
+        sampl_pt = 750;
+    else if (u32BaudRate > 500000)
+        sampl_pt = 800;
+    else
+        sampl_pt = 875;
+
+    /* tseg even = round down, odd = round up */
+    for (tseg = (TSEG1_MAX + TSEG2_MAX) * 2 + 1; tseg >= (TSEG1_MIN + TSEG2_MIN) * 2; tseg--) {
+        tsegall = 1 + tseg / 2;
+        /* Compute all possible tseg choices (tseg=tseg1+tseg2) */
+        brp = clock_freq / (tsegall * u32BaudRate) + tseg % 2;
+        /* chose brp step which is possible in system */
+        brp = (brp / BRP_INC) * BRP_INC;
+
+        if ((brp < BRP_MIN) || (brp > BRP_MAX))
+            continue;
+        rate = clock_freq / (brp * tsegall);
+
+        error = u32BaudRate - rate;
+
+        /* tseg brp biterror */
+        if (error < 0)
+            error = -error;
+        if (error > best_error)
+            continue;
+        best_error = error;
+        if (error == 0) {
+            spt = can_update_spt(sampl_pt, tseg / 2, &tseg1, &tseg2);
+            error = sampl_pt - spt;
+            if (error < 0)
+                error = -error;
+            if (error > spt_error)
+                continue;
+            spt_error = error;
         }
-    }
-#else
+        best_tseg = tseg / 2;
+        best_brp = brp;
 
-    /* Fix for most standard baud rates, include 125K */
-
-    u8Tseg1 = 3;
-    u8Tseg2 = 2;
-    while(1) {
-        if(((u32Value % (u8Tseg1 + u8Tseg2 + 3)) == 0) | (u8Tseg1 >= 15))
+        if (error == 0)
             break;
-
-        u8Tseg1++;
-
-        if((u32Value % (u8Tseg1 + u8Tseg2 + 3)) == 0)
-            break;
-
-        if(u8Tseg2 < 7)
-            u8Tseg2++;
     }
-#endif
-    u32Brp  = SystemCoreClock / (u32BaudRate) / (u8Tseg1 + u8Tseg2 + 3) - 1;
 
-    u32Value = ((uint32_t)u8Tseg2 << CAN_BTIME_TSEG2_Pos) | ((uint32_t)u8Tseg1 << CAN_BTIME_TSEG1_Pos) |
-               (u32Brp & CAN_BTIME_BRP_Msk) | (tCAN->BTIME & CAN_BTIME_SJW_Msk);
-    tCAN->BTIME = u32Value;
-    tCAN->BRPE     = (u32Brp >> 6) & 0x0F;
+    spt = can_update_spt(sampl_pt, best_tseg, &tseg1, &tseg2);
+
+    /* check for sjw user settings */
+    /* bt->sjw is at least 1 -> sanitize upper bound to sjw_max */
+    if (sjw > SJW_MAX)
+        sjw = SJW_MAX;
+    /* bt->sjw must not be higher than tseg2 */
+    if (tseg2 < sjw)
+        sjw = tseg2;
+
+    /* real bit-rate */
+    u32BaudRate = clock_freq / (best_brp * (tseg1 + tseg2 + 1));
+
+    tCAN->BTIME = ((uint32_t)(tseg2 - 1) << CAN_BTIME_TSEG2_Pos) | ((uint32_t)(tseg1 - 1) << CAN_BTIME_TSEG1_Pos) |
+                  ((best_brp - 1) & CAN_BTIME_BRP_Msk) | (sjw << CAN_BTIME_SJW_Pos);
+    tCAN->BRPE  = ((best_brp - 1) >> 6) & 0x0F;
+
+    printf("\n bitrate = %d \n", CAN_GetCANBitRate(tCAN));
 
     CAN_LeaveInitMode(tCAN);
 
-    return (CAN_GetCANBitRate(tCAN));
+    return u32BaudRate;
 }
 
 /**
