@@ -1,3 +1,5 @@
+import re
+
 from os.path import join, exists, realpath, relpath, basename
 from os import makedirs
 
@@ -12,13 +14,14 @@ class Eclipse(Makefile):
         py_ocd_settings launch file, and software link .p2f file
         """
         super(Eclipse, self).generate()
+        include_paths_replace_re= re.compile(r'(^[.]/|^[.]$)')
         ctx = {
             'name': self.project_name,
             'elf_location': join('BUILD',self.project_name)+'.elf',
             'c_symbols': self.toolchain.get_symbols(),
             'asm_symbols': self.toolchain.get_symbols(True),
             'target': self.target,
-            'include_paths': self.resources.inc_dirs,
+            'include_paths': map(lambda s: include_paths_replace_re.sub('%s/' % self.project_name, s), self.resources.inc_dirs),
             'load_exe': str(self.LOAD_EXE).lower()
         }
 
