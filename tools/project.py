@@ -106,14 +106,12 @@ def main():
 
     parser.add_argument("-m", "--mcu",
                         metavar="MCU",
-                        default='LPC1768',
                         type=argparse_force_uppercase_type(targetnames, "MCU"),
                         help="generate project for the given MCU ({})".format(
                             ', '.join(targetnames)))
 
     parser.add_argument("-i",
                         dest="ide",
-                        default='uvision',
                         type=argparse_force_lowercase_type(
                             toolchainlist, "toolchain"),
                         help="The target IDE: %s"% str(toolchainlist))
@@ -215,14 +213,6 @@ def main():
         cache = Cache(True, True)
         cache.cache_descriptors()
 
-    # Clean Export Directory
-    if options.clean:
-        if exists(EXPORT_DIR):
-            rmtree(EXPORT_DIR)
-
-    for mcu in options.mcu:
-        zip_proj = not bool(options.source_dir)
-
     # Target
     if not options.mcu:
         args_error(parser, "argument -m/--mcu is required")
@@ -230,6 +220,14 @@ def main():
     # Toolchain
     if not options.ide:
         args_error(parser, "argument -i is required")
+
+    # Clean Export Directory
+    if options.clean:
+        if exists(EXPORT_DIR):
+            rmtree(EXPORT_DIR)
+
+    for mcu in options.mcu:
+        zip_proj = not bool(options.source_dir)
 
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
