@@ -62,7 +62,10 @@ extern void CAN_EnterTestMode(CAN_T *tCAN, uint8_t u8TestMask);
     
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
-    
+
+		NVIC_DisableIRQ(CAN0_IRQn);
+		NVIC_DisableIRQ(CAN1_IRQn);	 
+	 
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
      
