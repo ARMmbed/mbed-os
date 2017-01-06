@@ -282,6 +282,8 @@ void pre_main (void)
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
+    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
+
     main(0, NULL);
 }
 
@@ -296,7 +298,6 @@ void pre_main (void)
 void __rt_entry (void) {
     __user_setup_stackheap();
     mbed_set_stack_heap();
-    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
     mbed_sdk_init();
     _platform_post_stackheap_init();
     mbed_start_main();
