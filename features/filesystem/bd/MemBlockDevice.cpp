@@ -31,7 +31,7 @@ MemBlockDevice::~MemBlockDevice()
             free(_blocks[i]);
         }
 
-        free(_blocks);
+        delete[] _blocks;
         _blocks = 0;
     }
 }
@@ -39,12 +39,10 @@ MemBlockDevice::~MemBlockDevice()
 bd_error_t MemBlockDevice::init()
 {
     if (!_blocks) {
-        _blocks = (uint8_t**)malloc(_count*sizeof(uint8_t*));
-        if (!_blocks) {
-            return BD_ERROR_DEVICE_ERROR;
+        _blocks = new uint8_t*[_count];
+        for (unsigned i = 0; i < _count; i++) {
+            _blocks[i] = 0;
         }
-
-        memset(_blocks, 0, _count*sizeof(uint8_t*));
     }
 
     return BD_ERROR_OK;
