@@ -60,6 +60,7 @@ nsapi_error_t Socket::close()
         _socket = 0;
         ret = _stack->socket_close(socket);
     }
+    _stack = 0;
 
     // Wakeup anything in a blocking operation
     // on this socket

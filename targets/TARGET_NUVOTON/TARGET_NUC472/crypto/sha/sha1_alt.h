@@ -25,7 +25,6 @@
 #if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
-#include "sha1.h"
 #include "sha_alt_hw.h"
 #include "sha1_alt_sw.h"
 

@@ -66,9 +66,9 @@ struct dac_s {
     uint32_t channel;
 };
 
-struct i2c_s {
-    I2CName  i2c;
-    uint32_t slave;
+struct can_s {
+    CANName can;
+    int index;
 };
 
 #include "common_objects.h"

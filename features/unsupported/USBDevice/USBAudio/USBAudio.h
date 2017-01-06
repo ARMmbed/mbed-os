@@ -108,12 +108,26 @@ public:
     bool readNB(uint8_t * buf);
 
     /**
+     * read last received packet if some.
+     * @param buf pointer on a buffer which will be filled if an audio packet is available
+     *
+     * @returns the packet length
+     */
+    uint32_t readSync(uint8_t *buf);
+
+    /**
     * Write an audio packet. During a frame, only a single writing (you can't write and read an audio packet during the same frame)can be done using this method.
     *
     * @param buf pointer on the audio packet which will be sent
     * @returns true if successful
     */
     bool write(uint8_t * buf);
+
+    /**
+     * Write packet in endpoint fifo. assuming tx fifo is empty
+     * @param buf pointer on the audio packet which will be sent
+     */
+    void writeSync(uint8_t *buf);
 
     /**
     * Write and read an audio packet at the same time (on the same frame)
@@ -133,6 +147,22 @@ public:
     void attach(void(*fptr)(void)) {
         updateVol.attach(fptr);
     }
+	/** attach a handler to Tx Done
+     *
+     * @param function Function to attach
+     *
+     */
+    void attachTx(void(*fptr)(void)) {
+        txDone.attach(fptr);
+    }
+    /** attach a handler to Rx Done
+     *
+     * @param function Function to attach
+     *
+     */
+    void attachRx(void(*fptr)(void)) {
+        rxDone.attach(fptr);
+    }
 
     /** Attach a nonstatic void/void member function to update the volume
      *
@@ -143,6 +173,14 @@ public:
     template<typename T>
     void attach(T *tptr, void(T::*mptr)(void)) {
         updateVol.attach(tptr, mptr);
+    }
+	template<typename T>
+	void attachTx(T *tptr, void(T::*mptr)(void)) {
+        txDone.attach(tptr, mptr);
+    }
+    template<typename T>
+	void attachRx(T *tptr, void(T::*mptr)(void)) {
+        rxDone.attach(tptr, mptr);
     }
 
 
@@ -276,6 +314,11 @@ private:
 
     // callback to update volume
     Callback<void()> updateVol;
+
+    // callback transmit Done
+    Callback<void()> txDone;
+    // callback transmit Done
+    Callback<void()> rxDone;
 
     // boolean showing that the SOF handler has been called. Useful for readNB.
     volatile bool SOF_handler;

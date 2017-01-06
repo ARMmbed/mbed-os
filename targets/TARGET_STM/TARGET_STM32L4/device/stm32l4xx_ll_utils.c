@@ -39,11 +39,6 @@
 #include "stm32l4xx_ll_rcc.h"
 #include "stm32l4xx_ll_system.h"
 #include "stm32l4xx_ll_pwr.h"
-#ifdef  USE_FULL_ASSERT
-#include "stm32_assert.h"
-#else
-#define assert_param(expr) ((void)0U)
-#endif
 
 /** @addtogroup STM32L4xx_LL_Driver
   * @{

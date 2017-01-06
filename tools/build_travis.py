@@ -54,6 +54,7 @@ build_list = (
     { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "NUCLEO_F410RB",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F411RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_L432KC",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_L011K4",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -75,6 +76,7 @@ build_list = (
     { "target": "ARCH_MAX",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 
     { "target": "DISCO_F051R8",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "DISCO_F303VC",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F334C8",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F401VC",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_F407VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
@@ -125,6 +127,9 @@ build_list = (
     { "target": "SAMD21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "SAML21J18A",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_L476VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    
+    { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "rtos", "usb", "fat"] },
  )
 
 ################################################################################
@@ -233,7 +238,23 @@ linking_list = [
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
              }
-    }
+    },
+    {"target": "NUMAKER_PFM_NUC472",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "fat"  : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+     {"target": "NUMAKER_PFM_M453",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "fat"  : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     }
 
     ]
 

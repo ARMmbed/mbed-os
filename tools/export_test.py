@@ -144,6 +144,7 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_F401RE'),
             ('uvision', 'NUCLEO_F410RB'),
             ('uvision', 'NUCLEO_F411RE'),
+            ('uvision', 'NUCLEO_F412ZG'),
             ('uvision', 'NUCLEO_F429ZI'),
             ('uvision', 'NUCLEO_F446RE'),
             ('uvision', 'NUCLEO_F446ZE'),

@@ -70,7 +70,7 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 1)
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 2)
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 3)
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 4)
@@ -81,7 +81,7 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (1 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (2 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (3 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (4 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
@@ -92,7 +92,7 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (1 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (2 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (3 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (4 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
@@ -105,7 +105,7 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
@@ -116,7 +116,7 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
@@ -127,7 +127,7 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
@@ -218,7 +218,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 1)
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 2)
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 3)
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH01SEL_Msk) == 4)
@@ -229,7 +229,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (1 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (2 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (3 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH23SEL_Msk) == (4 << CLK_CLKSEL2_PWM0CH23SEL_Pos))
@@ -240,7 +240,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (1 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (2 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (3 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM0CH45SEL_Msk) == (4 << CLK_CLKSEL2_PWM0CH45SEL_Pos))
@@ -253,7 +253,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH01SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH01SEL_Pos))
@@ -264,7 +264,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH23SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH23SEL_Pos))
@@ -275,7 +275,7 @@ uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (1 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
                 u32PWM_CLock = __LXT;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (2 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
-                u32PWM_CLock = SystemCoreClock;
+                u32PWM_CLock = CLK_GetPCLKFreq();
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (3 << CLK_CLKSEL2_PWM1CH45SEL_Pos))
                 u32PWM_CLock = __HIRC;
             else if ((CLK->CLKSEL2 & CLK_CLKSEL2_PWM1CH45SEL_Msk) == (4 << CLK_CLKSEL2_PWM1CH45SEL_Pos))

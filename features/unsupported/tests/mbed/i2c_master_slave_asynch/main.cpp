@@ -14,7 +14,7 @@
   #error [NOT_SUPPORTED] I2C Async is not supported
 #endif
 
-#define ADDR (0x90)
+#define ADDR (0x80)
 #define FREQ 100000
 #define SIZE 10
 
@@ -32,14 +32,22 @@ I2C master(PB_9, PB_8);
 I2C master(D14, D15); // I2C_SDA, I2C_SCL
 #endif
 
-#if defined (TARGET_NUCLEO_F429ZI) || \
+#if defined (TARGET_NUCLEO_F072RB) || \
+    defined (TARGET_NUCLEO_F030R8) || \
+    defined (TARGET_NUCLEO_F103RB) || \
+    defined (TARGET_NUCLEO_F207ZG) || \
+    defined (TARGET_NUCLEO_F446ZE) || \
+    defined (TARGET_NUCLEO_F429ZI) || \
     defined (TARGET_DISCO_F429ZI) || \
-    defined (TARGET_NUCLEO_F446ZE)
+    defined (TARGET_NUCLEO_F767ZI) || \
+    defined (TARGET_NUCLEO_L053R8) || \
+    defined (TARGET_NUCLEO_L152RE) || \
+    defined (TARGET_NUCLEO_L476RG)
 I2CSlave slave(PB_11, PB_10);
-
+#elif defined(TARGET_NUCLEO_F303RE)
+I2CSlave slave(D2, D8);
 #else
 I2CSlave slave(D3, D6);
-
 #endif
 
 volatile int why;
@@ -95,7 +103,8 @@ int main()
 
     while (!master_complete) {
         if(slave.receive() == I2CSlave::ReadAddressed) {
-            slave.write(buf_slave, SIZE);
+            if(slave.write(buf_slave, SIZE))
+                notify_completion(false);
         }
     }
     if (why != I2C_EVENT_TRANSFER_COMPLETE) {

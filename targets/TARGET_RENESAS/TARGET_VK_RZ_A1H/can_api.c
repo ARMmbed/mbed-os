@@ -598,6 +598,7 @@ void can_free(can_t *obj) {
 }
 
 int can_frequency(can_t *obj, int f) {
+    __IO uint32_t *dmy_cfcc;
     int retval = 0;
     
     if (f <= 1000000) {
@@ -607,6 +608,12 @@ int can_frequency(can_t *obj, int f) {
         can_set_frequency(obj, f);
         /* set Channel Communication mode */
         can_set_channel_mode(obj->ch, CH_COMM);
+        /* restore  CFE bit since it is cleared */
+        /* Use send/receive FIFO buffer */
+        dmy_cfcc = CFCC_TBL[obj->ch][CAN_SEND];
+        *dmy_cfcc |= 0x01;
+        dmy_cfcc = CFCC_TBL[obj->ch][CAN_RECV];
+        *dmy_cfcc |= 0x01;
         retval = 1;
     }
 
