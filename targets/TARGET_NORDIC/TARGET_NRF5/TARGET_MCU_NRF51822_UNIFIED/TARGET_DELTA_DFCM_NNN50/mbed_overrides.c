@@ -18,6 +18,9 @@
 
 void mbed_sdk_init()
 {
+    char* debug_date = __DATE__;
+    char* debug_time = __TIME__;
+
     // Default RF switch setting, pull p19 to low and p28 to high for turning antenna switch to BLE radiated path
     NRF_GPIO->PIN_CNF[19] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)

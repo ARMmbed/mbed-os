@@ -16,6 +16,5 @@
 
 void mbed_sdk_init()
 {
-	printf("", __TIME__, __DATE__);	
 	
 }
