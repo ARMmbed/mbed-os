@@ -3,7 +3,7 @@
 #include "unity.h"
 #include "utest.h"
 
-#include "MemBlockDevice.h"
+#include "HeapBlockDevice.h"
 #include <stdlib.h>
 
 using namespace utest::v1;
@@ -14,7 +14,7 @@ uint8_t read_block[BLOCK_SIZE];
 
 
 void test_read_write() {
-    MemBlockDevice bd(BLOCK_SIZE, 16);
+    HeapBlockDevice bd(BLOCK_SIZE, 16);
 
     int err = bd.init();
     TEST_ASSERT_EQUAL(0, err);

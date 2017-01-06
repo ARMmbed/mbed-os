@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "MemBlockDevice.h"
+#include "HeapBlockDevice.h"
 
 
-MemBlockDevice::MemBlockDevice(bd_size_t size, bd_count_t count)
+HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_count_t count)
     : _size(size)
     , _count(count)
     , _blocks(0)
 {
 }
 
-MemBlockDevice::~MemBlockDevice()
+HeapBlockDevice::~HeapBlockDevice()
 {
     if (_blocks) {
         for (bd_count_t i = 0; i < _count; i++) {
@@ -36,7 +36,7 @@ MemBlockDevice::~MemBlockDevice()
     }
 }
 
-bd_error_t MemBlockDevice::init()
+bd_error_t HeapBlockDevice::init()
 {
     if (!_blocks) {
         _blocks = new uint8_t*[_count];
@@ -48,29 +48,29 @@ bd_error_t MemBlockDevice::init()
     return BD_ERROR_OK;
 }
 
-bd_error_t MemBlockDevice::deinit()
+bd_error_t HeapBlockDevice::deinit()
 {
     // Memory is lazily cleaned up in destructor to allow
     // data to live across de/reinitialization
     return BD_ERROR_OK;
 }
 
-bd_error_t MemBlockDevice::status()
+bd_error_t HeapBlockDevice::status()
 {
     return _blocks ? BD_ERROR_OK : BD_ERROR_NO_INIT;
 }
 
-bd_size_t MemBlockDevice::get_block_size()
+bd_size_t HeapBlockDevice::get_block_size()
 {
     return _size;
 }
 
-bd_block_t MemBlockDevice::get_block_count()
+bd_block_t HeapBlockDevice::get_block_count()
 {
     return _count;
 }
 
-bd_count_or_error_t MemBlockDevice::read(void *b, bd_block_t block, bd_count_t count)
+bd_count_or_error_t HeapBlockDevice::read(void *b, bd_block_t block, bd_count_t count)
 {
     uint8_t *buffer = (uint8_t*)b;
     if (!_blocks || block + count > _count) {
@@ -88,7 +88,7 @@ bd_count_or_error_t MemBlockDevice::read(void *b, bd_block_t block, bd_count_t c
     return count;
 }
 
-bd_count_or_error_t MemBlockDevice::write(const void *b, bd_block_t block, bd_count_t count)
+bd_count_or_error_t HeapBlockDevice::write(const void *b, bd_block_t block, bd_count_t count)
 {
     const uint8_t *buffer = (const uint8_t*)b;
     if (!_blocks || block + count > _count) {

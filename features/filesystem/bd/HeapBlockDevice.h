@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef MBED_MEM_BLOCK_DEVICE_H
-#define MBED_MEM_BLOCK_DEVICE_H
+#ifndef MBED_HEAP_BLOCK_DEVICE_H
+#define MBED_HEAP_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
 #include "mbed.h"
@@ -32,9 +32,9 @@
  *
  * @code
  * #include "mbed.h"
- * #include "MemBlockDevice.h"
+ * #include "HeapBlockDevice.h"
  *
- * MemBlockDevice bd(512, 4); // 4 blocks of 512 bytes
+ * HeapBlockDevice bd(512, 4); // 4 blocks of 512 bytes
  * uint8_t block[512] = "Hello World!\n";
  *
  * int main() {
@@ -45,12 +45,12 @@
  *     bd.deinit();
  * }
  */
-class MemBlockDevice : public BlockDevice {
+class HeapBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      */
-    MemBlockDevice(bd_size_t size = 512, bd_count_t count = 4);
-    virtual ~MemBlockDevice();
+    HeapBlockDevice(bd_size_t size = 512, bd_count_t count = 4);
+    virtual ~HeapBlockDevice();
 
     /** Initialize a block device
      *
