@@ -46,6 +46,10 @@ struct analogin_s {
     uint8_t channel;
 };
 
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
+
 #include "common_objects.h"
 #include "gpio_object.h"
 
