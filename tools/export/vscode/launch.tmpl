@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/BUILD/${workspaceRootFolderName}.elf",
+            "args": ["target", "remote", "localhost:3333", "load", "continue"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "debugServerArgs": "",
+            "serverLaunchTimeout": 10000,
+            "filterStderr": true,
+            "filterStdout": false,
+            "serverStarted": "GDB\\ server\\ started",
+            "logging": {
+                "moduleLoad": true,
+                "trace": true,
+                "engineLogging": true,
+                "programOutput": true,
+                "exceptions": true
+            },
+            "linux": {
+                "MIMode": "gdb",
+                "MIDebuggerPath": "/usr/bin/arm-none-eabi-gdb",
+                "MIDebuggerServerAddress": "localhost:3333",
+                "debugServerPath": "/usr/local/bin/pyocd-gdbserver"
+            },
+            "osx": {
+                "MIMode": "gdb",
+                "MIDebuggerPath": "/Applications/yotta.app/Contents/Resources/prerequisites/gcc-arm-none-eabi-4_9-2015q3/bin/arm-none-eabi-gdb",
+                "MIDebuggerServerAddress": "localhost:3333",
+                "debugServerPath": "/Library/Frameworks/Python.framework/Versions/2.7/bin/pyocd-gdbserver"
+            },
+            "windows": {
+                "MIMode": "gdb"
+            }
+        }
+    ]
+}

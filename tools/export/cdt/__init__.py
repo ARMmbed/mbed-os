@@ -17,7 +17,7 @@ class Eclipse(Makefile):
         starting_dot = re.compile(r'(^[.]/|^[.]$)')
         ctx = {
             'name': self.project_name,
-            'elf_location': join('BUILD',self.project_name)+'.elf',
+            'elf_location': join('BUILD', self.project_name)+'.elf',
             'c_symbols': self.toolchain.get_symbols(),
             'asm_symbols': self.toolchain.get_symbols(True),
             'target': self.target,
