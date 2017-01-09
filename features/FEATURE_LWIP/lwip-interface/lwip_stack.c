@@ -243,36 +243,42 @@ const ip_addr_t *mbed_lwip_get_ip_addr(bool any_addr, const struct netif *netif)
     return NULL;
 }
 
-#if LWIP_IPV6
 void add_dns_addr(struct netif *lwip_netif)
 {
+    // Do nothing if not brought up
     const ip_addr_t *ip_addr = mbed_lwip_get_ip_addr(true, lwip_netif);
-    if (ip_addr) {
-        if (IP_IS_V6(ip_addr)) {
-            const ip_addr_t *dns_ip_addr;
-            bool dns_addr_exists = false;
+    if (!ip_addr) {
+        return;
+    }
 
-            for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
-                dns_ip_addr = dns_getserver(numdns);
-                if (!ip_addr_isany(dns_ip_addr)) {
-                   dns_addr_exists = true;
-                   break;
-                }
-            }
-
-            if (!dns_addr_exists) {
-                /* 2001:4860:4860::8888 google */
-                ip_addr_t ipv6_dns_addr = IPADDR6_INIT(
-                        PP_HTONL(0x20014860UL),
-                        PP_HTONL(0x48600000UL),
-                        PP_HTONL(0x00000000UL),
-                        PP_HTONL(0x00008888UL));
-                dns_setserver(0, &ipv6_dns_addr);
-            }
+    // Check for existing dns server
+    for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
+        const ip_addr_t *dns_ip_addr = dns_getserver(numdns);
+        if (!ip_addr_isany(dns_ip_addr)) {
+            return;
         }
     }
-}
+
+#if LWIP_IPV6
+    if (IP_IS_V6(ip_addr)) {
+        /* 2001:4860:4860::8888 google */
+        ip_addr_t ipv6_dns_addr = IPADDR6_INIT(
+                PP_HTONL(0x20014860UL),
+                PP_HTONL(0x48600000UL),
+                PP_HTONL(0x00000000UL),
+                PP_HTONL(0x00008888UL));
+        dns_setserver(0, &ipv6_dns_addr);
+    }
 #endif
+
+#if LWIP_IPV4
+    if (IP_IS_V4(ip_addr)) {
+        /* 8.8.8.8 google */
+        ip_addr_t ipv4_dns_addr = IPADDR4_INIT(0x08080808);
+        dns_setserver(0, &ipv4_dns_addr);
+    }
+#endif
+}
 
 static sys_sem_t lwip_tcpip_inited;
 static void mbed_lwip_tcpip_init_irq(void *eh)
@@ -495,7 +501,6 @@ nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, 
         if (ret == SYS_ARCH_TIMEOUT) {
             return NSAPI_ERROR_DHCP_FAILURE;
         }
-        lwip_connected = true;
     }
 
 #if ADDR_TIMEOUT
@@ -506,10 +511,9 @@ nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, 
     }
 #endif
 
-#if LWIP_IPV6
     add_dns_addr(&lwip_netif);
-#endif
 
+    lwip_connected = true;
     return 0;
 }
 
@@ -615,6 +619,22 @@ static nsapi_error_t mbed_lwip_gethostbyname(nsapi_stack_t *stack, const char *h
 
     convert_lwip_addr_to_mbed(addr, &lwip_addr);
 
+    return 0;
+}
+
+static nsapi_error_t mbed_lwip_add_dns_server(nsapi_stack_t *stack, nsapi_addr_t addr)
+{
+    // Shift all dns servers down to give precedence to new server
+    for (int i = DNS_MAX_SERVERS-1; i > 0; i--) {
+        dns_setserver(i, dns_getserver(i-1));
+    }
+
+    ip_addr_t ip_addr;
+    if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    dns_setserver(0, &ip_addr);
     return 0;
 }
 
@@ -874,6 +894,7 @@ static void mbed_lwip_socket_attach(nsapi_stack_t *stack, nsapi_socket_t handle,
 /* LWIP network stack */
 const nsapi_stack_api_t lwip_stack_api = {
     .gethostbyname      = mbed_lwip_gethostbyname,
+    .add_dns_server     = mbed_lwip_add_dns_server,
     .socket_open        = mbed_lwip_socket_open,
     .socket_close       = mbed_lwip_socket_close,
     .socket_bind        = mbed_lwip_socket_bind,
