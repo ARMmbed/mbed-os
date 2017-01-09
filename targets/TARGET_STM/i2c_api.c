@@ -341,6 +341,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // I2C Xfer operation init
     obj_s->event = 0;
     obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+#ifdef I2C_IP_VERSION_V2
+    obj_s->pending_start = 0;
+#endif
 }
 
 void i2c_frequency(i2c_t *obj, int hz)
@@ -440,6 +443,14 @@ i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
     return (obj);
 }
 
+void i2c_reset(i2c_t *obj) {
+    struct i2c_s *obj_s = I2C_S(obj);
+    /*  As recommended in i2c_api.h, mainly send stop */
+    i2c_stop(obj);
+    /* then re-init */
+    i2c_init(obj, obj_s->sda, obj_s->scl);
+}
+
 /*
  *  UNITARY APIS.
  *  For very basic operations, direct registers access is needed
@@ -535,7 +546,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
             (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BTF) == RESET) &&
              (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_ADDR) == RESET)) {
         if ((timeout--) == 0) {
-            return 0;
+            return 2;
         }
     }
 
@@ -548,91 +559,160 @@ int i2c_byte_write(i2c_t *obj, int data) {
 }
 #endif //I2C_IP_VERSION_V1
 #ifdef I2C_IP_VERSION_V2
+
 int i2c_start(i2c_t *obj) {
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-    I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
-    int timeout;
-
-    // Clear Acknowledge failure flag
-    __HAL_I2C_CLEAR_FLAG(handle, I2C_FLAG_AF);
-
-    // Wait the STOP condition has been previously correctly sent
-    timeout = FLAG_TIMEOUT;
-    while ((i2c->CR2 & I2C_CR2_STOP) == I2C_CR2_STOP){
-        if ((timeout--) == 0) {
-            return 1;
-        }
-    }
-
-    // Generate the START condition
-    i2c->CR2 |= I2C_CR2_START;
-
-    // Wait the START condition has been correctly sent
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY) == RESET) {
-        if ((timeout--) == 0) {
-            return 1;
-        }
-    }
-
+    /*  This I2C IP doesn't  */
+    obj_s->pending_start = 1;
     return 0;
 }
 
 int i2c_stop(i2c_t *obj) {
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
-
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+    int timeout = FLAG_TIMEOUT;
+#if DEVICE_I2CSLAVE
+    if (obj_s->slave) {
+        /*  re-init slave when stop is requested */
+        i2c_init(obj, obj_s->sda, obj_s->scl);
+        return 0;
+    }
+#endif
+    // Disable reload mode
+    handle->Instance->CR2 &= (uint32_t)~I2C_CR2_RELOAD;
     // Generate the STOP condition
-    i2c->CR2 |= I2C_CR2_STOP;
+    handle->Instance->CR2 |= I2C_CR2_STOP;
+
+    timeout = FLAG_TIMEOUT;
+    while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_STOPF)) {
+        if ((timeout--) == 0) {
+            return I2C_ERROR_BUS_BUSY;
+        }
+    }
+
+    /* Clear STOP Flag */
+    __HAL_I2C_CLEAR_FLAG(handle, I2C_FLAG_STOPF);
+
+    /* Erase slave address, this wiil be used as a marker
+     * to know when we need to prepare next start */
+    handle->Instance->CR2 &=  ~I2C_CR2_SADD;
+
+    /*  In case of mixed usage of the APIs (unitary + SYNC)
+     *  re-inti HAL state */
+    if (obj_s->XferOperation != I2C_FIRST_AND_LAST_FRAME) {
+        i2c_init(obj, obj_s->sda, obj_s->scl);
+    }
 
     return 0;
 }
 
 int i2c_byte_read(i2c_t *obj, int last) {
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
-    int timeout;
+    int timeout = FLAG_TIMEOUT;
+    uint32_t tmpreg = handle->Instance->CR2;
+    char data;
+#if DEVICE_I2CSLAVE
+    if (obj_s->slave) {
+        return i2c_slave_read(obj, &data, 1);
+    }
+#endif
+    /* Then send data when there's room in the TX fifo */
+    if ((tmpreg & I2C_CR2_RELOAD) != 0) {
+        while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
+            if ((timeout--) == 0) {
+                DEBUG_PRINTF("timeout in byte_read\r\n");
+                return -1;
+            }
+        }
+    }
 
-    // Wait until the byte is received
+    /*  Enable reload mode as we don't know how many bytes will eb sent */
+    handle->Instance->CR2 |= I2C_CR2_RELOAD;
+    /*  Set transfer size to 1 */
+    handle->Instance->CR2 |= (I2C_CR2_NBYTES & (1 << 16));
+    /* Set the prepared configuration */
+    handle->Instance->CR2 = tmpreg;
+
     timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_RXNE) == RESET) {
+    while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_RXNE)) {
         if ((timeout--) == 0) {
             return -1;
         }
     }
 
-    return (int)i2c->RXDR;
+    /* Then Get Byte */
+    data = handle->Instance->RXDR;
+
+    if (last) {
+        /* Disable Address Acknowledge */
+        handle->Instance->CR2 |= I2C_CR2_NACK;
+    }
+
+    return data;
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
     struct i2c_s *obj_s = I2C_S(obj);
-    I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
-    int timeout;
-
-    // Wait until the previous byte is transmitted
-    timeout = FLAG_TIMEOUT;
-    while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXIS) == RESET) {
-        if ((timeout--) == 0) {
-            return 0;
-        }
+    int timeout = FLAG_TIMEOUT;
+    uint32_t tmpreg = handle->Instance->CR2;
+#if DEVICE_I2CSLAVE
+    if (obj_s->slave) {
+        return i2c_slave_write(obj, (char *) &data, 1);
     }
+#endif
+    if (obj_s->pending_start) {
+        obj_s->pending_start = 0;
+        //*  First byte after the start is the address */
+        tmpreg |= (uint32_t)((uint32_t)data & I2C_CR2_SADD);
+        if (data & 0x01) {
+             tmpreg |= I2C_CR2_START | I2C_CR2_RD_WRN;
+        } else {
+             tmpreg |= I2C_CR2_START;
+             tmpreg &= ~I2C_CR2_RD_WRN;
+        }
+        /*  Disable reload first to use it later */
+        tmpreg &= ~I2C_CR2_RELOAD;
+        /*  Disable Autoend */
+        tmpreg &= ~I2C_CR2_AUTOEND;
+        /* Do not set any transfer size for now */
+        tmpreg |= (I2C_CR2_NBYTES & (1 << 16));
+        /* Set the prepared configuration */
+        handle->Instance->CR2 = tmpreg;
+    } else {
+        /* Set the prepared configuration */
+        tmpreg = handle->Instance->CR2;
 
-    i2c->TXDR = (uint8_t)data;
+        /* Then send data when there's room in the TX fifo */
+        if ((tmpreg & I2C_CR2_RELOAD) != 0) {
+            while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
+                if ((timeout--) == 0) {
+                    DEBUG_PRINTF("timeout in byte_write\r\n");
+                    return 2;
+                }
+            }
+        }
+        /*  Enable reload mode as we don't know how many bytes will eb sent */
+        tmpreg |= I2C_CR2_RELOAD;
+         /*  Set transfer size to 1 */
+        tmpreg |= (I2C_CR2_NBYTES & (1 << 16));
+       /* Set the prepared configuration */
+        handle->Instance->CR2 = tmpreg;
+        /*  Prepare next write */
+        timeout = FLAG_TIMEOUT;
+        while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXE)) {
+            if ((timeout--) == 0) {
+                return 2;
+            }
+        }
+        /*  Write byte */
+        handle->Instance->TXDR = data;
+    }
 
     return 1;
 }
 #endif //I2C_IP_VERSION_V2
-
-void i2c_reset(i2c_t *obj) {
-    struct i2c_s *obj_s = I2C_S(obj);
-    /*  As recommended in i2c_api.h, mainly send stop */
-    i2c_stop(obj);
-    /* then re-init */
-    i2c_init(obj, obj_s->sda, obj_s->scl);
-}
 
 /*
  *  SYNC APIS
