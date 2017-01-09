@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_LIST.C
  *      Purpose: Functions for the management of different lists
- *      Rev.:    V4.70
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
+ *  - Neither the name of ARM  nor the names of its contributors may be used 
+ *    to endorse or promote products derived from this software without 
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -69,13 +69,13 @@ void rt_put_prio (P_XCB p_CB, P_TCB p_task) {
   U32 prio;
   BOOL sem_mbx = __FALSE;
 
-  if (p_CB->cb_type == SCB || p_CB->cb_type == MCB || p_CB->cb_type == MUCB) {
+  if ((p_CB->cb_type == SCB) || (p_CB->cb_type == MCB) || (p_CB->cb_type == MUCB)) {
     sem_mbx = __TRUE;
   }
   prio = p_task->prio;
   p_CB2 = p_CB->p_lnk;
   /* Search for an entry in the list */
-  while (p_CB2 != NULL && prio <= p_CB2->prio) {
+  while ((p_CB2 != NULL) && (prio <= p_CB2->prio)) {
     p_CB = (P_XCB)p_CB2;
     p_CB2 = p_CB2->p_lnk;
   }
@@ -103,7 +103,7 @@ P_TCB rt_get_first (P_XCB p_CB) {
 
   p_first = p_CB->p_lnk;
   p_CB->p_lnk = p_first->p_lnk;
-  if (p_CB->cb_type == SCB || p_CB->cb_type == MCB || p_CB->cb_type == MUCB) {
+  if ((p_CB->cb_type == SCB) || (p_CB->cb_type == MCB) || (p_CB->cb_type == MUCB)) {
     if (p_first->p_lnk != NULL) {
       p_first->p_lnk->p_rlnk = (P_TCB)p_CB;
       p_first->p_lnk = NULL;
@@ -180,7 +180,7 @@ void rt_put_dly (P_TCB p_task, U16 delay) {
   p = (P_TCB)&os_dly;
   if (p->p_dlnk == NULL) {
     /* Delay list empty */
-    delta = 0;
+    delta = 0U;
     goto last;
   }
   delta = os_dly.delta_time;
@@ -191,7 +191,7 @@ last: p_task->p_dlnk = NULL;
       p->p_dlnk = p_task;
       p_task->p_blnk = p;
       p->delta_time = (U16)(idelay - delta);
-      p_task->delta_time = 0;
+      p_task->delta_time = 0U;
       return;
     }
     p = p->p_dlnk;
@@ -219,7 +219,7 @@ void rt_dec_dly (void) {
     return;
   }
   os_dly.delta_time--;
-  while ((os_dly.delta_time == 0) && (os_dly.p_dlnk != NULL)) {
+  while ((os_dly.delta_time == 0U) && (os_dly.p_dlnk != NULL)) {
     p_rdy = os_dly.p_dlnk;
     if (p_rdy->p_rlnk != NULL) {
       /* Task is really enqueued, remove task from semaphore/mailbox */
@@ -240,7 +240,7 @@ void rt_dec_dly (void) {
     p_rdy->state   = READY;
     os_dly.p_dlnk = p_rdy->p_dlnk;
     if (p_rdy->p_dlnk != NULL) {
-      p_rdy->p_dlnk->p_blnk =  (P_TCB)&os_dly;
+      p_rdy->p_dlnk->p_blnk = (P_TCB)&os_dly;
       p_rdy->p_dlnk = NULL;
     }
     p_rdy->p_blnk = NULL;
@@ -294,7 +294,7 @@ void rt_rmv_dly (P_TCB p_task) {
     }
     else {
       /* 'p_task' is at the end of list */
-      p_b->delta_time = 0;
+      p_b->delta_time = 0U;
     }
     p_task->p_blnk = NULL;
   }
@@ -317,8 +317,6 @@ void rt_psq_enq (OS_ID entry, U32 arg) {
   }
 }
 
-
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-

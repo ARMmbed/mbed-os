@@ -122,7 +122,7 @@ _alloc_box:
 
 
 /*--------------------------- _free_box -------------------------------------*/
-//__asm int _free_box (void *box_mem, void *box) {
+//__asm U32 _free_box (void *box_mem, void *box) {
 _free_box:
    /* Function wrapper for Unprivileged/Privileged mode. */
 

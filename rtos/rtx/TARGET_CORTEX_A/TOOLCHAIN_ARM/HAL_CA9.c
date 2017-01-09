@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CA9.c
- *      Purpose: Hardware Abstraction Layer for Cortex-A9
- *      Rev.:    8 April 2015
+ *      Purpose: Hardware Abstraction Layer for Cortex-A9 (GICv1)
+ *      Rev.:    28 April 2016
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 2012 - 2015 ARM Limited
+ * Copyright (c) 2012 - 2016 ARM Limited
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
+ *  - Neither the name of ARM  nor the names of its contributors may be used 
+ *    to endorse or promote products derived from this software without 
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
  * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -87,7 +87,7 @@ __asm void *_alloc_box (void *box_mem) {
 
 
 /*--------------------------- _free_box -------------------------------------*/
-__asm int _free_box (void *box_mem, void *box) {
+__asm U32 _free_box (void *box_mem, void *box) {
    /* Function wrapper for Unprivileged/Privileged mode. */
         ARM
 
@@ -114,7 +114,7 @@ __asm void SVC_Handler (void) {
         IMPORT  SVC_Table
         IMPORT  rt_stk_check
         IMPORT  FPUEnable
-        IMPORT  scheduler_suspended    ; flag set by rt_suspend, cleared by rt_resume, read by SVC_Handler
+        IMPORT  scheduler_suspended    ; Flag set by rt_suspend, cleared by rt_resume, read by SVC_Handler
 
 Mode_SVC        EQU     0x13
 
@@ -353,7 +353,7 @@ __asm void PendSV_Handler (U32 IRQn) {
 
     IMPORT  rt_tsk_lock
     IMPORT  IRQNestLevel                ; Flag indicates whether inside an ISR, and the depth of nesting.  0 = not in ISR.
-    IMPORT  seen_id0_active             ; Flag used to workaround GIC 390 errata 733075 - set in startup_Renesas_RZ_A1.s
+    IMPORT  seen_id0_active             ; Flag used to workaround GIC 390 errata 733075 (set in startup_<board>.s)
 
     ADD     SP,SP,#8 //fix up stack pointer (R0 has been pushed and will never be popped, R1 was pushed for stack alignment)
 
@@ -363,7 +363,7 @@ __asm void PendSV_Handler (U32 IRQn) {
     POP     {R0, R1}
     LDR     R1, =__cpp(&GICInterface_BASE)
     LDR     R1, [R1, #0]
-    STR     R0, [R1, #0x10]
+    STR     R0, [R1, #0x10]             ; Write End Of Interrupt ID to GICC_EOIR
 
     ; If it was interrupt ID0, clear the seen flag, otherwise return as normal
     CMP     R0, #0
@@ -396,16 +396,17 @@ __asm void OS_Tick_Handler (U32 IRQn) {
 
     IMPORT  rt_tsk_lock
     IMPORT  IRQNestLevel                ; Flag indicates whether inside an ISR, and the depth of nesting.  0 = not in ISR.
-    IMPORT  seen_id0_active             ; Flag used to workaround GIC 390 errata 733075 - set in startup_Renesas_RZ_A1.s
+    IMPORT  seen_id0_active             ; Flag used to workaround GIC 390 errata 733075 (set in startup_<board>.s)
 
     ADD     SP,SP,#8 //fix up stack pointer (R0 has been pushed and will never be popped, R1 was pushed for stack alignment)
 
+    //Disable systick interrupts, then write EOIR. We want interrupts disabled before we enter the context switcher.
     PUSH    {R0, R1}
     BLX     rt_tsk_lock
     POP     {R0, R1}
     LDR     R1, =__cpp(&GICInterface_BASE)
     LDR     R1, [R1, #0]
-    STR     R0, [R1, #0x10]
+    STR     R0, [R1, #0x10]             ; Write End Of Interrupt ID to GICC_EOIR
 
     ; If it was interrupt ID0, clear the seen flag, otherwise return as normal
     CMP     R0, #0
