@@ -104,7 +104,12 @@ def upgrade_single_example(example, tag, directory, ref):
     return_code = False
     
     if os.path.isfile("mbed-os.lib"):
-        os.system("mv mbed-os.lib mbed-os.lib_bak")
+        # Rename command will fail on some OS's if the target file already exist,
+        # so ensure if it does, it is deleted first.
+        if os.path.isfile("mbed-os.lib_bak"):
+            os.remove("mbed-os.lib_bak")
+        
+        os.rename("mbed-os.lib", "mbed-os.lib_bak")
     else:
         print("!! Error trying to backup mbed-os.lib prior to updating.")
         return False
@@ -144,32 +149,17 @@ def prepare_fork(arm_example):
     
     """
 
-    ret = False
-
     print "In " + os.getcwd()
 
-    cmd = ['git', 'remote', 'add', 'armmbed', arm_example]
-    return_code = run_cmd(cmd)
-            
-    if not return_code:
-        
-        cmd = ['git', 'fetch', 'armmbed']
-        return_code = run_cmd(cmd)
-        if not return_code:
-    
-            cmd = ['git', 'reset', '--hard', 'armmbed/master']
-            return_code = run_cmd(cmd)
-            if not return_code:
+    for cmd in [['git', 'remote', 'add', 'armmbed', arm_example],
+                ['git', 'fetch', 'armmbed'],
+                ['git', 'reset', '--hard', 'armmbed/master'],
+                ['git', 'push', '-f', 'origin']]:
+        if run_cmd(cmd):
+            print("preparation of the fork failed!")
+            return False
+    return True
 
-                cmd = ['git', 'push', '-f', 'origin']
-                return_code = run_cmd(cmd)
-                if not return_code:
-                    ret = True
-
-    if not ret:
-        print("Preparation of the fork failed!")
-
-    return ret
 
 def upgrade_example(github, example, tag, user, ref):
     """ Clone a fork of the example specified.
