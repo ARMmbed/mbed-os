@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    rt_CMSIS.c
  *      Purpose: CMSIS RTOS API
- *      Rev.:    V4.74
+ *      Rev.:    V4.80 plus changes for RTX-Ax
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH, 2012-2016 ARM Limited
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -16,18 +16,18 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
+ *    to endorse or promote products derived from this software without 
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -140,9 +140,9 @@ static __inline   t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                       \
   return _##f(f,a1,a2,a3,a4);                                                  \
 }
 
-#define SVC_1_2 SVC_1_1
-#define SVC_1_3 SVC_1_1
-#define SVC_2_3 SVC_2_1
+#define SVC_1_2 SVC_1_1 
+#define SVC_1_3 SVC_1_1 
+#define SVC_2_3 SVC_2_1 
 
 #elif defined (__GNUC__)        /* GNU Compiler */
 
@@ -159,67 +159,14 @@ typedef uint32_t __attribute__((vector_size(16))) ret128;
 #define RET_osEvent    {(osStatus)__r0, {(uint32_t)__r1}, {(void *)__r2}}
 #define RET_osCallback {(void *)__r0, (void *)__r1}
 
-#if defined (__ARM_PCS_VFP)
-
-#define osEvent_type        void
-#define osEvent_ret_status {  __asm ("MOV r0, %0;"      \
-                                     : /* no outputs */ \
-                                     : "r"(ret.status)  \
-                                     : "r0"             \
-                                     );                 \
-                           }
-#define osEvent_ret_value  {  __asm ("MOV r1, %0;"         \
-                                     "MOV r0, %1;"         \
-                                     :   /* no outputs */  \
-                                     :   "r"(ret.value.v), \
-                                         "r"(ret.status)   \
-                                     : "r0", "r1"          \
-                                     );                    \
-                           }
-#define osEvent_ret_msg    {  __asm ("MOV r2, %0;"                \
-                                     "MOV r1, %1;"                \
-                                     "MOV r0, %2;"                \
-                                     : /* no outputs */           \
-                                     :   "r"(ret.def.message_id), \
-                                         "r"(ret.value.v),        \
-                                         "r"(ret.status)          \
-                                     : "r0", "r1" , "r2"          \
-                                     );                           \
-                           }
-
-#define osEvent_ret_mail   {  __asm ("MOV r2, %0;"             \
-                                     "MOV r1, %1;"             \
-                                     "MOV r0, %2;"             \
-                                     : /* no outputs */        \
-                                     :   "r"(ret.def.mail_id), \
-                                         "r"(ret.value.v),     \
-                                         "r"(ret.status)       \
-                                     : "r0", "r1" , "r2"       \
-                                     );                        \
-                           }
-
-#define osCallback_type     void
-#define osCallback_ret     {  __asm ("MOV r1, %0;"      \
-                                     "MOV r0, %1;"      \
-                                     : /* no outputs */ \
-                                     : "r"(ret.arg),    \
-                                       "r"(ret.fp)      \
-                                     : "r0", "r1"       \
-                                     );                 \
-                           }
-
-#else /* defined (__ARM_PCS_VFP) */
-
-#define osEvent_type        ret128
+#define osEvent_type       __attribute__((pcs("aapcs"))) ret128
 #define osEvent_ret_status (ret128){ret.status}
 #define osEvent_ret_value  (ret128){ret.status, ret.value.v}
 #define osEvent_ret_msg    (ret128){ret.status, ret.value.v, (uint32_t)ret.def.message_id}
 #define osEvent_ret_mail   (ret128){ret.status, ret.value.v, (uint32_t)ret.def.mail_id}
 
-#define osCallback_type     ret64
+#define osCallback_type    __attribute__((pcs("aapcs"))) ret64
 #define osCallback_ret     (ret64) {(uint32_t)ret.fp, (uint32_t)ret.arg}
-
-#endif /* defined (__ARM_PCS_VFP) */
 
 #define SVC_ArgN(n) \
   register int __r##n __asm("r"#n);
@@ -259,7 +206,7 @@ typedef uint32_t __attribute__((vector_size(16))) ret128;
 
 #if (defined (__CORTEX_M0))
 #define SVC_Call(f)                                                            \
-  __asm volatile                                                                 \
+  __asm volatile                                                               \
   (                                                                            \
     "ldr r7,="#f"\n\t"                                                         \
     "mov r12,r7\n\t"                                                           \
@@ -270,7 +217,7 @@ typedef uint32_t __attribute__((vector_size(16))) ret128;
   );
 #else
 #define SVC_Call(f)                                                            \
-  __asm volatile                                                                 \
+  __asm volatile                                                               \
   (                                                                            \
     "ldr r12,="#f"\n\t"                                                        \
     "svc 0"                                                                    \
@@ -327,9 +274,9 @@ static inline  t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                          \
   return (t) rv;                                                               \
 }
 
-#define SVC_1_2 SVC_1_1
-#define SVC_1_3 SVC_1_1
-#define SVC_2_3 SVC_2_1
+#define SVC_1_2 SVC_1_1 
+#define SVC_1_3 SVC_1_1 
+#define SVC_2_3 SVC_2_1 
 
 #elif defined (__ICCARM__)      /* IAR Compiler */
 
@@ -348,13 +295,13 @@ static inline  t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                          \
 #define osCallback_ret     ((uint64_t)ret.fp | ((uint64_t)ret.arg)<<32)
 
 #define SVC_Setup(f)                                                           \
-  __asm(                                                                         \
+  __asm(                                                                       \
     "mov r12,%0\n"                                                             \
     :: "r"(&f): "r12"                                                          \
   );
 
 #define SVC_Ret3()                                                             \
-  __asm(                                                                         \
+  __asm(                                                                       \
     "ldr r0,[sp,#0]\n"                                                         \
     "ldr r1,[sp,#4]\n"                                                         \
     "ldr r2,[sp,#8]\n"                                                         \
@@ -415,7 +362,7 @@ static inline t __##f (t1 a1) {                                                \
   t ret;                                                                       \
   SVC_Setup(f);                                                                \
   _##f(a1);                                                                    \
-  __asm("" : rr : :);                                                            \
+  __asm("" : rr : :);                                                          \
   return ret;                                                                  \
 }
 
@@ -430,7 +377,7 @@ static inline t __##f (t1 a1) {                                                \
   t ret;                                                                       \
   SVC_Setup(f##_);                                                             \
   _##f(a1);                                                                    \
-  __asm("" : rr : :);                                                            \
+  __asm("" : rr : :);                                                          \
   return ret;                                                                  \
 }
 
@@ -445,7 +392,7 @@ static inline t __##f (t1 a1, t2 a2) {                                         \
   t ret;                                                                       \
   SVC_Setup(f##_);                                                             \
   _##f(a1,a2);                                                                 \
-  __asm("" : rr : :);                                                            \
+  __asm("" : rr : :);                                                          \
   return ret;                                                                  \
 }
 
@@ -487,36 +434,37 @@ void sysThreadTerminate(osThreadId id);
 // ==== Helper Functions ====
 
 /// Convert timeout in millisec to system ticks
-static uint32_t rt_ms2tick (uint32_t millisec) {
+static uint16_t rt_ms2tick (uint32_t millisec) {
   uint32_t tick;
 
-  if (millisec == osWaitForever) return 0xFFFF; // Indefinite timeout
-  if (millisec > 4000000) return 0xFFFE;        // Max ticks supported
+  if (millisec == 0U) { return 0x0U; }                  // No timeout
+  if (millisec == osWaitForever) { return 0xFFFFU; }    // Indefinite timeout
+  if (millisec > 4000000U) { return 0xFFFEU; }          // Max ticks supported
 
-  tick = ((1000 * millisec) + os_clockrate - 1)  / os_clockrate;
-  if (tick > 0xFFFE) return 0xFFFE;
-
-  return tick;
+  tick = ((1000U * millisec) + os_clockrate - 1U)  / os_clockrate;
+  if (tick > 0xFFFEU) { return 0xFFFEU; }
+  
+  return (uint16_t)tick;
 }
 
 /// Convert Thread ID to TCB pointer
-static P_TCB rt_tid2ptcb (osThreadId thread_id) {
+P_TCB rt_tid2ptcb (osThreadId thread_id) {
   P_TCB ptcb;
 
-  if (thread_id == NULL) return NULL;
+  if (thread_id == NULL) { return NULL; }
 
-  if ((uint32_t)thread_id & 3) return NULL;
+  if ((uint32_t)thread_id & 3U) { return NULL; }
 
 #ifdef OS_SECTIONS_LINK_INFO
-  if ((os_section_id$$Base != 0) && (os_section_id$$Limit != 0)) {
-    if (thread_id  < (osThreadId)os_section_id$$Base)  return NULL;
-    if (thread_id >= (osThreadId)os_section_id$$Limit) return NULL;
+  if ((os_section_id$$Base != 0U) && (os_section_id$$Limit != 0U)) {
+    if (thread_id  < (osThreadId)os_section_id$$Base)  { return NULL; }
+    if (thread_id >= (osThreadId)os_section_id$$Limit) { return NULL; }
   }
 #endif
 
   ptcb = thread_id;
 
-  if (ptcb->cb_type != TCB) return NULL;
+  if (ptcb->cb_type != TCB) { return NULL; }
 
   return ptcb;
 }
@@ -524,12 +472,12 @@ static P_TCB rt_tid2ptcb (osThreadId thread_id) {
 /// Convert ID pointer to Object pointer
 static void *rt_id2obj (void *id) {
 
-  if ((uint32_t)id & 3) return NULL;
+  if ((uint32_t)id & 3U) { return NULL; }
 
 #ifdef OS_SECTIONS_LINK_INFO
-  if ((os_section_id$$Base != 0) && (os_section_id$$Limit != 0)) {
-    if (id  < (void *)os_section_id$$Base)  return NULL;
-    if (id >= (void *)os_section_id$$Limit) return NULL;
+  if ((os_section_id$$Base != 0U) && (os_section_id$$Limit != 0U)) {
+    if (id  < (void *)os_section_id$$Base)  { return NULL; }
+    if (id >= (void *)os_section_id$$Limit) { return NULL; }
   }
 #endif
 
@@ -539,7 +487,7 @@ static void *rt_id2obj (void *id) {
 // === Helper functions for system call interface ===
 
 static __inline char __get_mode(void) {
-    return (char)(__get_CPSR() & 0x1f);
+    return (char)(__get_CPSR() & 0x1FU);
 }
 
 static __inline char __exceptional_mode(void) {
@@ -551,14 +499,14 @@ static __inline char __exceptional_mode(void) {
     switch(__get_mode()) {
         case MODE_USR:
         case MODE_SYS:
-            return 0;
+            return 0U;
         case MODE_SVC:
-            if (IRQNestLevel == 0)
-                return 0; /* handling a regular service call */
+            if (IRQNestLevel == 0U)
+                return 0U; /* handling a regular service call */
             else
-                return 1; /* handling an ISR in SVC mode */
+                return 1U; /* handling an ISR in SVC mode */
         default:
-            return 1;
+            return 1U;
     }
 }
 
@@ -586,22 +534,22 @@ osStatus svcKernelInitialize (void) {
     rt_sys_init();                              // RTX System Initialization
   }
 #else
-  int ret;
+  uint32_t ret;
 
-  if (!os_initialized) {
+  if (os_initialized == 0U) {
 
     // Init Thread Stack Memory (must be 8-byte aligned)
-    if ((uint32_t)os_stack_mem & 7) return osErrorNoMemory;
+    if (((uint32_t)os_stack_mem & 7U) != 0U) { return osErrorNoMemory; }
     ret = rt_init_mem(os_stack_mem, os_stack_sz);
-    if (ret != 0) return osErrorNoMemory;
+    if (ret != 0U) { return osErrorNoMemory; }
 
     rt_sys_init();                              // RTX System Initialization
   }
 #endif
 
-  os_tsk.run->prio = 255;                       // Highest priority
+  os_tsk.run->prio = 255U;                      // Highest priority
 
-  if (!os_initialized) {
+  if (os_initialized == 0U) {
     // Create OS Timers resources (Message Queue & Thread)
     osMessageQId_osTimerMessageQ = svcMessageCreate (&os_messageQ_def_osTimerMessageQ, NULL);
     osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL);
@@ -611,8 +559,8 @@ osStatus svcKernelInitialize (void) {
 
   sysThreadError(osOK);
 
-  os_initialized = 1;
-  os_running = 0;
+  os_initialized = 1U;
+  os_running = 0U;
 
   return osOK;
 }
@@ -620,24 +568,24 @@ osStatus svcKernelInitialize (void) {
 /// Start the RTOS Kernel
 osStatus svcKernelStart (void) {
 
-  if (os_running) return osOK;
+  if (os_running) { return osOK; }
 
-  rt_tsk_prio(0, os_tsk.run->prio_base);        // Restore priority
-  if (os_tsk.run->task_id == 0xFF) {            // Idle Thread
-    __set_PSP(os_tsk.run->tsk_stack + 8*4);     // Setup PSP
+  rt_tsk_prio(0U, os_tsk.run->prio_base);       // Restore priority
+  if (os_tsk.run->task_id == 0xFFU) {           // Idle Thread
+    __set_PSP(os_tsk.run->tsk_stack + (8U*4U)); // Setup PSP
   }
   os_tsk.run = NULL;                            // Force context switch
 
   rt_sys_start();
 
-  os_running = 1;
+  os_running = 1U;
 
   return osOK;
 }
 
 /// Check if the RTOS kernel is already started
-int32_t svcKernelRunning(void) {
-  return os_running;
+int32_t svcKernelRunning (void) {
+  return (int32_t)os_running;
 }
 
 /// Get the RTOS kernel system timer counter
@@ -647,10 +595,10 @@ uint32_t svcKernelSysTick (void) {
   tick = os_tick_val();
   if (os_tick_ovf()) {
     tick0 = os_tick_val();
-    if (tick0 < tick) tick = tick0;
-    tick += (os_trv + 1) * (os_time + 1);
+    if (tick0 < tick) { tick = tick0; }
+    tick += (os_trv + 1U) * (os_time + 1U);
   } else {
-    tick += (os_trv + 1) *  os_time;
+    tick += (os_trv + 1U) *  os_time;
   }
 
   return tick;
@@ -660,7 +608,9 @@ uint32_t svcKernelSysTick (void) {
 
 /// Initialize the RTOS Kernel for creating objects
 osStatus osKernelInitialize (void) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;                      // Not allowed in ISR
+  }
   if (__get_mode() != MODE_USR) {
     return   svcKernelInitialize();
   } else {
@@ -674,21 +624,21 @@ osStatus osKernelStart (void) {
 
   switch(mode) {
     case MODE_USR:
-      if (os_flags & 1) return osErrorOS;  // Privileged Thread mode requested from Unprivileged
+      if (os_flags & 1U) return osErrorOS;  // Privileged Thread mode requested from Unprivileged
       break;
     case MODE_SYS:
-      if (!(os_flags & 1)) {
+      if (!(os_flags & 1U)) {
         __set_CPS_USR();
       }
       break;
     default:
-      return osErrorISR;                   // Not allowed in ISR
+      return osErrorISR;                    // Not allowed in ISR
   }
   return __svcKernelStart();
 }
 
 /// Check if the RTOS kernel is already started
-int32_t osKernelRunning(void) {
+int32_t osKernelRunning (void) {
   if(__get_mode() != MODE_USR) {
     return os_running;
   } else {
@@ -698,7 +648,7 @@ int32_t osKernelRunning(void) {
 
 /// Get the RTOS kernel system timer counter
 uint32_t osKernelSysTick (void) {
-  if (__exceptional_mode()) return 0;              // Not allowed in ISR
+  if (__exceptional_mode()) { return 0U; }              // Not allowed in ISR
   return __svcKernelSysTick();
 }
 
@@ -733,23 +683,23 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
       (thread_def->pthread == NULL) ||
       (thread_def->tpriority < osPriorityIdle) ||
       (thread_def->tpriority > osPriorityRealtime)) {
-    sysThreadError(osErrorParameter);
-    return NULL;
+    sysThreadError(osErrorParameter); 
+    return NULL; 
   }
 
 #ifdef __MBED_CMSIS_RTOS_CA9
-  if (thread_def->stacksize != 0) {             // Custom stack size
+  if (thread_def->stacksize != 0U) {            // Custom stack size
     stk = (void *)thread_def->stack_pointer;
   } else {                                      // Default stack size
     stk = NULL;
   }
 #else
-  if (thread_def->stacksize != 0) {             // Custom stack size
+  if (thread_def->stacksize != 0U) {            // Custom stack size
     stk = rt_alloc_mem(                         // Allocate stack
       os_stack_mem,
       thread_def->stacksize
     );
-    if (stk == NULL) {
+    if (stk == NULL) { 
       sysThreadError(osErrorNoMemory);          // Out of memory
       return NULL;
     }
@@ -760,13 +710,14 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
 
   tsk = rt_tsk_create(                          // Create task
     (FUNCP)thread_def->pthread,                 // Task function pointer
+    (uint32_t)
     (thread_def->tpriority-osPriorityIdle+1) |  // Task priority
     (thread_def->stacksize << 8),               // Task stack size in bytes
     stk,                                        // Pointer to task's stack
     argument                                    // Argument to the task
   );
 
-  if (tsk == 0) {                               // Invalid task ID
+  if (tsk == 0U) {                              // Invalid task ID
 #ifndef __MBED_CMSIS_RTOS_CA9
     if (stk != NULL) {
       rt_free_mem(os_stack_mem, stk);           // Free allocated stack
@@ -776,7 +727,7 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
     return NULL;
   }
 
-  ptcb = (P_TCB)os_active_TCB[tsk - 1];         // TCB pointer
+  ptcb = (P_TCB)os_active_TCB[tsk - 1U];        // TCB pointer
 
   *((uint32_t *)ptcb->tsk_stack + 13) = (uint32_t)osThreadExit;
 
@@ -788,8 +739,8 @@ osThreadId svcThreadGetId (void) {
   OS_TID tsk;
 
   tsk = rt_tsk_self();
-  if (tsk == 0) return NULL;
-  return (P_TCB)os_active_TCB[tsk - 1];
+  if (tsk == 0U) { return NULL; }
+  return (P_TCB)os_active_TCB[tsk - 1U];
 }
 
 /// Terminate execution of a thread and remove it from ActiveThreads
@@ -801,7 +752,9 @@ osStatus svcThreadTerminate (osThreadId thread_id) {
 #endif
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return osErrorParameter;
+  if (ptcb == NULL) { 
+    return osErrorParameter;
+  }
 
 #ifndef __MBED_CMSIS_RTOS_CA9
   stk = ptcb->priv_stack ? ptcb->stack : NULL;  // Private stack
@@ -809,10 +762,12 @@ osStatus svcThreadTerminate (osThreadId thread_id) {
 
   res = rt_tsk_delete(ptcb->task_id);           // Delete task
 
-  if (res == OS_R_NOK) return osErrorResource;  // Delete task failed
+  if (res == OS_R_NOK) {
+    return osErrorResource;                     // Delete task failed
+  }
 
 #ifndef __MBED_CMSIS_RTOS_CA9
-  if (stk != NULL) {
+  if (stk != NULL) {                            
     rt_free_mem(os_stack_mem, stk);             // Free private stack
   }
 #endif
@@ -832,7 +787,9 @@ osStatus svcThreadSetPriority (osThreadId thread_id, osPriority priority) {
   P_TCB     ptcb;
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return osErrorParameter;
+  if (ptcb == NULL) { 
+    return osErrorParameter; 
+  }
 
   if ((priority < osPriorityIdle) || (priority > osPriorityRealtime)) {
     return osErrorValue;
@@ -840,10 +797,12 @@ osStatus svcThreadSetPriority (osThreadId thread_id, osPriority priority) {
 
   res = rt_tsk_prio(                            // Change task priority
     ptcb->task_id,                              // Task ID
-    priority - osPriorityIdle + 1               // New task priority
+    (uint8_t)(priority - osPriorityIdle + 1)    // New task priority
   );
 
-  if (res == OS_R_NOK) return osErrorResource;  // Change task priority failed
+  if (res == OS_R_NOK) {
+    return osErrorResource;                     // Change task priority failed
+  }
 
   return osOK;
 }
@@ -853,9 +812,11 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
   P_TCB ptcb;
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return osPriorityError;
+  if (ptcb == NULL) {
+    return osPriorityError;
+  }
 
-  return (osPriority)(ptcb->prio - 1 + osPriorityIdle);
+  return (osPriority)(ptcb->prio - 1 + osPriorityIdle); 
 }
 
 /// Get info from an active thread
@@ -867,78 +828,50 @@ os_InRegs osEvent_type svcThreadGetInfo (osThreadId thread_id, osThreadInfo info
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
   if (ptcb == NULL) {
     ret.status = osErrorValue;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
     return osEvent_ret_status;
-#endif
   }
 
   if (osThreadInfoStackSize == info) {
     uint32_t size;
     size = ptcb->priv_stack;
-    if (0 == size) {
+    if (0U == size) {
       // This is an OS task - always a fixed size
-      size = os_stackinfo & 0x3FFFF;
+      size = os_stackinfo & 0x3FFFFU;
     }
     ret.value.v = size;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_value;
-    return;
-#else
     return osEvent_ret_value;
-#endif
   }
 
   if (osThreadInfoStackMax == info) {
     // Cortex-A RTX does not have stack init so
     // the maximum stack usage cannot be obtained.
     ret.status = osErrorResource;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
     return osEvent_ret_status;
-#endif
   }
 
   if (osThreadInfoEntry == info) {
     ret.value.p = (void*)ptcb->ptask;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_value;
-    return;
-#else
     return osEvent_ret_value;
-#endif
   }
 
   if (osThreadInfoArg == info) {
     ret.value.p = (void*)ptcb->argv;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_value;
-    return;
-#else
     return osEvent_ret_value;
-#endif
   }
 
   // Unsupported option so return error
   ret.status = osErrorParameter;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
-    return osEvent_ret_status;
-#endif
+  return osEvent_ret_status;
 }
 
 // Thread Public API
 
 /// Create a thread and add it to Active Threads and set it to state READY
 osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return   svcThreadCreate(thread_def, argument);
   } else {
@@ -953,14 +886,18 @@ osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument) {
 
 /// Return the thread ID of the current running thread
 osThreadId osThreadGetId (void) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
   return __svcThreadGetId();
 }
 
 /// Terminate execution of a thread and remove it from ActiveThreads
 osStatus osThreadTerminate (osThreadId thread_id) {
   osStatus status;
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   osMutexWait(osMutexId_osThreadMutex, osWaitForever);
   sysThreadTerminate(thread_id);
   // Thread mutex must be held when a thread is created or terminated
@@ -971,25 +908,31 @@ osStatus osThreadTerminate (osThreadId thread_id) {
 
 /// Pass control to next thread that is in state READY
 osStatus osThreadYield (void) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcThreadYield();
 }
 
 /// Change priority of an active thread
 osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcThreadSetPriority(thread_id, priority);
 }
 
 /// Get current priority of an active thread
 osPriority osThreadGetPriority (osThreadId thread_id) {
-  if (__exceptional_mode()) return osPriorityError;// Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osPriorityError;// Not allowed in ISR
+  }
   return __svcThreadGetPriority(thread_id);
 }
 
 /// INTERNAL - Not Public
 /// Auto Terminate Thread on exit (used implicitly when thread exists)
-__NO_RETURN void osThreadExit (void) {
+__NO_RETURN void osThreadExit (void) { 
   osThreadId id;
   // Thread mutex must be held when a thread is created or terminated
   // Note - the mutex will be released automatically by the os when
@@ -997,7 +940,7 @@ __NO_RETURN void osThreadExit (void) {
   osMutexWait(osMutexId_osThreadMutex, osWaitForever);
   id = __svcThreadGetId();
   sysThreadTerminate(id);
-  __svcThreadTerminate(id);
+  __svcThreadTerminate(id); 
   for (;;);                                     // Should never come here
 }
 
@@ -1006,10 +949,14 @@ __NO_RETURN void osThreadExit (void) {
 uint8_t osThreadGetState (osThreadId thread_id) {
   P_TCB ptcb;
 
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return INACTIVE;
+  if (ptcb == NULL) {
+  	return INACTIVE;
+  }
 
   return ptcb->state;
 }
@@ -1046,13 +993,13 @@ osThreadId _osThreadEnumNext(osThreadEnumId enum_id) {
     // Include the idle task at the end of the enumeration
     id = &os_idle_TCB;
   }
-  *index = i + 1;
+  *index = i + 1U;
   return id;
 }
 
 osStatus _osThreadEnumFree(osThreadEnumId enum_id) {
   uint32_t *index = (uint32_t*)enum_id;
-  *index = 0;
+  *index = 0U;
   osMutexRelease(osMutexId_osThreadMutex);
   return osOK;
 }
@@ -1069,7 +1016,7 @@ SVC_1_3(svcWait,  os_InRegs osEvent,  uint32_t, RET_osEvent)
 
 /// Wait for Timeout (Time Delay)
 osStatus svcDelay (uint32_t millisec) {
-  if (millisec == 0) return osOK;
+  if (millisec == 0U) { return osOK; }
   rt_dly_wait(rt_ms2tick(millisec));
   return osEventTimeout;
 }
@@ -1079,26 +1026,16 @@ osStatus svcDelay (uint32_t millisec) {
 os_InRegs osEvent_type svcWait (uint32_t millisec) {
   osEvent ret;
 
-  if (millisec == 0) {
+  if (millisec == 0U) {
     ret.status = osOK;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
     return osEvent_ret_status;
-#endif
   }
 
   /* To Do: osEventSignal, osEventMessage, osEventMail */
   rt_dly_wait(rt_ms2tick(millisec));
   ret.status = osEventTimeout;
 
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-  osEvent_ret_status;
-  return;
-#else
   return osEvent_ret_status;
-#endif
 }
 #endif
 
@@ -1107,7 +1044,9 @@ os_InRegs osEvent_type svcWait (uint32_t millisec) {
 
 /// Wait for Timeout (Time Delay)
 osStatus osDelay (uint32_t millisec) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;                          // Not allowed in ISR
+  }
   return __svcDelay(millisec);
 }
 
@@ -1119,7 +1058,7 @@ os_InRegs osEvent osWait (uint32_t millisec) {
   ret.status = osErrorOS;
   return ret;
 #else
-  if (__exceptional_mode()) {                      // Not allowed in ISR
+  if (__exceptional_mode()) {                   // Not allowed in ISR
     ret.status = osErrorISR;
     return ret;
   }
@@ -1131,9 +1070,9 @@ os_InRegs osEvent osWait (uint32_t millisec) {
 // ==== Timer Management ====
 
 // Timer definitions
-#define osTimerInvalid  0
-#define osTimerStopped  1
-#define osTimerRunning  2
+#define osTimerInvalid  0U
+#define osTimerStopped  1U
+#define osTimerRunning  2U
 
 // Timer structures
 
@@ -1142,8 +1081,8 @@ typedef struct os_timer_cb_ {                   // Timer Control Block
   uint8_t             state;                    // Timer State
   uint8_t              type;                    // Timer Type (Periodic/One-shot)
   uint16_t         reserved;                    // Reserved
-  uint16_t             tcnt;                    // Timer Delay Count
-  uint16_t             icnt;                    // Timer Initial Count
+  uint32_t             tcnt;                    // Timer Delay Count
+  uint32_t             icnt;                    // Timer Initial Count 
   void                 *arg;                    // Timer Function Argument
   const osTimerDef_t *timer;                    // Pointer to Timer definition
 } os_timer_cb;
@@ -1161,13 +1100,13 @@ static void rt_timer_insert (os_timer_cb *pt, uint32_t tcnt) {
   prev = NULL;
   p = os_timer_head;
   while (p != NULL) {
-    if (tcnt < p->tcnt) break;
+    if (tcnt < p->tcnt) { break; }
     tcnt -= p->tcnt;
     prev = p;
     p = p->next;
   }
   pt->next = p;
-  pt->tcnt = (uint16_t)tcnt;
+  pt->tcnt = tcnt;
   if (p != NULL) {
     p->tcnt -= pt->tcnt;
   }
@@ -1179,17 +1118,17 @@ static void rt_timer_insert (os_timer_cb *pt, uint32_t tcnt) {
 }
 
 // Remove Timer from the list
-static int rt_timer_remove (os_timer_cb *pt) {
+static int32_t rt_timer_remove (os_timer_cb *pt) {
   os_timer_cb *p, *prev;
 
   prev = NULL;
   p = os_timer_head;
   while (p != NULL) {
-    if (p == pt) break;
+    if (p == pt) { break; }
     prev = p;
     p = p->next;
   }
-  if (p == NULL) return -1;
+  if (p == NULL) { return -1; }
   if (prev != NULL) {
     prev->next = pt->next;
   } else {
@@ -1257,10 +1196,13 @@ osStatus svcTimerStart (osTimerId timer_id, uint32_t millisec) {
   uint32_t     tcnt;
 
   pt = rt_id2obj(timer_id);
-  if (pt == NULL) return osErrorParameter;
+  if (pt == NULL) {
+    return osErrorParameter;
+  }
 
-  tcnt = rt_ms2tick(millisec);
-  if (tcnt == 0) return osErrorValue;
+  if (millisec == 0U) { return osErrorValue; }
+
+  tcnt = (uint32_t)(((1000U * (uint64_t)millisec) + os_clockrate - 1U)  / os_clockrate);
 
   switch (pt->state) {
     case osTimerRunning:
@@ -1270,12 +1212,12 @@ osStatus svcTimerStart (osTimerId timer_id, uint32_t millisec) {
       break;
     case osTimerStopped:
       pt->state = osTimerRunning;
-      pt->icnt  = (uint16_t)tcnt;
+      pt->icnt  = tcnt;
       break;
     default:
       return osErrorResource;
   }
-
+  
   rt_timer_insert(pt, tcnt);
 
   return osOK;
@@ -1286,9 +1228,11 @@ osStatus svcTimerStop (osTimerId timer_id) {
   os_timer_cb *pt;
 
   pt = rt_id2obj(timer_id);
-  if (pt == NULL) return osErrorParameter;
+  if (pt == NULL) {
+    return osErrorParameter;
+  }
 
-  if (pt->state != osTimerRunning) return osErrorResource;
+  if (pt->state != osTimerRunning) { return osErrorResource; }
 
   pt->state = osTimerStopped;
 
@@ -1304,7 +1248,9 @@ osStatus svcTimerDelete (osTimerId timer_id) {
   os_timer_cb *pt;
 
   pt = rt_id2obj(timer_id);
-  if (pt == NULL) return osErrorParameter;
+  if (pt == NULL) {
+    return osErrorParameter;
+  }
 
   switch (pt->state) {
     case osTimerRunning:
@@ -1330,41 +1276,35 @@ os_InRegs osCallback_type svcTimerCall (osTimerId timer_id) {
   if (pt == NULL) {
     ret.fp  = NULL;
     ret.arg = NULL;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osCallback_ret;
-    return;
-#else
     return osCallback_ret;
-#endif
   }
 
   ret.fp  = (void *)pt->timer->ptimer;
   ret.arg = pt->arg;
 
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-  osCallback_ret;
-  return;
-#else
   return osCallback_ret;
-#endif
 }
 
-static __INLINE osStatus isrMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec);
+osStatus isrMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec);
 
 /// Timer Tick (called each SysTick)
 void sysTimerTick (void) {
   os_timer_cb *pt, *p;
+  osStatus     status;
 
   p = os_timer_head;
-  if (p == NULL) return;
+  if (p == NULL) { return; }
 
   p->tcnt--;
-  while ((p != NULL) && (p->tcnt == 0)) {
+  while ((p != NULL) && (p->tcnt == 0U)) {
     pt = p;
     p = p->next;
     os_timer_head = p;
-    isrMessagePut(osMessageQId_osTimerMessageQ, (uint32_t)pt, 0);
-    if (pt->type == osTimerPeriodic) {
+    status = isrMessagePut(osMessageQId_osTimerMessageQ, (uint32_t)pt, 0U);
+    if (status != osOK) {
+      os_error(OS_ERR_TIMER_OVF);
+    }
+    if (pt->type == (uint8_t)osTimerPeriodic) {
       rt_timer_insert(pt, pt->icnt);
     } else {
       pt->state = osTimerStopped;
@@ -1378,16 +1318,16 @@ uint32_t sysUserTimerWakeupTime (void) {
   if (os_timer_head) {
     return os_timer_head->tcnt;
   }
-  return 0xFFFF;
+  return 0xFFFFFFFFU;
 }
 
 /// Update user timers on resume
 void sysUserTimerUpdate (uint32_t sleep_time) {
 
-  while (os_timer_head && sleep_time) {
+  while ((os_timer_head != NULL) && (sleep_time != 0U)) {
     if (sleep_time >= os_timer_head->tcnt) {
       sleep_time -= os_timer_head->tcnt;
-      os_timer_head->tcnt = 1;
+      os_timer_head->tcnt = 1U;
       sysTimerTick();
     } else {
       os_timer_head->tcnt -= sleep_time;
@@ -1401,8 +1341,10 @@ void sysUserTimerUpdate (uint32_t sleep_time) {
 
 /// Create timer
 osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return   svcTimerCreate(timer_def, type, argument);
   } else {
@@ -1412,26 +1354,32 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
 
 /// Start or restart timer
 osStatus osTimerStart (osTimerId timer_id, uint32_t millisec) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcTimerStart(timer_id, millisec);
 }
 
 /// Stop timer
 osStatus osTimerStop (osTimerId timer_id) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+  return osErrorISR;     // Not allowed in ISR
+  }
   return __svcTimerStop(timer_id);
 }
 
 /// Delete timer
 osStatus osTimerDelete (osTimerId timer_id) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcTimerDelete(timer_id);
 }
 
 /// INTERNAL - Not Public
 /// Get timer callback parameters (used by OS Timer Thread)
-os_InRegs osCallback osTimerCall (osTimerId timer_id) {
-  return __svcTimerCall(timer_id);
+os_InRegs osCallback osTimerCall (osTimerId timer_id) { 
+  return __svcTimerCall(timer_id); 
 }
 
 
@@ -1467,13 +1415,17 @@ int32_t svcSignalSet (osThreadId thread_id, int32_t signals) {
   int32_t sig;
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return 0x80000000;
+  if (ptcb == NULL) {
+    return (int32_t)0x80000000U;
+  }
 
-  if (signals & (0xFFFFFFFF << osFeature_Signals)) return 0x80000000;
+  if ((uint32_t)signals & (0xFFFFFFFFU << osFeature_Signals)) {
+    return (int32_t)0x80000000U;
+  }
 
-  sig = ptcb->events;                           // Previous signal flags
+  sig = (int32_t)ptcb->events;                  // Previous signal flags
 
-  rt_evt_set(signals, ptcb->task_id);           // Set event flags
+  rt_evt_set((uint16_t)signals, ptcb->task_id); // Set event flags
 
   return sig;
 }
@@ -1484,13 +1436,17 @@ int32_t svcSignalClear (osThreadId thread_id, int32_t signals) {
   int32_t sig;
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return 0x80000000;
+  if (ptcb == NULL) {
+    return (int32_t)0x80000000U;
+  }
 
-  if (signals & (0xFFFFFFFF << osFeature_Signals)) return 0x80000000;
+  if ((uint32_t)signals & (0xFFFFFFFFU << osFeature_Signals)) {
+    return (int32_t)0x80000000U;
+  }
 
-  sig = ptcb->events;                           // Previous signal flags
+  sig = (int32_t)ptcb->events;                  // Previous signal flags
 
-  rt_evt_clr(signals, ptcb->task_id);           // Clear event flags
+  rt_evt_clr((uint16_t)signals, ptcb->task_id); // Clear event flags
 
   return sig;
 }
@@ -1500,54 +1456,48 @@ os_InRegs osEvent_type svcSignalWait (int32_t signals, uint32_t millisec) {
   OS_RESULT res;
   osEvent   ret;
 
-  if (signals & (0xFFFFFFFF << osFeature_Signals)) {
+  if ((uint32_t)signals & (0xFFFFFFFFU << osFeature_Signals)) {
     ret.status = osErrorValue;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
     return osEvent_ret_status;
-#endif
   }
 
   if (signals != 0) {                           // Wait for all specified signals
-    res = rt_evt_wait(signals, rt_ms2tick(millisec), __TRUE);
+    res = rt_evt_wait((uint16_t)signals, rt_ms2tick(millisec), __TRUE);
   } else {                                      // Wait for any signal
-    res = rt_evt_wait(0xFFFF,  rt_ms2tick(millisec), __FALSE);
+    res = rt_evt_wait(0xFFFFU,           rt_ms2tick(millisec), __FALSE);
   }
 
   if (res == OS_R_EVT) {
     ret.status = osEventSignal;
-    ret.value.signals = signals ? signals : os_tsk.run->waits;
+    ret.value.signals = (signals != 0) ? signals : (int32_t)os_tsk.run->waits;
   } else {
-    ret.status = millisec ? osEventTimeout : osOK;
+    ret.status = (millisec != 0U) ? osEventTimeout : osOK;
     ret.value.signals = 0;
   }
 
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-  osEvent_ret_value;
-  return;
-#else
   return osEvent_ret_value;
-#endif
 }
 
 
 // Signal ISR Calls
 
 /// Set the specified Signal Flags of an active thread
-static __INLINE int32_t isrSignalSet (osThreadId thread_id, int32_t signals) {
+int32_t isrSignalSet (osThreadId thread_id, int32_t signals) {
   P_TCB   ptcb;
   int32_t sig;
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return 0x80000000;
+  if (ptcb == NULL) {
+    return (int32_t)0x80000000U;
+  }
 
-  if (signals & (0xFFFFFFFF << osFeature_Signals)) return 0x80000000;
+  if ((uint32_t)signals & (0xFFFFFFFFU << osFeature_Signals)) {
+    return (int32_t)0x80000000U;
+  }
 
-  sig = ptcb->events;                           // Previous signal flags
+  sig = (int32_t)ptcb->events;                  // Previous signal flags
 
-  isr_evt_set(signals, ptcb->task_id);          // Set event flags
+  isr_evt_set((uint16_t)signals, ptcb->task_id);// Set event flags
 
   return sig;
 }
@@ -1558,7 +1508,7 @@ static __INLINE int32_t isrSignalSet (osThreadId thread_id, int32_t signals) {
 /// Set the specified Signal Flags of an active thread
 int32_t osSignalSet (osThreadId thread_id, int32_t signals) {
   if (__exceptional_mode()) {                      // in ISR
-    return   isrSignalSet(thread_id, signals);
+    return   isrSignalSet(thread_id, signals); 
   } else {                                      // in Thread
     return __svcSignalSet(thread_id, signals);
   }
@@ -1566,7 +1516,9 @@ int32_t osSignalSet (osThreadId thread_id, int32_t signals) {
 
 /// Clear the specified Signal Flags of an active thread
 int32_t osSignalClear (osThreadId thread_id, int32_t signals) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return (int32_t)0x80000000U;     // Not allowed in ISR
+  }
   return __svcSignalClear(thread_id, signals);
 }
 
@@ -1607,7 +1559,7 @@ osMutexId svcMutexCreate (const osMutexDef_t *mutex_def) {
     return NULL;
   }
 
-  if (((P_MUCB)mut)->cb_type != 0) {
+  if (((P_MUCB)mut)->cb_type != 0U) {
     sysThreadError(osErrorParameter);
     return NULL;
   }
@@ -1623,14 +1575,18 @@ osStatus svcMutexWait (osMutexId mutex_id, uint32_t millisec) {
   OS_RESULT res;
 
   mut = rt_id2obj(mutex_id);
-  if (mut == NULL) return osErrorParameter;
+  if (mut == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_MUCB)mut)->cb_type != MUCB) return osErrorParameter;
+  if (((P_MUCB)mut)->cb_type != MUCB) {
+    return osErrorParameter;
+  }
 
   res = rt_mut_wait(mut, rt_ms2tick(millisec)); // Wait for Mutex
 
   if (res == OS_R_TMO) {
-    return (millisec ? osErrorTimeoutResource : osErrorResource);
+    return ((millisec != 0U) ? osErrorTimeoutResource : osErrorResource);
   }
 
   return osOK;
@@ -1642,13 +1598,19 @@ osStatus svcMutexRelease (osMutexId mutex_id) {
   OS_RESULT res;
 
   mut = rt_id2obj(mutex_id);
-  if (mut == NULL) return osErrorParameter;
+  if (mut == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_MUCB)mut)->cb_type != MUCB) return osErrorParameter;
+  if (((P_MUCB)mut)->cb_type != MUCB) {
+    return osErrorParameter;
+  }
 
   res = rt_mut_release(mut);                    // Release Mutex
 
-  if (res == OS_R_NOK) return osErrorResource;  // Thread not owner or Zero Counter
+  if (res == OS_R_NOK) {
+    return osErrorResource;                     // Thread not owner or Zero Counter
+  }
 
   return osOK;
 }
@@ -1658,9 +1620,13 @@ osStatus svcMutexDelete (osMutexId mutex_id) {
   OS_ID mut;
 
   mut = rt_id2obj(mutex_id);
-  if (mut == NULL) return osErrorParameter;
+  if (mut == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_MUCB)mut)->cb_type != MUCB) return osErrorParameter;
+  if (((P_MUCB)mut)->cb_type != MUCB) {
+    return osErrorParameter;
+  }
 
   rt_mut_delete(mut);                           // Release Mutex
 
@@ -1672,8 +1638,10 @@ osStatus svcMutexDelete (osMutexId mutex_id) {
 
 /// Create and Initialize a Mutex object
 osMutexId osMutexCreate (const osMutexDef_t *mutex_def) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return    svcMutexCreate(mutex_def);
   } else {
@@ -1683,19 +1651,25 @@ osMutexId osMutexCreate (const osMutexDef_t *mutex_def) {
 
 /// Wait until a Mutex becomes available
 osStatus osMutexWait (osMutexId mutex_id, uint32_t millisec) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcMutexWait(mutex_id, millisec);
 }
 
 /// Release a Mutex that was obtained with osMutexWait
 osStatus osMutexRelease (osMutexId mutex_id) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcMutexRelease(mutex_id);
 }
 
 /// Delete a Mutex that was created by osMutexCreate
 osStatus osMutexDelete (osMutexId mutex_id) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcMutexDelete(mutex_id);
 }
 
@@ -1725,7 +1699,7 @@ osSemaphoreId svcSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t
     return NULL;
   }
 
-  if (((P_SCB)sem)->cb_type != 0) {
+  if (((P_SCB)sem)->cb_type != 0U) {
     sysThreadError(osErrorParameter);
     return NULL;
   }
@@ -1735,8 +1709,8 @@ osSemaphoreId svcSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t
     return NULL;
   }
 
-  rt_sem_init(sem, count);                      // Initialize Semaphore
-
+  rt_sem_init(sem, (uint16_t)count);            // Initialize Semaphore
+  
   return sem;
 }
 
@@ -1746,15 +1720,19 @@ int32_t svcSemaphoreWait (osSemaphoreId semaphore_id, uint32_t millisec) {
   OS_RESULT res;
 
   sem = rt_id2obj(semaphore_id);
-  if (sem == NULL) return -1;
+  if (sem == NULL) {
+    return -1;
+  }
 
-  if (((P_SCB)sem)->cb_type != SCB) return -1;
+  if (((P_SCB)sem)->cb_type != SCB) {
+    return -1;
+  }
 
   res = rt_sem_wait(sem, rt_ms2tick(millisec)); // Wait for Semaphore
 
-  if (res == OS_R_TMO) return 0;                // Timeout
+  if (res == OS_R_TMO) { return 0; }            // Timeout
 
-  return (((P_SCB)sem)->tokens + 1);
+  return (int32_t)(((P_SCB)sem)->tokens + 1U);
 }
 
 /// Release a Semaphore
@@ -1762,12 +1740,18 @@ osStatus svcSemaphoreRelease (osSemaphoreId semaphore_id) {
   OS_ID sem;
 
   sem = rt_id2obj(semaphore_id);
-  if (sem == NULL) return osErrorParameter;
+  if (sem == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_SCB)sem)->cb_type != SCB) return osErrorParameter;
+  if (((P_SCB)sem)->cb_type != SCB) {
+    return osErrorParameter;
+  }
 
-  if (((P_SCB)sem)->tokens == osFeature_Semaphore) return osErrorResource;
-
+  if ((int32_t)((P_SCB)sem)->tokens == osFeature_Semaphore) {
+    return osErrorResource;
+  }
+  
   rt_sem_send(sem);                             // Release Semaphore
 
   return osOK;
@@ -1778,9 +1762,13 @@ osStatus svcSemaphoreDelete (osSemaphoreId semaphore_id) {
   OS_ID sem;
 
   sem = rt_id2obj(semaphore_id);
-  if (sem == NULL) return osErrorParameter;
+  if (sem == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_SCB)sem)->cb_type != SCB) return osErrorParameter;
+  if (((P_SCB)sem)->cb_type != SCB) {
+    return osErrorParameter;
+  }
 
   rt_sem_delete(sem);                           // Delete Semaphore
 
@@ -1791,15 +1779,21 @@ osStatus svcSemaphoreDelete (osSemaphoreId semaphore_id) {
 // Semaphore ISR Calls
 
 /// Release a Semaphore
-static __INLINE osStatus isrSemaphoreRelease (osSemaphoreId semaphore_id) {
+osStatus isrSemaphoreRelease (osSemaphoreId semaphore_id) {
   OS_ID sem;
 
   sem = rt_id2obj(semaphore_id);
-  if (sem == NULL) return osErrorParameter;
+  if (sem == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_SCB)sem)->cb_type != SCB) return osErrorParameter;
+  if (((P_SCB)sem)->cb_type != SCB) {
+    return osErrorParameter;
+  }
 
-  if (((P_SCB)sem)->tokens == osFeature_Semaphore) return osErrorResource;
+  if ((int32_t)((P_SCB)sem)->tokens == osFeature_Semaphore) {
+    return osErrorResource;
+  }
 
   isr_sem_send(sem);                            // Release Semaphore
 
@@ -1811,8 +1805,10 @@ static __INLINE osStatus isrSemaphoreRelease (osSemaphoreId semaphore_id) {
 
 /// Create and Initialize a Semaphore object
 osSemaphoreId osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t count) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return   svcSemaphoreCreate(semaphore_def, count);
   } else {
@@ -1822,7 +1818,9 @@ osSemaphoreId osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t 
 
 /// Wait until a Semaphore becomes available
 int32_t osSemaphoreWait (osSemaphoreId semaphore_id, uint32_t millisec) {
-  if (__exceptional_mode()) return -1;             // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return -1;             // Not allowed in ISR
+  }
   return __svcSemaphoreWait(semaphore_id, millisec);
 }
 
@@ -1837,7 +1835,9 @@ osStatus osSemaphoreRelease (osSemaphoreId semaphore_id) {
 
 /// Delete a Semaphore that was created by osSemaphoreCreate
 osStatus osSemaphoreDelete (osSemaphoreId semaphore_id) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
+  if (__exceptional_mode()) {
+    return osErrorISR;     // Not allowed in ISR
+  }
   return __svcSemaphoreDelete(semaphore_id);
 }
 
@@ -1850,18 +1850,18 @@ osStatus osSemaphoreDelete (osSemaphoreId semaphore_id) {
 static void rt_clr_box (void *box_mem, void *box) {
   uint32_t *p, n;
 
-  if (box) {
+  if ((box_mem != NULL) && (box != NULL)) {
     p = box;
-    for (n = ((P_BM)box_mem)->blk_size; n; n -= 4) {
-      *p++ = 0;
+    for (n = ((P_BM)box_mem)->blk_size; n; n -= 4U) {
+      *p++ = 0U;
     }
   }
 }
 
 // Memory Management Service Calls declarations
-SVC_1_1(svcPoolCreate, osPoolId, const osPoolDef_t *,           RET_pointer)
-SVC_2_1(sysPoolAlloc,  void *,         osPoolId,      uint32_t, RET_pointer)
-SVC_2_1(sysPoolFree,   osStatus,       osPoolId,      void *,   RET_osStatus)
+SVC_1_1(svcPoolCreate, osPoolId, const osPoolDef_t *,         RET_pointer)
+SVC_1_1(sysPoolAlloc,  void *,         osPoolId,              RET_pointer)
+SVC_2_1(sysPoolFree,   osStatus,       osPoolId,      void *, RET_osStatus)
 
 // Memory Management Service & ISR Calls
 
@@ -1870,42 +1870,45 @@ osPoolId svcPoolCreate (const osPoolDef_t *pool_def) {
   uint32_t blk_sz;
 
   if ((pool_def == NULL) ||
-      (pool_def->pool_sz == 0) ||
-      (pool_def->item_sz == 0) ||
+      (pool_def->pool_sz == 0U) ||
+      (pool_def->item_sz == 0U) ||
       (pool_def->pool == NULL)) {
     sysThreadError(osErrorParameter);
     return NULL;
   }
 
-  blk_sz = (pool_def->item_sz + 3) & ~3;
+  blk_sz = (pool_def->item_sz + 3U) & (uint32_t)~3U;
 
-  _init_box(pool_def->pool, sizeof(struct OS_BM) + pool_def->pool_sz * blk_sz, blk_sz);
+  _init_box(pool_def->pool, sizeof(struct OS_BM) + (pool_def->pool_sz * blk_sz), blk_sz);
 
   return pool_def->pool;
 }
 
 /// Allocate a memory block from a memory pool
-void *sysPoolAlloc (osPoolId pool_id, uint32_t clr) {
-  void *ptr;
+void *sysPoolAlloc (osPoolId pool_id) {
+  void *mem;
 
-  if (pool_id == NULL) return NULL;
-
-  ptr = rt_alloc_box(pool_id);
-  if (clr) {
-    rt_clr_box(pool_id, ptr);
+  if (pool_id == NULL) {
+    return NULL;
   }
 
-  return ptr;
+  mem = rt_alloc_box(pool_id);
+
+  return mem;
 }
 
 /// Return an allocated memory block back to a specific memory pool
 osStatus sysPoolFree (osPoolId pool_id, void *block) {
-  int32_t res;
-
-  if (pool_id == NULL) return osErrorParameter;
+  uint32_t res;
+    
+  if (pool_id == NULL) {
+    return osErrorParameter;
+  }
 
   res = rt_free_box(pool_id, block);
-  if (res != 0) return osErrorValue;
+  if (res != 0) {
+    return osErrorValue;
+  }
 
   return osOK;
 }
@@ -1915,8 +1918,10 @@ osStatus sysPoolFree (osPoolId pool_id, void *block) {
 
 /// Create and Initialize memory pool
 osPoolId osPoolCreate (const osPoolDef_t *pool_def) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return   svcPoolCreate(pool_def);
   } else {
@@ -1927,19 +1932,25 @@ osPoolId osPoolCreate (const osPoolDef_t *pool_def) {
 /// Allocate a memory block from a memory pool
 void *osPoolAlloc (osPoolId pool_id) {
   if (__get_mode() != MODE_USR) {               // in ISR or Privileged
-    return   sysPoolAlloc(pool_id, 0);
+    return   sysPoolAlloc(pool_id);
   } else {                                      // in Thread
-    return __sysPoolAlloc(pool_id, 0);
+    return __sysPoolAlloc(pool_id);
   }
 }
 
 /// Allocate a memory block from a memory pool and set memory block to zero
 void *osPoolCAlloc (osPoolId pool_id) {
+  void *mem;
+
   if (__get_mode() != MODE_USR) {               // in ISR or Privileged
-    return   sysPoolAlloc(pool_id, 1);
+    mem =   sysPoolAlloc(pool_id);
   } else {                                      // in Thread
-    return __sysPoolAlloc(pool_id, 1);
+    mem = __sysPoolAlloc(pool_id);
   }
+
+  rt_clr_box(pool_id, mem);
+
+  return mem;
 }
 
 /// Return an allocated memory block back to a specific memory pool
@@ -1965,18 +1976,18 @@ SVC_2_3(svcMessageGet, os_InRegs osEvent,            osMessageQId,      uint32_t
 osMessageQId svcMessageCreate (const osMessageQDef_t *queue_def, osThreadId thread_id) {
 
   if ((queue_def == NULL) ||
-      (queue_def->queue_sz == 0) ||
+      (queue_def->queue_sz == 0U) ||
       (queue_def->pool == NULL)) {
     sysThreadError(osErrorParameter);
     return NULL;
   }
-
-  if (((P_MCB)queue_def->pool)->cb_type != 0) {
+  
+  if (((P_MCB)queue_def->pool)->cb_type != 0U) {
     sysThreadError(osErrorParameter);
     return NULL;
   }
 
-  rt_mbx_init(queue_def->pool, 4*(queue_def->queue_sz + 4));
+  rt_mbx_init(queue_def->pool, (uint16_t)(4U*(queue_def->queue_sz + 4U)));
 
   return queue_def->pool;
 }
@@ -1985,14 +1996,18 @@ osMessageQId svcMessageCreate (const osMessageQDef_t *queue_def, osThreadId thre
 osStatus svcMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec) {
   OS_RESULT res;
 
-  if (queue_id == NULL) return osErrorParameter;
+  if (queue_id == NULL) {
+    return osErrorParameter;
+  }
 
-  if (((P_MCB)queue_id)->cb_type != MCB) return osErrorParameter;
+  if (((P_MCB)queue_id)->cb_type != MCB) {
+    return osErrorParameter;
+  }
 
   res = rt_mbx_send(queue_id, (void *)info, rt_ms2tick(millisec));
 
   if (res == OS_R_TMO) {
-    return (millisec ? osErrorTimeoutResource : osErrorResource);
+    return ((millisec != 0U) ? osErrorTimeoutResource : osErrorResource);
   }
 
   return osOK;
@@ -2005,59 +2020,41 @@ os_InRegs osEvent_type svcMessageGet (osMessageQId queue_id, uint32_t millisec) 
 
   if (queue_id == NULL) {
     ret.status = osErrorParameter;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
     return osEvent_ret_status;
-#endif
   }
 
   if (((P_MCB)queue_id)->cb_type != MCB) {
     ret.status = osErrorParameter;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_status;
-    return;
-#else
     return osEvent_ret_status;
-#endif
   }
 
   res = rt_mbx_wait(queue_id, &ret.value.p, rt_ms2tick(millisec));
-
+  
   if (res == OS_R_TMO) {
-    ret.status = millisec ? osEventTimeout : osOK;
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-    osEvent_ret_value;
-    return;
-#else
+    ret.status = (millisec != 0U) ? osEventTimeout : osOK;
     return osEvent_ret_value;
-#endif
   }
 
   ret.status = osEventMessage;
 
-#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
-  osEvent_ret_value;
-  return;
-#else
   return osEvent_ret_value;
-#endif
 }
 
 
 // Message Queue ISR Calls
 
 /// Put a Message to a Queue
-static __INLINE osStatus isrMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec) {
+osStatus isrMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec) {
 
-  if ((queue_id == NULL) || (millisec != 0)) {
+  if ((queue_id == NULL) || (millisec != 0U)) {
     return osErrorParameter;
   }
 
-  if (((P_MCB)queue_id)->cb_type != MCB) return osErrorParameter;
+  if (((P_MCB)queue_id)->cb_type != MCB) {
+    return osErrorParameter;
+  }
 
-  if (rt_mbx_check(queue_id) == 0) {            // Check if Queue is full
+  if (rt_mbx_check(queue_id) == 0U) {           // Check if Queue is full
     return osErrorResource;
   }
 
@@ -2067,11 +2064,11 @@ static __INLINE osStatus isrMessagePut (osMessageQId queue_id, uint32_t info, ui
 }
 
 /// Get a Message or Wait for a Message from a Queue
-static __INLINE os_InRegs osEvent isrMessageGet (osMessageQId queue_id, uint32_t millisec) {
+os_InRegs osEvent isrMessageGet (osMessageQId queue_id, uint32_t millisec) {
   OS_RESULT res;
   osEvent   ret;
 
-  if ((queue_id == NULL) || (millisec != 0)) {
+  if ((queue_id == NULL) || (millisec != 0U)) {
     ret.status = osErrorParameter;
     return ret;
   }
@@ -2082,13 +2079,13 @@ static __INLINE os_InRegs osEvent isrMessageGet (osMessageQId queue_id, uint32_t
   }
 
   res = isr_mbx_receive(queue_id, &ret.value.p);
-
+  
   if (res != OS_R_MBX) {
     ret.status = osOK;
     return ret;
   }
 
-  ret.status = osEventMessage;
+  ret.status = osEventMessage; 
 
   return ret;
 }
@@ -2098,8 +2095,10 @@ static __INLINE os_InRegs osEvent isrMessageGet (osMessageQId queue_id, uint32_t
 
 /// Create and Initialize Message Queue
 osMessageQId osMessageCreate (const osMessageQDef_t *queue_def, osThreadId thread_id) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return   svcMessageCreate(queue_def, thread_id);
   } else {
@@ -2129,9 +2128,9 @@ os_InRegs osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec) {
 // ==== Mail Queue Management Functions ====
 
 // Mail Queue Management Service Calls declarations
-SVC_2_1(svcMailCreate, osMailQId, const osMailQDef_t *, osThreadId,                   RET_pointer)
-SVC_4_1(sysMailAlloc,  void *,          osMailQId,      uint32_t, uint32_t, uint32_t, RET_pointer)
-SVC_3_1(sysMailFree,   osStatus,        osMailQId,      void *,   uint32_t,           RET_osStatus)
+SVC_2_1(svcMailCreate, osMailQId, const osMailQDef_t *, osThreadId,         RET_pointer)
+SVC_3_1(sysMailAlloc,  void *,          osMailQId,      uint32_t, uint32_t, RET_pointer)
+SVC_3_1(sysMailFree,   osStatus,        osMailQId,      void *,   uint32_t, RET_osStatus)
 
 // Mail Queue Management Service & ISR Calls
 
@@ -2142,8 +2141,8 @@ osMailQId svcMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
   void    *pool;
 
   if ((queue_def == NULL) ||
-      (queue_def->queue_sz == 0) ||
-      (queue_def->item_sz  == 0) ||
+      (queue_def->queue_sz == 0U) ||
+      (queue_def->item_sz  == 0U) ||
       (queue_def->pool == NULL)) {
     sysThreadError(osErrorParameter);
     return NULL;
@@ -2152,41 +2151,44 @@ osMailQId svcMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
   pmcb = *(((void **)queue_def->pool) + 0);
   pool = *(((void **)queue_def->pool) + 1);
 
-  if ((pool == NULL) || (pmcb == NULL) || (pmcb->cb_type != 0)) {
+  if ((pool == NULL) || (pmcb == NULL) || (pmcb->cb_type != 0U)) {
     sysThreadError(osErrorParameter);
     return NULL;
   }
 
-  blk_sz = (queue_def->item_sz + 3) & ~3;
+  blk_sz = (queue_def->item_sz + 3U) & (uint32_t)~3U;
 
-  _init_box(pool, sizeof(struct OS_BM) + queue_def->queue_sz * blk_sz, blk_sz);
+  _init_box(pool, sizeof(struct OS_BM) + (queue_def->queue_sz * blk_sz), blk_sz);
 
-  rt_mbx_init(pmcb, 4*(queue_def->queue_sz + 4));
+  rt_mbx_init(pmcb, (uint16_t)(4U*(queue_def->queue_sz + 4U)));
 
   return queue_def->pool;
 }
 
 /// Allocate a memory block from a mail
-void *sysMailAlloc (osMailQId queue_id, uint32_t millisec, uint32_t isr, uint32_t clr) {
+void *sysMailAlloc (osMailQId queue_id, uint32_t millisec, uint32_t isr) {
   P_MCB pmcb;
   void *pool;
   void *mem;
 
-  if (queue_id == NULL) return NULL;
+  if (queue_id == NULL) {
+    return NULL;
+  }
 
   pmcb = *(((void **)queue_id) + 0);
   pool = *(((void **)queue_id) + 1);
 
-  if ((pool == NULL) || (pmcb == NULL)) return NULL;
-
-  if (isr && (millisec != 0)) return NULL;
-
-  mem = rt_alloc_box(pool);
-  if (clr) {
-    rt_clr_box(pool, mem);
+  if ((pool == NULL) || (pmcb == NULL)) {
+    return NULL; 
   }
 
-  if ((mem == NULL) && (millisec != 0)) {
+  if ((isr != 0U) && (millisec != 0U)) {
+    return NULL;
+  }
+
+  mem = rt_alloc_box(pool);
+
+  if ((mem == NULL) && (millisec != 0U)) {
     // Put Task to sleep when Memory not available
     if (pmcb->p_lnk != NULL) {
       rt_put_prio((P_XCB)pmcb, os_tsk.run);
@@ -2195,36 +2197,42 @@ void *sysMailAlloc (osMailQId queue_id, uint32_t millisec, uint32_t isr, uint32_
       os_tsk.run->p_lnk = NULL;
       os_tsk.run->p_rlnk = (P_TCB)pmcb;
       // Task is waiting to allocate a message
-      pmcb->state = 3;
+      pmcb->state = 3U;
     }
     rt_block(rt_ms2tick(millisec), WAIT_MBX);
   }
 
-  return mem;
+  return mem;  
 }
 
 /// Free a memory block from a mail
 osStatus sysMailFree (osMailQId queue_id, void *mail, uint32_t isr) {
-  P_MCB   pmcb;
-  P_TCB   ptcb;
-  void   *pool;
-  void   *mem;
-  int32_t res;
+  P_MCB    pmcb;
+  P_TCB    ptcb;
+  void    *pool;
+  void    *mem;
+  uint32_t res;
 
-  if (queue_id == NULL) return osErrorParameter;
+  if (queue_id == NULL) {
+    return osErrorParameter;
+  }
 
   pmcb = *(((void **)queue_id) + 0);
   pool = *(((void **)queue_id) + 1);
 
-  if ((pmcb == NULL) || (pool == NULL)) return osErrorParameter;
+  if ((pmcb == NULL) || (pool == NULL)) {
+    return osErrorParameter;
+  }
 
   res = rt_free_box(pool, mail);
 
-  if (res != 0) return osErrorValue;
+  if (res != 0U) {
+    return osErrorValue;
+  }
 
-  if ((pmcb->p_lnk != NULL) && (pmcb->state == 3)) {
+  if ((pmcb->p_lnk != NULL) && (pmcb->state == 3U)) {
     // Task is waiting to allocate a message
-    if (isr) {
+    if (isr != 0U) {
       rt_psq_enq (pmcb, (U32)pool);
       rt_psh_req ();
     } else {
@@ -2246,8 +2254,10 @@ osStatus sysMailFree (osMailQId queue_id, void *mail, uint32_t isr) {
 
 /// Create and Initialize mail queue
 osMailQId osMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
-  if (__exceptional_mode()) return NULL;           // Not allowed in ISR
-  if ((__get_mode() != MODE_USR) && (os_running == 0)) {
+  if (__exceptional_mode()) {
+    return NULL;           // Not allowed in ISR
+  }
+  if ((__get_mode() != MODE_USR) && (os_running == 0U)) {
     // Privileged and not running
     return   svcMailCreate(queue_def, thread_id);
   } else {
@@ -2258,35 +2268,48 @@ osMailQId osMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
 /// Allocate a memory block from a mail
 void *osMailAlloc (osMailQId queue_id, uint32_t millisec) {
   if (__exceptional_mode()) {                      // in ISR
-    return   sysMailAlloc(queue_id, millisec, 1, 0);
+    return   sysMailAlloc(queue_id, millisec, 1U);
   } else {                                      // in Thread
-    return __sysMailAlloc(queue_id, millisec, 0, 0);
+    return __sysMailAlloc(queue_id, millisec, 0U);
   }
 }
 
 /// Allocate a memory block from a mail and set memory block to zero
 void *osMailCAlloc (osMailQId queue_id, uint32_t millisec) {
+  void *pool;
+  void *mem;
+
   if (__exceptional_mode()) {                      // in ISR
-    return   sysMailAlloc(queue_id, millisec, 1, 1);
+    mem =   sysMailAlloc(queue_id, millisec, 1U);
   } else {                                      // in Thread
-    return __sysMailAlloc(queue_id, millisec, 0, 1);
+    mem = __sysMailAlloc(queue_id, millisec, 0U);
   }
+
+  pool = *(((void **)queue_id) + 1);
+
+  rt_clr_box(pool, mem);
+
+  return mem;
 }
 
 /// Free a memory block from a mail
 osStatus osMailFree (osMailQId queue_id, void *mail) {
   if (__exceptional_mode()) {                      // in ISR
-    return   sysMailFree(queue_id, mail, 1);
+    return   sysMailFree(queue_id, mail, 1U);
   } else {                                      // in Thread
-    return __sysMailFree(queue_id, mail, 0);
+    return __sysMailFree(queue_id, mail, 0U);
   }
 }
 
 /// Put a mail to a queue
 osStatus osMailPut (osMailQId queue_id, void *mail) {
-  if (queue_id == NULL) return osErrorParameter;
-  if (mail == NULL)     return osErrorValue;
-  return osMessagePut(*((void **)queue_id), (uint32_t)mail, 0);
+  if (queue_id == NULL) {
+    return osErrorParameter;
+  }
+  if (mail == NULL) {
+    return osErrorValue;
+  }
+  return osMessagePut(*((void **)queue_id), (uint32_t)mail, 0U);
 }
 
 #ifdef __CC_ARM
