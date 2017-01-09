@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_HAL_CA.H
  *      Purpose: Hardware Abstraction Layer for Cortex-A definitions
- *      Rev.:    14th Jan 2014
+ *      Rev.:    V4.79 plus changes for RTX-Ax
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH, 2012-2016 ARM Limited
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
+ *  - Neither the name of ARM  nor the names of its contributors may be used 
+ *    to endorse or promote products derived from this software without 
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -49,12 +49,13 @@
 #define MODE_SYS        0x1F
 
 #define MAGIC_WORD      0xE25A2EA5
+#define MAGIC_PATTERN   0xCCCCCCCC
 
 #include "core_ca9.h"
 
 #if defined (__CC_ARM)          /* ARM Compiler */
 
-#if ((__TARGET_ARCH_7_M || __TARGET_ARCH_7E_M || __TARGET_ARCH_7_A) && !defined(NO_EXCLUSIVE_ACCESS))
+#if ((defined(__TARGET_ARCH_7_M) || defined(__TARGET_ARCH_7E_M) || defined(__TARGET_ARCH_7_A)) && !defined(NO_EXCLUSIVE_ACCESS))
  #define __USE_EXCLUSIVE_ACCESS
 #else
  #undef  __USE_EXCLUSIVE_ACCESS
@@ -80,9 +81,11 @@
 
 #elif defined (__ICCARM__)      /* IAR Compiler */
 
+//#error IAR Compiler support not implemented for Cortex-A
+
 #endif
 
-static U8 priority = 0xff;
+static U8 priority = 0xffU;
 
 extern const U32 GICDistributor_BASE;
 extern const U32 GICInterface_BASE;
@@ -98,8 +101,8 @@ extern const U32 GICInterface_BASE;
 /* GIC register  - CPU Interface  */
 #define GICI_ICCPMR     (*((volatile U32 *)(GICInterface_BASE + 0x004))) /* - RW - Interrupt Priority Mask Register */
 
-#define SGI_PENDSV      0 /* SGI0 */
-#define SGI_PENDSV_BIT  ((U32)(1 << (SGI_PENDSV & 0xf)))
+#define SGI_PENDSV      0U /* SGI0 */
+#define SGI_PENDSV_BIT  ((U32)(1U << (SGI_PENDSV & 0xfU)))
 
 //Increase priority filter to prevent timer and PendSV interrupts signaling. Guarantees that interrupts will not be forwarded.
 #if defined (__ICCARM__)
@@ -128,14 +131,14 @@ extern const U32 GICInterface_BASE;
 #define OS_PEND(fl,p) if(p) OS_PEND_IRQ();
 #define OS_UNPEND(fl)
 
-/* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c-
+/* HW initialization needs to be done in os_tick_init() in RTX_Conf_CM.c
  * OS_X_INIT enables the IRQ n in the GIC */
 #define OS_X_INIT(n) volatile char *reg; \
                      reg = (char *)(&GICD_ICDIPR0 + n / 4); \
                      reg += n % 4; \
                      *reg = (char)0xff; \
                      *reg = *reg - 1; \
-                     GICD_ICDISERx(n) = (U32)(1 << n % 32);
+                     GICD_ICDISERx(n) = (U32)(1U << n % 32);
 #define OS_X_LOCK(n) OS_LOCK()
 #define OS_X_UNLOCK(n) OS_UNLOCK()
 #define OS_X_PEND_IRQ() OS_PEND_IRQ()
@@ -145,8 +148,8 @@ extern const U32 GICInterface_BASE;
 
 /* Functions */
 #ifdef __USE_EXCLUSIVE_ACCESS
- #define rt_inc(p)     while(__strex((__ldrex(p)+1),p))
- #define rt_dec(p)     while(__strex((__ldrex(p)-1),p))
+ #define rt_inc(p)     while(__strex((__ldrex(p)+1U),p))
+ #define rt_dec(p)     while(__strex((__ldrex(p)-1U),p))
 #else
 #if defined (__ICCARM__)
  #define rt_inc(p)     { int irq_dis = __disable_irq_iar();(*p)++;if(!irq_dis) __enable_irq(); }
@@ -164,10 +167,10 @@ __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
     if ((cnt = __ldrex(count)) == size) {
       __clrex();
       return (cnt); }
-  } while (__strex(cnt+1, count));
+  } while (__strex(cnt+1U, count));
   do {
-    c2 = (cnt = __ldrex(first)) + 1;
-    if (c2 == size) c2 = 0;
+    c2 = (cnt = __ldrex(first)) + 1U;
+    if (c2 == size) { c2 = 0U; }
   } while (__strex(c2, first));
 #else
   int irq_dis;
@@ -177,10 +180,10 @@ __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
   irq_dis = __disable_irq();
  #endif /* __ICCARM__ */
   if ((cnt = *count) < size) {
-    *count = cnt+1;
-    c2 = (cnt = *first) + 1;
-    if (c2 == size) c2 = 0;
-    *first = c2;
+    *count = (U8)(cnt+1U);
+    c2 = (cnt = *first) + 1U;
+    if (c2 == size) { c2 = 0U; }
+    *first = (U8)c2; 
   }
   if(!irq_dis) __enable_irq ();
 #endif
@@ -189,19 +192,19 @@ __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
 
 __inline static void rt_systick_init (void) {
   /* Cortex-A doesn't have a Systick. User needs to provide an alternative timer using RTX_Conf_CM configuration */
-  /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c- */
+  /* HW initialization needs to be done in os_tick_init() in RTX_Conf_CM.c */
 }
 
 __inline static U32 rt_systick_val (void) {
   /* Cortex-A doesn't have a Systick. User needs to provide an alternative timer using RTX_Conf_CM configuration */
-  /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c- */
-  return 0;
+  /* HW initialization needs to be done in os_tick_init() in RTX_Conf_CM.c */
+  return 0U;
 }
 
 __inline static U32 rt_systick_ovf (void) {
   /* Cortex-A doesn't have a Systick. User needs to provide an alternative timer using RTX_Conf_CM configuration */
-  /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c- */
-  return 0;
+  /* HW initialization needs to be done in os_tick_init() in RTX_Conf_CM.c */
+  return 0U;
 }
 
 __inline static void rt_svc_init (void) {
@@ -209,7 +212,7 @@ __inline static void rt_svc_init (void) {
   volatile char *reg;
 
   reg = (char *)(&GICD_ICDIPR0 + SGI_PENDSV/4);
-  reg += SGI_PENDSV % 4;
+  reg += SGI_PENDSV % 4U;
   /* Write 0xff to read priority level */
   *reg = (char)0xff;
   /* Read priority level and set the lowest possible*/
@@ -222,7 +225,7 @@ extern void rt_set_PSP (U32 stack);
 extern U32  rt_get_PSP (void);
 extern void os_set_env (P_TCB p_TCB);
 extern void *_alloc_box (void *box_mem);
-extern int  _free_box (void *box_mem, void *box);
+extern U32  _free_box (void *box_mem, void *box);
 
 extern void rt_init_stack (P_TCB p_TCB, FUNCP task_body);
 extern void rt_ret_val  (P_TCB p_TCB, U32 v0);
@@ -232,11 +235,17 @@ extern void dbg_init (void);
 extern void dbg_task_notify (P_TCB p_tcb, BOOL create);
 extern void dbg_task_switch (U32 task_id);
 
+#ifdef DBG_MSG
+#define DBG_INIT() dbg_init()
+#define DBG_TASK_NOTIFY(p_tcb,create) if (dbg_msg) dbg_task_notify(p_tcb,create)
+#define DBG_TASK_SWITCH(task_id)      if (dbg_msg && (os_tsk.new!=os_tsk.run)) \
+                                        dbg_task_switch(task_id)
+#else
 #define DBG_INIT()
 #define DBG_TASK_NOTIFY(p_tcb,create)
 #define DBG_TASK_SWITCH(task_id)
+#endif
 
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-
