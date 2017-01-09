@@ -17,6 +17,9 @@ limitations under the License.
 
 import sys
 import socket
+import json
+import random
+import itertools
 from sys import stdout
 from threading import Thread
 from SocketServer import BaseRequestHandler, UDPServer
@@ -25,15 +28,22 @@ from mbed_host_tests import BaseHostTest, event_callback
 
 class UDPEchoClientHandler(BaseRequestHandler):
     def handle(self):
-        """ UDP packet handler. Echoes data back to sender's address.
+        """ UDP packet handler. Responds with multiple simultaneous packets
         """
         data, sock = self.request
-        print ('HOST: UDPEchoClientHandler: Rx: \n%s\n' % data)
-        sock.sendto(data, self.client_address)
+        pattern = [ord(d) << 4 for d in data]
+
+        # Each byte in request indicates size of packet to recieve
+        # Each packet size is shifted over by 4 to fit in a byte, which
+        # avoids any issues with endianess or decoding
+        for packet in pattern:
+            data = [random.randint(0, 255) for _ in range(packet-1)]
+            data.append(reduce(lambda a,b: a^b, data))
+            data = ''.join(map(chr, data))
+            sock.sendto(data, self.client_address)
 
 
 class UDPEchoClientTest(BaseHostTest):
-
     def __init__(self):
         """
         Initialise test parameters.
@@ -55,10 +65,7 @@ class UDPEchoClientTest(BaseHostTest):
         :return:
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            s.connect((target_ip, 0)) # Target IP, any port
-        except socket.error:
-            s.connect((target_ip, 8000)) # Target IP, 'random' port
+        s.connect((target_ip, 0)) # Target IP, Any port
         ip = s.getsockname()[0]
         s.close()
         return ip

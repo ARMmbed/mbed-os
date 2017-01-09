@@ -1,7 +1,6 @@
 #if !FEATURE_LWIP
     #error [NOT_SUPPORTED] LWIP not supported for this target
 #endif
-
 #if DEVICE_EMAC
     #error [NOT_SUPPORTED] Not supported for WiFi targets
 #endif
@@ -30,7 +29,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 }
 
 int main() {
-    GREENTEA_SETUP(20, "tcp_echo_client");
+    GREENTEA_SETUP(20, "tcp_echo");
 
     EthernetInterface eth;
     eth.connect();
