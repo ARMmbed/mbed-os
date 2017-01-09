@@ -251,6 +251,12 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
 
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);    
     
+    // check FPM0 which holds the pending message count in FIFO 0
+    // if no message is pending, return 0
+    if ((can->RF0R & CAN_RF0R_FMP0) == 0) {
+        return 0;
+    }
+
     /* Get the Id */
     msg->format = (CANFormat)((uint8_t)0x04 & can->sFIFOMailBox[handle].RIR);
     if (!msg->format) {
@@ -277,10 +283,10 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     /* Release the FIFO */
     if(handle == CAN_FIFO0) {
         /* Release FIFO0 */
-        can->RF0R = CAN_RF0R_RFOM0;
+        can->RF0R |= CAN_RF0R_RFOM0;
     } else { /* FIFONumber == CAN_FIFO1 */
       /* Release FIFO1 */
-      can->RF1R = CAN_RF1R_RFOM1;
+      can->RF1R |= CAN_RF1R_RFOM1;
     }
 
     return 1;
