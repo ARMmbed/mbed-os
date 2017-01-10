@@ -531,7 +531,7 @@ void *__user_perthread_libspace (void) {
 typedef void *mutex;
 
 // Initialize mutex
-int _mutex_initialize(mutex *m);
+__USED int _mutex_initialize(mutex *m);
 int _mutex_initialize(mutex *m) {
   *m = osMutexNew(NULL);
   if (*m == NULL) {
@@ -542,7 +542,7 @@ int _mutex_initialize(mutex *m) {
 }
 
 // Acquire mutex
-void _mutex_acquire(mutex *m);
+__USED void _mutex_acquire(mutex *m);
 void _mutex_acquire(mutex *m) {
   if (os_kernel_is_active()) {
     osMutexAcquire(*m, osWaitForever);
@@ -550,7 +550,7 @@ void _mutex_acquire(mutex *m) {
 }
 
 // Release mutex
-void _mutex_release(mutex *m);
+__USED void _mutex_release(mutex *m);
 void _mutex_release(mutex *m) {
   if (os_kernel_is_active()) {
     osMutexRelease(*m);
@@ -558,7 +558,7 @@ void _mutex_release(mutex *m) {
 }
 
 // Free mutex
-void _mutex_free(mutex *m);
+__USED void _mutex_free(mutex *m);
 void _mutex_free(mutex *m) {
   osMutexDelete(*m);
 }
