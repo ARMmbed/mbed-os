@@ -35,4 +35,8 @@
 #define OS_MUTEX_NUM                6
 #endif
 
+#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
+#define OS_STACK_WATERMARK          1
+#endif
+
 #endif /* MBED_RTX_CONF_H */
