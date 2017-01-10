@@ -507,12 +507,20 @@ class mbedToolchain:
         return False
 
     def is_ignored(self, file_path):
+        """Check if file path is ignored by any .mbedignore thus far"""
         for pattern in self.ignore_patterns:
             if fnmatch.fnmatch(file_path, pattern):
                 return True
         return False
 
     def add_ignore_patterns(self, root, base_path, patterns):
+        """Add a series of patterns to the ignored paths
+
+        Positional arguments:
+        root - the directory containing the ignore file
+        base_path - the location that the scan started from
+        patterns - the list of patterns we will ignore in the future
+        """
         real_base = relpath(root, base_path)
         if real_base == ".":
             self.ignore_patterns.extend(patterns)
