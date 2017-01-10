@@ -124,7 +124,9 @@ static void equeue_sema_timeout(equeue_sema_t *s) {
 bool equeue_sema_wait(equeue_sema_t *s, int ms) {
     int signal = 0;
     Timeout timeout;
-    timeout.attach_us(s, equeue_sema_timeout, ms*1000);
+    if (ms > 0) {
+        timeout.attach_us(callback(equeue_sema_timeout, s), ms*1000);
+    }
 
     core_util_critical_section_enter();
     while (!*s) {
