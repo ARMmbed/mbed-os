@@ -418,9 +418,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int value;
     volatile uint32_t work_reg = 0;
 
-    if(length <= 0) {
-        return 0;
-    }
     i2c_set_MR3_ACK(obj);
     /* There is a STOP condition for last processing */
     if (obj->last_stop_flag != 0) {
@@ -450,76 +447,90 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         obj->last_stop_flag = 1;
         return I2C_ERROR_NO_SLAVE;
     }
-    /* Read in all except last byte */
-    if (length > 2) {
-        /* dummy read */
-        value = REG(DRR.UINT32);
-        for (count = 0; count < (length - 1); count++) {
+    if (length != 0) {
+        /* Read in all except last byte */
+        if (length > 2) {
+            /* dummy read */
+            value = REG(DRR.UINT32);
+            for (count = 0; count < (length - 1); count++) {
+                /* wait for it to arrive */
+                status = i2c_wait_RDRF(obj);
+                if (status != 0) {
+                    i2c_set_err_noslave(obj);
+                    return I2C_ERROR_NO_SLAVE;
+                }
+                /* Recieve the data */
+                if (count == (length - 2)) {
+                    value = i2c_do_read(obj, 1);
+                } else if ((length >= 3) && (count == (length - 3))) {
+                    value = i2c_do_read(obj, 2);
+                } else {
+                    value = i2c_do_read(obj, 0);
+                }
+                data[count] = (char)value;
+            }
+        } else if (length == 2) {
+            /* Set MR3 WAIT bit is 1 */
+            REG(MR3.UINT32) |= MR3_WAIT;
+            /* dummy read */
+            value = REG(DRR.UINT32);
             /* wait for it to arrive */
             status = i2c_wait_RDRF(obj);
             if (status != 0) {
                 i2c_set_err_noslave(obj);
                 return I2C_ERROR_NO_SLAVE;
             }
-            /* Recieve the data */
-            if (count == (length - 2)) {
-                value = i2c_do_read(obj, 1);
-            } else if ((length >= 3) && (count == (length - 3))) {
-                value = i2c_do_read(obj, 2);
-            } else {
-                value = i2c_do_read(obj, 0);
-            }
-            data[count] = (char)value;
+            i2c_set_MR3_NACK(obj);
+            data[count] = (char)REG(DRR.UINT32);
+            count++;
+        } else {
+            /* length == 1 */
+            /* Set MR3 WAIT bit is 1 */;
+            REG(MR3.UINT32) |=  MR3_WAIT;
+            i2c_set_MR3_NACK(obj);
+            /* dummy read */
+            value = REG(DRR.UINT32);
         }
-    } else if (length == 2) {
-        /* Set MR3 WATI bit is 1 */
-        REG(MR3.UINT32) |= MR3_WAIT;
-        /* dummy read */
-        value = REG(DRR.UINT32);
         /* wait for it to arrive */
         status = i2c_wait_RDRF(obj);
         if (status != 0) {
             i2c_set_err_noslave(obj);
             return I2C_ERROR_NO_SLAVE;
         }
-        i2c_set_MR3_NACK(obj);
-        data[count] = (char)REG(DRR.UINT32);
-        count++;
-    } else {
-        /* length == 1 */
-        /* Set MR3 WATI bit is 1 */;
-        REG(MR3.UINT32) |=  MR3_WAIT;
-        i2c_set_MR3_NACK(obj);
-        /* dummy read */
-        value = REG(DRR.UINT32);
-    }
-    /* wait for it to arrive */
-    status = i2c_wait_RDRF(obj);
-    if (status != 0) {
-        i2c_set_err_noslave(obj);
-        return I2C_ERROR_NO_SLAVE;
-    }
 
-    /* If not repeated start, send stop. */
-    if (stop) {
-        (void)i2c_set_STOP(obj);
-        /* RIICnDRR read */
-        value = (REG(DRR.UINT32) & 0xFF);
-        data[count] = (char)value;
-        /* RIICnMR3.WAIT = 0 */
-        REG(MR3.UINT32) &= ~MR3_WAIT;
-        (void)i2c_wait_STOP(obj);
-        i2c_set_SR2_NACKF_STOP(obj);
+        /* If not repeated start, send stop. */
+        if (stop) {
+            (void)i2c_set_STOP(obj);
+            /* RIICnDRR read */
+            value = (REG(DRR.UINT32) & 0xFF);
+            data[count] = (char)value;
+            /* RIICnMR3.WAIT = 0 */
+            REG(MR3.UINT32) &= ~MR3_WAIT;
+            (void)i2c_wait_STOP(obj);
+            i2c_set_SR2_NACKF_STOP(obj);
+        } else {
+            (void)i2c_restart(obj);
+            /* RIICnDRR read */
+            value = (REG(DRR.UINT32) & 0xFF);
+            data[count] = (char)value;
+            /* RIICnMR3.WAIT = 0 */
+            REG(MR3.UINT32) &= ~MR3_WAIT;
+            (void)i2c_wait_START(obj);
+            /* SR2.START = 0 */
+            REG(SR2.UINT32) &= ~SR2_START;
+        }
     } else {
-        (void)i2c_restart(obj);
-        /* RIICnDRR read */
-        value = (REG(DRR.UINT32) & 0xFF);
-        data[count] = (char)value;
-        /* RIICnMR3.WAIT = 0 */
-        REG(MR3.UINT32) &= ~MR3_WAIT;
-        (void)i2c_wait_START(obj);
-        /* SR2.START = 0 */
-        REG(SR2.UINT32) &= ~SR2_START;
+        /* If not repeated start, send stop. */
+        if (stop) {
+            (void)i2c_set_STOP(obj);
+            (void)i2c_wait_STOP(obj);
+            i2c_set_SR2_NACKF_STOP(obj);
+        } else {
+            (void)i2c_restart(obj);
+            (void)i2c_wait_START(obj);
+            /* SR2.START = 0 */
+            REG(SR2.UINT32) &= ~SR2_START;
+        }
     }
 
     return length;
@@ -528,10 +539,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int cnt;
     int status;
-
-    if(length <= 0) {
-        return 0;
-    }
 
     /* There is a STOP condition for last processing */
     if (obj->last_stop_flag != 0) {
