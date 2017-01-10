@@ -19,6 +19,7 @@ from os.path import splitext, basename
 from random import randint
 
 from tools.targets import TARGET_MAP
+from tools.utils import NotSupportedException
 
 
 class GNUARMEclipse(Exporter):
@@ -72,7 +73,7 @@ class GNUARMEclipse(Exporter):
         except AttributeError:
             # TODO filter out projects with toolchain core not supported,
             # instead of raising an exception.
-            raise Exception('Target core {0} not supported.'.format(core))
+            raise NotSupportedException('Target core {0} not supported.'.format(core))
 
         # TODO: clarify how to use objects; enabling this adds another
         # object 'main.o'.
