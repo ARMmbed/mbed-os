@@ -182,7 +182,7 @@ class Uvision(Exporter):
         """Make sources into the named tuple for use in the template"""
         grouped = self.group_project_files(srcs)
         for group, files in sorted(grouped.items()):
-            grouped[group] = self.uv_files(files)
+            grouped[group] = sorted(list(self.uv_files(files)))
         return grouped
 
     def generate(self):
