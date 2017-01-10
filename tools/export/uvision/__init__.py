@@ -181,7 +181,7 @@ class Uvision(Exporter):
     def format_src(self, srcs):
         """Make sources into the named tuple for use in the template"""
         grouped = self.group_project_files(srcs)
-        for group, files in grouped.items():
+        for group, files in sorted(grouped.items()):
             grouped[group] = self.uv_files(files)
         return grouped
 
@@ -198,7 +198,7 @@ class Uvision(Exporter):
             'name': self.project_name,
             # project_files => dict of generators - file group to generator of
             # UVFile tuples defined above
-            'project_files': self.format_src(srcs),
+            'project_files': sorted(list(self.format_src(srcs).iteritems())),
             'linker_script':self.resources.linker_script,
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
