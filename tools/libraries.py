@@ -16,7 +16,7 @@ limitations under the License.
 """
 from tools.paths import MBED_RTX, RTOS, RTOS_LIBRARIES, MBED_LIBRARIES,\
     MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
-    USB_HOST_LIBRARIES, FAT_FS, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
+    USB_HOST_LIBRARIES, FAT_FS, BD, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
     SD_FS, FS_LIBRARY, ETH_SOURCES, LWIP_SOURCES, ETH_LIBRARY, UBLOX_SOURCES,\
     UBLOX_LIBRARY, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, CPPUTEST_SRC,\
     CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR, CPPUTEST_LIBRARY,\
@@ -62,7 +62,7 @@ LIBRARIES = [
         "id": "usb_host",
         "source_dir": USB_HOST,
         "build_dir": USB_HOST_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, FAT_FS, MBED_RTX, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, FAT_FS, BD, MBED_RTX, RTOS_LIBRARIES],
     },
 
     # DSP libraries
@@ -76,9 +76,9 @@ LIBRARIES = [
     # File system libraries
     {
         "id": "fat",
-        "source_dir": [FAT_FS, SD_FS],
+        "source_dir": [FAT_FS],
         "build_dir": FS_LIBRARY,
-        "dependencies": [MBED_LIBRARIES]
+        "dependencies": [MBED_LIBRARIES, BD, RTOS_LIBRARIES]
     },
 
     # Network libraries
