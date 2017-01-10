@@ -17,6 +17,16 @@
 #include "BlockDevice.h"
 
 
+bd_error_t BlockDevice::init()
+{
+    return sync();
+}
+
+bd_error_t BlockDevice::deinit()
+{
+    return sync();
+}
+
 bd_error_t BlockDevice::sync()
 {
     return BD_ERROR_OK;

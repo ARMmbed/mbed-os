@@ -48,18 +48,6 @@ public:
     I2CEepromBlockDevice(PinName sda, PinName scl, uint8_t address,
             bd_size_t block_size, bd_count_t block_count, int bus_speed=400000);
 
-    /** Initialize a block device
-     *
-     *  @return         0 on success or a negative error code on failure
-     */
-    virtual bd_error_t init() { return 0; };
-
-    /** Deinitialize a block device
-     *
-     *  @return         0 on success or a negative error code on failure
-     */
-    virtual bd_error_t deinit() { return 0; };
-
     /** Read blocks from a block device
      *
      *  @param buffer   Buffer to write block to

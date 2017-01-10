@@ -68,13 +68,13 @@ public:
      *
      *  @return         0 on success or a negative error code on failure
      */
-    virtual bd_error_t init() = 0;
+    virtual bd_error_t init();
 
     /** Deinitialize a block device
      *
      *  @return         0 on success or a negative error code on failure
      */
-    virtual bd_error_t deinit() = 0;
+    virtual bd_error_t deinit();
 
     /** Read blocks from a block device
      *
