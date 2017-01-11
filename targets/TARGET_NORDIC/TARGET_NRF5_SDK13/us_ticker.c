@@ -76,6 +76,20 @@ void COMMON_RTC_IRQ_HANDLER(void)
     }
 }
 
+// Function for fix errata 20: RTC Register values are invalid
+__STATIC_INLINE void errata_20(void)
+{
+#if defined(NRF52_ERRATA_20)
+    if (!softdevice_handler_is_enabled())
+    {
+    	NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
+        NRF_CLOCK->TASKS_LFCLKSTART = 1;
+        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {}
+    }
+	NRF_RTC1->TASKS_STOP = 0;
+#endif    
+}
+
 #if (defined (__ICCARM__)) && defined(TARGET_MCU_NRF51822)//IAR
 __stackless __task 
 #endif
@@ -87,6 +101,8 @@ void common_rtc_init(void)
         return;
     }
 
+    errata_20();
+    
     NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
     
     // RTC is driven by the low frequency (32.768 kHz) clock, a proper request
