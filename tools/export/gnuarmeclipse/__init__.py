@@ -15,12 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from tools.export.exporters import Exporter
-from os.path import splitext, basename
+from os.path import splitext, basename, relpath
 from random import randint
+import copy
 
 from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
 
+class UID:
+    @property
+    def id(self):
+        return "%0.9u" % randint(0, 999999999)
+
+u = UID()
 
 class GNUARMEclipse(Exporter):
     NAME = 'GNU ARM Eclipse'
@@ -30,9 +37,34 @@ class GNUARMEclipse(Exporter):
     TARGETS = [target for target, obj in TARGET_MAP.iteritems()
                if 'GCC_ARM' in obj.supported_toolchains]
 
-    def __generate_uid(self):
-        return "%0.9u" % randint(0, 999999999)
+    @staticmethod
+    def filter_dot(s):
+        if s == None:
+            return None
+        if s[:2] == './':
+            return s[2:]
+        return s
 
+    @property
+    def flags(self):
+        """Returns a dictionary of toolchain flags.
+        Keys of the dictionary are:
+        cxx_flags    - c++ flags
+        c_flags      - c flags
+        ld_flags     - linker flags
+        asm_flags    - assembler flags
+        common_flags - common options
+        """
+        config_header = self.toolchain.get_config_header()
+        flags = {key + "_flags": copy.deepcopy(value) for key, value
+                 in self.toolchain.flags.iteritems()}
+        if config_header:
+            config_header = relpath(config_header,
+                                    self.resources.file_basepath[config_header])
+            flags['c_flags'] += self.toolchain.get_config_option(config_header)
+            flags['cxx_flags'] += self.toolchain.get_config_option(
+                config_header)
+        return flags
 
 
     def generate(self):
@@ -78,31 +110,63 @@ class GNUARMEclipse(Exporter):
         # TODO: clarify how to use objects; enabling this adds another
         # object 'main.o'.
         objects = [] # self.resources.objects
+        print self.resources.objects
+
+        f = self.flags
+        print 'common_flags'
+        print f['common_flags']
+        print 'asm_flags'
+        print f['asm_flags']
+        print 'c_flags'
+        print f['c_flags']
+        print 'cxx_flags'
+        print f['cxx_flags']
+        print 'ld_flags'
+        print f['ld_flags']
+
+        asm_defines = self.toolchain.get_symbols(True)
+        c_defines = self.toolchain.get_symbols()
+        cpp_defines = self.toolchain.get_symbols()
+        
+        include_paths = [self.filter_dot(s) for s in self.resources.inc_dirs]
+
+        library_paths = [self.filter_dot(s) for s in self.resources.lib_dirs]
+
+        linker_script = self.filter_dot(self.resources.linker_script)
 
         ctx = {
             'name': self.project_name,
-            'include_paths': self.resources.inc_dirs,
-            'linker_script': self.resources.linker_script,
-            'library_paths': self.resources.lib_dirs,
+            'include_paths': include_paths,
+            'library_paths': library_paths,
             'object_files': objects,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols(),
+            'linker_script': linker_script,
+            'asm_defines': asm_defines,
+            'c_defines': c_defines,
+            'cpp_defines': cpp_defines,
             'target_mcpu': target_mcpu,
             'target_fpu_abi': target_fpu_abi,
             'target_fpu_unit': target_fpu_unit,
-            # 
-            'debug_config_uid': self.__generate_uid(),
-            'debug_tool_c_compiler_uid': self.__generate_uid(),
-            'debug_tool_c_compiler_input_uid': self.__generate_uid(),
-            'debug_tool_cpp_compiler_uid': self.__generate_uid(),
-            'debug_tool_cpp_compiler_input_uid': self.__generate_uid(),
-            'release_config_uid': self.__generate_uid(),
-            'release_tool_c_compiler_uid': self.__generate_uid(),
-            'release_tool_c_compiler_input_uid': self.__generate_uid(),
-            'release_tool_cpp_compiler_uid': self.__generate_uid(),
-            'release_tool_cpp_compiler_input_uid': self.__generate_uid(),
-            'uid': self.__generate_uid()
+
+            # Unique IDs used each in multiple places.
+            # Add more if needed.
+            'debug_config_uid': u.id,
+            'debug_tool_c_compiler_uid': u.id,
+            'debug_tool_c_compiler_input_uid': u.id,
+            'debug_tool_cpp_compiler_uid': u.id,
+            'debug_tool_cpp_compiler_input_uid': u.id,
+            'release_config_uid': u.id,
+            'release_tool_c_compiler_uid': u.id,
+            'release_tool_c_compiler_input_uid': u.id,
+            'release_tool_cpp_compiler_uid': u.id,
+            'release_tool_cpp_compiler_input_uid': u.id,
+
+            # Must be an object with an `id` property, which
+            # will be called repeatedly, to generate multiple UIDs.
+            'u': u,
         }
+
+        # ctx.update(f)
+
         self.gen_file('gnuarmeclipse/.project.tmpl', ctx, '.project')
         self.gen_file('gnuarmeclipse/.cproject.tmpl', ctx, '.cproject')
-        # self.gen_file('kds_launch.tmpl', ctx, '%s.launch' % self.project_name)
