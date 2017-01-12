@@ -26,3 +26,6 @@
 #ifdef TARGET_STM32L476VG
 #include "USBHAL_STM32L476VG.h"
 #endif
+#ifdef TARGET_STM32F769NI
+#include "USBHAL_STM32F769NI.h"
+#endif
