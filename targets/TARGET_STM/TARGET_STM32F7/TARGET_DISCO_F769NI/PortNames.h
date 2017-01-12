@@ -43,9 +43,9 @@ typedef enum {
     PortF = 5,
     PortG = 6,
     PortH = 7,
-    PortI = 8, // kept for compilation
-    PortJ = 9, // kept for compilation
-    PortK = 10 // kept for compilation
+    PortI = 8,
+    PortJ = 9,
+    PortK = 10
 } PortName;
 
 #ifdef __cplusplus
