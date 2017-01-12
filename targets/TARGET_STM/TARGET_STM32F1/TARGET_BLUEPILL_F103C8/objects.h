@@ -65,7 +65,6 @@ struct can_s {
     int index;
 };
 
-#include "gpio_object.h"
 #include "common_objects.h"
 
 #ifdef __cplusplus

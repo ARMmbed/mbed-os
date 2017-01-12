@@ -75,7 +75,6 @@ struct trng_s {
     RNG_HandleTypeDef handle;
 };
 
-#include "gpio_object.h"
 #include "common_objects.h"
 
 #ifdef __cplusplus
