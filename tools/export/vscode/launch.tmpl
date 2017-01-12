@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/BUILD/${workspaceRootFolderName}.elf",
-            "args": ["target", "remote", "localhost:3333", "load", "continue"],
+            "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceRoot}",
             "environment": [],
@@ -17,6 +17,11 @@
             "filterStdout": false,
             "preLaunchTask": "make",
             "serverStarted": "GDB\\ server\\ started",
+            "setupCommands": [
+                { "text": "-target-select remote localhost:3333", "description": "connect to target", "ignoreFailures": false },
+                { "text": "-file-exec-and-symbols ${workspaceRoot}/BUILD/${workspaceRootFolderName}.elf", "description": "load file", "ignoreFailures": false},
+                { "text": "-target-download", "description": "flash target", "ignoreFailures": false }
+            ],
             "logging": {
                 "moduleLoad": true,
                 "trace": true,
@@ -27,13 +32,11 @@
             "linux": {
                 "MIMode": "gdb",
                 "MIDebuggerPath": "/usr/bin/arm-none-eabi-gdb",
-                "MIDebuggerServerAddress": "localhost:3333",
                 "debugServerPath": "/usr/local/bin/pyocd-gdbserver"
             },
             "osx": {
                 "MIMode": "gdb",
                 "MIDebuggerPath": "/Applications/yotta.app/Contents/Resources/prerequisites/gcc-arm-none-eabi-4_9-2015q3/bin/arm-none-eabi-gdb",
-                "MIDebuggerServerAddress": "localhost:3333",
                 "debugServerPath": "/Library/Frameworks/Python.framework/Versions/2.7/bin/pyocd-gdbserver"
             },
             "windows": {
