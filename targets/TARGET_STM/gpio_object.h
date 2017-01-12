@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,51 +27,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
+
 #include "mbed_assert.h"
-#include "gpio_api.h"
-#include "pinmap.h"
-#include "mbed_error.h"
+#include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
-extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-uint32_t gpio_set(PinName pin)
-{
-    MBED_ASSERT(pin != (PinName)NC);
+/*
+ * Note: reg_clr might actually be same as reg_set.
+ * Depends on family whether BRR is available on top of BSRR
+ * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
+ */
+typedef struct {
+    PinName  pin;
+    uint32_t mask;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_set;
+    __IO uint32_t *reg_clr;
+} gpio_t;
 
-    pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
-}
-
-void gpio_init(gpio_t *obj, PinName pin)
-{
-    obj->pin = pin;
-    if (pin == (PinName)NC)
-        return;
-
-    uint32_t port_index = STM_PORT(pin);
-
-    // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
-
-    // Fill GPIO object structure for future use
-    obj->mask    = gpio_set(pin);
-    obj->reg_in  = &gpio->IDR;
-    obj->reg_set = &gpio->BSRR;
-    obj->reg_clr = &gpio->BRR;
-}
-
-void gpio_mode(gpio_t *obj, PinMode mode)
-{
-    pin_mode(obj->pin, mode);
-}
-
-void gpio_dir(gpio_t *obj, PinDirection direction)
+static inline void gpio_write(gpio_t *obj, int value)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
-    if (direction == PIN_OUTPUT) {
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
-    } else { // PIN_INPUT
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    if (value) {
+        *obj->reg_set = obj->mask;
+    } else {
+#ifdef GPIO_IP_WITHOUT_BRR
+        *obj->reg_clr = obj->mask << 16;
+#else
+        *obj->reg_clr = obj->mask;
+#endif
     }
 }
+
+static inline int gpio_read(gpio_t *obj)
+{
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    return ((*obj->reg_in & obj->mask) ? 1 : 0);
+}
+
+static inline int gpio_is_connected(const gpio_t *obj)
+{
+    return obj->pin != (PinName)NC;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
