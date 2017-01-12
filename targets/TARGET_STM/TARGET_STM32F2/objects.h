@@ -139,6 +139,7 @@ struct can_s {
     int index;
 };
 
+#define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"
 
 #ifdef __cplusplus

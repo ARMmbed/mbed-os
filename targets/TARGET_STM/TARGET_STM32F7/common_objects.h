@@ -111,6 +111,7 @@ struct i2c_s {
 #endif
 };
 
+#define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"
 
 #ifdef __cplusplus
