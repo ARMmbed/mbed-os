@@ -132,7 +132,7 @@ class Exporter(object):
         """
         rel_path = relpath(src, self.resources.file_basepath[src])
         path_list = os.path.normpath(rel_path).split(os.sep)
-        assert path_list >= 1
+        assert len(path_list) >= 1
         if len(path_list) == 1:
             key = self.project_name
         else:
