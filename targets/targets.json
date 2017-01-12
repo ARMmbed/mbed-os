@@ -1217,13 +1217,14 @@
         "inherits": ["Target"],
         "core": "Cortex-M7FD",
         "extra_labels": ["STM", "STM32F7", "STM32F769", "STM32F769NI"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["uARM", "ARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
+        "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0817"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
-        "release_versions": ["2"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32F769NI"
     },
     "DISCO_L476VG": {
