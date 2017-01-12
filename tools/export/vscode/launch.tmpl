@@ -10,9 +10,9 @@
             "stopAtEntry": true,
             "cwd": "${workspaceRoot}",
             "environment": [],
-            "externalConsole": true,
+            "externalConsole": false,
             "debugServerArgs": "",
-            "serverLaunchTimeout": 10000,
+            "serverLaunchTimeout": 20000,
             "filterStderr": true,
             "filterStdout": false,
             "preLaunchTask": "make",
@@ -40,7 +40,14 @@
                 "debugServerPath": "/usr/local/bin/pyocd-gdbserver"
             },
             "windows": {
-                "MIMode": "gdb"
+                "MIMode": "gdb",
+                "MIDebuggerPath": "${workspaceRoot}\\.vscode\\bin\\windows\\gcc\\arm-none-eabi-gdb.exe",
+                "debugServerPath": "${workspaceRoot}\\.vscode\\bin\\windows\\gdb_server.exe",
+                "setupCommands": [
+                    { "text": "-target-select remote localhost:3333", "description": "connect to target", "ignoreFailures": false },
+                    { "text": "-file-exec-and-symbols z:\\\\mbed-os-example-blinky\\\\BUILD\\\\${workspaceRootFolderName}.elf", "description": "load file", "ignoreFailures": false},
+                    { "text": "-target-download", "description": "flash target", "ignoreFailures": false }
+                ]
             }
         }
     ]
