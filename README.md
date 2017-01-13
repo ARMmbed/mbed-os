@@ -13,7 +13,7 @@ The current release, along with a selection of previous versions are detailed he
  
 We have a getting started guide for developers using mbed OS in applications:
  
-- [Getting Started](https://docs.mbed.com/docs/mbed-os-handbook/en/5.2/)
+- [Getting Started](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/)
 
 ## Getting Started for Contributors
  
