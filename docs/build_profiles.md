@@ -7,15 +7,17 @@ the the profile.
 
 ## Default profile
 * Small and fast code
-* Full error information - e.x. asserts have filename and line number
+* Full error information - e.g. asserts have filename and line number
 * Hard to follow code flow when using a debugger
 
 ## Debug profile
 * Easy to step through code with a debugger
-* Full error information - e.x. asserts have filename and line number
+* Full error information - e.g. asserts have filename and line number
 * Largest and slowest profile
 
 ## Small profile
 * Smallest profile and still fast
 * Minimal error information
-* Hard to follow code flow when using a debugger
+* Chip is put to sleep when going idle:
+  * debugger is likely to drop connection
+  * breaks the [local file system](https://developer.mbed.org/handbook/LocalFileSystem) on the [mbed interface](https://developer.mbed.org/handbook/mbed-interface) (only for few NXP boards & if used)
