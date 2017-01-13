@@ -57,13 +57,13 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									{% for s in asm_defines %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files" valueType="includeFiles">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files" useByScannerDiscovery="true" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="mbed_config.h"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -74,13 +74,13 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									{% for s in c_defines %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files" useByScannerDiscovery="true" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="mbed_config.h"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.{{debug_tool_c_compiler_input_uid}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
@@ -95,13 +95,13 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.{{u.id}}" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nousecxaatexit.{{u.id}}" name="Do not use _cxa_atexit() (-fno-use-cxa-atexit)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nousecxaatexit" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.{{u.id}}" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									{% for s in cpp_defines %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="true" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="mbed_config.h"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.{{debug_tool_cpp_compiler_input_uid}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -217,12 +217,12 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									{% for s in asm_defines %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files" valueType="includeFiles">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.files" useByScannerDiscovery="true" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="mbed_config.h"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -233,12 +233,12 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									{% for s in c_defines %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files" useByScannerDiscovery="true" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="mbed_config.h"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.{{release_tool_c_compiler_input_uid}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
@@ -253,12 +253,12 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.{{u.id}}" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nousecxaatexit.{{u.id}}" name="Do not use _cxa_atexit() (-fno-use-cxa-atexit)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nousecxaatexit" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.{{u.id}}" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.{{u.id}}" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									{% for s in cpp_defines %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.{{u.id}}" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="true" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="mbed_config.h"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.{{release_tool_cpp_compiler_input_uid}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
