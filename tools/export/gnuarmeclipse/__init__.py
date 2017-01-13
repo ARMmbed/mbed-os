@@ -163,7 +163,7 @@ class GNUARMEclipse(Exporter):
 
         The steps are:
         - get the list of source folders, as dirname(source_file)
-        - compute the top folders (subfolders of the project folders)
+        - compute the top folders (subfolders of the project folder)
         - iterate all subfolders and add them to a tree, with all 
         nodes markes as 'not used'
         - iterate the source folders and mark them as 'used' in the
@@ -206,8 +206,10 @@ class GNUARMEclipse(Exporter):
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
 
-        # TODO: Check if this is needed.
-        # self.resources.win_to_unix()
+        self.resources.win_to_unix()
+
+        print 'libraries'
+        print self.resources.libraries
 
         libraries = []
         print self.resources.libraries
