@@ -39,7 +39,7 @@ extern "C" {
  *
  * @return    NSAPI_ERROR_OK on success, or error code
  */
-nsapi_error_t mbed_lwip_init(void);
+void mbed_lwip_init(void);
 
 /** Register a network interface with LWIP stack
  *
@@ -47,10 +47,17 @@ nsapi_error_t mbed_lwip_init(void);
  * This function should be called only once for each available interface.
  *
  * @param    emac       EMAC HAL implementation for this network interface
- * @param    default    true if the interface should be treated as the default one (Default: true)
+ * @param    default_if true if the interface should be treated as the default one (Default: true)
  * @return              NSAPI_ERROR_OK on success, or error code
  */
-nsapi_error_t mbed_lwip_add_netif(emac_interface_t *emac, bool default = true);
+nsapi_error_t mbed_lwip_add_netif(emac_interface_t *emac, bool default_if = true);
+
+/** Set network stack for given network interface
+ *
+ * @param   emac        EMAC HAL implementation
+ * @param   stack       Pointer to nsapi_stack_t to be set for this interface
+ */
+void mbed_lwip_set_stack(emac_interface_t *emac, nsapi_stack_t *stack);
 
 /** Connect the interface to the network
  *
@@ -108,8 +115,6 @@ char *mbed_lwip_get_netmask(emac_interface_t *emac, char *buf, int buflen);
  * @return              Pointer to a buffer, or NULL if the buffer is too small
  */
 char *mbed_lwip_get_gateway(emac_interface_t *emac, char *buf, int buflen);
-
-extern nsapi_stack_t lwip_stack;
 
 #ifdef __cplusplus
 }

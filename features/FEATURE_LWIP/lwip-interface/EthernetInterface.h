@@ -19,7 +19,8 @@
 
 #include "nsapi.h"
 #include "rtos.h"
-#include "lwip/netif.h"
+#include "hal/emac_api.h"
+
 
 // Forward declaration
 class NetworkStack;
@@ -32,8 +33,10 @@ class EthernetInterface : public EthInterface
 {
 public:
     /** EthernetInterface lifetime
+     *
+     * @param emac    EMAC HAL implementation for network interface to be used by this class (Default: platform default)
      */
-    EthernetInterface();
+    EthernetInterface(emac_interface_t *emac = &mbed_emac_eth_default);
 
     /** Set a static IP address
      *
@@ -111,6 +114,7 @@ protected:
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
+    nsapi_stack_t _stack;
 };
 
 

@@ -17,11 +17,11 @@
 #include "EthernetInterface.h"
 #include "lwip_stack.h"
 
-
 /* Interface implementation */
-EthernetInterface::EthernetInterface()
-    : _dhcp(true), _ip_address(), _netmask(), _gateway()
+EthernetInterface::EthernetInterface(emac_interface_t *emac)
+    : _dhcp(true), _ip_address(), _netmask(), _gateway(), _stack()
 {
+    mbed_lwip_set_stack(emac, &_stack);
 }
 
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
@@ -41,7 +41,16 @@ nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
 
 nsapi_error_t EthernetInterface::connect()
 {
-    return mbed_lwip_bringup(_dhcp,
+    nsapi_error_t err;
+    if (_stack.emac == NULL)
+        return NSAPI_ERROR_UNSUPPORTED;
+
+    mbed_lwip_init();
+    err = mbed_lwip_add_netif(_stack.emac);
+    if (err != NSAPI_ERROR_OK)
+        return err;
+
+    return mbed_lwip_bringup(_stack.emac, _dhcp,
             _ip_address[0] ? _ip_address : 0,
             _netmask[0] ? _netmask : 0,
             _gateway[0] ? _gateway : 0);
@@ -49,17 +58,18 @@ nsapi_error_t EthernetInterface::connect()
 
 nsapi_error_t EthernetInterface::disconnect()
 {
-    return mbed_lwip_bringdown();
+    return mbed_lwip_bringdown(_stack.emac);
 }
 
 const char *EthernetInterface::get_mac_address()
 {
-    return mbed_lwip_get_mac_address();
+    return "TODO";
+    //return mbed_lwip_get_mac_address(_stack.emac);
 }
 
 const char *EthernetInterface::get_ip_address()
 {
-    if (mbed_lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
+    if (mbed_lwip_get_ip_address(_stack.emac, _ip_address, sizeof(_ip_address))) {
         return _ip_address;
     }
 
@@ -68,7 +78,7 @@ const char *EthernetInterface::get_ip_address()
 
 const char *EthernetInterface::get_netmask()
 {
-    if (mbed_lwip_get_netmask(_netmask, sizeof _netmask)) {
+    if (mbed_lwip_get_netmask(_stack.emac, _netmask, sizeof(_netmask))) {
         return _netmask;
     }
 
@@ -77,7 +87,7 @@ const char *EthernetInterface::get_netmask()
 
 const char *EthernetInterface::get_gateway()
 {
-    if (mbed_lwip_get_gateway(_gateway, sizeof _gateway)) {
+    if (mbed_lwip_get_gateway(_stack.emac, _gateway, sizeof(_gateway))) {
         return _gateway;
     }
 
@@ -86,5 +96,5 @@ const char *EthernetInterface::get_gateway()
 
 NetworkStack *EthernetInterface::get_stack()
 {
-    return nsapi_create_stack(&lwip_stack);
+    return nsapi_create_stack(&_stack);
 }
