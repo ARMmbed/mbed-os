@@ -26,7 +26,8 @@ def strip_protocol(url) :
     return protocol_matcher.sub("", str(url))
 
 def largest_version(content) :
-    return sorted([t['version'] for t in content.package.releases('release')], reverse=True)[0]
+    return sorted([t['version'] for t in content.package.releases('release')],
+                  reverse=True, key=lambda v: map(int, v.split(".")))[0]
 
 def do_queue(Class, function, interable) :
     q = Queue()
