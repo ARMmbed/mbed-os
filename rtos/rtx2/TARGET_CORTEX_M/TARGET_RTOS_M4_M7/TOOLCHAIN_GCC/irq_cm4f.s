@@ -78,9 +78,12 @@ SVC_Context:
 
 SVC_ContextSave:
         STMDB    R12!,{R4-R11}          // Save R4..R11
+
+#ifdef __FPU_PRESENT
         TST      LR,#0x10               // Check if extended stack frame
         IT       EQ
         VSTMDBEQ R12!,{S16-S31}         //  Save VFP S16.S31
+#endif
 
         STR      R12,[R1,#TCB_SP_OFS]   // Store SP
         STRB     LR, [R1,#TCB_SF_OFS]   // Store stack frame information
@@ -93,9 +96,11 @@ SVC_ContextRestore:
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
         ORR      LR,R1,#0xFFFFFF00      // Set EXC_RETURN
 
+#ifdef __FPU_PRESENT
         TST      LR,#0x10               // Check if extended stack frame
         IT       EQ
         VLDMIAEQ R0!,{S16-S31}          //  Restore VFP S16..S31
+#endif
         LDMIA    R0!,{R4-R11}           // Restore R4..R11
         MSR      PSP,R0                 // Set PSP
 
