@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,7 +7,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -27,12 +27,12 @@
         .file    "irq_cm0.s"
         .syntax  unified
 
-        .equ     I_T_RUN_OFS, 28        // osInfo.thread.run offset
+        .equ     I_T_RUN_OFS, 28        // osRtxInfo.thread.run offset
         .equ     TCB_SP_OFS,  56        // TCB.SP offset
 
         .section ".rodata"
-        .global  os_irq_cm              // Non weak library reference
-os_irq_cm:
+        .global  irqRtxLib              // Non weak library reference
+irqRtxLib:
         .byte    0
 
 
@@ -55,18 +55,19 @@ SVC_Handler:
         CMP      R1,#0
         BNE      SVC_User               // Branch if not SVC 0
 
+        PUSH     {R0,LR}                // Save PSP and EXC_RETURN
         LDMIA    R0,{R0-R3}             // Load function parameters from stack
         BLX      R7                     // Call service function
-        MRS      R3,PSP                 // Get PSP
-        STMIA    R3!,{R0-R1}            // Store function return values
+        POP      {R2,R3}                // Restore PSP and EXC_RETURN
+        STMIA    R2!,{R0-R1}            // Store function return values
+        MOV      LR,R3                  // Set EXC_RETURN
 
 SVC_Context:
-        LDR      R3,=os_Info+I_T_RUN_OFS// Load address of os_Info.run
-        LDMIA    R3!,{R1,R2}            // Load os_Info.thread.run: curr & next
+        LDR      R3,=osRtxInfo+I_T_RUN_OFS // Load address of osRtxInfo.run
+        LDMIA    R3!,{R1,R2}            // Load osRtxInfo.thread.run: curr & next
         CMP      R1,R2                  // Check if thread switch is required
         BEQ      SVC_Exit               // Branch when threads are the same
 
-        SUBS     R3,R3,#8
         CMP      R1,#0
         BEQ      SVC_ContextSwitch      // Branch if running thread is deleted
 
@@ -82,7 +83,8 @@ SVC_ContextSave:
         STMIA    R0!,{R4-R7}            // Save R8..R11
 
 SVC_ContextSwitch:
-        STR      R2,[R3]                // os_Info.thread.run: curr = next
+        SUBS     R3,R3,#8
+        STR      R2,[R3]                // osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore:
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
@@ -96,14 +98,16 @@ SVC_ContextRestore:
         SUBS     R0,R0,#32              // Adjust address
         LDMIA    R0!,{R4-R7}            // Restore R4..R7
 
-SVC_Exit:
-        MOVS     R0,#~0xFFFFFFFD        // Set EXC_RETURN value
-        MVNS     R0,R0
+        MOVS     R0,#~0xFFFFFFFD
+        MVNS     R0,R0                  // Set EXC_RETURN value
         BX       R0                     // Exit from handler
+
+SVC_Exit:
+        BX       LR                     // Exit from handler
 
 SVC_User:
         PUSH     {R4,LR}                // Save registers
-        LDR      R2,=os_UserSVC_Table   // Load address of SVC table
+        LDR      R2,=osRtxUserSVC       // Load address of SVC table
         LDR      R3,[R2]                // Load SVC maximum number
         CMP      R1,R3                  // Check SVC number range
         BHI      SVC_Done               // Branch if out of range
@@ -130,7 +134,10 @@ SVC_Done:
         .cantunwind
 PendSV_Handler:
 
-        BL       os_PendSV_Handler
+        PUSH     {R0,LR}                // Save EXC_RETURN
+        BL       osRtxPendSV_Handler    // Call osRtxPendSV_Handler
+        POP      {R0,R1}                // Restore EXC_RETURN
+        MOV      LR,R1                  // Set EXC_RETURN
         B        SVC_Context
 
         .fnend
@@ -144,7 +151,10 @@ PendSV_Handler:
         .cantunwind
 SysTick_Handler:
 
-        BL       os_Tick_Handler
+        PUSH     {R0,LR}                // Save EXC_RETURN
+        BL       osRtxTick_Handler      // Call osRtxTick_Handler
+        POP      {R0,R1}                // Restore EXC_RETURN
+        MOV      LR,R1                  // Set EXC_RETURN
         B        SVC_Context
 
         .fnend

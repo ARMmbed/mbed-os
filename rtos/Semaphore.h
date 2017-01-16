@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "rtx_os.h"
+#include "rtx_lib.h"
 
 namespace rtos {
 /** \addtogroup rtos */

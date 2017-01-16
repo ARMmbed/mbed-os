@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_cm4.h
  * @brief    CMSIS Cortex-M4 Core Peripheral Access Layer Header File
- * @version  V5.00
- * @date     13. September 2016
+ * @version  V5.0.1
+ * @date     25. November 2016
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
@@ -13,7 +13,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -219,13 +219,10 @@
 #define     __O     volatile             /*!< Defines 'write only' permissions */
 #define     __IO    volatile             /*!< Defines 'read / write' permissions */
 
-#ifdef __cplusplus
-  #define   __IM    volatile             /*!< Defines 'read only' permissions                 */
-#else
-  #define   __IM    volatile const       /*!< Defines 'read only' permissions                 */
-#endif
-#define     __OM    volatile             /*!< Defines 'write only' permissions                */
-#define     __IOM   volatile             /*!< Defines 'read / write' permissions              */
+/* following defines should be used for structure members */
+#define     __IM     volatile const      /*! Defines 'read only' structure member permissions */
+#define     __OM     volatile            /*! Defines 'write only' structure member permissions */
+#define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
 
 /*@} end of group Cortex_M4 */
 
@@ -1543,7 +1540,7 @@ typedef struct
   @{
  */
 
-/* Memory mapping of Cortex-M4 Hardware */
+/* Memory mapping of Core Hardware */
 #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
 #define ITM_BASE            (0xE0000000UL)                            /*!< ITM Base Address */
 #define DWT_BASE            (0xE0001000UL)                            /*!< DWT Base Address */
@@ -1886,8 +1883,8 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
  */
 __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-    vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+  vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
 
 
@@ -1901,8 +1898,8 @@ __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
  */
 __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-    return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+  return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
 }
 
 

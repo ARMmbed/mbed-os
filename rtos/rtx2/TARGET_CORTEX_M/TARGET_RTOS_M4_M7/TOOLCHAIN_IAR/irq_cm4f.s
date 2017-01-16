@@ -24,24 +24,26 @@
 ; */
 
 
+                NAME    irq_cm4f.s
+
+
 I_T_RUN_OFS     EQU      28                     ; osRtxInfo.thread.run offset
 TCB_SP_OFS      EQU      56                     ; TCB.SP offset
 TCB_SF_OFS      EQU      34                     ; TCB.stack_frame offset
 
 
                 PRESERVE8
-                THUMB
+                SECTION .rodata:DATA:NOROOT(2)
 
 
-                AREA     |.constdata|, DATA, READONLY
                 EXPORT   irqRtxLib
 irqRtxLib       DCB      0                      ; Non weak library reference
 
 
-                AREA     |.text|, CODE, READONLY
+                THUMB
+                SECTION .text:CODE:NOROOT(2)
 
-
-SVC_Handler     PROC
+SVC_Handler
                 EXPORT   SVC_Handler
                 IMPORT   osRtxUserSVC
                 IMPORT   osRtxInfo
@@ -61,6 +63,7 @@ SVC_Context
                 LDR      R3,=osRtxInfo+I_T_RUN_OFS; Load address of osRtxInfo.run
                 LDM      R3,{R1,R2}             ; Load osRtxInfo.thread.run: curr & next
                 CMP      R1,R2                  ; Check if thread switch is required
+                IT       EQ
                 BXEQ     LR                     ; Exit when threads are the same
 
                 CBNZ     R1,SVC_ContextSave     ; Branch if running thread is not deleted
@@ -68,13 +71,14 @@ SVC_Context
                 BNE      SVC_ContextSwitch
                 LDR      R1,=0xE000EF34         ; FPCCR Address
                 LDR      R0,[R1]                ; Load FPCCR
-                BIC      R0,#1                  ; Clear LSPACT (Lazy state)
+                BIC      R0,R0,#1               ; Clear LSPACT (Lazy state)
                 STR      R0,[R1]                ; Store FPCCR
                 B        SVC_ContextSwitch
 
 SVC_ContextSave
                 STMDB    R12!,{R4-R11}          ; Save R4..R11
                 TST      LR,#0x10               ; Check if extended stack frame
+                IT       EQ
                 VSTMDBEQ R12!,{S16-S31}         ;  Save VFP S16.S31
 
                 STR      R12,[R1,#TCB_SP_OFS]   ; Store SP
@@ -89,6 +93,7 @@ SVC_ContextRestore
                 ORR      LR,R1,#0xFFFFFF00      ; Set EXC_RETURN
 
                 TST      LR,#0x10               ; Check if extended stack frame
+                IT       EQ
                 VLDMIAEQ R0!,{S16-S31}          ;  Restore VFP S16..S31
                 LDMIA    R0!,{R4-R11}           ; Restore R4..R11
                 MSR      PSP,R0                 ; Set PSP
@@ -113,11 +118,8 @@ SVC_User
 SVC_Done
                 POP      {R4,PC}                ; Return from handler
 
-                ALIGN
-                ENDP
 
-
-PendSV_Handler  PROC
+PendSV_Handler  
                 EXPORT   PendSV_Handler
                 IMPORT   osRtxPendSV_Handler
 
@@ -127,11 +129,8 @@ PendSV_Handler  PROC
                 MRS      R12,PSP
                 B        SVC_Context
 
-                ALIGN
-                ENDP
 
-
-SysTick_Handler PROC
+SysTick_Handler 
                 EXPORT   SysTick_Handler
                 IMPORT   osRtxTick_Handler
 
@@ -140,9 +139,6 @@ SysTick_Handler PROC
                 POP      {R4,LR}                ; Restore EXC_RETURN
                 MRS      R12,PSP
                 B        SVC_Context
-
-                ALIGN
-                ENDP
 
 
                 END

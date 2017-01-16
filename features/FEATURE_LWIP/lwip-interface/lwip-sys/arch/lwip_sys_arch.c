@@ -471,7 +471,7 @@ sys_thread_t sys_thread_new(const char *pcName,
     if (t->attr.stack_mem == NULL) {
       error("Error allocating the stack memory");
     }
-    t->id = osThreadNew((os_thread_func_t)thread, arg, &t->attr);
+    t->id = osThreadNew((osThreadFunc_t)thread, arg, &t->attr);
     if (t->id == NULL)
         error("sys_thread_new create error\n");
     

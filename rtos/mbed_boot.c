@@ -121,7 +121,7 @@
 
 #include "cmsis.h"
 #include "mbed_rtx.h"
-#include "rtx_os.h"
+#include "rtx_lib.h"
 #include "cmsis_os2.h"
 #include "platform/toolchain.h"
 
@@ -256,7 +256,7 @@ void mbed_start_main(void)
     _main_thread_attr.cb_mem = _main_obj;
     _main_thread_attr.priority = osPriorityNormal;
     _main_thread_attr.name = "MAIN";
-    osThreadNew((os_thread_func_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
+    osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
 
     osKernelStart();                                                      // Start thread execution
 }

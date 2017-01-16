@@ -1,7 +1,7 @@
 /** \addtogroup rtos */
 /** @{*/
 /*
- * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -9,7 +9,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -24,258 +24,259 @@
  *
  * -----------------------------------------------------------------------------
  */
-
+ 
 #ifndef RTX_OS_H_
 #define RTX_OS_H_
-
+ 
 #include <stdint.h>
 #include <stddef.h>
 #include "cmsis_os2.h"
-
+ 
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
-
-
+ 
+ 
 /// Kernel Information
-#define os_CMSIS_API         20000000   ///< API version (2.0.0)
-#define os_CMSIS_RTX         50000000   ///< Kernel version (5.0.0)
-#define os_KernelId       "RTX V5.0.0"  ///< Kernel identification string
-
-
+#define osRtxVersionAPI      20010000   ///< API version (2.1.0)
+#define osRtxVersionKernel   50010000   ///< Kernel version (5.1.0)
+#define osRtxKernelId     "RTX V5.1.0"  ///< Kernel identification string
+ 
+ 
 //  ==== Common definitions ====
-
+ 
 /// Object Identifier definitions
-#define os_IdInvalid            0x00U
-#define os_IdThread             0x01U
-#define os_IdTimer              0x02U
-#define os_IdEventFlags         0x03U
-#define os_IdMutex              0x04U
-#define os_IdSemaphore          0x05U
-#define os_IdMemoryPool         0x06U
-#define os_IdMessage            0x07U
-#define os_IdMessageQueue       0x08U
-
+#define osRtxIdInvalid          0x00U
+#define osRtxIdThread           0x01U
+#define osRtxIdTimer            0x02U
+#define osRtxIdEventFlags       0x03U
+#define osRtxIdMutex            0x04U
+#define osRtxIdSemaphore        0x05U
+#define osRtxIdMemoryPool       0x06U
+#define osRtxIdMessage          0x07U
+#define osRtxIdMessageQueue     0x08U
+ 
 /// Object State definitions (except for Threads and Timers)
-#define os_ObjectInactive       0x00U
-#define os_ObjectActive         0x01U
-
+#define osRtxObjectInactive     0x00U
+#define osRtxObjectActive       0x01U
+ 
 /// Object Flags definitions
-#define os_FlagSystemObject     0x01U
-#define os_FlagSystemMemory     0x02U
-
-
+#define osRtxFlagSystemObject   0x01U
+#define osRtxFlagSystemMemory   0x02U
+ 
+ 
 //  ==== Kernel definitions ====
-
+ 
 /// Kernel State definitions
-#define os_KernelInactive           ((uint8_t)osKernelInactive)
-#define os_KernelReady              ((uint8_t)osKernelReady)
-#define os_KernelRunning            ((uint8_t)osKernelRunning)
-#define os_KernelLocked             ((uint8_t)osKernelLocked)
-#define os_KernelSuspended          ((uint8_t)osKernelSuspended)
-
-
+#define osRtxKernelInactive             ((uint8_t)osKernelInactive)
+#define osRtxKernelReady                ((uint8_t)osKernelReady)
+#define osRtxKernelRunning              ((uint8_t)osKernelRunning)
+#define osRtxKernelLocked               ((uint8_t)osKernelLocked)
+#define osRtxKernelSuspended            ((uint8_t)osKernelSuspended)
+ 
+ 
 //  ==== Thread definitions ====
-
+ 
 /// Thread State definitions (extending osThreadState)
-#define os_ThreadStateMask          0x0FU
-
-#define os_ThreadInactive           ((uint8_t)osThreadInactive)
-#define os_ThreadReady              ((uint8_t)osThreadReady)
-#define os_ThreadRunning            ((uint8_t)osThreadRunning)
-#define os_ThreadBlocked            ((uint8_t)osThreadBlocked)
-#define os_ThreadTerminated         ((uint8_t)osThreadTerminated)
-
-#define os_ThreadWaitingDelay       (os_ThreadBlocked | 0x10U)
-#define os_ThreadWaitingJoin        (os_ThreadBlocked | 0x20U)
-#define os_ThreadWaitingThreadFlags (os_ThreadBlocked | 0x30U) 
-#define os_ThreadWaitingEventFlags  (os_ThreadBlocked | 0x40U) 
-#define os_ThreadWaitingMutex       (os_ThreadBlocked | 0x50U)
-#define os_ThreadWaitingSemaphore   (os_ThreadBlocked | 0x60U)
-#define os_ThreadWaitingMemoryPool  (os_ThreadBlocked | 0x70U)
-#define os_ThreadWaitingMessageGet  (os_ThreadBlocked | 0x80U)
-#define os_ThreadWaitingMessagePut  (os_ThreadBlocked | 0x90U)
-
+#define osRtxThreadStateMask            0x0FU
+ 
+#define osRtxThreadInactive             ((uint8_t)osThreadInactive)
+#define osRtxThreadReady                ((uint8_t)osThreadReady)
+#define osRtxThreadRunning              ((uint8_t)osThreadRunning)
+#define osRtxThreadBlocked              ((uint8_t)osThreadBlocked)
+#define osRtxThreadTerminated           ((uint8_t)osThreadTerminated)
+ 
+#define osRtxThreadWaitingDelay         (osRtxThreadBlocked | 0x10U)
+#define osRtxThreadWaitingJoin          (osRtxThreadBlocked | 0x20U)
+#define osRtxThreadWaitingThreadFlags   (osRtxThreadBlocked | 0x30U) 
+#define osRtxThreadWaitingEventFlags    (osRtxThreadBlocked | 0x40U) 
+#define osRtxThreadWaitingMutex         (osRtxThreadBlocked | 0x50U)
+#define osRtxThreadWaitingSemaphore     (osRtxThreadBlocked | 0x60U)
+#define osRtxThreadWaitingMemoryPool    (osRtxThreadBlocked | 0x70U)
+#define osRtxThreadWaitingMessageGet    (osRtxThreadBlocked | 0x80U)
+#define osRtxThreadWaitingMessagePut    (osRtxThreadBlocked | 0x90U)
+ 
 /// Thread Flags definitions
-#define os_ThreadFlagDefStack   0x10U   ///< Default Stack flag
-
+#define osRtxThreadFlagDefStack 0x10U   ///< Default Stack flag
+ 
 /// Stack Marker definitions
-#define os_StackMagicWord       0xE25A2EA5U ///< Stack Magic Word (Stack Base)
-#define os_StackFillPattern     0xCCCCCCCCU ///< Stack Fill Pattern 
-
+#define osRtxStackMagicWord     0xE25A2EA5U ///< Stack Magic Word (Stack Base)
+#define osRtxStackFillPattern   0xCCCCCCCCU ///< Stack Fill Pattern 
+ 
 /// Thread Control Block
-typedef struct os_thread_s {
+typedef struct osRtxThread_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                        attr;  ///< Object Attributes
   const char                    *name;  ///< Object Name
-  struct os_thread_s     *thread_next;  ///< Link pointer to next Thread in Object list
-  struct os_thread_s     *thread_prev;  ///< Link pointer to previous Thread in Object list
-  struct os_thread_s      *delay_next;  ///< Link pointer to next Thread in Delay list
-  struct os_thread_s      *delay_prev;  ///< Link pointer to previous Thread in Delay list
-  struct os_thread_s     *thread_join;  ///< Thread waiting to Join
+  struct osRtxThread_s   *thread_next;  ///< Link pointer to next Thread in Object list
+  struct osRtxThread_s   *thread_prev;  ///< Link pointer to previous Thread in Object list
+  struct osRtxThread_s    *delay_next;  ///< Link pointer to next Thread in Delay list
+  struct osRtxThread_s    *delay_prev;  ///< Link pointer to previous Thread in Delay list
+  struct osRtxThread_s   *thread_join;  ///< Thread waiting to Join
   uint32_t                      delay;  ///< Delay Time
   int8_t                     priority;  ///< Thread Priority
   int8_t                priority_base;  ///< Base Priority
   uint8_t                 stack_frame;  ///< Stack Frame (EXC_RETURN[7..0])
   uint8_t               flags_options;  ///< Thread/Event Flags Options
-  int32_t                  wait_flags;  ///< Waiting Thread/Event Flags
-  int32_t                thread_flags;  ///< Thread Flags
-  struct os_mutex_s       *mutex_list;  ///< Link pointer to list of owned Mutexes
+  uint32_t                 wait_flags;  ///< Waiting Thread/Event Flags
+  uint32_t               thread_flags;  ///< Thread Flags
+  struct osRtxMutex_s     *mutex_list;  ///< Link pointer to list of owned Mutexes
   void                     *stack_mem;  ///< Stack Memory
   uint32_t                 stack_size;  ///< Stack Size
   uint32_t                         sp;  ///< Current Stack Pointer
+  uint32_t                thread_addr;  ///< Thread entry address
   uint32_t                  tz_memory;  ///< TrustZone Memory Identifier
-} os_thread_t;
-
-
+} osRtxThread_t;
+ 
+ 
 //  ==== Timer definitions ====
-
+ 
 /// Timer State definitions
-#define os_TimerInactive        0x00U   ///< Timer Inactive
-#define os_TimerStopped         0x01U   ///< Timer Stopped
-#define os_TimerRunning         0x02U   ///< Timer Running
-
+#define osRtxTimerInactive      0x00U   ///< Timer Inactive
+#define osRtxTimerStopped       0x01U   ///< Timer Stopped
+#define osRtxTimerRunning       0x02U   ///< Timer Running
+ 
 /// Timer Type definitions
-#define os_TimerPeriodic        ((uint8_t)osTimerPeriodic)
-
+#define osRtxTimerPeriodic      ((uint8_t)osTimerPeriodic)
+ 
 /// Timer Function Information
 typedef struct {
   void                            *fp;  ///< Function Pointer
   void                           *arg;  ///< Function Argument
-} os_timer_finfo_t;
-
+} osRtxTimerFinfo_t;
+ 
 /// Timer Control Block
-typedef struct os_timer_s {
+typedef struct osRtxTimer_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                        type;  ///< Timer Type (Periodic/One-shot)
   const char                    *name;  ///< Object Name
-  struct os_timer_s             *prev;  ///< Pointer to previous active Timer
-  struct os_timer_s             *next;  ///< Pointer to next active Timer
+  struct osRtxTimer_s           *prev;  ///< Pointer to previous active Timer
+  struct osRtxTimer_s           *next;  ///< Pointer to next active Timer
   uint32_t                       tick;  ///< Timer current Tick
   uint32_t                       load;  ///< Timer Load value
-  os_timer_finfo_t              finfo;  ///< Timer Function Info
-} os_timer_t;
-
-
+  osRtxTimerFinfo_t             finfo;  ///< Timer Function Info
+} osRtxTimer_t;
+ 
+ 
 //  ==== Event Flags definitions ====
-
+ 
 /// Event Flags Control Block
-typedef struct os_event_flags_s {
+typedef struct osRtxEventFlags_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
-  os_thread_t            *thread_list;  ///< Waiting Threads List
-  int32_t                 event_flags;  ///< Event Flags
-} os_event_flags_t;
-
-
+  osRtxThread_t          *thread_list;  ///< Waiting Threads List
+  uint32_t                event_flags;  ///< Event Flags
+} osRtxEventFlags_t;
+ 
+ 
 //  ==== Mutex definitions ====
-
+ 
 /// Mutex Control Block
-typedef struct os_mutex_s {
+typedef struct osRtxMutex_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                        attr;  ///< Object Attributes
   const char                    *name;  ///< Object Name
-  os_thread_t            *thread_list;  ///< Waiting Threads List
-  os_thread_t           *owner_thread;  ///< Owner Thread
-  struct os_mutex_s       *owner_prev;  ///< Pointer to previous owned Mutex
-  struct os_mutex_s       *owner_next;  ///< Pointer to next owned Mutex
+  osRtxThread_t          *thread_list;  ///< Waiting Threads List
+  osRtxThread_t         *owner_thread;  ///< Owner Thread
+  struct osRtxMutex_s     *owner_prev;  ///< Pointer to previous owned Mutex
+  struct osRtxMutex_s     *owner_next;  ///< Pointer to next owned Mutex
   uint8_t                        lock;  ///< Lock counter
   uint8_t                  padding[3];
-} os_mutex_t;
-
-
+} osRtxMutex_t;
+ 
+ 
 //  ==== Semaphore definitions ====
-
+ 
 /// Semaphore Control Block
-typedef struct os_semaphore_s {
+typedef struct osRtxSemaphore_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
-  os_thread_t            *thread_list;  ///< Waiting Threads List
+  osRtxThread_t          *thread_list;  ///< Waiting Threads List
   uint16_t                     tokens;  ///< Current number of tokens
   uint16_t                 max_tokens;  ///< Maximum number of tokens
-} os_semaphore_t;
-
-
+} osRtxSemaphore_t;
+ 
+ 
 //  ==== Memory Pool definitions ====
-
+ 
 /// Memory Pool Information
-typedef struct os_mp_info_s {
+typedef struct osRtxMpInfo_s {
   uint32_t                 max_blocks;  ///< Maximum number of Blocks
   uint32_t                used_blocks;  ///< Number of used Blocks
   uint32_t                 block_size;  ///< Block Size
   void                    *block_base;  ///< Block Memory Base Address
   void                     *block_lim;  ///< Block Memory Limit Address
   void                    *block_free;  ///< First free Block Address
-} os_mp_info_t;
-
+} osRtxMpInfo_t;
+ 
 /// Memory Pool Control Block
-typedef struct os_memory_pool_s {
+typedef struct osRtxMemoryPool_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
-  os_thread_t            *thread_list;  ///< Waiting Threads List
-  os_mp_info_t                mp_info;  ///< Memory Pool Info
-} os_memory_pool_t;
-
-
+  osRtxThread_t          *thread_list;  ///< Waiting Threads List
+  osRtxMpInfo_t               mp_info;  ///< Memory Pool Info
+} osRtxMemoryPool_t;
+ 
+ 
 //  ==== Message Queue definitions ====
-
+ 
 /// Message Control Block
-typedef struct os_message_s {
+typedef struct osRtxMessage_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    priority;  ///< Message Priority
-  struct os_message_s           *prev;  ///< Pointer to previous Message
-  struct os_message_s           *next;  ///< Pointer to next Message
-} os_message_t;
-
+  struct osRtxMessage_s         *prev;  ///< Pointer to previous Message
+  struct osRtxMessage_s         *next;  ///< Pointer to next Message
+} osRtxMessage_t;
+ 
 /// Message Queue Control Block
-typedef struct os_message_queue_s {
+typedef struct osRtxMessageQueue_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
-  os_thread_t            *thread_list;  ///< Waiting Threads List
-  os_mp_info_t                mp_info;  ///< Memory Pool Info
+  osRtxThread_t          *thread_list;  ///< Waiting Threads List
+  osRtxMpInfo_t               mp_info;  ///< Memory Pool Info
   uint32_t                   msg_size;  ///< Message Size
   uint32_t                  msg_count;  ///< Number of queued Messages
-  os_message_t             *msg_first;  ///< Pointer to first Message
-  os_message_t              *msg_last;  ///< Pointer to last Message
-} os_message_queue_t;
-
-
+  osRtxMessage_t           *msg_first;  ///< Pointer to first Message
+  osRtxMessage_t            *msg_last;  ///< Pointer to last Message
+} osRtxMessageQueue_t;
+ 
+ 
 //  ==== Generic Object definitions ====
-
+ 
 /// Generic Object Control Block
-typedef struct os_object_s {
+typedef struct osRtxObject_s {
   uint8_t                          id;  ///< Object Identifier
   uint8_t                       state;  ///< Object State
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
-  os_thread_t            *thread_list;  ///< Threads List
-} os_object_t;
-
-
+  osRtxThread_t          *thread_list;  ///< Threads List
+} osRtxObject_t;
+ 
+ 
 //  ==== OS Runtime Information definitions ====
-
+ 
 /// OS Runtime Information structure
 typedef struct {
   const char                   *os_id;  ///< OS Identification
@@ -291,24 +292,24 @@ typedef struct {
   int32_t                   tick_irqn;  ///< Tick Timer IRQ Number
   struct {                              ///< Thread Info
     struct {                            ///< Thread Run Info
-      os_thread_t               *curr;  ///< Current running Thread
-      os_thread_t               *next;  ///< Next Thread to Run
+      osRtxThread_t             *curr;  ///< Current running Thread
+      osRtxThread_t             *next;  ///< Next Thread to Run
     } run;
-    volatile os_object_t        ready;  ///< Ready List Object
-    os_thread_t                 *idle;  ///< Idle Thread
-    os_thread_t           *delay_list;  ///< Delay List
-    os_thread_t            *wait_list;  ///< Wait List (no Timeout)
-    os_thread_t       *terminate_list;  ///< Terminate Thread List
+    volatile osRtxObject_t      ready;  ///< Ready List Object
+    osRtxThread_t               *idle;  ///< Idle Thread
+    osRtxThread_t         *delay_list;  ///< Delay List
+    osRtxThread_t          *wait_list;  ///< Wait List (no Timeout)
+    osRtxThread_t     *terminate_list;  ///< Terminate Thread List
     struct {                            ///< Thread Round Robin Info
-      os_thread_t             *thread;  ///< Round Robin Thread
+      osRtxThread_t           *thread;  ///< Round Robin Thread
       uint32_t                   tick;  ///< Round Robin Time Tick
       uint32_t                timeout;  ///< Round Robin Timeout
     } robin;
   } thread;
   struct {                              ///< Timer Info
-    os_timer_t                  *list;  ///< Active Timer List
-    os_thread_t               *thread;  ///< Timer Thread
-    os_message_queue_t            *mq;  ///< Timer Message Queue
+    osRtxTimer_t                *list;  ///< Active Timer List
+    osRtxThread_t             *thread;  ///< Timer Thread
+    osRtxMessageQueue_t           *mq;  ///< Timer Message Queue
   } timer;
   struct {                              ///< ISR Post Processing Queue
     uint16_t                      max;  ///< Maximum Items
@@ -317,12 +318,12 @@ typedef struct {
     uint16_t                      out;  ///< Outgoing Item Index
     void                       **data;  ///< Queue Data
   } isr_queue;
-  struct {                                  ///< ISR Post Processing functions
-    void           (*thread)(os_thread_t*); ///< Thread Post Processing function
-    void (*event_flags)(os_event_flags_t*); ///< Event Flags Post Processing function
-    void     (*semaphore)(os_semaphore_t*); ///< Semaphore Post Processing function
-    void (*memory_pool)(os_memory_pool_t*); ///< Memory Pool Post Processing function
-    void   (*message_queue)(os_message_t*); ///< Message Queue Post Processing function
+  struct {                                      ///< ISR Post Processing functions
+    void          (*thread)(osRtxThread_t*);    ///< Thread Post Processing function
+    void (*event_flags)(osRtxEventFlags_t*);    ///< Event Flags Post Processing function
+    void    (*semaphore)(osRtxSemaphore_t*);    ///< Semaphore Post Processing function
+    void (*memory_pool)(osRtxMemoryPool_t*);    ///< Memory Pool Post Processing function
+    void  (*message_queue)(osRtxMessage_t*);    ///< Message Queue Post Processing function
   } post_process;
   struct {                              ///< Memory Pools (Variable Block Size)
     void                       *stack;  ///< Stack Memory
@@ -331,102 +332,102 @@ typedef struct {
     void                      *common;  ///< Common Memory
   } mem;
   struct {                              ///< Memory Pools (Fixed Block Size)
-    os_mp_info_t               *stack;  ///< Stack for Threads
-    os_mp_info_t              *thread;  ///< Thread Control Blocks
-    os_mp_info_t               *timer;  ///< Timer Control Blocks
-    os_mp_info_t         *event_flags;  ///< Event Flags Control Blocks
-    os_mp_info_t               *mutex;  ///< Mutex Control Blocks
-    os_mp_info_t           *semaphore;  ///< Semaphore Control Blocks
-    os_mp_info_t         *memory_pool;  ///< Memory Pool Control Blocks
-    os_mp_info_t       *message_queue;  ///< Message Queue Control Blocks
+    osRtxMpInfo_t              *stack;  ///< Stack for Threads
+    osRtxMpInfo_t             *thread;  ///< Thread Control Blocks
+    osRtxMpInfo_t              *timer;  ///< Timer Control Blocks
+    osRtxMpInfo_t        *event_flags;  ///< Event Flags Control Blocks
+    osRtxMpInfo_t              *mutex;  ///< Mutex Control Blocks
+    osRtxMpInfo_t          *semaphore;  ///< Semaphore Control Blocks
+    osRtxMpInfo_t        *memory_pool;  ///< Memory Pool Control Blocks
+    osRtxMpInfo_t      *message_queue;  ///< Message Queue Control Blocks
   } mpi;
-} os_info_t;
-
-extern os_info_t os_Info;               ///< OS Runtime Information
-
-
+} osRtxInfo_t;
+ 
+extern osRtxInfo_t osRtxInfo;           ///< OS Runtime Information
+ 
+ 
 //  ==== OS API definitions ====
-
+ 
 /// Object Limits definitions
-#define os_ThreadFlagsLimit     31U     ///< number of Thread Flags available per thread
-#define os_EventFlagsLimit      31U     ///< number of Event Flags available per object
-#define os_MutexLockLimit       255U    ///< maximum number of recursive mutex locks
-#define os_SemaphoreTokenLimit  65535U  ///< maximum number of tokens per semaphore
-
+#define osRtxThreadFlagsLimit    31U    ///< number of Thread Flags available per thread
+#define osRtxEventFlagsLimit     31U    ///< number of Event Flags available per object
+#define osRtxMutexLockLimit      255U   ///< maximum number of recursive mutex locks
+#define osRtxSemaphoreTokenLimit 65535U ///< maximum number of tokens per semaphore
+ 
 /// Control Block sizes
-#define os_ThreadCbSize         sizeof(os_thread_t)
-#define os_TimerCbSize          sizeof(os_timer_t)
-#define os_EventFlagsCbSize     sizeof(os_event_flags_t)
-#define os_MutexCbSize          sizeof(os_mutex_t)
-#define os_SemaphoreCbSize      sizeof(os_semaphore_t)
-#define os_MemoryPoolCbSize     sizeof(os_memory_pool_t)
-#define os_MessageQueueCbSize   sizeof(os_message_queue_t)
-
+#define osRtxThreadCbSize        sizeof(osRtxThread_t)
+#define osRtxTimerCbSize         sizeof(osRtxTimer_t)
+#define osRtxEventFlagsCbSize    sizeof(osRtxEventFlags_t)
+#define osRtxMutexCbSize         sizeof(osRtxMutex_t)
+#define osRtxSemaphoreCbSize     sizeof(osRtxSemaphore_t)
+#define osRtxMemoryPoolCbSize    sizeof(osRtxMemoryPool_t)
+#define osRtxMessageQueueCbSize  sizeof(osRtxMessageQueue_t)
+ 
 /// Memory size in bytes for Memory Pool storage.
 /// \param         block_count   maximum number of memory blocks in memory pool.
 /// \param         block_size    memory block size in bytes.
-#define os_MemoryPoolMemSize(block_count, block_size) \
+#define osRtxMemoryPoolMemSize(block_count, block_size) \
   (4*(block_count)*(((block_size)+3)/4))
  
 /// Memory size in bytes for Message Queue storage.
 /// \param         msg_count     maximum number of messages in queue.
 /// \param         msg_size      maximum message size in bytes.
-#define os_MessageQueueMemSize(msg_count, msg_size) \
+#define osRtxMessageQueueMemSize(msg_count, msg_size) \
   (4*(msg_count)*(3+(((msg_size)+3)/4)))
-
-
+ 
+ 
 //  ==== OS External Functions ====
-
+ 
 /// OS Error Codes
-#define os_ErrorStackUnderflow      1U
-#define os_ErrorISRQueueOverflow    2U
-#define os_ErrorTimerQueueOverflow  3U
-#define os_ErrorClibSpace           4U
-#define os_ErrorClibMutex           5U
-
+#define osRtxErrorStackUnderflow        1U
+#define osRtxErrorISRQueueOverflow      2U
+#define osRtxErrorTimerQueueOverflow    3U
+#define osRtxErrorClibSpace             4U
+#define osRtxErrorClibMutex             5U
+ 
 /// OS Error Callback function
-extern uint32_t os_Error (uint32_t code, void *object_id);
-
+extern uint32_t osRtxErrorNotify (uint32_t code, void *object_id);
+ 
 /// OS Idle Thread
-extern void os_IdleThread (void *argument);
-
+extern void osRtxIdleThread (void *argument);
+ 
 /// OS Exception handlers
 extern void SVC_Handler     (void);
 extern void PendSV_Handler  (void);
 extern void SysTick_Handler (void);
-
-
+ 
+ 
 /// OS System Timer functions (default implementation uses SysTick)
-
+ 
 /// Setup System Timer.
 /// \return system timer IRQ number.
-extern int32_t os_SysTimerSetup (void);
-
+extern int32_t osRtxSysTimerSetup (void);
+ 
 /// Enable System Timer.
-extern void os_SysTimerEnable (void);
-
+extern void osRtxSysTimerEnable (void);
+ 
 /// Disable System Timer.
-extern void os_SysTimerDisable (void);
-
+extern void osRtxSysTimerDisable (void);
+ 
 /// Acknowledge System Timer IRQ.
-extern void os_SysTimerAckIRQ (void);
-
+extern void osRtxSysTimerAckIRQ (void);
+ 
 /// Get System Timer count.
 /// \return system timer count.
-extern uint32_t os_SysTimerGetCount (void);
-
+extern uint32_t osRtxSysTimerGetCount (void);
+ 
 /// Get System Timer frequency.
 /// \return system timer frequency.
-extern uint32_t os_SysTimerGetFreq (void);
-
-
+extern uint32_t osRtxSysTimerGetFreq (void);
+ 
+ 
 //  ==== OS External Configuration ====
-
+ 
 /// OS Configuration flags
-#define os_ConfigPrivilegedMode     (1UL<<0)    ///< Threads in Privileged mode
-#define os_ConfigStackCheck         (1UL<<1)    ///< Stack overrun checking
-#define os_ConfigStackWatermark     (1UL<<2)    ///< Stack usage Watermark
-
+#define osRtxConfigPrivilegedMode   (1UL<<0)    ///< Threads in Privileged mode
+#define osRtxConfigStackCheck       (1UL<<1)    ///< Stack overrun checking
+#define osRtxConfigStackWatermark   (1UL<<2)    ///< Stack usage Watermark
+ 
 /// OS Configuration structure
 typedef struct {
   uint32_t                             flags;   ///< OS Configuration Flags
@@ -448,14 +449,14 @@ typedef struct {
     uint32_t                     common_size;   ///< Common Memory Size
   } mem;
   struct {                                      ///< Memory Pools (Fixed Block Size)
-    os_mp_info_t                      *stack;   ///< Stack for Threads
-    os_mp_info_t                     *thread;   ///< Thread Control Blocks
-    os_mp_info_t                      *timer;   ///< Timer Control Blocks
-    os_mp_info_t                *event_flags;   ///< Event Flags Control Blocks
-    os_mp_info_t                      *mutex;   ///< Mutex Control Blocks
-    os_mp_info_t                  *semaphore;   ///< Semaphore Control Blocks
-    os_mp_info_t                *memory_pool;   ///< Memory Pool Control Blocks
-    os_mp_info_t              *message_queue;   ///< Message Queue Control Blocks
+    osRtxMpInfo_t                     *stack;   ///< Stack for Threads
+    osRtxMpInfo_t                    *thread;   ///< Thread Control Blocks
+    osRtxMpInfo_t                     *timer;   ///< Timer Control Blocks
+    osRtxMpInfo_t               *event_flags;   ///< Event Flags Control Blocks
+    osRtxMpInfo_t                     *mutex;   ///< Mutex Control Blocks
+    osRtxMpInfo_t                 *semaphore;   ///< Semaphore Control Blocks
+    osRtxMpInfo_t               *memory_pool;   ///< Memory Pool Control Blocks
+    osRtxMpInfo_t             *message_queue;   ///< Message Queue Control Blocks
   } mpi;
   uint32_t                 thread_stack_size;   ///< Default Thread Stack Size
   const 
@@ -465,15 +466,14 @@ typedef struct {
   const
   osMessageQueueAttr_t        *timer_mq_attr;   ///< Timer Message Queue Attributes
   uint32_t                     timer_mq_mcnt;   ///< Timer Message Queue maximum Messages
-} os_config_t;
-
-extern const os_config_t os_Config;             ///< OS Configuration
-
-
+} osRtxConfig_t;
+ 
+extern const osRtxConfig_t osRtxConfig;         ///< OS Configuration
+ 
+ 
 #ifdef  __cplusplus
 }
 #endif
-
+ 
 #endif  // RTX_OS_H_
-
 /** @}*/

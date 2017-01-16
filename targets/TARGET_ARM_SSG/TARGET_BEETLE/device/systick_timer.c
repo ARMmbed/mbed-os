@@ -67,15 +67,6 @@ void SysTick_Initialize(void)
 }
 
 /*
- * SysTick_Disable(): Disables the SysTick timer
- */
-void SysTick_Disable(void)
-{
-    /* Disable SysTick */
-    SysTick->CTRL = 0;
-}
-
-/*
  * SysTick_Read(): Read SysTick Value
  * @return: the SysTick VALUE
  */

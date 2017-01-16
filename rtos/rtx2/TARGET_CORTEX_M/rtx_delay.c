@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,7 +7,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -34,28 +34,32 @@ SVC0_2(DelayUntil, osStatus_t, uint32_t, uint32_t)
 
 /// Wait for Timeout (Time Delay).
 /// \note API identical to osDelay
-osStatus_t os_svcDelay (uint32_t ticks) {
+osStatus_t svcRtxDelay (uint32_t ticks) {
 
   if (ticks == 0U) {
     return osOK;
   }
 
-  os_ThreadWaitEnter(os_ThreadWaitingDelay, ticks);
+  osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
 
   return osOK;
 }
 
 /// Wait until specified time.
 /// \note API identical to osDelayUntil
-osStatus_t os_svcDelayUntil (uint32_t ticks_l, uint32_t ticks_h) {
+osStatus_t svcRtxDelayUntil (uint32_t ticks_l, uint32_t ticks_h) {
   uint64_t ticks = ((uint64_t)ticks_l) | ((uint64_t)ticks_h << 32);
 
-  ticks -= os_Info.kernel.tick;
+  ticks -= osRtxInfo.kernel.tick;
   if (ticks >= 0xFFFFFFFFU) {
-    return osError;
+    EvrRtxThreadError(NULL, osErrorParameter);
+    return osErrorParameter;
+  }
+  if (ticks == 0U) {
+    return osOK;
   }
 
-  os_ThreadWaitEnter(os_ThreadWaitingDelay, (uint32_t)ticks);
+  osRtxThreadWaitEnter(osRtxThreadWaitingDelay, (uint32_t)ticks);
 
   return osOK;
 }
@@ -65,7 +69,9 @@ osStatus_t os_svcDelayUntil (uint32_t ticks_l, uint32_t ticks_h) {
 
 /// Wait for Timeout (Time Delay).
 osStatus_t osDelay (uint32_t ticks) {
+  EvrRtxThreadDelay(ticks);
   if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    EvrRtxThreadError(NULL, osErrorISR);
     return osErrorISR;
   }
   return __svcDelay(ticks);
@@ -73,7 +79,9 @@ osStatus_t osDelay (uint32_t ticks) {
 
 /// Wait until specified time.
 osStatus_t osDelayUntil (uint64_t ticks) {
+  EvrRtxThreadDelayUntil(ticks);
   if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+    EvrRtxThreadError(NULL, osErrorISR);
     return osErrorISR;
   }
   return __svcDelayUntil((uint32_t)ticks, (uint32_t)(ticks >> 32));

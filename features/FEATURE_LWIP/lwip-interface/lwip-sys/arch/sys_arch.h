@@ -19,7 +19,7 @@
 #define __ARCH_SYS_ARCH_H__
 
 #include "lwip/opt.h"
-#include "rtx_os.h"
+#include "rtx_lib.h"
 
 extern u8_t lwip_ram_heap[];
 

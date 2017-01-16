@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_cm33.h
  * @brief    CMSIS Cortex-M33 Core Peripheral Access Layer Header File
- * @version  V5.00
- * @date     02. November 2016
+ * @version  V5.0.2
+ * @date     07. December 2016
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
@@ -13,7 +13,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -158,6 +158,7 @@
 #endif
 
 #include "cmsis_compiler.h"               /* CMSIS compiler specific defines */
+
 
 #ifdef __cplusplus
 }
@@ -785,6 +786,12 @@ typedef struct
 #define SCB_DFSR_HALTED_Msk                (1UL /*<< SCB_DFSR_HALTED_Pos*/)               /*!< SCB DFSR: HALTED Mask */
 
 /* SCB Non-Secure Access Control Register Definitions */
+#define SCB_NSACR_CP11_Pos                 11U                                            /*!< SCB NSACR: CP11 Position */
+#define SCB_NSACR_CP11_Msk                 (1UL << SCB_NSACR_CP11_Pos)                    /*!< SCB NSACR: CP11 Mask */
+
+#define SCB_NSACR_CP10_Pos                 10U                                            /*!< SCB NSACR: CP10 Position */
+#define SCB_NSACR_CP10_Msk                 (1UL << SCB_NSACR_CP10_Pos)                    /*!< SCB NSACR: CP10 Mask */
+
 #define SCB_NSACR_CPn_Pos                   0U                                            /*!< SCB NSACR: CPn Position */
 #define SCB_NSACR_CPn_Msk                  (1UL /*<< SCB_NSACR_CPn_Pos*/)                 /*!< SCB NSACR: CPn Mask */
 
@@ -1963,7 +1970,7 @@ typedef struct
   @{
  */
 
-/* Memory mapping of Cortex-M33 Hardware */
+/* Memory mapping of Core Hardware */
   #define SCS_BASE            (0xE000E000UL)                             /*!< System Control Space Base Address */
   #define ITM_BASE            (0xE0000000UL)                             /*!< ITM Base Address */
   #define DWT_BASE            (0xE0001000UL)                             /*!< DWT Base Address */
@@ -2043,6 +2050,25 @@ typedef struct
   @{
  */
 
+#ifndef CMSIS_NVIC_VIRTUAL
+  #define NVIC_SetPriorityGrouping    __NVIC_SetPriorityGrouping
+  #define NVIC_GetPriorityGrouping    __NVIC_GetPriorityGrouping
+  #define NVIC_EnableIRQ              __NVIC_EnableIRQ
+  #define NVIC_GetEnableIRQ           __NVIC_GetEnableIRQ
+  #define NVIC_DisableIRQ             __NVIC_DisableIRQ
+  #define NVIC_GetPendingIRQ          __NVIC_GetPendingIRQ
+  #define NVIC_SetPendingIRQ          __NVIC_SetPendingIRQ
+  #define NVIC_ClearPendingIRQ        __NVIC_ClearPendingIRQ
+  #define NVIC_GetActive              __NVIC_GetActive
+  #define NVIC_SetPriority            __NVIC_SetPriority
+  #define NVIC_GetPriority            __NVIC_GetPriority
+#endif /* CMSIS_NVIC_VIRTUAL */
+
+#ifndef CMSIS_VECTAB_VIRTUAL
+  #define NVIC_SetVector              __NVIC_SetVector
+  #define NVIC_GetVector              __NVIC_GetVector
+#endif  /* (CMSIS_VECTAB_VIRTUAL) */
+
 #define NVIC_USER_IRQ_OFFSET          16
 
 
@@ -2056,7 +2082,7 @@ typedef struct
            priority bits (__NVIC_PRIO_BITS), the smallest possible priority group is set.
   \param [in]      PriorityGroup  Priority grouping field.
  */
-__STATIC_INLINE void NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
+__STATIC_INLINE void __NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
 {
   uint32_t reg_value;
   uint32_t PriorityGroupTmp = (PriorityGroup & (uint32_t)0x07UL);             /* only values 0..7 are used          */
@@ -2075,7 +2101,7 @@ __STATIC_INLINE void NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
   \details Reads the priority grouping field from the NVIC Interrupt Controller.
   \return                Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field).
  */
-__STATIC_INLINE uint32_t NVIC_GetPriorityGrouping(void)
+__STATIC_INLINE uint32_t __NVIC_GetPriorityGrouping(void)
 {
   return ((uint32_t)((SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) >> SCB_AIRCR_PRIGROUP_Pos));
 }
@@ -2087,7 +2113,7 @@ __STATIC_INLINE uint32_t NVIC_GetPriorityGrouping(void)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_EnableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2104,7 +2130,7 @@ __STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
   \return             1  Interrupt is enabled.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetEnableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2123,11 +2149,13 @@ __STATIC_INLINE uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_DisableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
     NVIC->ICER[(((uint32_t)(int32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    __DSB();
+    __ISB();
   }
 }
 
@@ -2140,7 +2168,7 @@ __STATIC_INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
   \return             1  Interrupt status is pending.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetPendingIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2159,7 +2187,7 @@ __STATIC_INLINE uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_SetPendingIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_SetPendingIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2174,7 +2202,7 @@ __STATIC_INLINE void NVIC_SetPendingIRQ(IRQn_Type IRQn)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2191,7 +2219,7 @@ __STATIC_INLINE void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
   \return             1  Interrupt status is active.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE uint32_t NVIC_GetActive(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetActive(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2280,7 +2308,7 @@ __STATIC_INLINE uint32_t NVIC_ClearTargetState(IRQn_Type IRQn)
   \param [in]  priority  Priority to set.
   \note    The priority cannot be set for every processor exception.
  */
-__STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
+__STATIC_INLINE void __NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -2302,7 +2330,7 @@ __STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
   \return             Interrupt Priority.
                       Value is aligned automatically to the implemented priority bits of the microcontroller.
  */
-__STATIC_INLINE uint32_t NVIC_GetPriority(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetPriority(IRQn_Type IRQn)
 {
 
   if ((int32_t)(IRQn) >= 0)
@@ -2377,10 +2405,10 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
   \param [in]   IRQn      Interrupt number
   \param [in]   vector    Address of interrupt handler function
  */
-__STATIC_INLINE void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+__STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-    vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+  vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
 
 
@@ -2392,10 +2420,10 @@ __STATIC_INLINE void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
   \param [in]   IRQn      Interrupt number.
   \return                 Address of interrupt handler function
  */
-__STATIC_INLINE uint32_t NVIC_GetVector(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-    return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+  return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
 }
 
 

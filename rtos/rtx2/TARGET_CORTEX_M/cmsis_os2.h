@@ -1,6 +1,5 @@
 /** \addtogroup rtos */
 /** @{*/
-
 /*
  * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
  *
@@ -10,7 +9,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -20,13 +19,19 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        20. October 2016
- * $Revision:    V2.0
+ * $Date:        10. January 2017
+ * $Revision:    V2.1.0
  *
  * Project:      CMSIS-RTOS2 API
  * Title:        cmsis_os2.h header file
  *
- * Version 2.0
+ * Version 2.1.0
+ *    Support for critical and uncritical sections (nesting safe):
+ *    - updated: osKernelLock, osKernelUnlock
+ *    - added: osKernelRestoreLock
+ *    Updated Thread and Event Flags:
+ *    - changed flags parameter and return type from int32_t to uint32_t
+ * Version 2.0.0
  *    Initial Release
  *---------------------------------------------------------------------------*/
  
@@ -46,7 +51,7 @@
 #define __NO_RETURN
 #endif
 #endif
-
+ 
 #include <stdint.h>
 #include <stddef.h>
  
@@ -54,7 +59,8 @@
 extern "C"
 {
 #endif
-
+ 
+ 
 //  ==== Enumerations, structures, defines ====
  
 /// Version information.
@@ -143,10 +149,10 @@ typedef enum {
 } osPriority_t;
  
 /// Entry point of a thread.
-typedef void (*os_thread_func_t) (void *argument);
+typedef void (*osThreadFunc_t) (void *argument);
  
 /// Entry point of a timer call back function.
-typedef void (*os_timer_func_t) (void *argument);
+typedef void (*osTimerFunc_t) (void *argument);
  
 /// Timer type.
 typedef enum {
@@ -301,11 +307,17 @@ osKernelState_t osKernelGetState (void);
 osStatus_t osKernelStart (void);
  
 /// Lock the RTOS Kernel scheduler.
-/// \return 0 already locked, 1 locked.
-uint32_t osKernelLock (void);
+/// \return previous lock state (1 - locked, 0 - not locked, error code if negative).
+int32_t osKernelLock (void);
  
 /// Unlock the RTOS Kernel scheduler.
-void osKernelUnlock (void);
+/// \return previous lock state (1 - locked, 0 - not locked, error code if negative).
+int32_t osKernelUnlock (void);
+ 
+/// Restore the RTOS Kernel scheduler lock state.
+/// \param[in]     lock          lock state obtained by \ref osKernelLock or \ref osKernelUnlock.
+/// \return new lock state (1 - locked, 0 - not locked, error code if negative).
+int32_t osKernelRestoreLock (int32_t lock);
  
 /// Suspend the RTOS Kernel scheduler.
 /// \return time in ticks, for how long the system can sleep or power-down.
@@ -339,7 +351,7 @@ uint32_t osKernelGetSysTimerFreq (void);
 /// \param[in]     argument      pointer that is passed to the thread function as start argument.
 /// \param[in]     attr          thread attributes; NULL: default values.
 /// \return thread ID for reference by other functions or NULL in case of error.
-osThreadId_t osThreadNew (os_thread_func_t func, void *argument, const osThreadAttr_t *attr);
+osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr);
  
 /// Get name of a thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
@@ -424,24 +436,24 @@ uint32_t osThreadEnumerate (osThreadId_t *thread_array, uint32_t array_items);
 /// Set the specified Thread Flags of a thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
 /// \param[in]     flags         specifies the flags of the thread that shall be set.
-/// \return thread flags after setting or error code if negative.
-int32_t osThreadFlagsSet (osThreadId_t thread_id, int32_t flags);
+/// \return thread flags after setting or error code if highest bit set.
+uint32_t osThreadFlagsSet (osThreadId_t thread_id, uint32_t flags);
  
 /// Clear the specified Thread Flags of current running thread.
 /// \param[in]     flags         specifies the flags of the thread that shall be cleared.
-/// \return thread flags before clearing or error code if negative.
-int32_t osThreadFlagsClear (int32_t flags);
+/// \return thread flags before clearing or error code if highest bit set.
+uint32_t osThreadFlagsClear (uint32_t flags);
  
 /// Get the current Thread Flags of current running thread.
 /// \return current thread flags.
-int32_t osThreadFlagsGet (void);
+uint32_t osThreadFlagsGet (void);
  
 /// Wait for one or more Thread Flags of the current running thread to become signaled.
 /// \param[in]     flags         specifies the flags to wait for.
 /// \param[in]     options       specifies flags options (osFlagsXxxx).
 /// \param[in]     timeout       \ref CMSIS_RTOS_TimeOutValue or 0 in case of no time-out.
-/// \return thread flags before clearing or error code if negative.
-int32_t osThreadFlagsWait (int32_t flags, uint32_t options, uint32_t timeout);
+/// \return thread flags before clearing or error code if highest bit set.
+uint32_t osThreadFlagsWait (uint32_t flags, uint32_t options, uint32_t timeout);
  
  
 //  ==== Generic Wait Functions ====
@@ -465,7 +477,7 @@ osStatus_t osDelayUntil (uint64_t ticks);
 /// \param[in]     argument      argument to the timer call back function.
 /// \param[in]     attr          timer attributes; NULL: default values.
 /// \return timer ID for reference by other functions or NULL in case of error.
-osTimerId_t osTimerNew (os_timer_func_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr);
+osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr);
  
 /// Get name of a timer.
 /// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.
@@ -509,27 +521,27 @@ const char *osEventFlagsGetName (osEventFlagsId_t ef_id);
 /// Set the specified Event Flags.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
 /// \param[in]     flags         specifies the flags that shall be set.
-/// \return event flags after setting or error code if negative.
-int32_t osEventFlagsSet (osEventFlagsId_t ef_id, int32_t flags);
+/// \return event flags after setting or error code if highest bit set.
+uint32_t osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags);
  
 /// Clear the specified Event Flags.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
 /// \param[in]     flags         specifies the flags that shall be cleared.
-/// \return event flags before clearing or error code if negative.
-int32_t osEventFlagsClear (osEventFlagsId_t ef_id, int32_t flags);
+/// \return event flags before clearing or error code if highest bit set.
+uint32_t osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags);
  
 /// Get the current Event Flags.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
 /// \return current event flags.
-int32_t osEventFlagsGet (osEventFlagsId_t ef_id);
+uint32_t osEventFlagsGet (osEventFlagsId_t ef_id);
  
 /// Wait for one or more Event Flags to become signaled.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
 /// \param[in]     flags         specifies the flags to wait for.
 /// \param[in]     options       specifies flags options (osFlagsXxxx).
 /// \param[in]     timeout       \ref CMSIS_RTOS_TimeOutValue or 0 in case of no time-out.
-/// \return event flags before clearing or error code if negative.
-int32_t osEventFlagsWait (osEventFlagsId_t ef_id, int32_t flags, uint32_t options, uint32_t timeout);
+/// \return event flags before clearing or error code if highest bit set.
+uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout);
  
 /// Delete an Event Flags object.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
@@ -725,6 +737,4 @@ osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id);
 #endif
  
 #endif  // CMSIS_OS2_H_
-
 /** @}*/
-

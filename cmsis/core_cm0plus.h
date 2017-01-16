@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_cm0plus.h
  * @brief    CMSIS Cortex-M0+ Core Peripheral Access Layer Header File
- * @version  V5.00
- * @date     13. September 2016
+ * @version  V5.0.1
+ * @date     25. November 2016
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
@@ -13,7 +13,7 @@
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -176,14 +176,6 @@
 #define     __IM     volatile const      /*! Defines 'read only' structure member permissions */
 #define     __OM     volatile            /*! Defines 'write only' structure member permissions */
 #define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
-
-#ifdef __cplusplus
-  #define   __IM    volatile             /*!< Defines 'read only' permissions                 */
-#else
-  #define   __IM    volatile const       /*!< Defines 'read only' permissions                 */
-#endif
-#define     __OM    volatile             /*!< Defines 'write only' permissions                */
-#define     __IOM   volatile             /*!< Defines 'read / write' permissions              */
 
 /*@} end of group Cortex-M0+ */
 
@@ -648,7 +640,7 @@ typedef struct
   @{
  */
 
-/* Memory mapping of Cortex-M0+ Hardware */
+/* Memory mapping of Core Hardware */
 #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
 #define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
 #define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
@@ -688,6 +680,28 @@ typedef struct
   @{
  */
 
+#ifndef CMSIS_NVIC_VIRTUAL
+/*#define NVIC_SetPriorityGrouping    __NVIC_SetPriorityGrouping   not available for Cortex-M0+ */
+/*#define NVIC_GetPriorityGrouping    __NVIC_GetPriorityGrouping   not available for Cortex-M0+ */
+  #define NVIC_EnableIRQ              __NVIC_EnableIRQ
+  #define NVIC_GetEnableIRQ           __NVIC_GetEnableIRQ
+  #define NVIC_DisableIRQ             __NVIC_DisableIRQ
+  #define NVIC_GetPendingIRQ          __NVIC_GetPendingIRQ
+  #define NVIC_SetPendingIRQ          __NVIC_SetPendingIRQ
+  #define NVIC_ClearPendingIRQ        __NVIC_ClearPendingIRQ
+/*#define NVIC_GetActive              __NVIC_GetActive             not available for Cortex-M0+ */
+  #define NVIC_SetPriority            __NVIC_SetPriority
+  #define NVIC_GetPriority            __NVIC_GetPriority
+#endif /* CMSIS_NVIC_VIRTUAL */
+
+#ifndef CMSIS_VECTAB_VIRTUAL
+  #define NVIC_SetVector              __NVIC_SetVector
+  #define NVIC_GetVector              __NVIC_GetVector
+#endif  /* (CMSIS_VECTAB_VIRTUAL) */
+
+#define NVIC_USER_IRQ_OFFSET          16
+
+
 /* Interrupt Priorities are WORD accessible only under ARMv6M                   */
 /* The following MACROS handle generation of the register offset and byte masks */
 #define _BIT_SHIFT(IRQn)         (  ((((uint32_t)(int32_t)(IRQn))         )      &  0x03UL) * 8UL)
@@ -701,7 +715,7 @@ typedef struct
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_EnableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -718,7 +732,7 @@ __STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
   \return             1  Interrupt is enabled.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetEnableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -737,7 +751,7 @@ __STATIC_INLINE uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_DisableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -756,7 +770,7 @@ __STATIC_INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
   \return             1  Interrupt status is pending.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetPendingIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -775,7 +789,7 @@ __STATIC_INLINE uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_SetPendingIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_SetPendingIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -790,7 +804,7 @@ __STATIC_INLINE void NVIC_SetPendingIRQ(IRQn_Type IRQn)
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
  */
-__STATIC_INLINE void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
+__STATIC_INLINE void __NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -808,7 +822,7 @@ __STATIC_INLINE void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
   \param [in]  priority  Priority to set.
   \note    The priority cannot be set for every processor exception.
  */
-__STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
+__STATIC_INLINE void __NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
 {
   if ((int32_t)(IRQn) >= 0)
   {
@@ -832,7 +846,7 @@ __STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
   \return             Interrupt Priority.
                       Value is aligned automatically to the implemented priority bits of the microcontroller.
  */
-__STATIC_INLINE uint32_t NVIC_GetPriority(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetPriority(IRQn_Type IRQn)
 {
 
   if ((int32_t)(IRQn) >= 0)
@@ -845,8 +859,6 @@ __STATIC_INLINE uint32_t NVIC_GetPriority(IRQn_Type IRQn)
   }
 }
 
-#if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
-  #define NVIC_USER_IRQ_OFFSET          16
 
 /**
   \brief   Set Interrupt Vector
@@ -854,13 +866,18 @@ __STATIC_INLINE uint32_t NVIC_GetPriority(IRQn_Type IRQn)
            The interrupt number can be positive to specify a device specific interrupt,
            or negative to specify a processor exception.
            VTOR must been relocated to SRAM before.
+           If VTOR is not present address 0 must be mapped to SRAM.
   \param [in]   IRQn      Interrupt number
   \param [in]   vector    Address of interrupt handler function
  */
-__STATIC_INLINE void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+__STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-    vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
+#if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+#else
+    uint32_t *vectors = (uint32_t *)0x0U;
+#endif
+  vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
 
 
@@ -872,12 +889,17 @@ __STATIC_INLINE void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
   \param [in]   IRQn      Interrupt number.
   \return                 Address of interrupt handler function
  */
-__STATIC_INLINE uint32_t NVIC_GetVector(IRQn_Type IRQn)
+__STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-    return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
-}
+#if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+#else
+  uint32_t *vectors = (uint32_t *)0x0U;
 #endif
+  return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
+
+}
+
 
 /**
   \brief   System Reset
