@@ -144,13 +144,13 @@ typedef enum
 #define NRF_BREAKPOINT_COND NRF_BREAKPOINT
 #endif // __CORTEX_M == 0x04
 
-#if defined ( __CC_ARM )
-#define PACKED(TYPE) __packed TYPE
-#define PACKED_STRUCT PACKED(struct)
-#elif defined   ( __GNUC__ )
-#define PACKED __attribute__((packed))
-#define PACKED_STRUCT struct PACKED
-#endif
+// #if defined ( __CC_ARM )
+// #define PACKED(TYPE) __packed TYPE
+// #define PACKED_STRUCT PACKED(struct)
+// #elif defined   ( __GNUC__ )
+// #define PACKED __attribute__((packed))
+// #define PACKED_STRUCT struct PACKED
+// #endif
 
 void app_util_critical_region_enter (uint8_t *p_nested);
 void app_util_critical_region_exit (uint8_t nested);

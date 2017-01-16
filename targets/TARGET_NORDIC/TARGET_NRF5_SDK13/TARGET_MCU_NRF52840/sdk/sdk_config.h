@@ -6,6 +6,87 @@
 #ifdef USE_APP_CONFIG
 #include "app_config.h"
 #endif
+// <h> Application 
+
+//==========================================================
+// <o> NRF_BLE_CENTRAL_LINK_COUNT - Number of central links 
+#ifndef NRF_BLE_CENTRAL_LINK_COUNT
+#define NRF_BLE_CENTRAL_LINK_COUNT 0
+#endif
+
+// <o> NRF_BLE_CENTRAL_LINK_COUNT - Number of central links 
+#ifndef NRF_BLE_CENTRAL_LINK_COUNT
+#define NRF_BLE_CENTRAL_LINK_COUNT 0
+#endif
+
+// <o> NRF_BLE_PERIPHERAL_LINK_COUNT - Number of peripheral links 
+#ifndef NRF_BLE_PERIPHERAL_LINK_COUNT
+#define NRF_BLE_PERIPHERAL_LINK_COUNT 1
+#endif
+
+// <o> NRF_BLE_PERIPHERAL_LINK_COUNT - Number of peripheral links 
+#ifndef NRF_BLE_PERIPHERAL_LINK_COUNT
+#define NRF_BLE_PERIPHERAL_LINK_COUNT 1
+#endif
+
+// </h> 
+//==========================================================
+
+// <h> nRF_BLE 
+
+//==========================================================
+// <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
+ 
+
+#ifndef BLE_ADVERTISING_ENABLED
+#define BLE_ADVERTISING_ENABLED 1
+#endif
+
+// <q> BLE_DTM_ENABLED  - ble_dtm - Module for testing RF/PHY using DTM commands
+ 
+
+#ifndef BLE_DTM_ENABLED
+#define BLE_DTM_ENABLED 0
+#endif
+
+// <q> BLE_RACP_ENABLED  - ble_racp - Record Access Control Point library
+ 
+
+#ifndef BLE_RACP_ENABLED
+#define BLE_RACP_ENABLED 0
+#endif
+
+// <e> NRF_BLE_GATT_ENABLED - nrf_ble_gatt - GATT module
+//==========================================================
+#ifndef NRF_BLE_GATT_ENABLED
+#define NRF_BLE_GATT_ENABLED 1
+#endif
+#if  NRF_BLE_GATT_ENABLED
+// <o> NRF_BLE_GATT_MAX_MTU_SIZE - Static maximum MTU size that is passed to the @ref sd_ble_enable function. 
+#ifndef NRF_BLE_GATT_MAX_MTU_SIZE
+#define NRF_BLE_GATT_MAX_MTU_SIZE 158
+#endif
+
+#endif //NRF_BLE_GATT_ENABLED
+// </e>
+
+// <q> NRF_BLE_QWR_ENABLED  - nrf_ble_qwr - Queued writes support module (prepare/execute write)
+ 
+
+#ifndef NRF_BLE_QWR_ENABLED
+#define NRF_BLE_QWR_ENABLED 0
+#endif
+
+// <q> PEER_MANAGER_ENABLED  - peer_manager - Peer Manager
+ 
+
+#ifndef PEER_MANAGER_ENABLED
+#define PEER_MANAGER_ENABLED 1
+#endif
+
+// </h> 
+//==========================================================
+
 // <h> nRF_Drivers 
 
 //==========================================================

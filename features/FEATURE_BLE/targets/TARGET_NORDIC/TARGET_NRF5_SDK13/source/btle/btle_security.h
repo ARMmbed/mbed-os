@@ -84,6 +84,7 @@ ble_error_t btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager
  */
 ble_error_t btle_purgeAllBondingState(void);
 
+#if  (NRF_SD_BLE_API_VERSION <= 2)
 /**
  * Query the SoftDevice bond table to extract a whitelist containing the BLE
  * addresses and IRKs of bonded devices.
@@ -98,6 +99,7 @@ ble_error_t btle_purgeAllBondingState(void);
  * @return BLE_ERROR_NONE Or appropriate error code indicating reason for failure.
  */
 ble_error_t btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist);
+#endif
 
 /**
  * Function to test whether a BLE address is generated using an IRK.
