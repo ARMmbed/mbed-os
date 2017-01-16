@@ -71,7 +71,6 @@ struct trng_s {
 };
 
 #include "common_objects.h"
-#include "gpio_object.h"
 
 #ifdef __cplusplus
 }
