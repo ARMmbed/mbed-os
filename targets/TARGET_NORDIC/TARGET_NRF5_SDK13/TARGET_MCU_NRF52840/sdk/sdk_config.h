@@ -2986,6 +2986,53 @@
 #define CRC32_ENABLED 1
 #endif
 
+// <e> FDS_ENABLED - fds - Flash data storage module
+//==========================================================
+#ifndef FDS_ENABLED
+#define FDS_ENABLED 1
+#endif
+#if  FDS_ENABLED
+// <o> FDS_OP_QUEUE_SIZE - Size of the internal queue. 
+#ifndef FDS_OP_QUEUE_SIZE
+#define FDS_OP_QUEUE_SIZE 4
+#endif
+
+// <o> FDS_CHUNK_QUEUE_SIZE - Determines how many @ref fds_record_chunk_t structures can be buffered at any time. 
+#ifndef FDS_CHUNK_QUEUE_SIZE
+#define FDS_CHUNK_QUEUE_SIZE 8
+#endif
+
+// <o> FDS_MAX_USERS - Maximum number of callbacks that can be registered. 
+#ifndef FDS_MAX_USERS
+#define FDS_MAX_USERS 8
+#endif
+
+// <o> FDS_VIRTUAL_PAGES - Number of virtual flash pages to use. 
+// <i> One of the virtual pages is reserved by the system for garbage collection.
+// <i> Therefore, the minimum is two virtual pages: one page to store data and
+// <i> one page to be used by the system for garbage collection. The total amount
+// <i> of flash memory that is used by FDS amounts to @ref FDS_VIRTUAL_PAGES
+// <i> @ref FDS_VIRTUAL_PAGE_SIZE * 4 bytes.
+
+#ifndef FDS_VIRTUAL_PAGES
+#define FDS_VIRTUAL_PAGES 3
+#endif
+
+// <o> FDS_VIRTUAL_PAGE_SIZE  - The size of a virtual page of flash memory, expressed in number of 4-byte words.
+ 
+
+// <i> By default, a virtual page is the same size as a physical page.
+// <i> The size of a virtual page must be a multiple of the size of a physical page.
+// <1024=> 1024 
+// <2048=> 2048 
+
+#ifndef FDS_VIRTUAL_PAGE_SIZE
+#define FDS_VIRTUAL_PAGE_SIZE 1024
+#endif
+
+#endif //FDS_ENABLED
+// </e>
+
 // <e> FSTORAGE_ENABLED - fstorage - Flash storage module
 //==========================================================
 #ifndef FSTORAGE_ENABLED
