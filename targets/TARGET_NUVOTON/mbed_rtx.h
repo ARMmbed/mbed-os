@@ -17,6 +17,8 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#include <stdint.h>
+
 #if defined(TARGET_NUMAKER_PFM_NUC472)
 
 #ifndef OS_MAINSTKSIZE
