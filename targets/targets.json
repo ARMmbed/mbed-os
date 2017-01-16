@@ -226,7 +226,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "INTERRUPTIN", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE"],
         "default_lib": "small",
         "release_versions": ["2"],
-        "device_name": "lpc1549"
+        "device_name": "LPC1549JBD64"
     },
     "LPC1768": {
         "inherits": ["LPCTarget"],
@@ -632,7 +632,7 @@
         "detect_code": ["0217"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
-        "device_name" : "MK66FN256xxx15"
+        "device_name" : "MK82FN256xxx15"
     },
     "NUCLEO_F030R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -1073,7 +1073,7 @@
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2","USBHOST_OTHER"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
-        "device_name": "stm32l476rg"
+        "device_name": "STM32L476RG"
     },
     "NUCLEO_L486RG": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -1085,7 +1085,7 @@
         "detect_code": ["0827"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
-        "device_name": "stm32l486rg"
+        "device_name": "STM32L486RG"
     },
     "STM32F3XX": {
         "inherits": ["Target"],
@@ -1239,7 +1239,7 @@
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
-        "device_name": "stm32l476vg"
+        "device_name": "STM32L476VG"
     },
     "MTS_MDOT_F405RG": {
         "inherits": ["Target"],
@@ -1827,8 +1827,7 @@
         "macros": ["CMSDK_BEETLE", "WSF_MS_PER_TICK=20", "WSF_TOKEN_ENABLED=FALSE", "WSF_TRACE_ENABLED=TRUE", "WSF_ASSERT_ENABLED=FALSE", "WSF_PRINTF_MAX_LEN=128", "ASIC", "CONFIG_HOST_REV=0x20", "CONFIG_ALLOW_DEEP_SLEEP=FALSE", "HCI_VS_TARGET", "CONFIG_ALLOW_SETTING_WRITE=TRUE", "WSF_MAX_HANDLERS=20", "NO_LEDS"],
         "device_has": ["ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "SPI"],
         "features": ["BLE"],
-        "release_versions": ["2", "5"],
-        "device_name": "beetle"
+        "release_versions": ["2", "5"]
     },
     "RZ_A1H": {
         "supported_form_factors": ["ARDUINO"],
@@ -1839,8 +1838,7 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "release_versions": ["2", "5"],
-        "device_name": "r7s721001"
+        "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
         "inherits": ["Target"],
@@ -1852,8 +1850,7 @@
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "default_lib": "std",
-        "release_versions": ["2", "5"],
-        "device_name": "r7s721000"
+        "release_versions": ["2", "5"]
     },
     "MAXWSNENV": {
         "inherits": ["Target"],
@@ -1872,8 +1869,7 @@
         "extra_labels": ["Maxim", "MAX32600"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"],
-        "device_name": "max326000x85"
+        "release_versions": ["2", "5"]
     },
     "MAX32620HSP": {
         "inherits": ["Target"],
@@ -2252,7 +2248,6 @@
         "macros": ["EFR32MG1P233F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
-        "device_name": "EFR32MG1P233F256GM48",
         "public": false
     },
     "EFR32MG1_BRD4150": {
@@ -2600,7 +2595,6 @@
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER", "TRNG"],
-        "device_name": "NCS36510",
         "release_versions": ["2", "5"]
     },
     "NUMAKER_PFM_M453": {
