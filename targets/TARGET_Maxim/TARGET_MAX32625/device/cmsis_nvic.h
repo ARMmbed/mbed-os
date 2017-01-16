@@ -34,6 +34,8 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
+static void (*ramVectorTable[MXC_IRQ_COUNT])(void);
+
 #define NVIC_NUM_VECTORS        (MXC_IRQ_COUNT)
 #define NVIC_RAM_VECTOR_ADDRESS (ramVectorTable)    // Vectors positioned at start of RAM
 
