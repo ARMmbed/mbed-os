@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(S130) || defined(S132)
+#if defined(S130) || defined(S132) || defined(S140)
 #include "btle.h"
 
 #include "nRF5xn.h"
@@ -393,6 +393,7 @@ void pm_handler(pm_evt_t const *p_event)
     }
 }
 
+#if  (NRF_SD_BLE_API_VERSION <= 2)
 ble_error_t
 btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
 {
@@ -408,7 +409,7 @@ btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
         return BLE_ERROR_INVALID_STATE;
     }
 }
-
+#endif
 
 bool
 btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk)

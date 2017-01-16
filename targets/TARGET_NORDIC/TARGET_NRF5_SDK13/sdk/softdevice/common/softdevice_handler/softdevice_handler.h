@@ -66,7 +66,7 @@
 #include "ble_stack_handler_types.h"
 #include "ant_stack_handler_types.h"
 #if defined(BLE_STACK_SUPPORT_REQD)
-    #include "ble.h"
+    #include "headers\ble.h"
 #endif
 #include "app_ram_base.h"
 

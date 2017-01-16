@@ -2582,7 +2582,7 @@
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "MERGE_BOOTLOADER": false,
-        "features": [],
+        "features": ["BLE"],
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",

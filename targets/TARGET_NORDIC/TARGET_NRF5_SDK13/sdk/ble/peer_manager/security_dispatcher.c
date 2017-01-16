@@ -41,7 +41,7 @@
 #include "security_dispatcher.h"
 
 #include <string.h>
-#include "ble.h"
+#include "headers\ble.h"
 #include "ble_gap.h"
 #include "ble_conn_state.h"
 #include "peer_manager_types.h"

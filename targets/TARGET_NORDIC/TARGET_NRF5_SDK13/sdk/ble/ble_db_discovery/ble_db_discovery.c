@@ -40,7 +40,7 @@
 #if NRF_MODULE_ENABLED(BLE_DB_DISCOVERY)
 #include "ble_db_discovery.h"
 #include <stdlib.h>
-#include "ble.h"
+#include "headers\ble.h"
 #include "ble_srv_common.h"
 #define NRF_LOG_MODULE_NAME "BLE_DB_DISC"
 #include "nrf_log.h"

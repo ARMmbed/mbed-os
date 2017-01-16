@@ -136,6 +136,7 @@ void nRF5xCharacteristicDescriptorDiscoverer::processAttributeInformation(
         return;
     }
 
+#if  (NRF_SD_BLE_API_VERSION <= 2)   
     // for all UUIDS found, process the discovery
     for (uint16_t i = 0; i < infos.count; ++i) {
         bool use_16bits_uuids = infos.format == BLE_GATTC_ATTR_INFO_FORMAT_16BIT;
@@ -143,9 +144,30 @@ void nRF5xCharacteristicDescriptorDiscoverer::processAttributeInformation(
         UUID uuid = use_16bits_uuids ? UUID(attr_info.info.uuid16.uuid) : UUID(attr_info.info.uuid128.uuid128,  UUID::LSB);
         discovery->process(attr_info.handle, uuid);
     }
-
     // prepare the next round of descriptors discovery
     uint16_t startHandle = infos.attr_info[infos.count - 1].handle + 1;
+#else
+    uint16_t startHandle;
+    // for all UUIDS found, process the discovery
+    if (infos.format == BLE_GATTC_ATTR_INFO_FORMAT_16BIT) {
+
+        for (uint16_t i = 0; i < infos.count; ++i) {
+            UUID uuid = UUID(infos.info.attr_info16[i].uuid.uuid);
+            discovery->process(infos.info.attr_info16[i].handle, uuid);
+        }
+        
+        // prepare the next round of descriptors discovery
+        startHandle = infos.info.attr_info16[infos.count - 1].handle + 1;
+    } else {
+        for (uint16_t i = 0; i < infos.count; ++i) {
+            UUID uuid = UUID(infos.info.attr_info128[i].uuid.uuid128,  UUID::LSB);
+            discovery->process(infos.info.attr_info128[i].handle, uuid);
+        }
+        
+        // prepare the next round of descriptors discovery
+        startHandle = infos.info.attr_info128[infos.count - 1].handle + 1;
+    }
+#endif
     uint16_t endHandle = discovery->getCharacteristic().getLastHandle();
 
     if(startHandle > endHandle) {

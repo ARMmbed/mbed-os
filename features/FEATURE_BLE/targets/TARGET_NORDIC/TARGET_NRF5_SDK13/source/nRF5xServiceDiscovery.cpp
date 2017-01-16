@@ -286,7 +286,15 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_
     if (state == DISCOVER_SERVICE_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
             UUID::LongUUIDBytes_t uuid;
+            
+#if (NRF_SD_BLE_API_VERSION >= 3)            
+            ble_gattc_handle_value_t iter;
+            memset(&iter, 0, sizeof(ble_gattc_handle_value_t));
+            (void) sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter((ble_gattc_evt_t*)response, &iter);
+            memcpy(uuid, iter.p_value, UUID::LENGTH_OF_LONG_UUID);
+#else
             memcpy(uuid, response->handle_value[0].p_value, UUID::LENGTH_OF_LONG_UUID);
+#endif
 
             unsigned serviceIndex = serviceUUIDDiscoveryQueue.dequeue();
             services[serviceIndex].setupLongUUID(uuid, UUID::LSB);
@@ -298,9 +306,16 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_
     } else if (state == DISCOVER_CHARACTERISTIC_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID + 1 /* props */ + 2 /* value handle */)) {
             UUID::LongUUIDBytes_t uuid;
-
+            
+#if (NRF_SD_BLE_API_VERSION >= 3)            
+            ble_gattc_handle_value_t iter;
+            memset(&iter, 0, sizeof(ble_gattc_handle_value_t));
+            (void) sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter((ble_gattc_evt_t*)response, &iter);
+            memcpy(uuid, &(iter.p_value[3]), UUID::LENGTH_OF_LONG_UUID);
+#else
             memcpy(uuid, &(response->handle_value[0].p_value[3]), UUID::LENGTH_OF_LONG_UUID);
-
+#endif
+        
             unsigned charIndex = charUUIDDiscoveryQueue.dequeue();
             characteristics[charIndex].setupLongUUID(uuid, UUID::LSB);
 

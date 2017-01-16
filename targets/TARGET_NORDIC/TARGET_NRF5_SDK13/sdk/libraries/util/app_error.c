@@ -63,6 +63,7 @@
  */
 
 /*lint -save -e14 */
+#if (!defined(FEATURE_BLE) && defined(__MBED__)) || !defined(__MBED__) // remove implementation for mbed-os BLE
 void app_error_handler(ret_code_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
     error_info_t error_info =
@@ -75,6 +76,7 @@ void app_error_handler(ret_code_t error_code, uint32_t line_num, const uint8_t *
 
     UNUSED_VARIABLE(error_info);
 }
+#endif
 
 /*lint -save -e14 */
 void app_error_handler_bare(ret_code_t error_code)
