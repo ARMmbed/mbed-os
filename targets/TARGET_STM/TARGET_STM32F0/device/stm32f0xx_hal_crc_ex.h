@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of CRC HAL extension module.
   ******************************************************************************
   * @attention
@@ -62,7 +62,7 @@
 /** @defgroup CRCEx_Input_Data_Inversion Input Data Inversion Modes
   * @{
   */
-#define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000)
+#define CRC_INPUTDATA_INVERSION_NONE              (0x00000000U)
 #define CRC_INPUTDATA_INVERSION_BYTE              ((uint32_t)CRC_CR_REV_IN_0)
 #define CRC_INPUTDATA_INVERSION_HALFWORD          ((uint32_t)CRC_CR_REV_IN_1)
 #define CRC_INPUTDATA_INVERSION_WORD              ((uint32_t)CRC_CR_REV_IN)
@@ -78,7 +78,7 @@
 /** @defgroup CRCEx_Output_Data_Inversion Output Data Inversion Modes
   * @{
   */
-#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000)
+#define CRC_OUTPUTDATA_INVERSION_DISABLE         (0x00000000U)
 #define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)
 
 #define IS_CRC_OUTPUTDATA_INVERSION_MODE(MODE)    (((MODE) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \
@@ -91,7 +91,7 @@
   * @{
   */
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
-#define CRC_POLYLENGTH_32B                  ((uint32_t)0x00000000)
+#define CRC_POLYLENGTH_32B                  (0x00000000U)
 #define CRC_POLYLENGTH_16B                  ((uint32_t)CRC_CR_POLYSIZE_0)
 #define CRC_POLYLENGTH_8B                   ((uint32_t)CRC_CR_POLYSIZE_1)
 #define CRC_POLYLENGTH_7B                   ((uint32_t)CRC_CR_POLYSIZE)
@@ -100,7 +100,7 @@
                                        ((LENGTH) == CRC_POLYLENGTH_8B)  || \
                                        ((LENGTH) == CRC_POLYLENGTH_7B))  
 #else
-#define CRC_POLYLENGTH_32B                  ((uint32_t)0x00000000)
+#define CRC_POLYLENGTH_32B                  (0x00000000U)
 #define IS_CRC_POL_LENGTH(LENGTH)     ((LENGTH) == CRC_POLYLENGTH_32B)  
 #endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) */
 /**
@@ -111,12 +111,12 @@
   * @{
   */
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
-#define HAL_CRC_LENGTH_32B     32
-#define HAL_CRC_LENGTH_16B     16
-#define HAL_CRC_LENGTH_8B       8
-#define HAL_CRC_LENGTH_7B       7
+#define HAL_CRC_LENGTH_32B     32U
+#define HAL_CRC_LENGTH_16B     16U
+#define HAL_CRC_LENGTH_8B       8U
+#define HAL_CRC_LENGTH_7B       7U
 #else
-#define HAL_CRC_LENGTH_32B     32
+#define HAL_CRC_LENGTH_32B     32U
 #endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) */
 /**
   * @}

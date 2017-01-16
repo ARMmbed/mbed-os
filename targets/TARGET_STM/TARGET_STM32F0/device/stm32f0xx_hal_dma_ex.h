@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dma_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of DMA HAL Extension module.
   ******************************************************************************
   * @attention
@@ -794,15 +794,15 @@
 #if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 #define __HAL_DMA1_REMAP(__REQUEST__)                                                              \
          do { assert_param(IS_HAL_DMA1_REMAP(__REQUEST__));                                             \
-              DMA1->CSELR &= ~((uint32_t)0x0F << (uint32_t)(((__REQUEST__) >> 28) * 4)); \
-              DMA1->CSELR |= (uint32_t)((__REQUEST__) & 0x0FFFFFFF);                                     \
+              DMA1->CSELR &= ~(0x0FU << (uint32_t)(((__REQUEST__) >> 28U) * 4U)); \
+              DMA1->CSELR |= (uint32_t)((__REQUEST__) & 0x0FFFFFFFU);                                     \
   }while(0)
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
 #define __HAL_DMA2_REMAP(__REQUEST__)                                                              \
          do { assert_param(IS_HAL_DMA2_REMAP(__REQUEST__));                                             \
-              DMA2->CSELR &= ~((uint32_t)0x0F << (uint32_t)(((__REQUEST__) >> 28) * 4)); \
-              DMA2->CSELR |= (uint32_t)((__REQUEST__) & 0x0FFFFFFF);                                     \
+              DMA2->CSELR &= ~(0x0FU << (uint32_t)(((__REQUEST__) >> 28U) * 4U)); \
+              DMA2->CSELR |= (uint32_t)((__REQUEST__) & 0x0FFFFFFFU);                                     \
          }while(0)
 #endif /* STM32F091xC || STM32F098xx */
 

@@ -2,7 +2,7 @@
 import os
 from abc import abstractmethod, ABCMeta
 import logging
-from os.path import join, dirname, relpath, basename, realpath
+from os.path import join, dirname, relpath, basename, realpath, normpath
 from itertools import groupby
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
@@ -130,9 +130,13 @@ class Exporter(object):
         Positional Arguments:
         src - the src's location
         """
-        key = basename(dirname(src))
-        if key == ".":
-            key = basename(realpath(self.export_dir))
+        rel_path = relpath(src, self.resources.file_basepath[src])
+        path_list = os.path.normpath(rel_path).split(os.sep)
+        assert path_list >= 1
+        if len(path_list) == 1:
+            key = self.project_name
+        else:
+            key = path_list[0]
         return key
 
     def group_project_files(self, sources):

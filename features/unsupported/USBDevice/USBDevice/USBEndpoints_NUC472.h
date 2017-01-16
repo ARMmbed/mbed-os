@@ -16,9 +16,9 @@
 #define NU_MAX_EPX_BUFSIZE      4096
 #define NU_EP2EPL(ep)           ((ep) >> 1)
 #define NU_EP2EPH(ep)           (((ep) >> 1) - 1)
-#define NU_EPX2EP(ep)          ((ep == CEP) ? EP0OUT : ((ep) - EPA + EP1OUT))
-#define NU_EPL2EPH(ep)					((ep) - 1)
-#define NU_EPH2EPL(ep)					((ep) + 1)
+#define NU_EPX2EP(ep)           ((ep == CEP) ? EP0OUT : ((ep) - EPA + EP1OUT))
+#define NU_EPL2EPH(ep)          ((ep) - 1)
+#define NU_EPH2EPL(ep)          ((ep) + 1)
 #define NU_EP_DIR_Pos           0
 #define NU_EP_DIR_Msk           (1 << NU_EP_DIR_Pos)
 #define NU_EP_DIR_OUT           0
@@ -39,26 +39,26 @@
 #define EP2IN       (5)
 #define EP3OUT      (6)
 #define EP3IN       (7)
-#define EP4OUT     	(8)
-#define EP4IN      	(9)
+#define EP4OUT      (8)
+#define EP4IN       (9)
 #define EP5OUT     (10)
 #define EP5IN      (11)
 #define EP6OUT     (12)
 #define EP6IN      (13)
 
 /* Maximum Packet sizes */
-#define MAX_PACKET_SIZE_EP0   64
-#define MAX_PACKET_SIZE_EP1   64
-#define MAX_PACKET_SIZE_EP2   64
-#define MAX_PACKET_SIZE_EP3   0x60
-#define MAX_PACKET_SIZE_EP4  	64
-#define MAX_PACKET_SIZE_EP5  	64
-#define MAX_PACKET_SIZE_EP6  	64
-#define MAX_PACKET_SIZE_EP7  	64
-#define MAX_PACKET_SIZE_EP8  	64
-#define MAX_PACKET_SIZE_EP9  	64
-#define MAX_PACKET_SIZE_EP10  64
-#define MAX_PACKET_SIZE_EP11  64
+#define MAX_PACKET_SIZE_EP0     64
+#define MAX_PACKET_SIZE_EP1     64
+#define MAX_PACKET_SIZE_EP2     64
+#define MAX_PACKET_SIZE_EP3     0x60
+#define MAX_PACKET_SIZE_EP4     64
+#define MAX_PACKET_SIZE_EP5     64
+#define MAX_PACKET_SIZE_EP6     64
+#define MAX_PACKET_SIZE_EP7     64
+#define MAX_PACKET_SIZE_EP8     64
+#define MAX_PACKET_SIZE_EP9     64
+#define MAX_PACKET_SIZE_EP10    64
+#define MAX_PACKET_SIZE_EP11    64
 
 /* Generic endpoints - intended to be portable accross devices */
 /* and be suitable for simple USB devices. */
@@ -83,7 +83,7 @@
 #define MAX_PACKET_SIZE_EPINT   64
 #define MAX_PACKET_SIZE_EPISO   1023
 
-#define USBD_GET_EP_MAX_PAYLOAD(ep)		(*((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)((ep)*0x28)))) 
-#define USBD_GET_EP_DATA_COUNT(ep)		((*((__IO uint32_t *) ((uint32_t)&USBD->EPADATCNT + (uint32_t)((ep)*0x28)))) & 0xFFFFF)
-#define USBD_SET_EP_SHORT_PACKET(ep) 	(*((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)((ep)*0x28))) = (*((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)((ep)*0x28)))) & 0x10 | 0x40)
-#define USBD_GET_EP_INT_EN(ep)				(*((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN + (uint32_t)((ep)*0x28))))
+#define USBD_GET_EP_MAX_PAYLOAD(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)((ep)*0x28)))) 
+#define USBD_GET_EP_DATA_COUNT(ep)      ((*((__IO uint32_t *) ((uint32_t)&USBD->EPADATCNT + (uint32_t)((ep)*0x28)))) & 0xFFFFF)
+#define USBD_SET_EP_SHORT_PACKET(ep)    (*((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)((ep)*0x28))) = (*((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)((ep)*0x28)))) & 0x10 | 0x40)
+#define USBD_GET_EP_INT_EN(ep)          (*((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN + (uint32_t)((ep)*0x28))))
