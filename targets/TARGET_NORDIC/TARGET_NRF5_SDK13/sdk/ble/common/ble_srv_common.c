@@ -45,7 +45,7 @@
 #include <string.h>
 #include "nordic_common.h"
 #include "app_error.h"
-#include "ble.h"
+#include "headers\ble.h"
 
 bool ble_srv_is_notification_enabled(uint8_t const * p_encoded_data)
 {

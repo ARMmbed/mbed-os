@@ -29,13 +29,17 @@
     #define YOTTA_CFG_WHITELIST_MAX_SIZE BLE_GAP_WHITELIST_ADDR_MAX_COUNT
 #endif
 #ifndef YOTTA_CFG_IRK_TABLE_MAX_SIZE
-    #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
+    #if  (NRF_SD_BLE_API_VERSION >= 3)
+         #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_DEVICE_IDENTITIES_MAX_COUNT 
+    #else
+        #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
+     #endif 
 #elif YOTTA_CFG_IRK_TABLE_MAX_SIZE > BLE_GAP_WHITELIST_IRK_MAX_COUNT
     #undef YOTTA_CFG_IRK_TABLE_MAX_SIZE
     #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
 #endif
 #include "ble/blecommon.h"
-#include "ble.h"
+#include "headers\ble.h"
 #include "ble/GapAdvertisingParams.h"
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
@@ -135,6 +139,7 @@ private:
     uint8_t         whitelistAddressesSize;
     ble_gap_addr_t  whitelistAddresses[YOTTA_CFG_WHITELIST_MAX_SIZE];
 
+#if  (NRF_SD_BLE_API_VERSION <= 2)
     /*
      * An internal function used to populate the ble_gap_whitelist_t that will be used by
      * the SoftDevice for filtering requests. This function is needed because for the BLE
@@ -142,6 +147,22 @@ private:
      * the IRK table.
      */
     ble_error_t generateStackWhitelist(ble_gap_whitelist_t &whitelist);
+#endif
+    
+#if  (NRF_SD_BLE_API_VERSION >= 3)
+    typedef struct
+    {
+        ble_gap_addr_t private_device[YOTTA_CFG_WHITELIST_MAX_SIZE + YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        ble_gap_addr_t * whitelist[YOTTA_CFG_WHITELIST_MAX_SIZE + YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        uint32_t num_of_whitelist_items;
+        ble_gap_id_key_t identitie[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        ble_gap_id_key_t * identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        uint32_t num_of_identiti_items;
+    } gapAdrHelper_t;
+    
+    ble_error_t getStackWhiteIdentityList(gapAdrHelper_t &gapAdrHelper);
+    ble_error_t apllyWhiteIdentityList(gapAdrHelper_t &gapAdrHelper);
+#endif
 
 private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
