@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,36 +35,48 @@
 #include "PeripheralNames.h"
 
 //*** ADC ***
-
+#ifdef DEVICE_ANALOGIN
 extern const PinMap PinMap_ADC[];
+#endif
 
 //*** DAC ***
-
+#ifdef DEVICE_ANALOGOUT
 extern const PinMap PinMap_DAC[];
+#endif
 
 //*** I2C ***
-
+#if DEVICE_I2C
 extern const PinMap PinMap_I2C_SDA[];
 extern const PinMap PinMap_I2C_SCL[];
+#endif
 
 //*** PWM ***
-
+#if DEVICE_PWMOUT
 extern const PinMap PinMap_PWM[];
+#endif
 
 //*** SERIAL ***
-
+#ifdef DEVICE_SERIAL
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
+#ifdef DEVICE_SERIAL_FC
+extern const PinMap PinMap_UART_RTS[];
+extern const PinMap PinMap_UART_CTS[];
+#endif
+#endif
 
 //*** SPI ***
-
+#ifdef DEVICE_SPI
 extern const PinMap PinMap_SPI_MOSI[];
 extern const PinMap PinMap_SPI_MISO[];
 extern const PinMap PinMap_SPI_SCLK[];
 extern const PinMap PinMap_SPI_SSEL[];
+#endif
 
 //*** CAN ***
+#ifdef DEVICE_CAN
 extern const PinMap PinMap_CAN_RD[];
 extern const PinMap PinMap_CAN_TD[];
+#endif
 
 #endif
