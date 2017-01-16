@@ -291,7 +291,7 @@ extern uint32_t SystemCoreClock;        // System Clock Frequency (Core Clock)
 
 /// Initialize SVC and PendSV System Service Calls
 __STATIC_INLINE void os_SVC_Initialize (void) {
-#if   (__ARM_ARCH_8M_MAIN__ == 1U)
+#if   ((__ARM_ARCH_8M_MAIN__ == 1U) || (defined(__CORTEX_M) && (__CORTEX_M == 7U)))
   uint32_t p, n;
 
   SCB->SHPR[10] = 0xFFU;
@@ -325,7 +325,7 @@ __STATIC_INLINE void os_SVC_Initialize (void) {
 __STATIC_INLINE void os_SysTick_Setup (uint32_t period) {
   SysTick->LOAD = period - 1U;
   SysTick->VAL  = 0U;
-#if   (__ARM_ARCH_8M_MAIN__ == 1U)
+#if   ((__ARM_ARCH_8M_MAIN__ == 1U) || (defined(__CORTEX_M) && (__CORTEX_M == 7U)))
   SCB->SHPR[11] = 0xFFU;
 #elif (__ARM_ARCH_8M_BASE__ == 1U)
   SCB->SHPR[1] |= 0xFF000000U;
