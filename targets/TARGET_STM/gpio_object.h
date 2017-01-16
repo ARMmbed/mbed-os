@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,44 +27,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
-
-#include "pinmap.h"
+#include "mbed_assert.h"
+#include "cmsis.h"
+#include "PortNames.h"
 #include "PeripheralNames.h"
+#include "PinNames.h"
 
-//*** ADC ***
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern const PinMap PinMap_ADC[];
+/*
+ * Note: reg_clr might actually be same as reg_set.
+ * Depends on family whether BRR is available on top of BSRR
+ * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
+ */
+typedef struct {
+    PinName  pin;
+    uint32_t mask;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_set;
+    __IO uint32_t *reg_clr;
+} gpio_t;
 
-//*** DAC ***
+static inline void gpio_write(gpio_t *obj, int value)
+{
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    if (value) {
+        *obj->reg_set = obj->mask;
+    } else {
+#ifdef GPIO_IP_WITHOUT_BRR
+        *obj->reg_clr = obj->mask << 16;
+#else
+        *obj->reg_clr = obj->mask;
+#endif
+    }
+}
 
-extern const PinMap PinMap_DAC[];
+static inline int gpio_read(gpio_t *obj)
+{
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    return ((*obj->reg_in & obj->mask) ? 1 : 0);
+}
 
-//*** I2C ***
+static inline int gpio_is_connected(const gpio_t *obj)
+{
+    return obj->pin != (PinName)NC;
+}
 
-extern const PinMap PinMap_I2C_SDA[];
-extern const PinMap PinMap_I2C_SCL[];
-
-//*** PWM ***
-
-extern const PinMap PinMap_PWM[];
-
-//*** SERIAL ***
-
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-
-//*** SPI ***
-
-extern const PinMap PinMap_SPI_MOSI[];
-extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
-extern const PinMap PinMap_SPI_SSEL[];
-
-//*** CAN ***
-extern const PinMap PinMap_CAN_RD[];
-extern const PinMap PinMap_CAN_TD[];
+#ifdef __cplusplus
+}
+#endif
 
 #endif
