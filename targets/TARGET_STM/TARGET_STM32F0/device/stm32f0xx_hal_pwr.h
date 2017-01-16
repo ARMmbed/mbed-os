@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -64,7 +64,7 @@
 /** @defgroup PWR_Regulator_state_in_STOP_mode PWR Regulator state in STOP mode
   * @{
   */
-#define PWR_MAINREGULATOR_ON                        ((uint32_t)0x00000000)
+#define PWR_MAINREGULATOR_ON                        (0x00000000U)
 #define PWR_LOWPOWERREGULATOR_ON                    PWR_CR_LPDS
 
 #define IS_PWR_REGULATOR(REGULATOR) (((REGULATOR) == PWR_MAINREGULATOR_ON) || \
@@ -76,8 +76,8 @@
 /** @defgroup PWR_SLEEP_mode_entry PWR SLEEP mode entry
   * @{
   */
-#define PWR_SLEEPENTRY_WFI              ((uint8_t)0x01)
-#define PWR_SLEEPENTRY_WFE              ((uint8_t)0x02)
+#define PWR_SLEEPENTRY_WFI              ((uint8_t)0x01U)
+#define PWR_SLEEPENTRY_WFE              ((uint8_t)0x02U)
 #define IS_PWR_SLEEP_ENTRY(ENTRY) (((ENTRY) == PWR_SLEEPENTRY_WFI) || ((ENTRY) == PWR_SLEEPENTRY_WFE))
 /**
   * @}
@@ -86,8 +86,8 @@
 /** @defgroup PWR_STOP_mode_entry PWR STOP mode entry
   * @{
   */
-#define PWR_STOPENTRY_WFI               ((uint8_t)0x01)
-#define PWR_STOPENTRY_WFE               ((uint8_t)0x02)
+#define PWR_STOPENTRY_WFI               ((uint8_t)0x01U)
+#define PWR_STOPENTRY_WFE               ((uint8_t)0x02U)
 #define IS_PWR_STOP_ENTRY(ENTRY) (((ENTRY) == PWR_STOPENTRY_WFI) || ((ENTRY) == PWR_STOPENTRY_WFE))
 /**
   * @}
@@ -131,7 +131,7 @@
   *            @arg PWR_FLAG_WU: Wake Up flag
   *            @arg PWR_FLAG_SB: StandBy flag
   */
-#define __HAL_PWR_CLEAR_FLAG(__FLAG__) (PWR->CR |=  (__FLAG__) << 2)
+#define __HAL_PWR_CLEAR_FLAG(__FLAG__) (PWR->CR |=  (__FLAG__) << 2U)
 
 
 /**

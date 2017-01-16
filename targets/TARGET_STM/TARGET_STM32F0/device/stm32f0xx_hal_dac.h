@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -69,11 +69,11 @@
   */ 
 typedef enum
 {
-  HAL_DAC_STATE_RESET             = 0x00,  /*!< DAC not yet initialized or disabled  */
-  HAL_DAC_STATE_READY             = 0x01,  /*!< DAC initialized and ready for use    */
-  HAL_DAC_STATE_BUSY              = 0x02,  /*!< DAC internal processing is ongoing   */
-  HAL_DAC_STATE_TIMEOUT           = 0x03,  /*!< DAC timeout state                    */
-  HAL_DAC_STATE_ERROR             = 0x04   /*!< DAC error state                      */
+  HAL_DAC_STATE_RESET             = 0x00U,  /*!< DAC not yet initialized or disabled  */
+  HAL_DAC_STATE_READY             = 0x01U,  /*!< DAC initialized and ready for use    */
+  HAL_DAC_STATE_BUSY              = 0x02U,  /*!< DAC internal processing is ongoing   */
+  HAL_DAC_STATE_TIMEOUT           = 0x03U,  /*!< DAC timeout state                    */
+  HAL_DAC_STATE_ERROR             = 0x04U   /*!< DAC error state                      */
  
 }HAL_DAC_StateTypeDef;
  
@@ -122,10 +122,10 @@ typedef struct
 /** @defgroup DAC_Error_Code DAC Error Code
   * @{
   */
-#define  HAL_DAC_ERROR_NONE              0x00    /*!< No error                          */
-#define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01    /*!< DAC channel1 DMA underrun error   */
-#define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02    /*!< DAC channel2 DMA underrun error   */
-#define  HAL_DAC_ERROR_DMA               0x04    /*!< DMA error                         */   
+#define  HAL_DAC_ERROR_NONE              0x00U    /*!< No error                          */
+#define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01U    /*!< DAC channel1 DMA underrun error   */
+#define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02U    /*!< DAC channel2 DMA underrun error   */
+#define  HAL_DAC_ERROR_DMA               0x04U    /*!< DMA error                         */   
 /**
   * @}
   */
@@ -133,7 +133,7 @@ typedef struct
 /** @defgroup DAC_output_buffer DAC output buffer
   * @{
   */
-#define DAC_OUTPUTBUFFER_ENABLE            ((uint32_t)0x00000000)
+#define DAC_OUTPUTBUFFER_ENABLE            (0x00000000U)
 #define DAC_OUTPUTBUFFER_DISABLE           ((uint32_t)DAC_CR_BOFF1)
 
 /**
@@ -143,9 +143,9 @@ typedef struct
 /** @defgroup DAC_data_alignment DAC data alignment
   * @{
   */
-#define DAC_ALIGN_12B_R                    ((uint32_t)0x00000000)
-#define DAC_ALIGN_12B_L                    ((uint32_t)0x00000004)
-#define DAC_ALIGN_8B_R                     ((uint32_t)0x00000008)
+#define DAC_ALIGN_12B_R                    (0x00000000U)
+#define DAC_ALIGN_12B_L                    (0x00000004U)
+#define DAC_ALIGN_8B_R                     (0x00000008U)
 
 /**
   * @}
@@ -281,25 +281,25 @@ typedef struct
                              ((ALIGN) == DAC_ALIGN_12B_L) || \
                              ((ALIGN) == DAC_ALIGN_8B_R))
 
-#define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0) 
+#define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0U) 
 
 /** @brief Set DHR12R1 alignment
   * @param  __ALIGNMENT__: specifies the DAC alignment
   * @retval None
   */
-#define DAC_DHR12R1_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000008) + (__ALIGNMENT__))
+#define DAC_DHR12R1_ALIGNMENT(__ALIGNMENT__) ((0x00000008U) + (__ALIGNMENT__))
 
 /** @brief  Set DHR12R2 alignment
   * @param  __ALIGNMENT__: specifies the DAC alignment
   * @retval None
   */
-#define DAC_DHR12R2_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000014) + (__ALIGNMENT__))
+#define DAC_DHR12R2_ALIGNMENT(__ALIGNMENT__) ((0x00000014U) + (__ALIGNMENT__))
 
 /** @brief  Set DHR12RD alignment
   * @param  __ALIGNMENT__: specifies the DAC alignment
   * @retval None
   */
-#define DAC_DHR12RD_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000020) + (__ALIGNMENT__))
+#define DAC_DHR12RD_ALIGNMENT(__ALIGNMENT__) ((0x00000020U) + (__ALIGNMENT__))
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Extended RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -61,9 +61,9 @@
   * @{
   */
 /* Bit position in register */
-#define CRS_CFGR_FELIM_BITNUMBER    16
-#define CRS_CR_TRIM_BITNUMBER       8
-#define CRS_ISR_FECAP_BITNUMBER     16
+#define CRS_CFGR_FELIM_BITNUMBER    16U
+#define CRS_CR_TRIM_BITNUMBER       8U
+#define CRS_ISR_FECAP_BITNUMBER     16U
 /**
   * @}
   */
@@ -121,8 +121,8 @@
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
-  uint32_t tickstart = 0;
-  uint32_t temp_reg = 0;
+  uint32_t tickstart = 0U;
+  uint32_t temp_reg = 0U;
 
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
@@ -387,10 +387,10 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   */
 uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 {
-  uint32_t frequency = 0;
-  uint32_t srcclk = 0;
+  uint32_t frequency = 0U;
+  uint32_t srcclk = 0U;
 #if defined(USB)
-  uint32_t pllmull = 0, pllsource = 0, predivfactor = 0;
+  uint32_t pllmull = 0U, pllsource = 0U, predivfactor = 0U;
 #endif /* USB */
 
   /* Check the parameters */
@@ -416,12 +416,12 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Check if HSE is ready  and if RTC clock selection is HSI_DIV32*/
       else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV32) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
       {
-        frequency = HSE_VALUE / 32;
+        frequency = HSE_VALUE / 32U;
       }
       /* Clock not enabled for RTC*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -453,7 +453,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for USART1*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -486,7 +486,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for USART2*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -520,7 +520,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for USART3*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -543,7 +543,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for I2C1*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -559,8 +559,8 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         /* Get PLL clock source and multiplication factor ----------------------*/
         pllmull      = RCC->CFGR & RCC_CFGR_PLLMUL;
         pllsource    = RCC->CFGR & RCC_CFGR_PLLSRC;
-        pllmull      = (pllmull >> RCC_CFGR_PLLMUL_BITNUMBER) + 2;
-        predivfactor = (RCC->CFGR2 & RCC_CFGR2_PREDIV) + 1;
+        pllmull      = (pllmull >> RCC_CFGR_PLLMUL_BITNUMBER) + 2U;
+        predivfactor = (RCC->CFGR2 & RCC_CFGR2_PREDIV) + 1U;
 
         if (pllsource == RCC_CFGR_PLLSRC_HSE_PREDIV)
         {
@@ -581,7 +581,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
           frequency = (HSI_VALUE / predivfactor) * pllmull;
 #else
           /* HSI used as PLL clock source : frequency = HSI/2 * PLLMUL */
-          frequency = (HSI_VALUE >> 1) * pllmull;
+          frequency = (HSI_VALUE >> 1U) * pllmull;
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F070xB */
         }
       }
@@ -595,7 +595,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for USB*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -619,7 +619,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for CEC */
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -709,7 +709,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   */
 void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
 {
-  uint32_t value = 0;
+  uint32_t value = 0U;
   
   /* Check the parameters */
   assert_param(IS_RCC_CRS_SYNC_DIV(pInit->Prescaler));

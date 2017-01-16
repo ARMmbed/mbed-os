@@ -344,7 +344,8 @@ static inline int ssp_busy(spi_t *obj)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    uint16_t size, Rx, ret;
+    uint16_t size, ret;
+    int Rx = 0;
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 

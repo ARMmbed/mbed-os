@@ -47,6 +47,7 @@ public:
     * @param ep_number endpoint number
     * @param td_list array of two allocated transfer descriptors
     */
+
     void init(HCED * hced, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint32_t size, uint8_t ep_number, HCTD* td_list[2]);
 
     /**
@@ -67,7 +68,7 @@ public:
     /**
     * Queue a transfer on the endpoint
     */
-    void queueTransfer();
+    USB_TYPE queueTransfer();
 
     /**
     * Unqueue a transfer from the endpoint
@@ -104,7 +105,8 @@ public:
     * Call the handler associted to the end of a transfer
     */
     inline void call() {
-        rx.call();
+        if (rx)
+            rx.call();
     };
 
 
@@ -122,12 +124,17 @@ public:
     const char *                getStateString();
     inline USB_TYPE             getState() { return state; }
     inline ENDPOINT_TYPE        getType() { return type; };
+#ifdef  USBHOST_OTHER
+    inline uint8_t              getDeviceAddress() { return  device_address; };
+    inline uint32_t             getSize() { return size; };
+#else
     inline uint8_t              getDeviceAddress() { return hced->control & 0x7f; };
+	inline uint32_t             getSize() { return (hced->control >> 16) & 0x3ff; };
+    inline volatile HCTD *      getHeadTD() { return (volatile HCTD*) ((uint32_t)hced->headTD & ~0xF); };
+#endif
     inline int                  getLengthTransferred() { return transferred; }
     inline uint8_t *            getBufStart() { return buf_start; }
     inline uint8_t              getAddress(){ return address; };
-    inline uint32_t             getSize() { return (hced->control >> 16) & 0x3ff; };
-    inline volatile HCTD *      getHeadTD() { return (volatile HCTD*) ((uint32_t)hced->headTD & ~0xF); };
     inline volatile HCTD**      getTDList() { return td_list; };
     inline volatile HCED *      getHCED() { return hced; };
     inline ENDPOINT_DIRECTION   getDir() { return dir; }
@@ -145,6 +152,12 @@ private:
     ENDPOINT_TYPE type;
     volatile USB_TYPE state;
     ENDPOINT_DIRECTION dir;
+#ifdef USBHOST_OTHER 
+	uint32_t size;
+	uint32_t ep_number;
+	uint32_t speed;
+    uint8_t device_address;
+#endif
     bool setup;
 
     uint8_t address;
