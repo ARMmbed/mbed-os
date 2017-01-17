@@ -14,9 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import splitext, basename
 
+from tools.export.exporters import Exporter
 
 class E2Studio(Exporter):
     NAME = 'e2 studio'
@@ -41,7 +41,7 @@ class E2Studio(Exporter):
             'libraries': libraries,
             'symbols': self.toolchain.get_symbols()
         }
-        self.gen_file('e2studio_%s_project.tmpl' % self.target.lower(), ctx, '.project')
-        self.gen_file('e2studio_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
-        self.gen_file('e2studio_%s_gdbinit.tmpl' % self.target.lower(), ctx, '.gdbinit')
-        self.gen_file('e2studio_launch.tmpl', ctx, '%s OpenOCD.launch' % self.project_name)
+        self.gen_file('e2studio/%s_project.tmpl' % self.target.lower(), ctx, '.project')
+        self.gen_file('e2studio/%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
+        self.gen_file('e2studio/%s_gdbinit.tmpl' % self.target.lower(), ctx, '.gdbinit')
+        self.gen_file('e2studio/launch.tmpl', ctx, '%s OpenOCD.launch' % self.project_name)
