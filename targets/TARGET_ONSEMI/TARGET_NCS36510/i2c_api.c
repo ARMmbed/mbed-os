@@ -31,6 +31,7 @@
 
 #include "i2c.h"
 #include "i2c_api.h"
+#include "wait_api.h"
 
 #define I2C_READ_WRITE_BIT_MASK    0xFE
 
@@ -151,10 +152,10 @@ int i2c_byte_read(i2c_t *obj, int last) /* TODO return size can be uint8_t */
     }
     if(last) {
         /* ACK */
-        obj->membase->CMD_REG = I2C_CMD_WDAT0;
+        SEND_COMMAND(I2C_CMD_WDAT0);
     } else {
         /* No ACK */
-        obj->membase->CMD_REG = I2C_CMD_WDAT1;
+        SEND_COMMAND(I2C_CMD_WDAT1);
     }
     return data;
 }
@@ -167,8 +168,6 @@ int i2c_byte_write(i2c_t *obj, int data)
     if(Count != 1) {
         return Count;
     }
-
-    obj->membase->CMD_REG = I2C_CMD_VRFY_ACK; /* Verify ACK */
 
     while(obj->membase->STATUS.WORD & I2C_STATUS_CMD_FIFO_OFL_BIT); /* Wait till command overflow ends */
 
