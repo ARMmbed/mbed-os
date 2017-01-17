@@ -15,8 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import uuid
-from exporters import Exporter
 from os.path import splitext, basename, dirname
+
+from tools.export.exporters import Exporter
 
 
 class AtmelStudio(Exporter):
@@ -75,5 +76,5 @@ class AtmelStudio(Exporter):
         }
         ctx.update(self.flags)
         target = self.target.lower()
-        self.gen_file('atmelstudio6_2.atsln.tmpl', ctx, '%s.atsln' % self.project_name)
-        self.gen_file('atmelstudio6_2.cppproj.tmpl', ctx, '%s.cppproj' % self.project_name)
+        self.gen_file('atmelstudio/atsln.tmpl', ctx, '%s.atsln' % self.project_name)
+        self.gen_file('atmelstudio/cppproj.tmpl', ctx, '%s.cppproj' % self.project_name)
