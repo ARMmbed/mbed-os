@@ -22,7 +22,8 @@
  */
 
 #include "mbed.h"
-#include "SDFileSystem.h"
+#include "FATFileSystem.h"
+#include "SDBlockDevice.h"
 #include "fsfat_debug.h"
 #include "fsfat_test.h"
 #include "utest/utest.h"
@@ -58,22 +59,22 @@ using namespace utest::v1;
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 
 #if defined(TARGET_KL25Z)
-SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+SDBlockDevice sd(PTD2, PTD3, PTD1, PTD0);
 
 #elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
-SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+SDBlockDevice sd(PTD6, PTD7, PTD5, PTD4);
 
 #elif defined(TARGET_K64F) || defined(TARGET_K66F)
-SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, "sd");
+SDBlockDevice sd(PTE3, PTE1, PTE2, PTE4);
 
 #elif defined(TARGET_K22F)
-SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+SDBlockDevice sd(PTD6, PTD7, PTD5, PTD4);
 
 #elif defined(TARGET_K20D50M)
-SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
+SDBlockDevice sd(PTD2, PTD3, PTD1, PTC2);
 
 #elif defined(TARGET_nRF51822)
-SDFileSystem sd(p12, p13, p15, p14, "sd");
+SDBlockDevice sd(p12, p13, p15, p14);
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
@@ -89,31 +90,33 @@ SDFileSystem sd(p12, p13, p15, p14, "sd");
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
-SDFileSystem sd(D11, D12, D13, D10, "sd");
+SDBlockDevice sd(D11, D12, D13, D10);
 
 
 #elif defined(TARGET_DISCO_F051R8) || \
       defined(TARGET_NUCLEO_L031K6)
-SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
+SDBlockDevice sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
 
 #elif defined(TARGET_LPC2368)
-SDFileSystem sd(p11, p12, p13, p14, "sd");
+SDBlockDevice sd(p11, p12, p13, p14);
 
 #elif defined(TARGET_LPC11U68)
-SDFileSystem sd(D11, D12, D13, D10, "sd");
+SDBlockDevice sd(D11, D12, D13, D10);
 
 #elif defined(TARGET_LPC1549)
-SDFileSystem sd(D11, D12, D13, D10, "sd");
+SDBlockDevice sd(D11, D12, D13, D10);
 
 #elif defined(TARGET_RZ_A1H)
-SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, "sd");
+SDBlockDevice sd(P8_5, P8_6, P8_3, P8_4);
 
 #elif defined(TARGET_LPC11U37H_401)
-SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
+SDBlockDevice sd(SDMOSI, SDMISO, SDSCLK, SDSSEL);
 
 #else
-#error "[NOT SUPPORTED] Instantiate SDFileSystem sd(p11, p12, p13, p14, "sd") with the correct pin specification for target"
+#error "[NOT SUPPORTED] Instantiate SDBlockDevice sd(p11, p12, p13, p14) with the correct pin specification for target"
 #endif
+
+FATFileSystem fat("sd", &sd);
 
 
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_01
