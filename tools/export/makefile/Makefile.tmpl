@@ -55,9 +55,6 @@ PROJECT := {{name}}
 {% endfor %}
 LIBRARY_PATHS :={% for p in library_paths %} {{user_library_flag}}{{p}} {% endfor %}
 LIBRARIES :={% for lib in libraries %} {{lib}} {% endfor %}
-
-# Allow user overrides of LINKER_SCRIPT from the command line, useful
-# if user wants to reserve specific flash areas for production config data
 LINKER_SCRIPT ?= {{linker_script}}
 {%- block additional_variables -%}{% endblock %}
 
