@@ -595,6 +595,24 @@
         "device_has": [ "SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "SPI"],
         "device_name": "ADuCM3029"
     },
+    "ADUCM3029": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["__ADUCM3029__","RELOCATE_IVT"],
+        "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029"],
+        "device_has": [ "SERIAL", "STDIO_MESSAGES","TRNG"],
+        "device_name": "ADuCM3029"
+    },
+    "ADUCM4050": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["__ADUCM4050__","RELOCATE_IVT"],
+        "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050"],
+        "device_has": [ "SERIAL", "STDIO_MESSAGES"],
+        "device_name": "ADuCM4050"
+    },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
