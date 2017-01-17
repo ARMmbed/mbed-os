@@ -130,6 +130,9 @@ void pin_function(PinName pin, int data)
             case 9: // Full Remap TIM3
                 __HAL_AFIO_REMAP_TIM3_ENABLE();
                 break;
+            case 10: // CAN_RX mapped to PB8, CAN_TX mapped to PB9
+                __HAL_AFIO_REMAP_CAN1_2();
+                break;
             default:
                 break;
         }
@@ -191,7 +194,7 @@ void pin_mode(PinName pin, PinMode mode)
             // set pull-up => bit=1, set pull-down => bit = 0
             if (mode == PullUp) {
                 gpio->ODR |= (0x01 << (pin_index)); // Set pull-up
-            } else{
+            } else {
                 gpio->ODR &= ~(0x01 << (pin_index)); // Set pull-down
             }
             break;
@@ -209,7 +212,8 @@ void pin_mode(PinName pin, PinMode mode)
 /*  Internal function for setting the gpiomode/function
  *  without changing Pull mode
  */
-void pin_function_gpiomode(PinName pin, uint32_t gpiomode) {
+void pin_function_gpiomode(PinName pin, uint32_t gpiomode)
+{
 
     /* Read current pull state from HW to avoid over-write*/
     uint32_t port_index = STM_PORT(pin);
@@ -228,13 +232,14 @@ void pin_function_gpiomode(PinName pin, uint32_t gpiomode) {
     }
 
     /*  Check if pull/pull down is active */
-    if ((!(*gpio_reg_hl & (0x03 << shift))) // input
-        && (!!(*gpio_reg_hl & (0x08 << shift))) // pull-up / down
-        && (!(*gpio_reg_hl & (0x04 << shift)))) { // GPIOx_CRL.CNFx.bit0 = 0
-        if (!!(gpio->ODR & (0x01 << pin_index))) {
-            pull = PullUp;
-        } else {
-            pull = PullDown;
+    if (!(*gpio_reg_hl & (0x03 << shift))) {// input
+        if((!!(*gpio_reg_hl & (0x08 << shift))) // pull-up / down
+                && (!(*gpio_reg_hl & (0x04 << shift)))) { // GPIOx_CRL.CNFx.bit0 = 0
+            if (!!(gpio->ODR & (0x01 << pin_index))) {
+                pull = PullUp;
+            } else {
+                pull = PullDown;
+            }
         }
     } else { //output
         if (!!(*gpio_reg_hl & (0x04 << shift))) { //open drain

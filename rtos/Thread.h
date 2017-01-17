@@ -48,14 +48,14 @@ namespace rtos {
  *  void blink(DigitalOut *led) {
  *      while (running) {
  *          *led = !*led;
- *          Thread::wait(1000);
+ *          wait(1);
  *      }
  *  }
  *
  *  // Spawns a thread to run blink for 5 seconds
  *  int main() {
- *      thread.start(led1, blink);
- *      Thread::wait(5000);
+ *      thread.start(callback(blink, &led1));
+ *      wait(5);
  *      running = false;
  *      thread.join();
  *  }

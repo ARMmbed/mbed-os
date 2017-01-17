@@ -488,6 +488,13 @@ def argparse_dir_not_parent(other):
             return not_parent
     return parse_type
 
+def argparse_deprecate(replacement_message):
+    """fail if argument is provided with deprecation warning"""
+    def parse_type(_):
+        """The parser type"""
+        raise argparse.ArgumentTypeError("Deprecated." + replacement_message)
+    return parse_type
+
 def print_large_string(large_string):
     """ Breaks a string up into smaller pieces before print them
 

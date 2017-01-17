@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -66,14 +69,13 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
         {
             unsigned char output[32];
             crypto_sha_getinternstate(output, sizeof (output));
-            dst->sw_ctx.state[0] = nu_get32_be(output);
-            dst->sw_ctx.state[1] = nu_get32_be(output + 4);
-            dst->sw_ctx.state[2] = nu_get32_be(output + 8);
-            dst->sw_ctx.state[3] = nu_get32_be(output + 12);
-            dst->sw_ctx.state[4] = nu_get32_be(output + 16);
-            dst->sw_ctx.state[5] = nu_get32_be(output + 20);
-            dst->sw_ctx.state[6] = nu_get32_be(output + 24);
-            dst->sw_ctx.state[7] = nu_get32_be(output + 28);
+            unsigned char *output_pos = output;
+            unsigned char *output_end = output + (sizeof (output) / sizeof (output[0]));
+            uint32_t *state_pos = (uint32_t *) &(dst->sw_ctx.state[0]);
+            while (output_pos != output_end) {
+                *state_pos ++ = nu_get32_be(output_pos);
+                output_pos += 4;
+            }
         }
         memcpy(dst->sw_ctx.buffer, src->hw_ctx.buffer, src->hw_ctx.buffer_left);
         dst->sw_ctx.is224 = src->hw_ctx.is224;
@@ -138,3 +140,5 @@ void mbedtls_sha256_process(mbedtls_sha256_context *ctx, const unsigned char dat
 
 #endif /* MBEDTLS_SHA256_ALT */
 #endif /* MBEDTLS_SHA256_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */

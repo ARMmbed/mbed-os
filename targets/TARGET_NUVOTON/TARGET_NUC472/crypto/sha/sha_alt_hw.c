@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -331,3 +334,5 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen)
 #endif /* MBEDTLS_SHA1_ALT || MBEDTLS_SHA256_ALT || MBEDTLS_SHA512_ALT */
 
 #endif /* MBEDTLS_SHA1_C || MBEDTLS_SHA256_C || MBEDTLS_SHA512_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */

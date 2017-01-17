@@ -24,6 +24,9 @@
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
 
+/* Compatible with mbed OS 2 which doesn't support mbedtls */
+#if MBED_CONF_RTOS_PRESENT
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -36,6 +39,14 @@
 #include "mbedtls/sha1.h"
 
 #include <string.h>
+#if defined(MBEDTLS_SELF_TEST)
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
+#else
+#include <stdio.h>
+#define mbedtls_printf printf
+#endif /* MBEDTLS_PLATFORM_C */
+#endif /* MBEDTLS_SELF_TEST */
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {
@@ -335,3 +346,5 @@ void mbedtls_sha1_sw_finish( mbedtls_sha1_sw_context *ctx, unsigned char output[
 #endif /* MBEDTLS_SHA1_ALT */
 
 #endif /* MBEDTLS_SHA1_C */
+
+#endif /* MBED_CONF_RTOS_PRESENT */
