@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Nuvoton Technology Corp.
+ * Copyright (c) 2017 Nuvoton Technology Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -283,16 +283,31 @@ static int reset_phy(void)
     }
 
     if(delayCnt == 0) {
-        printf("Reset phy failed\n");
+        LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE|LWIP_DBG_ON,("Reset phy failed\n"));
         return(-1);
     }
     
-#if 1
-    /* Enlarge IP101GA driving current as IP101A */
-    mdio_write(CONFIG_PHY_ADDR, 20, 0x0004);    //change to page 4
-    mdio_write(CONFIG_PHY_ADDR, 22, 0x8000);    // RXC driving = 8.10mA
-    mdio_write(CONFIG_PHY_ADDR, 20, 0x0010);    // change to page 16(default)
-    mdio_write(CONFIG_PHY_ADDR, 26, 0x4924);    // RXD driving = 8.10mA    
+#if 1  /* Enlarge IP101GA driving current as IP101A */
+		do{	
+			mdio_write(CONFIG_PHY_ADDR, 20, 0x0004);    //change to page 4
+			delay;
+		}while(mdio_read(CONFIG_PHY_ADDR, 20) != 0x0004);
+
+		do{			
+			mdio_write(CONFIG_PHY_ADDR, 22, 0x8000);    // RXC driving = 8.10mA
+			delay;
+		}while(mdio_read(CONFIG_PHY_ADDR, 22) != 0x8000);
+
+		do{	    
+			mdio_write(CONFIG_PHY_ADDR, 20, 0x0010);    // change to page 16(default)
+			delay;
+    }while(mdio_read(CONFIG_PHY_ADDR, 20) != 0x0010);
+
+//		do{	    
+			mdio_write(CONFIG_PHY_ADDR, 26, 0x4924);    // RXD driving = 8.10mA    
+			delay;
+//		}while(mdio_read(CONFIG_PHY_ADDR, 20) != 0x4924); // Can't achieve this condition
+//		printf("RXD driving: 0x%x\r\n",mdio_read(CONFIG_PHY_ADDR, 20));
 #endif
     
     mdio_write(CONFIG_PHY_ADDR, MII_ADVERTISE, ADVERTISE_CSMA |
@@ -312,23 +327,23 @@ static int reset_phy(void)
     }
 
     if(delayCnt == 0) {
-        printf("AN failed. Set to 100 FULL\n");
+        LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE|LWIP_DBG_ON , ("AN failed. Set to 100 FULL\n"));
         EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         return(-1);
     } else {
         reg = mdio_read(CONFIG_PHY_ADDR, MII_LPA);
 
         if(reg & ADVERTISE_100FULL) {
-            printf("100 full\n");
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("100 full\n"));
             EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         } else if(reg & ADVERTISE_100HALF) {
-            printf("100 half\n");
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("100 half\n"));
             EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_FUDUP_Msk) | EMAC_CTL_OPMODE_Msk;
         } else if(reg & ADVERTISE_10FULL) {
-            printf("10 full\n");
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("10 full\n"));
             EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_OPMODE_Msk) | EMAC_CTL_FUDUP_Msk;
         } else {
-            printf("10 half\n");
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("10 half\n"));
             EMAC->CTL &= ~(EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         }
     }
@@ -472,7 +487,7 @@ void EMAC_RX_IRQHandler(void)
     EMAC->INTSTS = m_status;
     if (m_status & EMAC_INTSTS_RXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
-		printf("RX descriptor corrupted \r\n");
+		LWIP_DEBUGF(LWIP_DBG_LEVEL_SERIOUS|LWIP_DBG_ON, ("RX descriptor corrupted \r\n"));
 		//return;
     }
 	ack_emac_rx_isr();
