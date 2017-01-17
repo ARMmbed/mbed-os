@@ -14,8 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import splitext, basename
+
+from tools.export.exporters import Exporter
 
 
 class KDS(Exporter):
@@ -42,6 +43,6 @@ class KDS(Exporter):
             'libraries': libraries,
             'symbols': self.toolchain.get_symbols()
         }
-        self.gen_file('kds_%s_project.tmpl' % self.target.lower(), ctx, '.project')
-        self.gen_file('kds_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
-        self.gen_file('kds_launch.tmpl', ctx, '%s.launch' % self.project_name)
+        self.gen_file('kds/%s_project.tmpl' % self.target.lower(), ctx, '.project')
+        self.gen_file('kds/%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
+        self.gen_file('kds/launch.tmpl', ctx, '%s.launch' % self.project_name)
