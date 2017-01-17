@@ -14,8 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import split,splitext, basename
+
+from tools.export.exporters import Exporter
 
 class Folder:
     def __init__(self, name):
@@ -191,4 +192,4 @@ class SimplicityV3(Exporter):
                 print("\t" + bpath.name + "\n")
         '''
 
-        self.gen_file('simplicityv3_slsproj.tmpl', ctx, '%s.slsproj' % self.project_name)
+        self.gen_file('simplicity/slsproj.tmpl', ctx, '%s.slsproj' % self.project_name)
