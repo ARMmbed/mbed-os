@@ -1,3 +1,5 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
  *
@@ -13,10 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-void mbed_sdk_init()
-{
-    char* debug_date = __DATE__;
-    char* debug_time = __TIME__;	
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "objects.h"
+
+#endif
