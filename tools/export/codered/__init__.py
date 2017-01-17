@@ -14,9 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import splitext, basename
 
+from tools.export.exporters import Exporter
 
 class CodeRed(Exporter):
     NAME = 'CodeRed'
@@ -56,5 +56,5 @@ class CodeRed(Exporter):
             'symbols': self.toolchain.get_symbols()
         }
         ctx.update(self.flags)
-        self.gen_file('codered_%s_project.tmpl' % self.target.lower(), ctx, '.project')
-        self.gen_file('codered_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
+        self.gen_file('codered/%s_project.tmpl' % self.target.lower(), ctx, '.project')
+        self.gen_file('codered/%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
