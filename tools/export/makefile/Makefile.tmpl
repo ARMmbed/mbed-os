@@ -80,7 +80,7 @@ SREC_CAT = srec_cat
 {% endfor %}
 
 LD_FLAGS :={%- block ld_flags -%} {{ld_flags|join(" ")}} {% endblock %}
-{% block sys_libs -%}{%- endblock %}
+LD_SYS_LIBS :={%- block sys_libs -%} {{ld_sys_libs|join(" ")}} {% endblock %}
 
 # Tools and Flags
 ###############################################################################
