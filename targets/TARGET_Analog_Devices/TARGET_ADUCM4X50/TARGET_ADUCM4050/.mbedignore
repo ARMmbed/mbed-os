@@ -1,0 +1,8 @@
+bsp/adc/*
+bsp/rtc/*
+bsp/spi/*
+bsp/wdt/*
+bsp/xint/*
+bsp/i2c/*
+bsp/flash/*
+bsp/crc/*
