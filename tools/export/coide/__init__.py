@@ -14,8 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import splitext, basename
+
+from tools.export.exporters import Exporter
 
 
 class CoIDE(Exporter):
@@ -112,4 +113,4 @@ class CoIDE(Exporter):
         target = self.target.lower()
 
         # Project file
-        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.project_name)
+        self.gen_file('coide/%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.project_name)
