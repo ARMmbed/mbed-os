@@ -336,7 +336,7 @@
         "default_lib": "small",
         "release_versions": ["2"]
     },
-    "LPC4088": {
+    "MCU_LPC4088": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M4F",
         "extra_labels": ["NXP", "LPC408X"],
@@ -347,11 +347,14 @@
             "toolchains": ["ARM_STD", "ARM_MICRO"]
         },
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"],
         "device_name": "LPC4088FBD144"
     },
+    "LPC4088": {
+        "inherits": ["MCU_LPC4088"],
+        "release_versions": ["2", "5"]
+    },
     "LPC4088_DM": {
-        "inherits": ["LPC4088"],
+        "inherits": ["MCU_LPC4088"],
         "release_versions": ["2", "5"]
     },
     "LPC4330_M4": {
