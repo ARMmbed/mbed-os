@@ -14,10 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import splitext, basename, join
 from random import randint
 from tools.utils import mkdir
+from tools.export.exporters import Exporter
 
 
 class Sw4STM32(Exporter):
@@ -114,6 +114,6 @@ class Sw4STM32(Exporter):
         }
 
         self.__gen_dir('.settings')
-        self.gen_file('sw4stm32_language_settings_commom.tmpl', ctx, '.settings/language.settings.xml')
-        self.gen_file('sw4stm32_project_common.tmpl', ctx, '.project')
-        self.gen_file('sw4stm32_cproject_common.tmpl', ctx, '.cproject')
+        self.gen_file('sw4stm32/language_settings_commom.tmpl', ctx, '.settings/language.settings.xml')
+        self.gen_file('sw4stm32/project_common.tmpl', ctx, '.project')
+        self.gen_file('sw4stm32/cproject_common.tmpl', ctx, '.cproject')
