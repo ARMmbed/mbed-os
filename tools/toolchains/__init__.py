@@ -266,6 +266,9 @@ class mbedToolchain:
         # Toolchain flags
         self.flags = deepcopy(build_profile or self.profile_template)
 
+        # System libraries provided by the toolchain
+        self.sys_libs = []
+
         # User-defined macros
         self.macros = macros or []
 
