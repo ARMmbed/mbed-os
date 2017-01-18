@@ -314,81 +314,80 @@ class GNUARMEclipse(Exporter):
         as used.
         """
         # print path, is_used
-        a = path.split(os.sep)
-        n = self.source_tree
-        p = None
-        for s in a:
-            if s[0] == '.':
+        parts = path.split(os.sep)
+        node = self.source_tree
+        prev = None
+        for part in parts:
+            if part[0] == '.':
                 continue
-            if s not in n.keys():
-                nn = {}
-                nn['name'] = s
-                nn['children'] = {}
-                if p != None:
-                    nn['parent'] = p
-                n[s] = nn
-            n[s]['is_used'] = is_used
-            p = n[s]
-            n = n[s]['children']
+            if part not in node.keys():
+                new_node = {}
+                new_node['name'] = part
+                new_node['children'] = {}
+                if prev != None:
+                    new_node['parent'] = prev
+                node[part] = new_node
+            node[part]['is_used'] = is_used
+            prev = node[part]
+            node = node[part]['children']
 
-    def recurse_excludings(self, node):
+    def recurse_excludings(self, nodes):
         """
         Recurse the tree and collect all unused folders; descend
         the hierarchy only for used nodes.
         """
-        for k in node.keys():
-            n = node[k]
-            if n['is_used'] == False:
-                x = []
-                ni = n
+        for k in nodes.keys():
+            node = nodes[k]
+            if node['is_used'] == False:
+                parts = []
+                cnode = node
                 while True:
-                    x.insert(0, ni['name'])
-                    if 'parent' not in ni:
+                    parts.insert(0, cnode['name'])
+                    if 'parent' not in cnode:
                         break
-                    ni = ni['parent']
-                path = '/'.join(x)
+                    cnode = cnode['parent']
+                path = '/'.join(parts)
                 # print path
                 self.excluded_folders.append(path)
             else:
-                self.recurse_excludings(n['children'])
+                self.recurse_excludings(node['children'])
 
     # -------------------------------------------------------------------------
 
     @staticmethod
-    def filter_dot(s):
+    def filter_dot(str):
         """
         Remove the './' prefix, if present.
         This function assumes that resources.win_to_unix()
         replaced all windows backslashes with slashes.
         """
-        if s == None:
+        if str == None:
             return None
-        if s[:2] == './':
-            return s[2:]
-        return s
+        if str[:2] == './':
+            return str[2:]
+        return str
 
     # -------------------------------------------------------------------------
 
-    def dump_tree(self, node, depth=0):
-        for k in node.keys():
-            n = node[k]
-            pn = n['parent']['name'] if 'parent' in n.keys() else ''
-            print '  ' * depth, n['name'], n['is_used'], pn
-            if len(n['children'].keys()) != 0:
-                self.dump_tree(n['children'], depth + 1)
+    def dump_tree(self, nodes, depth=0):
+        for k in nodes.keys():
+            node = nodes[k]
+            parent_name = node['parent']['name'] if 'parent' in node.keys() else ''
+            print '  ' * depth, node['name'], node['is_used'], parent_name
+            if len(node['children'].keys()) != 0:
+                self.dump_tree(node['children'], depth + 1)
 
-    def dump_paths(self, node, depth=0):
-        for k in node.keys():
-            n = node[k]
-            x = []
-            ni = n
+    def dump_paths(self, nodes, depth=0):
+        for k in nodes.keys():
+            node = nodes[k]
+            parts = []
             while True:
-                x.insert(0, ni['name'])
-                if 'parent' not in ni:
+                parts.insert(0, node['name'])
+                if 'parent' not in node:
                     break
-                ni = ni['parent']
-            path = '/'.join(x)
-            print path, n['is_used']
+                node = node['parent']
+            path = '/'.join(parts)
+            print path, nodes[k]['is_used']
             self.dump_paths(n['children'], depth + 1)
 
     # -------------------------------------------------------------------------
@@ -410,9 +409,9 @@ class GNUARMEclipse(Exporter):
         have CDT equivalents and will be passed in the 'Other options' 
         categories.
 
-        Althogh this process does not have a very complicated logic,
+        Although this process does not have a very complicated logic,
         given the large number of explicit configuration options
-        used by GNU ARM Eclipse managed build plug-in, it is tedious...
+        used by the GNU ARM Eclipse managed build plug-in, it is tedious...
         """
         flags = self.flags
 
