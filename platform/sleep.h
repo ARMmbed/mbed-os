@@ -1,8 +1,8 @@
 
-/** \addtogroup hal */
+/** \addtogroup platform */
 /** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_SLEEP_API_H
-#define MBED_SLEEP_API_H
+#ifndef MBED_SLEEP_H
+#define MBED_SLEEP_H
 
-#include "device.h"
+#include "sleep_api.h"
 
-#if DEVICE_SLEEP
+#if !DEVICE_SLEEP
+#warning Sleep is not supported on this platform.
+#else /* DEVICE_SLEEP */
+#ifndef NDEBUG
+#warning Sleep is disabled for debug builds.
+#endif /* NDEBUG */
+#endif /* DEVICE_SLEEP */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** Send the microcontroller to sleep
+ *
+ * @note This function can be a noop if not implemented by the platform.
+ * @note This function will only put device to sleep in release mode (small profile or when NDEBUG is defined).
  *
  * The processor is setup ready for sleep, and sent to sleep using __WFI(). In this mode, the
  * system clock to the core is stopped until a reset or an interrupt occurs. This eliminates
@@ -41,9 +50,19 @@ extern "C" {
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
  */
-void hal_sleep(void);
+__INLINE void sleep(void)
+{
+#ifdef NDEBUG
+#if DEVICE_SLEEP
+    hal_sleep();
+#endif /* DEVICE_SLEEP */
+#endif /* NDEBUG */
+}
 
 /** Send the microcontroller to deep sleep
+ *
+ * @note This function can be a noop if not implemented by the platform.
+ * @note This function will only put device to sleep in release mode (small profile or when NDEBUG is defined).
  *
  * This processor is setup ready for deep sleep, and sent to sleep using __WFI(). This mode
  * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
@@ -56,12 +75,17 @@ void hal_sleep(void);
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
  */
-void hal_deepsleep(void);
+__INLINE void deepsleep(void)
+{
+#ifdef NDEBUG
+#if DEVICE_SLEEP
+    hal_deepsleep();
+#endif /* DEVICE_SLEEP */
+#endif /* NDEBUG */
+}
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 #endif
