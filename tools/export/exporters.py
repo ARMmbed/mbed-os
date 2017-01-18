@@ -4,7 +4,7 @@ from abc import abstractmethod, ABCMeta
 import logging
 from os.path import join, dirname, relpath, basename, realpath, normpath
 from itertools import groupby
-from jinja2 import FileSystemLoader
+from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 import copy
 
@@ -115,7 +115,7 @@ class Exporter(object):
         """Generates a project file from a template using jinja"""
         jinja_loader = FileSystemLoader(
             os.path.dirname(os.path.abspath(__file__)))
-        jinja_environment = Environment(loader=jinja_loader)
+        jinja_environment = Environment(loader=jinja_loader, undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
 
         template = jinja_environment.get_template(template_file)
         target_text = template.render(data)
