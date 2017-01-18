@@ -31,6 +31,9 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "pin_device.h"
+
+extern const uint32_t ll_pin_defines[16];
 
 // Enable GPIO clock and return GPIO base address
 GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx) {
@@ -113,6 +116,7 @@ uint32_t gpio_set(PinName pin) {
     return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
 }
 
+
 void gpio_init(gpio_t *obj, PinName pin) {
     obj->pin = pin;
     if (pin == (PinName)NC) {
@@ -126,6 +130,8 @@ void gpio_init(gpio_t *obj, PinName pin) {
 
     // Fill GPIO object structure for future use
     obj->mask    = gpio_set(pin);
+    obj->gpio  = gpio;
+    obj->ll_pin  = ll_pin_defines[STM_PIN(obj->pin)];
     obj->reg_in  = &gpio->IDR;
     obj->reg_set = &gpio->BSRR;
 #ifdef GPIO_IP_WITHOUT_BRR
@@ -139,11 +145,15 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
     pin_mode(obj->pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (direction == PIN_OUTPUT) {
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
-    } else { // PIN_INPUT
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+inline void gpio_dir(gpio_t *obj, PinDirection direction) {
+
+    if (direction == PIN_INPUT)
+    {
+        LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_INPUT);
+    }
+    else
+    {
+        LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_OUTPUT);
     }
 }
+
