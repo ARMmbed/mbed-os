@@ -89,16 +89,15 @@ class IAR(Exporter):
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
         flags = self.flags
-        flags['c_flags'] = list(set(flags['common_flags']
+        c_flags = list(set(flags['common_flags']
                                     + flags['c_flags']
                                     + flags['cxx_flags']))
-        if '--vla' in flags['c_flags']:
-            flags['c_flags'].remove('--vla')
-        if '--no_static_destruction' in flags['c_flags']:
-            flags['c_flags'].remove('--no_static_destruction')
-        #Optimizations
-        if '-Oh' in flags['c_flags']:
-            flags['c_flags'].remove('-Oh')
+        # Flags set in template to be set by user in IDE
+        template = ["--vla", "--no_static_destruction"]
+        # Flag invalid if set in template
+        # Optimizations are also set in template
+        invalid_flag = lambda x: x in template or re.match("-O(\d|time|n)", x)
+        flags['c_flags'] = [flag for flag in c_flags if not invalid_flag(flag)]
 
         try:
             debugger = DeviceCMSIS(self.target).debug.replace('-','').upper()

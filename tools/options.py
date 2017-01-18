@@ -100,7 +100,7 @@ def list_profiles():
     """
     return [fn.replace(".json", "") for fn in listdir(join(dirname(__file__), "profiles")) if fn.endswith(".json")]
 
-def extract_profile(parser, options, toolchain):
+def extract_profile(parser, options, toolchain, fallback="default"):
     """Extract a Toolchain profile from parsed options
 
     Positional arguments:
@@ -110,7 +110,7 @@ def extract_profile(parser, options, toolchain):
     """
     profile = {'c': [], 'cxx': [], 'ld': [], 'common': [], 'asm': []}
     filenames = options.profile or [join(dirname(__file__), "profiles",
-                                         "default.json")]
+                                         fallback + ".json")]
     for filename in filenames:
         contents = load(open(filename))
         try:
