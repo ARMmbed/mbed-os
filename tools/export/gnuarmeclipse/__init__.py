@@ -26,6 +26,9 @@ from os.path import splitext, basename, relpath, dirname
 from random import randint
 import os
 import copy
+import tempfile
+from subprocess import call, Popen, PIPE
+
 # import logging
 
 from tools.targets import TARGET_MAP
@@ -192,24 +195,66 @@ class GNUARMEclipse(Exporter):
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """
-        Build GNU ARM Eclipse project.
+        Headless build an Eclipse project.
+
+        The following steps are performed:
+        - a temporary workspace is created, 
+        - the project is imported,
+        - a clean build of all configurations is performed and 
+        - the temporary workspace is removed.
+
+        The build results are in the Debug & Release folders.
+
+        All executables (eclipse & toolchain) must be in the PATH.
+
+        The general method to start a headless Eclipse build is:
+
+        $ eclipse \
+        --launcher.suppressErrors \
+        -nosplash \
+        -application org.eclipse.cdt.managedbuilder.core.headlessbuild \
+        -data /path/to/workspace \
+        -import /path/to/project \
+        -cleanBuild "project[/configuration] | all"
         """
 
-        ret_code = 0
+        # TODO: possibly use the log file.
 
-        # TODO: add code to run the build in a headless configuration.
+        # Create a temporary folder for the workspace.
+        tmp_folder = tempfile.mkdtemp()
+
+        cmd = [
+            'eclipse', 
+            '--launcher.suppressErrors',
+            '-nosplash',
+            '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
+            '-data', tmp_folder,
+            '-import', os.getcwd(),
+            '-cleanBuild', 'all',
+        ]
+
+        ret_code = subprocess.call(cmd)
 
         # Cleanup the exported and built files
         if cleanup:
+            os.remove(log_name)
             os.remove('.project')
             os.remove('.cproject')
-            # TODO: remove Debug, Release
+            if exists('Debug'):
+                shutil.rmtree('Debug')
+            if exists('Release'):
+                shutil.rmtree('Release')
 
-        if ret_code != 0:
-            # Seems like something went wrong.
-            return -1
-        else:
+        # Always remove the temporary folder.
+        if exists(tmp_folder):
+            shutil.rmtree(tmp_folder)
+
+        if ret_code == 0:
+            # Return Success
             return 0
+
+        # Seems like something went wrong.
+        return -1
 
     # -------------------------------------------------------------------------
     # Process source files/folders exclusions.
