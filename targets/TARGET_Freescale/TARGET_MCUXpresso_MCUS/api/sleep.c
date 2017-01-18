@@ -18,14 +18,14 @@
 #include "fsl_smc.h"
 #include "fsl_clock_config.h"
 
-void sleep(void)
+void hal_sleep(void)
 {
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
 
     SMC_SetPowerModeWait(SMC);
 }
 
-void deepsleep(void)
+void hal_deepsleep(void)
 {
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
     mcg_mode_t mode = CLOCK_GetMode();
