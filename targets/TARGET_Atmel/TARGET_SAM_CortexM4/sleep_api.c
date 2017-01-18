@@ -24,7 +24,7 @@
  * @param[void] void
  * @return      void
  */
-void sleep(void)
+void hal_sleep(void)
 {
     enum sleepmgr_mode sleep_mode;
 
@@ -40,7 +40,7 @@ void sleep(void)
  * @param[void] void
  * @return      void
  */
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     enum sleepmgr_mode sleep_mode;
 

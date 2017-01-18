@@ -20,7 +20,7 @@
 //#define DEEPSLEEP
 #define POWERDOWN
  
-void sleep(void) {  
+void hal_sleep(void) {  
     //Normal sleep mode for PCON:
     LPC_PMU->PCON &= ~0x03;
     
@@ -36,7 +36,7 @@ void sleep(void) {
 //Deepsleep/powerdown modes assume the device is configured to use its internal RC oscillator directly
  
 #ifdef DEEPSLEEP
-void deepsleep(void) {
+void hal_deepsleep(void) {
     //Deep sleep in PCON
     LPC_PMU->PCON &= ~0x03;
     LPC_PMU->PCON |= 0x01;
@@ -59,7 +59,7 @@ void deepsleep(void) {
 #endif
  
 #ifdef POWERDOWN
-void deepsleep(void) {
+void hal_deepsleep(void) {
     //Powerdown in PCON
     LPC_PMU->PCON &= ~0x03;
     LPC_PMU->PCON |= 0x02;

@@ -40,14 +40,14 @@
  * MBED API CALLS
  * ----------------------------------------------------------------*/
 
-void sleep(void)
+void hal_sleep(void)
 {
     __DSB();
     __WFI();
     __ISB();
 }
 
-void deepsleep()
+void hal_deepsleep()
 {
-    sleep();
+    hal_sleep();
 }

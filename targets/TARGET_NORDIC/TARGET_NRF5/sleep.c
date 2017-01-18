@@ -25,7 +25,7 @@
 
 #define FPU_EXCEPTION_MASK 0x0000009F
 
-void sleep(void)
+void hal_sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
 
@@ -73,8 +73,8 @@ void sleep(void)
     }
 }
 
-void deepsleep(void)
+void hal_deepsleep(void)
 {
-    sleep();
+    hal_sleep();
     //   NRF_POWER->SYSTEMOFF=1;
 }

@@ -17,7 +17,7 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void sleep(void) {
+void hal_sleep(void) {
     // ensure debug is disconnected
     #if DEVICE_SEMIHOST
     mbed_interface_disconnect();
@@ -59,7 +59,7 @@ void sleep(void) {
 *       We treat a deepsleep() as a normal sleep().
 */
 
-void deepsleep(void) {
+void hal_deepsleep(void) {
     // ensure debug is disconnected
     #if DEVICE_SEMIHOST
     mbed_interface_disconnect();

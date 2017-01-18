@@ -38,7 +38,7 @@ int pwmout_allow_powerdown(void);
 /**
  * Enter Idle mode.
  */
-void sleep(void)
+void hal_sleep(void)
 {
     struct sleep_s sleep_obj;
     sleep_obj.powerdown = 0;
@@ -49,7 +49,7 @@ void sleep(void)
 /**
  * Enter Power-down mode while no peripheral is active; otherwise, enter Idle mode.
  */
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     struct sleep_s sleep_obj;
     sleep_obj.powerdown = 1;

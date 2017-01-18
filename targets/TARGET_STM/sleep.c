@@ -35,7 +35,7 @@
 #include "cmsis.h"
 
 
-void sleep(void)
+void hal_sleep(void)
 {
     // Stop HAL systick
     HAL_SuspendTick();
@@ -45,7 +45,7 @@ void sleep(void)
     HAL_ResumeTick();
 }
 
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     // Stop HAL systick
     HAL_SuspendTick();

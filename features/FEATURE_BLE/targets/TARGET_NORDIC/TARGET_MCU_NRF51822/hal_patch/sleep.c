@@ -23,7 +23,7 @@
 // In this case, bits which are equal to 0 are the bits reserved in this register
 #define SCB_ICSR_RESERVED_BITS_MASK     0x9E43F03F
 
-void sleep(void)
+void hal_sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
 
@@ -64,7 +64,7 @@ void sleep(void)
     }
 }
 
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     sleep();
     //   NRF_POWER->SYSTEMOFF=1;
