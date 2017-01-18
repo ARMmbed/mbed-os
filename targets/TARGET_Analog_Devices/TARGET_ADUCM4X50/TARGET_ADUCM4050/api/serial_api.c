@@ -30,7 +30,7 @@
 #define ADI_UART_MEMORY_SIZE   (ADI_UART_BIDIR_MEMORY_SIZE)
 
 static ADI_UART_HANDLE          hDevice;
-static uint8_t UartDeviceMem[(ADI_UART_MEMORY_SIZE + 3)/4];
+static uint32_t UartDeviceMem[(ADI_UART_MEMORY_SIZE + 3)/4];
 static uint32_t serial_irq_ids[2] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
