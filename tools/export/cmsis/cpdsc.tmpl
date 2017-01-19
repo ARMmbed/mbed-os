@@ -12,7 +12,7 @@
     <project name="{{name}}" documentation="">
       <target Dendian="{{device.dendian}}" Dfpu="{{device.dfpu}}" Dname="{{device.dname}}" Dvendor="{{device.dvendor}}">
         <output debug="1" name="{{name}}" type="exe"/>
-        <debugProbe name="{{device.debug_interface}}" protocol="jtag"/>
+        <debugProbe name="{{device.debug}}" protocol="jtag"/>
       </target>
       {{project_files}}
     </project>
