@@ -472,6 +472,14 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     return fs->mkdir(fp.fileName(), mode);
 }
 
+extern "C" int stat(const char *path, struct stat *st) {
+    FilePath fp(path);
+    FileSystemLike *fs = fp.fileSystem();
+    if (fs == NULL) return -1;
+
+    return fs->stat(fp.fileName(), st);
+}
+
 #if defined(TOOLCHAIN_GCC)
 /* prevents the exception handling name demangling code getting pulled in */
 #include "mbed_error.h"
