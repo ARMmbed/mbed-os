@@ -11,7 +11,7 @@ The current release, along with a selection of previous versions are detailed he
 
 ## Getting Started for Developers
  
-Please note that you will require [mbed-cli](https://github.com/ARMmbed/mbed-cli) to build mbed OS. For more details please read the getting started guide for developers using mbed OS in applications:
+Please note that you will require [mbed CLI](https://github.com/ARMmbed/mbed-cli) to build mbed OS. For more details please read the getting started guide for developers using mbed OS in applications:
  
 - [Getting Started](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/)
 
