@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,12 @@ typedef enum {
     PortC = 2,
     PortD = 3,
     PortE = 4,
-    PortF = 5
+    PortF = 5,
+    PortG = 6,
+    PortH = 7,
+    PortI = 8,
+    PortJ = 9,
+    PortK = 10
 } PortName;
 
 #ifdef __cplusplus
