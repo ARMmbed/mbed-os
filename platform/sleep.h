@@ -21,14 +21,6 @@
 
 #include "sleep_api.h"
 
-#if !DEVICE_SLEEP
-#warning Sleep is not supported on this platform.
-#else /* DEVICE_SLEEP */
-#ifndef NDEBUG
-#warning Sleep is disabled for debug builds.
-#endif /* NDEBUG */
-#endif /* DEVICE_SLEEP */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
