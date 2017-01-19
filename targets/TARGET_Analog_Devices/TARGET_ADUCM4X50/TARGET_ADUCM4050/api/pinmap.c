@@ -29,22 +29,31 @@ void pin_function(PinName pin, int function)
     MBED_ASSERT(pin != (PinName)NC);
 
     uint8_t port = pin >> GPIO_PORT_SHIFT;
+    uint32_t cfg_reg, mask;
+    volatile uint32_t *pGPIO_CFG;
 
     switch (port)
     {
       case 0:
-        *((volatile uint32_t *)REG_GPIO0_CFG) |= function << (pin*2);
+        pGPIO_CFG = (volatile uint32_t *)REG_GPIO0_CFG;
         break;
       case 1:
-        *((volatile uint32_t *)REG_GPIO1_CFG) |= function << (pin*2);
+        pGPIO_CFG = (volatile uint32_t *)REG_GPIO1_CFG;
         break;
       case 2:
-        *((volatile uint32_t *)REG_GPIO2_CFG) |= function << (pin*2);
+        pGPIO_CFG = (volatile uint32_t *)REG_GPIO2_CFG;
         break;
 
       default:
-        break;
+        return;
     }
+
+    cfg_reg = *pGPIO_CFG;
+    // clear the corresponding 2 bit field first before writing the function
+    // bits
+    mask = ~(3 << (pin * 2));
+    cfg_reg = cfg_reg & mask | (function << (pin*2));
+    *pGPIO_CFG = cfg_reg;
 }
 
 void pin_mode(PinName pin, PinMode mode)
