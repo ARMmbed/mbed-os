@@ -47,6 +47,7 @@ rtx_lib.h | Doxygen added |
 rtx_os.h | Doxygen added |
 irq_cm4.s | For all toolchains: added case for Cortex M4 cores without VFP|
 svc_user.c | Removed as it's template file and should not be in our code base|
+rt_OsEventObserver.{c,h} | Added an interface for uVisor to get notified about certain events from privileged code |
 
 #### Other
 
