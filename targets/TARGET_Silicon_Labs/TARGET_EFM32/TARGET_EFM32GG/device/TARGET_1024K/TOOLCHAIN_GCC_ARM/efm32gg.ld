@@ -152,7 +152,7 @@ SECTIONS
   /* Note: The uVisor expects this section at a fixed location, as specified
            by the porting process configuration parameter: SRAM_OFFSET. */
   __UVISOR_SRAM_OFFSET = 0x0;
-  __UVISOR_SRAM_START = ORIGIN(m_data) + __UVISOR_SRAM_OFFSET;
+  __UVISOR_SRAM_START = ORIGIN(RAM) + __UVISOR_SRAM_OFFSET;
   .uvisor.bss __UVISOR_SRAM_START (NOLOAD):
   {
     . = ALIGN(32);
