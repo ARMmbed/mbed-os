@@ -24,7 +24,7 @@
  */
 
 #include "rtx_lib.h"
-
+#include "rt_OsEventObserver.h"
 
 //  OS Runtime Object Memory Usage
 #if ((defined(OS_OBJ_MEM_USAGE) && (OS_OBJ_MEM_USAGE != 0)))
@@ -816,6 +816,13 @@ static osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const 
     EvrRtxThreadError(NULL, (int32_t)osErrorNoMemory);
   }
 
+  /* Notify the OS event observer of a new thread. */
+  if (osEventObs && osEventObs->thread_create) {
+    thread->context = osEventObs->thread_create((int)thread, context);
+  } else {
+    thread->context = context;
+  }
+
   if (thread != NULL) {
     osRtxThreadDispatch(thread);
   }
@@ -1323,6 +1330,10 @@ static osStatus_t svcRtxThreadTerminate (osThreadId_t thread_id) {
       EvrRtxThreadError(thread, (int32_t)osErrorResource);
       status = osErrorResource;
       break;
+  }
+
+  if (osEventObs && osEventObs->thread_destroy) {
+    osEventObs->thread_destroy(thread->context);
   }
 
   if (status == osOK) {

@@ -24,6 +24,7 @@
  */
 
 #include "rtx_lib.h"
+#include "rt_OsEventObserver.h"
 
 
 //  OS Runtime Information
@@ -312,7 +313,7 @@ static int32_t svcRtxKernelLock (void) {
   }
   return lock;
 }
- 
+
 /// Unlock the RTOS Kernel scheduler.
 /// \note API identical to osKernelUnlock
 static int32_t svcRtxKernelUnlock (void) {
@@ -430,7 +431,7 @@ static void svcRtxKernelResume (uint32_t sleep_ticks) {
       thread->delay = 1U;
       do {
         osRtxThreadDelayTick();
-        if (delay == 0U) { 
+        if (delay == 0U) {
           break;
         }
         delay--;
@@ -578,6 +579,13 @@ osStatus_t osKernelStart (void) {
     EvrRtxKernelError((int32_t)osErrorISR);
     status = osErrorISR;
   } else {
+    /* Call the pre-start event (from unprivileged mode) if the handler exists
+    * and the kernel is not running. */
+    /* FIXME osEventObs needs to be readable but not writable from unprivileged
+    * code. */
+    if (osKernelGetState() != osKernelRunning && osEventObs && osEventObs->pre_start) {
+      osEventObs->pre_start();
+    }
     status = __svcKernelStart();
   }
   return status;
@@ -596,7 +604,7 @@ int32_t osKernelLock (void) {
   }
   return lock;
 }
- 
+
 /// Unlock the RTOS Kernel scheduler.
 int32_t osKernelUnlock (void) {
   int32_t lock;
