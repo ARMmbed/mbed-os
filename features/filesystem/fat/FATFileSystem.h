@@ -72,6 +72,11 @@ public:
      * Creates a directory path
      */
     virtual int mkdir(const char *name, mode_t mode);
+
+    /**
+     * Store information about file in stat structure
+     */
+    virtual int stat(const char *name, struct stat *st);
     
     /**
      * Mounts the filesystem
