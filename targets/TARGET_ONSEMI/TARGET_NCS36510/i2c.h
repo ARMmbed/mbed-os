@@ -83,13 +83,17 @@
 #define I2C_APB_CLK_DIVIDER_VAL_MASK    0x1FE0
 
 /* Error check */
-#define I2C_UFL_CHECK         (d->membase->STATUS.WORD & 0x80)
-#define FIFO_OFL_CHECK        (d->membase->STATUS.WORD & 0x10)
-#define I2C_BUS_ERR_CHECK     (d->membase->STATUS.WORD & 0x04)
-#define RD_DATA_READY         (d->membase->STATUS.WORD & 0x02)
+#define I2C_UFL_CHECK         (obj->membase->STATUS.WORD & 0x80)
+#define I2C_FIFO_FULL         (obj->membase->STATUS.WORD & 0x20)
+#define FIFO_OFL_CHECK        (obj->membase->STATUS.WORD & 0x10)
+#define I2C_BUS_ERR_CHECK     (obj->membase->STATUS.WORD & 0x04)
+#define RD_DATA_READY         (obj->membase->STATUS.WORD & 0x02)
+#define I2C_FIFO_EMPTY        (obj->membase->STATUS.WORD & 0x01)
 
 #define I2C_API_STATUS_SUCCESS    0
 #define PAD_REG_ADRS_BYTE_SIZE    4
+
+#define SEND_COMMAND(cmd)  while(!I2C_FIFO_EMPTY); wait_us(1); obj->membase->CMD_REG = cmd;
 
 /** Init I2C device.
  * @details
