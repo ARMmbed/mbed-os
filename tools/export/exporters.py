@@ -111,11 +111,12 @@ class Exporter(object):
             source_files.extend(getattr(self.resources, key))
         return list(set([os.path.dirname(src) for src in source_files]))
 
-    def gen_file(self, template_file, data, target_file):
+    def gen_file(self, template_file, data, target_file, **kwargs):
         """Generates a project file from a template using jinja"""
         jinja_loader = FileSystemLoader(
             os.path.dirname(os.path.abspath(__file__)))
-        jinja_environment = Environment(loader=jinja_loader, undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
+        jinja_environment = Environment(loader=jinja_loader,
+                                        undefined=StrictUndefined, **kwargs)
 
         template = jinja_environment.get_template(template_file)
         target_text = template.render(data)
