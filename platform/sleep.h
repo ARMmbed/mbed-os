@@ -42,7 +42,7 @@ extern "C" {
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
  */
-__INLINE void sleep(void)
+__INLINE static void sleep(void)
 {
 #ifdef NDEBUG
 #if DEVICE_SLEEP
@@ -67,7 +67,7 @@ __INLINE void sleep(void)
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
  */
-__INLINE void deepsleep(void)
+__INLINE static void deepsleep(void)
 {
 #ifdef NDEBUG
 #if DEVICE_SLEEP
