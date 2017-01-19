@@ -15,6 +15,7 @@
  */
 
 #include "cmsis.h"
+#include "PinNames.h"
 
 void mbed_sdk_init()
 {
@@ -22,12 +23,12 @@ void mbed_sdk_init()
     char* debug_time = __TIME__;
 
     // Default RF switch setting, pull p19 to low and p28 to high for turning antenna switch to BLE radiated path
-    NRF_GPIO->PIN_CNF[19] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+    NRF_GPIO->PIN_CNF[p19] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos)
                                         | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-    NRF_GPIO->PIN_CNF[28] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+    NRF_GPIO->PIN_CNF[p28] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos)
@@ -40,8 +41,8 @@ void mbed_sdk_init()
     NRF_CLOCK->XTALFREQ = 0x00;
     NRF_CLOCK->EVENTS_HFCLKSTARTED  = 0;
     NRF_CLOCK->TASKS_HFCLKSTART     = 1;
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0)
-    {// Do nothing.
+    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
+    // Do nothing.
     }
 
 }
