@@ -283,16 +283,36 @@ class GNUARMEclipse(Exporter):
         # print 'source folders'
         # print source_folders
 
-        top_folders = [f for f in set(s.split(os.sep)[0]
+        # Source folders were converted before and are guaranteed to
+        # use the POSIX separator.
+        top_folders = [f for f in set(s.split('/')[0]
                                       for s in source_folders)]
         # print 'top folders'
         # print top_folders
 
         self.source_tree = {}
         for top_folder in top_folders:
-            for root, dirs, files in os.walk(top_folder):
+            for root, dirs, files in os.walk(top_folder, topdown=True):
+                # print root, dirs, files
+
+                # Paths returned by os.walk() must be split with os.dep
+                # to accomodate Windows weirdness.
+                parts = root.split(os.sep)
+
+                # Ignore paths that include parts starting with dot.
+                skip = False
+                for part in parts:
+                    if part.startswith('.'):
+                        skip = True
+                        break
+                if skip:
+                    continue
+
+                # Further process only leaf paths, (that do not have 
+                # sub-folders).
                 if len(dirs) == 0:
-                    self.add_source_folder_to_tree(root)
+                    # The path is reconstructed using POSIX separators.
+                    self.add_source_folder_to_tree('/'.join(parts))
 
         for folder in source_folders:
             self.add_source_folder_to_tree(folder, True)
@@ -300,6 +320,7 @@ class GNUARMEclipse(Exporter):
         # print
         # print self.source_tree
         # self.dump_paths(self.source_tree)
+        # self.dump_tree(self.source_tree)
 
         # print 'excludings'
         self.excluded_folders = ['BUILD']
@@ -314,12 +335,14 @@ class GNUARMEclipse(Exporter):
         as used.
         """
         # print path, is_used
-        parts = path.split(os.sep)
+
+        # All paths arriving here are guaranteed to use the POSIX
+        # separators, os.walk() paths were also explicitly converted.
+        parts = path.split('/')
+        # print parts
         node = self.source_tree
         prev = None
         for part in parts:
-            if part[0] == '.':
-                continue
             if part not in node.keys():
                 new_node = {}
                 new_node['name'] = part
@@ -346,6 +369,8 @@ class GNUARMEclipse(Exporter):
                     if 'parent' not in cnode:
                         break
                     cnode = cnode['parent']
+
+                # Compose a POSIX path.
                 path = '/'.join(parts)
                 # print path
                 self.excluded_folders.append(path)
@@ -388,7 +413,7 @@ class GNUARMEclipse(Exporter):
                 node = node['parent']
             path = '/'.join(parts)
             print path, nodes[k]['is_used']
-            self.dump_paths(n['children'], depth + 1)
+            self.dump_paths(nodes[k]['children'], depth + 1)
 
     # -------------------------------------------------------------------------
 
