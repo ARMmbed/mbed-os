@@ -51,7 +51,6 @@
 
 #else
 #   include <sys/stat.h>
-#   include <sys/unistd.h>
 #   include <sys/syslimits.h>
 #   define PREFIX(x)    x
 #endif
@@ -385,7 +384,7 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
 extern "C" int _fstat(int fd, struct stat *st) {
-    if ((STDOUT_FILENO == fd) || (STDERR_FILENO == fd) || (STDIN_FILENO == fd)) {
+    if (fd < 3) {
         st->st_mode = S_IFCHR;
         return  0;
     }
