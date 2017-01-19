@@ -34,6 +34,7 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 using namespace utest::v1;
 
@@ -53,9 +54,6 @@ using namespace utest::v1;
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  */
 /* #define FSFAT_SDCARD_INSTALLED */
-//todo: remove next 2 lines.
-#define FSFAT_SDCARD_INSTALLED
-#define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
@@ -125,6 +123,8 @@ SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 #define FSFAT_FOPEN_TEST_04      fsfat_fopen_test_04
 #define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_05
 #define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_06
+#define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_07
+#define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_08
 
 
 /* support functions */
@@ -732,6 +732,99 @@ control_t fsfat_fopen_test_06(const size_t call_count)
 }
 
 
+/** @brief  test for errno reporting on a failed fopen()call
+ *
+ *	This test does the following:
+ *	- tries to open a file that does not exist for reading, and checks that a NULL pointer is returned.
+ *	- checks that errno is not 0 as there is an error.
+ *	- checks that ferror() returns 1 indicating an error exists.
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_07(const size_t call_count)
+{
+	FILE *f = NULL;
+	int ret = -1;
+    char *filename = "/sd/badfile.txt";
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    errno = 0;
+    /* this is expect to fail as the file doesnt exist */
+    f = fopen(filename,"r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: opened non-existent file for reading (filename=%s, f=%p).\n", __func__, filename, f);
+    TEST_ASSERT_MESSAGE(f == NULL, fsfat_fopen_utest_msg_g);
+
+    /* check errno is set correctly */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno has unexpected value (errno != 0 expected) (filename=%s, errno=%d).\n", __func__, filename, errno);
+    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
+
+    /* check ferror() return non-zero indicating there is an error */
+    ret = ferror(f);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return non-zero value when error exists (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
+    return CaseNext;
+}
+
+
+/** @brief  test for operation of clearerr() and ferror()
+ *
+ *  The test does the following:
+ *  - opens and then closes a file, but keeps a copy of the FILE pointer fp.
+ *  - set errno to 0.
+ *  - write to the close file with fwrite(fp) which should return 0 (no writes) and set the errno.
+ *  - check the error condition is set with ferror().
+ *  - clear the error with clearerr().
+ *  - check the error condition is reset with ferror().
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_08(const size_t call_count)
+{
+	FILE *fp = NULL;
+	struct stat file_status;
+	int ret = -1;
+    char *filename = "/sd/test.txt";
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    errno = 0;
+    fp = fopen(filename,"w+");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, f=%p).\n", __func__, filename, fp);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
+
+    /* close the fp but then try to read or write it */
+    ret = fclose(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* try to write to closed file */
+    errno = 0;
+    ret = fwrite("42!", 4, 1, fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fwrite successfully wroted to closed file (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* check that errno is set */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected zero value for errno (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
+
+    /* check that errno is set to the expected value (this may change differ for different libc's) */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EBADF (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno == EBADF, fsfat_fopen_utest_msg_g);
+
+    /* check clearerr() return clears the error */
+    clearerr(fp);
+    ret = ferror(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return zero value when error has been cleared (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    printf("%s:errno=%d\n", __func__, errno);
+
+    return CaseNext;
+}
+
 
 #else
 
@@ -743,6 +836,8 @@ control_t fsfat_fopen_test_06(const size_t call_count)
 #define FSFAT_FOPEN_TEST_04      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_dummy
 
 /** @brief  fsfat_fopen_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
  *
@@ -767,12 +862,16 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+#ifdef FOPEN_LONG_TESTING
         Case("FSFAT_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath.", FSFAT_FOPEN_TEST_01),
         Case("FSFAT_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.", FSFAT_FOPEN_TEST_02),
         Case("FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSFAT_FOPEN_TEST_03),
         Case("FSFAT_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.", FSFAT_FOPEN_TEST_04),
         Case("FSFAT_FOPEN_TEST_05: fopen() with filenames including illegal characters.", FSFAT_FOPEN_TEST_05),
-        Case("FSFAT_FOPEN_TEST_06", FSFAT_FOPEN_TEST_06)
+#endif
+        Case("FSFAT_FOPEN_TEST_06", FSFAT_FOPEN_TEST_06),
+        Case("FSFAT_FOPEN_TEST_07: fopen()/errno handling.", FSFAT_FOPEN_TEST_07),
+        Case("FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSFAT_FOPEN_TEST_08)
 };
 
 
