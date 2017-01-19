@@ -32,6 +32,7 @@
 #endif
 #include <errno.h>
 
+
 #if defined(__ARMCC_VERSION)
 #   include <rt_sys.h>
 #   define PREFIX(x)    _sys##x
@@ -152,6 +153,17 @@ extern "C" WEAK void mbed_sdk_init(void);
 extern "C" WEAK void mbed_sdk_init(void) {
 }
 
+/* @brief 	standard c library fopen() retargeting function.
+ *
+ * This function is invoked by the standard c library retargeting to handle fopen()
+ *
+ * @return
+ *  On success, a valid FILEHANDLE is returned.
+ *  On failure, -1 is returned and errno is set to an appropriate value e.g.
+ *   EBADF		a bad file descriptor was found (default errno setting)
+ *	 EMFILE		the maximum number of open files was exceeded.
+ *
+ * */
 extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
     // Before version 5.03, we were using a patched version of microlib with proper names
@@ -178,13 +190,19 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     }
     #endif
 
+    /* if something goes wrong and errno is not explicly set, errno will be set to EBADF */
+    errno = EBADF;
+
     // find the first empty slot in filehandles
     filehandle_mutex->lock();
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
+    	/* Take a next free filehandle slot available. */
         if (filehandles[fh_i] == NULL) break;
     }
     if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
+        /* Too many file handles have been opened */
+        errno = EMFILE;
         filehandle_mutex->unlock();
         return -1;
     }
