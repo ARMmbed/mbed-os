@@ -182,6 +182,28 @@ int FATFileSystem::mkdir(const char *name, mode_t mode) {
     return res == 0 ? 0 : -1;
 }
 
+int FATFileSystem::stat(const char *name, struct stat *st) {
+    lock();
+    FILINFO f;
+    memset(&f, 0, sizeof(f));
+
+    FRESULT res = f_stat(name, &f);
+    if (res != 0) {
+        unlock();
+        return -1;
+    }
+
+    st->st_size = f.fsize;
+    st->st_mode = 0;
+    st->st_mode |= (f.fattrib & AM_DIR) ? S_IFDIR : S_IFREG;
+    st->st_mode |= (f.fattrib & AM_RDO) ?
+        (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
+        (S_IRWXU | S_IRWXG | S_IRWXO);
+
+    unlock();
+    return 0;
+}
+
 int FATFileSystem::mount() {
     lock();
     FRESULT res = f_mount(&_fs, _fsid, 1);
