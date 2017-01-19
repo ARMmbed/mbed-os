@@ -43,8 +43,8 @@ core_cm.h | Doxygen added; included headers changed to match mbed OS core select
 RTX_Config.h | Doxygen added, mbed OS RTX config included |
 rtx_evr.c | CMSIS component definition include removed |
 rtx_evr.h | Doxygen added |
-rtx_thread.c | Added per-thread uVisor context |
-rtx_kernel.c | Added per-thread uVisor context |
+rtx_thread.c | Added per-thread uVisor context; notify uVisor of OS events  |
+rtx_kernel.c | Added per-thread uVisor context; notify uVisor of OS events |
 rtx_lib.h | Doxygen added; added per-thread uVisor context |
 rtx_os.h | Doxygen added; added per-thread uVisor context |
 irq_cm4.s | For all toolchains: added case for Cortex M4 cores without VFP|
