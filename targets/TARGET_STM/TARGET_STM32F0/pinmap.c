@@ -49,42 +49,7 @@ static const uint32_t gpio_mode[13] = {
     0x10000000  // 12 = Reset IT and EVT (not in STM32Cube HAL)
 };
 
-// Enable GPIO clock and return GPIO base address
-uint32_t Set_GPIO_Clock(uint32_t port_idx) {
-    uint32_t gpio_add = 0;
-    switch (port_idx) {
-        case PortA:
-            gpio_add = GPIOA_BASE;
-            __GPIOA_CLK_ENABLE();
-            break;
-        case PortB:
-            gpio_add = GPIOB_BASE;
-            __GPIOB_CLK_ENABLE();
-            break;
-#if defined(GPIOC_BASE)
-        case PortC:
-            gpio_add = GPIOC_BASE;
-            __GPIOC_CLK_ENABLE();
-            break;
-#endif
-#if defined(GPIOD_BASE)
-        case PortD:
-            gpio_add = GPIOD_BASE;
-            __GPIOD_CLK_ENABLE();
-            break;
-#endif
-#if defined(GPIOF_BASE)
-        case PortF:
-            gpio_add = GPIOF_BASE;
-            __GPIOF_CLK_ENABLE();
-            break;
-#endif
-        default:
-            error("Pinmap error: wrong port number.");
-            break;
-    }
-    return gpio_add;
-}
+extern GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx);
 
 /**
  * Configure pin (mode, speed, output type and pull-up/pull-down)
@@ -101,8 +66,7 @@ void pin_function(PinName pin, int data) {
     uint32_t pin_index  = STM_PIN(pin);
 
     // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
 
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -130,8 +94,7 @@ void pin_mode(PinName pin, PinMode mode) {
     uint32_t pin_index  = STM_PIN(pin);
 
     // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
 
     // Configure pull-up/pull-down resistors
     uint32_t pupd = (uint32_t)mode;
@@ -148,7 +111,7 @@ void pin_function_gpiomode(PinName pin, uint32_t gpiomode) {
     /* Read current pull state from HW to avoid over-write*/
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *) Set_GPIO_Clock(port_index);
+    GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
     uint32_t temp = gpio->PUPDR;
     uint32_t pull = (temp  >> (pin_index * 2U)) & GPIO_PUPDR_PUPDR0;
 

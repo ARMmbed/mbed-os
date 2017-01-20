@@ -43,7 +43,7 @@
 typedef struct gpio_channel {
     uint32_t pin_mask;                   // bitmask representing which pins are configured for receiving interrupts
     uint32_t channel_ids[MAX_PIN_LINE];  // mbed "gpio_irq_t gpio_irq" field of instance
-    uint32_t channel_gpio[MAX_PIN_LINE]; // base address of gpio port group
+    GPIO_TypeDef* channel_gpio[MAX_PIN_LINE]; // base address of gpio port group
     uint32_t channel_pin[MAX_PIN_LINE];  // pin number in port group
 } gpio_channel_t;
 
@@ -159,7 +159,7 @@ static void gpio_irq6(void)
 }
 #endif
 
-extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
+extern GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx);
 extern void pin_function_gpiomode(PinName pin, uint32_t gpiomode);
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
@@ -221,7 +221,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     }
 
     // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    GPIO_TypeDef *gpio_add = Set_GPIO_Clock(port_index);
 
     // Save informations for future use
     obj->irq_n = pin_lines_desc[pin_index].irq_n;
