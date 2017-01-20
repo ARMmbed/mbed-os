@@ -22,11 +22,12 @@ the GNU ARM Eclipse plug-ins.
 Author: Liviu Ionescu <ilg@livius.net>
 """
 from tools.export.exporters import Exporter
-from os.path import splitext, basename, relpath, dirname
+from os.path import splitext, basename, relpath, dirname, exists
 from random import randint
 import os
 import copy
 import tempfile
+import shutil
 from subprocess import call, Popen, PIPE
 
 # import logging
@@ -193,7 +194,7 @@ class GNUARMEclipse(Exporter):
 
     # override
     @staticmethod
-    def build(project_name, log_name="build_log.txt", cleanup=True):
+    def build(project_name, log_name="build_log.txt", cleanup=False):
         """
         Headless build an Eclipse project.
 
@@ -228,16 +229,36 @@ class GNUARMEclipse(Exporter):
             '--launcher.suppressErrors',
             '-nosplash',
             '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
-            '-data', tmp_folder,
-            '-import', os.getcwd(),
-            '-cleanBuild', 'all',
+            '-data', relpath(tmp_folder, os.getcwd()),
+            '-import', '.',
+            '-cleanBuild', 'all'
         ]
 
-        ret_code = subprocess.call(cmd)
+        p = Popen(' '.join(cmd), stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        ret_code = p.returncode
+
+        out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        out_string += "See the build log for STDOUT"
+        out_string += "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        out_string += err
+
+        if ret_code == 0:
+            out_string += "SUCCESS"
+        else:
+            out_string += "FAILURE"
+
+        print out_string
+
+        if log_name:
+            # Write the output to the log file
+            with open(log_name, 'w+') as f:
+                f.write(out_string)
 
         # Cleanup the exported and built files
         if cleanup:
-            os.remove(log_name)
+            if exists(log_name):
+                os.remove(log_name)
             os.remove('.project')
             os.remove('.cproject')
             if exists('Debug'):
