@@ -18,11 +18,13 @@
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {P0_10, UART_0, 1},
+	{P1_15, UART_1, 2},
     {NC  ,  NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {P0_11, UART_0, 1},
+	{P2_00, UART_1, 2},
     {NC  ,  NC    , 0}
 };
 #if NOT_YET
