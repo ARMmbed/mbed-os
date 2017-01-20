@@ -174,17 +174,81 @@ The full [test output log][RUN-TESTS-GCC-20161219-1011] is available for referen
 
 mbedOS supports a subset of the POSIX File API, as outlined below:
 
+- clearerr()
+    - STATUS: Basic testing implemented. Working.
 - [fclose()][MAN_FCLOSE].
-- [fgetc(), fgets(), getc(), gets()][MAN_FGETS].
-- [fputc(), fputs(), putc(), puts()][MAN_FPUTS].
+    - STATUS: Basic testing implemented. Working.
+- ferror()
+    - STATUS: Basic testing implemented. Working.
+- [fgetc()][MAN_FGETS].
+    - STATUS: Basic testing implemented. Working.
+- [fgets()][MAN_FGETS].
+    - STATUS: Basic testing implemented. Working.
+- [fputc()][MAN_FPUTS].
+    - STATUS: Unknown.
+- [fputs()][MAN_FPUTS].
+    - STATUS: Basic testing implemented. Working.
 - fprintf()
+    - STATUS: Basic testing implemented. Working.
 - fopen()
+    - STATUS: Basic testing implemented. Working. 
 - freopen()
+    - STATUS: This is not tested.
 - [fread()][MAN_FREAD]
+    - STATUS: Basic testing implemented. Working.
+- ftell()
+    - STATUS: Basic testing implemented. Working.
 - [fwrite()][MAN_FWRITE]
+    - STATUS: Basic testing implemented. Working.
 - [fseek()][MAN_FSEEK]
+    - STATUS: Basic testing implemented. Working.
+- [getc()][MAN_FGETS].
+    - STATUS: Basic testing implemented. Working.
+- [gets()][MAN_FGETS].
+    - STATUS: Unknown.
+- [putc()][MAN_FPUTS].
+    - STATUS: Unknown.
+- [puts()][MAN_FPUTS].
+    - STATUS: Unknown.
 - [remove()][MAN_REMOVE]
+    - STATUS: Basic testing implemented. Working.
+- rewinddir().
+    - STATUS: Implemented. Not tested.
+- stat()
+    - STATUS: Implemented. Not tested.
+- tmpfile()
+    - STATUS: Not implemented.
+- tmpnam() 
+    - STATUS: Not implemented.
+
+Supported directory related operations are as follows:
+
+- closedir().
+    - STATUS: Implemented. Not tested.
+- mkdir(). 
+    - STATUS: Basic testing implemented. Working.
+- opendir(). 
+    - STATUS: Implemented. Not tested.
+- readdir().
+    - STATUS: Implemented. Not tested.
+- [remove()][MAN_REMOVE]
+    - STATUS: Basic testing implemented. Working.
+- rename()
+    - STATUS: Implemented. Not tested.
 - [rewind()][MAN_REWIND].
+    - STATUS: Basic testing implemented. Working. 
+- seekdir()
+    - STATUS: Implemented. Not tested.
+- telldir().
+    - STATUS: Implemented. Not tested.
+
+## errno 
+
+Basic errno reporting is supported, tested and known to be working. This will be extended 
+as further test cases are implemented.
+
+
+## Miscellaneous Information
 
 The FAT32/SDCard support is at the following location in the source code tree:
 
@@ -192,7 +256,8 @@ The FAT32/SDCard support is at the following location in the source code tree:
     
 The FAT32/SDCard test cases are at following locations in the source code tree:
 
-    <mbed-os_src_root>\features\storage\FEATURE_STORAGE\TESTS\fs-fat\basic\basic.cpp
+    <mbed-os_src_root>\features\storage\FEATURE_STORAGE\TESTS\filesystem\basic\basic.cpp
+    <mbed-os_src_root>\features\storage\FEATURE_STORAGE\TESTS\filesystem\fopen\fopen.cpp
 
 
 
