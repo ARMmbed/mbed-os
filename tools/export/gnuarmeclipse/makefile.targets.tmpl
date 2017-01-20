@@ -1,0 +1,8 @@
+define \n
+
+
+endef
+
+mbedclean:
+	$(foreach TO_BE_CLEANED,$(CC_DEPS)$(C++_DEPS)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(SECONDARY_FLASH)$(SECONDARY_SIZE)$(ASM_DEPS)$(S_UPPER_DEPS)$(C_DEPS)$(CPP_DEPS) {{name}}.elf,$(RM) $(TO_BE_CLEANED)${\n})
+	-@echo ' '

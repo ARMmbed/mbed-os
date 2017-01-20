@@ -189,6 +189,7 @@ class GNUARMEclipse(Exporter):
         # expected context values is not defined.
         self.gen_file('gnuarmeclipse/.project.tmpl', ctx, '.project')
         self.gen_file('gnuarmeclipse/.cproject.tmpl', ctx, '.cproject')
+        self.gen_file('gnuarmeclipse/makefile.targets.tmpl', ctx, 'makefile.targets')
 
         print 'Done.'
 
