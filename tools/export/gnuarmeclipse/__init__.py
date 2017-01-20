@@ -195,7 +195,7 @@ class GNUARMEclipse(Exporter):
 
     # override
     @staticmethod
-    def build(project_name, log_name="build_log.txt", cleanup=False):
+    def build(project_name, log_name="build_log.txt", cleanup=True):
         """
         Headless build an Eclipse project.
 
@@ -239,22 +239,24 @@ class GNUARMEclipse(Exporter):
         out, err = p.communicate()
         ret_code = p.returncode
 
-        out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
-        out_string += "See the build log for STDOUT"
-        out_string += "=" * 10 + "STDERR" + "=" * 10 + "\n"
-        out_string += err
+        stdout_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        err_string = "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        err_string += err
 
-        if ret_code == 0:
-            out_string += "SUCCESS"
-        else:
-            out_string += "FAILURE"
 
-        print out_string
+        ret_string = "SUCCESS\n"
+        if ret_code != 0:
+            ret_string += "FAILURE\n"
+
+        print "%s\nSee %s for STDOUT\n%s\n%s" % (stdout_string, log_name, err_string, ret_string)
 
         if log_name:
             # Write the output to the log file
             with open(log_name, 'w+') as f:
-                f.write(out_string)
+                f.write(stdout_string)
+                f.write(out)
+                f.write(err_string)
+                f.write(ret_string)
 
         # Cleanup the exported and built files
         if cleanup:
