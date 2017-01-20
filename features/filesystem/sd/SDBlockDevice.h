@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2006-2012 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,40 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef MBED_MEM_BLOCK_DEVICE_H
-#define MBED_MEM_BLOCK_DEVICE_H
+#ifndef MBED_SD_BLOCK_DEVICE_H
+#define MBED_SD_BLOCK_DEVICE_H
+
+/* If the target has no SPI support then SDCard is not supported */
+#ifdef DEVICE_SPI
 
 #include "BlockDevice.h"
 #include "mbed.h"
 
 
-/** Lazily allocated heap-backed block device
- *
- * Useful for simulating a block device and tests
+/** Access an SD Card using SPI
  *
  * @code
  * #include "mbed.h"
- * #include "HeapBlockDevice.h"
+ * #include "SDBlockDevice.h"
  *
- * HeapBlockDevice bd(2048, 512); // 2048 bytes with a block size of 512 bytes
+ * SDBlockDevice sd(p5, p6, p7, p12); // mosi, miso, sclk, cs
  * uint8_t block[512] = "Hello World!\n";
  *
  * int main() {
- *     bd.init();
- *     bd.write(block, 0);
- *     bd.read(block, 0);
+ *     sd.init();
+ *     sd.write(block, 0, 512);
+ *     sd.read(block, 0, 512);
  *     printf("%s", block);
- *     bd.deinit();
+ *     sd.deinit();
  * }
  */
-class HeapBlockDevice : public BlockDevice {
+class SDBlockDevice : public BlockDevice {
 public:
-
-    /** Lifetime of the memory block device
+    /** Lifetime of an SD card
      */
-    HeapBlockDevice(bd_size_t size, bd_size_t block=512);
-    HeapBlockDevice(bd_size_t size, bd_size_t read, bd_size_t program, bd_size_t erase);
-    virtual ~HeapBlockDevice();
+    SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs);
+    virtual ~SDBlockDevice();
 
     /** Initialize a block device
      *
@@ -105,12 +104,14 @@ public:
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
+     *  @note Must be a multiple of the read size
      */
     virtual bd_size_t get_program_size();
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
+     *  @note Must be a multiple of the program size
      */
     virtual bd_size_t get_erase_size();
 
@@ -120,13 +121,38 @@ public:
      */
     virtual bd_size_t size();
 
+    /** Enable or disable debugging
+     *
+     *  @param          State of debugging
+     */
+    virtual void debug(bool dbg);
+
 private:
-    bd_size_t _read_size;
-    bd_size_t _program_size;
-    bd_size_t _erase_size;
-    bd_size_t _count;
-    uint8_t **_blocks;
+    int _cmd(int cmd, int arg);
+    int _cmdx(int cmd, int arg);
+    int _cmd8();
+    int _cmd58();
+    bd_error_t _initialise_card();
+    bd_error_t _initialise_card_v1();
+    bd_error_t _initialise_card_v2();
+
+    int _read(uint8_t * buffer, uint32_t length);
+    int _write(const uint8_t *buffer, uint32_t length);
+    uint32_t _sd_sectors();
+    uint32_t _sectors;
+
+    uint32_t _init_sck;
+    uint32_t _transfer_sck;
+
+    SPI _spi;
+    DigitalOut _cs;
+    unsigned _block_size;
+    bool _is_initialized;
+    bool _dbg;
+    Mutex _lock;
 };
 
 
-#endif
+#endif  /* DEVICE_SPI */
+
+#endif  /* MBED_SD_BLOCK_DEVICE_H */
