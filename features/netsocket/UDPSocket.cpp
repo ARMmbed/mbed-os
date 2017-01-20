@@ -19,7 +19,7 @@
 #include "mbed_assert.h"
 
 UDPSocket::UDPSocket()
-    : _pending(1), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0), _write_sem(0)
 {
 }
 

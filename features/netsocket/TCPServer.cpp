@@ -18,7 +18,7 @@
 #include "mbed.h"
 
 TCPServer::TCPServer()
-    : _pending(1), _accept_sem(0)
+    : _pending(0), _accept_sem(0)
 {
 }
 
