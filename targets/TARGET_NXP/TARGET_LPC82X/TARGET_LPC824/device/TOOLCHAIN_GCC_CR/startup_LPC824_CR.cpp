@@ -30,9 +30,6 @@
 //*****************************************************************************
 
 #if defined (__cplusplus)
-#ifdef __REDLIB__
-#error Redlib does not support C++
-#else
 //*****************************************************************************
 //
 // The entry point for the C++ library startup
@@ -41,7 +38,6 @@
 extern "C" {
     extern void __libc_init_array(void);
 }
-#endif
 #endif
 
 #define WEAK __attribute__ ((weak))
@@ -53,10 +49,8 @@ extern "C" {
 #endif
 
 //*****************************************************************************
-#if defined (__USE_CMSIS) || defined (__USE_LPCOPEN)
 // Declaration of external SystemInit function
 extern void SystemInit(void);
-#endif
 
 // Patch the AEABI integer divide functions to use MCU's romdivide library
 #ifdef __USE_ROMDIVIDE
@@ -122,15 +116,10 @@ void PIN_INT7_IRQHandler(void) ALIAS(IntDefaultHandler);
 //*****************************************************************************
 //
 // The entry point for the application.
-// __main() is the entry point for Redlib based applications
 // main() is the entry point for Newlib based applications
 //
 //*****************************************************************************
-#if defined (__REDLIB__)
-extern void __main(void);
-#else
 extern int main(void);
-#endif
 //*****************************************************************************
 //
 // External declaration for the pointer to the stack top from the Linker Script
@@ -283,9 +272,7 @@ ResetISR(void) {
     pDivRom_uidiv = (unsigned int *)div_ptr[1];
 #endif
 
-#if defined (__USE_CMSIS) || defined (__USE_LPCOPEN)
     SystemInit();
-#endif
 
 #if defined (__cplusplus)
     //
@@ -294,12 +281,7 @@ ResetISR(void) {
     __libc_init_array();
 #endif
 
-#if defined (__REDLIB__)
-    // Call the Redlib library, which in turn calls main()
-    __main() ;
-#else
     main();
-#endif
 
     //
     // main() shouldn't return, but if it does, we'll just enter an infinite loop
