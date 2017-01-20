@@ -27,7 +27,12 @@
 #include "FATFileSystem.h"
 #include "FATFileHandle.h"
 #include "FATDirHandle.h"
+//<<<<<<< HEAD
 #include "mbed_critical.h"
+//=======
+//#include "critical.h"
+#include <errno.h>
+//>>>>>>> Filesystem: Added EEXIST reporting to mkdir through errno
 
 DWORD get_fattime(void) {
     time_t rawtime;
@@ -178,6 +183,9 @@ DirHandle *FATFileSystem::opendir(const char *name) {
 int FATFileSystem::mkdir(const char *name, mode_t mode) {
     lock();
     FRESULT res = f_mkdir(name);
+    if (res != 0) {
+        errno = (res == FR_EXIST) ? EEXIST : 0;
+    }
     unlock();
     return res == 0 ? 0 : -1;
 }
