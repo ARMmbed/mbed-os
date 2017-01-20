@@ -54,6 +54,9 @@ using namespace utest::v1;
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  */
 /* #define FSFAT_SDCARD_INSTALLED */
+// todo: remove next 2 lines
+#define DEVICE_SPI
+#define FSFAT_SDCARD_INSTALLED
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
@@ -125,6 +128,28 @@ SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 #define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_06
 #define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_07
 #define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_08
+#define FSFAT_FOPEN_TEST_09      fsfat_fopen_test_09
+#define FSFAT_FOPEN_TEST_10      fsfat_fopen_test_10
+#define FSFAT_FOPEN_TEST_11      fsfat_fopen_test_11
+#define FSFAT_FOPEN_TEST_12      fsfat_fopen_test_12
+#define FSFAT_FOPEN_TEST_13      fsfat_fopen_test_13
+#define FSFAT_FOPEN_TEST_14      fsfat_fopen_test_14
+#define FSFAT_FOPEN_TEST_15      fsfat_fopen_test_15
+#define FSFAT_FOPEN_TEST_16      fsfat_fopen_test_16
+#define FSFAT_FOPEN_TEST_17      fsfat_fopen_test_17
+#define FSFAT_FOPEN_TEST_18      fsfat_fopen_test_18
+#define FSFAT_FOPEN_TEST_19      fsfat_fopen_test_19
+#define FSFAT_FOPEN_TEST_20      fsfat_fopen_test_20
+#define FSFAT_FOPEN_TEST_21      fsfat_fopen_test_21
+#define FSFAT_FOPEN_TEST_22      fsfat_fopen_test_22
+#define FSFAT_FOPEN_TEST_23      fsfat_fopen_test_23
+#define FSFAT_FOPEN_TEST_24      fsfat_fopen_test_24
+#define FSFAT_FOPEN_TEST_25      fsfat_fopen_test_25
+#define FSFAT_FOPEN_TEST_26      fsfat_fopen_test_26
+#define FSFAT_FOPEN_TEST_27      fsfat_fopen_test_27
+#define FSFAT_FOPEN_TEST_28      fsfat_fopen_test_28
+#define FSFAT_FOPEN_TEST_29      fsfat_fopen_test_29
+#define FSFAT_FOPEN_TEST_30      fsfat_fopen_test_30
 
 
 /* support functions */
@@ -226,10 +251,11 @@ int32_t fsfat_filepath_remove_all(char* filepath)
  *
  * ARGUMENTS
  *  @param  filepath     IN file path containing directories and file
+ *  @param  do_asserts   IN set to true if function should assert on errors
  *
  * @return  On success, this returns 0, otherwise < 0 is returned;
  */
-static int32_t fsfat_filepath_make_dirs(char* filepath)
+static int32_t fsfat_filepath_make_dirs(char* filepath, bool do_asserts)
 {
     int32_t i = 0;
     int32_t num_parts = 0;
@@ -256,8 +282,10 @@ static int32_t fsfat_filepath_make_dirs(char* filepath)
         pos += sprintf(buf+pos, "/%s", parts[i]);
         FSFAT_DBGLOG("mkdir(%s)\n", buf);
         ret = mkdir(buf, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create directory (filepath2=\"%s\", ret=%d, errno=%d)\n", __func__, buf, (int) ret, errno);
-        TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        if (do_asserts == true) {
+            FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create directory (filepath2=\"%s\", ret=%d, errno=%d)\n", __func__, buf, (int) ret, errno);
+            TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        }
     }
 
     if (buf) {
@@ -297,8 +325,8 @@ static control_t fsfat_fopen_test_01(const size_t call_count)
     /* remove file and directory from a previous failed test run, if present */
     fsfat_filepath_remove_all((char*) node->filename);
 
-    /* create dirs*/
-    ret = fsfat_filepath_make_dirs((char*) node->filename);
+    /* create dirs */
+    ret = fsfat_filepath_make_dirs((char*) node->filename, true);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dirs for filename (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
@@ -782,9 +810,9 @@ control_t fsfat_fopen_test_07(const size_t call_count)
  */
 control_t fsfat_fopen_test_08(const size_t call_count)
 {
-	FILE *fp = NULL;
-	struct stat file_status;
-	int ret = -1;
+    FILE *fp = NULL;
+    struct stat file_status;
+    int ret = -1;
     char *filename = "/sd/test.txt";
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
@@ -825,6 +853,257 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     return CaseNext;
 }
 
+/** @brief  test for operation of ftell()
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_09(const size_t call_count)
+{
+    FILE *fp = NULL;
+    struct stat file_status;
+    int ret = -1;
+    int32_t len = 0;
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* create a file of a certain length */
+    len = strlen(fsfat_fopen_test_02_data[0].value);
+    ret = fsfat_test_create(fsfat_fopen_test_02_data[0].filename, (char*) fsfat_fopen_test_02_data[0].value, len);
+
+    errno = 0;
+    /* Open the file for reading so the file is not truncated to 0 length. */
+    fp = fopen(fsfat_fopen_test_02_data[0].filename, "r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, fp=%p, errno=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, fp, errno);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    ret = fseek(fp, 0, SEEK_END);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fseek() failed to SEEK_END (filename=%s, ret=%d, errno=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    ret = ftell(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ftell() failed to report correct offset value (filename=%s, ret=%d, errno=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == len, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    ret = fclose(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    return CaseNext;
+}
+
+/** @brief  test for operation of remove()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_10(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - test remove() on a file that exists. should succeed.
+     * - test remove() on a dir that exists. should succeed.
+     * - test remove() on a file that doesnt exist. should fail. check errno set.
+     * - test remove() on a dir that doesnt exist. should fail. check errno set.
+     * */
+
+    return CaseNext;
+}
+
+/** @brief  test for operation of rename()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_11(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - test rename() on a file that exists to a new filename within the same directory. should succeed
+     * - test rename() on a file that exists to a new filename within a different directory. should succeed
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of tmpnam() (currrently unimplemented)
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_12(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - show function is not implemented.
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of tmpfile() (currrently unimplemented)
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_13(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - show function is not implemented.
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of opendir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_14(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - open a dir that exists. should succeed.
+     * - open a dir that doesnt exists. should succeed.
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of readdir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_15(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of closedir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_16(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of rewinddir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_17(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+
+/** @brief  test for operation of telldir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_18(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of seekdir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_19(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+
+/* file data for test_20 */
+static fsfat_kv_data_t fsfat_fopen_test_20_kv_data[] = {
+        { "/sd/test_20", "test_dir"},
+        { NULL, NULL},
+};
+/** @brief  test for operation of mkdir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_20(const size_t call_count)
+{
+    int32_t ret = 0;
+    FILE *fp = NULL;
+
+    FSFAT_DBGLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* check that get a suitable error when try to create it again.*/
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: permitted to create directory when already exists (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
+
+    /* check errno is as expected */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EEXIST (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno == EEXIST, fsfat_fopen_utest_msg_g);
+
+    ret = fsfat_filepath_remove_all((char*) fsfat_fopen_test_20_kv_data[0].filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to remove directory (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    return CaseNext;
+}
+
+
+/** @brief  test for operation of stat()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_21(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+
+
+
 
 #else
 
@@ -838,6 +1117,28 @@ control_t fsfat_fopen_test_08(const size_t call_count)
 #define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_09      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_10      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_11      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_12      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_13      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_14      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_15      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_16      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_17      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_18      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_19      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_20      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_21      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_22      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_23      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_24      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_25      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_26      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_27      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_28      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_29      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_30      fsfat_fopen_test_dummy
 
 /** @brief  fsfat_fopen_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
  *
@@ -862,16 +1163,34 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-#ifdef FOPEN_LONG_TESTING
         Case("FSFAT_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath.", FSFAT_FOPEN_TEST_01),
         Case("FSFAT_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.", FSFAT_FOPEN_TEST_02),
         Case("FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSFAT_FOPEN_TEST_03),
         Case("FSFAT_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.", FSFAT_FOPEN_TEST_04),
+#ifdef FOPEN_EXTENDED_TESTING
         Case("FSFAT_FOPEN_TEST_05: fopen() with filenames including illegal characters.", FSFAT_FOPEN_TEST_05),
 #endif
         Case("FSFAT_FOPEN_TEST_06", FSFAT_FOPEN_TEST_06),
         Case("FSFAT_FOPEN_TEST_07: fopen()/errno handling.", FSFAT_FOPEN_TEST_07),
-        Case("FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSFAT_FOPEN_TEST_08)
+        Case("FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSFAT_FOPEN_TEST_08),
+        Case("FSFAT_FOPEN_TEST_09: ftell() handling.", FSFAT_FOPEN_TEST_09),
+#ifdef FOPEN_NOT_IMPLEMENTED
+        Case("FSFAT_FOPEN_TEST_10: todo.", FSFAT_FOPEN_TEST_10),
+        Case("FSFAT_FOPEN_TEST_11: todo.", FSFAT_FOPEN_TEST_11),
+        Case("FSFAT_FOPEN_TEST_12: todo.", FSFAT_FOPEN_TEST_12),
+        Case("FSFAT_FOPEN_TEST_13: todo.", FSFAT_FOPEN_TEST_13),
+        Case("FSFAT_FOPEN_TEST_14: todo.", FSFAT_FOPEN_TEST_14),
+        Case("FSFAT_FOPEN_TEST_15: todo.", FSFAT_FOPEN_TEST_15),
+        Case("FSFAT_FOPEN_TEST_16: todo.", FSFAT_FOPEN_TEST_16),
+        Case("FSFAT_FOPEN_TEST_17: todo.", FSFAT_FOPEN_TEST_17),
+        Case("FSFAT_FOPEN_TEST_18: todo.", FSFAT_FOPEN_TEST_18),
+        Case("FSFAT_FOPEN_TEST_19: todo.", FSFAT_FOPEN_TEST_19),
+#endif /* FOPEN_NOT_IMPLEMENTED */
+        Case("FSFAT_FOPEN_TEST_20: mkdir() test.", FSFAT_FOPEN_TEST_20),
+#ifdef FOPEN_NOT_IMPLEMENTED
+        Case("FSFAT_FOPEN_TEST_21: todo.", FSFAT_FOPEN_TEST_21),
+#endif /* FOPEN_NOT_IMPLEMENTED */
+
 };
 
 
