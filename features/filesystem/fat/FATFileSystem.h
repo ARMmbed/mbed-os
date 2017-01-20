@@ -23,6 +23,7 @@
 #define MBED_FATFILESYSTEM_H
 
 #include "FileSystemLike.h"
+#include "BlockDevice.h"
 #include "FileHandle.h"
 #include "ff.h"
 #include <stdint.h>
@@ -35,13 +36,28 @@ using namespace mbed;
  */
 class FATFileSystem : public FileSystemLike {
 public:
-
-    FATFileSystem(const char* n);
+    FATFileSystem(const char* n, BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
+    
+    /**
+     * Mounts the filesystem
+     */
+    virtual int mount(BlockDevice *bd);
+    
+    /**
+     * Unmounts the filesystem
+     */
+    virtual int unmount();
 
-    static FATFileSystem * _ffs[_VOLUMES];   // FATFileSystem objects, as parallel to FatFs drives array
-    FATFS _fs;                               // Work area (file system object) for logical drive
-    char _fsid[2];
+    /**
+     * Flush any underlying transactions
+     */
+    virtual int sync();
+    
+    /**
+     * Formats a logical drive, FDISK partitioning rule, 512 bytes per cluster
+     */
+    static int format(BlockDevice *bd);
 
     /**
      * Opens a file on the filesystem
@@ -59,11 +75,6 @@ public:
     virtual int rename(const char *oldname, const char *newname);
     
     /**
-     * Formats a logical drive, FDISK artitioning rule, 512 bytes per cluster
-     */
-    virtual int format();
-    
-    /**
      * Opens a directory on the filesystem
      */
     virtual DirHandle *opendir(const char *name);
@@ -78,32 +89,15 @@ public:
      */
     virtual int stat(const char *name, struct stat *st);
     
-    /**
-     * Mounts the filesystem
-     */
-    virtual int mount();
-    
-    /**
-     * Unmounts the filesystem
-     */
-    virtual int unmount();
-
-    virtual int disk_initialize() { return 0; }
-    virtual int disk_status() { return 0; }
-    virtual int disk_read(uint8_t *buffer, uint32_t sector, uint32_t count) = 0;
-    virtual int disk_write(const uint8_t *buffer, uint32_t sector, uint32_t count) = 0;
-    virtual int disk_sync() { return 0; }
-    virtual uint32_t disk_sectors() = 0;
-
 protected:
+    FATFS _fs; // Work area (file system object) for logical drive
+    char _fsid[2];
+    int _id;
+
+    virtual int mount(BlockDevice *bd, bool force);
 
     virtual void lock();
     virtual void unlock();
-
-private:
-
-    PlatformMutex *_mutex;
-
 };
 
 #endif
