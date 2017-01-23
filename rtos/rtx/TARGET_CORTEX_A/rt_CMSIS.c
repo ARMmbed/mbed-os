@@ -843,10 +843,27 @@ os_InRegs osEvent_type svcThreadGetInfo (osThreadId thread_id, osThreadInfo info
   }
 
   if (osThreadInfoStackMax == info) {
-    // Cortex-A RTX does not have stack init so
-    // the maximum stack usage cannot be obtained.
-    ret.status = osErrorResource;
-    return osEvent_ret_status;
+    uint32_t i;
+    uint32_t *stack_ptr;
+    uint32_t stack_size;
+    if (!(os_stackinfo & (1 << 28))) {
+      // Stack init must be turned on for max stack usage
+      ret.status = osErrorResource;
+      return osEvent_ret_status;
+    }
+    stack_ptr = (uint32_t*)ptcb->stack;
+    stack_size = ptcb->priv_stack;
+    if (0 == stack_size) {
+      // This is an OS task - always a fixed size
+      stack_size = os_stackinfo & 0x3FFFF;
+    }
+    for (i = 1; i <stack_size / 4; i++) {
+      if (stack_ptr[i] != MAGIC_PATTERN) {
+        break;
+      }
+    }
+    ret.value.v = stack_size - i * 4;
+    return osEvent_ret_value;
   }
 
   if (osThreadInfoEntry == info) {
