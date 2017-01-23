@@ -492,14 +492,12 @@ int i2c_start(i2c_t *obj) {
 int i2c_stop(i2c_t *obj) {
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-    int timeout;
 
     // Generate the STOP condition
     i2c->CR1 |= I2C_CR1_STOP;
 
     /*  In case of mixed usage of the APIs (unitary + SYNC)
-     *  re-inti HAL state
+     *  re-init HAL state
      */
     if(obj_s->XferOperation != I2C_FIRST_AND_LAST_FRAME)
             i2c_init(obj, obj_s->sda, obj_s->scl);
