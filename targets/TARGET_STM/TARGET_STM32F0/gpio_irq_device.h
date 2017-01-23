@@ -30,11 +30,11 @@
 #ifndef MBED_GPIO_IRQ_DEVICE_H
 #define MBED_GPIO_IRQ_DEVICE_H
 
-#include "cmsis.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "stm32f0xx_ll_exti.h"
 
 // Number of EXTI irq vectors (EXTI0_1, EXTI2_3, EXTI4_15)
 #define CHANNEL_NUM (3)
@@ -75,5 +75,9 @@ static exti_lines_t pin_lines_desc[16] =
     {.gpio_idx = 10, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 14
     {.gpio_idx = 11, .irq_index = 2, .irq_n = EXTI4_15_IRQn}// pin 15
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

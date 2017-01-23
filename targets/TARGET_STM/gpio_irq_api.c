@@ -171,7 +171,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     if (pin == NC) return -1;
 
-    uint32_t port_index = STM_PORT(pin);
+    /* Enable SYSCFG Clock */
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+
+    uint32_t port_index  = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
     irq_index =  pin_lines_desc[pin_index].irq_index;
 
@@ -220,9 +223,6 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
 
-    // Configure GPIO
-    pin_function(pin, STM_PIN_DATA(STM_MODE_IT_FALLING, GPIO_NOPULL, 0));
-
     // Save informations for future use
     obj->irq_n = pin_lines_desc[pin_index].irq_n;
     obj->irq_index =  pin_lines_desc[pin_index].irq_index;
@@ -240,83 +240,71 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     // Enable EXTI interrupt
     NVIC_SetVector(obj->irq_n, vector);
-    NVIC_EnableIRQ(obj->irq_n);
+    gpio_irq_enable(obj);
 
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    gpio_channel_t *gpio_channel = &channels[obj->irq_index];
-    uint32_t pin_index  = STM_PIN(obj->pin);
-    uint32_t gpio_addr = GPIOA_BASE + (GPIOB_BASE-GPIOA_BASE) * STM_PORT(obj->pin);
     uint32_t gpio_idx = pin_lines_desc[STM_PIN(obj->pin)].gpio_idx;
-    
-    HAL_GPIO_DeInit((GPIO_TypeDef *)gpio_addr, (1<<pin_index));
+    gpio_channel_t *gpio_channel = &channels[obj->irq_index];
+
+    gpio_irq_disable(obj);
     gpio_channel->pin_mask &= ~(1 << gpio_idx);
     gpio_channel->channel_ids[gpio_idx] = 0;
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
-
-    // Disable EXTI line, but don't change pull-up config
-    pin_function_gpiomode(obj->pin, STM_MODE_INPUT);
-    obj->event = EDGE_NONE;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    uint32_t mode = STM_MODE_IT_EVT_RESET;
-
-    if (enable) {
-        if (event == IRQ_RISE) {
-            if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
-                mode = STM_MODE_IT_RISING_FALLING;
-                obj->event = EDGE_BOTH;
-            } else { // NONE or RISE
-                mode = STM_MODE_IT_RISING;
-                obj->event = EDGE_RISE;
-            }
+    if (event == IRQ_RISE)
+    {
+        if (enable)
+        {
+            LL_EXTI_EnableRisingTrig_0_31(1 << STM_PIN(obj->pin));
         }
-        if (event == IRQ_FALL) {
-            if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
-                mode = STM_MODE_IT_RISING_FALLING;
-                obj->event = EDGE_BOTH;
-            } else { // NONE or FALL
-                mode = STM_MODE_IT_FALLING;
-                obj->event = EDGE_FALL;
-            }
-        }
-    } else { // Disable
-        if (event == IRQ_RISE) {
-            if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
-                mode = STM_MODE_IT_FALLING;
-                obj->event = EDGE_FALL;
-            } else { // NONE or RISE
-                mode = STM_MODE_INPUT;
-                obj->event = EDGE_NONE;
-            }
-        }
-        if (event == IRQ_FALL) {
-            if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
-                mode = STM_MODE_IT_RISING;
-                obj->event = EDGE_RISE;
-            } else { // NONE or FALL
-                mode = STM_MODE_INPUT;
-                obj->event = EDGE_NONE;
-            }
+        else
+        {
+            LL_EXTI_DisableRisingTrig_0_31(1 << STM_PIN(obj->pin));
         }
     }
-
-    pin_function_gpiomode(obj->pin, mode);
+    if (event == IRQ_FALL)
+    {
+        if (enable)
+        {
+            LL_EXTI_EnableFallingTrig_0_31(1 << STM_PIN(obj->pin));
+        }
+        else
+        {
+            LL_EXTI_DisableFallingTrig_0_31(1 << STM_PIN(obj->pin));
+        }
+    }
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
+    uint32_t temp = 0;
+    uint32_t port_index = STM_PORT(obj->pin);
+    uint32_t pin_index  = STM_PIN(obj->pin);
+
+    /*  Select Source  */
+    temp = SYSCFG->EXTICR[pin_index >> 2];
+    CLEAR_BIT(temp, (0x0FU) << (4U * (pin_index & 0x03U)));
+    SET_BIT(temp, port_index << (4U * (pin_index & 0x03U)));
+    SYSCFG->EXTICR[pin_index >> 2] = temp;
+
+    LL_EXTI_EnableIT_0_31(1 << pin_index);
+
     NVIC_EnableIRQ(obj->irq_n);
 }
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
+    /* Clear EXTI line configuration */
+    LL_EXTI_DisableIT_0_31(1 << STM_PIN(obj->pin));
     NVIC_DisableIRQ(obj->irq_n);
+    NVIC_ClearPendingIRQ(obj->irq_n);
     obj->event = EDGE_NONE;
 }
