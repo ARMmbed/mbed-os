@@ -18,7 +18,7 @@
 
 /*  144 pins boards */
 #if defined(TARGET_NUCLEO_F429ZI) || defined(TARGET_NUCLEO_F446ZE)  || defined(TARGET_NUCLEO_F207ZG) \
-|| defined(TARGET_NUCLEO_F767ZI) || defined(TARGET_NUCLEO_F746ZG)
+|| defined(TARGET_NUCLEO_F767ZI) || defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_NUCLEO_F412ZG)
 #include "USBHALHost_STM_144_64pins.h"
 #endif
 
