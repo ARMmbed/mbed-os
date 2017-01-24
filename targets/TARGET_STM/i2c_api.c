@@ -627,10 +627,9 @@ int i2c_byte_read(i2c_t *obj, int last) {
         }
     }
 
-    /*  Enable reload mode as we don't know how many bytes will eb sent */
-    handle->Instance->CR2 |= I2C_CR2_RELOAD;
-    /*  Set transfer size to 1 */
-    handle->Instance->CR2 |= (I2C_CR2_NBYTES & (1 << 16));
+    /* Enable reload mode as we don't know how many bytes will be sent */
+    /* and set transfer size to 1 */
+    tmpreg |= I2C_CR2_RELOAD | (I2C_CR2_NBYTES & (1 << 16));
     /* Set the prepared configuration */
     handle->Instance->CR2 = tmpreg;
 
