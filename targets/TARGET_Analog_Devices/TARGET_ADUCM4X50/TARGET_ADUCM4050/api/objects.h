@@ -36,6 +36,10 @@ struct serial_s {
 	int index;
 };
 
+struct trng_s {
+    uint8_t dummy;
+};
+
 #include "gpio_object.h"
 
 
