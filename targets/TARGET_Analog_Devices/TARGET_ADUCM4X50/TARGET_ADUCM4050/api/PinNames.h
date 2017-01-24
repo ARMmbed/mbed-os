@@ -104,7 +104,8 @@ typedef enum {
     // USB Pins
     USBTX = P0_10,
     USBRX = P0_11,
-
+    USBTX0= P1_15,
+    USBRX0= P2_00,
     // Arduino Headers
     D0 = P0_11,
     D1 = P0_10,

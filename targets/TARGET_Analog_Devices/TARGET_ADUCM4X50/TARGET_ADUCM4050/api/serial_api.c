@@ -28,9 +28,10 @@
 #include "PeripheralPins.h"
 #include "drivers/uart/adi_uart.h"
 #define ADI_UART_MEMORY_SIZE   (ADI_UART_BIDIR_MEMORY_SIZE)
+#define ADI_UART_NUM_DEVICES 2
 
-static ADI_UART_HANDLE          hDevice;
-static uint32_t UartDeviceMem[(ADI_UART_MEMORY_SIZE + 3)/4];
+static ADI_UART_HANDLE          hDevice[ADI_UART_NUM_DEVICES];
+static uint32_t UartDeviceMem[ADI_UART_NUM_DEVICES][(ADI_UART_MEMORY_SIZE + 3)/4];
 static uint32_t serial_irq_ids[2] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
@@ -51,7 +52,7 @@ static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 
 void serial_free(serial_t *obj)
 {
-    adi_uart_Close(hDevice);
+    adi_uart_Close(hDevice[obj->index]);
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -72,7 +73,7 @@ void serial_baud(serial_t *obj, int baudrate)
             break;
 	}
 
-    adi_uart_ConfigBaudRate(hDevice,uartdivc,uartdivm,uartdivn,uartosr);
+    adi_uart_ConfigBaudRate(hDevice[obj->index],uartdivc,uartdivm,uartdivn,uartosr);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
@@ -95,7 +96,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 	if (parity == ParityForced0)
 	    convertedparity = ADI_UART_EVEN_PARITY_STICKY;
 
-	adi_uart_SetConfiguration(hDevice, convertedparity, convertedstopbits, (data_bits - 5));
+	adi_uart_SetConfiguration(hDevice[obj->index], convertedparity, convertedstopbits, (data_bits - 5));
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
@@ -105,7 +106,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
 
-	adi_uart_Open(0, ADI_UART_DIR_BIDIRECTION, UartDeviceMem, ADI_UART_MEMORY_SIZE, &hDevice);
+	adi_uart_Open(obj->index, ADI_UART_DIR_BIDIRECTION, UartDeviceMem[obj->index], ADI_UART_MEMORY_SIZE, &hDevice[obj->index]);
 
 	serial_baud(obj, 9600);
 	serial_format(obj, 8, ParityNone, 1);
@@ -130,10 +131,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 
     // set maximum FIFO depth
-    adi_uart_SetRxFifoTriggerLevel(hDevice, ADI_UART_RX_FIFO_TRIG_LEVEL_14BYTE);
+    adi_uart_SetRxFifoTriggerLevel(hDevice[obj->index], ADI_UART_RX_FIFO_TRIG_LEVEL_14BYTE);
 
     // enable FIFO
-	adi_uart_EnableFifo(hDevice, true);
+	adi_uart_EnableFifo(hDevice[obj->index], true);
 }
 
 int serial_getc(serial_t *obj)
@@ -141,7 +142,7 @@ int serial_getc(serial_t *obj)
 	int c;
 	uint32_t hwErr;
 
-    adi_uart_Read(hDevice, (void *) &c, 1, false, &hwErr);
+    adi_uart_Read(hDevice[obj->index], (void *) &c, 1, false, &hwErr);
     return (c);
 }
 
@@ -149,7 +150,7 @@ void serial_putc(serial_t *obj, int c)
 {
     uint32_t hwErr;
 
-	adi_uart_Write(hDevice, &c, 1, false, &hwErr);
+	adi_uart_Write(hDevice[obj->index], &c, 1, false, &hwErr);
 	return;
 }
 
@@ -167,7 +168,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     MBED_ASSERT(obj);
 
-    adi_uart_RegisterCallback(hDevice, &uart_callback, obj);
+    adi_uart_RegisterCallback(hDevice[obj->index], &uart_callback, obj);
     if (enable)
     {
     }
@@ -235,7 +236,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
     MBED_ASSERT(obj);
 
     irq_handler = handler;
-	serial_irq_ids[0] = id;
+	serial_irq_ids[obj->index] = id;
 }
 
 #endif
