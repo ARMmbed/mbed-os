@@ -43,4 +43,9 @@
 #define OS_STACK_WATERMARK          1
 #endif
 
+/* Run threads unprivileged when uVisor is enabled. */
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+# define OS_PRIVILEGE_MODE           0
+#endif
+
 #endif /* MBED_RTX_CONF_H */
