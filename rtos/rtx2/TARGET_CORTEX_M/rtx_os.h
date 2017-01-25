@@ -127,6 +127,7 @@ typedef struct osRtxThread_s {
   uint32_t                         sp;  ///< Current Stack Pointer
   uint32_t                thread_addr;  ///< Thread entry address
   uint32_t                  tz_memory;  ///< TrustZone Memory Identifier
+  void                       *context;  ///< Context for OsEventObserver objects
 } osRtxThread_t;
  
  
