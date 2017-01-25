@@ -38,13 +38,15 @@ cmsis_compiler.h | Added IAR architecture macros |
 
 Filename | Description |
 ---------|-------------|
-cmsis_os2.h | Doxygen added |
+cmsis_os2.h | Doxygen added; added per-thread uVisor context |
 core_cm.h | Doxygen added; included headers changed to match mbed OS core selection; deferred priority setting of SVCall to uVisor, when uVisor is enabled |
 RTX_Config.h | Doxygen added, mbed OS RTX config included |
 rtx_evr.c | CMSIS component definition include removed |
 rtx_evr.h | Doxygen added |
-rtx_lib.h | Doxygen added |
-rtx_os.h | Doxygen added |
+rtx_thread.c | Added per-thread uVisor context |
+rtx_kernel.c | Added per-thread uVisor context |
+rtx_lib.h | Doxygen added; added per-thread uVisor context |
+rtx_os.h | Doxygen added; added per-thread uVisor context |
 irq_cm4.s | For all toolchains: added case for Cortex M4 cores without VFP|
 svc_user.c | Removed as it's template file and should not be in our code base|
 rt_OsEventObserver.{c,h} | Added an interface for uVisor to get notified about certain events from privileged code |
