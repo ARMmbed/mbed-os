@@ -47,7 +47,11 @@
 
 /* Run threads unprivileged when uVisor is enabled. */
 #if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-# define OS_PRIVILEGE_MODE           0
+# if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#  define OS_PRIVILEGE_MODE              1 // Run threads privileged for now, since there is no vIRQ API in RTX2 yet
+# else
+#  define OS_PRIVILEGE_MODE           0
+# endif
 #endif
 
 #endif /* MBED_RTX_CONF_H */
