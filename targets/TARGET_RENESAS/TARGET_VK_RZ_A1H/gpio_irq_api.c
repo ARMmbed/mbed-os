@@ -71,6 +71,7 @@ static const PinMap PinMap_IRQ[] = {
 #else
 static const PinMap PinMap_IRQ[] = {
     {P9_1,  IRQ0, 4},
+    {P7_8,  IRQ1, 8},
     {P1_2,  IRQ2, 4}, {P1_8,  IRQ2, 3}, {P3_0,  IRQ2, 3}, {P5_9,  IRQ2, 4},
     {P1_3,  IRQ3, 4}, {P1_9,  IRQ3, 3},
     {P1_4,  IRQ4, 4}, {P1_10, IRQ4, 3},
