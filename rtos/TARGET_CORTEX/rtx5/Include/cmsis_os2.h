@@ -366,6 +366,7 @@ uint32_t osKernelGetSysTimerFreq (void);
 /// \param[in]     attr          thread attributes; NULL: default values.
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr);
+osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context);
  
 /// Get name of a thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.

@@ -581,8 +581,8 @@ static void osRtxThreadPostProcess (os_thread_t *thread) {
 //  ==== Service Calls ====
 
 /// Create a thread and add it to Active Threads.
-/// \note API identical to osThreadNew
-static osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr) {
+/// \note API identical to osThreadContextNew
+osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context) {
   os_thread_t  *thread;
   uint32_t      attr_bits;
   void         *stack_mem;
@@ -1608,7 +1608,7 @@ static uint32_t svcRtxThreadFlagsWait (uint32_t flags, uint32_t options, uint32_
 
 //  Service Calls definitions
 //lint ++flb "Library Begin" [MISRA Note 11]
-SVC0_3 (ThreadNew,           osThreadId_t,    osThreadFunc_t, void *, const osThreadAttr_t *)
+SVC0_4 (ThreadNew,           osThreadId_t,    osThreadFunc_t, void *, const osThreadAttr_t *, void *)
 SVC0_1 (ThreadGetName,       const char *,    osThreadId_t)
 SVC0_0 (ThreadGetId,         osThreadId_t)
 SVC0_1 (ThreadGetState,      osThreadState_t, osThreadId_t)
@@ -1679,7 +1679,7 @@ bool_t osRtxThreadStartup (void) {
   // Create Idle Thread
   if (osRtxInfo.thread.idle == NULL) {
     osRtxInfo.thread.idle = osRtxThreadId(
-      svcRtxThreadNew(osRtxIdleThread, NULL, osRtxConfig.idle_thread_attr)
+      svcRtxThreadNew(osRtxIdleThread, NULL, osRtxConfig.idle_thread_attr, NULL)
     );
     if (osRtxInfo.thread.idle == NULL) {
       ret = FALSE;
@@ -1690,7 +1690,7 @@ bool_t osRtxThreadStartup (void) {
   if (osRtxConfig.timer_mq_mcnt != 0U) {
     if (osRtxInfo.timer.thread == NULL) {
       osRtxInfo.timer.thread = osRtxThreadId(
-        svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr)
+        svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr, NULL)
       );
       if (osRtxInfo.timer.thread == NULL) {
         ret = FALSE;
@@ -1706,14 +1706,17 @@ bool_t osRtxThreadStartup (void) {
 
 /// Create a thread and add it to Active Threads.
 osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr) {
-  osThreadId_t thread_id;
+  return osThreadContextNew(func, argument, attr, NULL);
+}
 
+osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context) {
+  osThreadId_t thread_id;
   EvrRtxThreadNew(func, argument, attr);
   if (IsIrqMode() || IsIrqMasked()) {
     EvrRtxThreadError(NULL, (int32_t)osErrorISR);
     thread_id = NULL;
   } else {
-    thread_id = __svcThreadNew(func, argument, attr);
+    thread_id = __svcThreadNew(func, argument, attr, context);
   }
   return thread_id;
 }
