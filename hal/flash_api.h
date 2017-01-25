@@ -20,7 +20,7 @@
 #define MBED_FLASH_API_H
 
 #include "device.h"
-#include "stdint.h"
+#include <stdint.h>
 
 #if DEVICE_FLASH
 
