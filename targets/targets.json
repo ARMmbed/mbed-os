@@ -1321,6 +1321,18 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI"
     },
+    "DISCO_L475VG_IOT": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32L4", "STM32L475VG"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "detect_code": ["0764"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "release_versions": ["2", "5"],
+        "device_name": "stm32l475vg"
+    },
     "DISCO_L476VG": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
