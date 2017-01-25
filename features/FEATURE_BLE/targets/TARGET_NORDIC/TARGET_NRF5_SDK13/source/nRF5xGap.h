@@ -152,16 +152,18 @@ private:
 #if  (NRF_SD_BLE_API_VERSION >= 3)
     typedef struct
     {
-        ble_gap_addr_t private_device[YOTTA_CFG_WHITELIST_MAX_SIZE + YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        ble_gap_addr_t * whitelist[YOTTA_CFG_WHITELIST_MAX_SIZE + YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        uint32_t num_of_whitelist_items;
-        ble_gap_id_key_t identitie[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        ble_gap_id_key_t * identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        uint32_t num_of_identiti_items;
-    } gapAdrHelper_t;
+        ble_gap_addr_t addr[YOTTA_CFG_WHITELIST_MAX_SIZE];
+        ble_gap_addr_t * pp_addr[YOTTA_CFG_WHITELIST_MAX_SIZE];
+        uint32_t addr_cnt;
+        
+        ble_gap_id_key_t identity[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        ble_gap_id_key_t * pp_identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        uint32_t identities_cnt;
+    } GapWhiteAndIdentityList_t;
     
-    ble_error_t getStackWhiteIdentityList(gapAdrHelper_t &gapAdrHelper);
-    ble_error_t apllyWhiteIdentityList(gapAdrHelper_t &gapAdrHelper);
+    ble_error_t getStackWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
+    ble_error_t apllyWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
+    ble_error_t updateWhiteAndIdentityListInStack(void);
 #endif
 
 private:
