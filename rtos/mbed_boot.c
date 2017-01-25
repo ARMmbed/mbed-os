@@ -448,6 +448,11 @@ void pre_main(void)
 
 void software_init_hook(void)
 {
+    mbed_set_stack_heap();
+    mbed_sdk_init();
+    osKernelInitialize();
+    /* uvisor_lib_init calls RTOS functions, so must be called after the RTOS has
+     * been initialized. */
 #ifdef   FEATURE_UVISOR
     int return_code;
 
@@ -456,9 +461,6 @@ void software_init_hook(void)
         mbed_die();
     }
 #endif/* FEATURE_UVISOR */
-    mbed_set_stack_heap();
-    mbed_sdk_init();
-    osKernelInitialize();
     mbed_start_main();
 }
 
