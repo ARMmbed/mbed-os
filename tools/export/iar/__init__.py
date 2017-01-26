@@ -64,8 +64,10 @@ class IAR(Exporter):
             "GFPUCoreSlave": '',
             "GFPUCoreSlave2": 40,
             "GBECoreSlave": 35,
+            "GBECoreSlave2": '',
             "FPU2": 0,
             "NrRegs": 0,
+            "NEON": '',
         }
 
         iar_defaults.update(device_info)
