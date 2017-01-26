@@ -22,11 +22,12 @@ the GNU ARM Eclipse plug-ins.
 Author: Liviu Ionescu <ilg@livius.net>
 """
 from tools.export.exporters import Exporter
-from os.path import splitext, basename, relpath, dirname
+from os.path import splitext, basename, relpath, dirname, exists
 from random import randint
 import os
 import copy
 import tempfile
+import shutil
 from subprocess import call, Popen, PIPE
 
 # import logging
@@ -188,6 +189,7 @@ class GNUARMEclipse(Exporter):
         # expected context values is not defined.
         self.gen_file('gnuarmeclipse/.project.tmpl', ctx, '.project')
         self.gen_file('gnuarmeclipse/.cproject.tmpl', ctx, '.cproject')
+        self.gen_file('gnuarmeclipse/makefile.targets.tmpl', ctx, 'makefile.targets')
 
         print 'Done.'
 
@@ -228,16 +230,38 @@ class GNUARMEclipse(Exporter):
             '--launcher.suppressErrors',
             '-nosplash',
             '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
-            '-data', tmp_folder,
-            '-import', os.getcwd(),
-            '-cleanBuild', 'all',
+            '-data', relpath(tmp_folder, os.getcwd()),
+            '-import', '.',
+            '-cleanBuild', 'all'
         ]
 
-        ret_code = subprocess.call(cmd)
+        p = Popen(' '.join(cmd), stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        ret_code = p.returncode
+
+        stdout_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
+        err_string = "=" * 10 + "STDERR" + "=" * 10 + "\n"
+        err_string += err
+
+
+        ret_string = "SUCCESS\n"
+        if ret_code != 0:
+            ret_string += "FAILURE\n"
+
+        print "%s\nSee %s for STDOUT\n%s\n%s" % (stdout_string, log_name, err_string, ret_string)
+
+        if log_name:
+            # Write the output to the log file
+            with open(log_name, 'w+') as f:
+                f.write(stdout_string)
+                f.write(out)
+                f.write(err_string)
+                f.write(ret_string)
 
         # Cleanup the exported and built files
         if cleanup:
-            os.remove(log_name)
+            if exists(log_name):
+                os.remove(log_name)
             os.remove('.project')
             os.remove('.cproject')
             if exists('Debug'):
