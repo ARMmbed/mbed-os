@@ -336,7 +336,7 @@
         "default_lib": "small",
         "release_versions": ["2"]
     },
-    "LPC4088": {
+    "MCU_LPC4088": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M4F",
         "extra_labels": ["NXP", "LPC408X"],
@@ -346,11 +346,14 @@
             "function": "LPC4088Code.binary_hook"
         },
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"],
         "device_name": "LPC4088FBD144"
     },
+    "LPC4088": {
+        "inherits": ["MCU_LPC4088"],
+        "release_versions": ["2", "5"]
+    },
     "LPC4088_DM": {
-        "inherits": ["LPC4088"],
+        "inherits": ["MCU_LPC4088"],
         "release_versions": ["2", "5"]
     },
     "LPC4330_M4": {
@@ -490,7 +493,7 @@
         "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "device_name": "MK22DN512xxx5"
     },
     "K22F": {
@@ -1626,6 +1629,24 @@
         "extra_labels_add": ["DELTA_DFCM_NNN40"],
         "macros_add": ["TARGET_DELTA_DFCM_NNN40", "TARGET_NRF_LFCLK_RC"]
     },
+    "DELTA_DFCM_NNN50": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_name": "nRF51822_xxAC"
+    },
+    "DELTA_DFCM_NNN50_BOOT": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_BOOT"],
+        "extra_labels_add": ["DELTA_DFCM_NNN50"],
+        "macros_add": ["TARGET_DELTA_DFCM_NNN50"]
+    },
+    "DELTA_DFCM_NNN50_OTA": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_OTA"],
+        "extra_labels_add": ["DELTA_DFCM_NNN50"],
+        "macros_add": ["TARGET_DELTA_DFCM_NNN50"]
+    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
@@ -2495,7 +2516,7 @@
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
-        "overrides": {"uart_hwfc": 0},	
+        "overrides": {"uart_hwfc": 0},
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVK_NINA_B1": {
