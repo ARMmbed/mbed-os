@@ -14,8 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from exporters import Exporter
 from os.path import basename
+
+from tools.export.exporters import Exporter
 
 
 class DS5_5(Exporter):
@@ -64,6 +65,6 @@ class DS5_5(Exporter):
         target = self.target.lower()
 
         # Project file
-        self.gen_file('ds5_5_%s.project.tmpl' % target, ctx, '.project')
-        self.gen_file('ds5_5_%s.cproject.tmpl' % target, ctx, '.cproject')
-        self.gen_file('ds5_5_%s.launch.tmpl' % target, ctx, 'ds5_%s.launch' % target)
+        self.gen_file('ds5_5/%s.project.tmpl' % target, ctx, '.project')
+        self.gen_file('ds5_5/%s.cproject.tmpl' % target, ctx, '.cproject')
+        self.gen_file('ds5_5/%s.launch.tmpl' % target, ctx, 'ds5_%s.launch' % target)
