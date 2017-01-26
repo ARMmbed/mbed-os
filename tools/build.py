@@ -211,15 +211,17 @@ if __name__ == '__main__':
     successes = []
     skipped = []
 
-    # CPPCHECK code validation
-    if options.cppcheck_validation:
-        for toolchain in toolchains:
-            if not TOOLCHAIN_CLASSES[toolchain].check_executable():
-                search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
-                args_error(parser, "Could not find executable for %s.\n"
-                                   "Currently set search path: %s"
-                           % (toolchain, search_path))
-            for target in targets:
+    for toolchain in toolchains:
+        if not TOOLCHAIN_CLASSES[toolchain].check_executable():
+            search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+            args_error(parser, "Could not find executable for %s.\n"
+                               "Currently set search path: %s"
+                       % (toolchain, search_path))
+
+    for toolchain in toolchains:
+        for target in targets:
+            # CPPCHECK code validation
+            if options.cppcheck_validation:
                 try:
                     mcu = TARGET_MAP[target]
                     # CMSIS and MBED libs analysis
@@ -244,10 +246,8 @@ if __name__ == '__main__':
                         traceback.print_exc(file=sys.stdout)
                         sys.exit(1)
                     print e
-    else:
-        # Build
-        for toolchain in toolchains:
-            for target in targets:
+            else:
+                # Build
                 tt_id = "%s::%s" % (toolchain, target)
                 if toolchain not in TARGET_MAP[target].supported_toolchains:
                     # Log this later
@@ -298,6 +298,7 @@ if __name__ == '__main__':
                             sys.exit(1)
                         failures.append(tt_id)
                         print e
+
 
     # Write summary of the builds
     print
