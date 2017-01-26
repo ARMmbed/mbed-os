@@ -76,14 +76,21 @@ public:
      */
     osStatus unlock();
 
+    /** Get the owner the this mutex
+      @return  the current owner of this mutex.
+     */
+    osThreadId get_owner();
+
     ~Mutex();
 
 private:
     void constructor(const char *name = NULL);
+    friend class ConditionVariable;
 
     osMutexId_t               _id;
     osMutexAttr_t             _attr;
     mbed_rtos_storage_mutex_t _obj_mem;
+    uint32_t                  _count;
 };
 
 }
