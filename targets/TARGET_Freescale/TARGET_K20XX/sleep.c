@@ -17,7 +17,7 @@
 #include "cmsis.h"
 
 //Normal wait mode
-void sleep(void)
+void hal_sleep(void)
 {
     SMC->PMPROT = SMC_PMPROT_AVLLS_MASK | SMC_PMPROT_ALLS_MASK | SMC_PMPROT_AVLP_MASK;
 
@@ -27,7 +27,7 @@ void sleep(void)
 }
 
 //Very low-power stop mode
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     //Check if ADC is enabled and HS mode is set, if yes disable it (lowers power consumption by 60uA)
     uint8_t ADC_HSC = 0;
