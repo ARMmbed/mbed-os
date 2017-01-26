@@ -170,3 +170,16 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     core_util_critical_section_exit();
     return ret ? -1 : 0;
 }
+
+
+uint32_t flash_get_sector_size(flash_t *obj, uint32_t address)
+{
+    uint32_t sector_index = get_sector_index(obj, address);
+    return obj->target_config->sectors[sector_index].size;
+}
+
+uint32_t flash_get_page_size(flash_t *obj)
+{
+    return obj->target_config->page_size;
+}
+
