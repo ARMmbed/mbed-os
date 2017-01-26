@@ -21,6 +21,7 @@ import struct
 import shutil
 import inspect
 import sys
+from copy import copy
 from collections import namedtuple
 from tools.patch import patch
 from tools.paths import TOOLS_BOOTLOADERS
@@ -276,7 +277,10 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     @property
     def labels(self):
         """Get all possible labels for this target"""
-        labels = [self.name] + CORE_LABELS[self.core] + self.extra_labels
+        names = copy(self.resolution_order_names)
+        if "Target" in names:
+            names.remove("Target")
+        labels = (names + CORE_LABELS[self.core] + self.extra_labels)
         # Automatically define UVISOR_UNSUPPORTED if the target doesn't
         # specifically define UVISOR_SUPPORTED
         if "UVISOR_SUPPORTED" not in labels:
