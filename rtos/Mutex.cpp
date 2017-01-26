@@ -27,7 +27,7 @@
 
 namespace rtos {
 
-Mutex::Mutex()
+Mutex::Mutex(): _count(0)
 {
     constructor();
 }
@@ -50,15 +50,29 @@ void Mutex::constructor(const char *name)
 }
 
 osStatus Mutex::lock(uint32_t millisec) {
-    return osMutexAcquire(_id, millisec);
+    osStatus status = osMutexAcquire(_id, millisec);
+    if (osOK == status) {
+        _count++;
+    }
+    return status;
 }
 
 bool Mutex::trylock() {
-    return (osMutexAcquire(_id, 0) == osOK);
+    if (osMutexAcquire(_id, 0) == osOK) {
+        _count++;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 osStatus Mutex::unlock() {
+    _count--;
     return osMutexRelease(_id);
+}
+
+osThreadId Mutex::get_owner() {
+    return osMutexGetOwner(_id);
 }
 
 Mutex::~Mutex() {
