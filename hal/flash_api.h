@@ -42,6 +42,10 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address);
 // maps FlashAlgo to ProgramPage
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size);
 
+uint32_t flash_get_sector_size(flash_t *obj, uint32_t address);
+
+uint32_t flash_get_page_size(flash_t *obj);
+
 #ifdef __cplusplus
 }
 #endif
