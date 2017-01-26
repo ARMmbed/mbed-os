@@ -1629,6 +1629,24 @@
         "extra_labels_add": ["DELTA_DFCM_NNN40"],
         "macros_add": ["TARGET_DELTA_DFCM_NNN40", "TARGET_NRF_LFCLK_RC"]
     },
+    "DELTA_DFCM_NNN50": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_name": "nRF51822_xxAC"
+    },
+    "DELTA_DFCM_NNN50_BOOT": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_BOOT"],
+        "extra_labels_add": ["DELTA_DFCM_NNN50"],
+        "macros_add": ["TARGET_DELTA_DFCM_NNN50"]
+    },
+    "DELTA_DFCM_NNN50_OTA": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_OTA"],
+        "extra_labels_add": ["DELTA_DFCM_NNN50"],
+        "macros_add": ["TARGET_DELTA_DFCM_NNN50"]
+    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
