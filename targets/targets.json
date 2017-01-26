@@ -948,7 +948,7 @@
     "NUCLEO_F746ZG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG", "F746_F756"],
+        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746xG", "STM32F746ZG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER"],
@@ -962,7 +962,7 @@
     "NUCLEO_F756ZG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "extra_labels": ["STM", "STM32F7", "STM32F756", "STM32F756ZG", "F746_F756"],
+        "extra_labels": ["STM", "STM32F7", "STM32F756", "STM32F756xG", "STM32F756ZG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "supported_form_factors": ["ARDUINO"],
@@ -975,7 +975,7 @@
     "NUCLEO_F767ZI": {
         "inherits": ["Target"],
         "core": "Cortex-M7FD",
-        "extra_labels": ["STM", "STM32F7", "STM32F767", "STM32F767ZI"],
+        "extra_labels": ["STM", "STM32F7", "STM32F767", "STM32F767xI", "STM32F767ZI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "supported_form_factors": ["ARDUINO"],
@@ -1204,7 +1204,7 @@
     "DISCO_F746NG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746NG"],
+        "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746xG", "STM32F746NG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "supported_form_factors": ["ARDUINO"],
@@ -1218,7 +1218,7 @@
     "DISCO_F769NI": {
         "inherits": ["Target"],
         "core": "Cortex-M7FD",
-        "extra_labels": ["STM", "STM32F7", "STM32F769", "STM32F769NI"],
+        "extra_labels": ["STM", "STM32F7", "STM32F769", "STM32F769xI", "STM32F769NI"],
         "supported_toolchains": ["uARM", "ARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "supported_form_factors": ["ARDUINO"],
