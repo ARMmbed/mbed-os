@@ -1321,7 +1321,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI"
     },
-    "DISCO_L475VG_IOT": {
+    "DISCO_L475VG_IOT01A": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "extra_labels": ["STM", "STM32L4", "STM32L475VG"],

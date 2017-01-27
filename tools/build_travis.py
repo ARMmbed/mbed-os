@@ -233,7 +233,7 @@ linking_list = [
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
              }
     },
-    {"target": "DISCO_L475VG_IOT",
+    {"target": "DISCO_L475VG_IOT01A",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],

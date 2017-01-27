@@ -69,7 +69,7 @@ int main() {
      !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
      !defined(TARGET_NUCLEO_F303RE) && !defined(TARGET_NUCLEO_F303K8) && \
      !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
-     !defined(TARGET_DISCO_L476VG) && !defined(TARGET_DISCO_L475VG_IOT) && !defined(TARGET_NUCLEO_L476RG) && \
+     !defined(TARGET_DISCO_L476VG) && !defined(TARGET_DISCO_L475VG_IOT01A) && !defined(TARGET_NUCLEO_L476RG) && \
      !defined(TARGET_NUCLEO_L432KC)) && !defined(TARGET_DISCO_F303VC)
       printf("loop()\n");
         if(can2.read(msg)) {
