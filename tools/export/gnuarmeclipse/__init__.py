@@ -96,7 +96,7 @@ class GNUARMEclipse(Exporter):
             raise NotSupportedException("No linker script found.")
 
         print
-        print '[Create a GNU ARM Eclipse C++ managed project]'
+        print 'Create a GNU ARM Eclipse C++ managed project'
         print 'Project name: {0}'.format(self.project_name)
         print 'Build configurations: Debug & Release'
 
@@ -187,9 +187,9 @@ class GNUARMEclipse(Exporter):
 
         # TODO: it would be good to have jinja stop if one of the
         # expected context values is not defined.
-        self.gen_file('gnuarmeclipse/.project.tmpl', ctx, '.project')
-        self.gen_file('gnuarmeclipse/.cproject.tmpl', ctx, '.cproject')
-        self.gen_file('gnuarmeclipse/makefile.targets.tmpl', ctx, 'makefile.targets')
+        self.gen_file('gnuarmeclipse/.project.tmpl', ctx, '.project', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('gnuarmeclipse/.cproject.tmpl', ctx, '.cproject', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('gnuarmeclipse/makefile.targets.tmpl', ctx, 'makefile.targets', trim_blocks=True, lstrip_blocks=True)
 
         print 'Done.'
 
