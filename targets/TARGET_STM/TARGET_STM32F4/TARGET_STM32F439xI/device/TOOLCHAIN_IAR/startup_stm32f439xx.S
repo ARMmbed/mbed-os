@@ -1,9 +1,9 @@
 ;/******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
-;* File Name          : startup_stm32f429xx.s
+;* File Name          : startup_stm32f439xx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.5.0
-;* Date               : 22-April-2016
-;* Description        : STM32F429xx devices vector table for EWARM toolchain.
+;* Version            : V2.6.0
+;* Date               : 04-November-2016
+;* Description        : STM32F439xx devices vector table for EWARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == _iar_program_start,
@@ -166,7 +166,7 @@ __vector_table
         DCD     OTG_HS_WKUP_IRQHandler            ; USB OTG HS Wakeup through EXTI
         DCD     OTG_HS_IRQHandler                 ; USB OTG HS
         DCD     DCMI_IRQHandler                   ; DCMI
-        DCD     0                                 ; Reserved
+        DCD     CRYP_IRQHandler                   ; CRYP crypto
         DCD     HASH_RNG_IRQHandler               ; Hash and Rng
         DCD     FPU_IRQHandler                    ; FPU
         DCD     UART7_IRQHandler                  ; UART7
@@ -632,6 +632,11 @@ OTG_HS_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 DCMI_IRQHandler  
         B DCMI_IRQHandler
+
+        PUBWEAK CRYP_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+CRYP_IRQHandler  
+        B CRYP_IRQHandler
 
         PUBWEAK HASH_RNG_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
