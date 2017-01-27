@@ -30,21 +30,62 @@ typedef struct flash_s flash_t;
 extern "C" {
 #endif
 
-// maps to FlashAlgo Init
+/**
+ * \defgroup flash_hal Flash HAL API
+ * @{
+ */
+
+/** Initialize the flash peripheral and the flash_t object
+ * 
+ * @param obj The flash object
+ * @return 0 for success, -1 for error
+ */
 int32_t flash_init(flash_t *obj);
 
-// maps to FlashAlgo UnInit
+/** Uninitialize the flash peripheral and the flash_t object
+ * 
+ * @param obj The flash object
+ * @return 0 for success, -1 for error
+ */
 int32_t flash_free(flash_t *obj);
 
-// maps to FlashAlgo EraseSector
+/** Erase one sector starting at defined address
+ * 
+ * The address should be at sector boundary
+ * @param obj The flash object
+ * @param address The sector starting address
+ * @return 0 for success, -1 for error
+ */
 int32_t flash_erase_sector(flash_t *obj, uint32_t address);
 
-// maps FlashAlgo to ProgramPage
+/** Program one page starting at defined address
+ * 
+ * The page should be at page boundary, should not cross multiple sectors
+ * @param obj The flash object
+ * @param address The sector starting address
+ * @param data The data buffer to be programmed
+ * @param size The number of in bytes
+ * @return 0 for success, -1 for error
+ */
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size);
 
+/** Get sector size
+ * 
+ * @param obj The flash object
+ * @param address The sector starting address
+ * @return The size of a sector
+ */
 uint32_t flash_get_sector_size(flash_t *obj, uint32_t address);
 
+/** Get page size
+ * 
+ * @param obj The flash object
+ * @param address The page starting address
+ * @return The size of a page
+ */
 uint32_t flash_get_page_size(flash_t *obj);
+
+/**@}*/
 
 #ifdef __cplusplus
 }
