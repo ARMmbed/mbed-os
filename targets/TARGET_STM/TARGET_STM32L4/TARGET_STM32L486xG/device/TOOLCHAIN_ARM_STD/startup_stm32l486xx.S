@@ -1,9 +1,9 @@
 ;********************** COPYRIGHT(c) 2016  STMicroelectronics ******************
-;* File Name          : startup_stm32l476xx.s
+;* File Name          : startup_stm32l486xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.1.1
-;* Date               : 29-April-2016
-;* Description        : STM32L476xx Ultra Low Power devices vector table for MDK-ARM toolchain.
+;* Version            : V1.1.2
+;* Date               : 12-September-2016
+;* Description        : STM32L486xx Ultra Low Power devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -43,6 +43,7 @@ __initial_sp    EQU     0x20018000 ; Top of RAM, L4-ECC-SRAM2 retained in standb
 
                 PRESERVE8
                 THUMB
+
 
 ; Vector Table Mapped to Address 0 at Reset
                 AREA    RESET, DATA, READONLY
@@ -147,7 +148,7 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface 1 global interrupt
                 DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
                 DCD     LCD_IRQHandler                    ; LCD global interrupt
-                DCD     0                                 ; Reserved                
+                DCD     AES_IRQHandler                    ; AES global interrupt
                 DCD     RNG_IRQHandler                    ; RNG global interrupt
                 DCD     FPU_IRQHandler                    ; FPU
 
@@ -294,6 +295,7 @@ Default_Handler PROC
         EXPORT     SWPMI1_IRQHandler                 [WEAK]
         EXPORT     TSC_IRQHandler                    [WEAK]
         EXPORT     LCD_IRQHandler                    [WEAK]
+        EXPORT     AES_IRQHandler                    [WEAK]
         EXPORT     RNG_IRQHandler                    [WEAK]
         EXPORT     FPU_IRQHandler                    [WEAK]
 
@@ -376,6 +378,7 @@ SAI2_IRQHandler
 SWPMI1_IRQHandler
 TSC_IRQHandler
 LCD_IRQHandler
+AES_IRQHandler
 RNG_IRQHandler
 FPU_IRQHandler
 

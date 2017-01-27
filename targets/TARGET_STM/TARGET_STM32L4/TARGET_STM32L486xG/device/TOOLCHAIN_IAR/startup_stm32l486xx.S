@@ -1,9 +1,9 @@
 ;/********************* COPYRIGHT(c) 2016 STMicroelectronics ********************
-;* File Name          : startup_stm32l476xx.s
+;* File Name          : startup_stm32l486xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.1.1
-;* Date               : 29-April-2016
-;* Description        : STM32L476xx Ultra Low Power Devices vector
+;* Version            : V1.1.2
+;* Date               : 12-September-2016
+;* Description        : STM32L486xx Ultra Low Power Devices vector
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == _iar_program_start,
@@ -166,7 +166,7 @@ __vector_table
         DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface global interrupt
         DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
         DCD     LCD_IRQHandler                    ; LCD global interrupt
-        DCD     0                                 ; Reserved        
+        DCD     AES_IRQHandler                    ; AES global interrupt
         DCD     RNG_IRQHandler                    ; RNG global interrupt
         DCD     FPU_IRQHandler                    ; FPU
 
@@ -622,6 +622,11 @@ TSC_IRQHandler
        SECTION .text:CODE:NOROOT:REORDER(1)
 LCD_IRQHandler
        B LCD_IRQHandler
+
+        PUBWEAK AES_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+AES_IRQHandler
+        B AES_IRQHandler
 
         PUBWEAK RNG_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
