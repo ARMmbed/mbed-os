@@ -1,9 +1,9 @@
-;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
-;* File Name          : startup_stm32f429xx.s
+;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
+;* File Name          : startup_stm32f439xx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.4.0
-;* Date               : 14-August-2015
-;* Description        : STM32F429x devices vector table for MDK-ARM_STD toolchain. 
+;* Version            : V2.6.0
+;* Date               : 04-November-2016
+;* Description        : STM32F439x devices vector table for MDK-ARM toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -39,7 +39,34 @@
 ; 
 ;*******************************************************************************
 
-__initial_sp    EQU     0x20030000 ; Top of RAM
+; Amount of memory (in bytes) allocated for Stack
+; Tailor this value to your application needs
+; <h> Stack Configuration
+;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+; </h>
+
+Stack_Size      EQU     0x00000400
+
+                AREA    STACK, NOINIT, READWRITE, ALIGN=3
+                EXPORT  __initial_sp
+                
+Stack_Mem       SPACE   Stack_Size
+__initial_sp    EQU     0x20020000 ; Top of RAM
+
+
+; <h> Heap Configuration
+;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+; </h>
+
+Heap_Size       EQU     0x00000200
+
+                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
+                EXPORT  __heap_base
+                EXPORT  __heap_limit
+                
+__heap_base
+Heap_Mem        SPACE   Heap_Size
+__heap_limit    EQU (__initial_sp - Stack_Size)
 
                 PRESERVE8
                 THUMB
@@ -148,7 +175,7 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     OTG_HS_WKUP_IRQHandler            ; USB OTG HS Wakeup through EXTI                         
                 DCD     OTG_HS_IRQHandler                 ; USB OTG HS                                      
                 DCD     DCMI_IRQHandler                   ; DCMI  
-                DCD     0                          ; Reserved				                              
+                DCD     CRYP_IRQHandler                   ; CRYPTO
                 DCD     HASH_RNG_IRQHandler               ; Hash and Rng
                 DCD     FPU_IRQHandler                    ; FPU
                 DCD     UART7_IRQHandler                  ; UART7
@@ -303,7 +330,8 @@ Default_Handler PROC
                 EXPORT  OTG_HS_EP1_IN_IRQHandler          [WEAK]                      
                 EXPORT  OTG_HS_WKUP_IRQHandler            [WEAK]                        
                 EXPORT  OTG_HS_IRQHandler                 [WEAK]                                      
-                EXPORT  DCMI_IRQHandler                   [WEAK]                                                                                 
+                EXPORT  DCMI_IRQHandler                   [WEAK]
+                EXPORT  CRYP_IRQHandler                   [WEAK]
                 EXPORT  HASH_RNG_IRQHandler               [WEAK]
                 EXPORT  FPU_IRQHandler                    [WEAK]
                 EXPORT  UART7_IRQHandler                  [WEAK]
@@ -394,7 +422,8 @@ OTG_HS_EP1_OUT_IRQHandler
 OTG_HS_EP1_IN_IRQHandler                            
 OTG_HS_WKUP_IRQHandler                                
 OTG_HS_IRQHandler                                                   
-DCMI_IRQHandler                                                                                                             
+DCMI_IRQHandler 
+CRYP_IRQHandler
 HASH_RNG_IRQHandler
 FPU_IRQHandler  
 UART7_IRQHandler                  

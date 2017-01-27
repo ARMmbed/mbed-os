@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f429xx.s
+  * @file      startup_stm32f439xx.s
   * @author    MCD Application Team
-  * @version   V2.5.0
-  * @date      22-April-2015 
-  * @brief     STM32F429xx Devices vector table for GCC based toolchains. 
+  * @version   V2.6.0
+  * @date      04-November-2016
+  * @brief     STM32F439xx Devices vector table for GCC based toolchains. 
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -127,9 +127,9 @@ Infinite_Loop:
 *******************************************************************************/
    .section  .isr_vector,"a",%progbits
   .type  g_pfnVectors, %object
-  .size  g_pfnVectors, .-g_pfnVectors
-   
-g_pfnVectors:
+  .size  g_pfnVectors, .-g_pfnVectors 
+  
+  g_pfnVectors:
   .word  _estack
   .word  Reset_Handler
 
@@ -197,7 +197,7 @@ g_pfnVectors:
   .word     TIM8_TRG_COM_TIM14_IRQHandler     /* TIM8 Trigger and Commutation and TIM14 */
   .word     TIM8_CC_IRQHandler                /* TIM8 Capture Compare         */                          
   .word     DMA1_Stream7_IRQHandler           /* DMA1 Stream7                 */                          
-  .word     FMC_IRQHandler                    /* FMC                         */                   
+  .word     FMC_IRQHandler                    /* FMC                          */                   
   .word     SDIO_IRQHandler                   /* SDIO                         */                   
   .word     TIM5_IRQHandler                   /* TIM5                         */                   
   .word     SPI3_IRQHandler                   /* SPI3                         */                   
@@ -228,7 +228,7 @@ g_pfnVectors:
   .word     OTG_HS_WKUP_IRQHandler            /* USB OTG HS Wakeup through EXTI */                         
   .word     OTG_HS_IRQHandler                 /* USB OTG HS                   */                   
   .word     DCMI_IRQHandler                   /* DCMI                         */                   
-  .word     0                                 /* Reserved                     */                   
+  .word     CRYP_IRQHandler                   /* CRYP crypto                  */                   
   .word     HASH_RNG_IRQHandler               /* Hash and Rng                 */
   .word     FPU_IRQHandler                    /* FPU                          */
   .word     UART7_IRQHandler                  /* UART7                        */      
@@ -237,10 +237,12 @@ g_pfnVectors:
   .word     SPI5_IRQHandler                   /* SPI5 						  */
   .word     SPI6_IRQHandler                   /* SPI6						  */
   .word     SAI1_IRQHandler                   /* SAI1						  */
-  .word     LTDC_IRQHandler                   /* LTDC_IRQHandler			  */
-  .word     LTDC_ER_IRQHandler                /* LTDC_ER_IRQHandler			  */
+  .word     LTDC_IRQHandler                   /* LTDC           		      */
+  .word     LTDC_ER_IRQHandler                /* LTDC error          	      */
   .word     DMA2D_IRQHandler                  /* DMA2D                        */
   
+  
+ 
 /*******************************************************************************
 *
 * Provide weak aliases for each Exception handler to the Default_Handler. 
@@ -511,7 +513,10 @@ g_pfnVectors:
                   
    .weak      DCMI_IRQHandler            
    .thumb_set DCMI_IRQHandler,Default_Handler
-                                   
+   
+   .weak      CRYP_IRQHandler            
+   .thumb_set CRYP_IRQHandler,Default_Handler
+                                
    .weak      HASH_RNG_IRQHandler                  
    .thumb_set HASH_RNG_IRQHandler,Default_Handler   
 
@@ -549,3 +554,7 @@ g_pfnVectors:
  
    
    
+
+ 
+
+ 
