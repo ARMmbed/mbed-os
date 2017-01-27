@@ -35,7 +35,7 @@ uint32_t sleep_block_counter[NUM_SLEEP_MODES] = {0};
  * Sleep mode.
  * Enter the lowest possible sleep mode that is not blocked by ongoing activity.
  */
-void sleep(void)
+void hal_sleep(void)
 {
     if (sleep_block_counter[0] > 0) {
         /* Blocked everything below EM0, so just return */
@@ -64,7 +64,7 @@ void sleep(void)
  * consumption as low as 1.1 μA with RTC enabled. Power-on Reset, Brown-out
  * Detection and full RAM and CPU retention is also included.
  */
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     EMU_EnterEM2(true);
 }

@@ -19,7 +19,7 @@
 
 #if DEVICE_SLEEP
 
-void sleep(void) {
+void hal_sleep(void) {
 
 #if (DEVICE_SEMIHOST == 1)
     // ensure debug is disconnected
@@ -37,7 +37,7 @@ void sleep(void) {
 }
 
 
-void deepsleep(void) {
+void hal_deepsleep(void) {
 
 #if (DEVICE_SEMIHOST == 1)
     // ensure debug is disconnected

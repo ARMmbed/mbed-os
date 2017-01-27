@@ -42,6 +42,10 @@ private:
     Thread thread;
 
 public:
+    // Limiting stack size to 1k
+    Echo(): thread(osPriorityNormal, 1024) {
+    }
+
     void start() {
         osStatus status = thread.start(callback(this, &Echo::echo));
         TEST_ASSERT_EQUAL(osOK, status);
