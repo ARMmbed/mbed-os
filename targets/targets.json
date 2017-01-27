@@ -1137,7 +1137,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F3", "STM32F303", "STM32F303VC"],
+        "extra_labels": ["STM", "STM32F3", "STM32F303", "STM32F303xC", "STM32F303VC"],
         "macros": ["RTC_LSI=1", "TRANSACTION_QUEUE_SIZE_SPI=2"],
         "supported_toolchains": ["GCC_ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
