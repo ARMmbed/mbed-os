@@ -31,5 +31,5 @@ do not initialize  { section .noinit };
 place at address mem:__intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
-place in SRAM1_region { readwrite, block STACKHEAP };
-place in SRAM2_region   {  };
+place in SRAM1_region   { readwrite, block STACKHEAP };
+place in SRAM2_region { };
