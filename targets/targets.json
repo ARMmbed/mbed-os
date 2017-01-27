@@ -746,7 +746,7 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F3", "STM32F302R8"],
+        "extra_labels": ["STM", "STM32F3", "STM32F302x8", "STM32F302R8"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
         "detect_code": ["0705"],
