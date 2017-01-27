@@ -827,7 +827,7 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F410RB","STM32F410Rx"],
+        "extra_labels": ["STM", "STM32F4", "STM32F410RB","STM32F410xB", "STM32F410Rx"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
