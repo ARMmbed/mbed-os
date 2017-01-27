@@ -54,7 +54,7 @@ build_list = (
     { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat", "usb_host"] },
     { "target": "NUCLEO_F410RB",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F411RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat", "usb_host"] },
-    { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat", "usb_host"] },
     { "target": "NUCLEO_L432KC",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat", "rtos", "usb_host"] },
     { "target": "NUCLEO_L011K4",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -194,6 +194,7 @@ linking_list = [
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3", "USB_10", "USB_11"],
              }
     },
     {"target": "NUCLEO_F429ZI",
