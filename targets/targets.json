@@ -1180,7 +1180,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F469", "STM32F469NI", "STM32F469xx"],
+        "extra_labels": ["STM", "STM32F4", "STM32F469", "STM32F469NI", "STM32F469xI", "STM32F469xx"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
