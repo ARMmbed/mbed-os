@@ -18,7 +18,7 @@ CAN can1(P5_9, P5_10);
       defined(TARGET_NUCLEO_F303RE) || defined(TARGET_NUCLEO_F303K8) || \
       defined(TARGET_NUCLEO_F302R8) || defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_DISCO_F429ZI)  || \
-      defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_DISCO_L476VG)  || defined(TARGET_DISCO_L475VG_IOT) || \
+      defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_DISCO_L476VG)  || defined(TARGET_DISCO_L475VG_IOT01A) || \
       defined(TARGET_NUCLEO_F412ZG) || \
       defined(TARGET_NUCLEO_L476RG) || defined(TARGET_NUCLEO_L432KC)
 CAN can1(PA_11, PA_12);
