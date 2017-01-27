@@ -55,31 +55,31 @@ int spi_get_clock_freq(spi_t *obj) {
 	/* Get source clock depending on SPI instance */
     switch ((int)spiobj->spi) {
 #if defined SPI1_BASE
-	case SPI_1:
-			/* SPI_1. Source CLK is PCKL2 */
-			spi_hz = HAL_RCC_GetPCLK2Freq();
-			break;
+        case SPI_1:
+            /* SPI_1. Source CLK is PCKL2 */
+            spi_hz = HAL_RCC_GetPCLK2Freq();
+            break;
 #endif
 #if defined SPI2_BASE
-		case SPI_2:
+        case SPI_2:
             /* SPI_2 and SPI_3. Source CLK is PCKL1 */
-			spi_hz = HAL_RCC_GetPCLK1Freq();
-			break;
+            spi_hz = HAL_RCC_GetPCLK1Freq();
+            break;
 #endif
 #if defined SPI3_BASE
-		case SPI_3:
-			/* SPI_2 and SPI_3. Source CLK is PCKL1 */
-			spi_hz = HAL_RCC_GetPCLK1Freq();
-			break;
+        case SPI_3:
+            /* SPI_2 and SPI_3. Source CLK is PCKL1 */
+            spi_hz = HAL_RCC_GetPCLK1Freq();
+            break;
 #endif
 #if defined SPI4_BASE
-		case SPI_4:
-			/* SPI_4. Source CLK is PCKL2 */
-			spi_hz = HAL_RCC_GetPCLK2Freq();
-			break;
+        case SPI_4:
+            /* SPI_4. Source CLK is PCKL2 */
+            spi_hz = HAL_RCC_GetPCLK2Freq();
+            break;
 #endif
-		default:
-			error("CLK: SPI instance not set");
+        default:
+            error("CLK: SPI instance not set");
             break;
     }
     return spi_hz;
