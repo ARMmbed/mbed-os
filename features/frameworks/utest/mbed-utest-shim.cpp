@@ -16,7 +16,7 @@
  */
 
 #include "mbed.h"
-#include "critical.h"
+#include "mbed_critical.h"
 #include "utest/utest.h"
 
 using namespace utest::v1;

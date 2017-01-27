@@ -1,6 +1,6 @@
 #include "TestHarness.h"
 #include "mbed.h"
-#include "semihost_api.h"
+#include "mbed_semihost_api.h"
 #include <stdio.h>
 
 #define FILENAME      "/local/out.txt"

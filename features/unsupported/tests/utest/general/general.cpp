@@ -65,7 +65,7 @@ TEST(C_String_Format, Sprintf_Negative_Integers)
 }
 
 #ifdef DEVICE_SEMIHOST
-#include "semihost_api.h"
+#include "mbed_semihost_api.h"
 
 TEST_GROUP(Device_Semihost)
 {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "cmsis.h"
-#include "platform/semihost_api.h"
+#include "platform/mbed_semihost_api.h"
 
 #include <stdint.h>
 #include <string.h>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "gpio_api.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "C027_api.h"
 
 static gpio_t mdmEn, mdmLvlOe, mdmILvlOe, mdmUsbDet;

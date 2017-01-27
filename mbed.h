@@ -47,7 +47,7 @@
 #include "events/mbed_events.h"
 #endif
 
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 #include "platform/platform.h"
 #include "platform/mbed_application.h"
 
@@ -92,10 +92,10 @@
 #include "drivers/LowPowerTimer.h"
 #include "drivers/LocalFileSystem.h"
 #include "drivers/InterruptIn.h"
-#include "platform/wait_api.h"
+#include "platform/mbed_wait_api.h"
 #include "hal/sleep_api.h"
-#include "platform/sleep.h"
-#include "platform/rtc_time.h"
+#include "platform/mbed_sleep.h"
+#include "platform/mbed_rtc_time.h"
 
 // mbed Non-hardware components
 #include "platform/Callback.h"

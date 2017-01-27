@@ -17,7 +17,7 @@
 #include "ethernet_api.h"
 #include "cmsis.h"
 #include "mbed_interface.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 #include "mbed_error.h"
 #include "ether_iodefine.h"
 #include "ethernetext_api.h"

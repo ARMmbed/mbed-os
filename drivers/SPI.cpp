@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "drivers/SPI.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 #if DEVICE_SPI
 

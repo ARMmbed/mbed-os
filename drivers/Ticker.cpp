@@ -18,7 +18,7 @@
 #include "drivers/TimerEvent.h"
 #include "platform/FunctionPointer.h"
 #include "hal/ticker_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 

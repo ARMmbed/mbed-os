@@ -1,5 +1,5 @@
 #include "test_env.h"
-#include "semihost_api.h"
+#include "mbed_semihost_api.h"
 
 #define MAC_VENDOR_ARM_0    0x00
 #define MAC_VENDOR_ARM_1    0x02

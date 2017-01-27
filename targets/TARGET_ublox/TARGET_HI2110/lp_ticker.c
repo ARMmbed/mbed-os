@@ -38,7 +38,7 @@
 
 #include "lp_ticker_api.h"
 #include "sleep_api.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 /* ----------------------------------------------------------------
  * MACROS

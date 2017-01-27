@@ -17,11 +17,11 @@
 
 /* Declare __STDC_LIMIT_MACROS so stdint.h defines UINT32_MAX when using C++ */
 #define __STDC_LIMIT_MACROS
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 #include "cmsis.h"
 #include "platform/mbed_assert.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 
 #define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
 

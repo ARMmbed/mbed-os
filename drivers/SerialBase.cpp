@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 #include "drivers/SerialBase.h"
-#include "platform/wait_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/mbed_critical.h"
 
 #if DEVICE_SERIAL
 
