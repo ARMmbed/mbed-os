@@ -73,7 +73,7 @@ typedef enum {
     LED1 = LED_RED,
     LED2 = LED_GREEN,
     LED3 = LED_BLUE,
-    LED4 = NOT_CONNECTED,
+    LED4 = LED_RED,
 
     // Push button
     SW1 = P2_3,
