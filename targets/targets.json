@@ -1309,7 +1309,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "GCC_ARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F401", "STM32F401VC"],
+        "extra_labels": ["STM", "STM32F4", "STM32F401", "STM32F401xC", "STM32F401VC"],
         "supported_toolchains": ["GCC_ARM"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
