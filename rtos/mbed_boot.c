@@ -308,7 +308,10 @@ WEAK void mbed_sdk_init(void) {
 
 void mbed_start_main(void)
 {
+    /* Copy the vector table to RAM only if uVisor is not in use. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
+#endif
 
     _main_thread_attr.stack_mem = _main_stack;
     _main_thread_attr.stack_size = sizeof(_main_stack);
