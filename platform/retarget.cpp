@@ -486,8 +486,6 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 // routine) for GCC_ARM which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
-// Linker defined symbol used by _sbrk to indicate where heap should start.
-extern "C" int __end__;
 
 #if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
@@ -508,6 +506,8 @@ extern "C" caddr_t _sbrk(int incr) {
     return (caddr_t) __wrap__sbrk(incr);
 }
 #else
+// Linker defined symbol used by _sbrk to indicate where heap should start.
+extern "C" uint32_t __end__;
 extern "C" caddr_t _sbrk(int incr) {
     static unsigned char* heap = (unsigned char*)&__end__;
     unsigned char*        prev_heap = heap;
