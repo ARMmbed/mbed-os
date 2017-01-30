@@ -39,7 +39,7 @@ cmsis_compiler.h | Added IAR architecture macros |
 Filename | Description |
 ---------|-------------|
 cmsis_os2.h | Doxygen added |
-core_cm.h | Doxygen added, included headers changed to match mbed OS core selection |
+core_cm.h | Doxygen added; included headers changed to match mbed OS core selection; deferred priority setting of SVCall to uVisor, when uVisor is enabled |
 RTX_Config.h | Doxygen added, mbed OS RTX config included |
 rtx_evr.c | CMSIS component definition include removed |
 rtx_evr.h | Doxygen added |
