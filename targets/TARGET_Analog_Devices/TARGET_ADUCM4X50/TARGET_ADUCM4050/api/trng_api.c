@@ -1,5 +1,5 @@
 /*
- * 
+ *
  *
  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
@@ -26,6 +26,12 @@
 #include "cmsis.h"
 #include "trng_api.h"
 
+// Sampling counter values
+// Prescaler: 0 - 10
+// LenReload: 0 - 4095
+#define TRNG_CNT_VAL	4095
+#define TRNG_PRESCALER 	2
+
 static ADI_RNG_HANDLE     RNGhDevice;                     /* Memory to handle CRC Device */
 static uint32_t           RngDevMem[(ADI_RNG_MEMORY_SIZE + 3)/4]; /* Data buffers for Random numbers */
 
@@ -33,6 +39,12 @@ void trng_init(trng_t *obj)
 {
     (void)obj;
 	adi_rng_Open(0,RngDevMem,sizeof(RngDevMem),&RNGhDevice);
+
+    // Set sample length for the H/W RN accumulator
+	adi_rng_SetSampleLen(RNGhDevice, TRNG_PRESCALER, TRNG_CNT_VAL);
+
+    // Enable the RNG
+	adi_rng_Enable(RNGhDevice, true);
 }
 
 void trng_free(trng_t *obj)
@@ -47,11 +59,12 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     (void)obj;
 	bool bRNGRdy;
 	uint32_t nRandomNum, i;
-	adi_rng_SetSampleLen(RNGhDevice,1,(length + 1)/2);
-	adi_rng_Enable(RNGhDevice, true);
+
     for (i = 0; i < length; ) {
+        // wait for the RNG ready to give a random number
         adi_rng_GetRdyStatus(RNGhDevice, &bRNGRdy);
         if (bRNGRdy) {
+            // read the random number
             adi_rng_GetRngData(RNGhDevice, &nRandomNum);
             output[i++] = (uint8_t) nRandomNum;
         }
