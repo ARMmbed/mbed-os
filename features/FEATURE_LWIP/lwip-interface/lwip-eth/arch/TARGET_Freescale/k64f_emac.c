@@ -398,18 +398,18 @@ static bool k64f_eth_link_out(emac_interface_t *emac, emac_stack_mem_chain_t *ch
 {
   struct k64f_enetdata *enet = emac->hw;
   emac_stack_mem_t *q;
-  emac_stack_mem_t *temp_pbuf;
+  emac_stack_mem_t *temp_buf;
   uint8_t *psend = NULL, *dst;
 
-  temp_pbuf = emac_stack_mem_alloc(emac_stack_mem_chain_len(chain), ENET_BUFF_ALIGNMENT);
-  if (NULL == temp_pbuf)
+  temp_buf = emac_stack_mem_alloc(emac_stack_mem_chain_len(chain), ENET_BUFF_ALIGNMENT);
+  if (NULL == temp_buf)
     return false;
 
   /* K64F note: the next line ensures that the RX buffer is properly aligned for the K64F
      RX descriptors (16 bytes alignment). However, by doing so, we're effectively changing
      a data structure which is internal to lwIP. This might not prove to be a good idea
      in the long run, but a better fix would probably involve modifying lwIP itself */
-  psend = (uint8_t *)ENET_ALIGN((uint32_t)emac_stack_mem_ptr(temp_pbuf), ENET_BUFF_ALIGNMENT);
+  psend = (uint8_t *)ENET_ALIGN((uint32_t)emac_stack_mem_ptr(temp_buf), ENET_BUFF_ALIGNMENT);
 
   for (q = emac_stack_mem_chain_dequeue(&chain), dst = psend; q != NULL; q = emac_stack_mem_chain_dequeue(&chain)) {
     memcpy(dst, emac_stack_mem_ptr(q), emac_stack_mem_len(q));
@@ -425,12 +425,12 @@ static bool k64f_eth_link_out(emac_interface_t *emac, emac_stack_mem_chain_t *ch
   sys_mutex_lock(&enet->TXLockMutex);
 
   /* Save the buffer so that it can be freed when transmit is done */
-  tx_buff[enet->tx_produce_index % ENET_TX_RING_LEN] = temp_pbuf;
+  tx_buff[enet->tx_produce_index % ENET_TX_RING_LEN] = temp_buf;
   enet->tx_produce_index += 1;
 
   /* Setup transfers */
   g_handle.txBdCurrent->buffer = psend;
-  g_handle.txBdCurrent->length = emac_stack_mem_len(temp_pbuf);
+  g_handle.txBdCurrent->length = emac_stack_mem_len(temp_buf);
 
   g_handle.txBdCurrent->control |= (ENET_BUFFDESCRIPTOR_TX_READY_MASK | ENET_BUFFDESCRIPTOR_TX_LAST_MASK);
 
