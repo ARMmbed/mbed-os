@@ -32,7 +32,7 @@
 
 static ADI_UART_HANDLE          hDevice[ADI_UART_NUM_DEVICES];
 static uint32_t UartDeviceMem[ADI_UART_NUM_DEVICES][(ADI_UART_MEMORY_SIZE + 3)/4];
-static uint32_t serial_irq_ids[2] = {0};
+static uint32_t serial_irq_ids[ADI_UART_NUM_DEVICES] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -41,12 +41,12 @@ serial_t stdio_uart;
 static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 {
     MBED_ASSERT(irq_handler);
-
+    serial_t *obj = pCBParam;
 	if (Event == ADI_UART_EVENT_TX_BUFFER_PROCESSED)
-        irq_handler(serial_irq_ids[0], TxIrq);
+        irq_handler(serial_irq_ids[obj->index], TxIrq);
 	else
 	if (Event == ADI_UART_EVENT_RX_BUFFER_PROCESSED)
-		irq_handler(serial_irq_ids[0], RxIrq);
+		irq_handler(serial_irq_ids[obj->index], RxIrq);
 }
 
 
