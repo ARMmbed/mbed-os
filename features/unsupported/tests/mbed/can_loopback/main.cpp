@@ -19,12 +19,15 @@ CAN can1(P5_9, P5_10);
       defined(TARGET_NUCLEO_F302R8) || defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_DISCO_F429ZI)  || \
       defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_DISCO_L476VG)  || \
+      defined(TARGET_NUCLEO_F412ZG) || \
       defined(TARGET_NUCLEO_L476RG) || defined(TARGET_NUCLEO_L432KC)
 CAN can1(PA_11, PA_12);
 #elif defined(TARGET_DISCO_F469NI)  || defined(TARGET_DISCO_F746NG)  || \
       defined(TARGET_NUCLEO_F446ZE) || defined(TARGET_NUCLEO_F103RB) || \
       defined(TARGET_NUCLEO_F207ZG) || defined(TARGET_NUCLEO_F303ZE) || \
-      defined(TARGET_DISCO_F769NI) || defined(TARGET_NUCLEO_F767ZI)
+      defined(TARGET_DISCO_F769NI) || defined(TARGET_NUCLEO_F767ZI)  || \
+      defined(TARGET_NUCLEO_F412ZG) || \
+      defined(TARGET_DISCO_F303VC)
 CAN can1(PB_8, PB_9);
 #endif
 

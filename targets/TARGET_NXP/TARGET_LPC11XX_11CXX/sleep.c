@@ -17,7 +17,7 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void sleep(void) {
+void hal_sleep(void) {
     
     // PCON[DPDEN] set to sleep
     LPC_PMU->PCON = 0x0;
@@ -29,7 +29,7 @@ void sleep(void) {
     __WFI();
 }
 
-void deepsleep(void) {
+void hal_deepsleep(void) {
     
     // PCON[DPDEN] set to deepsleep
     LPC_PMU->PCON = 0;

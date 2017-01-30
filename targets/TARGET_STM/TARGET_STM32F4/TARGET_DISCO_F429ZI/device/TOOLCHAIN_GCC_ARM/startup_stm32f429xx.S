@@ -72,10 +72,10 @@ defined in linker script */
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
-Reset_Handler: 
-  ldr   sp, =_estack       /* set stack pointer */
- 
-/* Copy the data segment initializers from flash to SRAM */  
+Reset_Handler:
+  ldr   sp, =__stack       /* set stack pointer */
+
+/* Copy the data segment initializers from flash to SRAM */
   movs  r1, #0
   b  LoopCopyDataInit
 
@@ -93,6 +93,12 @@ LoopCopyDataInit:
   bcc  CopyDataInit
 
 /* Call the clock system intitialization function.*/
+  bl SystemInitPre
+  bl HAL_InitPre
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+  ldr r0, =uvisor_init
+  blx r0
+#endif /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
   bl  SystemInit   
 /* Call static constructors */
   //bl __libc_init_array
@@ -130,7 +136,7 @@ Infinite_Loop:
   .size  g_pfnVectors, .-g_pfnVectors
    
 g_pfnVectors:
-  .word  _estack
+  .word  __stack
   .word  Reset_Handler
 
   .word  NMI_Handler

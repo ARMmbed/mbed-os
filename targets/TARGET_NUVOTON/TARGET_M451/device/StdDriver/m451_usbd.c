@@ -43,15 +43,15 @@ volatile uint8_t g_usbd_RemoteWakeupEn = 0; /*!< Remote wake up function enable 
 /**
  * @cond HIDDEN_SYMBOLS
  */
-static volatile uint8_t *g_usbd_CtrlInPointer = 0;
-static volatile uint32_t g_usbd_CtrlInSize = 0;
-static volatile uint8_t *g_usbd_CtrlOutPointer = 0;
-static volatile uint32_t g_usbd_CtrlOutSize = 0;
-static volatile uint32_t g_usbd_CtrlOutSizeLimit = 0;
-static volatile uint32_t g_usbd_UsbAddr = 0;
-static volatile uint32_t g_usbd_UsbConfig = 0;
-static volatile uint32_t g_usbd_CtrlMaxPktSize = 8;
-static volatile uint32_t g_usbd_UsbAltInterface = 0;
+volatile uint8_t *g_usbd_CtrlInPointer = 0;
+volatile uint32_t g_usbd_CtrlInSize = 0;
+volatile uint8_t *g_usbd_CtrlOutPointer = 0;
+volatile uint32_t g_usbd_CtrlOutSize = 0;
+volatile uint32_t g_usbd_CtrlOutSizeLimit = 0;
+volatile uint32_t g_usbd_UsbAddr = 0;
+volatile uint32_t g_usbd_UsbConfig = 0;
+volatile uint32_t g_usbd_CtrlMaxPktSize = 64;
+volatile uint32_t g_usbd_UsbAltInterface = 0;
 /**
  * @endcond
  */
@@ -303,7 +303,7 @@ void USBD_StandardRequest(void)
         // Device to host
         switch(g_usbd_SetupPacket[1])
         {
-            case GET_CONFIGURATION:
+            case USBD_GET_CONFIGURATION:
             {
                 // Return current configuration setting
                 /* Data stage */
@@ -317,13 +317,13 @@ void USBD_StandardRequest(void)
 
                 break;
             }
-            case GET_DESCRIPTOR:
+            case USBD_GET_DESCRIPTOR:
             {
                 USBD_GetDescriptor();
                 USBD_PrepareCtrlOut(0, 0); /* For status stage */
                 break;
             }
-            case GET_INTERFACE:
+            case USBD_GET_INTERFACE:
             {
                 // Return current interface setting
                 /* Data stage */
@@ -337,7 +337,7 @@ void USBD_StandardRequest(void)
 
                 break;
             }
-            case GET_STATUS:
+            case USBD_GET_STATUS:
             {
                 // Device
                 if(g_usbd_SetupPacket[0] == 0x80)
@@ -389,7 +389,7 @@ void USBD_StandardRequest(void)
         // Host to device
         switch(g_usbd_SetupPacket[1])
         {
-            case CLEAR_FEATURE:
+            case USBD_CLEAR_FEATURE:
             {
                 if(g_usbd_SetupPacket[2] == FEATURE_ENDPOINT_HALT)
                 {
@@ -418,7 +418,7 @@ void USBD_StandardRequest(void)
 
                 break;
             }
-            case SET_ADDRESS:
+            case USBD_SET_ADDRESS:
             {
                 g_usbd_UsbAddr = g_usbd_SetupPacket[2];
                 DBG_PRINTF("Set addr to %d\n", g_usbd_UsbAddr);
@@ -430,7 +430,7 @@ void USBD_StandardRequest(void)
 
                 break;
             }
-            case SET_CONFIGURATION:
+            case USBD_SET_CONFIGURATION:
             {
                 g_usbd_UsbConfig = g_usbd_SetupPacket[2];
 
@@ -446,7 +446,7 @@ void USBD_StandardRequest(void)
 
                 break;
             }
-            case SET_FEATURE:
+            case USBD_SET_FEATURE:
             {
                 if(g_usbd_SetupPacket[2] == FEATURE_ENDPOINT_HALT)
                 {
@@ -467,7 +467,7 @@ void USBD_StandardRequest(void)
 
                 break;
             }
-            case SET_INTERFACE:
+            case USBD_SET_INTERFACE:
             {
                 g_usbd_UsbAltInterface = g_usbd_SetupPacket[2];
                 if(g_usbd_pfnSetInterface != NULL)
@@ -568,7 +568,7 @@ void USBD_CtrlIn(void)
     else // No more data for IN token
     {
         // In ACK for Set address
-        if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == SET_ADDRESS))
+        if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == USBD_SET_ADDRESS))
         {
             if((USBD_GET_ADDR() != g_usbd_UsbAddr) && (USBD_GET_ADDR() == 0))
             {

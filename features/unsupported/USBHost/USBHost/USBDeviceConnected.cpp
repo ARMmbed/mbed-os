@@ -94,7 +94,7 @@ void USBDeviceConnected::init(uint8_t hub_, uint8_t port_, bool lowSpeed_) {
 
 void USBDeviceConnected::disconnect() {
     for(int i = 0; i < MAX_INTF; i++) {
-        intf[i].detach.call();
+        if (intf[i].detach) intf[i].detach.call();
     }
     init();
 }

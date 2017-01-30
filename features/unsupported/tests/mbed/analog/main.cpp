@@ -57,6 +57,10 @@ AnalogOut out(A2);
 AnalogIn in(A0);
 AnalogOut out(A3);
 
+#elif defined(TARGET_DISCO_F769NI)
+AnalogIn in(A0);
+AnalogOut out(A1);
+
 #elif defined(TARGET_NUCLEO_F207ZG) || \
       defined(TARGET_NUCLEO_F746ZG) || \
       defined(TARGET_NUCLEO_F303ZE) || \

@@ -20,7 +20,8 @@ CAN can1(PD_0, PD_1);
       defined(TARGET_NUCLEO_F302R8) || defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_DISCO_F429ZI)  || defined(TARGET_NUCLEO_F103RB) || \
       defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_NUCLEO_L476RG) || \
-      defined(TARGET_NUCLEO_L432KC)
+      defined(TARGET_NUCLEO_F412ZG) || \
+      defined(TARGET_NUCLEO_L432KC) || defined(TARGET_DISCO_F303VC)
 CAN can1(PA_11, PA_12);
 #elif defined(TARGET_DISCO_F469NI) || defined(TARGET_DISCO_F746NG)
 CAN can1(PB_8, PB_9);
@@ -34,6 +35,7 @@ CAN can2(p34, p33);
 CAN can2(p30, p29);
 #elif defined(TARGET_NUCLEO_F446RE) || defined(TARGET_DISCO_F469NI) || \
       defined(TARGET_DISCO_F429ZI)  || defined(TARGET_NUCLEO_F746ZG) || \
+      defined(TARGET_NUCLEO_F412ZG) || \
       defined(TARGET_DISCO_F746NG)
 CAN can2(PB_5, PB_6);
 #endif
@@ -63,7 +65,7 @@ void send() {
      !defined(TARGET_NUCLEO_F303RE) && !defined(TARGET_NUCLEO_F303K8) && \
      !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
      !defined(TARGET_DISCO_L476VG)  && !defined(TARGET_NUCLEO_L476RG) && \
-     !defined(TARGET_NUCLEO_L432KC))
+     !defined(TARGET_NUCLEO_L432KC) && !defined(TARGET_DISCO_F303VC))
 void read() {
     CANMessage msg;
     printf("rx()\n");
@@ -83,7 +85,7 @@ int main() {
      !defined(TARGET_NUCLEO_F303RE) && !defined(TARGET_NUCLEO_F303K8) && \
      !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
      !defined(TARGET_DISCO_L476VG)  && !defined(TARGET_NUCLEO_L476RG) && \
-     !defined(TARGET_NUCLEO_L432KC))
+     !defined(TARGET_NUCLEO_L432KC) && !defined(TARGET_DISCO_F303VC))
     can2.attach(&read);
 #endif
     while(1) {

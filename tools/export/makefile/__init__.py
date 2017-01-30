@@ -40,6 +40,9 @@ class Makefile(Exporter):
 
         Note: subclasses should not need to override this method
         """
+        if not self.resources.linker_script:
+            raise NotSupportedException("No linker script found.")
+
         self.resources.win_to_unix()
 
         to_be_compiled = [splitext(src)[0] + ".o" for src in
@@ -49,6 +52,8 @@ class Makefile(Exporter):
 
         libraries = [self.prepare_lib(basename(lib)) for lib
                      in self.resources.libraries]
+        sys_libs = [self.prepare_sys_lib(lib) for lib
+                    in self.toolchain.sys_libs]
 
         ctx = {
             'name': self.project_name,
@@ -58,6 +63,7 @@ class Makefile(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
+            'ld_sys_libs': sys_libs,
             'hex_files': self.resources.hex_files,
             'vpath': (["../../.."]
                       if (basename(dirname(dirname(self.export_dir)))
@@ -168,6 +174,10 @@ class GccArm(Makefile):
     def prepare_lib(libname):
         return "-l:" + libname
 
+    @staticmethod
+    def prepare_sys_lib(libname):
+        return "-l" + libname
+
 
 class Armc5(Makefile):
     """ARM Compiler 5 specific makefile target"""
@@ -183,6 +193,10 @@ class Armc5(Makefile):
     def prepare_lib(libname):
         return libname
 
+    @staticmethod
+    def prepare_sys_lib(libname):
+        return libname
+
 
 class IAR(Makefile):
     """IAR specific makefile target"""
@@ -196,6 +210,12 @@ class IAR(Makefile):
 
     @staticmethod
     def prepare_lib(libname):
+        if "lib" == libname[:3]:
+            libname = libname[3:]
+        return "-l" + splitext(libname)[0]
+
+    @staticmethod
+    def prepare_sys_lib(libname):
         if "lib" == libname[:3]:
             libname = libname[3:]
         return "-l" + splitext(libname)[0]

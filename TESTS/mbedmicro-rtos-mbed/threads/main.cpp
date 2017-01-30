@@ -10,6 +10,13 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+/*
+ * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
+ * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
+ * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
+ */
+#define PARALLEL_STACK_SIZE 512
+
 using namespace utest::v1;
 
 // The counter type used accross all the tests
@@ -32,8 +39,8 @@ void increment_with_wait(counter_t* counter) {
 }
 
 void increment_with_child(counter_t* counter) {
-    Thread child(osPriorityNormal);
-    child.start(mbed::callback(increment, counter));
+    Thread child;
+    child.start(callback(increment, counter));
     child.join();
 }
 
@@ -42,8 +49,8 @@ void increment_with_murder(counter_t* counter) {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread child(osPriorityNormal);
-        child.start(mbed::callback(increment, counter));
+        Thread child;
+        child.start(callback(increment, counter));
         child.terminate();
     }
 
@@ -60,8 +67,8 @@ void self_terminate(Thread *self) {
 template <void (*F)(counter_t *)>
 void test_single_thread() {
     counter_t counter(0);
-    Thread thread(osPriorityNormal);
-    thread.start(mbed::callback(F, &counter));
+    Thread thread;
+    thread.start(callback(F, &counter));
     thread.join();
     TEST_ASSERT_EQUAL(counter, 1);
 }
@@ -72,8 +79,8 @@ void test_parallel_threads() {
     Thread *threads[N];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(osPriorityNormal);
-        threads[i]->start(mbed::callback(F, &counter));
+        threads[i] = new Thread(osPriorityNormal, PARALLEL_STACK_SIZE);
+        threads[i]->start(callback(F, &counter));
     }
 
     for (int i = 0; i < N; i++) {
@@ -89,8 +96,8 @@ void test_serial_threads() {
     counter_t counter(0);
 
     for (int i = 0; i < N; i++) {
-        Thread thread(osPriorityNormal);
-        thread.start(mbed::callback(F, &counter));
+        Thread thread;
+        thread.start(callback(F, &counter));
         thread.join();
     }
 
@@ -98,8 +105,8 @@ void test_serial_threads() {
 }
 
 void test_self_terminate() {
-    Thread *thread = new Thread(osPriorityNormal);
-    thread->start(mbed::callback(self_terminate, thread));
+    Thread *thread = new Thread();
+    thread->start(callback(self_terminate, thread));
     thread->join();
     delete thread;
 }

@@ -13,7 +13,7 @@ const int SIGNAL_HANDLE_DELEY = 25;
 DigitalOut led(LED1);
 int signal_counter = 0;
 
-void led_thread(void const *argument) {
+void led_thread() {
     while (true) {
         // Signal flags that are reported as event are automatically cleared.
         Thread::signal_wait(SIGNAL_SET_VALUE);
@@ -25,7 +25,9 @@ void led_thread(void const *argument) {
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
 
-    Thread thread(led_thread, NULL, osPriorityNormal);
+    Thread thread;
+    thread.start(led_thread);
+
     bool result = false;
 
     printf("Handling %d signals...\r\n", SIGNALS_TO_EMIT);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f7xx.c
   * @author  MCD Application Team
-  * @version V1.0.2
-  * @date    21-September-2015
+  * @version V1.1.2
+  * @date    23-September-2016 
   * @brief   CMSIS Cortex-M7 Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -83,9 +83,7 @@
 
 HAL_StatusTypeDef HAL_Init(void);
 
-#if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)25000000) /*!< Default value of the External oscillator in Hz */
-#endif /* HSE_VALUE */
+#define HSE_VALUE    ((uint32_t)25000000) /*!< Default value of the External oscillator in Hz */
 
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)16000000) /*!< Value of the Internal oscillator in Hz*/
@@ -132,7 +130,7 @@ HAL_StatusTypeDef HAL_Init(void);
   */
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (1) /* Use external clock */ 
+#define USE_PLL_HSE_EXTC (0) /* Use external clock --> NOT USED ON THIS BOARD */ 
 #define USE_PLL_HSE_XTAL (1) /* Use external xtal */
 
 /**
@@ -736,6 +734,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
   // Enable power clock  
   __PWR_CLK_ENABLE();
@@ -750,13 +749,14 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   {
     RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External clock on OSC_IN */
   }
-  // Warning: this configuration is for a 8 MHz xtal clock only
+  // Warning: this configuration is for a 25 MHz xtal clock only
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM            = 25;             // VCO input clock = 1 MHz (25 MHz / 25)
+  RCC_OscInitStruct.PLL.PLLM            = 25;            // VCO input clock = 1 MHz (25 MHz / 25)
   RCC_OscInitStruct.PLL.PLLN            = 432;           // VCO output clock = 432 MHz (1 MHz * 432)
   RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 216 MHz (432 MHz / 2)
   RCC_OscInitStruct.PLL.PLLQ            = 9;             // USB clock = 48 MHz (432 MHz / 9) --> OK for USB
+  RCC_OscInitStruct.PLL.PLLR            = 2;
   
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -768,7 +768,18 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   {
     return 0; // FAIL
   }
-  
+
+  /* Select PLLSAI output as USB clock source */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48SOURCE_PLLSAIP;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN = 384;
+  PeriphClkInitStruct.PLLSAI.PLLSAIQ = 7;
+  PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV8;
+  if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct)  != HAL_OK)
+  {
+    return 0; // FAIL
+  }
+
   // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
   RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 216 MHz
@@ -801,7 +812,7 @@ uint8_t SetSysClock_PLL_HSI(void)
   __PWR_CLK_ENABLE();
  
   // Enable HSI oscillator and activate PLL with HSI as source
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
   RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
   RCC_OscInitStruct.HSICalibrationValue = 16;
@@ -811,7 +822,8 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_OscInitStruct.PLL.PLLN            = 432;           // VCO output clock = 432 MHz (1 MHz * 432)
   RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 216 MHz (432 MHz / 2)
   RCC_OscInitStruct.PLL.PLLQ            = 9;             // USB clock = 48 MHz (432 MHz / 9) --> OK for USB
-  
+  RCC_OscInitStruct.PLL.PLLR            = 2;
+
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     return 0; // FAIL

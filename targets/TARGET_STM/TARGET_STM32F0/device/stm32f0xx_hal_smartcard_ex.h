@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smartcard_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of SMARTCARD HAL Extended module.
   ******************************************************************************
   * @attention
@@ -58,19 +58,19 @@
 
 /* Exported types ------------------------------------------------------------*/  
 /* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-
-/** @defgroup SMARTCARD_Extended_Exported_Macros SMARTCARDEx Exported Macros
+/* Exported macros -----------------------------------------------------------*/  
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup SMARTCARDEx_Private_Macros SMARTCARD Extended Private Macros
   * @{
   */
-
-/** @brief  Reports the SMARTCARD clock source.
-  * @param  __HANDLE__: specifies the SMARTCARD Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+  
+/** @brief  Report the SMARTCARD clock source.
+  * @param  __HANDLE__: specifies the SMARTCARD Handle.
+  * @param  __CLOCKSOURCE__: output variable.
   * @retval the SMARTCARD clocking source, written in __CLOCKSOURCE__.
   */
 #if defined(STM32F031x6) || defined(STM32F038xx)
-#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                             \
      switch(__HAL_RCC_GET_USART1_SOURCE())                         \
      {                                                             \
@@ -94,7 +94,7 @@
 #elif defined (STM32F030x8) ||                                     \
       defined (STM32F042x6) || defined (STM32F048xx) ||            \
       defined (STM32F051x8) || defined (STM32F058xx)
-#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                             \
     if((__HANDLE__)->Instance == USART1)                           \
     {                                                              \
@@ -185,7 +185,7 @@
     }                                                              \
   } while(0) 
 #elif defined(STM32F091xC) || defined(STM32F098xx) 
-#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                             \
     if((__HANDLE__)->Instance == USART1)                           \
     {                                                              \
@@ -276,10 +276,10 @@
     }                                                              \
   } while(0)      
 #endif /* defined(STM32F031x6) || defined(STM32F038xx) */
-
+  
 /**
   * @}
-  */      
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup SMARTCARDEx_Exported_Functions
@@ -298,8 +298,6 @@ void              HAL_SMARTCARDEx_BlockLength_Config(SMARTCARD_HandleTypeDef *hs
 void              HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint32_t TimeOutValue);
 HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard);
 HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard);
-
-/* Peripheral State and Error functions ***************************************/
 
 /**
   * @}

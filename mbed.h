@@ -92,6 +92,7 @@
 #include "drivers/InterruptIn.h"
 #include "platform/wait_api.h"
 #include "hal/sleep_api.h"
+#include "platform/sleep.h"
 #include "platform/rtc_time.h"
 
 // mbed Non-hardware components

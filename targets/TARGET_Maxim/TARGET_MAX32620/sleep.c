@@ -54,7 +54,7 @@ static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t*)STDIO_UART;
 static int restore_usb;
 static usb_state_t usb_state;
 
-void sleep(void)
+void hal_sleep(void)
 {
     // Normal sleep mode for ARM core
     SCB->SCR = 0;
@@ -109,7 +109,7 @@ static void usb_wakeup(void)
 }
 
 // Low-power stop mode
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     unsigned int part_rev = MXC_PWRMAN->mask_id0 & MXC_F_PWRMAN_MASK_ID0_REVISION_ID;
 

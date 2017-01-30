@@ -21,7 +21,7 @@ void queue_isr() {
     myled = !myled;
 }
 
-void queue_thread(void const *argument) {
+void queue_thread() {
     while (true) {
         queue.put((uint32_t*)QUEUE_PUT_THREAD_VALUE);
         Thread::wait(THREAD_DELAY);
@@ -31,7 +31,8 @@ void queue_thread(void const *argument) {
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
 
-    Thread thread(queue_thread, NULL, osPriorityNormal);
+    Thread thread;
+    thread.start(queue_thread);
     Ticker ticker;
     ticker.attach(queue_isr, 1.0);
     int isr_puts_counter = 0;

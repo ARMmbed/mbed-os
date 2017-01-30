@@ -31,12 +31,12 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void sleep(void)
+void hal_sleep(void)
 {
     // To Do
 }
 
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     // To Do
 }

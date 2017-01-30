@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_spi_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Extended SPI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          SPI peripheral extended functionalities :
@@ -57,7 +57,7 @@
 /** @defgroup SPIEx_Private_Constants SPIEx Private Constants
   * @{
   */
-#define SPI_FIFO_SIZE       4
+#define SPI_FIFO_SIZE       4U
 /**
   * @}
   */
@@ -98,13 +98,13 @@
 HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi)
 {
   __IO uint32_t tmpreg;
-  uint8_t  count = 0;
-  while((hspi->Instance->SR & SPI_FLAG_FRLVL) !=  SPI_FRLVL_EMPTY)
+  uint8_t  count = 0U;
+  while ((hspi->Instance->SR & SPI_FLAG_FRLVL) !=  SPI_FRLVL_EMPTY)
   {
     count++;
     tmpreg = hspi->Instance->DR;
     UNUSED(tmpreg); /* To avoid GCC warning */
-    if(count == SPI_FIFO_SIZE)
+    if (count == SPI_FIFO_SIZE)
     {
       return HAL_TIMEOUT;
     }

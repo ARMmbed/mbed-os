@@ -25,7 +25,7 @@
  * @param[void] void
  * @return      void
  */
-void sleep(void)
+void hal_sleep(void)
 {
 #if (SAMD21) || (SAMR21)
     system_set_sleepmode(SYSTEM_SLEEPMODE_IDLE_2);
@@ -43,7 +43,7 @@ void sleep(void)
  * @param[void] void
  * @return      void
  */
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     system_set_sleepmode(SYSTEM_SLEEPMODE_STANDBY);
     system_sleep();
