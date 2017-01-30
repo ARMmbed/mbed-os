@@ -606,7 +606,11 @@ __STATIC_INLINE void SVC_Initialize (void) {
   if (p >= n) {
     n = p + 1U;
   }
+
+  /* Only change the SVCall priority if uVisor is not present. */
+  #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
   SCB->SHP[7] = (uint8_t)(0xFEU << n);
+  #endif
 #elif  (__ARM_ARCH_6M__      == 1U)
   uint32_t n;
 
