@@ -271,10 +271,6 @@ int $Sub$$main(void) {
     return $Super$$main();
 }
 
-/* If present, RTX version of this function will be called */
-WEAK void _platform_post_stackheap_init (void) {
-}
-
 void pre_main (void)
 {
     singleton_mutex_attr.attr_bits = osMutexRecursive;
