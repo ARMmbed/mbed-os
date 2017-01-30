@@ -179,6 +179,8 @@ class ARM(mbedToolchain):
         else:
             args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
 
+        args.extend(self.flags['ld'])
+
         if mem_map:
             args.extend(["--scatter", mem_map])
 
