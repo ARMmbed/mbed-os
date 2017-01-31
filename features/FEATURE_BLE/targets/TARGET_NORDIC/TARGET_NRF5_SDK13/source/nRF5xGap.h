@@ -150,6 +150,7 @@ private:
 #endif
     
 #if  (NRF_SD_BLE_API_VERSION >= 3)
+    /* internal type for pasing whitelist and identities list */
     typedef struct
     {
         ble_gap_addr_t addr[YOTTA_CFG_WHITELIST_MAX_SIZE];
@@ -161,9 +162,19 @@ private:
         uint32_t identities_cnt;
     } GapWhiteAndIdentityList_t;
     
+    /* purpouse of updation the whitelist and identities settings */
+    enum whiteAndIdentityListPurpose_t
+    {
+        scan_connect_purpose = 0,
+        avdvertising_purpose
+    } whiteAndIdentityListPurpose;
+    
+    /* Fuction for preparing setting of the whitelist-feature and identiti-reseolv-feature (privacy).*/
     ble_error_t getStackWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
+    /* Fuction for apllying setting of the whitelist-feature and identiti-reseolv-feature (privacy).*/
     ble_error_t apllyWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-    ble_error_t updateWhiteAndIdentityListInStack(void);
+    /* Fuction which incorportes 2 above f. together */
+    ble_error_t updateWhiteAndIdentityListInStack(whiteAndIdentityListPurpose_t purpose);
 #endif
 
 private:

@@ -224,18 +224,27 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #endif
             gap.setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
-#if  (NRF_SD_BLE_API_VERSION <= 2)
+
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
+#if  (NRF_SD_BLE_API_VERSION <= 2)
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
-#else
-            const ble_gap_addr_t *peer = NULL; // @todo real implemantation pm_device_identities_list_set/get
-            const ble_gap_addr_t *own  = NULL;
-#endif
+        
             gap.processConnectionEvent(handle,
-                                                           role,
-                                                           static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
-                                                           static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
-                                                           params);
+                                       role,
+                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
+                                       static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
+                                       params);
+#else
+            Gap::AddressType_t addr_type;
+            Gap::Address_t     own_address;
+            gap.getAddress(&addr_type, own_address);
+
+            gap.processConnectionEvent(handle,
+                                       role,
+                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
+                                       addr_type,  own_address,
+                                       params);
+#endif
             break;
         }
 
