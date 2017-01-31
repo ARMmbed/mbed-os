@@ -97,8 +97,7 @@ static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint3
 {
     uint32_t function = LL_GPIO_GetPinMode(gpio, ll_pin);
 
-    switch (pull_config)
-    {
+    switch (pull_config) {
         case GPIO_PULLUP:
             if (function == LL_GPIO_MODE_FLOATING)
                 LL_GPIO_SetPinMode(gpio, ll_pin, LL_GPIO_MODE_INPUT);
@@ -109,7 +108,7 @@ static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint3
                 LL_GPIO_SetPinMode(gpio, ll_pin, LL_GPIO_MODE_INPUT);
             LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_DOWN);
             break;
-        case GPIO_NOPULL:
+        default:
             /*  Input+NoPull = Floating for F1 family */
             if (function == LL_GPIO_MODE_INPUT)
                 LL_GPIO_SetPinMode(gpio, ll_pin, LL_GPIO_MODE_FLOATING);

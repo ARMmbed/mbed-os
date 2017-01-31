@@ -43,15 +43,14 @@ static inline void stm_pin_DisconnectDebug(PinName pin)
 
 static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint32_t pull_config)
 {
-    switch (pull_config)
-    {
+    switch (pull_config) {
         case GPIO_PULLUP:
             LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_UP);
             break;
         case GPIO_PULLDOWN:
             LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_DOWN);
             break;
-        case GPIO_NOPULL:
+        default:
             LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_NO);
             break;
     }
