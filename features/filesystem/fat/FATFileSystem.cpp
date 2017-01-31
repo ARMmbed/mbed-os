@@ -69,6 +69,8 @@ PlatformMutex * get_fat_mutex() {
  */
 static void FATFileSystemSetErrno(FRESULT res)
 {
+    /* todo: remove this temporary fix to overcome undefined symbols when compile for ARMCC */
+#ifndef TOOLCHAIN_ARM_STD
     switch(res) {
         case FR_DISK_ERR:               /* (1) A hard error occurred in the low level disk I/O layer */
         case FR_NOT_READY:              /* (3) The physical drive cannot work */
@@ -105,6 +107,7 @@ static void FATFileSystemSetErrno(FRESULT res)
             errno = EBADF;              /* Bad file number */
             break;
     }
+#endif  /* TOOLCHAIN_ARM_STD */
     return;
 }
 
@@ -228,9 +231,12 @@ DirHandle *FATFileSystem::opendir(const char *name) {
 int FATFileSystem::mkdir(const char *name, mode_t mode) {
     lock();
     FRESULT res = f_mkdir(name);
+    /* todo: remove this temporary fix to overcome undefined symbols when compile for ARMCC */
+#ifndef TOOLCHAIN_ARM_STD
     if (res != 0) {
         errno = (res == FR_EXIST) ? EEXIST : 0;
     }
+#endif  /* TOOLCHAIN_ARM_STD */
     unlock();
     return res == 0 ? 0 : -1;
 }
@@ -246,13 +252,15 @@ int FATFileSystem::stat(const char *name, struct stat *st) {
         return -1;
     }
 
+    /* todo: remove this temporary fix to overcome undefined symbols when compile for ARMCC */
+#ifndef TOOLCHAIN_ARM_STD
     st->st_size = f.fsize;
     st->st_mode = 0;
     st->st_mode |= (f.fattrib & AM_DIR) ? S_IFDIR : S_IFREG;
     st->st_mode |= (f.fattrib & AM_RDO) ?
         (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
         (S_IRWXU | S_IRWXG | S_IRWXO);
-
+#endif
     unlock();
     return 0;
 }
