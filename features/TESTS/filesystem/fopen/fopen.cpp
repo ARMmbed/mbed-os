@@ -34,8 +34,10 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
+/* todo: remove this temporary fix to overcome undefined symbols when compile for ARMCC */
+#ifndef TOOLCHAIN_ARM_STD
 #include <sys/stat.h>
-
+#endif
 using namespace utest::v1;
 
 /// @cond FSFAT_DOXYGEN_DISABLE
