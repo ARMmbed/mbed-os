@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** @file open.cpp Test cases to open KVs in the FSFAT using the drv->Open() interface.
+/** @file fopen.cpp Test cases to POSIX file fopen() interface.
  *
  * Please consult the documentation under the test-case functions for
  * a description of the individual test case.
@@ -34,6 +34,7 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 using namespace utest::v1;
 
@@ -51,8 +52,12 @@ using namespace utest::v1;
  * FSFAT_SDCARD_INSTALLTED
  *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
+ *
+ * Notes
+ *   The following 2 lines should be instated to perform the tests in this file:
+ *      #define FSFAT_SDCARD_INSTALLED
+ *      #define DEVICE_SPI
  */
-/* #define FSFAT_SDCARD_INSTALLED */
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
@@ -123,16 +128,39 @@ SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 #define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_05
 #define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_06
 #define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_07
+#define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_08
+#define FSFAT_FOPEN_TEST_09      fsfat_fopen_test_09
+#define FSFAT_FOPEN_TEST_10      fsfat_fopen_test_10
+#define FSFAT_FOPEN_TEST_11      fsfat_fopen_test_11
+#define FSFAT_FOPEN_TEST_12      fsfat_fopen_test_12
+#define FSFAT_FOPEN_TEST_13      fsfat_fopen_test_13
+#define FSFAT_FOPEN_TEST_14      fsfat_fopen_test_14
+#define FSFAT_FOPEN_TEST_15      fsfat_fopen_test_15
+#define FSFAT_FOPEN_TEST_16      fsfat_fopen_test_16
+#define FSFAT_FOPEN_TEST_17      fsfat_fopen_test_17
+#define FSFAT_FOPEN_TEST_18      fsfat_fopen_test_18
+#define FSFAT_FOPEN_TEST_19      fsfat_fopen_test_19
+#define FSFAT_FOPEN_TEST_20      fsfat_fopen_test_20
+#define FSFAT_FOPEN_TEST_21      fsfat_fopen_test_21
+#define FSFAT_FOPEN_TEST_22      fsfat_fopen_test_22
+#define FSFAT_FOPEN_TEST_23      fsfat_fopen_test_23
+#define FSFAT_FOPEN_TEST_24      fsfat_fopen_test_24
+#define FSFAT_FOPEN_TEST_25      fsfat_fopen_test_25
+#define FSFAT_FOPEN_TEST_26      fsfat_fopen_test_26
+#define FSFAT_FOPEN_TEST_27      fsfat_fopen_test_27
+#define FSFAT_FOPEN_TEST_28      fsfat_fopen_test_28
+#define FSFAT_FOPEN_TEST_29      fsfat_fopen_test_29
+#define FSFAT_FOPEN_TEST_30      fsfat_fopen_test_30
 
 
 /* support functions */
 
 /*
- * open tests that focus on testing fsfat_open()
- * fsfat_handle_t fsfat_open(const char* key_name, char* data, ARM_FSFAT_SIZE* len, fsfat_key_desc_t* kdesc)
+ * open tests that focus on testing fopen()
+ * fsfat_handle_t fopen(const char* filename, char* data, size_t* len, fsfat_key_desc_t* kdesc)
  */
 
-/* KV data for test_01 */
+/* file data for test_01 */
 static fsfat_kv_data_t fsfat_fopen_test_01_kv_data[] = {
         { "/sd/fopentst/hello/world/animal/wobbly/dog/foot/frontlft.txt", "missing"},
         { NULL, NULL},
@@ -197,7 +225,7 @@ int32_t fsfat_filepath_remove_all(char* filepath)
     char *fpathbuf = NULL;
     char *pos = NULL;
 
-    FSFAT_DBGLOG("%s:entered\n", __func__);
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
     fpathbuf = strdup(filepath);
     if (fpathbuf == NULL) {
         FSFAT_DBGLOG("%s: failed to duplicate string (out of memory)\n", __func__);
@@ -224,10 +252,11 @@ int32_t fsfat_filepath_remove_all(char* filepath)
  *
  * ARGUMENTS
  *  @param  filepath     IN file path containing directories and file
+ *  @param  do_asserts   IN set to true if function should assert on errors
  *
  * @return  On success, this returns 0, otherwise < 0 is returned;
  */
-static int32_t fsfat_filepath_make_dirs(char* filepath)
+static int32_t fsfat_filepath_make_dirs(char* filepath, bool do_asserts)
 {
     int32_t i = 0;
     int32_t num_parts = 0;
@@ -254,8 +283,10 @@ static int32_t fsfat_filepath_make_dirs(char* filepath)
         pos += sprintf(buf+pos, "/%s", parts[i]);
         FSFAT_DBGLOG("mkdir(%s)\n", buf);
         ret = mkdir(buf, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create directory (filepath2=\"%s\", ret=%d, errno=%d)\n", __func__, buf, (int) ret, errno);
-        TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        if (do_asserts == true) {
+            FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create directory (filepath2=\"%s\", ret=%d, errno=%d)\n", __func__, buf, (int) ret, errno);
+            TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        }
     }
 
     if (buf) {
@@ -293,33 +324,33 @@ static control_t fsfat_fopen_test_01(const size_t call_count)
     node = fsfat_fopen_test_01_kv_data;
 
     /* remove file and directory from a previous failed test run, if present */
-    fsfat_filepath_remove_all((char*) node->key_name);
+    fsfat_filepath_remove_all((char*) node->filename);
 
-    /* create dirs*/
-    ret = fsfat_filepath_make_dirs((char*) node->key_name);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dirs for filename (filename=\"%s\")(ret=%d)\n", __func__, node->key_name, (int) ret);
+    /* create dirs */
+    ret = fsfat_filepath_make_dirs((char*) node->filename, true);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dirs for filename (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
-    FSFAT_DBGLOG("%s:About to create new file (filename=\"%s\", data=\"%s\")\n", __func__, node->key_name, node->value);
-    fp = fopen(node->key_name, "w+");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (filename=\"%s\", data=\"%s\")(ret=%d, errno=%d)\n", __func__, node->key_name, node->value, (int) ret, errno);
+    FSFAT_DBGLOG("%s:About to create new file (filename=\"%s\", data=\"%s\")\n", __func__, node->filename, node->value);
+    fp = fopen(node->filename, "w+");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (filename=\"%s\", data=\"%s\")(ret=%d, errno=%d)\n", __func__, node->filename, node->value, (int) ret, errno);
     TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
 
-    FSFAT_DBGLOG("%s:length of KV=%d (filename=\"%s\", data=\"%s\")\n", __func__, (int) len, node->key_name, node->value);
+    FSFAT_DBGLOG("%s:length of file=%d (filename=\"%s\", data=\"%s\")\n", __func__, (int) len, node->filename, node->value);
     len = strlen(node->value);
     ret = fwrite((const void*) node->value, len, 1, fp);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write file (filename=\"%s\", data=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write file (filename=\"%s\", data=\"%s\")(ret=%d)\n", __func__, node->filename, node->value, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 1, fsfat_fopen_utest_msg_g);
 
-    FSFAT_DBGLOG("Created file successfully (filename=\"%s\", data=\"%s\")\n", node->key_name, node->value);
+    FSFAT_DBGLOG("Created file successfully (filename=\"%s\", data=\"%s\")\n", node->filename, node->value);
     ret = fclose(fp);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
     /* now open the newly created key */
     fp = NULL;
-    fp = fopen(node->key_name, "r");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file for reading (filename=\"%s\", data=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
+    fp = fopen(node->filename, "r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file for reading (filename=\"%s\", data=\"%s\")(ret=%d)\n", __func__, node->filename, node->value, (int) ret);
     TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
 
     len = strlen(node->value) + 1;
@@ -327,10 +358,10 @@ static control_t fsfat_fopen_test_01(const size_t call_count)
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to allocated read buffer \n", __func__);
     TEST_ASSERT_MESSAGE(read_buf != NULL, fsfat_fopen_utest_msg_g);
 
-    FSFAT_DBGLOG("Opened KV successfully (filename=\"%s\", data=\"%s\")\n", node->key_name, node->value);
+    FSFAT_DBGLOG("Opened file successfully (filename=\"%s\", data=\"%s\")\n", node->filename, node->value);
     memset(read_buf, 0, len);
     ret = fread((void*) read_buf, len, 1, fp);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to read file (filename=\"%s\", data=\"%s\", read_buf=\"%s\", ret=%d)\n", __func__, node->key_name, node->value, read_buf, (int) ret);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to read file (filename=\"%s\", data=\"%s\", read_buf=\"%s\", ret=%d)\n", __func__, node->filename, node->value, read_buf, (int) ret);
     /* FIX ME: fread should return the number of items read, not 0 when an item is read successfully.
      * This indicates a problem with the implementation, as the correct data is read. The correct assert should be:
      *   TEST_ASSERT_MESSAGE(ret == 1, fsfat_fopen_utest_msg_g);
@@ -339,19 +370,17 @@ static control_t fsfat_fopen_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
     /* check read data is as expected */
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: read value data (%s) != expected value data (filename=\"%s\", data=\"%s\", read_buf=\"%s\", ret=%d)\n", __func__, read_buf, node->key_name, node->value, read_buf, (int) ret);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: read value data (%s) != expected value data (filename=\"%s\", data=\"%s\", read_buf=\"%s\", ret=%d)\n", __func__, read_buf, node->filename, node->value, read_buf, (int) ret);
     TEST_ASSERT_MESSAGE(strncmp(read_buf, node->value, strlen(node->value)) == 0, fsfat_fopen_utest_msg_g);
 
     if(read_buf){
         free(read_buf);
     }
     ret = fclose(fp);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Close() call failed (ret=%d, errno=%d).\n", __func__, (int) ret, errno);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fclose() call failed (ret=%d, errno=%d).\n", __func__, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
-
-#ifdef NOT_DEFINED
 
 static fsfat_kv_data_t fsfat_fopen_test_02_data[] = {
         FSFAT_INIT_1_TABLE_MID_NODE,
@@ -359,169 +388,146 @@ static fsfat_kv_data_t fsfat_fopen_test_02_data[] = {
 };
 
 /**
- * @brief   test to open() a pre-existing key and try to write it, which should fail
+ * @brief   test to fopen() a pre-existing key and try to write it, which should fail
  *          as by default pre-existing keys are opened read-only
  *
  * Basic open test which does the following:
- * - creates KV with default rw perms and writes some data to the value blob.
- * - closes the newly created KV.
- * - opens the KV with the default permissions (read-only)
- * - tries to write the KV data which should fail because KV was not opened with write flag set.
+ * - creates file with default rw perms and writes some data to the value blob.
+ * - closes the newly created file.
+ * - opens the file with the default permissions (read-only)
+ * - tries to write the file data which should fail because file was not opened with write flag set.
  * - closes the opened key
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_02(const size_t call_count)
 {
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_SIZE len = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_KEYDESC kdesc;
-    ARM_FSFAT_HANDLE_INIT(hkey);
-    ARM_FSFAT_FMODE flags;
+    int32_t ret = -1;
+    size_t len = 0;
+    FILE *fp = NULL;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-    memset(&kdesc, 0, sizeof(kdesc));
-    /* dont set any flags to get default settings */
-    memset(&flags, 0, sizeof(flags));
-    kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     len = strlen(fsfat_fopen_test_02_data[0].value);
-    ret = fsfat_test_create(fsfat_fopen_test_02_data[0].key_name, (char*) fsfat_fopen_test_02_data[0].value, &len, &kdesc);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store (ret=%d).\n", __func__, (int) ret);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    ret = fsfat_test_create(fsfat_fopen_test_02_data[0].filename, (char*) fsfat_fopen_test_02_data[0].value, len);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
 
     /* by default, owner of key opens with read-only permissions*/
-    ret = fopen(fsfat_fopen_test_02_data[0].key_name, "w+");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open node (filename=\"%s\")(ret=%d)\n", __func__, fsfat_fopen_test_02_data[0].key_name, (int) ret);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    fp = fopen(fsfat_fopen_test_02_data[0].filename, "r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=\"%s\", ret=%d)\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
 
     len = strlen(fsfat_fopen_test_02_data[0].value);
-    ret = drv->Write(hkey, fsfat_fopen_test_02_data[0].value, &len);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: call to Write() succeeded when should have failed (filename=\"%s\")(ret=%d).\n", __func__, fsfat_fopen_test_02_data[0].key_name, (int) ret);
-    TEST_ASSERT_MESSAGE(ret == ARM_FSFAT_DRIVER_ERROR_KEY_READ_ONLY, fsfat_fopen_utest_msg_g);
+    ret = fwrite((const void*) fsfat_fopen_test_02_data[0].value, len, 1, fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: call to fwrite() succeeded when should have failed for read-only file (filename=\"%s\")(ret=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret <= 0, fsfat_fopen_utest_msg_g);
 
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Close() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(drv->Close(hkey) >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fclose() call failed.\n", __func__);
+    TEST_ASSERT_MESSAGE(fclose(fp) == 0, fsfat_fopen_utest_msg_g);
 
-    ret = drv->Uninitialize();
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
 
 
-
-
 /**
- * @brief   test to open() a pre-existing key and try to write it, which should succeed
+ * @brief   test to fopen() a pre-existing file and try to write it, which should succeed
  *          because the key was opened read-write permissions explicitly
  *
  * Basic open test which does the following:
- * - creates KV with default rw perms and writes some data to the value blob.
- * - closes the newly created KV.
- * - opens the KV with the rw permissions (non default)
- * - tries to write the KV data which should succeeds because KV was opened with write flag set.
+ * - creates file with default rw perms and writes some data to the value blob.
+ * - closes the newly created file.
+ * - opens the file with the rw permissions (non default)
+ * - tries to write the file data which should succeeds because file was opened with write flag set.
  * - closes the opened key
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_03(const size_t call_count)
 {
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_SIZE len = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_KEYDESC kdesc;
-    ARM_FSFAT_HANDLE_INIT(hkey);
-    ARM_FSFAT_FMODE flags;
+    int32_t ret = -1;
+    size_t len = 0;
+    FILE *fp = NULL;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-    memset(&kdesc, 0, sizeof(kdesc));
-    /* dont set any flags to get default settings */
-    memset(&flags, 0, sizeof(flags));
-    kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     len = strlen(fsfat_fopen_test_02_data[0].value);
-    ret = fsfat_test_create(fsfat_fopen_test_02_data[0].key_name, (char*) fsfat_fopen_test_02_data[0].value, &len, &kdesc);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store (ret=%d).\n", __func__, (int) ret);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    ret = fsfat_test_create(fsfat_fopen_test_02_data[0].filename, (char*) fsfat_fopen_test_02_data[0].value, len);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file in store (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
 
     /* opens with read-write permissions*/
-    flags.read = true;
-    flags.write = true;
-    ret = drv->Open(fsfat_fopen_test_02_data[0].key_name, flags, hkey);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open node (filename=\"%s\")(ret=%d)\n", __func__, fsfat_fopen_test_02_data[0].key_name, (int) ret);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    fp = fopen(fsfat_fopen_test_02_data[0].filename, "w+");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=\"%s\")(ret=%d)\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
 
     len = strlen(fsfat_fopen_test_02_data[0].value);
-    ret = drv->Write(hkey, fsfat_fopen_test_02_data[0].value, &len);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: call to Write() failed when should have succeeded (filename=\"%s\")(ret=%d).\n", __func__, fsfat_fopen_test_02_data[0].key_name, (int) ret);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    ret = fwrite((const void*) fsfat_fopen_test_02_data[0].value, len, 1, fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: call to fwrite() failed when should have succeeded (filename=\"%s\", ret=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
 
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Close() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(drv->Close(hkey) >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fclose() call failed.\n", __func__);
+    TEST_ASSERT_MESSAGE(fclose(fp) >= 0, fsfat_fopen_utest_msg_g);
 
-    ret = drv->Uninitialize();
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    /* clean-up */
+    ret = remove(fsfat_fopen_test_02_data[0].filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to delete file (filename=%s, ret=%d) .\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+
     return CaseNext;
 }
 
 
 
-/** @brief  test to call fsfat_open() with a key_name string that exceeds
- *          the maximum length
+/** @brief  test to call fopen() with a filename string that exceeds the maximum length
+ * - chanFS supports the exFAT format which should support 255 char filenames
+ * - check that filenames of this length can be created
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_04(const size_t call_count)
 {
-    char kv_name_good[FSFAT_KEY_NAME_MAX_LENGTH+1]; /* extra char for terminating null */
-    char kv_name_bad[FSFAT_KEY_NAME_MAX_LENGTH+2];
-    int32_t ret = ARM_DRIVER_ERROR;
-    ARM_FSFAT_SIZE len = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
-    ARM_FSFAT_KEYDESC kdesc;
-    ARM_FSFAT_FMODE flags;
+    char filename_good[FSFAT_FILENAME_MAX_LENGTH+1];
+    char filename_bad[FSFAT_FILENAME_MAX_LENGTH+2];
+    int32_t ret = -1;
+    size_t len = 0;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-    memset(kv_name_good, 0, FSFAT_KEY_NAME_MAX_LENGTH+1);
-    memset(kv_name_bad, 0, FSFAT_KEY_NAME_MAX_LENGTH+2);
-    memset(&kdesc, 0, sizeof(kdesc));
-    /* dont set any flags to get default settings */
-    memset(&flags, 0, sizeof(flags));
 
-    len = FSFAT_KEY_NAME_MAX_LENGTH;
-    ret = fsfat_test_kv_name_gen(kv_name_good, len);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate kv_name_good.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK , fsfat_fopen_utest_msg_g);
+    memset(filename_good, 0, FSFAT_FILENAME_MAX_LENGTH+1);
+    memset(filename_bad, 0, FSFAT_FILENAME_MAX_LENGTH+2);
+    ret = fsfat_test_filename_gen(filename_good, FSFAT_FILENAME_MAX_LENGTH);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate filename_good.\n", __func__);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
 
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: kv_name_good is not the correct length (len=%d, expected=%d).\n", __func__, (int) strlen(kv_name_good), (int) len);
-    TEST_ASSERT_MESSAGE(strlen(kv_name_good) == FSFAT_KEY_NAME_MAX_LENGTH, fsfat_fopen_utest_msg_g);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: filename_good is not the correct length (filename_good=%s, len=%d, expected=%d).\n", __func__, filename_good, (int) strlen(filename_good), (int) FSFAT_FILENAME_MAX_LENGTH);
+    TEST_ASSERT_MESSAGE(strlen(filename_good) == FSFAT_FILENAME_MAX_LENGTH, fsfat_fopen_utest_msg_g);
 
-    ret = fsfat_test_create(kv_name_good, kv_name_good, &len, &kdesc);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store for kv_name_good(ret=%d).\n", __func__, (int) ret);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    ret = fsfat_test_filename_gen(filename_bad, FSFAT_FILENAME_MAX_LENGTH+1);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate filename_bad.\n", __func__);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: filename_bad is not the correct length (len=%d, expected=%d).\n", __func__, (int) strlen(filename_bad), (int) FSFAT_FILENAME_MAX_LENGTH+1);
+    TEST_ASSERT_MESSAGE(strlen(filename_bad) == FSFAT_FILENAME_MAX_LENGTH+1, fsfat_fopen_utest_msg_g);
 
-    len = FSFAT_KEY_NAME_MAX_LENGTH+1;
-    ret = fsfat_test_kv_name_gen(kv_name_bad, len);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate kv_name_bad.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK , fsfat_fopen_utest_msg_g);
+    len = strlen(filename_good);
+    ret = fsfat_test_create(filename_good, filename_good, len);
+    /* FIXME:
+     * The current implementation can create file with a filename with 9 chars (more than the 8 restriction of FAT32 Short File Names).
+     * However, the exFAT 255 char filesnames is not supported and hence the following is commented out. Find out what is
+     * the supported max filename length and change this testcase according.
+     *
+     *  FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (filename=%s, ret=%d).\n", __func__, filename_good, (int) ret);
+     *  TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+     */
 
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: kv_name_bad is not the correct length (len=%d, expected=%d).\n", __func__, (int) strlen(kv_name_bad), (int) len);
-    TEST_ASSERT_MESSAGE(strlen(kv_name_bad) == FSFAT_KEY_NAME_MAX_LENGTH+1, fsfat_fopen_utest_msg_g);
-
-    memset(&kdesc, 0, sizeof(kdesc));
-    ret = fsfat_test_create(kv_name_bad, kv_name_bad, &len, &kdesc);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created KV in store for kv_name_bad when should have failed(ret=%d).\n", __func__, (int) ret);
-    TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
-
-    ret = drv->Uninitialize();
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    len = strlen(filename_bad);
+    ret = fsfat_test_create(filename_bad, filename_bad, len);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created file in store for filename_bad when should have failed (filename=%s, ret=%d).\n", __func__, filename_bad, (int) ret);
+    TEST_ASSERT_MESSAGE(ret < 0, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
+
 
 
 /// @cond FSFAT_DOXYGEN_DISABLE
@@ -536,22 +542,28 @@ static const uint32_t fsfat_fopen_kv_name_ascii_table_code_sentinel_g = 256;
 /*@brief    table recording ascii character codes permitted in kv names */
 static fsfat_fopen_kv_name_ascii_node fsfat_fopen_kv_name_ascii_table[] =
 {
-        {0, false},         /* codes 0-44 not allowed */
-        {45, true},         /* codes 45-46 == [-.] allowed */
-        {47, false},        /* code 47 not allowed */
-        {48, true},         /* codes 48-57 not allowed */
-        {58, false},        /* codes 46-64 not allowed */
-        {64, true},         /* codes 64-91 allowed [@A-Z] */
-        {91, false},        /* code 91-96 not allowed */
-        {95, true},         /* code 95 allowed '_' */
-        {96, false},        /* codes 96 not allowed */
-        {97, true},         /* codes 65-90 allowed [A-Z] and {*/
-        {123, false},       /* codes 123 '}' not allowed on its own*/
-        {124, false},       /* codes 124 not allowed */
-        {125, false},       /* code 125 '}' not allowed on its own*/
-        {126, false},       /* codes 126-255 not allowed */
+        {0 , true},         /* code 0-33 allowed*/
+        {34, false},        /* '"' not allowed */
+        {35, true},         /* allowed */
+        {42, false},        /* '*' not allowed */
+        {43, true},         /* allowed */
+        {47, false},        /* '/' not allowed */
+        {48, true},         /* allowed */
+        {58, false},        /* ':' not allowed */
+        {59, true},         /* allowed */
+        {60, false},        /* '<' not allowed */
+        {61, true},         /* allowed */
+        {62, false},        /* '?', '>' not allowed */
+        {64, true},         /* allowed */
+        {92, false},        /* '\' not allowed */
+        {93, true},         /* allowed */
+        {124, false},        /* '!' not allowed */
+        {125, true},         /* allowed */
+        {127, false},        /* DEL not allowed */
+        {128, true},         /* allowed */
         {fsfat_fopen_kv_name_ascii_table_code_sentinel_g, false},       /* sentinel */
 };
+
 
 /// @cond FSFAT_DOXYGEN_DISABLE
 enum fsfat_fopen_kv_name_pos {
@@ -562,11 +574,10 @@ enum fsfat_fopen_kv_name_pos {
 };
 /// @endcond
 
-/** @brief  test to call fsfat_open() with key_name that in includes
- *          illegal characters
- *          - the character(s) can be at the beginning of the key_name
- *          - the character(s) can be at the end of the key_name
- *          - the character(s) can be somewhere within the key_name string
+/** @brief  test to call fopen() with filename that in includes illegal characters
+ *          - the character(s) can be at the beginning of the filename
+ *          - the character(s) can be at the end of the filename
+ *          - the character(s) can be somewhere within the filename string
  *          - a max-length string of random characters (legal and illegal)
  *          - a max-length string of random illegal characters only
  *
@@ -575,14 +586,17 @@ enum fsfat_fopen_kv_name_pos {
 control_t fsfat_fopen_test_05(const size_t call_count)
 {
     bool f_allowed = false;
-    char kv_name[FSFAT_KEY_NAME_MAX_LENGTH+1];    /* extra char for terminating null */
+    const char *mnt_pt = "/sd";
+    const char *basename = "goodfile";
+    const char *extname = "txt";
+    const size_t basename_len = strlen(basename);
+    const size_t filename_len = strlen(mnt_pt)+strlen(basename)+strlen(extname)+2;  /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
+    char filename[FSFAT_BUF_MAX_LENGTH];
+    size_t len = 0;
     uint32_t j = 0;
-    int32_t ret = ARM_DRIVER_OK;
-    size_t name_len = FSFAT_KEY_NAME_MAX_LENGTH;
-    ARM_FSFAT_KEYDESC kdesc;
+    int32_t ret = 0;
     fsfat_fopen_kv_name_ascii_node* node = NULL;
     uint32_t pos;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -594,42 +608,38 @@ control_t fsfat_fopen_test_05(const size_t call_count)
 
     /* create bad keyname strings with invalid character code at start of keyname */
     node = fsfat_fopen_kv_name_ascii_table;
+    memset(filename, 0, FSFAT_BUF_MAX_LENGTH);
     while(node->code !=  fsfat_fopen_kv_name_ascii_table_code_sentinel_g)
     {
         /* loop over range */
         for(j = node->code; j < (node+1)->code; j++)
         {
+            if( (j >= 48 && j <= 57) || (j >= 65 && j <= 90) || (j >= 97 && j <= 122)) {
+                FSFAT_DBGLOG("%s: skipping alpha-numeric ascii character code %d (%c).\n", __func__, (int) j, j);
+                continue;
+            }
+
             /* set the start, mid, last character of the name to the test char code */
             for(pos = (uint32_t) fsfat_fopen_kv_name_pos_start; pos < (uint32_t) fsfat_fopen_kv_name_pos_max; pos++)
             {
-                name_len = FSFAT_KEY_NAME_MAX_LENGTH;
-                memset(kv_name, 0, FSFAT_KEY_NAME_MAX_LENGTH+1);
-                memset(&kdesc, 0, sizeof(kdesc));
-                kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
-
-                ret = fsfat_test_kv_name_gen(kv_name, name_len);
-                FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate kv_name.\n", __func__);
-                TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK , fsfat_fopen_utest_msg_g);
-                FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: kv_name incorrect length (len=%d, expected= %d).\n", __func__, (int) strlen(kv_name), (int) name_len);
-                TEST_ASSERT_MESSAGE(strlen(kv_name) == name_len, fsfat_fopen_utest_msg_g);
-
-                /* overwrite a char at the pos start, mid, end of the kv_name with an ascii char code (both illegal and legal)*/
+                len = snprintf(filename, filename_len+1, "%s/%s.%s", mnt_pt, basename, extname);
+                /* overwrite a char at the pos start, mid, end of the filename with an ascii char code (both illegal and legal)*/
                 switch(pos)
                 {
                 case fsfat_fopen_kv_name_pos_start:
-                    kv_name[0] = (char) j;
+                    filename[5] = (char) j; /* 5 so at to write the second basename char (bad chars as first char not accepted)*/
                     break;
                 case fsfat_fopen_kv_name_pos_mid:
                     /* create bad keyname strings with invalid character code in the middle of keyname */
-                    kv_name[name_len/2] = (char) j;
+                    filename[5+basename_len/2] = (char) j;
                     break;
                 case fsfat_fopen_kv_name_pos_end:
                     /* create bad keyname strings with invalid character code at end of keyname */
-                    kv_name[name_len-1] = (char) j;
+                    filename[5+basename_len-1] = (char) j;
                     break;
                 default:
                     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected value of pos (pos=%d).\n", __func__, (int) pos);
-                    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+                    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
                     break;
                 }
 
@@ -650,49 +660,49 @@ control_t fsfat_fopen_test_05(const size_t call_count)
                     break;
                 }
 #endif
-                ret = fsfat_test_create(kv_name, kv_name, &name_len, &kdesc);
+                ret = fsfat_test_create(filename, (const char*) filename, len);
 
                 /* special cases */
                 switch(j)
                 {
-                case 0 :
-				case 46 :
-                    switch(pos)
-                    {
-                    /* for code = 0 (null terminator). permitted at mid and end of string */
-                    /* for code = 46 ('.'). permitted at mid and end of string but not at start */
-                    case fsfat_fopen_kv_name_pos_start:
-                        f_allowed = false;
-                        break;
-                    case fsfat_fopen_kv_name_pos_mid:
-                    case fsfat_fopen_kv_name_pos_end:
-                    default:
-                        f_allowed = true;
-                        break;
-                    }
-                    break;
+                //case 0 :
+				//case 46 :
+                //    switch(pos)
+                //    {
+                //    /* for code = 0 (null terminator). permitted at mid and end of string */
+                //    /* for code = 46 ('.'). permitted at mid and end of string but not at start */
+                //    case fsfat_fopen_kv_name_pos_start:
+                //        f_allowed = false;
+                //        break;
+                //    case fsfat_fopen_kv_name_pos_mid:
+                //    case fsfat_fopen_kv_name_pos_end:
+                //    default:
+                //        f_allowed = true;
+                //        break;
+                //    }
+                //    break;
 				default:
 					f_allowed = node->f_allowed;
 					break;
                 }
                 if(f_allowed == true)
                 {
-                    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store when kv_name contains valid characters (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
-                    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+                    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file in store when filename contains valid characters (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
+                    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
                     /* revert FSFAT_LOG for more trace */
-                    FSFAT_DBGLOG("Successfully created a KV with valid keyname containing ascii character code %d (%c) at the %s of the keyname.\n", (int) j, (int) j, pos_str);
+                    FSFAT_DBGLOG("Successfully created a file with valid keyname containing ascii character code %d (%c) at the %s of the keyname.\n", (int) j, (int) j, pos_str);
                     FSFAT_LOG("%c", '.');
 
-                    ret = fsfat_test_delete(kv_name);
-                    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete KV previously created (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
-                    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+                    ret = fsfat_test_delete(filename);
+                    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete file previously created (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
+                    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
                 }
                 else
                 {   /*node->f_allowed == false => not allowed to create kv name with ascii code */
-                    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created KV in store when kv_name contains an invalid character (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
-                    TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+                    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created file in store when filename contains an invalid character (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
+                    TEST_ASSERT_MESSAGE(ret < 0, fsfat_fopen_utest_msg_g);
                     /* revert FSFAT_LOG for more trace */
-                    FSFAT_DBGLOG("Successfully failed to create a KV with an invalid keyname containing ascii character code %d at the %s of the keyname.\n", (int) j, pos_str);
+                    FSFAT_DBGLOG("Successfully failed to create a file with an invalid keyname containing ascii character code %d at the %s of the keyname.\n", (int) j, pos_str);
                     FSFAT_LOG("%c", '.');
                 }
             }
@@ -701,15 +711,13 @@ control_t fsfat_fopen_test_05(const size_t call_count)
     }
 
     FSFAT_LOG("%c", '\n');
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
 
 
-static const char fsfat_fopen_ascii_illegal_buf_g[] = "!\"�$%&'()*+,./:;<=>?@[\\]^_`{|}~"; /* 31 chars */
+static const char fsfat_fopen_ascii_illegal_buf_g[] = "\"�'*+,./:;<=>?[\\]|";
 
-/** @brief  test to call fsfat_open() with key_name that in includes
+/** @brief  test to call fopen() with filename that in includes
  *          illegal characters
  *          - a max-length string of random illegal characters only
  *
@@ -717,85 +725,390 @@ static const char fsfat_fopen_ascii_illegal_buf_g[] = "!\"�$%&'()*+,./:;<=>?@[
  */
 control_t fsfat_fopen_test_06(const size_t call_count)
 {
-    char kv_name[FSFAT_KEY_NAME_MAX_LENGTH+1];    /* extra char for terminating null */
-    size_t i = 0;
+    const char *mnt_pt = "/sd";
+    const char *extname = "txt";
+    const size_t filename_len = strlen(mnt_pt)+FSFAT_MAX_FILE_BASENAME+strlen(extname)+2;  /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
+    char filename[FSFAT_BUF_MAX_LENGTH];
+    int32_t i = 0;
+    int32_t j = 0;
     uint32_t pos = 0;
-    int32_t ret = ARM_DRIVER_OK;
-    size_t name_len = FSFAT_KEY_NAME_MAX_LENGTH;
-    ARM_FSFAT_KEYDESC kdesc;
+    uint32_t len = 0;
+    int32_t ret = -1;
     size_t buf_data_max = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
+    memset(filename, 0, FSFAT_BUF_MAX_LENGTH);
     /* create bad keyname strings with invalid character code at start of keyname */
     buf_data_max = strlen(fsfat_fopen_ascii_illegal_buf_g);
-    name_len = FSFAT_KEY_NAME_MAX_LENGTH;
-    memset(kv_name, 0, FSFAT_KEY_NAME_MAX_LENGTH+1);
-    kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
 
-    /* generate a kv name of illegal chars*/
-    for(i = 0; i < name_len; i++)
-    {
-        pos = rand() % (buf_data_max+1);
-        kv_name[i] = fsfat_fopen_ascii_illegal_buf_g[pos];
+    /* generate a number of illegal filenames */
+    for (j = 0; i < FSFAT_MAX_FILE_BASENAME; j++) {
+        /* generate a kv name of illegal chars*/
+        len = snprintf(filename, filename_len+1, "%s/", mnt_pt);
+        for (i = 0; i < FSFAT_MAX_FILE_BASENAME; i++) {
+            pos = rand() % (buf_data_max+1);
+            len += snprintf(filename+len, filename_len+1, "%c", fsfat_fopen_ascii_illegal_buf_g[pos]);
+
+        }
+        len += snprintf(filename+len, filename_len+1, ".%s", extname);
+        ret = fsfat_test_create(filename, filename, len);
+        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created file when filename contains invalid characters (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+        TEST_ASSERT_MESSAGE(ret < 0, fsfat_fopen_utest_msg_g);
     }
-
-    ret = fsfat_test_create(kv_name, kv_name, &name_len, &kdesc);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created KV in store when kv_name contains invalid characters (ret=%d).\n", __func__, (int) ret);
-    TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
-
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
 
-/** @brief  test to call fsfat_open() with key_name that in includes
- *          illegal characters
- *          - a max-length string of random characters (legal and illegal)
+
+/** @brief  test for errno reporting on a failed fopen()call
+ *
+ *	This test does the following:
+ *	- tries to open a file that does not exist for reading, and checks that a NULL pointer is returned.
+ *	- checks that errno is not 0 as there is an error.
+ *	- checks that ferror() returns 1 indicating an error exists.
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_07(const size_t call_count)
 {
-    char kv_name[FSFAT_KEY_NAME_MAX_LENGTH+1];    /* extra char for terminating null */
-    size_t i = 0;
-    int32_t ret = ARM_DRIVER_OK;
-    size_t name_len = FSFAT_KEY_NAME_MAX_LENGTH;
-    ARM_FSFAT_KEYDESC kdesc;
-    size_t buf_data_max = 0;
-    ARM_FSFAT_DRIVER* drv = &fsfat_driver;
+	FILE *f = NULL;
+	int ret = -1;
+    char *filename = "/sd/badfile.txt";
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    /* create bad keyname strings with invalid character code at start of keyname */
-    buf_data_max = strlen(fsfat_fopen_ascii_illegal_buf_g);
-    name_len = FSFAT_KEY_NAME_MAX_LENGTH;
-    memset(kv_name, 0, FSFAT_KEY_NAME_MAX_LENGTH+1);
-    kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
+    errno = 0;
+    /* this is expect to fail as the file doesnt exist */
+    f = fopen(filename,"r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: opened non-existent file for reading (filename=%s, f=%p).\n", __func__, filename, f);
+    TEST_ASSERT_MESSAGE(f == NULL, fsfat_fopen_utest_msg_g);
 
-    ret = fsfat_test_kv_name_gen(kv_name, name_len);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate kv_name.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK , fsfat_fopen_utest_msg_g);
+    /* check errno is set correctly */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno has unexpected value (errno != 0 expected) (filename=%s, errno=%d).\n", __func__, filename, errno);
+    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
 
-    /* pepper the illegal chars across the string*/
-    for(i++; i < buf_data_max; i++){
-        kv_name[rand() % (name_len+1)] = fsfat_fopen_ascii_illegal_buf_g[i];
-    }
-    ret = fsfat_test_create(kv_name, kv_name, &name_len, &kdesc);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: created KV in store when kv_name contains invalid characters (ret=%d).\n", __func__, (int) ret);
-    TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
-
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, fsfat_fopen_utest_msg_g);
+    /* check ferror() return non-zero indicating there is an error */
+    ret = ferror(f);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return non-zero value when error exists (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
 
-#endif // NOT_DEFINED
+
+/** @brief  test for operation of clearerr() and ferror()
+ *
+ *  The test does the following:
+ *  - opens and then closes a file, but keeps a copy of the FILE pointer fp.
+ *  - set errno to 0.
+ *  - write to the close file with fwrite(fp) which should return 0 (no writes) and set the errno.
+ *  - check the error condition is set with ferror().
+ *  - clear the error with clearerr().
+ *  - check the error condition is reset with ferror().
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_08(const size_t call_count)
+{
+    FILE *fp = NULL;
+    struct stat file_status;
+    int ret = -1;
+    char *filename = "/sd/test.txt";
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    errno = 0;
+    fp = fopen(filename,"w+");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, f=%p).\n", __func__, filename, fp);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
+
+    /* close the fp but then try to read or write it */
+    ret = fclose(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* try to write to closed file */
+    errno = 0;
+    ret = fwrite("42!", 4, 1, fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fwrite successfully wroted to closed file (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* check that errno is set */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected zero value for errno (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
+
+    /* check that errno is set to the expected value (this may change differ for different libc's) */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EBADF (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno == EBADF, fsfat_fopen_utest_msg_g);
+
+    /* check clearerr() return clears the error */
+    clearerr(fp);
+    ret = ferror(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return zero value when error has been cleared (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    printf("%s:errno=%d\n", __func__, errno);
+
+    return CaseNext;
+}
+
+/** @brief  test for operation of ftell()
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_09(const size_t call_count)
+{
+    FILE *fp = NULL;
+    struct stat file_status;
+    int ret = -1;
+    int32_t len = 0;
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* create a file of a certain length */
+    len = strlen(fsfat_fopen_test_02_data[0].value);
+    ret = fsfat_test_create(fsfat_fopen_test_02_data[0].filename, (char*) fsfat_fopen_test_02_data[0].value, len);
+
+    errno = 0;
+    /* Open the file for reading so the file is not truncated to 0 length. */
+    fp = fopen(fsfat_fopen_test_02_data[0].filename, "r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, fp=%p, errno=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, fp, errno);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    ret = fseek(fp, 0, SEEK_END);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fseek() failed to SEEK_END (filename=%s, ret=%d, errno=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    ret = ftell(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ftell() failed to report correct offset value (filename=%s, ret=%d, errno=%d).\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == len, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    ret = fclose(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    return CaseNext;
+}
+
+/** @brief  test for operation of remove()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_10(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - test remove() on a file that exists. should succeed.
+     * - test remove() on a dir that exists. should succeed.
+     * - test remove() on a file that doesnt exist. should fail. check errno set.
+     * - test remove() on a dir that doesnt exist. should fail. check errno set.
+     * */
+
+    return CaseNext;
+}
+
+/** @brief  test for operation of rename()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_11(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - test rename() on a file that exists to a new filename within the same directory. should succeed
+     * - test rename() on a file that exists to a new filename within a different directory. should succeed
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of tmpnam() (currrently unimplemented)
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_12(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - show function is not implemented.
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of tmpfile() (currrently unimplemented)
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_13(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - show function is not implemented.
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of opendir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_14(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     * - open a dir that exists. should succeed.
+     * - open a dir that doesnt exists. should succeed.
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of readdir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_15(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of closedir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_16(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of rewinddir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_17(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+
+/** @brief  test for operation of telldir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_18(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+/** @brief  test for operation of seekdir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_19(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+
+/* file data for test_20 */
+static fsfat_kv_data_t fsfat_fopen_test_20_kv_data[] = {
+        { "/sd/test_20", "test_dir"},
+        { NULL, NULL},
+};
+/** @brief  test for operation of mkdir()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_20(const size_t call_count)
+{
+    int32_t ret = 0;
+    FILE *fp = NULL;
+
+    FSFAT_DBGLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* check that get a suitable error when try to create it again.*/
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: permitted to create directory when already exists (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
+
+    /* check errno is as expected */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EEXIST (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno == EEXIST, fsfat_fopen_utest_msg_g);
+
+    ret = fsfat_filepath_remove_all((char*) fsfat_fopen_test_20_kv_data[0].filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to remove directory (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    return CaseNext;
+}
+
+
+/** @brief  test for operation of stat()
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_21(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* todo:
+     */
+    return CaseNext;
+}
+
+
+
+
 
 #else
+
+//todo: remove this and replace with memfile use?
 
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_dummy
@@ -804,6 +1117,29 @@ control_t fsfat_fopen_test_07(const size_t call_count)
 #define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_09      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_10      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_11      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_12      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_13      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_14      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_15      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_16      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_17      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_18      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_19      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_20      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_21      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_22      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_23      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_24      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_25      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_26      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_27      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_28      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_29      fsfat_fopen_test_dummy
+#define FSFAT_FOPEN_TEST_30      fsfat_fopen_test_dummy
 
 /** @brief  fsfat_fopen_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
  *
@@ -828,16 +1164,33 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FOPEN_test_01", FSFAT_FOPEN_TEST_01)
-
-#ifdef NOT_DEFINED
-        Case("FOPEN_test_02", FSFAT_FOPEN_TEST_02),
-        Case("FOPEN_test_03", FSFAT_FOPEN_TEST_03),
-        Case("FOPEN_test_04", FSFAT_FOPEN_TEST_04),
-        Case("FOPEN_test_05", FSFAT_FOPEN_TEST_05),
-        Case("FOPEN_test_06", FSFAT_FOPEN_TEST_06),
-        Case("FOPEN_test_07", FSFAT_FOPEN_TEST_07),
-#endif // NOT_DEFINED
+        Case("FSFAT_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath.", FSFAT_FOPEN_TEST_01),
+        Case("FSFAT_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.", FSFAT_FOPEN_TEST_02),
+        Case("FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSFAT_FOPEN_TEST_03),
+        Case("FSFAT_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.", FSFAT_FOPEN_TEST_04),
+#ifdef FOPEN_EXTENDED_TESTING
+        Case("FSFAT_FOPEN_TEST_05: fopen() with filenames including illegal characters.", FSFAT_FOPEN_TEST_05),
+#endif
+        Case("FSFAT_FOPEN_TEST_06", FSFAT_FOPEN_TEST_06),
+        Case("FSFAT_FOPEN_TEST_07: fopen()/errno handling.", FSFAT_FOPEN_TEST_07),
+        Case("FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSFAT_FOPEN_TEST_08),
+        Case("FSFAT_FOPEN_TEST_09: ftell() handling.", FSFAT_FOPEN_TEST_09),
+#ifdef FOPEN_NOT_IMPLEMENTED
+        Case("FSFAT_FOPEN_TEST_10: todo.", FSFAT_FOPEN_TEST_10),
+        Case("FSFAT_FOPEN_TEST_11: todo.", FSFAT_FOPEN_TEST_11),
+        Case("FSFAT_FOPEN_TEST_12: todo.", FSFAT_FOPEN_TEST_12),
+        Case("FSFAT_FOPEN_TEST_13: todo.", FSFAT_FOPEN_TEST_13),
+        Case("FSFAT_FOPEN_TEST_14: todo.", FSFAT_FOPEN_TEST_14),
+        Case("FSFAT_FOPEN_TEST_15: todo.", FSFAT_FOPEN_TEST_15),
+        Case("FSFAT_FOPEN_TEST_16: todo.", FSFAT_FOPEN_TEST_16),
+        Case("FSFAT_FOPEN_TEST_17: todo.", FSFAT_FOPEN_TEST_17),
+        Case("FSFAT_FOPEN_TEST_18: todo.", FSFAT_FOPEN_TEST_18),
+        Case("FSFAT_FOPEN_TEST_19: todo.", FSFAT_FOPEN_TEST_19),
+#endif /* FOPEN_NOT_IMPLEMENTED */
+        Case("FSFAT_FOPEN_TEST_20: mkdir() test.", FSFAT_FOPEN_TEST_20),
+#ifdef FOPEN_NOT_IMPLEMENTED
+        Case("FSFAT_FOPEN_TEST_21: todo.", FSFAT_FOPEN_TEST_21),
+#endif /* FOPEN_NOT_IMPLEMENTED */
 
 };
 
