@@ -17,7 +17,7 @@
 
 #include "dbg.h"
 #include "USBEndpoint.h"
-
+#if !defined(USBHOST_OTHER)
 void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_, uint32_t size, uint8_t ep_number, HCTD* td_list_[2])
 {
     hced = hced_;
@@ -76,6 +76,7 @@ void USBEndpoint::setSpeed(uint8_t speed)
     hced->control &= ~(1 << 13);
     hced->control |= (speed << 13);
 }
+#endif
 
 //Only for control Eps
 void USBEndpoint::setNextToken(uint32_t token)
@@ -95,7 +96,6 @@ void USBEndpoint::setNextToken(uint32_t token)
             break;
     }
 }
-
 struct {
     USB_TYPE type;
     const char * str;
@@ -120,19 +120,18 @@ struct {
         {USB_TYPE_PROCESSING, "USB_TYPE_PROCESSING"},
         {USB_TYPE_ERROR, "USB_TYPE_ERROR"}
 };
+const char * USBEndpoint::getStateString() {
+    return type_string[state].str;
+}
 
+#if !defined(USBHOST_OTHER)
 void USBEndpoint::setState(uint8_t st) {
     if (st > 18)
         return;
     state = type_string[st].type;
 }
 
-
-const char * USBEndpoint::getStateString() {
-    return type_string[state].str;
-}
-
-void USBEndpoint::queueTransfer()
+USB_TYPE USBEndpoint::queueTransfer()
 {
     transfer_len = (uint32_t)td_current->bufEnd - (uint32_t)td_current->currBufPtr + 1;
     transferred = transfer_len;
@@ -142,6 +141,7 @@ void USBEndpoint::queueTransfer()
     state = USB_TYPE_PROCESSING;
     td_current->nextTD = (hcTd*)td_next;
     hced->tailTD = td_next;
+    return USB_TYPE_PROCESSING;
 }
 
 void USBEndpoint::unqueueTransfer(volatile HCTD * td)
@@ -160,3 +160,4 @@ void USBEndpoint::queueEndpoint(USBEndpoint * ed)
     nextEp = ed;
     hced->nextED = (ed == NULL) ? 0 : (hcEd*)(ed->getHCED());
 }
+#endif

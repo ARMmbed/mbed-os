@@ -70,7 +70,6 @@ struct can_s {
     int index;
 };
 
-#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

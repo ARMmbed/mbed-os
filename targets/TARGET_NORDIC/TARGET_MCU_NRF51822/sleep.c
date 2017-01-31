@@ -18,7 +18,7 @@
 #include "mbed_interface.h"
 #include "toolchain.h"
 
-MBED_WEAK void sleep(void)
+void hal_sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
     NRF_POWER->TASKS_LOWPWR = 1;
@@ -26,8 +26,8 @@ MBED_WEAK void sleep(void)
     __WFE();
 }
 
-MBED_WEAK void deepsleep(void)
+void hal_deepsleep(void)
 {
-    sleep();
+    hal_sleep();
     //   NRF_POWER->SYSTEMOFF=1;
 }

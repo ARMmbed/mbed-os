@@ -16,7 +16,9 @@
 
 #ifndef USBHOST_H
 #define USBHOST_H
-
+#ifdef TARGET_STM
+#include "mbed.h" 
+#endif
 #include "USBHALHost.h"
 #include "USBDeviceConnected.h"
 #include "IUSBEnumerator.h"

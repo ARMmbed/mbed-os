@@ -167,10 +167,10 @@ class ExportBuildTest(object):
             return
         profile = extract_profile(self.parser, self.options, toolchain)
         exporter = export(test_case.mcu, test_case.ide,
-                              project_id=test_case.id, zip_proj=None,
-                              clean=True, src=test_case.src,
-                              export_path=join(EXPORT_DIR,name_str),
-                              silent=True, build_profile=profile)
+                          project_id=test_case.id, zip_proj=None,
+                          src=test_case.src,
+                          export_path=join(EXPORT_DIR, name_str),
+                          silent=True, build_profile=profile)
         exporter.generated_files.append(join(EXPORT_DIR,name_str,test_case.log))
         self.build_queue.put((exporter,test_case))
             # Check if the specified name is in all_os_tests

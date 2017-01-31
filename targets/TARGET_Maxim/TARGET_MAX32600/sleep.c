@@ -41,7 +41,7 @@
 static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t*)STDIO_UART;
 
 // Normal wait mode
-void sleep(void)
+void hal_sleep(void)
 {
     // Normal sleep mode for ARM core
     SCB->SCR = 0;
@@ -70,7 +70,7 @@ static void clearAllGPIOWUD(void)
 }
 
 // Low-power stop mode
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     __disable_irq();
 

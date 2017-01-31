@@ -155,34 +155,27 @@ class Uvision(Exporter):
     def format_flags(self):
         """Format toolchain flags for Uvision"""
         flags = copy.deepcopy(self.flags)
+        # to be preprocessed with armcc
         asm_flag_string = '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' + \
                           ",".join(flags['asm_flags'])
-        # asm flags only, common are not valid within uvision project,
-        # they are armcc specific
         flags['asm_flags'] = asm_flag_string
-        # cxx flags included, as uvision have them all in one tab
-        flags['c_flags'] = list(set(['-D__ASSERT_MSG']
-                                        + flags['common_flags']
-                                        + flags['c_flags']
-                                        + flags['cxx_flags']))
-        # not compatible with c99 flag set in the template
-        try: flags['c_flags'].remove("--c99")
-        except ValueError: pass
-        # cpp is not required as it's implicit for cpp files
-        try: flags['c_flags'].remove("--cpp")
-        except ValueError: pass
-        # we want no-vla for only cxx, but it's also applied for C in IDE,
-        #  thus we remove it
-        try: flags['c_flags'].remove("--no_vla")
-        except ValueError: pass
-        flags['c_flags'] =" ".join(flags['c_flags'])
+        # All non-asm flags are in one template field
+        c_flags = list(set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags']))
+        # These flags are in template to be set by user i n IDE
+        template = ["--no_vla", "--cpp", "--c99"]
+        # Flag is invalid if set in template
+        # Optimizations are also set in the template
+        invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x) 
+        flags['c_flags'] = [flag for flag in c_flags if not invalid_flag(flag)]
+        flags['c_flags'] = " ".join(flags['c_flags'])
         return flags
 
     def format_src(self, srcs):
         """Make sources into the named tuple for use in the template"""
         grouped = self.group_project_files(srcs)
         for group, files in grouped.items():
-            grouped[group] = self.uv_files(files)
+            grouped[group] = sorted(list(self.uv_files(files)),
+                                    key=lambda (_, __, name): name.lower())
         return grouped
 
     def generate(self):
@@ -198,7 +191,8 @@ class Uvision(Exporter):
             'name': self.project_name,
             # project_files => dict of generators - file group to generator of
             # UVFile tuples defined above
-            'project_files': self.format_src(srcs),
+            'project_files': sorted(list(self.format_src(srcs).iteritems()),
+                                    key=lambda (group, _): group.lower()),
             'linker_script':self.resources.linker_script,
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),

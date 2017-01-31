@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of DAC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -69,7 +69,7 @@
 /** @defgroup DACEx_lfsrunmask_triangleamplitude DACEx lfsrunmask triangleamplitude
   * @{
   */
-#define DAC_LFSRUNMASK_BIT0                ((uint32_t)0x00000000) /*!< Unmask DAC channel LFSR bit0 for noise wave generation */
+#define DAC_LFSRUNMASK_BIT0                (0x00000000U) /*!< Unmask DAC channel LFSR bit0 for noise wave generation */
 #define DAC_LFSRUNMASK_BITS1_0             ((uint32_t)DAC_CR_MAMP1_0) /*!< Unmask DAC channel LFSR bit[1:0] for noise wave generation */
 #define DAC_LFSRUNMASK_BITS2_0             ((uint32_t)DAC_CR_MAMP1_1) /*!< Unmask DAC channel LFSR bit[2:0] for noise wave generation */
 #define DAC_LFSRUNMASK_BITS3_0             ((uint32_t)DAC_CR_MAMP1_1 | DAC_CR_MAMP1_0)/*!< Unmask DAC channel LFSR bit[3:0] for noise wave generation */
@@ -81,7 +81,7 @@
 #define DAC_LFSRUNMASK_BITS9_0             ((uint32_t)DAC_CR_MAMP1_3 | DAC_CR_MAMP1_0) /*!< Unmask DAC channel LFSR bit[9:0] for noise wave generation */
 #define DAC_LFSRUNMASK_BITS10_0            ((uint32_t)DAC_CR_MAMP1_3 | DAC_CR_MAMP1_1) /*!< Unmask DAC channel LFSR bit[10:0] for noise wave generation */
 #define DAC_LFSRUNMASK_BITS11_0            ((uint32_t)DAC_CR_MAMP1_3 | DAC_CR_MAMP1_1 | DAC_CR_MAMP1_0) /*!< Unmask DAC channel LFSR bit[11:0] for noise wave generation */
-#define DAC_TRIANGLEAMPLITUDE_1            ((uint32_t)0x00000000) /*!< Select max triangle amplitude of 1 */
+#define DAC_TRIANGLEAMPLITUDE_1            (0x00000000U) /*!< Select max triangle amplitude of 1 */
 #define DAC_TRIANGLEAMPLITUDE_3            ((uint32_t)DAC_CR_MAMP1_0) /*!< Select max triangle amplitude of 3 */
 #define DAC_TRIANGLEAMPLITUDE_7            ((uint32_t)DAC_CR_MAMP1_1) /*!< Select max triangle amplitude of 7 */
 #define DAC_TRIANGLEAMPLITUDE_15           ((uint32_t)DAC_CR_MAMP1_1 | DAC_CR_MAMP1_0) /*!< Select max triangle amplitude of 15 */
@@ -115,7 +115,7 @@
   */
 #if defined(STM32F051x8) || defined(STM32F058xx)
 
-#define DAC_TRIGGER_NONE                   ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC1_DHRxxxx register 
+#define DAC_TRIGGER_NONE                   (0x00000000U) /*!< Conversion is automatic once the DAC1_DHRxxxx register 
                                                                        has been loaded, and not by external trigger */
 #define DAC_TRIGGER_T2_TRGO                ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_T3_TRGO                ((uint32_t)(DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM3 TRGO selected as external conversion trigger for DAC channel */
@@ -129,7 +129,7 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
 
-#define DAC_TRIGGER_NONE                   ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC1_DHRxxxx register 
+#define DAC_TRIGGER_NONE                   (0x00000000U) /*!< Conversion is automatic once the DAC1_DHRxxxx register 
                                                                        has been loaded, and not by external trigger */
 #define DAC_TRIGGER_T2_TRGO                ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_T3_TRGO                ((uint32_t)(DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM3 TRGO selected as external conversion trigger for DAC channel */
@@ -153,15 +153,15 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
 
-#define DAC_CHANNEL_1                      ((uint32_t)0x00000000)
-#define DAC_CHANNEL_2                      ((uint32_t)0x00000010)
+#define DAC_CHANNEL_1                      (0x00000000U)
+#define DAC_CHANNEL_2                      (0x00000010U)
 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
 #if defined(STM32F051x8) || defined(STM32F058xx)
 
-#define DAC_CHANNEL_1                      ((uint32_t)0x00000000)
+#define DAC_CHANNEL_1                      (0x00000000U)
 
 #endif  /* STM32F051x8 || STM32F058xx */ 
 

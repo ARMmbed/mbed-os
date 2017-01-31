@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of ADC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -77,7 +77,7 @@
 #define ADC_EXTERNALTRIGCONV_T1_TRGO        ADC1_2_EXTERNALTRIG_T1_TRGO
 #define ADC_EXTERNALTRIGCONV_T1_CC4         ADC1_2_EXTERNALTRIG_T1_CC4
 #define ADC_EXTERNALTRIGCONV_T3_TRGO        ADC1_2_EXTERNALTRIG_T3_TRGO
-#define ADC_SOFTWARE_START                  (ADC_CFGR1_EXTSEL + (uint32_t)1)
+#define ADC_SOFTWARE_START                  (ADC_CFGR1_EXTSEL + 1U)
 
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)
 #define ADC_EXTERNALTRIGCONV_T2_TRGO        ADC1_2_EXTERNALTRIG_T2_TRGO
@@ -102,30 +102,30 @@
 /*       watchdog channel (bits AWDCH in register ADC_CFGR1).                 */
 /*       Channels are defined with decimal numbers and converted them to      */
 /*       bitfields when needed.                                               */
-#define ADC_CHANNEL_0           ((uint32_t) 0x00000000)
-#define ADC_CHANNEL_1           ((uint32_t) 0x00000001)
-#define ADC_CHANNEL_2           ((uint32_t) 0x00000002)
-#define ADC_CHANNEL_3           ((uint32_t) 0x00000003)
-#define ADC_CHANNEL_4           ((uint32_t) 0x00000004)
-#define ADC_CHANNEL_5           ((uint32_t) 0x00000005)
-#define ADC_CHANNEL_6           ((uint32_t) 0x00000006)
-#define ADC_CHANNEL_7           ((uint32_t) 0x00000007)
-#define ADC_CHANNEL_8           ((uint32_t) 0x00000008)
-#define ADC_CHANNEL_9           ((uint32_t) 0x00000009)
-#define ADC_CHANNEL_10          ((uint32_t) 0x0000000A)
-#define ADC_CHANNEL_11          ((uint32_t) 0x0000000B)
-#define ADC_CHANNEL_12          ((uint32_t) 0x0000000C)
-#define ADC_CHANNEL_13          ((uint32_t) 0x0000000D)
-#define ADC_CHANNEL_14          ((uint32_t) 0x0000000E)
-#define ADC_CHANNEL_15          ((uint32_t) 0x0000000F)
-#define ADC_CHANNEL_16          ((uint32_t) 0x00000010)
-#define ADC_CHANNEL_17          ((uint32_t) 0x00000011)
+#define ADC_CHANNEL_0           ( 0x00000000U)
+#define ADC_CHANNEL_1           ( 0x00000001U)
+#define ADC_CHANNEL_2           ( 0x00000002U)
+#define ADC_CHANNEL_3           ( 0x00000003U)
+#define ADC_CHANNEL_4           ( 0x00000004U)
+#define ADC_CHANNEL_5           ( 0x00000005U)
+#define ADC_CHANNEL_6           ( 0x00000006U)
+#define ADC_CHANNEL_7           ( 0x00000007U)
+#define ADC_CHANNEL_8           ( 0x00000008U)
+#define ADC_CHANNEL_9           ( 0x00000009U)
+#define ADC_CHANNEL_10          ( 0x0000000AU)
+#define ADC_CHANNEL_11          ( 0x0000000BU)
+#define ADC_CHANNEL_12          ( 0x0000000CU)
+#define ADC_CHANNEL_13          ( 0x0000000DU)
+#define ADC_CHANNEL_14          ( 0x0000000EU)
+#define ADC_CHANNEL_15          ( 0x0000000FU)
+#define ADC_CHANNEL_16          ( 0x00000010U)
+#define ADC_CHANNEL_17          ( 0x00000011U)
 
 #define ADC_CHANNEL_TEMPSENSOR  ADC_CHANNEL_16
 #define ADC_CHANNEL_VREFINT     ADC_CHANNEL_17
     
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)
-#define ADC_CHANNEL_18          ((uint32_t) 0x00000012)
+#define ADC_CHANNEL_18          ( 0x00000012U)
 #define ADC_CHANNEL_VBAT        ADC_CHANNEL_18 
 #endif
     

@@ -98,6 +98,7 @@ struct i2c_s {
     IRQn_Type error_i2cIRQ;
     uint32_t XferOperation;
     volatile uint8_t event;
+    volatile int pending_start;
 #if DEVICE_I2CSLAVE
     uint8_t slave;
     volatile uint8_t pending_slave_tx_master_rx;
@@ -110,6 +111,7 @@ struct i2c_s {
 #endif
 };
 
+#define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"
 
 #ifdef __cplusplus
