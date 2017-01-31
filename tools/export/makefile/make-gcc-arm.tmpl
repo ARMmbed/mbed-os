@@ -1,10 +1,6 @@
 {% extends "makefile/Makefile.tmpl" %}
 
-{% block sys_libs %}
-{% for lib in ["-lstdc++", "-lsupc++", "-lm", "-lc", "-lgcc", "-lnosys"] -%}
-LD_SYS_LIBS += {{lib}}
-{% endfor %}
-{%- endblock %}
+{%- block sys_libs -%} -Wl,--start-group {{ld_sys_libs|join(" ")}} -Wl,--end-group {%- endblock -%}
 
 {% block elf2bin %}
 	$(ELF2BIN) -O binary $< $@
