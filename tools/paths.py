@@ -82,6 +82,7 @@ UBLOX_LIBRARY = join(NET_LIBRARIES, "UbloxUSBModem")
 FS_PATH = join(FEATURES_DIR, "filesystem")
 FAT_FS = join(FS_PATH, "fat")
 SD_FS = join(FS_PATH, "sd")
+BD = join(FS_PATH, "bd")
 FS_LIBRARY = join(BUILD_DIR, "fat")
 
 # DSP
