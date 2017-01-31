@@ -267,10 +267,11 @@ static err_t low_level_init(struct k64f_enetdata *enet, char *hwaddr)
 
 /** \brief  Allocates a emac_stack_mem_t and returns the data from the incoming packet.
  *
+ *  \param[in] enet  Pointer to K64F enet structure
  *  \param[in] idx   index of packet to be read
  *  \return a emac_stack_mem_t filled with the received packet (including MAC header)
  */
-static emac_stack_mem_t *k64f_low_level_input(int idx)
+static emac_stack_mem_t *k64f_low_level_input(struct k64f_enetdata *enet, int idx)
 {
   volatile enet_rx_bd_struct_t *bdPtr = g_handle.rxBdCurrent;
   emac_stack_mem_t *p = NULL;
@@ -358,7 +359,7 @@ void k64f_enetif_input(struct k64f_enetdata *enet, int idx)
   emac_stack_mem_t *p;
 
   /* move received packet into a new buf */
-  p = k64f_low_level_input(idx);
+  p = k64f_low_level_input(enet, idx);
   if (p == NULL)
     return;
 
