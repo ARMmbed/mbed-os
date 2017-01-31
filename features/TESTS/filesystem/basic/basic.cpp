@@ -69,11 +69,12 @@ using namespace utest::v1;
  * FSFAT_SDCARD_INSTALLTED
  *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
  *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
+ *
+ * Notes
+ *   The following 2 lines should be instated to perform the tests in this file:
+ *      #define FSFAT_SDCARD_INSTALLED
+ *      #define DEVICE_SPI
  */
-/* #define FSFAT_SDCARD_INSTALLED */
-//todo: remove next 2 lines.
-#define FSFAT_SDCARD_INSTALLED
-#define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 #if defined(TARGET_KL25Z)
