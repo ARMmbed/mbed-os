@@ -140,6 +140,13 @@
         "GBECoreSlave": 37,
         "NEON":1
     },
+    "r7s721000": {
+        "OGChipSelectEditMenu": "R7S721000\tRenesas R7S721000",
+        "CoreVariant": 37,
+        "GFPUCoreSlave": 37,
+        "GBECoreSlave": 37,
+        "NEON":1
+    },
     "MKL05Z32xxx4": {
         "OGChipSelectEditMenu": "MKL05Z32xxx4\tFreescale MKL05Z32xxx4"
     },
