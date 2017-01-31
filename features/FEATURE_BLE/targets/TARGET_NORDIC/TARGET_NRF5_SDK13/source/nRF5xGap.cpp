@@ -174,6 +174,9 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
     uint32_t err;
+    
+    ble_gap_adv_params_t adv_para = {0};
+        
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -192,22 +195,21 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
             return error;
         }
     }
+    
+    adv_para.p_whitelist = &whitelist;
 #else
-    err = updateWhiteAndIdentityListInStack();
+    err = updateWhiteAndIdentityListInStack(nRF5xGap::avdvertising_purpose);
     
     if (err != BLE_ERROR_NONE) {
         return (ble_error_t)err;
     }
 #endif
     /* Start Advertising */
-    ble_gap_adv_params_t adv_para = {0};
+
 
     adv_para.type        = params.getAdvertisingType();
     adv_para.p_peer_addr = NULL;                           // Undirected advertisement
     adv_para.fp          = advertisingPolicyMode;
-#if  (NRF_SD_BLE_API_VERSION <= 2)
-    adv_para.p_whitelist = &whitelist;
-#endif
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
     
@@ -227,6 +229,9 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
 {
+    
+    ble_gap_scan_params_t scanParams;
+    
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -245,26 +250,22 @@ ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
             return error;
         }
     }
+    
+    scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
+    scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
 #else
-    uint32_t err = updateWhiteAndIdentityListInStack();
+    uint32_t err = updateWhiteAndIdentityListInStack(nRF5xGap::scan_connect_purpose);
     
     if (err != BLE_ERROR_NONE) {
         return (ble_error_t)err;
     }
-#endif
     
-    ble_gap_scan_params_t scanParams;
-    
-    scanParams.active      = scanningParams.getActiveScanning(); /**< If 1, perform active scanning (scan requests). */
-#if  (NRF_SD_BLE_API_VERSION <= 2)
-    scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
-    scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
-#else
     scanParams.use_whitelist  = scanningPolicyMode;
     scanParams.adv_dir_report = 0;
-    
-    
 #endif
+    
+    scanParams.active      = scanningParams.getActiveScanning(); /**< If 1, perform active scanning (scan requests). */
+
     scanParams.interval    = scanningParams.getInterval();  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
     scanParams.window      = scanningParams.getWindow();    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
     scanParams.timeout     = scanningParams.getTimeout();   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
@@ -333,6 +334,8 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
         connParams.conn_sup_timeout  = 600;
     }
 
+    ble_gap_scan_params_t scanParams;
+    
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -351,21 +354,15 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
             return error;
         }
     }
+    
+    scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
+    scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
 #else
-    uint32_t err = updateWhiteAndIdentityListInStack();
+    uint32_t err = updateWhiteAndIdentityListInStack(nRF5xGap::scan_connect_purpose);
     
     if (err != BLE_ERROR_NONE) {
         return (ble_error_t)err;
     }
-#endif
-
-    ble_gap_scan_params_t scanParams;
-#if  (NRF_SD_BLE_API_VERSION <= 2)
-    scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
-    scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
-#else
-    scanParams.use_whitelist  = scanningPolicyMode;
-    scanParams.adv_dir_report = 0;
 #endif
 
     if (scanParamsIn != NULL) {
@@ -1020,9 +1017,12 @@ ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
 #if  (NRF_SD_BLE_API_VERSION >= 3)
    
 /**
- * Fuction for preparing setting of the whitelist-feature and identiti-reseolv-feature (privacy).
+ * Fuction for preparing setting of the whitelist-feature and identiti-reseolv-feature (privacy) for SoftDevice.
  *
- * Created setting are intended to be used to configure SoftDevices.
+ * Gap::setWhitelist provide base for prepartion of this settings.
+ * This funtion matches resolvabele addreses (pased by Gap::setWhitelist) to IRK datas in boonds table.
+ * Therefore resovable addresses instead of being passed to the whitelist (intended to be passed to Softdevice)
+ * are passed to the identities list (intended to be passed to Softdevice).
  *
  * @param[out] gapAdrHelper Reference to the struct for storing settings.
  */ 
@@ -1158,13 +1158,21 @@ ble_error_t nRF5xGap::apllyWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHe
     }
 }
 
-ble_error_t nRF5xGap::updateWhiteAndIdentityListInStack(void)
+ble_error_t nRF5xGap::updateWhiteAndIdentityListInStack(whiteAndIdentityListPurpose_t purpose)
 {
     GapWhiteAndIdentityList_t whiteAndIdentityList;
     uint32_t err;
+    bool provide_settings;
+    
+    if (purpose == nRF5xGap::avdvertising_purpose) {
+        provide_settings = (advertisingPolicyMode != Gap::ADV_POLICY_IGNORE_WHITELIST) ? true : false;
+    } else { //it must be nRF5xGap::scan_connect_purpose
+        provide_settings = (scanningPolicyMode != Gap::SCAN_POLICY_IGNORE_WHITELIST) ? true : false;
+    }
+    
 
     /* Add missing IRKs to nRF5xGap's whitelist from the bond table held by the Peer Manager */
-    if (advertisingPolicyMode != Gap::ADV_POLICY_IGNORE_WHITELIST) {
+    if (provide_settings) {
         err = getStackWhiteIdentityList(whiteAndIdentityList);
         
         if (err != BLE_ERROR_NONE) {

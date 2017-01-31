@@ -57,6 +57,8 @@ public:
      *
      * @return
      *           BLE_ERROR_NONE if successful.
+     *
+     * @todo check whether remove this function (because it is never called)
      */
     virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
         uint8_t i;

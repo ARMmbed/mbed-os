@@ -40,9 +40,9 @@ def replace_header(in_path):
                         print fn
 
 
-pathes = ["C:/mbed/mbed-os/targets/TARGET_NORDIC/TARGET_NRF5_SDK13/sdk",
-          "C:/mbed/mbed-os/targets/TARGET_NORDIC/TARGET_NRF5_SDK13/TARGET_MCU_NRF52832\sdk",
-          "C:/mbed/mbed-os/targets/TARGET_NORDIC/TARGET_NRF5_SDK13/TARGET_MCU_NRF52840\sdk"]
+pathes = ["..\\sdk",
+          "..\\TARGET_MCU_NRF52832\\sdk",
+          "..\\TARGET_MCU_NRF52840\\sdk"]
     
 for path in pathes:
     replace_header(path)
