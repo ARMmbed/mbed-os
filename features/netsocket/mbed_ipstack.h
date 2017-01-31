@@ -39,7 +39,7 @@ extern "C" {
  *
  * @return    NSAPI_ERROR_OK on success, or error code
  */
-void mbed_ipstack_init(void);
+void mbed_ipstack_init(emac_interface_t *emac);
 
 /** Register a network interface with the IP stack
  *
@@ -87,7 +87,7 @@ nsapi_error_t mbed_ipstack_bringdown(emac_interface_t *emac);
  * @param    emac       EMAC HAL implementation for this network interface
  * @return              MAC address as "V:W:X:Y:Z"
  */
-const char *mbed_ipstack_get_mac_address(emac_interface_t *emac);
+char *mbed_ipstack_get_mac_address(emac_interface_t *emac);
 
 /** Copies IP address of the network interface to user supplied buffer
  *

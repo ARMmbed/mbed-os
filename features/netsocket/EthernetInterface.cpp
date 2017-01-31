@@ -45,7 +45,7 @@ nsapi_error_t EthernetInterface::connect()
     if (_stack.emac == NULL)
         return NSAPI_ERROR_UNSUPPORTED;
 
-    mbed_ipstack_init();
+    mbed_ipstack_init(_stack.emac);
     err = mbed_ipstack_add_netif(_stack.emac, true);
     if (err != NSAPI_ERROR_OK)
         return err;
@@ -63,8 +63,7 @@ nsapi_error_t EthernetInterface::disconnect()
 
 const char *EthernetInterface::get_mac_address()
 {
-    return "TODO";
-    //return mbed_lwip_get_mac_address(_stack.emac);
+    return mbed_ipstack_get_mac_address(_stack.emac);
 }
 
 const char *EthernetInterface::get_ip_address()

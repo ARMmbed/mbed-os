@@ -315,6 +315,11 @@ static void mbed_lwip_netif_status_irq(struct netif *netif)
     }
 }
 
+char *mbed_ipstack_get_mac_address(emac_interface_t *emac)
+{
+    return emac->hwaddr;
+}
+
 char *mbed_ipstack_get_ip_address(emac_interface_t *emac, char *buf, nsapi_size_t buflen)
 {
     const ip_addr_t *addr = mbed_lwip_get_ip_addr(true, &emac->netif);
@@ -362,7 +367,7 @@ char *mbed_ipstack_get_gateway(emac_interface_t *emac, char *buf, nsapi_size_t b
 #endif
 }
 
-void mbed_ipstack_init(void)
+void mbed_ipstack_init(emac_interface_t *emac)
 {
     if(mbed_lwip_inited)
         return;
@@ -373,6 +378,8 @@ void mbed_ipstack_init(void)
 
     // Zero out socket set
     mbed_lwip_arena_init();
+
+    mbed_mac_address(emac->hwaddr);
 
     mbed_lwip_inited = true;
 }
@@ -410,7 +417,7 @@ nsapi_error_t mbed_ipstack_bringup(emac_interface_t *emac, bool dhcp, const char
         return NSAPI_ERROR_PARAMETER;
     }
 
-    mbed_ipstack_init();
+    mbed_ipstack_init(emac);
 
 #if LWIP_IPV6
     netif_create_ip6_linklocal_address(&emac->netif, 1/*from MAC*/);

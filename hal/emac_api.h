@@ -172,6 +172,7 @@ typedef struct emac_interface {
     sys_sem_t has_addr;
     bool connected;
     bool dhcp;
+    char hwaddr[6];
     struct netif netif;
 } emac_interface_t;
 

@@ -508,11 +508,9 @@ static void k64f_phy_task(void *data) {
 static bool k64f_eth_power_up(emac_interface_t *emac)
 {
   err_t err;
-  char hwaddr[ETH_HWADDR_LEN];
 
   /* Initialize the hardware */
-  mbed_mac_address(hwaddr);
-  err = low_level_init(&k64f_enetdata, hwaddr);
+  err = low_level_init(&k64f_enetdata, emac->hwaddr);
   if (err != ERR_OK)
     return false;
 
