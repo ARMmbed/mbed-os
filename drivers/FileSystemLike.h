@@ -100,7 +100,15 @@ public:
      */
     virtual int mkdir(const char *name, mode_t mode) { (void) name, (void) mode; return -1; }
 
-    // TODO other filesystem functions (mkdir, rm, rn, ls etc)
+    /** Store information about file in stat structure
+     *
+     *  @param name The name of the file to find information about
+     *  @param st The stat buffer to write to
+     *  @returns
+     *    0 on success or un-needed,
+     *   -1 on error
+     */
+    virtual int stat(const char *name, struct stat *st) = 0;
 };
 
 } // namespace mbed
