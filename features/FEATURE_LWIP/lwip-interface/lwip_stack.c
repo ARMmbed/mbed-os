@@ -489,7 +489,6 @@ nsapi_error_t mbed_lwip_bringup(emac_interface_t *emac, bool dhcp, const char *i
 
     add_dns_addr(&emac->netif);
 
-    lwip_connected = true;
     return 0;
 }
 
