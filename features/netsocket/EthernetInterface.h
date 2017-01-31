@@ -27,7 +27,7 @@ class NetworkStack;
 
 
 /** EthernetInterface class
- *  Implementation of the NetworkStack for LWIP
+ *  Implementation of the NetworkStack for mbed OS IP stack and EMAC APIs
  */
 class EthernetInterface : public EthInterface
 {
@@ -76,7 +76,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -116,6 +116,5 @@ protected:
     char _gateway[NSAPI_IPv4_SIZE];
     nsapi_stack_t _stack;
 };
-
 
 #endif
