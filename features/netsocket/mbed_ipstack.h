@@ -39,7 +39,7 @@ extern "C" {
  *
  * @return    NSAPI_ERROR_OK on success, or error code
  */
-void mbed_ipstack_init(emac_interface_t *emac);
+void mbed_ipstack_init(void);
 
 /** Register a network interface with the IP stack
  *

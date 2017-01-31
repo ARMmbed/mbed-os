@@ -367,7 +367,7 @@ char *mbed_ipstack_get_gateway(emac_interface_t *emac, char *buf, nsapi_size_t b
 #endif
 }
 
-void mbed_ipstack_init(emac_interface_t *emac)
+void mbed_ipstack_init(void)
 {
     if(mbed_lwip_inited)
         return;
@@ -378,8 +378,6 @@ void mbed_ipstack_init(emac_interface_t *emac)
 
     // Zero out socket set
     mbed_lwip_arena_init();
-
-    mbed_mac_address(emac->hwaddr);
 
     mbed_lwip_inited = true;
 }
@@ -392,6 +390,8 @@ nsapi_error_t mbed_ipstack_add_netif(emac_interface_t *emac, bool default_if)
     sys_sem_new(&emac->has_addr, 0);
     memset(&emac->netif, 0, sizeof(emac->netif));
     emac->netif.state = emac;
+
+    mbed_mac_address(emac->hwaddr);
 
     if (!netif_add(&emac->netif,
 #if LWIP_IPV4
