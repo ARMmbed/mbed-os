@@ -42,6 +42,9 @@
 #include "nrf_drv_common.h"
 #include "lp_ticker_api.h"
 
+#if defined(NRF52_ERRATA_20)
+    #include "softdevice_handler.h"
+#endif
 
 //------------------------------------------------------------------------------
 // Common stuff used also by lp_ticker and rtc_api (see "common_rtc.h").
