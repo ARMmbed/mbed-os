@@ -45,7 +45,7 @@ nsapi_error_t EthernetInterface::connect()
     if (_stack.emac == NULL)
         return NSAPI_ERROR_UNSUPPORTED;
 
-    mbed_ipstack_init(_stack.emac);
+    mbed_ipstack_init();
     err = mbed_ipstack_add_netif(_stack.emac, true);
     if (err != NSAPI_ERROR_OK)
         return err;

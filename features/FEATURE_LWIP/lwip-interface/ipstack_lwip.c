@@ -417,7 +417,7 @@ nsapi_error_t mbed_ipstack_bringup(emac_interface_t *emac, bool dhcp, const char
         return NSAPI_ERROR_PARAMETER;
     }
 
-    mbed_ipstack_init(emac);
+    mbed_ipstack_init();
 
 #if LWIP_IPV6
     netif_create_ip6_linklocal_address(&emac->netif, 1/*from MAC*/);
