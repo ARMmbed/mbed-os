@@ -334,7 +334,7 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
         connParams.conn_sup_timeout  = 600;
     }
 
-    ble_gap_scan_params_t scanParams;
+    ble_gap_scan_params_t scanParams ={0};
     
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
@@ -363,6 +363,20 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     if (err != BLE_ERROR_NONE) {
         return (ble_error_t)err;
     }
+    
+    scanParams.use_whitelist = (whitelistAddressesSize) ? 1 : 0;
+
+    if (addr.addr_type == ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE || addr.addr_type == ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) {
+        /* If a device is using Resolvable Private Addresses Section 1.3.2.2 (Core spec v4.2 volume 6 part B),
+        it shall also have an Identity Address that is either a Public or Random Static address type.”
+        For connecting a static address must be provided by the application to the softdevice.
+        The softdevice will resolve the address and connect to the right device if present. */
+        addr.addr_id_peer = 1;
+        addr.addr_type = BLE_GAP_ADDR_TYPE_PUBLIC;
+    } else {
+        addr.addr_id_peer = 0;
+    }
+        
 #endif
 
     if (scanParamsIn != NULL) {
