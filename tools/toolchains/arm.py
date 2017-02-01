@@ -15,7 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname, splitext, basename
+from os.path import join, dirname, splitext, basename, exists
+from os import makedirs, write
+from tempfile import mkstemp
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -221,6 +223,22 @@ class ARM(mbedToolchain):
         # Exec command
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
+
+    @staticmethod
+    def name_mangle(name):
+        return "_Z%i%sv" % (len(name), name)
+
+    @staticmethod
+    def make_ld_define(name, value):
+        return "--predefine=\"-D%s=0x%x\"" % (name, value)
+
+    @staticmethod
+    def redirect_symbol(source, sync, build_dir):
+        if not exists(build_dir):
+            makedirs(build_dir)
+        handle, filename = mkstemp(prefix=".redirect-symbol.", dir=build_dir)
+        write(handle, "RESOLVE %s AS %s\n" % (source, sync))
+        return "--edit=%s" % filename
 
 
 class ARM_STD(ARM):
