@@ -17,6 +17,7 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#include <stdint.h>
 #include "clocking.h"
 
 #ifndef OS_CLOCK
