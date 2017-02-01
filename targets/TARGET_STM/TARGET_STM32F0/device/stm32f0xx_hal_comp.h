@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -120,11 +120,11 @@ typedef struct
 /** @defgroup COMP_State COMP State
   * @{
   */
-#define HAL_COMP_STATE_RESET             ((uint32_t)0x00000000)    /*!< COMP not yet initialized or disabled             */
-#define HAL_COMP_STATE_READY             ((uint32_t)0x00000001)    /*!< COMP initialized and ready for use               */
-#define HAL_COMP_STATE_READY_LOCKED      ((uint32_t)0x00000011)    /*!< COMP initialized but the configuration is locked */
-#define HAL_COMP_STATE_BUSY              ((uint32_t)0x00000002)    /*!< COMP is running                                  */
-#define HAL_COMP_STATE_BUSY_LOCKED       ((uint32_t)0x00000012)    /*!< COMP is running and the configuration is locked  */
+#define HAL_COMP_STATE_RESET             (0x00000000U)    /*!< COMP not yet initialized or disabled             */
+#define HAL_COMP_STATE_READY             (0x00000001U)    /*!< COMP initialized and ready for use               */
+#define HAL_COMP_STATE_READY_LOCKED      (0x00000011U)    /*!< COMP initialized but the configuration is locked */
+#define HAL_COMP_STATE_BUSY              (0x00000002U)    /*!< COMP is running                                  */
+#define HAL_COMP_STATE_BUSY_LOCKED       (0x00000012U)    /*!< COMP is running and the configuration is locked  */
 /**
   * @}
   */
@@ -132,7 +132,7 @@ typedef struct
 /** @defgroup COMP_OutputPolarity COMP OutputPolarity
   * @{
   */
-#define COMP_OUTPUTPOL_NONINVERTED             ((uint32_t)0x00000000)  /*!< COMP output on GPIO isn't inverted */
+#define COMP_OUTPUTPOL_NONINVERTED             (0x00000000U)  /*!< COMP output on GPIO isn't inverted */
 #define COMP_OUTPUTPOL_INVERTED                COMP_CSR_COMP1POL       /*!< COMP output on GPIO is inverted  */
 /**
   * @}
@@ -141,7 +141,7 @@ typedef struct
 /** @defgroup COMP_Hysteresis COMP Hysteresis
   * @{
   */
-#define COMP_HYSTERESIS_NONE                   ((uint32_t)0x00000000)  /*!< No hysteresis */
+#define COMP_HYSTERESIS_NONE                   (0x00000000U)  /*!< No hysteresis */
 #define COMP_HYSTERESIS_LOW                    COMP_CSR_COMP1HYST_0    /*!< Hysteresis level low */
 #define COMP_HYSTERESIS_MEDIUM                 COMP_CSR_COMP1HYST_1    /*!< Hysteresis level medium */
 #define COMP_HYSTERESIS_HIGH                   COMP_CSR_COMP1HYST      /*!< Hysteresis level high */
@@ -154,7 +154,7 @@ typedef struct
   */
 /* Please refer to the electrical characteristics in the device datasheet for
    the power consumption values */
-#define COMP_MODE_HIGHSPEED                    ((uint32_t)0x00000000) /*!< High Speed */
+#define COMP_MODE_HIGHSPEED                    (0x00000000U) /*!< High Speed */
 #define COMP_MODE_MEDIUMSPEED                  COMP_CSR_COMP1MODE_0   /*!< Medium Speed */
 #define COMP_MODE_LOWPOWER                     COMP_CSR_COMP1MODE_1   /*!< Low power mode */
 #define COMP_MODE_ULTRALOWPOWER                COMP_CSR_COMP1MODE     /*!< Ultra-low power mode */
@@ -166,7 +166,7 @@ typedef struct
   * @{
   */
 
-#define COMP_INVERTINGINPUT_1_4VREFINT         ((uint32_t)0x00000000) /*!< 1/4 VREFINT connected to comparator inverting input */
+#define COMP_INVERTINGINPUT_1_4VREFINT         (0x00000000U) /*!< 1/4 VREFINT connected to comparator inverting input */
 #define COMP_INVERTINGINPUT_1_2VREFINT         COMP_CSR_COMP1INSEL_0                         /*!< 1/2 VREFINT connected to comparator inverting input    */
 #define COMP_INVERTINGINPUT_3_4VREFINT         COMP_CSR_COMP1INSEL_1                         /*!< 3/4 VREFINT connected to comparator inverting input    */
 #define COMP_INVERTINGINPUT_VREFINT            (COMP_CSR_COMP1INSEL_1|COMP_CSR_COMP1INSEL_0) /*!< VREFINT connected to comparator inverting input        */
@@ -182,7 +182,7 @@ typedef struct
 /** @defgroup COMP_NonInvertingInput COMP NonInvertingInput
   * @{
   */
-#define COMP_NONINVERTINGINPUT_IO1               ((uint32_t)0x00000000) /*!< I/O1 (PA1 for COMP1, PA3 for COMP2) 
+#define COMP_NONINVERTINGINPUT_IO1               (0x00000000U) /*!< I/O1 (PA1 for COMP1, PA3 for COMP2) 
                                                                              connected to comparator non inverting input */
 #define COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED  COMP_CSR_COMP1SW1  /*!< DAC ouput connected to comparator COMP1 non inverting input */
 /**
@@ -194,7 +194,7 @@ typedef struct
   */
 
 /* Output Redirection common for COMP1 and COMP2 */
-#define COMP_OUTPUT_NONE                       ((uint32_t)0x00000000)                          /*!< COMP output isn't connected to other peripherals */
+#define COMP_OUTPUT_NONE                       (0x00000000U)                          /*!< COMP output isn't connected to other peripherals */
 #define COMP_OUTPUT_TIM1BKIN                   COMP_CSR_COMP1OUTSEL_0                          /*!< COMP output connected to TIM1 Break Input (BKIN) */
 #define COMP_OUTPUT_TIM1IC1                    COMP_CSR_COMP1OUTSEL_1                          /*!< COMP output connected to TIM1 Input Capture 1 */
 #define COMP_OUTPUT_TIM1OCREFCLR               (COMP_CSR_COMP1OUTSEL_1|COMP_CSR_COMP1OUTSEL_0) /*!< COMP output connected to TIM1 OCREF Clear */
@@ -211,7 +211,7 @@ typedef struct
   */ 
 /* When output polarity is not inverted, comparator output is low when
    the non-inverting input is at a lower voltage than the inverting input*/
-#define COMP_OUTPUTLEVEL_LOW                   ((uint32_t)0x00000000)
+#define COMP_OUTPUTLEVEL_LOW                   (0x00000000U)
 /* When output polarity is not inverted, comparator output is high when
    the non-inverting input is at a higher voltage than the inverting input */
 #define COMP_OUTPUTLEVEL_HIGH                  COMP_CSR_COMP1OUT
@@ -222,13 +222,13 @@ typedef struct
 /** @defgroup COMP_TriggerMode COMP TriggerMode
   * @{
   */
-#define COMP_TRIGGERMODE_NONE                  ((uint32_t)0x00000000)  /*!< No External Interrupt trigger detection */
-#define COMP_TRIGGERMODE_IT_RISING             ((uint32_t)0x00000001)  /*!< External Interrupt Mode with Rising edge trigger detection */
-#define COMP_TRIGGERMODE_IT_FALLING            ((uint32_t)0x00000002)  /*!< External Interrupt Mode with Falling edge trigger detection */
-#define COMP_TRIGGERMODE_IT_RISING_FALLING     ((uint32_t)0x00000003)  /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
-#define COMP_TRIGGERMODE_EVENT_RISING          ((uint32_t)0x00000010)  /*!< Event Mode with Rising edge trigger detection */
-#define COMP_TRIGGERMODE_EVENT_FALLING         ((uint32_t)0x00000020)  /*!< Event Mode with Falling edge trigger detection */
-#define COMP_TRIGGERMODE_EVENT_RISING_FALLING  ((uint32_t)0x00000030)  /*!< Event Mode with Rising/Falling edge trigger detection */
+#define COMP_TRIGGERMODE_NONE                  (0x00000000U)  /*!< No External Interrupt trigger detection */
+#define COMP_TRIGGERMODE_IT_RISING             (0x00000001U)  /*!< External Interrupt Mode with Rising edge trigger detection */
+#define COMP_TRIGGERMODE_IT_FALLING            (0x00000002U)  /*!< External Interrupt Mode with Falling edge trigger detection */
+#define COMP_TRIGGERMODE_IT_RISING_FALLING     (0x00000003U)  /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_RISING          (0x00000010U)  /*!< Event Mode with Rising edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_FALLING         (0x00000020U)  /*!< Event Mode with Falling edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_RISING_FALLING  (0x00000030U)  /*!< Event Mode with Rising/Falling edge trigger detection */
 /**
   * @}
   */ 
@@ -236,7 +236,7 @@ typedef struct
 /** @defgroup COMP_WindowMode COMP WindowMode
   * @{
   */
-#define COMP_WINDOWMODE_DISABLE                ((uint32_t)0x00000000)  /*!< Window mode disabled */
+#define COMP_WINDOWMODE_DISABLE                (0x00000000U)  /*!< Window mode disabled */
 #define COMP_WINDOWMODE_ENABLE                 COMP_CSR_WNDWEN         /*!< Window mode enabled: non inverting input of comparator 2
                                                                             is connected to the non inverting input of comparator 1 (PA1) */
 /**
@@ -628,10 +628,10 @@ uint32_t HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 /** @defgroup COMP_Lock COMP Lock
   * @{   
   */  
-#define COMP_LOCK_DISABLE                      ((uint32_t)0x00000000)
+#define COMP_LOCK_DISABLE                      (0x00000000U)
 #define COMP_LOCK_ENABLE                       COMP_CSR_COMP1LOCK
 
-#define COMP_STATE_BIT_LOCK                    ((uint32_t)0x10)
+#define COMP_STATE_BIT_LOCK                    (0x10U)
 /**
   * @}
   */ 

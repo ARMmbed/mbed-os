@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
+  * @version V1.5.0
+  * @date    04-November-2016
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
@@ -63,8 +63,8 @@
 /** @defgroup CORTEX_SysTick_clock_source CORTEX SysTick clock source
   * @{
   */
-#define SYSTICK_CLKSOURCE_HCLK_DIV8    ((uint32_t)0x00000000)
-#define SYSTICK_CLKSOURCE_HCLK         ((uint32_t)0x00000004)
+#define SYSTICK_CLKSOURCE_HCLK_DIV8    (0x00000000U)
+#define SYSTICK_CLKSOURCE_HCLK         (0x00000004U)
 
 /**
   * @}

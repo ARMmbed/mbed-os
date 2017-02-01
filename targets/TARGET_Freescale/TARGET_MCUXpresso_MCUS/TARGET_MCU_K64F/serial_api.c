@@ -518,9 +518,10 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         }
     }
 
+    obj->serial.txstate = kUART_TxBusy;
+
     /* Start the transfer */
     serial_send_asynch(obj);
-    obj->serial.txstate = kUART_TxBusy;
 
     return 0;
 }
@@ -583,9 +584,10 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         }
     }
 
+    obj->serial.rxstate = kUART_RxBusy;
+
     /* Start the transfer */
     serial_receive_asynch(obj);
-    obj->serial.rxstate = kUART_RxBusy;
 }
 
 uint8_t serial_tx_active(serial_t *obj)

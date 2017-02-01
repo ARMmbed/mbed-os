@@ -122,6 +122,10 @@
 #define ENET_BUFFDESCRIPTOR_RX_EXT_ERR_MASK \
     (ENET_BUFFDESCRIPTOR_RX_MACERR_MASK | ENET_BUFFDESCRIPTOR_RX_PHYERR_MASK | ENET_BUFFDESCRIPTOR_RX_COLLISION_MASK)
 #endif
+#define ENET_TX_INTERRUPT (kENET_TxFrameInterrupt | kENET_TxBufferInterrupt)
+#define ENET_RX_INTERRUPT (kENET_RxFrameInterrupt | kENET_RxBufferInterrupt)
+#define ENET_ERR_INTERRUPT (kENET_BabrInterrupt | kENET_BabtInterrupt | kENET_EBusERInterrupt | \
+    kENET_LateCollisionInterrupt | kENET_RetryLimitInterrupt | kENET_UnderrunInterrupt | kENET_PayloadRxInterrupt)
 
 /*! @name Defines the maximum Ethernet frame size. */
 /*@{*/
@@ -224,9 +228,9 @@ typedef enum _enet_interrupt_enable
     kENET_BabtInterrupt = ENET_EIR_BABT_MASK,        /*!< Babbling transmit error interrupt source */
     kENET_GraceStopInterrupt = ENET_EIR_GRA_MASK,    /*!< Graceful stop complete interrupt source */
     kENET_TxFrameInterrupt = ENET_EIR_TXF_MASK,      /*!< TX FRAME interrupt source */
-    kENET_TxByteInterrupt = ENET_EIR_TXB_MASK,       /*!< TX BYTE interrupt source */
+    kENET_TxBufferInterrupt = ENET_EIR_TXB_MASK,     /*!< TX BUFFER interrupt source */
     kENET_RxFrameInterrupt = ENET_EIR_RXF_MASK,      /*!< RX FRAME interrupt source */
-    kENET_RxByteInterrupt = ENET_EIR_RXB_MASK,       /*!< RX BYTE interrupt source */
+    kENET_RxBufferInterrupt = ENET_EIR_RXB_MASK,     /*!< RX BUFFER interrupt source */
     kENET_MiiInterrupt = ENET_EIR_MII_MASK,          /*!< MII interrupt source */
     kENET_EBusERInterrupt = ENET_EIR_EBERR_MASK,     /*!< Ethernet bus error interrupt source */
     kENET_LateCollisionInterrupt = ENET_EIR_LC_MASK, /*!< Late collision interrupt source */
