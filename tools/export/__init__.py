@@ -16,7 +16,7 @@
 # limitations under the License.
 
 from tools.export import codered, ds5_5, iar, makefile
-from tools.export import embitz, coide, kds, simplicityv3, atmelstudio
+from tools.export import embitz, coide, kds, simplicity, atmelstudio
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.targets import TARGET_NAMES
 
