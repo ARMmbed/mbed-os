@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext
+from os.path import join, basename, splitext, dirname
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -93,6 +93,7 @@ class GCC(mbedToolchain):
         self.flags['ld'] += self.cpu
         self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
+        self.preproc = [join(tool_path, "arm-none-eabi-cpp"), "-E", "-P"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
@@ -212,6 +213,15 @@ class GCC(mbedToolchain):
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
+
+        # Preprocess
+        if mem_map:
+            preproc_output = join(dirname(output), ".link_script.ld")
+            cmd = (self.preproc + [mem_map] + self.ld[1:] +
+                   [ "-o", preproc_output])
+            self.cc_verbose("Preproc: %s" % ' '.join(cmd))
+            self.default_cmd(cmd)
+            mem_map = preproc_output
 
         # Build linker command
         map_file = splitext(output)[0] + ".map"
