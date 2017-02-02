@@ -149,11 +149,6 @@ class GNUARMEclipse(Exporter):
         # Read in all profiles, we'll extract compiler options.
         profiles = self.get_all_profiles()
 
-        # Remove 'default', it should never exist, it should be a link
-        # to one of the real profiles.
-        if 'default' in profiles:
-            del profiles['default']
-
         profile_ids = [s.lower() for s in profiles]
         profile_ids.sort()
 
