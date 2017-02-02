@@ -59,7 +59,9 @@ initializing.
 
 ![NanostackRfPhy](img/NanostackRfPhy.png)
 
-Applications use only `LoWPANNDInterface` or `ThreadInterface` directly to set up the network and provide a driver. Rest of the classes provide an abstration between Nanostack and Socket layers of mbed OS.
+Applications use only `LoWPANNDInterface`, `ThreadInterface` or `NanostackEthernetInterface`
+directly to set up the network and provide a driver. Rest of the classes provide an abstration
+between Nanostack and Socket layers of mbed OS.
 
 See [NanostackRfPhy.h](https://github.com/ARMmbed/mbed-os/blob/master/features/nanostack/FEATURE_NANOSTACK/nanostack-interface/NanostackRfPhy.h) for an up-to-date header file and API.
 

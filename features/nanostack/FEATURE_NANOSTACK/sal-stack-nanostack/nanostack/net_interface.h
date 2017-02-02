@@ -81,16 +81,16 @@ typedef enum arm_library_event_type_e {
 /** Data received. */
 #define SOCKET_DATA                         (0 << 4)
 /** TCP connection ready. */
-#define SOCKET_BIND_DONE                    (1 << 4)
+#define SOCKET_CONNECT_DONE                 (1 << 4)
 /** TCP connection failure. */
-#define SOCKET_BIND_FAIL                    (2 << 4)
+#define SOCKET_CONNECT_FAIL                 (2 << 4)
 /** TCP connection authentication failed. */
-#define SOCKET_BIND_AUTH_FAIL               (3 << 4)
-/** TCP incoming connection attempt to listening socket */
+#define SOCKET_CONNECT_AUTH_FAIL            (3 << 4)
+/** TCP incoming connection on listening socket */
 #define SOCKET_INCOMING_CONNECTION          (4 << 4)
 /** Socket data send failure. */
 #define SOCKET_TX_FAIL                      (5 << 4)
-/** TCP connection closed. */
+/** TCP connection closed (received their FIN and ACK of our FIN). */
 #define SOCKET_CONNECT_CLOSED               (6 << 4)
 /** TCP connection reset */
 #define SOCKET_CONNECTION_RESET             (7 << 4)
@@ -100,6 +100,13 @@ typedef enum arm_library_event_type_e {
 #define SOCKET_TX_DONE                      (9 << 4)
 /** Out of memory failure. */
 #define SOCKET_NO_RAM                       (10 << 4)
+/** TCP connection problem indication (RFC 1122 R1) */
+#define SOCKET_CONNECTION_PROBLEM           (11 << 4)
+
+/* Backwards compatibility */
+#define SOCKET_BIND_DONE                    SOCKET_CONNECT_DONE
+#define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL
+#define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL
 
 /*!
  * \enum net_security_t
@@ -991,6 +998,23 @@ void arm_print_neigh_cache(void);
  * \param print_fn pointer to a printf style output function
  */
 void arm_print_neigh_cache2(void (*print_fn)(const char *fmt, ...));
+
+/**
+ * \brief Print PCB list
+ *
+ * Prints Protocol Control Block list to the command line
+ */
+void arm_print_protocols(void);
+
+/**
+ * \brief Print PCB list
+ *
+ * Prints Protocol Control Block list using the given printf style function
+ *
+ * \param print_fn pointer to a printf style output function
+ * \param sep column separator character
+ */
+void arm_print_protocols2(void (*print_fn)(const char *fmt, ...), char sep);
 
 /**
   * \brief Get the library version information.

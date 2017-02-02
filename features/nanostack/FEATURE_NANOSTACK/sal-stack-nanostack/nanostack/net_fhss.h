@@ -21,7 +21,7 @@
 #ifndef NET_FHSS_H_
 #define NET_FHSS_H_
 
-#include <stdint.h>
+#include "ns_types.h"
 
 #ifndef RPL_SYNCHRONIZATION_INSTANCE_ID
 #define RPL_SYNCHRONIZATION_INSTANCE_ID 1
@@ -56,6 +56,7 @@ typedef struct
     int (*fhss_timer_start)(uint32_t, void (*fhss_timer_callback)(int8_t, uint16_t), int8_t);
     int (*fhss_timer_stop)(void);
     uint32_t (*fhss_get_remaining_slots)(void);
+    uint32_t (*fhss_get_timestamp)(void);
     int (*fhss_time_measure_start)(void);
     uint32_t (*fhss_time_measure_read)(void);
     int (*fhss_time_measure_stop)(void);
@@ -120,9 +121,10 @@ extern int8_t arm_fhss_disable(int8_t interface_id);
 extern int8_t arm_fhss_set_tuning_params(int8_t interface_id, const fhss_platform_tuning_params_s *fhss_tuning_params);
 
 #else
-#define arm_fhss_enable(interface_id, fhss_platform_functions,fhss_configuration) (int8_t) -1
-#define arm_fhss_disable(interface_id) (int8_t) -1
-#define arm_fhss_set_tuning_params(interface_id, fhss_tuning_params) (int8_t) -1
+NS_DUMMY_DEFINITIONS_OK
+#define arm_fhss_enable(interface_id, fhss_platform_functions,fhss_configuration) (-1)
+#define arm_fhss_disable(interface_id) (-1)
+#define arm_fhss_set_tuning_params(interface_id, fhss_tuning_params) (-1)
 #endif
 
 #endif /* NET_FHSS_H_ */
