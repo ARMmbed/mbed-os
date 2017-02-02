@@ -238,6 +238,23 @@ void i2c_hw_reset(i2c_t *obj) {
 #endif
 }
 
+void i2c_sw_reset(i2c_t *obj)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
+    /*  SW reset procedure:
+     *  PE must be kept low during at least 3 APB clock cycles
+     *  in order to perform the software reset.
+     *  This is ensured by writing the following software sequence:
+     *  - Write PE=0
+     *  - Check PE=0
+     *  - Write PE=1.
+     */
+    handle->Instance->CR1 &=  ~I2C_CR1_PE;
+    while(handle->Instance->CR1 & I2C_CR1_PE);
+    handle->Instance->CR1 |=  I2C_CR1_PE;
+}
+
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     struct i2c_s *obj_s = I2C_S(obj);
@@ -597,8 +614,14 @@ int i2c_stop(i2c_t *obj) {
      * to know when we need to prepare next start */
     handle->Instance->CR2 &=  ~I2C_CR2_SADD;
 
+    /*
+     * V2 IP is meant for automatic STOP, not user STOP
+     * SW reset the IP state machine before next transaction
+     */
+    i2c_sw_reset(obj);
+
     /*  In case of mixed usage of the APIs (unitary + SYNC)
-     *  re-inti HAL state */
+     *  re-init HAL state */
     if (obj_s->XferOperation != I2C_FIRST_AND_LAST_FRAME) {
         i2c_init(obj, obj_s->sda, obj_s->scl);
     }
