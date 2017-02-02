@@ -8,7 +8,7 @@
  *   1. Redistributions of source code must retain the above copyright notice, this list 
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in// binary form, except as embedded into a Nordic Semiconductor ASA 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
  *      integrated circuit in a product or a software update for such product, must reproduce 
  *      the above copyright notice, this list of conditions and the following disclaimer in 
  *      the documentation and/or other materials provided with the distribution.

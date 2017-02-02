@@ -57,7 +57,7 @@
 #define NRF_LOG_DEBUG_COLOR TWI_CONFIG_DEBUG_COLOR
 #define EVT_TO_STR(event)   (event == NRF_DRV_TWI_EVT_DONE ? "EVT_DONE" :                            \
                             (event == NRF_DRV_TWI_EVT_ADDRESS_NACK ? "EVT_ADDRESS_NACK" :            \
-                            (event == NRF_DRV_TWI_EVT_DATA_NACK ? "EVT_DATA_NACK" : "UNKNOWN ERROR"))))))
+                            (event == NRF_DRV_TWI_EVT_DATA_NACK ? "EVT_DATA_NACK" : "UNKNOWN ERROR")))
 #define EVT_TO_STR_TWI(event)   (event == NRF_TWI_EVENT_STOPPED ? "NRF_TWI_EVENT_STOPPED" :                            \
                                 (event == NRF_TWI_EVENT_RXDREADY ? "NRF_TWI_EVENT_RXDREADY" :                          \
                                 (event == NRF_TWI_EVENT_TXDSENT ? "NRF_TWI_EVENT_TXDSENT" :                            \
@@ -129,6 +129,7 @@
                               | (GPIO_PIN_CNF_DIR_Output     << GPIO_PIN_CNF_DIR_Pos))
 #define SDA_PIN_INIT_CONF_CLR    SCL_PIN_INIT_CONF_CLR
 
+#define HW_TIMEOUT      10000
 
 // Control block - driver instance local data.
 typedef struct
@@ -530,7 +531,10 @@ static ret_code_t twi_tx_start_transfer(twi_control_block_t * p_cb,
                                         bool                  no_stop)
 {
     ret_code_t ret_code = NRF_SUCCESS;
-
+    volatile int32_t hw_timeout;
+    
+    hw_timeout = HW_TIMEOUT;
+    
     nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_STOPPED);
     nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
     nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_TXDSENT);
@@ -556,9 +560,11 @@ static ret_code_t twi_tx_start_transfer(twi_control_block_t * p_cb,
     }
     else
     {
-        while (twi_transfer(p_twi, &p_cb->error, &p_cb->bytes_transferred, (uint8_t *)p_data, length, no_stop))
-        {}
-
+        while ((hw_timeout > 0) && twi_transfer(p_twi, &p_cb->error, &p_cb->bytes_transferred, (uint8_t *)p_data, length, no_stop))
+        {
+            hw_timeout--;
+        }
+        
         if (p_cb->error)
         {
             uint32_t errorsrc =  nrf_twi_errorsrc_get_and_clear(p_twi);
@@ -567,6 +573,13 @@ static ret_code_t twi_tx_start_transfer(twi_control_block_t * p_cb,
             {
                 ret_code = twi_process_error(errorsrc);
             }
+        }
+
+        if (hw_timeout <= 0)
+        {
+            nrf_twi_disable(p_twi);
+            nrf_twi_enable(p_twi);
+            ret_code = NRF_ERROR_INTERNAL;                     
         }
 
     }
@@ -579,6 +592,9 @@ static ret_code_t twi_rx_start_transfer(twi_control_block_t * p_cb,
                                         uint8_t               length)
 {
     ret_code_t ret_code = NRF_SUCCESS;
+    volatile int32_t hw_timeout; 
+    
+    hw_timeout = HW_TIMEOUT;
 
     nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_STOPPED);
     nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
@@ -610,9 +626,11 @@ static ret_code_t twi_rx_start_transfer(twi_control_block_t * p_cb,
     }
     else
     {
-        while (twi_transfer(p_twi, &p_cb->error, &p_cb->bytes_transferred, (uint8_t*)p_data, length, false))
-        {}
-
+        while ((hw_timeout > 0) && twi_transfer(p_twi, &p_cb->error, &p_cb->bytes_transferred, (uint8_t*)p_data, length, false))
+        {
+            hw_timeout--;
+        }
+        
         if (p_cb->error)
         {
             uint32_t errorsrc =  nrf_twi_errorsrc_get_and_clear(p_twi);
@@ -621,6 +639,13 @@ static ret_code_t twi_rx_start_transfer(twi_control_block_t * p_cb,
             {
                 ret_code = twi_process_error(errorsrc);
             }
+        }
+
+        if (hw_timeout <= 0)
+        {
+            nrf_twi_disable(p_twi); 
+            nrf_twi_enable(p_twi);
+            ret_code = NRF_ERROR_INTERNAL;
         }
     }
     return ret_code;

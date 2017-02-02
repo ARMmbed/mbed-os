@@ -129,6 +129,7 @@ typedef struct
 
     bool tx_done : 1;
     bool rx_done : 1;
+    bool abort   : 1;
 } spi_control_block_t;
 static spi_control_block_t m_cb[ENABLED_SPI_COUNT];
 
@@ -401,6 +402,19 @@ static bool transfer_byte(NRF_SPI_Type * p_spi, spi_control_block_t * p_cb)
     //        see how the transfer is started in the 'nrf_drv_spi_transfer'
     //        function.
     uint16_t bytes_used = p_cb->bytes_transferred + 1;
+    
+    if (p_cb->abort)
+    {
+        if (bytes_used < p_cb->evt.data.done.tx_length)
+        {
+            p_cb->evt.data.done.tx_length = bytes_used;
+        }
+        if (bytes_used < p_cb->evt.data.done.rx_length)
+        {
+            p_cb->evt.data.done.rx_length = bytes_used;
+        }
+    }
+    
     if (bytes_used < p_cb->evt.data.done.tx_length)
     {
         nrf_spi_txd_set(p_spi, p_cb->evt.data.done.p_tx_buffer[bytes_used]);
@@ -577,6 +591,7 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
     p_cb->evt.data.done = *p_xfer_desc;
     p_cb->tx_done = false;
     p_cb->rx_done = false;
+    p_cb->abort   = false;
 
     if (p_cb->ss_pin != NRF_DRV_SPI_PIN_NOT_USED)
     {

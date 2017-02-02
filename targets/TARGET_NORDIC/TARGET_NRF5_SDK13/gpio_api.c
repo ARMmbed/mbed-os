@@ -20,11 +20,13 @@
 #include "nrf_drv_gpiote.h"
 
 #if defined(TARGET_MCU_NRF51822)
-    #define GPIO_PIN_COUNT 48
-#elif defined(TARGET_MCU_NRF51822)
     #define GPIO_PIN_COUNT 31
-#else
+#elif defined(TARGET_MCU_NRF52832)
     #define GPIO_PIN_COUNT 32
+#elif defined(TARGET_MCU_NRF52840)
+    #define GPIO_PIN_COUNT 48
+#else
+    #error not recognized gpio count for mcu
 #endif
 
 typedef struct {
@@ -38,7 +40,7 @@ typedef struct {
 } gpio_cfg_t;
 
 #if GPIO_PIN_COUNT > 32
-    typedef uint32_t gpio_mask_t;
+    typedef uint64_t gpio_mask_t;
 #else
     typedef uint32_t gpio_mask_t;
 #endif
