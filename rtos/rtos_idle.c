@@ -21,14 +21,19 @@
  */
 
 #include "rtos/rtos_idle.h"
+#include "sleep_api.h"
 
 static void default_idle_hook(void)
 {
     /* Sleep: ideally, we should put the chip to sleep.
-     Unfortunately, this usually requires disconnecting the interface chip (debugger).
-     This can be done, but it would break the local file system.
+       Unfortunately, this usually requires disconnecting the interface chip (debugger).
+       This can be done, but it would break the local file system.
     */
-    // sleep();
+#ifdef NDEBUG
+#if DEVICE_SLEEP
+    sleep();
+#endif // DEVICE_SLEEP
+#endif // NDEBUG
 }
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
