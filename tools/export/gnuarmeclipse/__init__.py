@@ -21,19 +21,23 @@ the GNU ARM Eclipse plug-ins.
 
 Author: Liviu Ionescu <ilg@livius.net>
 """
-from tools.export.exporters import Exporter
-from os.path import splitext, basename, relpath, dirname, exists
-from random import randint
+
 import os
 import copy
 import tempfile
 import shutil
+import copy
+
 from subprocess import call, Popen, PIPE
+from os.path import splitext, basename, relpath, dirname, exists, join, dirname
+from random import randint
+from json import load
 
-# import logging
-
+from tools.export.exporters import Exporter
+from tools.options import list_profiles
 from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
+from tools.build_api import prepare_toolchain
 
 # =============================================================================
 
@@ -76,6 +80,7 @@ class GNUARMEclipse(Exporter):
         The difference from the parent function is that it does not
         add macro definitions, since they are passed separately.
         """
+
         config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value
                  in self.toolchain.flags.iteritems()}
@@ -85,6 +90,31 @@ class GNUARMEclipse(Exporter):
             flags['c_flags'] += self.toolchain.get_config_option(config_header)
             flags['cxx_flags'] += self.toolchain.get_config_option(
                 config_header)
+        return flags
+
+    def toolchain_flags(self, toolchain):
+        """Returns a dictionary of toolchain flags.
+        Keys of the dictionary are:
+        cxx_flags    - c++ flags
+        c_flags      - c flags
+        ld_flags     - linker flags
+        asm_flags    - assembler flags
+        common_flags - common options
+
+        The difference from the above is that it takes a parameter.
+        """
+
+        # Note: use the config options from the currently selected toolchain.
+        config_header = self.toolchain.get_config_header()
+
+        flags = {key + "_flags": copy.deepcopy(value) for key, value
+                 in toolchain.flags.iteritems()}
+        if config_header:
+            config_header = relpath(config_header,
+                                    self.resources.file_basepath[config_header])
+            header_options = self.toolchain.get_config_option(config_header)
+            flags['c_flags'] += header_options
+            flags['cxx_flags'] += header_options
         return flags
 
     # override
@@ -98,20 +128,12 @@ class GNUARMEclipse(Exporter):
         print
         print 'Create a GNU ARM Eclipse C++ managed project'
         print 'Project name: {0}'.format(self.project_name)
-        print 'Build configurations: Debug & Release'
+        print 'Target: {0}'.format(self.toolchain.target.name)
+        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
 
         self.resources.win_to_unix()
 
         # TODO: use some logger to display additional info if verbose
-
-        # There are 4 categories of options, a category common too
-        # all tools and a specific category for each of the tools.
-        self.options = {}
-        self.options['common'] = {}
-        self.options['as'] = {}
-        self.options['c'] = {}
-        self.options['cpp'] = {}
-        self.options['ld'] = {}
 
         libraries = []
         # print 'libraries'
@@ -124,8 +146,21 @@ class GNUARMEclipse(Exporter):
             'stdc++', 'supc++', 'm', 'c', 'gcc', 'nosys'
         ]
 
+        # Read in all profiles, we'll extract compiler options.
+        profiles = self.get_all_profiles()
+
+        # Remove 'default', it should never exist, it should be a link
+        # to one of the real profiles.
+        if 'default' in profiles:
+            del profiles['default']
+
+        profile_ids = [s.lower() for s in profiles]
+        profile_ids.sort()
+
         # TODO: get the list from existing .cproject
-        build_folders = ['Debug', 'Release', 'BUILD']
+        build_folders = [s.capitalize() for s in profile_ids]
+        build_folders.append('BUILD')
+        # print build_folders
 
         objects = [self.filter_dot(s) for s in self.resources.objects]
         for bf in build_folders:
@@ -135,50 +170,101 @@ class GNUARMEclipse(Exporter):
 
         self.compute_exclusions()
 
-        self.process_options()
-
-        self.options['as']['defines'] = self.toolchain.get_symbols(True)
-        self.options['c']['defines'] = self.toolchain.get_symbols()
-        self.options['cpp']['defines'] = self.toolchain.get_symbols()
-        print 'Symbols: {0}'.format(len(self.options['cpp']['defines']))
-
-        self.options['common']['include_paths'] = [
+        self.include_path = [
             self.filter_dot(s) for s in self.resources.inc_dirs]
-        print 'Include folders: {0}'.format(len(self.options['common']['include_paths']))
-        self.options['common']['excluded_folders'] = '|'.join(
-            self.excluded_folders)
+        print 'Include folders: {0}'.format(len(self.include_path))
 
-        self.options['ld']['library_paths'] = [
-            self.filter_dot(s) for s in self.resources.lib_dirs]
+        self.as_defines = self.toolchain.get_symbols(True)
+        self.c_defines = self.toolchain.get_symbols()
+        self.cpp_defines = self.c_defines
+        print 'Symbols: {0}'.format(len(self.c_defines))
 
-        self.options['ld']['object_files'] = objects
-
-        self.options['ld']['user_libraries'] = libraries
-
-        self.options['ld']['system_libraries'] = self.system_libraries
-
-        self.options['ld']['script'] = self.filter_dot(
+        self.ld_script = self.filter_dot(
             self.resources.linker_script)
-        print 'Linker script: {0}'.format(self.options['ld']['script'])
+        print 'Linker script: {0}'.format(self.ld_script)
 
-        ctx = {
+        self.options = {}
+        for id in profile_ids:
+
+            # There are 4 categories of options, a category common too
+            # all tools and a specific category for each of the tools.
+            opts = {}
+            opts['common'] = {}
+            opts['as'] = {}
+            opts['c'] = {}
+            opts['cpp'] = {}
+            opts['ld'] = {}
+
+            opts['id'] = id
+            opts['name'] = opts['id'].capitalize()
+
+            print
+            print 'Build configuration: {0}'.format(opts['name'])
+
+            profile = profiles[id]
+            profile_toolchain = profile[self.TOOLCHAIN]
+
+            # A small hack, do not bother with src_path again,
+            # pass an empty string to avoid crashing.
+            src_paths = ['']
+            target_name = self.toolchain.target.name
+            toolchain = prepare_toolchain(
+                src_paths, target_name, self.TOOLCHAIN, build_profile=profile_toolchain)
+
+            # Hack to fill in build_dir
+            toolchain.build_dir = self.toolchain.build_dir
+
+            flags = self.toolchain_flags(toolchain)
+
+            print 'Common flags:', ' '.join(flags['common_flags'])
+            print 'C++ flags:', ' '.join(flags['cxx_flags'])
+            print 'C flags:', ' '.join(flags['c_flags'])
+            print 'ASM flags:', ' '.join(flags['asm_flags'])
+            print 'Linker flags:', ' '.join(flags['ld_flags'])
+
+            # Most GNU ARM Eclipse options have a parent,
+            # either debug or release.
+            if '-O0' in flags['common_flags'] or '-Og' in flags['common_flags']:
+                opts['parent_id'] = 'debug'
+            else:
+                opts['parent_id'] = 'release'
+
+            self.process_options(opts, flags)
+
+            opts['as']['defines'] = self.as_defines
+            opts['c']['defines'] = self.c_defines
+            opts['cpp']['defines'] = self.cpp_defines
+
+            opts['common']['include_paths'] = self.include_path
+            opts['common']['excluded_folders'] = '|'.join(
+                self.excluded_folders)
+
+            opts['ld']['library_paths'] = [
+                self.filter_dot(s) for s in self.resources.lib_dirs]
+
+            opts['ld']['object_files'] = objects
+            opts['ld']['user_libraries'] = libraries
+            opts['ld']['system_libraries'] = self.system_libraries
+            opts['ld']['script'] = self.ld_script
+
+            # Unique IDs used in multiple places.
+            # Those used only once are implemented with {{u.id}}.
+            uid = {}
+            uid['config'] = u.id
+            uid['tool_c_compiler'] = u.id
+            uid['tool_c_compiler_input'] = u.id
+            uid['tool_cpp_compiler'] = u.id
+            uid['tool_cpp_compiler_input'] = u.id
+
+            opts['uid'] = uid
+
+            self.options[id] = opts
+
+        jinja_ctx = {
             'name': self.project_name,
 
             # Compiler & linker command line options
             'options': self.options,
-
-            # Unique IDs used in multiple places.
-            # Those used only once are implemented with {{u.id}}.
-            'debug_config_uid': u.id,
-            'debug_tool_c_compiler_uid': u.id,
-            'debug_tool_c_compiler_input_uid': u.id,
-            'debug_tool_cpp_compiler_uid': u.id,
-            'debug_tool_cpp_compiler_input_uid': u.id,
-            'release_config_uid': u.id,
-            'release_tool_c_compiler_uid': u.id,
-            'release_tool_c_compiler_input_uid': u.id,
-            'release_tool_cpp_compiler_uid': u.id,
-            'release_tool_cpp_compiler_input_uid': u.id,
 
             # Must be an object with an `id` property, which
             # will be called repeatedly, to generate multiple UIDs.
@@ -187,11 +273,23 @@ class GNUARMEclipse(Exporter):
 
         # TODO: it would be good to have jinja stop if one of the
         # expected context values is not defined.
-        self.gen_file('gnuarmeclipse/.project.tmpl', ctx, '.project', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('gnuarmeclipse/.cproject.tmpl', ctx, '.cproject', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('gnuarmeclipse/makefile.targets.tmpl', ctx, 'makefile.targets', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx,
+                      '.project', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('gnuarmeclipse/.cproject.tmpl', jinja_ctx,
+                      '.cproject', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('gnuarmeclipse/makefile.targets.tmpl', jinja_ctx,
+                      'makefile.targets', trim_blocks=True, lstrip_blocks=True)
 
-        print 'Done.'
+        if not exists('.mbedignore'):
+            print
+            print 'Create .mbedignore'
+            with open('.mbedignore', 'w') as f:
+                for bf in build_folders:
+                    print bf + '/'
+                    f.write(bf + '/\n')
+
+        print
+        print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
 
     # override
     @staticmethod
@@ -226,7 +324,7 @@ class GNUARMEclipse(Exporter):
         tmp_folder = tempfile.mkdtemp()
 
         cmd = [
-            'eclipse', 
+            'eclipse',
             '--launcher.suppressErrors',
             '-nosplash',
             '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
@@ -242,7 +340,6 @@ class GNUARMEclipse(Exporter):
         stdout_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
         err_string = "=" * 10 + "STDERR" + "=" * 10 + "\n"
         err_string += err
-
 
         ret_string = "SUCCESS\n"
         if ret_code != 0:
@@ -279,6 +376,29 @@ class GNUARMEclipse(Exporter):
 
         # Seems like something went wrong.
         return -1
+
+   # -------------------------------------------------------------------------
+
+    @staticmethod
+    def get_all_profiles():
+        tools_path = dirname(dirname(dirname(__file__)))
+        file_names = [join(tools_path, "profiles", fn) for fn in os.listdir(
+            join(tools_path, "profiles")) if fn.endswith(".json")]
+
+        # print file_names
+
+        profile_names = [basename(fn).replace(".json", "")
+                         for fn in file_names]
+        # print profile_names
+
+        profiles = {}
+
+        for fn in file_names:
+            content = load(open(fn))
+            profile_name = basename(fn).replace(".json", "")
+            profiles[profile_name] = content
+
+        return profiles
 
     # -------------------------------------------------------------------------
     # Process source files/folders exclusions.
@@ -332,7 +452,7 @@ class GNUARMEclipse(Exporter):
                 if skip:
                     continue
 
-                # Further process only leaf paths, (that do not have 
+                # Further process only leaf paths, (that do not have
                 # sub-folders).
                 if len(dirs) == 0:
                     # The path is reconstructed using POSIX separators.
@@ -421,7 +541,8 @@ class GNUARMEclipse(Exporter):
     def dump_tree(self, nodes, depth=0):
         for k in nodes.keys():
             node = nodes[k]
-            parent_name = node['parent']['name'] if 'parent' in node.keys() else ''
+            parent_name = node['parent'][
+                'name'] if 'parent' in node.keys() else ''
             print '  ' * depth, node['name'], node['is_used'], parent_name
             if len(node['children'].keys()) != 0:
                 self.dump_tree(node['children'], depth + 1)
@@ -441,7 +562,7 @@ class GNUARMEclipse(Exporter):
 
     # -------------------------------------------------------------------------
 
-    def process_options(self):
+    def process_options(self, opts, flags_in):
         """
         CDT managed projects store lots of build options in separate
         variables, with separate IDs in the .cproject file.
@@ -462,7 +583,9 @@ class GNUARMEclipse(Exporter):
         given the large number of explicit configuration options
         used by the GNU ARM Eclipse managed build plug-in, it is tedious...
         """
-        flags = self.flags
+
+        # Make a copy of the flags, to be one by one removed after processing.
+        flags = copy.deepcopy(flags_in)
 
         if False:
             print
@@ -474,10 +597,10 @@ class GNUARMEclipse(Exporter):
 
         # Initialise the 'last resort' options where all unrecognised
         # options will be collected.
-        self.options['as']['other'] = ''
-        self.options['c']['other'] = ''
-        self.options['cpp']['other'] = ''
-        self.options['ld']['other'] = ''
+        opts['as']['other'] = ''
+        opts['c']['other'] = ''
+        opts['cpp']['other'] = ''
+        opts['ld']['other'] = ''
 
         MCPUS = {
             'Cortex-M0': {'mcpu': 'cortex-m0', 'fpu_unit': None},
@@ -498,53 +621,53 @@ class GNUARMEclipse(Exporter):
         # As 'plan B', get the CPU from the target definition.
         core = self.toolchain.target.core
 
-        self.options['common']['arm.target.family'] = None
+        opts['common']['arm.target.family'] = None
 
         # cortex-m0, cortex-m0-small-multiply, cortex-m0plus,
         # cortex-m0plus-small-multiply, cortex-m1, cortex-m1-small-multiply,
         # cortex-m3, cortex-m4, cortex-m7.
         str = self.find_options(flags['common_flags'], '-mcpu=')
         if str != None:
-            self.options['common']['arm.target.family'] = str[len('-mcpu='):]
+            opts['common']['arm.target.family'] = str[len('-mcpu='):]
             self.remove_option(flags['common_flags'], str)
             self.remove_option(flags['ld_flags'], str)
         else:
             if core not in MCPUS:
                 raise NotSupportedException(
                     'Target core {0} not supported.'.format(core))
-            self.options['common']['arm.target.family'] = MCPUS[core]['mcpu']
+            opts['common']['arm.target.family'] = MCPUS[core]['mcpu']
 
-        self.options['common']['arm.target.arch'] = 'none'
+        opts['common']['arm.target.arch'] = 'none'
         str = self.find_options(flags['common_flags'], '-march=')
         arch = str[len('-march='):]
         archs = {'armv6-m': 'armv6-m', 'armv7-m': 'armv7-m'}
         if arch in archs:
-            self.options['common']['arm.target.arch'] = archs[arh]
+            opts['common']['arm.target.arch'] = archs[arh]
             self.remove_option(flags['common_flags'], str)
 
-        self.options['common']['arm.target.instructionset'] = 'thumb'
+        opts['common']['arm.target.instructionset'] = 'thumb'
         if '-mthumb' in flags['common_flags']:
             self.remove_option(flags['common_flags'], '-mthumb')
             self.remove_option(flags['ld_flags'], '-mthumb')
         elif '-marm' in flags['common_flags']:
-            self.options['common']['arm.target.instructionset'] = 'arm'
+            opts['common']['arm.target.instructionset'] = 'arm'
             self.remove_option(flags['common_flags'], '-marm')
             self.remove_option(flags['ld_flags'], '-marm')
 
-        self.options['common']['arm.target.thumbinterwork'] = False
+        opts['common']['arm.target.thumbinterwork'] = False
         if '-mthumb-interwork' in flags['common_flags']:
-            self.options['common']['arm.target.thumbinterwork'] = True
+            opts['common']['arm.target.thumbinterwork'] = True
             self.remove_option(flags['common_flags'], '-mthumb-interwork')
 
-        self.options['common']['arm.target.endianness'] = None
+        opts['common']['arm.target.endianness'] = None
         if '-mlittle-endian' in flags['common_flags']:
-            self.options['common']['arm.target.endianness'] = 'little'
+            opts['common']['arm.target.endianness'] = 'little'
             self.remove_option(flags['common_flags'], '-mlittle-endian')
         elif '-mbig-endian' in flags['common_flags']:
-            self.options['common']['arm.target.endianness'] = 'big'
+            opts['common']['arm.target.endianness'] = 'big'
             self.remove_option(flags['common_flags'], '-mbig-endian')
 
-        self.options['common']['arm.target.fpu.unit'] = None
+        opts['common']['arm.target.fpu.unit'] = None
         # default, fpv4spd16, fpv5d16, fpv5spd16
         str = self.find_options(flags['common_flags'], '-mfpu=')
         if str != None:
@@ -555,36 +678,36 @@ class GNUARMEclipse(Exporter):
                 'fpv5-sp-d16': 'fpv5spd16'
             }
             if fpu in fpus:
-                self.options['common']['arm.target.fpu.unit'] = fpus[fpu]
+                opts['common']['arm.target.fpu.unit'] = fpus[fpu]
 
                 self.remove_option(flags['common_flags'], str)
                 self.remove_option(flags['ld_flags'], str)
-        if self.options['common']['arm.target.fpu.unit'] == None:
+        if opts['common']['arm.target.fpu.unit'] == None:
             if core not in MCPUS:
                 raise NotSupportedException(
                     'Target core {0} not supported.'.format(core))
             if MCPUS[core]['fpu_unit']:
-                self.options['common'][
+                opts['common'][
                     'arm.target.fpu.unit'] = MCPUS[core]['fpu_unit']
 
         # soft, softfp, hard.
         str = self.find_options(flags['common_flags'], '-mfloat-abi=')
         if str != None:
-            self.options['common']['arm.target.fpu.abi'] = str[
+            opts['common']['arm.target.fpu.abi'] = str[
                 len('-mfloat-abi='):]
             self.remove_option(flags['common_flags'], str)
             self.remove_option(flags['ld_flags'], str)
 
-        self.options['common']['arm.target.unalignedaccess'] = None
+        opts['common']['arm.target.unalignedaccess'] = None
         if '-munaligned-access' in flags['common_flags']:
-            self.options['common']['arm.target.unalignedaccess'] = 'enabled'
+            opts['common']['arm.target.unalignedaccess'] = 'enabled'
             self.remove_option(flags['common_flags'], '-munaligned-access')
         elif '-mno-unaligned-access' in flags['common_flags']:
-            self.options['common']['arm.target.unalignedaccess'] = 'disabled'
+            opts['common']['arm.target.unalignedaccess'] = 'disabled'
             self.remove_option(flags['common_flags'], '-mno-unaligned-access')
 
         # Default optimisation level for Release.
-        self.options['common']['optimization.level'] = '-Os'
+        opts['common']['optimization.level'] = '-Os'
 
         # If the project defines an optimisation level, it is used
         # only for the Release configuration, the Debug one used '-Og'.
@@ -595,7 +718,7 @@ class GNUARMEclipse(Exporter):
                 '-O3': 'most', '-Os': 'size', '-Og': 'debug'
             }
             if str in levels:
-                self.options['common']['optimization.level'] = levels[str]
+                opts['common']['optimization.level'] = levels[str]
                 self.remove_option(flags['common_flags'], str)
 
         include_files = []
@@ -608,10 +731,10 @@ class GNUARMEclipse(Exporter):
                 self.remove_option(all_flags, '-include')
                 self.remove_option(all_flags, str)
 
-        self.options['common']['include_files'] = include_files
+        opts['common']['include_files'] = include_files
 
         if '-ansi' in flags['c_flags']:
-            self.options['c']['compiler.std'] = '-ansi'
+            opts['c']['compiler.std'] = '-ansi'
             self.remove_option(flags['c_flags'], str)
         else:
             str = self.find_options(flags['c_flags'], '-std')
@@ -622,11 +745,11 @@ class GNUARMEclipse(Exporter):
                 'c11': 'c11', 'c1x': 'c11', 'gnu11': 'gnu11', 'gnu1x': 'gnu11'
             }
             if std in c_std:
-                self.options['c']['compiler.std'] = c_std[std]
+                opts['c']['compiler.std'] = c_std[std]
                 self.remove_option(flags['c_flags'], str)
 
         if '-ansi' in flags['cxx_flags']:
-            self.options['cpp']['compiler.std'] = '-ansi'
+            opts['cpp']['compiler.std'] = '-ansi'
             self.remove_option(flags['cxx_flags'], str)
         else:
             str = self.find_options(flags['cxx_flags'], '-std')
@@ -641,7 +764,7 @@ class GNUARMEclipse(Exporter):
                 'c++1z': 'cpp1z', 'gnu++1z': 'gnucpp1z',
             }
             if std in cpp_std:
-                self.options['cpp']['compiler.std'] = cpp_std[std]
+                opts['cpp']['compiler.std'] = cpp_std[std]
                 self.remove_option(flags['cxx_flags'], str)
 
         # Common optimisation options.
@@ -660,9 +783,9 @@ class GNUARMEclipse(Exporter):
         }
 
         for option in optimization_options:
-            self.options['common'][optimization_options[option]] = False
+            opts['common'][optimization_options[option]] = False
             if option in flags['common_flags']:
-                self.options['common'][optimization_options[option]] = True
+                opts['common'][optimization_options[option]] = True
                 self.remove_option(flags['common_flags'], option)
 
         # Common warning options.
@@ -687,9 +810,9 @@ class GNUARMEclipse(Exporter):
         }
 
         for option in warning_options:
-            self.options['common'][warning_options[option]] = False
+            opts['common'][warning_options[option]] = False
             if option in flags['common_flags']:
-                self.options['common'][warning_options[option]] = True
+                opts['common'][warning_options[option]] = True
                 self.remove_option(flags['common_flags'], option)
 
         # Common debug options.
@@ -698,10 +821,10 @@ class GNUARMEclipse(Exporter):
             '-g1': 'minimal',
             '-g3': 'max',
         }
-        self.options['common']['debugging.level'] = 'none'
+        opts['common']['debugging.level'] = 'none'
         for option in debug_levels:
             if option in flags['common_flags']:
-                self.options['common'][
+                opts['common'][
                     'debugging.level'] = debug_levels[option]
                 self.remove_option(flags['common_flags'], option)
 
@@ -715,57 +838,57 @@ class GNUARMEclipse(Exporter):
             '-gdwarf-5': 'dwarf5',
         }
 
-        self.options['common']['debugging.format'] = ''
+        opts['common']['debugging.format'] = ''
         for option in debug_levels:
             if option in flags['common_flags']:
-                self.options['common'][
+                opts['common'][
                     'debugging.format'] = debug_formats[option]
                 self.remove_option(flags['common_flags'], option)
 
-        self.options['common']['debugging.prof'] = False
+        opts['common']['debugging.prof'] = False
         if '-p' in flags['common_flags']:
-            self.options['common']['debugging.prof'] = True
+            opts['common']['debugging.prof'] = True
             self.remove_option(flags['common_flags'], '-p')
 
-        self.options['common']['debugging.gprof'] = False
+        opts['common']['debugging.gprof'] = False
         if '-pg' in flags['common_flags']:
-            self.options['common']['debugging.gprof'] = True
+            opts['common']['debugging.gprof'] = True
             self.remove_option(flags['common_flags'], '-gp')
 
         # Assembler options.
-        self.options['as']['usepreprocessor'] = False
+        opts['as']['usepreprocessor'] = False
         while '-x' in flags['asm_flags']:
             ix = flags['asm_flags'].index('-x')
             str = flags['asm_flags'][ix + 1]
 
             if str == 'assembler-with-cpp':
-                self.options['as']['usepreprocessor'] = True
+                opts['as']['usepreprocessor'] = True
             else:
                 # Collect all other assembler options.
-                self.options['as']['other'] += ' -x ' + str
+                opts['as']['other'] += ' -x ' + str
 
             self.remove_option(flags['asm_flags'], '-x')
             self.remove_option(flags['asm_flags'], 'assembler-with-cpp')
 
-        self.options['as']['nostdinc'] = False
+        opts['as']['nostdinc'] = False
         if '-nostdinc' in flags['asm_flags']:
-            self.options['as']['nostdinc'] = True
+            opts['as']['nostdinc'] = True
             self.remove_option(flags['asm_flags'], '-nostdinc')
 
-        self.options['as']['verbose'] = False
+        opts['as']['verbose'] = False
         if '-v' in flags['asm_flags']:
-            self.options['as']['verbose'] = True
+            opts['as']['verbose'] = True
             self.remove_option(flags['asm_flags'], '-v')
 
         # C options.
-        self.options['c']['nostdinc'] = False
+        opts['c']['nostdinc'] = False
         if '-nostdinc' in flags['c_flags']:
-            self.options['c']['nostdinc'] = True
+            opts['c']['nostdinc'] = True
             self.remove_option(flags['c_flags'], '-nostdinc')
 
-        self.options['c']['verbose'] = False
+        opts['c']['verbose'] = False
         if '-v' in flags['c_flags']:
-            self.options['c']['verbose'] = True
+            opts['c']['verbose'] = True
             self.remove_option(flags['c_flags'], '-v')
 
         warning_options = {
@@ -775,20 +898,20 @@ class GNUARMEclipse(Exporter):
         }
 
         for option in warning_options:
-            self.options['c'][warning_options[option]] = False
+            opts['c'][warning_options[option]] = False
             if option in flags['common_flags']:
-                self.options['c'][warning_options[option]] = True
+                opts['c'][warning_options[option]] = True
                 self.remove_option(flags['common_flags'], option)
 
         # C++ options.
-        self.options['cpp']['nostdinc'] = False
+        opts['cpp']['nostdinc'] = False
         if '-nostdinc' in flags['cxx_flags']:
-            self.options['cpp']['nostdinc'] = True
+            opts['cpp']['nostdinc'] = True
             self.remove_option(flags['cxx_flags'], '-nostdinc')
 
-        self.options['cpp']['nostdincpp'] = False
+        opts['cpp']['nostdincpp'] = False
         if '-nostdinc++' in flags['cxx_flags']:
-            self.options['cpp']['nostdincpp'] = True
+            opts['cpp']['nostdincpp'] = True
             self.remove_option(flags['cxx_flags'], '-nostdinc++')
 
         optimization_options = {
@@ -799,12 +922,12 @@ class GNUARMEclipse(Exporter):
         }
 
         for option in optimization_options:
-            self.options['cpp'][optimization_options[option]] = False
+            opts['cpp'][optimization_options[option]] = False
             if option in flags['cxx_flags']:
-                self.options['cpp'][optimization_options[option]] = True
+                opts['cpp'][optimization_options[option]] = True
                 self.remove_option(flags['cxx_flags'], option)
             if option in flags['common_flags']:
-                self.options['cpp'][optimization_options[option]] = True
+                opts['cpp'][optimization_options[option]] = True
                 self.remove_option(flags['common_flags'], option)
 
         warning_options = {
@@ -818,17 +941,17 @@ class GNUARMEclipse(Exporter):
         }
 
         for option in warning_options:
-            self.options['cpp'][warning_options[option]] = False
+            opts['cpp'][warning_options[option]] = False
             if option in flags['cxx_flags']:
-                self.options['cpp'][warning_options[option]] = True
+                opts['cpp'][warning_options[option]] = True
                 self.remove_option(flags['cxx_flags'], option)
             if option in flags['common_flags']:
-                self.options['cpp'][warning_options[option]] = True
+                opts['cpp'][warning_options[option]] = True
                 self.remove_option(flags['common_flags'], option)
 
-        self.options['cpp']['verbose'] = False
+        opts['cpp']['verbose'] = False
         if '-v' in flags['cxx_flags']:
-            self.options['cpp']['verbose'] = True
+            opts['cpp']['verbose'] = True
             self.remove_option(flags['cxx_flags'], '-v')
 
         # Linker options.
@@ -839,72 +962,73 @@ class GNUARMEclipse(Exporter):
         }
 
         for option in linker_options:
-            self.options['ld'][linker_options[option]] = False
+            opts['ld'][linker_options[option]] = False
             if option in flags['ld_flags']:
-                self.options['ld'][linker_options[option]] = True
+                opts['ld'][linker_options[option]] = True
                 self.remove_option(flags['ld_flags'], option)
 
-        self.options['ld']['gcsections'] = False
+        opts['ld']['gcsections'] = False
         if '-Wl,--gc-sections' in flags['ld_flags']:
-            self.options['ld']['gcsections'] = True
+            opts['ld']['gcsections'] = True
             self.remove_option(flags['ld_flags'], '-Wl,--gc-sections')
 
-        self.options['ld']['flags'] = []
+        opts['ld']['flags'] = []
         to_remove = []
         for opt in flags['ld_flags']:
             if opt.startswith('-Wl,--wrap,'):
-                self.options['ld']['flags'].append('--wrap='+opt[len('-Wl,--wrap,'):])
+                opts['ld']['flags'].append(
+                    '--wrap=' + opt[len('-Wl,--wrap,'):])
                 to_remove.append(opt)
         for opt in to_remove:
-                self.remove_option(flags['ld_flags'], opt)
+            self.remove_option(flags['ld_flags'], opt)
 
         # Other tool remaining options are separated by category.
-        self.options['as']['otherwarnings'] = self.find_options(
+        opts['as']['otherwarnings'] = self.find_options(
             flags['asm_flags'], '-W')
 
-        self.options['c']['otherwarnings'] = self.find_options(
+        opts['c']['otherwarnings'] = self.find_options(
             flags['c_flags'], '-W')
-        self.options['c']['otheroptimizations'] = self.find_options(flags[
-                                                                    'c_flags'], '-f')
+        opts['c']['otheroptimizations'] = self.find_options(flags[
+            'c_flags'], '-f')
 
-        self.options['cpp']['otherwarnings'] = self.find_options(
+        opts['cpp']['otherwarnings'] = self.find_options(
             flags['cxx_flags'], '-W')
-        self.options['cpp']['otheroptimizations'] = self.find_options(
+        opts['cpp']['otheroptimizations'] = self.find_options(
             flags['cxx_flags'], '-f')
 
         # Other common remaining options are separated by category.
-        self.options['common']['optimization.other'] = self.find_options(
+        opts['common']['optimization.other'] = self.find_options(
             flags['common_flags'], '-f')
-        self.options['common']['warnings.other'] = self.find_options(
+        opts['common']['warnings.other'] = self.find_options(
             flags['common_flags'], '-W')
 
         # Remaining common flags are added to each tool.
-        self.options['as']['other'] += ' ' + \
+        opts['as']['other'] += ' ' + \
             ' '.join(flags['common_flags']) + ' ' + \
             ' '.join(flags['asm_flags'])
-        self.options['c']['other'] += ' ' + \
+        opts['c']['other'] += ' ' + \
             ' '.join(flags['common_flags']) + ' ' + ' '.join(flags['c_flags'])
-        self.options['cpp']['other'] += ' ' + \
+        opts['cpp']['other'] += ' ' + \
             ' '.join(flags['common_flags']) + ' ' + \
             ' '.join(flags['cxx_flags'])
-        self.options['ld']['other'] += ' ' + \
+        opts['ld']['other'] += ' ' + \
             ' '.join(flags['common_flags']) + ' ' + ' '.join(flags['ld_flags'])
 
         if len(self.system_libraries) > 0:
-            self.options['ld']['other'] += ' -Wl,--start-group '
-            self.options['ld'][
+            opts['ld']['other'] += ' -Wl,--start-group '
+            opts['ld'][
                 'other'] += ' '.join('-l' + s for s in self.system_libraries)
-            self.options['ld']['other'] += ' -Wl,--end-group '
+            opts['ld']['other'] += ' -Wl,--end-group '
 
         # Strip all 'other' flags, since they might have leading spaces.
-        self.options['as']['other'] = self.options['as']['other'].strip()
-        self.options['c']['other'] = self.options['c']['other'].strip()
-        self.options['cpp']['other'] = self.options['cpp']['other'].strip()
-        self.options['ld']['other'] = self.options['ld']['other'].strip()
+        opts['as']['other'] = opts['as']['other'].strip()
+        opts['c']['other'] = opts['c']['other'].strip()
+        opts['cpp']['other'] = opts['cpp']['other'].strip()
+        opts['ld']['other'] = opts['ld']['other'].strip()
 
         if False:
             print
-            print self.options
+            print opts
 
             print
             print 'common_flags', flags['common_flags']
