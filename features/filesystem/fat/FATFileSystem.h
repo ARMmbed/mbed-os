@@ -75,6 +75,18 @@ public:
     virtual int rename(const char *oldname, const char *newname);
     
     /**
+     * Formats a logical drive, FDISK partitioning rule.
+     *
+     * @param allocation_unit
+     *   This is the number of bytes per cluster size. The valid value is N
+     *   times the sector size. N is a power of 2 from 1 to 128 for FAT
+     *   volume and upto 16MiB for exFAT volume. If zero is given,
+     *   the default allocation unit size is selected depending on the volume
+     *   size.
+     */
+    virtual int format(int allocation_unit = 0);
+    
+    /**
      * Opens a directory on the filesystem
      */
     virtual DirHandle *opendir(const char *name);
