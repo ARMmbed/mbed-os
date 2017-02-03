@@ -35,8 +35,12 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
-/* todo: remove this temporary fix to overcome undefined symbols when compile for ARMCC */
-#ifndef TOOLCHAIN_ARM_STD
+/* toolchain_support.h is included after errno.h so symbols are mapped to
+ * consistent values for all toolchains */
+#include "toolchain_support.h"
+
+/* This is needed for stat() test, but is not available on ARMCC */
+#ifdef TOOLCHAIN_GCC
 #include <sys/stat.h>
 #endif
 using namespace utest::v1;
@@ -61,11 +65,17 @@ using namespace utest::v1;
  *      #define FSFAT_SDCARD_INSTALLED
  *      #define DEVICE_SPI
  */
+#define FSFAT_SDCARD_INSTALLED
+#define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
+#define FSFAT_FOPEN_TEST_MOUNT_PT_NAME  "sd"
+#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH  "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+
 
 #if defined(TARGET_KL25Z)
+//<<<<<<< HEAD
 SDBlockDevice sd(PTD2, PTD3, PTD1, PTD0);
 FATFileSystem fs("sd", &sd);
 
@@ -88,6 +98,24 @@ FATFileSystem fs("sd", &sd);
 #elif defined(TARGET_nRF51822)
 SDBlockDevice sd(p12, p13, p15, p14);
 FATFileSystem fs("sd", &sd);
+//=======
+//SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
+//SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_K64F) || defined(TARGET_K66F)
+//SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_K22F)
+//SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_K20D50M)
+//SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_nRF51822)
+//SDFileSystem sd(p12, p13, p15, p14, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//>>>>>>> 7f29f49... STORAGE: test case fixes to support ARMCC and IAR toolchains.
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
@@ -103,12 +131,17 @@ FATFileSystem fs("sd", &sd);
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
+//<<<<<<< HEAD
 SDBlockDevice sd(D11, D12, D13, D10);
 FATFileSystem fs("sd", &sd);
+//=======
+//SDFileSystem sd(D11, D12, D13, D10, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//>>>>>>> 7f29f49... STORAGE: test case fixes to support ARMCC and IAR toolchains.
 
 
 #elif defined(TARGET_DISCO_F051R8) || \
       defined(TARGET_NUCLEO_L031K6)
+//<<<<<<< HEAD
 SDBlockDevice sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
 FATFileSystem fs("sd", &sd);
 
@@ -131,6 +164,24 @@ FATFileSystem fs("sd", &sd);
 #elif defined(TARGET_LPC11U37H_401)
 SDBlockDevice sd(SDMOSI, SDMISO, SDSCLK, SDSSEL);
 FATFileSystem fs("sd", &sd);
+//=======
+////SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_LPC2368)
+//SDFileSystem sd(p11, p12, p13, p14, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_LPC11U68)
+//SDFileSystem sd(D11, D12, D13, D10, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_LPC1549)
+//SDFileSystem sd(D11, D12, D13, D10, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_RZ_A1H)
+//SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//
+//#elif defined(TARGET_LPC11U37H_401)
+//SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
+//>>>>>>> 7f29f49... STORAGE: test case fixes to support ARMCC and IAR toolchains.
 
 #else
 #error "[NOT SUPPORTED] Instantiate SDBlockDevice sd(p11, p12, p13, p14) with the correct pin specification for target"
@@ -238,20 +289,27 @@ static int32_t fsfat_filepath_split(char* filepath, char* parts[], uint32_t num)
 int32_t fsfat_filepath_remove_all(char* filepath)
 {
     int32_t ret = -1;
+    int32_t len = 0;
     char *fpathbuf = NULL;
     char *pos = NULL;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    fpathbuf = strdup(filepath);
+    len = strlen(filepath);
+    fpathbuf = (char*) malloc(len+1);
     if (fpathbuf == NULL) {
         FSFAT_DBGLOG("%s: failed to duplicate string (out of memory)\n", __func__);
         return ret;
     }
+    memset(fpathbuf, 0, len+1);
+    memcpy(fpathbuf, filepath, len);
 
     /* delete the leaf node first, and then successively parent directories. */
     pos = fpathbuf + strlen(fpathbuf);
     while (pos != fpathbuf) {
-        FSFAT_DBGLOG("%s:Removing %s\n", __func__, fpathbuf);
+        /* If the remaining file path is the mount point path then finish as the mount point cannot be removed */
+        if (strlen(fpathbuf) == strlen(FSFAT_FOPEN_TEST_MOUNT_PT_PATH) && strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
+            break;
+        }
         ret = remove(fpathbuf);
         pos = strrchr(fpathbuf, '/');
         *pos = '\0';
@@ -276,6 +334,7 @@ static int32_t fsfat_filepath_make_dirs(char* filepath, bool do_asserts)
 {
     int32_t i = 0;
     int32_t num_parts = 0;
+    int32_t len = 0;
     int32_t ret = -1;
     char *fpathbuf = NULL;
     char *buf = NULL;
@@ -285,7 +344,14 @@ static int32_t fsfat_filepath_make_dirs(char* filepath, bool do_asserts)
     FSFAT_DBGLOG("%s:entered\n", __func__);
     /* find the dirs to create*/
     memset(parts, 0, sizeof(parts));
-    fpathbuf = strdup(filepath);
+    len = strlen(filepath);
+    fpathbuf = (char*) malloc(len+1);
+    if (fpathbuf == NULL) {
+        FSFAT_DBGLOG("%s: failed to duplicate string (out of memory)\n", __func__);
+        return ret;
+    }
+    memset(fpathbuf, 0, len+1);
+    memcpy(fpathbuf, filepath, len);
     num_parts = fsfat_filepath_split(fpathbuf, parts, 10);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to split filepath (filename=\"%s\", num_parts=%d)\n", __func__, filepath, (int) num_parts);
     TEST_ASSERT_MESSAGE(num_parts > 0, fsfat_fopen_utest_msg_g);
@@ -492,7 +558,6 @@ control_t fsfat_fopen_test_03(const size_t call_count)
 
     return CaseNext;
 }
-
 
 
 /** @brief  test to call fopen() with a filename string that exceeds the maximum length
@@ -784,12 +849,15 @@ control_t fsfat_fopen_test_06(const size_t call_count)
  *	- checks that errno is not 0 as there is an error.
  *	- checks that ferror() returns 1 indicating an error exists.
  *
+ * Note: see NOTE_1 below.
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_07(const size_t call_count)
 {
 	FILE *f = NULL;
 	int ret = -1;
+    int errno_val = 0;
     char *filename = "/sd/badfile.txt";
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
@@ -798,17 +866,23 @@ control_t fsfat_fopen_test_07(const size_t call_count)
     errno = 0;
     /* this is expect to fail as the file doesnt exist */
     f = fopen(filename,"r");
+
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: opened non-existent file for reading (filename=%s, f=%p).\n", __func__, filename, f);
     TEST_ASSERT_MESSAGE(f == NULL, fsfat_fopen_utest_msg_g);
 
     /* check errno is set correctly */
+#ifdef TOOLCHAIN_GCC
+    /* Store errno so the current value set  is not changed by new function call */
+    errno_val = errno;
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno has unexpected value (errno != 0 expected) (filename=%s, errno=%d).\n", __func__, filename, errno);
-    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
+    TEST_ASSERT_MESSAGE(errno_val != 0, fsfat_fopen_utest_msg_g);
 
-    /* check ferror() return non-zero indicating there is an error */
+    /* check ferror() returns non-zero indicating there is an error
+     * Note ARMCC appears to fault when null FILE* is supplied to ferror() */
     ret = ferror(f);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return non-zero value when error exists (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
+#endif  /* TOOLCHAIN_GCC */
     return CaseNext;
 }
 
@@ -823,12 +897,85 @@ control_t fsfat_fopen_test_07(const size_t call_count)
  *  - clear the error with clearerr().
  *  - check the error condition is reset with ferror().
  *
+ * NOTE_1: GCC/ARMCC support for setting errno
+ *  - Documentation (e.g. fwrite() man page) does not explicity say fwrite() sets errno
+ *    (e.g. for an fwrite() on a read-only file).
+ *  - GCC libc fwrite() appears to set errno as expected.
+ *  - ARMCC & IAR libc fwrite() appears not to set errno.
+ *
+ * The following ARMCC documents are silent on whether fwrite() sets errno:
+ * - "ARM C and C++ Libraries and Floating-Point Support".
+ * - "RL-ARM User Guide fwrite() section".
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_08(const size_t call_count)
 {
     FILE *fp = NULL;
-    struct stat file_status;
+    int ret = -1;
+    int ret_ferror = -1;
+    char *filename = "/sd/test.txt";
+    int errno_val = 0;
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    errno = 0;
+    fp = fopen(filename,"w+");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, f=%p).\n", __func__, filename, fp);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
+
+    /* close the fp but then try to read or write it */
+    ret = fclose(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* open file  */
+    errno = 0;
+    fp = fopen(filename, "r");
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file for reading (filename=\"%s\", ret=%d)\n", __func__, filename, (int) ret);
+    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
+
+    /* Perform fwrite() operation that will fail. */
+    errno = 0;
+    ret = fwrite("42!", 4, 1, fp);
+    /* Store errno so the current value set  is not changed by new function call */
+    errno_val = errno;
+
+    ret_ferror = ferror(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() failed to report error (filename=%s, ret_ferror=%d).\n", __func__, filename, (int) ret_ferror);
+    TEST_ASSERT_MESSAGE(ret_ferror != 0, fsfat_fopen_utest_msg_g);
+
+    FSFAT_DBGLOG("%s:b ret=%d, errno=%d, errno_val=%d, ret_ferror=%d\n", __func__, (int) ret, errno, errno_val, ret_ferror);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fwrite successfully wrote to read-only file (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+    /* the fwrite() should fail and return 0. */
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+#ifdef TOOLCHAIN_GCC
+    /* check that errno is set. ARMCC appears not to set errno for fwrite() failure. */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected zero value for errno (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
+
+    /* check that errno is set to the expected value (this may change differ for different libc's) */
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EBADF (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(errno == EBADF, fsfat_fopen_utest_msg_g);
+#endif  /* TOOLCHAIN_GCC */
+
+    /* check clearerr() return clears the error */
+    clearerr(fp);
+    ret = ferror(fp);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return zero value when error has been cleared (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    fclose(fp);
+    return CaseNext;
+}
+
+
+#ifdef NO_SYMBOL
+control_t fsfat_fopen_test_08(const size_t call_count)
+{
+    FILE *fp = NULL;
     int ret = -1;
     char *filename = "/sd/test.txt";
 
@@ -864,11 +1011,9 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     ret = ferror(fp);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return zero value when error has been cleared (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
-
-    printf("%s:errno=%d\n", __func__, errno);
-
     return CaseNext;
 }
+#endif NO_SYMBOL
 
 /** @brief  test for operation of ftell()
  *
@@ -877,7 +1022,6 @@ control_t fsfat_fopen_test_08(const size_t call_count)
 control_t fsfat_fopen_test_09(const size_t call_count)
 {
     FILE *fp = NULL;
-    struct stat file_status;
     int ret = -1;
     int32_t len = 0;
 
@@ -1067,10 +1211,18 @@ control_t fsfat_fopen_test_19(const size_t call_count)
 
 /* file data for test_20 */
 static fsfat_kv_data_t fsfat_fopen_test_20_kv_data[] = {
-        { "/sd/test_20", "test_dir"},
+        /* a file is included in the filepath even though its not created by the test,
+         * as the fsfat_filepath_make_dirs() works with it present. */
+        { "/sd/test_20/dummy.txt", "testdir"},
         { NULL, NULL},
 };
-/** @brief  test for operation of mkdir()
+/** @brief  test for operation of mkdir()/remove()
+ *
+ * This test checks that:
+ * - The mkdir() function successfully creates a directory that is not already present.
+ * - The mkdir() function returns EEXIST when trying to create a directory thats already present.
+ * - The remove() function successfully removes a directory that is present.
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_20(const size_t call_count)
@@ -1080,6 +1232,9 @@ control_t fsfat_fopen_test_20(const size_t call_count)
 
     FSFAT_DBGLOG("%s:entered\n", __func__);
     (void) call_count;
+
+    /* start from a know state i.e. directory to be created in not present */
+    fsfat_filepath_remove_all((char*) fsfat_fopen_test_20_kv_data[0].filename);
 
     errno = 0;
     ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
@@ -1124,7 +1279,6 @@ control_t fsfat_fopen_test_21(const size_t call_count)
 
 #else
 
-//todo: remove this and replace with memfile use?
 
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_dummy
