@@ -84,29 +84,43 @@ using namespace utest::v1;
 #define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
+#define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
+#define FSFAT_BASIC_TEST_01      fsfat_basic_test_01
+#define FSFAT_BASIC_TEST_02      fsfat_basic_test_02
+#define FSFAT_BASIC_TEST_03      fsfat_basic_test_03
+#define FSFAT_BASIC_TEST_04      fsfat_basic_test_04
+
+#define FSFAT_BASIC_MSG_BUF_SIZE              256
+
+static const char *sd_file_path = "/sd/out.txt";
+static const char *sd_mount_pt = "sd";
+const int FSFAT_BASIC_DATA_SIZE = 256;
+static char fsfat_basic_msg_g[FSFAT_BASIC_MSG_BUF_SIZE];
+
+
 #if defined(TARGET_KL25Z)
 SDBlockDevice sd(PTD2, PTD3, PTD1, PTD0);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
 SDBlockDevice sd(PTD6, PTD7, PTD5, PTD4);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_K64F) || defined(TARGET_K66F)
 SDBlockDevice sd(PTE3, PTE1, PTE2, PTE4);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_K22F)
 SDBlockDevice sd(PTD6, PTD7, PTD5, PTD4);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_K20D50M)
 SDBlockDevice sd(PTD2, PTD3, PTD1, PTC2);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_nRF51822)
 SDBlockDevice sd(p12, p13, p15, p14);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
@@ -123,51 +137,37 @@ FATFileSystem fs("sd", &sd);
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 SDBlockDevice sd(D11, D12, D13, D10);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_DISCO_F051R8) || \
       defined(TARGET_NUCLEO_L031K6)
 SDBlockDevice sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_LPC2368)
 SDBlockDevice sd(p11, p12, p13, p14);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_LPC11U68)
 SDBlockDevice sd(D11, D12, D13, D10);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_LPC1549)
 SDBlockDevice sd(D11, D12, D13, D10);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_RZ_A1H)
 SDBlockDevice sd(P8_5, P8_6, P8_3, P8_4);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #elif defined(TARGET_LPC11U37H_401)
 SDBlockDevice sd(SDMOSI, SDMISO, SDSCLK, SDSSEL);
-FATFileSystem fs("sd", &sd);
+FATFileSystem fs(sd_mount_pt, &sd);
 
 #else
 #error "[NOT SUPPORTED] Instantiate SDBlockDevice sd(p11, p12, p13, p14) with the correct pin specification for target"
 #endif
 
-
-#define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
-#define FSFAT_BASIC_TEST_01      fsfat_basic_test_01
-#define FSFAT_BASIC_TEST_02      fsfat_basic_test_02
-#define FSFAT_BASIC_TEST_03      fsfat_basic_test_03
-#define FSFAT_BASIC_TEST_04      fsfat_basic_test_04
-
-
-#define FSFAT_BASIC_MSG_BUF_SIZE              256
-
-static const char *sd_file_path = "/sd/out.txt";
-static const char *sd_mount_pt = "sd";
-const int FSFAT_BASIC_DATA_SIZE = 256;
-static char fsfat_basic_msg_g[FSFAT_BASIC_MSG_BUF_SIZE];
 
 #define FSFAT_BASIC_MSG(_buf, _max_len, _fmt, ...)   \
   do                                                            \
@@ -190,13 +190,12 @@ static control_t fsfat_basic_test_00()
 {
 
     uint8_t data_written[FSFAT_BASIC_DATA_SIZE] = { 0 };
-    bool result = false;
     bool read_result = false;
+    bool write_result = false;
 
     // Fill data_written buffer with random data
     // Write these data into the file
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    bool write_result = false;
     {
         printf("SD: Writing ... ");
         FILE *f = fopen(sd_file_path, "w");
@@ -210,13 +209,14 @@ static control_t fsfat_basic_test_00()
         }
         printf("[%s]\r\n", write_result ? "OK" : "FAIL");
     }
+    TEST_ASSERT_MESSAGE(write_result == true, "Error: write_result is set to false.");
 
     // Read back the data from the file and store them in data_read
     {
         printf("SD: Reading data ... ");
         FILE *f = fopen(sd_file_path, "r");
         if (f) {
-              read_result = true;
+            read_result = true;
             for (int i = 0; i < FSFAT_BASIC_DATA_SIZE; i++) {
                 uint8_t data = fgetc(f);
                 if (data != data_written[i]) {
@@ -228,13 +228,10 @@ static control_t fsfat_basic_test_00()
         }
         printf("[%s]\r\n", read_result ? "OK" : "FAIL");
     }
-    result = write_result && read_result;
+    TEST_ASSERT_MESSAGE(read_result == true, "Error: write_result is set to false.");
     return CaseNext;
 }
 
-
-// todo: commented out for ARMCC support. It this still needed for gcc?
-//extern int errno;
 
 /** @brief  test-fseek.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
  *
@@ -310,7 +307,7 @@ static control_t fsfat_basic_test_02()
     static const char hello[] = "Hello, world.\n";
     static const char replace[] = "Hewwo, world.\n";
     static const size_t replace_from = 2, replace_to = 4;
-    char* filename = (char*) sd_file_path; //todo: remove
+    char* filename = (char*) sd_file_path;
     char buf[BUFSIZ];
     FILE *f;
     int lose = 0;
@@ -323,7 +320,6 @@ static control_t fsfat_basic_test_02()
         FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: Cannot open file for writing (filename=%s).\n", __func__, filename);
         TEST_ASSERT_MESSAGE(false, fsfat_basic_msg_g);
     }
-
 
     ret = fputs(hello, f);
     if (ret == EOF) {
@@ -393,7 +389,7 @@ static control_t fsfat_basic_test_02()
         }
         else
         {
-            printf("ftell returns %u; should be %u.\n", where, replace_from);
+            printf("ftell returns %ld; should be %u.\n", where, replace_from);
             lose = 1;
         }
     }
@@ -430,8 +426,8 @@ static control_t fsfat_basic_test_02()
  */
 static control_t fsfat_basic_test_03()
 {
-    char *fn;
-    FILE *fp;
+    char *fn = NULL;
+    FILE *fp = NULL;
     char *files[500];
     int i;
 
@@ -538,7 +534,7 @@ Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
         Case("FSFAT_BASIC_TEST_00: fopen()/fgetc()/fprintf()/fclose() test.", FSFAT_BASIC_TEST_00),
-        Case("FSFAT_BASIC_TEST_01: fopen()/fseek()/fclose() test.", FSFAT_BASIC_TEST_01)
+        Case("FSFAT_BASIC_TEST_01: fopen()/fseek()/fclose() test.", FSFAT_BASIC_TEST_01),
         /* WARNING: Test case not working but currently not required for PAL support
          * Case("FSFAT_BASIC_TEST_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FSFAT_BASIC_TEST_02)
          * Case("FSFAT_BASIC_TEST_03: tmpnam() test.", FSFAT_BASIC_TEST_03)
