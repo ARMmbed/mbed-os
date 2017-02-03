@@ -31,9 +31,7 @@
 
 #ifdef FSFAT_DEBUG
 uint32_t fsfat_optDebug_g = 1;
-// todo: revert change
-//uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
-uint32_t fsfat_optLogLevel_g = FSFAT_LOG_FENTRY; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
+uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY */
 #endif
 
 /* ruler for measuring text strings */
