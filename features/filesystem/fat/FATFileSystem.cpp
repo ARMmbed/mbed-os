@@ -323,6 +323,23 @@ int FATFileSystem::rename(const char *oldname, const char *newname) {
     return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
+ * associated arguments. */
+int FATFileSystem::format(int allocation_unit) {
+    lock();
+    FRESULT res = f_mkfs(_fsid, 0, allocation_unit); // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
+    if (res) {
+        debug_if(FFS_DBG, "f_mkfs() failed: %d\n", res);
+        unlock();
+        return -1;
+    }
+    unlock();
+    return 0;
+}
+
+>>>>>>> b86fe65... STORAGE: change FATFileSystem::format() to include allocation_unit argument, to facilitate fixing of inconsistent file systems.
 DirHandle *FATFileSystem::opendir(const char *name) {
     lock();
     FATFS_DIR dir;
