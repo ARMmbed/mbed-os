@@ -75,7 +75,6 @@ static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 
 
 #if defined(TARGET_KL25Z)
-//<<<<<<< HEAD
 SDBlockDevice sd(PTD2, PTD3, PTD1, PTD0);
 FATFileSystem fs("sd", &sd);
 
@@ -98,24 +97,6 @@ FATFileSystem fs("sd", &sd);
 #elif defined(TARGET_nRF51822)
 SDBlockDevice sd(p12, p13, p15, p14);
 FATFileSystem fs("sd", &sd);
-//=======
-//SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
-//SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_K64F) || defined(TARGET_K66F)
-//SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_K22F)
-//SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_K20D50M)
-//SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_nRF51822)
-//SDFileSystem sd(p12, p13, p15, p14, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//>>>>>>> 7f29f49... STORAGE: test case fixes to support ARMCC and IAR toolchains.
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
@@ -131,17 +112,12 @@ FATFileSystem fs("sd", &sd);
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
-//<<<<<<< HEAD
+<<<<<<< HEAD
 SDBlockDevice sd(D11, D12, D13, D10);
 FATFileSystem fs("sd", &sd);
-//=======
-//SDFileSystem sd(D11, D12, D13, D10, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//>>>>>>> 7f29f49... STORAGE: test case fixes to support ARMCC and IAR toolchains.
-
 
 #elif defined(TARGET_DISCO_F051R8) || \
       defined(TARGET_NUCLEO_L031K6)
-//<<<<<<< HEAD
 SDBlockDevice sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
 FATFileSystem fs("sd", &sd);
 
@@ -164,24 +140,6 @@ FATFileSystem fs("sd", &sd);
 #elif defined(TARGET_LPC11U37H_401)
 SDBlockDevice sd(SDMOSI, SDMISO, SDSCLK, SDSSEL);
 FATFileSystem fs("sd", &sd);
-//=======
-////SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_LPC2368)
-//SDFileSystem sd(p11, p12, p13, p14, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_LPC11U68)
-//SDFileSystem sd(D11, D12, D13, D10, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_LPC1549)
-//SDFileSystem sd(D11, D12, D13, D10, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_RZ_A1H)
-//SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//
-//#elif defined(TARGET_LPC11U37H_401)
-//SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, FSFAT_FOPEN_TEST_MOUNT_PT_NAME);
-//>>>>>>> 7f29f49... STORAGE: test case fixes to support ARMCC and IAR toolchains.
 
 #else
 #error "[NOT SUPPORTED] Instantiate SDBlockDevice sd(p11, p12, p13, p14) with the correct pin specification for target"
