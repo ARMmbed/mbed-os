@@ -179,7 +179,9 @@ mbedOS supports a subset of the POSIX File API, as outlined below:
 - [fclose()][MAN_FCLOSE].
     - STATUS: Basic testing implemented. Working.
 - ferror()
-    - STATUS: Basic testing implemented. Working.
+    - STATUS: Basic testing implemented. 
+    - STATUS: GCC_ARM: Working. 
+    - STATUS: ARMCC: ARMCC has problem with ferror(filep) where filep is NULL. Appears to work for non-NULL pointer.
 - [fgetc()][MAN_FGETS].
     - STATUS: Basic testing implemented. Working.
 - [fgets()][MAN_FGETS].
