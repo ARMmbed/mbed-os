@@ -1231,6 +1231,24 @@ control_t fsfat_fopen_test_21(const size_t call_count)
     return CaseNext;
 }
 
+/** @brief  test for operation of SDFileSystem::format()
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_22(const size_t call_count)
+{
+
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+    int32_t ret = -1;
+
+    /* the allocation_unit of 0 means chanFS will use the default for the card (varies according to capacity). */
+    ret = sd.format(0);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to format sdcard (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+    return CaseNext;
+}
+
 
 
 
@@ -1319,6 +1337,7 @@ Case cases[] = {
 #ifdef FOPEN_NOT_IMPLEMENTED
         Case("FSFAT_FOPEN_TEST_21: todo.", FSFAT_FOPEN_TEST_21),
 #endif /* FOPEN_NOT_IMPLEMENTED */
+        Case("FSFAT_FOPEN_TEST_22: format() test.", FSFAT_FOPEN_TEST_22),
 
 };
 
