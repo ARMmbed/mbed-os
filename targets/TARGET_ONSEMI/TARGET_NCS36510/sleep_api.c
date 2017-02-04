@@ -33,16 +33,17 @@
  */
 
 #if DEVICE_SLEEP
-#include "sleep.h"
+
+#include "fncs36510_sleep.h"
 #include "sleep_api.h"
 #include "cmsis_nvic.h"
 
-void sleep()
+void hal_sleep()
 {
     fncs36510_sleep();
 }
 
-void deepsleep()
+void hal_deepsleep()
 {
     fncs36510_deepsleep();
 }

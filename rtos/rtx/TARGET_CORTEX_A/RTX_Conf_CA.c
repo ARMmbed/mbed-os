@@ -107,7 +107,11 @@
 //   <i> Initialize thread stack with watermark pattern for analyzing stack usage (current/maximum) in System and Thread Viewer.
 //   <i> Enabling this option increases significantly the execution time of osThreadCreate.
 #ifndef OS_STKINIT
-#define OS_STKINIT      0
+  #if (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
+   #define OS_STKINIT   1
+  #else
+   #define OS_STKINIT   0
+  #endif
 #endif
 
 //   <o>Processor mode for thread execution
