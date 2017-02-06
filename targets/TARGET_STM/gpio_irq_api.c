@@ -87,20 +87,16 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             uint32_t pin = (uint32_t)(1 << (gpio_channel->channel_pin[gpio_idx]));
 
             // Clear interrupt flag
-            if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET)
-            {
+            if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
                 __HAL_GPIO_EXTI_CLEAR_FLAG(pin);
 
                 if (gpio_channel->channel_ids[gpio_idx] == 0)
                     continue;
 
                 // Check which edge has generated the irq
-                if ((gpio->IDR & pin) == 0)
-                {
+                if ((gpio->IDR & pin) == 0) {
                     irq_handler(gpio_channel->channel_ids[gpio_idx], IRQ_FALL);
-                }
-                else
-                {
+                } else {
                     irq_handler(gpio_channel->channel_ids[gpio_idx], IRQ_RISE);
                 }
             }
@@ -178,8 +174,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t pin_index  = STM_PIN(pin);
     irq_index =  pin_lines_desc[pin_index].irq_index;
 
-    switch (irq_index)
-    {
+    switch (irq_index) {
 #ifdef EXTI_IRQ0_NUM_LINES
         case 0:
             vector = (uint32_t)&gpio_irq0;
@@ -259,25 +254,17 @@ void gpio_irq_free(gpio_irq_t *obj)
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    if (event == IRQ_RISE)
-    {
-        if (enable)
-        {
+    if (event == IRQ_RISE) {
+        if (enable) {
             LL_EXTI_EnableRisingTrig_0_31(1 << STM_PIN(obj->pin));
-        }
-        else
-        {
+        } else {
             LL_EXTI_DisableRisingTrig_0_31(1 << STM_PIN(obj->pin));
         }
     }
-    if (event == IRQ_FALL)
-    {
-        if (enable)
-        {
+    if (event == IRQ_FALL) {
+        if (enable) {
             LL_EXTI_EnableFallingTrig_0_31(1 << STM_PIN(obj->pin));
-        }
-        else
-        {
+        } else {
             LL_EXTI_DisableFallingTrig_0_31(1 << STM_PIN(obj->pin));
         }
     }

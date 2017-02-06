@@ -146,13 +146,9 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 inline void gpio_dir(gpio_t *obj, PinDirection direction) {
-
-    if (direction == PIN_INPUT)
-    {
+    if (direction == PIN_INPUT) {
         LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_INPUT);
-    }
-    else
-    {
+    } else {
         LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_OUTPUT);
     }
 }
