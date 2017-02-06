@@ -40,9 +40,15 @@ public:
     virtual ~FATFileSystem();
     
     /**
-     * Mounts the filesystem
+     * @brief   Mounts the filesystem
+     *
+     * @param bd
+     *   This is the block device that will be formated.
+     *
+     * @param force
+     *   Flag to underlying filesystem to force the mounting of the filesystem.
      */
-    virtual int mount(BlockDevice *bd);
+    virtual int mount(BlockDevice *bd, bool force = true);
     
     /**
      * Unmounts the filesystem
@@ -55,9 +61,21 @@ public:
     virtual int sync();
     
     /**
-     * Formats a logical drive, FDISK partitioning rule, 512 bytes per cluster
+     * @brief   Formats a logical drive, FDISK partitioning rule.
+     *
+     * The block device to format should be mounted when this function is called.
+     *
+     * @param bd
+     *   This is the block device that will be formated.
+     *
+     * @param allocation_unit
+     *   This is the number of bytes per cluster size. The valid value is N
+     *   times the sector size. N is a power of 2 from 1 to 128 for FAT
+     *   volume and upto 16MiB for exFAT volume. If zero is given,
+     *   the default allocation unit size is selected by the underlying
+     *   filesystem, which depends on the volume size.
      */
-    static int format(BlockDevice *bd);
+    int format(BlockDevice *bd, int allocation_unit = 0);
 
     /**
      * Opens a file on the filesystem
@@ -73,18 +91,6 @@ public:
      * Renames a file
      */
     virtual int rename(const char *oldname, const char *newname);
-    
-    /**
-     * Formats a logical drive, FDISK partitioning rule.
-     *
-     * @param allocation_unit
-     *   This is the number of bytes per cluster size. The valid value is N
-     *   times the sector size. N is a power of 2 from 1 to 128 for FAT
-     *   volume and upto 16MiB for exFAT volume. If zero is given,
-     *   the default allocation unit size is selected depending on the volume
-     *   size.
-     */
-    virtual int format(int allocation_unit = 0);
     
     /**
      * Opens a directory on the filesystem
@@ -105,8 +111,6 @@ protected:
     FATFS _fs; // Work area (file system object) for logical drive
     char _fsid[2];
     int _id;
-
-    virtual int mount(BlockDevice *bd, bool force);
 
     virtual void lock();
     virtual void unlock();
