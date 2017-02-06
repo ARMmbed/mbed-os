@@ -56,10 +56,6 @@
 #include "greentea-client/test_env.h"
 
 #include <stdio.h>
-/* FIXME: unistd.h needed for fsfat_basic_test_04 but this error is generated:
- * [Error] unistd.h@185,10: conflicting declaration of C function 'unsigned int sleep(unsigned int)'
- * #include <unistd.h>     // STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO
- */
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -80,8 +76,6 @@ using namespace utest::v1;
  *      #define FSFAT_SDCARD_INSTALLED
  *      #define DEVICE_SPI
  */
-#define FSFAT_SDCARD_INSTALLED
-#define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 #define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
@@ -420,40 +414,18 @@ static control_t fsfat_basic_test_02()
 
 /** @brief  temptest.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
  *
- * WARNING: this test does not currently work. See WARNING comments below.
+ * tmpnam() is currently not implemented
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 static control_t fsfat_basic_test_03()
 {
     char *fn = NULL;
-    FILE *fp = NULL;
-    char *files[500];
-    int i;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    memset(files, 0, 500*sizeof(char*));
-    for (i = 0; i < 500; i++) {
-        fn = tmpnam((char *) NULL);
-
-        /* FIXME: tmpnam() doesnt currently generate a temporary filename
-         * re-instate the code below when it does.
-        FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: failed to generate a temporary filename.\n", __func__);
-        TEST_ASSERT_MESSAGE(fn != NULL, fsfat_basic_msg_g);
-
-        files[i] = strdup(fn);
-        FSFAT_DBGLOG("%s:filename=%s\n", __func__, fn);
-        fp = fopen (fn, "w");
-        fclose(fp);
-         */
-    }
-
-    for (i = 0; i < 500; i++) {
-        if(files[i] != NULL) {
-            remove(files[i]);
-            free(files[i]);
-        }
-    }
+    fn = tmpnam((char *) NULL);
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: appeared to generate a filename when function is not implemented.\n", __func__);
+    TEST_ASSERT_MESSAGE(fn == NULL, fsfat_basic_msg_g);
     return CaseNext;
 }
 
@@ -476,6 +448,20 @@ static bool fsfat_basic_fileno_check(const char *name, FILE *stream, int fd)
 #endif  /* TOOLCHAIN_ARM_STD */
 }
 
+/* defines for next test case */
+#ifndef STDIN_FILENO
+#define STDIN_FILENO     0
+#endif
+
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO    1
+#endif
+
+#ifndef STDERR_FILENO
+#define STDERR_FILENO    2
+#endif
+
+
 /** @brief  tst-fileno.c test ported from glibc project. See the licence at REF_LICENCE_GLIBC.
  *
  * WARNING: this test does not currently work. See WARNING comments below.
@@ -485,8 +471,6 @@ static bool fsfat_basic_fileno_check(const char *name, FILE *stream, int fd)
  */
 static control_t fsfat_basic_test_04()
 {
-    /* FIXME: unistd.h needed for STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO but this error is generated:
-     * [Error] unistd.h@185,10: conflicting declaration of C function 'unsigned int sleep(unsigned int)'
     int ret = -1;
     ret = fsfat_basic_fileno_check("stdin", stdin, STDIN_FILENO);
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdin does not have expected file number (expected=%d, fileno=%d.\n", __func__, stdin, fileno(stdin));
@@ -499,7 +483,7 @@ static control_t fsfat_basic_test_04()
     ret = fsfat_basic_fileno_check("stderr", stderr, STDERR_FILENO);
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stderr does not have expected file number (expected=%d, fileno=%d.\n", __func__, stderr, fileno(stderr));
     TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
-    */
+    //*/
     return CaseNext;
 }
 
@@ -535,10 +519,10 @@ Case cases[] = {
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
         Case("FSFAT_BASIC_TEST_00: fopen()/fgetc()/fprintf()/fclose() test.", FSFAT_BASIC_TEST_00),
         Case("FSFAT_BASIC_TEST_01: fopen()/fseek()/fclose() test.", FSFAT_BASIC_TEST_01),
+        Case("FSFAT_BASIC_TEST_03: tmpnam() test.", FSFAT_BASIC_TEST_03),
+        Case("FSFAT_BASIC_TEST_04: fileno() test.", FSFAT_BASIC_TEST_04),
         /* WARNING: Test case not working but currently not required for PAL support
          * Case("FSFAT_BASIC_TEST_02: fopen()/fgets()/fputs()/ftell()/rewind()/remove() test.", FSFAT_BASIC_TEST_02)
-         * Case("FSFAT_BASIC_TEST_03: tmpnam() test.", FSFAT_BASIC_TEST_03)
-         * Case("FSFAT_BASIC_TEST_04: fileno() test.", FSFAT_BASIC_TEST_04)
          */
 };
 
