@@ -220,58 +220,31 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     const unsigned char *input,
                     unsigned char *output )
 {
-    int i;
-    unsigned char temp[16];
-
+    int status=0;
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
-#if defined(MBEDTLS_PADLOCK_C) && defined(MBEDTLS_HAVE_X86)
-    if( aes_padlock_ace )
+    switch( ctx->nr )
     {
-        if( mbedtls_padlock_xcryptcbc( ctx, mode, length, iv, input, output ) == 0 )
-            return( 0 );
-
-        // If padlock data misaligned, we just fall back to
-        // unaccelerated mode
-        //
+        case 10: hcryp_aes.Init.KeySize = CRYP_KEYSIZE_128B; break;
+        case 12: hcryp_aes.Init.KeySize = CRYP_KEYSIZE_192B; break;
+        case 14: hcryp_aes.Init.KeySize = CRYP_KEYSIZE_256B; break;
+        default : return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
     }
-#endif
-
+    
     if( mode == MBEDTLS_AES_DECRYPT )
     {
-        while( length > 0 )
-        {
-            memcpy( temp, input, 16 );
-            mbedtls_aes_crypt_ecb( ctx, mode, input, output );
+        hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init 
 
-            for( i = 0; i < 16; i++ )
-                output[i] = (unsigned char)( output[i] ^ iv[i] );
-
-            memcpy( iv, temp, 16 );
-
-            input  += 16;
-            output += 16;
-            length -= 16;
-        }
+        status = HAL_CRYP_AESCBC_Decrypt(&hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
     }
     else
     {
-        while( length > 0 )
-        {
-            for( i = 0; i < 16; i++ )
-                output[i] = (unsigned char)( input[i] ^ iv[i] );
-
-            mbedtls_aes_crypt_ecb( ctx, mode, output, output );
-            memcpy( iv, output, 16 );
-
-            input  += 16;
-            output += 16;
-            length -= 16;
-        }
+        hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init 
+        
+        status = HAL_CRYP_AESCBC_Encrypt(&hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
     }
-
-    return( 0 );
+    return( status );
 }
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
