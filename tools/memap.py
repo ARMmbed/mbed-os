@@ -593,7 +593,7 @@ class MemapParser(object):
                    toolchain == "ARM_MICRO":
                     self.search_objects(os.path.abspath(mapfile))
                     self.parse_map_file_armcc(file_input)
-                elif toolchain == "GCC_ARM":
+                elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
                     self.parse_map_file_gcc(file_input)
                 elif toolchain == "IAR":
                     self.search_objects(os.path.abspath(mapfile))
