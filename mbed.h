@@ -80,6 +80,7 @@
 #include "drivers/Ethernet.h"
 #include "drivers/CAN.h"
 #include "drivers/RawSerial.h"
+#include "drivers/FlashIAP.h"
 
 // mbed Internal components
 #include "drivers/Timer.h"
