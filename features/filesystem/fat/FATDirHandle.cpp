@@ -22,6 +22,7 @@
 #include <string.h>
 #include "ff.h"
 #include "FATDirHandle.h"
+#include "FATMisc.h"
 
 using namespace mbed;
 
@@ -31,7 +32,8 @@ FATDirHandle::FATDirHandle(const FATFS_DIR &the_dir, PlatformMutex * mutex): _mu
 
 int FATDirHandle::closedir() {
     lock();
-    int retval = f_closedir(&dir);
+    FRESULT retval = f_closedir(&dir);
+    FATFileSystemSetErrno(retval);
     unlock();
     delete this;
     return retval;
@@ -47,6 +49,7 @@ struct dirent *FATDirHandle::readdir() {
 #endif // _USE_LFN
 
     FRESULT res = f_readdir(&dir, &finfo);
+    FATFileSystemSetErrno(res);
 
 #if _USE_LFN
     if(res != 0 || finfo.fname[0]==0) {
@@ -75,12 +78,14 @@ struct dirent *FATDirHandle::readdir() {
 void FATDirHandle::rewinddir() {
     lock();
     dir.index = 0;
+    FATFileSystemSetErrno(FR_OK);
     unlock();
 }
 
 off_t FATDirHandle::telldir() {
     lock();
     off_t offset = dir.index;
+    FATFileSystemSetErrno(FR_OK);
     unlock();
     return offset;
 }
@@ -88,6 +93,7 @@ off_t FATDirHandle::telldir() {
 void FATDirHandle::seekdir(off_t location) {
     lock();
     dir.index = location;
+    FATFileSystemSetErrno(FR_OK);
     unlock();
 }
 
