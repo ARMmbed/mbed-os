@@ -816,7 +816,7 @@ control_t fsfat_fopen_test_07(const size_t call_count)
 	FILE *f = NULL;
 	int ret = -1;
     int errno_val = 0;
-    char *filename = "/sd/badfile.txt";
+    char *filename = (char*) "/sd/badfile.txt";
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -872,7 +872,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     FILE *fp = NULL;
     int ret = -1;
     int ret_ferror = -1;
-    char *filename = "/sd/test.txt";
+    char *filename = (char*) "/sd/test.txt";
     int errno_val = 0;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
@@ -971,7 +971,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
     return CaseNext;
 }
-#endif NO_SYMBOL
+#endif //NO_SYMBOL
 
 /** @brief  test for operation of ftell()
  *
@@ -1243,7 +1243,7 @@ control_t fsfat_fopen_test_22(const size_t call_count)
     int32_t ret = -1;
 
     /* the allocation_unit of 0 means chanFS will use the default for the card (varies according to capacity). */
-    ret = sd.format(0);
+    ret = fs.format(&sd, 0);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to format sdcard (ret=%d)\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
     return CaseNext;

@@ -187,10 +187,6 @@ FATFileSystem::~FATFileSystem() {
     unmount();
 }
 
-int FATFileSystem::mount(BlockDevice *bd) {
-    return mount(bd, true);
-}
-
 int FATFileSystem::mount(BlockDevice *bd, bool force) {
     lock();
     if (_id != -1) {
@@ -241,7 +237,21 @@ int FATFileSystem::sync() {
     return 0;
 }
 
-int FATFileSystem::format(BlockDevice *bd) {
+/* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
+ * associated arguments. */
+/*
+int FATFileSystem::format(int allocation_unit) {
+    lock();
+    FRESULT res = f_mkfs(_fsid, 0, allocation_unit); // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
+    if (res) {
+        debug_if(FFS_DBG, "f_mkfs() failed: %d\n", res);
+        unlock();
+        return -1;
+    }
+    unlock();
+    return 0;
+}
+int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
     FATFileSystem fs("");
     int err = fs.mount(bd, false);
     if (err) {
@@ -250,7 +260,7 @@ int FATFileSystem::format(BlockDevice *bd) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 0, 512); 
+    FRESULT res = f_mkfs(fs._fsid, 0, int allocation_unit);
     fs.unlock();
 
     err = fs.unmount();
@@ -260,6 +270,33 @@ int FATFileSystem::format(BlockDevice *bd) {
 
     return res == 0 ? 0 : -1;
 }
+*/
+
+/* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
+ * associated arguments. */
+int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
+    //FATFileSystem fs("");
+    //int err = fs.mount(bd, false);
+    //if (err) {
+    //    return -1;
+    //}
+
+    // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
+    //fs.lock();
+    lock();
+    //FRESULT res = f_mkfs(fs._fsid, 0, allocation_unit);
+    FRESULT res = f_mkfs(_fsid, 0, allocation_unit);
+    //fs.unlock();
+    unlock();
+
+    //err = fs.unmount();
+    //if (err) {
+    //    return -1;
+    //}
+
+    return res == 0 ? 0 : -1;
+}
+
 
 FileHandle *FATFileSystem::open(const char* name, int flags) {
     lock();
@@ -323,23 +360,7 @@ int FATFileSystem::rename(const char *oldname, const char *newname) {
     return 0;
 }
 
-<<<<<<< HEAD
-=======
-/* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
- * associated arguments. */
-int FATFileSystem::format(int allocation_unit) {
-    lock();
-    FRESULT res = f_mkfs(_fsid, 0, allocation_unit); // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    if (res) {
-        debug_if(FFS_DBG, "f_mkfs() failed: %d\n", res);
-        unlock();
-        return -1;
-    }
-    unlock();
-    return 0;
-}
 
->>>>>>> b86fe65... STORAGE: change FATFileSystem::format() to include allocation_unit argument, to facilitate fixing of inconsistent file systems.
 DirHandle *FATFileSystem::opendir(const char *name) {
     lock();
     FATFS_DIR dir;
