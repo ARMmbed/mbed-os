@@ -35,9 +35,9 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
-/* toolchain_support.h is included after errno.h so symbols are mapped to
+/* retarget.h is included after errno.h so symbols are mapped to
  * consistent values for all toolchains */
-#include "toolchain_support.h"
+#include "platform/retarget.h"
 
 /* This is needed for stat() test, but is not available on ARMCC */
 #ifdef TOOLCHAIN_GCC
