@@ -31,6 +31,7 @@
 #include <stdio.h>
 #endif
 #include <errno.h>
+#include "toolchain_support.h"
 
 
 #if defined(__ARMCC_VERSION)
@@ -57,13 +58,6 @@
 #endif
 
 #define FILE_HANDLE_RESERVED    0xFFFFFFFF
-
-#ifdef TOOLCHAIN_ARM_STD
-#define ENOENT       2       /* todo: remove this temporary fix to overcome undefined symbols when compiling for ARMCC */
-#define EBADF        9       /* todo: remove this temporary fix to overcome undefined symbols when compiling for ARMCC */
-#define EMFILE       24      /* todo: remove this temporary fix to overcome undefined symbols when compiling for ARMCC */
-#endif
-
 
 using namespace mbed;
 
