@@ -16,6 +16,8 @@
 #ifndef MBED_DIRHANDLE_H
 #define MBED_DIRHANDLE_H
 
+#include <stdint.h>
+
 #if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 #   define NAME_MAX 255
 typedef int mode_t;
@@ -28,6 +30,18 @@ typedef int mode_t;
 
 struct dirent {
     char d_name[NAME_MAX+1];
+    uint8_t d_type;
+};
+
+enum {
+    DT_UNKNOWN, // The file type could not be determined.
+    DT_FIFO,    // This is a named pipe (FIFO).
+    DT_CHR,     // This is a character device.
+    DT_DIR,     // This is a directory.
+    DT_BLK,     // This is a block device.
+    DT_REG,     // This is a regular file.
+    DT_LNK,     // This is a symbolic link.
+    DT_SOCK,    // This is a UNIX domain socket.
 };
 
 namespace mbed {

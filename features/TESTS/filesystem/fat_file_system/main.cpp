@@ -77,6 +77,58 @@ void test_read_write() {
     TEST_ASSERT_EQUAL(0, err);
 }
 
+// Simple test for iterating dir entries
+void test_read_dir() {
+    FATFileSystem fs("fat");
+
+    int err = fs.mount(&bd);
+    TEST_ASSERT_EQUAL(0, err);
+
+    err = fs.mkdir("test_read_dir", S_IRWXU | S_IRWXG | S_IRWXO);
+    TEST_ASSERT_EQUAL(0, err);
+
+    err = fs.mkdir("test_read_dir/test_dir", S_IRWXU | S_IRWXG | S_IRWXO);
+    TEST_ASSERT_EQUAL(0, err);
+
+    FileHandle *file = fs.open("test_read_dir/test_file", O_WRONLY | O_CREAT);
+    TEST_ASSERT(file);
+    err = file->close();
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Iterate over dir checking for known files
+    DirHandle *dir = fs.opendir("test_read_dir");
+    TEST_ASSERT(dir);
+
+    struct dirent *de;
+    bool test_dir_found = false;
+    bool test_file_found = true;
+
+    while ((de = readdir(dir))) {
+        printf("d_name: %.32s, d_type: %x\n", de->d_name, de->d_type);
+
+        if (strcmp(de->d_name, "test_dir") == 0) {
+            test_dir_found = true;
+            TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
+        } else if (strcmp(de->d_name, "test_file") == 0) {
+            test_file_found = true;
+            TEST_ASSERT_EQUAL(DT_REG, de->d_type);
+        } else {
+            char *buf = new char[NAME_MAX];
+            snprintf(buf, NAME_MAX, "Unexpected file \"%s\"", de->d_name);
+            TEST_ASSERT_MESSAGE(false, buf);
+        }
+    }
+
+    TEST_ASSERT_MESSAGE(test_dir_found,  "Could not find \"test_dir\"");
+    TEST_ASSERT_MESSAGE(test_file_found, "Could not find \"test_file\"");
+
+    err = dir->closedir();
+    TEST_ASSERT_EQUAL(0, err);
+
+    err = fs.unmount();
+    TEST_ASSERT_EQUAL(0, err);
+}
+
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -88,6 +140,7 @@ Case cases[] = {
     Case("Testing formating", test_format),
     Case("Testing read write < block", test_read_write<BLOCK_SIZE/2>),
     Case("Testing read write > block", test_read_write<2*BLOCK_SIZE>),
+    Case("Testing dir iteration", test_read_dir),
 };
 
 Specification specification(test_setup, cases);
