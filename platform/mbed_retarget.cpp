@@ -31,7 +31,7 @@
 #include <stdio.h>
 #endif
 #include <errno.h>
-#include "toolchain_support.h"
+#include "platform/retarget.h"
 
 
 #if defined(__ARMCC_VERSION)

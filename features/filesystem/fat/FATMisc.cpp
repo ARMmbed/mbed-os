@@ -19,7 +19,7 @@
 
 #include "FATMisc.h"
 #include <errno.h>
-#include "toolchain_support.h"
+#include "platform/retarget.h"
 
 
 /* @brief   Set errno based on the error code returned from underlying filesystem
