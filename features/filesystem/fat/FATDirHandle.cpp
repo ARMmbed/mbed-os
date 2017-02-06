@@ -50,6 +50,7 @@ struct dirent *FATDirHandle::readdir() {
 
     FRESULT res = f_readdir(&dir, &finfo);
     fat_filesystem_set_errno(res);
+    cur_entry.d_type = (finfo.fattrib & AM_DIR) ? DT_DIR : DT_REG;
 
 #if _USE_LFN
     if(res != 0 || finfo.fname[0]==0) {
