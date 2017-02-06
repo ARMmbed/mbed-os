@@ -26,6 +26,10 @@
 
 typedef struct flash_s flash_t;
 
+#if TARGET_FLASH_CMSIS_ALGO
+#include "flash_data.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
