@@ -58,7 +58,7 @@ typedef struct exti_lines {
 } exti_lines_t;
 
 // Used to return the index for channels array.
-static exti_lines_t pin_lines_desc[16] =
+static const exti_lines_t pin_lines_desc[16] =
 {
     // EXTI0
     {.gpio_idx = 0, .irq_index = 0, .irq_n = EXTI0_IRQn}, // pin 0
