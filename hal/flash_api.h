@@ -89,6 +89,13 @@ uint32_t flash_get_sector_size(flash_t *obj, uint32_t address);
  */
 uint32_t flash_get_page_size(flash_t *obj);
 
+/** Get flash size
+ * 
+ * @param obj The flash objects
+ * @return The size of the flash available
+ */
+uint32_t flash_get_size(flash_t *obj);
+
 /**@}*/
 
 #ifdef __cplusplus
