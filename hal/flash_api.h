@@ -54,8 +54,8 @@ int32_t flash_init(flash_t *obj);
 int32_t flash_free(flash_t *obj);
 
 /** Erase one sector starting at defined address
- * 
- * The address should be at sector boundary
+ *
+ * The address should be at sector boundary. This function does not do any check for address alignments
  * @param obj The flash object
  * @param address The sector starting address
  * @return 0 for success, -1 for error
@@ -64,7 +64,8 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address);
 
 /** Program one page starting at defined address
  * 
- * The page should be at page boundary, should not cross multiple sectors
+ * The page should be at page boundary, should not cross multiple sectors. 
+ * This function does not do any check for address alignments or if size is aligned to a page size.
  * @param obj The flash object
  * @param address The sector starting address
  * @param data The data buffer to be programmed
@@ -79,7 +80,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
  * @param address The sector starting address
  * @return The size of a sector
  */
-uint32_t flash_get_sector_size(flash_t *obj, uint32_t address);
+uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address);
 
 /** Get page size
  * 
@@ -87,14 +88,14 @@ uint32_t flash_get_sector_size(flash_t *obj, uint32_t address);
  * @param address The page starting address
  * @return The size of a page
  */
-uint32_t flash_get_page_size(flash_t *obj);
+uint32_t flash_get_page_size(const flash_t *obj);
 
 /** Get flash size
  * 
  * @param obj The flash objects
  * @return The size of the flash available
  */
-uint32_t flash_get_size(flash_t *obj);
+uint32_t flash_get_size(const flash_t *obj);
 
 /**@}*/
 

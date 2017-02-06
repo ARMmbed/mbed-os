@@ -54,7 +54,7 @@ static uint32_t jump_to_flash_algo[] = {
     0xBD3046A9
 };
 
-static uint32_t get_sector_index(flash_t *obj, uint32_t address)
+static uint32_t get_sector_index(const flash_t *obj, uint32_t address)
 {
     // check where address belongs to
     size_t sector_index = 0;
@@ -110,13 +110,6 @@ int32_t flash_free(flash_t *obj)
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
-    size_t sector_index = get_sector_index(obj, address);
-
-    // erase sector boundary
-    if ((address % obj->target_config->sectors[sector_index].size) != 0) {
-        return -1;
-    }
-
     core_util_critical_section_enter();
     flash_algo_init(obj, address, MBED_FLASH_ALGO_ERASE);
 
@@ -137,22 +130,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
-{ 
-    // write size boundary
-    if ((address % obj->target_config->page_size) != 0) {
-        return -1; // TODO return types
-    }
-    //  size multiple of sectors
-    if ((size < obj->target_config->page_size) || (size % obj->target_config->page_size != 0)) {
-        return -1;
-    }
-
-    uint32_t sector_index = get_sector_index(obj, address);
-    // should not cross sector boundary
-    if (((address % obj->target_config->sectors[sector_index].size) + size) > obj->target_config->sectors[sector_index].size) {
-        return -1;
-    }
-
+{
     core_util_critical_section_enter();
     flash_algo_init(obj, address, MBED_FLASH_ALGO_PROGRAM);
 
@@ -172,18 +150,18 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 }
 
 
-uint32_t flash_get_sector_size(flash_t *obj, uint32_t address)
+uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     uint32_t sector_index = get_sector_index(obj, address);
     return obj->target_config->sectors[sector_index].size;
 }
 
-uint32_t flash_get_page_size(flash_t *obj)
+uint32_t flash_get_page_size(const flash_t *obj)
 {
     return obj->target_config->page_size;
 }
 
-uint32_t flash_get_size(flash_t *obj)
+uint32_t flash_get_size(const flash_t *obj)
 {
     return obj->target_config->flash_size;
 }
