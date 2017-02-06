@@ -65,8 +65,6 @@ using namespace utest::v1;
  *      #define FSFAT_SDCARD_INSTALLED
  *      #define DEVICE_SPI
  */
-#define FSFAT_SDCARD_INSTALLED
-#define DEVICE_SPI
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
@@ -511,7 +509,7 @@ control_t fsfat_fopen_test_03(const size_t call_count)
 
     /* clean-up */
     ret = remove(fsfat_fopen_test_02_data[0].filename);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to delete file (filename=%s, ret=%d) .\n", __func__, (int) ret);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to delete file (filename=%s, ret=%d) .\n", __func__, fsfat_fopen_test_02_data[0].filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
 
     return CaseNext;
@@ -873,7 +871,6 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     int ret = -1;
     int ret_ferror = -1;
     char *filename = (char*) "/sd/test.txt";
-    int errno_val = 0;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -897,14 +894,11 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     /* Perform fwrite() operation that will fail. */
     errno = 0;
     ret = fwrite("42!", 4, 1, fp);
-    /* Store errno so the current value set  is not changed by new function call */
-    errno_val = errno;
 
     ret_ferror = ferror(fp);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() failed to report error (filename=%s, ret_ferror=%d).\n", __func__, filename, (int) ret_ferror);
     TEST_ASSERT_MESSAGE(ret_ferror != 0, fsfat_fopen_utest_msg_g);
 
-    FSFAT_DBGLOG("%s:b ret=%d, errno=%d, errno_val=%d, ret_ferror=%d\n", __func__, (int) ret, errno, errno_val, ret_ferror);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fwrite successfully wrote to read-only file (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
     /* the fwrite() should fail and return 0. */
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
@@ -1186,7 +1180,6 @@ static fsfat_kv_data_t fsfat_fopen_test_20_kv_data[] = {
 control_t fsfat_fopen_test_20(const size_t call_count)
 {
     int32_t ret = 0;
-    FILE *fp = NULL;
 
     FSFAT_DBGLOG("%s:entered\n", __func__);
     (void) call_count;
