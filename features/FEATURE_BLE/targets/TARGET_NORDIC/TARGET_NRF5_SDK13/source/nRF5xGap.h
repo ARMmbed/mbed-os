@@ -150,30 +150,33 @@ private:
 #endif
     
 #if  (NRF_SD_BLE_API_VERSION >= 3)
-    /* internal type for pasing whitelist and identities list */
+    /* internal type for passing a whitelist and a identities list. */
     typedef struct
     {
-        ble_gap_addr_t addr[YOTTA_CFG_WHITELIST_MAX_SIZE];
-        ble_gap_addr_t * pp_addr[YOTTA_CFG_WHITELIST_MAX_SIZE];
-        uint32_t addr_cnt;
+        ble_gap_addr_t addrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
+        uint32_t addrs_cnt;
         
-        ble_gap_id_key_t identity[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        ble_gap_id_key_t * pp_identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+        ble_gap_id_key_t identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
         uint32_t identities_cnt;
     } GapWhiteAndIdentityList_t;
     
-    /* purpouse of updation the whitelist and identities settings */
+    /* purpose of updating the whitelist and identities settings. */
     enum whiteAndIdentityListPurpose_t
     {
-        scan_connect_purpose = 0,
-        avdvertising_purpose
+    	purpose_scan_connect = 0,
+		purpose_avdvertising
     } whiteAndIdentityListPurpose;
     
-    /* Fuction for preparing setting of the whitelist-feature and identiti-reseolv-feature (privacy).*/
+    /* Function for preparing setting of the whitelist feature and the identity-resolving feature (privacy).*/
     ble_error_t getStackWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-    /* Fuction for apllying setting of the whitelist-feature and identiti-reseolv-feature (privacy).*/
-    ble_error_t apllyWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-    /* Fuction which incorportes 2 above f. together */
+
+    /* Function for applying setting of the whitelist feature and identity-resolving feature (privacy).*/
+    ble_error_t applyWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
+
+    /* Function for introducing whitelist feature and the identity-resolving feature setting into SoftDevice.
+     *
+     * Introduced settings are comply which scanning or advertising policies.
+     * This function incorporates getStackWhiteIdentityList and applyWhiteIdentityList together. */
     ble_error_t updateWhiteAndIdentityListInStack(whiteAndIdentityListPurpose_t purpose);
 #endif
 
