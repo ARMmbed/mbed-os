@@ -284,14 +284,14 @@ bool im_address_resolve(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_i
  *        4.2 section 3.H.2.2.2.
  *
  * @detail  BLE uses a hash function to calculate the first half of a resolvable address
- *          from the second half of the address and an irk. This function will use the ECB
- *          periferal to hash these data acording to the Bluetooth core specification.
+ *          from the second half of the address and an IRK. This function uses the ECB
+ *          peripheral to hash this data according to the Bluetooth core specification.
  *
- * @note The ECB expect little endian input and output.
- *       This function expect big endian and will reverse the data as necessary.
+ * @note The ECB expects little endian input and output.
+ *       This function expects big endian and will reverse the data as necessary.
  *
  * @param[in]  p_k          The key used in the hash function.
- *                          For address resolution this is should be the irk.
+ *                          For address resolution this must be the IRK.
  *                          The array must have a length of 16.
  * @param[in]  p_r          The rand used in the hash function. For generating a new address
  *                          this would be a random number. For resolving a resolvable address
@@ -299,15 +299,15 @@ bool im_address_resolve(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_i
  *                          The array must have a length of 3.
  * @param[out] p_local_hash The result of the hash operation. For address resolution this
  *                          will match the first half of the address being resolved if and only
- *                          if the irk used in the hash function is the same one used to generate
+ *                          if the irk used in the hash function is the same one that was used to generate
  *                          the address.
  *                          The array must have a length of 16.
  *
  * @note    ====IMPORTANT====
- *          This is a special modification to the original nRF5x SDK required by the mbed BLE API
- *          to be able to generate BLE private resolvable addresses. This function is used by
- *          the BLE API implementation for nRF5xSecurityManager::getAddressFromBondTable() in the
- *          ble-nrf52832 yotta module.
+ *          This is a special modification to the original nRF5 SDK. It is required by the mbed BLE API
+ *          to generate BLE private resolvable addresses. This function is used by
+ *          the BLE API implementation for nRF5xSecurityManager::getAddressFromBondTable() in the target's
+ *          BLE implementation.
  *          =================
  */
 void ah(uint8_t const * p_k, uint8_t const * p_r, uint8_t * p_local_hash);  
