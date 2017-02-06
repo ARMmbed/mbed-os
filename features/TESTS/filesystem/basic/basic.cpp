@@ -59,9 +59,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-/* toolchain_support.h is included after errno.h so symbols are mapped to
+/* retarget.h is included after errno.h so symbols are mapped to
  * consistent values for all toolchains */
-#include "toolchain_support.h"
+#include "platform/retarget.h"
 
 using namespace utest::v1;
 
