@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32l476xx.s
+  * @file      startup_stm32l486xx.s
   * @author    MCD Application Team
-  * @version   V1.1.1
-  * @date      29-April-2016
-  * @brief     STM32L476xx devices vector table GCC toolchain.
+  * @version   V1.1.2
+  * @date      12-September-2016
+  * @brief     STM32L486xx devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -59,6 +59,7 @@ defined in linker script */
 .word	_sdata
 /* end address for the .data section. defined in linker script */
 .word	_edata
+
 .equ  BootRAM,        0xF1E0F85F
 /**
  * @brief  This is the code that gets called when the processor first
@@ -227,7 +228,7 @@ g_pfnVectors:
 	.word	SWPMI1_IRQHandler
 	.word	TSC_IRQHandler
 	.word	LCD_IRQHandler
-	.word 0
+	.word	AES_IRQHandler
 	.word	RNG_IRQHandler
 	.word	FPU_IRQHandler
 
@@ -503,6 +504,9 @@ g_pfnVectors:
 	
 	.weak	LCD_IRQHandler
 	.thumb_set LCD_IRQHandler,Default_Handler
+	
+	.weak	AES_IRQHandler
+	.thumb_set AES_IRQHandler,Default_Handler
 	
 	.weak	RNG_IRQHandler
 	.thumb_set RNG_IRQHandler,Default_Handler
