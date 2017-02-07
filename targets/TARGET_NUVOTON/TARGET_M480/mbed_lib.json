@@ -13,10 +13,13 @@
             "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
             "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
         },
-
         "gpio-irq-debounce-sample-rate": {
             "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
             "value": "GPIO_DBCTL_DBCLKSEL_16"
+        },
+        "usb-device-hsusbd": {
+            "help": "Select high-speed USB device or not",
+            "value": 1
         }
     }
 }
