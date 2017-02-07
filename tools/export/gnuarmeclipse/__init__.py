@@ -607,6 +607,7 @@ class GNUARMEclipse(Exporter):
             'Cortex-M7': {'mcpu': 'cortex-m7', 'fpu_unit': None},
             'Cortex-M7F': {'mcpu': 'cortex-m7', 'fpu_unit': 'fpv4spd16'},
             'Cortex-M7FD': {'mcpu': 'cortex-m7', 'fpu_unit': 'fpv5d16'},
+            'Cortex-A9': {'mcpu': 'cortex-a9', 'fpu_unit': 'vfpv3'}
         }
 
         # Remove options that are supplied by CDT
@@ -635,9 +636,9 @@ class GNUARMEclipse(Exporter):
         opts['common']['arm.target.arch'] = 'none'
         str = self.find_options(flags['common_flags'], '-march=')
         arch = str[len('-march='):]
-        archs = {'armv6-m': 'armv6-m', 'armv7-m': 'armv7-m'}
+        archs = {'armv6-m': 'armv6-m', 'armv7-m': 'armv7-m', 'armv7-a': 'armv7-a'}
         if arch in archs:
-            opts['common']['arm.target.arch'] = archs[arh]
+            opts['common']['arm.target.arch'] = archs[arch]
             self.remove_option(flags['common_flags'], str)
 
         opts['common']['arm.target.instructionset'] = 'thumb'

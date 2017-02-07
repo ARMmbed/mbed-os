@@ -58,7 +58,7 @@ class GCC(mbedToolchain):
             cpu = target.core.lower()
 
         self.cpu = ["-mcpu=%s" % cpu]
-        if target.core.startswith("Cortex"):
+        if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
 
         # FPU handling, M7 possibly to have double FPU
