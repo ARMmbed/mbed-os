@@ -55,17 +55,21 @@ void hal_deepsleep(void)
     int pwrClockEnabled = __HAL_RCC_PWR_IS_CLK_ENABLED();
     int lowPowerModeEnabled = PWR->CR1 & PWR_CR1_LPR;
     
-    if (!pwrClockEnabled)
+    if (!pwrClockEnabled) {
         __HAL_RCC_PWR_CLK_ENABLE();
-    if (lowPowerModeEnabled)
+    }
+    if (lowPowerModeEnabled) {
         HAL_PWREx_DisableLowPowerRunMode();
+    }
     
     HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
     
-    if (lowPowerModeEnabled)
+    if (lowPowerModeEnabled) {
         HAL_PWREx_EnableLowPowerRunMode();
-    if (!pwrClockEnabled)
+    }
+    if (!pwrClockEnabled) {
         __HAL_RCC_PWR_CLK_DISABLE();
+    }
 #else /* TARGET_STM32L4 */
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* TARGET_STM32L4 */
