@@ -14,15 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This file contains symbols used by the filesystem implementation that are not present
- * in the armcc errno.h, or sys/stat.h, for example.
- *
+ * This file contains symbols used by the implementation that are not present
+ * in the armcc errno.h, or sys/stat.h. These are used in for the POSIX
+ * filesystem API to return errno codes, for example.
  */
 
-#ifndef FILESYSTEM_FAT_ERRNO_ARMCC_H
-#define FILESYSTEM_FAT_ERRNO_ARMCC_H
+#ifndef RETARGET_H
+#define RETARGET_H
 
-//#ifdef TOOLCHAIN_ARM_STD
 #if defined TOOLCHAIN_ARM_STD || defined TOOLCHAIN_IAR
 /* The following are errno.h definitions not currently present in the ARMCC
  * errno.h. Note, ARMCC errno.h defines some symbols values differing from
@@ -42,6 +41,11 @@
 #undef ENXIO
 #endif
 #define ENXIO       6       /* No such device or address */
+
+#ifdef ENOEXEC
+#undef ENOEXEC
+#endif
+#define ENOEXEC     8       /* Exec format error */
 
 #ifdef EBADF
 #undef EBADF
@@ -78,10 +82,10 @@
 #endif
 #define EMFILE      24      /* File descriptor value too large */
 
-/* Missing stat.h defines */
-/* The following are sys/stat.h definitions not currently present in the ARMCC
- * errno.h. Note, ARMCC errno.h defines some symbols values differing from
- * GCC_ARM/IAR/standard POSIX definitions.Guard against this and future
+/* Missing stat.h defines.
+ * The following are sys/stat.h definitions not currently present in the ARMCC
+ * errno.h. Note, ARMCC errno.h defines some symbol values differing from
+ * GCC_ARM/IAR/standard POSIX definitions. Guard against this and future
  * changes by changing the symbol definition for filesystem use. */
 #define     _IFDIR  0040000 /* directory */
 #define     _IFREG  0100000 /* regular */
@@ -102,6 +106,6 @@
 #define     S_IWOTH 0000002 /* write permission, other */
 #define     S_IXOTH 0000001/* execute/search permission, other */
 
-#endif /* TOOLCHAIN_ARM_STD */
+#endif /* TOOLCHAIN_ARM_STD || defined TOOLCHAIN_IAR */
 
-#endif /* FILESYSTEM_FAT_ERRNO_ARMCC_H */
+#endif /* RETARGET_H */
