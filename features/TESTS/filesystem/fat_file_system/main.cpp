@@ -29,24 +29,8 @@ using namespace utest::v1;
 HeapBlockDevice bd(128*BLOCK_SIZE, BLOCK_SIZE);
 
 
-/*
 void test_format() {
     int err = FATFileSystem::format(&bd);
-    TEST_ASSERT_EQUAL(0, err);
-}
-*/
-
-void test_format() {
-    int err = -1;
-    FATFileSystem fs("");
-
-    err = fs.mount(&bd, false);
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = fs.format(&bd);
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = fs.unmount();
     TEST_ASSERT_EQUAL(0, err);
 }
 

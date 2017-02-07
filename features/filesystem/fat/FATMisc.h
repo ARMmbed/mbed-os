@@ -22,6 +22,6 @@
 
 #include "ff.h"
 
-void FATFileSystemSetErrno(FRESULT res);
+void fat_filesystem_set_errno(FRESULT res);
 
 #endif /* FILESYSTEM_FAT_MISC_H */

@@ -222,7 +222,7 @@ static control_t fsfat_basic_test_00()
         }
         printf("[%s]\r\n", read_result ? "OK" : "FAIL");
     }
-    TEST_ASSERT_MESSAGE(read_result == true, "Error: write_result is set to false.");
+    TEST_ASSERT_MESSAGE(read_result == true, "Error: read_result is set to false.");
     return CaseNext;
 }
 
@@ -301,7 +301,7 @@ static control_t fsfat_basic_test_02()
     static const char hello[] = "Hello, world.\n";
     static const char replace[] = "Hewwo, world.\n";
     static const size_t replace_from = 2, replace_to = 4;
-    char* filename = (char*) sd_file_path;
+    const char *filename = sd_file_path;
     char buf[BUFSIZ];
     FILE *f;
     int lose = 0;

@@ -160,7 +160,7 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
             _fsid[1] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             FRESULT res = f_mount(&_fs, _fsid, force);
-            FATFileSystemSetErrno(res);
+            fat_filesystem_set_errno(res);
             unlock();
             return res == 0 ? 0 : -1;
         }
@@ -178,7 +178,7 @@ int FATFileSystem::unmount() {
     }
 
     FRESULT res = f_mount(NULL, _fsid, 0);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     _ffs[_id] = NULL;
     _id = -1;
     unlock();
@@ -193,7 +193,7 @@ int FATFileSystem::sync() {
     }
 
     // Always synchronized
-    FATFileSystemSetErrno(FR_OK);
+    fat_filesystem_set_errno(FR_OK);
     unlock();
     return 0;
 }
@@ -201,11 +201,22 @@ int FATFileSystem::sync() {
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
  * associated arguments. */
 int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
+    FATFileSystem fs("");
+    int err = fs.mount(bd, false);
+    if (err) {
+        return -1;
+    }
+
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    lock();
-    FRESULT res = f_mkfs(_fsid, 0, allocation_unit);
-    FATFileSystemSetErrno(res);
-    unlock();
+    fs.lock();
+    FRESULT res = f_mkfs(fs._fsid, 0, allocation_unit);
+    fat_filesystem_set_errno(res);
+    fs.unlock();
+
+    err = fs.unmount();
+    if (err) {
+        return -1;
+    }
     return res == 0 ? 0 : -1;
 }
 
@@ -234,7 +245,7 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
 
     FIL fh;
     FRESULT res = f_open(&fh, n, openmode);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
         unlock();
@@ -251,7 +262,7 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
 int FATFileSystem::remove(const char *filename) {
     lock();
     FRESULT res = f_unlink(filename);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
         unlock();
@@ -264,7 +275,7 @@ int FATFileSystem::remove(const char *filename) {
 int FATFileSystem::rename(const char *oldname, const char *newname) {
     lock();
     FRESULT res = f_rename(oldname, newname);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_rename() failed: %d\n", res);
         unlock();
@@ -278,7 +289,7 @@ DirHandle *FATFileSystem::opendir(const char *name) {
     lock();
     FATFS_DIR dir;
     FRESULT res = f_opendir(&dir, name);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res != 0) {
         unlock();
         return NULL;
@@ -291,7 +302,7 @@ DirHandle *FATFileSystem::opendir(const char *name) {
 int FATFileSystem::mkdir(const char *name, mode_t mode) {
     lock();
     FRESULT res = f_mkdir(name);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     unlock();
     return res == 0 ? 0 : -1;
 }
@@ -302,7 +313,7 @@ int FATFileSystem::stat(const char *name, struct stat *st) {
     memset(&f, 0, sizeof(f));
 
     FRESULT res = f_stat(name, &f);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res != 0) {
         unlock();
         return -1;
@@ -328,3 +339,4 @@ void FATFileSystem::lock() {
 void FATFileSystem::unlock() {
     _ffs_mutex->unlock();
 }
+

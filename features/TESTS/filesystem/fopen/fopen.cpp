@@ -70,6 +70,8 @@ using namespace utest::v1;
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME  "sd"
 #define FSFAT_FOPEN_TEST_MOUNT_PT_PATH  "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+static const char *sd_badfile_path = "/sd/badfile.txt";
+static const char *sd_testfile_path = "/sd/test.txt";
 
 
 #if defined(TARGET_KL25Z)
@@ -623,7 +625,7 @@ enum fsfat_fopen_kv_name_pos {
 control_t fsfat_fopen_test_05(const size_t call_count)
 {
     bool f_allowed = false;
-    const char *mnt_pt = "/sd";
+    const char *mnt_pt = FSFAT_FOPEN_TEST_MOUNT_PT_PATH;
     const char *basename = "goodfile";
     const char *extname = "txt";
     const size_t basename_len = strlen(basename);
@@ -762,7 +764,7 @@ static const char fsfat_fopen_ascii_illegal_buf_g[] = "\"�'*+,./:;<=>?[\\]|";
  */
 control_t fsfat_fopen_test_06(const size_t call_count)
 {
-    const char *mnt_pt = "/sd";
+    const char *mnt_pt = FSFAT_FOPEN_TEST_MOUNT_PT_PATH;
     const char *extname = "txt";
     const size_t filename_len = strlen(mnt_pt)+FSFAT_MAX_FILE_BASENAME+strlen(extname)+2;  /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
     char filename[FSFAT_BUF_MAX_LENGTH];
@@ -814,7 +816,7 @@ control_t fsfat_fopen_test_07(const size_t call_count)
 	FILE *f = NULL;
 	int ret = -1;
     int errno_val = 0;
-    char *filename = (char*) "/sd/badfile.txt";
+    const char *filename = sd_badfile_path;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -870,7 +872,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     FILE *fp = NULL;
     int ret = -1;
     int ret_ferror = -1;
-    char *filename = (char*) "/sd/test.txt";
+    const char *filename = sd_testfile_path;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -929,7 +931,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
 {
     FILE *fp = NULL;
     int ret = -1;
-    char *filename = "/sd/test.txt";
+    const char *filename = sd_testfile_path;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -1236,14 +1238,13 @@ control_t fsfat_fopen_test_22(const size_t call_count)
     int32_t ret = -1;
 
     /* the allocation_unit of 0 means chanFS will use the default for the card (varies according to capacity). */
-    ret = fs.format(&sd, 0);
+    fs.unmount();
+    ret = fs.format(&sd);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to format sdcard (ret=%d)\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+    fs.mount(&sd);
     return CaseNext;
 }
-
-
-
 
 
 #else
@@ -1308,9 +1309,9 @@ Case cases[] = {
         Case("FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSFAT_FOPEN_TEST_03),
         Case("FSFAT_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.", FSFAT_FOPEN_TEST_04),
 #ifdef FOPEN_EXTENDED_TESTING
-        Case("FSFAT_FOPEN_TEST_05: fopen() with filenames including illegal characters.", FSFAT_FOPEN_TEST_05),
+        Case("FSFAT_FOPEN_TEST_05: fopen() with bad filenames (extended).", FSFAT_FOPEN_TEST_05),
 #endif
-        Case("FSFAT_FOPEN_TEST_06", FSFAT_FOPEN_TEST_06),
+        Case("FSFAT_FOPEN_TEST_06: fopen() with bad filenames (minimal).", FSFAT_FOPEN_TEST_06),
         Case("FSFAT_FOPEN_TEST_07: fopen()/errno handling.", FSFAT_FOPEN_TEST_07),
         Case("FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSFAT_FOPEN_TEST_08),
         Case("FSFAT_FOPEN_TEST_09: ftell() handling.", FSFAT_FOPEN_TEST_09),

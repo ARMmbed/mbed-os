@@ -75,7 +75,7 @@ public:
      *   the default allocation unit size is selected by the underlying
      *   filesystem, which depends on the volume size.
      */
-    int format(BlockDevice *bd, int allocation_unit = 0);
+    static int format(BlockDevice *bd, int allocation_unit = 0);
 
     /**
      * Opens a file on the filesystem
