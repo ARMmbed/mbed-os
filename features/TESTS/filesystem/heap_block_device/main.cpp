@@ -23,7 +23,14 @@
 
 using namespace utest::v1;
 
+/* It is not possible to build a KL25Z image with IAR including the file system if
+ * stack tracking statistics are enabled. If this is the case, build dummy
+ * tests.
+ */
+#if ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED)
+
 #define BLOCK_SIZE 512
+#define HEAP_BLOCK_DEVICE_TEST_01         test_read_write
 uint8_t write_block[BLOCK_SIZE];
 uint8_t read_block[BLOCK_SIZE];
 
@@ -57,6 +64,21 @@ void test_read_write() {
     TEST_ASSERT_EQUAL(0, err);
 }
 
+#else   /* ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
+
+#define HEAP_BLOCK_DEVICE_TEST_01      heap_block_device_test_dummy
+
+/** @brief  heap_block_device_test_dummy    Dummy test case for testing when KL25Z being built with stack statistics enabled.
+ *
+ * @return success always
+ */
+static control_t heap_block_device_test_dummy()
+{
+    printf("Null test\n");
+    return CaseNext;
+}
+
+#endif  /* ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -65,7 +87,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 }
 
 Case cases[] = {
-    Case("Testing read write of a block", test_read_write),
+    Case("Testing read write of a block", HEAP_BLOCK_DEVICE_TEST_01),
 };
 
 Specification specification(test_setup, cases);
