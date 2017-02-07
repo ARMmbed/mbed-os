@@ -2201,12 +2201,16 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             report[target_name][toolchain_name][test_key] = report_entry[test_key]
                         
                         # Set the overall result to a failure if a build failure occurred
-                        if not worker_result['result'] and not isinstance(worker_result['reason'], NotSupportedException):
+                        if ('reason' in worker_result and
+                            not worker_result['reason'] and
+                            not isinstance(worker_result['reason'], NotSupportedException)):
                             result = False
                             break
 
                         # Adding binary path to test build result
-                        if worker_result['result'] and 'bin_file' in worker_result:
+                        if ('result' in worker_result and
+                            worker_result['result'] and
+                            'bin_file' in worker_result):
                             bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
 
                             test_build['tests'][worker_result['kwargs']['project_id']] = {
