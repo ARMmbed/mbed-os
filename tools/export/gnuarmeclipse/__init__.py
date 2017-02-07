@@ -320,18 +320,16 @@ class GNUARMEclipse(Exporter):
 
         cmd = [
             'eclipse',
-            '--launcher.suppressErrors',
             '-nosplash',
             '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
-            '-data', relpath(tmp_folder, os.getcwd()),
-            '-import', '.',
-            '-cleanBuild', 'all'
+            '-data', tmp_folder,
+            '-import', os.getcwd(),
+            '-cleanBuild', project_name
         ]
 
-        p = Popen(' '.join(cmd), stdout=PIPE, stderr=PIPE)
+        p = Popen(' '.join(cmd), shell=True, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         ret_code = p.returncode
-
         stdout_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
         err_string = "=" * 10 + "STDERR" + "=" * 10 + "\n"
         err_string += err
@@ -340,7 +338,7 @@ class GNUARMEclipse(Exporter):
         if ret_code != 0:
             ret_string += "FAILURE\n"
 
-        print "%s\nSee %s for STDOUT\n%s\n%s" % (stdout_string, log_name, err_string, ret_string)
+        print "%s\n%s\n%s\n%s" % (stdout_string, out, err_string, ret_string)
 
         if log_name:
             # Write the output to the log file
@@ -360,6 +358,8 @@ class GNUARMEclipse(Exporter):
                 shutil.rmtree('Debug')
             if exists('Release'):
                 shutil.rmtree('Release')
+            if exists('makefile.targets'):
+                os.remove('makefile.targets')
 
         # Always remove the temporary folder.
         if exists(tmp_folder):
