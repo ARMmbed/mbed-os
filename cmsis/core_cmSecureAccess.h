@@ -42,7 +42,7 @@
 /* ###########################  Core Secure Access  ########################### */
 
 #ifdef FEATURE_UVISOR
-#include "uvisor-lib.h"
+#include "uvisor-lib/uvisor-lib.h"
 
 /* Secure uVisor implementation. */
 
