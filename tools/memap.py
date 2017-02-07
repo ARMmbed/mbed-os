@@ -538,7 +538,7 @@ class MemapParser(object):
 
         return output
 
-    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "GCC_CR", "IAR"]
+    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
 
     def compute_report(self):
         for k in self.sections:
@@ -593,7 +593,7 @@ class MemapParser(object):
                    toolchain == "ARM_MICRO":
                     self.search_objects(os.path.abspath(mapfile))
                     self.parse_map_file_armcc(file_input)
-                elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
+                elif toolchain == "GCC_ARM":
                     self.parse_map_file_gcc(file_input)
                 elif toolchain == "IAR":
                     self.search_objects(os.path.abspath(mapfile))
