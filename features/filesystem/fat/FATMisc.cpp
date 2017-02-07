@@ -28,7 +28,7 @@
  *
  * @return  No return value
  */
-void FATFileSystemSetErrno(FRESULT res)
+void fat_filesystem_set_errno(FRESULT res)
 {
     switch(res) {
         case FR_OK:                     /* (0) Succeeded */

@@ -33,7 +33,7 @@ FATFileHandle::FATFileHandle(FIL fh, PlatformMutex * mutex): _mutex(mutex) {
 int FATFileHandle::close() {
     lock();
     FRESULT retval = f_close(&_fh);
-    FATFileSystemSetErrno(retval);
+    fat_filesystem_set_errno(retval);
     unlock();
     delete this;
     return retval;
@@ -43,7 +43,7 @@ ssize_t FATFileHandle::write(const void* buffer, size_t length) {
     lock();
     UINT n;
     FRESULT res = f_write(&_fh, buffer, length, &n);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_write() failed: %d", res);
         unlock();
@@ -58,7 +58,7 @@ ssize_t FATFileHandle::read(void* buffer, size_t length) {
     debug_if(FFS_DBG, "read(%d)\n", length);
     UINT n;
     FRESULT res = f_read(&_fh, buffer, length, &n);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_read() failed: %d\n", res);
         unlock();
@@ -69,7 +69,7 @@ ssize_t FATFileHandle::read(void* buffer, size_t length) {
 }
 
 int FATFileHandle::isatty() {
-    FATFileSystemSetErrno(FR_OK);
+    fat_filesystem_set_errno(FR_OK);
     return 0;
 }
 
@@ -81,7 +81,7 @@ off_t FATFileHandle::lseek(off_t position, int whence) {
         position += _fh.fptr;
     }
     FRESULT res = f_lseek(&_fh, position);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "lseek failed: %d\n", res);
         unlock();
@@ -96,7 +96,7 @@ off_t FATFileHandle::lseek(off_t position, int whence) {
 int FATFileHandle::fsync() {
     lock();
     FRESULT res = f_sync(&_fh);
-    FATFileSystemSetErrno(res);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_sync() failed: %d\n", res);
         unlock();
@@ -109,7 +109,7 @@ int FATFileHandle::fsync() {
 off_t FATFileHandle::flen() {
     lock();
     off_t size = _fh.fsize;
-    FATFileSystemSetErrno(FR_OK);
+    fat_filesystem_set_errno(FR_OK);
     unlock();
     return size;
 }
