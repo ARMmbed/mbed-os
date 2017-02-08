@@ -68,8 +68,9 @@ using namespace utest::v1;
 #if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
-#define FSFAT_FOPEN_TEST_MOUNT_PT_NAME  "sd"
-#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH  "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+#define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
+#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+#define FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1    64
 static const char *sd_badfile_path = "/sd/badfile.txt";
 static const char *sd_testfile_path = "/sd/test.txt";
 
@@ -112,7 +113,6 @@ FATFileSystem fs("sd", &sd);
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
-<<<<<<< HEAD
 SDBlockDevice sd(D11, D12, D13, D10);
 FATFileSystem fs("sd", &sd);
 
@@ -654,7 +654,7 @@ control_t fsfat_fopen_test_05(const size_t call_count)
         for(j = node->code; j < (node+1)->code; j++)
         {
             if( (j >= 48 && j <= 57) || (j >= 65 && j <= 90) || (j >= 97 && j <= 122)) {
-                FSFAT_DBGLOG("%s: skipping alpha-numeric ascii character code %d (%c).\n", __func__, (int) j, j);
+                FSFAT_DBGLOG("%s: skipping alpha-numeric ascii character code %d (%c).\n", __func__, (int) j, (char) j);
                 continue;
             }
 
@@ -926,49 +926,6 @@ control_t fsfat_fopen_test_08(const size_t call_count)
 }
 
 
-#ifdef NO_SYMBOL
-control_t fsfat_fopen_test_08(const size_t call_count)
-{
-    FILE *fp = NULL;
-    int ret = -1;
-    const char *filename = sd_testfile_path;
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    errno = 0;
-    fp = fopen(filename,"w+");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, f=%p).\n", __func__, filename, fp);
-    TEST_ASSERT_MESSAGE(fp != NULL, fsfat_fopen_utest_msg_g);
-
-    /* close the fp but then try to read or write it */
-    ret = fclose(fp);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close file (ret=%d, errno=%d)\n", __func__, (int) ret, errno);
-    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
-
-    /* try to write to closed file */
-    errno = 0;
-    ret = fwrite("42!", 4, 1, fp);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: fwrite successfully wroted to closed file (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
-    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
-
-    /* check that errno is set */
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected zero value for errno (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
-    TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
-
-    /* check that errno is set to the expected value (this may change differ for different libc's) */
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EBADF (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
-    TEST_ASSERT_MESSAGE(errno == EBADF, fsfat_fopen_utest_msg_g);
-
-    /* check clearerr() return clears the error */
-    clearerr(fp);
-    ret = ferror(fp);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return zero value when error has been cleared (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
-    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
-    return CaseNext;
-}
-#endif //NO_SYMBOL
-
 /** @brief  test for operation of ftell()
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
@@ -1010,164 +967,228 @@ control_t fsfat_fopen_test_09(const size_t call_count)
     return CaseNext;
 }
 
+
+/* file data for test_10 */
+static fsfat_kv_data_t fsfat_fopen_test_10_kv_data[] = {
+        { "/sd/test_10/testfile.txt", "test_data"},
+        { NULL, NULL},
+};
+
 /** @brief  test for operation of remove()
+ *
+ * Performs the following tests:
+ *  1. test remove() on a file that exists. This should succeed.
+ *  2. test remove() on a dir that exists. This should succeed.
+ *  3. test remove() on a file that doesnt exist. This should fail. check errno set.
+ *  4. test remove() on a dir that doesnt exist. This should fail. check errno set.
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_10(const size_t call_count)
 {
+    char buf[FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1];
+    char *pos = NULL;
+    int32_t ret = -1;
+    size_t len = 0;
+    fsfat_kv_data_t *node = fsfat_fopen_test_10_kv_data;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    /* todo:
-     * - test remove() on a file that exists. should succeed.
-     * - test remove() on a dir that exists. should succeed.
-     * - test remove() on a file that doesnt exist. should fail. check errno set.
-     * - test remove() on a dir that doesnt exist. should fail. check errno set.
-     * */
+    TEST_ASSERT(strlen(node->filename) < FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
+
+    /* start from a known state i.e. directory to be created in not present */
+    fsfat_filepath_remove_all((char*) node->filename);
+
+    /* (1) */
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) node->filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    len = strlen(node->value);
+    ret = fsfat_test_create(node->filename, (char*) node->value, len);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+
+    ret = remove(node->filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: delete file operation failed (filename=%s, ret=%d) .\n", __func__, node->filename, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* (3) */
+    ret = remove(node->filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: deleted a file that doesn't exist (filename=%s, ret=%d, errno=%d) .\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
+
+    /* (2) */
+    memset(buf, 0, FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
+    memcpy(buf, node->filename, strlen(node->filename));
+    pos = strrchr(buf, '/');
+    *pos = '\0';
+    ret = remove(buf);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: delete directory operation failed (directory name=%s, ret=%d, errno=%d).\n", __func__, buf, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* (4) */
+    ret = remove(buf);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: deleted a directory that doesn't exist (directory name=%s, ret=%d, errno=%d).\n", __func__, buf, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
 
     return CaseNext;
 }
 
+
+/* file data for test_11 */
+static fsfat_kv_data_t fsfat_fopen_test_11_kv_data[] = {
+        { "/sd/test_11/step0.txt", "test_data"},
+        { "/sd/test_11/step1.txt", "test_data"},
+        { "/sd/test_11/subdir/step3.txt", "test_data"},
+        { NULL, NULL},
+};
+
 /** @brief  test for operation of rename()
+ *
+ * This test does the following:
+ *  1) test rename() on a file that exists to a new filename within the same directory.
+ *  2) test rename() on a file that exists to a new filename within a different directory.
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_11(const size_t call_count)
 {
+    int32_t ret = -1;
+    size_t len = 0;
+    fsfat_kv_data_t *node = fsfat_fopen_test_11_kv_data;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    /* todo:
-     * - test rename() on a file that exists to a new filename within the same directory. should succeed
-     * - test rename() on a file that exists to a new filename within a different directory. should succeed
-     */
+    TEST_ASSERT(strlen(node->filename) < FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
+
+    /* start from a known state i.e. directory to be created in not present, files not present */
+    while(node->filename != NULL) {
+        fsfat_filepath_remove_all((char*) node->filename);
+        node++;
+    }
+
+    /* create file and directories ready for rename() tests */
+    errno = 0;
+    node = fsfat_fopen_test_11_kv_data;
+    ret = fsfat_filepath_make_dirs((char*) node->filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    len = strlen(node->value);
+    ret = fsfat_test_create(node->filename, (char*) node->value, len);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+
+    errno = 0;
+    node = &fsfat_fopen_test_11_kv_data[2];
+    ret = fsfat_filepath_make_dirs((char*) node->filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* (1) */
+    ret = rename(fsfat_fopen_test_11_kv_data[0].filename, fsfat_fopen_test_11_kv_data[1].filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to rename file from (%s) to (%s) (ret=%d, errno=%d).\n", __func__, fsfat_fopen_test_11_kv_data[0].filename, fsfat_fopen_test_11_kv_data[1].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    /* (2) */
+    ret = rename(fsfat_fopen_test_11_kv_data[1].filename, fsfat_fopen_test_11_kv_data[2].filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unable to rename file from (%s) to (%s) (ret=%d, errno=%d).\n", __func__, fsfat_fopen_test_11_kv_data[1].filename, fsfat_fopen_test_11_kv_data[2].filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
     return CaseNext;
 }
 
-/** @brief  test for operation of tmpnam() (currrently unimplemented)
+
+/* file data for test_12 */
+static fsfat_kv_data_t fsfat_fopen_test_12_kv_data[] = {
+        { "/sd/test_12/subdir/testfil1.txt", "testfil1.txt"},
+        { "/sd/test_12/testfil2.txt", "testfil2.txt"},
+        { "/sd/test_12/testfil3.txt", "testfil3.txt"},
+        { "/sd/test_12/testfil4.txt", "testfil4.txt"},
+        { "/sd/test_12/testfil5.txt", "testfil5.txt"},
+        { NULL, NULL},
+};
+
+/** @brief  test for operation of readdir().
+ *
+ * Note, rewinddir(), telldir() and seekdir() dont appear to work reliably.
+ * opendir() not available on ARM/IAR toolchains.
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
 control_t fsfat_fopen_test_12(const size_t call_count)
 {
+    char buf[FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1];
+    char *pos = NULL;
+    int32_t count = 0;
+    int32_t ret = -1;
+    size_t len = 0;
+    DIR *dir;
+    struct dirent *dp;
+    fsfat_kv_data_t *node = fsfat_fopen_test_12_kv_data;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    /* todo:
-     * - show function is not implemented.
-     */
-    return CaseNext;
-}
+#ifdef TOOLCHAIN_GCC
 
-/** @brief  test for operation of tmpfile() (currrently unimplemented)
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_13(const size_t call_count)
-{
+    /* start from a known state i.e. directory to be created in not present */
+    while(node->filename != NULL) {
+        fsfat_filepath_remove_all((char*) node->filename);
+        node++;
+    }
 
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
+    /* create a file */
+    node = fsfat_fopen_test_12_kv_data;
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) node->filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
-    /* todo:
-     * - show function is not implemented.
-     */
-    return CaseNext;
-}
+    node = fsfat_fopen_test_12_kv_data;
+    while(node->filename != NULL) {
+        len = strlen(node->value);
+        ret = fsfat_test_create(node->filename, (char*) node->value, len);
+        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
+        TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+        node++;
+    }
 
-/** @brief  test for operation of opendir()
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_14(const size_t call_count)
-{
+    node = fsfat_fopen_test_12_kv_data;
+    memset(buf, 0, FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
+    memcpy(buf, node->filename, strlen(node->filename));
+    pos = strrchr(buf, '/');
+    *pos = '\0';
+    dir = opendir(buf);
+    while ((dp = readdir(dir)) != NULL) {
+        FSFAT_DBGLOG("%s: filename: \"%s\"\n", __func__, dp->d_name);
+        TEST_ASSERT_MESSAGE(dp != 0, "Error: readdir() failed\n");
+        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected object name (name=%s, expected=%s).\n", __func__, dp->d_name, fsfat_fopen_test_12_kv_data[count].value);
+        TEST_ASSERT_MESSAGE(strncmp(dp->d_name, fsfat_fopen_test_12_kv_data[count].value, strlen(fsfat_fopen_test_12_kv_data[count].value)) == 0, fsfat_fopen_utest_msg_g);
+        count++;
+    }
+    closedir(dir);
 
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    /* todo:
-     * - open a dir that exists. should succeed.
-     * - open a dir that doesnt exists. should succeed.
-     */
-    return CaseNext;
-}
-
-/** @brief  test for operation of readdir()
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_15(const size_t call_count)
-{
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    /* todo:
-     */
-    return CaseNext;
-}
-
-/** @brief  test for operation of closedir()
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_16(const size_t call_count)
-{
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    /* todo:
-     */
-    return CaseNext;
-}
-
-/** @brief  test for operation of rewinddir()
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_17(const size_t call_count)
-{
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    /* todo:
-     */
+    /* cleanup */
+    node = fsfat_fopen_test_12_kv_data;
+    while(node->filename != NULL) {
+        fsfat_filepath_remove_all((char*) node->filename);
+        node++;
+    }
+#endif  /* TOOLCHAIN_GCC */
     return CaseNext;
 }
 
 
-/** @brief  test for operation of telldir()
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_18(const size_t call_count)
-{
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    /* todo:
-     */
-    return CaseNext;
-}
-
-/** @brief  test for operation of seekdir()
- * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
- */
-control_t fsfat_fopen_test_19(const size_t call_count)
-{
-
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
-    (void) call_count;
-
-    /* todo:
-     */
-    return CaseNext;
-}
-
-
-/* file data for test_20 */
-static fsfat_kv_data_t fsfat_fopen_test_20_kv_data[] = {
+/* file data for test_13 */
+static fsfat_kv_data_t fsfat_fopen_test_13_kv_data[] = {
         /* a file is included in the filepath even though its not created by the test,
          * as the fsfat_filepath_make_dirs() works with it present. */
-        { "/sd/test_20/dummy.txt", "testdir"},
+        { "/sd/test_13/dummy.txt", "testdir"},
         { NULL, NULL},
 };
 /** @brief  test for operation of mkdir()/remove()
@@ -1179,50 +1200,114 @@ static fsfat_kv_data_t fsfat_fopen_test_20_kv_data[] = {
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-control_t fsfat_fopen_test_20(const size_t call_count)
+control_t fsfat_fopen_test_13(const size_t call_count)
 {
     int32_t ret = 0;
 
     FSFAT_DBGLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    /* start from a know state i.e. directory to be created in not present */
-    fsfat_filepath_remove_all((char*) fsfat_fopen_test_20_kv_data[0].filename);
+    /* start from a known state i.e. directory to be created in not present */
+    fsfat_filepath_remove_all((char*) fsfat_fopen_test_13_kv_data[0].filename);
 
     errno = 0;
-    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_13_kv_data[0].filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
     /* check that get a suitable error when try to create it again.*/
     errno = 0;
-    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_20_kv_data[0].filename, false);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: permitted to create directory when already exists (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    ret = fsfat_filepath_make_dirs((char*) fsfat_fopen_test_13_kv_data[0].filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: permitted to create directory when already exists (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
 
     /* check errno is as expected */
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EEXIST (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EEXIST (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(errno == EEXIST, fsfat_fopen_utest_msg_g);
 
-    ret = fsfat_filepath_remove_all((char*) fsfat_fopen_test_20_kv_data[0].filename);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to remove directory (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_20_kv_data[0].filename, (int) ret, errno);
+    ret = fsfat_filepath_remove_all((char*) fsfat_fopen_test_13_kv_data[0].filename);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to remove directory (dirname=%s, ret=%d, errno=%d)\n", __func__, fsfat_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
     return CaseNext;
 }
 
+/* file data for test_14 */
+static fsfat_kv_data_t fsfat_fopen_test_14_kv_data[] = {
+        /* a file is included in the filepath even though its not created by the test,
+         * as the fsfat_filepath_make_dirs() works with it present. */
+        { "/sd/test_14/testfile.txt", "testdata"},
+        { NULL, NULL},
+};
 
 /** @brief  test for operation of stat()
+ *
+ * stat() is currently no supported by ARMCC and IAR toolchains libc.
+ *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-control_t fsfat_fopen_test_21(const size_t call_count)
+control_t fsfat_fopen_test_14(const size_t call_count)
 {
+    char buf[FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1];
+    char *pos = NULL;
+    int32_t ret = -1;
+    size_t len = 0;
+    struct stat file_stat;
+    fsfat_kv_data_t *node = fsfat_fopen_test_14_kv_data;
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    /* todo:
-     */
+#ifdef TOOLCHAIN_GCC
+
+    TEST_ASSERT(strlen(node->filename) < FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
+
+    /* start from a known state i.e. directory to be created in not present */
+    fsfat_filepath_remove_all((char*) node->filename);
+
+    /* Create file in a directory. */
+    errno = 0;
+    ret = fsfat_filepath_make_dirs((char*) node->filename, false);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    len = strlen(node->value);
+    ret = fsfat_test_create(node->filename, (char*) node->value, len);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= 0, fsfat_fopen_utest_msg_g);
+
+    /* Test stat() on the file returns the correct attribute set */
+    memset(&file_stat, 0, sizeof(file_stat));
+    ret = stat(node->filename, &file_stat);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: stat() operation on file failed (filename=%s, ret=%d, errno=%d).\n", __func__, node->filename, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: expected st_mode S_IFREG flag not set (filename=%s).\n", __func__, node->filename);
+    TEST_ASSERT_MESSAGE((file_stat.st_mode & S_IFREG) == S_IFREG, fsfat_fopen_utest_msg_g);
+
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected st_mode S_IFDIR flag set (filename=%s).\n", __func__, node->filename);
+    TEST_ASSERT_MESSAGE((file_stat.st_mode & S_IFDIR) != S_IFDIR, fsfat_fopen_utest_msg_g);
+
+    /* Test stat() on the directory returns the correct attribute set */
+    memset(&file_stat, 0, sizeof(file_stat));
+    memset(buf, 0, FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
+    memcpy(buf, node->filename, strlen(node->filename));
+    pos = strrchr(buf, '/');
+    *pos = '\0';
+    ret = stat(buf, &file_stat);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: stat() operation on directory failed (directory name=%s, ret=%d, errno=%d).\n", __func__, buf, (int) ret, errno);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected st_mode S_IFREG flag set (directory name=%s).\n", __func__, buf);
+    TEST_ASSERT_MESSAGE((file_stat.st_mode & S_IFREG) != S_IFREG, fsfat_fopen_utest_msg_g);
+
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: expected st_mode S_IFDIR flag not set (directory name=%s).\n", __func__, buf);
+    TEST_ASSERT_MESSAGE((file_stat.st_mode & S_IFDIR) == S_IFDIR, fsfat_fopen_utest_msg_g);
+
+    /* clean up after successful test */
+    fsfat_filepath_remove_all((char*) node->filename);
+
+#endif /* TOOLCHAIN_GCC */
     return CaseNext;
 }
 
@@ -1230,7 +1315,7 @@ control_t fsfat_fopen_test_21(const size_t call_count)
  *
  * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
  */
-control_t fsfat_fopen_test_22(const size_t call_count)
+control_t fsfat_fopen_test_15(const size_t call_count)
 {
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
@@ -1315,23 +1400,12 @@ Case cases[] = {
         Case("FSFAT_FOPEN_TEST_07: fopen()/errno handling.", FSFAT_FOPEN_TEST_07),
         Case("FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSFAT_FOPEN_TEST_08),
         Case("FSFAT_FOPEN_TEST_09: ftell() handling.", FSFAT_FOPEN_TEST_09),
-#ifdef FOPEN_NOT_IMPLEMENTED
-        Case("FSFAT_FOPEN_TEST_10: todo.", FSFAT_FOPEN_TEST_10),
-        Case("FSFAT_FOPEN_TEST_11: todo.", FSFAT_FOPEN_TEST_11),
-        Case("FSFAT_FOPEN_TEST_12: todo.", FSFAT_FOPEN_TEST_12),
-        Case("FSFAT_FOPEN_TEST_13: todo.", FSFAT_FOPEN_TEST_13),
-        Case("FSFAT_FOPEN_TEST_14: todo.", FSFAT_FOPEN_TEST_14),
-        Case("FSFAT_FOPEN_TEST_15: todo.", FSFAT_FOPEN_TEST_15),
-        Case("FSFAT_FOPEN_TEST_16: todo.", FSFAT_FOPEN_TEST_16),
-        Case("FSFAT_FOPEN_TEST_17: todo.", FSFAT_FOPEN_TEST_17),
-        Case("FSFAT_FOPEN_TEST_18: todo.", FSFAT_FOPEN_TEST_18),
-        Case("FSFAT_FOPEN_TEST_19: todo.", FSFAT_FOPEN_TEST_19),
-#endif /* FOPEN_NOT_IMPLEMENTED */
-        Case("FSFAT_FOPEN_TEST_20: mkdir() test.", FSFAT_FOPEN_TEST_20),
-#ifdef FOPEN_NOT_IMPLEMENTED
-        Case("FSFAT_FOPEN_TEST_21: todo.", FSFAT_FOPEN_TEST_21),
-#endif /* FOPEN_NOT_IMPLEMENTED */
-        Case("FSFAT_FOPEN_TEST_22: format() test.", FSFAT_FOPEN_TEST_22),
+        Case("FSFAT_FOPEN_TEST_10: remove() test.", FSFAT_FOPEN_TEST_10),
+        Case("FSFAT_FOPEN_TEST_11: rename().", FSFAT_FOPEN_TEST_11),
+        Case("FSFAT_FOPEN_TEST_12: opendir(), readdir(), closedir() test.", FSFAT_FOPEN_TEST_12),
+        Case("FSFAT_FOPEN_TEST_13: mkdir() test.", FSFAT_FOPEN_TEST_13),
+        Case("FSFAT_FOPEN_TEST_14: stat() test.", FSFAT_FOPEN_TEST_14),
+        Case("FSFAT_FOPEN_TEST_15: format() test.", FSFAT_FOPEN_TEST_15),
 
 };
 
