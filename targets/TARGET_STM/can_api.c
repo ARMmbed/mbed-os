@@ -21,10 +21,10 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "mbed_error.h"
+#include "can_device.h" // Specific to STM32 serie
 #include <math.h>
 #include <string.h>
 
-#define CAN_NUM    1
 static CAN_HandleTypeDef CanHandle;
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
@@ -393,6 +393,15 @@ static void can_irq(CANName name, int id)
         tmp1 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_0);
         tmp2 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_1);
         tmp3 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_2);
+        if (tmp1){
+            __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP0);
+        }
+        if (tmp2){
+            __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP1);
+        }
+        if (tmp3){
+            __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP2);
+        }
         if(tmp1 || tmp2 || tmp3)  
         {
             irq_handler(can_irq_ids[id], IRQ_TX);
@@ -427,10 +436,27 @@ static void can_irq(CANName name, int id)
     }  
 }
 
+#if defined(TARGET_STM32F0)
 void CAN_IRQHandler(void)
 {
     can_irq(CAN_1, 0);
 }
+#endif
+
+#if defined(TARGET_STM32F1)
+void CAN1_RX0_IRQHandler(void )
+{
+    can_irq(CAN_1, 0);
+}
+void CAN1_TX_IRQHandler(void)
+{
+    can_irq(CAN_1, 0);
+}
+void CAN1_SCE_IRQHandler(void)
+{
+    can_irq(CAN_1, 0);
+}
+#endif
 
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 {
@@ -444,23 +470,31 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
         switch (type) {
             case IRQ_RX:
                 ier = CAN_IT_FMP0;
+                irq_n = CAN1_IRQ_RX_IRQN;
+                vector = (uint32_t)&CAN1_IRQ_RX_VECT;
                 break;
             case IRQ_TX:      
                 ier = CAN_IT_TME;
+                irq_n = CAN1_IRQ_TX_IRQN;
+                vector = (uint32_t)&CAN1_IRQ_TX_VECT;
                 break;
             case IRQ_ERROR:   
                 ier = CAN_IT_ERR;
+                irq_n = CAN1_IRQ_ERROR_IRQN;
+                vector = (uint32_t)&CAN1_IRQ_ERROR_VECT;
                 break;
             case IRQ_PASSIVE:
                 ier = CAN_IT_EPV;
+                irq_n = CAN1_IRQ_PASSIVE_IRQN;
+                vector = (uint32_t)&CAN1_IRQ_PASSIVE_VECT;
                 break;
             case IRQ_BUS:
                 ier = CAN_IT_BOF;
+                irq_n = CAN1_IRQ_BUS_IRQN;
+                vector = (uint32_t)&CAN1_IRQ_BUS_VECT;
                 break;
             default: return;
         }
-        irq_n = CEC_CAN_IRQn;
-        vector = (uint32_t)&CAN_IRQHandler;
     } 
 
     if (enable) {
