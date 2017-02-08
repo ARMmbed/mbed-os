@@ -66,11 +66,13 @@ SVC_Context
                 CBNZ     R1,SVC_ContextSave     ; Branch if running thread is not deleted
                 TST      LR,#0x10               ; Check if extended stack frame
                 BNE      SVC_ContextSwitch
+#ifdef __FPU_PRESENT
                 LDR      R1,=0xE000EF34         ; FPCCR Address
                 LDR      R0,[R1]                ; Load FPCCR
                 BIC      R0,#1                  ; Clear LSPACT (Lazy state)
                 STR      R0,[R1]                ; Store FPCCR
                 B        SVC_ContextSwitch
+#endif
 
 SVC_ContextSave
                 STMDB    R12!,{R4-R11}          ; Save R4..R11
