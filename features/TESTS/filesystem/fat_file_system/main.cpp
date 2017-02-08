@@ -21,6 +21,7 @@
 #include "HeapBlockDevice.h"
 #include "FATFileSystem.h"
 #include <stdlib.h>
+#include "retarget.h"
 
 using namespace utest::v1;
 
