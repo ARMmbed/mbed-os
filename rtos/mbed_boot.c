@@ -137,6 +137,9 @@ WEAK void mbed_main(void);
 void pre_main (void);
 
 osThreadAttr_t _main_thread_attr;
+/* The main stack size is hardcoded on purpose, so it's less tempting to change it per platform. As usually it's not
+ * the correct solution to the problem and it makes mbed OS behave differently on different targets.
+ */
 char _main_stack[4096] __ALIGNED(8);
 char _main_obj[sizeof(os_thread_t)];
 
