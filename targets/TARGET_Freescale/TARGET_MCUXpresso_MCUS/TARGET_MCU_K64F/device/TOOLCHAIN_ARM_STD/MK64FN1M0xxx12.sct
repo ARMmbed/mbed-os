@@ -60,14 +60,22 @@
   #define __ram_vector_table_size__    0x00000000
 #endif
 
-#define m_interrupts_start             0x00000000
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x100000
+#endif
+
+#define m_interrupts_start             MBED_APP_START
 #define m_interrupts_size              0x00000400
 
-#define m_flash_config_start           0x00000400
+#define m_flash_config_start           MBED_APP_START + 0x400
 #define m_flash_config_size            0x00000010
 
-#define m_text_start                   0x00000410
-#define m_text_size                    0x000FFBF0
+#define m_text_start                   MBED_APP_START + 0x410
+#define m_text_size                    MBED_APP_SIZE - 0x410
 
 #define m_interrupts_ram_start         0x1FFF0000
 #define m_interrupts_ram_size          __ram_vector_table_size__
