@@ -94,10 +94,6 @@ btle_initializeSecurity(bool                                      enableBonding,
         }
     }
 
-    if (pm_init() != NRF_SUCCESS) {
-        return BLE_ERROR_UNSPECIFIED;
-    }
-
     // update default security parameters with function call parameters
     securityParameters.bond    = enableBonding;
     securityParameters.mitm    = requireMITM;

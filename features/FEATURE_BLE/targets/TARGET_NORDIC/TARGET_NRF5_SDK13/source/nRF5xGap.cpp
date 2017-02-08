@@ -561,12 +561,15 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
     */
     if ((type == BLEProtocol::AddressType::PUBLIC) || (type == BLEProtocol::AddressType::RANDOM_STATIC))
     {
+    	memcpy(dev_addr.addr, address, ADDR_LEN);
 #if  (NRF_SD_BLE_API_VERSION <= 2)
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_NONE;
 #else
         privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_OFF;
+
+        ASSERT_INT(ERROR_NONE, pm_id_addr_set(&dev_addr), BLE_ERROR_PARAM_OUT_OF_RANGE);
+        ASSERT_INT(ERROR_NONE, pm_privacy_set(&privacy_params), BLE_ERROR_PARAM_OUT_OF_RANGE);
 #endif
-        memcpy(dev_addr.addr, address, ADDR_LEN);
     }
     else if ((type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) || (type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE))
     {
@@ -575,6 +578,8 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
 #else   
         privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_DEVICE_PRIVACY;
         privacy_params.private_addr_type = type;
+
+        ASSERT_INT(ERROR_NONE, pm_privacy_set(&privacy_params), BLE_ERROR_PARAM_OUT_OF_RANGE);
 #endif
         // address is ignored when in auto mode
     }
@@ -586,9 +591,6 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
     dev_addr.addr_type = type;
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     ASSERT_INT(ERROR_NONE, sd_ble_gap_address_set(cycle_mode, &dev_addr), BLE_ERROR_PARAM_OUT_OF_RANGE);
-#else
-    ASSERT_INT(ERROR_NONE, pm_privacy_set(&privacy_params), BLE_ERROR_PARAM_OUT_OF_RANGE);
-    ASSERT_INT(ERROR_NONE, pm_id_addr_set(&dev_addr), BLE_ERROR_PARAM_OUT_OF_RANGE);
 #endif
 
     return BLE_ERROR_NONE;
@@ -678,7 +680,7 @@ void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
     };
 #elif defined(NRF52840_XXAA)
     static const int8_t permittedTxValues[] = {
-        -40, -20, -16, -12, -8, -4, 0, 4, 5, 6, 7, 8, 9
+        -40, -20, -16, -12, -8, -4, 0, 2, 3, 4, 5, 6, 7, 8, 9
     };
 #else
 #error permitted TX power values unknown for this SOC
@@ -1118,6 +1120,7 @@ ble_error_t nRF5xGap::getStackWhiteIdentityList(GapWhiteAndIdentityList_t &gapAd
         if (!irk_found[i])
         {
             memcpy(&gapAdrHelper.addrs[i], &whitelistAddresses[i], sizeof(ble_gap_addr_t));
+            gapAdrHelper.addrs[i].addr_id_peer = 0;
             gapAdrHelper.addrs_cnt++;
         }
     }
