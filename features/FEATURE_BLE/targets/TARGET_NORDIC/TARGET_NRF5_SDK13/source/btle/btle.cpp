@@ -165,6 +165,9 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
+    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
+    pm_init();
+
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     ble_gap_addr_t addr;
     if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
