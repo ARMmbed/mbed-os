@@ -107,9 +107,15 @@ public:
      */
     uint32_t get_sector_size(uint32_t addr) const;
 
-    /** Get the total size of the underlying device
+    /** Get the flash start address 
      *
-     *  @return Size of the underlying device in bytes
+     *  @return Flash start address 
+     */
+    uint32_t get_flash_start() const;
+
+    /** Get the flash size
+     *
+     *  @return Flash size 
      */
     uint32_t get_flash_size() const;
 

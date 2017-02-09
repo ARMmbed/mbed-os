@@ -60,7 +60,7 @@ void flash_program_page_test()
     }
 
     // the one before the last page in the system
-    uint32_t address = (test_flash.target_config->flash_start + test_flash.target_config->flash_size) - (2*test_size);
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2*test_size);
 
     // sector size might not be same as page size
     uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
@@ -97,7 +97,7 @@ void flash_erase_sector_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 
     uint32_t sector_size = 0x1000;
-    uint32_t address = (test_flash.target_config->flash_start + test_flash.target_config->flash_size) - (4*sector_size);
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (4*sector_size);
     // sector size might not be same as page size
     uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
     ret = flash_erase_sector(&test_flash, erase_sector_boundary);
@@ -115,7 +115,7 @@ void flash_erase_sector_error_test()
 
     // most common sector size to get an sector address 
     uint32_t sector_size = 0x1000;
-    uint32_t address = (test_flash.target_config->flash_start + test_flash.target_config->flash_size) - (4*sector_size);
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (4*sector_size);
     uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
 
     // unaligned address
@@ -136,7 +136,7 @@ void flash_program_page_error_test()
 
     uint32_t test_size = flash_get_page_size(&test_flash);
     // the one before the last page in the system
-    uint32_t address = (test_flash.target_config->flash_start + test_flash.target_config->flash_size) - (2*test_size);
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2*test_size);
 
     // sector size might not be same as page size
     uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
