@@ -592,7 +592,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["__ADUCM3029__","RELOCATE_IVT"],
         "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029"],
-        "device_has": [ "SERIAL", "STDIO_MESSAGES","TRNG"],
+        "device_has": [ "SERIAL", "STDIO_MESSAGES", "TRNG", "DEVICE_SLEEP"],
         "device_name": "ADuCM3029"
     },
     "MTS_GAMBIT": {
