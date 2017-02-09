@@ -100,7 +100,7 @@ def list_profiles():
     """
     return [fn.replace(".json", "") for fn in listdir(join(dirname(__file__), "profiles")) if fn.endswith(".json")]
 
-def extract_profile(parser, options, toolchain, fallback="default"):
+def extract_profile(parser, options, toolchain, fallback="develop"):
     """Extract a Toolchain profile from parsed options
 
     Positional arguments:

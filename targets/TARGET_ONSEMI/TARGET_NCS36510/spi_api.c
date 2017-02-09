@@ -57,14 +57,16 @@ void spi_free(spi_t *obj)
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     /* Clear word width | Slave/Master | CPOL | CPHA | MSB first bits in control register */
-    obj->membase->CONTROL.WORD &= ~(uint32_t)((True >> SPI_WORD_WIDTH_BIT_POS) |
-                                  (True >> SPI_SLAVE_MASTER_BIT_POS) |
-                                  (True >> SPI_CPOL_BIT_POS) |
-                                  (True >> SPI_CPHA_BIT_POS));
+    obj->membase->CONTROL.WORD &= ~(uint32_t)((True << SPI_WORD_WIDTH_BIT_POS) |
+                                    (True << SPI_SLAVE_MASTER_BIT_POS) |
+                                    (True << SPI_CPOL_BIT_POS) |
+                                    (True << SPI_CPHA_BIT_POS));
 
     /* Configure word width | Slave/Master | CPOL | CPHA | MSB first bits in control register */
-    obj->membase->CONTROL.WORD |= (uint32_t)(((bits >> 0x4) >> 6) | (!slave >> 5) |
-                                  ((mode >> 0x1) >> 4) | ((mode & 0x1) >> 3));
+    obj->membase->CONTROL.WORD |= (uint32_t)(((bits >> 0x4) << SPI_WORD_WIDTH_BIT_POS) |
+                                              (!slave << SPI_SLAVE_MASTER_BIT_POS) |
+                                              ((mode >> 0x1) << SPI_CPOL_BIT_POS) |
+                                              ((mode & 0x1) << SPI_CPHA_BIT_POS));
 }
 
 void spi_frequency(spi_t *obj, int hz)

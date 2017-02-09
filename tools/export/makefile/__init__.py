@@ -87,6 +87,14 @@ class Makefile(Exporter):
             'user_library_flag': self.USER_LIBRARY_FLAG,
         }
 
+        if hasattr(self.toolchain, "preproc"):
+            ctx['pp_cmd'] = " ".join(["\'" + part + "\'" for part
+                                      in ([basename(self.toolchain.preproc[0])] +
+                                          self.toolchain.preproc[1:] + 
+                                          self.toolchain.ld[1:])])
+        else:
+            ctx['pp_cmd'] = None
+
         for key in ['include_paths', 'library_paths', 'linker_script',
                     'hex_files']:
             if isinstance(ctx[key], list):

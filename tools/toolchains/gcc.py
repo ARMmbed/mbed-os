@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext
+from os.path import join, basename, splitext, dirname
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -25,7 +25,7 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error|fatal error): (?P<message>.+)')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
     def __init__(self, target,  notify=None, macros=None,
@@ -93,6 +93,7 @@ class GCC(mbedToolchain):
         self.flags['ld'] += self.cpu
         self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
+        self.preproc = [join(tool_path, "arm-none-eabi-cpp"), "-E", "-P"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
@@ -213,6 +214,15 @@ class GCC(mbedToolchain):
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
 
+        # Preprocess
+        if mem_map:
+            preproc_output = join(dirname(output), ".link_script.ld")
+            cmd = (self.preproc + [mem_map] + self.ld[1:] +
+                   [ "-o", preproc_output])
+            self.cc_verbose("Preproc: %s" % ' '.join(cmd))
+            self.default_cmd(cmd)
+            mem_map = preproc_output
+
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
@@ -257,6 +267,18 @@ class GCC(mbedToolchain):
         # Exec command
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
+
+    @staticmethod
+    def name_mangle(name):
+        return "_Z%i%sv" % (len(name), name)
+
+    @staticmethod
+    def make_ld_define(name, value):
+        return "-D%s=0x%x" % (name, value)
+
+    @staticmethod
+    def redirect_symbol(source, sync, build_dir):
+        return "-Wl,--defsym=%s=%s" % (source, sync)
 
 
 class GCC_ARM(GCC):

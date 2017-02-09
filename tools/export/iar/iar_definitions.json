@@ -5,6 +5,9 @@
     "LPC11U24FBD48/401": {
         "OGChipSelectEditMenu": "LPC11U24FBD64_401\tNXP LPC11U24FBD64_401"
     },
+    "STM32F207ZG": {
+         "OGChipSelectEditMenu": "STM32F207ZG\tST STM32F207ZG"
+    },
     "STM32F334R8": {
         "OGChipSelectEditMenu": "STM32F334x8\tST STM32F334x8"
     },
@@ -133,14 +136,14 @@
     "STM32F091RC": {
         "OGChipSelectEditMenu": "STM32F091RC\tST STM32F091RC"
     },
-    "r7s721001": {
+    "RZ_A1H": {
         "OGChipSelectEditMenu": "R7S721001\tRenesas R7S721001",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
         "GBECoreSlave": 37,
         "NEON":1
     },
-    "r7s721000": {
+    "VK_RZ_A1H": {
         "OGChipSelectEditMenu": "R7S721000\tRenesas R7S721000",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
@@ -153,7 +156,7 @@
     "STM32F031K6": {
         "OGChipSelectEditMenu": "STM32F031x6\tST STM32F031x6"
     },
-    "max326000x85": {
+    "MAX32600MBED": {
         "OGChipSelectEditMenu": "MAX32600x85\tMaxim MAX32600x85"
     },
     "STM32F407VG": {
