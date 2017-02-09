@@ -26,7 +26,7 @@ class ARM(mbedToolchain):
     LIBRARY_EXT = '.ar'
 
     STD_LIB_NAME = "%s.ar"
-    DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error): (?P<message>.+)')
+    DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error|Fatal error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
@@ -178,6 +178,8 @@ class ARM(mbedToolchain):
             args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--map", "--list=%s" % map_file]
         else:
             args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
+
+        args.extend(self.flags['ld'])
 
         if mem_map:
             args.extend(["--scatter", mem_map])

@@ -268,6 +268,16 @@
 #endif
 #endif
 
+#ifndef MBED_SECTION
+#if (defined(__GNUC__) || defined(__clang__)) || defined(__CC_ARM)
+#define MBED_SECTION(name) __attribute__ ((section (name)))
+#elif defined(__ICCARM__)
+#define MBED_SECTION(name) _Pragma(MBED_STRINGIFY(location=name))
+#else
+#error "Missing MBED_SECTION directive"
+#endif
+#endif
+
 // FILEHANDLE declaration
 #if defined(TOOLCHAIN_ARM)
 #include <rt_sys.h>

@@ -197,6 +197,7 @@ class Uvision(Exporter):
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
+        ctx['cputype'] = ctx['device'].core.rstrip("FD")
         # Turn on FPU optimizations if the core has an FPU
         ctx['fpu_setting'] = 1 if 'f' not in ctx['device'].core.lower() \
                                   or 'd' in ctx['device'].core.lower() else 2
