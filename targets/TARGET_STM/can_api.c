@@ -466,7 +466,7 @@ void CAN_IRQHandler(void)
 }
 #endif
 
-#if defined(TARGET_STM32F1) || defined(TARGET_STM32F2)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4)
 void CAN1_RX0_IRQHandler(void )
 {
     can_irq(CAN_1, 0);
