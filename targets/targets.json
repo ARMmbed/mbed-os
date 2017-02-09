@@ -610,7 +610,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["__ADUCM4050__","RELOCATE_IVT"],
         "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050"],
-        "device_has": [ "SERIAL", "STDIO_MESSAGES"],
+        "device_has": [ "SERIAL", "STDIO_MESSAGES", "TRNG", "DEVICE_SLEEP"],
         "device_name": "ADuCM4050"
     },
     "MTS_GAMBIT": {
