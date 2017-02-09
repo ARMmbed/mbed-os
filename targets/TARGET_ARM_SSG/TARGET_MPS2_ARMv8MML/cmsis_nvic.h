@@ -37,6 +37,7 @@
 
 #include "cmsis.h"
 
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Location of vectors in RAM
 #define NVIC_NUM_VECTORS      (16 + 56)
 #define NVIC_USER_IRQ_OFFSET  16
 
