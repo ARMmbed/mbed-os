@@ -497,6 +497,21 @@ void CAN2_SCE_IRQHandler(void)
 #endif
 #endif
 
+#if defined(TARGET_STM32F3)
+void CAN_RX0_IRQHandler(void )
+{
+    can_irq(CAN_1, 0);
+}
+void CAN_TX_IRQHandler(void)
+{
+    can_irq(CAN_1, 0);
+}
+void CAN_SCE_IRQHandler(void)
+{
+    can_irq(CAN_1, 0);
+}
+#endif
+
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 {
 
