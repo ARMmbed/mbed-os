@@ -2553,7 +2553,7 @@
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "NUC472", "NUMAKER_PFM_NUC472"],
+        "extra_labels": ["NUVOTON", "NUC472", "NU_XRAM_SUPPORTED"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
