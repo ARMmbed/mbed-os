@@ -10,11 +10,19 @@ STACK_SIZE = 0x400;
  * heap and the page heap in uVisor applications. */
 HEAP_SIZE = 0x6000;
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 2048k
+#endif
+
 /* Specify the memory areas */
 MEMORY
 {
-    VECTORS (rx) : ORIGIN = 0x08000000, LENGTH = 0x400
-    FLASH (rx)   : ORIGIN = 0x08000400, LENGTH = 2048k - 0x400
+    VECTORS (rx) : ORIGIN = MBED_APP_START, LENGTH = 0x400
+    FLASH (rx)   : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x400
     CCM (rwx)    : ORIGIN = 0x10000000, LENGTH = 64K
     RAM (rwx)    : ORIGIN = 0x20000000, LENGTH = 192k
 }
