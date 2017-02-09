@@ -5,6 +5,9 @@
     "LPC11U24FBD48/401": {
         "OGChipSelectEditMenu": "LPC11U24FBD64_401\tNXP LPC11U24FBD64_401"
     },
+    "STM32F207ZG": {
+         "OGChipSelectEditMenu": "STM32F207ZG\tST STM32F207ZG"
+    },
     "STM32F334R8": {
         "OGChipSelectEditMenu": "STM32F334x8\tST STM32F334x8"
     },
