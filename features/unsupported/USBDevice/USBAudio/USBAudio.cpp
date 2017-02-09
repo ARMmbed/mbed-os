@@ -85,7 +85,7 @@ bool USBAudio::readWrite(uint8_t * buf_read, uint8_t * buf_write) {
     SOF_handler = false;
     writeIN = false;
     if (interruptIN) {
-        USBDevice::writeNB(EP3IN, buf_write, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
+        USBDevice::writeNB(EPISO_IN, buf_write, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
     } else {
         buf_stream_out = buf_write;
     }
@@ -102,7 +102,7 @@ bool USBAudio::write(uint8_t * buf) {
     writeIN = false;
     SOF_handler = false;
     if (interruptIN) {
-        USBDevice::writeNB(EP3IN, buf, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
+        USBDevice::writeNB(EPISO_IN, buf, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
     } else {
         buf_stream_out = buf;
     }
@@ -115,13 +115,13 @@ bool USBAudio::write(uint8_t * buf) {
 
 void USBAudio::writeSync(uint8_t *buf)
 {
-    USBDevice::writeNB(EP3IN, buf, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
+    USBDevice::writeNB(EPISO_IN, buf, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
 }
 
 uint32_t USBAudio::readSync(uint8_t *buf)
 {
     uint32_t size = 0;
-    USBDevice::readEP(EP3OUT, (uint8_t *)buf, &size, PACKET_SIZE_ISO_IN);
+    USBDevice::readEP(EPISO_OUT, (uint8_t *)buf, &size, PACKET_SIZE_ISO_IN);
     return size;
 }
 
@@ -134,7 +134,7 @@ bool USBAudio::EPISO_OUT_callback() {
     uint32_t size = 0;
     interruptOUT = true;
     if (buf_stream_in != NULL) {
-        readEP(EP3OUT, (uint8_t *)buf_stream_in, &size, PACKET_SIZE_ISO_IN);
+        readEP(EPISO_OUT, (uint8_t *)buf_stream_in, &size, PACKET_SIZE_ISO_IN);
         available = true;
         buf_stream_in = NULL;
     }
@@ -142,7 +142,7 @@ bool USBAudio::EPISO_OUT_callback() {
         if (rxDone)
             rxDone.call();
     }
-    readStart(EP3OUT, PACKET_SIZE_ISO_IN);
+    readStart(EPISO_OUT, PACKET_SIZE_ISO_IN);
     return false;
 }
 
@@ -164,10 +164,10 @@ void USBAudio::SOF(int frameNumber) {
     if (!interruptOUT) {
         // read the isochronous endpoint
         if (buf_stream_in != NULL) {
-            if (USBDevice::readEP_NB(EP3OUT, (uint8_t *)buf_stream_in, &size, PACKET_SIZE_ISO_IN)) {
+            if (USBDevice::readEP_NB(EPISO_OUT, (uint8_t *)buf_stream_in, &size, PACKET_SIZE_ISO_IN)) {
                 if (size) {
                     available = true;
-                    readStart(EP3OUT, PACKET_SIZE_ISO_IN);
+                    readStart(EPISO_OUT, PACKET_SIZE_ISO_IN);
                     buf_stream_in = NULL;
                 }
             }
@@ -177,7 +177,7 @@ void USBAudio::SOF(int frameNumber) {
     if (!interruptIN) {
         // write if needed
         if (buf_stream_out != NULL) {
-            USBDevice::writeNB(EP3IN, (uint8_t *)buf_stream_out, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
+            USBDevice::writeNB(EPISO_IN, (uint8_t *)buf_stream_out, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
             buf_stream_out = NULL;
         }
     }
@@ -194,11 +194,11 @@ bool USBAudio::USBCallback_setConfiguration(uint8_t configuration) {
     }
 
     // Configure isochronous endpoint
-    realiseEndpoint(EP3OUT, PACKET_SIZE_ISO_IN, ISOCHRONOUS);
-    realiseEndpoint(EP3IN, PACKET_SIZE_ISO_OUT, ISOCHRONOUS);
+    realiseEndpoint(EPISO_OUT, PACKET_SIZE_ISO_IN, ISOCHRONOUS);
+    realiseEndpoint(EPISO_IN, PACKET_SIZE_ISO_OUT, ISOCHRONOUS);
 
     // activate readings on this endpoint
-    readStart(EP3OUT, PACKET_SIZE_ISO_IN);
+    readStart(EPISO_OUT, PACKET_SIZE_ISO_IN);
     return true;
 }
 
