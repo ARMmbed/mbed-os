@@ -69,12 +69,18 @@ void mbed_copy_nvic(void)
 
 #if defined (__CC_ARM)
 
-int $Super$$main(void);
+#if defined(CUSTOM_ENTRY_POINT)
+    #define mbed_real_main      mbed_entry_point
+#else
+    #define mbed_real_main      $Super$$main
+#endif
+
+int mbed_real_main(void);
 
 int $Sub$$main(void) 
 {
     mbed_main();
-    return $Super$$main();
+    return mbed_real_main();
 }
 
 void _platform_post_stackheap_init(void) 
@@ -85,7 +91,13 @@ void _platform_post_stackheap_init(void)
 
 #elif defined (__GNUC__) 
 
-extern int __real_main(void);
+#if defined(CUSTOM_ENTRY_POINT)
+    #define mbed_real_main      mbed_entry_point
+#else
+    #define mbed_real_main      __real_main
+#endif
+
+extern int mbed_real_main(void);
 
 void software_init_hook(void)
 {
@@ -98,7 +110,7 @@ void software_init_hook(void)
 int __wrap_main(void) 
 {
     mbed_main();
-    return __real_main();
+    return mbed_real_main();
 }
 
 #elif defined (__ICCARM__)
