@@ -161,6 +161,11 @@ uint32_t flash_get_page_size(const flash_t *obj)
     return obj->target_config->page_size;
 }
 
+uint32_t flash_get_start_address(const flash_t *obj)
+{
+    return obj->target_config->flash_start;
+}
+
 uint32_t flash_get_size(const flash_t *obj)
 {
     return obj->target_config->flash_size;

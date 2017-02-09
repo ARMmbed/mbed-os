@@ -43,7 +43,7 @@ void flashiap_program_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 
     // get the last sector size (flash size - 1)
-    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_size() - 1UL);
+    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_start() + flash_device.get_flash_size() - 1UL);
     TEST_ASSERT_NOT_EQUAL(sector_size, 0);
     const uint8_t test_value = 0xCE;
     uint8_t *data = new uint8_t[sector_size];
@@ -52,7 +52,7 @@ void flashiap_program_test()
     }
 
     // the one before the last page in the system
-    uint32_t address = (flash_device.get_flash_size()) - (sector_size);
+    uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
     ret = flash_device.erase(address, sector_size);
     TEST_ASSERT_EQUAL_INT32(ret, 0);
@@ -78,7 +78,7 @@ void flashiap_write_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 
     // get the last sector size
-    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_size() - 1UL);
+    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_start() + flash_device.get_flash_size() - 1UL);
     TEST_ASSERT_NOT_EQUAL(sector_size, 0);
     const uint8_t test_value = 0xCE;
     uint8_t *data = new uint8_t[sector_size];
@@ -87,7 +87,7 @@ void flashiap_write_test()
     }
 
     // the one before the last page in the system
-    uint32_t address = (flash_device.get_flash_size()) - (sector_size);
+    uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
     ret = flash_device.write(data, address, sector_size);
     TEST_ASSERT_EQUAL_INT32(ret, 0);
@@ -110,7 +110,7 @@ void flashiap_program_error_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 
     // get the last sector size (flash size - 1)
-    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_size() - 1UL);
+    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_start() + flash_device.get_flash_size() - 1UL);
     TEST_ASSERT_NOT_EQUAL(sector_size, 0);
     const uint8_t test_value = 0xCE;
     uint8_t *data = new uint8_t[sector_size];
@@ -119,7 +119,7 @@ void flashiap_program_error_test()
     }
 
     // the one before the last page in the system
-    uint32_t address = (flash_device.get_flash_size()) - (sector_size);
+    uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
 
     // unaligned address
@@ -147,7 +147,7 @@ void flashiap_write_error_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 
     // get the last sector size
-    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_size() - 1UL);
+    uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_start() + flash_device.get_flash_size() - 1UL);
     TEST_ASSERT_NOT_EQUAL(sector_size, 0);
     const uint8_t test_value = 0xCE;
     uint8_t *data = new uint8_t[sector_size];
@@ -156,7 +156,7 @@ void flashiap_write_error_test()
     }
 
     // the one before the last page in the system
-    uint32_t address = (flash_device.get_flash_size()) - (sector_size);
+    uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
 
     // unaligned address

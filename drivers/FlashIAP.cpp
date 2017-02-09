@@ -165,6 +165,11 @@ uint32_t FlashIAP::get_sector_size(uint32_t addr) const
     return flash_get_sector_size(&_flash, addr);
 }
 
+uint32_t FlashIAP::get_flash_start() const
+{
+    return flash_get_start_address(&_flash);
+}
+
 uint32_t FlashIAP::get_flash_size() const
 {
     return flash_get_size(&_flash);
