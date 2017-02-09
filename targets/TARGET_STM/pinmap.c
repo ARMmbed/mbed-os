@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,7 @@
 
 extern GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx);
 
-const uint32_t ll_pin_defines[16] =
-{
+const uint32_t ll_pin_defines[16] = {
     LL_GPIO_PIN_0,
     LL_GPIO_PIN_1,
     LL_GPIO_PIN_2,
@@ -58,7 +57,8 @@ const uint32_t ll_pin_defines[16] =
 /**
  * Configure pin (mode, speed, output type and pull-up/pull-down)
  */
-void pin_function(PinName pin, int data) {
+void pin_function(PinName pin, int data)
+{
     MBED_ASSERT(pin != (PinName)NC);
 
     // Get the pin informations
@@ -71,8 +71,7 @@ void pin_function(PinName pin, int data) {
     // Enable GPIO clock
     GPIO_TypeDef *gpio = Set_GPIO_Clock(port);
 
-    switch (mode)
-    {
+    switch (mode) {
         case STM_PIN_INPUT:
             ll_mode = LL_GPIO_MODE_INPUT;
             break;
@@ -95,12 +94,9 @@ void pin_function(PinName pin, int data) {
 
 #if defined(GPIO_ASCR_ASC0)
     /*  For families where Analog Control ASC0 register is present */
-    if (STM_PIN_ANALOG_CONTROL(data))
-    {
+    if (STM_PIN_ANALOG_CONTROL(data)) {
         LL_GPIO_EnablePinAnalogControl(gpio, ll_pin);
-    }
-    else
-    {
+    } else {
         LL_GPIO_DisablePinAnalogControl(gpio, ll_pin);
     }
 #endif
@@ -108,10 +104,11 @@ void pin_function(PinName pin, int data) {
     /*  For now by default use Speed HIGH for output or alt modes */
     if ((mode == STM_PIN_OUTPUT) ||(mode == STM_PIN_ALTERNATE)) {
         LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
-        if (STM_PIN_OD(data))
+    if (STM_PIN_OD(data)) {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_OPENDRAIN);
-        else
+    } else {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_PUSHPULL);
+    }
     }
 
     stm_pin_PullConfig(gpio, ll_pin, STM_PIN_PUPD(data));
@@ -134,26 +131,18 @@ void pin_mode(PinName pin, PinMode mode)
 
     if ((function == LL_GPIO_MODE_OUTPUT) || (function == LL_GPIO_MODE_ALTERNATE))
     {
-        if ((mode == OpenDrainNoPull) || (mode == OpenDrainPullUp) || (mode == OpenDrainPullDown))
-        {
+        if ((mode == OpenDrainNoPull) || (mode == OpenDrainPullUp) || (mode == OpenDrainPullDown)) {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_OPENDRAIN);
-        }
-        else
-        {
+        } else {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_PUSHPULL);
         }
     }
 
-    if ((mode == OpenDrainPullUp) || (mode == PullUp))
-    {
+    if ((mode == OpenDrainPullUp) || (mode == PullUp)) {
         stm_pin_PullConfig(gpio, ll_pin, GPIO_PULLUP);
-    }
-    else if ((mode == OpenDrainPullDown) || (mode == PullDown))
-    {
+    } else if ((mode == OpenDrainPullDown) || (mode == PullDown)) {
         stm_pin_PullConfig(gpio, ll_pin, GPIO_PULLDOWN);
-    }
-    else
-    {
+    } else {
         stm_pin_PullConfig(gpio, ll_pin, GPIO_NOPULL);
     }
 }
