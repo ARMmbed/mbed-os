@@ -25,7 +25,7 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error|fatal error): (?P<message>.+)')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
     def __init__(self, target,  notify=None, macros=None,
