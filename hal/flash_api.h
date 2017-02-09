@@ -90,10 +90,17 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address);
  */
 uint32_t flash_get_page_size(const flash_t *obj);
 
-/** Get flash size
+/** Get start address for the flash region
  * 
  * @param obj The flash objects
- * @return The size of the flash available
+ * @return The start address for the flash region
+ */
+uint32_t flash_get_start_address(const flash_t *obj);
+
+/** Get the flash region size
+ * 
+ * @param obj The flash objects
+ * @return The flash region size
  */
 uint32_t flash_get_size(const flash_t *obj);
 
