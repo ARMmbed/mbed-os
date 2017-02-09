@@ -733,7 +733,10 @@ ble_error_t nRF5xGap::getWhitelist(Gap::Whitelist_t &whitelistOut) const
 {
     uint8_t i;
     for (i = 0; i < whitelistAddressesSize && i < whitelistOut.capacity; ++i) {
-        memcpy(&whitelistOut.addresses[i], &whitelistAddresses[i], sizeof(BLEProtocol::Address_t));
+        memcpy( &whitelistOut.addresses[i].address, &whitelistAddresses[whitelistAddressesSize].addr, sizeof(whitelistOut.addresses[i].address));
+        whitelistOut.addresses[i].type = static_cast<BLEProtocol::AddressType_t> (whitelistAddresses[whitelistAddressesSize].addr_type);
+
+
     }
     whitelistOut.size = i;
 
@@ -786,7 +789,8 @@ ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
 
     whitelistAddressesSize = 0;
     for (uint8_t i = 0; i < whitelistIn.size; ++i) {
-        memcpy(&whitelistAddresses[whitelistAddressesSize], &whitelistIn.addresses[i], sizeof(BLEProtocol::Address_t));
+        memcpy(&whitelistAddresses[whitelistAddressesSize].addr , &whitelistIn.addresses[i].address , sizeof(whitelistAddresses[whitelistAddressesSize].addr));
+        whitelistAddresses[whitelistAddressesSize].addr_type = static_cast<uint8_t> (whitelistIn.addresses[i].type);
         whitelistAddressesSize++;
     }
 
