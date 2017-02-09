@@ -1,8 +1,14 @@
 M_VECTOR_RAM_SIZE = 0x400;
 
-/* Heap: 1/4 of RAM. Stack: 1/8 of RAM. */
-STACK_SIZE = 0x6000;
-HEAP_SIZE = 0xC000;
+/* With the RTOS in use, this does not affect the main stack size. The size of
+ * the stack where main runs is determined via the RTOS. */
+STACK_SIZE = 0x400;
+
+/* This is the guaranteed minimum available heap size for an application. When
+ * uVisor is enabled, this is also the maximum available heap size. The
+ * HEAP_SIZE value is set by uVisor porters to balance the size of the legacy
+ * heap and the page heap in uVisor applications. */
+HEAP_SIZE = 0x6000;
 
 /* Specify the memory areas */
 MEMORY
