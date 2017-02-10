@@ -53,6 +53,7 @@ void hal_deepsleep(void)
 {
     // Stop HAL tick
     HAL_SuspendTick();
+    uint32_t EnterTimeUS = us_ticker_read();
 
     // Request to enter STOP mode with regulator in low power mode
 #if TARGET_STM32L4
@@ -83,6 +84,10 @@ void hal_deepsleep(void)
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
+
+    TIM_HandleTypeDef TimMasterHandle;
+    TimMasterHandle.Instance = TIM_MST;
+    __HAL_TIM_SET_COUNTER(&TimMasterHandle, EnterTimeUS);
 
 #if DEVICE_LOWPOWERTIMER
     rtc_synchronize();
