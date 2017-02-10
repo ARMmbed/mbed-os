@@ -136,7 +136,7 @@ void fI2cFrequency(i2c_t *obj, uint32_t hz)
 int32_t fI2cStart(i2c_t *obj)
 {
     /* Send start bit */
-    SEND_COMMAND(I2C_CMD_START)
+    SEND_COMMAND(I2C_CMD_START);
     return I2C_API_STATUS_SUCCESS;
 }
 
