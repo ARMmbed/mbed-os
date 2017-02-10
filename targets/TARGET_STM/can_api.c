@@ -460,57 +460,41 @@ static void can_irq(CANName name, int id)
 }
 
 #if defined(TARGET_STM32F0)
-void CAN_IRQHandler(void)
-{
+void CAN_IRQHandler(void) {
     can_irq(CAN_1, 0);
 }
-#endif
-
-#if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4) || defined(TARGET_STM32F7) || defined(TARGET_STM32L4)
-void CAN1_RX0_IRQHandler(void )
-{
+#elif defined(TARGET_STM32F3)
+void CAN_RX0_IRQHandler(void) {
     can_irq(CAN_1, 0);
 }
-void CAN1_TX_IRQHandler(void)
-{
+void CAN_TX_IRQHandler(void) {
     can_irq(CAN_1, 0);
 }
-void CAN1_SCE_IRQHandler(void)
-{
+void CAN_SCE_IRQHandler(void) {
+    can_irq(CAN_1, 0);
+}
+#else
+void CAN1_RX0_IRQHandler(void) {
+    can_irq(CAN_1, 0);
+}
+void CAN1_TX_IRQHandler(void) {
+    can_irq(CAN_1, 0);
+}
+void CAN1_SCE_IRQHandler(void) {
     can_irq(CAN_1, 0);
 }
 #if defined(CAN2_BASE) && (CAN_NUM == 2)
-void CAN2_RX0_IRQHandler(void)
-{
+void CAN2_RX0_IRQHandler(void) {
     can_irq(CAN_2, 1);
 }
-
-void CAN2_TX_IRQHandler(void)
-{
+void CAN2_TX_IRQHandler(void) {
     can_irq(CAN_2, 1);
 }
-
-void CAN2_SCE_IRQHandler(void)
-{
+void CAN2_SCE_IRQHandler(void) {
     can_irq(CAN_2, 1);
 }
-#endif
-#endif
-
-#if defined(TARGET_STM32F3)
-void CAN_RX0_IRQHandler(void )
-{
-    can_irq(CAN_1, 0);
-}
-void CAN_TX_IRQHandler(void)
-{
-    can_irq(CAN_1, 0);
-}
-void CAN_SCE_IRQHandler(void)
-{
-    can_irq(CAN_1, 0);
-}
-#endif
+#endif // defined(CAN2_BASE) && (CAN_NUM == 2)
+#endif // else
 
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 {
