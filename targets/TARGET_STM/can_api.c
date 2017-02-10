@@ -109,7 +109,7 @@ void can_free(can_t *obj)
         __HAL_RCC_CAN1_RELEASE_RESET();
         __HAL_RCC_CAN1_CLK_DISABLE();
     }
-#if defined(CAN2_BASE)
+#if defined(CAN2_BASE) && (CAN_NUM == 2)
     if (obj->can == CAN_2) {
         __HAL_RCC_CAN2_FORCE_RESET();
         __HAL_RCC_CAN2_RELEASE_RESET();
@@ -466,7 +466,7 @@ void CAN_IRQHandler(void)
 }
 #endif
 
-#if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4) || defined(TARGET_STM32F7)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4) || defined(TARGET_STM32F7) || defined(TARGET_STM32L4)
 void CAN1_RX0_IRQHandler(void )
 {
     can_irq(CAN_1, 0);
@@ -479,7 +479,7 @@ void CAN1_SCE_IRQHandler(void)
 {
     can_irq(CAN_1, 0);
 }
-#if defined(CAN2_BASE)
+#if defined(CAN2_BASE) && (CAN_NUM == 2)
 void CAN2_RX0_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
