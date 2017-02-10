@@ -130,7 +130,7 @@ private:
     bool (USBHAL::*epCallback[10 - 2])(void);
 #elif (defined(TARGET_STM32F4) && !defined(USB_STM_HAL)) || defined(TARGET_NUMAKER_PFM_M453)
     bool (USBHAL::*epCallback[8 - 2])(void);
-#elif defined(TARGET_STM32F4) || defined(TARGET_STM32F3) || defined (TARGET_STM32F2)|| defined(TARGET_STM32L4) || defined(TARGET_STM32F7)
+#elif defined(TARGET_STM)
     PCD_HandleTypeDef hpcd;
 #elif defined(TARGET_NUMAKER_PFM_NUC472)
     bool (USBHAL::*epCallback[14 - 2])(void);

@@ -67,6 +67,9 @@ CC      = {{cc_cmd}}
 CPP     = {{cppc_cmd}}
 LD      = {{ld_cmd}}
 ELF2BIN = {{elf2bin_cmd}}
+{% if pp_cmd -%}
+PREPROC = {{pp_cmd}}
+{%- endif %}
 {% if hex_files %}
 SREC_CAT = srec_cat
 {%- endif %}
@@ -119,8 +122,13 @@ all: $(PROJECT).bin $(PROJECT).hex size
 	+@echo "Compile: $(notdir $<)"
 	@$(CPP) $(CXX_FLAGS) $(INCLUDE_PATHS) -o $@ $<
 
+{% if pp_cmd %}
+$(PROJECT).link_script{{link_script_ext}}: $(LINKER_SCRIPT)
+	@$(PREPROC) $< -o $@
+{% endif %}
+
 {% block target_project_elf %}
-$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(LINKER_SCRIPT)
+$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) {% if pp_cmd -%} $(PROJECT).link_script{{link_script_ext}} {% else%} $(LINKER_SCRIPT) {% endif %}
 	+@echo "link: $(notdir $@)"
 	@$(LD) $(LD_FLAGS) {{link_script_option}} $(filter %{{link_script_ext}}, $^) $(LIBRARY_PATHS) --output $@ $(filter %.o, $^) $(LIBRARIES) $(LD_SYS_LIBS)
 {% endblock %}
