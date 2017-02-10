@@ -3,18 +3,18 @@
 #include "unity.h"
 #include "utest.h"
 
-#include "MX25RBlockDevice.h"
+#include "SPIFBlockDevice.h"
 #include <stdlib.h>
 
 using namespace utest::v1;
 
-#ifndef MX25R_INSTALLED
-#define MX25R_INSTALLED defined(TARGET_K82F)
+#ifndef SPIF_INSTALLED
+#define SPIF_INSTALLED defined(TARGET_K82F)
 #endif
 
-#if !MX25R_INSTALLED
-#error [NOT_SUPPORTED] MX25R Required
-#endif
+//#if !SPIF_INSTALLED
+//#error [NOT_SUPPORTED] SPIF Required
+//#endif
 
 #define BLOCK_SIZE 4096
 uint8_t write_block[BLOCK_SIZE];
@@ -22,7 +22,8 @@ uint8_t read_block[BLOCK_SIZE];
 
 
 void test_read_write() {
-    MX25RBlockDevice bd(PTE2, PTE4, PTE1, PTE5);
+    //SPIFBlockDevice bd(PTE2, PTE4, PTE1, PTE5);
+    SPIFBlockDevice bd(D11, D12, D13, D10);
 
     int err = bd.init();
     TEST_ASSERT_EQUAL(0, err);
@@ -45,6 +46,13 @@ void test_read_write() {
     TEST_ASSERT_EQUAL(0, err);
 
     // Check that the data was unmodified
+    printf("w (0x%02x%02x%02x%02x)\n",
+        write_block[0], write_block[1], write_block[2], write_block[3],
+        write_block[4], write_block[5], write_block[6], write_block[7]);
+    printf("r (0x%02x%02x%02x%02x)\n",
+        read_block[0], read_block[1], read_block[2], read_block[3],
+        read_block[4], read_block[5], read_block[6], read_block[7]);
+
     srand(1);
     for (int i = 0; i < BLOCK_SIZE; i++) {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
@@ -57,7 +65,7 @@ void test_read_write() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(10, "default_auto");
+    GREENTEA_SETUP(10*1000*1000, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

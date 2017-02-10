@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_MX25R_BLOCK_DEVICE_H
-#define MBED_MX25R_BLOCK_DEVICE_H
+#ifndef MBED_SPIF_BLOCK_DEVICE_H
+#define MBED_SPIF_BLOCK_DEVICE_H
 
-/* If the target has no SPI support then MX25R is not supported */
+/* If the target has no SPI support then SPIF is not supported */
 #ifdef DEVICE_SPI
  
 #include <mbed.h>
 #include "BlockDevice.h"
 
  
-/** BlockDevice for the MX25R series of spi-based flash chips
+/** BlockDevice for the SPIF series of spi-based flash chips
  *
  *  @code
  *  #include "mbed.h"
- *  #include "MX25RBlockDevice.h"
+ *  #include "SPIFBlockDevice.h"
  *
  *  // Create mx25r on SPI bus with PTE5 as chip select
- *  MX25RBlockDevice mx25r(PTE2, PTE4, PTE1, PTE5);
+ *  SPIFBlockDevice mx25r(PTE2, PTE4, PTE1, PTE5);
  *
  *  int main() {
  *      printf("mx25r test\n");
@@ -50,16 +50,17 @@
  *      mx25r.deinit();
  *  }
  */
-class MX25RBlockDevice : public BlockDevice {
+class SPIFBlockDevice : public BlockDevice {
 public:
-    /** Creates a MX25RBlockDevice on a SPI bus specified by pins
+    /** Creates a SPIFBlockDevice on a SPI bus specified by pins
      *
-     *  @param mosi         SPI master out, slave in pin
-     *  @param miso         SPI master in, slave out pin
-     *  @param sclk         SPI clock pin
-     *  @param ssel         SPI chip select pin
+     *  @param mosi     SPI master out, slave in pin
+     *  @param miso     SPI master in, slave out pin
+     *  @param sclk     SPI clock pin
+     *  @param csel     SPI chip select pin
+     *  @param freq     Clock speed of the SPI bus (defaults to 50MHz)
      */
-    MX25RBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName ssel);
+    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq=50000000);
 
     /** Initialize a block device
      *
@@ -130,15 +131,23 @@ public:
     virtual bd_size_t size();
     
 private:
+    // Master side hardware
     SPI _spi;
     DigitalOut _cs;
+
+    // Device configuration discovered through sfdp
     bd_size_t _size;
 
+    // Internal functions
     bd_error_t _wren();
     bd_error_t _sync();
+    void _cmdread(uint8_t op, uint32_t addrc, uint32_t retc,
+            uint32_t addr, uint8_t *rets);
+    void _cmdwrite(uint8_t op, uint32_t addrc, uint32_t argc,
+            uint32_t addr, const uint8_t *args);
 };
 
 
 #endif  /* DEVICE_SPI */
 
-#endif  /* MBED_MX25R_BLOCK_DEVICE_H */
+#endif  /* MBED_SPIF_BLOCK_DEVICE_H */
