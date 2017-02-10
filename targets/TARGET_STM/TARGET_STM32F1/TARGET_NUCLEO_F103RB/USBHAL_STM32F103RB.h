@@ -46,10 +46,11 @@ typedef struct
     /*  memorize dummy buffer used for reception */
     uint32_t pBufRx[MAXTRANSFER_SIZE>>2];
     uint32_t pBufRx0[MAX_PACKET_SIZE_EP0>>2];
-	gpio_t usb_switch;
+    gpio_t usb_switch;
 }USBHAL_Private_t;
 
-void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state){
+void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
+{
     USBHAL_Private_t *priv=((USBHAL_Private_t *)(hpcd->pData));
     gpio_write(&(priv->usb_switch),!state);
 }
@@ -58,18 +59,19 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
 {
     return 1024;
 }
-void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd) {
+void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
+{
     USBHAL_Private_t *priv=((USBHAL_Private_t *)(hpcd->pData));
     USBHAL *obj= priv->inst;
     uint32_t sofnum = (hpcd->Instance->FNR) & USB_FNR_FN;
     void (USBHAL::*func)(int frame) = priv->sof;
-    /* fix me  call with same frame number */
     (obj->*func)(sofnum);
 }
 
 USBHAL * USBHAL::instance;
 
-USBHAL::USBHAL(void) {
+USBHAL::USBHAL(void)
+{
     /*  init parameter  */
     USBHAL_Private_t *HALPriv = new(USBHAL_Private_t);
     /*  initialized all field of init including 0 field  */
@@ -106,18 +108,20 @@ USBHAL::USBHAL(void) {
 
     /* Configure USB VBUS GPIO */
     gpio_init_out(&HALPriv->usb_switch,PB_14);
-	gpio_mode(&HALPriv->usb_switch,OpenDrain);
+    gpio_mode(&HALPriv->usb_switch,OpenDrain);
     /* Configure USB FS GPIOs */
 
-    /* Configure DM DP Pins */
- /*   - USB-DP (D+ of the USB connector) <======> PA12 (Nucleo board)
-  Make sure to connect a 1.5KOhm pull up to USB-DP PA12 pin (permanent pull-up)
-     - USB-DM (D- of the USB connector) <======> PA11 (Nucleo board) */
-	
+    /* Configure DM DP Pins
+     *   - USB-DP (D+ of the USB connector) <======> PA12 (Nucleo board)
+     *   Make sure to connect a 1.5KOhm pull up to USB-DP PA12 pin
+     *   (permanent pull-up)
+     - USB-DM (D- of the USB connector) <======> PA11 (Nucleo board)
+     */
+
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_MODE_AF_INPUT));
     pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_MODE_AF_INPUT));
 
-     __HAL_RCC_USB_CLK_ENABLE();
+    __HAL_RCC_USB_CLK_ENABLE();
 
     hpcd.State = HAL_PCD_STATE_RESET;
 
@@ -125,7 +129,7 @@ USBHAL::USBHAL(void) {
     /* hardcoded size of FIFO according definition*/
     HAL_PCDEx_PMAConfig(&hpcd , 0x00 , PCD_SNG_BUF, 0x30);
     HAL_PCDEx_PMAConfig(&hpcd , 0x80 , PCD_SNG_BUF, 0x70);
-	HAL_PCDEx_PMAConfig(&hpcd , 0x01 , PCD_SNG_BUF, 0x90);
+    HAL_PCDEx_PMAConfig(&hpcd , 0x01 , PCD_SNG_BUF, 0x90);
     HAL_PCDEx_PMAConfig(&hpcd , 0x81 , PCD_SNG_BUF, 0xb0);
 #if 0
     HAL_PCDEx_PMAConfig(&hpcd , 0x2, PCD_DBL_BUF, 0x018000b0);

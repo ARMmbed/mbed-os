@@ -61,7 +61,6 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
     uint32_t sofnum = (USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8;
     void (USBHAL::*func)(int frame) = priv->sof;
-    /* fix me  call with same frame number */
     (obj->*func)(sofnum);
 }
 
