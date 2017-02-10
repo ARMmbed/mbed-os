@@ -169,6 +169,18 @@ osMutexAttr_t singleton_mutex_attr;
     #error "no target defined"
 #endif
 
+/* Interrupt stack and heap always defined for IAR
+ * Main thread defined here
+ */
+#if defined(__ICCARM__)
+    #pragma section="CSTACK"
+    #pragma section="HEAP"
+    #define HEAP_START          ((unsigned char*)__section_begin("HEAP"))
+    #define HEAP_SIZE           ((uint32_t)__section_size("HEAP"))
+    #define ISR_STACK_START     ((unsigned char*)__section_begin("CSTACK"))
+    #define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
+#endif
+
 /* Define heap region if it has not been defined already */
 #if !defined(HEAP_START)
     #if defined(__ICCARM__)
@@ -389,6 +401,55 @@ void __rtos_env_unlock( struct _reent *_r )
 
 #if defined(TOOLCHAIN_IAR) /******************** IAR ********************/
 
+extern void* __vector_table;
+extern int  __low_level_init(void);
+extern void __iar_data_init3(void);
+extern __weak void __iar_init_core( void );
+extern __weak void __iar_init_vfp( void );
+extern void __iar_dynamic_initialization(void);
+extern void mbed_sdk_init(void);
+extern int main(void);
+extern void exit(int arg);
+
+static uint8_t low_level_init_needed;
+
+void pre_main(void)
+{
+    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
+    singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
+    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
+
+    if (low_level_init_needed) {
+        __iar_dynamic_initialization();
+    }
+    mbed_main();
+    main();
+}
+
+#pragma required=__vector_table
+void __iar_program_start( void )
+{
+  __iar_init_core();
+  __iar_init_vfp();
+
+  mbed_set_stack_heap();
+
+  uint8_t low_level_init_needed_local;
+
+  low_level_init_needed_local = __low_level_init();
+  if (low_level_init_needed_local) {
+    __iar_data_init3();
+    mbed_sdk_init();
+  }
+  /* Store in a global variable after RAM has been initialized */
+  low_level_init_needed = low_level_init_needed_local;
+
+  osKernelInitialize();
+
+  mbed_start_main();
+}
+
 // IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
 // to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
 // 'main' to another symbol looses the original 'main' symbol. However, its startup
@@ -396,6 +457,80 @@ void __rtos_env_unlock( struct _reent *_r )
 // Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
 void __iar_argc_argv() {
     mbed_main();
+    main();
+}
+
+/* Thread safety */
+static osMutexId_t std_mutex_id_sys[_MAX_LOCK] = {0};
+static os_mutex_t  std_mutex_sys[_MAX_LOCK] = {0};
+#define _FOPEN_MAX 10
+static osMutexId_t std_mutex_id_file[_FOPEN_MAX] = {0};
+static os_mutex_t  std_mutex_file[_FOPEN_MAX] = {0};
+
+void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
+{
+  osMutexAttr_t attr;
+  uint32_t index;
+  for (index = 0; index < _MAX_LOCK; index++) {
+    if (0 == std_mutex_id_sys[index]) {
+      attr.cb_mem = &std_mutex_sys[index];
+      attr.cb_size = sizeof(std_mutex_sys[index]);
+      std_mutex_id_sys[index] = osMutexNew(&attr);
+      *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
+      return;
+    }
+  }
+  // This should never happen
+  error("Not enough mutexes\n");
+}
+
+void __iar_system_Mtxdst(__iar_Rmtx *mutex)/*Destroy a system lock */
+{
+  osMutexDelete(*(osMutexId*)*mutex);
+  *mutex = 0;
+}
+
+void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
+{
+  osMutexAcquire(*(osMutexId*)*mutex, osWaitForever);
+}
+
+void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
+{
+  osMutexRelease(*(osMutexId*)*mutex);
+}
+
+void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
+{
+    osMutexAttr_t attr;
+    uint32_t index;
+    for (index = 0; index < _FOPEN_MAX; index++) {
+      if (0 == std_mutex_id_file[index]) {
+        attr.cb_mem = &std_mutex_file[index];
+        attr.cb_size = sizeof(std_mutex_file[index]);
+        std_mutex_id_file[index] = osMutexNew(&attr);
+        *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
+        return;
+      }
+    }
+    // The variable _FOPEN_MAX needs to be increased
+    error("Not enough mutexes\n");
+}
+
+void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
+{
+  osMutexDelete(*(osMutexId*)*mutex);
+  *mutex = 0;
+}
+
+void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
+{
+  osMutexAcquire(*(osMutexId*)*mutex, osWaitForever);
+}
+
+void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
+{
+  osMutexRelease(*(osMutexId*)*mutex);
 }
 
 #endif
