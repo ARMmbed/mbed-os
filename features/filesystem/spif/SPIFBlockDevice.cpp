@@ -24,7 +24,7 @@
 #define SPIF_TIMEOUT    10000
 
 // Debug available
-#define SPIF_DEBUG      true
+#define SPIF_DEBUG      0
 
 // MX25R Series Register Command Table. 
 enum ops {
@@ -51,6 +51,7 @@ SPIFBlockDevice::SPIFBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName cs, int freq)
     : _spi(mosi, miso, sclk), _cs(cs), _size(0)
 {
+    _cs = 1;
     _spi.frequency(freq);
 }
 
@@ -58,13 +59,14 @@ bd_error_t SPIFBlockDevice::init()
 {
     // Check for vendor specific hacks, these should move into more general
     // handling when possible. RDID is not used to verify a device is attached.
-    uint8_t id;
-    _cmdread(SPIF_RDID, 0, 1, 0x0, &id);
+    uint8_t id[3];
+    _cmdread(SPIF_RDID, 0, 3, 0x0, id);
 
-    switch (id) {
+    switch (id[0]) {
         case 0xbf:
             // SST devices come preset with block protection
             // enabled for some regions, issue gbpu instruction to clear
+            _wren();
             _cmdwrite(0x98, 0, 0, 0x0, NULL);
             break;
     }
@@ -82,13 +84,13 @@ bd_error_t SPIFBlockDevice::init()
 
     // Verify SFDP signature for sanity
     // Also check that major/minor version is acceptable
-    if (!(memcmp(&header[0], "SFDP", 4) == 0 && header[4+1] == 1 && header[4+0] >= 6)) {
+    if (!(memcmp(&header[0], "SFDP", 4) == 0 && header[5] == 1)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
     // The SFDP spec indicates the standard table is always at offset 0
     // in the parameter headers, we check just to be safe
-    if (!(header[8] == 0 && header[9+1] == 1 && header[9+0] >= 6)) {
+    if (!(header[8] == 0 && header[10] == 1)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -152,17 +154,15 @@ void SPIFBlockDevice::_cmdread(
     _cs = 1;
 
     if (SPIF_DEBUG) {
-        printf("spif %02x", op);
-        for (uint32_t i = 0; i < 4; i++) {
+        printf("spif <- %02x", op);
+        for (uint32_t i = 0; i < addrc; i++) {
             if (i < addrc) {
                 printf("%02lx", 0xff & (addr >> 8*(addrc-1 - i)));
             } else {
                 printf("  ");
             }
         }
-        if (retc > 0) {
-            printf(" <- ");
-        }
+        printf(" ");
         for (uint32_t i = 0; i < 16 && i < retc; i++) {
             printf("%02x", rets[i]);
         }
@@ -190,17 +190,15 @@ void SPIFBlockDevice::_cmdwrite(
     _cs = 1;
 
     if (SPIF_DEBUG) {
-        printf("spif %02x", op);
-        for (uint32_t i = 0; i < 4 || i < addrc; i++) {
+        printf("spif -> %02x", op);
+        for (uint32_t i = 0; i < addrc; i++) {
             if (i < addrc) {
                 printf("%02lx", 0xff & (addr >> 8*(addrc-1 - i)));
             } else {
                 printf("  ");
             }
         }
-        if (argc > 0) {
-            printf(" -> ");
-        }
+        printf(" ");
         for (uint32_t i = 0; i < 16 && i < argc; i++) {
             printf("%02x", args[i]);
         }
@@ -274,11 +272,15 @@ bd_error_t SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_
         }
 
         // Write up to 256 bytes a page
-        uint32_t chunk = (size < 256) ? size : 256;
+        // TODO handle unaligned programs
+        uint32_t off = addr % 256;
+        uint32_t chunk = (off + size < 256) ? size : (256-off);
         _cmdwrite(SPIF_PROG, 3, chunk, addr, static_cast<const uint8_t *>(buffer));
         buffer = static_cast<const uint8_t*>(buffer) + chunk;
         addr += chunk;
         size -= chunk;
+
+        wait_ms(1);
 
         err = _sync();
         if (err) {
@@ -318,17 +320,17 @@ bd_error_t SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-bd_size_t SPIFBlockDevice::read_size()
+bd_size_t SPIFBlockDevice::get_read_size()
 {
     return SPIF_READ_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::program_size()
+bd_size_t SPIFBlockDevice::get_program_size()
 {
     return SPIF_PROG_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::erase_size()
+bd_size_t SPIFBlockDevice::get_erase_size()
 {
     return SPIF_SE_SIZE;
 }

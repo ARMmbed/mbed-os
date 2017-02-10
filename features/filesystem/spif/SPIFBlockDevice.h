@@ -23,7 +23,8 @@
 #include "BlockDevice.h"
 
  
-/** BlockDevice for the SPIF series of spi-based flash chips
+/** BlockDevice for SPI based flash devices
+ *  such as the MX25R or SST26F016B
  *
  *  @code
  *  #include "mbed.h"
@@ -36,15 +37,15 @@
  *      printf("mx25r test\n");
  *      mx52r.init();
  *      printf("mx25r size: %llu\n", mx25r.size());
- *      printf("mx25r read size: %llu\n", mx25r.read_size());
- *      printf("mx25r program size: %llu\n", mx25r.program_size());
- *      printf("mx25r erase size: %llu\n", mx25r.erase_size());
+ *      printf("mx25r read size: %llu\n", mx25r.get_read_size());
+ *      printf("mx25r program size: %llu\n", mx25r.get_program_size());
+ *      printf("mx25r erase size: %llu\n", mx25r.get_erase_size());
  *
- *      uint8_t *buffer = malloc(mx25r.erase_size());
+ *      uint8_t *buffer = malloc(mx25r.get_erase_size());
  *      sprintf(buffer, "Hello World!\n");
- *      mx25r.erase(0, mx25r.erase_size());
- *      mx25r.write(buffer, 0, mx25r.erase_size());
- *      mx25r.read(buffer, 0, mx25r.erase_size());
+ *      mx25r.erase(0, mx25r.get_erase_size());
+ *      mx25r.write(buffer, 0, mx25r.get_erase_size());
+ *      mx25r.read(buffer, 0, mx25r.get_erase_size());
  *      printf("%s", buffer);
  *
  *      mx25r.deinit();
@@ -58,9 +59,9 @@ public:
      *  @param miso     SPI master in, slave out pin
      *  @param sclk     SPI clock pin
      *  @param csel     SPI chip select pin
-     *  @param freq     Clock speed of the SPI bus (defaults to 50MHz)
+     *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
      */
-    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq=50000000);
+    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq=4000000);
 
     /** Initialize a block device
      *
@@ -108,21 +109,21 @@ public:
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t read_size();
+    virtual bd_size_t get_read_size();
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t program_size();
+    virtual bd_size_t get_program_size();
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t erase_size();
+    virtual bd_size_t get_erase_size();
 
     /** Get the total size of the underlying device
      *
