@@ -28,12 +28,10 @@
 extern "C" {
 #endif
 
-//#include "configuration_store.h"
-
 /* Defines */
-#define FSFAT_INIT_1_TABLE_HEAD                 { "a", ""}
+//#define FSFAT_INIT_1_TABLE_HEAD                 { "a", ""}
 #define FSFAT_INIT_1_TABLE_MID_NODE             { "/sd/01234567.txt", "abcdefghijklmnopqrstuvwxyz"}
-#define FSFAT_INIT_1_TABLE_TAIL                 { "/sd/fopentst/hello/world/animal/wobbly/dog/foot/backrght.txt", "present"}
+//#define FSFAT_INIT_1_TABLE_TAIL                 { "/sd/fopentst/hello/world/animal/wobbly/dog/foot/backrght.txt", "present"}
 #define FSFAT_TEST_RW_TABLE_SENTINEL            0xffffffff
 #define FSFAT_TEST_BYTE_DATA_TABLE_SIZE         256
 #define FSFAT_UTEST_MSG_BUF_SIZE                256
@@ -63,27 +61,12 @@ typedef struct fsfat_kv_data_t {
     const char* value;
 } fsfat_kv_data_t;
 
-typedef struct fsfat_test_rw_data_entry_t
-{
-    uint32_t offset;
-    char rw_char;
-} fsfat_test_rw_data_entry_t;
 
-
-extern fsfat_kv_data_t fsfat_test_init_1_data[];
-extern fsfat_test_rw_data_entry_t fsfat_test_rw_data_table[];
-extern const char* fsfat_test_opcode_str[];
 extern const uint8_t fsfat_test_byte_data_table[FSFAT_TEST_BYTE_DATA_TABLE_SIZE];
 
 int32_t fsfat_test_create(const char* filename, const char* data, size_t len);
-int32_t fsfat_test_create_table(const fsfat_kv_data_t* table);
 int32_t fsfat_test_delete(const char* key_name);
-int32_t fsfat_test_delete_all(void);
-int32_t fsfat_test_filename_found(const char* key_name, bool* bfound);
 int32_t fsfat_test_filename_gen(char* name, const size_t len);
-int32_t fsfat_test_init_1(void);
-int32_t fsfat_test_read(const char* key_name, char* data, size_t* len);
-int32_t fsfat_test_write(const char* key_name, const char* data, size_t* len);
 #ifdef __cplusplus
 }
 #endif

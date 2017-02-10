@@ -33,6 +33,7 @@ This section describes how to build and run the POSIX file API test case. The fo
 - [Installing the Tools](#installing-the-tools). This section briefly describes how to setup the mbedos development environment.
 - [Git Clone the Public mbedOS Repo](#git-clone-the-mbedos-repo). This section describes how to git clone the mbedOS repository containing the FAT32/SDCard and POSIX File API test case of interest.
 - [Build the mbedOS Test Cases](#build-the-mbedos-test-cases). This section describes how to build the mbedOS test cases.
+- [Insert a microSD Card Into the K64F](#insert-sdcard-into-k64f).This section describes how to format (if required) a microSD card prior to running the tests.
 - [Run the POSIX File Test Case](#run-the-posix-file-test-cases).This section describes how to run the POSIX file test case basic.cpp.
 
 ### <a name="installing-the-tools"></a> Installing the Tools 
@@ -52,7 +53,6 @@ Using a Git Bash terminal, setup mbed-cli in the following way:
     simhug01@E107851:/d/demo_area$ pushd mbed-cli
     simhug01@E107851:/d/demo_area/mbed-cli/$ python.exe setup.py install
     simhug01@E107851:/d/demo_area/mbed-cli/$ popd
-
 
 Using a Git Bash terminal, setup Greentea in the following way:
 
@@ -99,6 +99,24 @@ Build the test cases for the K64F target using the following commands:
     simhug01@E107851:/d/demo_area/ex_app1$
 
 The complete [build log][BUILD-TESTS-GCC-20161219-1007] is available for reference.
+
+
+### <a name="insert-sdcard-into-k64f"></a> Insert SDCard into K64F
+
+The test cases have been run on a K64F with the following microSDHC cards:
+
+- Kingston 2GB mircoSDHC card.  
+- Kingston 8GB mircoSDHC card.  
+- SanDisk 16GB mircoSDHC ultra card.  
+
+If the card requires formatting then the following procedure is known to work:
+
+- Insert microSD card into SD adapter in USB stick (or similar) so the microSD card can be insert into windows PC.
+- Within file explorer, right click/Format on the USB drive.
+- Select FAT32, 4096 cluster size, Quick Format.
+- Format the drive.
+
+The microSD card should then be ready for use in the K64F.
 
 
 ### <a name="run-the-posix-file-test-cases"></a> Run the POSIX File Test Case
@@ -174,11 +192,11 @@ The full [test output log][RUN-TESTS-GCC-20161219-1011] is available for referen
 
 mbedOS supports a subset of the POSIX File API, as outlined below:
 
-- clearerr()
+- [clearerr()][MAN_CLEARERR].
     - STATUS: Basic testing implemented. Working.
 - [fclose()][MAN_FCLOSE].
     - STATUS: Basic testing implemented. Working.
-- ferror()
+- [ferror()][MAN_CLEARERR].
     - STATUS: Basic testing implemented. 
     - STATUS: GCC_ARM: Working. 
     - STATUS: ARMCC: ARMCC has problem with ferror(filep) where filep is NULL. Appears to work for non-NULL pointer.
@@ -190,18 +208,20 @@ mbedOS supports a subset of the POSIX File API, as outlined below:
     - STATUS: Unknown.
 - [fputs()][MAN_FPUTS].
     - STATUS: Basic testing implemented. Working.
-- fprintf()
+- [fprintf()][MAN_FPRINTF].
     - STATUS: Basic testing implemented. Working.
-- fopen()
+- [fopen()][MAN_FOPEN].
     - STATUS: Basic testing implemented. Working. 
-- freopen()
+- [freopen()][MAN_FOPEN].
     - STATUS: This is not tested.
-- [fread()][MAN_FREAD]
+- [fread()][MAN_FREAD].
     - STATUS: Basic testing implemented. Working.
-- ftell()
+    - STATUS: n x 25kB stress test working.
+- [ftell()][MAN_FTELL].
     - STATUS: Basic testing implemented. Working.
-- [fwrite()][MAN_FWRITE]
+- [fwrite()][MAN_FWRITE].
     - STATUS: Basic testing implemented. Working.
+    - STATUS: n x 25kB stress test working.
 - [fseek()][MAN_FSEEK]
     - STATUS: Basic testing implemented. Working.
 - [getc()][MAN_FGETS].
@@ -214,10 +234,11 @@ mbedOS supports a subset of the POSIX File API, as outlined below:
     - STATUS: Unknown.
 - [remove()][MAN_REMOVE]
     - STATUS: Basic testing implemented. Working.
-- rewinddir().
-    - STATUS: Implemented. Not tested.
-- stat()
-    - STATUS: Implemented. Not tested.
+- [rewind()][MAN_REWIND].
+    - STATUS: Basic testing implemented. Working. 
+- [stat()][MAN_STAT]
+    - STATUS: Implemented. Working.
+    - STATUS: Not supported by ARMCC/IAR libc.
 - tmpfile()
     - STATUS: Not implemented.
 - tmpnam() 
@@ -226,23 +247,23 @@ mbedOS supports a subset of the POSIX File API, as outlined below:
 Supported directory related operations are as follows:
 
 - closedir().
-    - STATUS: Implemented. Not tested.
+    - STATUS: Implemented. Working.
 - mkdir(). 
     - STATUS: Basic testing implemented. Working.
 - opendir(). 
-    - STATUS: Implemented. Not tested.
+    - STATUS: Implemented. Working.
 - readdir().
-    - STATUS: Implemented. Not tested.
+    - STATUS: Implemented. Working.
 - [remove()][MAN_REMOVE]
     - STATUS: Basic testing implemented. Working.
 - rename()
     - STATUS: Implemented. Not tested.
-- [rewind()][MAN_REWIND].
-    - STATUS: Basic testing implemented. Working. 
+- rewinddir().
+    - STATUS: Implemented. Found not to work. Test case not present in repo.
 - seekdir()
-    - STATUS: Implemented. Not tested.
+    - STATUS: Implemented. Found not to work. Test case not present in repo. 
 - telldir().
-    - STATUS: Implemented. Not tested.
+    - STATUS: Implemented. Found not to work. Test case not present in repo.
 
 ## errno 
 
@@ -276,11 +297,16 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
 [BUILD-TESTS-GCC-20161219-1007]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/build_tests_gcc_20161219_1007.txt
 [RUN-TESTS-GCC-20161219-1011]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/run_tests_master_gcc_ex_app2_fat_basic_20161219_1011.txt
 
+[MAN_CLEARERR]: https://linux.die.net/man/3/clearerr
 [MAN_FCLOSE]: https://linux.die.net/man/3/fclose
 [MAN_FGETS]: https://linux.die.net/man/3/fgets
+[MAN_FOPEN]: https://linux.die.net/man/3/fopen
+[MAN_FPRINTF]: https://linux.die.net/man/3/fprintf
 [MAN_FPUTS]: https://linux.die.net/man/3/fputs
 [MAN_FREAD]: https://linux.die.net/man/3/fread
 [MAN_FSEEK]: https://linux.die.net/man/3/fseek
 [MAN_FWRITE]: https://linux.die.net/man/3/fwrite
 [MAN_REMOVE]: https://linux.die.net/man/3/remove
 [MAN_REWIND]: https://linux.die.net/man/3/rewind
+[MAN_STAT]: https://linux.die.net/man/2/stat
+[MAN_FTELL]: https://linux.die.net/man/3/ftell

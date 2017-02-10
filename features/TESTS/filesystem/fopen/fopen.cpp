@@ -71,6 +71,7 @@ static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
 #define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
 #define FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1    64
+#define FSFAT_FOPEN_TEST_FILEPATH_MAX_DEPTH 20
 static const char *sd_badfile_path = "/sd/badfile.txt";
 static const char *sd_testfile_path = "/sd/test.txt";
 
@@ -297,7 +298,7 @@ static int32_t fsfat_filepath_make_dirs(char* filepath, bool do_asserts)
     char *fpathbuf = NULL;
     char *buf = NULL;
     int pos = 0;
-    char *parts[10];
+    char *parts[FSFAT_FOPEN_TEST_FILEPATH_MAX_DEPTH];
 
     FSFAT_DBGLOG("%s:entered\n", __func__);
     /* find the dirs to create*/
@@ -310,7 +311,7 @@ static int32_t fsfat_filepath_make_dirs(char* filepath, bool do_asserts)
     }
     memset(fpathbuf, 0, len+1);
     memcpy(fpathbuf, filepath, len);
-    num_parts = fsfat_filepath_split(fpathbuf, parts, 10);
+    num_parts = fsfat_filepath_split(fpathbuf, parts, FSFAT_FOPEN_TEST_FILEPATH_MAX_DEPTH);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to split filepath (filename=\"%s\", num_parts=%d)\n", __func__, filepath, (int) num_parts);
     TEST_ASSERT_MESSAGE(num_parts > 0, fsfat_fopen_utest_msg_g);
 
@@ -1332,6 +1333,175 @@ control_t fsfat_fopen_test_15(const size_t call_count)
 }
 
 
+/* @brief   test utility function to create a file of a given size.
+ *
+ * A reference data table is used of so that the data file can be later be
+ * checked with fsfat_test_check_data_file().
+ *
+ * @param   filename    name of the file including path
+ * @param   data        data to store in file
+ * @param   len         number of bytes of data present in the data buffer.
+ */
+int32_t fsfat_test_create_data_file(const char* filename, size_t len)
+{
+    int32_t ret = -1;
+    FILE *fp = NULL;
+    size_t write_len = 0;
+    size_t written_len = 0;
+    int32_t exp = 0;
+    const int32_t exp_max = 8;      /* so as not to exceed FSFAT_TEST_BYTE_DATA_TABLE_SIZE/2 */
+
+    FSFAT_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
+    TEST_ASSERT(len % FSFAT_TEST_BYTE_DATA_TABLE_SIZE == 0);
+    fp = fopen(filename, "a");
+    if(fp == NULL){
+        return ret;
+    }
+
+    while(written_len < len) {
+        /* write fsfat_test_byte_data_table or part thereof, in 9 writes of sizes
+         * 1, 2, 4, 8, 16, 32, 64, 128, 1, totalling 256 bytes len permitting. */
+        for(exp = 0; (exp <= exp_max) && (written_len < len); exp++){
+            write_len = 0x1 << (exp % exp_max);
+            write_len = len - written_len  > write_len ? write_len : len - written_len;
+            ret = fwrite((const void*) &fsfat_test_byte_data_table[written_len % FSFAT_TEST_BYTE_DATA_TABLE_SIZE], write_len, 1, fp);
+            written_len += write_len;
+            if(ret != 1){
+                FSFAT_DBGLOG("%s:Error: fwrite() failed (ret=%d)\n", __func__, (int) ret);
+                ret = -1;
+                goto out0;
+            }
+        }
+    }
+    if(written_len == len) {
+        ret = 0;
+    } else {
+        ret = -1;
+    }
+out0:
+    fclose(fp);
+    return ret;
+}
+
+
+/* @brief   test utility function to check the data in the specified file is correct.
+ *
+ * The data read from the file is check that it agrees with the data written by
+ * fsfat_test_create_data_file().
+ *
+ * @param   filename    name of the file including path
+ * @param   data        data to store in file
+ * @param   len         number of bytes of data present in the data buffer.
+ */
+int32_t fsfat_test_check_data_file(const char* filename, size_t len)
+{
+    int32_t ret = -1;
+    FILE *fp = NULL;
+    size_t read_len = 0;
+    uint8_t buf[FSFAT_TEST_BYTE_DATA_TABLE_SIZE];
+
+    FSFAT_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
+    TEST_ASSERT(len % FSFAT_TEST_BYTE_DATA_TABLE_SIZE == 0);
+    fp = fopen(filename, "r");
+    if(fp == NULL){
+        return ret;
+    }
+
+    while(read_len < len) {
+        ret = fread((void*) buf, FSFAT_TEST_BYTE_DATA_TABLE_SIZE, 1, fp);
+        read_len += FSFAT_TEST_BYTE_DATA_TABLE_SIZE;
+        if(ret == 0){
+            /* end of read*/
+            FSFAT_DBGLOG("%s:unable to read data\n", __func__);
+            break;
+        }
+        if(memcmp(buf, fsfat_test_byte_data_table, FSFAT_TEST_BYTE_DATA_TABLE_SIZE) != 0) {
+            FSFAT_DBGLOG("%s:Error: read data not as expected (0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x\n", __func__,
+                    buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9], buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+            ret = -1;
+            goto out0;
+        }
+    }
+    if(read_len == len) {
+        ret = 0;
+    }
+out0:
+    fclose(fp);
+    return ret;
+}
+
+/* file data for test_16 */
+static fsfat_kv_data_t fsfat_fopen_test_16_kv_data[] = {
+        { "/sd/tst16_0/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_1/subdir0/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_2/subdir0/subdir1/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_3/subdir0/subdir1/subdir2/subdir3/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_4/subdir0/subdir1/subdir2/subdir3/subdir4/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_5/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_6/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_7/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_8/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/subdir8/testfil0.txt", "dummy_data"},
+        { "/sd/tst16_9/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/subdir8/subdir9/testfil0.txt", "dummy_data"},
+        { NULL, NULL},
+};
+
+
+/** @brief  stress test to write data to fs
+ *
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_16(const size_t call_count)
+{
+    int32_t ret = 0;
+    fsfat_kv_data_t *node = fsfat_fopen_test_16_kv_data;
+    const int32_t num_blocks = 100; /* each file ~25kB */
+
+    FSFAT_DBGLOG("%s:entered\n", __func__);
+    (void) call_count;
+
+    /* remove file and directory from a previous failed test run, if present */
+    while(node->filename != NULL) {
+        fsfat_filepath_remove_all((char*) node->filename);
+        node++;
+    }
+
+    /* create dirs */
+    node = fsfat_fopen_test_16_kv_data;
+    while(node->filename != NULL) {
+        ret = fsfat_filepath_make_dirs((char*) node->filename, true);
+        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dirs for filename (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
+        TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        node++;
+    }
+
+    /* create the data files */
+    node = fsfat_fopen_test_16_kv_data;
+    while(node->filename != NULL) {
+        ret = fsfat_test_create_data_file(node->filename, num_blocks * FSFAT_TEST_BYTE_DATA_TABLE_SIZE);
+        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create data file (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
+        TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        node++;
+    }
+
+    /* read the data back and check its as expected */
+    node = fsfat_fopen_test_16_kv_data;
+    while(node->filename != NULL) {
+        ret = fsfat_test_check_data_file(node->filename, num_blocks * FSFAT_TEST_BYTE_DATA_TABLE_SIZE);
+        FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: failed to check data file (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
+        TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+        node++;
+    }
+
+    /* clean up */
+    node = fsfat_fopen_test_16_kv_data;
+    while(node->filename != NULL) {
+        fsfat_filepath_remove_all((char*) node->filename);
+        node++;
+    }
+    return CaseNext;
+}
+
+
 #else
 
 
@@ -1406,7 +1576,7 @@ Case cases[] = {
         Case("FSFAT_FOPEN_TEST_13: mkdir() test.", FSFAT_FOPEN_TEST_13),
         Case("FSFAT_FOPEN_TEST_14: stat() test.", FSFAT_FOPEN_TEST_14),
         Case("FSFAT_FOPEN_TEST_15: format() test.", FSFAT_FOPEN_TEST_15),
-
+        Case("FSFAT_FOPEN_TEST_16: write/check n x 25kB data files.", FSFAT_FOPEN_TEST_16),
 };
 
 
