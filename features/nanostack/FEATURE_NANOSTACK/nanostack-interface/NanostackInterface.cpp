@@ -197,6 +197,7 @@ int NanostackSocket::accept(NanostackSocket *accepted_socket, ns_address_t *addr
 
 bool NanostackSocket::attach(int8_t temp_socket)
 {
+    nanostack_assert_locked();
     if (temp_socket >= NS_INTERFACE_SOCKETS_MAX) {
         MBED_ASSERT(false);
         return false;
@@ -382,6 +383,7 @@ void NanostackSocket::event_connect_fail(socket_callback_t *sock_cb)
 
 void NanostackSocket::event_incoming_connection(socket_callback_t *sock_cb)
 {
+    nanostack_assert_locked();
     MBED_ASSERT(mode == SOCKET_MODE_LISTENING);
     signal_event();
 }
@@ -429,13 +431,11 @@ NanostackInterface *NanostackInterface::_ns_interface;
 
 NanostackInterface *NanostackInterface::get_stack()
 {
-    nanostack_lock();
+    NanostackLockGuard lock;
 
     if (NULL == _ns_interface) {
         _ns_interface = new NanostackInterface();
     }
-
-    nanostack_unlock();
 
     return _ns_interface;
 }
@@ -479,13 +479,11 @@ nsapi_error_t NanostackInterface::socket_open(void **handle, nsapi_protocol_t pr
 
     NanostackSocket * socket = new NanostackSocket(ns_proto);
     if (socket == NULL) {
-        nanostack_unlock();
         tr_debug("socket_open() ret=%i", NSAPI_ERROR_NO_MEMORY);
         return NSAPI_ERROR_NO_MEMORY;
     }
     if (!socket->open()) {
         delete socket;
-        nanostack_unlock();
         tr_debug("socket_open() ret=%i", NSAPI_ERROR_DEVICE_ERROR);
         return NSAPI_ERROR_DEVICE_ERROR;
     }
@@ -498,6 +496,7 @@ nsapi_error_t NanostackInterface::socket_open(void **handle, nsapi_protocol_t pr
 
 nsapi_error_t NanostackInterface::socket_close(void *handle)
 {
+    NanostackLockGuard lock;
     // Validate parameters
     NanostackSocket * socket = static_cast<NanostackSocket *>(handle);
     if (NULL == handle) {
@@ -506,11 +505,7 @@ nsapi_error_t NanostackInterface::socket_close(void *handle)
     }
     tr_debug("socket_close(socket=%p) sock_id=%d", socket, socket->socket_id);
 
-    nanostack_lock();
-
     delete socket;
-
-    nanostack_unlock();
 
     return 0;
 
