@@ -47,6 +47,10 @@
 #include "events/mbed_events.h"
 #endif
 
+#if MBED_CONF_FILESYSTEM_PRESENT
+#include "filesystem/mbed_filesystem.h"
+#endif
+
 #include "platform/mbed_toolchain.h"
 #include "platform/platform.h"
 #include "platform/mbed_application.h"
