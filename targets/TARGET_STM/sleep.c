@@ -52,15 +52,22 @@ void hal_deepsleep(void)
 
     // Request to enter STOP mode with regulator in low power mode
 #if TARGET_STM32L4
-    if (__HAL_RCC_PWR_IS_CLK_ENABLED()) {
-        HAL_PWREx_EnableLowPowerRunMode();
-        HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
-        HAL_PWREx_DisableLowPowerRunMode();
-    } else {
+    int pwrClockEnabled = __HAL_RCC_PWR_IS_CLK_ENABLED();
+    int lowPowerModeEnabled = PWR->CR1 & PWR_CR1_LPR;
+    
+    if (!pwrClockEnabled) {
         __HAL_RCC_PWR_CLK_ENABLE();
-        HAL_PWREx_EnableLowPowerRunMode();
-        HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+    }
+    if (lowPowerModeEnabled) {
         HAL_PWREx_DisableLowPowerRunMode();
+    }
+    
+    HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+    
+    if (lowPowerModeEnabled) {
+        HAL_PWREx_EnableLowPowerRunMode();
+    }
+    if (!pwrClockEnabled) {
         __HAL_RCC_PWR_CLK_DISABLE();
     }
 #else /* TARGET_STM32L4 */
