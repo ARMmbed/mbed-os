@@ -32,6 +32,45 @@
 
 ////// Error handling /////
 
+static int fat_error_remap(FRESULT res)
+{
+    switch(res) {
+        case FR_OK:                     /* (0) Succeeded */
+            return 0;                   /* no error */
+        case FR_DISK_ERR:               /* (1) A hard error occurred in the low level disk I/O layer */
+        case FR_NOT_READY:              /* (3) The physical drive cannot work */
+            return -EIO;                /* I/O error */
+        case FR_NO_FILE:                /* (4) Could not find the file */
+        case FR_NO_PATH:                /* (5) Could not find the path */
+        case FR_INVALID_NAME:           /* (6) The path name format is invalid */
+        case FR_INVALID_DRIVE:          /* (11) The logical drive number is invalid */
+        case FR_NO_FILESYSTEM:          /* (13) There is no valid FAT volume */
+            return -ENOENT;             /* No such file or directory */
+        case FR_DENIED:                 /* (7) Access denied due to prohibited access or directory full */
+            return -EACCES;             /* Permission denied */
+        case FR_EXIST:                  /* (8) Access denied due to prohibited access */
+            return -EEXIST;             /* File exists */
+        case FR_WRITE_PROTECTED:        /* (10) The physical drive is write protected */
+        case FR_LOCKED:                 /* (16) The operation is rejected according to the file sharing policy */
+            return -EACCES;             /* Permission denied */
+        case FR_INVALID_OBJECT:         /* (9) The file/directory object is invalid */
+            return -EFAULT;             /* Bad address */
+        case FR_NOT_ENABLED:            /* (12) The volume has no work area */
+            return -ENXIO;              /* No such device or address */
+        case FR_NOT_ENOUGH_CORE:        /* (17) LFN working buffer could not be allocated */
+            return -ENOMEM;             /* Not enough space */
+        case FR_TOO_MANY_OPEN_FILES:    /* (18) Number of open files > _FS_LOCK */
+            return -ENFILE;             /* Too many open files in system */
+        case FR_INVALID_PARAMETER:      /* (19) Given parameter is invalid */
+            return -ENOEXEC;            /* Exec format error */
+        case FR_INT_ERR:                /* (2) Assertion failed */
+        case FR_MKFS_ABORTED:           /* (14) The f_mkfs() aborted due to any parameter error */
+        case FR_TIMEOUT:                /* (15) Could not get a grant to access the volume within defined period */
+        default:                        /* Bad file number */
+            return -EBADF;
+    }
+}
+
 void fat_filesystem_set_errno(FRESULT res)
 {
     switch(res) {
@@ -205,7 +244,7 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
     lock();
     if (_id != -1) {
         unlock();
-        return -1;
+        return -EINVAL;
     }
 
     for (int i = 0; i < _VOLUMES; i++) {
@@ -216,14 +255,13 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
             _fsid[1] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             FRESULT res = f_mount(&_fs, _fsid, force);
-            fat_filesystem_set_errno(res);
             unlock();
-            return res == 0 ? 0 : -1;
+            return fat_error_remap(res);
         }
     }
 
     unlock();
-    return -1;
+    return -ENOMEM;
 }
 
 int FATFileSystem::unmount()
@@ -231,15 +269,14 @@ int FATFileSystem::unmount()
     lock();
     if (_id == -1) {
         unlock();
-        return -1;
+        return -EINVAL;
     }
 
     FRESULT res = f_mount(NULL, _fsid, 0);
-    fat_filesystem_set_errno(res);
     _ffs[_id] = NULL;
     _id = -1;
     unlock();
-    return res == 0 ? 0 : -1;
+    return fat_error_remap(res);
 }
 
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
@@ -248,54 +285,56 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
     FATFileSystem fs;
     int err = fs.mount(bd, false);
     if (err) {
-        return -1;
+        return err;
     }
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
     FRESULT res = f_mkfs(fs._fsid, 0, allocation_unit);
-    fat_filesystem_set_errno(res);
     fs.unlock();
+    if (res != FR_OK) {
+        return fat_error_remap(res);
+    }
 
     err = fs.unmount();
     if (err) {
-        return -1;
+        return err;
     }
-    return res == 0 ? 0 : -1;
+
+    return 0;
 }
 
 int FATFileSystem::remove(const char *filename) {
     lock();
     FRESULT res = f_unlink(filename);
-    fat_filesystem_set_errno(res);
-    if (res) {
-        debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
-        unlock();
-        return -1;
-    }
     unlock();
-    return 0;
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
+    }
+    return fat_error_remap(res);
 }
 
 int FATFileSystem::rename(const char *oldname, const char *newname) {
     lock();
     FRESULT res = f_rename(oldname, newname);
-    fat_filesystem_set_errno(res);
-    if (res) {
-        debug_if(FFS_DBG, "f_rename() failed: %d\n", res);
-        unlock();
-        return -1;
-    }
     unlock();
-    return 0;
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_rename() failed: %d\n", res);
+    }
+    return fat_error_remap(res);
 }
 
 int FATFileSystem::mkdir(const char *name, mode_t mode) {
     lock();
     FRESULT res = f_mkdir(name);
-    fat_filesystem_set_errno(res);
     unlock();
-    return res == 0 ? 0 : -1;
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_mkdir() failed: %d\n", res);
+    }
+    return fat_error_remap(res);
 }
 
 int FATFileSystem::stat(const char *name, struct stat *st) {
@@ -304,10 +343,9 @@ int FATFileSystem::stat(const char *name, struct stat *st) {
     memset(&f, 0, sizeof(f));
 
     FRESULT res = f_stat(name, &f);
-    fat_filesystem_set_errno(res);
-    if (res != 0) {
+    if (res != FR_OK) {
         unlock();
-        return -1;
+        return fat_error_remap(res);
     }
 
     /* ARMCC doesnt support stat(), and these symbols are not defined by the toolchain. */
@@ -320,7 +358,8 @@ int FATFileSystem::stat(const char *name, struct stat *st) {
         (S_IRWXU | S_IRWXG | S_IRWXO);
 #endif /* TOOLCHAIN_GCC */
     unlock();
-    return res == 0 ? 0 : -1;
+
+    return 0;
 }
 
 void FATFileSystem::lock() {
@@ -334,42 +373,47 @@ void FATFileSystem::unlock() {
 
 ////// File operations //////
 int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
-    lock();
     debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _fsid);
+
+    FIL *fh = new FIL;
     char *buffer = new char[strlen(_fsid) + strlen(path) + 3];
     sprintf(buffer, "%s:/%s", _fsid, path);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
     if (flags & O_RDWR) {
-        openmode = FA_READ|FA_WRITE;
-    } else if(flags & O_WRONLY) {
+        openmode = FA_READ | FA_WRITE;
+    } else if (flags & O_WRONLY) {
         openmode = FA_WRITE;
     } else {
         openmode = FA_READ;
     }
-    if(flags & O_CREAT) {
-        if(flags & O_TRUNC) {
+    if (flags & O_CREAT) {
+        if (flags & O_TRUNC) {
             openmode |= FA_CREATE_ALWAYS;
         } else {
             openmode |= FA_OPEN_ALWAYS;
         }
     }
 
-    FIL *fh = new FIL;
+    lock();
     FRESULT res = f_open(fh, buffer, openmode);
-    fat_filesystem_set_errno(res);
-    if (res) {
-        debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
+
+    if (res != FR_OK) {
         unlock();
+        debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
+        delete[] buffer;
         delete fh;
-        return -1;
+        return fat_error_remap(res);
     }
+
     if (flags & O_APPEND) {
         f_lseek(fh, fh->fsize);
     }
-    *file = fh;
     unlock();
+
+    delete[] buffer;
+    *file = fh;
     return 0;
 }
 
@@ -377,12 +421,11 @@ int FATFileSystem::file_close(fs_file_t file) {
     FIL *fh = static_cast<FIL*>(file);
 
     lock();
-    FRESULT retval = f_close(fh);
-    fat_filesystem_set_errno(retval);
+    FRESULT res = f_close(fh);
     unlock();
 
     delete fh;
-    return retval;
+    return fat_error_remap(res);
 }
 
 ssize_t FATFileSystem::file_read(fs_file_t file, void *buffer, size_t len) {
@@ -391,14 +434,14 @@ ssize_t FATFileSystem::file_read(fs_file_t file, void *buffer, size_t len) {
     lock();
     UINT n;
     FRESULT res = f_read(fh, buffer, len, &n);
-    fat_filesystem_set_errno(res);
-    if (res) {
-        debug_if(FFS_DBG, "f_read() failed: %d\n", res);
-        unlock();
-        return -1;
-    }
     unlock();
-    return n;
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_read() failed: %d\n", res);
+        return fat_error_remap(res);
+    } else {
+        return n;
+    }
 }
 
 ssize_t FATFileSystem::file_write(fs_file_t file, const void *buffer, size_t len) {
@@ -407,14 +450,14 @@ ssize_t FATFileSystem::file_write(fs_file_t file, const void *buffer, size_t len
     lock();
     UINT n;
     FRESULT res = f_write(fh, buffer, len, &n);
-    fat_filesystem_set_errno(res);
-    if (res) {
-        debug_if(FFS_DBG, "f_write() failed: %d", res);
-        unlock();
-        return -1;
-    }
     unlock();
-    return n;
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_write() failed: %d", res);
+        return fat_error_remap(res);
+    } else {
+        return n;
+    }
 }
 
 int FATFileSystem::file_sync(fs_file_t file) {
@@ -422,14 +465,12 @@ int FATFileSystem::file_sync(fs_file_t file) {
 
     lock();
     FRESULT res = f_sync(fh);
-    fat_filesystem_set_errno(res);
-    if (res) {
-        debug_if(FFS_DBG, "f_sync() failed: %d\n", res);
-        unlock();
-        return -1;
-    }
     unlock();
-    return 0;
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_sync() failed: %d\n", res);
+    }
+    return fat_error_remap(res);
 }
 
 off_t FATFileSystem::file_seek(fs_file_t file, off_t offset, int whence) {
@@ -441,16 +482,16 @@ off_t FATFileSystem::file_seek(fs_file_t file, off_t offset, int whence) {
     } else if(whence==SEEK_CUR) {
         offset += fh->fptr;
     }
+
     FRESULT res = f_lseek(fh, offset);
-    fat_filesystem_set_errno(res);
-    if (res) {
+    off_t noffset = fh->fptr;
+    unlock();
+
+    if (res != FR_OK) {
         debug_if(FFS_DBG, "lseek failed: %d\n", res);
-        unlock();
-        return -1;
+        return fat_error_remap(res);
     } else {
-        debug_if(FFS_DBG, "lseek OK, returning %i\n", fh->fptr);
-        unlock();
-        return fh->fptr;
+        return noffset;
     }
 }
 
@@ -459,7 +500,6 @@ off_t FATFileSystem::file_tell(fs_file_t file) {
 
     lock();
     off_t res = fh->fptr;
-    fat_filesystem_set_errno(FR_OK);
     unlock();
 
     return res;
@@ -470,7 +510,6 @@ size_t FATFileSystem::file_size(fs_file_t file) {
 
     lock();
     size_t res = fh->fsize;
-    fat_filesystem_set_errno(FR_OK);
     unlock();
 
     return res;
@@ -479,17 +518,19 @@ size_t FATFileSystem::file_size(fs_file_t file) {
 
 ////// Dir operations //////
 int FATFileSystem::dir_open(fs_dir_t *dir, const char *path) {
-    lock();
     FATFS_DIR *dh = new FATFS_DIR;
+
+    lock();
     FRESULT res = f_opendir(dh, path);
-    fat_filesystem_set_errno(res);
-    if (res != 0) {
-        unlock();
-        delete dh;
-        return -1;
-    }
-    *dir = dh;
     unlock();
+
+    if (res != FR_OK) {
+        debug_if(FFS_DBG, "f_opendir() failed: %d\n", res);
+        delete dh;
+        return fat_error_remap(res);
+    }
+
+    *dir = dh;
     return 0;
 }
 
@@ -497,12 +538,11 @@ int FATFileSystem::dir_close(fs_dir_t dir) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
 
     lock();
-    FRESULT retval = f_closedir(dh);
-    fat_filesystem_set_errno(retval);
+    FRESULT res = f_closedir(dh);
     unlock();
 
     delete dh;
-    return retval;
+    return fat_error_remap(res);
 }
 
 ssize_t FATFileSystem::dir_read(fs_dir_t dir, char *path, size_t len) {
@@ -513,34 +553,35 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *t
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
     FILINFO finfo;
 
-    lock();
 #if _USE_LFN
     finfo.lfname = path;
     finfo.lfsize = len;
 #endif // _USE_LFN
 
+    lock();
     FRESULT res = f_readdir(dh, &finfo);
-    fat_filesystem_set_errno(res);
+    unlock();
+
+    if (res != FR_OK) {
+        return fat_error_remap(res);
+    } else if (finfo.fname[0] == 0) {
+        return -EINVAL;
+    }
 
     if (type) {
         *type = (finfo.fattrib & AM_DIR) ? DT_DIR : DT_REG;
     }
 
-    if(res != 0 || finfo.fname[0] == 0) {
-        unlock();
-        return -1;
-    } else {
 #if _USE_LFN
-        if (path[0] == 0) {
-            // No long filename so use short filename.
-            strncpy(path, finfo.fname, len);
-        }
-#else
+    if (path[0] == 0) {
+        // No long filename so use short filename.
         strncpy(path, finfo.fname, len);
-#endif
-        unlock();
-        return 0;
     }
+#else
+    strncpy(path, finfo.fname, len);
+#endif
+
+    return 0;
 }
 
 void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
@@ -548,7 +589,6 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
 
     lock();
     dh->index = offset;
-    fat_filesystem_set_errno(FR_OK);
     unlock();
 }
 
@@ -557,8 +597,8 @@ off_t FATFileSystem::dir_tell(fs_dir_t dir) {
 
     lock();
     off_t offset = dh->index;
-    fat_filesystem_set_errno(FR_OK);
     unlock();
+
     return offset;
 }
 
@@ -567,7 +607,6 @@ void FATFileSystem::dir_rewind(fs_dir_t dir) {
 
     lock();
     dh->index = 0;
-    fat_filesystem_set_errno(FR_OK);
     unlock();
 }
 

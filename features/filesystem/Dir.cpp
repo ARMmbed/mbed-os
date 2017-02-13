@@ -16,6 +16,7 @@
 
 #include "Dir.h"
 #include "mbed.h"
+#include <errno.h>
 
 
 Dir::Dir()
@@ -39,7 +40,7 @@ Dir::~Dir()
 int Dir::open(FileSystem *fs, const char *path)
 {
     if (_fs) {
-        return FS_ERROR_PARAMETER;
+        return -EINVAL;
     }
 
     _fs = fs;
@@ -49,7 +50,7 @@ int Dir::open(FileSystem *fs, const char *path)
 int Dir::close()
 {
     if (!_fs) {
-        return FS_ERROR_PARAMETER;
+        return -EINVAL;
     }
 
     int err = _fs->dir_close(_dir);

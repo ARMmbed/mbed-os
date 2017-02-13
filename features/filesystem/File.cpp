@@ -16,6 +16,7 @@
 
 #include "File.h"
 #include "mbed.h"
+#include <errno.h>
 
 
 File::File()
@@ -39,7 +40,7 @@ File::~File()
 int File::open(FileSystem *fs, const char *path, int flags)
 {
     if (_fs) {
-        return FS_ERROR_PARAMETER;
+        return -EINVAL;
     }
 
     int err = fs->file_open(&_file, path, flags);
@@ -53,7 +54,7 @@ int File::open(FileSystem *fs, const char *path, int flags)
 int File::close()
 {
     if (!_fs) {
-        return FS_ERROR_PARAMETER;
+        return -EINVAL;
     }
 
     int err = _fs->file_close(_file);

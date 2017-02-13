@@ -247,7 +247,9 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
             }
             int posix_mode = openmode_to_posix(openmode);
             int err = fileobjects[fh_i].open(fs, path.fileName(), posix_mode);
-            if (!err) {
+            if (err < 0) {
+                errno = -err;
+            } else {
                 res = &fileobjects[fh_i];
             }
         }
@@ -271,7 +273,13 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     filehandles[fh-3] = NULL;
     if (fhc == NULL) return -1;
 
-    return fhc->close();
+    int err = fhc->close();
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 #if defined(__ICCARM__)
@@ -305,6 +313,9 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
         if (fhc == NULL) return -1;
 
         n = fhc->write(buffer, length);
+        if (n < 0) {
+            errno = -n;
+        }
     }
 #ifdef __ARMCC_VERSION
     return length-n;
@@ -354,6 +365,9 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
         if (fhc == NULL) return -1;
 
         n = fhc->read(buffer, length);
+        if (n < 0) {
+            errno = -n;
+        }
     }
 #ifdef __ARMCC_VERSION
     return length-n;
@@ -375,7 +389,13 @@ extern "C" int _isatty(FILEHANDLE fh)
     FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
-    return fhc->isatty();
+    int err = fhc->isatty();
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 extern "C"
@@ -408,7 +428,13 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
     FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
-    return fhc->fsync();
+    int err = fhc->sync();
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
@@ -418,7 +444,7 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
     FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
-    return fhc->flen();
+    return fhc->size();
 }
 #endif
 
@@ -441,7 +467,13 @@ extern "C" int remove(const char *path) {
     FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
-    return fs->remove(fp.fileName());
+    int err = fs->remove(fp.fileName());
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 extern "C" int rename(const char *oldname, const char *newname) {
@@ -454,7 +486,13 @@ extern "C" int rename(const char *oldname, const char *newname) {
     /* rename only if both files are on the same FS */
     if (fsOld != fsNew || fsOld == NULL) return -1;
 
-    return fsOld->rename(fpOld.fileName(), fpNew.fileName());
+    int err = fsOld->rename(fpOld.fileName(), fpNew.fileName());
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 extern "C" char *tmpnam(char *s) {
@@ -483,7 +521,8 @@ extern "C" DIR *opendir(const char *path) {
 
     Dir *dir = new Dir;
     int err = dir->open(fs, fp.fileName());
-    if (err) {
+    if (err < 0) {
+        errno = -err;
         delete dir;
         dir = NULL;
     }
@@ -494,7 +533,8 @@ extern "C" DIR *opendir(const char *path) {
 extern "C" struct dirent *readdir(DIR *dir) {
     static struct dirent ent;
     int err = dir->read(ent.d_name, NAME_MAX, &ent.d_type);
-    if (err) {
+    if (err < 0) {
+        errno = -err;
         return NULL;
     }
 
@@ -502,7 +542,13 @@ extern "C" struct dirent *readdir(DIR *dir) {
 }
 
 extern "C" int closedir(DIR *dir) {
-    return dir->close();
+    int err = dir->close();
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 extern "C" void rewinddir(DIR *dir) {
@@ -522,7 +568,13 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
-    return fs->mkdir(fp.fileName(), mode);
+    int err = fs->mkdir(fp.fileName(), mode);
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 extern "C" int stat(const char *path, struct stat *st) {
@@ -530,7 +582,13 @@ extern "C" int stat(const char *path, struct stat *st) {
     FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
-    return fs->stat(fp.fileName(), st);
+    int err = fs->stat(fp.fileName(), st);
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 #if defined(TOOLCHAIN_GCC)

@@ -17,6 +17,7 @@
 
 #include "mbed.h"
 #include "filesystem/FileSystem.h"
+#include <errno.h>
 
 
 FileSystem::FileSystem(const char *name)
@@ -54,22 +55,22 @@ size_t FileSystem::file_size(fs_file_t file)
 
 int FileSystem::mkdir(const char *path, mode_t mode)
 {
-    return FS_ERROR_UNSUPPORTED;
+    return -ENOSYS;
 }
 
 int FileSystem::dir_open(fs_dir_t *dir, const char *path)
 {
-    return FS_ERROR_UNSUPPORTED;
+    return -ENOSYS;
 }
 
 int FileSystem::dir_close(fs_dir_t dir)
 {
-    return FS_ERROR_UNSUPPORTED;
+    return -ENOSYS;
 }
 
 ssize_t FileSystem::dir_read(fs_dir_t dir, char *path, size_t len)
 {
-    return FS_ERROR_UNSUPPORTED;
+    return -ENOSYS;
 }
 
 ssize_t FileSystem::dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *type)

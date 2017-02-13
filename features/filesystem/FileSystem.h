@@ -26,22 +26,10 @@ namespace mbed {
 /** \addtogroup filesystem */
 /** @{*/
 
-/** Enum of standardized error codes
- *
- *  Valid error codes have negative values and may
- *  be returned by any network operation
- */
-enum fs_error {
-    FS_ERROR_OK          = 0,       ///< no error
-    FS_ERROR_UNSUPPORTED = -5001,   ///< unsupported functionality
-    FS_ERROR_PARAMETER   = -5002,   ///< invalid parameter
-};
 
 // Opaque pointer representing files and directories
 typedef void *fs_file_t;
 typedef void *fs_dir_t;
-
-
 
 /** A filesystem-like object is one that can be used to open files
  *  though it by fopen("/name/filename", flags)

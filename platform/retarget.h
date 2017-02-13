@@ -115,6 +115,11 @@ extern "C" {
 #endif
 #define EEXIST      17      /* File exists */
 
+#ifdef EINVAL
+#undef EINVAL
+#endif
+#define EINVAL      22      /* Invalid argument */
+
 #ifdef ENFILE
 #undef ENFILE
 #endif
@@ -124,6 +129,11 @@ extern "C" {
 #undef EMFILE
 #endif
 #define EMFILE      24      /* File descriptor value too large */
+
+#ifdef ENOSYS
+#undef ENOSYS
+#endif
+#define ENOSYS      38      /* Function not implemented */
 
 /* Missing stat.h defines.
  * The following are sys/stat.h definitions not currently present in the ARMCC
