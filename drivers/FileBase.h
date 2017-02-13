@@ -21,26 +21,6 @@ typedef int FILEHANDLE;
 #include <cstdio>
 #include <cstring>
 
-#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
-#    define O_RDONLY 0
-#    define O_WRONLY 1
-#    define O_RDWR   2
-#    define O_CREAT  0x0200
-#    define O_TRUNC  0x0400
-#    define O_APPEND 0x0008
-
-#    define NAME_MAX 255
-
-typedef int mode_t;
-typedef int ssize_t;
-typedef long off_t;
-
-#else
-#    include <sys/fcntl.h>
-#    include <sys/types.h>
-#    include <sys/syslimits.h>
-#endif
-
 #include "platform/platform.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
@@ -57,7 +37,6 @@ typedef enum {
 class FileBase {
 public:
     FileBase(const char *name, PathType t);
-
     virtual ~FileBase();
 
     const char* getName(void);

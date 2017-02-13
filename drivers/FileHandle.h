@@ -19,7 +19,7 @@
 typedef int FILEHANDLE;
 
 #include <stdio.h>
-#include "retarget.h"
+#include "platform/platform.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -39,6 +39,11 @@ namespace mbed {
 class FileHandle {
 
 public:
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
+        "Replaced by File")
+    FileHandle() {}
+
     /** Write the contents of a buffer to the file
      *
      *  @param buffer the buffer to write from
@@ -113,7 +118,7 @@ public:
         return res;
     }
 
-    virtual ~FileHandle();
+    virtual ~FileHandle() {};
 
 protected:
 

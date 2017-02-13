@@ -20,6 +20,7 @@
 
 #include "drivers/FileSystemLike.h"
 #include "drivers/FileLike.h"
+#include "filesystem/FileSystem.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -32,7 +33,7 @@ public:
     const char* fileName(void);
 
     bool          isFileSystem(void);
-    FileSystemLike* fileSystem(void);
+    FileSystem* fileSystem(void);
 
     bool    isFile(void);
     FileLike* file(void);

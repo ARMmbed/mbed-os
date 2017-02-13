@@ -20,8 +20,6 @@
 #include "platform/platform.h"
 
 #include "drivers/FileBase.h"
-#include "drivers/FileHandle.h"
-#include "drivers/DirHandle.h"
 #include "BlockDevice.h"
 
 namespace mbed {
@@ -53,10 +51,11 @@ typedef void *fs_dir_t;
  *
  * @Note Synchronization level: Set by subclass
  */
-class FileSystem {
+class FileSystem : public FileBase {
 public:
     /** FileSystem lifetime
      */
+    FileSystem(const char *name = NULL);
     virtual ~FileSystem() {}
 
     /** Mounts a filesystem to a block device
@@ -155,7 +154,7 @@ protected:
      *  @param file     File handle
      *  @return         True if the file is a terminal
      */
-    virtual bool file_isatty(fs_file_t file);
+    virtual int file_isatty(fs_file_t file);
 
     /** Move the file position to a given offset from from a given location
      *

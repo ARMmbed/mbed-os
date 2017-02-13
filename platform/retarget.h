@@ -19,6 +19,8 @@
 #ifndef RETARGET_H
 #define RETARGET_H
 
+#include <stdint.h>
+
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
@@ -27,10 +29,36 @@ typedef int ssize_t;    ///< Signed size type, usually encodes negative errors
 typedef long off_t;     ///< Offset in a data stream
 typedef int mode_t;     ///< Mode for opening files
 
+#define O_RDONLY 0
+#define O_WRONLY 1
+#define O_RDWR   2
+#define O_CREAT  0x0200
+#define O_TRUNC  0x0400
+#define O_APPEND 0x0008
+
 #define NAME_MAX 255    ///< Maximum size of a name in a file path
+
 #else
+#include <sys/fcntl.h>
 #include <sys/types.h>
 #include <sys/syslimits.h>
+#endif
+
+
+/* DIR declarations must also be here */
+#if __cplusplus
+namespace mbed { class Dir; }
+typedef mbed::Dir DIR;
+
+extern "C" {
+    DIR *opendir(const char*);
+    struct dirent *readdir(DIR *);
+    int closedir(DIR*);
+    void rewinddir(DIR*);
+    long telldir(DIR*);
+    void seekdir(DIR*, long);
+    int mkdir(const char *name, mode_t n);
+};
 #endif
 
 

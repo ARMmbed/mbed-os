@@ -17,7 +17,7 @@
 #define MBED_DIRHANDLE_H
 
 #include <stdint.h>
-#include "retarget.h"
+#include "platform/platform.h"
 
 #include "FileHandle.h"
 
@@ -41,8 +41,12 @@ namespace mbed {
  *  @Note Synchronization level: Set by subclass
  */
 class DirHandle {
-
 public:
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
+        "Replaced by File")
+    DirHandle() {}
+
     /** Closes the directory.
      *
      *  @returns
@@ -94,21 +98,17 @@ protected:
     virtual void unlock() {
         // Stub
     }
+
+protected:
+    /** Internal-only constructor to work around deprecated notices when not used
+     *. due to nested deprecations and difficulty of compilers finding their way around
+     *  the class hierarchy
+     */
+    friend class FileSystemLike;
+    DirHandle(int) {}
 };
 
 } // namespace mbed
-
-typedef mbed::DirHandle DIR;
-
-extern "C" {
-    DIR *opendir(const char*);
-    struct dirent *readdir(DIR *);
-    int closedir(DIR*);
-    void rewinddir(DIR*);
-    long telldir(DIR*);
-    void seekdir(DIR*, long);
-    int mkdir(const char *name, mode_t n);
-};
 
 #endif /* MBED_DIRHANDLE_H */
 

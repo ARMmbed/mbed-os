@@ -41,10 +41,16 @@ public:
      *
      *  @param name The name to use for the filesystem.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
+        "Replaced by FileSystem")
     FileSystemLike(const char *name);
 
     virtual ~FileSystemLike();
 
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
+        "Replaced by FileSystem")
     static DirHandle *opendir();
     friend class BaseDirHandle;
 

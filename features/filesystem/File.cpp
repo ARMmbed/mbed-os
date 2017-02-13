@@ -24,7 +24,7 @@ File::File()
 }
 
 File::File(FileSystem *fs, const char *path, int flags)
-    : _fs(0), _file(0)
+    : FileLike(path), _fs(0), _file(0)
 {
     open(fs, path, flags);
 }
@@ -42,8 +42,12 @@ int File::open(FileSystem *fs, const char *path, int flags)
         return FS_ERROR_PARAMETER;
     }
 
-    _fs = fs;
-    return _fs->file_open(&_file, path, flags);
+    int err = fs->file_open(&_file, path, flags);
+    if (!err) {
+        _fs = fs;
+    }
+
+    return err;
 }
 
 int File::close()
@@ -75,7 +79,7 @@ int File::sync()
     return _fs->file_sync(_file);
 }
 
-bool File::isatty()
+int File::isatty()
 {
     MBED_ASSERT(_fs);
     return _fs->file_isatty(_file);

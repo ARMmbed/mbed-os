@@ -19,12 +19,17 @@
 #include "filesystem/FileSystem.h"
 
 
+FileSystem::FileSystem(const char *name)
+    : FileBase(name, FileSystemPathType)
+{
+}
+
 int FileSystem::file_sync(fs_file_t file)
 {
     return 0;
 }
 
-bool FileSystem::file_isatty(fs_file_t file)
+int FileSystem::file_isatty(fs_file_t file)
 {
     return false;
 }

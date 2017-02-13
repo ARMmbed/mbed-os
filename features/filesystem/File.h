@@ -18,6 +18,7 @@
 #define FILE_H
 
 #include "filesystem/FileSystem.h"
+#include "drivers/FileLike.h"
 
 namespace mbed {
 /** \addtogroup filesystem */
@@ -26,7 +27,7 @@ namespace mbed {
 
 /** File class
  */
-class File {
+class File : public FileLike {
 public:
     /** Create an uninitialized file
      *
@@ -94,7 +95,7 @@ public:
      *
      *  @return         True if the file is a terminal
      */
-    virtual bool isatty();
+    virtual int isatty();
 
     /** Move the file position to a given offset from from a given location
      *

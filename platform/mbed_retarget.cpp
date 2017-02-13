@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 #include "platform/platform.h"
-#include "drivers/FileHandle.h"
-#include "drivers/FileSystemLike.h"
 #include "drivers/FilePath.h"
 #include "hal/serial_api.h"
 #include "platform/mbed_toolchain.h"
@@ -25,6 +23,9 @@
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
+#include "filesystem/FileSystem.h"
+#include "filesystem/File.h"
+#include "filesystem/Dir.h"
 #include <stdlib.h>
 #include <string.h>
 #if DEVICE_STDIO_MESSAGES
@@ -82,18 +83,21 @@ uint32_t mbed_heap_size = 0;
  * put it in a filehandles array and return the index into that array
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
-static FileHandle *filehandles[OPEN_MAX];
+static FileLike *filehandles[OPEN_MAX];
+static File fileobjects[OPEN_MAX];
 static SingletonPtr<PlatformMutex> filehandle_mutex;
 
-FileHandle::~FileHandle() {
+namespace mbed {
+void remove_filehandle(FileLike *file) {
     filehandle_mutex->lock();
     /* Remove all open filehandles for this */
     for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
-        if (filehandles[fh_i] == this) {
+        if (filehandles[fh_i] == file) {
             filehandles[fh_i] = NULL;
         }
     }
     filehandle_mutex->unlock();
+}
 }
 
 #if DEVICE_SERIAL
@@ -207,16 +211,16 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         filehandle_mutex->unlock();
         return -1;
     }
-    filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
+    filehandles[fh_i] = (FileLike*)FILE_HANDLE_RESERVED;
     filehandle_mutex->unlock();
 
-    FileHandle *res;
+    FileLike *res = NULL;
 
     /* FILENAME: ":0x12345678" describes a FileLike* */
     if (name[0] == ':') {
         void *p;
         sscanf(name, ":%p", &p);
-        res = (FileHandle*)p;
+        res = (FileLike*)p;
 
     /* FILENAME: "/file_system/file_name" */
     } else {
@@ -233,7 +237,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         } else if (path.isFile()) {
             res = path.file();
         } else {
-            FileSystemLike *fs = path.fileSystem();
+            FileSystem *fs = path.fileSystem();
             if (fs == NULL) {
                 /* The filesystem instance managing the namespace under the mount point
                  * has not been found. Free file handle */
@@ -242,7 +246,10 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
                 return -1;
             }
             int posix_mode = openmode_to_posix(openmode);
-            res = fs->open(path.fileName(), posix_mode); /* NULL if fails */
+            int err = fileobjects[fh_i].open(fs, path.fileName(), posix_mode);
+            if (!err) {
+                res = &fileobjects[fh_i];
+            }
         }
     }
 
@@ -260,7 +267,7 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     if (fh < 3) return 0;
 
     errno = EBADF;
-    FileHandle* fhc = filehandles[fh-3];
+    FileLike* fhc = filehandles[fh-3];
     filehandles[fh-3] = NULL;
     if (fhc == NULL) return -1;
 
@@ -294,7 +301,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
         n = length;
     } else {
-        FileHandle* fhc = filehandles[fh-3];
+        FileLike* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
         n = fhc->write(buffer, length);
@@ -343,7 +350,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
         n = 1;
     } else {
-        FileHandle* fhc = filehandles[fh-3];
+        FileLike* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
         n = fhc->read(buffer, length);
@@ -365,7 +372,7 @@ extern "C" int _isatty(FILEHANDLE fh)
     /* stdin, stdout and stderr should be tty */
     if (fh < 3) return 1;
 
-    FileHandle* fhc = filehandles[fh-3];
+    FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
     return fhc->isatty();
@@ -383,13 +390,13 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     errno = EBADF;
     if (fh < 3) return 0;
 
-    FileHandle* fhc = filehandles[fh-3];
+    FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
 #if defined(__ARMCC_VERSION)
-    return fhc->lseek(position, SEEK_SET);
+    return fhc->seek(position, SEEK_SET);
 #else
-    return fhc->lseek(offset, whence);
+    return fhc->seek(offset, whence);
 #endif
 }
 
@@ -398,7 +405,7 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
     errno = EBADF;
     if (fh < 3) return 0;
 
-    FileHandle* fhc = filehandles[fh-3];
+    FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
     return fhc->fsync();
@@ -408,7 +415,7 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
     errno = EBADF;
     if (fh < 3) return 0;
 
-    FileHandle* fhc = filehandles[fh-3];
+    FileLike* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
     return fhc->flen();
@@ -431,7 +438,7 @@ namespace std {
 extern "C" int remove(const char *path) {
     errno = EBADF;
     FilePath fp(path);
-    FileSystemLike *fs = fp.fileSystem();
+    FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
     return fs->remove(fp.fileName());
@@ -441,8 +448,8 @@ extern "C" int rename(const char *oldname, const char *newname) {
     errno = EBADF;
     FilePath fpOld(oldname);
     FilePath fpNew(newname);
-    FileSystemLike *fsOld = fpOld.fileSystem();
-    FileSystemLike *fsNew = fpNew.fileSystem();
+    FileSystem *fsOld = fpOld.fileSystem();
+    FileSystem *fsNew = fpNew.fileSystem();
 
     /* rename only if both files are on the same FS */
     if (fsOld != fsNew || fsOld == NULL) return -1;
@@ -469,41 +476,50 @@ extern "C" char *_sys_command_string(char *cmd, int len) {
 
 extern "C" DIR *opendir(const char *path) {
     errno = EBADF;
-    /* root dir is FileSystemLike */
-    if (path[0] == '/' && path[1] == 0) {
-        return FileSystemLike::opendir();
-    }
 
     FilePath fp(path);
-    FileSystemLike* fs = fp.fileSystem();
+    FileSystem* fs = fp.fileSystem();
     if (fs == NULL) return NULL;
 
-    return fs->opendir(fp.fileName());
+    Dir *dir = new Dir;
+    int err = dir->open(fs, fp.fileName());
+    if (err) {
+        delete dir;
+        dir = NULL;
+    }
+
+    return dir;
 }
 
 extern "C" struct dirent *readdir(DIR *dir) {
-    return dir->readdir();
+    static struct dirent ent;
+    int err = dir->read(ent.d_name, NAME_MAX, &ent.d_type);
+    if (err) {
+        return NULL;
+    }
+
+    return &ent;
 }
 
 extern "C" int closedir(DIR *dir) {
-    return dir->closedir();
+    return dir->close();
 }
 
 extern "C" void rewinddir(DIR *dir) {
-    dir->rewinddir();
+    dir->rewind();
 }
 
 extern "C" off_t telldir(DIR *dir) {
-    return dir->telldir();
+    return dir->tell();
 }
 
 extern "C" void seekdir(DIR *dir, off_t off) {
-    dir->seekdir(off);
+    dir->seek(off);
 }
 
 extern "C" int mkdir(const char *path, mode_t mode) {
     FilePath fp(path);
-    FileSystemLike *fs = fp.fileSystem();
+    FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
     return fs->mkdir(fp.fileName(), mode);
@@ -511,7 +527,7 @@ extern "C" int mkdir(const char *path, mode_t mode) {
 
 extern "C" int stat(const char *path, struct stat *st) {
     FilePath fp(path);
-    FileSystemLike *fs = fp.fileSystem();
+    FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
     return fs->stat(fp.fileName(), st);

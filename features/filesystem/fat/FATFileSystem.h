@@ -41,7 +41,7 @@ public:
      *  @param name     Name to add filesystem to tree as
      *  @param bd       BlockDevice to mount, may be passed instead to mount call
      */
-    FATFileSystem(const char *name, BlockDevice *bd = NULL);
+    FATFileSystem(const char *name = NULL, BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
     
     /** Formats a logical drive, FDISK partitioning rule.
@@ -235,13 +235,6 @@ protected:
      *  @param dir      Dir handle
      */
     virtual void dir_rewind(fs_dir_t dir);
-
-    /** Get the sizeof the directory 
-     *
-     *  @param dir      Dir handle
-     *  @return         Number of files in the directory
-     */
-    virtual size_t dir_size(fs_dir_t dir);
     
 private:
     FATFS _fs; // Work area (file system object) for logical drive
