@@ -38,18 +38,6 @@ enum fs_error {
     FS_ERROR_PARAMETER   = -5002,   ///< invalid parameter
 };
 
-// TODO move to retarget
-enum fs_type {
-    DT_UNKNOWN, // The file type could not be determined.
-    DT_FIFO,    // This is a named pipe (FIFO).
-    DT_CHR,     // This is a character device.
-    DT_DIR,     // This is a directory.
-    DT_BLK,     // This is a block device.
-    DT_REG,     // This is a regular file.
-    DT_LNK,     // This is a symbolic link.
-    DT_SOCK,    // This is a UNIX domain socket.
-};
-
 // Opaque pointer representing files and directories
 typedef void *fs_file_t;
 typedef void *fs_dir_t;

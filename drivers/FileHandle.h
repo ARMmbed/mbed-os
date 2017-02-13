@@ -19,14 +19,7 @@
 typedef int FILEHANDLE;
 
 #include <stdio.h>
-
-#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
-typedef int ssize_t;
-typedef long off_t;
-
-#else
-#   include <sys/types.h>
-#endif
+#include "retarget.h"
 
 namespace mbed {
 /** \addtogroup drivers */
