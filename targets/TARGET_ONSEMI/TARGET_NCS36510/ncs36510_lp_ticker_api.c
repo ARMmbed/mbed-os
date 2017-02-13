@@ -34,12 +34,10 @@
 #include "device.h"
 #if DEVICE_LOWPOWERTIMER
 
-#include "sleep_api.h"
 #include "cmsis_nvic.h"
 #include "lp_ticker_api.h"
 #include "rtc.h"
 #include "rtc_map.h"
-#include "sleep.h"
 
 /* Initialize the RTC for low power ticker */
 void lp_ticker_init()
