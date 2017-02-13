@@ -569,7 +569,7 @@ nsapi_size_or_error_t NanostackInterface::do_sendto(void *handle, const ns_addre
      * \return -5 Socket not connected
      * \return -6 Packet too short (ICMP raw socket error).
      * */
-    if (retcode == -2 || retcode == NS_EWOULDBLOCK) {
+    if (retcode == NS_EWOULDBLOCK) {
         ret = NSAPI_ERROR_WOULD_BLOCK;
     } else if (retcode < 0) {
         tr_error("socket_sendmsg: error=%d", retcode);
