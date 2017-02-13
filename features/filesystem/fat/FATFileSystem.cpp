@@ -199,8 +199,8 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
 FileHandle *FATFileSystem::open(const char* name, int flags) {
     lock();
     debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", name, getName(), _fsid);
-    char n[64];
-    sprintf(n, "%s:/%s", _fsid, name);
+    char *buffer = new char[strlen(_fsid) + strlen(name) + 3];
+    sprintf(buffer, "%s:/%s", _fsid, name);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -220,8 +220,10 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
     }
 
     FIL fh;
-    FRESULT res = f_open(&fh, n, openmode);
+    FRESULT res = f_open(&fh, buffer, openmode);
     fat_filesystem_set_errno(res);
+    delete[] buffer;
+
     if (res) {
         debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
         unlock();
