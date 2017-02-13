@@ -22,7 +22,7 @@
 #ifndef MBED_FATFILESYSTEM_H
 #define MBED_FATFILESYSTEM_H
 
-#include "FileSystemLike.h"
+#include "FileSystem.h"
 #include "BlockDevice.h"
 #include "FileHandle.h"
 #include "ff.h"
@@ -34,107 +34,221 @@ using namespace mbed;
 /**
  * FATFileSystem based on ChaN's Fat Filesystem library v0.8
  */
-class FATFileSystem : public FileSystemLike
-{
+class FATFileSystem : public FileSystem {
 public:
-    FATFileSystem(const char* n, BlockDevice *bd = NULL);
+    /** Lifetime of the FATFileSystem
+     *
+     *  @param name     Name to add filesystem to tree as
+     *  @param bd       BlockDevice to mount, may be passed instead to mount call
+     */
+    FATFileSystem(const char *name, BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
-
-    /**
-     * @brief   Mounts the filesystem
+    
+    /** Formats a logical drive, FDISK partitioning rule.
      *
-     * @param bd
-     *   This is the block device that will be formated.
+     *  The block device to format should be mounted when this function is called.
      *
-     * @param force
-     *   Flag to underlying filesystem to force the mounting of the filesystem.
-     */
-    virtual int mount(BlockDevice *bd, bool force = true);
-
-    /**
-     * Unmounts the filesystem
-     */
-    virtual int unmount();
-
-    /**
-     * Flush any underlying transactions
-     */
-    virtual int sync();
-
-    /**
-     * @brief   Formats a logical drive, FDISK partitioning rule.
+     *  @param bd
+     *    This is the block device that will be formated.
      *
-     * The block device to format should be mounted when this function is called.
-     *
-     * @param bd
-     *   This is the block device that will be formated.
-     *
-     * @param allocation_unit
-     *   This is the number of bytes per cluster size. The valid value is N
-     *   times the sector size. N is a power of 2 from 1 to 128 for FAT
-     *   volume and upto 16MiB for exFAT volume. If zero is given,
-     *   the default allocation unit size is selected by the underlying
-     *   filesystem, which depends on the volume size.
+     *  @param allocation_unit
+     *    This is the number of bytes per cluster size. The valid value is N
+     *    times the sector size. N is a power of 2 from 1 to 128 for FAT
+     *    volume and upto 16MiB for exFAT volume. If zero is given,
+     *    the default allocation unit size is selected by the underlying
+     *    filesystem, which depends on the volume size.
      */
     static int format(BlockDevice *bd, int allocation_unit = 0);
 
-    /**
-     * Opens a file on the filesystem
+    /** Mounts a filesystem to a block device
+     *
+     *  @param bd       BlockDevice to mount to
+     *  @return         0 on success, negative error code on failure
      */
-    virtual FileHandle *open(const char* name, int flags);
+    virtual int mount(BlockDevice *bd);
 
-    /**
-     * Removes a file path
+    /** Mounts a filesystem to a block device
+     *
+     *  @param bd       BlockDevice to mount to
+     *  @param force    Flag to force the underlying filesystem to force mounting the filesystem
+     *  @return         0 on success, negative error code on failure
      */
-    virtual int remove(const char *filename);
+    virtual int mount(BlockDevice *bd, bool force);
 
-    /**
-     * Renames a file
+    /** Unmounts a filesystem from the underlying block device
+     *
+     *  @return         0 on success, negative error code on failure
      */
-    virtual int rename(const char *oldname, const char *newname);
+    virtual int unmount();
 
-    /**
-     * Opens a directory on the filesystem
+    /** Remove a file from the filesystem.
+     *
+     *  @param path     The name of the file to remove.
+     *  @return         0 on success, negative error code on failure
      */
-    virtual DirHandle *opendir(const char *name);
+    virtual int remove(const char *path);
 
-    /**
-     * Creates a directory path
+    /** Rename a file in the filesystem.
+     *
+     *  @param path     The name of the file to rename.
+     *  @param newpath  The name to rename it to
+     *  @return         0 on success, negative error code on failure
      */
-    virtual int mkdir(const char *name, mode_t mode);
+    virtual int rename(const char *path, const char *newpath);
 
-    /**
-     * Store information about file in stat structure
+    /** Store information about the file in a stat structure
+     *
+     *  @param path     The name of the file to find information about
+     *  @param st       The stat buffer to write to
+     *  @return         0 on success, negative error code on failure
      */
-    virtual int stat(const char *name, struct stat *st);
+    virtual int stat(const char *path, struct stat *st);
+
+    /** Create a directory in the filesystem.
+     *
+     *  @param path     The name of the directory to create.
+     *  @param mode     The permissions with which to create the directory
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int mkdir(const char *path, mode_t mode);
 
 protected:
+    /** Open a file on the filesystem
+     *
+     *  @param file     Destination for the handle to a newly created file
+     *  @param path     The name of the file to open
+     *  @param flags    The flags to open the file in, one of O_RDONLY, O_WRONLY, O_RDWR,
+     *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int file_open(fs_file_t *file, const char *path, int flags);
+
+    /** Close a file
+     *
+     *  @param file     File handle
+     *  return          0 on success, negative error code on failure
+     */
+    virtual int file_close(fs_file_t file);
+
+    /** Read the contents of a file into a buffer
+     *
+     *  @param file     File handle
+     *  @param buffer   The buffer to read in to
+     *  @param size     The number of bytes to read
+     *  @return         The number of bytes read, 0 at end of file, negative error on failure
+     */
+    virtual ssize_t file_read(fs_file_t file, void *buffer, size_t len);
+
+    /** Write the contents of a buffer to a file
+     *
+     *  @param file     File handle
+     *  @param buffer   The buffer to write from
+     *  @param size     The number of bytes to write 
+     *  @return         The number of bytes written, negative error on failure
+     */
+    virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t len);
+
+    /** Flush any buffers associated with the file
+     *
+     *  @param file     File handle
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int file_sync(fs_file_t file);
+
+    /** Move the file position to a given offset from from a given location
+     *
+     *  @param file     File handle
+     *  @param offset   The offset from whence to move to
+     *  @param whence   The start of where to seek
+     *      SEEK_SET to start from beginning of file,
+     *      SEEK_CUR to start from current position in file,
+     *      SEEK_END to start from end of file
+     *  @return         The new offset of the file
+     */
+    virtual off_t file_seek(fs_file_t file, off_t offset, int whence);
+
+    /** Get the file position of the file
+     *
+     *  @param file     File handle
+     *  @return         The current offset in the file
+     */
+    virtual off_t file_tell(fs_file_t file);
+
+    /** Get the size of the file
+     *
+     *  @param file     File handle
+     *  @return         Size of the file in bytes
+     */
+    virtual size_t file_size(fs_file_t file);
+
+    /** Open a directory on the filesystem
+     *
+     *  @param dir      Destination for the handle to the directory
+     *  @param path     Name of the directory to open
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int dir_open(fs_dir_t *dir, const char *path);
+
+    /** Close a directory
+     *
+     *  @param dir      Dir handle
+     *  return          0 on success, negative error code on failure
+     */
+    virtual int dir_close(fs_dir_t dir);
+
+    /** Read the next directory entry
+     *
+     *  @param dir      Dir handle
+     *  @param path     The buffer to read the null terminated path name in to
+     *  @param size     The maximum number of bytes in the buffer, this is at most FS_NAME_MAX
+     *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
+     */
+    virtual ssize_t dir_read(fs_dir_t dir, char *path, size_t len);
+
+    /** Read the next directory entry
+     *
+     *  @param dir      Dir handle
+     *  @param path     The buffer to read the null terminated path name in to
+     *  @param size     The maximum number of bytes in the buffer, this is at most FS_NAME_MAX
+     *  @param type     The type of the file, one of DT_DIR, DT_REG, etc...
+     *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
+     */
+    virtual ssize_t dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *type);
+
+    /** Set the current position of the directory
+     *
+     *  @param dir      Dir handle
+     *  @param offset   Offset of the location to seek to,
+     *                  must be a value returned from dir_tell
+     */
+    virtual void dir_seek(fs_dir_t dir, off_t offset);
+
+    /** Get the current position of the directory
+     *
+     *  @param dir      Dir handle
+     *  @return         Position of the directory that can be passed to dir_rewind
+     */
+    virtual off_t dir_tell(fs_dir_t dir);
+
+    /** Rewind the current position to the beginning of the directory
+     *
+     *  @param dir      Dir handle
+     */
+    virtual void dir_rewind(fs_dir_t dir);
+
+    /** Get the sizeof the directory 
+     *
+     *  @param dir      Dir handle
+     *  @return         Number of files in the directory
+     */
+    virtual size_t dir_size(fs_dir_t dir);
+    
+private:
     FATFS _fs; // Work area (file system object) for logical drive
     char _fsid[2];
     int _id;
 
-    /* Access to the underlying FAT filesystem implementation from multiple
-     * concurrent clients (i.e. threads) is serialised using a single
-     * platform mutex (_ffs_mutex) The implementation is therefore thread
-     * safe (but this requires further validation and testing).
-     *  - The platform mutex _ffs_mutex is defined in the FileSystemLike
-     *    implementation.
-     *  - FileSystemLike uses the mutex to gain exclusive access to the
-     *    underlying block device for mount()/unmount()/format()/sync()
-     *    operations.
-     *  - FileSystemLike::open() uses the mutex to serialise FATFileHandle
-     *    object creation. The FATFileHandle constructor is passed a pointer
-     *    to the platform mutex so file operations (e.g. read()/write()/flen()
-     *    /fsync()) are serialised with the rest of the implementation.
-     *  - FileSystemLike::opendir() uses the mutex to serialise FATDirHandle
-     *    object creation. The FATDirHandle constructor is passed a pointer
-     *    to the platform mutex so directory operations (e.g. readdir()/
-     *    telldir()/rewinddir()/closedir()) are serialised with the rest
-     *    of the implementation.
-     *  - The platform mutex _ffs_mutex is taken/given using the lock()/unlock()
-     *    methods defined below, and similar helper methods exist in the
-     *    FATFileHandle and FATDirHandle classes.
-     */
+protected:
     virtual void lock();
     virtual void unlock();
 };

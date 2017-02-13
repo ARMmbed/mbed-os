@@ -22,6 +22,7 @@
 #include "drivers/FileBase.h"
 #include "drivers/FileHandle.h"
 #include "drivers/DirHandle.h"
+#include "BlockDevice.h"
 
 namespace mbed {
 /** \addtogroup filesystem */
@@ -56,7 +57,20 @@ class FileSystem {
 public:
     /** FileSystem lifetime
      */
-    ~FileSystem() {}
+    virtual ~FileSystem() {}
+
+    /** Mounts a filesystem to a block device
+     *
+     *  @param bd       BlockDevice to mount to
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int mount(BlockDevice *bd) = 0;
+
+    /** Unmounts a filesystem from the underlying block device
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int unmount() = 0;
 
     /** Remove a file from the filesystem.
      *
@@ -174,7 +188,7 @@ protected:
      *  @param file     File handle
      *  @return         Size of the file in bytes
      */
-    virtual size_t file_size(fs_file_t);
+    virtual size_t file_size(fs_file_t file);
 
     /** Open a directory on the filesystem
      *

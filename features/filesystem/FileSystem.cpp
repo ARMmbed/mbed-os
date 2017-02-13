@@ -69,7 +69,8 @@ ssize_t FileSystem::dir_read(fs_dir_t dir, char *path, size_t len)
 
 ssize_t FileSystem::dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *type)
 {
-    return FS_ERROR_UNSUPPORTED;
+    *type = DT_UNKNOWN;
+    return dir_read(dir, path, len);
 }
 
 void FileSystem::dir_seek(fs_dir_t dir, off_t offset)
