@@ -121,7 +121,10 @@ class MemapParser(object):
             else:
                 module_name = data[0] + '/' + data[1]
 
-            return [module_name, object_name]
+            if self.detailed_misc:
+                return [module_name + '/' + object_name, object_name]
+            else:
+                return [module_name, object_name]
             
         elif self.detailed_misc:           
             rex_obj_name = r'^.+\/(.+\.o\)*)$'

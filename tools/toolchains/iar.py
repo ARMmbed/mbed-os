@@ -231,3 +231,15 @@ class IAR(mbedToolchain):
         # Exec command
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
+
+    @staticmethod
+    def name_mangle(name):
+        return "_Z%i%sv" % (len(name), name)
+
+    @staticmethod
+    def make_ld_define(name, value):
+        return "--config_def %s=0x%x" % (name, value)
+
+    @staticmethod
+    def redirect_symbol(source, sync, build_dir):
+        return "--redirect %s=%s" % (source, sync)
