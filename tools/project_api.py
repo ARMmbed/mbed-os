@@ -104,33 +104,32 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
     with zipfile.ZipFile(file_name, "w") as zip_file:
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for loc, resource in resources.iteritems():
-            for res in [resource] + resource.features.values():
-                to_zip = (
-                    res.headers + res.s_sources + res.c_sources +\
-                    res.cpp_sources + res.libraries + res.hex_files + \
-                    [res.linker_script] + res.bin_files + res.objects + \
-                    res.json_files + res.lib_refs + res.lib_builds)
-                if inc_repos:
-                    for directory in res.repo_dirs:
-                        for root, _, files in walk(directory):
-                            for repo_file in files:
-                                source = join(root, repo_file)
-                                to_zip.append(source)
-                                res.file_basepath[source] = res.base_path
-                    to_zip += res.repo_files
-                for source in to_zip:
-                    if source:
-                        zip_file.write(
-                            source,
-                            join(prefix, loc,
-                                 relpath(source, res.file_basepath[source])))
-                for source in res.lib_builds:
-                    target_dir, _ = splitext(source)
-                    dest = join(prefix, loc,
-                                relpath(target_dir, res.file_basepath[source]),
-                                ".bld", "bldrc")
-                    zip_file.write(source, dest)
+        for loc, res in resources.iteritems():
+            to_zip = (
+                res.headers + res.s_sources + res.c_sources +\
+                res.cpp_sources + res.libraries + res.hex_files + \
+                [res.linker_script] + res.bin_files + res.objects + \
+                res.json_files + res.lib_refs + res.lib_builds)
+            if inc_repos:
+                for directory in res.repo_dirs:
+                    for root, _, files in walk(directory):
+                        for repo_file in files:
+                            source = join(root, repo_file)
+                            to_zip.append(source)
+                            res.file_basepath[source] = res.base_path
+                to_zip += res.repo_files
+            for source in to_zip:
+                if source:
+                    zip_file.write(
+                        source,
+                        join(prefix, loc,
+                             relpath(source, res.file_basepath[source])))
+            for source in res.lib_builds:
+                target_dir, _ = splitext(source)
+                dest = join(prefix, loc,
+                            relpath(target_dir, res.file_basepath[source]),
+                            ".bld", "bldrc")
+                zip_file.write(source, dest)
 
 
 
@@ -223,8 +222,13 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                                              macros=macros)
     files.append(config_header)
     if zip_proj:
+        for resource in resource_dict.values():
+            for label, res in resource.features.iteritems():
+                if label not in toolchain.target.features:
+                    resource.add(res)
         if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, resource_dict, files, inc_repos)
+            zip_export(join(export_path, zip_proj), name, resource_dict, files,
+                       inc_repos)
         else:
             zip_export(zip_proj, name, resource_dict, files, inc_repos)
 
