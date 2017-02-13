@@ -48,7 +48,7 @@ typedef struct mem_block_s {
 /// \param[in]  mem             pointer to memory pool.
 /// \param[in]  size            size of a memory pool in bytes.
 /// \return 1 - success, 0 - failure.
-uint32_t osRtxMemoryInit (void *mem, uint32_t size) {
+__WEAK uint32_t osRtxMemoryInit (void *mem, uint32_t size) {
   mem_head_t  *head;
   mem_block_t *ptr;
 
@@ -77,7 +77,7 @@ uint32_t osRtxMemoryInit (void *mem, uint32_t size) {
 /// \param[in]  size            size of a memory block in bytes.
 /// \param[in]  type            memory block type: 0 - generic, 1 - control block
 /// \return allocated memory block or NULL in case of no memory is available.
-void *osRtxMemoryAlloc (void *mem, uint32_t size, uint32_t type) {
+__WEAK void *osRtxMemoryAlloc (void *mem, uint32_t size, uint32_t type) {
   mem_block_t *p, *p_new, *ptr;
   uint32_t     hole_size;
 
@@ -132,7 +132,7 @@ void *osRtxMemoryAlloc (void *mem, uint32_t size, uint32_t type) {
 /// \param[in]  mem             pointer to memory pool.
 /// \param[in]  block           memory block to be returned to the memory pool.
 /// \return 1 - success, 0 - failure.
-uint32_t osRtxMemoryFree (void *mem, void *block) {
+__WEAK uint32_t osRtxMemoryFree (void *mem, void *block) {
   mem_block_t *p, *p_prev, *ptr;
 
   if ((mem == NULL) || (block == NULL)) {

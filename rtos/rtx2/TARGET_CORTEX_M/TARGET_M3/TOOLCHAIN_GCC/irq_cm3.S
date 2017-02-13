@@ -24,7 +24,7 @@
  */
 
 
-        .file    "irq_cm3.s"
+        .file    "irq_cm3.S"
         .syntax  unified
 
         .equ     I_T_RUN_OFS, 28        // osRtxInfo.thread.run offset

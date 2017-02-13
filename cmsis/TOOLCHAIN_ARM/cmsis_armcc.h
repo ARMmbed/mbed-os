@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armcc.h
- * @brief    CMSIS Cortex-M Core Function/Instruction Header File
- * @version  V5.01
- * @date     15. November 2016
+ * @brief    CMSIS compiler ARMCC (ARM compiler V5) header file
+ * @version  V5.0.1
+ * @date     03. February 2017
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -75,6 +75,9 @@
 #endif
 #ifndef   __PACKED
   #define __PACKED                  __attribute__((packed))
+#endif
+#ifndef   __PACKED_STRUCT
+  #define __PACKED_STRUCT           __packed struct
 #endif
 
 
