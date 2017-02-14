@@ -40,7 +40,7 @@ from tools.export import (
 )
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
-from tools.targets import TARGET_NAMES, Target
+from tools.targets import TARGET_NAMES, set_targets_json_location
 from tools.utils import (
     argparse_filestring_type,
     argparse_profile_filestring_type,
@@ -55,6 +55,8 @@ from tools.options import extract_profile, list_profiles, extract_mcus
 from tools.notifier.term import TerminalNotifier
 from tools.psa import generate_psa_sources
 from tools.resources import OsAndSpeResourceFilter
+from tools.build_profiles import find_targets_json, find_build_profile, get_toolchain_profile
+from tools.toolchains import mbedToolchain
 
 """ The CLI entry point for exporting projects from the mbed tools to any of the
 supported IDEs or project structures.
@@ -147,6 +149,43 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     Returns an object of type Exporter (tools/exports/exporters.py)
     """
+    ###################################
+    # mbed Classic/2.0/libary support #
+
+    # Find build system profile
+    profile = None
+    targets_json = None
+    for path in src:
+        profile = find_build_profile(path) or profile
+        if profile:
+            targets_json = join(dirname(dirname(abspath(__file__))), 'legacy_targets.json')
+        else:
+            targets_json = find_targets_json(path) or targets_json
+
+    # Apply targets.json to active targets
+    if targets_json:
+        notify.info("Using targets from %s" % targets_json)
+        set_targets_json_location(targets_json)
+
+    # Apply profile to toolchains
+    if profile:
+        def init_hook(self):
+            profile_data = get_toolchain_profile(self.name, profile)
+            if not profile_data:
+                return
+            notify.info("Using toolchain %s profile %s" % (self.name, profile))
+
+            for k,v in profile_data.items():
+                if self.flags.has_key(k):
+                    self.flags[k] = v
+                else:
+                    setattr(self, k, v)
+
+        mbedToolchain.init = init_hook
+
+    # mbed Classic/2.0/libary support #
+    ###################################
+
     project_dir, name, src, lib = setup_project(
         ide,
         target,
@@ -188,6 +227,11 @@ def clean(source_dir):
             remove(f)
         except (IOError, OSError):
             pass
+
+    return export_project(src, project_dir, target, ide, name=name,
+                          macros=macros, libraries_paths=lib, zip_proj=zip_name,
+                          build_profile=build_profile, notify=notify,
+                          app_config=app_config, ignore=ignore)
 
 
 def get_args(argv):

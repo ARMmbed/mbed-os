@@ -43,11 +43,18 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     BUILD_DIR)
 from .resources import Resources, FileType, FileRef, PsaManifestResourceFilter
 from .notifier.mock import MockNotifier
-from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
+from .targets import (
+    TARGET_NAMES, 
+    TARGET_MAP, 
+    CORE_ARCH, 
+    Target, 
+    set_targets_json_location
+)
 from .libraries import Library
-from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS, mbedToolchain
 from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .config import Config
+from .build_profiles import find_build_profile, get_toolchain_profile, find_targets_json
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -552,6 +559,43 @@ def build_project(src_paths, build_path, target, toolchain_name,
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
+
+    ###################################
+    # mbed Classic/2.0/libary support #
+
+    # Find build system profile
+    profile = None
+    targets_json = None
+    for path in src_paths:
+        profile = find_build_profile(path) or profile
+        if profile:
+            targets_json = join(dirname(abspath(__file__)), 'legacy_targets.json')
+        else:
+            targets_json = find_targets_json(path) or targets_json
+
+    # Apply targets.json to active targets
+    if targets_json:
+        notify.info("Using targets from %s" % targets_json)
+        set_targets_json_location(targets_json)
+
+    # Apply profile to toolchains
+    if profile:
+        def init_hook(self):
+            profile_data = get_toolchain_profile(self.name, profile)
+            if not profile_data:
+                return
+            notify.info("Using toolchain %s profile %s" % (self.name, profile))
+
+            for k,v in profile_data.items():
+                if self.flags.has_key(k):
+                    self.flags[k] = v
+                else:
+                    setattr(self, k, v)
+
+        mbedToolchain.init = init_hook
+
+    # mbed Classic/2.0/libary support #
+    ###################################
 
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
