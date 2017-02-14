@@ -243,6 +243,8 @@ void us_ticker_clear_interrupt(void)
  */
 static uint32_t previous_tick_cc_value = 0;
 
+static uint32_t os_rtc_peiod;
+
 /*
  RTX provide the following definitions which are used by the tick code:
    * os_trv: The number (minus 1) of clock cycle between two tick.
@@ -253,10 +255,10 @@ static uint32_t previous_tick_cc_value = 0;
  To allow compilation of us_ticker programs without RTOS, those symbols are
  exported from this module as weak ones.
  */
-MBED_WEAK uint32_t const os_trv;
-MBED_WEAK uint32_t const os_clockrate;
-MBED_WEAK void OS_Tick_Handler() { }
+//MBED_WEAK uint32_t const os_clockrate;
+//MBED_WEAK void SysTick_Handler() { }
 
+#include "rtx_os.h" //import osRtxInfo, SysTick_Handler()
 
 #if defined (__CC_ARM)         /* ARMCC Compiler */
 
@@ -289,7 +291,7 @@ __asm void COMMON_RTC_IRQ_HANDLER(void)
     ldr r1, [r0, #0]
     cmp r1, #0
     beq US_TICKER_HANDLER
-    bl OS_Tick_Handler
+    bl SysTick_Handler
 US_TICKER_HANDLER
     push {r3, lr}
     bl common_rtc_irq_handler
@@ -326,7 +328,7 @@ __attribute__((naked)) void COMMON_RTC_IRQ_HANDLER(void)
         "ldr r1, [r0, #0]\n"
         "cmp r1, #0\n"
         "beq US_TICKER_HANDLER\n"
-        "bl OS_Tick_Handler\n"
+        "bl SysTick_Handler\n"
     "US_TICKER_HANDLER:\n"
         "push {r3, lr}\n"
         "bl common_rtc_irq_handler\n"
@@ -346,7 +348,7 @@ __stackless __task void COMMON_RTC_IRQ_HANDLER(void)
     "   ldr  %[temp], [%[reg2check]] \n"
     "   cmp  %[temp], #0             \n"
     "   beq  1f                      \n"
-    "   bl.w OS_Tick_Handler            \n"
+    "   bl.w SysTick_Handler            \n"
     "1:                             \n"
     "   push {r3, lr}\n"
     "   blx %[rtc_irq] \n"
@@ -399,7 +401,7 @@ __stackless __task void COMMON_RTC_IRQ_HANDLER(void)
 static uint32_t get_next_tick_cc_delta() {
     uint32_t delta = 0;
 
-    if (os_clockrate != 1000) {
+    if (osRtxConfig.tick_freq != 1000) {
         // In RTX, by default SYSTICK is is used.
         // A tick event is generated  every os_trv + 1 clock cycles of the system timer.
         delta = os_trv + 1;
@@ -500,74 +502,69 @@ static void register_next_tick() {
  * @note this function shouldn't be called directly.
  * @return  IRQ number of the alternative hardware timer
  */
-int os_tick_init (void)
+int osRtxSysTimerSetup(void)
 {
     common_rtc_init();
-    nrf_rtc_int_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
-
-    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, 0);
-    register_next_tick();
+    
+    os_rtc_peiod = (RTC1_CONFIG_FREQUENCY) / osRtxConfig.tick_freq;
 
     return nrf_drv_get_IRQn(COMMON_RTC_INSTANCE);
 }
+
+// Start SysTickt timer emulation
+void osRtxSysTimerEnable(void)
+{
+    nrf_rtc_int_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
+
+    uint32_t current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, current_cnt);
+    register_next_tick();    
+}
+
+// Stop SysTickt timer emulation
+void osRtxSysTimerDisable (void);
+{
+    nrf_rtc_int_disable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
+}
+
+
 
 /**
  * Acknowledge the tick interrupt.
  * This function is called by the function OS_Tick_Handler of RTX.
  * @note this function shouldn't be called directly.
  */
-void os_tick_irqack(void)
+void osRtxSysTimerAckIRQ(void)
 {
     clear_tick_interrupt();
     register_next_tick();
 }
 
-/**
- * Returns the overflow flag of the alternative hardware timer.
- * @note This function is exposed by RTX kernel.
- * @return 1 if the timer has overflowed and 0 otherwise.
- */
-uint32_t os_tick_ovf(void) {
-    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
-    uint32_t next_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
+// provide a free running incremental value over the entire 32-bit range
+uint32_t osRtxSysTimerGetCount(void) {
+    uint32_t current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+    uint32_t sub_tick;
 
-    return is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter) ? 0 : 1;
-}
-
-/**
- * Return the value of the alternative hardware timer.
- * @note The documentation is not very clear about what is expected as a result,
- * is it an ascending counter, a descending one ?
- * None of this is specified.
- * The default systick is a descending counter and this function return values in
- * descending order, even if the internal counter used is an ascending one.
- * @return the value of the alternative hardware timer.
- */
-uint32_t os_tick_val(void) {
-    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
-    uint32_t next_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
-
-    // do not use os_tick_ovf because its counter value can be different
-    if(is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter)) {
-        if (next_tick_cc_value > previous_tick_cc_value) {
-            return next_tick_cc_value - current_counter;
-        } else if(current_counter <= next_tick_cc_value) {
-            return next_tick_cc_value - current_counter;
-        } else {
-            return next_tick_cc_value + (MAX_RTC_COUNTER_VAL - current_counter);
-        }
-    } else {
-        // use (os_trv + 1) has the base step, can be totally inacurate ...
-        uint32_t clock_cycles_by_tick = os_trv + 1;
-
-        // if current counter has wrap arround, add the limit to it.
-        if (current_counter < next_tick_cc_value) {
-            current_counter = current_counter + MAX_RTC_COUNTER_VAL;
-        }
-
-        return clock_cycles_by_tick - ((current_counter - next_tick_cc_value) % clock_cycles_by_tick);
+    if (current_cnt >= previous_tick_cc_value) 
+    {
+        //0      prev      current      MAX
+        //|------|---------|------------|---->
+        sub_tick = current_cnt - previous_tick_cc_value;
+    }else
+    {
+        //0      current   prev         MAX
+        //|------|---------|------------|---->
+        sub_tick = MAX_RTC_COUNTER_VAL - previous_tick_cc_value + current_cnt;
     }
-
+    
+    return (os_rtc_peiod *  osRtxInfo.kernel.tick) + sub_tick;
 }
+
+// Timer Tick frequency
+uint32_t osRtxSysTimerGetFreq (void) {
+    return RTC1_CONFIG_FREQUENCY;
+}
+
+
 
 #endif // defined(TARGET_MCU_NRF51822)
