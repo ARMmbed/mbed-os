@@ -20,11 +20,12 @@
 
 #include "drivers/FileSystemLike.h"
 #include "drivers/FileLike.h"
-#include "filesystem/FileSystem.h"
 
 namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
+
+class FileSystem;
 
 class FilePath {
 public:

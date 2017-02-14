@@ -23,9 +23,11 @@
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
+#if MBED_CONF_FILESYSTEM_PRESENT
 #include "filesystem/FileSystem.h"
 #include "filesystem/File.h"
 #include "filesystem/Dir.h"
+#endif
 #include <stdlib.h>
 #include <string.h>
 #if DEVICE_STDIO_MESSAGES
@@ -84,7 +86,9 @@ uint32_t mbed_heap_size = 0;
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileLike *filehandles[OPEN_MAX];
+#if MBED_CONF_FILESYSTEM_PRESENT
 static File fileobjects[OPEN_MAX];
+#endif
 static SingletonPtr<PlatformMutex> filehandle_mutex;
 
 namespace mbed {
@@ -236,6 +240,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
             return -1;
         } else if (path.isFile()) {
             res = path.file();
+#if MBED_CONF_FILESYSTEM_PRESENT
         } else {
             FileSystem *fs = path.fileSystem();
             if (fs == NULL) {
@@ -252,6 +257,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
             } else {
                 res = &fileobjects[fh_i];
             }
+#endif
         }
     }
 
@@ -462,6 +468,7 @@ extern "C" int _fstat(int fd, struct stat *st) {
 
 namespace std {
 extern "C" int remove(const char *path) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     errno = EBADF;
     FilePath fp(path);
     FileSystem *fs = fp.fileSystem();
@@ -474,9 +481,14 @@ extern "C" int remove(const char *path) {
     } else {
         return 0;
     }
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
 }
 
 extern "C" int rename(const char *oldname, const char *newname) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     errno = EBADF;
     FilePath fpOld(oldname);
     FilePath fpNew(newname);
@@ -493,6 +505,10 @@ extern "C" int rename(const char *oldname, const char *newname) {
     } else {
         return 0;
     }
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
 }
 
 extern "C" char *tmpnam(char *s) {
@@ -513,6 +529,7 @@ extern "C" char *_sys_command_string(char *cmd, int len) {
 #endif
 
 extern "C" DIR *opendir(const char *path) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     errno = EBADF;
 
     FilePath fp(path);
@@ -528,9 +545,14 @@ extern "C" DIR *opendir(const char *path) {
     }
 
     return dir;
+#else
+    errno = ENOSYS;
+    return 0;
+#endif
 }
 
 extern "C" struct dirent *readdir(DIR *dir) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     static struct dirent ent;
     int err = dir->read(ent.d_name, NAME_MAX, &ent.d_type);
     if (err < 0) {
@@ -539,9 +561,14 @@ extern "C" struct dirent *readdir(DIR *dir) {
     }
 
     return &ent;
+#else
+    errno = ENOSYS;
+    return 0;
+#endif
 }
 
 extern "C" int closedir(DIR *dir) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     int err = dir->close();
     if (err < 0) {
         errno = -err;
@@ -549,21 +576,39 @@ extern "C" int closedir(DIR *dir) {
     } else {
         return 0;
     }
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
 }
 
 extern "C" void rewinddir(DIR *dir) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     dir->rewind();
+#else
+    errno = ENOSYS;
+#endif
 }
 
 extern "C" off_t telldir(DIR *dir) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     return dir->tell();
+#else
+    errno = ENOSYS;
+    return 0;
+#endif
 }
 
 extern "C" void seekdir(DIR *dir, off_t off) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     dir->seek(off);
+#else
+    errno = ENOSYS;
+#endif
 }
 
 extern "C" int mkdir(const char *path, mode_t mode) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fp(path);
     FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
@@ -575,9 +620,14 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     } else {
         return 0;
     }
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
 }
 
 extern "C" int stat(const char *path, struct stat *st) {
+#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fp(path);
     FileSystem *fs = fp.fileSystem();
     if (fs == NULL) return -1;
@@ -589,6 +639,10 @@ extern "C" int stat(const char *path, struct stat *st) {
     } else {
         return 0;
     }
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
 }
 
 #if defined(TOOLCHAIN_GCC)
