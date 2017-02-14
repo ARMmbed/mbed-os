@@ -258,13 +258,18 @@ static uint32_t os_rtc_peiod;
 //MBED_WEAK uint32_t const os_clockrate;
 //MBED_WEAK void SysTick_Handler() { }
 
+
 #include "rtx_os.h" //import osRtxInfo, SysTick_Handler()
+
+#ifndef RTC0_CONFIG_FREQUENCY
+    #define RTC0_CONFIG_FREQUENCY    32678
+#endif
 
 #if defined (__CC_ARM)         /* ARMCC Compiler */
 
 __asm void COMMON_RTC_IRQ_HANDLER(void)
 {
-    IMPORT  OS_Tick_Handler
+    IMPORT  SysTick_Handler
     IMPORT  common_rtc_irq_handler
 
     /**
@@ -404,7 +409,7 @@ static uint32_t get_next_tick_cc_delta() {
     if (osRtxConfig.tick_freq != 1000) {
         // In RTX, by default SYSTICK is is used.
         // A tick event is generated  every os_trv + 1 clock cycles of the system timer.
-        delta = os_trv + 1;
+        delta = os_rtc_peiod;
     } else {
         // If the clockrate is set to 1000us then 1000 tick should happen every second.
         // Unfortunatelly, when clockrate is set to 1000, os_trv is equal to 31.
@@ -502,11 +507,11 @@ static void register_next_tick() {
  * @note this function shouldn't be called directly.
  * @return  IRQ number of the alternative hardware timer
  */
-int osRtxSysTimerSetup(void)
+int32_t osRtxSysTimerSetup(void)
 {
     common_rtc_init();
     
-    os_rtc_peiod = (RTC1_CONFIG_FREQUENCY) / osRtxConfig.tick_freq;
+    os_rtc_peiod = (RTC0_CONFIG_FREQUENCY) / osRtxConfig.tick_freq;
 
     return nrf_drv_get_IRQn(COMMON_RTC_INSTANCE);
 }
@@ -522,7 +527,7 @@ void osRtxSysTimerEnable(void)
 }
 
 // Stop SysTickt timer emulation
-void osRtxSysTimerDisable (void);
+void osRtxSysTimerDisable(void)
 {
     nrf_rtc_int_disable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 }
@@ -562,7 +567,7 @@ uint32_t osRtxSysTimerGetCount(void) {
 
 // Timer Tick frequency
 uint32_t osRtxSysTimerGetFreq (void) {
-    return RTC1_CONFIG_FREQUENCY;
+    return RTC0_CONFIG_FREQUENCY;
 }
 
 
