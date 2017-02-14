@@ -200,7 +200,10 @@ HAL_StatusTypeDef HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
   hhcd->hc[ch_num].ep_num = epnum & 0x7FU;
   hhcd->hc[ch_num].ep_is_in = ((epnum & 0x80U) == 0x80U);
   hhcd->hc[ch_num].speed = speed;
-  
+  /*  reset to 0 */
+  hhcd->hc[ch_num].toggle_out = 0;
+  hhcd->hc[ch_num].toggle_in = 0;
+ 
   status =  USB_HC_Init(hhcd->Instance, 
                         ch_num,
                         epnum,
@@ -335,7 +338,26 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                            uint16_t length,
                                            uint8_t do_ping) 
 {
-  hhcd->hc[ch_num].ep_is_in = direction;
+  if ((hhcd->hc[ch_num].ep_is_in != direction)) {
+    if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL)){
+      /*  reconfigure the endpoint !!! from tx -> rx, and rx ->tx  */
+      USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+      if (direction)
+      {
+        USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
+        USBx_HC(ch_num)->HCCHAR |= 1 << 15;
+      }
+      else
+      {
+        USBx_HC(ch_num)->HCINTMSK &= ~USB_OTG_HCINTMSK_BBERRM;
+        USBx_HC(ch_num)->HCCHAR &= ~(1 << 15);
+      }
+      hhcd->hc[ch_num].ep_is_in = direction;
+	  /*  if reception put toggle_in to 1  */
+      if (direction == 1) hhcd->hc[ch_num].toggle_in=1;
+    }
+  }
+
   hhcd->hc[ch_num].ep_type  = ep_type; 
   
   if(token == 0)
@@ -372,6 +394,18 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
         hhcd->hc[ch_num].do_ping = do_ping;
       }
     }
+    else if ((token == 1) && (direction == 1))
+    {
+      if( hhcd->hc[ch_num].toggle_in == 0)
+      {
+        hhcd->hc[ch_num].data_pid = HC_PID_DATA0;
+      }
+      else
+      {
+        hhcd->hc[ch_num].data_pid = HC_PID_DATA1;
+      }
+
+    }
     break;
   
   case EP_TYPE_BULK:
@@ -402,7 +436,7 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
         hhcd->hc[ch_num].data_pid = HC_PID_DATA1;
       }
     }
-    
+
     break;
   case EP_TYPE_INTR:
     if(direction == 0U)
@@ -429,7 +463,7 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
       }
     }
     break;
-    
+
   case EP_TYPE_ISOC: 
     hhcd->hc[ch_num].data_pid = HC_PID_DATA0;
     break;  
@@ -866,6 +900,8 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
   }
   else if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_CHH)
   {
+    
+    int reactivate = 0;
     __HAL_HCD_MASK_HALT_HC_INT(chnum); 
     
     if(hhcd->hc[chnum].state == HC_XFRC)
@@ -896,9 +932,10 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
       tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
       tmpreg |= USB_OTG_HCCHAR_CHENA;
       USBx_HC(chnum)->HCCHAR = tmpreg;
+      reactivate = 1;
     }
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
-    HAL_HCD_HC_NotifyURBChange_Callback(hhcd, chnum, hhcd->hc[chnum].urb_state);
+    if (reactivate == 0) HAL_HCD_HC_NotifyURBChange_Callback(hhcd, chnum, hhcd->hc[chnum].urb_state);
   }  
   
   else if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_TXERR)
