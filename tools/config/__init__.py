@@ -1354,11 +1354,6 @@ class Config(object):
         self.cumulative_overrides['features']\
             .update_target(self.target)
 
-        for feature in self.target.features:
-            if feature not in ALLOWED_FEATURES:
-                raise ConfigException(
-                    "Feature '%s' is not a supported features" % feature)
-
         return self.target.features
 
     def validate_config(self):
