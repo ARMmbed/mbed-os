@@ -154,7 +154,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
 
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'targets', 'targets.json')
+        os.path.dirname(os.path.abspath(__file__)), '..', 'latest_targets.json')
 
     # Current/new location of the 'targets.json' file
     __targets_json_location = None

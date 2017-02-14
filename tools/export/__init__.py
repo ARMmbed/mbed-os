@@ -69,7 +69,7 @@ To export this project please <a href='http://mbed.org/compiler/?import=http://m
 """
 
 def mcu_ide_list():
-    """Shows list of exportable ides 
+    """Shows list of exportable ides
 
     """
     supported_ides = sorted(EXPORTERS.keys())
