@@ -25,7 +25,10 @@
 #include "FileHandle.h"
 #include "PlatformMutex.h"
 
-using namespace mbed;
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 
 class FATFileHandle : public FileHandle {
 public:
@@ -48,5 +51,9 @@ protected:
     PlatformMutex * _mutex;
 
 };
+
+
+/** @}*/
+} // namespace mbed
 
 #endif

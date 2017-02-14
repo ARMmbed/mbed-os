@@ -29,7 +29,10 @@
 #include <stdint.h>
 #include "PlatformMutex.h"
 
-using namespace mbed;
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 
 /**
  * FATFileSystem based on ChaN's Fat Filesystem library v0.8 
@@ -115,5 +118,9 @@ protected:
     virtual void lock();
     virtual void unlock();
 };
+
+
+/** @}*/
+} // namespace mbed
 
 #endif

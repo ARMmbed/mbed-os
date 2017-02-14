@@ -25,7 +25,10 @@
 #include "DirHandle.h"
 #include "PlatformMutex.h"
 
-using namespace mbed;
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 
 class FATDirHandle : public DirHandle {
 
@@ -49,5 +52,9 @@ class FATDirHandle : public DirHandle {
     struct dirent cur_entry;
 
 };
+
+
+/** @}*/
+} // namespace mbed
 
 #endif

@@ -21,6 +21,8 @@
 #include <errno.h>
 #include "platform/retarget.h"
 
+namespace mbed {
+
 
 /* @brief   Set errno based on the error code returned from underlying filesystem
  *
@@ -80,3 +82,5 @@ void fat_filesystem_set_errno(FRESULT res)
     return;
 }
 
+
+}

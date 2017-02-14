@@ -15,6 +15,7 @@
  */
 
 #include "BlockDevice.h"
+#include "mbed.h"
 
 
 // Writes by default perform an erase + program

@@ -25,6 +25,7 @@
 
 #include "FATFileHandle.h"
 #include "FATMisc.h"
+#include "mbed.h"
 
 FATFileHandle::FATFileHandle(FIL fh, PlatformMutex * mutex): _mutex(mutex) {
     _fh = fh;

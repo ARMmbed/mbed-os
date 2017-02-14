@@ -23,8 +23,8 @@
 #include "ff.h"
 #include "FATDirHandle.h"
 #include "FATMisc.h"
+#include "mbed.h"
 
-using namespace mbed;
 
 FATDirHandle::FATDirHandle(const FATFS_DIR &the_dir, PlatformMutex * mutex): _mutex(mutex) {
     dir = the_dir;

@@ -30,6 +30,7 @@
 #include "FATDirHandle.h"
 #include "critical.h"
 #include "FATMisc.h"
+#include "mbed.h"
 
 
 // Global access to block device from FAT driver
