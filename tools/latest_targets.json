@@ -8672,9 +8672,5 @@
 		"detect_code": ["8013"],
 		"release_versions": ["5"],
 		"bootloader_supported": true
-    },
-    "__build_tools_metadata__": {
-        "version": "1",
-        "public": false
     }
 }
