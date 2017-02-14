@@ -15,6 +15,7 @@
  */
 
 #include "ChainingBlockDevice.h"
+#include "mbed.h"
 
 
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)

@@ -25,6 +25,10 @@
 #include "BlockDevice.h"
 #include "mbed.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 
 /** Lazily allocated heap-backed block device
  *
@@ -128,5 +132,8 @@ private:
     uint8_t **_blocks;
 };
 
+
+/** @}*/
+} // namespace mbed
 
 #endif

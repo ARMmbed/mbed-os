@@ -22,6 +22,15 @@
 
 #include "ff.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
+
 void fat_filesystem_set_errno(FRESULT res);
+
+
+/** @}*/
+} // namespace mbed
 
 #endif /* FILESYSTEM_FAT_MISC_H */

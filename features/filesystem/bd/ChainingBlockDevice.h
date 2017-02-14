@@ -25,6 +25,10 @@
 #include "BlockDevice.h"
 #include "mbed.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 
 /** Block device for chaining multiple block devices
  *  with the similar block sizes at sequential addresses
@@ -149,5 +153,8 @@ protected:
     bd_size_t _size;
 };
 
+
+/** @}*/
+} // namespace mbed
 
 #endif

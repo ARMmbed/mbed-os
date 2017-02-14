@@ -19,6 +19,10 @@
 
 #include <stdint.h>
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 
 /** Enum of standard error codes
  *
@@ -182,5 +186,8 @@ public:
     bool is_valid_erase(bd_addr_t addr, bd_size_t size);
 };
 
+
+/** @}*/
+} // namespace mbed
 
 #endif

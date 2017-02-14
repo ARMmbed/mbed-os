@@ -15,6 +15,7 @@
  */
 
 #include "SlicingBlockDevice.h"
+#include "mbed.h"
 
 
 SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start)
