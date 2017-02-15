@@ -18,6 +18,14 @@
 #include "platform/FileHandle.h"
 #include "platform/mbed_poll.h"
 #include "events/EventQueue.h"
+#if defined(FEATURE_COMMON_PAL)
+#include "mbed_trace.h"
+#define TRACE_GROUP "LPPP"
+#else
+#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
+#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
+#define tr_error(...) (void(0)) //dummies if feature common pal is not added
+#endif //defined(FEATURE_COMMON_PAL)
 #include "rtos/Thread.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
@@ -94,7 +102,7 @@ static u32_t ppp_output(ppp_pcb *pcb, u8_t *data, u32_t len, void *ctx)
         len -= ret;
     }
 
-    printf("> %ld\n", (long) written);
+    tr_debug("> %ld\n", (long) written);
 
     return written;
 }
@@ -103,78 +111,78 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
 {
     switch(err_code) {
         case PPPERR_NONE: {
-            printf("status_cb: Connected\n");
+            tr_info("status_cb: Connected");
 #if PPP_IPV4_SUPPORT
-            printf("   our_ipaddr  = %s\n", ipaddr_ntoa(&ppp_netif(pcb)->ip_addr));
-            printf("   his_ipaddr  = %s\n", ipaddr_ntoa(&ppp_netif(pcb)->gw));
-            printf("   netmask     = %s\n", ipaddr_ntoa(&ppp_netif(pcb)->netmask));
+            tr_debug("   our_ipaddr  = %s", ipaddr_ntoa(&ppp_netif(pcb)->ip_addr));
+            tr_debug("   his_ipaddr  = %s", ipaddr_ntoa(&ppp_netif(pcb)->gw));
+            tr_debug("   netmask     = %s", ipaddr_ntoa(&ppp_netif(pcb)->netmask));
 #if LWIP_DNS
             const ip_addr_t *ns;
             ns = dns_getserver(0);
             if (ns) {
-                printf("   dns1        = %s\n", ipaddr_ntoa(ns));
+                tr_debug("   dns1        = %s", ipaddr_ntoa(ns));
             }
             ns = dns_getserver(1);
             if (ns) {
-                printf("   dns2        = %s\n", ipaddr_ntoa(ns));
+                tr_debug("   dns2        = %s", ipaddr_ntoa(ns));
             }
 #endif /* LWIP_DNS */
 #endif /* PPP_IPV4_SUPPORT */
 #if PPP_IPV6_SUPPORT
-            printf("   our6_ipaddr = %s\n", ip6addr_ntoa(netif_ip6_addr(ppp_netif(pcb), 0)));
+            tr_debug("   our6_ipaddr = %s", ip6addr_ntoa(netif_ip6_addr(ppp_netif(pcb), 0)));
 #endif /* PPP_IPV6_SUPPORT */
             break;
         }
         case PPPERR_PARAM: {
-            printf("status_cb: Invalid parameter\n");
+            tr_info("status_cb: Invalid parameter");
             break;
         }
         case PPPERR_OPEN: {
-            printf("status_cb: Unable to open PPP session\n");
+            tr_info("status_cb: Unable to open PPP session");
             break;
         }
         case PPPERR_DEVICE: {
-            printf("status_cb: Invalid I/O device for PPP\n");
+            tr_info("status_cb: Invalid I/O device for PPP");
             break;
         }
         case PPPERR_ALLOC: {
-            printf("status_cb: Unable to allocate resources\n");
+            tr_info("status_cb: Unable to allocate resources");
             break;
         }
         case PPPERR_USER: {
-            printf("status_cb: User interrupt\n");
+            tr_info("status_cb: User interrupt");
             break;
         }
         case PPPERR_CONNECT: {
-            printf("status_cb: Connection lost\n");
+            tr_info("status_cb: Connection lost");
             break;
         }
         case PPPERR_AUTHFAIL: {
-            printf("status_cb: Failed authentication challenge\n");
+            tr_info("status_cb: Failed authentication challenge");
             break;
         }
         case PPPERR_PROTOCOL: {
-            printf("status_cb: Failed to meet protocol\n");
+            tr_info("status_cb: Failed to meet protocol");
             break;
         }
         case PPPERR_PEERDEAD: {
-            printf("status_cb: Connection timeout\n");
+            tr_info("status_cb: Connection timeout");
             break;
         }
         case PPPERR_IDLETIMEOUT: {
-            printf("status_cb: Idle Timeout\n");
+            tr_info("status_cb: Idle Timeout");
             break;
         }
         case PPPERR_CONNECTTIME: {
-            printf("status_cb: Max connect time reached\n");
+            tr_info("status_cb: Max connect time reached");
             break;
         }
         case PPPERR_LOOPBACK: {
-            printf("status_cb: Loopback detected\n");
+            tr_info("status_cb: Loopback detected");
             break;
         }
         default: {
-            printf("status_cb: Unknown error code %d\n", err_code);
+            tr_info("status_cb: Unknown error code %d", err_code);
             break;
         }
     }
