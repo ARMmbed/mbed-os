@@ -99,6 +99,12 @@ extern "C" {
 #undef EBADF
 #define EBADF       9       /* Bad file number */
 
+#undef EAGAIN
+#define EAGAIN      11      /* Resource unavailable, try again */
+
+#undef EWOULDBLOCK
+#define EWOULDBLOCK EAGAIN  /* Operation would block */
+
 #undef ENOMEM
 #define ENOMEM      12      /* Not enough space */
 

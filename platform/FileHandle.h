@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
 
 typedef int FILEHANDLE;
 
-#include <stdio.h>
+#include <cstdio>
+#include "Callback.h"
+#include "platform/mbed_poll.h"
 #include "platform/platform.h"
 
 namespace mbed {
@@ -41,6 +43,12 @@ public:
 
     /** Read the contents of a file into a buffer
      *
+     *  Devices acting as FileHandles should follow POSIX semantics:
+     *
+     *  * if no data is available, and non-blocking set return -EAGAIN
+     *  * if no data is available, and blocking set, wait until data is available
+     *  * If any data is available, call returns immediately
+     *
      *  @param buffer   The buffer to read in to
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
@@ -62,7 +70,7 @@ public:
      *      SEEK_SET to start from beginning of file,
      *      SEEK_CUR to start from current position in file,
      *      SEEK_END to start from end of file
-     *  @return         The new offset of the file
+     *  @return         The new offset of the file, negative error code on failure
      */
     virtual off_t seek(off_t offset, int whence = SEEK_SET) = 0;
 
@@ -84,6 +92,8 @@ public:
     /** Check if the file in an interactive terminal device
      *
      *  @return         True if the file is a terminal
+     *  @return         False if the file is not a terminal
+     *  @return         Negative error code on failure
      */
     virtual int isatty()
     {
@@ -94,7 +104,7 @@ public:
      *
      *  @note This is equivalent to seek(0, SEEK_CUR)
      *
-     *  @return         The current offset in the file
+     *  @return         The current offset in the file, negative error code on failure
      */
     virtual off_t tell()
     {
@@ -114,13 +124,7 @@ public:
      *
      *  @return         Size of the file in bytes
      */
-    virtual off_t size()
-    {
-        off_t off = tell();
-        off_t size = seek(0, SEEK_END);
-        seek(off, SEEK_SET);
-        return size;
-    }
+    virtual off_t size();
 
     /** Move the file position to a given offset from a given location.
      *
@@ -133,7 +137,10 @@ public:
      *    -1 on failure or unsupported
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::seek")
-    virtual off_t lseek(off_t offset, int whence) { return seek(offset, whence); }
+    virtual off_t lseek(off_t offset, int whence)
+    {
+        return seek(offset, whence);
+    }
 
     /** Flush any buffers associated with the FileHandle, ensuring it
      *  is up to date on disk
@@ -143,7 +150,10 @@ public:
      *   -1 on error
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::sync")
-    virtual int fsync() { return sync(); }
+    virtual int fsync()
+    {
+        return sync();
+    }
 
     /** Find the length of the file
      *
@@ -151,9 +161,98 @@ public:
      *   Length of the file
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::size")
-    virtual off_t flen() { return size(); }
+    virtual off_t flen()
+    {
+        return size();
+    }
+
+    /** Set blocking or non-blocking mode of the file operation like read/write.
+     *  Definition depends upon the subclass implementing FileHandle.
+     *  The default is blocking.
+     *
+     *  @param blocking true for blocking mode, false for non-blocking mode.
+     */
+    virtual int set_blocking(bool blocking)
+    {
+        return -1;
+    }
+
+    /** Check for poll event flags
+     * The input parameter can be used or ignored - the could always return all events,
+     * or could check just the events listed in events.
+     * Call is non-blocking - returns instantaneous state of events.
+     * Whenever an event occurs, the derived class must call _poll_change().
+     * @param events bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
+     *
+     * @returns
+     *   bitmask of poll events that have occurred.
+     */
+    virtual short poll(short events) const
+    {
+        // Possible default for real files
+        return POLLIN | POLLOUT;
+    }
+
+    /** Returns true if the FileHandle is writable.
+     *  Definition depends upon the subclass implementing FileHandle.
+     *  For example, if the FileHandle is of type Stream, writable() could return
+     *  true when there is ample buffer space available for write() calls.
+     */
+    bool writable() const
+    {
+        return poll(POLLOUT) & POLLOUT;
+    }
+
+    /** Returns true if the FileHandle is readable.
+     *  Definition depends upon the subclass implementing FileHandle.
+     *  For example, if the FileHandle is of type Stream, readable() could return
+     *  true when there is something available to read.
+     */
+    bool readable() const
+    {
+        return poll(POLLIN) & POLLIN;
+    }
+
+    /** Register a callback on state change of the file.
+     *
+     *  The specified callback will be called on state changes such as when
+     *  the file can be written to or read from.
+     *
+     *  The callback may be called in an interrupt context and should not
+     *  perform expensive operations.
+     *
+     *  Note! This is not intended as an attach-like asynchronous api, but rather
+     *  as a building block for constructing  such functionality.
+     *
+     *  The exact timing of when the registered function
+     *  is called is not guaranteed and susceptible to change. It should be used
+     *  as a cue to make read/write/poll calls to find the current state.
+     *
+     *  @param func     Function to call on state change
+     */
+    void sigio(Callback<void()> func);
+
+    /** Issue sigio to user - used by mbed::_poll_change */
+    void _send_sigio()
+    {
+        if (_callback) {
+            _callback();
+        }
+    }
+
+private:
+    Callback<void()> _callback;
 };
 
+/** Not a member function
+ *  This call is equivalent to posix fdopen().
+ *  Returns a pointer to std::FILE.
+ *  It associates a Stream to an already opened file descriptor (FileHandle)
+ *
+ *  @param fh, a pointer to an opened file descriptor
+ *  @param mode, operation upon the file descriptor, e.g., 'wb+'*/
+
+std::FILE *fdopen(FileHandle *fh, const char *mode);
 
 } // namespace mbed
 
