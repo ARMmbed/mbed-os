@@ -243,26 +243,27 @@ void us_ticker_clear_interrupt(void)
  */
 static uint32_t previous_tick_cc_value = 0;
 
-static uint32_t os_rtc_peiod;
+/* The Period of RTC oscilator, unit [1/RTC1_CONFIG_FREQUENCY] */
+static uint32_t os_rtc_period;
 
 /*
  RTX provide the following definitions which are used by the tick code:
-   * os_trv: The number (minus 1) of clock cycle between two tick.
-   * os_clockrate: Time duration between two ticks (in us).
-   * OS_Tick_Handler: The function which handle a tick event.
+   * osRtxConfig.tick_freq: The RTX tick frequency.
+   * osRtxInfo.kernel.tick: Count of RTX ticks.
+   
+   * SysTick_Handler: The function which handle a tick event.
      This function is special because it never returns.
  Those definitions are used by the code which handle the os tick.
  To allow compilation of us_ticker programs without RTOS, those symbols are
  exported from this module as weak ones.
  */
-//MBED_WEAK uint32_t const os_clockrate;
-//MBED_WEAK void SysTick_Handler() { }
+MBED_WEAK void SysTick_Handler(void) {}
 
 
 #include "rtx_os.h" //import osRtxInfo, SysTick_Handler()
 
-#ifndef RTC0_CONFIG_FREQUENCY
-    #define RTC0_CONFIG_FREQUENCY    32678
+#ifndef RTC1_CONFIG_FREQUENCY
+    #define RTC1_CONFIG_FREQUENCY    32678 // [Hz]
 #endif
 
 #if defined (__CC_ARM)         /* ARMCC Compiler */
@@ -409,7 +410,7 @@ static uint32_t get_next_tick_cc_delta() {
     if (osRtxConfig.tick_freq != 1000) {
         // In RTX, by default SYSTICK is is used.
         // A tick event is generated  every os_trv + 1 clock cycles of the system timer.
-        delta = os_rtc_peiod;
+        delta = os_rtc_period;
     } else {
         // If the clockrate is set to 1000us then 1000 tick should happen every second.
         // Unfortunatelly, when clockrate is set to 1000, os_trv is equal to 31.
@@ -509,9 +510,10 @@ static void register_next_tick() {
  */
 int32_t osRtxSysTimerSetup(void)
 {
+	//return;
     common_rtc_init();
     
-    os_rtc_peiod = (RTC0_CONFIG_FREQUENCY) / osRtxConfig.tick_freq;
+    os_rtc_period = (RTC1_CONFIG_FREQUENCY) / osRtxConfig.tick_freq;
 
     return nrf_drv_get_IRQn(COMMON_RTC_INSTANCE);
 }
@@ -519,6 +521,7 @@ int32_t osRtxSysTimerSetup(void)
 // Start SysTickt timer emulation
 void osRtxSysTimerEnable(void)
 {
+	//return;
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 
     uint32_t current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
@@ -562,12 +565,12 @@ uint32_t osRtxSysTimerGetCount(void) {
         sub_tick = MAX_RTC_COUNTER_VAL - previous_tick_cc_value + current_cnt;
     }
     
-    return (os_rtc_peiod *  osRtxInfo.kernel.tick) + sub_tick;
+    return (os_rtc_period *  osRtxInfo.kernel.tick) + sub_tick;
 }
 
 // Timer Tick frequency
 uint32_t osRtxSysTimerGetFreq (void) {
-    return RTC0_CONFIG_FREQUENCY;
+    return RTC1_CONFIG_FREQUENCY;
 }
 
 
