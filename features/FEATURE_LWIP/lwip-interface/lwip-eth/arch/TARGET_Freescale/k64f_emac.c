@@ -296,7 +296,7 @@ err_t k64f_etharp_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_add
  * \param[in] action
  * \return ERR_OK or error code
  */
-err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t action)
+err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action)
 {
     switch (action) {
         case NETIF_ADD_MAC_FILTER:
@@ -330,7 +330,7 @@ err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t action)
  * \param[in] action
  * \return ERR_OK or error code
  */
-err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, u8_t action)
+err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action)
 {
     switch (action) {
         case NETIF_ADD_MAC_FILTER:
