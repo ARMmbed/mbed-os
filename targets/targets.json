@@ -2403,7 +2403,8 @@
             "BLE_STACK_SUPPORT_REQD",
             "SOFTDEVICE_PRESENT",
             "S130",
-            "TARGET_MCU_NRF51822"
+            "TARGET_MCU_NRF51822",
+            "CMSIS_VECTAB_VIRTUAL"
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5"],
