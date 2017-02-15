@@ -42,7 +42,7 @@ nsapi_error_t Socket::open(NetworkStack *stack)
     }
 
     _socket = socket;
-    _event.attach(this, &Socket::event);
+    _event = callback(this, &Socket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
 
     _lock.unlock();
