@@ -210,7 +210,7 @@ void event_class_helper_test() {
 
 void event_inference_test() {
     counter = 0;
-    EventQueue queue (2048);
+    EventQueue queue(2048);
 
     queue.event(count5, 1, 1, 1, 1, 1).post();
     queue.event(count5, 1, 1, 1, 1).post(1);
@@ -219,9 +219,16 @@ void event_inference_test() {
     queue.event(count5, 1).post(1, 1, 1, 1);
     queue.event(count5).post(1, 1, 1, 1, 1);
 
+    queue.event(callback(count5), 1, 1, 1, 1, 1).post();
+    queue.event(callback(count5), 1, 1, 1, 1).post(1);
+    queue.event(callback(count5), 1, 1, 1).post(1, 1);
+    queue.event(callback(count5), 1, 1).post(1, 1, 1);
+    queue.event(callback(count5), 1).post(1, 1, 1, 1);
+    queue.event(callback(count5)).post(1, 1, 1, 1, 1);
+
     queue.dispatch(0);
 
-    TEST_ASSERT_EQUAL(counter, 30);
+    TEST_ASSERT_EQUAL(counter, 60);
 }
 
 
