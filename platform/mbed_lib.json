@@ -19,6 +19,14 @@
         "default-serial-baud-rate": {
             "help": "Default baud rate for a Serial or RawSerial instance (if not specified in the constructor)",
             "value": 9600
+        },
+        "buffered-serial-txbuf-size": {
+            "help": "Default TX buffer size for a BufferedSerial instance (unit Bytes))",
+            "value": 256
+        },
+        "buffered-serial-rxbuf-size": {
+            "help": "Default RX buffer size for a BufferedSerial instance (unit Bytes))",
+            "value": 256
         }
     },
     "target_overrides": {
