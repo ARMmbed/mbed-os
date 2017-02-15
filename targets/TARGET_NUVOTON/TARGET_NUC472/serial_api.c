@@ -285,7 +285,7 @@ void serial_free(serial_t *obj)
 
 void serial_baud(serial_t *obj, int baudrate) {
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
-    while (! UART_IS_TX_EMPTY(((UART_T *) obj->serial.uart)));
+    while (! UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart))));
     
     obj->serial.baudrate = baudrate;
     UART_Open((UART_T *) NU_MODBASE(obj->serial.uart), baudrate);
@@ -293,7 +293,7 @@ void serial_baud(serial_t *obj, int baudrate) {
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
-    while (! UART_IS_TX_EMPTY(((UART_T *) obj->serial.uart)));
+    while (! UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart))));
     
     // TODO: Assert for not supported parity and data bits
     obj->serial.databits = data_bits;
@@ -357,7 +357,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
-    while (! UART_IS_TX_EMPTY(((UART_T *) obj->serial.uart)));
+    while (! UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart))));
     
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
@@ -555,7 +555,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         PDMA_SetTransferAddr(obj->serial.dma_chn_id_tx, 
             ((uint32_t) tx) + (tx_width / 8) * tx_length,   // NOTE: End of source address
             PDMA_SAR_INC,   // Source address incremental
-            (uint32_t) obj->serial.uart,    // Destination address
+            (uint32_t) NU_MODBASE(obj->serial.uart),    // Destination address
             PDMA_DAR_FIX);  // Destination address fixed
         PDMA_SetBurstType(obj->serial.dma_chn_id_tx, 
             PDMA_REQ_SINGLE,    // Single mode
@@ -612,7 +612,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
             (rx_width == 8) ? PDMA_WIDTH_8 : (rx_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32, 
             rx_length);
         PDMA_SetTransferAddr(obj->serial.dma_chn_id_rx,
-            (uint32_t) obj->serial.uart,    // Source address
+            (uint32_t) NU_MODBASE(obj->serial.uart),    // Source address
             PDMA_SAR_FIX,   // Source address fixed
             ((uint32_t) rx) + (rx_width / 8) * rx_length,   // NOTE: End of destination address
             PDMA_DAR_INC);  // Destination address incremental
@@ -631,7 +631,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 void serial_tx_abort_asynch(serial_t *obj)
 {
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
-    while (! UART_IS_TX_EMPTY(((UART_T *) obj->serial.uart)));
+    while (! UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart))));
     
     if (obj->serial.dma_usage_tx != DMA_USAGE_NEVER) {
         if (obj->serial.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
