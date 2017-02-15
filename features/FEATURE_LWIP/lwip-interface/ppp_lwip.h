@@ -10,10 +10,8 @@
 
 namespace mbed {
 
-void ppp_bringup_test();
-
 NetworkStack *mbed_ppp_get_stack();
-nsapi_error_t mbed_ppp_init(FileHandle *stream);
+nsapi_error_t mbed_ppp_init(FileHandle *stream, void (*link_status)(int));
 
 }
 

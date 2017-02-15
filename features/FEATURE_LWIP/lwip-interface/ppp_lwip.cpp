@@ -38,6 +38,8 @@ extern "C" { // "pppos.h" is missing extern C
 
 #include "lwip_stack.h"
 
+static void (*notify_ppp_link_status_cb)(int) = 0;
+
 namespace mbed {
 
 using rtos::Thread;
@@ -187,6 +189,8 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
         }
     }
 
+    notify_ppp_link_status_cb(err_code);
+
 #if 0
     /*
      * This should be in the switch case, this is put outside of the switch
@@ -307,13 +311,11 @@ err_t ppp_lwip_if_init(struct netif *netif, FileHandle *stream)
     return ppp_connect(my_ppp_pcb, 0);
 }
 
-#include "drivers/BufferedSerial.h"
-using mbed::BufferedSerial;
-
 static struct netif my_ppp_netif;
 
-nsapi_error_t mbed_ppp_init(FileHandle *stream)
+nsapi_error_t mbed_ppp_init(FileHandle *stream, void (*link_status)(int))
 {
+    notify_ppp_link_status_cb = link_status;
     mbed_lwip_init();
     ppp_lwip_if_init(&my_ppp_netif, stream);
 
