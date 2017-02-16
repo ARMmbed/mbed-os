@@ -68,6 +68,9 @@ class ARM(mbedToolchain):
         self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
         self.cc = [main_cc] + self.flags['common'] + self.flags['c']
         self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
+        if target.name in ["REALTEK_RTL8195AM"]:
+            self.cc += ["--enum_is_int"]
+            self.cppc += ["--enum_is_int"]
 
         self.ld = [join(ARM_BIN, "armlink")]
 
