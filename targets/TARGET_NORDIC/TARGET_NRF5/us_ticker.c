@@ -270,139 +270,19 @@ MBED_WEAK void SysTick_Handler(void) {}
     #define RTC1_CONFIG_FREQUENCY    32678 // [Hz]
 #endif
 
-#if defined (__CC_ARM)         /* ARMCC Compiler */
 
-__asm void COMMON_RTC_IRQ_HANDLER(void)
+
+void COMMON_RTC_IRQ_HANDLER(void)
 {
-    IMPORT  SysTick_Handler
-    IMPORT  common_rtc_irq_handler
-
-    /**
-     * Chanel 1 of RTC1 is used by RTX as a systick.
-     * If the compare event on channel 1 is set, then branch to OS_Tick_Handler.
-     * Otherwise, just execute common_rtc_irq_handler.
-     * This function has to be written in assembly and tagged as naked because OS_Tick_Handler
-     * will never return.
-     * A c function would put lr on the stack before calling OS_Tick_Handler and this value
-     * would never been dequeued.
-     *
-     * \code
-     * void COMMON_RTC_IRQ_HANDLER(void) {
-         if(NRF_RTC1->EVENTS_COMPARE[1]) {
-             // never return...
-             OS_Tick_Handler();
-         } else {
-             common_rtc_irq_handler();
-         }
-       }
-     * \endcode
-     */
-    ldr r0,=0x40011144
-    ldr r1, [r0, #0]
-    cmp r1, #0
-    beq US_TICKER_HANDLER
-    bl SysTick_Handler
-US_TICKER_HANDLER
-    push {r3, lr}
-    bl common_rtc_irq_handler
-    pop {r3, pc}
-    ; ALIGN ;
-}
-
-#elif defined (__GNUC__)        /* GNU Compiler */
-
-__attribute__((naked)) void COMMON_RTC_IRQ_HANDLER(void)
-{
-    /**
-     * Chanel 1 of RTC1 is used by RTX as a systick.
-     * If the compare event on channel 1 is set, then branch to OS_Tick_Handler.
-     * Otherwise, just execute common_rtc_irq_handler.
-     * This function has to be written in assembly and tagged as naked because OS_Tick_Handler
-     * will never return.
-     * A c function would put lr on the stack before calling OS_Tick_Handler and this value
-     * would never been dequeued.
-     *
-     * \code
-     * void COMMON_RTC_IRQ_HANDLER(void) {
-         if(NRF_RTC1->EVENTS_COMPARE[1]) {
-             // never return...
-             OS_Tick_Handler();
-         } else {
-             common_rtc_irq_handler();
-         }
-       }
-     * \endcode
-     */
-    __asm__ (
-        "ldr r0,=0x40011144\n"
-        "ldr r1, [r0, #0]\n"
-        "cmp r1, #0\n"
-        "beq US_TICKER_HANDLER\n"
-        "bl SysTick_Handler\n"
-    "US_TICKER_HANDLER:\n"
-        "push {r3, lr}\n"
-        "bl common_rtc_irq_handler\n"
-        "pop {r3, pc}\n"
-        "nop"
-    );
-}
-
-#elif defined (__ICCARM__)//IAR
-void common_rtc_irq_handler(void);
-
-__stackless __task void COMMON_RTC_IRQ_HANDLER(void)
-{
-    uint32_t temp;
-
-    __asm volatile(
-    "   ldr  %[temp], [%[reg2check]] \n"
-    "   cmp  %[temp], #0             \n"
-    "   beq  1f                      \n"
-    "   bl.w SysTick_Handler            \n"
-    "1:                             \n"
-    "   push {r3, lr}\n"
-    "   blx %[rtc_irq] \n"
-    "   pop {r3, pc}\n"
-
-    : /* Outputs */
-    [temp] "=&r"(temp)
-    : /* Inputs */
-    [reg2check] "r"(0x40011144),
-    [rtc_irq] "r"(common_rtc_irq_handler)
-    : /* Clobbers */
-    "cc"
-    );
-    (void)temp;
+    if(nrf_rtc_event_pending(COMMON_RTC_INSTANCE, OS_TICK_EVENT)) {
+        SysTick_Handler();
+    }
+    else {
+        common_rtc_irq_handler();
+    }
 }
 
 
-#else
-
-#error Compiler not supported.
-#error Provide a definition of COMMON_RTC_IRQ_HANDLER.
-
-/*
- * Chanel 1 of RTC1 is used by RTX as a systick.
- * If the compare event on channel 1 is set, then branch to OS_Tick_Handler.
- * Otherwise, just execute common_rtc_irq_handler.
- * This function has to be written in assembly and tagged as naked because OS_Tick_Handler
- * will never return.
- * A c function would put lr on the stack before calling OS_Tick_Handler and this value
- * will never been dequeued. After a certain time a stack overflow will happen.
- *
- * \code
- * void COMMON_RTC_IRQ_HANDLER(void) {
-     if(NRF_RTC1->EVENTS_COMPARE[1]) {
-         // never return...
-         OS_Tick_Handler();
-     } else {
-         common_rtc_irq_handler();
-     }
-   }
- * \endcode
- */
-
-#endif
 
 /**
  * Return the next number of clock cycle needed for the next tick.
@@ -514,7 +394,6 @@ static void register_next_tick() {
  */
 int32_t osRtxSysTimerSetup(void)
 {
-	//return;
     common_rtc_init();
     
     os_rtc_period = (RTC1_CONFIG_FREQUENCY) / osRtxConfig.tick_freq;
@@ -525,7 +404,6 @@ int32_t osRtxSysTimerSetup(void)
 // Start SysTickt timer emulation
 void osRtxSysTimerEnable(void)
 {
-	//return;
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 
     uint32_t current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
