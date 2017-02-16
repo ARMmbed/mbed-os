@@ -164,14 +164,21 @@
 #define MEMP_NUM_NETCONN            4
 #endif
 
+#if MBED_CONF_LWIP_TCP_ENABLED
+#define LWIP_TCP                    1
 #define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0
+#define LWIP_TCP_KEEPALIVE          1
+#else
+#define LWIP_TCP                    0
+#endif
 
-#define LWIP_DHCP                   LWIP_IPV4
 #define LWIP_DNS                    1
 #define LWIP_SOCKET                 0
 
 #define SO_REUSE                    1
+#define IP_SOF_BROADCAST            1
+#define IP_SOF_BROADCAST_RECV       1
 
 // Support Multicast
 #include "stdlib.h"
@@ -181,7 +188,8 @@
 #define LWIP_COMPAT_SOCKETS         0
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #define LWIP_SO_RCVTIMEO            1
-#define LWIP_TCP_KEEPALIVE          1
+
+#define LWIP_BROADCAST_PING         1
 
 // Fragmentation on, as per IPv4 default
 #define LWIP_IPV6_FRAG              LWIP_IPV6
@@ -241,40 +249,44 @@
 
 #define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
 
-#if LWIP_TRANSPORT_ETHERNET
+// Interface type configuration
 
+#if MBED_CONF_LWIP_ETHERNET_ENABLED
+#define LWIP_ARP                    1
+#define LWIP_ETHERNET               1
+#define LWIP_CHECKSUM_ON_COPY       1
+#define LWIP_DHCP                   LWIP_IPV4
+#endif // MBED_CONF_LWIP_ETHERNET_ENABLED
+
+#if MBED_CONF_LWIP_PPP_ENABLED
+#define PPP_SUPPORT                 1
+#define CHAP_SUPPORT                1
+#define PPP_INPROC_IRQ_SAFE         1
+// Save RAM
+#define PAP_SUPPORT                 0
+#define VJ_SUPPORT                  0
+
+//Hate the config hassle.
+//#define LWIP_USE_EXTERNAL_MBEDTLS       1
 // Broadcast
 #define IP_SOF_BROADCAST            0
 #define IP_SOF_BROADCAST_RECV       0
 
-#define LWIP_BROADCAST_PING         1
+#define MAXNAMELEN                  64     /* max length of hostname or name for auth */
+#define MAXSECRETLEN                64
+#endif // MBED_CONF_LWIP_PPP_ENABLED
 
+// Make sure we default these to off, so
+// LWIP doesn't default to on
+#ifndef LWIP_ARP
+#define LWIP_ARP                    0
+#endif
 // Checksum-on-copy disabled due to https://savannah.nongnu.org/bugs/?50914
 #define LWIP_CHECKSUM_ON_COPY       0
 
 #define LWIP_NETIF_HOSTNAME         1
 #define LWIP_NETIF_STATUS_CALLBACK  1
 #define LWIP_NETIF_LINK_CALLBACK    1
-
-#elif LWIP_TRANSPORT_PPP
-
-#define TCP_SND_BUF                     (3 * 536)
-#define TCP_WND                         (2 * 536)
-
-#define LWIP_ARP 0
-
-#define PPP_SUPPORT 1
-#define CHAP_SUPPORT                    1
-#define PAP_SUPPORT                     1
-#define PPP_THREAD_STACKSIZE            4*192
-#define PPP_THREAD_PRIO 0
-
-#define MAXNAMELEN                      64     /* max length of hostname or name for auth */
-#define MAXSECRETLEN                    64
-
-#else
-#error A transport mechanism (Ethernet or PPP) must be defined
-#endif
 
 #include <lwip/arch.h>
 #include "lwip_random.h"
