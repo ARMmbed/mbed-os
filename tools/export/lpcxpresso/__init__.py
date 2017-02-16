@@ -18,8 +18,8 @@ from os.path import splitext, basename
 
 from tools.export.exporters import Exporter
 
-class CodeRed(Exporter):
-    NAME = 'CodeRed'
+class LPCXpresso(Exporter):
+    NAME = 'LPCXpresso'
     TOOLCHAIN = 'GCC_CR'
 
     MBED_CONFIG_HEADER_SUPPORTED = True
@@ -56,5 +56,5 @@ class CodeRed(Exporter):
             'symbols': self.toolchain.get_symbols()
         }
         ctx.update(self.flags)
-        self.gen_file('codered/%s_project.tmpl' % self.target.lower(), ctx, '.project')
-        self.gen_file('codered/%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
+        self.gen_file('lpcxpresso/%s_project.tmpl' % self.target.lower(), ctx, '.project')
+        self.gen_file('lpcxpresso/%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')

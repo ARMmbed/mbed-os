@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tools.export import codered, ds5_5, iar, makefile
+from tools.export import lpcxpresso, ds5_5, iar, makefile
 from tools.export import embitz, coide, kds, simplicity, atmelstudio
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
 from tools.targets import TARGET_NAMES
@@ -23,7 +23,7 @@ from tools.targets import TARGET_NAMES
 EXPORTERS = {
     'uvision5': uvision.Uvision,
     'uvision': uvision.Uvision,
-    'lpcxpresso': codered.CodeRed,
+    'lpcxpresso': lpcxpresso.LPCXpresso,
     'gcc_arm': makefile.GccArm,
     'make_gcc_arm': makefile.GccArm,
     'make_armc5': makefile.Armc5,
