@@ -35,6 +35,11 @@
 #include <stdint.h>
 #include <stddef.h> /* for size_t */
 
+#if LWIP_USE_EXTERNAL_MBEDTLS
+#include "mbedtls/md5.h"
+#endif
+
+
 /* ARM/LPC17xx is little endian only */
 #if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
 #ifdef BYTE_ORDER
