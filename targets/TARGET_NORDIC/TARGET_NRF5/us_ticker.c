@@ -243,8 +243,12 @@ void us_ticker_clear_interrupt(void)
  */
 static uint32_t previous_tick_cc_value = 0;
 
-/* The Period of RTC oscilator, unit [1/RTC1_CONFIG_FREQUENCY] */
+/* The Period of RTC oscillator, unit [1/RTC1_CONFIG_FREQUENCY] */
 static uint32_t os_rtc_period;
+
+/* Variable for frozen RTC1 counter value. It is used when system timer is disabled. */
+static uint32_t frozen_sub_tick = 0;
+     
 
 /*
  RTX provide the following definitions which are used by the tick code:
@@ -402,7 +406,7 @@ __stackless __task void COMMON_RTC_IRQ_HANDLER(void)
 
 /**
  * Return the next number of clock cycle needed for the next tick.
- * @note This function has been carrefuly optimized for a systick occuring every 1000us.
+ * @note This function has been carefully optimized for a systick occurring every 1000us.
  */
 static uint32_t get_next_tick_cc_delta() {
     uint32_t delta = 0;
@@ -533,6 +537,10 @@ void osRtxSysTimerEnable(void)
 void osRtxSysTimerDisable(void)
 {
     nrf_rtc_int_disable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
+    
+    // RTC1 is free runing. osRtxSysTimerGetCount will return proper frozen value
+    // thanks to geting frozen value instead of RTC1 counter value
+    frozen_sub_tick = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 }
 
 
@@ -550,19 +558,28 @@ void osRtxSysTimerAckIRQ(void)
 
 // provide a free running incremental value over the entire 32-bit range
 uint32_t osRtxSysTimerGetCount(void) {
-    uint32_t current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+    uint32_t current_cnt;
     uint32_t sub_tick;
 
-    if (current_cnt >= previous_tick_cc_value) 
-    {
-        //0      prev      current      MAX
-        //|------|---------|------------|---->
-        sub_tick = current_cnt - previous_tick_cc_value;
-    }else
-    {
-        //0      current   prev         MAX
-        //|------|---------|------------|---->
-        sub_tick = MAX_RTC_COUNTER_VAL - previous_tick_cc_value + current_cnt;
+    if (nrf_rtc_int_is_enabled(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK))
+    {   // system timer is enabled
+        current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+        
+        if (current_cnt >= previous_tick_cc_value) 
+        {
+            //0      prev      current      MAX
+            //|------|---------|------------|---->
+            sub_tick = current_cnt - previous_tick_cc_value;
+        }else
+        {
+            //0      current   prev         MAX
+            //|------|---------|------------|---->
+            sub_tick = MAX_RTC_COUNTER_VAL - previous_tick_cc_value + current_cnt;
+        }
+    }
+    else
+    {   // system timer is disabled
+        sub_tick = frozen_sub_tick;
     }
     
     return (os_rtc_period *  osRtxInfo.kernel.tick) + sub_tick;
