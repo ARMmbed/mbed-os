@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2016 ARM Limited. All rights reserved.
  * All rights reserved.
@@ -27,27 +28,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "cmsis_nvic.h"
 
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
+extern uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
 
-#define NVIC_NUM_VECTORS      (16 + 38)   // CORE + MCU Peripherals
-#define NVIC_USER_IRQ_OFFSET  16
-#define NVIC_RAM_VECTOR_ADDRESS 0x10000000    // Vectors positioned at start of SRAM2
-
-#include "nrf52.h"
-#include "cmsis.h"
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
+    nrf_dispatch_vector[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
-#endif
 
-#endif
+uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
+    return nrf_dispatch_vector[IRQn + NVIC_USER_IRQ_OFFSET];
+}
