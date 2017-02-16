@@ -265,6 +265,7 @@
 // Save RAM
 #define PAP_SUPPORT                 0
 #define VJ_SUPPORT                  0
+#define PPP_LOGIT_BUFSIZE           512
 
 //Hate the config hassle.
 //#define LWIP_USE_EXTERNAL_MBEDTLS       1
@@ -287,6 +288,9 @@
 #define LWIP_NETIF_HOSTNAME         1
 #define LWIP_NETIF_STATUS_CALLBACK  1
 #define LWIP_NETIF_LINK_CALLBACK    1
+
+#define DNS_TABLE_SIZE                  2
+#define DNS_MAX_NAME_LENGTH             128
 
 #include <lwip/arch.h>
 #include "lwip_random.h"

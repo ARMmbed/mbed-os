@@ -605,7 +605,11 @@ void ppp_print_string(const u_char *p, int len, void (*printer) (void *, const c
  * ppp_logit - does the hard work for fatal et al.
  */
 static void ppp_logit(int level, const char *fmt, va_list args) {
+#ifdef PPP_LOGIT_BUFSIZE
+    char buf[PPP_LOGIT_BUFSIZE];
+#else
     char buf[1024];
+#endif
 
     ppp_vslprintf(buf, sizeof(buf), fmt, args);
     ppp_log_write(level, buf);
