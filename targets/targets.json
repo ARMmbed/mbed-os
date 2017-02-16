@@ -2903,5 +2903,23 @@
     "SARA_NBIOT_EVK": {
         "inherits": ["SARA_NBIOT"],
         "extra_labels": ["ublox", "HI2110", "SARA_NBIOT"]
+    },
+    "REALTEK_RTL8195AM": {
+        "core": "Cortex-M3",
+        "default_toolchain": "GCC_ARM",
+        "inherits": ["Target"],
+        "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
+        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "progen": {"target": "rtl8195a"},
+        "progen_target": "rtl8195a",
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "EMAC"],
+        "default_build": "standard",
+        "features": ["IPV4", "LWIP"],
+        "post_binary_hook": {
+            "function": "RTL8195ACode.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+        },
+        "release_versions": ["5"]
     }
 }
