@@ -29,12 +29,12 @@ class GCC(mbedToolchain):
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
     def __init__(self, target,  notify=None, macros=None,
-                 silent=False, tool_path="", extra_verbose=False,
-                 build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None):
         mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
+        tool_path=TOOLCHAIN_PATHS['GCC_ARM']
         # Add flags for current size setting
         default_lib = "std"
         if hasattr(target, "default_lib"):
@@ -92,7 +92,7 @@ class GCC(mbedToolchain):
 
         self.flags['ld'] += self.cpu
         self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
-        self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
+        self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc", "nosys"]
         self.preproc = [join(tool_path, "arm-none-eabi-cpp"), "-E", "-P"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
@@ -126,7 +126,7 @@ class GCC(mbedToolchain):
         # The warning/error notification is multiline
         msg = None
         for line in output.splitlines():
-            match = GCC.DIAGNOSTIC_PATTERN.search(line)
+            match = self.DIAGNOSTIC_PATTERN.search(line)
             if match is not None:
                 if msg is not None:
                     self.cc_info(msg)
@@ -143,7 +143,7 @@ class GCC(mbedToolchain):
                 }
             elif msg is not None:
                 # Determine the warning/error column by calculating the ^ position
-                match = GCC.INDEX_PATTERN.match(line)
+                match = self.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
                     self.cc_info(msg)
@@ -280,8 +280,6 @@ class GCC(mbedToolchain):
     def redirect_symbol(source, sync, build_dir):
         return "-Wl,--defsym=%s=%s" % (source, sync)
 
-
-class GCC_ARM(GCC):
     @staticmethod
     def check_executable():
         """Returns True if the executable (arm-none-eabi-gcc) location
@@ -289,37 +287,5 @@ class GCC_ARM(GCC):
         Returns False otherwise."""
         return mbedToolchain.generic_check_executable("GCC_ARM", 'arm-none-eabi-gcc', 1)
 
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
-        GCC.__init__(self, target, notify, macros, silent,
-                     TOOLCHAIN_PATHS['GCC_ARM'], extra_verbose=extra_verbose,
-                     build_profile=build_profile)
-
-        self.sys_libs.append("nosys")
-
-
-class GCC_CR(GCC):
-    @staticmethod
-    def check_executable():
-        """Returns True if the executable (arm-none-eabi-gcc) location
-        specified by the user exists OR the executable can be found on the PATH.
-        Returns False otherwise."""
-        return mbedToolchain.generic_check_executable("GCC_CR", 'arm-none-eabi-gcc', 1)
-
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
-        GCC.__init__(self, target, notify, macros, silent,
-                     TOOLCHAIN_PATHS['GCC_CR'], extra_verbose=extra_verbose,
-                     build_profile=build_profile)
-
-        additional_compiler_flags = [
-            "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",
-        ]
-        self.cc += additional_compiler_flags
-        self.cppc += additional_compiler_flags
-
-        # Use latest gcc nanolib
-        self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
-            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
-        self.ld += ["-nostdlib"]
+class GCC_ARM(GCC):
+    pass

@@ -20,7 +20,7 @@ from tools.export.exporters import Exporter
 
 class LPCXpresso(Exporter):
     NAME = 'LPCXpresso'
-    TOOLCHAIN = 'GCC_CR'
+    TOOLCHAIN = 'GCC_ARM'
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
