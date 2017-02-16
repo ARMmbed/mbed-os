@@ -57,6 +57,7 @@ private:
     // Parsing information
     const char *_output_delimiter;
     int _output_delim_size;
+    char _in_prev;
     bool _dbg_on;
     bool _aborted;
 
@@ -64,8 +65,9 @@ private:
         unsigned len;
         const char *prefix;
         mbed::Callback<void()> cb;
+        oob *next;
     };
-    std::vector<oob> _oobs;
+    oob *_oobs;
 
     // Prohibiting use of of copy constructor
     ATParser(const ATParser &);
@@ -83,7 +85,9 @@ public:
     */
     ATParser(FileHandle *fh, const char *output_delimiter="\r", int buffer_size = 256, int timeout = 8000, bool debug = true) :
         _fh(fh),
-        _buffer_size(buffer_size) {
+        _buffer_size(buffer_size),
+        _in_prev(0),
+        _oobs(NULL) {
         _buffer = new char[buffer_size];
         set_timeout(timeout);
         set_delimiter(output_delimiter);
@@ -94,6 +98,11 @@ public:
     * Destructor
     */
     ~ATParser() {
+        while (_oobs) {
+            struct oob *oob = _oobs;
+            _oobs = oob->next;
+            delete oob;
+        }
         delete [] _buffer;
     }
 

@@ -207,6 +207,7 @@ bool ATParser::vsend(const char *command, va_list args)
 
 bool ATParser::vrecv(const char *response, va_list args)
 {
+restart:
     _aborted = false;
     // Iterate through each line in the expected response
     while (response[0]) {
@@ -249,8 +250,6 @@ bool ATParser::vrecv(const char *response, va_list args)
         // We keep trying the match until we succeed or some other error
         // derails us.
         int j = 0;
-        char in_prev = 0;
-
 
         while (true) {
             // Receive next character
@@ -270,7 +269,7 @@ bool ATParser::vrecv(const char *response, va_list args)
                 // onto next character
                 continue;
             } else {
-                in_prev = c;
+                _in_prev = c;
             }
             _buffer[offset + j++] = c;
             _buffer[offset + j] = 0;
@@ -288,7 +287,7 @@ bool ATParser::vrecv(const char *response, va_list args)
                     }
                     // oob may have corrupted non-reentrant buffer,
                     // so we need to set it up again
-                    return vrecv(response, args);
+                    goto restart;
                 }
             }
 
@@ -369,11 +368,12 @@ bool ATParser::recv(const char *response, ...)
 // oob registration
 void ATParser::oob(const char *prefix, Callback<void()> cb)
 {
-    struct oob oob;
-    oob.len = strlen(prefix);
-    oob.prefix = prefix;
-    oob.cb = cb;
-    _oobs.push_back(oob);
+    struct oob *oob = new struct oob;
+    oob->len = strlen(prefix);
+    oob->prefix = prefix;
+    oob->cb = cb;
+    oob->next = _oobs;
+    _oobs = oob;
 }
 
 void ATParser::abort()
