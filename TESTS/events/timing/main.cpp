@@ -93,7 +93,7 @@ void semaphore_timing_test() {
         int taken = timer.read_us() - start;
 
         printf("delay %dms => error %dus\r\n", delay, abs(1000*delay - taken));
-        TEST_ASSERT_INT_WITHIN(2000, taken, delay * 1000);
+        TEST_ASSERT_INT_WITHIN(5000, taken, delay * 1000);
 
         led = !led;
     }
