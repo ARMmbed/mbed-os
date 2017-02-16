@@ -47,6 +47,12 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         error("PWM error: pinout mapping failed.");
     }
 
+    // Get the functions (timer channel, (non)inverted) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_PWM);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel = STM_PIN_CHANNEL(function);
+    obj->inverted = STM_PIN_INVERTED(function);
+
     // Enable TIM clock
     if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
     if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
@@ -92,50 +98,35 @@ void pwmout_write(pwmout_t* obj, float value)
     sConfig.OCMode       = TIM_OCMODE_PWM1;
     sConfig.Pulse        = obj->pulse / obj->prescaler;
     sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
-    sConfig.OCFastMode   = TIM_OCFAST_ENABLE;
+    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+#ifdef TIM_OCIDLESTATE_RESET
+    sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
+#endif
+#ifdef TIM_OCNIDLESTATE_RESET
+    sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+#endif
 
-    switch (obj->pin) {
-        // Channels 1
-        case PA_6:
-        case PB_4:
-        case PB_6:
-        case PB_12:
-        case PB_13:
-        case PB_15:
-        case PC_6:
+    switch (obj->channel) {
+        case 1:
             channel = TIM_CHANNEL_1;
             break;
-        // Channels 2
-        case PA_1:
-        case PA_7:
-        case PB_3:
-        case PB_5:
-        case PB_7:
-        case PB_14:
-        case PC_7:
+        case 2:
             channel = TIM_CHANNEL_2;
             break;
-        // Channels 3
-        case PA_2:
-        case PB_0:
-        case PB_8:
-        case PB_10:
-        case PC_8:
+        case 3:
             channel = TIM_CHANNEL_3;
             break;
-        // Channels 4
-        case PA_3:
-        case PB_1:
-        case PB_9:
-        case PB_11:
-        case PC_9:
+        case 4:
             channel = TIM_CHANNEL_4;
             break;
         default:
             return;
     }
 
-    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel);
+    if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
+        error("Cannot initialize PWM\n");
+    }
+
     HAL_TIM_PWM_Start(&TimHandle, channel);
 }
 
