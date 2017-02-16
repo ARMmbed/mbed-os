@@ -19,15 +19,16 @@
 #include "platform/platform.h"
 #include "platform/FileLike.h"
 #include "platform/FileHandle.h"
+#include <cstdio>
 #include <cstdarg>
 
 namespace mbed {
 /** \addtogroup platform */
 /** @{*/
 
-extern void mbed_set_unbuffered_stream(FILE *_file);
-extern int mbed_getc(FILE *_file);
-extern char* mbed_gets(char *s, int size, FILE *_file);
+extern void mbed_set_unbuffered_stream(std::FILE *_file);
+extern int mbed_getc(std::FILE *_file);
+extern char* mbed_gets(char *s, int size, std::FILE *_file);
 /** @}*/
 
 /** File stream
