@@ -177,8 +177,6 @@
 #define LWIP_SOCKET                 0
 
 #define SO_REUSE                    1
-#define IP_SOF_BROADCAST            1
-#define IP_SOF_BROADCAST_RECV       1
 
 // Support Multicast
 #include "stdlib.h"
