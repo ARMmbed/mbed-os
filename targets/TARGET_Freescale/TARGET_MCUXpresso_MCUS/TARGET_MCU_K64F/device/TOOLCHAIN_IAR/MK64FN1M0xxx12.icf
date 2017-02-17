@@ -53,17 +53,25 @@ define symbol __ram_vector_table__ = 1;
 define symbol __stack_size__=0x8000;
 define symbol __heap_size__=0x10000;
 
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = 0;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = 0x100000;
+}
+
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
 define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000003FF : 0;
 
-define symbol m_interrupts_start       = 0x00000000;
-define symbol m_interrupts_end         = 0x000003FF;
+define symbol m_interrupts_start       = MBED_APP_START;
+define symbol m_interrupts_end         = MBED_APP_START + 0x3FF;
 
-define symbol m_flash_config_start     = 0x00000400;
-define symbol m_flash_config_end       = 0x0000040F;
+define symbol m_flash_config_start     = MBED_APP_START + 0x400;
+define symbol m_flash_config_end       = MBED_APP_START + 0x40F;
 
-define symbol m_text_start             = 0x00000410;
-define symbol m_text_end               = 0x000FFFFF;
+define symbol m_text_start             = MBED_APP_START + 0x410;
+define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
 
 define symbol m_interrupts_ram_start   = 0x1FFF0000;
 define symbol m_interrupts_ram_end     = 0x1FFF0000 + __ram_vector_table_offset__;
