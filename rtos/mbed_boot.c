@@ -484,18 +484,18 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
 
 void __iar_system_Mtxdst(__iar_Rmtx *mutex)/*Destroy a system lock */
 {
-  osMutexDelete(*(osMutexId*)*mutex);
+  osMutexDelete(*(osMutexId_t*)*mutex);
   *mutex = 0;
 }
 
 void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
 {
-  osMutexAcquire(*(osMutexId*)*mutex, osWaitForever);
+  osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
 }
 
 void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
 {
-  osMutexRelease(*(osMutexId*)*mutex);
+  osMutexRelease(*(osMutexId_t*)*mutex);
 }
 
 void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
@@ -517,18 +517,18 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
 
 void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
 {
-  osMutexDelete(*(osMutexId*)*mutex);
+  osMutexDelete(*(osMutexId_t*)*mutex);
   *mutex = 0;
 }
 
 void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
 {
-  osMutexAcquire(*(osMutexId*)*mutex, osWaitForever);
+  osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
 }
 
 void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
 {
-  osMutexRelease(*(osMutexId*)*mutex);
+  osMutexRelease(*(osMutexId_t*)*mutex);
 }
 
 #endif
