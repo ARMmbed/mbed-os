@@ -37,7 +37,6 @@ Filename | Description |
 ---------|-------------|
 cmsis_os2.h | Doxygen added |
 core_cm.h | Doxygen added, included headers changed to match mbed OS core selection |
-RTX_Config.c | RTX idle and error handlers call mbed OS handlers |
 RTX_Config.h | Doxygen added, mbed OS RTX config included |
 rtx_evr.c | CMSIS component definition include removed |
 rtx_evr.h | Doxygen added |
