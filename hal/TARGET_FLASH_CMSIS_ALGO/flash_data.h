@@ -20,6 +20,8 @@
 
 #include <stdint.h>
 
+#define MBED_FLASH_INVALID_SIZE     0xFFFFFFFF
+
 // Target flash algorithm structure
 typedef struct {
     const uint32_t init;

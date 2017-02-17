@@ -54,20 +54,6 @@ static uint32_t jump_to_flash_algo[] = {
     0xBD3046A9
 };
 
-static uint32_t get_sector_index(const flash_t *obj, uint32_t address)
-{
-    // check where address belongs to
-    size_t sector_index = 0;
-    size_t sectors_count = sizeof(obj->target_config->sectors) / sizeof(sector_info_t);
-    for (; sector_index < sectors_count; sector_index++) {
-        if ((address > obj->target_config->sectors[sector_index].start) && 
-            (address < (obj->target_config->sectors[sector_index].start +obj->target_config->sectors[sector_index].size))) {
-            break;
-        }
-    }
-    return sector_index;
-}
-
 // should be called within critical section
 static int32_t flash_algo_init(flash_t *obj, uint32_t address, uint32_t function)
 {
@@ -152,8 +138,15 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    uint32_t sector_index = get_sector_index(obj, address);
-    return obj->target_config->sectors[sector_index].size;
+    const sector_info_t *sectors = obj->target_config->sectors;
+
+    int sector_index = obj->target_config->sector_info_count - 1;
+    for (; sector_index >= 0; sector_index--) {
+        if (address >= sectors[sector_index].start) {
+            return sectors[sector_index].size;
+        }
+    }
+    return MBED_FLASH_INVALID_SIZE;
 }
 
 uint32_t flash_get_page_size(const flash_t *obj)
