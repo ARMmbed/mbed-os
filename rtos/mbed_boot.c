@@ -132,7 +132,6 @@ uint32_t mbed_heap_size = 0;
 unsigned char *mbed_stack_isr_start = 0;
 uint32_t mbed_stack_isr_size = 0;
 
-extern int main(int argc, char **argv);
 WEAK void mbed_main(void);
 void pre_main (void);
 
@@ -421,7 +420,6 @@ void pre_main(void)
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
-    mbed_main();
     main();
 }
 
@@ -455,7 +453,6 @@ void __iar_program_start( void )
 // Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
 void __iar_argc_argv() {
     mbed_main();
-    main();
 }
 
 /* Thread safety */
