@@ -944,7 +944,10 @@ public:
      *  context of the event queue's dispatch loop once posted.
      *
      *  @param f        Function to execute when the event is dispatched
-     *  @param a0..a4   Arguments to pass to the callback
+     *  @param c0..c4   Arguments to bind to the callback, these arguments are
+     *                  allocated on an irq-safe allocator from the event queue's
+     *                  memory pool. Must be type-compatible with b0..b4, the
+     *                  arguments to the underlying callback.
      *  @return         Event that will dispatch on the specific queue
      */
     template <typename R>
