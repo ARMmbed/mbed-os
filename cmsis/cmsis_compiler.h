@@ -53,6 +53,14 @@
  */
 #elif defined ( __ICCARM__ )
 
+#if (__CORE__ == __ARM6M__) || (__CORE__ == __ARM6SM__)
+#define __ARM_ARCH_6M__ 1
+#elif (__CORE__ == __ARM7M__)
+#define __ARM_ARCH_7M__ 1
+#elif (__CORE__ == __ARM7EM__)
+#define __ARM_ARCH_7EM__ 1
+#endif
+
   #ifndef   __ASM
     #define __ASM                     __asm
   #endif
