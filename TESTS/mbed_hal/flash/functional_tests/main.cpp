@@ -107,63 +107,6 @@ void flash_erase_sector_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 }
 
-void flash_erase_sector_error_test()
-{
-    flash_t test_flash;
-    int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    // most common sector size to get an sector address 
-    uint32_t sector_size = 0x1000;
-    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (4*sector_size);
-    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
-
-    // unaligned address
-    erase_sector_boundary += 1;
-    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
-    TEST_ASSERT_EQUAL_INT32(ret, -1);
-
-    ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-}
-
-void flash_program_page_error_test()
-{
-    flash_t test_flash;
-    int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-
-    uint32_t test_size = flash_get_page_size(&test_flash);
-    // the one before the last page in the system
-    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2*test_size);
-
-    // sector size might not be same as page size
-    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
-    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    // we store the current data, and verify later they have not changed
-    uint8_t *data = new uint8_t[test_size];
-    uint8_t *previous_data = new uint8_t[test_size];
-    uint8_t *current_data = (uint8_t *)address;
-    for (uint32_t i = 0; i < test_size; i++) {
-        previous_data[i] = *current_data;
-        data[i] = 0xCE;
-        current_data++;
-    }
-
-    address += 1UL;
-    ret = flash_program_page(&test_flash, address, data, test_size);
-    TEST_ASSERT_EQUAL_INT32(ret, -1);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(previous_data, current_data, test_size);
-
-    ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-    delete[] data;
-    delete[] previous_data;
-}
-
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -173,8 +116,6 @@ Case cases[] = {
     Case("Flash - init", flash_init_test, greentea_failure_handler),
     Case("Flash - erase sector", flash_erase_sector_test, greentea_failure_handler),
     Case("Flash - program page", flash_program_page_test, greentea_failure_handler),
-    Case("Flash - erase sector errors", flash_erase_sector_error_test, greentea_failure_handler),
-    Case("Flash - program page errors", flash_program_page_error_test, greentea_failure_handler),
 
 };
 
