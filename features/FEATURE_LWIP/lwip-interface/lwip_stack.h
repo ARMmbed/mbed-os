@@ -19,15 +19,15 @@
 
 #include "nsapi.h"
 #include "emac_api.h"
-
+#include "lwip/opt.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // Access to lwip through the nsapi
-void mbed_lwip_init();
+nsapi_error_t mbed_lwip_init(emac_interface_t *emac);
 nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac);
-nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
+nsapi_error_t mbed_lwip_bringup(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw);
 nsapi_error_t mbed_lwip_bringdown(void);
 
 const char *mbed_lwip_get_mac_address(void);
@@ -36,7 +36,6 @@ char *mbed_lwip_get_netmask(char *buf, int buflen);
 char *mbed_lwip_get_gateway(char *buf, int buflen);
 
 extern nsapi_stack_t lwip_stack;
-
 
 #ifdef __cplusplus
 }

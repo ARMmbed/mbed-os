@@ -36,9 +36,9 @@ extern "C" { // "pppos.h" is missing extern C
 #include "netif/ppp/pppapi.h"
 }
 
+#include "nsapi_ppp.h"
+#include "ppp_lwip.h"
 #include "lwip_stack.h"
-
-static void (*notify_ppp_link_status_cb)(int) = 0;
 
 namespace mbed {
 
@@ -52,6 +52,7 @@ static Thread *event_thread;
 static volatile bool event_queued;
 
 // Just one interface for now
+static FileHandle *my_stream;
 static ppp_pcb *my_ppp_pcb;
 
 static EventQueue *prepare_event_queue()
@@ -189,8 +190,6 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
         }
     }
 
-    notify_ppp_link_status_cb(err_code);
-
 #if 0
     /*
      * This should be in the switch case, this is put outside of the switch
@@ -279,50 +278,43 @@ static void stream_cb(FileHandle *stream) {
     }
 }
 
-err_t ppp_lwip_if_init(struct netif *netif, FileHandle *stream)
+extern "C" err_t ppp_lwip_connect()
+{
+   return ppp_connect(my_ppp_pcb, 0);
+}
+
+extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif)
 {
     if (!prepare_event_queue()) {
-        return ERR_MEM;
+        return NSAPI_ERROR_NO_MEMORY;
     }
 
     if (!my_ppp_pcb) {
         my_ppp_pcb = pppos_create(netif,
-                               ppp_output, ppp_link_status, stream);
+                               ppp_output, ppp_link_status, my_stream);
     }
 
     if (!my_ppp_pcb) {
-        return ERR_IF;
+        return NSAPI_ERROR_DEVICE_ERROR;
     }
-
-#if LWIP_IPV6_AUTOCONFIG
-    /* IPv6 address autoconfiguration not enabled by default */
-    netif->ip6_autoconfig_enabled = 1;
-#endif /* LWIP_IPV6_AUTOCONFIG */
 
 #if LWIP_IPV4
     ppp_set_usepeerdns(my_ppp_pcb, true);
 #endif
 
-    ppp_set_default(my_ppp_pcb);
-
-    stream->sigio(callback(stream_cb, stream));
-    stream->set_blocking(false);
-
-    return ppp_connect(my_ppp_pcb, 0);
-}
-
-static struct netif my_ppp_netif;
-
-nsapi_error_t mbed_ppp_init(FileHandle *stream, void (*link_status)(int))
-{
-    notify_ppp_link_status_cb = link_status;
-    mbed_lwip_init();
-    ppp_lwip_if_init(&my_ppp_netif, stream);
+    my_stream->sigio(callback(stream_cb, my_stream));
+    my_stream->set_blocking(false);
 
     return NSAPI_ERROR_OK;
 }
 
-NetworkStack *mbed_ppp_get_stack()
+nsapi_error_t nsapi_ppp_init(FileHandle *stream)
+{
+    my_stream = stream;
+    return mbed_lwip_bringup(false, true, NULL, NULL, NULL);
+}
+
+NetworkStack *nsapi_ppp_get_stack()
 {
     return nsapi_create_stack(&lwip_stack);
 }
