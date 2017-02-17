@@ -22,6 +22,8 @@
 
 
 #if defined(MBEDTLS_AES_ALT)
+#include "mbedtls/platform.h"
+#include "mbedtls/config.h"
 
 #include "cmsis.h"
 
@@ -38,11 +40,9 @@ extern "C" {
  */
 typedef struct
 {
-    int nr;                        /*!<  number of rounds  */
-    uint32_t *rk;                  /*!<  AES round keys    */
-    uint32_t buf[68];              /*!<  unaligned data    */
-    unsigned char aes_enc_key[32]; /* Encryption key */
-    unsigned char aes_dec_key[32]; /* Decryption key */
+    unsigned char      aes_key[32]; /* Decryption key */
+    CRYP_HandleTypeDef hcryp_aes;
+    uint32_t           ctx_save_cr; /* save context for multi-instance */
 }
 mbedtls_aes_context;
 
