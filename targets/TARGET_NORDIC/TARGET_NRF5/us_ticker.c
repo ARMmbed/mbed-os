@@ -264,7 +264,11 @@ static uint32_t frozen_sub_tick = 0;
 MBED_WEAK void SysTick_Handler(void) {}
 
 
-#include "rtx_os.h" //import osRtxInfo, SysTick_Handler()
+#ifdef MBED_CONF_RTOS_PRESENT
+    #include "rtx_os.h" //import osRtxInfo, SysTick_Handler()
+    
+    static inline void clear_tick_interrupt();
+#endif
 
 #ifndef RTC1_CONFIG_FREQUENCY
     #define RTC1_CONFIG_FREQUENCY    32678 // [Hz]
@@ -275,7 +279,11 @@ MBED_WEAK void SysTick_Handler(void) {}
 void COMMON_RTC_IRQ_HANDLER(void)
 {
     if(nrf_rtc_event_pending(COMMON_RTC_INSTANCE, OS_TICK_EVENT)) {
-        SysTick_Handler();
+#ifdef MBED_CONF_RTOS_PRESENT
+        clear_tick_interrupt();
+        // Trigger the SysTick_Handler just after exit form RTC Handler.
+        NVIC_SetPendingIRQ(SWI3_IRQn);
+#endif
     }
     else {
         common_rtc_irq_handler();
@@ -283,7 +291,7 @@ void COMMON_RTC_IRQ_HANDLER(void)
 }
 
 
-
+#ifdef MBED_CONF_RTOS_PRESENT
 /**
  * Return the next number of clock cycle needed for the next tick.
  * @note This function has been carefully optimized for a systick occurring every 1000us.
@@ -386,6 +394,7 @@ static void register_next_tick() {
     __enable_irq();
 }
 
+
 /**
  * Initialize alternative hardware timer as RTX kernel timer
  * This function is directly called by RTX.
@@ -408,7 +417,11 @@ void osRtxSysTimerEnable(void)
 
     uint32_t current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, current_cnt);
-    register_next_tick();    
+    register_next_tick();
+
+    NVIC_SetVector(SWI3_IRQn, (uint32_t)SysTick_Handler);
+    NVIC_SetPriority(SWI3_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Emulated Systick Interrupt */
+    NVIC_EnableIRQ(SWI3_IRQn);
 }
 
 // Stop SysTickt timer emulation
@@ -430,7 +443,6 @@ void osRtxSysTimerDisable(void)
  */
 void osRtxSysTimerAckIRQ(void)
 {
-    clear_tick_interrupt();
     register_next_tick();
 }
 
@@ -468,6 +480,6 @@ uint32_t osRtxSysTimerGetFreq (void) {
     return RTC1_CONFIG_FREQUENCY;
 }
 
-
+#endif // #ifdef MBED_CONF_RTOS_PRESENT
 
 #endif // defined(TARGET_MCU_NRF51822)
