@@ -92,16 +92,178 @@ Switch to the `feature-storage` branch using the following commands:
       <other branches deleted>
     simhug01@E107851:/d/demo_area/ex_app1$
 
+When the feature-storage branch has been merged to master, then the following the sd-driver repository should also be cloned:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ mbed import https://github.com/ARMmbed/sd-driver
+
+Copy the mbed_app.json file to the top level of the project:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_app.json .
+    
 Build the test cases for the K64F target using the following commands:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F -DFSFAT_SDCARD_INSTALLED 2>&1 | tee build_tests_gcc_20161219_1007.txt
+    simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F --app-config mbed_app.json 2>&1 | tee build_tests_gcc_20161219_1007.txt
     <trace removed>
     simhug01@E107851:/d/demo_area/ex_app1$
 
 The complete [build log][BUILD-TESTS-GCC-20161219-1007] is available for reference.
 
 
-### <a name="insert-sdcard-into-k64f"></a> Insert SDCard into K64F
+### <a name="insert-sdcard-into-k64f"></a> Testing with an SDCard on Target XYZ
+
+The standard way to test is with the mbed CI Test Shield plugged into the target board. This pin mapping for this configuration is parameeterised in the mbed_app.json file.
+
+The following is an example of the mbed_app.json file that was defined in the project at the time of writing:
+
+    {
+        "config": {
+            "UART_RX": "D0",
+            "UART_TX": "D1",
+            "DIO_0": "D0",
+            "DIO_1": "D1",
+            "DIO_2": "D2",
+            "DIO_3": "D3",
+            "DIO_4": "D4",
+            "DIO_5": "D5",
+            "DIO_6": "D6",
+            "DIO_7": "D7",
+            "DIO_8": "D8",
+            "DIO_9": "D9",
+            "SPI_CS": "D10",
+            "SPI_MOSI": "D11",
+            "SPI_MISO": "D12",
+            "SPI_CLK": "D13",
+            "I2C_SDA": "D14",
+            "I2C_SCL": "D15",
+            "I2C_TEMP_ADDR":"0x90",
+            "I2C_EEPROM_ADDR":"0xA0",
+            "AIN_0": "A0",
+            "AIN_1": "A1",
+            "AIN_2": "A2",
+            "AIN_3": "A3",
+            "AIN_4": "A4",
+            "AIN_5": "A5",
+            "AOUT" : "A5",
+            "PWM_0": "D3",
+            "PWM_1": "D5",
+            "PWM_2": "D6",
+            "PWM_3": "D9",
+            "DEBUG_MSG": 0,
+            "DEVICE_SPI": 1,
+            "FSFAT_SDCARD_INSTALLED": 1
+        },
+        "target_overrides": {
+            "DISCO_F051R8": {
+                 "SPI_MOSI": "SPI_MOSI",
+                 "SPI_MISO": "SPI_MISO",
+                 "SPI_CLK":  "SPI_SCK",
+                 "SPI_CS":   "SPI_CS"
+            },
+            "K20D50M": {
+                 "SPI_MOSI": "PTD2",
+                 "SPI_MISO": "PTD3",
+                 "SPI_CLK":  "PTD1",
+                 "SPI_CS":   "PTC2"
+            },
+            "KL22F": {
+                 "SPI_MOSI": "PTD6",
+                 "SPI_MISO": "PTD7",
+                 "SPI_CLK":  "PTD5",
+                 "SPI_CS":   "PTD4"
+            },
+            "KL25Z": {
+                 "SPI_MOSI": "PTD2",
+                 "SPI_MISO": "PTD3",
+                 "SPI_CLK":  "PTD1",
+                 "SPI_CS":   "PTD0"
+            },
+            "KL43Z": {
+                 "SPI_MOSI": "PTD6",
+                 "SPI_MISO": "PTD7",
+                 "SPI_CLK":  "PTD5",
+                 "SPI_CS":   "PTD4"
+            },
+            "KL46Z": {
+                 "SPI_MOSI": "PTD6",
+                 "SPI_MISO": "PTD7",
+                 "SPI_CLK":  "PTD5",
+                 "SPI_CS":   "PTD4"
+            },
+            "K64F": {
+                 "SPI_MOSI": "PTE3",
+                 "SPI_MISO": "PTE1",
+                 "SPI_CLK":  "PTE2",
+                 "SPI_CS":   "PTE4"
+            },
+            "K66F": {
+                 "SPI_MOSI": "PTE3",
+                 "SPI_MISO": "PTE1",
+                 "SPI_CLK":  "PTE2",
+                 "SPI_CS":   "PTE4"
+            },
+            "LPC11U37H_401": {
+                 "SPI_MOSI": "SDMOSI",
+                 "SPI_MISO": "SDMISO",
+                 "SPI_CLK":  "SDSCLK",
+                 "SPI_CS":   "SDSSEL"
+            },
+            "LPC2368": {
+                 "SPI_MOSI": "p11",
+                 "SPI_MISO": "p12",
+                 "SPI_CLK":  "p13",
+                 "SPI_CS":   "p14"
+            },
+            "NUCLEO_L031K6": {
+                 "SPI_MOSI": "SPI_MOSI",
+                 "SPI_MISO": "SPI_MISO",
+                 "SPI_CLK":  "SPI_SCK",
+                 "SPI_CS":   "SPI_CS"
+            },
+            "nRF51822": {
+                 "SPI_MOSI": "p12",
+                 "SPI_MISO": "p13",
+                 "SPI_CLK":  "p15",
+                 "SPI_CS":   "p14"
+            },
+            "RZ_A1H": {
+                 "SPI_MOSI": "P8_5",
+                 "SPI_MISO": "P8_6",
+                 "SPI_CLK":  "P8_3",
+                 "SPI_CS":   "P8_4"
+            }
+        }
+    }
+
+Note the following things about the mbed_app.json file:
+
+- The mbed_app.json is used to define target specific symbols for the SPI pins used to connect the SDCard slot to the target MCU:
+    - "SPI\_CS".
+    - "SPI\_MOSI".
+    - "SPI\_MISO".
+    - "SPI\_CLK".
+- The default configuration is defined in the "config" section for mappings to the standard Arduino header pins for the SPI bus. 
+  The "config" section defines a dictionary which maps functional names to target board Arduino header pins: 
+    - "SPI\_CS": "D10". This causes the MBED\_CONF\_APP\_SPI\_CS symbol to be defined in mbed\_config.h as D10, which is used in the filesystem test implementation.
+      D10 is defined in the target specific PinNames.h file.
+    - "SPI\_MOSI": "D11". This causes the MBED\_CONF\_APP\_SPI\_MOSI symbol to be defined in mbed\_config.h.
+    - "SPI\_MISO": "D12". This causes the MBED\_CONF\_APP\_SPI\_MISO symbol to be defined in mbed\_config.h.
+    - "SPI\_CLK": "D13". This causes the MBED\_CONF\_APP\_SPI\_CLK symbol to be defined in mbed\_config.h.
+- The ""target_overrides" is used to override the "SPI\_xxx" symbols for specific target boards, which may have an SDCard slot, for example.
+  This is the case for the K64F, where the "SPI\_xxx" are mapped to the pin names for the on-board SDCard
+
+  ```
+    "K64F": {
+         "SPI_MOSI": "PTE3",
+         "SPI_MISO": "PTE1",
+         "SPI_CLK":  "PTE2",
+         "SPI_CS":   "PTE4"
+    }
+    ```  
+- Thus, in the absence of any target specific definitions in the "target_overrides" section, all boards will default to 
+  use the Arduino header configuration. 
+
+  
+#### <a name="insert-sdcard-into-k64f"></a> Insert SDCard into K64F
 
 The test cases have been run on a K64F with the following microSDHC cards:
 

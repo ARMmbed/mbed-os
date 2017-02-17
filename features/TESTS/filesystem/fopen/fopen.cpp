@@ -22,6 +22,7 @@
  */
 
 #include "mbed.h"
+#include "mbed_config.h"
 #include "SDBlockDevice.h"
 #include "FATFileSystem.h"
 #include "fsfat_debug.h"
@@ -44,6 +45,7 @@
 #include <sys/stat.h>
 #endif
 using namespace utest::v1;
+//using namespace mbed;
 
 /// @cond FSFAT_DOXYGEN_DISABLE
 #ifdef FSFAT_DEBUG
@@ -56,18 +58,21 @@ using namespace utest::v1;
 
 /* DEVICE_SPI
  *  This symbol is defined in targets.json if the target has a SPI interface, which is required for SDCard support.
- * FSFAT_SDCARD_INSTALLTED
- *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
- *  If the target has an SD card installed then uncomment the #define FSFAT_SDCARD_INSTALLED directive for the target.
  *
- * Notes
- *   The following 2 lines should be instated to perform the tests in this file:
- *      #define FSFAT_SDCARD_INSTALLED
- *      #define DEVICE_SPI
+ * MBED_CONF_APP_FSFAT_SDCARD_INSTALLED
+ *  For testing purposes, an SDCard must be installed on the target for the test cases in this file to succeed.
+ *  If the target has an SD card installed then the MBED_CONF_APP_FSFAT_SDCARD_INSTALLED will be generated
+ *  from the mbed_app.json, which includes the line
+ *    {
+ *    "config": {
+ *        "UART_RX": "D0",
+ *        <<< lines removed >>>
+ *        "DEVICE_SPI": 1,
+ *        "FSFAT_SDCARD_INSTALLED": 1
+ *      },
+ *  	<<< lines removed >>>
  */
-#define FSFAT_SDCARD_INSTALLED
-#define DEVICE_SPI
-#if defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED)
+#if defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED)
 
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
@@ -77,77 +82,8 @@ static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 static const char *sd_badfile_path = "/sd/badfile.txt";
 static const char *sd_testfile_path = "/sd/test.txt";
 
-
-#if defined(TARGET_KL25Z)
-SDBlockDevice sd(PTD2, PTD3, PTD1, PTD0);
+SDBlockDevice sd(MBED_CONF_APP_SPI_MOSI, MBED_CONF_APP_SPI_MISO, MBED_CONF_APP_SPI_CLK, MBED_CONF_APP_SPI_CS);
 FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_KL46Z) || defined(TARGET_KL43Z)
-SDBlockDevice sd(PTD6, PTD7, PTD5, PTD4);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_K64F) || defined(TARGET_K66F)
-SDBlockDevice sd(PTE3, PTE1, PTE2, PTE4);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_K22F)
-SDBlockDevice sd(PTD6, PTD7, PTD5, PTD4);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_K20D50M)
-SDBlockDevice sd(PTD2, PTD3, PTD1, PTC2);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_nRF51822)
-SDBlockDevice sd(p12, p13, p15, p14);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_NUCLEO_F030R8) || \
-      defined(TARGET_NUCLEO_F070RB) || \
-      defined(TARGET_NUCLEO_F072RB) || \
-      defined(TARGET_NUCLEO_F091RC) || \
-      defined(TARGET_NUCLEO_F103RB) || \
-      defined(TARGET_NUCLEO_F302R8) || \
-      defined(TARGET_NUCLEO_F303RE) || \
-      defined(TARGET_NUCLEO_F334R8) || \
-      defined(TARGET_NUCLEO_F401RE) || \
-      defined(TARGET_NUCLEO_F410RB) || \
-      defined(TARGET_NUCLEO_F411RE) || \
-      defined(TARGET_NUCLEO_L053R8) || \
-      defined(TARGET_NUCLEO_L073RZ) || \
-      defined(TARGET_NUCLEO_L152RE)
-SDBlockDevice sd(D11, D12, D13, D10);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_DISCO_F051R8) || \
-      defined(TARGET_NUCLEO_L031K6)
-SDBlockDevice sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_LPC2368)
-SDBlockDevice sd(p11, p12, p13, p14);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_LPC11U68)
-SDBlockDevice sd(D11, D12, D13, D10);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_LPC1549)
-SDBlockDevice sd(D11, D12, D13, D10);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_RZ_A1H)
-SDBlockDevice sd(P8_5, P8_6, P8_3, P8_4);
-FATFileSystem fs("sd", &sd);
-
-#elif defined(TARGET_LPC11U37H_401)
-SDBlockDevice sd(SDMOSI, SDMISO, SDSCLK, SDSSEL);
-FATFileSystem fs("sd", &sd);
-
-#else
-#error "[NOT SUPPORTED] Instantiate SDBlockDevice sd(p11, p12, p13, p14) with the correct pin specification for target"
-#endif
-
 
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_01
 #define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_02
@@ -1548,7 +1484,7 @@ static control_t fsfat_fopen_test_dummy()
     return CaseNext;
 }
 
-#endif  /* defined(DEVICE_SPI) && defined(FSFAT_SDCARD_INSTALLED) */
+#endif  /* defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) */
 
 
 /// @cond FSFAT_DOXYGEN_DISABLE
