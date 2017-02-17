@@ -47,16 +47,16 @@ static const flash_algo_t flash_algo_config = {
     .erase_sector = 0xdb,
     .program_page = 0x16f,
     .static_base = 0x20c,
-    .algo_blob = FLASH_ALGO,
+    .algo_blob = FLASH_ALGO
 };
 
 static const sector_info_t sectors_info[] = {
-    {0x0, 0x4000},
-    {0x10000, 0x10000},
-    {0x20000, 0x20000},
-    {0x100000, 0x4000},
-    {0x110000, 0x10000},
-    {0x120000, 0x20000},
+    {0x8000000, 0x4000},
+    {0x8010000, 0x10000},
+    {0x8020000, 0x20000},
+    {0x8100000, 0x4000},
+    {0x8110000, 0x10000},
+    {0x8120000, 0x20000},
 };
 
 static const flash_target_config_t flash_target_config = {
@@ -64,6 +64,7 @@ static const flash_target_config_t flash_target_config = {
     .flash_start = 0x8000000,
     .flash_size = 0x200000,
     .sectors = sectors_info,
+    .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };
 
 void flash_set_target_config(flash_t *obj)

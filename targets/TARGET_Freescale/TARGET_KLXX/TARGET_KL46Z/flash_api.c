@@ -69,8 +69,7 @@ static uint32_t FLASH_ALGO[] = {
     0x41521ac0, 0x428b0883, 0x008bd301, 0x41521ac0, 0x0843d2d9, 0xd301428b, 0x1ac0004b, 0x1a414152,
     0x4601d200, 0x41524663, 0x4610105b, 0x4240d301, 0xd5002b00, 0x47704249, 0x105b4663, 0x4240d300,
     0x2000b501, 0x46c046c0, 0xb430bd02, 0x1e644674, 0x1c647825, 0xd20042ab, 0x5d63461d, 0x18e3005b,
-    0x4718bc30, 0xfffffffe, 0xffffffff, 0xfffffffe, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
+    0x4718bc30, 0xfffffffe, 0xffffffff, 0xfffffffe, 0x00000000, 0x00000000
 };
 
 static const flash_algo_t flash_algo_config = {
@@ -79,7 +78,7 @@ static const flash_algo_t flash_algo_config = {
     .erase_sector = 0x9d,
     .program_page = 0xb5,
     .static_base = 0x5f0,
-    .algo_blob = FLASH_ALGO,
+    .algo_blob = FLASH_ALGO
 };
 
 static const sector_info_t sectors_info[] = {
@@ -91,6 +90,7 @@ static const flash_target_config_t flash_target_config = {
     .flash_start = 0x0,
     .flash_size = 0x40000,
     .sectors = sectors_info,
+    .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };
 
 void flash_set_target_config(flash_t *obj)
