@@ -16,11 +16,7 @@
 #ifndef MBED_FLASH_DATA_H
 #define MBED_FLASH_DATA_H
 
-// This file is automagically generated from flash-algo repository
-
 #include <stdint.h>
-
-#define MBED_FLASH_INVALID_SIZE     0xFFFFFFFF
 
 // Target flash algorithm structure
 typedef struct {
