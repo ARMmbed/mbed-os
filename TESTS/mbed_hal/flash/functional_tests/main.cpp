@@ -107,6 +107,45 @@ void flash_erase_sector_test()
     TEST_ASSERT_EQUAL_INT32(ret, 0);
 }
 
+void flash_mapping_alignment_test()
+{
+    flash_t test_flash;
+    int32_t ret = flash_init(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(ret, 0);
+
+    const uint32_t page_size = flash_get_page_size(&test_flash);
+    const uint32_t flash_start = flash_get_start_address(&test_flash);
+    const uint32_t flash_size = flash_get_size(&test_flash);
+    TEST_ASSERT_TRUE(page_size != 0UL);
+
+    uint32_t sector_size = flash_get_sector_size(&test_flash, flash_start);
+    for (uint32_t offset = 0; offset < flash_size;  offset += sector_size) {
+        const uint32_t sector_start = flash_start + offset;
+        sector_size = flash_get_sector_size(&test_flash, sector_start);
+        const uint32_t sector_end = sector_start + sector_size - 1;
+        const uint32_t end_sector_size = flash_get_sector_size(&test_flash, sector_end);
+
+        // Sector size must be a valid value
+        TEST_ASSERT_NOT_EQUAL(sector_size, MBED_FLASH_INVALID_SIZE);
+        // Sector size must be greater than zero
+        TEST_ASSERT_NOT_EQUAL(sector_size, 0);
+        // All flash sectors must be a multiple of page size
+        TEST_ASSERT_EQUAL(sector_size % page_size, 0);
+        // Sector address must be a multiple of sector size
+        TEST_ASSERT_EQUAL(sector_start % sector_size, 0);
+        // All address in a sector must return the same sector size
+        TEST_ASSERT_EQUAL(end_sector_size, sector_size);
+
+    }
+
+    // Make sure unmapped flash is reported correctly
+    TEST_ASSERT_EQUAL(flash_get_sector_size(&test_flash, flash_start - 1), MBED_FLASH_INVALID_SIZE);
+    TEST_ASSERT_EQUAL(flash_get_sector_size(&test_flash, flash_start + flash_size), MBED_FLASH_INVALID_SIZE);
+
+    ret = flash_free(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(ret, 0);
+}
+
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -114,6 +153,7 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 
 Case cases[] = {
     Case("Flash - init", flash_init_test, greentea_failure_handler),
+    Case("Flash - mapping alignment", flash_mapping_alignment_test, greentea_failure_handler),
     Case("Flash - erase sector", flash_erase_sector_test, greentea_failure_handler),
     Case("Flash - program page", flash_program_page_test, greentea_failure_handler),
 
