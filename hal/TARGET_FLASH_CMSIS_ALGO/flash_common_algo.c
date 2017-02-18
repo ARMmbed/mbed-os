@@ -140,6 +140,10 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     const sector_info_t *sectors = obj->target_config->sectors;
 
+    if (address >= obj->target_config->flash_start + obj->target_config->flash_size) {
+        return MBED_FLASH_INVALID_SIZE;
+    }
+
     int sector_index = obj->target_config->sector_info_count - 1;
     for (; sector_index >= 0; sector_index--) {
         if (address >= sectors[sector_index].start) {
