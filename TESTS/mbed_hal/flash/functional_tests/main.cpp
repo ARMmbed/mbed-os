@@ -37,6 +37,17 @@ using namespace utest::v1;
 #define ALIGN_DOWN(x, a) ((x)& ~((a) - 1))
 #endif
 
+static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
+{
+    while (size > 0) {
+        uint32_t sector_size = flash_get_sector_size(flash, addr);
+        TEST_ASSERT_NOT_EQUAL(0, sector_size);
+        int32_t ret = flash_erase_sector(flash, addr);
+        TEST_ASSERT_EQUAL_INT32(0, ret);
+        size = size > sector_size ? size - sector_size : 0;
+    }
+}
+
 void flash_init_test()
 {
     flash_t test_flash;
@@ -146,6 +157,40 @@ void flash_program_page_test()
     delete[] data;
 }
 
+// make sure programming works with an unaligned data buffer
+void flash_buffer_alignment_test()
+{
+    flash_t test_flash;
+    int32_t ret = flash_init(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    const uint32_t page_size = flash_get_page_size(&test_flash);
+    const uint32_t buf_size = page_size + 4;
+    uint8_t *data = new uint8_t[buf_size];
+    for (uint32_t i = 0; i < buf_size; i++) {
+        data[i] = i & 0xFF;
+    }
+
+    // use the last four pages for the alignment test
+    const uint32_t flash_end = flash_get_start_address(&test_flash) + flash_get_size(&test_flash);
+    const uint32_t test_addr = flash_end - page_size * 4;
+    const uint32_t erase_sector_boundary = ALIGN_DOWN(test_addr, flash_get_sector_size(&test_flash, test_addr));
+    erase_range(&test_flash, erase_sector_boundary, flash_end - erase_sector_boundary);
+
+    // make sure page program works with an unaligned data buffer
+    for (uint32_t i = 0; i < 4; i++) {
+        const uint32_t addr = test_addr + i * page_size;
+        ret = flash_program_page(&test_flash, addr, data + i, page_size);
+        TEST_ASSERT_EQUAL_INT32(0, ret);
+        uint8_t *data_flashed = (uint8_t *)addr;
+        TEST_ASSERT_EQUAL_UINT8_ARRAY(data + i, data_flashed, page_size);
+    }
+
+    ret = flash_free(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+    delete[] data;
+}
+
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -156,7 +201,7 @@ Case cases[] = {
     Case("Flash - mapping alignment", flash_mapping_alignment_test, greentea_failure_handler),
     Case("Flash - erase sector", flash_erase_sector_test, greentea_failure_handler),
     Case("Flash - program page", flash_program_page_test, greentea_failure_handler),
-
+    Case("Flash - buffer alignment test", flash_buffer_alignment_test, greentea_failure_handler),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
