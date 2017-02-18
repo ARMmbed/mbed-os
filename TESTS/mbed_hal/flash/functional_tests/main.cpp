@@ -41,77 +41,16 @@ void flash_init_test()
 {
     flash_t test_flash;
     int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
     ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-}
-
-// Erase sector, write one page, erase sector and write new data
-void flash_program_page_test()
-{
-    flash_t test_flash;
-    int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    uint32_t test_size = flash_get_page_size(&test_flash);
-    uint8_t *data = new uint8_t[test_size];
-    for (uint32_t i = 0; i < test_size; i++) {
-        data[i] = 0xCE;
-    }
-
-    // the one before the last page in the system
-    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2*test_size);
-
-    // sector size might not be same as page size
-    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
-    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    ret = flash_program_page(&test_flash, address, data, test_size);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-    uint8_t *data_flashed = (uint8_t *)address;
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, test_size);
-
-    // sector size might not be same as page size
-    erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
-    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    // write another data to be certain we are re-flashing
-    for (uint32_t i = 0; i < test_size; i++) {
-        data[i] = 0xAC;
-    }
-    ret = flash_program_page(&test_flash, address, data, test_size);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, test_size);
-
-    ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-    delete[] data;
-}
-
-void flash_erase_sector_test()
-{
-    flash_t test_flash;
-    int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    uint32_t sector_size = 0x1000;
-    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (4*sector_size);
-    // sector size might not be same as page size
-    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
-    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
-
-    ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
 void flash_mapping_alignment_test()
 {
     flash_t test_flash;
     int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 
     const uint32_t page_size = flash_get_page_size(&test_flash);
     const uint32_t flash_start = flash_get_start_address(&test_flash);
@@ -126,24 +65,85 @@ void flash_mapping_alignment_test()
         const uint32_t end_sector_size = flash_get_sector_size(&test_flash, sector_end);
 
         // Sector size must be a valid value
-        TEST_ASSERT_NOT_EQUAL(sector_size, MBED_FLASH_INVALID_SIZE);
+        TEST_ASSERT_NOT_EQUAL(MBED_FLASH_INVALID_SIZE, sector_size);
         // Sector size must be greater than zero
-        TEST_ASSERT_NOT_EQUAL(sector_size, 0);
+        TEST_ASSERT_NOT_EQUAL(0, sector_size);
         // All flash sectors must be a multiple of page size
-        TEST_ASSERT_EQUAL(sector_size % page_size, 0);
+        TEST_ASSERT_EQUAL(0, sector_size % page_size);
         // Sector address must be a multiple of sector size
-        TEST_ASSERT_EQUAL(sector_start % sector_size, 0);
+        TEST_ASSERT_EQUAL(0, sector_start % sector_size);
         // All address in a sector must return the same sector size
-        TEST_ASSERT_EQUAL(end_sector_size, sector_size);
+        TEST_ASSERT_EQUAL(sector_size, end_sector_size);
 
     }
 
     // Make sure unmapped flash is reported correctly
-    TEST_ASSERT_EQUAL(flash_get_sector_size(&test_flash, flash_start - 1), MBED_FLASH_INVALID_SIZE);
-    TEST_ASSERT_EQUAL(flash_get_sector_size(&test_flash, flash_start + flash_size), MBED_FLASH_INVALID_SIZE);
+    TEST_ASSERT_EQUAL(MBED_FLASH_INVALID_SIZE, flash_get_sector_size(&test_flash, flash_start - 1));
+    TEST_ASSERT_EQUAL(MBED_FLASH_INVALID_SIZE, flash_get_sector_size(&test_flash, flash_start + flash_size));
 
     ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+}
+
+// Erase sector, write one page, erase sector and write new data
+void flash_program_page_test()
+{
+    flash_t test_flash;
+    int32_t ret = flash_init(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint32_t test_size = flash_get_page_size(&test_flash);
+    uint8_t *data = new uint8_t[test_size];
+    for (uint32_t i = 0; i < test_size; i++) {
+        data[i] = 0xCE;
+    }
+
+    // the one before the last page in the system
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2*test_size);
+
+    // sector size might not be same as page size
+    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
+    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    ret = flash_program_page(&test_flash, address, data, test_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+    uint8_t *data_flashed = (uint8_t *)address;
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, test_size);
+
+    // sector size might not be same as page size
+    erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
+    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    // write another data to be certain we are re-flashing
+    for (uint32_t i = 0; i < test_size; i++) {
+        data[i] = 0xAC;
+    }
+    ret = flash_program_page(&test_flash, address, data, test_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, test_size);
+
+    ret = flash_free(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+    delete[] data;
+}
+
+void flash_erase_sector_test()
+{
+    flash_t test_flash;
+    int32_t ret = flash_init(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint32_t sector_size = 0x1000;
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (4*sector_size);
+    // sector size might not be same as page size
+    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
+    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    ret = flash_free(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
