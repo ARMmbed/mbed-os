@@ -135,11 +135,11 @@ void flash_erase_sector_test()
     int32_t ret = flash_init(&test_flash);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
-    uint32_t sector_size = 0x1000;
-    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (4*sector_size);
-    // sector size might not be same as page size
-    uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
-    ret = flash_erase_sector(&test_flash, erase_sector_boundary);
+    uint32_t addr_after_last = flash_get_start_address(&test_flash) + flash_get_size(&test_flash);
+    uint32_t last_sector_size = flash_get_sector_size(&test_flash, addr_after_last - 1);
+    uint32_t last_sector = addr_after_last - last_sector_size;
+    TEST_ASSERT_EQUAL_INT32(0, last_sector % last_sector_size);
+    ret = flash_erase_sector(&test_flash, last_sector);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
     ret = flash_free(&test_flash);
