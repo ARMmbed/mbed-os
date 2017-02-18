@@ -85,6 +85,23 @@ void flash_mapping_alignment_test()
     TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
+void flash_erase_sector_test()
+{
+    flash_t test_flash;
+    int32_t ret = flash_init(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint32_t addr_after_last = flash_get_start_address(&test_flash) + flash_get_size(&test_flash);
+    uint32_t last_sector_size = flash_get_sector_size(&test_flash, addr_after_last - 1);
+    uint32_t last_sector = addr_after_last - last_sector_size;
+    TEST_ASSERT_EQUAL_INT32(0, last_sector % last_sector_size);
+    ret = flash_erase_sector(&test_flash, last_sector);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    ret = flash_free(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+}
+
 // Erase sector, write one page, erase sector and write new data
 void flash_program_page_test()
 {
@@ -127,23 +144,6 @@ void flash_program_page_test()
     ret = flash_free(&test_flash);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     delete[] data;
-}
-
-void flash_erase_sector_test()
-{
-    flash_t test_flash;
-    int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(0, ret);
-
-    uint32_t addr_after_last = flash_get_start_address(&test_flash) + flash_get_size(&test_flash);
-    uint32_t last_sector_size = flash_get_sector_size(&test_flash, addr_after_last - 1);
-    uint32_t last_sector = addr_after_last - last_sector_size;
-    TEST_ASSERT_EQUAL_INT32(0, last_sector % last_sector_size);
-    ret = flash_erase_sector(&test_flash, last_sector);
-    TEST_ASSERT_EQUAL_INT32(0, ret);
-
-    ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
