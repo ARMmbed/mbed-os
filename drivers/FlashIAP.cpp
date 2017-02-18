@@ -103,19 +103,6 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
     return ret;
 }
 
-int FlashIAP::write(const void *buffer, uint32_t addr, uint32_t size)
-{
-    int ret = 0;
-    // erase will lock
-    if (erase(addr, size) != 0) {
-        return -1;
-    }
-    _mutex->lock();
-    ret = program(buffer, addr, size);
-    _mutex->unlock();
-    return ret;
-}
-
 bool FlashIAP::is_aligned_to_sector(uint32_t addr, uint32_t size)
 {
     uint32_t current_sector_size = flash_get_sector_size(&_flash, addr);

@@ -66,17 +66,6 @@ public:
      */
     int read(void *buffer, uint32_t addr, uint32_t size);
 
-    /** Write data at defined flash address
-     *
-     *  A write is equivalent to an erase followed by a program. 
-     *
-     *  @param buffer Buffer of data to be written
-     *  @param addr   Address of a page to begin writing to
-     *  @param size   Size to write in bytes, must be a multiple of program and sector sizes
-     *  @return       0 on success, negative error code on failure
-     */
-    int write(const void *buffer, uint32_t addr, uint32_t size);
-
     /** Program data to pages
      *
      *  The sectors must have been erased prior to being programmed
