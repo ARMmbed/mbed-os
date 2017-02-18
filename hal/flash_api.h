@@ -24,6 +24,8 @@
 
 #if DEVICE_FLASH
 
+#define MBED_FLASH_INVALID_SIZE     0xFFFFFFFF
+
 typedef struct flash_s flash_t;
 
 #if TARGET_FLASH_CMSIS_ALGO
