@@ -31,22 +31,22 @@ void flashiap_init_test()
 {
     FlashIAP flash_device;
     uint32_t ret = flash_device.init();
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
     ret = flash_device.deinit();
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
 void flashiap_program_test()
 {
     FlashIAP flash_device;
     uint32_t ret = flash_device.init();
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 
     // get the last sector size (flash size - 1)
     uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_start() + flash_device.get_flash_size() - 1UL);
     uint32_t page_size = flash_device.get_page_size();
-    TEST_ASSERT_NOT_EQUAL(sector_size, 0);
-    TEST_ASSERT_NOT_EQUAL(page_size, 0);
+    TEST_ASSERT_NOT_EQUAL(0, sector_size);
+    TEST_ASSERT_NOT_EQUAL(0, page_size);
     TEST_ASSERT_TRUE(sector_size % page_size == 0);
     const uint8_t test_value = 0xCE;
     uint8_t *data = new uint8_t[page_size];
@@ -58,40 +58,40 @@ void flashiap_program_test()
     uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
     ret = flash_device.erase(address, sector_size);
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 
 
     for (uint32_t i = 0; i < sector_size / page_size; i++) {
         uint32_t page_addr = address + i * page_size;
         ret = flash_device.program(data, page_addr, page_size);
-        TEST_ASSERT_EQUAL_INT32(ret, 0);
+        TEST_ASSERT_EQUAL_INT32(0, ret);
     }
 
     uint8_t *data_flashed = new uint8_t[page_size];
     for (uint32_t i = 0; i < sector_size / page_size; i++) {
         uint32_t page_addr = address + i * page_size;
         ret = flash_device.read(data_flashed, page_addr, page_size);
-        TEST_ASSERT_EQUAL_INT32(ret, 0);
+        TEST_ASSERT_EQUAL_INT32(0, ret);
         TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, page_size);
     }
     delete[] data;
     delete[] data_flashed;
 
     ret = flash_device.deinit();
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
 void flashiap_program_error_test()
 {
     FlashIAP flash_device;
     uint32_t ret = flash_device.init();
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 
     // get the last sector size (flash size - 1)
     uint32_t sector_size = flash_device.get_sector_size(flash_device.get_flash_start() + flash_device.get_flash_size() - 1UL);
     uint32_t page_size = flash_device.get_page_size();
-    TEST_ASSERT_NOT_EQUAL(sector_size, 0);
-    TEST_ASSERT_NOT_EQUAL(page_size, 0);
+    TEST_ASSERT_NOT_EQUAL(0, sector_size);
+    TEST_ASSERT_NOT_EQUAL(0, page_size);
     TEST_ASSERT_TRUE(sector_size % page_size == 0);
     const uint8_t test_value = 0xCE;
     uint8_t *data = new uint8_t[page_size];
@@ -105,18 +105,18 @@ void flashiap_program_error_test()
 
     // unaligned address
     ret = flash_device.erase(address + 1, sector_size);
-    TEST_ASSERT_EQUAL_INT32(ret, -1);
+    TEST_ASSERT_EQUAL_INT32(-1, ret);
     ret = flash_device.program(data, address + 1, page_size);
-    TEST_ASSERT_EQUAL_INT32(ret, -1);
+    TEST_ASSERT_EQUAL_INT32(-1, ret);
 
     // unaligned page size
     ret = flash_device.program(data, address, page_size + 1);
-    TEST_ASSERT_EQUAL_INT32(ret, -1);
+    TEST_ASSERT_EQUAL_INT32(-1, ret);
 
     delete[] data;
 
     ret = flash_device.deinit();
-    TEST_ASSERT_EQUAL_INT32(ret, 0);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
