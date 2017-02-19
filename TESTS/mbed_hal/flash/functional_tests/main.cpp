@@ -28,6 +28,9 @@
 
 using namespace utest::v1;
 
+#define TEST_CYCLES         1000000
+#define ALLOWED_DRIFT_PPM   1000         //0.1%
+
 /*
     return values to be checked are documented at:
         http://arm-software.github.io/CMSIS_5/Pack/html/algorithmFunc.html#Verify
@@ -36,6 +39,8 @@ using namespace utest::v1;
 #ifndef ALIGN_DOWN
 #define ALIGN_DOWN(x, a) ((x)& ~((a) - 1))
 #endif
+
+static int timer_diff_start;
 
 static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
 {
@@ -48,8 +53,26 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
     }
 }
 
+static int time_cpu_cycles(uint32_t cycles)
+{
+    Timer timer;
+    timer.start();
+
+    int timer_start = timer.read_us();
+
+    volatile uint32_t delay = (volatile uint32_t)cycles;
+    while (delay--);
+
+    int timer_end = timer.read_us();
+
+    timer.stop();
+    return timer_end - timer_start;
+}
+
 void flash_init_test()
 {
+    timer_diff_start = time_cpu_cycles(TEST_CYCLES);
+
     flash_t test_flash;
     int32_t ret = flash_init(&test_flash);
     TEST_ASSERT_EQUAL_INT32(0, ret);
@@ -191,6 +214,15 @@ void flash_buffer_alignment_test()
     delete[] data;
 }
 
+// check the execution speed at the start and end of the test to make sure
+// cache settings weren't changed
+void flash_clock_and_cache_test()
+{
+    const int timer_diff_end = time_cpu_cycles(TEST_CYCLES);
+    const int acceptable_range = timer_diff_start / (1000000 / ALLOWED_DRIFT_PPM);
+    TEST_ASSERT_UINT32_WITHIN(acceptable_range, timer_diff_start, timer_diff_end);
+}
+
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -202,6 +234,7 @@ Case cases[] = {
     Case("Flash - erase sector", flash_erase_sector_test, greentea_failure_handler),
     Case("Flash - program page", flash_program_page_test, greentea_failure_handler),
     Case("Flash - buffer alignment test", flash_buffer_alignment_test, greentea_failure_handler),
+    Case("Flash - clock and cache test", flash_clock_and_cache_test, greentea_failure_handler),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
