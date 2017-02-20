@@ -82,16 +82,17 @@ Member|Description
 Event type|Description
 ----------|-----------
 `SOCKET_DATA`|Data received.
-`SOCKET_BIND_DONE`|TCP connection ready.
-`SOCKET_BIND_FAIL`|TCP connection failed.
-`SOCKET_BIND_AUTH_FAIL`|TCP connection authentication failed.
+`SOCKET_CONNECT_DONE`|TCP connection ready.
+`SOCKET_CONNECT_FAIL`|TCP connection failed.
+`SOCKET_CONNECT_AUTH_FAIL`|TCP connection authentication failed.
 `SOCKET_INCOMING_CONNECTION`|TCP connection state change from listen to establishment.
 `SOCKET_TX_FAIL`|Socket data send failed.
 `SOCKET_CONNECT_CLOSED`|TCP connection closed.
 `SOCKET_CONNECTION_RESET`|TCP connection reset.
 `SOCKET_NO_ROUTER`|No route available to destination.
-`SOCKET_TX_DONE`|Last socket TX process done, in TCP case whole TCP process is ready.
+`SOCKET_TX_DONE`|TX process done (one per datagram, or if stream will be called each time some data acknowledged)
 `SOCKET_NO_RAM `|If no RAM is present.
+`SOCKET_CONNECTION_PROBLEM`|If TCP is suffering a connection problem (a soft event, it continues to retry).
 
 An example parsing socket event:
 
@@ -102,7 +103,7 @@ An example parsing socket event:
 static uint8_t rx_buffer[APP_SOCK_RX_SIZE];
 
 void main_receive
-(
+(SOCKET_NO_ROUTER
 	void *cb
 )
 {
@@ -248,6 +249,31 @@ Parameter|Description
 <dd>-6 bind2addrsel is not supported on this type of socket.</dd>
 </dl>
 
+### How to connect a socket
+
+To connect a socket to a remote host:
+
+```
+int8_t socket_connect
+(
+	int8_t			socket,
+	ns_address_t	*address,
+	uint8_t			randomly_take_src_numbers
+)
+```
+
+Parameter|Description
+---------|-----------
+`socket`|The socket ID, which is used to connect to the remote host.
+`address`|A pointer to an <code>address_t</code> structure that contains the address of the remote host.
+`randomly_take_src_numbers`|Value 1 indicates that a randomly selected source port number is used.
+
+<dl>
+<dt>Return value</dt>
+<dd>0 Valid request.</dd>
+<dd>-1 Fail.</dd>
+</dl>
+
 ### How to read data from a socket
 
 To read received data from a socket:
@@ -300,9 +326,9 @@ _Table 3-24_ describes the possible response events when the outcome of the func
 
 Response Event|Socket Type|Description
 --------------|-----------|-----------
-`SOCKET_TX_DONE`|TCP/UDP|UDP link layer TX ready/TCP TX process ready by TCP _Acknowledgement_ (ACK).
-`SOCKET_TX_FAIL`|UDP|UDP link layer TX fails.
-`SOCKET_CONNECTION_RESET`|TCP|TX process fails and connection closed.
+`SOCKET_TX_DONE`|TCP/UDP|UDP: link layer TX ready (d_len = length of datagram). TCP: some data acknowledged (d_len = unacknowledged data remaining in send queue).
+`SOCKET_TX_FAIL`|TCP/UDP|UDP: link layer TX fails. TCP: transmit timeout (no ACKs) and connection closed.
+`SOCKET_CONNECTION_RESET`|TCP|Either the peer reset the connection or there was a protocol error. Connection closed.
 
 To transmit data on an unconnected socket:
 
@@ -364,7 +390,7 @@ The TCP socket configuration API offers three function calls, as shown in _Table
 Function|Description
 --------|-----------
 `socket_listen()`|Set socket to the listen state.
-`socket_connect()`|Connect socket to a host.
+`socket_accept()`|Accepts an incoming TCP connection.
 `socket_shutdown()`|Shut down socket connection.
 
 To set a TCP socket into the listen state:
@@ -380,46 +406,49 @@ int8_t socket_listen
 Parameter|Description
 ---------|-----------
 `socket`|The socket ID that is to be set to the listen state.
-`backlog`|The pending connections queue size. (Not yet implemented).
+`backlog`|The pending connections queue size.
 
 <dl>
 <dt>Return value</dt>
 <dd>0 Valid request.</dd>
-<dd><b>Note:</b> This does not imply that the state of the socket has been successfully changed.</dd>
 <dd>-1 Fail.</dd>
 </dl>
 
-To connect a socket to a remote host:
+For connecting a socket, please refer to the section  above [How to connect a socket](#how-to-connect-a-socket). 
+
+There are three possible responses from the stack for `socket_connect( )`:
+
+- `SOCKET_CONNECT_DONE`
+	- TCP handshake ready.
+
+- `SOCKET_CONNECT_FAIL`
+	- TCP handshake fail - connection actively refused or protocol error.
+
+- `SOCKET_TX_FAIL`
+	- TCP handshake fail - timed out.
+
+For accepting an incoming TCP connection, use `socket_accept()` function.
 
 ```
-int8_t socket_connect
+int8_t socket_accept()
 (
-	int8_t			socket,
-	ns_address_t	*address,
-	uint8_t			randomly_take_src_numbers
+	int8_t	listen_socket_id,
+	ns_address_t	*addr,
+    void (*passed_fptr)  (void *)
 )
 ```
 
 Parameter|Description
 ---------|-----------
-`socket`|The socket ID, which is used to connect to the remote host.
-`address`|A pointer to an <code>address_t</code> structure that contains the address of the remote host.
-`randomly_take_src_numbers`|Value 1 indicates that a randomly selected source port number is used.
+`listen_socket_id`|The socket ID of the listening socket.
+`addr`|Pointer to the address structure where you wish to save the address
+`passed_fptr`|A function pointer to a function that is called whenever a data frame is received to the new socket
 
 <dl>
 <dt>Return value</dt>
-<dd>0 Valid request.</dd>
-<dd><b>Note:</b>This does not imply that the state of the socket has been successfully changed.</dd>
+<dd>0 or greter than zero, i.e.,  id for the new socket.</dd>
 <dd>-1 Fail.</dd>
 </dl>
-
-There are two possible responses from the stack for `socket_connect( )`:
-
-- `SOCKET_BIND_DONE`
-	- TCP handshake ready.
-
-- `SOCKET_CONNECT_FAIL_CLOSED`
-	- TCP handshake fail.
 
 To shut down a TCP connection:
 

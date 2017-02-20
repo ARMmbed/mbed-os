@@ -24,6 +24,8 @@ extern "C" {
 #define NU_MAX(a,b) ((a)>(b)?(a):(b))
 #define NU_MIN(a,b) ((a)<(b)?(a):(b))
 #define NU_CLAMP(x, min, max)   NU_MIN(NU_MAX((x), (min)), (max))
+#define NU_ALIGN_DOWN(X, ALIGN)     ((X) & ~((ALIGN) - 1))
+#define NU_ALIGN_UP(X, ALIGN)       (((X) + (ALIGN) - 1) & ~((ALIGN) - 1))
 
 void nu_nop(uint32_t n);
     

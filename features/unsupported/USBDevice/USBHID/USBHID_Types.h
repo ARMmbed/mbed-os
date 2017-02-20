@@ -25,9 +25,12 @@
 #define HID_VERSION_1_11    (0x0111)
 
 /* HID Class */
-#define HID_CLASS           (3)
-#define HID_SUBCLASS_NONE   (0)
-#define HID_PROTOCOL_NONE   (0)
+#define HID_CLASS             (3)
+#define HID_SUBCLASS_NONE     (0)
+#define HID_SUBCLASS_BOOT     (1)
+#define HID_PROTOCOL_NONE     (0)
+#define HID_PROTOCOL_KEYBOARD (1)
+#define HID_PROTOCOL_MOUSE    (2)
 
 /* Descriptors */
 #define HID_DESCRIPTOR          (33)

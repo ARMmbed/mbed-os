@@ -1123,8 +1123,11 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
       }
     }
   }
-
+  /* Disable the Wake-Up timer */
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
+
+  /* Clear flag Wake-Up */
+  __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
 
   tickstart = HAL_GetTick();
 

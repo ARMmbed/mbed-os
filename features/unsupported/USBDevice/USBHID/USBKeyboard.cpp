@@ -503,51 +503,51 @@ bool USBKeyboard::mediaControl(MEDIA_KEY key) {
 
 uint8_t * USBKeyboard::configurationDesc() {
     static uint8_t configurationDescriptor[] = {
-        CONFIGURATION_DESCRIPTOR_LENGTH,// bLength
-        CONFIGURATION_DESCRIPTOR,       // bDescriptorType
-        LSB(TOTAL_DESCRIPTOR_LENGTH),   // wTotalLength (LSB)
-        MSB(TOTAL_DESCRIPTOR_LENGTH),   // wTotalLength (MSB)
-        0x01,                           // bNumInterfaces
-        DEFAULT_CONFIGURATION,          // bConfigurationValue
-        0x00,                           // iConfiguration
-        C_RESERVED | C_SELF_POWERED,    // bmAttributes
-        C_POWER(0),                     // bMaxPowerHello World from Mbed
+        CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
+        CONFIGURATION_DESCRIPTOR,           // bDescriptorType
+        LSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (LSB)
+        MSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (MSB)
+        0x01,                               // bNumInterfaces
+        DEFAULT_CONFIGURATION,              // bConfigurationValue
+        0x00,                               // iConfiguration
+        C_RESERVED | C_SELF_POWERED,        // bmAttributes
+        C_POWER(0),                         // bMaxPower
 
-        INTERFACE_DESCRIPTOR_LENGTH,    // bLength
-        INTERFACE_DESCRIPTOR,           // bDescriptorType
-        0x00,                           // bInterfaceNumber
-        0x00,                           // bAlternateSetting
-        0x02,                           // bNumEndpoints
-        HID_CLASS,                      // bInterfaceClass
-        1,                              // bInterfaceSubClass
-        1,                              // bInterfaceProtocol (keyboard)
-        0x00,                           // iInterface
+        INTERFACE_DESCRIPTOR_LENGTH,        // bLength
+        INTERFACE_DESCRIPTOR,               // bDescriptorType
+        0x00,                               // bInterfaceNumber
+        0x00,                               // bAlternateSetting
+        0x02,                               // bNumEndpoints
+        HID_CLASS,                          // bInterfaceClass
+        HID_SUBCLASS_BOOT,                  // bInterfaceSubClass
+        HID_PROTOCOL_KEYBOARD,              // bInterfaceProtocol
+        0x00,                               // iInterface
 
-        HID_DESCRIPTOR_LENGTH,          // bLength
-        HID_DESCRIPTOR,                 // bDescriptorType
-        LSB(HID_VERSION_1_11),          // bcdHID (LSB)
-        MSB(HID_VERSION_1_11),          // bcdHID (MSB)
-        0x00,                           // bCountryCode
-        0x01,                           // bNumDescriptors
-        REPORT_DESCRIPTOR,              // bDescriptorType
-        (uint8_t)(LSB(reportDescLength())),  // wDescriptorLength (LSB)
-        (uint8_t)(MSB(reportDescLength())),  // wDescriptorLength (MSB)
+        HID_DESCRIPTOR_LENGTH,              // bLength
+        HID_DESCRIPTOR,                     // bDescriptorType
+        LSB(HID_VERSION_1_11),              // bcdHID (LSB)
+        MSB(HID_VERSION_1_11),              // bcdHID (MSB)
+        0x00,                               // bCountryCode
+        0x01,                               // bNumDescriptors
+        REPORT_DESCRIPTOR,                  // bDescriptorType
+        (uint8_t)(LSB(reportDescLength())), // wDescriptorLength (LSB)
+        (uint8_t)(MSB(reportDescLength())), // wDescriptorLength (MSB)
 
-        ENDPOINT_DESCRIPTOR_LENGTH,     // bLength
-        ENDPOINT_DESCRIPTOR,            // bDescriptorType
-        PHY_TO_DESC(EPINT_IN),          // bEndpointAddress
-        E_INTERRUPT,                    // bmAttributes
-        LSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (LSB)
-        MSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (MSB)
-        1,                             // bInterval (milliseconds)
+        ENDPOINT_DESCRIPTOR_LENGTH,         // bLength
+        ENDPOINT_DESCRIPTOR,                // bDescriptorType
+        PHY_TO_DESC(EPINT_IN),              // bEndpointAddress
+        E_INTERRUPT,                        // bmAttributes
+        LSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (LSB)
+        MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
+        1,                                  // bInterval (milliseconds)
 
-        ENDPOINT_DESCRIPTOR_LENGTH,     // bLength
-        ENDPOINT_DESCRIPTOR,            // bDescriptorType
-        PHY_TO_DESC(EPINT_OUT),          // bEndpointAddress
-        E_INTERRUPT,                    // bmAttributes
-        LSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (LSB)
-        MSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (MSB)
-        1,                             // bInterval (milliseconds)
+        ENDPOINT_DESCRIPTOR_LENGTH,         // bLength
+        ENDPOINT_DESCRIPTOR,                // bDescriptorType
+        PHY_TO_DESC(EPINT_OUT),             // bEndpointAddress
+        E_INTERRUPT,                        // bmAttributes
+        LSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (LSB)
+        MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
+        1,                                  // bInterval (milliseconds)
     };
     return configurationDescriptor;
 }

@@ -18,9 +18,7 @@
 #ifndef __COAP_SECURITY_HANDLER_H__
 #define __COAP_SECURITY_HANDLER_H__
 
-#include <stddef.h>
-#include <inttypes.h>
-#include <stdbool.h>
+#include "ns_types.h"
 
 #ifdef NS_USE_EXTERNAL_MBED_TLS
 #include "mbedtls/ssl.h"
@@ -98,6 +96,8 @@ bool coap_security_handler_is_started(const coap_security_t *sec);
 const void *coap_security_handler_keyblock(const coap_security_t *sec);
 
 #else
+
+NS_DUMMY_DEFINITIONS_OK
 
 /* Dummy definitions, including needed error codes */
 #define MBEDTLS_ERR_SSL_TIMEOUT (-1)

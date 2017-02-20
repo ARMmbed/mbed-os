@@ -52,6 +52,7 @@ typedef enum {
     PHY_EXTENSION_READ_CHANNEL_ENERGY, /**< RF interface ED scan energy read. */
     PHY_EXTENSION_READ_LINK_STATUS, /**< Net library could read link status. */
     PHY_EXTENSION_CONVERT_SIGNAL_INFO, /**< Convert signal info. */
+    PHY_EXTENSION_ACCEPT_ANY_BEACON, /**< Set boolean true or false for accept beacon from other Pan-ID than configured. Default value should be false */
 } phy_extension_type_e;
 
 /** Address types */

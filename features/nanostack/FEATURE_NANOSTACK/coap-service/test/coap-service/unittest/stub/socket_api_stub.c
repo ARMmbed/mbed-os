@@ -58,14 +58,6 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
     return socket_api_stub.int8_value;
 }
 
-int8_t socket_send(int8_t socket, uint8_t *buffer, uint16_t length)
-{
-    if( socket_api_stub.counter >= 0){
-        return socket_api_stub.values[socket_api_stub.counter--];
-    }
-
-    return socket_api_stub.int8_value;
-}
 int16_t socket_read(int8_t socket, ns_address_t *address, uint8_t *buffer, uint16_t length)
 {
     if( address ){
@@ -78,15 +70,7 @@ int16_t socket_read(int8_t socket, ns_address_t *address, uint8_t *buffer, uint1
 
     return socket_api_stub.int8_value;
 }
-int8_t socket_sendto(int8_t socket, ns_address_t *address, uint8_t *buffer, uint16_t length)
-{
-    if( socket_api_stub.counter >= 0){
-        return socket_api_stub.values[socket_api_stub.counter--];
-    }
-
-    return socket_api_stub.int8_value;
-}
-int8_t socket_read_session_address(int8_t socket, ns_address_t *address)
+int8_t socket_getpeername(int8_t socket, ns_address_t *address)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];
@@ -110,8 +94,7 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
 
     return socket_api_stub.int8_value;
 }
-
-int8_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
+int16_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
 {
     if( socket_api_stub.counter >= 0){
         return socket_api_stub.values[socket_api_stub.counter--];

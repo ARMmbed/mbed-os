@@ -79,21 +79,21 @@ extern int8_t ethernet_mac_destroy(eth_mac_api_t *mac_api);
  * @param api API to handle the request
  * @param data Data containing request parameters
  */
-typedef void data_request(const eth_mac_api_t* api, const eth_data_req_t *data);
+typedef void eth_mac_data_request(const eth_mac_api_t* api, const eth_data_req_t *data);
 
 /**
  * @brief data_confirm confirm is called as a response to data_request
  * @param api The API which handled the request
  * @param data Data containing confirm parameters
  */
-typedef void data_confirm(const eth_mac_api_t* api, const eth_data_conf_t *data );
+typedef void eth_mac_data_confirm(const eth_mac_api_t* api, const eth_data_conf_t *data );
 
 /**
  * @brief data_indication Data indication is called when MAC layer has received data
  * @param api The API which handled the response
  * @param data Data containing indication parameters
  */
-typedef void data_indication(const eth_mac_api_t* api, const eth_data_ind_t *data );
+typedef void eth_mac_data_indication(const eth_mac_api_t* api, const eth_data_ind_t *data );
 
 /**
  * @brief Set 48 bit address from MAC
@@ -119,15 +119,15 @@ typedef int8_t eth_mac_mac48_address_get(const eth_mac_api_t* api, uint8_t *mac4
  * @param parent_id Upper layer identifier
  * @return 0 if success; -1 if api is NULL or not found
  */
-typedef int8_t eth_mac_api_initialize(eth_mac_api_t *api, data_confirm *conf_cb,
-                                       data_indication *ind_cb, uint8_t parent_id);
+typedef int8_t eth_mac_api_initialize(eth_mac_api_t *api, eth_mac_data_confirm *conf_cb,
+                                       eth_mac_data_indication *ind_cb, uint8_t parent_id);
 
 struct eth_mac_api_s {
     eth_mac_api_initialize      *mac_initialize;
 
-    data_request                *data_req;
-    data_confirm                *data_conf_cb;
-    data_indication             *data_ind_cb;
+    eth_mac_data_request                *data_req;
+    eth_mac_data_confirm                *data_conf_cb;
+    eth_mac_data_indication             *data_ind_cb;
 
     eth_mac_mac48_address_set   *mac48_set;
     eth_mac_mac48_address_get   *mac48_get;
@@ -141,3 +141,4 @@ struct eth_mac_api_s {
 #endif
 
 #endif // ETHERNET_MAC_API_H
+

@@ -103,32 +103,34 @@ int thread_border_router_route_add(int8_t interface_id, uint8_t *prefix_ptr, uin
 int thread_border_router_route_delete(int8_t interface_id, uint8_t *prefix_ptr, uint8_t prefix_len);
 
 /**
- * \brief Add local service.
+ * \brief Add or modify a local service.
  *
  * \param interface_id Network interface ID.
- * \param service_ptr Pointer to service data.
- * \param service_len Length of service.
- * \param thread_enteprise True if Thread enterprise number is used.
- * \param sid Service identifier.
- * \param enterprise_number If thread_enteprise is false this must be given.
+ * \param service_data Pointer to a byte string specifying the type of service.
+ * \param service_len Length of service data.
+ * \param sid Service Type ID, a value between 0 and 15, inclusive, assigned to this service data.
+ * \param enterprise_number Enterprise number of the vendor that defined the type of the server.
+ * \param server_data Pointer to a byte string containing server-specific information.
+ * \param server_data_len Length of server data.
+ * \param stable This data is stable and expected to be available at least 48h.
  *
- * \return 0, Set OK.
- * \return <0 Set not OK.
+ * \return 0, Addition OK.
+ * \return <0 Addition not OK.
  */
-//TODO PUUTTUUU SERVER data
-int thread_border_router_service_add(int8_t interface_id, uint8_t *service_ptr, uint8_t service_len, bool thread_enteprise, uint8_t sid, uint32_t enterprise_number);
+int thread_border_router_service_add(int8_t interface_id, uint8_t *service_data, uint8_t service_len, uint8_t sid, uint32_t enterprise_number, uint8_t *server_data, uint8_t server_data_len, bool stable);
 
 /**
- * \brief Delete local service.
+ * \brief Delete local service by service data and enterprise number.
  *
  * \param interface_id Network interface ID.
- * \param service_ptr Pointer to service data.
+ * \param service_data Pointer to a byte string specifying the type of service.
  * \param service_len Length of service.
+ * \param enterprise_number Enterprise number of the vendor that defined the type of the server.
  *
- * \return 0, Set OK.
- * \return <0 Set not OK.
+ * \return 0, Delete OK.
+ * \return <0 Delete not OK.
  */
-int thread_border_router_service_delete(int8_t interface_id, uint8_t *service_ptr, uint8_t service_len);
+int thread_border_router_service_delete(int8_t interface_id, uint8_t *service_data, uint8_t service_len, uint32_t enterprise_number);
 
 /**
  * \brief Publish local services to Thread network.
@@ -180,4 +182,90 @@ int thread_border_router_recursive_dns_server_option_set(int8_t interface_id, ui
  */
 int thread_border_router_dns_search_list_option_set(int8_t interface_id, uint8_t *dns_search_list_option, uint16_t search_list_option_len);
 
-#endif /* THREAD_DHCPV6_SERVER_H_ */
+/**
+ * \brief Callback type for Thread network data TLV registration
+ *
+ * \param interface_id Network interface ID.
+ * \param network_data_tlv Thread Network data TLV as specified in Thread specification.
+ * \param network_data_tlv_length length of the network data TLV.
+ */
+typedef void (thread_network_data_tlv_cb)(int8_t interface_id, uint8_t *network_data_tlv, uint16_t network_data_tlv_length);
+
+/**
+ * \brief Register callback function to receive thread network data TLV in byte array. For the first time the callback
+ * will be called before returning from the function. Afterwards the callback will be called when there is a change
+ * to the network data or when the network data is advertised. Application is not allowed to block the callback execution
+ * and must make a copy of the network data if it is needed afterwards.
+ *
+ * Setting nwk_data_cb to NULL will prevent further calls to the callback function.
+ *
+ * \param interface_id Network interface ID.
+ * \param nwk_data_cb callback function to receive network data TLV in byte array as specified in the Thread specification.
+ *
+ * \return 0, Callback function registered successfully.
+ * \return <0 when error occurs during registering the callback function.
+ */
+int thread_border_router_network_data_callback_register(int8_t interface_id, thread_network_data_tlv_cb* nwk_data_cb);
+
+/**
+ * Find Prefix TLV from the Network Data TLV byte array.
+ *
+ * \param network_data_tlv [IN] Network data TLV in byte array.
+ * \param network_data_tlv_length [IN] Length of the network data TLV byte array in bytes.
+ * \param prefix_tlv [IN] pointer to the previous prefix_tlv, NULL if previous TLV not known.
+ *                   [OUT] Pointer to the prefix TLV found.
+ * \param stable [OUT] value set to true if found TLV is stable, false otherwise.
+ *
+ * \return Length of the found Prefix TLV
+ * \return 0 if TLV is empty or no Prefix TLV found.
+ * \return negative value indicates error in input parameters.
+ */
+int thread_border_router_prefix_tlv_find(uint8_t* network_data_tlv, uint16_t network_data_tlv_length, uint8_t** prefix_tlv, bool* stable);
+
+/**
+ * Find Border router TLV from the Network Data TLV (under Prefix TLV) byte array.
+ *
+ * \param prefix_tlv [IN] Network data TLV in byte array.
+ * \param prefix_tlv_length [IN] Length of the Network data TLV byte array in bytes.
+ * \param border_router_tlv [IN] pointer to the previous Border Router TLV, NULL if not known.
+ *                          [OUT] Pointer to the Border Router TLV found.
+ * \param stable [OUT] value set to true if found TLV is stable, false otherwise
+ *
+ * \return Length of the Prefix found
+ * \return 0 if TLV is empty or no TLV found.
+ * \return negative value indicates error in input parameters.
+ */
+int thread_border_router_tlv_find(uint8_t* prefix_tlv, uint16_t prefix_tlv_length, uint8_t** border_router_tlv, bool* stable);
+
+/**
+ * Find Service TLV from the Network Data TLV byte array.
+ *
+ * \param network_data_tlv [IN] Network data TLV in byte array.
+ * \param network_data_tlv_length [IN] Length of the network data TLV byte array in bytes.
+ * \param service_tlv [IN] pointer to the previous Service TLV, NULL if previous TLV not known.
+ *                   [OUT] Pointer to the Service TLV found.
+ * \param stable [OUT] value set to true if found TLV is stable, false otherwise.
+ *
+ * \return Length of the found Service TLV
+ * \return 0 if TLV is empty or no Service TLV found.
+ * \return negative value indicates error in input parameters.
+ */
+int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t network_data_tlv_length, uint8_t** service_tlv, bool* stable);
+
+/**
+ * Find Server TLV from the Network Data TLV (under Service TLV) byte array.
+ *
+ * \param service_tlv [IN] Network data TLV in byte array.
+ * \param service_tlv_length [IN] Length of the Network data TLV byte array in bytes.
+ * \param server_tlv [IN] pointer to the previous Server TLV, NULL if not known.
+ *                          [OUT] Pointer to the Server TLV found.
+ * \param stable [OUT] value set to true if found TLV is stable, false otherwise
+ *
+ * \return Length of the Prefix found
+ * \return 0 if TLV is empty or no TLV found.
+ * \return negative value indicates error in input parameters.
+ */
+int thread_border_router_server_tlv_find(uint8_t* service_tlv, uint16_t service_tlv_length, uint8_t** server_tlv, bool* stable);
+
+
+#endif /* THREAD_BORDER_ROUTER_API_H_ */
