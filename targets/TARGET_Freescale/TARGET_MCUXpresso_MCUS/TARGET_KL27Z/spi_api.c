@@ -65,7 +65,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     spi_master_config_t master_config;
     spi_slave_config_t slave_config;
 
-    if ((bits != 8) || (bits != 16)) {
+    if ((bits != 8) && (bits != 16)) {
         error("Only 8bits and 16bits SPI supported");
         return;
     }
