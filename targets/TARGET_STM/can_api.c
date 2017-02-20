@@ -29,7 +29,8 @@ static CAN_HandleTypeDef CanHandle;
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init(can_t *obj, PinName rd, PinName td)
+{
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
 
@@ -85,12 +86,14 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
+void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     can_irq_ids[obj->index] = id;
 }
 
-void can_irq_free(can_t *obj) {
+void can_irq_free(can_t *obj)
+{
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
     can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
@@ -98,7 +101,8 @@ void can_irq_free(can_t *obj) {
     can_irq_ids[obj->can] = 0;
 }
 
-void can_free(can_t *obj) {
+void can_free(can_t *obj)
+{
     // Reset CAN and disable clock
     if (obj->can == CAN_1) {
         __HAL_RCC_CAN1_FORCE_RESET();
@@ -144,7 +148,8 @@ static const int timing_pts[23][2] = {
     {0xF, 0x7},      // 24, 67%
 };
 
-static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned char psjw) {
+static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned char psjw)
+{
     uint32_t    btr;
     uint16_t    brp = 0;
     uint32_t    calcbit;
@@ -179,7 +184,8 @@ static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned cha
 
 }
 
-int can_frequency(can_t *obj, int f) {
+int can_frequency(can_t *obj, int f)
+{
     int pclk = HAL_RCC_GetPCLK1Freq();
     int btr = can_speed(pclk, (unsigned int)f, 1);
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
@@ -198,7 +204,8 @@ int can_frequency(can_t *obj, int f) {
     }
 }
 
-int can_write(can_t *obj, CAN_Message msg, int cc) {
+int can_write(can_t *obj, CAN_Message msg, int cc)
+{
     uint32_t  transmitmailbox = 5;
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
@@ -241,7 +248,8 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     return 1;
 }
 
-int can_read(can_t *obj, CAN_Message *msg, int handle) {
+int can_read(can_t *obj, CAN_Message *msg, int handle)
+{
     //handle is the FIFO number
 
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
@@ -287,23 +295,27 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
     return 1;
 }
 
-void can_reset(can_t *obj) {
+void can_reset(can_t *obj)
+{
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     can->MCR |= CAN_MCR_RESET;
     can->ESR = 0x0;
 }
 
-unsigned char can_rderror(can_t *obj) {
+unsigned char can_rderror(can_t *obj)
+{
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     return (can->ESR >> 24) & 0xFF;
 }
 
-unsigned char can_tderror(can_t *obj) {
+unsigned char can_tderror(can_t *obj)
+{
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     return (can->ESR >> 16) & 0xFF;
 }
 
-void can_monitor(can_t *obj, int silent) {
+void can_monitor(can_t *obj, int silent)
+{
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
     can->MCR |= CAN_MCR_INRQ ;
@@ -321,7 +333,8 @@ void can_monitor(can_t *obj, int silent) {
     }
 }
 
-int can_mode(can_t *obj, CanMode mode) {
+int can_mode(can_t *obj, CanMode mode)
+{
     int success = 0;
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
@@ -361,7 +374,8 @@ int can_mode(can_t *obj, CanMode mode) {
     return success;
 }
 
-int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) {
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
+{
     int retval = 0;
     
     // filter for CANAny format cannot be configured for STM32
@@ -394,7 +408,8 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
     return retval;
 }
 
-static void can_irq(CANName name, int id) {
+static void can_irq(CANName name, int id)
+{
     uint32_t tmp1 = 0, tmp2 = 0, tmp3 = 0;
     CanHandle.Instance = (CAN_TypeDef *)name;
 
@@ -481,7 +496,8 @@ void CAN2_SCE_IRQHandler(void) {
 #endif // defined(CAN2_BASE) && (CAN_NUM == 2)
 #endif // else
 
-void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
+void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
+{
 
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     IRQn_Type irq_n = (IRQn_Type)0;
@@ -567,3 +583,4 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
 }
 
 #endif // DEVICE_CAN
+
