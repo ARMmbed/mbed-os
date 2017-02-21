@@ -25,7 +25,11 @@
 #include "mbed_rtx.h"
 
 #ifndef OS_STACK_SIZE
+#ifndef MBED_SMALL_TARGET
 #define OS_STACK_SIZE               4096
+#else
+#define OS_STACK_SIZE               2048
+#endif
 #endif
 
 #define OS_DYNAMIC_MEM_SIZE         0
