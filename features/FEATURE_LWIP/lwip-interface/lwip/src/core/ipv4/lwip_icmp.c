@@ -81,7 +81,7 @@ icmp_input(struct pbuf *p, struct netif *inp)
 #endif /* LWIP_DEBUG */
   struct icmp_echo_hdr *iecho;
   const struct ip_hdr *iphdr_in;
-  s16_t hlen;
+  u16_t hlen;
   const ip4_addr_t* src;
 
   ICMP_STATS_INC(icmp.recv);
@@ -148,7 +148,7 @@ icmp_input(struct pbuf *p, struct netif *inp)
     }
 #endif
 #if LWIP_ICMP_ECHO_CHECK_INPUT_PBUF_LEN
-    if (pbuf_header(p, (hlen + PBUF_LINK_HLEN + PBUF_LINK_ENCAPSULATION_HLEN))) {
+    if (pbuf_header(p, (s16_t)(hlen + PBUF_LINK_HLEN + PBUF_LINK_ENCAPSULATION_HLEN))) {
       /* p is not big enough to contain link headers
        * allocate a new one and copy p into it
        */
@@ -167,7 +167,7 @@ icmp_input(struct pbuf *p, struct netif *inp)
       /* copy the ip header */
       MEMCPY(r->payload, iphdr_in, hlen);
       /* switch r->payload back to icmp header (cannot fail) */
-      if (pbuf_header(r, -hlen)) {
+      if (pbuf_header(r, (s16_t)-hlen)) {
         LWIP_ASSERT("icmp_input: moving r->payload to icmp header failed\n", 0);
         pbuf_free(r);
         goto icmperr;
@@ -194,7 +194,7 @@ icmp_input(struct pbuf *p, struct netif *inp)
     /* We generate an answer by switching the dest and src ip addresses,
      * setting the icmp type to ECHO_RESPONSE and updating the checksum. */
     iecho = (struct icmp_echo_hdr *)p->payload;
-    if (pbuf_header(p, hlen)) {
+    if (pbuf_header(p, (s16_t)hlen)) {
       LWIP_DEBUGF(ICMP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, ("Can't move over header in packet"));
     } else {
       err_t ret;
@@ -236,7 +236,7 @@ icmp_input(struct pbuf *p, struct netif *inp)
       MIB2_STATS_INC(mib2.icmpoutechoreps);
 
       /* send an ICMP packet */
-      ret = ip4_output_if(p, src, IP_HDRINCL,
+      ret = ip4_output_if(p, src, LWIP_IP_HDRINCL,
                    ICMP_TTL, 0, IP_PROTO_ICMP, inp);
       if (ret != ERR_OK) {
         LWIP_DEBUGF(ICMP_DEBUG, ("icmp_input: ip_output_if returned an error: %s\n", lwip_strerr(ret)));
@@ -247,7 +247,7 @@ icmp_input(struct pbuf *p, struct netif *inp)
     if (type == ICMP_DUR) {
       MIB2_STATS_INC(mib2.icmpindestunreachs);
     } else if (type == ICMP_TE) {
-      MIB2_STATS_INC(mib2.icmpindestunreachs);
+      MIB2_STATS_INC(mib2.icmpintimeexcds);
     } else if (type == ICMP_PP) {
       MIB2_STATS_INC(mib2.icmpinparmprobs);
     } else if (type == ICMP_SQ) {

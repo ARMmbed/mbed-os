@@ -2,6 +2,13 @@
  * @file
  * Network Interface Sequential API module
  *
+ * @defgroup netifapi NETIF API
+ * @ingroup sequential_api
+ * Thread-safe functions to be called from non-TCPIP threads
+ * 
+ * @defgroup netifapi_netif NETIF related
+ * @ingroup netifapi
+ * To be called from non-TCPIP threads 
  */
 
 /*
@@ -29,16 +36,6 @@
  *
  * This file is part of the lwIP TCP/IP stack.
  *
- */
-
-/**
- * @defgroup netifapi NETIF API
- * @ingroup threadsafe_api
- * Thread-safe functions to be called from non-TCPIP threads
- * 
- * @defgroup netifapi_netif NETIF related
- * @ingroup netifapi
- * To be called from non-TCPIP threads 
  */
 
 #include "lwip/opt.h"
@@ -137,13 +134,13 @@ netifapi_netif_add(struct netif *netif,
 
 #if LWIP_IPV4
   if (ipaddr == NULL) {
-    ipaddr = IP4_ADDR_ANY;
+    ipaddr = IP4_ADDR_ANY4;
   }
   if (netmask == NULL) {
-    netmask = IP4_ADDR_ANY;
+    netmask = IP4_ADDR_ANY4;
   }
   if (gw == NULL) {
-    gw = IP4_ADDR_ANY;
+    gw = IP4_ADDR_ANY4;
   }
 #endif /* LWIP_IPV4 */
 
@@ -180,13 +177,13 @@ netifapi_netif_set_addr(struct netif *netif,
   NETIFAPI_VAR_ALLOC(msg);
 
   if (ipaddr == NULL) {
-    ipaddr = IP4_ADDR_ANY;
+    ipaddr = IP4_ADDR_ANY4;
   }
   if (netmask == NULL) {
-    netmask = IP4_ADDR_ANY;
+    netmask = IP4_ADDR_ANY4;
   }
   if (gw == NULL) {
-    gw = IP4_ADDR_ANY;
+    gw = IP4_ADDR_ANY4;
   }
 
   NETIFAPI_VAR_REF(msg).netif = netif;

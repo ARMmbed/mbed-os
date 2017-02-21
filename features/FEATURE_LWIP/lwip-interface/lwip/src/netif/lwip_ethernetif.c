@@ -110,7 +110,7 @@ low_level_init(struct netif *netif)
   if (netif->mld_mac_filter != NULL) {
     ip6_addr_t ip6_allnodes_ll;
     ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
-    netif->mld_mac_filter(netif, &ip6_allnodes_ll, MLD6_ADD_MAC_FILTER);
+    netif->mld_mac_filter(netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
   }
 #endif /* LWIP_IPV6 && LWIP_IPV6_MLD */
 
@@ -266,7 +266,7 @@ ethernetif_input(struct netif *netif)
   /* if no packet could be read, silently ignore this */
   if (p != NULL) {
     /* pass all packets to ethernet_input, which decides what packets it supports */
-    if (netif->input(p, netif) != ERR_OK) { 
+    if (netif->input(p, netif) != ERR_OK) {
       LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
       pbuf_free(p);
       p = NULL;

@@ -179,7 +179,7 @@ void sys_timeouts_init(void)
   for (i = 1; i < LWIP_ARRAYSIZE(lwip_cyclic_timers); i++) {
     /* we have to cast via size_t to get rid of const warning
       (this is OK as cyclic_timer() casts back to const* */
-    sys_timeout(lwip_cyclic_timers[i].interval_ms, cyclic_timer, (void*)(size_t)&lwip_cyclic_timers[i]);
+    sys_timeout(lwip_cyclic_timers[i].interval_ms, cyclic_timer, LWIP_CONST_CAST(void*, &lwip_cyclic_timers[i]));
   }
 
   /* Initialise timestamp for sys_check_timeouts */
@@ -360,7 +360,6 @@ sys_check_timeouts(void)
   }
 }
 
-#if NO_SYS
 /** Set back the timestamp of the last call to sys_check_timeouts()
  * This is necessary if sys_check_timeouts() hasn't been called for a long
  * time (e.g. while saving energy) to prevent all timer functions of that
@@ -371,7 +370,6 @@ sys_restart_timeouts(void)
 {
   timeouts_last_time = sys_now();
 }
-#endif /* NO_SYS */
 
 /** Return the time left before the next timeout is due. If no timeouts are
  * enqueued, returns 0xffffffff

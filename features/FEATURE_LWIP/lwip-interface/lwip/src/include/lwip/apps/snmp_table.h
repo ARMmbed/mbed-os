@@ -85,7 +85,7 @@ snmp_err_t snmp_table_get_next_instance(const u32_t *root_oid, u8_t root_oid_len
 
 #define SNMP_TABLE_GET_COLUMN_FROM_OID(oid) ((oid)[1]) /* first array value is (fixed) row entry (fixed to 1) and 2nd value is column, follow3ed by instance */
 
-  
+
 /** simple read-only table */
 typedef enum {
   SNMP_VARIANT_VALUE_TYPE_U32,

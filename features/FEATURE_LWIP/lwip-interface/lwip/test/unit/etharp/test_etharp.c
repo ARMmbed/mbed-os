@@ -1,7 +1,8 @@
 #include "test_etharp.h"
 
 #include "lwip/udp.h"
-#include "netif/etharp.h"
+#include "lwip/etharp.h"
+#include "netif/ethernet.h"
 #include "lwip/stats.h"
 
 #if !LWIP_STATS || !UDP_STATS || !MEMP_STATS || !ETHARP_STATS

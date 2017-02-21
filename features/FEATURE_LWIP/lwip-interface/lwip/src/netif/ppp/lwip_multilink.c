@@ -469,7 +469,7 @@ get_default_epdisc(ep)
 	if (hp != NULL) {
 		addr = *(u32_t *)hp->h_addr;
 		if (!bad_ip_adrs(addr)) {
-			addr = ntohl(addr);
+			addr = lwip_ntohl(addr);
 			if (!LOCAL_IP_ADDR(addr)) {
 				ep->class = EPD_IP;
 				set_ip_epdisc(ep, addr);
@@ -504,7 +504,7 @@ epdisc_to_str(ep)
 		u32_t addr;
 
 		GETLONG(addr, p);
-		slprintf(str, sizeof(str), "IP:%I", htonl(addr));
+		slprintf(str, sizeof(str), "IP:%I", lwip_htonl(addr));
 		return str;
 	}
 

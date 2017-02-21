@@ -296,8 +296,8 @@
 #ifndef VJ_SUPPORT
 #define VJ_SUPPORT                      1
 #endif
-/* VJ compression is only supported for IPv4 over PPPoS. */
-#if !PPPOS_SUPPORT || !PPP_IPV4_SUPPORT
+/* VJ compression is only supported for TCP over IPv4 over PPPoS. */
+#if !PPPOS_SUPPORT || !PPP_IPV4_SUPPORT || !LWIP_TCP
 #undef VJ_SUPPORT
 #define VJ_SUPPORT                      0
 #endif /* !PPPOS_SUPPORT */

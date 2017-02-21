@@ -283,7 +283,11 @@
 #endif
 
 #ifndef LWIP_SNMP_V3_CRYPTO
-#define LWIP_SNMP_V3_CRYPTO               LWIP_SNMP_V3
+#define LWIP_SNMP_V3_CRYPTO        LWIP_SNMP_V3
+#endif
+
+#ifndef LWIP_SNMP_V3_MBEDTLS
+#define LWIP_SNMP_V3_MBEDTLS       LWIP_SNMP_V3
 #endif
 
 #endif /* LWIP_HDR_SNMP_OPTS_H */

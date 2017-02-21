@@ -158,12 +158,24 @@ LWIPERFFILES=$(LWIPDIR)/apps/lwiperf/lwiperf.c
 # SNTPFILES: SNTP client
 SNTPFILES=$(LWIPDIR)/apps/sntp/sntp.c
 
+# MDNSFILES: MDNS responder
+MDNSFILES=$(LWIPDIR)/apps/mdns/mdns.c
+
 # NETBIOSNSFILES: NetBIOS name server
 NETBIOSNSFILES=$(LWIPDIR)/apps/netbiosns/netbiosns.c
+
+# TFTPFILES: TFTP server files
+TFTPFILES=$(LWIPDIR)/apps/tftp/tftp_server.c
+
+# MQTTFILES: MQTT client files
+MQTTFILES=$(LWIPDIR)/apps/mqtt/mqtt.c
 
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
 	$(LWIPERFFILES) \
 	$(SNTPFILES) \
-	$(NETBIOSNSFILES)
+	$(MDNSFILES) \
+	$(NETBIOSNSFILES) \
+	$(TFTPFILES) \
+	$(MQTTFILES)
