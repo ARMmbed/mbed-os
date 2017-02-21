@@ -27,27 +27,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "sleep_api.h"
-#include "rtc_api_hal.h"
-
 #if DEVICE_SLEEP
 
 #include "cmsis.h"
+#include "us_ticker_api.h"
+#include "sleep_api.h"
+#include "rtc_api_hal.h"
+#include "hal_tick.h"
 
+extern void HAL_SuspendTick(void);
+extern void HAL_ResumeTick(void);
 
 void hal_sleep(void)
 {
-    // Stop HAL systick
+    // Stop HAL tick to avoid to exit sleep in 1ms
     HAL_SuspendTick();
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-    // Restart HAL systick
+
+    // Restart HAL tick
     HAL_ResumeTick();
 }
 
 void hal_deepsleep(void)
 {
-    // Stop HAL systick
+    // Stop HAL tick
     HAL_SuspendTick();
 
     // Request to enter STOP mode with regulator in low power mode
@@ -74,7 +78,7 @@ void hal_deepsleep(void)
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* TARGET_STM32L4 */
 
-    // Restart HAL systick
+    // Restart HAL tick
     HAL_ResumeTick();
 
     // After wake-up from STOP reconfigure the PLL
