@@ -196,10 +196,10 @@ snmp_asn1_enc_u64t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, co
     octets_needed--;
     PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(*value >> ((octets_needed-4) << 3))));
   }
-  
+
   /* skip to low u32 */
   value++;
-  
+
   while (octets_needed > 1) {
     octets_needed--;
     PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(*value >> (octets_needed << 3))));
@@ -288,7 +288,7 @@ snmp_asn1_enc_oid(struct snmp_pbuf_stream* pbuf_stream, const u32_t *oid, u16_t 
 /**
  * Returns octet count for length.
  *
- * @param length
+ * @param length parameter length
  * @param octets_needed points to the return value
  */
 void
@@ -306,7 +306,7 @@ snmp_asn1_enc_length_cnt(u16_t length, u8_t *octets_needed)
 /**
  * Returns octet count for an u32_t.
  *
- * @param value
+ * @param value value to be encoded
  * @param octets_needed points to the return value
  *
  * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
@@ -332,7 +332,7 @@ snmp_asn1_enc_u32t_cnt(u32_t value, u16_t *octets_needed)
 /**
  * Returns octet count for an u64_t.
  *
- * @param value
+ * @param value value to be encoded
  * @param octets_needed points to the return value
  *
  * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
@@ -357,7 +357,7 @@ snmp_asn1_enc_u64t_cnt(const u32_t *value, u16_t *octets_needed)
 /**
  * Returns octet count for an s32_t.
  *
- * @param value
+ * @param value value to be encoded
  * @param octets_needed points to the return value
  *
  * @note ASN coded integers are _always_ signed.
@@ -367,7 +367,7 @@ snmp_asn1_enc_s32t_cnt(s32_t value, u16_t *octets_needed)
 {
   if (value < 0) {
     value = ~value;
-  } 
+  }
   if (value < 0x80L) {
     *octets_needed = 1;
   } else if (value < 0x8000L) {
@@ -453,7 +453,7 @@ snmp_asn1_dec_tlv(struct snmp_pbuf_stream* pbuf_stream, struct snmp_asn1_tlv* tl
       PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
       tlv->value_len <<= 8;
       tlv->value_len |= data;
-      
+
       /* take care for special value used for indefinite length */
       if (tlv->value_len == 0xFFFF) {
         return ERR_VAL;
@@ -551,7 +551,7 @@ snmp_asn1_dec_u64t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value
         } else {
           *value <<= 8;
         }
-        
+
         *value |= data;
         len--;
       }
@@ -588,7 +588,7 @@ snmp_asn1_dec_s32t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, s32_t *value
   if ((len > 0) && (len < 5)) {
     PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
     len--;
-    
+
     if (data & 0x80) {
       /* negative, start from -1 */
       *value = -1;
@@ -649,7 +649,7 @@ snmp_asn1_dec_oid(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t* oid, u
     if (oid_max_len < 2) {
       return ERR_MEM;
     }
-    
+
     PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
     len--;
 
@@ -736,7 +736,7 @@ snmp_asn1_dec_raw(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u8_t *buf, u1
     return ERR_MEM;
   }
   *buf_len = len;
-  
+
   while (len > 0) {
     PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, buf));
     buf++;

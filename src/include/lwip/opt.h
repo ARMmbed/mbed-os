@@ -36,8 +36,8 @@
  *
  */
 
-/* 
- * NOTE: || defined __DOXYGEN__ is a workaround for doxygen bug - 
+/*
+ * NOTE: || defined __DOXYGEN__ is a workaround for doxygen bug -
  * without this, doxygen does not see the actual #define
  */
 
@@ -51,7 +51,7 @@
 #include "lwipopts.h"
 #include "lwip/debug.h"
 
-/** 
+/**
  * @defgroup lwip_opts Options (lwipopts.h)
  * @ingroup lwip
  *
@@ -401,9 +401,9 @@
 /**
  * MEMP_NUM_FRAG_PBUF: the number of IP fragments simultaneously sent
  * (fragments, not whole packets!).
- * This is only used with IP_FRAG_USES_STATIC_BUF==0 and
- * LWIP_NETIF_TX_SINGLE_PBUF==0 and only has to be > 1 with DMA-enabled MACs
- * where the packet is not yet sent when netif->output returns.
+ * This is only used with LWIP_NETIF_TX_SINGLE_PBUF==0 and only has to be > 1
+ * with DMA-enabled MACs where the packet is not yet sent when netif->output
+ * returns.
  */
 #if !defined MEMP_NUM_FRAG_PBUF || defined __DOXYGEN__
 #define MEMP_NUM_FRAG_PBUF              15
@@ -577,20 +577,6 @@
 #endif
 
 /**
- * ETHARP_TRUST_IP_MAC==1: Incoming IP packets cause the ARP table to be
- * updated with the source MAC and IP addresses supplied in the packet.
- * You may want to disable this if you do not trust LAN peers to have the
- * correct addresses, or as a limited approach to attempt to handle
- * spoofing. If disabled, lwIP will need to make a new ARP request if
- * the peer is not already in the ARP table, adding a little latency.
- * The peer *is* in the ARP table if it requested our address before.
- * Also notice that this slows down input processing of every IP packet!
- */
-#if !defined ETHARP_TRUST_IP_MAC || defined __DOXYGEN__
-#define ETHARP_TRUST_IP_MAC             0
-#endif
-
-/**
  * ETHARP_SUPPORT_VLAN==1: support receiving and sending ethernet packets with
  * VLAN header. See the description of LWIP_HOOK_VLAN_CHECK and
  * LWIP_HOOK_VLAN_SET hooks to check/set VLAN headers.
@@ -717,25 +703,6 @@
  */
 #if !defined IP_REASS_MAX_PBUFS || defined __DOXYGEN__
 #define IP_REASS_MAX_PBUFS              10
-#endif
-
-/**
- * IP_FRAG_USES_STATIC_BUF==1: Use a static MTU-sized buffer for IP
- * fragmentation. Otherwise pbufs are allocated and reference the original
- * packet data to be fragmented (or with LWIP_NETIF_TX_SINGLE_PBUF==1,
- * new PBUF_RAM pbufs are used for fragments).
- * ATTENTION: IP_FRAG_USES_STATIC_BUF==1 may not be used for DMA-enabled MACs!
- */
-#if !defined IP_FRAG_USES_STATIC_BUF || defined __DOXYGEN__
-#define IP_FRAG_USES_STATIC_BUF         0
-#endif
-
-/**
- * IP_FRAG_MAX_MTU: Assumed max MTU on any interface for IP frag buffer
- * (requires IP_FRAG_USES_STATIC_BUF==1)
- */
-#if IP_FRAG_USES_STATIC_BUF && !defined(IP_FRAG_MAX_MTU) || defined __DOXYGEN__
-#define IP_FRAG_MAX_MTU                 1500
 #endif
 
 /**
@@ -915,6 +882,15 @@
 #if !defined LWIP_DHCP_MAX_NTP_SERVERS || defined __DOXYGEN__
 #define LWIP_DHCP_MAX_NTP_SERVERS       1
 #endif
+
+/**
+ * LWIP_DHCP_MAX_DNS_SERVERS > 0: Request DNS servers with discover/select.
+ * DHCP servers received in the response are passed to DNS via @ref dns_setserver()
+ * (up to the maximum limit defined here).
+ */
+#if !defined LWIP_DHCP_MAX_DNS_SERVERS || defined __DOXYGEN__
+#define LWIP_DHCP_MAX_DNS_SERVERS       DNS_MAX_SERVERS
+#endif
 /**
  * @}
  */
@@ -1011,7 +987,7 @@
  * IP_MULTICAST_TTL/IP_MULTICAST_IF/IP_MULTICAST_LOOP
  */
 #if !defined LWIP_MULTICAST_TX_OPTIONS || defined __DOXYGEN__
-#define LWIP_MULTICAST_TX_OPTIONS       LWIP_IGMP
+#define LWIP_MULTICAST_TX_OPTIONS       (LWIP_IGMP && LWIP_UDP)
 #endif
 /**
  * @}
@@ -1090,6 +1066,12 @@
 #if !defined DNS_LOCAL_HOSTLIST_IS_DYNAMIC || defined __DOXYGEN__
 #define DNS_LOCAL_HOSTLIST_IS_DYNAMIC   0
 #endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
+
+/** Set this to 1 to enable querying ".local" names via mDNS
+ *  using a One-Shot Multicast DNS Query */
+#if !defined LWIP_DNS_SUPPORT_MDNS_QUERIES || defined __DOXYGEN__
+#define LWIP_DNS_SUPPORT_MDNS_QUERIES  0
+#endif
 /**
  * @}
  */
@@ -1161,7 +1143,10 @@
 
 /**
  * TCP_WND: The size of a TCP window.  This must be at least
- * (2 * TCP_MSS) for things to work well
+ * (2 * TCP_MSS) for things to work well.
+ * ATTENTION: when using TCP_RCV_SCALE, TCP_WND is the total size
+ * with scaling applied. Maximum window value in the TCP header
+ * will be TCP_WND >> TCP_RCV_SCALE
  */
 #if !defined TCP_WND || defined __DOXYGEN__
 #define TCP_WND                         (4 * TCP_MSS)
@@ -1249,7 +1234,7 @@
 
 /**
  * TCP_OOSEQ_MAX_BYTES: The maximum number of bytes queued on ooseq per pcb.
- * Default is 0 (no limit). Only valid for TCP_QUEUE_OOSEQ==0.
+ * Default is 0 (no limit). Only valid for TCP_QUEUE_OOSEQ==1.
  */
 #if !defined TCP_OOSEQ_MAX_BYTES || defined __DOXYGEN__
 #define TCP_OOSEQ_MAX_BYTES             0
@@ -1257,7 +1242,7 @@
 
 /**
  * TCP_OOSEQ_MAX_PBUFS: The maximum number of pbufs queued on ooseq per pcb.
- * Default is 0 (no limit). Only valid for TCP_QUEUE_OOSEQ==0.
+ * Default is 0 (no limit). Only valid for TCP_QUEUE_OOSEQ==1.
  */
 #if !defined TCP_OOSEQ_MAX_PBUFS || defined __DOXYGEN__
 #define TCP_OOSEQ_MAX_PBUFS             0
@@ -1325,6 +1310,13 @@
 #if !defined(LWIP_EVENT_API) && !defined(LWIP_CALLBACK_API) || defined __DOXYGEN__
 #define LWIP_EVENT_API                  0
 #define LWIP_CALLBACK_API               1
+#else
+#ifndef LWIP_EVENT_API
+#define LWIP_EVENT_API                  0
+#endif
+#ifndef LWIP_CALLBACK_API
+#define LWIP_CALLBACK_API               0
+#endif
 #endif
 
 /**
@@ -1359,7 +1351,7 @@
  * Ethernet.
  */
 #if !defined PBUF_LINK_HLEN || defined __DOXYGEN__
-#if defined LWIP_HOOK_VLAN_SET || defined __DOXYGEN__
+#if defined LWIP_HOOK_VLAN_SET && !defined __DOXYGEN__
 #define PBUF_LINK_HLEN                  (18 + ETH_PAD_SIZE)
 #else /* LWIP_HOOK_VLAN_SET */
 #define PBUF_LINK_HLEN                  (14 + ETH_PAD_SIZE)
@@ -1371,7 +1363,7 @@
  * for an additional encapsulation header before ethernet headers (e.g. 802.11)
  */
 #if !defined PBUF_LINK_ENCAPSULATION_HLEN || defined __DOXYGEN__
-#define PBUF_LINK_ENCAPSULATION_HLEN    0
+#define PBUF_LINK_ENCAPSULATION_HLEN    0u
 #endif
 
 /**
@@ -1458,6 +1450,14 @@
 #if !defined LWIP_NETIF_TX_SINGLE_PBUF || defined __DOXYGEN__
 #define LWIP_NETIF_TX_SINGLE_PBUF             0
 #endif /* LWIP_NETIF_TX_SINGLE_PBUF */
+
+/**
+ * LWIP_NUM_NETIF_CLIENT_DATA: Number of clients that may store
+ * data in client_data member array of struct netif.
+ */
+#if !defined LWIP_NUM_NETIF_CLIENT_DATA || defined __DOXYGEN__
+#define LWIP_NUM_NETIF_CLIENT_DATA            0
+#endif
 /**
  * @}
  */
@@ -2179,7 +2179,7 @@
 /**
  * LWIP_IPV6_REASS==1: reassemble incoming IPv6 packets that fragmented
  */
-#if !defined LWIP_IPV6_REASS || defined __DOXYGEN__ || defined __DOXYGEN__
+#if !defined LWIP_IPV6_REASS || defined __DOXYGEN__
 #define LWIP_IPV6_REASS                 (LWIP_IPV6)
 #endif
 
@@ -2199,7 +2199,7 @@
 #endif
 
 /**
- * LWIP_IPV6_DUP_DETECT_ATTEMPTS: Number of duplicate address detection attempts.
+ * LWIP_IPV6_DUP_DETECT_ATTEMPTS=[0..7]: Number of duplicate address detection attempts.
  */
 #if !defined LWIP_IPV6_DUP_DETECT_ATTEMPTS || defined __DOXYGEN__
 #define LWIP_IPV6_DUP_DETECT_ATTEMPTS   1
@@ -2245,13 +2245,18 @@
  */
 /**
  * LWIP_IPV6_MLD==1: Enable multicast listener discovery protocol.
+ * If LWIP_IPV6 is enabled but this setting is disabled, the MAC layer must
+ * indiscriminately pass all inbound IPv6 multicast traffic to lwIP.
  */
 #if !defined LWIP_IPV6_MLD || defined __DOXYGEN__
 #define LWIP_IPV6_MLD                   (LWIP_IPV6)
 #endif
 
 /**
- * MEMP_NUM_MLD6_GROUP: Max number of IPv6 multicast that can be joined.
+ * MEMP_NUM_MLD6_GROUP: Max number of IPv6 multicast groups that can be joined.
+ * There must be enough groups so that each netif can join the solicited-node
+ * multicast group for each of its local addresses, plus one for MDNS if
+ * applicable, plus any number of groups to be joined on UDP sockets.
  */
 #if !defined MEMP_NUM_MLD6_GROUP || defined __DOXYGEN__
 #define MEMP_NUM_MLD6_GROUP             4
@@ -2357,7 +2362,7 @@
  * LWIP_ND6_DELAY_FIRST_PROBE_TIME: Delay before first unicast neighbor solicitation
  * message is sent, during neighbor reachability detection.
  */
-#if !defined LWIP_ND6_DELAY_FIRST_PROBE_TIME || defined __DOXYGEN__s
+#if !defined LWIP_ND6_DELAY_FIRST_PROBE_TIME || defined __DOXYGEN__
 #define LWIP_ND6_DELAY_FIRST_PROBE_TIME 5000
 #endif
 
@@ -2374,8 +2379,17 @@
  * with reachability hints for connected destinations. This helps avoid sending
  * unicast neighbor solicitation messages.
  */
-#if !defined LWIP_ND6_TCP_REACHABILITY_HINTS || defined __DOXYGEN__ || defined __DOXYGEN__
+#if !defined LWIP_ND6_TCP_REACHABILITY_HINTS || defined __DOXYGEN__
 #define LWIP_ND6_TCP_REACHABILITY_HINTS 1
+#endif
+
+/**
+ * LWIP_ND6_RDNSS_MAX_DNS_SERVERS > 0: Use IPv6 Router Advertisement Recursive
+ * DNS Server Option (as per RFC 6106) to copy a defined maximum number of DNS
+ * servers to the DNS module.
+ */
+#if !defined LWIP_ND6_RDNSS_MAX_DNS_SERVERS || defined __DOXYGEN__
+#define LWIP_ND6_RDNSS_MAX_DNS_SERVERS  0
 #endif
 /**
  * @}
@@ -2400,6 +2414,29 @@
  * Hooks are undefined by default, define them to a function if you need them.
  * @{
  */
+
+/**
+ * LWIP_HOOK_TCP_ISN:
+ * Hook for generation of the Initial Sequence Number (ISN) for a new TCP
+ * connection. The default lwIP ISN generation algorithm is very basic and may
+ * allow for TCP spoofing attacks. This hook provides the means to implement
+ * the standardized ISN generation algorithm from RFC 6528 (see contrib/adons/tcp_isn),
+ * or any other desired algorithm as a replacement.
+ * Called from tcp_connect() and tcp_listen_input() when an ISN is needed for
+ * a new TCP connection, if TCP support (@ref LWIP_TCP) is enabled.\n
+ * Signature: u32_t my_hook_tcp_isn(const ip_addr_t* local_ip, u16_t local_port, const ip_addr_t* remote_ip, u16_t remote_port);
+ * - it may be necessary to use "struct ip_addr" (ip4_addr, ip6_addr) instead of "ip_addr_t" in function declarations\n
+ * Arguments:
+ * - local_ip: pointer to the local IP address of the connection
+ * - local_port: local port number of the connection (host-byte order)
+ * - remote_ip: pointer to the remote IP address of the connection
+ * - remote_port: remote port number of the connection (host-byte order)\n
+ * Return value:
+ * - the 32-bit Initial Sequence Number to use for the new TCP connection.
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_TCP_ISN(local_ip, local_port, remote_ip, remote_port)
+#endif
 
 /**
  * LWIP_HOOK_IP4_INPUT(pbuf, input_netif):
@@ -2442,7 +2479,7 @@
  * - dest: the destination IPv4 address
  * Returns the IPv4 address of the gateway to handle the specified destination
  * IPv4 address. If NULL is returned, the netif's default gateway is used.
- * The returned address MUST be reachable on the specified netif!
+ * The returned address MUST be directly reachable on the specified netif!
  * This function is meant to implement advanced IPv4 routing together with
  * LWIP_HOOK_IP4_ROUTE(). The actual routing/gateway table implementation is
  * not part of lwIP but can e.g. be hidden in the netif's state argument.
@@ -2479,6 +2516,22 @@
 #endif
 
 /**
+ * LWIP_HOOK_ND6_GET_GW(netif, dest):
+ * - called from nd6_get_next_hop_entry() (IPv6)
+ * - netif: the netif used for sending
+ * - dest: the destination IPv6 address
+ * Returns the IPv6 address of the next hop to handle the specified destination
+ * IPv6 address. If NULL is returned, a NDP-discovered router is used instead.
+ * The returned address MUST be directly reachable on the specified netif!
+ * This function is meant to implement advanced IPv6 routing together with
+ * LWIP_HOOK_IP6_ROUTE(). The actual routing/gateway table implementation is
+ * not part of lwIP but can e.g. be hidden in the netif's state argument.
+*/
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_ND6_GET_GW(netif, dest)
+#endif
+
+/**
  * LWIP_HOOK_VLAN_CHECK(netif, eth_hdr, vlan_hdr):
  * - called from ethernet_input() if VLAN support is enabled
  * - netif: struct netif on which the packet has been received
@@ -2493,18 +2546,25 @@
 #endif
 
 /**
- * LWIP_HOOK_VLAN_SET(netif, eth_hdr, vlan_hdr):
- * - called from etharp_raw() and etharp_send_ip() if VLAN support is enabled
+ * LWIP_HOOK_VLAN_SET:
+ * Hook can be used to set prio_vid field of vlan_hdr. If you need to store data
+ * on per-netif basis to implement this callback, see @ref netif_cd.
+ * Called from ethernet_output() if VLAN support (@ref ETHARP_SUPPORT_VLAN) is enabled.\n
+ * Signature: s32_t my_hook_vlan_set(struct netif* netif, struct pbuf* pbuf, const struct eth_addr* src, const struct eth_addr* dst, u16_t eth_type);\n
+ * Arguments:
  * - netif: struct netif that the packet will be sent through
- * - eth_hdr: struct eth_hdr of the packet
- * - vlan_hdr: struct eth_vlan_hdr of the packet
+ * - p: struct pbuf packet to be sent
+ * - src: source eth address
+ * - dst: destination eth address
+ * - eth_type: ethernet type to packet to be sent\n
+ * 
+ * 
  * Return values:
- * - 0: Packet shall not contain VLAN header.
- * - != 0: Packet shall contain VLAN header.
- * Hook can be used to set prio_vid field of vlan_hdr.
+ * - &lt;0: Packet shall not contain VLAN header.
+ * - 0 &lt;= return value &lt;= 0xFFFF: Packet shall contain VLAN header. Return value is prio_vid in host byte order.
  */
 #ifdef __DOXYGEN__
-#define LWIP_HOOK_VLAN_SET(netif, eth_hdr, vlan_hdr)
+#define LWIP_HOOK_VLAN_SET(netif, p, src, dst, eth_type)
 #endif
 
 /**
@@ -2513,6 +2573,16 @@
  */
 #ifdef __DOXYGEN__
 #define LWIP_HOOK_MEMP_AVAILABLE(memp_t_type)
+#endif
+
+/**
+ * LWIP_HOOK_UNKNOWN_ETH_PROTOCOL(pbuf, netif):
+ * Called from ethernet_input() when an unknown eth type is encountered.
+ * Return ERR_OK if packet is accepted, any error code otherwise.
+ * Payload points to ethernet header!
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_UNKNOWN_ETH_PROTOCOL(pbuf, netif)
 #endif
 /**
  * @}
@@ -2524,7 +2594,7 @@
    ---------------------------------------
 */
 /**
- * @defgroup lwip_opts_debugmsg Debugging
+ * @defgroup lwip_opts_debugmsg Debug messages
  * @ingroup lwip_opts_debug
  * @{
  */
@@ -2532,14 +2602,16 @@
  * LWIP_DBG_MIN_LEVEL: After masking, the value of the debug is
  * compared against this value. If it is smaller, then debugging
  * messages are written.
+ * @see debugging_levels
  */
-#if !defined LWIP_DBG_MIN_LEVEL || defined __DOXYGEN__ || defined __DOXYGEN__
+#if !defined LWIP_DBG_MIN_LEVEL || defined __DOXYGEN__
 #define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ALL
 #endif
 
 /**
  * LWIP_DBG_TYPES_ON: A mask that can be used to globally enable/disable
  * debug messages of certain types.
+ * @see debugging_levels
  */
 #if !defined LWIP_DBG_TYPES_ON || defined __DOXYGEN__
 #define LWIP_DBG_TYPES_ON               LWIP_DBG_ON

@@ -2,6 +2,12 @@
  * @file
  * Network buffer management
  *
+ * @defgroup netbuf Network buffers
+ * @ingroup netconn
+ * Network buffer descriptor for @ref netconn. Based on @ref pbuf internally
+ * to avoid copying data around.\n
+ * Buffers must not be shared accross multiple threads, all functions except
+ * netbuf_new() and netbuf_delete() are not thread-safe.
  */
 
 /*
@@ -36,15 +42,6 @@
  *
  */
 
-/**
- * @defgroup netbuf Network buffers
- * @ingroup netconn
- * Network buffer descriptor for @ref netconn. Based on @ref pbuf internally
- * to avoid copying data around.\n
- * Buffers must not be shared accross multiple threads, all functions except
- * netbuf_new() and netbuf_delete() are not thread-safe.
- */
-
 #include "lwip/opt.h"
 
 #if LWIP_NETCONN /* don't build if not configured for use in lwipopts.h */
@@ -69,23 +66,9 @@ netbuf *netbuf_new(void)
 
   buf = (struct netbuf *)memp_malloc(MEMP_NETBUF);
   if (buf != NULL) {
-    buf->p = NULL;
-    buf->ptr = NULL;
-    ip_addr_set_zero(&buf->addr);
-    buf->port = 0;
-#if LWIP_NETBUF_RECVINFO || LWIP_CHECKSUM_ON_COPY
-#if LWIP_CHECKSUM_ON_COPY
-    buf->flags = 0;
-#endif /* LWIP_CHECKSUM_ON_COPY */
-    buf->toport_chksum = 0;
-#if LWIP_NETBUF_RECVINFO
-    ip_addr_set_zero(&buf->toaddr);
-#endif /* LWIP_NETBUF_RECVINFO */
-#endif /* LWIP_NETBUF_RECVINFO || LWIP_CHECKSUM_ON_COPY */
-    return buf;
-  } else {
-    return NULL;
+    memset(buf, 0, sizeof(struct netbuf));
   }
+  return buf;
 }
 
 /**
@@ -188,7 +171,7 @@ netbuf_ref(struct netbuf *buf, const void *dataptr, u16_t size)
 void
 netbuf_chain(struct netbuf *head, struct netbuf *tail)
 {
-  LWIP_ERROR("netbuf_ref: invalid head", (head != NULL), return;);
+  LWIP_ERROR("netbuf_chain: invalid head", (head != NULL), return;);
   LWIP_ERROR("netbuf_chain: invalid tail", (tail != NULL), return;);
   pbuf_cat(head->p, tail->p);
   head->ptr = head->p;
@@ -234,7 +217,7 @@ netbuf_data(struct netbuf *buf, void **dataptr, u16_t *len)
 s8_t
 netbuf_next(struct netbuf *buf)
 {
-  LWIP_ERROR("netbuf_free: invalid buf", (buf != NULL), return -1;);
+  LWIP_ERROR("netbuf_next: invalid buf", (buf != NULL), return -1;);
   if (buf->ptr->next == NULL) {
     return -1;
   }
@@ -256,7 +239,7 @@ netbuf_next(struct netbuf *buf)
 void
 netbuf_first(struct netbuf *buf)
 {
-  LWIP_ERROR("netbuf_free: invalid buf", (buf != NULL), return;);
+  LWIP_ERROR("netbuf_first: invalid buf", (buf != NULL), return;);
   buf->ptr = buf->p;
 }
 

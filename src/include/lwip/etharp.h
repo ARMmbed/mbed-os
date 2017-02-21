@@ -50,7 +50,7 @@
 #include "lwip/ip4_addr.h"
 #include "lwip/netif.h"
 #include "lwip/ip4.h"
-#include "netif/lwip_ethernet.h"
+#include "lwip/prot/lwip_ethernet.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,46 +58,10 @@ extern "C" {
 
 #if LWIP_IPV4 && LWIP_ARP /* don't build if not configured for use in lwipopts.h */
 
-#ifndef ETHARP_HWADDR_LEN
-#define ETHARP_HWADDR_LEN     ETH_HWADDR_LEN
-#endif
-
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/bpstruct.h"
-#endif
-PACK_STRUCT_BEGIN
-/** the ARP message, see RFC 826 ("Packet format") */
-struct etharp_hdr {
-  PACK_STRUCT_FIELD(u16_t hwtype);
-  PACK_STRUCT_FIELD(u16_t proto);
-  PACK_STRUCT_FLD_8(u8_t  hwlen);
-  PACK_STRUCT_FLD_8(u8_t  protolen);
-  PACK_STRUCT_FIELD(u16_t opcode);
-  PACK_STRUCT_FLD_S(struct eth_addr shwaddr);
-  PACK_STRUCT_FLD_S(struct ip4_addr2 sipaddr);
-  PACK_STRUCT_FLD_S(struct eth_addr dhwaddr);
-  PACK_STRUCT_FLD_S(struct ip4_addr2 dipaddr);
-} PACK_STRUCT_STRUCT;
-PACK_STRUCT_END
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/epstruct.h"
-#endif
-
-#define SIZEOF_ETHARP_HDR 28
-
-#define SIZEOF_ETHARP_PACKET    (SIZEOF_ETH_HDR + SIZEOF_ETHARP_HDR)
-#if ETHARP_SUPPORT_VLAN && defined(LWIP_HOOK_VLAN_SET)
-#define SIZEOF_ETHARP_PACKET_TX (SIZEOF_ETHARP_PACKET + SIZEOF_VLAN_HDR)
-#else /* ETHARP_SUPPORT_VLAN && defined(LWIP_HOOK_VLAN_SET) */
-#define SIZEOF_ETHARP_PACKET_TX SIZEOF_ETHARP_PACKET
-#endif /* ETHARP_SUPPORT_VLAN && defined(LWIP_HOOK_VLAN_SET) */
+#include "lwip/prot/etharp.h"
 
 /** 1 seconds period */
 #define ARP_TMR_INTERVAL 1000
-
-/** ARP message types (opcodes) */
-#define ARP_REQUEST 1
-#define ARP_REPLY   2
 
 #if ARP_QUEUEING
 /** struct for queueing outgoing packets for unknown address
@@ -123,24 +87,15 @@ err_t etharp_request(struct netif *netif, const ip4_addr_t *ipaddr);
  *  From RFC 3220 "IP Mobility Support for IPv4" section 4.6. */
 #define etharp_gratuitous(netif) etharp_request((netif), netif_ip4_addr(netif))
 void etharp_cleanup_netif(struct netif *netif);
-void etharp_ip_input(struct netif *netif, struct pbuf *p);
 
 #if ETHARP_SUPPORT_STATIC_ENTRIES
 err_t etharp_add_static_entry(const ip4_addr_t *ipaddr, struct eth_addr *ethaddr);
 err_t etharp_remove_static_entry(const ip4_addr_t *ipaddr);
 #endif /* ETHARP_SUPPORT_STATIC_ENTRIES */
 
-#if LWIP_AUTOIP
-err_t etharp_raw(struct netif *netif, const struct eth_addr *ethsrc_addr,
-                 const struct eth_addr *ethdst_addr,
-                 const struct eth_addr *hwsrc_addr, const ip4_addr_t *ipsrc_addr,
-                 const struct eth_addr *hwdst_addr, const ip4_addr_t *ipdst_addr,
-                 const u16_t opcode);
-#endif /* LWIP_AUTOIP */
-
 #endif /* LWIP_IPV4 && LWIP_ARP */
 
-void etharp_arp_input(struct netif *netif, struct eth_addr *ethaddr, struct pbuf *p);
+void etharp_input(struct pbuf *p, struct netif *netif);
 
 #ifdef __cplusplus
 }

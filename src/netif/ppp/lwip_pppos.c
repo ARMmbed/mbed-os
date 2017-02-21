@@ -35,8 +35,8 @@
 #if PPP_SUPPORT && PPPOS_SUPPORT /* don't build if not configured for use in lwipopts.h */
 
 #include <string.h>
-#include <stddef.h>
 
+#include "lwip/arch.h"
 #include "lwip/err.h"
 #include "lwip/pbuf.h"
 #include "lwip/sys.h"
@@ -309,7 +309,6 @@ pppos_connect(ppp_pcb *ppp, void *ctx)
   pppos_input_free_current_packet(pppos);
 #endif /* PPP_INPROC_IRQ_SAFE */
 
-  ppp_link_start(ppp);
   /* reset PPPoS control block to its initial state */
   memset(&pppos->last_xmit, 0, sizeof(pppos_pcb) - offsetof(pppos_pcb, last_xmit));
 
@@ -343,7 +342,6 @@ pppos_listen(ppp_pcb *ppp, void *ctx)
   pppos_input_free_current_packet(pppos);
 #endif /* PPP_INPROC_IRQ_SAFE */
 
-  ppp_link_start(ppp);
   /* reset PPPoS control block to its initial state */
   memset(&pppos->last_xmit, 0, sizeof(pppos_pcb) - offsetof(pppos_pcb, last_xmit));
 
@@ -406,9 +404,9 @@ pppos_destroy(ppp_pcb *ppp, void *ctx)
 #if !NO_SYS && !PPP_INPROC_IRQ_SAFE
 /** Pass received raw characters to PPPoS to be decoded through lwIP TCPIP thread.
  *
- * @param pcb PPP descriptor index, returned by pppos_create()
- * @param data received data
- * @param len length of received data
+ * @param ppp PPP descriptor index, returned by pppos_create()
+ * @param s received data
+ * @param l length of received data
  */
 err_t
 pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l)
@@ -460,9 +458,9 @@ PACK_STRUCT_END
 
 /** Pass received raw characters to PPPoS to be decoded.
  *
- * @param pcb PPP descriptor index, returned by pppos_create()
- * @param data received data
- * @param len length of received data
+ * @param ppp PPP descriptor index, returned by pppos_create()
+ * @param s received data
+ * @param l length of received data
  */
 void
 pppos_input(ppp_pcb *ppp, u8_t *s, int l)
@@ -473,18 +471,20 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
   u8_t escaped;
   PPPOS_DECL_PROTECT(lev);
 
-  PPPOS_PROTECT(lev);
-  if (!pppos->open) {
-    PPPOS_UNPROTECT(lev);
-    return;
-  }
-  PPPOS_UNPROTECT(lev);
-
   PPPDEBUG(LOG_DEBUG, ("pppos_input[%d]: got %d bytes\n", ppp->netif->num, l));
   while (l-- > 0) {
     cur_char = *s++;
 
     PPPOS_PROTECT(lev);
+    /* ppp_input can disconnect the interface, we need to abort to prevent a memory
+     * leak if there are remaining bytes because pppos_connect and pppos_listen
+     * functions expect input buffer to be free. Furthermore there are no real
+     * reason to continue reading bytes if we are disconnected.
+     */
+    if (!pppos->open) {
+      PPPOS_UNPROTECT(lev);
+      return;
+    }
     escaped = ESCAPE_P(pppos->in_accm, cur_char);
     PPPOS_UNPROTECT(lev);
     /* Handle special characters. */
@@ -787,9 +787,9 @@ pppos_input_drop(pppos_pcb *pppos)
     PPPDEBUG(LOG_INFO, ("pppos_input_drop: pbuf len=%d, addr %p\n", pppos->in_head->len, (void*)pppos->in_head));
   }
   pppos_input_free_current_packet(pppos);
-#if VJ_SUPPORT && LWIP_TCP
+#if VJ_SUPPORT
   vj_uncompress_err(&pppos->ppp->vj_comp);
-#endif /* VJ_SUPPORT && LWIP_TCP */
+#endif /* VJ_SUPPORT */
 
   LINK_STATS_INC(link.drop);
   MIB2_STATS_NETIF_INC(pppos->ppp->netif, ifindiscards);

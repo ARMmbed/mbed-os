@@ -2,6 +2,8 @@
  * @file
  * API functions for name resolving
  *
+ * @defgroup netdbapi NETDB API
+ * @ingroup socket
  */
 
 /*
@@ -33,12 +35,6 @@
  *
  */
 
-
-/**
- * @defgroup netdbapi NETDB API
- * @ingroup socket
- */
-
 #include "lwip/netdb.h"
 
 #if LWIP_DNS && LWIP_SOCKET
@@ -50,8 +46,8 @@
 #include "lwip/api.h"
 #include "lwip/dns.h"
 
-#include <string.h>
-#include <stdlib.h>
+#include <string.h> /* memset */
+#include <stdlib.h> /* atoi */
 
 /** helper struct for gethostbyname_r to access the char* buffer */
 struct gethostbyname_r_helper {
@@ -379,17 +375,17 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
     inet6_addr_from_ip6addr(&sa6->sin6_addr, ip_2_ip6(&addr));
     sa6->sin6_family = AF_INET6;
     sa6->sin6_len = sizeof(struct sockaddr_in6);
-    sa6->sin6_port = htons((u16_t)port_nr);
+    sa6->sin6_port = lwip_htons((u16_t)port_nr);
     ai->ai_family = AF_INET6;
 #endif /* LWIP_IPV6 */
   } else {
 #if LWIP_IPV4
     struct sockaddr_in *sa4 = (struct sockaddr_in*)sa;
     /* set up sockaddr */
-    inet_addr_from_ipaddr(&sa4->sin_addr, ip_2_ip4(&addr));
+    inet_addr_from_ip4addr(&sa4->sin_addr, ip_2_ip4(&addr));
     sa4->sin_family = AF_INET;
     sa4->sin_len = sizeof(struct sockaddr_in);
-    sa4->sin_port = htons((u16_t)port_nr);
+    sa4->sin_port = lwip_htons((u16_t)port_nr);
     ai->ai_family = AF_INET;
 #endif /* LWIP_IPV4 */
   }

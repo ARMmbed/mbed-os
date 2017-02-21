@@ -42,10 +42,10 @@
 /**
  * @defgroup slipif SLIP netif
  * @ingroup addons
- * 
+ *
  * This is an arch independent SLIP netif. The specific serial hooks must be
  * provided by another file. They are sio_open, sio_read/sio_tryread and sio_send
- * 
+ *
  * Usage: This netif can be used in three ways:\n
  *        1) For NO_SYS==0, an RX thread can be used which blocks on sio_read()
  *           until data is received.\n
@@ -304,7 +304,7 @@ slipif_rxbyte(struct netif *netif, u8_t c)
 /** Like slipif_rxbyte, but passes completed packets to netif->input
  *
  * @param netif The lwip network interface structure for this slipif
- * @param data received character
+ * @param c received character
  */
 static void
 slipif_rxbyte_input(struct netif *netif, u8_t c)

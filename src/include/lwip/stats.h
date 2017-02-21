@@ -189,16 +189,16 @@ struct stats_mib2_netif_ctrs {
   /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were
    * not addressed to a multicast or broadcast address at this sub-layer */
   u32_t ifinucastpkts;
-  /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were 
+  /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were
    * addressed to a multicast or broadcast address at this sub-layer */
   u32_t ifinnucastpkts;
-  /** The number of inbound packets which were chosen to be discarded even though no errors had 
-   * been detected to prevent their being deliverable to a higher-layer protocol. One possible 
+  /** The number of inbound packets which were chosen to be discarded even though no errors had
+   * been detected to prevent their being deliverable to a higher-layer protocol. One possible
    * reason for discarding such a packet could be to free up buffer space */
   u32_t ifindiscards;
-  /** For packet-oriented interfaces, the number of inbound packets that contained errors 
+  /** For packet-oriented interfaces, the number of inbound packets that contained errors
    * preventing them from being deliverable to a higher-layer protocol.  For character-
-   * oriented or fixed-length interfaces, the number of inbound transmission units that 
+   * oriented or fixed-length interfaces, the number of inbound transmission units that
    * contained errors preventing them from being deliverable to a higher-layer protocol. */
   u32_t ifinerrors;
   /** For packet-oriented interfaces, the number of packets received via the interface which
@@ -408,7 +408,7 @@ void stats_init(void);
 #define MEMP_STATS_DISPLAY(i)
 #define MEMP_STATS_GET(x, i) 0
 #endif
- 
+
 #if SYS_STATS
 #define SYS_STATS_INC(x) STATS_INC(sys.x)
 #define SYS_STATS_DEC(x) STATS_DEC(sys.x)

@@ -211,6 +211,7 @@ void snmp_threadsync_init(struct snmp_threadsync_instance *instance, snmp_thread
   err_t err = sys_mutex_new(&instance->sem_usage_mutex);
   LWIP_ASSERT("Failed to set up mutex", err == ERR_OK);
   err = sys_sem_new(&instance->sem, 0);
+  LWIP_UNUSED_ARG(err); /* in case of LWIP_NOASSERT */
   LWIP_ASSERT("Failed to set up semaphore", err == ERR_OK);
   instance->sync_fn = sync_fn;
 }

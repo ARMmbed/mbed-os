@@ -36,9 +36,6 @@
  * This is a AutoIP implementation for the lwIP TCP/IP stack. It aims to conform
  * with RFC 3927.
  *
- *
- * Please coordinate changes and requests with Dominik Spies
- * <kontakt@dspies.de>
  */
 
 #ifndef LWIP_HDR_AUTOIP_H
@@ -78,7 +75,6 @@ struct autoip
 };
 
 
-#define autoip_init() /* Compatibility define, no init needed. */
 void autoip_set_struct(struct netif *netif, struct autoip *autoip);
 /** Remove a struct autoip previously set to the netif using autoip_set_struct() */
 #define autoip_remove_struct(netif) do { (netif)->autoip = NULL; } while (0)
@@ -88,6 +84,11 @@ void autoip_arp_reply(struct netif *netif, struct etharp_hdr *hdr);
 void autoip_tmr(void);
 void autoip_network_changed(struct netif *netif);
 u8_t autoip_supplied_address(const struct netif *netif);
+
+/* for lwIP internal use by ip4.c */
+u8_t autoip_accept_packet(struct netif *netif, const ip4_addr_t *addr);
+
+#define netif_autoip_data(netif) ((struct autoip*)netif_get_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP))
 
 #ifdef __cplusplus
 }

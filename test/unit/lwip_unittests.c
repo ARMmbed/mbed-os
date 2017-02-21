@@ -7,6 +7,7 @@
 #include "core/test_pbuf.h"
 #include "etharp/test_etharp.h"
 #include "dhcp/test_dhcp.h"
+#include "mdns/test_mdns.h"
 
 #include "lwip/init.h"
 
@@ -42,7 +43,8 @@ int main(void)
     mem_suite,
     pbuf_suite,
     etharp_suite,
-    dhcp_suite
+    dhcp_suite,
+    mdns_suite
   };
   size_t num = sizeof(suites)/sizeof(void*);
   LWIP_ASSERT("No suites defined", num > 0);

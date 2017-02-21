@@ -1,4 +1,6 @@
-/doc/doxygen/output
+*.o
+*.a
+/doc/doxygen/output/html
 /src/apps/snmp/LwipMibCompiler/CCodeGeneration/bin/
 /src/apps/snmp/LwipMibCompiler/CCodeGeneration/obj/
 /src/apps/snmp/LwipMibCompiler/LwipMibCompiler/bin/
@@ -11,3 +13,6 @@
 /src/apps/snmp/LwipMibCompiler/SharpSnmpLib/obj/
 /src/apps/snmp/LwipMibCompiler/LwipMibCompiler.userprefs
 /src/apps/snmp/LwipMibCompiler/*.suo
+/test/fuzz/output
+/test/fuzz/lwip_fuzz
+/test/fuzz/.depend

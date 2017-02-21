@@ -58,7 +58,7 @@
 
 /* --- interfaces .1.3.6.1.2.1.2 ----------------------------------------------------- */
 
-static s16_t 
+static s16_t
 interfaces_get_value(struct snmp_node_instance* instance, void* value)
 {
   if (instance->node->oid == 1) {
@@ -131,7 +131,7 @@ interfaces_Table_get_next_cell_instance(const u32_t* column, struct snmp_obj_id*
   u32_t result_temp[LWIP_ARRAYSIZE(interfaces_Table_oid_ranges)];
 
   LWIP_UNUSED_ARG(column);
-  
+
   /* init struct to search next oid */
   snmp_next_oid_init(&state, row_oid->id, row_oid->len, result_temp, LWIP_ARRAYSIZE(interfaces_Table_oid_ranges));
 
@@ -289,11 +289,10 @@ interfaces_Table_set_test(struct snmp_node_instance* instance, u16_t len, void *
   LWIP_ASSERT("Invalid column", (SNMP_TABLE_GET_COLUMN_FROM_OID(instance->instance_oid.id) == 7));
   LWIP_UNUSED_ARG(len);
 
-  if (*sint_ptr == 1 || *sint_ptr == 2)
-  {
+  if (*sint_ptr == 1 || *sint_ptr == 2) {
     return SNMP_ERR_NOERROR;
   }
-    
+
   return SNMP_ERR_WRONGVALUE;
 }
 
@@ -352,17 +351,17 @@ static const struct snmp_table_col_def interfaces_Table_columns[] = {
 
 #if !SNMP_SAFE_REQUESTS
 static const struct snmp_table_node interfaces_Table = SNMP_TABLE_CREATE(
-  2, interfaces_Table_columns, 
-  interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance, 
+  2, interfaces_Table_columns,
+  interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance,
   interfaces_Table_get_value, interfaces_Table_set_test, interfaces_Table_set_value);
 #else
 static const struct snmp_table_node interfaces_Table = SNMP_TABLE_CREATE(
-  2, interfaces_Table_columns, 
-  interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance, 
+  2, interfaces_Table_columns,
+  interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance,
   interfaces_Table_get_value, NULL, NULL);
 #endif
 
-/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */ 
+/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */
 CREATE_LWIP_SYNC_NODE(1, interfaces_Number)
 CREATE_LWIP_SYNC_NODE(2, interfaces_Table)
 

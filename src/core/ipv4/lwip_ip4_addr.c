@@ -43,7 +43,7 @@
 #include "lwip/ip_addr.h"
 #include "lwip/netif.h"
 
-/* used by IP_ADDR_ANY and IP_ADDR_BROADCAST in ip_addr.h */
+/* used by IP4_ADDR_ANY and IP_ADDR_BROADCAST in ip_addr.h */
 const ip_addr_t ip_addr_any = IPADDR4_INIT(IPADDR_ANY);
 const ip_addr_t ip_addr_broadcast = IPADDR4_INIT(IPADDR_BROADCAST);
 
@@ -183,10 +183,10 @@ ip4addr_aton(const char *cp, ip4_addr_t *addr)
     }
     for (;;) {
       if (isdigit(c)) {
-        val = (val * base) + (int)(c - '0');
+        val = (val * base) + (u32_t)(c - '0');
         c = *++cp;
       } else if (base == 16 && isxdigit(c)) {
-        val = (val << 4) | (int)(c + 10 - (islower(c) ? 'a' : 'A'));
+        val = (val << 4) | (u32_t)(c + 10 - (islower(c) ? 'a' : 'A'));
         c = *++cp;
       } else {
         break;
@@ -260,7 +260,7 @@ ip4addr_aton(const char *cp, ip4_addr_t *addr)
     break;
   }
   if (addr) {
-    ip4_addr_set_u32(addr, htonl(val));
+    ip4_addr_set_u32(addr, lwip_htonl(val));
   }
   return 1;
 }
@@ -310,7 +310,7 @@ ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen)
     do {
       rem = *ap % (u8_t)10;
       *ap /= (u8_t)10;
-      inv[i++] = '0' + rem;
+      inv[i++] = (char)('0' + rem);
     } while (*ap);
     while (i--) {
       if (len++ >= buflen) {

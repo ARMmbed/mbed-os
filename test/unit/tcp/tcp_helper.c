@@ -141,9 +141,18 @@ void
 tcp_set_state(struct tcp_pcb* pcb, enum tcp_state state, ip_addr_t* local_ip,
                    ip_addr_t* remote_ip, u16_t local_port, u16_t remote_port)
 {
+  u32_t iss;
+
   /* @todo: are these all states? */
   /* @todo: remove from previous list */
   pcb->state = state;
+  
+  iss = tcp_next_iss(pcb);
+  pcb->snd_wl2 = iss;
+  pcb->snd_nxt = iss;
+  pcb->lastack = iss;
+  pcb->snd_lbb = iss;
+  
   if (state == ESTABLISHED) {
     TCP_REG(&tcp_active_pcbs, pcb);
     pcb->local_ip.addr = local_ip->addr;

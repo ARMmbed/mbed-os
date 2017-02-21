@@ -4,6 +4,13 @@
  * different types of protocols besides (or overriding) those
  * already available in lwIP.\n
  * See also @ref raw_raw
+ * 
+ * @defgroup raw_raw RAW
+ * @ingroup callbackstyle_api
+ * Implementation of raw protocol PCBs for low-level handling of
+ * different types of protocols besides (or overriding) those
+ * already available in lwIP.\n
+ * @see @ref raw_api
  */
 
 /*
@@ -36,21 +43,6 @@
  *
  * Author: Adam Dunkels <adam@sics.se>
  *
- */
-
-/**
- * @defgroup raw_api RAW API
- * @ingroup callbackstyle_api
- * @verbinclude "rawapi.txt"
- */
-
-/**
- * @defgroup raw_raw RAW
- * @ingroup raw_api
- * Implementation of raw protocol PCBs for low-level handling of
- * different types of protocols besides (or overriding) those
- * already available in lwIP.\n
- * @see @ref raw_api
  */
 
 #include "lwip/opt.h"
@@ -88,7 +80,7 @@ raw_input_match(struct raw_pcb *pcb, u8_t broadcast)
     return 1;
   }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
-  
+
   /* Only need to check PCB if incoming IP version matches PCB IP version */
   if (IP_ADDR_PCB_VERSION_MATCH_EXACT(pcb, ip_current_dest_addr())) {
 #if LWIP_IPV4
@@ -111,7 +103,7 @@ raw_input_match(struct raw_pcb *pcb, u8_t broadcast)
       return 1;
     }
   }
-  
+
   return 0;
 }
 
@@ -204,7 +196,7 @@ raw_input(struct pbuf *p, struct netif *inp)
  * Bind a RAW PCB.
  *
  * @param pcb RAW PCB to be bound with a local address ipaddr.
- * @param ipaddr local IP address to bind with. Use IP_ADDR_ANY to
+ * @param ipaddr local IP address to bind with. Use IP4_ADDR_ANY to
  * bind to all local interfaces.
  *
  * @return lwIP error code.
@@ -217,7 +209,7 @@ raw_input(struct pbuf *p, struct netif *inp)
 err_t
 raw_bind(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
 {
-  if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH_EXACT(pcb, ipaddr)) {
+  if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH(pcb, ipaddr)) {
     return ERR_VAL;
   }
   ip_addr_set_ipaddr(&pcb->local_ip, ipaddr);
@@ -241,7 +233,7 @@ raw_bind(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
 err_t
 raw_connect(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
 {
-  if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH_EXACT(pcb, ipaddr)) {
+  if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH(pcb, ipaddr)) {
     return ERR_VAL;
   }
   ip_addr_set_ipaddr(&pcb->remote_ip, ipaddr);
@@ -258,9 +250,6 @@ raw_connect(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
  *   packet will not be passed to other raw PCBs or other protocol layers.
  * - not free the packet, and return zero. The packet will be matched
  *   against further PCBs and/or forwarded to another protocol layers.
- *
- * @return non-zero if the packet was free()d, zero if the packet remains
- * available for others.
  */
 void
 raw_recv(struct raw_pcb *pcb, raw_recv_fn recv, void *recv_arg)
@@ -291,7 +280,6 @@ raw_sendto(struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *ipaddr)
   const ip_addr_t *src_ip;
   struct pbuf *q; /* q will be sent down the stack */
   s16_t header_size;
-  const ip_addr_t *dst_ip = ipaddr;
 
   if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH(pcb, ipaddr)) {
     return ERR_VAL;
@@ -332,10 +320,16 @@ raw_sendto(struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *ipaddr)
     }
   }
 
-  netif = ip_route(&pcb->local_ip, dst_ip);
+  if(IP_IS_ANY_TYPE_VAL(pcb->local_ip)) {
+    /* Don't call ip_route() with IP_ANY_TYPE */
+    netif = ip_route(IP46_ADDR_ANY(IP_GET_TYPE(ipaddr)), ipaddr);
+  } else {
+    netif = ip_route(&pcb->local_ip, ipaddr);
+  }
+
   if (netif == NULL) {
     LWIP_DEBUGF(RAW_DEBUG | LWIP_DBG_LEVEL_WARNING, ("raw_sendto: No route to "));
-    ip_addr_debug_print(RAW_DEBUG | LWIP_DBG_LEVEL_WARNING, dst_ip);
+    ip_addr_debug_print(RAW_DEBUG | LWIP_DBG_LEVEL_WARNING, ipaddr);
     /* free any temporary header pbuf allocated by pbuf_header() */
     if (q != p) {
       pbuf_free(q);
@@ -360,7 +354,7 @@ raw_sendto(struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *ipaddr)
 
   if (ip_addr_isany(&pcb->local_ip)) {
     /* use outgoing network interface IP address as source address */
-    src_ip = ip_netif_get_local_ip(netif, dst_ip);
+    src_ip = ip_netif_get_local_ip(netif, ipaddr);
 #if LWIP_IPV6
     if (src_ip == NULL) {
       if (q != p) {
@@ -377,15 +371,15 @@ raw_sendto(struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *ipaddr)
 #if LWIP_IPV6
   /* If requested, based on the IPV6_CHECKSUM socket option per RFC3542,
      compute the checksum and update the checksum in the payload. */
-  if (IP_IS_V6(dst_ip) && pcb->chksum_reqd) {
-    u16_t chksum = ip6_chksum_pseudo(p, pcb->protocol, p->tot_len, ip_2_ip6(src_ip), ip_2_ip6(dst_ip));
+  if (IP_IS_V6(ipaddr) && pcb->chksum_reqd) {
+    u16_t chksum = ip6_chksum_pseudo(p, pcb->protocol, p->tot_len, ip_2_ip6(src_ip), ip_2_ip6(ipaddr));
     LWIP_ASSERT("Checksum must fit into first pbuf", p->len >= (pcb->chksum_offset + 2));
     SMEMCPY(((u8_t *)p->payload) + pcb->chksum_offset, &chksum, sizeof(u16_t));
   }
 #endif
 
   NETIF_SET_HWADDRHINT(netif, &pcb->addr_hint);
-  err = ip_output_if(q, src_ip, dst_ip, pcb->ttl, pcb->tos, pcb->protocol, netif);
+  err = ip_output_if(q, src_ip, ipaddr, pcb->ttl, pcb->tos, pcb->protocol, netif);
   NETIF_SET_HWADDRHINT(netif, NULL);
 
   /* did we chain a header earlier? */
@@ -479,7 +473,9 @@ raw_new(u8_t proto)
  * @return The RAW PCB which was created. NULL if the PCB data structure
  * could not be allocated.
  *
- * @param type IP address type, see IPADDR_TYPE_XX definitions.
+ * @param type IP address type, see @ref lwip_ip_addr_type definitions.
+ * If you want to listen to IPv4 and IPv6 (dual-stack) packets,
+ * supply @ref IPADDR_TYPE_ANY as argument and bind to @ref IP_ANY_TYPE.
  * @param proto the protocol number (next header) of the IPv6 packet payload
  *              (e.g. IP6_NEXTH_ICMP6)
  *
@@ -499,6 +495,27 @@ raw_new_ip_type(u8_t type, u8_t proto)
   LWIP_UNUSED_ARG(type);
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
   return pcb;
+}
+
+/** This function is called from netif.c when address is changed
+ *
+ * @param old_addr IP address of the netif before change
+ * @param new_addr IP address of the netif after change
+ */
+void raw_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr)
+{
+  struct raw_pcb* rpcb;
+
+  if (!ip_addr_isany(old_addr) && !ip_addr_isany(new_addr)) {
+    for (rpcb = raw_pcbs; rpcb != NULL; rpcb = rpcb->next) {
+      /* PCB bound to current local interface address? */
+      if (ip_addr_cmp(&rpcb->local_ip, old_addr)) {
+        /* The PCB is bound to the old ipaddr and
+         * is set to bound to the new one instead */
+        ip_addr_copy(rpcb->local_ip, *new_addr);
+      }
+    }
+  }
 }
 
 #endif /* LWIP_RAW */
