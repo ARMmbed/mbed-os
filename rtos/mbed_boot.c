@@ -231,8 +231,6 @@ static void mbed_cpy_nvic(void)
         vectors[i] = old_vectors[i];
     }
     SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
-#else /* NVIC_RAM_VECTOR_ADDRESS */
-#error NVIC_RAM_VECTOR_ADDRESS not defined!
 #endif /* NVIC_RAM_VECTOR_ADDRESS */
 #endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */
 }

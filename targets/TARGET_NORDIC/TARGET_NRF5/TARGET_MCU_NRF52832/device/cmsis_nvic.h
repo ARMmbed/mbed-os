@@ -33,7 +33,6 @@
 
 #define NVIC_NUM_VECTORS      (16 + 38)   // CORE + MCU Peripherals
 #define NVIC_USER_IRQ_OFFSET  16
-#define NVIC_RAM_VECTOR_ADDRESS 0x10000000    // Vectors positioned at start of SRAM2
 
 #include "nrf52.h"
 #include "cmsis.h"
