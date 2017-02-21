@@ -9,6 +9,8 @@
 #define THREAD_DELAY     50
 #define SIGNALS_TO_EMIT  100
 
+#define THREAD_STACK_SIZE 1024
+
 void print_char(char c = '*') {
     printf("%c", c);
     fflush(stdout);
@@ -57,8 +59,8 @@ int main() {
     const int t2_delay = THREAD_DELAY * 2;
     const int t3_delay = THREAD_DELAY * 3;
 
-    Thread t2;
-    Thread t3;
+    Thread t2(osPriorityNormal, THREAD_STACK_SIZE);
+    Thread t3(osPriorityNormal, THREAD_STACK_SIZE);
 
     t2.start(callback(test_thread, &t2_delay));
     t3.start(callback(test_thread, &t3_delay));
