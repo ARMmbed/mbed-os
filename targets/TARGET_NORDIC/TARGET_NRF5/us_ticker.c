@@ -283,9 +283,10 @@ void COMMON_RTC_IRQ_HANDLER(void)
         clear_tick_interrupt();
         // Trigger the SysTick_Handler just after exit form RTC Handler.
         NVIC_SetPendingIRQ(SWI3_IRQn);
+
+        nrf_gpio_pin_set(11);
 #endif
-    }
-    else {
+    } else {
         common_rtc_irq_handler();
     }
 }
@@ -451,24 +452,20 @@ uint32_t osRtxSysTimerGetCount(void) {
     uint32_t current_cnt;
     uint32_t sub_tick;
 
-    if (nrf_rtc_int_is_enabled(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK))
-    {   // system timer is enabled
+    if (nrf_rtc_int_is_enabled(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK)) {
+        // system timer is enabled
         current_cnt = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
         
-        if (current_cnt >= previous_tick_cc_value) 
-        {
+        if (current_cnt >= previous_tick_cc_value) {
             //0      prev      current      MAX
             //|------|---------|------------|---->
             sub_tick = current_cnt - previous_tick_cc_value;
-        }else
-        {
+        } else {
             //0      current   prev         MAX
             //|------|---------|------------|---->
             sub_tick = MAX_RTC_COUNTER_VAL - previous_tick_cc_value + current_cnt;
         }
-    }
-    else
-    {   // system timer is disabled
+    } else {   // system timer is disabled
         sub_tick = frozen_sub_tick;
     }
     
