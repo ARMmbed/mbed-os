@@ -49,6 +49,7 @@
 
 #include "platform/toolchain.h"
 #include "platform/platform.h"
+#include "platform/mbed_application.h"
 
 // Useful C libraries
 #include <math.h>
