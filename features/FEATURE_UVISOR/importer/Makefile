@@ -45,6 +45,10 @@ TARGET_LIST_DIR_DST:=$(addprefix $(TARGET_SUPPORTED)/,$(TARGET_LIST))
 TARGET_LIST_RELEASE:=$(addsuffix /release,$(TARGET_LIST_DIR_DST))
 TARGET_LIST_DEBUG:=$(addsuffix /debug,$(TARGET_LIST_DIR_DST))
 
+# mbed OS paths
+MBED_OS_ROOT:=../../..
+MBED_OS_CMSIS:=$(MBED_OS_ROOT)/cmsis
+
 .PHONY: all deploy rsync publish uvisor uvisor-compile clean cache update
 
 all: uvisor
@@ -74,6 +78,10 @@ rsync:
 	cp $(UVISOR_DIR)/core/system/src/page_allocator.c $(TARGET_LIB_SRC)/page_allocator.c_inc
 	cp $(UVISOR_DIR)/core/system/inc/page_allocator_config.h $(TARGET_LIB_SRC)/page_allocator_config.h
 	rsync -a --delete $(UVISOR_API)/rtx/src/ $(TARGET_LIB_SRC)/rtx
+	#
+	# Copying the secure API header file...
+	# Note: This will not be needed when we upstream the file to CMSIS.
+	cp $(UVISOR_DIR)/core/cmsis/inc/core_cmSecureAccess.h $(MBED_OS_CMSIS)/
 	#
 	# Copying the documentation...
 	cp $(UVISOR_DIR)/docs/api/QUICKSTART.md $(TARGET_PREFIX)/README.md
