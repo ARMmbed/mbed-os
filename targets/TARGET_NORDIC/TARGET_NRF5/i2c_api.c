@@ -261,16 +261,13 @@ static void twi_clear_bus(twi_info_t *twi_info)
     configure_twi_pin(twi_info->pselsda, NRF_GPIO_PIN_DIR_OUTPUT);
     // In case SDA is low, make up to 9 cycles on SCL line to help the slave
     // that pulls SDA low release it.
-    if (!nrf_gpio_pin_read(twi_info->pselsda))
-    {
+    if (!nrf_gpio_pin_read(twi_info->pselsda)) {
         nrf_gpio_pin_set(twi_info->pselscl);
         configure_twi_pin(twi_info->pselscl, NRF_GPIO_PIN_DIR_OUTPUT);
         nrf_delay_us(4);
 
-        for (int i = 0; i < 9; i++)
-        {
-            if (nrf_gpio_pin_read(twi_info->pselsda))
-            {
+        for (int i = 0; i < 9; i++) {
+            if (nrf_gpio_pin_read(twi_info->pselsda)) {
                 break;
             }
             nrf_gpio_pin_clear(twi_info->pselscl);
