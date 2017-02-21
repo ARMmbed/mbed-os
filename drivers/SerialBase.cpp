@@ -32,7 +32,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     // No lock needed in the constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i].attach(donothing);
+        _irq[i] = donothing;
     }
 
     serial_init(&_serial, tx, rx);
@@ -73,10 +73,10 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
     // Disable interrupts when attaching interrupt handler
     core_util_critical_section_enter();
     if (func) {
-        _irq[type].attach(func);
+        _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
-        _irq[type].attach(donothing);
+        _irq[type] = donothing;
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
     core_util_critical_section_exit();
@@ -85,7 +85,7 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
 
 void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type) {
     SerialBase *handler = (SerialBase*)id;
-    handler->_irq[irq_type].call();
+    handler->_irq[irq_type]();
 }
 
 int SerialBase::_base_getc() {
