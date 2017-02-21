@@ -59,18 +59,18 @@ static void box_index_init(void *box_bss, uint32_t heap_size)
 
 void secure_malloc_init(void)
 {
-    /* get the main heap size from the linker script */
+    /* get the public heap size from the linker script */
     uint32_t heap_size = ((uint32_t) __HeapLimit -
                           (uint32_t) __end__);
-    /* Main heap size is aligned to page boundaries n*UVISOR_PAGE_SIZE */
+    /* Public heap size is aligned to page boundaries n*UVISOR_PAGE_SIZE */
     uint32_t heap_start = (uint32_t) __StackLimit - heap_size;
-    /* align the start address of the main heap to a page boundary */
+    /* align the start address of the public heap to a page boundary */
     heap_start &= ~(UVISOR_PAGE_SIZE - 1);
     /* adjust the heap size to the new heap start address */
     heap_size = (uint32_t) __StackLimit - heap_start;
 
-    /* page heap now extends from the previous main heap start address
-     * to the new main heap start address */
+    /* page heap now extends from the previous public heap start address
+     * to the new public heap start address */
     extern uint32_t __uvisor_page_size;
     page_allocator_init(__end__, (void *) heap_start, &__uvisor_page_size);
     box_index_init((void *) heap_start, heap_size);

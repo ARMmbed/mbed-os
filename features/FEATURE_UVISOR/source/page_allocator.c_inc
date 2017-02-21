@@ -36,6 +36,7 @@
  * SVC call, which automagically serializes access to it. */
 #define UVISOR_PAGE_ALLOCATOR_MUTEX_AQUIRE  {}
 #define UVISOR_PAGE_ALLOCATOR_MUTEX_RELEASE {}
+#define UVISOR_PAGE_UNUSED UVISOR_BOX_ID_INVALID
 
 #endif /* defined(UVISOR_PRESENT) && (UVISOR_PRESENT == 1) */
 
@@ -73,12 +74,6 @@ uint8_t page_allocator_get_page_from_address(uint32_t address)
 
 void page_allocator_init(void * const heap_start, void * const heap_end, const uint32_t * const page_size)
 {
-    /* Make sure the UVISOR_PAGE_UNUSED is definitely NOT a valid box id. */
-    if (vmpu_is_box_id_valid(UVISOR_PAGE_UNUSED)) {
-        HALT_ERROR(SANITY_CHECK_FAILED,
-            "UVISOR_PAGE_UNUSED (%u) must not be a valid box id!\n",
-            UVISOR_PAGE_UNUSED);
-    }
     if (!page_size || !vmpu_public_flash_addr((uint32_t) page_size)) {
         HALT_ERROR(SANITY_CHECK_FAILED,
             "Page size pointer (0x%08x) is not in flash memory.\n",
