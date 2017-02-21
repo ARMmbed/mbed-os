@@ -27,60 +27,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
+#ifndef MBED_PIN_DEVICE_H
+#define MBED_PIN_DEVICE_H
 
-#include "mbed_assert.h"
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "stm32f3xx_ll_gpio.h"
 
-/*
- * Note: reg_clr might actually be same as reg_set.
- * Depends on family whether BRR is available on top of BSRR
- * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
- */
-typedef struct {
-    uint32_t mask;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-    PinName  pin;
-    GPIO_TypeDef *gpio;
-    uint32_t ll_pin;
-} gpio_t;
+extern const uint32_t ll_pin_defines[16];
 
-static inline void gpio_write(gpio_t *obj, int value)
+/* Family specific implementations */
+static inline void stm_pin_DisconnectDebug(PinName pin)
 {
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-#ifdef GPIO_IP_WITHOUT_BRR
-        *obj->reg_clr = obj->mask << 16;
-#else
-        *obj->reg_clr = obj->mask;
-#endif
+    /* empty for now */
+}
+
+static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint32_t pull_config)
+{
+    switch (pull_config) {
+        case GPIO_PULLUP:
+            LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_UP);
+            break;
+        case GPIO_PULLDOWN:
+            LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_DOWN);
+            break;
+        default:
+            LL_GPIO_SetPinPull(gpio, ll_pin, LL_GPIO_PULL_NO);
+            break;
     }
 }
 
-static inline int gpio_read(gpio_t *obj)
+static inline void stm_pin_SetAFPin( GPIO_TypeDef *gpio, PinName pin, uint32_t afnum)
 {
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
+    uint32_t ll_pin  = ll_pin_defines[STM_PIN(pin)];
 
-static inline int gpio_is_connected(const gpio_t *obj)
-{
-    return obj->pin != (PinName)NC;
+    if (STM_PIN(pin) > 7)
+        LL_GPIO_SetAFPin_8_15(gpio, ll_pin, afnum);
+    else
+        LL_GPIO_SetAFPin_0_7(gpio, ll_pin, afnum);
 }
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

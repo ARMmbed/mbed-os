@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,57 +27,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
-
-#include "mbed_assert.h"
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
+#ifndef MBED_GPIO_IRQ_DEVICE_H
+#define MBED_GPIO_IRQ_DEVICE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
- * Note: reg_clr might actually be same as reg_set.
- * Depends on family whether BRR is available on top of BSRR
- * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
- */
-typedef struct {
-    uint32_t mask;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-    PinName  pin;
-    GPIO_TypeDef *gpio;
-    uint32_t ll_pin;
-} gpio_t;
+#include "stm32l1xx_ll_exti.h"
 
-static inline void gpio_write(gpio_t *obj, int value)
-{
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-#ifdef GPIO_IP_WITHOUT_BRR
-        *obj->reg_clr = obj->mask << 16;
-#else
-        *obj->reg_clr = obj->mask;
-#endif
-    }
-}
+// Number of EXTI irq vectors (EXTI0, EXTI1, EXTI2, EXTI3, EXTI4, EXTI5_9, EXTI10_15)
+#define CHANNEL_NUM (7)
 
-static inline int gpio_read(gpio_t *obj)
-{
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
+#define EXTI_IRQ0_NUM_LINES 1
+#define EXTI_IRQ1_NUM_LINES 1
+#define EXTI_IRQ2_NUM_LINES 1
+#define EXTI_IRQ3_NUM_LINES 1
+#define EXTI_IRQ4_NUM_LINES 1
+#define EXTI_IRQ5_NUM_LINES 5
+#define EXTI_IRQ6_NUM_LINES 6
 
-static inline int gpio_is_connected(const gpio_t *obj)
-{
-    return obj->pin != (PinName)NC;
-}
+// Max pins for one line (max with EXTI10_15)
+#define MAX_PIN_LINE (EXTI_IRQ6_NUM_LINES)
 
+/*  Structure to describe how the HW EXTI lines are defined in this HW */
+typedef struct exti_lines {
+    uint32_t gpio_idx;   // an index entry for each EXIT line
+    uint32_t irq_index;  // the IRQ index
+    IRQn_Type  irq_n;    // the corresponding EXTI IRQn
+} exti_lines_t;
+
+// Used to return the index for channels array.
+extern const exti_lines_t pin_lines_desc[];
 
 #ifdef __cplusplus
 }

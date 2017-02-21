@@ -276,8 +276,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, PullUp);
-        pin_mode(scl, PullUp);
+        pin_mode(sda, OpenDrainPullUp);
+        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
     }
@@ -290,8 +290,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, PullUp);
-        pin_mode(scl, PullUp);
+        pin_mode(sda, OpenDrainPullUp);
+        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
     }
@@ -304,8 +304,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, PullUp);
-        pin_mode(scl, PullUp);
+        pin_mode(sda, OpenDrainPullUp);
+        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C3_EV_IRQn;
         obj_s->error_i2cIRQ = I2C3_ER_IRQn;
     }
@@ -318,8 +318,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, PullUp);
-        pin_mode(scl, PullUp);
+        pin_mode(sda, OpenDrainPullUp);
+        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C4_EV_IRQn;
         obj_s->error_i2cIRQ = I2C4_ER_IRQn;
     }
@@ -332,8 +332,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, PullUp);
-        pin_mode(scl, PullUp);
+        pin_mode(sda, OpenDrainPullUp);
+        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = FMPI2C1_EV_IRQn;
         obj_s->error_i2cIRQ = FMPI2C1_ER_IRQn;
     }

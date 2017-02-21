@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,60 +27,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
-
-#include "mbed_assert.h"
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
+#include "gpio_irq_device.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// Used to return the index for channels array.
+const exti_lines_t pin_lines_desc[16] = {
+    // EXTI0_1
+    {.gpio_idx = 0, .irq_index = 0, .irq_n = EXTI0_1_IRQn}, // pin 0
+    {.gpio_idx = 1, .irq_index = 0, .irq_n = EXTI0_1_IRQn}, // pin 1
+    // EXTI2_3
+    {.gpio_idx = 0, .irq_index = 1, .irq_n = EXTI2_3_IRQn}, // pin 2
+    {.gpio_idx = 1, .irq_index = 1, .irq_n = EXTI2_3_IRQn}, // pin 3
+    // EXTI4_15
+    {.gpio_idx = 0, .irq_index = 2, .irq_n = EXTI4_15_IRQn}, // pin 4
+    {.gpio_idx = 1, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 5
+    {.gpio_idx = 2, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 6
+    {.gpio_idx = 3, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 7
+    {.gpio_idx = 4, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 8
+    {.gpio_idx = 5, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 9
+    {.gpio_idx = 6, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 10
+    {.gpio_idx = 7, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 11
+    {.gpio_idx = 8, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 12
+    {.gpio_idx = 9, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 13
+    {.gpio_idx = 10, .irq_index = 2, .irq_n = EXTI4_15_IRQn},// pin 14
+    {.gpio_idx = 11, .irq_index = 2, .irq_n = EXTI4_15_IRQn}// pin 15
+};
 
-/*
- * Note: reg_clr might actually be same as reg_set.
- * Depends on family whether BRR is available on top of BSRR
- * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
- */
-typedef struct {
-    uint32_t mask;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-    PinName  pin;
-    GPIO_TypeDef *gpio;
-    uint32_t ll_pin;
-} gpio_t;
-
-static inline void gpio_write(gpio_t *obj, int value)
-{
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-#ifdef GPIO_IP_WITHOUT_BRR
-        *obj->reg_clr = obj->mask << 16;
-#else
-        *obj->reg_clr = obj->mask;
-#endif
-    }
-}
-
-static inline int gpio_read(gpio_t *obj)
-{
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
-
-static inline int gpio_is_connected(const gpio_t *obj)
-{
-    return obj->pin != (PinName)NC;
-}
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
