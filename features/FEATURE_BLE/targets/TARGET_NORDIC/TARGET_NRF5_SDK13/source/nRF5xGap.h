@@ -160,13 +160,6 @@ private:
         uint32_t identities_cnt;
     } GapWhiteAndIdentityList_t;
     
-    /* purpose of updating the whitelist and identities settings. */
-    enum whiteAndIdentityListPurpose_t
-    {
-    	purpose_scan_connect = 0,
-		purpose_avdvertising
-    } whiteAndIdentityListPurpose;
-    
     /* Function for preparing setting of the whitelist feature and the identity-resolving feature (privacy).*/
     ble_error_t getStackWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
 
@@ -175,9 +168,8 @@ private:
 
     /* Function for introducing whitelist feature and the identity-resolving feature setting into SoftDevice.
      *
-     * Introduced settings are comply which scanning or advertising policies.
      * This function incorporates getStackWhiteIdentityList and applyWhiteIdentityList together. */
-    ble_error_t updateWhiteAndIdentityListInStack(whiteAndIdentityListPurpose_t purpose);
+    ble_error_t updateWhiteAndIdentityListInStack(void);
 #endif
 
 private:

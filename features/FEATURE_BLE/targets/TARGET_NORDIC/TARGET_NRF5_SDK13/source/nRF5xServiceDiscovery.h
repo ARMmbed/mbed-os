@@ -139,7 +139,7 @@ private:
     void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 
     void triggerServiceUUIDDiscovery(void);
-    void processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response);
+    void processDiscoverUUIDResponse(const ble_gattc_evt_t *p_gattc_evt);
     void removeFirstServiceNeedingUUIDDiscovery(void);
 
     void terminateServiceDiscovery(void) {
