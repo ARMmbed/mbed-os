@@ -298,10 +298,13 @@ static void mbed_lwip_tcpip_init_irq(void *eh)
 }
 
 static sys_sem_t lwip_netif_linked;
+static sys_sem_t lwip_netif_unlinked;
 static void mbed_lwip_netif_link_irq(struct netif *lwip_netif)
 {
     if (netif_is_link_up(lwip_netif)) {
         sys_sem_signal(&lwip_netif_linked);
+    } else {
+        sys_sem_signal(&lwip_netif_unlinked);
     }
 }
 
@@ -432,6 +435,7 @@ static void mbed_lwip_core_init(void)
 
         sys_sem_new(&lwip_tcpip_inited, 0);
         sys_sem_new(&lwip_netif_linked, 0);
+        sys_sem_new(&lwip_netif_unlinked, 0);
         sys_sem_new(&lwip_netif_has_addr, 0);
 
         tcpip_init(mbed_lwip_tcpip_init_irq, NULL);
@@ -611,7 +615,7 @@ void mbed_lwip_clear_ipv6_addresses(struct netif *lwip_netif)
 }
 #endif
 
-nsapi_error_t mbed_lwip_bringdown(void)
+nsapi_error_t mbed_lwip_bringdown(bool ppp)
 {
     // Check if we've connected
     if (!lwip_connected) {
@@ -627,14 +631,30 @@ nsapi_error_t mbed_lwip_bringdown(void)
     }
 #endif
 
-    netif_set_down(&lwip_netif);
+    if (ppp) {
+        /* this is a blocking call, returns when PPP is properly closed */
+       err_t err = ppp_lwip_disconnect();
+       if (err) {
+           return mbed_lwip_err_remap(err);
+       }
+       MBED_ASSERT(!netif_is_link_up(&lwip_netif));
+       /*if (netif_is_link_up(&lwip_netif)) {
+           if (sys_arch_sem_wait(&lwip_netif_unlinked, 15000) == SYS_ARCH_TIMEOUT) {
+               return NSAPI_ERROR_DEVICE_ERROR;
+           }
+       }*/
+    } else {
+        netif_set_down(&lwip_netif);
+    }
 
 #if LWIP_IPV6
     mbed_lwip_clear_ipv6_addresses(&lwip_netif);
 #endif
 
+
     sys_sem_free(&lwip_netif_has_addr);
     sys_sem_new(&lwip_netif_has_addr, 0);
+
     lwip_connected = false;
     return 0;
 }
@@ -653,14 +673,18 @@ static nsapi_error_t mbed_lwip_err_remap(err_t err) {
             return NSAPI_ERROR_NO_CONNECTION;
         case ERR_TIMEOUT:
         case ERR_RTE:
-        case ERR_INPROGRESS:
         case ERR_WOULDBLOCK:
             return NSAPI_ERROR_WOULD_BLOCK;
         case ERR_VAL:
         case ERR_USE:
-        case ERR_ISCONN:
         case ERR_ARG:
             return NSAPI_ERROR_PARAMETER;
+        case ERR_INPROGRESS:
+            return NSAPI_ERROR_IN_PROGRESS;
+        case ERR_ALREADY:
+            return NSAPI_ERROR_ALREADY;
+        case ERR_ISCONN:
+            return NSAPI_ERROR_IS_CONNECTED;
         default:
             return NSAPI_ERROR_DEVICE_ERROR;
     }

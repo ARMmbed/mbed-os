@@ -28,7 +28,7 @@ extern "C" {
 nsapi_error_t mbed_lwip_init(emac_interface_t *emac);
 nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac);
 nsapi_error_t mbed_lwip_bringup(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw);
-nsapi_error_t mbed_lwip_bringdown(void);
+nsapi_error_t mbed_lwip_bringdown(bool ppp);
 
 const char *mbed_lwip_get_mac_address(void);
 char *mbed_lwip_get_ip_address(char *buf, int buflen);

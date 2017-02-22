@@ -54,7 +54,7 @@ nsapi_error_t EthernetInterface::connect()
 
 nsapi_error_t EthernetInterface::disconnect()
 {
-    return mbed_lwip_bringdown();
+    return mbed_lwip_bringdown(false);
 }
 
 const char *EthernetInterface::get_mac_address()

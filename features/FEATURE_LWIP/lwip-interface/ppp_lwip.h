@@ -9,6 +9,7 @@ extern "C" {
 #endif
 nsapi_error_t ppp_lwip_if_init(struct netif *netif);
 err_t ppp_lwip_connect(void);
+err_t ppp_lwip_disconnect(void);
 #ifdef __cplusplus
 }
 #endif

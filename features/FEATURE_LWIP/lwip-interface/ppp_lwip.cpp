@@ -54,6 +54,9 @@ static volatile bool event_queued;
 // Just one interface for now
 static FileHandle *my_stream;
 static ppp_pcb *my_ppp_pcb;
+static bool ppp_link_up;
+static sys_sem_t ppp_close_sem;
+static void (*notify_ppp_link_status)(int) = 0;
 
 static EventQueue *prepare_event_queue()
 {
@@ -66,7 +69,7 @@ static EventQueue *prepare_event_queue()
 
     // Only need to queue 1 event. new blows on failure.
     event_queue = new EventQueue(2 * EVENTS_EVENT_SIZE, NULL);
-    event_thread = new Thread(osPriorityNormal, 700);
+    event_thread = new Thread(osPriorityNormal, 900);
 
     if (event_thread->start(callback(event_queue, &EventQueue::dispatch_forever)) != osOK) {
         delete event_thread;
@@ -79,7 +82,11 @@ static EventQueue *prepare_event_queue()
 
 static u32_t ppp_output(ppp_pcb *pcb, u8_t *data, u32_t len, void *ctx)
 {
-    FileHandle *stream = static_cast<FileHandle *>(ctx);
+    FileHandle *stream = my_stream;
+    if (!stream) {
+        return 0;
+    }
+
     pollfh fhs;
     fhs.fh = stream;
     fhs.events = POLLOUT;
@@ -269,10 +276,17 @@ hup:
     return;
 }
 
-static void stream_cb(FileHandle *stream) {
-    if (!event_queued) {
+/*static void ppp_carrier_lost()
+{
+    if (my_stream) {
+        ppp_close(my_ppp_pcb, 1);
+    }
+}*/
+
+static void stream_cb() {
+    if (my_stream && !event_queued) {
         event_queued = true;
-        if (event_queue->call(callback(ppp_input, stream)) == 0) {
+        if (event_queue->call(callback(ppp_input)) == 0) {
             event_queued = false;
         }
     }
@@ -280,7 +294,30 @@ static void stream_cb(FileHandle *stream) {
 
 extern "C" err_t ppp_lwip_connect()
 {
-   return ppp_connect(my_ppp_pcb, 0);
+   err_t ret = ppp_connect(my_ppp_pcb, 0);
+   // lwIP's ppp.txt says input must not be called until after connect
+   if (ret == ERR_OK) {
+       my_stream->sigio(callback(stream_cb));
+   }
+   return ret;
+}
+
+extern "C" err_t ppp_lwip_disconnect()
+{
+    err_t ret = ppp_close(my_ppp_pcb, 0);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+
+    /* close call made, now let's catch the response in the status callback */
+    sys_arch_sem_wait(&ppp_close_sem, 0);
+
+    /* Detach callbacks, and put handle back to default blocking mode */
+    my_stream->sigio(Callback<void()>());
+    my_stream->set_blocking(true);
+    my_stream = NULL;
+
+    return ret;
 }
 
 extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif)
@@ -291,28 +328,46 @@ extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif)
 
     if (!my_ppp_pcb) {
         my_ppp_pcb = pppos_create(netif,
-                               ppp_output, ppp_link_status, my_stream);
-    }
+                               ppp_output, ppp_link_status, NULL);
+        if (!my_ppp_pcb) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
 
-    if (!my_ppp_pcb) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        sys_sem_new(&ppp_close_sem, 0);
     }
 
 #if LWIP_IPV4
     ppp_set_usepeerdns(my_ppp_pcb, true);
 #endif
 
-    my_stream->sigio(callback(stream_cb, my_stream));
-    my_stream->set_blocking(false);
-
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t nsapi_ppp_init(FileHandle *stream)
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, void (*ppp_link_status_cb)(int))
 {
+    if (my_stream) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     my_stream = stream;
+    stream->set_blocking(false);
+    notify_ppp_link_status = ppp_link_status_cb;
+    // mustn't start calling input until after connect -
+    // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
     return mbed_lwip_bringup(false, true, NULL, NULL, NULL);
 }
+
+
+nsapi_error_t nsapi_ppp_disconnect(FileHandle *stream)
+{
+    return mbed_lwip_bringdown(true);
+}
+
+/*void nsapi_ppp_carrier_lost(FileHandle *stream)
+{
+    if (stream == my_stream) {
+        event_queue->call(callback(ppp_carrier_lost));
+    }
+}*/
 
 NetworkStack *nsapi_ppp_get_stack()
 {
