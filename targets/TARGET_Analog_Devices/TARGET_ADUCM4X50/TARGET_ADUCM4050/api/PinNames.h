@@ -102,10 +102,10 @@ typedef enum {
     WAKE_J78 = P2_01,  //4 options depending on jumper JP10 position
 
     // USB Pins
-    USBTX = P0_10,
-    USBRX = P0_11,
-    USBTX0= P1_15,
-    USBRX0= P2_00,
+    USBTX0 = P0_10,
+    USBRX0 = P0_11,
+    USBTX = P1_15,
+    USBRX = P2_00,
     // Arduino Headers
     D0 = P0_11,
     D1 = P0_10,

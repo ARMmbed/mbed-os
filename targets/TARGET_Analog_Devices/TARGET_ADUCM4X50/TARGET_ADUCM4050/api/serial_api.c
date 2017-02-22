@@ -36,7 +36,8 @@ static uint32_t serial_irq_ids[ADI_UART_NUM_DEVICES] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-
+int rxbuffer[2];
+int txbuffer[2];
 
 static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 {
@@ -98,6 +99,62 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
 	adi_uart_SetConfiguration(hDevice[obj->index], convertedparity, convertedstopbits, (data_bits - 5));
 }
+#ifndef ADI_UART_TRANSFER_MODE 
+
+void serial_init(serial_t *obj, PinName tx, PinName rx) {
+	uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
+    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
+    obj->index = pinmap_merge(uart_tx, uart_rx);
+    MBED_ASSERT((int)obj->index != NC);
+	adi_uart_Open(obj->index,ADI_UART_DIR_BIDIRECTION,UartDeviceMem[obj->index],ADI_UART_MEMORY_SIZE,&hDevice[obj->index]);
+	serial_baud(obj, 9600);
+	serial_format(obj, 8, ParityNone, 1);
+	pinmap_pinout(tx, PinMap_UART_TX);
+    pinmap_pinout(rx, PinMap_UART_RX);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
+    if (obj->index == STDIO_UART) {
+        stdio_uart_inited = 1;
+        memcpy(&stdio_uart, obj, sizeof(serial_t));	
+    }
+}
+
+int serial_readable(serial_t *obj) {
+	bool bAvailable = false;	
+	adi_uart_IsRxBufferAvailable(hDevice[obj->index], &bAvailable);	
+	return bAvailable;
+}
+
+int serial_getc(serial_t *obj) {	
+	int c;
+	void *pBuff;
+	uint32_t pHwError;
+	adi_uart_SubmitRxBuffer(hDevice[obj->index], &rxbuffer[obj->index], 1, 1);
+	adi_uart_GetRxBuffer(hDevice[obj->index], &pBuff, &pHwError);
+	c = (unsigned) rxbuffer[obj->index];
+    return (c);
+}
+
+int serial_writable(serial_t *obj) {
+	bool bAvailable = false;
+	adi_uart_IsTxBufferAvailable(hDevice[obj->index], &bAvailable);
+	return bAvailable;
+}
+
+void serial_putc(serial_t *obj, int c) {
+	void *pBuff;
+	uint32_t pHwError;	
+	txbuffer[obj->index]= (char) c;
+	adi_uart_SubmitTxBuffer(hDevice[obj->index],&txbuffer[obj->index], 1, 1);
+	adi_uart_GetTxBuffer(hDevice[obj->index], &pBuff, &pHwError);
+	return;
+}
+
+#else
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
 	uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
@@ -163,7 +220,7 @@ int serial_writable(serial_t *obj)
 {
 	return 0;
 }
-
+#endif
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     MBED_ASSERT(obj);
@@ -179,20 +236,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 void serial_pinout_tx(PinName tx)
 {
-
+    pinmap_pinout(tx, PinMap_UART_TX);
 }
 
 void serial_break_set(serial_t *obj)
 {
-
+    adi_uart_ForceTxBreak(hDevice[obj->index], true);
 }
 
 void serial_break_clear(serial_t *obj)
 {
-
+    adi_uart_ForceTxBreak(hDevice[obj->index], false);
 }
 
-
+#if DEVICE_SERIAL_ASYNCH
 uint8_t serial_tx_active(serial_t *obj)
 {
 	return 0;
@@ -229,7 +286,7 @@ void serial_rx_abort_asynch(serial_t *obj)
 {
 
 }
-
+#endif
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
 
