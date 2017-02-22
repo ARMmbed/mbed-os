@@ -127,14 +127,14 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
     ns_address_t dest_addr;
 
     if (!transaction_ptr || !data_ptr) {
-        return -1;
+        return 0;
     }
 
     tr_debug("Service %d, CoAP TX Function - mid: %d", transaction_ptr->service_id, common_read_16_bit(data_ptr + 2));
 
     this = service_find(transaction_ptr->service_id);
     if (!this) {
-        return -1;
+        return 0;
     }
 
     memcpy(&(dest_addr.address), address_ptr->addr_ptr, 16);
@@ -235,7 +235,7 @@ static int send_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t 
 {
     coap_service_t *this = service_find_by_socket(socket_id);
     if (this && this->virtual_socket_send_cb) {
-        tr_debug("send to virtual socket");
+        tr_debug("send to virtual socket, service: %d", this->service_id);
         return this->virtual_socket_send_cb(this->service_id, (uint8_t*)address, port, data_ptr, data_len);
     }
     return -1;
@@ -380,7 +380,7 @@ int16_t coap_service_virtual_socket_recv(int8_t service_id, uint8_t source_addr_
 int16_t coap_service_virtual_socket_set_cb(int8_t service_id, coap_service_virtual_socket_send_cb *send_method_ptr)
 {
     coap_service_t *this = service_find(service_id);
-    tr_debug("register virtual socket cb");
+    tr_debug("register virtual socket cb to service %d", service_id);
     if (!this) {
         return -1;
     }

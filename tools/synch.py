@@ -21,8 +21,8 @@ care of updating them all.
 """
 import sys
 from copy import copy
-from os import walk, remove, makedirs
-from os.path import join, abspath, dirname, relpath, exists, isfile
+from os import walk, remove, makedirs, getcwd, rmdir, listdir
+from os.path import join, abspath, dirname, relpath, exists, isfile, normpath, isdir
 from shutil import copyfile
 from optparse import OptionParser
 import re
@@ -46,60 +46,8 @@ commit_msg = ''
 # Code that does have a mirror in the mbed SDK
 # Tuple data: (repo_name, list_of_code_dirs, [team])
 # team is optional - if not specified, the code is published under mbed_official
-OFFICIAL_CODE = (
-    ("mbed-dev" , [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]),
-    ("mbed-rtos", RTOS),
-    ("mbed-dsp" , DSP),
-    ("mbed-rpc" , MBED_RPC),
+OFFICIAL_CODE = {"mbed-dev" : ["cmsis", "drivers", "hal", "platform", "targets", "mbed.h"]}
 
-    ("lwip"    , LWIP_SOURCES+"/lwip"),
-    ("lwip-sys", LWIP_SOURCES+"/lwip-sys"),
-    ("Socket"  , LWIP_SOURCES+"/Socket"),
-
-    ("lwip-eth"         , ETH_SOURCES+"/lwip-eth"),
-    ("EthernetInterface", ETH_SOURCES+"/EthernetInterface"),
-
-    ("USBDevice", USB),
-    ("USBHost"  , USB_HOST),
-
-    ("CellularModem", CELLULAR_SOURCES),
-    ("CellularUSBModem", CELLULAR_USB_SOURCES),
-    ("UbloxUSBModem", UBLOX_SOURCES),
-    ("UbloxModemHTTPClientTest", [TEST_DIR+"/net/cellular/http/common", TEST_DIR+"/net/cellular/http/ubloxusb"]),
-    ("UbloxModemSMSTest", [TEST_DIR+"/net/cellular/sms/common", TEST_DIR+"/net/cellular/sms/ubloxusb"]),
-    ("FATFileSystem", FAT_FS, "mbed-official"),
-)
-
-
-# Code that does have dependencies to libraries should point to
-# the latest revision. By default, they point to a specific revision.
-CODE_WITH_DEPENDENCIES = (
-    # Libraries
-    "EthernetInterface",
-
-    # RTOS Examples
-    "rtos_basic",
-    "rtos_isr",
-    "rtos_mail",
-    "rtos_mutex",
-    "rtos_queue",
-    "rtos_semaphore",
-    "rtos_signals",
-    "rtos_timer",
-
-    # Net Examples
-    "TCPEchoClient",
-    "TCPEchoServer",
-    "TCPSocket_HelloWorld",
-    "UDPSocket_HelloWorld",
-    "UDPEchoClient",
-    "UDPEchoServer",
-    "BroadcastReceive",
-    "BroadcastSend",
-
-    # mbed sources
-    "mbed-src-program",
-)
 
 # A list of regular expressions that will be checked against each directory
 # name and skipped if they match.
@@ -125,13 +73,11 @@ class MbedRepository:
         stdout, _, _ = run_cmd(command, work_dir=cwd, redirect=True)
         print(stdout)
 
-    def __init__(self, name, team = None):
+    def __init__(self, name):
         self.name = name
         self.path = join(MBED_ORG_PATH, name)
-        if team is None:
-            self.url = "http://" + MBED_URL + "/users/" + MBED_USER + "/code/%s/"
-        else:
-            self.url = "http://" + MBED_URL + "/teams/" + team + "/code/%s/"
+        self.url = "http://" + MBED_URL + "/users/" + MBED_ORG_USER + "/code/%s/"
+
         if not exists(self.path):
             # Checkout code
             if not exists(MBED_ORG_PATH):
@@ -158,6 +104,9 @@ class MbedRepository:
             commit = raw_input(push_remote and "Do you want to commit and push? Y/N: " or "Do you want to commit? Y/N: ")
         if commit == 'Y':
             args = ['hg', 'commit', '-u', MBED_ORG_USER]
+            
+            
+            # NOTE commit_msg should always come from the relevant mbed 2 release text
             if commit_msg:
                 args = args + ['-m', commit_msg]
             self.run_and_print(args, cwd=self.path)
@@ -229,7 +178,7 @@ def copy_with_line_endings(sdk_file, repo_file):
         f.close()
 
 def visit_files(path, visit):
-    for root, dirs, files in walk(path):
+    for root, dirs, files in walk(path):    
         # Ignore hidden directories
         for d in copy(dirs):
             full = join(root, d)
@@ -245,70 +194,107 @@ def visit_files(path, visit):
 
             visit(join(root, file))
 
+def visit_dirs(path, visit):
 
-def update_repo(repo_name, sdk_paths, team_name):
-    repo = MbedRepository(repo_name, team_name)
+    for root, dirs, files in walk(path, topdown=False):            
+        for d in dirs:
+            full = join(root, d)
+            
+            # We don't want to remove the .hg directory
+            if not '.hg' in full:
+                visit(full)
+
+
+def update_repo(repo_name, sdk_paths, lib=False):
+    repo = MbedRepository(repo_name)
+    
     # copy files from mbed SDK to mbed_official repository
     def visit_mbed_sdk(sdk_file):
-        repo_file = join(repo.path, relpath(sdk_file, sdk_path))
 
+        # Source files structure is different for the compiled binary lib 
+        # compared to the mbed-dev sources
+        if lib:
+            repo_file = join(repo.path, relpath(sdk_file, sdk_path))            
+        else:
+            repo_file = join(repo.path, sdk_file)
         repo_dir = dirname(repo_file)
         if not exists(repo_dir):
+            print("CREATING: %s" % repo_dir)
             makedirs(repo_dir)
 
         copy_with_line_endings(sdk_file, repo_file)
+
+    # Go through each path specified in the mbed structure 
     for sdk_path in sdk_paths:
-        visit_files(sdk_path, visit_mbed_sdk)
+
+        if isfile(sdk_path):
+            # Single file so just copy directly across
+            visit_mbed_sdk(sdk_path)
+        else:    
+            visit_files(sdk_path, visit_mbed_sdk)
+
+    def sdk_remove(repo_path):
+        
+        print("REMOVING: %s" % repo_path)
+        
+        # Check if this is an empty directory or a file before determining how to 
+        # delete it. As this function should only be called with a directory list
+        # after being called with a file list, the directory should automatically
+        # be either valid or empty .
+        if isfile(repo_path):
+            remove(repo_path)
+        elif isdir(repo_path) and not listdir(repo_path):
+            rmdir(repo_path)
+        else:
+            print("ERROR: %s is not empty, please remove manually." % repo_path)
+            print listdir(repo_path)
+            exit(1)
 
     # remove repository files that do not exist in the mbed SDK
-    def visit_repo(repo_file):
+    def visit_lib_repo(repo_path):
         for sdk_path in sdk_paths:
-            sdk_file = join(sdk_path, relpath(repo_file, repo.path))
-            if exists(sdk_file):
-                break
-        else:
-            remove(repo_file)
-            print "remove: %s" % repo_file
-    visit_files(repo.path, visit_repo)
+            sdk_file = join(sdk_path, relpath(repo_path, repo.path))
+            if not exists(sdk_file):
+                sdk_remove(repo_path)
 
+    # remove repository files that do not exist in the mbed SDK source
+    def visit_repo(repo_path):
+
+        # work out equivalent sdk path from repo file
+        sdk_path = join(getcwd(), relpath(repo_path, repo.path))
+
+        if not exists(sdk_path):
+            sdk_remove(repo_path)
+
+    # Go through each path specified in the mbed structure
+    # Check if there are any files in any of those paths that are no longer part of the SDK
+
+    if lib:
+        visit_files(repo.path, visit_lib_repo)
+        # Now do the same for directories that may need to be removed. This needs to be done
+        # bottom up to ensure any lower nested directories can be deleted first
+        visit_dirs(repo.path, visit_lib_repo)
+        
+    else:
+        visit_files(repo.path, visit_repo)
+
+        # Now do the same for directories that may need to be removed. This needs to be done
+        # bottom up to ensure any lower nested directories can be deleted first
+        visit_dirs(repo.path, visit_repo)
+    
     if repo.publish():
         changed.append(repo_name)
 
 
 def update_code(repositories):
-    for r in repositories:
-        repo_name, sdk_dir = r[0], r[1]
-        team_name = r[2] if len(r) == 3 else None
+    for repo_name in repositories.keys():
+        sdk_dirs = repositories[repo_name]
         print '\n=== Updating "%s" ===' % repo_name
-        sdk_dirs = [sdk_dir] if type(sdk_dir) != type([]) else sdk_dir
-        update_repo(repo_name, sdk_dirs, team_name)
-
-def update_single_repo(repo):
-    repos = [r for r in OFFICIAL_CODE if r[0] == repo]
-    if not repos:
-        print "Repository '%s' not found" % repo
-    else:
-        update_code(repos)
-
-def update_dependencies(repositories):
-    for repo_name in repositories:
-        print '\n=== Updating "%s" ===' % repo_name
-        repo = MbedRepository(repo_name)
-
-        # point to the latest libraries
-        def visit_repo(repo_file):
-            with open(repo_file, "r") as f:
-                url = f.read()
-            with open(repo_file, "w") as f:
-                f.write(url[:(url.rindex('/')+1)])
-        visit_files(repo.path, visit_repo, None, MBED_REPO_EXT)
-
-        if repo.publish():
-            changed.append(repo_name)
+        update_repo(repo_name, sdk_dirs)
 
 
 def update_mbed():
-    update_repo("mbed", [join(BUILD_DIR, "mbed")], None)
+    update_repo("mbed", [join(BUILD_DIR, "mbed")], lib=True)
 
 def do_sync(options):
     global push_remote, quiet, commit_msg, changed
@@ -316,19 +302,13 @@ def do_sync(options):
     push_remote = not options.nopush
     quiet = options.quiet
     commit_msg = options.msg
-    chnaged = []
+    changed = []
 
     if options.code:
         update_code(OFFICIAL_CODE)
 
-    if options.dependencies:
-        update_dependencies(CODE_WITH_DEPENDENCIES)
-
     if options.mbed:
         update_mbed()
-
-    if options.repo:
-        update_single_repo(options.repo)
 
     if changed:
         print "Repositories with changes:", changed
@@ -342,10 +322,6 @@ if __name__ == '__main__':
                   action="store_true",  default=False,
                   help="Update the mbed_official code")
 
-    parser.add_option("-d", "--dependencies",
-                  action="store_true",  default=False,
-                  help="Update the mbed_official code dependencies")
-
     parser.add_option("-m", "--mbed",
                   action="store_true",  default=False,
                   help="Release a build of the mbed library")
@@ -357,10 +333,6 @@ if __name__ == '__main__':
     parser.add_option("", "--commit_message",
                   action="store", type="string", default='', dest='msg',
                   help="Commit message to use for all the commits")
-
-    parser.add_option("-r", "--repository",
-                  action="store", type="string", default='', dest='repo',
-                  help="Synchronize only the given repository")
 
     parser.add_option("-q", "--quiet",
                   action="store_true", default=False,

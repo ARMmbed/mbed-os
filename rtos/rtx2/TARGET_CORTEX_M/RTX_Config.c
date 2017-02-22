@@ -27,18 +27,14 @@
 
 #include "cmsis_compiler.h"
 #include "rtx_os.h"
-#include "mbed_rtx.h"
-#include "mbed_error.h"
-
+ 
 // OS Idle Thread
 __WEAK __NO_RETURN void osRtxIdleThread (void *argument) {
   (void)argument;
 
-  for (;;) {
-    rtos_idle_loop();
-  }
+  for (;;) {}
 }
-
+ 
 // OS Error Callback function
 __WEAK uint32_t osRtxErrorNotify (uint32_t code, void *object_id) {
   (void)object_id;
@@ -62,10 +58,6 @@ __WEAK uint32_t osRtxErrorNotify (uint32_t code, void *object_id) {
     default:
       break;
   }
-
-  osThreadId_t tid = osThreadGetId();
-  error("CMSIS-RTOS error status: 0x%8X, task ID: 0x%08X\n\r", code, tid);
-
   for (;;) {}
 //return 0U;
 }

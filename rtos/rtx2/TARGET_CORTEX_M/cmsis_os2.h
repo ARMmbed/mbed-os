@@ -1,7 +1,7 @@
 /** \addtogroup rtos */
 /** @{*/
 /*
- * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -156,37 +156,45 @@ typedef void (*osTimerFunc_t) (void *argument);
  
 /// Timer type.
 typedef enum {
-  osTimerOnce             = 0,          ///< One-shot timer.
-  osTimerPeriodic         = 1           ///< Repeating timer.
+  osTimerOnce               = 0,          ///< One-shot timer.
+  osTimerPeriodic           = 1           ///< Repeating timer.
 } osTimerType_t;
  
 /// Timeout value.
-#define osWaitForever       0xFFFFFFFFU ///< Wait forever timeout value.
+#define osWaitForever         0xFFFFFFFFU ///< Wait forever timeout value.
  
 /// Flags options (\ref osThreadFlagsWait and \ref osEventFlagsWait).
-#define osFlagsWaitAny      0x00000000U ///< Wait for any flag (default).
-#define osFlagsWaitAll      0x00000001U ///< Wait for all flags.
-#define osFlagsNoClear      0x00000002U ///< Do not clear flags which have been specified to wait for.
+#define osFlagsWaitAny        0x00000000U ///< Wait for any flag (default).
+#define osFlagsWaitAll        0x00000001U ///< Wait for all flags.
+#define osFlagsNoClear        0x00000002U ///< Do not clear flags which have been specified to wait for.
+ 
+/// Flags errors (returned by osThreadFlagsXxxx and osEventFlagsXxxx).
+#define osFlagsError          0x80000000U ///< Error indicator.
+#define osFlagsErrorUnknown   0xFFFFFFFFU ///< osError (-1).
+#define osFlagsErrorTimeout   0xFFFFFFFEU ///< osErrorTimeout (-2).
+#define osFlagsErrorResource  0xFFFFFFFDU ///< osErrorResource (-3).
+#define osFlagsErrorParameter 0xFFFFFFFCU ///< osErrorParameter (-4).
+#define osFlagsErrorISR       0xFFFFFFFAU ///< osErrorISR (-6).
  
 /// Thread attributes (attr_bits in \ref osThreadAttr_t).
-#define osThreadDetached    0x00000000U ///< Thread created in detached state (default)
-#define osThreadJoinable    0x00000001U ///< Thread created in joinable state
+#define osThreadDetached      0x00000000U ///< Thread created in detached state (default)
+#define osThreadJoinable      0x00000001U ///< Thread created in joinable state
  
 /// Mutex attributes (attr_bits in \ref osMutexAttr_t).
-#define osMutexRecursive    0x00000001U ///< Recursive mutex.
-#define osMutexPrioInherit  0x00000002U ///< Priority inherit protocol.
-#define osMutexRobust       0x00000008U ///< Robust mutex.
+#define osMutexRecursive      0x00000001U ///< Recursive mutex.
+#define osMutexPrioInherit    0x00000002U ///< Priority inherit protocol.
+#define osMutexRobust         0x00000008U ///< Robust mutex.
  
 /// Status code values returned by CMSIS-RTOS functions.
 typedef enum {
-  osOK                    =  0,         ///< Operation completed successfully.
-  osError                 = -1,         ///< Unspecified RTOS error: run-time error but no other error message fits.
-  osErrorTimeout          = -2,         ///< Operation not completed within the timeout period.
-  osErrorResource         = -3,         ///< Resource not available.
-  osErrorParameter        = -4,         ///< Parameter error.
-  osErrorNoMemory         = -5,         ///< System is out of memory: it was impossible to allocate or reserve memory for the operation.
-  osErrorISR              = -6,         ///< Not allowed in ISR context: the function cannot be called from interrupt service routines.
-  osStatusReserved        = 0x7FFFFFFF  ///< Prevents enum down-size compiler optimization.
+  osOK                      =  0,         ///< Operation completed successfully.
+  osError                   = -1,         ///< Unspecified RTOS error: run-time error but no other error message fits.
+  osErrorTimeout            = -2,         ///< Operation not completed within the timeout period.
+  osErrorResource           = -3,         ///< Resource not available.
+  osErrorParameter          = -4,         ///< Parameter error.
+  osErrorNoMemory           = -5,         ///< System is out of memory: it was impossible to allocate or reserve memory for the operation.
+  osErrorISR                = -6,         ///< Not allowed in ISR context: the function cannot be called from interrupt service routines.
+  osStatusReserved          = 0x7FFFFFFF  ///< Prevents enum down-size compiler optimization.
 } osStatus_t;
  
  
@@ -737,4 +745,5 @@ osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id);
 #endif
  
 #endif  // CMSIS_OS2_H_
+
 /** @}*/

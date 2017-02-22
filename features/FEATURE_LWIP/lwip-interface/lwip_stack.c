@@ -87,6 +87,11 @@ static void mbed_lwip_arena_dealloc(struct lwip_socket *s)
 
 static void mbed_lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
 {
+    // Filter send minus events
+    if (eh == NETCONN_EVT_SENDMINUS && nc->state == NETCONN_WRITE) {
+        return;
+    }
+
     sys_prot_t prot = sys_arch_protect();
 
     for (int i = 0; i < MEMP_NUM_NETCONN; i++) {

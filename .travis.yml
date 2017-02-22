@@ -5,6 +5,7 @@ script:
   - make -C events/equeue test clean
   - PYTHONPATH=. python tools/test/config_test/config_test.py
   - PYTHONPATH=. python tools/test/build_api/build_api_test.py
+  - PYTHONPATH=. python tools/test/targets/target_test.py
   - python tools/test/pylint.py
   - py.test tools/test/toolchains/api.py
   - python tools/test/memap/memap_test.py

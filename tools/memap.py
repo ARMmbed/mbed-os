@@ -121,7 +121,10 @@ class MemapParser(object):
             else:
                 module_name = data[0] + '/' + data[1]
 
-            return [module_name, object_name]
+            if self.detailed_misc:
+                return [module_name + '/' + object_name, object_name]
+            else:
+                return [module_name, object_name]
             
         elif self.detailed_misc:           
             rex_obj_name = r'^.+\/(.+\.o\)*)$'
@@ -538,7 +541,7 @@ class MemapParser(object):
 
         return output
 
-    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
+    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "GCC_CR", "IAR"]
 
     def compute_report(self):
         for k in self.sections:
@@ -593,7 +596,7 @@ class MemapParser(object):
                    toolchain == "ARM_MICRO":
                     self.search_objects(os.path.abspath(mapfile))
                     self.parse_map_file_armcc(file_input)
-                elif toolchain == "GCC_ARM":
+                elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
                     self.parse_map_file_gcc(file_input)
                 elif toolchain == "IAR":
                     self.search_objects(os.path.abspath(mapfile))

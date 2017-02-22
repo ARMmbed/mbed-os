@@ -1345,6 +1345,51 @@ class mbedToolchain:
         """
         raise NotImplemented
 
+    @staticmethod
+    @abstractmethod
+    def name_mangle(name):
+        """Mangle a name based on the conventional name mangling of this toolchain
+
+        Positional arguments:
+        name -- the name to mangle
+
+        Return:
+        the mangled name as a string
+        """
+        raise NotImplemented
+
+    @staticmethod
+    @abstractmethod
+    def make_ld_define(name, value):
+        """Create an argument to the linker that would define a symbol
+
+        Positional arguments:
+        name -- the symbol to define
+        value -- the value to give the symbol
+
+        Return:
+        The linker flag as a string
+        """
+        raise NotImplemented
+
+    @staticmethod
+    @abstractmethod
+    def redirect_symbol(source, sync, build_dir):
+        """Redirect a symbol at link time to point at somewhere else
+
+        Positional arguments:
+        source -- the symbol doing the pointing
+        sync -- the symbol being pointed to
+        build_dir -- the directory to put "response files" if needed by the toolchain
+
+        Side Effects:
+        Possibly create a file in the build directory
+
+        Return:
+        The linker flag to redirect the symbol, as a string
+        """
+        raise NotImplemented
+
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
         return Config.config_to_macros(self.config_data) if self.config_data else []

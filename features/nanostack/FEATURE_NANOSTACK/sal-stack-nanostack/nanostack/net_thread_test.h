@@ -221,6 +221,16 @@ int thread_test_version_set(int8_t interface_id, uint8_t version);
 int thread_test_router_selection_jitter_set(int8_t interface_id, uint32_t jitter);
 
 /**
+ * \brief Sets the thread MIN_DELAY_TIMER default value.
+ *
+ * \param interface_id Network Interface
+ * \param delay_timer_value delay timer value in seconds used in leader
+ *
+ * \return 0, OK
+ * \return <0 Error
+ */
+int thread_test_min_delay_timer_set(int8_t interface_id, uint32_t delay_timer_value);
+/**
  * \brief Increment Thread key sequence counter
  *
  * \param interface_id Network Interface

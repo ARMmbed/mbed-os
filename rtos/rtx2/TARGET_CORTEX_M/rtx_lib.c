@@ -462,7 +462,7 @@ __asm (
 #endif
 
 #if (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)) || \
-     (defined(__GNUC__) && !defined(__CC_ARM))
+    (defined(__GNUC__) && !defined(__CC_ARM))
 
 extern __attribute__((weak)) uint32_t __os_thread_cb_start__;
 extern __attribute__((weak)) uint32_t __os_thread_cb_end__;
@@ -518,7 +518,7 @@ void _platform_post_stackheap_init (void) {
 }
 #endif
 
-#elif defined (__GNUC__)
+#elif defined(__GNUC__)
 
 __WEAK
 void software_init_hook (void);

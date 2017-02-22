@@ -190,6 +190,19 @@ bool thread_meshcop_tlv_exist(const uint8_t *ptr, const uint16_t length, const u
 uint16_t thread_meshcop_tlv_find(const uint8_t *ptr, const uint16_t length, const uint8_t type, uint8_t **result_ptr);
 
 /**
+ * Find next TLV from message.
+ *
+ * \param tlv_ba TLV message buffer.
+ * \param tlv_ba_length Length of the TLV message buffer.
+ * \param tlv_id ID of the TLV to be searched.
+ * \param found_tlv [IN] Pointer value is given as result if length is > 0. Can be NULL which only searches for the length.
+ * \                [OUT] Pointer to previous TLV found
+ *
+ * \return The length of the TLV data found and found_tlv updated to point beginning of value field. 0 if TLV is not found.
+ */
+uint16_t thread_meshcop_tlv_find_next(uint8_t* tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t** found_tlv);
+
+/**
  * Read 1 byte length TLV.
  *
  * \param ptr pointer TLV message array.

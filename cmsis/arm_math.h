@@ -1,42 +1,30 @@
 /* ----------------------------------------------------------------------
-* Copyright (C) 2010-2016 ARM Limited. All rights reserved.
-*
-* $Date:        22. October 2016
-* $Revision:    V1.4.5 e
-*
-* Project:      CMSIS DSP Library
-* Title:        arm_math.h
-*
-* Description:  Public header file for CMSIS DSP Library
-*
-* Target Processor: Cortex-M7/Cortex-M4/Cortex-M3/Cortex-M0
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions
-* are met:
-*   - Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   - Redistributions in binary form must reproduce the above copyright
-*     notice, this list of conditions and the following disclaimer in
-*     the documentation and/or other materials provided with the
-*     distribution.
-*   - Neither the name of ARM LIMITED nor the names of its contributors
-*     may be used to endorse or promote products derived from this
-*     software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-* COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-* POSSIBILITY OF SUCH DAMAGE.
+ * Project:      CMSIS DSP Library
+ * Title:        arm_math.h
+ * Description:  Public header file for CMSIS DSP Library
+ *
+ * $Date:        27. January 2017
+ * $Revision:    V.1.5.1
+ *
+ * Target Processor: Cortex-M cores
  * -------------------------------------------------------------------- */
+/*
+ * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**
    \mainpage CMSIS DSP Software Library
@@ -66,26 +54,34 @@
    * ------------
    *
    * The library installer contains prebuilt versions of the libraries in the <code>Lib</code> folder.
-   * - arm_cortexM7lfdp_math.lib (Little endian and Double Precision Floating Point Unit on Cortex-M7)
-   * - arm_cortexM7bfdp_math.lib (Big endian and Double Precision Floating Point Unit on Cortex-M7)
-   * - arm_cortexM7lfsp_math.lib (Little endian and Single Precision Floating Point Unit on Cortex-M7)
-   * - arm_cortexM7bfsp_math.lib (Big endian and Single Precision Floating Point Unit on Cortex-M7)
-   * - arm_cortexM7l_math.lib (Little endian on Cortex-M7)
-   * - arm_cortexM7b_math.lib (Big endian on Cortex-M7)
-   * - arm_cortexM4lf_math.lib (Little endian and Floating Point Unit on Cortex-M4)
-   * - arm_cortexM4bf_math.lib (Big endian and Floating Point Unit on Cortex-M4)
-   * - arm_cortexM4l_math.lib (Little endian on Cortex-M4)
-   * - arm_cortexM4b_math.lib (Big endian on Cortex-M4)
-   * - arm_cortexM3l_math.lib (Little endian on Cortex-M3)
-   * - arm_cortexM3b_math.lib (Big endian on Cortex-M3)
-   * - arm_cortexM0l_math.lib (Little endian on Cortex-M0 / Cortex-M0+)
-   * - arm_cortexM0b_math.lib (Big endian on Cortex-M0 / Cortex-M0+)
+   * - arm_cortexM7lfdp_math.lib (Cortex-M7, Little endian, Double Precision Floating Point Unit)
+   * - arm_cortexM7bfdp_math.lib (Cortex-M7, Big endian, Double Precision Floating Point Unit)
+   * - arm_cortexM7lfsp_math.lib (Cortex-M7, Little endian, Single Precision Floating Point Unit)
+   * - arm_cortexM7bfsp_math.lib (Cortex-M7, Big endian and Single Precision Floating Point Unit on)
+   * - arm_cortexM7l_math.lib (Cortex-M7, Little endian)
+   * - arm_cortexM7b_math.lib (Cortex-M7, Big endian)
+   * - arm_cortexM4lf_math.lib (Cortex-M4, Little endian, Floating Point Unit)
+   * - arm_cortexM4bf_math.lib (Cortex-M4, Big endian, Floating Point Unit)
+   * - arm_cortexM4l_math.lib (Cortex-M4, Little endian)
+   * - arm_cortexM4b_math.lib (Cortex-M4, Big endian)
+   * - arm_cortexM3l_math.lib (Cortex-M3, Little endian)
+   * - arm_cortexM3b_math.lib (Cortex-M3, Big endian)
+   * - arm_cortexM0l_math.lib (Cortex-M0 / Cortex-M0+, Little endian)
+   * - arm_cortexM0b_math.lib (Cortex-M0 / Cortex-M0+, Big endian)
+   * - arm_ARMv8MBLl_math.lib (ARMv8M Baseline, Little endian)
+   * - arm_ARMv8MMLl_math.lib (ARMv8M Mainline, Little endian)
+   * - arm_ARMv8MMLlfsp_math.lib (ARMv8M Mainline, Little endian, Single Precision Floating Point Unit)
+   * - arm_ARMv8MMLld_math.lib (ARMv8M Mainline, Little endian, DSP instructions)
+   * - arm_ARMv8MMLldfsp_math.lib (ARMv8M Mainline, Little endian, DSP instructions, Single Precision Floating Point Unit)
    *
    * The library functions are declared in the public file <code>arm_math.h</code> which is placed in the <code>Include</code> folder.
    * Simply include this file and link the appropriate library in the application and begin calling the library functions. The Library supports single
-   * public header file <code> arm_math.h</code> for Cortex-M7/M4/M3/M0/M0+ with little endian and big endian. Same header file will be used for floating point unit(FPU) variants.
+   * public header file <code> arm_math.h</code> for Cortex-M cores with little endian and big endian. Same header file will be used for floating point unit(FPU) variants.
    * Define the appropriate pre processor MACRO ARM_MATH_CM7 or ARM_MATH_CM4 or  ARM_MATH_CM3 or
    * ARM_MATH_CM0 or ARM_MATH_CM0PLUS depending on the target processor in the application.
+   * For ARMv8M cores define pre processor MACRO ARM_MATH_ARMV8MBL or ARM_MATH_ARMV8MML.
+   * Set Pre processor MACRO __DSP_PRESENT if ARMv8M Mainline core supports DSP instructions.
+   * 
    *
    * Examples
    * --------
@@ -134,9 +130,18 @@
    * and ARM_MATH_CM0 for building library on Cortex-M0 target, ARM_MATH_CM0PLUS for building library on Cortex-M0+ target, and
    * ARM_MATH_CM7 for building the library on cortex-M7.
    *
+   * - ARM_MATH_ARMV8MxL:
+   *
+   * Define macro ARM_MATH_ARMV8MBL for building the library on ARMv8M Baseline target, ARM_MATH_ARMV8MBL for building library
+   * on ARMv8M Mainline target.
+   *
    * - __FPU_PRESENT:
    *
-   * Initialize macro __FPU_PRESENT = 1 when building on FPU supported Targets. Enable this macro for M4bf and M4lf libraries
+   * Initialize macro __FPU_PRESENT = 1 when building on FPU supported Targets. Enable this macro for floating point libraries.
+   *
+   * - __DSP_PRESENT:
+   *
+   * Initialize macro __DSP_PRESENT = 1 when ARMv8M Mainline core supports DSP instructions.
    *
    * <hr>
    * CMSIS-DSP in ARM::CMSIS Pack
@@ -300,8 +305,10 @@
 
 #if defined(ARM_MATH_CM7)
   #include "core_cm7.h"
+  #define ARM_MATH_DSP
 #elif defined (ARM_MATH_CM4)
   #include "core_cm4.h"
+  #define ARM_MATH_DSP
 #elif defined (ARM_MATH_CM3)
   #include "core_cm3.h"
 #elif defined (ARM_MATH_CM0)
@@ -310,8 +317,16 @@
 #elif defined (ARM_MATH_CM0PLUS)
   #include "core_cm0plus.h"
   #define ARM_MATH_CM0_FAMILY
+#elif defined (ARM_MATH_ARMV8MBL)
+  #include "core_armv8mbl.h"
+  #define ARM_MATH_CM0_FAMILY
+#elif defined (ARM_MATH_ARMV8MML)
+  #include "core_armv8mml.h"
+  #if (defined (__DSP_PRESENT) && (__DSP_PRESENT == 1))
+    #define ARM_MATH_DSP
+  #endif
 #else
-  #error "Define according the used Cortex core ARM_MATH_CM7, ARM_MATH_CM4, ARM_MATH_CM3, ARM_MATH_CM0PLUS or ARM_MATH_CM0"
+  #error "Define according the used Cortex core ARM_MATH_CM7, ARM_MATH_CM4, ARM_MATH_CM3, ARM_MATH_CM0PLUS, ARM_MATH_CM0, ARM_MATH_ARMV8MBL, ARM_MATH_ARMV8MML"
 #endif
 
 #undef  __CMSIS_GENERIC         /* enable NVIC and Systick functions */
@@ -331,7 +346,7 @@ extern "C"
 #define DELTA_Q15          0x5
 #define INDEX_MASK         0x0000003F
 #ifndef PI
-#define PI                 3.14159265358979f
+  #define PI               3.14159265358979f
 #endif
 
   /**
@@ -342,7 +357,6 @@ extern "C"
 #define FAST_MATH_Q31_SHIFT   (32 - 10)
 #define FAST_MATH_Q15_SHIFT   (16 - 10)
 #define CONTROLLER_Q31_SHIFT  (32 - 9)
-#define TABLE_SIZE  256
 #define TABLE_SPACING_Q31     0x400000
 #define TABLE_SPACING_Q15     0x80
 
@@ -458,7 +472,8 @@ extern "C"
 #define _SIMD32_OFFSET(addr)  (*(__SIMD32_TYPE *)  (addr))
 #define __SIMD64(addr)        (*(int64_t **) & (addr))
 
-#if defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY)
+/* #if defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+#if !defined (ARM_MATH_DSP)
   /**
    * @brief definition to pack two 16 bit values.
    */
@@ -467,8 +482,8 @@ extern "C"
 #define __PKHTB(ARG1, ARG2, ARG3) ( (((int32_t)(ARG1) <<    0) & (int32_t)0xFFFF0000) | \
                                     (((int32_t)(ARG2) >> ARG3) & (int32_t)0x0000FFFF)  )
 
-#endif
-
+/* #endif // defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+#endif /* !defined (ARM_MATH_DSP) */
 
    /**
    * @brief definition to pack four 8 bit values.
@@ -557,7 +572,7 @@ extern "C"
     uint32_t count = 0;
     uint32_t mask = 0x80000000;
 
-    while((data & mask) == 0)
+    while ((data & mask) == 0)
     {
       count += 1u;
       mask = mask >> 1u;
@@ -581,7 +596,7 @@ extern "C"
     uint32_t index, i;
     uint32_t signBits;
 
-    if(in > 0)
+    if (in > 0)
     {
       signBits = ((uint32_t) (__CLZ( in) - 1));
     }
@@ -632,7 +647,7 @@ extern "C"
     uint32_t index = 0, i = 0;
     uint32_t signBits = 0;
 
-    if(in > 0)
+    if (in > 0)
     {
       signBits = ((uint32_t)(__CLZ( in) - 17));
     }
@@ -687,11 +702,11 @@ extern "C"
       posMax = posMax * 2;
     }
 
-    if(x > 0)
+    if (x > 0)
     {
       posMax = (posMax - 1);
 
-      if(x > posMax)
+      if (x > posMax)
       {
         x = posMax;
       }
@@ -700,7 +715,7 @@ extern "C"
     {
       negMin = -posMax;
 
-      if(x < negMin)
+      if (x < negMin)
       {
         x = negMin;
       }
@@ -713,7 +728,8 @@ extern "C"
   /*
    * @brief C custom defined intrinsic function for M3 and M0 processors
    */
-#if defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY)
+/* #if defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+#if !defined (ARM_MATH_DSP)
 
   /*
    * @brief C custom defined QADD8 for M3 and M0 processors
@@ -1042,7 +1058,34 @@ extern "C"
     return (sum + (int32_t) (((int64_t) x * y) >> 32));
   }
 
-#endif /* defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+#if 0
+  /*
+   * @brief C custom defined PKHBT for unavailable DSP extension
+   */
+  CMSIS_INLINE __STATIC_INLINE uint32_t __PKHBT(
+  uint32_t x,
+  uint32_t y,
+  uint32_t leftshift)
+  {
+    return ( ((x             ) & 0x0000FFFFUL) |
+             ((y << leftshift) & 0xFFFF0000UL)  );
+  }
+
+  /*
+   * @brief C custom defined PKHTB for unavailable DSP extension
+   */
+  CMSIS_INLINE __STATIC_INLINE uint32_t __PKHTB(
+  uint32_t x,
+  uint32_t y,
+  uint32_t rightshift)
+  {
+    return ( ((x              ) & 0xFFFF0000UL) |
+             ((y >> rightshift) & 0x0000FFFFUL)  );
+  }
+#endif
+
+/* #endif // defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+#endif /* !defined (ARM_MATH_DSP) */
 
 
   /**
@@ -1759,7 +1802,7 @@ extern "C"
   typedef struct
   {
     q15_t A0;           /**< The derived gain, A0 = Kp + Ki + Kd . */
-#ifdef ARM_MATH_CM0_FAMILY
+#if !defined (ARM_MATH_DSP)
     q15_t A1;
     q15_t A2;
 #else
@@ -4902,7 +4945,7 @@ void arm_rfft_fast_f32(
     q63_t acc;
     q15_t out;
 
-#ifndef ARM_MATH_CM0_FAMILY
+#if defined (ARM_MATH_DSP)
     __SIMD32_TYPE *vstate;
 
     /* Implementation of PID controller */
@@ -5466,12 +5509,12 @@ void arm_rfft_fast_f32(
     /* Calculation of index */
     i = (int32_t) ((x - S->x1) / xSpacing);
 
-    if(i < 0)
+    if (i < 0)
     {
       /* Iniatilize output for below specified range as least output value of table */
       y = pYData[0];
     }
-    else if((uint32_t)i >= S->nValues)
+    else if ((uint32_t)i >= S->nValues)
     {
       /* Iniatilize output for above specified range as last output value of table */
       y = pYData[S->nValues - 1];
@@ -5524,11 +5567,11 @@ void arm_rfft_fast_f32(
     /* Index value calculation */
     index = ((x & (q31_t)0xFFF00000) >> 20);
 
-    if(index >= (int32_t)(nValues - 1))
+    if (index >= (int32_t)(nValues - 1))
     {
       return (pYData[nValues - 1]);
     }
-    else if(index < 0)
+    else if (index < 0)
     {
       return (pYData[0]);
     }
@@ -5582,11 +5625,11 @@ void arm_rfft_fast_f32(
     /* Index value calculation */
     index = ((x & (int32_t)0xFFF00000) >> 20);
 
-    if(index >= (int32_t)(nValues - 1))
+    if (index >= (int32_t)(nValues - 1))
     {
       return (pYData[nValues - 1]);
     }
-    else if(index < 0)
+    else if (index < 0)
     {
       return (pYData[0]);
     }
@@ -5643,7 +5686,7 @@ void arm_rfft_fast_f32(
     }
     index = (x >> 20) & 0xfff;
 
-    if(index >= (nValues - 1))
+    if (index >= (nValues - 1))
     {
       return (pYData[nValues - 1]);
     }
@@ -5768,7 +5811,7 @@ void arm_rfft_fast_f32(
   float32_t in,
   float32_t * pOut)
   {
-    if(in >= 0.0f)
+    if (in >= 0.0f)
     {
 
 #if   (__FPU_USED == 1) && defined ( __CC_ARM   )
@@ -5843,7 +5886,7 @@ void arm_rfft_fast_f32(
     /* Loop over the blockSize */
     i = blockSize;
 
-    while(i > 0u)
+    while (i > 0u)
     {
       /* copy the input sample to the circular buffer */
       circBuffer[wOffset] = *src;
@@ -5853,7 +5896,7 @@ void arm_rfft_fast_f32(
 
       /* Circularly update wOffset.  Watch out for positive and negative value */
       wOffset += bufferInc;
-      if(wOffset >= L)
+      if (wOffset >= L)
         wOffset -= L;
 
       /* Decrement the loop counter */
@@ -5891,7 +5934,7 @@ void arm_rfft_fast_f32(
     /* Loop over the blockSize */
     i = blockSize;
 
-    while(i > 0u)
+    while (i > 0u)
     {
       /* copy the sample from the circular buffer to the destination buffer */
       *dst = circBuffer[rOffset];
@@ -5899,7 +5942,7 @@ void arm_rfft_fast_f32(
       /* Update the input pointer */
       dst += dstInc;
 
-      if(dst == (int32_t *) dst_end)
+      if (dst == (int32_t *) dst_end)
       {
         dst = dst_base;
       }
@@ -5907,7 +5950,7 @@ void arm_rfft_fast_f32(
       /* Circularly update rOffset.  Watch out for positive and negative value  */
       rOffset += bufferInc;
 
-      if(rOffset >= L)
+      if (rOffset >= L)
       {
         rOffset -= L;
       }
@@ -5943,7 +5986,7 @@ void arm_rfft_fast_f32(
     /* Loop over the blockSize */
     i = blockSize;
 
-    while(i > 0u)
+    while (i > 0u)
     {
       /* copy the input sample to the circular buffer */
       circBuffer[wOffset] = *src;
@@ -5953,7 +5996,7 @@ void arm_rfft_fast_f32(
 
       /* Circularly update wOffset.  Watch out for positive and negative value */
       wOffset += bufferInc;
-      if(wOffset >= L)
+      if (wOffset >= L)
         wOffset -= L;
 
       /* Decrement the loop counter */
@@ -5991,7 +6034,7 @@ void arm_rfft_fast_f32(
     /* Loop over the blockSize */
     i = blockSize;
 
-    while(i > 0u)
+    while (i > 0u)
     {
       /* copy the sample from the circular buffer to the destination buffer */
       *dst = circBuffer[rOffset];
@@ -5999,7 +6042,7 @@ void arm_rfft_fast_f32(
       /* Update the input pointer */
       dst += dstInc;
 
-      if(dst == (q15_t *) dst_end)
+      if (dst == (q15_t *) dst_end)
       {
         dst = dst_base;
       }
@@ -6007,7 +6050,7 @@ void arm_rfft_fast_f32(
       /* Circularly update wOffset.  Watch out for positive and negative value */
       rOffset += bufferInc;
 
-      if(rOffset >= L)
+      if (rOffset >= L)
       {
         rOffset -= L;
       }
@@ -6043,7 +6086,7 @@ void arm_rfft_fast_f32(
     /* Loop over the blockSize */
     i = blockSize;
 
-    while(i > 0u)
+    while (i > 0u)
     {
       /* copy the input sample to the circular buffer */
       circBuffer[wOffset] = *src;
@@ -6053,7 +6096,7 @@ void arm_rfft_fast_f32(
 
       /* Circularly update wOffset.  Watch out for positive and negative value */
       wOffset += bufferInc;
-      if(wOffset >= L)
+      if (wOffset >= L)
         wOffset -= L;
 
       /* Decrement the loop counter */
@@ -6091,7 +6134,7 @@ void arm_rfft_fast_f32(
     /* Loop over the blockSize */
     i = blockSize;
 
-    while(i > 0u)
+    while (i > 0u)
     {
       /* copy the sample from the circular buffer to the destination buffer */
       *dst = circBuffer[rOffset];
@@ -6099,7 +6142,7 @@ void arm_rfft_fast_f32(
       /* Update the input pointer */
       dst += dstInc;
 
-      if(dst == (q7_t *) dst_end)
+      if (dst == (q7_t *) dst_end)
       {
         dst = dst_base;
       }
@@ -6107,7 +6150,7 @@ void arm_rfft_fast_f32(
       /* Circularly update rOffset.  Watch out for positive and negative value */
       rOffset += bufferInc;
 
-      if(rOffset >= L)
+      if (rOffset >= L)
       {
         rOffset -= L;
       }
@@ -6788,7 +6831,7 @@ void arm_rfft_fast_f32(
 
     /* Care taken for table outside boundary */
     /* Returns zero output when values are outside table boundary */
-    if(xIndex < 0 || xIndex > (S->numRows - 1) || yIndex < 0 || yIndex > (S->numCols - 1))
+    if (xIndex < 0 || xIndex > (S->numRows - 1) || yIndex < 0 || yIndex > (S->numCols - 1))
     {
       return (0);
     }
@@ -6862,7 +6905,7 @@ void arm_rfft_fast_f32(
 
     /* Care taken for table outside boundary */
     /* Returns zero output when values are outside table boundary */
-    if(rI < 0 || rI > (S->numRows - 1) || cI < 0 || cI > (S->numCols - 1))
+    if (rI < 0 || rI > (S->numRows - 1) || cI < 0 || cI > (S->numCols - 1))
     {
       return (0);
     }
@@ -6936,7 +6979,7 @@ void arm_rfft_fast_f32(
 
     /* Care taken for table outside boundary */
     /* Returns zero output when values are outside table boundary */
-    if(rI < 0 || rI > (S->numRows - 1) || cI < 0 || cI > (S->numCols - 1))
+    if (rI < 0 || rI > (S->numRows - 1) || cI < 0 || cI > (S->numCols - 1))
     {
       return (0);
     }
@@ -7014,7 +7057,7 @@ void arm_rfft_fast_f32(
 
     /* Care taken for table outside boundary */
     /* Returns zero output when values are outside table boundary */
-    if(rI < 0 || rI > (S->numRows - 1) || cI < 0 || cI > (S->numCols - 1))
+    if (rI < 0 || rI > (S->numRows - 1) || cI < 0 || cI > (S->numCols - 1))
     {
       return (0);
     }

@@ -18,6 +18,7 @@
 from tools.export import codered, ds5_5, iar, makefile
 from tools.export import embitz, coide, kds, simplicity, atmelstudio
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
+from tools.export import gnuarmeclipse
 from tools.targets import TARGET_NAMES
 
 EXPORTERS = {
@@ -40,6 +41,7 @@ EXPORTERS = {
     'eclipse_gcc_arm'  : cdt.EclipseGcc,
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
+    'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
     'zip' : zip.ZIP,
     'cmsis'    : cmsis.CMSIS
 }

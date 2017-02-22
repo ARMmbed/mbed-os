@@ -199,20 +199,23 @@ uint8_t * USBHID::stringIproductDesc() {
 
 uint8_t * USBHID::reportDesc() {
     static uint8_t reportDescriptor[] = {
-        0x06, LSB(0xFFAB), MSB(0xFFAB),
-        0x0A, LSB(0x0200), MSB(0x0200),
-        0xA1, 0x01,         // Collection 0x01
-        0x75, 0x08,         // report size = 8 bits
-        0x15, 0x00,         // logical minimum = 0
-        0x26, 0xFF, 0x00,   // logical maximum = 255
-        0x95, input_length, // report count
-        0x09, 0x01,         // usage
-        0x81, 0x02,         // Input (array)
-        0x95, output_length,// report count
-        0x09, 0x02,         // usage
-        0x91, 0x02,         // Output (array)
-        0xC0                // end collection
+        USAGE_PAGE(2), LSB(0xFFAB), MSB(0xFFAB),
+        USAGE(2), LSB(0x0200), MSB(0x0200),
+        COLLECTION(1), 0x01, // Collection (Application)
 
+        REPORT_SIZE(1), 0x08, // 8 bits
+        LOGICAL_MINIMUM(1), 0x00,
+        LOGICAL_MAXIMUM(1), 0xFF,
+
+        REPORT_COUNT(1), input_length,
+        USAGE(1), 0x01,
+        INPUT(1), 0x02, // Data, Var, Abs
+
+        REPORT_COUNT(1), output_length,
+        USAGE(1), 0x02,
+        OUTPUT(1), 0x02, // Data, Var, Abs
+
+        END_COLLECTION(0),
     };
     reportLength = sizeof(reportDescriptor);
     return reportDescriptor;
@@ -226,51 +229,51 @@ uint8_t * USBHID::reportDesc() {
 
 uint8_t * USBHID::configurationDesc() {
     static uint8_t configurationDescriptor[] = {
-        CONFIGURATION_DESCRIPTOR_LENGTH,// bLength
-        CONFIGURATION_DESCRIPTOR,       // bDescriptorType
-        LSB(TOTAL_DESCRIPTOR_LENGTH),   // wTotalLength (LSB)
-        MSB(TOTAL_DESCRIPTOR_LENGTH),   // wTotalLength (MSB)
-        0x01,                           // bNumInterfaces
-        DEFAULT_CONFIGURATION,          // bConfigurationValue
-        0x00,                           // iConfiguration
-        C_RESERVED | C_SELF_POWERED,    // bmAttributes
-        C_POWER(0),                     // bMaxPower
+        CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
+        CONFIGURATION_DESCRIPTOR,           // bDescriptorType
+        LSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (LSB)
+        MSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (MSB)
+        0x01,                               // bNumInterfaces
+        DEFAULT_CONFIGURATION,              // bConfigurationValue
+        0x00,                               // iConfiguration
+        C_RESERVED | C_SELF_POWERED,        // bmAttributes
+        C_POWER(0),                         // bMaxPower
 
-        INTERFACE_DESCRIPTOR_LENGTH,    // bLength
-        INTERFACE_DESCRIPTOR,           // bDescriptorType
-        0x00,                           // bInterfaceNumber
-        0x00,                           // bAlternateSetting
-        0x02,                           // bNumEndpoints
-        HID_CLASS,                      // bInterfaceClass
-        HID_SUBCLASS_NONE,              // bInterfaceSubClass
-        HID_PROTOCOL_NONE,              // bInterfaceProtocol
-        0x00,                           // iInterface
+        INTERFACE_DESCRIPTOR_LENGTH,        // bLength
+        INTERFACE_DESCRIPTOR,               // bDescriptorType
+        0x00,                               // bInterfaceNumber
+        0x00,                               // bAlternateSetting
+        0x02,                               // bNumEndpoints
+        HID_CLASS,                          // bInterfaceClass
+        HID_SUBCLASS_NONE,                  // bInterfaceSubClass
+        HID_PROTOCOL_NONE,                  // bInterfaceProtocol
+        0x00,                               // iInterface
 
-        HID_DESCRIPTOR_LENGTH,          // bLength
-        HID_DESCRIPTOR,                 // bDescriptorType
-        LSB(HID_VERSION_1_11),          // bcdHID (LSB)
-        MSB(HID_VERSION_1_11),          // bcdHID (MSB)
-        0x00,                           // bCountryCode
-        0x01,                           // bNumDescriptors
-        REPORT_DESCRIPTOR,              // bDescriptorType
-        (uint8_t)(LSB(this->reportDescLength())),  // wDescriptorLength (LSB)
-        (uint8_t)(MSB(this->reportDescLength())),  // wDescriptorLength (MSB)
+        HID_DESCRIPTOR_LENGTH,              // bLength
+        HID_DESCRIPTOR,                     // bDescriptorType
+        LSB(HID_VERSION_1_11),              // bcdHID (LSB)
+        MSB(HID_VERSION_1_11),              // bcdHID (MSB)
+        0x00,                               // bCountryCode
+        0x01,                               // bNumDescriptors
+        REPORT_DESCRIPTOR,                  // bDescriptorType
+        (uint8_t)(LSB(reportDescLength())), // wDescriptorLength (LSB)
+        (uint8_t)(MSB(reportDescLength())), // wDescriptorLength (MSB)
 
-        ENDPOINT_DESCRIPTOR_LENGTH,     // bLength
-        ENDPOINT_DESCRIPTOR,            // bDescriptorType
-        PHY_TO_DESC(EPINT_IN),          // bEndpointAddress
-        E_INTERRUPT,                    // bmAttributes
-        LSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (LSB)
-        MSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (MSB)
-        1,                             // bInterval (milliseconds)
+        ENDPOINT_DESCRIPTOR_LENGTH,         // bLength
+        ENDPOINT_DESCRIPTOR,                // bDescriptorType
+        PHY_TO_DESC(EPINT_IN),              // bEndpointAddress
+        E_INTERRUPT,                        // bmAttributes
+        LSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (LSB)
+        MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
+        1,                                  // bInterval (milliseconds)
 
-        ENDPOINT_DESCRIPTOR_LENGTH,     // bLength
-        ENDPOINT_DESCRIPTOR,            // bDescriptorType
-        PHY_TO_DESC(EPINT_OUT),          // bEndpointAddress
-        E_INTERRUPT,                    // bmAttributes
-        LSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (LSB)
-        MSB(MAX_PACKET_SIZE_EPINT),     // wMaxPacketSize (MSB)
-        1,                             // bInterval (milliseconds)
+        ENDPOINT_DESCRIPTOR_LENGTH,         // bLength
+        ENDPOINT_DESCRIPTOR,                // bDescriptorType
+        PHY_TO_DESC(EPINT_OUT),             // bEndpointAddress
+        E_INTERRUPT,                        // bmAttributes
+        LSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (LSB)
+        MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
+        1,                                  // bInterval (milliseconds)
     };
     return configurationDescriptor;
 }
