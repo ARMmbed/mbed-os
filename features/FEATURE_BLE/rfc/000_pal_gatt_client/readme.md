@@ -131,7 +131,7 @@ The messages replied by the server to the client are modeled after the ATT
 specification. 
 
 The base class for these messages is `pal::AttServerMessage` every ATT PDU from 
-the following types: *Request*, *Notification* and *Indication* is modeled by a 
+the following types: *Response*, *Notification* and *Indication* is modeled by a
 class inheriting from `pal::AttServerMessage`. 
 
 The class hierarchy can be resumed in the following diagram: 
