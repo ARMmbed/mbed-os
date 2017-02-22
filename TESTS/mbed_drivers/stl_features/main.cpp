@@ -38,9 +38,9 @@ using namespace utest::v1;
 
 
 namespace {
-int p_integers[] = {POSITIVE_INTEGERS};
-int n_integers[] = {NEGATIVE_INTEGERS};
-float floats[] = {FLOATS};
+const int p_integers[] = {POSITIVE_INTEGERS};
+const int n_integers[] = {NEGATIVE_INTEGERS};
+const float floats[] = {FLOATS};
 
 template <class T, class F>
 void BubbleSort(T& _array, size_t array_size, F functor) {

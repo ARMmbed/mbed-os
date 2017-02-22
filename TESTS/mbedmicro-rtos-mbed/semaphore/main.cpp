@@ -10,6 +10,8 @@
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100
 
+#define THREAD_STACK_SIZE 768
+
 void print_char(char c = '*') {
     printf("%c", c);
     fflush(stdout);
@@ -47,9 +49,9 @@ int main (void) {
     const int t2_delay = THREAD_DELAY * 2;
     const int t3_delay = THREAD_DELAY * 3;
 
-    Thread t1;
-    Thread t2;
-    Thread t3;
+    Thread t1(osPriorityNormal, THREAD_STACK_SIZE);
+    Thread t2(osPriorityNormal, THREAD_STACK_SIZE);
+    Thread t3(osPriorityNormal, THREAD_STACK_SIZE);
 
     t1.start(callback(test_thread, &t1_delay));
     t2.start(callback(test_thread, &t2_delay));
