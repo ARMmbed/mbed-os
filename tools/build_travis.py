@@ -24,7 +24,7 @@ import sys
 
 ################################################################################
 # Configure builds here
-# "libs" can contain "dsp", "rtos", "eth", "usb_host", "usb", "ublox", "fat"
+# "libs" can contain "dsp", "rtos", "eth", "usb_host", "usb", "ublox"
 
 build_list = (
     { "target": "LPC1768",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb"] },
@@ -133,7 +133,7 @@ build_list = (
  )
 
 ################################################################################
-# Configure example test building (linking against external mbed SDK libraries liek fat or rtos)
+# Configure example test building (linking against external mbed SDK libraries like rtos)
 
 linking_list = [
     {"target": "LPC1768",
