@@ -197,47 +197,22 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
         }
     }
 
-#if 0
-    /*
-     * This should be in the switch case, this is put outside of the switch
-     * case for example readability.
-     */
-
     if (err_code == PPPERR_NONE) {
-        return;
-    }
-
-    /* ppp_close() was previously called, don't reconnect */
-    if (err_code == PPPERR_USER) {
-        /* ppp_free(); -- can be called here */
-        return;
-    }
-
-    /*
-     * Try to reconnect in 30 seconds, if you need a modem chatscript you have
-     * to do a much better signaling here ;-)
-     */
-    ppp_connect(pcb, 30);
-    /* OR ppp_listen(pcb); */
-
-#endif
-}
-
-static void flush(FileHandle *stream)
-{
-    char buffer[8];
-    for (;;) {
-        ssize_t ret = stream->read(buffer, sizeof buffer);
-        if (ret <= 0) {
-            break;
+        ppp_link_up = true;
+    } else {
+        if (ppp_link_up) {
+            ppp_link_up = false;
+            sys_sem_signal(&ppp_close_sem);
         }
     }
+
+    notify_ppp_link_status(err_code);
 }
 
 #if !PPP_INPROC_IRQ_SAFE
 #error "PPP_INPROC_IRQ_SAFE must be enabled"
 #endif
-static void ppp_input(FileHandle *stream)
+static void ppp_input()
 {
     // Allow new events from now, avoiding potential races around the read
     event_queued = false;
@@ -259,7 +234,7 @@ static void ppp_input(FileHandle *stream)
     // serial, so we will fairly rapidly hit -EAGAIN.
     for (;;) {
         u8_t buffer[16];
-        ssize_t len = stream->read(buffer, sizeof buffer);
+        ssize_t len = my_stream->read(buffer, sizeof buffer);
         if (len == -EAGAIN) {
             break;
         } else if (len <= 0) {
