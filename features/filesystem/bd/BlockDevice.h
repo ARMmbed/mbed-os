@@ -50,7 +50,8 @@ typedef uint64_t bd_size_t;
 
 /** A hardware device capable of writing and reading blocks
  */
-class BlockDevice {
+class BlockDevice
+{
 public:
     /** Lifetime of a block device
      */
@@ -119,7 +120,7 @@ public:
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size() = 0;
+    virtual bd_size_t get_read_size() const = 0;
 
     /** Get the size of a writeable block
      *
@@ -127,21 +128,21 @@ public:
      *  @note Must be a multiple of the read size, this is
      *  equivalent to the erase size of the device
      */
-    virtual bd_size_t get_write_size();
+    virtual bd_size_t get_write_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size() = 0;
+    virtual bd_size_t get_program_size() const = 0;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() = 0;
+    virtual bd_size_t get_erase_size() const = 0;
 
     /** Get the total size of the underlying device
      *

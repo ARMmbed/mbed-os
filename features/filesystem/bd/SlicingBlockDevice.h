@@ -45,7 +45,8 @@
  *  // Create a block device that maps to the middle 32 blocks
  *  SlicingBlockDevice slice3(&mem, 16*512, -16*512);
  */
-class SlicingBlockDevice : public BlockDevice {
+class SlicingBlockDevice : public BlockDevice
+{
 public:
     /** Lifetime of the memory block device
      *
@@ -117,21 +118,21 @@ public:
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size();
+    virtual bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size();
+    virtual bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size();
+    virtual bd_size_t get_erase_size() const;
 
     /** Get the total size of the underlying device
      *

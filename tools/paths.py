@@ -24,9 +24,7 @@ from tools.settings import ROOT, BUILD_DIR
 BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 
 # Embedded Libraries Sources
-FEATURES_DIR = join(ROOT, "features")  
-LIB_DIR = join(FEATURES_DIR, "unsupported")  
-
+LIB_DIR = join(ROOT, "features/unsupported")
 
 TOOLS = join(ROOT, "tools")
 TOOLS_DATA = join(TOOLS, "data")
@@ -77,12 +75,6 @@ NET_LIBRARIES = join(BUILD_DIR, "net")
 ETH_LIBRARY = join(NET_LIBRARIES, "eth")
 VODAFONE_LIBRARY = join(NET_LIBRARIES, "VodafoneUSBModem")
 UBLOX_LIBRARY = join(NET_LIBRARIES, "UbloxUSBModem")
-
-# FS
-FS_PATH = join(FEATURES_DIR, "filesystem")
-FAT_FS = join(FS_PATH, "fat")
-SD_FS = join(FS_PATH, "sd")
-FS_LIBRARY = join(BUILD_DIR, "fat")
 
 # DSP
 DSP = join(LIB_DIR, "dsp")

@@ -35,7 +35,7 @@ bd_error_t ChainingBlockDevice::init()
     _erase_size = 0;
     _size = 0;
 
-    // Initialize children block devices, find all sizes and 
+    // Initialize children block devices, find all sizes and
     // assert that block sizes are similar. We can't do this in
     // the constructor since some block devices may need to be
     // initialized before they know their block size/count
@@ -183,17 +183,17 @@ bd_error_t ChainingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-bd_size_t ChainingBlockDevice::get_read_size()
+bd_size_t ChainingBlockDevice::get_read_size() const
 {
     return _read_size;
 }
 
-bd_size_t ChainingBlockDevice::get_program_size()
+bd_size_t ChainingBlockDevice::get_program_size() const
 {
     return _program_size;
 }
 
-bd_size_t ChainingBlockDevice::get_erase_size()
+bd_size_t ChainingBlockDevice::get_erase_size() const
 {
     return _erase_size;
 }

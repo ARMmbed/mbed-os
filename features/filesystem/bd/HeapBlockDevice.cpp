@@ -24,8 +24,7 @@ HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t block)
     MBED_ASSERT(_count * _erase_size == size);
 }
 
-HeapBlockDevice::HeapBlockDevice(bd_size_t size,
-        bd_size_t read, bd_size_t program, bd_size_t erase)
+HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t read, bd_size_t program, bd_size_t erase)
     : _read_size(read), _program_size(program), _erase_size(erase)
     , _count(size / erase), _blocks(0)
 {
@@ -63,17 +62,17 @@ bd_error_t HeapBlockDevice::deinit()
     return BD_ERROR_OK;
 }
 
-bd_size_t HeapBlockDevice::get_read_size()
+bd_size_t HeapBlockDevice::get_read_size() const
 {
     return _read_size;
 }
 
-bd_size_t HeapBlockDevice::get_program_size()
+bd_size_t HeapBlockDevice::get_program_size() const
 {
     return _program_size;
 }
 
-bd_size_t HeapBlockDevice::get_erase_size()
+bd_size_t HeapBlockDevice::get_erase_size() const
 {
     return _erase_size;
 }
@@ -142,7 +141,6 @@ bd_error_t HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         return BD_ERROR_PARAMETER;
     }
 
-#ifndef NDEBUG
     while (size > 0) {
         bd_addr_t hi = addr / _erase_size;
 
@@ -153,7 +151,6 @@ bd_error_t HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         addr += _erase_size;
         size -= _erase_size;
     }
-#endif
 
     return 0;
 }

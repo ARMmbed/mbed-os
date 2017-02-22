@@ -32,13 +32,14 @@
 using namespace mbed;
 
 /**
- * FATFileSystem based on ChaN's Fat Filesystem library v0.8 
+ * FATFileSystem based on ChaN's Fat Filesystem library v0.8
  */
-class FATFileSystem : public FileSystemLike {
+class FATFileSystem : public FileSystemLike
+{
 public:
     FATFileSystem(const char* n, BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
-    
+
     /**
      * @brief   Mounts the filesystem
      *
@@ -49,7 +50,7 @@ public:
      *   Flag to underlying filesystem to force the mounting of the filesystem.
      */
     virtual int mount(BlockDevice *bd, bool force = true);
-    
+
     /**
      * Unmounts the filesystem
      */
@@ -59,7 +60,7 @@ public:
      * Flush any underlying transactions
      */
     virtual int sync();
-    
+
     /**
      * @brief   Formats a logical drive, FDISK partitioning rule.
      *
@@ -81,22 +82,22 @@ public:
      * Opens a file on the filesystem
      */
     virtual FileHandle *open(const char* name, int flags);
-    
+
     /**
      * Removes a file path
      */
     virtual int remove(const char *filename);
-    
+
     /**
      * Renames a file
      */
     virtual int rename(const char *oldname, const char *newname);
-    
+
     /**
      * Opens a directory on the filesystem
      */
     virtual DirHandle *opendir(const char *name);
-    
+
     /**
      * Creates a directory path
      */
@@ -106,12 +107,34 @@ public:
      * Store information about file in stat structure
      */
     virtual int stat(const char *name, struct stat *st);
-    
+
 protected:
     FATFS _fs; // Work area (file system object) for logical drive
     char _fsid[2];
     int _id;
 
+    /* Access to the underlying FAT filesystem implementation from multiple
+     * concurrent clients (i.e. threads) is serialised using a single
+     * platform mutex (_ffs_mutex) The implementation is therefore thread
+     * safe (but this requires further validation and testing).
+     *  - The platform mutex _ffs_mutex is defined in the FileSystemLike
+     *    implementation.
+     *  - FileSystemLike uses the mutex to gain exclusive access to the
+     *    underlying block device for mount()/unmount()/format()/sync()
+     *    operations.
+     *  - FileSystemLike::open() uses the mutex to serialise FATFileHandle
+     *    object creation. The FATFileHandle constructor is passed a pointer
+     *    to the platform mutex so file operations (e.g. read()/write()/flen()
+     *    /fsync()) are serialised with the rest of the implementation.
+     *  - FileSystemLike::opendir() uses the mutex to serialise FATDirHandle
+     *    object creation. The FATDirHandle constructor is passed a pointer
+     *    to the platform mutex so directory operations (e.g. readdir()/
+     *    telldir()/rewinddir()/closedir()) are serialised with the rest
+     *    of the implementation.
+     *  - The platform mutex _ffs_mutex is taken/given using the lock()/unlock()
+     *    methods defined below, and similar helper methods exist in the
+     *    FATFileHandle and FATDirHandle classes.
+     */
     virtual void lock();
     virtual void unlock();
 };

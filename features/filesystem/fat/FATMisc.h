@@ -1,6 +1,6 @@
 /*
  * mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,15 @@
 
 #include "ff.h"
 
-void fat_filesystem_set_errno(FRESULT res);
+/* @brief   Set errno based on the error code returned from underlying FAT32 filesystem.
+ *
+ * @note    Note that errno reporting is not thread safe as this is not supported
+ *          by current versions of standard libraries.
+ *
+ * @param   res     result returned from underlying filesystem which is mapped to a
+ *                  suitable errno value.
+ *
+ * @return  No return value
+ */void fat_filesystem_set_errno(FRESULT res);
 
 #endif /* FILESYSTEM_FAT_MISC_H */

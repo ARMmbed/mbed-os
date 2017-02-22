@@ -27,7 +27,7 @@ using namespace utest::v1;
  * stack tracking statistics are enabled. If this is the case, build dummy
  * tests.
  */
-#if ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED)
+#if ! defined(__ICCARM__) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED)
 
 #define BLOCK_SIZE 512
 #define HEAP_BLOCK_DEVICE_TEST_01         test_read_write
@@ -64,7 +64,7 @@ void test_read_write() {
     TEST_ASSERT_EQUAL(0, err);
 }
 
-#else   /* ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
+#else   /* ! defined(__ICCARM__) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
 
 #define HEAP_BLOCK_DEVICE_TEST_01      heap_block_device_test_dummy
 
@@ -78,7 +78,7 @@ static control_t heap_block_device_test_dummy()
     return CaseNext;
 }
 
-#endif  /* ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
+#endif  /* ! defined(__ICCARM__) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {

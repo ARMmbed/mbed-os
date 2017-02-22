@@ -44,7 +44,8 @@
  *  BlockDevice *bds[] = {&mem1, &mem2};
  *  ChainingBlockDevice chainmem(bds);
  */
-class ChainingBlockDevice : public BlockDevice {
+class ChainingBlockDevice : public BlockDevice
+{
 public:
     /** Lifetime of the memory block device
      *
@@ -62,7 +63,8 @@ public:
     template <size_t Size>
     ChainingBlockDevice(BlockDevice *(&bds)[Size])
         : _bds(bds), _bd_count(sizeof(bds) / sizeof(bds[0]))
-        , _read_size(0), _program_size(0), _erase_size(0), _size(0) {
+        , _read_size(0), _program_size(0), _erase_size(0), _size(0)
+    {
     }
 
     /** Lifetime of the memory block device
@@ -118,21 +120,21 @@ public:
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size();
+    virtual bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size();
+    virtual bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size();
+    virtual bd_size_t get_erase_size() const;
 
     /** Get the total size of the underlying device
      *

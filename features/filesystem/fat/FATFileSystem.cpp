@@ -62,44 +62,50 @@ static SingletonPtr<PlatformMutex> _ffs_mutex;
 
 
 // FAT driver functions
-DWORD get_fattime(void) {
+DWORD get_fattime(void)
+{
     time_t rawtime;
     time(&rawtime);
     struct tm *ptm = localtime(&rawtime);
     return (DWORD)(ptm->tm_year - 80) << 25
-         | (DWORD)(ptm->tm_mon + 1  ) << 21
-         | (DWORD)(ptm->tm_mday     ) << 16
-         | (DWORD)(ptm->tm_hour     ) << 11
-         | (DWORD)(ptm->tm_min      ) << 5
-         | (DWORD)(ptm->tm_sec/2    );
+           | (DWORD)(ptm->tm_mon + 1  ) << 21
+           | (DWORD)(ptm->tm_mday     ) << 16
+           | (DWORD)(ptm->tm_hour     ) << 11
+           | (DWORD)(ptm->tm_min      ) << 5
+           | (DWORD)(ptm->tm_sec/2    );
 }
 
 // Implementation of diskio functions (see ChaN/diskio.h)
-DSTATUS disk_status(BYTE pdrv) {
+DSTATUS disk_status(BYTE pdrv)
+{
     debug_if(FFS_DBG, "disk_status on pdrv [%d]\n", pdrv);
     return RES_OK;
 }
 
-DSTATUS disk_initialize(BYTE pdrv) {
+DSTATUS disk_initialize(BYTE pdrv)
+{
     debug_if(FFS_DBG, "disk_initialize on pdrv [%d]\n", pdrv);
     return (DSTATUS)_ffs[pdrv]->init();
 }
 
-DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count) {
+DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
+{
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     bd_size_t ssize = _ffs[pdrv]->get_write_size();
     int err = _ffs[pdrv]->read(buff, sector*ssize, count*ssize);
     return err ? RES_PARERR : RES_OK;
 }
 
-DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count) {
+DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
+{
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     bd_size_t ssize = _ffs[pdrv]->get_write_size();
     int err = _ffs[pdrv]->write(buff, sector*ssize, count*ssize);
     return err ? RES_PARERR : RES_OK;
 }
 
-DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
+DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
+{
     debug_if(FFS_DBG, "disk_ioctl(%d)\n", cmd);
     switch (cmd) {
         case CTRL_SYNC:
@@ -134,18 +140,21 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
 
 // Filesystem implementation (See FATFilySystem.h)
 FATFileSystem::FATFileSystem(const char *n, BlockDevice *bd)
-        : FileSystemLike(n), _id(-1) {
+    : FileSystemLike(n), _id(-1)
+{
     if (bd) {
         mount(bd);
     }
 }
 
-FATFileSystem::~FATFileSystem() {
+FATFileSystem::~FATFileSystem()
+{
     // nop if unmounted
     unmount();
 }
 
-int FATFileSystem::mount(BlockDevice *bd, bool force) {
+int FATFileSystem::mount(BlockDevice *bd, bool force)
+{
     lock();
     if (_id != -1) {
         unlock();
@@ -170,7 +179,8 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
     return -1;
 }
 
-int FATFileSystem::unmount() {
+int FATFileSystem::unmount()
+{
     lock();
     if (_id == -1) {
         unlock();
@@ -185,7 +195,8 @@ int FATFileSystem::unmount() {
     return res == 0 ? 0 : -1;
 }
 
-int FATFileSystem::sync() {
+int FATFileSystem::sync()
+{
     lock();
     if (_id == -1) {
         unlock();
@@ -200,7 +211,8 @@ int FATFileSystem::sync() {
 
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
  * associated arguments. */
-int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
+int FATFileSystem::format(BlockDevice *bd, int allocation_unit)
+{
     FATFileSystem fs("");
     int err = fs.mount(bd, false);
     if (err) {
@@ -220,7 +232,8 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
     return res == 0 ? 0 : -1;
 }
 
-FileHandle *FATFileSystem::open(const char* name, int flags) {
+FileHandle *FATFileSystem::open(const char* name, int flags)
+{
     lock();
     debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", name, getName(), _fsid);
     char n[64];
@@ -259,7 +272,8 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
     return handle;
 }
 
-int FATFileSystem::remove(const char *filename) {
+int FATFileSystem::remove(const char *filename)
+{
     lock();
     FRESULT res = f_unlink(filename);
     fat_filesystem_set_errno(res);
@@ -272,7 +286,8 @@ int FATFileSystem::remove(const char *filename) {
     return 0;
 }
 
-int FATFileSystem::rename(const char *oldname, const char *newname) {
+int FATFileSystem::rename(const char *oldname, const char *newname)
+{
     lock();
     FRESULT res = f_rename(oldname, newname);
     fat_filesystem_set_errno(res);
@@ -285,7 +300,8 @@ int FATFileSystem::rename(const char *oldname, const char *newname) {
     return 0;
 }
 
-DirHandle *FATFileSystem::opendir(const char *name) {
+DirHandle *FATFileSystem::opendir(const char *name)
+{
     lock();
     FATFS_DIR dir;
     FRESULT res = f_opendir(&dir, name);
@@ -299,7 +315,8 @@ DirHandle *FATFileSystem::opendir(const char *name) {
     return handle;
 }
 
-int FATFileSystem::mkdir(const char *name, mode_t mode) {
+int FATFileSystem::mkdir(const char *name, mode_t mode)
+{
     lock();
     FRESULT res = f_mkdir(name);
     fat_filesystem_set_errno(res);
@@ -307,7 +324,8 @@ int FATFileSystem::mkdir(const char *name, mode_t mode) {
     return res == 0 ? 0 : -1;
 }
 
-int FATFileSystem::stat(const char *name, struct stat *st) {
+int FATFileSystem::stat(const char *name, struct stat *st)
+{
     lock();
     FILINFO f;
     memset(&f, 0, sizeof(f));
@@ -319,24 +337,27 @@ int FATFileSystem::stat(const char *name, struct stat *st) {
         return -1;
     }
 
-    /* ARMCC doesnt support stat(), and these symbols are not defined by the toolchain. */
-#ifdef TOOLCHAIN_GCC
+    /* ARMCC doesnt support stat(), and these symbols are not defined by the toolchain.
+     * Build only for GCC_ARM compiler. */
+#if defined(__GNU__)
     st->st_size = f.fsize;
     st->st_mode = 0;
     st->st_mode |= (f.fattrib & AM_DIR) ? S_IFDIR : S_IFREG;
     st->st_mode |= (f.fattrib & AM_RDO) ?
-        (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
-        (S_IRWXU | S_IRWXG | S_IRWXO);
-#endif /* TOOLCHAIN_GCC */
+                   (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
+                   (S_IRWXU | S_IRWXG | S_IRWXO);
+#endif /* __GNU__ */
     unlock();
     return res == 0 ? 0 : -1;
 }
 
-void FATFileSystem::lock() {
+void FATFileSystem::lock()
+{
     _ffs_mutex->lock();
 }
 
-void FATFileSystem::unlock() {
+void FATFileSystem::unlock()
+{
     _ffs_mutex->unlock();
 }
 

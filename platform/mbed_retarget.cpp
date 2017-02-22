@@ -422,7 +422,6 @@ extern "C" int _fstat(int fd, struct stat *st) {
         st->st_mode = S_IFCHR;
         return  0;
     }
-    /* todo: 20170120 this should now be made to work as _stat() is implemented */
     errno = EBADF;
     return -1;
 }

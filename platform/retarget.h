@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This file contains symbols used by the implementation that are not present
- * in the armcc errno.h, or sys/stat.h. These are used in for the POSIX
- * filesystem API to return errno codes, for example.
  */
 
 #ifndef RETARGET_H
 #define RETARGET_H
 
-#if defined TOOLCHAIN_ARM_STD || defined TOOLCHAIN_IAR
-/* The following are errno.h definitions not currently present in the ARMCC
- * errno.h. Note, ARMCC errno.h defines some symbols values differing from
- * GCC_ARM/IAR/standard POSIX definitions.Guard against this and future
- * changes by changing the symbol definition for filesystem use. */
+#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
+/* The intent of this section is to unify the errno error values to match
+ * the POSIX definitions for the GCC_ARM, ARMCC and IAR compilers. This is
+ * necessary because the ARMCC/IAR errno.h, or sys/stat.h are missing some
+ * symbol definitions used by the POSIX filesystem API to return errno codes.
+ * Note also that ARMCC errno.h defines some symbol values differently from
+ * the GCC_ARM/IAR/standard POSIX definitions. The definitions guard against
+ * this and future changes by changing the symbol definition as shown below. */
 #ifdef ENOENT
 #undef ENOENT
 #endif
@@ -106,6 +106,6 @@
 #define     S_IWOTH 0000002 /* write permission, other */
 #define     S_IXOTH 0000001/* execute/search permission, other */
 
-#endif /* TOOLCHAIN_ARM_STD || defined TOOLCHAIN_IAR */
+#endif /* defined(__ARMCC_VERSION) || defined(__ICCARM__) */
 
 #endif /* RETARGET_H */

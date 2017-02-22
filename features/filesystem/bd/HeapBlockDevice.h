@@ -45,7 +45,8 @@
  *     bd.deinit();
  * }
  */
-class HeapBlockDevice : public BlockDevice {
+class HeapBlockDevice : public BlockDevice
+{
 public:
 
     /** Lifetime of the memory block device
@@ -100,19 +101,19 @@ public:
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size();
+    virtual bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      */
-    virtual bd_size_t get_program_size();
+    virtual bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      */
-    virtual bd_size_t get_erase_size();
+    virtual bd_size_t get_erase_size() const;
 
     /** Get the total size of the underlying device
      *

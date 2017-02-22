@@ -32,7 +32,7 @@ bd_error_t BlockDevice::write(const void *buffer, bd_addr_t addr, bd_size_t size
     return program(buffer, addr, size);
 }
 
-bd_size_t BlockDevice::get_write_size()
+bd_size_t BlockDevice::get_write_size() const
 {
     return get_erase_size();
 }
@@ -52,24 +52,24 @@ static bool is_aligned(uint64_t x, uint64_t alignment)
 bool BlockDevice::is_valid_read(bd_addr_t addr, bd_size_t size)
 {
     return (
-        is_aligned(addr, get_read_size()) &&
-        is_aligned(size, get_read_size()) &&
-        addr + size <= this->size());
+               is_aligned(addr, get_read_size()) &&
+               is_aligned(size, get_read_size()) &&
+               addr + size <= this->size());
 }
 
 bool BlockDevice::is_valid_erase(bd_addr_t addr, bd_size_t size)
 {
     return (
-        is_aligned(addr, get_erase_size()) &&
-        is_aligned(size, get_erase_size()) &&
-        addr + size <= this->size());
+               is_aligned(addr, get_erase_size()) &&
+               is_aligned(size, get_erase_size()) &&
+               addr + size <= this->size());
 }
 
 bool BlockDevice::is_valid_program(bd_addr_t addr, bd_size_t size)
 {
     return (
-        is_aligned(addr, get_program_size()) &&
-        is_aligned(size, get_program_size()) &&
-        addr + size <= this->size());
+               is_aligned(addr, get_program_size()) &&
+               is_aligned(size, get_program_size()) &&
+               addr + size <= this->size());
 }
 

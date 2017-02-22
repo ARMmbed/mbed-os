@@ -26,11 +26,13 @@
 
 using namespace mbed;
 
-FATDirHandle::FATDirHandle(const FATFS_DIR &the_dir, PlatformMutex * mutex): _mutex(mutex) {
+FATDirHandle::FATDirHandle(const FATFS_DIR &the_dir, PlatformMutex * mutex): _mutex(mutex)
+{
     dir = the_dir;
 }
 
-int FATDirHandle::closedir() {
+int FATDirHandle::closedir()
+{
     lock();
     FRESULT retval = f_closedir(&dir);
     fat_filesystem_set_errno(retval);
@@ -39,7 +41,8 @@ int FATDirHandle::closedir() {
     return retval;
 }
 
-struct dirent *FATDirHandle::readdir() {
+struct dirent *FATDirHandle::readdir()
+{
     FILINFO finfo;
 
     lock();
@@ -76,14 +79,16 @@ struct dirent *FATDirHandle::readdir() {
 #endif /* _USE_LFN */
 }
 
-void FATDirHandle::rewinddir() {
+void FATDirHandle::rewinddir()
+{
     lock();
     dir.index = 0;
     fat_filesystem_set_errno(FR_OK);
     unlock();
 }
 
-off_t FATDirHandle::telldir() {
+off_t FATDirHandle::telldir()
+{
     lock();
     off_t offset = dir.index;
     fat_filesystem_set_errno(FR_OK);
@@ -91,18 +96,21 @@ off_t FATDirHandle::telldir() {
     return offset;
 }
 
-void FATDirHandle::seekdir(off_t location) {
+void FATDirHandle::seekdir(off_t location)
+{
     lock();
     dir.index = location;
     fat_filesystem_set_errno(FR_OK);
     unlock();
 }
 
-void FATDirHandle::lock() {
+void FATDirHandle::lock()
+{
     _mutex->lock();
 }
 
-void FATDirHandle::unlock() {
+void FATDirHandle::unlock()
+{
     _mutex->unlock();
 }
 

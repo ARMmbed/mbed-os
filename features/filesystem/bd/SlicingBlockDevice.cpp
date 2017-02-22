@@ -104,17 +104,17 @@ bd_error_t SlicingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return _bd->erase(addr + _start, size);
 }
 
-bd_size_t SlicingBlockDevice::get_read_size()
+bd_size_t SlicingBlockDevice::get_read_size() const
 {
     return _bd->get_read_size();
 }
 
-bd_size_t SlicingBlockDevice::get_program_size()
+bd_size_t SlicingBlockDevice::get_program_size() const
 {
     return _bd->get_program_size();
 }
 
-bd_size_t SlicingBlockDevice::get_erase_size()
+bd_size_t SlicingBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
 }

@@ -22,12 +22,6 @@
 #include "platform/retarget.h"
 
 
-/* @brief   Set errno based on the error code returned from underlying filesystem
- *
- * @param   res     result returned from underlying filesystem
- *
- * @return  No return value
- */
 void fat_filesystem_set_errno(FRESULT res)
 {
     switch(res) {
