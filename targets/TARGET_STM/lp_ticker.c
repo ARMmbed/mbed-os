@@ -45,6 +45,14 @@ void lp_ticker_init(void)
 
     rtc_init();
     rtc_set_irq_handler((uint32_t) lp_ticker_irq_handler);
+
+#ifdef MBED_HEAP_STATS_ENABLED
+    /* rtc_read is using mktime function which is calling at the first time __wrap__free_r */
+    /* __wrap__free_r needs to initialize Singleton not in ISR */
+    /* rtc_read is called at each ticker setup which call core_util_critical_section_enter */
+    /* so rtc_read is called once once before other calls */
+    rtc_read();
+#endif /* MBED_HEAP_STATS_ENABLED */
 }
 
 uint32_t lp_ticker_read(void)
