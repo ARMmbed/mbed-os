@@ -6,7 +6,7 @@
  * @date:    $Date: 2016-01-11 05:46:07 -0500 (Mon, 11 Jan 2016) $
  *-----------------------------------------------------------------------------
  *
- * Copyright (c) 2010-2015 Analog Devices, Inc.
+ * Copyright (c) 2010-2016 Analog Devices, Inc.
  *
  * All rights reserved.
  *

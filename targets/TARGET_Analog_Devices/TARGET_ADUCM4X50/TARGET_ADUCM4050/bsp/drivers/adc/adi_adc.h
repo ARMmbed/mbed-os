@@ -1,6 +1,3 @@
-/** @addtogroup  ADC_Driver ADC Device Driver
-*  @{
-*/
 /*! *****************************************************************************
  * @file    adi_adc.h
  * @brief   Main include file for ADC Device driver definitions
@@ -52,6 +49,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <adi_callback.h>
 #include <adi_adc_config.h>
 #include <rtos_map/adi_rtos_map.h>  /* for ADI_SEM_SIZE */
+
+/** @addtogroup  ADC_Driver ADC Driver
+*  @{
+*/
 
 #ifdef __cplusplus
 extern "C" {

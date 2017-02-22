@@ -42,7 +42,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
-/** @addtogroup  ADC_Driver ADC Device Driver
+/** @addtogroup  ADC_Driver ADC Driver
  *  @{
  *  @brief ADC Driver
  *  @details The ADC driver manages all instances of the ADC peripheral.
@@ -103,8 +103,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifdef ADI_DEBUG
 #define ADI_ADC_INVALID_HANDLE(h)   (AdcDevInfo[0].hDevice != (h))
 #endif
-
-#define ADI_ADC_INVALIDATE_HANDLE(h) (AdcDevInfo[0].hDevice = (NULL))
 
 /* Specify the maximum acquisition time, based on the width of the SAMPTIME field. */
 #define ADI_MAX_ACQUISITION_TIME (((uint32_t)BITM_ADC_CNV_TIME_SAMPTIME << BITP_ADC_CNV_TIME_SAMPTIME) + 1u)
@@ -173,7 +171,7 @@ ADI_ADC_RESULT adi_adc_Open (
     ADI_ADC_HANDLE *phDevice)
 {
     ADI_INT_STATUS_ALLOC();
-    ADI_ADC_DEVICE *pDevice = pMemory;
+    ADI_ADC_DEVICE *pDevice = (ADI_ADC_DEVICE *)pMemory;
     
 #ifdef ADI_DEBUG
     if (nDeviceNum > (sizeof (AdcDevInfo)/sizeof(AdcDevInfo[0])))
@@ -277,7 +275,8 @@ ADI_ADC_RESULT adi_adc_Close (ADI_ADC_HANDLE hDevice)
     /* Destroy the semaphore */
     SEM_DELETE(hDevice, ADI_ADC_ERR_RTOS);
 
-    ADI_ADC_INVALIDATE_HANDLE(hDevice);
+    /* Finally, zero the device */
+    AdcDevInfo[0].hDevice = (NULL);
 
     return ADI_ADC_SUCCESS;
 }
@@ -543,6 +542,7 @@ ADI_ADC_RESULT adi_adc_SetVrefSource (
     ADI_ADC_HANDLE   hDevice,
     ADI_ADC_VREF_SRC eVrefSrc)
 {
+    ADI_ADC_RESULT eResult  = ADI_ADC_SUCCESS;
     ADI_ADC_DEVICE *pDevice = (ADI_ADC_DEVICE *)hDevice;
 
 #ifdef ADI_DEBUG
@@ -577,11 +577,11 @@ ADI_ADC_RESULT adi_adc_SetVrefSource (
         break;
 
     default:
-        return ADI_ADC_INVALID_PARAMETER;
+        eResult = ADI_ADC_INVALID_PARAMETER;
         break;
     }
 
-    return ADI_ADC_SUCCESS;
+    return eResult;
 }
 
 
@@ -765,7 +765,7 @@ ADI_ADC_RESULT adi_adc_SetAcquisitionTime (
     /* Acquisition phase is (ADC_CNV_TIME.SAMPTIME + 1) ACLK cycles */
     nCnvTime = pDevice->pReg->CNV_TIME;
     nCnvTime &= (uint16_t)(~BITM_ADC_CNV_TIME_SAMPTIME);
-    nCnvTime |= (uint16_t)((nAcqTimeInAClkCycles - 1u) << BITP_ADC_CNV_TIME_SAMPTIME);
+    nCnvTime |= (uint16_t)((nAcqTimeInAClkCycles - ((uint32_t)1u)) << BITP_ADC_CNV_TIME_SAMPTIME);
     pDevice->pReg->CNV_TIME = nCnvTime;
 
     return ADI_ADC_SUCCESS;
@@ -865,7 +865,7 @@ ADI_ADC_RESULT adi_adc_SetResolution (
                     0x08 for 14-bit
                     0x20 for 15-bit
                     0x80 for 16-bit */
-        nFactor = (uint16_t)1 << ((int32_t)eResolution * 2 - 1);
+        nFactor = (uint16_t)1u << (((uint16_t)eResolution * 2u) - ((uint16_t)1u));
         pDevice->pReg->AVG_CFG =  BITM_ADC_AVG_CFG_OS | BITM_ADC_AVG_CFG_EN
                                 | (uint16_t)(nFactor << BITP_ADC_AVG_CFG_FACTOR);
         SET_STATE(ADC_STATUS_OVERSAMPLING_EN);
@@ -962,7 +962,7 @@ ADI_ADC_RESULT adi_adc_SetLowLimit (
     static volatile uint16_t* pRegister[4] = {
         pREG_ADC0_LIM0_LO, pREG_ADC0_LIM1_LO, pREG_ADC0_LIM2_LO, pREG_ADC0_LIM3_LO
     };
-    int32_t nChannelNum = nGetChannelNumber(eChannel);
+    int32_t nChannelNum = 0;
     
 #ifdef ADI_DEBUG
     if (pDevice == NULL)
@@ -974,16 +974,21 @@ ADI_ADC_RESULT adi_adc_SetLowLimit (
         return ADI_ADC_INVALID_PARAMETER;
     }
 #endif /* ADI_DEBUG */
-    if (bEnable == true) {
+        
+    nChannelNum = nGetChannelNumber(eChannel);
     
-      *pRegister[nChannelNum] = (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_LIM0_LO_VALUE)) | 
-                                (uint16_t)(nLowLimit << BITP_ADC_LIM0_LO_VALUE);
-      
-      /* Now enable this channel comparitor - unused until the comparitor is enabled */   
-      pDevice->ComparitorLo |= (1u << nChannelNum);
-    }
-    else {
-      pDevice->ComparitorLo &= ~(1u << nChannelNum);
+    if((nChannelNum >= 0) && (nChannelNum <= 3)) {
+      if (bEnable == true) {
+        
+        *pRegister[nChannelNum] = (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_LIM0_LO_VALUE)) | 
+          (uint16_t)(nLowLimit << BITP_ADC_LIM0_LO_VALUE);
+        
+        /* Now enable this channel comparitor - unused until the comparitor is enabled */   
+        pDevice->ComparitorLo |= (1u << nChannelNum);
+      }
+      else {
+        pDevice->ComparitorLo &= ~(1u << nChannelNum);
+      }
     }
 
     return ADI_ADC_SUCCESS;
@@ -1015,7 +1020,7 @@ ADI_ADC_RESULT adi_adc_SetHighLimit (
     static volatile uint16_t* pRegister[4] = {
         pREG_ADC0_LIM0_HI, pREG_ADC0_LIM1_HI, pREG_ADC0_LIM2_HI, pREG_ADC0_LIM3_HI
     };
-    int32_t nChannelNum = nGetChannelNumber(eChannel);
+    int32_t nChannelNum = 0;
     
 #ifdef ADI_DEBUG
     if (pDevice == NULL)
@@ -1027,19 +1032,22 @@ ADI_ADC_RESULT adi_adc_SetHighLimit (
         return ADI_ADC_INVALID_PARAMETER;
     }
 #endif /* ADI_DEBUG */
+        
+    nChannelNum = nGetChannelNumber(eChannel);
     
-    if (bEnable == true) {
-      /* Set the given high value - only relevant if the limit is enabled. */
-      *pRegister[nChannelNum] =    (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_LIM0_HI_VALUE))
-                                 | (uint16_t)(nHighLimit << BITP_ADC_LIM0_HI_VALUE);
-      
-      /* Now enable this channel comparitor - unused until the comparitor is enabled */   
-      pDevice->ComparitorHi |= (1u << nChannelNum);
+    if((nChannelNum >= 0) && (nChannelNum <= 3)) {
+      if (bEnable == true) {
+        /* Set the given high value - only relevant if the limit is enabled. */
+        *pRegister[nChannelNum] =    (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_LIM0_HI_VALUE))
+          | (uint16_t)(nHighLimit << BITP_ADC_LIM0_HI_VALUE);
+        
+        /* Now enable this channel comparitor - unused until the comparitor is enabled */   
+        pDevice->ComparitorHi |= (1u << nChannelNum);
+      }
+      else {
+        pDevice->ComparitorHi &= ~(1u << nChannelNum);
+      }
     }
-    else {
-      pDevice->ComparitorHi &= ~(1u << nChannelNum);
-    }
-    
     return ADI_ADC_SUCCESS;
 }
 
@@ -1069,7 +1077,7 @@ ADI_ADC_RESULT adi_adc_SetHysteresis (
     static volatile uint16_t* pRegister[4] = {
         pREG_ADC0_HYS0, pREG_ADC0_HYS1, pREG_ADC0_HYS2, pREG_ADC0_HYS3
     };
-    int32_t nChannelNum = nGetChannelNumber(eChannel);
+    int32_t nChannelNum = 0;
     
 #ifdef ADI_DEBUG
     if (pDevice == NULL)
@@ -1081,19 +1089,21 @@ ADI_ADC_RESULT adi_adc_SetHysteresis (
         return ADI_ADC_INVALID_PARAMETER;
     }
 #endif /* ADI_DEBUG */
+        
+    nChannelNum = nGetChannelNumber(eChannel);
     
-    
-    if (bEnable == true) {
-      *pRegister[nChannelNum] = (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_HYS0_VALUE))
-                              | (uint16_t)(nHysteresis << BITP_ADC_HYS0_VALUE);
-      
-      /* Now enable this channel hysteresis - unused until the comparitor is enabled */   
-      pDevice->ComparitorHys |= (1u << nChannelNum);
-    }
-    else {
-      pDevice->ComparitorHys &= ~(1u << nChannelNum);
-    }
-    
+    if((nChannelNum >= 0) && (nChannelNum <= 3)) {
+        if (bEnable == true) {
+          *pRegister[nChannelNum] = (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_HYS0_VALUE))
+                                  | (uint16_t)(nHysteresis << BITP_ADC_HYS0_VALUE);
+          
+          /* Now enable this channel hysteresis - unused until the comparitor is enabled */   
+          pDevice->ComparitorHys |= (1u << nChannelNum);
+        }
+        else {
+          pDevice->ComparitorHys &= ~(1u << nChannelNum);
+        }
+    }    
 
     return ADI_ADC_SUCCESS;
 }
@@ -1124,7 +1134,7 @@ ADI_ADC_RESULT adi_adc_SetNumMonitorCycles(
     static volatile uint16_t* pRegister[4] = {
         pREG_ADC0_HYS0, pREG_ADC0_HYS1, pREG_ADC0_HYS2, pREG_ADC0_HYS3
     };
-    int32_t nChannelNum = nGetChannelNumber(eChannel);
+    int32_t nChannelNum = 0;
     
 #ifdef ADI_DEBUG
     if (pDevice == NULL)
@@ -1137,9 +1147,12 @@ ADI_ADC_RESULT adi_adc_SetNumMonitorCycles(
     }
 #endif /* ADI_DEBUG */
     
-    *pRegister[nChannelNum] = (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_HYS0_MONCYC))
-                            | (uint16_t)(nNumMonitorCycles << BITP_ADC_HYS0_MONCYC);
-
+    nChannelNum = nGetChannelNumber(eChannel);
+      
+    if((nChannelNum >= 0) && (nChannelNum <= 3)) {
+      *pRegister[nChannelNum] = (uint16_t)(*pRegister[nChannelNum] & (uint16_t)(~BITM_ADC_HYS0_MONCYC))
+        | (uint16_t)(nNumMonitorCycles << BITP_ADC_HYS0_MONCYC);
+    }
     return ADI_ADC_SUCCESS;
 }
 
@@ -1284,8 +1297,6 @@ ADI_ADC_RESULT adi_adc_GetBuffer (
 {
     ADI_ADC_DEVICE *pDevice = (ADI_ADC_DEVICE *)hDevice;
     ADI_ADC_RESULT eADCresult = ADI_ADC_SUCCESS;
-
-    ADC_INT_BUFFER* volatile pCompletedListInt;
     
 #ifdef ADI_DEBUG
     if (pDevice == NULL)
@@ -1310,7 +1321,7 @@ ADI_ADC_RESULT adi_adc_GetBuffer (
     /* Wait for read completion */
     SEM_PEND(pDevice, ADI_ADC_ERR_RTOS);
     
-    if ((pDevice->s_Buffer.nStatus & ADC_BUFFER_STATUS_OVERFLOW) != 0u) {
+    if ((uint16_t)(pDevice->s_Buffer.nStatus & ADC_BUFFER_STATUS_OVERFLOW) != 0u) {
         eADCresult =  ADI_ADC_BUFFER_OVERFLOW;
     }
     *ppBuffer = pDevice->s_Buffer.pUserBuffer;
@@ -1460,7 +1471,6 @@ ADI_ADC_RESULT adi_adc_ReadChannels (
     ADI_ADC_RESULT eADCresult = ADI_ADC_SUCCESS;
 
     ADC_INT_BUFFER* pIntBuffer;
-    ADC_INT_BUFFER* volatile pCompletedListInt;
 
 #ifdef ADI_DEBUG
     if (pDevice == NULL)
@@ -1511,7 +1521,7 @@ ADI_ADC_RESULT adi_adc_ReadChannels (
     /* Wait for read completion */
     SEM_PEND(pDevice, ADI_ADC_ERR_RTOS);  
     
-    if ((pDevice->s_Buffer.nStatus & ADC_BUFFER_STATUS_OVERFLOW) != 0u) {
+    if ((uint16_t)(pDevice->s_Buffer.nStatus & ADC_BUFFER_STATUS_OVERFLOW) != 0u) {
         eADCresult =  ADI_ADC_BUFFER_OVERFLOW;
     }
 
@@ -1589,7 +1599,7 @@ ADI_ADC_RESULT adi_adc_GetBatteryVoltage (
          * The conversion time required is 500ns = 2000000Hz 
          */
         nClock = nClock/nACLKDIVCNT;  /* nClock = ACLK frequency Hz */
-        pDevice->pReg->CNV_TIME = (uint16_t)((nClock/2000000u) + 1u); 
+        pDevice->pReg->CNV_TIME = (uint16_t)((nClock/2000000u) + ((uint16_t)1u)); 
         pDevice->pReg->AVG_CFG = 0u;
         
         /* Clear the battery done status */
@@ -1782,7 +1792,7 @@ ADI_ADC_RESULT adi_adc_GetTemperature (
           uint32_t nRVirRefByIdealSensitivity = 2070960834u; /* 1.2256/1.2411e-3 in 11.21 format */
           
           uint32_t nTempRG = 19380u; /* 1.1829 in 2.14 format */
-          uint32_t nTmp2 = ((nAdcTmp2Value << 14u) + nTempRG * nAdcTmpValue); /* in 14.14 format */
+          uint32_t nTmp2 = ((nAdcTmp2Value << 14u) + (nTempRG * nAdcTmpValue)); /* in 14.14 format */
           
           uint32_t nOffsetPart = (335544320u/nRefVoltage); /* (1.25 in 4.28 format / ReferenceVoltage(16.16)) = Result in format *.12 */
           uint32_t nOffset = (161u * nOffsetPart);         /* 12.12 format */
@@ -1791,7 +1801,7 @@ ADI_ADC_RESULT adi_adc_GetTemperature (
           uint32_t nRatio = (nTmp3/(nTmp2 >> 10u));  /* nTmp2 resolution reduced by 10 to 14.4 and the result resolution is 0.16 */
           uint32_t nTemp  = (nRatio * (nRVirRefByIdealSensitivity >> 16u)) >> 5u;  /* Temperature in degree kelvin in 16.16 format */
           
-          int32_t  iTemp = (int32_t)nTemp - 17901158;   /* Subtract 273.15 (in 16.16) to get the temperature in degree celcius */
+          int32_t  iTemp = (int32_t)nTemp - ((int32_t)17901158);   /* Subtract 273.15 (in 16.16) to get the temperature in degree celcius */
           *pnTemperature = iTemp;
       }
     }
@@ -1832,7 +1842,7 @@ static bool InitBufferProcessing(ADI_ADC_DEVICE *pDevice)
     
     /* Calculate the conversion register value for the given configuration */
     nCnvReg |= pIntBuffer->nChannels;
-    if ((pIntBuffer->nConfig & ADC_BUFFER_CONFIG_BUFFER_AUTO_MODE_EN) != 0u) {
+    if ((uint16_t)(pIntBuffer->nConfig & ADC_BUFFER_CONFIG_BUFFER_AUTO_MODE_EN) != 0u) {
         nCnvReg |= BITM_ADC_CNV_CFG_AUTOMODE;
     }    
     if ((pIntBuffer->nConfig & ADC_BUFFER_CONFIG_BUFFER_SINGLE_CONV_EN) != 0u) {
@@ -1879,96 +1889,96 @@ static ADI_ADC_RESULT DmaFIFOManage (ADI_ADC_DEVICE *pDevice, ADC_FIFO_MODE eFif
             FlushFifo(pDevice, (uint32_t)nStat);
             pDevice->pReg->STAT = nStat;
         }
-        return ADI_ADC_SUCCESS;
     }
+    else {
+        switch (eFifoMode)
+        {
+        case ADC_FIFO_MODE_INIT:
 
-    switch (eFifoMode)
-    {
-    case ADC_FIFO_MODE_INIT:
+              /* Enable the interrupt for the given DMA */
+              NVIC_EnableIRQ(DMA0_CH24_DONE_IRQn);
+              
+              pADI_DMA0->SRCADDR_CLR = 1U << chanNum;
 
-          /* Enable the interrupt for the given DMA */
-          NVIC_EnableIRQ(DMA0_CH24_DONE_IRQn);
+              /* Enable the channel */
+              pADI_DMA0->EN_SET = 1U << chanNum;
+              
+              /* Enables  peripheral to generate DMA requests. */
+              pADI_DMA0->RMSK_CLR = 1U << chanNum;
+
+              /* Set the primary as the current DMA descriptor */
+              pADI_DMA0->ALT_CLR = 1U << chanNum;  /* Should be default */
+                            
+              /* Setup the DMA registers */
+              nCount = (uint16_t)pIntBuffer->nNumSamplesRemaining;
+
+              /* Point to the end of the DMA source */
+              pPrimaryCCD[chanNum].DMASRCEND =   (uint32_t)(&(pDevice->pReg->DMA_OUT));
+              
+              /* Point to the end of the DMA write-to destination */ 
+              pPrimaryCCD[chanNum].DMADSTEND =   (uint32_t)((void*)pIntBuffer->pCurDataBuffer) + ((nCount * 2u) - 1u);
+              
+              /* Configure the DMA itself */
+              pPrimaryCCD[chanNum].DMACDC =         ((ADI_DMA_INCR_2_BYTE << DMA_BITP_CTL_DST_INC) |            /* Increment destination address */
+                                                    (ADI_DMA_INCR_NONE << DMA_BITP_CTL_SRC_INC) |               /* Don't increment the source address */
+                                                    ((uint32_t)ADI_DMA_WIDTH_2_BYTE << DMA_BITP_CTL_SRC_SIZE) |           /* 16bit transfers */
+                                                    ((nCount - (uint32_t)1U)<< DMA_BITP_CTL_N_MINUS_1) |        /* Data size? */
+                                                    (DMA_ENUM_CTL_CYCLE_CTL_BASIC << DMA_BITP_CTL_CYCLE_CTL) |  /*  Basic only */
+                                                    ((uint32_t)ADI_DMA_RPOWER_1 << DMA_BITP_CTL_R_POWER));                /* Arbitration */
           
-          pADI_DMA0->SRCADDR_CLR = (uint32_t)chanNum;
+              /* Enable DMA */
+              pDevice->pReg->CNV_CFG |= BITM_ADC_CNV_CFG_DMAEN;
+            break;
 
-          /* Enable the channel */
-          pADI_DMA0->EN_SET = 1U << chanNum;
-          
-          /* Enables  peripheral to generate DMA requests. */
-          pADI_DMA0->RMSK_CLR = 1U << chanNum;
+        case ADC_FIFO_MODE_ENABLED:
+            break;
 
-          /* Set the primary as the current DMA descriptor */
-          pADI_DMA0->ALT_CLR = 1U << chanNum;  /* Should be default */
-                        
-          /* Setup the DMA registers */
-          nCount = (uint16_t)pIntBuffer->nNumSamplesRemaining;
+        case ADC_FIFO_MODE_INTERRUPT_PROCESS:
+            /* Clear the status registers */
+            pDevice->pReg->STAT = (pDevice->pReg->STAT & 0x00FFu);
+            break;
 
-          /* Point to the end of the DMA source */
-          pPrimaryCCD[chanNum].DMASRCEND =   (uint32_t)(&pDevice->pReg->DMA_OUT);
-          
-          /* Point to the end of the DMA write-to destination */ 
-          pPrimaryCCD[chanNum].DMADSTEND =   (uint32_t)pIntBuffer->pCurDataBuffer + ((nCount * 2u) - 1u);
-          
-          /* Configure the DMA itself */
-          pPrimaryCCD[chanNum].DMACDC =         ((ADI_DMA_INCR_2_BYTE << DMA_BITP_CTL_DST_INC) |          /* Increment destination address */
-                                                (ADI_DMA_INCR_NONE << DMA_BITP_CTL_SRC_INC) |               /* Don't increment the source address */
-                                                (ADI_DMA_WIDTH_2_BYTE << DMA_BITP_CTL_SRC_SIZE) |           /* 16bit transfers */
-                                                ((nCount -1U)<< DMA_BITP_CTL_N_MINUS_1) |                   /* Data size? */
-                                                (DMA_ENUM_CTL_CYCLE_CTL_BASIC << DMA_BITP_CTL_CYCLE_CTL) |  /*  Basic only */
-                                                (ADI_DMA_RPOWER_1 << DMA_BITP_CTL_R_POWER));                /* Arbitration */
+        case ADC_FIFO_MODE_INTERRUPT_OVERFLOW:
+            pIntBuffer->nStatus |= ADC_BUFFER_STATUS_OVERFLOW;
+            break;
       
-          /* Enable DMA */
-          pDevice->pReg->CNV_CFG |= BITM_ADC_CNV_CFG_DMAEN;
-        break;
+        case ADC_FIFO_MODE_DMA_BUFFER_PROCESS:
+            pIntBuffer->nNumSamplesRemaining = 0u;
+            ManageFifoCompletion(pDevice);
+            break;
+            
+        case ADC_FIFO_MODE_ABORT:
+     
+            /* Take backup of IRQ */
+            IRQ_Backup = pDevice->pReg->IRQ_EN;
 
-    case ADC_FIFO_MODE_ENABLED:
-        break;
+            /* Disable the IRQ */
+            pDevice->pReg->IRQ_EN = 0u;
 
-    case ADC_FIFO_MODE_INTERRUPT_PROCESS:
-        /* Clear the status registers */
-        pDevice->pReg->STAT = (pDevice->pReg->STAT & 0x00FFu);
-        break;
-
-    case ADC_FIFO_MODE_INTERRUPT_OVERFLOW:
-        pIntBuffer->nStatus |= ADC_BUFFER_STATUS_OVERFLOW;
-        break;
-  
-    case ADC_FIFO_MODE_DMA_BUFFER_PROCESS:
-        pIntBuffer->nNumSamplesRemaining = 0u;
-        ManageFifoCompletion(pDevice);
-        break;
-        
-    case ADC_FIFO_MODE_ABORT:
- 
-        /* Take backup of IRQ */
-        IRQ_Backup = pDevice->pReg->IRQ_EN;
-
-        /* Disable the IRQ */
-        pDevice->pReg->IRQ_EN = 0u;
-
-        /* Clear the conversion cfg register to stop any transaction */
-        pDevice->pReg->CNV_CFG = 0u;
-        
-        /* Disable the DMA channel */
-        pADI_DMA0->EN_CLR = 1U << chanNum;
+            /* Clear the conversion cfg register to stop any transaction */
+            pDevice->pReg->CNV_CFG = 0u;
+            
+            /* Disable the DMA channel */
+            pADI_DMA0->EN_CLR = 1U << chanNum;
+              
+            /* Clear the status bits */
+            pDevice->pReg->STAT =  pDevice->pReg->STAT;
+      
+            /* Clear the sampling in progress state */
+            CLR_STATE(ADC_STATUS_SAMPLING_IN_PROGRESS);
+            
+            /* Read and flush all the buffers */
+            FlushFifo(pDevice, 0x00FFu);
           
-        /* Clear the status bits */
-        pDevice->pReg->STAT =  pDevice->pReg->STAT;
-  
-        /* Clear the sampling in progress state */
-        CLR_STATE(ADC_STATUS_SAMPLING_IN_PROGRESS);
-        
-        /* Read and flush all the buffers */
-        FlushFifo(pDevice, 0x00FFu);
-      
-        /* Restore the IRQ */
-        pDevice->pReg->IRQ_EN = IRQ_Backup;      
-      
-        break;
+            /* Restore the IRQ */
+            pDevice->pReg->IRQ_EN = IRQ_Backup;      
+          
+            break;
 
-    default:
-        break;
-    } 
+        default:
+            break;
+        } 
+    }
     
     return ADI_ADC_SUCCESS;
 }
@@ -2024,9 +2034,9 @@ static ADI_ADC_RESULT InterruptFIFOManage (ADI_ADC_DEVICE *pDevice, ADC_FIFO_MOD
                 
                 
                 pDevice->pReg->STAT = (uint16_t)nCurChannelBitM;
-                pIntBuffer->nNumSamplesRemaining--;
+                pIntBuffer->nNumSamplesRemaining -= 1u;
 
-                pDevice->ActData.nCurChannel++;
+                pDevice->ActData.nCurChannel += 1u;
                 if ( pDevice->ActData.nCurChannel >= NUM_ADC_CHANNELS) {
                      pDevice->ActData.nCurChannel = 0u;
                 }
@@ -2121,7 +2131,7 @@ static int32_t nGetChannelNumber(ADI_ADC_CHANNEL eChannel)
     int32_t retVal = 0;
     uint32_t nChannel = (uint32_t)eChannel & 0x000000FFu;
     
-    if ((nChannel & (nChannel - 1u)) != 0u) {
+    if ((nChannel & (nChannel - (uint32_t)1u)) != 0u) {
         return -1;
     }
     if ((nChannel & 0x000000AAu) != 0u) { retVal += 1; }
@@ -2293,7 +2303,7 @@ void ADC0_Int_Handler(void)
             pDevice->pReg->STAT = pDevice->pReg->STAT & (0x00FFu);
         }
     }
-    if ((pDevice->pReg->STAT & 0xFF00u) != 0u) {
+    if ((uint16_t)(pDevice->pReg->STAT & 0xFF00u) != 0u) {
         if ((pDevice->pReg->STAT & BITM_ADC_STAT_RDY) != 0u) {
             SET_STATE(ADC_STATUS_SUB_SYSTEM_READY);
             pDevice->pReg->STAT = BITM_ADC_STAT_RDY;
@@ -2341,7 +2351,7 @@ void ADC0_Int_Handler(void)
           if((nAlertValue & (1u << (2u * channel))) > 0u) {
             pDevice->pfCallback(pDevice->pCBParam, ADI_ADC_EVENT_HIGH_LIMIT_CROSSED, (void*)channel);
           }
-          if((nAlertValue & (1u << ((2u * channel) + 1u))) > 0u)
+          if((nAlertValue & (1u << ((2u * channel) + ((uint32_t)1u)))) > 0u)
           {
             pDevice->pfCallback(pDevice->pCBParam, ADI_ADC_EVENT_LOW_LIMIT_CROSSED, (void*)channel);
           }

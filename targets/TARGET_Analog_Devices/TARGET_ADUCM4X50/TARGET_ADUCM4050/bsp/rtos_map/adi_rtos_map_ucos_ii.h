@@ -139,23 +139,11 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 #define ISR_EPILOG() OSIntExit(); 
      
-
-#else /* If building assembly file */
-
-/* If it is an IAR assembler */
-#if defined(__IASMARM__)
-
-#define EXTERN_RTOS_HANDLERS()       \
-        extern OS_CPU_PendSVHandler  \
-        extern OS_CPU_SysTickHandler 
+#endif /* __STDC__ */
 
 #define PENDSV_HANDLER   OS_CPU_PendSVHandler
 #define SYSTICK_HANDLER  OS_CPU_SysTickHandler
 #define SVC_HANDLER      SVC_Handler
-
-#else 
-#error "Unknown assembler"
-#endif /* If it is an IAR assembler */
 
 
 #endif /* ADI_RTOS_MAP_UCOS_II_H */

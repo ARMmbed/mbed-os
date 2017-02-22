@@ -94,7 +94,6 @@ extern uint32_t gpioClock;  /* external GPIO clock                       */
 static ADI_CALLBACK  gpfCallbackFunction;
 static void *gpPowcbParam = NULL;
 static uint32_t gnLowPowerIntOccFlag = 0u;
-extern uint32_t SystemCoreClock;
 
 /*! \endcond */
 
@@ -118,10 +117,10 @@ ADI_PWR_RESULT adi_pwr_Init (void)
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
 
     /* Switch on the internal HF oscillator */
-    pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_HFOSCEN;
+    pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_HFOSC_EN;
 
     /* wait for HF OSC to stabilize */
-    while ((pADI_CLKG0_OSC->CTL & (1U << BITP_CLKG_OSC_CTL_HFOSCOK)) == 0u)
+    while ((pADI_CLKG0_OSC->CTL & (1U << BITP_CLKG_OSC_CTL_HFOSC_OK)) == 0u)
     {
     }
 
@@ -146,7 +145,7 @@ ADI_PWR_RESULT adi_pwr_Init (void)
     /* disable external HF crystal oscillator */
     /* (don't disable LF crystal or the RTC will lose time */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
-    pADI_CLKG0_OSC->CTL &= ~BITM_CLKG_OSC_CTL_HFXTALEN;
+    pADI_CLKG0_OSC->CTL &= ~BITM_CLKG_OSC_CTL_HFX_EN;
 
     NVIC_EnableIRQ(PMG0_VREG_OVR_IRQn);
     NVIC_EnableIRQ(PMG0_BATT_RANGE_IRQn);
@@ -312,8 +311,8 @@ ADI_PWR_RESULT  adi_pwr_SetLFClockMux(const ADI_CLOCK_MUX_ID eClockID)
     ADI_ENTER_CRITICAL_REGION();
 
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
-    tmp = (pADI_CLKG0_OSC->CTL & ~BITM_CLKG_OSC_CTL_LFCLKMUX);
-    tmp |=(((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_LFCLK_LFOSC) << BITP_CLKG_OSC_CTL_LFCLKMUX);
+    tmp = (pADI_CLKG0_OSC->CTL & ~BITM_CLKG_OSC_CTL_LFCLK_MUX);
+    tmp |=(((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_LFCLK_LFOSC) << BITP_CLKG_OSC_CTL_LFCLK_MUX);
     pADI_CLKG0_OSC->CTL = tmp;
 
     ADI_EXIT_CRITICAL_REGION();
@@ -697,21 +696,21 @@ ADI_PWR_RESULT adi_pwr_EnableClockSource (const ADI_CLOCK_SOURCE_ID eClockSource
     switch(eClockSource)
     {
         case ADI_CLOCK_SOURCE_HFXTAL:
-            val     =   (1u << BITP_CLKG_OSC_CTL_HFXTALEN);
+            val     =   (1u << BITP_CLKG_OSC_CTL_HFX_EN);
             pReg    =   &pADI_CLKG0_OSC->CTL;
-            nMask   =   BITM_CLKG_OSC_CTL_HFXTALOK;
+            nMask   =   BITM_CLKG_OSC_CTL_HFX_OK;
             break;
 
         case ADI_CLOCK_SOURCE_LFXTAL:
-            val     =   (1u << BITP_CLKG_OSC_CTL_LFXTALEN);
+            val     =   (1u << BITP_CLKG_OSC_CTL_LFX_EN);
             pReg    =   &pADI_CLKG0_OSC->CTL;
-            nMask   =   BITM_CLKG_OSC_CTL_LFXTALOK;
+            nMask   =   BITM_CLKG_OSC_CTL_LFX_OK;
             break;
 
         case ADI_CLOCK_SOURCE_HFOSC:
-            val     =   (1u << BITP_CLKG_OSC_CTL_HFOSCEN);
+            val     =   (1u << BITP_CLKG_OSC_CTL_HFOSC_EN);
             pReg    =   &pADI_CLKG0_OSC->CTL;
-            nMask   =   BITM_CLKG_OSC_CTL_HFOSCOK;
+            nMask   =   BITM_CLKG_OSC_CTL_HFOSC_OK;
             break;
 
         case ADI_CLOCK_SOURCE_SPLL:
@@ -790,10 +789,10 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
     switch(eClockSource)
     {
         case ADI_CLOCK_SOURCE_HFOSC:
-            if ((val & BITM_CLKG_OSC_CTL_HFOSCEN) != 0u)
+            if ((val & BITM_CLKG_OSC_CTL_HFOSC_EN) != 0u)
             {
                 /* Clock source enabled, now check for stable */
-                if ((val & BITM_CLKG_OSC_CTL_HFOSCOK) != 0u)
+                if ((val & BITM_CLKG_OSC_CTL_HFOSC_OK) != 0u)
                 {
                     *peStatus = ADI_CLOCK_SOURCE_ENABLED_STABLE;
                 }
@@ -805,10 +804,10 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
             break;
 
         case ADI_CLOCK_SOURCE_HFXTAL:
-            if ((val & BITM_CLKG_OSC_CTL_HFXTALEN) != 0u)
+            if ((val & BITM_CLKG_OSC_CTL_HFX_EN) != 0u)
             {
                 /* Clock source enabled, now check for stable */
-                if ((val & BITM_CLKG_OSC_CTL_HFXTALOK) != 0u)
+                if ((val & BITM_CLKG_OSC_CTL_HFX_OK) != 0u)
                 {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_STABLE;
                 }
@@ -820,10 +819,10 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
             break;
 
         case ADI_CLOCK_SOURCE_LFXTAL:
-            if ((val & BITM_CLKG_OSC_CTL_LFXTALEN) != 0u)
+            if ((val & BITM_CLKG_OSC_CTL_LFX_EN) != 0u)
             {
                 /* Clock source enabled, now check for stable */
-                if ((val & BITM_CLKG_OSC_CTL_LFXTALOK) != 0u)
+                if ((val & BITM_CLKG_OSC_CTL_LFX_OK) != 0u)
                 {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_STABLE;
                 }
@@ -836,7 +835,7 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
 
         case ADI_CLOCK_SOURCE_LFOSC:
             /* Clock source enabled, now check for stable */
-            if ((val & BITM_CLKG_OSC_CTL_LFOSCOK) != 0u)
+            if ((val & BITM_CLKG_OSC_CTL_LFOSC_OK) != 0u)
             {
                 *peStatus  = ADI_CLOCK_SOURCE_ENABLED_STABLE;
             }
@@ -873,7 +872,7 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
 ADI_PWR_RESULT adi_pwr_EnableClockInterrupt(const ADI_PWR_CLOCK_IRQ eIrq, const bool bEnable)
 {
     ADI_INT_STATUS_ALLOC();
-    volatile uint32_t *pReg;
+    volatile uint32_t *pReg = NULL;
     uint32_t tmp;
 
     switch(eIrq)
@@ -1067,11 +1066,11 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(const bool bEnable)
         /* Write the oscillator key */
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
         /* Disable the LFXTAL */
-        pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFXTALEN);
+        pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFX_EN);
         /* Wait till status de-asserted. */
         while(nDelay != 0u)
         {
-            if((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFXTALOK) == 0u)
+            if((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == 0u)
             {
                 break;
             }
@@ -1085,12 +1084,12 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(const bool bEnable)
 #endif
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
         /* Enable the BYPASS mode */
-        pADI_CLKG0_OSC->CTL  |= (BITM_CLKG_OSC_CTL_LFXTAL_BYPASS);
+        pADI_CLKG0_OSC->CTL  |= (BITM_CLKG_OSC_CTL_LFX_BYP);
         /* Wait till status asserted. */
         nDelay = 0xFFFFFFu;
         while(nDelay != 0u)
         {
-            if(((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFXTALOK)== BITM_CLKG_OSC_CTL_LFXTALOK))
+            if(((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK)== BITM_CLKG_OSC_CTL_LFX_OK))
             {
                 break;
             }
@@ -1109,11 +1108,11 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(const bool bEnable)
         /* Write the oscillator key */
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
         /* Disable  the BYPASS mode */
-        pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFXTAL_BYPASS);
+        pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFX_BYP);
         /* Wait till status de-asserted. */
         while(nDelay != 0u)
         {
-            if((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFXTALOK) == 0u)
+            if((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == 0u)
             {
                 break;
             }
@@ -1154,11 +1153,11 @@ ADI_PWR_RESULT adi_pwr_EnableLFXTALRobustMode( const bool bEnable )
 
     if(bEnable == true)
     {
-        pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_XO32K_ROBUST_MODE_ENABLE;
+        pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_LFX_ROBUST_EN;
     }
     else
     {
-        pADI_CLKG0_OSC->CTL &= ~(BITM_CLKG_OSC_CTL_XO32K_ROBUST_MODE_ENABLE);
+        pADI_CLKG0_OSC->CTL &= ~(BITM_CLKG_OSC_CTL_LFX_ROBUST_EN);
     }
 
     return(ADI_PWR_SUCCESS);
@@ -1181,11 +1180,11 @@ ADI_PWR_RESULT adi_pwr_EnableLFXTALFailAutoSwitch( const bool  bEnable )
 
     if(bEnable == true)
     {
-        pADI_CLKG0_OSC->CTL  |= BITM_CLKG_OSC_CTL_LFXTALFAIL_AUTOSWT_EN;
+        pADI_CLKG0_OSC->CTL  |= BITM_CLKG_OSC_CTL_LFX_AUTSW_EN;
     }
     else
     {
-        pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFXTALFAIL_AUTOSWT_EN);
+        pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFX_AUTSW_EN);
     }
     return(ADI_PWR_SUCCESS);
 }
@@ -1205,8 +1204,8 @@ ADI_PWR_RESULT adi_pwr_SetLFXTALRobustModeLoad( const ADI_PWR_LFXTAL_LOAD eLoad 
 {
     uint32_t tmp;
 
-    tmp =   pADI_CLKG0_OSC->CTL & ~BITM_CLKG_OSC_CTL_XO32K_ROBUST_MODE_LOAD_SEL;
-    tmp |=  ((uint32_t)eLoad) << BITP_CLKG_OSC_CTL_XO32K_ROBUST_MODE_LOAD_SEL;
+    tmp =   pADI_CLKG0_OSC->CTL & ~BITM_CLKG_OSC_CTL_LFX_ROBUST_LD;
+    tmp |=  ((uint32_t)eLoad) << BITP_CLKG_OSC_CTL_LFX_ROBUST_LD;
 
     /* Write the oscillator key */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
@@ -1235,11 +1234,11 @@ ADI_PWR_RESULT adi_pwr_EnableRootClockFailAutoSwitch( const bool bEnable )
 
     if(bEnable == true)
     {
-        pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_ROOTCLKFAIL_AUTOSWT_EN;
+        pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_ROOT_AUTSW_EN;
     }
     else
     {
-        pADI_CLKG0_OSC->CTL &= ~(BITM_CLKG_OSC_CTL_ROOTCLKFAIL_AUTOSWT_EN);
+        pADI_CLKG0_OSC->CTL &= ~(BITM_CLKG_OSC_CTL_ROOT_AUTSW_EN);
     }
 
     return(ADI_PWR_SUCCESS);
@@ -1498,10 +1497,10 @@ void Crystal_osc_Int_Handler(void)
                           BITM_CLKG_CLK_STAT0_LFXTALNOK));
 
      /* Check if the interrupt was generated due to failure in Root Clock or LFXTAL */
-     uint32_t nOscStatus = (pADI_CLKG0_OSC->CTL &   (BITM_CLKG_OSC_CTL_LFXTAL_MON_FAIL_STAT     |
-                                                     BITM_CLKG_OSC_CTL_ROOTCLK_MON_FAIL_STAT    |
-                                                     BITM_CLKG_OSC_CTL_ROOTCLKFAIL_AUTOSWT_STAT |
-                                                     BITM_CLKG_OSC_CTL_LFXTALFAIL_AUTOSWT_STAT ));
+     uint32_t nOscStatus = (pADI_CLKG0_OSC->CTL &   (BITM_CLKG_OSC_CTL_LFX_FAIL_STA   |
+                                                     BITM_CLKG_OSC_CTL_ROOT_FAIL_STA  |
+                                                     BITM_CLKG_OSC_CTL_ROOT_AUTSW_STA |
+                                                     BITM_CLKG_OSC_CTL_LFX_AUTSW_STA ));
 
      uint32_t nEvent = 0u;
 
@@ -1524,26 +1523,26 @@ void Crystal_osc_Int_Handler(void)
          else if(nOscStatus != 0u)
          {
             /* Did the LFXTAL failed */
-            if( (nOscStatus & BITM_CLKG_OSC_CTL_LFXTAL_MON_FAIL_STAT) != 0u)
+            if( (nOscStatus & BITM_CLKG_OSC_CTL_LFX_FAIL_STA) != 0u)
             {
                 /* Notifiy LFXTAL failure */
                 gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_LFXTAL_MON_FAIL, (void *)0u);
 
                 /* Did the HW auto switched to LFOSC due to LFXTAL failure */
-                if((nOscStatus & BITM_CLKG_OSC_CTL_LFXTALFAIL_AUTOSWT_STAT) != 0u)
+                if((nOscStatus & BITM_CLKG_OSC_CTL_LFX_AUTSW_STA) != 0u)
                 {
                    /* Notify about the auto switch to LFOSC */
                    gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_LFXTAL_AUTO_SWITCH, (void *)0u);
                 }
             }
             /* Did the root clock failed */
-            else if((nOscStatus & BITM_CLKG_OSC_CTL_ROOTCLK_MON_FAIL_STAT) != 0u)
+            else if((nOscStatus & BITM_CLKG_OSC_CTL_ROOT_FAIL_STA) != 0u)
             {
                /* Indicate about the root clock failure */
                gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_ROOT_CLOCK_MON_FAIL, (void *)0u);
 
                /* Did the HW auto switched to HFOSC due to root clock failure */
-               if((nOscStatus & BITM_CLKG_OSC_CTL_ROOTCLKFAIL_AUTOSWT_STAT) != 0u)
+               if((nOscStatus & BITM_CLKG_OSC_CTL_ROOT_AUTSW_STA) != 0u)
                {
                   /* Notify about auto switch to HFOSC */
                   gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_ROOT_CLOCK_FAIL_AUTO_SWITCH, (void *)0u);
@@ -1676,7 +1675,7 @@ void Vreg_over_Int_Handler(void)
     interrupt" (WFI) instruction to implement a persistent sleep mode.
 
     When non-Null, a software strategy is used to control sleeping.  As awakening interrupts are processed, they
-    can set the interrupt controlling variable to 1 and thereby cause the sleep mode to be exited.  Note that all 
+    can increment the interrupt controlling variable and thereby cause the sleep mode to be exited.  Note that all 
     interrupts share a common variable and any interrupt that sets the variable will cause the sleep mode to be 
     exited.
 
@@ -1742,19 +1741,6 @@ void Vreg_over_Int_Handler(void)
              entry/exit to honor user priority requests.  Interrupt-level changes to BASEPRI will be clobbered on
              low-power exit as the saved value is restored.\n\n
 
-    @warning If the WDT is active, then any WDT register writes (such as "kicking" the watchdog) requires a
-             32kHz clock domain synchronization before allowing entry into the low-power WFI instruction.  Since
-             the WFI is in a loop, that means this can potentially happen on each WFI loop iteration.  The WDT
-             is also reset when coming out of hibernation mode because the WDT register set is not "retained",
-             also requiring a synchronization.  The synchronization is required to avoid a hardware anomoly
-             in which unsynchronized WDT writes going into hibernation mode can hang the WDT synchronization
-             status bits.  This long (over 1000us) synchronization can cause lost interrupts when quickly latched
-             (faster than the 32kHz WDT sync duration) multiple interrupts are collected during the critical
-             section (such as FIFO service requests).  Such multiple interrupts may appear to collapse into a single
-             interrupt during the WDT synchronization period.  This may impact the interrupt dispatching (delayed
-             and/or apparent missed interrupts), causing unexpected control-flow side-effects.  This effect is more
-             pronounced with faster interrupts.  Disabling the WDT will isolate this behaivor.\n\n
-
     @sa      adi_pwr_ExitLowPowerMode
 */
 ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
@@ -1763,8 +1749,6 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
                                          )
 {
     uint32_t savedPriority;
-    uint16_t savedWDT;
-    uint16_t ActiveWDT;
     uint32_t scrSetBits = 0u;
     uint32_t scrClrBits = 0u;
     ADI_INT_STATUS_ALLOC();
@@ -1831,33 +1815,9 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
 
         /* assert caller's priority threshold (left-justified) */
         __set_BASEPRI((uint32_t)PriorityMask << (8u -__NVIC_PRIO_BITS));
-
-        /* save/restore WDT control register (which is not retained during hibernation) */
-        savedWDT = pADI_WDT0->CTL;
-
-        /* optimization: compute local WDT enable flag once (outside the loop) */
-        ActiveWDT = ((savedWDT & BITM_WDT_CTL_EN) >> BITP_WDT_CTL_EN);
-
+        
         /* if we are in the software looping mode, loop on the user's variable until set */
         while (0u == *pnInterruptOccurred) {
-
-            /* SAR-51938: insure WDT is fully synchronized or looping on interrupts
-               in hibernate mode may lock out the sync bits.
-
-               In hibernate mode (during which the WDT registers are not retained),
-               the WDT registers will have been reset to default values after each
-               interrupt exit and we require a WDT clock domain sync.
-
-               We also need to insure a clock domain sync before (re)entering the WFI
-               in case an interrupt did a watchdog kick.
-
-               Optimization: only incur WDT sync overhead (~100us) if the WDT is enabled.
-            */
-            if (ActiveWDT > 0u) {
-                while ((pADI_WDT0->STAT & (uint32_t)(BITM_WDT_STAT_COUNTING | BITM_WDT_STAT_LOADING | BITM_WDT_STAT_CLRIRQ)) != 0u) {
-                    ;
-                }
-            }
 
             __DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
 
@@ -1881,23 +1841,10 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
 
         /* ...still within critical section... */
 
-        *pnInterruptOccurred = 0u; /* reset the completion variable on exit */
+        (*pnInterruptOccurred)--;       /* decrement the completion variable on exit */
 
         /* Restore previous base priority */
         __set_BASEPRI(savedPriority);
-
-        /* 	conditionally, restore WDT control register.
-			avoid unnecessary WDT writes which will invoke a sync problem
-			described above as SAR-51938: going into hibernation with pending,
-			unsynchronized WDT writes may lock out the sync bits.
-
-			Note: it takes over 1000us to sync WDT writes between the 26MHz and
-			32kHz clock	domains, so this write may actually impact the NEXT
-			low-power entry.
-        */
-        if (ActiveWDT > 0u) {
-			pADI_WDT0->CTL = savedWDT;
-		}
 
         /* clear sleep-on-exit bit to avoid sleeping on exception return to thread level */
         SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
@@ -1946,7 +1893,7 @@ ADI_PWR_RESULT adi_pwr_ExitLowPowerMode(uint32_t volatile * pnInterruptOccurred)
     }
 
     /* set control variable (whether hardware or software based) so WFI exits in SystemEnterLowPowerMode() */
-    *pnInterruptOccurred = 1u;
+    (*pnInterruptOccurred)++;
     return ADI_PWR_SUCCESS;
 }
 

@@ -323,9 +323,9 @@ typedef enum
 typedef enum
 {
     /*! Interrupt for root clock monitor and Clock Fail. */
-    ADI_PWR_ROOT_CLOCK_MON_IEN      = 1 << BITP_CLKG_OSC_CTL_ROOTCLK_MON_EN,
+    ADI_PWR_ROOT_CLOCK_MON_IEN      = 1 << BITP_CLKG_OSC_CTL_ROOT_MON_EN,
     /*! Interrupt for LFXTAL clock monitor and Clock Fail. */
-    ADI_PWR_LFXTAL_CLOCK_MON_IEN    = 1 << BITP_CLKG_OSC_CTL_LFXTAL_MON_EN,   
+    ADI_PWR_LFXTAL_CLOCK_MON_IEN    = 1 << BITP_CLKG_OSC_CTL_LFX_MON_EN,
     /*! Interrupt when LFXTAL clock becomes stable/unstable. */
     ADI_PWR_LFXTAL_STATUS_IEN       = 1 << BITP_CLKG_CLK_CTL0_LFXTALIE,
     /*! Interrupt when HFXTAL clock becomes stable/unstable. */     

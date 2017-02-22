@@ -57,7 +57,7 @@ POSSIBILITY OF SUCH DAMAGE.
     The macro should be used within the device data structure.
     It should not be used to declare the semaphore as a global variable. */
 #define SEM_VAR_DECLR                                                                    \
-                            SemaphoreHandle_t hSemaphore;                                  
+                            StaticQueue_t hSemaphore;                                  
                             
 /*! Memory required for semaphore in terms bytes. This size is used to compute 
     the total memory required for the operation of the driver. FreeRtos does not 
@@ -66,31 +66,38 @@ POSSIBILITY OF SUCH DAMAGE.
 #define ADI_SEM_SIZE        (sizeof(SemaphoreHandle_t))                            
 
 /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
+#if 0
 #define SEM_CREATE(DEV, name, error)                                                     \
                    do {                                                                  \
                          ((DEV)->hSemaphore) = NULL;                                     \
-                         vSemaphoreCreateBinary((DEV)->hSemaphore);                      \
+                         xSemaphoreCreateBinaryStatic(&(DEV)->hSemaphore);                \
                          if((DEV)->hSemaphore == NULL) {return((error));}                \
                       } while (0)
-
+#else
+                        /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
+#define SEM_CREATE(DEV, name, error)                                                     \
+                   do {                                                                  \
+                         xSemaphoreCreateBinaryStatic(&(DEV)->hSemaphore);                \
+                      } while (0)
+#endif
 /*! Macro that deletes a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
 #define SEM_DELETE(DEV, error)                                                           \
                    do {                                                                  \
-                            vSemaphoreDelete ((DEV)->hSemaphore);                        \
+                            vSemaphoreDelete (&(DEV)->hSemaphore);                        \
                       } while (0)
 
 
 /*! Macro that blocks indefinitely on a semaphore and returns error in case of failure. DEV is the handle to the device driver structure that contains the semaphore handle.*/
 #define SEM_PEND(DEV, error)                                                             \
                  do {                                                                    \
-                       if(xSemaphoreTake ((DEV)->hSemaphore, portMAX_DELAY) != pdTRUE)   \
+                       if(xSemaphoreTake (&(DEV)->hSemaphore, portMAX_DELAY) != pdTRUE)   \
                        return((error));                                                  \
                     } while (0)
 
 /*! Macro that posts a semaphore. DEV is the handle to the device driver structure that contains the semaphore handle. */
 #define SEM_POST(DEV)                                                                     \
         do {                                                                              \
-          xSemaphoreGive((DEV)->hSemaphore);                                              \
+          xSemaphoreGive(&(DEV)->hSemaphore);                                              \
         } while (0)                        
 
 /*! Defines a local variable where interrupt status register value is stored. 
@@ -122,34 +129,18 @@ POSSIBILITY OF SUCH DAMAGE.
 /*! Code that uCOS requires to be run in the beginning of an interrupt handler. 
     @sa ISR_EPILOG()
 */
-#define ISR_PROLOG()               portSAVE_CONTEXT()
+#define ISR_PROLOG()              
 
 /*! Code that uCOS requires to be run in the end of an interrupt handler. 
     @sa ISR_PROLOG()
 */
-#define ISR_EPILOG()               portRESTORE_CONTEXT()
+#define ISR_EPILOG()            
      
-
-#else /* #if assembly */
-
-/* If it is an IAR assembler */
-#if defined(__IASMARM__)
-
-#define EXTERN_RTOS_HANDLERS()      \
-        extern xPortPendSVHandler   \
-        extern xPortSysTickHandler  \
-        extern vPortSVCHandler  
+#endif /* __STDC__  */
 
 #define PENDSV_HANDLER   xPortPendSVHandler
 #define SYSTICK_HANDLER  xPortSysTickHandler
 #define SVC_HANDLER      vPortSVCHandler
 
-#else
-
-#error "Unknown assembler"
-
-#endif /* __IASMARM__ */
-
-#endif /* defined(__STDC__)  */
 
 #endif /* ADI_RTOS_MAP_FREERTOS_H */

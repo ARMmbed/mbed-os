@@ -22,9 +22,6 @@ _Pragma("diag_suppress=Pm093")
 
 #include <sys/adi_ADuCM4050_device.h>
 
-/* Add missing ADC event. */
-#define ADC0_EVT_IRQn ((IRQn_Type)46)
-
 #ifdef __ICCARM__
 _Pragma("diag_default=Pm093")
 #endif /* __ICCARM__ */

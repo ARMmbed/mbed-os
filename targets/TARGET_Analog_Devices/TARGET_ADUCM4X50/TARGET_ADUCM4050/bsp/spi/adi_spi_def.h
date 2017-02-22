@@ -87,12 +87,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*!
  *****************************************************************************
- * SPORT Configuration structure.
+ * SPI Configuration structure.
  *****************************************************************************/
 typedef struct ADI_SPI_CONFIG
 {
-    uint16_t SPI_CTL;                          /*!< SPORT_CTL register configuration. */
-    uint16_t SPI_DIV;                          /*!< SPORT_DIV  register.     */
+    uint16_t SPI_CTL;                          /*!< SPI_CTL register configuration. */
+    uint16_t SPI_DIV;                          /*!< SPI_DIV  register.     */
 } ADI_SPI_CFG_TYPE;
 
 /*! SPI device information */

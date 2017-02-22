@@ -1,4 +1,3 @@
-
 /*!
  *****************************************************************************
  @file:    adi_rtos_map_noos.h
@@ -54,7 +53,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <stddef.h>
 #include <drivers/pwr/adi_pwr.h>
-
+#include <adi_cyclecount.h>
 
 /*! Defines a local variable where interrupt status register value is stored.
     This macro should be used within a function in which critical section
@@ -98,12 +97,21 @@ do {                                                                            
 /*! Code that uCOS requires to be run in the beginning of an interrupt handler.
     @sa ISR_EPILOG()
 */
+#if defined(ADI_CYCLECOUNT_ENABLED) && (ADI_CYCLECOUNT_ENABLED == 1u)
+#define  ISR_PROLOG() adi_cyclecount_start();
+#else
 #define  ISR_PROLOG()
+#endif
+
 
 /*! Code that uCOS requires to be run in the end of an interrupt handler.
     @sa ISR_PROLOG()
 */
+#if defined(ADI_CYCLECOUNT_ENABLED) && (ADI_CYCLECOUNT_ENABLED == 1u)
+#define  ISR_EPILOG() adi_cyclecount_stop();
+#else
 #define  ISR_EPILOG()
+#endif
 
 #if (ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT == 1)
 
@@ -117,7 +125,7 @@ do {                                                                            
     (DEV)->nLowPowerExitFlag = 0u
     
 /*! Macro that deletes a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle */
-#define SEM_DELETE(DEV, error)
+#define SEM_DELETE(DEV, error) do { } while(0)
 
 /*! Macro that blocks indefinitely on a semaphore and returns error in case of failure. DEV is the handle to the   device driver structure that contains the semaphore handle. */
 #define SEM_PEND(DEV, error)                                                                    \
@@ -147,7 +155,7 @@ do {                                                                            
    (DEV)->nSemCount = 0
     
 /*! Macro that deletes a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle */
-#define SEM_DELETE(DEV, error)
+#define SEM_DELETE(DEV, error)  do { } while(0)
 
 /*! Macro that blocks indefinitely on a semaphore and returns error in case of failure. DEV is the handle to the   device driver structure that contains the semaphore handle. */
 #define SEM_PEND(DEV, error)                                                       \
@@ -161,22 +169,12 @@ do {                                                                            
 
 #endif /* ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT */
 
-#else /* If building assembly file */
-
-/* If it is an IAR assembler */
-#if defined(__IASMARM__)
-
-#define EXTERN_RTOS_HANDLERS()
+#endif /* __STDC__ */
 
 #define PENDSV_HANDLER      PendSV_Handler
 #define SYSTICK_HANDLER     SysTick_Handler
 #define SVC_HANDLER         SVC_Handler
 
-#else
-#error "Unknown assembler"
-#endif
-
-#endif /* __STDC__ */
 
 #endif /* ADI_RTOS_MAP_NOOS_H */
 

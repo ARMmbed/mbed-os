@@ -1,10 +1,10 @@
 /*!
  *****************************************************************************
  * @file:    adi_dma.h
- * @brief:   uDMA Device Definitions for ADuCxxx
+ * @brief:   DMA Device Definitions for ADuCxxx
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2016 Analog Devices, Inc.
+Copyright (c) 2016 Analog Devices, Inc.
 
 All rights reserved.
 

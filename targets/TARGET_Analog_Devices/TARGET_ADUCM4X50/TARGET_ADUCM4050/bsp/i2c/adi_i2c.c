@@ -59,6 +59,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>     /* for "memset" */
 /*! \endcond */
 
+#include <drivers/general/adi_drivers_general.h>
 #include <drivers/i2c/adi_i2c.h>
 
  /*! \cond PRIVATE */
@@ -204,7 +205,7 @@ ADI_I2C_RESULT adi_i2c_Open (uint32_t const DeviceNum, void* const pMemory, uint
      * setting these explicitly (e.g. hDevice->bRepearStart = false)
      */
     i2c_device_info[DeviceNum].hDevice = (ADI_I2C_DEV_DATA_TYPE *)pMemory;
-    void *pIgnore = memset(pMemory, 0, MemorySize);
+    memset(pMemory, 0, MemorySize);
 
     /* also link device handle within __ADI_I2C_DEV_DATA_TYPE data structure */
     hDevice->pDevInfo = &i2c_device_info[DeviceNum];
@@ -224,7 +225,7 @@ ADI_I2C_RESULT adi_i2c_Open (uint32_t const DeviceNum, void* const pMemory, uint
         ;
 
     /* reset the driver and HW state */
-    ADI_I2C_RESULT ignore = i2cReset(hDevice);
+    ADI_I2C_RESULT ignore ADI_UNUSED_ATTRIBUTE = i2cReset(hDevice);
 
     /* store device handle into user handle */
     *phDevice = (ADI_I2C_HANDLE)hDevice;
@@ -262,7 +263,7 @@ ADI_I2C_RESULT adi_i2c_Close (ADI_I2C_HANDLE const hDevice) {
         ;
 
     /* reset the driver and HW state */
-    ADI_I2C_RESULT ignore = i2cReset(hDevice);
+    ADI_I2C_RESULT ignore ADI_UNUSED_ATTRIBUTE = i2cReset(hDevice);
 
     /* stub handle */
     hDevice->pDevInfo->hDevice = NULL;
@@ -947,15 +948,17 @@ static void commenceReceive(ADI_I2C_HANDLE const hDevice) {
 /* reset the I2C HW */
 static ADI_I2C_RESULT i2cReset(ADI_I2C_HANDLE const hDevice) {
 
+	volatile uint16_t temp;
     /* disable interrupts */
     NVIC_DisableIRQ(hDevice->pDevInfo->pioIRQn);
 
     /* reset any pending interrupts and TX FIFO (W1C) */
-    hDevice->pDev->MSTAT = hDevice->pDev->MSTAT;
+    temp = hDevice->pDev->MSTAT;
+    hDevice->pDev->MSTAT = temp;
 
     /* discard any rogue RX FIFO data */
     while (uZero16 != (hDevice->pDev->STAT & (uint16_t)BITM_I2C_STAT_MRXF)) {
-        volatile uint16_t delme = hDevice->pDev->MTX;
+        volatile uint16_t delme ADI_UNUSED_ATTRIBUTE = hDevice->pDev->MTX;
     }
 
     /* reset i2c control register */

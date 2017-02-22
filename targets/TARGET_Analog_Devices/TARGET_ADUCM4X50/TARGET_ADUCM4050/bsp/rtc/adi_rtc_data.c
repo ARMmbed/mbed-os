@@ -62,27 +62,6 @@ static ADI_RTC_DEVICE_INFO aRTCDeviceInfo[ADI_RTC_NUM_INSTANCE] =
      }
 };
 
-    uint16_t    CR0;             /*!< CR0 16 bit control register-0 value */  
-    uint16_t    CR1;             /*!< CR1 16 bit control register-1 value */
-    uint16_t    CNT0;            /*!< CNT0 16 bit count register value */
-    uint16_t    CNT1;            /*!< CNT1 16 bit count register value */
-   
-    uint16_t    ALM0;            /*!< ALM0 16 bit integer part of alarm value */
-    uint16_t    ALM1;            /*!< ALM1 16 bit integer part of alarm value */
-    uint16_t    ALM2;            /*!< ALM2 16 bit integer part of alarm value */
-    uint16_t    TRIM;              /*!< 16 bit trim register value */    
-    uint16_t    CR2IC;           /*!< CR2IC 16 bit control (which controls the input capture ) register-2 value */
-    uint16_t    CR3OC;           /*!< CR3OC 16 bit control ( Controls enabling output compare /IRQ etc )register-3 value */
-    uint16_t    CR4OC;           /*!< CR4OC 16 bit control ( controls Auto reload  and mask for output compare  ) register-4 value */
-    uint16_t    OCMSK;           /*!< OCMSK Mask register for output compare channel */
-    uint16_t    OC1;             /*!< 16 bit Auto reload value */
-
-    uint16_t    CR5OCS;         /*!< Configure Output Compare Channel GPIO Sampling Register */
-    uint16_t    CR6OCS;         /*!< Configure Output Compare Channel GPIO Sampling Register */
-    uint16_t    CR7OCS;         /*!< Configure Output Compare Channel GPIO Sampling Register */
-    uint16_t    GPMUX0;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a output compare channel */
-    uint16_t    GPMUX1;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a output compare channel */
-
 
 static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
 {
@@ -139,7 +118,7 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
     /* CR1 */
    RTC1_CFG_ENABLE_COUNT_INTERRUPT           <<  BITP_RTC_CR1_CNTINTEN       |
    RTC1_CFG_ENABLE_MOD1_COUNT_INTERRUPT      <<  BITP_RTC_CR1_PSINTEN        |
-   RTC1_CFG_ENABLE_TRIM_INTERRUPT            <<  BITP_RTC_CR1_RTCTRMINTEN    |
+   RTC1_CFG_ENABLE_TRIM_INTERRUPT            <<  BITP_RTC_CR1_TRMINTEN    |
    RTC1_CFG_CNT_MOD60_ROLLLOVER_INTERRUPT    <<  BITP_RTC_CR1_CNTROLLINTEN   |
    RTC1_CFG_PRESCALE                         <<  BITP_RTC_CR1_PRESCALE2EXP   |
    RTC1_CFG_CNT_ROLLLOVER_INTERRUPT          <<  BITP_RTC_CR1_CNTMOD60ROLLINTEN ,
@@ -154,42 +133,42 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    RTC1_CFG_ALARM_VALUE_2,
 
    /* TRIM */
-   RTC1_CFG_POW2_TRIM_INTERVAL               << BITP_RTC_TRM_IVL2EXPMIN   |
-   RTC1_CFG_TRIM_INTERVAL                    << BITP_RTC_TRM_IVL          |
-   RTC1_CFG_TRIM_OPERATION                   << BITP_RTC_TRM_ADD          |
+   RTC1_CFG_POW2_TRIM_INTERVAL               << BITP_RTC_TRM_IVL2EXPMIN  |
+   RTC1_CFG_TRIM_INTERVAL                    << BITP_RTC_TRM_IVL         |
+   RTC1_CFG_TRIM_OPERATION                   << BITP_RTC_TRM_ADD         |
    RTC1_CFG_TRIM_VALUE                       << BITP_RTC_TRM_VALUE,
    
    /* CR2IC */
-   RTC1_CFG_IC0_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC0EN     |
-   RTC1_CFG_IC2_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC2EN     |
-   RTC1_CFG_IC3_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC3EN     |
-   RTC1_CFG_IC4_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC4EN   |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC0IRQEN |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC2IRQEN |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC3IRQEN |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC4IRQEN  |
-   RTC1_CFG_IC0_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC0LH |
-   RTC1_CFG_IC2_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC2LH |
-   RTC1_CFG_IC3_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC3LH |
-   RTC1_CFG_IC4_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC4LH  |
-   RTC1_CFG_IC_OVER_WRITE_ENABLE             <<  BITP_RTC_CR2IC_RTCICOWUSEN,
+   RTC1_CFG_IC0_ENABLE                       <<  BITP_RTC_CR2IC_IC0EN    |
+   RTC1_CFG_IC2_ENABLE                       <<  BITP_RTC_CR2IC_IC2EN    |
+   RTC1_CFG_IC3_ENABLE                       <<  BITP_RTC_CR2IC_IC3EN    |
+   RTC1_CFG_IC4_ENABLE                       <<  BITP_RTC_CR2IC_IC4EN    |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC0IRQEN |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC2IRQEN |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC3IRQEN |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC4IRQEN |
+   RTC1_CFG_IC0_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC0LH    |
+   RTC1_CFG_IC2_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC2LH    |
+   RTC1_CFG_IC3_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC3LH    |
+   RTC1_CFG_IC4_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC4LH    |
+   RTC1_CFG_IC_OVER_WRITE_ENABLE             <<  BITP_RTC_CR2IC_ICOWUSEN,
   
    /* CR3OC */
-   RTC1_CFG_OC1_ENABLE                       <<  BITP_RTC_CR3OC_RTCOC1EN     |
-   RTC1_CFG_OC2_ENABLE                       <<  BITP_RTC_CR3OC_RTCOC2EN     |
-   RTC1_CFG_OC3_ENABLE                       <<  BITP_RTC_CR3OC_RTCOC3EN     |
-   RTC1_CFG_OC4_ENABLE                       <<  BITP_RTC_CR3OC_RTCOC4EN     |
-   RTC1_CFG_OC1_INT_ENABLE                   <<  BITP_RTC_CR3OC_RTCOC1IRQEN  |
-   RTC1_CFG_OC2_INT_ENABLE                   <<  BITP_RTC_CR3OC_RTCOC2IRQEN  |
-   RTC1_CFG_OC3_INT_ENABLE                   <<  BITP_RTC_CR3OC_RTCOC3IRQEN  |
-   RTC1_CFG_OC4_INT_ENABLE                   <<  BITP_RTC_CR3OC_RTCOC4IRQEN,
+   RTC1_CFG_OC1_ENABLE                       <<  BITP_RTC_CR3SS_SS1EN    |
+   RTC1_CFG_OC2_ENABLE                       <<  BITP_RTC_CR3SS_SS2EN    |
+   RTC1_CFG_OC3_ENABLE                       <<  BITP_RTC_CR3SS_SS3EN    |
+   RTC1_CFG_OC4_ENABLE                       <<  BITP_RTC_CR3SS_SS4EN    |
+   RTC1_CFG_OC1_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS1IRQEN |
+   RTC1_CFG_OC2_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS2IRQEN |
+   RTC1_CFG_OC3_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS3IRQEN |
+   RTC1_CFG_OC4_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS4IRQEN,
 
    /* CR4OC */
-   RTC1_CFG_OC1_MASK_ENABLE                  <<  BITP_RTC_CR4OC_RTCOC1MSKEN     |
-   RTC1_CFG_OC2_MASK_ENABLE                  <<  BITP_RTC_CR4OC_RTCOC2MSKEN     |
-   RTC1_CFG_OC3_MASK_ENABLE                  <<  BITP_RTC_CR4OC_RTCOC3MSKEN     |
-   RTC1_CFG_OC4_MASK_ENABLE                  <<  BITP_RTC_CR4OC_RTCOC4MSKEN     |
-   RTC1_CFG_OC1_AUTO_RELOADING_ENABLE        <<  BITP_RTC_CR4OC_RTCOC1ARLEN,
+   RTC1_CFG_OC1_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS1MSKEN |
+   RTC1_CFG_OC2_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS2MSKEN |
+   RTC1_CFG_OC3_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS3MSKEN |
+   RTC1_CFG_OC4_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS4MSKEN |
+   RTC1_CFG_OC1_AUTO_RELOADING_ENABLE        <<  BITP_RTC_CR4SS_SS1ARLEN,
 
    /* OCMSK */
    RTC1_CFG_OC1_MASK_VALUE,

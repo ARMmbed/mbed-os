@@ -110,7 +110,11 @@ typedef enum
     /*! Could not obtain the system clock */
     ADI_SPI_BAD_SYS_CLOCK,
     /*! Blocking PEND failed */
-    ADI_SPI_PEND_FAILED
+    ADI_SPI_PEND_FAILED,
+    /*! DMA callback register failed */
+    ADI_SPI_DMA_REG_FAILED,
+    /*! Hardware error occurred */
+    ADI_SPI_HW_ERROR_OCCURRED
 } ADI_SPI_RESULT;
 
 /*!
@@ -125,11 +129,23 @@ typedef enum
 {
     /*!< The given buffer is processed. Application can use this event to submit
          the next buffer to be transmitted. */
-    ADI_SPI_HW_ERROR_NONE  = 0,
+    ADI_SPI_HW_ERROR_NONE                       = 0u,
    /*!  Tx-underflow interrupt enable */
-    ADI_SPI_HW_ERROR_TX_UNDERFLOW = 1,
+    ADI_SPI_HW_ERROR_TX_UNDERFLOW               = 1u,
     /*!  Rx-overflow interrupt enable */
-    ADI_SPI_HW_ERROR_RX_OVERFLOW = 2
+    ADI_SPI_HW_ERROR_RX_OVERFLOW                = 2u,
+    /*!  Rx DMA channel bus fault detected */
+    ADI_SPI_HW_ERROR_RX_CHAN_DMA_BUS_FAULT      = 4u,
+    /*!  Tx DMA channel bus fault detected */
+    ADI_SPI_HW_ERROR_TX_CHAN_DMA_BUS_FAULT      = 8u,
+    /*!  Rx DMA channel bus fault detected */
+    ADI_SPI_HW_ERROR_RX_CHAN_DMA_INVALID_DESCR  = 16u,
+    /*!  Tx DMA channel bus fault detected */
+    ADI_SPI_HW_ERROR_TX_CHAN_DMA_INVALID_DESCR  = 32u,
+    /*!  Rx DMA channel unkown error detected */
+    ADI_SPI_HW_ERROR_RX_CHAN_DMA_UNKNOWN_ERROR  = 64u,
+    /*!  Tx DMA channel unkown error detected */
+    ADI_SPI_HW_ERROR_TX_CHAN_DMA_UNKNOWN_ERROR  = 128u          
 
 } ADI_SPI_HW_ERRORS;
 
@@ -317,7 +333,7 @@ ADI_SPI_RESULT adi_spi_isBufferAvailable(
 
 
 
-ADI_SPI_RESULT adi_spi_SetContinousMode(
+ADI_SPI_RESULT adi_spi_SetContinuousMode(
                ADI_SPI_CONST_HANDLE const hDevice,
                const bool bFlag
                );
@@ -328,18 +344,16 @@ ADI_SPI_RESULT adi_spi_SetLoopback(
                const bool bFlag
                );
 
+ADI_SPI_RESULT adi_spi_SetIrqmode (
+               ADI_SPI_CONST_HANDLE const hDevice, 
+               const uint8_t nMode);
+
 ADI_SPI_RESULT adi_spi_SetReceiveOverflow(
                ADI_SPI_CONST_HANDLE const hDevice,
                const bool bFlag
                );
 
 ADI_SPI_RESULT adi_spi_SetTransmitUnderflow(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const bool bFlag
-               );
-
-
-ADI_SPI_RESULT adi_spi_SetReadySignalPolarity(
                ADI_SPI_CONST_HANDLE const hDevice,
                const bool bFlag
                );

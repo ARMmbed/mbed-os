@@ -75,16 +75,16 @@
 
  /* Default osc  control register value */
 #define OSCCTRL_CONFIG_VALUE                                                                                              \
-          ( (uint32_t) ADI_PWR_LF_CLOCK_MUX                             << BITP_CLKG_OSC_CTL_LFCLKMUX                   | \
-            (uint32_t) ADI_PWR_HFOSC_CLOCK_ENABLE                       << BITP_CLKG_OSC_CTL_HFOSCEN                    | \
-            (uint32_t) ADI_PWR_LFXTAL_CLOCK_ENABLE                      << BITP_CLKG_OSC_CTL_LFXTALEN                   | \
-            (uint32_t) ADI_PWR_HFXTAL_CLOCK_ENABLE                      << BITP_CLKG_OSC_CTL_HFXTALEN                   | \
-            (uint32_t) ADI_PWR_LFXTAL_CLOCK_MON_ENABLE                  << BITP_CLKG_OSC_CTL_LFXTAL_MON_EN              | \
-            (uint32_t) ADI_PWR_LFXTAL_FAIL_AUTO_SWITCH_ENABLE           << BITP_CLKG_OSC_CTL_LFXTALFAIL_AUTOSWT_EN      | \
-            (uint32_t) ADI_PWR_LFXTAL_ROBUST_MODE_ENABLE                << BITP_CLKG_OSC_CTL_XO32K_ROBUST_MODE_ENABLE   | \
-            (uint32_t) ADI_PWR_LFXTAL_ROBUST_LOAD_SELECT                << BITP_CLKG_OSC_CTL_XO32K_ROBUST_MODE_LOAD_SEL | \
-            (uint32_t) ADI_PWR_ROOT_CLOCK_MON_INT_ENABLE                << BITP_CLKG_OSC_CTL_ROOTCLK_MON_EN             | \
-            (uint32_t) ADI_PWR_ROOT_CLOCK_FAIL_AUTOSWITCH_ENABLE        << BITP_CLKG_OSC_CTL_ROOTCLKFAIL_AUTOSWT_EN )
+          ( (uint32_t) ADI_PWR_LF_CLOCK_MUX                             << BITP_CLKG_OSC_CTL_LFCLK_MUX                  | \
+            (uint32_t) ADI_PWR_HFOSC_CLOCK_ENABLE                       << BITP_CLKG_OSC_CTL_HFOSC_EN                   | \
+            (uint32_t) ADI_PWR_LFXTAL_CLOCK_ENABLE                      << BITP_CLKG_OSC_CTL_LFX_EN                     | \
+            (uint32_t) ADI_PWR_HFXTAL_CLOCK_ENABLE                      << BITP_CLKG_OSC_CTL_HFX_EN                     | \
+            (uint32_t) ADI_PWR_LFXTAL_CLOCK_MON_ENABLE                  << BITP_CLKG_OSC_CTL_LFX_MON_EN                 | \
+            (uint32_t) ADI_PWR_LFXTAL_FAIL_AUTO_SWITCH_ENABLE           << BITP_CLKG_OSC_CTL_LFX_AUTSW_EN               | \
+            (uint32_t) ADI_PWR_LFXTAL_ROBUST_MODE_ENABLE                << BITP_CLKG_OSC_CTL_LFX_ROBUST_EN              | \
+            (uint32_t) ADI_PWR_LFXTAL_ROBUST_LOAD_SELECT                << BITP_CLKG_OSC_CTL_LFX_ROBUST_LD              | \
+            (uint32_t) ADI_PWR_ROOT_CLOCK_MON_INT_ENABLE                << BITP_CLKG_OSC_CTL_ROOT_MON_EN                | \
+            (uint32_t) ADI_PWR_ROOT_CLOCK_FAIL_AUTOSWITCH_ENABLE        << BITP_CLKG_OSC_CTL_ROOT_AUTSW_EN )
 
  /* Default clock control register-0 value */
 #define CLOCK_CTL0_CONFIG_VALUE                                                                                           \

@@ -36,11 +36,6 @@
    ---------------------------------------------------------------------------*/
 
 
-/*! \addtogroup SYS_Driver System Interfaces
- *  @{
- * System global interfaces and CMSIS required variables
- */
-
 #ifndef SYSTEM_ADUCM4050_H
 #define SYSTEM_ADUCM4050_H
 
@@ -49,7 +44,7 @@
 #include <stdint.h>
 
 
-extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
+extern uint32_t SystemCoreClock;     /* System Clock Frequency (Core Clock)  */
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,6 +61,11 @@ extern "C" {
 #pragma diag_suppress=Pm011
 
 #endif
+
+/*! \addtogroup SYS_Driver System Interfaces
+ *  @{
+ * System global interfaces and CMSIS required variables
+ */
 
 /*! System API function return codes */
 typedef enum

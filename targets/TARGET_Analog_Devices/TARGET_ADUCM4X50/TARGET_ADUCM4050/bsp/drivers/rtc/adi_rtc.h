@@ -52,10 +52,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <adi_callback.h>
 #include <adi_rtc_config.h>
 
-/** @addtogroup SPI_Driver SPI Driver
+/*! \addtogroup RTC_Driver RTC Driver
  *  @{
  */
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -220,13 +219,13 @@ typedef enum
 typedef enum
 {
     /*!  Input capture channel-0  */
-    ADI_RTC_INPUT_CHANNEL_0           = 1 << BITP_RTC_CR2IC_RTCIC0EN,
+    ADI_RTC_INPUT_CHANNEL_0           = 1 << BITP_RTC_CR2IC_IC0EN,
     /*!  Input capture channel-2  */
-    ADI_RTC_INPUT_CHANNEL_2           = 1 << BITP_RTC_CR2IC_RTCIC2EN,
+    ADI_RTC_INPUT_CHANNEL_2           = 1 << BITP_RTC_CR2IC_IC2EN,
     /*!  Input capture channel-3  */
-    ADI_RTC_INPUT_CHANNEL_3           = 1 << BITP_RTC_CR2IC_RTCIC3EN,
+    ADI_RTC_INPUT_CHANNEL_3           = 1 << BITP_RTC_CR2IC_IC3EN,
     /*!  Input capture channel-4  */
-    ADI_RTC_INPUT_CHANNEL_4           = 1 << BITP_RTC_CR2IC_RTCIC4EN
+    ADI_RTC_INPUT_CHANNEL_4           = 1 << BITP_RTC_CR2IC_IC4EN
 
 }ADI_RTC_INPUT_CHANNEL;
 
@@ -236,13 +235,13 @@ typedef enum
 typedef enum
 {
     /*!  output compare channel-1  */
-    ADI_RTC_OUTPUT_CHANNEL_1           = 1 << BITP_RTC_CR3OC_RTCOC1EN,
+    ADI_RTC_OUTPUT_CHANNEL_1           = 1 << BITP_RTC_CR3SS_SS1EN,
     /*!  output compare channel-2  */
-    ADI_RTC_OUTPUT_CHANNEL_2           = 1 << BITP_RTC_CR3OC_RTCOC2EN,
+    ADI_RTC_OUTPUT_CHANNEL_2           = 1 << BITP_RTC_CR3SS_SS2EN,
     /*!  output compare channel-3  */
-    ADI_RTC_OUTPUT_CHANNEL_3           = 1 << BITP_RTC_CR3OC_RTCOC3EN,
+    ADI_RTC_OUTPUT_CHANNEL_3           = 1 << BITP_RTC_CR3SS_SS3EN,
     /*!  output compare channel-4  */
-    ADI_RTC_OUTPUT_CHANNEL_4           = 1 << BITP_RTC_CR3OC_RTCOC4EN,
+    ADI_RTC_OUTPUT_CHANNEL_4           = 1 << BITP_RTC_CR3SS_SS4EN,
 
 }ADI_RTC_OUTPUT_CHANNEL;
 

@@ -2,7 +2,7 @@
  * @file:    adi_spi.c
  * @brief:   SPI  device  driver global file.
  * @details: This a global file which includes a specific file based on the processor family.
- *           This included file will be  containing  SPORT device  driver functions.
+ *           This included file will be  containing  SPI device  driver functions.
  -----------------------------------------------------------------------------
 Copyright (c) 2016 Analog Devices, Inc.
 
@@ -48,16 +48,21 @@ POSSIBILITY OF SUCH DAMAGE.
  *  @{
  * @brief Serial Peripheral Interface (SPI) Driver
  * @details The SPI driver manages all instances of the SPI peripheral.
- * @note The application must include drivers/spi/adi_spi.h to use this driver
- * @note This driver requires the DMA driver.The application must include 
- * @note the DMA driver sources to avoid link errors.
- * @note Also note that the SPI will be configured by default to operate in Master
- * @note mode. To configure the driver to operate in slave mode the static configuration
- * @note file adi_spi_config.h must be modified. Specifically, the macro ADI_SPIx_MASTER_MODE
- * @note must be set to '0' to indicate that slave mode functionality is needed. Since there
- * @note are three SPI devices there are three macros, ADI_SPI0_MASTER_MODE, ADI_SPI1_MASTER_MODE
- * @note ADI_SPI2_MASTER_MODE to control the functionality of each SPI controller. Each
- * @note instance of the SPI operates independently from all other instances.
+ * @note The application must include drivers/spi/adi_spi.h to use this driver.
+ * @note This driver requires the DMA driver.The application must include the DMA driver sources to avoid link errors.
+ * @note Also note that the SPI will be configured by default to operate in Master mode. 
+ * @note To configure the driver to operate in slave mode the static configuration file adi_spi_config.h must be modified. 
+ * @note Specifically, the macro ADI_SPIx_MASTER_MODE must be set to '0' to indicate that slave mode functionality is needed. 
+ * @note Since there are three SPI devices there are three macros, ADI_SPI0_MASTER_MODE, ADI_SPI1_MASTER_MODE and ADI_SPI2_MASTER_MODE to control the functionality of each SPI controller. 
+ * @note Each instance of the SPI operates independently from all other instances.
+ * @note
+ * @note When operating the SPI at high bit rates the application may need to modify the IRQ interrupt mode. The API adi_spi_SetIrqmode() can be used for this.
+ * @note At higher bit rates the ISR could mask a TX/RX interrupt. Specifically, it is possible that while servicing a TX/RX event another TX/RX event could occur. It is
+ * @note possible, therefore, that when the ISR clears the interrupt status it will not only be clearing the current TX event but the next TX/RX event as well. The result
+ * @note could that a final TX/RX event will not be processed. One way to work around this would be to set IRQMODE such that TX/RX events will occur only after N bytes
+ * @note are in the FIFO. This will only work for short bursts less than the size of the FIFO. For larger transfer DMA mode, which will not have any of these issues,  should be used.
+ * @note Finally, if interrupt mode is required at hight bit rates note that the SPI ISR has been designed with minimal cycle count as the highest priority. 
+ * @note The ISR could certainly be modified to re-examine the FIFO before existing at the cost of additional cycles.
  */
 
  /*! \cond PRIVATE */
@@ -69,10 +74,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <drivers/spi/adi_spi.h>
 #include <drivers/pwr/adi_pwr.h>
+#include <drivers/general/adi_drivers_general.h>
 #include <adi_callback.h>
 #include <rtos_map/adi_rtos_map.h>
 #include "adi_spi_config.h"
-
+#include <adi_cyclecount.h>
 
 
 #ifdef __ICCARM__
@@ -111,14 +117,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "adi_spi_data.c"
 
-
 /*! \cond PRIVATE */
-
-#if defined ( __ADSPGCC__ )
-#define UNUSED __attribute__ ((unused))
-#else
-#define UNUSED
-#endif
 
 /* handle checker for debug mode */
 #define ADI_SPI_VALIDATE_HANDLE(h) ((spi_device_info[0].hDevice != (h)) && (spi_device_info[1].hDevice != (h)) && (spi_device_info[2].hDevice != (h)))
@@ -128,8 +127,10 @@ POSSIBILITY OF SUCH DAMAGE.
 /*
  * Local prototypes
  */
-static void common_SPI_Int_Handler             (ADI_SPI_DEV_DATA_TYPE* pDD);
-static void StartTransaction(ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCEIVER* const pXfr);
+static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD);
+static void StartTransaction       (ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCEIVER* const pXfr);
+static void TxDmaErrorCallback     (void *pCBParam, uint32_t Event, void *pArg);
+static void RxDmaErrorCallback     (void *pCBParam, uint32_t Event, void *pArg);
 
 /* ISR forward declarations */
 /*! \cond PRIVATE */
@@ -155,10 +156,8 @@ void DMA_SPIH_RX_Int_Handler(void);
  *
  * @param[in]   nDeviceNum   Zero-based device index designating which device to initialize.
  *\n
- * @param [in]  pDevMemory   Pointer to a 32 bit aligned buffer of size ADI_SPORT_INT_MEMORY_SIZE
- *\n                         required by the driver for the operation of specified SPORT device.
- *\n                         Buffer Size should be "ADI_SPORT_DMA_MEMORY_SIZE" bytes if the device is
- *\n                         expected to operate in DMA mode.
+ * @param [in]  pDevMemory   Pointer to a buffer of size ADI_SPI_MEMORY_SIZE
+ *\n                         required by the driver for the operation of specified SPI device.
  *
  * @param [in]  nMemorySize  Size of the buffer to which "pMemory" points. 
  *
@@ -168,6 +167,8 @@ void DMA_SPIH_RX_Int_Handler(void);
  *                    - #ADI_SPI_INVALID_DEVICE_NUM [D]     Invalid device index.
  *                    - #ADI_SPI_INVALID_PARAM [D]          Invalid parameter.
  *                    - #ADI_SPI_SEMAPHORE_FAILED           Semaphore creation failed.
+ *                    - #ADI_SPI_DMA_REG_FAILED             Failed to register DMA callbacks with common DMA service.
+ *                    - #ADI_SPI_IN_USE                     SPI is already open and in use.
  *                    - #ADI_SPI_SUCCESS                    Call completed successfully.
  *
 * @note :  No other SPI APIs may be called until the device open function is called.
@@ -195,6 +196,11 @@ ADI_SPI_RESULT adi_spi_Open(uint32_t nDeviceNum,
     if (nMemorySize != sizeof(struct __ADI_SPI_DEV_DATA_TYPE))
     {
         return ADI_SPI_INVALID_PARAM;
+    }
+    
+    if( spi_device_info[nDeviceNum].hDevice != NULL )
+    {
+        return ADI_SPI_IN_USE;
     }
 
 #endif
@@ -240,6 +246,18 @@ ADI_SPI_RESULT adi_spi_Open(uint32_t nDeviceNum,
     
     /* Make sure the DMA controller and its SRAM based descriptors are initialized */
     adi_dma_Init();
+
+    /* Setup the DMA TX callback */
+    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback((DMA_CHANn_TypeDef) hDevice->pDevInfo->dmaTxChannelNumber, TxDmaErrorCallback, (void *) hDevice)) 
+    {
+         return  ADI_SPI_DMA_REG_FAILED;
+    }
+
+    /* Setup the DMA RX callback */
+    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback((DMA_CHANn_TypeDef) hDevice->pDevInfo->dmaRxChannelNumber, RxDmaErrorCallback, (void *) hDevice)) 
+    {
+         return  ADI_SPI_DMA_REG_FAILED;
+    }
 
     return ADI_SPI_SUCCESS;
 }
@@ -313,6 +331,57 @@ ADI_SPI_RESULT adi_spi_RegisterCallback (ADI_SPI_HANDLE const hDevice,  ADI_CALL
 }
 
 /*!
+ * @brief  Set the IRQ mode.
+ *
+ * @param[in]    hDevice      Device handle obtained from adi_spi_Open().
+ * @param[in]    nMode        IRQ mode value to set.
+*                - true     Set continuous transfer mode.
+*                - false    Clear continuous transfer mode.
+ *
+ * @return         Status
+ *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
+ *                - #ADI_SPI_SUCCESS                        Call completed successfully.
+ *
+ * These bits configure when the Tx/Rx interrupts occur in a transfer. 
+ * For DMA Rxtransfer, these bits should be 0. 
+ * Value values are 0-7
+ *      Tx interrupt occurs when (nMode+1) byte(s) has been transferred.
+ *      Rx interrupt occurs when (nMode+1) or more bytes have been received into the FIFO.
+ *
+ *  @note The application will have to carefully manage IRQMODE relative to a transaction's buffer size.
+ *  @note Specifically, the application must ensure that the last byte causes an interrupt else the 
+ *  @note transaction will not terminate. As explained in the SPI driver overview, this functionality
+ *  @note is typically needed when operating in interrupt mode with a high SPI bit rate (typically issues
+ *  @note are seen at SPI clock rates of 4MHz or greater). The max clock rate will vary depending on the application.
+ *  @note The max clock rate is a function of the SPI ISR cycle count plus any other delay that might be caused
+ *  @note by other parts of the system. Finally, please note that while sustaining interrupt mode SPI transaction
+ *  @note at high bit rates will work buffers that are the size of the SPI FIFO or less, transactions that are 
+ *  @note larger that the size of the FIFO may run into issues associated with masked/lost interrupts. If this
+ *  @note does prove to be an issue for an applicatoon then the SPI ISR could be modified to examine the FIFO
+ *  @note status on a continuous basis in the ISR (as opposed to examining the FIFO status just once at the start
+ *  @note of the ISR). However, adding this functionality to the ISR will increase the ISR cycle count and footprint. 
+ *
+ */
+ADI_SPI_RESULT adi_spi_SetIrqmode (ADI_SPI_CONST_HANDLE const hDevice, const uint8_t nMode)
+{
+
+#ifdef ADI_DEBUG
+    if (ADI_SPI_VALIDATE_HANDLE(hDevice)) {
+        return ADI_SPI_INVALID_HANDLE;
+    }
+
+#endif
+    
+    uint16_t ien = hDevice->pSpi->IEN;
+    ien = ien & (uint16_t)~BITM_SPI_IEN_IRQMODE;
+    ien = ien | (nMode & BITM_SPI_IEN_IRQMODE);
+    hDevice->pSpi->IEN = ien;
+
+    return ADI_SPI_SUCCESS;
+}
+
+
+/*!
  * @brief  Set the continuous transfer mode.
  *
  * @param[in]    hDevice      Device handle obtained from adi_spi_Open().
@@ -329,7 +398,7 @@ ADI_SPI_RESULT adi_spi_RegisterCallback (ADI_SPI_HANDLE const hDevice,  ADI_CALL
  *
  *
  */
-ADI_SPI_RESULT adi_spi_SetContinousMode (ADI_SPI_CONST_HANDLE const hDevice, const bool bFlag)
+ADI_SPI_RESULT adi_spi_SetContinuousMode (ADI_SPI_CONST_HANDLE const hDevice, const bool bFlag)
 {
 
 #ifdef ADI_DEBUG
@@ -535,10 +604,11 @@ ADI_SPI_RESULT adi_spi_SetBitrate (ADI_SPI_CONST_HANDLE const hDevice, const uin
 
     if( adi_pwr_GetClockFrequency(ADI_CLOCK_PCLK, &incoming_clock) != ADI_PWR_SUCCESS)
     {
+        return ADI_SPI_INVALID_HANDLE;
     }
 
-    /* requested rate needs to be 2x less than incoming clock */
-    if ((2U * Hertz) >= incoming_clock)
+    /* requested rate needs to be 2x or less than incoming clock */
+    if ((2U * Hertz) > incoming_clock)
     {
         return ADI_SPI_BAD_SYS_CLOCK;
     }
@@ -634,42 +704,6 @@ ADI_SPI_RESULT adi_spi_SetChipSelect (ADI_SPI_HANDLE const hDevice, const ADI_SP
     return ADI_SPI_SUCCESS;
 }
 
-
-
-/*!
- * @brief  To configure Polarity of RDY/MISO line.
- *
- * @param[in]    hDevice      Device handle obtained from adi_spi_Open().
- * @param[in]    bFlag        Specify which interrupt(s) need to be enabled.
- * \n              - true     Polarity is active LOW. SPI master waits until RDY/MISO becomes LOW.
- * \n              - false    Polarity is active HIGH. SPI master waits until RDY/MISO becomes HIGH.
- *
- * @return         Status
- *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
- *                - #ADI_SPI_SUCCESS                        Call completed successfully.
- *
- * @note:  SPI read command mode where a 'command + address' is transmitted and read data is expected in the same CS frame
- */
-ADI_SPI_RESULT adi_spi_SetReadySignalPolarity (ADI_SPI_CONST_HANDLE const hDevice,const bool bFlag )
-{
-
-#ifdef ADI_DEBUG
-    if (ADI_SPI_VALIDATE_HANDLE(hDevice))
-    {
-        return ADI_SPI_INVALID_HANDLE;
-    }
-#endif
-    
-    hDevice->pSpi->FLOW_CTL &=  (uint16_t)~BITM_SPI_FLOW_CTL_RDYPOL;
-    if(bFlag == true)
-    {
-        hDevice->pSpi->FLOW_CTL |=(BITM_SPI_FLOW_CTL_RDYPOL);
-    }
-    return ADI_SPI_SUCCESS;
-}
-
-
-
 /*!
  * @brief  Submit data buffers for SPI Master-Mode transaction in "Blocking mode".This function
  *\n          returns only after the data transfer is complete
@@ -703,6 +737,10 @@ ADI_SPI_RESULT adi_spi_MasterReadWrite (ADI_SPI_HANDLE const hDevice, const ADI_
     hDevice->bBlockingMode = true;
     eResult = adi_spi_MasterSubmitBuffer(hDevice,pXfr);
     hDevice->bBlockingMode = false;
+    if( (eResult == ADI_SPI_SUCCESS) && (hDevice->HWErrors != 0u))
+    {
+      eResult = ADI_SPI_HW_ERROR_OCCURRED;
+    }
     return(eResult);
 }
 
@@ -747,6 +785,11 @@ ADI_SPI_RESULT adi_spi_MasterSubmitBuffer (ADI_SPI_HANDLE const hDevice, const A
     if ((NULL == pXfr->pTransmitter) && (NULL == pXfr->pReceiver))
     {
         return ADI_SPI_INVALID_POINTER;
+    }
+    
+    if( (pXfr->bRD_CTL == true) && (pXfr->TransmitterBytes > 16u))
+    {
+      return ADI_SPI_INVALID_PARAM;
     }
 
 #endif /* ADI_DEBUG */
@@ -892,7 +935,7 @@ static void StartTransaction(ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCE
         NVIC_EnableIRQ((IRQn_Type)(hDevice->pDevInfo->dmaTxIrqNumber));
 
         /* Disables source address decrement for TX channel */
-        pADI_DMA0->SRCADDR_CLR = TxChanNum;
+        pADI_DMA0->SRCADDR_CLR = 1U << TxChanNum;
       
         /* Enable the channel */
         pADI_DMA0->EN_SET = 1U << TxChanNum;
@@ -1047,7 +1090,7 @@ static void StartTransaction(ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCE
     
     if((hDevice->pSpi->CTL & BITM_SPI_CTL_TIM) != BITM_SPI_CTL_TIM)
     {
-      uint16_t byte = hDevice->pSpi->RX;    
+      uint16_t byte ADI_UNUSED_ATTRIBUTE = hDevice->pSpi->RX;
     }
     
     
@@ -1151,7 +1194,7 @@ ADI_SPI_RESULT  adi_spi_isBufferAvailable(ADI_SPI_CONST_HANDLE const hDevice,  b
  */
 ADI_SPI_RESULT adi_spi_SlaveSubmitBuffer (ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCEIVER* const pXfr)
 {
-    volatile uint16_t UNUSED byte;
+    volatile uint16_t ADI_UNUSED_ATTRIBUTE byte;
     uint32_t nCount = 0u;
     
 #ifdef ADI_DEBUG
@@ -1164,7 +1207,7 @@ ADI_SPI_RESULT adi_spi_SlaveSubmitBuffer (ADI_SPI_HANDLE const hDevice, const AD
         return ADI_SPI_INVALID_POINTER;
     }
     
-    if ((0u == pXfr->pTransmitter)&&(0u == pXfr->ReceiverBytes) )
+    if ((0u == pXfr->pTransmitter) && (0u == pXfr->pReceiver) )
     {
         return ADI_SPI_INVALID_PARAM;
     }
@@ -1242,7 +1285,7 @@ ADI_SPI_RESULT adi_spi_SlaveSubmitBuffer (ADI_SPI_HANDLE const hDevice, const AD
         NVIC_EnableIRQ((IRQn_Type)(hDevice->pDevInfo->dmaTxIrqNumber));
 
         /* Disables source address decrement for TX channel */
-        pADI_DMA0->SRCADDR_CLR = TxChanNum;
+        pADI_DMA0->SRCADDR_CLR = 1U << TxChanNum;
       
         /* Enable the channel */
         pADI_DMA0->EN_SET = 1U << TxChanNum;
@@ -1402,6 +1445,10 @@ ADI_SPI_RESULT adi_spi_SlaveReadWrite (ADI_SPI_HANDLE const hDevice, const ADI_S
     hDevice->bBlockingMode = true;
     eResult = adi_spi_SlaveSubmitBuffer(hDevice,pXfr);
     hDevice->bBlockingMode = false;
+    if( (eResult == ADI_SPI_SUCCESS) && (hDevice->HWErrors != 0u))
+    {
+      eResult = ADI_SPI_HW_ERROR_OCCURRED;
+    }
     return(eResult);
 }
 
@@ -1422,7 +1469,7 @@ ADI_SPI_RESULT adi_spi_SlaveReadWrite (ADI_SPI_HANDLE const hDevice, const ADI_S
 
 static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
 {
- 
+   
   /* read status register - first thing */
   volatile  uint16_t nFifoStatus = pDD->pSpi->FIFO_STAT;
   uint16_t nErrorStatus = pDD->pSpi->STAT;
@@ -1514,11 +1561,56 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
       
   }
   
-  /*W1C  All interrupts are cleared by a write a 1 to the status register bits */
+  /* All interrupts are cleared by a write of 1 to the status register bits (W1C)  */
   pDD->pSpi->STAT = nErrorStatus;
+
+#if defined(ADI_CYCLECOUNT_SPI_ISR_ENABLED) && (ADI_CYCLECOUNT_SPI_ISR_ENABLED == 1u)
+  ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_SPI);    
+#endif
   
 }
 
+
+/* Internal DMA Callback for receiving DMA faults from common DMA error handler. */
+static void RxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
+
+    /* Recover the device handle. */
+    ADI_SPI_HANDLE hDevice = (ADI_SPI_HANDLE) pCBParam;
+
+    /* Save the DMA error. */
+    switch (Event) {
+        case ADI_DMA_EVENT_ERR_BUS:
+            hDevice->HWErrors |= ADI_SPI_HW_ERROR_RX_CHAN_DMA_BUS_FAULT;
+            break;
+        case ADI_DMA_EVENT_ERR_INVALID_DESCRIPTOR:
+            hDevice->HWErrors |= ADI_SPI_HW_ERROR_RX_CHAN_DMA_INVALID_DESCR;
+            break;
+        default:
+            hDevice->HWErrors |= ADI_SPI_HW_ERROR_RX_CHAN_DMA_UNKNOWN_ERROR;
+            break;
+    }
+}
+
+
+/* Internal DMA Callback for receiving DMA faults from common DMA error handler. */
+static void TxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
+
+    /* Recover the device handle. */
+    ADI_SPI_HANDLE hDevice = (ADI_SPI_HANDLE) pArg;
+
+    /* Save the DMA error. */
+    switch (Event) {
+        case ADI_DMA_EVENT_ERR_BUS:
+            hDevice->HWErrors |= ADI_SPI_HW_ERROR_TX_CHAN_DMA_BUS_FAULT;
+            break;
+        case ADI_DMA_EVENT_ERR_INVALID_DESCRIPTOR:
+            hDevice->HWErrors |= ADI_SPI_HW_ERROR_TX_CHAN_DMA_INVALID_DESCR;
+            break;
+        default:
+            hDevice->HWErrors |= ADI_SPI_HW_ERROR_TX_CHAN_DMA_UNKNOWN_ERROR;
+            break;
+    }   
+}
 
 
 /*!

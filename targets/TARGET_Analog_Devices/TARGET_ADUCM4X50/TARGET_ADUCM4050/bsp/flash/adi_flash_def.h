@@ -99,9 +99,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /* INTERNAL DRIVER STATIC FUNCTION PROTOTYPES */
 
-/* Initialize the device */
-static void Initialize (uint32_t const nDeviceNum, ADI_FEE_HANDLE const hDevice);
-
 /* Send a command to the flash controller, but does no pend on it... */
 static ADI_FEE_RESULT SendCommand (ADI_FEE_HANDLE const hDevice, uint32_t const cmd);
 

@@ -121,18 +121,19 @@ typedef struct _ADI_UART_DEVICE_INFO
 
 typedef struct _ADI_UART_DEVICE
 {
-    ADI_UART_DIRECTION          eDirection;           /*!< UART operation direction.                             */
-    ADI_UART_DEVICE_INFO       *pUartInfo;            /*!< Access to device information about the uart instance. */
-    volatile ADI_UART_TypeDef  *pUARTRegs;            /*!< Access to UART Memory Mapped Registers.               */     
-    ADI_CALLBACK                pfCallback;           /*!< Callback function.                                    */
-    void                       *pCBParam;             /*!< Parameter for callback function.                      */
-    bool                        bAutobaudInProgress;  /*!< Autobaud in progress flag.                            */   
-    volatile uint32_t           nHwError;             /*!< Line status error(s).                                 */
-    volatile uint32_t           nAutobaudError;       /*!< Autobaud error(s).                                    */         
-    ADI_UART_DATA_CHANNEL      *pChannelTx;           /*!< Tx channel.                                           */    
-    ADI_UART_DATA_CHANNEL      *pChannelRx;           /*!< Rx channel.                                           */
-    volatile uint32_t           nBaudRate;            /*!< Baudrate.                                             */
-    bool                        bAutobaudCallbackMode;/*!< Autobaud detection is using callback mode flag.       */
+    ADI_UART_DIRECTION          eDirection;           /*!< UART operation direction.                                       */
+    ADI_UART_DEVICE_INFO       *pUartInfo;            /*!< Access to device information about the uart instance.           */
+    volatile ADI_UART_TypeDef  *pUARTRegs;            /*!< Access to UART Memory Mapped Registers.                         */     
+    ADI_CALLBACK                pfCallback;           /*!< Callback function.                                              */
+    void                       *pCBParam;             /*!< Parameter for callback function.                                */
+    bool                        bAutobaudInProgress;  /*!< Autobaud in progress flag.                                      */   
+    volatile uint32_t           nHwError;             /*!< Line status error(s).                                           */
+    volatile uint32_t           nAutobaudError;       /*!< Autobaud error(s).                                              */         
+    ADI_UART_DATA_CHANNEL      *pChannelTx;           /*!< Tx channel.                                                     */    
+    ADI_UART_DATA_CHANNEL      *pChannelRx;           /*!< Rx channel.                                                     */
+    volatile uint32_t           nBaudRate;            /*!< Baudrate.                                                       */
+    bool                        bAutobaudCallbackMode;/*!< Autobaud detection is using callback mode flag.                 */
+    bool                        bRxFifoEn;            /*!< Rx FIFO enabled. Rx buffer full interrupts will remain enabled. */
      
 } ADI_UART_DEVICE;
 
@@ -188,10 +189,6 @@ static ADI_UART_RESULT uart_getbuffer(ADI_UART_HANDLE hDevice, ADI_UART_DATA_CHA
 static ADI_UART_RESULT uart_PendForBuffer(ADI_UART_HANDLE const hDevice , ADI_UART_DATA_CHANNEL *pChannel, uint32_t *pHwError);
 
 static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice, ADI_UART_DATA_CHANNEL *pChannel, ADI_UART_EVENT eEvent);
-
-static void uart_RxDMAHandler(void *pCBParam,uint32_t Event, void *pArg);
-
-static void uart_TxDMAHandler(void *pCBParam,uint32_t Event, void *pArg);
 
 static void uart_TxDataHandler(ADI_UART_HANDLE hDevice);
 

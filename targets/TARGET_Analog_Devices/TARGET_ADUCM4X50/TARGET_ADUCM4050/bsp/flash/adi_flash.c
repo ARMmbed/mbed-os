@@ -265,7 +265,7 @@ ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uin
      * structure members to false so we do not need to waste cycles
      * setting these explicitly (e.g. hDevice->bUseDma = false)
      */
-    void *pIgnore = memset(pMemory, 0, nMemorySize);
+    memset(pMemory, 0, nMemorySize);
 
     /* initialize local device handle and link up device info for this device instance */
     hDevice = (ADI_FEE_HANDLE)pMemory;
@@ -1544,8 +1544,8 @@ static ADI_FEE_RESULT InitiateDmaTransfer (ADI_FEE_HANDLE const hDevice)
         uint16_t chan = hDevice->pDevInfo->dmaChanNum;
 
         /* disable endpointer decrement modes */
-        pADI_DMA0->SRCADDR_CLR = chan;
-        pADI_DMA0->DSTADDR_CLR = chan;
+        pADI_DMA0->SRCADDR_CLR =  1u << chan;
+        pADI_DMA0->DSTADDR_CLR =  1u << chan;
 
         /* enable the channel */
         pADI_DMA0->EN_SET = 1u << chan;
@@ -1573,12 +1573,12 @@ static ADI_FEE_RESULT InitiateDmaTransfer (ADI_FEE_HANDLE const hDevice)
 
         /* set the DMA Control Data Configuration register */
         pCCD->DMACDC =
-            ( (uint32_t)(ADI_DMA_INCR_NONE                                << DMA_BITP_CTL_DST_INC)
-            | (uint32_t)(ADI_DMA_INCR_4_BYTE                              << DMA_BITP_CTL_SRC_INC)
-            | (uint32_t)(ADI_DMA_WIDTH_4_BYTE                             << DMA_BITP_CTL_SRC_SIZE)
-            | (uint32_t)(ADI_DMA_RPOWER_2                                 << DMA_BITP_CTL_R_POWER)
+            ( ((uint32_t)ADI_DMA_INCR_NONE                                << DMA_BITP_CTL_DST_INC)
+            | ((uint32_t)ADI_DMA_INCR_4_BYTE                              << DMA_BITP_CTL_SRC_INC)
+            | ((uint32_t)ADI_DMA_WIDTH_4_BYTE                             << DMA_BITP_CTL_SRC_SIZE)
+            | ((uint32_t)ADI_DMA_RPOWER_2                                 << DMA_BITP_CTL_R_POWER)
             | (uint32_t)((hDevice->nRemainingBytes/sizeof(uint32_t) - 1u) << DMA_BITP_CTL_N_MINUS_1)
-            | (uint32_t)(DMA_ENUM_CTL_CYCLE_CTL_BASIC                     << DMA_BITP_CTL_CYCLE_CTL) );
+            | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC                     << DMA_BITP_CTL_CYCLE_CTL) );
 
         /* set auto-increment and DMA enable bits, launching transder */
         hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;

@@ -4,9 +4,9 @@
      File         :   ADuCM4050_cdef.h
      Description  :   C MMR Pointer Definitions
 
-     Date         :   Sep 28, 2016
+     Date         :   Feb 7, 2017
 
-     Copyright (c) 2014-2016 Analog Devices, Inc.  All Rights Reserved.
+     Copyright (c) 2014-2017 Analog Devices, Inc.  All Rights Reserved.
      This software is proprietary and confidential to Analog Devices, Inc. and
      its licensors.
 
@@ -47,47 +47,47 @@
 /*  =================================================================================
  *      General Purpose Timer (TMR0)
  *  ================================================================================= */
-#define pREG_TMR0_LOAD                   ((__IO     uint16_t  *) REG_TMR0_LOAD)                   /*  16-bit load value */
-#define pREG_TMR0_CURCNT                 ((__I __C  uint16_t  *) REG_TMR0_CURCNT)                 /*  16-bit timer value */
+#define pREG_TMR0_LOAD                   ((__IO     uint16_t  *) REG_TMR0_LOAD)                   /*  16-bit Load Value */
+#define pREG_TMR0_CURCNT                 ((__I __C  uint16_t  *) REG_TMR0_CURCNT)                 /*  16-bit Timer Value */
 #define pREG_TMR0_CTL                    ((__IO     uint16_t  *) REG_TMR0_CTL)                    /*  Control */
 #define pREG_TMR0_CLRINT                 ((__O      uint16_t  *) REG_TMR0_CLRINT)                 /*  Clear Interrupt */
 #define pREG_TMR0_CAPTURE                ((__I __C  uint16_t  *) REG_TMR0_CAPTURE)                /*  Capture */
-#define pREG_TMR0_ALOAD                  ((__IO     uint16_t  *) REG_TMR0_ALOAD)                  /*  16-bit load value, asynchronous */
-#define pREG_TMR0_ACURCNT                ((__I __C  uint16_t  *) REG_TMR0_ACURCNT)                /*  16-bit timer value, asynchronous */
+#define pREG_TMR0_ALOAD                  ((__IO     uint16_t  *) REG_TMR0_ALOAD)                  /*  16-bit Load Value, Asynchronous */
+#define pREG_TMR0_ACURCNT                ((__I __C  uint16_t  *) REG_TMR0_ACURCNT)                /*  16-bit Timer Value, Asynchronous */
 #define pREG_TMR0_STAT                   ((__I __C  uint16_t  *) REG_TMR0_STAT)                   /*  Status */
 #define pREG_TMR0_PWMCTL                 ((__IO     uint16_t  *) REG_TMR0_PWMCTL)                 /*  PWM Control Register */
 #define pREG_TMR0_PWMMATCH               ((__IO     uint16_t  *) REG_TMR0_PWMMATCH)               /*  PWM Match Value */
-#define pREG_TMR0_EVENTSELECT            ((__IO     uint16_t  *) REG_TMR0_EVENTSELECT)            /*  Timer Event selection Register. */
+#define pREG_TMR0_EVENTSELECT            ((__IO     uint16_t  *) REG_TMR0_EVENTSELECT)            /*  Timer Event Selection Register */
 
 /*  =================================================================================
  *      General Purpose Timer (TMR1)
  *  ================================================================================= */
-#define pREG_TMR1_LOAD                   ((__IO     uint16_t  *) REG_TMR1_LOAD)                   /*  16-bit load value */
-#define pREG_TMR1_CURCNT                 ((__I __C  uint16_t  *) REG_TMR1_CURCNT)                 /*  16-bit timer value */
+#define pREG_TMR1_LOAD                   ((__IO     uint16_t  *) REG_TMR1_LOAD)                   /*  16-bit Load Value */
+#define pREG_TMR1_CURCNT                 ((__I __C  uint16_t  *) REG_TMR1_CURCNT)                 /*  16-bit Timer Value */
 #define pREG_TMR1_CTL                    ((__IO     uint16_t  *) REG_TMR1_CTL)                    /*  Control */
 #define pREG_TMR1_CLRINT                 ((__O      uint16_t  *) REG_TMR1_CLRINT)                 /*  Clear Interrupt */
 #define pREG_TMR1_CAPTURE                ((__I __C  uint16_t  *) REG_TMR1_CAPTURE)                /*  Capture */
-#define pREG_TMR1_ALOAD                  ((__IO     uint16_t  *) REG_TMR1_ALOAD)                  /*  16-bit load value, asynchronous */
-#define pREG_TMR1_ACURCNT                ((__I __C  uint16_t  *) REG_TMR1_ACURCNT)                /*  16-bit timer value, asynchronous */
+#define pREG_TMR1_ALOAD                  ((__IO     uint16_t  *) REG_TMR1_ALOAD)                  /*  16-bit Load Value, Asynchronous */
+#define pREG_TMR1_ACURCNT                ((__I __C  uint16_t  *) REG_TMR1_ACURCNT)                /*  16-bit Timer Value, Asynchronous */
 #define pREG_TMR1_STAT                   ((__I __C  uint16_t  *) REG_TMR1_STAT)                   /*  Status */
 #define pREG_TMR1_PWMCTL                 ((__IO     uint16_t  *) REG_TMR1_PWMCTL)                 /*  PWM Control Register */
 #define pREG_TMR1_PWMMATCH               ((__IO     uint16_t  *) REG_TMR1_PWMMATCH)               /*  PWM Match Value */
-#define pREG_TMR1_EVENTSELECT            ((__IO     uint16_t  *) REG_TMR1_EVENTSELECT)            /*  Timer Event selection Register. */
+#define pREG_TMR1_EVENTSELECT            ((__IO     uint16_t  *) REG_TMR1_EVENTSELECT)            /*  Timer Event Selection Register */
 
 /*  =================================================================================
  *      General Purpose Timer (TMR2)
  *  ================================================================================= */
-#define pREG_TMR2_LOAD                   ((__IO     uint16_t  *) REG_TMR2_LOAD)                   /*  16-bit load value */
-#define pREG_TMR2_CURCNT                 ((__I __C  uint16_t  *) REG_TMR2_CURCNT)                 /*  16-bit timer value */
+#define pREG_TMR2_LOAD                   ((__IO     uint16_t  *) REG_TMR2_LOAD)                   /*  16-bit Load Value */
+#define pREG_TMR2_CURCNT                 ((__I __C  uint16_t  *) REG_TMR2_CURCNT)                 /*  16-bit Timer Value */
 #define pREG_TMR2_CTL                    ((__IO     uint16_t  *) REG_TMR2_CTL)                    /*  Control */
 #define pREG_TMR2_CLRINT                 ((__O      uint16_t  *) REG_TMR2_CLRINT)                 /*  Clear Interrupt */
 #define pREG_TMR2_CAPTURE                ((__I __C  uint16_t  *) REG_TMR2_CAPTURE)                /*  Capture */
-#define pREG_TMR2_ALOAD                  ((__IO     uint16_t  *) REG_TMR2_ALOAD)                  /*  16-bit load value, asynchronous */
-#define pREG_TMR2_ACURCNT                ((__I __C  uint16_t  *) REG_TMR2_ACURCNT)                /*  16-bit timer value, asynchronous */
+#define pREG_TMR2_ALOAD                  ((__IO     uint16_t  *) REG_TMR2_ALOAD)                  /*  16-bit Load Value, Asynchronous */
+#define pREG_TMR2_ACURCNT                ((__I __C  uint16_t  *) REG_TMR2_ACURCNT)                /*  16-bit Timer Value, Asynchronous */
 #define pREG_TMR2_STAT                   ((__I __C  uint16_t  *) REG_TMR2_STAT)                   /*  Status */
 #define pREG_TMR2_PWMCTL                 ((__IO     uint16_t  *) REG_TMR2_PWMCTL)                 /*  PWM Control Register */
 #define pREG_TMR2_PWMMATCH               ((__IO     uint16_t  *) REG_TMR2_PWMMATCH)               /*  PWM Match Value */
-#define pREG_TMR2_EVENTSELECT            ((__IO     uint16_t  *) REG_TMR2_EVENTSELECT)            /*  Timer Event selection Register. */
+#define pREG_TMR2_EVENTSELECT            ((__IO     uint16_t  *) REG_TMR2_EVENTSELECT)            /*  Timer Event Selection Register */
 
 /*  =================================================================================
  *      Timer_RGB with 3 PWM outputs (TMR_RGB)
@@ -95,7 +95,7 @@
 #define pREG_TMR_RGB_LOAD                ((__IO     uint16_t  *) REG_TMR_RGB_LOAD)                /*  16-bit load value */
 #define pREG_TMR_RGB_CURCNT              ((__I __C  uint16_t  *) REG_TMR_RGB_CURCNT)              /*  16-bit timer value */
 #define pREG_TMR_RGB_CTL                 ((__IO     uint16_t  *) REG_TMR_RGB_CTL)                 /*  Control */
-#define pREG_TMR_RGB_CLRINT              ((__O      uint16_t  *) REG_TMR_RGB_CLRINT)              /*  Clear Interrupt */
+#define pREG_TMR_RGB_CLRINT              ((__O      uint16_t  *) REG_TMR_RGB_CLRINT)              /*  Clear interrupt */
 #define pREG_TMR_RGB_CAPTURE             ((__I __C  uint16_t  *) REG_TMR_RGB_CAPTURE)             /*  Capture */
 #define pREG_TMR_RGB_ALOAD               ((__IO     uint16_t  *) REG_TMR_RGB_ALOAD)               /*  16-bit load value, asynchronous */
 #define pREG_TMR_RGB_ACURCNT             ((__I __C  uint16_t  *) REG_TMR_RGB_ACURCNT)             /*  16-bit timer value, asynchronous */
@@ -130,38 +130,38 @@
 #define pREG_RTC0_ALM2                   ((__IO     uint16_t  *) REG_RTC0_ALM2)                   /*  RTC Alarm 2 */
 #define pREG_RTC0_SR3                    ((__IO     uint16_t  *) REG_RTC0_SR3)                    /*  RTC Status 3 */
 #define pREG_RTC0_CR2IC                  ((__IO     uint16_t  *) REG_RTC0_CR2IC)                  /*  RTC Control 2 for Configuring Input Capture Channels */
-#define pREG_RTC0_CR3OC                  ((__IO     uint16_t  *) REG_RTC0_CR3OC)                  /*  RTC Control 3 for Configuring Output Compare Channel */
-#define pREG_RTC0_CR4OC                  ((__IO     uint16_t  *) REG_RTC0_CR4OC)                  /*  RTC Control 4 for Configuring Output Compare Channel */
-#define pREG_RTC0_OCMSK                  ((__IO     uint16_t  *) REG_RTC0_OCMSK)                  /*  RTC Masks for Output Compare Channel */
+#define pREG_RTC0_CR3SS                  ((__IO     uint16_t  *) REG_RTC0_CR3SS)                  /*  RTC Control 3 for Configuring SensorStrobe Channel */
+#define pREG_RTC0_CR4SS                  ((__IO     uint16_t  *) REG_RTC0_CR4SS)                  /*  RTC Control 4 for Configuring SensorStrobe Channel */
+#define pREG_RTC0_SSMSK                  ((__IO     uint16_t  *) REG_RTC0_SSMSK)                  /*  RTC Mask for SensorStrobe Channel */
 #define pREG_RTC0_IC2                    ((__I __C  uint16_t  *) REG_RTC0_IC2)                    /*  RTC Input Capture Channel 2 */
 #define pREG_RTC0_IC3                    ((__I __C  uint16_t  *) REG_RTC0_IC3)                    /*  RTC Input Capture Channel 3 */
 #define pREG_RTC0_IC4                    ((__I __C  uint16_t  *) REG_RTC0_IC4)                    /*  RTC Input Capture Channel 4 */
-#define pREG_RTC0_OC1                    ((__IO     uint16_t  *) REG_RTC0_OC1)                    /*  RTC Output Compare Channel 1 */
-#define pREG_RTC0_OC2                    ((__IO     uint16_t  *) REG_RTC0_OC2)                    /*  RTC Output Compare Channel 2 */
-#define pREG_RTC0_OC3                    ((__IO     uint16_t  *) REG_RTC0_OC3)                    /*  RTC Output Compare Channel 3 */
-#define pREG_RTC0_OC4                    ((__IO     uint16_t  *) REG_RTC0_OC4)                    /*  RTC Output Compare Channel 4 */
+#define pREG_RTC0_SS1                    ((__IO     uint16_t  *) REG_RTC0_SS1)                    /*  RTC SensorStrobe Channel 1 */
+#define pREG_RTC0_SS2                    ((__IO     uint16_t  *) REG_RTC0_SS2)                    /*  RTC SensorStrobe Channel 2 */
+#define pREG_RTC0_SS3                    ((__IO     uint16_t  *) REG_RTC0_SS3)                    /*  RTC SensorStrobe Channel 3 */
+#define pREG_RTC0_SS4                    ((__IO     uint16_t  *) REG_RTC0_SS4)                    /*  RTC SensorStrobe Channel 4 */
 #define pREG_RTC0_SR4                    ((__I __C  uint16_t  *) REG_RTC0_SR4)                    /*  RTC Status 4 */
 #define pREG_RTC0_SR5                    ((__I __C  uint16_t  *) REG_RTC0_SR5)                    /*  RTC Status 5 */
 #define pREG_RTC0_SR6                    ((__I __C  uint16_t  *) REG_RTC0_SR6)                    /*  RTC Status 6 */
-#define pREG_RTC0_OC1TGT                 ((__I __C  uint16_t  *) REG_RTC0_OC1TGT)                 /*  RTC Output Compare Channel 1 Target */
+#define pREG_RTC0_SS1TGT                 ((__I __C  uint16_t  *) REG_RTC0_SS1TGT)                 /*  RTC SensorStrobe Channel 1 Target */
 #define pREG_RTC0_FRZCNT                 ((__I __C  uint16_t  *) REG_RTC0_FRZCNT)                 /*  RTC Freeze Count */
-#define pREG_RTC0_OC2TGT                 ((__I __C  uint16_t  *) REG_RTC0_OC2TGT)                 /*  RTC Output Compare Channel 2 Target */
-#define pREG_RTC0_OC3TGT                 ((__I __C  uint16_t  *) REG_RTC0_OC3TGT)                 /*  RTC Output Compare Channel 3 Target */
-#define pREG_RTC0_OC1LOWDUR              ((__IO     uint16_t  *) REG_RTC0_OC1LOWDUR)              /*  RTC Auto-Reload Low Duration for Output Compare Channel 1 */
-#define pREG_RTC0_OC2LOWDUR              ((__IO     uint16_t  *) REG_RTC0_OC2LOWDUR)              /*  RTC Auto-Reload Low Duration for Output Compare Channel 2 */
-#define pREG_RTC0_OC3LOWDUR              ((__IO     uint16_t  *) REG_RTC0_OC3LOWDUR)              /*  RTC Auto-Reload Low Duration for Output Compare Channel 3 */
-#define pREG_RTC0_OC1HIGHDUR             ((__IO     uint16_t  *) REG_RTC0_OC1HIGHDUR)             /*  RTC Auto-Reload High Duration for Output Compare Channel 1 */
-#define pREG_RTC0_OC2HIGHDUR             ((__IO     uint16_t  *) REG_RTC0_OC2HIGHDUR)             /*  RTC Auto-Reload High Duration for Output Compare Channel 2 */
-#define pREG_RTC0_OC3HIGHDUR             ((__IO     uint16_t  *) REG_RTC0_OC3HIGHDUR)             /*  RTC Auto-Reload High Duration for Output Compare Channel 3 */
-#define pREG_RTC0_OCMSKOT                ((__IO     uint16_t  *) REG_RTC0_OCMSKOT)                /*  RTC Masks for Output Compare Channel */
-#define pREG_RTC0_CR5OCS                 ((__IO     uint16_t  *) REG_RTC0_CR5OCS)                 /*  RTC Control 5 for Configuring Output Compare Channel GPIO Sampling */
-#define pREG_RTC0_CR6OCS                 ((__IO     uint16_t  *) REG_RTC0_CR6OCS)                 /*  RTC Control 5 for Configuring Output Compare Channel GPIO Sampling Edge */
-#define pREG_RTC0_CR7OCS                 ((__IO     uint16_t  *) REG_RTC0_CR7OCS)                 /*  RTC Control 5 for Configuring Output Compare Channel GPIO Sampling Activity */
+#define pREG_RTC0_SS2TGT                 ((__I __C  uint16_t  *) REG_RTC0_SS2TGT)                 /*  RTC SensorStrobe Channel 2 Target */
+#define pREG_RTC0_SS3TGT                 ((__I __C  uint16_t  *) REG_RTC0_SS3TGT)                 /*  RTC SensorStrobe Channel 3 Target */
+#define pREG_RTC0_SS1LOWDUR              ((__IO     uint16_t  *) REG_RTC0_SS1LOWDUR)              /*  RTC Auto-Reload Low Duration for SensorStrobe Channel 1 */
+#define pREG_RTC0_SS2LOWDUR              ((__IO     uint16_t  *) REG_RTC0_SS2LOWDUR)              /*  RTC Auto-Reload Low Duration for SensorStrobe Channel 2 */
+#define pREG_RTC0_SS3LOWDUR              ((__IO     uint16_t  *) REG_RTC0_SS3LOWDUR)              /*  RTC Auto-Reload Low Duration for SensorStrobe Channel 3 */
+#define pREG_RTC0_SS1HIGHDUR             ((__IO     uint16_t  *) REG_RTC0_SS1HIGHDUR)             /*  RTC Auto-Reload High Duration for SensorStrobe Channel 1 */
+#define pREG_RTC0_SS2HIGHDUR             ((__IO     uint16_t  *) REG_RTC0_SS2HIGHDUR)             /*  RTC Auto-Reload High Duration for SensorStrobe Channel 2 */
+#define pREG_RTC0_SS3HIGHDUR             ((__IO     uint16_t  *) REG_RTC0_SS3HIGHDUR)             /*  RTC Auto-Reload High Duration for SensorStrobe Channel 3 */
+#define pREG_RTC0_SSMSKOT                ((__IO     uint16_t  *) REG_RTC0_SSMSKOT)                /*  RTC Masks for SensorStrobe Channels on Time Control */
+#define pREG_RTC0_CR5SSS                 ((__IO     uint16_t  *) REG_RTC0_CR5SSS)                 /*  RTC Control 5 for Configuring SensorStrobe Channel GPIO Sampling */
+#define pREG_RTC0_CR6SSS                 ((__IO     uint16_t  *) REG_RTC0_CR6SSS)                 /*  RTC Control 6 for Configuring SensorStrobe Channel GPIO Sampling Edge */
+#define pREG_RTC0_CR7SSS                 ((__IO     uint16_t  *) REG_RTC0_CR7SSS)                 /*  RTC Control 7 for Configuring SensorStrobe Channel GPIO Sampling Activity */
 #define pREG_RTC0_SR7                    ((__IO     uint16_t  *) REG_RTC0_SR7)                    /*  RTC Status 7 */
 #define pREG_RTC0_SR8                    ((__I __C  uint16_t  *) REG_RTC0_SR8)                    /*  RTC Status 8 */
 #define pREG_RTC0_SR9                    ((__I __C  uint16_t  *) REG_RTC0_SR9)                    /*  RTC Status 9 */
-#define pREG_RTC0_GPMUX0                 ((__IO     uint16_t  *) REG_RTC0_GPMUX0)                 /*  RTC GPIO pin mux control register 0 */
-#define pREG_RTC0_GPMUX1                 ((__IO     uint16_t  *) REG_RTC0_GPMUX1)                 /*  RTC GPIO pin mux control register 1 */
+#define pREG_RTC0_GPMUX0                 ((__IO     uint16_t  *) REG_RTC0_GPMUX0)                 /*  RTC GPIO Pin Mux Control Register 0 */
+#define pREG_RTC0_GPMUX1                 ((__IO     uint16_t  *) REG_RTC0_GPMUX1)                 /*  RTC GPIO Pin Mux Control Register 1 */
 
 /*  =================================================================================
  *      Real-Time Clock (RTC1)
@@ -185,38 +185,38 @@
 #define pREG_RTC1_ALM2                   ((__IO     uint16_t  *) REG_RTC1_ALM2)                   /*  RTC Alarm 2 */
 #define pREG_RTC1_SR3                    ((__IO     uint16_t  *) REG_RTC1_SR3)                    /*  RTC Status 3 */
 #define pREG_RTC1_CR2IC                  ((__IO     uint16_t  *) REG_RTC1_CR2IC)                  /*  RTC Control 2 for Configuring Input Capture Channels */
-#define pREG_RTC1_CR3OC                  ((__IO     uint16_t  *) REG_RTC1_CR3OC)                  /*  RTC Control 3 for Configuring Output Compare Channel */
-#define pREG_RTC1_CR4OC                  ((__IO     uint16_t  *) REG_RTC1_CR4OC)                  /*  RTC Control 4 for Configuring Output Compare Channel */
-#define pREG_RTC1_OCMSK                  ((__IO     uint16_t  *) REG_RTC1_OCMSK)                  /*  RTC Masks for Output Compare Channel */
+#define pREG_RTC1_CR3SS                  ((__IO     uint16_t  *) REG_RTC1_CR3SS)                  /*  RTC Control 3 for Configuring SensorStrobe Channel */
+#define pREG_RTC1_CR4SS                  ((__IO     uint16_t  *) REG_RTC1_CR4SS)                  /*  RTC Control 4 for Configuring SensorStrobe Channel */
+#define pREG_RTC1_SSMSK                  ((__IO     uint16_t  *) REG_RTC1_SSMSK)                  /*  RTC Mask for SensorStrobe Channel */
 #define pREG_RTC1_IC2                    ((__I __C  uint16_t  *) REG_RTC1_IC2)                    /*  RTC Input Capture Channel 2 */
 #define pREG_RTC1_IC3                    ((__I __C  uint16_t  *) REG_RTC1_IC3)                    /*  RTC Input Capture Channel 3 */
 #define pREG_RTC1_IC4                    ((__I __C  uint16_t  *) REG_RTC1_IC4)                    /*  RTC Input Capture Channel 4 */
-#define pREG_RTC1_OC1                    ((__IO     uint16_t  *) REG_RTC1_OC1)                    /*  RTC Output Compare Channel 1 */
-#define pREG_RTC1_OC2                    ((__IO     uint16_t  *) REG_RTC1_OC2)                    /*  RTC Output Compare Channel 2 */
-#define pREG_RTC1_OC3                    ((__IO     uint16_t  *) REG_RTC1_OC3)                    /*  RTC Output Compare Channel 3 */
-#define pREG_RTC1_OC4                    ((__IO     uint16_t  *) REG_RTC1_OC4)                    /*  RTC Output Compare Channel 4 */
+#define pREG_RTC1_SS1                    ((__IO     uint16_t  *) REG_RTC1_SS1)                    /*  RTC SensorStrobe Channel 1 */
+#define pREG_RTC1_SS2                    ((__IO     uint16_t  *) REG_RTC1_SS2)                    /*  RTC SensorStrobe Channel 2 */
+#define pREG_RTC1_SS3                    ((__IO     uint16_t  *) REG_RTC1_SS3)                    /*  RTC SensorStrobe Channel 3 */
+#define pREG_RTC1_SS4                    ((__IO     uint16_t  *) REG_RTC1_SS4)                    /*  RTC SensorStrobe Channel 4 */
 #define pREG_RTC1_SR4                    ((__I __C  uint16_t  *) REG_RTC1_SR4)                    /*  RTC Status 4 */
 #define pREG_RTC1_SR5                    ((__I __C  uint16_t  *) REG_RTC1_SR5)                    /*  RTC Status 5 */
 #define pREG_RTC1_SR6                    ((__I __C  uint16_t  *) REG_RTC1_SR6)                    /*  RTC Status 6 */
-#define pREG_RTC1_OC1TGT                 ((__I __C  uint16_t  *) REG_RTC1_OC1TGT)                 /*  RTC Output Compare Channel 1 Target */
+#define pREG_RTC1_SS1TGT                 ((__I __C  uint16_t  *) REG_RTC1_SS1TGT)                 /*  RTC SensorStrobe Channel 1 Target */
 #define pREG_RTC1_FRZCNT                 ((__I __C  uint16_t  *) REG_RTC1_FRZCNT)                 /*  RTC Freeze Count */
-#define pREG_RTC1_OC2TGT                 ((__I __C  uint16_t  *) REG_RTC1_OC2TGT)                 /*  RTC Output Compare Channel 2 Target */
-#define pREG_RTC1_OC3TGT                 ((__I __C  uint16_t  *) REG_RTC1_OC3TGT)                 /*  RTC Output Compare Channel 3 Target */
-#define pREG_RTC1_OC1LOWDUR              ((__IO     uint16_t  *) REG_RTC1_OC1LOWDUR)              /*  RTC Auto-Reload Low Duration for Output Compare Channel 1 */
-#define pREG_RTC1_OC2LOWDUR              ((__IO     uint16_t  *) REG_RTC1_OC2LOWDUR)              /*  RTC Auto-Reload Low Duration for Output Compare Channel 2 */
-#define pREG_RTC1_OC3LOWDUR              ((__IO     uint16_t  *) REG_RTC1_OC3LOWDUR)              /*  RTC Auto-Reload Low Duration for Output Compare Channel 3 */
-#define pREG_RTC1_OC1HIGHDUR             ((__IO     uint16_t  *) REG_RTC1_OC1HIGHDUR)             /*  RTC Auto-Reload High Duration for Output Compare Channel 1 */
-#define pREG_RTC1_OC2HIGHDUR             ((__IO     uint16_t  *) REG_RTC1_OC2HIGHDUR)             /*  RTC Auto-Reload High Duration for Output Compare Channel 2 */
-#define pREG_RTC1_OC3HIGHDUR             ((__IO     uint16_t  *) REG_RTC1_OC3HIGHDUR)             /*  RTC Auto-Reload High Duration for Output Compare Channel 3 */
-#define pREG_RTC1_OCMSKOT                ((__IO     uint16_t  *) REG_RTC1_OCMSKOT)                /*  RTC Masks for Output Compare Channel */
-#define pREG_RTC1_CR5OCS                 ((__IO     uint16_t  *) REG_RTC1_CR5OCS)                 /*  RTC Control 5 for Configuring Output Compare Channel GPIO Sampling */
-#define pREG_RTC1_CR6OCS                 ((__IO     uint16_t  *) REG_RTC1_CR6OCS)                 /*  RTC Control 5 for Configuring Output Compare Channel GPIO Sampling Edge */
-#define pREG_RTC1_CR7OCS                 ((__IO     uint16_t  *) REG_RTC1_CR7OCS)                 /*  RTC Control 5 for Configuring Output Compare Channel GPIO Sampling Activity */
+#define pREG_RTC1_SS2TGT                 ((__I __C  uint16_t  *) REG_RTC1_SS2TGT)                 /*  RTC SensorStrobe Channel 2 Target */
+#define pREG_RTC1_SS3TGT                 ((__I __C  uint16_t  *) REG_RTC1_SS3TGT)                 /*  RTC SensorStrobe Channel 3 Target */
+#define pREG_RTC1_SS1LOWDUR              ((__IO     uint16_t  *) REG_RTC1_SS1LOWDUR)              /*  RTC Auto-Reload Low Duration for SensorStrobe Channel 1 */
+#define pREG_RTC1_SS2LOWDUR              ((__IO     uint16_t  *) REG_RTC1_SS2LOWDUR)              /*  RTC Auto-Reload Low Duration for SensorStrobe Channel 2 */
+#define pREG_RTC1_SS3LOWDUR              ((__IO     uint16_t  *) REG_RTC1_SS3LOWDUR)              /*  RTC Auto-Reload Low Duration for SensorStrobe Channel 3 */
+#define pREG_RTC1_SS1HIGHDUR             ((__IO     uint16_t  *) REG_RTC1_SS1HIGHDUR)             /*  RTC Auto-Reload High Duration for SensorStrobe Channel 1 */
+#define pREG_RTC1_SS2HIGHDUR             ((__IO     uint16_t  *) REG_RTC1_SS2HIGHDUR)             /*  RTC Auto-Reload High Duration for SensorStrobe Channel 2 */
+#define pREG_RTC1_SS3HIGHDUR             ((__IO     uint16_t  *) REG_RTC1_SS3HIGHDUR)             /*  RTC Auto-Reload High Duration for SensorStrobe Channel 3 */
+#define pREG_RTC1_SSMSKOT                ((__IO     uint16_t  *) REG_RTC1_SSMSKOT)                /*  RTC Masks for SensorStrobe Channels on Time Control */
+#define pREG_RTC1_CR5SSS                 ((__IO     uint16_t  *) REG_RTC1_CR5SSS)                 /*  RTC Control 5 for Configuring SensorStrobe Channel GPIO Sampling */
+#define pREG_RTC1_CR6SSS                 ((__IO     uint16_t  *) REG_RTC1_CR6SSS)                 /*  RTC Control 6 for Configuring SensorStrobe Channel GPIO Sampling Edge */
+#define pREG_RTC1_CR7SSS                 ((__IO     uint16_t  *) REG_RTC1_CR7SSS)                 /*  RTC Control 7 for Configuring SensorStrobe Channel GPIO Sampling Activity */
 #define pREG_RTC1_SR7                    ((__IO     uint16_t  *) REG_RTC1_SR7)                    /*  RTC Status 7 */
 #define pREG_RTC1_SR8                    ((__I __C  uint16_t  *) REG_RTC1_SR8)                    /*  RTC Status 8 */
 #define pREG_RTC1_SR9                    ((__I __C  uint16_t  *) REG_RTC1_SR9)                    /*  RTC Status 9 */
-#define pREG_RTC1_GPMUX0                 ((__IO     uint16_t  *) REG_RTC1_GPMUX0)                 /*  RTC GPIO pin mux control register 0 */
-#define pREG_RTC1_GPMUX1                 ((__IO     uint16_t  *) REG_RTC1_GPMUX1)                 /*  RTC GPIO pin mux control register 1 */
+#define pREG_RTC1_GPMUX0                 ((__IO     uint16_t  *) REG_RTC1_GPMUX0)                 /*  RTC GPIO Pin Mux Control Register 0 */
+#define pREG_RTC1_GPMUX1                 ((__IO     uint16_t  *) REG_RTC1_GPMUX1)                 /*  RTC GPIO Pin Mux Control Register 1 */
 
 /*  =================================================================================
  *      System Identification and Debug Enable (SYS)
@@ -228,10 +228,10 @@
 /*  =================================================================================
  *      Watchdog Timer (WDT0)
  *  ================================================================================= */
-#define pREG_WDT0_LOAD                   ((__IO     uint16_t  *) REG_WDT0_LOAD)                   /*  Load value */
-#define pREG_WDT0_CCNT                   ((__I __C  uint16_t  *) REG_WDT0_CCNT)                   /*  Current count value */
+#define pREG_WDT0_LOAD                   ((__IO     uint16_t  *) REG_WDT0_LOAD)                   /*  Load Value */
+#define pREG_WDT0_CCNT                   ((__I __C  uint16_t  *) REG_WDT0_CCNT)                   /*  Current Count Value */
 #define pREG_WDT0_CTL                    ((__IO     uint16_t  *) REG_WDT0_CTL)                    /*  Control */
-#define pREG_WDT0_RESTART                ((__O      uint16_t  *) REG_WDT0_RESTART)                /*  Clear interrupt */
+#define pREG_WDT0_RESTART                ((__O      uint16_t  *) REG_WDT0_RESTART)                /*  Clear Interrupt */
 #define pREG_WDT0_STAT                   ((__I __C  uint16_t  *) REG_WDT0_STAT)                   /*  Status */
 
 /*  =================================================================================
@@ -267,17 +267,17 @@
 #define pREG_SPI0_STAT                   ((__IO     uint16_t  *) REG_SPI0_STAT)                   /*  Status */
 #define pREG_SPI0_RX                     ((__I __C  uint16_t  *) REG_SPI0_RX)                     /*  Receive */
 #define pREG_SPI0_TX                     ((__O      uint16_t  *) REG_SPI0_TX)                     /*  Transmit */
-#define pREG_SPI0_DIV                    ((__IO     uint16_t  *) REG_SPI0_DIV)                    /*  SPI baud rate selection */
-#define pREG_SPI0_CTL                    ((__IO     uint16_t  *) REG_SPI0_CTL)                    /*  SPI configuration 1 */
-#define pREG_SPI0_IEN                    ((__IO     uint16_t  *) REG_SPI0_IEN)                    /*  SPI configuration 2 */
-#define pREG_SPI0_CNT                    ((__IO     uint16_t  *) REG_SPI0_CNT)                    /*  Transfer byte count */
-#define pREG_SPI0_DMA                    ((__IO     uint16_t  *) REG_SPI0_DMA)                    /*  SPI DMA enable */
+#define pREG_SPI0_DIV                    ((__IO     uint16_t  *) REG_SPI0_DIV)                    /*  SPI Baud Rate Selection */
+#define pREG_SPI0_CTL                    ((__IO     uint16_t  *) REG_SPI0_CTL)                    /*  SPI Configuration */
+#define pREG_SPI0_IEN                    ((__IO     uint16_t  *) REG_SPI0_IEN)                    /*  SPI Interrupts Enable */
+#define pREG_SPI0_CNT                    ((__IO     uint16_t  *) REG_SPI0_CNT)                    /*  Transfer Byte Count */
+#define pREG_SPI0_DMA                    ((__IO     uint16_t  *) REG_SPI0_DMA)                    /*  SPI DMA Enable */
 #define pREG_SPI0_FIFO_STAT              ((__I __C  uint16_t  *) REG_SPI0_FIFO_STAT)              /*  FIFO Status */
 #define pREG_SPI0_RD_CTL                 ((__IO     uint16_t  *) REG_SPI0_RD_CTL)                 /*  Read Control */
 #define pREG_SPI0_FLOW_CTL               ((__IO     uint16_t  *) REG_SPI0_FLOW_CTL)               /*  Flow Control */
-#define pREG_SPI0_WAIT_TMR               ((__IO     uint16_t  *) REG_SPI0_WAIT_TMR)               /*  Wait timer for flow control */
-#define pREG_SPI0_CS_CTL                 ((__IO     uint16_t  *) REG_SPI0_CS_CTL)                 /*  Chip-Select control for multi-slave connections */
-#define pREG_SPI0_CS_OVERRIDE            ((__IO     uint16_t  *) REG_SPI0_CS_OVERRIDE)            /*  Chip-Select Override */
+#define pREG_SPI0_WAIT_TMR               ((__IO     uint16_t  *) REG_SPI0_WAIT_TMR)               /*  Wait Timer for Flow Control */
+#define pREG_SPI0_CS_CTL                 ((__IO     uint16_t  *) REG_SPI0_CS_CTL)                 /*  Chip Select Control for Multi-slave Connections */
+#define pREG_SPI0_CS_OVERRIDE            ((__IO     uint16_t  *) REG_SPI0_CS_OVERRIDE)            /*  Chip Select Override */
 
 /*  =================================================================================
  *      Serial Peripheral Interface (SPI1)
@@ -285,17 +285,17 @@
 #define pREG_SPI1_STAT                   ((__IO     uint16_t  *) REG_SPI1_STAT)                   /*  Status */
 #define pREG_SPI1_RX                     ((__I __C  uint16_t  *) REG_SPI1_RX)                     /*  Receive */
 #define pREG_SPI1_TX                     ((__O      uint16_t  *) REG_SPI1_TX)                     /*  Transmit */
-#define pREG_SPI1_DIV                    ((__IO     uint16_t  *) REG_SPI1_DIV)                    /*  SPI baud rate selection */
-#define pREG_SPI1_CTL                    ((__IO     uint16_t  *) REG_SPI1_CTL)                    /*  SPI configuration 1 */
-#define pREG_SPI1_IEN                    ((__IO     uint16_t  *) REG_SPI1_IEN)                    /*  SPI configuration 2 */
-#define pREG_SPI1_CNT                    ((__IO     uint16_t  *) REG_SPI1_CNT)                    /*  Transfer byte count */
-#define pREG_SPI1_DMA                    ((__IO     uint16_t  *) REG_SPI1_DMA)                    /*  SPI DMA enable */
+#define pREG_SPI1_DIV                    ((__IO     uint16_t  *) REG_SPI1_DIV)                    /*  SPI Baud Rate Selection */
+#define pREG_SPI1_CTL                    ((__IO     uint16_t  *) REG_SPI1_CTL)                    /*  SPI Configuration */
+#define pREG_SPI1_IEN                    ((__IO     uint16_t  *) REG_SPI1_IEN)                    /*  SPI Interrupts Enable */
+#define pREG_SPI1_CNT                    ((__IO     uint16_t  *) REG_SPI1_CNT)                    /*  Transfer Byte Count */
+#define pREG_SPI1_DMA                    ((__IO     uint16_t  *) REG_SPI1_DMA)                    /*  SPI DMA Enable */
 #define pREG_SPI1_FIFO_STAT              ((__I __C  uint16_t  *) REG_SPI1_FIFO_STAT)              /*  FIFO Status */
 #define pREG_SPI1_RD_CTL                 ((__IO     uint16_t  *) REG_SPI1_RD_CTL)                 /*  Read Control */
 #define pREG_SPI1_FLOW_CTL               ((__IO     uint16_t  *) REG_SPI1_FLOW_CTL)               /*  Flow Control */
-#define pREG_SPI1_WAIT_TMR               ((__IO     uint16_t  *) REG_SPI1_WAIT_TMR)               /*  Wait timer for flow control */
-#define pREG_SPI1_CS_CTL                 ((__IO     uint16_t  *) REG_SPI1_CS_CTL)                 /*  Chip-Select control for multi-slave connections */
-#define pREG_SPI1_CS_OVERRIDE            ((__IO     uint16_t  *) REG_SPI1_CS_OVERRIDE)            /*  Chip-Select Override */
+#define pREG_SPI1_WAIT_TMR               ((__IO     uint16_t  *) REG_SPI1_WAIT_TMR)               /*  Wait Timer for Flow Control */
+#define pREG_SPI1_CS_CTL                 ((__IO     uint16_t  *) REG_SPI1_CS_CTL)                 /*  Chip Select Control for Multi-slave Connections */
+#define pREG_SPI1_CS_OVERRIDE            ((__IO     uint16_t  *) REG_SPI1_CS_OVERRIDE)            /*  Chip Select Override */
 
 /*  =================================================================================
  *      Serial Peripheral Interface (SPI2)
@@ -303,17 +303,17 @@
 #define pREG_SPI2_STAT                   ((__IO     uint16_t  *) REG_SPI2_STAT)                   /*  Status */
 #define pREG_SPI2_RX                     ((__I __C  uint16_t  *) REG_SPI2_RX)                     /*  Receive */
 #define pREG_SPI2_TX                     ((__O      uint16_t  *) REG_SPI2_TX)                     /*  Transmit */
-#define pREG_SPI2_DIV                    ((__IO     uint16_t  *) REG_SPI2_DIV)                    /*  SPI baud rate selection */
-#define pREG_SPI2_CTL                    ((__IO     uint16_t  *) REG_SPI2_CTL)                    /*  SPI configuration 1 */
-#define pREG_SPI2_IEN                    ((__IO     uint16_t  *) REG_SPI2_IEN)                    /*  SPI configuration 2 */
-#define pREG_SPI2_CNT                    ((__IO     uint16_t  *) REG_SPI2_CNT)                    /*  Transfer byte count */
-#define pREG_SPI2_DMA                    ((__IO     uint16_t  *) REG_SPI2_DMA)                    /*  SPI DMA enable */
+#define pREG_SPI2_DIV                    ((__IO     uint16_t  *) REG_SPI2_DIV)                    /*  SPI Baud Rate Selection */
+#define pREG_SPI2_CTL                    ((__IO     uint16_t  *) REG_SPI2_CTL)                    /*  SPI Configuration */
+#define pREG_SPI2_IEN                    ((__IO     uint16_t  *) REG_SPI2_IEN)                    /*  SPI Interrupts Enable */
+#define pREG_SPI2_CNT                    ((__IO     uint16_t  *) REG_SPI2_CNT)                    /*  Transfer Byte Count */
+#define pREG_SPI2_DMA                    ((__IO     uint16_t  *) REG_SPI2_DMA)                    /*  SPI DMA Enable */
 #define pREG_SPI2_FIFO_STAT              ((__I __C  uint16_t  *) REG_SPI2_FIFO_STAT)              /*  FIFO Status */
 #define pREG_SPI2_RD_CTL                 ((__IO     uint16_t  *) REG_SPI2_RD_CTL)                 /*  Read Control */
 #define pREG_SPI2_FLOW_CTL               ((__IO     uint16_t  *) REG_SPI2_FLOW_CTL)               /*  Flow Control */
-#define pREG_SPI2_WAIT_TMR               ((__IO     uint16_t  *) REG_SPI2_WAIT_TMR)               /*  Wait timer for flow control */
-#define pREG_SPI2_CS_CTL                 ((__IO     uint16_t  *) REG_SPI2_CS_CTL)                 /*  Chip-Select control for multi-slave connections */
-#define pREG_SPI2_CS_OVERRIDE            ((__IO     uint16_t  *) REG_SPI2_CS_OVERRIDE)            /*  Chip-Select Override */
+#define pREG_SPI2_WAIT_TMR               ((__IO     uint16_t  *) REG_SPI2_WAIT_TMR)               /*  Wait Timer for Flow Control */
+#define pREG_SPI2_CS_CTL                 ((__IO     uint16_t  *) REG_SPI2_CS_CTL)                 /*  Chip Select Control for Multi-slave Connections */
+#define pREG_SPI2_CS_OVERRIDE            ((__IO     uint16_t  *) REG_SPI2_CS_OVERRIDE)            /*  Chip Select Override */
 
 /*  =================================================================================
  *       (UART0)
@@ -329,7 +329,7 @@
 #define pREG_UART0_SCR                   ((__IO     uint16_t  *) REG_UART0_SCR)                   /*  Scratch Buffer */
 #define pREG_UART0_FCR                   ((__IO     uint16_t  *) REG_UART0_FCR)                   /*  FIFO Control */
 #define pREG_UART0_FBR                   ((__IO     uint16_t  *) REG_UART0_FBR)                   /*  Fractional Baud Rate */
-#define pREG_UART0_DIV                   ((__IO     uint16_t  *) REG_UART0_DIV)                   /*  Baudrate Divider */
+#define pREG_UART0_DIV                   ((__IO     uint16_t  *) REG_UART0_DIV)                   /*  Baud Rate Divider */
 #define pREG_UART0_LCR2                  ((__IO     uint16_t  *) REG_UART0_LCR2)                  /*  Second Line Control */
 #define pREG_UART0_CTL                   ((__IO     uint16_t  *) REG_UART0_CTL)                   /*  UART Control Register */
 #define pREG_UART0_RFC                   ((__I __C  uint16_t  *) REG_UART0_RFC)                   /*  RX FIFO Byte Count */
@@ -353,7 +353,7 @@
 #define pREG_UART1_SCR                   ((__IO     uint16_t  *) REG_UART1_SCR)                   /*  Scratch Buffer */
 #define pREG_UART1_FCR                   ((__IO     uint16_t  *) REG_UART1_FCR)                   /*  FIFO Control */
 #define pREG_UART1_FBR                   ((__IO     uint16_t  *) REG_UART1_FBR)                   /*  Fractional Baud Rate */
-#define pREG_UART1_DIV                   ((__IO     uint16_t  *) REG_UART1_DIV)                   /*  Baudrate Divider */
+#define pREG_UART1_DIV                   ((__IO     uint16_t  *) REG_UART1_DIV)                   /*  Baud Rate Divider */
 #define pREG_UART1_LCR2                  ((__IO     uint16_t  *) REG_UART1_LCR2)                  /*  Second Line Control */
 #define pREG_UART1_CTL                   ((__IO     uint16_t  *) REG_UART1_CTL)                   /*  UART Control Register */
 #define pREG_UART1_RFC                   ((__I __C  uint16_t  *) REG_UART1_RFC)                   /*  RX FIFO Byte Count */
@@ -366,8 +366,8 @@
 /*  =================================================================================
  *      Beeper Driver (BEEP0)
  *  ================================================================================= */
-#define pREG_BEEP0_CFG                   ((__IO     uint16_t  *) REG_BEEP0_CFG)                   /*  Beeper configuration */
-#define pREG_BEEP0_STAT                  ((__IO     uint16_t  *) REG_BEEP0_STAT)                  /*  Beeper status */
+#define pREG_BEEP0_CFG                   ((__IO     uint16_t  *) REG_BEEP0_CFG)                   /*  Beeper Configuration */
+#define pREG_BEEP0_STAT                  ((__IO     uint16_t  *) REG_BEEP0_STAT)                  /*  Beeper Status */
 #define pREG_BEEP0_TONEA                 ((__IO     uint16_t  *) REG_BEEP0_TONEA)                 /*  Tone A Data */
 #define pREG_BEEP0_TONEB                 ((__IO     uint16_t  *) REG_BEEP0_TONEB)                 /*  Tone B Data */
 
@@ -384,14 +384,14 @@
 #define pREG_ADC0_STAT                   ((__IO     uint16_t  *) REG_ADC0_STAT)                   /*  ADC Status */
 #define pREG_ADC0_OVF                    ((__IO     uint16_t  *) REG_ADC0_OVF)                    /*  Overflow of Output Registers */
 #define pREG_ADC0_ALERT                  ((__IO     uint16_t  *) REG_ADC0_ALERT)                  /*  Alert Indication */
-#define pREG_ADC0_CH0_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH0_OUT)                /*  Conversion Result Ch0 */
-#define pREG_ADC0_CH1_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH1_OUT)                /*  Conversion Result Ch1 */
-#define pREG_ADC0_CH2_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH2_OUT)                /*  Conversion Result Ch2 */
-#define pREG_ADC0_CH3_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH3_OUT)                /*  Conversion Result Ch3 */
-#define pREG_ADC0_CH4_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH4_OUT)                /*  Conversion Result Ch4 */
-#define pREG_ADC0_CH5_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH5_OUT)                /*  Conversion Result Ch5 */
-#define pREG_ADC0_CH6_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH6_OUT)                /*  Conversion Result Ch6 */
-#define pREG_ADC0_CH7_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH7_OUT)                /*  Conversion Result Ch7 */
+#define pREG_ADC0_CH0_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH0_OUT)                /*  Conversion Result Channel 0 */
+#define pREG_ADC0_CH1_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH1_OUT)                /*  Conversion Result Channel 1 */
+#define pREG_ADC0_CH2_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH2_OUT)                /*  Conversion Result Channel 2 */
+#define pREG_ADC0_CH3_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH3_OUT)                /*  Conversion Result Channel 3 */
+#define pREG_ADC0_CH4_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH4_OUT)                /*  Conversion Result Channel 4 */
+#define pREG_ADC0_CH5_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH5_OUT)                /*  Conversion Result Channel 5 */
+#define pREG_ADC0_CH6_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH6_OUT)                /*  Conversion Result Channel 6 */
+#define pREG_ADC0_CH7_OUT                ((__I __C  uint16_t  *) REG_ADC0_CH7_OUT)                /*  Conversion Result Channel 7 */
 #define pREG_ADC0_BAT_OUT                ((__I __C  uint16_t  *) REG_ADC0_BAT_OUT)                /*  Battery Monitoring Result */
 #define pREG_ADC0_TMP_OUT                ((__I __C  uint16_t  *) REG_ADC0_TMP_OUT)                /*  Temperature Result */
 #define pREG_ADC0_TMP2_OUT               ((__I __C  uint16_t  *) REG_ADC0_TMP2_OUT)               /*  Temperature Result 2 */
@@ -415,26 +415,26 @@
  *  ================================================================================= */
 #define pREG_DMA0_STAT                   ((__I __C  uint32_t  *) REG_DMA0_STAT)                   /*  DMA Status */
 #define pREG_DMA0_CFG                    ((__O      uint32_t  *) REG_DMA0_CFG)                    /*  DMA Configuration */
-#define pREG_DMA0_PDBPTR                 ((__IO     uint32_t  *) REG_DMA0_PDBPTR)                 /*  DMA channel primary control data base pointer */
-#define pREG_DMA0_ADBPTR                 ((__I __C  uint32_t  *) REG_DMA0_ADBPTR)                 /*  DMA channel alternate control data base pointer */
-#define pREG_DMA0_SWREQ                  ((__O      uint32_t  *) REG_DMA0_SWREQ)                  /*  DMA channel software request */
-#define pREG_DMA0_RMSK_SET               ((__IO     uint32_t  *) REG_DMA0_RMSK_SET)               /*  DMA channel request mask set */
-#define pREG_DMA0_RMSK_CLR               ((__O      uint32_t  *) REG_DMA0_RMSK_CLR)               /*  DMA channel request mask clear */
-#define pREG_DMA0_EN_SET                 ((__IO     uint32_t  *) REG_DMA0_EN_SET)                 /*  DMA channel enable set */
-#define pREG_DMA0_EN_CLR                 ((__O      uint32_t  *) REG_DMA0_EN_CLR)                 /*  DMA channel enable clear */
-#define pREG_DMA0_ALT_SET                ((__IO     uint32_t  *) REG_DMA0_ALT_SET)                /*  DMA channel primary-alternate set */
-#define pREG_DMA0_ALT_CLR                ((__O      uint32_t  *) REG_DMA0_ALT_CLR)                /*  DMA channel primary-alternate clear */
-#define pREG_DMA0_PRI_SET                ((__O      uint32_t  *) REG_DMA0_PRI_SET)                /*  DMA channel priority set */
-#define pREG_DMA0_PRI_CLR                ((__O      uint32_t  *) REG_DMA0_PRI_CLR)                /*  DMA channel priority clear */
-#define pREG_DMA0_ERRCHNL_CLR            ((__IO     uint32_t  *) REG_DMA0_ERRCHNL_CLR)            /*  DMA Per Channel Error Clear */
-#define pREG_DMA0_ERR_CLR                ((__IO     uint32_t  *) REG_DMA0_ERR_CLR)                /*  DMA bus error clear */
-#define pREG_DMA0_INVALIDDESC_CLR        ((__IO     uint32_t  *) REG_DMA0_INVALIDDESC_CLR)        /*  DMA Per Channel Invalid Descriptor Clear */
-#define pREG_DMA0_BS_SET                 ((__IO     uint32_t  *) REG_DMA0_BS_SET)                 /*  DMA channel bytes swap enable set */
-#define pREG_DMA0_BS_CLR                 ((__O      uint32_t  *) REG_DMA0_BS_CLR)                 /*  DMA channel bytes swap enable clear */
-#define pREG_DMA0_SRCADDR_SET            ((__IO     uint32_t  *) REG_DMA0_SRCADDR_SET)            /*  DMA channel source address decrement enable set */
-#define pREG_DMA0_SRCADDR_CLR            ((__O      uint32_t  *) REG_DMA0_SRCADDR_CLR)            /*  DMA channel source address decrement enable clear */
-#define pREG_DMA0_DSTADDR_SET            ((__IO     uint32_t  *) REG_DMA0_DSTADDR_SET)            /*  DMA channel destination address decrement enable set */
-#define pREG_DMA0_DSTADDR_CLR            ((__O      uint32_t  *) REG_DMA0_DSTADDR_CLR)            /*  DMA channel destination address decrement enable clear */
+#define pREG_DMA0_PDBPTR                 ((__IO     uint32_t  *) REG_DMA0_PDBPTR)                 /*  DMA Channel Primary Control Database Pointer */
+#define pREG_DMA0_ADBPTR                 ((__I __C  uint32_t  *) REG_DMA0_ADBPTR)                 /*  DMA Channel Alternate Control Database Pointer */
+#define pREG_DMA0_SWREQ                  ((__O      uint32_t  *) REG_DMA0_SWREQ)                  /*  DMA Channel Software Request */
+#define pREG_DMA0_RMSK_SET               ((__IO     uint32_t  *) REG_DMA0_RMSK_SET)               /*  DMA Channel Request Mask Set */
+#define pREG_DMA0_RMSK_CLR               ((__O      uint32_t  *) REG_DMA0_RMSK_CLR)               /*  DMA Channel Request Mask Clear */
+#define pREG_DMA0_EN_SET                 ((__IO     uint32_t  *) REG_DMA0_EN_SET)                 /*  DMA Channel Enable Set */
+#define pREG_DMA0_EN_CLR                 ((__O      uint32_t  *) REG_DMA0_EN_CLR)                 /*  DMA Channel Enable Clear */
+#define pREG_DMA0_ALT_SET                ((__IO     uint32_t  *) REG_DMA0_ALT_SET)                /*  DMA Channel Primary Alternate Set */
+#define pREG_DMA0_ALT_CLR                ((__O      uint32_t  *) REG_DMA0_ALT_CLR)                /*  DMA Channel Primary Alternate Clear */
+#define pREG_DMA0_PRI_SET                ((__O      uint32_t  *) REG_DMA0_PRI_SET)                /*  DMA Channel Priority Set */
+#define pREG_DMA0_PRI_CLR                ((__O      uint32_t  *) REG_DMA0_PRI_CLR)                /*  DMA Channel Priority Clear */
+#define pREG_DMA0_ERRCHNL_CLR            ((__IO     uint32_t  *) REG_DMA0_ERRCHNL_CLR)            /*  DMA per Channel Error Clear */
+#define pREG_DMA0_ERR_CLR                ((__IO     uint32_t  *) REG_DMA0_ERR_CLR)                /*  DMA Bus Error Clear */
+#define pREG_DMA0_INVALIDDESC_CLR        ((__IO     uint32_t  *) REG_DMA0_INVALIDDESC_CLR)        /*  DMA per Channel Invalid Descriptor Clear */
+#define pREG_DMA0_BS_SET                 ((__IO     uint32_t  *) REG_DMA0_BS_SET)                 /*  DMA Channel Bytes Swap Enable Set */
+#define pREG_DMA0_BS_CLR                 ((__O      uint32_t  *) REG_DMA0_BS_CLR)                 /*  DMA Channel Bytes Swap Enable Clear */
+#define pREG_DMA0_SRCADDR_SET            ((__IO     uint32_t  *) REG_DMA0_SRCADDR_SET)            /*  DMA Channel Source Address Decrement Enable Set */
+#define pREG_DMA0_SRCADDR_CLR            ((__O      uint32_t  *) REG_DMA0_SRCADDR_CLR)            /*  DMA Channel Source Address Decrement Enable Clear */
+#define pREG_DMA0_DSTADDR_SET            ((__IO     uint32_t  *) REG_DMA0_DSTADDR_SET)            /*  DMA Channel Destination Address Decrement Enable Set */
+#define pREG_DMA0_DSTADDR_CLR            ((__O      uint32_t  *) REG_DMA0_DSTADDR_CLR)            /*  DMA Channel Destination Address Decrement Enable Clear */
 #define pREG_DMA0_REVID                  ((__I __C  uint32_t  *) REG_DMA0_REVID)                  /*  DMA Controller Revision ID */
 
 /*  =================================================================================
@@ -443,29 +443,31 @@
 #define pREG_FLCC0_STAT                  ((__IO     uint32_t  *) REG_FLCC0_STAT)                  /*  Status */
 #define pREG_FLCC0_IEN                   ((__IO     uint32_t  *) REG_FLCC0_IEN)                   /*  Interrupt Enable */
 #define pREG_FLCC0_CMD                   ((__IO     uint32_t  *) REG_FLCC0_CMD)                   /*  Command */
-#define pREG_FLCC0_KH_ADDR               ((__IO     uint32_t  *) REG_FLCC0_KH_ADDR)               /*  WRITE address */
-#define pREG_FLCC0_KH_DATA0              ((__IO     uint32_t  *) REG_FLCC0_KH_DATA0)              /*  WRITE lower data */
-#define pREG_FLCC0_KH_DATA1              ((__IO     uint32_t  *) REG_FLCC0_KH_DATA1)              /*  WRITE upper data */
-#define pREG_FLCC0_PAGE_ADDR0            ((__IO     uint32_t  *) REG_FLCC0_PAGE_ADDR0)            /*  Lower page address */
-#define pREG_FLCC0_PAGE_ADDR1            ((__IO     uint32_t  *) REG_FLCC0_PAGE_ADDR1)            /*  Upper page address */
+#define pREG_FLCC0_KH_ADDR               ((__IO     uint32_t  *) REG_FLCC0_KH_ADDR)               /*  Write Address */
+#define pREG_FLCC0_KH_DATA0              ((__IO     uint32_t  *) REG_FLCC0_KH_DATA0)              /*  Write Lower Data */
+#define pREG_FLCC0_KH_DATA1              ((__IO     uint32_t  *) REG_FLCC0_KH_DATA1)              /*  Write Upper Data */
+#define pREG_FLCC0_PAGE_ADDR0            ((__IO     uint32_t  *) REG_FLCC0_PAGE_ADDR0)            /*  Lower Page Address */
+#define pREG_FLCC0_PAGE_ADDR1            ((__IO     uint32_t  *) REG_FLCC0_PAGE_ADDR1)            /*  Upper Page Address */
 #define pREG_FLCC0_KEY                   ((__O      uint32_t  *) REG_FLCC0_KEY)                   /*  Key */
-#define pREG_FLCC0_WR_ABORT_ADDR         ((__I __C  uint32_t  *) REG_FLCC0_WR_ABORT_ADDR)         /*  Write abort address */
-#define pREG_FLCC0_WRPROT                ((__IO     uint32_t  *) REG_FLCC0_WRPROT)                /*  Write protection */
+#define pREG_FLCC0_WR_ABORT_ADDR         ((__I __C  uint32_t  *) REG_FLCC0_WR_ABORT_ADDR)         /*  Write Abort Address */
+#define pREG_FLCC0_WRPROT                ((__IO     uint32_t  *) REG_FLCC0_WRPROT)                /*  Write Protection */
 #define pREG_FLCC0_SIGNATURE             ((__I __C  uint32_t  *) REG_FLCC0_SIGNATURE)             /*  Signature */
-#define pREG_FLCC0_UCFG                  ((__IO     uint32_t  *) REG_FLCC0_UCFG)                  /*  User configuration */
-#define pREG_FLCC0_TIME_PARAM0           ((__IO     uint32_t  *) REG_FLCC0_TIME_PARAM0)           /*  Time parameter 0 */
-#define pREG_FLCC0_TIME_PARAM1           ((__IO     uint32_t  *) REG_FLCC0_TIME_PARAM1)           /*  Time parameter 1 */
-#define pREG_FLCC0_ABORT_EN_LO           ((__IO     uint32_t  *) REG_FLCC0_ABORT_EN_LO)           /*  IRQ Abort Enable (lower bits) */
-#define pREG_FLCC0_ABORT_EN_HI           ((__IO     uint32_t  *) REG_FLCC0_ABORT_EN_HI)           /*  IRQ Abort Enable (upper bits) */
-#define pREG_FLCC0_ECC_CFG               ((__IO     uint32_t  *) REG_FLCC0_ECC_CFG)               /*  ECC Config */
-#define pREG_FLCC0_ECC_ADDR              ((__I __C  uint32_t  *) REG_FLCC0_ECC_ADDR)              /*  ECC Status (address) */
+#define pREG_FLCC0_UCFG                  ((__IO     uint32_t  *) REG_FLCC0_UCFG)                  /*  User Configuration */
+#define pREG_FLCC0_TIME_PARAM0           ((__IO     uint32_t  *) REG_FLCC0_TIME_PARAM0)           /*  Time Parameter 0 */
+#define pREG_FLCC0_TIME_PARAM1           ((__IO     uint32_t  *) REG_FLCC0_TIME_PARAM1)           /*  Time Parameter 1 */
+#define pREG_FLCC0_ABORT_EN_LO           ((__IO     uint32_t  *) REG_FLCC0_ABORT_EN_LO)           /*  IRQ Abort Enable (Lower Bits) */
+#define pREG_FLCC0_ABORT_EN_HI           ((__IO     uint32_t  *) REG_FLCC0_ABORT_EN_HI)           /*  IRQ Abort Enable (Upper Bits) */
+#define pREG_FLCC0_ECC_CFG               ((__IO     uint32_t  *) REG_FLCC0_ECC_CFG)               /*  ECC Configuration */
+#define pREG_FLCC0_ECC_ADDR              ((__I __C  uint32_t  *) REG_FLCC0_ECC_ADDR)              /*  ECC Status (Address) */
+#define pREG_FLCC0_POR_SEC               ((__IO     uint32_t  *) REG_FLCC0_POR_SEC)               /*  Flash Security */
+#define pREG_FLCC0_VOL_CFG               ((__IO     uint32_t  *) REG_FLCC0_VOL_CFG)               /*  Volatile Flash Configuration */
 
 /*  =================================================================================
  *      Cache Controller (FLCC0_CACHE)
  *  ================================================================================= */
-#define pREG_FLCC0_CACHE_STAT            ((__I __C  uint32_t  *) REG_FLCC0_CACHE_STAT)            /*  Cache Status register */
-#define pREG_FLCC0_CACHE_SETUP           ((__IO     uint32_t  *) REG_FLCC0_CACHE_SETUP)           /*  Cache Setup register */
-#define pREG_FLCC0_CACHE_KEY             ((__O      uint32_t  *) REG_FLCC0_CACHE_KEY)             /*  Cache Key register */
+#define pREG_FLCC0_CACHE_STAT            ((__I __C  uint32_t  *) REG_FLCC0_CACHE_STAT)            /*  Cache Status Register */
+#define pREG_FLCC0_CACHE_SETUP           ((__IO     uint32_t  *) REG_FLCC0_CACHE_SETUP)           /*  Cache Setup Register */
+#define pREG_FLCC0_CACHE_KEY             ((__O      uint32_t  *) REG_FLCC0_CACHE_KEY)             /*  Cache Key Register */
 
 /*  =================================================================================
  *       (GPIO0)
@@ -547,7 +549,7 @@
 #define pREG_SPORT0_IEN_A                ((__IO     uint32_t  *) REG_SPORT0_IEN_A)                /*  Half SPORT A's Interrupt Enable register */
 #define pREG_SPORT0_STAT_A               ((__IO     uint32_t  *) REG_SPORT0_STAT_A)               /*  Half SPORT 'A' Status register */
 #define pREG_SPORT0_NUMTRAN_A            ((__IO     uint32_t  *) REG_SPORT0_NUMTRAN_A)            /*  Half SPORT A Number of transfers register */
-#define pREG_SPORT0_CNVT_A               ((__IO     uint32_t  *) REG_SPORT0_CNVT_A)               /*  Half SPORT 'A' CONVT width */
+#define pREG_SPORT0_CNVT_A               ((__IO     uint32_t  *) REG_SPORT0_CNVT_A)               /*  Half SPORT 'A' CNV width */
 #define pREG_SPORT0_TX_A                 ((__O      uint32_t  *) REG_SPORT0_TX_A)                 /*  Half SPORT 'A' Tx Buffer Register */
 #define pREG_SPORT0_RX_A                 ((__I __C  uint32_t  *) REG_SPORT0_RX_A)                 /*  Half SPORT 'A' Rx Buffer Register */
 #define pREG_SPORT0_CTL_B                ((__IO     uint32_t  *) REG_SPORT0_CTL_B)                /*  Half SPORT 'B' Control Register */
@@ -555,16 +557,16 @@
 #define pREG_SPORT0_IEN_B                ((__IO     uint32_t  *) REG_SPORT0_IEN_B)                /*  Half SPORT B's Interrupt Enable register */
 #define pREG_SPORT0_STAT_B               ((__IO     uint32_t  *) REG_SPORT0_STAT_B)               /*  Half SPORT 'B' Status register */
 #define pREG_SPORT0_NUMTRAN_B            ((__IO     uint32_t  *) REG_SPORT0_NUMTRAN_B)            /*  Half SPORT B Number of transfers register */
-#define pREG_SPORT0_CNVT_B               ((__IO     uint32_t  *) REG_SPORT0_CNVT_B)               /*  Half SPORT 'B' CONVT width register */
+#define pREG_SPORT0_CNVT_B               ((__IO     uint32_t  *) REG_SPORT0_CNVT_B)               /*  Half SPORT 'B' CNV width register */
 #define pREG_SPORT0_TX_B                 ((__O      uint32_t  *) REG_SPORT0_TX_B)                 /*  Half SPORT 'B' Tx Buffer Register */
 #define pREG_SPORT0_RX_B                 ((__I __C  uint32_t  *) REG_SPORT0_RX_B)                 /*  Half SPORT 'B' Rx Buffer Register */
 
 /*  =================================================================================
  *      CRC Accelerator (CRC0)
  *  ================================================================================= */
-#define pREG_CRC0_CTL                    ((__IO     uint32_t  *) REG_CRC0_CTL)                    /*  CRC Control Register */
-#define pREG_CRC0_IPDATA                 ((__O      uint32_t  *) REG_CRC0_IPDATA)                 /*  Input Data Word Register */
-#define pREG_CRC0_RESULT                 ((__IO     uint32_t  *) REG_CRC0_RESULT)                 /*  CRC Result Register */
+#define pREG_CRC0_CTL                    ((__IO     uint32_t  *) REG_CRC0_CTL)                    /*  CRC Control */
+#define pREG_CRC0_IPDATA                 ((__O      uint32_t  *) REG_CRC0_IPDATA)                 /*  Input Data Word */
+#define pREG_CRC0_RESULT                 ((__IO     uint32_t  *) REG_CRC0_RESULT)                 /*  CRC Result */
 #define pREG_CRC0_POLY                   ((__IO     uint32_t  *) REG_CRC0_POLY)                   /*  Programmable CRC Polynomial */
 #define pREG_CRC0_IPBYTE                 ((__O      uint8_t   *) REG_CRC0_IPBYTE)                 /*  Input Data Byte */
 #define pREG_CRC0_IPBITS0                ((__O      uint8_t   *) REG_CRC0_IPBITS0)                /*  Input Data Bits */
@@ -639,20 +641,21 @@
 #define pREG_CRYPT0_KUW13                ((__O      uint32_t  *) REG_CRYPT0_KUW13)                /*  Key Wrap Unwrap Register 13 */
 #define pREG_CRYPT0_KUW14                ((__O      uint32_t  *) REG_CRYPT0_KUW14)                /*  Key Wrap Unwrap Register 14 */
 #define pREG_CRYPT0_KUW15                ((__O      uint32_t  *) REG_CRYPT0_KUW15)                /*  Key Wrap Unwrap Register 15 */
-#define pREG_CRYPT0_KUWVALSTR1           ((__O      uint32_t  *) REG_CRYPT0_KUWVALSTR1)           /*  Key Wrap Unwrap Validation String[63:32] */
-#define pREG_CRYPT0_KUWVALSTR2           ((__O      uint32_t  *) REG_CRYPT0_KUWVALSTR2)           /*  Key Wrap Unwrap Validation String[31:0] */
+#define pREG_CRYPT0_KUWVALSTR1           ((__O      uint32_t  *) REG_CRYPT0_KUWVALSTR1)           /*  Key Wrap Unwrap Validation String [63:32] */
+#define pREG_CRYPT0_KUWVALSTR2           ((__O      uint32_t  *) REG_CRYPT0_KUWVALSTR2)           /*  Key Wrap Unwrap Validation String [31:0] */
 
 /*  =================================================================================
  *      Power Management  (PMG0)
  *  ================================================================================= */
 #define pREG_PMG0_IEN                    ((__IO     uint32_t  *) REG_PMG0_IEN)                    /*  Power Supply Monitor Interrupt Enable */
-#define pREG_PMG0_PSM_STAT               ((__IO     uint32_t  *) REG_PMG0_PSM_STAT)               /*  Power supply monitor status */
+#define pREG_PMG0_PSM_STAT               ((__IO     uint32_t  *) REG_PMG0_PSM_STAT)               /*  Power Supply Monitor Status */
 #define pREG_PMG0_PWRMOD                 ((__IO     uint32_t  *) REG_PMG0_PWRMOD)                 /*  Power Mode Register */
-#define pREG_PMG0_PWRKEY                 ((__O      uint32_t  *) REG_PMG0_PWRKEY)                 /*  Key protection for PWRMOD and  SRAMRET */
-#define pREG_PMG0_SHDN_STAT              ((__I __C  uint32_t  *) REG_PMG0_SHDN_STAT)              /*  SHUTDOWN Status Register */
-#define pREG_PMG0_SRAMRET                ((__IO     uint32_t  *) REG_PMG0_SRAMRET)                /*  Control for Retention SRAM during HIBERNATE Mode */
-#define pREG_PMG0_RST_STAT               ((__IO     uint32_t  *) REG_PMG0_RST_STAT)               /*  Reset status */
-#define pREG_PMG0_CTL1                   ((__IO     uint32_t  *) REG_PMG0_CTL1)                   /*  HPBUCK control */
+#define pREG_PMG0_PWRKEY                 ((__O      uint32_t  *) REG_PMG0_PWRKEY)                 /*  Key Protection for PWRMOD and  SRAMRET */
+#define pREG_PMG0_SHDN_STAT              ((__I __C  uint32_t  *) REG_PMG0_SHDN_STAT)              /*  Shutdown Status Register */
+#define pREG_PMG0_SRAMRET                ((__IO     uint32_t  *) REG_PMG0_SRAMRET)                /*  Control for Retention SRAM in Hibernate Mode */
+#define pREG_PMG0_TRIM                   ((__IO     uint32_t  *) REG_PMG0_TRIM)                   /*  Trimming Bits */
+#define pREG_PMG0_RST_STAT               ((__IO     uint32_t  *) REG_PMG0_RST_STAT)               /*  Reset Status */
+#define pREG_PMG0_CTL1                   ((__IO     uint32_t  *) REG_PMG0_CTL1)                   /*  HPBUCK Control */
 
 /*  =================================================================================
  *      External interrupt configuration (XINT0)
@@ -671,22 +674,22 @@
 /*  =================================================================================
  *      Power Management  (PMG0_TST)
  *  ================================================================================= */
-#define pREG_PMG0_TST_SRAM_CTL           ((__IO     uint32_t  *) REG_PMG0_TST_SRAM_CTL)           /*  Control for SRAM parity and instruction SRAM */
+#define pREG_PMG0_TST_SRAM_CTL           ((__IO     uint32_t  *) REG_PMG0_TST_SRAM_CTL)           /*  Control for SRAM Parity and Instruction SRAM */
 #define pREG_PMG0_TST_SRAM_INITSTAT      ((__I __C  uint32_t  *) REG_PMG0_TST_SRAM_INITSTAT)      /*  Initialization Status Register */
-#define pREG_PMG0_TST_CLR_LATCH_GPIOS    ((__O      uint16_t  *) REG_PMG0_TST_CLR_LATCH_GPIOS)    /*  CLEAR GPIO AFTER SHUTDOWN MODE */
-#define pREG_PMG0_TST_SCRPAD_IMG         ((__IO     uint32_t  *) REG_PMG0_TST_SCRPAD_IMG)         /*  SCRATCH PAD IMAGE */
-#define pREG_PMG0_TST_SCRPAD_3V_RD       ((__I __C  uint32_t  *) REG_PMG0_TST_SCRPAD_3V_RD)       /*  SCRATCH PAD SAVED IN BATTERY DOMAIN */
-#define pREG_PMG0_TST_FAST_SHT_WAKEUP    ((__IO     uint32_t  *) REG_PMG0_TST_FAST_SHT_WAKEUP)    /*  Fast shutdown wakeup enable */
+#define pREG_PMG0_TST_CLR_LATCH_GPIOS    ((__O      uint16_t  *) REG_PMG0_TST_CLR_LATCH_GPIOS)    /*  Clear GPIO After Shutdown Mode */
+#define pREG_PMG0_TST_SCRPAD_IMG         ((__IO     uint32_t  *) REG_PMG0_TST_SCRPAD_IMG)         /*  Scratch Pad Image */
+#define pREG_PMG0_TST_SCRPAD_3V_RD       ((__I __C  uint32_t  *) REG_PMG0_TST_SCRPAD_3V_RD)       /*  Scratch Pad Saved in Battery Domain */
+#define pREG_PMG0_TST_FAST_SHT_WAKEUP    ((__IO     uint32_t  *) REG_PMG0_TST_FAST_SHT_WAKEUP)    /*  Fast Shutdown Wake-up Enable */
 
 /*  =================================================================================
  *      Clocking  (CLKG0_CLK)
  *  ================================================================================= */
-#define pREG_CLKG0_CLK_CTL0              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL0)              /*  Misc clock settings */
-#define pREG_CLKG0_CLK_CTL1              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL1)              /*  Clock dividers */
-#define pREG_CLKG0_CLK_CTL2              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL2)              /*  HF Oscillator divided clock select */
+#define pREG_CLKG0_CLK_CTL0              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL0)              /*  Misc Clock Settings */
+#define pREG_CLKG0_CLK_CTL1              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL1)              /*  Clock Dividers */
+#define pREG_CLKG0_CLK_CTL2              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL2)              /*  HF Oscillator Divided Clock Select */
 #define pREG_CLKG0_CLK_CTL3              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL3)              /*  System PLL */
-#define pREG_CLKG0_CLK_CTL5              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL5)              /*  User clock gating control */
-#define pREG_CLKG0_CLK_STAT0             ((__IO     uint32_t  *) REG_CLKG0_CLK_STAT0)             /*  Clocking status */
+#define pREG_CLKG0_CLK_CTL5              ((__IO     uint32_t  *) REG_CLKG0_CLK_CTL5)              /*  User Clock Gating Control */
+#define pREG_CLKG0_CLK_STAT0             ((__IO     uint32_t  *) REG_CLKG0_CLK_STAT0)             /*  Clocking Status */
 
 /*  =================================================================================
  *      Bus matrix (BUSM0)

@@ -171,7 +171,9 @@ typedef enum
 
     ADI_UART_AUTOBAUD_ERROR_DETECTED,           /*!< Autobaud error detected.                                       */
       
-    ADI_UART_ERR_DMA_REGISTER                   /*!< Error while registering the DMA callback.                      */
+    ADI_UART_ERR_DMA_REGISTER,                  /*!< Error while registering the DMA callback.                      */
+      
+    ADI_UART_INVALID_DATA_SIZE                  /*!< Invalid transfer size. Must be less than 1025 bytes            */
 
 } ADI_UART_RESULT;
 

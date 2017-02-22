@@ -131,37 +131,37 @@ POSSIBILITY OF SUCH DAMAGE.
 /*! Code that uCOS requires to be run in the beginning of an interrupt handler. 
     @sa ISR_EPILOG()
 */
+#if defined(ADI_CYCLECOUNT_ENABLED) && (ADI_CYCLECOUNT_ENABLED == 1)
+#define ADI_RTOS_UCOS_III_CYCLECOUNT_START adi_cyclecount_start();
+#define ADI_RTOS_UCOS_III_CYCLECOUNT_STOP  adi_cyclecount_stop();
+#else
+#define ADI_RTOS_UCOS_III_CYCLECOUNT_START 
+#define ADI_RTOS_UCOS_III_CYCLECOUNT_STOP  
+#endif
+
 #define ISR_PROLOG()                                                                            \
                             do {                                                                \
                                     CPU_SR_ALLOC();                                             \
                                     CPU_CRITICAL_ENTER();                                       \
                                     OSIntEnter();                                               \
                                     CPU_CRITICAL_EXIT();                                        \
+                                    ADI_RTOS_UCOS_III_CYCLECOUNT_START                          \
                                } while (0);
 
 /*! Code that uCOS requires to be run in the end of an interrupt handler. 
     @sa ISR_PROLOG()
 */
-#define ISR_EPILOG() OSIntExit();
+#define ISR_EPILOG()                                                                            \
+                            do {                                                                \
+                                   ADI_RTOS_UCOS_III_CYCLECOUNT_STOP                            \
+                                   OSIntExit();                                                 \
+                            } while (0);                                                        \
 
-#else /* If building assembly file */
-
-/* If it is an IAR assembler */
-#if defined(__IASMARM__)
-
-#define EXTERN_RTOS_HANDLERS()       \
-        extern OS_CPU_PendSVHandler  \
-        extern OS_CPU_SysTickHandler 
+#endif /* __STDC__ */
 
 #define PENDSV_HANDLER   OS_CPU_PendSVHandler
 #define SYSTICK_HANDLER  OS_CPU_SysTickHandler
 #define SVC_HANDLER      SVC_Handler
           
-#else 
-#error "Unknown assembler"
-#endif
-
-
-#endif /* __IASMARM__ */
 
 #endif /* ADI_RTOS_MAP_UCOS_III_H */

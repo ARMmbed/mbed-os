@@ -1,8 +1,6 @@
 /*! *****************************************************************************
  * @file:    adi_dma.c
- * @brief:   DMA  manager global file.
- * @details: This a global file which includes a specific file based on the processor family.
- *           This included file will be  containing  DMA manager functions.
+ * @brief:   DMA manager global file.
  -----------------------------------------------------------------------------
 Copyright (c) 2016 Analog Devices, Inc.
 
@@ -56,6 +54,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <drivers/dma/adi_dma.h>
 #include <adi_callback.h>
 #include <rtos_map/adi_rtos_map.h>
+#include <drivers/general/adi_drivers_general.h>
 
 /*! \cond PRIVATE */
 
@@ -112,25 +111,14 @@ typedef struct {
 
 /*=============  D A T A  =============*/
 
-/* DMA descriptor arrays must be contigious */
+/* DMA descriptor arrays must be contiguous */
 /* AND impose strict alignment requirements */
 /* Each compiler has different alignment directives */
-#if defined ( __ICCARM__ )
-    #pragma data_alignment=CCD_ALIGN  /* IAR */
-#elif defined (__CC_ARM)
-    __align(CCD_ALIGN)                /* Keil */
-#elif defined(__ADSPGCC__) /* the alignment is not expressed here in GCC */
-#else
-    #pragma message("WARNING: NO ALIGHMENT DEFINED FOR DMA DESCRIPTOR BLOCKS")
-#endif
-
 
 /* ALIGNED: DMA channel control data array declaration */
-static ADI_DCC_TypeDef gChannelControlDataArray[CCD_SIZE * 2u]
+ADI_ALIGNED_PRAGMA(CCD_ALIGN)
+static ADI_DCC_TypeDef gChannelControlDataArray[CCD_SIZE * 2u] ADI_ALIGNED_ATTRIBUTE(CCD_ALIGN)
 
-#if defined(__ADSPGCC__) /* the alignment is not expressed here in GCC */
-__attribute__ ((aligned (CCD_ALIGN)))
-#endif
 #ifdef ADI_DMA_DESCRIPTORS_IN_VOLATILE_MEMORY
 	/* conditional placement of DMA descriptor table to volatile memory */
 	@ "volatile_ram";

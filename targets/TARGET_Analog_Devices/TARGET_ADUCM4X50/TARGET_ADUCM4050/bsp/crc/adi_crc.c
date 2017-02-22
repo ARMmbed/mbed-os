@@ -105,7 +105,7 @@ Sequence of function calls for Computing CRC :\n
       #adi_crc_SetBitMirroring, #adi_crc_SetByteMirroring, #adi_crc_SetPolynomialVal
       and #adi_crc_SetBitMirroring don't need to be called explicitly in your
       application: the parameters will be assigned when opening the driver.
-      
+
   @note - The application must include drivers/crc/adi_crc.h to use this driver.
   @note - This driver also requires the DMA driver.  The application must include
           the DMA driver sources to avoid link errors.
@@ -115,6 +115,7 @@ Sequence of function calls for Computing CRC :\n
 /*=============  I N C L U D E S   =============*/
 
 #include <drivers/crc/adi_crc.h>
+#include <adi_cyclecount.h>
 #include "adi_crc_def.h"
 
 /*=============  M I S R A  =============*/
@@ -206,9 +207,6 @@ Sequence of function calls for Computing CRC :\n
 /** Check the validity of a CRC device identifier */
 #define ADI_CRC_VALID_DEVICE_ID(DEVNUM)         ((DEVNUM)<(ADI_CRC_NUM_DEVICES))
 
-/** Condition used to indicate if a CRC driver is processing data */
-#define ADI_CRC_DEVICE_IN_PROGRESS(DEV)         (((DEV)->eCrcOpStatus == ADI_CRC_OP_IN_PROGRESS) ? true : false)
-
 /** Check that a CRC driver is in idle state */
 #define ADI_CRC_DEVICE_IS_IDLE(DEV)             (((DEV)->eCrcOpStatus == ADI_CRC_OP_IDLE) ? true : false)
 
@@ -231,9 +229,9 @@ static ADI_CRC_INFO crc_device_info[ADI_CRC_NUM_DEVICES] =
 #define ADI_CRC_DEVICE_IN_USE(DEVNUM)           ((NULL) != crc_device_info[(DEVNUM)].hDevice)
 
 #ifdef ADI_DEBUG
-#define HDL_TO_DEVICE_PTR(HDL) ((ADI_CRC_INVALID_HANDLE(HDL)) ? (NULL) : ((ADI_CRC_DEVICE*) HDL))
+#define HDL_TO_DEVICE_PTR(HDL) ((ADI_CRC_INVALID_HANDLE(HDL)) ? (NULL) : ((ADI_CRC_DEVICE*) (HDL)))
 #else
-#define HDL_TO_DEVICE_PTR(HDL) ((ADI_CRC_DEVICE*) HDL)
+#define HDL_TO_DEVICE_PTR(HDL) ((ADI_CRC_DEVICE*) (HDL))
 #endif
 
 /*=============  C O D E  =============*/
@@ -267,7 +265,7 @@ void ADI_DMA_CRC_ISR(void);
 
 #endif  /* ADI_CRC_CFG_ENABLE_DMA_SUPPORT */
 
-//------------------------------------------------------------------------------
+
 /**
  * @brief       return a pointer to the CRC device information mapped to the CRC
  *              device identified by a handle
@@ -284,7 +282,7 @@ static ADI_CRC_INFO *crc_DeviceInfo(ADI_CRC_HANDLE hDevice)
                            : (&(crc_device_info[0]));
     return pCrcInfo;
 }
-//------------------------------------------------------------------------------
+
 
 /**
  * @brief       Reset CRC registers to default values
@@ -652,9 +650,14 @@ void ADI_DMA_CRC_ISR(void)
                     pDevice->pfCallback(pDevice->pCBParam, (uint32_t) ADI_CRC_EVENT_BUFFER_PROCESSED, NULL);
                 }
                 pDevice->eCrcOpStatus = ADI_CRC_OP_IDLE;        /* CRC back in idle state */
+
             }
         }
     }
+
+#if defined(ADI_CYCLECOUNT_CRC_ISR_ENABLED) && (ADI_CYCLECOUNT_CRC_ISR_ENABLED == 1u)
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_CRC);    
+#endif
 
     ISR_EPILOG();
 }
@@ -729,7 +732,7 @@ ADI_CRC_RESULT adi_crc_Open(
         *phDevice = crc_device_info[DeviceNum].hDevice; /* Pass a valid handle to this CRC device */
 
 #if (ADI_CRC_CFG_ENABLE_DMA_SUPPORT == 0)
-        
+
         pDevice->pfSubmitBuffer = &crc_ExecuteCoreDrivenOperation;
 
 #else   /* ADI_CRC_CFG_ENABLE_DMA_SUPPORT */
@@ -1126,7 +1129,17 @@ ADI_CRC_RESULT adi_crc_IsCrcInProgress(
     else
 #endif /* ADI_DEBUG */
     {
-        *pbCrcInProgress = (ADI_CRC_DEVICE_IN_PROGRESS(pDevice));
+
+      if ((pDevice)->eCrcOpStatus == ADI_CRC_OP_IN_PROGRESS) 
+      {
+                *pbCrcInProgress = true;
+
+      } 
+      else 
+      {
+                *pbCrcInProgress = false;
+
+      }
     }
     return result;
 }

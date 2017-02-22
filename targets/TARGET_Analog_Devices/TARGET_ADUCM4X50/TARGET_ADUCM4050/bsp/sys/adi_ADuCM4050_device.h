@@ -4,9 +4,9 @@
      File         :   ADuCM4050_device.h
      Description  :   C Register Definitions
 
-     Date         :   Sep 28, 2016
+     Date         :   Feb 7, 2017
 
-     Copyright (c) 2014-2016 Analog Devices, Inc.  All Rights Reserved.
+     Copyright (c) 2014-2017 Analog Devices, Inc.  All Rights Reserved.
      This software is proprietary and confidential to Analog Devices, Inc. and
      its licensors.
 
@@ -72,9 +72,9 @@
 #ifndef __ADI_NO_DECL_STRUCT_ADI_TMR_TypeDef__
 typedef struct _ADI_TMR_TypeDef
 {
-    __IO     uint16_t   LOAD;                          /*!< 16-bit load value */
+    __IO     uint16_t   LOAD;                          /*!< 16-bit Load Value */
     __I __C  uint8_t  RESERVED0[2];
-    __I __C  uint16_t   CURCNT;                        /*!< 16-bit timer value */
+    __I __C  uint16_t   CURCNT;                        /*!< 16-bit Timer Value */
     __I __C  uint8_t  RESERVED1[2];
     __IO     uint16_t   CTL;                           /*!< Control */
     __I __C  uint8_t  RESERVED2[2];
@@ -82,9 +82,9 @@ typedef struct _ADI_TMR_TypeDef
     __I __C  uint8_t  RESERVED3[2];
     __I __C  uint16_t   CAPTURE;                       /*!< Capture */
     __I __C  uint8_t  RESERVED4[2];
-    __IO     uint16_t   ALOAD;                         /*!< 16-bit load value, asynchronous */
+    __IO     uint16_t   ALOAD;                         /*!< 16-bit Load Value, Asynchronous */
     __I __C  uint8_t  RESERVED5[2];
-    __I __C  uint16_t   ACURCNT;                       /*!< 16-bit timer value, asynchronous */
+    __I __C  uint16_t   ACURCNT;                       /*!< 16-bit Timer Value, Asynchronous */
     __I __C  uint8_t  RESERVED6[2];
     __I __C  uint16_t   STAT;                          /*!< Status */
     __I __C  uint8_t  RESERVED7[2];
@@ -92,7 +92,7 @@ typedef struct _ADI_TMR_TypeDef
     __I __C  uint8_t  RESERVED8[2];
     __IO     uint16_t   PWMMATCH;                      /*!< PWM Match Value */
     __I __C  uint8_t  RESERVED9[2];
-    __IO     uint16_t   EVENTSELECT;                   /*!< Timer Event selection Register. */
+    __IO     uint16_t   EVENTSELECT;                   /*!< Timer Event Selection Register */
 } ADI_TMR_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_TMR_TypeDef__ */
 
@@ -116,7 +116,7 @@ typedef struct _ADI_TMR_RGB_TypeDef
     __I __C  uint8_t  RESERVED1[2];
     __IO     uint16_t   CTL;                           /*!< Control */
     __I __C  uint8_t  RESERVED2[2];
-    __O      uint16_t   CLRINT;                        /*!< Clear Interrupt */
+    __O      uint16_t   CLRINT;                        /*!< Clear interrupt */
     __I __C  uint8_t  RESERVED3[2];
     __I __C  uint16_t   CAPTURE;                       /*!< Capture */
     __I __C  uint8_t  RESERVED4[2];
@@ -194,11 +194,11 @@ typedef struct _ADI_RTC_TypeDef
     __I __C  uint8_t  RESERVED17[2];
     __IO     uint16_t   CR2IC;                         /*!< RTC Control 2 for Configuring Input Capture Channels */
     __I __C  uint8_t  RESERVED18[2];
-    __IO     uint16_t   CR3OC;                         /*!< RTC Control 3 for Configuring Output Compare Channel */
+    __IO     uint16_t   CR3SS;                         /*!< RTC Control 3 for Configuring SensorStrobe Channel */
     __I __C  uint8_t  RESERVED19[2];
-    __IO     uint16_t   CR4OC;                         /*!< RTC Control 4 for Configuring Output Compare Channel */
+    __IO     uint16_t   CR4SS;                         /*!< RTC Control 4 for Configuring SensorStrobe Channel */
     __I __C  uint8_t  RESERVED20[2];
-    __IO     uint16_t   OCMSK;                         /*!< RTC Masks for Output Compare Channel */
+    __IO     uint16_t   SSMSK;                         /*!< RTC Mask for SensorStrobe Channel */
     __I __C  uint8_t  RESERVED21[10];
     __I __C  uint16_t   IC2;                           /*!< RTC Input Capture Channel 2 */
     __I __C  uint8_t  RESERVED22[2];
@@ -206,13 +206,13 @@ typedef struct _ADI_RTC_TypeDef
     __I __C  uint8_t  RESERVED23[2];
     __I __C  uint16_t   IC4;                           /*!< RTC Input Capture Channel 4 */
     __I __C  uint8_t  RESERVED24[2];
-    __IO     uint16_t   OC1;                           /*!< RTC Output Compare Channel 1 */
+    __IO     uint16_t   SS1;                           /*!< RTC SensorStrobe Channel 1 */
     __I __C  uint8_t  RESERVED25[2];
-    __IO     uint16_t   OC2;                           /*!< RTC Output Compare Channel 2 */
+    __IO     uint16_t   SS2;                           /*!< RTC SensorStrobe Channel 2 */
     __I __C  uint8_t  RESERVED26[2];
-    __IO     uint16_t   OC3;                           /*!< RTC Output Compare Channel 3 */
+    __IO     uint16_t   SS3;                           /*!< RTC SensorStrobe Channel 3 */
     __I __C  uint8_t  RESERVED27[2];
-    __IO     uint16_t   OC4;                           /*!< RTC Output Compare Channel 4 */
+    __IO     uint16_t   SS4;                           /*!< RTC SensorStrobe Channel 4 */
     __I __C  uint8_t  RESERVED28[2];
     __I __C  uint16_t   SR4;                           /*!< RTC Status 4 */
     __I __C  uint8_t  RESERVED29[2];
@@ -220,33 +220,33 @@ typedef struct _ADI_RTC_TypeDef
     __I __C  uint8_t  RESERVED30[2];
     __I __C  uint16_t   SR6;                           /*!< RTC Status 6 */
     __I __C  uint8_t  RESERVED31[2];
-    __I __C  uint16_t   OC1TGT;                        /*!< RTC Output Compare Channel 1 Target */
+    __I __C  uint16_t   SS1TGT;                        /*!< RTC SensorStrobe Channel 1 Target */
     __I __C  uint8_t  RESERVED32[2];
     __I __C  uint16_t   FRZCNT;                        /*!< RTC Freeze Count */
     __I __C  uint8_t  RESERVED33[2];
-    __I __C  uint16_t   OC2TGT;                        /*!< RTC Output Compare Channel 2 Target */
+    __I __C  uint16_t   SS2TGT;                        /*!< RTC SensorStrobe Channel 2 Target */
     __I __C  uint8_t  RESERVED34[2];
-    __I __C  uint16_t   OC3TGT;                        /*!< RTC Output Compare Channel 3 Target */
+    __I __C  uint16_t   SS3TGT;                        /*!< RTC SensorStrobe Channel 3 Target */
     __I __C  uint8_t  RESERVED35[6];
-    __IO     uint16_t   OC1LOWDUR;                     /*!< RTC Auto-Reload Low Duration for Output Compare Channel 1 */
+    __IO     uint16_t   SS1LOWDUR;                     /*!< RTC Auto-Reload Low Duration for SensorStrobe Channel 1 */
     __I __C  uint8_t  RESERVED36[2];
-    __IO     uint16_t   OC2LOWDUR;                     /*!< RTC Auto-Reload Low Duration for Output Compare Channel 2 */
+    __IO     uint16_t   SS2LOWDUR;                     /*!< RTC Auto-Reload Low Duration for SensorStrobe Channel 2 */
     __I __C  uint8_t  RESERVED37[2];
-    __IO     uint16_t   OC3LOWDUR;                     /*!< RTC Auto-Reload Low Duration for Output Compare Channel 3 */
+    __IO     uint16_t   SS3LOWDUR;                     /*!< RTC Auto-Reload Low Duration for SensorStrobe Channel 3 */
     __I __C  uint8_t  RESERVED38[6];
-    __IO     uint16_t   OC1HIGHDUR;                    /*!< RTC Auto-Reload High Duration for Output Compare Channel 1 */
+    __IO     uint16_t   SS1HIGHDUR;                    /*!< RTC Auto-Reload High Duration for SensorStrobe Channel 1 */
     __I __C  uint8_t  RESERVED39[2];
-    __IO     uint16_t   OC2HIGHDUR;                    /*!< RTC Auto-Reload High Duration for Output Compare Channel 2 */
+    __IO     uint16_t   SS2HIGHDUR;                    /*!< RTC Auto-Reload High Duration for SensorStrobe Channel 2 */
     __I __C  uint8_t  RESERVED40[2];
-    __IO     uint16_t   OC3HIGHDUR;                    /*!< RTC Auto-Reload High Duration for Output Compare Channel 3 */
+    __IO     uint16_t   SS3HIGHDUR;                    /*!< RTC Auto-Reload High Duration for SensorStrobe Channel 3 */
     __I __C  uint8_t  RESERVED41[6];
-    __IO     uint16_t   OCMSKOT;                       /*!< RTC Masks for Output Compare Channel */
+    __IO     uint16_t   SSMSKOT;                       /*!< RTC Masks for SensorStrobe Channels on Time Control */
     __I __C  uint8_t  RESERVED42[2];
-    __IO     uint16_t   CR5OCS;                        /*!< RTC Control 5 for Configuring Output Compare Channel GPIO Sampling */
+    __IO     uint16_t   CR5SSS;                        /*!< RTC Control 5 for Configuring SensorStrobe Channel GPIO Sampling */
     __I __C  uint8_t  RESERVED43[2];
-    __IO     uint16_t   CR6OCS;                        /*!< RTC Control 5 for Configuring Output Compare Channel GPIO Sampling Edge */
+    __IO     uint16_t   CR6SSS;                        /*!< RTC Control 6 for Configuring SensorStrobe Channel GPIO Sampling Edge */
     __I __C  uint8_t  RESERVED44[2];
-    __IO     uint16_t   CR7OCS;                        /*!< RTC Control 5 for Configuring Output Compare Channel GPIO Sampling Activity */
+    __IO     uint16_t   CR7SSS;                        /*!< RTC Control 7 for Configuring SensorStrobe Channel GPIO Sampling Activity */
     __I __C  uint8_t  RESERVED45[2];
     __IO     uint16_t   SR7;                           /*!< RTC Status 7 */
     __I __C  uint8_t  RESERVED46[2];
@@ -254,9 +254,9 @@ typedef struct _ADI_RTC_TypeDef
     __I __C  uint8_t  RESERVED47[2];
     __I __C  uint16_t   SR9;                           /*!< RTC Status 9 */
     __I __C  uint8_t  RESERVED48[6];
-    __IO     uint16_t   GPMUX0;                        /*!< RTC GPIO pin mux control register 0 */
+    __IO     uint16_t   GPMUX0;                        /*!< RTC GPIO Pin Mux Control Register 0 */
     __I __C  uint8_t  RESERVED49[2];
-    __IO     uint16_t   GPMUX1;                        /*!< RTC GPIO pin mux control register 1 */
+    __IO     uint16_t   GPMUX1;                        /*!< RTC GPIO Pin Mux Control Register 1 */
 } ADI_RTC_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_TypeDef__ */
 
@@ -297,13 +297,13 @@ typedef struct _ADI_SYS_TypeDef
 #ifndef __ADI_NO_DECL_STRUCT_ADI_WDT_TypeDef__
 typedef struct _ADI_WDT_TypeDef
 {
-    __IO     uint16_t   LOAD;                          /*!< Load value */
+    __IO     uint16_t   LOAD;                          /*!< Load Value */
     __I __C  uint8_t  RESERVED0[2];
-    __I __C  uint16_t   CCNT;                          /*!< Current count value */
+    __I __C  uint16_t   CCNT;                          /*!< Current Count Value */
     __I __C  uint8_t  RESERVED1[2];
     __IO     uint16_t   CTL;                           /*!< Control */
     __I __C  uint8_t  RESERVED2[2];
-    __O      uint16_t   RESTART;                       /*!< Clear interrupt */
+    __O      uint16_t   RESTART;                       /*!< Clear Interrupt */
     __I __C  uint8_t  RESERVED3[10];
     __I __C  uint16_t   STAT;                          /*!< Status */
 } ADI_WDT_TypeDef;
@@ -391,15 +391,15 @@ typedef struct _ADI_SPI_TypeDef
     __I __C  uint8_t  RESERVED1[2];
     __O      uint16_t   TX;                            /*!< Transmit */
     __I __C  uint8_t  RESERVED2[2];
-    __IO     uint16_t   DIV;                           /*!< SPI baud rate selection */
+    __IO     uint16_t   DIV;                           /*!< SPI Baud Rate Selection */
     __I __C  uint8_t  RESERVED3[2];
-    __IO     uint16_t   CTL;                           /*!< SPI configuration 1 */
+    __IO     uint16_t   CTL;                           /*!< SPI Configuration */
     __I __C  uint8_t  RESERVED4[2];
-    __IO     uint16_t   IEN;                           /*!< SPI configuration 2 */
+    __IO     uint16_t   IEN;                           /*!< SPI Interrupts Enable */
     __I __C  uint8_t  RESERVED5[2];
-    __IO     uint16_t   CNT;                           /*!< Transfer byte count */
+    __IO     uint16_t   CNT;                           /*!< Transfer Byte Count */
     __I __C  uint8_t  RESERVED6[2];
-    __IO     uint16_t   DMA;                           /*!< SPI DMA enable */
+    __IO     uint16_t   DMA;                           /*!< SPI DMA Enable */
     __I __C  uint8_t  RESERVED7[2];
     __I __C  uint16_t   FIFO_STAT;                     /*!< FIFO Status */
     __I __C  uint8_t  RESERVED8[2];
@@ -407,11 +407,11 @@ typedef struct _ADI_SPI_TypeDef
     __I __C  uint8_t  RESERVED9[2];
     __IO     uint16_t   FLOW_CTL;                      /*!< Flow Control */
     __I __C  uint8_t  RESERVED10[2];
-    __IO     uint16_t   WAIT_TMR;                      /*!< Wait timer for flow control */
+    __IO     uint16_t   WAIT_TMR;                      /*!< Wait Timer for Flow Control */
     __I __C  uint8_t  RESERVED11[2];
-    __IO     uint16_t   CS_CTL;                        /*!< Chip-Select control for multi-slave connections */
+    __IO     uint16_t   CS_CTL;                        /*!< Chip Select Control for Multi-slave Connections */
     __I __C  uint8_t  RESERVED12[2];
-    __IO     uint16_t   CS_OVERRIDE;                   /*!< Chip-Select Override */
+    __IO     uint16_t   CS_OVERRIDE;                   /*!< Chip Select Override */
     __I __C  uint8_t  RESERVED13[4];
 } ADI_SPI_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_SPI_TypeDef__ */
@@ -453,7 +453,7 @@ typedef struct _ADI_UART_TypeDef
     __I __C  uint8_t  RESERVED8[2];
     __IO     uint16_t   FBR;                           /*!< Fractional Baud Rate */
     __I __C  uint8_t  RESERVED9[2];
-    __IO     uint16_t   DIV;                           /*!< Baudrate Divider */
+    __IO     uint16_t   DIV;                           /*!< Baud Rate Divider */
     __I __C  uint8_t  RESERVED10[2];
     __IO     uint16_t   LCR2;                          /*!< Second Line Control */
     __I __C  uint8_t  RESERVED11[2];
@@ -487,9 +487,9 @@ typedef struct _ADI_UART_TypeDef
 #ifndef __ADI_NO_DECL_STRUCT_ADI_BEEP_TypeDef__
 typedef struct _ADI_BEEP_TypeDef
 {
-    __IO     uint16_t   CFG;                           /*!< Beeper configuration */
+    __IO     uint16_t   CFG;                           /*!< Beeper Configuration */
     __I __C  uint8_t  RESERVED0[2];
-    __IO     uint16_t   STAT;                          /*!< Beeper status */
+    __IO     uint16_t   STAT;                          /*!< Beeper Status */
     __I __C  uint8_t  RESERVED1[2];
     __IO     uint16_t   TONEA;                         /*!< Tone A Data */
     __I __C  uint8_t  RESERVED2[2];
@@ -531,21 +531,21 @@ typedef struct _ADI_ADC_TypeDef
     __I __C  uint8_t  RESERVED8[2];
     __IO     uint16_t   ALERT;                         /*!< Alert Indication */
     __I __C  uint8_t  RESERVED9[2];
-    __I __C  uint16_t   CH0_OUT;                       /*!< Conversion Result Ch0 */
+    __I __C  uint16_t   CH0_OUT;                       /*!< Conversion Result Channel 0 */
     __I __C  uint8_t  RESERVED10[2];
-    __I __C  uint16_t   CH1_OUT;                       /*!< Conversion Result Ch1 */
+    __I __C  uint16_t   CH1_OUT;                       /*!< Conversion Result Channel 1 */
     __I __C  uint8_t  RESERVED11[2];
-    __I __C  uint16_t   CH2_OUT;                       /*!< Conversion Result Ch2 */
+    __I __C  uint16_t   CH2_OUT;                       /*!< Conversion Result Channel 2 */
     __I __C  uint8_t  RESERVED12[2];
-    __I __C  uint16_t   CH3_OUT;                       /*!< Conversion Result Ch3 */
+    __I __C  uint16_t   CH3_OUT;                       /*!< Conversion Result Channel 3 */
     __I __C  uint8_t  RESERVED13[2];
-    __I __C  uint16_t   CH4_OUT;                       /*!< Conversion Result Ch4 */
+    __I __C  uint16_t   CH4_OUT;                       /*!< Conversion Result Channel 4 */
     __I __C  uint8_t  RESERVED14[2];
-    __I __C  uint16_t   CH5_OUT;                       /*!< Conversion Result Ch5 */
+    __I __C  uint16_t   CH5_OUT;                       /*!< Conversion Result Channel 5 */
     __I __C  uint8_t  RESERVED15[2];
-    __I __C  uint16_t   CH6_OUT;                       /*!< Conversion Result Ch6 */
+    __I __C  uint16_t   CH6_OUT;                       /*!< Conversion Result Channel 6 */
     __I __C  uint8_t  RESERVED16[2];
-    __I __C  uint16_t   CH7_OUT;                       /*!< Conversion Result Ch7 */
+    __I __C  uint16_t   CH7_OUT;                       /*!< Conversion Result Channel 7 */
     __I __C  uint8_t  RESERVED17[2];
     __I __C  uint16_t   BAT_OUT;                       /*!< Battery Monitoring Result */
     __I __C  uint8_t  RESERVED18[2];
@@ -600,31 +600,31 @@ typedef struct _ADI_DMA_TypeDef
 {
     __I __C  uint32_t   STAT;                          /*!< DMA Status */
     __O      uint32_t   CFG;                           /*!< DMA Configuration */
-    __IO     uint32_t   PDBPTR;                        /*!< DMA channel primary control data base pointer */
-    __I __C  uint32_t   ADBPTR;                        /*!< DMA channel alternate control data base pointer */
+    __IO     uint32_t   PDBPTR;                        /*!< DMA Channel Primary Control Database Pointer */
+    __I __C  uint32_t   ADBPTR;                        /*!< DMA Channel Alternate Control Database Pointer */
     __I __C  uint8_t  RESERVED0[4];
-    __O      uint32_t   SWREQ;                         /*!< DMA channel software request */
+    __O      uint32_t   SWREQ;                         /*!< DMA Channel Software Request */
     __I __C  uint8_t  RESERVED1[8];
-    __IO     uint32_t   RMSK_SET;                      /*!< DMA channel request mask set */
-    __O      uint32_t   RMSK_CLR;                      /*!< DMA channel request mask clear */
-    __IO     uint32_t   EN_SET;                        /*!< DMA channel enable set */
-    __O      uint32_t   EN_CLR;                        /*!< DMA channel enable clear */
-    __IO     uint32_t   ALT_SET;                       /*!< DMA channel primary-alternate set */
-    __O      uint32_t   ALT_CLR;                       /*!< DMA channel primary-alternate clear */
-    __O      uint32_t   PRI_SET;                       /*!< DMA channel priority set */
-    __O      uint32_t   PRI_CLR;                       /*!< DMA channel priority clear */
+    __IO     uint32_t   RMSK_SET;                      /*!< DMA Channel Request Mask Set */
+    __O      uint32_t   RMSK_CLR;                      /*!< DMA Channel Request Mask Clear */
+    __IO     uint32_t   EN_SET;                        /*!< DMA Channel Enable Set */
+    __O      uint32_t   EN_CLR;                        /*!< DMA Channel Enable Clear */
+    __IO     uint32_t   ALT_SET;                       /*!< DMA Channel Primary Alternate Set */
+    __O      uint32_t   ALT_CLR;                       /*!< DMA Channel Primary Alternate Clear */
+    __O      uint32_t   PRI_SET;                       /*!< DMA Channel Priority Set */
+    __O      uint32_t   PRI_CLR;                       /*!< DMA Channel Priority Clear */
     __I __C  uint8_t  RESERVED2[8];
-    __IO     uint32_t   ERRCHNL_CLR;                   /*!< DMA Per Channel Error Clear */
-    __IO     uint32_t   ERR_CLR;                       /*!< DMA bus error clear */
-    __IO     uint32_t   INVALIDDESC_CLR;               /*!< DMA Per Channel Invalid Descriptor Clear */
+    __IO     uint32_t   ERRCHNL_CLR;                   /*!< DMA per Channel Error Clear */
+    __IO     uint32_t   ERR_CLR;                       /*!< DMA Bus Error Clear */
+    __IO     uint32_t   INVALIDDESC_CLR;               /*!< DMA per Channel Invalid Descriptor Clear */
     __I __C  uint8_t  RESERVED3[1964];
-    __IO     uint32_t   BS_SET;                        /*!< DMA channel bytes swap enable set */
-    __O      uint32_t   BS_CLR;                        /*!< DMA channel bytes swap enable clear */
+    __IO     uint32_t   BS_SET;                        /*!< DMA Channel Bytes Swap Enable Set */
+    __O      uint32_t   BS_CLR;                        /*!< DMA Channel Bytes Swap Enable Clear */
     __I __C  uint8_t  RESERVED4[8];
-    __IO     uint32_t   SRCADDR_SET;                   /*!< DMA channel source address decrement enable set */
-    __O      uint32_t   SRCADDR_CLR;                   /*!< DMA channel source address decrement enable clear */
-    __IO     uint32_t   DSTADDR_SET;                   /*!< DMA channel destination address decrement enable set */
-    __O      uint32_t   DSTADDR_CLR;                   /*!< DMA channel destination address decrement enable clear */
+    __IO     uint32_t   SRCADDR_SET;                   /*!< DMA Channel Source Address Decrement Enable Set */
+    __O      uint32_t   SRCADDR_CLR;                   /*!< DMA Channel Source Address Decrement Enable Clear */
+    __IO     uint32_t   DSTADDR_SET;                   /*!< DMA Channel Destination Address Decrement Enable Set */
+    __O      uint32_t   DSTADDR_CLR;                   /*!< DMA Channel Destination Address Decrement Enable Clear */
     __I __C  uint8_t  RESERVED5[1984];
     __I __C  uint32_t   REVID;                         /*!< DMA Controller Revision ID */
 } ADI_DMA_TypeDef;
@@ -647,23 +647,25 @@ typedef struct _ADI_FLCC_TypeDef
     __IO     uint32_t   STAT;                          /*!< Status */
     __IO     uint32_t   IEN;                           /*!< Interrupt Enable */
     __IO     uint32_t   CMD;                           /*!< Command */
-    __IO     uint32_t   KH_ADDR;                       /*!< WRITE address */
-    __IO     uint32_t   KH_DATA0;                      /*!< WRITE lower data */
-    __IO     uint32_t   KH_DATA1;                      /*!< WRITE upper data */
-    __IO     uint32_t   PAGE_ADDR0;                    /*!< Lower page address */
-    __IO     uint32_t   PAGE_ADDR1;                    /*!< Upper page address */
+    __IO     uint32_t   KH_ADDR;                       /*!< Write Address */
+    __IO     uint32_t   KH_DATA0;                      /*!< Write Lower Data */
+    __IO     uint32_t   KH_DATA1;                      /*!< Write Upper Data */
+    __IO     uint32_t   PAGE_ADDR0;                    /*!< Lower Page Address */
+    __IO     uint32_t   PAGE_ADDR1;                    /*!< Upper Page Address */
     __O      uint32_t   KEY;                           /*!< Key */
-    __I __C  uint32_t   WR_ABORT_ADDR;                 /*!< Write abort address */
-    __IO     uint32_t   WRPROT;                        /*!< Write protection */
+    __I __C  uint32_t   WR_ABORT_ADDR;                 /*!< Write Abort Address */
+    __IO     uint32_t   WRPROT;                        /*!< Write Protection */
     __I __C  uint32_t   SIGNATURE;                     /*!< Signature */
-    __IO     uint32_t   UCFG;                          /*!< User configuration */
-    __IO     uint32_t   TIME_PARAM0;                   /*!< Time parameter 0 */
-    __IO     uint32_t   TIME_PARAM1;                   /*!< Time parameter 1 */
-    __IO     uint32_t   ABORT_EN_LO;                   /*!< IRQ Abort Enable (lower bits) */
-    __IO     uint32_t   ABORT_EN_HI;                   /*!< IRQ Abort Enable (upper bits) */
-    __IO     uint32_t   ECC_CFG;                       /*!< ECC Config */
-    __I __C  uint32_t   ECC_ADDR;                      /*!< ECC Status (address) */
-    __I __C  uint8_t  RESERVED0[12];
+    __IO     uint32_t   UCFG;                          /*!< User Configuration */
+    __IO     uint32_t   TIME_PARAM0;                   /*!< Time Parameter 0 */
+    __IO     uint32_t   TIME_PARAM1;                   /*!< Time Parameter 1 */
+    __IO     uint32_t   ABORT_EN_LO;                   /*!< IRQ Abort Enable (Lower Bits) */
+    __IO     uint32_t   ABORT_EN_HI;                   /*!< IRQ Abort Enable (Upper Bits) */
+    __IO     uint32_t   ECC_CFG;                       /*!< ECC Configuration */
+    __I __C  uint32_t   ECC_ADDR;                      /*!< ECC Status (Address) */
+    __I __C  uint8_t  RESERVED0[4];
+    __IO     uint32_t   POR_SEC;                       /*!< Flash Security */
+    __IO     uint32_t   VOL_CFG;                       /*!< Volatile Flash Configuration */
 } ADI_FLCC_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_FLCC_TypeDef__ */
 
@@ -681,9 +683,9 @@ typedef struct _ADI_FLCC_TypeDef
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_CACHE_TypeDef__
 typedef struct _ADI_FLCC_CACHE_TypeDef
 {
-    __I __C  uint32_t   STAT;                          /*!< Cache Status register */
-    __IO     uint32_t   SETUP;                         /*!< Cache Setup register */
-    __O      uint32_t   KEY;                           /*!< Cache Key register */
+    __I __C  uint32_t   STAT;                          /*!< Cache Status Register */
+    __IO     uint32_t   SETUP;                         /*!< Cache Setup Register */
+    __O      uint32_t   KEY;                           /*!< Cache Key Register */
     __I __C  uint8_t  RESERVED0[40];
 } ADI_FLCC_CACHE_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_FLCC_CACHE_TypeDef__ */
@@ -750,7 +752,7 @@ typedef struct _ADI_SPORT_TypeDef
     __IO     uint32_t   IEN_A;                         /*!< Half SPORT A's Interrupt Enable register */
     __IO     uint32_t   STAT_A;                        /*!< Half SPORT 'A' Status register */
     __IO     uint32_t   NUMTRAN_A;                     /*!< Half SPORT A Number of transfers register */
-    __IO     uint32_t   CNVT_A;                        /*!< Half SPORT 'A' CONVT width */
+    __IO     uint32_t   CNVT_A;                        /*!< Half SPORT 'A' CNV width */
     __I __C  uint8_t  RESERVED0[8];
     __O      uint32_t   TX_A;                          /*!< Half SPORT 'A' Tx Buffer Register */
     __I __C  uint8_t  RESERVED1[4];
@@ -761,7 +763,7 @@ typedef struct _ADI_SPORT_TypeDef
     __IO     uint32_t   IEN_B;                         /*!< Half SPORT B's Interrupt Enable register */
     __IO     uint32_t   STAT_B;                        /*!< Half SPORT 'B' Status register */
     __IO     uint32_t   NUMTRAN_B;                     /*!< Half SPORT B Number of transfers register */
-    __IO     uint32_t   CNVT_B;                        /*!< Half SPORT 'B' CONVT width register */
+    __IO     uint32_t   CNVT_B;                        /*!< Half SPORT 'B' CNV width register */
     __I __C  uint8_t  RESERVED3[8];
     __O      uint32_t   TX_B;                          /*!< Half SPORT 'B' Tx Buffer Register */
     __I __C  uint8_t  RESERVED4[4];
@@ -784,9 +786,9 @@ typedef struct _ADI_SPORT_TypeDef
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CRC_TypeDef__
 typedef struct _ADI_CRC_TypeDef
 {
-    __IO     uint32_t   CTL;                           /*!< CRC Control Register */
-    __O      uint32_t   IPDATA;                        /*!< Input Data Word Register */
-    __IO     uint32_t   RESULT;                        /*!< CRC Result Register */
+    __IO     uint32_t   CTL;                           /*!< CRC Control */
+    __O      uint32_t   IPDATA;                        /*!< Input Data Word */
+    __IO     uint32_t   RESULT;                        /*!< CRC Result */
     __IO     uint32_t   POLY;                          /*!< Programmable CRC Polynomial */
     union {
     __O      uint8_t    IPBITS[8];                     /*!< Input Data Bits */
@@ -883,8 +885,8 @@ typedef struct _ADI_CRYPT_TypeDef
     __O      uint32_t   KUW13;                         /*!< Key Wrap Unwrap Register 13 */
     __O      uint32_t   KUW14;                         /*!< Key Wrap Unwrap Register 14 */
     __O      uint32_t   KUW15;                         /*!< Key Wrap Unwrap Register 15 */
-    __O      uint32_t   KUWVALSTR1;                    /*!< Key Wrap Unwrap Validation String[63:32] */
-    __O      uint32_t   KUWVALSTR2;                    /*!< Key Wrap Unwrap Validation String[31:0] */
+    __O      uint32_t   KUWVALSTR1;                    /*!< Key Wrap Unwrap Validation String [63:32] */
+    __O      uint32_t   KUWVALSTR2;                    /*!< Key Wrap Unwrap Validation String [31:0] */
 } ADI_CRYPT_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_CRYPT_TypeDef__ */
 
@@ -903,15 +905,17 @@ typedef struct _ADI_CRYPT_TypeDef
 typedef struct _ADI_PMG_TypeDef
 {
     __IO     uint32_t   IEN;                           /*!< Power Supply Monitor Interrupt Enable */
-    __IO     uint32_t   PSM_STAT;                      /*!< Power supply monitor status */
+    __IO     uint32_t   PSM_STAT;                      /*!< Power Supply Monitor Status */
     __IO     uint32_t   PWRMOD;                        /*!< Power Mode Register */
-    __O      uint32_t   PWRKEY;                        /*!< Key protection for PWRMOD and  SRAMRET */
-    __I __C  uint32_t   SHDN_STAT;                     /*!< SHUTDOWN Status Register */
-    __IO     uint32_t   SRAMRET;                       /*!< Control for Retention SRAM during HIBERNATE Mode */
-    __I __C  uint8_t  RESERVED0[40];
-    __IO     uint32_t   RST_STAT;                      /*!< Reset status */
-    __IO     uint32_t   CTL1;                          /*!< HPBUCK control */
-    __I __C  uint8_t  RESERVED1[20];
+    __O      uint32_t   PWRKEY;                        /*!< Key Protection for PWRMOD and  SRAMRET */
+    __I __C  uint32_t   SHDN_STAT;                     /*!< Shutdown Status Register */
+    __IO     uint32_t   SRAMRET;                       /*!< Control for Retention SRAM in Hibernate Mode */
+    __I __C  uint8_t  RESERVED0[32];
+    __IO     uint32_t   TRIM;                          /*!< Trimming Bits */
+    __I __C  uint8_t  RESERVED1[4];
+    __IO     uint32_t   RST_STAT;                      /*!< Reset Status */
+    __IO     uint32_t   CTL1;                          /*!< HPBUCK Control */
+    __I __C  uint8_t  RESERVED2[20];
 } ADI_PMG_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_PMG_TypeDef__ */
 
@@ -973,13 +977,13 @@ typedef struct _ADI_CLKG_OSC_TypeDef
 typedef struct _ADI_PMG_TST_TypeDef
 {
     __I __C  uint8_t  RESERVED0[96];
-    __IO     uint32_t   SRAM_CTL;                      /*!< Control for SRAM parity and instruction SRAM */
+    __IO     uint32_t   SRAM_CTL;                      /*!< Control for SRAM Parity and Instruction SRAM */
     __I __C  uint32_t   SRAM_INITSTAT;                 /*!< Initialization Status Register */
-    __O      uint16_t   CLR_LATCH_GPIOS;               /*!< CLEAR GPIO AFTER SHUTDOWN MODE */
+    __O      uint16_t   CLR_LATCH_GPIOS;               /*!< Clear GPIO After Shutdown Mode */
     __I __C  uint8_t  RESERVED1[2];
-    __IO     uint32_t   SCRPAD_IMG;                    /*!< SCRATCH PAD IMAGE */
-    __I __C  uint32_t   SCRPAD_3V_RD;                  /*!< SCRATCH PAD SAVED IN BATTERY DOMAIN */
-    __IO     uint32_t   FAST_SHT_WAKEUP;               /*!< Fast shutdown wakeup enable */
+    __IO     uint32_t   SCRPAD_IMG;                    /*!< Scratch Pad Image */
+    __I __C  uint32_t   SCRPAD_3V_RD;                  /*!< Scratch Pad Saved in Battery Domain */
+    __IO     uint32_t   FAST_SHT_WAKEUP;               /*!< Fast Shutdown Wake-up Enable */
 } ADI_PMG_TST_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_PMG_TST_TypeDef__ */
 
@@ -997,13 +1001,13 @@ typedef struct _ADI_PMG_TST_TypeDef
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CLKG_CLK_TypeDef__
 typedef struct _ADI_CLKG_CLK_TypeDef
 {
-    __IO     uint32_t   CTL0;                          /*!< Misc clock settings */
-    __IO     uint32_t   CTL1;                          /*!< Clock dividers */
-    __IO     uint32_t   CTL2;                          /*!< HF Oscillator divided clock select */
+    __IO     uint32_t   CTL0;                          /*!< Misc Clock Settings */
+    __IO     uint32_t   CTL1;                          /*!< Clock Dividers */
+    __IO     uint32_t   CTL2;                          /*!< HF Oscillator Divided Clock Select */
     __IO     uint32_t   CTL3;                          /*!< System PLL */
     __I __C  uint8_t  RESERVED0[4];
-    __IO     uint32_t   CTL5;                          /*!< User clock gating control */
-    __IO     uint32_t   STAT0;                         /*!< Clocking status */
+    __IO     uint32_t   CTL5;                          /*!< User Clock Gating Control */
+    __IO     uint32_t   STAT0;                         /*!< Clocking Status */
     __I __C  uint8_t  RESERVED1[20];
 } ADI_CLKG_CLK_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_CLKG_CLK_TypeDef__ */
@@ -1271,7 +1275,7 @@ typedef enum
   TMR0_EVT_IRQn                  =    11,    /*!< Event */
   TMR1_EVT_IRQn                  =    12,    /*!< Event */
   FLCC_EVT_IRQn                  =    13,    /*!< Event */
-  UART0_EVTn_IRQn                =    14,    /*!< Event */
+  UART0_EVT_IRQn                 =    14,    /*!< UART0 Event */
   SPI0_EVT_IRQn                  =    15,    /*!< Event */
   SPI2_EVT_IRQn                  =    16,    /*!< Event */
   I2C_SLV_EVT_IRQn               =    17,    /*!< Slave Event */
@@ -1303,6 +1307,7 @@ typedef enum
   CLKG_PLL_EVT_IRQn              =    43,    /*!< PLL Event */
   RNG0_EVT_IRQn                  =    44,    /*!< Event */
   BEEP_EVT_IRQn                  =    45,    /*!< Event */
+  ADC0_EVT_IRQn                  =    46,    /*!< Event */
   DMA0_CH16_DONE_IRQn            =    56,    /*!< Channel 16 Done */
   DMA0_CH17_DONE_IRQn            =    57,    /*!< Channel 17 Done */
   DMA0_CH18_DONE_IRQn            =    58,    /*!< Channel 18 Done */
@@ -1311,7 +1316,7 @@ typedef enum
   DMA0_CH21_DONE_IRQn            =    61,    /*!< Channel 21 Done */
   DMA0_CH22_DONE_IRQn            =    62,    /*!< Channel 22 Done */
   DMA0_CH23_DONE_IRQn            =    63,    /*!< Channel 23 Done */
-  UART1_EVTn_IRQn                =    66,    /*!< Event */
+  UART1_EVT_IRQn                 =    66,    /*!< Event */
   DMA0_CH25_DONE_IRQn            =    67,    /*!< Channel 25 Done */
   DMA0_CH26_DONE_IRQn            =    68,    /*!< Channel 26 Done */
   TMR_RGB_EVT_IRQn               =    69,    /*!< Event */
