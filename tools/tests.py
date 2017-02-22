@@ -988,7 +988,7 @@ TESTS = [
     {
         "id": "USB_10", "description": "MSD",
         "source_dir": join(TEST_DIR, "usb", "host", "mass_storage"),
-        "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, FAT_FS, RTOS],
+        "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, RTOS],
     },
     {
         "id": "USB_11", "description": "mouse",
