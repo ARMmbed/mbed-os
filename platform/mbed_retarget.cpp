@@ -86,9 +86,6 @@ uint32_t mbed_heap_size = 0;
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileLike *filehandles[OPEN_MAX];
-#if MBED_CONF_FILESYSTEM_PRESENT
-static File fileobjects[OPEN_MAX];
-#endif
 static SingletonPtr<PlatformMutex> filehandle_mutex;
 
 namespace mbed {
@@ -161,6 +158,27 @@ static inline int openmode_to_posix(int openmode) {
 extern "C" WEAK void mbed_sdk_init(void);
 extern "C" WEAK void mbed_sdk_init(void) {
 }
+
+#if MBED_CONF_FILESYSTEM_PRESENT
+// Internally used file objects with managed memory on close
+class ManagedFile : public File {
+public:
+    virtual int close() {
+        int err = File::close();
+        delete this;
+        return err;
+    }
+};
+
+class ManagedDir : public Dir {
+public:
+     virtual int close() {
+        int err = Dir::close();
+        delete this;
+        return err;
+    }
+};
+#endif
 
 /* @brief 	standard c library fopen() retargeting function.
  *
@@ -251,11 +269,13 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
                 return -1;
             }
             int posix_mode = openmode_to_posix(openmode);
-            int err = fileobjects[fh_i].open(fs, path.fileName(), posix_mode);
+            File *file = new ManagedFile;
+            int err = file->open(fs, path.fileName(), posix_mode);
             if (err < 0) {
                 errno = -err;
+                delete file;
             } else {
-                res = &fileobjects[fh_i];
+                res = file;
             }
 #endif
         }
@@ -536,7 +556,7 @@ extern "C" DIR *opendir(const char *path) {
     FileSystem* fs = fp.fileSystem();
     if (fs == NULL) return NULL;
 
-    Dir *dir = new Dir;
+    Dir *dir = new ManagedDir;
     int err = dir->open(fs, fp.fileName());
     if (err < 0) {
         errno = -err;
@@ -572,7 +592,6 @@ extern "C" struct dirent *readdir(DIR *dir) {
 extern "C" int closedir(DIR *dir) {
 #if MBED_CONF_FILESYSTEM_PRESENT
     int err = dir->close();
-    delete dir;
     if (err < 0) {
         errno = -err;
         return -1;
