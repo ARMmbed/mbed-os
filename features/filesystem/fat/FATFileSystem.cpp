@@ -28,32 +28,8 @@
 #include "FATFileSystem.h"
 #include "FATFileHandle.h"
 #include "FATDirHandle.h"
-//<<<<<<< HEAD
-//<<<<<<< HEAD
-//<<<<<<< HEAD
-//<<<<<<< HEAD
 #include "mbed_critical.h"
-//=======
-//#include "critical.h"
-//=======
-//#include "critical.h"
-#include "ff.h"
-//>>>>>>> Added errno codes to retarget, mkdir() and ftell() tests.
-//=======
-//#include "critical.h"
-//>>>>>>> bd: Adopted the block storage api in the FATFileSystem
-#include <errno.h>
-//<<<<<<< HEAD
-//>>>>>>> Filesystem: Added EEXIST reporting to mkdir through errno
-//=======
-/* toolchain_support.h is included after errno.h so symbols are mapped to
- * consistent values for all toolchains */
-#include "toolchain_support.h"
-//>>>>>>> STORAGE: test case fixes to support ARMCC and IAR toolchains.
-=======
-//#include "critical.h"
 #include "FATMisc.h"
-//>>>>>>> STORAGE: fixing error handling for fopen() and other upper edge filesystem API methods.
 
 
 // Global access to block device from FAT driver
