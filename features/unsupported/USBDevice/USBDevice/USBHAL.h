@@ -21,7 +21,7 @@
 
 #include "mbed.h"
 #include "USBEndpoints.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 //#ifdef __GNUC__
 //#define __packed __attribute__ ((__packed__))

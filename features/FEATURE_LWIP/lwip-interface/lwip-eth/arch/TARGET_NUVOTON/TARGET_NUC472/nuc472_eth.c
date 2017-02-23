@@ -24,7 +24,7 @@
 #include "nuc472_eth.h"
 #include "lwip/opt.h"
 #include "lwip/def.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
 #define ETH_TRIGGER_TX()    do{EMAC->TXST = 0;}while(0)

@@ -18,10 +18,10 @@
 #include "mps2_ethernet_api.h"
 #include "cmsis.h"
 #include "mbed_interface.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 #include "mbed_error.h"
 #include "ETH_MPS2.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 
 #define TX_PKT_SIZE 256
 #define RX_PKT_SIZE 300

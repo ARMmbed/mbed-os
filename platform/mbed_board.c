@@ -15,10 +15,10 @@
  */
 #include <stdio.h>
 #include "hal/gpio_api.h"
-#include "platform/wait_api.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/mbed_toolchain.h"
 #include "platform/mbed_interface.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 #include "hal/serial_api.h"
 
 #if DEVICE_SERIAL

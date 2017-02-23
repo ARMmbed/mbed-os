@@ -18,7 +18,7 @@
 
 #include "drivers/TimerEvent.h"
 #include "platform/Callback.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 
 namespace mbed {
 /** \addtogroup drivers */

@@ -31,7 +31,7 @@
  *
  */
 #if DEVICE_SLEEP
-#include "sleep.h"
+#include "mbed_sleep.h"
 #include "sleep_api.h"
 #include "cmsis_nvic.h"
 

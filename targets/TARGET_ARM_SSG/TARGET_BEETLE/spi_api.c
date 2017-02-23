@@ -20,7 +20,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 
 /*
  * Driver private data structure that should not be shared by multiple

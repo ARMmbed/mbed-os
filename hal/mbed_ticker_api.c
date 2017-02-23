@@ -15,7 +15,7 @@
  */
 #include <stddef.h>
 #include "hal/ticker_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 void ticker_set_handler(const ticker_data_t *const data, ticker_event_handler handler) {
     data->interface->init();

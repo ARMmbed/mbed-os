@@ -19,7 +19,7 @@
 #include "platform/platform.h"
 
 #include "hal/gpio_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */

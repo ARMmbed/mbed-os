@@ -29,7 +29,7 @@
 #include "rtc_api_HAL.h"
 #include "lp_ticker_api.h"
 
-#include "critical.h"
+#include "mbed_critical.h"
 #if (defined RTCC_COUNT) && (RTCC_COUNT > 0)
 #include "em_rtcc.h"
 #endif

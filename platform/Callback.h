@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <new>
 #include "platform/mbed_assert.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 
 namespace mbed {
 /** \addtogroup platform */

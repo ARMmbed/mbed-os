@@ -35,7 +35,7 @@
  */
 
 #include <stdio.h>
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "ETH_MPS2.h"
 
 // SMSC9220 low-level operations

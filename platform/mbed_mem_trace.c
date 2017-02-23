@@ -18,7 +18,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "platform/mbed_mem_trace.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 /******************************************************************************
  * Internal variables, functions and helpers
