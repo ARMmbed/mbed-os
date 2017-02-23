@@ -10,7 +10,8 @@
         "features": [],
         "detect_code": [],
         "public": false,
-        "default_lib": "std"
+        "default_lib": "std",
+        "bootloader_supported": false
     },
     "Super_Target": {
         "inherits": ["Target"],
@@ -455,7 +456,8 @@
         "detect_code": ["0220"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
-        "device_name": "MKL46Z256xxx4"
+        "device_name": "MKL46Z256xxx4",
+        "bootloader_supported": true
     },
     "K20D50M": {
         "inherits": ["Target"],
@@ -581,7 +583,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG"],
         "features": ["LWIP", "STORAGE"],
         "release_versions": ["2", "5"],
-        "device_name": "MK64FN1M0xxx12"
+        "device_name": "MK64FN1M0xxx12",
+        "bootloader_supported": true
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
@@ -889,7 +892,8 @@
         "detect_code": ["0796"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F429ZI"
+        "device_name" : "STM32F429ZI",
+        "bootloader_supported": true
     },
     "NUCLEO_F439ZI": {
         "supported_form_factors": ["ARDUINO"],
@@ -1327,7 +1331,8 @@
         "device_has": ["ANALOGIN", "CAN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
         "release_versions": ["5"],
-        "device_name": "STM32F439ZI"
+        "device_name": "STM32F439ZI",
+        "bootloader_supported": true
     },
     "NZ32_SC151": {
         "inherits": ["Target"],

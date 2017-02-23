@@ -477,6 +477,8 @@ class Config(object):
     @property
     def regions(self):
         """Generate a list of regions from the config"""
+        if not self.target.bootloader_supported:
+            raise ConfigException("Bootloader not supported on this target.")
         cmsis_part = Cache(False, False).index[self.target.device_name]
         start = 0
         target_overrides = self.app_config_data['target_overrides'].get(
