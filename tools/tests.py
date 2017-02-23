@@ -814,17 +814,6 @@ TESTS = [
                 "NUMAKER_PFM_NUC472", "NUMAKER_PFM_M453",
                 "NRF51822", "NRF51_DK", "SEEED_TINY_BLE", "ARM_BEETLE_SOC", "NUCLEO_F767ZI", "DISCO_F769NI"],
     },
-    {
-        "id": "RTOS_9", "description": "SD File write-read",
-        "source_dir": join(TEST_DIR, "rtos", "mbed", "file"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "peripherals": ["SD"],
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "HEXIWEAR",
-                "KL05Z", "K64F", "K66F", "KL46Z", "RZ_A1H",
-                "NUMAKER_PFM_NUC472", "NUMAKER_PFM_M453",
-                "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "NUCLEO_F401RE", "NUCLEO_F410RB", "DISCO_F469NI", "NUCLEO_F207ZG"],
-    },
 
     # Networking Tests
     {
