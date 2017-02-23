@@ -99,7 +99,7 @@ Echo echoers[MBED_CFG_UDP_CLIENT_ECHO_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(20, "udp_echo");
+    GREENTEA_SETUP(60, "udp_echo");
 
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
