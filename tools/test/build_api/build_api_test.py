@@ -68,6 +68,7 @@ class BuildApiTests(unittest.TestCase):
             toolchain.config_file = "junk"
             toolchain.compile_sources(res, self.build_path)
 
+            print notify.mock_calls
             assert any('percent' in msg[0] and msg[0]['percent'] == 100.0
                        for _, msg, _ in notify.mock_calls if msg)
 
@@ -81,10 +82,13 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         app_config = "app_config"
-        mock_config_init.return_value = namedtuple("Config", "target")(
-            namedtuple("Target",
-                       "init_hooks name features core")(lambda _, __ : None,
-                                                        "Junk", [], "Cortex-M3"))
+        mock_target = namedtuple("Target",
+                                 "init_hooks name features core")(lambda _, __ : None,
+                                                                  "Junk", [], "Cortex-M3")
+        mock_config_init.return_value = namedtuple("Config",
+                                                   "target has_regions")(
+                                                       mock_target,
+                                                       False)
 
         prepare_toolchain(self.src_paths, self.target, self.toolchain_name,
                           app_config=app_config)
@@ -100,10 +104,13 @@ class BuildApiTests(unittest.TestCase):
         :param mock_config_init: mock of Config __init__
         :return:
         """
-        mock_config_init.return_value = namedtuple("Config", "target")(
-            namedtuple("Target",
-                       "init_hooks name features core")(lambda _, __ : None,
-                                                        "Junk", [], "Cortex-M3"))
+        mock_target = namedtuple("Target",
+                                 "init_hooks name features core")(lambda _, __ : None,
+                                                                  "Junk", [], "Cortex-M3")
+        mock_config_init.return_value = namedtuple("Config",
+                                                   "target has_regions")(
+                                                       mock_target,
+                                                       False)
 
         prepare_toolchain(self.src_paths, self.target, self.toolchain_name)
 
@@ -127,6 +134,7 @@ class BuildApiTests(unittest.TestCase):
         app_config = "app_config"
         mock_exists.return_value = False
         mock_prepare_toolchain().link_program.return_value = 1, 2
+        mock_prepare_toolchain().config = namedtuple("Config", "has_regions")(None)
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name, app_config=app_config)
@@ -154,6 +162,7 @@ class BuildApiTests(unittest.TestCase):
         mock_exists.return_value = False
         # Needed for the unpacking of the returned value
         mock_prepare_toolchain().link_program.return_value = 1, 2
+        mock_prepare_toolchain().config = namedtuple("Config", "has_regions")(None)
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name)
