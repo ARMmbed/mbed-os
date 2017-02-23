@@ -36,7 +36,7 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 }
 
 int main() {
-    GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
 
     bool result = false;
     EthernetInterface eth;

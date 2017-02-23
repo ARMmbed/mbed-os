@@ -28,7 +28,7 @@ int udp_dtls_handshake_pattern[] = {MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN};
 const int udp_dtls_handshake_count = sizeof(udp_dtls_handshake_pattern) / sizeof(int);
 
 int main() {
-    GREENTEA_SETUP(20, "udp_shotgun");
+    GREENTEA_SETUP(60, "udp_shotgun");
 
     EthernetInterface eth;
     int err = eth.connect();
