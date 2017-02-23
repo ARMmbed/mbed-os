@@ -53,17 +53,23 @@ void rtc_set_irq_handler(uint32_t handler);
  */
 uint32_t rtc_read_subseconds(void);
 
-/** Program a wake up timer event in delta microseconds.
+/** Program a wake up timer event in seconds.
  *
- * @param delta    The time to wait
+ * @param seconds    The time to wait
  */
-void rtc_set_wake_up_timer(uint32_t delta);
+void rtc_set_wake_up_timer(uint32_t seconds);
+
+/** Program a wake up timer event in milliseconds.
+ *
+ * @param milliseconds    The time to wait
+ */
+void rtc_set_wake_up_timer_millis(uint32_t milliseconds);
 
 /** Disable the wake up timer event.
  *
  * The wake up timer use auto reload, you have to deactivate it manually.
  */
-void rtc_deactivate_wake_up_timer(void);
+ void rtc_deactivate_wake_up_timer(void);
 
 /** Synchronise the RTC shadow registers.
  *
