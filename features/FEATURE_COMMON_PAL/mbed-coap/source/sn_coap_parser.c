@@ -655,7 +655,7 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
     uint16_t i                      = 1;
 
     /* Loop all Uri-Query options */
-    while (i < packet_left_len) {
+    while (i <= packet_left_len) {
         if (option == COAP_OPTION_LOCATION_PATH && option_number_len > 255) {
             return -1;
         }
@@ -677,14 +677,10 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
 
         i += option_number_len;
         ret_value += option_number_len + 1; /* + 1 is for separator */
-        if(ret_value >= packet_left_len)
-            break;
 
-        if(ret_value >= packet_left_len)
+        if( i >= packet_left_len ) {
             break;
-
-        if( i == packet_left_len )
-            break;
+        }
 
         if ((*(packet_data_ptr + i) >> COAP_OPTIONS_OPTION_NUMBER_SHIFT) != 0) {
             return (ret_value - 1);    /* -1 because last Part path does not include separator */

@@ -1,6 +1,6 @@
 # Change Log
 
-## [v4.0.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.0.0)
+## [v4.0.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.0.2)
 
 **New feature**
 
