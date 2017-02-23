@@ -44,9 +44,9 @@ SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr
     }
 }
 
-bd_error_t SlicingBlockDevice::init()
+int SlicingBlockDevice::init()
 {
-    bd_error_t err = _bd->init();
+    int err = _bd->init();
     if (err) {
         return err;
     }
@@ -65,42 +65,31 @@ bd_error_t SlicingBlockDevice::init()
     }
 
     // Check that block addresses are valid
-    if (!_bd->is_valid_write(_start, _stop - _start)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(_bd->is_valid_erase(_start, _stop - _start));
 
     return 0;
 }
 
-bd_error_t SlicingBlockDevice::deinit()
+int SlicingBlockDevice::deinit()
 {
     return _bd->deinit();
 }
 
-bd_error_t SlicingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
+int SlicingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_read(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
-
+    MBED_ASSERT(is_valid_read(addr, size));
     return _bd->read(b, addr + _start, size);
 }
 
-bd_error_t SlicingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
+int SlicingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_program(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
-
+    MBED_ASSERT(is_valid_program(addr, size));
     return _bd->program(b, addr + _start, size);
 }
 
-bd_error_t SlicingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int SlicingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_erase(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
-
+    MBED_ASSERT(is_valid_erase(addr, size));
     return _bd->erase(addr + _start, size);
 }
 

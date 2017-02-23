@@ -43,7 +43,7 @@ HeapBlockDevice::~HeapBlockDevice()
     }
 }
 
-bd_error_t HeapBlockDevice::init()
+int HeapBlockDevice::init()
 {
     if (!_blocks) {
         _blocks = new uint8_t*[_count];
@@ -55,7 +55,7 @@ bd_error_t HeapBlockDevice::init()
     return BD_ERROR_OK;
 }
 
-bd_error_t HeapBlockDevice::deinit()
+int HeapBlockDevice::deinit()
 {
     // Heapory is lazily cleaned up in destructor to allow
     // data to live across de/reinitialization
@@ -82,13 +82,11 @@ bd_size_t HeapBlockDevice::size()
     return _count * _erase_size;
 }
 
-bd_error_t HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
+int HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_read(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
-
+    MBED_ASSERT(is_valid_read(addr, size));
     uint8_t *buffer = static_cast<uint8_t*>(b);
+
     while (size > 0) {
         bd_addr_t hi = addr / _erase_size;
         bd_addr_t lo = addr % _erase_size;
@@ -107,13 +105,11 @@ bd_error_t HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-bd_error_t HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
+int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_program(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
-
+    MBED_ASSERT(is_valid_program(addr, size));
     const uint8_t *buffer = static_cast<const uint8_t*>(b);
+
     while (size > 0) {
         bd_addr_t hi = addr / _erase_size;
         bd_addr_t lo = addr % _erase_size;
@@ -135,11 +131,9 @@ bd_error_t HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t siz
     return 0;
 }
 
-bd_error_t HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_erase(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(is_valid_erase(addr, size));
 
     while (size > 0) {
         bd_addr_t hi = addr / _erase_size;

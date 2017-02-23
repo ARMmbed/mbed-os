@@ -78,13 +78,13 @@ public:
      *
      *  @return         0 on success or a negative error code on failure
      */
-    virtual bd_error_t init();
+    virtual int init();
 
     /** Deinitialize a block device
      *
      *  @return         0 on success or a negative error code on failure
      */
-    virtual bd_error_t deinit();
+    virtual int deinit();
 
     /** Read blocks from a block device
      *
@@ -93,7 +93,7 @@ public:
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual bd_error_t read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -104,7 +104,7 @@ public:
      *  @param size     Size to write in bytes, must be a multiple of program block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual bd_error_t program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
 
     /** Erase blocks on a block device
      *
@@ -114,7 +114,7 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual bd_error_t erase(bd_addr_t addr, bd_size_t size);
+    virtual int erase(bd_addr_t addr, bd_size_t size);
 
     /** Get the size of a readable block
      *

@@ -91,7 +91,7 @@ DSTATUS disk_initialize(BYTE pdrv)
 DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    bd_size_t ssize = _ffs[pdrv]->get_write_size();
+    bd_size_t ssize = _ffs[pdrv]->get_erase_size();
     int err = _ffs[pdrv]->read(buff, sector*ssize, count*ssize);
     return err ? RES_PARERR : RES_OK;
 }
@@ -99,9 +99,18 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    bd_size_t ssize = _ffs[pdrv]->get_write_size();
-    int err = _ffs[pdrv]->write(buff, sector*ssize, count*ssize);
-    return err ? RES_PARERR : RES_OK;
+    bd_size_t ssize = _ffs[pdrv]->get_erase_size();
+    int err = _ffs[pdrv]->erase(sector*ssize, count*ssize);
+    if (err) {
+        return RES_PARERR;
+    }
+
+    err = _ffs[pdrv]->program(buff, sector*ssize, count*ssize);
+    if (err) {
+        return RES_PARERR;
+    }
+
+    return RES_OK;
 }
 
 DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
@@ -118,7 +127,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD count = _ffs[pdrv]->size() / _ffs[pdrv]->get_write_size();
+                DWORD count = _ffs[pdrv]->size() / _ffs[pdrv]->get_erase_size();
                 *((DWORD*)buff) = count;
                 return RES_OK;
             }
@@ -126,7 +135,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD size = _ffs[pdrv]->get_write_size();
+                DWORD size = _ffs[pdrv]->get_erase_size();
                 *((DWORD*)buff) = size;
                 return RES_OK;
             }
