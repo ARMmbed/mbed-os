@@ -48,7 +48,7 @@ void test_read_write() {
     }
 
     // Write, sync, and read the block
-    err = bd.write(write_block, 0, BLOCK_SIZE);
+    err = bd.program(write_block, 0, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     err = bd.read(read_block, 0, BLOCK_SIZE);

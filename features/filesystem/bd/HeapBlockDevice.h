@@ -39,7 +39,7 @@
  *
  * int main() {
  *     bd.init();
- *     bd.write(block, 0);
+ *     bd.program(block, 0);
  *     bd.read(block, 0);
  *     printf("%s", block);
  *     bd.deinit();
@@ -69,7 +69,7 @@ public:
 
     /** Read blocks from a block device
      *
-     *  @param buffer   Buffer to write blocks to
+     *  @param buffer   Buffer to read blocks into
      *  @param addr     Address of block to begin reading from
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure

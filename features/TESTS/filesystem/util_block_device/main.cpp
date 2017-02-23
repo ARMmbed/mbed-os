@@ -49,7 +49,7 @@ void test_slicing() {
     int err = slice1.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    TEST_ASSERT_EQUAL(BLOCK_SIZE, slice1.get_write_size());
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, slice1.get_program_size());
     TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE, slice1.size());
 
     // Fill with random sequence
@@ -59,7 +59,7 @@ void test_slicing() {
     }
 
     // Write, sync, and read the block
-    err = slice1.write(write_block, 0, BLOCK_SIZE);
+    err = slice1.program(write_block, 0, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     err = slice1.read(read_block, 0, BLOCK_SIZE);
@@ -91,7 +91,7 @@ void test_slicing() {
     err = slice2.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    TEST_ASSERT_EQUAL(BLOCK_SIZE, slice2.get_write_size());
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, slice2.get_program_size());
     TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE, slice2.size());
 
     // Fill with random sequence
@@ -101,7 +101,7 @@ void test_slicing() {
     }
 
     // Write, sync, and read the block
-    err = slice2.write(write_block, 0, BLOCK_SIZE);
+    err = slice2.program(write_block, 0, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     err = slice2.read(read_block, 0, BLOCK_SIZE);
@@ -139,7 +139,7 @@ void test_chaining() {
     int err = chain.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    TEST_ASSERT_EQUAL(BLOCK_SIZE, chain.get_write_size());
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, chain.get_program_size());
     TEST_ASSERT_EQUAL(BLOCK_COUNT*BLOCK_SIZE, chain.size());
 
     // Fill with random sequence
@@ -149,7 +149,7 @@ void test_chaining() {
     }
 
     // Write, sync, and read the block
-    err = chain.write(write_block, 0, BLOCK_SIZE);
+    err = chain.program(write_block, 0, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     err = chain.read(read_block, 0, BLOCK_SIZE);
@@ -162,7 +162,7 @@ void test_chaining() {
     }
 
     // Write, sync, and read the block
-    err = chain.write(write_block, (BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
+    err = chain.program(write_block, (BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     err = chain.read(read_block, (BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
