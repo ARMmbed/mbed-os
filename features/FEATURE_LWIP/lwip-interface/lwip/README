@@ -35,6 +35,9 @@ APPLICATIONS
   * HTTP server with SSI and CGI
   * SNMPv2c agent with MIB compiler (Simple Network Management Protocol)
   * SNTP (Simple network time protocol)
+  * NetBIOS name service responder
+  * MDNS (Multicast DNS) responder
+  * iPerf server implementation
 
 
 LICENSE
@@ -77,7 +80,7 @@ Self documentation of the source code is regularly extracted from the current
 Git sources and is available from this web page:
   http://www.nongnu.org/lwip/
 
-There is now a constantly growin wiki about lwIP at
+There is now a constantly growing wiki about lwIP at
   http://lwip.wikia.com/wiki/LwIP_Wiki
 
 Also, there are mailing lists you can subscribe at

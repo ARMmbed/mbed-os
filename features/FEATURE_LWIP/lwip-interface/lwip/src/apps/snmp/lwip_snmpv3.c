@@ -114,8 +114,8 @@ snmpv3_build_priv_param(u8_t* priv_param)
     priv2 = LWIP_RAND();
   }
 
-  memcpy(&priv_param[0], &priv1, sizeof(priv1));
-  memcpy(&priv_param[4], &priv2, sizeof(priv2));
+  SMEMCPY(&priv_param[0], &priv1, sizeof(priv1));
+  SMEMCPY(&priv_param[4], &priv2, sizeof(priv2));
 
   /* Emulate 64bit increment */
   priv1++;
@@ -125,8 +125,8 @@ snmpv3_build_priv_param(u8_t* priv_param)
 #else /* Based on RFC3414 */
   static u32_t ctr;
   u32_t boots = LWIP_SNMPV3_GET_ENGINE_BOOTS();
-  memcpy(&priv_param[0], &boots, 4);
-  memcpy(&priv_param[4], &ctr, 4);
+  SMEMCPY(&priv_param[0], &boots, 4);
+  SMEMCPY(&priv_param[4], &ctr, 4);
   ctr++;
 #endif
   return ERR_OK;

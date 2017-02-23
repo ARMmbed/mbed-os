@@ -58,7 +58,7 @@
 
 /* --- tcp .1.3.6.1.2.1.6 ----------------------------------------------------- */
 
-static s16_t 
+static s16_t
 tcp_get_value(struct snmp_node_instance* instance, void* value)
 {
   u32_t *uint_ptr = (u32_t*)value;
@@ -154,7 +154,7 @@ static const struct snmp_oid_range tcp_ConnTable_oid_ranges[] = {
   { 0, 0xffff }  /* Port */
 };
 
-static snmp_err_t 
+static snmp_err_t
 tcp_ConnTable_get_cell_value_core(struct tcp_pcb *pcb, const u32_t* column, union snmp_variant_value* value, u32_t* value_len)
 {
   LWIP_UNUSED_ARG(value_len);
@@ -172,7 +172,7 @@ tcp_ConnTable_get_cell_value_core(struct tcp_pcb *pcb, const u32_t* column, unio
     break;
   case 4: /* tcpConnRemAddress */
     if (pcb->state == LISTEN) {
-      value->u32 = IP4_ADDR_ANY->addr;
+      value->u32 = IP4_ADDR_ANY4->addr;
     } else {
       value->u32 = ip_2_ip4(&pcb->remote_ip)->addr;
     }
@@ -212,7 +212,7 @@ tcp_ConnTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8_t row
   local_port = (u16_t)row_oid[4];
   snmp_oid_to_ip4(&row_oid[5], &remote_ip); /* we know it succeeds because of oid_in_range check above */
   remote_port = (u16_t)row_oid[9];
-  
+
   /* find tcp_pcb with requested ips and ports */
   for (i = 0; i < LWIP_ARRAYSIZE(tcp_pcb_lists); i++) {
     pcb = *tcp_pcb_lists[i];
@@ -224,7 +224,7 @@ tcp_ConnTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8_t row
 
         /* PCBs in state LISTEN are not connected and have no remote_ip or remote_port */
         if (pcb->state == LISTEN) {
-          if (ip4_addr_cmp(&remote_ip, IP4_ADDR_ANY) && (remote_port == 0)) {
+          if (ip4_addr_cmp(&remote_ip, IP4_ADDR_ANY4) && (remote_port == 0)) {
             /* fill in object properties */
             return tcp_ConnTable_get_cell_value_core(pcb, column, value, value_len);
           }
@@ -261,14 +261,14 @@ tcp_ConnTable_get_next_cell_instance_and_value(const u32_t* column, struct snmp_
     pcb = *tcp_pcb_lists[i];
     while (pcb != NULL) {
       u32_t test_oid[LWIP_ARRAYSIZE(tcp_ConnTable_oid_ranges)];
-            
+
       if (IP_IS_V4_VAL(pcb->local_ip)) {
         snmp_ip4_to_oid(ip_2_ip4(&pcb->local_ip), &test_oid[0]);
         test_oid[4] = pcb->local_port;
 
         /* PCBs in state LISTEN are not connected and have no remote_ip or remote_port */
         if (pcb->state == LISTEN) {
-          snmp_ip4_to_oid(IP4_ADDR_ANY, &test_oid[5]);
+          snmp_ip4_to_oid(IP4_ADDR_ANY4, &test_oid[5]);
           test_oid[9] = 0;
         } else {
           if (IP_IS_V6_VAL(pcb->remote_ip)) { /* should never happen */
@@ -281,7 +281,7 @@ tcp_ConnTable_get_next_cell_instance_and_value(const u32_t* column, struct snmp_
         /* check generated OID: is it a candidate for the next one? */
         snmp_next_oid_check(&state, test_oid, LWIP_ARRAYSIZE(tcp_ConnTable_oid_ranges), pcb);
       }
-    
+
       pcb = pcb->next;
     }
   }
@@ -301,10 +301,10 @@ tcp_ConnTable_get_next_cell_instance_and_value(const u32_t* column, struct snmp_
 
 /* --- tcpConnectionTable --- */
 
-static snmp_err_t 
+static snmp_err_t
 tcp_ConnectionTable_get_cell_value_core(const u32_t* column, struct tcp_pcb *pcb, union snmp_variant_value* value)
 {
-  /* all items except tcpConnectionState and tcpConnectionProcess are declared as not-accessible */   
+  /* all items except tcpConnectionState and tcpConnectionProcess are declared as not-accessible */
   switch (*column) {
   case 7: /* tcpConnectionState */
     value->u32 = pcb->state + 1;
@@ -336,7 +336,7 @@ tcp_ConnectionTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8
   if (idx == 0) {
     return SNMP_ERR_NOSUCHINSTANCE;
   }
-  
+
   /* tcpConnectionRemAddressType + tcpConnectionRemAddress + tcpConnectionRemPort */
   idx += snmp_oid_to_ip_port(&row_oid[idx], row_oid_len-idx, &remote_ip, &remote_port);
   if (idx == 0) {
@@ -346,7 +346,7 @@ tcp_ConnectionTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8
   /* find tcp_pcb with requested ip and port*/
   for (i = 0; i < LWIP_ARRAYSIZE(tcp_pcb_nonlisten_lists); i++) {
     pcb = *tcp_pcb_nonlisten_lists[i];
-    
+
     while (pcb != NULL) {
       if (ip_addr_cmp(&local_ip, &pcb->local_ip) &&
          (local_port == pcb->local_port) &&
@@ -358,9 +358,9 @@ tcp_ConnectionTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8
       pcb = pcb->next;
     }
   }
-  
+
   /* not found */
-  return SNMP_ERR_NOSUCHINSTANCE;  
+  return SNMP_ERR_NOSUCHINSTANCE;
 }
 
 static snmp_err_t
@@ -395,11 +395,11 @@ tcp_ConnectionTable_get_next_cell_instance_and_value(const u32_t* column, struct
 
       /* check generated OID: is it a candidate for the next one? */
       snmp_next_oid_check(&state, test_oid, idx, pcb);
-    
+
       pcb = pcb->next;
     }
   }
-  
+
   /* did we find a next one? */
   if (state.status == SNMP_NEXT_OID_STATUS_SUCCESS) {
     snmp_oid_assign(row_oid, state.next_oid, state.next_oid_len);
@@ -413,10 +413,10 @@ tcp_ConnectionTable_get_next_cell_instance_and_value(const u32_t* column, struct
 
 /* --- tcpListenerTable --- */
 
-static snmp_err_t 
+static snmp_err_t
 tcp_ListenerTable_get_cell_value_core(const u32_t* column, union snmp_variant_value* value)
 {
-  /* all items except tcpListenerProcess are declared as not-accessible */   
+  /* all items except tcpListenerProcess are declared as not-accessible */
   switch (*column) {
   case 4: /* tcpListenerProcess */
     value->u32 = 0; /* not supported */
@@ -443,7 +443,7 @@ tcp_ListenerTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8_t
   if (idx == 0) {
     return SNMP_ERR_NOSUCHINSTANCE;
   }
-  
+
   /* find tcp_pcb with requested ip and port*/
   pcb = tcp_listen_pcbs.listen_pcbs;
   while (pcb != NULL) {
@@ -456,7 +456,7 @@ tcp_ListenerTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8_t
   }
 
   /* not found */
-  return SNMP_ERR_NOSUCHINSTANCE;  
+  return SNMP_ERR_NOSUCHINSTANCE;
 }
 
 static snmp_err_t
@@ -477,13 +477,13 @@ tcp_ListenerTable_get_next_cell_instance_and_value(const u32_t* column, struct s
   while (pcb != NULL) {
     u8_t idx = 0;
     u32_t test_oid[LWIP_ARRAYSIZE(result_temp)];
-            
+
     /* tcpListenerLocalAddressType + tcpListenerLocalAddress + tcpListenerLocalPort */
     idx += snmp_ip_port_to_oid(&pcb->local_ip, pcb->local_port, &test_oid[idx]);
 
     /* check generated OID: is it a candidate for the next one? */
     snmp_next_oid_check(&state, test_oid, idx, NULL);
-    
+
     pcb = pcb->next;
   }
 
@@ -528,7 +528,7 @@ static const struct snmp_table_simple_node tcp_ConnTable = SNMP_TABLE_CREATE_SIM
 #endif /* LWIP_IPV4 */
 
 static const struct snmp_table_simple_col_def tcp_ConnectionTable_columns[] = {
-  /* all items except tcpConnectionState and tcpConnectionProcess are declared as not-accessible */   
+  /* all items except tcpConnectionState and tcpConnectionProcess are declared as not-accessible */
   { 7, SNMP_ASN1_TYPE_INTEGER,    SNMP_VARIANT_VALUE_TYPE_U32 }, /* tcpConnectionState */
   { 8, SNMP_ASN1_TYPE_UNSIGNED32, SNMP_VARIANT_VALUE_TYPE_U32 }  /* tcpConnectionProcess */
 };
@@ -537,13 +537,13 @@ static const struct snmp_table_simple_node tcp_ConnectionTable = SNMP_TABLE_CREA
 
 
 static const struct snmp_table_simple_col_def tcp_ListenerTable_columns[] = {
-  /* all items except tcpListenerProcess are declared as not-accessible */   
+  /* all items except tcpListenerProcess are declared as not-accessible */
   { 4, SNMP_ASN1_TYPE_UNSIGNED32, SNMP_VARIANT_VALUE_TYPE_U32 }  /* tcpListenerProcess */
 };
 
 static const struct snmp_table_simple_node tcp_ListenerTable = SNMP_TABLE_CREATE_SIMPLE(20, tcp_ListenerTable_columns, tcp_ListenerTable_get_cell_value, tcp_ListenerTable_get_next_cell_instance_and_value);
 
-/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */ 
+/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */
 CREATE_LWIP_SYNC_NODE( 1, tcp_RtoAlgorithm)
 CREATE_LWIP_SYNC_NODE( 2, tcp_RtoMin)
 CREATE_LWIP_SYNC_NODE( 3, tcp_RtoMax)

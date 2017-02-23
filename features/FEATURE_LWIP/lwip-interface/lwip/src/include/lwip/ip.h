@@ -34,8 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef LWIP_HDR_IP_H__
-#define LWIP_HDR_IP_H__
+#ifndef LWIP_HDR_IP_H
+#define LWIP_HDR_IP_H
 
 #include "lwip/opt.h"
 
@@ -46,27 +46,16 @@
 #include "lwip/netif.h"
 #include "lwip/ip4.h"
 #include "lwip/ip6.h"
+#include "lwip/prot/ip.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define IP_PROTO_ICMP    1
-#define IP_PROTO_IGMP    2
-#define IP_PROTO_UDP     17
-#define IP_PROTO_UDPLITE 136
-#define IP_PROTO_TCP     6
-
-/** This operates on a void* by loading the first byte */
-#define IP_HDR_GET_VERSION(ptr)   ((*(u8_t*)(ptr)) >> 4)
-
 /* This is passed as the destination address to ip_output_if (not
    to ip_output), meaning that an IP header already is constructed
    in the pbuf. This is used when TCP retransmits. */
-#ifdef IP_HDRINCL
-#undef IP_HDRINCL
-#endif /* IP_HDRINCL */
-#define IP_HDRINCL  NULL
+#define LWIP_IP_HDRINCL  NULL
 
 /** pbufs passed to IP must have a ref-count of 1 as their payload pointer
     gets altered as the packet is passed down the stack */
@@ -230,17 +219,26 @@ extern struct ip_globals ip_data;
 #define ip_reset_option(pcb, opt) ((pcb)->so_options &= ~(opt))
 
 #if LWIP_IPV4 && LWIP_IPV6
-/** Output IP packet, netif is selected by source address */
+/**
+ * @ingroup ip
+ * Output IP packet, netif is selected by source address
+ */
 #define ip_output(p, src, dest, ttl, tos, proto) \
         (IP_IS_V6(dest) ? \
         ip6_output(p, ip_2_ip6(src), ip_2_ip6(dest), ttl, tos, proto) : \
         ip4_output(p, ip_2_ip4(src), ip_2_ip4(dest), ttl, tos, proto))
-/** Output IP packet to specified interface */
+/**
+ * @ingroup ip
+ * Output IP packet to specified interface
+ */
 #define ip_output_if(p, src, dest, ttl, tos, proto, netif) \
         (IP_IS_V6(dest) ? \
         ip6_output_if(p, ip_2_ip6(src), ip_2_ip6(dest), ttl, tos, proto, netif) : \
         ip4_output_if(p, ip_2_ip4(src), ip_2_ip4(dest), ttl, tos, proto, netif))
-/** Output IP packet to interface specifying source address */
+/**
+ * @ingroup ip
+ * Output IP packet to interface specifying source address
+ */
 #define ip_output_if_src(p, src, dest, ttl, tos, proto, netif) \
         (IP_IS_V6(dest) ? \
         ip6_output_if_src(p, ip_2_ip6(src), ip_2_ip6(dest), ttl, tos, proto, netif) : \
@@ -250,12 +248,18 @@ extern struct ip_globals ip_data;
         (IP_IS_V6(dest) ? \
         ip6_output_hinted(p, ip_2_ip6(src), ip_2_ip6(dest), ttl, tos, proto, addr_hint) : \
         ip4_output_hinted(p, ip_2_ip4(src), ip_2_ip4(dest), ttl, tos, proto, addr_hint))
-/** Get netif for address combination. See \ref ip6_route and \ref ip4_route */
+/**
+ * @ingroup ip
+ * Get netif for address combination. See \ref ip6_route and \ref ip4_route
+ */
 #define ip_route(src, dest) \
         (IP_IS_V6(dest) ? \
         ip6_route(ip_2_ip6(src), ip_2_ip6(dest)) : \
         ip4_route_src(ip_2_ip4(dest), ip_2_ip4(src)))
-/** Get netif for IP.*/
+/**
+ * @ingroup ip
+ * Get netif for IP.
+ */
 #define ip_netif_get_local_ip(netif, dest) (IP_IS_V6(dest) ? \
         ip6_netif_get_local_ip(netif, ip_2_ip6(dest)) : \
         ip4_netif_get_local_ip(netif))
@@ -310,6 +314,6 @@ err_t ip_input(struct pbuf *p, struct netif *inp);
 }
 #endif
 
-#endif /* LWIP_HDR_IP_H__ */
+#endif /* LWIP_HDR_IP_H */
 
 

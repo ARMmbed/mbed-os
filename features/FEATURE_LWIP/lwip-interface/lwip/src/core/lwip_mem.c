@@ -9,7 +9,7 @@
  *
  * To let mem_malloc() use pools (prevents fragmentation and is much faster than
  * a heap but might waste some memory), define MEM_USE_POOLS to 1, define
- * MEM_USE_CUSTOM_POOLS to 1 and create a file "lwippools.h" that includes a list
+ * MEMP_USE_CUSTOM_POOLS to 1 and create a file "lwippools.h" that includes a list
  * of pools like this (more pools can be added between _START and _END):
  *
  * Define three pools with sizes 256, 512, and 1512 bytes
@@ -54,15 +54,20 @@
  */
 
 #include "lwip/opt.h"
-#include "lwip/def.h"
 #include "lwip/mem.h"
+#include "lwip/def.h"
 #include "lwip/sys.h"
 #include "lwip/stats.h"
 #include "lwip/err.h"
 
 #include <string.h>
 
+#if MEM_LIBC_MALLOC
+#include <stdlib.h> /* for malloc()/free() */
+#endif
+
 #if MEM_LIBC_MALLOC || MEM_USE_POOLS
+
 /** mem_init is not used when using pools instead of a heap or using
  * C library malloc().
  */
@@ -161,36 +166,31 @@ void *
 mem_malloc(mem_size_t size)
 {
   void *ret;
-  struct memp_malloc_helper *element;
+  struct memp_malloc_helper *element = NULL;
   memp_t poolnr;
   mem_size_t required_size = size + LWIP_MEM_ALIGN_SIZE(sizeof(struct memp_malloc_helper));
 
   for (poolnr = MEMP_POOL_FIRST; poolnr <= MEMP_POOL_LAST; poolnr = (memp_t)(poolnr + 1)) {
-#if MEM_USE_POOLS_TRY_BIGGER_POOL
-again:
-#endif /* MEM_USE_POOLS_TRY_BIGGER_POOL */
     /* is this pool big enough to hold an element of the required size
        plus a struct memp_malloc_helper that saves the pool this element came from? */
     if (required_size <= memp_pools[poolnr]->size) {
+      element = (struct memp_malloc_helper*)memp_malloc(poolnr);
+      if (element == NULL) {
+        /* No need to DEBUGF or ASSERT: This error is already taken care of in memp.c */
+#if MEM_USE_POOLS_TRY_BIGGER_POOL
+        /** Try a bigger pool if this one is empty! */
+        if (poolnr < MEMP_POOL_LAST) {
+          continue;
+        }
+#endif /* MEM_USE_POOLS_TRY_BIGGER_POOL */
+        MEM_STATS_INC(err);
+        return NULL;
+      }
       break;
     }
   }
   if (poolnr > MEMP_POOL_LAST) {
     LWIP_ASSERT("mem_malloc(): no pool is that big!", 0);
-    MEM_STATS_INC(err);
-    return NULL;
-  }
-  element = (struct memp_malloc_helper*)memp_malloc(poolnr);
-  if (element == NULL) {
-    /* No need to DEBUGF or ASSERT: This error is already
-       taken care of in memp.c */
-#if MEM_USE_POOLS_TRY_BIGGER_POOL
-    /** Try a bigger pool if this one is empty! */
-    if (poolnr < MEMP_POOL_LAST) {
-      poolnr++;
-      goto again;
-    }
-#endif /* MEM_USE_POOLS_TRY_BIGGER_POOL */
     MEM_STATS_INC(err);
     return NULL;
   }

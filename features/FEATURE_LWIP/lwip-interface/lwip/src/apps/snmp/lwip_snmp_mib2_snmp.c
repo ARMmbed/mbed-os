@@ -188,7 +188,7 @@ snmp_set_value(const struct snmp_scalar_array_node_def *node, u16_t len, void *v
   return SNMP_ERR_NOERROR;
 }
 
-/* the following nodes access variables in SNMP stack (snmp_stats) from SNMP worker thread -> OK, no sync needed */ 
+/* the following nodes access variables in SNMP stack (snmp_stats) from SNMP worker thread -> OK, no sync needed */
 static const struct snmp_scalar_array_node_def snmp_nodes[] = {
   { 1, SNMP_ASN1_TYPE_COUNTER, SNMP_NODE_INSTANCE_READ_ONLY},  /* snmpInPkts */
   { 2, SNMP_ASN1_TYPE_COUNTER, SNMP_NODE_INSTANCE_READ_ONLY},  /* snmpOutPkts */

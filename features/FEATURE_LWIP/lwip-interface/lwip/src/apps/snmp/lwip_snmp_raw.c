@@ -80,7 +80,7 @@ snmp_get_local_ip_for_dst(void* handle, const ip_addr_t *dst, ip_addr_t *result)
 /**
  * @ingroup snmp_core
  * Starts SNMP Agent.
- * Allocates UDP pcb and binds it to IP_ADDR_ANY port 161.
+ * Allocates UDP pcb and binds it to IP_ANY_TYPE port 161.
  */
 void
 snmp_init(void)

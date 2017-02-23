@@ -47,27 +47,10 @@
 #include "lwip/ip_addr.h"
 #include "lwip/ip.h"
 #include "lwip/ip6_addr.h"
+#include "lwip/prot/udp.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#define UDP_HLEN 8
-
-/* Fields are (of course) in network byte order. */
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/bpstruct.h"
-#endif
-PACK_STRUCT_BEGIN
-struct udp_hdr {
-  PACK_STRUCT_FIELD(u16_t src);
-  PACK_STRUCT_FIELD(u16_t dest);  /* src/dest UDP ports */
-  PACK_STRUCT_FIELD(u16_t len);
-  PACK_STRUCT_FIELD(u16_t chksum);
-} PACK_STRUCT_STRUCT;
-PACK_STRUCT_END
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/epstruct.h"
 #endif
 
 #define UDP_FLAGS_NOCHKSUM       0x01U
@@ -188,9 +171,7 @@ void udp_debug_print(struct udp_hdr *udphdr);
 #define udp_debug_print(udphdr)
 #endif
 
-#if LWIP_IPV4
-void udp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* new_addr);
-#endif /* LWIP_IPV4 */
+void udp_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr);
 
 #ifdef __cplusplus
 }

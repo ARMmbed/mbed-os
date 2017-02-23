@@ -99,6 +99,7 @@ void snmp_trap_dst_ip_set(u8_t dst_idx, const ip_addr_t *dst);
 
 err_t snmp_send_trap_generic(s32_t generic_trap);
 err_t snmp_send_trap_specific(s32_t specific_trap, struct snmp_varbind *varbinds);
+err_t snmp_send_trap(const struct snmp_obj_id* oid, s32_t generic_trap, s32_t specific_trap, struct snmp_varbind *varbinds);
 
 #define SNMP_AUTH_TRAPS_DISABLED 0
 #define SNMP_AUTH_TRAPS_ENABLED  1

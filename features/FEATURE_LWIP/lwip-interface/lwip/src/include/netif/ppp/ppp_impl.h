@@ -394,9 +394,6 @@ int ppp_init(void);
 ppp_pcb *ppp_new(struct netif *pppif, const struct link_callbacks *callbacks, void *link_ctx_cb,
                  ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 
-/* Called when link is starting */
-void ppp_link_start(ppp_pcb *pcb);
-
 /* Initiate LCP open request */
 void ppp_start(ppp_pcb *pcb);
 
@@ -623,7 +620,7 @@ void ppp_warn(const char *fmt, ...);      /* log a warning message */
 void ppp_error(const char *fmt, ...);     /* log an error message */
 void ppp_fatal(const char *fmt, ...);     /* log an error message and die(1) */
 #if PRINTPKT_SUPPORT
-void ppp_dump_packet(const char *tag, unsigned char *p, int len);
+void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len);
                                 /* dump packet to debug log if interesting */
 #endif /* PRINTPKT_SUPPORT */
 

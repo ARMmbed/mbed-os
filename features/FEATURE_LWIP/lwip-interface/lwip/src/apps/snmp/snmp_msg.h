@@ -79,11 +79,12 @@ struct snmp_varbind_enumerator
   u16_t varbind_count;
 };
 
-typedef u8_t snmp_vb_enumerator_err_t;
-#define SNMP_VB_ENUMERATOR_ERR_OK            0
-#define SNMP_VB_ENUMERATOR_ERR_EOVB          1
-#define SNMP_VB_ENUMERATOR_ERR_ASN1ERROR     2
-#define SNMP_VB_ENUMERATOR_ERR_INVALIDLENGTH 3
+typedef enum {
+  SNMP_VB_ENUMERATOR_ERR_OK            = 0,
+  SNMP_VB_ENUMERATOR_ERR_EOVB          = 1,
+  SNMP_VB_ENUMERATOR_ERR_ASN1ERROR     = 2,
+  SNMP_VB_ENUMERATOR_ERR_INVALIDLENGTH = 3
+} snmp_vb_enumerator_err_t;
 
 void snmp_vb_enumerator_init(struct snmp_varbind_enumerator* enumerator, struct pbuf* p, u16_t offset, u16_t length);
 snmp_vb_enumerator_err_t snmp_vb_enumerator_get_next(struct snmp_varbind_enumerator* enumerator, struct snmp_varbind* varbind);

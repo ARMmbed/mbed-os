@@ -222,6 +222,7 @@ pppapi_do_pppol2tp_create(struct tcpip_api_call_data *m)
     msg->msg.msg.l2tpcreate.secret_len,
 #else /* PPPOL2TP_AUTH_SUPPORT */
     NULL,
+    0,
 #endif /* PPPOL2TP_AUTH_SUPPORT */
     msg->msg.msg.l2tpcreate.link_status_cb, msg->msg.msg.l2tpcreate.ctx_cb);
   return ERR_OK;
@@ -239,6 +240,10 @@ pppapi_pppol2tp_create(struct netif *pppif, struct netif *netif, ip_addr_t *ipad
   ppp_pcb* result;
   PPPAPI_VAR_DECLARE(msg);
   PPPAPI_VAR_ALLOC_RETURN_NULL(msg);
+#if !PPPOL2TP_AUTH_SUPPORT
+  LWIP_UNUSED_ARG(secret);
+  LWIP_UNUSED_ARG(secret_len);
+#endif /* !PPPOL2TP_AUTH_SUPPORT */
 
   PPPAPI_VAR_REF(msg).msg.ppp = NULL;
   PPPAPI_VAR_REF(msg).msg.msg.l2tpcreate.pppif = pppif;

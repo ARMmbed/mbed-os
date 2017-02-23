@@ -58,7 +58,7 @@
 #if LWIP_IPV4
 /* --- ip .1.3.6.1.2.1.4 ----------------------------------------------------- */
 
-static s16_t 
+static s16_t
 ip_get_value(struct snmp_node_instance* instance, void* value)
 {
   s32_t* sint_ptr = (s32_t*)value;
@@ -146,7 +146,7 @@ ip_get_value(struct snmp_node_instance* instance, void* value)
 /**
  * Test ip object value before setting.
  *
- * @param od is the object definition
+ * @param instance node instance
  * @param len return value space (in bytes)
  * @param value points to (varbind) space to copy value from.
  *
@@ -304,7 +304,7 @@ ip_AddrTable_get_next_cell_instance_and_value(const u32_t* column, struct snmp_o
     /* fill in object properties */
     return ip_AddrTable_get_cell_value_core((struct netif*)state.reference, column, value, value_len);
   }
-  
+
   /* not found */
   return SNMP_ERR_NOSUCHINSTANCE;
 }
@@ -326,7 +326,7 @@ ip_RouteTable_get_cell_value_core(struct netif *netif, u8_t default_route, const
   case 1: /* ipRouteDest */
     if (default_route) {
        /* default rte has 0.0.0.0 dest */
-      value->u32 = IP4_ADDR_ANY->addr;
+      value->u32 = IP4_ADDR_ANY4->addr;
     } else {
       /* netifs have netaddress dest */
       ip4_addr_t tmp;
@@ -378,7 +378,7 @@ ip_RouteTable_get_cell_value_core(struct netif *netif, u8_t default_route, const
   case 11: /* ipRouteMask */
     if (default_route) {
       /* default rte use 0.0.0.0 mask */
-      value->u32 = IP4_ADDR_ANY->addr;
+      value->u32 = IP4_ADDR_ANY4->addr;
     } else {
       /* other rtes use netmask */
       value->u32 = netif_ip4_netmask(netif)->addr;
@@ -449,7 +449,7 @@ ip_RouteTable_get_next_cell_instance_and_value(const u32_t* column, struct snmp_
 
   /* check default route */
   if (netif_default != NULL) {
-    snmp_ip4_to_oid(IP4_ADDR_ANY, &test_oid[0]);
+    snmp_ip4_to_oid(IP4_ADDR_ANY4, &test_oid[0]);
     snmp_next_oid_check(&state, test_oid, LWIP_ARRAYSIZE(ip_RouteTable_oid_ranges), netif_default);
   }
 
@@ -464,7 +464,7 @@ ip_RouteTable_get_next_cell_instance_and_value(const u32_t* column, struct snmp_
       snmp_ip4_to_oid(&dst, &test_oid[0]);
       snmp_next_oid_check(&state, test_oid, LWIP_ARRAYSIZE(ip_RouteTable_oid_ranges), netif);
     }
-    
+
     netif = netif->next;
   }
 
@@ -581,7 +581,7 @@ ip_NetToMediaTable_get_next_cell_instance_and_value(const u32_t* column, struct 
       snmp_ip4_to_oid(ip, &test_oid[1]);
 
       /* check generated OID: is it a candidate for the next one? */
-      snmp_next_oid_check(&state, test_oid, LWIP_ARRAYSIZE(ip_NetToMediaTable_oid_ranges), (void*)(size_t)i);
+      snmp_next_oid_check(&state, test_oid, LWIP_ARRAYSIZE(ip_NetToMediaTable_oid_ranges), LWIP_PTR_NUMERIC_CAST(void*, i));
     }
   }
 
@@ -589,7 +589,7 @@ ip_NetToMediaTable_get_next_cell_instance_and_value(const u32_t* column, struct 
   if (state.status == SNMP_NEXT_OID_STATUS_SUCCESS) {
     snmp_oid_assign(row_oid, state.next_oid, state.next_oid_len);
     /* fill in object properties */
-    return ip_NetToMediaTable_get_cell_value_core((u8_t)(size_t)state.reference, column, value, value_len);
+    return ip_NetToMediaTable_get_cell_value_core(LWIP_PTR_NUMERIC_CAST(u8_t, state.reference), column, value, value_len);
   }
 
   /* not found */
@@ -660,7 +660,7 @@ static const struct snmp_table_simple_node ip_NetToMediaTable = SNMP_TABLE_CREAT
 #endif /* LWIP_ARP && LWIP_IPV4 */
 
 #if LWIP_IPV4
-/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */ 
+/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */
 CREATE_LWIP_SYNC_NODE( 1, ip_Forwarding)
 CREATE_LWIP_SYNC_NODE( 2, ip_DefaultTTL)
 CREATE_LWIP_SYNC_NODE( 3, ip_InReceives)
@@ -730,7 +730,7 @@ static const struct snmp_table_simple_col_def at_Table_columns[] = {
 
 static const struct snmp_table_simple_node at_Table = SNMP_TABLE_CREATE_SIMPLE(1, at_Table_columns, ip_NetToMediaTable_get_cell_value, ip_NetToMediaTable_get_next_cell_instance_and_value);
 
-/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */ 
+/* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */
 CREATE_LWIP_SYNC_NODE(1, at_Table)
 
 static const struct snmp_node* const at_nodes[] = {
