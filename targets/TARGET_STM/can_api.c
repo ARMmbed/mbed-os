@@ -262,14 +262,14 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     }
 
     /* Get the Id */
-    msg->format = (CANFormat)((uint8_t)0x04 & can->sFIFOMailBox[handle].RIR);
+    msg->format = (CANFormat)(((uint8_t)0x04 & can->sFIFOMailBox[handle].RIR) >> 2);
     if (!msg->format) {
         msg->id = (uint32_t)0x000007FF & (can->sFIFOMailBox[handle].RIR >> 21);
     } else {
         msg->id = (uint32_t)0x1FFFFFFF & (can->sFIFOMailBox[handle].RIR >> 3);
     }
 
-    msg->type = (CANType)((uint8_t)0x02 & can->sFIFOMailBox[handle].RIR);
+    msg->type = (CANType)(((uint8_t)0x02 & can->sFIFOMailBox[handle].RIR) >> 1);
     /* Get the DLC */
     msg->len = (uint8_t)0x0F & can->sFIFOMailBox[handle].RDTR;
     /* Get the FMI */
@@ -375,10 +375,10 @@ int can_mode(can_t *obj, CanMode mode)
     return success;
 }
 
-int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
     int retval = 0;
-    
+
     // filter for CANAny format cannot be configured for STM32
     if ((format == CANStandard) || (format == CANExtended)) {
         CanHandle.Instance = (CAN_TypeDef *)(obj->can);
@@ -398,11 +398,11 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             sFilterConfig.FilterMaskIdHigh = mask >> 13;
             sFilterConfig.FilterMaskIdLow = (0x00FF & (mask << 3)) | (1 << 2);
         }
-        
+
         sFilterConfig.FilterFIFOAssignment = 0;
         sFilterConfig.FilterActivation = ENABLE;
         sFilterConfig.BankNumber = 14 + handle;
-        
+
         HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);
         retval = handle;
     }
@@ -461,37 +461,47 @@ static void can_irq(CANName name, int id)
 }
 
 #if defined(TARGET_STM32F0)
-void CAN_IRQHandler(void) {
+void CAN_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
 #elif defined(TARGET_STM32F3)
-void CAN_RX0_IRQHandler(void) {
+void CAN_RX0_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN_TX_IRQHandler(void) {
+void CAN_TX_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN_SCE_IRQHandler(void) {
+void CAN_SCE_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
 #else
-void CAN1_RX0_IRQHandler(void) {
+void CAN1_RX0_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN1_TX_IRQHandler(void) {
+void CAN1_TX_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN1_SCE_IRQHandler(void) {
+void CAN1_SCE_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
 #if defined(CAN2_BASE) && (CAN_NUM == 2)
-void CAN2_RX0_IRQHandler(void) {
+void CAN2_RX0_IRQHandler(void)
+{
     can_irq(CAN_2, 1);
 }
-void CAN2_TX_IRQHandler(void) {
+void CAN2_TX_IRQHandler(void)
+{
     can_irq(CAN_2, 1);
 }
-void CAN2_SCE_IRQHandler(void) {
+void CAN2_SCE_IRQHandler(void)
+{
     can_irq(CAN_2, 1);
 }
 #endif // defined(CAN2_BASE) && (CAN_NUM == 2)
