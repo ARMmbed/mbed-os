@@ -545,17 +545,13 @@ int FATFileSystem::dir_close(fs_dir_t dir) {
     return fat_error_remap(res);
 }
 
-ssize_t FATFileSystem::dir_read(fs_dir_t dir, char *path, size_t len) {
-    return dir_read(dir, path, len, NULL);
-}
-
-ssize_t FATFileSystem::dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *type) {
+ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
     FILINFO finfo;
 
 #if _USE_LFN
-    finfo.lfname = path;
-    finfo.lfsize = len;
+    finfo.lfname = ent->d_name;
+    finfo.lfsize = NAME_MAX;
 #endif // _USE_LFN
 
     lock();
@@ -565,23 +561,21 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *t
     if (res != FR_OK) {
         return fat_error_remap(res);
     } else if (finfo.fname[0] == 0) {
-        return -EINVAL;
+        return 0;
     }
 
-    if (type) {
-        *type = (finfo.fattrib & AM_DIR) ? DT_DIR : DT_REG;
-    }
+    ent->d_type = (finfo.fattrib & AM_DIR) ? DT_DIR : DT_REG;
 
 #if _USE_LFN
-    if (path[0] == 0) {
+    if (ent->d_name[0] == 0) {
         // No long filename so use short filename.
-        strncpy(path, finfo.fname, len);
+        strncpy(ent->d_name, finfo.fname, NAME_MAX);
     }
 #else
-    strncpy(path, finfo.fname, len);
+    strncpy(end->d_name, finfo.fname, len);
 #endif
 
-    return 0;
+    return 1;
 }
 
 void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset) {

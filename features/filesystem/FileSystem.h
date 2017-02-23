@@ -195,21 +195,10 @@ protected:
     /** Read the next directory entry
      *
      *  @param dir      Dir handle
-     *  @param path     The buffer to read the null terminated path name in to
-     *  @param size     The maximum number of bytes in the buffer, this is at most FS_NAME_MAX
+     *  @param ent      The directory entry to fill out
      *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
      */
-    virtual ssize_t dir_read(fs_dir_t dir, char *path, size_t len);
-
-    /** Read the next directory entry
-     *
-     *  @param dir      Dir handle
-     *  @param path     The buffer to read the null terminated path name in to
-     *  @param size     The maximum number of bytes in the buffer, this is at most FS_NAME_MAX
-     *  @param type     The type of the file, one of DT_DIR, DT_REG, etc...
-     *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
-     */
-    virtual ssize_t dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *type);
+    virtual ssize_t dir_read(fs_dir_t dir, struct dirent *ent);
 
     /** Set the current position of the directory
      *

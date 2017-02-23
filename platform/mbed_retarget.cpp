@@ -554,9 +554,11 @@ extern "C" DIR *opendir(const char *path) {
 extern "C" struct dirent *readdir(DIR *dir) {
 #if MBED_CONF_FILESYSTEM_PRESENT
     static struct dirent ent;
-    int err = dir->read(ent.d_name, NAME_MAX, &ent.d_type);
-    if (err < 0) {
-        errno = -err;
+    int err = dir->read(&ent);
+    if (err < 1) {
+        if (err < 0) {
+            errno = -err;
+        }
         return NULL;
     }
 
@@ -570,6 +572,7 @@ extern "C" struct dirent *readdir(DIR *dir) {
 extern "C" int closedir(DIR *dir) {
 #if MBED_CONF_FILESYSTEM_PRESENT
     int err = dir->close();
+    delete dir;
     if (err < 0) {
         errno = -err;
         return -1;

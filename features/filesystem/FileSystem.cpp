@@ -68,15 +68,9 @@ int FileSystem::dir_close(fs_dir_t dir)
     return -ENOSYS;
 }
 
-ssize_t FileSystem::dir_read(fs_dir_t dir, char *path, size_t len)
+ssize_t FileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 {
     return -ENOSYS;
-}
-
-ssize_t FileSystem::dir_read(fs_dir_t dir, char *path, size_t len, uint8_t *type)
-{
-    *type = DT_UNKNOWN;
-    return dir_read(dir, path, len);
 }
 
 void FileSystem::dir_seek(fs_dir_t dir, off_t offset)
@@ -98,10 +92,11 @@ size_t FileSystem::dir_size(fs_dir_t dir)
 {
     off_t off = dir_tell(dir);
     size_t size = 0;
+    struct dirent *ent = new struct dirent;
 
     dir_rewind(dir);
     while (true) {
-        int res = dir_read(dir, NULL, 0);
+        int res = dir_read(dir, ent);
         if (res <= 0) {
             break;
         }
@@ -110,6 +105,7 @@ size_t FileSystem::dir_size(fs_dir_t dir)
     }
     dir_seek(dir, off);
 
+    delete ent;
     return size;
 }
 

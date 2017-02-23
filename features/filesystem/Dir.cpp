@@ -58,16 +58,11 @@ int Dir::close()
     return err;
 }
 
-ssize_t Dir::read(char *path, size_t len)
+ssize_t Dir::read(struct dirent *ent)
 {
     MBED_ASSERT(_fs);
-    return _fs->dir_read(_dir, path, len);
-}
-
-ssize_t Dir::read(char *path, size_t len, uint8_t *type)
-{
-    MBED_ASSERT(_fs);
-    return _fs->dir_read(_dir, path, len, type);
+    memset(ent, 0, sizeof(struct dirent));
+    return _fs->dir_read(_dir, ent);
 }
 
 void Dir::seek(off_t offset)
