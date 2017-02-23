@@ -116,7 +116,8 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     logging.debug(r.request.body)
     
     if r.status_code != 200:
-        raise Exception("Error while talking to the mbed API")
+        logging.error("HTTP code %d reported.", r.status_code)
+        return False, "Internal"
 
     response = r.json()
     logging.debug(response)
