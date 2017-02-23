@@ -20,6 +20,9 @@
 
 #define MUX_FUNC_0 0x0
 
+extern uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
+extern uint8_t gpio_initialized;
+
 uint32_t gpio_set(PinName pin) {
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_num = pin & 0xFF;
@@ -30,13 +33,14 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    static uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
     obj->pin = pin;
 
     if (pin == (PinName)NC)
         return;
 
-    adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
+    if (!gpio_initialized)
+        adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
+
     pin_function(pin, MUX_FUNC_0);
 }
 

@@ -21,12 +21,12 @@
 
 #include "adi_pwr.h"
 #include "adi_pwr_def_v1.h"
-
+#include "sleep.h"
 
 /**
  * Function to put processor into sleep (FLEXI mode only).
  */
-static void go_into_WFI(void)
+static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
 {
 	uint32_t savedPriority;
 	uint16_t savedWDT;
@@ -118,6 +118,12 @@ void set_clock_gating(peripheral_clk_t eClk, int enable)
     case PCLK:
         flag = 1 << BITP_CLKG_CLK_CTL5_PERCLKOFF;
         break;
+    case I2C_CLOCK:
+        flag = 1 << BITP_CLKG_CLK_CTL5_UCLKI2COFF;
+        break;
+    case GPIO_CLOCK:
+        flag = 1 << BITP_CLKG_CLK_CTL5_GPIOCLKOFF;
+        break;
     case GPT0_CLOCK:
         flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK0OFF;
         break;
@@ -126,15 +132,6 @@ void set_clock_gating(peripheral_clk_t eClk, int enable)
         break;
     case GPT2_CLOCK:
         flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK2OFF;
-        break;
-    case I2C_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_UCLKI2COFF;
-        break;
-    case GPIO_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPIOCLKOFF;
-        break;
-    case TIMER_RGB_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_TMRRGBCLKOFF;
         break;
     default:
         return;
@@ -170,7 +167,7 @@ void sleep(void)
 {
     // set to go into the FLEXI mode where the processor is asleep and all peripherals are
     // still active
-    go_into_WFI();
+    go_into_WFI(ADI_PWR_MODE_FLEXI);
 }
 
 
@@ -196,8 +193,8 @@ void deepsleep(void)
     // set clock gating to all the peripheral clocks
     set_clock_gating(PCLK, 1);
 
-    // set to go into the hibernation mode
-    go_into_WFI();
+    // set to go into the FLEXI mode with peripheral clocks gated.
+    go_into_WFI(ADI_PWR_MODE_FLEXI);
 
     // when exiting, clear all peripheral clock gating bits. This is done to enable clocks that aren't
     // automatically re-enabled out of sleep such as the GPIO clock.
