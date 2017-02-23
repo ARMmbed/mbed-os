@@ -64,6 +64,7 @@ import argparse
 import subprocess
 import re
 import hglib
+import argparse
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -72,20 +73,6 @@ sys.path.insert(0, ROOT)
 from tools.build_api import get_mbed_official_release
 
 OFFICIAL_MBED_LIBRARY_BUILD = get_mbed_official_release('2')
-
-def log_message(str):
-    """ Depending on the value of the global variable, dbg, writes a log message provided in 
-        str to stdout.
-        
-    Args:
-    str - log string.
-
-    """
-    global dbg
-    if dbg:
-        print str
-        sys.stdout.flush()
-
 
 def get_compilation_failure(messages):
     """ Reads the json formatted 'messages' and checks for compilation errors.
@@ -124,25 +111,29 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     """
 
     # send task to api
-    log_message(url + begin + "| data: " + str(payload))
+    logging.debug(url + begin + "| data: " + str(payload))
     r = requests.post(url + begin, data=payload, auth=auth)
-    log_message(r.request.body)
-
+    logging.debug(r.request.body)
+    
     if r.status_code != 200:
         raise Exception("Error while talking to the mbed API")
 
     response = r.json()
-    log_message(response)
+    logging.debug(response)
     uuid = response['result']['data']['task_id']
-    log_message("Task accepted and given ID: %s" % uuid)
-    sys.stdout.write("\t\tCompiling: ")
+    logging.debug("Task accepted and given ID: %s", uuid)
     result = False
     fail_type = None
+    
+    # It currently seems to take the onlide IDE API ~30s to process the compile request and
+    # provide a response. Set the poll time to half that in case it does manage to compile
+    # quicker.
+    poll_delay = 15
+    logging.debug("Running with a poll for response delay of: %ss", poll_delay)
 
     # poll for output
-    for check in range(0, polls):
-        sys.stdout.write('.')
-        time.sleep(1)
+    for check in range(polls):
+        time.sleep(poll_delay)
         r = requests.get(url + "output/%s" % uuid, auth=auth)
         response = r.json()
         if response['result']['data']['task_complete']:
@@ -153,13 +144,15 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
             # 3) Internal failure of the online compiler            
             result = bool(response['result']['data']['compilation_success'])
             if result:
-                sys.stdout.write("SUCCESSFUL \n")
+                logging.info("\t\tCompilation SUCCESSFUL\n")
             else:
                 # Did this fail due to a genuine compilation error or a failue of the api itself ?
-                sys.stdout.write("FAILURE \n")
-                sys.stdout.flush()
+                logging.info("\t\tCompilation FAILURE\n")
                 fail_type = get_compilation_failure(response['result']['data']['new_messages'])
             break
+    else:
+        logging.info("\t\tCompilation FAILURE\n")
+        
     if not result and fail_type == None:
         fail_type = "Internal"
         
@@ -185,7 +178,7 @@ def build_repo(target, program, user, pw, polls=25, url="https://developer.mbed.
     auth = (user, pw)
     return invoke_api(payload, url, auth, polls)
 
-def run_cmd(command, print_warning_on_fail=True, exit_on_failure=False):
+def run_cmd(command, exit_on_failure=False):
     """ Passes a command to the system and returns a True/False result once the 
         command has been executed, indicating success/failure. Commands are passed
         as a list of tokens. 
@@ -193,25 +186,22 @@ def run_cmd(command, print_warning_on_fail=True, exit_on_failure=False):
 
     Args:
     command - system command as a list of tokens
-    print_warning_on_fail - If True print any failure warning to the screen
-                            (default = True)
     exit_on_failure - If True exit the program on failure (default = False)
     
     Returns:
     result - True/False indicating the success/failure of the command
     """
-    print('[Exec] %s' % ' '.join(command))
+    logging.debug('[Exec] %s', ' '.join(command))
     return_code = subprocess.call(command, shell=True)
     
     if return_code:
-        if print_warning_on_fail:
-            print("The command '%s' failed with return code: %s" % (' '.join(command), return_code))
+        logging.warning("The command '%s' failed with return code: %s",  (' '.join(command), return_code))
         if exit_on_failure:
             sys.exit(1)
     
     return return_code
 
-def run_cmd_with_output(command, print_warning_on_fail=True, exit_on_failure=False):
+def run_cmd_with_output(command, exit_on_failure=False):
     """ Passes a command to the system and returns a True/False result once the 
         command has been executed, indicating success/failure. If the command was 
         successful then the output from the command is returned to the caller.
@@ -220,22 +210,19 @@ def run_cmd_with_output(command, print_warning_on_fail=True, exit_on_failure=Fal
 
     Args:
     command - system command as a list of tokens
-    print_warning_on_fail - If True print any failure warning to the screen
-                            (default = True)
     exit_on_failure - If True exit the program on failure (default = False)
     
     Returns:
     result - True/False indicating the success/failure of the command
     output - The output of the command if it was successful, else empty string
     """
-    print('[Exec] %s' % ' '.join(command))
+    logging.debug('[Exec] %s', ' '.join(command))
     returncode = 0
     output = ""
     try:
         output = subprocess.check_output(command, shell=True)
     except subprocess.CalledProcessError as e:
-        if print_warning_on_fail:
-            print("The command '%s' failed with return code: %s" % (' '.join(command), e.returncode))
+        logging.warning("The command '%s' failed with return code: %s", (' '.join(command), e.returncode))
         returncode = e.returncode
         if exit_on_failure:
             sys.exit(1)
@@ -255,7 +242,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
     Returns:
     updated - True if library was updated, False otherwise
     """
-    print("\nUpdating test repo: '%s' to SHA: %s" % (test, ref))
+    logging.info("Updating test repo: '%s' to SHA: %s", test, ref)
     cwd = os.getcwd()
 
     repo = "https://" + user + '@developer.mbed.org/users/' + user + '/code/' + test 
@@ -263,7 +250,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
     # Clone the repo if it doesn't already exist
     path = abspath(repo_path + '/' + test)
     if not os.path.exists(path):
-        print("Test repo doesn't exist, cloning...")
+        logging.info("Test repo doesn't exist, cloning...")
         os.chdir(abspath(repo_path))        
         clone_cmd = ['hg', 'clone', repo]
         run_cmd(clone_cmd, exit_on_failure=True)
@@ -282,7 +269,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
         
         os.rename(lib_file, bak_file)
     else:
-        print("!! Error trying to backup lib file prior to updating.")
+        logging.error("!! Error trying to backup lib file prior to updating.")
         return False
     
     # mbed 2 style lib file contains one line with the following format
@@ -318,7 +305,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
             run_cmd(cmd, exit_on_failure=True)
             
         except:
-            print("Lib file already up to date and thus nothing to commit")
+            logging.info("Lib file already up to date and thus nothing to commit")
                             
     os.chdir(cwd)
     return updated
@@ -375,19 +362,27 @@ def get_latest_library_versions(repo_path):
     return mbed, mbed_dev
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-l', '--log-level', help="Level for providing logging output", default='INFO')
+    args = parser.parse_args()
+
+    default = getattr(logging, 'INFO')
+    level = getattr(logging, args.log_level.upper(), default)
+        
+    # Set logging level
+    logging.basicConfig(level=level)
     
     # Read configuration data
     json_data = json.load(open(os.path.join(os.path.dirname(__file__), "check_release.json")))
     
-    # Debug output off by default
-    dbg = False
 
     supported_targets = []
     
     # Get a list of the officially supported mbed-os 2 targets
     for tgt in OFFICIAL_MBED_LIBRARY_BUILD:
-        if 'ARM' in tgt[1]:
-            supported_targets.append(tgt[0] )
+        supported_targets.append(tgt[0])
       
     config = json_data["config"]
     test_list = json_data["test_list"]
@@ -409,11 +404,11 @@ if __name__ == '__main__':
     mbed, mbed_dev = get_latest_library_versions(repo_path)
 
     if not mbed or not mbed_dev:
-        print("Could not obtain latest versions of library files!!")
+        logging.error("Could not obtain latest versions of library files!!")
         exit(1)
         
-    print("Latest mbed lib version = %s" % mbed)    
-    print("Latest mbed-dev lib version = %s" % mbed_dev)    
+    logging.info("Latest mbed lib version = %s", mbed)
+    logging.info("Latest mbed-dev lib version = %s", mbed_dev)    
   
     # First update test repos to latest versions of their embedded libraries
     for test in test_list:
@@ -426,30 +421,27 @@ if __name__ == '__main__':
     
     # Compile each test for each supported target
     for test in tests:
-        print("Test compiling program: %s\n" % test)
+        logging.info("Test compiling program: %s\n", test)
         for target in supported_targets:
-            print("\tTarget: %s" % target)
             for retry in range(0, retries):
+                logging.info("\tCompiling target: %s , attempt %u\n", target, retry)
                 result, mesg = build_repo(target, test, user, password)
                 if not result:
                     if mesg == 'Internal':
                         # Internal compiler error thus retry
-                        sys.stdout.write("FAILURE \n")
-                        sys.stdout.flush()
                         continue
                     else:
                         # Genuine compilation error, thus print it out
-                        print("\t\tError: %s\n" % mesg)
+                        logging.error("\t\tError: %s\n", mesg)
                                     
                 passes += (int)(result)
                 break
             else:
-                print("\t\tProgram/Target compilation failed due to internal errors. Removing from considered list!\n")
+                logging.error("\t\tProgram/Target compilation failed due to internal errors. Removing from considered list!\n")
                 total -= 1   
                 
     # Output a % pass rate, indicate a failure if not 100% successful
     pass_rate = int(passes/total) * 100
-    print("Pass percentage = %d\n" % pass_rate)
+    logging.info("Pass percentage = %d\n", pass_rate)
     sys.exit(not (pass_rate == 100))
     
-  
