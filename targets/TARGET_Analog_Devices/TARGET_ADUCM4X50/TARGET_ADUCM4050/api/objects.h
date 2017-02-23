@@ -26,7 +26,10 @@
 extern "C" {
 #endif
 
-
+struct gpio_irq_s {
+	unsigned int id;
+	PinName pinname;
+};
 
 struct sleep_s {
 	int temp;

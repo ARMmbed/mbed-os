@@ -22,7 +22,9 @@
 #define MUX_FUNC_0 0x0
 #define NUM_GPIO_PORTS 4
 
-static uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
+extern uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
+extern uint8_t gpio_initialized;
+
 static uint16_t gpio_oen[NUM_GPIO_PORTS] = {0};
 static uint16_t gpio_output_val[NUM_GPIO_PORTS] = {0};
 
@@ -47,7 +49,8 @@ void gpio_init(gpio_t *obj, PinName pin) {
 
     // Initialize the GPIO driver. This function
     // initializes the GPIO driver only once globally.
-    adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
+    if (!gpio_initialized)
+        adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
 
     pin_function(pin, MUX_FUNC_0);
 }

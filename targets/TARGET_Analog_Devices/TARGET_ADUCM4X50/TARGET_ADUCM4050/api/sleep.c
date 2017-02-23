@@ -23,12 +23,12 @@
 #include "adi_pwr_def.h"
 #include "adi_rtos_map.h"
 #include "adi_ADuCM4050_device.h"
-
+#include "sleep.h"
 
 /**
  * Function to put processor into sleep (FLEXI mode only).
  */
-static void go_into_WFI(void)
+static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
 {
     uint32_t savedPriority;
     uint16_t savedWDT;
@@ -196,7 +196,7 @@ void sleep(void)
 {
     // set to go into the FLEXI mode where the processor is asleep and all peripherals are
     // still active
-    go_into_WFI();
+    go_into_WFI(ADI_PWR_MODE_FLEXI);
 }
 
 
@@ -222,8 +222,8 @@ void deepsleep(void)
     // set clock gating to all the peripheral clocks
     set_clock_gating(PCLK, 1);
 
-    // set to go into the hibernation mode
-    go_into_WFI();
+    // set to go into the FLEXI mode with peripheral clocks gated.
+    go_into_WFI(ADI_PWR_MODE_FLEXI);
 
     // when exiting, clear all peripheral clock gating bits. This is done to enable clocks that aren't
     // automatically re-enabled out of sleep such as the GPIO clock.

@@ -27,12 +27,12 @@
    Peripheral clock (PCLK) controls all the peripheral clocks, including
    all the clocks mentioned previously
 */
-typdef enum {
+typedef enum {
     GPT0_CLOCK = 0,
     GPT1_CLOCK,
     GPT2_CLOCK,
     I2C_CLOCK,
-    GPIO_CLOCK,    
+    GPIO_CLOCK,
     TIMER_RGB_CLOCK,
     PCLK
 } peripheral_clk_t;
@@ -41,6 +41,6 @@ typdef enum {
 /* Function to enable/disable clock gating for the available clocks.
    PCLK overrides all the other clocks.
 */
-void set_clock_gating(adi_peripheral_clk_t eClk, int enable);
+void set_clock_gating(peripheral_clk_t eClk, int enable);
 
 #endif  // #ifndef __SLEEP_H__
