@@ -37,7 +37,7 @@ static int us_ticker_inited = 0;
 
 static void us_timer_init(void);
 
-static uint32_t us_ticker_int_counter = 0;
+static uint32_t us_ticker_target = 0;
 static volatile uint32_t msb_counter = 0;
 
 void us_ticker_init(void)
@@ -168,20 +168,25 @@ extern void us_ticker_isr(void)
     /* Clear IRQ flag */
     TIM1REG->CLEAR = 0;
 
-    /* If this is a longer timer it will take multiple full hw counter cycles */
-    if (us_ticker_int_counter > 0) {
-        ticker_set(0xFFFF);
-        us_ticker_int_counter--;
-    } else {
+    int32_t delta = us_ticker_target - us_ticker_read();
+    if (delta <= 0) {
         TIM1REG->CONTROL.BITS.ENABLE = False;
         us_ticker_irq_handler();
+    } else {
+        // Clamp at max value of timer
+        if (delta > 0xFFFF) {
+            delta = 0xFFFF;
+        }
+
+        ticker_set(delta);
     }
 }
 
 /* Set timer 1 ticker interrupt */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    int32_t delta = (uint32_t)timestamp - us_ticker_read();
+    us_ticker_target = (uint32_t)timestamp;
+    int32_t delta = us_ticker_target - us_ticker_read();
 
     if (delta <= 0) {
         /* This event was in the past */
@@ -195,10 +200,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         return;
     }
 
-    /* Calculate how much delta falls outside the 16-bit counter range. */
-    /* You will have to perform a full timer overflow for each bit above */
-    /* that range. */
-    us_ticker_int_counter = (uint32_t)(delta >> 16);
+    // Clamp at max value of timer
+    if (delta > 0xFFFF) {
+        delta = 0xFFFF;
+    }
 
     ticker_set(delta);
 }

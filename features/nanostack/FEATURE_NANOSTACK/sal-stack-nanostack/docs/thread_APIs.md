@@ -380,14 +380,37 @@ Parameter|Description
 
 ### Collecting Thread management information
 
-The function `thread_management_info_get()` is used to collect Thread management related information from the Leader Router.
+#### Fetching Thread Management Information
+
+The function `thread_management_get()` is used to collect Thread management related information from the any device in the Thread network.
 
 Parameter|Description
 -----------|-----------
 `instance_id`|Instance ID of the management session.
-`fields_ptr`|A pointer to management fields from which the information is fetched.
-`field_count`|Number of fields in the field pointer array.
-`cb_ptr`|A pointer to `management_get_response_cb` callback function.
+`dst_addr` |Destination address; the address of a remote device from whome it is desirable to fetch management information. If however, the address is not provided, a request is sent to the leader of the network for this purpose. If a native commissioner is used, the request for management information is sent to the border router.
+`uri_ptr` |The ASCII string for the URI. This string identifies the CoAP URI for the desired resource. For example, `/c/mg` identifies the management get information resource.
+`fields_ptr`|A pointer to management fields; a set of TLVs. A list of such TLVs can be found in `thread_meshcop_lib.h`.
+`field_count`|Number of fields in the field pointer array (set of TLVs).
+`cb_ptr`|A pointer to `management_get_response_cb` callback function carrying the result of the operation.
+
+<dl>
+<dt>Response</dt>
+<dd> 0, success.</dd>
+<dd><0, failure.</dd>
+</dl>
+
+#### Setting up Thread Management Information
+
+The function `thread_management_set()` is used to set up Thread management related information to any device in the Thread network.
+
+Parameter|Description
+-----------|-----------
+`instance_id`|Instance ID of the management session.
+`dst_addr` |Destination address; the address of a remote device where it is desired to set up management information. If however, the address is not provided, a request is sent to the leader of the network for this purpose. If a native commissioner is used, the request for setting up management information is sent to the border router.
+`uri_ptr` |The ASCII string for the URI. This string identifies the CoAP URI for the desired resource. For example, `/c/ms` identifies the management set information resource.
+`data_ptr`|A pointer to the desired set of TLVs. 
+`field_count`|Number of fields in the field pointer array (set of TLVs).
+`cb_ptr`|A pointer to `management_get_response_cb` callback function carrying the result of the operation.
 
 <dl>
 <dt>Response</dt>

@@ -101,7 +101,7 @@ public:
      *  @param t the time between calls in micro-seconds
      */
     void attach_us(Callback<void()> func, timestamp_t t) {
-        _function.attach(func);
+        _function = func;
         setup(t);
     }
 

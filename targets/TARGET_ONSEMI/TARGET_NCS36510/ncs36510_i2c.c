@@ -60,6 +60,7 @@
  */
 #if DEVICE_I2C
 #include "i2c.h"
+#include "wait_api.h"
 
 /* See i2c.h for details */
 void fI2cInit(i2c_t *obj,PinName sda,PinName scl)
@@ -135,7 +136,7 @@ void fI2cFrequency(i2c_t *obj, uint32_t hz)
 int32_t fI2cStart(i2c_t *obj)
 {
     /* Send start bit */
-    obj->membase->CMD_REG = I2C_CMD_START;
+    SEND_COMMAND(I2C_CMD_START);
     return I2C_API_STATUS_SUCCESS;
 }
 
@@ -143,7 +144,7 @@ int32_t fI2cStart(i2c_t *obj)
 int32_t fI2cStop(i2c_t *obj)
 {
     /* Send stop bit */
-    obj->membase->CMD_REG = I2C_CMD_STOP;
+    SEND_COMMAND(I2C_CMD_STOP);
     if (obj->membase->STATUS.WORD & (I2C_STATUS_CMD_FIFO_FULL_BIT |
                                      I2C_STATUS_CMD_FIFO_OFL_BIT |
                                      I2C_STATUS_BUS_ERR_BIT)) {
@@ -154,23 +155,26 @@ int32_t fI2cStop(i2c_t *obj)
 }
 
 /* See i2c.h for details */
-int32_t fI2cReadB(i2c_t *d, char *buf, int len)
+int32_t fI2cReadB(i2c_t *obj, char *buf, int len)
 {
     int32_t read = 0;
 
     while (read < len) {
         /* Send read command */
-        d->membase->CMD_REG = I2C_CMD_RDAT8;
+        SEND_COMMAND(I2C_CMD_RDAT8);
         while(!RD_DATA_READY) {
             if (I2C_BUS_ERR_CHECK) {
                 /* Bus error occured */
                 return I2C_ERROR_BUS_BUSY;
             }
         }
-        buf[read++] = d->membase->RD_FIFO_REG; /**< Reading 'read FIFO register' will clear status register */
+        buf[read++] = obj->membase->RD_FIFO_REG; /**< Reading 'read FIFO register' will clear status register */
 
         if(!(read>=len)) {  /* No ACK will be generated for the last read, upper level I2C protocol should generate */
-            d->membase->CMD_REG=I2C_CMD_WDAT0; /* TODO based on requirement generate ACK or NACK Based on the requirement. */
+            SEND_COMMAND(I2C_CMD_WDAT0); /* TODO based on requirement generate ACK or NACK Based on the requirement. */
+        } else {
+            /* No ack */
+            SEND_COMMAND(I2C_CMD_WDAT1);
         }
 
         /* check for FIFO underflow */
@@ -187,39 +191,46 @@ int32_t fI2cReadB(i2c_t *d, char *buf, int len)
 }
 
 /* See i2c.h for details */
-int32_t fI2cWriteB(i2c_t *d, const char *buf, int len)
+int32_t fI2cWriteB(i2c_t *obj, const char *buf, int len)
 {
     int32_t write = 0;
 
     while (write < len) {
         /* Send write command */
-        d->membase->CMD_REG = I2C_CMD_WDAT8;
+        SEND_COMMAND(I2C_CMD_WDAT8);
+
         if(buf[write] == I2C_CMD_RDAT8) {
             /* SW work around to counter FSM issue. If the only command in the CMD FIFO is the WDAT8 command (data of 0x13)
             then as the command is read out (i.e. the FIFO goes empty), the WDAT8 command will be misinterpreted as a
             RDAT8 command by the data FSM; resulting in an I2C bus error (NACK instead of an ACK). */
             /* Send 0x13 bit wise */
-            d->membase->CMD_REG = I2C_CMD_WDAT0;
-            d->membase->CMD_REG = I2C_CMD_WDAT0;
-            d->membase->CMD_REG = I2C_CMD_WDAT0;
-            d->membase->CMD_REG = I2C_CMD_WDAT1;
+            SEND_COMMAND(I2C_CMD_WDAT0);
 
-            d->membase->CMD_REG = I2C_CMD_WDAT0;
-            d->membase->CMD_REG = I2C_CMD_WDAT0;
-            d->membase->CMD_REG = I2C_CMD_WDAT1;
-            d->membase->CMD_REG = I2C_CMD_WDAT1;
+            SEND_COMMAND(I2C_CMD_WDAT0);
+
+            SEND_COMMAND(I2C_CMD_WDAT0);
+
+            SEND_COMMAND(I2C_CMD_WDAT1);
+
+            SEND_COMMAND(I2C_CMD_WDAT0);
+
+            SEND_COMMAND(I2C_CMD_WDAT0);
+
+            SEND_COMMAND(I2C_CMD_WDAT1);
+
+            SEND_COMMAND(I2C_CMD_WDAT1);
         } else {
             /* Send data */
-            d->membase->CMD_REG = buf[write++];
+            SEND_COMMAND(buf[write++]);
         }
-        d->membase->CMD_REG = I2C_CMD_VRFY_ACK; /* TODO Verify ACK based on requirement, Do we need? */
-
-        while(FIFO_OFL_CHECK); /* Wait till command overflow ends */
+        SEND_COMMAND(I2C_CMD_VRFY_ACK); /* TODO Verify ACK based on requirement, Do we need? */
 
         if (I2C_BUS_ERR_CHECK) {
             /* Bus error */
             return I2C_ERROR_BUS_BUSY;
         }
+
+        while(FIFO_OFL_CHECK); /* Wait till command overflow ends */
     }
 
     return write;

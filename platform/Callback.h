@@ -268,7 +268,11 @@ public:
 
     /** Attach a static function
      *  @param func     Static function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)()) {
         this->~Callback();
         new (this) Callback(func);
@@ -276,7 +280,11 @@ public:
 
     /** Attach a Callback
      *  @param func     The Callback to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const Callback<R()> &func) {
         this->~Callback();
         new (this) Callback(func);
@@ -285,8 +293,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(U *obj, R (T::*method)()) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -295,8 +307,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const U *obj, R (T::*method)() const) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -305,8 +321,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile U *obj, R (T::*method)() volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -315,8 +335,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile U *obj, R (T::*method)() const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -325,8 +349,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(T*), U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -335,8 +363,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const T*), const U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -345,8 +377,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(volatile T*), volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -355,8 +391,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const volatile T*), const volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -365,8 +405,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(), &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -378,8 +422,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const F f, typename detail::enable_if<
                 detail::is_type<R (F::*)() const, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -391,8 +439,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -404,8 +456,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -807,7 +863,11 @@ public:
 
     /** Attach a static function
      *  @param func     Static function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(A0)) {
         this->~Callback();
         new (this) Callback(func);
@@ -815,7 +875,11 @@ public:
 
     /** Attach a Callback
      *  @param func     The Callback to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const Callback<R(A0)> &func) {
         this->~Callback();
         new (this) Callback(func);
@@ -824,8 +888,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(U *obj, R (T::*method)(A0)) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -834,8 +902,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const U *obj, R (T::*method)(A0) const) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -844,8 +916,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile U *obj, R (T::*method)(A0) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -854,8 +930,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile U *obj, R (T::*method)(A0) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -864,8 +944,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(T*, A0), U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -874,8 +958,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const T*, A0), const U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -884,8 +972,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(volatile T*, A0), volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -894,8 +986,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const volatile T*, A0), const volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -904,8 +1000,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0), &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -917,8 +1017,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -930,8 +1034,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -943,8 +1051,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -1346,7 +1458,11 @@ public:
 
     /** Attach a static function
      *  @param func     Static function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(A0, A1)) {
         this->~Callback();
         new (this) Callback(func);
@@ -1354,7 +1470,11 @@ public:
 
     /** Attach a Callback
      *  @param func     The Callback to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const Callback<R(A0, A1)> &func) {
         this->~Callback();
         new (this) Callback(func);
@@ -1363,8 +1483,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(U *obj, R (T::*method)(A0, A1)) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1373,8 +1497,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const U *obj, R (T::*method)(A0, A1) const) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1383,8 +1511,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile U *obj, R (T::*method)(A0, A1) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1393,8 +1525,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile U *obj, R (T::*method)(A0, A1) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1403,8 +1539,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(T*, A0, A1), U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1413,8 +1553,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const T*, A0, A1), const U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1423,8 +1567,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(volatile T*, A0, A1), volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1433,8 +1581,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const volatile T*, A0, A1), const volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1443,8 +1595,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -1456,8 +1612,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -1469,8 +1629,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -1482,8 +1646,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -1885,7 +2053,11 @@ public:
 
     /** Attach a static function
      *  @param func     Static function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(A0, A1, A2)) {
         this->~Callback();
         new (this) Callback(func);
@@ -1893,7 +2065,11 @@ public:
 
     /** Attach a Callback
      *  @param func     The Callback to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const Callback<R(A0, A1, A2)> &func) {
         this->~Callback();
         new (this) Callback(func);
@@ -1902,8 +2078,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(U *obj, R (T::*method)(A0, A1, A2)) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1912,8 +2092,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const U *obj, R (T::*method)(A0, A1, A2) const) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1922,8 +2106,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile U *obj, R (T::*method)(A0, A1, A2) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1932,8 +2120,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile U *obj, R (T::*method)(A0, A1, A2) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -1942,8 +2134,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(T*, A0, A1, A2), U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1952,8 +2148,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const T*, A0, A1, A2), const U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1962,8 +2162,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(volatile T*, A0, A1, A2), volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1972,8 +2176,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const volatile T*, A0, A1, A2), const volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -1982,8 +2190,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -1995,8 +2207,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2008,8 +2224,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2021,8 +2241,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2424,7 +2648,11 @@ public:
 
     /** Attach a static function
      *  @param func     Static function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(A0, A1, A2, A3)) {
         this->~Callback();
         new (this) Callback(func);
@@ -2432,7 +2660,11 @@ public:
 
     /** Attach a Callback
      *  @param func     The Callback to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const Callback<R(A0, A1, A2, A3)> &func) {
         this->~Callback();
         new (this) Callback(func);
@@ -2441,8 +2673,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(U *obj, R (T::*method)(A0, A1, A2, A3)) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -2451,8 +2687,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const U *obj, R (T::*method)(A0, A1, A2, A3) const) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -2461,8 +2701,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile U *obj, R (T::*method)(A0, A1, A2, A3) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -2471,8 +2715,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile U *obj, R (T::*method)(A0, A1, A2, A3) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -2481,8 +2729,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(T*, A0, A1, A2, A3), U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -2491,8 +2743,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const T*, A0, A1, A2, A3), const U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -2501,8 +2757,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(volatile T*, A0, A1, A2, A3), volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -2511,8 +2771,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const volatile T*, A0, A1, A2, A3), const volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -2521,8 +2785,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2534,8 +2802,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2547,8 +2819,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2560,8 +2836,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -2963,7 +3243,11 @@ public:
 
     /** Attach a static function
      *  @param func     Static function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(A0, A1, A2, A3, A4)) {
         this->~Callback();
         new (this) Callback(func);
@@ -2971,7 +3255,11 @@ public:
 
     /** Attach a Callback
      *  @param func     The Callback to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const Callback<R(A0, A1, A2, A3, A4)> &func) {
         this->~Callback();
         new (this) Callback(func);
@@ -2980,8 +3268,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(U *obj, R (T::*method)(A0, A1, A2, A3, A4)) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -2990,8 +3282,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const U *obj, R (T::*method)(A0, A1, A2, A3, A4) const) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -3000,8 +3296,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -3010,8 +3310,12 @@ public:
     /** Attach a member function
      *  @param obj      Pointer to object to invoke member function on
      *  @param method   Member function to attach
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template<typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile U *obj, R (T::*method)(A0, A1, A2, A3, A4) const volatile) {
         this->~Callback();
         new (this) Callback(obj, method);
@@ -3020,8 +3324,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(T*, A0, A1, A2, A3, A4), U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -3030,8 +3338,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const T*, A0, A1, A2, A3, A4), const U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -3040,8 +3352,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(volatile T*, A0, A1, A2, A3, A4), volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -3050,8 +3366,12 @@ public:
     /** Attach a static function with a bound pointer
      *  @param func     Static function to attach
      *  @param arg      Pointer argument to function
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename T, typename U>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(R (*func)(const volatile T*, A0, A1, A2, A3, A4), const volatile U *arg) {
         this->~Callback();
         new (this) Callback(func, arg);
@@ -3060,8 +3380,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -3073,8 +3397,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -3086,8 +3414,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)
@@ -3099,8 +3431,12 @@ public:
     /** Attach a function object
      *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
+     *  @deprecated
+     *      Replaced by simple assignment 'Callback cb = func'
      */
     template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "Replaced by simple assignment 'Callback cb = func")
     void attach(const volatile F f, typename detail::enable_if<
                 detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
                 sizeof(F) <= sizeof(uintptr_t)

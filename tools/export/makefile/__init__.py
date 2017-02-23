@@ -78,9 +78,7 @@ class Makefile(Exporter):
             'asm_cmd': " ".join(["\'" + part + "\'" for part
                                 in ([basename(self.toolchain.asm[0])] +
                                     self.toolchain.asm[1:])]),
-            'ld_cmd': " ".join(["\'" + part + "\'" for part
-                                in ([basename(self.toolchain.ld[0])] +
-                                    self.toolchain.ld[1:])]),
+            'ld_cmd': "\'" + basename(self.toolchain.ld[0]) + "\'",
             'elf2bin_cmd': "\'" + basename(self.toolchain.elf2bin) + "\'",
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,

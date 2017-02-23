@@ -49,6 +49,7 @@
 
 #include "platform/toolchain.h"
 #include "platform/platform.h"
+#include "platform/mbed_application.h"
 
 // Useful C libraries
 #include <math.h>
@@ -80,6 +81,7 @@
 #include "drivers/Ethernet.h"
 #include "drivers/CAN.h"
 #include "drivers/RawSerial.h"
+#include "drivers/FlashIAP.h"
 
 // mbed Internal components
 #include "drivers/Timer.h"
