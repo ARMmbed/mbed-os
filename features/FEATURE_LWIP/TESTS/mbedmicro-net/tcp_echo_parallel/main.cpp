@@ -88,7 +88,7 @@ Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(20, "tcp_echo");
+    GREENTEA_SETUP(60, "tcp_echo");
 
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
