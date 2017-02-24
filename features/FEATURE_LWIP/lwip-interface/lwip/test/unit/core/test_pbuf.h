@@ -1,5 +1,5 @@
-#ifndef LWIP_HDR_TEST_PBUF_H__
-#define LWIP_HDR_TEST_PBUF_H__
+#ifndef LWIP_HDR_TEST_PBUF_H
+#define LWIP_HDR_TEST_PBUF_H
 
 #include "../lwip_check.h"
 

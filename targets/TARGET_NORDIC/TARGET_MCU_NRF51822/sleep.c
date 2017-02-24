@@ -16,7 +16,7 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "mbed_interface.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 MBED_WEAK void hal_sleep(void)
 {

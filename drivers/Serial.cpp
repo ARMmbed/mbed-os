@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "drivers/Serial.h"
-#include "platform/wait_api.h"
+#include "platform/mbed_wait_api.h"
 
 #if DEVICE_SERIAL
 

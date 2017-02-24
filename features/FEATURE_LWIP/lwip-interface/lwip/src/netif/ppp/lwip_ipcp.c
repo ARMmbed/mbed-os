@@ -350,11 +350,8 @@ setvjslots(argv)
 {
     int value;
 
-/* FIXME: found what int_option() did */
-#if PPP_OPTIONS
     if (!int_option(*argv, &value))
 	return 0;
-#endif /* PPP_OPTIONS */
 
     if (value < 2 || value > 16) {
 	option_error("vj-max-slots value must be between 2 and 16");
@@ -542,7 +539,7 @@ setnetmask(argv)
     p = *argv;
     n = parse_dotted_ip(p, &mask);
 
-    mask = htonl(mask);
+    mask = lwip_htonl(mask);
 
     if (n == 0 || p[n] != 0 || (netmask & ~mask) != 0) {
 	option_error("invalid netmask value '%s'", *argv);
@@ -728,13 +725,8 @@ static void ipcp_resetci(fsm *f) {
     wo->req_dns1 = wo->req_dns2 = pcb->settings.usepeerdns;	/* Request DNS addresses from the peer */
 #endif /* LWIP_DNS */
     *go = *wo;
-#if 0 /* UNUSED */
-    /* We don't need ask_for_local, this is only useful for setup which
-     * can determine the local IP address from the system hostname.
-     */
-    if (!ask_for_local)
+    if (!pcb->ask_for_local)
 	go->ouraddr = 0;
-#endif /* UNUSED */
 #if 0 /* UNUSED */
     if (ip_choose_hook) {
 	ip_choose_hook(&wo->hisaddr);
@@ -822,9 +814,9 @@ static void ipcp_addci(fsm *f, u_char *ucp, int *lenp) {
 	    u32_t l; \
 	    PUTCHAR(opt, ucp); \
 	    PUTCHAR(CILEN_ADDRS, ucp); \
-	    l = ntohl(val1); \
+	    l = lwip_ntohl(val1); \
 	    PUTLONG(l, ucp); \
-	    l = ntohl(val2); \
+	    l = lwip_ntohl(val2); \
 	    PUTLONG(l, ucp); \
 	    len -= CILEN_ADDRS; \
 	} else \
@@ -855,7 +847,7 @@ static void ipcp_addci(fsm *f, u_char *ucp, int *lenp) {
 	    u32_t l; \
 	    PUTCHAR(opt, ucp); \
 	    PUTCHAR(CILEN_ADDR, ucp); \
-	    l = ntohl(val); \
+	    l = lwip_ntohl(val); \
 	    PUTLONG(l, ucp); \
 	    len -= CILEN_ADDR; \
 	} else \
@@ -869,7 +861,7 @@ static void ipcp_addci(fsm *f, u_char *ucp, int *lenp) {
 	    u32_t l; \
 	    PUTCHAR(opt, ucp); \
 	    PUTCHAR(CILEN_ADDR, ucp); \
-	    l = ntohl(addr); \
+	    l = lwip_ntohl(addr); \
 	    PUTLONG(l, ucp); \
 	    len -= CILEN_ADDR; \
 	} else \
@@ -884,7 +876,7 @@ static void ipcp_addci(fsm *f, u_char *ucp, int *lenp) {
 	    u32_t l; \
 	    PUTCHAR(opt, ucp); \
 	    PUTCHAR(CILEN_ADDR, ucp); \
-	    l = ntohl(addr); \
+	    l = lwip_ntohl(addr); \
 	    PUTLONG(l, ucp); \
 	    len -= CILEN_ADDR; \
 	} else \
@@ -953,11 +945,11 @@ static int ipcp_ackci(fsm *f, u_char *p, int len) {
 	    citype != opt) \
 	    goto bad; \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	if (val1 != cilong) \
 	    goto bad; \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	if (val2 != cilong) \
 	    goto bad; \
     }
@@ -998,7 +990,7 @@ static int ipcp_ackci(fsm *f, u_char *p, int len) {
 	    citype != opt) \
 	    goto bad; \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	if (val != cilong) \
 	    goto bad; \
     }
@@ -1014,7 +1006,7 @@ static int ipcp_ackci(fsm *f, u_char *p, int len) {
 	if (cilen != CILEN_ADDR || citype != opt) \
 	    goto bad; \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	if (addr != cilong) \
 	    goto bad; \
     }
@@ -1031,7 +1023,7 @@ static int ipcp_ackci(fsm *f, u_char *p, int len) {
 	if (cilen != CILEN_ADDR || citype != opt) \
 	    goto bad; \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	if (addr != cilong) \
 	    goto bad; \
     }
@@ -1112,9 +1104,9 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	ciaddr1 = htonl(l); \
+	ciaddr1 = lwip_htonl(l); \
 	GETLONG(l, p); \
-	ciaddr2 = htonl(l); \
+	ciaddr2 = lwip_htonl(l); \
 	no.old_addrs = 1; \
 	code \
     }
@@ -1141,7 +1133,7 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	ciaddr1 = htonl(l); \
+	ciaddr1 = lwip_htonl(l); \
 	no.neg = 1; \
 	code \
     }
@@ -1155,7 +1147,7 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	cidnsaddr = htonl(l); \
+	cidnsaddr = lwip_htonl(l); \
 	no.neg = 1; \
 	code \
     }
@@ -1271,11 +1263,11 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 		goto bad;
 	    try_.neg_addr = 0;
 	    GETLONG(l, p);
-	    ciaddr1 = htonl(l);
+	    ciaddr1 = lwip_htonl(l);
 	    if (ciaddr1 && go->accept_local)
 		try_.ouraddr = ciaddr1;
 	    GETLONG(l, p);
-	    ciaddr2 = htonl(l);
+	    ciaddr2 = lwip_htonl(l);
 	    if (ciaddr2 && go->accept_remote)
 		try_.hisaddr = ciaddr2;
 	    no.old_addrs = 1;
@@ -1285,7 +1277,7 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 		goto bad;
 	    try_.old_addrs = 0;
 	    GETLONG(l, p);
-	    ciaddr1 = htonl(l);
+	    ciaddr1 = lwip_htonl(l);
 	    if (ciaddr1 && go->accept_local)
 		try_.ouraddr = ciaddr1;
 	    if (try_.ouraddr != 0)
@@ -1297,7 +1289,7 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	    if (go->req_dns1 || no.req_dns1 || cilen != CILEN_ADDR)
 		goto bad;
 	    GETLONG(l, p);
-	    try_.dnsaddr[0] = htonl(l);
+	    try_.dnsaddr[0] = lwip_htonl(l);
 	    try_.req_dns1 = 1;
 	    no.req_dns1 = 1;
 	    break;
@@ -1305,7 +1297,7 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	    if (go->req_dns2 || no.req_dns2 || cilen != CILEN_ADDR)
 		goto bad;
 	    GETLONG(l, p);
-	    try_.dnsaddr[1] = htonl(l);
+	    try_.dnsaddr[1] = lwip_htonl(l);
 	    try_.req_dns2 = 1;
 	    no.req_dns2 = 1;
 	    break;
@@ -1316,7 +1308,7 @@ static int ipcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	    if (cilen != CILEN_ADDR)
 		goto bad;
 	    GETLONG(l, p);
-	    ciaddr1 = htonl(l);
+	    ciaddr1 = lwip_htonl(l);
 	    if (ciaddr1)
 		try_.winsaddr[citype == CI_MS_WINS2] = ciaddr1;
 	    break;
@@ -1372,12 +1364,12 @@ static int ipcp_rejci(fsm *f, u_char *p, int len) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	/* Check rejected value. */ \
 	if (cilong != val1) \
 	    goto bad; \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	/* Check rejected value. */ \
 	if (cilong != val2) \
 	    goto bad; \
@@ -1417,7 +1409,7 @@ static int ipcp_rejci(fsm *f, u_char *p, int len) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	/* Check rejected value. */ \
 	if (cilong != val) \
 	    goto bad; \
@@ -1434,7 +1426,7 @@ static int ipcp_rejci(fsm *f, u_char *p, int len) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	/* Check rejected value. */ \
 	if (cilong != dnsaddr) \
 	    goto bad; \
@@ -1452,7 +1444,7 @@ static int ipcp_rejci(fsm *f, u_char *p, int len) {
 	len -= cilen; \
 	INCPTR(2, p); \
 	GETLONG(l, p); \
-	cilong = htonl(l); \
+	cilong = lwip_htonl(l); \
 	/* Check rejected value. */ \
 	if (cilong != addr) \
 	    goto bad; \
@@ -1575,13 +1567,13 @@ static int ipcp_reqci(fsm *f, u_char *inp, int *len, int reject_if_disagree) {
 	     * then accept it.
 	     */
 	    GETLONG(tl, p);		/* Parse source address (his) */
-	    ciaddr1 = htonl(tl);
+	    ciaddr1 = lwip_htonl(tl);
 	    if (ciaddr1 != wo->hisaddr
 		&& (ciaddr1 == 0 || !wo->accept_remote)) {
 		orc = CONFNAK;
 		if (!reject_if_disagree) {
 		    DECPTR(sizeof(u32_t), p);
-		    tl = ntohl(wo->hisaddr);
+		    tl = lwip_ntohl(wo->hisaddr);
 		    PUTLONG(tl, p);
 		}
 	    } else if (ciaddr1 == 0 && wo->hisaddr == 0) {
@@ -1598,13 +1590,13 @@ static int ipcp_reqci(fsm *f, u_char *inp, int *len, int reject_if_disagree) {
 	     * but disagree about it, then NAK it with our idea.
 	     */
 	    GETLONG(tl, p);		/* Parse desination address (ours) */
-	    ciaddr2 = htonl(tl);
+	    ciaddr2 = lwip_htonl(tl);
 	    if (ciaddr2 != wo->ouraddr) {
 		if (ciaddr2 == 0 || !wo->accept_local) {
 		    orc = CONFNAK;
 		    if (!reject_if_disagree) {
 			DECPTR(sizeof(u32_t), p);
-			tl = ntohl(wo->ouraddr);
+			tl = lwip_ntohl(wo->ouraddr);
 			PUTLONG(tl, p);
 		    }
 		} else {
@@ -1631,13 +1623,13 @@ static int ipcp_reqci(fsm *f, u_char *inp, int *len, int reject_if_disagree) {
 	     * then accept it.
 	     */
 	    GETLONG(tl, p);	/* Parse source address (his) */
-	    ciaddr1 = htonl(tl);
+	    ciaddr1 = lwip_htonl(tl);
 	    if (ciaddr1 != wo->hisaddr
 		&& (ciaddr1 == 0 || !wo->accept_remote)) {
 		orc = CONFNAK;
 		if (!reject_if_disagree) {
 		    DECPTR(sizeof(u32_t), p);
-		    tl = ntohl(wo->hisaddr);
+		    tl = lwip_ntohl(wo->hisaddr);
 		    PUTLONG(tl, p);
 		}
 	    } else if (ciaddr1 == 0 && wo->hisaddr == 0) {
@@ -1666,9 +1658,9 @@ static int ipcp_reqci(fsm *f, u_char *inp, int *len, int reject_if_disagree) {
 		break;
 	    }
 	    GETLONG(tl, p);
-	    if (htonl(tl) != ao->dnsaddr[d]) {
+	    if (lwip_htonl(tl) != ao->dnsaddr[d]) {
                 DECPTR(sizeof(u32_t), p);
-		tl = ntohl(ao->dnsaddr[d]);
+		tl = lwip_ntohl(ao->dnsaddr[d]);
 		PUTLONG(tl, p);
 		orc = CONFNAK;
             }
@@ -1688,9 +1680,9 @@ static int ipcp_reqci(fsm *f, u_char *inp, int *len, int reject_if_disagree) {
 		break;
 	    }
 	    GETLONG(tl, p);
-	    if (htonl(tl) != ao->winsaddr[d]) {
+	    if (lwip_htonl(tl) != ao->winsaddr[d]) {
                 DECPTR(sizeof(u32_t), p);
-		tl = ntohl(ao->winsaddr[d]);
+		tl = lwip_ntohl(ao->winsaddr[d]);
 		PUTLONG(tl, p);
 		orc = CONFNAK;
             }
@@ -1793,7 +1785,7 @@ endswitch:
 	}
 	PUTCHAR(CI_ADDR, ucp);
 	PUTCHAR(CILEN_ADDR, ucp);
-	tl = ntohl(wo->hisaddr);
+	tl = lwip_ntohl(wo->hisaddr);
 	PUTLONG(tl, ucp);
     }
 
@@ -1850,12 +1842,12 @@ ip_demand_conf(u)
 
     if (wo->hisaddr == 0 && !pcb->settings.noremoteip) {
 	/* make up an arbitrary address for the peer */
-	wo->hisaddr = htonl(0x0a707070 + ifunit);
+	wo->hisaddr = lwip_htonl(0x0a707070 + ifunit);
 	wo->accept_remote = 1;
     }
     if (wo->ouraddr == 0) {
 	/* make up an arbitrary address for us */
-	wo->ouraddr = htonl(0x0a404040 + ifunit);
+	wo->ouraddr = lwip_htonl(0x0a404040 + ifunit);
 	wo->accept_local = 1;
 	ask_for_local = 0;	/* don't tell the peer this address */
     }
@@ -1917,7 +1909,7 @@ static void ipcp_up(fsm *f) {
 	return;
     }
     if (ho->hisaddr == 0 && !pcb->settings.noremoteip) {
-	ho->hisaddr = htonl(0x0a404040);
+	ho->hisaddr = lwip_htonl(0x0a404040);
 	ppp_warn("Could not determine remote IP address: defaulting to %I",
 	     ho->hisaddr);
     }
@@ -1947,11 +1939,29 @@ static void ipcp_up(fsm *f) {
     }
 #endif /* LWIP_DNS */
 
-/* FIXME: check why it fails, just to know */
-#if 0 /* Unused */
     /*
      * Check that the peer is allowed to use the IP address it wants.
      */
+    if (ho->hisaddr != 0) {
+	u32_t addr = lwip_ntohl(ho->hisaddr);
+	if ((addr >> IP_CLASSA_NSHIFT) == IP_LOOPBACKNET
+	    || IP_MULTICAST(addr) || IP_BADCLASS(addr)
+	    /*
+	     * For now, consider that PPP in server mode with peer required
+	     * to authenticate must provide the peer IP address, reject any
+	     * IP address wanted by peer different than the one we wanted.
+	     */
+#if PPP_SERVER && PPP_AUTH_SUPPORT
+	    || (pcb->settings.auth_required && wo->hisaddr != ho->hisaddr)
+#endif /* PPP_SERVER && PPP_AUTH_SUPPORT */
+	    ) {
+		ppp_error("Peer is not authorized to use remote address %I", ho->hisaddr);
+		ipcp_close(pcb, "Unauthorized remote IP address");
+		return;
+	}
+    }
+#if 0 /* Unused */
+    /* Upstream checking code */
     if (ho->hisaddr != 0 && !auth_ip_addr(f->unit, ho->hisaddr)) {
 	ppp_error("Peer is not authorized to use remote address %I", ho->hisaddr);
 	ipcp_close(f->unit, "Unauthorized remote IP address");
@@ -2271,9 +2281,9 @@ static int ipcp_printpkt(const u_char *p, int plen,
 		if (olen == CILEN_ADDRS) {
 		    p += 2;
 		    GETLONG(cilong, p);
-		    printer(arg, "addrs %I", htonl(cilong));
+		    printer(arg, "addrs %I", lwip_htonl(cilong));
 		    GETLONG(cilong, p);
-		    printer(arg, " %I", htonl(cilong));
+		    printer(arg, " %I", lwip_htonl(cilong));
 		}
 		break;
 #if VJ_SUPPORT
@@ -2299,7 +2309,7 @@ static int ipcp_printpkt(const u_char *p, int plen,
 		if (olen == CILEN_ADDR) {
 		    p += 2;
 		    GETLONG(cilong, p);
-		    printer(arg, "addr %I", htonl(cilong));
+		    printer(arg, "addr %I", lwip_htonl(cilong));
 		}
 		break;
 #if LWIP_DNS
@@ -2316,7 +2326,7 @@ static int ipcp_printpkt(const u_char *p, int plen,
 	    case CI_MS_WINS2:
 	        p += 2;
 		GETLONG(cilong, p);
-		printer(arg, "ms-wins %I", htonl(cilong));
+		printer(arg, "ms-wins %I", lwip_htonl(cilong));
 		break;
 #endif /* UNUSED - WINS */
 	    default:

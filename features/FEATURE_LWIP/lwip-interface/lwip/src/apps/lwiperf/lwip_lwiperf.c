@@ -262,7 +262,7 @@ lwiperf_tcp_client_send_more(lwiperf_state_tcp_t* conn)
       /* this session is time-limited */
       u32_t now = sys_now();
       u32_t diff_ms = now - conn->time_started;
-      u32_t time = (u32_t)-(s32_t)htonl(conn->settings.amount);
+      u32_t time = (u32_t)-(s32_t)lwip_htonl(conn->settings.amount);
       u32_t time_ms = time * 10;
       if (diff_ms >= time_ms) {
         /* time specified by the client is over -> close the connection */
@@ -271,7 +271,7 @@ lwiperf_tcp_client_send_more(lwiperf_state_tcp_t* conn)
       }
     } else {
       /* this session is byte-limited */
-      u32_t amount_bytes = htonl(conn->settings.amount);
+      u32_t amount_bytes = lwip_htonl(conn->settings.amount);
       /* @todo: this can send up to 1*MSS more than requested... */
       if (amount_bytes >= conn->bytes_transferred) {
         /* all requested bytes transferred -> close the connection */
@@ -294,7 +294,7 @@ lwiperf_tcp_client_send_more(lwiperf_state_tcp_t* conn)
     } else {
       /* transmit data */
       /* @todo: every x bytes, transmit the settings again */
-      txptr = (void*)(size_t)&lwiperf_txbuf_const[conn->bytes_transferred % 10];
+      txptr = LWIP_CONST_CAST(void*, &lwiperf_txbuf_const[conn->bytes_transferred % 10]);
       txlen_max = TCP_MSS;
       if (conn->bytes_transferred == 48) { /* @todo: fix this for intermediate settings, too */
         txlen_max = TCP_MSS - 24;
@@ -374,7 +374,7 @@ lwiperf_tx_start(lwiperf_state_tcp_t* conn)
     return ERR_MEM;
   }
 
-  memcpy(client_conn, conn, sizeof(lwiperf_state_tcp_t));
+  MEMCPY(client_conn, conn, sizeof(lwiperf_state_tcp_t));
   client_conn->base.server = 0;
   client_conn->server_pcb = NULL;
   client_conn->conn_pcb = newpcb;
@@ -390,7 +390,7 @@ lwiperf_tx_start(lwiperf_state_tcp_t* conn)
   tcp_err(newpcb, lwiperf_tcp_err);
 
   ip_addr_copy(remote_addr, conn->conn_pcb->remote_ip);
-  remote_port = (u16_t)htonl(client_conn->settings.remote_port);
+  remote_port = (u16_t)lwip_htonl(client_conn->settings.remote_port);
 
   err = tcp_connect(newpcb, &remote_addr, remote_port, lwiperf_tcp_client_connected);
   if (err != ERR_OK) {
@@ -405,6 +405,7 @@ lwiperf_tx_start(lwiperf_state_tcp_t* conn)
 static err_t
 lwiperf_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
+  u8_t tmp;
   u16_t tot_len;
   u32_t packet_idx;
   struct pbuf* q;
@@ -470,8 +471,8 @@ lwiperf_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
       return ERR_OK;
     }
     conn->next_num = 4; /* 24 bytes received... */
-    err = pbuf_header(p, -24);
-    LWIP_ASSERT("pbuf_header failed", err == ERR_OK);
+    tmp = pbuf_header(p, -24);
+    LWIP_ASSERT("pbuf_header failed", tmp == 0);
   }
 
   packet_idx = 0;
@@ -493,10 +494,8 @@ lwiperf_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
         return ERR_VAL;
       }
     }
-    packet_idx += i;
-#else
-    packet_idx += q->len;
 #endif
+    packet_idx += q->len;
   }
   LWIP_ASSERT("count mismatch", packet_idx == p->tot_len);
   conn->bytes_transferred += packet_idx;

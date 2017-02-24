@@ -1,6 +1,7 @@
-sys_arch interface for lwIP 0.6++
+sys_arch interface for lwIP
 
 Author: Adam Dunkels
+        Simon Goldschmidt
 
 The operating system emulation layer provides a common interface
 between the lwIP code and the underlying operating system kernel. The
@@ -9,12 +10,11 @@ small changes to a few header files and a new sys_arch
 implementation. It is also possible to do a sys_arch implementation
 that does not rely on any underlying operating system.
 
-The sys_arch provides semaphores and mailboxes to lwIP. For the full
+The sys_arch provides semaphores, mailboxes and mutexes to lwIP. For the full
 lwIP functionality, multiple threads support can be implemented in the
 sys_arch, but this is not required for the basic lwIP
-functionality. Previous versions of lwIP required the sys_arch to
-implement timer scheduling as well but as of lwIP 0.5 this is
-implemented in a higher layer.
+functionality. Timer scheduling is implemented in lwIP, but can be implemented
+by the sys_arch port (LWIP_TIMERS_CUSTOM==1).
 
 In addition to the source file providing the functionality of sys_arch,
 the OS emulation layer must provide several header files defining
@@ -22,19 +22,18 @@ macros used throughout lwip.  The files required and the macros they
 must define are listed below the sys_arch description.
 
 Semaphores can be either counting or binary - lwIP works with both
-kinds. Mailboxes are used for message passing and can be implemented
-either as a queue which allows multiple messages to be posted to a
-mailbox, or as a rendez-vous point where only one message can be
-posted at a time. lwIP works with both kinds, but the former type will
-be more efficient. A message in a mailbox is just a pointer, nothing
-more. 
+kinds. Mailboxes should be implemented as a queue which allows multiple messages
+to be posted (implementing as a rendez-vous point where only one message can be
+posted at a time can have a highly negative impact on performance). A message
+in a mailbox is just a pointer, nothing more. 
 
 Semaphores are represented by the type "sys_sem_t" which is typedef'd
 in the sys_arch.h file. Mailboxes are equivalently represented by the
-type "sys_mbox_t". lwIP does not place any restrictions on how
-sys_sem_t or sys_mbox_t are represented internally.
+type "sys_mbox_t". Mutexes are represented by the type "sys_mutex_t".
+lwIP does not place any restrictions on how these types are represented
+internally.
 
-Since lwIP 1.4.0, semaphore and mailbox functions are prototyped in a way that
+Since lwIP 1.4.0, semaphore, mutexes and mailbox functions are prototyped in a way that
 allows both using pointers or actual OS structures to be used. This way, memory
 required for such types can be either allocated in place (globally or on the
 stack) or on the heap (allocated internally in the "*_new()" functions).
@@ -92,6 +91,40 @@ The following functions must be implemented by the sys_arch:
   Invalidate a semaphore so that sys_sem_valid() returns 0.
   ATTENTION: This does NOT mean that the semaphore shall be deallocated:
   sys_sem_free() is always called before calling this function!
+  This may also be a define, in which case the function is not prototyped.
+
+- void sys_mutex_new(sys_mutex_t *mutex)
+
+  Creates a new mutex. The mutex is allocated to the memory that 'mutex'
+  points to (which can be both a pointer or the actual OS structure).
+  If the mutex has been created, ERR_OK should be returned. Returning any
+  other error will provide a hint what went wrong, but except for assertions,
+  no real error handling is implemented.
+
+- void sys_mutex_free(sys_mutex_t *mutex)
+
+  Deallocates a mutex.
+
+- void sys_mutex_lock(sys_mutex_t *mutex)
+  
+  Blocks the thread until the mutex can be grabbed.
+
+- void sys_mutex_unlock(sys_mutex_t *mutex)
+
+  Releases the mutex previously locked through 'sys_mutex_lock()'.
+
+- void sys_mutex_valid(sys_mutex_t *mutex)
+
+  Returns 1 if the mutes is valid, 0 if it is not valid.
+  When using pointers, a simple way is to check the pointer for != NULL.
+  When directly using OS structures, implementing this may be more complex.
+  This may also be a define, in which case the function is not prototyped.
+
+- void sys_mutex_set_invalid(sys_mutex_t *mutex)
+
+  Invalidate a mutex so that sys_mutex_valid() returns 0.
+  ATTENTION: This does NOT mean that the mutex shall be deallocated:
+  sys_mutex_free() is always called before calling this function!
   This may also be a define, in which case the function is not prototyped.
 
 - err_t sys_mbox_new(sys_mbox_t *mbox, int size)
@@ -176,6 +209,9 @@ to be implemented as well:
   the "stacksize" parameter. The id of the new thread is returned. Both the id
   and the priority are system dependent.
 
+When lwIP is used from more than one context (e.g. from multiple threads OR from
+main-loop and from interrupts), the SYS_LIGHTWEIGHT_PROT protection SHOULD be enabled!
+
 - sys_prot_t sys_arch_protect(void)
 
   This optional function does a "fast" critical region protection and returns
@@ -209,7 +245,7 @@ For some configurations, you also need:
 
 Note:
 
-Be carefull with using mem_malloc() in sys_arch. When malloc() refers to
+Be careful with using mem_malloc() in sys_arch. When malloc() refers to
 mem_malloc() you can run into a circular function call problem. In mem.c
 mem_init() tries to allcate a semaphore using mem_malloc, which of course
 can't be performed when sys_arch uses mem_malloc.

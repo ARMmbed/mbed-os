@@ -18,7 +18,7 @@
 #define USB_INC_H
 
 #include "mbed.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 enum USB_TYPE {
     USB_TYPE_OK = 0,

@@ -212,13 +212,13 @@ sntp_process(u32_t *receive_timestamp)
   /* convert SNTP time (1900-based) to unix GMT time (1970-based)
    * if MSB is 0, SNTP time is 2036-based!
    */
-  u32_t rx_secs = ntohl(receive_timestamp[0]);
+  u32_t rx_secs = lwip_ntohl(receive_timestamp[0]);
   int is_1900_based = ((rx_secs & 0x80000000) != 0);
   u32_t t = is_1900_based ? (rx_secs - DIFF_SEC_1900_1970) : (rx_secs + DIFF_SEC_1970_2036);
   time_t tim = t;
 
 #if SNTP_CALC_TIME_US
-  u32_t us = ntohl(receive_timestamp[1]) / 4295;
+  u32_t us = lwip_ntohl(receive_timestamp[1]) / 4295;
   SNTP_SET_SYSTEM_TIME_US(t, us);
   /* display local time from GMT time */
   LWIP_DEBUGF(SNTP_DEBUG_TRACE, ("sntp_process: %s, %"U32_F" us", ctime(&tim), us));
@@ -247,10 +247,10 @@ sntp_initialize_request(struct sntp_msg *req)
     u32_t sntp_time_sec, sntp_time_us;
     /* fill in transmit timestamp and save it in 'sntp_last_timestamp_sent' */
     SNTP_GET_SYSTEM_TIME(sntp_time_sec, sntp_time_us);
-    sntp_last_timestamp_sent[0] = htonl(sntp_time_sec + DIFF_SEC_1900_1970);
+    sntp_last_timestamp_sent[0] = lwip_htonl(sntp_time_sec + DIFF_SEC_1900_1970);
     req->transmit_timestamp[0] = sntp_last_timestamp_sent[0];
     /* we send/save us instead of fraction to be faster... */
-    sntp_last_timestamp_sent[1] = htonl(sntp_time_us);
+    sntp_last_timestamp_sent[1] = lwip_htonl(sntp_time_us);
     req->transmit_timestamp[1] = sntp_last_timestamp_sent[1];
   }
 #endif /* SNTP_CHECK_RESPONSE >= 2 */
@@ -573,6 +573,7 @@ sntp_stop(void)
 {
   if (sntp_pcb != NULL) {
     sys_untimeout(sntp_request, NULL);
+    sys_untimeout(sntp_try_next_server, NULL);
     udp_remove(sntp_pcb);
     sntp_pcb = NULL;
   }

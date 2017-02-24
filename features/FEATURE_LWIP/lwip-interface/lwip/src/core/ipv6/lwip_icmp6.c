@@ -44,6 +44,7 @@
 #if LWIP_ICMP6 && LWIP_IPV6 /* don't build if not configured for use in lwipopts.h */
 
 #include "lwip/icmp6.h"
+#include "lwip/prot/icmp6.h"
 #include "lwip/ip6.h"
 #include "lwip/ip6_addr.h"
 #include "lwip/inet_chksum.h"
@@ -80,8 +81,8 @@ void
 icmp6_input(struct pbuf *p, struct netif *inp)
 {
   struct icmp6_hdr *icmp6hdr;
-  struct pbuf * r;
-  const ip6_addr_t * reply_src;
+  struct pbuf *r;
+  const ip6_addr_t *reply_src;
 
   ICMP6_STATS_INC(icmp6.recv);
 

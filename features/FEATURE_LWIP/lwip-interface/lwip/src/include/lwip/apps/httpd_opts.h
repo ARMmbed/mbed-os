@@ -161,28 +161,6 @@
 #define HTTPD_DEBUG_TIMING                  LWIP_DBG_OFF
 #endif
 
-/** Set this to 1 on platforms where strnstr is not available */
-#if !defined LWIP_HTTPD_STRNSTR_PRIVATE || defined __DOXYGEN__
-#define LWIP_HTTPD_STRNSTR_PRIVATE          1
-#endif
-
-/** Set this to 1 on platforms where stricmp is not available */
-#if !defined LWIP_HTTPD_STRICMP_PRIVATE || defined __DOXYGEN__
-#define LWIP_HTTPD_STRICMP_PRIVATE          0
-#endif
-
-/** Define this to a smaller function if you have itoa() at hand... */
-#if !defined LWIP_HTTPD_ITOA || defined __DOXYGEN__
-#if !defined LWIP_HTTPD_ITOA_PRIVATE || defined __DOXYGEN__
-#define LWIP_HTTPD_ITOA_PRIVATE             1
-#endif
-#if LWIP_HTTPD_ITOA_PRIVATE
-#define LWIP_HTTPD_ITOA(buffer, bufsize, number) httpd_itoa(number, buffer)
-#else
-#define LWIP_HTTPD_ITOA(buffer, bufsize, number) snprintf(buffer, bufsize, "%d", number)
-#endif
-#endif
-
 /** Set this to one to show error pages when parsing a request fails instead
     of simply closing the connection. */
 #if !defined LWIP_HTTPD_SUPPORT_EXTSTATUS || defined __DOXYGEN__

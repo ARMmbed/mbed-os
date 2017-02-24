@@ -2,7 +2,7 @@
  * Copyright (c) 2010-2011 ARM Limited. All rights reserved.
  */
 #include "SerialHalfDuplex.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 #if DEVICE_SERIAL
 

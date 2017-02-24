@@ -20,7 +20,7 @@
 
 #if DEVICE_PWMOUT
 #include "hal/pwmout_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */

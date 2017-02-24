@@ -31,7 +31,7 @@
 
 #include "i2c.h"
 #include "i2c_api.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 
 #define I2C_READ_WRITE_BIT_MASK    0xFE
 

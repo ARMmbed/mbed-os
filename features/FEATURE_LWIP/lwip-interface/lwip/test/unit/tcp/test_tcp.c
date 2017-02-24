@@ -35,8 +35,8 @@ tcp_setup(void)
 {
   /* reset iss to default (6510) */
   tcp_ticks = 0;
-  tcp_ticks = 0 - (tcp_next_iss() - 6510);
-  tcp_next_iss();
+  tcp_ticks = 0 - (tcp_next_iss(NULL) - 6510);
+  tcp_next_iss(NULL);
   tcp_ticks = 0;
 
   test_tcp_timer = 0;
@@ -206,7 +206,7 @@ START_TEST(test_tcp_fast_retx_recover)
   char data3[] = { 9, 10, 11, 12};
   char data4[] = {13, 14, 15, 16};
   char data5[] = {17, 18, 19, 20};
-  char data6[] = {21, 22, 23, 24};
+  char data6[TCP_MSS] = {21, 22, 23, 24};
   ip_addr_t remote_ip, local_ip, netmask;
   u16_t remote_port = 0x100, local_port = 0x101;
   err_t err;
@@ -418,7 +418,6 @@ START_TEST(test_tcp_fast_rexmit_wraparound)
   tcp_ticks = SEQNO1 - ISS;
   pcb = test_tcp_new_counters_pcb(&counters);
   EXPECT_RET(pcb != NULL);
-  EXPECT(pcb->lastack == SEQNO1);
   tcp_set_state(pcb, ESTABLISHED, &local_ip, &remote_ip, local_port, remote_port);
   pcb->mss = TCP_MSS;
   /* disable initial congestion window (we don't send a SYN here...) */
@@ -513,11 +512,10 @@ START_TEST(test_tcp_rto_rexmit_wraparound)
 
   /* create and initialize the pcb */
   tcp_ticks = 0;
-  tcp_ticks = 0 - tcp_next_iss();
-  tcp_ticks = SEQNO1 - tcp_next_iss();
+  tcp_ticks = 0 - tcp_next_iss(NULL);
+  tcp_ticks = SEQNO1 - tcp_next_iss(NULL);
   pcb = test_tcp_new_counters_pcb(&counters);
   EXPECT_RET(pcb != NULL);
-  EXPECT(pcb->lastack == SEQNO1);
   tcp_set_state(pcb, ESTABLISHED, &local_ip, &remote_ip, local_port, remote_port);
   pcb->mss = TCP_MSS;
   /* disable initial congestion window (we don't send a SYN here...) */

@@ -19,12 +19,13 @@ import re
 import tempfile
 from types import ListType
 from shutil import rmtree
-from os.path import join, exists, dirname, basename, abspath, normpath
-from os import linesep, remove
+from os.path import join, exists, dirname, basename, abspath, normpath, splitext
+from os import linesep, remove, makedirs
 from time import time
+from intelhex import IntelHex
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
-    ToolException, InvalidReleaseTargetException
+    ToolException, InvalidReleaseTargetException, intelhex_offset
 from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
     MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
@@ -274,6 +275,29 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
+def add_regions_to_profile(profile, config, toolchain_class):
+    """Add regions to the build profile, if there are any.
+
+    Positional Arguments:
+    profile - the profile to update
+    config - the configuration object that owns the region
+    toolchain_class - the class of the toolchain being used
+    """
+    regions = list(config.regions)
+    for region in regions:
+        for define in [(region.name.upper() + "_ADDR", region.start),
+                       (region.name.upper() + "_SIZE", region.size)]:
+            profile["common"].append("-D%s=0x%x" %  define)
+    active_region = [r for r in regions if r.active][0]
+    for define in [("MBED_APP_START", active_region.start),
+                   ("MBED_APP_SIZE", active_region.size)]:
+        profile["ld"].append(toolchain_class.make_ld_define(*define))
+
+    print("Using regions in this build:")
+    for region in regions:
+        print("  Region %s size 0x%x, offset 0x%x"
+              % (region.name, region.size, region.start))
+
 
 def prepare_toolchain(src_paths, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -307,14 +331,16 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
-
-    # Toolchain instance
     try:
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, notify, macros, silent,
-            extra_verbose=extra_verbose, build_profile=build_profile)
+        cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
+    if config.has_regions:
+        add_regions_to_profile(build_profile, config, cur_tc)
+
+    # Toolchain instance
+    toolchain = cur_tc(target, notify, macros, silent,
+                       extra_verbose=extra_verbose, build_profile=build_profile)
 
     toolchain.config = config
     toolchain.jobs = jobs
@@ -322,6 +348,41 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     toolchain.VERBOSE = verbose
 
     return toolchain
+
+def merge_region_list(region_list, destination, padding=b'\xFF'):
+    """Merege the region_list into a single image
+
+    Positional Arguments:
+    region_list - list of regions, which should contain filenames
+    destination - file name to write all regions to
+    padding - bytes to fill gapps with
+    """
+    merged = IntelHex()
+
+    print("Merging Regions:")
+
+    for region in region_list:
+        if region.active and not region.filename:
+            raise ToolException("Active region has no contents: No file found.")
+        if region.filename:
+            print("  Filling region %s with %s" % (region.name, region.filename))
+            part = intelhex_offset(region.filename, offset=region.start)
+            part_size = (part.maxaddr() - part.minaddr()) + 1
+            if part_size > region.size:
+                raise ToolException("Contents of region %s does not fit"
+                                    % region.name)
+            merged.merge(part)
+            pad_size = region.size - part_size
+            if pad_size > 0 and region != region_list[-1]:
+                print("  Padding region %s with 0x%x bytes" % (region.name, pad_size))
+                merged.puts(merged.maxaddr() + 1, padding * pad_size)
+
+    if not exists(dirname(destination)):
+        makedirs(dirname(destination))
+    print("Space used after regions merged: 0x%x" %
+          (merged.maxaddr() - merged.minaddr() + 1))
+    with open(destination, "wb+") as output:
+        merged.tofile(output, format='bin')
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
                    inc_dirs=None, base_path=None):
@@ -453,7 +514,15 @@ def build_project(src_paths, build_path, target, toolchain_name,
         resources.objects.extend(objects)
 
         # Link Program
-        res, _ = toolchain.link_program(resources, build_path, name)
+        if toolchain.config.has_regions:
+            res, _ = toolchain.link_program(resources, build_path, name + "_application")
+            region_list = list(toolchain.config.regions)
+            region_list = [r._replace(filename=res) if r.active else r
+                           for r in region_list]
+            res = join(build_path, name) + ".bin"
+            merge_region_list(region_list, res)
+        else:
+            res, _ = toolchain.link_program(resources, build_path, name)
 
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''

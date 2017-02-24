@@ -23,8 +23,8 @@
 #include "hal/gpio_api.h"
 #include "hal/gpio_irq_api.h"
 #include "platform/Callback.h"
-#include "platform/critical.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_critical.h"
+#include "platform/mbed_toolchain.h"
 
 namespace mbed {
 /** \addtogroup drivers */

@@ -60,7 +60,7 @@
  */
 #if DEVICE_I2C
 #include "i2c.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 
 /* See i2c.h for details */
 void fI2cInit(i2c_t *obj,PinName sda,PinName scl)

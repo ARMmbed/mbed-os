@@ -16,7 +16,7 @@
 
 #include "flash_api.h"
 #include "flash_data.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 // This file is automagically generated
 

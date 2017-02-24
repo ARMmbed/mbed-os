@@ -34,8 +34,8 @@
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && PPPOL2TP_SUPPORT /* don't build if not configured for use in lwipopts.h */
 
-#ifndef PPPOL2TP_H_
-#define PPPOL2TP_H_
+#ifndef PPPOL2TP_H
+#define PPPOL2TP_H
 
 #include "ppp.h"
 
@@ -197,5 +197,5 @@ ppp_pcb *pppol2tp_create(struct netif *pppif,
        const u8_t *secret, u8_t secret_len,
        ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 
-#endif /* PPPOL2TP_H_ */
+#endif /* PPPOL2TP_H */
 #endif /* PPP_SUPPORT && PPPOL2TP_SUPPORT */

@@ -6,7 +6,7 @@
 #include "nsdynmemLIB.h"
 #include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
-#include "sn_coap_protocol.h"
+#include "mbed-coap/sn_coap_protocol.h"
 #include "socket_api.h"
 #include "ns_types.h"
 #include "ns_list.h"

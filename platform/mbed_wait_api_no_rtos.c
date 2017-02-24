@@ -18,7 +18,7 @@
 // if the RTOS is not present.
 #ifndef MBED_CONF_RTOS_PRESENT
 
-#include "platform/wait_api.h"
+#include "platform/mbed_wait_api.h"
 #include "hal/us_ticker_api.h"
 
 void wait(float s) {

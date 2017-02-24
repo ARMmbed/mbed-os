@@ -16,7 +16,7 @@
 
 #include "flash_api.h"
 #include "flash_data.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 #define MBED_FLASH_ALGO_ERASE   1UL
 #define MBED_FLASH_ALGO_PROGRAM 2UL

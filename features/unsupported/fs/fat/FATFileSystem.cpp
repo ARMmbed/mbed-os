@@ -27,7 +27,7 @@
 #include "FATFileSystem.h"
 #include "FATFileHandle.h"
 #include "FATDirHandle.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 DWORD get_fattime(void) {
     time_t rawtime;

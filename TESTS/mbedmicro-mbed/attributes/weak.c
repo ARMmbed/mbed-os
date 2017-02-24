@@ -1,4 +1,4 @@
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 int testWeak1() {
     return 0;
