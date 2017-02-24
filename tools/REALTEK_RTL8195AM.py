@@ -128,7 +128,7 @@ def find_section(toolchain, elf, section):
         print "[ERROR] cannot find the address of section " + section
         return 0
 
-    return int(ret,16)
+    return int(ret, 16)
 
 # ----------------------------
 #       main function
