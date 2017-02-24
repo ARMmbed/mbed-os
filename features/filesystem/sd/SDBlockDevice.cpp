@@ -123,6 +123,13 @@
 
 #define SD_DBG             0
 
+#define SD_BLOCK_DEVICE_ERROR_WOULD_BLOCK        -5001	/*!< operation would block */
+#define SD_BLOCK_DEVICE_ERROR_UNSUPPORTED        -5002	/*!< unsupported operation */
+#define SD_BLOCK_DEVICE_ERROR_PARAMETER          -5003	/*!< invalid parameter */
+#define SD_BLOCK_DEVICE_ERROR_NO_INIT            -5004	/*!< uninitialized */
+#define SD_BLOCK_DEVICE_ERROR_NO_DEVICE          -5005	/*!< device is missing or not connected */
+#define SD_BLOCK_DEVICE_ERROR_WRITE_PROTECTED    -5006	/*!< write protected */
+
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
     : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
 {
@@ -158,7 +165,7 @@ SDBlockDevice::~SDBlockDevice()
 #define SDCARD_V2   2
 #define SDCARD_V2HC 3
 
-bd_error_t SDBlockDevice::_initialise_card()
+int SDBlockDevice::_initialise_card()
 {
     _dbg = SD_DBG;
     // Set to SCK for initialisation, and clock card with cs = 1
@@ -173,7 +180,7 @@ bd_error_t SDBlockDevice::_initialise_card()
     // send CMD0, should return with all zeros except IDLE STATE set (bit 0)
     if (_cmd(0, 0) != R1_IDLE_STATE) {
         debug_if(_dbg, "No disk, or could not put SD card in to SPI idle state\n");
-        return BD_ERROR_NO_DEVICE;
+        return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
     // send CMD8 to determine whther it is ver 2.x
@@ -188,7 +195,7 @@ bd_error_t SDBlockDevice::_initialise_card()
     }
 }
 
-bd_error_t SDBlockDevice::_initialise_card_v1()
+int SDBlockDevice::_initialise_card_v1()
 {
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         _cmd(55, 0);
@@ -203,7 +210,7 @@ bd_error_t SDBlockDevice::_initialise_card_v1()
     return BD_ERROR_DEVICE_ERROR;
 }
 
-bd_error_t SDBlockDevice::_initialise_card_v2()
+int SDBlockDevice::_initialise_card_v2()
 {
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         wait_ms(50);
@@ -221,10 +228,10 @@ bd_error_t SDBlockDevice::_initialise_card_v2()
     return BD_ERROR_DEVICE_ERROR;
 }
 
-bd_error_t SDBlockDevice::init()
+int SDBlockDevice::init()
 {
     _lock.lock();
-    bd_error_t err = _initialise_card();
+    int err = _initialise_card();
     _is_initialized = (err == BD_ERROR_OK);
     if (!_is_initialized) {
         debug_if(_dbg, "Fail to initialize card\n");
@@ -247,21 +254,21 @@ bd_error_t SDBlockDevice::init()
     return BD_ERROR_OK;
 }
 
-bd_error_t SDBlockDevice::deinit()
+int SDBlockDevice::deinit()
 {
     return 0;
 }
 
-bd_error_t SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
+int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
     if (!is_valid_program(addr, size)) {
-        return BD_ERROR_PARAMETER;
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     _lock.lock();
     if (!_is_initialized) {
         _lock.unlock();
-        return BD_ERROR_NO_INIT;
+        return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
     const uint8_t *buffer = static_cast<const uint8_t*>(b);
@@ -283,16 +290,16 @@ bd_error_t SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-bd_error_t SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
+int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     if (!is_valid_read(addr, size)) {
-        return BD_ERROR_PARAMETER;
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     _lock.lock();
     if (!_is_initialized) {
         _lock.unlock();
-        return BD_ERROR_PARAMETER;
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
     
     uint8_t *buffer = static_cast<uint8_t *>(b);
@@ -314,22 +321,22 @@ bd_error_t SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-bd_error_t SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     return 0;
 }
 
-bd_size_t SDBlockDevice::get_read_size()
+bd_size_t SDBlockDevice::get_read_size() const
 {
     return 512;
 }
 
-bd_size_t SDBlockDevice::get_program_size()
+bd_size_t SDBlockDevice::get_program_size() const
 {
     return 512;
 }
 
-bd_size_t SDBlockDevice::get_erase_size()
+bd_size_t SDBlockDevice::get_erase_size() const
 {
     return 512;
 }

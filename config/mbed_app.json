@@ -102,6 +102,18 @@
              "SPI_CLK":  "SPI_SCK",
              "SPI_CS":   "SPI_CS"
         },
+        "NUMAKER_PFM_M453": {
+             "SPI_MOSI": "PD_13",
+             "SPI_MISO": "PD_14",
+             "SPI_CLK":  "PD_15",
+             "SPI_CS":   "PD_12"
+        },
+        "NUMAKER_PFM_NUC472": {
+             "SPI_MOSI": "PF_0",
+             "SPI_MISO": "PD_15",
+             "SPI_CLK":  "PD_14",
+             "SPI_CS":   "PD_13"
+        },
         "nRF51822": {
              "SPI_MOSI": "p12",
              "SPI_MISO": "p13",

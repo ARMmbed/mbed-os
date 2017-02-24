@@ -57,13 +57,13 @@ public:
      *
      *  @return         0 on success or a negative error code on failure
      */
-    virtual bd_error_t init();
+    virtual int init();
 
     /** Deinitialize a block device
      *
      *  @return         0 on success or a negative error code on failure
      */
-    virtual bd_error_t deinit();
+    virtual int deinit();
 
     /** Read blocks from a block device
      *
@@ -72,7 +72,7 @@ public:
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual bd_error_t read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -83,7 +83,7 @@ public:
      *  @param size     Size to write in bytes, must be a multiple of program block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual bd_error_t program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
 
     /** Erase blocks on a block device
      *
@@ -93,27 +93,27 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual bd_error_t erase(bd_addr_t addr, bd_size_t size);
+    virtual int erase(bd_addr_t addr, bd_size_t size);
 
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size();
+    virtual bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size();
+    virtual bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size();
+    virtual bd_size_t get_erase_size() const;
 
     /** Get the total size of the underlying device
      *
@@ -132,9 +132,9 @@ private:
     int _cmdx(int cmd, int arg);
     int _cmd8();
     int _cmd58();
-    bd_error_t _initialise_card();
-    bd_error_t _initialise_card_v1();
-    bd_error_t _initialise_card_v2();
+    int _initialise_card();
+    int _initialise_card_v1();
+    int _initialise_card_v2();
 
     int _read(uint8_t * buffer, uint32_t length);
     int _write(const uint8_t *buffer, uint32_t length);

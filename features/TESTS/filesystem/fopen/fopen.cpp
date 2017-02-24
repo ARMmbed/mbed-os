@@ -40,12 +40,15 @@
  * consistent values for all toolchains */
 #include "platform/retarget.h"
 
-/* This is needed for stat() test, but is not available on ARMCC */
-#ifdef TOOLCHAIN_GCC
+/* This is needed for stat() test, but is not available on ARMCC.
+ * The following checks whether GCC_ARM compiler is being used because:
+ * - both the ARMCC compiler and the GCC_ARM compile define __GNUC__.
+ * - only the ARMCC compiler defines __ARMCC_VERSION.
+ * - hence if __ARMCC_VERSION is not defined and __GNUC__ is defined, it must be GCC_ARM. */
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 #include <sys/stat.h>
 #endif
 using namespace utest::v1;
-//using namespace mbed;
 
 /// @cond FSFAT_DOXYGEN_DISABLE
 #ifdef FSFAT_DEBUG
@@ -507,7 +510,6 @@ control_t fsfat_fopen_test_04(const size_t call_count)
 }
 
 
-
 /// @cond FSFAT_DOXYGEN_DISABLE
 typedef struct fsfat_fopen_kv_name_ascii_node {
     uint32_t code;
@@ -768,7 +770,7 @@ control_t fsfat_fopen_test_07(const size_t call_count)
     TEST_ASSERT_MESSAGE(f == NULL, fsfat_fopen_utest_msg_g);
 
     /* check errno is set correctly */
-#ifdef TOOLCHAIN_GCC
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
     /* Store errno so the current value set  is not changed by new function call */
     errno_val = errno;
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno has unexpected value (errno != 0 expected) (filename=%s, errno=%d).\n", __func__, filename, errno);
@@ -779,7 +781,7 @@ control_t fsfat_fopen_test_07(const size_t call_count)
     ret = ferror(f);
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return non-zero value when error exists (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
-#endif  /* TOOLCHAIN_GCC */
+#endif  /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
     return CaseNext;
 }
 
@@ -844,7 +846,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     /* the fwrite() should fail and return 0. */
     TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
 
-#ifdef TOOLCHAIN_GCC
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
     /* check that errno is set. ARMCC appears not to set errno for fwrite() failure. */
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected zero value for errno (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(errno != 0, fsfat_fopen_utest_msg_g);
@@ -852,7 +854,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     /* check that errno is set to the expected value (this may change differ for different libc's) */
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EBADF (filename=%s, ret=%d, errno=%d).\n", __func__, filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(errno == EBADF, fsfat_fopen_utest_msg_g);
-#endif  /* TOOLCHAIN_GCC */
+#endif  /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
 
     /* check clearerr() return clears the error */
     clearerr(fp);
@@ -1073,7 +1075,7 @@ control_t fsfat_fopen_test_12(const size_t call_count)
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-#ifdef TOOLCHAIN_GCC
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 
     /* start from a known state i.e. directory to be created in not present */
     while(node->filename != NULL) {
@@ -1118,7 +1120,7 @@ control_t fsfat_fopen_test_12(const size_t call_count)
         fsfat_filepath_remove_all((char*) node->filename);
         node++;
     }
-#endif  /* TOOLCHAIN_GCC */
+#endif  /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
     return CaseNext;
 }
 
@@ -1187,7 +1189,9 @@ static fsfat_kv_data_t fsfat_fopen_test_14_kv_data[] = {
  */
 control_t fsfat_fopen_test_14(const size_t call_count)
 {
-    char buf[FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1];
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
+
+	char buf[FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1];
     char *pos = NULL;
     int32_t ret = -1;
     size_t len = 0;
@@ -1196,8 +1200,6 @@ control_t fsfat_fopen_test_14(const size_t call_count)
 
     FSFAT_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-
-#ifdef TOOLCHAIN_GCC
 
     TEST_ASSERT(strlen(node->filename) < FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1);
 
@@ -1246,7 +1248,7 @@ control_t fsfat_fopen_test_14(const size_t call_count)
     /* clean up after successful test */
     fsfat_filepath_remove_all((char*) node->filename);
 
-#endif /* TOOLCHAIN_GCC */
+#endif /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
     return CaseNext;
 }
 
