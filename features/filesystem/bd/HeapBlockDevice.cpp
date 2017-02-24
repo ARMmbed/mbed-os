@@ -134,17 +134,7 @@ int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
-
-    while (size > 0) {
-        bd_addr_t hi = addr / _erase_size;
-
-        if (_blocks[hi]) {
-            memset(_blocks[hi], 0xcc, _erase_size);
-        }
-
-        addr += _erase_size;
-        size -= _erase_size;
-    }
+    // TODO assert on programming unerased blocks
 
     return 0;
 }
