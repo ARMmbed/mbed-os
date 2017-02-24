@@ -189,7 +189,7 @@ SECTIONS
 		__bss_end__ = .;
 	} > DSRAM_B
 
-	.vec_table :
+	.vec_table (NOLOAD):
 	{
         KEEP(*(.relocated_vec))
     } > DSRAM_A
