@@ -608,7 +608,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["__ADUCM4050__","RELOCATE_IVT"],
+        "macros": ["__ADUCM4050__"],
         "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050"],
         "device_has": [ "SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN"],
         "device_name": "ADuCM4050"
