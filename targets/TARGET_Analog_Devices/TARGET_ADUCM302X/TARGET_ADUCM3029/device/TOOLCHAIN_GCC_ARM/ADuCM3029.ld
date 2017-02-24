@@ -12,8 +12,12 @@ MEMORY
   FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x180
   /* The remaining bytes of Flash bank0 */
   FLASH (rx) : ORIGIN = 0x00000180, LENGTH = 256k - 0x180
+
+  /* The RAM_VECTOR section is reserved for the IVT, don't place anything in this section! */
+  RAM_VECTOR (rw) : ORIGIN = 0x20000000, LENGTH = 0x180
+
   /* SRAM bank 0+1 */
-  DSRAM_A (rwx) : ORIGIN = 0x20000000, LENGTH = 16k
+  DSRAM_A (rwx) : ORIGIN = 0x20000180, LENGTH = 16k - 0x180
   /* SRAM bank 3 */
   DSRAM_B (rwx) : ORIGIN = 0x20040000, LENGTH = 16k
 }
@@ -188,11 +192,6 @@ SECTIONS
 		. = ALIGN(4);
 		__bss_end__ = .;
 	} > DSRAM_B
-
-	.vec_table :
-	{
-        KEEP(*(.relocated_vec))
-    } > DSRAM_A
 
 	.heap (COPY):
 	{

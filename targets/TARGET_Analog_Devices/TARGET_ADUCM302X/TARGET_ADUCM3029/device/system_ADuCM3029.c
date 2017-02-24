@@ -109,14 +109,13 @@ const ADI_ADUCM302X_SECURITY_OPTIONS adi_aducm302x_security_options
   so that the CRTL does not clear it.
 */
 
-#define RELOCATION_ADDRESS    (0x20000000)  // (0x10000000)
+#define RELOCATION_ADDRESS    (0x20000000)
 #define RELOCATION_ALIGNMENT  (0x200)
 #define NUM_VECTORS           (64 + 1 + 16)
 
 #if defined (TOOLCHAIN_GCC)
 /* reserve aligned IVT space at top of RAM */
-void (*__Relocated___Vectors[NUM_VECTORS])(void) __attribute__ ((aligned(RELOCATION_ALIGNMENT), section(".relocated_vec"))) = { 0 };
-
+/* reserve enough space in LD file at RELOCATION_ADDRESS to avoid generating large flash image */
 #else
 #if defined ( __ICCARM__ )
     #pragma data_alignment=RELOCATION_ALIGNMENT  /* IAR */
@@ -256,7 +255,7 @@ void SystemInit (void)
 
 #ifdef RELOCATE_IVT
     /* Copy the IVT from Flash to SRAM (avoid use of memcpy here so it does not become locked into flash) */
-    for( i = 0, pSrc = (uint8_t*) __Vectors, pDst = (uint8_t*)__Relocated___Vectors; i < ( NUM_VECTORS * 4 ); i++ )
+    for( i = 0, pSrc = (uint8_t*) __Vectors, pDst = (uint8_t*)RELOCATION_ADDRESS; i < ( NUM_VECTORS * 4 ); i++ )
     {
       *pDst++ = *pSrc++;
     }
@@ -277,7 +276,7 @@ void SystemInit (void)
      * set the System Control Block, Vector Table Offset Register
      */
 #ifdef RELOCATE_IVT
-    SCB->VTOR = (uint32_t) &__Relocated___Vectors;
+    SCB->VTOR = (uint32_t) RELOCATION_ADDRESS;
 #else
     SCB->VTOR = (uint32_t) &__Vectors;
 #endif
