@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/******************************************************************************
  * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *
+ ******************************************************************************/
 #include <wifi_util.h>
 #include <platform/platform_stdlib.h>
 #include <wifi/wifi_conf.h>
@@ -1332,3 +1333,4 @@ void wext_set_indicate_mgnt(int enable)
 	rtw_set_indicate_mgnt(enable);
 	return;
 }
+
