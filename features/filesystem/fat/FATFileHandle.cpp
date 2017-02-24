@@ -24,23 +24,29 @@
 #include "mbed_debug.h"
 
 #include "FATFileHandle.h"
+#include "FATMisc.h"
 
-FATFileHandle::FATFileHandle(FIL fh, PlatformMutex * mutex): _mutex(mutex) {
+FATFileHandle::FATFileHandle(FIL fh, PlatformMutex * mutex): _mutex(mutex)
+{
     _fh = fh;
 }
 
-int FATFileHandle::close() {
+int FATFileHandle::close()
+{
     lock();
-    int retval = f_close(&_fh);
+    FRESULT retval = f_close(&_fh);
+    fat_filesystem_set_errno(retval);
     unlock();
     delete this;
     return retval;
 }
 
-ssize_t FATFileHandle::write(const void* buffer, size_t length) {
+ssize_t FATFileHandle::write(const void* buffer, size_t length)
+{
     lock();
     UINT n;
     FRESULT res = f_write(&_fh, buffer, length, &n);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_write() failed: %d", res);
         unlock();
@@ -50,11 +56,13 @@ ssize_t FATFileHandle::write(const void* buffer, size_t length) {
     return n;
 }
 
-ssize_t FATFileHandle::read(void* buffer, size_t length) {
+ssize_t FATFileHandle::read(void* buffer, size_t length)
+{
     lock();
     debug_if(FFS_DBG, "read(%d)\n", length);
     UINT n;
     FRESULT res = f_read(&_fh, buffer, length, &n);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_read() failed: %d\n", res);
         unlock();
@@ -64,11 +72,14 @@ ssize_t FATFileHandle::read(void* buffer, size_t length) {
     return n;
 }
 
-int FATFileHandle::isatty() {
+int FATFileHandle::isatty()
+{
+    fat_filesystem_set_errno(FR_OK);
     return 0;
 }
 
-off_t FATFileHandle::lseek(off_t position, int whence) {
+off_t FATFileHandle::lseek(off_t position, int whence)
+{
     lock();
     if (whence == SEEK_END) {
         position += _fh.fsize;
@@ -76,6 +87,7 @@ off_t FATFileHandle::lseek(off_t position, int whence) {
         position += _fh.fptr;
     }
     FRESULT res = f_lseek(&_fh, position);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "lseek failed: %d\n", res);
         unlock();
@@ -87,9 +99,11 @@ off_t FATFileHandle::lseek(off_t position, int whence) {
     }
 }
 
-int FATFileHandle::fsync() {
+int FATFileHandle::fsync()
+{
     lock();
     FRESULT res = f_sync(&_fh);
+    fat_filesystem_set_errno(res);
     if (res) {
         debug_if(FFS_DBG, "f_sync() failed: %d\n", res);
         unlock();
@@ -99,17 +113,21 @@ int FATFileHandle::fsync() {
     return 0;
 }
 
-off_t FATFileHandle::flen() {
+off_t FATFileHandle::flen()
+{
     lock();
     off_t size = _fh.fsize;
+    fat_filesystem_set_errno(FR_OK);
     unlock();
     return size;
 }
 
-void FATFileHandle::lock() {
+void FATFileHandle::lock()
+{
     _mutex->lock();
 }
 
-void FATFileHandle::unlock() {
+void FATFileHandle::unlock()
+{
     _mutex->unlock();
 }

@@ -31,6 +31,8 @@
 #include <stdio.h>
 #endif
 #include <errno.h>
+#include "platform/retarget.h"
+
 
 #if defined(__ARMCC_VERSION)
 #   include <rt_sys.h>
@@ -51,7 +53,6 @@
 
 #else
 #   include <sys/stat.h>
-#   include <sys/unistd.h>
 #   include <sys/syslimits.h>
 #   define PREFIX(x)    x
 #endif
@@ -153,6 +154,17 @@ extern "C" WEAK void mbed_sdk_init(void);
 extern "C" WEAK void mbed_sdk_init(void) {
 }
 
+/* @brief 	standard c library fopen() retargeting function.
+ *
+ * This function is invoked by the standard c library retargeting to handle fopen()
+ *
+ * @return
+ *  On success, a valid FILEHANDLE is returned.
+ *  On failure, -1 is returned and errno is set to an appropriate value e.g.
+ *   EBADF		a bad file descriptor was found (default errno setting)
+ *	 EMFILE		the maximum number of open files was exceeded.
+ *
+ * */
 extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
     // Before version 5.03, we were using a patched version of microlib with proper names
@@ -179,13 +191,19 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     }
     #endif
 
+    /* if something goes wrong and errno is not explicly set, errno will be set to EBADF */
+    errno = EBADF;
+
     // find the first empty slot in filehandles
     filehandle_mutex->lock();
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
+    	/* Take a next free filehandle slot available. */
         if (filehandles[fh_i] == NULL) break;
     }
     if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
+        /* Too many file handles have been opened */
+        errno = EMFILE;
         filehandle_mutex->unlock();
         return -1;
     }
@@ -205,15 +223,21 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         FilePath path(name);
 
         if (!path.exists()) {
-            // Free file handle
+            /* The first part of the filename (between first 2 '/') is not a
+             * registered mount point in the namespace.
+             * Free file handle.
+             */
             filehandles[fh_i] = NULL;
+            errno = ENOENT;
             return -1;
         } else if (path.isFile()) {
             res = path.file();
         } else {
             FileSystemLike *fs = path.fileSystem();
             if (fs == NULL) {
-                // Free file handle
+                /* The filesystem instance managing the namespace under the mount point
+                 * has not been found. Free file handle */
+                errno = ENOENT;
                 filehandles[fh_i] = NULL;
                 return -1;
             }
@@ -235,6 +259,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     if (fh < 3) return 0;
 
+    errno = EBADF;
     FileHandle* fhc = filehandles[fh-3];
     filehandles[fh-3] = NULL;
     if (fhc == NULL) return -1;
@@ -248,6 +273,8 @@ extern "C" size_t    __write (int        fh, const unsigned char *buffer, size_t
 extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsigned int length, int mode) {
 #endif
     int n; // n is the number of bytes written
+
+    errno = EBADF;
     if (fh < 3) {
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
@@ -285,6 +312,8 @@ extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       
 extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode) {
 #endif
     int n; // n is the number of bytes read
+
+    errno = EBADF;
     if (fh < 3) {
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
@@ -332,6 +361,7 @@ extern "C" int PREFIX(_istty)(FILEHANDLE fh)
 extern "C" int _isatty(FILEHANDLE fh)
 #endif
 {
+    errno = EBADF;
     /* stdin, stdout and stderr should be tty */
     if (fh < 3) return 1;
 
@@ -350,6 +380,7 @@ long __lseek(int fh, long offset, int whence)
 int _lseek(FILEHANDLE fh, int offset, int whence)
 #endif
 {
+    errno = EBADF;
     if (fh < 3) return 0;
 
     FileHandle* fhc = filehandles[fh-3];
@@ -364,6 +395,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
 
 #ifdef __ARMCC_VERSION
 extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
+    errno = EBADF;
     if (fh < 3) return 0;
 
     FileHandle* fhc = filehandles[fh-3];
@@ -373,6 +405,7 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
 }
 
 extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
+    errno = EBADF;
     if (fh < 3) return 0;
 
     FileHandle* fhc = filehandles[fh-3];
@@ -385,11 +418,10 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
 extern "C" int _fstat(int fd, struct stat *st) {
-    if ((STDOUT_FILENO == fd) || (STDERR_FILENO == fd) || (STDIN_FILENO == fd)) {
+    if (fd < 3) {
         st->st_mode = S_IFCHR;
         return  0;
     }
-
     errno = EBADF;
     return -1;
 }
@@ -397,6 +429,7 @@ extern "C" int _fstat(int fd, struct stat *st) {
 
 namespace std {
 extern "C" int remove(const char *path) {
+    errno = EBADF;
     FilePath fp(path);
     FileSystemLike *fs = fp.fileSystem();
     if (fs == NULL) return -1;
@@ -405,6 +438,7 @@ extern "C" int remove(const char *path) {
 }
 
 extern "C" int rename(const char *oldname, const char *newname) {
+    errno = EBADF;
     FilePath fpOld(oldname);
     FilePath fpNew(newname);
     FileSystemLike *fsOld = fpOld.fileSystem();
@@ -417,10 +451,12 @@ extern "C" int rename(const char *oldname, const char *newname) {
 }
 
 extern "C" char *tmpnam(char *s) {
+    errno = EBADF;
     return NULL;
 }
 
 extern "C" FILE *tmpfile() {
+    errno = EBADF;
     return NULL;
 }
 } // namespace std
@@ -432,6 +468,7 @@ extern "C" char *_sys_command_string(char *cmd, int len) {
 #endif
 
 extern "C" DIR *opendir(const char *path) {
+    errno = EBADF;
     /* root dir is FileSystemLike */
     if (path[0] == '/' && path[1] == 0) {
         return FileSystemLike::opendir();
@@ -470,6 +507,14 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     if (fs == NULL) return -1;
 
     return fs->mkdir(fp.fileName(), mode);
+}
+
+extern "C" int stat(const char *path, struct stat *st) {
+    FilePath fp(path);
+    FileSystemLike *fs = fp.fileSystem();
+    if (fs == NULL) return -1;
+
+    return fs->stat(fp.fileName(), st);
 }
 
 #if defined(TOOLCHAIN_GCC)

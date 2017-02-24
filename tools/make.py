@@ -37,7 +37,6 @@ from tools.paths import RPC_LIBRARY
 from tools.paths import ETH_LIBRARY
 from tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
 from tools.paths import DSP_LIBRARIES
-from tools.paths import FS_LIBRARY
 from tools.paths import UBLOX_LIBRARY
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
@@ -130,7 +129,7 @@ if __name__ == '__main__':
                       default=False, help="List available tests in order and exit")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
-    # without the rtos, eth, usb_host, usb, dsp, fat, ublox
+    # without the rtos, eth, usb_host, usb, dsp, ublox
     parser.add_argument("--rtos",
                       action="store_true", dest="rtos",
                       default=False, help="Link with RTOS library")
@@ -161,12 +160,6 @@ if __name__ == '__main__':
                       dest="dsp",
                       default=False,
                       help="Link with DSP library")
-
-    parser.add_argument("--fat",
-                      action="store_true",
-                      dest="fat",
-                      default=False,
-                      help="Link with FS ad SD card file system library")
 
     parser.add_argument("--ublox",
                       action="store_true",
@@ -263,7 +256,6 @@ if __name__ == '__main__':
         if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
         if options.usb:      test.dependencies.append(USB_LIBRARIES)
         if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
-        if options.fat:      test.dependencies.append(FS_LIBRARY)
         if options.ublox:    test.dependencies.append(UBLOX_LIBRARY)
         if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
 

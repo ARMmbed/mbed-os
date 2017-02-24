@@ -27,9 +27,10 @@
 
 using namespace mbed;
 
-class FATDirHandle : public DirHandle {
+class FATDirHandle : public DirHandle
+{
 
- public:
+public:
     FATDirHandle(const FATFS_DIR &the_dir, PlatformMutex * mutex);
     virtual int closedir();
     virtual struct dirent *readdir();
@@ -37,14 +38,14 @@ class FATDirHandle : public DirHandle {
     virtual off_t telldir();
     virtual void seekdir(off_t location);
 
- protected:
+protected:
 
     virtual void lock();
     virtual void unlock();
 
     PlatformMutex * _mutex;
 
- private:
+private:
     FATFS_DIR dir;
     struct dirent cur_entry;
 

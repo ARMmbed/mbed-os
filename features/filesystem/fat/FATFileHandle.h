@@ -27,7 +27,8 @@
 
 using namespace mbed;
 
-class FATFileHandle : public FileHandle {
+class FATFileHandle : public FileHandle
+{
 public:
 
     FATFileHandle(FIL fh, PlatformMutex * mutex);
