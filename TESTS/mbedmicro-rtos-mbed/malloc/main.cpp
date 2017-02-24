@@ -10,7 +10,7 @@
 #if defined(__CORTEX_A9)
 #define THREAD_STACK_SIZE   DEFAULT_STACK_SIZE
 #else
-#define THREAD_STACK_SIZE   256
+#define THREAD_STACK_SIZE   512
 #endif
 
 DigitalOut led1(LED1);
@@ -44,11 +44,12 @@ int main()
 
     // Allocate threads for the test
     for (int i = 0; i < NUM_THREADS; i++) {
-        thread_list[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
+        thread_list[i] = new (std::nothrow) Thread(osPriorityNormal, THREAD_STACK_SIZE);
         if (NULL == thread_list[i]) {
             allocation_failure = true;
+        } else {
+            thread_list[i]->start(task_using_malloc);
         }
-        thread_list[i]->start(task_using_malloc);
     }
 
     // Give the test time to run
