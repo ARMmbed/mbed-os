@@ -252,22 +252,22 @@ bool test_coap_callbacks()
     addr.addr_len = 2;
     addr.port = 4;
     addr.addr_ptr = &data;
-    if( 255 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(NULL, 0, &addr, NULL))
+    if( 0 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(NULL, 0, &addr, NULL))
         return false;
 
     coap_transaction_t *tr = (coap_transaction_t *)malloc(sizeof(coap_transaction_t));
     memset(tr, 0, sizeof(coap_transaction_t));
 
-    if( 255 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(&data, 0, &addr, tr))
+    if( 0 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(&data, 0, &addr, tr))
         return false;
 
     tr->service_id = 1;
     thread_conn_handler_stub.int_value = -2;
-    if( 255 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(&data, 0, &addr, tr))
+    if( 0 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(&data, 0, &addr, tr))
         return false;
 
     nsdynmemlib_stub.returnCounter = 1;
-    if( 255 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(&data, 2, &addr, tr))
+    if( 0 != coap_message_handler_stub.coap_ptr->sn_coap_tx_callback(&data, 2, &addr, tr))
         return false;
 
     free(tr->data_ptr);

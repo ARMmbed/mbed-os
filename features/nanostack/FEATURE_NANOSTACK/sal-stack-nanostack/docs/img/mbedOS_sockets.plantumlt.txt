@@ -1,0 +1,28 @@
+@startuml
+
+package "mbed OS Socket abstraction" {
+    interface NetworkStack
+    NetworkStack -o Socket
+    abstract class Socket
+    Socket <|-- UDPSocket
+    Socket <|-- TCPSocket
+    Socket <|-- TCPServer
+}
+
+interface NetworkInterface
+NetworkInterface --> NetworkStack : get_stack()
+EthernetInterface --|> NetworkInterface
+CellularInterface --|> NetworkInterface
+
+package "mbed-mesh-api" {
+    abstract class MeshInterfaceNanostack <|-- LoWPANNDInterface
+    MeshInterfaceNanostack <|-- ThreadInterface
+    MeshInterfaceNanostack --|> NetworkInterface
+}
+
+
+hide empty members
+hide empty attributes
+hide empty fields
+
+@enduml
