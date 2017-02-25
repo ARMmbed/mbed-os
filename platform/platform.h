@@ -24,6 +24,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include "platform/retarget.h"
+#include "platform/toolchain.h"
 #include "device.h"
 #include "PinNames.h"
 #include "PeripheralNames.h"

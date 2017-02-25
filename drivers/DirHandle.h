@@ -17,32 +17,9 @@
 #define MBED_DIRHANDLE_H
 
 #include <stdint.h>
-
-#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
-#   define NAME_MAX 255
-typedef int mode_t;
-
-#else
-#   include <sys/syslimits.h>
-#endif
+#include "platform/platform.h"
 
 #include "FileHandle.h"
-
-struct dirent {
-    char d_name[NAME_MAX+1];
-    uint8_t d_type;
-};
-
-enum {
-    DT_UNKNOWN, // The file type could not be determined.
-    DT_FIFO,    // This is a named pipe (FIFO).
-    DT_CHR,     // This is a character device.
-    DT_DIR,     // This is a directory.
-    DT_BLK,     // This is a block device.
-    DT_REG,     // This is a regular file.
-    DT_LNK,     // This is a symbolic link.
-    DT_SOCK,    // This is a UNIX domain socket.
-};
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -64,8 +41,12 @@ namespace mbed {
  *  @Note Synchronization level: Set by subclass
  */
 class DirHandle {
-
 public:
+    MBED_DEPRECATED_SINCE("mbed-os-5.4",
+        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
+        "Replaced by File")
+    DirHandle() {}
+
     /** Closes the directory.
      *
      *  @returns
@@ -117,21 +98,17 @@ protected:
     virtual void unlock() {
         // Stub
     }
+
+protected:
+    /** Internal-only constructor to work around deprecated notices when not used
+     *. due to nested deprecations and difficulty of compilers finding their way around
+     *  the class hierarchy
+     */
+    friend class FileSystemLike;
+    DirHandle(int) {}
 };
 
 } // namespace mbed
-
-typedef mbed::DirHandle DIR;
-
-extern "C" {
-    DIR *opendir(const char*);
-    struct dirent *readdir(DIR *);
-    int closedir(DIR*);
-    void rewinddir(DIR*);
-    long telldir(DIR*);
-    void seekdir(DIR*, long);
-    int mkdir(const char *name, mode_t n);
-};
 
 #endif /* MBED_DIRHANDLE_H */
 

@@ -19,6 +19,49 @@
 #ifndef RETARGET_H
 #define RETARGET_H
 
+#include <stdint.h>
+
+/* We can get the following standard types from sys/types for gcc, but we
+ * need to define the types ourselves for the other compilers that normally
+ * target embedded systems */
+#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
+typedef int ssize_t;    ///< Signed size type, usually encodes negative errors
+typedef long off_t;     ///< Offset in a data stream
+typedef int mode_t;     ///< Mode for opening files
+
+#define O_RDONLY 0
+#define O_WRONLY 1
+#define O_RDWR   2
+#define O_CREAT  0x0200
+#define O_TRUNC  0x0400
+#define O_APPEND 0x0008
+
+#define NAME_MAX 255    ///< Maximum size of a name in a file path
+
+#else
+#include <sys/fcntl.h>
+#include <sys/types.h>
+#include <sys/syslimits.h>
+#endif
+
+
+/* DIR declarations must also be here */
+#if __cplusplus
+namespace mbed { class Dir; }
+typedef mbed::Dir DIR;
+
+extern "C" {
+    DIR *opendir(const char*);
+    struct dirent *readdir(DIR *);
+    int closedir(DIR*);
+    void rewinddir(DIR*);
+    long telldir(DIR*);
+    void seekdir(DIR*, long);
+    int mkdir(const char *name, mode_t n);
+};
+#endif
+
+
 #if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 /* The intent of this section is to unify the errno error values to match
  * the POSIX definitions for the GCC_ARM, ARMCC and IAR compilers. This is
@@ -72,6 +115,11 @@
 #endif
 #define EEXIST      17      /* File exists */
 
+#ifdef EINVAL
+#undef EINVAL
+#endif
+#define EINVAL      22      /* Invalid argument */
+
 #ifdef ENFILE
 #undef ENFILE
 #endif
@@ -81,6 +129,11 @@
 #undef EMFILE
 #endif
 #define EMFILE      24      /* File descriptor value too large */
+
+#ifdef ENOSYS
+#undef ENOSYS
+#endif
+#define ENOSYS      38      /* Function not implemented */
 
 /* Missing stat.h defines.
  * The following are sys/stat.h definitions not currently present in the ARMCC
@@ -107,5 +160,25 @@
 #define     S_IXOTH 0000001/* execute/search permission, other */
 
 #endif /* defined(__ARMCC_VERSION) || defined(__ICCARM__) */
+
+
+/* The following are dirent.h definitions are declared here to garuntee
+ * consistency where structure may be different with different toolchains */
+struct dirent {
+    char d_name[NAME_MAX+1];
+    uint8_t d_type;
+};
+
+enum {
+    DT_UNKNOWN, // The file type could not be determined.
+    DT_FIFO,    // This is a named pipe (FIFO).
+    DT_CHR,     // This is a character device.
+    DT_DIR,     // This is a directory.
+    DT_BLK,     // This is a block device.
+    DT_REG,     // This is a regular file.
+    DT_LNK,     // This is a symbolic link.
+    DT_SOCK,    // This is a UNIX domain socket.
+};
+
 
 #endif /* RETARGET_H */
