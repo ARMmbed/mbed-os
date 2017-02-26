@@ -125,6 +125,7 @@ snmp_get_community_trap(void)
 void
 snmp_set_community_write(const char * const community)
 {
+  LWIP_ASSERT("community string must not be NULL", community != NULL);
   LWIP_ASSERT("community string is too long!", strlen(community) <= SNMP_MAX_COMMUNITY_STR_LEN);
   snmp_community_write = community;
 }
@@ -272,8 +273,7 @@ snmp_process_varbind(struct snmp_request *request, struct snmp_varbind *vb, u8_t
     }
   }
 
-  if (request->error_status != SNMP_ERR_NOERROR)
-  {
+  if (request->error_status != SNMP_ERR_NOERROR)  {
     if (request->error_status >= SNMP_VARBIND_EXCEPTION_OFFSET) {
       if ((request->version == SNMP_VERSION_2c) || request->version == SNMP_VERSION_3) {
         /* in SNMP v2c a varbind related exception is stored in varbind and not in frame header */
@@ -323,7 +323,7 @@ snmp_process_varbind(struct snmp_request *request, struct snmp_varbind *vb, u8_t
 /**
  * Service an internal or external event for SNMP GET.
  *
- * @param msg_ps points to the associated message process state
+ * @param request points to the associated message process state
  */
 static err_t
 snmp_process_get_request(struct snmp_request *request)
@@ -359,7 +359,7 @@ snmp_process_get_request(struct snmp_request *request)
 /**
  * Service an internal or external event for SNMP GET.
  *
- * @param msg_ps points to the associated message process state
+ * @param request points to the associated message process state
  */
 static err_t
 snmp_process_getnext_request(struct snmp_request *request)
@@ -395,7 +395,7 @@ snmp_process_getnext_request(struct snmp_request *request)
 /**
  * Service an internal or external event for SNMP GETBULKT.
  *
- * @param msg_ps points to the associated message process state
+ * @param request points to the associated message process state
  */
 static err_t
 snmp_process_getbulk_request(struct snmp_request *request)
@@ -493,7 +493,7 @@ snmp_process_getbulk_request(struct snmp_request *request)
 /**
  * Service an internal or external event for SNMP SET.
  *
- * @param msg_ps points to the associated message process state
+ * @param request points to the associated message process state
  */
 static err_t
 snmp_process_set_request(struct snmp_request *request)
@@ -512,8 +512,7 @@ snmp_process_set_request(struct snmp_request *request)
       memset(&node_instance, 0, sizeof(node_instance));
       
       request->error_status = snmp_get_node_instance_from_oid(vb.oid.id, vb.oid.len, &node_instance);
-      if (request->error_status == SNMP_ERR_NOERROR)
-      {
+      if (request->error_status == SNMP_ERR_NOERROR) {
         if (node_instance.asn1_type != vb.type) {
           request->error_status = SNMP_ERR_WRONGTYPE;
         } else if (((node_instance.access & SNMP_NODE_INSTANCE_ACCESS_WRITE) != SNMP_NODE_INSTANCE_ACCESS_WRITE) || (node_instance.set_value == NULL)) {
@@ -528,8 +527,7 @@ snmp_process_set_request(struct snmp_request *request)
           node_instance.release_instance(&node_instance);
         }
       }
-    }
-    else if (err == SNMP_VB_ENUMERATOR_ERR_EOVB) {
+    } else if (err == SNMP_VB_ENUMERATOR_ERR_EOVB) {
       /* no more varbinds in request */
       break;
     } else if (err == SNMP_VB_ENUMERATOR_ERR_INVALIDLENGTH) {
@@ -551,10 +549,8 @@ snmp_process_set_request(struct snmp_request *request)
         struct snmp_node_instance node_instance;
         memset(&node_instance, 0, sizeof(node_instance));
         request->error_status = snmp_get_node_instance_from_oid(vb.oid.id, vb.oid.len, &node_instance);
-        if (request->error_status == SNMP_ERR_NOERROR)
-        {
-          if (node_instance.set_value(&node_instance, vb.value_len, vb.value) != SNMP_ERR_NOERROR)
-          {
+        if (request->error_status == SNMP_ERR_NOERROR) {
+          if (node_instance.set_value(&node_instance, vb.value_len, vb.value) != SNMP_ERR_NOERROR) {
             if (request->inbound_varbind_enumerator.varbind_count == 1) {
               request->error_status = SNMP_ERR_COMMITFAILED;
             } else {
@@ -650,11 +646,12 @@ snmp_parse_inbound_frame(struct snmp_request *request)
 #if LWIP_SNMP_V3
   if (request->version == SNMP_VERSION_3) {
     u16_t u16_value;
+    u16_t inbound_msgAuthenticationParameters_offset;
 
     /* SNMPv3 doesn't use communities */
     /* @todo: Differentiate read/write access */
     strcpy((char*)request->community, snmp_community);
-    request->community_strlen = strlen(snmp_community);
+    request->community_strlen = (u16_t)strlen(snmp_community);
 
     /* RFC3414 globalData */
     IF_PARSE_EXEC(snmp_asn1_dec_tlv(&pbuf_stream, &tlv));
@@ -687,7 +684,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
     IF_PARSE_ASSERT(parent_tlv_value_len > 0);
 
     IF_PARSE_EXEC(snmp_asn1_dec_s32t(&pbuf_stream, tlv.value_len, &s32_value));
-    request->msg_flags = s32_value;
+    request->msg_flags = (u8_t)s32_value;
 
     /* decode msgSecurityModel */
     IF_PARSE_EXEC(snmp_asn1_dec_tlv(&pbuf_stream, &tlv));
@@ -724,7 +721,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
 
     IF_PARSE_EXEC(snmp_asn1_dec_raw(&pbuf_stream, tlv.value_len, request->msg_authoritative_engine_id,
         &u16_value, SNMP_V3_MAX_ENGINE_ID_LENGTH));
-    request->msg_authoritative_engine_id_len = u16_value;
+    request->msg_authoritative_engine_id_len = (u8_t)u16_value;
 
     /* msgAuthoritativeEngineBoots */
     IF_PARSE_EXEC(snmp_asn1_dec_tlv(&pbuf_stream, &tlv));
@@ -749,7 +746,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
 
     IF_PARSE_EXEC(snmp_asn1_dec_raw(&pbuf_stream, tlv.value_len, request->msg_user_name,
         &u16_value, SNMP_V3_MAX_USER_LENGTH));
-    request->msg_user_name_len = u16_value;
+    request->msg_user_name_len = (u8_t)u16_value;
     /* @todo: Implement unknown user error response */
     IF_PARSE_EXEC(snmpv3_get_user((char*)request->msg_user_name, NULL, NULL, NULL, NULL));
 
@@ -760,7 +757,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
     parent_tlv_value_len -= SNMP_ASN1_TLV_LENGTH(tlv);
     IF_PARSE_ASSERT(parent_tlv_value_len > 0);
     /* Remember position */
-    u16_t inbound_msgAuthenticationParameters_offset = pbuf_stream.offset;
+    inbound_msgAuthenticationParameters_offset = pbuf_stream.offset;
     LWIP_UNUSED_ARG(inbound_msgAuthenticationParameters_offset);
     /* Read auth parameters */
     IF_PARSE_ASSERT(tlv.value_len <= SNMP_V3_MAX_AUTH_PARAM_LENGTH);
@@ -769,18 +766,19 @@ snmp_parse_inbound_frame(struct snmp_request *request)
 
 #if LWIP_SNMP_V3_CRYPTO
     if (request->msg_flags & SNMP_V3_AUTH_FLAG) {
-      /* Rewind stream */
-      IF_PARSE_EXEC(snmp_pbuf_stream_init(&pbuf_stream, request->inbound_pbuf, 0, request->inbound_pbuf->tot_len));
-      IF_PARSE_EXEC(snmp_pbuf_stream_seek_abs(&pbuf_stream, inbound_msgAuthenticationParameters_offset));
-      /* Set auth parameters to zero for verification */
       const u8_t zero_arr[SNMP_V3_MAX_AUTH_PARAM_LENGTH] = { 0 };
-      IF_PARSE_EXEC(snmp_asn1_enc_raw(&pbuf_stream, zero_arr, tlv.value_len));
-
-      /* Verify authentication */
       u8_t key[20];
       u8_t algo;
       u8_t hmac[LWIP_MAX(SNMP_V3_SHA_LEN, SNMP_V3_MD5_LEN)];
       struct snmp_pbuf_stream auth_stream;
+
+      /* Rewind stream */
+      IF_PARSE_EXEC(snmp_pbuf_stream_init(&pbuf_stream, request->inbound_pbuf, 0, request->inbound_pbuf->tot_len));
+      IF_PARSE_EXEC(snmp_pbuf_stream_seek_abs(&pbuf_stream, inbound_msgAuthenticationParameters_offset));
+      /* Set auth parameters to zero for verification */
+      IF_PARSE_EXEC(snmp_asn1_enc_raw(&pbuf_stream, zero_arr, tlv.value_len));
+
+      /* Verify authentication */
       IF_PARSE_EXEC(snmp_pbuf_stream_init(&auth_stream, request->inbound_pbuf, 0, request->inbound_pbuf->tot_len));
 
       IF_PARSE_EXEC(snmpv3_get_user((char*)request->msg_user_name, &algo, key, NULL, NULL));
@@ -839,7 +837,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
 
     IF_PARSE_EXEC(snmp_asn1_dec_raw(&pbuf_stream, tlv.value_len, request->context_engine_id,
         &u16_value, SNMP_V3_MAX_ENGINE_ID_LENGTH));
-    request->context_engine_id_len = u16_value;
+    request->context_engine_id_len = (u8_t)u16_value;
 
     /* contextName */
     IF_PARSE_EXEC(snmp_asn1_dec_tlv(&pbuf_stream, &tlv));
@@ -849,7 +847,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
 
     IF_PARSE_EXEC(snmp_asn1_dec_raw(&pbuf_stream, tlv.value_len, request->context_name,
         &u16_value, SNMP_V3_MAX_ENGINE_ID_LENGTH));
-    request->context_name_len = u16_value;
+    request->context_name_len = (u8_t)u16_value;
   } else
 #endif
   {
@@ -913,7 +911,7 @@ snmp_parse_inbound_frame(struct snmp_request *request)
     snmp_authfail_trap();
     return ERR_ARG;
   } else if (request->request_type == SNMP_ASN1_CONTEXT_PDU_SET_REQ) {
-    if (strnlen(snmp_community_write, SNMP_MAX_COMMUNITY_STR_LEN) == 0) {
+    if (snmp_community_write[0] == 0) {
       /* our write community is empty, that means all our objects are readonly */
       request->error_status = SNMP_ERR_NOTWRITABLE;
       request->error_index  = 1;
@@ -1065,7 +1063,7 @@ snmp_prepare_outbound_frame(struct snmp_request *request)
 
     /* msgAuthoritativeEngineID */
     snmpv3_get_engine_id(&id, &request->msg_authoritative_engine_id_len);
-    memcpy(request->msg_authoritative_engine_id, id, request->msg_authoritative_engine_id_len);
+    MEMCPY(request->msg_authoritative_engine_id, id, request->msg_authoritative_engine_id_len);
     SNMP_ASN1_SET_TLV_PARAMS(tlv, SNMP_ASN1_TYPE_OCTET_STRING, 0, request->msg_authoritative_engine_id_len);
     OF_BUILD_EXEC(snmp_ans1_enc_tlv(pbuf_stream, &tlv));
     OF_BUILD_EXEC(snmp_asn1_enc_raw(pbuf_stream, request->msg_authoritative_engine_id, request->msg_authoritative_engine_id_len));
@@ -1140,7 +1138,7 @@ snmp_prepare_outbound_frame(struct snmp_request *request)
 
     /* contextEngineID */
     snmpv3_get_engine_id(&id, &request->context_engine_id_len);
-    memcpy(request->context_engine_id, id, request->context_engine_id_len);
+    MEMCPY(request->context_engine_id, id, request->context_engine_id_len);
     SNMP_ASN1_SET_TLV_PARAMS(tlv, SNMP_ASN1_TYPE_OCTET_STRING, 0, request->context_engine_id_len);
     OF_BUILD_EXEC(snmp_ans1_enc_tlv(pbuf_stream, &tlv));
     OF_BUILD_EXEC(snmp_asn1_enc_raw(pbuf_stream, request->context_engine_id, request->context_engine_id_len));
@@ -1361,6 +1359,19 @@ snmp_complete_outbound_frame(struct snmp_request *request)
        }
     }
   } else {
+    if (request->request_type == SNMP_ASN1_CONTEXT_PDU_SET_REQ) {
+      /* map error codes to according to RFC 1905 (4.2.5.  The SetRequest-PDU) return 'NotWritable' for unknown OIDs) */
+      switch (request->error_status) {
+        case SNMP_ERR_NOSUCHINSTANCE:
+        case SNMP_ERR_NOSUCHOBJECT:
+        case SNMP_ERR_ENDOFMIBVIEW:
+          request->error_status = SNMP_ERR_NOTWRITABLE;
+          break;
+        default:
+          break;
+      }
+    }
+
     if (request->error_status >= SNMP_VARBIND_EXCEPTION_OFFSET) {
       /* should never occur because v2 frames store exceptions directly inside varbinds and not as frame error_status */
       LWIP_DEBUGF(SNMP_DEBUG, ("snmp_complete_outbound_frame() > Found v2 request with varbind exception code stored as error status!\n"));
@@ -1382,7 +1393,7 @@ snmp_complete_outbound_frame(struct snmp_request *request)
   /* Calculate padding for encryption */
   if (request->version == SNMP_VERSION_3 && (request->msg_flags & SNMP_V3_PRIV_FLAG)) {
     u8_t i;
-    outbound_padding = (u8_t)((frame_size - request->outbound_scoped_pdu_seq_offset) & 0x03);
+    outbound_padding = (8 - (u8_t)((frame_size - request->outbound_scoped_pdu_seq_offset) & 0x07)) & 0x07;
     for (i = 0; i < outbound_padding; i++) {
       snmp_pbuf_stream_write(&request->outbound_pbuf_stream, 0);
     }
@@ -1517,7 +1528,7 @@ snmp_complete_outbound_frame(struct snmp_request *request)
         request->outbound_pbuf, 0, request->outbound_pbuf->tot_len));
     OF_BUILD_EXEC(snmpv3_auth(&request->outbound_pbuf_stream, frame_size + outbound_padding, key, algo, hmac));
 
-    memcpy(request->msg_authentication_parameters, hmac, SNMP_V3_MAX_AUTH_PARAM_LENGTH);
+    MEMCPY(request->msg_authentication_parameters, hmac, SNMP_V3_MAX_AUTH_PARAM_LENGTH);
     OF_BUILD_EXEC(snmp_pbuf_stream_init(&request->outbound_pbuf_stream,
                   request->outbound_pbuf, 0, request->outbound_pbuf->tot_len));
     OF_BUILD_EXEC(snmp_pbuf_stream_seek_abs(&request->outbound_pbuf_stream,
@@ -1547,7 +1558,7 @@ snmp_execute_write_callbacks(struct snmp_request *request)
   snmp_vb_enumerator_init(&inbound_varbind_enumerator, request->inbound_pbuf, request->inbound_varbind_offset, request->inbound_varbind_len);
   vb.value = NULL; /* do NOT decode value (we enumerate outbound buffer here, so all varbinds have values assigned, which we don't need here) */
 
-  while (snmp_vb_enumerator_get_next(&inbound_varbind_enumerator, &vb) == ERR_OK) {
+  while (snmp_vb_enumerator_get_next(&inbound_varbind_enumerator, &vb) == SNMP_VB_ENUMERATOR_ERR_OK) {
     snmp_write_callback(vb.oid.id, vb.oid.len, snmp_write_callback_arg);
   }
 }

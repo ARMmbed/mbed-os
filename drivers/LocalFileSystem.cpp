@@ -17,7 +17,7 @@
 
 #if DEVICE_LOCALFILESYSTEM
 
-#include "platform/semihost_api.h"
+#include "platform/mbed_semihost_api.h"
 #include <string.h>
 #include <stdio.h>
 

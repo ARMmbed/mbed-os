@@ -192,7 +192,7 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
     iv_local[4 + 1] = (engine_time  >> 16) & 0xFF;
     iv_local[4 + 2] = (engine_time  >>  8) & 0xFF;
     iv_local[4 + 3] = (engine_time  >>  0) & 0xFF;
-    memcpy(iv_local + 8, priv_param, 8);
+    SMEMCPY(iv_local + 8, priv_param, 8);
     if(mbedtls_cipher_set_iv(&ctx, iv_local, LWIP_ARRAYSIZE(iv_local)) != 0) {
       goto error;
     }
@@ -263,9 +263,9 @@ snmpv3_password_to_key_md5(
   /* May want to ensure that engineLength <= 32,       */
   /* otherwise need to use a buffer larger than 64     */
   /*****************************************************/
-  memcpy(password_buf, key, 16);
-  memcpy(password_buf + 16, engineID, engineLength);
-  memcpy(password_buf + 16 + engineLength, key, 16);
+  SMEMCPY(password_buf, key, 16);
+  MEMCPY(password_buf + 16, engineID, engineLength);
+  SMEMCPY(password_buf + 16 + engineLength, key, 16);
 
   mbedtls_md5_starts(&MD);
   mbedtls_md5_update(&MD, password_buf, 32 + engineLength);
@@ -316,9 +316,9 @@ snmpv3_password_to_key_sha(
   /* May want to ensure that engineLength <= 32,       */
   /* otherwise need to use a buffer larger than 72     */
   /*****************************************************/
-  memcpy(password_buf, key, 20);
-  memcpy(password_buf + 20, engineID, engineLength);
-  memcpy(password_buf + 20 + engineLength, key, 20);
+  SMEMCPY(password_buf, key, 20);
+  MEMCPY(password_buf + 20, engineID, engineLength);
+  SMEMCPY(password_buf + 20 + engineLength, key, 20);
 
   mbedtls_sha1_starts(&SH);
   mbedtls_sha1_update(&SH, password_buf, 40 + engineLength);

@@ -106,7 +106,7 @@ snmp_mib2_set_sysdescr(const u8_t *str, const u16_t *len)
  * Initializes sysContact pointers
  *
  * @param ocstr if non-NULL then copy str pointer
- * @param ocstrlen points to string length, excluding zero terminator. 
+ * @param ocstrlen points to string length, excluding zero terminator.
  *        if set to NULL it is assumed that ocstr is NULL-terminated.
  * @param bufsize size of the buffer in bytes.
  *        (this is required because the buffer can be overwritten by snmp-set)
@@ -148,7 +148,7 @@ snmp_mib2_set_syscontact_readonly(const u8_t *ocstr, const u16_t *ocstrlen)
  * Initializes sysName pointers
  *
  * @param ocstr if non-NULL then copy str pointer
- * @param ocstrlen points to string length, excluding zero terminator. 
+ * @param ocstrlen points to string length, excluding zero terminator.
  *        if set to NULL it is assumed that ocstr is NULL-terminated.
  * @param bufsize size of the buffer in bytes.
  *        (this is required because the buffer can be overwritten by snmp-set)
@@ -189,7 +189,7 @@ snmp_mib2_set_sysname_readonly(const u8_t *ocstr, const u16_t *ocstrlen)
  * Initializes sysLocation pointers
  *
  * @param ocstr if non-NULL then copy str pointer
- * @param ocstrlen points to string length, excluding zero terminator. 
+ * @param ocstrlen points to string length, excluding zero terminator.
  *        if set to NULL it is assumed that ocstr is NULL-terminated.
  * @param bufsize size of the buffer in bytes.
  *        (this is required because the buffer can be overwritten by snmp-set)
@@ -278,7 +278,7 @@ system_get_value(const struct snmp_scalar_array_node_def *node, void *value)
   return result;
 }
 
-static snmp_err_t 
+static snmp_err_t
 system_set_test(const struct snmp_scalar_array_node_def *node, u16_t len, void *value)
 {
   snmp_err_t ret = SNMP_ERR_WRONGVALUE;
@@ -324,7 +324,7 @@ system_set_test(const struct snmp_scalar_array_node_def *node, u16_t len, void *
   return ret;
 }
 
-static snmp_err_t 
+static snmp_err_t
 system_set_value(const struct snmp_scalar_array_node_def *node, u16_t len, void *value)
 {
   u8_t*  var_wr = NULL;

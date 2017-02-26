@@ -103,9 +103,12 @@
   *        This value is used by the RCC HAL module to compute the system frequency
   *        (when HSE is used as system clock source, directly or through the PLL).
   */
-#if !defined  (HSE_VALUE)
-  #define HSE_VALUE    8000000U /*!< Value of the External oscillator in Hz */
-#endif /* HSE_VALUE */
+//#if !defined  (HSE_VALUE)
+#if defined(TARGET_DISCO_F746NG) || defined(TARGET_DISCO_F769NI)
+  #define HSE_VALUE    25000000U /*!< Value of the External oscillator in Hz */
+#else
+  #define HSE_VALUE    8000000U /*!< Default value of the External oscillator in Hz */
+#endif
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
   #define HSE_STARTUP_TIMEOUT    200U   /*!< Time out for HSE start up, in ms */

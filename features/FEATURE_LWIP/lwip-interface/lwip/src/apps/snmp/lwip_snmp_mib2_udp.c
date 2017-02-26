@@ -57,7 +57,7 @@
 
 /* --- udp .1.3.6.1.2.1.7 ----------------------------------------------------- */
 
-static s16_t 
+static s16_t
 udp_get_value(struct snmp_node_instance* instance, void* value)
 {
   u32_t *uint_ptr = (u32_t*)value;
@@ -91,10 +91,10 @@ udp_get_value(struct snmp_node_instance* instance, void* value)
 
 /* --- udpEndpointTable --- */
 
-static snmp_err_t 
+static snmp_err_t
 udp_endpointTable_get_cell_value_core(const u32_t* column, union snmp_variant_value* value)
 {
-  /* all items except udpEndpointProcess are declared as not-accessible */   
+  /* all items except udpEndpointProcess are declared as not-accessible */
   switch (*column) {
   case 8: /* udpEndpointProcess */
     value->u32 = 0; /* not supported */
@@ -106,7 +106,7 @@ udp_endpointTable_get_cell_value_core(const u32_t* column, union snmp_variant_va
   return SNMP_ERR_NOERROR;
 }
 
-static snmp_err_t 
+static snmp_err_t
 udp_endpointTable_get_cell_value(const u32_t* column, const u32_t* row_oid, u8_t row_oid_len, union snmp_variant_value* value, u32_t* value_len)
 {
   ip_addr_t local_ip, remote_ip;

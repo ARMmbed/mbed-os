@@ -94,19 +94,26 @@ ssize_t Stream::read(void* buffer, size_t length) {
     return ptr - (const char*)buffer;
 }
 
-off_t Stream::lseek(off_t offset, int whence) {
+off_t Stream::seek(off_t offset, int whence) {
     return 0;
+}
+
+off_t Stream::tell() {
+    return 0;
+}
+
+void Stream::rewind() {
 }
 
 int Stream::isatty() {
     return 0;
 }
 
-int Stream::fsync() {
+int Stream::sync() {
     return 0;
 }
 
-off_t Stream::flen() {
+size_t Stream::size() {
     return 0;
 }
 

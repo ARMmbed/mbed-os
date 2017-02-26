@@ -27,8 +27,8 @@ InterruptIn::InterruptIn(PinName pin) : gpio(),
                                         _fall() {
     // No lock needed in the constructor
 
-    _rise.attach(donothing);
-    _fall.attach(donothing);
+    _rise = donothing;
+    _fall = donothing;
 
     gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
     gpio_init_in(&gpio, pin);
@@ -53,10 +53,10 @@ void InterruptIn::mode(PinMode pull) {
 void InterruptIn::rise(Callback<void()> func) {
     core_util_critical_section_enter();
     if (func) {
-        _rise.attach(func);
+        _rise = func;
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
     } else {
-        _rise.attach(donothing);
+        _rise = donothing;
         gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
     }
     core_util_critical_section_exit();
@@ -65,10 +65,10 @@ void InterruptIn::rise(Callback<void()> func) {
 void InterruptIn::fall(Callback<void()> func) {
     core_util_critical_section_enter();
     if (func) {
-        _fall.attach(func);
+        _fall = func;
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
     } else {
-        _fall.attach(donothing);
+        _fall = donothing;
         gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
     }
     core_util_critical_section_exit();
@@ -77,8 +77,8 @@ void InterruptIn::fall(Callback<void()> func) {
 void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {
     InterruptIn *handler = (InterruptIn*)id;
     switch (event) {
-        case IRQ_RISE: handler->_rise.call(); break;
-        case IRQ_FALL: handler->_fall.call(); break;
+        case IRQ_RISE: handler->_rise(); break;
+        case IRQ_FALL: handler->_fall(); break;
         case IRQ_NONE: break;
     }
 }

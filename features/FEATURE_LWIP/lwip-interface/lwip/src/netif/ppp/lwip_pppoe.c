@@ -81,6 +81,7 @@
 #include "lwip/stats.h"
 #include "lwip/snmp.h"
 
+#include "netif/lwip_ethernet.h"
 #include "netif/ppp/ppp_impl.h"
 #include "netif/ppp/lcp.h"
 #include "netif/ppp/ipcp.h"
@@ -189,8 +190,6 @@ ppp_pcb *pppoe_create(struct netif *pppif,
   }
 
   memset(sc, 0, sizeof(struct pppoe_softc));
-  /* changed to real address later */
-  MEMCPY(&sc->sc_dest, ethbroadcast.addr, sizeof(sc->sc_dest));
   sc->pcb = ppp;
   sc->sc_ethif = ethif;
   /* put the new interface at the head of the list */
@@ -323,10 +322,6 @@ pppoe_destroy(ppp_pcb *ppp, void *ctx)
 static struct pppoe_softc* pppoe_find_softc_by_session(u_int session, struct netif *rcvif) {
   struct pppoe_softc *sc;
 
-  if (session == 0) {
-    return NULL;
-  }
-
   for (sc = pppoe_softc_list; sc != NULL; sc = sc->next) {
     if (sc->sc_state == PPPOE_STATE_SESSION
         && sc->sc_session == session
@@ -341,10 +336,6 @@ static struct pppoe_softc* pppoe_find_softc_by_session(u_int session, struct net
  * or NULL if token is bogus. */
 static struct pppoe_softc* pppoe_find_softc_by_hunique(u8_t *token, size_t len, struct netif *rcvif) {
   struct pppoe_softc *sc, *t;
-
-  if (pppoe_softc_list == NULL) {
-    return NULL;
-  }
 
   if (len != sizeof sc) {
     return NULL;
@@ -428,8 +419,8 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
     PPPDEBUG(LOG_DEBUG, ("pppoe: unknown version/type packet: 0x%x\n", ph->vertype));
     goto done;
   }
-  session = ntohs(ph->session);
-  plen = ntohs(ph->plen);
+  session = lwip_ntohs(ph->session);
+  plen = lwip_ntohs(ph->plen);
   off += sizeof(*ph);
 
   if (plen + off > pb->len) {
@@ -445,8 +436,8 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
   sc = NULL;
   while (off + sizeof(pt) <= pb->len) {
     MEMCPY(&pt, (u8_t*)pb->payload + off, sizeof(pt));
-    tag = ntohs(pt.tag);
-    len = ntohs(pt.len);
+    tag = lwip_ntohs(pt.tag);
+    len = lwip_ntohs(pt.len);
     if (off + sizeof(pt) + len > pb->len) {
       PPPDEBUG(LOG_DEBUG, ("pppoe: tag 0x%x len 0x%x is too long\n", tag, len));
       goto done;
@@ -689,7 +680,7 @@ pppoe_data_input(struct netif *netif, struct pbuf *pb)
     goto drop;
   }
 
-  session = ntohs(ph->session);
+  session = lwip_ntohs(ph->session);
   sc = pppoe_find_softc_by_session(session, netif);
   if (sc == NULL) {
 #ifdef PPPOE_TERM_UNKNOWN_SESSIONS
@@ -699,7 +690,7 @@ pppoe_data_input(struct netif *netif, struct pbuf *pb)
     goto drop;
   }
 
-  plen = ntohs(ph->plen);
+  plen = lwip_ntohs(ph->plen);
 
   if (pbuf_header(pb, -(s16_t)(PPPOE_HEADERLEN)) != 0) {
     /* bail out */
@@ -731,11 +722,6 @@ pppoe_output(struct pppoe_softc *sc, struct pbuf *pb)
   u16_t etype;
   err_t res;
 
-  if (!sc->sc_ethif) {
-    pbuf_free(pb);
-    return ERR_IF;
-  }
-
   /* make room for Ethernet header - should not fail */
   if (pbuf_header(pb, (s16_t)(sizeof(struct eth_hdr))) != 0) {
     /* bail out */
@@ -746,7 +732,7 @@ pppoe_output(struct pppoe_softc *sc, struct pbuf *pb)
   }
   ethhdr = (struct eth_hdr *)pb->payload;
   etype = sc->sc_state == PPPOE_STATE_SESSION ? ETHTYPE_PPPOE : ETHTYPE_PPPOEDISC;
-  ethhdr->type = htons(etype);
+  ethhdr->type = lwip_htons(etype);
   MEMCPY(&ethhdr->dest.addr, &sc->sc_dest.addr, sizeof(ethhdr->dest.addr));
   MEMCPY(&ethhdr->src.addr, &sc->sc_ethif->hwaddr, sizeof(ethhdr->src.addr));
 
@@ -772,10 +758,6 @@ pppoe_send_padi(struct pppoe_softc *sc)
 #ifdef PPPOE_TODO
   int l1 = 0, l2 = 0; /* XXX: gcc */
 #endif /* PPPOE_TODO */
-
-  if (sc->sc_state >PPPOE_STATE_PADI_SENT) {
-    PPPDEBUG(LOG_ERR, ("ERROR: pppoe_send_padi in state %d", sc->sc_state));
-  }
 
   /* calculate length of frame (excluding ethernet header + pppoe header) */
   len = 2 + 2 + 2 + 2 + sizeof sc;  /* service name tag is required, host unique is send too */
@@ -900,7 +882,7 @@ pppoe_timeout(void *arg)
 static err_t
 pppoe_connect(ppp_pcb *ppp, void *ctx)
 {
-  int err;
+  err_t err;
   struct pppoe_softc *sc = (struct pppoe_softc *)ctx;
   lcp_options *lcp_wo;
   lcp_options *lcp_ao;
@@ -909,23 +891,18 @@ pppoe_connect(ppp_pcb *ppp, void *ctx)
   ipcp_options *ipcp_ao;
 #endif /* PPP_IPV4_SUPPORT && VJ_SUPPORT */
 
-  if (sc->sc_state != PPPOE_STATE_INITIAL) {
-    return EBUSY;
-  }
-
-  /* stop any timer */
-  sys_untimeout(pppoe_timeout, sc);
   sc->sc_session = 0;
+  sc->sc_ac_cookie_len = 0;
   sc->sc_padi_retried = 0;
   sc->sc_padr_retried = 0;
+  /* changed to real address later */
+  MEMCPY(&sc->sc_dest, ethbroadcast.addr, sizeof(sc->sc_dest));
 #ifdef PPPOE_SERVER
   /* wait PADI if IFF_PASSIVE */
   if ((sc->sc_sppp.pp_if.if_flags & IFF_PASSIVE)) {
     return 0;
   }
 #endif
-
-  ppp_link_start(ppp);
 
   lcp_wo = &ppp->lcp_wantoptions;
   lcp_wo->mru = sc->sc_ethif->mtu-PPPOE_HEADERLEN-2; /* two byte PPP protocol discriminator, then IP data */
@@ -966,28 +943,21 @@ pppoe_disconnect(ppp_pcb *ppp, void *ctx)
 {
   struct pppoe_softc *sc = (struct pppoe_softc *)ctx;
 
-  if (sc->sc_state < PPPOE_STATE_SESSION) {
-    return;
+  PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": disconnecting\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
+  if (sc->sc_state == PPPOE_STATE_SESSION) {
+    pppoe_send_padt(sc->sc_ethif, sc->sc_session, (const u8_t *)&sc->sc_dest);
   }
 
-  PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": disconnecting\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
-  pppoe_send_padt(sc->sc_ethif, sc->sc_session, (const u8_t *)&sc->sc_dest);
-
-  /* cleanup softc */
+  /* stop any timer, disconnect can be called while initiating is in progress */
+  sys_untimeout(pppoe_timeout, sc);
   sc->sc_state = PPPOE_STATE_INITIAL;
-  MEMCPY(&sc->sc_dest, ethbroadcast.addr, sizeof(sc->sc_dest));
-  sc->sc_ac_cookie_len = 0;
 #ifdef PPPOE_SERVER
   if (sc->sc_hunique) {
     mem_free(sc->sc_hunique);
-    sc->sc_hunique = NULL;
+    sc->sc_hunique = NULL; /* probably not necessary, if state is initial we shouldn't have to access hunique anyway  */
   }
-  sc->sc_hunique_len = 0;
+  sc->sc_hunique_len = 0; /* probably not necessary, if state is initial we shouldn't have to access hunique anyway  */
 #endif
-  sc->sc_session = 0;
-  sc->sc_padi_retried = 0;
-  sc->sc_padr_retried = 0;
-
   ppp_link_end(ppp); /* notify upper layers */
   return;
 }
@@ -997,15 +967,7 @@ static void
 pppoe_abort_connect(struct pppoe_softc *sc)
 {
   PPPDEBUG(LOG_DEBUG, ("%c%c%"U16_F": could not establish connection\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
-
-  /* clear connection state */
   sc->sc_state = PPPOE_STATE_INITIAL;
-  MEMCPY(&sc->sc_dest, ethbroadcast.addr, sizeof(sc->sc_dest));
-  sc->sc_ac_cookie_len = 0;
-  sc->sc_session = 0;
-  sc->sc_padi_retried = 0;
-  sc->sc_padr_retried = 0;
-
   ppp_link_failed(sc->pcb); /* notify upper layers */
 }
 
@@ -1019,10 +981,6 @@ pppoe_send_padr(struct pppoe_softc *sc)
 #ifdef PPPOE_TODO
   size_t l1 = 0; /* XXX: gcc */
 #endif /* PPPOE_TODO */
-
-  if (sc->sc_state != PPPOE_STATE_PADR_SENT) {
-    return ERR_CONN;
-  }
 
   len = 2 + 2 + 2 + 2 + sizeof(sc);    /* service name, host unique */
 #ifdef PPPOE_TODO
@@ -1106,10 +1064,6 @@ pppoe_send_pado(struct pppoe_softc *sc)
   u8_t *p;
   size_t len;
 
-  if (sc->sc_state != PPPOE_STATE_PADO_SENT) {
-    return ERR_CONN;
-  }
-
   /* calc length */
   len = 0;
   /* include ac_cookie */
@@ -1139,10 +1093,6 @@ pppoe_send_pads(struct pppoe_softc *sc)
   struct pbuf *pb;
   u8_t *p;
   size_t len, l1 = 0;  /* XXX: gcc */
-
-  if (sc->sc_state != PPPOE_STATE_PADO_SENT) {
-    return ERR_CONN;
-  }
 
   sc->sc_session = mono_time.tv_sec % 0xff + 1;
   /* calc length */
@@ -1180,13 +1130,6 @@ pppoe_xmit(struct pppoe_softc *sc, struct pbuf *pb)
 {
   u8_t *p;
   size_t len;
-
-  /* are we ready to process data yet? */
-  if (sc->sc_state < PPPOE_STATE_SESSION) {
-    /*sppp_flush(&sc->sc_sppp.pp_if);*/
-    pbuf_free(pb);
-    return ERR_CONN;
-  }
 
   len = pb->tot_len;
 
@@ -1242,18 +1185,8 @@ pppoe_clear_softc(struct pppoe_softc *sc, const char *message)
   /* stop timer */
   sys_untimeout(pppoe_timeout, sc);
   PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": session 0x%x terminated, %s\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num, sc->sc_session, message));
-  /* fix our state */
   sc->sc_state = PPPOE_STATE_INITIAL;
-
-  /* notify upper layers */
-  ppp_link_end(sc->pcb);  /* /!\ dangerous /!\ */
-
-  /* clean up softc */
-  MEMCPY(&sc->sc_dest, ethbroadcast.addr, sizeof(sc->sc_dest));
-  sc->sc_ac_cookie_len = 0;
-  sc->sc_session = 0;
-  sc->sc_padi_retried = 0;
-  sc->sc_padr_retried = 0;
+  ppp_link_end(sc->pcb);  /* notify upper layers - /!\ dangerous /!\ - see pppoe_disc_input() */
 }
 #endif /* UNUSED */
 #endif /* PPP_SUPPORT && PPPOE_SUPPORT */

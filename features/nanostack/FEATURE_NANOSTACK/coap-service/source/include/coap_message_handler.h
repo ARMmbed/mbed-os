@@ -20,8 +20,7 @@
 #define __COAP_MESSAGE_HANDLER_H__
 
 #include <inttypes.h>
-#include "sn_coap_header.h"
-#include "sn_nsdl.h"
+#include "mbed-coap/sn_coap_header.h"
 #include "ns_list.h"
 
 #define TRANSACTION_LIFETIME 180

@@ -8,7 +8,14 @@ with newer versions.
 
   * [Enter new changes just after this line - do not remove this line]
 
-  * TODO
+(2.0.1)
+
+  ++ Application changes:
+
+  * UDP does NOT receive multicast traffic from ALL netifs on an UDP PCB bound to a specific
+    netif any more. Users need to bind to IP_ADDR_ANY to receive multicast traffic and compare 
+    ip_current_netif() to the desired netif for every packet.
+    See bug #49662 for an explanation.
 
 (2.0.0)
 
@@ -20,7 +27,7 @@ with newer versions.
   * Added IPv6 support (dual-stack or IPv4/IPv6 only)
   * Changed ip_addr_t to be a union in dual-stack mode (use ip4_addr_t where referring to IPv4 only).
   * Major rewrite of SNMP (added MIB parser that creates code stubs for custom MIBs);
-    supports SNMP2vc (experimental v3 support)
+    supports SNMPv2c (experimental v3 support)
   * Moved some core applications from contrib repository to src/apps (and include/lwip/apps)
 
   +++ Raw API:
@@ -34,7 +41,8 @@ with newer versions.
   ++ Port changes
 
   +++ new files:
-    * MANY new and moved files!
+    * MANY new and moved files! 
+    * Added src/Filelists.mk for use in Makefile projects
     * Continued moving stack-internal parts from abc.h to abc_priv.h in sub-folder "priv"
       to let abc.h only contain the actual application programmer's API
 
@@ -45,6 +53,13 @@ with newer versions.
     * Added LWIP_NETCONN_SEM_PER_THREAD to use one "op_completed" semaphore per thread
       instead of using one per netconn (these semaphores are used even with core locking
       enabled as some longer lasting functions like big writes still need to delay)
+    * Added generalized abstraction for itoa(), strnicmp(), stricmp() and strnstr()
+      in def.h (to be overridden in cc.h) instead of config 
+      options for netbiosns, httpd, dns, etc. ...
+    * New abstraction for hton* and ntoh* functions in def.h.
+      To override them, use the following in cc.h: 
+      #define lwip_htons(x) <your_htons>
+      #define lwip_htonl(x) <your_htonl>
 
   +++ new options:
      * TODO
@@ -55,6 +70,8 @@ with newer versions.
      * Added pools for IPv6, MPU_COMPATIBLE, dns-api, netif-api, etc.
      * added hook LWIP_HOOK_MEMP_AVAILABLE() to get informed when a memp pool was empty and an item
        is now available
+
+  * Signature of LWIP_HOOK_VLAN_SET macro was changed
 
   * LWIP_DECLARE_MEMORY_ALIGNED() may be used to declare aligned memory buffers (mem/memp)
     or to move buffers to dedicated memory using compiler attributes
@@ -68,6 +85,7 @@ with newer versions.
 
   * Added IPv6 support (dual-stack or IPv4/IPv6 only)
   * Major rewrite of PPP (incl. keep-up with apache pppd)
+    see doc/ppp.txt for an upgrading how-to
   * Major rewrite of SNMP (incl. MIB parser)
   * Fixed timing issues that might have lead to losing a DHCP lease
   * Made rx processing path more robust against crafted errors
@@ -77,7 +95,7 @@ with newer versions.
   * support PBUF_REF for RX packets
   * LWIP_NETCONN_FULLDUPLEX allows netconn/sockets to be used for reading/writing from separate
     threads each (needs LWIP_NETCONN_SEM_PER_THREAD)
-  * Moved and reorderd stats (mainly memp/mib2)
+  * Moved and reordered stats (mainly memp/mib2)
 
 (1.4.0)
 

@@ -8,7 +8,6 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "sn_nsdl.h"
 #include "sn_coap_header.h"
 #include "coap_service_api.h"
 #include "coap_message_handler.h"

@@ -29,7 +29,7 @@ public:
     off_t n;
     struct dirent cur_entry;
 
-    BaseDirHandle() : n(0), cur_entry() {
+    BaseDirHandle() : DirHandle(0), n(0), cur_entry() {
     }
 
     virtual int closedir() {

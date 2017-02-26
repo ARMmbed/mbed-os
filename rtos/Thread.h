@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os.h"
 #include "platform/Callback.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 

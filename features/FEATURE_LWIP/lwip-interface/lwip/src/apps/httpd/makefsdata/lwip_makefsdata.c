@@ -2,7 +2,7 @@
  * makefsdata: Converts a directory structure for use with the lwIP httpd.
  *
  * This file is part of the lwIP TCP/IP stack.
- * 
+ *
  * Author: Jim Pettinato
  *         Simon Goldschmidt
  *
@@ -818,7 +818,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
   u8_t provide_last_modified = includeLastModified;
 
   memset(hdr_buf, 0, sizeof(hdr_buf));
-  
+
   if (useHttp11) {
     response_type = HTTP_HDR_OK_11;
   }

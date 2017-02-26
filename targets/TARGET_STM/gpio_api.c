@@ -31,8 +31,82 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "pin_device.h"
 
-extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
+extern const uint32_t ll_pin_defines[16];
+
+// Enable GPIO clock and return GPIO base address
+GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx) {
+    uint32_t gpio_add = 0;
+    switch (port_idx) {
+        case PortA:
+            gpio_add = GPIOA_BASE;
+            __GPIOA_CLK_ENABLE();
+            break;
+        case PortB:
+            gpio_add = GPIOB_BASE;
+            __GPIOB_CLK_ENABLE();
+            break;
+#if defined(GPIOC_BASE)
+        case PortC:
+            gpio_add = GPIOC_BASE;
+            __GPIOC_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOD_BASE
+        case PortD:
+            gpio_add = GPIOD_BASE;
+            __GPIOD_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOE_BASE
+        case PortE:
+            gpio_add = GPIOE_BASE;
+            __GPIOE_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOF_BASE
+        case PortF:
+            gpio_add = GPIOF_BASE;
+            __GPIOF_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOG_BASE
+        case PortG:
+            gpio_add = GPIOG_BASE;
+            __GPIOG_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOH_BASE
+        case PortH:
+            gpio_add = GPIOH_BASE;
+            __GPIOH_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOI_BASE
+        case PortI:
+            gpio_add = GPIOI_BASE;
+            __GPIOI_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOJ_BASE
+        case PortJ:
+            gpio_add = GPIOJ_BASE;
+            __GPIOJ_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOK_BASE
+        case PortK:
+            gpio_add = GPIOK_BASE;
+            __GPIOK_CLK_ENABLE();
+            break;
+#endif
+        default:
+            error("Pinmap error: wrong port number.");
+            break;
+    }
+    return (GPIO_TypeDef *) gpio_add;
+}
 
 uint32_t gpio_set(PinName pin) {
     MBED_ASSERT(pin != (PinName)NC);
@@ -41,6 +115,7 @@ uint32_t gpio_set(PinName pin) {
 
     return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
 }
+
 
 void gpio_init(gpio_t *obj, PinName pin) {
     obj->pin = pin;
@@ -51,11 +126,12 @@ void gpio_init(gpio_t *obj, PinName pin) {
     uint32_t port_index = STM_PORT(pin);
 
     // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
 
     // Fill GPIO object structure for future use
     obj->mask    = gpio_set(pin);
+    obj->gpio  = gpio;
+    obj->ll_pin  = ll_pin_defines[STM_PIN(obj->pin)];
     obj->reg_in  = &gpio->IDR;
     obj->reg_set = &gpio->BSRR;
 #ifdef GPIO_IP_WITHOUT_BRR
@@ -69,11 +145,11 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
     pin_mode(obj->pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (direction == PIN_OUTPUT) {
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
-    } else { // PIN_INPUT
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+inline void gpio_dir(gpio_t *obj, PinDirection direction) {
+    if (direction == PIN_INPUT) {
+        LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_INPUT);
+    } else {
+        LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_OUTPUT);
     }
 }
+

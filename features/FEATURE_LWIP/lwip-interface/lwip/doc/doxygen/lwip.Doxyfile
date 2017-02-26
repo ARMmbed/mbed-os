@@ -32,19 +32,19 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = "lwIP 2.0.0"
+PROJECT_NAME           = "lwIP"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = "lwIP 2.0.0"
+PROJECT_NUMBER         = "2.0.1"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = Lightweight IP stack
+PROJECT_BRIEF          = "Lightweight IP stack"
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -162,7 +162,7 @@ FULL_PATH_NAMES        = YES
 # will be relative from the directory where doxygen is started.
 # This tag requires that the tag FULL_PATH_NAMES is set to YES.
 
-STRIP_FROM_PATH        =
+STRIP_FROM_PATH        = ../../
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of the
 # path mentioned in the documentation of a class, which tells the reader which
@@ -781,7 +781,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ../../src main_page.h
+INPUT                  = main_page.h ../../src
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -2071,6 +2071,7 @@ INCLUDE_FILE_PATTERNS  = *.h
 PREDEFINED             = __DOXYGEN__=1 \
                          NO_SYS=0 \
                          SYS_LIGHTWEIGHT_PROT=1 \
+                         LWIP_TCPIP_CORE_LOCKING=1 \
                          LWIP_IPV4=1 \
                          LWIP_IPV6=1 \
                          LWIP_ICMP=1 \
@@ -2080,10 +2081,12 @@ PREDEFINED             = __DOXYGEN__=1 \
                          LWIP_UDP=1 \
                          LWIP_IGMP=1 \
                          LWIP_TCP=1 \
+                         TCP_LISTEN_BACKLOG=1 \
                          LWIP_SNMP=1 \
                          SNMP_USE_NETCONN=1 \
                          SNMP_USE_RAW=1 \
                          MIB2_STATS=1 \
+                         LWIP_MDNS_RESPONDER=1 \
                          MEMP_OVERFLOW_CHECK=0 \
                          MEMP_SANITY_CHECK=1 \
                          LWIP_ARP=1 \
@@ -2091,8 +2094,10 @@ PREDEFINED             = __DOXYGEN__=1 \
                          LWIP_NETIF_HOSTNAME=1 \
                          LWIP_NETIF_API=1 \
                          LWIP_NETIF_CALLBACK=1 \
+                         LWIP_NETIF_STATUS_CALLBACK=1 \
                          LWIP_NETIF_REMOVE_CALLBACK=1 \
                          LWIP_NETIF_LINK_CALLBACK=1 \
+                         LWIP_NUM_NETIF_CLIENT_DATA=1 \
                          ENABLE_LOOPBACK=1 \
                          LWIP_AUTOIP=1 \
                          ARP_QUEUEING=1 \
@@ -2110,10 +2115,8 @@ PREDEFINED             = __DOXYGEN__=1 \
                          SO_REUSE=1 \
                          SO_REUSE_RXTOALL=1 \
                          LWIP_HAVE_SLIPIF=1 \
-                         LWIP_6LOWPAN=1 \
-                         "LWIP_DNS && LWIP_SOCKET   " \
-                         "(LWIP_DNS && LWIP_SOCKET)=1   "
-
+                         LWIP_6LOWPAN=1
+ 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
 # macro definition that is found in the sources will be used. Use the PREDEFINED

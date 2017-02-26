@@ -27,7 +27,7 @@
 #include "sleep_api.h"
 #include "sleepmodes.h"
 #include "em_emu.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 uint32_t sleep_block_counter[NUM_SLEEP_MODES] = {0};
 

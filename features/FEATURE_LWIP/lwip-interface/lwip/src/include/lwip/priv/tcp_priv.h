@@ -34,8 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef LWIP_HDR_TCP_IMPL_H
-#define LWIP_HDR_TCP_IMPL_H
+#ifndef LWIP_HDR_TCP_PRIV_H
+#define LWIP_HDR_TCP_PRIV_H
 
 #include "lwip/opt.h"
 
@@ -49,6 +49,7 @@
 #include "lwip/err.h"
 #include "lwip/ip6.h"
 #include "lwip/ip6_addr.h"
+#include "lwip/prot/tcp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,19 +112,6 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 #define TCP_SEQ_BETWEEN(a,b,c) ((c)-(b) >= (a)-(b))
 #endif
 #define TCP_SEQ_BETWEEN(a,b,c) (TCP_SEQ_GEQ(a,b) && TCP_SEQ_LEQ(a,c))
-#define TCP_FIN 0x01U
-#define TCP_SYN 0x02U
-#define TCP_RST 0x04U
-#define TCP_PSH 0x08U
-#define TCP_ACK 0x10U
-#define TCP_URG 0x20U
-#define TCP_ECE 0x40U
-#define TCP_CWR 0x80U
-
-#define TCP_FLAGS 0x3fU
-
-/* Length of the TCP header, excluding options. */
-#define TCP_HLEN 20
 
 #ifndef TCP_TMR_INTERVAL
 #define TCP_TMR_INTERVAL       250  /* The TCP timer interval in milliseconds. */
@@ -160,38 +148,6 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 #endif
 
 #define  TCP_MAXIDLE              TCP_KEEPCNT_DEFAULT * TCP_KEEPINTVL_DEFAULT  /* Maximum KEEPALIVE probe time */
-
-/* Fields are (of course) in network byte order.
- * Some fields are converted to host byte order in tcp_input().
- */
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/bpstruct.h"
-#endif
-PACK_STRUCT_BEGIN
-struct tcp_hdr {
-  PACK_STRUCT_FIELD(u16_t src);
-  PACK_STRUCT_FIELD(u16_t dest);
-  PACK_STRUCT_FIELD(u32_t seqno);
-  PACK_STRUCT_FIELD(u32_t ackno);
-  PACK_STRUCT_FIELD(u16_t _hdrlen_rsvd_flags);
-  PACK_STRUCT_FIELD(u16_t wnd);
-  PACK_STRUCT_FIELD(u16_t chksum);
-  PACK_STRUCT_FIELD(u16_t urgp);
-} PACK_STRUCT_STRUCT;
-PACK_STRUCT_END
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/epstruct.h"
-#endif
-
-#define TCPH_HDRLEN(phdr) ((u16_t)(ntohs((phdr)->_hdrlen_rsvd_flags) >> 12))
-#define TCPH_FLAGS(phdr)  ((u16_t)(ntohs((phdr)->_hdrlen_rsvd_flags) & TCP_FLAGS))
-
-#define TCPH_HDRLEN_SET(phdr, len) (phdr)->_hdrlen_rsvd_flags = htons(((len) << 12) | TCPH_FLAGS(phdr))
-#define TCPH_FLAGS_SET(phdr, flags) (phdr)->_hdrlen_rsvd_flags = (((phdr)->_hdrlen_rsvd_flags & PP_HTONS(~TCP_FLAGS)) | htons(flags))
-#define TCPH_HDRLEN_FLAGS_SET(phdr, len, flags) (phdr)->_hdrlen_rsvd_flags = htons(((len) << 12) | (flags))
-
-#define TCPH_SET_FLAG(phdr, flags ) (phdr)->_hdrlen_rsvd_flags = ((phdr)->_hdrlen_rsvd_flags | htons(flags))
-#define TCPH_UNSET_FLAG(phdr, flags) (phdr)->_hdrlen_rsvd_flags = ((phdr)->_hdrlen_rsvd_flags & ~htons(flags))
 
 #define TCP_TCPLEN(seg) ((seg)->len + (((TCPH_FLAGS((seg)->tcphdr) & (TCP_FIN | TCP_SYN)) != 0) ? 1U : 0U))
 
@@ -334,7 +290,7 @@ struct tcp_seg {
   (flags & TF_SEG_OPTS_WND_SCALE ? LWIP_TCP_OPT_LEN_WS_OUT : 0)
 
 /** This returns a TCP header option for MSS in an u32_t */
-#define TCP_BUILD_MSS_OPTION(mss) htonl(0x02040000 | ((mss) & 0xFFFF))
+#define TCP_BUILD_MSS_OPTION(mss) lwip_htonl(0x02040000 | ((mss) & 0xFFFF))
 
 #if LWIP_WND_SCALE
 #define TCPWNDSIZE_F       U32_F
@@ -496,7 +452,7 @@ void tcp_rst(u32_t seqno, u32_t ackno,
        const ip_addr_t *local_ip, const ip_addr_t *remote_ip,
        u16_t local_port, u16_t remote_port);
 
-u32_t tcp_next_iss(void);
+u32_t tcp_next_iss(struct tcp_pcb *pcb);
 
 err_t tcp_keepalive(struct tcp_pcb *pcb);
 err_t tcp_zero_window_probe(struct tcp_pcb *pcb);
@@ -537,9 +493,7 @@ s16_t tcp_pcbs_sane(void);
  * that a timer is needed (i.e. active- or time-wait-pcb found). */
 void tcp_timer_needed(void);
 
-#if LWIP_IPV4
-void tcp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* new_addr);
-#endif /* LWIP_IPV4 */
+void tcp_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr);
 
 #ifdef __cplusplus
 }
@@ -547,4 +501,4 @@ void tcp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* n
 
 #endif /* LWIP_TCP */
 
-#endif /* LWIP_HDR_TCP_H */
+#endif /* LWIP_HDR_TCP_PRIV_H */

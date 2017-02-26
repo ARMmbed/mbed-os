@@ -38,7 +38,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "us_ticker_api.h"
 #include "W7500x_i2c.h"
 

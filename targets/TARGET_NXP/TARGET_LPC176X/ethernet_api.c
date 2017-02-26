@@ -18,7 +18,7 @@
 #include <string.h>
 #include "cmsis.h"
 #include "mbed_interface.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 #include "mbed_error.h"
 
 #define NEW_LOGIC       0

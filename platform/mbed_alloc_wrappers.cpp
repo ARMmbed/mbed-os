@@ -16,7 +16,7 @@
 
 #include "platform/mbed_mem_trace.h"
 #include "platform/mbed_stats.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 #include <stddef.h>

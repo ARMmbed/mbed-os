@@ -35,24 +35,6 @@
 #include <stdint.h>
 #include <stddef.h> /* for size_t */
 
-/* Types based on stdint.h */
-typedef uint8_t            u8_t; 
-typedef int8_t             s8_t; 
-typedef uint16_t           u16_t; 
-typedef int16_t            s16_t; 
-typedef uint32_t           u32_t; 
-typedef int32_t            s32_t; 
-typedef uintptr_t          mem_ptr_t; 
-
-/* Define (sn)printf formatters for these lwIP types */
-#define U16_F "hu"
-#define S16_F "hd"
-#define X16_F "hx"
-#define U32_F "lu"
-#define S32_F "ld"
-#define X32_F "lx"
-#define SZT_F "uz"
-
 /* ARM/LPC17xx is little endian only */
 #if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
 #ifdef BYTE_ORDER
@@ -97,7 +79,7 @@ typedef uintptr_t          mem_ptr_t;
     #define LWIP_CHKSUM_ALGORITHM   0
 
     void* thumb2_memcpy(void* pDest, const void* pSource, size_t length);
-    u16_t thumb2_checksum(const void* pData, int length);
+    uint16_t thumb2_checksum(const void* pData, int length);
 #else
     /* Used with IP headers only */
     #define LWIP_CHKSUM_ALGORITHM   1
