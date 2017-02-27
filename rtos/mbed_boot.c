@@ -480,6 +480,8 @@ void software_init_hook(void)
     if (return_code) {
         mbed_die();
     }
+
+    uvisor_start();
 #endif/* FEATURE_UVISOR */
     mbed_start_main();
 }
