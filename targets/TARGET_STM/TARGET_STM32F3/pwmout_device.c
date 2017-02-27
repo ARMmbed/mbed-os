@@ -27,31 +27,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PWMOUT_DEVICE_H
-#define MBED_PWMOUT_DEVICE_H
-
 #include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "pwmout_api.h"
+#include "pwmout_device.h"
 
 #ifdef DEVICE_PWMOUT
 
-typedef enum {
-    PWMOUT_ON_APB1 = 0,
-    PWMOUT_ON_APB2 = 1,
-    PWMOUT_UNKNOWN = 2
-} PwmoutApb;
-
-/*  Structure to describe Timers to APB */
-typedef struct pwm_apb_map {
-    PWMName pwm;   // an index entry for each EXIT line
-    PwmoutApb pwmoutApb;
-} pwm_apb_map_t;
-
-extern const pwm_apb_map_t pwm_apb_map_table[];
+const pwm_apb_map_t pwm_apb_map_table[] =
+{
+#if defined(TIM2_BASE)
+    {PWM_2, PWMOUT_ON_APB1},
+#endif
+#if defined(TIM3_BASE)
+    {PWM_3, PWMOUT_ON_APB1},
+#endif
+#if defined(TIM4_BASE)
+    {PWM_4, PWMOUT_ON_APB1},
+#endif
+#if defined(TIM1_BASE)
+    {PWM_1, PWMOUT_ON_APB2},
+#endif
+#if defined(TIM8_BASE)
+    {PWM_8, PWMOUT_ON_APB2},
+#endif
+#if defined(TIM15_BASE)
+    {PWM_15, PWMOUT_ON_APB2},
+#endif
+#if defined(TIM16_BASE)
+    {PWM_16, PWMOUT_ON_APB2},
+#endif
+#if defined(TIM17_BASE)
+    {PWM_17, PWMOUT_ON_APB2},
+#endif
+#if defined(TIM20_BASE)
+    {PWM_20, PWMOUT_ON_APB2},
+#endif
+    {(PWMName) 0, PWMOUT_UNKNOWN}
+};
 
 #endif // DEVICE_PWMOUT
-
-#endif
