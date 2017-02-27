@@ -599,21 +599,22 @@ static control_t fsfat_basic_test_07()
 static bool fsfat_basic_test_file_write_fhandle(const char *filename, const int kib_rw)
 {
     int ret = -1;
-    FileHandle* file = fs.open(filename, O_WRONLY | O_CREAT | O_TRUNC);
+    File file;
 
+    ret = file.open(&fs, filename, O_WRONLY | O_CREAT | O_TRUNC);
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: failed to open file.\n", __func__);
-    TEST_ASSERT_MESSAGE(file != NULL, fsfat_basic_msg_g);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_basic_msg_g);
 
     int byte_write = 0;
     fsfat_basic_timer.start();
     for (int i = 0; i < kib_rw; i++) {
-        ret = file->write(fsfat_basic_buffer, sizeof(fsfat_basic_buffer));
+        ret = file.write(fsfat_basic_buffer, sizeof(fsfat_basic_buffer));
         FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: failed to write to file.\n", __func__);
         TEST_ASSERT_MESSAGE(ret == sizeof(fsfat_basic_buffer), fsfat_basic_msg_g);
         byte_write++;
     }
     fsfat_basic_timer.stop();
-    file->close();
+    file.close();
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB write in %.3f sec with speed of %.4f KiB/s\n", byte_write, test_time_sec, speed);
@@ -624,18 +625,20 @@ static bool fsfat_basic_test_file_write_fhandle(const char *filename, const int 
 
 static bool fsfat_basic_test_file_read_fhandle(const char *filename, const int kib_rw)
 {
-    FileHandle* file = fs.open(filename, O_RDONLY);
+    int ret = -1;
+    File file;
+    ret = file.open(&fs, filename, O_RDONLY);
 
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: failed to open file.\n", __func__);
-    TEST_ASSERT_MESSAGE(file != NULL, fsfat_basic_msg_g);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_basic_msg_g);
 
     fsfat_basic_timer.start();
     int byte_read = 0;
-    while (file->read(fsfat_basic_buffer, sizeof(fsfat_basic_buffer)) == sizeof(fsfat_basic_buffer)) {
+    while (file.read(fsfat_basic_buffer, sizeof(fsfat_basic_buffer)) == sizeof(fsfat_basic_buffer)) {
         byte_read++;
     }
     fsfat_basic_timer.stop();
-    file->close();
+    file.close();
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB read in %.3f sec with speed of %.4f KiB/s\n", byte_read, test_time_sec, speed);
