@@ -57,7 +57,7 @@ extern void PLAT_Start(void);
 extern void PLAT_Main(void);
 extern HAL_TIMER_OP HalTimerOp;
  
-IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0 = {
+IMAGE2_START_RAM_FUN_SECTION const RAM_START_FUNCTION gImage2EntryFun0 = {
     PLAT_Start
 };
 
