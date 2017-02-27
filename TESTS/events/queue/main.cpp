@@ -70,7 +70,7 @@ SIMPLE_POSTS_TEST(0)
 
 
 void time_func(Timer *t, int ms) {
-    TEST_ASSERT_INT_WITHIN(2, ms, t->read_ms());
+    TEST_ASSERT_INT_WITHIN(5, ms, t->read_ms());
     t->reset();
 }
 

@@ -131,7 +131,7 @@ USBHAL::USBHAL(void) {
     /*  bulk/int 64 bytes in FS  */
     HAL_PCDEx_SetTxFiFo(&hpcd, 0, (MAX_PACKET_SIZE_EP0/4)+1);
     /*  bulk/int bytes in FS */
-    HAL_PCDEx_SetTxFiFo(&hpcd, 1, (MAX_PACKET_SIZE_EP1/4));
+    HAL_PCDEx_SetTxFiFo(&hpcd, 1, (MAX_PACKET_SIZE_EP1/4)+1);
     HAL_PCDEx_SetTxFiFo(&hpcd, 2, (MAX_PACKET_SIZE_EP2/4));
     /* ISOchronous */
     HAL_PCDEx_SetTxFiFo(&hpcd, 3, (MAX_PACKET_SIZE_EP3/4));

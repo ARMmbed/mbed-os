@@ -27,6 +27,10 @@
 //#define __packed __attribute__ ((__packed__))
 //#endif
 
+#ifdef __GNUC__
+#define __packed __attribute__ ((__packed__))
+#endif
+
 class USBHAL {
 public:
     /* Configuration */
