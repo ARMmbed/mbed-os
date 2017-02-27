@@ -251,13 +251,19 @@ void pwmout_period_us(pwmout_t* obj, int us)
     TimHandle.Init.Period        = (us - 1);
 
     /*  In case period or pre-scalers are out of range, loop-in to get valid values */
-    while ((TimHandle.Init.Period > 0xFFFF) || (TimHandle.Init.Period > 0xFFFF)) {
+    while ((TimHandle.Init.Period > 0xFFFF) || (TimHandle.Init.Prescaler > 0xFFFF)) {
         obj->prescaler = obj->prescaler * 2;
         if (APBxCLKDivider == RCC_HCLK_DIV1)
           TimHandle.Init.Prescaler   = (((PclkFreq) / 1000000) * obj->prescaler) - 1;
         else
           TimHandle.Init.Prescaler   = (((PclkFreq * 2) / 1000000) * obj->prescaler) - 1;
         TimHandle.Init.Period        = (us - 1) / obj->prescaler;
+        /*  Period decreases and prescaler increases over loops, so check for
+         *  possible out of range cases */
+        if ((TimHandle.Init.Period < 0xFFFF) && (TimHandle.Init.Prescaler > 0xFFFF)) {
+            error("Cannot initialize PWM\n");
+            break;
+        }
     }
 
     TimHandle.Init.ClockDivision = 0;
