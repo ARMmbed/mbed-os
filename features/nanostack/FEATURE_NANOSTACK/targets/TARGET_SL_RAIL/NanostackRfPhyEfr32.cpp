@@ -17,7 +17,7 @@
 #include "ns_types.h"
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 #include <string.h>
 
 #include "mbed-trace/mbed_trace.h"

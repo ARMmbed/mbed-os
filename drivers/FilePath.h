@@ -25,6 +25,8 @@ namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
 
+class FileSystem;
+
 class FilePath {
 public:
     FilePath(const char* file_path);
@@ -32,7 +34,7 @@ public:
     const char* fileName(void);
 
     bool          isFileSystem(void);
-    FileSystemLike* fileSystem(void);
+    FileSystem* fileSystem(void);
 
     bool    isFile(void);
     FileLike* file(void);

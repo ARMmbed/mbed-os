@@ -171,15 +171,6 @@ incoming connections or be explicitly connected to another host.
   in the listen queue to the value specified by the backlog argument.
   To use it, your need to set TCP_LISTEN_BACKLOG=1 in your lwipopts.h.
 
-- void tcp_accepted(struct tcp_pcb *pcb)
-
-  Inform lwIP that an incoming connection has been accepted. This would
-  usually be called from the accept callback. This allows lwIP to perform
-  housekeeping tasks, such as allowing further incoming connections to be
-  queued in the listen backlog.
-  ATTENTION: the PCB passed in must be the listening pcb, not the pcb passed
-  into the accept callback!
-
 - void tcp_accept(struct tcp_pcb *pcb,
                   err_t (* accept)(void *arg, struct tcp_pcb *newpcb,
                                    err_t err))
@@ -465,9 +456,11 @@ introduction to this subject.
 Other significant improvements can be made by supplying
 assembly or inline replacements for htons() and htonl()
 if you're using a little-endian architecture.
-#define LWIP_PLATFORM_BYTESWAP 1
-#define LWIP_PLATFORM_HTONS(x) <your_htons>
-#define LWIP_PLATFORM_HTONL(x) <your_htonl>
+#define lwip_htons(x) <your_htons>
+#define lwip_htonl(x) <your_htonl>
+If you #define them to htons() and htonl(), you should
+#define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS to prevent lwIP from
+defining hton*/ntoh* compatibility macros.
 
 Check your network interface driver if it reads at
 a higher speed than the maximum wire-speed. If the

@@ -31,7 +31,7 @@
 #include "des_alt.h"
 #include "crypto-misc.h"
 #include "nu_bitutil.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 // Must be a multiple of 64-bit block size
 #define MAXSIZE_DMABUF  (8 * 5)

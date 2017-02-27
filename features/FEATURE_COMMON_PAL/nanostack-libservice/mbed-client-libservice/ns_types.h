@@ -256,6 +256,25 @@ typedef int_fast32_t int_fast24_t;
 #define NS_FUNNY_COMPARE_RESTORE
 #endif
 
+/** \brief Pragma to suppress warnings arising from dummy definitions.
+ *
+ * Useful when you have function-like macros that returning constants
+ * in cut-down builds. Can be fairly cavalier about disabling as we
+ * do not expect every build to use this macro. Generic builds of
+ * components should ensure this is not included by only using it in
+ * a ifdef blocks providing dummy definitions.
+ */
+#ifdef __CC_ARM
+// statement is unreachable(111),  controlling expression is constant(236), expression has no effect(174),
+// function was declared but never referenced(177), variable was set but never used(550)
+#define NS_DUMMY_DEFINITIONS_OK _Pragma("diag_suppress=111,236,174,177,550")
+#elif defined __IAR_SYSTEMS_ICC__
+// controlling expression is constant
+#define NS_DUMMY_DEFINITIONS_OK _Pragma("diag_suppress=Pe236")
+#else
+#define NS_DUMMY_DEFINITIONS_OK
+#endif
+
 /** \brief Convert pointer to member to pointer to containing structure */
 #define NS_CONTAINER_OF(ptr, type, member) \
     ((type *) ((char *) (ptr) - offsetof(type, member)))

@@ -25,7 +25,7 @@
  */
 
 #include "us_ticker_api.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 /* ----------------------------------------------------------------
  * MACROS

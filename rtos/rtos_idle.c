@@ -21,7 +21,7 @@
  */
 
 #include "rtos/rtos_idle.h"
-#include "platform/sleep.h"
+#include "platform/mbed_sleep.h"
 
 static void default_idle_hook(void)
 {

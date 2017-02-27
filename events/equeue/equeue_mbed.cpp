@@ -26,15 +26,15 @@
 
 // Ticker operations
 static bool equeue_tick_inited = false;
-static unsigned equeue_minutes = 0;
+static volatile unsigned equeue_minutes = 0;
 static unsigned equeue_timer[
         (sizeof(Timer)+sizeof(unsigned)-1)/sizeof(unsigned)];
 static unsigned equeue_ticker[
         (sizeof(Ticker)+sizeof(unsigned)-1)/sizeof(unsigned)];
 
 static void equeue_tick_update() {
+    equeue_minutes += reinterpret_cast<Timer*>(equeue_timer)->read_ms();
     reinterpret_cast<Timer*>(equeue_timer)->reset();
-    equeue_minutes += 1;
 }
 
 static void equeue_tick_init() {
@@ -48,7 +48,7 @@ static void equeue_tick_init() {
     equeue_minutes = 0;
     reinterpret_cast<Timer*>(equeue_timer)->start();
     reinterpret_cast<Ticker*>(equeue_ticker)
-            ->attach_us(equeue_tick_update, (1 << 16)*1000);
+            ->attach_us(equeue_tick_update, 1000 << 16);
 
     equeue_tick_inited = true;
 }
@@ -58,8 +58,15 @@ unsigned equeue_tick() {
         equeue_tick_init();
     }
 
-    unsigned equeue_ms = reinterpret_cast<Timer*>(equeue_timer)->read_ms();
-    return (equeue_minutes << 16) + equeue_ms;
+    unsigned minutes;
+    unsigned ms;
+
+    do {
+        minutes = equeue_minutes;
+        ms = reinterpret_cast<Timer*>(equeue_timer)->read_ms();
+    } while (minutes != equeue_minutes);
+
+    return minutes + ms;
 }
 
 

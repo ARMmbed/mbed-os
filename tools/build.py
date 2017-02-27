@@ -92,12 +92,6 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the DSP library")
 
-    parser.add_argument("-F", "--fat",
-                      action="store_true",
-                      dest="fat",
-                      default=False,
-                      help="Compile FS and SD card file system library")
-
     parser.add_argument("-b", "--ublox",
                       action="store_true",
                       dest="ublox",
@@ -199,8 +193,6 @@ if __name__ == '__main__':
         libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["dsp"])
-    if options.fat:
-        libraries.extend(["fat"])
     if options.ublox:
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
     if options.cpputest_lib:

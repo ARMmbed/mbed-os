@@ -27,7 +27,7 @@
 #include "rtx_lib.h"
 #include "mbed_rtx_conf.h"
 #include "platform/Callback.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 

@@ -18,14 +18,14 @@
 #include "drivers/TimerEvent.h"
 #include "platform/FunctionPointer.h"
 #include "hal/ticker_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 
 void Ticker::detach() {
     core_util_critical_section_enter();
     remove();
-    _function.attach(0);
+    _function = 0;
     core_util_critical_section_exit();
 }
 
@@ -39,7 +39,7 @@ void Ticker::setup(timestamp_t t) {
 
 void Ticker::handler() {
     insert(event.timestamp + _delay);
-    _function.call();
+    _function();
 }
 
 } // namespace mbed

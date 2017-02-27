@@ -18,6 +18,7 @@
 
 #include "platform/platform.h"
 #include "drivers/FileLike.h"
+#include "drivers/FileHandle.h"
 #include <cstdarg>
 
 namespace mbed {
@@ -53,10 +54,12 @@ protected:
     virtual int close();
     virtual ssize_t write(const void* buffer, size_t length);
     virtual ssize_t read(void* buffer, size_t length);
-    virtual off_t lseek(off_t offset, int whence);
+    virtual off_t seek(off_t offset, int whence);
+    virtual off_t tell();
+    virtual void rewind();
     virtual int isatty();
-    virtual int fsync();
-    virtual off_t flen();
+    virtual int sync();
+    virtual size_t size();
 
     virtual int _putc(int c) = 0;
     virtual int _getc() = 0;

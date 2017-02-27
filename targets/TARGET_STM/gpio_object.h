@@ -46,16 +46,17 @@ extern "C" {
  * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
  */
 typedef struct {
-    PinName  pin;
     uint32_t mask;
     __IO uint32_t *reg_in;
     __IO uint32_t *reg_set;
     __IO uint32_t *reg_clr;
+    PinName  pin;
+    GPIO_TypeDef *gpio;
+    uint32_t ll_pin;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value)
 {
-    MBED_ASSERT(obj->pin != (PinName)NC);
     if (value) {
         *obj->reg_set = obj->mask;
     } else {
@@ -69,7 +70,6 @@ static inline void gpio_write(gpio_t *obj, int value)
 
 static inline int gpio_read(gpio_t *obj)
 {
-    MBED_ASSERT(obj->pin != (PinName)NC);
     return ((*obj->reg_in & obj->mask) ? 1 : 0);
 }
 
@@ -77,6 +77,7 @@ static inline int gpio_is_connected(const gpio_t *obj)
 {
     return obj->pin != (PinName)NC;
 }
+
 
 #ifdef __cplusplus
 }

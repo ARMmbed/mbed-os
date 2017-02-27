@@ -18,7 +18,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "SMM_MPS2.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "fpga.h"
 
 // Types

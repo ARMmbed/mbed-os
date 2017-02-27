@@ -42,7 +42,7 @@ nsapi_error_t Socket::open(NetworkStack *stack)
     }
 
     _socket = socket;
-    _event.attach(this, &Socket::event);
+    _event = callback(this, &Socket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
 
     _lock.unlock();
@@ -149,11 +149,14 @@ nsapi_error_t Socket::getsockopt(int level, int optname, void *optval, unsigned 
 
 }
 
-void Socket::attach(Callback<void()> callback)
+void Socket::sigio(Callback<void()> callback)
 {
     _lock.lock();
-
     _callback = callback;
-
     _lock.unlock();
+}
+
+void Socket::attach(Callback<void()> callback)
+{
+    sigio(callback);
 }

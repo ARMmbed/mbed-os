@@ -19,7 +19,7 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "nrf_delay.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 /*
  * Note: The micro-second timer API on the nRF51 platform is implemented using

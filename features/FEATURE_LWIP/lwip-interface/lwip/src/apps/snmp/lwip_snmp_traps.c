@@ -147,11 +147,13 @@ snmp_get_auth_traps_enabled(void)
 
 
 /**
- * Sends an generic or enterprise specific trap message.
+ * @ingroup snmp_traps
+ * Sends a generic or enterprise specific trap message.
  *
- * @param generic_trap is the trap code
  * @param eoid points to enterprise object identifier
+ * @param generic_trap is the trap code
  * @param specific_trap used for enterprise traps when generic_trap == 6
+ * @param varbinds linked list of varbinds to be sent
  * @return ERR_OK when success, ERR_MEM if we're out of memory
  *
  * @note the use of the enterprise identifier field
@@ -160,8 +162,8 @@ snmp_get_auth_traps_enabled(void)
  * and .iso.org.dod.internet.private.enterprises.yourenterprise
  * (sysObjectID) for specific traps.
  */
-static err_t
-snmp_send_trap(const struct snmp_obj_id *device_enterprise_oid, s32_t generic_trap, s32_t specific_trap, struct snmp_varbind *varbinds)
+err_t
+snmp_send_trap(const struct snmp_obj_id* eoid, s32_t generic_trap, s32_t specific_trap, struct snmp_varbind *varbinds)
 {
   struct snmp_msg_trap trap_msg;
   struct snmp_trap_dst *td;
@@ -175,10 +177,10 @@ snmp_send_trap(const struct snmp_obj_id *device_enterprise_oid, s32_t generic_tr
     if ((td->enable != 0) && !ip_addr_isany(&td->dip)) {
       /* lookup current source address for this dst */
       if (snmp_get_local_ip_for_dst(snmp_traps_handle, &td->dip, &trap_msg.sip)) {
-        if (device_enterprise_oid == NULL) {
+        if (eoid == NULL) {
           trap_msg.enterprise = snmp_get_device_enterprise_oid();
         } else {
-          trap_msg.enterprise = device_enterprise_oid;
+          trap_msg.enterprise = eoid;
         }
 
         trap_msg.gen_trap = generic_trap;
@@ -224,7 +226,7 @@ snmp_send_trap(const struct snmp_obj_id *device_enterprise_oid, s32_t generic_tr
 
 /**
  * @ingroup snmp_traps
- *  Send generic SNMP trap
+ * Send generic SNMP trap
  */
 err_t 
 snmp_send_trap_generic(s32_t generic_trap)
@@ -234,7 +236,7 @@ snmp_send_trap_generic(s32_t generic_trap)
 }
 
 /**
- *@ingroup snmp_traps
+ * @ingroup snmp_traps
  * Send specific SNMP trap with variable bindings
  */
 err_t
@@ -295,8 +297,8 @@ snmp_trap_varbind_sum(struct snmp_msg_trap *trap, struct snmp_varbind *varbinds)
  * Sums trap header field lengths from tail to head and
  * returns trap_header_lengths for second encoding pass.
  *
+ * @param trap Trap message
  * @param vb_len varbind-list length
- * @param thl points to returned header lengths
  * @return the required length for encoding the trap header
  */
 static u16_t

@@ -20,7 +20,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {SCLK_SPI , SPI_0, 0},

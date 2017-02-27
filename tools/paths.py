@@ -76,12 +76,6 @@ ETH_LIBRARY = join(NET_LIBRARIES, "eth")
 VODAFONE_LIBRARY = join(NET_LIBRARIES, "VodafoneUSBModem")
 UBLOX_LIBRARY = join(NET_LIBRARIES, "UbloxUSBModem")
 
-# FS
-FS_PATH = join(LIB_DIR, "fs")
-FAT_FS = join(FS_PATH, "fat")
-SD_FS = join(FS_PATH, "sd")
-FS_LIBRARY = join(BUILD_DIR, "fat")
-
 # DSP
 DSP = join(LIB_DIR, "dsp")
 DSP_CMSIS = join(DSP, "cmsis_dsp")

@@ -233,7 +233,7 @@ void us_ticker_clear_interrupt(void)
 // alternative source of RTOS ticks.
 #if defined(TARGET_MCU_NRF51822)
 
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 
 #define MAX_RTC_COUNTER_VAL     ((1uL << RTC_COUNTER_BITS) - 1)

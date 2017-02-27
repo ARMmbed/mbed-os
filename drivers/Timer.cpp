@@ -16,7 +16,7 @@
 #include "drivers/Timer.h"
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 

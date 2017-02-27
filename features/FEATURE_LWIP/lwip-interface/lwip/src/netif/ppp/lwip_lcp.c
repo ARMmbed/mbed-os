@@ -423,7 +423,11 @@ void lcp_close(ppp_pcb *pcb, const char *reason) {
     fsm *f = &pcb->lcp_fsm;
     int oldstate;
 
-    if (pcb->phase != PPP_PHASE_DEAD && pcb->phase != PPP_PHASE_MASTER)
+    if (pcb->phase != PPP_PHASE_DEAD
+#ifdef HAVE_MULTILINK
+    && pcb->phase != PPP_PHASE_MASTER
+#endif /* HAVE_MULTILINK */
+    )
 	new_phase(pcb, PPP_PHASE_TERMINATE);
 
     if (f->flags & DELAYED_UP) {

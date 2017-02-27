@@ -45,7 +45,7 @@
  */
 
 #include <compiler.h>
-#include "sleep.h"
+#include "mbed_sleep.h"
 
 /* SAM3 and SAM4 series */
 #if (SAM3S || SAM3N || SAM3XA || SAM3U || SAM4S || SAM4E || SAM4N || SAM4C || \

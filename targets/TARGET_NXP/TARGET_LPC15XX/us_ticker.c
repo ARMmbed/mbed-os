@@ -16,7 +16,7 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 #define US_TICKER_TIMER_IRQn     SCT3_IRQn
 

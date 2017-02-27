@@ -45,7 +45,8 @@ extern "C" {
 
 #if MEM_LIBC_MALLOC
 
-#include <stddef.h> /* for size_t */
+#include "lwip/arch.h"
+
 typedef size_t mem_size_t;
 #define MEM_SIZE_F SZT_F
 

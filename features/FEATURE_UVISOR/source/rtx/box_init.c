@@ -39,9 +39,9 @@ void __uvisor_initialize_rpc_queues(void)
 
     uvisor_pool_slot_t i;
 
-    uvisor_rpc_outgoing_message_queue_t * rpc_outgoing_msg_queue = index->rpc_outgoing_message_queue;
-    uvisor_rpc_incoming_message_queue_t * rpc_incoming_msg_queue = index->rpc_incoming_message_queue;
-    uvisor_rpc_fn_group_queue_t * rpc_fn_group_queue = index->rpc_fn_group_queue;
+    uvisor_rpc_outgoing_message_queue_t * rpc_outgoing_msg_queue = &(uvisor_rpc(index)->outgoing_message_queue);
+    uvisor_rpc_incoming_message_queue_t * rpc_incoming_msg_queue = &(uvisor_rpc(index)->incoming_message_queue);
+    uvisor_rpc_fn_group_queue_t * rpc_fn_group_queue = &(uvisor_rpc(index)->fn_group_queue);
 
     /* Initialize the outgoing RPC message queue. */
     if (uvisor_pool_queue_init(&rpc_outgoing_msg_queue->queue,

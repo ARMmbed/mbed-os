@@ -21,7 +21,7 @@
 #define SOCKET_ADDRESS_H
 
 #include "nsapi_types.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 // Predeclared classes
 class NetworkStack;

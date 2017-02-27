@@ -4,7 +4,7 @@
 
 #include "test_env.h"
 #include "cmsis_nvic.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 #include <string.h>
 
 #if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) 

@@ -44,8 +44,6 @@
 
 /* The page box_id is the box id which is 8-bit large. */
 typedef uint8_t page_owner_t;
-/* Define a unused value for the page table. */
-#define UVISOR_PAGE_UNUSED ((page_owner_t) (-1))
 /* Contains the total number of available pages. */
 extern uint8_t g_page_count_total;
 /* Contains the shift of the page owner mask. */

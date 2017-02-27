@@ -76,7 +76,7 @@ static int init_allocator()
 
     if (__uvisor_ps->index.active_heap == NULL) {
         /* We need to initialize the process heap. */
-        if (__uvisor_ps->index.box_heap != NULL) {
+        if ((void *) __uvisor_ps->index.bss.address_of.heap != NULL) {
             /* Lock the mutex during initialization. */
             int kernel_initialized = is_kernel_initialized();
             if (kernel_initialized) {
@@ -84,7 +84,7 @@ static int init_allocator()
             }
             /* Initialize the process heap. */
             SecureAllocator allocator = secure_allocator_create_with_pool(
-                __uvisor_ps->index.box_heap,
+                (void *) __uvisor_ps->index.bss.address_of.heap,
                 __uvisor_ps->index.box_heap_size);
             /* Set the allocator. */
             ret = allocator ? 0 : -1;
@@ -112,9 +112,10 @@ static void * memory(void * ptr, size_t size, int heap, int operation)
     }
     /* Check if we need to aquire the mutex. */
     int mutexed = is_kernel_initialized() &&
-                  ((heap == HEAP_PROCESS) || __uvisor_ps->index.box_heap == __uvisor_ps->index.active_heap);
+                  ((heap == HEAP_PROCESS) ||
+                   (void *) __uvisor_ps->index.bss.address_of.heap == __uvisor_ps->index.active_heap);
     void * allocator = (heap == HEAP_PROCESS) ?
-                       (__uvisor_ps->index.box_heap) :
+                       ((void *) __uvisor_ps->index.bss.address_of.heap) :
                        (__uvisor_ps->index.active_heap);
 
     /* Aquire the mutex if required.

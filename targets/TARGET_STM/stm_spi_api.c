@@ -291,22 +291,27 @@ void spi_frequency(spi_t *obj, int hz) {
     struct spi_s *spiobj = SPI_S(obj);
     int spi_hz = 0;
     uint8_t prescaler_rank = 0;
+    uint8_t last_index = (sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) - 1;
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    /* Get the clock of the peripheral */
-    spi_hz = spi_get_clock_freq(obj);
+    /* Calculate the spi clock for prescaler_rank 0: SPI_BAUDRATEPRESCALER_2 */
+    spi_hz = spi_get_clock_freq(obj) / 2;
 
     /* Define pre-scaler in order to get highest available frequency below requested frequency */
-    while ((spi_hz > hz) && (prescaler_rank < sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0]))){
+    while ((spi_hz > hz) && (prescaler_rank < last_index)) {
         spi_hz = spi_hz / 2;
         prescaler_rank++;
     }
 
-    if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
-        handle->Init.BaudRatePrescaler = baudrate_prescaler_table[prescaler_rank-1];
-    } else {
-        error("Couldn't setup requested SPI frequency");
+    /*  Use the best fit pre-scaler */
+    handle->Init.BaudRatePrescaler = baudrate_prescaler_table[prescaler_rank];
+
+    /*  In case maximum pre-scaler still gives too high freq, raise an error */
+    if (spi_hz > hz) {
+        error("Couldn't set suitable spi freq: request:%d, lowest:%d\r\n", hz, spi_hz);
     }
+
+    DEBUG_PRINTF("spi_frequency, request:%d, select:%d\r\n", hz, spi_hz);
 
     init_spi(obj);
 }
