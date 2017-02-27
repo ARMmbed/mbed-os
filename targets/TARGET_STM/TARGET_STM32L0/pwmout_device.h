@@ -52,22 +52,7 @@ typedef struct pwm_apb_map {
     PwmoutApb pwmoutApb;
 } pwm_apb_map_t;
 
-static const pwm_apb_map_t pwm_apb_map_table[] =
-{
-#if defined(TIM2_BASE)
-    {PWM_2, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM3_BASE)
-    {PWM_3, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM21_BASE)
-    {PWM_21, PWMOUT_ON_APB2},
-#endif
-#if defined(TIM22_BASE)
-    {PWM_22, PWMOUT_ON_APB2},
-#endif
-    {(PWMName) 0, PWMOUT_UNKNOWN}
-};
+extern const pwm_apb_map_t pwm_apb_map_table[];
 
 #endif // DEVICE_PWMOUT
 

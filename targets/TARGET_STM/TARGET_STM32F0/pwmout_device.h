@@ -52,31 +52,7 @@ typedef struct pwm_apb_map {
 /*  there is only 1 APB clock in F0 family */
 #define PWMOUT_APB2_NOT_SUPPORTED
 
-static const pwm_apb_map_t pwm_apb_map_table[] =
-{
-#if defined(TIM2_BASE)
-    {PWM_2, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM3_BASE)
-    {PWM_3, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM14_BASE)
-    {PWM_14, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM1_BASE)
-    {PWM_1, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM15_BASE)
-    {PWM_15, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM16_BASE)
-    {PWM_16, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM17_BASE)
-    {PWM_17, PWMOUT_ON_APB1},
-#endif
-    {(PWMName) 0, PWMOUT_UNKNOWN}
-};
+extern const pwm_apb_map_t pwm_apb_map_table[];
 
 #endif // DEVICE_PWMOUT
 
