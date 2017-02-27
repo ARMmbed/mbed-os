@@ -1,11 +1,11 @@
 /******************************************************************************
- * @file:    timer_example.c
+ * @file:    us_ticker.c
  * @brief:   GPT timer example
- * @version: $Revision: 29004 $
- * @date:    $Date: 2014-12-06 10:37:26 -0500 (Sat, 06 Dec 2014) $
+ * @version: $Revision: $
+ * @date:    $Date: $
  *-----------------------------------------------------------------------------
  *
- Copyright (c) 2011-2014 Analog Devices, Inc.
+ Copyright (c) 2011-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -52,7 +52,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stdio.h>
-//#include "common.h"
 #include <system_ADuCM4050.h>
 #include <adi_tmr.h>
 #include <adi_pwr.h>
@@ -218,7 +217,7 @@ static uint32_t get_current_time(void)
     uint32_t current_time;
 
     ticks = ((unsigned long long)Core_Time_Tick << 16) + get_elapsed_time();
-    current_time = (uint32_t)(ticks / TIMER_PRESCALER * TIMER_CLK_FREQ_MHZ);
+    current_time = (uint32_t)(ticks / TIMER_CLK_FREQ_MHZ * TIMER_PRESCALER);
 
 	return current_time;
 }
