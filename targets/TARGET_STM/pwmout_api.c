@@ -53,64 +53,104 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     // Enable TIM clock
 #if defined(TIM1_BASE)
-    if (obj->pwm == PWM_1) __HAL_RCC_TIM1_CLK_ENABLE();
+    if (obj->pwm == PWM_1){
+        __HAL_RCC_TIM1_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM2_BASE)
-    if (obj->pwm == PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
+    if (obj->pwm == PWM_2) {
+        __HAL_RCC_TIM2_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM3_BASE)
-    if (obj->pwm == PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
+    if (obj->pwm == PWM_3) {
+        __HAL_RCC_TIM3_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM4_BASE)
-    if (obj->pwm == PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
+    if (obj->pwm == PWM_4) {
+        __HAL_RCC_TIM4_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM5_BASE)
-    if (obj->pwm == PWM_5) __HAL_RCC_TIM5_CLK_ENABLE();
+    if (obj->pwm == PWM_5) {
+        __HAL_RCC_TIM5_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM8_BASE)
-    if (obj->pwm == PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
+    if (obj->pwm == PWM_8) {
+        __HAL_RCC_TIM8_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM9_BASE)
-    if (obj->pwm == PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
+    if (obj->pwm == PWM_9) {
+        __HAL_RCC_TIM9_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM10_BASE)
-    if (obj->pwm == PWM_10) __HAL_RCC_TIM10_CLK_ENABLE();
+    if (obj->pwm == PWM_10) {
+        __HAL_RCC_TIM10_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM11_BASE)
-    if (obj->pwm == PWM_11) __HAL_RCC_TIM11_CLK_ENABLE();
+    if (obj->pwm == PWM_11) {
+        __HAL_RCC_TIM11_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM12_BASE)
-    if (obj->pwm == PWM_12) __HAL_RCC_TIM12_CLK_ENABLE();
+    if (obj->pwm == PWM_12) {
+        __HAL_RCC_TIM12_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM13_BASE)
-    if (obj->pwm == PWM_13) __HAL_RCC_TIM13_CLK_ENABLE();
+    if (obj->pwm == PWM_13) {
+        __HAL_RCC_TIM13_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM14_BASE)
-    if (obj->pwm == PWM_14) __HAL_RCC_TIM14_CLK_ENABLE();
+    if (obj->pwm == PWM_14) {
+        __HAL_RCC_TIM14_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM15_BASE)
-    if (obj->pwm == PWM_15) __HAL_RCC_TIM15_CLK_ENABLE();
+    if (obj->pwm == PWM_15) {
+        __HAL_RCC_TIM15_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM16_BASE)
-    if (obj->pwm == PWM_16) __HAL_RCC_TIM16_CLK_ENABLE();
+    if (obj->pwm == PWM_16) {
+        __HAL_RCC_TIM16_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM17_BASE)
-    if (obj->pwm == PWM_17) __HAL_RCC_TIM17_CLK_ENABLE();
+    if (obj->pwm == PWM_17) {
+        __HAL_RCC_TIM17_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM18_BASE)
-    if (obj->pwm == PWM_18) __HAL_RCC_TIM18_CLK_ENABLE();
+    if (obj->pwm == PWM_18) {
+        __HAL_RCC_TIM18_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM19_BASE)
-    if (obj->pwm == PWM_19) __HAL_RCC_TIM19_CLK_ENABLE();
+    if (obj->pwm == PWM_19) {
+        __HAL_RCC_TIM19_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM20_BASE)
-    if (obj->pwm == PWM_20) __HAL_RCC_TIM20_CLK_ENABLE();
+    if (obj->pwm == PWM_20) {
+        __HAL_RCC_TIM20_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM21_BASE)
-    if (obj->pwm == PWM_21) __HAL_RCC_TIM21_CLK_ENABLE();
+    if (obj->pwm == PWM_21) {
+        __HAL_RCC_TIM21_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM22_BASE)
-    if (obj->pwm == PWM_22) __HAL_RCC_TIM22_CLK_ENABLE();
+    if (obj->pwm == PWM_22) {
+        __HAL_RCC_TIM22_CLK_ENABLE();
+    }
 #endif
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
@@ -244,20 +284,22 @@ void pwmout_period_us(pwmout_t* obj, int us)
     /* By default use, 1us as SW pre-scaler */
     obj->prescaler = 1;
     // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
-    if (APBxCLKDivider == RCC_HCLK_DIV1)
-        TimHandle.Init.Prescaler   = (((PclkFreq) / 1000000)) - 1; // 1 us tick
-    else
-        TimHandle.Init.Prescaler   = (((PclkFreq * 2) / 1000000)) - 1; // 1 us tick
-    TimHandle.Init.Period        = (us - 1);
+    if (APBxCLKDivider == RCC_HCLK_DIV1) {
+        TimHandle.Init.Prescaler = (((PclkFreq) / 1000000)) - 1; // 1 us tick
+    } else {
+        TimHandle.Init.Prescaler = (((PclkFreq * 2) / 1000000)) - 1; // 1 us tick
+    }
+    TimHandle.Init.Period = (us - 1);
 
     /*  In case period or pre-scalers are out of range, loop-in to get valid values */
     while ((TimHandle.Init.Period > 0xFFFF) || (TimHandle.Init.Prescaler > 0xFFFF)) {
         obj->prescaler = obj->prescaler * 2;
-        if (APBxCLKDivider == RCC_HCLK_DIV1)
-          TimHandle.Init.Prescaler   = (((PclkFreq) / 1000000) * obj->prescaler) - 1;
-        else
-          TimHandle.Init.Prescaler   = (((PclkFreq * 2) / 1000000) * obj->prescaler) - 1;
-        TimHandle.Init.Period        = (us - 1) / obj->prescaler;
+        if (APBxCLKDivider == RCC_HCLK_DIV1) {
+          TimHandle.Init.Prescaler = (((PclkFreq) / 1000000) * obj->prescaler) - 1;
+        } else {
+          TimHandle.Init.Prescaler = (((PclkFreq * 2) / 1000000) * obj->prescaler) - 1;
+        }
+        TimHandle.Init.Period = (us - 1) / obj->prescaler;
         /*  Period decreases and prescaler increases over loops, so check for
          *  possible out of range cases */
         if ((TimHandle.Init.Period < 0xFFFF) && (TimHandle.Init.Prescaler > 0xFFFF)) {
