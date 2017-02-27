@@ -14,11 +14,8 @@ LR_RAM 0x10006000 0x6FFFF  {
 	;rtl_console.o(.mon.ram.bss*)
   ;}
   
-  .image2.table.1 0x10006000 FIXED  {
+  .image2.table 0x10006000 FIXED  {
     rtl8195a_init.o(.image2.ram.data*)	
-  }
-
-  .image2.table.2 +0 FIXED{
     rtl8195a_init.o(.image2.validate.rodata*)
   }
   

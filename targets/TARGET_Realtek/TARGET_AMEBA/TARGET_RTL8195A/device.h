@@ -16,34 +16,7 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-#ifndef CONFIG_MBED_ENABLED
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        1
-
-#define DEVICE_INTERRUPTIN      1
-
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        1 
-
-#define DEVICE_SERIAL           1
-
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
-
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
-
-#define DEVICE_CAN              0
-
-#define DEVICE_RTC              1
-
-#define DEVICE_ETHERNET         1
-
-#define DEVICE_PWMOUT           1
-
-#define DEVICE_SLEEP            1
-#endif
 #include "objects.h"
 
 #endif
+
