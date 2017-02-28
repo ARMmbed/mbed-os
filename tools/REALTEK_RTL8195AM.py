@@ -33,9 +33,9 @@ def write_fixed_width_string(value, width, output):
 
 def write_fixed_width_value(value, width, output):
         # convert to string
-        line = format(value, '0%dx' %(width))
+        line = format(value, '0%dx' % (width))
         if len(line) > width:
-            print "[ERROR] value 0x%s cannot fit width %d" %(line, width)
+            print "[ERROR] value 0x%s cannot fit width %d" % (line, width)
             sys.exit(-1)
         # cut string to list & reverse
         line = [line[i:i+2] for i in range(0, len(line), 2)]
