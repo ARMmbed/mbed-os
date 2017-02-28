@@ -121,7 +121,7 @@ def get_config(src_paths, target, toolchain_name):
         src_paths = [src_paths]
 
     # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, target, toolchain_name)
+    toolchain = prepare_toolchain(src_paths, None, target, toolchain_name)
 
     # Scan src_path for config files
     resources = toolchain.scan_resources(src_paths[0])
@@ -299,7 +299,7 @@ def add_regions_to_profile(profile, config, toolchain_class):
               % (region.name, region.size, region.start))
 
 
-def prepare_toolchain(src_paths, target, toolchain_name,
+def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None,
@@ -339,7 +339,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
         add_regions_to_profile(build_profile, config, cur_tc)
 
     # Toolchain instance
-    toolchain = cur_tc(target, notify, macros, silent,
+    toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=build_profile)
 
     toolchain.config = config
@@ -475,8 +475,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
-        src_paths, target, toolchain_name, macros=macros, clean=clean,
-        jobs=jobs, notify=notify, silent=silent, verbose=verbose,
+        src_paths, build_path, target, toolchain_name, macros=macros,
+        clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, config=config, app_config=app_config,
         build_profile=build_profile)
 
@@ -509,8 +509,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
             resources.linker_script = linker_script
 
         # Compile Sources
-        objects = toolchain.compile_sources(resources, build_path,
-                                            resources.inc_dirs)
+        objects = toolchain.compile_sources(resources, resources.inc_dirs)
         resources.objects.extend(objects)
 
         # Link Program
@@ -629,9 +628,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
-        src_paths, target, toolchain_name, macros=macros, clean=clean,
-        jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, app_config=app_config,
+        src_paths, build_path, target, toolchain_name, macros=macros,
+        clean=clean, jobs=jobs, notify=notify, silent=silent,
+        verbose=verbose, extra_verbose=extra_verbose, app_config=app_config,
         build_profile=build_profile)
 
     # The first path will give the name to the library
@@ -687,8 +686,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                                  resources=resources)
 
         # Compile Sources
-        objects = toolchain.compile_sources(resources, abspath(tmp_path),
-                                            resources.inc_dirs)
+        objects = toolchain.compile_sources(resources, resources.inc_dirs)
         resources.objects.extend(objects)
 
         if archive:
@@ -815,6 +813,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         toolchain.VERBOSE = verbose
         toolchain.jobs = jobs
         toolchain.build_all = clean
+        toolchain.build_dir = build_path
 
         toolchain.info("Building library %s (%s, %s)" %
                        (name.upper(), target.name, toolchain_name))
@@ -869,8 +868,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         # Compile Sources
         objects = []
         for resource in resources:
-            objects.extend(toolchain.compile_sources(resource, tmp_path,
-                                                     dependencies_include_dir))
+            objects.extend(toolchain.compile_sources(resource, dependencies_include_dir))
 
         needed_update = toolchain.build_library(objects, bin_path, name)
 
@@ -962,6 +960,11 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         toolchain.jobs = jobs
         toolchain.build_all = clean
 
+        tmp_path = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
+        mkdir(tmp_path)
+
+        toolchain.build_dir = tmp_path
+
         # Take into account the library configuration (MBED_CONFIG_FILE)
         config = Config(target)
         toolchain.config = config
@@ -973,8 +976,6 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         build_toolchain = join(build_target, "TOOLCHAIN_" + toolchain.name)
         mkdir(build_toolchain)
 
-        tmp_path = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
-        mkdir(tmp_path)
 
         # CMSIS
         toolchain.info("Building library %s (%s, %s)" %
@@ -1015,7 +1016,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         toolchain.copy_files(hal_implementation.linker_script, build_toolchain)
         toolchain.copy_files(hal_implementation.bin_files, build_toolchain)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
-        objects = toolchain.compile_sources(hal_implementation, tmp_path,
+        objects = toolchain.compile_sources(hal_implementation,
                                             library_incdirs + incdirs)
         toolchain.copy_files(objects, build_toolchain)
 
@@ -1024,7 +1025,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         for dir in [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]:
             mbed_resources += toolchain.scan_resources(dir)
 
-        objects = toolchain.compile_sources(mbed_resources, tmp_path,
+        objects = toolchain.compile_sources(mbed_resources,
                                             library_incdirs + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
