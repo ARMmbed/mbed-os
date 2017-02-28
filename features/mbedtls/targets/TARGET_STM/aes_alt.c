@@ -275,8 +275,9 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           unsigned char output[16] )
 {
     
-    if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) !=0)
-        mbedtls_printf( "HAL_CRYP_AESECB_Encrypt timeout\n" );
+    if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) !=0) {
+        // error found to be returned
+    }
 
 }
 
@@ -285,8 +286,9 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           unsigned char output[16] )
 {
 
-    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10))
-        mbedtls_printf( "HAL_CRYP_AESECB_Decrypt timeout\n" );
+    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10)) {
+        // error found to be returned
+    }
 }
 
 
