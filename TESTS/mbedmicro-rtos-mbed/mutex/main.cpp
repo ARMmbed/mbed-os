@@ -34,7 +34,7 @@ volatile bool mutex_defect = false;
 bool manipulate_protected_zone(const int thread_delay) {
     bool result = true;
 
-    osStatus stat = stdio_mutex.lock();
+    osStatus_t stat = stdio_mutex.lock();
     TEST_ASSERT_EQUAL(stat, osOK);
     if (changing_counter == true) {
         result = false;
@@ -89,7 +89,7 @@ void test_dual_thread_nolock_lock_thread(Mutex *mutex)
     bool stat_b = mutex->trylock();
     TEST_ASSERT_EQUAL(stat_b, true);
 
-    osStatus stat = mutex->unlock();
+    osStatus_t stat = mutex->unlock();
     TEST_ASSERT_EQUAL(stat, osOK);
 }
 
@@ -98,7 +98,7 @@ void test_dual_thread_nolock_trylock_thread(Mutex *mutex)
     bool stat_b = mutex->trylock();
     TEST_ASSERT_EQUAL(stat_b, true);
 
-    osStatus stat = mutex->unlock();
+    osStatus_t stat = mutex->unlock();
     TEST_ASSERT_EQUAL(stat, osOK);
 }
 
@@ -115,14 +115,14 @@ void test_dual_thread_nolock(void)
 
 void test_dual_thread_lock_unlock_thread(Mutex *mutex)
 {
-    osStatus stat = mutex->lock(osWaitForever);
+    osStatus_t stat = mutex->lock(osWaitForever);
     TEST_ASSERT_EQUAL(stat, osOK);
 }
 
 void test_dual_thread_lock_unlock(void)
 {
     Mutex mutex;
-    osStatus stat;
+    osStatus_t stat;
     Thread thread(osPriorityNormal, TEST_STACK_SIZE);
 
     stat = mutex.lock();
@@ -146,8 +146,8 @@ void test_dual_thread_lock_lock_thread(Mutex *mutex)
 {
     uint32_t start = us_ticker_read();
 
-    osStatus stat = mutex->lock(TEST_HALF_SEC_MS);
-    TEST_ASSERT_EQUAL(stat, osEventTimeout);
+    osStatus_t stat = mutex->lock(TEST_HALF_SEC_MS);
+    TEST_ASSERT_EQUAL(stat, osErrorTimeout);
     TEST_ASSERT_UINT32_WITHIN(TEST_ONE_MS_US, TEST_HALF_SEC_US, us_ticker_read() - start);
 }
 
@@ -155,7 +155,7 @@ template <void (*F)(Mutex *)>
 void test_dual_thread_lock(void)
 {
     Mutex mutex;
-    osStatus stat;
+    osStatus_t stat;
     Thread thread(osPriorityNormal, TEST_STACK_SIZE);
 
     stat = mutex.lock();
@@ -172,7 +172,7 @@ void test_dual_thread_lock(void)
 void test_single_thread_lock_recursive(void)
 {
     Mutex mutex;
-    osStatus stat;
+    osStatus_t stat;
 
     stat = mutex.lock();
     TEST_ASSERT_EQUAL(stat, osOK);
@@ -194,14 +194,14 @@ void test_single_thread_trylock(void)
     bool stat_b = mutex.trylock();
     TEST_ASSERT_EQUAL(stat_b, true);
 
-    osStatus stat = mutex.unlock();
+    osStatus_t stat = mutex.unlock();
     TEST_ASSERT_EQUAL(stat, osOK);
 }
 
 void test_single_thread_lock(void)
 {
     Mutex mutex;
-    osStatus stat;
+    osStatus_t stat;
 
     stat = mutex.lock();
     TEST_ASSERT_EQUAL(stat, osOK);
