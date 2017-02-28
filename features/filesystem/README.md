@@ -2,36 +2,33 @@
 
 Simon Hughes
 
-20170131
+20170228
 
-Version 0.03
+Version 1.00
 
 
 # Executive Summary
 
-These notes are intended to help the mbed client team adopt the mbedOS POSIX File API support. The notes cover:
+These notes are intended to help developers adopt the mbedOS POSIX File API support. The notes cover:
 
 - Brief notes on how to setup the mbedOS development environment, including links to other resources.
-- How to build the mbedOS test cases.
-- How to run the POSIX File API test case.
+- How to work with the sd-driver and mbedOS to build the test cases.
+- How to run the POSIX File API test cases.
 
 Note the following:
 
 - The mbedOS FAT32/SDCard support implements a POSIX File API for off-chip, persistent file storage. 
-- The FAT32/SDCard support was present in mbedOS 2, but was moved to the "unsupported" area of the source tree in mbedOS 5. 
-  This is because there are currently no FAT32/SDCard POSIX API test cases in the public repository, software quality is hence unknown, and the features are therefore unsupported.
-- The implementation of new test cases is an active development activity. So far, one test binary (basic.cpp) has been implemented and is available on the mbed-os branch called 'feature-storage'. The test case support
-  is being enhanced as a matter of urgency.
-- The work described here is intended to make the POSIX File API available to the mbed client team before the Christmas holidays. 
-  Further test cases will be implemented and when completed, the work will be merged into the public repository master branch. In the meantime,
-  the work is available from feature-storage branch.
+- The mbedOS repository contains the FAT32 filesystem code and associated wrapper code to implement the POSIX API.
+- The SDCard driver is maintained in a separate repository (the sd-driver repo) and hence the 2 repositories have to be used together to deliver the FAT32 Filesystem/SDCard support.
+  This document explains how to do this.
 
+  
 # Getting Started
 
 This section describes how to build and run the POSIX file API test case. The following steps are covered:
 
 - [Installing the Tools](#installing-the-tools). This section briefly describes how to setup the mbedos development environment.
-- [Git Clone the Public mbedOS Repo](#git-clone-the-mbedos-repo). This section describes how to git clone the mbedOS repository containing the FAT32/SDCard and POSIX File API test case of interest.
+- [Create the FAT/SDCard Application Project](#create-fat-sdcard-application-project). This section describes how to git clone the mbedOS repository containing the FAT32/SDCard and POSIX File API test case of interest.
 - [Build the mbedOS Test Cases](#build-the-mbedos-test-cases). This section describes how to build the mbedOS test cases.
 - [Insert a microSD Card Into the K64F](#insert-sdcard-into-k64f).This section describes how to format (if required) a microSD card prior to running the tests.
 - [Run the POSIX File Test Case](#run-the-posix-file-test-cases).This section describes how to run the POSIX file test case basic.cpp.
@@ -64,49 +61,86 @@ Using a Git Bash terminal, setup Greentea in the following way:
     simhug01@E107851:/d/demo_area/$
 
 
-### <a name="git-clone-the-mbedos-repo"></a> Git Clone the Public mbedOS Repo 
+### <a name="create-fat-sdcard-application-project"></a> Create the FAT/SDCard Application Project
 
-Get a clone of public mbedOS repository in the following way
+This section describes how to create an applicaton project combining the mbed-os and sd-driver repositories in a single project. 
+In summary the following steps will be covered in this section:
+
+- A top level application project directory is created. The directory name is ex_app1.
+- In the ex_appp1 directory, the mbed-os repository is cloned.
+- In the ex_appp1 directory at the same level as the mbed-os directory, the sd-driver repository is cloned.
+- The mbed_app.json file is copied from the sd-driver/config/mbed_app.json to the ex_app1 directory.
+
+First create the top level application directory ex_app1 and move into it:
 
     simhug01@E107851:/d/demo_area$ mkdir ex_app1
     simhug01@E107851:/d/demo_area$ pushd ex_app1
+
+Next, get a clone of public mbedOS repository in the following way:
+
     simhug01@E107851:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/mbed-os
     <trace removed>
+    simhug01@E107851:/d/demo_area/ex_app1$
+
+Next, get a clone of the sd-driver repository:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/sd-driver
+    <trace removed>
+    simhug01@E107851:/d/demo_area/ex_app1$
+    
+Finally, copy the mbed_app.json application configuration file from sd-driver/config/mbed_app.json to the ex_app1 directory:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_app.json .
     simhug01@E107851:/d/demo_area/ex_app1$
 
 
 ### <a name="build-the-mbedos-test-cases"></a> Build the mbedOS Test Cases
 
-Switch to the `feature-storage` branch using the following commands:
+The sd-driver master HEAD and the mbed-os master HEAD should be compatible with one another and therefore no specific tagged version need to be checked out.
+However, in the case that you experience problems building, checkout out the same tagged version of each repository:
 
     simhug01@E107851:/d/demo_area/ex_app1$ pushd mbed-os
-    simhug01@E107851:/d/demo_area/ex_app1$ git branch
-    * master
-      feature-storage
-      <other branches deleted>
-    simhug01@E107851:/d/demo_area/ex_app1$ git checkout feature-storage
-    Switched to branch 'feature-storage'
-    simhug01@E107851:/d/demo_area/ex_app1$ git branch
-      master
-    * feature-storage
-      <other branches deleted>
-    simhug01@E107851:/d/demo_area/ex_app1$
+    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/mbed-os-5.4.0
+    simhug01@E107851:/d/demo_area/ex_app1$ popd 
+    simhug01@E107851:/d/demo_area/ex_app1$ pushd sd-driver
+    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/mbed-os-5.4.0
+    simhug01@E107851:/d/demo_area/ex_app1$ popd 
 
-When the feature-storage branch has been merged to master, then the following the sd-driver repository should also be cloned:
-
-    simhug01@E107851:/d/demo_area/ex_app1$ mbed import https://github.com/ARMmbed/sd-driver
-
-Copy the mbed_app.json file to the top level of the project:
-
-    simhug01@E107851:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_app.json .
-    
 Build the test cases for the K64F target using the following commands:
 
     simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F --app-config mbed_app.json 2>&1 | tee build_tests_gcc_20161219_1007.txt
     <trace removed>
     simhug01@E107851:/d/demo_area/ex_app1$
 
-The complete [build log][BUILD-TESTS-GCC-20161219-1007] is available for reference.
+The build trace is quite extensive but on a successful build you should see the following output at the end of the log:
+
+    <trace removed>
+    Build successes:
+      * K64F::GCC_ARM::MBED-BUILD
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-CONNECTIVITY
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-GETHOSTBYNAME
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_ECHO
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_ECHO_PARALLEL
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_HELLO_WORLD
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-UDP_DTLS_HANDSHAKE
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-UDP_ECHO
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-UDP_ECHO_PARALLEL
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FRAMEWORKS-UTEST-TESTS-UNIT_TESTS-BASIC_TEST
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FRAMEWORKS-UTEST-TESTS-UNIT_TESTS-BASIC_TEST_DEFAULT
+    <trace removed>
+      * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-HEAP_BLOCK_DEVICE
+      * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-UTIL_BLOCK_DEVICE
+    <trace removed>
+      * K64F::GCC_ARM::SD-DRIVER-FEATURES-TESTS-FILESYSTEM-BASIC
+      * K64F::GCC_ARM::SD-DRIVER-FEATURES-TESTS-FILESYSTEM-FOPEN
+  
+    <trace removed>
+
+
+Notice the following tests in the sd-driver tree are listed above:     
+
+  * K64F::GCC_ARM::SD-DRIVER-FEATURES-TESTS-FILESYSTEM-BASIC
+  * K64F::GCC_ARM::SD-DRIVER-FEATURES-TESTS-FILESYSTEM-FOPEN
 
 
 ### <a name="insert-sdcard-into-k64f"></a> Testing with an SDCard on Target XYZ
@@ -293,35 +327,24 @@ All tests can be run using the following command:
     simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS
     <trace removed>
 
-However, it's possible to run a particular test case using the following .json file:
+However, it's possible to run a particular test case using the following form of the mbedgt command:
 
-    {
-      "builds": {
-        "K64F-GCC_ARM": {
-          "binary_type": "bootable", 
-          "tests": {
-            "mbed-os-features-storage-feature_storage-tests-fs-fat-basic": {
-              "binaries": [
-                {
-                  "path": "BUILD/tests/K64F/GCC_ARM/mbed-os/features/storage/FEATURE_STORAGE/TESTS/fs-fat/basic/basic.bin"
-                }
-              ]
-            } 
-          }, 
-          "toolchain": "GCC_ARM", 
-          "base_path": "BUILD/tests/K64F/GCC_ARM", 
-          "baud_rate": 9600, 
-          "platform": "K64F"
-        }
-      }
-    }
+    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=<test-name>
+    
+The names of the tests can be listed using: 
 
-Store the above text in a file called `ex_app1_fat_basic_spec.json` in the ex_app1 directory. The test can be run using the following command:
+    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --list
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-spec=ex_app1_fat_basic_spec.json 2>&1 | tee run_tests_master_gcc_ex_app2_fat_basic_20161219_1011.txt
-    <trace removed>
+For example, to run the basic test use:
+    
+    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=sd-driver-features-tests-filesystem-basic 2>&1 | tee run_tests_basic.txt
 
-On a successful run, the following table will be shown at the end of the log:
+To run the fopen test use:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=sd-driver-features-tests-filesystem-fopen 2>&1 | tee run_tests_fopen.txt
+    
+
+On a successful run, results similar to the following will be shown:
 
     mbedgt: test suite 'mbed-os-features-storage-feature_storage-tests-fs-fat-basic' ..................... OK in 15.86 sec
         test case: 'FSFAT_test_00: fopen()/fgetc()/fprintf()/fclose() test.' ......................... OK in 0.90 sec
@@ -443,8 +466,6 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
 
     <mbed-os_src_root>\features\storage\FEATURE_STORAGE\TESTS\filesystem\basic\basic.cpp
     <mbed-os_src_root>\features\storage\FEATURE_STORAGE\TESTS\filesystem\fopen\fopen.cpp
-
-
 
 
 
