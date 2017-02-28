@@ -222,7 +222,7 @@ uint32_t Thread::max_stack() {
         uint32_t high_mark = 0;
         while (((uint32_t *)(thread->stack_mem))[high_mark] == 0xE25A2EA5)
             high_mark++;
-        size = ((uint32_t)thread->stack_mem + thread->stack_size) - (high_mark * 4);
+        size = thread->stack_size - (high_mark * sizeof(uint32_t));
     }
 
     _mutex.unlock();
