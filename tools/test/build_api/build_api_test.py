@@ -58,7 +58,7 @@ class BuildApiTests(unittest.TestCase):
     @patch('tools.utils.run_cmd', return_value=("", "", 0))
     def test_always_complete_build(self, *_):
         with MagicMock() as notify:
-            toolchain = prepare_toolchain(self.src_paths, self.target,
+            toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
                                           self.toolchain_name, notify=notify)
 
             res = scan_resources(self.src_paths, toolchain)
@@ -66,9 +66,8 @@ class BuildApiTests(unittest.TestCase):
             toolchain.RESPONSE_FILES=False
             toolchain.config_processed = True
             toolchain.config_file = "junk"
-            toolchain.compile_sources(res, self.build_path)
+            toolchain.compile_sources(res)
 
-            print notify.mock_calls
             assert any('percent' in msg[0] and msg[0]['percent'] == 100.0
                        for _, msg, _ in notify.mock_calls if msg)
 
@@ -90,7 +89,7 @@ class BuildApiTests(unittest.TestCase):
                                                        mock_target,
                                                        False)
 
-        prepare_toolchain(self.src_paths, self.target, self.toolchain_name,
+        prepare_toolchain(self.src_paths, None, self.target, self.toolchain_name,
                           app_config=app_config)
 
         mock_config_init.assert_called_once_with(self.target, self.src_paths,
@@ -112,7 +111,7 @@ class BuildApiTests(unittest.TestCase):
                                                        mock_target,
                                                        False)
 
-        prepare_toolchain(self.src_paths, self.target, self.toolchain_name)
+        prepare_toolchain(self.src_paths, None, self.target, self.toolchain_name)
 
         mock_config_init.assert_called_once_with(self.target, self.src_paths,
                                                  app_config=None)
