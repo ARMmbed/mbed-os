@@ -32,6 +32,7 @@ using namespace utest::v1;
 #include "mbedtls/sha512.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/entropy_poll.h"
+#include "mbedtls/aes.h"
 
 #include <string.h>
 
@@ -67,6 +68,9 @@ MBEDTLS_SELF_TEST_TEST_CASE(mbedtls_sha512_self_test)
 MBEDTLS_SELF_TEST_TEST_CASE(mbedtls_entropy_self_test)
 #endif
 
+#if defined(MBEDTLS_AES_C)
+MBEDTLS_SELF_TEST_TEST_CASE(mbedtls_aes_self_test)
+#endif
 #else
 #warning "MBEDTLS_SELF_TEST not enabled"
 #endif /* MBEDTLS_SELF_TEST */
@@ -86,6 +90,9 @@ Case cases[] = {
     Case("mbedtls_entropy_self_test", mbedtls_entropy_self_test_test_case),
 #endif
 
+#if defined(MBEDTLS_AES_C)
+    Case("mbedtls_aes_self_test",mbedtls_aes_self_test_test_case),
+#endif
 #endif /* MBEDTLS_SELF_TEST */
 };
 
