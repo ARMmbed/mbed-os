@@ -1,4 +1,9 @@
 {
     "name": "uvisor-lib",
-    "macros": ["CMSIS_NVIC_VIRTUAL", "CMSIS_VECTAB_VIRTUAL"]
+    "macros": ["CMSIS_NVIC_VIRTUAL", "CMSIS_VECTAB_VIRTUAL"],
+    "target_overrides": {
+        "ARM_MPS2_ARMv8MML": {
+            "macros": ["RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS"]
+        }
+    }
 }

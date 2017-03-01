@@ -1935,7 +1935,7 @@
         "core": "Cortex-M33",
         "supported_toolchains": ["GCC_ARM"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_ARMv8MML"],
-        "macros": ["CMSDK_ARMv8MML"],
+        "macros": ["CMSDK_ARMv8MML", "RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS"],
         "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL"],
         "release_versions": ["5"]
     },
