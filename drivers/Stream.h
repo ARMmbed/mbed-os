@@ -66,6 +66,18 @@ protected:
 
     std::FILE *_file;
 
+    /** Acquire exclusive access to this object.
+     */
+    virtual void lock() {
+        // Stub
+    }
+
+    /** Release exclusive access to this object.
+     */
+    virtual void unlock() {
+        // Stub
+    }
+
     /* disallow copy constructor and assignment operators */
 private:
     Stream(const Stream&);

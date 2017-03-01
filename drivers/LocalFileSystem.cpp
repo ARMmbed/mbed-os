@@ -142,7 +142,7 @@ int LocalFileHandle::isatty() {
     return ret;
 }
 
-off_t LocalFileHandle::lseek(off_t position, int whence) {
+off_t LocalFileHandle::seek(off_t position, int whence) {
     lock();
     if (whence == SEEK_CUR) {
         position += pos;
@@ -157,14 +157,14 @@ off_t LocalFileHandle::lseek(off_t position, int whence) {
     return position;
 }
 
-int LocalFileHandle::fsync() {
+int LocalFileHandle::sync() {
     lock();
     int ret = semihost_ensure(_fh);
     unlock();
     return ret;
 }
 
-off_t LocalFileHandle::flen() {
+size_t LocalFileHandle::size() {
     lock();
     off_t off = semihost_flen(_fh);
     unlock();

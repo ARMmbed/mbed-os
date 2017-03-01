@@ -15,6 +15,7 @@
  */
 #include "drivers/FileBase.h"
 #include "drivers/FileLike.h"
+#include "drivers/FileHandle.h"
 
 namespace mbed {
 
@@ -52,8 +53,8 @@ FileBase::~FileBase() {
     _mutex->unlock();
 
     if (getPathType() == FilePathType) {
-        extern void remove_filehandle(FileLike *file);
-        remove_filehandle(static_cast<FileLike*>(this));
+        extern void remove_filehandle(FileHandle *file);
+        remove_filehandle(static_cast<FileHandle*>(static_cast<FileLike*>(this)));
     }
 }
 

@@ -42,11 +42,11 @@ public:
 
     virtual int isatty();
 
-    virtual off_t lseek(off_t position, int whence);
+    virtual off_t seek(off_t position, int whence);
 
-    virtual int fsync();
+    virtual int sync();
 
-    virtual off_t flen();
+    virtual size_t size();
 
 protected:
     virtual void lock();

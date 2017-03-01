@@ -18,7 +18,7 @@
 #define FILE_H
 
 #include "filesystem/FileSystem.h"
-#include "drivers/FileLike.h"
+#include "drivers/FileHandle.h"
 
 namespace mbed {
 /** \addtogroup filesystem */
@@ -27,7 +27,7 @@ namespace mbed {
 
 /** File class
  */
-class File : public FileLike {
+class File : public FileHandle {
 public:
     /** Create an uninitialized file
      *

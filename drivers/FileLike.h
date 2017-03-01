@@ -18,6 +18,7 @@
 
 #include "platform/mbed_toolchain.h"
 #include "drivers/FileBase.h"
+#include "drivers/FileHandle.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -30,7 +31,7 @@ namespace mbed {
  *
  *  @Note Synchronization level: Set by subclass
  */
-class FileLike : public FileBase {
+class FileLike : public FileHandle, public FileBase {
 public:
     /** Constructor FileLike
      *
@@ -38,113 +39,6 @@ public:
      */
     FileLike(const char *name = NULL) : FileBase(name, FilePathType) {}
     virtual ~FileLike() {}
-
-    /** Read the contents of a file into a buffer
-     *
-     *  @param buffer   The buffer to read in to
-     *  @param size     The number of bytes to read
-     *  @return         The number of bytes read, 0 at end of file, negative error on failure
-     */
-    virtual ssize_t read(void *buffer, size_t len) = 0;
-
-    /** Write the contents of a buffer to a file
-     *
-     *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write 
-     *  @return         The number of bytes written, negative error on failure
-     */
-    virtual ssize_t write(const void *buffer, size_t len) = 0;
-
-    /** Close a file
-     *
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int close() = 0;
-
-    /** Flush any buffers associated with the file
-     *
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int sync() = 0;
-
-    /** Check if the file in an interactive terminal device
-     *
-     *  @return         True if the file is a terminal
-     */
-    virtual int isatty() = 0;
-
-    /** Move the file position to a given offset from from a given location
-     *
-     *  @param offset   The offset from whence to move to
-     *  @param whence   The start of where to seek
-     *      SEEK_SET to start from beginning of file,
-     *      SEEK_CUR to start from current position in file,
-     *      SEEK_END to start from end of file
-     *  @return         The new offset of the file
-     */
-    virtual off_t seek(off_t offset, int whence = SEEK_SET) = 0;
-
-    /** Get the file position of the file
-     *
-     *  @return         The current offset in the file
-     */
-    virtual off_t tell() = 0;
-
-    /** Rewind the file position to the beginning of the file
-     *
-     *  @note This is equivalent to file_seek(file, 0, FS_SEEK_SET)
-     */
-    virtual void rewind() = 0;
-
-    /** Get the size of the file
-     *
-     *  @return         Size of the file in bytes
-     */
-    virtual size_t size() = 0;
-
-    /** Move the file position to a given offset from a given location.
-     *
-     *  @param offset The offset from whence to move to
-     *  @param whence SEEK_SET for the start of the file, SEEK_CUR for the
-     *   current file position, or SEEK_END for the end of the file.
-     *
-     *  @returns
-     *    new file position on success,
-     *    -1 on failure or unsupported
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileLike::seek")
-    virtual off_t lseek(off_t offset, int whence) { return seek(offset, whence); }
-
-    /** Flush any buffers associated with the FileHandle, ensuring it
-     *  is up to date on disk
-     *
-     *  @returns
-     *    0 on success or un-needed,
-     *   -1 on error
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileLike::sync")
-    virtual int fsync() { return sync(); }
-
-    /** Find the length of the file
-     *
-     *  @returns
-     *   Length of the file
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileLike::size")
-    virtual off_t flen() { return size(); }
-
-protected:
-    /** Acquire exclusive access to this object.
-     */
-    virtual void lock() {
-        // Stub
-    }
-
-    /** Release exclusive access to this object.
-     */
-    virtual void unlock() {
-        // Stub
-    }
 };
 
 

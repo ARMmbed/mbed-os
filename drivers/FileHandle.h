@@ -25,61 +25,96 @@ namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
 
-/** An OO equivalent of the internal FILEHANDLE variable
- *  and associated _sys_* functions.
+
+/** Class FileHandle
  *
- * FileHandle is an abstract class, needing at least sys_write and
- *  sys_read to be implmented for a simple interactive device.
+ *  An abstract interface that represents operations on a file-like
+ *  object. The core functions are read, write, and seek, but only
+ *  a subset of these operations can be provided.
  *
- * No one ever directly tals to/instanciates a FileHandle - it gets
- *  created by FileSystem, and wrapped up by stdio.
- *
- * @Note Synchronization level: Set by subclass
+ *  @note to create a file, @see File
+ *  @note Synchronization level: Set by subclass
  */
 class FileHandle {
-
 public:
-    MBED_DEPRECATED_SINCE("mbed-os-5.4",
-        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
-        "Replaced by File")
-    FileHandle() {}
+    virtual ~FileHandle() {}
 
-    /** Write the contents of a buffer to the file
+    /** Read the contents of a file into a buffer
      *
-     *  @param buffer the buffer to write from
-     *  @param length the number of characters to write
-     *
-     *  @returns
-     *  The number of characters written (possibly 0) on success, -1 on error.
+     *  @param buffer   The buffer to read in to
+     *  @param size     The number of bytes to read
+     *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t write(const void* buffer, size_t length) = 0;
+    virtual ssize_t read(void *buffer, size_t len) = 0;
 
-    /** Close the file
+    /** Write the contents of a buffer to a file
      *
-     *  @returns
-     *  Zero on success, -1 on error.
+     *  @param buffer   The buffer to write from
+     *  @param size     The number of bytes to write 
+     *  @return         The number of bytes written, negative error on failure
+     */
+    virtual ssize_t write(const void *buffer, size_t len) = 0;
+
+    /** Close a file
+     *
+     *  @return         0 on success, negative error code on failure
      */
     virtual int close() = 0;
 
-    /** Function read
-     *  Reads the contents of the file into a buffer
+    /** Flush any buffers associated with the file
      *
-     *  @param buffer the buffer to read in to
-     *  @param length the number of characters to read
-     *
-     *  @returns
-     *  The number of characters read (zero at end of file) on success, -1 on error.
+     *  @return         0 on success, negative error code on failure
      */
-    virtual ssize_t read(void* buffer, size_t length) = 0;
+    virtual int sync() = 0;
 
-    /** Check if the handle is for a interactive terminal device.
-     * If so, line buffered behaviour is used by default
+    /** Check if the file in an interactive terminal device
      *
-     *  @returns
-     *    1 if it is a terminal,
-     *    0 otherwise
+     *  @return         True if the file is a terminal
      */
     virtual int isatty() = 0;
+
+    /** Move the file position to a given offset from from a given location
+     *
+     *  @param offset   The offset from whence to move to
+     *  @param whence   The start of where to seek
+     *      SEEK_SET to start from beginning of file,
+     *      SEEK_CUR to start from current position in file,
+     *      SEEK_END to start from end of file
+     *  @return         The new offset of the file
+     */
+    virtual off_t seek(off_t offset, int whence = SEEK_SET) = 0;
+
+    /** Get the file position of the file
+     *
+     *  @note This is equivalent to seek(0, SEEK_CUR)
+     *
+     *  @return         The current offset in the file
+     */
+    virtual off_t tell()
+    {
+        return seek(0, SEEK_CUR);
+    }
+
+    /** Rewind the file position to the beginning of the file
+     *
+     *  @note This is equivalent to seek(0, SEEK_SET)
+     */
+    virtual void rewind()
+    {
+        seek(0, SEEK_SET);
+    }
+
+    /** Get the size of the file
+     *
+     *  @return         Size of the file in bytes
+     */
+    virtual size_t size()
+    {
+        off_t off = tell();
+        size_t size = seek(0, SEEK_END);
+        seek(off, SEEK_SET);
+        return size;
+    }
 
     /** Move the file position to a given offset from a given location.
      *
@@ -91,7 +126,8 @@ public:
      *    new file position on success,
      *    -1 on failure or unsupported
      */
-    virtual off_t lseek(off_t offset, int whence) = 0;
+    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::seek")
+    virtual off_t lseek(off_t offset, int whence) { return seek(offset, whence); }
 
     /** Flush any buffers associated with the FileHandle, ensuring it
      *  is up to date on disk
@@ -100,43 +136,20 @@ public:
      *    0 on success or un-needed,
      *   -1 on error
      */
-    virtual int fsync() = 0;
+    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::sync")
+    virtual int fsync() { return sync(); }
 
-    virtual off_t flen() {
-        lock();
-        /* remember our current position */
-        off_t pos = lseek(0, SEEK_CUR);
-        if(pos == -1) {
-            unlock();
-            return -1;
-        }
-        /* seek to the end to get the file length */
-        off_t res = lseek(0, SEEK_END);
-        /* return to our old position */
-        lseek(pos, SEEK_SET);
-        unlock();
-        return res;
-    }
-
-    virtual ~FileHandle() {};
-
-protected:
-
-    /** Acquire exclusive access to this object.
+    /** Find the length of the file
+     *
+     *  @returns
+     *   Length of the file
      */
-    virtual void lock() {
-        // Stub
-    }
-
-    /** Release exclusive access to this object.
-     */
-    virtual void unlock() {
-        // Stub
-    }
+    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::size")
+    virtual off_t flen() { return size(); }
 };
 
+
+/** @}*/
 } // namespace mbed
 
 #endif
-
-/** @}*/
