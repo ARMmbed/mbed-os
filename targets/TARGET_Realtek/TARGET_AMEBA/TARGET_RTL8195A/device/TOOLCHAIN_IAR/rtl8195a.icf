@@ -36,7 +36,7 @@ do not initialize  { section .noinit };
 /****************************************
  * ROM Section config                   *
  ****************************************/
-keep { section .rom };
+//keep { section .rom };
 //place at start of ROM_region   { readonly, section .rom };
 place at start of ROM_region   {section .rom };
 
@@ -85,8 +85,8 @@ define block .ram_image1.data with fixed order{ section .image1.validate.rodata*
 //                                                };
 
 define block .ram_image1.text with fixed order{ section .hal.ram.text*,
-                                                section .hal.sdrc.text*,
-                                                //section .text* object startup.o,
+//                                                //section .hal.sdrc.text*,
+//                                                //section .text* object startup.o,
                                                 section .infra.ram.text*,
                                                 };
 
@@ -154,7 +154,7 @@ define block .ram.bss with fixed order{ section .bss*,
 
 place at start of BD_RAM_region   {
 								block IMAGE2,
-								readwrite,
+								//readwrite,
 								block .ram.bss,
                         		};
 place at end of BD_RAM_region{
