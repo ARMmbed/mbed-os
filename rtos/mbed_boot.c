@@ -123,7 +123,7 @@
 #include "mbed_rtx.h"
 #include "rtx_lib.h"
 #include "cmsis_os2.h"
-#include "platform/toolchain.h"
+#include "mbed_toolchain.h"
 
 // Heap limits - only used if set
 unsigned char *mbed_heap_start = 0;
