@@ -35,7 +35,8 @@ static uint32_t serial_irq_ids[2] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-
+int rxbuffer[1];
+int txbuffer[1];
 
 static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 {
@@ -50,8 +51,6 @@ static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 
 
 void serial_free(serial_t *obj) {
-//	adi_uart_EnableTx(hDevice,false);
-//	adi_uart_EnableRx(hDevice,false);
     adi_uart_Close(hDevice);
 }
 
@@ -118,41 +117,42 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(rx, PinMap_UART_RX);
 
     if (tx != NC) {
-		//adi_uart_EnableTx(hDevice,true);
         pin_mode(tx, PullUp);
     }
     if (rx != NC) {
-		//adi_uart_EnableRx(hDevice,true);
         pin_mode(rx, PullUp);
     }
     if (obj->index == STDIO_UART) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-
-	adi_uart_EnableFifo(hDevice, true);
-	adi_uart_DisableRxDuringTx(hDevice, true);
 }
 
 int serial_getc(serial_t *obj) {
-	int c;
-
-    adi_uart_Read(hDevice, (void *) &c, 1);
-    return (c);
+	void *pBuff;
+	adi_uart_SubmitRxBuffer(hDevice, rxbuffer, 1);
+	adi_uart_GetRxBuffer(hDevice, &pBuff);	
+    return rxbuffer[0];
 }
 
 void serial_putc(serial_t *obj, int c) {
-
-	adi_uart_Write(hDevice, &c, 1);
+    void *pBuff;
+	txbuffer[0] = c;
+	adi_uart_SubmitTxBuffer(hDevice,txbuffer, 1);
+	adi_uart_GetTxBuffer(hDevice, &pBuff);
 	return;
 }
 
 int serial_readable(serial_t *obj) {
-	return 0;
+	bool bAvailable = false;	
+	adi_uart_IsRxBufferAvailable(hDevice, &bAvailable);	
+	return bAvailable;
 }
 
 int serial_writable(serial_t *obj) {
-	return 0;
+	bool bAvailable = false;
+	adi_uart_IsTxBufferAvailable(hDevice, &bAvailable);
+	return bAvailable;
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
@@ -168,18 +168,18 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 }
 
 void serial_pinout_tx(PinName tx) {
-
+    pinmap_pinout(tx, PinMap_UART_TX);
 }
 
 void serial_break_set(serial_t *obj) {
-
+    adi_uart_ForceTxBreak(hDevice, true);
 }
 
 void serial_break_clear(serial_t *obj) {
-
+    adi_uart_ForceTxBreak(hDevice, false);
 }
 
-
+#if DEVICE_SERIAL_ASYNCH
 uint8_t serial_tx_active(serial_t *obj)
 {
 	return 0;
@@ -216,7 +216,7 @@ void serial_rx_abort_asynch(serial_t *obj)
 {
 
 }
-
+#endif
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
 
     MBED_ASSERT(obj);
