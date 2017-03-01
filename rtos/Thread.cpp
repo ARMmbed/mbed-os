@@ -44,6 +44,7 @@ namespace rtos {
 void Thread::constructor(osPriority priority,
         uint32_t stack_size, unsigned char *stack_pointer) {
     _tid = 0;
+    _finished = false;
     _dynamic_stack = (stack_pointer == NULL);
 
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
@@ -74,7 +75,7 @@ void Thread::constructor(Callback<void()> task,
 osStatus Thread::start(Callback<void()> task) {
     _mutex.lock();
 
-    if (_tid != 0) {
+    if ((_tid != 0) || _finished) {
         _mutex.unlock();
         return osErrorParameter;
     }
@@ -117,6 +118,7 @@ osStatus Thread::terminate() {
     osThreadId local_id = _tid;
     _join_sem.release();
     _tid = (osThreadId)NULL;
+    _finished = true;
 
     ret = osThreadTerminate(local_id);
 
@@ -367,6 +369,7 @@ void Thread::_thunk(const void * thread_ptr)
     t->_task();
     t->_mutex.lock();
     t->_tid = (osThreadId)NULL;
+    t->_finished = true;
     t->_join_sem.release();
     // rtos will release the mutex automatically
 }
