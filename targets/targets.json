@@ -590,7 +590,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["__ADUCM3029__","RELOCATE_IVT"],
+        "macros": ["__ADUCM3029__","RELOCATE_IVT", "ADICUP3029"],
         "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029"],
         "device_has": [ "SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN"],
         "device_name": "ADuCM3029"
