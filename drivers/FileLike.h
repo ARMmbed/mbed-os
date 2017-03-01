@@ -16,7 +16,7 @@
 #ifndef MBED_FILELIKE_H
 #define MBED_FILELIKE_H
 
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 #include "drivers/FileBase.h"
 
 namespace mbed {
