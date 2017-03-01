@@ -20,6 +20,7 @@
 #define RETARGET_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
