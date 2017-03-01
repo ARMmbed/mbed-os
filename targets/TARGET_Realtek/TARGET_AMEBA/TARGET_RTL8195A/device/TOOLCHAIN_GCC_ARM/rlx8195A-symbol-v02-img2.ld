@@ -2,7 +2,6 @@
 
 ENTRY(Reset_Handler)
 
-/*INCLUDE "mbed-os/targets/TARGET_Realtek/TARGET_AMEBA/TARGET_RTL8195A/device/TOOLCHAIN_GCC_ARM/export-rom_v02.txt"*/
 SECTIONS
 {
     __vectors_table = 0x0;
@@ -804,6 +803,7 @@ SECTIONS
         __HeapLimit = .;
     } > BD_RAM
 
+	/*
     .TCM_overlay :
     {
         *(.tcm.heap*)
@@ -836,7 +836,7 @@ SECTIONS
 	    *(.websocket.bss*)
 	    __sdram_bss_end__ = .;
 	  } > SD_RAM
-	  
+	  */
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */
