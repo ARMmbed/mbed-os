@@ -220,7 +220,7 @@
 #elif defined(TARGET_ADUCM3029)
 
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
+#define INITIAL_SP              (0x20004000UL)
 #endif
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              6
