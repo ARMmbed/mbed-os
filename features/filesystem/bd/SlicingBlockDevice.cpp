@@ -108,7 +108,7 @@ bd_size_t SlicingBlockDevice::get_erase_size() const
     return _bd->get_erase_size();
 }
 
-bd_size_t SlicingBlockDevice::size()
+bd_size_t SlicingBlockDevice::size() const
 {
     return _stop - _start;
 }

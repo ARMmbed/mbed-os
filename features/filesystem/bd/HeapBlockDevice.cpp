@@ -77,7 +77,7 @@ bd_size_t HeapBlockDevice::get_erase_size() const
     return _erase_size;
 }
 
-bd_size_t HeapBlockDevice::size()
+bd_size_t HeapBlockDevice::size() const
 {
     return _count * _erase_size;
 }
