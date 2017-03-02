@@ -57,12 +57,12 @@ def prepend(image, image_prepend, toolchain, info):
         append_image_file(image, output)
       
     elif toolchain == "IAR":
-        write_fixed_width_value(int(info['size']), 8, output)
-        write_fixed_width_value(int(info['addr']), 8, output)
+        write_fixed_width_value(info['size'], 8, output)
+        write_fixed_width_value(info['addr'], 8, output)
         write_fixed_width_value(RAM2_RSVD, 16, output)
         with open(image, "rb") as input: 
-            input.seek(int(info['addr']))
-            output.write(input.read(int(info['size'])))
+            input.seek(info['addr'])
+            output.write(input.read(info['size']))
     output.close()
 
 def parse_section(toolchain, elf, section):
@@ -107,9 +107,8 @@ def parse_section(toolchain, elf, section):
                     info['size'] = 0x0
                 return info
 
-    if not info['addr']:
-        print "[ERROR] cannot find the address of section " + section
-    elif not info['size']:
+    print "[ERROR] cannot find the address of section " + section
+    if not info['size']:
         if toolchain == "IAR":
             print "[WARNING] cannot find the size of section " + section
     
