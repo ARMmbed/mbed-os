@@ -183,7 +183,7 @@ HAL_StatusTypeDef HAL_Init(void)
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
   /* Use systick as time base source and configure 1ms tick (default clock after Reset is HSI) */
-  HAL_InitTick(TICK_INT_PRIORITY);
+  //HAL_InitTick(TICK_INT_PRIORITY); // Removed to fix Issue 3683
   
   /* Init the low level hardware */
   HAL_MspInit();
