@@ -12,11 +12,6 @@
 
 #define THREAD_STACK_SIZE 768
 
-void print_char(char c = '*') {
-    printf("%c", c);
-    fflush(stdout);
-}
-
 Semaphore two_slots(SEMAPHORE_SLOTS);
 
 volatile int change_counter = 0;
@@ -29,13 +24,10 @@ void test_thread(int const *delay) {
         two_slots.wait();
         sem_counter++;
         const bool sem_lock_failed = sem_counter > SEMAPHORE_SLOTS;
-        const char msg = sem_lock_failed ? 'e' : sem_counter + '0';
-        print_char(msg);
         if (sem_lock_failed) {
             sem_defect = true;
         }
         Thread::wait(thread_delay);
-        print_char('.');
         sem_counter--;
         change_counter++;
         two_slots.release();
@@ -66,7 +58,6 @@ int main (void) {
         }
     }
 
-    fflush(stdout);
     GREENTEA_TESTSUITE_RESULT(!sem_defect);
     return 0;
 }
