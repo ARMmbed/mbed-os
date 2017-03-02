@@ -25,7 +25,7 @@
 
 #define FPU_EXCEPTION_MASK 0x0000009F
 
-void sleep(void)
+void hal_sleep(void)
 {
     // ensure debug is disconnected if semihost is enabled....
 
@@ -41,10 +41,13 @@ void sleep(void)
 #endif
 
     // If the SoftDevice is enabled, its API must be used to go to sleep.
-    if (softdevice_handler_is_enabled()) {
+    if (softdevice_handler_is_enabled())
+    {
         sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
         sd_app_evt_wait();
-    } else {
+    }
+    else
+    {
         NRF_POWER->TASKS_LOWPWR = 1;
 
         // Note: it is not sufficient to just use WFE here, since the internal
@@ -61,10 +64,13 @@ void sleep(void)
         __WFE();
 
         // Test if there is an interrupt pending (mask reserved regions)
-        if (SCB->ICSR & (SCB_ICSR_RESERVED_BITS_MASK)) {
+        if (SCB->ICSR & (SCB_ICSR_RESERVED_BITS_MASK))
+        {
             // Ok, there is an interrut pending, no need to go to sleep
             return;
-        } else {
+        }
+        else
+        {
             // next event will wakeup the CPU
             // If an interrupt occured between the test of SCB->ICSR and this
             // instruction, WFE will just not put the CPU to sleep
@@ -73,8 +79,7 @@ void sleep(void)
     }
 }
 
-void deepsleep(void)
+void hal_deepsleep(void)
 {
-    sleep();
-    //   NRF_POWER->SYSTEMOFF=1;
+    hal_sleep();
 }

@@ -58,16 +58,18 @@
 #define MASTER_INST(obj)    (&m_instances[SPI_IDX(obj)].master)
 #define SLAVE_INST(obj)     (&m_instances[SPI_IDX(obj)].slave)
 
-typedef struct {
-    bool    initialized;
-    bool    master;
+typedef struct
+{
+    bool initialized;
+    bool master;
     uint8_t sck_pin;
     uint8_t mosi_pin;
     uint8_t miso_pin;
     uint8_t ss_pin;
     uint8_t spi_mode;
     nrf_drv_spi_frequency_t frequency;
-    volatile union {
+    volatile union
+    {
         bool busy;     // master
         bool readable; // slave
     } flag;
@@ -81,8 +83,9 @@ typedef struct {
 } spi_info_t;
 static spi_info_t m_spi_info[SPI_COUNT];
 
-typedef struct {
-    nrf_drv_spi_t  master;
+typedef struct
+{
+    nrf_drv_spi_t master;
     nrf_drv_spis_t slave;
 } sdk_driver_instances_t;
 
@@ -90,25 +93,25 @@ void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
 void SPIM2_SPIS2_SPI2_IRQHandler(void);
 
-static const peripheral_handler_desc_t spi_hanlder_desc[SPI_COUNT] = {
+static const peripheral_handler_desc_t spi_handler_desc[SPI_COUNT] = {
 #if SPI0_ENABLED
     {
-        SPIS0_IRQ,
+        SPI0_IRQ,
         (uint32_t) SPI0_TWI0_IRQHandler
     },
 #endif
 #if SPI1_ENABLED
     {
-        SPIS1_IRQ,
+        SPI1_IRQ,
         (uint32_t) SPI1_TWI1_IRQHandler
     },
 #endif
 #if SPI2_ENABLED
     {
-        SPIS2_IRQ,
+        SPI2_IRQ,
         (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler
     },
-#endif    
+#endif
 };
 
 
@@ -138,9 +141,11 @@ static void master_event_handler(uint8_t spi_idx,
 {
     spi_info_t *p_spi_info = &m_spi_info[spi_idx];
 
-    if (p_event->type == NRF_DRV_SPI_EVENT_DONE) {
+    if (p_event->type == NRF_DRV_SPI_EVENT_DONE)
+    {
         p_spi_info->flag.busy = false;
-        if (p_spi_info->handler) {
+        if (p_spi_info->handler)
+        {
             void (*handler)(void) = (void (*)(void))p_spi_info->handler;
             p_spi_info->handler = 0;
             handler();
@@ -179,7 +184,8 @@ static void slave_event_handler(uint8_t spi_idx,
 {
     spi_info_t *p_spi_info = &m_spi_info[spi_idx];
 
-    if (event.evt_type == NRF_DRV_SPIS_XFER_DONE) {
+    if (event.evt_type == NRF_DRV_SPIS_XFER_DONE)
+    {
         // Signal that there is some data received that could be read.
         p_spi_info->flag.readable = true;
 
@@ -254,12 +260,35 @@ void spi_init(spi_t *obj,
               PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     int i;
-    for (i = 0; i < SPI_COUNT; ++i) {
+
+    // This block is only a workaround that allows to create SPI object several
+    // times, what would be otherwise impossible in the current implementation
+    // of mbed driver that does not call spi_free() from SPI destructor.
+    // Once this mbed's imperfection is corrected, this block should be removed.
+    for (i = 0; i < SPI_COUNT; ++i)
+    {
         spi_info_t *p_spi_info = &m_spi_info[i];
-        if (!p_spi_info->initialized) {
-         
-            NVIC_SetVector(spi_hanlder_desc[i].IRQn, spi_hanlder_desc[i].vector);
-            
+        
+        if (p_spi_info->initialized &&
+            p_spi_info->mosi_pin == (uint8_t)mosi &&
+            p_spi_info->miso_pin == (uint8_t)miso &&
+            p_spi_info->sck_pin  == (uint8_t)sclk &&
+            p_spi_info->ss_pin   == (uint8_t)ssel)
+        {
+            // Reuse the already allocated SPI instance (instead of allocating
+            // a new one), if it appears to be initialized with exactly the same
+            // pin assignments.
+            SPI_IDX(obj) = i;
+            return;
+        }
+    }
+
+    for (i = 0; i < SPI_COUNT; ++i)
+    {
+        spi_info_t *p_spi_info = &m_spi_info[i];
+        
+        if (!p_spi_info->initialized)
+        {
             p_spi_info->sck_pin   = (uint8_t)sclk;
             p_spi_info->mosi_pin  = (mosi != NC) ?
                 (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
@@ -270,22 +299,25 @@ void spi_init(spi_t *obj,
             p_spi_info->spi_mode  = (uint8_t)NRF_DRV_SPI_MODE_0;
             p_spi_info->frequency = NRF_DRV_SPI_FREQ_1M;
 
+            NVIC_SetVector(spi_handler_desc[i].IRQn, spi_handler_desc[i].vector);
+
             // By default each SPI instance is initialized to work as a master.
             // Should the slave mode be used, the instance will be reconfigured
             // appropriately in 'spi_format'.
             nrf_drv_spi_config_t config;
             prepare_master_config(&config, p_spi_info);
 
-            nrf_drv_spi_t const *p_spi = &m_instances[i].master;
-            ret_code_t ret_code = nrf_drv_spi_init(p_spi,
-                &config, m_master_event_handlers[i]);
-            if (ret_code == NRF_SUCCESS) {
+            nrf_drv_spi_t const *p_spi    = &m_instances[i].master;
+            ret_code_t           ret_code = nrf_drv_spi_init(p_spi,
+                                                             &config, m_master_event_handlers[i]);
+            if (ret_code == NRF_SUCCESS)
+            {
                 p_spi_info->initialized = true;
                 p_spi_info->master      = true;
                 p_spi_info->flag.busy   = false;
-            #if DEVICE_SPI_ASYNCH
-                p_spi_info->handler     = 0;
-            #endif
+#if DEVICE_SPI_ASYNCH
+                p_spi_info->handler = 0;
+#endif
                 SPI_IDX(obj) = i;
 
                 return;
@@ -300,10 +332,13 @@ void spi_init(spi_t *obj,
 void spi_free(spi_t *obj)
 {
     spi_info_t *p_spi_info = SPI_INFO(obj);
-    if (p_spi_info->master) {
+
+    if (p_spi_info->master)
+    {
         nrf_drv_spi_uninit(MASTER_INST(obj));
     }
-    else {
+    else
+    {
         nrf_drv_spis_uninit(SLAVE_INST(obj));
     }
     p_spi_info->initialized = false;
@@ -316,10 +351,12 @@ int spi_busy(spi_t *obj)
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    if (bits != 8) {
+    if (bits != 8)
+    {
         error("Only 8-bits SPI is supported\r\n");
     }
-    if (mode > 3) {
+    if (mode > 3)
+    {
         error("SPI format error\r\n");
     }
 
@@ -337,15 +374,18 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
         // If the peripheral is currently working as a master, the SDK driver
         // it uses needs to be switched from SPI to SPIS.
-        if (p_spi_info->master) {
+        if (p_spi_info->master)
+        {
             nrf_drv_spi_uninit(MASTER_INST(obj));
         }
         // I the SPI mode has to be changed, the SDK's SPIS driver needs to be
         // re-initialized (there is no other way to change its configuration).
-        else if (p_spi_info->spi_mode != (uint8_t)new_mode) {
+        else if (p_spi_info->spi_mode != (uint8_t)new_mode)
+        {
             nrf_drv_spis_uninit(SLAVE_INST(obj));
         }
-        else {
+        else
+        {
             return;
         }
 
@@ -377,15 +417,18 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
         // If the peripheral is currently working as a slave, the SDK driver
         // it uses needs to be switched from SPIS to SPI.
-        if (!p_spi_info->master) {
+        if (!p_spi_info->master)
+        {
             nrf_drv_spis_uninit(SLAVE_INST(obj));
         }
         // I the SPI mode has to be changed, the SDK's SPI driver needs to be
         // re-initialized (there is no other way to change its configuration).
-        else if (p_spi_info->spi_mode != (uint8_t)new_mode) {
+        else if (p_spi_info->spi_mode != (uint8_t)new_mode)
+        {
             nrf_drv_spi_uninit(MASTER_INST(obj));
         }
-        else {
+        else
+        {
             return;
         }
 
@@ -404,19 +447,33 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 static nrf_drv_spi_frequency_t freq_translate(int hz)
 {
     nrf_drv_spi_frequency_t frequency;
-    if (hz<250000) { //125Kbps
+
+    if (hz<250000)   //125Kbps
+    {
         frequency = NRF_DRV_SPI_FREQ_125K;
-    } else if (hz<500000) { //250Kbps
+    }
+    else if (hz<500000)     //250Kbps
+    {
         frequency = NRF_DRV_SPI_FREQ_250K;
-    } else if (hz<1000000) { //500Kbps
+    }
+    else if (hz<1000000)     //500Kbps
+    {
         frequency = NRF_DRV_SPI_FREQ_500K;
-    } else if (hz<2000000) { //1Mbps
+    }
+    else if (hz<2000000)     //1Mbps
+    {
         frequency = NRF_DRV_SPI_FREQ_1M;
-    } else if (hz<4000000) { //2Mbps
+    }
+    else if (hz<4000000)     //2Mbps
+    {
         frequency = NRF_DRV_SPI_FREQ_2M;
-    } else if (hz<8000000) { //4Mbps
+    }
+    else if (hz<8000000)     //4Mbps
+    {
         frequency = NRF_DRV_SPI_FREQ_4M;
-    } else { //8Mbps
+    }
+    else     //8Mbps
+    {
         frequency = NRF_DRV_SPI_FREQ_8M;
     }
     return frequency;
@@ -429,7 +486,8 @@ void spi_frequency(spi_t *obj, int hz)
 
     if (p_spi_info->master)
     {
-        if (p_spi_info->frequency != new_frequency) {
+        if (p_spi_info->frequency != new_frequency)
+        {
             p_spi_info->frequency = new_frequency;
 
             nrf_drv_spi_config_t config;
@@ -450,7 +508,9 @@ int spi_master_write(spi_t *obj, int value)
     spi_info_t *p_spi_info = SPI_INFO(obj);
 
 #if DEVICE_SPI_ASYNCH
-    while (p_spi_info->flag.busy) {
+
+    while (p_spi_info->flag.busy)
+    {
     }
 #endif
 
@@ -459,7 +519,9 @@ int spi_master_write(spi_t *obj, int value)
     (void)nrf_drv_spi_transfer(MASTER_INST(obj),
         (uint8_t const *)&p_spi_info->tx_buf, 1,
         (uint8_t *)&p_spi_info->rx_buf, 1);
-    while (p_spi_info->flag.busy) {
+
+    while (p_spi_info->flag.busy)
+    {
     }
 
     return p_spi_info->rx_buf;
@@ -470,14 +532,15 @@ int spi_slave_receive(spi_t *obj)
     spi_info_t *p_spi_info = SPI_INFO(obj);
     MBED_ASSERT(!p_spi_info->master);
     return p_spi_info->flag.readable;
-;
 }
 
 int spi_slave_read(spi_t *obj)
 {
     spi_info_t *p_spi_info = SPI_INFO(obj);
     MBED_ASSERT(!p_spi_info->master);
-    while (!p_spi_info->flag.readable) {
+
+    while (!p_spi_info->flag.readable)
+    {
     }
     p_spi_info->flag.readable = false;
     return p_spi_info->rx_buf;

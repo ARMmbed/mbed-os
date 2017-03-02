@@ -80,7 +80,9 @@ time_t rtc_read(void)
 void rtc_write(time_t t)
 {
     uint32_t seconds;
-    do {
+
+    do
+    {
         seconds = rtc_seconds_get();
         m_time_base = t - seconds;
     // If the number of seconds indicated by the counter changed during the

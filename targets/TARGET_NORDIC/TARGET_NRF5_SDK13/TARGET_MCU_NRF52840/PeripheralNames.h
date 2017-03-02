@@ -49,28 +49,33 @@ extern "C" {
 #define STDIO_UART_RX     RX_PIN_NUMBER
 #define STDIO_UART        UART_0
 
-typedef enum {
+typedef enum
+{
     UART_0 = (int)NRF_UART0_BASE
 } UARTName;
 
 
-typedef enum {
+typedef enum
+{
     SPI_0 = (int)NRF_SPI0_BASE,
     SPI_1 = (int)NRF_SPI1_BASE,
     SPIS = (int)NRF_SPIS1_BASE
 } SPIName;
 
-typedef enum {
+typedef enum
+{
     PWM_1 = 0,
     PWM_2
 } PWMName;
 
-typedef enum {
+typedef enum
+{
     I2C_0 = (int)NRF_TWI0_BASE,
     I2C_1 = (int)NRF_TWI1_BASE
 } I2CName;
 
-typedef enum {
+typedef enum
+{
     ADC0_0 = (int)0
 } ADCName;
 

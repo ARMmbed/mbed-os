@@ -48,36 +48,43 @@
 extern "C" {
 #endif
 
-struct serial_s {
+struct serial_s
+{
     uint32_t placeholder; // struct is unused by nRF5x API implementation
 };                        // but it must be not empty (required by strict compiler - IAR)
 
-struct spi_s {
+struct spi_s
+{
     uint8_t spi_idx;
 };
 
-struct port_s {
+struct port_s
+{
     PortName port;
     uint32_t mask;
 };
 
-struct pwmout_s {
+struct pwmout_s
+{
     PWMName pwm_name;
     PinName pin;
     uint8_t pwm_channel;
     void *  pwm_struct;
 };
 
-struct i2c_s {
+struct i2c_s
+{
     uint8_t twi_idx;
 };
 
-struct analogin_s {
+struct analogin_s
+{
     ADCName adc;
     uint8_t adc_pin;
 };
 
-struct gpio_irq_s {
+struct gpio_irq_s
+{
     uint32_t ch;
 };
 
