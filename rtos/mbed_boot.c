@@ -76,6 +76,27 @@
  *                             -> __real_main (APP)
  *                 -> osKernelStart (RTX)
  *
+ * For IAR:
+ * ========
+ *
+ * Reset (TARGET)
+ *     -> SystemInit (TARGET)
+ *     -> __iar_program_start
+ *         -> __iar_init_core
+ *         -> __iar_init_core
+ *         -> __iar_init_vfp
+ *         -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
+ *         -> __low_level_init
+ *         -> __iar_data_init3
+ *         -> mbed_sdk_init (TARGET)
+ *         -> osKernelInitialize (RTX)
+ *         -> mbed_start_main (MBED: rtos/mbed_boot.c)
+ *             -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
+ *             -> osThreadNew (RTX)
+ *             -> pre_main(MBED: rtos/mbed_boot.c)
+ *                 -> __iar_dynamic_initialization
+*                  -> main
+ *             -> osKernelStart (RTX)
  *
  * Other notes:
  *
