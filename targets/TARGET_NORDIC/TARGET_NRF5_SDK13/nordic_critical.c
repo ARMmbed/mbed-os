@@ -28,7 +28,8 @@ static volatile uint32_t _entry_count = 0;
 void core_util_critical_section_enter()
 {
     // if a critical section has already been entered, just update the counter
-    if (_entry_count) {
+    if (_entry_count)
+    {
         ++_entry_count;
         return;
     }
@@ -47,7 +48,8 @@ void core_util_critical_section_exit()
     --_entry_count;
 
     // If their is other segments which have entered the critical section, just leave
-    if (_entry_count) {
+    if (_entry_count)
+    {
         return;
     }
 

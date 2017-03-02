@@ -43,7 +43,8 @@
 extern "C" {
 #endif
 
-typedef enum {
+typedef enum
+{
     Port0 = 0, //GPIO pins 0-31 -> 0.0-0.31
     Port1 = 1  //GPIO pins 32-47 -> 1.0-1.15
 } PortName;

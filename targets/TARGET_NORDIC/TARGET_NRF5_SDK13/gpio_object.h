@@ -24,20 +24,26 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct
+{
     PinName  pin;
 } gpio_t;
 
-static inline void gpio_write(gpio_t *obj, int value) {
+static inline void gpio_write(gpio_t *obj, int value)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value) {
+    if (value)
+    {
         nrf_gpio_pin_set(obj->pin);
-    } else {
+    }
+    else
+    {
         nrf_gpio_pin_clear(obj->pin);
     }
 }
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->pin != (PinName)NC;
 }
 

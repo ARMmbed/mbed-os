@@ -101,18 +101,18 @@ void SPI1_TWI1_IRQHandler(void);
 
 static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
 {
-    #if TWI0_ENABLED
+#if TWI0_ENABLED
     {
         SPI0_TWI0_IRQn,
         (uint32_t) SPI0_TWI0_IRQHandler
     },
-    #endif
-    #if TWI1_ENABLED
+#endif
+#if TWI1_ENABLED
     {
         SPI1_TWI1_IRQn,
         (uint32_t) SPI1_TWI1_IRQHandler
     }
-    #endif
+#endif
 };
 #ifdef NRF51
     #define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
@@ -124,9 +124,12 @@ static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
 #if DEVICE_I2C_ASYNCH
 static void start_asynch_rx(twi_info_t *twi_info, NRF_TWI_Type *twi)
 {
-    if (twi_info->rx_length == 1 && twi_info->stop) {
+    if (twi_info->rx_length == 1 && twi_info->stop)
+    {
         nrf_twi_shorts_set(twi, NRF_TWI_SHORT_BB_STOP_MASK);
-    } else {
+    }
+    else
+    {
         nrf_twi_shorts_set(twi, NRF_TWI_SHORT_BB_SUSPEND_MASK);
     }
     nrf_twi_task_trigger(twi, NRF_TWI_TASK_STARTRX);
@@ -137,7 +140,8 @@ static void twi_irq_handler(uint8_t instance_idx)
     twi_info_t *twi_info = &m_twi_info[instance_idx];
 
     NRF_TWI_Type *twi = m_twi_instances[instance_idx];
-    if (nrf_twi_event_check(twi, NRF_TWI_EVENT_ERROR)) {
+    if (nrf_twi_event_check(twi, NRF_TWI_EVENT_ERROR))
+    {
         nrf_twi_event_clear(twi, NRF_TWI_EVENT_ERROR);
 
         // In case of an error, force STOP.
@@ -148,33 +152,44 @@ static void twi_irq_handler(uint8_t instance_idx)
 
         uint32_t errorsrc = nrf_twi_errorsrc_get_and_clear(twi);
         twi_info->events |= I2C_EVENT_ERROR;
-        if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK) {
+        if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK)
+        {
             twi_info->events |= I2C_EVENT_ERROR_NO_SLAVE;
         }
-        if (errorsrc & NRF_TWI_ERROR_DATA_NACK) {
+        if (errorsrc & NRF_TWI_ERROR_DATA_NACK)
+        {
             twi_info->events |= I2C_EVENT_TRANSFER_EARLY_NACK;
         }
     }
 
     bool finished = false;
 
-    if (nrf_twi_event_check(twi, NRF_TWI_EVENT_TXDSENT)) {
+    if (nrf_twi_event_check(twi, NRF_TWI_EVENT_TXDSENT))
+    {
         nrf_twi_event_clear(twi, NRF_TWI_EVENT_TXDSENT);
 
         MBED_ASSERT(twi_info->tx_length > 0);
         --(twi_info->tx_length);
         // Send next byte if there is still something to be sent.
-        if (twi_info->tx_length > 0) {
+        if (twi_info->tx_length > 0)
+        {
             nrf_twi_txd_set(twi, *(twi_info->tx));
             ++(twi_info->tx);
-        // It TX is done, start RX if requested.
-        } else if (twi_info->rx_length > 0) {
+            // It TX is done, start RX if requested.
+        }
+        else if (twi_info->rx_length > 0)
+        {
             start_asynch_rx(twi_info, twi);
-        // If there is nothing more to do, finalize the transfer.
-        } else {
-            if (twi_info->stop) {
+            // If there is nothing more to do, finalize the transfer.
+        }
+        else
+        {
+            if (twi_info->stop)
+            {
                 nrf_twi_task_trigger(twi, NRF_TWI_TASK_STOP);
-            } else {
+            }
+            else
+            {
                 nrf_twi_task_trigger(twi, NRF_TWI_TASK_SUSPEND);
                 finished = true;
             }
@@ -182,7 +197,8 @@ static void twi_irq_handler(uint8_t instance_idx)
         }
     }
 
-    if (nrf_twi_event_check(twi, NRF_TWI_EVENT_RXDREADY)) {
+    if (nrf_twi_event_check(twi, NRF_TWI_EVENT_RXDREADY))
+    {
         nrf_twi_event_clear(twi, NRF_TWI_EVENT_RXDREADY);
 
         MBED_ASSERT(twi_info->rx_length > 0);
@@ -190,15 +206,19 @@ static void twi_irq_handler(uint8_t instance_idx)
         ++(twi_info->rx);
         --(twi_info->rx_length);
 
-        if (twi_info->rx_length > 0) {
+        if (twi_info->rx_length > 0)
+        {
             // If more bytes should be received, resume the transfer
             // (in case the stop condition should be generated after the next
             // byte, change the shortcuts configuration first).
-            if (twi_info->rx_length == 1 && twi_info->stop) {
+            if (twi_info->rx_length == 1 && twi_info->stop)
+            {
                 nrf_twi_shorts_set(twi, NRF_TWI_SHORT_BB_STOP_MASK);
             }
             nrf_twi_task_trigger(twi, NRF_TWI_TASK_RESUME);
-        } else {
+        }
+        else
+        {
             // If all requested bytes were received, finalize the transfer.
             finished = true;
             twi_info->events |= I2C_EVENT_TRANSFER_COMPLETE;
@@ -208,7 +228,8 @@ static void twi_irq_handler(uint8_t instance_idx)
     if (finished ||
         nrf_twi_event_check(twi, NRF_TWI_EVENT_STOPPED) ||
         (nrf_twi_int_enable_check(twi, NRF_TWI_INT_SUSPENDED_MASK) &&
-         nrf_twi_event_check(twi, NRF_TWI_EVENT_SUSPENDED))) {
+         nrf_twi_event_check(twi, NRF_TWI_EVENT_SUSPENDED)))
+    {
         // There is no need to clear the STOPPED and SUSPENDED events here,
         // they will no longer generate the interrupt - see below.
 
@@ -217,7 +238,8 @@ static void twi_irq_handler(uint8_t instance_idx)
         nrf_twi_int_disable(twi, UINT32_MAX);
         twi_info->active = false;
 
-        if (twi_info->handler) {
+        if (twi_info->handler)
+        {
             twi_info->handler();
         }
     }
@@ -264,13 +286,16 @@ static void twi_clear_bus(twi_info_t *twi_info)
     configure_twi_pin(twi_info->pselsda, NRF_GPIO_PIN_DIR_OUTPUT);
     // In case SDA is low, make up to 9 cycles on SCL line to help the slave
     // that pulls SDA low release it.
-    if (!nrf_gpio_pin_read(twi_info->pselsda)) {
+    if (!nrf_gpio_pin_read(twi_info->pselsda))
+    {
         nrf_gpio_pin_set(twi_info->pselscl);
         configure_twi_pin(twi_info->pselscl, NRF_GPIO_PIN_DIR_OUTPUT);
         nrf_delay_us(4);
 
-        for (int i = 0; i < 9; i++) {
-            if (nrf_gpio_pin_read(twi_info->pselsda)) {
+        for (int i = 0; i < 9; i++)
+        {
+            if (nrf_gpio_pin_read(twi_info->pselsda))
+            {
                 break;
             }
             nrf_gpio_pin_clear(twi_info->pselscl);
@@ -289,10 +314,13 @@ static void twi_clear_bus(twi_info_t *twi_info)
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
     int i;
-    for (i = 0; i < TWI_COUNT; ++i) {
+
+    for (i = 0; i < TWI_COUNT; ++i)
+    {
         if (m_twi_info[i].initialized &&
             m_twi_info[i].pselsda == (uint32_t)sda &&
-            m_twi_info[i].pselscl == (uint32_t)scl) {
+            m_twi_info[i].pselscl == (uint32_t)scl)
+        {
             TWI_IDX(obj) = i;
             TWI_INFO(obj)->frequency = NRF_TWI_FREQ_100K;
             i2c_reset(obj);
@@ -300,8 +328,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         }
     }
 
-    for (i = 0; i < TWI_COUNT; ++i) {
-        if (!m_twi_info[i].initialized) {
+    for (i = 0; i < TWI_COUNT; ++i)
+    {
+        if (!m_twi_info[i].initialized)
+        {
             TWI_IDX(obj) = i;
 
             twi_info_t *twi_info = TWI_INFO(obj);
@@ -350,7 +380,8 @@ int i2c_start(i2c_t *obj)
 {
     twi_info_t *twi_info = TWI_INFO(obj);
 #if DEVICE_I2C_ASYNCH
-    if (twi_info->active) {
+    if (twi_info->active)
+    {
         return I2C_ERROR_BUS_BUSY;
     }
 #endif
@@ -368,11 +399,15 @@ int i2c_stop(i2c_t *obj)
     nrf_twi_task_trigger(twi, NRF_TWI_TASK_RESUME);
     nrf_twi_task_trigger(twi, NRF_TWI_TASK_STOP);
     uint32_t remaining_time = TIMEOUT_VALUE;
-    do {
-        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_STOPPED)) {
+
+    do
+    {
+        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_STOPPED))
+        {
             return 0;
         }
-    } while (--remaining_time);
+    }
+    while (--remaining_time);
 
     return 1;
 }
@@ -382,11 +417,16 @@ void i2c_frequency(i2c_t *obj, int hz)
     twi_info_t *twi_info = TWI_INFO(obj);
     NRF_TWI_Type *twi = m_twi_instances[TWI_IDX(obj)];
 
-    if (hz < 250000) {
+    if (hz < 250000)
+    {
         twi_info->frequency = NRF_TWI_FREQ_100K;
-    } else if (hz < 400000) {
+    }
+    else if (hz < 400000)
+    {
         twi_info->frequency = NRF_TWI_FREQ_250K;
-    } else {
+    }
+    else
+    {
         twi_info->frequency = NRF_TWI_FREQ_400K;
     }
     nrf_twi_frequency_set(twi, twi_info->frequency);
@@ -422,7 +462,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
     twi_info_t *twi_info = TWI_INFO(obj);
 #if DEVICE_I2C_ASYNCH
-    if (twi_info->active) {
+    if (twi_info->active)
+    {
         return I2C_ERROR_BUS_BUSY;
     }
 #endif
@@ -432,9 +473,12 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     start_twi_read(twi, address);
 
     int result = length;
-    while (length > 0) {
+
+    while (length > 0)
+    {
         int byte_read_result = i2c_byte_read(obj, (stop && length == 1));
-        if (byte_read_result < 0) {
+        if (byte_read_result < 0)
+        {
             // When an error occurs, return the number of bytes that have been
             // received successfully.
             result -= length;
@@ -446,7 +490,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         --length;
     }
 
-    if (stop) {
+    if (stop)
+    {
         (void)i2c_stop(obj);
     }
 
@@ -460,16 +505,21 @@ static uint8_t twi_byte_write(NRF_TWI_Type *twi, uint8_t data)
 
     nrf_twi_txd_set(twi, data);
     uint32_t remaining_time = TIMEOUT_VALUE;
-    do {
-        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_TXDSENT)) {
+
+    do
+    {
+        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_TXDSENT))
+        {
             nrf_twi_event_clear(twi, NRF_TWI_EVENT_TXDSENT);
             return 1; // ACK received
         }
-        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_ERROR)) {
+        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_ERROR))
+        {
             nrf_twi_event_clear(twi, NRF_TWI_EVENT_ERROR);
             return 0; // some error occurred
         }
-    } while (--remaining_time);
+    }
+    while (--remaining_time);
 
     return 2; // timeout;
 }
@@ -492,7 +542,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
     twi_info_t *twi_info = TWI_INFO(obj);
 #if DEVICE_I2C_ASYNCH
-    if (twi_info->active) {
+    if (twi_info->active)
+    {
         return I2C_ERROR_BUS_BUSY;
     }
 #endif
@@ -503,26 +554,36 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     // Special case - transaction with no data.
     // It can be used to check if a slave acknowledges the address.
-    if (length == 0) {
+    if (length == 0)
+    {
         nrf_twi_event_t event;
-        if (stop) {
+        if (stop)
+        {
             event = NRF_TWI_EVENT_STOPPED;
             nrf_twi_task_trigger(twi, NRF_TWI_TASK_STOP);
-        } else {
+        }
+        else
+        {
             event = NRF_TWI_EVENT_SUSPENDED;
             nrf_twi_event_clear(twi, event);
             nrf_twi_task_trigger(twi, NRF_TWI_TASK_SUSPEND);
         }
         uint32_t remaining_time = TIMEOUT_VALUE;
-        do {
-            if (nrf_twi_event_check(twi, event)) {
+
+        do
+        {
+            if (nrf_twi_event_check(twi, event))
+            {
                 break;
             }
-        } while (--remaining_time);
+        }
+        while (--remaining_time);
 
         uint32_t errorsrc = nrf_twi_errorsrc_get_and_clear(twi);
-        if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK) {
-            if (!stop) {
+        if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK)
+        {
+            if (!stop)
+            {
                 i2c_stop(obj);
             }
             return I2C_ERROR_NO_SLAVE;
@@ -532,20 +593,29 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     }
 
     int result = length;
-    do {
+
+    do
+    {
         uint8_t byte_write_result = twi_byte_write(twi, (uint8_t)*data++);
-        if (byte_write_result != 1) {
-            if (byte_write_result == 0) {
+        if (byte_write_result != 1)
+        {
+            if (byte_write_result == 0)
+            {
                 // Check what kind of error has been signaled by TWI.
                 uint32_t errorsrc = nrf_twi_errorsrc_get_and_clear(twi);
-                if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK) {
+                if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK)
+                {
                     result = I2C_ERROR_NO_SLAVE;
-                } else {
+                }
+                else
+                {
                     // Some other error - return the number of bytes that
                     // have been sent successfully.
                     result -= length;
                 }
-            } else {
+            }
+            else
+            {
                 result = I2C_ERROR_BUS_BUSY;
             }
             // Force STOP condition.
@@ -553,9 +623,11 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
             break;
         }
         --length;
-    } while (length > 0);
+    }
+    while (length > 0);
 
-    if (stop) {
+    if (stop)
+    {
         (void)i2c_stop(obj);
     }
 
@@ -566,22 +638,28 @@ int i2c_byte_read(i2c_t *obj, int last)
 {
     NRF_TWI_Type *twi = m_twi_instances[TWI_IDX(obj)];
 
-    if (last) {
+    if (last)
+    {
         nrf_twi_shorts_set(twi, NRF_TWI_SHORT_BB_STOP_MASK);
     }
     nrf_twi_task_trigger(twi, NRF_TWI_TASK_RESUME);
 
     uint32_t remaining_time = TIMEOUT_VALUE;
-    do {
-        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_RXDREADY)) {
+
+    do
+    {
+        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_RXDREADY))
+        {
             nrf_twi_event_clear(twi, NRF_TWI_EVENT_RXDREADY);
             return nrf_twi_rxd_get(twi);
         }
-        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_ERROR)) {
+        if (nrf_twi_event_check(twi, NRF_TWI_EVENT_ERROR))
+        {
             nrf_twi_event_clear(twi, NRF_TWI_EVENT_ERROR);
             return I2C_ERROR_NO_SLAVE;
         }
-    } while (--remaining_time);
+    }
+    while (--remaining_time);
 
     return I2C_ERROR_BUS_BUSY;
 }
@@ -590,16 +668,22 @@ int i2c_byte_write(i2c_t *obj, int data)
 {
     NRF_TWI_Type *twi = m_twi_instances[TWI_IDX(obj)];
     twi_info_t *twi_info = TWI_INFO(obj);
-    if (twi_info->start_twi) {
+    if (twi_info->start_twi)
+    {
         twi_info->start_twi = false;
 
-        if (data & 1) {
+        if (data & 1)
+        {
             start_twi_read(twi, data);
-        } else {
+        }
+        else
+        {
             start_twi_write(twi, data);
         }
         return 1;
-    } else {
+    }
+    else
+    {
         nrf_twi_task_trigger(twi, NRF_TWI_TASK_RESUME);
         // 0 - TWI signaled error (NAK is the only possibility here)
         // 1 - ACK received
@@ -618,7 +702,8 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length,
     (void)hint;
 
     twi_info_t *twi_info = TWI_INFO(obj);
-    if (twi_info->active) {
+    if (twi_info->active)
+    {
         return;
     }
     twi_info->active    = true;
@@ -643,21 +728,29 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length,
     nrf_twi_address_set(twi, twi_address(address));
     nrf_twi_task_trigger(twi, NRF_TWI_TASK_RESUME);
     // TX only, or TX + RX (after a repeated start).
-    if (tx_length > 0) {
+    if (tx_length > 0)
+    {
         nrf_twi_task_trigger(twi, NRF_TWI_TASK_STARTTX);
         nrf_twi_txd_set(twi, *(twi_info->tx));
         ++(twi_info->tx);
-    // RX only.
-    } else if (rx_length > 0) {
+        // RX only.
+    }
+    else if (rx_length > 0)
+    {
         start_asynch_rx(twi_info, twi);
-    // Both 'tx_length' and 'rx_length' are 0 - this case may be used
-    // to test if the slave is presentand ready for transfer (by just
-    // sending the address and checking if it is acknowledged).
-    } else {
+        // Both 'tx_length' and 'rx_length' are 0 - this case may be used
+        // to test if the slave is presentand ready for transfer (by just
+        // sending the address and checking if it is acknowledged).
+    }
+    else
+    {
         nrf_twi_task_trigger(twi, NRF_TWI_TASK_STARTTX);
-        if (stop) {
+        if (stop)
+        {
             nrf_twi_task_trigger(twi, NRF_TWI_TASK_STOP);
-        } else {
+        }
+        else
+        {
             nrf_twi_task_trigger(twi, NRF_TWI_TASK_SUSPEND);
             nrf_twi_int_enable(twi, NRF_TWI_INT_SUSPENDED_MASK);
         }
