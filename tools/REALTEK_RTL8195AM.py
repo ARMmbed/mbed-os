@@ -67,7 +67,6 @@ def prepend(image, image_prepend, toolchain, info):
 
 def parse_section(toolchain, elf, section):
     info = {'addr':None, 'size':None};
-    ret1 = ret2 = None
     if toolchain not in ["GCC_ARM", "ARM_STD", "ARM", "ARM_MICRO", "IAR"]:
         print "[ERROR] unsupported toolchain " + toolchain
         sys.exit(-1)
@@ -101,23 +100,19 @@ def parse_section(toolchain, elf, section):
                 match = re.match(r'^\s+' + section + \
                         r'\s+0x(?P<addr>[0-9A-Fa-f]{8})\s+0x(?P<size>[0-9A-Fa-f]+)\s+.*<Block>$', line)
             if match:
-                ret1 = match.group("addr")
+                info['addr'] = int(match.group("addr"), 16)
                 try:
-                    ret2 = match.group("size")
+                    info['size'] = int(match.group("size"), 16)
                 except IndexError:
-                    pass
-                break
+                    info['size'] = 0x0
+                return info
 
-    if not ret1:
+    if not info['addr']:
         print "[ERROR] cannot find the address of section " + section
-        return 0
-    elif not ret2:
-        ret2 = '0'
+    elif not info['size']:
         if toolchain == "IAR":
             print "[WARNING] cannot find the size of section " + section
     
-    info['addr'] = int(ret1, 16)
-    info['size'] = int(ret2, 16)
     return info
 
 # ----------------------------
