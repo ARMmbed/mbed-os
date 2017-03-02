@@ -254,6 +254,11 @@ void spi_init(spi_t *obj,
               PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     int i;
+
+    // This block is only a workaround that allows to create SPI object several
+    // times, what would be otherwise impossible in the current implementation
+    // of mbed driver that does not call spi_free() from SPI destructor.
+    // Once this mbed's imperfection is corrected, this block should be removed.
     for (i = 0; i < SPI_COUNT; ++i) {
         spi_info_t *p_spi_info = &m_spi_info[i];
         if (p_spi_info->initialized &&
