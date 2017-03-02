@@ -29,7 +29,10 @@ Due to different use cases between mbed OS and CMSIS, we had to do some modifica
 
 ### CMSIS
 
-No changes.
+
+Filename | Description |
+---------|-------------|
+cmsis_compiler.h | Added IAR architecture macros |
 
 ### RTX
 
@@ -43,6 +46,7 @@ rtx_evr.h | Doxygen added |
 rtx_lib.h | Doxygen added |
 rtx_os.h | Doxygen added |
 irq_cm4.s | For all toolchains: added case for Cortex M4 cores without VFP|
+svc_user.c | Removed as it's template file and should not be in our code base|
 
 #### Other
 
