@@ -179,11 +179,15 @@ int32_t Thread::signal_clr(int32_t signals) {
 Thread::State Thread::get_state() {
 #if !defined(__MBED_CMSIS_RTOS_CA9) && !defined(__MBED_CMSIS_RTOS_CM)
 #ifdef CMSIS_OS_RTX
-    State status = Deleted;
+    State status;
     _mutex.lock();
 
     if (_tid != NULL) {
         status = (State)_thread_def.tcb.state;
+    } else if (_finished) {
+        status = Deleted;
+    } else {
+        status = Inactive;
     }
 
     _mutex.unlock();

@@ -252,7 +252,7 @@ public:
 
     /** State of the Thread */
     enum State {
-        Inactive,           /**< Not created or terminated */
+        Inactive,           /**< Not created */
         Ready,              /**< Ready to run */
         Running,            /**< Running */
         WaitingDelay,       /**< Waiting for a delay to occur */
