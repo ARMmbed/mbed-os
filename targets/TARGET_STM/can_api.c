@@ -43,6 +43,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
     }
 #if defined(CAN2_BASE) && (CAN_NUM == 2)
     else if (obj->can == CAN_2) {
+        __HAL_RCC_CAN1_CLK_ENABLE(); // needed to set filters
         __HAL_RCC_CAN2_CLK_ENABLE();
         obj->index = 1;
     }
