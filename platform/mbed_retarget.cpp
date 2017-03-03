@@ -34,7 +34,7 @@
 #include <stdio.h>
 #endif
 #include <errno.h>
-#include "platform/retarget.h"
+#include "platform/mbed_retarget.h"
 
 
 #if defined(__ARMCC_VERSION)
