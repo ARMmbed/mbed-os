@@ -1,11 +1,11 @@
 /******************************************************************************
- * @file:    timer_example.c
+ * @file:    us_ticker.c
  * @brief:   GPT timer example
- * @version: $Revision: 29004 $
- * @date:    $Date: 2014-12-06 10:37:26 -0500 (Sat, 06 Dec 2014) $
+ * @version: $Revision: $
+ * @date:    $Date: $
  *-----------------------------------------------------------------------------
  *
- Copyright (c) 2011-2014 Analog Devices, Inc.
+ Copyright (c) 2011-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -52,7 +52,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stdio.h>
-//#include "common.h"
 #include <system_ADuCM3029.h>
 #include <services/tmr/adi_tmr.h>
 #include <services/pwr/adi_pwr.h>
@@ -93,27 +92,9 @@ static ADI_TMR_HANDLE hTimer0,hTimer1;
 
 static uint8_t Capture_timer_running;
 
-#if defined (TOOLCHAIN_GCC)
-static uint8_t aDeviceMemory0[ADI_TMR_MEMORY_SIZE] __attribute__ ((aligned(4)));
-#else   // #if defined (TOOLCHAIN_GCC)
-#if defined (__ICCARM__)
-_Pragma("align(4)")
-#else
-__align(4)
-#endif
-static uint8_t aDeviceMemory0[ADI_TMR_MEMORY_SIZE];
-#endif  // #if defined (TOOLCHAIN_GCC)
+static uint32_t aDeviceMemory0[(ADI_TMR_MEMORY_SIZE + 3)/4];
 
-#if defined (TOOLCHAIN_GCC)
-static uint8_t aDeviceMemory1[ADI_TMR_MEMORY_SIZE] __attribute__ ((aligned(4)));
-#else   // #if defined (TOOLCHAIN_GCC)
-#if defined (__ICCARM__)
-_Pragma("align(4)")
-#else
-__align(4)
-#endif
-static uint8_t aDeviceMemory1[ADI_TMR_MEMORY_SIZE];
-#endif  // #if defined (TOOLCHAIN_GCC)
+static uint32_t aDeviceMemory1[(ADI_TMR_MEMORY_SIZE + 3)/4];
 
 static uint16_t get_elapsed_time();
 static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg );
@@ -261,7 +242,7 @@ static uint32_t get_current_time(void)
     uint32_t current_time;
 
     ticks = ((unsigned long long)Core_Time_Tick << 16) + get_elapsed_time();
-    current_time = (uint32_t)(ticks / TIMER_PRESCALER * TIMER_CLK_FREQ_MHZ);
+    current_time = (uint32_t)(ticks / TIMER_CLK_FREQ_MHZ * TIMER_PRESCALER);
 
 	return current_time;
 }
