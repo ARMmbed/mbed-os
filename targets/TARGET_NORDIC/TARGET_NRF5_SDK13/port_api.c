@@ -84,7 +84,7 @@ void port_mode(port_t *obj, PinMode mode)
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-    int i;
+    uint32_t i;
     
     volatile uint32_t *reg_cnf = (volatile uint32_t*) m_ports[obj->port]->PIN_CNF;
 
