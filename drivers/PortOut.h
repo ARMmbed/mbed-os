@@ -21,7 +21,7 @@
 #if DEVICE_PORTOUT
 
 #include "hal/port_api.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */

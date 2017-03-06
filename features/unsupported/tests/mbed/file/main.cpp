@@ -1,5 +1,5 @@
 #include "test_env.h"
-#include "semihost_api.h"
+#include "mbed_semihost_api.h"
 
 Serial pc(USBTX, USBRX);
 

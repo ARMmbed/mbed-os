@@ -200,7 +200,7 @@ struct snmp_node_instance
   u8_t asn1_type;
   /** one out of instance access types defined above (SNMP_NODE_INSTANCE_READ_ONLY,...) */
   snmp_access_t access;
-  
+
   /** returns object value for the given object identifier. Return values <0 to indicate an error */
   node_instance_get_value_method get_value;
   /** tests length and/or range BEFORE setting */
@@ -278,7 +278,7 @@ struct snmp_next_oid_state
   u32_t* next_oid;
   u8_t next_oid_len;
   u8_t next_oid_max_len;
-  
+
   snmp_next_oid_status_t status;
   void* reference;
 };

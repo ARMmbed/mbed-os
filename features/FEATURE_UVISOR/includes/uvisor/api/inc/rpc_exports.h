@@ -20,6 +20,7 @@
 #include "api/inc/pool_queue_exports.h"
 #include "api/inc/uvisor_semaphore_exports.h"
 #include "api/inc/rpc_gateway_exports.h"
+#include "api/inc/vmpu_exports.h"
 
 typedef uint32_t (*TFN_Ptr)(uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -136,5 +137,24 @@ typedef struct uvisor_rpc_fn_group {
 typedef UVISOR_RPC_OUTGOING_MESSAGE_TYPE(UVISOR_RPC_OUTGOING_MESSAGE_SLOTS) uvisor_rpc_outgoing_message_queue_t;
 typedef UVISOR_RPC_INCOMING_MESSAGE_TYPE(UVISOR_RPC_INCOMING_MESSAGE_SLOTS) uvisor_rpc_incoming_message_queue_t;
 typedef UVISOR_RPC_FN_GROUP_TYPE(UVISOR_RPC_FN_GROUP_SLOTS) uvisor_rpc_fn_group_queue_t;
+
+typedef struct uvisor_rpc_t {
+    /* Outgoing message queue */
+    uvisor_rpc_outgoing_message_queue_t outgoing_message_queue;
+
+    /* Incoming message queue */
+    uvisor_rpc_incoming_message_queue_t incoming_message_queue;
+
+    /* Function group queue */
+    uvisor_rpc_fn_group_queue_t fn_group_queue;
+
+    /* Counter to avoid waiting on the same RPC result twice by accident. */
+    uint32_t result_counter;
+} uvisor_rpc_t;
+
+static inline uvisor_rpc_t * uvisor_rpc(UvisorBoxIndex * const index)
+{
+    return (uvisor_rpc_t *) index->bss.address_of.rpc;
+}
 
 #endif

@@ -110,18 +110,18 @@
  * Values for phase.
  */
 #define PPP_PHASE_DEAD          0
-#define PPP_PHASE_INITIALIZE    1
-#define PPP_PHASE_SERIALCONN    2
-#define PPP_PHASE_DORMANT       3
-#define PPP_PHASE_ESTABLISH     4
-#define PPP_PHASE_AUTHENTICATE  5
-#define PPP_PHASE_CALLBACK      6
-#define PPP_PHASE_NETWORK       7
-#define PPP_PHASE_RUNNING       8
-#define PPP_PHASE_TERMINATE     9
-#define PPP_PHASE_DISCONNECT    10
-#define PPP_PHASE_HOLDOFF       11
-#define PPP_PHASE_MASTER        12
+#define PPP_PHASE_MASTER        1
+#define PPP_PHASE_HOLDOFF       2
+#define PPP_PHASE_INITIALIZE    3
+#define PPP_PHASE_SERIALCONN    4
+#define PPP_PHASE_DORMANT       5
+#define PPP_PHASE_ESTABLISH     6
+#define PPP_PHASE_AUTHENTICATE  7
+#define PPP_PHASE_CALLBACK      8
+#define PPP_PHASE_NETWORK       9
+#define PPP_PHASE_RUNNING       10
+#define PPP_PHASE_TERMINATE     11
+#define PPP_PHASE_DISCONNECT    12
 
 /* Error codes. */
 #define PPPERR_NONE         0  /* No error. */
@@ -324,6 +324,7 @@ struct ppp_pcb_s {
 
   /* flags */
 #if PPP_IPV4_SUPPORT
+  unsigned int ask_for_local           :1; /* request our address from peer */
   unsigned int ipcp_is_open            :1; /* haven't called np_finished() */
   unsigned int ipcp_is_up              :1; /* have called ipcp_up() */
   unsigned int if4_up                  :1; /* True when the IPv4 interface is up. */
@@ -475,7 +476,8 @@ void ppp_set_auth(ppp_pcb *pcb, u8_t authtype, const char *user, const char *pas
  *
  * Default is unset (0.0.0.0).
  */
-#define ppp_set_ipcp_ouraddr(ppp, addr) (ppp->ipcp_wantoptions.ouraddr = ip4_addr_get_u32(addr))
+#define ppp_set_ipcp_ouraddr(ppp, addr) do { ppp->ipcp_wantoptions.ouraddr = ip4_addr_get_u32(addr); \
+                                             ppp->ask_for_local = ppp->ipcp_wantoptions.ouraddr != 0; } while(0)
 #define ppp_set_ipcp_hisaddr(ppp, addr) (ppp->ipcp_wantoptions.hisaddr = ip4_addr_get_u32(addr))
 #if LWIP_DNS
 /*

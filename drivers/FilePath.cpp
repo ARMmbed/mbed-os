@@ -49,9 +49,9 @@ bool FilePath::isFileSystem(void) {
     return (fb->getPathType() == FileSystemPathType);
 }
 
-FileSystemLike* FilePath::fileSystem(void) {
+FileSystem* FilePath::fileSystem(void) {
     if (isFileSystem()) {
-        return (FileSystemLike*)fb;
+        return (FileSystem*)fb;
     }
     return NULL;
 }

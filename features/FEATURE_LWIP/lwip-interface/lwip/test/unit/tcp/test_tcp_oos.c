@@ -454,7 +454,7 @@ START_TEST(test_tcp_recv_ooseq_FIN_INSEQ)
 }
 END_TEST
 
-static char data_full_wnd[TCP_WND];
+static char data_full_wnd[TCP_WND + TCP_MSS];
 
 /** create multiple segments and pass them to tcp_input with the first segment missing
  * to simulate overruning the rxwin with ooseq queueing enabled */

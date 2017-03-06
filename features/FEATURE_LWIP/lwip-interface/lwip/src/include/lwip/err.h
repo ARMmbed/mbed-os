@@ -57,44 +57,46 @@ typedef LWIP_ERR_T err_t;
 typedef s8_t err_t;
 #endif /* LWIP_ERR_T*/
 
-/* Definitions for error constants. */
-
+/** Definitions for error constants. */
+typedef enum {
 /** No error, everything OK. */
-#define ERR_OK          0 
+  ERR_OK         = 0,
 /** Out of memory error.     */
-#define ERR_MEM        -1
+  ERR_MEM        = -1,
 /** Buffer error.            */
-#define ERR_BUF        -2
+  ERR_BUF        = -2,
 /** Timeout.                 */
-#define ERR_TIMEOUT    -3
+  ERR_TIMEOUT    = -3,
 /** Routing problem.         */
-#define ERR_RTE        -4
+  ERR_RTE        = -4,
 /** Operation in progress    */
-#define ERR_INPROGRESS -5
+  ERR_INPROGRESS = -5,
 /** Illegal value.           */
-#define ERR_VAL        -6
+  ERR_VAL        = -6,
 /** Operation would block.   */
-#define ERR_WOULDBLOCK -7
+  ERR_WOULDBLOCK = -7,
 /** Address in use.          */
-#define ERR_USE        -8
+  ERR_USE        = -8,
 /** Already connecting.      */
-#define ERR_ALREADY    -9
+  ERR_ALREADY    = -9,
 /** Conn already established.*/
-#define ERR_ISCONN     -10
+  ERR_ISCONN     = -10,
 /** Not connected.           */
-#define ERR_CONN       -11
+  ERR_CONN       = -11,
 /** Low-level netif error    */
-#define ERR_IF         -12
+  ERR_IF         = -12,
+
+/** Connection aborted.      */
+  ERR_ABRT       = -13,
+/** Connection reset.        */
+  ERR_RST        = -14,
+/** Connection closed.       */
+  ERR_CLSD       = -15,
+/** Illegal argument.        */
+  ERR_ARG        = -16
+} err_enum_t;
 
 #define ERR_IS_FATAL(e) ((e) <= ERR_ABRT)
-/** Connection aborted.      */
-#define ERR_ABRT       -13
-/** Connection reset.        */
-#define ERR_RST        -14
-/** Connection closed.       */
-#define ERR_CLSD       -15
-/** Illegal argument.        */
-#define ERR_ARG        -16
 
 /**
  * @}
@@ -105,6 +107,10 @@ extern const char *lwip_strerr(err_t err);
 #else
 #define lwip_strerr(x) ""
 #endif /* LWIP_DEBUG */
+
+#if !NO_SYS
+int err_to_errno(err_t err);
+#endif /* !NO_SYS */
 
 #ifdef __cplusplus
 }

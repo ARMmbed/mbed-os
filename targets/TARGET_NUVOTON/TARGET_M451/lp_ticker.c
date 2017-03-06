@@ -21,7 +21,7 @@
 #include "sleep_api.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 // lp_ticker tick = us = timestamp
 #define US_PER_TICK             (1)

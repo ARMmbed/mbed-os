@@ -18,7 +18,6 @@
 #define __RTX_BOX_INDEX_H__
 
 #include "cmsis_os.h"
-#include "api/inc/vmpu_exports.h"
 
 #ifdef __cplusplus
 extern "C" {

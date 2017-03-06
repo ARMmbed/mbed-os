@@ -16,7 +16,7 @@
  */
 #include "cmsis.h"
 #include "mbed_assert.h"
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "analogin_api.h"
 #include "gpio_api.h"
 #include "spi_api.h"

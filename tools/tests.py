@@ -217,13 +217,6 @@ TESTS = [
         "automated": True,
     },
     {
-        "id": "MBED_A12", "description": "SD File System",
-        "source_dir": join(TEST_DIR, "mbed", "sd"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
-        "automated": True,
-        "peripherals": ["SD"]
-    },
-    {
         "id": "MBED_A13", "description": "I2C MMA7660 accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA7660"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA7660')],
@@ -394,29 +387,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES]
     },
 
-    # performance related tests
-    {
-        "id": "PERF_1", "description": "SD Stdio R/W Speed",
-        "source_dir": join(TEST_DIR, "mbed", "sd_perf_stdio"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
-        "automated": True,
-        "peripherals": ["SD"]
-    },
-    {
-        "id": "PERF_2", "description": "SD FileHandle R/W Speed",
-        "source_dir": join(TEST_DIR, "mbed", "sd_perf_fhandle"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
-        "automated": True,
-        "peripherals": ["SD"]
-    },
-    {
-        "id": "PERF_3", "description": "SD FatFS R/W Speed",
-        "source_dir": join(TEST_DIR, "mbed", "sd_perf_fatfs"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
-        "automated": True,
-        "peripherals": ["SD"]
-    },
-
 
     # Not automated MBED tests
     {
@@ -537,12 +507,6 @@ TESTS = [
         "id": "MBED_18", "description": "Local FS Directory",
         "source_dir": join(TEST_DIR, "mbed", "dir"),
         "dependencies": [MBED_LIBRARIES],
-    },
-    {
-        "id": "MBED_19", "description": "SD FS Directory",
-        "source_dir": join(TEST_DIR, "mbed", "dir_sd"),
-        "dependencies": [MBED_LIBRARIES, FS_LIBRARY],
-        "peripherals": ["SD"]
     },
     {
         "id": "MBED_20", "description": "InterruptIn 2",
@@ -850,17 +814,6 @@ TESTS = [
                 "NUMAKER_PFM_NUC472", "NUMAKER_PFM_M453",
                 "NRF51822", "NRF51_DK", "SEEED_TINY_BLE", "ARM_BEETLE_SOC", "NUCLEO_F767ZI", "DISCO_F769NI"],
     },
-    {
-        "id": "RTOS_9", "description": "SD File write-read",
-        "source_dir": join(TEST_DIR, "rtos", "mbed", "file"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
-        "automated": True,
-        "peripherals": ["SD"],
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "HEXIWEAR",
-                "KL05Z", "K64F", "K66F", "KL46Z", "RZ_A1H",
-                "NUMAKER_PFM_NUC472", "NUMAKER_PFM_M453",
-                "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F412ZG", "NUCLEO_F401RE", "NUCLEO_F410RB", "DISCO_F469NI", "NUCLEO_F207ZG"],
-    },
 
     # Networking Tests
     {
@@ -1024,7 +977,7 @@ TESTS = [
     {
         "id": "USB_10", "description": "MSD",
         "source_dir": join(TEST_DIR, "usb", "host", "mass_storage"),
-        "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, FAT_FS, RTOS],
+        "dependencies": [MBED_LIBRARIES,  USB_HOST_LIBRARIES, RTOS],
     },
     {
         "id": "USB_11", "description": "mouse",
@@ -1092,7 +1045,7 @@ TESTS = [
     {
         "id": "EXAMPLE_2", "description": "FS + RTOS",
         "source_dir": join(TEST_DIR, "mbed", "fs"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
     },
 
     # CPPUTEST Library provides Unit testing Framework

@@ -43,8 +43,7 @@
 /* Note: Netconn API is always available when sockets are enabled -
  * sockets are implemented on top of them */
 
-#include <stddef.h> /* for size_t */
-
+#include "lwip/arch.h"
 #include "lwip/netbuf.h"
 #include "lwip/sys.h"
 #include "lwip/ip_addr.h"
@@ -90,6 +89,7 @@ extern "C" {
 #define NETCONNTYPE_ISUDPLITE(t)     (((t)&0xF3) == NETCONN_UDPLITE)
 #define NETCONNTYPE_ISUDPNOCHKSUM(t) (((t)&0xF3) == NETCONN_UDPNOCHKSUM)
 #else /* LWIP_IPV6 */
+#define NETCONNTYPE_ISIPV6(t)        (0)
 #define NETCONNTYPE_ISUDPLITE(t)     ((t) == NETCONN_UDPLITE)
 #define NETCONNTYPE_ISUDPNOCHKSUM(t) ((t) == NETCONN_UDPNOCHKSUM)
 #endif /* LWIP_IPV6 */
@@ -139,7 +139,32 @@ enum netconn_state {
   NETCONN_CLOSE
 };
 
-/** Use to inform the callback function about changes */
+/** Used to inform the callback function about changes
+ * 
+ * Event explanation:
+ * 
+ * In the netconn implementation, there are three ways to block a client:
+ * 
+ * - accept mbox (sys_arch_mbox_fetch(&conn->acceptmbox, &accept_ptr, 0); in netconn_accept())
+ * - receive mbox (sys_arch_mbox_fetch(&conn->recvmbox, &buf, 0); in netconn_recv_data())
+ * - send queue is full (sys_arch_sem_wait(LWIP_API_MSG_SEM(msg), 0); in lwip_netconn_do_write())
+ * 
+ * The events have to be seen as events signaling the state of these mboxes/semaphores. For non-blocking
+ * connections, you need to know in advance whether a call to a netconn function call would block or not,
+ * and these events tell you about that.
+ * 
+ * RCVPLUS events say: Safe to perform a potentially blocking call call once more. 
+ * They are counted in sockets - three RCVPLUS events for accept mbox means you are safe
+ * to call netconn_accept 3 times without being blocked.
+ * Same thing for receive mbox.
+ * 
+ * RCVMINUS events say: Your call to to a possibly blocking function is "acknowledged".
+ * Socket implementation decrements the counter.
+ * 
+ * For TX, there is no need to count, its merely a flag. SENDPLUS means you may send something.
+ * SENDPLUS occurs when enough data was delivered to peer so netconn_send() can be called again.
+ * A SENDMINUS event occurs when the next call to a netconn_send() would be blocking.
+ */
 enum netconn_evt {
   NETCONN_EVT_RCVPLUS,
   NETCONN_EVT_RCVMINUS,
@@ -327,7 +352,7 @@ err_t   netconn_gethostbyname(const char *name, ip_addr_t *addr);
 
 #if LWIP_IPV6
 /** @ingroup netconn_common
- * TCP: Set the IPv6 ONLY status of netconn calls (see NETCONN_FLAG_IPV6_V6ONLY) 
+ * TCP: Set the IPv6 ONLY status of netconn calls (see NETCONN_FLAG_IPV6_V6ONLY)
  */
 #define netconn_set_ipv6only(conn, val)  do { if(val) { \
   (conn)->flags |= NETCONN_FLAG_IPV6_V6ONLY; \

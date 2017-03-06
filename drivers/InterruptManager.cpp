@@ -17,7 +17,7 @@
 #if defined(NVIC_NUM_VECTORS)
 
 #include "drivers/InterruptManager.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 #include <string.h>
 
 #define CHAIN_INITIAL_SIZE    4

@@ -43,6 +43,7 @@
 #define LWIP_HDR_IP6_ADDR_H
 
 #include "lwip/opt.h"
+#include "def.h"
 
 #if LWIP_IPV6  /* don't build if not configured for use in lwipopts.h */
 
@@ -58,41 +59,12 @@ struct ip6_addr {
   u32_t addr[4];
 };
 
-/** This is the packed version of ip6_addr_t,
-    used in network headers that are itself packed */
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/bpstruct.h"
-#endif
-PACK_STRUCT_BEGIN
-struct ip6_addr_packed {
-  PACK_STRUCT_FIELD(u32_t addr[4]);
-} PACK_STRUCT_STRUCT;
-PACK_STRUCT_END
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/epstruct.h"
-#endif
-
 /** IPv6 address */
 typedef struct ip6_addr ip6_addr_t;
-typedef struct ip6_addr_packed ip6_addr_p_t;
 
-
-#if BYTE_ORDER == BIG_ENDIAN
-/** Set an IPv6 partial address given by byte-parts. */
+/** Set an IPv6 partial address given by byte-parts */
 #define IP6_ADDR_PART(ip6addr, index, a,b,c,d) \
-  (ip6addr)->addr[index] = ((u32_t)((a) & 0xff) << 24) | \
-                           ((u32_t)((b) & 0xff) << 16) | \
-                           ((u32_t)((c) & 0xff) << 8)  | \
-                            (u32_t)((d) & 0xff)
-#else
-/** Set an IPv6 partial address given by byte-parts.
-Little-endian version, stored in network order (no htonl). */
-#define IP6_ADDR_PART(ip6addr, index, a,b,c,d) \
-  (ip6addr)->addr[index] = ((u32_t)((d) & 0xff) << 24) | \
-                           ((u32_t)((c) & 0xff) << 16) | \
-                           ((u32_t)((b) & 0xff) << 8)  | \
-                            (u32_t)((a) & 0xff)
-#endif
+  (ip6addr)->addr[index] = PP_HTONL(LWIP_MAKEU32(a,b,c,d))
 
 /** Set a full IPv6 address by passing the 4 u32_t indices in network byte order
     (use PP_HTONL() for constants) */
@@ -103,21 +75,21 @@ Little-endian version, stored in network order (no htonl). */
   (ip6addr)->addr[3] = idx3; } while(0)
 
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK1(ip6addr) ((u16_t)((htonl((ip6addr)->addr[0]) >> 16) & 0xffff))
+#define IP6_ADDR_BLOCK1(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[0]) >> 16) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK2(ip6addr) ((u16_t)((htonl((ip6addr)->addr[0])) & 0xffff))
+#define IP6_ADDR_BLOCK2(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[0])) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK3(ip6addr) ((u16_t)((htonl((ip6addr)->addr[1]) >> 16) & 0xffff))
+#define IP6_ADDR_BLOCK3(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[1]) >> 16) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK4(ip6addr) ((u16_t)((htonl((ip6addr)->addr[1])) & 0xffff))
+#define IP6_ADDR_BLOCK4(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[1])) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK5(ip6addr) ((u16_t)((htonl((ip6addr)->addr[2]) >> 16) & 0xffff))
+#define IP6_ADDR_BLOCK5(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[2]) >> 16) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK6(ip6addr) ((u16_t)((htonl((ip6addr)->addr[2])) & 0xffff))
+#define IP6_ADDR_BLOCK6(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[2])) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK7(ip6addr) ((u16_t)((htonl((ip6addr)->addr[3]) >> 16) & 0xffff))
+#define IP6_ADDR_BLOCK7(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[3]) >> 16) & 0xffff))
 /** Access address in 16-bit block */
-#define IP6_ADDR_BLOCK8(ip6addr) ((u16_t)((htonl((ip6addr)->addr[3])) & 0xffff))
+#define IP6_ADDR_BLOCK8(ip6addr) ((u16_t)((lwip_htonl((ip6addr)->addr[3])) & 0xffff))
 
 /** Copy IPv6 address - faster than ip6_addr_set: no NULL check */
 #define ip6_addr_copy(dest, src) do{(dest).addr[0] = (src).addr[0]; \
@@ -136,7 +108,7 @@ Little-endian version, stored in network order (no htonl). */
                                          (ip6addr)->addr[2] = 0; \
                                          (ip6addr)->addr[3] = 0;}while(0)
 
-/** Set address to ipv6 'any' (no need for htonl()) */
+/** Set address to ipv6 'any' (no need for lwip_htonl()) */
 #define ip6_addr_set_any(ip6addr)       ip6_addr_set_zero(ip6addr)
 /** Set address to ipv6 loopback address */
 #define ip6_addr_set_loopback(ip6addr) do{(ip6addr)->addr[0] = 0; \
@@ -145,10 +117,10 @@ Little-endian version, stored in network order (no htonl). */
                                           (ip6addr)->addr[3] = PP_HTONL(0x00000001UL);}while(0)
 /** Safely copy one IPv6 address to another and change byte order
  * from host- to network-order. */
-#define ip6_addr_set_hton(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : htonl((src)->addr[0]); \
-                                        (dest)->addr[1] = (src) == NULL ? 0 : htonl((src)->addr[1]); \
-                                        (dest)->addr[2] = (src) == NULL ? 0 : htonl((src)->addr[2]); \
-                                        (dest)->addr[3] = (src) == NULL ? 0 : htonl((src)->addr[3]);}while(0)
+#define ip6_addr_set_hton(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : lwip_htonl((src)->addr[0]); \
+                                        (dest)->addr[1] = (src) == NULL ? 0 : lwip_htonl((src)->addr[1]); \
+                                        (dest)->addr[2] = (src) == NULL ? 0 : lwip_htonl((src)->addr[2]); \
+                                        (dest)->addr[3] = (src) == NULL ? 0 : lwip_htonl((src)->addr[3]);}while(0)
 
 
 /**
@@ -166,7 +138,7 @@ Little-endian version, stored in network order (no htonl). */
                                     ((addr1)->addr[2] == (addr2)->addr[2]) && \
                                     ((addr1)->addr[3] == (addr2)->addr[3]))
 
-#define ip6_get_subnet_id(ip6addr)   (htonl((ip6addr)->addr[2]) & 0x0000ffffUL)
+#define ip6_get_subnet_id(ip6addr)   (lwip_htonl((ip6addr)->addr[2]) & 0x0000ffffUL)
 
 #define ip6_addr_isany_val(ip6addr) (((ip6addr).addr[0] == 0) && \
                                      ((ip6addr).addr[1] == 0) && \
@@ -193,7 +165,7 @@ Little-endian version, stored in network order (no htonl). */
 #define ip6_addr_multicast_transient_flag(ip6addr)  ((ip6addr)->addr[0] & PP_HTONL(0x00100000UL))
 #define ip6_addr_multicast_prefix_flag(ip6addr)     ((ip6addr)->addr[0] & PP_HTONL(0x00200000UL))
 #define ip6_addr_multicast_rendezvous_flag(ip6addr) ((ip6addr)->addr[0] & PP_HTONL(0x00400000UL))
-#define ip6_addr_multicast_scope(ip6addr) ((htonl((ip6addr)->addr[0]) >> 16) & 0xf)
+#define ip6_addr_multicast_scope(ip6addr) ((lwip_htonl((ip6addr)->addr[0]) >> 16) & 0xf)
 #define IP6_MULTICAST_SCOPE_RESERVED            0x0
 #define IP6_MULTICAST_SCOPE_RESERVED0           0x0
 #define IP6_MULTICAST_SCOPE_INTERFACE_LOCAL     0x1
@@ -259,9 +231,11 @@ Little-endian version, stored in network order (no htonl). */
 #define IP6_ADDR_TENTATIVE_5  0x0d /* 5 probes sent */
 #define IP6_ADDR_TENTATIVE_6  0x0e /* 6 probes sent */
 #define IP6_ADDR_TENTATIVE_7  0x0f /* 7 probes sent */
-#define IP6_ADDR_VALID        0x10
+#define IP6_ADDR_VALID        0x10 /* This bit marks an address as valid (preferred or deprecated) */
 #define IP6_ADDR_PREFERRED    0x30
-#define IP6_ADDR_DEPRECATED   0x50
+#define IP6_ADDR_DEPRECATED   0x10 /* Same as VALID (valid but not preferred) */
+
+#define IP6_ADDR_TENTATIVE_COUNT_MASK 0x07 /* 1-7 probes sent */
 
 #define ip6_addr_isinvalid(addr_state) (addr_state == IP6_ADDR_INVALID)
 #define ip6_addr_istentative(addr_state) (addr_state & IP6_ADDR_TENTATIVE)

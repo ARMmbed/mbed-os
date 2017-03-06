@@ -17,7 +17,7 @@
 #include "device.h"
 
 #include "platform/mbed_interface.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 void mbed_assert_internal(const char *expr, const char *file, int line)
 {

@@ -18,8 +18,12 @@ limitations under the License.
 from copy import deepcopy
 import os
 import sys
+from collections import namedtuple
+from os.path import splitext
+from intelhex import IntelHex
 # Implementation of mbed configuration mechanism
-from tools.utils import json_file_to_dict
+from tools.utils import json_file_to_dict, intelhex_offset
+from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
 
@@ -328,6 +332,8 @@ def _process_macros(mlist, macros, unit_name, unit_kind):
         macros[macro.macro_name] = macro
 
 
+Region = namedtuple("Region", "name start size active filename")
+
 class Config(object):
     """'Config' implements the mbed configuration mechanism"""
 
@@ -345,6 +351,8 @@ class Config(object):
         "application": set(["config", "target_overrides",
                             "macros", "__config_path"])
     }
+
+    __unused_overrides = set(["target.bootloader_img", "target.restrict_size"])
 
     # Allowed features in configurations
     __allowed_features = [
@@ -455,6 +463,54 @@ class Config(object):
                        self.lib_config_data[cfg["name"]]["__config_path"]))
             self.lib_config_data[cfg["name"]] = cfg
 
+    @property
+    def has_regions(self):
+        """Does this config have regions defined?"""
+        if 'target_overrides' in self.app_config_data:
+            target_overrides = self.app_config_data['target_overrides'].get(
+                self.target.name, {})
+            return ('target.bootloader_img' in target_overrides or
+                    'target.restrict_size' in target_overrides)
+        else:
+            return False
+
+    @property
+    def regions(self):
+        """Generate a list of regions from the config"""
+        if not self.target.bootloader_supported:
+            raise ConfigException("Bootloader not supported on this target.")
+        cmsis_part = Cache(False, False).index[self.target.device_name]
+        start = 0
+        target_overrides = self.app_config_data['target_overrides'].get(
+            self.target.name, {})
+        try:
+            rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
+            rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
+        except KeyError:
+            raise ConfigException("Not enough information in CMSIS packs to "
+                                  "build a bootloader project")
+        if 'target.bootloader_img' in target_overrides:
+            filename = target_overrides['target.bootloader_img']
+            part = intelhex_offset(filename, offset=rom_start)
+            if part.minaddr() != rom_start:
+                raise ConfigException("bootloader executable does not "
+                                      "start at 0x%x" % rom_start)
+            part_size = (part.maxaddr() - part.minaddr()) + 1
+            yield Region("bootloader", rom_start + start, part_size, False,
+                         filename)
+            start += part_size
+        if 'target.restrict_size' in target_overrides:
+            new_size = int(target_overrides['target.restrict_size'], 0)
+            yield Region("application", rom_start + start, new_size, True, None)
+            start += new_size
+            yield Region("post_application", rom_start +start, rom_size - start,
+                         False, None)
+        else:
+            yield Region("application", rom_start + start, rom_size - start,
+                         True, None)
+        if start > rom_size:
+            raise ConfigException("Not enough memory on device to fit all "
+                                  "application regions")
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
         """Process "config_parameters" and "target_config_overrides" into a
@@ -508,6 +564,8 @@ class Config(object):
                     if full_name in params:
                         params[full_name].set_value(val, unit_name, unit_kind,
                                                     label)
+                    elif name in self.__unused_overrides:
+                        pass
                     else:
                         self.config_errors.append(
                             ConfigException(
@@ -560,6 +618,8 @@ class Config(object):
                 rel_names = [tgt for tgt, _ in
                              get_resolution_order(self.target.json_data, tname,
                                                   [])]
+                if full_name in self.__unused_overrides:
+                    continue
                 if (full_name not in params) or \
                    (params[full_name].defined_by[7:] not in rel_names):
                     raise ConfigException(

@@ -17,10 +17,10 @@
 #include "platform/mbed_interface.h"
 
 #include "hal/gpio_api.h"
-#include "platform/wait_api.h"
-#include "platform/semihost_api.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/mbed_semihost_api.h"
 #include "platform/mbed_error.h"
-#include "platform/toolchain.h"
+#include "platform/mbed_toolchain.h"
 
 #if DEVICE_SEMIHOST
 

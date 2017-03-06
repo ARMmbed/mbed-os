@@ -16,8 +16,8 @@
 #include "hal/rtc_api.h"
 
 #include <time.h>
-#include "platform/critical.h"
-#include "platform/rtc_time.h"
+#include "platform/mbed_critical.h"
+#include "platform/mbed_rtc_time.h"
 #include "hal/us_ticker_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"

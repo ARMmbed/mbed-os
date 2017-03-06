@@ -58,6 +58,12 @@ typedef enum {
 
 extern const struct memp_desc* const memp_pools[MEMP_MAX];
 
+/**
+ * @ingroup mempool
+ * Declare prototype for private memory pool if it is used in multiple files
+ */
+#define LWIP_MEMPOOL_PROTOTYPE(name) extern const struct memp_desc memp_ ## name
+
 #if MEMP_MEM_MALLOC
 
 #define LWIP_MEMPOOL_DECLARE(name,num,size,desc) \
@@ -69,12 +75,6 @@ extern const struct memp_desc* const memp_pools[MEMP_MAX];
   };
 
 #else /* MEMP_MEM_MALLOC */
-
-/** 
- * @ingroup mempool
- * Declare prototype for private memory pool if it is used in multiple files
- */
-#define LWIP_MEMPOOL_PROTOTYPE(name) extern const struct memp_desc memp_ ## name
 
 /**
  * @ingroup mempool

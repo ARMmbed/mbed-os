@@ -39,7 +39,7 @@ features of Savannah help us not lose users' input.
    bugtracker at Savannah.
 3. If you have a fix put the patch on Savannah. If it is a patch that affects
    both core and arch specific stuff please separate them so that the core can
-   be applied separately while leaving the other patch 'open'. The prefered way
+   be applied separately while leaving the other patch 'open'. The preferred way
    is to NOT touch archs you can't test and let maintainers take care of them.
    This is a good way to see if they are used at all - the same goes for unix
    netifs except tapif.

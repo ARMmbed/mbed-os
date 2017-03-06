@@ -1,6 +1,6 @@
 #include "platform/CallChain.h"
 #include "cmsis.h"
-#include "platform/critical.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 

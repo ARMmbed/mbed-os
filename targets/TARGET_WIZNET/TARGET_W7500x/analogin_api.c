@@ -33,7 +33,7 @@
 
 #if DEVICE_ANALOGIN
 
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "W7500x_adc.h"

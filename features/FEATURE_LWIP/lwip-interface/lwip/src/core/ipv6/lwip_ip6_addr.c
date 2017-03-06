@@ -73,7 +73,7 @@ int
 ip6addr_aton(const char *cp, ip6_addr_t *addr)
 {
   u32_t addr_index, zero_blocks, current_block_index, current_block_value;
-  const char * s;
+  const char *s;
 
   /* Count the number of colons, to count the number of blocks in a "::" sequence
      zero_blocks may be 1 even if there are no :: sequences */
@@ -132,8 +132,8 @@ ip6addr_aton(const char *cp, ip6_addr_t *addr)
     } else if (isxdigit(*s)) {
       /* add current digit */
       current_block_value = (current_block_value << 4) +
-          (isdigit(*s) ? *s - '0' :
-          10 + (islower(*s) ? *s - 'a' : *s - 'A'));
+          (isdigit(*s) ? (u32_t)(*s - '0') :
+          (u32_t)(10 + (islower(*s) ? *s - 'a' : *s - 'A')));
     } else {
       /* unexpected digit, space? CRLF? */
       break;
@@ -152,7 +152,7 @@ ip6addr_aton(const char *cp, ip6_addr_t *addr)
   /* convert to network byte order. */
   if (addr) {
     for (addr_index = 0; addr_index < 4; addr_index++) {
-      addr->addr[addr_index] = htonl(addr->addr[addr_index]);
+      addr->addr[addr_index] = lwip_htonl(addr->addr[addr_index]);
     }
   }
 
@@ -199,7 +199,7 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
 
   for (current_block_index = 0; current_block_index < 8; current_block_index++) {
     /* get the current 16-bit block */
-    current_block_value = htonl(addr->addr[current_block_index >> 1]);
+    current_block_value = lwip_htonl(addr->addr[current_block_index >> 1]);
     if ((current_block_index & 0x1) == 0) {
       current_block_value = current_block_value >> 16;
     }
@@ -218,7 +218,7 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
       if (empty_block_flag == 0) {
         /* generate empty block "::", but only if more than one contiguous zero block,
          * according to current formatting suggestions RFC 5952. */
-        next_block_value = htonl(addr->addr[(current_block_index + 1) >> 1]);
+        next_block_value = lwip_htonl(addr->addr[(current_block_index + 1) >> 1]);
         if ((current_block_index & 0x1) == 0x01) {
             next_block_value = next_block_value >> 16;
         }

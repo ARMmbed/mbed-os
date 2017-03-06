@@ -18,7 +18,7 @@
 
 #if DEVICE_RTC
 
-#include "wait_api.h"
+#include "mbed_wait_api.h"
 #include "mbed_error.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"

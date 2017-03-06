@@ -104,6 +104,8 @@ void             raw_recv       (struct raw_pcb *pcb, raw_recv_fn recv, void *re
 u8_t             raw_input      (struct pbuf *p, struct netif *inp);
 #define raw_init() /* Compatibility define, no init needed. */
 
+void raw_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr);
+
 /* for compatibility with older implementation */
 #define raw_new_ip6(proto) raw_new_ip_type(IPADDR_TYPE_V6, proto)
 

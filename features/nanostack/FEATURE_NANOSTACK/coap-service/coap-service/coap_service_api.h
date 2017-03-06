@@ -26,7 +26,7 @@ extern "C" {
 #include <string.h>
 
 #include "ns_types.h"
-#include "sn_coap_header.h"
+#include "mbed-coap/sn_coap_header.h"
 #include "ns_address.h"
 
 /**

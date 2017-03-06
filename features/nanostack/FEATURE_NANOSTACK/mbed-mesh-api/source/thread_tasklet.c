@@ -25,6 +25,7 @@
 #include "include/thread_tasklet.h"
 #include "include/static_config.h"
 #include "include/mesh_system.h"
+#include <mbed_assert.h>
 #include "ns_event_loop.h"
 
 // For tracing we need to define flag, have include and define group
@@ -228,16 +229,8 @@ void thread_tasklet_configure_and_connect_to_network(void)
         NET_6LOWPAN_THREAD);
 
     // Link configuration
-    memcpy(thread_tasklet_data_ptr->link_config.name, "Arm Powered Core", 16);
-
     thread_tasklet_data_ptr->link_config.panId = MBED_MESH_API_THREAD_CONFIG_PANID;
     TRACE_DETAIL("PANID %x", thread_tasklet_data_ptr->link_config.panId);
-
-    // channel
-    if (MBED_MESH_API_THREAD_CONFIG_CHANNEL > 27) {
-        tr_error("Bad channel %d", MBED_MESH_API_THREAD_CONFIG_CHANNEL);
-        return;
-    }
 
     thread_tasklet_data_ptr->link_config.rfChannel = MBED_MESH_API_THREAD_CONFIG_CHANNEL;
     thread_tasklet_data_ptr->channel_list.channel_page = (channel_page_e)MBED_MESH_API_THREAD_CONFIG_CHANNEL_PAGE;
@@ -245,57 +238,50 @@ void thread_tasklet_configure_and_connect_to_network(void)
     TRACE_DETAIL("channel: %d", thread_tasklet_data_ptr->link_config.rfChannel);
     TRACE_DETAIL("channel page: %d", thread_tasklet_data_ptr->channel_list.channel_page);
     TRACE_DETAIL("channel mask: %d", (int)thread_tasklet_data_ptr->channel_list.channel_mask[0]);
-
-
+    
     // Beacon data setting
     thread_tasklet_data_ptr->link_config.Protocol_id = 0x03;
     thread_tasklet_data_ptr->link_config.version = 1;
     memcpy(thread_tasklet_data_ptr->link_config.extended_random_mac, device_configuration.eui64, 8);
     thread_tasklet_data_ptr->link_config.extended_random_mac[0] |= 0x02;
 
+    // network name
+    MBED_ASSERT(strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) > 0 && strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) < 17);
+    memcpy(thread_tasklet_data_ptr->link_config.name, MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME));       
+    
+    thread_tasklet_data_ptr->link_config.timestamp = MBED_MESH_API_THREAD_CONFIG_COMMISSIONING_DATASET_TIMESTAMP;
+    
+    // extended pan-id
+    const uint8_t extented_panid[] = MBED_MESH_API_THREAD_CONFIG_EXTENDED_PANID;
+    MBED_ASSERT(sizeof(extented_panid) == 8);        
+    memcpy(thread_tasklet_data_ptr->link_config.extented_pan_id, extented_panid, sizeof(extented_panid));
+    
     // Mesh prefix
     const uint8_t mesh_local_prefix[] = MBED_MESH_API_THREAD_CONFIG_ML_PREFIX;
-    if (sizeof(mesh_local_prefix) == 8) {
-        memcpy(thread_tasklet_data_ptr->link_config.mesh_local_ula_prefix, mesh_local_prefix, 8);
-        TRACE_DETAIL("Mesh prefix: %s", trace_array(mesh_local_prefix, 8));
-    } else {
-        tr_error("Mesh prefix, must be 8 hex chars: %s", mesh_local_prefix);
-        return;
-    }
+    MBED_ASSERT(sizeof(mesh_local_prefix) == 8);   
+    
+    memcpy(thread_tasklet_data_ptr->link_config.mesh_local_ula_prefix, mesh_local_prefix, 8);
+    TRACE_DETAIL("Mesh prefix: %s", trace_array(mesh_local_prefix, 8));   
 
     // Master Key
     const uint8_t master_key[] = MBED_MESH_API_THREAD_MASTER_KEY;
-    if (sizeof(master_key) == 16) {
-        memcpy(thread_tasklet_data_ptr->link_config.master_key, master_key, 16);
-        TRACE_DETAIL("Master key: %s", trace_array(master_key, 16));
-    } else {
-        tr_error("Master key must be 16 hex chars: %s", master_key);
-        return;
-    }
+    MBED_ASSERT(sizeof(master_key) == 16);
+    memcpy(thread_tasklet_data_ptr->link_config.master_key, master_key, 16);
 
     // PSKc
     const uint8_t PSKc[] = MBED_MESH_API_THREAD_CONFIG_PSKC;
-    if (sizeof(PSKc) == 16) {
-        memcpy(thread_tasklet_data_ptr->link_config.PSKc, PSKc, 16);
-        TRACE_DETAIL("PSKc: %s", trace_array(PSKc, 16));
-    } else {
-        tr_error("PSKc must be 16 hex chars: %s", PSKc);
-        return;
-    }
+    MBED_ASSERT(sizeof(PSKc) == 16);
+    memcpy(thread_tasklet_data_ptr->link_config.PSKc, PSKc, 16);
 
     // PSKd
     const char PSKd[] = MBED_MESH_API_THREAD_PSKD;
-    if (sizeof(PSKd) < 7) {
-        tr_error("PSKd length must be > 6: %s", PSKd);
-        return;
-    }
+    MBED_ASSERT(sizeof(PSKd) > 5 && sizeof(PSKd) < 33);         
 
     char *dyn_buf = ns_dyn_mem_alloc(sizeof(PSKd));
     strcpy(dyn_buf, PSKd);
     ns_dyn_mem_free(device_configuration.PSKd_ptr);
     device_configuration.PSKd_ptr = (uint8_t*)dyn_buf;
     device_configuration.PSKd_len = sizeof(PSKd) - 1;
-    TRACE_DETAIL("PSKd: %s", device_configuration.PSKd_ptr);
 
     thread_tasklet_data_ptr->link_config.key_rotation = 3600;
     thread_tasklet_data_ptr->link_config.key_sequence = 0;
