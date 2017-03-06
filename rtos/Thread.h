@@ -331,6 +331,10 @@ public:
     virtual ~Thread();
 
 private:
+    /* disallow copy constructor and assignment operators */
+    Thread(const Thread&);
+    Thread& operator=(const Thread&);
+
     // Required to share definitions without
     // delegated constructors
     void constructor(osPriority priority=osPriorityNormal,
