@@ -287,17 +287,16 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             labels.append("UVISOR_UNSUPPORTED")
         return labels
 
-    def init_hooks(self, hook, toolchain_name):
-        """Initialize the post-build hooks for a toolchain. For now, this
-        function only allows "post binary" hooks (hooks that are executed
-        after the binary image is extracted from the executable file)
+    def init_hooks(self, hook, hook_step, hook_type, toolchain_name):
+        """Initialize hooks for a toolchain.
         """
 
         # If there's no hook, simply return
         try:
-            hook_data = self.post_binary_hook
+            hook_data = getattr(self, hook_step + '_' + hook_type + '_hook')
         except AttributeError:
             return
+
         # A hook was found. The hook's name is in the format
         # "classname.functionname"
         temp = hook_data["function"].split(".")
@@ -332,7 +331,8 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
            (toolchain_name not in toolchain_restrictions):
             return
         # Finally, hook the requested function
-        hook.hook_add_binary("post", getattr(cls, function_name))
+        hook_func = getattr(hook, 'hook_add_' + hook_type)
+        hook_func(hook_step, getattr(cls, function_name))
 
 ################################################################################
 # Target specific code goes in this section

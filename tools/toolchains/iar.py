@@ -159,7 +159,7 @@ class IAR(mbedToolchain):
         cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + ["-o", object, source]
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_assembler(cmd)
+        cmd = self.hook.get_cmdline_assemble(cmd)
 
         # Return command array, don't execute
         return [cmd]
@@ -176,7 +176,7 @@ class IAR(mbedToolchain):
         cmd.extend(["-o", object, source])
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
+        cmd = self.hook.get_cmdline_compile(cmd)
 
         return [cmd]
 
@@ -196,7 +196,7 @@ class IAR(mbedToolchain):
             cmd.extend(["--config", mem_map])
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
+        cmd = self.hook.get_cmdline_link(cmd)
 
         if self.RESPONSE_FILES:
             # Split link command to linker executable + response file

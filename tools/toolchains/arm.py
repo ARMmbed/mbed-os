@@ -147,8 +147,8 @@ class ARM(mbedToolchain):
         cmd = self.asm + ["-o", object, tempfile]
 
         # Call cmdline hook
-        cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
-        cmd = self.hook.get_cmdline_assembler(cmd)
+        cmd_pre = self.hook.get_cmdline_assemble(cmd_pre)
+        cmd = self.hook.get_cmdline_assemble(cmd)
        
         # Return command array, don't execute
         return [cmd_pre, cmd]
@@ -163,7 +163,7 @@ class ARM(mbedToolchain):
         cmd.extend(["-o", object, source])
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
+        cmd = self.hook.get_cmdline_compile(cmd)
 
         return [cmd]
 
@@ -190,7 +190,7 @@ class ARM(mbedToolchain):
         cmd = self.ld + args + objects + libraries + self.sys_libs
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
+        cmd = self.hook.get_cmdline_link(cmd)
 
         if self.RESPONSE_FILES:
             # Split link command to linker executable + response file

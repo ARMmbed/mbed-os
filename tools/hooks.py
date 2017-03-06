@@ -65,7 +65,9 @@ class Hook(object):
         _HOOKS.clear()
         self._cmdline_hooks = {}
         self.toolchain = toolchain
-        target.init_hooks(self, toolchain.__class__.__name__)
+        for hook_step in _HOOK_STEPS:
+            for hook_type in _HOOK_TYPES:
+                target.init_hooks(self, hook_step, hook_type, toolchain.__class__.__name__)
 
     # Hook various functions directly
     @staticmethod
@@ -84,7 +86,7 @@ class Hook(object):
         _HOOKS[hook_type][hook_step] = function
         return True
 
-    def hook_add_compiler(self, hook_step, function):
+    def hook_add_compile(self, hook_step, function):
         """Add a hook to the compiler
 
         Positional Arguments:
@@ -93,7 +95,7 @@ class Hook(object):
         """
         return self._hook_add("compile", hook_step, function)
 
-    def hook_add_linker(self, hook_step, function):
+    def hook_add_link(self, hook_step, function):
         """Add a hook to the linker
 
         Positional Arguments:
@@ -102,7 +104,7 @@ class Hook(object):
         """
         return self._hook_add("link", hook_step, function)
 
-    def hook_add_assembler(self, hook_step, function):
+    def hook_add_assemble(self, hook_step, function):
         """Add a hook to the assemble
 
         Positional Arguments:
@@ -133,7 +135,7 @@ class Hook(object):
         self._cmdline_hooks[hook_type] = function
         return True
 
-    def hook_cmdline_compiler(self, function):
+    def hook_cmdline_compile(self, function):
         """Add a hook to the compiler command line
 
         Positional arguments:
@@ -141,7 +143,7 @@ class Hook(object):
         """
         return self._hook_cmdline("compile", function)
 
-    def hook_cmdline_linker(self, function):
+    def hook_cmdline_link(self, function):
         """Add a hook to the linker command line
 
         Positional arguments:
@@ -149,7 +151,7 @@ class Hook(object):
         """
         return self._hook_cmdline("link", function)
 
-    def hook_cmdline_assembler(self, function):
+    def hook_cmdline_assemble(self, function):
         """Add a hook to the assembler command line
 
         Positional arguments:
@@ -178,7 +180,7 @@ class Hook(object):
                 self.toolchain.__class__.__name__, cmdline)
         return cmdline
 
-    def get_cmdline_compiler(self, cmdline):
+    def get_cmdline_compile(self, cmdline):
         """Get the compiler command line after running all hooks
 
         Positional arguments:
@@ -186,7 +188,7 @@ class Hook(object):
         """
         return self._get_cmdline("compile", cmdline)
 
-    def get_cmdline_linker(self, cmdline):
+    def get_cmdline_link(self, cmdline):
         """Get the linker command line after running all hooks
 
         Positional arguments:
@@ -194,7 +196,7 @@ class Hook(object):
         """
         return self._get_cmdline("link", cmdline)
 
-    def get_cmdline_assembler(self, cmdline):
+    def get_cmdline_assemble(self, cmdline):
         """Get the assmebler command line after running all hooks
 
         Positional arguments:
