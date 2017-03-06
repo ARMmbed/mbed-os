@@ -72,6 +72,8 @@ class ARM(mbedToolchain):
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
 
+        self.hook.post_target_hook(self)
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines():

@@ -93,6 +93,8 @@ class IAR(mbedToolchain):
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
 
+        self.hook.post_target_hook(self)
+
     def parse_dependencies(self, dep_path):
         return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]

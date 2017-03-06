@@ -98,6 +98,8 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
+        self.hook.post_target_hook(self)
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         buff = open(dep_path).readlines()

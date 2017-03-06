@@ -12,7 +12,7 @@ _HOOKS = {}
 _RUNNING_HOOKS = {}
 
 # Available hook types
-_HOOK_TYPES = ["binary", "compile", "link", "assemble"]
+_HOOK_TYPES = ["target", "binary", "compile", "link", "assemble"]
 
 # Available hook steps
 _HOOK_STEPS = ["pre", "replace", "post"]
@@ -85,6 +85,16 @@ class Hook(object):
             _HOOKS[hook_type] = {}
         _HOOKS[hook_type][hook_step] = function
         return True
+
+    def hook_add_target(self, hook_step, function):
+        """Add a hook to the init option
+
+        Positional Arguments:
+        hook_step - target hook is limited to 'post'
+        function - the function to add to the list of hooks
+        """
+        hook_step = 'post'
+        return self._hook_add("target", hook_step, function)
 
     def hook_add_compile(self, hook_step, function):
         """Add a hook to the compiler
@@ -166,6 +176,17 @@ class Hook(object):
         function - the function to call
         """
         return self._hook_cmdline("binary", function)
+
+    def post_target_hook(self, t_self):
+        """Run the post init target-specific hook
+
+        Positional arguments:
+        t_self - the toolchain object
+        """
+        try:
+            _HOOKS['target']['post'](t_self)
+        except:
+            return
 
     # Return the command line after applying the hook
     def _get_cmdline(self, hook_type, cmdline):
