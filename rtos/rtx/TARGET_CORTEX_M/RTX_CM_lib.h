@@ -478,7 +478,7 @@ void set_stack_heap(void) {
     mbed_stack_isr_start = ISR_STACK_START;
 #else
     /* Interrupt stack -  reserve space at the end of the free block */
-    mbed_stack_isr_size = ISR_STACK_SIZE;
+    mbed_stack_isr_size = ISR_STACK_SIZE < free_size ? ISR_STACK_SIZE : free_size;
     mbed_stack_isr_start = free_start + free_size - mbed_stack_isr_size;
     free_size -= mbed_stack_isr_size;
 #endif
