@@ -161,7 +161,7 @@ def prepare_fork(arm_example):
     return True
 
 
-def upgrade_example(github, example, tag, user, ref):
+def upgrade_example(github, example, tag, user, ref, branch):
     """ Clone a fork of the example specified.
         Ensures the fork is up to date with the original and then and updates the associated 
         mbed-os.lib file on that fork to correspond to the version specified by the GitHub tag supplied. 
@@ -212,6 +212,13 @@ def upgrade_example(github, example, tag, user, ref):
                 os.chdir(cwd)
                 return False
 
+        # -B - the branch does not exist in the remote, we create it
+        checkout_branch = ['git', 'checkout', '-B', branch]
+        return_code = run_cmd(checkout_branch)
+        if return_code:
+            print("Failed to checkout %s in the repository", branch)
+            return False
+
         # Setup the default commit message
         commit_message = 'Updating mbed-os to ' + tag 
 
@@ -227,9 +234,9 @@ def upgrade_example(github, example, tag, user, ref):
             if not return_code:
                 body = "Please test/merge this PR and then tag Master with " + tag
                 # Raise a PR from release-candidate to master
-                user_fork = user + ':master' 
+                user_fork = user + ':' + branch 
                 try:
-                    pr = repo.create_pull(title='Updating mbed-os to ' + tag, head=user_fork, base='master', body=body)
+                    pr = repo.create_pull(title='Updating mbed-os to ' + tag, head=user_fork, base=branch, body=body)
                     ret = True
                 except GithubException as e:
                     # Default to False
@@ -307,6 +314,7 @@ def main(arguments):
     parser.add_argument('-c', '--config_file', help="Path to the configuration file (default is 'examples.json')", default='examples.json')
     parser.add_argument('-T', '--github_token', help="GitHub token for secure access")
     parser.add_argument('-U', '--github_user', help="GitHub user for forked repos")
+    parser.add_argument('-b', '--branch', help="Defined branch", default='master')
     
     args = parser.parse_args(arguments)
 
@@ -343,7 +351,7 @@ def main(arguments):
         # Determine if this example should be updated and if so update any found 
         # mbed-os.lib files.
 
-        if upgrade_example(github, example, args.tag, args.github_user, ref):
+        if upgrade_example(github, example, args.tag, args.github_user, ref, args.branch):
             successes += [example['name']]
         else:
             failures += [example['name']]
