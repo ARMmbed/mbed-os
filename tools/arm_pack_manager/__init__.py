@@ -7,12 +7,16 @@ from threading import Thread
 from Queue import Queue
 from re import compile, sub
 from sys import stderr, stdout
-from fuzzywuzzy import process
 from itertools import takewhile
 import argparse
 from json import dump, load
 from zipfile import ZipFile
 from tempfile import gettempdir
+import warnings
+
+warnings.filterwarnings("ignore")
+
+from fuzzywuzzy import process
 
 RootPackURL = "http://www.keil.com/pack/index.idx"
 
