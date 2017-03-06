@@ -21,7 +21,7 @@ import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
 import shutil
 from jinja2.exceptions import TemplateNotFound
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, filter_supported
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
 
@@ -34,6 +34,11 @@ class Makefile(Exporter):
     DOT_IN_RELATIVE_PATH = True
 
     MBED_CONFIG_HEADER_SUPPORTED = True
+
+    POST_BINARY_WHITELIST = set([
+        "MCU_NRF51Code.binary_hook",
+        "TEENSY3_1Code.binary_hook"
+    ])
 
     def generate(self):
         """Generate the makefile
@@ -168,8 +173,7 @@ class Makefile(Exporter):
 
 class GccArm(Makefile):
     """GCC ARM specific makefile target"""
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "GCC_ARM" in obj.supported_toolchains]
+    TARGETS = filter_supported("GCC_ARM", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-GCC-ARM'
     TEMPLATE = 'make-gcc-arm'
     TOOLCHAIN = "GCC_ARM"
@@ -187,8 +191,7 @@ class GccArm(Makefile):
 
 class Armc5(Makefile):
     """ARM Compiler 5 specific makefile target"""
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "ARM" in obj.supported_toolchains]
+    TARGETS = filter_supported("ARM", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-ARMc5'
     TEMPLATE = 'make-armc5'
     TOOLCHAIN = "ARM"
@@ -206,8 +209,7 @@ class Armc5(Makefile):
 
 class IAR(Makefile):
     """IAR specific makefile target"""
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "IAR" in obj.supported_toolchains]
+    TARGETS = filter_supported("IAR", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-IAR'
     TEMPLATE = 'make-iar'
     TOOLCHAIN = "IAR"
