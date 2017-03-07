@@ -774,8 +774,8 @@ __IO uint16_t tmpreg;
     goto error;
   }
 
-  if((pTxData == NULL) || (pRxData == NULL) || (Size == 0))
-  {
+  if(Size == 0 || (pTxData == NULL && pRxData == NULL))
+    {
     errorcode = HAL_ERROR;
     goto error;
   }
@@ -822,8 +822,12 @@ __IO uint16_t tmpreg;
       /* Check TXE flag */
       if((hspi->TxXferCount > 0) && ((hspi->Instance->SR & SPI_FLAG_TXE) == SPI_FLAG_TXE))
       {
-        hspi->Instance->DR = *((uint16_t *)hspi->pTxBuffPtr);
-        hspi->pTxBuffPtr += sizeof(uint16_t);
+        if (hspi->pTxBuffPtr) {
+          hspi->Instance->DR = *((uint16_t *)hspi->pTxBuffPtr);
+          hspi->pTxBuffPtr += sizeof(uint16_t);
+        } else {
+          hspi->Instance->DR = (uint16_t)0;
+        }
         hspi->TxXferCount--;
 
         /* Enable CRC Transmission */
@@ -836,9 +840,13 @@ __IO uint16_t tmpreg;
       /* Check RXNE flag */
       if((hspi->RxXferCount > 0) && ((hspi->Instance->SR & SPI_FLAG_RXNE) == SPI_FLAG_RXNE))
       {
-        *((uint16_t *)hspi->pRxBuffPtr) = hspi->Instance->DR;
-        hspi->pRxBuffPtr += sizeof(uint16_t);
-        hspi->RxXferCount--;
+        if (hspi->pRxBuffPtr) {
+          *((uint16_t *)hspi->pRxBuffPtr) = hspi->Instance->DR;
+          hspi->pRxBuffPtr += sizeof(uint16_t);
+        } else {
+          uint16_t i16 = hspi->Instance->DR;
+        }
+          hspi->RxXferCount--;
       }
       if((Timeout != HAL_MAX_DELAY) && ((HAL_GetTick()-tickstart) >=  Timeout))
       {
@@ -857,13 +865,21 @@ __IO uint16_t tmpreg;
       {
         if(hspi->TxXferCount > 1)
         {
-          hspi->Instance->DR = *((uint16_t*)hspi->pTxBuffPtr);
-          hspi->pTxBuffPtr += sizeof(uint16_t);
+          if (hspi->pTxBuffPtr) {
+            hspi->Instance->DR = *((uint16_t*)hspi->pTxBuffPtr);
+            hspi->pTxBuffPtr += sizeof(uint16_t);
+          } else {
+            hspi->Instance->DR = (uint16_t)0;
+          }
           hspi->TxXferCount -= 2;
         }
         else
         {
-          *(__IO uint8_t *)&hspi->Instance->DR = (*hspi->pTxBuffPtr++);
+          if (hspi->pTxBuffPtr) {
+            *(__IO uint8_t *)&hspi->Instance->DR = (*hspi->pTxBuffPtr++);
+          } else {
+            *(__IO uint8_t *)&hspi->Instance->DR = 0;
+          }
           hspi->TxXferCount--;
         }
 
@@ -879,8 +895,12 @@ __IO uint16_t tmpreg;
       {
         if(hspi->RxXferCount > 1)
         {
-          *((uint16_t*)hspi->pRxBuffPtr) = hspi->Instance->DR;
-          hspi->pRxBuffPtr += sizeof(uint16_t);
+          if (hspi->pRxBuffPtr) {
+            *((uint16_t*)hspi->pRxBuffPtr) = hspi->Instance->DR;
+            hspi->pRxBuffPtr += sizeof(uint16_t);
+          } else {
+            uint16_t i16 = hspi->Instance->DR;
+          }
           hspi->RxXferCount -= 2;
           if(hspi->RxXferCount <= 1)
           {
@@ -890,7 +910,11 @@ __IO uint16_t tmpreg;
         }
         else
         {
-          (*hspi->pRxBuffPtr++) =  *(__IO uint8_t *)&hspi->Instance->DR;
+          if (hspi->pRxBuffPtr) {
+            (*hspi->pRxBuffPtr++) =  *(__IO uint8_t *)&hspi->Instance->DR;
+          } else {
+            uint8_t i8 = *(__IO uint8_t *)&hspi->Instance->DR;
+          }
           hspi->RxXferCount--;
         }
       }
