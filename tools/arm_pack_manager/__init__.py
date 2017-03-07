@@ -13,6 +13,7 @@ from json import dump, load
 from zipfile import ZipFile
 from tempfile import gettempdir
 import warnings
+from distutils.version import LooseVersion
 
 warnings.filterwarnings("ignore")
 
@@ -31,7 +32,7 @@ def strip_protocol(url) :
 
 def largest_version(content) :
     return sorted([t['version'] for t in content.package.releases('release')],
-                  reverse=True, key=lambda v: map(int, v.split(".")))[0]
+                  reverse=True, key=lambda v: LooseVersion(v))[0]
 
 def do_queue(Class, function, interable) :
     q = Queue()
