@@ -269,7 +269,7 @@ if __name__ == '__main__':
 
         try:
             bin_file = build_project(test.source_dir, build_dir, mcu, toolchain,
-                                     test.dependencies,
+                                     set(test.dependencies),
                                      linker_script=options.linker_script,
                                      clean=options.clean,
                                      verbose=options.verbose,
