@@ -55,24 +55,6 @@ public:
      */
     virtual ssize_t write(const void *buffer, size_t len) = 0;
 
-    /** Close a file
-     *
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int close() = 0;
-
-    /** Flush any buffers associated with the file
-     *
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int sync() = 0;
-
-    /** Check if the file in an interactive terminal device
-     *
-     *  @return         True if the file is a terminal
-     */
-    virtual int isatty() = 0;
-
     /** Move the file position to a given offset from from a given location
      *
      *  @param offset   The offset from whence to move to
@@ -83,6 +65,30 @@ public:
      *  @return         The new offset of the file
      */
     virtual off_t seek(off_t offset, int whence = SEEK_SET) = 0;
+
+    /** Close a file
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int close() = 0;
+
+    /** Flush any buffers associated with the file
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int sync()
+    {
+        return 0;
+    }
+
+    /** Check if the file in an interactive terminal device
+     *
+     *  @return         True if the file is a terminal
+     */
+    virtual int isatty()
+    {
+        return false;
+    }
 
     /** Get the file position of the file
      *

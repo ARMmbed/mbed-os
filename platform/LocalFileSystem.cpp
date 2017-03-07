@@ -182,43 +182,42 @@ void LocalFileHandle::unlock() {
 class LocalDirHandle : public DirHandle {
 
 public:
-    struct dirent cur_entry;
     XFINFO info;
 
-    LocalDirHandle() : cur_entry(), info() {
+    LocalDirHandle() : info() {
     }
 
-    virtual int closedir() {
+    virtual int close() {
         // No lock can be used in destructor
         delete this;
         return 0;
     }
 
-    virtual struct dirent *readdir() {
+    virtual int read(struct dirent *ent) {
         lock();
         if (xffind("*", &info)!=0) {
             unlock();
-            return NULL;
+            return 0;
         }
-        memcpy(cur_entry.d_name, info.name, sizeof(info.name));
+        memcpy(ent->d_name, info.name, sizeof(info.name));
         unlock();
-        return &cur_entry;
+        return 1;
     }
 
-    virtual void rewinddir() {
+    virtual void rewind() {
         lock();
         info.fileID = 0;
         unlock();
     }
 
-    virtual off_t telldir() {
+    virtual off_t tell() {
         lock();
         int fileId = info.fileID;
         unlock();
         return fileId;
     }
 
-    virtual void seekdir(off_t offset) {
+    virtual void seek(off_t offset) {
         lock();
         info.fileID = offset;
         unlock();
