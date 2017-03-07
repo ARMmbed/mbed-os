@@ -115,11 +115,12 @@ u8* _rtx_zmalloc(u32 sz)
 _func_enter_;
 	u8 *pbuf = _rtx_malloc(sz);
 
-	if (pbuf != NULL)
+	if (pbuf != NULL){
 #if USE_HEAP_INFO
 		osFreeBytesRemaining-=sz;
 #endif
 		_rtx_memset(pbuf, 0, sz);
+	}
 _func_exit_;
 	return pbuf;	
 }
