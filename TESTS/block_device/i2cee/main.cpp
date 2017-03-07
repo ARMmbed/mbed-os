@@ -8,10 +8,6 @@
 
 using namespace utest::v1;
 
-//#if !I2CEE_INSTALLED
-//#error [NOT_SUPPORTED] I2CEE Required
-//#endif
-
 #define TEST_PINS D14, D15
 #define TEST_ADDR 0xa0
 #define TEST_SIZE 32*1024
@@ -22,7 +18,7 @@ using namespace utest::v1;
 
 const struct {
     const char *name;
-    bd_size_t (BlockDevice::*method)();
+    bd_size_t (BlockDevice::*method)() const;
 } ATTRS[] = {
     {"read size",    &BlockDevice::get_read_size},
     {"program size", &BlockDevice::get_program_size},
@@ -73,7 +69,10 @@ void test_read_write() {
         // Write, sync, and read the block
         printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
 
-        err = bd.write(write_block, block, block_size);
+        err = bd.erase(block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = bd.program(write_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
         printf("write %0*llx:%llu ", addrwidth, block, block_size);

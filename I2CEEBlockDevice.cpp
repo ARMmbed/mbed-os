@@ -26,22 +26,20 @@ I2CEEBlockDevice::I2CEEBlockDevice(
     _i2c.frequency(freq);
 }
 
-bd_error_t I2CEEBlockDevice::init()
+int I2CEEBlockDevice::init()
 {
     return _sync();
 }
 
-bd_error_t I2CEEBlockDevice::deinit()
+int I2CEEBlockDevice::deinit()
 {
     return 0;
 }
 
-bd_error_t I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
+int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     // Check the address and size fit onto the chip.
-    if (!is_valid_read(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(is_valid_read(addr, size));
 
     _i2c.start();
     if (!_i2c.write(_i2c_addr | 0) ||
@@ -58,12 +56,10 @@ bd_error_t I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     return 0;
 }
  
-bd_error_t I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
+int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     // Check the addr and size fit onto the chip.
-    if (!is_valid_program(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(is_valid_program(addr, size));
         
     // While we have some more data to write.
     while (size > 0) {
@@ -82,7 +78,7 @@ bd_error_t I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size
         }
         _i2c.stop();
 
-        bd_error_t err = _sync();
+        int err = _sync();
         if (err) {
             return err;
         }
@@ -95,13 +91,13 @@ bd_error_t I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size
     return 0;
 }
 
-bd_error_t I2CEEBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int I2CEEBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     // No erase needed
     return 0;
 }
 
-bd_error_t I2CEEBlockDevice::_sync()
+int I2CEEBlockDevice::_sync()
 {
     // The chip doesn't ACK while writing to the actual EEPROM
     // so loop trying to do a zero byte write until it is ACKed
@@ -117,22 +113,22 @@ bd_error_t I2CEEBlockDevice::_sync()
     return BD_ERROR_DEVICE_ERROR;
 }
  
-bd_size_t I2CEEBlockDevice::get_read_size()
+bd_size_t I2CEEBlockDevice::get_read_size() const
 {
     return 1;
 }
 
-bd_size_t I2CEEBlockDevice::get_program_size()
+bd_size_t I2CEEBlockDevice::get_program_size() const
 {
     return 1;
 }
 
-bd_size_t I2CEEBlockDevice::get_erase_size()
+bd_size_t I2CEEBlockDevice::get_erase_size() const
 {
     return 1;
 }
 
-bd_size_t I2CEEBlockDevice::size()
+bd_size_t I2CEEBlockDevice::size() const
 {
     return _size;
 }
