@@ -299,9 +299,6 @@ class mbedToolchain:
         self.build_dir = build_dir
         self.timestamp = time()
 
-        # Output build naming based on target+toolchain combo (mbed 2.0 builds)
-        self.obj_path = join("TARGET_"+target.name, "TOOLCHAIN_"+self.name)
-
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
 
