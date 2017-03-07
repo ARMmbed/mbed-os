@@ -50,23 +50,17 @@ def append_image_file(image, output):
 
 def prepend(image, image_prepend, toolchain, info):
     output = open(image_prepend, "wb")  
-    if toolchain in ["GCC_ARM", "ARM_STD", "ARM", "ARM_MICRO"]:
-        write_fixed_width_value(os.stat(image).st_size, 8, output)
-        write_fixed_width_value(info['addr'], 8, output)
-        write_fixed_width_value(RAM2_RSVD, 16, output)
-        append_image_file(image, output)
-      
-    elif toolchain == "IAR":
-        write_fixed_width_value(info['size'], 8, output)
-        write_fixed_width_value(info['addr'], 8, output)
-        write_fixed_width_value(RAM2_RSVD, 16, output)
-        with open(image, "rb") as input: 
+    write_fixed_width_value(info['size'], 8, output)
+    write_fixed_width_value(info['addr'], 8, output)
+    write_fixed_width_value(RAM2_RSVD, 16, output)
+    with open(image, "rb") as input:
+        if toolchain == "IAR":
             input.seek(info['addr'])
-            output.write(input.read(info['size']))
+        output.write(input.read(info['size']))
     output.close()
 
 def parse_section(toolchain, elf, section):
-    info = {'addr':None, 'size':None};
+    info = {'addr':None, 'size':0};
     if toolchain not in ["GCC_ARM", "ARM_STD", "ARM", "ARM_MICRO", "IAR"]:
         print "[ERROR] unsupported toolchain " + toolchain
         sys.exit(-1)
@@ -81,7 +75,7 @@ def parse_section(toolchain, elf, section):
                 #                 0x[00000000]30000000       __image2_start__ = .
                 #                 0x[00000000]30000000       __image2_entry_func__ = .
                 match = re.match(r'^' + section + \
-                        r'\s+0x0{,8}(?P<addr>[0-9A-Fa-f]{8})\s+.*$', line)
+                        r'\s+0x0{,8}(?P<addr>[0-9A-Fa-f]{8})\s+0x(?P<size>[0-9A-Fa-f]+).*$', line)
             elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO"]:
                 # Memory Map of the image
                 #   Load Region LR_DRAM (Base: 0x30000000, Size: 0x00006a74, Max: 0x00200000, ABSOLUTE)
@@ -89,7 +83,7 @@ def parse_section(toolchain, elf, section):
                 #     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
                 #     0x30000000   0x00000004   Data   RO         5257    .image2.ram.data    rtl8195a_init.o
                 match = re.match(r'^.*Region\s+' + section + \
-                        r'\s+\(Base: 0x(?P<addr>[0-9A-Fa-f]{8}),\s+Size:.*\)$', line)
+                        r'\s+\(Base: 0x(?P<addr>[0-9A-Fa-f]{8}),\s+Size: 0x(?P<size>[0-9A-Fa-f]+), .*\)$', line)
             elif toolchain == "IAR":
                 #   Section                 Kind        Address     Size  Object
                 #   -------                 ----        -------     ----  ------
@@ -104,14 +98,10 @@ def parse_section(toolchain, elf, section):
                 try:
                     info['size'] = int(match.group("size"), 16)
                 except IndexError:
-                    info['size'] = 0x0
+                    print "[WARNING] cannot find the size of section " + section
                 return info
 
-    print "[ERROR] cannot find the address of section " + section
-    if not info['size']:
-        if toolchain == "IAR":
-            print "[WARNING] cannot find the size of section " + section
-    
+    print "[ERROR] cannot find the address of section " + section    
     return info
 
 # ----------------------------
@@ -119,23 +109,28 @@ def parse_section(toolchain, elf, section):
 # ----------------------------
 def rtl8195a_elf2bin(toolchain, image_elf, image_bin):
     if toolchain == "GCC_ARM":
-        img2_section = ".image2.table"
+        img2_sections = [".image2.table", ".text", ".data"]
     elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO"]:
-        img2_section = ".image2.table"
+        img2_sections = [".image2.table", ".text", ".data"]
     elif toolchain == "IAR":
         # actually it's block
-        img2_section = "IMAGE2"
+        img2_sections = ["IMAGE2"]
     else:
         printf("[error] unsupported toolchain") + toolchain
         return
-    ram2_info = {'addr':None, 'size':None}
+    ram2_info = {'addr':None, 'size':0}
     image_name = os.path.splitext(image_elf)[0]
 
     ram1_prepend_bin = os.path.join(TOOLS_BOOTLOADERS, "REALTEK_RTL8195AM", "ram_1_prepend.bin")
     ram2_prepend_bin = image_name + '-ram_2_prepend.bin'
     
     old_bin = image_name + '.bin'
-    ram2_info = parse_section(toolchain, image_elf, img2_section)
+    for section in img2_sections:
+        section_info = parse_section(toolchain, image_elf, section)
+        #print("addr 0x%x, size 0x%x" % (section_info['addr'], section_info['size']))
+        if ram2_info['addr'] is None or ram2_info['addr'] > section_info['addr']:
+            ram2_info['addr'] = section_info['addr']
+        ram2_info['size'] = ram2_info['size'] + section_info['size']
 
     #print("toolchain = %s, bin name = \"%s, ram2_addr = 0x%x, ram2_size = 0x%x" % (toolchain, old_bin, ram2_info['addr'], ram2_info['size']))
 
