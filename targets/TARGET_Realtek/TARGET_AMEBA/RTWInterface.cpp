@@ -30,6 +30,11 @@
 RTWInterface::RTWInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
+	nsapi_error_t ret;
+	ret = init();
+	if (ret != NSAPI_ERROR_OK){
+		printf("Error init RTWInterface!(%d)\r\n", ret);
+	}
 }
 
 static void *scan_sema;
