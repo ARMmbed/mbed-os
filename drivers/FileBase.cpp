@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "drivers/FileBase.h"
+#include "drivers/FileLike.h"
 
 namespace mbed {
 
@@ -49,6 +50,11 @@ FileBase::~FileBase() {
         }
     }
     _mutex->unlock();
+
+    if (getPathType() == FilePathType) {
+        extern void remove_filehandle(FileLike *file);
+        remove_filehandle(static_cast<FileLike*>(this));
+    }
 }
 
 FileBase *FileBase::lookup(const char *name, unsigned int len) {

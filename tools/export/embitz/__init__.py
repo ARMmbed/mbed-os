@@ -16,14 +16,20 @@ limitations under the License.
 """
 from os.path import splitext, basename
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, filter_supported
+
+
+POST_BINARY_WHITELIST = set([
+    "TEENSY3_1Code.binary_hook"
+])
+
 
 class EmBitz(Exporter):
     NAME = 'EmBitz'
     TOOLCHAIN = 'GCC_ARM'
 
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "GCC_ARM" in obj.supported_toolchains]
+
+    TARGETS = filter_supported("GCC_ARM", POST_BINARY_WHITELIST)
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 

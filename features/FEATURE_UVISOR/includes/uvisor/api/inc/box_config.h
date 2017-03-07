@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 UVISOR_EXTERN const uint32_t __uvisor_mode;
-UVISOR_EXTERN void const * const main_cfg_ptr;
+UVISOR_EXTERN void const * const public_box_cfg_ptr;
 
 #define UVISOR_DISABLED   0
 #define UVISOR_PERMISSIVE 1
@@ -41,32 +41,30 @@ UVISOR_EXTERN void const * const main_cfg_ptr;
     \
     UVISOR_EXTERN const uint32_t __uvisor_mode = (mode); \
     \
-    static const __attribute__((section(".keep.uvisor.cfgtbl"), aligned(4))) UvisorBoxConfig main_cfg = { \
+    static const __attribute__((section(".keep.uvisor.cfgtbl"), aligned(4))) UvisorBoxConfig public_box_cfg = { \
         UVISOR_BOX_MAGIC, \
         UVISOR_BOX_VERSION, \
-        0, \
-        0, \
-        sizeof(RtxBoxIndex), \
         { \
+            sizeof(RtxBoxIndex), \
             0, \
-            sizeof(uvisor_rpc_outgoing_message_queue_t), \
-            sizeof(uvisor_rpc_incoming_message_queue_t), \
-            sizeof(uvisor_rpc_fn_group_queue_t), \
+            sizeof(uvisor_rpc_t), \
+            0, \
         }, \
+        0, \
         NULL, \
         NULL, \
         acl_list, \
         acl_list_count \
     }; \
     \
-    UVISOR_EXTERN const __attribute__((section(".keep.uvisor.cfgtbl_ptr_first"), aligned(4))) void * const main_cfg_ptr = &main_cfg;
+    UVISOR_EXTERN const __attribute__((section(".keep.uvisor.cfgtbl_ptr_first"), aligned(4))) void * const public_box_cfg_ptr = &public_box_cfg;
 
 /* Creates a global page heap with at least `minimum_number_of_pages` each of size `page_size` in bytes.
  * The total page heap size is at least `minimum_number_of_pages * page_size`. */
 #define UVISOR_SET_PAGE_HEAP(page_size, minimum_number_of_pages) \
     const uint32_t __uvisor_page_size = (page_size); \
     uint8_t __attribute__((section(".keep.uvisor.page_heap"))) \
-        main_page_heap_reserved[ (page_size) * (minimum_number_of_pages) ]
+        public_page_heap_reserved[ (page_size) * (minimum_number_of_pages) ]
 
 
 /* this macro selects an overloaded macro (variable number of arguments) */
@@ -92,15 +90,13 @@ UVISOR_EXTERN void const * const main_cfg_ptr;
     static const __attribute__((section(".keep.uvisor.cfgtbl"), aligned(4))) UvisorBoxConfig box_name ## _cfg = { \
         UVISOR_BOX_MAGIC, \
         UVISOR_BOX_VERSION, \
-        UVISOR_MIN_STACK(stack_size), \
-        __uvisor_box_heapsize, \
-        sizeof(RtxBoxIndex), \
         { \
+            sizeof(RtxBoxIndex), \
             context_size, \
-            sizeof(uvisor_rpc_outgoing_message_queue_t), \
-            sizeof(uvisor_rpc_incoming_message_queue_t), \
-            sizeof(uvisor_rpc_fn_group_queue_t), \
+            sizeof(uvisor_rpc_t), \
+            __uvisor_box_heapsize, \
         }, \
+        UVISOR_MIN_STACK(stack_size), \
         __uvisor_box_lib_config, \
         __uvisor_box_namespace, \
         acl_list, \
@@ -155,6 +151,6 @@ UVISOR_EXTERN void const * const main_cfg_ptr;
 #define UVISOR_BOX_HEAPSIZE(heap_size) \
     static const uint32_t __uvisor_box_heapsize = heap_size;
 
-#define uvisor_ctx (*__uvisor_ps)
+#define __uvisor_ctx (((UvisorBoxIndex *) __uvisor_ps)->bss.address_of.context)
 
 #endif /* __UVISOR_API_BOX_CONFIG_H__ */

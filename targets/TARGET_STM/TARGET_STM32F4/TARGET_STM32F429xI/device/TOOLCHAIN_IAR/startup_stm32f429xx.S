@@ -63,6 +63,8 @@
         SECTION .intvec:CODE:NOROOT(2)
 
         EXTERN  __iar_program_start
+        EXTERN  SystemInitPre
+        EXTERN  HAL_InitPre
         EXTERN  SystemInit
         PUBLIC  __vector_table
 
@@ -188,6 +190,10 @@ __vector_table
         SECTION .text:CODE:REORDER:NOROOT(2)
 Reset_Handler
 
+        LDR     R0, =SystemInitPre
+        BLX     R0
+        LDR     R0, =HAL_InitPre
+        BLX     R0
         LDR     R0, =SystemInit
         BLX     R0
         LDR     R0, =__iar_program_start

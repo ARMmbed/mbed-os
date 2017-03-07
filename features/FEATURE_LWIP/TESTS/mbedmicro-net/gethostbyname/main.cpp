@@ -91,7 +91,7 @@ void test_dns_literal_pref() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
 }

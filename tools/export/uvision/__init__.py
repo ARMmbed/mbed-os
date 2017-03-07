@@ -178,6 +178,16 @@ class Uvision(Exporter):
                                     key=lambda (_, __, name): name.lower())
         return grouped
 
+    @staticmethod
+    def format_fpu(core):
+        """Generate a core's FPU string"""
+        if core.endswith("FD"):
+            return "FPU3(DFPU)"
+        elif core.endswith("F"):
+            return "FPU2"
+        else:
+            return ""
+
     def generate(self):
         """Generate the .uvproj file"""
         cache = Cache(True, False)
@@ -197,10 +207,11 @@ class Uvision(Exporter):
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
-        ctx['cputype'] = ctx['device'].core.rstrip("FD")
+        core = ctx['device'].core
+        ctx['cputype'] = core.rstrip("FD")
         # Turn on FPU optimizations if the core has an FPU
-        ctx['fpu_setting'] = 1 if 'f' not in ctx['device'].core.lower() \
-                                  or 'd' in ctx['device'].core.lower() else 2
+        ctx['fpu_setting'] = 1 if 'F' not in core or 'D' in core else 2
+        ctx['fputype'] = self.format_fpu(core)
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
         self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
