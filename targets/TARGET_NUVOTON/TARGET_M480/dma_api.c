@@ -158,7 +158,7 @@ static void pdma_vec(void)
         PDMA->INTSTS = reqto;
         
         while (reqto) {
-            int chn_id = nu_ctz(reqto) >> PDMA_INTSTS_REQTOF0_Pos;
+            int chn_id = nu_ctz(reqto) - PDMA_INTSTS_REQTOF0_Pos;
             if (dma_chn_mask & (1 << chn_id)) {
                 struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id;
                 if (dma_chn->handler && (dma_chn->event & DMA_EVENT_TIMEOUT)) {
