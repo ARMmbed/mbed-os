@@ -21,20 +21,20 @@
   *                                 during program execution.
   *
   * This file configures the system clock as follows:
-  *--------------------------------------------------------------------------------------
-  * System clock source                | PLL_HSE_XTAL           | PLL_HSE_XTAL           
-  *                                    | (external 8 MHz clock) | (external 8 MHz clock) 
-  *--------------------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 168                    | 84                    
-  *--------------------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 168                    | 84                   
-  *--------------------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 42                     | 42                     
-  *--------------------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 84                     | 84                     
-  *--------------------------------------------------------------------------------------
-  * USB capable (48 MHz precise clock) | YES                    | YES                     
-  *--------------------------------------------------------------------------------------
+  *----------------------------------------------------------------------------------------------------------------------------------------
+  * System clock source                | PLL_HSE_XTAL           | PLL_HSE_XTAL           | PLL_HSE_XTAL           | PLL_HSE_XTAL
+  *                                    | (external 8 MHz clock) | (external 8 MHz clock) | (external 12 MHz clock)| (external 12 MHz clock)
+  *----------------------------------------------------------------------------------------------------------------------------------------
+  * SYSCLK(MHz)                        | 168                    | 84                     | 168                    | 84
+  *----------------------------------------------------------------------------------------------------------------------------------------
+  * AHBCLK (MHz)                       | 168                    | 84                     | 168                    | 84
+  *----------------------------------------------------------------------------------------------------------------------------------------
+  * APB1CLK (MHz)                      | 42                     | 42                     | 42                     | 42
+  *----------------------------------------------------------------------------------------------------------------------------------------
+  * APB2CLK (MHz)                      | 84                     | 84                     | 84                     | 84
+  *----------------------------------------------------------------------------------------------------------------------------------------
+  * USB capable (48 MHz precise clock) | YES                    | YES                    | YES                    | YES
+  *----------------------------------------------------------------------------------------------------------------------------------------
   ******************************************************************************
   * @attention
   *
@@ -136,8 +136,8 @@
   */
 
 /* Select the SYSCLOCK  to start with (0=OFF, 1=ON) */
-#define USE_SYSCLOCK_168 (1) /* Use external 8MHz xtal and sets SYSCLK to 168MHz */
-#define USE_SYSCLOCK_84 (0) /* Use external 8MHz xtal and sets SYSCLK to 84MHz */
+#define USE_SYSCLOCK_168 (1) /* Use external 8MHz or 12 MHz xtal and sets SYSCLK to 168MHz */
+#define USE_SYSCLOCK_84 (0) /* Use external 8MHz or 12 MHz xtal and sets SYSCLK to 84MHz */
 
 /**
   * @}
@@ -801,7 +801,11 @@ void SetSysClock(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+#ifdef USE_DEBUG_8MHz_XTAL
   RCC_OscInitStruct.PLL.PLLM = 8;
+#else
+  RCC_OscInitStruct.PLL.PLLM = 12;
+#endif
   RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
@@ -838,7 +842,11 @@ void SetSysClock(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+#ifdef USE_DEBUG_8MHz_XTAL
   RCC_OscInitStruct.PLL.PLLM = 8;
+#else
+  RCC_OscInitStruct.PLL.PLLM = 12;
+#endif
   RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
   RCC_OscInitStruct.PLL.PLLQ = 7;
