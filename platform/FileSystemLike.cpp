@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/FileSystemLike.h"
+#include "platform/FileSystemLike.h"
 
 namespace mbed {
 

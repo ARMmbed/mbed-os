@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#include "drivers/FileBase.h"
+#include "platform/FileBase.h"
 #include "BlockDevice.h"
 
 namespace mbed {

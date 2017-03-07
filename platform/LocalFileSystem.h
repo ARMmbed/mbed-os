@@ -20,7 +20,7 @@
 
 #if DEVICE_LOCALFILESYSTEM
 
-#include "drivers/FileSystemLike.h"
+#include "platform/FileSystemLike.h"
 #include "platform/PlatformMutex.h"
 
 namespace mbed {

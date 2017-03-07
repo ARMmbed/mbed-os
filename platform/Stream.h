@@ -17,8 +17,8 @@
 #define MBED_STREAM_H
 
 #include "platform/platform.h"
-#include "drivers/FileLike.h"
-#include "drivers/FileHandle.h"
+#include "platform/FileLike.h"
+#include "platform/FileHandle.h"
 #include <cstdarg>
 
 namespace mbed {

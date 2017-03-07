@@ -18,9 +18,9 @@
 
 #include "platform/platform.h"
 
-#include "drivers/FileBase.h"
-#include "drivers/FileHandle.h"
-#include "drivers/DirHandle.h"
+#include "platform/FileBase.h"
+#include "platform/FileHandle.h"
+#include "platform/DirHandle.h"
 
 namespace mbed {
 /** \addtogroup drivers */

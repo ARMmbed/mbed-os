@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/FileBase.h"
-#include "drivers/FileLike.h"
-#include "drivers/FileHandle.h"
+#include "platform/FileBase.h"
+#include "platform/FileLike.h"
+#include "platform/FileHandle.h"
 
 namespace mbed {
 

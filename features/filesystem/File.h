@@ -18,7 +18,7 @@
 #define FILE_H
 
 #include "filesystem/FileSystem.h"
-#include "drivers/FileHandle.h"
+#include "platform/FileHandle.h"
 
 namespace mbed {
 /** \addtogroup filesystem */

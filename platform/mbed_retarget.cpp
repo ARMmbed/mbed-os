@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "platform/platform.h"
-#include "drivers/FilePath.h"
+#include "platform/FilePath.h"
 #include "hal/serial_api.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_semihost_api.h"

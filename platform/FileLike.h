@@ -17,8 +17,8 @@
 #define MBED_FILELIKE_H
 
 #include "platform/mbed_toolchain.h"
-#include "drivers/FileBase.h"
-#include "drivers/FileHandle.h"
+#include "platform/FileBase.h"
+#include "platform/FileHandle.h"
 
 namespace mbed {
 /** \addtogroup drivers */
