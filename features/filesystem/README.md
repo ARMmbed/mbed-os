@@ -294,8 +294,35 @@ Note the following things about the mbed_app.json file:
     }
     ```  
 - Thus, in the absence of any target specific definitions in the "target_overrides" section, all boards will default to 
-  use the Arduino header configuration. 
+  use the Arduino header configuration. For those platforms with a "target_overrides" section then this configuration
+  will be used in preference. 
+- Hence in the case that you want to test a platform fitted with a CI shield (with an SDCard inserted)
+  and there is a "target_overrides" section present in the mbed_app.json, then delete the "target_overrides"
+  section before building. This will result in the default configuration being used (suitable for the CI
+  Test Shield).
+- Note when inserting the v1.0.0 CI Test Shield into the Arduino header of the target platform, the shield pins D0 and
+  D1 should be bent to be parallel to the shield PCB so they are not inserted into the Arduino header. This is because
+  some boards use the same UART on DAPLINK and D0/D1, which means the serial debug channel breaks and hence the mbed greentea
+  test suite will not work correctly. This is mainly on older ST boards and should not be a problem on 
+  `K64F`, `NUCLEO_F429ZI` and `UBLOX_EVK_ODIN_W2`. Note also that the v2.0.0 CI Test Shield doesn't suffer from this
+  problem and the pins don't need to be bent.  
+- When inserting the SDCard into the card slot on the CI test shield, make sure the card is fully inserted. 
+  On insertion, there should be a small clicking sound when the card registers, and the back edge of the card
+  should protrude no more than ~1mm over the edge of the CI test shield PCB. If the SDCard fails to register, 
+  try gently pushing the metal flexible strip in the shape of a space at the top edge of the SDCard metal slot
+  casing with a pair of tweezers, bending it a little to lower it into the slot casing. This helps with the
+  insertion mechanism.
 
+#### Target K64F wi CI Test Shield fitted
+
+![alt text](pics/sd_driver_k64_with_ci_test_shield.jpg "unseen title text")
+
+**Figure 1. The figure shows the K64F platform with the CI shield fitted.**
+
+The above figure shows the K64F with the v1.0.0 CI test shield fitted. Note:
+
+- The pins D0/D1 (top right of CI test shield) are bent sideways so as not to insert into the header.
+- The SDCard is fully inserted into the slot and overhangs the PCB by ~1mm.  
   
 #### <a name="insert-sdcard-into-k64f"></a> Insert SDCard into K64F
 
@@ -371,6 +398,14 @@ On a successful run, results similar to the following will be shown:
     
 
 The full [test output log][RUN-TESTS-GCC-20161219-1011] is available for reference.
+
+
+### Known mbed-os and sd-driver Compatible Versions
+
+The following versions of mbed-os and sd-driver are known to work together: 
+
+- {mbed-os, sd-driver} = {mbed-os-5.4.0-rc2, sd-driver-0.0.1-mbed-os-5.4.0-rc2}. 
+  `K64F`, `NUCLEO_F429ZI` and `UBLOX_EVK_ODIN_W2` fopen and basic filesystem tests working.
 
     
 # POSIX File API

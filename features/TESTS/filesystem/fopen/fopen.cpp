@@ -38,7 +38,7 @@
 #include <errno.h>
 /* retarget.h is included after errno.h so symbols are mapped to
  * consistent values for all toolchains */
-#include "platform/retarget.h"
+#include "platform/mbed_retarget.h"
 
 /* This is needed for stat() test, but is not available on ARMCC.
  * The following checks whether GCC_ARM compiler is being used because:

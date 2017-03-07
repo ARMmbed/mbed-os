@@ -47,4 +47,4 @@ The following sample code illustrates how to use the sd-driver:
 
 * The [filesystem documentation including how to use the FAT filesystem on SDCard][FS_README].
 
-[FS_README]: features\filesystem\README.md
+[FS_README]: https://github.com/ARMmbed/sd-driver/blob/master/features/filesystem/README.md

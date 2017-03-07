@@ -70,7 +70,7 @@
 #include <algorithm>
 /* retarget.h is included after errno.h so symbols are mapped to
  * consistent values for all toolchains */
-#include "platform/retarget.h"
+#include "platform/mbed_retarget.h"
 
 using namespace utest::v1;
 
