@@ -2013,7 +2013,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name,
+    toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
                                   silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
