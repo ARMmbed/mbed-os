@@ -17,6 +17,8 @@ typedef struct {
 #define QUEUE_SIZE       16
 #define QUEUE_PUT_DELAY  100
 
+#define TEST_STACK_SIZE 512
+
 MemoryPool<message_t, QUEUE_SIZE> mpool;
 Queue<message_t, QUEUE_SIZE> queue;
 
@@ -37,7 +39,7 @@ void send_thread () {
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
 
-    Thread thread;
+    Thread thread(osPriorityNormal, TEST_STACK_SIZE);
     thread.start(send_thread);
     bool result = true;
     int result_counter = 0;

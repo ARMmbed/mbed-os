@@ -6,6 +6,8 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#define TEST_STACK_SIZE 512
+
 #define SIGNAL_SET_VALUE    0x01
 const int SIGNALS_TO_EMIT = 100;
 const int SIGNAL_HANDLE_DELEY = 25;
@@ -25,7 +27,7 @@ void led_thread() {
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
 
-    Thread thread;
+    Thread thread(osPriorityNormal, TEST_STACK_SIZE);
     thread.start(led_thread);
 
     bool result = false;

@@ -11,6 +11,8 @@
 #define QUEUE_PUT_ISR_VALUE     128
 #define QUEUE_PUT_THREAD_VALUE  127
 
+#define TEST_STACK_SIZE 512
+
 Queue<uint32_t, QUEUE_SIZE> queue;
 
 DigitalOut myled(LED1);
@@ -31,7 +33,7 @@ void queue_thread() {
 int main (void) {
     GREENTEA_SETUP(20, "default_auto");
 
-    Thread thread;
+    Thread thread(osPriorityNormal, TEST_STACK_SIZE);
     thread.start(queue_thread);
     Ticker ticker;
     ticker.attach(queue_isr, 1.0);

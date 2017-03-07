@@ -6,6 +6,8 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#define TEST_STACK_SIZE 512
+
 #define SIGNAL_PRINT_TICK 0x01
 
 DigitalOut led1(LED1);
@@ -22,15 +24,15 @@ void print_tick_thread() {
 
 int main() {
     GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
-    
-    Thread tick_thread(osPriorityNormal);
+
+    Thread tick_thread(osPriorityNormal, TEST_STACK_SIZE);
     tick_thread.start(print_tick_thread);
-    
+
     for (int i = 0; i <= total_ticks; i++) {
         Thread::wait(1000);
         tick_thread.signal_set(SIGNAL_PRINT_TICK);
     }
-    
+
     tick_thread.join();
     GREENTEA_TESTSUITE_RESULT(1);
 }
