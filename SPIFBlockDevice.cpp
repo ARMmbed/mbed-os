@@ -55,7 +55,7 @@ SPIFBlockDevice::SPIFBlockDevice(
     _spi.frequency(freq);
 }
 
-bd_error_t SPIFBlockDevice::init()
+int SPIFBlockDevice::init()
 {
     // Check for vendor specific hacks, these should move into more general
     // handling when possible. RDID is not used to verify a device is attached.
@@ -72,9 +72,9 @@ bd_error_t SPIFBlockDevice::init()
     }
 
     // Check that device is doing ok 
-    bd_error_t err = _sync();
+    int err = _sync();
     if (err) {
-        return BD_ERROR_NO_DEVICE;
+        return BD_ERROR_DEVICE_ERROR;
     }
 
     // Check JEDEC serial flash discoverable parameters for device
@@ -128,7 +128,7 @@ bd_error_t SPIFBlockDevice::init()
     return 0;
 }
 
-bd_error_t SPIFBlockDevice::deinit()
+int SPIFBlockDevice::deinit()
 {
     // Latch write disable just to keep noise
     // from changing the device
@@ -209,7 +209,7 @@ void SPIFBlockDevice::_cmdwrite(
     }
 }
 
-bd_error_t SPIFBlockDevice::_sync()
+int SPIFBlockDevice::_sync()
 {
     for (int i = 0; i < SPIF_TIMEOUT; i++) {
         // Read status register until write not-in-progress
@@ -227,7 +227,7 @@ bd_error_t SPIFBlockDevice::_sync()
     return BD_ERROR_DEVICE_ERROR;
 }
 
-bd_error_t SPIFBlockDevice::_wren()
+int SPIFBlockDevice::_wren()
 {
     _cmdwrite(SPIF_WREN, 0, 0, 0x0, NULL);
 
@@ -247,26 +247,22 @@ bd_error_t SPIFBlockDevice::_wren()
     return BD_ERROR_DEVICE_ERROR;
 }
 
-bd_error_t SPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
+int SPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     // Check the address and size fit onto the chip.
-    if (!is_valid_read(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(is_valid_read(addr, size));
 
     _cmdread(SPIF_READ, 3, size, addr, static_cast<uint8_t *>(buffer));
     return 0;
 }
  
-bd_error_t SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
+int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     // Check the address and size fit onto the chip.
-    if (!is_valid_program(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(is_valid_program(addr, size));
 
     while (size > 0) {
-        bd_error_t err = _wren();
+        int err = _wren();
         if (err) {
             return err;
         }
@@ -291,15 +287,13 @@ bd_error_t SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_
     return 0;
 }
 
-bd_error_t SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     // Check the address and size fit onto the chip.
-    if (!is_valid_erase(addr, size)) {
-        return BD_ERROR_PARAMETER;
-    }
+    MBED_ASSERT(is_valid_erase(addr, size));
 
     while (size > 0) {
-        bd_error_t err = _wren();
+        int err = _wren();
         if (err) {
             return err;
         }
@@ -320,22 +314,22 @@ bd_error_t SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-bd_size_t SPIFBlockDevice::get_read_size()
+bd_size_t SPIFBlockDevice::get_read_size() const
 {
     return SPIF_READ_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::get_program_size()
+bd_size_t SPIFBlockDevice::get_program_size() const
 {
     return SPIF_PROG_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::get_erase_size()
+bd_size_t SPIFBlockDevice::get_erase_size() const
 {
     return SPIF_SE_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::size()
+bd_size_t SPIFBlockDevice::size() const
 {
     return _size;
 }

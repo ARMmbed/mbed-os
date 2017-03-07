@@ -8,14 +8,6 @@
 
 using namespace utest::v1;
 
-#ifndef SPIF_INSTALLED
-#define SPIF_INSTALLED defined(TARGET_K82F)
-#endif
-
-#if !SPIF_INSTALLED
-#error [NOT_SUPPORTED] SPIF Required
-#endif
-
 #if defined(TARGET_K82F)
 #define TEST_PINS PTE2, PTE4, PTE1, PTE5
 #define TEST_FREQ 40000000
@@ -29,7 +21,7 @@ using namespace utest::v1;
 
 const struct {
     const char *name;
-    bd_size_t (BlockDevice::*method)();
+    bd_size_t (BlockDevice::*method)() const;
 } ATTRS[] = {
     {"read size",    &BlockDevice::get_read_size},
     {"program size", &BlockDevice::get_program_size},
@@ -60,7 +52,7 @@ void test_read_write() {
     uint8_t *write_block = new uint8_t[block_size];
     uint8_t *read_block = new uint8_t[block_size];
     uint8_t *error_mask = new uint8_t[TEST_ERROR_MASK];
-    unsigned addrwidth = ceil(log(bd.size()-1) / log(16))+1;
+    unsigned addrwidth = ceil(log(float(bd.size()-1)) / log(float(16)))+1;
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
         // Find a random block
@@ -79,7 +71,10 @@ void test_read_write() {
         // Write, sync, and read the block
         printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
 
-        err = bd.write(write_block, block, block_size);
+        err = bd.erase(block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = bd.program(write_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
         printf("write %0*llx:%llu ", addrwidth, block, block_size);
