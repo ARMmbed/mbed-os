@@ -122,6 +122,22 @@
 #define OS_CLOCK                72000000
 #endif
 
+#elif defined(TARGET_STM32F103T8)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20005000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          64
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                72000000
+#endif
+
+
 #elif defined(TARGET_STM32F207ZG)
 
 #ifndef INITIAL_SP
@@ -672,6 +688,22 @@
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                80000000
+#endif
+
+
+#elif defined(TARGET_STM32L476QE)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20018000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          1024
 #endif
 #ifndef OS_CLOCK
 #define OS_CLOCK                80000000

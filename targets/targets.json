@@ -731,6 +731,19 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F103RB"
     },
+    "MLINKER_F103T8": {
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32F1", "STM32F103T8"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "inherits": ["Target"],
+        "detect_code": ["8011"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "release_versions": ["1", "0"],
+        "device_name": "STM32F103T8"
+    },
     "NUCLEO_F207ZG": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M3",
@@ -1079,6 +1092,19 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L476RG"
     },
+    "MLINKER_L476QE": {
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32L4", "STM32L476xE", "STM32L476QE"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "detect_code": ["8010"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2","USBHOST_OTHER"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "release_versions": ["1", "0"],
+        "device_name": "STM32L476QE"
+    },
+
     "NUCLEO_L486RG": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
