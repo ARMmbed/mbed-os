@@ -1,7 +1,23 @@
+/*
+ * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 ENTRY(Reset_Handler)
 
+/*INCLUDE "mbed-os/targets/TARGET_Realtek/TARGET_AMEBA/TARGET_RTL8195A/device/TOOLCHAIN_GCC_ARM/export-rom_v02.txt"*/
 SECTIONS
 {
     __vectors_table = 0x0;
@@ -653,6 +669,7 @@ SECTIONS
 MEMORY
 {
   TCM (rwx)        : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
+  ROM_USED_RAM (rwx)  : ORIGIN = 0x10000bc8, LENGTH = 0x10006000-0x10000bc8
   DATA_RAM (rwx)   : ORIGIN = 0x10002100, LENGTH = 0x10006000 - 0x10002100
   BD_RAM (rwx)     : ORIGIN = 0x10006000, LENGTH = 0x10070000 - 0x10006000
   SD_RAM (rwx)     : ORIGIN = 0x30000000, LENGTH = 2M
@@ -691,7 +708,12 @@ SECTIONS
     __rom_bss_start__ = 0x10000300;
     __rom_bss_end__ = 0x10000bc8;
     __ram_table_start__ = 0x10000bc8;
-
+/*
+    .ram.start.table :
+	{
+	
+	} > ROM_USED_RAM
+*/
     .image2.table :
     {
         __image2_start__ = .;
@@ -803,40 +825,11 @@ SECTIONS
         __HeapLimit = .;
     } > BD_RAM
 
-	/*
     .TCM_overlay :
     {
         *(.tcm.heap*)
     } > TCM
-
-
-	.sdr_text :
-	  {
-	    __image3_start__ = .;
-	    *(.sdram.text*)
-	    *(.p2p.text*)
-	    *(.wps.text*)
-	    *(.websocket.text*)
-	  } > SD_RAM
-
-	.sdr_rodata :
-	  {
-	    *(.sdram.rodata*)
-	    *(.p2p.rodata*)
-	    *(.wps.rodata*)
-	    *(.websocket.rodata*)
-	  } > SD_RAM
-
-	.sdr_bss :
-	  {
-	    __sdram_bss_start__ = .;
-	    *(.sdram.bss*)
-	    *(.p2p.bss*)
-	    *(.wps.bss*)
-	    *(.websocket.bss*)
-	    __sdram_bss_end__ = .;
-	  } > SD_RAM
-	  */
+    
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */
@@ -854,11 +847,5 @@ SECTIONS
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM exceeds ram limit")
 
-    .sdr_data :
-    {
-        __sdram_data_start__ = .;
-        *(.sdram.data*)
-        __sdram_data_end__ = .;
-    } > SD_RAM
 }
 
