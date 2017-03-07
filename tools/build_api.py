@@ -731,6 +731,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
 ### Legacy methods ###
 ######################
 
+def mbed2_obj_path(target_name, toolchain_name):
+    return join("TARGET_" + target_name, "TOOLCHAIN_" + toolchain_name)
+
 def build_lib(lib_id, target, toolchain_name, verbose=False,
               clean=False, macros=None, notify=None, jobs=1, silent=False,
               report=None, properties=None, extra_verbose=False,
@@ -807,20 +810,23 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
 
     try:
         # Toolchain instance
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, macros=macros, notify=notify, silent=silent,
-            extra_verbose=extra_verbose, build_profile=build_profile)
-        toolchain.VERBOSE = verbose
-        toolchain.jobs = jobs
-        toolchain.build_all = clean
-        toolchain.build_dir = build_path
+        # Create the desired build directory structure
+        bin_path = join(build_path, mbed2_obj_path(target.name, toolchain_name))
+        mkdir(bin_path)
+        tmp_path = join(build_path, '.temp', mbed2_obj_path(target.name,
+                                                            toolchain_name))
+        mkdir(tmp_path)
+
+        toolchain = prepare_toolchain(
+            src_paths, tmp_path, target, toolchain_name, macros=macros,
+            notify=notify, silent=silent, extra_verbose=extra_verbose,
+            build_profile=build_profile, jobs=jobs, clean=clean)
 
         toolchain.info("Building library %s (%s, %s)" %
                        (name.upper(), target.name, toolchain_name))
 
         # Take into account the library configuration (MBED_CONFIG_FILE)
-        config = Config(target)
-        toolchain.config = config
+        config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
 
         # Scan Resources
@@ -851,11 +857,6 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
             config.load_resources(res)
         toolchain.set_config_data(toolchain.config.get_config_data())
 
-        # Create the desired build directory structure
-        bin_path = join(build_path, toolchain.obj_path)
-        mkdir(bin_path)
-        tmp_path = join(build_path, '.temp', toolchain.obj_path)
-        mkdir(tmp_path)
 
         # Copy Headers
         for resource in resources:
@@ -952,30 +953,24 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         return False
 
     try:
-        # Toolchain
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, macros=macros, notify=notify, silent=silent,
-            extra_verbose=extra_verbose, build_profile=build_profile)
-        toolchain.VERBOSE = verbose
-        toolchain.jobs = jobs
-        toolchain.build_all = clean
-
-        tmp_path = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
-        mkdir(tmp_path)
-
-        toolchain.build_dir = tmp_path
-
-        # Take into account the library configuration (MBED_CONFIG_FILE)
-        config = Config(target)
-        toolchain.config = config
-        config.add_config_files([MBED_CONFIG_FILE])
-        toolchain.set_config_data(toolchain.config.get_config_data())
-
         # Source and Build Paths
         build_target = join(MBED_LIBRARIES, "TARGET_" + target.name)
-        build_toolchain = join(build_target, "TOOLCHAIN_" + toolchain.name)
+        build_toolchain = join(build_target, "TOOLCHAIN_" + toolchain_name)
         mkdir(build_toolchain)
 
+        # Toolchain
+        tmp_path = join(MBED_LIBRARIES, '.temp', mbed2_obj_path(target.name, toolchain_name))
+        mkdir(tmp_path)
+
+        toolchain = prepare_toolchain(
+            [""], tmp_path, target, toolchain_name, macros=macros,
+            notify=notify, silent=silent, extra_verbose=extra_verbose,
+            build_profile=build_profile, jobs=jobs, clean=clean)
+
+        # Take into account the library configuration (MBED_CONFIG_FILE)
+        config = toolchain.config
+        config.add_config_files([MBED_CONFIG_FILE])
+        toolchain.set_config_data(toolchain.config.get_config_data())
 
         # CMSIS
         toolchain.info("Building library %s (%s, %s)" %
