@@ -514,7 +514,6 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
 [MBED_DEVENV_NOTES]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/12-mbed_devenv_setup_how_to_notes.docx
 [BUILD-TESTS-GCC-20161219-1007]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/build_tests_gcc_20161219_1007.txt
 [RUN-TESTS-GCC-20161219-1011]: https://github.com/ARMmbed/meVo/blob/master/docs/ARM_MBED/TN/ARM_MBED_TN_0017/run_tests_master_gcc_ex_app2_fat_basic_20161219_1011.txt
-
 [MAN_CLEARERR]: https://linux.die.net/man/3/clearerr
 [MAN_FCLOSE]: https://linux.die.net/man/3/fclose
 [MAN_FGETS]: https://linux.die.net/man/3/fgets
