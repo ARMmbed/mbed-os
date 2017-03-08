@@ -213,7 +213,7 @@ INFRA_START_SECTION void PLAT_Start(void)
     HalTimerOpInit_Patch(&HalTimerOp);
 #endif
 
-	DBG_8195A("===== Enter Image 2 ====\n");
+	//DBG_8195A("===== Enter Image 2 ====\n");
 
 
     SystemCoreClockUpdate();
