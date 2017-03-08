@@ -299,6 +299,12 @@ void mbed_start_main(void)
 
 #if defined (__CC_ARM) /******************** ARMCC ********************/
 
+#include <rt_misc.h>
+extern __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(void);
+extern void _platform_post_stackheap_init (void);
+extern int main(int argc, char* argv[]);
+
 int $Super$$main(void);
 int $Sub$$main(void) {
     mbed_main();
@@ -335,6 +341,7 @@ void __rt_entry (void) {
 
 #elif defined (__GNUC__) /******************** GCC ********************/
 
+extern int main(int argc, char* argv[]);
 extern void __libc_init_array (void);
 extern int __real_main(void);
 

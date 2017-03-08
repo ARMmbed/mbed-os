@@ -19,6 +19,8 @@
 #include "mbed_rtx.h"
 #include "mbed_error.h"
 
+extern void rtos_idle_loop(void);
+
 __NO_RETURN void osRtxIdleThread (void *argument)
 {
     for (;;) {
