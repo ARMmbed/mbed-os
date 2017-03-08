@@ -99,9 +99,11 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     
     ((struct nu_pwm_var *) modinit->var)->en_msk |= 1 << chn;
     
-    // Mark this module to be inited.
-    int i = modinit - pwm_modinit_tab;
-    pwm_modinit_mask |= 1 << i;
+    if (((struct nu_pwm_var *) modinit->var)->en_msk) {
+        // Mark this module to be inited.
+        int i = modinit - pwm_modinit_tab;
+        pwm_modinit_mask |= 1 << i;
+    }
 }
 
 void pwmout_free(pwmout_t* obj)
@@ -120,9 +122,11 @@ void pwmout_free(pwmout_t* obj)
         CLK_DisableModuleClock(modinit->clkidx);
     }
     
-    // Mark this module to be deinited.
-    int i = modinit - pwm_modinit_tab;
-    pwm_modinit_mask &= ~(1 << i);
+    if (((struct nu_pwm_var *) modinit->var)->en_msk == 0) {
+        // Mark this module to be deinited.
+        int i = modinit - pwm_modinit_tab;
+        pwm_modinit_mask &= ~(1 << i);
+    }
 }
 
 void pwmout_write(pwmout_t* obj, float value)
