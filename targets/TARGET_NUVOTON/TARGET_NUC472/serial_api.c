@@ -544,7 +544,9 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         MBED_ASSERT(modinit != NULL);
         MBED_ASSERT(modinit->modname == obj->serial.uart);
     
-        PDMA->CHCTL |= 1 << obj->serial.dma_chn_id_tx;  // Enable this DMA channel
+        PDMA_T *pdma_base = dma_modbase();
+        
+        pdma_base->CHCTL |= 1 << obj->serial.dma_chn_id_tx;  // Enable this DMA channel
         PDMA_SetTransferMode(obj->serial.dma_chn_id_tx,
             ((struct nu_uart_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
@@ -603,7 +605,9 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         MBED_ASSERT(modinit != NULL);
         MBED_ASSERT(modinit->modname == obj->serial.uart);
     
-        PDMA->CHCTL |= 1 << obj->serial.dma_chn_id_rx;  // Enable this DMA channel
+        PDMA_T *pdma_base = dma_modbase();
+        
+        pdma_base->CHCTL |= 1 << obj->serial.dma_chn_id_rx;  // Enable this DMA channel
         PDMA_SetTransferMode(obj->serial.dma_chn_id_rx,
             ((struct nu_uart_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
@@ -634,11 +638,13 @@ void serial_tx_abort_asynch(serial_t *obj)
     while (! UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart))));
     
     if (obj->serial.dma_usage_tx != DMA_USAGE_NEVER) {
+        PDMA_T *pdma_base = dma_modbase();
+        
         if (obj->serial.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->serial.dma_chn_id_tx, 0);
             // FIXME: Next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             //PDMA_STOP(obj->serial.dma_chn_id_tx);
-            PDMA->CHCTL &= ~(1 << obj->serial.dma_chn_id_tx);
+            pdma_base->CHCTL &= ~(1 << obj->serial.dma_chn_id_tx);
         }
         UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_TXPDMAEN_Msk);
     }
@@ -653,11 +659,13 @@ void serial_tx_abort_asynch(serial_t *obj)
 void serial_rx_abort_asynch(serial_t *obj)
 {
     if (obj->serial.dma_usage_rx != DMA_USAGE_NEVER) {
+        PDMA_T *pdma_base = dma_modbase();
+        
         if (obj->serial.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->serial.dma_chn_id_rx, 0);
             // FIXME: Next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             //PDMA_STOP(obj->serial.dma_chn_id_rx);
-            PDMA->CHCTL &= ~(1 << obj->serial.dma_chn_id_rx);
+            pdma_base->CHCTL &= ~(1 << obj->serial.dma_chn_id_rx);
         }
         UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_RXPDMAEN_Msk);
     }
