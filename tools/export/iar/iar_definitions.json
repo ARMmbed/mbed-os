@@ -42,7 +42,10 @@
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"
     },
     "nRF51822_xxAA": {
-        "OGChipSelectEditMenu": "nRF51822-QFAA\tNordicSemi nRF51822-QFAA"
+        "OGChipSelectEditMenu": "nRF51822-QFAA\tNordicSemi nRF51822-QFAA",
+        "CExtraOptionsCheck": 1,
+        "CExtraOptions": "--drv_vector_table_base=0x0",
+        "CMSISDAPJtagSpeedList": 10
     },
     "EFM32GG990F1024": {
         "OGChipSelectEditMenu": "EFM32GG990F1024\tSiliconLaboratories EFM32GG990F1024"
@@ -163,7 +166,10 @@
         "OGChipSelectEditMenu": "STM32F407VG\tST STM32F407VG"
     },
     "nRF52832_xxAA":{
-        "OGChipSelectEditMenu": "nRF52832-xxAA\tNordicSemi nRF52832-xxAA"
+        "OGChipSelectEditMenu": "nRF52832-xxAA\tNordicSemi nRF52832-xxAA",
+        "CExtraOptionsCheck": 1,
+        "CExtraOptions": "--drv_vector_table_base=0x0",
+        "CMSISDAPJtagSpeedList": 10
     },
     "NCS36510":{
         "OGChipSelectEditMenu": "NCS36510\tONSemiconductor NCS36510"
