@@ -321,7 +321,7 @@
 #define BIT_CFGX_UP_DEST_PER(x)(((x) & BIT_MASK_CFGX_UP_DEST_PER) << BIT_SHIFT_CFGX_UP_DEST_PER)
 #define BIT_INVC_CFGX_UP_DEST_PER (~(BIT_MASK_CFGX_UP_DEST_PER << BIT_SHIFT_CFGX_UP_DEST_PER))
 
-typedef enum _GDMA_CHANNEL_NUM_ {
+enum _GDMA_CHANNEL_NUM_ {
         GdmaNoCh    = 0x0000,
         GdmaCh0     = 0x0101,
         GdmaCh1     = 0x0202,
@@ -332,35 +332,45 @@ typedef enum _GDMA_CHANNEL_NUM_ {
         GdmaCh6     = 0x4040,
         GdmaCh7     = 0x8080,
         GdmaAllCh   = 0xffff
-}GDMA_CHANNEL_NUM, *PGDMA_CHANNEL_NUM;
+};
+typedef uint32_t GDMA_CHANNEL_NUM;
+typedef uint32_t *PGDMA_CHANNEL_NUM;
 
 
 //3 CTL register struct
 
-typedef enum _GDMA_CTL_TT_FC_TYPE_ {
+enum _GDMA_CTL_TT_FC_TYPE_ {
         TTFCMemToMem    = 0x00,
         TTFCMemToPeri   = 0x01,
         TTFCPeriToMem   = 0x02
-}GDMA_CTL_TT_FC_TYPE, *PGDMA_CTL_TT_FC_TYPE;
+};
+typedef uint32_t GDMA_CTL_TT_FC_TYPE;
+typedef uint32_t *PGDMA_CTL_TT_FC_TYPE;
 
 //Max type = Bus Width
-typedef enum _GDMA_CTL_TR_WIDTH_ {
+enum _GDMA_CTL_TR_WIDTH_ {
         TrWidthOneByte    = 0x00,
         TrWidthTwoBytes   = 0x01,
         TrWidthFourBytes  = 0x02
-}GDMA_CTL_TR_WIDTH, *PGDMA_CTL_TR_WIDTH;
+};
+typedef uint32_t GDMA_CTL_TR_WIDTH;
+typedef uint32_t *PGDMA_CTL_TR_WIDTH;
 
-typedef enum _GDMA_CTL_MSIZE_ {
+enum _GDMA_CTL_MSIZE_ {
         MsizeOne        = 0x00,
         MsizeFour       = 0x01,
         MsizeEight      = 0x02
-}GDMA_CTL_MSIZE, *PGDMA_CTL_MSIZE;
+};
+typedef uint32_t GDMA_CTL_MSIZE;
+typedef uint32_t *PGDMA_CTL_MSIZE;
 
-typedef enum _GDMA_INC_TYPE_ {
+enum _GDMA_INC_TYPE_ {
         IncType         = 0x00,
         DecType         = 0x01,
         NoChange        = 0x02
-}GDMA_INC_TYPE, *PGDMA_INC_TYPE;
+};
+typedef uint32_t GDMA_INC_TYPE;
+typedef uint32_t *PGDMA_INC_TYPE;
 
 
 typedef struct _GDMA_CTL_REG_ {
@@ -386,7 +396,7 @@ typedef struct _GDMA_CTL_REG_ {
 
 //3 CFG Register Structure
 
-typedef enum _GDMA_CH_PRIORITY_ {
+enum _GDMA_CH_PRIORITY_ {
     Prior0          = 0,
     Prior1          = 1,
     Prior2          = 2,
@@ -395,13 +405,17 @@ typedef enum _GDMA_CH_PRIORITY_ {
     Prior5          = 5,
     Prior6          = 6,
     Prior7          = 7
-}GDMA_CH_PRIORITY, *PGDMA_CH_PRIORITY;
+};
+typedef uint32_t GDMA_CH_PRIORITY;
+typedef uint32_t *PGDMA_CH_PRIORITY;
 
-typedef enum _GDMA_LOCK_LEVEL_ {
+enum _GDMA_LOCK_LEVEL_ {
     OverComplDmaTransfer        = 0x00,
     OverComplDmaBlockTransfer   = 0x01,
     OverComplDmaTransation      = 0x02
-}GDMA_LOCK_LEVEL, *PGDMA_LOCK_LEVEL;
+};
+typedef uint32_t GDMA_LOCK_LEVEL;
+typedef uint32_t *PGDMA_LOCK_LEVEL;
 
 
 typedef struct _GDMA_CFG_REG_ {
@@ -427,13 +441,15 @@ typedef struct _GDMA_CFG_REG_ {
     u16                     Rsvd13To15  :3;
 }GDMA_CFG_REG, *PGDMA_CFG_REG;
 
-typedef enum _GDMA_ISR_TYPE_ {
+enum _GDMA_ISR_TYPE_ {
     TransferType        = 0x1,
     BlockType           = 0x2,
     SrcTransferType     = 0x4,
     DstTransferType     = 0x8,
     ErrType             = 0x10
-}GDMA_ISR_TYPE, *PGDMA_ISR_TYPE;
+};
+typedef uint32_t GDMA_ISR_TYPE;
+typedef uint32_t *PGDMA_ISR_TYPE;
 
 
 VOID

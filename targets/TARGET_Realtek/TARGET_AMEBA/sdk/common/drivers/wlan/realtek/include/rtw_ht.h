@@ -51,7 +51,7 @@ struct ht_priv
 #define	STBC_HT_TEST_TX_ENABLE		BIT2
 #define	STBC_HT_CAP_TX				BIT3
 
-typedef enum AGGRE_SIZE{
+enum AGGRE_SIZE{
 	HT_AGG_SIZE_8K = 0,
 	HT_AGG_SIZE_16K = 1,
 	HT_AGG_SIZE_32K = 2,
@@ -60,7 +60,9 @@ typedef enum AGGRE_SIZE{
 	VHT_AGG_SIZE_256K = 5,
 	VHT_AGG_SIZE_512K = 6,
 	VHT_AGG_SIZE_1024K = 7,
-}AGGRE_SIZE_E, *PAGGRE_SIZE_E;
+};
+typedef uint32_t AGGRE_SIZE_E;
+typedef uint32_t *PAGGRE_SIZE_E;
 
 #endif	//_RTL871X_HT_H_
 

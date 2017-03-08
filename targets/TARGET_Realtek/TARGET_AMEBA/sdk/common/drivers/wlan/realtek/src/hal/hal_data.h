@@ -42,25 +42,31 @@
 //
 // <Roger_Notes> For RTL8723 WiFi/BT/GPS multi-function configuration. 2010.10.06.
 //
-typedef enum _RT_MULTI_FUNC{
+enum _RT_MULTI_FUNC{
 	RT_MULTI_FUNC_NONE	= 0x00,
 	RT_MULTI_FUNC_WIFI 	= 0x01,
 	RT_MULTI_FUNC_BT 		= 0x02,
 	RT_MULTI_FUNC_GPS 	= 0x04,
-}RT_MULTI_FUNC,*PRT_MULTI_FUNC;
+};
+typedef uint32_t RT_MULTI_FUNC;
+typedef uint32_t * PRT_MULTI_FUNC;
 //
 // <Roger_Notes> For RTL8723 WiFi PDn/GPIO polarity control configuration. 2010.10.08.
 //
-typedef enum _RT_POLARITY_CTL {
+enum _RT_POLARITY_CTL {
 	RT_POLARITY_LOW_ACT 	= 0,
 	RT_POLARITY_HIGH_ACT 	= 1,	
-} RT_POLARITY_CTL, *PRT_POLARITY_CTL;
+};
+typedef uint32_t RT_POLARITY_CTL;
+typedef uint32_t *PRT_POLARITY_CTL;
 
 // For RTL8723 regulator mode. by tynli. 2011.01.14.
-typedef enum _RT_REGULATOR_MODE {
+enum _RT_REGULATOR_MODE {
 	RT_SWITCHING_REGULATOR 	= 0,
 	RT_LDO_REGULATOR 			= 1,
-} RT_REGULATOR_MODE, *PRT_REGULATOR_MODE;
+};
+typedef uint32_t RT_REGULATOR_MODE;
+typedef uint32_t *PRT_REGULATOR_MODE;
 
 #define CHANNEL_MAX_NUMBER						14	// 14 is the max channel number
 #define CHANNEL_MAX_NUMBER_2G					14

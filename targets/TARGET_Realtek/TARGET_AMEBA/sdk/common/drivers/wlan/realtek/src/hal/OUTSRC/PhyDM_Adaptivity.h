@@ -27,30 +27,33 @@
 #define DFIRloss	5
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-typedef enum _tag_PhyDM_REGULATION_Type {
+enum _tag_PhyDM_REGULATION_Type {
 	REGULATION_FCC = 0,
 	REGULATION_MKK = 1,
 	REGULATION_ETSI = 2,
 	REGULATION_WW = 3,	
 	
 	MAX_REGULATION_NUM = 4
-} PhyDM_REGULATION_TYPE;
+};
+typedef uint32_t PhyDM_REGULATION_TYPE;
 #endif
 
 
-typedef enum tag_PhyDM_TRx_MUX_Type
+enum tag_PhyDM_TRx_MUX_Type
 {
 	PhyDM_SHUTDOWN			= 0,
 	PhyDM_STANDBY_MODE		= 1,
 	PhyDM_TX_MODE			= 2,
 	PhyDM_RX_MODE			= 3
-}PhyDM_Trx_MUX_Type;
+};
+typedef uint32_t PhyDM_Trx_MUX_Type;
 
-typedef enum tag_PhyDM_MACEDCCA_Type
+enum tag_PhyDM_MACEDCCA_Type
 {
 	PhyDM_IGNORE_EDCCA			= 0,
 	PhyDM_DONT_IGNORE_EDCCA	= 1
-}PhyDM_MACEDCCA_Type;
+};
+typedef uint32_t PhyDM_MACEDCCA_Type;
 
 typedef struct _ADAPTIVITY_STATISTICS {
 	s1Byte			TH_L2H_ini_mode2;

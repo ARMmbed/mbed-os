@@ -737,11 +737,12 @@ int wifi_get_last_error(void);
 /**
   * @brief  The enumeration is transmission type for wifi custom ie.
   */
-typedef enum CUSTOM_IE_TYPE{
+enum CUSTOM_IE_TYPE{
 	PROBE_REQ = BIT(0),
 	PROBE_RSP = BIT(1),
 	BEACON	  = BIT(2),
-}rtw_custom_ie_type_t;
+};
+typedef uint32_t rtw_custom_ie_type_t;
 #endif /* _CUSTOM_IE_TYPE_ */
 
 /* ie format

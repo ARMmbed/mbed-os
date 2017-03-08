@@ -52,7 +52,7 @@ extern "C" {
 /**
   * @brief  The enumeration lists the results of the function.
   */
-typedef enum
+enum
 {
     RTW_SUCCESS                      = 0,    /**< Success */
     RTW_PENDING                      = 1,    /**< Pending */
@@ -111,14 +111,15 @@ typedef enum
     RTW_UNFINISHED                   = -41,  /**< To be finished */
     RTW_NONRESIDENT                  = -42,  /**< access to nonresident overlay */
     RTW_DISABLED                     = -43   /**< Disabled in this build */
-} rtw_result_t;
+};
+typedef unsigned long rtw_result_t;
 
 /**
   * @brief  The enumeration lists the possible security types to set when connection.\n
   *			Station mode supports OPEN, WEP, and WPA2.\n
   *			AP mode support OPEN and WPA2.
   */
-typedef enum {
+enum {
     RTW_SECURITY_OPEN           = 0,                                                /**< Open security                           */
     RTW_SECURITY_WEP_PSK        = WEP_ENABLED,                                      /**< WEP Security with open authentication   */
     RTW_SECURITY_WEP_SHARED     = ( WEP_ENABLED | SHARED_ENABLED ),                 /**< WEP Security with shared authentication */
@@ -135,9 +136,10 @@ typedef enum {
     RTW_SECURITY_UNKNOWN        = -1,                                               /**< May be returned by scan function if security is unknown. Do not pass this to the join function! */
 
     RTW_SECURITY_FORCE_32_BIT   = 0x7fffffff                                        /**< Exists only to force rtw_security_t type to 32 bits */
-} rtw_security_t;
+};
+typedef unsigned long rtw_security_t;
 
-typedef enum {
+enum {
     RTW_ENCRYPTION_UNKNOWN = 0,                 
     RTW_ENCRYPTION_OPEN = 1,
     RTW_ENCRYPTION_WEP40 = 2,
@@ -148,25 +150,28 @@ typedef enum {
     RTW_ENCRYPTION_WPA2_MIXED = 7,
     RTW_ENCRYPTION_WEP104 = 9,
     RTW_ENCRYPTION_UNDEF = 0xFF,                 
-} rtw_encryption_t;
+};
+typedef unsigned long rtw_encryption_t;
 
-typedef enum {
+enum {
 	RTW_FALSE = 0,
 	RTW_TRUE  = 1
-} rtw_bool_t;
+};
+typedef unsigned long rtw_bool_t;
 
 /**
   * @brief  The enumeration lists the band types.
   */
-typedef enum {
+enum {
 	RTW_802_11_BAND_5GHZ   = 0, /**< Denotes 5GHz radio band   */
 	RTW_802_11_BAND_2_4GHZ = 1  /**< Denotes 2.4GHz radio band */
-} rtw_802_11_band_t;
+};
+typedef unsigned long rtw_802_11_band_t;
 
 /**
   * @brief  The enumeration lists all the country codes able to set to Wi-Fi driver.
   */
-typedef enum {
+enum {
 	/* CHANNEL PLAN */
 	RTW_COUNTRY_WORLD1,	// 0x20
 	RTW_COUNTRY_ETSI1,	// 0x21
@@ -362,73 +367,82 @@ typedef enum {
 	
 	RTW_COUNTRY_MAX
 
-}rtw_country_code_t;
+};
+typedef unsigned long rtw_country_code_t;
 
 /**
   * @brief  The enumeration lists the adaptivity types.
   */
-typedef enum {
+enum {
 	RTW_ADAPTIVITY_DISABLE = 0,
 	RTW_ADAPTIVITY_NORMAL,			// CE
 	RTW_ADAPTIVITY_CARRIER_SENSE	// MKK
-} rtw_adaptivity_mode_t;
+};
+typedef unsigned long rtw_adaptivity_mode_t;
 
 /**
   * @brief  The enumeration lists the supported operation mode by WIFI driver,
   *			including station and AP mode.
   */
-typedef enum {
+enum {
 	RTW_MODE_NONE = 0,
 	RTW_MODE_STA,
 	RTW_MODE_AP,
 	RTW_MODE_STA_AP,
 	RTW_MODE_PROMISC,
 	RTW_MODE_P2P
-}rtw_mode_t;
+};
+typedef unsigned long rtw_mode_t;
 
-typedef enum {
+enum {
 	RTW_SCAN_FULL = 0,
 	RTW_SCAN_SOCIAL,
 	RTW_SCAN_ONE
-}rtw_scan_mode_t;
+};
+typedef unsigned long rtw_scan_mode_t;
 
 /**
   * @brief  The enumeration lists the status to describe the connection link.
   */
-typedef enum {
+enum {
 	RTW_LINK_DISCONNECTED = 0,
 	RTW_LINK_CONNECTED
-} rtw_link_status_t;
+};
+typedef unsigned long rtw_link_status_t;
 
 /**
   * @brief  The enumeration lists the scan types.
   */
-typedef enum {
+enum {
     RTW_SCAN_TYPE_ACTIVE              = 0x00,  /**< Actively scan a network by sending 802.11 probe(s)         */
     RTW_SCAN_TYPE_PASSIVE             = 0x01,  /**< Passively scan a network by listening for beacons from APs */
     RTW_SCAN_TYPE_PROHIBITED_CHANNELS = 0x04   /**< Passively scan on channels not enabled by the country code */
-} rtw_scan_type_t;
+};
+typedef unsigned long rtw_scan_type_t;
 
 /**
   * @brief  The enumeration lists the bss types.
   */
-typedef enum {
+enum {
     RTW_BSS_TYPE_INFRASTRUCTURE = 0, /**< Denotes infrastructure network                  */
     RTW_BSS_TYPE_ADHOC          = 1, /**< Denotes an 802.11 ad-hoc IBSS network           */
     RTW_BSS_TYPE_ANY            = 2, /**< Denotes either infrastructure or ad-hoc network */
 
     RTW_BSS_TYPE_UNKNOWN        = -1 /**< May be returned by scan function if BSS type is unknown. Do not pass this to the Join function */
-} rtw_bss_type_t;
+};
+typedef unsigned long rtw_bss_type_t;
 
-typedef enum {
+enum {
 	RTW_SCAN_COMMAMD = 0x01
-} rtw_scan_command_t;
+};
+typedef unsigned long rtw_scan_command_t;
 
-typedef enum{
+enum{
 	COMMAND1					= 0x01
-}rtw_command_type;
+};
+typedef unsigned long rtw_command_type;
 
-typedef enum {
+enum {
 	RTW_WPS_TYPE_DEFAULT 		    	= 0x0000,
 	RTW_WPS_TYPE_USER_SPECIFIED 		= 0x0001,
 	RTW_WPS_TYPE_MACHINE_SPECIFIED   	= 0x0002,
@@ -436,68 +450,75 @@ typedef enum {
 	RTW_WPS_TYPE_PUSHBUTTON 		    = 0x0004,
 	RTW_WPS_TYPE_REGISTRAR_SPECIFIED 	= 0x0005,
     RTW_WPS_TYPE_NONE                   = 0x0006 
-} rtw_wps_type_t;
+};
+typedef unsigned long rtw_wps_type_t;
 
 /**
   * @brief  The enumeration lists all the network bgn mode.
   */
-typedef enum {
+enum {
     RTW_NETWORK_B   = 1,
 	RTW_NETWORK_BG  = 3,
 	RTW_NETWORK_BGN = 11
-} rtw_network_mode_t;
+};
+typedef unsigned long rtw_network_mode_t;
 
 /**
   * @brief  The enumeration lists the interfaces.
   */
-typedef enum {
+enum {
     RTW_STA_INTERFACE     = 0, /**< STA or Client Interface  */
     RTW_AP_INTERFACE      = 1, /**< SoftAP Interface         */
-} rtw_interface_t;
+};
+typedef unsigned long rtw_interface_t;
 
 /**
   * @brief  The enumeration lists the packet filter rules.
   */
-typedef enum {
+enum {
 	RTW_POSITIVE_MATCHING  = 0, /**< Receive the data matching with this pattern and discard the other data   */
 	RTW_NEGATIVE_MATCHING  = 1  /**< Discard the data matching with this pattern and receive the other data */
-} rtw_packet_filter_rule_t;
+};
+typedef unsigned long rtw_packet_filter_rule_t;
 
 /**
   * @brief  The enumeration lists the promisc levels.
   */
-typedef enum {
+enum {
 	RTW_PROMISC_DISABLE = 0,  /**< Disable the promisc */
 	RTW_PROMISC_ENABLE = 1,   /**< Fetch all ethernet packets */
 	RTW_PROMISC_ENABLE_1 = 2, /**< Fetch only B/M packets */
 	RTW_PROMISC_ENABLE_2 = 3, /**< Fetch all 802.11 packets*/
 	RTW_PROMISC_ENABLE_3 = 4, /**< Fetch only B/M 802.11 packets*/
-} rtw_rcr_level_t;
+};
+typedef unsigned long rtw_rcr_level_t;
 
 /**
   * @brief  The enumeration lists the disconnect reasons.
   */
-typedef enum{
+enum{
 	RTW_NO_ERROR = 0,
 	RTW_NONE_NETWORK = 1,
 	RTW_CONNECT_FAIL = 2,
 	RTW_WRONG_PASSWORD = 3 ,
 	RTW_DHCP_FAIL = 4,
 	RTW_UNKNOWN,
-}rtw_connect_error_flag_t;
+};
+typedef unsigned long rtw_connect_error_flag_t;
 
-typedef enum {
+enum {
 	RTW_TX_PWR_PERCENTAGE_100 = 0, /* 100%, default target output power.	 */
 	RTW_TX_PWR_PERCENTAGE_75 = 1, /* 75% */
 	RTW_TX_PWR_PERCENTAGE_50 = 2, /* 50% */
 	RTW_TX_PWR_PERCENTAGE_25 = 3, /* 25% */
 	RTW_TX_PWR_PERCENTAGE_12_5 = 4, /* 12.5% */
-}rtw_tx_pwr_percentage_t;
+};
+typedef unsigned long rtw_tx_pwr_percentage_t;
 
 /**
   * @brief  The enumeration is event type indicated from wlan driver.
   */
-typedef enum _WIFI_EVENT_INDICATE{
+enum _WIFI_EVENT_INDICATE{
 	WIFI_EVENT_CONNECT = 0,
 	WIFI_EVENT_DISCONNECT = 1,
 	WIFI_EVENT_FOURWAY_HANDSHAKE_DONE = 2,	
@@ -515,7 +536,8 @@ typedef enum _WIFI_EVENT_INDICATE{
 	WIFI_EVENT_NO_NETWORK = 14,
 	WIFI_EVENT_BEACON_AFTER_DHCP = 15,
 	WIFI_EVENT_MAX,
-}rtw_event_indicate_t;
+};
+typedef unsigned long rtw_event_indicate_t;
 #ifdef	__cplusplus
 }
 #endif

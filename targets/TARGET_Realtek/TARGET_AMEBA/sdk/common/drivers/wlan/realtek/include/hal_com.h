@@ -203,10 +203,12 @@
 #define DESC_RATEVHTSS4MCS8		0x52
 #define DESC_RATEVHTSS4MCS9		0x53
 										
-typedef enum _FIRMWARE_SOURCE {
+enum _FIRMWARE_SOURCE {
 	FW_SOURCE_IMG_FILE = 0,
 	FW_SOURCE_HEADER_FILE = 1,		//from header file
-} FIRMWARE_SOURCE, *PFIRMWARE_SOURCE;
+};
+typedef  uint32_t FIRMWARE_SOURCE;
+typedef  uint32_t * PFIRMWARE_SOURCE;
 
 // BK, BE, VI, VO, HCCA, MANAGEMENT, COMMAND, HIGH, BEACON.
 //#define MAX_TX_QUEUE		9
@@ -260,10 +262,11 @@ void SetHwReg(PADAPTER padapter, u8 variable, u8 *val);
 void GetHwReg(PADAPTER padapter, u8 variable, u8 *val);
 
 #if defined (CONFIG_RTL8188F) || defined (CONFIG_RTL8711B)
-typedef enum _RT_MEDIA_STATUS {
+enum _RT_MEDIA_STATUS {
 	RT_MEDIA_DISCONNECT = 0,
 	RT_MEDIA_CONNECT       = 1
-} RT_MEDIA_STATUS;
+};
+typedef  uint32_t RT_MEDIA_STATUS;
 
 
 void GetHalODMVar(	

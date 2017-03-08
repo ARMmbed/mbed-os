@@ -344,7 +344,7 @@ typedef struct _SW_Antenna_Switch_
 //
 // Indicate different AP vendor for IOT issue.
 //
-typedef enum _HT_IOT_PEER
+enum _HT_IOT_PEER
 {
 	HT_IOT_PEER_UNKNOWN 			= 0,
 	HT_IOT_PEER_REALTEK 			= 1,
@@ -363,7 +363,9 @@ typedef enum _HT_IOT_PEER
 	HT_IOT_PEER_REALTEK_81XX 		= 14,	
 	HT_IOT_PEER_REALTEK_WOW 		= 15,	
 	HT_IOT_PEER_MAX 				= 16
-}HT_IOT_PEER_E, *PHTIOT_PEER_E;
+};
+typedef uint32_t HT_IOT_PEER_E;
+typedef uint32_t *PHTIOT_PEER_E;
 #endif//#if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 
 #define		DM_Type_ByFW			0
@@ -558,7 +560,7 @@ typedef struct _ODM_Mac_Status_Info_
 }ODM_MAC_INFO;
 
 
-typedef enum tag_Dynamic_ODM_Support_Ability_Type
+enum tag_Dynamic_ODM_Support_Ability_Type
 {
 	// BB Team
 	ODM_DIG				= 0x00000001,
@@ -573,7 +575,8 @@ typedef enum tag_Dynamic_ODM_Support_Ability_Type
 	ODM_2TPATHDIV			= 0x00000200,
 	ODM_1TPATHDIV			= 0x00000400,
 	ODM_PSD2AFH			= 0x00000800
-}ODM_Ability_E;
+};
+typedef uint32_t ODM_Ability_E;
 
 //
 // 2011/20/20 MH For MP driver RT_WLAN_STA =  STA_INFO_T
@@ -643,7 +646,7 @@ typedef		struct _ODM_STA_INFO{
 //
 // 2011/10/20 MH Define Common info enum for all team.
 //
-typedef enum _ODM_Common_Info_Definition
+enum _ODM_Common_Info_Definition
 {
 //-------------REMOVED CASE-----------//
 	//ODM_CMNINFO_CCK_HP,
@@ -752,12 +755,13 @@ typedef enum _ODM_Common_Info_Definition
 	ODM_CMNINFO_MAX,
 
 
-}ODM_CMNINFO_E;
+};
+typedef uint32_t ODM_CMNINFO_E;
 
 //
 // 2011/10/20 MH Define ODM support ability.  ODM_CMNINFO_ABILITY
 //
-typedef enum _ODM_Support_Ability_Definition
+enum _ODM_Support_Ability_Definition
 {
 	//
 	// BB ODM section BIT 0-19
@@ -793,10 +797,11 @@ typedef enum _ODM_Support_Ability_Definition
 	ODM_RF_RX_GAIN_TRACK			= BIT25,
 	ODM_RF_CALIBRATION				= BIT26,
 	
-}ODM_ABILITY_E;
+};
+typedef uint32_t ODM_ABILITY_E;
 
 //	ODM_CMNINFO_INTERFACE
-typedef enum tag_ODM_Support_Interface_Definition
+enum tag_ODM_Support_Interface_Definition
 {
 	ODM_ITRF_PCIE 	=	0x1,
 	ODM_ITRF_USB 	=	0x2,
@@ -804,10 +809,11 @@ typedef enum tag_ODM_Support_Interface_Definition
 	ODM_ITRF_GSPI	=	0x8,
 	ODM_ITRF_LXBUS  =	0x10,
 	ODM_ITRF_ALL 	=	0xFF,
-}ODM_INTERFACE_E;
+};
+typedef uint32_t ODM_INTERFACE_E;
 
 // ODM_CMNINFO_IC_TYPE
-typedef enum tag_ODM_Support_IC_Type_Definition
+enum tag_ODM_Support_IC_Type_Definition
 {
 	ODM_RTL8192S 	=	BIT0,
 	ODM_RTL8192C 	=	BIT1,
@@ -824,13 +830,14 @@ typedef enum tag_ODM_Support_IC_Type_Definition
 	ODM_RTL8822B 	=	BIT12,
 	ODM_RTL8195A	=	BIT13,
 	ODM_RTL8711B	=	BIT14
-}ODM_IC_TYPE_E;
+};
+typedef uint32_t ODM_IC_TYPE_E;
 
 #define ODM_IC_11N_SERIES		(ODM_RTL8192S|ODM_RTL8192C|ODM_RTL8192D|ODM_RTL8723A|ODM_RTL8188E|ODM_RTL8192E|ODM_RTL8723B|ODM_RTL8195A|ODM_RTL8711B)
 #define ODM_IC_11AC_SERIES		(ODM_RTL8812|ODM_RTL8821|ODM_RTL8814A|ODM_RTL8881A|ODM_RTL8821B|ODM_RTL8822B)
 
 //ODM_CMNINFO_CUT_VER
-typedef enum tag_ODM_Cut_Version_Definition
+enum tag_ODM_Cut_Version_Definition
 {
 	ODM_CUT_A 		=	0,
 	ODM_CUT_B 		=	1,
@@ -841,20 +848,22 @@ typedef enum tag_ODM_Cut_Version_Definition
 
 	ODM_CUT_I 		=	8,
 	ODM_CUT_TEST 	=	15,
-}ODM_CUT_VERSION_E;
+};
+typedef uint32_t ODM_CUT_VERSION_E;
 
 // ODM_CMNINFO_FAB_VER
-typedef enum tag_ODM_Fab_Version_Definition
+enum tag_ODM_Fab_Version_Definition
 {
 	ODM_TSMC 	=	0,
 	ODM_UMC 	=	1,
-}ODM_FAB_E;
+};
+typedef uint32_t ODM_FAB_E;
 
 // ODM_CMNINFO_RF_TYPE
 //
 // For example 1T2R (A+AB = BIT0|BIT4|BIT5)
 //
-typedef enum tag_ODM_RF_Path_Bit_Definition
+enum tag_ODM_RF_Path_Bit_Definition
 {
 	ODM_RF_TX_A 	=	BIT0,
 	ODM_RF_TX_B 	=	BIT1,
@@ -864,10 +873,11 @@ typedef enum tag_ODM_RF_Path_Bit_Definition
 	ODM_RF_RX_B	=	BIT5,
 	ODM_RF_RX_C	=	BIT6,
 	ODM_RF_RX_D	=	BIT7,
-}ODM_RF_PATH_E;
+};
+typedef uint32_t ODM_RF_PATH_E;
 
 
-typedef enum tag_ODM_RF_Type_Definition
+enum tag_ODM_RF_Type_Definition
 {
 	ODM_1T1R 	=	0,
 	ODM_1T2R 	=	1,
@@ -877,7 +887,8 @@ typedef enum tag_ODM_RF_Type_Definition
 	ODM_3T3R	=	5,
 	ODM_3T4R	=	6,
 	ODM_4T4R	=	7,
-}ODM_RF_TYPE_E;
+};
+typedef uint32_t ODM_RF_TYPE_E;
 
 
 //
@@ -890,24 +901,26 @@ typedef enum tag_ODM_RF_Type_Definition
 //	DUALMAC_SINGLEPHY,
 //}MACPHY_MODE_8192D,*PMACPHY_MODE_8192D;
 // Above is the original define in MP driver. Please use the same define. THX.
-typedef enum tag_ODM_MAC_PHY_Mode_Definition
+enum tag_ODM_MAC_PHY_Mode_Definition
 {
 	ODM_SMSP	= 0,
 	ODM_DMSP	= 1,
 	ODM_DMDP	= 2,
-}ODM_MAC_PHY_MODE_E;
+};
+typedef uint32_t ODM_MAC_PHY_MODE_E;
 
 
-typedef enum tag_BT_Coexist_Definition
+enum tag_BT_Coexist_Definition
 {	
 	ODM_BT_BUSY 		= 1,
 	ODM_BT_ON 			= 2,
 	ODM_BT_OFF 		= 3,
 	ODM_BT_NONE 		= 4,
-}ODM_BT_COEXIST_E;
+};
+typedef uint32_t ODM_BT_COEXIST_E;
 
 // ODM_CMNINFO_OP_MODE
-typedef enum tag_Operation_Mode_Definition
+enum tag_Operation_Mode_Definition
 {
 	ODM_NO_LINK 		= BIT0,
 	ODM_LINK 			= BIT1,
@@ -918,11 +931,12 @@ typedef enum tag_Operation_Mode_Definition
 	ODM_AD_HOC 		= BIT6,
 	ODM_WIFI_DIRECT	= BIT7,
 	ODM_WIFI_DISPLAY	= BIT8,
-}ODM_OPERATION_MODE_E;
+};
+typedef uint32_t ODM_OPERATION_MODE_E;
 
 // ODM_CMNINFO_WM_MODE
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_CE|ODM_IOT))
-typedef enum tag_Wireless_Mode_Definition
+enum tag_Wireless_Mode_Definition
 {
         ODM_WM_UNKNOW     = 0x0,
         ODM_WM_B                  = BIT0,
@@ -932,9 +946,10 @@ typedef enum tag_Wireless_Mode_Definition
         ODM_WM_N5G             = BIT4,
         ODM_WM_AUTO           = BIT5,
         ODM_WM_AC                = BIT6,
-}ODM_WIRELESS_MODE_E;
+};
+typedef uint32_t ODM_WIRELESS_MODE_E;
 #else
-typedef enum tag_Wireless_Mode_Definition
+enum tag_Wireless_Mode_Definition
 {
         ODM_WM_UNKNOWN 	= 0x00,
         ODM_WM_A 			= BIT0,
@@ -947,29 +962,32 @@ typedef enum tag_Wireless_Mode_Definition
         ODM_WM_AC_24G  	= BIT7,
         ODM_WM_AC_ONLY  	= BIT8,
         ODM_WM_MAX  		= BIT9
-}ODM_WIRELESS_MODE_E;
+};
+typedef uint32_t ODM_WIRELESS_MODE_E;
 #endif
 
 // ODM_CMNINFO_BAND
-typedef enum tag_Band_Type_Definition
+enum tag_Band_Type_Definition
 {
     ODM_BAND_2_4G = 0,
     ODM_BAND_5G,
     ODM_BAND_ON_BOTH,
     ODM_BANDMAX
 
-}ODM_BAND_TYPE_E;
+};
+typedef uint32_t ODM_BAND_TYPE_E;
 
 // ODM_CMNINFO_SEC_CHNL_OFFSET
-typedef enum tag_Secondary_Channel_Offset_Definition
+enum tag_Secondary_Channel_Offset_Definition
 {
 	ODM_DONT_CARE 	= 0,
 	ODM_BELOW 		= 1,
 	ODM_ABOVE 			= 2
-}ODM_SEC_CHNL_OFFSET_E;
+};
+typedef uint32_t ODM_SEC_CHNL_OFFSET_E;
 
 // ODM_CMNINFO_SEC_MODE
-typedef enum tag_Security_Definition
+enum tag_Security_Definition
 {
 	ODM_SEC_OPEN 			= 0,
 	ODM_SEC_WEP40 		= 1,
@@ -979,23 +997,25 @@ typedef enum tag_Security_Definition
 	ODM_SEC_WEP104 		= 5,
 	ODM_WEP_WPA_MIXED    = 6, // WEP + WPA
 	ODM_SEC_SMS4 			= 7,
-}ODM_SECURITY_E;
+};
+typedef uint32_t ODM_SECURITY_E;
 
 // ODM_CMNINFO_BW
-typedef enum tag_Bandwidth_Definition
+enum tag_Bandwidth_Definition
 {	
 	ODM_BW20M 		= 0,
 	ODM_BW40M 		= 1,
 	ODM_BW80M 		= 2,
 	ODM_BW160M 		= 3,
 	ODM_BW10M 		= 4,
-}ODM_BW_E;
+};
+typedef uint32_t ODM_BW_E;
 
 
 // ODM_CMNINFO_BOARD_TYPE
 // For non-AC-series IC , ODM_BOARD_5G_EXT_PA and ODM_BOARD_5G_EXT_LNA are ignored
 // For AC-series IC, external PA & LNA can be indivisuallly added on 2.4G and/or 5G 
-typedef enum tag_Board_Definition
+enum tag_Board_Definition
 {
     ODM_BOARD_DEFAULT  	= 0, 	  // The DEFAULT case.
     ODM_BOARD_MINICARD  = BIT(0), // 0 = non-mini card, 1= mini card.
@@ -1006,51 +1026,58 @@ typedef enum tag_Board_Definition
     ODM_BOARD_EXT_TRSW  = BIT(5), // 0 = no ext-TRSW, 1 = existing ext-TRSW
     ODM_BOARD_EXT_PA_5G	= BIT(6), // 0 = no 5G ext-PA, 1 = existing 5G ext-PA
     ODM_BOARD_EXT_LNA_5G= BIT(7), // 0 = no 5G ext-LNA, 1 = existing 5G ext-LNA
-}ODM_BOARD_TYPE_E;
+};
+typedef uint32_t ODM_BOARD_TYPE_E;
 
-typedef enum tag_ODM_Package_Definition
+enum tag_ODM_Package_Definition
 {
     ODM_PACKAGE_DEFAULT  	 = 0, 	  
     ODM_PACKAGE_QFN68        = BIT(0), 
     ODM_PACKAGE_TFBGA90      = BIT(1), 
     ODM_PACKAGE_TFBGA79      = BIT(2),	
-}ODM_Package_TYPE_E;
+};
+typedef uint32_t ODM_Package_TYPE_E;
 
-typedef enum tag_ODM_TYPE_GPA_Definition
+enum tag_ODM_TYPE_GPA_Definition
 {
     TYPE_GPA0 = 0, 	  
     TYPE_GPA1 = BIT(1)|BIT(0)
-}ODM_TYPE_GPA_E;
+};
+typedef uint32_t ODM_TYPE_GPA_E;
 
-typedef enum tag_ODM_TYPE_APA_Definition
+enum tag_ODM_TYPE_APA_Definition
 {
     TYPE_APA0 = 0, 	  
     TYPE_APA1 = BIT(1)|BIT(0)
-}ODM_TYPE_APA_E;
+};
+typedef uint32_t ODM_TYPE_APA_E;
 
-typedef enum tag_ODM_TYPE_GLNA_Definition
+enum tag_ODM_TYPE_GLNA_Definition
 {
     TYPE_GLNA0 = 0, 	  
     TYPE_GLNA1 = BIT(2)|BIT(0),
     TYPE_GLNA2 = BIT(3)|BIT(1),
     TYPE_GLNA3 = BIT(3)|BIT(2)|BIT(1)|BIT(0)
-}ODM_TYPE_GLNA_E;
+};
+typedef uint32_t ODM_TYPE_GLNA_E;
 
-typedef enum tag_ODM_TYPE_ALNA_Definition
+enum tag_ODM_TYPE_ALNA_Definition
 {
     TYPE_ALNA0 = 0, 	  
     TYPE_ALNA1 = BIT(2)|BIT(0),
     TYPE_ALNA2 = BIT(3)|BIT(1),
     TYPE_ALNA3 = BIT(3)|BIT(2)|BIT(1)|BIT(0)
-}ODM_TYPE_ALNA_E;
+};
+typedef uint32_t ODM_TYPE_ALNA_E;
 
 // ODM_CMNINFO_ONE_PATH_CCA
-typedef enum tag_CCA_Path
+enum tag_CCA_Path
 {
 	ODM_CCA_2R			= 0,
 	ODM_CCA_1R_A		= 1,
 	ODM_CCA_1R_B		= 2,
-}ODM_CCA_PATH_E;
+};
+typedef uint32_t ODM_CCA_PATH_E;
 
 
 typedef struct _ODM_RA_Info_
@@ -1166,13 +1193,15 @@ typedef struct _ROM_INFO{
 }ROM_INFO, *PROM_INFO;
 #endif
 
-typedef enum _FAT_STATE
+enum _FAT_STATE
 {
 	FAT_NORMAL_STATE			= 0,
 	FAT_TRAINING_STATE 		= 1,
-}FAT_STATE_E, *PFAT_STATE_E;
+};
+typedef uint32_t FAT_STATE_E;
+typedef uint32_t *PFAT_STATE_E;
 
-typedef enum _ANT_DIV_TYPE
+enum _ANT_DIV_TYPE
 {
 	NO_ANTDIV			= 0xFF,	
 	CG_TRX_HW_ANTDIV		= 0x01,
@@ -1181,7 +1210,9 @@ typedef enum _ANT_DIV_TYPE
 	CG_TRX_SMART_ANTDIV	= 0x04,
 	CGCS_RX_SW_ANTDIV	= 0x05,
 	S0S1_SW_ANTDIV          = 0x06 //8723B intrnal switch S0 S1
-}ANT_DIV_TYPE_E, *PANT_DIV_TYPE_E;
+};
+typedef uint32_t ANT_DIV_TYPE_E;
+typedef uint32_t *PANT_DIV_TYPE_E;
 
 #if (RTL8812A_SUPPORT == 1)
 typedef struct _ODM_PATH_DIVERSITY_
@@ -1195,10 +1226,11 @@ typedef struct _ODM_PATH_DIVERSITY_
 }PATHDIV_T, *pPATHDIV_T;
 #endif
 
-typedef enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE{
+enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE{
 	PHY_REG_PG_RELATIVE_VALUE = 0,
 	PHY_REG_PG_EXACT_VALUE = 1
-} PHY_REG_PG_TYPE;
+};
+typedef uint32_t PHY_REG_PG_TYPE;
 
 
 //
@@ -1624,15 +1656,16 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 } DM_ODM_T, *PDM_ODM_T;		// DM_Dynamic_Mechanism_Structure
 #endif
 
-typedef enum _PhyDM_Structure_Type{
+enum _PhyDM_Structure_Type{
 	PhyDM_FalseAlmCnt,
 	PhyDM_CfoTrack,
 	PHYDM_ADAPTIVITY,
 	PhyDM_ROMInfo,
 	
-}PhyDM_Structure_Type;
+};
+typedef uint32_t PhyDM_Structure_Type;
 
-typedef enum _ODM_RF_RADIO_PATH {
+enum _ODM_RF_RADIO_PATH {
     ODM_RF_PATH_A = 0,   //Radio Path A
     ODM_RF_PATH_B = 1,   //Radio Path B
     ODM_RF_PATH_C = 2,   //Radio Path C
@@ -1648,16 +1681,19 @@ typedef enum _ODM_RF_RADIO_PATH {
     ODM_RF_PATH_BCD,
     ODM_RF_PATH_ABCD,
   //  ODM_RF_PATH_MAX,    //Max RF number 90 support
-} ODM_RF_RADIO_PATH_E, *PODM_RF_RADIO_PATH_E;
+};
+typedef uint32_t ODM_RF_RADIO_PATH_E;
+typedef uint32_t *PODM_RF_RADIO_PATH_E;
 
- typedef enum _ODM_RF_CONTENT{
+ enum _ODM_RF_CONTENT{
 	odm_radioa_txt = 0x1000,
 	odm_radiob_txt = 0x1001,
 	odm_radioc_txt = 0x1002,
 	odm_radiod_txt = 0x1003
-} ODM_RF_CONTENT;
+};
+typedef uint32_t ODM_RF_CONTENT;
 
-typedef enum _ODM_BB_Config_Type{
+enum _ODM_BB_Config_Type{
     CONFIG_BB_PHY_REG,   
     CONFIG_BB_AGC_TAB,   
     CONFIG_BB_AGC_TAB_2G,
@@ -1665,14 +1701,18 @@ typedef enum _ODM_BB_Config_Type{
     CONFIG_BB_PHY_REG_PG,  
     CONFIG_BB_PHY_REG_MP,
     CONFIG_BB_AGC_TAB_DIFF,
-} ODM_BB_Config_Type, *PODM_BB_Config_Type;
+};
+typedef uint32_t ODM_BB_Config_Type;
+typedef uint32_t *PODM_BB_Config_Type;
 
-typedef enum _ODM_RF_Config_Type{ 
+enum _ODM_RF_Config_Type{ 
 	CONFIG_RF_RADIO,
     CONFIG_RF_TXPWR_LMT,
-} ODM_RF_Config_Type, *PODM_RF_Config_Type;
+};
+typedef uint32_t ODM_RF_Config_Type;
+typedef uint32_t *PODM_RF_Config_Type;
 
-typedef enum _ODM_FW_Config_Type{
+enum _ODM_FW_Config_Type{
     CONFIG_FW_NIC,
     CONFIG_FW_NIC_2,
     CONFIG_FW_AP,
@@ -1682,11 +1722,12 @@ typedef enum _ODM_FW_Config_Type{
     CONFIG_FW_AP_WoWLAN,
     CONFIG_FW_BT,
     CONFIG_FW_ROM,
-} ODM_FW_Config_Type;
+};
+typedef uint32_t ODM_FW_Config_Type;
 
 // Status code
 #if (DM_ODM_SUPPORT_TYPE != ODM_WIN)
-typedef enum _RT_STATUS{
+enum _RT_STATUS{
 	RT_STATUS_SUCCESS,
 	RT_STATUS_FAILURE,
 	RT_STATUS_PENDING,
@@ -1695,7 +1736,9 @@ typedef enum _RT_STATUS{
 	RT_STATUS_INVALID_PARAMETER,
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,
-}RT_STATUS,*PRT_STATUS;
+};
+typedef uint32_t RT_STATUS;
+typedef uint32_t *PRT_STATUS;
 #endif // end of RT_STATUS definition
 
 #ifdef REMOVE_PACK
@@ -1752,29 +1795,32 @@ typedef enum _RT_STATUS{
 //3 BB Power Save
 //3===========================================================
 
-typedef enum tag_1R_CCA_Type_Definition
+enum tag_1R_CCA_Type_Definition
 {
 	CCA_1R =0,
 	CCA_2R = 1,
 	CCA_MAX = 2,
-}DM_1R_CCA_E;
+};
+typedef uint32_t DM_1R_CCA_E;
 
-typedef enum tag_RF_Type_Definition
+enum tag_RF_Type_Definition
 {
 	RF_Save =0,
 	RF_Normal = 1,
 	RF_MAX = 2,
-}DM_RF_E;
+};
+typedef uint32_t DM_RF_E;
 
 //3===========================================================
 //3 Antenna Diversity
 //3===========================================================
-typedef enum tag_SW_Antenna_Switch_Definition
+enum tag_SW_Antenna_Switch_Definition
 {
 	Antenna_A = 1,
 	Antenna_B = 2,	
 	Antenna_MAX = 3,
-}DM_SWAS_E;
+};
+typedef uint32_t DM_SWAS_E;
 
 
 // Maximal number of antenna detection mechanism needs to perform, added by Roger, 2011.12.28.
@@ -2004,7 +2050,7 @@ PlatformDivision64(
 //
 
 
-typedef enum tag_DIG_Connect_Definition
+enum tag_DIG_Connect_Definition
 {
 	DIG_STA_DISCONNECT = 0,	
 	DIG_STA_CONNECT = 1,
@@ -2012,7 +2058,8 @@ typedef enum tag_DIG_Connect_Definition
 	DIG_MultiSTA_DISCONNECT = 3,
 	DIG_MultiSTA_CONNECT = 4,
 	DIG_CONNECT_MAX
-}DM_DIG_CONNECT_E;
+};
+typedef uint32_t DM_DIG_CONNECT_E;
 
 
 

@@ -20,10 +20,12 @@
 #define GTIMER_CLK_HZ           (32768)
 #define GTIMER_TICK_US          (1000000/GTIMER_CLK_HZ)
 
-typedef enum _TIMER_MODE_ {
+enum _TIMER_MODE_ {
     FREE_RUN_MODE = 0,
     USER_DEFINED = 1
-}TIMER_MODE, *PTIMER_MODE;
+};
+typedef uint32_t TIMER_MODE;
+typedef uint32_t *PTIMER_MODE;
 
 
 typedef struct _TIMER_ADAPTER_ {

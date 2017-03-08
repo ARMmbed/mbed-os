@@ -46,7 +46,7 @@ enum _CHIP_TYPE {
 };
 
 
-typedef enum _HW_VARIABLES{
+enum _HW_VARIABLES{
 	HW_VAR_MEDIA_STATUS,
 	HW_VAR_MEDIA_STATUS1,
 	HW_VAR_SET_OPMODE,
@@ -152,9 +152,10 @@ typedef enum _HW_VARIABLES{
 #ifdef CONFIG_PROMISC
 	HW_VAR_PROMISC,
 #endif
-}HW_VARIABLES;
+};
+typedef uint32_t HW_VARIABLES;
 
-typedef enum _HAL_DEF_VARIABLE{
+enum _HAL_DEF_VARIABLE{
 	HAL_DEF_UNDERCORATEDSMOOTHEDPWDB,
 	HAL_DEF_IS_SUPPORT_ANT_DIV,
 	HAL_DEF_CURRENT_ANTENNA,
@@ -178,9 +179,10 @@ typedef enum _HAL_DEF_VARIABLE{
 	HAL_DEF_TX_PAGE_BOUNDARY,
 	HAL_DEF_MACID_SLEEP, // Support for MACID sleep
 	HAL_DEF_DBG_RX_INFO_DUMP,
-}HAL_DEF_VARIABLE;
+};
+typedef uint32_t HAL_DEF_VARIABLE;
 
-typedef enum _HAL_ODM_VARIABLE{
+enum _HAL_ODM_VARIABLE{
 	HAL_ODM_STA_INFO,	
 //	HAL_ODM_P2P_STATE,
 //	HAL_ODM_WIFI_DISPLAY_STATE,
@@ -189,12 +191,14 @@ typedef enum _HAL_ODM_VARIABLE{
 	HAL_ODM_RX_INFO_DUMP,
 	HAL_ODM_NOISE_MONITOR,
 	HAL_ODM_REGULATION,
-}HAL_ODM_VARIABLE;
+};
+typedef uint32_t HAL_ODM_VARIABLE;
 
-typedef enum _HAL_INTF_PS_FUNC{
+enum _HAL_INTF_PS_FUNC{
 	HAL_USB_SELECT_SUSPEND,
 	HAL_MAX_ID,
-}HAL_INTF_PS_FUNC;
+};
+typedef uint32_t HAL_INTF_PS_FUNC;
 
 typedef s32 (*c2h_id_filter)(u8 *c2h_evt);
 
@@ -476,7 +480,7 @@ typedef struct eeprom_priv EEPROM_EFUSE_PRIV, *PEEPROM_EFUSE_PRIV;
 //TODO
 
 #ifdef CONFIG_WOWLAN
-typedef enum _wowlan_subcode{
+enum _wowlan_subcode{
 	WOWLAN_PATTERN_MATCH	= 1,
 	WOWLAN_MAGIC_PACKET		= 2,
 	WOWLAN_UNICAST			= 3,
@@ -488,7 +492,8 @@ typedef enum _wowlan_subcode{
 	WOWLAN_DEBUG_RELOAD_FW	= 9,
 	WOWLAN_DEBUG_1			=10,
 	WOWLAN_DEBUG_2			=11
-}wowlan_subcode;
+};
+typedef uint32_t wowlan_subcode;
 
 struct wowlan_ioctl_param{
 	unsigned int subcode;

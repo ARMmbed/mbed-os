@@ -79,12 +79,14 @@ typedef enum _I2C_DBG_LVL_ {
 //======================================================
 // I2C HAL related enumeration
 // I2C Module Selection 
-typedef enum _I2C_MODULE_SEL_ {
+enum _I2C_MODULE_SEL_ {
         I2C0_SEL    =   0x0,
         I2C1_SEL    =   0x1,
         I2C2_SEL    =   0x2,
         I2C3_SEL    =   0x3,
-}I2C_MODULE_SEL,*PI2C_MODULE_SEL;
+};
+typedef uint32_t I2C_MODULE_SEL;
+typedef uint32_t *PI2C_MODULE_SEL;
 
 // I2C HAL initial data structure 
 typedef struct _HAL_I2C_INIT_DAT_ {
@@ -154,7 +156,7 @@ typedef struct _HAL_I2C_OP_ {
 //======================================================
 // I2C SAL related enumerations
 // I2C Extend Features
-typedef enum _I2C_EXD_SUPPORT_{
+enum _I2C_EXD_SUPPORT_{
     I2C_EXD_RESTART     =   0x1,            //BIT_0, RESTART bit
     I2C_EXD_GENCALL     =   0x2,            //BIT_1, Master generates General Call. All "send" operations generate General Call addresss
     I2C_EXD_STARTB      =   0x4,            //BIT_2, Using START BYTE, instead of START Bit
@@ -168,31 +170,39 @@ typedef enum _I2C_EXD_SUPPORT_{
     I2C_EXD_MTR_ADDR_UPD=   0x200,         //BIT_9, Master dynamically updates slave address
     I2C_EXD_MTR_HOLD_BUS=   0x400,         //BIT_10, Master doesn't generate STOP when the FIFO is empty. This would make Master hold
                                             //         the bus.
-}I2C_EXD_SUPPORT,*PI2C_EXD_SUPPORT;
+};
+typedef uint32_t I2C_EXD_SUPPORT;
+typedef uint32_t *PI2C_EXD_SUPPORT;
 
 // I2C operation type
-typedef enum _I2C_OP_TYPE_ {
+enum _I2C_OP_TYPE_ {
     I2C_POLL_TYPE   =   0x0,
     I2C_DMA_TYPE    =   0x1,
     I2C_INTR_TYPE   =   0x2,
-}I2C_OP_TYPE, *PI2C_OP_TYPE;
+};
+typedef uint32_t I2C_OP_TYPE;
+typedef uint32_t *PI2C_OP_TYPE;
 
 // I2C pinmux selection 
-typedef enum _I2C_PINMUX_ {
+enum _I2C_PINMUX_ {
     I2C_PIN_S0      =   0x0,
     I2C_PIN_S1      =   0x1,
     I2C_PIN_S2      =   0x2,
     I2C_PIN_S3      =   0x3,    //Only valid for I2C0 and I2C3
-}I2C_PINMUX, *PI2C_PINMUX;
+};
+typedef uint32_t I2C_PINMUX;
+typedef uint32_t *PI2C_PINMUX;
 
 // I2C module status 
-typedef enum _I2C_MODULE_STATUS_ {
+enum _I2C_MODULE_STATUS_ {
     I2C_DISABLE     =   0x0,
     I2C_ENABLE      =   0x1,
-}I2C_MODULE_STATUS, *PI2C_MODULE_STATUS;
+};
+typedef uint32_t I2C_MODULE_STATUS;
+typedef uint32_t *PI2C_MODULE_STATUS;
 
 // I2C device status 
-typedef enum _I2C_Device_STATUS_ {
+enum _I2C_Device_STATUS_ {
     I2C_STS_UNINITIAL   =   0x00,
     I2C_STS_INITIALIZED =   0x01,
     I2C_STS_IDLE        =   0x02,
@@ -205,71 +215,93 @@ typedef enum _I2C_Device_STATUS_ {
 
     I2C_STS_ERROR       =   0x10,
     I2C_STS_TIMEOUT     =   0x11, 
-}I2C_Device_STATUS, *PI2C_Device_STATUS;
+};
+typedef uint32_t I2C_Device_STATUS;
+typedef uint32_t *PI2C_Device_STATUS;
 
 // I2C feature status 
-typedef enum _I2C_FEATURE_STATUS_{
+enum _I2C_FEATURE_STATUS_{
     I2C_FEATURE_DISABLED    =   0,
     I2C_FEATURE_ENABLED     =   1,
-}I2C_FEATURE_STATUS,*PI2C_FEATURE_STATUS;
+};
+typedef uint32_t I2C_FEATURE_STATUS;
+typedef uint32_t *PI2C_FEATURE_STATUS;
 
 // I2C device mode
-typedef enum _I2C_DEV_MODE_ {
+enum _I2C_DEV_MODE_ {
     I2C_SLAVE_MODE  =   0x0,
     I2C_MASTER_MODE =   0x1,
-}I2C_DEV_MODE, *PI2C_DEV_MODE;
+};
+typedef uint32_t I2C_DEV_MODE;
+typedef uint32_t *PI2C_DEV_MODE;
 
 // I2C Bus Transmit/Receive
-typedef enum _I2C_DIRECTION_ {
+enum _I2C_DIRECTION_ {
     I2C_ONLY_TX     =   0x1,
     I2C_ONLY_RX     =   0x2,
     I2C_TXRX        =   0x3,
-}I2C_DIRECTION, *PI2C_DIRECTION;
+};
+typedef uint32_t I2C_DIRECTION;
+typedef uint32_t *PI2C_DIRECTION;
 
 //I2C DMA module number
-typedef enum _I2C_DMA_MODULE_SEL_ {
+enum _I2C_DMA_MODULE_SEL_ {
     I2C_DMA_MODULE_0    =   0x0,
     I2C_DMA_MODULE_1    =   0x1
-}I2C_DMA_MODULE_SEL, *PI2C_DMA_MODULE_SEL;
+};
+typedef uint32_t I2C_DMA_MODULE_SEL;
+typedef uint32_t *PI2C_DMA_MODULE_SEL;
 
 // I2C0 DMA peripheral number
-typedef enum _I2C0_DMA_PERI_NUM_ {
+enum _I2C0_DMA_PERI_NUM_ {
     I2C0_DMA_TX_NUM =   0x8,
     I2C0_DMA_RX_NUM =   0x9,
-}I2C0_DMA_PERI_NUM,*PI2C0_DMA_PERI_NUM;
+};
+typedef uint32_t I2C0_DMA_PERI_NUM;
+typedef uint32_t *PI2C0_DMA_PERI_NUM;
 
 // I2C1 DMA peripheral number
-typedef enum _I2C1_DMA_PERI_NUM_ {
+enum _I2C1_DMA_PERI_NUM_ {
     I2C1_DMA_TX_NUM =   0xA,
     I2C1_DMA_RX_NUM =   0xB,
-}I2C1_DMA_PERI_NUM,*PI2C1_DMA_PERI_NUM;
+};
+typedef uint32_t I2C1_DMA_PERI_NUM;
+typedef uint32_t *PI2C1_DMA_PERI_NUM;
 
 // I2C0 DMA module used
-typedef enum _I2C0_DMA_MODULE_ {
+enum _I2C0_DMA_MODULE_ {
     I2C0_DMA0   =   0x0,
     I2C0_DMA1   =   0x1,
-}I2C0_DMA_MODULE,*PI2C0_DMA_MODULE;
+};
+typedef uint32_t I2C0_DMA_MODULE;
+typedef uint32_t *PI2C0_DMA_MODULE;
 
 // I2C0 DMA module used
-typedef enum _I2C1_DMA_MODULE_ {
+enum _I2C1_DMA_MODULE_ {
     I2C1_DMA0   =   0x0,
     I2C1_DMA1   =   0x1,
-}I2C1_DMA_MODULE,*PI2C1_DMA_MODULE;
+};
+typedef uint32_t I2C1_DMA_MODULE;
+typedef uint32_t *PI2C1_DMA_MODULE;
 
 // I2C command type 
-typedef enum _I2C_COMMAND_TYPE_ {
+enum _I2C_COMMAND_TYPE_ {
     I2C_WRITE_CMD   =   0x0,
     I2C_READ_CMD    =   0x1,
-}I2C_COMMAND_TYPE,*PI2C_COMMAND_TYPE;
+};
+typedef uint32_t I2C_COMMAND_TYPE;
+typedef uint32_t *PI2C_COMMAND_TYPE;
 
 // I2C STOP BIT 
-typedef enum _I2C_STOP_TYPE_ {
+enum _I2C_STOP_TYPE_ {
     I2C_STOP_DIS    =   0x0,
     I2C_STOP_EN     =   0x1,
-}I2C_STOP_TYPE, *PI2C_STOP_TYPE;
+};
+typedef uint32_t I2C_STOP_TYPE;
+typedef uint32_t *PI2C_STOP_TYPE;
 
 // I2C error type 
-typedef enum _I2C_ERR_TYPE_ {
+enum _I2C_ERR_TYPE_ {
     I2C_ERR_RX_UNDER    =   0x01,           //I2C RX FIFO Underflow
     I2C_ERR_RX_OVER     =   0x02,           //I2C RX FIFO Overflow
     I2C_ERR_TX_OVER     =   0x04,           //I2C TX FIFO Overflow
@@ -287,13 +319,17 @@ typedef enum _I2C_ERR_TYPE_ {
 
     I2C_ERR_TX_ADD_TO   =   0x25,
     I2C_ERR_RX_ADD_TO   =   0x26,
-}I2C_ERR_TYPE, *PI2C_ERR_TYPE;
+};
+typedef uint32_t I2C_ERR_TYPE;
+typedef uint32_t *PI2C_ERR_TYPE;
 
 // I2C Time Out type
-typedef enum _I2C_TIMEOUT_TYPE_ {
+enum _I2C_TIMEOUT_TYPE_ {
     I2C_TIMEOOUT_DISABLE    =   0x00,           
     I2C_TIMEOOUT_ENDLESS    =   0xFFFFFFFF,
-}I2C_TIMEOUT_TYPE, *PI2C_TIMEOUT_TYPE;
+};
+typedef uint32_t I2C_TIMEOUT_TYPE;
+typedef uint32_t *PI2C_TIMEOUT_TYPE;
 
 //======================================================
 // SAL I2C related data structures

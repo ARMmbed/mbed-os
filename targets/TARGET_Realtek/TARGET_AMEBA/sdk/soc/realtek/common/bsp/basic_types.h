@@ -102,10 +102,12 @@ typedef unsigned char           bool;
 
 typedef struct { volatile int counter; } atomic_t;
 
-typedef enum _RTK_STATUS_ {
+enum _RTK_STATUS_ {
     _EXIT_SUCCESS = 0,
     _EXIT_FAILURE = 1
-}RTK_STATUS, *PRTK_STATUS;
+};
+typedef uint32_t RTK_STATUS;
+typedef uint32_t * PRTK_STATUS;
 
 #define IN
 #define OUT

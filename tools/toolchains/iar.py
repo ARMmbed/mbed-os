@@ -91,9 +91,6 @@ class IAR(mbedToolchain):
         self.cppc = [main_cc]
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
-        if target.name in ["REALTEK_RTL8195AM"]:
-            self.cc += ["--enum_is_int"]
-            self.cppc += ["--enum_is_int"]
         
         self.ld   = [join(IAR_BIN, "ilinkarm")]
         self.ar = join(IAR_BIN, "iarchive")

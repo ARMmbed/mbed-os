@@ -115,7 +115,7 @@
 #define MPT_GET_THERMAL_METER		33
 #endif
 
-typedef enum _ANTENNA_PATH{
+enum _ANTENNA_PATH{
 		ANTENNA_NONE	= 0x00,
 		ANTENNA_D		,
 		ANTENNA_C		,
@@ -132,7 +132,8 @@ typedef enum _ANTENNA_PATH{
 		ANTENNA_ABD 	,
 		ANTENNA_ABC 	,
 		ANTENNA_ABCD
-} ANTENNA_PATH;
+};
+typedef uint32_t ANTENNA_PATH;
 
 
 #define MAX_MP_XMITBUF_SZ 	2048
@@ -497,7 +498,7 @@ struct bb_reg_param {
 #define _2MAC_MODE_	0
 #define _LOOPBOOK_MODE_	1
 #endif
-typedef enum _MP_MODE_ {
+enum _MP_MODE_ {
 	MP_OFF,
 	MP_ON,
 	MP_ERR,
@@ -507,7 +508,8 @@ typedef enum _MP_MODE_ {
 	MP_SINGLE_TONE_TX,
 	MP_PACKET_TX,
 	MP_PACKET_RX
-} MP_MODE;
+};
+typedef uint32_t MP_MODE;
 
 
 #define MAX_RF_PATH_NUMS	MAX_RF_PATH
@@ -516,7 +518,7 @@ typedef enum _MP_MODE_ {
 extern u8 mpdatarate[NumRates];
 
 /* MP set force data rate base on the definition. */
-typedef enum _MPT_RATE_INDEX
+enum _MPT_RATE_INDEX
 {
 	/* CCK rate. */
 	MPT_RATE_1M,	/* 0 */
@@ -552,14 +554,17 @@ typedef enum _MPT_RATE_INDEX
 	MPT_RATE_MCS14,
 	MPT_RATE_MCS15,	/* 27 */
 	MPT_RATE_LAST
-}MPT_RATE_E, *PMPT_RATE_E;
+};
+typedef uint32_t MPT_RATE_E;
+typedef uint32_t *PMPT_RATE_E;
 
 #define MAX_TX_PWR_INDEX_N_MODE 64	// 0x3F
 
-typedef enum _POWER_MODE_ {
+enum _POWER_MODE_ {
 	POWER_LOW = 0,
 	POWER_NORMAL
-}POWER_MODE;
+};
+typedef uint32_t POWER_MODE;
 
 
 #define RX_PKT_BROADCAST	1
@@ -602,19 +607,21 @@ typedef enum _RXPHY_BITMASK_
 } RXPHY_BITMASK;
 #endif
 
-typedef enum _ENCRY_CTRL_STATE_ {
+enum _ENCRY_CTRL_STATE_ {
 	HW_CONTROL,		//hw encryption& decryption
 	SW_CONTROL,		//sw encryption& decryption
 	HW_ENCRY_SW_DECRY,	//hw encryption & sw decryption
 	SW_ENCRY_HW_DECRY	//sw encryption & hw decryption
-}ENCRY_CTRL_STATE;
+};
+typedef uint32_t ENCRY_CTRL_STATE;
 
-typedef enum _PREAMBLE {
+enum _PREAMBLE {
 		Long_Preamble	= 0x01,
 		Short_Preamble		  ,
 		Long_GI 			  ,
 		Short_GI
-} PREAMBLE;
+};
+typedef uint32_t PREAMBLE;
 
 
 

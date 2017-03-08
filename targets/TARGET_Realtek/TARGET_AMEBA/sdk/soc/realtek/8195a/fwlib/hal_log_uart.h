@@ -19,7 +19,7 @@
 #define LOG_UART_WAIT_FOREVER       0xffffffff
 
 // Define Line Control Register Bits
-typedef enum {
+enum {
     LCR_DLS_5B = 0,      // Data Length: 5 bits
     LCR_DLS_6B = BIT(0),      // Data Length: 6 bits
     LCR_DLS_7B = BIT(1),      // Data Length: 7 bits
@@ -34,7 +34,8 @@ typedef enum {
 
     LCR_BC = BIT(6),      // Break Control Bit
     LCR_DLAB = BIT(7)      // Divisor Latch Access Bit
-} LOG_UART_LINE_CTRL;
+};
+typedef uint32_t LOG_UART_LINE_CTRL;
 
 // define Log UART Interrupt Indication ID
 /*
@@ -47,7 +48,7 @@ IIR[3:0]:
 0111 = busy detect
 1100 = character timeout
 */
-typedef enum {
+enum {
     IIR_MODEM_STATUS = 0,   //Clear to send or data set ready or ring indicator or data carrier detect.
     IIR_NO_PENDING = 1,
     IIR_THR_EMPTY = 2,   // TX FIFO level lower than threshold or FIFO empty
@@ -55,19 +56,21 @@ typedef enum {
     IIR_RX_LINE_STATUS = 6, // Overrun/parity/framing errors or break interrupt
     IIR_BUSY = 7,
     IIR_CHAR_TIMEOUT = 12   // timeout: Rx dara ready but no read 
-} LOG_UART_INT_ID;
+};
+typedef uint32_t LOG_UART_INT_ID;
 
 // Define Interrupt Enable Bit
-typedef enum {
+enum {
     IER_ERBFI = BIT(0),   // Enable Received Data Available Interrupt
     IER_ETBEI = BIT(1),   // Enable Transmit Holding Register Empty Interrupt
     IER_ELSI =  BIT(2),   // Enable Receiver Line Status Interrupt
     IER_EDSSI = BIT(3),   // Enable Modem Status Interrupt
     IER_PTIME = BIT(7)    // Programmable THRE Interrupt Mode Enable
-} LOG_UART_INT_EN;
+};
+typedef uint32_t LOG_UART_INT_EN;
 
 // Define Line Status Bit
-typedef enum {
+enum {
     LSR_DR =   BIT(0),   // Data Ready bit
     LSR_OE =   BIT(1),   // Overrun error bit
     LSR_PE =   BIT(2),   // Parity Error bit
@@ -77,7 +80,8 @@ typedef enum {
     LSR_FIFOF = BIT(5),  // Transmit FIFO Full bit(IER_PTIME=1)
     LSR_TEMT = BIT(6),   // Transmitter Empty bit 
     LSR_RFE =  BIT(7)    // Receiver FIFO Error bit    
-} LOG_UART_LINE_STATUS;
+};
+typedef uint32_t LOG_UART_LINE_STATUS;
 
 enum {
     LOG_UART_RST_TX_FIFO = 0x01,
@@ -88,7 +92,7 @@ enum {
 #define LOG_UART_RX_FIFO_DEPTH      16
 
 // Define FIFO Control Register Bits
-typedef enum {
+enum {
     FCR_FIFO_EN      = BIT(0),   // FIFO Enable.
     FCR_RST_RX       = BIT(1),   // RCVR FIFO Reset, self clear
     FCR_RST_TX       = BIT(2),   // XMIT FIFO Reset, self clear
@@ -102,7 +106,8 @@ typedef enum {
     FCR_RX_TRIG_HF   = BIT(7),   // RCVR Trigger: FIFO 1/2 full
     FCR_RX_TRIG_AF   = (BIT(7)|BIT(6)),  // RCVR Trigger: FIFO 2 less than full
     FCR_RX_TRIG_MASK = (BIT(7)|BIT(6))   // RCVR Trigger bits Mask
-} LOG_UART_FIFO_CTRL;
+};
+typedef uint32_t LOG_UART_FIFO_CTRL;
 
 typedef struct _HAL_LOG_UART_ADAPTER_ {
     u32 BaudRate;
