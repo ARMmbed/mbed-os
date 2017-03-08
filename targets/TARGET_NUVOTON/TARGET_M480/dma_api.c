@@ -111,6 +111,11 @@ void dma_set_handler(int channelid, uint32_t handler, uint32_t id, uint32_t even
     NVIC_EnableIRQ(dma_modinit.irq_n);
 }
 
+PDMA_T *dma_modbase(void)
+{
+    return (PDMA_T *) NU_MODBASE(dma_modinit.modname);
+}
+
 static void pdma_vec(void)
 {
     uint32_t intsts = PDMA_GET_INT_STATUS();
