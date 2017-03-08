@@ -89,12 +89,13 @@ rsync:
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)
 
-TARGET_M%: $(TARGET_SUPPORTED)/*/*/*_cortex_m%*.a
+TARGET_M%: TARGET_LIBS_FIND=$(wildcard $(TARGET_SUPPORTED)/*/*/*_cortex_m$(subst TARGET_M,,$@)*.a)
+TARGET_M%: rsync
 	@printf "#\n# Copying $@ files...\n"
-	mkdir $(foreach file,$^,$(dir $(file))$@)
-	$(foreach file,$^,mv $(file) $(dir $(file))$@/lib$(notdir $(file));)
+	mkdir $(foreach file,$(TARGET_LIBS_FIND),$(dir $(file))$@)
+	$(foreach file,$(TARGET_LIBS_FIND),mv $(file) $(dir $(file))$@/lib$(notdir $(file));)
 
-publish: rsync TARGET_M3 TARGET_M4
+publish: TARGET_M3 TARGET_M4
 	#
 	# Rename release directorires to TARGET_RELEASE filters...
 	$(foreach dir, $(TARGET_LIST_RELEASE),mv $(dir) $(dir $(dir))TARGET_RELEASE;)
