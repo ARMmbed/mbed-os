@@ -939,12 +939,13 @@ struct ADDBA_request
 
 #endif
 
-typedef enum _HT_CAP_AMPDU_FACTOR {
+enum _HT_CAP_AMPDU_FACTOR {
 	MAX_AMPDU_FACTOR_8K		= 0,
 	MAX_AMPDU_FACTOR_16K	= 1,
 	MAX_AMPDU_FACTOR_32K	= 2,
 	MAX_AMPDU_FACTOR_64K	= 3,	
-}HT_CAP_AMPDU_FACTOR;
+};
+typedef uint32_t HT_CAP_AMPDU_FACTOR;
 
 /* 802.11n HT capabilities masks */
 #define IEEE80211_HT_CAP_SUP_WIDTH		0x0002
@@ -1358,11 +1359,12 @@ enum P2P_PS
 
 #ifndef _CUSTOM_IE_TYPE_
 #define _CUSTOM_IE_TYPE_
-typedef enum CUSTOM_IE_TYPE{
+enum CUSTOM_IE_TYPE{
 	PROBE_REQ = BIT(0),
 	PROBE_RSP = BIT(1),
 	BEACON	  = BIT(2),
-}rtw_custom_ie_type_t;
+};
+typedef uint32_t rtw_custom_ie_type_t;
 #endif /* _CUSTOM_IE_TYPE_ */
 
 #endif // _WIFI_H_

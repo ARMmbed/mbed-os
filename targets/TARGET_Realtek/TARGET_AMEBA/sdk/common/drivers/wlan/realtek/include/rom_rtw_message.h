@@ -22,11 +22,12 @@
 
 #include <platform_stdlib.h>
 
-typedef enum {
+enum {
 #define ROM_E_RTW_MSGPOOL(name,str)  ROM_E_RTW_MSGP_##name,
 #include "rom_rtw_message_e.h"
   ROM_E_RTW_MSGP_MAX
-} rom_e_rtw_msgp_t;
+};
+typedef uint32_t  rom_e_rtw_msgp_t;
 
 #if ROM_E_RTW_MSG
 extern const char *rom_e_rtw_msgp_str_[];

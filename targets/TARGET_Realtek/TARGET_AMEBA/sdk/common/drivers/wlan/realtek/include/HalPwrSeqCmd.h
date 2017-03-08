@@ -93,11 +93,12 @@
 #define	PWR_CUT_ALL_MSK			0xFF
 
 
-typedef enum _PWRSEQ_CMD_DELAY_UNIT_
+enum _PWRSEQ_CMD_DELAY_UNIT_
 {
 	PWRSEQ_DELAY_US,
 	PWRSEQ_DELAY_MS,
-} PWRSEQ_DELAY_UNIT;
+};
+typedef uint32_t PWRSEQ_DELAY_UNIT;
 
 typedef struct _WL_PWR_CFG_
 {

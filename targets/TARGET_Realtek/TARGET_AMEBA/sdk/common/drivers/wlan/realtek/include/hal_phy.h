@@ -33,14 +33,16 @@
 #define	RF6052_MAX_PATH				2
 
 /*--------------------------Define Parameters-------------------------------*/
-typedef enum _BAND_TYPE{
+enum _BAND_TYPE{
 	BAND_ON_2_4G = 0,
 	BAND_ON_5G,
 	BAND_ON_BOTH,
 	BANDMAX
-}BAND_TYPE,*PBAND_TYPE;
+};
+typedef uint32_t BAND_TYPE;
+typedef uint32_t *PBAND_TYPE;
 
-typedef	enum _RF_TYPE{
+enum _RF_TYPE{
 	RF_TYPE_MIN = 0, 	// 0
 	RF_8225=1,			// 1 11b/g RF for verification only
 	RF_8256=2,			// 2 11b/g/n 
@@ -48,29 +50,35 @@ typedef	enum _RF_TYPE{
 	RF_6052=4,			// 4 11b/g/n RF
 	RF_PSEUDO_11N=5,	// 5, It is a temporality RF. 
 	RF_TYPE_MAX
-}RF_TYPE_E,*PRF_TYPE_E;
+};
+typedef uint32_t RF_TYPE_E;
+typedef uint32_t *PRF_TYPE_E;
 
-typedef enum _RF_PATH{
+enum _RF_PATH{
 	RF_PATH_A = 0,
 	RF_PATH_B,
 	RF_PATH_C,
 	RF_PATH_D
-}RF_PATH, *PRF_PATH;
+};
+typedef uint32_t RF_PATH;
+typedef uint32_t *PRF_PATH;
 
 #define	TX_1S			0			
 #define	TX_2S			1			
 #define	TX_3S			2			
 #define	TX_4S			3
 
-typedef enum _BaseBand_Config_Type{
+enum _BaseBand_Config_Type{
 	BaseBand_Config_PHY_REG = 0,			//Radio Path A
 	BaseBand_Config_AGC_TAB = 1,			//Radio Path B
 	BaseBand_Config_AGC_TAB_2G = 2,
 	BaseBand_Config_AGC_TAB_5G = 3,	
 	BaseBand_Config_PHY_REG_PG
-}BaseBand_Config_Type, *PBaseBand_Config_Type;
+};
+typedef uint32_t BaseBand_Config_Type;
+typedef uint32_t *PBaseBand_Config_Type;
 
-typedef enum _WIRELESS_MODE {
+enum _WIRELESS_MODE {
 	WIRELESS_MODE_UNKNOWN = 0x00,
 	WIRELESS_MODE_A = 0x01,
 	WIRELESS_MODE_B = 0x02,
@@ -81,7 +89,8 @@ typedef enum _WIRELESS_MODE {
 	WIRELESS_MODE_AC_5G = 0x40,
 	WIRELESS_MODE_AC_24G  = 0x80,
 	WIRELESS_MODE_AC_ONLY  = 0x100,
-} WIRELESS_MODE;
+};
+typedef uint32_t WIRELESS_MODE;
 
 typedef struct RF_Shadow_Compare_Map {
 	// Shadow register value

@@ -66,7 +66,7 @@ struct	regulatory_class {
 	u8	modem;
 };
 
-typedef enum _CAPABILITY{
+enum _CAPABILITY{
 	cESS			= 0x0001,
 	cIBSS			= 0x0002,
 	cPollable		= 0x0004,
@@ -83,7 +83,9 @@ typedef enum _CAPABILITY{
 	cDSSS_OFDM	= 0x2000,
 	cDelayedBA		= 0x4000,
 	cImmediateBA	= 0x8000,
-}CAPABILITY, *PCAPABILITY;
+};
+typedef uint32_t CAPABILITY;
+typedef uint32_t *PCAPABILITY;
 
 enum	_REG_PREAMBLE_MODE{
 	PREAMBLE_LONG	= 1,
@@ -104,13 +106,15 @@ enum _RTL8712_RF_MIMO_CONFIG_{
 };
 
 
-typedef enum _RF90_RADIO_PATH{
+enum _RF90_RADIO_PATH{
 	RF90_PATH_A = 0,			//Radio Path A
 	RF90_PATH_B = 1,			//Radio Path B
 	RF90_PATH_C = 2,			//Radio Path C
 	RF90_PATH_D = 3 		//Radio Path D
 	//RF90_PATH_MAX 			//Max RF number 90 support
-}RF90_RADIO_PATH_E, *PRF90_RADIO_PATH_E;
+};
+typedef uint32_t RF90_RADIO_PATH_E;
+typedef uint32_t *PRF90_RADIO_PATH_E;
 
 // Bandwidth Offset
 #define HAL_PRIME_CHNL_OFFSET_DONT_CARE	0
@@ -119,27 +123,31 @@ typedef enum _RF90_RADIO_PATH{
 
 // Represent Channel Width in HT Capabilities
 //
-typedef enum _CHANNEL_WIDTH{
+enum _CHANNEL_WIDTH{
 	CHANNEL_WIDTH_20 = 0,
 	CHANNEL_WIDTH_40 = 1,
 	CHANNEL_WIDTH_80 = 2,
 	CHANNEL_WIDTH_160 = 3,
 	CHANNEL_WIDTH_80_80 = 4,
 	CHANNEL_WIDTH_MAX = 5,
-}CHANNEL_WIDTH, *PCHANNEL_WIDTH;
+};
+typedef uint32_t CHANNEL_WIDTH;
+typedef uint32_t *PCHANNEL_WIDTH;
 
 //
 // Represent Extention Channel Offset in HT Capabilities
 // This is available only in 40Mhz mode.
 //
-typedef enum _EXTCHNL_OFFSET{
+enum _EXTCHNL_OFFSET{
 	EXTCHNL_OFFSET_NO_EXT = 0,
 	EXTCHNL_OFFSET_UPPER = 1,
 	EXTCHNL_OFFSET_NO_DEF = 2,
 	EXTCHNL_OFFSET_LOWER = 3,
-}EXTCHNL_OFFSET, *PEXTCHNL_OFFSET;
+};
+typedef uint32_t EXTCHNL_OFFSET;
+typedef uint32_t *PEXTCHNL_OFFSET;
 
-typedef enum _VHT_DATA_SC{
+enum _VHT_DATA_SC{
 	VHT_DATA_SC_DONOT_CARE = 0,
 	VHT_DATA_SC_20_UPPER_OF_80MHZ = 1,
 	VHT_DATA_SC_20_LOWER_OF_80MHZ = 2,
@@ -151,12 +159,14 @@ typedef enum _VHT_DATA_SC{
 	VHT_DATA_SC_20_RECV4 = 8,
 	VHT_DATA_SC_40_UPPER_OF_80MHZ = 9,
 	VHT_DATA_SC_40_LOWER_OF_80MHZ = 10,
-}VHT_DATA_SC, *PVHT_DATA_SC_E;
+};
+typedef uint32_t VHT_DATA_SC;
+typedef uint32_t *PVHT_DATA_SC_E;
 
 
 
 /* 2007/11/15 MH Define different RF type. */
-typedef	enum _RT_RF_TYPE_DEFINITION
+enum _RT_RF_TYPE_DEFINITION
 {
 	RF_1T2R = 0,
 	RF_2T4R = 1,
@@ -164,7 +174,8 @@ typedef	enum _RT_RF_TYPE_DEFINITION
 	RF_1T1R = 3,
 	RF_2T2R_GREEN = 4,
 	RF_819X_MAX_TYPE = 5,
-}RT_RF_TYPE_DEF_E;
+};
+typedef uint32_t RT_RF_TYPE_DEF_E;
 
 
 u32 rtw_ch2freq(u32 ch);

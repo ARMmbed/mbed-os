@@ -63,7 +63,7 @@
 #ifdef CONFIG_POWER_SAVING
 
 //REGDUMP_FW_ERR0
-typedef enum _FW_ERR0_STATUS_
+enum _FW_ERR0_STATUS_
 {
     FES0_H2C_CMDID              = BIT0,
     FES0_H2C_PTR                = BIT1,
@@ -74,11 +74,13 @@ typedef enum _FW_ERR0_STATUS_
     FES0_RPWM_STABLE            = BIT6,
     FES0_C2H_TIMEOUT_ERR        = BIT7,
     
-}FW_ERR0_STATUS, *PFW_ERR0_STATUS;
+};
+typedef uint32_t FW_ERR0_STATUS;
+typedef uint32_t *PFW_ERR0_STATUS;
 
 
 //TxPauseReasonCode
-typedef enum _TRPC_ {
+enum _TRPC_ {
 	TPRC_ISSUENULLDATA_1			= 0x26,
 	TPRC_ISSUENULLDATA_2			= 0x27,
 	TPRC_PSS2TS3                    = 0x2B,
@@ -86,10 +88,12 @@ typedef enum _TRPC_ {
 	TPRC_PSS2TS4                    = 0x2D,
 	TPRC_PSS2TS5                    = 0x2E,
     TPRC_PSS0TS6                    = 0x2F,
-} TRPC, *PTRPC;
+} ;
+typedef uint32_t TRPC;
+typedef uint32_t *PTRPC;
 
 
-typedef enum _PS_MODE_SETTING_SELECTION_
+enum _PS_MODE_SETTING_SELECTION_
 {
     MODE_SETTING_ACTIVE     = 0,
     MODE_SETTING_LEGACY     = 1,
@@ -97,22 +101,28 @@ typedef enum _PS_MODE_SETTING_SELECTION_
     #ifdef TDMA_POWER_SAVING
     MODE_SETTING_TDMA       = 3
     #endif //#ifdef TDMA_POWER_SAVING    
-}PS_MODE_SETTING_SELECTION, *PPS_MODE_SETTING_SELECTION;
+};
+typedef uint32_t PS_MODE_SETTING_SELECTION;
+typedef uint32_t *PPS_MODE_SETTING_SELECTION;
 
-typedef enum _RxListenBeaconMode_
+enum _RxListenBeaconMode_
 {
     RLBM_MIN                = 0,
     RLBM_MAX				= 1,
     RLBM_SELF_DEFINED		= 2
 
-}RxListenBeaconMode, *PRxListenBeaconMode;
+};
+typedef uint32_t RxListenBeaconMode;
+typedef uint32_t *PRxListenBeaconMode;
 
-typedef enum _SMART_PS_MODE_FOR_LEGACY_
+enum _SMART_PS_MODE_FOR_LEGACY_
 {
     SMART_PS_MODE_LEGACY_PWR1           = 0,        // TRX all use PS_POLL
     SMART_PS_MODE_TX_PWR0               = 1,        // TX: pwr bit = 0, RX: PS_POLL
     SMART_PS_MODE_TRX_PWR0              = 2         // TX: pwr bit = 0, RX: NULL(0)
-}SMART_PS_MODE_FOR_LEGACY, *PSMART_PS_MODE_FOR_LEGACY;
+};
+typedef uint32_t SMART_PS_MODE_FOR_LEGACY;
+typedef uint32_t *PSMART_PS_MODE_FOR_LEGACY;
 
 #endif //#ifdef CONFIG_POWER_SAVING
 

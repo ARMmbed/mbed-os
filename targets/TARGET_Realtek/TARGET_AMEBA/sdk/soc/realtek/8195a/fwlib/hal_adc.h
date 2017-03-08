@@ -37,11 +37,13 @@
 #define ADC_PREFIX      "RTL8195A[adc]: "
 #define ADC_PREFIX_LVL  "    [ADC_DBG]: "
 
-typedef enum _ADC_DBG_LVL_ {
+enum _ADC_DBG_LVL_ {
     HAL_ADC_LVL         =   0x01,
     SAL_ADC_LVL         =   0x02,
     VERI_ADC_LVL        =   0x04,
-}ADC_DBG_LVL,*PADC_DBG_LVL;
+};
+typedef uint32_t ADC_DBG_LVL;
+typedef uint32_t * PADC_DBG_LVL;
 
 #ifdef CONFIG_DEBUG_LOG
 #ifdef CONFIG_DEBUG_LOG_ADC_HAL
@@ -67,51 +69,65 @@ typedef enum _ADC_DBG_LVL_ {
 
 //================ ADC HAL Related Enumeration ==================
 // ADC Module Selection 
-typedef enum _ADC_MODULE_SEL_ {
+enum _ADC_MODULE_SEL_ {
         ADC0_SEL    =   0x0,
         ADC1_SEL    =   0x1,
         ADC2_SEL    =   0x2,
         ADC3_SEL    =   0x3,
-}ADC_MODULE_SEL,*PADC_MODULE_SEL;
+};
+typedef uint32_t ADC_MODULE_SEL;
+typedef uint32_t * PADC_MODULE_SEL;
 
 // ADC module status 
-typedef enum _ADC_MODULE_STATUS_ {
+enum _ADC_MODULE_STATUS_ {
     ADC_DISABLE     =   0x0,
     ADC_ENABLE      =   0x1,
-}ADC_MODULE_STATUS, *PADC_MODULE_STATUS;
+};
+typedef uint32_t ADC_MODULE_STATUS;
+typedef  uint32_t * PADC_MODULE_STATUS;
 
 // ADC Data Endian
-typedef enum _ADC_DATA_ENDIAN_ {
+enum _ADC_DATA_ENDIAN_ {
     ADC_DATA_ENDIAN_LITTLE      =   0x0,
     ADC_DATA_ENDIAN_BIG         =   0x1,
-}ADC_DATA_ENDIAN,*PADC_DATA_ENDIAN;
+};
+typedef uint32_t ADC_DATA_ENDIAN;
+typedef uint32_t * PADC_DATA_ENDIAN;
 
 // ADC Debug Select
-typedef enum _ADC_DEBUG_SEL_ {
+enum _ADC_DEBUG_SEL_ {
     ADC_DBG_SEL_DISABLE         =   0x0,
     ADC_DBG_SEL_ENABLE          =   0x1,
-}ADC_DEBUG_SEL,*PADC_DEBUG_SEL;
+};
+typedef uint32_t ADC_DEBUG_SEL;
+typedef uint32_t * PADC_DEBUG_SEL;
 
-typedef enum _ADC_COMPARE_SET_ {
+enum _ADC_COMPARE_SET_ {
     ADC_COMP_SMALLER_THAN       =   0x0,
     ADC_COMP_GREATER_THAN       =   0x1,
-}ADC_COMPARE_SET, *PADC_COMPARE_SET;
+};
+typedef uint32_t ADC_COMPARE_SET;
+typedef  uint32_t * PADC_COMPARE_SET;
 
 // ADC feature status 
-typedef enum _ADC_FEATURE_STATUS_{
+enum _ADC_FEATURE_STATUS_{
     ADC_FEATURE_DISABLED    =   0,
     ADC_FEATURE_ENABLED     =   1,
-}ADC_FEATURE_STATUS,*PADC_FEATURE_STATUS;
+};
+typedef uint32_t ADC_FEATURE_STATUS;
+typedef uint32_t * PADC_FEATURE_STATUS;
 
 // ADC operation type
-typedef enum _ADC_OP_TYPE_ {
+enum _ADC_OP_TYPE_ {
     ADC_RDREG_TYPE  =   0x0,
     ADC_DMA_TYPE    =   0x1,
     ADC_INTR_TYPE   =   0x2,
-}ADC_OP_TYPE, *PADC_OP_TYPE;
+};
+typedef uint32_t ADC_OP_TYPE;
+typedef  uint32_t * PADC_OP_TYPE;
 
 // ADC device status 
-typedef enum _ADC_DEVICE_STATUS_ {
+enum _ADC_DEVICE_STATUS_ {
     ADC_STS_UNINITIAL   =   0x00,
     ADC_STS_INITIALIZED =   0x01,
     ADC_STS_IDLE        =   0x02,
@@ -124,20 +140,26 @@ typedef enum _ADC_DEVICE_STATUS_ {
 
     ADC_STS_ERROR       =   0x07,
     ADC_STS_FULL        =   0x08,
-}ADC_DEVICE_STATUS, *PADC_DEVICE_STATUS;
+};
+typedef uint32_t ADC_DEVICE_STATUS;
+typedef  uint32_t * PADC_DEVICE_STATUS;
 
 // ADC error type
-typedef enum _ADC_ERR_TYPE_ {
+enum _ADC_ERR_TYPE_ {
     ADC_ERR_FIFO_RD_ERROR           =   0x40,       //ADC FIFO read error
-}ADC_ERR_TYPE, *PADC_ERR_TYPE;
+};
+typedef uint32_t ADC_ERR_TYPE;
+typedef uint32_t * PADC_ERR_TYPE;
 
 // ADC initial status
-typedef enum _ADC_INITAIL_STATUS_ {
+enum _ADC_INITAIL_STATUS_ {
     ADC0_INITED     =   0x1,
     ADC1_INITED     =   0x2,
     ADC2_INITED     =   0x4,
     ADC3_INITED     =   0x8,
-}ADC_INITAIL_STATUS, *PADC_INITAIL_STATUS;
+};
+typedef uint32_t ADC_INITAIL_STATUS;
+typedef  uint32_t * PADC_INITAIL_STATUS;
 
 
 //================ ADC HAL Data Structure ======================

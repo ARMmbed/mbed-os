@@ -113,7 +113,7 @@ extern VOID InitWDGIRQ(VOID);
 #define Calibration32k En32KCalibration
 #define WDGInit InitWDGIRQ
 
-typedef enum  _HAL_Status
+enum  _HAL_Status
 {
   HAL_OK            = 0x00,
   HAL_BUSY          = 0x01,
@@ -124,7 +124,8 @@ typedef enum  _HAL_Status
 
   HAL_ERR_UNKNOWN   = 0xee      // unknown error
   
-} HAL_Status;
+};
+typedef  uint32_t HAL_Status;
 
 
 #endif //_HAL_API_H_

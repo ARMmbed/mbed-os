@@ -35,7 +35,7 @@ typedef struct _WDG_ADAPTER_ {
     u32                 callback_id;
 }WDG_ADAPTER, *PWDG_ADAPTER;
 
-typedef enum _WDG_CNTLMT_ {
+enum _WDG_CNTLMT_ {
     CNT1H    = 0,
     CNT3H    = 1,
     CNT7H    = 2,
@@ -48,13 +48,17 @@ typedef enum _WDG_CNTLMT_ {
     CNT3FFH  = 9,
     CNT7FFH  = 10,
     CNTFFFH  = 11
-}WDG_CNTLMT, *PWDG_CNTLMT;
+};
+typedef uint32_t WDG_CNTLMT;
+typedef uint32_t *PWDG_CNTLMT;
 
 
-typedef enum _WDG_MODE_ {
+enum _WDG_MODE_ {
     INT_MODE    = 0,
     RESET_MODE  = 1
-}WDG_MODE, *PWDG_MODE;
+};
+typedef uint32_t WDG_MODE;
+typedef uint32_t *PWDG_MODE;
 
 extern VOID
 WDGInitial(
