@@ -104,7 +104,7 @@ typedef struct _FALSE_ALARM_STATISTICS{
 }FALSE_ALARM_STATISTICS, *PFALSE_ALARM_STATISTICS;
 #endif
 
-typedef enum tag_Dynamic_Init_Gain_Operation_Type_Definition
+enum tag_Dynamic_Init_Gain_Operation_Type_Definition
 {
 	DIG_TYPE_THRESH_HIGH	= 0,
 	DIG_TYPE_THRESH_LOW	= 1,
@@ -114,31 +114,36 @@ typedef enum tag_Dynamic_Init_Gain_Operation_Type_Definition
 	DIG_TYPE_ENABLE 		= 5,
 	DIG_TYPE_DISABLE 		= 6,	
 	DIG_OP_TYPE_MAX
-}DM_DIG_OP_E;
+};
+typedef uint32_t DM_DIG_OP_E;
 
-typedef enum tag_ODM_PauseDIG_Type {
+enum tag_ODM_PauseDIG_Type {
 	ODM_PAUSE_DIG    		= 	BIT0,
 	ODM_RESUME_DIG  		= 	BIT1
-} ODM_Pause_DIG_TYPE;
+};
+typedef uint32_t ODM_Pause_DIG_TYPE;
 
-typedef enum tag_ODM_PauseCCKPD_Type {
+enum tag_ODM_PauseCCKPD_Type {
 	ODM_PAUSE_CCKPD    	= 	BIT0,
 	ODM_RESUME_CCKPD  	= 	BIT1
-} ODM_Pause_CCKPD_TYPE;
+};
+typedef uint32_t ODM_Pause_CCKPD_TYPE;
 
-typedef enum tag_ODM_TRx_MUX_Type
+enum tag_ODM_TRx_MUX_Type
 {
 	ODM_SHUTDOWN			= 0,
 	ODM_STANDBY_MODE		= 1,
 	ODM_TX_MODE			= 2,
 	ODM_RX_MODE			= 3
-}ODM_Trx_MUX_Type;
+};
+typedef uint32_t ODM_Trx_MUX_Type;
 
-typedef enum tag_ODM_MACEDCCA_Type
+enum tag_ODM_MACEDCCA_Type
 {
 	ODM_IGNORE_EDCCA			= 0,
 	ODM_DONT_IGNORE_EDCCA	= 1
-}ODM_MACEDCCA_Type;
+};
+typedef uint32_t ODM_MACEDCCA_Type;
 
 /*
 typedef enum tag_CCK_Packet_Detection_Threshold_Type_Definition

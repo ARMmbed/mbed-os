@@ -100,7 +100,7 @@ extern const u8	WMM_PARA_OUI[];
 //	If you just wnat to customize the acitions(scan period or join actions) about one of the channel plan,
 //	customize them in RT_CHANNEL_INFO in the RT_CHANNEL_LIST.
 // 
-typedef enum _RT_CHANNEL_DOMAIN
+enum _RT_CHANNEL_DOMAIN
 {
 	//===== old channel plan mapping =====//
 	RT_CHANNEL_DOMAIN_FCC = 0x00,
@@ -171,9 +171,11 @@ typedef enum _RT_CHANNEL_DOMAIN
 	//===== Add new channel plan above this line===============//
 	RT_CHANNEL_DOMAIN_MAX,
 	RT_CHANNEL_DOMAIN_REALTEK_DEFINE = 0x7F,
-}RT_CHANNEL_DOMAIN, *PRT_CHANNEL_DOMAIN;
+};
+typedef uint32_t RT_CHANNEL_DOMAIN;
+typedef uint32_t *PRT_CHANNEL_DOMAIN;
 
-typedef enum _RT_CHANNEL_DOMAIN_2G
+enum _RT_CHANNEL_DOMAIN_2G
 {
 	RT_CHANNEL_DOMAIN_2G_WORLD1 = 0x00,		//Worldwird 13, ch1~13 (ETSI, MKK)
 	RT_CHANNEL_DOMAIN_2G_ETSI1 = 0x01,		//Europe, ch1~13
@@ -185,9 +187,11 @@ typedef enum _RT_CHANNEL_DOMAIN_2G
 	RT_CHANNEL_DOMAIN_2G_WORLD2 = 0x07,		//Worldwird 13, ch1~13 (ETSI, MKK, FCC)
 	//===== Add new channel plan above this line===============//
 	RT_CHANNEL_DOMAIN_2G_MAX,
-}RT_CHANNEL_DOMAIN_2G, *PRT_CHANNEL_DOMAIN_2G;
+};
+typedef uint32_t RT_CHANNEL_DOMAIN_2G;
+typedef uint32_t *PRT_CHANNEL_DOMAIN_2G;
 
-typedef enum _RT_CHANNEL_DOMAIN_5G
+enum _RT_CHANNEL_DOMAIN_5G
 {
 	RT_CHANNEL_DOMAIN_5G_NULL = 0x00,
 	RT_CHANNEL_DOMAIN_5G_ETSI1 = 0x01,		//Europe
@@ -211,7 +215,9 @@ typedef enum _RT_CHANNEL_DOMAIN_5G
 	RT_CHANNEL_DOMAIN_5G_FCC = 0x11,
 	RT_CHANNEL_DOMAIN_5G_JAPAN_NO_DFS = 0x12,
 	RT_CHANNEL_DOMAIN_5G_MAX,
-}RT_CHANNEL_DOMAIN_5G, *PRT_CHANNEL_DOMAIN_5G;
+};
+typedef uint32_t RT_CHANNEL_DOMAIN_5G;
+typedef uint32_t *PRT_CHANNEL_DOMAIN_5G;
 
 #define rtw_is_channel_plan_valid(chplan) (chplan<RT_CHANNEL_DOMAIN_MAX || chplan == RT_CHANNEL_DOMAIN_REALTEK_DEFINE)
 
@@ -266,7 +272,7 @@ enum Associated_AP
 	maxAP,
 };
 
-typedef enum _HT_IOT_PEER
+enum _HT_IOT_PEER
 {
 	HT_IOT_PEER_UNKNOWN 			= 0,
 	HT_IOT_PEER_REALTEK 			= 1,
@@ -285,7 +291,9 @@ typedef enum _HT_IOT_PEER
 	HT_IOT_PEER_REALTEK_81XX 		= 14,	
 	HT_IOT_PEER_REALTEK_WOW 		= 15,	
 	HT_IOT_PEER_MAX 			= 16
-}HT_IOT_PEER_E, *PHTIOT_PEER_E;
+};
+typedef uint32_t HT_IOT_PEER_E;
+typedef uint32_t *PHTIOT_PEER_E;
 
 
 enum SCAN_STATE

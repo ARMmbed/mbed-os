@@ -25,7 +25,7 @@
 #define		PathC                     			0x2
 #define		PathD                     			0x3
 
-typedef enum _RATE_SECTION {
+enum _RATE_SECTION {
 	CCK = 0,
 	OFDM,
 	HT_MCS0_MCS7,
@@ -36,27 +36,30 @@ typedef enum _RATE_SECTION {
 	VHT_2SSMCS0_2SSMCS9,
 	VHT_3SSMCS0_3SSMCS9,
 	VHT_4SSMCS0_4SSMCS9,
-} RATE_SECTION;
+};
+typedef uint32_t RATE_SECTION;
 
-typedef enum _RF_TX_NUM {
+enum _RF_TX_NUM {
 	RF_1TX = 0,
 	RF_2TX,
 	RF_3TX,
 	RF_4TX,
 	RF_MAX_TX_NUM,
 	RF_TX_NUM_NONIMPLEMENT,
-} RF_TX_NUM;
+};
+typedef uint32_t RF_TX_NUM;
 
 #define MAX_POWER_INDEX 		0x3F
 
-typedef enum _REGULATION_TXPWR_LMT {
+enum _REGULATION_TXPWR_LMT {
 	TXPWR_LMT_FCC = 0,
 	TXPWR_LMT_MKK = 1,
 	TXPWR_LMT_ETSI = 2,
 	TXPWR_LMT_WW = 3, // WW13, The mininum of ETSI,MKK
 	TXPWR_LMT_GL = 4, // Global, The mininum of ETSI,MKK,FCC
 	TXPWR_LMT_MAX_REGULATION_NUM = 5
-} REGULATION_TXPWR_LMT;
+};
+typedef uint32_t REGULATION_TXPWR_LMT;
 
 /*------------------------------Define structure----------------------------*/ 
 typedef struct _BB_REGISTER_DEFINITION{

@@ -143,7 +143,7 @@ enum {
 
 //tern u8 RSN_CIPHER_SUITE_WRAP[];
 
-typedef enum _RATEID_IDX_ {
+enum _RATEID_IDX_ {
 	RATEID_IDX_BGN_40M_2SS = 0,
 	RATEID_IDX_BGN_40M_1SS = 1,
 	RATEID_IDX_BGN_20M_2SS_BN = 2,
@@ -155,7 +155,9 @@ typedef enum _RATEID_IDX_ {
 	RATEID_IDX_B = 8,
 	RATEID_IDX_VHT_2SS = 9,
 	RATEID_IDX_VHT_1SS = 10,
-} RATEID_IDX, *PRATEID_IDX;
+};
+typedef uint32_t RATEID_IDX;
+typedef uint32_t *PRATEID_IDX;
 
 enum NETWORK_TYPE
 {

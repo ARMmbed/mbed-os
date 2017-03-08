@@ -91,9 +91,6 @@ class GCC(mbedToolchain):
         self.cppc =[main_cppc]
         self.cc += self.flags['c'] + self.flags['common']
         self.cppc += self.flags['cxx'] + self.flags['common']
-        if target.name in ["REALTEK_RTL8195AM"]:
-            self.cc += ["-fno-short-enums"]
-            self.cppc += ["-fno-short-enums"]
 
         self.flags['ld'] += self.cpu
         self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']

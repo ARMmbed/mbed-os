@@ -48,14 +48,16 @@ __attribute__((packed))
 #endif
 NDIS_802_11_SSID, *PNDIS_802_11_SSID;
 
-typedef enum _NDIS_802_11_NETWORK_TYPE
+enum _NDIS_802_11_NETWORK_TYPE
 {
     Ndis802_11FH,
     Ndis802_11DS,
     Ndis802_11OFDM5,
     Ndis802_11OFDM24,
     Ndis802_11NetworkTypeMax    // not a real type, defined as an upper bound
-} NDIS_802_11_NETWORK_TYPE, *PNDIS_802_11_NETWORK_TYPE;
+};
+typedef uint32_t NDIS_802_11_NETWORK_TYPE;
+typedef uint32_t *PNDIS_802_11_NETWORK_TYPE;
 
 typedef struct _NDIS_802_11_CONFIGURATION_FH
 {
@@ -89,14 +91,16 @@ NDIS_802_11_CONFIGURATION, *PNDIS_802_11_CONFIGURATION;
 
 
 
-typedef enum _NDIS_802_11_NETWORK_INFRASTRUCTURE
+enum _NDIS_802_11_NETWORK_INFRASTRUCTURE
 {
     Ndis802_11IBSS,
     Ndis802_11Infrastructure,
     Ndis802_11AutoUnknown,
     Ndis802_11InfrastructureMax,     // Not a real value, defined as upper bound
     Ndis802_11APMode
-} NDIS_802_11_NETWORK_INFRASTRUCTURE, *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
+};
+typedef uint32_t NDIS_802_11_NETWORK_INFRASTRUCTURE;
+typedef uint32_t *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
 
 
 
@@ -158,7 +162,7 @@ typedef struct _NDIS_802_11_BSSID_LIST_EX
 } NDIS_802_11_BSSID_LIST_EX, *PNDIS_802_11_BSSID_LIST_EX;
 #endif
 
-typedef enum _NDIS_802_11_AUTHENTICATION_MODE
+enum _NDIS_802_11_AUTHENTICATION_MODE
 {
     Ndis802_11AuthModeOpen,
     Ndis802_11AuthModeShared,
@@ -168,9 +172,11 @@ typedef enum _NDIS_802_11_AUTHENTICATION_MODE
     Ndis802_11AuthModeWPANone,
     Ndis802_11AuthModeWAPI,
     Ndis802_11AuthModeMax               // Not a real mode, defined as upper bound
-} NDIS_802_11_AUTHENTICATION_MODE, *PNDIS_802_11_AUTHENTICATION_MODE;
+};
+typedef uint32_t NDIS_802_11_AUTHENTICATION_MODE;
+typedef uint32_t *PNDIS_802_11_AUTHENTICATION_MODE;
 
-typedef enum _NDIS_802_11_WEP_STATUS
+enum _NDIS_802_11_WEP_STATUS
 {
     Ndis802_11WEPEnabled,
     Ndis802_11Encryption1Enabled = Ndis802_11WEPEnabled,
@@ -185,8 +191,11 @@ typedef enum _NDIS_802_11_WEP_STATUS
     Ndis802_11Encryption3Enabled,
     Ndis802_11Encryption3KeyAbsent,
     Ndis802_11_EncrypteionWAPI
-} NDIS_802_11_WEP_STATUS, *PNDIS_802_11_WEP_STATUS,
-  NDIS_802_11_ENCRYPTION_STATUS, *PNDIS_802_11_ENCRYPTION_STATUS;
+};
+typedef uint32_t NDIS_802_11_WEP_STATUS;
+typedef uint32_t *PNDIS_802_11_WEP_STATUS;
+typedef uint32_t NDIS_802_11_ENCRYPTION_STATUS;
+typedef uint32_t *PNDIS_802_11_ENCRYPTION_STATUS;
 
 
 #define NDIS_802_11_AI_REQFI_CAPABILITIES      1
@@ -224,10 +233,12 @@ typedef struct _NDIS_802_11_ASSOCIATION_INFORMATION
     u32                   OffsetResponseIEs;
 } NDIS_802_11_ASSOCIATION_INFORMATION, *PNDIS_802_11_ASSOCIATION_INFORMATION;
 
-typedef enum _NDIS_802_11_RELOAD_DEFAULTS
+enum _NDIS_802_11_RELOAD_DEFAULTS
 {
    Ndis802_11ReloadWEPKeys
-} NDIS_802_11_RELOAD_DEFAULTS, *PNDIS_802_11_RELOAD_DEFAULTS;
+};
+typedef uint32_t NDIS_802_11_RELOAD_DEFAULTS;
+typedef uint32_t *PNDIS_802_11_RELOAD_DEFAULTS;
 
 
 // Key mapping keys require a BSSID
@@ -263,13 +274,15 @@ typedef struct _NDIS_802_11_AUTHENTICATION_REQUEST
     u32 Flags;
 } NDIS_802_11_AUTHENTICATION_REQUEST, *PNDIS_802_11_AUTHENTICATION_REQUEST;
 
-typedef enum _NDIS_802_11_STATUS_TYPE
+enum _NDIS_802_11_STATUS_TYPE
 {
 	Ndis802_11StatusType_Authentication,
 	Ndis802_11StatusType_MediaStreamMode,
 	Ndis802_11StatusType_PMKID_CandidateList,		
 	Ndis802_11StatusTypeMax    // not a real type, defined as an upper bound
-} NDIS_802_11_STATUS_TYPE, *PNDIS_802_11_STATUS_TYPE;
+};
+typedef uint32_t NDIS_802_11_STATUS_TYPE;
+typedef uint32_t *PNDIS_802_11_STATUS_TYPE;
 
 typedef struct _NDIS_802_11_STATUS_INDICATION
 {
@@ -328,14 +341,16 @@ typedef struct _NDIS_802_11_SSID
   u8  Ssid[32];
 } NDIS_802_11_SSID, *PNDIS_802_11_SSID;
 
-typedef enum _NDIS_802_11_NETWORK_TYPE
+enum _NDIS_802_11_NETWORK_TYPE
 {
     Ndis802_11FH,
     Ndis802_11DS,
     Ndis802_11OFDM5,
     Ndis802_11OFDM24,
     Ndis802_11NetworkTypeMax    // not a real type, defined as an upper bound
-} NDIS_802_11_NETWORK_TYPE, *PNDIS_802_11_NETWORK_TYPE;
+};
+typedef uint32_t NDIS_802_11_NETWORK_TYPE;
+typedef uint32_t *PNDIS_802_11_NETWORK_TYPE;
 
 typedef struct _NDIS_802_11_CONFIGURATION_FH
 {
@@ -361,14 +376,16 @@ typedef struct _NDIS_802_11_CONFIGURATION
 
 
 
-typedef enum _NDIS_802_11_NETWORK_INFRASTRUCTURE
+enum _NDIS_802_11_NETWORK_INFRASTRUCTURE
 {
     Ndis802_11IBSS,
     Ndis802_11Infrastructure,
     Ndis802_11AutoUnknown,
     Ndis802_11InfrastructureMax,     // Not a real value, defined as upper bound
     Ndis802_11APMode
-} NDIS_802_11_NETWORK_INFRASTRUCTURE, *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
+};
+typedef uint32_t NDIS_802_11_NETWORK_INFRASTRUCTURE;
+typedef uint32_t *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
 
 
 
@@ -430,7 +447,7 @@ typedef struct _NDIS_802_11_BSSID_LIST_EX
 } NDIS_802_11_BSSID_LIST_EX, *PNDIS_802_11_BSSID_LIST_EX;
 #endif
 
-typedef enum _NDIS_802_11_AUTHENTICATION_MODE
+enum _NDIS_802_11_AUTHENTICATION_MODE
 {
     Ndis802_11AuthModeOpen,
     Ndis802_11AuthModeShared,
@@ -439,9 +456,11 @@ typedef enum _NDIS_802_11_AUTHENTICATION_MODE
     Ndis802_11AuthModeWPAPSK,
     Ndis802_11AuthModeWPANone,
     Ndis802_11AuthModeMax               // Not a real mode, defined as upper bound
-} NDIS_802_11_AUTHENTICATION_MODE, *PNDIS_802_11_AUTHENTICATION_MODE;
+};
+typedef uint32_t NDIS_802_11_AUTHENTICATION_MODE;
+typedef uint32_t *PNDIS_802_11_AUTHENTICATION_MODE;
 
-typedef enum _NDIS_802_11_WEP_STATUS
+enum _NDIS_802_11_WEP_STATUS
 {
     Ndis802_11WEPEnabled,
     Ndis802_11Encryption1Enabled = Ndis802_11WEPEnabled,
@@ -455,8 +474,11 @@ typedef enum _NDIS_802_11_WEP_STATUS
     Ndis802_11Encryption2KeyAbsent,
     Ndis802_11Encryption3Enabled,
     Ndis802_11Encryption3KeyAbsent
-} NDIS_802_11_WEP_STATUS, *PNDIS_802_11_WEP_STATUS,
-  NDIS_802_11_ENCRYPTION_STATUS, *PNDIS_802_11_ENCRYPTION_STATUS;
+} ;
+typedef uint32_t NDIS_802_11_WEP_STATUS;
+typedef uint32_t *PNDIS_802_11_WEP_STATUS;
+typedef uint32_t NDIS_802_11_ENCRYPTION_STATUS;
+typedef uint32_t *PNDIS_802_11_ENCRYPTION_STATUS;
 
 
 #define NDIS_802_11_AI_REQFI_CAPABILITIES      1
@@ -494,10 +516,12 @@ typedef struct _NDIS_802_11_ASSOCIATION_INFORMATION
     u32                   OffsetResponseIEs;
 } NDIS_802_11_ASSOCIATION_INFORMATION, *PNDIS_802_11_ASSOCIATION_INFORMATION;
 
-typedef enum _NDIS_802_11_RELOAD_DEFAULTS
+enum _NDIS_802_11_RELOAD_DEFAULTS
 {
    Ndis802_11ReloadWEPKeys
-} NDIS_802_11_RELOAD_DEFAULTS, *PNDIS_802_11_RELOAD_DEFAULTS;
+};
+typedef uint32_t NDIS_802_11_RELOAD_DEFAULTS;
+typedef uint32_t *PNDIS_802_11_RELOAD_DEFAULTS;
 
 
 // Key mapping keys require a BSSID
@@ -533,13 +557,15 @@ typedef struct _NDIS_802_11_AUTHENTICATION_REQUEST
     u32 Flags;
 } NDIS_802_11_AUTHENTICATION_REQUEST, *PNDIS_802_11_AUTHENTICATION_REQUEST;
 
-typedef enum _NDIS_802_11_STATUS_TYPE
+enum _NDIS_802_11_STATUS_TYPE
 {
 	Ndis802_11StatusType_Authentication,
 	Ndis802_11StatusType_MediaStreamMode,
 	Ndis802_11StatusType_PMKID_CandidateList,		
 	Ndis802_11StatusTypeMax    // not a real type, defined as an upper bound
-} NDIS_802_11_STATUS_TYPE, *PNDIS_802_11_STATUS_TYPE;
+};
+typedef uint32_t NDIS_802_11_STATUS_TYPE;
+typedef uint32_t *PNDIS_802_11_STATUS_TYPE;
 
 typedef struct _NDIS_802_11_STATUS_INDICATION
 {

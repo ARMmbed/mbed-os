@@ -104,7 +104,7 @@ extern uint8_t SPI0_IS_AS_SLAVE;
         DBG_SSI_INFO(IDENT_FOUR_SPACE __VA_ARGS__); \
 }while(0)
 
-typedef enum _SSI_DBG_TYPE_LIST_ {
+enum _SSI_DBG_TYPE_LIST_ {
     DBG_TYPE_ENTRANCE  = 1 << 0,
     DBG_TYPE_INIT      = 1 << 1,
     DBG_TYPE_INIT_V    = 1 << 2,
@@ -121,7 +121,9 @@ typedef enum _SSI_DBG_TYPE_LIST_ {
     DBG_TYPE_READ      = 1 << 13,
     DBG_TYPE_WRITE     = 1 << 14,
     DBG_TYPE_SLV_CTRL  = 1 << 15
-} SSI_DBG_TYPE_LIST, *PSSI_DBG_TYPE_LIST;
+};
+typedef uint32_t SSI_DBG_TYPE_LIST;
+typedef uint32_t *PSSI_DBG_TYPE_LIST;
 
  typedef struct _SSI_DMA_CONFIG_ {
     VOID *pHalGdmaOp;

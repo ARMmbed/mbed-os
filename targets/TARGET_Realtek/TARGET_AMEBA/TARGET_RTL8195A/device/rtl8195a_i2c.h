@@ -790,17 +790,21 @@
 //======================================================
 // I2C related enumeration
 // I2C Address Mode
-typedef enum _I2C_ADDR_MODE_   {
+enum _I2C_ADDR_MODE_   {
     I2C_ADDR_7BIT   =   0,
     I2C_ADDR_10BIT  =   1,  
-}I2C_ADDR_MODE,*PI2C_ADDR_MODE;
+};
+typedef uint32_t I2C_ADDR_MODE;
+typedef uint32_t *PI2C_ADDR_MODE;
 
 // I2C Speed Mode
-typedef enum _I2C_SPD_MODE_   {
+enum _I2C_SPD_MODE_   {
     I2C_SS_MODE     =   1,
     I2C_FS_MODE     =   2,
     I2C_HS_MODE     =   3,
-}I2C_SPD_MODE,*PI2C_SPD_MODE;
+};
+typedef uint32_t I2C_SPD_MODE;
+typedef uint32_t *PI2C_SPD_MODE;
 
 //I2C Timing Parameters
 #define I2C_SS_MIN_SCL_HTIME    4000    //the unit is ns.

@@ -111,20 +111,23 @@
 
 #define GK_REKEY_TIME		3600000		//Set rekey period to 1 hour
 
-typedef enum {
+enum {
 	desc_type_RSN	= 2,
 	desc_type_WPA	= 254
-} DescTypeRSN;
+};
+typedef uint32_t DescTypeRSN;
 
-typedef enum {
+enum {
 	type_Group	= 0,
 	type_Pairwise	= 1
-} KeyType;
+};
+typedef uint32_t KeyType;
 
-typedef enum {
+enum {
 	key_desc_ver1 	= 1,
 	key_desc_ver2 	= 2
-} KeyDescVer;
+};
+typedef uint32_t KeyDescVer;
 
 enum {
 	PSK_WPA		= 1,

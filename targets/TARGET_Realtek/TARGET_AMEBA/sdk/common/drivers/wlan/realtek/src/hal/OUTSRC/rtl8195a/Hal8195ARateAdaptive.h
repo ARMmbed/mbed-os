@@ -106,7 +106,7 @@
 #define TRY_NESS_CNT_IDX_SIZE   16
 
 /*------------------------------Define Enum-----------------------------------*/
-typedef enum _RTL8195_RATEID_IDX_ {
+enum _RTL8195_RATEID_IDX_ {
     MODE_BGN_40M_2SS    = 0,
     MODE_BGN_40M_1SS    = 1,
     MODE_BGN_20M_2SS_BN = 2,
@@ -116,14 +116,18 @@ typedef enum _RTL8195_RATEID_IDX_ {
     MODE_BG             = 6,
     MODE_G              = 7,
     MODE_B              = 8
-} RTL8195_RATEID_IDX, *PRTL8195_RATEID_IDX;
+}; 
+typedef uint32_t RTL8195_RATEID_IDX;
+typedef uint32_t * PRTL8195_RATEID_IDX;
 
-typedef enum _VHT_HT_SWITCH_ {
+enum _VHT_HT_SWITCH_ {
     TYPE_HT             = 0,
     TYPE_VHT            = 1,
     TYPE_MIX1           = 2,
     TYPE_MIX2           = 3
-} VHT_SEL_SWITCH, *PVHT_SEL_SWITCH;
+};
+typedef uint32_t VHT_SEL_SWITCH;
+typedef uint32_t * PVHT_SEL_SWITCH;
 
 /*--------------------------Define MACRO--------------------------------------*/
 #define TRYING_DISABLE          0

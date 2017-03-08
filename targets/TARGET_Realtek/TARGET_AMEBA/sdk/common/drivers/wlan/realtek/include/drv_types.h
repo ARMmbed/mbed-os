@@ -559,11 +559,12 @@ struct co_data_priv{
 };
 #endif //CONFIG_CONCURRENT_MODE
 
-typedef enum _DRIVER_STATE{
+enum _DRIVER_STATE{
 	DRIVER_NORMAL = 0,
 	DRIVER_DISAPPEAR = 1,
 	DRIVER_REPLACE_DONGLE = 2,
-}DRIVER_STATE;
+};
+typedef uint32_t DRIVER_STATE;
 
 #ifdef CONFIG_INTEL_PROXIM
 struct proxim {

@@ -615,13 +615,15 @@ union recv_frame{
 
 };
 
-typedef enum _RX_PACKET_TYPE{
+enum _RX_PACKET_TYPE{
 	NORMAL_RX,//Normal rx packet
 	TX_REPORT1,//CCX
 	TX_REPORT2,//TX RPT
 	HIS_REPORT,// USB HISR RPT
 	C2H_PACKET
-}RX_PACKET_TYPE, *PRX_PACKET_TYPE;
+};
+typedef uint32_t RX_PACKET_TYPE;
+typedef uint32_t *PRX_PACKET_TYPE;
 
 extern union recv_frame *_rtw_alloc_recvframe (_queue *pfree_recv_queue);  //get a free recv_frame from pfree_recv_queue
 extern void rtw_init_recvframe(union recv_frame *precvframe ,struct recv_priv *precvpriv);

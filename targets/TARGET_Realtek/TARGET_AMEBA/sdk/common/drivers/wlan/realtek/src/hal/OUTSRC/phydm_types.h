@@ -141,7 +141,7 @@
 #define 	RT_LXBUS_INTERFACE				4
 #endif
 
-typedef enum _HAL_STATUS{
+enum _HAL_STATUS{
 	HAL_STATUS_SUCCESS,
 	HAL_STATUS_FAILURE,
 	/*RT_STATUS_PENDING,
@@ -150,7 +150,9 @@ typedef enum _HAL_STATUS{
 	RT_STATUS_INVALID_PARAMETER,
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,*/
-}HAL_STATUS,*PHAL_STATUS;
+};
+typedef unsigned long HAL_STATUS;
+typedef unsigned long *PHAL_STATUS;
 
 
 #if( (DM_ODM_SUPPORT_TYPE == ODM_AP) ||(DM_ODM_SUPPORT_TYPE == ODM_ADSL) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
@@ -160,7 +162,7 @@ typedef enum _HAL_STATUS{
 //
 // Declare for ODM spin lock defintion temporarily fro compile pass.
 //
-typedef enum _RT_SPINLOCK_TYPE{
+enum _RT_SPINLOCK_TYPE{
 	RT_TX_SPINLOCK = 1,
 	RT_RX_SPINLOCK = 2,
 	RT_RM_SPINLOCK = 3,
@@ -200,7 +202,8 @@ typedef enum _RT_SPINLOCK_TYPE{
 	RT_PENDED_OID_SPINLOCK = 39,
 	RT_CHNLLIST_SPINLOCK = 40,	
 	RT_INDIC_SPINLOCK = 41,	//protect indication	
-}RT_SPINLOCK_TYPE;
+};
+typedef unsigned long RT_SPINLOCK_TYPE;
 
 #endif
 
@@ -389,42 +392,47 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#endif
 	
 	// Array_MP_8195A_TXPWR_LMT[]
-	typedef enum _ODM_PW_LMT_REGULATION_TYPE{
+	enum _ODM_PW_LMT_REGULATION_TYPE{
 		PW_LMT_REGU_NULL = 0,
 		PW_LMT_REGU_FCC = 1,
 		PW_LMT_REGU_ETSI = 2,
 		PW_LMT_REGU_MKK = 3,
 		PW_LMT_REGU_WW13 = 4
-	}ODM_PW_LMT_REGULATION_TYPE;
+	};
+	typedef unsigned long ODM_PW_LMT_REGULATION_TYPE;
 
-	typedef enum _ODM_PW_LMT_BAND_TYPE{
+	enum _ODM_PW_LMT_BAND_TYPE{
 		PW_LMT_BAND_NULL = 0,
 		PW_LMT_BAND_2_4G = 1,
 		PW_LMT_BAND_5G = 2
-	}ODM_PW_LMT_BAND_TYPE;
+	};
+	typedef unsigned long ODM_PW_LMT_BAND_TYPE;
 
-	typedef enum _ODM_PW_LMT_BANDWIDTH_TYPE{
+	enum _ODM_PW_LMT_BANDWIDTH_TYPE{
 		PW_LMT_BW_NULL = 0,
 		PW_LMT_BW_20M = 1,
 		PW_LMT_BW_40M = 2,
 		PW_LMT_BW_80M = 3
-	}ODM_PW_LMT_BANDWIDTH_TYPE;
+	};
+	typedef unsigned long ODM_PW_LMT_BANDWIDTH_TYPE;
 
-	typedef enum _ODM_PW_LMT_RATESECTION_TYPE{
+	enum _ODM_PW_LMT_RATESECTION_TYPE{
 		PW_LMT_RS_NULL = 0,
 		PW_LMT_RS_CCK = 1,
 		PW_LMT_RS_OFDM = 2,
 		PW_LMT_RS_HT = 3,
 		PW_LMT_RS_VHT = 4
-	}ODM_PW_LMT_RATESECTION_TYPE;
+	};
+	typedef unsigned long ODM_PW_LMT_RATESECTION_TYPE;
 
-	typedef enum _ODM_PW_LMT_RFPATH_TYPE{
+	enum _ODM_PW_LMT_RFPATH_TYPE{
 		PW_LMT_PH_NULL = 0,
 		PW_LMT_PH_1T = 1,
 		PW_LMT_PH_2T = 2,
 		PW_LMT_PH_3T = 3,
 		PW_LMT_PH_4T = 4
-	}ODM_PW_LMT_RFPATH_TYPE;
+	};
+	typedef unsigned long ODM_PW_LMT_RFPATH_TYPE;
 
     	#if defined(CONFIG_LITTLE_ENDIAN)	
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_LITTLE

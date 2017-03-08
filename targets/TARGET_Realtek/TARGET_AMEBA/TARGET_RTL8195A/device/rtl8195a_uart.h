@@ -156,70 +156,92 @@ typedef struct _RUART_SPEED_SETTING_ {
 #endif    
 }RUART_SPEED_SETTING, *PRUART_SPEED_SETTING;
 
-typedef enum _UART_RXFIFO_TRIGGER_LEVEL_ {
+enum _UART_RXFIFO_TRIGGER_LEVEL_ {
     OneByte       = 0x00,
     FourBytes     = 0x01,
     EightBytes    = 0x10,
     FourteenBytes = 0x11
-}UART_RXFIFO_TRIGGER_LEVEL, *PUART_RXFIFO_TRIGGER_LEVEL;
+};
+typedef uint32_t UART_RXFIFO_TRIGGER_LEVEL;
+typedef uint32_t *PUART_RXFIFO_TRIGGER_LEVEL;
 
-typedef enum _RUART0_PINMUX_SELECT_ {
+enum _RUART0_PINMUX_SELECT_ {
     RUART0_MUX_TO_GPIOC = S0,
     RUART0_MUX_TO_GPIOE = S1,
     RUART0_MUX_TO_GPIOA = S2
-}RUART0_PINMUX_SELECT, *PRUART0_PINMUX_SELECT;
+};
+typedef uint32_t RUART0_PINMUX_SELECT;
+typedef uint32_t *PRUART0_PINMUX_SELECT;
 
-typedef enum _RUART1_PINMUX_SELECT_ {
+enum _RUART1_PINMUX_SELECT_ {
     RUART1_MUX_TO_GPIOD = S0,
     RUART1_MUX_TO_GPIOE = S1,
     RUART1_MUX_TO_GPIOB = S2
-}RUART1_PINMUX_SELECT, *PRUART1_PINMUX_SELECT;
+};
+typedef uint32_t RUART1_PINMUX_SELECT;
+typedef uint32_t *PRUART1_PINMUX_SELECT;
 
-typedef enum _RUART2_PINMUX_SELECT_ {
+enum _RUART2_PINMUX_SELECT_ {
     RUART2_MUX_TO_GPIOA = S0,
     RUART2_MUX_TO_GPIOC = S1,
     RUART2_MUX_TO_GPIOD = S2
-}RUART2_PINMUX_SELECT, *PRUART2_PINMUX_SELECT;
+};
+typedef uint32_t RUART2_PINMUX_SELECT;
+typedef uint32_t *PRUART2_PINMUX_SELECT;
 
-typedef enum _RUART_FLOW_CONTROL_ {
+enum _RUART_FLOW_CONTROL_ {
     AUTOFLOW_DISABLE = 0,
     AUTOFLOW_ENABLE  = 1
-}RUART_FLOW_CONTROL, *PRUART_FLOW_CONTROL;
+};
+typedef uint32_t RUART_FLOW_CONTROL;
+typedef uint32_t *PRUART_FLOW_CONTROL;
 
-typedef enum _RUART_WORD_LEN_SEL_ {
+enum _RUART_WORD_LEN_SEL_ {
 	RUART_WLS_7BITS = 0,
     RUART_WLS_8BITS = 1
-}RUART_WORD_LEN_SEL, *PRUART_WORD_LEN_SEL;
+};
+typedef uint32_t RUART_WORD_LEN_SEL;
+typedef uint32_t *PRUART_WORD_LEN_SEL;
 
-typedef enum _RUART_STOP_BITS_ {
+enum _RUART_STOP_BITS_ {
     RUART_STOP_BIT_1 = 0,
     RUART_STOP_BIT_2 = 1
-}RUART_STOP_BITS, *PRUART_STOP_BITS;
+};
+typedef uint32_t RUART_STOP_BITS;
+typedef uint32_t *PRUART_STOP_BITS;
 
-typedef enum _RUART_PARITY_CONTROL_ {
+enum _RUART_PARITY_CONTROL_ {
 	RUART_PARITY_DISABLE = 0,
 	RUART_PARITY_ENABLE  = 1
-}RUART_PARITY_CONTROL, *PRUART_PARITY_CONTROL;
+};
+typedef uint32_t RUART_PARITY_CONTROL;
+typedef uint32_t *PRUART_PARITY_CONTROL;
 
-typedef enum _RUART_PARITY_TYPE_ {
+enum _RUART_PARITY_TYPE_ {
 	RUART_ODD_PARITY  = 0,
 	RUART_EVEN_PARITY = 1
-}RUART_PARITY_TYPE, *PRUART_PARITY_TYPE;
+};
+typedef uint32_t RUART_PARITY_TYPE;
+typedef uint32_t *PRUART_PARITY_TYPE;
 
-typedef enum _RUART_STICK_PARITY_CONTROL_ {
+enum _RUART_STICK_PARITY_CONTROL_ {
     RUART_STICK_PARITY_DISABLE = 0,
     RUART_STICK_PARITY_ENABLE  = 1
-}RUART_STICK_PARITY_CONTROL, *PRUART_STICK_PARITY_CONTROL;
+};
+typedef uint32_t RUART_STICK_PARITY_CONTROL;
+typedef uint32_t *PRUART_STICK_PARITY_CONTROL;
 
-typedef enum _UART_INT_ID_ {
+enum _UART_INT_ID_ {
     ModemStatus           = 0,
     TxFifoEmpty           = 1,
     ReceiverDataAvailable = 2,
     ReceivLineStatus      = 3,
     TimeoutIndication     = 6
-}UART_INT_ID, *PUART_INT_ID;
+};
+typedef uint32_t UART_INT_ID;
+typedef uint32_t *PUART_INT_ID;
 
-typedef enum _HAL_UART_State_
+enum _HAL_UART_State_
 {
   HAL_UART_STATE_NULL              = 0x00,    // UART hardware not been initial yet
   HAL_UART_STATE_READY             = 0x10,    // UART is initialed, ready to use
@@ -229,9 +251,11 @@ typedef enum _HAL_UART_State_
   HAL_UART_STATE_BUSY_TX_RX        = 0x23,    // UART is busy on TX an RX
   HAL_UART_STATE_TIMEOUT           = 0x30,    // Transfer timeout
   HAL_UART_STATE_ERROR             = 0x40     // UART Error
-}HAL_UART_State, *PHAL_UART_State;
+};
+typedef uint32_t HAL_UART_State;
+typedef uint32_t *PHAL_UART_State;
 
-typedef enum _HAL_UART_Status_
+enum _HAL_UART_Status_
 {
   HAL_UART_STATUS_OK               = 0x00,    // Transfer OK
   HAL_UART_STATUS_TIMEOUT          = 0x01,    // Transfer Timeout
@@ -241,7 +265,9 @@ typedef enum _HAL_UART_Status_
   HAL_UART_STATUS_ERR_BREAK        = 0x10,    // Break Interrupt
   HAL_UART_STATUS_ERR_PARA         = 0x20,    // Parameter error
   HAL_UART_STATUS_ERR_RXFIFO       = 0x80,    // RX FIFO error
-}HAL_UART_Status, *PHAL_UART_Status;
+};
+typedef uint32_t HAL_UART_Status;
+typedef uint32_t *PHAL_UART_Status;
 
 u32
 HalRuartGetDebugValueRtl8195a(
