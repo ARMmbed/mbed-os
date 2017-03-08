@@ -243,7 +243,7 @@ typedef struct _RT_8723B_FIRMWARE_HDR
 
 // Description: Determine the types of C2H events that are the same in driver and Fw.
 // Fisrt constructed by tynli. 2009.10.09.
-typedef enum _C2H_EVT
+enum _C2H_EVT
 {
 	C2H_DBG = 0,
 	C2H_TSF = 1,
@@ -256,7 +256,8 @@ typedef enum _C2H_EVT
 	C2H_HW_INFO_EXCH = 10,
 	C2H_8723B_BT_MP_INFO = 11,
 	MAX_C2HEVENT
-} C2H_EVT;
+};
+typedef uint32_t C2H_EVT;
 
 typedef _PACKED struct _C2H_EVT_HDR
 {
@@ -265,21 +266,23 @@ typedef _PACKED struct _C2H_EVT_HDR
 	u8	CmdSeq;
 } C2H_EVT_HDR, *PC2H_EVT_HDR;
 
-typedef enum tag_Package_Definition
+enum tag_Package_Definition
 {
 	PACKAGE_QFN32,
 	PACKAGE_QFN48_MCM,
 	PACKAGE_QFN48,
 	PACKAGE_QFN68,
-}PACKAGE_TYPE_E;
+};
+typedef uint32_t PACKAGE_TYPE_E;
 
-typedef enum tag_ChipID_Definition
+enum tag_ChipID_Definition
 {
 	CHIPID_8710BN = 0xFF, /* PACKAGE_QFN32 */
 	CHIPID_8710BU = 0xFE, /* PACKAGE_QFN48_MCM */
 	CHIPID_8711BN = 0xFD, /* PACKAGE_QFN48 */
 	CHIPID_8711BG = 0xFC, /* PACKAGE_QFN68 */
-}CHIP_TD_E;
+};
+typedef uint32_t CHIP_TD_E;
 
 
 #define INCLUDE_MULTI_FUNC_BT(_Adapter)		(GET_HAL_DATA(_Adapter)->MultiFunc & RT_MULTI_FUNC_BT)
@@ -361,7 +364,7 @@ typedef struct _LX_DMA_ELEMENT_ {
 }LX_DMA_ELEMENT, *PLX_DMA_ELEMENT;
 #if 1
 
-typedef enum _LX_DMA_QUEUE_TYPE_{
+enum _LX_DMA_QUEUE_TYPE_{
     VO_QUEUE = 0,
     VI_QUEUE = 1,
     BE_QUEUE = 2,
@@ -379,7 +382,9 @@ typedef enum _LX_DMA_QUEUE_TYPE_{
     BCN_QUEUE = 14,
     MAX_TX_QUEUE = 15,
     ERROR_QUEUE = 16,
-}LX_DMA_QUEUE_TYPE, *PLX_DMA_QUEUE_TYPE;
+};
+typedef uint32_t LX_DMA_QUEUE_TYPE;
+typedef uint32_t *PLX_DMA_QUEUE_TYPE;
 
 typedef struct _TX_FREE_QUEUE_ {
     _queue               FreeQueue;

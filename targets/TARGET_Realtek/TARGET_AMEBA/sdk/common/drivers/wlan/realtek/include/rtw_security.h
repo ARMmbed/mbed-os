@@ -40,14 +40,15 @@
 #define AES_PRIV_SIZE (4 * 44)
 #define _AES_IV_LEN_ 8
 
-typedef enum {
+enum {
 	ENCRYP_PROTOCOL_OPENSYS,   //open system
 	ENCRYP_PROTOCOL_WEP,       //WEP
 	ENCRYP_PROTOCOL_WPA,       //WPA
 	ENCRYP_PROTOCOL_WPA2,      //WPA2
 	ENCRYP_PROTOCOL_WAPI,      //WAPI: Not support in this version
 	ENCRYP_PROTOCOL_MAX
-}ENCRYP_PROTOCOL_E;
+};
+typedef uint32_t ENCRYP_PROTOCOL_E;
 
 
 #ifndef Ndis802_11AuthModeWPA2

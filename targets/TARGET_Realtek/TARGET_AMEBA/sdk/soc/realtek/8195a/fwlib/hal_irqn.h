@@ -16,7 +16,7 @@
 
 #define PERIPHERAL_IRQ_BASE_NUM     64
 
-typedef enum _IRQn_Type_ {
+enum _IRQn_Type_ {
 #if 0
 /******  Cortex-M3 Processor Exceptions Numbers ********/  
     NON_MASKABLE_INT_IRQ            = -14,
@@ -92,15 +92,19 @@ typedef enum _IRQn_Type_ {
     PTA_TRX_IRQ                     =  95,// 31+64
     RXI300_IRQ                      =  96,// 0+32 + 64
     NFC_IRQ                         =  97// 1+32+64
-} IRQn_Type, *PIRQn_Type;
+};
+typedef uint32_t IRQn_Type;
+typedef uint32_t *PIRQn_Type;
 
 
 typedef VOID (*HAL_VECTOR_FUN) (VOID);
 
-typedef enum _VECTOR_TABLE_TYPE_{
+enum _VECTOR_TABLE_TYPE_{
     DEDECATED_VECTRO_TABLE,
     PERIPHERAL_VECTOR_TABLE
-}VECTOR_TABLE_TYPE, *PVECTOR_TABLE_TYPE;
+};
+typedef uint32_t VECTOR_TABLE_TYPE;
+typedef uint32_t *PVECTOR_TABLE_TYPE;
 
 
 typedef void (*IRQ_FUN)(VOID *Data);

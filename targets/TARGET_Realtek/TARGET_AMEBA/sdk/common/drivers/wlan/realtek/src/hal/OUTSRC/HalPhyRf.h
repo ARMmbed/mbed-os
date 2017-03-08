@@ -21,16 +21,18 @@
  #ifndef __HAL_PHY_RF_H__
  #define __HAL_PHY_RF_H__
  
-typedef enum _SPUR_CAL_METHOD {
+enum _SPUR_CAL_METHOD {
 	PLL_RESET,
 	AFE_PHASE_SEL
-} SPUR_CAL_METHOD;
+};
+ typedef uint32_t SPUR_CAL_METHOD;
 
-typedef enum _PWRTRACK_CONTROL_METHOD {
+enum _PWRTRACK_CONTROL_METHOD {
 	BBSWING,
 	TXAGC,
 	MIX_MODE
-} PWRTRACK_METHOD;
+};
+typedef uint32_t PWRTRACK_METHOD;
 
 typedef VOID 	(*FuncSetPwr)(PDM_ODM_T, PWRTRACK_METHOD, u1Byte, u1Byte);
 typedef VOID 	(*FuncIQK)(PDM_ODM_T, u1Byte, u1Byte, u1Byte);

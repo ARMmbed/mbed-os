@@ -60,12 +60,13 @@ extern u32 CfgSysDebugWarn;
 #define _DBG_MISC_              0x40000000
 #define	_DBG_FAULT_        	    0x80000000
 
-typedef enum _SYSTEM_DBG_DEFINE_ {
+enum _SYSTEM_DBG_DEFINE_ {
     _SYSDBG_MISC_       = 1<<0,
     _SYSDBG_MAILBOX_    = 1<<1,
     _SYSDBG_TIMER_      = 1<<2
 
-} SYSTEM_DBG;
+}; 
+typedef uint32_t SYSTEM_DBG;
 
 extern
 _LONG_CALL_ROM_ u32
@@ -826,11 +827,12 @@ prvDiagSPrintf(
 #define IDENT_EIGHT_SPACE  "        "
 
 #ifdef CONFIG_DEBUG_LOG
-typedef enum _DBG_CFG_TYPE_ {
+enum _DBG_CFG_TYPE_ {
 	DBG_CFG_ERR=0,
 	DBG_CFG_WARN=1,
 	DBG_CFG_INFO=2
-} DBG_CFG_TYPE;
+};
+typedef uint32_t DBG_CFG_TYPE;
 
 typedef struct _DBG_CFG_CMD_ {
 	u8 cmd_name[16];
@@ -839,9 +841,10 @@ typedef struct _DBG_CFG_CMD_ {
 
 #endif
 
-typedef enum _CONSOLE_OP_STAGE_ {
+enum _CONSOLE_OP_STAGE_ {
     ROM_STAGE = 0,
     RAM_STAGE = 1
-}CONSOLE_OP_STAGE;
+};
+typedef uint32_t CONSOLE_OP_STAGE;
 
 #endif //_DIAG_H_

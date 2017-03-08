@@ -60,7 +60,7 @@
 
 #endif	//#if 0
 
-typedef enum _LED_CTL_MODE{
+enum _LED_CTL_MODE{
 	LED_CTL_POWER_ON = 1,
 	LED_CTL_LINK = 2,
 	LED_CTL_NO_LINK = 3,
@@ -75,7 +75,8 @@ typedef enum _LED_CTL_MODE{
 	LED_CTL_STOP_WPS_FAIL = 12, //added for ALPHA	
 	LED_CTL_STOP_WPS_FAIL_OVERLAP = 13, //added for BELKIN
 	LED_CTL_CONNECTION_NO_TRANSFER = 14,
-}LED_CTL_MODE;
+};
+typedef uint32_t LED_CTL_MODE;
 
 //TODO
 #if 0

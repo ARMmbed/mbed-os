@@ -20,12 +20,13 @@
 #ifndef __RTL8195A_PMU_CMD_H__
 #define __RTL8195A_PMU_CMD_H__
 
-typedef enum _RT_MEDIA_STATUS{
+enum _RT_MEDIA_STATUS{
     RT_MEDIA_DISCONNECT     = 0,
     RT_MEDIA_CONNECT        = 1
-}RT_MEDIA_STATUS;
+};
+typedef uint32_t RT_MEDIA_STATUS;
 
-typedef enum _H2C_CMD_ {
+enum _H2C_CMD_ {
     //1 Class1: Common
     H2CID_RSVDPAGE              = 0x00,
     H2CID_JOININFO              = 0x01,
@@ -109,7 +110,9 @@ typedef enum _H2C_CMD_ {
     //1 Class8: Testing
     H2CID_H2C2HLB               = 0xE0
     
-} H2C_CMD, *PH2C_CMD;
+};
+typedef uint32_t  H2C_CMD;
+typedef uint32_t *PH2C_CMD;
 
 typedef struct _H2CParam_JoinInfo_ {
     BOOLEAN     bConnected:1;

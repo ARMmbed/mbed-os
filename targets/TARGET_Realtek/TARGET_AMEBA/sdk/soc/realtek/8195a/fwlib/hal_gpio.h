@@ -16,7 +16,7 @@
 
 #define HAL_GPIO_PIN_INT_MODE       0x80
 
-typedef enum {
+enum {
     _PORT_A = 0,
     _PORT_B = 1,
     _PORT_C = 2,
@@ -30,9 +30,10 @@ typedef enum {
     _PORT_K = 10,
 
     _PORT_MAX
-} HAL_GPIO_PORT_NAME;
+};
+typedef uint32_t HAL_GPIO_PORT_NAME;
 
-typedef enum {
+enum {
     _PA_0  = (_PORT_A<<4|0),
     _PA_1  = (_PORT_A<<4|1),
     _PA_2  = (_PORT_A<<4|2),
@@ -141,16 +142,18 @@ typedef enum {
 
     // Not connected
     _PIN_NC = (int)0xFFFFFFFF
-} HAL_PIN_NAME;
+};
+typedef uint32_t HAL_PIN_NAME;
 
-typedef enum
+enum
 {
   GPIO_PIN_LOW  = 0,
   GPIO_PIN_HIGH = 1,
   GPIO_PIN_ERR  = 2     // read Pin error
-} HAL_GPIO_PIN_STATE;
+};
+typedef uint32_t HAL_GPIO_PIN_STATE;
 
-typedef enum {
+enum {
     DIN_PULL_NONE   = 0,    //floating or high impedance ?
     DIN_PULL_LOW    = 1,
     DIN_PULL_HIGH   = 2,
@@ -162,7 +165,8 @@ typedef enum {
     INT_HIGH        = (6|HAL_GPIO_PIN_INT_MODE),    // Interrupt High level trigger
     INT_FALLING     = (7|HAL_GPIO_PIN_INT_MODE),    // Interrupt Falling edge trigger
     INT_RISING      = (8|HAL_GPIO_PIN_INT_MODE)     // Interrupt Rising edge trigger        
-} HAL_GPIO_PIN_MODE;
+};
+typedef uint32_t HAL_GPIO_PIN_MODE;
 
 enum {
     GPIO_PORT_A = 0,
@@ -171,13 +175,14 @@ enum {
     GPIO_PORT_D = 3
 };
 
-typedef enum {
+enum {
     hal_PullNone  = 0,
     hal_PullUp    = 1,
     hal_PullDown  = 2,
     hal_OpenDrain = 3,
     hal_PullDefault = hal_PullNone
-} HAL_PinMode;
+};
+typedef uint32_t HAL_PinMode;
 
 typedef struct _HAL_GPIO_PORT_ {
     u32 out_data;       // to write the GPIO port

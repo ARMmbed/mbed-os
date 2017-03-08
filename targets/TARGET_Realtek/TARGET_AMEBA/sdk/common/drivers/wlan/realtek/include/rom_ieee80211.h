@@ -85,7 +85,8 @@ struct rtw_ieee802_11_elems {
 	u8 vendor_ht_cap_len;
 };
 
-typedef enum { ParseOK = 0, ParseUnknown = 1, ParseFailed = -1 } ParseRes;
+enum { ParseOK = 0, ParseUnknown = 1, ParseFailed = -1 };
+typedef uint32_t ParseRes;
 
 ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
                 struct rtw_ieee802_11_elems *elems,
