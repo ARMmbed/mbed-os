@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     cmsis_armcc.h
  * @brief    CMSIS compiler ARMCC (ARM compiler V5) header file
- * @version  V5.0.1
- * @date     03. February 2017
+ * @version  V5.0.2
+ * @date     13. February 2017
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
@@ -50,34 +50,46 @@
 
 /* CMSIS compiler specific defines */
 #ifndef   __ASM
-  #define __ASM                     __asm
+  #define __ASM                                  __asm
 #endif
 #ifndef   __INLINE
-  #define __INLINE                  __inline
+  #define __INLINE                               __inline
 #endif
 #ifndef   __STATIC_INLINE
-  #define __STATIC_INLINE           static __inline
+  #define __STATIC_INLINE                        static __inline
 #endif
 #ifndef   __NO_RETURN
-  #define __NO_RETURN               __declspec(noreturn)
+  #define __NO_RETURN                            __declspec(noreturn)
 #endif
 #ifndef   __USED
-  #define __USED                    __attribute__((used))
+  #define __USED                                 __attribute__((used))
 #endif
 #ifndef   __WEAK
-  #define __WEAK                    __attribute__((weak))
-#endif
-#ifndef   __UNALIGNED_UINT32
-  #define __UNALIGNED_UINT32(x)     (*((__packed uint32_t *)(x)))
-#endif
-#ifndef   __ALIGNED
-  #define __ALIGNED(x)              __attribute__((aligned(x)))
+  #define __WEAK                                 __attribute__((weak))
 #endif
 #ifndef   __PACKED
-  #define __PACKED                  __attribute__((packed))
+  #define __PACKED                               __attribute__((packed))
 #endif
 #ifndef   __PACKED_STRUCT
-  #define __PACKED_STRUCT           __packed struct
+  #define __PACKED_STRUCT                        __packed struct
+#endif
+#ifndef   __UNALIGNED_UINT32        /* deprecated */
+  #define __UNALIGNED_UINT32(x)                  (*((__packed uint32_t *)(x)))
+#endif
+#ifndef   __UNALIGNED_UINT16_WRITE
+  #define __UNALIGNED_UINT16_WRITE(addr, val)    ((*((__packed uint16_t *)(addr))) = (val))
+#endif
+#ifndef   __UNALIGNED_UINT16_READ
+  #define __UNALIGNED_UINT16_READ(addr)          (*((const __packed uint16_t *)(addr)))
+#endif
+#ifndef   __UNALIGNED_UINT32_WRITE
+  #define __UNALIGNED_UINT32_WRITE(addr, val)    ((*((__packed uint32_t *)(addr))) = (val))
+#endif
+#ifndef   __UNALIGNED_UINT32_READ
+  #define __UNALIGNED_UINT32_READ(addr)          (*((const __packed uint32_t *)(addr)))
+#endif
+#ifndef   __ALIGNED
+  #define __ALIGNED(x)                           __attribute__((aligned(x)))
 #endif
 
 

@@ -2410,7 +2410,8 @@
             "S130",
             "TARGET_MCU_NRF51822",
             "CMSIS_VECTAB_VIRTUAL",
-            "MBED_SMALL_TARGET"
+            "MBED_SMALL_TARGET",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5"],
