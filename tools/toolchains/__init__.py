@@ -256,7 +256,8 @@ class mbedToolchain:
 
     profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
 
-    def __init__(self, target, notify=None, macros=None, silent=False, extra_verbose=False, build_profile=None):
+    def __init__(self, target, notify=None, macros=None, silent=False,
+                 extra_verbose=False, build_profile=None, build_dir=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -295,11 +296,8 @@ class mbedToolchain:
         self.build_all = False
 
         # Build output dir
-        self.build_dir = None
+        self.build_dir = build_dir
         self.timestamp = time()
-
-        # Output build naming based on target+toolchain combo (mbed 2.0 builds)
-        self.obj_path = join("TARGET_"+target.name, "TOOLCHAIN_"+self.name)
 
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
@@ -580,7 +578,8 @@ class mbedToolchain:
                     self.add_ignore_patterns(root, base_path, lines)
 
             # Skip the whole folder if ignored, e.g. .mbedignore containing '*'
-            if self.is_ignored(join(relpath(root, base_path),"")):
+            if (self.is_ignored(join(relpath(root, base_path),"")) or
+                self.build_dir == join(relpath(root, base_path))):
                 dirs[:] = []
                 continue
 
@@ -773,7 +772,7 @@ class mbedToolchain:
 
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def compile_sources(self, resources, build_path, inc_dirs=None):
+    def compile_sources(self, resources, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
         self.to_be_compiled = len(files_to_compile)
@@ -790,8 +789,6 @@ class mbedToolchain:
         inc_paths = sorted(set(inc_paths))
         # Unique id of all include paths
         self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
-        # Where to store response files
-        self.build_dir = build_path
 
         objects = []
         queue = []
@@ -804,7 +801,8 @@ class mbedToolchain:
         # Sort compile queue for consistency
         files_to_compile.sort()
         for source in files_to_compile:
-            object = self.relative_object_path(build_path, resources.file_basepath[source], source)
+            object = self.relative_object_path(
+                self.build_dir, resources.file_basepath[source], source)
 
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)
