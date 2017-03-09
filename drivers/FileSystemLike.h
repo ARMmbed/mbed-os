@@ -114,7 +114,7 @@ public:
      *    0 on success or un-needed,
      *   -1 on error
      */
-    virtual int stat(const char *name, struct stat *st) = 0;
+    virtual int stat(const char *name, struct stat *st) { return -1; };
 };
 
 } // namespace mbed
