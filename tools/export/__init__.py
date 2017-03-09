@@ -30,7 +30,7 @@ from tools.build_api import scan_resources
 from tools.toolchains import Resources
 from tools.export import lpcxpresso, ds5_5, iar, makefile
 from tools.export import embitz, coide, kds, simplicity, atmelstudio
-from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
+from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
 from tools.targets import TARGET_NAMES
 
@@ -56,7 +56,10 @@ EXPORTERS = {
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
     'zip' : zip.ZIP,
-    'cmsis'    : cmsis.CMSIS
+    'cmsis'    : cmsis.CMSIS,
+    'vscode_gcc_arm' : vscode.VSCodeGcc,
+    'vscode_iar' : vscode.VSCodeIAR,
+    'vscode_armc5' : vscode.VSCodeArmc5
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
