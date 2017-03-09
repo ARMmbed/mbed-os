@@ -36,7 +36,7 @@
 #include <stdlib.h>     /*rand()*/
 #include <inttypes.h>
 #include <errno.h>
-/* retarget.h is included after errno.h so symbols are mapped to
+/* mbed_retarget.h is included after errno.h so symbols are mapped to
  * consistent values for all toolchains */
 #include "platform/mbed_retarget.h"
 
