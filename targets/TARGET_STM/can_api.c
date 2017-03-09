@@ -207,7 +207,7 @@ int can_frequency(can_t *obj, int f)
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
 {
-    uint32_t  transmitmailbox = 5;
+    uint32_t  transmitmailbox = CAN_TXSTATUS_NOMAILBOX;
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
     /* Select one empty transmit mailbox */
@@ -218,33 +218,31 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     } else if ((can->TSR & CAN_TSR_TME2) == CAN_TSR_TME2) {
         transmitmailbox = 2;
     } else {
-        transmitmailbox = CAN_TXSTATUS_NOMAILBOX;
+      return 0;
     }
 
-    if (transmitmailbox != CAN_TXSTATUS_NOMAILBOX) {
-        can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
-        if (!(msg.format)) {
-            can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | msg.type);
-        } else {
-            can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
-        }
-
-        /* Set up the DLC */
-        can->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;
-        can->sTxMailBox[transmitmailbox].TDTR |= (msg.len & (uint8_t)0x0000000F);
-
-        /* Set up the data field */
-        can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
-                                                ((uint32_t)msg.data[2] << 16) |
-                                                ((uint32_t)msg.data[1] << 8) |
-                                                ((uint32_t)msg.data[0]));
-        can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
-                                                ((uint32_t)msg.data[6] << 16) |
-                                                ((uint32_t)msg.data[5] << 8) |
+    can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
+    if (!(msg.format)) {
+      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | msg.type);
+    } else {
+      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
+    }
+    
+    /* Set up the DLC */
+    can->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;
+    can->sTxMailBox[transmitmailbox].TDTR |= (msg.len & (uint8_t)0x0000000F);
+    
+    /* Set up the data field */
+    can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
+					     ((uint32_t)msg.data[2] << 16) |
+					     ((uint32_t)msg.data[1] << 8) |
+					     ((uint32_t)msg.data[0]));
+    can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
+					     ((uint32_t)msg.data[6] << 16) |
+					     ((uint32_t)msg.data[5] << 8) |
                                                 ((uint32_t)msg.data[4]));
-        /* Request transmission */
-        can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
-    }
+    /* Request transmission */
+    can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
 
     return 1;
 }
