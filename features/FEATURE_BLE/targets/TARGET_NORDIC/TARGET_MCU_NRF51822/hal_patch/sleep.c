@@ -66,6 +66,6 @@ void hal_sleep(void)
 
 void hal_deepsleep(void)
 {
-    sleep();
+    hal_sleep();
     //   NRF_POWER->SYSTEMOFF=1;
 }
