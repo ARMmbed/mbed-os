@@ -2911,8 +2911,6 @@
         "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "progen": {"target": "rtl8195a"},
-        "progen_target": "rtl8195a",
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "EMAC"],
         "features": ["LWIP"],
         "post_binary_hook": {
