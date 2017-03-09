@@ -100,36 +100,40 @@ struct ethernetif {
 // Override mbed_mac_address of mbed_interface.c to provide ethernet devices with a semi-unique MAC address
 void mbed_mac_address(char *mac)
 {
-	unsigned char my_mac_addr[6] = {0x02, 0x00, 0xac, 0x55, 0x66, 0x77};		// default mac adderss
     // Fetch word 0
-    uint32_t word0 = *(uint32_t *)0x7FFFC;
+    uint32_t word0 = *(uint32_t *)0x7F804; // 2KB Data Flash at 0x7F800
     // Fetch word 1
     // we only want bottom 16 bits of word1 (MAC bits 32-47)
     // and bit 9 forced to 1, bit 8 forced to 0
     // Locally administered MAC, reduced conflicts
     // http://en.wikipedia.org/wiki/MAC_address
-    uint32_t word1 = *(uint32_t *)0x7FFF8;
-	if( word0 == 0xFFFFFFFF )		// Not burn any mac address at the last 2 words of flash
+    uint32_t word1 = *(uint32_t *)0x7F800; // 2KB Data Flash at 0x7F800
+
+	if( word0 == 0xFFFFFFFF )		// Not burn any mac address at 1st 2 words of Data Flash
 	{
-		mac[0] = my_mac_addr[0];
-		mac[1] = my_mac_addr[1];
-		mac[2] = my_mac_addr[2];
-		mac[3] = my_mac_addr[3];
-		mac[4] = my_mac_addr[4];
-		mac[5] = my_mac_addr[5];	
-		return;
+        // with a semi-unique MAC address from the UUID
+        /* Enable FMC ISP function */
+        SYS_UnlockReg();
+        FMC_Open();
+        // = FMC_ReadUID(0);
+         word1 = FMC_ReadUID(1) >> 8; 
+         word0 = ((FMC_ReadUID(0) >> 4) << 20) | (FMC_ReadUID(2) & 0xFFFFF);
+        /* Disable FMC ISP function */
+        FMC_Close();
+        /* Lock protected registers */
+        SYS_LockReg();
 	}
 
     word1 |= 0x00000200;
     word1 &= 0x0000FEFF;
-    
-    mac[0] = (word1 & 0x000000ff);
-    mac[1] = (word1 & 0x0000ff00) >> 8;
+
+    mac[0] = (word1 & 0x0000ff00) >> 8;    
+    mac[1] = (word1 & 0x000000ff);
     mac[2] = (word0 & 0xff000000) >> 24;
     mac[3] = (word0 & 0x00ff0000) >> 16;
     mac[4] = (word0 & 0x0000ff00) >> 8;
     mac[5] = (word0 & 0x000000ff);
-
+//    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]);
 }
 
 /**
