@@ -1,0 +1,9 @@
+{% extends "makefile/Makefile.tmpl" %}
+
+{% block elf2bin %}
+	$(ELF2BIN) --bin $< $@
+{%- endblock %}
+
+{% block elf2hex %}
+	$(ELF2BIN) --ihex $< $@
+{%- endblock %}

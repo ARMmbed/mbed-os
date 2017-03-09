@@ -1,0 +1,27 @@
+{
+    "name": "mbed-mesh-api",
+    "config": {
+        "heap-size": 32500,
+        "6lowpan-nd-channel-mask": "(1<<12)",
+        "6lowpan-nd-channel-page": 0,
+        "6lowpan-nd-channel": 12,
+        "6lowpan-nd-panid-filter": "0xffff",
+        "6lowpan-nd-security-mode": "NONE",
+        "6lowpan-nd-psk-key-id": 1,
+        "6lowpan-nd-psk-key": "{0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf}",
+        "6lowpan-nd-sec-level": 5,
+        "6lowpan-nd-device-type": "NET_6LOWPAN_ROUTER",
+        "thread-pskd": "\"abcdefghijklmno\"",
+        "thread-config-channel-mask": "0x7fff800",
+        "thread-config-channel-page": 0,
+        "thread-config-channel": 22,
+        "thread-config-panid": "0x0700",
+        "thread-config-network-name": "\"Thread Network\"",
+        "thread-config-commissioning-dataset-timestamp": "0x00010000",
+        "thread-config-extended-panid": "{0xf1, 0xb5, 0xa1, 0xb2,0xc4, 0xd5, 0xa1, 0xbd }",
+        "thread-master-key": "{0x10, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff}",
+        "thread-config-ml-prefix": "{0xfd, 0x0, 0x0d, 0xb8, 0x0, 0x0, 0x0, 0x0}",
+        "thread-config-pskc": "{0xc8, 0xa6, 0x2e, 0xae, 0xf3, 0x68, 0xf3, 0x46, 0xa9, 0x9e, 0x57, 0x85, 0x98, 0x9d, 0x1c, 0xd0}",
+        "thread-device-type": "MESH_DEVICE_TYPE_THREAD_ROUTER"
+    }
+}

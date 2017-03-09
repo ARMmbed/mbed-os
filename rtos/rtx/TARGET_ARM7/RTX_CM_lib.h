@@ -198,15 +198,8 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 extern void pre_main (void);
 osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 0, NULL};
 
-// This define should be probably moved to the CMSIS layer
-
-#if defined(TARGET_LPC2460)
-extern unsigned char     __usr_stack_top__[];
-#define INITIAL_SP            (__usr_stack_top__)
-
-#else
-#error "no target defined"
-
+#ifndef INITIAL_SP
+ #error "no target defined"
 #endif
 
 #ifdef __CC_ARM
@@ -329,6 +322,7 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
+extern int atexit(void (*func)(void));
 extern void __libc_fini_array(void);
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
@@ -339,7 +333,7 @@ void pre_main(void) {
     main(0, NULL);
 }
 
-__attribute__((naked)) void software_init_hook (void) {
+__attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
     ".syntax unified\n"
     ".thumb\n"

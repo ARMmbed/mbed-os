@@ -1,0 +1,4 @@
+{
+    "name": "uvisor-lib",
+    "macros": ["CMSIS_NVIC_VIRTUAL", "CMSIS_VECTAB_VIRTUAL"]
+}

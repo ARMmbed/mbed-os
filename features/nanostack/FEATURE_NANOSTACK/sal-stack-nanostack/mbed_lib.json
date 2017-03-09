@@ -1,0 +1,7 @@
+{
+    "name": "nanostack",
+    "config": {
+        "configuration": "nanostack_full"
+    },
+    "macros": ["NS_USE_EXTERNAL_MBED_TLS"]
+}

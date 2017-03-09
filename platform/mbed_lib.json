@@ -1,0 +1,32 @@
+{
+    "name": "platform",
+    "config": {
+        "stdio-convert-newlines": {
+            "help": "Enable conversion to standard newlines on stdin/stdout",
+            "value": false
+        },
+
+        "stdio-baud-rate": {
+            "help": "Baud rate for stdio",
+            "value": 9600
+        },
+
+        "stdio-flush-at-exit": {
+            "help": "Enable or disable the flush of standard I/O's at exit.",
+            "value": true
+        },
+
+        "default-serial-baud-rate": {
+            "help": "Default baud rate for a Serial or RawSerial instance (if not specified in the constructor)",
+            "value": 9600
+        }
+    },
+    "target_overrides": {
+        "EFM32": {
+            "stdio-baud-rate": 115200
+        },
+        "EFR32": {
+            "stdio-baud-rate": 115200
+        }
+    }
+}

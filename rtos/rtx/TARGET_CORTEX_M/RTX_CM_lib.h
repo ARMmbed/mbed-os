@@ -1,3 +1,6 @@
+
+/** \addtogroup rtos */
+/** @{*/
 /*----------------------------------------------------------------------------
  *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
@@ -34,6 +37,7 @@
 #include "mbed_error.h"
 
 #if   defined (__CC_ARM)
+#include <rt_misc.h>
 #pragma O3
 #define __USED __attribute__((used))
 #elif defined (__GNUC__)
@@ -51,15 +55,15 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     52
+#define OS_TCB_SIZE     64
 #define OS_TMR_SIZE     8
-
-#if defined (__CC_ARM) && !defined (__MICROLIB)
 
 typedef void    *OS_ID;
 typedef uint32_t OS_TID;
 typedef uint32_t OS_MUT[4];
 typedef uint32_t OS_RESULT;
+
+#if defined (__CC_ARM) && !defined (__MICROLIB)
 
 #define runtask_id()    rt_tsk_self()
 #define mutex_init(m)   rt_mut_init(m)
@@ -122,7 +126,11 @@ uint32_t const os_tickfreq   = OS_CLOCK;
 uint16_t const os_tickus_i   = OS_CLOCK/1000000;
 uint16_t const os_tickus_f   = (((uint64_t)(OS_CLOCK-1000000*(OS_CLOCK/1000000)))<<16)/1000000;
 uint32_t const os_trv        = OS_TRV;
+#if       defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+uint8_t  const os_flags      = 0;
+#else  /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
 uint8_t  const os_flags      = OS_RUNPRIV;
+#endif /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
 
 /* Export following defines to uVision debugger. */
 __USED uint32_t const CMSIS_RTOS_API_Version = osCMSIS;
@@ -178,9 +186,13 @@ osMessageQId osMessageQId_osTimerMessageQ;
 #endif
 
 /* Legacy RTX User Timers not used */
-uint32_t       os_tmr = 0U; 
+uint32_t       os_tmr = 0U;
 uint32_t const *m_tmr = NULL;
 uint16_t const mp_tmr_size = 0U;
+
+/* singleton mutex */
+osMutexId singleton_mutex_id;
+osMutexDef(singleton_mutex);
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
  /* A memory space for arm standard library. */
@@ -190,6 +202,77 @@ uint16_t const mp_tmr_size = 0U;
  extern void  *__libspace_start;
 #endif
 
+#if defined (__ICCARM__)
+static osMutexId  std_mutex_id_sys[_MAX_LOCK] = {0};
+static OS_MUT     std_mutex_sys[_MAX_LOCK] = {0};
+#define _FOPEN_MAX 10
+static osMutexId  std_mutex_id_file[_FOPEN_MAX] = {0};
+static OS_MUT     std_mutex_file[_FOPEN_MAX] = {0};
+void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
+{
+  osMutexDef_t def;
+  uint32_t index;
+  for (index = 0; index < _MAX_LOCK; index++) {
+    if (0 == std_mutex_id_sys[index]) {
+      def.mutex = &std_mutex_sys[index];
+      std_mutex_id_sys[index] = osMutexCreate(&def);
+      *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
+      return;
+    }
+  }
+  // This should never happen
+  error("Not enough mutexes\n");
+}
+
+void __iar_system_Mtxdst(__iar_Rmtx *mutex)/*Destroy a system lock */
+{
+  osMutexDelete(*(osMutexId*)*mutex);
+  *mutex = 0;
+}
+
+void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
+{
+  osMutexWait(*(osMutexId*)*mutex, osWaitForever);
+}
+
+void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
+{
+  osMutexRelease(*(osMutexId*)*mutex);
+}
+
+void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
+{
+    osMutexDef_t def;
+    uint32_t index;
+    for (index = 0; index < _FOPEN_MAX; index++) {
+      if (0 == std_mutex_id_file[index]) {
+        def.mutex = &std_mutex_file[index];
+        std_mutex_id_file[index] = osMutexCreate(&def);
+        *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
+        return;
+      }
+    }
+    // The variable _FOPEN_MAX needs to be increased
+    error("Not enough mutexes\n");
+}
+
+void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
+{
+  osMutexDelete(*(osMutexId*)*mutex);
+  *mutex = 0;
+}
+
+void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
+{
+  osMutexWait(*(osMutexId*)*mutex, osWaitForever);
+}
+
+void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
+{
+  osMutexRelease(*(osMutexId*)*mutex);
+}
+
+#endif
 
 /*----------------------------------------------------------------------------
  *      RTX Optimizations (empty functions)
@@ -270,179 +353,139 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 
 /* Main Thread definition */
 extern void pre_main (void);
-osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 0U, NULL};
 
-// This define should be probably moved to the CMSIS layer
-#if   defined(TARGET_LPC1768)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_LPC11U24)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_LPC1114)
-#define INITIAL_SP            (0x10001000UL)
-
-#elif defined(TARGET_LPC812)
-#define INITIAL_SP            (0x10001000UL)
-
-#elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_KL25Z)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif defined(TARGET_KL26Z)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif defined(TARGET_KL27Z)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif defined(TARGET_K64F)
-#define INITIAL_SP            (0x20030000UL)
-
-#elif defined(TARGET_K22F)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif defined(TARGET_KL46Z)
-#define INITIAL_SP            (0x20006000UL)
-
-#elif defined(TARGET_KL43Z)
-#define INITIAL_SP            (0x20006000UL)
-
-#elif defined(TARGET_KL05Z)
-#define INITIAL_SP            (0x20000C00UL)
-
-#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-#define INITIAL_SP            (0x10010000UL)
-
-#elif defined(TARGET_LPC4330)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_LPC4337)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_LPC1347)
-#define INITIAL_SP            (0x10002000UL)
-
-#elif defined(TARGET_STM32F100RB) || defined(TARGET_STM32F051R8)
-#define INITIAL_SP            (0x20002000UL)
-
-#elif defined(TARGET_DISCO_F303VC)
-#define INITIAL_SP            (0x2000A000UL)
-
-#elif defined(TARGET_STM32F407) || defined(TARGET_F407VG)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F401RE)
-#define INITIAL_SP            (0x20018000UL)
-
-#elif defined(TARGET_LPC1549)
-#define INITIAL_SP            (0x02009000UL)
-
-#elif defined(TARGET_LPC11U68)
-#define INITIAL_SP            (0x10008000UL)
-
-#elif defined(TARGET_STM32F411RE)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F410RB)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32F103RB) || defined(TARGET_STM32L073RZ)
-#define INITIAL_SP            (0x20005000UL)
-
-#elif defined(TARGET_STM32F302R8)
-#define INITIAL_SP            (0x20004000UL)
-
-#elif  defined(TARGET_STM32F334R8)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif  defined(TARGET_STM32F334C8)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif  defined(TARGET_STM32F405RG)
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F429ZI)
-#define INITIAL_SP            (0x20030000UL)
-
-#elif defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
-#define INITIAL_SP            (0x20002000UL)
-
-#elif defined(TARGET_STM32F072RB)
-#define INITIAL_SP            (0x20004000UL)
-
-#elif defined(TARGET_STM32F091RC)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32F401VC)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif defined(TARGET_STM32F303RE)
-#define INITIAL_SP            (0x20010000UL)
-
-#elif defined(TARGET_STM32F303K8)
-#define INITIAL_SP            (0x20003000UL)
-
-#elif (defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG))
-#define INITIAL_SP            (0x20050000UL)
-
-#elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_TEENSY3_1)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif defined(TARGET_STM32L152RE)
-#define INITIAL_SP            (0x20014000UL)
-
-#elif defined(TARGET_NZ32_SC151)
-#define INITIAL_SP            (0x20008000UL)
-
-#elif (defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE))
-#define INITIAL_SP            (0x20020000UL)
-
-#elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F030R8)
-#define INITIAL_SP            (0x20002000UL)
-
-#elif defined(TARGET_STM32L476VG)
-#define INITIAL_SP            (0x20018000UL)
-
-#elif defined(TARGET_STM32L476RG)
-#define INITIAL_SP            (0x20018000UL)
-
-#elif defined(TARGET_STM32F469NI)
-#define INITIAL_SP            (0x20050000UL)
-
-#elif defined(TARGET_STM32L152RC)
-#define INITIAL_SP            (0x20008000UL)
-
-
+#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832) || defined (TARGET_STM32F334R8) ||\
+    defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || \
+    defined(TARGET_STM32F302R8) || defined(TARGET_STM32F303K8) || defined (TARGET_STM32F334C8) ||\
+    defined(TARGET_STM32F103RB)
+static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
+#elif defined(TARGET_XDOT_L151CC)
+static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 6 / sizeof(uint32_t)];
 #else
-#error "no target defined"
+static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 2 / sizeof(uint32_t)];
+#endif
+osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, sizeof(thread_stack_main), thread_stack_main};
 
+/*
+ * IAR Default Memory layout notes:
+ * -Heap defined by "HEAP" region in .icf file
+ * -Interrupt stack defined by "CSTACK" region in .icf file
+ * -Value INITIAL_SP is ignored
+ *
+ * IAR Custom Memory layout notes:
+ * -There is no custom layout available for IAR - everything must be defined in
+ *      the .icf file and use the default layout
+ *
+ *
+ * GCC Default Memory layout notes:
+ * -Block of memory from symbol __end__ to define INITIAL_SP used to setup interrupt
+ *      stack and heap in the function set_stack_heap()
+ * -ISR_STACK_SIZE can be overridden to be larger or smaller
+ *
+ * GCC Custom Memory layout notes:
+ * -Heap can be explicitly placed by defining both HEAP_START and HEAP_SIZE
+ * -Interrupt stack can be explicitly placed by defining both ISR_STACK_START and ISR_STACK_SIZE
+ *
+ *
+ * ARM Memory layout
+ * -Block of memory from end of region "RW_IRAM1" to define INITIAL_SP used to setup interrupt
+ *      stack and heap in the function set_stack_heap()
+ * -ISR_STACK_SIZE can be overridden to be larger or smaller
+ *
+ * ARM Custom Memory layout notes:
+ * -Heap can be explicitly placed by defining both HEAP_START and HEAP_SIZE
+ * -Interrupt stack can be explicitly placed by defining both ISR_STACK_START and ISR_STACK_SIZE
+ *
+ */
+
+extern unsigned char *mbed_heap_start;
+extern uint32_t mbed_heap_size;
+
+unsigned char *mbed_stack_isr_start = 0;
+uint32_t mbed_stack_isr_size = 0;
+
+/*
+ * Sanity check values
+ */
+#if defined(__ICCARM__) &&                                  \
+    (defined(HEAP_START) || defined(HEAP_SIZE) ||           \
+     defined(ISR_STACK_START) && defined(ISR_STACK_SIZE))
+    #error "No custom layout allowed for IAR. Use .icf file instead"
+#endif
+#if defined(HEAP_START) && !defined(HEAP_SIZE)
+    #error "HEAP_SIZE must be defined if HEAP_START is defined"
+#endif
+#if defined(ISR_STACK_START) && !defined(ISR_STACK_SIZE)
+    #error "ISR_STACK_SIZE must be defined if ISR_STACK_START is defined"
+#endif
+#if defined(HEAP_SIZE) && !defined(HEAP_START)
+    #error "HEAP_START must be defined if HEAP_SIZE is defined"
 #endif
 
-#ifdef __CC_ARM
-extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
-#define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
-#elif defined(__GNUC__)
-extern uint32_t          __end__[];
-#define HEAP_START      (__end__)
-#elif defined(__ICCARM__)
-#pragma section="HEAP"
-#define HEAP_START     (void *)__section_begin("HEAP")
+/* Interrupt stack and heap always defined for IAR
+ * Main thread defined here
+ */
+#if defined(__ICCARM__)
+    #pragma section="CSTACK"
+    #pragma section="HEAP"
+    #define HEAP_START          ((unsigned char*)__section_begin("HEAP"))
+    #define HEAP_SIZE           ((uint32_t)__section_size("HEAP"))
+    #define ISR_STACK_START     ((unsigned char*)__section_begin("CSTACK"))
+    #define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
 #endif
 
-void set_main_stack(void) {
-    // That is the bottom of the main stack block: no collision detection
-    os_thread_def_main.stack_pointer = HEAP_START;
+#if !defined(INITIAL_SP) && !defined(HEAP_START)
+    #error "no target defined"
+#endif
 
-    // Leave OS_MAINSTKSIZE words for the scheduler and interrupts
-    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)HEAP_START) - (OS_MAINSTKSIZE * 4);
+/* Define heap region if it has not been defined already */
+#if !defined(HEAP_START)
+    #if defined(__ICCARM__)
+        #error "Heap should already be defined for IAR"
+    #elif defined(__CC_ARM)
+        extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
+        #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
+        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+    #elif defined(__GNUC__)
+        extern uint32_t         __end__[];
+        #define HEAP_START      ((unsigned char*)__end__)
+        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+    #endif
+#endif
+
+/* Define stack sizes if they haven't been set already */
+#if !defined(ISR_STACK_SIZE)
+    #define ISR_STACK_SIZE ((uint32_t)OS_MAINSTKSIZE * 4)
+#endif
+
+/*
+ * set_stack_heap purpose is to set the following variables:
+ * -mbed_heap_start
+ * -mbed_heap_size
+ * -mbed_stack_isr_start
+ * -mbed_stack_isr_size
+ *
+ * Along with setting up os_thread_def_main
+ */
+void set_stack_heap(void) {
+
+    unsigned char *free_start = HEAP_START;
+    uint32_t free_size = HEAP_SIZE;
+
+#ifdef ISR_STACK_START
+    /* Interrupt stack explicitly specified */
+    mbed_stack_isr_size = ISR_STACK_SIZE;
+    mbed_stack_isr_start = ISR_STACK_START;
+#else
+    /* Interrupt stack -  reserve space at the end of the free block */
+    mbed_stack_isr_size = ISR_STACK_SIZE;
+    mbed_stack_isr_start = free_start + free_size - mbed_stack_isr_size;
+    free_size -= mbed_stack_isr_size;
+#endif
+
+    /* Heap - everything else */
+    mbed_heap_size = free_size;
+    mbed_heap_start = free_start;
 }
 
 #if defined (__CC_ARM)
@@ -456,7 +499,7 @@ void $Super$$__cpp_initialize__aeabi_(void);
 void _main_init (void) {
   osKernelInitialize();
 #ifdef __MBED_CMSIS_RTOS_CM
-  set_main_stack();
+  set_stack_heap();
 #endif
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
@@ -471,34 +514,20 @@ void $Sub$$__cpp_initialize__aeabi_(void)
 
 void pre_main()
 {
+  singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
   $Super$$__cpp_initialize__aeabi_();
   main();
 }
 
 #else
 
-void * armcc_heap_base;
-void * armcc_heap_top;
+int main(void);
 
-__asm void pre_main (void)
+void pre_main (void)
 {
-  IMPORT  __rt_lib_init
-  IMPORT  main
-  IMPORT  armcc_heap_base
-  IMPORT  armcc_heap_top
-
-  LDR     R0,=armcc_heap_base
-  LDR     R1,=armcc_heap_top
-  LDR     R0,[R0]
-  LDR     R1,[R1]
-  /* Save link register (keep 8 byte alignment with dummy R4) */
-  PUSH    {R4, LR}
-  BL      __rt_lib_init
-  BL       main
-  /* Return to the thread destroy function.
-   */
-  POP     {R4, PC}
-  ALIGN
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
+    __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
+    main();
 }
 
 /* The single memory model is checking for stack collision at run time, verifing
@@ -512,12 +541,11 @@ __asm void pre_main (void)
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
-  IMPORT  armcc_heap_base
-  IMPORT  armcc_heap_top
+  IMPORT  _platform_post_stackheap_init
   IMPORT  os_thread_def_main
   IMPORT  osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
-  IMPORT  set_main_stack
+  IMPORT  set_stack_heap
 #endif
   IMPORT  osKernelStart
   IMPORT  osThreadCreate
@@ -531,13 +559,13 @@ __asm void __rt_entry (void) {
    * ARM Compiler ARM C and C++ Libraries and Floating-Point Support User Guide
    */
   BL      __user_setup_stackheap
-  LDR     R3,=armcc_heap_base
-  LDR     R4,=armcc_heap_top
-  STR     R0,[R3]
-  STR     R2,[R4]
+  /* Ignore return value of __user_setup_stackheap since
+   * this will be setup by set_stack_heap
+   */
+  BL      _platform_post_stackheap_init
   BL      osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
-  BL      set_main_stack
+  BL      set_stack_heap
 #endif
   LDR     R0,=os_thread_def_main
   MOVS    R1,#0
@@ -553,23 +581,29 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
+osMutexDef(malloc_mutex);
+static osMutexId malloc_mutex_id;
+osMutexDef(env_mutex);
+static osMutexId env_mutex_id;
+
+extern int atexit(void (*func)(void));
 extern void __libc_fini_array(void);
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
 void pre_main(void) {
-    atexit(__libc_fini_array);
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
+    malloc_mutex_id = osMutexCreate(osMutex(malloc_mutex));
+    env_mutex_id = osMutexCreate(osMutex(env_mutex));
     __libc_init_array();
     main(0, NULL);
 }
 
-__attribute__((naked)) void software_init_hook (void) {
+__attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
-    ".syntax unified\n"
-    ".thumb\n"
     "bl   osKernelInitialize\n"
 #ifdef __MBED_CMSIS_RTOS_CM
-    "bl   set_main_stack\n"
+    "bl   set_stack_heap\n"
 #endif
     "ldr  r0,=os_thread_def_main\n"
     "movs r1,#0\n"
@@ -578,6 +612,29 @@ __attribute__((naked)) void software_init_hook (void) {
     /* osKernelStart should not return */
     "B       .\n"
   );
+}
+
+// Opaque declaration of _reent structure
+struct _reent;
+
+void __rtos_malloc_lock( struct _reent *_r )
+{
+    osMutexWait(malloc_mutex_id, osWaitForever);
+}
+
+void __rtos_malloc_unlock( struct _reent *_r )
+{
+    osMutexRelease(malloc_mutex_id);
+}
+
+void __rtos_env_lock( struct _reent *_r )
+{
+    osMutexWait(env_mutex_id, osWaitForever);
+}
+
+void __rtos_env_unlock( struct _reent *_r )
+{
+    osMutexRelease(env_mutex_id);
 }
 
 #elif defined (__ICCARM__)
@@ -589,14 +646,18 @@ extern __weak void __iar_init_core( void );
 extern __weak void __iar_init_vfp( void );
 extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
+extern void mbed_main(void);
+extern int main(void);
 extern void exit(int arg);
 
 static uint8_t low_level_init_needed;
 
 void pre_main(void) {
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+    mbed_main();
     main();
 }
 
@@ -619,7 +680,7 @@ void __iar_program_start( void )
 #endif
   osKernelInitialize();
 #ifdef __MBED_CMSIS_RTOS_CM
-  set_main_stack();
+  set_stack_heap();
 #endif
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
@@ -633,3 +694,5 @@ void __iar_program_start( void )
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
+
+/** @}*/

@@ -1,0 +1,49 @@
+
+/* The memory space denoting the maximum possible amount of addressable memory */
+define memory Mem with size = 4G;
+
+/* Memory regions in an address space */
+define region FLASHA = Mem:[from 0x00003000 size 0x4D000]; /* 308K = 320K - 4K(FIB table) - 8K(Persistent) */
+define region FLASHB = Mem:[from 0x00100000 size 0x50000];
+define region RAMA = Mem:[from 0x3FFFC000 size 0x4000];
+define region RAMB = Mem:[from 0x3FFF8000 size 0x4000];
+/* G2H ZPRO requires RAMC to be enabled */
+define region RAMC = Mem:[from 0x3FFF4000 size 0x4000];
+define region RAM_ALL = Mem:[from 0x3FFF4000 size 0xC000];
+
+/* Create a stack */
+define block CSTACK with size = 0x200, alignment = 8 { };
+
+/* No Heap is created for C library, all memory management should be handled by the application */
+ define block HEAP with alignment = 8, size = 0x4000    { }; 
+
+/* Handle initialization */
+do not initialize { section .noinit };
+
+/* Initialize RW sections, exclude zero-initialized sections */
+initialize by copy with packing = none  { readwrite };
+
+/* Initialize the code in RAM, copied over from FLASH */
+initialize by copy with packing = none { readonly code section EXECINRAM };
+/*keep { readonly code section .EXECINRAM* } except { readonly code section EXECINRAM };*/
+
+/* Place startup code at a fixed address */
+place at start of FLASHA { readonly section .intvec, readonly section SWVERSION,readonly section FIBTABLE,readonly section .cstartup };
+
+/* Place code and data */
+
+/* Place constants and initializers in FLASHA: .rodata and .data_init */
+place in FLASHA { readonly };
+
+/* Place .data, .bss, and .noinit */
+/* and STACK */
+/* The relocatable exception table needs to be aligned at 0x0 or multiple of 0x100,
+ * hence, place it as first block in RAM.
+ */
+place at start of RAM_ALL  { section RAM_VECTORS };
+place in RAM_ALL           { readonly code section EXECINRAM };
+place at end of RAM_ALL    { block CSTACK };
+
+
+place in RAM_ALL           { readwrite };
+place in RAM_ALL           { block HEAP };
