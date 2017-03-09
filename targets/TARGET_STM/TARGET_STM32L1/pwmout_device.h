@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,94 +27,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_COMMON_OBJECTS_H
-#define MBED_COMMON_OBJECTS_H
+#ifndef MBED_PWMOUT_DEVICE_H
+#define MBED_PWMOUT_DEVICE_H
 
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct pwmout_s {
-    PWMName pwm;
-    PinName pin;
-    uint32_t prescaler;
-    uint32_t period;
-    uint32_t pulse;
-    uint8_t channel;
-    uint8_t inverted; 
-};
+#ifdef DEVICE_PWMOUT
 
-struct serial_s {
-    UARTName uart;
-    int index; // Used by irq
-    uint32_t baudrate;
-    uint32_t databits;
-    uint32_t stopbits;
-    uint32_t parity;
-    PinName pin_tx;
-    PinName pin_rx;
-#if DEVICE_SERIAL_ASYNCH
-    uint32_t events;
-#endif
-#if DEVICE_SERIAL_FC
-    uint32_t hw_flow_ctl;
-    PinName pin_rts;
-    PinName pin_cts;
-#endif
-};
+/*  L1 HAL do not offer Output Compare idle nor inverted mode*/
+#define PWMOUT_INVERTED_NOT_SUPPORTED
 
-struct spi_s {
-    SPI_HandleTypeDef handle;
-    IRQn_Type spiIRQ;
-    SPIName spi;
-    PinName pin_miso;
-    PinName pin_mosi;
-    PinName pin_sclk;
-    PinName pin_ssel;
-#ifdef DEVICE_SPI_ASYNCH
-    uint32_t event;
-    uint8_t transfer_type;
-#endif
-};
+typedef enum {
+    PWMOUT_ON_APB1 = 0,
+    PWMOUT_ON_APB2 = 1,
+    PWMOUT_UNKNOWN = 2
+} PwmoutApb;
 
-struct i2c_s {
-    /*  The 1st 2 members I2CName i2c
-     *  and I2C_HandleTypeDef handle should
-     *  be kept as the first members of this struct
-     *  to ensure i2c_get_obj to work as expected
-     */
-    I2CName  i2c;
-    I2C_HandleTypeDef handle;
-    uint8_t index;
-    int hz;
-    PinName sda;
-    PinName scl;
-    IRQn_Type event_i2cIRQ;
-    IRQn_Type error_i2cIRQ;
-    uint32_t XferOperation;
-    volatile uint8_t event;
-#if DEVICE_I2CSLAVE
-    uint8_t slave;
-    volatile uint8_t pending_slave_tx_master_rx;
-    volatile uint8_t pending_slave_rx_maxter_tx;
-#endif
-#if DEVICE_I2C_ASYNCH
-    uint32_t address;
-    uint8_t stop;
-    uint8_t available_events;
-#endif
-};
+/*  Structure to describe Timers to APB */
+typedef struct pwm_apb_map {
+    PWMName pwm;   // an index entry for each EXIT line
+    PwmoutApb pwmoutApb;
+} pwm_apb_map_t;
 
-#include "gpio_object.h"
+extern const pwm_apb_map_t pwm_apb_map_table[];
 
-#ifdef __cplusplus
-}
-#endif
+#endif // DEVICE_PWMOUT
 
 #endif
-
