@@ -7,3 +7,5 @@ mv .build build_rel
 rm -rf build_debug
 python workspace_tools/build.py -r -d -m KL26Z -t GCC_ARM -o debug-info
 mv .build build_debug
+
+ln -s /opt/mbed/build_rel /opt/mbed/.build
