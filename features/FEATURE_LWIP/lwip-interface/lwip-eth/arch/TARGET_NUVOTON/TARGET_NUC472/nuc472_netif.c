@@ -100,6 +100,7 @@ struct ethernetif {
 // Override mbed_mac_address of mbed_interface.c to provide ethernet devices with a semi-unique MAC address
 void mbed_mac_address(char *mac)
 {
+    uint32_t uID1;
     // Fetch word 0
     uint32_t word0 = *(uint32_t *)0x7F804; // 2KB Data Flash at 0x7F800
     // Fetch word 1
@@ -116,8 +117,9 @@ void mbed_mac_address(char *mac)
         SYS_UnlockReg();
         FMC_Open();
         // = FMC_ReadUID(0);
-         word1 = FMC_ReadUID(1) >> 8; 
-         word0 = ((FMC_ReadUID(0) >> 4) << 20) | (FMC_ReadUID(2) & 0xFFFFF);
+         uID1 = FMC_ReadUID(1);
+         word1 = (uID1 & 0x003FFFFF) | ((uID1 & 0x030000) << 6) >> 8;
+         word0 = ((FMC_ReadUID(0) >> 4) << 20) | ((uID1 & 0xFF)<<12) | (FMC_ReadUID(2) & 0xFFF);
         /* Disable FMC ISP function */
         FMC_Close();
         /* Lock protected registers */
