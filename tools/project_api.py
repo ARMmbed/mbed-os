@@ -187,7 +187,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
 
     # Pass all params to the unified prepare_resources()
     toolchain = prepare_toolchain(
-        paths, export_path, target, toolchain_name, macros=macros, jobs=jobs,
+        paths, "", target, toolchain_name, macros=macros, jobs=jobs,
         notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, config=config, build_profile=build_profile)
     # The first path will give the name to the library
