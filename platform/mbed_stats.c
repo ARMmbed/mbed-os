@@ -54,7 +54,7 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
         uint32_t stack_size = osThreadGetStackSize(threads[i]);
         stats[i].max_size = stack_size - osThreadGetStackSpace(threads[i]);
         stats[i].reserved_size = stack_size;
-        stats[i].thread_id = threads[i];
+        stats[i].thread_id = (uint32_t)threads[i];
         stats[i].stack_cnt = 1;
     }
     osKernelUnlock();
