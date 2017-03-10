@@ -398,10 +398,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         break;
     }
 
-    obj->serial.uart->SCSMR = data_bits   << 6
-                       | parity_enable    << 5
-                       | parity_select    << 4
-                       | stop_bits        << 3;
+    obj->serial.uart->SCSMR = (obj->serial.uart->SCSMR & ~0x0078)
+                       | (data_bits       << 6)
+                       | (parity_enable   << 5)
+                       | (parity_select   << 4)
+                       | (stop_bits       << 3);
 }
 
 /******************************************************************************
