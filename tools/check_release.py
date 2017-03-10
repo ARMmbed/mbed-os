@@ -31,7 +31,8 @@
 #        "name" : "test_compile_mbed_dev",
 #        "lib" : "mbed-dev"
 #    }
-#  ]
+#  ],
+#  "target_list" : []
 #}
 #
 # The mbed_repo_path field should be changed to point to where your local
@@ -41,6 +42,10 @@
 #     "test_compile_mbed_lib" and "test_compile_mbed_dev"
 # The lib field in each says which type of mbed 2 library the app contains.
 # These test apps MUST be available as repos in the user's online Mercurial area.
+# The target_list allows the user to override the set of targets/platforms used 
+# for the compilation.
+# E.g to just compile for 2 targets, K64F and K22F :
+# "target_list" : ["K64F", "K22F"]
 #
 # Run the script from the mbed-os directory as follows:
 # > python tools/check_release.py 
@@ -51,8 +56,8 @@
 # The lib files within the test apps are then updated to the corresponding version in 
 # the associated lib itself. The test apps are then committed and pushed back to the users
 # fork.
-# The test apps will then be compiled for all supported targets and a % result output at the 
-# end.
+# The test apps will then be compiled for all supported targets and a % result output at 
+# the end.
 #
 # Uses the online compiler API at https://mbed.org/handbook/Compile-API
 # Based on the example from https://mbed.org/teams/mbed/code/mbed-API-helper/
@@ -76,21 +81,39 @@ OFFICIAL_MBED_LIBRARY_BUILD = get_mbed_official_release('2')
 
 def get_compilation_failure(messages):
     """ Reads the json formatted 'messages' and checks for compilation errors.
-        If there is a genuine compilation error then there should be a new message containing
-        a severity field = Error and an accompanying message with the compile error text.
-        Any other combination is considered an internal compile engine failure 
+        If there is a genuine compilation error then there should be a new 
+        message containing a severity field = Error and an accompanying message 
+        with the compile error text. Any other combination is considered an 
+        internal compile engine failure 
     Args:
     messages - json formatted text returned by the online compiler API.
     
     Returns:
-    Either a string containing a compilation error or "Internal" to indicate an error with
-    the online IDE API itself.
+    Either "Error" or "Internal" to indicate an actual compilation error or an 
+    internal IDE API fault.
 
     """
     for m in messages:
-        if 'severity' in m and 'message' in m:
-            if m['severity'] == 'error':
-                return m['message']
+        # Get message text if it exists
+        try:
+            message = m['message']
+            message = message + "\n"
+        except KeyError:
+            # Skip this message as it has no 'message' field
+            continue
+                 
+        # Get type of message text
+        try:
+            msg_type = m['type']
+        except KeyError:
+            # Skip this message as it has no 'type' field
+            continue
+        
+        if msg_type == 'error' or msg_type == 'tool_error':
+            logging.error(message)
+            return "Error"
+        else: 
+            logging.debug(message)
 
     return "Internal"
                  
@@ -126,9 +149,9 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     result = False
     fail_type = None
     
-    # It currently seems to take the onlide IDE API ~30s to process the compile request and
-    # provide a response. Set the poll time to half that in case it does manage to compile
-    # quicker.
+    # It currently seems to take the onlide IDE API ~30s to process the compile
+    # request and provide a response. Set the poll time to half that in case it 
+    # does manage to compile quicker.
     poll_delay = 15
     logging.debug("Running with a poll for response delay of: %ss", poll_delay)
 
@@ -137,19 +160,21 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
         time.sleep(poll_delay)
         r = requests.get(url + "output/%s" % uuid, auth=auth)
         response = r.json()
-        if response['result']['data']['task_complete']:
-            
+
+        data = response['result']['data']
+        if data['task_complete']:
             # Task completed. Now determine the result. Should be one of :
             # 1) Successful compilation
             # 2) Failed compilation with an error message
             # 3) Internal failure of the online compiler            
-            result = bool(response['result']['data']['compilation_success'])
+            result = bool(data['compilation_success'])
             if result:
                 logging.info("\t\tCompilation SUCCESSFUL\n")
             else:
-                # Did this fail due to a genuine compilation error or a failue of the api itself ?
+                # Did this fail due to a genuine compilation error or a failue of 
+                # the api itself ?
                 logging.info("\t\tCompilation FAILURE\n")
-                fail_type = get_compilation_failure(response['result']['data']['new_messages'])
+                fail_type = get_compilation_failure(data['new_messages'])
             break
     else:
         logging.info("\t\tCompilation FAILURE\n")
@@ -160,8 +185,10 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     return result, fail_type
 
 
-def build_repo(target, program, user, pw, polls=25, url="https://developer.mbed.org/api/v2/tasks/compiler/"):
-    """ Wrapper for sending an API command request to the online IDE. Sends a build request.
+def build_repo(target, program, user, pw, polls=25, 
+               url="https://developer.mbed.org/api/v2/tasks/compiler/"):
+    """ Wrapper for sending an API command request to the online IDE. Sends a 
+        build request.
 
     Args:
     target - Target to be built
@@ -196,7 +223,8 @@ def run_cmd(command, exit_on_failure=False):
     return_code = subprocess.call(command, shell=True)
     
     if return_code:
-        logging.warning("The command '%s' failed with return code: %s",  (' '.join(command), return_code))
+        logging.warning("The command '%s' failed with return code: %s",  
+                        (' '.join(command), return_code))
         if exit_on_failure:
             sys.exit(1)
     
@@ -223,16 +251,18 @@ def run_cmd_with_output(command, exit_on_failure=False):
     try:
         output = subprocess.check_output(command, shell=True)
     except subprocess.CalledProcessError as e:
-        logging.warning("The command '%s' failed with return code: %s", (' '.join(command), e.returncode))
+        logging.warning("The command '%s' failed with return code: %s", 
+                        (' '.join(command), e.returncode))
         returncode = e.returncode
         if exit_on_failure:
             sys.exit(1)
     return returncode, output
 
 def upgrade_test_repo(test, user, library, ref, repo_path):
-    """ Upgrades a local version of a test repo to the latest version of its embedded library.
-        If the test repo is not present in the user area specified in the json config file, then
-        it will first be cloned. 
+    """ Upgrades a local version of a test repo to the latest version of its 
+        embedded library.
+        If the test repo is not present in the user area specified in the json 
+        config file, then it will first be cloned. 
     Args:
     test - Mercurial test repo name
     user - Mercurial user name
@@ -270,7 +300,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
         
         os.rename(lib_file, bak_file)
     else:
-        logging.error("!! Error trying to backup lib file prior to updating.")
+        logging.error("!! Failure to backup lib file prior to updating.")
         return False
     
     # mbed 2 style lib file contains one line with the following format
@@ -279,7 +309,8 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
     lib_re = re.compile(exp)
     updated = False
 
-    # Scan through mbed-os.lib line by line, looking for lib version and update it if found
+    # Scan through mbed-os.lib line by line, looking for lib version and update 
+    # it if found
     with open(bak_file, 'r') as ip, open(lib_file, 'w') as op:
         for line in ip:
 
@@ -297,8 +328,9 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
         # Setup the default commit message
         commit_message = '"Updating ' + library + ' to ' + ref + '"' 
  
-        # Setup and run the commit command. Need to use the rawcommand in the hglib for this in order to pass
-        # the string value to the -m option. run_cmd using subprocess does not like this syntax.
+        # Setup and run the commit command. Need to use the rawcommand in the hglib
+        # for this in order to pass the string value to the -m option. run_cmd using 
+        # subprocess does not like this syntax.
         try:
             client.rawcommand(['commit','-m '+commit_message, lib_file])
 
@@ -362,11 +394,22 @@ def get_latest_library_versions(repo_path):
 
     return mbed, mbed_dev
 
+def log_results(lst, title):
+    logging.info(title)   
+    if len(lst) == 0:
+        logging.info("\tNone\n")
+    else:        
+        for entry in lst:
+            logging.info("\tTest: %s, Target: %s\n", entry[0], entry[1])                
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-l', '--log-level', help="Level for providing logging output", default='INFO')
+    parser.add_argument('-l', '--log-level', 
+                        help="Level for providing logging output", 
+                        default='INFO')
     args = parser.parse_args()
 
     default = getattr(logging, 'INFO')
@@ -376,15 +419,19 @@ if __name__ == '__main__':
     logging.basicConfig(level=level)
     
     # Read configuration data
-    json_data = json.load(open(os.path.join(os.path.dirname(__file__), "check_release.json")))
-    
+    json_data = json.load(open(os.path.join(os.path.dirname(__file__), 
+                               "check_release.json")))
 
     supported_targets = []
-    
-    # Get a list of the officially supported mbed-os 2 targets
-    for tgt in OFFICIAL_MBED_LIBRARY_BUILD:
-        supported_targets.append(tgt[0])
-      
+
+    if len(json_data["target_list"]) > 0:
+        # Compile user supplied subset of targets
+        supported_targets = json_data["target_list"]
+    else:        
+        # Get a list of the officially supported mbed-os 2 targets
+        for tgt in OFFICIAL_MBED_LIBRARY_BUILD:
+            supported_targets.append(tgt[0])
+
     config = json_data["config"]
     test_list = json_data["test_list"]
     repo_path = config["mbed_repo_path"]
@@ -414,11 +461,15 @@ if __name__ == '__main__':
     # First update test repos to latest versions of their embedded libraries
     for test in test_list:
         tests.append(test['name'])
-        upgrade_test_repo(test['name'], user, test['lib'], mbed if test['lib'] == "mbed" else mbed_dev, repo_path)
-    
-    total = len(supported_targets)*len(tests)
+        upgrade_test_repo(test['name'], user, test['lib'], 
+                          mbed if test['lib'] == "mbed" else mbed_dev, 
+                          repo_path)
+
+    total = len(supported_targets) * len(tests)
     retries = 10
     passes = 0
+    failures = []
+    skipped = []
     
     # Compile each test for each supported target
     for test in tests:
@@ -432,17 +483,26 @@ if __name__ == '__main__':
                         # Internal compiler error thus retry
                         continue
                     else:
-                        # Genuine compilation error, thus print it out
-                        logging.error("\t\tError: %s\n", mesg)
+                        # Actual error thus move on to next compilation
+                        failures.append([test, target])
+                        break
                                     
                 passes += (int)(result)
                 break
             else:
-                logging.error("\t\tProgram/Target compilation failed due to internal errors. Removing from considered list!\n")
+                logging.error("\t\tCompilation failed due to internal errors.\n")
+                logging.error("\t\tSkipping test/target combination!\n")
                 total -= 1   
+                skipped.append([test, target])
                 
+    logging.info(" SUMMARY OF COMPILATION RESULTS")                
+    logging.info(" ------------------------------\n")                
+    logging.info(" NUMBER OF TEST APPS: %d, NUMBER OF TARGETS: %d\n", 
+                 len(tests), len(supported_targets))   
+    log_results(failures, " FAILURES:\n")
+    log_results(skipped, " SKIPPED:\n")
+
     # Output a % pass rate, indicate a failure if not 100% successful
-    pass_rate = int(passes/total) * 100
-    logging.info("Pass percentage = %d\n", pass_rate)
+    pass_rate = (float(passes) / float(total)) * 100.0
+    logging.info(" PASS RATE %.1f %%\n", pass_rate)
     sys.exit(not (pass_rate == 100))
-    
