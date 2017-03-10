@@ -13,9 +13,14 @@
 
 // <h>UART Configuration for STDOUT and STDERR
 
-// <o>Configure Pinmuxing for UART. <0-1>
-// <i>Choose 0 if your application will configure UART pinmux, or 1 to config UART pinmux on first output.
+// <q>Configure Pinmuxing for UART.
+// <i>Enable pinmux configuration for UART on first output.
 #define ADI_UART_SETUP_PINMUX 1
+
+// <q>Raise Breakpoint on exit()
+// <i>Cause a breakpoint event in exit() rather than looping forever.
+#define ADI_UART_EXIT_BREAKPOINT 1
+
 
 // </h>
 

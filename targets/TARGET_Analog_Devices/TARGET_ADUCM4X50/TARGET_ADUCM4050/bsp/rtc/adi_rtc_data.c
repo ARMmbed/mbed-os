@@ -91,13 +91,13 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    RTC0_CFG_TRIM_OPERATION                   << BITP_RTC_TRM_ADD          |
    RTC0_CFG_TRIM_VALUE                       << BITP_RTC_TRM_VALUE,
    0,     /* CR2IC */
-   0,     /* CR3OC */
-   0,     /* CR4OC */
-   0,     /* OCMSK */
-   0,     /* OC1 */
-   0,     /* CR5OCS */
-   0,     /* CR6OCS */
-   0,     /* CR7OCS */
+   0,     /* CR3SS */
+   0,     /* CR4SS */
+   0,     /* SSMSK */
+   0,     /* SS1 */
+   0,     /* CR5SSS */
+   0,     /* CR6SSS */
+   0,     /* CR7SSS */
    0,     /* GPMUX0 */
    0     /* GPMUX1 */
    
@@ -153,32 +153,32 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    RTC1_CFG_IC4_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC4LH    |
    RTC1_CFG_IC_OVER_WRITE_ENABLE             <<  BITP_RTC_CR2IC_ICOWUSEN,
   
-   /* CR3OC */
-   RTC1_CFG_OC1_ENABLE                       <<  BITP_RTC_CR3SS_SS1EN    |
-   RTC1_CFG_OC2_ENABLE                       <<  BITP_RTC_CR3SS_SS2EN    |
-   RTC1_CFG_OC3_ENABLE                       <<  BITP_RTC_CR3SS_SS3EN    |
-   RTC1_CFG_OC4_ENABLE                       <<  BITP_RTC_CR3SS_SS4EN    |
-   RTC1_CFG_OC1_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS1IRQEN |
-   RTC1_CFG_OC2_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS2IRQEN |
-   RTC1_CFG_OC3_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS3IRQEN |
-   RTC1_CFG_OC4_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS4IRQEN,
+   /* CR3SS */
+   RTC1_CFG_SS1_ENABLE                       <<  BITP_RTC_CR3SS_SS1EN    |
+   RTC1_CFG_SS2_ENABLE                       <<  BITP_RTC_CR3SS_SS2EN    |
+   RTC1_CFG_SS3_ENABLE                       <<  BITP_RTC_CR3SS_SS3EN    |
+   RTC1_CFG_SS4_ENABLE                       <<  BITP_RTC_CR3SS_SS4EN    |
+   RTC1_CFG_SS1_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS1IRQEN |
+   RTC1_CFG_SS2_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS2IRQEN |
+   RTC1_CFG_SS3_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS3IRQEN |
+   RTC1_CFG_SS4_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS4IRQEN,
 
-   /* CR4OC */
-   RTC1_CFG_OC1_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS1MSKEN |
-   RTC1_CFG_OC2_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS2MSKEN |
-   RTC1_CFG_OC3_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS3MSKEN |
-   RTC1_CFG_OC4_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS4MSKEN |
-   RTC1_CFG_OC1_AUTO_RELOADING_ENABLE        <<  BITP_RTC_CR4SS_SS1ARLEN,
+   /* CR4SS */
+   RTC1_CFG_SS1_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS1MSKEN |
+   RTC1_CFG_SS2_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS2MSKEN |
+   RTC1_CFG_SS3_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS3MSKEN |
+   RTC1_CFG_SS4_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS4MSKEN |
+   RTC1_CFG_SS1_AUTO_RELOADING_ENABLE        <<  BITP_RTC_CR4SS_SS1ARLEN,
 
-   /* OCMSK */
-   RTC1_CFG_OC1_MASK_VALUE,
+   /* SSMSK */
+   RTC1_CFG_SS1_MASK_VALUE,
    
-   /* OC1 */
-   RTC1_CFG_OC1_AUTO_RELOAD_VALUE,
+   /* SS1 */
+   RTC1_CFG_SS1_AUTO_RELOAD_VALUE,
    
-   0,      /* CR5OCS */                      /* TODO: Add the following to the static configuration macros */
-   0,      /* CR6OCS */
-   0,      /* CR7OCS */
+   0,      /* CR5SSS */                      /* TODO: Add the following to the static configuration macros */
+   0,      /* CR6SSS */
+   0,      /* CR7SSS */
    0x4688, /* GPMUX0 */
    0x01F5, /* GPMUX1 */
    

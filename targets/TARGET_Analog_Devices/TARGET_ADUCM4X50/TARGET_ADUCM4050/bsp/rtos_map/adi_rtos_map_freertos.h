@@ -51,7 +51,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #if defined(__STDC__)
 
 #include <FreeRTOS.h>
+#include "semphr.h"
 
+extern BaseType_t xHigherPriorityTaskWoken;
   
 /*! Macro that declares the semaphore type that the drivers use. 
     The macro should be used within the device data structure.
@@ -63,23 +65,16 @@ POSSIBILITY OF SUCH DAMAGE.
     the total memory required for the operation of the driver. FreeRtos does not 
     require semaphore memory to be passed by application. But memory is required
     to store the handle. */
-#define ADI_SEM_SIZE        (sizeof(SemaphoreHandle_t))                            
+#define ADI_SEM_SIZE        (sizeof(StaticQueue_t))                            
 
 /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
-#if 0
-#define SEM_CREATE(DEV, name, error)                                                     \
-                   do {                                                                  \
-                         ((DEV)->hSemaphore) = NULL;                                     \
-                         xSemaphoreCreateBinaryStatic(&(DEV)->hSemaphore);                \
-                         if((DEV)->hSemaphore == NULL) {return((error));}                \
-                      } while (0)
-#else
+
                         /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
 #define SEM_CREATE(DEV, name, error)                                                     \
                    do {                                                                  \
                          xSemaphoreCreateBinaryStatic(&(DEV)->hSemaphore);                \
                       } while (0)
-#endif
+
 /*! Macro that deletes a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
 #define SEM_DELETE(DEV, error)                                                           \
                    do {                                                                  \
@@ -95,9 +90,12 @@ POSSIBILITY OF SUCH DAMAGE.
                     } while (0)
 
 /*! Macro that posts a semaphore. DEV is the handle to the device driver structure that contains the semaphore handle. */
+/* Note that priority inversion is supported */
 #define SEM_POST(DEV)                                                                     \
         do {                                                                              \
-          xSemaphoreGive(&(DEV)->hSemaphore);                                              \
+          /* Assume that a higher priority task can be schedule in */                     \
+          BaseType_t xHigherPriorityTaskWoken = pdTRUE;                                   \
+          xSemaphoreGiveFromISR(&(DEV)->hSemaphore, &xHigherPriorityTaskWoken);           \
         } while (0)                        
 
 /*! Defines a local variable where interrupt status register value is stored. 
@@ -129,12 +127,12 @@ POSSIBILITY OF SUCH DAMAGE.
 /*! Code that uCOS requires to be run in the beginning of an interrupt handler. 
     @sa ISR_EPILOG()
 */
-#define ISR_PROLOG()              
+#define ISR_PROLOG()            
 
 /*! Code that uCOS requires to be run in the end of an interrupt handler. 
     @sa ISR_PROLOG()
 */
-#define ISR_EPILOG()            
+#define ISR_EPILOG()   portYIELD()         
      
 #endif /* __STDC__  */
 

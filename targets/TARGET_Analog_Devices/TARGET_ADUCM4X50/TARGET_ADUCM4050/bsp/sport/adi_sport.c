@@ -553,7 +553,7 @@ static ADI_SPORT_RESULT sport_SubmitBufferDmaMode(ADI_SPORT_DEVICE * pDevice,
         SPORT_CHECK_CFG_CTL(pSportCfg->CTL);
 
         pSportRegs->CTL_A = 0u;                                         /* make sure SPORT is disable */
-        pADI_DMA0->SRCADDR_CLR = dmaChnlId;                             /* Clear source address decrement for TX channel DMA. */
+        pADI_DMA0->SRCADDR_CLR = dmaChnlBit;                             /* Clear source address decrement for TX channel DMA. */
         pADI_DMA0->EN_SET = dmaChnlBit;                                 /* Enable channel DMA. */
         pADI_DMA0->RMSK_CLR = dmaChnlBit;                               /* Enable SPORT peripheral to generate DMA requests. */
         pADI_DMA0->ALT_CLR = dmaChnlBit;                                /* Set the primary control data structure as the current DMA descriptor. */
@@ -576,11 +576,7 @@ static ADI_SPORT_RESULT sport_SubmitBufferDmaMode(ADI_SPORT_DEVICE * pDevice,
               (pSportCfg->DMA_INC << ((uint32_t)DMA_BITP_CTL_SRC_INC));         /* source address incremented by N byte */
 
             /**
-             * HACK
-             * Ensure all the data are transmitted when DMA is used with packed data.
-             * An extra DMA transfer is requested (SPORT TX seems to ignore the last
-             * DMA-ed data when DMA transfers number is lower than SPORT transfers
-             * number.)
+             * Fix for data transmission when DMA is used with packed data.
              */
             if (numDmaData < numSportData)
             {

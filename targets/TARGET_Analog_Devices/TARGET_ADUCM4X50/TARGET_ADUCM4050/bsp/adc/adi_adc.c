@@ -257,15 +257,14 @@ ADI_ADC_RESULT adi_adc_Close (ADI_ADC_HANDLE hDevice)
         return eResult;
     }
 
-#if ADI_ADC_ENABLE_MULTI_ACQUIRE == 1    
-    /* Close the DMA if configured */
-      /* Close the DMA */
       /* Disable the IRQ */
       pDevice->pReg->IRQ_EN = 0u;
 
       /* Clear the conversion cfg register to stop any transaction */
       pDevice->pReg->CNV_CFG = 0u;
 
+#if ADI_ADC_ENABLE_MULTI_ACQUIRE == 1
+      /* Close the DMA if configured */
       NVIC_DisableIRQ(DMA0_CH24_DONE_IRQn);
 #endif /* ADI_ADC_ENABLE_MULTI_ACQUIRE == 1 */
         
@@ -273,7 +272,7 @@ ADI_ADC_RESULT adi_adc_Close (ADI_ADC_HANDLE hDevice)
     NVIC_DisableIRQ(ADC0_EVT_IRQn);
     
     /* Destroy the semaphore */
-    SEM_DELETE(hDevice, ADI_ADC_ERR_RTOS);
+    SEM_DELETE(pDevice, ADI_ADC_ERR_RTOS);
 
     /* Finally, zero the device */
     AdcDevInfo[0].hDevice = (NULL);

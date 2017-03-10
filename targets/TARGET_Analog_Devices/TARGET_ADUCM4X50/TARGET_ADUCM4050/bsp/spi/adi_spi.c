@@ -975,7 +975,7 @@ static void StartTransaction(ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCE
         NVIC_EnableIRQ((IRQn_Type)(hDevice->pDevInfo->dmaRxIrqNumber));
 
         /* Disables destination address decrement for RX channel */
-        pADI_DMA0->DSTADDR_CLR = RxChanNum;
+        pADI_DMA0->DSTADDR_CLR = 1U << RxChanNum;
         
         /* Enable the channel */
         pADI_DMA0->EN_SET = 1U << RxChanNum;
@@ -1325,7 +1325,7 @@ ADI_SPI_RESULT adi_spi_SlaveSubmitBuffer (ADI_SPI_HANDLE const hDevice, const AD
         NVIC_EnableIRQ((IRQn_Type)(hDevice->pDevInfo->dmaRxIrqNumber));
 
         /* Disables destination address decrement for RX channel */
-        pADI_DMA0->DSTADDR_CLR = RxChanNum;
+        pADI_DMA0->DSTADDR_CLR = 1U << RxChanNum;
         
         /* Enable the channel */
         pADI_DMA0->EN_SET = 1U << RxChanNum;
@@ -1467,6 +1467,8 @@ ADI_SPI_RESULT adi_spi_SlaveReadWrite (ADI_SPI_HANDLE const hDevice, const ADI_S
  *
  *----------------------------------------------------------------------------*/
 
+
+
 static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
 {
    
@@ -1476,6 +1478,8 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
 
   uint16_t writableBytes;
   uint16_t readableBytes;
+
+
   
   /* Trap overflow/underflow errors and terminate the current transaction if there is an error. */
   if(  BITM_SPI_STAT_RXOVR == (BITM_SPI_STAT_RXOVR & nErrorStatus)) {
@@ -1567,6 +1571,8 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
 #if defined(ADI_CYCLECOUNT_SPI_ISR_ENABLED) && (ADI_CYCLECOUNT_SPI_ISR_ENABLED == 1u)
   ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_SPI);    
 #endif
+
+
   
 }
 

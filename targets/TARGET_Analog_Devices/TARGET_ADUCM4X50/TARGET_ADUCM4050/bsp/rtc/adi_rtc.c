@@ -94,13 +94,13 @@ POSSIBILITY OF SUCH DAMAGE.
 *   The rule makes an exception for valid expressions.
 *
 * Pm029: this bitwise operation is in a boolean context - logical operators should not be confused with bitwise operators 
-*   The rule is suprresed as the bitwise and logical operators are being used correctly and are not being confused
+*   The rule is suppressed as the bitwise and logical operators are being used correctly and are not being confused
 *
 * Pm126: if the bitwise operators ~ and << are applied to an operand of underlying type 'unsigned char' or 'unsigned short', the result shall be immediately cast to the underlying type of the operand
-*   The behavior as described is correct
+*   The behaviour as described is correct
 *
 * Pm031: bitwise operations shall not be performed on signed integer types 
-*   Device drivers often requjire bit banging on MMRs that are defined as signed
+*   Device drivers often require bit banging on MMRs that are defined as signed
 
 */
 #pragma diag_suppress=Pm011,Pm123,Pm073,Pm143,Pm050,Pm109,Pm150,Pm140,Pm129,Pm029,Pm126,Pm031
@@ -155,7 +155,7 @@ static ADI_RTC_RESULT ValidateHandle( ADI_RTC_DEVICE *pInDevice)
                - #ADI_RTC_INVALID_INSTANCE [D]         The RTC instance number is invalid.
                - #ADI_RTC_FAILURE                      General RTC initialization failure.
 
-            The RTC contoller interrupt enable state is unaltered during driver initialization.
+            The RTC controller interrupt enable state is unaltered during driver initialization.
             Use the #adi_rtc_EnableInterrupts API to manage interrupting.
 
     @note   The contents of phDevice will be set to NULL upon failure.\n\n
@@ -299,7 +299,7 @@ ADI_RTC_RESULT adi_rtc_Close(ADI_RTC_HANDLE const hDevice)
  *
  * Enable/disable operation of RTC internal alarm logic.
  *
- * Alarm events and interrupt notifications are gated by the alarm logic enablement.
+ * Alarm events and interrupt notifications are gated by enabling the alarm logic.
  * RTC alarm interrupts require both RTC device and RTC alarm interrupt to be enabled
  * to have been set.
  *
@@ -362,7 +362,7 @@ ADI_RTC_RESULT adi_rtc_EnableAlarm(ADI_RTC_HANDLE const hDevice, bool bEnable)
  *
  * Enable/disable operation of RTC internal MOD60 alarm logic.
  *
- * Alarm events and interrupt notifications are gated by the alarm logic enablement.
+ * Alarm events and interrupt notifications are gated by enabling the alarm logic.
  * RTC alarm interrupts require both RTC device and RTC alarm interrupt to be enabled
  * to have been set.
  *
@@ -422,8 +422,8 @@ ADI_RTC_RESULT adi_rtc_EnableMod60Alarm(ADI_RTC_HANDLE const hDevice, bool bEnab
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
  * @param[in]   bEnable    boolean Flag for enabling/disabling  the RTC device.
- *                - true   :     Enable rtc device.
- *                - false  :     Disable rtc device.
+ *                - true   :     Enable RTC device.
+ *                - false  :     Disable RTC device.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
@@ -432,7 +432,7 @@ ADI_RTC_RESULT adi_rtc_EnableMod60Alarm(ADI_RTC_HANDLE const hDevice, bool bEnab
  * Global enable/disable of the RTC controller.  Enables counting of elapsed real time and acts
  * as a master enable for the RTC.
  *
- * @note When enabled, the RTC input clock prescaler  and trim interval  are realigned.
+ * @note When enabled, the RTC input clock pre-scaler and trim interval  are realigned.
  *
  * @note The RTC device driver does not modify the device enable on the hardware except through use of this API.
  *
@@ -526,7 +526,7 @@ Interrupt_Details[ADI_RTC_NUM_INTERRUPTS] =
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
  * @param[in]   Interrupts Conveys which interrupts are affected.
- * @param[in]   bEnable      Flag controlling RTC interrupt enablement.
+ * @param[in]   bEnable     Flag which controls whether to enable or disable RTC interrupt.
  *               - true  :  Enable RTC interrupts.
  *               - false :  Disable RTC interrupts.
  *
@@ -537,7 +537,7 @@ Interrupt_Details[ADI_RTC_NUM_INTERRUPTS] =
  * Enable/disable RTC interrupt as well as manage global NVIC enable/disable for the RTC.
  * Input parameter \a Interrupts is a interrupt ID of type #ADI_RTC_INT_TYPE designating the 
  * interrupt to be enabled or disabled.  The interrupt parameter may be zero, which will then simply
- * manage the NVIC RTC enable and leave the indivigual RTC interrupt enables unchanges.
+ * manage the NVIC RTC enable and leave the individual RTC interrupt enables unchanged.
  * Input parameter \a bEnable controls whether to enable or disable the designated set of interrupts.
  *
  * @note The RTC device driver does not modify the interrupt enables on the hardware except through use of this API.
@@ -615,7 +615,7 @@ ADI_RTC_RESULT adi_rtc_EnableInterrupts (ADI_RTC_HANDLE const hDevice, ADI_RTC_I
  * @brief  Enable RTC automatic clock trimming.
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   bEnable      Flag controlling RTC trim enablement.
+ * @param[in]   bEnable      Flag controlling RTC enabling trim.
  *                - true     Enable RTC trimming.
  *                - false    Disable RTC trimming.
  *
@@ -810,20 +810,20 @@ ADI_RTC_RESULT adi_rtc_SetInputCapturePolarity (ADI_RTC_HANDLE const hDevice,ADI
     return ADI_RTC_SUCCESS;
 }
 /*!
- * @brief  Enable output compare for the specified output channel.
+ * @brief  Enable output for the specified Sensor Strobe Channel.
  *
  * @param[in]   hDevice      Device handle obtained from adi_rtc_Open().
- * @param[in]   eOutChannel   Specify which output compare channel.
- * @param[in]   bEnable       Flag for enabling  RTC output compare for specified channel.
- *                - true     Enable output compare.
- *                - false    Disable output compare.
+ * @param[in]   eSSChannel   Specify which Sensor Strobe channel.
+ * @param[in]   bEnable      Flag for enabling  output for specified Sensor Strobe channel.
+ *                - true     Enable output.
+ *                - false    Disable output.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
  *
  */
-ADI_RTC_RESULT adi_rtc_EnableOutputCompare (ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eOutChannel, bool bEnable)
+ADI_RTC_RESULT adi_rtc_EnableSensorStrobeOutput (ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, bool bEnable)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
 
@@ -839,14 +839,14 @@ ADI_RTC_RESULT adi_rtc_EnableOutputCompare (ADI_RTC_HANDLE const hDevice,ADI_RTC
     
     ADI_INT_STATUS_ALLOC();
     ADI_ENTER_CRITICAL_REGION();
-    /* set/clear output compare  enable for specified channel*/
+    /* set/clear Sensor Strobe enable for specified channel*/
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR3SS |=(uint16_t)eOutChannel;
+        pDevice->pRTCRegs->CR3SS |=(uint16_t)eSSChannel;
     }
     else
     {
-        pDevice->pRTCRegs->CR3SS &= (uint16_t)(~(uint16_t)eOutChannel);
+        pDevice->pRTCRegs->CR3SS &= (uint16_t)(~(uint16_t)eSSChannel);
     }
     ADI_EXIT_CRITICAL_REGION();
 
@@ -857,20 +857,20 @@ ADI_RTC_RESULT adi_rtc_EnableOutputCompare (ADI_RTC_HANDLE const hDevice,ADI_RTC
 }
 
 /*!
- * @brief  Enable auto reload for output compare channel-1.
+ * @brief  Enable auto reload for given Sensor Strobe Channel.
  *
  * @param[in]   hDevice        Device handle obtained from adi_rtc_Open().
- * @param[in]   eOutChannel    Specify output compare channel.
- * @param[in]   bEnable        Flag for enabling  auto reload for output compare for channel-1.
- *                - true      Enable output compare.
- *                - false     Disable output compare.
+ * @param[in]   eSSChannel     Sensor Strobe Channel number.
+ * @param[in]   bEnable        Flag to enable auto reload for given Sensor Strobe Channel.
+ *                - true       Enable auto reload.
+ *                - false      Disable auto reload.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
  *
  */
-ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eOutChannel, bool bEnable)
+ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, bool bEnable)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
 
@@ -890,15 +890,15 @@ ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUT
     /* Note that channel 4 does not have this feature */
     if (bEnable)
     {
-      switch( eOutChannel)
+      switch( eSSChannel)
       {
-      case ADI_RTC_OUTPUT_CHANNEL_1:
+      case ADI_RTC_SS_CHANNEL_1:
         pDevice->pRTCRegs->CR4SS |= BITM_RTC_CR4SS_SS1ARLEN;
         break;
-      case ADI_RTC_OUTPUT_CHANNEL_2:
+      case ADI_RTC_SS_CHANNEL_2:
         pDevice->pRTCRegs->CR4SS |= BITM_RTC_CR4SS_SS2ARLEN;
         break;
-      case ADI_RTC_OUTPUT_CHANNEL_3:
+      case ADI_RTC_SS_CHANNEL_3:
         pDevice->pRTCRegs->CR4SS |= BITM_RTC_CR4SS_SS3ARLEN;
         break;
       default:
@@ -908,15 +908,15 @@ ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUT
     }
     else
     {
-      switch( eOutChannel)
+      switch( eSSChannel)
       {
-      case ADI_RTC_OUTPUT_CHANNEL_1:
+      case ADI_RTC_SS_CHANNEL_1:
         pDevice->pRTCRegs->CR4SS &= (uint16_t)~BITM_RTC_CR4SS_SS1ARLEN;
         break;
-      case ADI_RTC_OUTPUT_CHANNEL_2:
+      case ADI_RTC_SS_CHANNEL_2:
         pDevice->pRTCRegs->CR4SS &= (uint16_t)~BITM_RTC_CR4SS_SS2ARLEN;
         break;
-      case ADI_RTC_OUTPUT_CHANNEL_3:
+      case ADI_RTC_SS_CHANNEL_3:
         pDevice->pRTCRegs->CR4SS &= (uint16_t)~BITM_RTC_CR4SS_SS3ARLEN;
         break;
       default:
@@ -931,11 +931,11 @@ ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUT
     return ADI_RTC_SUCCESS;
 }
 /*!
- * @brief  Set auto reload value for  output compare channel-1.
+ * @brief  Set auto reload value for the given Sensor Strobe channel.
  *
- * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   eOutChannel Output channel for which auto reload to be set. 
- * @param[in]   nValue     Auto reload value to be set.
+ * @param[in]   hDevice     Device handle obtained from adi_rtc_Open().
+ * @param[in]   eSSChannel  Sensor Strobe channel for which auto reload to be set. 
+ * @param[in]   nValue      Auto reload value to be set.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
@@ -943,7 +943,7 @@ ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUT
  * 
  *
  */
-ADI_RTC_RESULT adi_rtc_SetAutoReloadValue(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eOutChannel, uint16_t nValue)
+ADI_RTC_RESULT adi_rtc_SetAutoReloadValue(ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, uint16_t nValue)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
 
@@ -955,59 +955,61 @@ ADI_RTC_RESULT adi_rtc_SetAutoReloadValue(ADI_RTC_HANDLE const hDevice,ADI_RTC_O
     }
 #endif
     
-    switch( eOutChannel )
+    switch( eSSChannel )
     {
-    case ADI_RTC_OUTPUT_CHANNEL_1:
-      /* Wait till previously posted write to Control Register to complete */ 
-      PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1)
-      pDevice->pRTCRegs->SS1 = nValue;
-     /* Wait till  write to Control Register to take effect */    
-      SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS1)    
-     break;
-    case ADI_RTC_OUTPUT_CHANNEL_2:
-      /* Wait till previously posted write to Control Register to complete */ 
-      PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS2)
-      pDevice->pRTCRegs->SS2 = nValue;
-      /* Wait till  write to Control Register to take effect */    
-      SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS2)    
-      break;
-    case ADI_RTC_OUTPUT_CHANNEL_3:
-      /* Wait till previously posted write to Control Register to complete */ 
-     PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS3)
-      pDevice->pRTCRegs->SS3 = nValue;
-      /* Wait till  write to Control Register to take effect */    
-      SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS3)    
-      break;
+        case ADI_RTC_SS_CHANNEL_1:
+            /* Wait till previously posted write to Control Register to complete */ 
+            PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1)
+            pDevice->pRTCRegs->SS1 = nValue;
+            /* Wait till  write to Control Register to take effect */    
+            SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS1)    
+            break;
+     
+        case ADI_RTC_SS_CHANNEL_2:
+            /* Wait till previously posted write to Control Register to complete */ 
+            PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS2)
+            pDevice->pRTCRegs->SS2 = nValue;
+            /* Wait till  write to Control Register to take effect */    
+            SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS2)    
+            break;
+          
+        case ADI_RTC_SS_CHANNEL_3:
+            /* Wait till previously posted write to Control Register to complete */ 
+            PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS3)
+            pDevice->pRTCRegs->SS3 = nValue;
+            /* Wait till  write to Control Register to take effect */    
+            SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS3)    
+            break;
 
-    case ADI_RTC_OUTPUT_CHANNEL_4:
-      PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS4)
-      pDevice->pRTCRegs->SS4 = nValue;
-      /* Wait till  write to Control Register to take effect */    
-      SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS4)    
-      break;
-    default:
-      return ADI_RTC_FAILURE;
+        case ADI_RTC_SS_CHANNEL_4:
+            PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS4)
+            pDevice->pRTCRegs->SS4 = nValue;
+            /* Wait till  write to Control Register to take effect */    
+            SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS4)    
+            break;
+            
+        default:
+            return ADI_RTC_FAILURE;
 
     }
-    
     
     return ADI_RTC_SUCCESS;
 }
 /*!
- * @brief  Enable output channel mask for specified channel.
+ * @brief  Enable or disable thermometer-code masking for the given Sensor Strobe Channel.
  *
- * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   eOutChannel    Specify output compare channel. 
- * @param[in]   bEnable      Flag for enabling  masking  for output compare for channel-1.
- *                - true     Enable output channel mask .
- *                - false    Disable output channel mask.
+ * @param[in]   hDevice         Device handle obtained from adi_rtc_Open().
+ * @param[in]   eSSChannel      Sensor Strobe channel for which thermometer-code masking to be enabled or disabled. 
+ * @param[in]   bEnable         Flag to enable or disable masking for the given Sensor Strobe channel.
+ *                - true        Enable masking .
+ *                - false       Disable masking.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
  *
  */
-ADI_RTC_RESULT adi_rtc_EnableOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eOutChannel, bool bEnable)
+ADI_RTC_RESULT adi_rtc_EnableSensorStrobeChannelMask(ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, bool bEnable)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
 
@@ -1019,18 +1021,18 @@ ADI_RTC_RESULT adi_rtc_EnableOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR4SS)
+    PEND_BEFORE_WRITE(SR5, BITM_RTC_SR5_WPENDCR4SS)
     
     ADI_INT_STATUS_ALLOC();
     ADI_ENTER_CRITICAL_REGION();    
     /* set/clear auto reload enable options */
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR4SS |= (uint16_t)eOutChannel;
+        pDevice->pRTCRegs->CR4SS |= (uint16_t)eSSChannel;
     }
     else
     {
-        pDevice->pRTCRegs->CR4SS &= (uint16_t)~(uint16_t)eOutChannel;
+        pDevice->pRTCRegs->CR4SS &= (uint16_t)~(uint16_t)eSSChannel;
     }
     ADI_EXIT_CRITICAL_REGION();
 
@@ -1041,21 +1043,21 @@ ADI_RTC_RESULT adi_rtc_EnableOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_
 }
 
 /*!
- * @brief  To Set output channel mask for output compare channel.
+ * @brief  To set channel mask for the given Sensor Strobe channel.
  *
  * @param[in]   hDevice      Device handle obtained from adi_rtc_Open().
- * @param[in]   eOutChannel  Output channel for which auto reload to be set. 
- * @param[in]   nMask        Channel Mask to be set for output compare channel.
+ * @param[in]   eSSChannel   Sensor Strobe Channel for which the mask to be set. 
+ * @param[in]   nMask        Channel Mask to be set for Sensor Strobe channel.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- * 
- *
+ *                - #ADI_RTC_INVALID_CHANNEL         The given channel is invalid.
  */
-ADI_RTC_RESULT adi_rtc_SetOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eOutChannel, uint8_t nMask)
+ADI_RTC_RESULT adi_rtc_SetSensorStrobeChannelMask(ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, uint8_t nMask)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
+    uint16_t        MaskPos = 0u;
 
 #ifdef ADI_DEBUG
     ADI_RTC_RESULT eResult;
@@ -1064,12 +1066,36 @@ ADI_RTC_RESULT adi_rtc_SetOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_RTC
         return eResult;
     }
 #endif
-    /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSSMSK)
     
-    pDevice->pRTCRegs->SSMSK = (uint16_t)nMask & 0xFu;
+    switch( eSSChannel )
+    {
+        case ADI_RTC_SS_CHANNEL_1:
+            MaskPos  = (uint16_t)BITP_RTC_SSMSK_SS1MSK;
+            break;
+     
+        case ADI_RTC_SS_CHANNEL_2:
+            MaskPos  = (uint16_t)BITP_RTC_SSMSK_SS2MSK;
+            break;
+          
+        case ADI_RTC_SS_CHANNEL_3:
+            MaskPos  = (uint16_t)BITP_RTC_SSMSK_SS3MSK;
+            break;
+
+        case ADI_RTC_SS_CHANNEL_4:
+            MaskPos  = (uint16_t)BITP_RTC_SSMSK_SS4MSK; 
+            break;
+            
+        default:
+            return ADI_RTC_INVALID_CHANNEL;
+    }
+
+    /* Wait till previously posted write to Control Register to complete */ 
+    PEND_BEFORE_WRITE(SR5, BITM_RTC_SR5_WPENDSSMSK)
+    
+    pDevice->pRTCRegs->SSMSK = ((uint16_t)nMask & 0xFu) << MaskPos;
+
     /* Wait till  write to Control Register to take effect */    
-   SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSSMSK)    
+    SYNC_AFTER_WRITE(SR4, BITM_RTC_SR4_WSYNCSSMSK)    
     
     return ADI_RTC_SUCCESS;
 }
@@ -1090,7 +1116,7 @@ ADI_RTC_RESULT adi_rtc_SetOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_RTC
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  * Read the currently programmed 32-bit RTC alarm value and write it to the address provided by parameter \a pAlarm.
  *
@@ -1131,7 +1157,7 @@ ADI_RTC_RESULT adi_rtc_GetAlarm (ADI_RTC_HANDLE hDevice, uint32_t *pAlarm)
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  * Read the currently programmed 32-bit RTC alarm value and write it to the address provided by parameter \a pAlarm.
  *
@@ -1180,7 +1206,7 @@ ADI_RTC_RESULT adi_rtc_GetAlarmEx (ADI_RTC_HANDLE hDevice, float *pAlarm)
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  * Read the currently programmed 16-bit RTC control register value and write it to the address provided by parameter \a pControl.
  *
@@ -1225,7 +1251,7 @@ ADI_RTC_RESULT adi_rtc_GetControl (ADI_RTC_HANDLE hDevice, ADI_RTC_CONTROL_REGIS
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  * Read the current 32-bit RTC count value and write it to the address provided by parameter \a pCount.
  *
@@ -1266,7 +1292,7 @@ ADI_RTC_RESULT adi_rtc_GetCount(ADI_RTC_HANDLE const hDevice, uint32_t *pCount)
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  * Read the current 32-bit RTC count value and write it to the address provided by parameter \a pCount.
  *
@@ -1387,25 +1413,26 @@ ADI_RTC_RESULT adi_rtc_GetTrim (ADI_RTC_HANDLE hDevice, ADI_RTC_TRIM_VALUE *peTr
     return ADI_RTC_SUCCESS;
 }
 /*!
- * @brief  Get output compare value for specified output channel.
+ * @brief  Get Sensor Strobe value for the given Sensor Strobe channel.
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   eChannel   Specify the output compare channel.
- * @param[out]  pValue     Pointer to application memory where the output compare value to be written.
+ * @param[in]   eSSChannel Sensor Strobe Channel whose value to be read.
+ * @param[out]  pValue     Pointer to application memory where the Sensor Strobe value to be written.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  *
  * @sa        adi_rtc_Open().
  * @sa        adi_rtc_Enable().
  * @sa        adi_rtc_SetCount().
  */
-ADI_RTC_RESULT adi_rtc_GetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eChannel, uint16_t *pValue)
+ADI_RTC_RESULT adi_rtc_GetSensorStrobeValue(ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, uint16_t *pValue)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
+    
 #ifdef ADI_DEBUG
     ADI_RTC_RESULT eResult;
     if((eResult = ValidateHandle(pDevice)) != ADI_RTC_SUCCESS)
@@ -1413,24 +1440,26 @@ ADI_RTC_RESULT adi_rtc_GetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RT
         return eResult;
     }
 #endif
-    switch( eChannel )
+    switch( eSSChannel )
     {
-    case ADI_RTC_OUTPUT_CHANNEL_1:
+    case ADI_RTC_SS_CHANNEL_1:
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1)
       *pValue = pDevice->pRTCRegs->SS1;
       break;
-    case ADI_RTC_OUTPUT_CHANNEL_2:
+      
+    case ADI_RTC_SS_CHANNEL_2:
       /* Wait till previously posted write to Control Register to complete */ 
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS2)
       *pValue = pDevice->pRTCRegs->SS2;
       break;
-    case ADI_RTC_OUTPUT_CHANNEL_3:
+      
+    case ADI_RTC_SS_CHANNEL_3:
       /* Wait till previously posted write to Control Register to complete */ 
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS3)
       *pValue = pDevice->pRTCRegs->SS3;
       break;
       
-    case ADI_RTC_OUTPUT_CHANNEL_4:
+    case ADI_RTC_SS_CHANNEL_4:
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS4)
       *pValue = pDevice->pRTCRegs->SS4;
       break;
@@ -1444,23 +1473,23 @@ ADI_RTC_RESULT adi_rtc_GetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RT
     return ADI_RTC_SUCCESS;
 }
 /*!
- * @brief  Set output compare value for specified output channel.
+ * @brief  Set Sensor Strobe value for the given Sensor Strobe channel.
  *
- * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   eOutChannel   Specify which output compare channel. 
- * @param[out]  nValue      Output compare value to be set for specified output channel .
+ * @param[in]   hDevice         Device handle obtained from adi_rtc_Open().
+ * @param[in]   eSSChannel      Sensor Strobe Channel. 
+ * @param[out]  nValue          Sensor Strobe value to be set for the given Sensor Strobe channel .
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
- *                - #ADI_RTC_INVALID_PARAM [D]  NULL pointer for input parameter.
+ *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *
  *
  * @sa        adi_rtc_Open().
  * @sa        adi_rtc_Enable().
  * @sa        adi_rtc_SetCount().
  */
-ADI_RTC_RESULT adi_rtc_SetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUTPUT_CHANNEL eOutChannel, uint16_t nValue)
+ADI_RTC_RESULT adi_rtc_SetSensorStrobeValue(ADI_RTC_HANDLE const hDevice, ADI_RTC_SS_CHANNEL eSSChannel, uint16_t nValue)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
 #ifdef ADI_DEBUG
@@ -1471,36 +1500,40 @@ ADI_RTC_RESULT adi_rtc_SetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RT
     }
 #endif
     
-    switch( eOutChannel )
+    switch( eSSChannel )
     {
-    case ADI_RTC_OUTPUT_CHANNEL_1:
+    case ADI_RTC_SS_CHANNEL_1:
       /* Wait till previously posted write to Control Register to complete */ 
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1)
       pDevice->pRTCRegs->SS1 = nValue;
       /* Wait till  write to Control Register to take effect */    
       SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS1)    
       break;
-    case ADI_RTC_OUTPUT_CHANNEL_2:
+      
+    case ADI_RTC_SS_CHANNEL_2:
       /* Wait till previously posted write to Control Register to complete */ 
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS2)
       pDevice->pRTCRegs->SS2 = nValue;
       /* Wait till  write to Control Register to take effect */    
       SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS2)    
       break;
-    case ADI_RTC_OUTPUT_CHANNEL_3:
+      
+    case ADI_RTC_SS_CHANNEL_3:
       /* Wait till previously posted write to Control Register to complete */ 
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS3)
       pDevice->pRTCRegs->SS3 = nValue;
       /* Wait till  write to Control Register to take effect */    
       SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS3)    
       break;
-    case ADI_RTC_OUTPUT_CHANNEL_4:
+      
+    case ADI_RTC_SS_CHANNEL_4:
       /* Wait till previously posted write to Control Register to complete */ 
       PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS4)
       pDevice->pRTCRegs->SS4 = nValue;
       /* Wait till  write to Control Register to take effect */    
       SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS4)    
       break;
+      
     default:
       return ADI_RTC_FAILURE;
     }
@@ -1520,7 +1553,7 @@ ADI_RTC_RESULT adi_rtc_SetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RT
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
  *                - #ADI_RTC_INVALID_PARAM [D]       NULL pointer for input parameter.
  *                - #ADI_RTC_INVALID_CHANNEL [D]     Input channel-0 is not valid for this operation since 
- *                                                   channel-0 can provide precised (47bit) capture value.
+ *                                                   channel-0 can provide precise (47bit) capture value.
  *
  *
  *
@@ -1630,7 +1663,7 @@ ADI_RTC_RESULT adi_rtc_GetSnapShot(ADI_RTC_HANDLE const hDevice,ADI_RTC_INPUT_CH
  * whereas \a sync state is normally set and is clear only while the effects of the write are not yet apparent.
  *
  * Each write error
- * source may be configured to interrupt the core by enabeling the appropriate
+ * source may be configured to interrupt the core by enabling the appropriate
  * write error interrupt mask bit in the RTC control register (see the
  * #adi_rtc_EnableInterrupts() API), at which time, the RTC interrupt handler
  * will be dispatched.
@@ -1690,7 +1723,7 @@ ADI_RTC_RESULT adi_rtc_GetWritePendStatus (ADI_RTC_HANDLE const hDevice, ADI_RTC
  *
  * Each write error source may be configured to interrupt the core by enabling
  * the appropriate write error interrupt mask bit in the RTC control register
- * (see the #adi_rtc_EnableInterrupts() API), at which thime, the RTC interrupt
+ * (see the #adi_rtc_EnableInterrupts() API), at which time, the RTC interrupt
  * handler will be dispatched.
  *
  * @sa        adi_rtc_Open().
@@ -1740,7 +1773,7 @@ ADI_RTC_RESULT  adi_rtc_GetWriteSyncStatus (ADI_RTC_HANDLE const hDevice, ADI_RT
  *
  * Writes the 32-bit RTC alarm comparator with the value provided by \a Alarm.
  *
- * Honors the safe write mode if set.  Otherwise, it is the application's responsibility to
+ * Honours the safe write mode if set.  Otherwise, it is the application's responsibility to
  * synchronize any multiple writes to the same register.
  *
  * @sa        adi_rtc_Open().
@@ -1825,16 +1858,16 @@ ADI_RTC_RESULT adi_rtc_SetPreScale(ADI_RTC_HANDLE const  hDevice, uint8_t nPreSc
     return ADI_RTC_SUCCESS;
 }
 /*!
- * @brief  Set Prescale. This is  power of 2 division factor for the RTC base clock.
+ * @brief  Set the pre-scale. This is  power of 2 division factor for the RTC base clock.
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   nPeriod    Periodic, modulo-60 alarm time in prescaled RTC time units beyond a modulo-60 boundary.
+ * @param[in]   nPeriod    Periodic, modulo-60 alarm time in pre-scaled RTC time units beyond a modulo-60 boundary.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
  *                - #ADI_RTC_INVALID_HANDLE [D]      Invalid device handle parameter.
  *
- *  @note     This API helps  the CPU to position a periodic (repeating) alarm interrupt from the RTC at any integer number of prescaled RTC time units from a modulo-60 boundary (roll-over event) of the value of count.
+ *  @note     This API helps  the CPU to position a periodic (repeating) alarm interrupt from the RTC at any integer number of pre-scaled RTC time units from a modulo-60 boundary (roll-over event) of the value of count.
  * @sa        adi_rtc_Open().
  * @sa        adi_rtc_GetAlarm().
  * @sa        adi_rtc_EnableAlarm().
@@ -1888,7 +1921,7 @@ ADI_RTC_RESULT adi_rtc_SetMod60AlarmPeriod(ADI_RTC_HANDLE const hDevice, uint8_t
  *
  * Writes the 32-bit RTC alarm comparator with the value provided by \a Alarm.
  *
- * Honors the safe write mode if set.  Otherwise, it is the application's responsibility to
+ * Honours the safe write mode if set.  Otherwise, it is the application's responsibility to
  * synchronize any multiple writes to the same register.
  *
  * @sa        adi_rtc_Open().
@@ -1940,7 +1973,7 @@ ADI_RTC_RESULT adi_rtc_SetAlarmEx(ADI_RTC_HANDLE const hDevice, float fAlarm)
  * @brief  Set a new RTC control register value.
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
- * @param[in]   eRegister  Specify which register need to be initalized.
+ * @param[in]   eRegister  Specify which register need to be initialized.
  * @param[in]   Control    New control register value to set.
  *
  * @return      Status
@@ -1949,7 +1982,7 @@ ADI_RTC_RESULT adi_rtc_SetAlarmEx(ADI_RTC_HANDLE const hDevice, float fAlarm)
  *
  * Writes the 16-bit RTC control register with the value provided by \a Control.
  *
- * Honors the safe write mode if set.  Otherwise, it is the application's responsibility to
+ * Honours the safe write mode if set.  Otherwise, it is the application's responsibility to
  * synchronize any multiple writes to the same register.
  *
  * @sa        adi_rtc_Open().
@@ -2049,7 +2082,7 @@ ADI_RTC_RESULT adi_rtc_RegisterCallback(
  *
  * Writes the main 32-bit RTC counter with the value provided by \a Count.
  *
- * Honors the safe write mode if set.  Otherwise, it is the application's responsibility to
+ * Honours the safe write mode if set.  Otherwise, it is the application's responsibility to
  * synchronize any multiple writes to the same register.
  *
  * @sa        adi_rtc_Open().
@@ -2137,9 +2170,9 @@ ADI_RTC_RESULT adi_rtc_SetGateway(ADI_RTC_HANDLE const hDevice, uint16_t Command
  * @brief  Set a new RTC trim value.
  *
  * @param[in]   hDevice      Device handle obtained from adi_rtc_Open().
- * @param[in]   eInterval    Specify the trimming interval and will always in the range of (2^2 to S^17 prescaled RTC clock ).
+ * @param[in]   eInterval    Specify the trimming interval and will always in the range of (2^2 to S^17 pre-scaled RTC clock ).
  * @param[in]   eTrimValue   Specify the trimming value.
- * @param[in]   eOperation   Specify the operatin(Add or subtract) need to be performed for trimming.
+ * @param[in]   eOperation   Specify the operation(Add or subtract) need to be performed for trimming.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                 Call completed successfully.
@@ -2256,17 +2289,17 @@ static void rtc_init(ADI_RTC_DEVICE *pDevice,ADI_RTC_CONFIG *pConfig)
     pDevice->pRTCRegs->ALM1 =   pConfig->ALM1;
      /* ALM1 contains the fractional part of  the Alarm register */
     pDevice->pRTCRegs->ALM2 =   pConfig->ALM2;
-    /* Set Input capture/output compare registers only for RTC1 */
+    /* Set Input capture/sensor strobe registers only for RTC1 */
     if(pDevice->pRTCRegs == pADI_RTC1)
     {
         pDevice->pRTCRegs->CR2IC  =   pConfig->CR2IC;
-        pDevice->pRTCRegs->CR3SS  =   pConfig->CR3OC;
-        pDevice->pRTCRegs->CR4SS  =   pConfig->CR4OC;
-        pDevice->pRTCRegs->SSMSK  =   pConfig->OCMSK;
-        pDevice->pRTCRegs->SS1    =   pConfig->OC1;
-        pDevice->pRTCRegs->CR5SSS =   pConfig->CR5OCS;
-        pDevice->pRTCRegs->CR6SSS =   pConfig->CR6OCS;
-        pDevice->pRTCRegs->CR7SSS =   pConfig->CR7OCS;
+        pDevice->pRTCRegs->CR3SS  =   pConfig->CR3SS;
+        pDevice->pRTCRegs->CR4SS  =   pConfig->CR4SS;
+        pDevice->pRTCRegs->SSMSK  =   pConfig->SSMSK;
+        pDevice->pRTCRegs->SS1    =   pConfig->SS1;
+        pDevice->pRTCRegs->CR5SSS =   pConfig->CR5SSS;
+        pDevice->pRTCRegs->CR6SSS =   pConfig->CR6SSS;
+        pDevice->pRTCRegs->CR7SSS =   pConfig->CR7SSS;
         pDevice->pRTCRegs->GPMUX0 =   pConfig->GPMUX0;
         pDevice->pRTCRegs->GPMUX1 =   pConfig->GPMUX1;
     }
@@ -2274,7 +2307,7 @@ static void rtc_init(ADI_RTC_DEVICE *pDevice,ADI_RTC_CONFIG *pConfig)
 
 
 
-/*! @brief  RTC device driver interrupt handler.  Overrides weakly-bound default interrupt handler in startup.c. */
+/*! @brief  RTC device driver interrupt handler.  Overrides weakly-bound default interrupt handler in <Device>_startup.c. */
 void RTC0_Int_Handler(void)
 {
     ISR_PROLOG();    
@@ -2345,42 +2378,42 @@ void RTC0_Int_Handler(void)
     }
     
     /* CR3OC, CR2IC  SR3*/
-    enables = pDevice->pRTCRegs->CR3SS  &  (uint16_t)ADI_RTC_INT_ENA_MASK_CR3OC;
+    enables = pDevice->pRTCRegs->CR3SS  &  (uint16_t)ADI_RTC_INT_ENA_MASK_CR3SS;
     nIntSrc3 = pDevice->pRTCRegs->SR3 & ADI_RTC_SR3_IRQ_STATUS_MASK;
     if( nIntSrc3 && enables )
     {
       if( (enables & BITM_RTC_CR3SS_SS4IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS4IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH4_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH4_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS3IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS3IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH3_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH3_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS2IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS2IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH2_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH2_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS1IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS1IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH1_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH1_INT;
       }
       
       if( (enables & BITM_RTC_CR3SS_SS4FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS4FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC4_FE_INT;
+        fired |= ADI_RTC_RTCSS4_FE_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS3FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS2FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC3_FE_INT;
+        fired |= ADI_RTC_RTCSS3_FE_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS2FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS3FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC2_FE_INT;
+        fired |= ADI_RTC_RTCSS2_FE_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS1FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS1FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC1_FE_INT;
+        fired |= ADI_RTC_RTCSS1_FE_INT;
       }
    }
    enables = pDevice->pRTCRegs->CR3SS  & (uint16_t)ADI_RTC_INT_ENA_MASK_CR2IC;
@@ -2422,7 +2455,7 @@ void RTC0_Int_Handler(void)
     ISR_EPILOG();        
 }
 
-/*! @brief  RTC device driver interrupt handler.  Overrides weakly-bound default interrupt handler in startup.c. */
+/*! @brief  RTC device driver interrupt handler.  Overrides weakly-bound default interrupt handler in <Device>_startup.c. */
 void RTC1_Int_Handler(void)
 {
     ISR_PROLOG();    
@@ -2493,42 +2526,42 @@ void RTC1_Int_Handler(void)
     }
     
     /* CR3OC, CR2IC  SR3*/
-    enables = pDevice->pRTCRegs->CR3SS  & (uint32_t)ADI_RTC_INT_ENA_MASK_CR3OC;
+    enables = pDevice->pRTCRegs->CR3SS  & (uint32_t)ADI_RTC_INT_ENA_MASK_CR3SS;
     nIntSrc3 = pDevice->pRTCRegs->SR3 & ADI_RTC_SR3_IRQ_STATUS_MASK;
     if( nIntSrc3 && enables )
     {
       if( (enables & BITM_RTC_CR3SS_SS4IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS4IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH4_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH4_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS3IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS3IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH3_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH3_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS2IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS2IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH2_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH2_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS1IRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS1IRQ))
       {
-        fired |= ADI_RTC_OUTPUT_COMPARE_CH1_INT;
+        fired |= ADI_RTC_SENSOR_STROBE_CH1_INT;
       }
       
       if( (enables & BITM_RTC_CR3SS_SS4FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS4FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC4_FE_INT;
+        fired |= ADI_RTC_RTCSS4_FE_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS3FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS2FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC3_FE_INT;
+        fired |= ADI_RTC_RTCSS3_FE_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS2FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS3FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC2_FE_INT;
+        fired |= ADI_RTC_RTCSS2_FE_INT;
       }
       if( (enables & BITM_RTC_CR3SS_SS1FEIRQEN) && (nIntSrc3 & BITM_RTC_SR3_SS1FEIRQ))
       {
-        fired |= ADI_RTC_RTCOC1_FE_INT;
+        fired |= ADI_RTC_RTCSS1_FE_INT;
       }
    }
    enables = pDevice->pRTCRegs->CR2IC  & (uint32_t)ADI_RTC_INT_ENA_MASK_CR2IC;

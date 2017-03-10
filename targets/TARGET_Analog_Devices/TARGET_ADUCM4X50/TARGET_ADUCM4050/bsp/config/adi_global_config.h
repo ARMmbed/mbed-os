@@ -66,17 +66,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! @hideinitializer Indicates that no RTOS is used (bare-metal applications) */
 #define ADI_CFG_RTOS_NO_OS              (1)
-/*!  @hideinitializer Indicates that Micrium uCOS-II is used */
-#define ADI_CFG_RTOS_MICRIUM_II         (2)
 /*! @hideinitializer Indicates that Micrium uCOS-III is used  */
-#define ADI_CFG_RTOS_MICRIUM_III        (3)
+#define ADI_CFG_RTOS_MICRIUM_III        (2)
 /*! @hideinitializer Indicates that Micrium FreeRTOS is used */
-#define ADI_CFG_RTOS_FREERTOS           (4)
+#define ADI_CFG_RTOS_FREERTOS           (3)
 
 /*! Configure the RTOS required across the project.
     It can be configured to one of the following macros:
     - #ADI_CFG_RTOS_NO_OS
-    - #ADI_CFG_RTOS_MICRIUM_II
     - #ADI_CFG_RTOS_MICRIUM_III
     - #ADI_CFG_RTOS_FREERTOS
  */
@@ -113,7 +110,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ** Verify the macro configuration
 */
 #if ((ADI_CFG_RTOS != ADI_CFG_RTOS_NO_OS)       && \
-     (ADI_CFG_RTOS != ADI_CFG_RTOS_MICRIUM_II)  && \
      (ADI_CFG_RTOS != ADI_CFG_RTOS_MICRIUM_III)  && \
      (ADI_CFG_RTOS != ADI_CFG_RTOS_FREERTOS))
 #error "ADI_CFG_RTOS macro wrongly configured"

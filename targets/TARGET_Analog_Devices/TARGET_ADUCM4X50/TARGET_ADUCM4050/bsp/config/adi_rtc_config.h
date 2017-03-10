@@ -120,68 +120,69 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Trim  Value for RTC-0*/
 #define RTC0_CFG_TRIM_VALUE                     0     
 
-/*! GPIO Sample around Rising Edge of Output Compare Channel 3. 
- * Enables sampling of OPC GPIO inputs around rising edge of output compare channel 3 pulse.
+/*! GPIO Sample around Rising Edge of Sensor Strobe Channel 3. 
+ * Enables sampling of Sensor Strobe GPIO inputs around rising edge of Sensor Strobe Channel 3 pulse.
  *
  *  0 No sampling of input around rising edge.
- *  1 Input sampled one clock cycle before rising edge of OPC.
- * 10 Input sampled at rising edge of OPC.
- * 11 Input sampled one clock cycle after rising edge of OPC.
+ *  1 Input sampled one clock cycle before rising edge of Sensor Strobe.
+ * 10 Input sampled at rising edge of Sensor Strobe.
+ * 11 Input sampled one clock cycle after rising edge of Sensor Strobe.
  */
-#define RTC0_OC3SMPONRE                          0
-/*! GPIO Sample around Falling Edge of Output Compare Channel 3. 
- *  Enables sampling of OPC GPIO inputs around falling edge of output compare channel 3 pulse. 
+#define RTC0_SS3_SMPONRE                          0
+
+/*! GPIO Sample around Falling Edge of Sensor Strobe Channel 3. 
+ *  Enables sampling of Sensor Strobe GPIO inputs around falling edge of Sensor Strobe Channel 3 pulse. 
  *
  *  0	No sampling of input around rising edge.		
- *  1	Input sampled one clock cycle before rising edge of OPC.		
- * 10	Input sampled at rising edge of OPC.		
- * 11	Input sampled one clock cycle after rising edge of OPC.		
+ *  1	Input sampled one clock cycle before rising edge of Sensor Strobe.		
+ * 10	Input sampled at rising edge of Sensor Strobe.
+ * 11	Input sampled one clock cycle after rising edge of Sensor Strobe.		
  */
-#define RTC0_OC3SMPONFE                          0
-/*! GPIO Sample around Falling Edge of Output Compare Channel 2.  */
-#define RTC0_OC2SMPONFE                          0
-/*! GPIO Sample around Rising Edge of Output Compare Channel 1.   */ 
-#define RTC0_OC1SMPONRE                          0
-/*! GPIO Sample around Falling Edge of Output Compare Channel 1.  */
-#define RTC0_OC1SMPONFE  
+#define RTC0_SS3_SMPONFE                          0
+/*! GPIO Sample around Falling Edge of Sensor Strobe Channel 2.  */
+#define RTC0_SS2_SMPONFE                          0
+/*! GPIO Sample around Rising Edge of Sensor Strobe Channel 1.   */ 
+#define RTC0_SS1_SMPONRE                          0
+/*! GPIO Sample around Falling Edge of Sensor Strobe Channel 1.  */
+#define RTC0_SS1_SMPONFE                          0
 
 
-/*! Output Comparator's GP Input Sampling Mux
- *  OC 2 GPIO Pin 1
+/*! Sensor Strobe's GP Input Sampling Mux
+ *  SS 2 GPIO Pin 1
  *
- * GPMUX0/1.OCxGPINySEL	3’b000	3’b001	3’b010	3’b011	3’b100	3’b101	3’b110	3’b111
- * RTCOCxGPIny           p0[12] p2[0]    p0[9]  p0[8]   p1[13]   p1[2]   p2[7]   p2[9]
+ * GPMUX0/1.SSxGPINySEL	3’b000	3’b001	3’b010	3’b011	3’b100	3’b101	3’b110	3’b111
+ * RTCSSxGPIny           p0[12] p2[0]    p0[9]  p0[8]   p1[13]   p1[2]   p2[7]   p2[9]
  */
-#define RTC0_OC2GPIN1SEL                       0x4
-/*! Output Comparator's GP Input Sampling Mux OC 2 GPIO Pin 0*/
-#define RTC0_OC2GPIN0SEL                       0x3
-/*! Output Comparator's GP Input Sampling Mux OC 1 GPIO Pin 2*/
-#define RTC0_OC1GPIN2SEL                       0x2
-/*! Output Comparator's GP Input Sampling Mux OC 1 GPIO Pin 1*/
-#define RTC0_OC1GPIN1SEL                       0x1
-/*! Output Comparator's GP Input Sampling Mux OC 1 GPIO Pin 0*/
-#define RTC0_OC1GPIN0SEL                       0x0
-/*! Output Comparator's GP Input Sampling Mux OC 3 GPIO Pin 2*/
-#define RTC0_OC3GPIN2SEL                       0x0
-/*! Output Comparator's GP Input Sampling Mux OC 3 GPIO Pin 1*/
-#define RTC0_OC3GPIN1SEL                       0x7
-/*! Output Comparator's GP Input Sampling Mux OC 3 GPIO Pin 0*/
-#define RTC0_OC3GPIN0SEL                       0x6
-/*! Output Comparator's GP Input Sampling Mux OC 2 GPIO Pin 2*/
-#define RTC0_OC2GPIN2SEL                       0x5
+#define RTC0_SS2_GPIN1SEL                       0x4
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 0*/
+#define RTC0_SS2_GPIN0SEL                       0x3
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 2*/
+#define RTC0_SS1_GPIN2SEL                       0x2
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 1*/
+#define RTC0_SS1_GPIN1SEL                       0x1
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 0*/
+#define RTC0_SS1_GPIN0SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 2*/
+#define RTC0_SS3_GPIN2SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 1*/
+#define RTC0_SS3_GPIN1SEL                       0x7
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 0*/
+#define RTC0_SS3_GPIN0SEL                       0x6
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 2*/
+#define RTC0_SS2_GPIN2SEL                       0x5
 
-/*! Differential OPC out option for output compare channel 3.
- *  Output compare channel3 is used as differential signal, actual RTC_OPC3 out 
+/*! Differential output option for Sensor Strobe channel 3.
+ *  Sensor Strobe channel3 is used as differential signal, actual RTC_SS3 out 
  *  for this channel is available in corresponding GPIO. 
- *  RTC_OPC4 of Output compare channel 4 is used to provided inverted signal of RTC_OPC3.
+ *  RTC_SS4 of Sensor Strobe channel 4 is used to provided inverted signal of RTC_SS3.
  */
-#define RTC0_OC3DIFFOUT                           0
-/*! Differential OPC out option for output compare channel 1.
- *  Output compare channel 1 is used as differential signal, actual RTC_OPC1 out 
+#define RTC0_SS3_DIFFOUT                           0
+/*! Differential output option for Sensor Strobe channel 1.
+ *  Sensor Strobe channel 1 is used as differential signal, actual RTC_SS1 out 
  *  for this channel is available in corresponding GPIO. 
- *  RTC_OPC1 of Output compare channel 2 is used to provided inverted signal of RTC_OPC1.
+ *  RTC_SS1 of Sensor Strobe channel 2 is used to provided inverted signal of RTC_SS1.
  */
-#define RTC0_OC1DIFFOUT                           0
+#define RTC0_SS1_DIFFOUT                           0
 
 
 
@@ -287,14 +288,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Enable the input capture channel-4*/
 #define RTC1_CFG_IC4_ENABLE                         0     
 
-/*! Enable the output compare channel-1*/
-#define RTC1_CFG_OC1_ENABLE                         0    
-/*! Enable the output compare channel-2*/
-#define RTC1_CFG_OC2_ENABLE                         0    
-/*! Enable the output compare channel-3*/
-#define RTC1_CFG_OC3_ENABLE                         0    
-/*! Enable the output compare channel-4*/
-#define RTC1_CFG_OC4_ENABLE                         0    
+/*! Enable the Sensor Strobe channel-1*/
+#define RTC1_CFG_SS1_ENABLE                         0     
+/*! Enable the Sensor Strobe channel-2*/
+#define RTC1_CFG_SS2_ENABLE                         0     
+/*! Enable the Sensor Strobe channel-3*/
+#define RTC1_CFG_SS3_ENABLE                         0     
+/*! Enable the Sensor Strobe channel-4*/
+#define RTC1_CFG_SS4_ENABLE                         0     
 
 /*! Enable the interrupt for input capture channel-0*/
 #define RTC1_CFG_IC0_INT_ENABLE                     0     
@@ -309,7 +310,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RTC1_CFG_IC4_INT_ENABLE                     0     
 
 /*! Enable the over write input capture channels*/
-#define RTC1_CFG_IC_OVER_WRITE_ENABLE               0     
+#define RTC1_CFG_IC_OVER_WRITE_ENABLE               0    
 
 /*! Polarity for  input capture channel-0*/
 #define RTC1_CFG_IC0_EDGE_POLARITY                  0     
@@ -323,71 +324,71 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Polarity for  input capture channel-4*/
 #define RTC1_CFG_IC4_EDGE_POLARITY                  0     
 
-/*! Enable the interrupt for output compare channel-1*/
-#define RTC1_CFG_OC1_INT_ENABLE                     0     
-/*! Enable the interrupt for output compare channel-2*/
-#define RTC1_CFG_OC2_INT_ENABLE                     0     
-/*! Enable the interrupt for output compare channel-3*/
-#define RTC1_CFG_OC3_INT_ENABLE                     0     
-/*! Enable the interrupt for output compare channel-4*/
-#define RTC1_CFG_OC4_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-1*/
+#define RTC1_CFG_SS1_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-2*/
+#define RTC1_CFG_SS2_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-3*/
+#define RTC1_CFG_SS3_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-4*/
+#define RTC1_CFG_SS4_INT_ENABLE                     0    
 
-/*! Enable the masking  for output compare channel-1*/
-#define RTC1_CFG_OC1_MASK_ENABLE                    0     
-/*! Enable the masking  for output compare channel-2*/
-#define RTC1_CFG_OC2_MASK_ENABLE                    0     
-/*! Enable the masking  for output compare channel-3*/
-#define RTC1_CFG_OC3_MASK_ENABLE                    0     
-/*! Enable the masking  for output compare channel-4*/
-#define RTC1_CFG_OC4_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-1*/
+#define RTC1_CFG_SS1_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-2*/
+#define RTC1_CFG_SS2_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-3*/
+#define RTC1_CFG_SS3_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-4*/
+#define RTC1_CFG_SS4_MASK_ENABLE                    0     
 
-/*! Enable the auto-reloading   for output compare channel-0*/
-#define RTC1_CFG_OC1_AUTO_RELOADING_ENABLE          0    
+/*! Enable the auto-reloading for Sensor Strobe channel-0*/
+#define RTC1_CFG_SS1_AUTO_RELOADING_ENABLE          0     
 
-/*! Mask for output compare channel-0*/
-#define RTC1_CFG_OC1_MASK_VALUE                     0     
-
-
-/*! Auto reload value  for output compare channel-0*/
-#define RTC1_CFG_OC1_AUTO_RELOAD_VALUE              32768/2
+/*! Mask for Sensor Strobe channel-0 */
+#define RTC1_CFG_SS1_MASK_VALUE                     0     
 
 
-/*! Output Comparator's GP Input Sampling Mux
- *  OC 2 GPIO Pin 1
+/*! Auto reload value  for Sensor Strobe channel-0 */
+#define RTC1_CFG_SS1_AUTO_RELOAD_VALUE              32768/2
+
+
+/*! Sensor Strobe GP Input Sampling Mux
+ *  SS2 GPIO Pin 1
  *
- * GPMUX0/1.OCxGPINySEL	3’b000	3’b001	3’b010	3’b011	3’b100	3’b101	3’b110	3’b111
- * RTCOCxGPIny           p0[12] p2[0]    p0[9]  p0[8]   p1[13]   p1[2]   p2[7]   p2[9]
+ * GPMUX0/1.SSxGPINySEL	3’b000	3’b001	3’b010	3’b011	3’b100	3’b101	3’b110	3’b111
+ * RTCSSxGPIny           p0[12] p2[0]    p0[9]  p0[8]   p1[13]   p1[2]   p2[7]   p2[9]
  */
-#define RTC1_OC2GPIN1SEL                       0x4
-/*! Output Comparator's GP Input Sampling Mux OC 2 GPIO Pin 0*/
-#define RTC1_OC2GPIN0SEL                       0x3
-/*! Output Comparator's GP Input Sampling Mux OC 1 GPIO Pin 2*/
-#define RTC1_OC1GPIN2SEL                       0x2
-/*! Output Comparator's GP Input Sampling Mux OC 1 GPIO Pin 1*/
-#define RTC1_OC1GPIN1SEL                       0x1
-/*! Output Comparator's GP Input Sampling Mux OC 1 GPIO Pin 0*/
-#define RTC1_OC1GPIN0SEL                       0x0
-/*! Output Comparator's GP Input Sampling Mux OC 3 GPIO Pin 2*/
-#define RTC1_OC3GPIN2SEL                       0x0
-/*! Output Comparator's GP Input Sampling Mux OC 3 GPIO Pin 1*/
-#define RTC1_OC3GPIN1SEL                       0x7
-/*! Output Comparator's GP Input Sampling Mux OC 3 GPIO Pin 0*/
-#define RTC1_OC3GPIN0SEL                       0x6
-/*! Output Comparator's GP Input Sampling Mux OC 2 GPIO Pin 2*/
-#define RTC1_OC2GPIN2SEL                       0x5
+#define RTC1_SS2_GPIN1SEL                       0x4
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 0*/
+#define RTC1_SS2_GPIN0SEL                       0x3
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 2*/
+#define RTC1_SS1_GPIN2SEL                       0x2
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 1*/
+#define RTC1_SS1_GPIN1SEL                       0x1
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 0*/
+#define RTC1_SS1_GPIN0SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 2*/
+#define RTC1_SS3_GPIN2SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 1*/
+#define RTC1_SS3_GPIN1SEL                       0x7
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 0*/
+#define RTC1_SS3_GPIN0SEL                       0x6
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 2*/
+#define RTC1_SS2_GPIN2SEL                       0x5
 
-/*! Differential OPC out option for output compare channel 3.
- *  Output compare channel3 is used as differential signal, actual RTC_OPC3 out 
+/*! Differential output option for Sensor Strobe channel 3.
+ *  Sensor Strobe channel3 is used as differential signal, actual RTC_SS3 out 
  *  for this channel is available in corresponding GPIO. 
- *  RTC_OPC4 of Output compare channel 4 is used to provided inverted signal of RTC_OPC3.
+ *  RTC_SS4 of Sensor Strobe channel 4 is used to provided inverted signal of RTC_SS3.
  */
-#define RTC1_OC3DIFFOUT                           0
-/*! Differential OPC out option for output compare channel 1.
- *  Output compare channel 1 is used as differential signal, actual RTC_OPC1 out 
+#define RTC1_SS3_DIFFOUT                           0
+/*! Differential output option for Sensor Strobe channel 1.
+ *  Sensor Strobe channel 1 is used as differential signal, actual RTC_SS1 out 
  *  for this channel is available in corresponding GPIO. 
- *  RTC_OPC1 of Output compare channel 2 is used to provided inverted signal of RTC_OPC1.
+ *  RTC_SS1 of Sensor Strobe channel 2 is used to provided inverted signal of RTC_SS1.
  */
-#define RTC1_OC1DIFFOUT                           0
+#define RTC1_SS1_DIFFOUT                           0
 
 
 /*! @} */

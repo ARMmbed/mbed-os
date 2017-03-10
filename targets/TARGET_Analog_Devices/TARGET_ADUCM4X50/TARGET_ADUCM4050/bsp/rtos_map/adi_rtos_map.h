@@ -58,10 +58,6 @@ POSSIBILITY OF SUCH DAMAGE.
     
 #include "rtos_map/adi_rtos_map_ucos_iii.h"
 
-#elif (ADI_CFG_RTOS == ADI_CFG_RTOS_MICRIUM_II)
-    
-#include "rtos_map/adi_rtos_map_ucos_ii.h"
-
 #elif (ADI_CFG_RTOS == ADI_CFG_RTOS_FREERTOS)
     
 #include "rtos_map/adi_rtos_map_freertos.h"    

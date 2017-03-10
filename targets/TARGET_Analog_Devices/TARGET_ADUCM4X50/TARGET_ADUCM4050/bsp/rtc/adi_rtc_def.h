@@ -58,9 +58,9 @@
 #define ADI_RTC_INT_ENA_MASK_CR1         0X1Fu
 
 #define ADI_RTC_INT_ENA_MASK_CR2IC       0xF41C
-#define ADI_RTC_INT_ENA_MASK_CR3OC       0x1FFE
-#define ADI_RTC_INT_ENA_MASK_CR4OC       0x0E0E
-#define ADI_RTC_INT_ENA_MASK_CR5OCS      0x0FFF
+#define ADI_RTC_INT_ENA_MASK_CR3SS       0x1FFE
+#define ADI_RTC_INT_ENA_MASK_CR4SS       0x0E0E
+#define ADI_RTC_INT_ENA_MASK_CR5SSS      0x0FFF
 
 #define ADI_RTC_INT_SOURCE_MASK_SR0      0x007Eu
 #define ADI_RTC_INT_SOURCE_MASK_SR2      0x001Fu
@@ -118,16 +118,16 @@ typedef struct
     uint16_t    ALM2;            /*!< ALM2 16 bit integer part of alarm value */
     uint16_t    TRIM;              /*!< 16 bit trim register value */    
     uint16_t    CR2IC;           /*!< CR2IC 16 bit control (which controls the input capture ) register-2 value */
-    uint16_t    CR3OC;           /*!< CR3OC 16 bit control ( Controls enabling output compare /IRQ etc )register-3 value */
-    uint16_t    CR4OC;           /*!< CR4OC 16 bit control ( controls Auto reload  and mask for output compare  ) register-4 value */
-    uint16_t    OCMSK;           /*!< OCMSK Mask register for output compare channel */
-    uint16_t    OC1;             /*!< 16 bit Auto reload value */
+    uint16_t    CR3SS;           /*!< CR3SS 16 bit control ( Controls enabling sensor strobe /IRQ etc )register-3 value */
+    uint16_t    CR4SS;           /*!< CR4SS 16 bit control ( controls Auto reload  and mask for sensor strobe  ) register-4 value */
+    uint16_t    SSMSK;           /*!< OCMSK Mask register for sensor strobe channel */
+    uint16_t    SS1;             /*!< 16 bit Auto reload value */
 
-    uint16_t    CR5OCS;         /*!< Configure Output Compare Channel GPIO Sampling Register */
-    uint16_t    CR6OCS;         /*!< Configure Output Compare Channel GPIO Sampling Register */
-    uint16_t    CR7OCS;         /*!< Configure Output Compare Channel GPIO Sampling Register */
-    uint16_t    GPMUX0;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a output compare channel */
-    uint16_t    GPMUX1;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a output compare channel */
+    uint16_t    CR5SSS;         /*!< Configure Sensor Strobe Channel GPIO Sampling Register */
+    uint16_t    CR6SSS;         /*!< Configure Sensor Strobe Channel GPIO Sampling Register */
+    uint16_t    CR7SSS;         /*!< Configure Sensor Strobe Channel GPIO Sampling Register */
+    uint16_t    GPMUX0;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a Sensor Strobe  channel */
+    uint16_t    GPMUX1;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a Sensor Strobe  channel */
 }ADI_RTC_CONFIG;
 
 /* Device information structure */

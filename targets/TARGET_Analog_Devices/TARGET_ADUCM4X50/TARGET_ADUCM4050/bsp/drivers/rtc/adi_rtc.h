@@ -84,7 +84,7 @@ typedef void*   ADI_RTC_HANDLE;
  */
 typedef enum
 {
-    /*!  No Error, API suceeded */
+    /*!  No Error, API succeeded */
     ADI_RTC_SUCCESS,
     /*!  Generic failure */
     ADI_RTC_FAILURE,
@@ -98,11 +98,11 @@ typedef enum
     ADI_RTC_INVALID_INSTANCE,
     /*!  Parameter is out of range          */
     ADI_RTC_INVALID_OPTION,
-    /*!  Specfied operation not allowed */
+    /*!  Specified operation not allowed */
     ADI_RTC_OPERATION_NOT_ALLOWED,
     /*!  One of the parameters is invalid */
     ADI_RTC_INVALID_PARAM,
-    /*!  Input/output channel is invalide for the specified operation */
+    /*!  Input/SensorStrobe channel is invalid for the specified operation */
     ADI_RTC_INVALID_CHANNEL
     
 } ADI_RTC_RESULT;
@@ -126,26 +126,26 @@ typedef uint32_t ADI_RTC_INT_TYPE;
 #define ADI_RTC_TRIM_INT                   0x00000100u    /*!< Enable for the RTC trim interrupt source */
 #define ADI_RTC_COUNT_ROLLOVER_INT         0x00000200u    /*!< Enable for the RTC count roll-over interrupt source */
 #define ADI_RTC_MOD60_ROLLOVER_INT         0x00000400u    /*!< Enable for the RTC modulo-60 count roll-over interrupt source */
-#define ADI_RTC_OUTPUT_COMPARE_CH1_INT     0x00000800u    /*!< Enable interrupt for output compare channel -1*/
-#define ADI_RTC_OUTPUT_COMPARE_CH2_INT     0x00001000u    /*!< Enable interrupt for output compare channel -2*/
-#define ADI_RTC_OUTPUT_COMPARE_CH3_INT     0x00002000u    /*!< Enable interrupt for output compare channel -3*/
-#define ADI_RTC_OUTPUT_COMPARE_CH4_INT     0x00004000u    /*!< Enable interrupt for output compare channel -4*/
+#define ADI_RTC_SENSOR_STROBE_CH1_INT      0x00000800u    /*!< Enable interrupt for sensor strobe channel -1*/
+#define ADI_RTC_SENSOR_STROBE_CH2_INT      0x00001000u    /*!< Enable interrupt for sensor strobe channel -2*/
+#define ADI_RTC_SENSOR_STROBE_CH3_INT      0x00002000u    /*!< Enable interrupt for sensor strobe channel -3*/
+#define ADI_RTC_SENSOR_STROBE_CH4_INT      0x00004000u    /*!< Enable interrupt for sensor strobe channel -4*/
 #define ADI_RTC_INPUT_CAPTURE_CH0_INT      0x00008000u    /*!< Enable interrupt for input capture channel -0*/
 #define ADI_RTC_INPUT_CAPTURE_CH2_INT      0x00010000u    /*!< Enable interrupt for input capture channel -2*/
 #define ADI_RTC_INPUT_CAPTURE_CH3_INT      0x00020000u    /*!< Enable interrupt for input capture channel -3*/
 #define ADI_RTC_INPUT_CAPTURE_CH4_INT      0x00040000u    /*!< Enable interrupt for input capture channel -4*/
 #define ADI_RTC_LFXTL_FAILURE_INT          0x00080000u    /*!< Interrupt for LFXTL failure. LFXTL failure interrupt is mapped to RTC1 interrupt.*/
-#define ADI_RTC_RTCOC4_FE_INT              0x00100000u    /*!< Enable interrupt for output compare channel 3*/
-#define ADI_RTC_RTCOC3_FE_INT              0x00200000u    /*!< Enable interrupt for output compare channel 3*/
-#define ADI_RTC_RTCOC2_FE_INT              0x00400000u    /*!< Enable interrupt for output compare channel 2*/
-#define ADI_RTC_RTCOC1_FE_INT              0x00800000u    /*!< Enable interrupt for output compare channel 2*/
-#define ADI_RTC_RTCOC4MSKEN                0x01000000u    /*!< Enable interrupt for output compare channel 4 Mask */
-#define ADI_RTC_RTCOC3MSKEN                0x02000000u    /*!< Enable interrupt for output compare channel 3 Mask */
-#define ADI_RTC_RTCOC2MSKEN                0x04000000u    /*!< Enable interrupt for output compare channel 2 Mask */
-#define ADI_RTC_RTCOC1MSKEN                0x08000000u    /*!< Enable interrupt for output compare channel 1 Mask */
-#define ADI_RTC_CR5OCS_OC3SMPMTCHIRQEN     0x10000000u    /*!< Sample activity Interrupt enable for RTC Output Compare Channel 3 */
-#define ADI_RTC_CR5OCS_OC2SMPMTCHIRQEN     0x20000000u    /*!< Sample activity Interrupt enable for RTC Output Compare Channel 2 */
-#define ADI_RTC_CR5OCS_OC1SMPMTCHIRQEN     0x40000000u    /*!< Sample activity Interrupt enable for RTC Output Compare Channel 1. */
+#define ADI_RTC_RTCSS4_FE_INT              0x00100000u    /*!< Enable interrupt for Sensor Strobe channel 3*/
+#define ADI_RTC_RTCSS3_FE_INT              0x00200000u    /*!< Enable interrupt for Sensor Strobe channel 3*/
+#define ADI_RTC_RTCSS2_FE_INT              0x00400000u    /*!< Enable interrupt for Sensor Strobe channel 2*/
+#define ADI_RTC_RTCSS1_FE_INT              0x00800000u    /*!< Enable interrupt for Sensor Strobe channel 2*/
+#define ADI_RTC_RTCSS4MSKEN                0x01000000u    /*!< Enable interrupt for Sensor Strobe channel 4 Mask */
+#define ADI_RTC_RTCSS3MSKEN                0x02000000u    /*!< Enable interrupt for Sensor Strobe channel 3 Mask */
+#define ADI_RTC_RTCSS2MSKEN                0x04000000u    /*!< Enable interrupt for Sensor Strobe channel 2 Mask */
+#define ADI_RTC_RTCSS1MSKEN                0x08000000u    /*!< Enable interrupt for Sensor Strobe channel 1 Mask */
+#define ADI_RTC_CR5OCS_SS3SMPMTCHIRQEN     0x10000000u    /*!< Sample activity Interrupt enable for RTC Sensor Strobe Channel 3 */
+#define ADI_RTC_CR5OCS_SS2SMPMTCHIRQEN     0x20000000u    /*!< Sample activity Interrupt enable for RTC Sensor Strobe Channel 2 */
+#define ADI_RTC_CR5OCS_SS1SMPMTCHIRQEN     0x40000000u    /*!< Sample activity Interrupt enable for RTC Sensor Strobe Channel 1. */
 
 
 #define ADI_RTC_NUM_INTERRUPTS             31             /*!< Number of RTC interrupts. */
@@ -230,20 +230,20 @@ typedef enum
 }ADI_RTC_INPUT_CHANNEL;
 
 /*!
- * RTC output compare  channels.
+ * RTC Sensor Strobe  channels.
  */
 typedef enum
 {
-    /*!  output compare channel-1  */
-    ADI_RTC_OUTPUT_CHANNEL_1           = 1 << BITP_RTC_CR3SS_SS1EN,
-    /*!  output compare channel-2  */
-    ADI_RTC_OUTPUT_CHANNEL_2           = 1 << BITP_RTC_CR3SS_SS2EN,
-    /*!  output compare channel-3  */
-    ADI_RTC_OUTPUT_CHANNEL_3           = 1 << BITP_RTC_CR3SS_SS3EN,
-    /*!  output compare channel-4  */
-    ADI_RTC_OUTPUT_CHANNEL_4           = 1 << BITP_RTC_CR3SS_SS4EN,
+    /*!  Sensor Strobe channel-1  */
+    ADI_RTC_SS_CHANNEL_1               = 1 << BITP_RTC_CR3SS_SS1EN,
+    /*!  Sensor Strobe channel-2  */
+    ADI_RTC_SS_CHANNEL_2               = 1 << BITP_RTC_CR3SS_SS2EN,
+    /*!  Sensor Strobe channel-3  */
+    ADI_RTC_SS_CHANNEL_3               = 1 << BITP_RTC_CR3SS_SS3EN,
+    /*!  Sensor Strobe channel-4  */
+    ADI_RTC_SS_CHANNEL_4               = 1 << BITP_RTC_CR3SS_SS4EN,
 
-}ADI_RTC_OUTPUT_CHANNEL;
+}ADI_RTC_SS_CHANNEL;
 
 /*!
  * RTC Trim polarity.
@@ -341,12 +341,12 @@ ADI_RTC_RESULT adi_rtc_EnableTrim(
                
 ADI_RTC_RESULT adi_rtc_EnableAutoReload(
                ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_OUTPUT_CHANNEL eOutChannel,
+               ADI_RTC_SS_CHANNEL   eSSChannel,
                bool bEnable);
 
-ADI_RTC_RESULT adi_rtc_EnableOutputCompare   (
+ADI_RTC_RESULT adi_rtc_EnableSensorStrobeOutput (
                ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_OUTPUT_CHANNEL eOutChannel, 
+               ADI_RTC_SS_CHANNEL   eSSChannel, 
                bool bEnable);
 
 ADI_RTC_RESULT adi_rtc_EnableInputCapture (
@@ -354,9 +354,9 @@ ADI_RTC_RESULT adi_rtc_EnableInputCapture (
                ADI_RTC_INPUT_CHANNEL eInpChannel,
                bool bEnable);
 
-ADI_RTC_RESULT adi_rtc_EnableOutputChannelMask(
+ADI_RTC_RESULT adi_rtc_EnableSensorStrobeChannelMask(
                ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_OUTPUT_CHANNEL eOutChannel, 
+               ADI_RTC_SS_CHANNEL   eSSChannel, 
                bool bEnable);
                
 ADI_RTC_RESULT adi_rtc_EnableOverwriteSnapshot (
@@ -413,14 +413,14 @@ ADI_RTC_RESULT adi_rtc_SetTrim(
                ADI_RTC_TRIM_POLARITY eOperation
                );
                
-ADI_RTC_RESULT adi_rtc_SetOutputChannelMask(
+ADI_RTC_RESULT adi_rtc_SetSensorStrobeChannelMask(
                ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_OUTPUT_CHANNEL eOutChannel, 
+               ADI_RTC_SS_CHANNEL   eSSChannel, 
                uint8_t nMask);
 
 ADI_RTC_RESULT adi_rtc_SetAutoReloadValue(
                 ADI_RTC_HANDLE const hDevice,
-                ADI_RTC_OUTPUT_CHANNEL eOutChannel, 
+                ADI_RTC_SS_CHANNEL   eSSChannel, 
                 uint16_t nValue);
                 
 ADI_RTC_RESULT adi_rtc_SetInputCapturePolarity (
@@ -428,9 +428,9 @@ ADI_RTC_RESULT adi_rtc_SetInputCapturePolarity (
                ADI_RTC_INPUT_CHANNEL eInpChannel,
                bool bEnable);
                
-ADI_RTC_RESULT adi_rtc_SetOutputCompareValue(
+ADI_RTC_RESULT adi_rtc_SetSensorStrobeValue(
                 ADI_RTC_HANDLE const hDevice,
-                ADI_RTC_OUTPUT_CHANNEL eOutChannel, 
+                ADI_RTC_SS_CHANNEL   eSSChannel, 
                 uint16_t nValue);
 
 /*************************************/
@@ -487,9 +487,9 @@ ADI_RTC_RESULT adi_rtc_GetWriteSyncStatus(
                ADI_RTC_WRITE_STATUS *pSyncBits
                );
                
-ADI_RTC_RESULT adi_rtc_GetOutputCompareValue(
+ADI_RTC_RESULT adi_rtc_GetSensorStrobeValue(
                ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_OUTPUT_CHANNEL eChannel, 
+               ADI_RTC_SS_CHANNEL   eSSChannel, 
                uint16_t *pValue);
                
 ADI_RTC_RESULT adi_rtc_GetCountRegs(
