@@ -732,7 +732,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
 ######################
 
 def mbed2_obj_path(target_name, toolchain_name):
-    return join("TARGET_" + target_name, "TOOLCHAIN_" + toolchain_name)
+    real_tc_name = TOOLCHAIN_CLASSES[toolchain_name].__name__
+    return join("TARGET_" + target_name, "TOOLCHAIN_" + real_tc_name)
 
 def build_lib(lib_id, target, toolchain_name, verbose=False,
               clean=False, macros=None, notify=None, jobs=1, silent=False,
@@ -955,7 +956,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
     try:
         # Source and Build Paths
         build_target = join(MBED_LIBRARIES, "TARGET_" + target.name)
-        build_toolchain = join(build_target, "TOOLCHAIN_" + toolchain_name)
+        build_toolchain = join(MBED_LIBRARIES, mbed2_obj_path(target.name, toolchain_name))
         mkdir(build_toolchain)
 
         # Toolchain
