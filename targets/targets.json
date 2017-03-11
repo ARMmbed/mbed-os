@@ -2545,6 +2545,16 @@
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"},
+        "config": {
+            "lf_clock_rc_calib_timer_interval": {
+                "value": 16,
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL"
+            },
+            "lf_clock_rc_calib_mode_config": {
+                "value": 0,
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG"
+            }
+        },
         "device_name": "nRF52832_xxAA"
     },
     "BLUEPILL_F103C8": {
