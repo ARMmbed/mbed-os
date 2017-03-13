@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_system.c
  * @brief System Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -33,7 +33,6 @@
 #include "em_system.h"
 #include "em_assert.h"
 #include <stddef.h>
-#include "core_cmSecureAccess.h"
 
 /***************************************************************************//**
  * @addtogroup emlib
@@ -62,24 +61,19 @@ void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev)
 
   EFM_ASSERT(rev);
 
-  uint32_t pid0 = SECURE_READ(&(ROMTABLE->PID0));
-  uint32_t pid1 = SECURE_READ(&(ROMTABLE->PID1));
-  uint32_t pid2 = SECURE_READ(&(ROMTABLE->PID2));
-  uint32_t pid3 = SECURE_READ(&(ROMTABLE->PID3));
-
   /* CHIP FAMILY bit [5:2] */
-  tmp  = (((pid1 & _ROMTABLE_PID1_FAMILYMSB_MASK) >> _ROMTABLE_PID1_FAMILYMSB_SHIFT) << 2);
+  tmp  = (((ROMTABLE->PID1 & _ROMTABLE_PID1_FAMILYMSB_MASK) >> _ROMTABLE_PID1_FAMILYMSB_SHIFT) << 2);
   /* CHIP FAMILY bit [1:0] */
-  tmp |=  ((pid0 & _ROMTABLE_PID0_FAMILYLSB_MASK) >> _ROMTABLE_PID0_FAMILYLSB_SHIFT);
+  tmp |=  ((ROMTABLE->PID0 & _ROMTABLE_PID0_FAMILYLSB_MASK) >> _ROMTABLE_PID0_FAMILYLSB_SHIFT);
   rev->family = tmp;
 
   /* CHIP MAJOR bit [3:0] */
-  rev->major = (pid0 & _ROMTABLE_PID0_REVMAJOR_MASK) >> _ROMTABLE_PID0_REVMAJOR_SHIFT;
+  rev->major = (ROMTABLE->PID0 & _ROMTABLE_PID0_REVMAJOR_MASK) >> _ROMTABLE_PID0_REVMAJOR_SHIFT;
 
   /* CHIP MINOR bit [7:4] */
-  tmp  = (((pid2 & _ROMTABLE_PID2_REVMINORMSB_MASK) >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);
+  tmp  = (((ROMTABLE->PID2 & _ROMTABLE_PID2_REVMINORMSB_MASK) >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);
   /* CHIP MINOR bit [3:0] */
-  tmp |=  ((pid3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
+  tmp |=  ((ROMTABLE->PID3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
   rev->minor = tmp;
 }
 

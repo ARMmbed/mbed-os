@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_common.h
  * @brief General purpose utilities.
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -107,6 +107,9 @@ extern "C" {
 /** MDK-ARM compiler: Macro for handling weak symbols. */
 #define SL_WEAK __attribute__ ((weak))
 
+/** MDK-ARM compiler: Macro for handling non-returning functions. */
+#define SL_NORETURN __attribute__ ((noreturn))
+
 /** MDK-ARM compiler: Macro for handling section placement */
 #define SL_ATTRIBUTE_SECTION(X) __attribute__ ((section(X)))
 #endif
@@ -117,6 +120,9 @@ extern "C" {
 
 /** @brief IAR Embedded Workbench: Macros for handling weak symbols. */
 #define SL_WEAK __weak
+
+/** @brief IAR Embedded Workbench: Macro for handling non-returning functions. */
+#define SL_NORETURN __noreturn
 
 /** IAR Embedded Workbench: Macro for handling section placement */
 #define SL_ATTRIBUTE_SECTION(X) @ X
@@ -164,6 +170,9 @@ extern "C" {
 /** @brief Macro for defining a weak symbol. */
 #define SL_WEAK __attribute__ ((weak))
 
+/** @brief Macro for handling non-returning functions. */
+#define SL_NORETURN __attribute__ ((noreturn))
+
 /** Macro for placing a variable in a section.
  *  @n Use this macro after the variable definition, before the = or ;.
  *  @n X denotes the section to place the variable in.
@@ -174,13 +183,13 @@ extern "C" {
 
 /***************************************************************************//**
  * @brief
- *   Count trailing number of zero's. Use CLZ instruction if available.
+ *   Count trailing number of zeros. Use CLZ instruction if available.
  *
  * @param[in] value
  *   Data value to check for number of trailing zero bits.
  *
  * @return
- *   Number of trailing zero's in value.
+ *   Number of trailing zeros in value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_CTZ(uint32_t value)
 {
@@ -194,30 +203,13 @@ __STATIC_INLINE uint32_t SL_CTZ(uint32_t value)
 #endif
 }
 
-/***************************************************************************//**
- * @brief
- *   Count trailing number of zero's. Use CLZ instruction if available.
- *
- * @deprecated
- *   Deprecated function. New code should use @ref SL_CTZ().
 
- * @param[in] value
- *   Data value to check for number of trailing zero bits.
- *
- * @return
- *   Number of trailing zero's in value.
- ******************************************************************************/
+/* Deprecated function. New code should use @ref SL_CTZ. */
 __STATIC_INLINE uint32_t EFM32_CTZ(uint32_t value)
 {
-#if (__CORTEX_M >= 3)
-  return __CLZ(__RBIT(value));
-
-#else
-  uint32_t zeros;
-  for(zeros=0; (zeros<32) && ((value&0x1) == 0); zeros++, value>>=1);
-  return zeros;
-#endif
+  return SL_CTZ(value);
 }
+
 
 /** @} (end addtogroup COMMON) */
 /** @} (end addtogroup emlib) */
