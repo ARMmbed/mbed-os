@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efr32mg1p_crypto.h
  * @brief EFR32MG1P_CRYPTO register and bit field definitions
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -843,7 +843,7 @@ typedef struct
 
 /* Bit fields for CRYPTO IFS */
 #define _CRYPTO_IFS_RESETVALUE                       0x00000000UL                         /**< Default value for CRYPTO_IFS */
-#define _CRYPTO_IFS_MASK                             0x0000000FUL                         /**< Mask for CRYPTO_IFS */
+#define _CRYPTO_IFS_MASK                             0x00000003UL                         /**< Mask for CRYPTO_IFS */
 #define CRYPTO_IFS_INSTRDONE                         (0x1UL << 0)                         /**< Set INSTRDONE Interrupt Flag */
 #define _CRYPTO_IFS_INSTRDONE_SHIFT                  0                                    /**< Shift value for CRYPTO_INSTRDONE */
 #define _CRYPTO_IFS_INSTRDONE_MASK                   0x1UL                                /**< Bit mask for CRYPTO_INSTRDONE */
@@ -854,20 +854,10 @@ typedef struct
 #define _CRYPTO_IFS_SEQDONE_MASK                     0x2UL                                /**< Bit mask for CRYPTO_SEQDONE */
 #define _CRYPTO_IFS_SEQDONE_DEFAULT                  0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFS */
 #define CRYPTO_IFS_SEQDONE_DEFAULT                   (_CRYPTO_IFS_SEQDONE_DEFAULT << 1)   /**< Shifted mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFOF                             (0x1UL << 2)                         /**< Set BUFOF Interrupt Flag */
-#define _CRYPTO_IFS_BUFOF_SHIFT                      2                                    /**< Shift value for CRYPTO_BUFOF */
-#define _CRYPTO_IFS_BUFOF_MASK                       0x4UL                                /**< Bit mask for CRYPTO_BUFOF */
-#define _CRYPTO_IFS_BUFOF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFOF_DEFAULT                     (_CRYPTO_IFS_BUFOF_DEFAULT << 2)     /**< Shifted mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFUF                             (0x1UL << 3)                         /**< Set BUFUF Interrupt Flag */
-#define _CRYPTO_IFS_BUFUF_SHIFT                      3                                    /**< Shift value for CRYPTO_BUFUF */
-#define _CRYPTO_IFS_BUFUF_MASK                       0x8UL                                /**< Bit mask for CRYPTO_BUFUF */
-#define _CRYPTO_IFS_BUFUF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFUF_DEFAULT                     (_CRYPTO_IFS_BUFUF_DEFAULT << 3)     /**< Shifted mode DEFAULT for CRYPTO_IFS */
 
 /* Bit fields for CRYPTO IFC */
 #define _CRYPTO_IFC_RESETVALUE                       0x00000000UL                         /**< Default value for CRYPTO_IFC */
-#define _CRYPTO_IFC_MASK                             0x0000000FUL                         /**< Mask for CRYPTO_IFC */
+#define _CRYPTO_IFC_MASK                             0x00000003UL                         /**< Mask for CRYPTO_IFC */
 #define CRYPTO_IFC_INSTRDONE                         (0x1UL << 0)                         /**< Clear INSTRDONE Interrupt Flag */
 #define _CRYPTO_IFC_INSTRDONE_SHIFT                  0                                    /**< Shift value for CRYPTO_INSTRDONE */
 #define _CRYPTO_IFC_INSTRDONE_MASK                   0x1UL                                /**< Bit mask for CRYPTO_INSTRDONE */
@@ -878,20 +868,10 @@ typedef struct
 #define _CRYPTO_IFC_SEQDONE_MASK                     0x2UL                                /**< Bit mask for CRYPTO_SEQDONE */
 #define _CRYPTO_IFC_SEQDONE_DEFAULT                  0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFC */
 #define CRYPTO_IFC_SEQDONE_DEFAULT                   (_CRYPTO_IFC_SEQDONE_DEFAULT << 1)   /**< Shifted mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFOF                             (0x1UL << 2)                         /**< Clear BUFOF Interrupt Flag */
-#define _CRYPTO_IFC_BUFOF_SHIFT                      2                                    /**< Shift value for CRYPTO_BUFOF */
-#define _CRYPTO_IFC_BUFOF_MASK                       0x4UL                                /**< Bit mask for CRYPTO_BUFOF */
-#define _CRYPTO_IFC_BUFOF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFOF_DEFAULT                     (_CRYPTO_IFC_BUFOF_DEFAULT << 2)     /**< Shifted mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFUF                             (0x1UL << 3)                         /**< Clear BUFUF Interrupt Flag */
-#define _CRYPTO_IFC_BUFUF_SHIFT                      3                                    /**< Shift value for CRYPTO_BUFUF */
-#define _CRYPTO_IFC_BUFUF_MASK                       0x8UL                                /**< Bit mask for CRYPTO_BUFUF */
-#define _CRYPTO_IFC_BUFUF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFUF_DEFAULT                     (_CRYPTO_IFC_BUFUF_DEFAULT << 3)     /**< Shifted mode DEFAULT for CRYPTO_IFC */
 
 /* Bit fields for CRYPTO IEN */
 #define _CRYPTO_IEN_RESETVALUE                       0x00000000UL                         /**< Default value for CRYPTO_IEN */
-#define _CRYPTO_IEN_MASK                             0x0000000FUL                         /**< Mask for CRYPTO_IEN */
+#define _CRYPTO_IEN_MASK                             0x00000003UL                         /**< Mask for CRYPTO_IEN */
 #define CRYPTO_IEN_INSTRDONE                         (0x1UL << 0)                         /**< INSTRDONE Interrupt Enable */
 #define _CRYPTO_IEN_INSTRDONE_SHIFT                  0                                    /**< Shift value for CRYPTO_INSTRDONE */
 #define _CRYPTO_IEN_INSTRDONE_MASK                   0x1UL                                /**< Bit mask for CRYPTO_INSTRDONE */
@@ -902,16 +882,6 @@ typedef struct
 #define _CRYPTO_IEN_SEQDONE_MASK                     0x2UL                                /**< Bit mask for CRYPTO_SEQDONE */
 #define _CRYPTO_IEN_SEQDONE_DEFAULT                  0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IEN */
 #define CRYPTO_IEN_SEQDONE_DEFAULT                   (_CRYPTO_IEN_SEQDONE_DEFAULT << 1)   /**< Shifted mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFOF                             (0x1UL << 2)                         /**< BUFOF Interrupt Enable */
-#define _CRYPTO_IEN_BUFOF_SHIFT                      2                                    /**< Shift value for CRYPTO_BUFOF */
-#define _CRYPTO_IEN_BUFOF_MASK                       0x4UL                                /**< Bit mask for CRYPTO_BUFOF */
-#define _CRYPTO_IEN_BUFOF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFOF_DEFAULT                     (_CRYPTO_IEN_BUFOF_DEFAULT << 2)     /**< Shifted mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFUF                             (0x1UL << 3)                         /**< BUFUF Interrupt Enable */
-#define _CRYPTO_IEN_BUFUF_SHIFT                      3                                    /**< Shift value for CRYPTO_BUFUF */
-#define _CRYPTO_IEN_BUFUF_MASK                       0x8UL                                /**< Bit mask for CRYPTO_BUFUF */
-#define _CRYPTO_IEN_BUFUF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFUF_DEFAULT                     (_CRYPTO_IEN_BUFUF_DEFAULT << 3)     /**< Shifted mode DEFAULT for CRYPTO_IEN */
 
 /* Bit fields for CRYPTO SEQ0 */
 #define _CRYPTO_SEQ0_RESETVALUE                      0x00000000UL                        /**< Default value for CRYPTO_SEQ0 */

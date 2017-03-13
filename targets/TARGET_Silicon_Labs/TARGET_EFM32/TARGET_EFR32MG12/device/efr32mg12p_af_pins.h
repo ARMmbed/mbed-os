@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efr32mg12p_af_pins.h
  * @brief EFR32MG12P_AF_PINS register and bit field definitions
- * @version 5.1.1
+ * @version 5.1.2
  ******************************************************************************
  * @section License
  * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
