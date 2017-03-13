@@ -21,8 +21,20 @@
             "help": "Enable support for Ethernet interfaces",
             "value": true
         },
+        "debug-enabled": {
+            "help": "Enable debug trace support",
+            "value": false
+        },
         "ppp-enabled": {
             "help": "Enable support for PPP interfaces",
+            "value": false
+        },
+        "use-mbed-trace": {
+            "help": "Use mbed trace for debug, rather than printf",
+            "value": false
+        },
+        "enable-ppp-trace": {
+            "help": "Enable trace support for PPP interfaces",
             "value": false
         },
         "socket-max": {

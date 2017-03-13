@@ -93,16 +93,28 @@
 
 #ifdef LWIP_DEBUG
 
-#include "stdio.h"
+#if MBED_CONF_LWIP_USE_MBED_TRACE
+void lwip_mbed_tracef_debug(const char *fmt, ...);
+void lwip_mbed_tracef_error(const char *fmt, ...);
+void lwip_mbed_tracef_warn(const char *fmt, ...);
+void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, unsigned int line);
+
+#define LWIP_PLATFORM_DIAG(vars)         lwip_mbed_tracef_debug vars
+#define LWIP_PLATFORM_DIAG_SEVERE(vars)  lwip_mbed_tracef_error vars
+#define LWIP_PLATFORM_DIAG_SERIOUS(vars) lwip_mbed_tracef_error vars
+#define LWIP_PLATFORM_DIAG_WARNING(vars) lwip_mbed_tracef_warn vars
+
+#define LWIP_PLATFORM_ASSERT(message) lwip_mbed_assert_fail(message, __func__, __FILE__, __LINE__)
+
+#else // MBED_CONF_LWIP_USE_MBED_TRACE
+#include <stdio.h>
 
 void assert_printf(char *msg, int line, char *file);
 
 /* Plaform specific diagnostic output */
 #define LWIP_PLATFORM_DIAG(vars) printf vars
 #define LWIP_PLATFORM_ASSERT(flag) { assert_printf((flag), __LINE__, __FILE__); }
-#else
-#define LWIP_PLATFORM_DIAG(msg) { ; }
-#define LWIP_PLATFORM_ASSERT(flag) { ; }
+#endif // MBED_CONF_LWIP_USE_MBED_TRACE
 #endif 
 
 #include "cmsis.h"

@@ -489,6 +489,42 @@ sys_thread_t sys_thread_new(const char *pcName,
 
 #ifdef LWIP_DEBUG
 
+#include <stdbool.h>
+
+#if MBED_CONF_LWIP_USE_MBED_TRACE
+#include "mbed-trace/mbed_trace.h"
+
+void lwip_mbed_tracef_debug(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    mbed_vtracef(TRACE_LEVEL_DEBUG, "lwIP", fmt, ap);
+    va_end(ap);
+}
+
+void lwip_mbed_tracef_warn(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    mbed_vtracef(TRACE_LEVEL_WARN, "lwIP", fmt, ap);
+    va_end(ap);
+}
+
+void lwip_mbed_tracef_error(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    mbed_vtracef(TRACE_LEVEL_ERROR, "lwIP", fmt, ap);
+    va_end(ap);
+}
+
+void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, unsigned int line)
+{
+    mbed_tracef(TRACE_LEVEL_ERROR, "lwIP", "Assertion failed: %s, function %s, file %s, line %u.", msg, func, file, line);
+    exit(EXIT_FAILURE); // XXX how about abort? mbed_assert uses exit, so follow suit
+}
+#else // MBED_CONF_LWIP_USE_MBED_TRACE
+
 /** \brief  Displays an error message on assertion
 
     This function will display an error message on an assertion
@@ -504,5 +540,6 @@ void assert_printf(char *msg, int line, char *file) {
     else
         error("LWIP ASSERT\n");
 }
+#endif // MBED_CONF_LWIP_USE_MBED_TRACE
 
 #endif /* LWIP_DEBUG */

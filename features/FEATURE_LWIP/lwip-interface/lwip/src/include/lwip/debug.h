@@ -148,6 +148,24 @@
 #ifndef LWIP_PLATFORM_DIAG
 #error "If you want to use LWIP_DEBUG, LWIP_PLATFORM_DIAG(message) needs to be defined in your arch/cc.h"
 #endif
+#ifdef LWIP_PLATFORM_DIAG_SERIOUS
+#define LWIP_DEBUGF(debug, message) do { \
+                               if ( \
+                                   ((debug) & LWIP_DBG_ON) && \
+                                   ((debug) & LWIP_DBG_TYPES_ON) && \
+                                   ((s16_t)((debug) & LWIP_DBG_MASK_LEVEL) >= LWIP_DBG_MIN_LEVEL)) { \
+                                 switch ((debug) & LWIP_DBG_MASK_LEVEL) { \
+                                   case LWIP_DBG_LEVEL_SERIOUS: LWIP_PLATFORM_DIAG_SERIOUS(message); break; \
+                                   case LWIP_DBG_LEVEL_SEVERE:  LWIP_PLATFORM_DIAG_SEVERE(message); break; \
+                                   case LWIP_DBG_LEVEL_WARNING: LWIP_PLATFORM_DIAG_WARNING(message); break; \
+                                   default:                     LWIP_PLATFORM_DIAG(message); break; \
+                                 } \
+                                 if ((debug) & LWIP_DBG_HALT) { \
+                                   while(1); \
+                                 } \
+                               } \
+                             } while(0)
+#else
 #define LWIP_DEBUGF(debug, message) do { \
                                if ( \
                                    ((debug) & LWIP_DBG_ON) && \
@@ -159,7 +177,7 @@
                                  } \
                                } \
                              } while(0)
-
+#endif
 #else  /* LWIP_DEBUG */
 #define LWIP_DEBUGF(debug, message)
 #endif /* LWIP_DEBUG */

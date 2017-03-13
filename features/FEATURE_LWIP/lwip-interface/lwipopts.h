@@ -65,7 +65,11 @@
 #error "Either IPv4 or IPv6 must be preferred."
 #endif
 
-//#define LWIP_DEBUG
+#if defined(MBED_CONF_LWIP_DEBUG_ENABLED)
+#define LWIP_DEBUG                  MBED_CONF_LWIP_DEBUG_ENABLED
+#else
+#define LWIP_DEBUG                  0
+#endif
 
 #if NO_SYS == 0
 #include "cmsis_os.h"
@@ -85,7 +89,7 @@
 #define MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE      1200
 #endif
 
-#ifdef LWIP_DEBUG
+#if LWIP_DEBUG
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE*2
 #else
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
@@ -98,7 +102,7 @@
 #define MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE    512
 #endif
 
-#ifdef LWIP_DEBUG
+#if LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2
 #else
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE
@@ -227,21 +231,23 @@
 #define AUTOIP_DEBUG                LWIP_DBG_OFF
 #define DNS_DEBUG                   LWIP_DBG_OFF
 #define IP6_DEBUG                   LWIP_DBG_OFF
-
+#if MBED_CONF_LWIP_ENABLE_PPP_TRACE
+#define PPP_DEBUG                   LWIP_DBG_ON
+#else
 #define PPP_DEBUG                   LWIP_DBG_OFF
+#endif //MBED_CONF_LWIP_ENABLE_PPP_TRACE
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define UDP_LPC_EMAC                LWIP_DBG_OFF
 
-#ifdef LWIP_DEBUG
+#if LWIP_DEBUG
 #define MEMP_OVERFLOW_CHECK         1
 #define MEMP_SANITY_CHECK           1
+#define LWIP_DBG_TYPES_ON           LWIP_DBG_ON
+#define LWIP_DBG_MIN_LEVEL          LWIP_DBG_LEVEL_ALL
 #else
 #define LWIP_NOASSERT               1
 #define LWIP_STATS                  0
 #endif
-
-#define LWIP_DBG_TYPES_ON           LWIP_DBG_ON
-#define LWIP_DBG_MIN_LEVEL          LWIP_DBG_LEVEL_ALL
 
 #define LWIP_PLATFORM_BYTESWAP      1
 
@@ -263,6 +269,7 @@
 // Save RAM
 #define PAP_SUPPORT                 0
 #define VJ_SUPPORT                  0
+#define PRINTPKT_SUPPORT            0
 #define PPP_LOGIT_BUFSIZE           512
 
 //Hate the config hassle.

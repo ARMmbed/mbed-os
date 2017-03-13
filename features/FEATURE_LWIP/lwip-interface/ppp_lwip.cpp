@@ -71,7 +71,11 @@ static EventQueue *prepare_event_queue()
 
     // Only need to queue 1 event. new blows on failure.
     event_queue = new EventQueue(2 * EVENTS_EVENT_SIZE, NULL);
-    event_thread = new Thread(osPriorityNormal, 900);
+#if LWIP_DEBUG
+    event_thread = new Thread(osPriorityNormal, 900*2);
+#else
+    event_thread = new Thread(osPriorityNormal, 900*1);
+#endif
 
     if (event_thread->start(callback(event_queue, &EventQueue::dispatch_forever)) != osOK) {
         delete event_thread;
