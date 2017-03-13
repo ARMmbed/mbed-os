@@ -35,6 +35,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
+#include "pwmout_device.h"
 
 static TIM_HandleTypeDef TimHandle;
 
@@ -52,42 +53,105 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     // Enable TIM clock
 #if defined(TIM1_BASE)
-    if (obj->pwm == PWM_1) __HAL_RCC_TIM1_CLK_ENABLE();
+    if (obj->pwm == PWM_1){
+        __HAL_RCC_TIM1_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM2_BASE)
-    if (obj->pwm == PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
+    if (obj->pwm == PWM_2) {
+        __HAL_RCC_TIM2_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM3_BASE)
-    if (obj->pwm == PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
+    if (obj->pwm == PWM_3) {
+        __HAL_RCC_TIM3_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM4_BASE)
-    if (obj->pwm == PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
+    if (obj->pwm == PWM_4) {
+        __HAL_RCC_TIM4_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM5_BASE)
-    if (obj->pwm == PWM_5) __HAL_RCC_TIM5_CLK_ENABLE();
+    if (obj->pwm == PWM_5) {
+        __HAL_RCC_TIM5_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM8_BASE)
-    if (obj->pwm == PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
+    if (obj->pwm == PWM_8) {
+        __HAL_RCC_TIM8_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM9_BASE)
-    if (obj->pwm == PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
+    if (obj->pwm == PWM_9) {
+        __HAL_RCC_TIM9_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM10_BASE)
-    if (obj->pwm == PWM_10) __HAL_RCC_TIM10_CLK_ENABLE();
+    if (obj->pwm == PWM_10) {
+        __HAL_RCC_TIM10_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM11_BASE)
-    if (obj->pwm == PWM_11) __HAL_RCC_TIM11_CLK_ENABLE();
+    if (obj->pwm == PWM_11) {
+        __HAL_RCC_TIM11_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM12_BASE)
-    if (obj->pwm == PWM_12) __HAL_RCC_TIM12_CLK_ENABLE();
+    if (obj->pwm == PWM_12) {
+        __HAL_RCC_TIM12_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM13_BASE)
-    if (obj->pwm == PWM_13) __HAL_RCC_TIM13_CLK_ENABLE();
+    if (obj->pwm == PWM_13) {
+        __HAL_RCC_TIM13_CLK_ENABLE();
+    }
 #endif
 #if defined(TIM14_BASE)
-    if (obj->pwm == PWM_14) __HAL_RCC_TIM14_CLK_ENABLE();
+    if (obj->pwm == PWM_14) {
+        __HAL_RCC_TIM14_CLK_ENABLE();
+    }
 #endif
-
+#if defined(TIM15_BASE)
+    if (obj->pwm == PWM_15) {
+        __HAL_RCC_TIM15_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM16_BASE)
+    if (obj->pwm == PWM_16) {
+        __HAL_RCC_TIM16_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM17_BASE)
+    if (obj->pwm == PWM_17) {
+        __HAL_RCC_TIM17_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM18_BASE)
+    if (obj->pwm == PWM_18) {
+        __HAL_RCC_TIM18_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM19_BASE)
+    if (obj->pwm == PWM_19) {
+        __HAL_RCC_TIM19_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM20_BASE)
+    if (obj->pwm == PWM_20) {
+        __HAL_RCC_TIM20_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM21_BASE)
+    if (obj->pwm == PWM_21) {
+        __HAL_RCC_TIM21_CLK_ENABLE();
+    }
+#endif
+#if defined(TIM22_BASE)
+    if (obj->pwm == PWM_22) {
+        __HAL_RCC_TIM22_CLK_ENABLE();
+    }
+#endif
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
 
@@ -124,10 +188,14 @@ void pwmout_write(pwmout_t* obj, float value)
     sConfig.OCMode       = TIM_OCMODE_PWM1;
     sConfig.Pulse        = obj->pulse / obj->prescaler;
     sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
-    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+#if defined(TIM_OCIDLESTATE_RESET)
     sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
+#endif
+#if defined(TIM_OCNIDLESTATE_RESET)
+    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+#endif
 
     switch (obj->channel) {
         case 1:
@@ -150,9 +218,12 @@ void pwmout_write(pwmout_t* obj, float value)
         error("Cannot initialize PWM\n");
     }
 
+#if !defined(PWMOUT_INVERTED_NOT_SUPPORTED)
     if (obj->inverted) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);
-    } else {
+    } else
+#endif
+    {
         HAL_TIM_PWM_Start(&TimHandle, channel);
     }
 }
@@ -180,9 +251,10 @@ void pwmout_period_us(pwmout_t* obj, int us)
 {
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
-    uint32_t PclkFreq;
-    uint32_t APBxCLKDivider;
+    uint32_t PclkFreq = 0;
+    uint32_t APBxCLKDivider = RCC_HCLK_DIV1;
     float dc = pwmout_read(obj);
+    uint8_t i = 0;
 
     __HAL_TIM_DISABLE(&TimHandle);
 
@@ -190,82 +262,51 @@ void pwmout_period_us(pwmout_t* obj, int us)
     // Note: PclkFreq contains here the Latency (not used after)
     HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
 
-    // Get the PCLK and APBCLK divider related to the timer
-    switch (obj->pwm) {
-      
-        // APB1 clock
-#if defined(TIM2_BASE)
-        case PWM_2:
-#endif
-#if defined(TIM3_BASE)
-        case PWM_3:
-#endif
-#if defined(TIM4_BASE)
-        case PWM_4:
-#endif
-#if defined(TIM5_BASE)
-        case PWM_5:
-#endif
-#if defined(TIM12_BASE)
-        case PWM_12:
-#endif
-#if defined(TIM13_BASE)
-        case PWM_13:
-#endif
-#if defined(TIM14_BASE)
-        case PWM_14:
-#endif
-            PclkFreq = HAL_RCC_GetPCLK1Freq();
-            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
-            break;
-        
-        // APB2 clock
-#if defined(TIM1_BASE)
-        case PWM_1:
-#endif
-#if defined(TIM8_BASE)
-        case PWM_8:
-#endif
-#if defined(TIM9_BASE)
-        case PWM_9:
-#endif
-#if defined(TIM10_BASE)
-        case PWM_10:
-#endif
-#if defined(TIM11_BASE)
-        case PWM_11:
-#endif
-            PclkFreq = HAL_RCC_GetPCLK2Freq();
-            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
-            break;
-        default:
-            return;
+    /*  Parse the pwm / apb mapping table to find the right entry */
+    while(pwm_apb_map_table[i].pwm != obj->pwm) {
+        i++;
     }
 
-    /* To make it simple, we use to possible prescaler values which lead to:
-     * pwm unit = 1us, period/pulse can be from 1us to 65535us
-     * or
-     * pwm unit = 500us, period/pulse can be from 500us to ~32.76sec
-     * Be careful that all the channels of a PWM shares the same prescaler
-     */
-    if (us >  0xFFFF) {
-        obj->prescaler = 500;
+    if(pwm_apb_map_table[i].pwm == 0)
+        error("Unknown PWM instance");
+
+    if(pwm_apb_map_table[i].pwmoutApb == PWMOUT_ON_APB1) {
+        PclkFreq = HAL_RCC_GetPCLK1Freq();
+        APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
     } else {
-        obj->prescaler = 1;
+#if !defined(PWMOUT_APB2_NOT_SUPPORTED)
+        PclkFreq = HAL_RCC_GetPCLK2Freq();
+        APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+#endif
     }
 
+
+    /* By default use, 1us as SW pre-scaler */
+    obj->prescaler = 1;
     // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
-    if (APBxCLKDivider == RCC_HCLK_DIV1)
-      TimHandle.Init.Prescaler   = (uint16_t)(((PclkFreq) / 1000000) * obj->prescaler) - 1; // 1 us tick
-    else
-      TimHandle.Init.Prescaler   = (uint16_t)(((PclkFreq * 2) / 1000000) * obj->prescaler) - 1; // 1 us tick
+    if (APBxCLKDivider == RCC_HCLK_DIV1) {
+        TimHandle.Init.Prescaler = (((PclkFreq) / 1000000)) - 1; // 1 us tick
+    } else {
+        TimHandle.Init.Prescaler = (((PclkFreq * 2) / 1000000)) - 1; // 1 us tick
+    }
+    TimHandle.Init.Period = (us - 1);
 
-    if (TimHandle.Init.Prescaler > 0xFFFF)
-        error("PWM: out of range prescaler");
-
-    TimHandle.Init.Period        = (us - 1) / obj->prescaler;
-    if (TimHandle.Init.Period > 0xFFFF)
-        error("PWM: out of range period");
+    /*  In case period or pre-scalers are out of range, loop-in to get valid values */
+    while ((TimHandle.Init.Period > 0xFFFF) || (TimHandle.Init.Prescaler > 0xFFFF)) {
+        obj->prescaler = obj->prescaler * 2;
+        if (APBxCLKDivider == RCC_HCLK_DIV1) {
+          TimHandle.Init.Prescaler = (((PclkFreq) / 1000000) * obj->prescaler) - 1;
+        } else {
+          TimHandle.Init.Prescaler = (((PclkFreq * 2) / 1000000) * obj->prescaler) - 1;
+        }
+        TimHandle.Init.Period = (us - 1) / obj->prescaler;
+        /*  Period decreases and prescaler increases over loops, so check for
+         *  possible out of range cases */
+        if ((TimHandle.Init.Period < 0xFFFF) && (TimHandle.Init.Prescaler > 0xFFFF)) {
+            error("Cannot initialize PWM\n");
+            break;
+        }
+    }
 
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
