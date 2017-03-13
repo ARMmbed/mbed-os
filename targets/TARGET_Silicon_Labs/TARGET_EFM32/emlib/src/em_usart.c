@@ -2,7 +2,7 @@
  * @file em_usart.c
  * @brief Universal synchronous/asynchronous receiver/transmitter (USART/UART)
  *   Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -110,14 +110,18 @@
 #define USART_IRDA_VALID(ref)    (0)
 #endif
 
-#if defined(_EZR32_HAPPY_FAMILY)
-#define USART_I2S_VALID(ref)    ((ref) == USART0)
-#elif defined(_EFM32_HAPPY_FAMILY)
-#define USART_I2S_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
-#elif defined(_EFM32_TINY_FAMILY) || defined(_EFM32_ZERO_FAMILY) || defined(_SILICON_LABS_32B_PLATFORM_2)
-#define USART_I2S_VALID(ref)    ((ref) == USART1)
-#elif defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
-#define USART_I2S_VALID(ref)    (((ref) == USART1) || ((ref) == USART2))
+#if defined(_SILICON_LABS_32B_SERIES_1)
+  #define USART_I2S_VALID(ref)    ((ref) == USART1)
+#elif defined(_SILICON_LABS_32B_SERIES_0)
+  #if defined(_EZR32_HAPPY_FAMILY)
+  #define USART_I2S_VALID(ref)    ((ref) == USART0)
+  #elif defined(_EFM32_HAPPY_FAMILY)
+  #define USART_I2S_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
+  #elif defined(_EFM32_TINY_FAMILY) || defined(_EFM32_ZERO_FAMILY)
+  #define USART_I2S_VALID(ref)    ((ref) == USART1)
+  #elif defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+  #define USART_I2S_VALID(ref)    (((ref) == USART1) || ((ref) == USART2))
+#endif
 #endif
 
 #if (UART_COUNT == 1)
@@ -475,11 +479,7 @@ uint32_t USART_BaudrateGet(USART_TypeDef *usart)
  ******************************************************************************/
 void USART_BaudrateSyncSet(USART_TypeDef *usart, uint32_t refFreq, uint32_t baudrate)
 {
-#if defined(_USART_CLKDIV_DIV_MASK) && (_USART_CLKDIV_DIV_MASK >= 0x7FFFF8UL)
-  uint64_t clkdiv;
-#else
   uint32_t clkdiv;
-#endif
 
   /* Inhibit divide by 0 */
   EFM_ASSERT(baudrate);
@@ -496,28 +496,8 @@ void USART_BaudrateSyncSet(USART_TypeDef *usart, uint32_t refFreq, uint32_t baud
     refFreq = CMU_ClockFreqGet(cmuClock_HFPER);
   }
 
-#if defined(_USART_CLKDIV_DIV_MASK) && (_USART_CLKDIV_DIV_MASK >= 0x7FFFF8UL)
-  /* Calculate CLKDIV with fractional bits */
-  clkdiv = (128ULL*refFreq)/baudrate - 256;
-
-  /*
-   * Make sure we dont use fractional bits, do normal integer rounding when
-   * discarding fractional bits.
-   */
-  clkdiv = ((clkdiv + 128)/256) << 8;
-#else
-  /* Calculate and set CLKDIV with fractional bits */
-  clkdiv  = 2 * refFreq;
-  clkdiv += baudrate - 1;
-  clkdiv /= baudrate;
-  clkdiv -= 4;
-  clkdiv *= 64;
-  /* Make sure we don't use fractional bits by rounding CLKDIV */
-  /* up (and thus reducing baudrate, not increasing baudrate above */
-  /* specified value). */
-  clkdiv += 0xc0;
-  clkdiv &= 0xffffff00;
-#endif
+  clkdiv = (refFreq - 1) / (2 * baudrate);
+  clkdiv = clkdiv << 8;
 
   /* Verify that resulting clock divider is within limits */
   EFM_ASSERT(!(clkdiv & ~_USART_CLKDIV_DIV_MASK));

@@ -1,4 +1,45 @@
 ================ Revision history ============================================
+5.1.2:
+ Misc. bugfixes and improvements.
+
+5.1.1:
+ - Enabled errata CMU_E113 workaround for EFM32GG revE.
+
+5.1.0:
+ - em_timer: Added support for WTIMER0 and WTIMER1. Added EFM_ASSERT in
+   em_timer to check that operations on a 16 bit timer is always <= 0xFFFF.
+ - em_usart: Updated the baudrate sync calculation in USART_BaudrateSyncSet().
+   The calculated baudrate is not using any fractional bits and it is always
+   lower than or equal to the specified frequency.
+ - em_emu: added function EMU_DCDCConductionModeSet() to allow switching
+   between DCDC Low-Noise Continuous Conduction Mode (CCM) and
+   Discontinuous Conduction Mode (DCM).
+ - SYSTEM_GetSRAMSize() updated to return size of SRAM excluding RAMH for EFR32xG1.
+ - em_csen: Added support for CSEN (Capacitive Sense Module).
+ - em_adc: updated ADC_PosSel_TypeDef enum names.
+ - em_vdac: Added support for VDAC (voltage DAC).
+ - em_smu: Added support for SMU (Security Management Unit) module.
+   SMU is used to restrict access to device peripherals.
+ - Updated emlib to use the _SILICON_LABS_32B_SERIES_x,
+   _SILICON_LABS_32B_SERIES_x_CONFIG and _SILICON_LABS_GECKO_INTERNAL_SDID_x
+   macros instead of the _SILICON_LABS_32B_PLATFORM_x and
+   _SILICON_LABS_32B_PLATFORM_x_GEN_x macros.
+ - em_rtcc: added workarounds for errata RTCC_E203 and RTCC_E204 for
+   EFR32xG12, EFM32xG12, EFR32xG13 and EFM32xG13 devices.
+ - em_lesense: added LESENSE_DecoderPrsOut() for configuring PRS output
+   from the LESENSE decoder on EFM32xG12 and EFR32xG12.
+ - em_lesense: added support for the new evaluation modes for EFM32xG12 and
+   EFR32xG12.
+ - em_emu: added EMU_RamPowerDown() function for powering down a memory range
+   and deprecating EMU_MemPwrDown().
+ - em_emu: added support for voltage scaling.
+ - em_emu: added support for EM2 and 3 peripheral retention control.
+ - em_chip: added current consumption fixes for EFM32xG12 and EFR32xG12.
+ - em_emu: added support for DCDC EM01-LP mode.
+ - em_lesense: Support for Series 1 devices
+ - em_acmp: Added ACMP_ExternalInputSelect() which is used when the ACMP is
+   controlled by an external module like LESENSE.
+
 5.0.0:
  - em_core: New module, contains API for enabling/disabling interrupts
    and implementing critical regions.
