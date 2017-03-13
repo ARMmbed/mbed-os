@@ -62,7 +62,7 @@
 
 #include <stdint.h>
 #include "nrf_error.h"
-#include "headers\ble.h"
+#include "headers/ble.h"
 #include "ble_gattc.h"
 #include "ble_advdata.h"
 
