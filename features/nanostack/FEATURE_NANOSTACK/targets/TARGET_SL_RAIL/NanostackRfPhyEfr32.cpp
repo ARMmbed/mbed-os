@@ -67,6 +67,8 @@ static const RAIL_CsmaConfig_t csma_config = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_
 #if defined(TARGET_EFR32MG1)
 #include "ieee802154_subg_efr32xg1_configurator_out.h"
 #include "ieee802154_efr32xg1_configurator_out.h"
+#elif defined(TARGET_EFR32MG12)
+#include "ieee802154_efr32xg12_configurator_out.h"
 #else
 #error "Not a valid target."
 #endif
@@ -724,7 +726,7 @@ void RAILCb_RxPacketReceived(void *rxPacketHandle) {
             /* Save the pending bit */
             last_ack_pending_bit = (rxPacketInfo->dataPtr[1] & (1 << 4)) != 0;
             /* Tell the stack we got an ACK */
-            tr_debug("rACK\n");
+            //tr_debug("rACK\n");
             device_driver.phy_tx_done_cb( rf_radio_driver_id,
                                           current_tx_handle,
                                           PHY_LINK_TX_DONE,
@@ -745,7 +747,7 @@ void RAILCb_RxPacketReceived(void *rxPacketHandle) {
                 RAIL_AutoAckCancelAck();
             }
 
-            tr_debug("rPKT %d\n", rxPacketInfo->dataLength);
+            //tr_debug("rPKT %d\n", rxPacketInfo->dataLength);
             /* Feed the received packet into the stack */
             device_driver.phy_rx_cb(rxPacketInfo->dataPtr + 1, 
                                     rxPacketInfo->dataLength - 1, 
