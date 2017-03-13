@@ -42,7 +42,7 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "headers\ble.h"
+#include "headers/ble.h"
 #include "ble_gap.h"
 #include "peer_manager_types.h"
 
