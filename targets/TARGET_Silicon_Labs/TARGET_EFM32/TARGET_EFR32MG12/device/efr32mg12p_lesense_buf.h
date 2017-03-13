@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efr32mg12p_lesense_buf.h
  * @brief EFR32MG12P_LESENSE_BUF register and bit field definitions
- * @version 5.1.1
+ * @version 5.1.2
  ******************************************************************************
  * @section License
  * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>

@@ -2,7 +2,7 @@
  * @file efr32mg12p432f1024gl125.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFR32MG12P432F1024GL125
- * @version 5.1.1
+ * @version 5.1.2
  ******************************************************************************
  * @section License
  * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>

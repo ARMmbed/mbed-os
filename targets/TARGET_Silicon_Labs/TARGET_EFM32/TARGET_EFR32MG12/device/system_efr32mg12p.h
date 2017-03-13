@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file system_efr32mg12p.h
  * @brief CMSIS Cortex-M3/M4 System Layer for EFR32 devices.
- * @version 5.1.1
+ * @version 5.1.2
  ******************************************************************************
  * @section License
  * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
