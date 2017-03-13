@@ -50,15 +50,17 @@ using events::EventQueue;
 static EventQueue *event_queue;
 static Thread *event_thread;
 static volatile bool event_queued;
+static nsapi_error_t connect_error_code;
 
 // Just one interface for now
 static FileHandle *my_stream;
 static ppp_pcb *my_ppp_pcb;
 static bool ppp_link_up = false;
+static bool ppp_active = false;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
-static void (*notify_ppp_link_down)(void) = 0;
+static void (*notify_ppp_link_down)(nsapi_error_t) = 0;
 
 static EventQueue *prepare_event_queue()
 {
@@ -118,15 +120,18 @@ static u32_t ppp_output(ppp_pcb *pcb, u8_t *data, u32_t len, void *ctx)
         len -= ret;
     }
 
-    tr_debug("> %ld\n", (long) written);
+//    /tr_debug("> %ld bytes of data written\n", (long) written);
 
     return written;
 }
 
 static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
 {
+    nsapi_error_t mapped_err_code = NSAPI_ERROR_NO_CONNECTION;
+
     switch(err_code) {
         case PPPERR_NONE: {
+            mapped_err_code = NSAPI_ERROR_OK;
             tr_info("status_cb: Connected");
 #if PPP_IPV4_SUPPORT
             tr_debug("   our_ipaddr  = %s", ipaddr_ntoa(&ppp_netif(pcb)->ip_addr));
@@ -171,10 +176,12 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
         }
         case PPPERR_CONNECT: {
             tr_info("status_cb: Connection lost");
+            mapped_err_code = NSAPI_ERROR_CONNECTION_LOST;
             break;
         }
         case PPPERR_AUTHFAIL: {
             tr_info("status_cb: Failed authentication challenge");
+            mapped_err_code = NSAPI_ERROR_AUTH_FAILURE;
             break;
         }
         case PPPERR_PROTOCOL: {
@@ -183,6 +190,7 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
         }
         case PPPERR_PEERDEAD: {
             tr_info("status_cb: Connection timeout");
+            mapped_err_code = NSAPI_ERROR_CONNECTION_TIMEOUT;
             break;
         }
         case PPPERR_IDLETIMEOUT: {
@@ -211,13 +219,15 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
     }
 
     /* If some error happened, we need to properly shutdown the PPP interface  */
-    if (ppp_link_up) {
+    if (ppp_active) {
         ppp_link_up = false;
+        ppp_active = false;
+        connect_error_code = mapped_err_code;
         sys_sem_signal(&ppp_close_sem);
     }
 
     /* Alright, PPP interface is down, we need to notify upper layer */
-    notify_ppp_link_down();
+    notify_ppp_link_down(mapped_err_code);
 }
 
 #if !PPP_INPROC_IRQ_SAFE
@@ -276,11 +286,13 @@ extern "C" err_t ppp_lwip_connect()
 #if PPP_AUTH_SUPPORT
    ppp_set_auth(my_ppp_pcb, PPPAUTHTYPE_ANY, login, pwd);
 #endif //PPP_AUTH_SUPPORT
-
+   ppp_active = true;
    err_t ret = ppp_connect(my_ppp_pcb, 0);
    // lwIP's ppp.txt says input must not be called until after connect
    if (ret == ERR_OK) {
        my_stream->sigio(callback(stream_cb));
+   } else {
+       ppp_active = false;
    }
    return ret;
 }
@@ -326,7 +338,12 @@ extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, void (*ppp_link_down_cb)(void), const char *uname, const char *password)
+nsapi_error_t nsapi_ppp_error_code()
+{
+    return connect_error_code;
+}
+
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, void (*ppp_link_down_cb)(int), const char *uname, const char *password)
 {
     if (my_stream) {
         return NSAPI_ERROR_PARAMETER;
@@ -339,9 +356,14 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, void (*ppp_link_down_cb)(voi
 
     // mustn't start calling input until after connect -
     // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
-    return mbed_lwip_bringup(false, true, NULL, NULL, NULL);
-}
+    nsapi_error_t retcode = mbed_lwip_bringup(false, true, NULL, NULL, NULL);
 
+    if (retcode != NSAPI_ERROR_OK && connect_error_code != NSAPI_ERROR_OK) {
+        return connect_error_code;
+    } else {
+        return retcode;
+    }
+}
 
 nsapi_error_t nsapi_ppp_disconnect(FileHandle *stream)
 {
@@ -351,6 +373,31 @@ nsapi_error_t nsapi_ppp_disconnect(FileHandle *stream)
 NetworkStack *nsapi_ppp_get_stack()
 {
     return nsapi_create_stack(&lwip_stack);
+}
+
+char *nsapi_ppp_get_ip_addr(char *ip_addr, nsapi_size_t buflen)
+{
+    if (mbed_lwip_get_ip_address(ip_addr, buflen)) {
+        return ip_addr;
+    }
+
+    return NULL;
+}
+char *nsapi_ppp_get_netmask(char *netmask, nsapi_size_t buflen)
+{
+    if (mbed_lwip_get_netmask(netmask, buflen)) {
+        return netmask;
+    }
+
+    return NULL;
+}
+char *nsapi_ppp_get_gw_addr(char *default_gw_addr)
+{
+    if (mbed_lwip_get_gateway(default_gw_addr, sizeof default_gw_addr)) {
+        return default_gw_addr;
+    }
+
+    return NULL;
 }
 
 #endif /* LWIP_PPP_API */

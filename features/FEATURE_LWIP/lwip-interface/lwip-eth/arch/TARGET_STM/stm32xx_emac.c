@@ -7,6 +7,9 @@
 #include "cmsis_os.h"
 #include "mbed_interface.h"
 
+// Check for Ethernet HAL being present
+#ifdef ETH_SUCCESS
+
 #define RECV_TASK_PRI           (osPriorityHigh)
 #define PHY_TASK_PRI            (osPriorityLow)
 #define PHY_TASK_WAIT           (200)
@@ -512,3 +515,6 @@ void mbed_default_mac_address(char *mac) {
 
     return;
 }
+
+#endif //ETH_SUCCESS
+

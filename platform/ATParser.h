@@ -83,7 +83,7 @@ public:
     * @param timeout        timeout of the connection
     * @param debug          turns on/off debug output for AT commands
     */
-    ATParser(FileHandle *fh, const char *output_delimiter="\r", int buffer_size = 256, int timeout = 8000, bool debug = true) :
+    ATParser(FileHandle *fh, const char *output_delimiter="\r", int buffer_size = 256, int timeout = 8000, bool debug = false) :
         _fh(fh),
         _buffer_size(buffer_size),
         _in_prev(0),

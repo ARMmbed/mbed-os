@@ -23,6 +23,8 @@
  *  Common interface that is shared between Cellular interfaces
  */
 class CellularInterface: public NetworkInterface {
+
+public:
     /** CellularInterface lifetime
      */
     //virtual ~CellularInterface() {};
@@ -36,14 +38,14 @@ class CellularInterface: public NetworkInterface {
      *  @param pwd      optionally, password
      */
     virtual void set_credentials(const char *apn,
-                                          const char *uname = 0,
-                                          const char *pwd = 0) = 0;
+                                 const char *uname = 0,
+                                 const char *pwd = 0) = 0;
 
     /** Set the pin code for SIM card
      *
      *  @param sim_pin      PIN for the SIM card
      */
-    virtual void set_SIM_pin(const char *sim_pin) = 0;
+    virtual void set_sim_pin(const char *sim_pin) = 0;
 
     /** Start the interface
      *
@@ -73,6 +75,36 @@ class CellularInterface: public NetworkInterface {
         *  @return         0 on success, or error code on failure
         */
     virtual nsapi_error_t disconnect() = 0;
+
+    /** Check if the connection is currently established or not
+     *
+     * @return true/false   If the cellular module have successfully acquired a carrier and is
+     *                      connected to an external packet data network using PPP, isConnected()
+     *                      API returns true and false otherwise.
+     */
+    virtual bool is_connected() = 0;
+
+    /** Get the local IP address
+     *
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if no IP address has been recieved
+     */
+    virtual const char *get_ip_address() = 0;
+
+    /** Get the local network mask
+     *
+     *  @return         Null-terminated representation of the local network mask
+     *                  or null if no network mask has been recieved
+     */
+    virtual const char *get_netmask() = 0;
+
+    /** Get the local gateways
+     *
+     *  @return         Null-terminated representation of the local gateway
+     *                  or null if no network mask has been recieved
+     */
+    virtual const char *get_gateway() = 0;
+
 };
 
 #endif
