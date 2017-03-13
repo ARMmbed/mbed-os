@@ -357,7 +357,7 @@ class Cache () :
 
         """
         if not self._aliases :
-            with open(join(self.data_path, "aliases.json")) as i :
+            with open(LocalPackAliases) as i :
                 self._aliases = load(i)
         return self._aliases
 
