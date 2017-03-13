@@ -246,19 +246,23 @@ class Cache () :
         self.counter += 1
         self.display_counter("Scanning for Aliases")
 
-    def get_flash_algorthim_binary(self, device_name) :
+    def get_flash_algorthim_binary(self, device_name, all=False) :
         """Retrieve the flash algorithm file for a particular part.
 
         Assumes that both the PDSC and the PACK file associated with that part are in the cache.
 
         :param device_name: The exact name of a device
+        :param all: Return an iterator of all flash algos for this device
         :type device_name: str
         :return: A file-like object that, when read, is the ELF file that describes the flashing algorithm
-        :rtype: ZipExtFile
+        :return: A file-like object that, when read, is the ELF file that describes the flashing algorithm.
+                 When "all" is set to True then an iterator for file-like objects is returned
+        :rtype: ZipExtFile or ZipExtFile iterator if all is True
         """
         device = self.index[device_name]
         pack = self.pack_from_cache(device)
-        return pack.open(device['algorithm'].keys()[0])
+        algo_itr = (pack.open(path) for path in device['algorithm'].keys())
+        return algo_itr if all else algo_itr.next()
 
     def get_svd_file(self, device_name) :
         """Retrieve the flash algorithm file for a particular part.
