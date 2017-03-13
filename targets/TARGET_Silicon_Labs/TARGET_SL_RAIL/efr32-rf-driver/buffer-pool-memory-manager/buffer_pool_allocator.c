@@ -21,10 +21,10 @@
 
 // Default to a ping-pong buffer pool with a size of 128 (127 MTU + 1 length) bytes per buffer
 #ifndef BUFFER_POOL_SIZE
-#define BUFFER_POOL_SIZE 2
+#define BUFFER_POOL_SIZE 8
 #endif
 #ifndef MAX_BUFFER_SIZE
-#define MAX_BUFFER_SIZE 128
+#define MAX_BUFFER_SIZE 150
 #endif
 
 #define INVALID_BUFFER_OBJ ((void*)0xFFFFFFFF)
