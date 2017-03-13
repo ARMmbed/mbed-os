@@ -62,7 +62,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "sdk_common.h"
-#include "headers\ble.h"
+#include "headers/ble.h"
 #include "ble_gap.h"
 #include "peer_manager_types.h"
 #include "peer_database.h"

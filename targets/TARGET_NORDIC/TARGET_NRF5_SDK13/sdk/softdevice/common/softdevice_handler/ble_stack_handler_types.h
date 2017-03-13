@@ -55,7 +55,7 @@ extern "C" {
 #ifdef BLE_STACK_SUPPORT_REQD
 
 #include <stdlib.h>
-#include "headers\ble.h"
+#include "headers/ble.h"
 #include "nrf_sdm.h"
 #include "app_error.h"
 #include "app_util.h"

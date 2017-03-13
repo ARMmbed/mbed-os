@@ -39,7 +39,7 @@
     #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
 #endif
 #include "ble/blecommon.h"
-#include "headers\ble.h"
+#include "headers/ble.h"
 #include "ble/GapAdvertisingParams.h"
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
