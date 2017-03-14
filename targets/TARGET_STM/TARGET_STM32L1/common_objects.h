@@ -45,6 +45,8 @@ struct pwmout_s {
     uint32_t prescaler;
     uint32_t period;
     uint32_t pulse;
+    uint8_t channel;
+    uint8_t inverted; 
 };
 
 struct serial_s {

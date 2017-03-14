@@ -176,3 +176,20 @@ class Exporter(object):
     def generate(self):
         """Generate an IDE/tool specific project file"""
         raise NotImplemented("Implement a generate function in Exporter child class")
+
+
+def filter_supported(compiler, whitelist):
+    """Generate a list of supported targets for a given compiler and post-binary hook
+    white-list."""
+    def supported_p(obj):
+        """Internal inner function used for filtering"""
+        if compiler not in obj.supported_toolchains:
+            return False
+        if not hasattr(obj, "post_binary_hook"):
+            return True
+        if obj.post_binary_hook['function'] in whitelist:
+            return True
+        else:
+            return False
+    return list(target for target, obj in TARGET_MAP.iteritems()
+                if supported_p(obj))
