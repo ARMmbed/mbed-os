@@ -117,9 +117,9 @@ void mbed_mac_address(char *mac)
         SYS_UnlockReg();
         FMC_Open();
         // = FMC_ReadUID(0);
-         uID1 = FMC_ReadUID(1);
-         word1 = (uID1 & 0x003FFFFF) | ((uID1 & 0x030000) << 6) >> 8;
-         word0 = ((FMC_ReadUID(0) >> 4) << 20) | ((uID1 & 0xFF)<<12) | (FMC_ReadUID(2) & 0xFFF);
+        uID1 = FMC_ReadUID(1);
+        word1 = (uID1 & 0x003FFFFF) | ((uID1 & 0x030000) << 6) >> 8;
+        word0 = ((FMC_ReadUID(0) >> 4) << 20) | ((uID1 & 0xFF)<<12) | (FMC_ReadUID(2) & 0xFFF);
         /* Disable FMC ISP function */
         FMC_Close();
         /* Lock protected registers */
@@ -135,7 +135,8 @@ void mbed_mac_address(char *mac)
     mac[3] = (word0 & 0x00ff0000) >> 16;
     mac[4] = (word0 & 0x0000ff00) >> 8;
     mac[5] = (word0 & 0x000000ff);
-//    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]);
+    
+    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING|LWIP_DBG_ON, ("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]));
 }
 
 /**
@@ -356,7 +357,7 @@ ethernetif_loopback_input(struct pbuf *p)           // TODO: make sure packet no
 {
     /* pass all packets to ethernet_input, which decides what packets it supports */
     if (netif->input(p, netif) != ERR_OK) {
-        LWIP_DEBUGF(NETIF_DEBUG, ("k64f_enetif_input: input error\n"));
+        LWIP_DEBUGF(NETIF_DEBUG, ("netif_input: input error\n"));
         /* Free buffer */
         pbuf_free(p);
     }
