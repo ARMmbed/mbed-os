@@ -42,7 +42,7 @@
   false,        /* Disable auto-select on EM0/1 entry */                        \
   false,        /* Disable auto-start and select on RAC wakeup */               \
   _CMU_HFXOSTARTUPCTRL_CTUNE_DEFAULT,                                           \
-  0x142,        /* Steady-state CTUNE for WSTK boards without load caps */      \
+  0x142,        /* Steady-state CTUNE for TBSENSE boards without load caps */   \
   _CMU_HFXOSTEADYSTATECTRL_REGISH_DEFAULT,                                      \
   _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_DEFAULT,                                    \
   0x7,          /* Recommended steady-state XO core bias current */             \
@@ -51,6 +51,7 @@
   0xA,          /* Recommended peak detection timeout  */                       \
   _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT,                                   \
   _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_DEFAULT,                                  \
+  cmuOscMode_Crystal,                                                           \
 }
 #endif
 #endif

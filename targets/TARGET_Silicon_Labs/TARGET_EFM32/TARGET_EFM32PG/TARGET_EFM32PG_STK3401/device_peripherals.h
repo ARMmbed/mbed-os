@@ -33,4 +33,25 @@
 #define PWM_TIMER_CLOCK  cmuClock_TIMER1
 #define PWM_ROUTE        TIMER_ROUTE_LOCATION_LOC1
 
+/* Crystal Calibration */
+#if !defined(CMU_HFXOINIT_STK_DEFAULT)
+#define CMU_HFXOINIT_STK_DEFAULT                                                \
+{                                                                               \
+  true,         /* Low-power mode for EFM32 */                                  \
+  false,        /* Disable auto-start on EM0/1 entry */                         \
+  false,        /* Disable auto-select on EM0/1 entry */                        \
+  false,        /* Disable auto-start and select on RAC wakeup */               \
+  _CMU_HFXOSTARTUPCTRL_CTUNE_DEFAULT,                                           \
+  0x142,        /* Steady-state CTUNE for STK boards without load caps */       \
+  _CMU_HFXOSTEADYSTATECTRL_REGISH_DEFAULT,                                      \
+  0x20,         /* Matching errata fix in CHIP_Init() */                        \
+  0x7,          /* Recommended steady-state osc core bias current */            \
+  0x6,          /* Recommended peak detection threshold */                      \
+  _CMU_HFXOTIMEOUTCTRL_SHUNTOPTTIMEOUT_DEFAULT,                                 \
+  0xA,          /* Recommended peak detection timeout  */                       \
+  0x4,          /* Recommended steady timeout */                                \
+  _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_DEFAULT,                                  \
+  cmuOscMode_Crystal,                                                           \
+}
+#endif
 #endif
