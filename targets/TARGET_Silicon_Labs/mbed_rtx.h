@@ -115,7 +115,7 @@ extern uint32_t STACK$$Base;
 #define OS_MAINSTKSIZE          256
 #endif
 
-#elif defined(TARGET_EFR32MG12)
+#elif defined(TARGET_EFR32MG12) || defined(TARGET_EFM32PG12)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)
