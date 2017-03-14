@@ -110,10 +110,10 @@ def get_compilation_failure(messages):
             continue
         
         if msg_type == 'error' or msg_type == 'tool_error':
-            logging.error(message)
+            rel_log.error(message)
             return "Error"
         else: 
-            logging.debug(message)
+            rel_log.debug(message)
 
     return "Internal"
                  
@@ -134,18 +134,18 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     """
 
     # send task to api
-    logging.debug(url + begin + "| data: " + str(payload))
+    rel_log.debug(url + begin + "| data: " + str(payload))
     r = requests.post(url + begin, data=payload, auth=auth)
-    logging.debug(r.request.body)
+    rel_log.debug(r.request.body)
     
     if r.status_code != 200:
-        logging.error("HTTP code %d reported.", r.status_code)
+        rel_log.error("HTTP code %d reported.", r.status_code)
         return False, "Internal"
 
     response = r.json()
-    logging.debug(response)
+    rel_log.debug(response)
     uuid = response['result']['data']['task_id']
-    logging.debug("Task accepted and given ID: %s", uuid)
+    rel_log.debug("Task accepted and given ID: %s", uuid)
     result = False
     fail_type = None
     
@@ -153,7 +153,7 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     # request and provide a response. Set the poll time to half that in case it 
     # does manage to compile quicker.
     poll_delay = 15
-    logging.debug("Running with a poll for response delay of: %ss", poll_delay)
+    rel_log.debug("Running with a poll for response delay of: %ss", poll_delay)
 
     # poll for output
     for check in range(polls):
@@ -169,15 +169,15 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
             # 3) Internal failure of the online compiler            
             result = bool(data['compilation_success'])
             if result:
-                logging.info("\t\tCompilation SUCCESSFUL\n")
+                rel_log.info("COMPILATION SUCCESSFUL\n")
             else:
                 # Did this fail due to a genuine compilation error or a failue of 
                 # the api itself ?
-                logging.info("\t\tCompilation FAILURE\n")
+                rel_log.info("COMPILATION FAILURE\n")
                 fail_type = get_compilation_failure(data['new_messages'])
             break
     else:
-        logging.info("\t\tCompilation FAILURE\n")
+        rel_log.info("COMPILATION FAILURE\n")
         
     if not result and fail_type == None:
         fail_type = "Internal"
@@ -219,11 +219,11 @@ def run_cmd(command, exit_on_failure=False):
     Returns:
     result - True/False indicating the success/failure of the command
     """
-    logging.debug('[Exec] %s', ' '.join(command))
+    rel_log.debug('[Exec] %s', ' '.join(command))
     return_code = subprocess.call(command, shell=True)
     
     if return_code:
-        logging.warning("The command '%s' failed with return code: %s",  
+        rel_log.warning("The command '%s' failed with return code: %s",  
                         (' '.join(command), return_code))
         if exit_on_failure:
             sys.exit(1)
@@ -245,13 +245,13 @@ def run_cmd_with_output(command, exit_on_failure=False):
     result - True/False indicating the success/failure of the command
     output - The output of the command if it was successful, else empty string
     """
-    logging.debug('[Exec] %s', ' '.join(command))
+    rel_log.debug('[Exec] %s', ' '.join(command))
     returncode = 0
     output = ""
     try:
         output = subprocess.check_output(command, shell=True)
     except subprocess.CalledProcessError as e:
-        logging.warning("The command '%s' failed with return code: %s", 
+        rel_log.warning("The command '%s' failed with return code: %s", 
                         (' '.join(command), e.returncode))
         returncode = e.returncode
         if exit_on_failure:
@@ -273,7 +273,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
     Returns:
     updated - True if library was updated, False otherwise
     """
-    logging.info("Updating test repo: '%s' to SHA: %s", test, ref)
+    rel_log.info("Updating test repo: '%s' to SHA: %s", test, ref)
     cwd = os.getcwd()
 
     repo = "https://" + user + '@developer.mbed.org/users/' + user + '/code/' + test 
@@ -281,7 +281,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
     # Clone the repo if it doesn't already exist
     path = abspath(repo_path + '/' + test)
     if not os.path.exists(path):
-        logging.info("Test repo doesn't exist, cloning...")
+        rel_log.info("Test repo doesn't exist, cloning...")
         os.chdir(abspath(repo_path))        
         clone_cmd = ['hg', 'clone', repo]
         run_cmd(clone_cmd, exit_on_failure=True)
@@ -300,7 +300,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
         
         os.rename(lib_file, bak_file)
     else:
-        logging.error("!! Failure to backup lib file prior to updating.")
+        rel_log.error("Failure to backup lib file prior to updating.")
         return False
     
     # mbed 2 style lib file contains one line with the following format
@@ -338,7 +338,7 @@ def upgrade_test_repo(test, user, library, ref, repo_path):
             run_cmd(cmd, exit_on_failure=True)
             
         except:
-            logging.info("Lib file already up to date and thus nothing to commit")
+            rel_log.info("Lib file already up to date and thus nothing to commit")
                             
     os.chdir(cwd)
     return updated
@@ -395,12 +395,11 @@ def get_latest_library_versions(repo_path):
     return mbed, mbed_dev
 
 def log_results(lst, title):
-    logging.info(title)   
     if len(lst) == 0:
-        logging.info("\tNone\n")
+        rel_log.info("%s - None", title)
     else:        
         for entry in lst:
-            logging.info("\tTest: %s, Target: %s\n", entry[0], entry[1])                
+            rel_log.info("%s - Test: %s, Target: %s", title, entry[0], entry[1])                
 
 
 if __name__ == '__main__':
@@ -417,11 +416,12 @@ if __name__ == '__main__':
         
     # Set logging level
     logging.basicConfig(level=level)
+    rel_log = logging.getLogger("check-release")
     
     # Read configuration data
-    json_data = json.load(open(os.path.join(os.path.dirname(__file__), 
-                               "check_release.json")))
-
+    with open(os.path.join(os.path.dirname(__file__), "check_release.json")) as config:
+        json_data = json.load(config)
+     
     supported_targets = []
 
     if len(json_data["target_list"]) > 0:
@@ -452,11 +452,11 @@ if __name__ == '__main__':
     mbed, mbed_dev = get_latest_library_versions(repo_path)
 
     if not mbed or not mbed_dev:
-        logging.error("Could not obtain latest versions of library files!!")
+        rel_log.error("Could not obtain latest versions of library files!!")
         exit(1)
         
-    logging.info("Latest mbed lib version = %s", mbed)
-    logging.info("Latest mbed-dev lib version = %s", mbed_dev)    
+    rel_log.info("Latest mbed lib version = %s", mbed)
+    rel_log.info("Latest mbed-dev lib version = %s", mbed_dev)    
   
     # First update test repos to latest versions of their embedded libraries
     for test in test_list:
@@ -473,10 +473,10 @@ if __name__ == '__main__':
     
     # Compile each test for each supported target
     for test in tests:
-        logging.info("Test compiling program: %s\n", test)
+        rel_log.info("COMPILING PROGRAM: %s\n", test)
         for target in supported_targets:
             for retry in range(0, retries):
-                logging.info("\tCompiling target: %s , attempt %u\n", target, retry)
+                rel_log.info("COMPILING TARGET: %s , attempt %u\n", target, retry)
                 result, mesg = build_repo(target, test, user, password)
                 if not result:
                     if mesg == 'Internal':
@@ -490,19 +490,19 @@ if __name__ == '__main__':
                 passes += (int)(result)
                 break
             else:
-                logging.error("\t\tCompilation failed due to internal errors.\n")
-                logging.error("\t\tSkipping test/target combination!\n")
+                rel_log.error("Compilation failed due to internal errors.\n")
+                rel_log.error("Skipping test/target combination!\n")
                 total -= 1   
                 skipped.append([test, target])
                 
-    logging.info(" SUMMARY OF COMPILATION RESULTS")                
-    logging.info(" ------------------------------\n")                
-    logging.info(" NUMBER OF TEST APPS: %d, NUMBER OF TARGETS: %d\n", 
+    rel_log.info(" SUMMARY OF COMPILATION RESULTS")                
+    rel_log.info(" ------------------------------")                
+    rel_log.info(" NUMBER OF TEST APPS: %d, NUMBER OF TARGETS: %d\n", 
                  len(tests), len(supported_targets))   
-    log_results(failures, " FAILURES:\n")
-    log_results(skipped, " SKIPPED:\n")
+    log_results(failures, " FAILED")
+    log_results(skipped, " SKIPPED")
 
     # Output a % pass rate, indicate a failure if not 100% successful
     pass_rate = (float(passes) / float(total)) * 100.0
-    logging.info(" PASS RATE %.1f %%\n", pass_rate)
+    rel_log.info(" PASS RATE %.1f %%\n", pass_rate)
     sys.exit(not (pass_rate == 100))
