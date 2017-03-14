@@ -2,8 +2,8 @@
  *****************************************************************************
  @file:    adi_tmr_v1.h
  @brief:   Gptimer Device Definitions for ADuCxxx
- @version: $Revision: 35143 $
- @date:    $Date: 2016-07-26 07:30:56 +0100 (Tue, 26 Jul 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2016 Analog Devices, Inc.
 

@@ -5,7 +5,7 @@
              This is specific to the SPORT driver and will be included by the driver.
              It is not required for the application to include this header file.
    @version: $Revision: 
-   @date:    $Date: 2015-11-11 04:28:56 +0000 (Wed, 11 Nov 2015) $
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.
@@ -228,17 +228,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADI_SPORT0A_CONVT_WIDTH        1
 
 #if(ADI_SPORT0A_SERIAL_WLEN <= 8)
-
+/*! Configuration for SPORTA word width as 1 byte */
 #define ADI_SPORTA_CFG_WORD_WIDTH  ADI_DMA_WIDTH_1_BYTE
+/*! Configuration for SPORTA word increment size as 1 byte */
 #define ADI_SPORTA_CFG_WORD_INC    ADI_DMA_INCR_1_BYTE 
 
 #elif(ADI_SPORT0A_SERIAL_WLEN <= 16)
-
+/*! Configuration for SPORTA word width as 2 bytes */
 #define ADI_SPORTA_CFG_WORD_WIDTH  ADI_DMA_WIDTH_2_BYTE
+/*! Configuration for SPORTA word increment size as 2 bytes */
 #define ADI_SPORTA_CFG_WORD_INC    ADI_DMA_INCR_2_BYTE 
-#elif(ADI_SPORT0A_SERIAL_WLEN <= 32)
 
+#elif(ADI_SPORT0A_SERIAL_WLEN <= 32)
+/*! Configuration for SPORTA word width as 4 bytes */
 #define ADI_SPORTA_CFG_WORD_WIDTH  ADI_DMA_WIDTH_4_BYTE
+/*! Configuration for SPORTA word increment size as 4 bytes */
 #define ADI_SPORTA_CFG_WORD_INC    ADI_DMA_INCR_4_BYTE 
 
 #else 
@@ -379,17 +383,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADI_SPORT0B_CONVT_WIDTH        1
 
 #if(ADI_SPORT0B_SERIAL_WLEN <= 8)
-
+/*! Configuration for SPORTB word width as 1 byte */
 #define ADI_SPORTB_CFG_WORD_WIDTH  ADI_DMA_WIDTH_1_BYTE
+/*! Configuration for SPORTB word increment size as 1 byte */
 #define ADI_SPORTB_CFG_WORD_INC    ADI_DMA_INCR_1_BYTE 
 
 #elif(ADI_SPORT0B_SERIAL_WLEN <= 16)
-
+/*! Configuration for SPORTB word width as 2 bytes */
 #define ADI_SPORTB_CFG_WORD_WIDTH  ADI_DMA_WIDTH_2_BYTE
+/*! Configuration for SPORTB word increment size as 2 bytes */
 #define ADI_SPORTB_CFG_WORD_INC    ADI_DMA_INCR_2_BYTE 
-#elif(ADI_SPORT0B_SERIAL_WLEN <= 32)
 
+#elif(ADI_SPORT0B_SERIAL_WLEN <= 32)
+/*! Configuration for SPORTB word width as 4 bytes */
 #define ADI_SPORTB_CFG_WORD_WIDTH  ADI_DMA_WIDTH_4_BYTE
+/*! Configuration for SPORTB word increment size as 4 bytes */
 #define ADI_SPORTB_CFG_WORD_INC    ADI_DMA_INCR_4_BYTE 
 
 #else 

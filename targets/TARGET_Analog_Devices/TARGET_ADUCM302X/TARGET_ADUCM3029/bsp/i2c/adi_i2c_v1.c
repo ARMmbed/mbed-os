@@ -2,10 +2,10 @@
  *****************************************************************************
  @file:    adi_i2c.c
  @brief:   I2C device driver implementation
- @version: $Revision: 33333 $
- @date:    $Date: 2016-01-22 16:39:48 +0000 (Fri, 22 Jan 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
-Copyright (c) 2014-2015 Analog Devices, Inc.
+Copyright (c) 2014-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -297,6 +297,8 @@ ADI_INT_HANDLER (I2C0_Slave_Int_Handler);
 static bool_t IsDeviceHandle(ADI_I2C_DRIVER const *pDevice);
 #endif
 
+static ADI_SYS_REGISTERS  adi_sys_base = { pADI_SYS };
+
 /*==========  D E F I N E S  ==========*/
 
 /* Common configurations bits for the master */
@@ -357,6 +359,12 @@ static bool_t IsDeviceHandle(ADI_I2C_DRIVER const *pDevice);
 #else
 #define ASSERT(X)
 #endif
+
+/* DS4 and DS5 bits of GPIO Port 0 drive strength select register */
+#define I2C_GPIO_PORT0_DS4  ((uint16_t) ((uint16_t) 1<<4))
+#define I2C_GPIO_PORT0_DS5  ((uint16_t) ((uint16_t) 1<<5))
+
+#define ADI_ADUCM302X_CHIPID_SI_1_2             0x284u
 
 /*==========  C O N F I G    D E F I N E S  ==========*/
 #if ((ADI_I2C_CFG_ENABLE_MASTER_SUPPORT == 1) && (ADI_I2C_CFG_ENABLE_SLAVE_SUPPORT == 1))
@@ -1629,6 +1637,18 @@ static ADI_I2C_BUFFER_STRUCT* fpop_buffer(ADI_I2C_BUFFER_STRUCT** pList)
 static void Initialize(ADI_I2C_MODE const  eMode,ADI_I2C_DRIVER *drv)
 {
     int32_t x;
+     
+    /* Get the pointer to the internal structure for System registers*/
+    ADI_SYS_REGISTERS *sys =  &adi_sys_base ;
+   
+    /*
+     * I2C fix for Silicon Version 1.2 
+     * Enable the drive strength of GPIO pins used for I2C communication. 
+     */
+    if( sys->pReg->CHIPID == ADI_ADUCM302X_CHIPID_SI_1_2 )
+    {
+      *((volatile uint32_t *)REG_GPIO0_DS)  |= ( I2C_GPIO_PORT0_DS4 | I2C_GPIO_PORT0_DS5 );
+    }
 
     /* Clear the driver data structure */
     memset(drv->pData, 0, sizeof(ADI_I2C_DATA_STRUCT));

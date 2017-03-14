@@ -2,8 +2,8 @@
  *****************************************************************************
  @file:    adi_crypto_v1.c
  @brief:   Crypto Device Implementations for ADuCM302x
- @version: $Revision: 33300 $
- @date:    $Date: 2016-01-20 13:49:09 +0000 (Wed, 20 Jan 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2012-2016 Analog Devices, Inc.
 

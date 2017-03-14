@@ -2,11 +2,11 @@
 *****************************************************************************
  * @file:    ADuCM3029_cdef.h
  * @brief:   ADuCM3029 C MMR Pointer Definitions
- * @version: $Revision: 35096 $
- * @date:    $Date: 2016-07-14 12:41:19 +0100 (Thu, 14 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2015-2016 Analog Devices, Inc.
+Copyright (c) 2015-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -89,24 +89,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define pREG_UART0_COMASRH (pREG_UART0_ASRH)
 
 
-/* Workarounds for registers that are wrongly defined as signed in generated headers. */
+/* Backward compatibility shim for renamed RTC registers and fields. */
 
-#undef pREG_FLCC0_KH_DATA0
-#undef pREG_FLCC0_KH_DATA1
-#define pREG_FLCC0_KH_DATA0              ((__IO     uint32_t *) REG_FLCC0_KH_DATA0)              /*  WRITE Lower Data */
-#define pREG_FLCC0_KH_DATA1              ((__IO     uint32_t *) REG_FLCC0_KH_DATA1)              /*  WRITE Upper Data */
-
-#undef pREG_FLCC0_KEY
-#undef pREG_FLCC0_WR_ABORT_ADDR
-#undef pREG_FLCC0_WRPROT
-#undef pREG_FLCC0_SIGNATURE
-#define pREG_FLCC0_KEY                   ((__O      uint32_t *) REG_FLCC0_KEY)                   /*  Key */
-#define pREG_FLCC0_WR_ABORT_ADDR         ((__I __C  uint32_t *) REG_FLCC0_WR_ABORT_ADDR)         /*  Write Abort Address */
-#define pREG_FLCC0_WRPROT                ((__IO     uint32_t *) REG_FLCC0_WRPROT)                /*  Write Protection */
-#define pREG_FLCC0_SIGNATURE             ((__I __C  uint32_t *) REG_FLCC0_SIGNATURE)             /*  Signature */
-
-#undef pREG_FLCC0_CACHE_KEY
-#define pREG_FLCC0_CACHE_KEY             ((__O      uint32_t *) REG_FLCC0_CACHE_KEY)             /*  Cache Key register */
+#define pREG_RTC0_CR3OC  (pREG_RTC0_CR3SS)
+#define pREG_RTC0_CR4OC  (pREG_RTC0_CR4SS)
+#define pREG_RTC0_OCMSK  (pREG_RTC0_SSMSK)
+#define pREG_RTC0_OC1ARL (pREG_RTC0_SS1ARL)
+#define pREG_RTC0_OC1    (pREG_RTC0_SS1)
+#define pREG_RTC0_OC1TGT (pREG_RTC0_SS1TGT)
+#define pREG_RTC1_CR3OC  (pREG_RTC1_CR3SS)
+#define pREG_RTC1_CR4OC  (pREG_RTC1_CR4SS)
+#define pREG_RTC1_OCMSK  (pREG_RTC1_SSMSK)
+#define pREG_RTC1_OC1ARL (pREG_RTC1_SS1ARL)
+#define pREG_RTC1_OC1    (pREG_RTC1_SS1)
+#define pREG_RTC1_OC1TGT (pREG_RTC1_SS1TGT)
 
 
 #ifdef __ICCARM__

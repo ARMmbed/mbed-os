@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_processor.h
  * @brief:   File which defines the processor specific Macros and add the required CMSIS include file
- * @version: $Revision: 35090 $
- * @date:    $Date: 2016-07-13 15:53:17 +0100 (Wed, 13 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2015 Analog Devices, Inc.

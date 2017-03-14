@@ -2,10 +2,10 @@
  *****************************************************************************
  @file:    adi_i2c_def_v1.h
  @brief:   Internal I2C device driver definitions and macros
- @version: $Revision: 33205 $
- @date:    $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
-Copyright (c) 2014-2015 Analog Devices, Inc.
+Copyright (c) 2014-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -165,8 +165,19 @@ typedef struct _ADI_I2C_DRIVER_STRUCT
 	ADI_I2C_DATA_STRUCT   *pData;       /* Pointer to device structure */
 } ADI_I2C_DRIVER_STRUCT;
 
+/*
+ *  SYS Device Structure
+ */
+typedef struct _ADI_SYS_STRUCT
+{
+        ADI_SYS_TypeDef       *pReg;      /* Pointer to register base */
+} ADI_SYS_STRUCT;
+
 /* alias for the actual device structure */
 typedef struct _ADI_I2C_DRIVER_STRUCT  ADI_I2C_DRIVER;
+
+/* alias for the actual device structure */
+typedef struct _ADI_SYS_STRUCT  ADI_SYS_REGISTERS;
 
 /* The amount of memory required by the application */
 #define DATA_MEM_SIZE (sizeof(ADI_I2C_DATA_STRUCT))

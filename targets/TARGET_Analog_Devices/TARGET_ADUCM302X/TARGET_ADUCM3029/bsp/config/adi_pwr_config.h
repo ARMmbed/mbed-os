@@ -5,7 +5,7 @@
              This is specific to the PWR service  and will be included by the srouce file.
              It is not required for the application to include this header file.
    @version: $Revision: 
-   @date:    $Date: 2016-02-08 14:17:03 +0000 (Mon, 08 Feb 2016) $
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2015 Analog Devices, Inc.
@@ -74,6 +74,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    To eliminate static driver configuration, set this macro to 0.*/
 
 #define ADI_PWR_CFG_ENABLE_STATIC_CONFIG_SUPPORT            0
+
+/*! Set this macro whenever GPIO is required as clock source so that 
+GPIO's pullup's are configured accordingly. */
 
 #define ADI_PWR_CFG_ENABLE_CLOCK_SOURCE_GPIO                0
 /*-------------------------------------------------------------------------------

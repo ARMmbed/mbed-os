@@ -4,8 +4,8 @@
    @brief:   Configuration options for ADC driver.
              This is specific to the ADC driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 33067 $
-   @date:    $Date: 2015-12-17 15:23:52 +0000 (Thu, 17 Dec 2015) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014-2016 Analog Devices, Inc.

@@ -1,12 +1,13 @@
 /*!
  *****************************************************************************
- * @file:    adi_adxl363.c
+ * @file:    adi_adxl363_def.h
  * @brief:   Driver  for acceleratometer adxl363
- * @version: $Revision: 33205 $
- * @date:    $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
+ *
  *----------------------------------------------------------------------------
  *
-Copyright (c) 2012-2014 Analog Devices, Inc.
+Copyright (c) 2012-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -52,6 +53,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define ADI_ADXL363_RESET_KEY           0x52u
 
+/* This macro is used to differentiate between FIFO read and register read */
+#define ADI_ADXL363_FIFO_READ           0xFFu
+
 /* Number of ADXL363 devices on the board */
 #define ADXL363_NUM_INSTANCES       (sizeof(gADXL363Dev)/sizeof(ADI_ADXL363_DEVICE))
 
@@ -85,25 +89,25 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef ADI_DEBUG
 
-#define ADXL363_REG_READ(RegAddr, pRegData)      \
-        if(RegisterAccess(pDevice, (RegAddr), (pRegData), true) != ADI_ADXL363_SUCCESS) \
+#define ADXL363_REG_READ(RegAddr, pRegData, nSize)      \
+        if(SPI_Read(pDevice->pDevInfo, (RegAddr), (pRegData), (nSize)) != ADI_ADXL363_SUCCESS) \
         {\
             return ADI_ADXL363_DEVICE_ACCESS_FAILED;\
         }
 
 #define ADXL363_REG_WRITE(RegAddr, pRegData)     \
-        if(RegisterAccess(pDevice, (RegAddr), (pRegData), false) != ADI_ADXL363_SUCCESS) \
+        if(SPI_Write(pDevice->pDevInfo, (RegAddr), (*(pRegData))) != ADI_ADXL363_SUCCESS) \
         { \
             return ADI_ADXL363_DEVICE_ACCESS_FAILED;\
         }
 
 #else
 
-#define ADXL363_REG_READ(RegAddr, pRegData)     \
-        RegisterAccess(pDevice, (RegAddr), (pRegData), true);
+#define ADXL363_REG_READ(RegAddr, pRegData, nSize)     \
+        SPI_Read(pDevice->pDevInfo, (RegAddr), (pRegData), (nSize));
 
 #define ADXL363_REG_WRITE(RegAddr, pRegData)     \
-        RegisterAccess(pDevice, (RegAddr), (pRegData), false);
+        SPI_Write(pDevice->pDevInfo, (RegAddr), (*(pRegData)));
 
 #endif /* ADI_DEBUG */
         
@@ -139,84 +143,93 @@ typedef enum
     ADI_ADXL363_IOMODE_NON_BLOCKING
 
 } ADI_ADXL363_IOMODE;
-/* Structure to hold the information regarding the SPI device configuration */
+
+/*! \struct adi_adxl363_SPI_Info 
+ *  Structure to hold the information regarding the SPI device configuration 
+ */
 typedef struct adi_adxl363_SPI_Info
 {
-    /* SPI Device number to be used for communicating with ADXL363 */
+    /*! SPI Device number to be used for communicating with ADXL363 */
     uint32_t                nDeviceNum;
 
-    /* Chip select number to address ADXL363 */
+    /*! Chip select number to address ADXL363 */
     ADI_SPI_CHIP_SELECT     eChipSelect;
 
-    /* SPI clock divide to get the required SPI clock rate */
+    /*! SPI clock divide to get the required SPI clock rate */
     uint32_t                nClkDiv;
 
-    /* SPI device handle */
+    /*! SPI device handle */
     ADI_SPI_HANDLE          hSPIDevice;
   
 }ADI_ADXL363_SPI_INFO;
 
-/* Structure to hold mapping between ADXL363 interrupt pin and host processor
- * GPIO pin. */
+/*! \struct adi_adxl363_GPIO_Info 
+ *  Structure to hold mapping between ADXL363 interrupt pin and host processor
+ *  GPIO pin. */
 typedef struct adi_adxl363_GPIO_Info
 {
-    /* Interrupt IRQ */
+    /*! Interrupt IRQ */
     IRQn_Type                eIRQType;
     
-    /* GPIO port to which the interrupt pin is connected */
+    /*! GPIO port to which the interrupt pin is connected */
     ADI_GPIO_PORT           ePort;
 
-    /* GPIO pin within the GPIO port */
+    /*! GPIO pin within the GPIO port */
     ADI_GPIO_DATA           nPin;
 
 }ADI_ADXL363_GPIO_INFO;
 
-/* Structure to hold the ADXL363 device related instance data. This structure
- * is defined using the memory passed by the application. */
+/*! \struct adi_adxl363_info
+ *   Structure to hold the ADXL363 device related instance data. This structure
+ *   is defined using the memory passed by the application. 
+ */
 typedef struct adi_adxl363_info
 {
-    /* Callback function pointer */
+    /*! Callback function pointer */
     ADI_CALLBACK            pfCallback;
 
-    /* Chip select number to address ADXL363 */
+    /*! Chip select number to address ADXL363 */
     ADI_SPI_CHIP_SELECT     eChipSelect;
 
-    /* SPI clock divide to get the required SPI clock rate */
+    /*! SPI clock divide to get the required SPI clock rate */
     uint32_t                nClkDiv;
 
-    /* SPI device handle */
+    /*! SPI device handle */
     ADI_SPI_HANDLE          hSPIDevice;
 
-    /* Callback parameter */
+    /*! Callback parameter */
     void *                  pCBParam;
 
-    /* GPIO pin connection information for Interrupt pin 1 and 2 */
+    /*! GPIO pin connection information for Interrupt pin 1 and 2 */
     ADI_ADXL363_GPIO_INFO   IntGPIOInfo[ADXL363_NUM_INT_PIN];
 
 } ADI_ADXL363_INFO;
 
 
-/* ADXL363 device instance data */
+/*! \struct adi_adxl363_device 
+ *  ADXL363 device instance data 
+ */
 typedef struct adi_adxl363_device
 {
-    /* State of the driver */
+    /*! State of the driver */
     ADI_ADXL363_STATE   eState;
 
-    /* Pointer to the device instance information */
+    /*! Pointer to the device instance information */
     ADI_ADXL363_INFO    *pDevInfo;
 
 } ADI_ADXL363_DEVICE;
 
+/*! \struct adi_adxl363_device_config 
+ *  ADXL363 device Configuration 
+ */
 typedef struct adi_adxl363_device_config
 {
-    /* State of the driver */
+    /*! State of the driver */
     uint8_t nAddress;
 
-    /* Pointer to the device instance information */
+    /*! Pointer to the device instance information */
     uint8_t nData;
 
 } ADI_ADXL363_DEVICE_CONFIG;
 
-
-/*! \endcond */
 #endif /* _ADI_ADXL363_REG_H_ */

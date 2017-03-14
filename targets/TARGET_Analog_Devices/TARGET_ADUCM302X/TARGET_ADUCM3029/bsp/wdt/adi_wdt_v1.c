@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file:    adi_wdt_v1.c
  * @brief:   WDT Device Definitions for ADuC302x
- * @version: $Revision: 33290 $
- * @date:    $Date: 2016-01-19 14:11:48 +0000 (Tue, 19 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

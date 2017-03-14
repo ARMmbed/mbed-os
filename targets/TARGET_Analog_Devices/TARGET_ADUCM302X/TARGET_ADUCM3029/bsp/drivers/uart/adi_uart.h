@@ -8,6 +8,7 @@
  *           This included file will be  containing  UART device  driver functions.
  * @version $Revision:
  * @date    $Date:
+ *
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2014 Analog Devices, Inc.
 

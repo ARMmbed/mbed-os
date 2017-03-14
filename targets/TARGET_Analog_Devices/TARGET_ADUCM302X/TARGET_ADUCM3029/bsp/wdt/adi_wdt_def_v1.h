@@ -2,8 +2,8 @@
 /*! *****************************************************************************
  * @file:    adi_wdt_def_v1.h
  * @brief:   WDT Device Driver definition
- * @version: $Revision: 29156 $
- * @date:    $Date: 2014-12-11 09:55:14 +0000 (Thu, 11 Dec 2014) $
+ * @version: $Revision$
+ * @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2014 Analog Devices, Inc.
 

@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_tmr_data_v1.c
  * @brief:   Power Management service implementation
- * @version: $Revision: 35141 $
- * @date:    $Date: 2016-07-26 07:29:43 +0100 (Tue, 26 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.

@@ -2,10 +2,10 @@
  *****************************************************************************
  * @file:    adi_spi_def_v1.h
  * @brief:   SPORT Device Driver definition 
- * @version: $Revision: 35856 $
- * @date:    $Date: 2016-11-18 04:50:04 +0000 (Fri, 18 Nov 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *****************************************************************************
-Copyright (c) 2010-2014 Analog Devices, Inc.
+Copyright (c) 2010-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -51,6 +51,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*! \cond PRIVATE */
 #define ADI_INTERRUPT_MASK 0X5F07u
+#define ADI_INT_CALLBACK_MASK 0xF09Eu
 
 #define ADI_SPI_NUM_INSTANCES         3u
 
@@ -143,7 +144,7 @@ typedef struct {
  *
  * SPI driver state.  Used for internal tracking of the SPI device initialization
  * progress during the adi_SPI_Init() and adi_SPI_SlaveInit() functions.  Also
- * used to insure the SPI device has been properly initialized as a prerequisite
+ * used to ensure the SPI device has been properly initialized as a prerequisite
  * to using the balance of the SPI API.
  *
  *****************************************************************************/
@@ -153,23 +154,23 @@ typedef enum
     ADI_SPI_STATE_INITIALIZING,            /*!< SPI initialization is in progress. */
     ADI_SPI_STATE_MASTER,                  /*!< SPI initialization is complete.    */
     ADI_SPI_STATE_SLAVE                    /*!< SPI initialization is complete.    */
-} ADI_SPI_DECICE_STATE;
+} ADI_SPI_DEVICE_STATE;
 
 /*!
  *****************************************************************************
- * SPORT Configuration structure.
+ * SPI Configuration structure.
  *****************************************************************************/
 typedef struct ADI_SPI_CONFIG
 {
-    uint16_t SPI_CTL;                          /*!< SPORT_CTL register configuration. */
-    uint16_t SPI_DIV;                          /*!< SPORT_DIV  register.     */
+    uint16_t SPI_CTL;                          /*!< SPI_CTL  register configuration. */
+    uint16_t SPI_DIV;                          /*!< SPI_DIV  register.     */
 } ADI_SPI_CFG_TYPE;
 
 /*! SPI device information */
 
 typedef struct __ADI_SPI_DEVICE_INFO
 {
-    ADI_SPI_DECICE_STATE         eState;          /*  To indicate the state of the device */
+    ADI_SPI_DEVICE_STATE         eState;          /*  To indicate the state of the device */
     const ADI_DMA_CHANNEL_ID     eDMAChnlTxID;    /*  DMA channel ID-Tx */
     const ADI_DMA_CHANNEL_ID     eDMAChnlRxID;    /*  DMA channel ID-Rx */    
     volatile ADI_SPI_TypeDef     *pSpiRegs;       /*  Base address of the  SPI registers */
@@ -185,7 +186,7 @@ typedef struct __ADI_SPI_DEV_DATA_TYPE
 {
 
     /* device attributes */
-    ADI_SPI_DECICE_STATE     eDevState;        /*!< track initialization state */
+    ADI_SPI_DEVICE_STATE     eDevState;        /*!< track initialization state */
     volatile ADI_SPI_TypeDef*         pSpi;             /*!< track MMR device pointer   */
     ADI_SPI_DEVICE_INFO      *pDevInfo;
     bool_t                   bDmaMode;            /*!< DMA mode flag              */

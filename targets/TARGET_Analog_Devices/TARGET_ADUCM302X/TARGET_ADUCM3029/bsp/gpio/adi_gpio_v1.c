@@ -2,8 +2,8 @@
  *****************************************************************************
    @file:    adi_gpio_v1.c
    @brief:   GPIO device driver implementation for ADuC302X
-   @version: $Revision: 33431 $
-   @date:    $Date: 2016-02-05 06:29:28 +0000 (Fri, 05 Feb 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014-2015 Analog Devices, Inc.
@@ -1679,31 +1679,17 @@ static void CommonInterruptHandler(const ADI_GPIO_IRQ_INDEX index, const IRQn_Ty
 
     ADI_GPIO_CALLBACK_INFO *pCallbackInfo = &adi_gpio_Device.pData->CallbackTable[index];
 
-    /* clear the external interrupts */
-    if((SYS_GPIO_INTA_IRQn != eIrq) && (SYS_GPIO_INTB_IRQn != eIrq))
-    {
-        pADI_XINT0->CLR = (uint32_t)1u << (eIrq - XINT_EVT0_IRQn);
-         
-        /* params list is: application-registered cbParam, interrupt ID, and NULL */
-        if(pCallbackInfo->pfCallback)
-        {
-            /* TODO: Check if we need to pass interrupt status also here */
-            pCallbackInfo->pfCallback (pCallbackInfo->pCBParam, (uint32_t) eIrq, NULL);
-        }
-    }
-    else
-    {
         /* Loop over all the ports. */
         for(Port=ADI_GPIO_PORT0; Port<ADI_GPIO_NUM_PORTS; Port++)
         {
             pPort = adi_gpio_Device.pReg[Port];
 
-            /* Is the interrupt is for GROUP A */
+            /* Is the interrupt for GROUP A */
             if(SYS_GPIO_INTA_IRQn == eIrq)
             {
                 nIntEnabledPins =  pPort->IENA;
             }
-            else  /* Is the interrupt is for GROUP B */
+            else  /* Is the interrupt for GROUP B */
             {
                 nIntEnabledPins =  pPort->IENB;
             }
@@ -1722,7 +1708,6 @@ static void CommonInterruptHandler(const ADI_GPIO_IRQ_INDEX index, const IRQn_Ty
                 /* Nothong to do */
             }
         }
-    }
 }
 
 
@@ -1730,21 +1715,58 @@ static void CommonInterruptHandler(const ADI_GPIO_IRQ_INDEX index, const IRQn_Ty
 ADI_INT_HANDLER(Ext_Int0_Handler)
 {
     ISR_PROLOG();
-    CommonInterruptHandler(ADI_GPIO_IRQ_EXT0_INDEX, XINT_EVT0_IRQn);
+    
+    /* Write 1 to Clear External interrupt0 */
+    pADI_XINT0->CLR = BITM_XINT_CLR_IRQ0;
+    
+    ADI_GPIO_CALLBACK_INFO *pCallbackInfo = &adi_gpio_Device.pData->CallbackTable[ADI_GPIO_IRQ_EXT0_INDEX];
+         
+    /* params list is: application-registered cbParam, interrupt ID, and NULL */
+    if(pCallbackInfo->pfCallback)
+    {
+        /* TODO: Check if we need to pass interrupt status also here */
+        pCallbackInfo->pfCallback (pCallbackInfo->pCBParam,(uint32_t)XINT_EVT0_IRQn, NULL);
+    }
+        
     ISR_EPILOG();      
 }
 
 ADI_INT_HANDLER(Ext_Int1_Handler)
 {
     ISR_PROLOG();
-    CommonInterruptHandler(ADI_GPIO_IRQ_EXT1_INDEX, XINT_EVT1_IRQn);
+    
+    /* Write 1 to Clear External interrupt1 */
+    pADI_XINT0->CLR = BITM_XINT_CLR_IRQ1;
+    
+    ADI_GPIO_CALLBACK_INFO *pCallbackInfo = &adi_gpio_Device.pData->CallbackTable[ADI_GPIO_IRQ_EXT1_INDEX];
+    
+    /* params list is: application-registered cbParam, interrupt ID, and NULL */
+    if(pCallbackInfo->pfCallback)
+    {
+        /* TODO: Check if we need to pass interrupt status also here */
+        pCallbackInfo->pfCallback (pCallbackInfo->pCBParam,(uint32_t)XINT_EVT1_IRQn, NULL);
+    }
+    
     ISR_EPILOG();    
 }
 
 ADI_INT_HANDLER(Ext_Int2_Handler)
 {
+  
     ISR_PROLOG();
-    CommonInterruptHandler(ADI_GPIO_IRQ_EXT2_INDEX, XINT_EVT2_IRQn);
+    
+    /* Write 1 to Clear External interrupt2 */
+    pADI_XINT0->CLR = BITM_XINT_CLR_IRQ2;
+    
+    ADI_GPIO_CALLBACK_INFO *pCallbackInfo = &adi_gpio_Device.pData->CallbackTable[ADI_GPIO_IRQ_EXT2_INDEX];
+    
+    /* params list is: application-registered cbParam, interrupt ID, and NULL */
+    if(pCallbackInfo->pfCallback)
+    {
+        /* TODO: Check if we need to pass interrupt status also here */
+        pCallbackInfo->pfCallback (pCallbackInfo->pCBParam,(uint32_t)XINT_EVT2_IRQn, NULL);
+    }
+  
     ISR_EPILOG();    
     
 }
@@ -1762,11 +1784,13 @@ ADI_INT_HANDLER(Ext_Int3_Handler)
          nEvent |=ADI_GPIO_EVENT_UART_ACTIVITY;
          nEventFlag =BITM_XINT_CLR_UART_RX_CLR;
      }
-     if(pCallbackInfo->pfCallback)
-    {
-        pCallbackInfo->pfCallback (pCallbackInfo->pCBParam, (uint32_t)nEvent, NULL);
-    }
      pADI_XINT0->CLR |= (nEventFlag | BITM_XINT_CLR_IRQ3);
+
+     if(pCallbackInfo->pfCallback)
+     {
+        pCallbackInfo->pfCallback (pCallbackInfo->pCBParam, (uint32_t)nEvent, NULL);
+     }
+     
      
     ISR_EPILOG();    
 

@@ -5,7 +5,7 @@
              This is specific to the UART driver and will be included by the driver.
              It is not required for the application to include this header file.
    @version: $Revision: 
-   @date:    $Date: 2016-07-05 05:49:46 +0100 (Tue, 05 Jul 2016) $
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

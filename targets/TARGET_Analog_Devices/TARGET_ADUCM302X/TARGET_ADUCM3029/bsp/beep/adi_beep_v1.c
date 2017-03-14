@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_beep_v1.c
  * @brief:   Beeper Device Implementations for ADuC302X
- * @version: $Revision: 33333 $
- * @date:    $Date: 2016-01-22 16:39:48 +0000 (Fri, 22 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *----------------------------------------------------------------------------
  *
 Copyright (c) 2014-2015 Analog Devices, Inc.

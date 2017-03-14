@@ -2,11 +2,11 @@
 *****************************************************************************
  * @file:    ADuCM3029_device.h
  * @brief:   ADuCM3029 C Register Definitions
- * @version: $Revision: 34985 $
- * @date:    $Date: 2016-06-30 07:33:47 +0100 (Thu, 30 Jun 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2015-2016 Analog Devices, Inc.
+Copyright (c) 2015-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -60,12 +60,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma diag_suppress=Pm093
 #endif /* __ICCARM__ */
 
-/* UART struct definition needs to be redefined with backward compatibility names. */
+/* UART and RTC structs need to be redefined with backward compatibility names. */
 #define __ADI_NO_DECL_STRUCT_ADI_UART_TypeDef__
-
-/* Suppress struct definitions with incorrectly signed fields. */
-#define __ADI_NO_DECL_STRUCT_ADI_FLCC_TypeDef__
-#define __ADI_NO_DECL_STRUCT_ADI_FLCC_CACHE_TypeDef__
+#define __ADI_NO_DECL_STRUCT_ADI_RTC_TypeDef__
 
 /* The generated header. */
 #include <sys/ADuCM302x_device.h>
@@ -170,38 +167,92 @@ typedef struct _ADI_UART_TypeDef
     };
 } ADI_UART_TypeDef;
 
-/* Correctly define the structs suppressed above. */
-typedef struct _ADI_FLCC_TypeDef
-{
-    __IO     uint32_t STAT;                          /*!< Status */
-    __IO     uint32_t IEN;                           /*!< Interrupt Enable */
-    __IO     uint32_t CMD;                           /*!< Command */
-    __IO     uint32_t KH_ADDR;                       /*!< WRITE Address */
-    __IO     uint32_t KH_DATA0;                      /*!< WRITE Lower Data */
-    __IO     uint32_t KH_DATA1;                      /*!< WRITE Upper Data */
-    __IO     uint32_t PAGE_ADDR0;                    /*!< Lower Page Address */
-    __IO     uint32_t PAGE_ADDR1;                    /*!< Upper Page Address */
-    __O      uint32_t KEY;                           /*!< Key */
-    __I __C  uint32_t WR_ABORT_ADDR;                 /*!< Write Abort Address */
-    __IO     uint32_t WRPROT;                        /*!< Write Protection */
-    __I __C  uint32_t SIGNATURE;                     /*!< Signature */
-    __IO     uint32_t UCFG;                          /*!< User Configuration */
-    __IO     uint32_t TIME_PARAM0;                   /*!< Time Parameter 0 */
-    __IO     uint32_t TIME_PARAM1;                   /*!< Time parameter 1 */
-    __IO     uint32_t ABORT_EN_LO;                   /*!< IRQ Abort Enable (lower bits) */
-    __IO     uint32_t ABORT_EN_HI;                   /*!< IRQ Abort Enable (upper bits) */
-    __IO     uint32_t ECC_CFG;                       /*!< ECC Config */
-    __I __C  uint32_t ECC_ADDR;                      /*!< ECC Status (Address) */
-    __I __C  uint8_t  RESERVED0[9];
-} ADI_FLCC_TypeDef;
 
-typedef struct _ADI_FLCC_CACHE_TypeDef
+typedef struct _ADI_RTC_TypeDef
 {
-    __I __C  uint32_t STAT;                          /*!< Cache Status register */
-    __IO     uint32_t SETUP;                         /*!< Cache Setup register */
-    __O      uint32_t KEY;                           /*!< Cache Key register */
-    __I __C  uint8_t  RESERVED0[37];
-} ADI_FLCC_CACHE_TypeDef;
+    __IO     uint16_t   CR0;                           /*!< RTC Control 0 */
+    __I __C  uint8_t  RESERVED0[2];
+    __IO     uint16_t   SR0;                           /*!< RTC Status 0 */
+    __I __C  uint8_t  RESERVED1[2];
+    __I __C  uint16_t   SR1;                           /*!< RTC Status 1 */
+    __I __C  uint8_t  RESERVED2[2];
+    __IO     uint16_t   CNT0;                          /*!< RTC Count 0 */
+    __I __C  uint8_t  RESERVED3[2];
+    __IO     uint16_t   CNT1;                          /*!< RTC Count 1 */
+    __I __C  uint8_t  RESERVED4[2];
+    __IO     uint16_t   ALM0;                          /*!< RTC Alarm 0 */
+    __I __C  uint8_t  RESERVED5[2];
+    __IO     uint16_t   ALM1;                          /*!< RTC Alarm 1 */
+    __I __C  uint8_t  RESERVED6[2];
+    __IO     uint16_t   TRM;                           /*!< RTC Trim */
+    __I __C  uint8_t  RESERVED7[2];
+    __O      uint16_t   GWY;                           /*!< RTC Gateway */
+    __I __C  uint8_t  RESERVED8[6];
+    __IO     uint16_t   CR1;                           /*!< RTC Control 1 */
+    __I __C  uint8_t  RESERVED9[2];
+    __IO     uint16_t   SR2;                           /*!< RTC Status 2 */
+    __I __C  uint8_t  RESERVED10[2];
+    __I __C  uint16_t   SNAP0;                         /*!< RTC Snapshot 0 */
+    __I __C  uint8_t  RESERVED11[2];
+    __I __C  uint16_t   SNAP1;                         /*!< RTC Snapshot 1 */
+    __I __C  uint8_t  RESERVED12[2];
+    __I __C  uint16_t   SNAP2;                         /*!< RTC Snapshot 2 */
+    __I __C  uint8_t  RESERVED13[2];
+    __I __C  uint16_t   MOD;                           /*!< RTC Modulo */
+    __I __C  uint8_t  RESERVED14[2];
+    __I __C  uint16_t   CNT2;                          /*!< RTC Count 2 */
+    __I __C  uint8_t  RESERVED15[2];
+    __IO     uint16_t   ALM2;                          /*!< RTC Alarm 2 */
+    __I __C  uint8_t  RESERVED16[2];
+    __IO     uint16_t   SR3;                           /*!< RTC Status 3 */
+    __I __C  uint8_t  RESERVED17[2];
+    __IO     uint16_t   CR2IC;                         /*!< RTC Control 2 for Configuring Input Capture Channels */
+    __I __C  uint8_t  RESERVED18[2];
+    union {
+    __IO     uint16_t   CR3SS;                         /*!< RTC Control 3 for Configuring SensorStrobe Channel */
+    __IO     uint16_t   CR3OC;
+    };
+    __I __C  uint8_t  RESERVED19[2];
+    union {
+    __IO     uint16_t   CR4SS;                         /*!< RTC Control 4 for Configuring SensorStrobe Channel */
+    __IO     uint16_t   CR4OC;
+    };
+    __I __C  uint8_t  RESERVED20[2];
+    union {
+    __IO     uint16_t   SSMSK;                         /*!< RTC Mask for SensorStrobe Channel */
+    __IO     uint16_t   OCMSK;
+    };
+    __I __C  uint8_t  RESERVED21[2];
+    union {
+    __IO     uint16_t   SS1ARL;                        /*!< RTC Auto-Reload for SensorStrobe Channel 1 */
+    __IO     uint16_t   OC1ARL;
+    };
+    __I __C  uint8_t  RESERVED22[6];
+    __I __C  uint16_t   IC2;                           /*!< RTC Input Capture Channel 2 */
+    __I __C  uint8_t  RESERVED23[2];
+    __I __C  uint16_t   IC3;                           /*!< RTC Input Capture Channel 3 */
+    __I __C  uint8_t  RESERVED24[2];
+    __I __C  uint16_t   IC4;                           /*!< RTC Input Capture Channel 4 */
+    __I __C  uint8_t  RESERVED25[2];
+    union {
+    __IO     uint16_t   SS1;                           /*!< RTC SensorStrobe Channel 1 */
+    __IO     uint16_t   OC1;
+    };
+    __I __C  uint8_t  RESERVED26[14];
+    __I __C  uint16_t   SR4;                           /*!< RTC Status 4 */
+    __I __C  uint8_t  RESERVED27[2];
+    __I __C  uint16_t   SR5;                           /*!< RTC Status 5 */
+    __I __C  uint8_t  RESERVED28[2];
+    __I __C  uint16_t   SR6;                           /*!< RTC Status 6 */
+    __I __C  uint8_t  RESERVED29[2];
+    union {
+    __I __C  uint16_t   SS1TGT;                        /*!< RTC SensorStrobe Channel 1 Target */
+    __I __C  uint16_t   OC1TGT;
+    };
+    __I __C  uint8_t  RESERVED30[2];
+    __I __C  uint16_t   FRZCNT;                        /*!< RTC Freeze Count */
+} ADI_RTC_TypeDef;
+
 
 #ifdef __ICCARM__
 #pragma diag_default=Pm093

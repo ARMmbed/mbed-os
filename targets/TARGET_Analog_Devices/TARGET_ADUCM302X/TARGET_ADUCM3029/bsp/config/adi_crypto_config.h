@@ -4,8 +4,8 @@
    @brief:   Configuration options for Crypto driver.
              This is specific to the Crypto driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 32834 $
-   @date:    $Date: 2015-11-27 15:14:57 +0000 (Fri, 27 Nov 2015) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

@@ -2,8 +2,8 @@
  *****************************************************************************
    @file:    adi_gpio_v1.h
    @brief:   GPIO definitions and API for ADuC302X
-   @version: $Revision: 33431 $
-   @date:    $Date: 2016-02-05 06:29:28 +0000 (Fri, 05 Feb 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

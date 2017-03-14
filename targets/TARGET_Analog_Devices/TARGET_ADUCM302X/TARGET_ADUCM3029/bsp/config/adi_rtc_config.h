@@ -4,8 +4,8 @@
    @brief:   Configuration options for Real Time Clock  device  driver.
              This is specific to the RTC driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 33005 $
-   @date:    $Date: 2015-12-12 15:43:13 +0000 (Sat, 12 Dec 2015) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2012-2014 Analog Devices, Inc.

@@ -4,8 +4,8 @@
    @brief:   Configuration options for WDT driver.
              This is specific to the WDT driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 29360 $
-   @date:    $Date: 2014-12-23 15:28:37 +0000 (Tue, 23 Dec 2014) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

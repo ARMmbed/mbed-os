@@ -6,6 +6,7 @@
  * @brief   Main include file for ADC Device driver definitions
  * @version $Revision:
  * @date    $Date:
+ *
  -----------------------------------------------------------------------------
 Copyright (c) 2015-2016 Analog Devices, Inc.
 

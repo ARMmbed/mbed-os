@@ -2,11 +2,11 @@
  *****************************************************************************
  * @file:    adi_adxl363.c
  * @brief:   Driver  for acceleratometer adxl363
- * @version: $Revision: 33290 $
- * @date:    $Date: 2016-01-19 14:11:48 +0000 (Tue, 19 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *----------------------------------------------------------------------------
  *
-Copyright (c) 2012-2015 Analog Devices, Inc.
+Copyright (c) 2012-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -102,15 +102,6 @@ static ADI_ADXL363_DEVICE    gADXL363Dev[] =
 /***************************************************************************
   Local function declaration
  ***************************************************************************/
-
-/* Function to read/write a register */
-static ADI_ADXL363_RESULT RegisterAccess (
-    ADI_ADXL363_DEVICE      *pDevice,
-    uint8_t                  RegAddr,
-    uint8_t                 *pRegData,
-    bool_t                   bRead
-);
-
 /* Callback function for interrupt pin 1 */
 static void ADXL363Callback1(
     void                   *pCBParam,
@@ -130,7 +121,7 @@ static ADI_ADXL363_RESULT SPI_Read(
     ADI_ADXL363_INFO     *pDevInfo,
     uint8_t               RegAddr,
     uint8_t              *pBuffer,
-    uint32_t              nSize
+    uint16_t               nSize
 );
 
 /* Function to write the data using SPI interface. Assumes single register write */
@@ -461,8 +452,6 @@ ADI_ADXL363_RESULT adi_adxl363_Enable(
     /* POWER_CTL register contents */
     uint8_t                 PwrCtlData = 0u;
 
-    /* INT_ENABLE register contents */
-    uint8_t                 IntEnableData;
 
     /* Pointer to device instance information */
     ADI_ADXL363_INFO        *pDevInfo;
@@ -497,7 +486,7 @@ ADI_ADXL363_RESULT adi_adxl363_Enable(
     pDevInfo = pDevice->pDevInfo;
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PwrCtlData, 1u)
 
     if(bEnable == true)
     {
@@ -507,7 +496,7 @@ ADI_ADXL363_RESULT adi_adxl363_Enable(
         ADI_GPIO_IRQ_TRIGGER_CONDITION          eSense;
 
         /* Read the contents of the Data format register */
-        ADXL363_REG_READ(ADI_ADXL363_INT1_MAP, &DataFormat)
+        ADXL363_REG_READ(ADI_ADXL363_INT1_MAP, &DataFormat, 1u)
 
         /* Choose the GPIO sensing based on the interrupt polarity */
         eSense = ((DataFormat & BITM_ADXL363_INT_LOW) != 0u) ? \
@@ -528,20 +517,9 @@ ADI_ADXL363_RESULT adi_adxl363_Enable(
         {
             return ADI_ADXL363_GPIO_FAILED;
         }
-        /* Read Interrupt enable register contents */
-        ADXL363_REG_READ(ADI_ADXL363_INT1_MAP, &IntEnableData)
-
-        /* Enable the Data Ready interrupt */
-        IntEnableData   |=  BITM_ADXL363_INT_DATA_READY;
-
-        /* Write back the contents of Interrupt enable register */
-        /* ADXL363_REG_WRITE(ADI_ADXL363_INT1_MAP, &IntEnableData) */
 
         /* Set the Measure bit to enable measurement */
         PwrCtlData |= 2u;
-        /*
-         * Enable the DATA_READY interrupt
-         */
 
         /* Change the state to measuring */
         pDevice->eState     =   ADI_ADXL363_STATE_MEASURING;
@@ -615,7 +593,7 @@ ADI_ADXL363_RESULT adi_adxl363_Read (
 
     ADI_ADXL363_HANDLE  const       hDevice,
     void *const                     pBuffer,
-    uint32_t const                  nSize
+    uint16_t const                  nSize
 )
 {
     /* Pointer to the ADXL363 Device data */
@@ -649,6 +627,100 @@ ADI_ADXL363_RESULT adi_adxl363_Read (
                             ADI_ADXL363_DATAX_L,
                             pBuffer,
                             nSize) != ADI_ADXL363_SUCCESS)
+    {
+        eResult =  ADI_ADXL363_SPI_DEV_FAILED;
+    }
+    return eResult;
+}
+
+/**
+ * @brief       Reads the accelerator output FIFO samples in blocking mode.
+ *
+ * @details     This is a blocking read call to get back the accelerator output
+ *              FIFO samples.
+ *
+ *              This API should be called only once an event indicating that the
+ *              data is ready to be read is notified. Otherwise there may be a
+ *              chance of reading old data. Please follow the documentation of
+ *              #ADI_ADXL363_EVENT documentation to know which events can be
+ *              used to determine the availability of data.
+ *
+ *              It is recommended that the accelerator output to be read in
+ *              terms of triplets (data corresponding to x, y, z axis). As each
+ *              sample is 16bit width,the size of the buffer should be multiple of
+ *              6 bytes.It is also possible to read 2 bytes of temperature values  
+ *              along with x, y, z axis values 
+ *
+ *              If any peripheral errors are detected this API returns immediately
+ *              with an error ADI_ADXL363_HW_ERROR, and the buffer may be only
+ *              filled partially. Additional details about the error can be
+ *              obtained using adi_adxl363_GetLastHWError.
+ *
+ * @param [in]  hDevice             Handle to ADXL363 device from which the buffer
+ *                                  to be obtained.
+ * @param [in]  pBuffer             Pointer to the buffer where output FIFO samples
+ *                                  are written.
+ * @param [in]  nSize               Size of the given buffer in bytes.
+ *
+ * @return      Status
+ *
+ *  - #ADI_ADXL363_SUCCESS                  If successfully read the data.
+ *
+ *  - #ADI_ADXL363_INVALID_HANDLE       [D] If the given ADXL363 device handle is
+ *                                          invalid.
+ *
+ *  - #ADI_ADXL363_DEVICE_NOT_OPENED    [D] If the given device is not yet opened.
+ *
+ *  - #ADI_ADXL363_DEVICE_ACCESS_FAILED [D] If failed to read/write device registers.
+ *
+ *  - #ADI_ADXL363_INVALID_OPERATION    [D] If trying to read data when measurement
+ *                                          is not enabled.
+ *
+ *  - #ADI_ADXL363_PENDING_IO           [D] If trying to perform a read when
+ *                                          another input/output operation is
+ *                                          in progress.
+ *
+ *  - #ADI_ADXL363_SPI_DEV_FAILED          If communication device related
+ *                                          failure occurs.
+ */
+ADI_ADXL363_RESULT adi_adxl363_FIFORead (
+
+    ADI_ADXL363_HANDLE  const       hDevice,
+    void *const                     pBuffer,
+    uint16_t const                  nSize
+)
+{
+    /* Pointer to the ADXL363 Device data */
+    ADI_ADXL363_DEVICE      *pDevice = (ADI_ADXL363_DEVICE *) hDevice;
+
+    /* ADXL363 result code */
+    ADI_ADXL363_RESULT      eResult = ADI_ADXL363_SUCCESS;
+
+    /* Pointer to device instance information */
+    ADI_ADXL363_INFO        *pDevInfo;
+
+
+#ifdef ADI_DEBUG
+
+    /* Validate the given device handle */
+    if((eResult = ValidateHandle(pDevice)) != ADI_ADXL363_SUCCESS)
+    {
+        return eResult;
+    }
+
+    /* Check if measurement is enabled when trying to read the data. */
+    if(pDevice->eState != ADI_ADXL363_STATE_MEASURING)
+    {
+        return ADI_ADXL363_INVALID_OPERATION;
+    }
+#endif /* ADI_DEBUG */
+
+    pDevInfo = pDevice->pDevInfo;
+    /* Perform device read */
+    if(SPI_Read (pDevInfo,
+    ADI_ADXL363_FIFO_READ,
+                  pBuffer,
+                    nSize) != ADI_ADXL363_SUCCESS)
     {
         eResult =  ADI_ADXL363_SPI_DEV_FAILED;
     }
@@ -714,7 +786,7 @@ ADI_ADXL363_RESULT adi_adxl363_SetDataRate (
 #endif /* ADI_DEBUG */
 
     /* Read the contents of BW_RATE register */
-    ADXL363_REG_READ(ADI_ADXL363_FILTER_CTL, &BWRateData)
+    ADXL363_REG_READ(ADI_ADXL363_FILTER_CTL, &BWRateData, 1u)
 
     /* Clear the existing data rate */
     BWRateData &=   ~(BITM_ADXL363_ODR);
@@ -801,7 +873,7 @@ ADI_ADXL363_RESULT adi_adxl363_ConfigActivity (
     ADXL363_REG_WRITE(ADI_ADXL363_THRESH_ACT_H, &nTemp)
 
     ADXL363_REG_WRITE(ADI_ADXL363_TIME_ACT, &nTime)
-    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &nTemp)
+    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &nTemp, 1u)
     nTemp = nTemp | (uint8_t)((uint8_t)eMode << BITP_ADXL363_ACT_REF);
     ADXL363_REG_WRITE(ADI_ADXL363_ACT_INACT_CTL, &nTemp)
 
@@ -875,7 +947,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableActivity(
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &PwrCtlData, 1u)
 
     if(bEnable == true)
     {
@@ -974,7 +1046,7 @@ ADI_ADXL363_RESULT adi_adxl363_ConfigInactivity (
     nTemp = (uint8_t)(nThreshold >> 8);
     ADXL363_REG_WRITE(ADI_ADXL363_TIME_INACT_H, &nTemp)
 
-    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &nTemp)
+    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &nTemp, 1u)
     nTemp = nTemp | (uint8_t)((uint8_t)eMode << BITP_ADXL363_INACT_REF);
     ADXL363_REG_WRITE(ADI_ADXL363_ACT_INACT_CTL, &nTemp)
 
@@ -1049,7 +1121,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableInactivity(
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &PwrCtlData, 1u)
 
     if(bEnable == true)
     {
@@ -1139,7 +1211,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableWakeUp(
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PwrCtlData, 1u)
 
     if(bEnable == true)
     {
@@ -1226,7 +1298,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableAutoSleep(
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PwrCtlData, 1u)
 
     if(bEnable == true)
     {
@@ -1248,7 +1320,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableAutoSleep(
  * @brief       Select the antialiasing filter.
  *
  * @details     The user can set this antialiasing filter to a bandwidth
- *              that is at1/2 the output data rate or � the output data rate.
+ *              that is at1/2 the output data rate or ? the output data rate.
  *              Setting the antialiasing filter pole to 1/4 of the output data
  *              rate provides less aggressive antialiasing filtering,
  *              but maximizes bandwidth and is adequate for most applications.
@@ -1305,7 +1377,7 @@ ADI_ADXL363_RESULT adi_adxl363_SetFilterBandWidth(
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_FILTER_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_FILTER_CTL, &PwrCtlData, 1u)
     /* Clear the Measure bit to put the part into standby mode */
     PwrCtlData &=  ~(BITM_ADXL363_HALF_BW_EN);
     PwrCtlData |= eBandWidth;
@@ -1365,7 +1437,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableTemperatureFIFO(
     }
 
     /* Check if measurement is already enabled when trying to enable it */
-    if((bEnable == true) )
+    if((bEnable == true) && (pDevice->eState == ADI_ADXL363_STATE_MEASURING))
     {
         return ADI_ADXL363_INVALID_OPERATION;
     }
@@ -1376,13 +1448,11 @@ ADI_ADXL363_RESULT adi_adxl363_EnableTemperatureFIFO(
         return ADI_ADXL363_INVALID_OPERATION;
     }
 
-    /* Check if any device state validation is required before enabling */
-
 #endif /* ADI_DEBUG */
 
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &PwrCtlData, 1u)
 
     if(bEnable == true)
     {
@@ -1459,7 +1529,7 @@ ADI_ADXL363_RESULT adi_adxl363_SetRange(
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_FILTER_CTL, &PwrCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_FILTER_CTL, &PwrCtlData, 1u)
     PwrCtlData &= ~(BITM_ADXL363_RANGE);
     PwrCtlData |= eRange;
     ADXL363_REG_WRITE(ADI_ADXL363_FILTER_CTL, &PwrCtlData)
@@ -1507,15 +1577,13 @@ ADI_ADXL363_RESULT adi_adxl363_GetTemperature(
         return ADI_ADXL363_INVALID_OPERATION;
     }
 
-    /* Check if any device state validation is required before enabling */
-
 #endif /* ADI_DEBUG */
 
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_TEMP_DATA_H, &ndata)
+    ADXL363_REG_READ(ADI_ADXL363_TEMP_DATA_H, &ndata, 1u)
      *nPdata =  (uint16_t)((uint16_t)ndata << 8u);
     /* Get the current contents of power control register */
-    ADXL363_REG_READ(ADI_ADXL363_TEMP_DATA_L, &ndata)
+    ADXL363_REG_READ(ADI_ADXL363_TEMP_DATA_L, &ndata, 1u)
     *nPdata |= ndata;
     return ADI_ADXL363_SUCCESS;
 }
@@ -1572,7 +1640,7 @@ ADI_ADXL363_RESULT adi_adxl363_ActInactMode (
 #endif /* ADI_DEBUG */
 
     /* Read the contents of Power control register */
-    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PowerCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &PowerCtlData, 1u)
     PowerCtlData |= eMode;
     /* Write back the Power control register contents */
     ADXL363_REG_WRITE(ADI_ADXL363_POWER_CTL, &PowerCtlData)
@@ -1647,7 +1715,7 @@ ADI_ADXL363_RESULT adi_adxl363_SetIntPolarity (
 #endif /* ADI_DEBUG */
 
     /* Read the contents of the Data format register */
-    ADXL363_REG_READ(ADI_ADXL363_INT1_MAP+eIntPin, &nIntPolarity)
+    ADXL363_REG_READ(ADI_ADXL363_INT1_MAP+eIntPin, &nIntPolarity, 1u)
 
     /* Set the given polarity */
     if(bActiveLow == true)
@@ -1780,7 +1848,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableSelfTest (
 #endif /* ADI_DEBUG */
 
     /* Read the contents of the Data format register */
-    ADXL363_REG_READ(ADI_ADXL363_SELF_TEST, &DataFormat)
+    ADXL363_REG_READ(ADI_ADXL363_SELF_TEST, &DataFormat, 1u)
 
     /* Enable or disable self test mode */
     if(bEnable == true)
@@ -1793,7 +1861,7 @@ ADI_ADXL363_RESULT adi_adxl363_EnableSelfTest (
     }
 
     /* Write back the contents of the Data format register */
-    ADXL363_REG_READ(ADI_ADXL363_SELF_TEST, &DataFormat)
+    ADXL363_REG_READ(ADI_ADXL363_SELF_TEST, &DataFormat, 1u)
 
     return ADI_ADXL363_SUCCESS;
 }
@@ -1868,7 +1936,7 @@ ADI_ADXL363_RESULT adi_adxl363_ConfigFIFO(
 
     /* As all the fields of the FIFO control register are set it is not required
      * to do read-modify-write */
-    ADXL363_REG_READ(ADI_ADXL363_FIFO_CTL, &FIFOCtlData)
+    ADXL363_REG_READ(ADI_ADXL363_FIFO_CTL, &FIFOCtlData, 1u)
     FIFOCtlData &= BITM_ADXL363_TEMP_FIFO_EN;
     FIFOCtlData |=    (uint8_t)eFIFOMode;
     nTemp = (uint8_t)((nSamples & FIFO_HALF_MARK_LIMIT) >> 8);
@@ -1999,7 +2067,7 @@ ADI_ADXL363_RESULT adi_adxl363_GetIntMap (
 #endif /* ADI_DEBUG */
 
     /* Read the interrupt mask register */
-    ADXL363_REG_READ(ADI_ADXL363_INT1_MAP+eIntPin, pnIntMask)
+    ADXL363_REG_READ(ADI_ADXL363_INT1_MAP+eIntPin, pnIntMask, 1u)
 
     return ADI_ADXL363_SUCCESS;
 }
@@ -2064,7 +2132,7 @@ ADI_ADXL363_RESULT adi_adxl363_GetIntStatus(
 #endif /* ADI_DEBUG */
 
     /* Read the interrupt source register */
-    ADXL363_REG_READ(ADI_ADXL363_STATUS, pnIntSource)
+    ADXL363_REG_READ(ADI_ADXL363_STATUS, pnIntSource, 1u)
 
     return ADI_ADXL363_SUCCESS;
 }
@@ -2221,11 +2289,11 @@ ADI_ADXL363_RESULT adi_adxl363_GetEntriesInFIFO(
 #endif /* ADI_DEBUG */
 
     /* Read the contents of FIFO status register */
-    ADXL363_REG_READ(ADI_ADXL363_FIFO_ENTRIES_H, &nNumEntries)
+    ADXL363_REG_READ(ADI_ADXL363_FIFO_ENTRIES_H, &nNumEntries, 1u)
    /* Get the number of FIFO entries */
     *pnEntries      =   (uint16_t)((uint16_t)nNumEntries << 8u);
     /* Read the contents of FIFO status register */
-    ADXL363_REG_READ(ADI_ADXL363_FIFO_ENTRIES_L, &nNumEntries)
+    ADXL363_REG_READ(ADI_ADXL363_FIFO_ENTRIES_L, &nNumEntries, 1u)
    /* Get the number of FIFO entries */
     *pnEntries      |=   (nNumEntries);
     return ADI_ADXL363_SUCCESS;
@@ -2265,7 +2333,7 @@ ADI_ADXL363_RESULT adi_adxl363_ReadRegister (
     ADI_ADXL363_HANDLE  const           hDevice,
     uint32_t                            nAddress,
     uint8_t                            *pData,
-    uint8_t                             nSize
+    uint16_t                            nSize
 )
 {
     /* Pointer to the ADXL363 Device data */
@@ -2287,8 +2355,8 @@ ADI_ADXL363_RESULT adi_adxl363_ReadRegister (
     }
 
 #endif /* ADI_DEBUG */
-    /* Read the contents of FIFO status register */
-    ADXL363_REG_READ((uint8_t)nAddress, pData)
+    /* Read the contents of adxl363 register */
+    ADXL363_REG_READ((uint8_t)nAddress, pData, nSize)
     return ADI_ADXL363_SUCCESS;
 }
 
@@ -2372,57 +2440,28 @@ static void ADXL363Callback2 (
     return;
 }
 
-/*==========================================================================
-     Device register access functions.
- *=========================================================================*/
-static ADI_ADXL363_RESULT RegisterAccess (
-    ADI_ADXL363_DEVICE              *pDevice,
-    uint8_t                          RegAddr,
-    uint8_t                         *pRegData,
-    bool_t                           bRead
-)
-{
-    /* Pointer to Device Instance data */
-    ADI_ADXL363_INFO        *pDevInfo = pDevice->pDevInfo;
-    /* Open the communication device */
-    if(bRead == true)
-    {
-        /* Perform device read */
-        if(SPI_Read (pDevInfo,
-                                RegAddr,
-                                pRegData,
-                                1u
-                                ) != ADI_ADXL363_SUCCESS)
-        {
-            return(ADI_ADXL363_SPI_DEV_FAILED);
-        }
-    }
-    else
-    {
-        /* Perform device write */
-        if(SPI_Write (pDevInfo,
-                                 RegAddr,
-                                 *pRegData ) != ADI_ADXL363_SUCCESS)
-        {
-            return(ADI_ADXL363_SPI_DEV_FAILED);
-        }
-    }
-    return ADI_ADXL363_SUCCESS;
-}
-
 /* Function to read the data using SPI interface. */
 static ADI_ADXL363_RESULT SPI_Read(
     ADI_ADXL363_INFO     *pDevInfo,
     uint8_t               RegAddr,
     uint8_t              *pBuffer,
-    uint32_t              nSize
+    uint16_t               nSize
 )
 {
     /* SPI transceiver instance */
     ADI_SPI_TRANSCEIVER Transceiver;
     uint8_t nTemp[2];
-    nTemp[0] = 0xBu;
-    nTemp[1] = RegAddr;
+    
+    if(RegAddr != ADI_ADXL363_FIFO_READ)
+    {
+       nTemp[0] = 0xBu;
+       nTemp[1] = RegAddr;
+    }
+    else
+    {
+    /* In case of FIFO read, only command corresponding to FIFO has to be transmitted */
+       nTemp[0] = 0xDu;
+    }
 
     if(adi_spi_SetContinousMode(pDevInfo->hSPIDevice, true) != ADI_SPI_SUCCESS)
     {
@@ -2437,7 +2476,15 @@ static ADI_ADXL363_RESULT SPI_Read(
     Transceiver.ReceiverBytes       =   nSize;
     Transceiver.nRxIncrement        =   1u;
     Transceiver.pTransmitter        =   nTemp;
-    Transceiver.TransmitterBytes    =   sizeof nTemp;
+    /*if RegAddr is not NULL, then command and address both need to be transmitted*/
+    if(RegAddr != ADI_ADXL363_FIFO_READ)
+    {
+      Transceiver.TransmitterBytes    =   sizeof nTemp;
+    }
+    else
+    {
+       Transceiver.TransmitterBytes    =   1u;
+    }
     Transceiver.nTxIncrement        =   1u;
 
     if(adi_spi_SetTransmitBytes(pDevInfo->hSPIDevice,
@@ -2445,7 +2492,7 @@ static ADI_ADXL363_RESULT SPI_Read(
     {
         return ADI_ADXL363_SPI_DEV_FAILED;
     }
-    /* Transmit the first sequence */
+    /* Submit the transceiver buffer so as to read values using read command mode */
     if(adi_spi_ReadWrite(pDevInfo->hSPIDevice, &Transceiver) != ADI_SPI_SUCCESS)
     {
         return ADI_ADXL363_SPI_DEV_FAILED;
@@ -2532,36 +2579,36 @@ static uint32_t DumpRegisters(ADI_ADXL363_DEVICE * pDevice)
 {
     uint8_t RegValue;
 
-    ADXL363_REG_READ(ADI_ADXL363_DEVID, &RegValue)          printf("ADI_ADXL363_DEVID           = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_THRESH_TAP, &RegValue)     printf("ADI_ADXL363_THRESH_TAP      = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_OSFX, &RegValue)           printf("ADI_ADXL363_OSFX            = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_OSFY, &RegValue)           printf("ADI_ADXL363_OSFY            = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_OSFZ, &RegValue)           printf("ADI_ADXL363_OSFZ            = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DUR, &RegValue)            printf("ADI_ADXL363_DUR             = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_LATENT, &RegValue)         printf("ADI_ADXL363_LATENT          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_WINDOW, &RegValue)         printf("ADI_ADXL363_WINDOW          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_THRESH_ACT, &RegValue)     printf("ADI_ADXL363_THRESH_ACT      = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_THRESH_INACT, &RegValue)   printf("ADI_ADXL363_THRESH_INACT    = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_TIME_INACT, &RegValue)     printf("ADI_ADXL363_TIME_INACT      = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &RegValue)  printf("ADI_ADXL363_ACT_INACT_CTL   = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_THRESH_FF, &RegValue)      printf("ADI_ADXL363_THRESH_FF       = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_TIME_FF, &RegValue)        printf("ADI_ADXL363_TIME_FF         = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DEVID, &RegValue,1u)          printf("ADI_ADXL363_DEVID           = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_THRESH_TAP, &RegValue,1u)     printf("ADI_ADXL363_THRESH_TAP      = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_OSFX, &RegValue,1u)           printf("ADI_ADXL363_OSFX            = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_OSFY, &RegValue,1u)           printf("ADI_ADXL363_OSFY            = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_OSFZ, &RegValue,1u)           printf("ADI_ADXL363_OSFZ            = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DUR, &RegValue,1u)            printf("ADI_ADXL363_DUR             = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_LATENT, &RegValue,1u)         printf("ADI_ADXL363_LATENT          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_WINDOW, &RegValue,1u)         printf("ADI_ADXL363_WINDOW          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_THRESH_ACT, &RegValue,1u)     printf("ADI_ADXL363_THRESH_ACT      = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_THRESH_INACT, &RegValue,1u)   printf("ADI_ADXL363_THRESH_INACT    = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_TIME_INACT, &RegValue,1u)     printf("ADI_ADXL363_TIME_INACT      = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_ACT_INACT_CTL, &RegValue,1u)  printf("ADI_ADXL363_ACT_INACT_CTL   = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_THRESH_FF, &RegValue,1u)      printf("ADI_ADXL363_THRESH_FF       = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_TIME_FF, &RegValue,1u)        printf("ADI_ADXL363_TIME_FF         = 0x%02x\n", RegValue);
     ADXL363_REG_READ(ADI_ADXL363_TAP_AXES, &RegValue)       printf("ADI_ADXL363_TAP_AXES        = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_ACT_TAP_STATUS, &RegValue) printf("ADI_ADXL363_ACT_TAP_STATUS  = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_BW_RATE, &RegValue)        printf("ADI_ADXL363_BW_RATE         = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &RegValue)      printf("ADI_ADXL363_POWER_CTL       = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_INT_ENABLE, &RegValue)     printf("ADI_ADXL363_INT_ENABLE      = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_INT_MAP, &RegValue)        printf("ADI_ADXL363_INT_MAP         = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_INT_SOURCE, &RegValue)     printf("ADI_ADXL363_INT_SOURCE      = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATA_FORMAT, &RegValue)    printf("ADI_ADXL363_DATA_FORMAT     = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATAX0, &RegValue)         printf("ADI_ADXL363_DATAX0          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATAX1, &RegValue)         printf("ADI_ADXL363_DATAX1          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATAY0, &RegValue)         printf("ADI_ADXL363_DATAY0          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATAY1, &RegValue)         printf("ADI_ADXL363_DATAY1          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATAZ0, &RegValue)         printf("ADI_ADXL363_DATAZ0          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_DATAZ1, &RegValue)         printf("ADI_ADXL363_DATAZ1          = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_FIFO_CTL, &RegValue)       printf("ADI_ADXL363_FIFO_CTL        = 0x%02x\n", RegValue);
-    ADXL363_REG_READ(ADI_ADXL363_FIFO_STATUS, &RegValue)    printf("ADI_ADXL363_FIFO_STATUS     = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_ACT_TAP_STATUS, &RegValue,1u) printf("ADI_ADXL363_ACT_TAP_STATUS  = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_BW_RATE, &RegValue,1u)        printf("ADI_ADXL363_BW_RATE         = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_POWER_CTL, &RegValue,1u)      printf("ADI_ADXL363_POWER_CTL       = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_INT_ENABLE, &RegValue,1u)     printf("ADI_ADXL363_INT_ENABLE      = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_INT_MAP, &RegValue,1u)        printf("ADI_ADXL363_INT_MAP         = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_INT_SOURCE, &RegValue,1u)     printf("ADI_ADXL363_INT_SOURCE      = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATA_FORMAT, &RegValue,1u)    printf("ADI_ADXL363_DATA_FORMAT     = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATAX0, &RegValue,1u)         printf("ADI_ADXL363_DATAX0          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATAX1, &RegValue,1u)         printf("ADI_ADXL363_DATAX1          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATAY0, &RegValue,1u)         printf("ADI_ADXL363_DATAY0          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATAY1, &RegValue,1u)         printf("ADI_ADXL363_DATAY1          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATAZ0, &RegValue,1u)         printf("ADI_ADXL363_DATAZ0          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_DATAZ1, &RegValue,1u)         printf("ADI_ADXL363_DATAZ1          = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_FIFO_CTL, &RegValue,1u)       printf("ADI_ADXL363_FIFO_CTL        = 0x%02x\n", RegValue);
+    ADXL363_REG_READ(ADI_ADXL363_FIFO_STATUS, &RegValue,1u)    printf("ADI_ADXL363_FIFO_STATUS     = 0x%02x\n", RegValue);
 
     return ADI_ADXL363_SUCCESS;
 }

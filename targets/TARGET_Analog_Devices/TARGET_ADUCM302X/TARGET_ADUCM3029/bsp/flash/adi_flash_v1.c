@@ -2,8 +2,8 @@
  *****************************************************************************
  @file:    adi_flash.c
  @brief:   Flash Driver Implementations for ADuCM302x
- @version: $Revision: 34991 $
- @date:    $Date: 2016-06-30 13:06:37 +0100 (Thu, 30 Jun 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2012-2015 Analog Devices, Inc.
 
@@ -1121,7 +1121,7 @@ ADI_FEE_RESULT adi_fee_EnableECC (
  * @brief    Confifure ECC event reporting behaviour
  *
  * @param [in]  hDevice     The handle to the flash controller device
- * @param [in]  eEvent      ECC event - Error/Correction
+ * @param [in]  eEvent      ECC event
  * @param [in]  eResponse   The response to the eEvent
  *
  * @return   Status
@@ -1149,8 +1149,7 @@ ADI_FEE_RESULT adi_fee_ConfigECCEvents (
     }
 
     /* Check the function parameters */
-    if (   (   (eEvent != ADI_FEE_ECC_EVENT_TYPE_ERROR)
-            && (eEvent != ADI_FEE_ECC_EVENT_TYPE_CORRECT))
+    if (   (   eEvent != ADI_FEE_ECC_EVENT_TYPE_ERROR)
         || (   (eResponse != ADI_FEE_ECC_RESPONSE_NONE)
             && (eResponse != ADI_FEE_ECC_RESPONSE_BUS_ERROR)
             && (eResponse != ADI_FEE_ECC_RESPONSE_IRQ))
@@ -1165,11 +1164,6 @@ ADI_FEE_RESULT adi_fee_ConfigECCEvents (
     {
         nBitMask = BITM_FLCC_IEN_ECC_ERROR;
         nBitPos  = BITP_FLCC_IEN_ECC_ERROR;
-    }
-    else
-    {
-        nBitMask = BITM_FLCC_IEN_ECC_CORRECT;
-        nBitPos  = BITP_FLCC_IEN_ECC_CORRECT;
     }
 
     /* Clear the bits */
@@ -1420,15 +1414,13 @@ static void Initialize (
     /* Configure the registers */
     CLR_BITS (
               drv->pReg->IEN,
-              (  BITM_FLCC_IEN_ECC_ERROR
-               | BITM_FLCC_IEN_ECC_CORRECT
-               ));
+              BITM_FLCC_IEN_ECC_ERROR
+             );
 
     SET_BITS (
               drv->pReg->IEN,
-              (  ((uint32_t)ADI_FEE_CFG_ECC_ERROR_RESPONSE << BITP_FLCC_IEN_ECC_ERROR)
-               | ((uint32_t)ADI_FEE_CFG_ECC_CORRECTION_RESPONSE << BITP_FLCC_IEN_ECC_CORRECT)
-               ));
+              ((uint32_t)ADI_FEE_CFG_ECC_ERROR_RESPONSE << BITP_FLCC_IEN_ECC_ERROR)
+             );
 
 
     CLR_BITS (

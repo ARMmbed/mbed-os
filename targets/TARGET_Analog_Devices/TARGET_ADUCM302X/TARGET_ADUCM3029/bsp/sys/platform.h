@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    platform.h
  * @brief:   Platform abstraction header file.
- * @version: $Revision: 35107 $
- * @date:    $Date: 2016-07-18 09:33:48 +0100 (Mon, 18 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.

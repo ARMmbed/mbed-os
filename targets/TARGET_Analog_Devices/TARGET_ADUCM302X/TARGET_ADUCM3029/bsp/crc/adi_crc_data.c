@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file      adi_crc_data.c
  * @brief     ADuCM302x Processor specific data for CRC driver.
- * @version:  $Revision: 33205 $
- * @date:     $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+ * @version:  $Revision$
+ * @date:     $Date$
  *
  * @details
  *            This is an additional source file for CRC driver.

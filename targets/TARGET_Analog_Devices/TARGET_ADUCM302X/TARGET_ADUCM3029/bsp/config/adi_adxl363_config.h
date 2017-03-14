@@ -2,11 +2,11 @@
  *****************************************************************************
    @file:    adi_adxl363_config.h
    @brief:   Device Configuration options for adxl363 Accelerometer.
-   @version: $Revision: 29360 $
-   @date:    $Date: 2014-12-23 15:28:37 +0000 (Tue, 23 Dec 2014) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
-Copyright (c) 2012-2014 Analog Devices, Inc.
+Copyright (c) 2012-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -63,11 +63,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ADI_ADXL363_ENABLE_STATIC_CONFIG_SUPPORT  1
 
-
+/*! This macro should be set to the SPI instance that is being used by ADXL363 */
 #define  ADXL363_CFG_SPI_DEV_NUM        2
 
+/*! This macro should be set to the SPI Chip select that will be used for ADXL363 */
 #define ADXL363_CFG_SPI_DEV_CS      ADI_SPI_CS2
 
+/*! This macro should be set to the desired bitrate that will be used for ADXL363 */
 #define ADXL363_CFG_SPI_DEV_BITRATE  3000000
 
 /*************************************************************
@@ -97,7 +99,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *  event to be detected.
   *  Valid Range 1 - 1024   
 */
-#define ADXL363_CFG_INACTIVITY_TIME               0XC8
+#define ADXL363_CFG_INACTIVITY_TIME               1
 
 /*! 
   *  To enable/disable the activity . it can be set to\n
@@ -143,7 +145,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *    3 -  Stream mode.\n
   *    4 - Triggered mode.\n
 */
-#define ADXL363_CFG_FIFO_MODE                     0
+#define ADXL363_CFG_FIFO_MODE                     1
 
 /*! 
   *   To enable temperature  FIFO.\n
@@ -151,12 +153,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *   1 - Enable temperature FIFO which stores temperature data together with x-, y-, and z-axis \n
   *       acceleration data.
 */
-#define ADXL363_CFG_ENABLE_TEMPERATURE_FIFO       0
+#define ADXL363_CFG_ENABLE_TEMPERATURE_FIFO       1
 
 /*! 
   *  Sets the number of  number of samples to be stored in the FIFO.
   *  Valid Range 1 - 511   */
-#define ADXL363_CFG_FIFO_SIZE                     0
+#define ADXL363_CFG_FIFO_SIZE                     32
 
 /*! 
   *  Interrupt map for the INT1 
@@ -164,7 +166,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADXL363_CFG_INT1_MAP                      0x40
 
 /*! 
-   *  Interrupt map for the INT1 
+   *  Interrupt map for the INT2 
  */
 #define ADXL363_CFG_INT2_MAP                      0x40
 

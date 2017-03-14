@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_pwr_v1.h
  * @brief:   CMSIS Cortex-M3 Device clock and power management function 
- * @version: $Revision: 33206 $
- * @date:    $Date: 2016-01-11 10:50:54 +0000 (Mon, 11 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
 Copyright (c) 2010-2014 Analog Devices, Inc.
 

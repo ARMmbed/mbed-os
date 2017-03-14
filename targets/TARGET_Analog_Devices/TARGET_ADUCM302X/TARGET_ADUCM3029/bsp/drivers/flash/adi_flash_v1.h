@@ -2,8 +2,8 @@
  *****************************************************************************
  @file:    adi_flash_v1.h
  @brief:   Flash Driver Implementations for ADuCM302x
- @version: $Revision: 35030 $
- @date:    $Date: 2016-07-05 05:49:46 +0100 (Tue, 05 Jul 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2012-2014 Analog Devices, Inc.
 
@@ -109,7 +109,7 @@ typedef void* ADI_FEE_HANDLE;
 /*! Enum for the Argument passed the callback function when ADI_FEE_EVENT_ECC_ERR occurred */
 typedef enum {
     ADI_FEE_ECC_ERROR_2_BIT_ERROR       = 0x1,   /*!< 2-Bit Error occurred */
-    ADI_FEE_ECC_ERROR_1_BIT_CORRECTED   = 0x2,   /*!< 1-BIt Error occurred and is corrected */
+    ADI_FEE_ECC_ERROR_1_BIT_CORRECTED   = 0x2,   /*!< 1-Bit Error occurred and is corrected */
     ADI_FEE_ECC_ERROR_1_OR_2_BIT        = 0x3    /*!< 1 or 2 Bit error occurred */
 } ADI_FEE_ECC_ERROR;
 
@@ -123,10 +123,9 @@ typedef enum {
 /*! Enum for the ECC Event Type */
 typedef enum {
     ADI_FEE_ECC_EVENT_TYPE_ERROR,       /*!< ECC Error Event */
-    ADI_FEE_ECC_EVENT_TYPE_CORRECT      /*!< ECC correction event */
 } ADI_FEE_ECC_EVENT_TYPE;
 
-/*! Response required to the ECC Events */
+/*! Response required to ECC events */
 typedef enum {
     ADI_FEE_ECC_RESPONSE_NONE       = 0x0,      /*!< No Response */
     ADI_FEE_ECC_RESPONSE_BUS_ERROR  = 0x1,      /*!< Generate a Bus Error */

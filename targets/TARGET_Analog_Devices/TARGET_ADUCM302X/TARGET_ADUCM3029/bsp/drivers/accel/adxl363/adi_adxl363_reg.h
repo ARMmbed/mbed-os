@@ -3,8 +3,8 @@
  * @file:    adi_adxl363_reg.h
  * @brief:   ADXL363 register definition  header file which contain the bit position  for vairous
              filed of the reigsters and address of the registers.   
- * @version: $Revision: 33205 $
- * @date:    $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2014 Analog Devices, Inc.

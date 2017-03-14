@@ -4,8 +4,8 @@
    @brief:   Configuration options for General Purpose Timer driver.
              This is specific to the TMR driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 35142 $
-   @date:    $Date: 2016-07-26 07:30:19 +0100 (Tue, 26 Jul 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2012-2016 Analog Devices, Inc.

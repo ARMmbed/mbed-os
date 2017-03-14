@@ -6,6 +6,7 @@
  * @brief   ADC Device driver global include file
  * @version $Revision:
  * @date    $Date:
+ *
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2015 Analog Devices, Inc.
 

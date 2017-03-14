@@ -2,11 +2,11 @@
  *****************************************************************************
  * @file:    adi_rtc_data_v1.c
  * @brief:   rtc device data file
- * @version: $Revision: 34933 $
- * @date:    $Date: 2016-06-28 12:11:25 +0100 (Tue, 28 Jun 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2015 Analog Devices, Inc.
+Copyright (c) 2010-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -110,7 +110,7 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
 
    RTC1_CFG_ENABLE_COUNT_INTERRUPT           <<  BITP_RTC_CR1_CNTINTEN       |
    RTC1_CFG_ENABLE_MOD1_COUNT_INTERRUPT      <<  BITP_RTC_CR1_PSINTEN        |
-   RTC1_CFG_ENABLE_TRIM_INTERRUPT            <<  BITP_RTC_CR1_RTCTRMINTEN    |
+   RTC1_CFG_ENABLE_TRIM_INTERRUPT            <<  BITP_RTC_CR1_TRMINTEN    |
    RTC1_CFG_CNT_MOD60_ROLLLOVER_INTERRUPT    <<  BITP_RTC_CR1_CNTROLLINTEN   |
    RTC1_CFG_PRESCALE                         <<  BITP_RTC_CR1_PRESCALE2EXP   |
    RTC1_CFG_CNT_ROLLLOVER_INTERRUPT          <<  BITP_RTC_CR1_CNTMOD60ROLLINTEN ,
@@ -129,25 +129,25 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    RTC1_CFG_TRIM_VALUE                       << BITP_RTC_TRM_VALUE,
    
 
-   RTC1_CFG_IC0_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC0EN     |
-   RTC1_CFG_IC2_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC2EN     |
-   RTC1_CFG_IC3_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC3EN     |
-   RTC1_CFG_IC4_ENABLE                       <<  BITP_RTC_CR2IC_RTCIC4EN   |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC0IRQEN |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC2IRQEN |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC3IRQEN |
-   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_RTCIC4IRQEN  |
-   RTC1_CFG_IC0_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC0LH |
-   RTC1_CFG_IC2_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC2LH |
-   RTC1_CFG_IC3_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC3LH |
-   RTC1_CFG_IC4_EDGE_POLARITY                <<  BITP_RTC_CR2IC_RTCIC4LH  |
-   RTC1_CFG_IC_OVER_WRITE_ENABLE             <<  BITP_RTC_CR2IC_RTCICOWUSEN,
+   RTC1_CFG_IC0_ENABLE                       <<  BITP_RTC_CR2IC_IC0EN     |
+   RTC1_CFG_IC2_ENABLE                       <<  BITP_RTC_CR2IC_IC2EN     |
+   RTC1_CFG_IC3_ENABLE                       <<  BITP_RTC_CR2IC_IC3EN     |
+   RTC1_CFG_IC4_ENABLE                       <<  BITP_RTC_CR2IC_IC4EN   |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC0IRQEN |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC2IRQEN |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC3IRQEN |
+   RTC1_CFG_IC0_INT_ENABLE                   <<  BITP_RTC_CR2IC_IC4IRQEN  |
+   RTC1_CFG_IC0_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC0LH |
+   RTC1_CFG_IC2_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC2LH |
+   RTC1_CFG_IC3_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC3LH |
+   RTC1_CFG_IC4_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC4LH  |
+   RTC1_CFG_IC_OVER_WRITE_ENABLE             <<  BITP_RTC_CR2IC_ICOWUSEN,
   
-   RTC1_CFG_OC1_ENABLE                       <<  BITP_RTC_CR3OC_RTCOC1EN     |
-   RTC1_CFG_OC1_INT_ENABLE                   <<  BITP_RTC_CR3OC_RTCOC1IRQEN,
+   RTC1_CFG_OC1_ENABLE                       <<  BITP_RTC_CR3SS_SS1EN     |
+   RTC1_CFG_OC1_INT_ENABLE                   <<  BITP_RTC_CR3SS_SS1IRQEN,
 
-   RTC1_CFG_OC1_MASK_ENABLE                  <<  BITP_RTC_CR4OC_RTCOC1MSKEN     |
-   RTC1_CFG_OC1_AUTO_RELOADING_ENABLE        <<  BITP_RTC_CR4OC_RTCOC1ARLEN,
+   RTC1_CFG_OC1_MASK_ENABLE                  <<  BITP_RTC_CR4SS_SS1MSKEN     |
+   RTC1_CFG_OC1_AUTO_RELOADING_ENABLE        <<  BITP_RTC_CR4SS_SS1ARLEN,
 
    RTC1_CFG_OC1_MASK_VALUE,
    

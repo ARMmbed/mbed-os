@@ -6,6 +6,7 @@
  * @brief   Main include file for DMA service definitions
  * @version $Revision:
  * @date    $Date:
+ *
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2014 Analog Devices, Inc.
 

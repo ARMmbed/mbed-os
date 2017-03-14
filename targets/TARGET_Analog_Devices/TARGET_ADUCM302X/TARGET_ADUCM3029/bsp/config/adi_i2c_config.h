@@ -4,8 +4,8 @@
    @brief:   Configuration options for I2C driver.
              This is specific to the I2C driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 33205 $
-   @date:    $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_dma.c
  * @brief:   uDMA Device Implimentation for ADuC320x
- * @version: $Revision: 33333 $
- * @date:    $Date: 2016-01-22 16:39:48 +0000 (Fri, 22 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.

@@ -2,10 +2,10 @@
  *****************************************************************************
  @file:    adi_rtc_v1.h
  @brief:   Include file for Real-Time Clock Device driver API Definitions
- @version: $Revision: 35155 $
- @date:    $Date: 2016-07-26 18:09:22 +0100 (Tue, 26 Jul 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
-Copyright (c) 2010-2016 Analog Devices, Inc.
+Copyright (c) 2010-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -136,21 +136,21 @@ typedef enum
     /*!  Enable for the prescaled, modulo-1 interrupt source */
     ADI_RTC_MOD_1_INT              =  1 << (BITP_RTC_CR1_PSINTEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!  Enable for the RTC trim interrupt source */
-    ADI_RTC_TRIM_INT                = 1 << (BITP_RTC_CR1_RTCTRMINTEN + ADI_RTC_INTERRUPT_OFFSET),
+    ADI_RTC_TRIM_INT                = 1 << (BITP_RTC_CR1_TRMINTEN + ADI_RTC_INTERRUPT_OFFSET),
     /*! Enable for the RTC count roll-over interrupt source */
     ADI_RTC_COUNT_ROLLOVER_INT      = 1 << (BITP_RTC_CR1_CNTROLLINTEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Enable for the RTC modulo-60 count roll-over interrupt source */
     ADI_RTC_MOD60_ROLLOVER_INT      = 1 << (BITP_RTC_CR1_CNTMOD60ROLLINTEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Enable interrupt for output compare channel -1*/
-    ADI_RTC_OUTPUT_COMPARE_CH1_INT      = 1 << (BITP_RTC_CR3OC_RTCOC1IRQEN + ADI_RTC_INTERRUPT_OFFSET),
+    ADI_RTC_OUTPUT_COMPARE_CH1_INT      = 1 << (BITP_RTC_CR3SS_SS1IRQEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Enable interrupt for input capture channel -0*/
-    ADI_RTC_INPUT_CAPTURE_CH0_INT      = 1 << (BITP_RTC_CR2IC_RTCIC0IRQEN + ADI_RTC_INTERRUPT_OFFSET),
+    ADI_RTC_INPUT_CAPTURE_CH0_INT      = 1 << (BITP_RTC_CR2IC_IC0IRQEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Enable interrupt for input capture channel -2*/
-    ADI_RTC_INPUT_CAPTURE_CH2_INT      = 1 << (BITP_RTC_CR2IC_RTCIC2IRQEN + ADI_RTC_INTERRUPT_OFFSET),
+    ADI_RTC_INPUT_CAPTURE_CH2_INT      = 1 << (BITP_RTC_CR2IC_IC2IRQEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Enable interrupt for input capture channel -3*/
-    ADI_RTC_INPUT_CAPTURE_CH3_INT      = 1 << (BITP_RTC_CR2IC_RTCIC3IRQEN + ADI_RTC_INTERRUPT_OFFSET),
+    ADI_RTC_INPUT_CAPTURE_CH3_INT      = 1 << (BITP_RTC_CR2IC_IC3IRQEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Enable interrupt for input capture channel -4*/
-    ADI_RTC_INPUT_CAPTURE_CH4_INT      = 1 << (BITP_RTC_CR2IC_RTCIC4IRQEN + ADI_RTC_INTERRUPT_OFFSET),
+    ADI_RTC_INPUT_CAPTURE_CH4_INT      = 1 << (BITP_RTC_CR2IC_IC4IRQEN + ADI_RTC_INTERRUPT_OFFSET),
     /*!Interrupt for LFXTL failure. LFXTL failure interrupt is mapped to RTC1 interrupt.*/
     ADI_LFXTL_FAILURE_INT              = (int32_t)(1u << BITP_CLKG_OSC_CTL_LFXTAL_MON_FAIL_STAT)
       
@@ -224,13 +224,13 @@ typedef enum
 typedef enum
 {
     /*!  Input capture channel-0  */
-    ADI_RTC_INPUT_CHANNEL_0           = 1 << BITP_RTC_CR2IC_RTCIC0EN,
+    ADI_RTC_INPUT_CHANNEL_0           = 1 << BITP_RTC_CR2IC_IC0EN,
     /*!  Input capture channel-2  */
-    ADI_RTC_INPUT_CHANNEL_2           = 1 << BITP_RTC_CR2IC_RTCIC2EN,
+    ADI_RTC_INPUT_CHANNEL_2           = 1 << BITP_RTC_CR2IC_IC2EN,
     /*!  Input capture channel-3  */
-    ADI_RTC_INPUT_CHANNEL_3           = 1 << BITP_RTC_CR2IC_RTCIC3EN,
+    ADI_RTC_INPUT_CHANNEL_3           = 1 << BITP_RTC_CR2IC_IC3EN,
     /*!  Input capture channel-4  */
-    ADI_RTC_INPUT_CHANNEL_4           = 1 << BITP_RTC_CR2IC_RTCIC4EN
+    ADI_RTC_INPUT_CHANNEL_4           = 1 << BITP_RTC_CR2IC_IC4EN
 
 }ADI_RTC_INPUT_CHANNEL;
 
@@ -240,7 +240,7 @@ typedef enum
 typedef enum
 {
     /*!  output compare channel-1  */
-    ADI_RTC_OUTPUT_CHANNEL_1           = 1 << BITP_RTC_CR3OC_RTCOC1EN,
+    ADI_RTC_OUTPUT_CHANNEL_1           = 1 << BITP_RTC_CR3SS_SS1EN,
 
 }ADI_RTC_OUTPUT_CHANNEL;
 

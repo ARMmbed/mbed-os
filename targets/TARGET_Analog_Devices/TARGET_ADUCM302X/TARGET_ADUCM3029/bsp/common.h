@@ -1,12 +1,11 @@
-/*!
- *****************************************************************************
-   @file:    adi_global_config.h
-   @brief:   Global configuration options which will affect all the drivers.
-   @version: $Revision$
-   @date:    $Date$
-  -----------------------------------------------------------------------------
-
-Copyright (c) 2012-2016 Analog Devices, Inc.
+/*! *****************************************************************************
+ * @file:     common.h
+ * @brief:    common include file for all example 
+ * @version: $Revision$
+ * @date:    $Date$
+ *-----------------------------------------------------------------------------
+ *
+Copyright (c) 2011-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -43,50 +42,56 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*****************************************************************************/
+ *
+ *****************************************************************************/
 
-/* This file contains all the global configurations */
-#ifndef __ADI_GLOBAL_CONFIG_H__
-#define __ADI_GLOBAL_CONFIG_H__
 
-/**  @defgroup Configuration_macros Device Driver Configuration Macros
- */
+#ifndef __TEST_COMMON_H__
+#define __TEST_COMMON_H__
 
-/** @defgroup Global_Config Global Configuration Settings
- *  @ingroup Configuration_macros
- */
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
 
-/** @addtogroup Global_Config Global Configuration Settings
- *  @{
- */
+#include <services/wdt/adi_wdt.h>
 
-/*! Set this macro to 1 to enable multi threaded support.
-    Do not change this macro if you are using CrossCore Embedded Studio. The
-    CCES add-ins define a own to indicate that the RTOS is present. 
- */
-#if !defined (__GNUC__)
-    #define ADI_CFG_ENABLE_RTOS_SUPPORT                   0
-#else  /* __GNUC__ */
-    #if defined (ADI_THREADS)
-        #define ADI_CFG_ENABLE_RTOS_SUPPORT               1
-    #else
-        #define ADI_CFG_ENABLE_RTOS_SUPPORT               0
-    #endif
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/*! Set this macro to put the processor in low power mode when waiting for the buffer processing to complete */
-#define ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT                0
+#define DEBUG_MESSAGE_LENGTH 150
+extern char_t aDebugString[DEBUG_MESSAGE_LENGTH]; 
 
-#if (ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT ==1 ) && (ADI_CFG_ENABLE_RTOS_SUPPORT == 1)
-#error " Low power mode supported only in NON-RTOS environment"
-#endif
-/*! @} */
+#define DEBUG_MESSAGE(...) \
+  do { \
+    sprintf(aDebugString,__VA_ARGS__); \
+    test_Perf(aDebugString); \
+  } while(0)
 
-#if (ADI_CFG_ENABLE_RTOS_SUPPORT ==1)
-#if !defined(USER_SPECIFIED_RTOS)
-#define ADI_DEVICE_DRIVER_RTOS_MEMORY  68u
+
+#define DEBUG_RESULT(s,result,expected_value) \
+  do { \
+    if ((result) != (expected_value)) { \
+      sprintf(aDebugString,"%s  %d", __FILE__,__LINE__); \
+      test_Fail(aDebugString); \
+      sprintf(aDebugString,"%s Error Code: 0x%08X\n\rFailed\n\r",(s),(result)); \
+      test_Perf(aDebugString); \
+      exit(0); \
+    } \
+  } while (0)
+
+/********************************************************************************
+* API function prototypes
+*********************************************************************************/
+void test_Init(void);
+void test_Pass(void);
+void test_Fail(char *FailureReason);
+void test_Perf(char *InfoString);
+
+#ifdef __cplusplus
+}
 #endif
-#else
-#define ADI_DEVICE_DRIVER_RTOS_MEMORY  4u
-#endif
-#endif /* __ADI_GLOBAL_CONFIG_H__ */
+
+#endif /* __TEST_COMMON_H__ */

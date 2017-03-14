@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_nvic.c
  * @brief:   NVIC controller API implementation file.
- * @version: $Revision: 33290 $
- * @date:    $Date: 2016-01-19 14:11:48 +0000 (Tue, 19 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2013 Analog Devices, Inc.

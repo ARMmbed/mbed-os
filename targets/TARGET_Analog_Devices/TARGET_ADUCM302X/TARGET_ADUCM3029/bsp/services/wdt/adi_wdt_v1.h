@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file:    adi_wdt_v1.h
  * @brief:   Watchdog Timer Device Definitions
- * @version: $Revision: 33435 $
- * @date:    $Date: 2016-02-05 07:55:13 +0000 (Fri, 05 Feb 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.

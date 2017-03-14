@@ -2,8 +2,8 @@
  *****************************************************************************
  @file:    common_def.h
  @brief:   Common Definition Used by all the drivers
- @version: $Revision: 35171 $
- @date:    $Date: 2016-07-28 13:24:51 +0100 (Thu, 28 Jul 2016) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2016 Analog Devices, Inc.
 

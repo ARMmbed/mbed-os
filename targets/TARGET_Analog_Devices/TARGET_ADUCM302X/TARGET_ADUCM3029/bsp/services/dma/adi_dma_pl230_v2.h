@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_dma_pl230_v2.h
  * @brief:   uDMA Device Definitions for ADuCxxx
- * @version: $Revision: 33422 $
- * @date:    $Date: 2016-02-04 12:42:05 +0000 (Thu, 04 Feb 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.

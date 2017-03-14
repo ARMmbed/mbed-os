@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    ADuCM3029_typedefs.h
  * @brief:   ADuCM3029 C Register Structures
- * @version: $Revision: 34812 $
- * @date:    $Date: 2016-06-15 08:18:12 +0100 (Wed, 15 Jun 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2015-2016 Analog Devices, Inc.
@@ -66,26 +66,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma anon_unions
 #endif /* __CC_ARM */
 
-#define __ADI_NO_DECL_STRUCT_ADI_SPI_FLOW_CTL_t__
 #define __ADI_NO_DECL_STRUCT_ADI_CRYPT_CFG_t__
 
 #include <sys/ADuCM302x_typedefs.h>
-
-/* Redefine ADI_SPI_FLOW_CTL_t with correct RDBURSTSZ field. */
-
-typedef struct _ADI_SPI_FLOW_CTL_t {
-  union {
-    struct {
-      unsigned int MODE       :  2;  /**< Flow control mode */
-      unsigned int reserved2  :  2;
-      unsigned int RDYPOL     :  1;  /**< Polarity of RDY/MISO line */
-      unsigned int reserved5  :  3;
-      unsigned int RDBURSTSZ  :  4;  /**< Read data burst size minus 1 */
-      unsigned int reserved12 :  4;
-    };
-    uint16_t VALUE16;
-  };
-} ADI_SPI_FLOW_CTL_t;
 
 
 /* Redefine ADI_CRYPT_CFG_t with backward compatibility names. */

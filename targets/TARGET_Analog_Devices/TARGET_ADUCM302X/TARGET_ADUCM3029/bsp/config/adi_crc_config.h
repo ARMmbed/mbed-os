@@ -4,8 +4,8 @@
    @brief:   Configuration options for CRC driver.
              This is specific to the CRC driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 33206 $
-   @date:    $Date: 2016-01-11 10:50:54 +0000 (Mon, 11 Jan 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014-2015 Analog Devices, Inc.

@@ -2,8 +2,8 @@
  *****************************************************************************
  @file:    adi_flash_def_v1.h
  @brief:   Flash Driver Implementations for ADuCM302x
- @version: $Revision: 28841 $
- @date:    $Date: 2014-11-28 06:48:03 +0000 (Fri, 28 Nov 2014) $
+ @version: $Revision$
+ @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2012-2014 Analog Devices, Inc.
 

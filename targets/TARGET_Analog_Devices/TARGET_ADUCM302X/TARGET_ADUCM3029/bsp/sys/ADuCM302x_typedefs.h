@@ -4,9 +4,9 @@
      File         :   ADuCM302x_typedefs.h
      Description  :   C Register Structures
 
-     Date         :   Nov 3, 2016
+     Date         :   Feb 6, 2017
 
-     Copyright (c) 2014-2016 Analog Devices, Inc.  All Rights Reserved.
+     Copyright (c) 2014-2017 Analog Devices, Inc.  All Rights Reserved.
      This software is proprietary and confidential to Analog Devices, Inc. and
      its licensors.
 
@@ -47,8 +47,6 @@
 
 /** @defgroup LOAD 16-bit Load Value (LOAD) Register
  *  16-bit Load Value (LOAD) Register.
- *
- *  
  *  @{
  */
 
@@ -60,7 +58,7 @@
 typedef struct _ADI_TMR_LOAD_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Load value */
+      unsigned int VALUE      : 16;  /**< Load Value */
     };
     uint16_t VALUE16;
   };
@@ -71,8 +69,6 @@ typedef struct _ADI_TMR_LOAD_t {
 
 /** @defgroup CURCNT 16-bit Timer Value (CURCNT) Register
  *  16-bit Timer Value (CURCNT) Register.
- *
- *  
  *  @{
  */
 
@@ -84,7 +80,7 @@ typedef struct _ADI_TMR_LOAD_t {
 typedef struct _ADI_TMR_CURCNT_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Current count */
+      unsigned int VALUE      : 16;  /**< Current Count */
     };
     uint16_t VALUE16;
   };
@@ -95,8 +91,6 @@ typedef struct _ADI_TMR_CURCNT_t {
 
 /** @defgroup CTL Control (CTL) Register
  *  Control (CTL) Register.
- *
- *  
  *  @{
  */
 
@@ -110,14 +104,14 @@ typedef struct _ADI_TMR_CTL_t {
     struct {
       unsigned int PRE        :  2;  /**< Prescaler */
       unsigned int UP         :  1;  /**< Count up */
-      unsigned int MODE       :  1;  /**< Timer mode */
-      unsigned int EN         :  1;  /**< Timer enable */
-      unsigned int CLK        :  2;  /**< Clock select */
-      unsigned int RLD        :  1;  /**< Reload control */
-      unsigned int EVTRANGE   :  5;  /**< Event select range */
-      unsigned int EVTEN      :  1;  /**< Event select */
-      unsigned int RSTEN      :  1;  /**< Counter and prescale reset enable */
-      unsigned int SYNCBYP    :  1;  /**< Synchronization bypass */
+      unsigned int MODE       :  1;  /**< Timer Mode */
+      unsigned int EN         :  1;  /**< Timer Enable */
+      unsigned int CLK        :  2;  /**< Clock Select */
+      unsigned int RLD        :  1;  /**< Reload Control */
+      unsigned int EVTRANGE   :  5;  /**< Event Select Range */
+      unsigned int EVTEN      :  1;  /**< Event Select */
+      unsigned int RSTEN      :  1;  /**< Counter and Prescale Reset Enable */
+      unsigned int SYNCBYP    :  1;  /**< Synchronization Bypass */
     };
     uint16_t VALUE16;
   };
@@ -128,8 +122,6 @@ typedef struct _ADI_TMR_CTL_t {
 
 /** @defgroup CLRINT Clear Interrupt (CLRINT) Register
  *  Clear Interrupt (CLRINT) Register.
- *
- *  
  *  @{
  */
 
@@ -141,8 +133,8 @@ typedef struct _ADI_TMR_CTL_t {
 typedef struct _ADI_TMR_CLRINT_t {
   union {
     struct {
-      unsigned int TIMEOUT    :  1;  /**< Clear timeout interrupt */
-      unsigned int EVTCAPT    :  1;  /**< Clear captured event interrupt */
+      unsigned int TIMEOUT    :  1;  /**< Clear Timeout Interrupt */
+      unsigned int EVTCAPT    :  1;  /**< Clear Captured Event Interrupt */
       unsigned int reserved2  : 14;
     };
     uint16_t VALUE16;
@@ -154,8 +146,6 @@ typedef struct _ADI_TMR_CLRINT_t {
 
 /** @defgroup CAPTURE Capture (CAPTURE) Register
  *  Capture (CAPTURE) Register.
- *
- *  
  *  @{
  */
 
@@ -167,7 +157,7 @@ typedef struct _ADI_TMR_CLRINT_t {
 typedef struct _ADI_TMR_CAPTURE_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< 16-bit captured value */
+      unsigned int VALUE      : 16;  /**< 16-bit Captured Value */
     };
     uint16_t VALUE16;
   };
@@ -178,8 +168,6 @@ typedef struct _ADI_TMR_CAPTURE_t {
 
 /** @defgroup ALOAD 16-bit Load Value, Asynchronous (ALOAD) Register
  *  16-bit Load Value, Asynchronous (ALOAD) Register.
- *
- *  Only use when a synchronous clock source is selected (CON:CLK=00).
  *  @{
  */
 
@@ -191,7 +179,7 @@ typedef struct _ADI_TMR_CAPTURE_t {
 typedef struct _ADI_TMR_ALOAD_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Load value, asynchronous */
+      unsigned int VALUE      : 16;  /**< Load Value, Asynchronous */
     };
     uint16_t VALUE16;
   };
@@ -202,8 +190,6 @@ typedef struct _ADI_TMR_ALOAD_t {
 
 /** @defgroup ACURCNT 16-bit Timer Value, Asynchronous (ACURCNT) Register
  *  16-bit Timer Value, Asynchronous (ACURCNT) Register.
- *
- *  Only use when a synchronous clock source is selected (CON:CLK=00).
  *  @{
  */
 
@@ -215,7 +201,7 @@ typedef struct _ADI_TMR_ALOAD_t {
 typedef struct _ADI_TMR_ACURCNT_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Counter value */
+      unsigned int VALUE      : 16;  /**< Counter Value */
     };
     uint16_t VALUE16;
   };
@@ -226,8 +212,6 @@ typedef struct _ADI_TMR_ACURCNT_t {
 
 /** @defgroup STAT Status (STAT) Register
  *  Status (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -239,12 +223,12 @@ typedef struct _ADI_TMR_ACURCNT_t {
 typedef struct _ADI_TMR_STAT_t {
   union {
     struct {
-      unsigned int TIMEOUT    :  1;  /**< Timeout event occurred */
-      unsigned int CAPTURE    :  1;  /**< Capture event pending */
+      unsigned int TIMEOUT    :  1;  /**< Timeout Event Occurred */
+      unsigned int CAPTURE    :  1;  /**< Capture Event Pending */
       unsigned int reserved2  :  4;
       unsigned int BUSY       :  1;  /**< Timer Busy */
-      unsigned int PDOK       :  1;  /**< Clear Interrupt Register synchronization */
-      unsigned int CNTRST     :  1;  /**< Counter reset occurring */
+      unsigned int PDOK       :  1;  /**< Clear Interrupt Register Synchronization */
+      unsigned int CNTRST     :  1;  /**< Counter Reset Occurring */
       unsigned int reserved9  :  7;
     };
     uint16_t VALUE16;
@@ -256,10 +240,30 @@ typedef struct _ADI_TMR_STAT_t {
 
 /** @defgroup PWMCTL PWM Control Register (PWMCTL) Register
  *  PWM Control Register (PWMCTL) Register.
- *
- *  
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_TMR_PWMCTL_MATCH
+ *! \brief  PWM Match Enabled (MATCH) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  TMR_PWMCTL_PWM_TOGGLE = 0,  /**< PWM in toggle mode */
+  TMR_PWMCTL_PWM_MATCH  = 1   /**< PWM in match mode  */
+} ADI_TMR_PWMCTL_MATCH;
+
+
+/*  =========================================================================
+ *! \enum   ADI_TMR_PWMCTL_IDLESTATE
+ *! \brief  PWM Idle State (IDLESTATE) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  TMR_PWMCTL_IDLE_LOW  = 0,  /**< PWM idles low  */
+  TMR_PWMCTL_IDLE_HIGH = 1   /**< PWM idles high */
+} ADI_TMR_PWMCTL_IDLESTATE;
+
 
 /* ==========================================================================
  *! \struct ADI_TMR_PWMCTL_Struct
@@ -269,7 +273,7 @@ typedef struct _ADI_TMR_STAT_t {
 typedef struct _ADI_TMR_PWMCTL_t {
   union {
     struct {
-      unsigned int MATCH      :  1;  /**< PWM Match enabled */
+      unsigned int MATCH      :  1;  /**< PWM Match Enabled */
       unsigned int IDLESTATE  :  1;  /**< PWM Idle State */
       unsigned int reserved2  : 14;
     };
@@ -282,8 +286,6 @@ typedef struct _ADI_TMR_PWMCTL_t {
 
 /** @defgroup PWMMATCH PWM Match Value (PWMMATCH) Register
  *  PWM Match Value (PWMMATCH) Register.
- *
- *  
  *  @{
  */
 
@@ -306,21 +308,8 @@ typedef struct _ADI_TMR_PWMMATCH_t {
 
 /** @defgroup CR0 RTC Control 0 (CR0) Register
  *  RTC Control 0 (CR0) Register.
- *
- *  CR0 is the primary of two control registers for the RTC, the other being CR1. 
  *  @{
  */
-
-/*  =========================================================================
- *! \enum   ADI_RTC_CR0_MOD60ALM
- *! \brief  Periodic, modulo-60 alarm time in prescaled RTC time units beyond a modulo-60 boundary (MOD60ALM) Enumerations
- *  ========================================================================= */
-typedef enum
-{
-  RTC_CR0_EX_30_TIME_UNITS = 30,  /**< Example of setting a modulo-60 periodic interrupt from the RTC to be issued to the CPU at 30 time units past a modulo-60 boundary. */
-  RTC_CR0_EX_55_TIME_UNITS = 55   /**< Example of setting a modulo-60 periodic interrupt from the RTC to be issued to the CPU at 55 time units past a modulo-60 boundary. */
-} ADI_RTC_CR0_MOD60ALM;
-
 
 /* ==========================================================================
  *! \struct ADI_RTC_CR0_Struct
@@ -330,17 +319,17 @@ typedef enum
 typedef struct _ADI_RTC_CR0_t {
   union {
     struct {
-      unsigned int CNTEN      :  1;  /**< Global enable for the RTC */
-      unsigned int ALMEN      :  1;  /**< Enable the RTC alarm (absolute) operation */
-      unsigned int ALMINTEN   :  1;  /**< Enable sourced alarm interrupts to the CPU */
-      unsigned int TRMEN      :  1;  /**< Enable RTC digital trimming */
-      unsigned int MOD60ALMEN :  1;  /**< Enable RTC modulo-60 counting of time past a modulo-60 boundary */
-      unsigned int MOD60ALM   :  6;  /**< Periodic, modulo-60 alarm time in prescaled RTC time units beyond a modulo-60 boundary */
-      unsigned int MOD60ALMINTEN :  1;  /**< Enable periodic Modulo-60 RTC alarm sourced interrupts to the CPU */
-      unsigned int ISOINTEN      :  1;  /**< Enable RTC power-domain isolation sourced interrupts to the CPU when isolation of the RTC power domain is activated and subsequently de-activated */
-      unsigned int WPNDERRINTEN  :  1;  /**< Enable write pending error sourced interrupts to the CPU when an RTC register-write pending error occurs */
-      unsigned int WSYNCINTEN    :  1;  /**< Enable write synchronization sourced interrupts to the CPU */
-      unsigned int WPNDINTEN     :  1;  /**< Enable write pending sourced interrupts to the CPU */
+      unsigned int CNTEN      :  1;  /**< Global Enable for the RTC */
+      unsigned int ALMEN      :  1;  /**< Enable the RTC Alarm (Absolute) Operation */
+      unsigned int ALMINTEN   :  1;  /**< Enable ALMINT Sourced Alarm Interrupts to the CPU */
+      unsigned int TRMEN      :  1;  /**< Enable RTC Digital Trimming */
+      unsigned int MOD60ALMEN :  1;  /**< Enable RTC Modulo-60 Counting of Time Past a Modulo-60 Boundary */
+      unsigned int MOD60ALM   :  6;  /**< Periodic, Modulo-60 Alarm Time in Prescaled RTC Time Units Beyond a Modulo-60 Boundary */
+      unsigned int MOD60ALMINTEN :  1;  /**< Enable Periodic Modulo-60 RTC Alarm  Sourced Interrupts to the CPU */
+      unsigned int ISOINTEN      :  1;  /**< Enable ISOINT Sourced Interrupts to the CPU When Isolation of the RTC Power Domain is Activated and Subsequently De-activated */
+      unsigned int WPNDERRINTEN  :  1;  /**< Enable Write Pending Error Sourced Interrupts to the CPU When an RTC Register-write Pending Error Occurs */
+      unsigned int WSYNCINTEN    :  1;  /**< Enable Write Synchronization Sourced Interrupts to the CPU */
+      unsigned int WPNDINTEN     :  1;  /**< Enable Write Pending Sourced Interrupts to the CPU */
     };
     uint16_t VALUE16;
   };
@@ -351,8 +340,6 @@ typedef struct _ADI_RTC_CR0_t {
 
 /** @defgroup SR0 RTC Status 0 (SR0) Register
  *  RTC Status 0 (SR0) Register.
- *
- *  Information on RTC operation is made available to the CPU via three status registers SR0, SR1, and SR2. These registers include all flags related to CPU interrupt sources and error conditions within the RTC.
  *  @{
  */
 
@@ -365,20 +352,20 @@ typedef struct _ADI_RTC_SR0_t {
   union {
     struct {
       unsigned int reserved0  :  1;
-      unsigned int ALMINT     :  1;  /**< Alarm interrupt source */
-      unsigned int MOD60ALMINT :  1;  /**< Modulo-60 RTC alarm interrupt source */
-      unsigned int ISOINT      :  1;  /**< RTC power-domain isolation interrupt source */
-      unsigned int WPNDERRINT  :  1;  /**< Write pending error interrupt source */
-      unsigned int WSYNCINT    :  1;  /**< Write synchronization interrupt */
-      unsigned int WPNDINT     :  1;  /**< Write pending interrupt */
-      unsigned int WSYNCCR0    :  1;  /**< Synchronization status of posted writes to RTC Control 0 Register */
-      unsigned int WSYNCSR0    :  1;  /**< Synchronization status of posted clearances to interrupt sources in RTC Status 0 Register */
-      unsigned int WSYNCCNT0   :  1;  /**< Synchronization status of posted writes to RTC Count 0 Register */
-      unsigned int WSYNCCNT1   :  1;  /**< Synchronization status of posted writes to RTC Count 1 Register */
-      unsigned int WSYNCALM0   :  1;  /**< Synchronization status of posted writes to RTC Alarm 0 Register */
-      unsigned int WSYNCALM1   :  1;  /**< Synchronization status of posted writes to RTC Alarm 1 Register */
-      unsigned int WSYNCTRM    :  1;  /**< Synchronization status of posted writes to RTC Trim Register */
-      unsigned int ISOENB      :  1;  /**< Visibility status of 32 kHz sourced registers, taking account of power-domain isolation */
+      unsigned int ALMINT     :  1;  /**< Alarm Interrupt Source */
+      unsigned int MOD60ALMINT :  1;  /**< Modulo-60 RTC Alarm Interrupt Source */
+      unsigned int ISOINT      :  1;  /**< RTC Power-Domain Isolation Interrupt Source */
+      unsigned int WPNDERRINT  :  1;  /**< Write Pending Error Interrupt Source */
+      unsigned int WSYNCINT    :  1;  /**< Write Synchronisation Interrupt */
+      unsigned int WPNDINT     :  1;  /**< Write Pending Interrupt */
+      unsigned int WSYNCCR0    :  1;  /**< Synchronisation Status of Posted Writes to CR0 */
+      unsigned int WSYNCSR0    :  1;  /**< Synchronisation Status of Posted Writes to SR0 */
+      unsigned int WSYNCCNT0   :  1;  /**< Synchronisation Status of Posted Writes to CNT0 */
+      unsigned int WSYNCCNT1   :  1;  /**< Synchronisation Status of Posted Writes to CNT1 */
+      unsigned int WSYNCALM0   :  1;  /**< Synchronisation Status of Posted Writes to ALM0 */
+      unsigned int WSYNCALM1   :  1;  /**< Synchronisation Status of Posted Writes to ALM1 */
+      unsigned int WSYNCTRM    :  1;  /**< Synchronisation Status of Posted Writes to TRM */
+      unsigned int ISOENB      :  1;  /**< Visibility of 32kHz Sourced Registers */
       unsigned int reserved15  :  1;
     };
     uint16_t VALUE16;
@@ -390,8 +377,6 @@ typedef struct _ADI_RTC_SR0_t {
 
 /** @defgroup SR1 RTC Status 1 (SR1) Register
  *  RTC Status 1 (SR1) Register.
- *
- *  Information on RTC operation is made available to the CPU via three status registers SR0, SR1 and SR2. These registers include all flags related to CPU interrupt sources and error conditions within the RTC.
  *  @{
  */
 
@@ -404,13 +389,13 @@ typedef struct _ADI_RTC_SR1_t {
   union {
     struct {
       unsigned int reserved0  :  7;
-      unsigned int WPNDCR0    :  1;  /**< Pending status of posted writes to RTC Control 0 Register */
-      unsigned int WPNDSR0    :  1;  /**< Pending status of posted clearances of interrupt sources in RTC Status 0 Register */
-      unsigned int WPNDCNT0   :  1;  /**< Pending status of posted writes to RTC Count 0 Register */
-      unsigned int WPNDCNT1   :  1;  /**< Pending status of posted writes to RTC Count 1 Register */
-      unsigned int WPNDALM0   :  1;  /**< Pending status of posted writes to RTC ALARM 0 Register */
-      unsigned int WPNDALM1   :  1;  /**< Pending status of posted writes to RTC ALARM 1 Register */
-      unsigned int WPNDTRM    :  1;  /**< Pending status of posted writes to RTC Trim Register */
+      unsigned int WPNDCR0    :  1;  /**< Pending Status of Posted Writes to CR0 */
+      unsigned int WPNDSR0    :  1;  /**< Pending Status of Posted Clearances of Interrupt Sources in SR0 */
+      unsigned int WPNDCNT0   :  1;  /**< Pending Status of Posted Writes to CNT0 */
+      unsigned int WPNDCNT1   :  1;  /**< Pending Status of Posted Writes to CNT1 */
+      unsigned int WPNDALM0   :  1;  /**< Pending Status of Posted Writes to ALM0 */
+      unsigned int WPNDALM1   :  1;  /**< Pending Status of Posted Writes to ALM1 */
+      unsigned int WPNDTRM    :  1;  /**< Pending Status of Posted Writes to TRM */
       unsigned int reserved14 :  2;
     };
     uint16_t VALUE16;
@@ -422,8 +407,6 @@ typedef struct _ADI_RTC_SR1_t {
 
 /** @defgroup CNT0 RTC Count 0 (CNT0) Register
  *  RTC Count 0 (CNT0) Register.
- *
- *  CNT0 contains the lower 16 bits of the RTC counter which maintains a real-time count in elapsed prescaled RTC time units.
  *  @{
  */
 
@@ -435,7 +418,7 @@ typedef struct _ADI_RTC_SR1_t {
 typedef struct _ADI_RTC_CNT0_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Lower 16 prescaled (non-fractional) bits of the RTC real-time count */
+      unsigned int VALUE      : 16;  /**< Lower 16 Prescaled (Non-Fractional) Bits of the RTC Real-Time Count */
     };
     uint16_t VALUE16;
   };
@@ -446,8 +429,6 @@ typedef struct _ADI_RTC_CNT0_t {
 
 /** @defgroup CNT1 RTC Count 1 (CNT1) Register
  *  RTC Count 1 (CNT1) Register.
- *
- *  CNT1 contains the upper 16 bits of the RTC counter which maintains a real-time count in elapsed prescaled RTC time units.
  *  @{
  */
 
@@ -459,7 +440,7 @@ typedef struct _ADI_RTC_CNT0_t {
 typedef struct _ADI_RTC_CNT1_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Upper 16 prescaled (non-fractional) bits of the RTC real-time count */
+      unsigned int VALUE      : 16;  /**< Upper 16 Prescaled (Non-Fractional) Bits of the RTC Real-Time Count */
     };
     uint16_t VALUE16;
   };
@@ -470,9 +451,6 @@ typedef struct _ADI_RTC_CNT1_t {
 
 /** @defgroup ALM0 RTC Alarm 0 (ALM0) Register
  *  RTC Alarm 0 (ALM0) Register.
- *
- *  ALM0 contains the lower 16 bits of the non-fractional (that is, prescaled) RTC alarm target time value
- *  .
  *  @{
  */
 
@@ -484,7 +462,7 @@ typedef struct _ADI_RTC_CNT1_t {
 typedef struct _ADI_RTC_ALM0_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Lower 16 prescaled (that is, non-fractional) bits of the RTC alarm target time */
+      unsigned int VALUE      : 16;  /**< Lower 16 Prescaled (i.e. Non-Fractional) Bits of the RTC Alarm Target Time */
     };
     uint16_t VALUE16;
   };
@@ -495,9 +473,6 @@ typedef struct _ADI_RTC_ALM0_t {
 
 /** @defgroup ALM1 RTC Alarm 1 (ALM1) Register
  *  RTC Alarm 1 (ALM1) Register.
- *
- *  ALM1 contains the upper 16 bits of the non-fractional (prescaled) RTC alarm target time value
- *  .
  *  @{
  */
 
@@ -509,7 +484,7 @@ typedef struct _ADI_RTC_ALM0_t {
 typedef struct _ADI_RTC_ALM1_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Upper 16 prescaled (non-fractional) bits of the RTC alarm target time */
+      unsigned int VALUE      : 16;  /**< Upper 16 Prescaled (Non-Fractional) Bits of the RTC Alarm Target Time */
     };
     uint16_t VALUE16;
   };
@@ -520,8 +495,6 @@ typedef struct _ADI_RTC_ALM1_t {
 
 /** @defgroup TRM RTC Trim (TRM) Register
  *  RTC Trim (TRM) Register.
- *
- *  TRM contains the trim value and interval for a periodic adjustment of the RTC count value to track time with the required accuracy. Trimming is enabled and disabled via the CR0:TRMEN bit. For trimming to occur, the global enable for the RTC, CR0:CNTEN, must also be active.
  *  @{
  */
 
@@ -533,10 +506,10 @@ typedef struct _ADI_RTC_ALM1_t {
 typedef struct _ADI_RTC_TRM_t {
   union {
     struct {
-      unsigned int VALUE      :  3;  /**< Trim value in prescaled RTC time units to be added or subtracted from the RTC count at the end of a periodic interval selected by RTC Trim Register */
+      unsigned int VALUE      :  3;  /**< Trim Value in Prescaled RTC Time Units to Be Added or Subtracted from the RTC Count at the End of a Periodic Interval Selected by TRM:TRMIVL */
       unsigned int ADD        :  1;  /**< Trim Polarity */
-      unsigned int IVL        :  2;  /**< Trim interval in prescaled RTC time units */
-      unsigned int IVL2EXPMIN :  4;  /**< Minimum power-of-two interval of prescaled RTC time units which RTC Trim Register can select */
+      unsigned int IVL        :  2;  /**< Trim Interval in Prescaled RTC Time Units */
+      unsigned int IVL2EXPMIN :  4;  /**< Minimum Power-of-two Interval of Prescaled RTC Time Units Which TRM:TRMIVL TRMIVL Can Select */
       unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
@@ -548,8 +521,6 @@ typedef struct _ADI_RTC_TRM_t {
 
 /** @defgroup GWY RTC Gateway (GWY) Register
  *  RTC Gateway (GWY) Register.
- *
- *  GWY is a gateway MMR address through which the CPU can order actions to be taken within the RTC. The CPU does this by writing specific keys to GWY. Note that GWY reads back as all zeros.
  *  @{
  */
 
@@ -561,7 +532,7 @@ typedef struct _ADI_RTC_TRM_t {
 typedef struct _ADI_RTC_GWY_t {
   union {
     struct {
-      unsigned int SWKEY      : 16;  /**< Software-keyed command issued by the CPU */
+      unsigned int SWKEY      : 16;  /**< Software-keyed Command Issued by the CPU */
     };
     uint16_t VALUE16;
   };
@@ -572,13 +543,6 @@ typedef struct _ADI_RTC_GWY_t {
 
 /** @defgroup CR1 RTC Control 1 (CR1) Register
  *  RTC Control 1 (CR1) Register.
- *
- *  CR1 register expands the granularity of RTC control which is already available via CR0. 
- *  
- *  
- *  
- *  
- *  Note that CR1 is only configurable in RTC1, whereas in RTC0 it is a read-only register with fixed (reset) settings.
  *  @{
  */
 
@@ -590,12 +554,12 @@ typedef struct _ADI_RTC_GWY_t {
 typedef struct _ADI_RTC_CR1_t {
   union {
     struct {
-      unsigned int CNTINTEN   :  1;  /**< Enable for the RTC count interrupt source */
-      unsigned int PSINTEN    :  1;  /**< Enable for the prescaled, modulo-1 interrupt source */
-      unsigned int RTCTRMINTEN :  1;  /**< Enable for the RTC Trim interrupt source */
-      unsigned int CNTROLLINTEN :  1;  /**< Enable for the RTC count roll-over interrupt source in RTC Status 2 Register */
-      unsigned int CNTMOD60ROLLINTEN :  1;  /**< Enable for the RTC modulo-60 count roll-over interrupt source in RTC Status 2 Register */
-      unsigned int PRESCALE2EXP      :  4;  /**< Prescale power of 2 division factor for the RTC base clock */
+      unsigned int CNTINTEN   :  1;  /**< Enable for the RTC Count Interrupt Source */
+      unsigned int PSINTEN    :  1;  /**< Enable for the Prescaled, Modulo-1 Interrupt Source, in SR2:RTCPSINT */
+      unsigned int TRMINTEN   :  1;  /**< Enable for the RTC Trim Interrupt Source, in SR2:RTCTRMINT */
+      unsigned int CNTROLLINTEN :  1;  /**< Enable for the RTC Count Roll-Over Interrupt Source, in SR2:RTCCNTROLLINT */
+      unsigned int CNTMOD60ROLLINTEN :  1;  /**< Enable for the RTC Modulo-60 Count Roll-Over Interrupt Source, in SR2:RTCCNTMOD60ROLLINT    */
+      unsigned int PRESCALE2EXP      :  4;  /**< Prescale Power of 2 Division Factor for the RTC Base Clock */
       unsigned int reserved9         :  7;
     };
     uint16_t VALUE16;
@@ -607,14 +571,6 @@ typedef struct _ADI_RTC_CR1_t {
 
 /** @defgroup SR2 RTC Status 2 (SR2) Register
  *  RTC Status 2 (SR2) Register.
- *
- *  SR2 is a status register which further complements the status information provided by SR0 and SR1. 
- *  RTC1 has full SR2 functionality, RTC0 has reduced features.
- *  
- *  
- *  
- *  
- *  All interrupt sources in SR2 are sticky, active high, level signals. Each source can be cleared by writing one to it.
  *  @{
  */
 
@@ -626,19 +582,19 @@ typedef struct _ADI_RTC_CR1_t {
 typedef struct _ADI_RTC_SR2_t {
   union {
     struct {
-      unsigned int CNTINT     :  1;  /**< RTC count interrupt source */
-      unsigned int PSINT      :  1;  /**< RTC prescaled, modulo-1 boundary interrupt source */
-      unsigned int TRMINT     :  1;  /**< RTC Trim interrupt source */
-      unsigned int CNTROLLINT :  1;  /**< RTC count roll-over interrupt source */
-      unsigned int CNTMOD60ROLLINT :  1;  /**< RTC modulo-60 count roll-over interrupt source */
-      unsigned int CNTROLL         :  1;  /**< RTC count roll-over */
-      unsigned int CNTMOD60ROLL    :  1;  /**< RTC count modulo-60 roll-over */
-      unsigned int TRMBDYMIR       :  1;  /**< Mirror of the RTCTRMBDY field of RTC Modulo Register */
+      unsigned int CNTINT     :  1;  /**< RTC Count Interrupt Source */
+      unsigned int PSINT      :  1;  /**< RTC Prescaled, Modulo-1 Boundary Interrupt Source */
+      unsigned int TRMINT     :  1;  /**< RTC Trim Interrupt Source */
+      unsigned int CNTROLLINT :  1;  /**< RTC Count Roll-Over Interrupt Source */
+      unsigned int CNTMOD60ROLLINT :  1;  /**< RTC Modulo-60 Count Roll-Over Interrupt Source */
+      unsigned int CNTROLL         :  1;  /**< RTC Count Roll-Over */
+      unsigned int CNTMOD60ROLL    :  1;  /**< RTC Count Modulo-60 Roll-Over */
+      unsigned int TRMBDYMIR       :  1;  /**< Mirror of MOD:RTCTRMBDY */
       unsigned int reserved8       :  4;
-      unsigned int WPNDCR1MIR      :  1;  /**< Pending status of posted writes to RTC Control 1 Register */
-      unsigned int WPNDALM2MIR     :  1;  /**< Pending status of posted writes to RTC Alarm 2 Register */
-      unsigned int WSYNCCR1MIR     :  1;  /**< Synchronization status of posted writes to RTC Control 1 Register */
-      unsigned int WSYNCALM2MIR    :  1;  /**< Synchronization status of posted writes to RTC Alarm 2 Register */
+      unsigned int WPNDCR1MIR      :  1;  /**< Pending Status of Posted Writes to CR1 */
+      unsigned int WPNDALM2MIR     :  1;  /**< Pending Status of Posted Writes to ALM2 */
+      unsigned int WSYNCCR1MIR     :  1;  /**< Synchronization Status of Posted Writes to CR1 */
+      unsigned int WSYNCALM2MIR    :  1;  /**< Synchronization Status of Posted Writes to ALM2 */
     };
     uint16_t VALUE16;
   };
@@ -649,12 +605,6 @@ typedef struct _ADI_RTC_SR2_t {
 
 /** @defgroup SNAP0 RTC Snapshot 0 (SNAP0) Register
  *  RTC Snapshot 0 (SNAP0) Register.
- *
- *  SNAP0 is a sticky snapshot of the value of CNT0. It is updated (along with its counterparts SNAP1 and SNAP2), thereby overwriting any previous value of {SNAP1, SNAP0}. {SNAP2}, whenever either of the following two events occurs:
- *  
- *  	(i) the CPU writes a snapshot request key of 16'h7627 to the GWY MMR.
- *  
- *  	(ii) an input-capture event occurs on the IC0 channel when enabled, provided the setting CR2IC:RTCICOWUSEN allows such overwriting.
  *  @{
  */
 
@@ -666,7 +616,7 @@ typedef struct _ADI_RTC_SR2_t {
 typedef struct _ADI_RTC_SNAP0_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Constituent part of the 47-bit RTC Input Capture Channel 0, containing a sticky snapshot of  RTC Count 0 Register */
+      unsigned int VALUE      : 16;  /**< Constituent Part of the 47-bit Input Capture Channel 0, Containing a Sticky Snapshot of  CNT0 */
     };
     uint16_t VALUE16;
   };
@@ -677,12 +627,6 @@ typedef struct _ADI_RTC_SNAP0_t {
 
 /** @defgroup SNAP1 RTC Snapshot 1 (SNAP1) Register
  *  RTC Snapshot 1 (SNAP1) Register.
- *
- *  SNAP1 is a sticky snapshot of the value of CNT1. It is updated (along with its counterparts SNAP0 and SNAP2, thereby overwriting any previous value of {SNAP1, SNAP0}. {SNAP2}, whenever either of the following two events occurs: 
- *  
- *  	(i) the CPU writes a snapshot request key of 16'h7627 to the GWY MMR.
- *  
- *  	(ii) an input-capture event occurs on the RTCIC0 channel when enabled, provided the setting of CR2IC:RTCICOWUSEN allows such overwriting.
  *  @{
  */
 
@@ -694,7 +638,7 @@ typedef struct _ADI_RTC_SNAP0_t {
 typedef struct _ADI_RTC_SNAP1_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Part of the 47-bit RTC Input Capture Channel 0 containing a sticky snapshot of  RTC Count 1 Register */
+      unsigned int VALUE      : 16;  /**< Part of the 47-bit Input Capture Channel 0 Containing a Sticky Snapshot of  CNT1 */
     };
     uint16_t VALUE16;
   };
@@ -705,12 +649,6 @@ typedef struct _ADI_RTC_SNAP1_t {
 
 /** @defgroup SNAP2 RTC Snapshot 2 (SNAP2) Register
  *  RTC Snapshot 2 (SNAP2) Register.
- *
- *  SNAP2 is a sticky snapshot of the value of CNT2. It is updated (along with its counterparts SNAP0 and SNAP1), thereby overwriting any previous value of {SNAP1, SNAP0}. {SNAP2}, whenever either of the following two events occurs:
- *  
- *  	(i) the CPU writes a snapshot request key of 16'h7627 to the GWY MMR.
- *  
- *  	(ii) an input-capture event occurs on the RTCIC0 channel when enabled, provided the setting of CR2IC:RTCICOWUSEN allows such overwriting.
  *  @{
  */
 
@@ -722,7 +660,7 @@ typedef struct _ADI_RTC_SNAP1_t {
 typedef struct _ADI_RTC_SNAP2_t {
   union {
     struct {
-      unsigned int VALUE      : 15;  /**< Part of the 47-bit RTC Input Capture Channel 0 containing a sticky snapshot of RTC Count 2 Register */
+      unsigned int VALUE      : 15;  /**< Part of the 47-bit Input Capture Channel 0 Containing a Sticky Snapshot of CNT2 */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -734,15 +672,6 @@ typedef struct _ADI_RTC_SNAP2_t {
 
 /** @defgroup MOD RTC Modulo (MOD) Register
  *  RTC Modulo (MOD) Register.
- *
- *  MOD is a read-only register which makes available RTCCNTMOD60, which is the modulo-60 equivalent of the {CNT1, CNT0} count value. This modulo-60 value is equal to the displacement in prescaled RTC time units past the most recent modulo-60 roll-over event. A roll-over is a synonym for a modulo-60 boundary.
- *  
- *  
- *  Boundaries are defined in the following way. The RTC realigns itself to create coincident modulo-60 and modulo-1 boundaries whenever either of the following events occurs :
- *  
- *  (i) the CPU writes a new pair of values to the CNT1 and CNT0 registers to redefine the elapsed time units count while the RTC is enabled and this posted twin write is subsequently executed or 
- *  
- *  (ii) the CPU enables the RTC from a disabled state using the CR0:CNTEN field.
  *  @{
  */
 
@@ -754,10 +683,10 @@ typedef struct _ADI_RTC_SNAP2_t {
 typedef struct _ADI_RTC_MOD_t {
   union {
     struct {
-      unsigned int CNTMOD60   :  6;  /**< Modulo-60 value of prescaled  RTC Count 1 and RTC Count 0 Registers */
-      unsigned int INCR       :  4;  /**< Most recent increment value added to the RTC Count in RTC Count 1 and RTC Count 0 Registers */
-      unsigned int TRMBDY     :  1;  /**< Trim boundary indicator that the most recent RTC count increment has coincided with trimming of the count value */
-      unsigned int CNT0_4TOZERO :  5;  /**< Mirror of RTC Count 0 Register */
+      unsigned int CNTMOD60   :  6;  /**< Modulo-60 Value of the RTC Count: CNT1 and CNT0 */
+      unsigned int INCR       :  4;  /**< Most Recent Increment Value Added to the RTC Count in CNT1 and CNT0 */
+      unsigned int TRMBDY     :  1;  /**< Trim Boundary Indicator */
+      unsigned int CNT0_4TOZERO :  5;  /**< Mirror of CNT0[4:0] */
     };
     uint16_t VALUE16;
   };
@@ -768,13 +697,6 @@ typedef struct _ADI_RTC_MOD_t {
 
 /** @defgroup CNT2 RTC Count 2 (CNT2) Register
  *  RTC Count 2 (CNT2) Register.
- *
- *  CNT2 contains the fractional part of the RTC count. The overall resolution of the real-time count, including the fractional bits in CNT2, is therefore one 32 kHz clock period.
- *  
- *  
- *  
- *  
- *  Note that the CNT2 register only exists in RTC1. In RTC0, the fractional part of the RTC count cannot be read by the CPU.
  *  @{
  */
 
@@ -786,7 +708,7 @@ typedef struct _ADI_RTC_MOD_t {
 typedef struct _ADI_RTC_CNT2_t {
   union {
     struct {
-      unsigned int VALUE      : 15;  /**< Fractional bits of the RTC real-time count */
+      unsigned int VALUE      : 15;  /**< Fractional Bits of the RTC Real-Time Count */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -798,8 +720,6 @@ typedef struct _ADI_RTC_CNT2_t {
 
 /** @defgroup ALM2 RTC Alarm 2 (ALM2) Register
  *  RTC Alarm 2 (ALM2) Register.
- *
- *  ALM2 specifies the fractional (non-prescaled) bits of the RTC alarm target time value, down to an individual 32 kHz clock cycle.
  *  @{
  */
 
@@ -811,7 +731,7 @@ typedef struct _ADI_RTC_CNT2_t {
 typedef struct _ADI_RTC_ALM2_t {
   union {
     struct {
-      unsigned int VALUE      : 15;  /**< Fractional (non-prescaled) bits of the RTC alarm target time */
+      unsigned int VALUE      : 15;  /**< Fractional Bits of the Alarm Target Time */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -823,10 +743,6 @@ typedef struct _ADI_RTC_ALM2_t {
 
 /** @defgroup SR3 RTC Status 3 (SR3) Register
  *  RTC Status 3 (SR3) Register.
- *
- *  SR3 is a status register containing write-one-to-clear, interrupt sources which stick active high whenever events occur for enabled input capture or output compare channels.
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -838,14 +754,14 @@ typedef struct _ADI_RTC_ALM2_t {
 typedef struct _ADI_RTC_SR3_t {
   union {
     struct {
-      unsigned int RTCIC0IRQ  :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 0 */
+      unsigned int IC0IRQ     :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 0 */
       unsigned int reserved1  :  1;
-      unsigned int RTCIC2IRQ  :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 2 */
-      unsigned int RTCIC3IRQ  :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 3 */
-      unsigned int RTCIC4IRQ  :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 4 */
+      unsigned int IC2IRQ     :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 2 */
+      unsigned int IC3IRQ     :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 3 */
+      unsigned int IC4IRQ     :  1;  /**< Sticky Interrupt Source for the RTC Input Capture Channel 4 */
       unsigned int reserved5  :  3;
-      unsigned int ALMINTMIR  :  1;  /**< Read-only mirror of the ALMINT interrupt source in RTC Status 0 Register, acting as RTCOC0IRQ */
-      unsigned int RTCOC1IRQ  :  1;  /**< Sticky Interrupt Source for Output Compare Channel 1 */
+      unsigned int ALMINTMIR  :  1;  /**< Read-only Mirror of the ALMINT Interrupt Source in SR0 Register */
+      unsigned int SS1IRQ     :  1;  /**< Sticky Interrupt Source for SensorStrobe Channel 1 */
       unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
@@ -857,10 +773,6 @@ typedef struct _ADI_RTC_SR3_t {
 
 /** @defgroup CR2IC RTC Control 2 for Configuring Input Capture Channels (CR2IC) Register
  *  RTC Control 2 for Configuring Input Capture Channels (CR2IC) Register.
- *
- *  CR2IC is a control register for configuring enables related to input-capture channels. CR2IC  contains enables for both the input-capture function itself for each channel, as well as enables for whether an event on a channel should contribute to the interrupt lines from the RTC to both the CPU and the wake-up controller.
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -872,22 +784,22 @@ typedef struct _ADI_RTC_SR3_t {
 typedef struct _ADI_RTC_CR2IC_t {
   union {
     struct {
-      unsigned int RTCIC0EN   :  1;  /**< Enable for the RTC Input Capture Channel 0 */
+      unsigned int IC0EN      :  1;  /**< Enable for the RTC Input Capture Channel 0 */
       unsigned int reserved1  :  1;
-      unsigned int RTCIC2EN   :  1;  /**< Enable for the RTC Input Capture Channel 2 */
-      unsigned int RTCIC3EN   :  1;  /**< Enable for the RTC Input Capture Channel 3 */
-      unsigned int RTCIC4EN   :  1;  /**< Enable for the RTC Input Capture Channel 4 */
-      unsigned int RTCIC0LH   :  1;  /**< Polarity of the active-going capture edge for the RTC Input Capture Channel 0 */
+      unsigned int IC2EN      :  1;  /**< Enable for the RTC Input Capture Channel 2 */
+      unsigned int IC3EN      :  1;  /**< Enable for the RTC Input Capture Channel 3 */
+      unsigned int IC4EN      :  1;  /**< Enable for the RTC Input Capture Channel 4 */
+      unsigned int IC0LH      :  1;  /**< Polarity of the Active-Going Capture Edge for the RTC Input Capture Channel 0 */
       unsigned int reserved6  :  1;
-      unsigned int RTCIC2LH   :  1;  /**< Polarity of the active-going capture edge for the RTC Input Capture Channel 2 */
-      unsigned int RTCIC3LH   :  1;  /**< Polarity of the active-going capture edge for the RTC Input Capture Channel 3 */
-      unsigned int RTCIC4LH   :  1;  /**< Polarity of the active-going capture edge for the RTC Input Capture Channel 4 */
-      unsigned int RTCIC0IRQEN :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 0 */
-      unsigned int reserved11  :  1;
-      unsigned int RTCIC2IRQEN :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 2 */
-      unsigned int RTCIC3IRQEN :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 3 */
-      unsigned int RTCIC4IRQEN :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 4 */
-      unsigned int RTCICOWUSEN :  1;  /**< Enable Overwrite of Unread Snapshots for all RTC Input Capture Channels */
+      unsigned int IC2LH      :  1;  /**< Polarity of the Active-going Capture Edge for the Input Capture Channel 2 */
+      unsigned int IC3LH      :  1;  /**< Polarity of the Active-going Capture Edge for the Input Capture Channel 3 */
+      unsigned int IC4LH      :  1;  /**< Polarity of the Active-going Capture Edge for the Input Capture Channel 4 */
+      unsigned int IC0IRQEN   :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 0 */
+      unsigned int reserved11 :  1;
+      unsigned int IC2IRQEN   :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 2 */
+      unsigned int IC3IRQEN   :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 3 */
+      unsigned int IC4IRQEN   :  1;  /**< Interrupt Enable for the RTC Input Capture Channel 4 */
+      unsigned int ICOWUSEN   :  1;  /**< Enable Overwrite of Unread Snapshots for All Input Capture Channels */
     };
     uint16_t VALUE16;
   };
@@ -896,146 +808,115 @@ typedef struct _ADI_RTC_CR2IC_t {
 
 /*@}*/
 
-/** @defgroup CR3OC RTC Control 3 for Configuring Output Compare Channel (CR3OC) Register
- *  RTC Control 3 for Configuring Output Compare Channel (CR3OC) Register.
- *
- *  CR3OC is a control register for configuring enables related to 16-bit output-compare channels. 
- *  
- *  
- *  
- *  The 47-bit RTCOC0 channel is not controlled by CR3OC. This is because RTCOC0 is a synonym for the main 47-bit RTC alarm (whose interrupt source is SR0:ALMINT), which is controlled by CR0:ALMEN and CR0:ALMINTEN.
- *  
- *  Note that CR3OC only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
+/** @defgroup CR3SS RTC Control 3 for Configuring SensorStrobe Channel (CR3SS) Register
+ *  RTC Control 3 for Configuring SensorStrobe Channel (CR3SS) Register.
  *  @{
  */
 
 /* ==========================================================================
- *! \struct ADI_RTC_CR3OC_Struct
- *! \brief  RTC Control 3 for Configuring Output Compare Channel Register bit field structure
+ *! \struct ADI_RTC_CR3SS_Struct
+ *! \brief  RTC Control 3 for Configuring SensorStrobe Channel Register bit field structure
  * ========================================================================== */
-#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_CR3OC_t__
-typedef struct _ADI_RTC_CR3OC_t {
+#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_CR3SS_t__
+typedef struct _ADI_RTC_CR3SS_t {
   union {
     struct {
       unsigned int reserved0  :  1;
-      unsigned int RTCOC1EN   :  1;  /**< Enable for Output Compare Channel 1 */
-      unsigned int reserved2   :  7;
-      unsigned int RTCOC1IRQEN :  1;  /**< Interrupt Enable for Output Compare Channel 1 */
-      unsigned int reserved10  :  6;
+      unsigned int SS1EN      :  1;  /**< Enable for SensorStrobe Channel 1 */
+      unsigned int reserved2  :  7;
+      unsigned int SS1IRQEN   :  1;  /**< Interrupt Enable for SensorStrobe Channel 1 */
+      unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
   };
-} ADI_RTC_CR3OC_t;
-#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_CR3OC_t__ */
+} ADI_RTC_CR3SS_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_CR3SS_t__ */
 
 /*@}*/
 
-/** @defgroup CR4OC RTC Control 4 for Configuring Output Compare Channel (CR4OC) Register
- *  RTC Control 4 for Configuring Output Compare Channel (CR4OC) Register.
- *
- *  CR4OC is a control register for configuring enables related to masking and auto-reloading of the 16-bit output-compare channel OC1.
- *  
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
+/** @defgroup CR4SS RTC Control 4 for Configuring SensorStrobe Channel (CR4SS) Register
+ *  RTC Control 4 for Configuring SensorStrobe Channel (CR4SS) Register.
  *  @{
  */
 
 /*  =========================================================================
- *! \enum   ADI_RTC_CR4OC_RTCOC1MSKEN
- *! \brief  Enable for thermometer-code masking of the Output Compare 1 Channel (RTCOC1MSKEN) Enumerations
+ *! \enum   ADI_RTC_CR4SS_SS1MSKEN
+ *! \brief  Enable for Thermometer-Code Masking of the SensorStrobe Channel 1 (SS1MSKEN) Enumerations
  *  ========================================================================= */
 typedef enum
 {
-  RTC_CR4OC_EN000 = 0,  /**< Do not apply a mask to the 16-bit Output Compare channel ${.:OC1}.                                                                      */
-  RTC_CR4OC_EN001 = 1   /**< Apply a thermometer-decoded mask to the 16-bit Output Compare channel ${.:OC1} provided that channel is enabled via ${.:CR3OC:RTCOC1EN} */
-} ADI_RTC_CR4OC_RTCOC1MSKEN;
+  RTC_CR4SS_NO_MSK    = 0,  /**< Do not apply a mask to SensorStrobe Channel 1 Register */
+  RTC_CR4SS_THERM_MSK = 1   /**< Apply thermometer decoded mask                         */
+} ADI_RTC_CR4SS_SS1MSKEN;
 
 
 /* ==========================================================================
- *! \struct ADI_RTC_CR4OC_Struct
- *! \brief  RTC Control 4 for Configuring Output Compare Channel Register bit field structure
+ *! \struct ADI_RTC_CR4SS_Struct
+ *! \brief  RTC Control 4 for Configuring SensorStrobe Channel Register bit field structure
  * ========================================================================== */
-#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_CR4OC_t__
-typedef struct _ADI_RTC_CR4OC_t {
+#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_CR4SS_t__
+typedef struct _ADI_RTC_CR4SS_t {
   union {
     struct {
-      unsigned int reserved0   :  1;
-      unsigned int RTCOC1MSKEN :  1;  /**< Enable for thermometer-code masking of the Output Compare 1 Channel */
-      unsigned int reserved2   :  7;
-      unsigned int RTCOC1ARLEN :  1;  /**< Enable for auto-reloading when output compare match occurs */
-      unsigned int reserved10  :  6;
+      unsigned int reserved0  :  1;
+      unsigned int SS1MSKEN   :  1;  /**< Enable for Thermometer-Code Masking of the SensorStrobe Channel 1 */
+      unsigned int reserved2  :  7;
+      unsigned int SS1ARLEN   :  1;  /**< Enable for Auto-Reloading When SensorStrobe Match Occurs */
+      unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
   };
-} ADI_RTC_CR4OC_t;
-#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_CR4OC_t__ */
+} ADI_RTC_CR4SS_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_CR4SS_t__ */
 
 /*@}*/
 
-/** @defgroup OCMSK RTC Masks for Output Compare Channel (OCMSK) Register
- *  RTC Masks for Output Compare Channel (OCMSK) Register.
- *
- *  OCMSK contains a 4-bit encoded mask, which are decoded out to four 16-bit thermometer-code mask to define contiguous don't care bit positions for target alarm times in the 16-bit output compare channel 1.
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
+/** @defgroup SSMSK RTC Mask for SensorStrobe Channel (SSMSK) Register
+ *  RTC Mask for SensorStrobe Channel (SSMSK) Register.
  *  @{
  */
 
 /* ==========================================================================
- *! \struct ADI_RTC_OCMSK_Struct
- *! \brief  RTC Masks for Output Compare Channel Register bit field structure
+ *! \struct ADI_RTC_SSMSK_Struct
+ *! \brief  RTC Mask for SensorStrobe Channel Register bit field structure
  * ========================================================================== */
-#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_OCMSK_t__
-typedef struct _ADI_RTC_OCMSK_t {
+#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_SSMSK_t__
+typedef struct _ADI_RTC_SSMSK_t {
   union {
     struct {
-      unsigned int RTCOCMSK   : 16;  /**< Concatenation of thermometer-encoded masks for the output compare channel */
+      unsigned int SSMSK      : 16;  /**< Thermometer-Encoded Masks for SensorStrobe Channels */
     };
     uint16_t VALUE16;
   };
-} ADI_RTC_OCMSK_t;
-#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_OCMSK_t__ */
+} ADI_RTC_SSMSK_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_SSMSK_t__ */
 
 /*@}*/
 
-/** @defgroup OC1ARL RTC Auto-Reload for Output Compare Channel 1 (OC1ARL) Register
- *  RTC Auto-Reload for Output Compare Channel 1 (OC1ARL) Register.
- *
- *  OC1ARL contains the 16-bit reload value which is optionally (enabled by CR4OC:RTCOC1ARLEN) added to the cumulative value of OC1, visible in the OC1TGT register, whenever an enabled output compare event occurs on that channel. Only OC1 has this reload capability.
- *  
- *  The use of OC1ARL allows a repeating alarm whose periodicity either is or is not a power of 2 to be put into effect for OC1. 
- *  
- *  If reloading is not enabled, the read-back values of OC1 and OC1TGT are the same, namely the starting (and not reloaded because not enabled) output-compare value in OC1.
- *  
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
+/** @defgroup SS1ARL RTC Auto-Reload for SensorStrobe Channel 1 (SS1ARL) Register
+ *  RTC Auto-Reload for SensorStrobe Channel 1 (SS1ARL) Register.
  *  @{
  */
 
 /* ==========================================================================
- *! \struct ADI_RTC_OC1ARL_Struct
- *! \brief  RTC Auto-Reload for Output Compare Channel 1 Register bit field structure
+ *! \struct ADI_RTC_SS1ARL_Struct
+ *! \brief  RTC Auto-Reload for SensorStrobe Channel 1 Register bit field structure
  * ========================================================================== */
-#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_OC1ARL_t__
-typedef struct _ADI_RTC_OC1ARL_t {
+#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_SS1ARL_t__
+typedef struct _ADI_RTC_SS1ARL_t {
   union {
     struct {
-      unsigned int RTCOC1ARL  : 16;  /**< Auto-reload value when output compare match occurs */
+      unsigned int SS1ARL     : 16;  /**< Auto-Reload Value When SensorStrobe Match Occurs */
     };
     uint16_t VALUE16;
   };
-} ADI_RTC_OC1ARL_t;
-#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_OC1ARL_t__ */
+} ADI_RTC_SS1ARL_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_SS1ARL_t__ */
 
 /*@}*/
 
 /** @defgroup IC2 RTC Input Capture Channel 2 (IC2) Register
  *  RTC Input Capture Channel 2 (IC2) Register.
- *
- *  IC2 is a read-only snapshot of the 16 lowest {integer_bits, fractional_bits} with meaning of the main 47-bit RTC count at the most recent event on input capture channel 2.
- *  
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -1047,7 +928,7 @@ typedef struct _ADI_RTC_OC1ARL_t {
 typedef struct _ADI_RTC_IC2_t {
   union {
     struct {
-      unsigned int RTCIC2     : 16;  /**< RTC Input Capture Channel 2 */
+      unsigned int IC2        : 16;  /**< RTC Input Capture Channel 2 */
     };
     uint16_t VALUE16;
   };
@@ -1058,12 +939,6 @@ typedef struct _ADI_RTC_IC2_t {
 
 /** @defgroup IC3 RTC Input Capture Channel 3 (IC3) Register
  *  RTC Input Capture Channel 3 (IC3) Register.
- *
- *  IC3is a read-only snapshot of the 16 lowest {integer_bits, fractional_bits} with meaning of the main 47-bit RTC count at the most recent event on input capture channel 3.
- *  
- *  
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -1075,7 +950,7 @@ typedef struct _ADI_RTC_IC2_t {
 typedef struct _ADI_RTC_IC3_t {
   union {
     struct {
-      unsigned int RTCIC3     : 16;  /**< RTC Input Capture Channel 3 */
+      unsigned int IC3        : 16;  /**< RTC Input Capture Channel 3 */
     };
     uint16_t VALUE16;
   };
@@ -1086,12 +961,6 @@ typedef struct _ADI_RTC_IC3_t {
 
 /** @defgroup IC4 RTC Input Capture Channel 4 (IC4) Register
  *  RTC Input Capture Channel 4 (IC4) Register.
- *
- *  IC4 is a read-only snapshot of the 16 lowest {integer_bits, fractional_bits} with meaning of the main 47-bit RTC count at the most recent event on input capture channel 4.
- *  
- *  
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -1103,7 +972,7 @@ typedef struct _ADI_RTC_IC3_t {
 typedef struct _ADI_RTC_IC4_t {
   union {
     struct {
-      unsigned int RTCIC4     : 16;  /**< RTC Input Capture Channel 4 */
+      unsigned int IC4        : 16;  /**< RTC Input Capture Channel 4 */
     };
     uint16_t VALUE16;
   };
@@ -1112,43 +981,30 @@ typedef struct _ADI_RTC_IC4_t {
 
 /*@}*/
 
-/** @defgroup OC1 RTC Output Compare Channel 1 (OC1) Register
- *  RTC Output Compare Channel 1 (OC1) Register.
- *
- *  OC1 is the scheduled alarm time for output capture channel 1 with respect to the 16 lowest {integer_bits, fractional_bits} with meaning of the main 47-bit RTC count. The upper bits of the main RTC count, beyond these 16 bit positions, are don't cares for the purposes of the 16-bit  OC1 output compare channel.
- *  
- *  
- *  
- *  
- *  Note that this register only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
+/** @defgroup SS1 RTC SensorStrobe Channel 1 (SS1) Register
+ *  RTC SensorStrobe Channel 1 (SS1) Register.
  *  @{
  */
 
 /* ==========================================================================
- *! \struct ADI_RTC_OC1_Struct
- *! \brief  RTC Output Compare Channel 1 Register bit field structure
+ *! \struct ADI_RTC_SS1_Struct
+ *! \brief  RTC SensorStrobe Channel 1 Register bit field structure
  * ========================================================================== */
-#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_OC1_t__
-typedef struct _ADI_RTC_OC1_t {
+#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_SS1_t__
+typedef struct _ADI_RTC_SS1_t {
   union {
     struct {
-      unsigned int RTCOC1     : 16;  /**< RTC Output Compare 1 Channel */
+      unsigned int SS1        : 16;  /**< SensorStrobe Channel 1 */
     };
     uint16_t VALUE16;
   };
-} ADI_RTC_OC1_t;
-#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_OC1_t__ */
+} ADI_RTC_SS1_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_SS1_t__ */
 
 /*@}*/
 
 /** @defgroup SR4 RTC Status 4 (SR4) Register
  *  RTC Status 4 (SR4) Register.
- *
- *  SR4 is a status register which provides the synchronization status of posted writes and posted reads to those registers related to input capture and output control which are sourced in the 32 kHz always-on half of the RTC.
- *  
- *  
- *  
- *  Note that SR4 only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -1160,19 +1016,19 @@ typedef struct _ADI_RTC_OC1_t {
 typedef struct _ADI_RTC_SR4_t {
   union {
     struct {
-      unsigned int WSYNCSR3   :  1;  /**< Synchronization status of posted clearances to interrupt sources in RTC Status 3 Register */
-      unsigned int WSYNCCR2IC :  1;  /**< Synchronization status of posted writes to RTC Control 2 for Configuring Input Capture Channels Register */
-      unsigned int WSYNCCR3OC :  1;  /**< Synchronization status of posted writes to RTC Control 3 for Configuring Output Compare Channel Register */
-      unsigned int WSYNCCR4OC :  1;  /**< Synchronization status of posted writes to RTC Control 4 for Configuring Output Compare Channel Register */
-      unsigned int WSYNCOCMSK :  1;  /**< Synchronization status of posted writes to RTC Masks for Output Compare Channel Register */
-      unsigned int WSYNCOC1ARL :  1;  /**< Synchronization status of posted writes to RTC Auto-Reload for Output Compare Channel 1 Register */
-      unsigned int WSYNCOC1    :  1;  /**< Synchronization status of posted writes to RTC Output Compare Channel 1 Register */
+      unsigned int WSYNCSR3   :  1;  /**< Synchronisation Status of Posted Writes to SR3 */
+      unsigned int WSYNCCR2IC :  1;  /**< Synchronization Status of Posted Writes to RTC Control 2 for Configuring Input Capture Channels Register */
+      unsigned int WSYNCCR3SS :  1;  /**< Synchronization Status of Posted Writes to RTC Control 3 for Configuring SensorStrobe Channel Register */
+      unsigned int WSYNCCR4SS :  1;  /**< Synchronization Status of Posted Writes to RTC Control 4 for Configuring SensorStrobe Channel Register */
+      unsigned int WSYNCSSMSK :  1;  /**< Synchronization Status of Posted Writes to Masks for SensorStrobe Channel Register */
+      unsigned int WSYNCSS1ARL :  1;  /**< Synchronization Status of Posted Writes to RTC Auto-Reload for SensorStrobe Channel 1 Register */
+      unsigned int WSYNCSS1    :  1;  /**< Synchronization Status of Posted Writes to SensorStrobe Channel 1 */
       unsigned int reserved7   :  3;
-      unsigned int RSYNCIC0    :  1;  /**< Synchronization status of posted reads of RTC Input Channel 0 */
+      unsigned int RSYNCIC0    :  1;  /**< Synchronization Status of Posted Reads of RTC Input Channel 0 */
       unsigned int reserved11  :  1;
-      unsigned int RSYNCIC2    :  1;  /**< Synchronization status of posted reads of RTC Input Channel 2 */
-      unsigned int RSYNCIC3    :  1;  /**< Synchronization status of posted reads of RTC Input Channel 3 */
-      unsigned int RSYNCIC4    :  1;  /**< Synchronization status of posted reads of RTC Input Channel 4 */
+      unsigned int RSYNCIC2    :  1;  /**< Synchronization Status of Posted Reads of RTC Input Channel 2 */
+      unsigned int RSYNCIC3    :  1;  /**< Synchronization Status of Posted Reads of RTC Input Channel 3 */
+      unsigned int RSYNCIC4    :  1;  /**< Synchronization Status of Posted Reads of RTC Input Channel 4 */
       unsigned int reserved15  :  1;
     };
     uint16_t VALUE16;
@@ -1184,12 +1040,6 @@ typedef struct _ADI_RTC_SR4_t {
 
 /** @defgroup SR5 RTC Status 5 (SR5) Register
  *  RTC Status 5 (SR5) Register.
- *
- *  SR5 is a status register which provides the pending (buffered and enqueued) status of posted writes to those registers related to input capture and output control which are sourced in the 32 kHz always-on half of the RTC.
- *  
- *  
- *  
- *  Note that SR5 only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -1201,19 +1051,19 @@ typedef struct _ADI_RTC_SR4_t {
 typedef struct _ADI_RTC_SR5_t {
   union {
     struct {
-      unsigned int WPENDSR3   :  1;  /**< Pending status of posted clearances of interrupt sources in RTC Status 3 Register */
-      unsigned int WPENDCR2IC :  1;  /**< Pending status of posted writes to RTC Control 2 for Configuring Input Capture Channels Register */
-      unsigned int WPENDCR3OC :  1;  /**< Pending status of posted writes to RTC Control 3 for Configuring Output Compare Channel Register */
-      unsigned int WPENDCR4OC :  1;  /**< Pending status of posted writes to RTC Control 4 for Configuring Output Compare Channel Register */
-      unsigned int WPENDOCMSK :  1;  /**< Pending status of posted writes to RTC Masks for Output Compare Channel Register */
-      unsigned int WPENDOC1ARL :  1;  /**< Pending status of posted writes to RTC Auto-Reload for Output Compare Channel 1 Register */
-      unsigned int WPENDOC1    :  1;  /**< Pending status of posted writes to Output Compare Channel 1 */
+      unsigned int WPENDSR3   :  1;  /**< Pending Status of Posted Clearances of Interrupt Sources in RTC Status 3 Register */
+      unsigned int WPENDCR2IC :  1;  /**< Pending Status of Posted Writes to RTC Control 2 for Configuring Input Capture Channels Register */
+      unsigned int WPENDCR3SS :  1;  /**< Pending Status of Posted Writes to RTC Control 3 for Configuring SensorStrobe Channel Register */
+      unsigned int WPENDCR4SS :  1;  /**< Pending Status of Posted Writes to RTC Control 4 for Configuring SensorStrobe Channel Register */
+      unsigned int WPENDSSMSK :  1;  /**< Pending Status of Posted Writes to RTC Masks for SensorStrobe Channel Register */
+      unsigned int WPENDSS1ARL :  1;  /**< Pending Status of Posted Writes to RTC Auto-Reload for SensorStrobe Channel 1 Register */
+      unsigned int WPENDSS1    :  1;  /**< Pending Status of Posted Writes to SensorStrobe Channel 1 */
       unsigned int reserved7   :  3;
-      unsigned int RPENDIC0    :  1;  /**< Pending status of posted reads of RTC Input Channel 0 */
+      unsigned int RPENDIC0    :  1;  /**< Pending Status of Posted Reads of Input Capture Channel 0 */
       unsigned int reserved11  :  1;
-      unsigned int RPENDIC2    :  1;  /**< Pending status of posted reads of RTC Input Channel 2 */
-      unsigned int RPENDIC3    :  1;  /**< Pending status of posted reads of RTC Input Channel 3 */
-      unsigned int RPENDIC4    :  1;  /**< Pending status of posted reads of RTC Input Channel 4 */
+      unsigned int RPENDIC2    :  1;  /**< Pending Status of Posted Reads of IC2 */
+      unsigned int RPENDIC3    :  1;  /**< Pending Status of Posted Reads of IC3 */
+      unsigned int RPENDIC4    :  1;  /**< Pending Status of Posted Reads of IC4 */
       unsigned int reserved15  :  1;
     };
     uint16_t VALUE16;
@@ -1225,12 +1075,6 @@ typedef struct _ADI_RTC_SR5_t {
 
 /** @defgroup SR6 RTC Status 6 (SR6) Register
  *  RTC Status 6 (SR6) Register.
- *
- *  SR6 is a status register which provides the unread status of snapshots of input-capture channels, IC0, IC2, IC3 and IC4.
- *  
- *  
- *  
- *  Note that SR6 only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
  *  @{
  */
 
@@ -1242,15 +1086,15 @@ typedef struct _ADI_RTC_SR5_t {
 typedef struct _ADI_RTC_SR6_t {
   union {
     struct {
-      unsigned int RTCIC0UNR  :  1;  /**< Sticky unread status of the RTC Input Capture Channel 0 */
+      unsigned int IC0UNR     :  1;  /**< Sticky Unread Status of the Input Capture Channel 0 */
       unsigned int reserved1  :  1;
-      unsigned int RTCIC2UNR  :  1;  /**< Sticky unread status of the RTC Input Capture Channel 2 */
-      unsigned int RTCIC3UNR  :  1;  /**< Sticky unread status of the RTC Input Capture Channel 3 */
-      unsigned int RTCIC4UNR  :  1;  /**< Sticky unread status of the RTC Input Capture Channel 4 */
+      unsigned int IC2UNR     :  1;  /**< Sticky Unread Status of the Input Capture Channel 2 */
+      unsigned int IC3UNR     :  1;  /**< Sticky Unread Status of the Input Capture Channel 3 */
+      unsigned int IC4UNR     :  1;  /**< Sticky Unread Status of the Input Capture Channel 4 */
       unsigned int reserved5  :  3;
-      unsigned int RTCIC0SNAP :  1;  /**< Confirmation that RTC Snapshot 0, 1, 2 registers reflect the value of RTC Input Capture Channel 0 */
-      unsigned int RTCFRZCNTPTR :  2;  /**< Pointer for the triple-read sequence of the RTC Freeze Count MMR */
-      unsigned int reserved11   :  5;
+      unsigned int IC0SNAP    :  1;  /**< Confirmation That RTC Snapshot 0, 1, 2 Registers Reflect the Value of Input-Capture Channel RTC Input Capture Channel 0 */
+      unsigned int FRZCNTPTR  :  2;  /**< Pointer for the Triple-Read Sequence of FRZCNT */
+      unsigned int reserved11 :  5;
     };
     uint16_t VALUE16;
   };
@@ -1259,36 +1103,30 @@ typedef struct _ADI_RTC_SR6_t {
 
 /*@}*/
 
-/** @defgroup OC1TGT RTC Output Compare Channel 1 Target (OC1TGT) Register
- *  RTC Output Compare Channel 1 Target (OC1TGT) Register.
- *
- *  Reflects the current, cumulative target alarm time for the OC1 channel.
- *  
- *  OC1TGT only exists in RTC1. In RTC0, the register address is reserved and reads back as the register's reset value.
+/** @defgroup SS1TGT RTC SensorStrobe Channel 1 Target (SS1TGT) Register
+ *  RTC SensorStrobe Channel 1 Target (SS1TGT) Register.
  *  @{
  */
 
 /* ==========================================================================
- *! \struct ADI_RTC_OC1TGT_Struct
- *! \brief  RTC Output Compare Channel 1 Target Register bit field structure
+ *! \struct ADI_RTC_SS1TGT_Struct
+ *! \brief  RTC SensorStrobe Channel 1 Target Register bit field structure
  * ========================================================================== */
-#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_OC1TGT_t__
-typedef struct _ADI_RTC_OC1TGT_t {
+#ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_SS1TGT_t__
+typedef struct _ADI_RTC_SS1TGT_t {
   union {
     struct {
-      unsigned int RTCOC1TGT  : 16;  /**< Provides visibility to the CPU of the current target value for the output-compare channel 1, taking account of any possible auto-reloading */
+      unsigned int SS1TGT     : 16;  /**< Current Target Value for the SensorStrobe Channel 1 */
     };
     uint16_t VALUE16;
   };
-} ADI_RTC_OC1TGT_t;
-#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_OC1TGT_t__ */
+} ADI_RTC_SS1TGT_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_RTC_SS1TGT_t__ */
 
 /*@}*/
 
 /** @defgroup FRZCNT RTC Freeze Count (FRZCNT) Register
  *  RTC Freeze Count (FRZCNT) Register.
- *
- *  RTC Freeze Count MMR allows a coherent, triple 16-bit read of the 47-bit RTC count contained in {CNT2, CNT1, CNT0}.
  *  @{
  */
 
@@ -1300,7 +1138,7 @@ typedef struct _ADI_RTC_OC1TGT_t {
 typedef struct _ADI_RTC_FRZCNT_t {
   union {
     struct {
-      unsigned int RTCFRZCNT  : 16;  /**< RTC Freeze Count. Coherent, triple 16-bit read of the 47-bit RTC count */
+      unsigned int FRZCNT     : 16;  /**< RTC Freeze Count. Coherent, Triple 16-Bit Read of the 47-Bit RTC Count */
     };
     uint16_t VALUE16;
   };
@@ -1311,8 +1149,6 @@ typedef struct _ADI_RTC_FRZCNT_t {
 
 /** @defgroup ADIID ADI Identification (ADIID) Register
  *  ADI Identification (ADIID) Register.
- *
- *  ADI Cortex device identification.
  *  @{
  */
 
@@ -1324,7 +1160,7 @@ typedef struct _ADI_RTC_FRZCNT_t {
 typedef struct _ADI_SYS_ADIID_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Reads a fixed value of 0x4144 to indicate to debuggers that they are connected to an Analog Devices implemented Cortex based part */
+      unsigned int VALUE      : 16;  /**< ADI Cortex Device */
     };
     uint16_t VALUE16;
   };
@@ -1335,8 +1171,6 @@ typedef struct _ADI_SYS_ADIID_t {
 
 /** @defgroup CHIPID Chip Identifier (CHIPID) Register
  *  Chip Identifier (CHIPID) Register.
- *
- *  Chip identification.
  *  @{
  */
 
@@ -1348,8 +1182,8 @@ typedef struct _ADI_SYS_ADIID_t {
 typedef struct _ADI_SYS_CHIPID_t {
   union {
     struct {
-      unsigned int REV        :  4;  /**< Silicon revision */
-      unsigned int PARTID     : 12;  /**< Part identifier */
+      unsigned int REV        :  4;  /**< Silicon Revision */
+      unsigned int PARTID     : 12;  /**< Part Identifier */
     };
     uint16_t VALUE16;
   };
@@ -1360,8 +1194,6 @@ typedef struct _ADI_SYS_CHIPID_t {
 
 /** @defgroup SWDEN Serial Wire Debug Enable (SWDEN) Register
  *  Serial Wire Debug Enable (SWDEN) Register.
- *
- *  The SWDEN register is used to enable the Serial Wire Debug (SWD) interface. This register is reset upon an internal power on reset or an external pin reset. This register is not affected by a software reset.
  *  @{
  */
 
@@ -1373,7 +1205,7 @@ typedef struct _ADI_SYS_CHIPID_t {
 typedef struct _ADI_SYS_SWDEN_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< To enable SWD interface */
+      unsigned int VALUE      : 16;  /**< SWD Interface Enable */
     };
     uint16_t VALUE16;
   };
@@ -1384,8 +1216,6 @@ typedef struct _ADI_SYS_SWDEN_t {
 
 /** @defgroup LOAD Load Value (LOAD) Register
  *  Load Value (LOAD) Register.
- *
- *  
  *  @{
  */
 
@@ -1397,7 +1227,7 @@ typedef struct _ADI_SYS_SWDEN_t {
 typedef struct _ADI_WDT_LOAD_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Load value */
+      unsigned int VALUE      : 16;  /**< Load Value */
     };
     uint16_t VALUE16;
   };
@@ -1408,8 +1238,6 @@ typedef struct _ADI_WDT_LOAD_t {
 
 /** @defgroup CCNT Current Count Value (CCNT) Register
  *  Current Count Value (CCNT) Register.
- *
- *  
  *  @{
  */
 
@@ -1421,7 +1249,7 @@ typedef struct _ADI_WDT_LOAD_t {
 typedef struct _ADI_WDT_CCNT_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Current count value */
+      unsigned int VALUE      : 16;  /**< Current Count Value */
     };
     uint16_t VALUE16;
   };
@@ -1432,10 +1260,19 @@ typedef struct _ADI_WDT_CCNT_t {
 
 /** @defgroup CTL Control (CTL) Register
  *  Control (CTL) Register.
- *
- *  
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_WDT_CTL_IRQ
+ *! \brief  Timer Interrupt (IRQ) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  WDT_CTL_RST = 0,  /**< WDT asserts reset when timed out       */
+  WDT_CTL_INT = 1   /**< WDT generates interrupt when timed out */
+} ADI_WDT_CTL_IRQ;
+
 
 /*  =========================================================================
  *! \enum   ADI_WDT_CTL_PRE
@@ -1443,10 +1280,32 @@ typedef struct _ADI_WDT_CCNT_t {
  *  ========================================================================= */
 typedef enum
 {
-  WDT_CTL_DIV1   = 0,  /**< source clock/1             */
-  WDT_CTL_DIV16  = 1,  /**< source clock/16            */
-  WDT_CTL_DIV256 = 2   /**< source clock/256 (default) */
+  WDT_CTL_DIV1   = 0,  /**< Source clock/1             */
+  WDT_CTL_DIV16  = 1,  /**< Source clock/16            */
+  WDT_CTL_DIV256 = 2   /**< Source clock/256 (default) */
 } ADI_WDT_CTL_PRE;
+
+
+/*  =========================================================================
+ *! \enum   ADI_WDT_CTL_EN
+ *! \brief  Timer Enable (EN) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  WDT_CTL_WDT_DIS = 0,  /**< WDT not enabled */
+  WDT_CTL_WDT_EN  = 1   /**< WDT enabled     */
+} ADI_WDT_CTL_EN;
+
+
+/*  =========================================================================
+ *! \enum   ADI_WDT_CTL_MODE
+ *! \brief  Timer Mode (MODE) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  WDT_CTL_FREE_RUN = 0,  /**< Free running mode */
+  WDT_CTL_PERIODIC = 1   /**< Periodic mode     */
+} ADI_WDT_CTL_MODE;
 
 
 /* ==========================================================================
@@ -1458,12 +1317,12 @@ typedef struct _ADI_WDT_CTL_t {
   union {
     struct {
       unsigned int reserved0  :  1;
-      unsigned int IRQ        :  1;  /**< Timer interrupt */
+      unsigned int IRQ        :  1;  /**< Timer Interrupt */
       unsigned int PRE        :  2;  /**< Prescaler */
       unsigned int reserved4  :  1;
-      unsigned int EN         :  1;  /**< Timer enable */
-      unsigned int MODE       :  1;  /**< Timer mode */
-      unsigned int SPARE      :  1;  /**< Spare bit (unused) */
+      unsigned int EN         :  1;  /**< Timer Enable */
+      unsigned int MODE       :  1;  /**< Timer Mode */
+      unsigned int SPARE      :  1;  /**< Unused Spare Bit */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1475,8 +1334,6 @@ typedef struct _ADI_WDT_CTL_t {
 
 /** @defgroup RESTART Clear Interrupt (RESTART) Register
  *  Clear Interrupt (RESTART) Register.
- *
- *  
  *  @{
  */
 
@@ -1488,7 +1345,7 @@ typedef struct _ADI_WDT_CTL_t {
 typedef struct _ADI_WDT_RESTART_t {
   union {
     struct {
-      unsigned int CLRWORD    : 16;  /**< Clear watchdog */
+      unsigned int CLRWORD    : 16;  /**< Clear Watchdog */
     };
     uint16_t VALUE16;
   };
@@ -1499,8 +1356,6 @@ typedef struct _ADI_WDT_RESTART_t {
 
 /** @defgroup STAT Status (STAT) Register
  *  Status (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -1513,11 +1368,11 @@ typedef struct _ADI_WDT_STAT_t {
   union {
     struct {
       unsigned int IRQ        :  1;  /**< WDT Interrupt */
-      unsigned int CLRIRQ     :  1;  /**< Clear Interrupt Register write sync in progress */
-      unsigned int LOADING    :  1;  /**< Load Register write sync in progress */
-      unsigned int COUNTING   :  1;  /**< Control Register write sync in progress */
-      unsigned int LOCKED     :  1;  /**< Lock status bit */
-      unsigned int RSTCTL     :  1;  /**< Reset Control Register written and locked */
+      unsigned int CLRIRQ     :  1;  /**< Clear Interrupt Register Write Sync in Progress */
+      unsigned int LOADING    :  1;  /**< Load Register Write Sync in Progress */
+      unsigned int COUNTING   :  1;  /**< Control Register Write Sync in Progress */
+      unsigned int LOCKED     :  1;  /**< Lock Status Bit */
+      unsigned int RSTCTL     :  1;  /**< Reset Control Register Written and Locked */
       unsigned int reserved6  : 10;
     };
     uint16_t VALUE16;
@@ -1529,8 +1384,6 @@ typedef struct _ADI_WDT_STAT_t {
 
 /** @defgroup MCTL Master Control (MCTL) Register
  *  Master Control (MCTL) Register.
- *
- *  
  *  @{
  */
 
@@ -1542,20 +1395,20 @@ typedef struct _ADI_WDT_STAT_t {
 typedef struct _ADI_I2C_MCTL_t {
   union {
     struct {
-      unsigned int MASEN      :  1;  /**< Master enable */
-      unsigned int COMPLETE   :  1;  /**< Start back-off disable */
-      unsigned int LOOPBACK   :  1;  /**< Internal loopback enable */
-      unsigned int STRETCHSCL :  1;  /**< Stretch SCL enable */
-      unsigned int IENMRX     :  1;  /**< Receive request interrupt enable */
-      unsigned int IENMTX     :  1;  /**< Transmit request interrupt enable */
-      unsigned int IENALOST   :  1;  /**< Arbitration lost interrupt enable */
-      unsigned int IENACK     :  1;  /**< ACK not received interrupt enable */
-      unsigned int IENCMP     :  1;  /**< Transaction completed (or stop detected) interrupt enable */
-      unsigned int MXMITDEC   :  1;  /**< Decrement master TX FIFO status when a byte has been transmitted */
-      unsigned int MRXDMA     :  1;  /**< Enable master Rx DMA request */
-      unsigned int MTXDMA     :  1;  /**< Enable master Tx DMA request */
+      unsigned int MASEN      :  1;  /**< Master Enable */
+      unsigned int COMPLETE   :  1;  /**< Start Back-off Disable */
+      unsigned int LOOPBACK   :  1;  /**< Internal Loopback Enable */
+      unsigned int STRETCHSCL :  1;  /**< Stretch SCL Enable */
+      unsigned int IENMRX     :  1;  /**< Receive Request Interrupt Enable */
+      unsigned int IENMTX     :  1;  /**< Transmit Request Interrupt Enable */
+      unsigned int IENALOST   :  1;  /**< Arbitration Lost Interrupt Enable */
+      unsigned int IENACK     :  1;  /**< ACK Not Received Interrupt Enable */
+      unsigned int IENCMP     :  1;  /**< Transaction Completed (or Stop Detected) Interrupt Enable */
+      unsigned int MXMITDEC   :  1;  /**< Decrement Master Tx FIFO Status When a Byte Txed */
+      unsigned int MRXDMA     :  1;  /**< Enable Master Rx DMA Request */
+      unsigned int MTXDMA     :  1;  /**< Enable Master Tx DMA Request */
       unsigned int BUSCLR     :  1;  /**< Bus-Clear Enable */
-      unsigned int STOPBUSCLR :  1;  /**< Prestop Bus-Clear */
+      unsigned int STOPBUSCLR :  1;  /**< Prestop Bus Clear */
       unsigned int reserved14 :  2;
     };
     uint16_t VALUE16;
@@ -1567,10 +1420,20 @@ typedef struct _ADI_I2C_MCTL_t {
 
 /** @defgroup MSTAT Master Status (MSTAT) Register
  *  Master Status (MSTAT) Register.
- *
- *  
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_I2C_MSTAT_MTXF
+ *! \brief  Master Transmit FIFO Status (MTXF) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  I2C_MSTAT_FIFO_EMPTY = 0,  /**< FIFO Empty.     */
+  I2C_MSTAT_FIFO_1BYTE = 2,  /**< 1 byte in FIFO. */
+  I2C_MSTAT_FIFO_FULL  = 3   /**< FIFO Full.      */
+} ADI_I2C_MSTAT_MTXF;
+
 
 /* ==========================================================================
  *! \struct ADI_I2C_MSTAT_Struct
@@ -1580,17 +1443,17 @@ typedef struct _ADI_I2C_MCTL_t {
 typedef struct _ADI_I2C_MSTAT_t {
   union {
     struct {
-      unsigned int MTXF       :  2;  /**< Master Transmit FIFO status */
-      unsigned int MTXREQ     :  1;  /**< This bit will assert when the direction bit is 0 and transmit FIFO is not full */
-      unsigned int MRXREQ     :  1;  /**< Master Receive request */
-      unsigned int NACKADDR   :  1;  /**< ACK not received in response to an address */
-      unsigned int ALOST      :  1;  /**< Arbitration lost */
-      unsigned int MBUSY      :  1;  /**< Master busy */
-      unsigned int NACKDATA   :  1;  /**< ACK not received in response to data write */
-      unsigned int TCOMP      :  1;  /**< Transaction complete or stop detected */
-      unsigned int MRXOVR     :  1;  /**< Master Receive FIFO overflow */
-      unsigned int LINEBUSY   :  1;  /**< Line is busy */
-      unsigned int MSTOP      :  1;  /**< STOP driven by this I2C Master */
+      unsigned int MTXF       :  2;  /**< Master Transmit FIFO Status */
+      unsigned int MTXREQ     :  1;  /**< Master Transmit Request/Clear Master Transmit Interrupt */
+      unsigned int MRXREQ     :  1;  /**< Master Receive Request */
+      unsigned int NACKADDR   :  1;  /**< ACK Not Received in Response to an Address */
+      unsigned int ALOST      :  1;  /**< Arbitration Lost */
+      unsigned int MBUSY      :  1;  /**< Master Busy */
+      unsigned int NACKDATA   :  1;  /**< ACK Not Received in Response to Data Write */
+      unsigned int TCOMP      :  1;  /**< Transaction Complete or Stop Detected */
+      unsigned int MRXOVR     :  1;  /**< Master Receive FIFO Overflow */
+      unsigned int LINEBUSY   :  1;  /**< Line is Busy */
+      unsigned int MSTOP      :  1;  /**< STOP Driven by This I2C Master */
       unsigned int MTXUNDR    :  1;  /**< Master Transmit Underflow */
       unsigned int SDAFILT    :  1;  /**< State of SDA Line */
       unsigned int SCLFILT    :  1;  /**< State of SCL Line */
@@ -1605,8 +1468,6 @@ typedef struct _ADI_I2C_MSTAT_t {
 
 /** @defgroup MRX Master Receive Data (MRX) Register
  *  Master Receive Data (MRX) Register.
- *
- *  
  *  @{
  */
 
@@ -1618,7 +1479,7 @@ typedef struct _ADI_I2C_MSTAT_t {
 typedef struct _ADI_I2C_MRX_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Master receive register */
+      unsigned int VALUE      :  8;  /**< Master Receive Register */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1630,8 +1491,6 @@ typedef struct _ADI_I2C_MRX_t {
 
 /** @defgroup MTX Master Transmit Data (MTX) Register
  *  Master Transmit Data (MTX) Register.
- *
- *  
  *  @{
  */
 
@@ -1643,7 +1502,7 @@ typedef struct _ADI_I2C_MRX_t {
 typedef struct _ADI_I2C_MTX_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Master transmit register */
+      unsigned int VALUE      :  8;  /**< Master Transmit Register */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1655,8 +1514,6 @@ typedef struct _ADI_I2C_MTX_t {
 
 /** @defgroup MRXCNT Master Receive Data Count (MRXCNT) Register
  *  Master Receive Data Count (MRXCNT) Register.
- *
- *  
  *  @{
  */
 
@@ -1668,8 +1525,8 @@ typedef struct _ADI_I2C_MTX_t {
 typedef struct _ADI_I2C_MRXCNT_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Receive count */
-      unsigned int EXTEND     :  1;  /**< Extended read */
+      unsigned int VALUE      :  8;  /**< Receive Count */
+      unsigned int EXTEND     :  1;  /**< Extended Read */
       unsigned int reserved9  :  7;
     };
     uint16_t VALUE16;
@@ -1681,8 +1538,6 @@ typedef struct _ADI_I2C_MRXCNT_t {
 
 /** @defgroup MCRXCNT Master Current Receive Data Count (MCRXCNT) Register
  *  Master Current Receive Data Count (MCRXCNT) Register.
- *
- *  
  *  @{
  */
 
@@ -1694,7 +1549,7 @@ typedef struct _ADI_I2C_MRXCNT_t {
 typedef struct _ADI_I2C_MCRXCNT_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Current receive count */
+      unsigned int VALUE      :  8;  /**< Current Receive Count */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1706,8 +1561,6 @@ typedef struct _ADI_I2C_MCRXCNT_t {
 
 /** @defgroup ADDR1 Master Address Byte 1 (ADDR1) Register
  *  Master Address Byte 1 (ADDR1) Register.
- *
- *  
  *  @{
  */
 
@@ -1719,7 +1572,7 @@ typedef struct _ADI_I2C_MCRXCNT_t {
 typedef struct _ADI_I2C_ADDR1_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Address byte 1 */
+      unsigned int VALUE      :  8;  /**< Address Byte 1 */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1731,8 +1584,6 @@ typedef struct _ADI_I2C_ADDR1_t {
 
 /** @defgroup ADDR2 Master Address Byte 2 (ADDR2) Register
  *  Master Address Byte 2 (ADDR2) Register.
- *
- *  
  *  @{
  */
 
@@ -1744,7 +1595,7 @@ typedef struct _ADI_I2C_ADDR1_t {
 typedef struct _ADI_I2C_ADDR2_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Address byte 2 */
+      unsigned int VALUE      :  8;  /**< Address Byte 2 */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1756,8 +1607,6 @@ typedef struct _ADI_I2C_ADDR2_t {
 
 /** @defgroup BYT Start Byte (BYT) Register
  *  Start Byte (BYT) Register.
- *
- *  
  *  @{
  */
 
@@ -1769,7 +1618,7 @@ typedef struct _ADI_I2C_ADDR2_t {
 typedef struct _ADI_I2C_BYT_t {
   union {
     struct {
-      unsigned int SBYTE      :  8;  /**< Start byte */
+      unsigned int SBYTE      :  8;  /**< Start Byte */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1781,8 +1630,6 @@ typedef struct _ADI_I2C_BYT_t {
 
 /** @defgroup DIV Serial Clock Period Divisor (DIV) Register
  *  Serial Clock Period Divisor (DIV) Register.
- *
- *  
  *  @{
  */
 
@@ -1794,8 +1641,8 @@ typedef struct _ADI_I2C_BYT_t {
 typedef struct _ADI_I2C_DIV_t {
   union {
     struct {
-      unsigned int LOW        :  8;  /**< Serial clock low time */
-      unsigned int HIGH       :  8;  /**< Serial clock high time */
+      unsigned int LOW        :  8;  /**< Serial Clock Low Time */
+      unsigned int HIGH       :  8;  /**< Serial Clock High Time */
     };
     uint16_t VALUE16;
   };
@@ -1806,8 +1653,6 @@ typedef struct _ADI_I2C_DIV_t {
 
 /** @defgroup SCTL Slave Control (SCTL) Register
  *  Slave Control (SCTL) Register.
- *
- *  
  *  @{
  */
 
@@ -1819,21 +1664,21 @@ typedef struct _ADI_I2C_DIV_t {
 typedef struct _ADI_I2C_SCTL_t {
   union {
     struct {
-      unsigned int SLVEN      :  1;  /**< Slave enable */
-      unsigned int ADR10EN    :  1;  /**< Enabled 10-bit addressing */
-      unsigned int GCEN       :  1;  /**< General call enable */
-      unsigned int HGCEN      :  1;  /**< Hardware general call enable */
-      unsigned int GCSBCLR    :  1;  /**< General call status bit clear */
-      unsigned int EARLYTXR   :  1;  /**< Early transmit request mode */
+      unsigned int SLVEN      :  1;  /**< Slave Enable */
+      unsigned int ADR10EN    :  1;  /**< Enabled 10-bit Addressing */
+      unsigned int GCEN       :  1;  /**< General Call Enable */
+      unsigned int HGCEN      :  1;  /**< Hardware General Call Enable */
+      unsigned int GCSBCLR    :  1;  /**< General Call Status Bit Clear */
+      unsigned int EARLYTXR   :  1;  /**< Early Transmit Request Mode */
       unsigned int reserved6  :  1;
-      unsigned int NACK       :  1;  /**< NACK next communication */
-      unsigned int IENSTOP    :  1;  /**< Stop condition detected interrupt enable */
-      unsigned int IENSRX     :  1;  /**< Slave Receive request interrupt enable */
-      unsigned int IENSTX     :  1;  /**< Slave Transmit request interrupt enable */
-      unsigned int STXDEC     :  1;  /**< Decrement Slave Tx FIFO status when a byte has been transmitted */
-      unsigned int IENREPST   :  1;  /**< Repeated start interrupt enable */
-      unsigned int SRXDMA     :  1;  /**< Enable slave Rx DMA request */
-      unsigned int STXDMA     :  1;  /**< Enable slave Tx DMA request */
+      unsigned int NACK       :  1;  /**< NACK Next Communication */
+      unsigned int IENSTOP    :  1;  /**< Stop Condition Detected Interrupt Enable */
+      unsigned int IENSRX     :  1;  /**< Slave Receive Request Interrupt Enable */
+      unsigned int IENSTX     :  1;  /**< Slave Transmit Request Interrupt Enable */
+      unsigned int STXDEC     :  1;  /**< Decrement Slave Tx FIFO Status When a Byte is Txed */
+      unsigned int IENREPST   :  1;  /**< Repeated Start Interrupt Enable */
+      unsigned int SRXDMA     :  1;  /**< Enable Slave Rx DMA Request */
+      unsigned int STXDMA     :  1;  /**< Enable Slave Tx DMA Request */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -1845,8 +1690,6 @@ typedef struct _ADI_I2C_SCTL_t {
 
 /** @defgroup SSTAT Slave I2C Status/Error/IRQ (SSTAT) Register
  *  Slave I2C Status/Error/IRQ (SSTAT) Register.
- *
- *  
  *  @{
  */
 
@@ -1858,19 +1701,19 @@ typedef struct _ADI_I2C_SCTL_t {
 typedef struct _ADI_I2C_SSTAT_t {
   union {
     struct {
-      unsigned int STXFSEREQ  :  1;  /**< Slave Tx FIFO Status or early request */
-      unsigned int STXUNDR    :  1;  /**< Slave Transmit FIFO underflow */
-      unsigned int STXREQ     :  1;  /**< When read is slave transmit request; when write is clear slave transmit interrupt bit */
-      unsigned int SRXREQ     :  1;  /**< Slave Receive request */
-      unsigned int SRXOVR     :  1;  /**< Slave Receive FIFO overflow */
-      unsigned int NOACK      :  1;  /**< Ack not generated by the slave */
-      unsigned int SBUSY      :  1;  /**< Slave busy */
-      unsigned int GCINT      :  1;  /**< General call interrupt */
+      unsigned int STXFSEREQ  :  1;  /**< Slave Tx FIFO Status or Early Request */
+      unsigned int STXUNDR    :  1;  /**< Slave Transmit FIFO Underflow */
+      unsigned int STXREQ     :  1;  /**< Slave Transmit Request/Slave Transmit Interrupt */
+      unsigned int SRXREQ     :  1;  /**< Slave Receive Request */
+      unsigned int SRXOVR     :  1;  /**< Slave Receive FIFO Overflow */
+      unsigned int NOACK      :  1;  /**< ACK Not Generated by the Slave */
+      unsigned int SBUSY      :  1;  /**< Slave Busy */
+      unsigned int GCINT      :  1;  /**< General Call Interrupt */
       unsigned int GCID       :  2;  /**< General ID */
-      unsigned int STOP       :  1;  /**< Stop after start and matching address */
-      unsigned int IDMAT      :  2;  /**< Device ID matched */
-      unsigned int REPSTART   :  1;  /**< Repeated start and matching address */
-      unsigned int START      :  1;  /**< Start and matching address */
+      unsigned int STOP       :  1;  /**< Stop After Start and Matching Address */
+      unsigned int IDMAT      :  2;  /**< Device ID Matched */
+      unsigned int REPSTART   :  1;  /**< Repeated Start and Matching Address */
+      unsigned int START      :  1;  /**< Start and Matching Address */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -1882,8 +1725,6 @@ typedef struct _ADI_I2C_SSTAT_t {
 
 /** @defgroup SRX Slave Receive (SRX) Register
  *  Slave Receive (SRX) Register.
- *
- *  
  *  @{
  */
 
@@ -1895,7 +1736,7 @@ typedef struct _ADI_I2C_SSTAT_t {
 typedef struct _ADI_I2C_SRX_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Slave receive register */
+      unsigned int VALUE      :  8;  /**< Slave Receive Register */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1907,8 +1748,6 @@ typedef struct _ADI_I2C_SRX_t {
 
 /** @defgroup STX Slave Transmit (STX) Register
  *  Slave Transmit (STX) Register.
- *
- *  
  *  @{
  */
 
@@ -1920,7 +1759,7 @@ typedef struct _ADI_I2C_SRX_t {
 typedef struct _ADI_I2C_STX_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Slave transmit register */
+      unsigned int VALUE      :  8;  /**< Slave Transmit Register */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1932,8 +1771,6 @@ typedef struct _ADI_I2C_STX_t {
 
 /** @defgroup ALT Hardware General Call ID (ALT) Register
  *  Hardware General Call ID (ALT) Register.
- *
- *  
  *  @{
  */
 
@@ -1957,8 +1794,6 @@ typedef struct _ADI_I2C_ALT_t {
 
 /** @defgroup ID0 First Slave Address Device ID (ID0) Register
  *  First Slave Address Device ID (ID0) Register.
- *
- *  
  *  @{
  */
 
@@ -1970,7 +1805,7 @@ typedef struct _ADI_I2C_ALT_t {
 typedef struct _ADI_I2C_ID0_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Slave device ID 0 */
+      unsigned int VALUE      :  8;  /**< Slave Device ID 0 */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -1982,8 +1817,6 @@ typedef struct _ADI_I2C_ID0_t {
 
 /** @defgroup ID1 Second Slave Address Device ID (ID1) Register
  *  Second Slave Address Device ID (ID1) Register.
- *
- *  
  *  @{
  */
 
@@ -1995,7 +1828,7 @@ typedef struct _ADI_I2C_ID0_t {
 typedef struct _ADI_I2C_ID1_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Slave device ID 1 */
+      unsigned int VALUE      :  8;  /**< Slave Device ID 1 */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -2007,8 +1840,6 @@ typedef struct _ADI_I2C_ID1_t {
 
 /** @defgroup ID2 Third Slave Address Device ID (ID2) Register
  *  Third Slave Address Device ID (ID2) Register.
- *
- *  
  *  @{
  */
 
@@ -2020,7 +1851,7 @@ typedef struct _ADI_I2C_ID1_t {
 typedef struct _ADI_I2C_ID2_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Slave device ID 2 */
+      unsigned int VALUE      :  8;  /**< Slave Device ID 2 */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -2032,8 +1863,6 @@ typedef struct _ADI_I2C_ID2_t {
 
 /** @defgroup ID3 Fourth Slave Address Device ID (ID3) Register
  *  Fourth Slave Address Device ID (ID3) Register.
- *
- *  
  *  @{
  */
 
@@ -2045,7 +1874,7 @@ typedef struct _ADI_I2C_ID2_t {
 typedef struct _ADI_I2C_ID3_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Slave device ID 3 */
+      unsigned int VALUE      :  8;  /**< Slave Device ID 3 */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -2057,8 +1886,6 @@ typedef struct _ADI_I2C_ID3_t {
 
 /** @defgroup STAT Master and Slave FIFO Status (STAT) Register
  *  Master and Slave FIFO Status (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -2070,12 +1897,12 @@ typedef struct _ADI_I2C_ID3_t {
 typedef struct _ADI_I2C_STAT_t {
   union {
     struct {
-      unsigned int STXF       :  2;  /**< Slave transmit FIFO status */
-      unsigned int SRXF       :  2;  /**< Slave receive FIFO status */
-      unsigned int MTXF       :  2;  /**< Master transmit FIFO status */
-      unsigned int MRXF       :  2;  /**< Master receive FIFO status */
-      unsigned int SFLUSH     :  1;  /**< Flush the slave transmit FIFO */
-      unsigned int MFLUSH     :  1;  /**< Flush the master transmit FIFO */
+      unsigned int STXF       :  2;  /**< Slave Transmit FIFO Status */
+      unsigned int SRXF       :  2;  /**< Slave Receive FIFO Status */
+      unsigned int MTXF       :  2;  /**< Master Transmit FIFO Status */
+      unsigned int MRXF       :  2;  /**< Master Receive FIFO Status */
+      unsigned int SFLUSH     :  1;  /**< Flush the Slave Transmit FIFO */
+      unsigned int MFLUSH     :  1;  /**< Flush the Master Transmit FIFO */
       unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
@@ -2087,8 +1914,6 @@ typedef struct _ADI_I2C_STAT_t {
 
 /** @defgroup SHCTL Shared Control (SHCTL) Register
  *  Shared Control (SHCTL) Register.
- *
- *  
  *  @{
  */
 
@@ -2100,7 +1925,7 @@ typedef struct _ADI_I2C_STAT_t {
 typedef struct _ADI_I2C_SHCTL_t {
   union {
     struct {
-      unsigned int RST        :  1;  /**< Reset START STOP detect circuit */
+      unsigned int RST        :  1;  /**< Reset START STOP Detect Circuit */
       unsigned int reserved1  : 15;
     };
     uint16_t VALUE16;
@@ -2112,8 +1937,6 @@ typedef struct _ADI_I2C_SHCTL_t {
 
 /** @defgroup TCTL Timing Control Register (TCTL) Register
  *  Timing Control Register (TCTL) Register.
- *
- *  
  *  @{
  */
 
@@ -2125,7 +1948,7 @@ typedef struct _ADI_I2C_SHCTL_t {
 typedef struct _ADI_I2C_TCTL_t {
   union {
     struct {
-      unsigned int THDATIN    :  5;  /**< Data In Hold Start */
+      unsigned int THDATIN    :  5;  /**< Data in Hold Start */
       unsigned int reserved5  :  3;
       unsigned int FILTEROFF  :  1;  /**< Input Filter Control */
       unsigned int reserved9  :  7;
@@ -2139,8 +1962,6 @@ typedef struct _ADI_I2C_TCTL_t {
 
 /** @defgroup ASTRETCH_SCL Automatic Stretch SCL (ASTRETCH_SCL) Register
  *  Automatic Stretch SCL (ASTRETCH_SCL) Register.
- *
- *  
  *  @{
  */
 
@@ -2152,10 +1973,10 @@ typedef struct _ADI_I2C_TCTL_t {
 typedef struct _ADI_I2C_ASTRETCH_SCL_t {
   union {
     struct {
-      unsigned int MST        :  4;  /**< Master automatic stretch mode */
-      unsigned int SLV        :  4;  /**< Slave automatic stretch mode */
-      unsigned int MSTTMO     :  1;  /**< Master automatic stretch timeout */
-      unsigned int SLVTMO     :  1;  /**< Slave automatic stretch timeout */
+      unsigned int MST        :  4;  /**< Master Automatic Stretch Mode */
+      unsigned int SLV        :  4;  /**< Slave Automatic Stretch Mode */
+      unsigned int MSTTMO     :  1;  /**< Master Automatic Stretch Timeout */
+      unsigned int SLVTMO     :  1;  /**< Slave Automatic Stretch Timeout */
       unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
@@ -2167,8 +1988,6 @@ typedef struct _ADI_I2C_ASTRETCH_SCL_t {
 
 /** @defgroup STAT Status (STAT) Register
  *  Status (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -2180,20 +1999,20 @@ typedef struct _ADI_I2C_ASTRETCH_SCL_t {
 typedef struct _ADI_SPI_STAT_t {
   union {
     struct {
-      unsigned int IRQ        :  1;  /**< SPI Interrupt status */
-      unsigned int XFRDONE    :  1;  /**< SPI transfer completion */
-      unsigned int TXEMPTY    :  1;  /**< SPI Tx FIFO empty interrupt */
-      unsigned int TXDONE     :  1;  /**< SPI Tx Done in read command mode */
-      unsigned int TXUNDR     :  1;  /**< SPI Tx FIFO underflow */
+      unsigned int IRQ        :  1;  /**< SPI Interrupt Status */
+      unsigned int XFRDONE    :  1;  /**< SPI Transfer Completion */
+      unsigned int TXEMPTY    :  1;  /**< SPI Tx FIFO Empty Interrupt */
+      unsigned int TXDONE     :  1;  /**< SPI Tx Done in Read Command Mode */
+      unsigned int TXUNDR     :  1;  /**< SPI Tx FIFO Underflow */
       unsigned int TXIRQ      :  1;  /**< SPI Tx IRQ */
       unsigned int RXIRQ      :  1;  /**< SPI Rx IRQ */
-      unsigned int RXOVR      :  1;  /**< SPI Rx FIFO overflow */
+      unsigned int RXOVR      :  1;  /**< SPI Rx FIFO Overflow */
       unsigned int reserved8  :  3;
       unsigned int CS         :  1;  /**< CS Status */
-      unsigned int CSERR      :  1;  /**< Detected a CS error condition in slave mode */
-      unsigned int CSFALL     :  1;  /**< Detected a falling edge on CS, in slave CON mode */
-      unsigned int CSRISE     :  1;  /**< Detected a rising edge on CS, in slave CON mode */
-      unsigned int RDY        :  1;  /**< Detected an edge on Ready indicator for flow-control */
+      unsigned int CSERR      :  1;  /**< Detected a CS Error Condition in Slave Mode */
+      unsigned int CSRISE     :  1;  /**< Detected a Rising Edge on CS, in Slave CON Mode */
+      unsigned int CSFALL     :  1;  /**< Detected a Falling Edge on CS, in Slave CON Mode */
+      unsigned int RDY        :  1;  /**< Detected an Edge on Ready Indicator for Flow Control */
     };
     uint16_t VALUE16;
   };
@@ -2204,8 +2023,6 @@ typedef struct _ADI_SPI_STAT_t {
 
 /** @defgroup RX Receive (RX) Register
  *  Receive (RX) Register.
- *
- *  This register allows access to the 8-deep receive FIFO.
  *  @{
  */
 
@@ -2217,8 +2034,8 @@ typedef struct _ADI_SPI_STAT_t {
 typedef struct _ADI_SPI_RX_t {
   union {
     struct {
-      unsigned int BYTE1      :  8;  /**< 8-bit receive buffer */
-      unsigned int BYTE2      :  8;  /**< 8-bit receive buffer, used only in DMA modes */
+      unsigned int BYTE1      :  8;  /**< 8-bit Receive Buffer */
+      unsigned int BYTE2      :  8;  /**< 8-bit Receive Buffer, Used Only in DMA Modes */
     };
     uint16_t VALUE16;
   };
@@ -2229,8 +2046,6 @@ typedef struct _ADI_SPI_RX_t {
 
 /** @defgroup TX Transmit (TX) Register
  *  Transmit (TX) Register.
- *
- *  This register allows access to the 8-deep transmit FIFO.
  *  @{
  */
 
@@ -2242,8 +2057,8 @@ typedef struct _ADI_SPI_RX_t {
 typedef struct _ADI_SPI_TX_t {
   union {
     struct {
-      unsigned int BYTE1      :  8;  /**< 8-bit transmit buffer */
-      unsigned int BYTE2      :  8;  /**< 8-bit transmit buffer, used only in DMA modes */
+      unsigned int BYTE1      :  8;  /**< 8-bit Transmit Buffer */
+      unsigned int BYTE2      :  8;  /**< 8-bit Transmit Buffer, Used Only in DMA Modes */
     };
     uint16_t VALUE16;
   };
@@ -2254,8 +2069,6 @@ typedef struct _ADI_SPI_TX_t {
 
 /** @defgroup DIV SPI Baud Rate Selection (DIV) Register
  *  SPI Baud Rate Selection (DIV) Register.
- *
- *  This register is only used in master mode.
  *  @{
  */
 
@@ -2267,7 +2080,7 @@ typedef struct _ADI_SPI_TX_t {
 typedef struct _ADI_SPI_DIV_t {
   union {
     struct {
-      unsigned int VALUE      :  6;  /**< SPI clock divider */
+      unsigned int VALUE      :  6;  /**< SPI Clock Divider */
       unsigned int reserved6  : 10;
     };
     uint16_t VALUE16;
@@ -2277,36 +2090,34 @@ typedef struct _ADI_SPI_DIV_t {
 
 /*@}*/
 
-/** @defgroup CTL SPI Configuration 1 (CTL) Register
- *  SPI Configuration 1 (CTL) Register.
- *
- *  
+/** @defgroup CTL SPI Configuration (CTL) Register
+ *  SPI Configuration (CTL) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPI_CTL_Struct
- *! \brief  SPI Configuration 1 Register bit field structure
+ *! \brief  SPI Configuration Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPI_CTL_t__
 typedef struct _ADI_SPI_CTL_t {
   union {
     struct {
-      unsigned int SPIEN      :  1;  /**< SPI enable */
-      unsigned int MASEN      :  1;  /**< Master mode enable */
-      unsigned int CPHA       :  1;  /**< Serial clock phase mode */
+      unsigned int SPIEN      :  1;  /**< SPI Enable */
+      unsigned int MASEN      :  1;  /**< Master Mode Enable */
+      unsigned int CPHA       :  1;  /**< Serial Clock Phase Mode */
       unsigned int CPOL       :  1;  /**< Serial Clock Polarity */
-      unsigned int WOM        :  1;  /**< SPI Wired-OR mode */
-      unsigned int LSB        :  1;  /**< LSB first transfer enable */
-      unsigned int TIM        :  1;  /**< SPI transfer and interrupt mode */
-      unsigned int ZEN        :  1;  /**< Transmit zeros enable */
-      unsigned int RXOF       :  1;  /**< RX overflow overwrite enable */
-      unsigned int OEN        :  1;  /**< Slave MISO output enable */
-      unsigned int LOOPBACK   :  1;  /**< Loopback enable */
-      unsigned int CON        :  1;  /**< Continuous transfer enable */
-      unsigned int RFLUSH     :  1;  /**< SPI Rx FIFO Flush enable */
-      unsigned int TFLUSH     :  1;  /**< SPI Tx FIFO Flush enable */
-      unsigned int CSRST      :  1;  /**< Reset Mode for CS Error bit */
+      unsigned int WOM        :  1;  /**< SPI Wired-OR Mode */
+      unsigned int LSB        :  1;  /**< LSB First Transfer Enable */
+      unsigned int TIM        :  1;  /**< SPI Transfer and Interrupt Mode */
+      unsigned int ZEN        :  1;  /**< Transmit Zeros Enable */
+      unsigned int RXOF       :  1;  /**< Rx Overflow Overwrite Enable */
+      unsigned int OEN        :  1;  /**< Slave MISO Output Enable */
+      unsigned int LOOPBACK   :  1;  /**< Loopback Enable */
+      unsigned int CON        :  1;  /**< Continuous Transfer Enable */
+      unsigned int RFLUSH     :  1;  /**< SPI Rx FIFO Flush Enable */
+      unsigned int TFLUSH     :  1;  /**< SPI Tx FIFO Flush Enable */
+      unsigned int CSRST      :  1;  /**< Reset Mode for CS Error Bit */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -2316,30 +2127,28 @@ typedef struct _ADI_SPI_CTL_t {
 
 /*@}*/
 
-/** @defgroup IEN SPI Configuration 2 (IEN) Register
- *  SPI Configuration 2 (IEN) Register.
- *
- *  
+/** @defgroup IEN SPI Interrupts Enable (IEN) Register
+ *  SPI Interrupts Enable (IEN) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPI_IEN_Struct
- *! \brief  SPI Configuration 2 Register bit field structure
+ *! \brief  SPI Interrupts Enable Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPI_IEN_t__
 typedef struct _ADI_SPI_IEN_t {
   union {
     struct {
-      unsigned int IRQMODE    :  3;  /**< SPI IRQ mode bits */
+      unsigned int IRQMODE    :  3;  /**< SPI IRQ Mode Bits */
       unsigned int reserved3  :  5;
-      unsigned int CS         :  1;  /**< Enable interrupt on every CS edge in slave CON mode */
-      unsigned int TXUNDR     :  1;  /**< Tx-underflow interrupt enable */
-      unsigned int RXOVR      :  1;  /**< Rx-overflow interrupt enable */
-      unsigned int RDY        :  1;  /**< Ready signal edge interrupt enable */
-      unsigned int TXDONE     :  1;  /**< SPI transmit done interrupt enable */
-      unsigned int XFRDONE    :  1;  /**< SPI transfer completion interrupt enable */
-      unsigned int TXEMPTY    :  1;  /**< Tx-FIFO Empty interrupt enable */
+      unsigned int CS         :  1;  /**< Enable Interrupt on Every CS Edge in Slave CON Mode */
+      unsigned int TXUNDR     :  1;  /**< Tx Underflow Interrupt Enable */
+      unsigned int RXOVR      :  1;  /**< Rx Overflow Interrupt Enable */
+      unsigned int RDY        :  1;  /**< Ready Signal Edge Interrupt Enable */
+      unsigned int TXDONE     :  1;  /**< SPI Transmit Done Interrupt Enable */
+      unsigned int XFRDONE    :  1;  /**< SPI Transfer Completion Interrupt Enable */
+      unsigned int TXEMPTY    :  1;  /**< Tx FIFO Empty Interrupt Enable */
       unsigned int reserved15 :  1;
     };
     uint16_t VALUE16;
@@ -2351,8 +2160,6 @@ typedef struct _ADI_SPI_IEN_t {
 
 /** @defgroup CNT Transfer Byte Count (CNT) Register
  *  Transfer Byte Count (CNT) Register.
- *
- *  This register is only used in master mode.
  *  @{
  */
 
@@ -2364,9 +2171,9 @@ typedef struct _ADI_SPI_IEN_t {
 typedef struct _ADI_SPI_CNT_t {
   union {
     struct {
-      unsigned int VALUE      : 14;  /**< Transfer byte count */
+      unsigned int VALUE      : 14;  /**< Transfer Byte Count */
       unsigned int reserved14 :  1;
-      unsigned int FRAMECONT  :  1;  /**< Continue frame */
+      unsigned int FRAMECONT  :  1;  /**< Continue Frame */
     };
     uint16_t VALUE16;
   };
@@ -2377,8 +2184,6 @@ typedef struct _ADI_SPI_CNT_t {
 
 /** @defgroup DMA SPI DMA Enable (DMA) Register
  *  SPI DMA Enable (DMA) Register.
- *
- *  
  *  @{
  */
 
@@ -2390,9 +2195,9 @@ typedef struct _ADI_SPI_CNT_t {
 typedef struct _ADI_SPI_DMA_t {
   union {
     struct {
-      unsigned int EN         :  1;  /**< Enable DMA for data transfer */
-      unsigned int TXEN       :  1;  /**< Enable transmit DMA request */
-      unsigned int RXEN       :  1;  /**< Enable receive DMA request */
+      unsigned int EN         :  1;  /**< Enable DMA for Data Transfer */
+      unsigned int TXEN       :  1;  /**< Enable Transmit DMA Request */
+      unsigned int RXEN       :  1;  /**< Enable Receive DMA Request */
       unsigned int reserved3  : 13;
     };
     uint16_t VALUE16;
@@ -2404,8 +2209,6 @@ typedef struct _ADI_SPI_DMA_t {
 
 /** @defgroup FIFO_STAT FIFO Status (FIFO_STAT) Register
  *  FIFO Status (FIFO_STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -2417,9 +2220,9 @@ typedef struct _ADI_SPI_DMA_t {
 typedef struct _ADI_SPI_FIFO_STAT_t {
   union {
     struct {
-      unsigned int TX         :  4;  /**< SPI Tx FIFO status */
+      unsigned int TX         :  4;  /**< SPI Tx FIFO Status */
       unsigned int reserved4  :  4;
-      unsigned int RX         :  4;  /**< SPI Rx FIFO status */
+      unsigned int RX         :  4;  /**< SPI Rx FIFO Dtatus */
       unsigned int reserved12 :  4;
     };
     uint16_t VALUE16;
@@ -2431,8 +2234,6 @@ typedef struct _ADI_SPI_FIFO_STAT_t {
 
 /** @defgroup RD_CTL Read Control (RD_CTL) Register
  *  Read Control (RD_CTL) Register.
- *
- *  This register is only used in master mode.
  *  @{
  */
 
@@ -2444,11 +2245,11 @@ typedef struct _ADI_SPI_FIFO_STAT_t {
 typedef struct _ADI_SPI_RD_CTL_t {
   union {
     struct {
-      unsigned int CMDEN      :  1;  /**< Read command enable */
-      unsigned int OVERLAP    :  1;  /**< Tx/Rx Overlap mode */
-      unsigned int TXBYTES    :  4;  /**< Transmit byte count - 1 (read command) */
+      unsigned int CMDEN      :  1;  /**< Read Command Enable */
+      unsigned int OVERLAP    :  1;  /**< Tx/Rx Overlap Mode */
+      unsigned int TXBYTES    :  4;  /**< Transmit Byte Count - 1 (Read Command) */
       unsigned int reserved6  :  2;
-      unsigned int THREEPIN   :  1;  /**< Three pin SPI mode */
+      unsigned int THREEPIN   :  1;  /**< Three Pin SPI Mode */
       unsigned int reserved9  :  7;
     };
     uint16_t VALUE16;
@@ -2460,8 +2261,6 @@ typedef struct _ADI_SPI_RD_CTL_t {
 
 /** @defgroup FLOW_CTL Flow Control (FLOW_CTL) Register
  *  Flow Control (FLOW_CTL) Register.
- *
- *  This register is only used in master mode.
  *  @{
  */
 
@@ -2473,11 +2272,12 @@ typedef struct _ADI_SPI_RD_CTL_t {
 typedef struct _ADI_SPI_FLOW_CTL_t {
   union {
     struct {
-      unsigned int MODE       :  2;  /**< Flow control mode */
+      unsigned int MODE       :  2;  /**< Flow Control Mode */
       unsigned int reserved2  :  2;
-      unsigned int RDYPOL     :  1;  /**< Polarity of RDY/MISO line */
-      unsigned int reserved5  :  1;
-      unsigned int RDBURSTSZ  : 10;  /**< Read data burst size - 1 */
+      unsigned int RDYPOL     :  1;  /**< Polarity of RDY/MISO Line */
+      unsigned int reserved5  :  3;
+      unsigned int RDBURSTSZ  :  4;  /**< Read Data Burst Size - 1 */
+      unsigned int reserved12 :  4;
     };
     uint16_t VALUE16;
   };
@@ -2488,8 +2288,6 @@ typedef struct _ADI_SPI_FLOW_CTL_t {
 
 /** @defgroup WAIT_TMR Wait Timer for Flow Control (WAIT_TMR) Register
  *  Wait Timer for Flow Control (WAIT_TMR) Register.
- *
- *  This register is only used in master mode.
  *  @{
  */
 
@@ -2501,7 +2299,7 @@ typedef struct _ADI_SPI_FLOW_CTL_t {
 typedef struct _ADI_SPI_WAIT_TMR_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Wait timer */
+      unsigned int VALUE      : 16;  /**< Wait Timer */
     };
     uint16_t VALUE16;
   };
@@ -2510,22 +2308,20 @@ typedef struct _ADI_SPI_WAIT_TMR_t {
 
 /*@}*/
 
-/** @defgroup CS_CTL Chip-Select Control for Multi-slave Connections (CS_CTL) Register
- *  Chip-Select Control for Multi-slave Connections (CS_CTL) Register.
- *
- *  This register is only used in master mode.
+/** @defgroup CS_CTL Chip Select Control for Multi-slave Connections (CS_CTL) Register
+ *  Chip Select Control for Multi-slave Connections (CS_CTL) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPI_CS_CTL_Struct
- *! \brief  Chip-Select Control for Multi-slave Connections Register bit field structure
+ *! \brief  Chip Select Control for Multi-slave Connections Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPI_CS_CTL_t__
 typedef struct _ADI_SPI_CS_CTL_t {
   union {
     struct {
-      unsigned int SEL        :  4;  /**< Chip-Select control */
+      unsigned int SEL        :  4;  /**< Chip Select Control */
       unsigned int reserved4  : 12;
     };
     uint16_t VALUE16;
@@ -2535,16 +2331,14 @@ typedef struct _ADI_SPI_CS_CTL_t {
 
 /*@}*/
 
-/** @defgroup CS_OVERRIDE Chip-Select Override (CS_OVERRIDE) Register
- *  Chip-Select Override (CS_OVERRIDE) Register.
- *
- *  This register is only used in master mode.
+/** @defgroup CS_OVERRIDE Chip Select Override (CS_OVERRIDE) Register
+ *  Chip Select Override (CS_OVERRIDE) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPI_CS_OVERRIDE_Struct
- *! \brief  Chip-Select Override Register bit field structure
+ *! \brief  Chip Select Override Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPI_CS_OVERRIDE_t__
 typedef struct _ADI_SPI_CS_OVERRIDE_t {
@@ -2562,8 +2356,6 @@ typedef struct _ADI_SPI_CS_OVERRIDE_t {
 
 /** @defgroup RX Receive Buffer Register (RX) Register
  *  Receive Buffer Register (RX) Register.
- *
- *  
  *  @{
  */
 
@@ -2587,8 +2379,6 @@ typedef struct _ADI_UART_RX_t {
 
 /** @defgroup TX Transmit Holding Register (TX) Register
  *  Transmit Holding Register (TX) Register.
- *
- *  
  *  @{
  */
 
@@ -2612,8 +2402,6 @@ typedef struct _ADI_UART_TX_t {
 
 /** @defgroup IEN Interrupt Enable (IEN) Register
  *  Interrupt Enable (IEN) Register.
- *
- *  
  *  @{
  */
 
@@ -2625,12 +2413,12 @@ typedef struct _ADI_UART_TX_t {
 typedef struct _ADI_UART_IEN_t {
   union {
     struct {
-      unsigned int ERBFI      :  1;  /**< Receive buffer full interrupt */
-      unsigned int ETBEI      :  1;  /**< Transmit buffer empty interrupt */
-      unsigned int ELSI       :  1;  /**< Rx status interrupt */
-      unsigned int EDSSI      :  1;  /**< Modem status interrupt */
-      unsigned int EDMAT      :  1;  /**< DMA requests in transmit mode */
-      unsigned int EDMAR      :  1;  /**< DMA requests in receive mode */
+      unsigned int ERBFI      :  1;  /**< Receive Buffer Full Interrupt */
+      unsigned int ETBEI      :  1;  /**< Transmit Buffer Empty Interrupt */
+      unsigned int ELSI       :  1;  /**< Rx Status Interrupt */
+      unsigned int EDSSI      :  1;  /**< Modem Status Interrupt */
+      unsigned int EDMAT      :  1;  /**< DMA Requests in Transmit Mode */
+      unsigned int EDMAR      :  1;  /**< DMA Requests in Receive Mode */
       unsigned int reserved6  : 10;
     };
     uint16_t VALUE16;
@@ -2642,14 +2430,12 @@ typedef struct _ADI_UART_IEN_t {
 
 /** @defgroup IIR Interrupt ID (IIR) Register
  *  Interrupt ID (IIR) Register.
- *
- *  
  *  @{
  */
 
 /*  =========================================================================
  *! \enum   ADI_UART_IIR_STAT
- *! \brief  Interrupt status (STAT) Enumerations
+ *! \brief  Interrupt Status (STAT) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -2669,10 +2455,10 @@ typedef enum
 typedef struct _ADI_UART_IIR_t {
   union {
     struct {
-      unsigned int NIRQ       :  1;  /**< Interrupt flag */
-      unsigned int STAT       :  3;  /**< Interrupt status */
+      unsigned int NIRQ       :  1;  /**< Interrupt Flag */
+      unsigned int STAT       :  3;  /**< Interrupt Status */
       unsigned int reserved4  :  2;
-      unsigned int FEND       :  2;  /**< FIFO enabled */
+      unsigned int FEND       :  2;  /**< FIFO Enabled */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -2684,10 +2470,19 @@ typedef struct _ADI_UART_IIR_t {
 
 /** @defgroup LCR Line Control (LCR) Register
  *  Line Control (LCR) Register.
- *
- *  
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_UART_LCR_SP
+ *! \brief  Stick Parity (SP) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  UART_LCR_PAR_NOTFORCED = 0,  /**< Parity will not be forced based on Parity Select and Parity Enable bits. */
+  UART_LCR_PAR_FORCED    = 1   /**< Parity forced based on Parity Select and Parity Enable bits.             */
+} ADI_UART_LCR_SP;
+
 
 /* ==========================================================================
  *! \struct ADI_UART_LCR_Struct
@@ -2714,8 +2509,6 @@ typedef struct _ADI_UART_LCR_t {
 
 /** @defgroup MCR Modem Control (MCR) Register
  *  Modem Control (MCR) Register.
- *
- *  
  *  @{
  */
 
@@ -2728,10 +2521,10 @@ typedef struct _ADI_UART_MCR_t {
   union {
     struct {
       unsigned int DTR        :  1;  /**< Data Terminal Ready */
-      unsigned int RTS        :  1;  /**< Request to send */
+      unsigned int RTS        :  1;  /**< Request to Send */
       unsigned int OUT1       :  1;  /**< Output 1 */
       unsigned int OUT2       :  1;  /**< Output 2 */
-      unsigned int LOOPBACK   :  1;  /**< Loopback mode */
+      unsigned int LOOPBACK   :  1;  /**< Loopback Mode */
       unsigned int reserved5  : 11;
     };
     uint16_t VALUE16;
@@ -2743,8 +2536,6 @@ typedef struct _ADI_UART_MCR_t {
 
 /** @defgroup LSR Line Status (LSR) Register
  *  Line Status (LSR) Register.
- *
- *  
  *  @{
  */
 
@@ -2763,7 +2554,7 @@ typedef struct _ADI_UART_LSR_t {
       unsigned int BI         :  1;  /**< Break Indicator */
       unsigned int THRE       :  1;  /**< Transmit Register Empty */
       unsigned int TEMT       :  1;  /**< Transmit and Shift Register Empty Status */
-      unsigned int FIFOERR    :  1;  /**< data byte(s) in RX FIFO have either parity error, frame error or break indication. only used in 16550 mode; Read-clear if no more error in RX FIFO */
+      unsigned int FIFOERR    :  1;  /**< Rx FIFO Parity Error/Frame Error/Break Indication */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -2775,8 +2566,6 @@ typedef struct _ADI_UART_LSR_t {
 
 /** @defgroup MSR Modem Status (MSR) Register
  *  Modem Status (MSR) Register.
- *
- *  
  *  @{
  */
 
@@ -2792,7 +2581,7 @@ typedef struct _ADI_UART_MSR_t {
       unsigned int DDSR       :  1;  /**< Delta DSR */
       unsigned int TERI       :  1;  /**< Trailing Edge RI */
       unsigned int DDCD       :  1;  /**< Delta DCD */
-      unsigned int CTS        :  1;  /**< Clear To Send */
+      unsigned int CTS        :  1;  /**< Clear to Send */
       unsigned int DSR        :  1;  /**< Data Set Ready */
       unsigned int RI         :  1;  /**< Ring Indicator */
       unsigned int DCD        :  1;  /**< Data Carrier Detect */
@@ -2807,8 +2596,6 @@ typedef struct _ADI_UART_MSR_t {
 
 /** @defgroup SCR Scratch Buffer (SCR) Register
  *  Scratch Buffer (SCR) Register.
- *
- *  
  *  @{
  */
 
@@ -2832,14 +2619,12 @@ typedef struct _ADI_UART_SCR_t {
 
 /** @defgroup FCR FIFO Control (FCR) Register
  *  FIFO Control (FCR) Register.
- *
- *  
  *  @{
  */
 
 /*  =========================================================================
  *! \enum   ADI_UART_FCR_FDMAMD
- *! \brief  FIFO DMA mode (FDMAMD) Enumerations
+ *! \brief  FIFO DMA Mode (FDMAMD) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -2856,12 +2641,12 @@ typedef enum
 typedef struct _ADI_UART_FCR_t {
   union {
     struct {
-      unsigned int FIFOEN     :  1;  /**< FIFO enable as to work in 16550 mode */
-      unsigned int RFCLR      :  1;  /**< clear RX FIFO */
-      unsigned int TFCLR      :  1;  /**< clear TX FIFO */
-      unsigned int FDMAMD     :  1;  /**< FIFO DMA mode */
+      unsigned int FIFOEN     :  1;  /**< FIFO Enable as to Work in 16550 Mode */
+      unsigned int RFCLR      :  1;  /**< Clear Rx FIFO */
+      unsigned int TFCLR      :  1;  /**< Clear Tx FIFO */
+      unsigned int FDMAMD     :  1;  /**< FIFO DMA Mode */
       unsigned int reserved4  :  2;
-      unsigned int RFTRIG     :  2;  /**< RX FIFO Trig level */
+      unsigned int RFTRIG     :  2;  /**< Rx FIFO Trigger Level */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -2873,8 +2658,6 @@ typedef struct _ADI_UART_FCR_t {
 
 /** @defgroup FBR Fractional Baud Rate (FBR) Register
  *  Fractional Baud Rate (FBR) Register.
- *
- *  
  *  @{
  */
 
@@ -2886,10 +2669,10 @@ typedef struct _ADI_UART_FCR_t {
 typedef struct _ADI_UART_FBR_t {
   union {
     struct {
-      unsigned int DIVN       : 11;  /**< Fractional baud rate N divide bits 0 to 2047 */
-      unsigned int DIVM       :  2;  /**< Fractional baud rate M divide bits 1 to 3 */
+      unsigned int DIVN       : 11;  /**< Fractional Baud Rate N Divide Bits 0 to 2047 */
+      unsigned int DIVM       :  2;  /**< Fractional Baud Rate M Divide Bits 1 to 3 */
       unsigned int reserved13 :  2;
-      unsigned int FBEN       :  1;  /**< Fractional baud rate generator enable */
+      unsigned int FBEN       :  1;  /**< Fractional Baud Rate Generator Enable */
     };
     uint16_t VALUE16;
   };
@@ -2898,22 +2681,20 @@ typedef struct _ADI_UART_FBR_t {
 
 /*@}*/
 
-/** @defgroup DIV Baudrate Divider (DIV) Register
- *  Baudrate Divider (DIV) Register.
- *
- *  Internal UART baud generation counters are restarted whenever COMDIV register accessed by writing, regardless same or different value.
+/** @defgroup DIV Baud Rate Divider (DIV) Register
+ *  Baud Rate Divider (DIV) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_UART_DIV_Struct
- *! \brief  Baudrate Divider Register bit field structure
+ *! \brief  Baud Rate Divider Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_UART_DIV_t__
 typedef struct _ADI_UART_DIV_t {
   union {
     struct {
-      unsigned int DIV        : 16;  /**< Baud rate divider */
+      unsigned int DIV        : 16;  /**< Baud Rate Divider */
     };
     uint16_t VALUE16;
   };
@@ -2924,8 +2705,6 @@ typedef struct _ADI_UART_DIV_t {
 
 /** @defgroup LCR2 Second Line Control (LCR2) Register
  *  Second Line Control (LCR2) Register.
- *
- *  
  *  @{
  */
 
@@ -2949,19 +2728,17 @@ typedef struct _ADI_UART_LCR2_t {
 
 /** @defgroup CTL UART Control Register (CTL) Register
  *  UART Control Register (CTL) Register.
- *
- *  
  *  @{
  */
 
 /*  =========================================================================
  *! \enum   ADI_UART_CTL_RXINV
- *! \brief  invert receiver line (RXINV) Enumerations
+ *! \brief  Invert Receiver Line (RXINV) Enumerations
  *  ========================================================================= */
 typedef enum
 {
-  UART_CTL_EN000 = 0,  /**< don't invert receiver line (idling high) */
-  UART_CTL_EN001 = 1   /**< invert receiver line (idling low)        */
+  UART_CTL_NOTINV_RX = 0,  /**< Don't invert receiver line (idling high). */
+  UART_CTL_INV_RX    = 1   /**< Invert receiver line (idling low).        */
 } ADI_UART_CTL_RXINV;
 
 
@@ -2976,9 +2753,9 @@ typedef struct _ADI_UART_CTL_t {
       unsigned int reserved0  :  1;
       unsigned int FORCECLK   :  1;  /**< Force UCLK on */
       unsigned int reserved2  :  2;
-      unsigned int RXINV      :  1;  /**< invert receiver line */
+      unsigned int RXINV      :  1;  /**< Invert Receiver Line */
       unsigned int reserved5  :  3;
-      unsigned int REV        :  8;  /**< UART revision ID */
+      unsigned int REV        :  8;  /**< UART Revision ID */
     };
     uint16_t VALUE16;
   };
@@ -2989,8 +2766,6 @@ typedef struct _ADI_UART_CTL_t {
 
 /** @defgroup RFC RX FIFO Byte Count (RFC) Register
  *  RX FIFO Byte Count (RFC) Register.
- *
- *  
  *  @{
  */
 
@@ -3002,7 +2777,7 @@ typedef struct _ADI_UART_CTL_t {
 typedef struct _ADI_UART_RFC_t {
   union {
     struct {
-      unsigned int RFC        :  5;  /**< Current RX FIFO data bytes */
+      unsigned int RFC        :  5;  /**< Current Rx FIFO Data Bytes */
       unsigned int reserved5  : 11;
     };
     uint16_t VALUE16;
@@ -3014,8 +2789,6 @@ typedef struct _ADI_UART_RFC_t {
 
 /** @defgroup TFC TX FIFO Byte Count (TFC) Register
  *  TX FIFO Byte Count (TFC) Register.
- *
- *  
  *  @{
  */
 
@@ -3027,7 +2800,7 @@ typedef struct _ADI_UART_RFC_t {
 typedef struct _ADI_UART_TFC_t {
   union {
     struct {
-      unsigned int TFC        :  5;  /**< Current TX FIFO data bytes */
+      unsigned int TFC        :  5;  /**< Current Tx FIFO Data Bytes */
       unsigned int reserved5  : 11;
     };
     uint16_t VALUE16;
@@ -3039,8 +2812,6 @@ typedef struct _ADI_UART_TFC_t {
 
 /** @defgroup RSC RS485 Half-duplex Control (RSC) Register
  *  RS485 Half-duplex Control (RSC) Register.
- *
- *  
  *  @{
  */
 
@@ -3052,10 +2823,10 @@ typedef struct _ADI_UART_TFC_t {
 typedef struct _ADI_UART_RSC_t {
   union {
     struct {
-      unsigned int OENP       :  1;  /**< SOUT_EN polarity */
-      unsigned int OENSP      :  1;  /**< SOUT_EN de-assert before full stop bit(s) */
-      unsigned int DISRX      :  1;  /**< disable RX when transmitting */
-      unsigned int DISTX      :  1;  /**< Hold off TX when receiving */
+      unsigned int OENP       :  1;  /**< SOUT_EN Polarity */
+      unsigned int OENSP      :  1;  /**< SOUT_EN De-assert Before Full Stop Bit(s) */
+      unsigned int DISRX      :  1;  /**< Disable Rx When Transmitting */
+      unsigned int DISTX      :  1;  /**< Hold off Tx When Receiving */
       unsigned int reserved4  : 12;
     };
     uint16_t VALUE16;
@@ -3067,8 +2838,6 @@ typedef struct _ADI_UART_RSC_t {
 
 /** @defgroup ACR Auto Baud Control (ACR) Register
  *  Auto Baud Control (ACR) Register.
- *
- *  
  *  @{
  */
 
@@ -3081,8 +2850,8 @@ typedef struct _ADI_UART_ACR_t {
   union {
     struct {
       unsigned int ABE        :  1;  /**< Auto Baud Enable */
-      unsigned int DNIEN      :  1;  /**< enable done interrupt */
-      unsigned int TOIEN      :  1;  /**< enable time-out interrupt */
+      unsigned int DNIEN      :  1;  /**< Enable Done Interrupt */
+      unsigned int TOIEN      :  1;  /**< Enable Time-out Interrupt */
       unsigned int reserved3  :  1;
       unsigned int SEC        :  3;  /**< Starting Edge Count */
       unsigned int reserved7  :  1;
@@ -3098,8 +2867,6 @@ typedef struct _ADI_UART_ACR_t {
 
 /** @defgroup ASRL Auto Baud Status (Low) (ASRL) Register
  *  Auto Baud Status (Low) (ASRL) Register.
- *
- *  
  *  @{
  */
 
@@ -3111,11 +2878,11 @@ typedef struct _ADI_UART_ACR_t {
 typedef struct _ADI_UART_ASRL_t {
   union {
     struct {
-      unsigned int DONE       :  1;  /**< Auto Baud Done successfully */
-      unsigned int BRKTO      :  1;  /**< Timed out due to long break condition */
-      unsigned int NSETO      :  1;  /**< Timed out due to no valid start edge found */
-      unsigned int NEETO      :  1;  /**< Timed out due to no valid ending edge found */
-      unsigned int CNT        : 12;  /**< CNT[11:0] Auto Baud Counter value */
+      unsigned int DONE       :  1;  /**< Auto Baud Done Successfully */
+      unsigned int BRKTO      :  1;  /**< Timed Out Due to Long Time Break Condition */
+      unsigned int NSETO      :  1;  /**< Timed Out Due to No Valid Start Edge Found */
+      unsigned int NEETO      :  1;  /**< Timed Out Due to No Valid Ending Edge Found */
+      unsigned int CNT        : 12;  /**< CNT[11:0] Auto Baud Counter Value */
     };
     uint16_t VALUE16;
   };
@@ -3126,8 +2893,6 @@ typedef struct _ADI_UART_ASRL_t {
 
 /** @defgroup ASRH Auto Baud Status (High) (ASRH) Register
  *  Auto Baud Status (High) (ASRH) Register.
- *
- *  
  *  @{
  */
 
@@ -3139,7 +2904,7 @@ typedef struct _ADI_UART_ASRL_t {
 typedef struct _ADI_UART_ASRH_t {
   union {
     struct {
-      unsigned int CNT        :  8;  /**< CNT[19:12] Auto Baud Counter value */
+      unsigned int CNT        :  8;  /**< CNT[19:12] Auto Baud Counter Value */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -3149,30 +2914,28 @@ typedef struct _ADI_UART_ASRH_t {
 
 /*@}*/
 
-/** @defgroup CFG Beeper configuration (CFG) Register
- *  Beeper configuration (CFG) Register.
- *
- *  
+/** @defgroup CFG Beeper Configuration (CFG) Register
+ *  Beeper Configuration (CFG) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_BEEP_CFG_Struct
- *! \brief  Beeper configuration Register bit field structure
+ *! \brief  Beeper Configuration Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_BEEP_CFG_t__
 typedef struct _ADI_BEEP_CFG_t {
   union {
     struct {
-      unsigned int SEQREPEAT  :  8;  /**< Beeper Sequence Repeat value */
+      unsigned int SEQREPEAT  :  8;  /**< Beeper Sequence Repeat Value */
       unsigned int EN         :  1;  /**< Beeper Enable */
       unsigned int reserved9  :  1;
-      unsigned int ASTARTIRQ  :  1;  /**< Tone A start IRQ */
-      unsigned int AENDIRQ    :  1;  /**< Tone A end IRQ */
-      unsigned int BSTARTIRQ  :  1;  /**< Tone B start IRQ */
-      unsigned int BENDIRQ    :  1;  /**< Tone B end IRQ */
-      unsigned int SEQNEARENDIRQ :  1;  /**< Sequence 1 cycle from end IRQ */
-      unsigned int SEQATENDIRQ   :  1;  /**< Sequence end IRQ */
+      unsigned int ASTARTIRQ  :  1;  /**< Tone A Start IRQ */
+      unsigned int AENDIRQ    :  1;  /**< Tone A End IRQ */
+      unsigned int BSTARTIRQ  :  1;  /**< Tone B Start IRQ */
+      unsigned int BENDIRQ    :  1;  /**< Tone B End IRQ */
+      unsigned int SEQNEARENDIRQ :  1;  /**< Sequence 1 Cycle from End IRQ */
+      unsigned int SEQATENDIRQ   :  1;  /**< Sequence End IRQ */
     };
     uint16_t VALUE16;
   };
@@ -3181,30 +2944,28 @@ typedef struct _ADI_BEEP_CFG_t {
 
 /*@}*/
 
-/** @defgroup STAT Beeper status (STAT) Register
- *  Beeper status (STAT) Register.
- *
- *  
+/** @defgroup STAT Beeper Status (STAT) Register
+ *  Beeper Status (STAT) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_BEEP_STAT_Struct
- *! \brief  Beeper status Register bit field structure
+ *! \brief  Beeper Status Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_BEEP_STAT_t__
 typedef struct _ADI_BEEP_STAT_t {
   union {
     struct {
-      unsigned int SEQREMAIN  :  8;  /**< Remaining tone-pair sequence iterations to play in SEQ mode */
-      unsigned int BUSY       :  1;  /**< Beeper is busy */
+      unsigned int SEQREMAIN  :  8;  /**< Remaining Tone-pair Iterations to Play in Sequence Mode */
+      unsigned int BUSY       :  1;  /**< Beeper is Busy */
       unsigned int reserved9  :  1;
-      unsigned int ASTARTED   :  1;  /**< Tone A has started */
-      unsigned int AENDED     :  1;  /**< Tone A has ended */
-      unsigned int BSTARTED   :  1;  /**< Tone B has started */
-      unsigned int BENDED     :  1;  /**< Tone B has ended */
-      unsigned int SEQNEAREND :  1;  /**< Sequencer last tone-pair has started */
-      unsigned int SEQENDED   :  1;  /**< Sequencer has ended */
+      unsigned int ASTARTED   :  1;  /**< Tone A Has Started */
+      unsigned int AENDED     :  1;  /**< Tone A Has Ended */
+      unsigned int BSTARTED   :  1;  /**< Tone B Has Started */
+      unsigned int BENDED     :  1;  /**< Tone B Has Ended */
+      unsigned int SEQNEAREND :  1;  /**< Sequencer Last Tone-pair Has Started */
+      unsigned int SEQENDED   :  1;  /**< Sequencer Has Ended */
     };
     uint16_t VALUE16;
   };
@@ -3215,8 +2976,6 @@ typedef struct _ADI_BEEP_STAT_t {
 
 /** @defgroup TONEA Tone A Data (TONEA) Register
  *  Tone A Data (TONEA) Register.
- *
- *  Tone A is the first tone to play in Sequence Mode, and the only tone to play in Pulse Mode. Writing 0x0 to the DUR field while Tone A is playing will immediately terminate the tone. All other writes to TONE_A affect the next play back of the tone only and do not affect the currently playing tone.
  *  @{
  */
 
@@ -3228,9 +2987,9 @@ typedef struct _ADI_BEEP_STAT_t {
 typedef struct _ADI_BEEP_TONEA_t {
   union {
     struct {
-      unsigned int DUR        :  8;  /**< Tone duration */
-      unsigned int FREQ       :  7;  /**< Tone frequency */
-      unsigned int DIS        :  1;  /**< Output disable */
+      unsigned int DUR        :  8;  /**< Tone Duration */
+      unsigned int FREQ       :  7;  /**< Tone Frequency */
+      unsigned int DIS        :  1;  /**< Output Disable */
     };
     uint16_t VALUE16;
   };
@@ -3241,8 +3000,6 @@ typedef struct _ADI_BEEP_TONEA_t {
 
 /** @defgroup TONEB Tone B Data (TONEB) Register
  *  Tone B Data (TONEB) Register.
- *
- *  Tone B is the second tone to play in Sequence Mode, and is not played Pulse Mode. Writing 0x0 to the DUR field while Tone B is playing will immediately terminate the tone. All other writes to TONE_B affect the next play back of the tone only and do not affect the currently playing tone.
  *  @{
  */
 
@@ -3254,9 +3011,9 @@ typedef struct _ADI_BEEP_TONEA_t {
 typedef struct _ADI_BEEP_TONEB_t {
   union {
     struct {
-      unsigned int DUR        :  8;  /**< Tone duration */
-      unsigned int FREQ       :  7;  /**< Tone frequency */
-      unsigned int DIS        :  1;  /**< Output disable */
+      unsigned int DUR        :  8;  /**< Tone Duration */
+      unsigned int FREQ       :  7;  /**< Tone Frequency */
+      unsigned int DIS        :  1;  /**< Output Disable */
     };
     uint16_t VALUE16;
   };
@@ -3267,14 +3024,12 @@ typedef struct _ADI_BEEP_TONEB_t {
 
 /** @defgroup CFG ADC Configuration (CFG) Register
  *  ADC Configuration (CFG) Register.
- *
- *  
  *  @{
  */
 
 /*  =========================================================================
  *! \enum   ADI_ADC_CFG_VREFSEL
- *! \brief  To select Vref as 1.25 V or 2.5 V (VREFSEL) Enumerations
+ *! \brief  Select Vref as 1.25V or 2.5V (VREFSEL) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -3285,12 +3040,12 @@ typedef enum
 
 /*  =========================================================================
  *! \enum   ADI_ADC_CFG_REFBUFEN
- *! \brief  To enable internal reference buffer (REFBUFEN) Enumerations
+ *! \brief  Enable Internal Reference Buffer (REFBUFEN) Enumerations
  *  ========================================================================= */
 typedef enum
 {
-  ADC_CFG_EN000 = 0,  /**< External reference is used  */
-  ADC_CFG_EN001 = 1   /**< Reference buffer is enabled */
+  ADC_CFG_EXT_REF = 0,  /**< External reference is used  */
+  ADC_CFG_BUF_REF = 1   /**< Reference buffer is enabled */
 } ADI_ADC_CFG_REFBUFEN;
 
 
@@ -3303,15 +3058,15 @@ typedef struct _ADI_ADC_CFG_t {
   union {
     struct {
       unsigned int PWRUP      :  1;  /**< Powering up the ADC */
-      unsigned int VREFSEL    :  1;  /**< To select Vref as 1.25 V or 2.5 V */
-      unsigned int REFBUFEN   :  1;  /**< To enable internal reference buffer */
+      unsigned int VREFSEL    :  1;  /**< Select Vref as 1.25V or 2.5V */
+      unsigned int REFBUFEN   :  1;  /**< Enable Internal Reference Buffer */
       unsigned int reserved3  :  1;
-      unsigned int EN         :  1;  /**< To enable ADC subsystem */
-      unsigned int STARTCAL   :  1;  /**< To start a new offset calibration cycle */
-      unsigned int RST        :  1;  /**< Resets internal buffers and registers when high */
-      unsigned int SINKEN     :  1;  /**< To enable additional 50 uA sink current capability @1.25 V, 100 uA current capability @2.5 V */
-      unsigned int TMPEN      :  1;  /**< To power up temperature sensor */
-      unsigned int FAST_DISCH :  1;  /**< For fast switchover of Vref from higher to lower reference voltage */
+      unsigned int EN         :  1;  /**< Enable ADC Subsystem */
+      unsigned int STARTCAL   :  1;  /**< Start a New Offset Calibration Cycle */
+      unsigned int RST        :  1;  /**< Reset */
+      unsigned int SINKEN     :  1;  /**< Enable Additional Sink Current Capability */
+      unsigned int TMPEN      :  1;  /**< Power up Temperature Sensor */
+      unsigned int FAST_DISCH :  1;  /**< Fast Switchover of Vref from 2.5 to 1.25 */
       unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
@@ -3323,8 +3078,6 @@ typedef struct _ADI_ADC_CFG_t {
 
 /** @defgroup PWRUP ADC Power-up Time (PWRUP) Register
  *  ADC Power-up Time (PWRUP) Register.
- *
- *  
  *  @{
  */
 
@@ -3336,7 +3089,7 @@ typedef struct _ADI_ADC_CFG_t {
 typedef struct _ADI_ADC_PWRUP_t {
   union {
     struct {
-      unsigned int WAIT       : 10;  /**< Program this with 526/PCLKDIVCNT */
+      unsigned int WAIT       : 10;  /**< Program This with 526/PCLKDIVCNT */
       unsigned int reserved10 :  6;
     };
     uint16_t VALUE16;
@@ -3348,8 +3101,6 @@ typedef struct _ADI_ADC_PWRUP_t {
 
 /** @defgroup CAL_WORD Calibration Word (CAL_WORD) Register
  *  Calibration Word (CAL_WORD) Register.
- *
- *  
  *  @{
  */
 
@@ -3361,7 +3112,7 @@ typedef struct _ADI_ADC_PWRUP_t {
 typedef struct _ADI_ADC_CAL_WORD_t {
   union {
     struct {
-      unsigned int VALUE      :  7;  /**< Offset calibration word */
+      unsigned int VALUE      :  7;  /**< Offset Calibration Word */
       unsigned int reserved7  :  9;
     };
     uint16_t VALUE16;
@@ -3373,8 +3124,6 @@ typedef struct _ADI_ADC_CAL_WORD_t {
 
 /** @defgroup CNV_CFG ADC Conversion Configuration (CNV_CFG) Register
  *  ADC Conversion Configuration (CNV_CFG) Register.
- *
- *  
  *  @{
  */
 
@@ -3386,15 +3135,15 @@ typedef struct _ADI_ADC_CAL_WORD_t {
 typedef struct _ADI_ADC_CNV_CFG_t {
   union {
     struct {
-      unsigned int SEL        :  8;  /**< To select channel(s) to convert */
-      unsigned int BAT        :  1;  /**< To enable battery monitoring */
-      unsigned int TMP        :  1;  /**< To select temperature measurement 1 */
-      unsigned int TMP2       :  1;  /**< To select temperature measurement 2 */
+      unsigned int SEL        :  8;  /**< Selection of Channel(s) to Convert */
+      unsigned int BAT        :  1;  /**< Battery Monitoring Enable */
+      unsigned int TMP        :  1;  /**< Temperature Measurement 1 */
+      unsigned int TMP2       :  1;  /**< Temperature Measurement 2 */
       unsigned int reserved11 :  1;
-      unsigned int AUTOMODE   :  1;  /**< To enable auto mode */
-      unsigned int DMAEN      :  1;  /**< To enable DMA channel */
-      unsigned int SINGLE     :  1;  /**< Set to start single conversion */
-      unsigned int MULTI      :  1;  /**< Set to start multiple conversions */
+      unsigned int AUTOMODE   :  1;  /**< Auto Mode Enable */
+      unsigned int DMAEN      :  1;  /**< DMA Channel Enable */
+      unsigned int SINGLE     :  1;  /**< Single Conversion Start */
+      unsigned int MULTI      :  1;  /**< Multiple Conversions */
     };
     uint16_t VALUE16;
   };
@@ -3405,8 +3154,6 @@ typedef struct _ADI_ADC_CNV_CFG_t {
 
 /** @defgroup CNV_TIME ADC Conversion Time (CNV_TIME) Register
  *  ADC Conversion Time (CNV_TIME) Register.
- *
- *  
  *  @{
  */
 
@@ -3418,8 +3165,8 @@ typedef struct _ADI_ADC_CNV_CFG_t {
 typedef struct _ADI_ADC_CNV_TIME_t {
   union {
     struct {
-      unsigned int SAMPTIME   :  8;  /**< Number of clock cycles (ACLK) required for sampling */
-      unsigned int DLY        :  8;  /**< Delay between two consecutive conversions in terms of number of ACLK cycles */
+      unsigned int SAMPTIME   :  8;  /**< Sampling Time */
+      unsigned int DLY        :  8;  /**< Delay Between Two Consecutive Conversions */
     };
     uint16_t VALUE16;
   };
@@ -3430,8 +3177,6 @@ typedef struct _ADI_ADC_CNV_TIME_t {
 
 /** @defgroup AVG_CFG Averaging Configuration (AVG_CFG) Register
  *  Averaging Configuration (AVG_CFG) Register.
- *
- *  
  *  @{
  */
 
@@ -3443,10 +3188,10 @@ typedef struct _ADI_ADC_CNV_TIME_t {
 typedef struct _ADI_ADC_AVG_CFG_t {
   union {
     struct {
-      unsigned int FACTOR     :  8;  /**< Program averaging factor for averaging enabled channels (1-256) */
+      unsigned int FACTOR     :  8;  /**< Averaging Factor */
       unsigned int reserved8  :  6;
-      unsigned int OS         :  1;  /**< Enable oversampling */
-      unsigned int EN         :  1;  /**< To enable averaging on Channels enabled in enable register */
+      unsigned int OS         :  1;  /**< Enable Oversampling */
+      unsigned int EN         :  1;  /**< Enable Averaging on Channels Enabled in Enable Register */
     };
     uint16_t VALUE16;
   };
@@ -3457,8 +3202,6 @@ typedef struct _ADI_ADC_AVG_CFG_t {
 
 /** @defgroup IRQ_EN Interrupt Enable (IRQ_EN) Register
  *  Interrupt Enable (IRQ_EN) Register.
- *
- *  
  *  @{
  */
 
@@ -3470,12 +3213,12 @@ typedef struct _ADI_ADC_AVG_CFG_t {
 typedef struct _ADI_ADC_IRQ_EN_t {
   union {
     struct {
-      unsigned int CNVDONE    :  1;  /**< Set it to enable interrupt after conversion is done */
+      unsigned int CNVDONE    :  1;  /**< Enable Conversion Done Interrupt */
       unsigned int reserved1  :  9;
-      unsigned int CALDONE    :  1;  /**< Set it to enable interrupt for calibration done */
-      unsigned int OVF        :  1;  /**< Set to enable interrupt in case of overflow */
-      unsigned int ALERT      :  1;  /**< Set to enable interrupt on crossing lower or higher limit */
-      unsigned int RDY        :  1;  /**< Set to enable interrupt when ADC is ready to convert */
+      unsigned int CALDONE    :  1;  /**< Enable Interrupt for Calibration Done */
+      unsigned int OVF        :  1;  /**< Enable Overflow Interrupt */
+      unsigned int ALERT      :  1;  /**< Interrupt on Crossing Lower or Higher Limit Enable */
+      unsigned int RDY        :  1;  /**< Set to Enable Interrupt When ADC is Ready to Convert */
       unsigned int reserved14 :  2;
     };
     uint16_t VALUE16;
@@ -3487,8 +3230,6 @@ typedef struct _ADI_ADC_IRQ_EN_t {
 
 /** @defgroup STAT ADC Status (STAT) Register
  *  ADC Status (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -3500,20 +3241,20 @@ typedef struct _ADI_ADC_IRQ_EN_t {
 typedef struct _ADI_ADC_STAT_t {
   union {
     struct {
-      unsigned int DONE0      :  1;  /**< Indicates conversion done on Channel 0 */
-      unsigned int DONE1      :  1;  /**< Indicates conversion done on Channel 1 */
-      unsigned int DONE2      :  1;  /**< Indicates conversion done on Channel 2 */
-      unsigned int DONE3      :  1;  /**< Indicates conversion done on Channel 3 */
-      unsigned int DONE4      :  1;  /**< Indicates conversion done on Channel 4 */
-      unsigned int DONE5      :  1;  /**< Indicates conversion done on Channel 5 */
-      unsigned int DONE6      :  1;  /**< Indicates conversion done on Channel 6 */
-      unsigned int DONE7      :  1;  /**< Indicates conversion done on Channel 7 */
-      unsigned int BATDONE    :  1;  /**< Indicates conversion done for battery monitoring */
-      unsigned int TMPDONE    :  1;  /**< Indicates conversion is done for temperature sensing */
-      unsigned int TMP2DONE   :  1;  /**< Indicates conversion is done for temperature sensing 2 */
+      unsigned int DONE0      :  1;  /**< Conversion Done on Channel 0 */
+      unsigned int DONE1      :  1;  /**< Conversion Done on Channel 1 */
+      unsigned int DONE2      :  1;  /**< Conversion Done on Channel 2 */
+      unsigned int DONE3      :  1;  /**< Conversion Done on Channel 3 */
+      unsigned int DONE4      :  1;  /**< Conversion Done on Channel 4 */
+      unsigned int DONE5      :  1;  /**< Conversion Done on Channel 5 */
+      unsigned int DONE6      :  1;  /**< Conversion Done on Channel 6 */
+      unsigned int DONE7      :  1;  /**< Conversion Done on Channel 7 */
+      unsigned int BATDONE    :  1;  /**< Conversion Done - Battery Monitoring */
+      unsigned int TMPDONE    :  1;  /**< Conversion Done for Temperature Sensing */
+      unsigned int TMP2DONE   :  1;  /**< Conversion Done for Temperature Sensing 2 */
       unsigned int reserved11 :  3;
-      unsigned int CALDONE    :  1;  /**< Indicates calibration is done */
-      unsigned int RDY        :  1;  /**< Indicates ADC is ready to start converting, when using external reference buffer */
+      unsigned int CALDONE    :  1;  /**< Calibration Done */
+      unsigned int RDY        :  1;  /**< ADC Ready to Start Converting */
     };
     uint16_t VALUE16;
   };
@@ -3524,8 +3265,6 @@ typedef struct _ADI_ADC_STAT_t {
 
 /** @defgroup OVF Overflow of Output Registers (OVF) Register
  *  Overflow of Output Registers (OVF) Register.
- *
- *  
  *  @{
  */
 
@@ -3537,17 +3276,17 @@ typedef struct _ADI_ADC_STAT_t {
 typedef struct _ADI_ADC_OVF_t {
   union {
     struct {
-      unsigned int CH0        :  1;  /**< Indicates overflow in Channel 0 output register */
-      unsigned int CH1        :  1;  /**< Indicates overflow in Channel 1 output register */
-      unsigned int CH2        :  1;  /**< Indicates overflow in Channel 2 output register */
-      unsigned int CH3        :  1;  /**< Indicates overflow in Channel 3 output register */
-      unsigned int CH4        :  1;  /**< Indicates overflow in Channel 4 output register */
-      unsigned int CH5        :  1;  /**< Indicates overflow in Channel 5 output register */
-      unsigned int CH6        :  1;  /**< Indicates overflow in Channel 6 output register */
-      unsigned int CH7        :  1;  /**< Indicates overflow in Channel 7 output register */
-      unsigned int BAT        :  1;  /**< Indicates overflow in Battery monitoring output register */
-      unsigned int TMP        :  1;  /**< Indicates overflow in Temperature output register */
-      unsigned int TMP2       :  1;  /**< Indicates overflow in Temperature 2 output register */
+      unsigned int CH0        :  1;  /**< Overflow in CH0_OUT */
+      unsigned int CH1        :  1;  /**< Overflow in CH1_OUT */
+      unsigned int CH2        :  1;  /**< Overflow in CH2_OUT */
+      unsigned int CH3        :  1;  /**< Overflow in CH3_OUT */
+      unsigned int CH4        :  1;  /**< Overflow in CH4_OUT */
+      unsigned int CH5        :  1;  /**< Overflow in CH5_OUT */
+      unsigned int CH6        :  1;  /**< Overflow in CH6_OUT */
+      unsigned int CH7        :  1;  /**< Overflow in CH7_OUT */
+      unsigned int BAT        :  1;  /**< Overflow in BAT_OUT */
+      unsigned int TMP        :  1;  /**< Overflow in TMP_OUT */
+      unsigned int TMP2       :  1;  /**< Overflow in TMP2_OUT */
       unsigned int reserved11 :  5;
     };
     uint16_t VALUE16;
@@ -3559,8 +3298,6 @@ typedef struct _ADI_ADC_OVF_t {
 
 /** @defgroup ALERT Alert Indication (ALERT) Register
  *  Alert Indication (ALERT) Register.
- *
- *  
  *  @{
  */
 
@@ -3572,14 +3309,14 @@ typedef struct _ADI_ADC_OVF_t {
 typedef struct _ADI_ADC_ALERT_t {
   union {
     struct {
-      unsigned int HI0        :  1;  /**< Channel 0 High alert status */
-      unsigned int LO0        :  1;  /**< Channel 0 Low alert status */
-      unsigned int HI1        :  1;  /**< Channel 1 High alert status */
-      unsigned int LO1        :  1;  /**< Channel 1 Low alert status */
-      unsigned int HI2        :  1;  /**< Channel 2 High alert status */
-      unsigned int LO2        :  1;  /**< Channel 2 Low alert status */
-      unsigned int HI3        :  1;  /**< Channel 3 High alert status */
-      unsigned int LO3        :  1;  /**< Channel 3 Low alert status */
+      unsigned int HI0        :  1;  /**< Channel 0 High Alert Status */
+      unsigned int LO0        :  1;  /**< Channel 0 Low Alert Status */
+      unsigned int HI1        :  1;  /**< Channel 1 High Alert Status */
+      unsigned int LO1        :  1;  /**< Channel 1 Low Alert Status */
+      unsigned int HI2        :  1;  /**< Channel 2 High Alert Status */
+      unsigned int LO2        :  1;  /**< Channel 2 Low Alert Status */
+      unsigned int HI3        :  1;  /**< Channel 3 High Alert Status */
+      unsigned int LO3        :  1;  /**< Channel 3 Low Alert Status */
       unsigned int reserved8  :  8;
     };
     uint16_t VALUE16;
@@ -3591,8 +3328,6 @@ typedef struct _ADI_ADC_ALERT_t {
 
 /** @defgroup CH0_OUT Conversion Result Channel 0 (CH0_OUT) Register
  *  Conversion Result Channel 0 (CH0_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3604,7 +3339,7 @@ typedef struct _ADI_ADC_ALERT_t {
 typedef struct _ADI_ADC_CH0_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 0 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 0 */
     };
     uint16_t VALUE16;
   };
@@ -3615,8 +3350,6 @@ typedef struct _ADI_ADC_CH0_OUT_t {
 
 /** @defgroup CH1_OUT Conversion Result Channel 1 (CH1_OUT) Register
  *  Conversion Result Channel 1 (CH1_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3628,7 +3361,7 @@ typedef struct _ADI_ADC_CH0_OUT_t {
 typedef struct _ADI_ADC_CH1_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 1 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 1 */
     };
     uint16_t VALUE16;
   };
@@ -3639,8 +3372,6 @@ typedef struct _ADI_ADC_CH1_OUT_t {
 
 /** @defgroup CH2_OUT Conversion Result Channel 2 (CH2_OUT) Register
  *  Conversion Result Channel 2 (CH2_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3652,7 +3383,7 @@ typedef struct _ADI_ADC_CH1_OUT_t {
 typedef struct _ADI_ADC_CH2_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 2 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 2 */
     };
     uint16_t VALUE16;
   };
@@ -3663,8 +3394,6 @@ typedef struct _ADI_ADC_CH2_OUT_t {
 
 /** @defgroup CH3_OUT Conversion Result Channel 3 (CH3_OUT) Register
  *  Conversion Result Channel 3 (CH3_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3676,7 +3405,7 @@ typedef struct _ADI_ADC_CH2_OUT_t {
 typedef struct _ADI_ADC_CH3_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 3 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 3 */
     };
     uint16_t VALUE16;
   };
@@ -3687,8 +3416,6 @@ typedef struct _ADI_ADC_CH3_OUT_t {
 
 /** @defgroup CH4_OUT Conversion Result Channel 4 (CH4_OUT) Register
  *  Conversion Result Channel 4 (CH4_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3700,7 +3427,7 @@ typedef struct _ADI_ADC_CH3_OUT_t {
 typedef struct _ADI_ADC_CH4_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 4 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 4 */
     };
     uint16_t VALUE16;
   };
@@ -3711,8 +3438,6 @@ typedef struct _ADI_ADC_CH4_OUT_t {
 
 /** @defgroup CH5_OUT Conversion Result Channel 5 (CH5_OUT) Register
  *  Conversion Result Channel 5 (CH5_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3724,7 +3449,7 @@ typedef struct _ADI_ADC_CH4_OUT_t {
 typedef struct _ADI_ADC_CH5_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 5 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 5 */
     };
     uint16_t VALUE16;
   };
@@ -3735,8 +3460,6 @@ typedef struct _ADI_ADC_CH5_OUT_t {
 
 /** @defgroup CH6_OUT Conversion Result Channel 6 (CH6_OUT) Register
  *  Conversion Result Channel 6 (CH6_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3748,7 +3471,7 @@ typedef struct _ADI_ADC_CH5_OUT_t {
 typedef struct _ADI_ADC_CH6_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 6 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 6 */
     };
     uint16_t VALUE16;
   };
@@ -3759,8 +3482,6 @@ typedef struct _ADI_ADC_CH6_OUT_t {
 
 /** @defgroup CH7_OUT Conversion Result Channel 7 (CH7_OUT) Register
  *  Conversion Result Channel 7 (CH7_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3772,7 +3493,7 @@ typedef struct _ADI_ADC_CH6_OUT_t {
 typedef struct _ADI_ADC_CH7_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Channel 7 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Channel 7 */
     };
     uint16_t VALUE16;
   };
@@ -3783,8 +3504,6 @@ typedef struct _ADI_ADC_CH7_OUT_t {
 
 /** @defgroup BAT_OUT Battery Monitoring Result (BAT_OUT) Register
  *  Battery Monitoring Result (BAT_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3796,7 +3515,7 @@ typedef struct _ADI_ADC_CH7_OUT_t {
 typedef struct _ADI_ADC_BAT_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of battery monitoring is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Battery Monitoring */
     };
     uint16_t VALUE16;
   };
@@ -3807,8 +3526,6 @@ typedef struct _ADI_ADC_BAT_OUT_t {
 
 /** @defgroup TMP_OUT Temperature Result (TMP_OUT) Register
  *  Temperature Result (TMP_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3820,7 +3537,7 @@ typedef struct _ADI_ADC_BAT_OUT_t {
 typedef struct _ADI_ADC_TMP_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Temperature measurement 1 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Temperature Measurement 1 */
     };
     uint16_t VALUE16;
   };
@@ -3831,8 +3548,6 @@ typedef struct _ADI_ADC_TMP_OUT_t {
 
 /** @defgroup TMP2_OUT Temperature Result 2 (TMP2_OUT) Register
  *  Temperature Result 2 (TMP2_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3844,7 +3559,7 @@ typedef struct _ADI_ADC_TMP_OUT_t {
 typedef struct _ADI_ADC_TMP2_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Conversion result of Temperature measurement 2 is stored here */
+      unsigned int RESULT     : 16;  /**< Conversion Result of Temperature Measurement 2 */
     };
     uint16_t VALUE16;
   };
@@ -3855,8 +3570,6 @@ typedef struct _ADI_ADC_TMP2_OUT_t {
 
 /** @defgroup DMA_OUT DMA Output Register (DMA_OUT) Register
  *  DMA Output Register (DMA_OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -3868,7 +3581,7 @@ typedef struct _ADI_ADC_TMP2_OUT_t {
 typedef struct _ADI_ADC_DMA_OUT_t {
   union {
     struct {
-      unsigned int RESULT     : 16;  /**< Register to store conversion result for DMA */
+      unsigned int RESULT     : 16;  /**< Conversion Result for DMA */
     };
     uint16_t VALUE16;
   };
@@ -3879,8 +3592,6 @@ typedef struct _ADI_ADC_DMA_OUT_t {
 
 /** @defgroup LIM0_LO Channel 0 Low Limit (LIM0_LO) Register
  *  Channel 0 Low Limit (LIM0_LO) Register.
- *
- *  
  *  @{
  */
 
@@ -3892,9 +3603,9 @@ typedef struct _ADI_ADC_DMA_OUT_t {
 typedef struct _ADI_ADC_LIM0_LO_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< Low limit value for Channel 0 */
+      unsigned int VALUE      : 12;  /**< Low Limit for Channel 0 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable low limit comparison on Channel 0 */
+      unsigned int EN         :  1;  /**< Enable Low Limit Comparison on Channel 0 */
     };
     uint16_t VALUE16;
   };
@@ -3905,8 +3616,6 @@ typedef struct _ADI_ADC_LIM0_LO_t {
 
 /** @defgroup LIM0_HI Channel 0 High Limit (LIM0_HI) Register
  *  Channel 0 High Limit (LIM0_HI) Register.
- *
- *  
  *  @{
  */
 
@@ -3918,9 +3627,9 @@ typedef struct _ADI_ADC_LIM0_LO_t {
 typedef struct _ADI_ADC_LIM0_HI_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< High limit value for Channel 0 */
+      unsigned int VALUE      : 12;  /**< High Limit for Channel 0 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable high limit comparison on Channel 0 */
+      unsigned int EN         :  1;  /**< Enable High Limit Comparison on Channel 0 */
     };
     uint16_t VALUE16;
   };
@@ -3931,8 +3640,6 @@ typedef struct _ADI_ADC_LIM0_HI_t {
 
 /** @defgroup HYS0 Channel 0 Hysteresis (HYS0) Register
  *  Channel 0 Hysteresis (HYS0) Register.
- *
- *  
  *  @{
  */
 
@@ -3944,10 +3651,10 @@ typedef struct _ADI_ADC_LIM0_HI_t {
 typedef struct _ADI_ADC_HYS0_t {
   union {
     struct {
-      unsigned int VALUE      :  9;  /**< Hysteresis value for Channel 0 */
+      unsigned int VALUE      :  9;  /**< Hysteresis Value for Channel 0 */
       unsigned int reserved9  :  3;
-      unsigned int MONCYC     :  3;  /**< Program number of conversion cycles to monitor channel 0 before raising alert */
-      unsigned int EN         :  1;  /**< To enable hysteresis for comparison on Channel 0 */
+      unsigned int MONCYC     :  3;  /**< Number of Conversion Cycles to Monitor Channel 0 */
+      unsigned int EN         :  1;  /**< Enable Hysteresis for Comparison on Channel 0 */
     };
     uint16_t VALUE16;
   };
@@ -3958,8 +3665,6 @@ typedef struct _ADI_ADC_HYS0_t {
 
 /** @defgroup LIM1_LO Channel 1 Low Limit (LIM1_LO) Register
  *  Channel 1 Low Limit (LIM1_LO) Register.
- *
- *  
  *  @{
  */
 
@@ -3971,9 +3676,9 @@ typedef struct _ADI_ADC_HYS0_t {
 typedef struct _ADI_ADC_LIM1_LO_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< Low limit value for Channel 1 */
+      unsigned int VALUE      : 12;  /**< Low Limit for Channel 1 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable low limit comparison on Channel 1 */
+      unsigned int EN         :  1;  /**< Enable Low Limit Comparison on Channel 1 */
     };
     uint16_t VALUE16;
   };
@@ -3984,8 +3689,6 @@ typedef struct _ADI_ADC_LIM1_LO_t {
 
 /** @defgroup LIM1_HI Channel 1 High Limit (LIM1_HI) Register
  *  Channel 1 High Limit (LIM1_HI) Register.
- *
- *  
  *  @{
  */
 
@@ -3997,9 +3700,9 @@ typedef struct _ADI_ADC_LIM1_LO_t {
 typedef struct _ADI_ADC_LIM1_HI_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< High limit value for Channel 1 */
+      unsigned int VALUE      : 12;  /**< High Limit for Channel 1 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable high limit comparison on Channel 1 */
+      unsigned int EN         :  1;  /**< Enable High Limit Comparison on Channel 1 */
     };
     uint16_t VALUE16;
   };
@@ -4010,8 +3713,6 @@ typedef struct _ADI_ADC_LIM1_HI_t {
 
 /** @defgroup HYS1 Channel 1 Hysteresis (HYS1) Register
  *  Channel 1 Hysteresis (HYS1) Register.
- *
- *  
  *  @{
  */
 
@@ -4023,10 +3724,10 @@ typedef struct _ADI_ADC_LIM1_HI_t {
 typedef struct _ADI_ADC_HYS1_t {
   union {
     struct {
-      unsigned int VALUE      :  9;  /**< Hysteresis value for Channel 1 */
+      unsigned int VALUE      :  9;  /**< Hysteresis Value for Channel 1 */
       unsigned int reserved9  :  3;
-      unsigned int MONCYC     :  3;  /**< Program number of conversion cycles to monitor Channel 1 before raising alert */
-      unsigned int EN         :  1;  /**< To enable hysteresis for comparison on Channel 1 */
+      unsigned int MONCYC     :  3;  /**< Number of Conversion Cycles to Monitor Channel 1 */
+      unsigned int EN         :  1;  /**< Enable Hysteresis for Comparison on Channel 1 */
     };
     uint16_t VALUE16;
   };
@@ -4037,8 +3738,6 @@ typedef struct _ADI_ADC_HYS1_t {
 
 /** @defgroup LIM2_LO Channel 2 Low Limit (LIM2_LO) Register
  *  Channel 2 Low Limit (LIM2_LO) Register.
- *
- *  
  *  @{
  */
 
@@ -4050,9 +3749,9 @@ typedef struct _ADI_ADC_HYS1_t {
 typedef struct _ADI_ADC_LIM2_LO_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< Low limit value for Channel 2 */
+      unsigned int VALUE      : 12;  /**< Low Limit for Channel 2 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable low limit comparison on Channel 2 */
+      unsigned int EN         :  1;  /**< Enable Low Limit Comparison on Channel 2 */
     };
     uint16_t VALUE16;
   };
@@ -4063,8 +3762,6 @@ typedef struct _ADI_ADC_LIM2_LO_t {
 
 /** @defgroup LIM2_HI Channel 2 High Limit (LIM2_HI) Register
  *  Channel 2 High Limit (LIM2_HI) Register.
- *
- *  
  *  @{
  */
 
@@ -4076,9 +3773,9 @@ typedef struct _ADI_ADC_LIM2_LO_t {
 typedef struct _ADI_ADC_LIM2_HI_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< High limit value for Channel 2 */
+      unsigned int VALUE      : 12;  /**< High Limit for Channel 2 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable high limit comparison on Channel 2 */
+      unsigned int EN         :  1;  /**< Enable High Limit Comparison on Channel */
     };
     uint16_t VALUE16;
   };
@@ -4089,8 +3786,6 @@ typedef struct _ADI_ADC_LIM2_HI_t {
 
 /** @defgroup HYS2 Channel 2 Hysteresis (HYS2) Register
  *  Channel 2 Hysteresis (HYS2) Register.
- *
- *  
  *  @{
  */
 
@@ -4102,10 +3797,10 @@ typedef struct _ADI_ADC_LIM2_HI_t {
 typedef struct _ADI_ADC_HYS2_t {
   union {
     struct {
-      unsigned int VALUE      :  9;  /**< Hysteresis value for Channel 2 */
+      unsigned int VALUE      :  9;  /**< Hysteresis Value for Channel 2 */
       unsigned int reserved9  :  3;
-      unsigned int MONCYC     :  3;  /**< Program number of conversion cycles to monitor Channel 2 before raising alert */
-      unsigned int EN         :  1;  /**< To enable hysteresis for comparison on Channel 2 */
+      unsigned int MONCYC     :  3;  /**< Number of Conversion Cycles to Monitor Channel 2 */
+      unsigned int EN         :  1;  /**< Enable Hysteresis for Comparison on Channel 2 */
     };
     uint16_t VALUE16;
   };
@@ -4116,8 +3811,6 @@ typedef struct _ADI_ADC_HYS2_t {
 
 /** @defgroup LIM3_LO Channel 3 Low Limit (LIM3_LO) Register
  *  Channel 3 Low Limit (LIM3_LO) Register.
- *
- *  
  *  @{
  */
 
@@ -4129,9 +3822,9 @@ typedef struct _ADI_ADC_HYS2_t {
 typedef struct _ADI_ADC_LIM3_LO_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< Low limit value for Channel 3 */
+      unsigned int VALUE      : 12;  /**< Low Limit for Channel 3 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable low limit comparison on Channel 3 */
+      unsigned int EN         :  1;  /**< Enable Low Limit Comparison on Channel 3 */
     };
     uint16_t VALUE16;
   };
@@ -4142,8 +3835,6 @@ typedef struct _ADI_ADC_LIM3_LO_t {
 
 /** @defgroup LIM3_HI Channel 3 High Limit (LIM3_HI) Register
  *  Channel 3 High Limit (LIM3_HI) Register.
- *
- *  
  *  @{
  */
 
@@ -4155,9 +3846,9 @@ typedef struct _ADI_ADC_LIM3_LO_t {
 typedef struct _ADI_ADC_LIM3_HI_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< High limit value for Channel 3 */
+      unsigned int VALUE      : 12;  /**< High Limit for Channel 3 */
       unsigned int reserved12 :  3;
-      unsigned int EN         :  1;  /**< To enable high limit comparison on Channel 3 */
+      unsigned int EN         :  1;  /**< Enable High Limit Comparison on Channel 3 */
     };
     uint16_t VALUE16;
   };
@@ -4168,8 +3859,6 @@ typedef struct _ADI_ADC_LIM3_HI_t {
 
 /** @defgroup HYS3 Channel 3 Hysteresis (HYS3) Register
  *  Channel 3 Hysteresis (HYS3) Register.
- *
- *  
  *  @{
  */
 
@@ -4181,10 +3870,10 @@ typedef struct _ADI_ADC_LIM3_HI_t {
 typedef struct _ADI_ADC_HYS3_t {
   union {
     struct {
-      unsigned int VALUE      :  9;  /**< Hysteresis value for Channel 3 */
+      unsigned int VALUE      :  9;  /**< Hysteresis Value for Channel 3 */
       unsigned int reserved9  :  3;
-      unsigned int MONCYC     :  3;  /**< Program number of conversion cycles to monitor Channel 3 before raising alert */
-      unsigned int EN         :  1;  /**< To enable hysteresis for comparison on Channel 3 */
+      unsigned int MONCYC     :  3;  /**< Number of Conversion Cycles to Monitor Channel 3 */
+      unsigned int EN         :  1;  /**< Enable Hysteresis for Comparison on Channel 3 */
     };
     uint16_t VALUE16;
   };
@@ -4195,8 +3884,6 @@ typedef struct _ADI_ADC_HYS3_t {
 
 /** @defgroup CFG1 Reference Buffer Low Power Mode (CFG1) Register
  *  Reference Buffer Low Power Mode (CFG1) Register.
- *
- *  
  *  @{
  */
 
@@ -4208,7 +3895,7 @@ typedef struct _ADI_ADC_HYS3_t {
 typedef struct _ADI_ADC_CFG1_t {
   union {
     struct {
-      unsigned int RBUFLP     :  1;  /**< Enable low-power mode for reference buffer */
+      unsigned int RBUFLP     :  1;  /**< Enable Low Power Mode for Reference Buffer */
       unsigned int reserved1  : 15;
     };
     uint16_t VALUE16;
@@ -4220,8 +3907,6 @@ typedef struct _ADI_ADC_CFG1_t {
 
 /** @defgroup STAT DMA Status (STAT) Register
  *  DMA Status (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -4233,9 +3918,9 @@ typedef struct _ADI_ADC_CFG1_t {
 typedef struct _ADI_DMA_STAT_t {
   union {
     struct {
-      unsigned int MEN        :  1;  /**< Enable status of the controller */
+      unsigned int MEN        :  1;  /**< Enable Status of the Controller */
       unsigned int reserved1  : 15;
-      unsigned int CHANM1     :  5;  /**< Number of available DMA channels minus 1 */
+      unsigned int CHANM1     :  5;  /**< Number of Available DMA Channels Minus 1 */
       unsigned int reserved21 : 11;
     };
     uint32_t VALUE32;
@@ -4247,8 +3932,6 @@ typedef struct _ADI_DMA_STAT_t {
 
 /** @defgroup CFG DMA Configuration (CFG) Register
  *  DMA Configuration (CFG) Register.
- *
- *  
  *  @{
  */
 
@@ -4260,7 +3943,7 @@ typedef struct _ADI_DMA_STAT_t {
 typedef struct _ADI_DMA_CFG_t {
   union {
     struct {
-      unsigned int MEN        :  1;  /**< Controller enable */
+      unsigned int MEN        :  1;  /**< Controller Enable */
       unsigned int reserved1  : 31;
     };
     uint32_t VALUE32;
@@ -4272,8 +3955,6 @@ typedef struct _ADI_DMA_CFG_t {
 
 /** @defgroup PDBPTR DMA Channel Primary Control Database Pointer (PDBPTR) Register
  *  DMA Channel Primary Control Database Pointer (PDBPTR) Register.
- *
- *  The DMAPDBPTR register must be programmed to point to the primary channel control base pointer in the system memory. The amount of system memory that must be assigned to the DMA controller depends on the number of DMA channels used and whether the alternate channel control data structure is used. This register cannot be read when the DMA controller is in the reset state.
  *  @{
  */
 
@@ -4285,7 +3966,7 @@ typedef struct _ADI_DMA_CFG_t {
 typedef struct _ADI_DMA_PDBPTR_t {
   union {
     struct {
-      unsigned int ADDR       : 32;  /**< Pointer to the base address of the primary data structure */
+      unsigned int ADDR       : 32;  /**< Pointer to the Base Address of the Primary Data Structure */
     };
     uint32_t VALUE32;
   };
@@ -4296,8 +3977,6 @@ typedef struct _ADI_DMA_PDBPTR_t {
 
 /** @defgroup ADBPTR DMA Channel Alternate Control Database Pointer (ADBPTR) Register
  *  DMA Channel Alternate Control Database Pointer (ADBPTR) Register.
- *
- *  The DMAADBPTR read-only register returns the base address of the alternate channel control data structure. This register removes the necessity for application software to calculate the base address of the alternate data structure. This register cannot be read when the DMA controller is in the reset state.
  *  @{
  */
 
@@ -4309,7 +3988,7 @@ typedef struct _ADI_DMA_PDBPTR_t {
 typedef struct _ADI_DMA_ADBPTR_t {
   union {
     struct {
-      unsigned int ADDR       : 32;  /**< Base address of the alternate data structure */
+      unsigned int ADDR       : 32;  /**< Base Address of the Alternate Data Structure */
     };
     uint32_t VALUE32;
   };
@@ -4320,8 +3999,6 @@ typedef struct _ADI_DMA_ADBPTR_t {
 
 /** @defgroup SWREQ DMA Channel Software Request (SWREQ) Register
  *  DMA Channel Software Request (SWREQ) Register.
- *
- *  The DMASWREQ register enables the generation of software DMA request. Each bit of the register represents the corresponding channel number in the DMA controller.  M is the number of DMA channels
  *  @{
  */
 
@@ -4333,7 +4010,7 @@ typedef struct _ADI_DMA_ADBPTR_t {
 typedef struct _ADI_DMA_SWREQ_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Generate software request */
+      unsigned int CHAN       : 25;  /**< Generate Software Request */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4345,8 +4022,6 @@ typedef struct _ADI_DMA_SWREQ_t {
 
 /** @defgroup RMSK_SET DMA Channel Request Mask Set (RMSK_SET) Register
  *  DMA Channel Request Mask Set (RMSK_SET) Register.
- *
- *  
  *  @{
  */
 
@@ -4358,7 +4033,7 @@ typedef struct _ADI_DMA_SWREQ_t {
 typedef struct _ADI_DMA_RMSK_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Mask requests from DMA channels */
+      unsigned int CHAN       : 25;  /**< Mask Requests from DMA Channels */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4370,8 +4045,6 @@ typedef struct _ADI_DMA_RMSK_SET_t {
 
 /** @defgroup RMSK_CLR DMA Channel Request Mask Clear (RMSK_CLR) Register
  *  DMA Channel Request Mask Clear (RMSK_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4383,7 +4056,7 @@ typedef struct _ADI_DMA_RMSK_SET_t {
 typedef struct _ADI_DMA_RMSK_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Clear Request Mask Set bits */
+      unsigned int CHAN       : 25;  /**< Clear Request Mask Set Bits */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4395,8 +4068,6 @@ typedef struct _ADI_DMA_RMSK_CLR_t {
 
 /** @defgroup EN_SET DMA Channel Enable Set (EN_SET) Register
  *  DMA Channel Enable Set (EN_SET) Register.
- *
- *  
  *  @{
  */
 
@@ -4408,7 +4079,7 @@ typedef struct _ADI_DMA_RMSK_CLR_t {
 typedef struct _ADI_DMA_EN_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Enable DMA channels */
+      unsigned int CHAN       : 25;  /**< Enable DMA Channels */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4420,8 +4091,6 @@ typedef struct _ADI_DMA_EN_SET_t {
 
 /** @defgroup EN_CLR DMA Channel Enable Clear (EN_CLR) Register
  *  DMA Channel Enable Clear (EN_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4433,7 +4102,7 @@ typedef struct _ADI_DMA_EN_SET_t {
 typedef struct _ADI_DMA_EN_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Disable DMA channels */
+      unsigned int CHAN       : 25;  /**< Disable DMA Channels */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4445,11 +4114,6 @@ typedef struct _ADI_DMA_EN_CLR_t {
 
 /** @defgroup ALT_SET DMA Channel Primary Alternate Set (ALT_SET) Register
  *  DMA Channel Primary Alternate Set (ALT_SET) Register.
- *
- *  The DMAALTSET register enables the user to configure the appropriate DMA channel to use the alternate control data structure. Reading the register returns the status of which data structure is in use for the corresponding DMA channel. Each bit of the register represents the corresponding channel number in the DMA controller. 
- *   
- *  
- *  Note: The DMA controller sets/clears these bits automatically as necessary for ping-pong, memory scatter-gather and peripheral scatter-gather transfers.
  *  @{
  */
 
@@ -4461,7 +4125,7 @@ typedef struct _ADI_DMA_EN_CLR_t {
 typedef struct _ADI_DMA_ALT_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Control structure status / Select alternate structure */
+      unsigned int CHAN       : 25;  /**< Control Structure Status / Select Alternate Structure */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4473,11 +4137,6 @@ typedef struct _ADI_DMA_ALT_SET_t {
 
 /** @defgroup ALT_CLR DMA Channel Primary Alternate Clear (ALT_CLR) Register
  *  DMA Channel Primary Alternate Clear (ALT_CLR) Register.
- *
- *  The DMAALTCLR write-only register enables the user to configure the appropriate DMA channel to use the primary control data structure. Each bit of the register represents the corresponding channel number in the DMA controller.  
- *  
- *  
- *  Note: The DMA controller sets/clears these bits automatically as necessary for ping-pong, memory scatter-gather and peripheral scatter-gather transfers.
  *  @{
  */
 
@@ -4489,7 +4148,7 @@ typedef struct _ADI_DMA_ALT_SET_t {
 typedef struct _ADI_DMA_ALT_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Select primary data structure */
+      unsigned int CHAN       : 25;  /**< Select Primary Data Structure */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4501,8 +4160,6 @@ typedef struct _ADI_DMA_ALT_CLR_t {
 
 /** @defgroup PRI_SET DMA Channel Priority Set (PRI_SET) Register
  *  DMA Channel Priority Set (PRI_SET) Register.
- *
- *  
  *  @{
  */
 
@@ -4514,7 +4171,7 @@ typedef struct _ADI_DMA_ALT_CLR_t {
 typedef struct _ADI_DMA_PRI_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Configure channel for high priority */
+      unsigned int CHAN       : 25;  /**< Configure Channel for High Priority */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4526,8 +4183,6 @@ typedef struct _ADI_DMA_PRI_SET_t {
 
 /** @defgroup PRI_CLR DMA Channel Priority Clear (PRI_CLR) Register
  *  DMA Channel Priority Clear (PRI_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4539,7 +4194,7 @@ typedef struct _ADI_DMA_PRI_SET_t {
 typedef struct _ADI_DMA_PRI_CLR_t {
   union {
     struct {
-      unsigned int CHPRICLR   : 25;  /**< Configure channel for default priority level */
+      unsigned int CHPRICLR   : 25;  /**< Configure Channel for Default Priority Level */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4549,22 +4204,20 @@ typedef struct _ADI_DMA_PRI_CLR_t {
 
 /*@}*/
 
-/** @defgroup ERRCHNL_CLR DMA Per Channel Error Clear (ERRCHNL_CLR) Register
- *  DMA Per Channel Error Clear (ERRCHNL_CLR) Register.
- *
- *  
+/** @defgroup ERRCHNL_CLR DMA per Channel Error Clear (ERRCHNL_CLR) Register
+ *  DMA per Channel Error Clear (ERRCHNL_CLR) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_DMA_ERRCHNL_CLR_Struct
- *! \brief  DMA Per Channel Error Clear Register bit field structure
+ *! \brief  DMA per Channel Error Clear Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_DMA_ERRCHNL_CLR_t__
 typedef struct _ADI_DMA_ERRCHNL_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Per channel Bus error status/clear */
+      unsigned int CHAN       : 25;  /**< Per Channel Bus Error Status/Clear */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4576,8 +4229,6 @@ typedef struct _ADI_DMA_ERRCHNL_CLR_t {
 
 /** @defgroup ERR_CLR DMA Bus Error Clear (ERR_CLR) Register
  *  DMA Bus Error Clear (ERR_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4589,7 +4240,7 @@ typedef struct _ADI_DMA_ERRCHNL_CLR_t {
 typedef struct _ADI_DMA_ERR_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Bus error status */
+      unsigned int CHAN       : 25;  /**< Bus Error Status */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4599,22 +4250,20 @@ typedef struct _ADI_DMA_ERR_CLR_t {
 
 /*@}*/
 
-/** @defgroup INVALIDDESC_CLR DMA Per Channel Invalid Descriptor Clear (INVALIDDESC_CLR) Register
- *  DMA Per Channel Invalid Descriptor Clear (INVALIDDESC_CLR) Register.
- *
- *  
+/** @defgroup INVALIDDESC_CLR DMA per Channel Invalid Descriptor Clear (INVALIDDESC_CLR) Register
+ *  DMA per Channel Invalid Descriptor Clear (INVALIDDESC_CLR) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_DMA_INVALIDDESC_CLR_Struct
- *! \brief  DMA Per Channel Invalid Descriptor Clear Register bit field structure
+ *! \brief  DMA per Channel Invalid Descriptor Clear Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_DMA_INVALIDDESC_CLR_t__
 typedef struct _ADI_DMA_INVALIDDESC_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Per channel Invalid Descriptor Status/Clear */
+      unsigned int CHAN       : 25;  /**< Per Channel Invalid Descriptor Status/Clear */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4626,8 +4275,6 @@ typedef struct _ADI_DMA_INVALIDDESC_CLR_t {
 
 /** @defgroup BS_SET DMA Channel Bytes Swap Enable Set (BS_SET) Register
  *  DMA Channel Bytes Swap Enable Set (BS_SET) Register.
- *
- *  
  *  @{
  */
 
@@ -4639,7 +4286,7 @@ typedef struct _ADI_DMA_INVALIDDESC_CLR_t {
 typedef struct _ADI_DMA_BS_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Byte swap status */
+      unsigned int CHAN       : 25;  /**< Byte Swap Status */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4651,8 +4298,6 @@ typedef struct _ADI_DMA_BS_SET_t {
 
 /** @defgroup BS_CLR DMA Channel Bytes Swap Enable Clear (BS_CLR) Register
  *  DMA Channel Bytes Swap Enable Clear (BS_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4664,7 +4309,7 @@ typedef struct _ADI_DMA_BS_SET_t {
 typedef struct _ADI_DMA_BS_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Disable byte swap */
+      unsigned int CHAN       : 25;  /**< Disable Byte Swap */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4676,8 +4321,6 @@ typedef struct _ADI_DMA_BS_CLR_t {
 
 /** @defgroup SRCADDR_SET DMA Channel Source Address Decrement Enable Set (SRCADDR_SET) Register
  *  DMA Channel Source Address Decrement Enable Set (SRCADDR_SET) Register.
- *
- *  
  *  @{
  */
 
@@ -4689,7 +4332,7 @@ typedef struct _ADI_DMA_BS_CLR_t {
 typedef struct _ADI_DMA_SRCADDR_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Source Address decrement status / configure Source address decrement */
+      unsigned int CHAN       : 25;  /**< Source Address Decrement Status */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4701,8 +4344,6 @@ typedef struct _ADI_DMA_SRCADDR_SET_t {
 
 /** @defgroup SRCADDR_CLR DMA Channel Source Address Decrement Enable Clear (SRCADDR_CLR) Register
  *  DMA Channel Source Address Decrement Enable Clear (SRCADDR_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4714,7 +4355,7 @@ typedef struct _ADI_DMA_SRCADDR_SET_t {
 typedef struct _ADI_DMA_SRCADDR_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Disable source address decrement */
+      unsigned int CHAN       : 25;  /**< Disable Source Address Decrement */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4726,8 +4367,6 @@ typedef struct _ADI_DMA_SRCADDR_CLR_t {
 
 /** @defgroup DSTADDR_SET DMA Channel Destination Address Decrement Enable Set (DSTADDR_SET) Register
  *  DMA Channel Destination Address Decrement Enable Set (DSTADDR_SET) Register.
- *
- *  
  *  @{
  */
 
@@ -4739,7 +4378,7 @@ typedef struct _ADI_DMA_SRCADDR_CLR_t {
 typedef struct _ADI_DMA_DSTADDR_SET_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Destination Address decrement status / configure destination address decrement */
+      unsigned int CHAN       : 25;  /**< Destination Address Decrement Status */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4751,8 +4390,6 @@ typedef struct _ADI_DMA_DSTADDR_SET_t {
 
 /** @defgroup DSTADDR_CLR DMA Channel Destination Address Decrement Enable Clear (DSTADDR_CLR) Register
  *  DMA Channel Destination Address Decrement Enable Clear (DSTADDR_CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -4764,7 +4401,7 @@ typedef struct _ADI_DMA_DSTADDR_SET_t {
 typedef struct _ADI_DMA_DSTADDR_CLR_t {
   union {
     struct {
-      unsigned int CHAN       : 25;  /**< Disable destination address decrement */
+      unsigned int CHAN       : 25;  /**< Disable Destination Address Decrement */
       unsigned int reserved25 :  7;
     };
     uint32_t VALUE32;
@@ -4776,8 +4413,6 @@ typedef struct _ADI_DMA_DSTADDR_CLR_t {
 
 /** @defgroup REVID DMA Controller Revision ID (REVID) Register
  *  DMA Controller Revision ID (REVID) Register.
- *
- *  
  *  @{
  */
 
@@ -4789,7 +4424,7 @@ typedef struct _ADI_DMA_DSTADDR_CLR_t {
 typedef struct _ADI_DMA_REVID_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< DMA Controller revision ID */
+      unsigned int VALUE      :  8;  /**< DMA Controller Revision ID */
       unsigned int reserved8  : 24;
     };
     uint32_t VALUE32;
@@ -4801,8 +4436,6 @@ typedef struct _ADI_DMA_REVID_t {
 
 /** @defgroup STAT Status (STAT) Register
  *  Status (STAT) Register.
- *
- *  Provides information on current command states and error detection/correction.
  *  @{
  */
 
@@ -4814,24 +4447,24 @@ typedef struct _ADI_DMA_REVID_t {
 typedef struct _ADI_FLCC_STAT_t {
   union {
     struct {
-      unsigned int CMDBUSY    :  1;  /**< Command busy */
-      unsigned int WRCLOSE    :  1;  /**< WRITE registers are closed */
-      unsigned int CMDCOMP    :  1;  /**< Command complete */
-      unsigned int WRALCOMP   :  1;  /**< Write almost complete */
-      unsigned int CMDFAIL    :  2;  /**< Provides information on command failures */
-      unsigned int SLEEPING   :  1;  /**< Flash array is in low power (sleep) mode */
-      unsigned int ECCERRCMD  :  2;  /**< ECC errors detected during user issued SIGN command */
-      unsigned int ECCRDERR   :  2;  /**< ECC IRQ cause */
+      unsigned int CMDBUSY    :  1;  /**< Command Busy */
+      unsigned int WRCLOSE    :  1;  /**< WRITE Registers are Closed */
+      unsigned int CMDCOMP    :  1;  /**< Command Complete */
+      unsigned int WRALCOMP   :  1;  /**< Write Almost Complete */
+      unsigned int CMDFAIL    :  2;  /**< Provides Information on Command Failures */
+      unsigned int SLEEPING   :  1;  /**< Flash Array is in Low Power (Sleep) Mode */
+      unsigned int ECCERRCMD  :  2;  /**< ECC Errors Detected During User Issued SIGN Command */
+      unsigned int ECCRDERR   :  2;  /**< ECC IRQ Cause */
       unsigned int OVERLAP    :  1;  /**< Overlapping Command */
       unsigned int reserved12 :  1;
-      unsigned int SIGNERR    :  1;  /**< Signature check failure during initialization */
-      unsigned int INIT       :  1;  /**< Flash controller initialization in progress */
-      unsigned int ECCINFOSIGN :  2;  /**< ECC status of flash initialization */
-      unsigned int ECCERRCNT   :  3;  /**< ECC correction counter */
+      unsigned int SIGNERR    :  1;  /**< Signature Check Failure During Initialization */
+      unsigned int INIT       :  1;  /**< Flash Controller Initialization in Progress */
+      unsigned int ECCINFOSIGN :  2;  /**< ECC Status of Flash Initialization */
+      unsigned int ECCERRCNT   :  3;  /**< ECC Correction Counter */
       unsigned int reserved20  :  5;
-      unsigned int ECCICODE    :  2;  /**< ICode AHB Bus Error ECC status */
-      unsigned int ECCDCODE    :  2;  /**< DCode AHB Bus Error ECC status */
-      unsigned int CACHESRAMPERR :  1;  /**< SRAM parity errors in Cache Controller */
+      unsigned int ECCICODE    :  2;  /**< ICode AHB Bus Error ECC Status */
+      unsigned int ECCDCODE    :  2;  /**< DCode AHB Bus Error ECC Status */
+      unsigned int CACHESRAMPERR :  1;  /**< SRAM Parity Errors in Cache Controller */
       unsigned int reserved30    :  2;
     };
     uint32_t VALUE32;
@@ -4843,26 +4476,12 @@ typedef struct _ADI_FLCC_STAT_t {
 
 /** @defgroup IEN Interrupt Enable (IEN) Register
  *  Interrupt Enable (IEN) Register.
- *
- *  Used to specify when interrupts will be generated.
  *  @{
  */
 
 /*  =========================================================================
- *! \enum   ADI_FLCC_IEN_ECC_CORRECT
- *! \brief  Control whether to generate bus errors, interrupts, or neither in response to 1-bit ECC Correction events (ECC_CORRECT) Enumerations
- *  ========================================================================= */
-typedef enum
-{
-  FLCC_IEN_NONE_COR    = 0,  /**< Do not generate a response to ECC events      */
-  FLCC_IEN_BUS_ERR_COR = 1,  /**< Generate Bus Errors in response to ECC events */
-  FLCC_IEN_IRQ_COR     = 2   /**< Generate IRQs in response to ECC events       */
-} ADI_FLCC_IEN_ECC_CORRECT;
-
-
-/*  =========================================================================
  *! \enum   ADI_FLCC_IEN_ECC_ERROR
- *! \brief  Control whether to generate bus errors, interrupts, or neither in response to 2-bit ECC Error events (ECC_ERROR) Enumerations
+ *! \brief  Control 2-bit ECC Error Events (ECC_ERROR) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -4880,13 +4499,12 @@ typedef enum
 typedef struct _ADI_FLCC_IEN_t {
   union {
     struct {
-      unsigned int CMDCMPLT   :  1;  /**< Command complete interrupt enable */
-      unsigned int WRALCMPLT  :  1;  /**< Write almost complete interrupt enable */
-      unsigned int CMDFAIL    :  1;  /**< Command fail interrupt enable */
-      unsigned int reserved3   :  1;
-      unsigned int ECC_CORRECT :  2;  /**< Control whether to generate bus errors, interrupts, or neither in response to 1-bit ECC Correction events */
-      unsigned int ECC_ERROR   :  2;  /**< Control whether to generate bus errors, interrupts, or neither in response to 2-bit ECC Error events */
-      unsigned int reserved8   : 24;
+      unsigned int CMDCMPLT   :  1;  /**< Command Complete Interrupt Enable */
+      unsigned int WRALCMPLT  :  1;  /**< Write Almost Complete Interrupt Enable */
+      unsigned int CMDFAIL    :  1;  /**< Command Fail Interrupt Enable */
+      unsigned int reserved3  :  3;
+      unsigned int ECC_ERROR  :  2;  /**< Control 2-bit ECC Error Events */
+      unsigned int reserved8  : 24;
     };
     uint32_t VALUE32;
   };
@@ -4897,8 +4515,6 @@ typedef struct _ADI_FLCC_IEN_t {
 
 /** @defgroup CMD Command (CMD) Register
  *  Command (CMD) Register.
- *
- *  Write this register to execute a specified command. The user key (see KEY register for details) must first be written to the KEY Register for most command requests to be honored (see details below).
  *  @{
  */
 
@@ -4937,27 +4553,21 @@ typedef struct _ADI_FLCC_CMD_t {
 
 /*@}*/
 
-/** @defgroup KH_ADDR WRITE Address (KH_ADDR) Register
- *  WRITE Address (KH_ADDR) Register.
- *
- *  Write the byte-address of any byte of a 64-bit dual-word flash location to be targeted by a WRITE command.
- *  
- *  All writes target 64-bit dual-word elements in the flash array. User code may byte-mask data to emulate byte, hword, or word writes. Flash IP specifications warn that no location should be written more than twice between erasures. When writing a location more than once, user should be aware that ECC meta-data cannot be updated appropriately; user code should disable ECC for the relevant region of flash.
- *  
- *  (Writing any address above the valid range of flash memory will saturate the address to prevent aliasing; user code should take care to target valid flash address locations)
+/** @defgroup KH_ADDR Write Address (KH_ADDR) Register
+ *  Write Address (KH_ADDR) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_KH_ADDR_Struct
- *! \brief  WRITE Address Register bit field structure
+ *! \brief  Write Address Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_KH_ADDR_t__
 typedef struct _ADI_FLCC_KH_ADDR_t {
   union {
     struct {
       unsigned int reserved0  :  3;
-      unsigned int VALUE      : 16;  /**< Address to be written on a WRITE command */
+      unsigned int VALUE      : 16;  /**< Key Hole Address */
       unsigned int reserved19 : 13;
     };
     uint32_t VALUE32;
@@ -4967,22 +4577,20 @@ typedef struct _ADI_FLCC_KH_ADDR_t {
 
 /*@}*/
 
-/** @defgroup KH_DATA0 WRITE Lower Data (KH_DATA0) Register
- *  WRITE Lower Data (KH_DATA0) Register.
- *
- *  The lower half of 64-bit dualword data to be written to flash
+/** @defgroup KH_DATA0 Write Lower Data (KH_DATA0) Register
+ *  Write Lower Data (KH_DATA0) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_KH_DATA0_Struct
- *! \brief  WRITE Lower Data Register bit field structure
+ *! \brief  Write Lower Data Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_KH_DATA0_t__
 typedef struct _ADI_FLCC_KH_DATA0_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< Lower half of 64-bit dual word data to be written on a WRITE command */
+      unsigned int VALUE      : 32;  /**< Lower 32 Bits of Key Hole Data */
     };
     uint32_t VALUE32;
   };
@@ -4991,22 +4599,20 @@ typedef struct _ADI_FLCC_KH_DATA0_t {
 
 /*@}*/
 
-/** @defgroup KH_DATA1 WRITE Upper Data (KH_DATA1) Register
- *  WRITE Upper Data (KH_DATA1) Register.
- *
- *  The lower half of 64-bit dualword data to be written to flash.
+/** @defgroup KH_DATA1 Write Upper Data (KH_DATA1) Register
+ *  Write Upper Data (KH_DATA1) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_KH_DATA1_Struct
- *! \brief  WRITE Upper Data Register bit field structure
+ *! \brief  Write Upper Data Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_KH_DATA1_t__
 typedef struct _ADI_FLCC_KH_DATA1_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< Upper half of 64-bit dual word data to be written on a WRITE command */
+      unsigned int VALUE      : 32;  /**< Upper Half of 64-bit Dualword Data to Be Written */
     };
     uint32_t VALUE32;
   };
@@ -5017,14 +4623,6 @@ typedef struct _ADI_FLCC_KH_DATA1_t {
 
 /** @defgroup PAGE_ADDR0 Lower Page Address (PAGE_ADDR0) Register
  *  Lower Page Address (PAGE_ADDR0) Register.
- *
- *  Write a byte-address to this register to select the page in which that byte exists. 
- *  
- *  The selected page may be used for a ERASEPAGE command (selecting which page to erase) or for a SIGN command (selecting the start page for a block on which a signature should be calculated).
- *  
- *  For commands using both PAGE_ADDR0 and PAGE_ADDR1, user should ensure that PAGE_ADDR0 is always less than or equal to PAGE_ADDR1, else the command is denied.
- *  
- *  Writing any address above the valid range of flash memory saturates the address register to prevent aliasing in the flash memory space.
  *  @{
  */
 
@@ -5037,7 +4635,7 @@ typedef struct _ADI_FLCC_PAGE_ADDR0_t {
   union {
     struct {
       unsigned int reserved0  : 10;
-      unsigned int VALUE      :  9;  /**< Lower address bits of the page address */
+      unsigned int VALUE      :  9;  /**< Lower Address Bits of the Page Address */
       unsigned int reserved19 : 13;
     };
     uint32_t VALUE32;
@@ -5049,14 +4647,6 @@ typedef struct _ADI_FLCC_PAGE_ADDR0_t {
 
 /** @defgroup PAGE_ADDR1 Upper Page Address (PAGE_ADDR1) Register
  *  Upper Page Address (PAGE_ADDR1) Register.
- *
- *  Write a byte-address to this register to select the page in which that byte exists. 
- *  
- *  The selected page may be used for a SIGN command (selecting the end page for a block on which a signature should be calculated).
- *  
- *  For commands using both PAGE_ADDR0 and PAGE_ADDR1, user should ensure that PAGE_ADDR0 is always less than or equal to PAGE_ADDR1, else the command is denied.
- *  
- *  Writing any address above the valid range of flash memory saturates the address register to prevent aliasing in the flash memory space.
  *  @{
  */
 
@@ -5069,7 +4659,7 @@ typedef struct _ADI_FLCC_PAGE_ADDR1_t {
   union {
     struct {
       unsigned int reserved0  : 10;
-      unsigned int VALUE      :  9;  /**< Upper address bits of the page address */
+      unsigned int VALUE      :  9;  /**< Upper Address Bits of the Page Address */
       unsigned int reserved19 : 13;
     };
     uint32_t VALUE32;
@@ -5081,14 +4671,12 @@ typedef struct _ADI_FLCC_PAGE_ADDR1_t {
 
 /** @defgroup KEY Key (KEY) Register
  *  Key (KEY) Register.
- *
- *  When user code must write a key to access protected features, the key value must be written to this register.
  *  @{
  */
 
 /*  =========================================================================
  *! \enum   ADI_FLCC_KEY_VALUE
- *! \brief  Key register (VALUE) Enumerations
+ *! \brief  Key Register (VALUE) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -5104,7 +4692,7 @@ typedef enum
 typedef struct _ADI_FLCC_KEY_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< Key register */
+      unsigned int VALUE      : 32;  /**< Key Register */
     };
     uint32_t VALUE32;
   };
@@ -5115,8 +4703,6 @@ typedef struct _ADI_FLCC_KEY_t {
 
 /** @defgroup WR_ABORT_ADDR Write Abort Address (WR_ABORT_ADDR) Register
  *  Write Abort Address (WR_ABORT_ADDR) Register.
- *
- *  Address of recently aborted write command. This address is only populated if the aborted write command was started; if the command is aborted early enough to have no affect on the flash IP this address will not be updated.
  *  @{
  */
 
@@ -5128,7 +4714,7 @@ typedef struct _ADI_FLCC_KEY_t {
 typedef struct _ADI_FLCC_WR_ABORT_ADDR_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< Holds the address targeted by an ongoing write command and retains its value after an ABORT event */
+      unsigned int VALUE      : 32;  /**< Address Targeted by an Ongoing Write Command */
     };
     uint32_t VALUE32;
   };
@@ -5139,16 +4725,6 @@ typedef struct _ADI_FLCC_WR_ABORT_ADDR_t {
 
 /** @defgroup WRPROT Write Protection (WRPROT) Register
  *  Write Protection (WRPROT) Register.
- *
- *  [User Key] is required to modified this register.
- *  
- *  The WRPROT register may be automatically configured during device boot up; in this event the boot loader reads data from user space and loads that data into this register. 
- *  
- *  User code may affect non-volatile write protection by writing to the appropriate location in the flash memory (see chapter on Protection for details). By default, the relevant location in flash is 0x3FFF0 (the 4th most significant word in user space), but may be relocated by ADI's secure bootloader.
- *  
- *  User code may alternatively assert protection at runtime for any unprotected blocks by directly writing this register: Blocks may have protection added but cannot have protection removed; changes will be lost on reset. This approach is suggested especially during user code development.
- *  
- *  All write protection is cleared on a power-on-reset but note that the ADI secure bootloader will reassert write protection as defined by the WRPROT word in user space before enabling user access to the flash array. Therefore removing write protection can only be performed by an ERASEPAGE command of the most significant page in user space (provided that page is not currently protected) or by a MASSERASE command. Following a successful MASSERASE command all protection of pages in user space is immediately cleared (user may write to user space immediately following such an erase without a device reset required).
  *  @{
  */
 
@@ -5160,7 +4736,7 @@ typedef struct _ADI_FLCC_WR_ABORT_ADDR_t {
 typedef struct _ADI_FLCC_WRPROT_t {
   union {
     struct {
-      unsigned int WORD       : 32;  /**< Clear bits to write protect related groups of user space pages. Once cleared these bits can only be set again by resetting the part */
+      unsigned int WORD       : 32;  /**< Write Protect */
     };
     uint32_t VALUE32;
   };
@@ -5171,8 +4747,6 @@ typedef struct _ADI_FLCC_WRPROT_t {
 
 /** @defgroup SIGNATURE Signature (SIGNATURE) Register
  *  Signature (SIGNATURE) Register.
- *
- *  Provides read access to the most recently generated signature.
  *  @{
  */
 
@@ -5184,7 +4758,7 @@ typedef struct _ADI_FLCC_WRPROT_t {
 typedef struct _ADI_FLCC_SIGNATURE_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< Provides read access to the most recently generated signature */
+      unsigned int VALUE      : 32;  /**< Signature */
     };
     uint32_t VALUE32;
   };
@@ -5195,12 +4769,6 @@ typedef struct _ADI_FLCC_SIGNATURE_t {
 
 /** @defgroup UCFG User Configuration (UCFG) Register
  *  User Configuration (UCFG) Register.
- *
- *  [User key] is required (see KEY register for details). 
- *  
- *  Write to this register to enable user control of DMA and Auto-increment features. 
- *  
- *  When user code has finished accessing this register, garbage data should be written to the KEY register to re-assert protection.
  *  @{
  */
 
@@ -5212,8 +4780,8 @@ typedef struct _ADI_FLCC_SIGNATURE_t {
 typedef struct _ADI_FLCC_UCFG_t {
   union {
     struct {
-      unsigned int KHDMAEN    :  1;  /**< Key Hole DMA enable */
-      unsigned int AUTOINCEN  :  1;  /**< Auto address increment for Key hole access */
+      unsigned int KHDMAEN    :  1;  /**< Key Hole DMA Enable */
+      unsigned int AUTOINCEN  :  1;  /**< Auto Address Increment for Key Hole Access */
       unsigned int reserved2  : 30;
     };
     uint32_t VALUE32;
@@ -5225,18 +4793,6 @@ typedef struct _ADI_FLCC_UCFG_t {
 
 /** @defgroup TIME_PARAM0 Time Parameter 0 (TIME_PARAM0) Register
  *  Time Parameter 0 (TIME_PARAM0) Register.
- *
- *  [User Key] is required to write this register.
- *  
- *  This register should not be modified while a flash write or erase command is in progress.
- *  
- *  This register defines a set of parameters used to control the timing of signals driven to the Flash Memory. The default values are appropriate for a system clock of 26 MHz and a reference clock (driven by the internal oscillator) operating within 10% of 13 MHz.
- *  
- *  The value of each timing parameter consists of a user programmable nibble (4 bits) as well as some number of hard-coded bits. User programmable bits are the most significant bits for each parameter. 
- *  
- *  Time parameters describe the number of ref-clk periods to wait when meeting the associated timing constraint of the flash memory itself. Note that clock-domain-crossings and the constraints of signals not described by these parameters will increase the effective delays by a small margin. When programming the time parameter registers the user should select a value approaching the minimum time for each constraint.
- *  
- *  Improper programming of this register may result in damage to the flash memory during PROGRAM or ERASE operations.
  *  @{
  */
 
@@ -5250,13 +4806,13 @@ typedef struct _ADI_FLCC_TIME_PARAM0_t {
     struct {
       unsigned int DIVREFCLK  :  1;  /**< Divide Reference Clock (by 2) */
       unsigned int reserved1  :  3;
-      unsigned int TNVS       :  4;  /**< PROG/ERASE to NVSTR setup time */
-      unsigned int TPGS       :  4;  /**< NVSTR to Program setup time */
-      unsigned int TPROG      :  4;  /**< Program time */
-      unsigned int TNVH       :  4;  /**< NVSTR Hold time */
-      unsigned int TRCV       :  4;  /**< Recovery time */
+      unsigned int TNVS       :  4;  /**< PROG/ERASE to NVSTR Setup Time */
+      unsigned int TPGS       :  4;  /**< NVSTR to Program Setup Time */
+      unsigned int TPROG      :  4;  /**< Program Time */
+      unsigned int TNVH       :  4;  /**< NVSTR Hold Time */
+      unsigned int TRCV       :  4;  /**< Recovery Time */
       unsigned int TERASE     :  4;  /**< Erase Time */
-      unsigned int TNVH1      :  4;  /**< NVSTR Hold time during Mass Erase */
+      unsigned int TNVH1      :  4;  /**< NVSTR Hold Time During Mass Erase */
     };
     uint32_t VALUE32;
   };
@@ -5265,22 +4821,20 @@ typedef struct _ADI_FLCC_TIME_PARAM0_t {
 
 /*@}*/
 
-/** @defgroup TIME_PARAM1 Time parameter 1 (TIME_PARAM1) Register
- *  Time parameter 1 (TIME_PARAM1) Register.
- *
- *  See TIME_PARAM0 for documentation
+/** @defgroup TIME_PARAM1 Time Parameter 1 (TIME_PARAM1) Register
+ *  Time Parameter 1 (TIME_PARAM1) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_TIME_PARAM1_Struct
- *! \brief  Time parameter 1 Register bit field structure
+ *! \brief  Time Parameter 1 Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_TIME_PARAM1_t__
 typedef struct _ADI_FLCC_TIME_PARAM1_t {
   union {
     struct {
-      unsigned int TWK        :  4;  /**< Wake up time */
+      unsigned int TWK        :  4;  /**< Wakeup Time */
       unsigned int reserved4  : 28;
     };
     uint32_t VALUE32;
@@ -5290,22 +4844,20 @@ typedef struct _ADI_FLCC_TIME_PARAM1_t {
 
 /*@}*/
 
-/** @defgroup ABORT_EN_LO IRQ Abort Enable (lower bits) (ABORT_EN_LO) Register
- *  IRQ Abort Enable (lower bits) (ABORT_EN_LO) Register.
- *
- *  
+/** @defgroup ABORT_EN_LO IRQ Abort Enable (Lower Bits) (ABORT_EN_LO) Register
+ *  IRQ Abort Enable (Lower Bits) (ABORT_EN_LO) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_ABORT_EN_LO_Struct
- *! \brief  IRQ Abort Enable (lower bits) Register bit field structure
+ *! \brief  IRQ Abort Enable (Lower Bits) Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_ABORT_EN_LO_t__
 typedef struct _ADI_FLCC_ABORT_EN_LO_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< VALUE[31:0] Sys IRQ abort enable */
+      unsigned int VALUE      : 32;  /**< VALUE[31:0] Sys IRQ Abort Enable */
     };
     uint32_t VALUE32;
   };
@@ -5314,22 +4866,20 @@ typedef struct _ADI_FLCC_ABORT_EN_LO_t {
 
 /*@}*/
 
-/** @defgroup ABORT_EN_HI IRQ Abort Enable (upper bits) (ABORT_EN_HI) Register
- *  IRQ Abort Enable (upper bits) (ABORT_EN_HI) Register.
- *
- *  
+/** @defgroup ABORT_EN_HI IRQ Abort Enable (Upper Bits) (ABORT_EN_HI) Register
+ *  IRQ Abort Enable (Upper Bits) (ABORT_EN_HI) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_ABORT_EN_HI_Struct
- *! \brief  IRQ Abort Enable (upper bits) Register bit field structure
+ *! \brief  IRQ Abort Enable (Upper Bits) Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_ABORT_EN_HI_t__
 typedef struct _ADI_FLCC_ABORT_EN_HI_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< VALUE[63:32] Sys IRQ abort enable */
+      unsigned int VALUE      : 32;  /**< VALUE[63:32] Sys IRQ Abort Enable */
     };
     uint32_t VALUE32;
   };
@@ -5338,25 +4888,23 @@ typedef struct _ADI_FLCC_ABORT_EN_HI_t {
 
 /*@}*/
 
-/** @defgroup ECC_CFG ECC Config (ECC_CFG) Register
- *  ECC Config (ECC_CFG) Register.
- *
- *  
+/** @defgroup ECC_CFG ECC Configuration (ECC_CFG) Register
+ *  ECC Configuration (ECC_CFG) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_FLCC_ECC_CFG_Struct
- *! \brief  ECC Config Register bit field structure
+ *! \brief  ECC Configuration Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_ECC_CFG_t__
 typedef struct _ADI_FLCC_ECC_CFG_t {
   union {
     struct {
       unsigned int EN         :  1;  /**< ECC Enable */
-      unsigned int INFOEN     :  1;  /**< Info space ECC Enable bit */
+      unsigned int INFOEN     :  1;  /**< Info Space ECC Enable Bit */
       unsigned int reserved2  :  6;
-      unsigned int PTR        : 24;  /**< ECC start page pointer (user should write bits [31:8] of the start page address into bits [31:8] of this register) */
+      unsigned int PTR        : 24;  /**< ECC Start Page Pointer */
     };
     uint32_t VALUE32;
   };
@@ -5367,18 +4915,6 @@ typedef struct _ADI_FLCC_ECC_CFG_t {
 
 /** @defgroup ECC_ADDR ECC Status (Address) (ECC_ADDR) Register
  *  ECC Status (Address) (ECC_ADDR) Register.
- *
- *  This register is updated on ECC errors or corrections as selected to generate interrupts (IRQ) in the IEN register. this register is not updated in the event of an ECC error or correction which instead generates a bus fault.
- *  
- *  This register records the address of the first ECC error or correction event to generate an interrupt since the last time the ECC status bits were cleared (or since reset).
- *  
- *  If the status bits are cleared in the same cycle as a new ECC event (selected to generate an IRQ), a new address will be recorded and the status bits will remain set.
- *  
- *  Errors have priority over corrections (2 or more bits corrupt = ERROR; a correction results in proper data being returned after a single bit is corrected). If an error and a correction occur in the same cycle, this register will report the ERROR address.
- *  
- *  When two of the same priority ECC events occur (both ERROR or both CORRECTION) the ICODE bus has priority over DCODE. Therefore if both ICODE and DCODE buses generate the same type of ECC event in the same cycle, the ICODE address will be stored in this register.
- *  
- *  The register cannot be cleared except by reset; it will always hold the address of the most recently reported ECC correction or error.
  *  @{
  */
 
@@ -5390,7 +4926,7 @@ typedef struct _ADI_FLCC_ECC_CFG_t {
 typedef struct _ADI_FLCC_ECC_ADDR_t {
   union {
     struct {
-      unsigned int VALUE      : 19;  /**< This register has the address for which ECC error is detected */
+      unsigned int VALUE      : 19;  /**< ECC Error Address */
       unsigned int reserved19 : 13;
     };
     uint32_t VALUE32;
@@ -5400,10 +4936,54 @@ typedef struct _ADI_FLCC_ECC_ADDR_t {
 
 /*@}*/
 
-/** @defgroup STAT Cache Status register (STAT) Register
- *  Cache Status register (STAT) Register.
- *
- *  
+/** @defgroup POR_SEC Flash Security (POR_SEC) Register
+ *  Flash Security (POR_SEC) Register.
+ *  @{
+ */
+
+/* ==========================================================================
+ *! \struct ADI_FLCC_POR_SEC_Struct
+ *! \brief  Flash Security Register bit field structure
+ * ========================================================================== */
+#ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_POR_SEC_t__
+typedef struct _ADI_FLCC_POR_SEC_t {
+  union {
+    struct {
+      unsigned int SECURE     :  1;  /**< Prevent Read/Write Access to User Space (Sticky When Set) */
+      unsigned int reserved1  : 31;
+    };
+    uint32_t VALUE32;
+  };
+} ADI_FLCC_POR_SEC_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_FLCC_POR_SEC_t__ */
+
+/*@}*/
+
+/** @defgroup VOL_CFG Volatile Flash Configuration (VOL_CFG) Register
+ *  Volatile Flash Configuration (VOL_CFG) Register.
+ *  @{
+ */
+
+/* ==========================================================================
+ *! \struct ADI_FLCC_VOL_CFG_Struct
+ *! \brief  Volatile Flash Configuration Register bit field structure
+ * ========================================================================== */
+#ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_VOL_CFG_t__
+typedef struct _ADI_FLCC_VOL_CFG_t {
+  union {
+    struct {
+      unsigned int INFO_REMAP :  1;  /**< Alias the Info Space to the Base Address of User Space */
+      unsigned int reserved1  : 31;
+    };
+    uint32_t VALUE32;
+  };
+} ADI_FLCC_VOL_CFG_t;
+#endif /* !__ADI_NO_DECL_STRUCT_ADI_FLCC_VOL_CFG_t__ */
+
+/*@}*/
+
+/** @defgroup STAT Cache Status (STAT) Register
+ *  Cache Status (STAT) Register.
  *  @{
  */
 
@@ -5415,7 +4995,7 @@ typedef struct _ADI_FLCC_ECC_ADDR_t {
 typedef struct _ADI_FLCC_CACHE_STAT_t {
   union {
     struct {
-      unsigned int ICEN       :  1;  /**< If this bit is set then I-Cache is enabled and when cleared I-Cache is disabled. */
+      unsigned int ICEN       :  1;  /**< I-Cache Enabled */
       unsigned int reserved1  : 31;
     };
     uint32_t VALUE32;
@@ -5425,10 +5005,8 @@ typedef struct _ADI_FLCC_CACHE_STAT_t {
 
 /*@}*/
 
-/** @defgroup SETUP Cache Setup register (SETUP) Register
- *  Cache Setup register (SETUP) Register.
- *
- *  Cache User key is required to enable a write to this location.  Key will be cleared after a write to this Register.
+/** @defgroup SETUP Cache Setup (SETUP) Register
+ *  Cache Setup (SETUP) Register.
  *  @{
  */
 
@@ -5440,7 +5018,7 @@ typedef struct _ADI_FLCC_CACHE_STAT_t {
 typedef struct _ADI_FLCC_CACHE_SETUP_t {
   union {
     struct {
-      unsigned int ICEN       :  1;  /**< If this bit set, then I-Cache is enabled for AHB accesses. If 0, then I-cache is disabled, and all AHB accesses will be via Flash memory. */
+      unsigned int ICEN       :  1;  /**< I-Cache Enable */
       unsigned int reserved1  : 31;
     };
     uint32_t VALUE32;
@@ -5450,10 +5028,8 @@ typedef struct _ADI_FLCC_CACHE_SETUP_t {
 
 /*@}*/
 
-/** @defgroup KEY Cache Key register (KEY) Register
- *  Cache Key register (KEY) Register.
- *
- *  
+/** @defgroup KEY Cache Key (KEY) Register
+ *  Cache Key (KEY) Register.
  *  @{
  */
 
@@ -5465,7 +5041,7 @@ typedef struct _ADI_FLCC_CACHE_SETUP_t {
 typedef struct _ADI_FLCC_CACHE_KEY_t {
   union {
     struct {
-      unsigned int VALUE      : 32;  /**< Cache Key register */
+      unsigned int VALUE      : 32;  /**< Cache Key Register */
     };
     uint32_t VALUE32;
   };
@@ -5474,37 +5050,35 @@ typedef struct _ADI_FLCC_CACHE_KEY_t {
 
 /*@}*/
 
-/** @defgroup CFG Port  Configuration (CFG) Register
- *  Port  Configuration (CFG) Register.
- *
- *  The CFG register is reserved for top-level pin muxing for the GPIO block.
+/** @defgroup CFG Port Configuration (CFG) Register
+ *  Port Configuration (CFG) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_GPIO_CFG_Struct
- *! \brief  Port  Configuration Register bit field structure
+ *! \brief  Port Configuration Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_GPIO_CFG_t__
 typedef struct _ADI_GPIO_CFG_t {
   union {
     struct {
-      unsigned int PIN00      :  2;  /**< Pin 0 configuration bits */
-      unsigned int PIN01      :  2;  /**< Pin 1 configuration bits */
-      unsigned int PIN02      :  2;  /**< Pin 2 configuration bits */
-      unsigned int PIN03      :  2;  /**< Pin 3 configuration bits */
-      unsigned int PIN04      :  2;  /**< Pin 4 configuration bits */
-      unsigned int PIN05      :  2;  /**< Pin 5 configuration bits */
-      unsigned int PIN06      :  2;  /**< Pin 6 configuration bits */
-      unsigned int PIN07      :  2;  /**< Pin 7 configuration bits */
-      unsigned int PIN08      :  2;  /**< Pin 8 configuration bits */
-      unsigned int PIN09      :  2;  /**< Pin 9 configuration bits */
-      unsigned int PIN10      :  2;  /**< Pin 10  configuration bits */
-      unsigned int PIN11      :  2;  /**< Pin 11  configuration bits */
-      unsigned int PIN12      :  2;  /**< Pin 12  configuration bits */
-      unsigned int PIN13      :  2;  /**< Pin 13  configuration bits */
-      unsigned int PIN14      :  2;  /**< Pin 14  configuration bits */
-      unsigned int PIN15      :  2;  /**< Pin 15  configuration bits */
+      unsigned int PIN00      :  2;  /**< Pin 0 Configuration Bits */
+      unsigned int PIN01      :  2;  /**< Pin 1 Configuration Bits */
+      unsigned int PIN02      :  2;  /**< Pin 2 Configuration Bits */
+      unsigned int PIN03      :  2;  /**< Pin 3 Configuration Bits */
+      unsigned int PIN04      :  2;  /**< Pin 4 Configuration Bits */
+      unsigned int PIN05      :  2;  /**< Pin 5 Configuration Bits */
+      unsigned int PIN06      :  2;  /**< Pin 6 Configuration Bits */
+      unsigned int PIN07      :  2;  /**< Pin 7 Configuration Bits */
+      unsigned int PIN08      :  2;  /**< Pin 8 Configuration Bits */
+      unsigned int PIN09      :  2;  /**< Pin 9 Configuration Bits */
+      unsigned int PIN10      :  2;  /**< Pin 10 Configuration Bits */
+      unsigned int PIN11      :  2;  /**< Pin 11 Configuration Bits */
+      unsigned int PIN12      :  2;  /**< Pin 12 Configuration Bits */
+      unsigned int PIN13      :  2;  /**< Pin 13 Configuration Bits */
+      unsigned int PIN14      :  2;  /**< Pin 14 Configuration Bits */
+      unsigned int PIN15      :  2;  /**< Pin 15 Configuration Bits */
     };
     uint32_t VALUE32;
   };
@@ -5515,8 +5089,6 @@ typedef struct _ADI_GPIO_CFG_t {
 
 /** @defgroup OEN Port Output Enable (OEN) Register
  *  Port Output Enable (OEN) Register.
- *
- *  
  *  @{
  */
 
@@ -5528,7 +5100,7 @@ typedef struct _ADI_GPIO_CFG_t {
 typedef struct _ADI_GPIO_OEN_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Pin Output Drive enable */
+      unsigned int VALUE      : 16;  /**< Pin Output Drive Enable */
     };
     uint16_t VALUE16;
   };
@@ -5539,8 +5111,6 @@ typedef struct _ADI_GPIO_OEN_t {
 
 /** @defgroup PE Port Output Pull-up/Pull-down Enable (PE) Register
  *  Port Output Pull-up/Pull-down Enable (PE) Register.
- *
- *  
  *  @{
  */
 
@@ -5552,7 +5122,7 @@ typedef struct _ADI_GPIO_OEN_t {
 typedef struct _ADI_GPIO_PE_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Pin Pull enable */
+      unsigned int VALUE      : 16;  /**< Pin Pull Enable */
     };
     uint16_t VALUE16;
   };
@@ -5561,22 +5131,20 @@ typedef struct _ADI_GPIO_PE_t {
 
 /*@}*/
 
-/** @defgroup IEN Port  Input Path Enable (IEN) Register
- *  Port  Input Path Enable (IEN) Register.
- *
- *  
+/** @defgroup IEN Port Input Path Enable (IEN) Register
+ *  Port Input Path Enable (IEN) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_GPIO_IEN_Struct
- *! \brief  Port  Input Path Enable Register bit field structure
+ *! \brief  Port Input Path Enable Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_GPIO_IEN_t__
 typedef struct _ADI_GPIO_IEN_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Input path enable */
+      unsigned int VALUE      : 16;  /**< Input Path Enable */
     };
     uint16_t VALUE16;
   };
@@ -5585,22 +5153,20 @@ typedef struct _ADI_GPIO_IEN_t {
 
 /*@}*/
 
-/** @defgroup IN Port  Registered Data Input (IN) Register
- *  Port  Registered Data Input (IN) Register.
- *
- *  
+/** @defgroup IN Port Registered Data Input (IN) Register
+ *  Port Registered Data Input (IN) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_GPIO_IN_Struct
- *! \brief  Port  Registered Data Input Register bit field structure
+ *! \brief  Port Registered Data Input Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_GPIO_IN_t__
 typedef struct _ADI_GPIO_IN_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Registered data input */
+      unsigned int VALUE      : 16;  /**< Registered Data Input */
     };
     uint16_t VALUE16;
   };
@@ -5611,8 +5177,6 @@ typedef struct _ADI_GPIO_IN_t {
 
 /** @defgroup OUT Port Data Output (OUT) Register
  *  Port Data Output (OUT) Register.
- *
- *  
  *  @{
  */
 
@@ -5624,7 +5188,7 @@ typedef struct _ADI_GPIO_IN_t {
 typedef struct _ADI_GPIO_OUT_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Data out */
+      unsigned int VALUE      : 16;  /**< Data Out */
     };
     uint16_t VALUE16;
   };
@@ -5635,8 +5199,6 @@ typedef struct _ADI_GPIO_OUT_t {
 
 /** @defgroup SET Port Data Out Set (SET) Register
  *  Port Data Out Set (SET) Register.
- *
- *  
  *  @{
  */
 
@@ -5648,7 +5210,7 @@ typedef struct _ADI_GPIO_OUT_t {
 typedef struct _ADI_GPIO_SET_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Set the output HIGH for the pin */
+      unsigned int VALUE      : 16;  /**< Set the Output High for the Pin */
     };
     uint16_t VALUE16;
   };
@@ -5659,8 +5221,6 @@ typedef struct _ADI_GPIO_SET_t {
 
 /** @defgroup CLR Port Data Out Clear (CLR) Register
  *  Port Data Out Clear (CLR) Register.
- *
- *  
  *  @{
  */
 
@@ -5672,7 +5232,7 @@ typedef struct _ADI_GPIO_SET_t {
 typedef struct _ADI_GPIO_CLR_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Set the output low  for the port pin */
+      unsigned int VALUE      : 16;  /**< Set the Output Low for the Port Pin */
     };
     uint16_t VALUE16;
   };
@@ -5683,8 +5243,6 @@ typedef struct _ADI_GPIO_CLR_t {
 
 /** @defgroup TGL Port Pin Toggle (TGL) Register
  *  Port Pin Toggle (TGL) Register.
- *
- *  
  *  @{
  */
 
@@ -5696,7 +5254,7 @@ typedef struct _ADI_GPIO_CLR_t {
 typedef struct _ADI_GPIO_TGL_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Toggle the output of the port pin */
+      unsigned int VALUE      : 16;  /**< Toggle the Output of the Port Pin */
     };
     uint16_t VALUE16;
   };
@@ -5707,8 +5265,6 @@ typedef struct _ADI_GPIO_TGL_t {
 
 /** @defgroup POL Port Interrupt Polarity (POL) Register
  *  Port Interrupt Polarity (POL) Register.
- *
- *  
  *  @{
  */
 
@@ -5731,8 +5287,6 @@ typedef struct _ADI_GPIO_POL_t {
 
 /** @defgroup IENA Port Interrupt A Enable (IENA) Register
  *  Port Interrupt A Enable (IENA) Register.
- *
- *  
  *  @{
  */
 
@@ -5755,8 +5309,6 @@ typedef struct _ADI_GPIO_IENA_t {
 
 /** @defgroup IENB Port Interrupt B Enable (IENB) Register
  *  Port Interrupt B Enable (IENB) Register.
- *
- *  
  *  @{
  */
 
@@ -5779,8 +5331,6 @@ typedef struct _ADI_GPIO_IENB_t {
 
 /** @defgroup INT Port Interrupt Status (INT) Register
  *  Port Interrupt Status (INT) Register.
- *
- *  
  *  @{
  */
 
@@ -5803,8 +5353,6 @@ typedef struct _ADI_GPIO_INT_t {
 
 /** @defgroup DS Port Drive Strength Select (DS) Register
  *  Port Drive Strength Select (DS) Register.
- *
- *  
  *  @{
  */
 
@@ -5816,7 +5364,7 @@ typedef struct _ADI_GPIO_INT_t {
 typedef struct _ADI_GPIO_DS_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Drive strength select */
+      unsigned int VALUE      : 16;  /**< Drive Strength Select */
     };
     uint16_t VALUE16;
   };
@@ -5825,10 +5373,8 @@ typedef struct _ADI_GPIO_DS_t {
 
 /*@}*/
 
-/** @defgroup CTL_A Half SPORT 'A' Control Register (CTL_A) Register
- *  Half SPORT 'A' Control Register (CTL_A) Register.
- *
- *  The CTL_A contains transmit and receive control bits for SPORT half 'A', including serial port mode selection
+/** @defgroup CTL_A Half SPORT 'A' Control (CTL_A) Register
+ *  Half SPORT 'A' Control (CTL_A) Register.
  *  @{
  */
 
@@ -5889,7 +5435,7 @@ typedef enum
 
 /*  =========================================================================
  *! \enum   ADI_SPORT_CTL_A_OPMODE
- *! \brief  Operation mode (OPMODE) Enumerations
+ *! \brief  Operation Mode (OPMODE) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -5972,7 +5518,8 @@ typedef enum
 {
   SPORT_CTL_A_CTL_PACK_DIS   = 0,  /**< Disable               */
   SPORT_CTL_A_CTL_PACK_8BIT  = 1,  /**< 8-bit packing enable  */
-  SPORT_CTL_A_CTL_PACK_16BIT = 2   /**< 16-bit packing enable */
+  SPORT_CTL_A_CTL_PACK_16BIT = 2,  /**< 16-bit packing enable */
+  SPORT_CTL_A_CTL_PACK_RSV   = 3   /**< Reserved              */
 } ADI_SPORT_CTL_A_PACK;
 
 
@@ -6013,7 +5560,7 @@ typedef struct _ADI_SPORT_CTL_A_t {
       unsigned int SLEN       :  5;  /**< Serial Word Length */
       unsigned int reserved9  :  1;
       unsigned int ICLK       :  1;  /**< Internal Clock */
-      unsigned int OPMODE     :  1;  /**< Operation mode */
+      unsigned int OPMODE     :  1;  /**< Operation Mode */
       unsigned int CKRE       :  1;  /**< Clock Rising Edge */
       unsigned int FSR        :  1;  /**< Frame Sync Required */
       unsigned int IFS        :  1;  /**< Internal Frame Sync */
@@ -6035,10 +5582,8 @@ typedef struct _ADI_SPORT_CTL_A_t {
 
 /*@}*/
 
-/** @defgroup DIV_A Half SPORT 'A' Divisor Register (DIV_A) Register
- *  Half SPORT 'A' Divisor Register (DIV_A) Register.
- *
- *  The DIV_A contains divisor values that determine frequencies of internally-generated clocks and frame syncs for half SPORT  'A'.
+/** @defgroup DIV_A Half SPORT 'A' Divisor (DIV_A) Register
+ *  Half SPORT 'A' Divisor (DIV_A) Register.
  *  @{
  */
 
@@ -6061,10 +5606,8 @@ typedef struct _ADI_SPORT_DIV_A_t {
 
 /*@}*/
 
-/** @defgroup IEN_A Half SPORT A's Interrupt Enable register (IEN_A) Register
- *  Half SPORT A's Interrupt Enable register (IEN_A) Register.
- *
- *  This register contains all the fields related to the Enable given for the various interrupts related to errors and data requests present in the  half SPORT A.
+/** @defgroup IEN_A Half SPORT A's Interrupt Enable (IEN_A) Register
+ *  Half SPORT A's Interrupt Enable (IEN_A) Register.
  *  @{
  */
 
@@ -6090,8 +5633,8 @@ typedef struct _ADI_SPORT_IEN_A_t {
       unsigned int TF         :  1;  /**< Transfer Finish Interrupt Enable */
       unsigned int DERRMSK    :  1;  /**< Data Error (Interrupt) Mask */
       unsigned int FSERRMSK   :  1;  /**< Frame Sync Error (Interrupt) Mask */
-      unsigned int DATA       :  1;  /**< Data request interrupt to the core */
-      unsigned int SYSDATERR  :  1;  /**< Data error for system writes or reads */
+      unsigned int DATA       :  1;  /**< Data Request Interrupt to the Core */
+      unsigned int SYSDATERR  :  1;  /**< Data Error for System Writes or Reads */
       unsigned int reserved5  : 27;
     };
     uint32_t VALUE32;
@@ -6101,10 +5644,8 @@ typedef struct _ADI_SPORT_IEN_A_t {
 
 /*@}*/
 
-/** @defgroup STAT_A Half SPORT 'A' Status register (STAT_A) Register
- *  Half SPORT 'A' Status register (STAT_A) Register.
- *
- *  This register contains all the status fields in the half SPORT A. Detected errors are frame sync violations or buffer over/underflow conditions.
+/** @defgroup STAT_A Half SPORT A's Status (STAT_A) Register
+ *  Half SPORT A's Status (STAT_A) Register.
  *  @{
  */
 
@@ -6115,6 +5656,7 @@ typedef struct _ADI_SPORT_IEN_A_t {
 typedef enum
 {
   SPORT_STAT_A_CTL_EMPTY     = 0,  /**< Empty          */
+  SPORT_STAT_A_CTL_RSV       = 1,  /**< Reserved       */
   SPORT_STAT_A_CTL_PART_FULL = 2,  /**< Partially full */
   SPORT_STAT_A_CTL_FULL      = 3   /**< Full           */
 } ADI_SPORT_STAT_A_DXS;
@@ -6122,7 +5664,7 @@ typedef enum
 
 /* ==========================================================================
  *! \struct ADI_SPORT_STAT_A_Struct
- *! \brief  Half SPORT 'A' Status Register bit field structure
+ *! \brief  Half SPORT A's Status Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_STAT_A_t__
 typedef struct _ADI_SPORT_STAT_A_t {
@@ -6131,7 +5673,7 @@ typedef struct _ADI_SPORT_STAT_A_t {
       unsigned int TFI        :  1;  /**< Transmit Finish Interrupt Status */
       unsigned int DERR       :  1;  /**< Data Error Status */
       unsigned int FSERR      :  1;  /**< Frame Sync Error Status */
-      unsigned int DATA       :  1;  /**< Data Buffer status */
+      unsigned int DATA       :  1;  /**< Data Buffer Status */
       unsigned int SYSDATERR  :  1;  /**< System Data Error Status */
       unsigned int reserved5  :  3;
       unsigned int DXS        :  2;  /**< Data Transfer Buffer Status */
@@ -6144,22 +5686,20 @@ typedef struct _ADI_SPORT_STAT_A_t {
 
 /*@}*/
 
-/** @defgroup NUMTRAN_A Half SPORT A Number of transfers register (NUMTRAN_A) Register
- *  Half SPORT A Number of transfers register (NUMTRAN_A) Register.
- *
- *  This register specifies the number of transfers of words to transfer or receive depending on CTL_A:SPTRAN.
+/** @defgroup NUMTRAN_A Half SPORT A Number of Transfers (NUMTRAN_A) Register
+ *  Half SPORT A Number of Transfers (NUMTRAN_A) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPORT_NUMTRAN_A_Struct
- *! \brief  Half SPORT A Number of transfers Register bit field structure
+ *! \brief  Half SPORT A Number of Transfers Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_NUMTRAN_A_t__
 typedef struct _ADI_SPORT_NUMTRAN_A_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< Number of transfers (Half SPORT A) */
+      unsigned int VALUE      : 12;  /**< Number of Transfers (Half SPORT A) */
       unsigned int reserved12 : 20;
     };
     uint32_t VALUE32;
@@ -6169,26 +5709,24 @@ typedef struct _ADI_SPORT_NUMTRAN_A_t {
 
 /*@}*/
 
-/** @defgroup CNVT_A Half SPORT 'A' CONVT width (CNVT_A) Register
- *  Half SPORT 'A' CONVT width (CNVT_A) Register.
- *
- *  This register contains the settings related to the CONVT signal for Half SPORT A
+/** @defgroup CNVT_A Half SPORT 'A' CNV Width (CNVT_A) Register
+ *  Half SPORT 'A' CNV Width (CNVT_A) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPORT_CNVT_A_Struct
- *! \brief  Half SPORT 'A' CONVT width Register bit field structure
+ *! \brief  Half SPORT 'A' CNV Width Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_CNVT_A_t__
 typedef struct _ADI_SPORT_CNVT_A_t {
   union {
     struct {
-      unsigned int WID        :  4;  /**< CONVT signal width: Half SPORT A */
+      unsigned int WID        :  4;  /**< SPT_CNVT Signal Width: Half SPORT a */
       unsigned int reserved4  :  4;
-      unsigned int POL        :  1;  /**< Polarity of the Convt signal */
+      unsigned int POL        :  1;  /**< Polarity of the SPT_CNVT Signal */
       unsigned int reserved9  :  7;
-      unsigned int CNVT2FS    :  8;  /**< CONVT to FS duration: Half SPORT A */
+      unsigned int CNVT2FS    :  8;  /**< SPT_CNVT to FS Duration: Half SPORT a */
       unsigned int reserved24 :  8;
     };
     uint32_t VALUE32;
@@ -6198,10 +5736,8 @@ typedef struct _ADI_SPORT_CNVT_A_t {
 
 /*@}*/
 
-/** @defgroup TX_A Half SPORT 'A' Tx Buffer Register (TX_A) Register
- *  Half SPORT 'A' Tx Buffer Register (TX_A) Register.
- *
- *  The TX_A register buffers the half SPORT's transmit data. This register must be loaded with the data to be transmitted if the half SPORT is configured to transmit. Either a program running on the processor core may load the data into the buffer (word-by-word process) or the DMA controller may automatically load the data into the buffer (DMA process).
+/** @defgroup TX_A Half SPORT 'A' Tx Buffer (TX_A) Register
+ *  Half SPORT 'A' Tx Buffer (TX_A) Register.
  *  @{
  */
 
@@ -6222,10 +5758,8 @@ typedef struct _ADI_SPORT_TX_A_t {
 
 /*@}*/
 
-/** @defgroup RX_A Half SPORT 'A' Rx Buffer Register (RX_A) Register
- *  Half SPORT 'A' Rx Buffer Register (RX_A) Register.
- *
- *  The RX_A register buffers the half SPORT's receive data. This buffer becomes active when the half SPORT is configured to receive data. After a complete word has been received in receive shifter, it is placed into the RX_A register. This data can be read in core mode (in interrupt-based or polling-based mechanism) or directly DMA'd into processor memory using DMA controller.
+/** @defgroup RX_A Half SPORT 'A' Rx Buffer (RX_A) Register
+ *  Half SPORT 'A' Rx Buffer (RX_A) Register.
  *  @{
  */
 
@@ -6246,10 +5780,8 @@ typedef struct _ADI_SPORT_RX_A_t {
 
 /*@}*/
 
-/** @defgroup CTL_B Half SPORT 'B' Control Register (CTL_B) Register
- *  Half SPORT 'B' Control Register (CTL_B) Register.
- *
- *  The CTL_B contains transmit and receive control bits for SPORT half 'B', including serial port mode selection for the channels. The function of some bits in CTL_B vary, depending on the SPORT's operating mode. For more information, see the SPORT operating modes description. If reading reserved bits, the read value is the last written value to these bits or is the reset value of these bits.
+/** @defgroup CTL_B Half SPORT 'B' Control (CTL_B) Register
+ *  Half SPORT 'B' Control (CTL_B) Register.
  *  @{
  */
 
@@ -6261,7 +5793,8 @@ typedef enum
 {
   SPORT_CTL_B_CTL_PACK_DIS   = 0,  /**< Disable               */
   SPORT_CTL_B_CTL_PACK_8BIT  = 1,  /**< 8-bit packing enable  */
-  SPORT_CTL_B_CTL_PACK_16BIT = 2   /**< 16-bit packing enable */
+  SPORT_CTL_B_CTL_PACK_16BIT = 2,  /**< 16-bit packing enable */
+  SPORT_CTL_B_CTL_PACK_RSV   = 3   /**< Reserved              */
 } ADI_SPORT_CTL_B_PACK;
 
 
@@ -6279,7 +5812,7 @@ typedef struct _ADI_SPORT_CTL_B_t {
       unsigned int SLEN       :  5;  /**< Serial Word Length */
       unsigned int reserved9  :  1;
       unsigned int ICLK       :  1;  /**< Internal Clock */
-      unsigned int OPMODE     :  1;  /**< Operation mode */
+      unsigned int OPMODE     :  1;  /**< Operation Mode */
       unsigned int CKRE       :  1;  /**< Clock Rising Edge */
       unsigned int FSR        :  1;  /**< Frame Sync Required */
       unsigned int IFS        :  1;  /**< Internal Frame Sync */
@@ -6301,10 +5834,8 @@ typedef struct _ADI_SPORT_CTL_B_t {
 
 /*@}*/
 
-/** @defgroup DIV_B Half SPORT 'B' Divisor Register (DIV_B) Register
- *  Half SPORT 'B' Divisor Register (DIV_B) Register.
- *
- *  The DIV_B contains divisor values that determine frequencies of internally-generated clocks and frame syncs for SPORT half 'B'.
+/** @defgroup DIV_B Half SPORT 'B' Divisor (DIV_B) Register
+ *  Half SPORT 'B' Divisor (DIV_B) Register.
  *  @{
  */
 
@@ -6327,10 +5858,8 @@ typedef struct _ADI_SPORT_DIV_B_t {
 
 /*@}*/
 
-/** @defgroup IEN_B Half SPORT B's Interrupt Enable register (IEN_B) Register
- *  Half SPORT B's Interrupt Enable register (IEN_B) Register.
- *
- *  This register contains all the fields related to the Enable given for the various interrupts related to errors and data requests present in the half SPORT B.
+/** @defgroup IEN_B Half SPORT B's Interrupt Enable (IEN_B) Register
+ *  Half SPORT B's Interrupt Enable (IEN_B) Register.
  *  @{
  */
 
@@ -6356,8 +5885,8 @@ typedef struct _ADI_SPORT_IEN_B_t {
       unsigned int TF         :  1;  /**< Transmit Finish Interrupt Enable */
       unsigned int DERRMSK    :  1;  /**< Data Error (Interrupt) Mask */
       unsigned int FSERRMSK   :  1;  /**< Frame Sync Error (Interrupt) Mask */
-      unsigned int DATA       :  1;  /**< Data request interrupt to the core */
-      unsigned int SYSDATERR  :  1;  /**< Data error for system writes or reads */
+      unsigned int DATA       :  1;  /**< Data Request Interrupt to the Core */
+      unsigned int SYSDATERR  :  1;  /**< Data Error for System Writes or Reads */
       unsigned int reserved5  : 27;
     };
     uint32_t VALUE32;
@@ -6367,10 +5896,8 @@ typedef struct _ADI_SPORT_IEN_B_t {
 
 /*@}*/
 
-/** @defgroup STAT_B Half SPORT 'B' Status register (STAT_B) Register
- *  Half SPORT 'B' Status register (STAT_B) Register.
- *
- *  This register contains all the status fields present in the half SPORT B. Detected errors are frame sync violations or buffer over/underflow conditions.
+/** @defgroup STAT_B Half SPORT B's Status (STAT_B) Register
+ *  Half SPORT B's Status (STAT_B) Register.
  *  @{
  */
 
@@ -6381,6 +5908,7 @@ typedef struct _ADI_SPORT_IEN_B_t {
 typedef enum
 {
   SPORT_STAT_B_CTL_EMPTY     = 0,  /**< Empty          */
+  SPORT_STAT_B_CTL_RSV       = 1,  /**< Reserved       */
   SPORT_STAT_B_CTL_PART_FULL = 2,  /**< Partially full */
   SPORT_STAT_B_CTL_FULL      = 3   /**< Full           */
 } ADI_SPORT_STAT_B_DXS;
@@ -6388,7 +5916,7 @@ typedef enum
 
 /* ==========================================================================
  *! \struct ADI_SPORT_STAT_B_Struct
- *! \brief  Half SPORT 'B' Status Register bit field structure
+ *! \brief  Half SPORT B's Status Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_STAT_B_t__
 typedef struct _ADI_SPORT_STAT_B_t {
@@ -6397,7 +5925,7 @@ typedef struct _ADI_SPORT_STAT_B_t {
       unsigned int TFI        :  1;  /**< Transmit Finish Interrupt Status */
       unsigned int DERR       :  1;  /**< Data Error Status */
       unsigned int FSERR      :  1;  /**< Frame Sync Error Status */
-      unsigned int DATA       :  1;  /**< Data Buffer status */
+      unsigned int DATA       :  1;  /**< Data Buffer Status */
       unsigned int SYSDATERR  :  1;  /**< System Data Error Status */
       unsigned int reserved5  :  3;
       unsigned int DXS        :  2;  /**< Data Transfer Buffer Status */
@@ -6410,22 +5938,20 @@ typedef struct _ADI_SPORT_STAT_B_t {
 
 /*@}*/
 
-/** @defgroup NUMTRAN_B Half SPORT B Number of transfers register (NUMTRAN_B) Register
- *  Half SPORT B Number of transfers register (NUMTRAN_B) Register.
- *
- *  This register specifies the number of transfers of the words to transfer or receive depending on CTL_B:SPTRAN.
+/** @defgroup NUMTRAN_B Half SPORT B Number of Transfers (NUMTRAN_B) Register
+ *  Half SPORT B Number of Transfers (NUMTRAN_B) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPORT_NUMTRAN_B_Struct
- *! \brief  Half SPORT B Number of transfers Register bit field structure
+ *! \brief  Half SPORT B Number of Transfers Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_NUMTRAN_B_t__
 typedef struct _ADI_SPORT_NUMTRAN_B_t {
   union {
     struct {
-      unsigned int VALUE      : 12;  /**< Number of transfers (Half SPORT A) */
+      unsigned int VALUE      : 12;  /**< Number of Transfers (Half SPORT A) */
       unsigned int reserved12 : 20;
     };
     uint32_t VALUE32;
@@ -6435,26 +5961,24 @@ typedef struct _ADI_SPORT_NUMTRAN_B_t {
 
 /*@}*/
 
-/** @defgroup CNVT_B Half SPORT 'B' CONVT width register (CNVT_B) Register
- *  Half SPORT 'B' CONVT width register (CNVT_B) Register.
- *
- *  This register contains the settings related to the CONVT signal for Half SPORT B
+/** @defgroup CNVT_B Half SPORT 'B' CNV Width (CNVT_B) Register
+ *  Half SPORT 'B' CNV Width (CNVT_B) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_SPORT_CNVT_B_Struct
- *! \brief  Half SPORT 'B' CONVT width Register bit field structure
+ *! \brief  Half SPORT 'B' CNV Width Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_CNVT_B_t__
 typedef struct _ADI_SPORT_CNVT_B_t {
   union {
     struct {
-      unsigned int WID        :  4;  /**< CONVT signal width: Half SPORT B */
+      unsigned int WID        :  4;  /**< SPT_CNVT Signal Width: Half SPORT B */
       unsigned int reserved4  :  4;
-      unsigned int POL        :  1;  /**< Polarity of the Convt signal */
+      unsigned int POL        :  1;  /**< Polarity of the SPT_CNVT Signal */
       unsigned int reserved9  :  7;
-      unsigned int CNVT2FS    :  8;  /**< CONVT to FS duration: Half SPORT B */
+      unsigned int CNVT2FS    :  8;  /**< SPT_CNVT to FS Duration: Half SPORT B */
       unsigned int reserved24 :  8;
     };
     uint32_t VALUE32;
@@ -6464,10 +5988,8 @@ typedef struct _ADI_SPORT_CNVT_B_t {
 
 /*@}*/
 
-/** @defgroup TX_B Half SPORT 'B' Tx Buffer Register (TX_B) Register
- *  Half SPORT 'B' Tx Buffer Register (TX_B) Register.
- *
- *  The TX_B register buffers the half SPORT's channel transmit data. This register must be loaded with the data to be transmitted. Either a program running on the processor core may load the data into the buffer (word-by-word process) or the DMA controller may automatically load the data into the buffer (DMA process).
+/** @defgroup TX_B Half SPORT 'B' Tx Buffer (TX_B) Register
+ *  Half SPORT 'B' Tx Buffer (TX_B) Register.
  *  @{
  */
 
@@ -6488,10 +6010,8 @@ typedef struct _ADI_SPORT_TX_B_t {
 
 /*@}*/
 
-/** @defgroup RX_B Half SPORT 'B' Rx Buffer Register (RX_B) Register
- *  Half SPORT 'B' Rx Buffer Register (RX_B) Register.
- *
- *  The RX_B register buffers the half SPORT's channel receive data. This buffer becomes active when the half SPORT is configured to receive data. After a complete word has been received in receive shifter, it is placed into the RX_B register. This data can be read in core mode or directly DMA'd into processor memory using DMA controller.
+/** @defgroup RX_B Half SPORT 'B' Rx Buffer (RX_B) Register
+ *  Half SPORT 'B' Rx Buffer (RX_B) Register.
  *  @{
  */
 
@@ -6512,12 +6032,65 @@ typedef struct _ADI_SPORT_RX_B_t {
 
 /*@}*/
 
-/** @defgroup CTL CRC Control Register (CTL) Register
- *  CRC Control Register (CTL) Register.
- *
- *  
+/** @defgroup CTL CRC Control (CTL) Register
+ *  CRC Control (CTL) Register.
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_CRC_CTL_EN
+ *! \brief  CRC Peripheral Enable (EN) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CRC_CTL_CRC_DIS = 0,  /**< CRC peripheral is disabled */
+  CRC_CTL_CRC_EN  = 1   /**< CRC peripheral is enabled  */
+} ADI_CRC_CTL_EN;
+
+
+/*  =========================================================================
+ *! \enum   ADI_CRC_CTL_LSBFIRST
+ *! \brief  LSB First Calculation Order (LSBFIRST) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CRC_CTL_MSB_FIRST = 0,  /**< MSB First CRC calculation is done */
+  CRC_CTL_LSB_FIRST = 1   /**< LSB First CRC calculation is done */
+} ADI_CRC_CTL_LSBFIRST;
+
+
+/*  =========================================================================
+ *! \enum   ADI_CRC_CTL_BITMIRR
+ *! \brief  Bit Mirroring (BITMIRR) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CRC_CTL_BITMIRR_DIS = 0,  /**< Bit Mirroring is disabled */
+  CRC_CTL_BITMIRR_EN  = 1   /**< Bit Mirroring is enabled  */
+} ADI_CRC_CTL_BITMIRR;
+
+
+/*  =========================================================================
+ *! \enum   ADI_CRC_CTL_BYTMIRR
+ *! \brief  Byte Mirroring (BYTMIRR) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CRC_CTL_BYTEMIR_DIS = 0,  /**< Byte Mirroring is disabled */
+  CRC_CTL_BYTEMIR_EN  = 1   /**< Byte Mirroring is enabled  */
+} ADI_CRC_CTL_BYTMIRR;
+
+
+/*  =========================================================================
+ *! \enum   ADI_CRC_CTL_W16SWP
+ *! \brief  Word16 Swap (W16SWP) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CRC_CTL_W16SP_DIS = 0,  /**< Word16 Swap disabled */
+  CRC_CTL_W16SP_EN  = 1   /**< Word16 Swap enabled  */
+} ADI_CRC_CTL_W16SWP;
+
 
 /* ==========================================================================
  *! \struct ADI_CRC_CTL_Struct
@@ -6542,10 +6115,8 @@ typedef struct _ADI_CRC_CTL_t {
 
 /*@}*/
 
-/** @defgroup IPDATA Input Data Word Register (IPDATA) Register
- *  Input Data Word Register (IPDATA) Register.
- *
- *  
+/** @defgroup IPDATA Input Data Word (IPDATA) Register
+ *  Input Data Word (IPDATA) Register.
  *  @{
  */
 
@@ -6566,10 +6137,8 @@ typedef struct _ADI_CRC_IPDATA_t {
 
 /*@}*/
 
-/** @defgroup RESULT CRC Result Register (RESULT) Register
- *  CRC Result Register (RESULT) Register.
- *
- *  
+/** @defgroup RESULT CRC Result (RESULT) Register
+ *  CRC Result (RESULT) Register.
  *  @{
  */
 
@@ -6592,8 +6161,6 @@ typedef struct _ADI_CRC_RESULT_t {
 
 /** @defgroup POLY Programmable CRC Polynomial (POLY) Register
  *  Programmable CRC Polynomial (POLY) Register.
- *
- *  
  *  @{
  */
 
@@ -6616,8 +6183,6 @@ typedef struct _ADI_CRC_POLY_t {
 
 /** @defgroup IPBITS Input Data Bits (IPBITS) Register
  *  Input Data Bits (IPBITS) Register.
- *
- *  
  *  @{
  */
 
@@ -6640,8 +6205,6 @@ typedef struct _ADI_CRC_IPBITS_t {
 
 /** @defgroup IPBYTE Input Data Byte (IPBYTE) Register
  *  Input Data Byte (IPBYTE) Register.
- *
- *  
  *  @{
  */
 
@@ -6664,8 +6227,6 @@ typedef struct _ADI_CRC_IPBYTE_t {
 
 /** @defgroup CTL RNG Control Register (CTL) Register
  *  RNG Control Register (CTL) Register.
- *
- *  The CTL register is used to enable the random number generator.
  *  @{
  */
 
@@ -6682,7 +6243,7 @@ typedef enum
 
 /*  =========================================================================
  *! \enum   ADI_RNG_CTL_SINGLE
- *! \brief  Generate a single number (SINGLE) Enumerations
+ *! \brief  Generate a Single Number (SINGLE) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -6701,7 +6262,7 @@ typedef struct _ADI_RNG_CTL_t {
     struct {
       unsigned int EN         :  1;  /**< RNG Enable */
       unsigned int reserved1  :  2;
-      unsigned int SINGLE     :  1;  /**< Generate a single number */
+      unsigned int SINGLE     :  1;  /**< Generate a Single Number */
       unsigned int reserved4  : 12;
     };
     uint16_t VALUE16;
@@ -6713,8 +6274,6 @@ typedef struct _ADI_RNG_CTL_t {
 
 /** @defgroup LEN RNG Sample Length Register (LEN) Register
  *  RNG Sample Length Register (LEN) Register.
- *
- *  The LEN register defines the number of samples to accumulate in the CRC register when generating a random number. The number of samples accumulated is RLD scaled by 2^PRE.
  *  @{
  */
 
@@ -6726,8 +6285,8 @@ typedef struct _ADI_RNG_CTL_t {
 typedef struct _ADI_RNG_LEN_t {
   union {
     struct {
-      unsigned int RELOAD     : 12;  /**< Reload value for the sample counter */
-      unsigned int PRESCALE   :  4;  /**< Prescaler for the sample counter */
+      unsigned int RELOAD     : 12;  /**< Reload Value for the Sample Counter */
+      unsigned int PRESCALE   :  4;  /**< Prescaler for the Sample Counter */
     };
     uint16_t VALUE16;
   };
@@ -6738,8 +6297,6 @@ typedef struct _ADI_RNG_LEN_t {
 
 /** @defgroup STAT RNG Status Register (STAT) Register
  *  RNG Status Register (STAT) Register.
- *
- *  The STAT register indicates when the RNG has finished generating a random number.
  *  @{
  */
 
@@ -6751,8 +6308,8 @@ typedef struct _ADI_RNG_LEN_t {
 typedef struct _ADI_RNG_STAT_t {
   union {
     struct {
-      unsigned int RNRDY      :  1;  /**< Random number ready */
-      unsigned int STUCK      :  1;  /**< Sampled data stuck high or low */
+      unsigned int RNRDY      :  1;  /**< Random Number Ready */
+      unsigned int STUCK      :  1;  /**< Sampled Data Stuck High or Low */
       unsigned int reserved2  : 14;
     };
     uint16_t VALUE16;
@@ -6764,8 +6321,6 @@ typedef struct _ADI_RNG_STAT_t {
 
 /** @defgroup DATA RNG Data Register (DATA) Register
  *  RNG Data Register (DATA) Register.
- *
- *  DATA register provides the CPU with read-only access of the entropy accumulator (8-bit CRC) and data buffer. When the data buffer is not enabled, an 8-bit result is provided. When the data buffer is enabled, 32-bits (four 8-bit values) are provided. The contents of this register are valid when the STAT:RDY bit is set. This register is reset when the STAT:RDY bit is cleared. The STAT:RDY bit is automatically cleared when this register is read and the CPU is not in debug halt. Reading this register by the CPU when CTL:EN is set will cause a new random number to be generated.
  *  @{
  */
 
@@ -6777,8 +6332,8 @@ typedef struct _ADI_RNG_STAT_t {
 typedef struct _ADI_RNG_DATA_t {
   union {
     struct {
-      unsigned int VALUE      :  8;  /**< Value of the CRC accumulator */
-      unsigned int BUFF       : 24;  /**< Buffer for RNG data */
+      unsigned int VALUE      :  8;  /**< Value of the CRC Accumulator */
+      unsigned int BUFF       : 24;  /**< Buffer for RNG Data */
     };
     uint32_t VALUE32;
   };
@@ -6789,8 +6344,6 @@ typedef struct _ADI_RNG_DATA_t {
 
 /** @defgroup OSCCNT Oscillator Count (OSCCNT) Register
  *  Oscillator Count (OSCCNT) Register.
- *
- *  The oscillator counter counts the number of ring oscillator cycles which occur during the generation of a random number. The oscillator counter is 28-bits. The oscillator counter will saturate at the maximum value to prevent overflow.
  *  @{
  */
 
@@ -6802,7 +6355,7 @@ typedef struct _ADI_RNG_DATA_t {
 typedef struct _ADI_RNG_OSCCNT_t {
   union {
     struct {
-      unsigned int VALUE      : 28;  /**< Oscillator count */
+      unsigned int VALUE      : 28;  /**< Oscillator Count */
       unsigned int reserved28 :  4;
     };
     uint32_t VALUE32;
@@ -6814,8 +6367,6 @@ typedef struct _ADI_RNG_OSCCNT_t {
 
 /** @defgroup OSCDIFF Oscillator Difference (OSCDIFF) Register
  *  Oscillator Difference (OSCDIFF) Register.
- *
- *  The oscillator difference register stores the difference in OSCCNT from the current value compared to the previous value (OSCCNT[n] - OSCCNT[n-1]). This difference is represented as a signed 8-bit value. It saturates at the maximum and minimum values. This can be used to reconstruct OSCCNT for the values currently in the DATA buffer. This information can be used to compute the OSCCNT variance to check the health of the random number generator and ensure there is adequate entropy.
  *  @{
  */
 
@@ -6827,9 +6378,9 @@ typedef struct _ADI_RNG_OSCCNT_t {
 typedef struct _ADI_RNG_OSCDIFF_t {
   union {
     struct {
-      unsigned int DELTA      :  8;  /**< Oscillator Count difference */
+      signed int DELTA      :  8;  /**< Oscillator Count Difference */
     };
-    uint8_t VALUE8;
+    int8_t VALUE8;
   };
 } ADI_RNG_OSCDIFF_t;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_RNG_OSCDIFF_t__ */
@@ -6838,8 +6389,6 @@ typedef struct _ADI_RNG_OSCDIFF_t {
 
 /** @defgroup CFG Configuration Register (CFG) Register
  *  Configuration Register (CFG) Register.
- *
- *  
  *  @{
  */
 
@@ -6925,8 +6474,6 @@ typedef struct _ADI_CRYPT_CFG_t {
 
 /** @defgroup DATALEN Payload Data Length (DATALEN) Register
  *  Payload Data Length (DATALEN) Register.
- *
- *  
  *  @{
  */
 
@@ -6950,8 +6497,6 @@ typedef struct _ADI_CRYPT_DATALEN_t {
 
 /** @defgroup PREFIXLEN Authentication Data Length (PREFIXLEN) Register
  *  Authentication Data Length (PREFIXLEN) Register.
- *
- *  
  *  @{
  */
 
@@ -6975,8 +6520,6 @@ typedef struct _ADI_CRYPT_PREFIXLEN_t {
 
 /** @defgroup INTEN Interrupt Enable Register (INTEN) Register
  *  Interrupt Enable Register (INTEN) Register.
- *
- *  
  *  @{
  */
 
@@ -7004,8 +6547,6 @@ typedef struct _ADI_CRYPT_INTEN_t {
 
 /** @defgroup STAT Status Register (STAT) Register
  *  Status Register (STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -7021,7 +6562,7 @@ typedef struct _ADI_CRYPT_STAT_t {
       unsigned int OUTRDY     :  1;  /**< Output Data Ready */
       unsigned int INOVR      :  1;  /**< Overflow in the Input Buffer */
       unsigned int reserved3  :  2;
-      unsigned int SHADONE    :  1;  /**< SHA Computation complete */
+      unsigned int SHADONE    :  1;  /**< SHA Computation Complete */
       unsigned int SHABUSY    :  1;  /**< SHA Busy. in Computation */
       unsigned int INWORDS    :  3;  /**< Number of Words in the Input Buffer */
       unsigned int OUTWORDS   :  3;  /**< Number of Words in the Output Buffer */
@@ -7036,8 +6577,6 @@ typedef struct _ADI_CRYPT_STAT_t {
 
 /** @defgroup INBUF Input Buffer (INBUF) Register
  *  Input Buffer (INBUF) Register.
- *
- *  
  *  @{
  */
 
@@ -7060,8 +6599,6 @@ typedef struct _ADI_CRYPT_INBUF_t {
 
 /** @defgroup OUTBUF Output Buffer (OUTBUF) Register
  *  Output Buffer (OUTBUF) Register.
- *
- *  
  *  @{
  */
 
@@ -7084,17 +6621,6 @@ typedef struct _ADI_CRYPT_OUTBUF_t {
 
 /** @defgroup NONCE0 Nonce Bits [31:0] (NONCE0) Register
  *  Nonce Bits [31:0] (NONCE0) Register.
- *
- *  Nonce is used in some modes of operations. Depending on the mode, different NONCE lengths will be used.
- *  
- *  1. CTR Mode: This takes a 108-Bit Nonce. This nonce is formed as follows:
- *  {NONCE3[11:0], NONCE2, NONCE1, NONCE0}
- *  
- *  2. CBC Mode: This takes a 128-Bit Nonce. This nonce is formed as follows:
- *  {NONCE3, NONCE2, NONCE1, NONCE0}
- *  
- *  3. CTR Mode: This takes a 108-Bit Nonce. This nonce is formed as follows: 
- *  {NONCE3[15:0], NONCE2, NONCE1, NONCE0}
  *  @{
  */
 
@@ -7117,8 +6643,6 @@ typedef struct _ADI_CRYPT_NONCE0_t {
 
 /** @defgroup NONCE1 Nonce Bits [63:32] (NONCE1) Register
  *  Nonce Bits [63:32] (NONCE1) Register.
- *
- *  
  *  @{
  */
 
@@ -7141,8 +6665,6 @@ typedef struct _ADI_CRYPT_NONCE1_t {
 
 /** @defgroup NONCE2 Nonce Bits [95:64] (NONCE2) Register
  *  Nonce Bits [95:64] (NONCE2) Register.
- *
- *  
  *  @{
  */
 
@@ -7165,8 +6687,6 @@ typedef struct _ADI_CRYPT_NONCE2_t {
 
 /** @defgroup NONCE3 Nonce Bits [127:96] (NONCE3) Register
  *  Nonce Bits [127:96] (NONCE3) Register.
- *
- *  
  *  @{
  */
 
@@ -7189,8 +6709,6 @@ typedef struct _ADI_CRYPT_NONCE3_t {
 
 /** @defgroup AESKEY0 AES Key Bits [31:0] (AESKEY0) Register
  *  AES Key Bits [31:0] (AESKEY0) Register.
- *
- *  
  *  @{
  */
 
@@ -7213,8 +6731,6 @@ typedef struct _ADI_CRYPT_AESKEY0_t {
 
 /** @defgroup AESKEY1 AES Key Bits [63:32] (AESKEY1) Register
  *  AES Key Bits [63:32] (AESKEY1) Register.
- *
- *  
  *  @{
  */
 
@@ -7237,8 +6753,6 @@ typedef struct _ADI_CRYPT_AESKEY1_t {
 
 /** @defgroup AESKEY2 AES Key Bits [95:64] (AESKEY2) Register
  *  AES Key Bits [95:64] (AESKEY2) Register.
- *
- *  
  *  @{
  */
 
@@ -7261,8 +6775,6 @@ typedef struct _ADI_CRYPT_AESKEY2_t {
 
 /** @defgroup AESKEY3 AES Key Bits [127:96] (AESKEY3) Register
  *  AES Key Bits [127:96] (AESKEY3) Register.
- *
- *  
  *  @{
  */
 
@@ -7285,8 +6797,6 @@ typedef struct _ADI_CRYPT_AESKEY3_t {
 
 /** @defgroup AESKEY4 AES Key Bits [159:128] (AESKEY4) Register
  *  AES Key Bits [159:128] (AESKEY4) Register.
- *
- *  
  *  @{
  */
 
@@ -7309,8 +6819,6 @@ typedef struct _ADI_CRYPT_AESKEY4_t {
 
 /** @defgroup AESKEY5 AES Key Bits [191:160] (AESKEY5) Register
  *  AES Key Bits [191:160] (AESKEY5) Register.
- *
- *  
  *  @{
  */
 
@@ -7333,8 +6841,6 @@ typedef struct _ADI_CRYPT_AESKEY5_t {
 
 /** @defgroup AESKEY6 AES Key Bits [223:192] (AESKEY6) Register
  *  AES Key Bits [223:192] (AESKEY6) Register.
- *
- *  
  *  @{
  */
 
@@ -7357,8 +6863,6 @@ typedef struct _ADI_CRYPT_AESKEY6_t {
 
 /** @defgroup AESKEY7 AES Key Bits [255:224] (AESKEY7) Register
  *  AES Key Bits [255:224] (AESKEY7) Register.
- *
- *  
  *  @{
  */
 
@@ -7381,8 +6885,6 @@ typedef struct _ADI_CRYPT_AESKEY7_t {
 
 /** @defgroup CNTRINIT Counter Initialization Vector (CNTRINIT) Register
  *  Counter Initialization Vector (CNTRINIT) Register.
- *
- *  
  *  @{
  */
 
@@ -7406,8 +6908,6 @@ typedef struct _ADI_CRYPT_CNTRINIT_t {
 
 /** @defgroup SHAH0 SHA Bits [31:0] (SHAH0) Register
  *  SHA Bits [31:0] (SHAH0) Register.
- *
- *  
  *  @{
  */
 
@@ -7430,8 +6930,6 @@ typedef struct _ADI_CRYPT_SHAH0_t {
 
 /** @defgroup SHAH1 SHA Bits [63:32] (SHAH1) Register
  *  SHA Bits [63:32] (SHAH1) Register.
- *
- *  
  *  @{
  */
 
@@ -7454,8 +6952,6 @@ typedef struct _ADI_CRYPT_SHAH1_t {
 
 /** @defgroup SHAH2 SHA Bits [95:64] (SHAH2) Register
  *  SHA Bits [95:64] (SHAH2) Register.
- *
- *  
  *  @{
  */
 
@@ -7478,8 +6974,6 @@ typedef struct _ADI_CRYPT_SHAH2_t {
 
 /** @defgroup SHAH3 SHA Bits [127:96] (SHAH3) Register
  *  SHA Bits [127:96] (SHAH3) Register.
- *
- *  
  *  @{
  */
 
@@ -7502,8 +6996,6 @@ typedef struct _ADI_CRYPT_SHAH3_t {
 
 /** @defgroup SHAH4 SHA Bits [159:128] (SHAH4) Register
  *  SHA Bits [159:128] (SHAH4) Register.
- *
- *  
  *  @{
  */
 
@@ -7526,8 +7018,6 @@ typedef struct _ADI_CRYPT_SHAH4_t {
 
 /** @defgroup SHAH5 SHA Bits [191:160] (SHAH5) Register
  *  SHA Bits [191:160] (SHAH5) Register.
- *
- *  
  *  @{
  */
 
@@ -7550,8 +7040,6 @@ typedef struct _ADI_CRYPT_SHAH5_t {
 
 /** @defgroup SHAH6 SHA Bits [223:192] (SHAH6) Register
  *  SHA Bits [223:192] (SHAH6) Register.
- *
- *  
  *  @{
  */
 
@@ -7574,8 +7062,6 @@ typedef struct _ADI_CRYPT_SHAH6_t {
 
 /** @defgroup SHAH7 SHA Bits [255:224] (SHAH7) Register
  *  SHA Bits [255:224] (SHAH7) Register.
- *
- *  
  *  @{
  */
 
@@ -7598,8 +7084,6 @@ typedef struct _ADI_CRYPT_SHAH7_t {
 
 /** @defgroup SHA_LAST_WORD SHA Last Word and Valid Bits Information (SHA_LAST_WORD) Register
  *  SHA Last Word and Valid Bits Information (SHA_LAST_WORD) Register.
- *
- *  This register is to be written before writing the last word to SHA input register. This is to inform the SHA engine that last word is about to be written by writing to the O_Last_Word. Also, the number of valid bits has to be programmed in the O_Bits_Valid.
  *  @{
  */
 
@@ -7624,8 +7108,6 @@ typedef struct _ADI_CRYPT_SHA_LAST_WORD_t {
 
 /** @defgroup CCM_NUM_VALID_BYTES NUM_VALID_BYTES (CCM_NUM_VALID_BYTES) Register
  *  NUM_VALID_BYTES (CCM_NUM_VALID_BYTES) Register.
- *
- *  
  *  @{
  */
 
@@ -7649,8 +7131,6 @@ typedef struct _ADI_CRYPT_CCM_NUM_VALID_BYTES_t {
 
 /** @defgroup IEN Power Supply Monitor Interrupt Enable (IEN) Register
  *  Power Supply Monitor Interrupt Enable (IEN) Register.
- *
- *  
  *  @{
  */
 
@@ -7676,11 +7156,11 @@ typedef struct _ADI_PMG_IEN_t {
   union {
     struct {
       unsigned int VBAT       :  1;  /**< Enable Interrupt for VBAT */
-      unsigned int VREGUNDR   :  1;  /**< Enable Interrupt when VREG under-voltage: below 1V */
-      unsigned int VREGOVR    :  1;  /**< Enable Interrupt when VREG over-voltage: over- 1.32 V */
+      unsigned int VREGUNDR   :  1;  /**< Enable Interrupt When VREG Undervoltage: Below 1V */
+      unsigned int VREGOVR    :  1;  /**< Enable Interrupt When VREG Overvoltage: Above 1.32V */
       unsigned int reserved3  :  5;
       unsigned int RANGEBAT   :  2;  /**< Battery Monitor Range */
-      unsigned int IENBAT     :  1;  /**< Interrupt enable for VBAT range */
+      unsigned int IENBAT     :  1;  /**< Interrupt Enable for VBAT Range */
       unsigned int reserved11 : 21;
     };
     uint32_t VALUE32;
@@ -7692,14 +7172,12 @@ typedef struct _ADI_PMG_IEN_t {
 
 /** @defgroup PSM_STAT Power Supply Monitor Status (PSM_STAT) Register
  *  Power Supply Monitor Status (PSM_STAT) Register.
- *
- *  
  *  @{
  */
 
 /*  =========================================================================
  *! \enum   ADI_PMG_PSM_STAT_RORANGE1
- *! \brief  VBAT range1 (> 2.75 V) (RORANGE1) Enumerations
+ *! \brief  VBAT Range1 (> 2.75v) (RORANGE1) Enumerations
  *  ========================================================================= */
 typedef enum
 {
@@ -7716,18 +7194,18 @@ typedef enum
 typedef struct _ADI_PMG_PSM_STAT_t {
   union {
     struct {
-      unsigned int VBATUNDR   :  1;  /**< Status bit indicating an Alarm that battery is below 1.8 V */
-      unsigned int VREGUNDR   :  1;  /**< Status bit for Alarm indicating VREG is below 1 V */
-      unsigned int VREGOVR    :  1;  /**< Status bit for alarm indicating Overvoltage for VREG */
+      unsigned int VBATUNDR   :  1;  /**< Status Bit Indicating an Alarm That Battery is Below 1.8V */
+      unsigned int VREGUNDR   :  1;  /**< Status Bit for Alarm Indicating VREG is Below 1V */
+      unsigned int VREGOVR    :  1;  /**< Status Bit for Alarm Indicating Overvoltage for VREG */
       unsigned int reserved3  :  4;
       unsigned int WICENACK   :  1;  /**< WIC Enable Acknowledge from Cortex */
-      unsigned int RANGE1     :  1;  /**< VBAT range1 (> 2.75 V) */
-      unsigned int RANGE2     :  1;  /**< VBAT range2 (2.75 V - 2.3 V) */
-      unsigned int RANGE3     :  1;  /**< VBAT range3 (2.3 V - 1.6 V) */
+      unsigned int RANGE1     :  1;  /**< VBAT Range1 (> 2.75v) */
+      unsigned int RANGE2     :  1;  /**< VBAT Range2 (2.75v - 2.3v) */
+      unsigned int RANGE3     :  1;  /**< VBAT Range3 (2.3v - 1.6v) */
       unsigned int reserved11 :  2;
-      unsigned int RORANGE1   :  1;  /**< VBAT range1 (> 2.75 V) */
-      unsigned int RORANGE2   :  1;  /**< VBAT range2 (2.75 V - 2.3 V) */
-      unsigned int RORANGE3   :  1;  /**< VBAT range3 (2.3 V - 1.6 V) */
+      unsigned int RORANGE1   :  1;  /**< VBAT Range1 (> 2.75v) */
+      unsigned int RORANGE2   :  1;  /**< VBAT Range2 (2.75v - 2.3v) */
+      unsigned int RORANGE3   :  1;  /**< VBAT Range3 (2.3v - 1.6v) */
       unsigned int reserved16 : 16;
     };
     uint32_t VALUE32;
@@ -7739,8 +7217,6 @@ typedef struct _ADI_PMG_PSM_STAT_t {
 
 /** @defgroup PWRMOD Power Mode Register (PWRMOD) Register
  *  Power Mode Register (PWRMOD) Register.
- *
- *  
  *  @{
  */
 
@@ -7756,6 +7232,17 @@ typedef enum
 } ADI_PMG_PWRMOD_MODE;
 
 
+/*  =========================================================================
+ *! \enum   ADI_PMG_PWRMOD_MONVBATN
+ *! \brief  Monitor VBAT During Hibernate Mode. Monitors VBAT by Default (MONVBATN) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  PMG_PWRMOD_VBAT_MONEN  = 0,  /**< VBAT monitor enabled in PMG block.  */
+  PMG_PWRMOD_VBAT_MONDIS = 1   /**< VBAT monitor disabled in PMG block. */
+} ADI_PMG_PWRMOD_MONVBATN;
+
+
 /* ==========================================================================
  *! \struct ADI_PMG_PWRMOD_Struct
  *! \brief  Power Mode Register bit field structure
@@ -7766,7 +7253,7 @@ typedef struct _ADI_PMG_PWRMOD_t {
     struct {
       unsigned int MODE       :  2;  /**< Power Mode Bits */
       unsigned int reserved2  :  1;
-      unsigned int MONVBATN   :  1;  /**< Monitor VBAT during HIBERNATE Mode. Monitors VBAT by default */
+      unsigned int MONVBATN   :  1;  /**< Monitor VBAT During Hibernate Mode. Monitors VBAT by Default */
       unsigned int reserved4  : 28;
     };
     uint32_t VALUE32;
@@ -7776,22 +7263,20 @@ typedef struct _ADI_PMG_PWRMOD_t {
 
 /*@}*/
 
-/** @defgroup PWRKEY Key Protection for PWRMOD and  SRAMRET (PWRKEY) Register
- *  Key Protection for PWRMOD and  SRAMRET (PWRKEY) Register.
- *
- *  
+/** @defgroup PWRKEY Key Protection for PWRMOD and SRAMRET (PWRKEY) Register
+ *  Key Protection for PWRMOD and SRAMRET (PWRKEY) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_PMG_PWRKEY_Struct
- *! \brief  Key Protection for PWRMOD and  SRAMRET Register bit field structure
+ *! \brief  Key Protection for PWRMOD and SRAMRET Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_PWRKEY_t__
 typedef struct _ADI_PMG_PWRKEY_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Power control key register */
+      unsigned int VALUE      : 16;  /**< Power Control Key Register */
       unsigned int reserved16 : 16;
     };
     uint32_t VALUE32;
@@ -7803,8 +7288,6 @@ typedef struct _ADI_PMG_PWRKEY_t {
 
 /** @defgroup SHDN_STAT Shutdown Status Register (SHDN_STAT) Register
  *  Shutdown Status Register (SHDN_STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -7816,10 +7299,10 @@ typedef struct _ADI_PMG_PWRKEY_t {
 typedef struct _ADI_PMG_SHDN_STAT_t {
   union {
     struct {
-      unsigned int EXTINT0    :  1;  /**< Wake-up by Interrupt from External Interrupt 0 */
-      unsigned int EXTINT1    :  1;  /**< Wake-up by Interrupt from External Interrupt 1 */
-      unsigned int EXTINT2    :  1;  /**< Wake-up by Interrupt from External Interrupt 2 */
-      unsigned int RTC        :  1;  /**< Wake-up by Interrupt from RTC */
+      unsigned int EXTINT0    :  1;  /**< Wakeup by Interrupt from External Interrupt 0 */
+      unsigned int EXTINT1    :  1;  /**< Wakeup by Interrupt from External Interrupt 1 */
+      unsigned int EXTINT2    :  1;  /**< Wakeup by Interrupt from External Interrupt 2 */
+      unsigned int RTC        :  1;  /**< Wakeup by Interrupt from RTC */
       unsigned int reserved4  : 28;
     };
     uint32_t VALUE32;
@@ -7829,23 +7312,21 @@ typedef struct _ADI_PMG_SHDN_STAT_t {
 
 /*@}*/
 
-/** @defgroup SRAMRET Control for Retention SRAM during HIBERNATE Mode (SRAMRET) Register
- *  Control for Retention SRAM during HIBERNATE Mode (SRAMRET) Register.
- *
- *  
+/** @defgroup SRAMRET Control for Retention SRAM in Hibernate Mode (SRAMRET) Register
+ *  Control for Retention SRAM in Hibernate Mode (SRAMRET) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_PMG_SRAMRET_Struct
- *! \brief  Control for Retention SRAM during HIBERNATE Mode Register bit field structure
+ *! \brief  Control for Retention SRAM in Hibernate Mode Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_SRAMRET_t__
 typedef struct _ADI_PMG_SRAMRET_t {
   union {
     struct {
-      unsigned int BNK1EN     :  1;  /**< Enable retention bank 1 (8 KB) */
-      unsigned int BNK2EN     :  1;  /**< Enable retention bank 2 (16 KB) */
+      unsigned int BNK1EN     :  1;  /**< Enable Retention Bank 1 (8kB) */
+      unsigned int BNK2EN     :  1;  /**< Enable Retention Bank 2 (16kB) */
       unsigned int reserved2  : 30;
     };
     uint32_t VALUE32;
@@ -7855,11 +7336,8 @@ typedef struct _ADI_PMG_SRAMRET_t {
 
 /*@}*/
 
-/** @defgroup RST_STAT Reset status (RST_STAT) Register
- *  Reset status (RST_STAT) Register.
- *
- *  This register is recommended to be read at the beginning of the user-code to determine the cause of the reset.
- *  Default values of this register is unspecified as the cause of reset can be any source.
+/** @defgroup RST_STAT Reset Status (RST_STAT) Register
+ *  Reset Status (RST_STAT) Register.
  *  @{
  */
 
@@ -7878,16 +7356,16 @@ typedef enum
 
 /* ==========================================================================
  *! \struct ADI_PMG_RST_STAT_Struct
- *! \brief  Reset status Register bit field structure
+ *! \brief  Reset Status Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_RST_STAT_t__
 typedef struct _ADI_PMG_RST_STAT_t {
   union {
     struct {
       unsigned int POR        :  1;  /**< Power-on-Reset */
-      unsigned int EXTRST     :  1;  /**< External reset */
+      unsigned int EXTRST     :  1;  /**< External Reset */
       unsigned int WDRST      :  1;  /**< Watchdog Time-out Reset */
-      unsigned int SWRST      :  1;  /**< Software reset */
+      unsigned int SWRST      :  1;  /**< Software Reset */
       unsigned int PORSRC     :  2;  /**< Power-on-Reset Source */
       unsigned int reserved6  : 26;
     };
@@ -7898,16 +7376,14 @@ typedef struct _ADI_PMG_RST_STAT_t {
 
 /*@}*/
 
-/** @defgroup CTL1 HPBUCK Control (CTL1) Register
- *  HPBUCK Control (CTL1) Register.
- *
- *  
+/** @defgroup CTL1 HP Buck Control (CTL1) Register
+ *  HP Buck Control (CTL1) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_PMG_CTL1_Struct
- *! \brief  HPBUCK Control Register bit field structure
+ *! \brief  HP Buck Control Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_CTL1_t__
 typedef struct _ADI_PMG_CTL1_t {
@@ -7925,8 +7401,6 @@ typedef struct _ADI_PMG_CTL1_t {
 
 /** @defgroup CFG0 External Interrupt Configuration (CFG0) Register
  *  External Interrupt Configuration (CFG0) Register.
- *
- *  
  *  @{
  */
 
@@ -7938,17 +7412,17 @@ typedef struct _ADI_PMG_CTL1_t {
 typedef struct _ADI_XINT_CFG0_t {
   union {
     struct {
-      unsigned int IRQ0MDE    :  3;  /**< External Interrupt 0 Mode registers */
-      unsigned int IRQ0EN     :  1;  /**< External Interrupt 0 Enable bit */
-      unsigned int IRQ1MDE    :  3;  /**< External Interrupt 1 Mode registers */
-      unsigned int IRQ1EN     :  1;  /**< External Interrupt 1 Enable bit */
-      unsigned int IRQ2MDE    :  3;  /**< External Interrupt 2 Mode registers */
-      unsigned int IRQ2EN     :  1;  /**< External Interrupt 2 Enable bit */
-      unsigned int IRQ3MDE    :  3;  /**< External Interrupt 3 Mode registers */
-      unsigned int IRQ3EN     :  1;  /**< External Interrupt 3 enable bit */
+      unsigned int IRQ0MDE    :  3;  /**< External Interrupt 0 Mode Registers */
+      unsigned int IRQ0EN     :  1;  /**< External Interrupt 0 Enable Bit */
+      unsigned int IRQ1MDE    :  3;  /**< External Interrupt 1 Mode Registers */
+      unsigned int IRQ1EN     :  1;  /**< External Interrupt 1 Enable Bit */
+      unsigned int IRQ2MDE    :  3;  /**< External Interrupt 2 Mode Registers */
+      unsigned int IRQ2EN     :  1;  /**< External Interrupt 2 Enable Bit */
+      unsigned int IRQ3MDE    :  3;  /**< External Interrupt 3 Mode Registers */
+      unsigned int IRQ3EN     :  1;  /**< External Interrupt 3 Enable Bit */
       unsigned int reserved16 :  4;
-      unsigned int UART_RX_EN :  1;  /**< External Interrupt enable bit */
-      unsigned int UART_RX_MDE :  3;  /**< External Interrupt using UART_RX wakeup Mode registers */
+      unsigned int UART_RX_EN :  1;  /**< External Interrupt Enable Bit */
+      unsigned int UART_RX_MDE :  3;  /**< External Interrupt Using UART_RX Wakeup Mode Registers */
       unsigned int reserved24  :  8;
     };
     uint32_t VALUE32;
@@ -7960,8 +7434,6 @@ typedef struct _ADI_XINT_CFG0_t {
 
 /** @defgroup EXT_STAT External Wakeup Interrupt Status (EXT_STAT) Register
  *  External Wakeup Interrupt Status (EXT_STAT) Register.
- *
- *  
  *  @{
  */
 
@@ -7973,12 +7445,12 @@ typedef struct _ADI_XINT_CFG0_t {
 typedef struct _ADI_XINT_EXT_STAT_t {
   union {
     struct {
-      unsigned int STAT_EXTINT0 :  1;  /**< Interrupt status bit for External Interrupt 0 */
-      unsigned int STAT_EXTINT1 :  1;  /**< Interrupt status bit for External Interrupt 1 */
-      unsigned int STAT_EXTINT2 :  1;  /**< Interrupt status bit for External Interrupt 2 */
-      unsigned int STAT_EXTINT3 :  1;  /**< Interrupt status bit for External Interrupt 3 */
+      unsigned int STAT_EXTINT0 :  1;  /**< Interrupt Status Bit for External Interrupt 0 */
+      unsigned int STAT_EXTINT1 :  1;  /**< Interrupt Status Bit for External Interrupt 1 */
+      unsigned int STAT_EXTINT2 :  1;  /**< Interrupt Status Bit for External Interrupt 2 */
+      unsigned int STAT_EXTINT3 :  1;  /**< Interrupt Status Bit for External Interrupt 3 */
       unsigned int reserved4        :  1;
-      unsigned int STAT_UART_RXWKUP :  1;  /**< Interrupt status bit for UART RX wakeup interrupt */
+      unsigned int STAT_UART_RXWKUP :  1;  /**< Interrupt Status Bit for UART RX Wakeup Interrupt */
       unsigned int reserved6        : 26;
     };
     uint32_t VALUE32;
@@ -7990,8 +7462,6 @@ typedef struct _ADI_XINT_EXT_STAT_t {
 
 /** @defgroup CLR External Interrupt Clear (CLR) Register
  *  External Interrupt Clear (CLR) Register.
- *
- *  This register has W1C bits that are used to clear the corresponding EXT_STAT bits
  *  @{
  */
 
@@ -8003,12 +7473,12 @@ typedef struct _ADI_XINT_EXT_STAT_t {
 typedef struct _ADI_XINT_CLR_t {
   union {
     struct {
-      unsigned int IRQ0       :  1;  /**< External interrupt 0 */
-      unsigned int IRQ1       :  1;  /**< External interrupt 1 */
-      unsigned int IRQ2       :  1;  /**< External interrupt 2 */
-      unsigned int IRQ3       :  1;  /**< External interrupt 3 */
+      unsigned int IRQ0       :  1;  /**< External Interrupt 0 */
+      unsigned int IRQ1       :  1;  /**< External Interrupt 1 */
+      unsigned int IRQ2       :  1;  /**< External Interrupt 2 */
+      unsigned int IRQ3       :  1;  /**< External Interrupt 3 */
       unsigned int reserved4   :  1;
-      unsigned int UART_RX_CLR :  1;  /**< External interrupt Clear for UART_RX WAKEUP interrupt */
+      unsigned int UART_RX_CLR :  1;  /**< External Interrupt Clear for UART_RX Wakeup Interrupt */
       unsigned int reserved6   : 26;
     };
     uint32_t VALUE32;
@@ -8020,8 +7490,6 @@ typedef struct _ADI_XINT_CLR_t {
 
 /** @defgroup NMICLR Non-Maskable Interrupt Clear (NMICLR) Register
  *  Non-Maskable Interrupt Clear (NMICLR) Register.
- *
- *  
  *  @{
  */
 
@@ -8033,7 +7501,7 @@ typedef struct _ADI_XINT_CLR_t {
 typedef struct _ADI_XINT_NMICLR_t {
   union {
     struct {
-      unsigned int CLR        :  1;  /**< NMI clear */
+      unsigned int CLR        :  1;  /**< NMI Clear */
       unsigned int reserved1  : 31;
     };
     uint32_t VALUE32;
@@ -8043,22 +7511,20 @@ typedef struct _ADI_XINT_NMICLR_t {
 
 /*@}*/
 
-/** @defgroup KEY Key Protection for OSCCTRL (KEY) Register
- *  Key Protection for OSCCTRL (KEY) Register.
- *
- *  
+/** @defgroup KEY Key Protection for CLKG_OSC_CTL (KEY) Register
+ *  Key Protection for CLKG_OSC_CTL (KEY) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_CLKG_OSC_KEY_Struct
- *! \brief  Key Protection for OSCCTRL Register bit field structure
+ *! \brief  Key Protection for CLKG_OSC_CTL Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CLKG_OSC_KEY_t__
 typedef struct _ADI_CLKG_OSC_KEY_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Oscillator key */
+      unsigned int VALUE      : 16;  /**< Oscillator K */
       unsigned int reserved16 : 16;
     };
     uint32_t VALUE32;
@@ -8070,10 +7536,19 @@ typedef struct _ADI_CLKG_OSC_KEY_t {
 
 /** @defgroup CTL Oscillator Control (CTL) Register
  *  Oscillator Control (CTL) Register.
- *
- *  The OSCCTRL register is key-protected. To unlock this protection 0xCB14 should be written to OSCKEY before writing to OSCCTRL  A write to any other register on the APB bus before writing to OSCCTRL will return the protection to the lock state.
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_CLKG_OSC_CTL_LFXTAL_MON_FAIL_STAT
+ *! \brief  LFXTAL Not Stable (LFXTAL_MON_FAIL_STAT) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CLKG_OSC_CTL_LFXTAL_RUNNING    = 0,  /**< LFXTAL is running fine */
+  CLKG_OSC_CTL_LFXTAL_NOTRUNNING = 1   /**< LFXTAL is not running  */
+} ADI_CLKG_OSC_CTL_LFXTAL_MON_FAIL_STAT;
+
 
 /* ==========================================================================
  *! \struct ADI_CLKG_OSC_CTL_Struct
@@ -8083,19 +7558,19 @@ typedef struct _ADI_CLKG_OSC_KEY_t {
 typedef struct _ADI_CLKG_OSC_CTL_t {
   union {
     struct {
-      unsigned int LFCLKMUX   :  1;  /**< 32 kHz Clock Select Mux */
+      unsigned int LFCLKMUX   :  1;  /**< 32kHz Clock Select Mux */
       unsigned int HFOSCEN    :  1;  /**< High Frequency Internal Oscillator Enable */
-      unsigned int LFXTALEN   :  1;  /**< Low frequency crystal oscillator enable */
-      unsigned int HFXTALEN   :  1;  /**< High frequency crystal oscillator enable */
-      unsigned int LFXTAL_BYPASS :  1;  /**< Low frequency crystal oscillator Bypass */
-      unsigned int LFXTAL_MON_EN :  1;  /**< LFXTAL clock monitor and Clock FAIL interrupt enable */
+      unsigned int LFXTALEN   :  1;  /**< Low Frequency Crystal Oscillator Enable */
+      unsigned int HFXTALEN   :  1;  /**< High Frequency Crystal Oscillator Enable */
+      unsigned int LFXTAL_BYPASS :  1;  /**< Low Frequency Crystal Oscillator Bypass */
+      unsigned int LFXTAL_MON_EN :  1;  /**< LFXTAL Clock Monitor and Clock Fail Interrupt Enable */
       unsigned int reserved6     :  2;
-      unsigned int LFOSCOK       :  1;  /**< Status of LFOSC oscillator */
-      unsigned int HFOSCOK       :  1;  /**< Status of HFOSC oscillator */
-      unsigned int LFXTALOK      :  1;  /**< Status of LFXTAL oscillator */
-      unsigned int HFXTALOK      :  1;  /**< Status of HFXTAL oscillator */
+      unsigned int LFOSCOK       :  1;  /**< Status of LFOSC Oscillator */
+      unsigned int HFOSCOK       :  1;  /**< Status of HFOSC */
+      unsigned int LFXTALOK      :  1;  /**< Status of LFXTAL Oscillator */
+      unsigned int HFXTALOK      :  1;  /**< Status of HFXTAL Oscillator */
       unsigned int reserved12           : 19;
-      unsigned int LFXTAL_MON_FAIL_STAT :  1;  /**< LF XTAL (crystal clock) Not Stable */
+      unsigned int LFXTAL_MON_FAIL_STAT :  1;  /**< LFXTAL Not Stable */
     };
     uint32_t VALUE32;
   };
@@ -8104,39 +7579,37 @@ typedef struct _ADI_CLKG_OSC_CTL_t {
 
 /*@}*/
 
-/** @defgroup SRAM_CTL Control for SRAM parity and Instruction SRAM (SRAM_CTL) Register
- *  Control for SRAM parity and Instruction SRAM (SRAM_CTL) Register.
- *
- *  
+/** @defgroup SRAM_CTL Control for SRAM Parity and Instruction SRAM (SRAM_CTL) Register
+ *  Control for SRAM Parity and Instruction SRAM (SRAM_CTL) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_PMG_TST_SRAM_CTL_Struct
- *! \brief  Control for SRAM parity and Instruction SRAM Register bit field structure
+ *! \brief  Control for SRAM Parity and Instruction SRAM Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_TST_SRAM_CTL_t__
 typedef struct _ADI_PMG_TST_SRAM_CTL_t {
   union {
     struct {
-      unsigned int BNK0EN     :  1;  /**< Enable initialization */
-      unsigned int BNK1EN     :  1;  /**< Enable initialization */
-      unsigned int BNK2EN     :  1;  /**< Enable initialization */
-      unsigned int BNK3EN     :  1;  /**< Enable initialization */
-      unsigned int BNK4EN     :  1;  /**< Enable initialization */
-      unsigned int BNK5EN     :  1;  /**< Enable initialization */
+      unsigned int BNK0EN     :  1;  /**< Enable Initialization of SRAM Bank 0 */
+      unsigned int BNK1EN     :  1;  /**< Enable Initialization of SRAM Bank 1 */
+      unsigned int BNK2EN     :  1;  /**< Enable Initialization of SRAM Bank 2 */
+      unsigned int BNK3EN     :  1;  /**< Enable Initialization of SRAM Bank 3 */
+      unsigned int BNK4EN     :  1;  /**< Enable Initialization of SRAM Bank 4 */
+      unsigned int BNK5EN     :  1;  /**< Enable Initialization of SRAM Bank 5 */
       unsigned int reserved6  :  7;
-      unsigned int STARTINIT  :  1;  /**< Write one to trigger initialization. Self-cleared */
-      unsigned int AUTOINIT   :  1;  /**< Automatic initialization on wake up from Hibernate mode */
-      unsigned int ABTINIT    :  1;  /**< Abort current initialization. Self-cleared */
-      unsigned int PENBNK0    :  1;  /**< Enable parity check */
-      unsigned int PENBNK1    :  1;  /**< Enable parity check */
-      unsigned int PENBNK2    :  1;  /**< Enable parity check */
-      unsigned int PENBNK3    :  1;  /**< Enable parity check */
-      unsigned int PENBNK4    :  1;  /**< Enable parity check */
-      unsigned int PENBNK5    :  1;  /**< Enable parity check */
+      unsigned int STARTINIT  :  1;  /**< Write 1 to Trigger Initialization */
+      unsigned int AUTOINIT   :  1;  /**< Automatic Initialization on Wakeup from Hibernate Mode */
+      unsigned int ABTINIT    :  1;  /**< Abort Current Initialization. Self-cleared */
+      unsigned int PENBNK0    :  1;  /**< Enable Parity Check SRAM Bank 0 */
+      unsigned int PENBNK1    :  1;  /**< Enable Parity Check SRAM Bank 1 */
+      unsigned int PENBNK2    :  1;  /**< Enable Parity Check SRAM Bank 2 */
+      unsigned int PENBNK3    :  1;  /**< Enable Parity Check SRAM Bank 3 */
+      unsigned int PENBNK4    :  1;  /**< Enable Parity Check SRAM Bank 4 */
+      unsigned int PENBNK5    :  1;  /**< Enable Parity Check SRAM Bank 5 */
       unsigned int reserved22 :  9;
-      unsigned int INSTREN    :  1;  /**< Enables instruction SRAM */
+      unsigned int INSTREN    :  1;  /**< Enables Instruction SRAM */
     };
     uint32_t VALUE32;
   };
@@ -8147,8 +7620,6 @@ typedef struct _ADI_PMG_TST_SRAM_CTL_t {
 
 /** @defgroup SRAM_INITSTAT Initialization Status Register (SRAM_INITSTAT) Register
  *  Initialization Status Register (SRAM_INITSTAT) Register.
- *
- *  
  *  @{
  */
 
@@ -8160,12 +7631,12 @@ typedef struct _ADI_PMG_TST_SRAM_CTL_t {
 typedef struct _ADI_PMG_TST_SRAM_INITSTAT_t {
   union {
     struct {
-      unsigned int BNK0       :  1;  /**< 0: Not initialized; 1: Initialization completed */
-      unsigned int BNK1       :  1;  /**< 0: Not initialized; 1: Initialization completed */
-      unsigned int BNK2       :  1;  /**< 0: Not initialized; 1: Initialization completed */
-      unsigned int BNK3       :  1;  /**< 0: Not initialized; 1: Initialization completed */
-      unsigned int BNK4       :  1;  /**< 0: Not initialized; 1: Initialization completed */
-      unsigned int BNK5       :  1;  /**< 0: Not initialized; 1: Initialization completed */
+      unsigned int BNK0       :  1;  /**< Initialization Done of SRAM Bank 0 */
+      unsigned int BNK1       :  1;  /**< Initialization Done of SRAM Bank 1 */
+      unsigned int BNK2       :  1;  /**< Initialization Done of SRAM Bank 2 */
+      unsigned int BNK3       :  1;  /**< Initialization Done of SRAM Bank 3 */
+      unsigned int BNK4       :  1;  /**< Initialization Done of SRAM Bank 4 */
+      unsigned int BNK5       :  1;  /**< Initialization Done of SRAM Bank 5 */
       unsigned int reserved6  : 26;
     };
     uint32_t VALUE32;
@@ -8177,8 +7648,6 @@ typedef struct _ADI_PMG_TST_SRAM_INITSTAT_t {
 
 /** @defgroup CLR_LATCH_GPIOS Clear GPIO After Shutdown Mode (CLR_LATCH_GPIOS) Register
  *  Clear GPIO After Shutdown Mode (CLR_LATCH_GPIOS) Register.
- *
- *  
  *  @{
  */
 
@@ -8190,7 +7659,7 @@ typedef struct _ADI_PMG_TST_SRAM_INITSTAT_t {
 typedef struct _ADI_PMG_TST_CLR_LATCH_GPIOS_t {
   union {
     struct {
-      unsigned int VALUE      : 16;  /**< Writing 0x58FA creates a pulse to clear the latches for the GPIOs */
+      unsigned int VALUE      : 16;  /**< Clear GPIOs Latches */
     };
     uint16_t VALUE16;
   };
@@ -8201,14 +7670,6 @@ typedef struct _ADI_PMG_TST_CLR_LATCH_GPIOS_t {
 
 /** @defgroup SCRPAD_IMG Scratch Pad Image (SCRPAD_IMG) Register
  *  Scratch Pad Image (SCRPAD_IMG) Register.
- *
- *  This register is useful in Shutdown mode.
- *  The GPIO configuration, OUT registers lose its contents when in shutdown mode.
- *  32-bit Scratch register can be used to store the GPIO configuration. 
- *  Note that the bits are not wide enough to store all GPIO related configuration and output values. It is envisaged that the user might have only few combination of shutdown port configurations. Hence these combination can be remembered by storing an equivalent encoded data in the scratch 32-bit registers.
- *  User can determine the GPIO configuration after reading back the SCRATCHPAD_3V_READ register (wakeup from shutdown) .
- *  
- *  Note:  The content in the Scratch register is lost in shutdown mode if VBAT < 1.54 V
  *  @{
  */
 
@@ -8220,7 +7681,7 @@ typedef struct _ADI_PMG_TST_CLR_LATCH_GPIOS_t {
 typedef struct _ADI_PMG_TST_SCRPAD_IMG_t {
   union {
     struct {
-      unsigned int DATA       : 32;  /**< Value written to the register is saved in 3 V when going to shutdown mode */
+      unsigned int DATA       : 32;  /**< Scratch Image */
     };
     uint32_t VALUE32;
   };
@@ -8231,8 +7692,6 @@ typedef struct _ADI_PMG_TST_SCRPAD_IMG_t {
 
 /** @defgroup SCRPAD_3V_RD Scratch Pad Saved in Battery Domain (SCRPAD_3V_RD) Register
  *  Scratch Pad Saved in Battery Domain (SCRPAD_3V_RD) Register.
- *
- *  
  *  @{
  */
 
@@ -8244,7 +7703,7 @@ typedef struct _ADI_PMG_TST_SCRPAD_IMG_t {
 typedef struct _ADI_PMG_TST_SCRPAD_3V_RD_t {
   union {
     struct {
-      unsigned int DATA       : 32;  /**< Read-only register */
+      unsigned int DATA       : 32;  /**< Reading the Scratch Pad Stored in Shutdown Mode */
     };
     uint32_t VALUE32;
   };
@@ -8253,16 +7712,14 @@ typedef struct _ADI_PMG_TST_SCRPAD_3V_RD_t {
 
 /*@}*/
 
-/** @defgroup CTL0 Misc Clock Settings (CTL0) Register
- *  Misc Clock Settings (CTL0) Register.
- *
- *  Clock Control 0 is used to configure clock sources used by various systems such as the core and memories and peripherals. All unused bits are read only returning a value of 0. Writing unused bits has no effect.
+/** @defgroup CTL0 Miscellaneous Clock Settings (CTL0) Register
+ *  Miscellaneous Clock Settings (CTL0) Register.
  *  @{
  */
 
 /* ==========================================================================
  *! \struct ADI_CLKG_CLK_CTL0_Struct
- *! \brief  Misc Clock Settings Register bit field structure
+ *! \brief  Miscellaneous Clock Settings Register bit field structure
  * ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CLKG_CLK_CTL0_t__
 typedef struct _ADI_CLKG_CLK_CTL0_t {
@@ -8270,12 +7727,12 @@ typedef struct _ADI_CLKG_CLK_CTL0_t {
     struct {
       unsigned int CLKMUX     :  2;  /**< Clock Mux Select */
       unsigned int reserved2  :  6;
-      unsigned int RCLKMUX    :  2;  /**< Flash reference clock and HPBUCK clock source mux */
+      unsigned int RCLKMUX    :  2;  /**< Flash Reference Clock and HP Buck Source Mux */
       unsigned int reserved10 :  1;
-      unsigned int SPLLIPSEL  :  1;  /**< SPLL source select mux */
+      unsigned int SPLLIPSEL  :  1;  /**< SPLL Source Select Mux */
       unsigned int reserved12 :  2;
-      unsigned int LFXTALIE   :  1;  /**< Low frequency crystal interrupt enable */
-      unsigned int HFXTALIE   :  1;  /**< High frequency crystal interrupt enable */
+      unsigned int LFXTALIE   :  1;  /**< Low Frequency Crystal Interrupt Enable */
+      unsigned int HFXTALIE   :  1;  /**< High Frequency Crystal Interrupt Enable */
       unsigned int reserved16 : 16;
     };
     uint32_t VALUE32;
@@ -8287,8 +7744,6 @@ typedef struct _ADI_CLKG_CLK_CTL0_t {
 
 /** @defgroup CTL1 Clock Dividers (CTL1) Register
  *  Clock Dividers (CTL1) Register.
- *
- *  Clock Control 1 is used to set the divide rates for the  HCLK, and PCLK and ACLK dividers. This register can be written to at any time. All unused bits are read only, returning a value of 0. Writing to unused bits has no effect.
  *  @{
  */
 
@@ -8300,9 +7755,9 @@ typedef struct _ADI_CLKG_CLK_CTL0_t {
 typedef struct _ADI_CLKG_CLK_CTL1_t {
   union {
     struct {
-      unsigned int HCLKDIVCNT :  6;  /**< HCLK divide count */
+      unsigned int HCLKDIVCNT :  6;  /**< HCLK Divide Count */
       unsigned int reserved6  :  2;
-      unsigned int PCLKDIVCNT :  6;  /**< PCLK divide count */
+      unsigned int PCLKDIVCNT :  6;  /**< PCLK Divide Count */
       unsigned int reserved14 :  2;
       unsigned int ACLKDIVCNT :  8;  /**< ACLK Divide Count */
       unsigned int reserved24 :  8;
@@ -8316,8 +7771,6 @@ typedef struct _ADI_CLKG_CLK_CTL1_t {
 
 /** @defgroup CTL3 System PLL (CTL3) Register
  *  System PLL (CTL3) Register.
- *
- *  Clock Control 3 is used to control the system PLL. This register should be written to only when the PLL is not selected as the clock source (ROOT_CLK). All unused bits are read only, returning a value of 0. Writing to unused bits has no effect.
  *  @{
  */
 
@@ -8348,10 +7801,19 @@ typedef struct _ADI_CLKG_CLK_CTL3_t {
 
 /** @defgroup CTL5 User Clock Gating Control (CTL5) Register
  *  User Clock Gating Control (CTL5) Register.
- *
- *  Clock Control 5 is used to control the gates of the peripheral UCLKs.
  *  @{
  */
+
+/*  =========================================================================
+ *! \enum   ADI_CLKG_CLK_CTL5_PERCLKOFF
+ *! \brief  Disables All Clocks Connected to All Peripherals (PERCLKOFF) Enumerations
+ *  ========================================================================= */
+typedef enum
+{
+  CLKG_CLK_CTL5_PERIPH_CLK_ACT = 0,  /**< Clocks to all peripherals are active    */
+  CLKG_CLK_CTL5_PERIPH_CLK_OFF = 1   /**< Clocks to all peripherals are gated off */
+} ADI_CLKG_CLK_CTL5_PERCLKOFF;
+
 
 /* ==========================================================================
  *! \struct ADI_CLKG_CLK_CTL5_Struct
@@ -8361,9 +7823,9 @@ typedef struct _ADI_CLKG_CLK_CTL3_t {
 typedef struct _ADI_CLKG_CLK_CTL5_t {
   union {
     struct {
-      unsigned int GPTCLK0OFF :  1;  /**< GP Timer 0 User Control */
-      unsigned int GPTCLK1OFF :  1;  /**< GP Timer 1 User Control */
-      unsigned int GPTCLK2OFF :  1;  /**< GP Timer 2 User Control */
+      unsigned int GPTCLK0OFF :  1;  /**< Timer 0 User Control */
+      unsigned int GPTCLK1OFF :  1;  /**< Timer 1 User Control */
+      unsigned int GPTCLK2OFF :  1;  /**< Timer 2 User Control */
       unsigned int UCLKI2COFF :  1;  /**< I2C Clock User Control */
       unsigned int GPIOCLKOFF :  1;  /**< GPIO Clock Control */
       unsigned int PERCLKOFF  :  1;  /**< Disables All Clocks Connected to All Peripherals */
@@ -8378,8 +7840,6 @@ typedef struct _ADI_CLKG_CLK_CTL5_t {
 
 /** @defgroup STAT0 Clocking Status (STAT0) Register
  *  Clocking Status (STAT0) Register.
- *
- *  Monitors PLL and Oscillator status. With interrupts enabled, the user can run initialization code or idle the core while the clock components stabilize.
  *  @{
  */
 
@@ -8391,16 +7851,16 @@ typedef struct _ADI_CLKG_CLK_CTL5_t {
 typedef struct _ADI_CLKG_CLK_STAT0_t {
   union {
     struct {
-      unsigned int SPLL       :  1;  /**< System PLL status */
-      unsigned int SPLLLK     :  1;  /**< System PLL lock */
-      unsigned int SPLLUNLK   :  1;  /**< System PLL unlock */
+      unsigned int SPLL       :  1;  /**< System PLL Status */
+      unsigned int SPLLLK     :  1;  /**< System PLL Lock */
+      unsigned int SPLLUNLK   :  1;  /**< System PLL Unlock */
       unsigned int reserved3  :  5;
-      unsigned int LFXTAL     :  1;  /**< LF crystal status */
-      unsigned int LFXTALOK   :  1;  /**< LF crystal stable */
-      unsigned int LFXTALNOK  :  1;  /**< LF crystal not stable */
+      unsigned int LFXTAL     :  1;  /**< LF Crystal Status */
+      unsigned int LFXTALOK   :  1;  /**< LF Crystal Stable */
+      unsigned int LFXTALNOK  :  1;  /**< LF Crystal Not Stable */
       unsigned int reserved11 :  1;
-      unsigned int HFXTAL     :  1;  /**< HF crystal status */
-      unsigned int HFXTALOK   :  1;  /**< HF crystal stable */
+      unsigned int HFXTAL     :  1;  /**< HF Crystal Status */
+      unsigned int HFXTALOK   :  1;  /**< HF Crystal Stable */
       unsigned int HFXTALNOK  :  1;  /**< HF Crystal Not Stable */
       unsigned int reserved15 : 17;
     };
@@ -8413,8 +7873,6 @@ typedef struct _ADI_CLKG_CLK_STAT0_t {
 
 /** @defgroup ARBIT0 Arbitration Priority Configuration for FLASH and SRAM0 (ARBIT0) Register
  *  Arbitration Priority Configuration for FLASH and SRAM0 (ARBIT0) Register.
- *
- *  
  *  @{
  */
 
@@ -8444,8 +7902,6 @@ typedef struct _ADI_BUSM_ARBIT0_t {
 
 /** @defgroup ARBIT1 Arbitration Priority Configuration for SRAM1 and SIP (ARBIT1) Register
  *  Arbitration Priority Configuration for SRAM1 and SIP (ARBIT1) Register.
- *
- *  
  *  @{
  */
 
@@ -8475,8 +7931,6 @@ typedef struct _ADI_BUSM_ARBIT1_t {
 
 /** @defgroup ARBIT2 Arbitration Priority Configuration for APB32 and APB16 (ARBIT2) Register
  *  Arbitration Priority Configuration for APB32 and APB16 (ARBIT2) Register.
- *
- *  
  *  @{
  */
 
@@ -8506,8 +7960,6 @@ typedef struct _ADI_BUSM_ARBIT2_t {
 
 /** @defgroup ARBIT3 Arbitration Priority Configuration for APB16 priority for core and for DMA1 (ARBIT3) Register
  *  Arbitration Priority Configuration for APB16 priority for core and for DMA1 (ARBIT3) Register.
- *
- *  
  *  @{
  */
 
@@ -8535,10 +7987,6 @@ typedef struct _ADI_BUSM_ARBIT3_t {
 
 /** @defgroup RST_ISR_STARTADDR Reset ISR Start Address (RST_ISR_STARTADDR) Register
  *  Reset ISR Start Address (RST_ISR_STARTADDR) Register.
- *
- *  This register is used only when Parallel Test Interface is enabled. 
- *  Contains 32 bit Reset ISR start address.
- *  LSB should be 1.
  *  @{
  */
 
@@ -8561,9 +8009,6 @@ typedef struct _ADI_PTI_RST_ISR_STARTADDR_t {
 
 /** @defgroup RST_STACK_PTR Reset Stack Pointer (RST_STACK_PTR) Register
  *  Reset Stack Pointer (RST_STACK_PTR) Register.
- *
- *  This register is used only when Parallel Test Interface is enabled. 
- *  Contains 32 bit initial stack pointer address.
  *  @{
  */
 
@@ -8586,8 +8031,6 @@ typedef struct _ADI_PTI_RST_STACK_PTR_t {
 
 /** @defgroup CTL Parallel Test Interface Control Register (CTL) Register
  *  Parallel Test Interface Control Register (CTL) Register.
- *
- *  This register is used enable Parallel Test Interface.
  *  @{
  */
 
@@ -8611,8 +8054,6 @@ typedef struct _ADI_PTI_CTL_t {
 
 /** @defgroup INTNUM Interrupt Control Type (INTNUM) Register
  *  Interrupt Control Type (INTNUM) Register.
- *
- *  
  *  @{
  */
 
@@ -8635,8 +8076,6 @@ typedef struct _ADI_NVIC_INTNUM_t {
 
 /** @defgroup STKSTA Systick Control and Status (STKSTA) Register
  *  Systick Control and Status (STKSTA) Register.
- *
- *  
  *  @{
  */
 
@@ -8659,8 +8098,6 @@ typedef struct _ADI_NVIC_STKSTA_t {
 
 /** @defgroup STKLD Systick Reload Value (STKLD) Register
  *  Systick Reload Value (STKLD) Register.
- *
- *  
  *  @{
  */
 
@@ -8683,8 +8120,6 @@ typedef struct _ADI_NVIC_STKLD_t {
 
 /** @defgroup STKVAL Systick Current Value (STKVAL) Register
  *  Systick Current Value (STKVAL) Register.
- *
- *  
  *  @{
  */
 
@@ -8707,8 +8142,6 @@ typedef struct _ADI_NVIC_STKVAL_t {
 
 /** @defgroup STKCAL Systick Calibration Value (STKCAL) Register
  *  Systick Calibration Value (STKCAL) Register.
- *
- *  
  *  @{
  */
 
@@ -8731,8 +8164,6 @@ typedef struct _ADI_NVIC_STKCAL_t {
 
 /** @defgroup INTSETE0 IRQ0..31 Set_Enable (INTSETE0) Register
  *  IRQ0..31 Set_Enable (INTSETE0) Register.
- *
- *  
  *  @{
  */
 
@@ -8755,8 +8186,6 @@ typedef struct _ADI_NVIC_INTSETE0_t {
 
 /** @defgroup INTSETE1 IRQ32..63 Set_Enable (INTSETE1) Register
  *  IRQ32..63 Set_Enable (INTSETE1) Register.
- *
- *  
  *  @{
  */
 
@@ -8779,8 +8208,6 @@ typedef struct _ADI_NVIC_INTSETE1_t {
 
 /** @defgroup INTCLRE0 IRQ0..31 Clear_Enable (INTCLRE0) Register
  *  IRQ0..31 Clear_Enable (INTCLRE0) Register.
- *
- *  
  *  @{
  */
 
@@ -8803,8 +8230,6 @@ typedef struct _ADI_NVIC_INTCLRE0_t {
 
 /** @defgroup INTCLRE1 IRQ32..63 Clear_Enable (INTCLRE1) Register
  *  IRQ32..63 Clear_Enable (INTCLRE1) Register.
- *
- *  
  *  @{
  */
 
@@ -8827,8 +8252,6 @@ typedef struct _ADI_NVIC_INTCLRE1_t {
 
 /** @defgroup INTSETP0 IRQ0..31 Set_Pending (INTSETP0) Register
  *  IRQ0..31 Set_Pending (INTSETP0) Register.
- *
- *  
  *  @{
  */
 
@@ -8851,8 +8274,6 @@ typedef struct _ADI_NVIC_INTSETP0_t {
 
 /** @defgroup INTSETP1 IRQ32..63 Set_Pending (INTSETP1) Register
  *  IRQ32..63 Set_Pending (INTSETP1) Register.
- *
- *  
  *  @{
  */
 
@@ -8875,8 +8296,6 @@ typedef struct _ADI_NVIC_INTSETP1_t {
 
 /** @defgroup INTCLRP0 IRQ0..31 Clear_Pending (INTCLRP0) Register
  *  IRQ0..31 Clear_Pending (INTCLRP0) Register.
- *
- *  
  *  @{
  */
 
@@ -8899,8 +8318,6 @@ typedef struct _ADI_NVIC_INTCLRP0_t {
 
 /** @defgroup INTCLRP1 IRQ32..63 Clear_Pending (INTCLRP1) Register
  *  IRQ32..63 Clear_Pending (INTCLRP1) Register.
- *
- *  
  *  @{
  */
 
@@ -8923,8 +8340,6 @@ typedef struct _ADI_NVIC_INTCLRP1_t {
 
 /** @defgroup INTACT0 IRQ0..31 Active Bit (INTACT0) Register
  *  IRQ0..31 Active Bit (INTACT0) Register.
- *
- *  
  *  @{
  */
 
@@ -8947,8 +8362,6 @@ typedef struct _ADI_NVIC_INTACT0_t {
 
 /** @defgroup INTACT1 IRQ32..63 Active Bit (INTACT1) Register
  *  IRQ32..63 Active Bit (INTACT1) Register.
- *
- *  
  *  @{
  */
 
@@ -8971,8 +8384,6 @@ typedef struct _ADI_NVIC_INTACT1_t {
 
 /** @defgroup INTPRI0 IRQ0..3 Priority (INTPRI0) Register
  *  IRQ0..3 Priority (INTPRI0) Register.
- *
- *  
  *  @{
  */
 
@@ -8995,8 +8406,6 @@ typedef struct _ADI_NVIC_INTPRI0_t {
 
 /** @defgroup INTPRI1 IRQ4..7 Priority (INTPRI1) Register
  *  IRQ4..7 Priority (INTPRI1) Register.
- *
- *  
  *  @{
  */
 
@@ -9019,8 +8428,6 @@ typedef struct _ADI_NVIC_INTPRI1_t {
 
 /** @defgroup INTPRI2 IRQ8..11 Priority (INTPRI2) Register
  *  IRQ8..11 Priority (INTPRI2) Register.
- *
- *  
  *  @{
  */
 
@@ -9043,8 +8450,6 @@ typedef struct _ADI_NVIC_INTPRI2_t {
 
 /** @defgroup INTPRI3 IRQ12..15 Priority (INTPRI3) Register
  *  IRQ12..15 Priority (INTPRI3) Register.
- *
- *  
  *  @{
  */
 
@@ -9067,8 +8472,6 @@ typedef struct _ADI_NVIC_INTPRI3_t {
 
 /** @defgroup INTPRI4 IRQ16..19 Priority (INTPRI4) Register
  *  IRQ16..19 Priority (INTPRI4) Register.
- *
- *  
  *  @{
  */
 
@@ -9091,8 +8494,6 @@ typedef struct _ADI_NVIC_INTPRI4_t {
 
 /** @defgroup INTPRI5 IRQ20..23 Priority (INTPRI5) Register
  *  IRQ20..23 Priority (INTPRI5) Register.
- *
- *  
  *  @{
  */
 
@@ -9115,8 +8516,6 @@ typedef struct _ADI_NVIC_INTPRI5_t {
 
 /** @defgroup INTPRI6 IRQ24..27 Priority (INTPRI6) Register
  *  IRQ24..27 Priority (INTPRI6) Register.
- *
- *  
  *  @{
  */
 
@@ -9139,8 +8538,6 @@ typedef struct _ADI_NVIC_INTPRI6_t {
 
 /** @defgroup INTPRI7 IRQ28..31 Priority (INTPRI7) Register
  *  IRQ28..31 Priority (INTPRI7) Register.
- *
- *  
  *  @{
  */
 
@@ -9163,8 +8560,6 @@ typedef struct _ADI_NVIC_INTPRI7_t {
 
 /** @defgroup INTPRI8 IRQ32..35 Priority (INTPRI8) Register
  *  IRQ32..35 Priority (INTPRI8) Register.
- *
- *  
  *  @{
  */
 
@@ -9187,8 +8582,6 @@ typedef struct _ADI_NVIC_INTPRI8_t {
 
 /** @defgroup INTPRI9 IRQ36..39 Priority (INTPRI9) Register
  *  IRQ36..39 Priority (INTPRI9) Register.
- *
- *  
  *  @{
  */
 
@@ -9211,8 +8604,6 @@ typedef struct _ADI_NVIC_INTPRI9_t {
 
 /** @defgroup INTPRI10 IRQ40..43 Priority (INTPRI10) Register
  *  IRQ40..43 Priority (INTPRI10) Register.
- *
- *  
  *  @{
  */
 
@@ -9235,8 +8626,6 @@ typedef struct _ADI_NVIC_INTPRI10_t {
 
 /** @defgroup INTCPID CPUID Base (INTCPID) Register
  *  CPUID Base (INTCPID) Register.
- *
- *  
  *  @{
  */
 
@@ -9259,8 +8648,6 @@ typedef struct _ADI_NVIC_INTCPID_t {
 
 /** @defgroup INTSTA Interrupt Control State (INTSTA) Register
  *  Interrupt Control State (INTSTA) Register.
- *
- *  
  *  @{
  */
 
@@ -9283,8 +8670,6 @@ typedef struct _ADI_NVIC_INTSTA_t {
 
 /** @defgroup INTVEC Vector Table Offset (INTVEC) Register
  *  Vector Table Offset (INTVEC) Register.
- *
- *  
  *  @{
  */
 
@@ -9307,8 +8692,6 @@ typedef struct _ADI_NVIC_INTVEC_t {
 
 /** @defgroup INTAIRC Application Interrupt/Reset Control (INTAIRC) Register
  *  Application Interrupt/Reset Control (INTAIRC) Register.
- *
- *  
  *  @{
  */
 
@@ -9331,8 +8714,6 @@ typedef struct _ADI_NVIC_INTAIRC_t {
 
 /** @defgroup INTCON0 System Control (INTCON0) Register
  *  System Control (INTCON0) Register.
- *
- *  
  *  @{
  */
 
@@ -9358,8 +8739,6 @@ typedef struct _ADI_NVIC_INTCON0_t {
 
 /** @defgroup INTCON1 Configuration Control (INTCON1) Register
  *  Configuration Control (INTCON1) Register.
- *
- *  
  *  @{
  */
 
@@ -9382,8 +8761,6 @@ typedef struct _ADI_NVIC_INTCON1_t {
 
 /** @defgroup INTSHPRIO0 System Handlers 4-7 Priority (INTSHPRIO0) Register
  *  System Handlers 4-7 Priority (INTSHPRIO0) Register.
- *
- *  
  *  @{
  */
 
@@ -9406,8 +8783,6 @@ typedef struct _ADI_NVIC_INTSHPRIO0_t {
 
 /** @defgroup INTSHPRIO1 System Handlers 8-11 Priority (INTSHPRIO1) Register
  *  System Handlers 8-11 Priority (INTSHPRIO1) Register.
- *
- *  
  *  @{
  */
 
@@ -9430,8 +8805,6 @@ typedef struct _ADI_NVIC_INTSHPRIO1_t {
 
 /** @defgroup INTSHPRIO3 System Handlers 12-15 Priority (INTSHPRIO3) Register
  *  System Handlers 12-15 Priority (INTSHPRIO3) Register.
- *
- *  
  *  @{
  */
 
@@ -9454,8 +8827,6 @@ typedef struct _ADI_NVIC_INTSHPRIO3_t {
 
 /** @defgroup INTSHCSR System Handler Control and State (INTSHCSR) Register
  *  System Handler Control and State (INTSHCSR) Register.
- *
- *  
  *  @{
  */
 
@@ -9478,8 +8849,6 @@ typedef struct _ADI_NVIC_INTSHCSR_t {
 
 /** @defgroup INTCFSR Configurable Fault Status (INTCFSR) Register
  *  Configurable Fault Status (INTCFSR) Register.
- *
- *  
  *  @{
  */
 
@@ -9502,8 +8871,6 @@ typedef struct _ADI_NVIC_INTCFSR_t {
 
 /** @defgroup INTHFSR Hard Fault Status (INTHFSR) Register
  *  Hard Fault Status (INTHFSR) Register.
- *
- *  
  *  @{
  */
 
@@ -9526,8 +8893,6 @@ typedef struct _ADI_NVIC_INTHFSR_t {
 
 /** @defgroup INTDFSR Debug Fault Status (INTDFSR) Register
  *  Debug Fault Status (INTDFSR) Register.
- *
- *  
  *  @{
  */
 
@@ -9550,8 +8915,6 @@ typedef struct _ADI_NVIC_INTDFSR_t {
 
 /** @defgroup INTMMAR Mem Manage Address (INTMMAR) Register
  *  Mem Manage Address (INTMMAR) Register.
- *
- *  
  *  @{
  */
 
@@ -9574,8 +8937,6 @@ typedef struct _ADI_NVIC_INTMMAR_t {
 
 /** @defgroup INTBFAR Bus Fault Address (INTBFAR) Register
  *  Bus Fault Address (INTBFAR) Register.
- *
- *  
  *  @{
  */
 
@@ -9598,8 +8959,6 @@ typedef struct _ADI_NVIC_INTBFAR_t {
 
 /** @defgroup INTAFSR Auxiliary Fault Status (INTAFSR) Register
  *  Auxiliary Fault Status (INTAFSR) Register.
- *
- *  
  *  @{
  */
 
@@ -9622,8 +8981,6 @@ typedef struct _ADI_NVIC_INTAFSR_t {
 
 /** @defgroup INTPFR0 Processor Feature Register 0 (INTPFR0) Register
  *  Processor Feature Register 0 (INTPFR0) Register.
- *
- *  
  *  @{
  */
 
@@ -9646,8 +9003,6 @@ typedef struct _ADI_NVIC_INTPFR0_t {
 
 /** @defgroup INTPFR1 Processor Feature Register 1 (INTPFR1) Register
  *  Processor Feature Register 1 (INTPFR1) Register.
- *
- *  
  *  @{
  */
 
@@ -9670,8 +9025,6 @@ typedef struct _ADI_NVIC_INTPFR1_t {
 
 /** @defgroup INTDFR0 Debug Feature Register 0 (INTDFR0) Register
  *  Debug Feature Register 0 (INTDFR0) Register.
- *
- *  
  *  @{
  */
 
@@ -9694,8 +9047,6 @@ typedef struct _ADI_NVIC_INTDFR0_t {
 
 /** @defgroup INTAFR0 Auxiliary Feature Register 0 (INTAFR0) Register
  *  Auxiliary Feature Register 0 (INTAFR0) Register.
- *
- *  
  *  @{
  */
 
@@ -9718,8 +9069,6 @@ typedef struct _ADI_NVIC_INTAFR0_t {
 
 /** @defgroup INTMMFR0 Memory Model Feature Register 0 (INTMMFR0) Register
  *  Memory Model Feature Register 0 (INTMMFR0) Register.
- *
- *  
  *  @{
  */
 
@@ -9742,8 +9091,6 @@ typedef struct _ADI_NVIC_INTMMFR0_t {
 
 /** @defgroup INTMMFR1 Memory Model Feature Register 1 (INTMMFR1) Register
  *  Memory Model Feature Register 1 (INTMMFR1) Register.
- *
- *  
  *  @{
  */
 
@@ -9766,8 +9113,6 @@ typedef struct _ADI_NVIC_INTMMFR1_t {
 
 /** @defgroup INTMMFR2 Memory Model Feature Register 2 (INTMMFR2) Register
  *  Memory Model Feature Register 2 (INTMMFR2) Register.
- *
- *  
  *  @{
  */
 
@@ -9790,8 +9135,6 @@ typedef struct _ADI_NVIC_INTMMFR2_t {
 
 /** @defgroup INTMMFR3 Memory Model Feature Register 3 (INTMMFR3) Register
  *  Memory Model Feature Register 3 (INTMMFR3) Register.
- *
- *  
  *  @{
  */
 
@@ -9814,8 +9157,6 @@ typedef struct _ADI_NVIC_INTMMFR3_t {
 
 /** @defgroup INTISAR0 ISA Feature Register 0 (INTISAR0) Register
  *  ISA Feature Register 0 (INTISAR0) Register.
- *
- *  
  *  @{
  */
 
@@ -9838,8 +9179,6 @@ typedef struct _ADI_NVIC_INTISAR0_t {
 
 /** @defgroup INTISAR1 ISA Feature Register 1 (INTISAR1) Register
  *  ISA Feature Register 1 (INTISAR1) Register.
- *
- *  
  *  @{
  */
 
@@ -9862,8 +9201,6 @@ typedef struct _ADI_NVIC_INTISAR1_t {
 
 /** @defgroup INTISAR2 ISA Feature Register 2 (INTISAR2) Register
  *  ISA Feature Register 2 (INTISAR2) Register.
- *
- *  
  *  @{
  */
 
@@ -9886,8 +9223,6 @@ typedef struct _ADI_NVIC_INTISAR2_t {
 
 /** @defgroup INTISAR3 ISA Feature Register 3 (INTISAR3) Register
  *  ISA Feature Register 3 (INTISAR3) Register.
- *
- *  
  *  @{
  */
 
@@ -9910,8 +9245,6 @@ typedef struct _ADI_NVIC_INTISAR3_t {
 
 /** @defgroup INTISAR4 ISA Feature Register 4 (INTISAR4) Register
  *  ISA Feature Register 4 (INTISAR4) Register.
- *
- *  
  *  @{
  */
 
@@ -9934,8 +9267,6 @@ typedef struct _ADI_NVIC_INTISAR4_t {
 
 /** @defgroup INTTRGI Software Trigger Interrupt Register (INTTRGI) Register
  *  Software Trigger Interrupt Register (INTTRGI) Register.
- *
- *  
  *  @{
  */
 
@@ -9958,8 +9289,6 @@ typedef struct _ADI_NVIC_INTTRGI_t {
 
 /** @defgroup INTPID4 Peripheral Identification Register 4 (INTPID4) Register
  *  Peripheral Identification Register 4 (INTPID4) Register.
- *
- *  
  *  @{
  */
 
@@ -9982,8 +9311,6 @@ typedef struct _ADI_NVIC_INTPID4_t {
 
 /** @defgroup INTPID5 Peripheral Identification Register 5 (INTPID5) Register
  *  Peripheral Identification Register 5 (INTPID5) Register.
- *
- *  
  *  @{
  */
 
@@ -10006,8 +9333,6 @@ typedef struct _ADI_NVIC_INTPID5_t {
 
 /** @defgroup INTPID6 Peripheral Identification Register 6 (INTPID6) Register
  *  Peripheral Identification Register 6 (INTPID6) Register.
- *
- *  
  *  @{
  */
 
@@ -10030,8 +9355,6 @@ typedef struct _ADI_NVIC_INTPID6_t {
 
 /** @defgroup INTPID7 Peripheral Identification Register 7 (INTPID7) Register
  *  Peripheral Identification Register 7 (INTPID7) Register.
- *
- *  
  *  @{
  */
 
@@ -10054,8 +9377,6 @@ typedef struct _ADI_NVIC_INTPID7_t {
 
 /** @defgroup INTPID0 Peripheral Identification Bits7:0 (INTPID0) Register
  *  Peripheral Identification Bits7:0 (INTPID0) Register.
- *
- *  
  *  @{
  */
 
@@ -10078,8 +9399,6 @@ typedef struct _ADI_NVIC_INTPID0_t {
 
 /** @defgroup INTPID1 Peripheral Identification Bits15:8 (INTPID1) Register
  *  Peripheral Identification Bits15:8 (INTPID1) Register.
- *
- *  
  *  @{
  */
 
@@ -10102,8 +9421,6 @@ typedef struct _ADI_NVIC_INTPID1_t {
 
 /** @defgroup INTPID2 Peripheral Identification Bits16:23 (INTPID2) Register
  *  Peripheral Identification Bits16:23 (INTPID2) Register.
- *
- *  
  *  @{
  */
 
@@ -10126,8 +9443,6 @@ typedef struct _ADI_NVIC_INTPID2_t {
 
 /** @defgroup INTPID3 Peripheral Identification Bits24:31 (INTPID3) Register
  *  Peripheral Identification Bits24:31 (INTPID3) Register.
- *
- *  
  *  @{
  */
 
@@ -10150,8 +9465,6 @@ typedef struct _ADI_NVIC_INTPID3_t {
 
 /** @defgroup INTCID0 Component Identification Bits7:0 (INTCID0) Register
  *  Component Identification Bits7:0 (INTCID0) Register.
- *
- *  
  *  @{
  */
 
@@ -10174,8 +9487,6 @@ typedef struct _ADI_NVIC_INTCID0_t {
 
 /** @defgroup INTCID1 Component Identification Bits15:8 (INTCID1) Register
  *  Component Identification Bits15:8 (INTCID1) Register.
- *
- *  
  *  @{
  */
 
@@ -10198,8 +9509,6 @@ typedef struct _ADI_NVIC_INTCID1_t {
 
 /** @defgroup INTCID2 Component Identification Bits16:23 (INTCID2) Register
  *  Component Identification Bits16:23 (INTCID2) Register.
- *
- *  
  *  @{
  */
 
@@ -10222,8 +9531,6 @@ typedef struct _ADI_NVIC_INTCID2_t {
 
 /** @defgroup INTCID3 Component Identification Bits24:31 (INTCID3) Register
  *  Component Identification Bits24:31 (INTCID3) Register.
- *
- *  
  *  @{
  */
 

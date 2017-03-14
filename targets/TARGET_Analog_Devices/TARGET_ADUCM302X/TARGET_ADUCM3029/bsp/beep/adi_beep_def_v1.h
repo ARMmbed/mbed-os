@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_beep_def_v1.h
  * @brief:   BEEP Device Driver definition
- * @version: $Revision: 28964 $
- * @date:    $Date: 2014-12-05 07:37:32 +0000 (Fri, 05 Dec 2014) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
  * Copyright (c) 2010-2014 Analog Devices, Inc.

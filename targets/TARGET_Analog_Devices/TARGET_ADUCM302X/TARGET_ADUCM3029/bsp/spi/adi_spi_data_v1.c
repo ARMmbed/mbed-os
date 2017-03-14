@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_sport_data_v1.c
  * @brief:   Data declaration for SPORT Device Driver 
- * @version: $Revision: 33322 $
- * @date:    $Date: 2016-01-22 10:55:57 +0000 (Fri, 22 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *****************************************************************************
 
 Copyright (c) 2010-2014 Analog Devices, Inc.

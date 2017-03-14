@@ -35,9 +35,12 @@ to the terms of the associated Analog Devices License Agreement.
 #pragma diag_suppress=Pm073,Pm143
 #endif /* __ICCARM__ */
 
+/*! \cond PRIVATE */
 #if (ADI_CFG_ENABLE_RTOS_SUPPORT == 1)
+/*! \endcond  */
 /**
  * @brief       Install the handler for a Cortex-M3 Interrupt.
+ *              Macro ADI_CFG_ENABLE_RTOS_SUPPORT should be enabled to use this function.
  *
  * @details     This API can be used to install an interrupt handler for
  *              a given system interrupt.
@@ -100,6 +103,7 @@ ADI_INT_STATUS  adi_int_InstallHandler (uint32_t iid,
 
 /**
  * @brief       Uninstall the interrupt handler
+ *              Macro ADI_CFG_ENABLE_RTOS_SUPPORT should be enabled to use this function.
  *
  * @details     Uninstalls the interrupt handler and disables the source and
  *              interrupt.
@@ -129,6 +133,7 @@ ADI_INT_STATUS  adi_int_UninstallHandler (uint32_t iid)
 
 /**
  * @brief  Enable or disable the interrupt
+ *              Macro ADI_CFG_ENABLE_RTOS_SUPPORT should be enabled to use this function.
  *
  * @details     This API enables or disables the spacified interrupt. If an
  *              Interrupt is disabled then the interrupt handler will not be
@@ -157,6 +162,8 @@ ADI_INT_STATUS adi_int_EnableInt(
 
 	return ADI_INT_SUCCESS;
 }
+/*! \cond PRIVATE */
 #endif
+/*! \endcond */
 
 /*! @} */

@@ -670,9 +670,12 @@ ADI_SPORT_RESULT adi_sport_RegisterCallback(
     /* Return success */
     return(ADI_SPORT_SUCCESS);
 }
+/*! \cond PRIVATE */
 #if (ADI_SPORT_CFG_ENABLE_DMA_SUPPORT == 1)
+/*! \endcond */
 /**
  * @brief       Enable the DMA mode associated with specified SPORT device.
+ *              To use this function ADI_SPORT_CFG_ENABLE_DMA_SUPPORT should be enabled.
  *
  * @param [in]  hDevice         Device handle to SPORT device is obtained when a SPORT device is
  *                              opened successfully.
@@ -736,7 +739,9 @@ ADI_SPORT_RESULT adi_sport_EnableDMAMode(
     }
     return(ADI_SPORT_SUCCESS);
 }
+/*! \cond PRIVATE */
 #endif
+/*! \endcond */
 /**
  * @brief       Sets data format for the specified SPORT device.
  *

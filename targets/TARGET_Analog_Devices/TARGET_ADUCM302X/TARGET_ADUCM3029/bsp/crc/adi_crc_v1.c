@@ -825,10 +825,13 @@ ADI_CRC_RESULT adi_crc_SetCrcSeedVal(
     return (ADI_CRC_SUCCESS);
 }
 
+/*! \cond PRIVATE */
 #if (ADI_CRC_CFG_ENABLE_DMA_SUPPORT == 1)
+/*! \endcond */ 
 
 /**
  * @brief   Enables/Disables DMA driven CRC operation.
+ *          To use this function, macro ADI_CRC_CFG_ENABLE_DMA_SUPPORT should be enabled. 
  *
  * Parameters:
  *  @param [in]  hDevice    Handle to CRC device instance to work on.
@@ -885,7 +888,9 @@ ADI_CRC_RESULT adi_crc_EnableDmaMode(
     /* Return */
     return (ADI_CRC_SUCCESS);
 }
+/*! \cond PRIVATE */
 #endif
+/*! \endcond */
 /**
  * @brief   Select the Specified DMA channel for the CRC device.
  *

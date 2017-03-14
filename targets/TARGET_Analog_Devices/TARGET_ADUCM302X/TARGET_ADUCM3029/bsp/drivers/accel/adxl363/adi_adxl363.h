@@ -2,11 +2,11 @@
  ******************************************************************************
  * @file:    adi_adxl363.h
  * @brief:   ADXL363 API header file
- * @version: $Revision: 33422 $
- * @date:    $Date: 2016-02-04 12:42:05 +0000 (Thu, 04 Feb 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2014 Analog Devices, Inc.
+Copyright (c) 2010-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -181,14 +181,14 @@ typedef enum
      * This interrupt is generated when new data is available for reading. This
      * will cleared when the data is read.
      *
-     * The data can be read using the blocking adi_adxl363_Read API.
+     * The data can be read using the blocking adi_adxl363_FIFORead API.
      * */
     ADI_ADXL363_INT_DATA_READY = 0x01 << BITP_ADXL363_INT_DATA_READY,
     /*! FIFO is ready and to read.
      *
      * This interrupt is generated there is at least one valid sample available in the FIFO output buffer.
      * This bit is cleared when no valid data is available in the FIFO.
-     * The data can be read using the blocking adi_adxl363_Read API.
+     * The data can be read using the blocking adi_adxl363_FIFORead API.
      * */
     ADI_ADXL363_INT_FIFO_READY = 0x01 << BITP_ADXL363_INT_FIFO_READY,
 
@@ -200,7 +200,7 @@ typedef enum
      *
      * To clear the watermark interrupt application should read the data from the
      * FIFO. The number of entries in the FIFO can be obtained using
-     * adi_adxl363_GetFIFOStatus. The data can be read using blocking adi_adxl363_Read.
+     * adi_adxl363_GetFIFOStatus. The data can be read using blocking adi_adxl363_FIFORead.
      *
      * */
     ADI_ADXL363_INT_WATERMARK = 0x1 << BITP_ADXL363_INT_FIFO_WATERMART,
@@ -211,7 +211,7 @@ typedef enum
      * To clear the overflow interrupt application should read the data from the
      * FIFO. The number of entries in the FIFO can be obtained using
      * adi_adxl363_GetFIFOStatus. The data can be read using the blocking
-     * adi_adxl363_Read API.
+     * adi_adxl363_FIFORead API.
      *
      * */
     ADI_ADXL363_INT_OVERRUN = 0x1<< BITP_ADXL363_INT_FIFO_OVERRUN,
@@ -399,7 +399,14 @@ ADI_ADXL363_RESULT adi_adxl363_Enable(
 ADI_ADXL363_RESULT adi_adxl363_Read (
     ADI_ADXL363_HANDLE  const       hDevice,
     void *const                     pBuffer,
-    uint32_t const                  nSize
+    uint16_t const                  nSize
+);
+
+ADI_ADXL363_RESULT adi_adxl363_FIFORead (
+
+    ADI_ADXL363_HANDLE  const       hDevice,
+    void *const                     pBuffer,
+    uint16_t const                   nSize
 );
 
 ADI_ADXL363_RESULT adi_adxl363_SetDataRate (
@@ -533,7 +540,7 @@ ADI_ADXL363_RESULT adi_adxl363_ReadRegister (
     ADI_ADXL363_HANDLE  const           hDevice,
     uint32_t                            nAddress,
     uint8_t                            *pData,
-    uint8_t                             nSize
+    uint16_t                            nSize
 );
 
 #ifdef __cplusplus

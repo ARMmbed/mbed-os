@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_pwr.c
  * @brief:   Power Management service implementation
- * @version: $Revision: 29004 $
- * @date:    $Date: 2014-12-06 15:37:26 +0000 (Sat, 06 Dec 2014) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2014 Analog Devices, Inc.

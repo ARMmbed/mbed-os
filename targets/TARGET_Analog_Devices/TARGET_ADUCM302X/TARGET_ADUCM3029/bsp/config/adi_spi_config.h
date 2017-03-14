@@ -4,8 +4,8 @@
    @brief:   Configuration options for SPI driver.
              This is specific to the SPI driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 33326 $
-   @date:    $Date: 2016-01-22 12:23:43 +0000 (Fri, 22 Jan 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2012-2014 Analog Devices, Inc.
@@ -115,6 +115,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADI_SPI2_CFG_BIT_RATE               2000000
 
 /*! SPI enable\n
+    once Static configuration support is enabled and if SPI is configured as slave then the slave SPI instance\n
+    SPI(SPI_DEVICE_NUM)_CFG_ENABLE should be set to 1 which is the recommended default setting for SPI in slave mode. 
     SPI configuration register: Bit[0]\n
     1 -  Enable SPI\n
     0 -  Disable SPI */
@@ -171,6 +173,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPI2_CFG_TRANSFER_INITIATE              0
 
 /*! SPI Tx FIFO transfers zeros or last bit upon underflow\n
+    once Static configuration support is enabled and if SPI is configured as slave then the slave SPI instance\n
+    SPI(SPI_DEVICE_NUM)_CFG_TX_UNDERFLOW should be set to 1 which is the recommended default setting for SPI in slave mode. 
     SPI configuration register: Bit[7]\n
     1 - Tx FIFO sends zeros upon undeflow.\n
     0 - Tx FIFO repeats last bit upon undeflow. */
@@ -187,6 +191,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPI2_CFG_RX_OVERFLOW                    0
 
 /*! SPI slave mode MISO enable\n
+    once Static configuration support is enabled and if SPI is configured as slave then the slave SPI instance\n
+    SPI(SPI_DEVICE_NUM)_CFG_MISO_ENABLE should be set to 1 which is the recommended default setting for SPI in slave mode. 
     SPI configuration register: Bit[9]\n
     1 - MISO operates as normal in slave mode.\n
     0 - MISO is disabled in slave mode. */

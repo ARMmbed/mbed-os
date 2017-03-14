@@ -5,10 +5,11 @@
  *****************************************************************************
  * @file    adi_nvic.h
  * @brief   API header file for NVIC controller. These APIs are only expected to be used in an RTOS-context.
- * @version $Revision: 33422 $
- * @date    $Date: 2016-02-04 12:42:05 +0000 (Thu, 04 Feb 2016) $
- *-----------------------------------------------------------------------------
+ * @version $Revision$
+ * @date    $Date$
  *
+ -----------------------------------------------------------------------------
+ 
 Copyright (c) 2010-2013 Analog Devices, Inc.
 
 All rights reserved.
@@ -56,14 +57,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif /* __cplusplus */
 
-/* Number of system exceptions */
+/*! Number of system exceptions */
 #define ADI_NUM_SYSTEM_EXPT         15u
 
-/* Convert IRQ number to System Interrupt ID
+/*! Convert IRQ number to System Interrupt ID
   (irq - number of system exceptions - 1 location for stack pointer in the vector table*/
 #define ADI_NVIC_IRQ_SID(irq)       ((irq) - ADI_NUM_SYSTEM_EXPT - 1u)
 
-/* Convert SID to IRQ number */
+/*! Convert SID to IRQ number */
 #define ADI_NVIC_SID_IRQ(sid)       ((sid) + ADI_NUM_SYSTEM_EXPT + 1u)
 
 /*! Return codes from NVIC */
@@ -74,10 +75,12 @@ typedef enum
     ADI_NVIC_INVALID_INT    /*!< If the given interrupt ID is invalid. */
 } ADI_NVIC_RESULT;
 
+/*! \cond PRIVATE */
 /* Interrupt handler type for registering with NVIC */
 typedef void (*ADI_NVIC_HANDLER) (
         void
 );
+/*! \endcond */
 
 /* API to register interrupt handler with NVIC */
 int32_t adi_nvic_RegisterHandler (

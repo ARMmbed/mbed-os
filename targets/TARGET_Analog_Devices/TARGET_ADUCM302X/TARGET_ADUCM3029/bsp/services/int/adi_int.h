@@ -49,14 +49,17 @@ extern "C" {
 
 #endif  
 #else
+/*! declaration of variables required in critical region */	
 #define ADI_CRITICAL_REGION_VAR_DECL \
 extern volatile uint32_t gnCriticalRegionNestingCount;\
 extern volatile uint32_t gnCriticalRegionIntStatus;
 
+/*! definition of variables required in critical region */
 #define ADI_CRITICAL_REGION_VAR_DEFINE \
 volatile uint32_t gnCriticalRegionNestingCount = 0u; \
 volatile uint32_t gnCriticalRegionIntStatus = 0u;
 
+/*! Variables required in critical region */
 #define ADI_SET_CRITICAL_REGION_VAR \
 gnCriticalRegionNestingCount = 0u; \
 gnCriticalRegionIntStatus = 0u;
@@ -105,6 +108,8 @@ typedef void (*ADI_INT_HANDLER_PTR)(
 
 ADI_CRITICAL_REGION_VAR_DECL
 
+/* Enter critical region */
+/*! Macro that disables interrupts. */
 #define ADI_ENTER_CRITICAL_REGION()     \
 do {                                    \
   uint32_t state = __get_PRIMASK();     \
@@ -139,25 +144,27 @@ do {                                    \
   }                                     \
 } while (0)
 
+/*! \cond PRIVATE */
 /* Used to define the interrupt handler */
 #define ADI_INT_HANDLER(Handler) \
         void (Handler)(void)
+/*! \endcond */
 
-/* Macro to install the handler (defined to nothing as no installation required, the driver just override the weak interrupt handler symbol) */
+/*! Macro to install the handler (defined to nothing as no installation required, the driver just override the weak interrupt handler symbol) */
 #define ADI_INSTALL_HANDLER(IRQn, Handler)
 
-/* Macro to uninstall the handler */
+/*! Macro to uninstall the handler */
 #define ADI_UNINSTALL_HANDLER(IRQn)
 
-/* Macro to enable the interrupt */
+/*! Macro to enable the interrupt */
 #define ADI_ENABLE_INT(IRQn) \
         NVIC_EnableIRQ(IRQn)
 
-
-/* Macro to disable the interrupt */
+/*! Macro to disable the interrupt */
 #define ADI_DISABLE_INT(IRQn) \
         NVIC_DisableIRQ(IRQn)
 
+/*! Pointer to interrupt handler*/
 typedef void (*ADI_INT_HANDLER_PTR)(void);          
 
 #endif  /* ADI_CFG_ENABLE_RTOS_SUPPORT */
@@ -170,7 +177,7 @@ typedef enum
 
 } ADI_INT_STATUS;
 
-/* Install the handler for a Cortex-M3 Interrupt. */
+/*! Install the handler for a Cortex-M3 Interrupt. */
 ADI_INT_STATUS  adi_int_InstallHandler (
     uint32_t            iid,
     ADI_INT_HANDLER_PTR pfHandler,
@@ -178,13 +185,13 @@ ADI_INT_STATUS  adi_int_InstallHandler (
     bool_t              bEnable
                );
 
-/* Enable or disable the interrupt */
+/*! Enable or disable the interrupt */
 ADI_INT_STATUS adi_int_EnableInt(
     uint32_t            iid,
     bool_t              bEnable
                );
 
-/* Uninstall the interrupt handler */
+/*! Uninstall the interrupt handler */
 ADI_INT_STATUS  adi_int_UninstallHandler (uint32_t iid);
 
 

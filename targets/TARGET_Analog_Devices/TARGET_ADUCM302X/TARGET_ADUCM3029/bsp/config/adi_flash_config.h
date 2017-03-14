@@ -4,8 +4,8 @@
    @brief:   Configuration options for flash driver.
              This is specific to the flash driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision: 33205 $
-   @date:    $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+   @version: $Revision$
+   @date:    $Date$
   -----------------------------------------------------------------------------
 
 Copyright (c) 2014 Analog Devices, Inc.
@@ -93,16 +93,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #define ADI_FEE_CFG_ECC_ERROR_RESPONSE          (1)
 
-/*!
- * Configure a response to the ECC correction events\n
- * 0 - Do not generate a response to ECC correction Events\n
- * 1 - Generate Bus Errors in response to ECC correction Events\n
- * 2 - Generate IRQs in response to ECC correction Events
- */
-#define ADI_FEE_CFG_ECC_CORRECTION_RESPONSE     (2)
-
-
-
 
 /*!
  * Enable/Disable Interrupt Support\n
@@ -132,10 +122,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if ((ADI_FEE_CFG_ECC_ERROR_RESPONSE < 0) || (ADI_FEE_CFG_ECC_ERROR_RESPONSE > 2))
 #error "ADI_FEE_CFG_ECC_ERROR_RESPONSE should be in the range 0-2"
-#endif
-
-#if ((ADI_FEE_CFG_ECC_CORRECTION_RESPONSE < 0) || (ADI_FEE_CFG_ECC_CORRECTION_RESPONSE > 2))
-#error "ADI_FEE_CFG_ECC_CORRECTION_RESPONSE should be in the range 0-2"
 #endif
 
 #if ((ADI_FEE_CFG_ENABLE_INTERRUPT_SUPPORT != 0) && (ADI_FEE_CFG_ENABLE_INTERRUPT_SUPPORT != 1))

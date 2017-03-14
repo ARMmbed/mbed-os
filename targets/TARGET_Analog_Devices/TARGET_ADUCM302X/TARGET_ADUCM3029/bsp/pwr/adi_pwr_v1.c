@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    adi_pwr_v1.c
  * @brief:   Power Management service implementation.
- * @version: $Revision: 35861 $
- * @date:    $Date: 2016-11-22 09:07:07 +0000 (Tue, 22 Nov 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2014 Analog Devices, Inc.
@@ -990,7 +990,8 @@ ADI_PWR_RESULT adi_pwr_EnableInterrupt(ADI_PWR_IRQ eIrq, bool_t bEnable)
  * \n                     false: To disable LFXTL bypass mode 
  *                     - #ADI_PWR_SUCCESS     Enabled/Disabled LFXTL bypass mode.
  *                     - #ADI_PWR_FAILURE[D]  Failed to Enable/Disable LFXTL bypass mode.
- *
+ * @return      Status
+ *              - #ADI_PWR_SUCCESS Successfully enabled/disabled LFXTL bypass mode.
  */
 ADI_PWR_RESULT  adi_pwr_EnableLFXTLBypass(bool_t bEnable)
 {
@@ -1070,7 +1071,8 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTLBypass(bool_t bEnable)
  *\n                      true: To enable LFXTL monitor interrupt.
  * \n                     false: To disable LFXTL monitor interrupt. 
  *                     - #ADI_PWR_SUCCESS  Enabled/Disabled LFXTL monitor interrupt.
- *
+ * @return      Status
+ *              - #ADI_PWR_SUCCESS Successfully enabled/disabled LFXTL monitor interrupt.
  */
 ADI_PWR_RESULT  adi_pwr_EnableLFXTLMonitorInterrupt(bool_t bEnable)
 {
@@ -1323,7 +1325,7 @@ ADI_INT_HANDLER(Vreg_over_Int_Handler)
 
     Each "programmable" peripheral interrupt has an associated priority-level register (which defaults to
     zero) within the Nested Vectored Interrupt Controller (NVIC).  The number of interrupt priority encoding
-    bits is defined by constant #__NVIC_PRIO_BITS and is a fixed silicon attribute configured during chip
+    bits is defined by constant "#__NVIC_PRIO_BITS" and is a fixed silicon attribute configured during chip
     design.  The interrupt priority-level registers range in width from 3 to 8 bits.
 
     The processor uses 3-bit priority encoding, allowing priority levels ranging between 0 (the highest,
@@ -1380,11 +1382,11 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
             break; /* required by IAR MISRA check */
 #endif
         case ADI_PWR_MODE_FLEXI:
-        case ADI_PWR_MODE_SHUTDOWN:
             scrClrBits |= SLEEPDEEP_BIT;
             break;
 
         case ADI_PWR_MODE_HIBERNATE:
+        case ADI_PWR_MODE_SHUTDOWN:
             scrSetBits |= SLEEPDEEP_BIT;
             break;
 

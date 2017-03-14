@@ -1,8 +1,8 @@
 /*! *****************************************************************************
  * @file:    adi_uart_def_v1.h
  * @brief:   UART Device Driver definition for  processor
- * @version: $Revision: 35030 $
- * @date:    $Date: 2016-07-05 05:49:46 +0100 (Tue, 05 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2014 Analog Devices, Inc.
 

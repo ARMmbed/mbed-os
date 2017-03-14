@@ -4,8 +4,8 @@
  * @brief     Global GP Timer API implementation file.
  * @details   This is a source file which includes specific files based on the processor
  *            family. The included file will contain the implementation of timer service.
- * @version: $Revision: 29004 $
- * @date:    $Date: 2014-12-06 15:37:26 +0000 (Sat, 06 Dec 2014) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2014 Analog Devices, Inc.

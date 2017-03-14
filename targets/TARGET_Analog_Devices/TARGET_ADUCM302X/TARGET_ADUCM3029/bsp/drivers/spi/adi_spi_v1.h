@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file:    adi_spi_v1.h
  * @brief:   SPI Device Definitions for ADuCxxx
- * @version: $Revision: 35166 $
- * @date:    $Date: 2016-07-27 10:35:03 +0100 (Wed, 27 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.
@@ -124,24 +124,24 @@ typedef enum
  *****************************************************************************/
 typedef enum
 {
-    /*!< The given buffer is processed. Application can use this event to submit
-         the next buffer to be transmitted. */
-    ADI_SPI_EVENT_BUFFER_PROCESSED  = 0,
-    /*!  Enable interrupt on every CS edge in slave CON mode */
-    ADI_SPI_EVENT_CS_EDGE           =  BITM_SPI_IEN_CS,
-   /*!  Tx-underflow interrupt enable */
-    ADI_SPI_EVENT_TX_UNDERFLOW      =  BITM_SPI_IEN_TXUNDR,
-    /*!  Rx-overflow interrupt enable */
-    ADI_SPI_EVENT_RX_OVERFLOW      =  BITM_SPI_IEN_RXOVR,
-    /*! Ready signal edge interrupt enable. This enables the RDY interrupt whenever
-     *\n an active edge occurs on RDY/MISO signals */
-    ADI_SPI_EVENT_READY_EDGE       =  BITM_SPI_IEN_RDY,
-    /*!  SPI transmit done interrupt enable.   */
-    ADI_SPI_EVENT_TX_DONE          =  BITM_SPI_IEN_TXDONE,
-    /*!  SPI transfer completion interrupt enable */
-    ADI_SPI_EVENT_TRANSFER_COMPLETED  =  BITM_SPI_IEN_XFRDONE,
-    /*!  Tx-FIFO Empty interrupt enable */
-    ADI_SPI_EVENT_TX_EMPTY         =  BITM_SPI_IEN_TXEMPTY
+    /*!  Detected a rising edge on CS, in slave CON mode */
+    ADI_SPI_EVENT_CS_RISE             =  BITM_SPI_STAT_CSRISE,
+    /*!  Detected a falling edge on CS, in slave CON mode */
+    ADI_SPI_EVENT_CS_FALL             =  BITM_SPI_STAT_CSFALL,
+    /*!  Detected a CS error condition in slave mode */
+    ADI_SPI_EVENT_CS_ERROR            =  BITM_SPI_STAT_CSERR,
+    /*!  SPI Tx FIFO underflow */
+    ADI_SPI_EVENT_TX_UNDERFLOW        =  BITM_SPI_STAT_TXUNDR,
+    /*!  SPI Rx-overflow */
+    ADI_SPI_EVENT_RX_OVERFLOW         =  BITM_SPI_STAT_RXOVR,
+    /*!  Detected an edge on Ready indicator for flow-control */
+    ADI_SPI_EVENT_READY_EDGE          =  BITM_SPI_STAT_RDY,
+    /*!  SPI Tx Done in read command mode   */
+    ADI_SPI_EVENT_TX_DONE             =  BITM_SPI_STAT_TXDONE,
+    /*!  SPI transfer completion for Master only */
+    ADI_SPI_EVENT_TRANSFER_COMPLETED  =  BITM_SPI_STAT_XFRDONE,
+    /*!  SPI Tx FIFO empty */
+    ADI_SPI_EVENT_TX_EMPTY            =  BITM_SPI_STAT_TXEMPTY
 
 } ADI_SPI_EVENT;
 

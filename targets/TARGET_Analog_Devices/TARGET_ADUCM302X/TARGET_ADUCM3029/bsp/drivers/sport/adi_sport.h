@@ -7,6 +7,7 @@
  * @details Header File for the SPORT driver API functions and definitions
  * @version $Revision:
  * @date    $Date:
+ *
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2014 Analog Devices, Inc.
 

@@ -2,11 +2,11 @@
  *****************************************************************************
  * @file:    adi_rtc_v1.c
  * @brief:   Real-Time Clock Device Implementations.
- * @version: $Revision: 35155 $
- * @date:    $Date: 2016-07-26 18:09:22 +0100 (Tue, 26 Jul 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2016 Analog Devices, Inc.
+Copyright (c) 2010-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -234,11 +234,11 @@ ADI_RTC_RESULT adi_rtc_Open(
     rtc_init(pDevice,&aRTCConfig[DeviceNumber]);
 #else
     pDevice->pRTCRegs->CR2IC = 0u;
-    pDevice->pRTCRegs->CR3OC = 0u;
-    pDevice->pRTCRegs->CR4OC = 0u;
+    pDevice->pRTCRegs->CR3SS = 0u;
+    pDevice->pRTCRegs->CR4SS = 0u;
     pDevice->pRTCRegs->SR2   = 0u;
-    pDevice->pRTCRegs->CR3OC = 0u;
-    pDevice->pRTCRegs->CR4OC = 0u;
+    pDevice->pRTCRegs->CR3SS = 0u;
+    pDevice->pRTCRegs->CR4SS = 0u;
 #endif   
     /* store handle at application handle pointer */
     *phDevice = pDevice;
@@ -515,7 +515,7 @@ ADI_RTC_RESULT adi_rtc_EnableInterrupts (ADI_RTC_HANDLE const hDevice, ADI_RTC_I
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
     uint32_t nInterrupts;
-    uint16_t cr0, cr1, cr2ic, cr3oc;
+    uint16_t cr0, cr1, cr2ic, cr3ss;
 
 #ifdef ADI_DEBUG
     ADI_RTC_RESULT eResult;
@@ -540,7 +540,7 @@ ADI_RTC_RESULT adi_rtc_EnableInterrupts (ADI_RTC_HANDLE const hDevice, ADI_RTC_I
     cr0 = (uint16_t)nInterrupts;
     cr1 = (uint16_t)((nInterrupts & ADI_RTC_INTERRUPT_CR1_MASK) >> ADI_RTC_INTERRUPT_OFFSET);
     cr2ic = (uint16_t)((nInterrupts & ADI_RTC_INTERRUPT_INPUT_CHANNEL_MASK) >> ADI_RTC_INTERRUPT_OFFSET);
-    cr3oc = (uint16_t)((nInterrupts & ADI_RTC_INTERRUPT_OUTPUT_CHANNEL_MASK) >> ADI_RTC_INTERRUPT_OFFSET);
+    cr3ss = (uint16_t)((nInterrupts & ADI_RTC_INTERRUPT_OUTPUT_CHANNEL_MASK) >> ADI_RTC_INTERRUPT_OFFSET);
     
     /* set/clear interrupt enable bit(s) in control register */
     if (bEnable)
@@ -551,9 +551,9 @@ ADI_RTC_RESULT adi_rtc_EnableInterrupts (ADI_RTC_HANDLE const hDevice, ADI_RTC_I
         {
             pDevice->pRTCRegs->CR2IC |= cr2ic;
         }
-        if(cr3oc != 0u)
+        if(cr3ss != 0u)
         {
-            pDevice->pRTCRegs->CR3OC |= cr3oc;
+            pDevice->pRTCRegs->CR3SS |= cr3ss;
         }
     } else
     {
@@ -563,9 +563,9 @@ ADI_RTC_RESULT adi_rtc_EnableInterrupts (ADI_RTC_HANDLE const hDevice, ADI_RTC_I
         {
             pDevice->pRTCRegs->CR2IC &= (uint16_t)~cr2ic;
         }
-        if(cr3oc != 0u)
+        if(cr3ss != 0u)
         {
-            pDevice->pRTCRegs->CR3OC &= (uint16_t)~cr3oc;
+            pDevice->pRTCRegs->CR3SS &= (uint16_t)~cr3ss;
         }
     }
     SYNC_AFTER_WRITE(SR0,BITM_RTC_SR0_WSYNCCR0)    
@@ -707,11 +707,11 @@ ADI_RTC_RESULT adi_rtc_EnableOverwriteSnapshot (ADI_RTC_HANDLE const hDevice, bo
     /* set/clear trim input capture enable for specified channel*/
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR2IC |= BITM_RTC_CR2IC_RTCICOWUSEN;
+        pDevice->pRTCRegs->CR2IC |= BITM_RTC_CR2IC_ICOWUSEN;
     }
     else
     {
-        pDevice->pRTCRegs->CR2IC &= (uint16_t)~BITM_RTC_CR2IC_RTCICOWUSEN;
+        pDevice->pRTCRegs->CR2IC &= (uint16_t)~BITM_RTC_CR2IC_ICOWUSEN;
     }
     ADI_EXIT_CRITICAL_REGION();
 
@@ -754,11 +754,11 @@ ADI_RTC_RESULT adi_rtc_SetInputCapturePolarity (ADI_RTC_HANDLE const hDevice,ADI
     /* set/clear trim input capture enable for specified channel*/
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR2IC |= (uint16_t)(nInpChannel << BITP_RTC_CR2IC_RTCIC0LH);
+        pDevice->pRTCRegs->CR2IC |= (uint16_t)(nInpChannel << BITP_RTC_CR2IC_IC0LH);
     }
     else
     {
-        pDevice->pRTCRegs->CR2IC &= (uint16_t)~(nInpChannel << BITP_RTC_CR2IC_RTCIC0LH);
+        pDevice->pRTCRegs->CR2IC &= (uint16_t)~(nInpChannel << BITP_RTC_CR2IC_IC0LH);
     }
     ADI_EXIT_CRITICAL_REGION();
 
@@ -793,22 +793,22 @@ ADI_RTC_RESULT adi_rtc_EnableOutputCompare (ADI_RTC_HANDLE const hDevice,ADI_RTC
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR3OC)
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR3SS)
     
     ADI_ENTER_CRITICAL_REGION();
     /* set/clear output compare  enable for specified channel*/
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR3OC |=(uint16_t)eOutChannel;
+        pDevice->pRTCRegs->CR3SS |=(uint16_t)eOutChannel;
     }
     else
     {
-        pDevice->pRTCRegs->CR3OC &= (uint16_t)(~(uint16_t)eOutChannel);
+        pDevice->pRTCRegs->CR3SS &= (uint16_t)(~(uint16_t)eOutChannel);
     }
     ADI_EXIT_CRITICAL_REGION();
 
     /* Wait till  write to Control Register to take effect */    
-    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCCR3OC)    
+    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCCR3SS)    
     
     return ADI_RTC_SUCCESS;
 }
@@ -839,22 +839,22 @@ ADI_RTC_RESULT adi_rtc_EnableAutoReload(ADI_RTC_HANDLE const hDevice,ADI_RTC_OUT
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR4OC)
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR4SS)
     
     ADI_ENTER_CRITICAL_REGION();
     /* set/clear auto reload enable options */
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR4OC |= BITM_RTC_CR4OC_RTCOC1ARLEN;
+        pDevice->pRTCRegs->CR4SS |= BITM_RTC_CR4SS_SS1ARLEN;
     }
     else
     {
-        pDevice->pRTCRegs->CR4OC &= (uint16_t)~BITM_RTC_CR4OC_RTCOC1ARLEN;
+        pDevice->pRTCRegs->CR4SS &= (uint16_t)~BITM_RTC_CR4SS_SS1ARLEN;
     }
     ADI_EXIT_CRITICAL_REGION();
 
     /* Wait till  write to Control Register to take effect */    
-    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCCR4OC)    
+    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCCR4SS)    
     
     return ADI_RTC_SUCCESS;
 }
@@ -883,11 +883,11 @@ ADI_RTC_RESULT adi_rtc_SetAutoReloadValue(ADI_RTC_HANDLE const hDevice,ADI_RTC_O
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDOC1ARL)
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1ARL)
     
-    pDevice->pRTCRegs->OC1ARL =nValue;
+    pDevice->pRTCRegs->SS1ARL =nValue;
     /* Wait till  write to Control Register to take effect */    
-   SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCOC1ARL)    
+   SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS1ARL)    
     
     return ADI_RTC_SUCCESS;
 }
@@ -917,22 +917,22 @@ ADI_RTC_RESULT adi_rtc_EnableOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR4OC)
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDCR4SS)
     
     ADI_ENTER_CRITICAL_REGION();
     /* set/clear auto reload enable options */
     if (bEnable)
     {
-        pDevice->pRTCRegs->CR4OC |= (uint16_t)eOutChannel;
+        pDevice->pRTCRegs->CR4SS |= (uint16_t)eOutChannel;
     }
     else
     {
-        pDevice->pRTCRegs->CR4OC &= (uint16_t)~(uint16_t)eOutChannel;
+        pDevice->pRTCRegs->CR4SS &= (uint16_t)~(uint16_t)eOutChannel;
     }
     ADI_EXIT_CRITICAL_REGION();
 
     /* Wait till  write to Control Register to take effect */    
-    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCCR4OC)    
+    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCCR4SS)    
     
     return ADI_RTC_SUCCESS;
 }
@@ -962,11 +962,11 @@ ADI_RTC_RESULT adi_rtc_SetOutputChannelMask(ADI_RTC_HANDLE const hDevice,ADI_RTC
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDOCMSK)
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSSMSK)
     
-    pDevice->pRTCRegs->OCMSK = (uint16_t)nMask & 0xFu;
+    pDevice->pRTCRegs->SSMSK = (uint16_t)nMask & 0xFu;
     /* Wait till  write to Control Register to take effect */    
-   SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCOCMSK)    
+   SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSSMSK)    
     
     return ADI_RTC_SUCCESS;
 }
@@ -1203,6 +1203,7 @@ ADI_RTC_RESULT adi_rtc_GetCountEx(ADI_RTC_HANDLE const hDevice, float32_t *pfCou
  *
  * @param[in]   hDevice    Device handle obtained from adi_rtc_Open().
  * @param[out]  pfCount    Pointer to application memory where the count(with fraction) value is written.
+ * @param[out]  pnCount    Pointer to application memory where the value of RTC real time count is stored.
  *
  * @return      Status
  *                - #ADI_RTC_SUCCESS                    Success: Call completed successfully.
@@ -1279,13 +1280,13 @@ ADI_RTC_RESULT adi_rtc_GetInterruptStatus(ADI_RTC_HANDLE const hDevice, ADI_RTC_
     if( pDevice->pRTCRegs == pADI_RTC1) 
     {
         nTemp = (uint32_t)pDevice->pRTCRegs->SR3 & ADI_RTC_SR3_IRQ_STATUS_MASK;
-        if((nTemp & BITM_RTC_SR3_RTCOC1IRQ) != 0u)
+        if((nTemp & BITM_RTC_SR3_SS1IRQ) != 0u)
         {
             nInterrupt |= (uint32_t)ADI_RTC_OUTPUT_COMPARE_CH1_INT;
         }
         if((nTemp & (ADI_RTC_SR3_ICIRQ_STATUS_MASK)) != 0u)
         {
-            nInterrupt |= (nTemp & ADI_RTC_SR3_ICIRQ_STATUS_MASK) << (ADI_RTC_INTERRUPT_OFFSET + BITP_RTC_CR2IC_RTCIC0IRQEN);
+            nInterrupt |= (nTemp & ADI_RTC_SR3_ICIRQ_STATUS_MASK) << (ADI_RTC_INTERRUPT_OFFSET + BITP_RTC_CR2IC_IC0IRQEN);
         }
         
     }
@@ -1365,8 +1366,8 @@ ADI_RTC_RESULT adi_rtc_GetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RT
         return eResult;
     }
 #endif
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDOC1)
-    *pValue = pDevice->pRTCRegs->OC1;
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1)
+    *pValue = pDevice->pRTCRegs->SS1;
 
     return ADI_RTC_SUCCESS;
 }
@@ -1398,12 +1399,12 @@ ADI_RTC_RESULT adi_rtc_SetOutputCompareValue(ADI_RTC_HANDLE const hDevice,ADI_RT
     }
 #endif
     /* Wait till previously posted write to Control Register to complete */ 
-    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDOC1)
+    PEND_BEFORE_WRITE(SR5,BITM_RTC_SR5_WPENDSS1)
     
-    pDevice->pRTCRegs->OC1 = nValue;
+    pDevice->pRTCRegs->SS1 = nValue;
     
    /* Wait till  write to Control Register to take effect */    
-    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCOC1)    
+    SYNC_AFTER_WRITE(SR4,BITM_RTC_SR4_WSYNCSS1)    
     return ADI_RTC_SUCCESS;
 }
 
@@ -2239,10 +2240,10 @@ static void rtc_init(ADI_RTC_DEVICE *pDevice,ADI_RTC_CONFIG *pConfig)
     if(pDevice->pRTCRegs == pADI_RTC1)
     {
         pDevice->pRTCRegs->CR2IC =   pConfig->CONTROL2;
-        pDevice->pRTCRegs->CR3OC =   pConfig->CONTROL3;
-        pDevice->pRTCRegs->CR4OC =   pConfig->CONTROL4;
-        pDevice->pRTCRegs->OCMSK =   pConfig->MASK;
-        pDevice->pRTCRegs->OC1ARL =   pConfig->AUTORELOAD;
+        pDevice->pRTCRegs->CR3SS =   pConfig->CONTROL3;
+        pDevice->pRTCRegs->CR4SS =   pConfig->CONTROL4;
+        pDevice->pRTCRegs->SSMSK =   pConfig->MASK;
+        pDevice->pRTCRegs->SS1ARL =   pConfig->AUTORELOAD;
     }
 }
 #endif
@@ -2320,16 +2321,16 @@ ADI_INT_HANDLER(RTC1_Int_Handler)
             fired |= (nIntSrc2 & enables)<<ADI_RTC_INTERRUPT_OFFSET;
     }
     nIntSrc3 = pDevice->pRTCRegs->SR3;
-    enables = ((uint32_t)pDevice->pRTCRegs->CR2IC & ADI_RTC_INT_ENA_MASK_CR2) >> BITP_RTC_CR2IC_RTCIC0IRQEN;
+    enables = ((uint32_t)pDevice->pRTCRegs->CR2IC & ADI_RTC_INT_ENA_MASK_CR2) >> BITP_RTC_CR2IC_IC0IRQEN;
     
     if ((nIntSrc3 & enables) != 0u)
     {
-            fired |= (nIntSrc3 & enables)<<(ADI_RTC_INTERRUPT_OFFSET + BITP_RTC_CR2IC_RTCIC0IRQEN);
+            fired |= (nIntSrc3 & enables)<<(ADI_RTC_INTERRUPT_OFFSET + BITP_RTC_CR2IC_IC0IRQEN);
     }
-    enables = (uint32_t)pDevice->pRTCRegs->CR3OC & ADI_RTC_INT_ENA_MASK_CR3;
+    enables = (uint32_t)pDevice->pRTCRegs->CR3SS & ADI_RTC_INT_ENA_MASK_CR3;
     
-    if (((BITM_RTC_SR3_RTCOC1IRQ & nIntSrc3)!=0u)
-        && ((BITM_RTC_CR3OC_RTCOC1IRQEN & enables)!=0u))
+    if (((BITM_RTC_SR3_SS1IRQ & nIntSrc3)!=0u)
+        && ((BITM_RTC_CR3SS_SS1IRQEN & enables)!=0u))
     {
             fired |= (uint32_t)ADI_RTC_OUTPUT_COMPARE_CH1_INT;
     }
@@ -2439,8 +2440,6 @@ __time32_t (__time32)(__time32_t *t)
 
 
 #endif  /* ADI_RTC_USE_IAR_SYSTEM_TIME_HOOKS */
-
-/*! \endcond */
 
 /*! @} */
 

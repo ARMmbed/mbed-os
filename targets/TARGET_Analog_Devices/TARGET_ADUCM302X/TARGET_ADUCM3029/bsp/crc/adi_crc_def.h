@@ -1,8 +1,8 @@
 /*! *****************************************************************************
  * @file:    adi_crc_def.h
  * @brief:   Private header file for for CRC driver.
- * @version: $Revision: 33205 $
- * @date:    $Date: 2016-01-11 10:46:07 +0000 (Mon, 11 Jan 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *
  * @details
  *           This is a private header file for the CRC driver,

@@ -2,11 +2,11 @@
  *****************************************************************************
  * @file:    adi_spi_v1.c
  * @brief:   SPI Device Implementations for ADuCRFxxx
- * @version: $Revision: 35861 $
- * @date:    $Date: 2016-11-22 09:07:07 +0000 (Tue, 22 Nov 2016) $
+ * @version: $Revision$
+ * @date:    $Date$
  *----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2016 Analog Devices, Inc.
+Copyright (c) 2010-2017 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -124,8 +124,6 @@ static ADI_SPI_RESULT EnableDmaTx               (ADI_SPI_HANDLE const hDevice, c
 static ADI_SPI_RESULT EnableDmaRx               (ADI_SPI_HANDLE const hDevice, const bool_t bFlag);
 #endif /* ADI_SPI_CFG_ENABLE_DMA_SUPPORT */
 
-/*! \endcond */
-
 /*
     //////////////////////////////////////////////////////////////////////////////
     //////////////////////   API IMPLEMENTATIONS   ///////////////////////////////
@@ -209,6 +207,12 @@ ADI_SPI_RESULT adi_spi_Open(uint32_t nDeviceNum,void *pDevMemory,uint32_t nMemor
       /* Initialize the device based on the given configuration parameters */
       hDevice->pSpi->CTL = pSPICfg->SPI_CTL;
       hDevice->pSpi->DIV = pSPICfg->SPI_DIV;
+      
+      /*By default the device state is set to Master, if SPI is configured as Slave then set device state as Slave*/
+      if((hDevice->pSpi->CTL & BITM_SPI_CTL_MASEN) != BITM_SPI_CTL_MASEN)
+      {
+        hDevice->eDevState = ADI_SPI_STATE_SLAVE;
+      }
     }
 #else
 	/* configure core for Master-Mode operation */
@@ -1100,13 +1104,18 @@ ADI_SPI_RESULT adi_spi_GetChipSelect (ADI_SPI_HANDLE const hDevice, ADI_SPI_CHIP
 }
 
 /*!
- * @brief  Enable the specified interrupt(s) for the device..
+ * @brief  Enable the specified interrupt(s) for the device.This API allows user to configure the interrupts 
+ *\n       TXEMPTY, TXDONE, RDY, RXOVR, TXUNDR, CS Edge and IRQMODE. A callback will be initiated for the corresponding 
+ *\n       interrupt enabled by the user except for IRQMODE. The callback event has a possibility that it might return
+ *\n       multiple interrupt events at the same time, so user can use Bitwise operators along with event enums to  
+ *\n       extract all the events that occured.Some of the interrupts supported should be configuired in master mode 
+ *\n       or slave mode as advised in documentation else there will be an appropriate error returned by this API.
  *
  * @param[in]    hDevice      Device handle obtained from adi_spi_Open().
  * @param[in]    eInterrupt   Specify which interrupt(s) need to be enabled.
  *
  * @return         Status
- *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
+ *                - #ADI_SPI_INVALID_HANDLE [D]             Invalid device handle parameter.
  *                - #ADI_SPI_ERR_NOT_INITIALIZED [D]        Device has not been previously configured for use.
  *                - #ADI_SPI_SUCCESS                        Call completed successfully.
  *
@@ -1142,11 +1151,13 @@ ADI_SPI_RESULT adi_spi_SetInterrruptMask (ADI_SPI_HANDLE const hDevice, ADI_SPI_
         return ADI_SPI_INVALID_OPERATION;
     }
     
+    /*Masking all other interrupts other than XFRDONE*/
     hDevice->pSpi->IEN &= ~ADI_INTERRUPT_MASK;
+
     /*check whether CS edge interrupt is enabled */
     if(((uint16_t)eInterrupt & BITM_SPI_IEN_CS) == BITM_SPI_IEN_CS) 
     {
-    /*check whether continuous mode is enabled*/
+    /*check whether continuous mode is disabled*/
       if(((uint16_t)hDevice->pSpi->CTL & BITM_SPI_CTL_CON) != BITM_SPI_CTL_CON)
       {
         return ADI_SPI_UNSUPPORTED_MODE; 
@@ -1708,17 +1719,13 @@ ADI_SPI_RESULT adi_spi_MasterTransfer (ADI_SPI_HANDLE const hDevice, ADI_SPI_TRA
         return ADI_SPI_INVALID_POINTER;
     }
 
-    /* yell about odd byte counts in debug mode for  DMA requests */
-    if ((hDevice->bDmaMode== true) && ((pXfr->TransmitterBytes&1u)!=0u))
+    /* yell about Receive byte count value set as one in debug mode for DMA requests
+     * as this is not supported by the hardware for the SPI peripheral */
+    if ((hDevice->bDmaMode == true) && (pXfr->ReceiverBytes == 0x01u))
     {
         return ADI_SPI_INVALID_PARAM;
     }
 
-    /* yell about odd byte counts in debug mode for  DMA requests */
-    if ((hDevice->bDmaMode== true) && ((pXfr->ReceiverBytes&1u)!=0u))
-    {
-        return ADI_SPI_INVALID_PARAM;
-    }
     /* Return error if the RX buffer is not null and count is equal to zero or vice versa.*/
     if (((pXfr->pReceiver != NULL) && (pXfr->ReceiverBytes == 0u)) || ((pXfr->pReceiver == NULL) && ((pXfr->ReceiverBytes > 0u))))
     {
@@ -1744,8 +1751,7 @@ ADI_SPI_RESULT adi_spi_MasterTransfer (ADI_SPI_HANDLE const hDevice, ADI_SPI_TRA
         return ADI_SPI_INVALID_PARAM;
     }
 
-
-     /* DMA count register is only 8 bits, so block size is limited to 255 */
+    /* DMA count register is only 8 bits, so block size is limited to 255 */
     if (   (hDevice->bDmaMode==true)
         && (   ((pXfr->ReceiverBytes    & (~(uint32_t)BITM_SPI_CNT_VALUE)) !=0u)
             || ((pXfr->TransmitterBytes & (~(uint32_t)BITM_SPI_CNT_VALUE)) !=0u)))
@@ -1761,6 +1767,9 @@ ADI_SPI_RESULT adi_spi_MasterTransfer (ADI_SPI_HANDLE const hDevice, ADI_SPI_TRA
 
     /* disable interrupts during manual prologue phase */
     ADI_DISABLE_INT(hDevice->pDevInfo->eIRQn);
+    /* Flush the TX and RX FIFO's */
+    hDevice->pSpi->CTL |= (uint16_t)(BITM_SPI_CTL_RFLUSH | BITM_SPI_CTL_TFLUSH);
+    
     hDevice->pSpi->CTL &= (uint16_t)~(BITM_SPI_CTL_TIM | BITM_SPI_CTL_RFLUSH | BITM_SPI_CTL_TFLUSH);
     if( (hDevice->bDmaMode==true)) 
     {
@@ -1956,11 +1965,14 @@ ADI_SPI_RESULT adi_spi_SlaveTransfer (ADI_SPI_HANDLE const hDevice, ADI_SPI_TRAN
     {
         return ADI_SPI_INVALID_PARAM;
     }
-    /* yell about odd byte counts in debug mode for  DMA requests */
-    if ((hDevice->bDmaMode== true) && ((pXfr->TransmitterBytes&1u)!=0u))
+
+    /* yell about Receive byte count value set as one in debug mode for DMA requests
+     * as this is not supported by the hardware for the SPI peripheral */
+    if ((hDevice->bDmaMode == true) && (pXfr->ReceiverBytes == 0x01u))
     {
         return ADI_SPI_INVALID_PARAM;
     }
+
     /* Return error if the RX buffer is not null and count is equal to zero or vice versa.*/
     if (((pXfr->pReceiver != NULL) && (pXfr->ReceiverBytes == 0u)) || ((pXfr->pReceiver == NULL) && ((pXfr->ReceiverBytes > 0u))))
     {
@@ -1969,12 +1981,6 @@ ADI_SPI_RESULT adi_spi_SlaveTransfer (ADI_SPI_HANDLE const hDevice, ADI_SPI_TRAN
     
     /* Return error if the Tx buffer is not null and count is equal to zero or vice versa.*/
     if (((pXfr->pTransmitter != NULL) && (pXfr->TransmitterBytes == 0u)) || ((pXfr->pTransmitter == NULL) && (pXfr->TransmitterBytes > 0u)))
-    {
-        return ADI_SPI_INVALID_PARAM;
-    }
-
-    /* yell about odd byte counts in debug mode for  DMA requests */
-    if ((hDevice->bDmaMode== true) && ((pXfr->ReceiverBytes&1u)!=0u))
     {
         return ADI_SPI_INVALID_PARAM;
     }
@@ -2000,7 +2006,6 @@ ADI_SPI_RESULT adi_spi_SlaveTransfer (ADI_SPI_HANDLE const hDevice, ADI_SPI_TRAN
 
     /* enable SPI */
     hDevice->pSpi->CTL &= (uint16_t)~(BITM_SPI_CTL_TIM | BITM_SPI_CTL_RFLUSH | BITM_SPI_CTL_TFLUSH);
-    hDevice->pSpi->CNT = (uint16_t) pXfr->ReceiverBytes;
     hDevice->bTransferComplete   = false;
     hDevice->pTxBuffer    = pXfr->pTransmitter;
     hDevice->pRxBuffer    = pXfr->pReceiver;
@@ -2071,7 +2076,7 @@ ADI_SPI_RESULT adi_spi_SlaveComplete (ADI_SPI_HANDLE const hDevice,bool_t * cons
  * @brief  Assert or Deassert the Chip Select signal for the specified SPI device.
  *
  * @param[in]     hDevice      Device handle obtained from adi_spi_SlaveInit().
- *                CSOverride   Option to select the type of override.
+ * @param[in]     CSOverride   Option to select the type of override.
  *
  * @return         Status
  *                - #ADI_SPI_SUCCESS                    Call completed successfully.
@@ -2245,24 +2250,19 @@ static ADI_SPI_RESULT dmaClose(ADI_SPI_HANDLE const hDevice) {
 static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
 {
     /* read status register - first thing */
-    volatile  uint16_t nFifoStatus = pDD->pSpi->FIFO_STAT;
-    uint16_t nErrorStatus = pDD->pSpi->STAT;
+    volatile uint16_t nErrorStatus = pDD->pSpi->STAT;
+    volatile uint16_t nFifoStatus = pDD->pSpi->FIFO_STAT;
+    
+    /*All interrupts are cleared by a write of the status register */
+    pDD->pSpi->STAT = nErrorStatus;
 
 #if (ADI_SPI_CFG_INTERRUPT_MODE_SUPPORT == 1)
+    
+    /*The interrupt support should only be provided for TXIRQ and RXIRQ interrupts*/
+if((BITM_SPI_STAT_TXIRQ == (nErrorStatus &BITM_SPI_STAT_TXIRQ)) || (BITM_SPI_STAT_RXIRQ == (nErrorStatus &BITM_SPI_STAT_RXIRQ )))
+{   
     uint16_t writableBytes;
     uint16_t readableBytes;
-
-#ifdef ADI_DEBUG
-    {
-        /* Trap overflow/underflow errors in debug mode only. */
-        if ((BITM_SPI_STAT_RXOVR & nErrorStatus) != 0u) {
-          /* empty */
-        }
-        if ((BITM_SPI_STAT_TXUNDR & nErrorStatus) != 0u){
-          /* empty */
-        }
-    }
-#endif /* ADI_DEBUG */
 
     /* calculate number of bytes that can be written to tx fifo */
     writableBytes = 8u - ((BITM_SPI_FIFO_STAT_TX & nFifoStatus) >> BITP_SPI_FIFO_STAT_TX);
@@ -2286,6 +2286,7 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
             pDD->RxRemaining--;
             readableBytes--;
     }
+}
 #endif /* ADI_SPI_CFG_INTERRUPT_MODE_SUPPORT  */
 
     /* termination */
@@ -2294,7 +2295,7 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
         if (pDD->eDevState == ADI_SPI_STATE_MASTER) {
           if (BITM_SPI_STAT_XFRDONE == (nErrorStatus &BITM_SPI_STAT_XFRDONE ))
          {
-         pDD->pSpi->IEN &= (BITM_SPI_IEN_XFRDONE);
+         pDD->pSpi->IEN &= (uint16_t)~(BITM_SPI_IEN_XFRDONE);
          pDD->bRxComplete  = pDD->bTxComplete = true;
         }
           }
@@ -2307,7 +2308,7 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
         else {
 
         }
-        if (pDD->bBlockingMode == true) {
+        if ((pDD->bBlockingMode == true) && (BITM_SPI_STAT_XFRDONE == (nErrorStatus & BITM_SPI_STAT_XFRDONE ))) {
 
 #if (ADI_CFG_ENABLE_RTOS_SUPPORT == 1)
             POST_EVENT(pDD);
@@ -2320,19 +2321,23 @@ static void common_SPI_Int_Handler (ADI_SPI_DEV_DATA_TYPE* pDD)
 
 #endif /* ADI_CFG_ENABLE_RTOS_SUPPORT  */
         }
-        /* If a callback is registered notify the buffer processed event to the application */
-        if(pDD->pfCallback){
-            pDD->pfCallback(pDD->pCBParam, (uint32_t) ADI_SPI_EVENT_BUFFER_PROCESSED, NULL);
+    }
+    /* If a callback is registered, status register value is returned to the application */
+    if(pDD->pfCallback)
+    {  
+        if ((nErrorStatus & ADI_INT_CALLBACK_MASK) != 0u)
+        {
+          pDD->pfCallback(pDD->pCBParam, (uint32_t) nErrorStatus, NULL);
         }
     }
-
-    /*All interrupts are cleared by a read of the status register */
-     pDD->pSpi->STAT = nErrorStatus;
 }
 
 
 /*!
- * @brief  SPI0 Interrupt Handler.
+ * @brief  SPI0 Interrupt Handler: A callback will be initiated for the corresponding interrupt enabled
+ *\n       in the API adi_spi_SetInterrruptMask(). The callback event has a possibility that it might 
+ *\n       return multiple interrupt events at the same time so user can use Bitwise operators along  
+ *\n       with event enums to extract all the events that occured.      
  *
  * @return void.
  *
@@ -2346,7 +2351,10 @@ ADI_INT_HANDLER(SPI0_Int_Handler) {
 
 
 /*!
- * @brief  SPI1 Interrupt Handler.
+ * @brief  SPI1 Interrupt Handler: A callback will be initiated for the corresponding interrupt enabled
+ *\n       in the API adi_spi_SetInterrruptMask(). The callback event has a possibility that it might 
+ *\n       return multiple interrupt events at the same time so user can use Bitwise operators along  
+ *\n       with event enums to extract all the events that occured.     
  *
  * @return void.
  *
@@ -2359,7 +2367,10 @@ ADI_INT_HANDLER(SPI1_Int_Handler) {
 }
 
 /*!
- * @brief  SPI2 Interrupt Handler.
+ * @brief  SPI2 Interrupt Handler: A callback will be initiated for the corresponding interrupt enabled
+ *\n       in the API adi_spi_SetInterrruptMask(). The callback event has a possibility that it might 
+ *\n       return multiple interrupt events at the same time so user can use Bitwise operators along  
+ *\n       with event enums to extract all the events that occured.     
  *
  * @return void.
  *
@@ -2499,8 +2510,10 @@ static ADI_SPI_RESULT intInitializeDescriptors( ADI_SPI_HANDLE const hDevice)
     {
         nCount = hDevice->TxRemaining;
     }
-    
-    hDevice->pSpi->CNT = (uint16_t)nCount;
+    if(hDevice->eDevState == ADI_SPI_STATE_MASTER)
+    {
+          hDevice->pSpi->CNT = (uint16_t)nCount;
+    }
     nCount = 0u;
 
     /* interrupt mode: Fill in the FIFO and enable the TX by a dummy read. */
@@ -2555,9 +2568,11 @@ static ADI_SPI_RESULT dmaInitializeDescriptors(ADI_SPI_HANDLE const hDevice)
     if(nCount < hDevice->TxRemaining)
     {
         nCount = hDevice->TxRemaining;
+    }   
+    if(hDevice->eDevState == ADI_SPI_STATE_MASTER)
+    {
+          hDevice->pSpi->CNT = (uint16_t)nCount;
     }
-        
-    hDevice->pSpi->CNT = (uint16_t)nCount;
     hDevice->gDmaDescriptorTx.pSrcData     = hDevice->pTxBuffer;
     hDevice->gDmaDescriptorTx.NumTransfers = (hDevice->TxRemaining + 1u) >> 1;
     hDevice->gDmaDescriptorRx.pDstData     = hDevice->pRxBuffer;

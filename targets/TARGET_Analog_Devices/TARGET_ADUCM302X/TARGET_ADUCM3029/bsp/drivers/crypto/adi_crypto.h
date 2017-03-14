@@ -6,6 +6,7 @@
  * @brief   Main include file for CRYPTO Device driver definitions
  * @version $Revision:
  * @date    $Date:
+ *
  -----------------------------------------------------------------------------
 Copyright (c) 2010-2015 Analog Devices, Inc.
 
