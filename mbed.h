@@ -103,6 +103,7 @@
 
 // mbed Non-hardware components
 #include "platform/Callback.h"
+#include "platform/Binder.h"
 #include "platform/FunctionPointer.h"
 
 using namespace mbed;
