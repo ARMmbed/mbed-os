@@ -45,7 +45,7 @@ public:
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t read(void *buffer, size_t len) = 0;
+    virtual ssize_t read(void *buffer, size_t size) = 0;
 
     /** Write the contents of a buffer to a file
      *
@@ -53,7 +53,7 @@ public:
      *  @param size     The number of bytes to write 
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t write(const void *buffer, size_t len) = 0;
+    virtual ssize_t write(const void *buffer, size_t size) = 0;
 
     /** Move the file position to a given offset from from a given location
      *
