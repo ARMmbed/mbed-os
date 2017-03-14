@@ -466,6 +466,7 @@ if __name__ == '__main__':
                           repo_path)
 
     total = len(supported_targets) * len(tests)
+    current = 0
     retries = 10
     passes = 0
     failures = []
@@ -475,8 +476,9 @@ if __name__ == '__main__':
     for test in tests:
         rel_log.info("COMPILING PROGRAM: %s\n", test)
         for target in supported_targets:
+            current += 1
             for retry in range(0, retries):
-                rel_log.info("COMPILING TARGET: %s , attempt %u\n", target, retry)
+                rel_log.info("COMPILING TARGET (%d/%d): %s , attempt %u\n", current, total, target, retry)
                 result, mesg = build_repo(target, test, user, password)
                 if not result:
                     if mesg == 'Internal':
