@@ -9,7 +9,7 @@
 
 #include "buffer_pool_allocator.h"
 
-#include "em_int.h"
+#include "em_core.h"
 
 #ifdef CONFIGURATION_HEADER
 #include CONFIGURATION_HEADER
@@ -19,12 +19,11 @@
 // Configuration Macros
 // -----------------------------------------------------------------------------
 
-// Default to a ping-pong buffer pool with a size of 128 (127 MTU + 1 length) bytes per buffer
 #ifndef BUFFER_POOL_SIZE
 #define BUFFER_POOL_SIZE 8
 #endif
 #ifndef MAX_BUFFER_SIZE
-#define MAX_BUFFER_SIZE 150
+#define MAX_BUFFER_SIZE 160
 #endif
 
 #define INVALID_BUFFER_OBJ ((void*)0xFFFFFFFF)
@@ -46,7 +45,8 @@ void* memoryAllocate(uint32_t size)
     return INVALID_BUFFER_OBJ;
   }
 
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   for(i = 0; i < BUFFER_POOL_SIZE; i++)
   {
     if(memoryObjs[i].refCount == 0)
@@ -56,7 +56,7 @@ void* memoryAllocate(uint32_t size)
       break;
     }
   }
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 
   return handle;
 }
@@ -71,32 +71,35 @@ void *memoryPtrFromHandle(void *handle)
     return NULL;
   }
 
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   if(memoryObjs[(uint32_t)handle].refCount > 0)
   {
     ptr = memoryObjs[(uint32_t)handle].data;
   }
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 
   return ptr;
 }
 
 void memoryFree(void *handle)
 {
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   if(memoryPtrFromHandle(handle) != NULL)
   {
     memoryObjs[(uint32_t)handle].refCount--;
   }
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 
 void memoryTakeReference(void *handle)
 {
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   if(memoryPtrFromHandle(handle) != NULL)
   {
     memoryObjs[(uint32_t)handle].refCount++;
   }
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
