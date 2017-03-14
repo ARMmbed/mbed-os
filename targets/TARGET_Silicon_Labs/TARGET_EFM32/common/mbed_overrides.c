@@ -47,7 +47,10 @@ void mbed_sdk_init()
     // Initialize the HFXO using the settings from the WSTK bspconfig.h
     // Note: This configures things like the capacitive tuning CTUNE variable
     //   which can vary based on your hardware design.
-    CMU_HFXOInit(&hfxoInit);  
+    CMU_HFXOInit(&hfxoInit);
+#else
+    CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_STK_DEFAULT;
+    CMU_HFXOInit(&hfxoInit);
 #endif
 #endif
 
