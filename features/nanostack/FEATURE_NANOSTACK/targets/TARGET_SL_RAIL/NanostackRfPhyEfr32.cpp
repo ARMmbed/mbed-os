@@ -827,3 +827,58 @@ static bool rail_checkAndSwitchChannel(uint8_t newChannel) {
         return false;
     }
 }
+
+/**
+ * Callback that fires when the receive fifo exceeds the configured threshold
+ * value
+ *
+ * @param[in] bytesAvailable Number of bytes available in the receive fifo at
+ * the time of the callback dispatch
+ *
+ * @return void
+ * @warning You must implement a stub for this in your RAIL application.
+ *
+ * Callback that fires when the receive fifo exceeds the configured threshold
+ * value.  Provides the number of bytes available in the receive fifo at the
+ * time of the callback dispatch.
+ */
+void RAILCb_RxFifoAlmostFull(uint16_t bytesAvailable) {
+    tr_debug("RX near full (%d)\n", bytesAvailable);
+}
+
+/**
+ * Callback that fires when the transmit fifo falls under the configured
+ * threshold value
+ *
+ * @param[in] spaceAvailable Number of bytes open in the transmit fifo at the
+ * time of the callback dispatch
+ *
+ * @return void
+ * @warning You must implement a stub for this in your RAIL application.
+ *
+ * Callback that fires when the transmit fifo falls under the configured
+ * threshold value. It only fires if a rising edge occurs across this
+ * threshold. This callback will not fire on initailization nor after resetting
+ * the transmit fifo with RAIL_ResetFifo().
+ *
+ * Provides the number of bytes open in the transmit fifo at the time of the
+ * callback dispatch.
+ */
+void RAILCb_TxFifoAlmostEmpty(uint16_t spaceAvailable) {
+    tr_debug("TX near empty (%d)\n", spaceAvailable);
+}
+
+/**
+ * Callback for when AGC averaged RSSI is done
+ *
+ * @param avgRssi Contains the the RSSI in quarter dBm (dbm*4) on success and
+ * returns \ref RAIL_RSSI_INVALID if there was a problem computing the result.
+ *
+ * Called in response to RAIL_StartAverageRSSI() to indicate that the hardware
+ * has completed averaging. If you would like you can instead use the
+ * RAIL_AverageRSSIReady() to wait for completion and RAIL_GetAverageRSSI() to
+ * get the result.
+ */
+void RAILCb_RssiAverageDone(int16_t avgRssi) {
+    tr_debug("RSSI done (%d)\n", avgRssi);
+}
