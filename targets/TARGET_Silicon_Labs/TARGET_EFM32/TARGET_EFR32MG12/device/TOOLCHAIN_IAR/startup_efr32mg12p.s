@@ -1,8 +1,8 @@
 ;/**************************************************************************//**
-; * @file startup_efr32mg1p.s
+; * @file startup_efr32mg12p.s
 ; * @brief    CMSIS Core Device Startup File
-; *           Silicon Labs EFR32MG1P Device Series
-; * @version 5.0.0
+; *           Silicon Labs EFR32MG12P Device Series
+; * @version 5.1.2
 ; * @date     30. January 2012
 ; *
 ; * @note
@@ -82,37 +82,54 @@ __vector_table_0x1c
         DCD EMU_IRQHandler  ; 0: EMU Interrupt
         DCD FRC_PRI_IRQHandler  ; 1: FRC_PRI Interrupt
         DCD WDOG0_IRQHandler  ; 2: WDOG0 Interrupt
-        DCD FRC_IRQHandler  ; 3: FRC Interrupt
-        DCD MODEM_IRQHandler  ; 4: MODEM Interrupt
-        DCD RAC_SEQ_IRQHandler  ; 5: RAC_SEQ Interrupt
-        DCD RAC_RSM_IRQHandler  ; 6: RAC_RSM Interrupt
-        DCD BUFC_IRQHandler  ; 7: BUFC Interrupt
-        DCD LDMA_IRQHandler  ; 8: LDMA Interrupt
-        DCD GPIO_EVEN_IRQHandler  ; 9: GPIO_EVEN Interrupt
-        DCD TIMER0_IRQHandler  ; 10: TIMER0 Interrupt
-        DCD USART0_RX_IRQHandler  ; 11: USART0_RX Interrupt
-        DCD USART0_TX_IRQHandler  ; 12: USART0_TX Interrupt
-        DCD ACMP0_IRQHandler  ; 13: ACMP0 Interrupt
-        DCD ADC0_IRQHandler  ; 14: ADC0 Interrupt
-        DCD IDAC0_IRQHandler  ; 15: IDAC0 Interrupt
-        DCD I2C0_IRQHandler  ; 16: I2C0 Interrupt
-        DCD GPIO_ODD_IRQHandler  ; 17: GPIO_ODD Interrupt
-        DCD TIMER1_IRQHandler  ; 18: TIMER1 Interrupt
-        DCD USART1_RX_IRQHandler  ; 19: USART1_RX Interrupt
-        DCD USART1_TX_IRQHandler  ; 20: USART1_TX Interrupt
-        DCD LEUART0_IRQHandler  ; 21: LEUART0 Interrupt
-        DCD PCNT0_IRQHandler  ; 22: PCNT0 Interrupt
-        DCD CMU_IRQHandler  ; 23: CMU Interrupt
-        DCD MSC_IRQHandler  ; 24: MSC Interrupt
-        DCD CRYPTO_IRQHandler  ; 25: CRYPTO Interrupt
-        DCD LETIMER0_IRQHandler  ; 26: LETIMER0 Interrupt
-        DCD AGC_IRQHandler  ; 27: AGC Interrupt
-        DCD PROTIMER_IRQHandler  ; 28: PROTIMER Interrupt
-        DCD RTCC_IRQHandler  ; 29: RTCC Interrupt
-        DCD SYNTH_IRQHandler  ; 30: SYNTH Interrupt
-        DCD CRYOTIMER_IRQHandler  ; 31: CRYOTIMER Interrupt
-        DCD RFSENSE_IRQHandler  ; 32: RFSENSE Interrupt
-        DCD FPUEH_IRQHandler  ; 33: FPUEH Interrupt
+        DCD WDOG1_IRQHandler  ; 3: WDOG1 Interrupt
+        DCD FRC_IRQHandler  ; 4: FRC Interrupt
+        DCD MODEM_IRQHandler  ; 5: MODEM Interrupt
+        DCD RAC_SEQ_IRQHandler  ; 6: RAC_SEQ Interrupt
+        DCD RAC_RSM_IRQHandler  ; 7: RAC_RSM Interrupt
+        DCD BUFC_IRQHandler  ; 8: BUFC Interrupt
+        DCD LDMA_IRQHandler  ; 9: LDMA Interrupt
+        DCD GPIO_EVEN_IRQHandler  ; 10: GPIO_EVEN Interrupt
+        DCD TIMER0_IRQHandler  ; 11: TIMER0 Interrupt
+        DCD USART0_RX_IRQHandler  ; 12: USART0_RX Interrupt
+        DCD USART0_TX_IRQHandler  ; 13: USART0_TX Interrupt
+        DCD ACMP0_IRQHandler  ; 14: ACMP0 Interrupt
+        DCD ADC0_IRQHandler  ; 15: ADC0 Interrupt
+        DCD IDAC0_IRQHandler  ; 16: IDAC0 Interrupt
+        DCD I2C0_IRQHandler  ; 17: I2C0 Interrupt
+        DCD GPIO_ODD_IRQHandler  ; 18: GPIO_ODD Interrupt
+        DCD TIMER1_IRQHandler  ; 19: TIMER1 Interrupt
+        DCD USART1_RX_IRQHandler  ; 20: USART1_RX Interrupt
+        DCD USART1_TX_IRQHandler  ; 21: USART1_TX Interrupt
+        DCD LEUART0_IRQHandler  ; 22: LEUART0 Interrupt
+        DCD PCNT0_IRQHandler  ; 23: PCNT0 Interrupt
+        DCD CMU_IRQHandler  ; 24: CMU Interrupt
+        DCD MSC_IRQHandler  ; 25: MSC Interrupt
+        DCD CRYPTO0_IRQHandler  ; 26: CRYPTO0 Interrupt
+        DCD LETIMER0_IRQHandler  ; 27: LETIMER0 Interrupt
+        DCD AGC_IRQHandler  ; 28: AGC Interrupt
+        DCD PROTIMER_IRQHandler  ; 29: PROTIMER Interrupt
+        DCD RTCC_IRQHandler  ; 30: RTCC Interrupt
+        DCD SYNTH_IRQHandler  ; 31: SYNTH Interrupt
+        DCD CRYOTIMER_IRQHandler  ; 32: CRYOTIMER Interrupt
+        DCD RFSENSE_IRQHandler  ; 33: RFSENSE Interrupt
+        DCD FPUEH_IRQHandler  ; 34: FPUEH Interrupt
+        DCD SMU_IRQHandler  ; 35: SMU Interrupt
+        DCD WTIMER0_IRQHandler  ; 36: WTIMER0 Interrupt
+        DCD WTIMER1_IRQHandler  ; 37: WTIMER1 Interrupt
+        DCD PCNT1_IRQHandler  ; 38: PCNT1 Interrupt
+        DCD PCNT2_IRQHandler  ; 39: PCNT2 Interrupt
+        DCD USART2_RX_IRQHandler  ; 40: USART2_RX Interrupt
+        DCD USART2_TX_IRQHandler  ; 41: USART2_TX Interrupt
+        DCD I2C1_IRQHandler  ; 42: I2C1 Interrupt
+        DCD USART3_RX_IRQHandler  ; 43: USART3_RX Interrupt
+        DCD USART3_TX_IRQHandler  ; 44: USART3_TX Interrupt
+        DCD VDAC0_IRQHandler  ; 45: VDAC0 Interrupt
+        DCD CSEN_IRQHandler  ; 46: CSEN Interrupt
+        DCD LESENSE_IRQHandler  ; 47: LESENSE Interrupt
+        DCD CRYPTO1_IRQHandler  ; 48: CRYPTO1 Interrupt
+        DCD TRNG0_IRQHandler  ; 49: TRNG0 Interrupt
+        DCD 0               ; 50: Reserved Interrupt
 
 __Vectors_End
 __Vectors       EQU   __vector_table
@@ -194,6 +211,11 @@ FRC_PRI_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 WDOG0_IRQHandler
         B WDOG0_IRQHandler
+
+        PUBWEAK WDOG1_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+WDOG1_IRQHandler
+        B WDOG1_IRQHandler
 
         PUBWEAK FRC_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
@@ -305,10 +327,10 @@ CMU_IRQHandler
 MSC_IRQHandler
         B MSC_IRQHandler
 
-        PUBWEAK CRYPTO_IRQHandler
+        PUBWEAK CRYPTO0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-CRYPTO_IRQHandler
-        B CRYPTO_IRQHandler
+CRYPTO0_IRQHandler
+        B CRYPTO0_IRQHandler
 
         PUBWEAK LETIMER0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
@@ -349,6 +371,81 @@ RFSENSE_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 FPUEH_IRQHandler
         B FPUEH_IRQHandler
+
+        PUBWEAK SMU_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+SMU_IRQHandler
+        B SMU_IRQHandler
+
+        PUBWEAK WTIMER0_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+WTIMER0_IRQHandler
+        B WTIMER0_IRQHandler
+
+        PUBWEAK WTIMER1_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+WTIMER1_IRQHandler
+        B WTIMER1_IRQHandler
+
+        PUBWEAK PCNT1_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+PCNT1_IRQHandler
+        B PCNT1_IRQHandler
+
+        PUBWEAK PCNT2_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+PCNT2_IRQHandler
+        B PCNT2_IRQHandler
+
+        PUBWEAK USART2_RX_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+USART2_RX_IRQHandler
+        B USART2_RX_IRQHandler
+
+        PUBWEAK USART2_TX_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+USART2_TX_IRQHandler
+        B USART2_TX_IRQHandler
+
+        PUBWEAK I2C1_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+I2C1_IRQHandler
+        B I2C1_IRQHandler
+
+        PUBWEAK USART3_RX_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+USART3_RX_IRQHandler
+        B USART3_RX_IRQHandler
+
+        PUBWEAK USART3_TX_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+USART3_TX_IRQHandler
+        B USART3_TX_IRQHandler
+
+        PUBWEAK VDAC0_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+VDAC0_IRQHandler
+        B VDAC0_IRQHandler
+
+        PUBWEAK CSEN_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+CSEN_IRQHandler
+        B CSEN_IRQHandler
+
+        PUBWEAK LESENSE_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+LESENSE_IRQHandler
+        B LESENSE_IRQHandler
+
+        PUBWEAK CRYPTO1_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+CRYPTO1_IRQHandler
+        B CRYPTO1_IRQHandler
+
+        PUBWEAK TRNG0_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+TRNG0_IRQHandler
+        B TRNG0_IRQHandler
 
 
         END
