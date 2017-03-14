@@ -64,6 +64,10 @@
         "default-thread-stacksize": {
             "help": "Stack size for lwip system threads",
             "value": 512
+        },
+        "ppp-thread-stacksize": {
+            "help": "Thread stack size for PPP",
+            "value": 300
         }
     }
 }

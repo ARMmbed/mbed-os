@@ -33,6 +33,7 @@
 #include "lwip/mld6.h"
 #include "lwip/dns.h"
 #include "lwip/udp.h"
+#include "netif/lwip_ethernet.h"
 #include "emac_api.h"
 #include "ppp_lwip.h"
 #include "lwip_tcp_isn.h"

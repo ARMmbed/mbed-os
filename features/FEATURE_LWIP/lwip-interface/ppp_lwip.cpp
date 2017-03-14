@@ -55,12 +55,11 @@ static nsapi_error_t connect_error_code;
 // Just one interface for now
 static FileHandle *my_stream;
 static ppp_pcb *my_ppp_pcb;
-static bool ppp_link_up = false;
 static bool ppp_active = false;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
-static void (*notify_ppp_link_down)(nsapi_error_t) = 0;
+static Callback<void(nsapi_error_t)> connection_status_cb;
 
 static EventQueue *prepare_event_queue()
 {
@@ -71,13 +70,9 @@ static EventQueue *prepare_event_queue()
     // Should be trying to get a global shared event queue here!
     // Shouldn't have to be making a private thread!
 
-    // Only need to queue 1 event. new blows on failure.
+    // Only need to queue 2 events. new blows on failure.
     event_queue = new EventQueue(2 * EVENTS_EVENT_SIZE, NULL);
-#if LWIP_DEBUG
-    event_thread = new Thread(osPriorityNormal, 900*2);
-#else
-    event_thread = new Thread(osPriorityNormal, 900*1);
-#endif
+    event_thread = new Thread(osPriorityNormal, PPP_THREAD_STACK_SIZE);
 
     if (event_thread->start(callback(event_queue, &EventQueue::dispatch_forever)) != osOK) {
         delete event_thread;
@@ -130,7 +125,7 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
     nsapi_error_t mapped_err_code = NSAPI_ERROR_NO_CONNECTION;
 
     switch(err_code) {
-        case PPPERR_NONE: {
+        case PPPERR_NONE:
             mapped_err_code = NSAPI_ERROR_OK;
             tr_info("status_cb: Connected");
 #if PPP_IPV4_SUPPORT
@@ -153,66 +148,65 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
             tr_debug("   our6_ipaddr = %s", ip6addr_ntoa(netif_ip6_addr(ppp_netif(pcb), 0)));
 #endif /* PPP_IPV6_SUPPORT */
             break;
-        }
-        case PPPERR_PARAM: {
+
+        case PPPERR_PARAM:
             tr_info("status_cb: Invalid parameter");
             break;
-        }
-        case PPPERR_OPEN: {
+
+        case PPPERR_OPEN:
             tr_info("status_cb: Unable to open PPP session");
             break;
-        }
-        case PPPERR_DEVICE: {
+
+        case PPPERR_DEVICE:
             tr_info("status_cb: Invalid I/O device for PPP");
             break;
-        }
-        case PPPERR_ALLOC: {
+
+        case PPPERR_ALLOC:
             tr_info("status_cb: Unable to allocate resources");
             break;
-        }
-        case PPPERR_USER: {
+
+        case PPPERR_USER:
             tr_info("status_cb: User interrupt");
             break;
-        }
-        case PPPERR_CONNECT: {
+
+        case PPPERR_CONNECT:
             tr_info("status_cb: Connection lost");
             mapped_err_code = NSAPI_ERROR_CONNECTION_LOST;
             break;
-        }
-        case PPPERR_AUTHFAIL: {
+
+        case PPPERR_AUTHFAIL:
             tr_info("status_cb: Failed authentication challenge");
             mapped_err_code = NSAPI_ERROR_AUTH_FAILURE;
             break;
-        }
-        case PPPERR_PROTOCOL: {
+
+        case PPPERR_PROTOCOL:
             tr_info("status_cb: Failed to meet protocol");
             break;
-        }
-        case PPPERR_PEERDEAD: {
+
+        case PPPERR_PEERDEAD:
             tr_info("status_cb: Connection timeout");
             mapped_err_code = NSAPI_ERROR_CONNECTION_TIMEOUT;
             break;
-        }
-        case PPPERR_IDLETIMEOUT: {
+
+        case PPPERR_IDLETIMEOUT:
             tr_info("status_cb: Idle Timeout");
             break;
-        }
-        case PPPERR_CONNECTTIME: {
+
+        case PPPERR_CONNECTTIME:
             tr_info("status_cb: Max connect time reached");
             break;
-        }
-        case PPPERR_LOOPBACK: {
+
+        case PPPERR_LOOPBACK:
             tr_info("status_cb: Loopback detected");
             break;
-        }
-        default: {
+
+        default:
             tr_info("status_cb: Unknown error code %d", err_code);
             break;
-        }
+
     }
 
     if (err_code == PPPERR_NONE) {
-        ppp_link_up = true;
         /* suppress generating a callback event for connection up
          * Because connect() call is blocking, why wait for a callback */
         return;
@@ -220,14 +214,22 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
 
     /* If some error happened, we need to properly shutdown the PPP interface  */
     if (ppp_active) {
-        ppp_link_up = false;
         ppp_active = false;
         connect_error_code = mapped_err_code;
         sys_sem_signal(&ppp_close_sem);
     }
 
     /* Alright, PPP interface is down, we need to notify upper layer */
-    notify_ppp_link_down(mapped_err_code);
+    if (connection_status_cb) {
+        connection_status_cb(mapped_err_code);
+    }
+}
+
+static void handle_modem_hangup()
+{
+    if (my_ppp_pcb->phase != PPP_PHASE_DEAD) {
+        ppp_close(my_ppp_pcb, 1);
+    }
 }
 
 #if !PPP_INPROC_IRQ_SAFE
@@ -248,7 +250,8 @@ static void ppp_input()
     fhs.events = POLLIN;
     poll(&fhs, 1, 0);
     if (fhs.revents & (POLLHUP|POLLERR|POLLNVAL)) {
-        goto hup;
+        handle_modem_hangup();
+        return;
     }
 
     // Infinite loop, but we assume that we can read faster than the
@@ -259,15 +262,10 @@ static void ppp_input()
         if (len == -EAGAIN) {
             break;
         } else if (len <= 0) {
-            goto hup;
+            handle_modem_hangup();
+            return;
         }
         pppos_input(my_ppp_pcb, buffer, len);
-    }
-    return;
-
-hup:
-    if (my_ppp_pcb->phase != PPP_PHASE_DEAD) {
-        ppp_close(my_ppp_pcb, 1);
     }
     return;
 }
@@ -343,14 +341,14 @@ nsapi_error_t nsapi_ppp_error_code()
     return connect_error_code;
 }
 
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, void (*ppp_link_down_cb)(int), const char *uname, const char *password)
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)> cb, const char *uname, const char *password)
 {
     if (my_stream) {
         return NSAPI_ERROR_PARAMETER;
     }
     my_stream = stream;
     stream->set_blocking(false);
-    notify_ppp_link_down = ppp_link_down_cb;
+    connection_status_cb = cb;
     login = uname;
     pwd = password;
 
@@ -375,26 +373,45 @@ NetworkStack *nsapi_ppp_get_stack()
     return nsapi_create_stack(&lwip_stack);
 }
 
-char *nsapi_ppp_get_ip_addr(char *ip_addr, nsapi_size_t buflen)
+const char *nsapi_ppp_get_ip_addr(FileHandle *stream)
 {
-    if (mbed_lwip_get_ip_address(ip_addr, buflen)) {
-        return ip_addr;
+    static char ip_addr[IPADDR_STRLEN_MAX];
+
+    if (stream == my_stream) {
+
+        if (mbed_lwip_get_ip_address(ip_addr, IPADDR_STRLEN_MAX)) {
+            return ip_addr;
+        }
     }
 
     return NULL;
 }
-char *nsapi_ppp_get_netmask(char *netmask, nsapi_size_t buflen)
+const char *nsapi_ppp_get_netmask(FileHandle *stream)
 {
-    if (mbed_lwip_get_netmask(netmask, buflen)) {
-        return netmask;
+#if LWIP_IPV6
+    return NULL;
+#endif
+
+    static char netmask[IPADDR_STRLEN_MAX];
+    if (stream == my_stream) {
+        if (mbed_lwip_get_netmask(netmask, IPADDR_STRLEN_MAX)) {
+            return netmask;
+        }
     }
 
     return NULL;
 }
-char *nsapi_ppp_get_gw_addr(char *default_gw_addr)
+const char *nsapi_ppp_get_gw_addr(FileHandle *stream)
 {
-    if (mbed_lwip_get_gateway(default_gw_addr, sizeof default_gw_addr)) {
-        return default_gw_addr;
+#if LWIP_IPV6
+    return NULL;
+#endif
+
+    static char gwaddr[IPADDR_STRLEN_MAX];
+    if (stream == my_stream) {
+        if (mbed_lwip_get_gateway(gwaddr, IPADDR_STRLEN_MAX)) {
+            return gwaddr;
+        }
     }
 
     return NULL;
