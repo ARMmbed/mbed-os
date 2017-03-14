@@ -341,7 +341,7 @@ bd_size_t SDBlockDevice::get_erase_size() const
     return 512;
 }
 
-bd_size_t SDBlockDevice::size()
+bd_size_t SDBlockDevice::size() const
 {
     _lock.lock();
     bd_size_t sectors = _sectors;

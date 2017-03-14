@@ -119,7 +119,7 @@ public:
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size();
+    virtual bd_size_t size() const;
 
     /** Enable or disable debugging
      *
@@ -149,7 +149,7 @@ private:
     unsigned _block_size;
     bool _is_initialized;
     bool _dbg;
-    Mutex _lock;
+    mutable Mutex _lock;
 };
 
 
