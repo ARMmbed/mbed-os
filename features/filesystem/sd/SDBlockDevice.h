@@ -119,7 +119,7 @@ public:
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size();
+    virtual bd_size_t size() const;
 
     /** Enable or disable debugging
      *

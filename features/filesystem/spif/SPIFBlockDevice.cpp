@@ -342,7 +342,7 @@ bd_size_t SPIFBlockDevice::get_erase_size() const
     return SPIF_SE_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::size()
+bd_size_t SPIFBlockDevice::size() const
 {
     return _size;
 }
