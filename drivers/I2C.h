@@ -117,8 +117,8 @@ public:
      *  @param repeated Repeated start, true - do not send stop at end
      *
      *  @returns
-     *      0 or non-zero - written number of bytes,
-     *      negative - I2C_ERROR_XXX status
+     *       0 on success (ack),
+     *   non-0 on failure (nack)
      */
     int write(int address, const char *data, int length, bool repeated = false);
 
