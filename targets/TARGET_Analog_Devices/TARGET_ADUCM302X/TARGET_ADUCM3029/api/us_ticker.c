@@ -106,6 +106,8 @@ void us_ticker_irq_handler(void);
 
 static int us_ticker_inited = 0;
 
+uint32_t prev_time, current_time;
+
 extern void adi_int_EnterCriticalRegion(void);
 extern void adi_int_ExitCriticalRegion(void);
 
@@ -349,17 +351,23 @@ void us_ticker_init(void)
     }
 
     us_ticker_inited = 1;
+    prev_time = 0;
+    current_time = 0;
     tmr_init();
 }
 
 uint32_t us_ticker_read()
 {
+    int diff;
     if (!us_ticker_inited)
     {
         us_ticker_init();
     }
-
-    return (get_current_time());
+    prev_time = current_time;
+    current_time = get_current_time();
+    diff = (current_time - prev_time);
+    if (diff < 0) current_time = prev_time;
+    return current_time;
 }
 
 void us_ticker_disable_interrupt(void)
