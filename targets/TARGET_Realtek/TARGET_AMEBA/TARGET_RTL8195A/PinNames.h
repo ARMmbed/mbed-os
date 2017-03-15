@@ -189,8 +189,7 @@ typedef enum {
     
     D16         = PA_1,
     D17         = PA_0,
-    D18         = PE_1,
-    D19         = PE_5,
+    D18         = PE_5,
 
 
     // Generic signals namings
