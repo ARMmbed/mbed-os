@@ -28,21 +28,26 @@ extern "C" {
 
 /* Add your custom header content here */
 struct gpio_irq_s {
-	unsigned int id;
-	PinName pinname;
+    unsigned int id;
+    PinName pinname;
 };
 
 struct sleep_s {
-	int temp;
+    int temp;
 };
 
 struct serial_s {
-	int index;
+    int index;
 };
 
 struct trng_s {
     uint8_t dummy;
 };
+
+struct spi_s {
+    uint32_t instance;
+};
+
 #include "gpio_object.h"
 
 

@@ -29,7 +29,7 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
-//update 
+//update
 
 #define GPIO_PORT_SHIFT 12
 
@@ -85,12 +85,12 @@ typedef enum {
     P2_15 = (2 << GPIO_PORT_SHIFT | 15),
 
     // mbed original LED naming
-	#ifdef ADICUP3029
-	LED1 = P2_00,
+    #ifdef ADICUP3029
+    LED1 = P2_00,
     LED2 = P1_15,
     LED3 = LED1,
     LED4 = LED2,
-	#else
+    #else
     LED1 = P0_13,
     LED2 = P1_12,
     LED3 = P1_13,
@@ -98,6 +98,7 @@ typedef enum {
     LED5 = P1_12,   //duplicate of led2
     LED6 = P1_13,   //duplicate of led3
     #endif
+
     //Push buttons
     PB0 = P1_14,
     PB1 = P2_06,
@@ -106,7 +107,7 @@ typedef enum {
     WAKE_J34 = P1_00,  //4 options depending on jumper
     WAKE_J56 = P0_13,  //4 options depending on jumper
     WAKE_J78 = P2_01,  //4 options depending on jumper
-              
+
     // USB Pins
     USBTX = P0_10,
     USBRX = P0_11,
@@ -128,9 +129,34 @@ typedef enum {
     D13 = P0_00,
     D14 = P0_05,
     D15 = P0_04,
-    
+
     I2C_SCL = D15,
     I2C_SDA = D14,
+
+    // SPI Pins
+    SPI0_SCLK = P0_00,
+    SPI0_MOSI = P0_01,
+    SPI0_MISO = P0_02,
+    SPI0_CS0 = P0_03,
+    SPI0_CS1 = P1_10,
+    SPI0_CS2 = P2_08,
+    SPI0_CS3 = P2_09,
+
+    SPI1_SCLK = P1_06,
+    SPI1_MOSI = P1_07,
+    SPI1_MISO = P1_08,
+    SPI1_CS0 = P1_09,
+    SPI1_CS1 = P2_11,
+    SPI1_CS2 = P2_02,
+    SPI1_CS3 = P1_10,
+
+    SPI2_SCLK = P1_02,
+    SPI2_MOSI = P1_03,
+    SPI2_MISO = P1_04,
+    SPI2_CS0 = P1_05,
+    SPI2_CS1 = P0_09,
+    SPI2_CS2 = P2_10,
+    SPI2_CS3 = P2_07,
 
 //    A0 = ADC0,
 //    A1 = ADC1,
