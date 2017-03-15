@@ -297,6 +297,9 @@ WEAK void mbed_main(void) {
 
 }
 
+/* This function can be implemented by the target to perform higher level target initialization, before the mbed OS or
+ * RTX is started.
+ */
 void mbed_sdk_init(void);
 WEAK void mbed_sdk_init(void) {
 }
