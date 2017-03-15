@@ -80,6 +80,18 @@ The following versions of the mbed-os and sd-driver repositories are known to wo
 
 - {mbed-os, sd-driver} = {mbed-os-5.4.0-rc2, sd-driver-0.0.1-mbed-os-5.4.0-rc2}. 
   `K64F`, `NUCLEO_F429ZI` and `UBLOX_EVK_ODIN_W2` fopen and basic filesystem tests working.
+- {mbed-os, sd-driver} = {mbed-os-5.4.0, sd-driver-0.0.2-mbed-os-5.4.0}. 
+  `K64F`, `NUCLEO_F429ZI` and `UBLOX_EVK_ODIN_W2` fopen and basic filesystem tests working.
+- {mbed-os, sd-driver} = {mbed-os-5.4.1, sd-driver-0.0.3-mbed-os-5.4.1}. 
+
+To find the latest compatible versions, use the following command to see the messages attached to the tags
+in the sd-driver repository:
+
+	ex_app7/$ cd sd-driver
+	ex_app7/sd-driver$ git tag -n
+	sd-driver-0.0.1-mbed-os-5.3.4 Version compatible with mbed-os-5.3.4, and private_mbedos_filesystems-0.0.1-mbed-os-5.3.4.
+	sd-driver-0.0.2-mbed-os-5.4.0 Updated README.md to include worked exmaples and restructuring of information.
+	sd-driver-0.0.3-mbed-os-5.4.1 Version compatible with mbed-os-5.4.1.
 
 
 ### Known Issues With This Document
@@ -244,12 +256,7 @@ Next, copy the example1.cpp file and `mbed_app.json` files from inside the sd-dr
 The `mbed_app.json` file specifies the SPI bus pin configuration for different targets. 
 The file includes a specific configuration of the K64F which is used
 because the mbed compile command specifies the K64F build target. The `mbed_app.json` file 
-is described in more detail in the     
-[Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
-
-
-<a name="testing-with-an-sdcard-on-target-xyx"></a> Testing with an SDCard on Target XYZ
-
+is described in more detail in the [Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
 
 ### <a name="build-the-example-project"></a> Build the Example Project 
 
@@ -257,6 +264,20 @@ Next, build the example application:
 
 	simhug01@E107851:/d/demo_area/sd_ex1$ mbed compile -m K64F -t GCC_ARM 2>&1 | tee build_log.txt
 
+
+#### WARNING: "mbed new ." command and possible mbed-os sd-driver versioning incompatibilities
+
+If you experience problems building the example then it may mean the version
+of the mbed-os repository created with the "mbed new ." command is not compatible with 
+the sd-driver repository version created with "mbed add sd-driver" command. This is because:
+
+- The "mbed new ." creates the mbed-os repository at the latest "Release" e.g. `mbed-os-5.4.0`.
+- The "mbed add sd-driver" command creates the sd-driver repository at the latest version of 
+  master i.e. the tip of master. Changes may be present that are not compatible with 
+  the latest mbed-os release e.g. in preparation for the next release.
+
+This situation can be resolved by checking out compatible versions of the repositories as 
+described in the section [Setting mbed-os/sd-driver Repositories To Compatible Versions](#settting-repos-to-compatible-versions)
 
 ### <a name="insert-sdcard-into-k64f"></a> Insert SDCard into K64F
 
@@ -589,23 +610,10 @@ Finally, copy the `mbed_app.json` application configuration file from `sd-driver
     simhug01@E107851:/d/demo_area/ex_app1$
 
 The `mbed_app.json` file specifies the SPI bus pin configuration for different targets, 
-and is discussed in the 
-[Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
+and is discussed in the [Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
 
 
 ### <a name="build-the-mbedos-test-cases"></a> Build the mbed OS Test Cases
-
-The sd-driver master HEAD and the mbed-os master HEAD should be compatible 
-with one another and therefore no specific tagged versions need to be checked out.
-However, in the case that you experience problems building, checkout out the compatible 
-tagged version of each repository, as shown below:
-
-    simhug01@E107851:/d/demo_area/ex_app1$ pushd mbed-os
-    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/mbed-os-5.4.0
-    simhug01@E107851:/d/demo_area/ex_app1$ popd 
-    simhug01@E107851:/d/demo_area/ex_app1$ pushd sd-driver
-    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/sd-driver-0.0.2-mbed-os-5.4.0
-    simhug01@E107851:/d/demo_area/ex_app1$ popd 
 
 Build the test cases for the K64F target using the following command:
 
@@ -642,6 +650,26 @@ The FAT32/SDCard test cases are at following locations in the source code tree:
     /d/demo_area/ex_app1/sd-driver/features/TESTS/filesystem/basic/basic.cpp
     /d/demo_area/ex_app1/sd-driver/features/TESTS/filesystem/fopen/fopen.cpp
 
+
+#### <a name="settting-repos-to-compatible-versions"></a> Setting mbed-os/sd-driver Repositories To Compatible Versions 
+
+The sd-driver master HEAD and the mbed-os master HEAD should be compatible 
+with one another and therefore no specific tagged versions need to be checked out.
+However, in the case that you experience problems building, checkout out the compatible 
+tagged version of each repository, as shown below:
+
+    simhug01@E107851:/d/demo_area/ex_app1$ pushd mbed-os
+    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/mbed-os-5.4.0
+    simhug01@E107851:/d/demo_area/ex_app1$ popd 
+    simhug01@E107851:/d/demo_area/ex_app1$ pushd sd-driver
+    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/sd-driver-0.0.2-mbed-os-5.4.0
+    simhug01@E107851:/d/demo_area/ex_app1$ popd 
+
+In the above: 
+
+- `mbed-os-5.4.0` should be replaced with the latest mbed-os release tag.
+-  For an mbed-os release tag `mbed-os-x.y.z`, use the equivalent sd-driver tag `sd-driver-a.b.c-mbed-os-x.y.z`
+   where `a.b.c` is the latest version code for the `mbed-os-x.y.z` tag.
 
 ### <a name="greentea-insert-sdcard-into-k64f"></a> Insert SDCard into K64F for Greentea Testing
 
