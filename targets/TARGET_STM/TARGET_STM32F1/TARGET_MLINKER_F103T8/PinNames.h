@@ -119,8 +119,6 @@ typedef enum {
     B5          = PB_5,
     B6          = PB_6,
     B7          = PB_7,
-  
-    
 
     // Generic signals namings
     LED1        = PA_11,
@@ -128,16 +126,16 @@ typedef enum {
     LED3        = PB_1,
     LED4        = PB_3,
 
-	SERIAL_TX   = PA_9,
+    SERIAL_TX   = PA_9,
     SERIAL_RX   = PA_10,
 
-	USBTX       = PA_9,
+    USBTX       = PA_9,
     USBRX       = PA_10,
 
-	I2C_SCL     = PB_6,
+    I2C_SCL     = PB_6,
     I2C_SDA     = PB_7,
 
-	SPI_MOSI    = PA_7,
+    SPI_MOSI    = PA_7,
     SPI_MISO    = PA_6,
     SPI_SCK     = PA_5,
     SPI_CS      = PA_4,
