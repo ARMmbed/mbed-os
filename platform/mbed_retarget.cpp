@@ -36,7 +36,6 @@
 #include <errno.h>
 #include "platform/mbed_retarget.h"
 
-
 #if defined(__ARMCC_VERSION)
 #   include <rt_sys.h>
 #   define PREFIX(x)    _sys##x
@@ -191,11 +190,6 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
     static int n = 0;
-    static int mbed_sdk_inited = 0;
-    if (!mbed_sdk_inited) {
-        mbed_sdk_inited = 1;
-        mbed_sdk_init();
-    }
     if (!std::strcmp(name, ":tt")) return n++;
     #else
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.

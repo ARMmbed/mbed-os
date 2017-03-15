@@ -56,6 +56,26 @@
  * _mutex_acquire, _mutex_release, _mutex_free for details consult: ARM C and C++ Libraries and Floating-Point
  * Support User Guide.
  *
+ * For MICROLIB:
+ * ==========
+ *
+ * Reset (TARGET)
+ *     -> SystemInit (TARGET)
+ *     -> __main (LIBC)
+ *         -> _main_init (MBED: rtos/mbed_boot.c)
+ *             -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
+ *             -> mbed_sdk_init (TARGET)
+ *             -> osKernelInitialize (RTX)
+ *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
+ *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
+ *                 -> osThreadNew (RTX)
+ *                     -> pre_main(MBED: rtos/mbed_boot.c)
+ *                         -> __cpp_initialize__aeabi_ (LIBC)
+ *                         -> $Sub$$main (MBED: rtos/mbed_boot.c)
+ *                             -> mbed_main (MBED: rtos/mbed_boot.c)
+ *                             -> main (APP)
+ *                 -> osKernelStart (RTX)
+ *
  * For GCC:
  * ========
  *
@@ -147,7 +167,7 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 
-// Heap limits - only used if set
+/* Heap limits - only used if set */
 unsigned char *mbed_heap_start = 0;
 uint32_t mbed_heap_size = 0;
 
@@ -268,15 +288,16 @@ static void mbed_cpy_nvic(void)
 #endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */
 }
 
-// mbed_main is a function that is called before main()
-// mbed_sdk_init() is also a function that is called before main(), but unlike
-// mbed_main(), it is not meant for user code, but for the SDK itself to perform
-// initializations before main() is called.
+/* mbed_main is a function that is called before main()
+ * mbed_sdk_init() is also a function that is called before main(), but unlike
+ * mbed_main(), it is not meant for user code, but for the SDK itself to perform
+ * initializations before main() is called.
+ */
 WEAK void mbed_main(void) {
 
 }
 
-WEAK void mbed_sdk_init(void);
+void mbed_sdk_init(void);
 WEAK void mbed_sdk_init(void) {
 }
 
@@ -290,26 +311,61 @@ void mbed_start_main(void)
     _main_thread_attr.cb_mem = _main_obj;
     _main_thread_attr.priority = osPriorityNormal;
     _main_thread_attr.name = "MAIN";
-    osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);    // Create application main thread
+    osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
 
-    osKernelStart();                                                      // Start thread execution
+    osKernelStart();
 }
 
 /******************** Toolchain specific code ********************/
 
-#if defined (__CC_ARM) /******************** ARMCC ********************/
+#if defined (__CC_ARM)
+
+/* Common for both ARMC and MICROLIB */
+int $Super$$main(void);
+int $Sub$$main(void) {
+    mbed_main();
+    return $Super$$main();
+}
+
+#if defined (__MICROLIB)  /******************** MICROLIB ********************/
+
+int main(void);
+void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
+void $Super$$__cpp_initialize__aeabi_(void);
+
+void _main_init (void) {
+  mbed_set_stack_heap();
+  mbed_sdk_init();
+  osKernelInitialize();
+  mbed_start_main();
+  for (;;);
+}
+
+void $Sub$$__cpp_initialize__aeabi_(void)
+{
+    /* This should invoke C++ initializers prior _main_init, we keep this empty and
+     * invoke them after _main_init, when the RTX is already initilized.
+     */
+}
+
+void pre_main()
+{
+  singleton_mutex_attr.attr_bits = osMutexRecursive;
+  singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
+  singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
+  singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
+
+  $Super$$__cpp_initialize__aeabi_();
+  main();
+}
+
+#else /******************** ARMC ********************/
 
 #include <rt_misc.h>
 extern __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
 extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(void);
 extern void _platform_post_stackheap_init (void);
 extern int main(int argc, char* argv[]);
-
-int $Super$$main(void);
-int $Sub$$main(void) {
-    mbed_main();
-    return $Super$$main();
-}
 
 void pre_main (void)
 {
@@ -339,6 +395,7 @@ void __rt_entry (void) {
     mbed_start_main();
 }
 
+#endif /* ARMC */
 #elif defined (__GNUC__) /******************** GCC ********************/
 
 extern int main(int argc, char* argv[]);
@@ -400,7 +457,7 @@ void software_init_hook(void)
     mbed_start_main();
 }
 
-// Opaque declaration of _reent structure
+/* Opaque declaration of _reent structure */
 struct _reent;
 
 void __rtos_malloc_lock( struct _reent *_r )
@@ -475,11 +532,12 @@ void __iar_program_start( void )
   mbed_start_main();
 }
 
-// IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
-// to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
-// 'main' to another symbol looses the original 'main' symbol. However, its startup
-// code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
-// Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
+/* IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
+ * to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
+ * 'main' to another symbol looses the original 'main' symbol. However, its startup
+ * code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
+ * Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
+ */
 void __iar_argc_argv() {
     mbed_main();
 }
@@ -504,11 +562,12 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
       return;
     }
   }
-  // This should never happen
+
+  /* This should never happen */
   error("Not enough mutexes\n");
 }
 
-void __iar_system_Mtxdst(__iar_Rmtx *mutex)/*Destroy a system lock */
+void __iar_system_Mtxdst(__iar_Rmtx *mutex) /* Destroy a system lock */
 {
   osMutexDelete(*(osMutexId_t*)*mutex);
   *mutex = 0;
@@ -524,7 +583,7 @@ void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
   osMutexRelease(*(osMutexId_t*)*mutex);
 }
 
-void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
+void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
 {
     osMutexAttr_t attr;
     uint32_t index;
@@ -537,7 +596,7 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
         return;
       }
     }
-    // The variable _FOPEN_MAX needs to be increased
+    /* The variable _FOPEN_MAX needs to be increased */
     error("Not enough mutexes\n");
 }
 
