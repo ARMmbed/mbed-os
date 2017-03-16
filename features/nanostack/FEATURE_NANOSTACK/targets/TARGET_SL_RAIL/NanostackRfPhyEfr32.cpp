@@ -288,8 +288,6 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         data_length + 3
     };
 
-    tr_debug("Called TX, len %d, chan %d\n", data_length, channel);
-
     switch(radio_state) {
     case RADIO_UNINIT:
         tr_debug("Radio uninit\n");
@@ -328,6 +326,8 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         } else {
             txOpt.waitForAck = false;
         }
+
+        //tr_debug("Called TX, len %d, chan %d, ack %d\n", data_length, channel, waiting_for_ack ? 1 : 0);
 
         if(RAIL_TxStartWithOptions(channel, &txOpt, &RAIL_CcaCsma, (RAIL_CsmaConfig_t*) &csma_config) == 0) {
           //Save packet number and sequence
@@ -614,7 +614,6 @@ void RAILCb_RfReady(void) {
  * @param[in] status A bit field that defines what event caused the callback
  */
 void RAILCb_TxRadioStatus(uint8_t status) {
-  tr_debug("Packet TX error %d\n", status);
    if(device_driver.phy_tx_done_cb != NULL) {
     if(status == RAIL_TX_CONFIG_BUFFER_UNDERFLOW ||
        status == RAIL_TX_CONFIG_CHANNEL_BUSY ||
@@ -626,6 +625,8 @@ void RAILCb_TxRadioStatus(uint8_t status) {
                                       PHY_LINK_CCA_FAIL,
                                       8,
                                       1);
+    } else {
+        tr_debug("Packet TX error %d\n", status);
     }
   }
   radio_state = RADIO_RX;
@@ -645,7 +646,13 @@ void RAILCb_TxRadioStatus(uint8_t status) {
  * @param[in] status The event that triggered this callback
  */
 void RAILCb_RxRadioStatus(uint8_t status) {
-  tr_debug("RXE %d\n", status);
+    switch(status) {
+        case RAIL_RX_CONFIG_ADDRESS_FILTERED:
+            break;
+        default:
+            tr_debug("RXE %d\n", status);
+            break;
+    }
 }
 
 /**
@@ -729,7 +736,7 @@ void RAILCb_RxPacketReceived(void *rxPacketHandle) {
             //tr_debug("rACK\n");
             device_driver.phy_tx_done_cb( rf_radio_driver_id,
                                           current_tx_handle,
-                                          PHY_LINK_TX_DONE,
+                                          last_ack_pending_bit ? PHY_LINK_TX_DONE_PENDING : PHY_LINK_TX_DONE,
                                           1,
                                           1);
         } else {
@@ -787,6 +794,7 @@ void RAILCb_IEEE802154_DataRequestCommand(RAIL_IEEE802154_Address_t *address) {
  */
 void RAILCb_RxAckTimeout(void) {
     if(waiting_for_ack) {
+        tr_debug("nACK\n");
         waiting_for_ack = false;
         device_driver.phy_tx_done_cb( rf_radio_driver_id,
                                       current_tx_handle,
