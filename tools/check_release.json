@@ -12,6 +12,7 @@
       "lib" : "mbed-dev"
     }
   ],
-  "target_list" : []
+  "target_list" : [],
+  "ignore_list" : []
 }
 
