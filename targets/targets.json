@@ -1109,7 +1109,7 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L486RG", "STM32L486xG"],
         "detect_code": ["0827"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L486RG"

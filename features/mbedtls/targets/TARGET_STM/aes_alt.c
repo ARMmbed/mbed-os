@@ -28,17 +28,22 @@ static int aes_set_key( mbedtls_aes_context *ctx, const unsigned char *key, unsi
     switch( keybits )
     {
         case 128:
-          ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_128B;
-          memcpy(ctx->aes_key, key, 16);
-          break;
+            ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_128B;
+            memcpy(ctx->aes_key, key, 16);
+            break;
         case 192:
-          ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_192B;
-          memcpy(ctx->aes_key, key, 24);
-          break;
+#if defined (TARGET_STM32L486xG)
+            return(MBEDTLS_ERR_AES_INVALID_KEY_LENGTH);
+#else
+            ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_192B;
+            memcpy(ctx->aes_key, key, 24);
+            break;
+#endif
+
         case 256:
-          ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_256B;
-          memcpy(ctx->aes_key, key, 32);
-          break;
+            ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_256B;
+            memcpy(ctx->aes_key, key, 32);
+            break;
        default : return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
     }
 
@@ -52,6 +57,9 @@ static int aes_set_key( mbedtls_aes_context *ctx, const unsigned char *key, unsi
     __HAL_RCC_CRYP_CLK_ENABLE();
 
     ctx->hcryp_aes.Init.pKey = ctx->aes_key;
+#if defined (TARGET_STM32L486xG)
+    ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
+#endif
     if (HAL_CRYP_Init(&ctx->hcryp_aes) == HAL_ERROR)
         return (HAL_ERROR);
 
@@ -148,14 +156,46 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     if( mode == MBEDTLS_AES_DECRYPT )
     {
         ctx->hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init 
-
+#if defined (TARGET_STM32L486xG)
+        if ((ctx->hcryp_aes.Init.OperatingMode != CRYP_ALGOMODE_KEYDERIVATION_DECRYPT) || \
+             (ctx->hcryp_aes.Init.ChainingMode != CRYP_CHAINMODE_AES_CBC) || \
+             (ctx->hcryp_aes.Init.KeyWriteFlag != CRYP_KEY_WRITE_ENABLE)) {
+            /* Re-initialize AES IP with proper parameters */
+            if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK) 
+                return HAL_ERROR;
+            ctx->hcryp_aes.Init.OperatingMode = CRYP_ALGOMODE_KEYDERIVATION_DECRYPT;
+            ctx->hcryp_aes.Init.ChainingMode = CRYP_CHAINMODE_AES_CBC;
+            ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
+            if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
+                return HAL_ERROR;
+        }
+      
+        status =  HAL_CRYPEx_AES(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
+#else
         status = HAL_CRYP_AESCBC_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
+#endif
     }
     else
     {
         ctx->hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init 
-        
+#if defined (TARGET_STM32L486xG)
+        if ((ctx->hcryp_aes.Init.OperatingMode != CRYP_ALGOMODE_ENCRYPT) || \
+             (ctx->hcryp_aes.Init.ChainingMode != CRYP_CHAINMODE_AES_CBC) || \
+             (ctx->hcryp_aes.Init.KeyWriteFlag != CRYP_KEY_WRITE_ENABLE)) {
+            /* Re-initialize AES IP with proper parameters */
+            if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK) 
+                return HAL_ERROR;
+            ctx->hcryp_aes.Init.OperatingMode = CRYP_ALGOMODE_ENCRYPT;
+            ctx->hcryp_aes.Init.ChainingMode = CRYP_CHAINMODE_AES_CBC;
+            ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
+            if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
+                return HAL_ERROR;
+        }
+      
+        status =  HAL_CRYPEx_AES(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
+#else
         status = HAL_CRYP_AESCBC_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
+#endif
     }
     return( status );
 }
