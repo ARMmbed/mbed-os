@@ -69,11 +69,12 @@ public:
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
+      @param   name           name to be used for this thread. It has to stay allocated for the lifetime of the thread (default: NULL)
     */
     Thread(osPriority_t priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL) {
-        constructor(priority, stack_size, stack_mem);
+           unsigned char *stack_mem=NULL, const char *name=NULL) {
+        constructor(priority, stack_size, stack_mem, name);
     }
 
     /** Create a new thread, and start it executing the specified function.
@@ -276,6 +277,11 @@ public:
     */
     uint32_t max_stack();
 
+    /** Get thread name
+      @return  thread name or NULL if the name was not set.
+     */
+    const char *get_name();
+
     /** Wait for one or more flags to become signaled for the current RUNNING thread.
       @param   flags     wait until all specified flags set or 0 for any single flag.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
@@ -319,11 +325,13 @@ private:
     // delegated constructors
     void constructor(osPriority_t priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
-                     unsigned char *stack_mem=NULL);
+                     unsigned char *stack_mem=NULL,
+                     const char *name=NULL);
     void constructor(mbed::Callback<void()> task,
                      osPriority_t priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
-                     unsigned char *stack_mem=NULL);
+                     unsigned char *stack_mem=NULL,
+                     const char *name=NULL);
     static void _thunk(void * thread_ptr);
 
     mbed::Callback<void()> _task;

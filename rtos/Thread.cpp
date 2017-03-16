@@ -35,18 +35,19 @@ extern "C" void thread_terminate_hook(osThreadId_t id)
 namespace rtos {
 
 void Thread::constructor(osPriority_t priority,
-        uint32_t stack_size, unsigned char *stack_mem) {
+        uint32_t stack_size, unsigned char *stack_mem, const char *name) {
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
 
     _attr.priority = priority;
     _attr.stack_size = stack_size;
+    _attr.name = name;
     _attr.stack_mem = (uint32_t*)stack_mem;
 }
 
 void Thread::constructor(Callback<void()> task,
-        osPriority_t priority, uint32_t stack_size, unsigned char *stack_mem) {
-    constructor(priority, stack_size, stack_mem);
+        osPriority_t priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+    constructor(priority, stack_size, stack_mem, name);
 
     switch (start(task)) {
         case osErrorResource:
@@ -227,6 +228,10 @@ uint32_t Thread::max_stack() {
 
     _mutex.unlock();
     return size;
+}
+
+const char *Thread::get_name() {
+    return _attr.name;
 }
 
 int32_t Thread::signal_wait(int32_t flags, uint32_t millisec) {
