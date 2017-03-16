@@ -2343,7 +2343,6 @@
         "macros": ["EFM32PG12B500F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
-        "device_name": "EFM32PG12B500F1024GL125",
         "public": false
     },
     "EFM32PG12_STK3402": {
@@ -2395,7 +2394,6 @@
         "macros": ["EFR32MG12P332F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
-        "device_name": "EFR32MG12P332F1024GL125",
         "public": false
     },
 	"THUNDERBOARD_SENSE_12": {
