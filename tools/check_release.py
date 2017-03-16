@@ -158,7 +158,13 @@ def invoke_api(payload, url, auth, polls, begin="start/"):
     # poll for output
     for check in range(polls):
         time.sleep(poll_delay)
-        r = requests.get(url + "output/%s" % uuid, auth=auth)
+        
+        try:
+            r = requests.get(url + "output/%s" % uuid, auth=auth)
+            
+        except ConnectionError:
+            return "Internal"
+
         response = r.json()
 
         data = response['result']['data']
@@ -432,6 +438,12 @@ if __name__ == '__main__':
         for tgt in OFFICIAL_MBED_LIBRARY_BUILD:
             supported_targets.append(tgt[0])
 
+    ignore_list = []
+
+    if len(json_data["ignore_list"]) > 0:
+        # List of tuples of (test, target) to be ignored in this test
+        ignore_list = json_data["ignore_list"]
+
     config = json_data["config"]
     test_list = json_data["test_list"]
     repo_path = config["mbed_repo_path"]
@@ -474,11 +486,19 @@ if __name__ == '__main__':
     
     # Compile each test for each supported target
     for test in tests:
-        rel_log.info("COMPILING PROGRAM: %s\n", test)
         for target in supported_targets:
+            
+            combo = [test, target]
+            
+            if combo in ignore_list:
+                rel_log.info("SKIPPING TEST: %s, TARGET: %s", test, target)
+                total -= 1   
+                skipped.append(combo)
+                continue
+                
             current += 1
             for retry in range(0, retries):
-                rel_log.info("COMPILING TARGET (%d/%d): %s , attempt %u\n", current, total, target, retry)
+                rel_log.info("COMPILING (%d/%d): TEST %s, TARGET: %s , attempt %u\n", current, total, test, target,  retry)
                 result, mesg = build_repo(target, test, user, password)
                 if not result:
                     if mesg == 'Internal':
@@ -486,20 +506,20 @@ if __name__ == '__main__':
                         continue
                     else:
                         # Actual error thus move on to next compilation
-                        failures.append([test, target])
+                        failures.append(combo)
                         break
                                     
                 passes += (int)(result)
                 break
             else:
-                rel_log.error("Compilation failed due to internal errors.\n")
-                rel_log.error("Skipping test/target combination!\n")
+                rel_log.error("Compilation failed due to internal errors.")
+                rel_log.error("Skipping test/target combination.")
                 total -= 1   
-                skipped.append([test, target])
+                skipped.append(combo)
                 
     rel_log.info(" SUMMARY OF COMPILATION RESULTS")                
     rel_log.info(" ------------------------------")                
-    rel_log.info(" NUMBER OF TEST APPS: %d, NUMBER OF TARGETS: %d\n", 
+    rel_log.info(" NUMBER OF TEST APPS: %d, NUMBER OF TARGETS: %d", 
                  len(tests), len(supported_targets))   
     log_results(failures, " FAILED")
     log_results(skipped, " SKIPPED")
