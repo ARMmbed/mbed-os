@@ -50,8 +50,13 @@ typedef int mode_t;     ///< Mode for opening files
 #if __cplusplus
 namespace mbed { class Dir; }
 typedef mbed::Dir DIR;
+#else
+typedef struct Dir DIR;
+#endif
 
+#if __cplusplus
 extern "C" {
+#endif
     DIR *opendir(const char*);
     struct dirent *readdir(DIR *);
     int closedir(DIR*);
@@ -59,6 +64,7 @@ extern "C" {
     long telldir(DIR*);
     void seekdir(DIR*, long);
     int mkdir(const char *name, mode_t n);
+#if __cplusplus
 };
 #endif
 
