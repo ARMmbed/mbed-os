@@ -29,8 +29,8 @@
 #define CORE_CM_H_
 
 #include <stdint.h>
-#include "cmsis_compiler.h"
 #include "cmsis.h"
+#include "cmsis_compiler.h"
 
 #ifndef __ARM_ARCH_6M__
 #define __ARM_ARCH_6M__         0U
