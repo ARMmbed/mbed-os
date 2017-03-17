@@ -947,10 +947,10 @@ err_t lpc_etharp_output_ipv6(struct netif *netif, struct pbuf *q,
 
 #if NO_SYS == 0
 /* periodic PHY status update */
-void phy_update(void const *nif) {
+void phy_update(void *nif) {
     lpc_phy_sts_sm((struct netif*)nif);
 }
-osTimerDef(phy_update, phy_update);
+
 #endif
 
 /**
