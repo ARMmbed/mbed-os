@@ -1920,7 +1920,7 @@
     },
     "EFM32GG990F1024": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32GG", "1024K"],
+        "extra_labels_add": ["EFM32GG", "1024K", "SL_AES"],
         "core": "Cortex-M3",
         "macros": ["EFM32GG990F1024", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -1973,7 +1973,7 @@
     },
     "EFM32LG990F256": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32LG", "256K"],
+        "extra_labels_add": ["EFM32LG", "256K", "SL_AES"],
         "core": "Cortex-M3",
         "macros": ["EFM32LG990F256", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2026,7 +2026,7 @@
     },
     "EFM32WG990F256": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32WG", "256K"],
+        "extra_labels_add": ["EFM32WG", "256K", "SL_AES"],
         "core": "Cortex-M4F",
         "macros": ["EFM32WG990F256", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2079,7 +2079,7 @@
     },
     "EFM32ZG222F32": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32ZG", "32K"],
+        "extra_labels_add": ["EFM32ZG", "32K", "SL_AES"],
         "core": "Cortex-M0+",
         "default_toolchain": "uARM",
         "macros": ["EFM32ZG222F32", "TRANSACTION_QUEUE_SIZE_SPI=0"],
@@ -2133,7 +2133,7 @@
     },
     "EFM32HG322F64": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32HG", "64K"],
+        "extra_labels_add": ["EFM32HG", "64K", "SL_AES"],
         "core": "Cortex-M0+",
         "default_toolchain": "uARM",
         "macros": ["EFM32HG322F64", "TRANSACTION_QUEUE_SIZE_SPI=0"],
@@ -2187,7 +2187,7 @@
     },
     "EFM32PG1B100F256GM32": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32PG", "256K"],
+        "extra_labels_add": ["EFM32PG", "256K", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros": ["EFM32PG1B100F256GM32", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2239,7 +2239,7 @@
     },
     "EFR32MG1P132F256GM48": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG1", "256K", "SL_RAIL"],
+        "extra_labels_add": ["EFR32MG1", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros": ["EFR32MG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2249,7 +2249,7 @@
     },
     "EFR32MG1P233F256GM48": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG1", "256K", "SL_RAIL"],
+        "extra_labels_add": ["EFR32MG1", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros": ["EFR32MG1P233F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2258,7 +2258,7 @@
     },
     "EFR32MG1_BRD4150": {
         "inherits": ["EFR32MG1P132F256GM48"],
-        "device_has": ["AES", "SHA", "ECC", "SL_PTI", "RF_2P4GHZ", "RF_SUBGHZ", "ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -2301,7 +2301,7 @@
     },
     "THUNDERBOARD_SENSE": {
         "inherits": ["EFR32MG1P233F256GM48"],
-        "device_has": ["AES", "SHA", "ECC", "SL_PTI", "RF_2P4GHZ", "ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {
@@ -2338,7 +2338,7 @@
     },
     "EFM32PG12B500F1024GL125": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFM32PG12", "1024K"],
+        "extra_labels_add": ["EFM32PG12", "1024K", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros": ["EFM32PG12B500F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2347,7 +2347,7 @@
     },
     "EFM32PG12_STK3402": {
         "inherits": ["EFM32PG12B500F1024GL125"],
-        "device_has": ["AES", "SHA", "ECC", "ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -2389,7 +2389,7 @@
     },
 	"EFR32MG12P332F1024GL125": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG12", "1024K", "SL_RAIL"],
+        "extra_labels_add": ["EFR32MG12", "1024K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros": ["EFR32MG12P332F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2398,7 +2398,7 @@
     },
 	"THUNDERBOARD_SENSE_12": {
         "inherits": ["EFR32MG12P332F1024GL125"],
-        "device_has": ["AES", "SHA", "ECC", "SL_PTI", "RF_2P4GHZ", "ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {

@@ -80,7 +80,7 @@ static const RAIL_ChannelConfigEntry_t entry[] = {
 };
 
 #if MBED_CONF_SL_RAIL_BAND == 868
-#ifndef DEVICE_RF_SUBGHZ
+#ifndef MBED_CONF_SL_RAIL_HAS_SUBGIG
 #error "Sub-Gigahertz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -88,7 +88,7 @@ static const RAIL_ChannelConfig_t channels = {
   1
 };
 #elif MBED_CONF_SL_RAIL_BAND == 915
-#ifndef DEVICE_RF_SUBGHZ
+#ifndef MBED_CONF_SL_RAIL_HAS_SUBGIG
 #error "Sub-Gigahertz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -96,7 +96,7 @@ static const RAIL_ChannelConfig_t channels = {
   1
 };
 #elif MBED_CONF_SL_RAIL_BAND == 2400
-#ifndef DEVICE_RF_2P4GHZ
+#ifndef MBED_CONF_SL_RAIL_HAS_2P4
 #error "2.4GHz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -113,7 +113,7 @@ static const RAIL_IEEE802154_Config_t config = { false, false,
 
 static const RAIL_Init_t railInitParams = { 140, 38400000, RAIL_CAL_ALL_PENDING };
 
-#if defined (DEVICE_RF_2P4GHZ)
+#if defined (MBED_CONF_SL_RAIL_HAS_2P4)
     // Set up the PA for 2.4 GHz operation
 static const RADIO_PAInit_t paInit2p4 = {
         PA_SEL_2P4_HP,    /* Power Amplifier mode */
@@ -124,7 +124,7 @@ static const RADIO_PAInit_t paInit2p4 = {
     };
 #endif
 
-#if defined (DEVICE_RF_SUBGHZ)
+#if defined (MBED_CONF_SL_RAIL_HAS_SUBGIG)
     // Set up the PA for sub-GHz operation
 static const RADIO_PAInit_t paInitSubGhz = {
         PA_SEL_SUBGIG,    /* Power Amplifier mode */
@@ -175,21 +175,19 @@ static int8_t rf_device_register(void)
 #endif
 
     // Set up PTI since it makes life so much easier
-#if defined(DEVICE_SL_PTI)
+#if defined(MBED_CONF_SL_RAIL_PTI) && (MBED_CONF_SL_RAIL_PTI == 1)
     RADIO_PTIInit_t ptiInit = {
-        RADIO_PTI_MODE_UART,    
-        1600000,                
-        6,       
-        // TODO: Configure PTI pinout using config system.
-        // Not very urgent, since all boards use the same pins now.               
-        gpioPortB,              
-        12,                     
-        6,                      
-        gpioPortB,              
-        11,                     
-        6,                      
-        gpioPortB,              
-        13,                     
+        MBED_CONF_SL_RAIL_PTI_MODE,
+        MBED_CONF_SL_RAIL_PTI_BAUDRATE,
+        MBED_CONF_SL_RAIL_PTI_DOUT_LOCATION,
+        MBED_CONF_SL_RAIL_PTI_DOUT_PORT,
+        MBED_CONF_SL_RAIL_PTI_DOUT_PIN,
+        MBED_CONF_SL_RAIL_PTI_DCLK_LOCATION,
+        MBED_CONF_SL_RAIL_PTI_DCLK_PORT,
+        MBED_CONF_SL_RAIL_PTI_DCLK_PIN,
+        MBED_CONF_SL_RAIL_PTI_DFRAME_LOCATION,
+        MBED_CONF_SL_RAIL_PTI_DFRAME_PORT,
+        MBED_CONF_SL_RAIL_PTI_DFRAME_PIN
     };
 
     RADIO_PTI_Init(&ptiInit);
@@ -198,13 +196,13 @@ static int8_t rf_device_register(void)
     // Set up RAIL
     RAIL_RfInit(&railInitParams);
     RAIL_ChannelConfig(&channels);
-#if MBED_CONF_SL_RAIL_BAND == 2400
+#if (MBED_CONF_SL_RAIL_BAND == 2400)
     RAIL_RadioConfig((void*) ieee802154_config_base);
     channel = 11;
 #elif (MBED_CONF_SL_RAIL_BAND == 915)
     RAIL_RadioConfig((void*) ieee802154_config_915);
     channel = 1;
-#elif MBED_CONF_SL_RAIL_BAND == 868
+#elif (MBED_CONF_SL_RAIL_BAND == 868)
     RAIL_RadioConfig((void*) ieee802154_config_863);
     channel = 0;
 #endif

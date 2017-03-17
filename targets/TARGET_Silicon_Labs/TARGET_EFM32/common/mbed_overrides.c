@@ -42,7 +42,7 @@ void mbed_sdk_init()
     EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
     EMU_DCDCInit(&dcdcInit);
     
-#if defined(DEVICE_RF_2P4GHZ) || defined(DEVICE_RF_SUBGHZ)
+#if defined(_EFR_DEVICE)
     CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_WSTK_DEFAULT;
     // Initialize the HFXO using the settings from the WSTK bspconfig.h
     // Note: This configures things like the capacitive tuning CTUNE variable
