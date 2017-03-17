@@ -35,7 +35,7 @@ extern "C" {
 
 #if defined(CONFIG_PLATFORM_8195A)
 	#ifndef CONFIG_USE_TCM_HEAP
-	#define CONFIG_USE_TCM_HEAP 1					/* USE TCM HEAP */
+	#define CONFIG_USE_TCM_HEAP 0					/* USE TCM HEAP */
 	#endif
 	#define USE_MUTEX_FOR_SPINLOCK	1
 #endif
