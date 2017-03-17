@@ -206,7 +206,9 @@ osMutexAttr_t singleton_mutex_attr;
     #error "HEAP_START must be defined if HEAP_SIZE is defined"
 #endif
 
-#if !defined(INITIAL_SP) && !defined(HEAP_START)
+/* IAR - INITIAL_SP and HEAP_START ignored as described in Memory layout notes above
+ */
+#if !defined(__ICCARM__) && !defined(INITIAL_SP) && !defined(HEAP_START)
     #error "no target defined"
 #endif
 
