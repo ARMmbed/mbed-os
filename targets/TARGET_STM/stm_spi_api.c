@@ -308,7 +308,7 @@ void spi_frequency(spi_t *obj, int hz) {
 
     /*  In case maximum pre-scaler still gives too high freq, raise an error */
     if (spi_hz > hz) {
-        error("Couldn't set suitable spi freq: request:%d, lowest:%d\r\n", hz, spi_hz);
+        DEBUG_PRINTF("WARNING: lowest SPI freq (%d)  higher than requested (%d)\r\n", spi_hz, hz);
     }
 
     DEBUG_PRINTF("spi_frequency, request:%d, select:%d\r\n", hz, spi_hz);

@@ -43,6 +43,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
     }
 #if defined(CAN2_BASE) && (CAN_NUM == 2)
     else if (obj->can == CAN_2) {
+        __HAL_RCC_CAN1_CLK_ENABLE(); // needed to set filters
         __HAL_RCC_CAN2_CLK_ENABLE();
         obj->index = 1;
     }
@@ -206,7 +207,7 @@ int can_frequency(can_t *obj, int f)
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
 {
-    uint32_t  transmitmailbox = 5;
+    uint32_t  transmitmailbox = CAN_TXSTATUS_NOMAILBOX;
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
     /* Select one empty transmit mailbox */
@@ -217,33 +218,31 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     } else if ((can->TSR & CAN_TSR_TME2) == CAN_TSR_TME2) {
         transmitmailbox = 2;
     } else {
-        transmitmailbox = CAN_TXSTATUS_NOMAILBOX;
+      return 0;
     }
 
-    if (transmitmailbox != CAN_TXSTATUS_NOMAILBOX) {
-        can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
-        if (!(msg.format)) {
-            can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | msg.type);
-        } else {
-            can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
-        }
-
-        /* Set up the DLC */
-        can->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;
-        can->sTxMailBox[transmitmailbox].TDTR |= (msg.len & (uint8_t)0x0000000F);
-
-        /* Set up the data field */
-        can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
-                                                ((uint32_t)msg.data[2] << 16) |
-                                                ((uint32_t)msg.data[1] << 8) |
-                                                ((uint32_t)msg.data[0]));
-        can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
-                                                ((uint32_t)msg.data[6] << 16) |
-                                                ((uint32_t)msg.data[5] << 8) |
+    can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
+    if (!(msg.format)) {
+      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | msg.type);
+    } else {
+      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
+    }
+    
+    /* Set up the DLC */
+    can->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;
+    can->sTxMailBox[transmitmailbox].TDTR |= (msg.len & (uint8_t)0x0000000F);
+    
+    /* Set up the data field */
+    can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
+					     ((uint32_t)msg.data[2] << 16) |
+					     ((uint32_t)msg.data[1] << 8) |
+					     ((uint32_t)msg.data[0]));
+    can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
+					     ((uint32_t)msg.data[6] << 16) |
+					     ((uint32_t)msg.data[5] << 8) |
                                                 ((uint32_t)msg.data[4]));
-        /* Request transmission */
-        can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
-    }
+    /* Request transmission */
+    can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
 
     return 1;
 }
@@ -261,14 +260,14 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     }
 
     /* Get the Id */
-    msg->format = (CANFormat)((uint8_t)0x04 & can->sFIFOMailBox[handle].RIR);
+    msg->format = (CANFormat)(((uint8_t)0x04 & can->sFIFOMailBox[handle].RIR) >> 2);
     if (!msg->format) {
         msg->id = (uint32_t)0x000007FF & (can->sFIFOMailBox[handle].RIR >> 21);
     } else {
         msg->id = (uint32_t)0x1FFFFFFF & (can->sFIFOMailBox[handle].RIR >> 3);
     }
 
-    msg->type = (CANType)((uint8_t)0x02 & can->sFIFOMailBox[handle].RIR);
+    msg->type = (CANType)(((uint8_t)0x02 & can->sFIFOMailBox[handle].RIR) >> 1);
     /* Get the DLC */
     msg->len = (uint8_t)0x0F & can->sFIFOMailBox[handle].RDTR;
     /* Get the FMI */
@@ -374,10 +373,10 @@ int can_mode(can_t *obj, CanMode mode)
     return success;
 }
 
-int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
     int retval = 0;
-    
+
     // filter for CANAny format cannot be configured for STM32
     if ((format == CANStandard) || (format == CANExtended)) {
         CanHandle.Instance = (CAN_TypeDef *)(obj->can);
@@ -397,11 +396,11 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             sFilterConfig.FilterMaskIdHigh = mask >> 13;
             sFilterConfig.FilterMaskIdLow = (0x00FF & (mask << 3)) | (1 << 2);
         }
-        
+
         sFilterConfig.FilterFIFOAssignment = 0;
         sFilterConfig.FilterActivation = ENABLE;
         sFilterConfig.BankNumber = 14 + handle;
-        
+
         HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig);
         retval = handle;
     }
@@ -460,37 +459,47 @@ static void can_irq(CANName name, int id)
 }
 
 #if defined(TARGET_STM32F0)
-void CAN_IRQHandler(void) {
+void CAN_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
 #elif defined(TARGET_STM32F3)
-void CAN_RX0_IRQHandler(void) {
+void CAN_RX0_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN_TX_IRQHandler(void) {
+void CAN_TX_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN_SCE_IRQHandler(void) {
+void CAN_SCE_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
 #else
-void CAN1_RX0_IRQHandler(void) {
+void CAN1_RX0_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN1_TX_IRQHandler(void) {
+void CAN1_TX_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
-void CAN1_SCE_IRQHandler(void) {
+void CAN1_SCE_IRQHandler(void)
+{
     can_irq(CAN_1, 0);
 }
 #if defined(CAN2_BASE) && (CAN_NUM == 2)
-void CAN2_RX0_IRQHandler(void) {
+void CAN2_RX0_IRQHandler(void)
+{
     can_irq(CAN_2, 1);
 }
-void CAN2_TX_IRQHandler(void) {
+void CAN2_TX_IRQHandler(void)
+{
     can_irq(CAN_2, 1);
 }
-void CAN2_SCE_IRQHandler(void) {
+void CAN2_SCE_IRQHandler(void)
+{
     can_irq(CAN_2, 1);
 }
 #endif // defined(CAN2_BASE) && (CAN_NUM == 2)

@@ -90,22 +90,22 @@ void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
 void SPIM2_SPIS2_SPI2_IRQHandler(void);
 
-static const peripheral_handler_desc_t spi_hanlder_desc[SPI_COUNT] = {
+static const peripheral_handler_desc_t spi_handler_desc[SPI_COUNT] = {
 #if SPI0_ENABLED
     {
-        SPIS0_IRQ,
+        SPI0_IRQ,
         (uint32_t) SPI0_TWI0_IRQHandler
     },
 #endif
 #if SPI1_ENABLED
     {
-        SPIS1_IRQ,
+        SPI1_IRQ,
         (uint32_t) SPI1_TWI1_IRQHandler
     },
 #endif
 #if SPI2_ENABLED
     {
-        SPIS2_IRQ,
+        SPI2_IRQ,
         (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler
     },
 #endif    
@@ -254,12 +254,29 @@ void spi_init(spi_t *obj,
               PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     int i;
+
+    // This block is only a workaround that allows to create SPI object several
+    // times, what would be otherwise impossible in the current implementation
+    // of mbed driver that does not call spi_free() from SPI destructor.
+    // Once this mbed's imperfection is corrected, this block should be removed.
+    for (i = 0; i < SPI_COUNT; ++i) {
+        spi_info_t *p_spi_info = &m_spi_info[i];
+        if (p_spi_info->initialized &&
+            p_spi_info->mosi_pin == (uint8_t)mosi &&
+            p_spi_info->miso_pin == (uint8_t)miso &&
+            p_spi_info->sck_pin  == (uint8_t)sclk &&
+            p_spi_info->ss_pin   == (uint8_t)ssel) {
+            // Reuse the already allocated SPI instance (instead of allocating
+            // a new one), if it appears to be initialized with exactly the same
+            // pin assignments.
+            SPI_IDX(obj) = i;
+            return;
+        }
+    }
+
     for (i = 0; i < SPI_COUNT; ++i) {
         spi_info_t *p_spi_info = &m_spi_info[i];
         if (!p_spi_info->initialized) {
-         
-            NVIC_SetVector(spi_hanlder_desc[i].IRQn, spi_hanlder_desc[i].vector);
-            
             p_spi_info->sck_pin   = (uint8_t)sclk;
             p_spi_info->mosi_pin  = (mosi != NC) ?
                 (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
@@ -269,6 +286,8 @@ void spi_init(spi_t *obj,
                 (uint8_t)ssel : NRF_DRV_SPI_PIN_NOT_USED;
             p_spi_info->spi_mode  = (uint8_t)NRF_DRV_SPI_MODE_0;
             p_spi_info->frequency = NRF_DRV_SPI_FREQ_1M;
+
+            NVIC_SetVector(spi_handler_desc[i].IRQn, spi_handler_desc[i].vector);
 
             // By default each SPI instance is initialized to work as a master.
             // Should the slave mode be used, the instance will be reconfigured

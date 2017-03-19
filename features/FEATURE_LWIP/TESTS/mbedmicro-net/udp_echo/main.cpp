@@ -34,7 +34,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 }
 
 int main() {
-    GREENTEA_SETUP(20, "udp_echo");
+    GREENTEA_SETUP(60, "udp_echo");
 
     EthernetInterface eth;
     eth.connect();

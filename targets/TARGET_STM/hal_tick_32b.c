@@ -22,6 +22,8 @@
 
 extern TIM_HandleTypeDef TimMasterHandle;
 
+extern void HAL_IncTick(void);
+
 volatile uint32_t PreviousVal = 0;
 
 void us_ticker_irq_handler(void);
@@ -90,8 +92,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     if (RCC_ClkInitStruct.APB2CLKDivider == RCC_HCLK_DIV1) {
 #endif
         TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
-    }
-    else {
+    } else {
         TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick
     }
 
@@ -100,7 +101,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 #if !TARGET_STM32L1
     TimMasterHandle.Init.RepetitionCounter = 0;
 #endif
-#ifdef TARGET_STM32F0
+#if TARGET_STM32F0||TARGET_STM32F7
     TimMasterHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 #endif
     HAL_TIM_OC_Init(&TimMasterHandle);

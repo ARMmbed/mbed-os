@@ -40,8 +40,10 @@ class ARM(mbedToolchain):
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None,
+                 build_dir=None):
         mbedToolchain.__init__(self, target, notify, macros, silent,
+                               build_dir=build_dir,
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
