@@ -28,12 +28,12 @@ static ADI_RTC_HANDLE hDevice0 = NULL;
 
 void rtc_init(void)
 {
-    /* initialize driver */
-    adi_rtc_Open(RTC_DEVICE_NUM,aRtcDevMem0,ADI_RTC_MEMORY_SIZE,&hDevice0);
-
     /* Setup the RTC 32KHz oscillator */
     adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFXTAL);
     adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+
+    /* initialize driver */
+    adi_rtc_Open(RTC_DEVICE_NUM,aRtcDevMem0,ADI_RTC_MEMORY_SIZE,&hDevice0);
 
     adi_rtc_Enable(hDevice0, true);
 }
