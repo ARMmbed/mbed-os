@@ -146,6 +146,16 @@ DWORD get_fattime(void)
            | (DWORD)(ptm->tm_sec/2    );
 }
 
+void *ff_memalloc(UINT size)
+{
+    return malloc(size);
+}
+
+void ff_memfree(void *p)
+{
+    free(p);
+}
+
 // Implementation of diskio functions (see ChaN/diskio.h)
 DSTATUS disk_status(BYTE pdrv)
 {
