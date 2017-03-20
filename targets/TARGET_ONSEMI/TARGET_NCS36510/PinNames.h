@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 typedef enum {
+    NC    = (int)0xFFFFFFFF,
     GPIO0 = 0,
     GPIO1,
     GPIO2,
@@ -59,6 +60,8 @@ typedef enum {
     A1,
     A2,
     A3,
+    A4 = NC,
+    A5 = NC,
     UART1_TX = GPIO0,
     UART1_RX = GPIO1,
     UART2_TX = GPIO8,
@@ -146,8 +149,7 @@ typedef enum {
     D12         = GPIO16,
     D13         = GPIO14,
     D14         = GPIO3,
-    D15         = GPIO2,
-    NC          = (int)0xFFFFFFFF
+    D15         = GPIO2
 } PinName;
 
 typedef enum {
