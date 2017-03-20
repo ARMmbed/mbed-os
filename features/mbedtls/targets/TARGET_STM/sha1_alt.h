@@ -33,14 +33,19 @@ extern "C" {
 #endif
 
 /**
- * \brief          SHA-1 context structure
+ * \brief    SHA-1 context structure
+ * \note     HAL_HASH_SHA1_Accumulate cannot handle less than 4 bytes, unless it is the last call to the  function
+ *           In case of buffer size < 4, flag is set to 1, remaining bytes are copied in a temp buffer.
+ *           The pointer and the length are saved in sbuf and sbuf_len.
+ *           At the next accumulation, the saved values are taken into account, and flag is set to 0
+ *           If SHA1_finish is called and flag=1, the remaining bytes are accumulated before the call to HAL_HASH_SHA1_Finish
  */
 typedef struct
 {
-    unsigned char *sbuf;
-    unsigned char sbuf_len;
-    HASH_HandleTypeDef hhash_sha1;
-    int flag;  /* flag to manage buffer constraint of crypto Hw */
+    unsigned char *sbuf; /*!< pointer to the remaining buffer to be processed */
+    unsigned char sbuf_len; /*!< number of bytes remaining in sbuf to be processed */
+    HASH_HandleTypeDef hhash_sha1; /*!< ST HAL HASH struct */
+    int flag;  /*!< 1 : there are sbuf_len bytes to be processed in sbuf, 0 : every data have been processed. */
 }
 mbedtls_sha1_context;
 
