@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.1.2
-  * @date    23-September-2016 
+  * @version V1.2.0
+  * @date    30-December-2016
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -206,6 +206,13 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
  {
    HAL_PCDEx_ActivateLPM(hpcd);
  }
+#if defined (USB_OTG_GCCFG_BCDEN)	
+ /* Activate Battery charging */
+ if (hpcd->Init.battery_charging_enable ==1)
+ {
+   HAL_PCDEx_ActivateBCD(hpcd);
+ }
+#endif /* USB_OTG_GCCFG_BCDEN */	
  
  USB_DevDisconnect (hpcd->Instance);  
  return HAL_OK;
@@ -511,7 +518,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
     if(__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_USBRST))
     {
       USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_RWUSIG; 
-      USB_FlushTxFifo(hpcd->Instance ,  0 );
+      USB_FlushTxFifo(hpcd->Instance, 0x10);
       
       for (i = 0; i < hpcd->Init.dev_endpoints ; i++)
       {
@@ -1008,16 +1015,16 @@ HAL_StatusTypeDef HAL_PCD_EP_Close(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
 HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len)
 {
   USB_OTG_EPTypeDef *ep;
-  
+
   ep = &hpcd->OUT_ep[ep_addr & 0x7F];
-  
+
   /*setup and start the Xfer */
   ep->xfer_buff = pBuf;  
   ep->xfer_len = len;
   ep->xfer_count = 0;
   ep->is_in = 0;
   ep->num = ep_addr & 0x7F;
-  
+
   if (hpcd->Init.dma_enable == 1)
   {
     ep->dma_addr = (uint32_t)pBuf;  
@@ -1046,7 +1053,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, u
   */
 uint16_t HAL_PCD_EP_GetRxCount(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
 {
-  return hpcd->OUT_ep[ep_addr & 0x7F].xfer_count;
+  return hpcd->OUT_ep[ep_addr & 0xF].xfer_count;
 }
 /**
   * @brief  Send an amount of data.  

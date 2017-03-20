@@ -200,6 +200,7 @@ public:
     /** Starts a thread executing the specified function.
       @param   task           function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
+      @note a thread can only be started once
     */
     osStatus_t start(mbed::Callback<void()> task);
 
@@ -247,7 +248,7 @@ public:
     int32_t signal_set(int32_t flags);
 
     /** Clears the specified Signal Flags of an active thread.
-      @param   signals  specifies the signal flags of the thread that should be cleared.
+      @param   flags  specifies the signal flags of the thread that should be cleared.
       @return  resultant flags of the specified thread or 0x80000000 in case of incorrect parameters.
     */
     int32_t signal_clr(int32_t flags);
@@ -321,6 +322,10 @@ public:
     virtual ~Thread();
 
 private:
+    /* disallow copy constructor and assignment operators */
+    Thread(const Thread&);
+    Thread& operator=(const Thread&);
+
     // Required to share definitions without
     // delegated constructors
     void constructor(osPriority_t priority=osPriorityNormal,
@@ -341,6 +346,7 @@ private:
     Semaphore              _join_sem;
     Mutex                  _mutex;
     os_thread_t            _obj_mem;
+    bool                   _finished;
 };
 
 }

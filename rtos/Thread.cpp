@@ -38,7 +38,7 @@ void Thread::constructor(osPriority_t priority,
         uint32_t stack_size, unsigned char *stack_mem, const char *name) {
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
-
+    _finished = false;
     _attr.priority = priority;
     _attr.stack_size = stack_size;
     _attr.name = name;
@@ -66,7 +66,7 @@ void Thread::constructor(Callback<void()> task,
 osStatus_t Thread::start(Callback<void()> task) {
     _mutex.lock();
 
-    if (_tid != 0) {
+    if ((_tid != 0) || _finished) {
         _mutex.unlock();
         return osErrorParameter;
     }
@@ -110,6 +110,7 @@ osStatus_t Thread::terminate() {
     osThreadId_t local_id = _tid;
     _join_sem.release();
     _tid = (osThreadId_t)NULL;
+    _finished = true;
     _mutex.unlock();
 
     ret = osThreadTerminate(local_id);
@@ -165,6 +166,7 @@ int32_t Thread::signal_clr(int32_t flags) {
 
 osThreadState_t Thread::get_state() {
     osThreadState_t status = osThreadError;
+
     _mutex.lock();
 
     if (_tid != NULL) {
@@ -273,6 +275,7 @@ void Thread::_thunk(void * thread_ptr)
     t->_task();
     t->_mutex.lock();
     t->_tid = (osThreadId_t)NULL;
+    t->_finished = true;
     t->_mutex.unlock();
     t->_join_sem.release();
 }
