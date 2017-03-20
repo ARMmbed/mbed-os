@@ -28,7 +28,7 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 
 void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
 {
-    memset( ctx, 0, sizeof( mbedtls_sha1_context ) );	
+    mbedtls_zeroize( ctx, sizeof( mbedtls_sha1_context ) );
 
     /* Enable HASH clock */
     __HAL_RCC_HASH_CLK_ENABLE();
