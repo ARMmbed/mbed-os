@@ -526,7 +526,7 @@ private:
         bool in_use;
 
         struct netconn *conn;
-        struct netbuf *buf;
+        struct pbuf *buf;
         u16_t offset;
 
         void (*cb)(void *);
