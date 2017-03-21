@@ -290,7 +290,7 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 0, allocation_unit);
+    FRESULT res = f_mkfs(fs._fsid, 1, allocation_unit);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
