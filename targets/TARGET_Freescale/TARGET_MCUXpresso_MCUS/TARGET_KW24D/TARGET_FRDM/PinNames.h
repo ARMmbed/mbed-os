@@ -87,11 +87,16 @@ typedef enum {
     USBTX = PTE0,
     USBRX = PTE1,
 
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
     // Arduino Headers
     D0 = PTD7,
     D1 = PTD6,
     D2 = PTD5,
     D3 = PTD4,
+    D4 = NC,
+    D5 = NC,
     D6 = PTE4,
     D7 = PTD1,
     D8 = PTA19,
@@ -106,8 +111,12 @@ typedef enum {
     I2C_SCL = D15,
     I2C_SDA = D14,
 
-    // Not connected
-    NC = (int)0xFFFFFFFF
+    A0 = NC,
+    A1 = NC,
+    A2 = NC,
+    A3 = NC,
+    A4 = NC,
+    A5 = NC
 } PinName;
 
 
