@@ -341,7 +341,7 @@ nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
         _event_flag.wait_any(TCP_CLOSED_FLAG, TCP_CLOSE_TIMEOUT);
     }
 #endif
-    netbuf_delete(s->buf);
+    pbuf_free(s->buf);
     err_t err = netconn_delete(s->conn);
     arena_dealloc(s);
     return err_remap(err);
@@ -465,7 +465,7 @@ nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     if (!s->buf) {
-        err_t err = netconn_recv(s->conn, &s->buf);
+        err_t err = netconn_recv_tcp_pbuf(s->conn, &s->buf);
         s->offset = 0;
 
         if (err != ERR_OK) {
@@ -473,11 +473,11 @@ nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi
         }
     }
 
-    u16_t recv = netbuf_copy_partial(s->buf, data, (u16_t)size, s->offset);
+    u16_t recv = pbuf_copy_partial(s->buf, data, (u16_t)size, s->offset);
     s->offset += recv;
 
-    if (s->offset >= netbuf_len(s->buf)) {
-        netbuf_delete(s->buf);
+    if (s->offset >= s->buf->tot_len) {
+        pbuf_free(s->buf);
         s->buf = 0;
     }
 
