@@ -31,12 +31,16 @@
  * Get Random number generator.
  */
 static volatile int  g_PRNG_done;
+volatile int  g_AES_done;
 
 void CRYPTO_IRQHandler()
 {
     if (PRNG_GET_INT_FLAG()) {
         g_PRNG_done = 1;
         PRNG_CLR_INT_FLAG();
+    }  else	if (AES_GET_INT_FLAG()) {
+        g_AES_done = 1;
+       	AES_CLR_INT_FLAG();
     }
 } 
 
@@ -86,7 +90,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
         memcpy(output, &tmpBuff, length);
         *output_length = length;
     } else {
-        for (size_t i = 0; i < (length/32); i++) {
+        for (int i = 0; i < (length/32); i++) {
             trng_get(output);
             *output_length += 32;
             output += 32;
