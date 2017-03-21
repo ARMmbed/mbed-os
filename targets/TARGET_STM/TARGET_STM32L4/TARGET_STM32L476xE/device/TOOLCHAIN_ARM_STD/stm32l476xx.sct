@@ -27,10 +27,10 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; 1MB FLASH (0x100000) + 128KB SRAM (0x20000)
-LR_IROM1 0x08000000 0x100000  {    ; load region size_region
+; 512KB FLASH (0x80000) + 128KB SRAM (0x20000)
+LR_IROM1 0x08000000 0x80000  {    ; load region size_region
 
-  ER_IROM1 0x08000000 0x100000  {  ; load address = execution address
+  ER_IROM1 0x08000000 0x80000  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
