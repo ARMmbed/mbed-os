@@ -691,6 +691,7 @@ static nsapi_error_t mbed_lwip_socket_close(nsapi_stack_t *stack, nsapi_socket_t
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
 
+    netbuf_delete(s->buf);
     err_t err = netconn_delete(s->conn);
     mbed_lwip_arena_dealloc(s);
     return mbed_lwip_err_remap(err);
