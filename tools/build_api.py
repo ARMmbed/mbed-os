@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2016 ARM Limited
+Copyright (c) 2011-2017 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
+from update import create_header
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException, intelhex_offset
@@ -365,7 +366,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
         if region.active and not region.filename:
             raise ToolException("Active region has no contents: No file found.")
         if region.filename:
-            print("  Filling region %s with %s" % (region.name, region.filename))
+            print("  Filling region {0.start:#08x}({0.name}) with {0.size} bytes of {0.filename}".format(region))
             part = intelhex_offset(region.filename, offset=region.start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
             if part_size > region.size:
@@ -514,10 +515,29 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
         # Link Program
         if toolchain.config.has_regions:
-            res, _ = toolchain.link_program(resources, build_path, name + "_application")
-            region_list = list(toolchain.config.regions)
-            region_list = [r._replace(filename=res) if r.active else r
-                           for r in region_list]
+            # create application binary
+            app_fn, _ = toolchain.link_program(resources, build_path, name + "_application")
+
+            # update region_list
+            region_list = list()
+            for region in toolchain.config.regions:
+                if region.name == "application":
+                    region = region._replace(filename = app_fn)
+                elif ((region.name == "firmware_metadata_header") and
+                      (not toolchain.config.building_bootloader)):
+                    # create metadata header binary
+                    app_bin_str = intelhex_offset(app_fn, 0).tobinstr()
+                    firmware_metadata_header = create_header(app_bin_str)
+                    hdr_fn = join(build_path, "{}_firmware_metadata_header.bin".format(name))
+                    with open(hdr_fn, 'w') as fd:
+                        fd.write(firmware_metadata_header)
+
+                    # update region description
+                    region = region._replace(filename = hdr_fn)
+
+                region_list.append(region)
+
+            # merge all regions to create combined binary
             res = join(build_path, name) + ".bin"
             merge_region_list(region_list, res)
         else:

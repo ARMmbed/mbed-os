@@ -584,7 +584,9 @@
         "features": ["LWIP", "STORAGE"],
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "vector_table_size": 256,
+        "flash_erase_size": 4096
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
