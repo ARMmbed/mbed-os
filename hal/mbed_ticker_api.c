@@ -74,6 +74,10 @@ void ticker_insert_event(const ticker_data_t *const data, ticker_event_t *obj, t
         prev = p;
         p = p->next;
     }
+    
+    /* if we're at the end p will be NULL, which is correct */
+    obj->next = p;
+
     /* if prev is NULL we're at the head */
     if (prev == NULL) {
         data->queue->head = obj;
@@ -81,8 +85,6 @@ void ticker_insert_event(const ticker_data_t *const data, ticker_event_t *obj, t
     } else {
         prev->next = obj;
     }
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
 
     core_util_critical_section_exit();
 }
