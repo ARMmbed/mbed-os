@@ -57,14 +57,14 @@ const PinMap PinMap_UART_TX[] = {
     {PTA2,  UART_0, 2},
     {PTD7,  UART_0, 3},
     {PTC4,  UART_1, 3},
-    {PTE0,  UART_1, 3},    
+    {PTE0,  UART_1, 3},
     {PTD3,  UART_2, 3},
     {PTE16, UART_2, 3},
     {NC   , NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
-    {PTA1,  UART_0, 2},    
+    {PTA1,  UART_0, 2},
     {PTD6,  UART_0, 3},
     {PTE1,  UART_1, 3},
     {PTD2,  UART_2, 3},
@@ -92,6 +92,7 @@ const PinMap PinMap_UART_RTS[] = {
 
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
+    {PTB11, SPI_1, 2},
     {PTC5,  SPI_0, 2},
     {PTD1,  SPI_0, 2},
     {PTE2,  SPI_1, 2},
@@ -100,6 +101,7 @@ const PinMap PinMap_SPI_SCLK[] = {
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
+    {PTB16, SPI_1, 2},
     {PTC6,  SPI_0, 2},
     {PTD2,  SPI_0, 2},
     {PTE1,  SPI_1, 2},
@@ -109,6 +111,7 @@ const PinMap PinMap_SPI_MOSI[] = {
 };
 
 const PinMap PinMap_SPI_MISO[] = {
+    {PTB17, SPI_1, 2},
     {PTC7,  SPI_0, 2},
     {PTD3,  SPI_0, 2},
     {PTE1,  SPI_1, 7},
@@ -118,6 +121,7 @@ const PinMap PinMap_SPI_MISO[] = {
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
+    {PTB10, SPI_1, 2},
     {PTC4,  SPI_0, 2},
     {PTE4,  SPI_1, 2},
     {PTE16, SPI_0, 2},
