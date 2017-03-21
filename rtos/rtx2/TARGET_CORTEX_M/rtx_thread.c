@@ -1316,7 +1316,7 @@ uint32_t svcRtxThreadEnumerate (osThreadId_t *thread_array, uint32_t array_items
     *thread_array++ = thread;
   }
 
-  EvrRtxThreadEnumerate(thread_array, array_items, count);
+  EvrRtxThreadEnumerate(thread_array - count, array_items, count);
 
   return count;
 }

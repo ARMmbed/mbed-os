@@ -1505,7 +1505,7 @@ __STATIC_INLINE void atomic_link_put (void **root, void *link) {
     "dmb\n\t"
     "ldrex %[val1],[%[root]]\n\t"
     "ldr   %[val2],[%[link]]\n\t"
-    "cmp   %[val2],%[val2]\n\t"
+    "cmp   %[val2],%[val1]\n\t"
     "bne   1b\n\t"
     "strex %[res],%[link],[%[root]]\n\t"
     "cbz   %[res],2f\n\t"

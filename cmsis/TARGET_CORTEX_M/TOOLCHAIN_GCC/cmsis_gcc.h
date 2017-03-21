@@ -333,6 +333,33 @@ __attribute__((always_inline)) __STATIC_INLINE void __TZ_set_MSP_NS(uint32_t top
 #endif
 
 
+#if (defined (__ARM_FEATURE_CMSE ) && (__ARM_FEATURE_CMSE == 3))
+/**
+  \brief   Get Stack Pointer (non-secure)
+  \details Returns the current value of the non-secure Stack Pointer (SP) when in secure state.
+  \return               SP Register value
+ */
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __TZ_get_SP_NS(void)
+{
+  register uint32_t result;
+
+  __ASM volatile ("MRS %0, sp_ns" : "=r" (result) );
+  return(result);
+}
+
+
+/**
+  \brief   Set Stack Pointer (non-secure)
+  \details Assigns the given value to the non-secure Stack Pointer (SP) when in secure state.
+  \param [in]    topOfStack  Stack Pointer value to set
+ */
+__attribute__((always_inline)) __STATIC_INLINE void __TZ_set_SP_NS(uint32_t topOfStack)
+{
+  __ASM volatile ("MSR sp_ns, %0" : : "r" (topOfStack) : );
+}
+#endif
+
+
 /**
   \brief   Get Priority Mask
   \details Returns the current state of the priority mask bit from the Priority Mask Register.
