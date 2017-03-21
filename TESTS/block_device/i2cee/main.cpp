@@ -50,7 +50,7 @@ void test_read_write() {
     uint8_t *write_block = new uint8_t[block_size];
     uint8_t *read_block = new uint8_t[block_size];
     uint8_t *error_mask = new uint8_t[TEST_ERROR_MASK];
-    unsigned addrwidth = ceil(log(bd.size()-1) / log(16))+1;
+    unsigned addrwidth = ceil(log(float(bd.size()-1)) / log(float(16)))+1;
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
         // Find a random block
