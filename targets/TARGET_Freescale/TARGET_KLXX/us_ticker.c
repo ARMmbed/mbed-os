@@ -185,12 +185,11 @@ static void lptmr_isr(void) {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-    uint32_t tcur = us_ticker_read();
-    int delta = (int)((uint32_t)timestamp - tcur);
+    int delta = (int)((uint32_t)timestamp - us_ticker_read());
     if (delta <= 0) {
         // This event was in the past.  Force it into the very near
 	// future instead.
-	timestamp = tcur + 2;
+	delta = 1;
     } 
 	
     us_ticker_int_counter   = (uint32_t)(delta >> 16);
