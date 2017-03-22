@@ -1100,6 +1100,75 @@ def get_unique_supported_toolchains(release_targets=None):
 
     return unique_supported_toolchains
 
+def mcu_toolchain_list(release_version='5'):
+    """  Shows list of toolchains
+
+    """
+
+    if isinstance(release_version, basestring):
+        # Force release_version to lowercase if it is a string
+        release_version = release_version.lower()
+    else:
+        # Otherwise default to printing all known targets and toolchains
+        release_version = 'all'
+
+
+    version_release_targets = {}
+    version_release_target_names = {}
+
+    for version in RELEASE_VERSIONS:
+        version_release_targets[version] = get_mbed_official_release(version)
+        version_release_target_names[version] = [x[0] for x in
+                                                 version_release_targets[
+                                                     version]]
+
+    if release_version in RELEASE_VERSIONS:
+        release_targets = version_release_targets[release_version]
+    else:
+        release_targets = None
+
+    unique_supported_toolchains = get_unique_supported_toolchains(
+        release_targets)
+    columns = ["mbed OS %s" % x for x in RELEASE_VERSIONS] + unique_supported_toolchains
+    return "\n".join(columns)
+
+
+def mcu_target_list(release_version='5'):
+    """  Shows target list 
+
+    """
+
+    if isinstance(release_version, basestring):
+        # Force release_version to lowercase if it is a string
+        release_version = release_version.lower()
+    else:
+        # Otherwise default to printing all known targets and toolchains
+        release_version = 'all'
+
+
+    version_release_targets = {}
+    version_release_target_names = {}
+
+    for version in RELEASE_VERSIONS:
+        version_release_targets[version] = get_mbed_official_release(version)
+        version_release_target_names[version] = [x[0] for x in
+                                                 version_release_targets[
+                                                     version]]
+
+    if release_version in RELEASE_VERSIONS:
+        release_targets = version_release_targets[release_version]
+    else:
+        release_targets = None
+
+    target_names = []
+
+    if release_targets:
+        target_names = [x[0] for x in release_targets]
+    else:
+        target_names = TARGET_NAMES
+
+    return "\n".join(target_names)
+
 
 def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
                          release_version='5'):
