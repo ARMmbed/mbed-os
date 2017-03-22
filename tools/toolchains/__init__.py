@@ -1003,7 +1003,7 @@ class mbedToolchain:
 
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
-        bin = join(tmp_path, filename)
+        bin = None if ext is 'elf' else join(tmp_path, filename)
         map = join(tmp_path, name + '.map')
 
         r.objects = sorted(set(r.objects))
@@ -1012,7 +1012,7 @@ class mbedToolchain:
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
 
-        if self.need_update(bin, [elf]):
+        if bin and self.need_update(bin, [elf]):
             needed_update = True
             self.progress("elf2bin", name)
             self.binary(r, elf, bin)
