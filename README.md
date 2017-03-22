@@ -823,10 +823,12 @@ Basic errno reporting is supported, tested and known to be working.
 
 The following are related mbed storage projects and useful resources:
 
-- [mbed-os](https://github.com/ARMmbed/mbed-os). This is the main mbed OS repository.
-- [mbed-os-example-fat-filesystem](https://github.com/ARMmbed/mbed-os-example-fat-filesystem).
+- The [mbed-os repository](https://github.com/ARMmbed/mbed-os). This is the main mbed OS repository.
+- The [mbed-os-example-fat-filesystem repository](https://github.com/ARMmbed/mbed-os-example-fat-filesystem).
   This is an example project for the mbed OS FAT filesystem.
-- [ci-test-shield](https://github.com/ARMmbed/ci-test-shield). This is the project describing 
+- The [spiflash-driver repository](https://github.com/armmbed/spiflash-driver)
+- The [i2ceeprom-driver repository](https://github.com/ARMmbed/i2ceeprom-driver.git)
+- The [ci-test-shield repository](https://github.com/ARMmbed/ci-test-shield). This is the project describing 
   the mbed-os Continuous Integration test shield, together with standard tests.
 - [POSIX File Interface ISO/IEC 9899:TC2 Documentation](http://www.eng.utah.edu/~cs5785/slides-f10/n1124.pdf).
 - [FATFS: Generic FAT File System Module used in mbed OS](http://elm-chan.org/fsw/ff/00index_e.html)
@@ -838,7 +840,6 @@ The following are related mbed storage projects and useful resources:
 
 This example describes how to build and run the spiflash-driver SPIFBlockDevice examples to 
 read and write data to a SPI NOR flash part connected to a K64F.
- 
 
 Hardware required:
 
