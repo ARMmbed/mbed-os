@@ -70,6 +70,14 @@ ERROR_MESSAGE_NOT_EXPORT_LIBS = """
 To export this project please <a href='http://mbed.org/compiler/?import=http://mbed.org/users/mbed_official/code/mbed-export/k&mode=lib' target='_blank'>import the export version of the mbed library</a>.
 """
 
+def mcu_ide_list():
+    """Shows list of exportable ides 
+
+    """
+    supported_ides = sorted(EXPORTERS.keys())
+    return "\n".join(supported_ides)
+
+
 def mcu_ide_matrix(verbose_html=False):
     """Shows target map using prettytable
 
