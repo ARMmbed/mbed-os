@@ -2575,7 +2575,8 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["5"],
-        "device_name": "NUC472HI8AE"
+        "device_name": "NUC472HI8AE",
+        "bootloader_supported": true    
     },
     "NCS36510": {
         "inherits": ["Target"],
@@ -2623,7 +2624,8 @@
         "progen": {"target": "numaker-pfm-m453"},
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "M453VG6AE"
+        "device_name": "M453VG6AE",
+        "bootloader_supported": true    
     },
     "HI2110": {
         "inherits": ["Target"],
