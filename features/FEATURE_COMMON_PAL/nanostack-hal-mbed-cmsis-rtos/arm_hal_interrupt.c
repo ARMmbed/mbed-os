@@ -5,15 +5,24 @@
 #include "arm_hal_interrupt.h"
 #include "arm_hal_interrupt_private.h"
 #include "cmsis_os2.h"
-
+#include "rtx_lib.h"
+#include <mbed_assert.h>
 
 static uint8_t sys_irq_disable_counter;
 
+static os_mutex_t critical_mutex;
+static const osMutexAttr_t critical_mutex_attr = {
+  .name = "critical_mutex",
+  .attr_bits = osMutexRecursive,
+  .cb_mem = &critical_mutex,
+  .cb_size = sizeof critical_mutex,
+};
 static osMutexId_t critical_mutex_id;
 
 void platform_critical_init(void)
 {
-    critical_mutex_id = osMutexNew(NULL);
+    critical_mutex_id = osMutexNew(&critical_mutex_attr);
+    MBED_ASSERT(critical_mutex_id);
 }
 
 void platform_enter_critical(void)
