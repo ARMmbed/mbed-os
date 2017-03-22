@@ -1,11 +1,13 @@
 /*###ICF### Section handled by ICF editor, don't touch! ****/
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x00000000; }
+if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x00080000; }
 /*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = 0x00000000;
+define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
 /*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__ = 0x00000000;
-define symbol __ICFEDIT_region_ROM_end__   = 0x00080000;
+define symbol __ICFEDIT_region_ROM_start__ = MBED_APP_START;
+define symbol __ICFEDIT_region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
 define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
 define symbol __ICFEDIT_region_IRAM_end__   = 0x20010000;
 define symbol __ICFEDIT_region_XRAM_start__ = 0x60000000;
