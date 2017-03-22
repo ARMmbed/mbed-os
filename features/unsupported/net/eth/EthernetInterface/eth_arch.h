@@ -31,11 +31,6 @@ extern "C" {
 
 #if DEVICE_EMAC
 err_t emac_lwip_if_init(struct netif *netif);
-
-#else /* DEVICE_EMAC */
-void eth_arch_enable_interrupts(void);
-void eth_arch_disable_interrupts(void);
-err_t eth_arch_enetif_init(struct netif *netif);
 #endif
 
 #ifdef __cplusplus
