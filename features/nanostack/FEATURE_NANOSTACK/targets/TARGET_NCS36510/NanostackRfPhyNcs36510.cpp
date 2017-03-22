@@ -29,12 +29,7 @@ extern "C" {
 #include "TARGET_NCS36510/rfAna.h"
 }
 
-#include "cmsis_os.h"
-
-#ifdef MBED_CONF_RTOS_PRESENT
-
-#include "cmsis.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 #define RF_THREAD_STACK_SIZE 1024
 
@@ -45,8 +40,6 @@ static void rf_thread_loop(const void *arg);
 static osThreadDef(rf_thread_loop, osPriorityRealtime, /*1,*/ RF_THREAD_STACK_SIZE);
 
 static osThreadId rf_thread_id;
-
-#endif
 
 #define PHY_MTU_SIZE     127
 #define CRC_LENGTH 0
@@ -166,7 +159,6 @@ static phy_device_driver_s device_driver = {
     NULL
 };
 
-#ifdef MBED_CONF_RTOS_PRESENT
 static void rf_thread_loop(const void *arg)
 {
     for (;;) {
@@ -183,7 +175,6 @@ static void rf_thread_loop(const void *arg)
         NVIC_EnableIRQ(MacHw_IRQn);
     }
 }
-#endif
 
 static int8_t rf_device_register(void)
 {
@@ -467,9 +458,7 @@ static void rf_mac_hw_init(void) {
     for (lutIndex=0;lutIndex<96;lutIndex++) {
       *(pMatchReg + lutIndex) = 0xFF;
     }
-#ifdef MBED_CONF_RTOS_PRESENT
     rf_thread_id = osThreadCreate(osThread(rf_thread_loop), NULL);
-#endif
 
     /** Clear and enable MAC IRQ at task level, when scheduler is on. */
     NVIC_ClearPendingIRQ(MacHw_IRQn);
@@ -819,12 +808,8 @@ static void rf_mac_tx_interrupt(void)
 */
 extern "C" void fIrqMacHwHandler(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
     NVIC_DisableIRQ(MacHw_IRQn);
     osSignalSet(rf_thread_id, SIGNAL_COUNT_RADIO);
-#else
-    handle_IRQ_events();
-#endif
 }
 
 static void handle_IRQ_events(void)
