@@ -211,7 +211,6 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
 
 void read_link_configuration() {
     
-    memcpy(thread_tasklet_data_ptr->link_config.name, "Arm Powered Core", 16);
 
     thread_tasklet_data_ptr->link_config.panId = MBED_MESH_API_THREAD_CONFIG_PANID;
     TRACE_DETAIL("PANID %x", thread_tasklet_data_ptr->link_config.panId);
