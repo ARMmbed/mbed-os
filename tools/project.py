@@ -145,9 +145,11 @@ def main():
                        help="list available programs in order and exit")
 
     group.add_argument("-S", "--list-matrix",
-                       action="store_true",
                        dest="supported_ides",
                        default=False,
+                       const="matrix",
+                       choices=["matrix", "ides"],
+                       nargs="?",
                        help="displays supported matrix of MCUs and IDEs")
 
     parser.add_argument("-E",
@@ -188,7 +190,10 @@ def main():
 
     # Only prints matrix of supported IDEs
     if options.supported_ides:
-        print_large_string(mcu_ide_matrix())
+        if options.supported_ides == "matrix":
+            print_large_string(mcu_ide_matrix())
+        elif options.supported_ides == "ides":
+            print mcu_ide_list()
         exit(0)
 
     # Only prints matrix of supported IDEs
