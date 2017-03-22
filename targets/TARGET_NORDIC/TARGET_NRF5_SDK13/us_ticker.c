@@ -41,6 +41,7 @@
 #include "app_util.h"
 #include "nrf_drv_common.h"
 #include "lp_ticker_api.h"
+#include "mbed_critical.h"
 
 #if defined(NRF52_ERRATA_20)
     #include "softdevice_handler.h"
@@ -531,7 +532,7 @@ static void register_next_tick()
     // the RTC1 keeps running.
     // This code is very short 20-38 cycles in the worst case, it shouldn't
     // disturb softdevice.
-    __disable_irq();
+    core_util_critical_section_enter();
     uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 
     // If an overflow occur, set the next tick in COUNTER + delta clock cycles
@@ -543,7 +544,7 @@ static void register_next_tick()
     // Enable generation of the compare event for the value set above (this
     // event will trigger the interrupt).
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
-    __enable_irq();
+    core_util_critical_section_exit();
 }
 
 /**
