@@ -12,6 +12,7 @@
         "6lowpan-nd-sec-level": 5,
         "6lowpan-nd-device-type": "NET_6LOWPAN_ROUTER",
         "thread-pskd": "\"abcdefghijklmno\"",
+        "thread-static-link-config": true,
         "thread-config-channel-mask": "0x7fff800",
         "thread-config-channel-page": 0,
         "thread-config-channel": 22,
