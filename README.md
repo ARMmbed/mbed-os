@@ -1169,7 +1169,7 @@ Steps to follow:
 - Create an empty example project in a suitable directory. Move into it.
 - Download mbed OS into the example directory via `mbed new .`
 - Add the I2C EEPROM driver via `mbed add i2ceeprom-driver`
-- Clone the CI test shield’s repo to another suitable directory. Copy the mbed_app.json 
+- Clone the CI test shield repository to another suitable directory. Copy the mbed_app.json 
   from the CI test shield directory to the top level of the newly created example directory.
 - Make sure the I2C pins are SDA on D14 and SCL on D15 and the I2C EEPROM slave address is 
   0xA0 in the mbed_app.json that you just copied.
@@ -1181,8 +1181,8 @@ Steps to follow:
   application via main.cpp. Be sure to have only 1 main(). If using a custom main() then you 
   can either have this in the TESTS directory or at the top level example directory.
 - The tests should pass. If not, time to debug!!
-- For other targets, please change the target’s ID string in the test command above to the 
-  appropriate one. You can check the supported targets from mbed CLI using “mbed target --supported”.
+- For other targets, please change the target ID string in the test command above to the 
+  appropriate one. You can check the supported targets from mbed CLI using `mbed target --supported`.
 
 The output should be like this:
 
